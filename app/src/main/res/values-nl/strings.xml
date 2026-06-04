@@ -1396,4 +1396,74 @@
     <string name="nav_setting_full_path_desc">Uit berekent alleen de volgende stop en toont de rest als gestippelde preview</string>
     <string name="studio_cfg_clock_24h">24-uursformaat</string>
     <string name="studio_cfg_dial_color_band">Kleurband</string>
+
+    <!-- ==== EucStats online upload onboarding ==== -->
+
+    <!-- Step 1: Consent -->
+    <string name="online_upload_consent_title">Doe mee aan het EUC Stats-klassement</string>
+    <string name="online_upload_consent_intro">Lees eerst wat er openbaar wordt:</string>
+    <string name="online_upload_consent_bullet_name">Je weergavenaam</string>
+    <string name="online_upload_consent_bullet_flag">Je landvlag</string>
+    <string name="online_upload_consent_bullet_avatar">Je profielfoto</string>
+    <string name="online_upload_consent_bullet_stats">Je totale rijstatistieken, zoals afstand en snelheid</string>
+    <string name="online_upload_consent_bullet_location">Start- en eindlocaties van ritten, gegroepeerd in gebieden van 10 km (6 mi) of groter</string>
+    <string name="online_upload_consent_no_raw_gps">Ruwe GPS-tracks worden nooit gepubliceerd.</string>
+    <string name="online_upload_consent_agree">Akkoord en doorgaan</string>
+
+    <!-- Step 2: Profile -->
+    <string name="online_upload_profile_title">Maak je profiel aan</string>
+    <string name="online_upload_profile_name_label">Weergavenaam</string>
+    <string name="online_upload_profile_country_label">Land</string>
+    <string name="online_upload_profile_country_select">Selecteer je land</string>
+    <string name="online_upload_country_search">Landen zoeken</string>
+    <string name="online_upload_profile_avatar_hint">Tik om een foto toe te voegen</string>
+    <string name="online_upload_profile_flag_label">Landcode (ISO 3166-1 alpha-2)</string>
+    <string name="online_upload_profile_flag_placeholder">bijv. NO, US, DE</string>
+    <string name="online_upload_profile_flag_error">Voer een landcode van 2 letters in (bijv. NO)</string>
+    <string name="online_upload_profile_avatar_pick">Foto kiezen…</string>
+    <string name="online_upload_profile_avatar_change">Foto wijzigen…</string>
+    <string name="online_upload_profile_avatar_required">Tik om te kiezen en bij te snijden</string>
+    <string name="online_upload_profile_avatar_placeholder">Foto</string>
+
+    <!-- Registration outcome -->
+    <string name="online_upload_register_action">Registreren</string>
+    <string name="online_upload_register_error">Registratie mislukt. Controleer je verbinding en probeer opnieuw.</string>
+
+    <!-- Online stats toggle + rider card (Task E3) -->
+    <string name="section_online_stats">Online klassementen</string>
+    <string name="online_upload_toggle">Deelnemen aan online klassementen</string>
+    <string name="online_upload_card_loading">Laden…</string>
+    <string name="online_upload_card_unavailable">Kan je statistieken niet laden.</string>
+    <string name="online_upload_actions_caption">Uploads van ritstatistieken</string>
+    <string name="online_upload_view_on_eucstats">Bekijken op EUC Stats</string>
+    <string name="online_upload_retry">Uploads opnieuw proberen</string>
+    <string name="online_upload_mileage_rank">#%d kilometerstand</string>
+    <string name="online_upload_top_speed">top %1$s km/h · %2$s mph</string>
+    <string name="online_upload_trips">%d ritten</string>
+    <string name="online_upload_total_km">%1$s km · %2$s mi</string>
+    <string name="online_upload_join">Aanmelden bij klassement</string>
+    <string name="online_status_shared">Gedeeld op het klassement</string>
+    <string name="online_status_flagged">Gedeeld, wordt beoordeeld</string>
+    <string name="online_status_pending">Uploaden naar klassement…</string>
+    <string name="online_status_failed">Upload mislukt, tik om opnieuw te proberen</string>
+    <string name="online_upload_join_caption">Je ritten verschijnen op het openbare klassement op</string>
+    <string name="online_upload_site_label">eucstats.ried.no</string>
+    <string name="online_upload_site_url">https://eucstats.ried.no/</string>
+    <string name="online_upload_unlink">Ontkoppelen</string>
+    <string name="online_unlink_title">Ontkoppelen van het klassement?</string>
+    <string name="online_unlink_body">Deze telefoon stopt met het uploaden van ritten. Je rijders-ID blijft bewaard zodat je opnieuw kunt deelnemen als dezelfde rijder. Je statistieken blijven op EUC Stats staan; gebruik Account verwijderen om ze te verwijderen.</string>
+    <string name="online_unlink_confirm">Ontkoppelen</string>
+
+    <!-- Online profile (edit/GDPR) -->
+    <string name="online_profile_manage">Profiel beheren</string>
+    <string name="online_profile_title">Mijn profiel</string>
+    <string name="online_profile_changeable_on">Opnieuw wijzigbaar op %1$s</string>
+    <string name="online_profile_avatar_has">Ingesteld</string>
+    <string name="online_profile_export_data">Mijn gegevens exporteren</string>
+    <string name="online_profile_delete_account">Account verwijderen</string>
+    <string name="online_profile_delete_confirm_title">Account verwijderen?</string>
+    <string name="online_profile_delete_confirm_body">Dit verwijdert je EUC Stats-profiel, statistieken en geüploade gegevens permanent. Dit kan niet ongedaan worden gemaakt.</string>
+    <string name="online_profile_delete_confirm_action">Permanent verwijderen</string>
+    <string name="online_profile_save_rate_limited">Limiet bereikt, probeer het later opnieuw.</string>
+    <string name="online_profile_save_failed">Opslaan mislukt (HTTP %1$d). Probeer opnieuw.</string>
 </resources>

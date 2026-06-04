@@ -20,6 +20,15 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AddAPhoto
+import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material3.Icon
+import androidx.compose.material3.Surface
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -103,6 +112,7 @@ fun OnlineProfileDialog(
     var pickedBitmap   by remember { mutableStateOf<Bitmap?>(null) }
     var croppedBitmap  by remember { mutableStateOf<Bitmap?>(null) }
     var showCropDialog by remember { mutableStateOf(false) }
+    var showCountryPicker by remember { mutableStateOf(false) }
 
     // ---- Operation state -----------------------------------------------------
     var saving       by remember { mutableStateOf(false) }
@@ -264,6 +274,82 @@ fun OnlineProfileDialog(
                         )
                     }
                 } else {
+                    // ---- Avatar (centered, tappable) -------------------------
+                    Column(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.spacedBy(6.dp),
+                    ) {
+                        val cropped = croppedBitmap
+                        val avatarBorder = if (cropped != null || profile?.hasAvatar == true)
+                            MaterialTheme.appColors.primary else MaterialTheme.appColors.outline
+                        Box(
+                            modifier = Modifier
+                                .size(96.dp)
+                                .clip(CircleShape)
+                                .background(MaterialTheme.appColors.surfaceVariant)
+                                .border(width = 2.dp, color = avatarBorder, shape = CircleShape)
+                                .clickable(enabled = avatarEditable && !saving) { imagePicker.launch("image/*") },
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            when {
+                                cropped != null -> {
+                                    Image(
+                                        bitmap = remember(cropped) { cropped.asImageBitmap() },
+                                        contentDescription = null,
+                                        modifier = Modifier.size(96.dp).clip(CircleShape),
+                                    )
+                                    if (avatarEditable) {
+                                        Box(
+                                            modifier = Modifier
+                                                .align(Alignment.BottomEnd)
+                                                .size(30.dp)
+                                                .clip(CircleShape)
+                                                .background(MaterialTheme.appColors.primary),
+                                            contentAlignment = Alignment.Center,
+                                        ) {
+                                            Icon(
+                                                Icons.Default.Edit, contentDescription = null,
+                                                tint = MaterialTheme.appColors.onPrimary,
+                                                modifier = Modifier.size(16.dp),
+                                            )
+                                        }
+                                    }
+                                }
+                                profile?.hasAvatar == true -> {
+                                    Icon(
+                                        Icons.Default.Edit, contentDescription = null,
+                                        tint = MaterialTheme.appColors.textSecondary,
+                                        modifier = Modifier.size(30.dp),
+                                    )
+                                }
+                                else -> {
+                                    Icon(
+                                        Icons.Default.AddAPhoto, contentDescription = null,
+                                        tint = MaterialTheme.appColors.textSecondary,
+                                        modifier = Modifier.size(34.dp),
+                                    )
+                                }
+                            }
+                        }
+                        if (!avatarEditable) {
+                            Text(
+                                text = stringResource(
+                                    R.string.online_profile_changeable_on,
+                                    profile?.canChangeAvatarAfter.orEmpty()
+                                ),
+                                color = MaterialTheme.appColors.textSecondary,
+                                style = MaterialTheme.typography.labelSmall,
+                            )
+                        } else if (cropped == null && profile?.hasAvatar != true) {
+                            Text(
+                                text = stringResource(R.string.online_upload_profile_avatar_hint),
+                                color = MaterialTheme.appColors.textSecondary,
+                                style = MaterialTheme.typography.bodySmall,
+                            )
+                        }
+                    }
+
                     // ---- Display name ----------------------------------------
                     OutlinedTextField(
                         value = displayName,
@@ -287,118 +373,52 @@ fun OnlineProfileDialog(
                         colors = themedFieldColors(),
                     )
 
-                    // ---- Flag ------------------------------------------------
-                    OutlinedTextField(
-                        value = flagCode,
-                        onValueChange = { raw ->
-                            if (flagEditable) {
-                                val filtered = raw.filter { it.isLetter() }.uppercase()
-                                if (filtered.length <= 2) flagCode = filtered
-                            }
-                        },
-                        label = { Text(stringResource(R.string.online_upload_profile_flag_label)) },
-                        placeholder = { Text(stringResource(R.string.online_upload_profile_flag_placeholder)) },
-                        supportingText = when {
-                            !flagEditable -> {
-                                {
-                                    Text(
-                                        text = stringResource(
-                                            R.string.online_profile_changeable_on,
-                                            profile?.canChangeFlagAfter.orEmpty()
-                                        ),
-                                        color = MaterialTheme.appColors.textSecondary,
-                                        style = MaterialTheme.typography.labelSmall,
-                                    )
-                                }
-                            }
-                            flagCode.isNotEmpty() && !flagValid -> {
-                                {
-                                    Text(
-                                        text = stringResource(R.string.online_upload_profile_flag_error),
-                                        color = MaterialTheme.appColors.statusDanger,
-                                    )
-                                }
-                            }
-                            else -> null
-                        },
-                        isError = flagCode.isNotEmpty() && !flagValid,
-                        singleLine = true,
-                        enabled = flagEditable && !saving,
+                    // ---- Country picker (flag list) --------------------------
+                    Column(
                         modifier = Modifier.fillMaxWidth(),
-                        colors = themedFieldColors(),
-                    )
-
-                    // ---- Avatar ----------------------------------------------
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(12.dp),
-                        modifier = Modifier.fillMaxWidth()
+                        verticalArrangement = Arrangement.spacedBy(4.dp),
                     ) {
-                        Box(
-                            modifier = Modifier
-                                .size(64.dp)
-                                .clip(CircleShape)
-                                .border(
-                                    width = 2.dp,
-                                    color = if (croppedBitmap != null)
-                                        MaterialTheme.appColors.primary
-                                    else
-                                        MaterialTheme.appColors.outline,
-                                    shape = CircleShape
-                                ),
-                            contentAlignment = Alignment.Center
+                        Text(
+                            text = stringResource(R.string.online_upload_profile_country_label),
+                            style = MaterialTheme.typography.labelMedium,
+                            color = MaterialTheme.appColors.textSecondary,
+                        )
+                        Surface(
+                            onClick = { if (flagEditable && !saving) showCountryPicker = true },
+                            enabled = flagEditable && !saving,
+                            shape = RoundedCornerShape(8.dp),
+                            color = MaterialTheme.appColors.surfaceVariant,
+                            modifier = Modifier.fillMaxWidth(),
                         ) {
-                            val cropped = croppedBitmap
-                            if (cropped != null) {
-                                val imageBitmap = remember(cropped) { cropped.asImageBitmap() }
-                                Image(
-                                    bitmap = imageBitmap,
-                                    contentDescription = null,
-                                    modifier = Modifier
-                                        .size(64.dp)
-                                        .clip(CircleShape)
-                                )
-                            } else {
-                                val hasExistingAvatar = profile?.hasAvatar == true
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 12.dp, vertical = 14.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            ) {
                                 Text(
-                                    text = if (hasExistingAvatar)
-                                        stringResource(R.string.online_profile_avatar_has)
-                                    else
-                                        stringResource(R.string.online_upload_profile_avatar_placeholder),
-                                    color = MaterialTheme.appColors.textSecondary,
-                                    style = MaterialTheme.typography.labelSmall,
+                                    text = if (flagValid) "${flagEmoji(flagCode)}  ${countryName(flagCode)}"
+                                           else stringResource(R.string.online_upload_profile_country_select),
+                                    color = if (flagValid) MaterialTheme.appColors.textPrimary
+                                            else MaterialTheme.appColors.textSecondary,
+                                    modifier = Modifier.weight(1f),
+                                )
+                                Icon(
+                                    Icons.Default.ArrowDropDown, contentDescription = null,
+                                    tint = MaterialTheme.appColors.textSecondary,
                                 )
                             }
                         }
-
-                        Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                            FilledTonalButton(
-                                onClick = { imagePicker.launch("image/*") },
-                                enabled = avatarEditable && !saving,
-                                colors = ButtonDefaults.filledTonalButtonColors(
-                                    containerColor = MaterialTheme.appColors.tonalButtonFill,
-                                    contentColor   = MaterialTheme.appColors.tonalButtonText,
-                                )
-                            ) {
-                                Text(
-                                    text = stringResource(
-                                        if (croppedBitmap == null)
-                                            R.string.online_upload_profile_avatar_pick
-                                        else
-                                            R.string.online_upload_profile_avatar_change
-                                    )
-                                )
-                            }
-                            if (!avatarEditable) {
-                                Text(
-                                    text = stringResource(
-                                        R.string.online_profile_changeable_on,
-                                        profile?.canChangeAvatarAfter.orEmpty()
-                                    ),
-                                    color = MaterialTheme.appColors.textSecondary,
-                                    style = MaterialTheme.typography.labelSmall,
-                                )
-                            }
+                        if (!flagEditable) {
+                            Text(
+                                text = stringResource(
+                                    R.string.online_profile_changeable_on,
+                                    profile?.canChangeFlagAfter.orEmpty()
+                                ),
+                                color = MaterialTheme.appColors.textSecondary,
+                                style = MaterialTheme.typography.labelSmall,
+                            )
                         }
                     }
 
@@ -421,7 +441,7 @@ fun OnlineProfileDialog(
                                     val shareIntent = Intent(Intent.ACTION_SEND).apply {
                                         type = "application/json"
                                         putExtra(Intent.EXTRA_TEXT, json)
-                                        putExtra(Intent.EXTRA_SUBJECT, "eucstats profile export")
+                                        putExtra(Intent.EXTRA_SUBJECT, "EUC Stats profile export")
                                     }
                                     runCatching {
                                         context.startActivity(
@@ -488,8 +508,8 @@ fun OnlineProfileDialog(
                             saving = false
                             when (code) {
                                 200, 201, 204 -> onDismiss()
-                                429 -> saveError = "Rate limited — please try again later."
-                                else -> saveError = "Save failed (HTTP $code). Please try again."
+                                429 -> saveError = context.getString(R.string.online_profile_save_rate_limited)
+                                else -> saveError = context.getString(R.string.online_profile_save_failed, code)
                             }
                         }
                     },
@@ -517,4 +537,12 @@ fun OnlineProfileDialog(
             }
         }
     )
+
+    // Country picker overlays the profile dialog.
+    if (showCountryPicker) {
+        CountryPickerDialog(
+            onPick = { code -> flagCode = code.uppercase(); showCountryPicker = false },
+            onDismiss = { showCountryPicker = false },
+        )
+    }
 }

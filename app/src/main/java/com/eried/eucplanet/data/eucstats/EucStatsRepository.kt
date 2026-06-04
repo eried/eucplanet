@@ -45,6 +45,11 @@ class EucStatsRepository @Inject constructor(
     private val _card = MutableStateFlow<RiderCard?>(null)
     val card: StateFlow<RiderCard?> = _card
 
+    /** True once a card fetch has completed (success or failure), so the UI can
+     *  tell "still loading" apart from "tried and got nothing" and stop spinning. */
+    private val _cardLoaded = MutableStateFlow(false)
+    val cardLoaded: StateFlow<Boolean> = _cardLoaded
+
     // -------------------------------------------------------------------------
     // Registration
     // -------------------------------------------------------------------------
@@ -108,7 +113,14 @@ class EucStatsRepository @Inject constructor(
 
     suspend fun refreshCard() = withContext(Dispatchers.IO) {
         val storeId = settings.get().eucstatsStoreId ?: return@withContext
-        _card.value = api.getCard(storeId)
+        try {
+            _card.value = api.getCard(storeId)
+        } finally {
+            // Mark the attempt done either way so the UI can stop spinning and
+            // show a short fallback when the card came back null (e.g. backend
+            // card endpoint not deployed yet).
+            _cardLoaded.value = true
+        }
     }
 
     // -------------------------------------------------------------------------

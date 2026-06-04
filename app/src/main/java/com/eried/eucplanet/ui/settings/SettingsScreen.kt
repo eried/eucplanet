@@ -6803,11 +6803,32 @@ private fun CloudTab(
             }
         }
 
-        // Rider card: shown when online upload is enabled and storeId is known
+        // Rider card + actions: shown when online upload is enabled and storeId is known.
         if (settings.syncFolderUri != null && settings.onlineUploadEnabled && settings.eucstatsStoreId != null) {
             LaunchedEffect(Unit) { viewModel.refreshOnlineUploadCard() }
             val riderCard by viewModel.onlineUploadCard.collectAsStateWithLifecycle()
+            val cardLoaded by viewModel.onlineUploadCardLoaded.collectAsStateWithLifecycle()
             val card = riderCard
+
+            // Link to the public site (replaces the old "View on eucstats" button).
+            val siteUrl = stringResource(R.string.online_upload_site_url)
+            Text(
+                text = stringResource(R.string.online_upload_site_label),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.appColors.primary,
+                textDecoration = androidx.compose.ui.text.style.TextDecoration.Underline,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable {
+                        val intent = android.content.Intent(
+                            android.content.Intent.ACTION_VIEW,
+                            android.net.Uri.parse(siteUrl)
+                        )
+                        runCatching { context.startActivity(intent) }
+                    }
+                    .padding(vertical = 4.dp),
+            )
+
             Card(
                 colors = CardDefaults.cardColors(
                     containerColor = MaterialTheme.appColors.tileBackground
@@ -6820,23 +6841,7 @@ private fun CloudTab(
                     modifier = Modifier.padding(16.dp),
                     verticalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
-                    if (card == null) {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(8.dp),
-                        ) {
-                            CircularProgressIndicator(
-                                modifier = Modifier.size(16.dp),
-                                strokeWidth = 2.dp,
-                                color = MaterialTheme.appColors.primary,
-                            )
-                            Text(
-                                stringResource(R.string.online_upload_card_loading),
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.appColors.textSecondary,
-                            )
-                        }
-                    } else {
+                    if (card != null) {
                         // Avatar + name/flag row
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
@@ -6916,52 +6921,64 @@ private fun CloudTab(
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.appColors.textSecondary,
                         )
-                    }
-
-                    // Action buttons — two per row so labels never get squished/wrapped.
-                    Row(
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                        modifier = Modifier.fillMaxWidth(),
-                    ) {
-                        TextButton(
-                            onClick = {
-                                val intent = android.content.Intent(
-                                    android.content.Intent.ACTION_VIEW,
-                                    android.net.Uri.parse("https://eucstats.ried.no/")
-                                )
-                                runCatching { context.startActivity(intent) }
-                            },
-                            colors = themedTextButtonColors(),
+                    } else if (cardLoaded) {
+                        // Tried and got nothing back (e.g. the backend card
+                        // endpoint isn't live yet), so don't spin forever.
+                        Text(
+                            stringResource(R.string.online_upload_card_unavailable),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.appColors.textSecondary,
+                        )
+                    } else {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
                         ) {
-                            Text(stringResource(R.string.online_upload_view_on_eucstats))
-                        }
-                        TextButton(
-                            onClick = { showOnlineProfile = true },
-                            colors = themedTextButtonColors(),
-                        ) {
-                            Text(stringResource(R.string.online_profile_manage))
-                        }
-                    }
-                    Row(
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                        modifier = Modifier.fillMaxWidth(),
-                    ) {
-                        TextButton(
-                            onClick = { viewModel.retryEucstatsUploads() },
-                            colors = themedTextButtonColors(),
-                        ) {
-                            Text(stringResource(R.string.online_upload_retry))
-                        }
-                        TextButton(
-                            onClick = { showUnlinkConfirm = true },
-                            colors = themedTextButtonColors(),
-                        ) {
+                            CircularProgressIndicator(
+                                modifier = Modifier.size(16.dp),
+                                strokeWidth = 2.dp,
+                                color = MaterialTheme.appColors.primary,
+                            )
                             Text(
-                                stringResource(R.string.online_upload_unlink),
-                                color = MaterialTheme.appColors.statusDanger,
+                                stringResource(R.string.online_upload_card_loading),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.appColors.textSecondary,
                             )
                         }
                     }
+                }
+            }
+
+            // Manage profile: same filled "Sync all" button style as the folder
+            // section, full width on its own line.
+            Button(
+                onClick = { showOnlineProfile = true },
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                Text(stringResource(R.string.online_profile_manage))
+            }
+
+            // Trip stats upload actions: retry pending uploads, or unlink.
+            HintText(stringResource(R.string.online_upload_actions_caption), small = true)
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                Button(
+                    onClick = { viewModel.retryEucstatsUploads() },
+                    modifier = Modifier.weight(1f),
+                ) {
+                    Text(stringResource(R.string.online_upload_retry))
+                }
+                Button(
+                    onClick = { showUnlinkConfirm = true },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.appColors.statusDanger,
+                        contentColor   = MaterialTheme.appColors.onPrimary,
+                    ),
+                    modifier = Modifier.weight(1f),
+                ) {
+                    Text(stringResource(R.string.online_upload_unlink))
                 }
             }
         }

@@ -1360,4 +1360,74 @@
     <string name="nav_setting_full_path_desc">Av beräknar bara nästa stopp och visar resten som streckad förhandsvisning</string>
     <string name="studio_cfg_clock_24h">24-timmarsformat</string>
     <string name="studio_cfg_dial_color_band">Färgband</string>
+
+    <!-- ==== EucStats online upload onboarding ==== -->
+
+    <!-- Step 1: Consent -->
+    <string name="online_upload_consent_title">Gå med i EUC Stats-topplistan</string>
+    <string name="online_upload_consent_intro">Innan du går med, läs vad som blir offentligt:</string>
+    <string name="online_upload_consent_bullet_name">Ditt visningsnamn</string>
+    <string name="online_upload_consent_bullet_flag">Din landsflagga</string>
+    <string name="online_upload_consent_bullet_avatar">Ditt profilfoto</string>
+    <string name="online_upload_consent_bullet_stats">Din övergripande körstatistik, t.ex. distans och hastighet</string>
+    <string name="online_upload_consent_bullet_location">Start- och slutpunkter för turer, grupperade i områden på 10 km (6 mi) eller mer</string>
+    <string name="online_upload_consent_no_raw_gps">Råa GPS-spår publiceras aldrig.</string>
+    <string name="online_upload_consent_agree">Godkänn och fortsätt</string>
+
+    <!-- Step 2: Profile -->
+    <string name="online_upload_profile_title">Skapa din profil</string>
+    <string name="online_upload_profile_name_label">Visningsnamn</string>
+    <string name="online_upload_profile_country_label">Land</string>
+    <string name="online_upload_profile_country_select">Välj ditt land</string>
+    <string name="online_upload_country_search">Sök länder</string>
+    <string name="online_upload_profile_avatar_hint">Tryck för att lägga till ett foto</string>
+    <string name="online_upload_profile_flag_label">Landskod (ISO 3166-1 alpha-2)</string>
+    <string name="online_upload_profile_flag_placeholder">t.ex. NO, US, DE</string>
+    <string name="online_upload_profile_flag_error">Ange en 2-bokstavskod (t.ex. NO)</string>
+    <string name="online_upload_profile_avatar_pick">Välj foto…</string>
+    <string name="online_upload_profile_avatar_change">Byt foto…</string>
+    <string name="online_upload_profile_avatar_required">Tryck för att välja och beskära</string>
+    <string name="online_upload_profile_avatar_placeholder">Foto</string>
+
+    <!-- Registration outcome -->
+    <string name="online_upload_register_action">Registrera</string>
+    <string name="online_upload_register_error">Registreringen misslyckades. Kontrollera anslutningen och försök igen.</string>
+
+    <!-- Online stats toggle + rider card (Task E3) -->
+    <string name="section_online_stats">Online-topplistor</string>
+    <string name="online_upload_toggle">Gå med i online-topplistorna</string>
+    <string name="online_upload_card_loading">Laddar…</string>
+    <string name="online_upload_card_unavailable">Kunde inte ladda din statistik.</string>
+    <string name="online_upload_actions_caption">Uppladdning av turstatistik</string>
+    <string name="online_upload_view_on_eucstats">Visa på EUC Stats</string>
+    <string name="online_upload_retry">Försök ladda upp igen</string>
+    <string name="online_upload_mileage_rank">#%d körsträcka</string>
+    <string name="online_upload_top_speed">topphastighet %1$s km/h · %2$s mph</string>
+    <string name="online_upload_trips">%d turer</string>
+    <string name="online_upload_total_km">%1$s km · %2$s mi</string>
+    <string name="online_upload_join">Gå med i topplistan</string>
+    <string name="online_status_shared">Delad på topplistan</string>
+    <string name="online_status_flagged">Delad, granskas</string>
+    <string name="online_status_pending">Laddar upp till topplistan…</string>
+    <string name="online_status_failed">Uppladdning misslyckades, tryck för att försöka igen</string>
+    <string name="online_upload_join_caption">Dina turer visas på den publika topplistan på</string>
+    <string name="online_upload_site_label">eucstats.ried.no</string>
+    <string name="online_upload_site_url">https://eucstats.ried.no/</string>
+    <string name="online_upload_unlink">Koppla från</string>
+    <string name="online_unlink_title">Koppla från topplistan?</string>
+    <string name="online_unlink_body">Den här telefonen slutar ladda upp turer. Ditt rider-ID sparas kvar så du kan återansluta som samma förare. Din statistik finns kvar på EUC Stats. Använd Ta bort konto för att radera den.</string>
+    <string name="online_unlink_confirm">Koppla från</string>
+
+    <!-- Online profile (edit/GDPR) -->
+    <string name="online_profile_manage">Hantera profil</string>
+    <string name="online_profile_title">Min profil</string>
+    <string name="online_profile_changeable_on">Kan ändras igen %1$s</string>
+    <string name="online_profile_avatar_has">Angiven</string>
+    <string name="online_profile_export_data">Exportera mina data</string>
+    <string name="online_profile_delete_account">Ta bort konto</string>
+    <string name="online_profile_delete_confirm_title">Ta bort konto?</string>
+    <string name="online_profile_delete_confirm_body">Detta raderar din EUC Stats-profil, statistik och uppladdad data permanent. Åtgärden kan inte ångras.</string>
+    <string name="online_profile_delete_confirm_action">Radera permanent</string>
+    <string name="online_profile_save_rate_limited">För många förfrågningar, försök igen senare.</string>
+    <string name="online_profile_save_failed">Sparandet misslyckades (HTTP %1$d). Försök igen.</string>
 </resources>

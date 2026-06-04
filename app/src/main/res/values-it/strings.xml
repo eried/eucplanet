@@ -1396,4 +1396,74 @@
     <string name="nav_setting_full_path_desc">Disattivato calcola solo la prossima tappa e mostra il resto come anteprima tratteggiata</string>
     <string name="studio_cfg_clock_24h">Formato 24 ore</string>
     <string name="studio_cfg_dial_color_band">Banda colorata</string>
+
+    <!-- ==== EucStats online upload onboarding ==== -->
+
+    <!-- Step 1: Consent -->
+    <string name="online_upload_consent_title">Unisciti alla classifica EUC Stats</string>
+    <string name="online_upload_consent_intro">Prima di iscriverti, leggi cosa diventa pubblico:</string>
+    <string name="online_upload_consent_bullet_name">Il tuo nome visualizzato</string>
+    <string name="online_upload_consent_bullet_flag">La bandiera del tuo paese</string>
+    <string name="online_upload_consent_bullet_avatar">La tua foto profilo</string>
+    <string name="online_upload_consent_bullet_stats">Le tue statistiche di guida complessive, come distanza e velocità</string>
+    <string name="online_upload_consent_bullet_location">Posizioni di partenza/arrivo dei viaggi, raggruppate in aree di 10 km (6 mi) o più</string>
+    <string name="online_upload_consent_no_raw_gps">I tracciati GPS grezzi non vengono mai pubblicati.</string>
+    <string name="online_upload_consent_agree">Accetta &amp; continua</string>
+
+    <!-- Step 2: Profile -->
+    <string name="online_upload_profile_title">Crea il tuo profilo</string>
+    <string name="online_upload_profile_name_label">Nome visualizzato</string>
+    <string name="online_upload_profile_country_label">Paese</string>
+    <string name="online_upload_profile_country_select">Seleziona il tuo paese</string>
+    <string name="online_upload_country_search">Cerca paesi</string>
+    <string name="online_upload_profile_avatar_hint">Tocca per aggiungere una foto</string>
+    <string name="online_upload_profile_flag_label">Codice paese (ISO 3166-1 alpha-2)</string>
+    <string name="online_upload_profile_flag_placeholder">es. NO, US, DE</string>
+    <string name="online_upload_profile_flag_error">Inserisci un codice paese di 2 lettere (es. NO)</string>
+    <string name="online_upload_profile_avatar_pick">Scegli foto…</string>
+    <string name="online_upload_profile_avatar_change">Cambia foto…</string>
+    <string name="online_upload_profile_avatar_required">Tocca per scegliere e ritagliare</string>
+    <string name="online_upload_profile_avatar_placeholder">Foto</string>
+
+    <!-- Registration outcome -->
+    <string name="online_upload_register_action">Registrati</string>
+    <string name="online_upload_register_error">Registrazione non riuscita. Controlla la connessione e riprova.</string>
+
+    <!-- Online stats toggle + rider card -->
+    <string name="section_online_stats">Classifiche online</string>
+    <string name="online_upload_toggle">Partecipa alle classifiche online</string>
+    <string name="online_upload_card_loading">Caricamento…</string>
+    <string name="online_upload_card_unavailable">Impossibile caricare le tue statistiche.</string>
+    <string name="online_upload_actions_caption">Upload statistiche viaggi</string>
+    <string name="online_upload_view_on_eucstats">Vedi su EUC Stats</string>
+    <string name="online_upload_retry">Riprova upload</string>
+    <string name="online_upload_mileage_rank">#%d chilometraggio</string>
+    <string name="online_upload_top_speed">max %1$s km/h · %2$s mph</string>
+    <string name="online_upload_trips">%d viaggi</string>
+    <string name="online_upload_total_km">%1$s km · %2$s mi</string>
+    <string name="online_upload_join">Entra in classifica</string>
+    <string name="online_status_shared">Pubblicato in classifica</string>
+    <string name="online_status_flagged">Pubblicato, in revisione</string>
+    <string name="online_status_pending">Upload in classifica…</string>
+    <string name="online_status_failed">Upload non riuscito, tocca per riprovare</string>
+    <string name="online_upload_join_caption">I tuoi viaggi appaiono nella classifica pubblica su</string>
+    <string name="online_upload_site_label">eucstats.ried.no</string>
+    <string name="online_upload_site_url">https://eucstats.ried.no/</string>
+    <string name="online_upload_unlink">Scollega</string>
+    <string name="online_unlink_title">Scollegare dalla classifica?</string>
+    <string name="online_unlink_body">Questo telefono smetterà di caricare i viaggi. Il tuo ID rider rimane salvato, così puoi rientrare come lo stesso rider. Le tue statistiche restano su EUC Stats; usa Elimina account per rimuoverle.</string>
+    <string name="online_unlink_confirm">Scollega</string>
+
+    <!-- Online profile (edit/GDPR) -->
+    <string name="online_profile_manage">Gestisci profilo</string>
+    <string name="online_profile_title">Il mio profilo</string>
+    <string name="online_profile_changeable_on">Modificabile di nuovo il %1$s</string>
+    <string name="online_profile_avatar_has">Impostata</string>
+    <string name="online_profile_export_data">Esporta i miei dati</string>
+    <string name="online_profile_delete_account">Elimina account</string>
+    <string name="online_profile_delete_confirm_title">Eliminare l\'account?</string>
+    <string name="online_profile_delete_confirm_body">Questo elimina definitivamente il tuo profilo EUC Stats, le statistiche e i dati caricati. L\'operazione non può essere annullata.</string>
+    <string name="online_profile_delete_confirm_action">Elimina definitivamente</string>
+    <string name="online_profile_save_rate_limited">Troppe richieste, riprova più tardi.</string>
+    <string name="online_profile_save_failed">Salvataggio non riuscito (HTTP %1$d). Riprova.</string>
 </resources>

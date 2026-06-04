@@ -1820,6 +1820,10 @@ class SettingsViewModel @Inject constructor(
     /** Live rider card from the eucstats backend, null when not registered or not yet fetched. */
     val onlineUploadCard: StateFlow<RiderCard?> = eucStatsRepository.card
 
+    /** True once a card fetch has finished, so the UI can stop showing a spinner
+     *  and fall back to a short "couldn't load" line when the card is still null. */
+    val onlineUploadCardLoaded: StateFlow<Boolean> = eucStatsRepository.cardLoaded
+
     /** Refresh the rider card from the backend (no-op if no store_id is persisted). */
     fun refreshOnlineUploadCard() {
         viewModelScope.launch { eucStatsRepository.refreshCard() }

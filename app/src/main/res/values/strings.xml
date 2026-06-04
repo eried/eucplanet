@@ -1048,7 +1048,7 @@
     <string name="online_upload_profile_flag_error">Enter a 2-letter country code (e.g. NO)</string>
     <string name="online_upload_profile_avatar_pick">Pick photo…</string>
     <string name="online_upload_profile_avatar_change">Change photo…</string>
-    <string name="online_upload_profile_avatar_required">Required — tap to pick and crop</string>
+    <string name="online_upload_profile_avatar_required">Tap to pick and crop</string>
     <string name="online_upload_profile_avatar_placeholder">Photo</string>
 
     <!-- Registration outcome -->
@@ -1059,7 +1059,9 @@
     <string name="section_online_stats">Online leaderboards</string>
     <string name="online_upload_toggle">Join the online leaderboards</string>
     <string name="online_upload_card_loading">Loading…</string>
-    <string name="online_upload_view_on_eucstats">View on eucstats</string>
+    <string name="online_upload_card_unavailable">Couldn\'t load your stats.</string>
+    <string name="online_upload_actions_caption">Trip stats uploads</string>
+    <string name="online_upload_view_on_eucstats">View on EUC Stats</string>
     <string name="online_upload_retry">Retry uploads</string>
     <string name="online_upload_mileage_rank">#%d mileage</string>
     <string name="online_upload_top_speed">top %1$s km/h · %2$s mph</string>
@@ -1067,15 +1069,15 @@
     <string name="online_upload_total_km">%1$s km · %2$s mi</string>
     <string name="online_upload_join">Join leaderboard</string>
     <string name="online_status_shared">Shared on the leaderboard</string>
-    <string name="online_status_flagged">Shared — under review</string>
+    <string name="online_status_flagged">Shared, under review</string>
     <string name="online_status_pending">Uploading to leaderboard…</string>
-    <string name="online_status_failed">Online upload failed — tap to retry</string>
+    <string name="online_status_failed">Online upload failed, tap to retry</string>
     <string name="online_upload_join_caption">Your rides appear on the public leaderboard at</string>
     <string name="online_upload_site_label">eucstats.ried.no</string>
     <string name="online_upload_site_url">https://eucstats.ried.no/</string>
     <string name="online_upload_unlink">Unlink</string>
     <string name="online_unlink_title">Unlink from the leaderboard?</string>
-    <string name="online_unlink_body">This phone stops uploading rides. Your rider ID stays saved in your settings and in eucplanet_settings.json in your backup folder — keep that backup safe so you can rejoin as the same rider. Your existing stats stay on eucstats; use Delete account to remove them.</string>
+    <string name="online_unlink_body">This phone stops uploading rides. Your rider ID stays saved so you can rejoin as the same rider. Your stats stay on EUC Stats; use Delete account to remove them.</string>
     <string name="online_unlink_confirm">Unlink</string>
 
     <!-- Online profile (edit/GDPR) -->
@@ -1086,8 +1088,10 @@
     <string name="online_profile_export_data">Export my data</string>
     <string name="online_profile_delete_account">Delete account</string>
     <string name="online_profile_delete_confirm_title">Delete account?</string>
-    <string name="online_profile_delete_confirm_body">This will permanently delete your eucstats profile, stats, and all uploaded data. This action cannot be undone.</string>
+    <string name="online_profile_delete_confirm_body">This permanently deletes your EUC Stats profile, stats, and uploaded data. This cannot be undone.</string>
     <string name="online_profile_delete_confirm_action">Delete permanently</string>
+    <string name="online_profile_save_rate_limited">Rate limited, try again later.</string>
+    <string name="online_profile_save_failed">Save failed (HTTP %1$d). Try again.</string>
 
     <!-- ==== Overlay Studio ==== -->
     <string name="studio_open">Open Overlay Studio</string>

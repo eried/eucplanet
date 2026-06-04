@@ -390,9 +390,10 @@ fun OnlineUploadOnboardingDialog(
 // ---- Country picker ---------------------------------------------------------
 
 /** Searchable list of all ISO countries with flag emoji, built from the JVM
- *  locale data so there's no hardcoded country table to maintain. */
+ *  locale data so there's no hardcoded country table to maintain.
+ *  Shared with the profile-edit form (same package). */
 @Composable
-private fun CountryPickerDialog(onPick: (String) -> Unit, onDismiss: () -> Unit) {
+internal fun CountryPickerDialog(onPick: (String) -> Unit, onDismiss: () -> Unit) {
     var query by remember { mutableStateOf("") }
     val all = remember {
         Locale.getISOCountries()
@@ -453,7 +454,7 @@ private fun CountryPickerDialog(onPick: (String) -> Unit, onDismiss: () -> Unit)
 }
 
 /** ISO 3166-1 alpha-2 code → flag emoji (regional indicator letters). */
-private fun flagEmoji(code: String): String {
+internal fun flagEmoji(code: String): String {
     val c = code.uppercase()
     if (c.length != 2 || !c.all { it in 'A'..'Z' }) return ""
     val first  = 0x1F1E6 + (c[0] - 'A')
@@ -462,7 +463,7 @@ private fun flagEmoji(code: String): String {
 }
 
 /** Localised country name for a 2-letter code. */
-private fun countryName(code: String): String =
+internal fun countryName(code: String): String =
     Locale("", code.uppercase()).displayCountry.ifBlank { code.uppercase() }
 
 // ---- Private helpers --------------------------------------------------------
