@@ -1,2 +1,4 @@
-- Restored the green speed gauge: the speed number and arc read bright green again, with the darker green safe band.
-- Settings: section icons are accent-colored again and the titles and labels are normal text instead of all teal. Fixed in light and dark mode.
+- Each metric's MIN/MAX caption, plus the map and camera icons, now have their own theme colors you can edit independently.
+- Multi-metric tiles keep the standard tile height instead of breaking the dashboard layout.
+- Fixed the color identifier freezing on some phones when you tap Identify.
+- The theme editor widget and the color-identifier window are now 90% opaque, and the widget hides while you aim the eyedropper.

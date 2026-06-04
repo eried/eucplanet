@@ -337,7 +337,7 @@ private fun SideBadge(
         Text(
             statLabel,
             fontSize = 9.sp,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            color = MaterialTheme.appColors.cornerStatLabel,
             fontWeight = FontWeight.Medium,
             letterSpacing = 0.5.sp
         )

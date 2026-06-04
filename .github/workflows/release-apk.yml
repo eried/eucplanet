@@ -332,3 +332,37 @@ jobs:
           done
           gh release upload "$tag" /tmp/stage/* --clobber
           ls -la /tmp/stage
+
+      - name: Announce release on Telegram
+        # Posts the release into the @EUCPlanetApp "Github" topic. Opt-in via the
+        # TELEGRAM_* secrets; a Telegram hiccup never fails the release (|| true).
+        # github.event / notes are passed via env (never inlined) to avoid
+        # expression injection.
+        env:
+          BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          CHAT_ID: ${{ secrets.TELEGRAM_RELEASES_CHAT_ID }}
+          THREAD_ID: ${{ secrets.TELEGRAM_RELEASES_THREAD_ID }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+          SERVER_URL: ${{ github.server_url }}
+          TAG: ${{ needs.meta.outputs.tag }}
+          VERSION: ${{ needs.meta.outputs.version }}
+        run: |
+          if [ -z "$BOT_TOKEN" ] || [ -z "$CHAT_ID" ] || [ -z "$THREAD_ID" ]; then
+            echo "::notice::Telegram secrets not set; skipping announcement."; exit 0
+          fi
+          notes=$(gh release view "$TAG" --json body -q .body 2>/dev/null || true)
+          url="${SERVER_URL}/${GH_REPO}/releases/tag/${TAG}"
+          esc() { printf '%s' "$1" | sed -e 's/&/\&amp;/g' -e 's/</\&lt;/g' -e 's/>/\&gt;/g'; }
+          text="🚀 <b>EUC Planet $(esc "$VERSION")</b> released
+
+          $(esc "$notes")
+
+          ⬇️ Download (phone, Wear OS, HUD, Garmin):
+          ${url}"
+          curl -sS -X POST "https://api.telegram.org/bot${BOT_TOKEN}/sendMessage" \
+            --data-urlencode "chat_id=${CHAT_ID}" \
+            -d "message_thread_id=${THREAD_ID}" \
+            --data-urlencode "text=${text}" \
+            -d "parse_mode=HTML" -d "disable_web_page_preview=true" \
+            -o /dev/null -w "Telegram HTTP %{http_code}\n" || true
