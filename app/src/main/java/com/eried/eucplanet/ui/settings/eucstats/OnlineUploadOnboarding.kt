@@ -55,6 +55,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.eried.eucplanet.R
 import com.eried.eucplanet.ui.navigator.UserMarkerCropDialog
+import com.eried.eucplanet.ui.navigator.decodeDownsampledBitmap
 import com.eried.eucplanet.ui.settings.SettingsViewModel
 import com.eried.eucplanet.ui.theme.appColors
 import com.eried.eucplanet.ui.theme.themedFieldColors
@@ -101,11 +102,10 @@ fun OnlineUploadOnboardingDialog(
         ActivityResultContracts.GetContent()
     ) { uri ->
         if (uri == null) return@rememberLauncherForActivityResult
-        val bmp = runCatching {
-            val src = context.contentResolver.openInputStream(uri)
-                ?: return@rememberLauncherForActivityResult
-            android.graphics.BitmapFactory.decodeStream(src)
-        }.getOrNull() ?: return@rememberLauncherForActivityResult
+        // Downsample on decode: a full-res gallery photo would OOM / blow the
+        // canvas bitmap limit in the crop dialog and crash the app.
+        val bmp = runCatching { decodeDownsampledBitmap(context, uri) }
+            .getOrNull() ?: return@rememberLauncherForActivityResult
         pickedBitmap  = bmp
         croppedBitmap = null
         showCropDialog = true
