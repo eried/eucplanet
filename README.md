@@ -9,8 +9,9 @@
 
 Open-source Android app for electric unicycles: live telemetry, turn-by-turn
 navigation, an on-screen overlay for video recording, and many other integrations.
-I don't want to pay to just enjoy a wheel I already own. No ads, no tracking, no
-subscriptions, no upselling, no features behind a paywall, no telemetry phoned home.
+I don't want to pay to just enjoy a wheel I already own. No ads, no in-app
+tracking, no subscriptions, no upselling, no features behind a paywall, no
+telemetry phoned home.
 
 ## What wheels work?
 
