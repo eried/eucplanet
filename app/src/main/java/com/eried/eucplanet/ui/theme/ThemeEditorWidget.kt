@@ -54,6 +54,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
@@ -183,6 +184,9 @@ fun ThemeEditorWidget(
                 IntOffset(c.x.roundToInt(), c.y.roundToInt())
             }
             .onSizeChanged { widgetSize = it }
+            // The whole floating theme widget is 80% opaque so the dashboard
+            // behind it stays faintly visible.
+            .alpha(0.8f)
     ) {
         if (collapsed) {
             Box(

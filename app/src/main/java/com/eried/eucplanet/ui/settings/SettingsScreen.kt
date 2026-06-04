@@ -149,6 +149,7 @@ import androidx.compose.ui.draganddrop.DragAndDropTransferData
 import androidx.compose.ui.draganddrop.toAndroidDragEvent
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.text.rememberTextMeasurer
 import com.eried.eucplanet.ui.theme.AccentOrange
 import androidx.compose.ui.text.drawText
@@ -6745,41 +6746,44 @@ private fun CloudTab(
 
             if (!settings.onlineUploadEnabled) {
                 val siteUrl = stringResource(R.string.online_upload_site_url)
-                Button(
+                // Same button component the folder section uses (e.g. "Choose folder").
+                LeftAlignedScanButton(
+                    label = stringResource(R.string.online_upload_join),
                     onClick = {
                         if (settings.eucstatsStoreId == null) showOnboarding = true
                         else viewModel.setOnlineUploadEnabled(true)
                     },
-                    modifier = Modifier.fillMaxWidth(),
-                ) {
-                    Text(stringResource(R.string.online_upload_join))
+                )
+                // Caption + inline link as ONE flowing sentence that wraps naturally,
+                // so the URL no longer lands on its own awkward second line.
+                val caption = stringResource(R.string.online_upload_join_caption)
+                val siteLabel = stringResource(R.string.online_upload_site_label)
+                val linkColor = MaterialTheme.appColors.primary
+                val captionText = androidx.compose.ui.text.buildAnnotatedString {
+                    append(caption)
+                    append(" ")
+                    withStyle(
+                        androidx.compose.ui.text.SpanStyle(
+                            color = linkColor,
+                            textDecoration = androidx.compose.ui.text.style.TextDecoration.Underline,
+                        )
+                    ) { append(siteLabel) }
                 }
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.fillMaxWidth(),
-                ) {
-                    Text(
-                        stringResource(R.string.online_upload_join_caption),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.appColors.textSecondary,
-                    )
-                    TextButton(
-                        onClick = {
+                Text(
+                    captionText,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.appColors.textSecondary,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable {
                             val intent = android.content.Intent(
                                 android.content.Intent.ACTION_VIEW,
                                 android.net.Uri.parse(siteUrl)
                             )
                             runCatching { context.startActivity(intent) }
-                        },
-                        colors = themedTextButtonColors(),
-                        contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 4.dp, vertical = 0.dp),
-                    ) {
-                        Text(
-                            stringResource(R.string.online_upload_site_label),
-                            style = MaterialTheme.typography.bodySmall,
-                        )
-                    }
-                }
+                        }
+                        .padding(top = 4.dp),
+                )
             }
         }
 
