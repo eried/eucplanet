@@ -6716,13 +6716,16 @@ private fun CloudTab(
         var showOnlineProfile by remember { mutableStateOf(false) }
         var showUnlinkConfirm by remember { mutableStateOf(false) }
 
-        // Rider recovery: when a sync folder is linked but this phone has no rider
-        // yet (fresh install / reinstall), offer to restore the rider saved in the
-        // folder's backup instead of silently creating a new identity on Join.
+        // Rider recovery: tapping "Join" runs joinOrRecover(). If a previous
+        // profile is found in the linked folder's backup, we prompt to continue
+        // as that rider (the dialog below) rather than create a new identity;
+        // otherwise joinOrRecover signals onboarding via startOnboarding.
         val restorableRider by viewModel.restorableRider.collectAsStateWithLifecycle()
-        LaunchedEffect(settings.syncFolderUri, settings.eucstatsStoreId) {
-            if (settings.syncFolderUri != null && settings.eucstatsStoreId == null) {
-                viewModel.checkForRestorableRider()
+        val startOnboarding by viewModel.startOnboarding.collectAsStateWithLifecycle()
+        LaunchedEffect(startOnboarding) {
+            if (startOnboarding) {
+                showOnboarding = true
+                viewModel.consumeStartOnboarding()
             }
         }
         restorableRider?.let { rider ->
@@ -6834,7 +6837,7 @@ private fun CloudTab(
                 LeftAlignedScanButton(
                     label = stringResource(R.string.online_upload_join),
                     onClick = {
-                        if (settings.eucstatsStoreId == null) showOnboarding = true
+                        if (settings.eucstatsStoreId == null) viewModel.joinOrRecover()
                         else viewModel.setOnlineUploadEnabled(true)
                     },
                 )
@@ -6851,7 +6854,7 @@ private fun CloudTab(
             // Link to the public site: a short caption with the URL underlined;
             // tapping the line opens eucstats in the browser.
             val siteUrl = stringResource(R.string.online_upload_site_url)
-            val linkedCaption = stringResource(R.string.online_upload_join_caption)
+            val linkedCaption = stringResource(R.string.online_upload_linked_caption)
             val linkedLabel = stringResource(R.string.online_upload_site_label)
             val linkColor = MaterialTheme.appColors.primary
             val linkedText = androidx.compose.ui.text.buildAnnotatedString {
@@ -7000,13 +7003,22 @@ private fun CloudTab(
                 }
             }
 
-            // Manage profile: a smaller, content-width button (not full width).
-            Button(onClick = { showOnlineProfile = true }) {
-                Text(stringResource(R.string.online_profile_manage))
+            // Manage profile: same width as the Sync all / Unlink buttons below.
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                Button(
+                    onClick = { showOnlineProfile = true },
+                    modifier = Modifier.weight(1f),
+                ) {
+                    Text(stringResource(R.string.online_profile_manage))
+                }
+                Spacer(modifier = Modifier.weight(1f))
             }
 
             // Trip stats upload actions: sync all pending uploads, or unlink.
-            HintText(stringResource(R.string.online_upload_actions_caption), small = true)
+            HintText(stringResource(R.string.online_upload_actions_caption))
             Row(
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
                 modifier = Modifier.fillMaxWidth(),

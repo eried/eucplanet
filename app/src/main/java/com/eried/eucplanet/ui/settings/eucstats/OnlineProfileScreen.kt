@@ -418,11 +418,15 @@ fun OnlineProfileDialog(
                             style = MaterialTheme.typography.labelMedium,
                             color = MaterialTheme.appColors.textSecondary,
                         )
+                        val countryEnabled = flagEditable && !saving
                         Surface(
-                            onClick = { if (flagEditable && !saving) showCountryPicker = true },
-                            enabled = flagEditable && !saving,
+                            onClick = { if (countryEnabled) showCountryPicker = true },
+                            enabled = countryEnabled,
                             shape = RoundedCornerShape(8.dp),
-                            color = MaterialTheme.appColors.surfaceVariant,
+                            // Dim the box when on cooldown so it reads as disabled,
+                            // matching the greyed-out name field above it.
+                            color = if (countryEnabled) MaterialTheme.appColors.surfaceVariant
+                                    else MaterialTheme.appColors.surfaceVariant.copy(alpha = 0.4f),
                             modifier = Modifier.fillMaxWidth(),
                         ) {
                             Row(
@@ -435,13 +439,17 @@ fun OnlineProfileDialog(
                                 Text(
                                     text = if (flagValid) "${flagEmoji(flagCode)}  ${countryName(flagCode)}"
                                            else stringResource(R.string.online_upload_profile_country_select),
-                                    color = if (flagValid) MaterialTheme.appColors.textPrimary
-                                            else MaterialTheme.appColors.textSecondary,
+                                    color = when {
+                                        !countryEnabled -> MaterialTheme.appColors.textDisabled
+                                        flagValid -> MaterialTheme.appColors.textPrimary
+                                        else -> MaterialTheme.appColors.textSecondary
+                                    },
                                     modifier = Modifier.weight(1f),
                                 )
                                 Icon(
                                     Icons.Default.ArrowDropDown, contentDescription = null,
-                                    tint = MaterialTheme.appColors.textSecondary,
+                                    tint = if (countryEnabled) MaterialTheme.appColors.textSecondary
+                                           else MaterialTheme.appColors.textDisabled,
                                 )
                             }
                         }
@@ -470,60 +478,13 @@ fun OnlineProfileDialog(
             }
         },
         confirmButton = {
+            // Custom full-width bar: Delete on the far left (destructive),
+            // Cancel + Save grouped on the right.
             Row(
+                modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                horizontalArrangement = Arrangement.SpaceBetween,
             ) {
-                if (saving) {
-                    CircularProgressIndicator(
-                        modifier = Modifier.size(18.dp),
-                        strokeWidth = 2.dp,
-                        color = MaterialTheme.appColors.primary,
-                    )
-                }
-                Button(
-                    onClick = {
-                        saving    = true
-                        saveError = null
-                        val newName   = displayName.trim().takeIf { nameEditable && it != profile?.displayName.orEmpty() }
-                        val newFlag   = flagCode.uppercase().takeIf { flagEditable && it != profile?.flag.orEmpty() }
-                        val newAvatar = croppedBitmap?.takeIf { avatarEditable }
-                            ?.let { bmp ->
-                                val baos = ByteArrayOutputStream()
-                                bmp.compress(Bitmap.CompressFormat.PNG, 100, baos)
-                                Base64.encodeToString(baos.toByteArray(), Base64.NO_WRAP)
-                            }
-                        viewModel.editOnlineProfile(
-                            displayName    = newName,
-                            flag           = newFlag,
-                            avatarPngBase64 = newAvatar,
-                        ) { code ->
-                            saving = false
-                            when (code) {
-                                200, 201, 204 -> onDismiss()
-                                429 -> saveError = context.getString(R.string.online_profile_save_rate_limited)
-                                else -> saveError = context.getString(R.string.online_profile_save_failed, code)
-                            }
-                        }
-                    },
-                    enabled = canSave,
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor         = MaterialTheme.appColors.primary,
-                        contentColor           = MaterialTheme.appColors.onPrimary,
-                        disabledContainerColor = MaterialTheme.appColors.surfaceVariant,
-                        disabledContentColor   = MaterialTheme.appColors.textDisabled,
-                    )
-                ) {
-                    Text(stringResource(R.string.action_save))
-                }
-            }
-        },
-        dismissButton = {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(4.dp),
-            ) {
-                // Delete sits to the left of Cancel.
                 TextButton(
                     onClick = { showDeleteConfirm = true },
                     enabled = !saving && !deleting,
@@ -533,14 +494,61 @@ fun OnlineProfileDialog(
                 ) {
                     Text(stringResource(R.string.online_profile_delete_account))
                 }
-                TextButton(
-                    onClick = { if (!saving && !deleting) onDismiss() },
-                    enabled = !saving && !deleting,
-                    colors = ButtonDefaults.textButtonColors(
-                        contentColor = MaterialTheme.appColors.textButton,
-                    )
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
-                    Text(stringResource(R.string.action_cancel))
+                    if (saving) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(18.dp),
+                            strokeWidth = 2.dp,
+                            color = MaterialTheme.appColors.primary,
+                        )
+                    }
+                    TextButton(
+                        onClick = { if (!saving && !deleting) onDismiss() },
+                        enabled = !saving && !deleting,
+                        colors = ButtonDefaults.textButtonColors(
+                            contentColor = MaterialTheme.appColors.textButton,
+                        )
+                    ) {
+                        Text(stringResource(R.string.action_cancel))
+                    }
+                    Button(
+                        onClick = {
+                            saving    = true
+                            saveError = null
+                            val newName   = displayName.trim().takeIf { nameEditable && it != profile?.displayName.orEmpty() }
+                            val newFlag   = flagCode.uppercase().takeIf { flagEditable && it != profile?.flag.orEmpty() }
+                            val newAvatar = croppedBitmap?.takeIf { avatarEditable }
+                                ?.let { bmp ->
+                                    val baos = ByteArrayOutputStream()
+                                    bmp.compress(Bitmap.CompressFormat.PNG, 100, baos)
+                                    Base64.encodeToString(baos.toByteArray(), Base64.NO_WRAP)
+                                }
+                            viewModel.editOnlineProfile(
+                                displayName    = newName,
+                                flag           = newFlag,
+                                avatarPngBase64 = newAvatar,
+                            ) { code ->
+                                saving = false
+                                when (code) {
+                                    200, 201, 204 -> onDismiss()
+                                    429 -> saveError = context.getString(R.string.online_profile_save_rate_limited)
+                                    else -> saveError = context.getString(R.string.online_profile_save_failed, code)
+                                }
+                            }
+                        },
+                        enabled = canSave,
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor         = MaterialTheme.appColors.primary,
+                            contentColor           = MaterialTheme.appColors.onPrimary,
+                            disabledContainerColor = MaterialTheme.appColors.surfaceVariant,
+                            disabledContentColor   = MaterialTheme.appColors.textDisabled,
+                        )
+                    ) {
+                        Text(stringResource(R.string.action_save))
+                    }
                 }
             }
         }

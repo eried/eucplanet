@@ -1072,7 +1072,8 @@
     <string name="online_status_flagged">Shared, under review</string>
     <string name="online_status_pending">Uploading to leaderboard…</string>
     <string name="online_status_failed">Online upload failed, tap to retry</string>
-    <string name="online_upload_join_caption">Your rides appear on the public leaderboard at</string>
+    <string name="online_upload_join_caption">Join to send your stats and trips to the public leaderboard at</string>
+    <string name="online_upload_linked_caption">Your stats and trips appear on the public leaderboard at</string>
     <string name="online_upload_site_label">eucstats.ried.no</string>
     <string name="online_upload_site_url">https://eucstats.ried.no/</string>
     <string name="online_upload_unlink">Unlink</string>

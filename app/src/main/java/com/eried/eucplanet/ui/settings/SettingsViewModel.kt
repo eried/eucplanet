@@ -763,18 +763,28 @@ class SettingsViewModel @Inject constructor(
     // ---- eucstats rider recovery from a linked backup folder ----
 
     private val _restorableRider = MutableStateFlow<RestorableRider?>(null)
-    /** A rider identity found in the linked sync folder's backup that this phone
-     *  could adopt. Non-null → UI shows the "restore your rider?" prompt. */
+    /** A rider identity found in the linked folder's backup that this phone could
+     *  adopt. Non-null → UI shows the "continue as this rider?" prompt. */
     val restorableRider: StateFlow<RestorableRider?> = _restorableRider.asStateFlow()
 
-    /** Look for a rider identity saved in the linked folder, and surface it only
-     *  when it differs from (or would fill) this phone's current rider, so we
-     *  never nag about a backup that already matches. */
-    fun checkForRestorableRider() {
+    private val _startOnboarding = MutableStateFlow(false)
+    /** One-shot: joinOrRecover found no previous profile, so the UI should open
+     *  the create-profile onboarding. */
+    val startOnboarding: StateFlow<Boolean> = _startOnboarding.asStateFlow()
+    fun consumeStartOnboarding() { _startOnboarding.value = false }
+
+    /** Tapped "Join": if the linked folder's backup holds a previous rider
+     *  profile, surface it for a continue-or-not prompt (we never overwrite it);
+     *  otherwise start onboarding to create a new profile. */
+    fun joinOrRecover() {
         viewModelScope.launch {
-            val found = syncManager.findRestorableRider() ?: return@launch
+            val found = syncManager.findRestorableRider()
             val current = settingsRepository.get().eucstatsStoreId
-            if (found.storeId != current) _restorableRider.value = found
+            if (found != null && found.storeId != current) {
+                _restorableRider.value = found
+            } else {
+                _startOnboarding.value = true
+            }
         }
     }
 
