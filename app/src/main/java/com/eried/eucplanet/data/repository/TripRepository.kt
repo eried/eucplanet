@@ -225,7 +225,17 @@ class TripRepository @Inject constructor(
         return dir
     }
 
+    // Wall-clock of the last failed recording start (e.g. an unwritable trips
+    // directory). Used to throttle the motion-gated auto-record path so it
+    // doesn't reattempt on every telemetry packet after a failure.
+    @Volatile private var lastStartFailureMs = 0L
+
     suspend fun startRecording() {
+        // Back off briefly after a failed start. evaluateAutoRecordOnTelemetry
+        // calls this on every moving packet (~10/s); without this it would spin
+        // retrying a doomed file open.
+        if (System.currentTimeMillis() - lastStartFailureMs < 10_000L) return
+
         // Atomically claim the recording slot. If another caller already flipped
         // _recording to true (e.g. connect + first-motion racing, or a duplicate
         // intent), this returns false and we bail before announcing or opening files.
@@ -250,8 +260,19 @@ class TripRepository @Inject constructor(
         val fileName = "trip_$dateStr.csv"
         val file = File(getTripsDir(), fileName)
 
+        // Opening the CSV can fail (read-only / bad-permission trips directory,
+        // full storage, etc.). This runs from the auto-record path the moment a
+        // wheel sends motion, so a thrown exception here would crash the whole
+        // app on connect. Fail soft: log, release the slot, and skip recording.
         val writer = CsvWriter(file)
-        writer.open()
+        try {
+            writer.open()
+        } catch (e: Exception) {
+            Log.e(TAG, "Could not open trip file ${file.name}; recording aborted", e)
+            lastStartFailureMs = System.currentTimeMillis()
+            _recording.value = false   // release the slot claimed above
+            return
+        }
         csvWriter = writer
 
         gpsDistanceKm = 0.0
