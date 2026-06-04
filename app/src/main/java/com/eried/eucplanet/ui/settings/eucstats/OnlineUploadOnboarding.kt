@@ -120,7 +120,9 @@ fun OnlineUploadOnboardingDialog(
                 onApply  = { cropped ->
                     croppedBitmap  = cropped
                     showCropDialog = false
-                }
+                },
+                // 256px so the 96dp preview is crisp (server still re-encodes to 64).
+                outputSize = 256,
             )
             return // Render only the crop dialog while it's open.
         }

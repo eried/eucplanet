@@ -76,7 +76,10 @@ import kotlin.math.max
 fun UserMarkerCropDialog(
     source: Bitmap,
     onCancel: () -> Unit,
-    onApply: (Bitmap) -> Unit
+    onApply: (Bitmap) -> Unit,
+    /** Output PNG size in px. Nav marker uses 64; the eucstats avatar uses a
+     *  larger value so its preview isn't an upscaled, pixelated 64px image. */
+    outputSize: Int = 64,
 ) {
     // Circle diameter on screen, in px, derived from the dialog box width
     // captured below so the math doesn't fight different screen sizes.
@@ -228,7 +231,7 @@ fun UserMarkerCropDialog(
                     onClick = {
                         val out = renderCircleCrop(
                             source, scale, offsetX, offsetY,
-                            displayBaseW, displayBaseH, circleRadiusPx
+                            displayBaseW, displayBaseH, circleRadiusPx, outputSize
                         )
                         onApply(out)
                     },
@@ -265,7 +268,8 @@ private fun renderCircleCrop(
     offsetY: Float,
     displayBaseW: Float,
     displayBaseH: Float,
-    circleRadiusPx: Float
+    circleRadiusPx: Float,
+    outputSize: Int = 64
 ): Bitmap {
     val srcW = source.width.toFloat()
     val srcH = source.height.toFloat()
@@ -277,7 +281,7 @@ private fun renderCircleCrop(
     val srcCy = srcH / 2f - offsetY / effectiveScale
     val srcR = circleRadiusPx / effectiveScale
 
-    val outSize = 64
+    val outSize = outputSize
     val output = Bitmap.createBitmap(outSize, outSize, Bitmap.Config.ARGB_8888)
     val canvas = Canvas(output)
 
