@@ -6885,17 +6885,17 @@ private fun CloudTab(
                     .padding(vertical = 4.dp),
             )
 
-            // Stats + actions sit in one rounded box, like the Devices section.
-            Card(
-                colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.surfaceVariant,
-                ),
-                shape = RoundedCornerShape(12.dp),
+            // The stats card uses the exact same flat surface + small shape as
+            // the Devices cards (DeviceCard = Surface(appColors.surface)).
+            Surface(
                 modifier = Modifier.fillMaxWidth(),
+                shape = MaterialTheme.shapes.small,
+                color = MaterialTheme.appColors.surface,
+                contentColor = MaterialTheme.appColors.textPrimary,
             ) {
                 Column(
                     modifier = Modifier.padding(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
                     if (card != null) {
                         // Avatar + name/flag row
@@ -7008,44 +7008,50 @@ private fun CloudTab(
                             )
                         }
                     }
+                }
+            }
 
-                    // Manage profile: same width as the Sync all / Unlink buttons below.
-                    Row(
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                        modifier = Modifier.fillMaxWidth(),
-                    ) {
-                        Button(
-                            onClick = { showOnlineProfile = true },
-                            modifier = Modifier.weight(1f),
-                        ) {
-                            Text(stringResource(R.string.online_profile_manage))
-                        }
-                        Spacer(modifier = Modifier.weight(1f))
-                    }
+            // Buttons live OUTSIDE the stats card, at the section margin.
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                Button(
+                    onClick = { showOnlineProfile = true },
+                    modifier = Modifier.weight(1f),
+                ) {
+                    Text(stringResource(R.string.online_profile_manage))
+                }
+                Spacer(modifier = Modifier.weight(1f))
+            }
 
-                    // Trip stats upload actions: sync all pending uploads, or unlink.
-                    HintText(stringResource(R.string.online_upload_actions_caption))
-                    Row(
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                        modifier = Modifier.fillMaxWidth(),
-                    ) {
-                        Button(
-                            onClick = { viewModel.retryEucstatsUploads() },
-                            modifier = Modifier.weight(1f),
-                        ) {
-                            Text(stringResource(R.string.cloud_retry_now))
-                        }
-                        Button(
-                            onClick = { showUnlinkConfirm = true },
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = MaterialTheme.appColors.statusDanger,
-                                contentColor   = MaterialTheme.appColors.onPrimary,
-                            ),
-                            modifier = Modifier.weight(1f),
-                        ) {
-                            Text(stringResource(R.string.online_upload_unlink))
-                        }
-                    }
+            // "Trip stats uploads" as a subtitle: smaller than a section header,
+            // stronger than body text.
+            Text(
+                stringResource(R.string.online_upload_actions_caption),
+                style = MaterialTheme.typography.titleSmall,
+                color = MaterialTheme.appColors.textSecondary,
+                modifier = Modifier.padding(top = 4.dp),
+            )
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                Button(
+                    onClick = { viewModel.retryEucstatsUploads() },
+                    modifier = Modifier.weight(1f),
+                ) {
+                    Text(stringResource(R.string.cloud_retry_now))
+                }
+                Button(
+                    onClick = { showUnlinkConfirm = true },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.appColors.statusDanger,
+                        contentColor   = MaterialTheme.appColors.onPrimary,
+                    ),
+                    modifier = Modifier.weight(1f),
+                ) {
+                    Text(stringResource(R.string.online_upload_unlink))
                 }
             }
         }
