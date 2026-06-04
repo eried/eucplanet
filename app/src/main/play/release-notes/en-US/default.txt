@@ -1,2 +1,2 @@
-- Restored the green speed gauge: the speed number and arc read bright green again, with the darker green safe band.
-- Settings: section icons are accent-colored again and the titles and labels are normal text instead of all teal. Fixed in light and dark mode.
+- Each dashboard metric now has its own color instead of the accent: voltage and amps blue, battery and trip green, temperature and PWM orange. Warnings still go yellow or red.
+- The theme editor widget and the color-identifier window are now 80% opaque so the dashboard behind them stays faintly visible.
