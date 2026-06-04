@@ -300,13 +300,24 @@ fun TripDetailScreen(
                 // When the CSV has any non-empty Ext GPS speed cells (i.e. a
                 // RaceBox was paired during this trip) overlay that series in
                 // purple, also unit-converted so the two lines share an axis.
+                // GPS-speed overlay: lets the rider compare wheel speed (the main
+                // line) against GPS speed -- divergence reveals GPS drift or a
+                // free-spin. NaN where there was no GPS reading so the line breaks
+                // instead of dropping to zero.
+                val gpsSpeedSeries = dataPoints.map {
+                    if (it.gpsSpeed <= 0f) Float.NaN
+                    else com.eried.eucplanet.util.Units.speed(it.gpsSpeed, speedUnit)
+                }
                 val extSpeedSeries = dataPoints.map {
                     if (it.extGpsSpeed.isNaN()) Float.NaN
                     else com.eried.eucplanet.util.Units.speed(it.extGpsSpeed, speedUnit)
                 }
-                val speedOverlays = if (extSpeedSeries.any { !it.isNaN() }) {
-                    listOf(ChartOverlay(extSpeedSeries, MaterialTheme.appColors.metricPosition))
-                } else emptyList()
+                val speedOverlays = buildList {
+                    if (gpsSpeedSeries.any { !it.isNaN() })
+                        add(ChartOverlay(gpsSpeedSeries, MaterialTheme.appColors.metricPosition))
+                    if (extSpeedSeries.any { !it.isNaN() })
+                        add(ChartOverlay(extSpeedSeries, MaterialTheme.appColors.metricTemp))
+                }
                 val speedMinSpan = when (speedUnit) {
                     "mph" -> GraphScale.SPAN_SPEED_MPH
                     "ms" -> GraphScale.SPAN_SPEED_MS
