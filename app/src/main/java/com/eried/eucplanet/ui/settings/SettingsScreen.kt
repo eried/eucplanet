@@ -6867,34 +6867,36 @@ private fun CloudTab(
                     )
                 ) { append(linkedLabel) }
             }
-            Text(
-                linkedText,
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.appColors.textSecondary,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clickable {
-                        val intent = android.content.Intent(
-                            android.content.Intent.ACTION_VIEW,
-                            android.net.Uri.parse(siteUrl)
-                        )
-                        runCatching { context.startActivity(intent) }
-                    }
-                    .padding(vertical = 4.dp),
-            )
-
+            // The whole section sits in one rounded box, like the Devices section.
             Card(
                 colors = CardDefaults.cardColors(
                     containerColor = MaterialTheme.appColors.tileBackground
                         .takeIf { it != androidx.compose.ui.graphics.Color.Unspecified }
                         ?: MaterialTheme.colorScheme.surfaceVariant,
                 ),
+                shape = RoundedCornerShape(12.dp),
                 modifier = Modifier.fillMaxWidth(),
             ) {
                 Column(
                     modifier = Modifier.padding(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp),
                 ) {
+                    // Link to the public site.
+                    Text(
+                        linkedText,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.appColors.textSecondary,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable {
+                                val intent = android.content.Intent(
+                                    android.content.Intent.ACTION_VIEW,
+                                    android.net.Uri.parse(siteUrl)
+                                )
+                                runCatching { context.startActivity(intent) }
+                            },
+                    )
+
                     if (card != null) {
                         // Avatar + name/flag row
                         Row(
@@ -6902,20 +6904,26 @@ private fun CloudTab(
                             horizontalArrangement = Arrangement.spacedBy(12.dp),
                             modifier = Modifier.fillMaxWidth(),
                         ) {
-                            // Avatar: circular initial placeholder (no Coil dependency)
+                            // Avatar: the real photo when available, falling back to
+                            // a circular initial while it loads or if it fails.
                             val initial = card.displayName?.firstOrNull()?.uppercaseChar()?.toString() ?: "?"
-                            Box(
-                                modifier = Modifier
-                                    .size(48.dp)
-                                    .clip(CircleShape)
-                                    .background(MaterialTheme.appColors.primary),
-                                contentAlignment = Alignment.Center,
+                            com.eried.eucplanet.ui.settings.eucstats.RemoteAvatar(
+                                url = card.avatarUrl,
+                                modifier = Modifier.size(48.dp).clip(CircleShape),
                             ) {
-                                Text(
-                                    text = initial,
-                                    style = MaterialTheme.typography.titleMedium,
-                                    color = MaterialTheme.appColors.onPrimary,
-                                )
+                                Box(
+                                    modifier = Modifier
+                                        .size(48.dp)
+                                        .clip(CircleShape)
+                                        .background(MaterialTheme.appColors.primary),
+                                    contentAlignment = Alignment.Center,
+                                ) {
+                                    Text(
+                                        text = initial,
+                                        style = MaterialTheme.typography.titleMedium,
+                                        color = MaterialTheme.appColors.onPrimary,
+                                    )
+                                }
                             }
                             // Name and flag
                             Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
@@ -7000,44 +7008,44 @@ private fun CloudTab(
                             )
                         }
                     }
-                }
-            }
 
-            // Manage profile: same width as the Sync all / Unlink buttons below.
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                modifier = Modifier.fillMaxWidth(),
-            ) {
-                Button(
-                    onClick = { showOnlineProfile = true },
-                    modifier = Modifier.weight(1f),
-                ) {
-                    Text(stringResource(R.string.online_profile_manage))
-                }
-                Spacer(modifier = Modifier.weight(1f))
-            }
+                    // Manage profile: same width as the Sync all / Unlink buttons below.
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        modifier = Modifier.fillMaxWidth(),
+                    ) {
+                        Button(
+                            onClick = { showOnlineProfile = true },
+                            modifier = Modifier.weight(1f),
+                        ) {
+                            Text(stringResource(R.string.online_profile_manage))
+                        }
+                        Spacer(modifier = Modifier.weight(1f))
+                    }
 
-            // Trip stats upload actions: sync all pending uploads, or unlink.
-            HintText(stringResource(R.string.online_upload_actions_caption))
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                modifier = Modifier.fillMaxWidth(),
-            ) {
-                Button(
-                    onClick = { viewModel.retryEucstatsUploads() },
-                    modifier = Modifier.weight(1f),
-                ) {
-                    Text(stringResource(R.string.cloud_retry_now))
-                }
-                Button(
-                    onClick = { showUnlinkConfirm = true },
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.appColors.statusDanger,
-                        contentColor   = MaterialTheme.appColors.onPrimary,
-                    ),
-                    modifier = Modifier.weight(1f),
-                ) {
-                    Text(stringResource(R.string.online_upload_unlink))
+                    // Trip stats upload actions: sync all pending uploads, or unlink.
+                    HintText(stringResource(R.string.online_upload_actions_caption))
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        modifier = Modifier.fillMaxWidth(),
+                    ) {
+                        Button(
+                            onClick = { viewModel.retryEucstatsUploads() },
+                            modifier = Modifier.weight(1f),
+                        ) {
+                            Text(stringResource(R.string.cloud_retry_now))
+                        }
+                        Button(
+                            onClick = { showUnlinkConfirm = true },
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = MaterialTheme.appColors.statusDanger,
+                                contentColor   = MaterialTheme.appColors.onPrimary,
+                            ),
+                            modifier = Modifier.weight(1f),
+                        ) {
+                            Text(stringResource(R.string.online_upload_unlink))
+                        }
+                    }
                 }
             }
         }

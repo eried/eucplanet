@@ -351,6 +351,36 @@ fun OnlineProfileDialog(
                                         }
                                     }
                                 }
+                                profile?.avatarUrl != null -> {
+                                    // Show the rider's current photo, with the edit
+                                    // pencil as the placeholder while it loads.
+                                    RemoteAvatar(
+                                        url = profile?.avatarUrl,
+                                        modifier = Modifier.size(96.dp).clip(CircleShape),
+                                    ) {
+                                        Icon(
+                                            Icons.Default.Edit, contentDescription = null,
+                                            tint = MaterialTheme.appColors.textSecondary,
+                                            modifier = Modifier.size(30.dp),
+                                        )
+                                    }
+                                    if (avatarEditable) {
+                                        Box(
+                                            modifier = Modifier
+                                                .align(Alignment.BottomEnd)
+                                                .size(30.dp)
+                                                .clip(CircleShape)
+                                                .background(MaterialTheme.appColors.primary),
+                                            contentAlignment = Alignment.Center,
+                                        ) {
+                                            Icon(
+                                                Icons.Default.Edit, contentDescription = null,
+                                                tint = MaterialTheme.appColors.onPrimary,
+                                                modifier = Modifier.size(16.dp),
+                                            )
+                                        }
+                                    }
+                                }
                                 profile?.hasAvatar == true -> {
                                     Icon(
                                         Icons.Default.Edit, contentDescription = null,
