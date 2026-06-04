@@ -21,6 +21,10 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.Cloud
+import androidx.compose.material.icons.filled.CloudDone
+import androidx.compose.material.icons.filled.CloudOff
+import androidx.compose.material.icons.filled.CloudQueue
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.FiberManualRecord
 import androidx.compose.material.icons.filled.Pending
@@ -425,7 +429,8 @@ fun RecordingScreen(
                             distanceUnit = distanceUnit,
                             onView = { onViewTrip?.invoke(trip) },
                             onShare = { tripToShare = trip },
-                            onDelete = { tripToDelete = trip }
+                            onDelete = { tripToDelete = trip },
+                            onRetryOnline = { viewModel.retryOnlineUploads() }
                         )
                     }
                 }
@@ -454,7 +459,8 @@ private fun TripCard(
     distanceUnit: String,
     onView: () -> Unit,
     onShare: () -> Unit,
-    onDelete: () -> Unit
+    onDelete: () -> Unit,
+    onRetryOnline: () -> Unit = {}
 ) {
     val distanceUnitLabel = com.eried.eucplanet.util.Units.distanceUnit(distanceUnit)
     val dateFormat = SimpleDateFormat("dd MMM yyyy HH:mm", Locale.getDefault())
@@ -530,8 +536,11 @@ private fun TripCard(
             // sync worker is uploading (uploadStatus=1). Without this, there is a
             // visible gap between the orange icon disappearing and the green tick
             // appearing once the upload completes. Recording trips show neither.
+            // Single combined status (progression: pending -> saved locally -> shared online).
+            // Online supersedes the disk tick since online upload requires the folder.
             when {
                 isPending || (!isRecording && trip.uploadStatus == 1) -> PendingStatusIcon()
+                !isRecording && trip.eucstatsStatus != 0 -> OnlineStatusIcon(trip, onRetryOnline)
                 !isRecording && trip.uploadStatus == 2 -> UploadStatusIcon(trip)
             }
             // View (eye), always available
@@ -584,5 +593,36 @@ private fun UploadStatusIcon(trip: TripRecord) {
     IconButton(onClick = { showSnackbarLocal(snackbar, scope, msg) }) {
         Icon(Icons.Default.CheckCircle, contentDescription = msg, tint = MaterialTheme.appColors.statusGood,
             modifier = Modifier.size(20.dp))
+    }
+}
+
+/** eucstats online status: green cloud = shared, warn cloud = under review / uploading,
+ *  red cloud-off = failed (tap to retry). Old/imported trips have eucstatsStatus 0 and
+ *  never reach here, so they keep the local disk tick. */
+@Composable
+private fun OnlineStatusIcon(trip: TripRecord, onRetry: () -> Unit) {
+    val snackbar = LocalSnackbar.current
+    val scope = LocalSnackbarScope.current
+    val flagged = trip.eucstatsStatus == 2 && trip.eucstatsValidation == "flagged"
+    val isRetry = trip.eucstatsStatus == 3
+    val icon = when {
+        isRetry -> Icons.Default.CloudOff
+        trip.eucstatsStatus == 2 && !flagged -> Icons.Default.CloudDone
+        flagged -> Icons.Default.Cloud
+        else -> Icons.Default.CloudQueue   // 1 = pending / uploading
+    }
+    val tint = when {
+        isRetry -> MaterialTheme.appColors.statusDanger
+        trip.eucstatsStatus == 2 && !flagged -> MaterialTheme.appColors.statusGood
+        else -> MaterialTheme.appColors.statusWarn
+    }
+    val msg = when {
+        isRetry -> stringResource(R.string.online_status_failed)
+        trip.eucstatsStatus == 2 && !flagged -> stringResource(R.string.online_status_shared)
+        flagged -> stringResource(R.string.online_status_flagged)
+        else -> stringResource(R.string.online_status_pending)
+    }
+    IconButton(onClick = { if (isRetry) onRetry() else showSnackbarLocal(snackbar, scope, msg) }) {
+        Icon(icon, contentDescription = msg, tint = tint, modifier = Modifier.size(20.dp))
     }
 }

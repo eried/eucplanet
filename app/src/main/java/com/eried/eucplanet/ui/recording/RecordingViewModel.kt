@@ -71,11 +71,19 @@ class RecordingViewModel @Inject constructor(
     private val tripRepository: TripRepository,
     private val wheelRepository: com.eried.eucplanet.data.repository.WheelRepository,
     private val settingsRepository: SettingsRepository,
+    private val syncManager: com.eried.eucplanet.data.sync.SyncManager,
     @ApplicationContext private val context: Context
 ) : ViewModel() {
 
     companion object {
         private const val TAG = "RecordingVM"
+    }
+
+    /** Re-enqueue the eucstats upload worker to retry pending/failed online uploads. */
+    fun retryOnlineUploads() {
+        viewModelScope.launch {
+            syncManager.enqueueEucStatsUpload(settingsRepository.get())
+        }
     }
 
     val recording: StateFlow<Boolean> = tripRepository.recording
