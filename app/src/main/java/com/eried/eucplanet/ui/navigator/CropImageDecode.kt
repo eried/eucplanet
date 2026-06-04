@@ -33,10 +33,16 @@ fun decodeDownsampledBitmap(
 ): Bitmap? {
     val probe = BitmapFactory.Options().apply { inJustDecodeBounds = true }
     context.contentResolver.openInputStream(uri)?.use {
+        // In bounds-probe mode decodeStream INTENTIONALLY returns null and
+        // only fills probe.outWidth/outHeight. Do NOT add `?: return null`
+        // here -- that null is expected, not a failure, and bailing on it
+        // aborts every decode (no crop dialog ever appears).
         BitmapFactory.decodeStream(it, null, probe)
-    } ?: return null
+    }
+    // Couldn't read the bounds -> stream unreadable or not an image.
+    if (probe.outWidth <= 0 || probe.outHeight <= 0) return null
 
-    val longEdge = maxOf(probe.outWidth, probe.outHeight).coerceAtLeast(1)
+    val longEdge = maxOf(probe.outWidth, probe.outHeight)
     var sample = 1
     while (longEdge / sample > targetLongEdge) sample *= 2
 
