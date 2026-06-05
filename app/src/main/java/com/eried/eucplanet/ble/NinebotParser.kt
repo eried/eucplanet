@@ -19,7 +19,7 @@ import com.eried.eucplanet.util.ByteUtils
  * live-data replies into two notifies), validates CRC, and dispatches
  * payload bytes to the per-family decoder.
  *
- * Protocol research credit: WheelLog (Ilya Shkolnik / Palachzzz and contributors,
+ * Protocol research credit: the WheelLog community (
  * https://github.com/Wheellog/wheellog.android, GPLv3, used as a protocol
  * reference; the implementation here is original).
  */

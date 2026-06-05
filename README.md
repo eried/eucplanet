@@ -181,6 +181,21 @@ EUC Planet is free and stays free. If it saved you a subscription, or for any ot
 reason you want to chip in: [donate via PayPal](https://www.paypal.com/donate/?hosted_button_id=AEB2RPZHNRTKG).
 Entirely optional, very appreciated.
 
+## Acknowledgements
+
+Thanks to the people and projects that helped, kept in sync with the in-app
+list (tap the version number → **Thanks**):
+
+| Who | For |
+| --- | --- |
+| Gio (Wheel In Motion) | Promotion, suggestions and P6 testing |
+| FlyboyEUC (Adam) | Mten3, E20 and EX30 testing |
+| Soolek | KS-16X testing |
+| Jonathan Wiesner | LeaperKim Lynx S testing |
+| [WheelLog community](https://github.com/Wheellog/wheellog.android) | Open-source (GPLv3) EUC protocol research |
+| Ilya Shkolnik | Advice and help. Maintains DarknessBot. |
+| InMotion | For making a great V14 |
+
 ## License
 
 Released under the [MIT License](LICENSE), use it, fork it, build on it, just keep

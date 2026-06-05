@@ -15,7 +15,7 @@ import javax.inject.Singleton
  * frames are 20-byte fixed-length structures `AA 55 ... type 14 5A 5A`,
  * dispatched by the type byte at offset 16.
  *
- * Protocol research credit: WheelLog (Ilya Shkolnik and contributors,
+ * Protocol research credit: the WheelLog community (
  * https://github.com/Wheellog/wheellog.android, GPLv3, used as a protocol
  * reference; the implementation here is original).
  */

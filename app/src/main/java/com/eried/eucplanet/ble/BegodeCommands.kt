@@ -8,7 +8,7 @@ package com.eried.eucplanet.ble
  * Confirmation only arrives via the next 0x04 (Live B) telemetry frame.
  *
  * Spec: docs/protocols/begode.md sections 6.1, 6.2. Protocol research credit:
- * WheelLog (Ilya Shkolnik and contributors, GPLv3), used as a protocol
+ * the WheelLog community ( GPLv3), used as a protocol
  * reference; the implementation here is original.
  */
 object BegodeCommands {

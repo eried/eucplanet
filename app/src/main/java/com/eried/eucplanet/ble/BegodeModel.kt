@@ -11,7 +11,7 @@ package com.eried.eucplanet.ble
  * 126 V wheels use ~0.94, etc.) to land on real volts.
  *
  * Spec: docs/protocols/begode.md. Protocol research credit goes to WheelLog
- * (Ilya Shkolnik and contributors); the implementation here is original.
+ * community; the implementation here is original.
  */
 enum class BegodeModel(
     val displayName: String,

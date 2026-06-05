@@ -483,8 +483,7 @@ Primary research source: **WheelLog Android**,
 `app/src/main/java/com/cooper/wheellog/utils/InMotionAdapter.java`
 (GPLv3). The CAN ID layout, framing, escape rules, fast / slow info
 offsets, battery curves and per-model quirks here were reverse-engineered
-by the WheelLog community led by Ilya Shkolnik (palachzzz) and
-contributors. This document is original prose and tables describing that
+by the WheelLog community. This document is original prose and tables describing that
 research; no code from WheelLog has been copied. Consult the upstream
 source for the canonical reference.
 

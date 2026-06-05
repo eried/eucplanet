@@ -12,7 +12,7 @@ import kotlin.math.abs
  *
  * Spec: docs/protocols/inmotion_v1.md sections 4 (fast info) and 5 (slow info).
  *
- * Protocol research credit: WheelLog (Ilya Shkolnik and contributors,
+ * Protocol research credit: the WheelLog community (
  * https://github.com/Wheellog/wheellog.android, GPLv3, used as a protocol
  * reference; the implementation here is original).
  */

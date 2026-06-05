@@ -8,7 +8,7 @@ import com.eried.eucplanet.util.ByteUtils
  * offset 16, then the `0x14 0x5A 0x5A` trailer at offsets 17..19. See
  * docs/protocols/kingsong.md section 3 and section 6.
  *
- * Protocol research credit: WheelLog (Ilya Shkolnik and contributors,
+ * Protocol research credit: the WheelLog community (
  * https://github.com/Wheellog/wheellog.android, GPLv3, used as a protocol
  * reference; the implementation here is original).
  */

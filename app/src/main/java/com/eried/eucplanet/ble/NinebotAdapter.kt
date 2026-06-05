@@ -21,7 +21,7 @@ import javax.inject.Singleton
  * notifications are enabled.
  *
  * Wire format and command set come from docs/protocols/ninebot.md. Protocol
- * research credit: WheelLog (Ilya Shkolnik / Palachzzz and contributors,
+ * research credit: the WheelLog community (
  * https://github.com/Wheellog/wheellog.android, GPLv3, used as a protocol
  * reference; the implementation here is original).
  */

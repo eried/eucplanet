@@ -423,6 +423,6 @@ cross-checked against:
 - DarknessBot / EUC World public blog posts on KS frame format
 - The KingSong S22 user manual for the user-visible setting names
 
-Original protocol reverse engineering by Ilya Shkolnik and other
-WheelLog contributors. This document re-describes the protocol in our
+Original protocol reverse engineering by the WheelLog contributor
+community. This document re-describes the protocol in our
 own words and idiom; no source code has been copied.

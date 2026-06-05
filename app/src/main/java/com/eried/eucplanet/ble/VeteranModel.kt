@@ -8,7 +8,7 @@ package com.eried.eucplanet.ble
  * device name when possible, and fall back to a generic Veteran profile.
  *
  * Spec: docs/protocols/veteran.md. Protocol research credit goes to WheelLog
- * (Ilya Shkolnik and contributors); the implementation here is original.
+ * community; the implementation here is original.
  */
 enum class VeteranModel(
     val displayName: String,

@@ -373,7 +373,7 @@ Additional booleans worth tracking:
 This document was reconstructed from publicly available open-source research:
 
 - Primary source: WheelLog Android (`Wheellog/wheellog.android` on GitHub), GPLv3,
-  by Ilya Shkolnik and contributors. The `VeteranAdapter.java` and
+  by the WheelLog community. The `VeteranAdapter.java` and
   `GotwayVirtualAdapter.java` files were the main references for frame layout, byte
   offsets, scale factors, command bytes, and per-model voltage curves.
 - Secondary: WheelLog wiki and the Electric Unicycle Forum LeaperKim threads for

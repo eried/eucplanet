@@ -308,7 +308,7 @@ jobs:
           tag="${{ needs.meta.outputs.tag }}"
           if gh release view "$tag" >/dev/null 2>&1; then
             gh release view "$tag" --json assets \
-              --jq '.assets[] | select(.name | test("\\.(apk|aab|iq|prg)$")) | .name' \
+              --jq '.assets[] | select(.name | test("\\.(apk|aab|iq|prg|zip)$")) | .name' \
             | while read -r asset; do
                 [ -n "$asset" ] && gh release delete-asset "$tag" "$asset" --yes || true
               done

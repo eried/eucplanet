@@ -7,7 +7,7 @@ package com.eried.eucplanet.ble
  * that key with no IV, no rotation, and no authentication. See
  * docs/protocols/ninebot.md section 6.
  *
- * Protocol research credit: WheelLog (Ilya Shkolnik / Palachzzz and contributors,
+ * Protocol research credit: the WheelLog community (
  * https://github.com/Wheellog/wheellog.android, GPLv3, used as a protocol
  * reference; the implementation here is original).
  */
