@@ -216,25 +216,42 @@ fun OnlineUploadOnboardingDialog(
                 Box(
                     modifier = Modifier
                         .size(96.dp)
-                        .clip(CircleShape)
-                        .background(MaterialTheme.appColors.surfaceVariant)
-                        .border(
-                            width = 2.dp,
-                            color = if (croppedBitmap != null) MaterialTheme.appColors.primary
-                                    else MaterialTheme.appColors.outline,
-                            shape = CircleShape
-                        )
                         .clickable(enabled = !registering) { imagePicker.launch("image/*") },
                     contentAlignment = Alignment.Center
                 ) {
-                    val cropped = croppedBitmap
-                    if (cropped != null) {
-                        Image(
-                            bitmap = remember(cropped) { cropped.asImageBitmap() },
-                            contentDescription = null,
-                            modifier = Modifier.size(96.dp).clip(CircleShape)
-                        )
-                        // Small edit badge so it's obviously tappable to change.
+                    // The circular avatar is clipped to a circle; the edit badge
+                    // below is a SIBLING outside this clip so the CircleShape
+                    // doesn't slice it into a corner sliver.
+                    Box(
+                        modifier = Modifier
+                            .size(96.dp)
+                            .clip(CircleShape)
+                            .background(MaterialTheme.appColors.surfaceVariant)
+                            .border(
+                                width = 2.dp,
+                                color = if (croppedBitmap != null) MaterialTheme.appColors.primary
+                                        else MaterialTheme.appColors.outline,
+                                shape = CircleShape
+                            ),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        val cropped = croppedBitmap
+                        if (cropped != null) {
+                            Image(
+                                bitmap = remember(cropped) { cropped.asImageBitmap() },
+                                contentDescription = null,
+                                modifier = Modifier.size(96.dp).clip(CircleShape)
+                            )
+                        } else {
+                            Icon(
+                                Icons.Default.AddAPhoto, contentDescription = null,
+                                tint = MaterialTheme.appColors.textSecondary,
+                                modifier = Modifier.size(34.dp)
+                            )
+                        }
+                    }
+                    // Small edit badge on the circle's bottom-right edge (not clipped).
+                    if (croppedBitmap != null) {
                         Box(
                             modifier = Modifier
                                 .align(Alignment.BottomEnd)
@@ -249,12 +266,6 @@ fun OnlineUploadOnboardingDialog(
                                 modifier = Modifier.size(16.dp)
                             )
                         }
-                    } else {
-                        Icon(
-                            Icons.Default.AddAPhoto, contentDescription = null,
-                            tint = MaterialTheme.appColors.textSecondary,
-                            modifier = Modifier.size(34.dp)
-                        )
                     }
                 }
                 // Gentle affordance (not a "required" nag) only before a photo is set.

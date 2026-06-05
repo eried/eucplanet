@@ -321,40 +321,26 @@ fun OnlineProfileDialog(
                         Box(
                             modifier = Modifier
                                 .size(96.dp)
-                                .clip(CircleShape)
-                                .background(MaterialTheme.appColors.surfaceVariant)
-                                .border(width = 2.dp, color = avatarBorder, shape = CircleShape)
                                 .clickable(enabled = avatarEditable && !saving) { imagePicker.launch("image/*") },
                             contentAlignment = Alignment.Center,
                         ) {
-                            when {
-                                cropped != null -> {
-                                    Image(
+                            // Circular avatar (clipped). The edit badge is a sibling
+                            // outside this clip so CircleShape doesn't slice it.
+                            Box(
+                                modifier = Modifier
+                                    .size(96.dp)
+                                    .clip(CircleShape)
+                                    .background(MaterialTheme.appColors.surfaceVariant)
+                                    .border(width = 2.dp, color = avatarBorder, shape = CircleShape),
+                                contentAlignment = Alignment.Center,
+                            ) {
+                                when {
+                                    cropped != null -> Image(
                                         bitmap = remember(cropped) { cropped.asImageBitmap() },
                                         contentDescription = null,
                                         modifier = Modifier.size(96.dp).clip(CircleShape),
                                     )
-                                    if (avatarEditable) {
-                                        Box(
-                                            modifier = Modifier
-                                                .align(Alignment.BottomEnd)
-                                                .size(30.dp)
-                                                .clip(CircleShape)
-                                                .background(MaterialTheme.appColors.primary),
-                                            contentAlignment = Alignment.Center,
-                                        ) {
-                                            Icon(
-                                                Icons.Default.Edit, contentDescription = null,
-                                                tint = MaterialTheme.appColors.onPrimary,
-                                                modifier = Modifier.size(16.dp),
-                                            )
-                                        }
-                                    }
-                                }
-                                profile?.avatarUrl != null -> {
-                                    // Show the rider's current photo, with the edit
-                                    // pencil as the placeholder while it loads.
-                                    RemoteAvatar(
+                                    profile?.avatarUrl != null -> RemoteAvatar(
                                         url = profile?.avatarUrl,
                                         modifier = Modifier.size(96.dp).clip(CircleShape),
                                     ) {
@@ -364,35 +350,32 @@ fun OnlineProfileDialog(
                                             modifier = Modifier.size(30.dp),
                                         )
                                     }
-                                    if (avatarEditable) {
-                                        Box(
-                                            modifier = Modifier
-                                                .align(Alignment.BottomEnd)
-                                                .size(30.dp)
-                                                .clip(CircleShape)
-                                                .background(MaterialTheme.appColors.primary),
-                                            contentAlignment = Alignment.Center,
-                                        ) {
-                                            Icon(
-                                                Icons.Default.Edit, contentDescription = null,
-                                                tint = MaterialTheme.appColors.onPrimary,
-                                                modifier = Modifier.size(16.dp),
-                                            )
-                                        }
-                                    }
-                                }
-                                profile?.hasAvatar == true -> {
-                                    Icon(
+                                    profile?.hasAvatar == true -> Icon(
                                         Icons.Default.Edit, contentDescription = null,
                                         tint = MaterialTheme.appColors.textSecondary,
                                         modifier = Modifier.size(30.dp),
                                     )
-                                }
-                                else -> {
-                                    Icon(
+                                    else -> Icon(
                                         Icons.Default.AddAPhoto, contentDescription = null,
                                         tint = MaterialTheme.appColors.textSecondary,
                                         modifier = Modifier.size(34.dp),
+                                    )
+                                }
+                            }
+                            // Edit badge on the circle's bottom-right edge (not clipped).
+                            if (avatarEditable && (cropped != null || profile?.avatarUrl != null)) {
+                                Box(
+                                    modifier = Modifier
+                                        .align(Alignment.BottomEnd)
+                                        .size(30.dp)
+                                        .clip(CircleShape)
+                                        .background(MaterialTheme.appColors.primary),
+                                    contentAlignment = Alignment.Center,
+                                ) {
+                                    Icon(
+                                        Icons.Default.Edit, contentDescription = null,
+                                        tint = MaterialTheme.appColors.onPrimary,
+                                        modifier = Modifier.size(16.dp),
                                     )
                                 }
                             }
