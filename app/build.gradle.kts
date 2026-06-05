@@ -65,7 +65,13 @@ android {
 
     buildTypes {
         debug {
-            buildConfigField("String", "EUCSTATS_API_BASE_URL", "\"http://10.0.2.2:8000/api/v1\"")
+            // Debug builds target the PRODUCTION eucstats API by default, so
+            // branch/sideload debug APKs work on real phones (10.0.2.2 is the
+            // emulator-to-host alias and is unreachable on physical devices).
+            // Opt into a local dev server with: ./gradlew assembleDebug -PeucstatsLocal
+            if (project.hasProperty("eucstatsLocal")) {
+                buildConfigField("String", "EUCSTATS_API_BASE_URL", "\"http://10.0.2.2:8000/api/v1\"")
+            }
         }
         release {
             isMinifyEnabled = true

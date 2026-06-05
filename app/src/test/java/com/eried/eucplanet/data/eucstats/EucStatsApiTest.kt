@@ -52,4 +52,22 @@ class EucStatsApiTest {
         assertEquals("Erwin", c.displayName); assertEquals(7, c.mileageRank); assertEquals(12, c.trips)
         assertEquals(62.0, c.topSpeedKmh, 0.001); assertTrue(c.hasAvatar)
     }
+
+    /** Regression: an unreachable server must NOT throw (which previously crashed
+     *  the app when registering with no connectivity) — it returns safe defaults. */
+    @Test fun unreachableServer_returnsSafeDefaults_neverThrows() = runBlocking {
+        val dead = EucStatsApi(
+            OkHttpClient.Builder()
+                .connectTimeout(200, java.util.concurrent.TimeUnit.MILLISECONDS)
+                .build()
+        ) { "http://127.0.0.1:1/api/v1" } // port 1: connection refused
+        assertNull(dead.registerRider(org.json.JSONObject().put("store_id", "s")))
+        assertNull(dead.getCard("s"))
+        assertNull(dead.getProfile("s"))
+        assertNull(dead.riderExists("s"))            // "couldn't tell", not false
+        assertEquals(0, dead.patchRider("s", org.json.JSONObject()))
+        assertFalse(dead.deleteRider("s"))
+        assertNull(dead.exportRider("s"))
+        assertTrue(dead.uploadTrip("{}", ByteArray(1)) is UploadResult.Retry)
+    }
 }

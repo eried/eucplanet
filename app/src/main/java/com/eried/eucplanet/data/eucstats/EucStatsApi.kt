@@ -59,82 +59,115 @@ class EucStatsApi(
 ) : EucStatsApiContract {
     private val json = "application/json; charset=utf-8".toMediaType()
 
+    // Every call wraps OkHttp in try/catch: a network failure (no connectivity,
+    // timeout, unreachable host) must surface as a null/"couldn't tell" result,
+    // NEVER an uncaught exception that crashes the app (e.g. registering while
+    // the server is unreachable). uploadTrip already does this.
+
     override fun registerRider(payload: JSONObject): JSONObject? {
         val req = Request.Builder().url("${baseUrl()}/riders")
             .post(payload.toString().toRequestBody(json)).build()
-        client.newCall(req).execute().use { resp ->
-            val body = resp.body?.string().orEmpty()
-            return if (resp.isSuccessful && body.isNotEmpty()) JSONObject(body) else null
+        return try {
+            client.newCall(req).execute().use { resp ->
+                val body = resp.body?.string().orEmpty()
+                if (resp.isSuccessful && body.isNotEmpty()) JSONObject(body) else null
+            }
+        } catch (e: Exception) {
+            null
         }
     }
 
     override fun getCard(storeId: String): RiderCard? {
         val req = Request.Builder().url("${baseUrl()}/riders/$storeId/card").get().build()
-        client.newCall(req).execute().use { resp ->
-            if (!resp.isSuccessful) return null
-            val o = JSONObject(resp.body?.string().orEmpty())
-            // Stats live under "stats" and ranks under "ranks" in the response.
-            val stats = o.optJSONObject("stats") ?: JSONObject()
-            val ranks = o.optJSONObject("ranks") ?: JSONObject()
-            return RiderCard(
-                displayName = o.optString("display_name").ifEmpty { null },
-                flag = o.optString("flag").ifEmpty { null },
-                hasAvatar = o.optBoolean("has_avatar"),
-                // No avatar_url in the JSON; the image is served at
-                // /riders/{id}/avatar, so build that URL when an avatar exists.
-                avatarUrl = if (o.optBoolean("has_avatar")) "${baseUrl()}/riders/$storeId/avatar" else null,
-                totalKm = stats.optDouble("total_km", 0.0),
-                trips = stats.optInt("trips", 0),
-                topSpeedKmh = stats.optDouble("best_speed_kmh", 0.0),
-                maxGforce = stats.optDouble("best_gforce", 0.0),
-                mileageRank = if (!ranks.has("distance") || ranks.isNull("distance")) null else ranks.optInt("distance"),
-                country = o.optString("country").ifEmpty { null },
-            )
+        return try {
+            client.newCall(req).execute().use { resp ->
+                if (!resp.isSuccessful) return@use null
+                val o = JSONObject(resp.body?.string().orEmpty())
+                // Stats live under "stats" and ranks under "ranks" in the response.
+                val stats = o.optJSONObject("stats") ?: JSONObject()
+                val ranks = o.optJSONObject("ranks") ?: JSONObject()
+                RiderCard(
+                    displayName = o.optString("display_name").ifEmpty { null },
+                    flag = o.optString("flag").ifEmpty { null },
+                    hasAvatar = o.optBoolean("has_avatar"),
+                    // No avatar_url in the JSON; the image is served at
+                    // /riders/{id}/avatar, so build that URL when an avatar exists.
+                    avatarUrl = if (o.optBoolean("has_avatar")) "${baseUrl()}/riders/$storeId/avatar" else null,
+                    totalKm = stats.optDouble("total_km", 0.0),
+                    trips = stats.optInt("trips", 0),
+                    topSpeedKmh = stats.optDouble("best_speed_kmh", 0.0),
+                    maxGforce = stats.optDouble("best_gforce", 0.0),
+                    mileageRank = if (!ranks.has("distance") || ranks.isNull("distance")) null else ranks.optInt("distance"),
+                    country = o.optString("country").ifEmpty { null },
+                )
+            }
+        } catch (e: Exception) {
+            null
         }
     }
 
     override fun getProfile(storeId: String): RiderProfile? {
         val req = Request.Builder().url("${baseUrl()}/riders/$storeId").get().build()
-        client.newCall(req).execute().use { resp ->
-            if (!resp.isSuccessful) return null
-            val o = JSONObject(resp.body?.string().orEmpty())
-            return RiderProfile(
-                displayName = o.optString("display_name").ifEmpty { null },
-                flag = o.optString("flag").ifEmpty { null },
-                hasAvatar = o.optBoolean("has_avatar"),
-                avatarUrl = if (o.optBoolean("has_avatar")) "${baseUrl()}/riders/$storeId/avatar" else null,
-                canChangeNameAfter = o.optString("can_change_name_after").ifEmpty { null },
-                canChangeFlagAfter = o.optString("can_change_flag_after").ifEmpty { null },
-                canChangeAvatarAfter = o.optString("can_change_avatar_after").ifEmpty { null },
-            )
+        return try {
+            client.newCall(req).execute().use { resp ->
+                if (!resp.isSuccessful) return@use null
+                val o = JSONObject(resp.body?.string().orEmpty())
+                RiderProfile(
+                    displayName = o.optString("display_name").ifEmpty { null },
+                    flag = o.optString("flag").ifEmpty { null },
+                    hasAvatar = o.optBoolean("has_avatar"),
+                    avatarUrl = if (o.optBoolean("has_avatar")) "${baseUrl()}/riders/$storeId/avatar" else null,
+                    canChangeNameAfter = o.optString("can_change_name_after").ifEmpty { null },
+                    canChangeFlagAfter = o.optString("can_change_flag_after").ifEmpty { null },
+                    canChangeAvatarAfter = o.optString("can_change_avatar_after").ifEmpty { null },
+                )
+            }
+        } catch (e: Exception) {
+            null
         }
     }
 
     override fun riderExists(storeId: String): Boolean? {
         val req = Request.Builder().url("${baseUrl()}/riders/$storeId").get().build()
-        client.newCall(req).execute().use { resp ->
-            return when {
-                resp.isSuccessful -> true
-                resp.code == 404 -> false
-                else -> null
+        return try {
+            client.newCall(req).execute().use { resp ->
+                when {
+                    resp.isSuccessful -> true
+                    resp.code == 404 -> false
+                    else -> null
+                }
             }
+        } catch (e: Exception) {
+            null
         }
     }
 
     override fun patchRider(storeId: String, payload: JSONObject): Int {
         val req = Request.Builder().url("${baseUrl()}/riders/$storeId")
             .patch(payload.toString().toRequestBody(json)).build()
-        client.newCall(req).execute().use { return it.code }
+        return try {
+            client.newCall(req).execute().use { it.code }
+        } catch (e: Exception) {
+            0 // network failure: caller treats any non-2xx as an error
+        }
     }
 
     override fun deleteRider(storeId: String): Boolean {
         val req = Request.Builder().url("${baseUrl()}/riders/$storeId").delete().build()
-        client.newCall(req).execute().use { return it.isSuccessful }
+        return try {
+            client.newCall(req).execute().use { it.isSuccessful }
+        } catch (e: Exception) {
+            false
+        }
     }
 
     override fun exportRider(storeId: String): String? {
         val req = Request.Builder().url("${baseUrl()}/riders/$storeId/export").get().build()
-        client.newCall(req).execute().use { return if (it.isSuccessful) it.body?.string() else null }
+        return try {
+            client.newCall(req).execute().use { if (it.isSuccessful) it.body?.string() else null }
+        } catch (e: Exception) {
+            null
+        }
     }
 
     /** POST /trips multipart: meta (JSON string) + trip (gzipped CSV). */
