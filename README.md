@@ -183,8 +183,7 @@ Entirely optional, very appreciated.
 
 ## Acknowledgements
 
-Thanks to the people and projects that helped, kept in sync with the in-app
-list (tap the version number → **Thanks**):
+Thanks to the people and projects that helped, kept in sync with the app (tap version number → **Thanks**):
 
 | Who | For |
 | --- | --- |
