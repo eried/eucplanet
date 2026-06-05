@@ -1423,7 +1423,7 @@
     <!-- Online profil (rediger/GDPR) -->
     <string name="online_profile_manage">Administrér profil</string>
     <string name="online_profile_title">Min profil</string>
-    <string name="online_profile_changeable_on">Kan ændres igen den %1$s</string>
+    <string name="online_profile_changeable_on">Du kan ændre dette igen den %1$s</string>
     <string name="online_profile_avatar_has">Indstillet</string>
     <string name="online_profile_export_data">Eksportér mine data</string>
     <string name="online_profile_delete_account">Slet konto</string>

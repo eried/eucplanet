@@ -1457,7 +1457,7 @@
     <!-- Online profile (edit/GDPR) -->
     <string name="online_profile_manage">Profiel beheren</string>
     <string name="online_profile_title">Mijn profiel</string>
-    <string name="online_profile_changeable_on">Opnieuw wijzigbaar op %1$s</string>
+    <string name="online_profile_changeable_on">Je kunt dit weer wijzigen op %1$s</string>
     <string name="online_profile_avatar_has">Ingesteld</string>
     <string name="online_profile_export_data">Mijn gegevens exporteren</string>
     <string name="online_profile_delete_account">Account verwijderen</string>

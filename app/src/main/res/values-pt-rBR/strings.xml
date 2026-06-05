@@ -1457,7 +1457,7 @@
     <!-- Perfil online (edição/GDPR) -->
     <string name="online_profile_manage">Gerenciar perfil</string>
     <string name="online_profile_title">Meu perfil</string>
-    <string name="online_profile_changeable_on">Alterável novamente em %1$s</string>
+    <string name="online_profile_changeable_on">Você poderá alterar isto novamente em %1$s</string>
     <string name="online_profile_avatar_has">Definida</string>
     <string name="online_profile_export_data">Exportar meus dados</string>
     <string name="online_profile_delete_account">Excluir conta</string>

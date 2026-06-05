@@ -1473,7 +1473,7 @@
     <!-- Online profile (edit/GDPR) -->
     <string name="online_profile_manage">Управление профилем</string>
     <string name="online_profile_title">Мой профиль</string>
-    <string name="online_profile_changeable_on">Снова можно изменить %1$s</string>
+    <string name="online_profile_changeable_on">Вы сможете изменить это снова %1$s</string>
     <string name="online_profile_avatar_has">Задано</string>
     <string name="online_profile_export_data">Экспортировать мои данные</string>
     <string name="online_profile_delete_account">Удалить аккаунт</string>

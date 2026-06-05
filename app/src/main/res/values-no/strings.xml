@@ -1438,7 +1438,7 @@
     <!-- Nettbasert profil (rediger / GDPR) -->
     <string name="online_profile_manage">Administrer profil</string>
     <string name="online_profile_title">Min profil</string>
-    <string name="online_profile_changeable_on">Kan endres igjen %1$s</string>
+    <string name="online_profile_changeable_on">Du kan endre dette igjen den %1$s</string>
     <string name="online_profile_avatar_has">Satt</string>
     <string name="online_profile_export_data">Eksporter dataene mine</string>
     <string name="online_profile_delete_account">Slett konto</string>

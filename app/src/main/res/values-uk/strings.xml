@@ -1458,7 +1458,7 @@
     <!-- Online profile (edit/GDPR) -->
     <string name="online_profile_manage">Керування профілем</string>
     <string name="online_profile_title">Мій профіль</string>
-    <string name="online_profile_changeable_on">Можна змінити знову %1$s</string>
+    <string name="online_profile_changeable_on">Ви зможете змінити це знову %1$s</string>
     <string name="online_profile_avatar_has">Встановлено</string>
     <string name="online_profile_export_data">Експортувати мої дані</string>
     <string name="online_profile_delete_account">Видалити акаунт</string>

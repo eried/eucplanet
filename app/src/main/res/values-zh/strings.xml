@@ -1421,7 +1421,7 @@
     <!-- 在线资料（编辑/GDPR） -->
     <string name="online_profile_manage">管理资料</string>
     <string name="online_profile_title">我的资料</string>
-    <string name="online_profile_changeable_on">可于 %1$s 后再次修改</string>
+    <string name="online_profile_changeable_on">你可以在 %1$s 再次更改</string>
     <string name="online_profile_avatar_has">已设置</string>
     <string name="online_profile_export_data">导出我的数据</string>
     <string name="online_profile_delete_account">删除账号</string>
