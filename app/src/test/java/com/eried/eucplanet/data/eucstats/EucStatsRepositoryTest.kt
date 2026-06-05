@@ -18,7 +18,7 @@ import org.junit.Test
 
 /** In-memory fake for EucStatsApiContract. Records calls and returns programmed results. */
 class FakeEucStatsApi : EucStatsApiContract {
-    var registerResult: JSONObject? = JSONObject().put("store_id", "new-store")
+    var registerResult: RegisterResult = RegisterResult.Ok(JSONObject().put("store_id", "new-store"))
     var cardResult: RiderCard? = RiderCard(
         displayName = "Fake", flag = "NO", hasAvatar = false, avatarUrl = null,
         totalKm = 100.0, trips = 1, topSpeedKmh = 40.0, maxGforce = 0.0,
@@ -49,7 +49,7 @@ class FakeEucStatsApi : EucStatsApiContract {
         uploadResultQueue.addAll(results)
     }
 
-    override fun registerRider(payload: JSONObject): JSONObject? {
+    override fun registerRider(payload: JSONObject): RegisterResult {
         registerCalls += payload
         return registerResult
     }
@@ -239,7 +239,7 @@ class EucStatsRepositoryTest {
     }
 
     @Test fun register_returnsFalseWhenApiFails() = runBlocking {
-        api.registerResult = null
+        api.registerResult = RegisterResult.Failed
         val ok = repo.register("Eve", "SE", "avatar==")
         assertFalse(ok)
         // Settings must NOT be updated on failure.

@@ -61,7 +61,8 @@ class EucStatsApiTest {
                 .connectTimeout(200, java.util.concurrent.TimeUnit.MILLISECONDS)
                 .build()
         ) { "http://127.0.0.1:1/api/v1" } // port 1: connection refused
-        assertNull(dead.registerRider(org.json.JSONObject().put("store_id", "s")))
+        // A network failure is terminal (not retryable) for registration.
+        assertEquals(RegisterResult.Failed, dead.registerRider(org.json.JSONObject().put("store_id", "s")))
         assertNull(dead.getCard("s"))
         assertNull(dead.getProfile("s"))
         assertNull(dead.riderExists("s"))            // "couldn't tell", not false

@@ -95,9 +95,25 @@ class EucStatsRepository @Inject constructor(
             }
         )
 
-        val response = api.registerRider(payload) ?: return@withContext false
+        // POST /riders, retrying ONLY a 429 (rider_create rate limit) a couple of
+        // times with a short backoff per the eucstats rate-limit spec ("retry
+        // shortly" -- no Retry-After header today). Everything else is terminal
+        // for this attempt; the rider can tap register again. Bounded so the
+        // onboarding spinner never hangs.
+        var attempt = 0
+        while (true) {
+            when (api.registerRider(payload)) {
+                is RegisterResult.Ok -> break
+                RegisterResult.RateLimited -> {
+                    if (attempt >= 2) return@withContext false
+                    attempt++
+                    kotlinx.coroutines.delay(2_000L * attempt)
+                }
+                RegisterResult.Failed -> return@withContext false
+            }
+        }
 
-        // Persist everything on success (non-null response body).
+        // Persist everything on success.
         val now = clock()
         settings.update(
             current.copy(
