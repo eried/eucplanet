@@ -1060,6 +1060,7 @@
     <string name="online_upload_toggle">Join the online leaderboards</string>
     <string name="online_upload_card_loading">Loading…</string>
     <string name="online_upload_card_unavailable">Couldn\'t load your stats.</string>
+    <string name="online_upload_card_missing">This phone\'s leaderboard profile no longer exists on the server, so new uploads will be rejected. If this is unexpected, contact the leaderboard admin.</string>
     <string name="online_upload_actions_caption">Trip stats uploads</string>
     <string name="online_upload_view_on_eucstats">View on EUC Stats</string>
     <string name="online_upload_retry">Retry uploads</string>

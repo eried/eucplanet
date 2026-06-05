@@ -44,6 +44,9 @@ interface EucStatsApiContract {
     fun registerRider(payload: JSONObject): JSONObject?
     fun getCard(storeId: String): RiderCard?
     fun getProfile(storeId: String): RiderProfile?
+    /** true = rider exists (200), false = not found (404, e.g. dataset reset
+     *  or deleted server-side), null = couldn't tell (network/other). */
+    fun riderExists(storeId: String): Boolean? = null
     fun patchRider(storeId: String, payload: JSONObject): Int
     fun deleteRider(storeId: String): Boolean
     fun exportRider(storeId: String): String?
@@ -104,6 +107,17 @@ class EucStatsApi(
                 canChangeFlagAfter = o.optString("can_change_flag_after").ifEmpty { null },
                 canChangeAvatarAfter = o.optString("can_change_avatar_after").ifEmpty { null },
             )
+        }
+    }
+
+    override fun riderExists(storeId: String): Boolean? {
+        val req = Request.Builder().url("${baseUrl()}/riders/$storeId").get().build()
+        client.newCall(req).execute().use { resp ->
+            return when {
+                resp.isSuccessful -> true
+                resp.code == 404 -> false
+                else -> null
+            }
         }
     }
 

@@ -50,6 +50,12 @@ class EucStatsRepository @Inject constructor(
     private val _cardLoaded = MutableStateFlow(false)
     val cardLoaded: StateFlow<Boolean> = _cardLoaded
 
+    /** True when the backend says this rider no longer exists (404) -- e.g. the
+     *  dataset was reset or the account was deleted server-side. The UI uses this
+     *  to offer re-registration instead of a generic "couldn't load". */
+    private val _cardMissing = MutableStateFlow(false)
+    val cardMissing: StateFlow<Boolean> = _cardMissing
+
     // -------------------------------------------------------------------------
     // Registration
     // -------------------------------------------------------------------------
@@ -114,11 +120,15 @@ class EucStatsRepository @Inject constructor(
     suspend fun refreshCard() = withContext(Dispatchers.IO) {
         val storeId = settings.get().eucstatsStoreId ?: return@withContext
         try {
-            _card.value = api.getCard(storeId)
+            val card = api.getCard(storeId)
+            _card.value = card
+            // If the card didn't load, find out whether it's because the rider is
+            // gone (404) vs a transient/other failure, so the UI can offer to
+            // re-register only when the profile truly no longer exists.
+            _cardMissing.value = card == null && api.riderExists(storeId) == false
         } finally {
             // Mark the attempt done either way so the UI can stop spinning and
-            // show a short fallback when the card came back null (e.g. backend
-            // card endpoint not deployed yet).
+            // show a short fallback when the card came back null.
             _cardLoaded.value = true
         }
     }

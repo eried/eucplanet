@@ -1882,6 +1882,10 @@ class SettingsViewModel @Inject constructor(
      *  and fall back to a short "couldn't load" line when the card is still null. */
     val onlineUploadCardLoaded: StateFlow<Boolean> = eucStatsRepository.cardLoaded
 
+    /** True when the backend says this rider no longer exists (404) — the UI then
+     *  offers to re-register instead of a generic "couldn't load". */
+    val onlineUploadCardMissing: StateFlow<Boolean> = eucStatsRepository.cardMissing
+
     /** Refresh the rider card from the backend (no-op if no store_id is persisted). */
     fun refreshOnlineUploadCard() {
         viewModelScope.launch { eucStatsRepository.refreshCard() }

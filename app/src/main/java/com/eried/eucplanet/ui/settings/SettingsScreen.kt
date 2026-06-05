@@ -6849,6 +6849,7 @@ private fun CloudTab(
             LaunchedEffect(Unit) { viewModel.refreshOnlineUploadCard() }
             val riderCard by viewModel.onlineUploadCard.collectAsStateWithLifecycle()
             val cardLoaded by viewModel.onlineUploadCardLoaded.collectAsStateWithLifecycle()
+            val cardMissing by viewModel.onlineUploadCardMissing.collectAsStateWithLifecycle()
             val card = riderCard
 
             // Link to the public site: a short caption with the URL underlined;
@@ -6983,9 +6984,20 @@ private fun CloudTab(
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.appColors.textSecondary,
                         )
+                    } else if (cardMissing) {
+                        // The rider 404s on the server (dataset reset, deleted, or
+                        // possibly banned). We deliberately do NOT offer to
+                        // re-register here -- the app can't tell a removed account
+                        // from a banned one, and a banned rider must not be able to
+                        // re-create themselves. Warn clearly and stop here.
+                        Text(
+                            stringResource(R.string.online_upload_card_missing),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.appColors.statusDanger,
+                        )
                     } else if (cardLoaded) {
-                        // Tried and got nothing back (e.g. the backend card
-                        // endpoint isn't live yet), so don't spin forever.
+                        // Tried and got nothing back (a transient load failure),
+                        // so don't spin forever.
                         Text(
                             stringResource(R.string.online_upload_card_unavailable),
                             style = MaterialTheme.typography.bodySmall,
