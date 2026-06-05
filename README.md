@@ -161,6 +161,11 @@ EUC Planet is free and stays free. If it saved you a subscription, or for any ot
 reason you want to chip in: [donate via PayPal](https://www.paypal.com/donate/?hosted_button_id=AEB2RPZHNRTKG).
 Entirely optional, very appreciated.
 
+## Thanks
+
+Riders who test wheels and gear I don't own keep this honest. The full list is in
+the app under **About → Credits** — including **Bearkat713** (Motoeye E6 testing).
+
 ## License
 
 Released under the [MIT License](LICENSE), use it, fork it, build on it, just keep

@@ -2539,6 +2539,7 @@ fun DashboardScreen(
                                                     "FlyboyEUC (Adam)" to "Mten3, E20 and EX30 testing.",
                                                     "Soolek" to "KS-16X testing.",
                                                     "Jonathan Wiesner" to "LeaperKim Lynx S testing.",
+                                                    "Bearkat713" to "Motoeye E6 testing.",
                                                     "Ilya Shkolnik & WheelLog community" to "Public protocol research the KingSong, Begode and Veteran adapters draw on.",
                                                     "InMotion" to "For making my awesome V14."
                                                 )
