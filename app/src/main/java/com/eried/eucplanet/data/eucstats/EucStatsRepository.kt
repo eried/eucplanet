@@ -212,6 +212,27 @@ class EucStatsRepository @Inject constructor(
         }
     }
 
+    /**
+     * Foreground sync of every pending eucstats trip, reporting progress via
+     * [onProgress] (done, total) so the UI can show a determinate bar like the
+     * trips-backup "Sync all". Returns the number of trips that were pending
+     * (0 = nothing to sync). Trips that fail stay pending and retry later.
+     */
+    suspend fun syncPendingNow(onProgress: (done: Int, total: Int) -> Unit): Int =
+        withContext(Dispatchers.IO) {
+            val pending = tripDao.getPendingEucstatsUploads()
+            val total = pending.size
+            if (total == 0) return@withContext 0
+            onProgress(0, total)
+            var done = 0
+            for (trip in pending) {
+                runCatching { uploadTrip(trip) }
+                done++
+                onProgress(done, total)
+            }
+            total
+        }
+
     // -------------------------------------------------------------------------
     // Profile management
     // -------------------------------------------------------------------------

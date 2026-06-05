@@ -6368,6 +6368,8 @@ private fun CloudTab(
     val cloudEvent by viewModel.cloudEvent.collectAsState()
     val syncProgress by viewModel.syncProgress.collectAsState()
     val syncRunning by viewModel.syncRunning.collectAsState()
+    val eucstatsSyncRunning by viewModel.eucstatsSyncRunning.collectAsState()
+    val eucstatsSyncProgress by viewModel.eucstatsSyncProgress.collectAsState()
     val syncConflict by viewModel.syncConflictPrompt.collectAsState()
     var showRestoreDialog by remember { mutableStateOf(false) }
     var showBackupNameDialog by remember { mutableStateOf(false) }
@@ -6407,6 +6409,8 @@ private fun CloudTab(
             CloudEvent.UploadEnqueued -> sEnqueued
             CloudEvent.SyncNoFolder -> sSyncNoFolder
             is CloudEvent.SyncFinished -> context.getString(R.string.sync_finished, event.count)
+            CloudEvent.EucstatsNothingToSync -> context.getString(R.string.online_upload_sync_nothing)
+            is CloudEvent.EucstatsSyncFinished -> context.getString(R.string.online_upload_sync_done, event.count)
         }
         if (msg != null) snackbarScope.launch { snackbar.showSnackbar(msg) }
         viewModel.consumeCloudEvent()
@@ -7059,26 +7063,35 @@ private fun CloudTab(
                 Spacer(modifier = Modifier.weight(1f))
             }
 
-            // "Trip stats uploads" as a subtitle: smaller than a section header,
-            // stronger than body text.
+            // "Trip stats uploads" subsection — a title plus a one-line
+            // description, matching the title + caption pattern used by the
+            // other subsections in this group (e.g. Trips backup).
             Text(
                 stringResource(R.string.online_upload_actions_caption),
                 style = MaterialTheme.typography.titleSmall,
+                color = MaterialTheme.appColors.textPrimary,
+                modifier = Modifier.padding(top = 8.dp),
+            )
+            Text(
+                stringResource(R.string.online_upload_actions_desc),
+                style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.appColors.textSecondary,
-                modifier = Modifier.padding(top = 4.dp),
+                modifier = Modifier.padding(bottom = 4.dp),
             )
             Row(
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
                 modifier = Modifier.fillMaxWidth(),
             ) {
                 Button(
-                    onClick = { viewModel.retryEucstatsUploads() },
+                    onClick = { viewModel.syncEucstatsNow() },
+                    enabled = !eucstatsSyncRunning,
                     modifier = Modifier.weight(1f),
                 ) {
                     Text(stringResource(R.string.cloud_retry_now))
                 }
                 Button(
                     onClick = { showUnlinkConfirm = true },
+                    enabled = !eucstatsSyncRunning,
                     colors = ButtonDefaults.buttonColors(
                         containerColor = MaterialTheme.appColors.statusDanger,
                         contentColor   = MaterialTheme.appColors.onPrimary,
@@ -7086,6 +7099,35 @@ private fun CloudTab(
                     modifier = Modifier.weight(1f),
                 ) {
                     Text(stringResource(R.string.online_upload_unlink))
+                }
+            }
+            // Determinate progress while syncing — mirrors the trips-backup
+            // "Sync all" (indeterminate "checking…" first, then done/total).
+            if (eucstatsSyncRunning) {
+                Column(
+                    verticalArrangement = Arrangement.spacedBy(4.dp),
+                    modifier = Modifier.padding(top = 6.dp),
+                ) {
+                    val p = eucstatsSyncProgress
+                    if (p != null) {
+                        val (done, total) = p
+                        LinearProgressIndicator(
+                            progress = { if (total > 0) done.toFloat() / total else 0f },
+                            modifier = Modifier.fillMaxWidth(),
+                        )
+                        Text(
+                            stringResource(R.string.sync_progress, done, total),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.appColors.textSecondary,
+                        )
+                    } else {
+                        LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
+                        Text(
+                            stringResource(R.string.sync_checking),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.appColors.textSecondary,
+                        )
+                    }
                 }
             }
         }

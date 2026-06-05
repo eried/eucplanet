@@ -1948,6 +1948,36 @@ class SettingsViewModel @Inject constructor(
         }
     }
 
+    // ---- Foreground eucstats "Sync all" (leaderboard card) ----
+    private val _eucstatsSyncProgress = MutableStateFlow<Pair<Int, Int>?>(null)
+    /** (done, total) while a Sync-all runs; null = indeterminate "checking…". */
+    val eucstatsSyncProgress: StateFlow<Pair<Int, Int>?> = _eucstatsSyncProgress.asStateFlow()
+    private val _eucstatsSyncRunning = MutableStateFlow(false)
+    val eucstatsSyncRunning: StateFlow<Boolean> = _eucstatsSyncRunning.asStateFlow()
+
+    /**
+     * Foreground "Sync all" for trip-stats uploads: shows determinate progress
+     * like the trips-backup sync, and reports "nothing to sync" (after a brief
+     * delay so it reads as having checked) when no uploads are pending.
+     */
+    fun syncEucstatsNow() {
+        if (_eucstatsSyncRunning.value) return
+        viewModelScope.launch {
+            _eucstatsSyncRunning.value = true
+            _eucstatsSyncProgress.value = null
+            kotlinx.coroutines.delay(600) // brief "checking…" so a 0-pending tap doesn't just flash
+            val count = eucStatsRepository.syncPendingNow { done, total ->
+                _eucstatsSyncProgress.value = done to total
+            }
+            if (count == 0) kotlinx.coroutines.delay(300)
+            _eucstatsSyncProgress.value = null
+            _eucstatsSyncRunning.value = false
+            _cloudEvent.value = if (count == 0) CloudEvent.EucstatsNothingToSync
+                                else CloudEvent.EucstatsSyncFinished(count)
+            if (count > 0) refreshOnlineUploadCard()
+        }
+    }
+
     /**
      * Load the full rider profile (name, flag, hasAvatar, can_change_* gates).
      * [onResult] is called on the main thread with the profile, or null on failure.
@@ -2228,4 +2258,6 @@ sealed interface CloudEvent {
     data object UploadEnqueued : CloudEvent
     data object SyncNoFolder : CloudEvent
     data class SyncFinished(val count: Int) : CloudEvent
+    data object EucstatsNothingToSync : CloudEvent
+    data class EucstatsSyncFinished(val count: Int) : CloudEvent
 }
