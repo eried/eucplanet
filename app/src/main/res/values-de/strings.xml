@@ -1377,4 +1377,85 @@
     <string name="nav_setting_full_path_desc">Aus berechnet nur den nächsten Halt und zeigt den Rest als gestrichelte Vorschau</string>
     <string name="studio_cfg_clock_24h">24-Stunden-Format</string>
     <string name="studio_cfg_dial_color_band">Farbband</string>
+
+    <!-- ==== EUC Stats online upload onboarding ==== -->
+
+    <!-- Step 1: Consent -->
+    <string name="online_upload_consent_title">Zur EUC Stats-Bestenliste beitreten</string>
+    <string name="online_upload_consent_intro">Bitte lies, was öffentlich wird:</string>
+    <string name="online_upload_consent_bullet_name">Dein Anzeigename</string>
+    <string name="online_upload_consent_bullet_flag">Deine Landesflagge</string>
+    <string name="online_upload_consent_bullet_avatar">Dein Profilfoto</string>
+    <string name="online_upload_consent_bullet_stats">Deine Gesamtfahrstatistiken, wie Distanz und Geschwindigkeit</string>
+    <string name="online_upload_consent_bullet_location">Start- und Endpunkte der Fahrten, zusammengefasst auf Bereiche von 10 km (6 mi) oder größer</string>
+    <string name="online_upload_consent_no_raw_gps">Rohe GPS-Spuren werden nie veröffentlicht.</string>
+    <string name="online_upload_consent_agree">Zustimmen &amp; weiter</string>
+
+    <!-- Step 2: Profile -->
+    <string name="online_upload_profile_title">Profil erstellen</string>
+    <string name="online_upload_profile_name_label">Anzeigename</string>
+    <string name="online_upload_profile_country_label">Land</string>
+    <string name="online_upload_profile_country_select">Land auswählen</string>
+    <string name="online_upload_country_search">Länder suchen</string>
+    <string name="online_upload_profile_avatar_hint">Tippe, um ein Foto hinzuzufügen</string>
+    <string name="online_upload_profile_flag_label">Ländercode (ISO 3166-1 alpha-2)</string>
+    <string name="online_upload_profile_flag_placeholder">z.B. NO, US, DE</string>
+    <string name="online_upload_profile_flag_error">Gib einen 2-stelligen Ländercode ein (z.B. NO)</string>
+    <string name="online_upload_profile_avatar_pick">Foto wählen…</string>
+    <string name="online_upload_profile_avatar_change">Foto ändern…</string>
+    <string name="online_upload_profile_avatar_required">Tippe, um zu wählen und zuzuschneiden</string>
+    <string name="online_upload_profile_avatar_placeholder">Foto</string>
+
+    <!-- Registration outcome -->
+    <string name="online_upload_register_action">Registrieren</string>
+    <string name="online_upload_register_error">Registrierung fehlgeschlagen. Verbindung prüfen und erneut versuchen.</string>
+
+    <!-- Online stats toggle + rider card -->
+    <string name="section_online_stats">Online-Bestenlisten</string>
+    <string name="online_upload_toggle">Online-Bestenlisten beitreten</string>
+    <string name="online_upload_card_loading">Wird geladen…</string>
+    <string name="online_upload_card_unavailable">Statistiken konnten nicht geladen werden.</string>
+    <string name="online_upload_actions_caption">Fahrten-Uploads</string>
+    <string name="online_upload_view_on_eucstats">Auf EUC Stats ansehen</string>
+    <string name="online_upload_retry">Uploads wiederholen</string>
+    <string name="online_upload_mileage_rank">#%d Distanz</string>
+    <string name="online_upload_top_speed">Top %1$s km/h · %2$s mph</string>
+    <string name="online_upload_trips">%d Fahrten</string>
+    <string name="online_upload_total_km">%1$s km · %2$s mi</string>
+    <string name="online_upload_join">Bestenliste beitreten</string>
+    <string name="online_status_shared">In der Bestenliste</string>
+    <string name="online_status_flagged">Geteilt, wird geprüft</string>
+    <string name="online_status_pending">Wird hochgeladen…</string>
+    <string name="online_status_failed">Upload fehlgeschlagen, tippen zum Wiederholen</string>
+    <string name="online_upload_join_caption">Deine Fahrten erscheinen in der öffentlichen Bestenliste auf</string>
+    <string name="online_upload_site_label">eucstats.ried.no</string>
+    <string name="online_upload_site_url">https://eucstats.ried.no/</string>
+    <string name="online_upload_unlink">Trennen</string>
+    <string name="online_unlink_title">Von der Bestenliste trennen?</string>
+    <string name="online_unlink_body">Dieses Telefon lädt keine Fahrten mehr hoch. Deine Fahrer-ID bleibt gespeichert, damit du als derselbe Fahrer wieder beitreten kannst. Deine Statistiken bleiben auf EUC Stats; nutze Konto löschen, um sie zu entfernen.</string>
+    <string name="online_unlink_confirm">Trennen</string>
+
+    <!-- Online profile (edit/GDPR) -->
+    <string name="online_profile_manage">Profil verwalten</string>
+    <string name="online_profile_title">Mein Profil</string>
+    <string name="online_profile_changeable_on">Änderbar wieder ab %1$s</string>
+    <string name="online_profile_avatar_has">Gesetzt</string>
+    <string name="online_profile_export_data">Meine Daten exportieren</string>
+    <string name="online_profile_delete_account">Konto löschen</string>
+    <string name="online_profile_delete_confirm_title">Konto löschen?</string>
+    <string name="online_profile_delete_confirm_body">Dies löscht dauerhaft dein EUC Stats-Profil, deine Statistiken und alle hochgeladenen Daten. Das kann nicht rückgängig gemacht werden.</string>
+    <string name="online_profile_delete_confirm_action">Dauerhaft löschen</string>
+    <string name="online_profile_save_rate_limited">Zu viele Anfragen, bitte später erneut versuchen.</string>
+    <string name="online_profile_save_failed">Speichern fehlgeschlagen (HTTP %1$d). Erneut versuchen.</string>
+
+    <string name="online_status_flagged_why">Wird kurz automatisch geprüft. Sobald die Prüfung abgeschlossen ist, erscheint der Eintrag in der Bestenliste.</string>
+    <string name="online_restore_title">Fahrerprofil wiederherstellen?</string>
+    <string name="online_restore_body_new">Dieser Ordner enthält ein gespeichertes Profil für %1$s. Stelle es wieder her, um deine Bestenlisten-Identität und Statistiken zu behalten.</string>
+    <string name="online_restore_body_switch">Dieser Ordner gehört zu %1$s. Durch die Wiederherstellung wird das Telefon auf diesen Fahrer umgestellt. Dein aktuelles Profil wird zuerst gesichert, damit du zurückwechseln kannst.</string>
+    <string name="online_restore_confirm">Wiederherstellen</string>
+    <string name="online_upload_card_missing">Das Bestenlisten-Profil dieses Telefons existiert nicht mehr auf dem Server, daher werden neue Uploads abgelehnt. Falls das unerwartet ist, wende dich an den Bestenlisten-Administrator.</string>
+    <string name="online_upload_linked_caption">Deine Statistiken und Fahrten erscheinen in der öffentlichen Bestenliste auf</string>
+    <string name="online_rejoin_title">Der Bestenliste wieder beitreten?</string>
+    <string name="online_rejoin_body">Du trittst wieder als dein gespeichertes Profil %1$s bei. Dieses Telefon lädt deine neuen Fahrten wieder in dieses Profil hoch.</string>
+    <string name="online_rejoin_confirm">Wieder beitreten</string>
 </resources>

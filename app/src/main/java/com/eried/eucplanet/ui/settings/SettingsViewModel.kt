@@ -10,8 +10,11 @@ import com.eried.eucplanet.data.model.PairedSurface
 import com.eried.eucplanet.data.repository.SettingsRepository
 import com.eried.eucplanet.data.repository.TripRepository
 import com.eried.eucplanet.data.repository.WheelRepository
+import com.eried.eucplanet.data.eucstats.EucStatsRepository
+import com.eried.eucplanet.data.eucstats.RiderCard
 import com.eried.eucplanet.data.sync.BackupEntry
 import com.eried.eucplanet.data.sync.BackupOutcome
+import com.eried.eucplanet.data.sync.RestorableRider
 import com.eried.eucplanet.data.sync.SyncChoice
 import com.eried.eucplanet.data.sync.SyncManager
 import com.eried.eucplanet.data.sync.SyncResult
@@ -44,7 +47,8 @@ class SettingsViewModel @Inject constructor(
     val cheatState: com.eried.eucplanet.cheats.CheatState,
     private val overlayPresetStore: com.eried.eucplanet.data.store.OverlayPresetStore,
     private val themeController: com.eried.eucplanet.ui.theme.ThemeController,
-    hudCommandSink: com.eried.eucplanet.service.hud.HudCommandSink
+    hudCommandSink: com.eried.eucplanet.service.hud.HudCommandSink,
+    private val eucStatsRepository: EucStatsRepository,
 ) : ViewModel() {
 
     /** Live HUD protocol compatibility for the Settings/Integration card.
@@ -750,9 +754,81 @@ class SettingsViewModel @Inject constructor(
 
     fun restoreSettingsFrom(fileName: String) {
         viewModelScope.launch {
-            val ok = syncManager.restoreSettingsFrom(fileName)
+            val ok = restoreWithSafety(fileName)
+            if (ok) refreshOnlineUploadCard()
             _cloudEvent.value = if (ok) CloudEvent.RestoreSuccess else CloudEvent.RestoreFailed
         }
+    }
+
+    // ---- eucstats rider recovery from a linked backup folder ----
+
+    private val _restorableRider = MutableStateFlow<RestorableRider?>(null)
+    /** A rider identity found in the linked folder's backup that this phone could
+     *  adopt. Non-null → UI shows the "continue as this rider?" prompt. */
+    val restorableRider: StateFlow<RestorableRider?> = _restorableRider.asStateFlow()
+
+    private val _startOnboarding = MutableStateFlow(false)
+    /** One-shot: joinOrRecover found no previous profile, so the UI should open
+     *  the create-profile onboarding. */
+    val startOnboarding: StateFlow<Boolean> = _startOnboarding.asStateFlow()
+    fun consumeStartOnboarding() { _startOnboarding.value = false }
+
+    private val _rejoinConfirm = MutableStateFlow(false)
+    /** True when the rider tapped Join but this phone ALREADY has a profile
+     *  (e.g. they unlinked, the store_id is retained). The UI confirms rejoining
+     *  as that existing rider rather than re-enabling silently. */
+    val rejoinConfirm: StateFlow<Boolean> = _rejoinConfirm.asStateFlow()
+    fun dismissRejoinConfirm() { _rejoinConfirm.value = false }
+    fun confirmRejoin() {
+        _rejoinConfirm.value = false
+        setOnlineUploadEnabled(true)
+    }
+
+    /** Tapped "Join". If this phone already has a rider, confirm rejoining as it.
+     *  Otherwise, if the linked folder's backup holds a previous profile, surface
+     *  it for a continue-or-not prompt; else start onboarding for a new one. */
+    fun joinOrRecover() {
+        viewModelScope.launch {
+            val current = settingsRepository.get().eucstatsStoreId
+            if (current != null) {
+                _rejoinConfirm.value = true
+                return@launch
+            }
+            val found = syncManager.findRestorableRider()
+            if (found != null) {
+                _restorableRider.value = found
+            } else {
+                _startOnboarding.value = true
+            }
+        }
+    }
+
+    fun dismissRestorableRider() { _restorableRider.value = null }
+
+    /** Adopt the rider carried by [rider] (restore its backup), snapshotting the
+     *  current rider first if we'd be replacing a different one. */
+    fun restoreRider(rider: RestorableRider) {
+        viewModelScope.launch {
+            val ok = restoreWithSafety(rider.fileName)
+            _restorableRider.value = null
+            if (ok) refreshOnlineUploadCard()
+            _cloudEvent.value = if (ok) CloudEvent.RestoreSuccess else CloudEvent.RestoreFailed
+        }
+    }
+
+    /**
+     * Restore a backup, but if it would replace an EXISTING, DIFFERENT rider
+     * identity, first save a timestamped safety copy of the current settings so
+     * the previous rider stays recoverable even if the rider tapped through the
+     * confirm. Applies to every restore path (recovery prompt and manual picker).
+     */
+    private suspend fun restoreWithSafety(fileName: String): Boolean {
+        val currentId = settingsRepository.get().eucstatsStoreId
+        val incoming = syncManager.peekRider(fileName)
+        if (currentId != null && incoming != null && incoming.storeId != currentId) {
+            syncManager.snapshotBeforeRestore()
+        }
+        return syncManager.restoreSettingsFrom(fileName)
     }
 
     /** Reset all rider configuration to factory defaults (keeps pairings, sync
@@ -1810,6 +1886,106 @@ class SettingsViewModel @Inject constructor(
     fun syncFolderDisplayName(): String? {
         val s = settings.value ?: return null
         return syncManager.getSyncFolderDisplayName(s)
+    }
+
+    // ---- EucStats online upload ----
+
+    /** Live rider card from the eucstats backend, null when not registered or not yet fetched. */
+    val onlineUploadCard: StateFlow<RiderCard?> = eucStatsRepository.card
+
+    /** True once a card fetch has finished, so the UI can stop showing a spinner
+     *  and fall back to a short "couldn't load" line when the card is still null. */
+    val onlineUploadCardLoaded: StateFlow<Boolean> = eucStatsRepository.cardLoaded
+
+    /** True when the backend says this rider no longer exists (404) — the UI then
+     *  offers to re-register instead of a generic "couldn't load". */
+    val onlineUploadCardMissing: StateFlow<Boolean> = eucStatsRepository.cardMissing
+
+    /** Refresh the rider card from the backend (no-op if no store_id is persisted). */
+    fun refreshOnlineUploadCard() {
+        viewModelScope.launch { eucStatsRepository.refreshCard() }
+    }
+
+    /** Register a new eucstats account. [onResult] is called on the main thread with the success flag. */
+    fun registerOnlineUpload(
+        displayName: String,
+        flag: String,
+        avatarPngBase64: String,
+        onResult: (Boolean) -> Unit,
+    ) {
+        viewModelScope.launch {
+            val ok = eucStatsRepository.register(displayName, flag, avatarPngBase64)
+            onResult(ok)
+        }
+    }
+
+    /**
+     * Enable or disable online upload.
+     *
+     * Disabling always succeeds and just flips the flag.
+     * Enabling is silently skipped when a sync folder or store_id is absent —
+     * the UI is responsible for routing the rider through onboarding first.
+     */
+    fun setOnlineUploadEnabled(enabled: Boolean) {
+        viewModelScope.launch {
+            val current = settingsRepository.get()
+            if (!enabled) {
+                settingsRepository.update(current.copy(onlineUploadEnabled = false))
+                return@launch
+            }
+            // Preconditions: sync folder configured AND already registered.
+            if (current.syncFolderUri == null || current.eucstatsStoreId == null) return@launch
+            settingsRepository.update(current.copy(onlineUploadEnabled = true))
+            eucStatsRepository.refreshCard()
+        }
+    }
+
+    /** Enqueue a background upload of all pending eucstats trips via WorkManager. */
+    fun retryEucstatsUploads() {
+        viewModelScope.launch {
+            val s = settingsRepository.get()
+            syncManager.enqueueEucStatsUpload(s)
+        }
+    }
+
+    /**
+     * Load the full rider profile (name, flag, hasAvatar, can_change_* gates).
+     * [onResult] is called on the main thread with the profile, or null on failure.
+     */
+    fun loadOnlineProfile(onResult: (com.eried.eucplanet.data.eucstats.RiderProfile?) -> Unit) {
+        viewModelScope.launch {
+            val profile = eucStatsRepository.fetchProfile()
+            onResult(profile)
+        }
+    }
+
+    /** PATCH the rider's eucstats profile. [onResult] receives the HTTP status code. */
+    fun editOnlineProfile(
+        displayName: String?,
+        flag: String?,
+        avatarPngBase64: String?,
+        onResult: (Int) -> Unit,
+    ) {
+        viewModelScope.launch {
+            val code = eucStatsRepository.editProfile(displayName, flag, avatarPngBase64)
+            onResult(code)
+        }
+    }
+
+    /** Delete the eucstats account and clear local credentials. [onResult] receives the success flag. */
+    fun deleteOnlineAccount(onResult: (Boolean) -> Unit) {
+        viewModelScope.launch {
+            val ok = eucStatsRepository.deleteAccount()
+            onResult(ok)
+        }
+    }
+
+    /** Fetch the rider's exported data JSON. [onResult] receives the JSON string, or null on failure. */
+    fun exportOnlineData(onResult: (String?) -> Unit) {
+        viewModelScope.launch {
+            val json = eucStatsRepository.exportData()
+            onResult(json)
+        }
     }
 }
 

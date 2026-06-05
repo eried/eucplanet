@@ -40,6 +40,7 @@ import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -148,6 +149,7 @@ import androidx.compose.ui.draganddrop.DragAndDropTransferData
 import androidx.compose.ui.draganddrop.toAndroidDragEvent
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.text.rememberTextMeasurer
 import com.eried.eucplanet.ui.theme.AccentOrange
 import androidx.compose.ui.text.drawText
@@ -226,8 +228,11 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.compose.ui.graphics.vector.ImageVector
+import com.eried.eucplanet.BuildConfig
 import com.eried.eucplanet.R
 import com.eried.eucplanet.data.sync.SyncChoice
+import com.eried.eucplanet.ui.settings.eucstats.OnlineUploadOnboardingDialog
+import com.eried.eucplanet.ui.settings.eucstats.flagEmoji
 import com.eried.eucplanet.service.VoiceOption
 import com.eried.eucplanet.ui.common.HintText
 import com.eried.eucplanet.ui.common.InfoHint
@@ -4625,28 +4630,44 @@ private fun SlotStatsEditor(
             DashboardStat.P75, DashboardStat.P95, DashboardStat.P99
         )
     }
-    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-        CornerStatDropdown(
-            modifier = Modifier.weight(1f),
-            label = stringResource(R.string.dashboard_corner_left),
-            value = stats.left,
-            options = sideOptions,
-            onSelect = { onCornerChange(SlotCorner.LEFT, it) }
-        )
-        CornerStatDropdown(
-            modifier = Modifier.weight(1f),
-            label = stringResource(R.string.dashboard_corner_center),
-            value = stats.center,
-            options = centerOptions,
-            onSelect = { onCornerChange(SlotCorner.CENTER, it) }
-        )
-        CornerStatDropdown(
-            modifier = Modifier.weight(1f),
-            label = stringResource(R.string.dashboard_corner_right),
-            value = stats.right,
-            options = sideOptions,
-            onSelect = { onCornerChange(SlotCorner.RIGHT, it) }
-        )
+    // Self-documenting metrics (e.g. Forward G is speed-derived) explain themselves
+    // right here in the editor — the descriptionRes shows as an italic subtitle.
+    val descRes = remember(key) {
+        com.eried.eucplanet.data.model.MetricCatalog.all.firstOrNull { it.key == key }?.descriptionRes
+    }
+    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+        descRes?.let {
+            Text(
+                stringResource(it),
+                style = MaterialTheme.typography.bodySmall.copy(
+                    fontStyle = androidx.compose.ui.text.font.FontStyle.Italic
+                ),
+                color = MaterialTheme.appColors.textSecondary,
+            )
+        }
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            CornerStatDropdown(
+                modifier = Modifier.weight(1f),
+                label = stringResource(R.string.dashboard_corner_left),
+                value = stats.left,
+                options = sideOptions,
+                onSelect = { onCornerChange(SlotCorner.LEFT, it) }
+            )
+            CornerStatDropdown(
+                modifier = Modifier.weight(1f),
+                label = stringResource(R.string.dashboard_corner_center),
+                value = stats.center,
+                options = centerOptions,
+                onSelect = { onCornerChange(SlotCorner.CENTER, it) }
+            )
+            CornerStatDropdown(
+                modifier = Modifier.weight(1f),
+                label = stringResource(R.string.dashboard_corner_right),
+                value = stats.right,
+                options = sideOptions,
+                onSelect = { onCornerChange(SlotCorner.RIGHT, it) }
+            )
+        }
     }
 }
 
@@ -6686,6 +6707,385 @@ private fun CloudTab(
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
+                }
+            }
+        }
+
+        // ---- Online stats section ----
+        // State for the onboarding dialog, profile dialog, and unlink confirmation
+        var showOnboarding  by remember { mutableStateOf(false) }
+        var showOnlineProfile by remember { mutableStateOf(false) }
+        var showUnlinkConfirm by remember { mutableStateOf(false) }
+
+        // Rider recovery: tapping "Join" runs joinOrRecover(). If a previous
+        // profile is found in the linked folder's backup, we prompt to continue
+        // as that rider (the dialog below) rather than create a new identity;
+        // otherwise joinOrRecover signals onboarding via startOnboarding.
+        val restorableRider by viewModel.restorableRider.collectAsStateWithLifecycle()
+        val startOnboarding by viewModel.startOnboarding.collectAsStateWithLifecycle()
+        val rejoinConfirm by viewModel.rejoinConfirm.collectAsStateWithLifecycle()
+        LaunchedEffect(startOnboarding) {
+            if (startOnboarding) {
+                showOnboarding = true
+                viewModel.consumeStartOnboarding()
+            }
+        }
+        // Rejoin confirmation: this phone already has a profile, so pressing Join
+        // warns the rider they'll rejoin as that existing rider rather than
+        // re-enabling silently.
+        if (rejoinConfirm) {
+            val rejoinName = settings.eucstatsDisplayName?.takeIf { it.isNotBlank() }
+                ?: ("#" + (settings.eucstatsStoreId?.take(8) ?: ""))
+            AlertDialog(
+                onDismissRequest = { viewModel.dismissRejoinConfirm() },
+                title = { Text(stringResource(R.string.online_rejoin_title)) },
+                text = { Text(stringResource(R.string.online_rejoin_body, "“$rejoinName”")) },
+                confirmButton = {
+                    TextButton(onClick = { viewModel.confirmRejoin() }) {
+                        Text(stringResource(R.string.online_rejoin_confirm))
+                    }
+                },
+                dismissButton = {
+                    TextButton(onClick = { viewModel.dismissRejoinConfirm() }) {
+                        Text(stringResource(R.string.action_cancel))
+                    }
+                },
+            )
+        }
+        restorableRider?.let { rider ->
+            val riderName = rider.displayName?.takeIf { it.isNotBlank() }
+                ?: ("#" + rider.storeId.take(8))
+            val switching = settings.eucstatsStoreId != null
+            AlertDialog(
+                onDismissRequest = { viewModel.dismissRestorableRider() },
+                title = { Text(stringResource(R.string.online_restore_title)) },
+                text = {
+                    Text(
+                        stringResource(
+                            if (switching) R.string.online_restore_body_switch
+                            else R.string.online_restore_body_new,
+                            riderName,
+                        )
+                    )
+                },
+                confirmButton = {
+                    TextButton(onClick = { viewModel.restoreRider(rider) }) {
+                        Text(stringResource(R.string.online_restore_confirm, riderName))
+                    }
+                },
+                dismissButton = {
+                    TextButton(onClick = { viewModel.dismissRestorableRider() }) {
+                        Text(stringResource(R.string.action_cancel))
+                    }
+                },
+            )
+        }
+
+        if (showOnboarding) {
+            OnlineUploadOnboardingDialog(
+                onDismiss = { showOnboarding = false },
+                onRegistered = {
+                    showOnboarding = false
+                    viewModel.refreshOnlineUploadCard()
+                },
+                viewModel = viewModel,
+            )
+        }
+
+        if (showOnlineProfile) {
+            com.eried.eucplanet.ui.settings.eucstats.OnlineProfileDialog(
+                onDismiss = {
+                    showOnlineProfile = false
+                    viewModel.refreshOnlineUploadCard()
+                },
+                viewModel = viewModel,
+            )
+        }
+
+        if (showUnlinkConfirm) {
+            AlertDialog(
+                onDismissRequest = { showUnlinkConfirm = false },
+                title = { Text(stringResource(R.string.online_unlink_title)) },
+                text = { Text(stringResource(R.string.online_unlink_body)) },
+                confirmButton = {
+                    TextButton(onClick = {
+                        viewModel.setOnlineUploadEnabled(false)
+                        showUnlinkConfirm = false
+                    }) { Text(stringResource(R.string.online_unlink_confirm)) }
+                },
+                dismissButton = {
+                    TextButton(onClick = { showUnlinkConfirm = false }) {
+                        Text(stringResource(R.string.action_cancel))
+                    }
+                },
+            )
+        }
+
+        // Online leaderboards — only shown once a backup folder is configured.
+        if (settings.syncFolderUri != null) {
+            SectionHeader(stringResource(R.string.section_online_stats))
+
+            if (!settings.onlineUploadEnabled) {
+                val siteUrl = stringResource(R.string.online_upload_site_url)
+                // Caption + inline link (one flowing, naturally-wrapping sentence),
+                // shown ABOVE the Join button.
+                val caption = stringResource(R.string.online_upload_join_caption)
+                val siteLabel = stringResource(R.string.online_upload_site_label)
+                val linkColor = MaterialTheme.appColors.primary
+                val captionText = androidx.compose.ui.text.buildAnnotatedString {
+                    append(caption)
+                    append(" ")
+                    withStyle(
+                        androidx.compose.ui.text.SpanStyle(
+                            color = linkColor,
+                            textDecoration = androidx.compose.ui.text.style.TextDecoration.Underline,
+                        )
+                    ) { append(siteLabel) }
+                }
+                Text(
+                    captionText,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.appColors.textSecondary,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable {
+                            val intent = android.content.Intent(
+                                android.content.Intent.ACTION_VIEW,
+                                android.net.Uri.parse(siteUrl)
+                            )
+                            runCatching { context.startActivity(intent) }
+                        }
+                        .padding(bottom = 8.dp),
+                )
+                // Same button component the folder section uses (e.g. "Choose folder").
+                LeftAlignedScanButton(
+                    label = stringResource(R.string.online_upload_join),
+                    onClick = { viewModel.joinOrRecover() },
+                )
+            }
+        }
+
+        // Rider card + actions: shown when online upload is enabled and storeId is known.
+        if (settings.syncFolderUri != null && settings.onlineUploadEnabled && settings.eucstatsStoreId != null) {
+            LaunchedEffect(Unit) { viewModel.refreshOnlineUploadCard() }
+            val riderCard by viewModel.onlineUploadCard.collectAsStateWithLifecycle()
+            val cardLoaded by viewModel.onlineUploadCardLoaded.collectAsStateWithLifecycle()
+            val cardMissing by viewModel.onlineUploadCardMissing.collectAsStateWithLifecycle()
+            val card = riderCard
+
+            // Link to the public site: a short caption with the URL underlined;
+            // tapping the line opens eucstats in the browser.
+            val siteUrl = stringResource(R.string.online_upload_site_url)
+            val linkedCaption = stringResource(R.string.online_upload_linked_caption)
+            val linkedLabel = stringResource(R.string.online_upload_site_label)
+            val linkColor = MaterialTheme.appColors.primary
+            val linkedText = androidx.compose.ui.text.buildAnnotatedString {
+                append(linkedCaption)
+                append(" ")
+                withStyle(
+                    androidx.compose.ui.text.SpanStyle(
+                        color = linkColor,
+                        textDecoration = androidx.compose.ui.text.style.TextDecoration.Underline,
+                    )
+                ) { append(linkedLabel) }
+            }
+            // Link to the public site, shown ABOVE the box at full width
+            // (not inset by the box padding).
+            Text(
+                linkedText,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.appColors.textSecondary,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable {
+                        val intent = android.content.Intent(
+                            android.content.Intent.ACTION_VIEW,
+                            android.net.Uri.parse(siteUrl)
+                        )
+                        runCatching { context.startActivity(intent) }
+                    }
+                    .padding(vertical = 4.dp),
+            )
+
+            // The stats card uses the exact same flat surface + small shape as
+            // the Devices cards (DeviceCard = Surface(appColors.surface)).
+            Surface(
+                modifier = Modifier.fillMaxWidth(),
+                shape = MaterialTheme.shapes.small,
+                color = MaterialTheme.appColors.surface,
+                contentColor = MaterialTheme.appColors.textPrimary,
+            ) {
+                Column(
+                    modifier = Modifier.padding(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                ) {
+                    if (card != null) {
+                        // Avatar + name/flag row
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(12.dp),
+                            modifier = Modifier.fillMaxWidth(),
+                        ) {
+                            // Avatar: the real photo when available, falling back to
+                            // a circular initial while it loads or if it fails.
+                            val initial = card.displayName?.firstOrNull()?.uppercaseChar()?.toString() ?: "?"
+                            com.eried.eucplanet.ui.settings.eucstats.RemoteAvatar(
+                                url = card.avatarUrl,
+                                modifier = Modifier.size(48.dp).clip(CircleShape),
+                            ) {
+                                Box(
+                                    modifier = Modifier
+                                        .size(48.dp)
+                                        .clip(CircleShape)
+                                        .background(MaterialTheme.appColors.primary),
+                                    contentAlignment = Alignment.Center,
+                                ) {
+                                    Text(
+                                        text = initial,
+                                        style = MaterialTheme.typography.titleMedium,
+                                        color = MaterialTheme.appColors.onPrimary,
+                                    )
+                                }
+                            }
+                            // Name and flag
+                            Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                                val nameAndFlag = buildString {
+                                    if (!card.displayName.isNullOrBlank()) append(card.displayName)
+                                    if (!card.flag.isNullOrBlank()) {
+                                        if (isNotEmpty()) append("  ")
+                                        // Show the flag emoji (e.g. 🇳🇴) instead of the raw code (NO).
+                                        append(flagEmoji(card.flag).ifEmpty { card.flag })
+                                    }
+                                }
+                                if (nameAndFlag.isNotEmpty()) {
+                                    Text(
+                                        nameAndFlag,
+                                        style = MaterialTheme.typography.bodyLarge,
+                                        color = MaterialTheme.appColors.textPrimary,
+                                    )
+                                }
+                                if (!card.country.isNullOrBlank()) {
+                                    Text(
+                                        card.country,
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.appColors.textSecondary,
+                                    )
+                                }
+                            }
+                        }
+
+                        // Stats — show both metric and imperial (static). Use 1 decimal
+                        // for small values so e.g. 0.5 km doesn't round to "1 km · 0 mi".
+                        val kmToMi = 0.621371
+                        fun dist(v: Double) = if (v < 100.0) "%.1f".format(v) else "%.0f".format(v)
+                        val totalKmStr = dist(card.totalKm)
+                        val totalMiStr = dist(card.totalKm * kmToMi)
+                        Text(
+                            stringResource(R.string.online_upload_total_km, totalKmStr, totalMiStr),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.appColors.textSecondary,
+                        )
+                        if (card.mileageRank != null) {
+                            Text(
+                                stringResource(R.string.online_upload_mileage_rank, card.mileageRank),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.appColors.textSecondary,
+                            )
+                        }
+                        Text(
+                            stringResource(
+                                R.string.online_upload_top_speed,
+                                "%.0f".format(card.topSpeedKmh),
+                                "%.0f".format(card.topSpeedKmh * kmToMi)
+                            ),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.appColors.textSecondary,
+                        )
+                        Text(
+                            stringResource(R.string.online_upload_trips, card.trips),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.appColors.textSecondary,
+                        )
+                    } else if (cardMissing) {
+                        // The rider 404s on the server (dataset reset, deleted, or
+                        // possibly banned). We deliberately do NOT offer to
+                        // re-register here -- the app can't tell a removed account
+                        // from a banned one, and a banned rider must not be able to
+                        // re-create themselves. Warn clearly and stop here.
+                        Text(
+                            stringResource(R.string.online_upload_card_missing),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.appColors.statusDanger,
+                        )
+                    } else if (cardLoaded) {
+                        // Tried and got nothing back (a transient load failure),
+                        // so don't spin forever.
+                        Text(
+                            stringResource(R.string.online_upload_card_unavailable),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.appColors.textSecondary,
+                        )
+                    } else {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        ) {
+                            CircularProgressIndicator(
+                                modifier = Modifier.size(16.dp),
+                                strokeWidth = 2.dp,
+                                color = MaterialTheme.appColors.primary,
+                            )
+                            Text(
+                                stringResource(R.string.online_upload_card_loading),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.appColors.textSecondary,
+                            )
+                        }
+                    }
+                }
+            }
+
+            // Buttons live OUTSIDE the stats card, at the section margin.
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                Button(
+                    onClick = { showOnlineProfile = true },
+                    modifier = Modifier.weight(1f),
+                ) {
+                    Text(stringResource(R.string.online_profile_manage))
+                }
+                Spacer(modifier = Modifier.weight(1f))
+            }
+
+            // "Trip stats uploads" as a subtitle: smaller than a section header,
+            // stronger than body text.
+            Text(
+                stringResource(R.string.online_upload_actions_caption),
+                style = MaterialTheme.typography.titleSmall,
+                color = MaterialTheme.appColors.textSecondary,
+                modifier = Modifier.padding(top = 4.dp),
+            )
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                Button(
+                    onClick = { viewModel.retryEucstatsUploads() },
+                    modifier = Modifier.weight(1f),
+                ) {
+                    Text(stringResource(R.string.cloud_retry_now))
+                }
+                Button(
+                    onClick = { showUnlinkConfirm = true },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.appColors.statusDanger,
+                        contentColor   = MaterialTheme.appColors.onPrimary,
+                    ),
+                    modifier = Modifier.weight(1f),
+                ) {
+                    Text(stringResource(R.string.online_upload_unlink))
                 }
             }
         }

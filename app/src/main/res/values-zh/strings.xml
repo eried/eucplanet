@@ -1360,4 +1360,85 @@
     <string name="nav_setting_full_path_desc">关闭时仅解算下一个站点，其余以虚线预览显示</string>
     <string name="studio_cfg_clock_24h">24 小时制</string>
     <string name="studio_cfg_dial_color_band">色带</string>
+
+    <!-- ==== EucStats 在线上传引导 ==== -->
+
+    <!-- 第一步：同意 -->
+    <string name="online_upload_consent_title">加入 EUC Stats 排行榜</string>
+    <string name="online_upload_consent_intro">加入前，请阅读以下将公开的内容：</string>
+    <string name="online_upload_consent_bullet_name">你的显示名称</string>
+    <string name="online_upload_consent_bullet_flag">你的国家旗帜</string>
+    <string name="online_upload_consent_bullet_avatar">你的头像照片</string>
+    <string name="online_upload_consent_bullet_stats">你的整体骑行数据，如里程和速度</string>
+    <string name="online_upload_consent_bullet_location">行程的起终点位置，精度在 10 km（6 mi）或更大范围内</string>
+    <string name="online_upload_consent_no_raw_gps">原始 GPS 轨迹永不公开。</string>
+    <string name="online_upload_consent_agree">同意并继续</string>
+
+    <!-- 第二步：个人资料 -->
+    <string name="online_upload_profile_title">创建你的资料</string>
+    <string name="online_upload_profile_name_label">显示名称</string>
+    <string name="online_upload_profile_country_label">国家</string>
+    <string name="online_upload_profile_country_select">选择你的国家</string>
+    <string name="online_upload_country_search">搜索国家</string>
+    <string name="online_upload_profile_avatar_hint">点击添加照片</string>
+    <string name="online_upload_profile_flag_label">国家代码（ISO 3166-1 alpha-2）</string>
+    <string name="online_upload_profile_flag_placeholder">例如 NO、US、DE</string>
+    <string name="online_upload_profile_flag_error">请输入 2 位国家代码（例如 NO）</string>
+    <string name="online_upload_profile_avatar_pick">选择照片…</string>
+    <string name="online_upload_profile_avatar_change">更换照片…</string>
+    <string name="online_upload_profile_avatar_required">点击选择并裁剪</string>
+    <string name="online_upload_profile_avatar_placeholder">照片</string>
+
+    <!-- 注册结果 -->
+    <string name="online_upload_register_action">注册</string>
+    <string name="online_upload_register_error">注册失败，请检查网络后重试。</string>
+
+    <!-- 在线统计开关和骑手卡片 -->
+    <string name="section_online_stats">在线排行榜</string>
+    <string name="online_upload_toggle">加入在线排行榜</string>
+    <string name="online_upload_card_loading">加载中…</string>
+    <string name="online_upload_card_unavailable">无法加载你的数据。</string>
+    <string name="online_upload_actions_caption">行程数据上传</string>
+    <string name="online_upload_view_on_eucstats">在 EUC Stats 上查看</string>
+    <string name="online_upload_retry">重试上传</string>
+    <string name="online_upload_mileage_rank">里程第 #%d 名</string>
+    <string name="online_upload_top_speed">最高 %1$s km/h · %2$s mph</string>
+    <string name="online_upload_trips">%d 次行程</string>
+    <string name="online_upload_total_km">%1$s km · %2$s mi</string>
+    <string name="online_upload_join">加入排行榜</string>
+    <string name="online_status_shared">已分享到排行榜</string>
+    <string name="online_status_flagged">已分享，审核中</string>
+    <string name="online_status_pending">正在上传到排行榜…</string>
+    <string name="online_status_failed">上传失败，点击重试</string>
+    <string name="online_upload_join_caption">你的骑行记录将显示在公开排行榜</string>
+    <string name="online_upload_site_label">eucstats.ried.no</string>
+    <string name="online_upload_site_url">https://eucstats.ried.no/</string>
+    <string name="online_upload_unlink">取消关联</string>
+    <string name="online_unlink_title">取消与排行榜的关联？</string>
+    <string name="online_unlink_body">此手机将停止上传骑行记录。你的骑手 ID 会保留，之后可以原账号重新加入。你的数据仍保留在 EUC Stats 上，如需删除请使用「删除账号」。</string>
+    <string name="online_unlink_confirm">取消关联</string>
+
+    <!-- 在线资料（编辑/GDPR） -->
+    <string name="online_profile_manage">管理资料</string>
+    <string name="online_profile_title">我的资料</string>
+    <string name="online_profile_changeable_on">可于 %1$s 后再次修改</string>
+    <string name="online_profile_avatar_has">已设置</string>
+    <string name="online_profile_export_data">导出我的数据</string>
+    <string name="online_profile_delete_account">删除账号</string>
+    <string name="online_profile_delete_confirm_title">删除账号？</string>
+    <string name="online_profile_delete_confirm_body">此操作将永久删除你在 EUC Stats 上的资料、数据和上传记录，无法撤销。</string>
+    <string name="online_profile_delete_confirm_action">永久删除</string>
+    <string name="online_profile_save_rate_limited">操作过于频繁，请稍后再试。</string>
+    <string name="online_profile_save_failed">保存失败（HTTP %1$d），请重试。</string>
+
+    <string name="online_status_flagged_why">正在进行自动审核，通过后即加入排行榜。</string>
+    <string name="online_restore_title">恢复骑手资料？</string>
+    <string name="online_restore_body_new">此文件夹中保存了 %1$s 的资料。恢复后可保留你的排行榜身份和骑行数据。</string>
+    <string name="online_restore_body_switch">此文件夹属于 %1$s。恢复后本机将切换为该骑手账号，当前资料会先备份，随时可切回。</string>
+    <string name="online_restore_confirm">恢复</string>
+    <string name="online_upload_card_missing">此手机的排行榜资料已不在服务器上，新的上传将被拒绝。如果这不符合预期，请联系排行榜管理员。</string>
+    <string name="online_upload_linked_caption">你的统计数据和行程将显示在公开排行榜</string>
+    <string name="online_rejoin_title">重新加入排行榜？</string>
+    <string name="online_rejoin_body">你将以已保存的资料 %1$s 重新加入。此手机将恢复向该资料上传你的新行程。</string>
+    <string name="online_rejoin_confirm">重新加入</string>
 </resources>

@@ -38,4 +38,8 @@ interface TripDao {
 
     @Query("SELECT * FROM trips WHERE id = :id")
     suspend fun getById(id: Long): TripRecord?
+
+    /** Trips needing eucstats upload (pending or failed) with a finished recording, newest first. */
+    @Query("SELECT * FROM trips WHERE endTime IS NOT NULL AND tripUuid IS NOT NULL AND eucstatsStatus IN (1, 3) ORDER BY startTime DESC")
+    suspend fun getPendingEucstatsUploads(): List<TripRecord>
 }

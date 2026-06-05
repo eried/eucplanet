@@ -1377,4 +1377,85 @@
     <string name="nav_setting_full_path_desc">Av beregner bare neste stopp og viser resten som stiplet forhåndsvisning</string>
     <string name="studio_cfg_clock_24h">24-timers format</string>
     <string name="studio_cfg_dial_color_band">Fargebånd</string>
+
+    <!-- ==== EUC Stats online opplasting / innføring ==== -->
+
+    <!-- Steg 1: Samtykke -->
+    <string name="online_upload_consent_title">Bli med på EUC Stats-ledertavlen</string>
+    <string name="online_upload_consent_intro">Før du blir med, les hva som blir offentlig:</string>
+    <string name="online_upload_consent_bullet_name">Visningsnavnet ditt</string>
+    <string name="online_upload_consent_bullet_flag">Landsflagget ditt</string>
+    <string name="online_upload_consent_bullet_avatar">Profilbildet ditt</string>
+    <string name="online_upload_consent_bullet_stats">Samlet kjørestatistikk, som distanse og fart</string>
+    <string name="online_upload_consent_bullet_location">Start- og sluttsted for turer, gruppert i områder på 10 km (6 mi) eller større</string>
+    <string name="online_upload_consent_no_raw_gps">Rå GPS-spor publiseres aldri.</string>
+    <string name="online_upload_consent_agree">Godta og fortsett</string>
+
+    <!-- Steg 2: Profil -->
+    <string name="online_upload_profile_title">Opprett profilen din</string>
+    <string name="online_upload_profile_name_label">Visningsnavn</string>
+    <string name="online_upload_profile_country_label">Land</string>
+    <string name="online_upload_profile_country_select">Velg land</string>
+    <string name="online_upload_country_search">Søk etter land</string>
+    <string name="online_upload_profile_avatar_hint">Trykk for å legge til bilde</string>
+    <string name="online_upload_profile_flag_label">Landkode (ISO 3166-1 alpha-2)</string>
+    <string name="online_upload_profile_flag_placeholder">f.eks. NO, US, DE</string>
+    <string name="online_upload_profile_flag_error">Skriv inn en tobokstavs landkode (f.eks. NO)</string>
+    <string name="online_upload_profile_avatar_pick">Velg bilde…</string>
+    <string name="online_upload_profile_avatar_change">Bytt bilde…</string>
+    <string name="online_upload_profile_avatar_required">Trykk for å velge og beskjære</string>
+    <string name="online_upload_profile_avatar_placeholder">Bilde</string>
+
+    <!-- Registreringsresultat -->
+    <string name="online_upload_register_action">Registrer</string>
+    <string name="online_upload_register_error">Registrering mislyktes. Sjekk nettforbindelsen og prøv igjen.</string>
+
+    <!-- Nettstatistikk-bryter og rytterkoret -->
+    <string name="section_online_stats">Ledertavler på nett</string>
+    <string name="online_upload_toggle">Bli med på ledertavlene</string>
+    <string name="online_upload_card_loading">Laster…</string>
+    <string name="online_upload_card_unavailable">Kunne ikke laste statistikken din.</string>
+    <string name="online_upload_actions_caption">Opplasting av turstatistikk</string>
+    <string name="online_upload_view_on_eucstats">Vis på EUC Stats</string>
+    <string name="online_upload_retry">Prøv opplastinger på nytt</string>
+    <string name="online_upload_mileage_rank">#%d kilometer</string>
+    <string name="online_upload_top_speed">topp %1$s km/h · %2$s mph</string>
+    <string name="online_upload_trips">%d turer</string>
+    <string name="online_upload_total_km">%1$s km · %2$s mi</string>
+    <string name="online_upload_join">Bli med på ledertavlen</string>
+    <string name="online_status_shared">Delt på ledertavlen</string>
+    <string name="online_status_flagged">Delt, til gjennomgang</string>
+    <string name="online_status_pending">Laster opp til ledertavlen…</string>
+    <string name="online_status_failed">Opplasting mislyktes, trykk for å prøve igjen</string>
+    <string name="online_upload_join_caption">Turene dine vises på den offentlige ledertavlen på</string>
+    <string name="online_upload_site_label">eucstats.ried.no</string>
+    <string name="online_upload_site_url">https://eucstats.ried.no/</string>
+    <string name="online_upload_unlink">Koble fra</string>
+    <string name="online_unlink_title">Koble fra ledertavlen?</string>
+    <string name="online_unlink_body">Denne telefonen slutter å laste opp turer. Rytterprofilen din lagres slik at du kan gjenoppta som samme rytter. Statistikken din beholdes på EUC Stats; bruk Slett konto for å fjerne den.</string>
+    <string name="online_unlink_confirm">Koble fra</string>
+
+    <!-- Nettbasert profil (rediger / GDPR) -->
+    <string name="online_profile_manage">Administrer profil</string>
+    <string name="online_profile_title">Min profil</string>
+    <string name="online_profile_changeable_on">Kan endres igjen %1$s</string>
+    <string name="online_profile_avatar_has">Satt</string>
+    <string name="online_profile_export_data">Eksporter dataene mine</string>
+    <string name="online_profile_delete_account">Slett konto</string>
+    <string name="online_profile_delete_confirm_title">Slette konto?</string>
+    <string name="online_profile_delete_confirm_body">Dette sletter EUC Stats-profilen din, statistikk og opplastede data permanent. Dette kan ikke angres.</string>
+    <string name="online_profile_delete_confirm_action">Slett permanent</string>
+    <string name="online_profile_save_rate_limited">Frekvensgrense nådd, prøv igjen senere.</string>
+    <string name="online_profile_save_failed">Lagring mislyktes (HTTP %1$d). Prøv igjen.</string>
+
+    <string name="online_status_flagged_why">Holdt for en kort automatisk sjekk. Den kommer på ledertavlen når den er godkjent.</string>
+    <string name="online_restore_title">Gjenopprett rytterprofilen din?</string>
+    <string name="online_restore_body_new">Denne mappen har en lagret profil for %1$s. Gjenopprett den for å beholde ledertavle-identiteten og statistikken din.</string>
+    <string name="online_restore_body_switch">Denne mappen tilhører %1$s. Gjenoppretting bytter denne telefonen til den rytteren. Din nåværende profil sikkerhetskopieres først, slik at du kan bytte tilbake.</string>
+    <string name="online_restore_confirm">Gjenopprett</string>
+    <string name="online_upload_card_missing">Denne telefonens ledertavleprofil finnes ikke lenger på serveren, så nye opplastinger blir avvist. Hvis dette er uventet, kontakt administratoren for ledertavlen.</string>
+    <string name="online_upload_linked_caption">Statistikken og turene dine vises på den offentlige ledertavlen på</string>
+    <string name="online_rejoin_title">Bli med på ledertavlen igjen?</string>
+    <string name="online_rejoin_body">Du blir med igjen som den lagrede profilen din %1$s. Denne telefonen gjenopptar opplasting av de nye turene dine til den profilen.</string>
+    <string name="online_rejoin_confirm">Bli med igjen</string>
 </resources>

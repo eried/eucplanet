@@ -210,6 +210,7 @@ object MetricCatalog {
         MetricSpec(
             key = "FORWARD_G",
             labelRes = R.string.metric_chip_forward_g,
+            descriptionRes = R.string.metric_desc_forward_g,
             accent = AccentPink,
             sparkline = SparklineStyle.AREA_BIPOLAR
         ),

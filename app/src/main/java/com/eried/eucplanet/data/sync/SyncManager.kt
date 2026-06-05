@@ -5,9 +5,13 @@ import android.content.Intent
 import android.net.Uri
 import android.util.Log
 import androidx.documentfile.provider.DocumentFile
+import androidx.work.BackoffPolicy
+import androidx.work.Constraints
 import androidx.work.ExistingWorkPolicy
+import androidx.work.NetworkType
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
+import java.util.concurrent.TimeUnit
 import com.eried.eucplanet.data.db.AlarmDao
 import com.eried.eucplanet.data.db.TripDao
 import com.eried.eucplanet.data.model.AlarmRule
@@ -56,6 +60,7 @@ class SyncManager @Inject constructor(
         const val SETTINGS_BACKUP_SUFFIX = ".json"
         const val TRIPS_SUBFOLDER = "trips"
         const val UPLOAD_WORK_NAME = "trip_upload"
+        const val EUCSTATS_UPLOAD_WORK_NAME = "eucstats_upload"
     }
 
     // App-scoped so trip sync survives settings screen navigation.
@@ -304,7 +309,11 @@ class SyncManager @Inject constructor(
             } catch (_: Exception) {
             }
         }
-        settingsRepository.update(s.copy(syncFolderUri = null, lastSettingsBackupAt = null))
+        settingsRepository.update(s.copy(
+            syncFolderUri = null,
+            lastSettingsBackupAt = null,
+            onlineUploadEnabled = false,  // online upload requires a folder
+        ))
     }
 
     /** The chosen folder's DocumentFile, or null if none or no longer accessible. */
@@ -464,6 +473,50 @@ class SyncManager @Inject constructor(
         return out + named
     }
 
+    /**
+     * Read just the rider identity (store_id + display name) out of a backup
+     * file WITHOUT applying it, so the UI can offer to restore an existing rider
+     * when a sync folder is linked. Returns null if the file is missing,
+     * unreadable, or carries no store_id.
+     */
+    suspend fun peekRider(fileName: String): RestorableRider? {
+        val current = settingsRepository.get()
+        val folder = getSyncFolder(current) ?: return null
+        val file = folder.findFile(fileName) ?: return null
+        return try {
+            val bytes = context.contentResolver.openInputStream(file.uri)?.use { it.readBytes() }
+                ?: return null
+            val json = JSONObject(String(bytes, Charsets.UTF_8))
+            val storeId = json.optString("eucstatsStoreId", "").takeIf { it.isNotBlank() }
+                ?: return null
+            val name = json.optString("eucstatsDisplayName", "").takeIf { it.isNotBlank() }
+            RestorableRider(fileName = fileName, storeId = storeId, displayName = name)
+        } catch (e: Exception) {
+            Log.e(TAG, "Could not read rider from backup $fileName", e)
+            null
+        }
+    }
+
+    /** First backup in the sync folder that carries a rider identity (the
+     *  default eucplanet_settings.json is checked first via listSettingsBackups). */
+    suspend fun findRestorableRider(): RestorableRider? {
+        for (entry in listSettingsBackups()) {
+            peekRider(entry.fileName)?.let { return it }
+        }
+        return null
+    }
+
+    /**
+     * Save a timestamped safety copy of the CURRENT settings before a restore
+     * that would replace the rider identity, so the previous rider stays
+     * recoverable even if the rider taps through the confirm. Best-effort.
+     */
+    suspend fun snapshotBeforeRestore(): Boolean {
+        val stamp = java.text.SimpleDateFormat("yyyyMMdd-HHmm", java.util.Locale.US)
+            .format(java.util.Date())
+        return backupSettingsAs(name = "before-restore-$stamp", overwrite = false) == BackupOutcome.Saved
+    }
+
     /** Path-safe sanitiser. Strips anything that isn't [A-Za-z0-9_- ], trims,
      *  collapses whitespace, caps at 32 chars. Empty input returns null so the
      *  caller can show a validation error. */
@@ -485,6 +538,22 @@ class SyncManager @Inject constructor(
         val request = OneTimeWorkRequestBuilder<TripUploadWorker>().build()
         WorkManager.getInstance(context).enqueueUniqueWork(
             UPLOAD_WORK_NAME,
+            ExistingWorkPolicy.REPLACE,
+            request
+        )
+    }
+
+    /** Enqueue the eucstats upload worker with a network constraint and exponential backoff. */
+    fun enqueueEucStatsUpload(settings: AppSettings) {
+        val constraints = Constraints.Builder()
+            .setRequiredNetworkType(NetworkType.CONNECTED)
+            .build()
+        val request = OneTimeWorkRequestBuilder<EucStatsUploadWorker>()
+            .setConstraints(constraints)
+            .setBackoffCriteria(BackoffPolicy.EXPONENTIAL, 30, TimeUnit.SECONDS)
+            .build()
+        WorkManager.getInstance(context).enqueueUniqueWork(
+            EUCSTATS_UPLOAD_WORK_NAME,
             ExistingWorkPolicy.REPLACE,
             request
         )
@@ -611,3 +680,9 @@ sealed interface BackupOutcome {
  * (`eucplanet_settings.json`); non-null is the rider-supplied snapshot name.
  */
 data class BackupEntry(val fileName: String, val label: String?, val isFactory: Boolean = false)
+
+/**
+ * The rider identity carried by a settings backup, read without applying it.
+ * Used to offer "restore your existing rider" when a sync folder is linked.
+ */
+data class RestorableRider(val fileName: String, val storeId: String, val displayName: String?)

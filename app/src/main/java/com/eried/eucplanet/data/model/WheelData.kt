@@ -25,6 +25,9 @@ data class WheelData(
     val accelX: Float = 0f,
     /** Phone IMU forward acceleration in g (+forward). 0 for trips recorded before this. */
     val accelY: Float = 0f,
+    /** Forward G estimated from wheel-speed change (dv/dt / g) — orientation-independent,
+     *  unlike the IMU axes above. Drives the FORWARD_G dashboard metric. */
+    val forwardGFromSpeed: Float = 0f,
     val batteryPower: Int = 0,
     val motorPower: Int = 0,
     val dynamicSpeedLimit: Float = 0f,

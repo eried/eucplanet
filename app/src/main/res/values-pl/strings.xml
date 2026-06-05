@@ -1397,4 +1397,85 @@
     <string name="nav_setting_full_path_desc">Wyłączone — wyznacza tylko następny przystanek, resztę pokazuje jako przerywany podgląd</string>
     <string name="studio_cfg_clock_24h">Format 24-godzinny</string>
     <string name="studio_cfg_dial_color_band">Pasek koloru</string>
+
+    <!-- ==== EucStats online upload onboarding ==== -->
+
+    <!-- Step 1: Consent -->
+    <string name="online_upload_consent_title">Dołącz do rankingu EUC Stats</string>
+    <string name="online_upload_consent_intro">Przed dołączeniem przeczytaj, co będzie publiczne:</string>
+    <string name="online_upload_consent_bullet_name">Twoja nazwa wyświetlana</string>
+    <string name="online_upload_consent_bullet_flag">Flaga Twojego kraju</string>
+    <string name="online_upload_consent_bullet_avatar">Twoje zdjęcie profilowe</string>
+    <string name="online_upload_consent_bullet_stats">Twoje ogólne statystyki jazdy, m.in. dystans i prędkość</string>
+    <string name="online_upload_consent_bullet_location">Miejsca startu i końca trasy, zgrupowane w obszary 10 km (6 mi) lub większe</string>
+    <string name="online_upload_consent_no_raw_gps">Surowe ślady GPS nigdy nie są publikowane.</string>
+    <string name="online_upload_consent_agree">Zgadzam się i kontynuuję</string>
+
+    <!-- Step 2: Profile -->
+    <string name="online_upload_profile_title">Utwórz profil</string>
+    <string name="online_upload_profile_name_label">Nazwa wyświetlana</string>
+    <string name="online_upload_profile_country_label">Kraj</string>
+    <string name="online_upload_profile_country_select">Wybierz kraj</string>
+    <string name="online_upload_country_search">Szukaj krajów</string>
+    <string name="online_upload_profile_avatar_hint">Stuknij, aby dodać zdjęcie</string>
+    <string name="online_upload_profile_flag_label">Kod kraju (ISO 3166-1 alpha-2)</string>
+    <string name="online_upload_profile_flag_placeholder">np. NO, US, DE</string>
+    <string name="online_upload_profile_flag_error">Podaj 2-literowy kod kraju (np. NO)</string>
+    <string name="online_upload_profile_avatar_pick">Wybierz zdjęcie…</string>
+    <string name="online_upload_profile_avatar_change">Zmień zdjęcie…</string>
+    <string name="online_upload_profile_avatar_required">Stuknij, aby wybrać i przyciąć</string>
+    <string name="online_upload_profile_avatar_placeholder">Zdjęcie</string>
+
+    <!-- Registration outcome -->
+    <string name="online_upload_register_action">Zarejestruj</string>
+    <string name="online_upload_register_error">Rejestracja nie powiodła się. Sprawdź połączenie i spróbuj ponownie.</string>
+
+    <!-- Online stats toggle + rider card -->
+    <string name="section_online_stats">Rankingi online</string>
+    <string name="online_upload_toggle">Dołącz do rankingów online</string>
+    <string name="online_upload_card_loading">Wczytywanie…</string>
+    <string name="online_upload_card_unavailable">Nie udało się załadować statystyk.</string>
+    <string name="online_upload_actions_caption">Przesyłanie statystyk tras</string>
+    <string name="online_upload_view_on_eucstats">Zobacz w EUC Stats</string>
+    <string name="online_upload_retry">Ponów przesyłanie</string>
+    <string name="online_upload_mileage_rank">#%d dystans</string>
+    <string name="online_upload_top_speed">maks. %1$s km/h · %2$s mph</string>
+    <string name="online_upload_trips">%d tras</string>
+    <string name="online_upload_total_km">%1$s km · %2$s mi</string>
+    <string name="online_upload_join">Dołącz do rankingu</string>
+    <string name="online_status_shared">Udostępniono w rankingu</string>
+    <string name="online_status_flagged">Udostępniono, w weryfikacji</string>
+    <string name="online_status_pending">Przesyłanie do rankingu…</string>
+    <string name="online_status_failed">Przesyłanie nie powiodło się, stuknij, aby ponowić</string>
+    <string name="online_upload_join_caption">Twoje trasy pojawiają się w publicznym rankingu pod adresem</string>
+    <string name="online_upload_site_label">eucstats.ried.no</string>
+    <string name="online_upload_site_url">https://eucstats.ried.no/</string>
+    <string name="online_upload_unlink">Odłącz</string>
+    <string name="online_unlink_title">Odłączyć od rankingu?</string>
+    <string name="online_unlink_body">Ten telefon przestanie przesyłać trasy. Twoje ID zawodnika zostanie zachowane, więc możesz wrócić jako ten sam zawodnik. Twoje statystyki pozostają w EUC Stats; użyj opcji Usuń konto, aby je usunąć.</string>
+    <string name="online_unlink_confirm">Odłącz</string>
+
+    <!-- Online profile (edit/GDPR) -->
+    <string name="online_profile_manage">Zarządzaj profilem</string>
+    <string name="online_profile_title">Mój profil</string>
+    <string name="online_profile_changeable_on">Można zmienić ponownie %1$s</string>
+    <string name="online_profile_avatar_has">Ustawiono</string>
+    <string name="online_profile_export_data">Eksportuj moje dane</string>
+    <string name="online_profile_delete_account">Usuń konto</string>
+    <string name="online_profile_delete_confirm_title">Usunąć konto?</string>
+    <string name="online_profile_delete_confirm_body">Trwale usuwa Twój profil EUC Stats, statystyki i przesłane dane. Tej operacji nie można cofnąć.</string>
+    <string name="online_profile_delete_confirm_action">Usuń trwale</string>
+    <string name="online_profile_save_rate_limited">Zbyt wiele prób, spróbuj ponownie później.</string>
+    <string name="online_profile_save_failed">Zapisanie nie powiodło się (HTTP %1$d). Spróbuj ponownie.</string>
+
+    <string name="online_status_flagged_why">Wstrzymano do krótkiej automatycznej weryfikacji. Pojawi się w rankingu po jej przejściu.</string>
+    <string name="online_restore_title">Przywrócić profil zawodnika?</string>
+    <string name="online_restore_body_new">W tym folderze jest zapisany profil dla %1$s. Przywróć go, aby zachować swoją tożsamość w rankingu i statystyki.</string>
+    <string name="online_restore_body_switch">Ten folder należy do %1$s. Przywrócenie przełącza ten telefon na tego zawodnika. Twój obecny profil zostanie najpierw zapisany w kopii zapasowej, więc możesz wrócić.</string>
+    <string name="online_restore_confirm">Przywróć</string>
+    <string name="online_upload_card_missing">Profil tego telefonu w rankingu już nie istnieje na serwerze, więc nowe przesyłki będą odrzucane. Jeśli to niespodziewane, skontaktuj się z administratorem rankingu.</string>
+    <string name="online_upload_linked_caption">Twoje statystyki i trasy pojawiają się w publicznym rankingu pod adresem</string>
+    <string name="online_rejoin_title">Dołączyć ponownie do rankingu?</string>
+    <string name="online_rejoin_body">Dołączysz ponownie jako Twój zapisany profil %1$s. Ten telefon wznowi przesyłanie nowych tras do tego profilu.</string>
+    <string name="online_rejoin_confirm">Dołącz ponownie</string>
 </resources>
