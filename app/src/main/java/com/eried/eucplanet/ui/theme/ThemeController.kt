@@ -121,6 +121,24 @@ class ThemeController @Inject constructor(
     private suspend fun resolveByName(name: String): AppThemeColors? =
         BuiltInThemes.byName(name)?.colors ?: themeStore.loadTheme(name)
 
+    /**
+     * Synchronous best-effort seed of [activeColors] from the persisted theme
+     * NAME, so the very FIRST composed frame already carries the rider's theme --
+     * even on a process-death resume (e.g. returning from an external browser
+     * link) where the async [ensureResolved] would otherwise leave pure black for
+     * a frame and flash the whole screen. Only the built-in case is handled here
+     * (instant, no IO); a saved theme or an empty name is finished by
+     * [ensureResolved]. Call from the UI's synchronous startup with the already-
+     * loaded [AppSettings.activeThemeName] so no extra DataStore read is needed.
+     */
+    fun seedSync(activeThemeName: String) {
+        if (resolved) return
+        BuiltInThemes.byName(activeThemeName)?.let {
+            _activeColors.value = it.colors
+            resolved = true
+        }
+    }
+
     private fun systemDark(): Boolean =
         (context.resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) ==
             Configuration.UI_MODE_NIGHT_YES

@@ -286,14 +286,20 @@ class MainActivity : AppCompatActivity() {
         // already carries the rider's custom theme. Without this, _settings is
         // null for one frame and the app flashes the system-default theme before
         // DataStore loads. Best-effort + time-boxed: on failure _settings stays
-        // null and resolveColors() falls back to the OS-based built-in (Pure
-        // Black / Light).
+        // null and the theme falls back to the resolved/seeded built-in.
         if (_settings.value == null) {
             runCatching {
                 kotlinx.coroutines.runBlocking {
                     kotlinx.coroutines.withTimeoutOrNull(700) { settingsRepository.get() }
                 }
-            }.getOrNull()?.let { _settings.value = it.copy(themeEditorEnabled = false) }
+            }.getOrNull()?.let {
+                _settings.value = it.copy(themeEditorEnabled = false)
+                // The active theme now lives in ThemeController (resolved async),
+                // so seed it synchronously from the just-loaded name too -- else a
+                // process-death resume flashes pure black before the async resolve
+                // lands. Built-ins seed instantly; saved themes finish async.
+                themeController.seedSync(it.activeThemeName)
+            }
         }
 
         setContent {
