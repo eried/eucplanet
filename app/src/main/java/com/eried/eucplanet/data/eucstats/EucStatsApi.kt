@@ -41,7 +41,7 @@ sealed interface UploadResult {
  * existing store_id is never limited; anything else is terminal for the attempt.
  */
 sealed interface RegisterResult {
-    data class Ok(val body: JSONObject) : RegisterResult
+    data object Ok : RegisterResult             // 2xx with a body (store_id is client-generated)
     data object RateLimited : RegisterResult   // 429 rate_limited:rider_create
     data object Failed : RegisterResult         // network / other (terminal)
 }
@@ -82,7 +82,9 @@ class EucStatsApi(
             client.newCall(req).execute().use { resp ->
                 val body = resp.body?.string().orEmpty()
                 when {
-                    resp.isSuccessful && body.isNotEmpty() -> RegisterResult.Ok(JSONObject(body))
+                    // store_id is client-generated, so we don't read the body;
+                    // a non-empty 2xx is enough (no JSON parse that could throw).
+                    resp.isSuccessful && body.isNotEmpty() -> RegisterResult.Ok
                     resp.code == 429 -> RegisterResult.RateLimited
                     else -> RegisterResult.Failed
                 }

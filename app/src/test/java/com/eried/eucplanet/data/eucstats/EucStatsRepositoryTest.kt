@@ -18,7 +18,7 @@ import org.junit.Test
 
 /** In-memory fake for EucStatsApiContract. Records calls and returns programmed results. */
 class FakeEucStatsApi : EucStatsApiContract {
-    var registerResult: RegisterResult = RegisterResult.Ok(JSONObject().put("store_id", "new-store"))
+    var registerResult: RegisterResult = RegisterResult.Ok
     var cardResult: RiderCard? = RiderCard(
         displayName = "Fake", flag = "NO", hasAvatar = false, avatarUrl = null,
         totalKm = 100.0, trips = 1, topSpeedKmh = 40.0, maxGforce = 0.0,

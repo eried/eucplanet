@@ -784,7 +784,7 @@ class SettingsViewModel @Inject constructor(
     fun dismissRejoinConfirm() { _rejoinConfirm.value = false }
     fun confirmRejoin() {
         _rejoinConfirm.value = false
-        setOnlineUploadEnabled(true)
+        enableOnlineUpload()
     }
 
     /** Tapped "Join". If this phone already has a rider, confirm rejoining as it.
@@ -1945,19 +1945,13 @@ class SettingsViewModel @Inject constructor(
     }
 
     /**
-     * Enable or disable online upload.
-     *
-     * Disabling always succeeds and just flips the flag.
-     * Enabling is silently skipped when a sync folder or store_id is absent —
-     * the UI is responsible for routing the rider through onboarding first.
+     * Enable online upload. Silently skipped when a sync folder or store_id is
+     * absent — the UI routes the rider through onboarding first. (Disabling is
+     * done by [unlinkOnline].)
      */
-    fun setOnlineUploadEnabled(enabled: Boolean) {
+    fun enableOnlineUpload() {
         viewModelScope.launch {
             val current = settingsRepository.get()
-            if (!enabled) {
-                settingsRepository.update(current.copy(onlineUploadEnabled = false))
-                return@launch
-            }
             // Preconditions: sync folder configured AND already registered.
             if (current.syncFolderUri == null || current.eucstatsStoreId == null) return@launch
             settingsRepository.update(current.copy(onlineUploadEnabled = true))

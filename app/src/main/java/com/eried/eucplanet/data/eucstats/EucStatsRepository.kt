@@ -103,7 +103,7 @@ class EucStatsRepository @Inject constructor(
         var attempt = 0
         while (true) {
             when (api.registerRider(payload)) {
-                is RegisterResult.Ok -> break
+                RegisterResult.Ok -> break
                 RegisterResult.RateLimited -> {
                     if (attempt >= 2) return@withContext false
                     attempt++
