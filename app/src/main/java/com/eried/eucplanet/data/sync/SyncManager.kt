@@ -423,6 +423,15 @@ class SyncManager @Inject constructor(
         }
     }
 
+    /** Delete the recovery file ([RIDER_BACKUP_NAME]) -- used when the rider
+     *  deletes their account so the just-deleted profile is NOT offered for
+     *  "restore" on the next Join (the store_id no longer exists server-side).
+     *  Best-effort; returns true if a file was deleted. */
+    suspend fun deleteRiderIdFile(): Boolean {
+        val folder = getSyncFolder(settingsRepository.get()) ?: return false
+        return folder.findFile(RIDER_BACKUP_NAME)?.delete() ?: false
+    }
+
     /** Read the plain-text online rider id (store_id) from RIDER_BACKUP_NAME, or null. */
     suspend fun readRiderIdFile(): String? {
         val current = settingsRepository.get()

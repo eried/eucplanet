@@ -2048,6 +2048,10 @@ class SettingsViewModel @Inject constructor(
     fun deleteOnlineAccount(onResult: (Boolean) -> Unit) {
         viewModelScope.launch {
             val ok = eucStatsRepository.deleteAccount()
+            // Remove the local recovery file too, so the just-deleted profile is
+            // not offered for "restore" on the next Join (it no longer exists
+            // server-side). Best-effort, only when the server delete succeeded.
+            if (ok) syncManager.deleteRiderIdFile()
             onResult(ok)
         }
     }
