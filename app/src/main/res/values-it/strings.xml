@@ -1477,4 +1477,18 @@
     <string name="online_rejoin_title">Rientrare in classifica?</string>
     <string name="online_rejoin_body">Rientrerai come il tuo profilo salvato %1$s. Questo telefono riprenderà a caricare i tuoi nuovi viaggi su quel profilo.</string>
     <string name="online_rejoin_confirm">Rientra</string>
+    <string name="dashboard_custom_ble_default_name">BLE personalizzato</string>
+    <string name="dashboard_custom_ble_family">Filtro famiglia di ruote</string>
+    <string name="dashboard_custom_ble_frames">Frame (hex)</string>
+    <string name="dashboard_custom_ble_frames_error">Hex non valido — usa coppie di byte come 4c 6b 41 70</string>
+    <string name="dashboard_custom_ble_label">Etichetta pulsante</string>
+    <string name="dashboard_custom_ble_template">BLE</string>
+    <string name="dashboard_view_wide_menu">Ampia (per tablet)</string>
+    <string name="metric_desc_forward_g">Stimata dalla variazione di velocità della ruota (non dall\'IMU) — funziona indipendentemente dall\'orientamento del telefono.</string>
+    <string name="online_rider_id_conflict">In questa cartella è già salvato l\'ID di recupero di un altro rider — è stato mantenuto, non sovrascritto.</string>
+    <string name="online_upload_actions_desc">Invia i viaggi non ancora caricati nella classifica.</string>
+    <string name="online_upload_sync_checking">Controllo dei viaggi da caricare…</string>
+    <string name="online_upload_sync_done">Sincronizzati %1$d viaggi</string>
+    <string name="online_upload_sync_nothing">Niente da sincronizzare</string>
+    <string name="online_upload_sync_progress">Caricamento %1$d di %2$d</string>
 </resources>

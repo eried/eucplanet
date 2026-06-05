@@ -1477,4 +1477,18 @@
     <string name="online_rejoin_title">Voltar ao ranking?</string>
     <string name="online_rejoin_body">Você voltará como seu perfil salvo %1$s. Este celular retomará o envio das suas novas viagens para esse perfil.</string>
     <string name="online_rejoin_confirm">Voltar</string>
+    <string name="dashboard_custom_ble_default_name">BLE personalizado</string>
+    <string name="dashboard_custom_ble_family">Filtro de família de roda</string>
+    <string name="dashboard_custom_ble_frames">Frames (hex)</string>
+    <string name="dashboard_custom_ble_frames_error">Hex inválido — use pares de bytes como 4c 6b 41 70</string>
+    <string name="dashboard_custom_ble_label">Rótulo do botão</string>
+    <string name="dashboard_custom_ble_template">BLE</string>
+    <string name="dashboard_view_wide_menu">Ampla (para tablets)</string>
+    <string name="metric_desc_forward_g">Estimado pela variação de velocidade da roda (não o IMU) — funciona independentemente de como o celular está posicionado.</string>
+    <string name="online_rider_id_conflict">Um ID de recuperação de outro piloto já está salvo nesta pasta — foi mantido, sem sobrescrever.</string>
+    <string name="online_upload_actions_desc">Enviar ao ranking as viagens que ainda não foram enviadas.</string>
+    <string name="online_upload_sync_checking">Verificando viagens para enviar…</string>
+    <string name="online_upload_sync_done">%1$d viagens sincronizadas</string>
+    <string name="online_upload_sync_nothing">Nada para sincronizar</string>
+    <string name="online_upload_sync_progress">Enviando %1$d de %2$d</string>
 </resources>

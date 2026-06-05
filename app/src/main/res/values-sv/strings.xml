@@ -1441,4 +1441,18 @@
     <string name="online_rejoin_title">Gå med i topplistan igen?</string>
     <string name="online_rejoin_body">Du går med igen som din sparade profil %1$s. Den här telefonen återupptar uppladdningen av dina nya turer till den profilen.</string>
     <string name="online_rejoin_confirm">Gå med igen</string>
+    <string name="dashboard_custom_ble_default_name">Anpassad BLE</string>
+    <string name="dashboard_custom_ble_family">Hjulfamiljsfilter</string>
+    <string name="dashboard_custom_ble_frames">Ramar (hex)</string>
+    <string name="dashboard_custom_ble_frames_error">Ogiltigt hex — använd bytpar som 4c 6b 41 70</string>
+    <string name="dashboard_custom_ble_label">Knappetikett</string>
+    <string name="dashboard_custom_ble_template">BLE</string>
+    <string name="dashboard_view_wide_menu">Bred (för surfplattor)</string>
+    <string name="metric_desc_forward_g">Beräknad från hjulhastighetens förändring (inte IMU) — fungerar oavsett hur telefonen är monterad.</string>
+    <string name="online_rider_id_conflict">En annan förares återställnings-ID är redan sparat i den här mappen — det behölls, skrevs inte över.</string>
+    <string name="online_upload_actions_desc">Skicka turer som ännu inte laddats upp till topplistan.</string>
+    <string name="online_upload_sync_checking">Söker efter turer att ladda upp…</string>
+    <string name="online_upload_sync_done">Synkade %1$d turer</string>
+    <string name="online_upload_sync_nothing">Inget att synka</string>
+    <string name="online_upload_sync_progress">Laddar upp %1$d av %2$d</string>
 </resources>

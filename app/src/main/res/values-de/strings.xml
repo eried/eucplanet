@@ -1458,4 +1458,18 @@
     <string name="online_rejoin_title">Der Bestenliste wieder beitreten?</string>
     <string name="online_rejoin_body">Du trittst wieder als dein gespeichertes Profil %1$s bei. Dieses Telefon lädt deine neuen Fahrten wieder in dieses Profil hoch.</string>
     <string name="online_rejoin_confirm">Wieder beitreten</string>
+    <string name="dashboard_custom_ble_default_name">Benutzerdefiniertes BLE</string>
+    <string name="dashboard_custom_ble_family">Rad-Familie filtern</string>
+    <string name="dashboard_custom_ble_frames">Frames (hex)</string>
+    <string name="dashboard_custom_ble_frames_error">Ungültiges hex — Byte-Paare wie 4c 6b 41 70 verwenden</string>
+    <string name="dashboard_custom_ble_label">Button-Beschriftung</string>
+    <string name="dashboard_custom_ble_template">BLE</string>
+    <string name="dashboard_view_wide_menu">Breit (für Tablets)</string>
+    <string name="metric_desc_forward_g">Aus Radgeschwindigkeitsänderung berechnet (nicht vom IMU) — funktioniert unabhängig von der Handy-Ausrichtung.</string>
+    <string name="online_rider_id_conflict">In diesem Ordner ist bereits eine Fahrer-ID gespeichert — sie wurde beibehalten und nicht überschrieben.</string>
+    <string name="online_upload_actions_desc">Fahrten, die noch nicht in der Bestenliste sind, jetzt hochladen.</string>
+    <string name="online_upload_sync_checking">Suche nach hochzuladenden Fahrten…</string>
+    <string name="online_upload_sync_done">%1$d Fahrten synchronisiert</string>
+    <string name="online_upload_sync_nothing">Nichts zu synchronisieren</string>
+    <string name="online_upload_sync_progress">%1$d von %2$d wird hochgeladen</string>
 </resources>

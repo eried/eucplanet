@@ -1441,4 +1441,18 @@
     <string name="online_rejoin_title">Rejoindre le classement ?</string>
     <string name="online_rejoin_body">Tu rejoindras le classement avec ton profil enregistré %1$s. Ce téléphone reprendra l\'envoi de tes nouveaux trajets vers ce profil.</string>
     <string name="online_rejoin_confirm">Rejoindre</string>
+    <string name="dashboard_custom_ble_default_name">BLE personnalisé</string>
+    <string name="dashboard_custom_ble_family">Filtre famille de roue</string>
+    <string name="dashboard_custom_ble_frames">Trames (hex)</string>
+    <string name="dashboard_custom_ble_frames_error">Hex invalide — utilise des paires d\'octets comme 4c 6b 41 70</string>
+    <string name="dashboard_custom_ble_label">Libellé du bouton</string>
+    <string name="dashboard_custom_ble_template">BLE</string>
+    <string name="dashboard_view_wide_menu">Large (pour tablettes)</string>
+    <string name="metric_desc_forward_g">Estimé à partir du changement de vitesse de la roue (pas l\'IMU) — fonctionne quel que soit le montage du téléphone.</string>
+    <string name="online_rider_id_conflict">Un identifiant de rider différent est déjà enregistré dans ce dossier — conservé tel quel, sans écrasement.</string>
+    <string name="online_upload_actions_desc">Envoyer les trajets pas encore versés au classement.</string>
+    <string name="online_upload_sync_checking">Vérification des trajets à envoyer…</string>
+    <string name="online_upload_sync_done">%1$d trajets synchronisés</string>
+    <string name="online_upload_sync_nothing">Rien à synchroniser</string>
+    <string name="online_upload_sync_progress">Envoi %1$d sur %2$d</string>
 </resources>

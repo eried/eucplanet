@@ -1443,4 +1443,18 @@
     <string name="online_rejoin_title">Tilmeld ranglisten igen?</string>
     <string name="online_rejoin_body">Du tilmelder dig igen som din gemte profil %1$s. Denne telefon genoptager upload af dine nye ture til den profil.</string>
     <string name="online_rejoin_confirm">Tilmeld igen</string>
+    <string name="dashboard_custom_ble_default_name">Tilpasset BLE</string>
+    <string name="dashboard_custom_ble_family">Hjulfamilie-filter</string>
+    <string name="dashboard_custom_ble_frames">Frames (hex)</string>
+    <string name="dashboard_custom_ble_frames_error">Ugyldig hex — brug bytepar som 4c 6b 41 70</string>
+    <string name="dashboard_custom_ble_label">Knap-label</string>
+    <string name="dashboard_custom_ble_template">BLE</string>
+    <string name="dashboard_view_wide_menu">Bred (til tablets)</string>
+    <string name="metric_desc_forward_g">Estimeret ud fra hjulhastighedsændring (ikke IMU) — virker uanset telefonens monteringsvinkel.</string>
+    <string name="online_rider_id_conflict">En anden rytters gendannelses-id er allerede gemt i denne mappe — beholdt det, overskrev det ikke.</string>
+    <string name="online_upload_actions_desc">Send ture, der endnu ikke er uploadet til ranglisten.</string>
+    <string name="online_upload_sync_checking">Tjekker efter ture til upload…</string>
+    <string name="online_upload_sync_done">Synkroniserede %1$d ture</string>
+    <string name="online_upload_sync_nothing">Intet at synkronisere</string>
+    <string name="online_upload_sync_progress">Uploader %1$d af %2$d</string>
 </resources>

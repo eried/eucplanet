@@ -1478,4 +1478,18 @@
     <string name="online_rejoin_title">Dołączyć ponownie do rankingu?</string>
     <string name="online_rejoin_body">Dołączysz ponownie jako Twój zapisany profil %1$s. Ten telefon wznowi przesyłanie nowych tras do tego profilu.</string>
     <string name="online_rejoin_confirm">Dołącz ponownie</string>
+    <string name="dashboard_custom_ble_default_name">Niestandardowy BLE</string>
+    <string name="dashboard_custom_ble_family">Filtr rodziny kół</string>
+    <string name="dashboard_custom_ble_frames">Ramki (hex)</string>
+    <string name="dashboard_custom_ble_frames_error">Nieprawidłowy hex — użyj par bajtów np. 4c 6b 41 70</string>
+    <string name="dashboard_custom_ble_label">Etykieta przycisku</string>
+    <string name="dashboard_custom_ble_template">BLE</string>
+    <string name="dashboard_view_wide_menu">Szeroki (dla tabletów)</string>
+    <string name="metric_desc_forward_g">Szacowane na podstawie zmiany prędkości koła (nie IMU) — działa niezależnie od sposobu montażu telefonu.</string>
+    <string name="online_rider_id_conflict">W tym folderze jest już zapisane ID odzyskiwania innego zawodnika — zachowano je, nie nadpisano.</string>
+    <string name="online_upload_actions_desc">Wyślij trasy jeszcze nieprzesyłane do rankingu.</string>
+    <string name="online_upload_sync_checking">Sprawdzanie tras do przesłania…</string>
+    <string name="online_upload_sync_done">Zsynchronizowano %1$d tras</string>
+    <string name="online_upload_sync_nothing">Brak tras do synchronizacji</string>
+    <string name="online_upload_sync_progress">Przesyłanie %1$d z %2$d</string>
 </resources>

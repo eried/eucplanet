@@ -1476,4 +1476,18 @@
     <string name="online_rejoin_title">Opnieuw deelnemen aan het klassement?</string>
     <string name="online_rejoin_body">Je neemt opnieuw deel als je opgeslagen profiel %1$s. Deze telefoon hervat het uploaden van je nieuwe ritten naar dat profiel.</string>
     <string name="online_rejoin_confirm">Opnieuw deelnemen</string>
+    <string name="dashboard_custom_ble_default_name">Aangepaste BLE</string>
+    <string name="dashboard_custom_ble_family">Filter wielmodel</string>
+    <string name="dashboard_custom_ble_frames">Frames (hex)</string>
+    <string name="dashboard_custom_ble_frames_error">Ongeldige hex — gebruik byteparen zoals 4c 6b 41 70</string>
+    <string name="dashboard_custom_ble_label">Knoplabel</string>
+    <string name="dashboard_custom_ble_template">BLE</string>
+    <string name="dashboard_view_wide_menu">Breed (voor tablets)</string>
+    <string name="metric_desc_forward_g">Geschat op basis van wielsnelheidsverandering (niet de IMU) — werkt ongeacht de montagerichting van de telefoon.</string>
+    <string name="online_rider_id_conflict">Er is al een herstel-ID van een andere rijder opgeslagen in deze map — die is behouden en niet overschreven.</string>
+    <string name="online_upload_actions_desc">Stuur alle ritten die nog niet naar het klassement zijn geüpload.</string>
+    <string name="online_upload_sync_checking">Controleren op te uploaden ritten…</string>
+    <string name="online_upload_sync_done">%1$d ritten gesynchroniseerd</string>
+    <string name="online_upload_sync_nothing">Niets te synchroniseren</string>
+    <string name="online_upload_sync_progress">Uploaden %1$d van %2$d</string>
 </resources>
