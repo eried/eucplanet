@@ -808,8 +808,8 @@ class SettingsViewModel @Inject constructor(
 
     fun dismissRestorableRider() { _restorableRider.value = null }
 
-    /** Adopt the rider carried by [rider] (restore its backup), snapshotting the
-     *  current rider first if we'd be replacing a different one. */
+    /** Adopt the rider carried by [rider] (adopt its recovered rider id),
+     *  snapshotting the current rider first if we'd be replacing a different one. */
     fun restoreRider(rider: RestorableRider) {
         viewModelScope.launch {
             val current = settingsRepository.get()

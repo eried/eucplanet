@@ -358,7 +358,7 @@ fun RouteBuilderScreen(
     }
 
     // First load: frame the map on the rider instead of the whole world.
-    // Skipped when a saved route is present, that route frames itself.
+    // Skipped when a current route is present, that route frames itself.
     LaunchedEffect(pageReady, userLocation, route) {
         val loc = userLocation
         if (pageReady && !didInitialCenter && route == null && loc != null) {

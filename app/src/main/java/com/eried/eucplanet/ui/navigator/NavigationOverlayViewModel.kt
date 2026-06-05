@@ -24,8 +24,8 @@ import javax.inject.Inject
  * singleton [NavigationEngine]. The overlay lives above the nav graph in
  * [com.eried.eucplanet.MainActivity], so it just mirrors the engine's state.
  *
- * It also backs the dashboard map button's long-press menu: [savedRoute] tells
- * the menu whether there is anything to start, and [startSavedRoute] launches
+ * It also backs the dashboard map button's long-press menu: [currentRoute] tells
+ * the menu whether there is anything to start, and [startCurrentRoute] launches
  * guidance without a trip through the route builder.
  */
 @HiltViewModel
@@ -39,7 +39,7 @@ class NavigationOverlayViewModel @Inject constructor(
 
     init {
         // Idempotent nudge so a "my location" fix is ready if the rider starts
-        // a saved route straight from the dashboard.
+        // the current route straight from the dashboard.
         tripRepository.startLocationUpdates()
     }
 
@@ -49,7 +49,7 @@ class NavigationOverlayViewModel @Inject constructor(
      * The route last left in the builder, or null when it has no stops. The
      * dashboard map menu offers "Start navigation" only while this is non-null.
      */
-    val savedRoute: StateFlow<NavRoute?> = currentRouteStore.route
+    val currentRoute: StateFlow<NavRoute?> = currentRouteStore.route
         .map { r -> r?.takeIf { it.waypoints.isNotEmpty() } }
         .stateIn(viewModelScope, SharingStarted.Eagerly, null)
 
@@ -63,13 +63,13 @@ class NavigationOverlayViewModel @Inject constructor(
     fun endNavigation() = navigationEngine.stop()
 
     /**
-     * Starts guidance on the saved route's stops. When a GPS fix is available
+     * Starts guidance on the current route's stops. When a GPS fix is available
      * it re-routes fresh from the rider's current position (so the origin is
      * never stale, mirroring the route builder's own Start button); otherwise
      * it falls back to the stored route geometry.
      */
-    fun startSavedRoute() {
-        val saved = savedRoute.value ?: return
+    fun startCurrentRoute() {
+        val saved = currentRoute.value ?: return
         val dests = saved.waypoints
         if (dests.isEmpty()) return
         val mode = if (saved.travelMode == TravelMode.STRAIGHT) NavMode.TREASURE_HUNT

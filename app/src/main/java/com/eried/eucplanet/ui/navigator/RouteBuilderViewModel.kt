@@ -42,8 +42,8 @@ import javax.inject.Inject
 
 /**
  * Backing state for the Route Builder screen: the ordered waypoint list, the
- * resolved [NavRoute], address search, GPX import/export, and persistence of
- * the "current route" so it survives leaving the screen.
+ * resolved [NavRoute], address search, GPX import/export, and holding the
+ * "current route" in memory (CurrentRouteStore) so it survives leaving the screen.
  *
  * Whenever the waypoints or travel mode change the route is recomputed (with a
  * short debounce so dragging a pin doesn't fire a request per frame), and once
@@ -236,8 +236,8 @@ class RouteBuilderViewModel @Inject constructor(
                 handleIncomingShare(req)
             }
         }
-        // Signal raised once the persisted route (if any) has been read
-        // back into _waypoints / _route. The arrived collector below
+        // Signal raised once the current (in-memory) route (if any) has been
+        // read back into _waypoints / _route. The arrived collector below
         // awaits this BEFORE processing any nav events, so a VM that was
         // just re-created mid-navigation (e.g. rider switched tabs and
         // came back during the arrival dismiss window) can't see
@@ -269,9 +269,9 @@ class RouteBuilderViewModel @Inject constructor(
                         routeName = existing.name
                         _travelMode.value = existing.travelMode
                         _waypoints.value = existing.waypoints
-                        // Only adopt the persisted route as _route when it
-                        // actually carries geometry. With the new "stops +
-                        // travel mode only" persistence, geometry is
+                        // Only adopt the current (in-memory) route as _route
+                        // when it actually carries geometry. With the new
+                        // "stops + travel mode only" caching, geometry is
                         // always empty -- overwriting _route with an empty
                         // leg here would clobber whatever the activeLeg
                         // observer just put in (during active nav) and
@@ -328,7 +328,7 @@ class RouteBuilderViewModel @Inject constructor(
         // would see two or three stops vanish from one physical arrival.
         var arrivalProcessed = false
         viewModelScope.launch {
-            // Wait until the persisted route has been read back into
+            // Wait until the current (in-memory) route has been read back into
             // _waypoints before processing arrival events. Without this,
             // a VM re-created during the engine's post-arrival window
             // would observe arrived=true with _waypoints still empty,
@@ -349,7 +349,8 @@ class RouteBuilderViewModel @Inject constructor(
                 if (arrivalProcessed) return@collect
                 arrivalProcessed = true
                 // The engine is now the sole orchestrator of multi-stop
-                // progress: it writes passed=true to the saved JSON itself
+                // progress: it writes passed=true to the in-memory current
+                // route (CurrentRouteStore) itself
                 // and (for intermediate stops) builds the next leg + calls
                 // advanceLeg from inside its own scope. The Navigator VM
                 // used to race the engine's intermediate-flash window by
@@ -358,8 +359,9 @@ class RouteBuilderViewModel @Inject constructor(
                 // emitted arrived=false again and yanked the "Reached
                 // goal N" popup off-screen ~150 ms in. Now we just mirror
                 // the passed flag into the visible list so the marker
-                // flips to a flag immediately; the engine's saved-JSON
-                // write below is the source of truth on disk, and
+                // flips to a flag immediately; the engine's write to the
+                // in-memory current route (CurrentRouteStore) below is the
+                // source of truth, and
                 // _route is updated by the engine's advanceLeg-driven
                 // navState emission picked up by other observers /
                 // bumpRender paths.
@@ -514,7 +516,7 @@ class RouteBuilderViewModel @Inject constructor(
         // A plain stop was just added; clear the "last preset" memory so the
         // Home / Work search suggestions both come back. addPreset() re-sets it.
         _lastAddedPresetKind.value = null
-        persistDraft()
+        cacheDraft()
         val edge = if (neighbor != null) listOf(neighbor, GeoPoint(lat, lng)) else emptyList()
         scheduleRecompute(fit = fit, previewEdge = edge)
     }
@@ -568,7 +570,7 @@ class RouteBuilderViewModel @Inject constructor(
         list.add(insertIndex, Waypoint(lat, lng))
         _waypoints.value = list
         _lastAddedPresetKind.value = null
-        persistDraft()
+        cacheDraft()
         val edge = listOfNotNull(left, GeoPoint(lat, lng), right)
         scheduleRecompute(fit = false, previewEdge = if (edge.size >= 2) edge else emptyList())
     }
@@ -586,7 +588,7 @@ class RouteBuilderViewModel @Inject constructor(
         // the role until the next route solves and re-resolves the address.
         list[index] = list[index].copy(lat = lat, lng = lng, name = "")
         _waypoints.value = list
-        persistDraft()
+        cacheDraft()
         val edge = listOfNotNull(left, GeoPoint(lat, lng), right)
         scheduleRecompute(fit = false, previewEdge = if (edge.size >= 2) edge else emptyList())
     }
@@ -596,7 +598,7 @@ class RouteBuilderViewModel @Inject constructor(
         if (index !in list.indices) return
         list.removeAt(index)
         _waypoints.value = list
-        persistDraft()
+        cacheDraft()
         scheduleRecompute(fit = false)
     }
 
@@ -605,7 +607,7 @@ class RouteBuilderViewModel @Inject constructor(
         if (from !in list.indices || to !in list.indices) return
         list.add(to, list.removeAt(from))
         _waypoints.value = list
-        persistDraft()
+        cacheDraft()
         scheduleRecompute(fit = false)
     }
 
@@ -616,7 +618,7 @@ class RouteBuilderViewModel @Inject constructor(
             val s = settingsRepository.get()
             settingsRepository.update(s.copy(navDefaultTravelMode = mode.name))
         }
-        persistDraft()
+        cacheDraft()
         scheduleRecompute(fit = false)
     }
 
@@ -631,7 +633,7 @@ class RouteBuilderViewModel @Inject constructor(
      * no geometry / maneuvers (the Builder recomputes those when it re-opens).
      * Nothing is persisted, so a reinstall always starts navigation from zero.
      */
-    private fun persistDraft() {
+    private fun cacheDraft() {
         if (navigationEngine.isActive) return
         val wps = _waypoints.value
         if (wps.isEmpty()) {
@@ -661,7 +663,7 @@ class RouteBuilderViewModel @Inject constructor(
         _lastAddedPresetKind.value = null
         lastRouteOrigin = null
         bumpRender(fit = false)
-        clearPersistedRoute()
+        clearCurrentRoute()
     }
 
 
@@ -874,17 +876,14 @@ class RouteBuilderViewModel @Inject constructor(
     }
 
     /**
-     * Clears the disk-side current-route snapshot. Used by [clear] and the
-     * GPX load-replace flow so the rider's "I'm done with this route"
-     * action is honoured across the next Builder open. We deliberately
-     * NEVER persist a draft route here (that's done only when navigation
-     * actually starts -- see startNavigation), because:
-     *   * draft pins are explicitly disposable per the design (rider saves
-     *     a GPX if they want them back),
-     *   * persisting them caused them to be uploaded by Google Auto Backup
-     *     and silently restored as ghost stops on reinstall.
+     * Clears the in-memory current route ([CurrentRouteStore]). Used by [clear]
+     * and the GPX load-replace flow so the rider's "I'm done with this route"
+     * action is honoured across the next Builder open. We deliberately NEVER
+     * cache a draft route here (that's done only when navigation actually
+     * starts -- see startNavigation), because draft pins are explicitly
+     * disposable per the design (the rider saves a GPX if they want them back).
      */
-    private fun clearPersistedRoute() {
+    private fun clearCurrentRoute() {
         currentRouteStore.clear()
     }
 

@@ -575,8 +575,9 @@ class SyncManager @Inject constructor(
         }
     }
 
-    /** First backup in the sync folder that carries a rider identity (the
-     *  default eucplanet_settings.json is checked first via listSettingsBackups). */
+    /** The recoverable rider identity for this sync folder. Prefers the
+     *  dedicated `eucstats_riderid.txt` file FIRST; if that's absent, falls
+     *  back to the first settings backup that carries a rider. */
     suspend fun findRestorableRider(): RestorableRider? {
         // Prefer the dedicated plain-text rider-id file.
         readRiderIdFile()?.let { id ->
