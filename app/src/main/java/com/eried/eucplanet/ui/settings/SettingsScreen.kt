@@ -6974,14 +6974,14 @@ private fun CloudTab(
                             }
                         }
 
-                        // Stats — show both metric and imperial (static). Use 1 decimal
-                        // for small values so e.g. 0.5 km doesn't round to "1 km · 0 mi".
-                        val kmToMi = 0.621371
-                        fun dist(v: Double) = if (v < 100.0) "%.1f".format(v) else "%.0f".format(v)
-                        val totalKmStr = dist(card.totalKm)
-                        val totalMiStr = dist(card.totalKm * kmToMi)
+                        // Stats — shown in the unit system the app is currently set to
+                        // (not both metric + imperial). 1 decimal for small distances.
+                        val distUnit = Units.effectiveDistanceUnit(settings)
+                        val spdUnit = Units.effectiveSpeedUnit(settings)
+                        val totalVal = Units.distance(card.totalKm.toFloat(), distUnit)
+                        val totalStr = if (totalVal < 100f) "%.1f".format(totalVal) else "%.0f".format(totalVal)
                         Text(
-                            stringResource(R.string.online_upload_total_km, totalKmStr, totalMiStr),
+                            stringResource(R.string.online_upload_total_km, totalStr, Units.distanceUnit(distUnit)),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.appColors.textSecondary,
                         )
@@ -6995,8 +6995,8 @@ private fun CloudTab(
                         Text(
                             stringResource(
                                 R.string.online_upload_top_speed,
-                                "%.0f".format(card.topSpeedKmh),
-                                "%.0f".format(card.topSpeedKmh * kmToMi)
+                                "%.0f".format(Units.speed(card.topSpeedKmh.toFloat(), spdUnit)),
+                                Units.speedUnit(context, spdUnit)
                             ),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.appColors.textSecondary,

@@ -1402,9 +1402,9 @@
     <string name="online_upload_view_on_eucstats">在 EUC Stats 上查看</string>
     <string name="online_upload_retry">重试上传</string>
     <string name="online_upload_mileage_rank">里程第 #%d 名</string>
-    <string name="online_upload_top_speed">最高 %1$s km/h · %2$s mph</string>
+    <string name="online_upload_top_speed">最高 %1$s %2$s</string>
     <string name="online_upload_trips">%d 次行程</string>
-    <string name="online_upload_total_km">%1$s km · %2$s mi</string>
+    <string name="online_upload_total_km">%1$s %2$s</string>
     <string name="online_upload_join">加入排行榜</string>
     <string name="online_status_shared">已分享到排行榜</string>
     <string name="online_status_flagged">已分享，审核中</string>

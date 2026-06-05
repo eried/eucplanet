@@ -1065,9 +1065,9 @@
     <string name="online_upload_view_on_eucstats">View on EUC Stats</string>
     <string name="online_upload_retry">Retry uploads</string>
     <string name="online_upload_mileage_rank">#%d mileage</string>
-    <string name="online_upload_top_speed">top %1$s km/h · %2$s mph</string>
+    <string name="online_upload_top_speed">top %1$s %2$s</string>
     <string name="online_upload_trips">%d trips</string>
-    <string name="online_upload_total_km">%1$s km · %2$s mi</string>
+    <string name="online_upload_total_km">%1$s %2$s</string>
     <string name="online_upload_join">Join leaderboard</string>
     <string name="online_status_shared">Shared on the leaderboard</string>
     <string name="online_status_flagged">Shared, under review</string>
@@ -1085,7 +1085,7 @@
     <!-- Online profile (edit/GDPR) -->
     <string name="online_profile_manage">Manage profile</string>
     <string name="online_profile_title">My profile</string>
-    <string name="online_profile_changeable_on">Changeable again on %1$s</string>
+    <string name="online_profile_changeable_on">Editable again on %1$s</string>
     <string name="online_profile_avatar_has">Set</string>
     <string name="online_profile_export_data">Export my data</string>
     <string name="online_profile_delete_account">Delete account</string>

@@ -1439,9 +1439,9 @@
     <string name="online_upload_view_on_eucstats">Відкрити в EUC Stats</string>
     <string name="online_upload_retry">Повторити вивантаження</string>
     <string name="online_upload_mileage_rank">#%d за пробігом</string>
-    <string name="online_upload_top_speed">макс. %1$s km/h · %2$s mph</string>
+    <string name="online_upload_top_speed">макс. %1$s %2$s</string>
     <string name="online_upload_trips">%d поїздок</string>
-    <string name="online_upload_total_km">%1$s km · %2$s mi</string>
+    <string name="online_upload_total_km">%1$s %2$s</string>
     <string name="online_upload_join">Приєднатись до таблиці лідерів</string>
     <string name="online_status_shared">Опубліковано в таблиці лідерів</string>
     <string name="online_status_flagged">Опубліковано, на перевірці</string>

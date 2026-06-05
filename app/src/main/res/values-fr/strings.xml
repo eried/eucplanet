@@ -1402,9 +1402,9 @@
     <string name="online_upload_view_on_eucstats">Voir sur EUC Stats</string>
     <string name="online_upload_retry">Relancer les envois</string>
     <string name="online_upload_mileage_rank">#%d kilométrage</string>
-    <string name="online_upload_top_speed">max %1$s km/h · %2$s mph</string>
+    <string name="online_upload_top_speed">max %1$s %2$s</string>
     <string name="online_upload_trips">%d trajets</string>
-    <string name="online_upload_total_km">%1$s km · %2$s mi</string>
+    <string name="online_upload_total_km">%1$s %2$s</string>
     <string name="online_upload_join">Rejoindre le classement</string>
     <string name="online_status_shared">Partagé dans le classement</string>
     <string name="online_status_flagged">Partagé, en cours de vérification</string>

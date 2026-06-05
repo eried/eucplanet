@@ -1438,9 +1438,9 @@
     <string name="online_upload_view_on_eucstats">Bekijken op EUC Stats</string>
     <string name="online_upload_retry">Uploads opnieuw proberen</string>
     <string name="online_upload_mileage_rank">#%d kilometerstand</string>
-    <string name="online_upload_top_speed">top %1$s km/h · %2$s mph</string>
+    <string name="online_upload_top_speed">top %1$s %2$s</string>
     <string name="online_upload_trips">%d ritten</string>
-    <string name="online_upload_total_km">%1$s km · %2$s mi</string>
+    <string name="online_upload_total_km">%1$s %2$s</string>
     <string name="online_upload_join">Aanmelden bij klassement</string>
     <string name="online_status_shared">Gedeeld op het klassement</string>
     <string name="online_status_flagged">Gedeeld, wordt beoordeeld</string>

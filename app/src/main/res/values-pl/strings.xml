@@ -1439,9 +1439,9 @@
     <string name="online_upload_view_on_eucstats">Zobacz w EUC Stats</string>
     <string name="online_upload_retry">Ponów przesyłanie</string>
     <string name="online_upload_mileage_rank">#%d dystans</string>
-    <string name="online_upload_top_speed">maks. %1$s km/h · %2$s mph</string>
+    <string name="online_upload_top_speed">maks. %1$s %2$s</string>
     <string name="online_upload_trips">%d tras</string>
-    <string name="online_upload_total_km">%1$s km · %2$s mi</string>
+    <string name="online_upload_total_km">%1$s %2$s</string>
     <string name="online_upload_join">Dołącz do rankingu</string>
     <string name="online_status_shared">Udostępniono w rankingu</string>
     <string name="online_status_flagged">Udostępniono, w weryfikacji</string>
