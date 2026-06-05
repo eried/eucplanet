@@ -63,13 +63,14 @@ class EucStatsRepository @Inject constructor(
     /**
      * Register a new rider (or re-register if not yet persisted).
      * Generates a new UUIDv4 store_id when one doesn't exist yet.
-     * Returns true on success.
+     * Returns the final [RegisterResult]: Ok on success; Failed carries the
+     * server's HTTP status + detail so the UI can show why it failed.
      */
     suspend fun register(
         displayName: String,
         flag: String,
         avatarPngBase64: String,
-    ): Boolean = withContext(Dispatchers.IO) {
+    ): RegisterResult = withContext(Dispatchers.IO) {
         val current = settings.get()
         val storeId = current.eucstatsStoreId ?: UUID.randomUUID().toString()
 
@@ -102,14 +103,14 @@ class EucStatsRepository @Inject constructor(
         // onboarding spinner never hangs.
         var attempt = 0
         while (true) {
-            when (api.registerRider(payload)) {
+            when (val r = api.registerRider(payload)) {
                 RegisterResult.Ok -> break
                 RegisterResult.RateLimited -> {
-                    if (attempt >= 2) return@withContext false
+                    if (attempt >= 2) return@withContext RegisterResult.RateLimited
                     attempt++
                     kotlinx.coroutines.delay(2_000L * attempt)
                 }
-                RegisterResult.Failed -> return@withContext false
+                is RegisterResult.Failed -> return@withContext r
             }
         }
 
@@ -126,7 +127,7 @@ class EucStatsRepository @Inject constructor(
             )
         )
         refreshCard()
-        true
+        RegisterResult.Ok
     }
 
     // -------------------------------------------------------------------------

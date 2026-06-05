@@ -1928,11 +1928,11 @@ class SettingsViewModel @Inject constructor(
         displayName: String,
         flag: String,
         avatarPngBase64: String,
-        onResult: (Boolean) -> Unit,
+        onResult: (com.eried.eucplanet.data.eucstats.RegisterResult) -> Unit,
     ) {
         viewModelScope.launch {
-            val ok = eucStatsRepository.register(displayName, flag, avatarPngBase64)
-            if (ok) {
+            val result = eucStatsRepository.register(displayName, flag, avatarPngBase64)
+            if (result == com.eried.eucplanet.data.eucstats.RegisterResult.Ok) {
                 // Persist ONLY the rider identity to its own small file
                 // (eucstats_riderid.txt) -- NOT the full settings/theme -- so the
                 // rider survives a reinstall / new device and findRestorableRider
@@ -1940,7 +1940,7 @@ class SettingsViewModel @Inject constructor(
                 // Best-effort.
                 syncManager.backupRiderIdentity()
             }
-            onResult(ok)
+            onResult(result)
         }
     }
 

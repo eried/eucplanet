@@ -41,9 +41,11 @@ sealed interface UploadResult {
  * existing store_id is never limited; anything else is terminal for the attempt.
  */
 sealed interface RegisterResult {
-    data object Ok : RegisterResult             // 2xx with a body (store_id is client-generated)
-    data object RateLimited : RegisterResult   // 429 rate_limited:rider_create
-    data object Failed : RegisterResult         // network / other (terminal)
+    data object Ok : RegisterResult                            // 2xx with a body (store_id is client-generated)
+    data object RateLimited : RegisterResult                   // 429 rate_limited:rider_create
+    /** Any other failure. [code] is the HTTP status (0 = network / no response);
+     *  [detail] is the server's "detail" string when present (e.g. display_name_taken). */
+    data class Failed(val code: Int, val detail: String?) : RegisterResult
 }
 
 /**
@@ -82,15 +84,23 @@ class EucStatsApi(
             client.newCall(req).execute().use { resp ->
                 val body = resp.body?.string().orEmpty()
                 when {
-                    // store_id is client-generated, so we don't read the body;
-                    // a non-empty 2xx is enough (no JSON parse that could throw).
+                    // store_id is client-generated, so we don't read the body on
+                    // success; a non-empty 2xx is enough.
                     resp.isSuccessful && body.isNotEmpty() -> RegisterResult.Ok
                     resp.code == 429 -> RegisterResult.RateLimited
-                    else -> RegisterResult.Failed
+                    else -> {
+                        // Surface the server's reason. FastAPI errors are
+                        // {"detail":"..."} (e.g. display_name_taken, or a
+                        // "display_name must be ..." validation message).
+                        val detail = runCatching {
+                            JSONObject(body).optString("detail").ifEmpty { null }
+                        }.getOrNull()
+                        RegisterResult.Failed(resp.code, detail)
+                    }
                 }
             }
         } catch (e: Exception) {
-            RegisterResult.Failed
+            RegisterResult.Failed(0, null) // network / no response
         }
     }
 

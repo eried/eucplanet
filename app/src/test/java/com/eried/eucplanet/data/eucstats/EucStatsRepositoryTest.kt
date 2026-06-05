@@ -187,9 +187,9 @@ class EucStatsRepositoryTest {
     // -----------------------------------------------------------------------
 
     @Test fun register_persistsStoreIdAndEnablesUpload() = runBlocking {
-        val ok = repo.register("Alice", "NO", "base64avatar==")
+        val result = repo.register("Alice", "NO", "base64avatar==")
 
-        assertTrue("register should return true", ok)
+        assertEquals(RegisterResult.Ok, result)
         val saved = settingsPort.get()
         assertNotNull("store_id must be persisted", saved.eucstatsStoreId)
         assertTrue("onlineUploadEnabled must be true", saved.onlineUploadEnabled)
@@ -238,10 +238,10 @@ class EucStatsRepositoryTest {
         assertEquals("existing-id", settingsPort.get().eucstatsStoreId)
     }
 
-    @Test fun register_returnsFalseWhenApiFails() = runBlocking {
-        api.registerResult = RegisterResult.Failed
-        val ok = repo.register("Eve", "SE", "avatar==")
-        assertFalse(ok)
+    @Test fun register_returnsFailedWhenApiFails() = runBlocking {
+        api.registerResult = RegisterResult.Failed(409, "display_name_taken")
+        val result = repo.register("Eve", "SE", "avatar==")
+        assertTrue(result is RegisterResult.Failed)
         // Settings must NOT be updated on failure.
         assertFalse(settingsPort.get().onlineUploadEnabled)
     }

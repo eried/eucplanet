@@ -95,6 +95,9 @@ fun OnlineUploadOnboardingDialog(
     // ---- Registration state --------------------------------------------------
     var registering   by remember { mutableStateOf(false) }
     var registerError by remember { mutableStateOf(false) }
+    // The server's "detail" for a register failure (e.g. display_name_taken), or
+    // null for a network failure -> falls back to the generic connection message.
+    var registerErrorDetail by remember { mutableStateOf<String?>(null) }
 
     // ---- Image picker --------------------------------------------------------
     val context = LocalContext.current
@@ -330,7 +333,11 @@ fun OnlineUploadOnboardingDialog(
                 // ---- Inline registration error -------------------------------
                 if (registerError) {
                     Text(
-                        text = stringResource(R.string.online_upload_register_error),
+                        // The server's own reason when it responded (e.g.
+                        // display_name_taken); the generic connection message
+                        // only for a real network failure.
+                        text = registerErrorDetail
+                            ?: stringResource(R.string.online_upload_register_error),
                         color = MaterialTheme.appColors.statusDanger,
                         style = MaterialTheme.typography.bodySmall,
                     )
@@ -354,14 +361,21 @@ fun OnlineUploadOnboardingDialog(
                         val bitmap = croppedBitmap ?: return@Button
                         registering   = true
                         registerError = false
+                        registerErrorDetail = null
                         val base64 = encodeBitmapToBase64(bitmap)
                         viewModel.registerOnlineUpload(
                             displayName = displayName.trim(),
                             flag        = flagCode.uppercase(),
                             avatarPngBase64 = base64,
-                        ) { ok ->
+                        ) { result ->
                             registering = false
-                            if (ok) onRegistered() else registerError = true
+                            if (result == com.eried.eucplanet.data.eucstats.RegisterResult.Ok) {
+                                onRegistered()
+                            } else {
+                                registerError = true
+                                registerErrorDetail = (result as?
+                                    com.eried.eucplanet.data.eucstats.RegisterResult.Failed)?.detail
+                            }
                         }
                     },
                     enabled = canRegister && !registering,
