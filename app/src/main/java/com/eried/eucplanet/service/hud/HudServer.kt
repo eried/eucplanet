@@ -68,7 +68,8 @@ class HudServer @Inject constructor(
     private val externalGpsRepository: ExternalGpsRepository,
     private val tripRepository: TripRepository,
     private val navigationEngine: NavigationEngine,
-    private val commandSink: HudCommandSink
+    private val commandSink: HudCommandSink,
+    private val themeController: com.eried.eucplanet.ui.theme.ThemeController
 ) {
 
     companion object {
@@ -492,5 +493,5 @@ class HudServer @Inject constructor(
     }
 
     private fun resolveAccentArgb(s: AppSettings): String =
-        com.eried.eucplanet.ui.theme.ThemeAccent.primaryArgb(s.activeThemeColorsJson, s.accentColor)
+        com.eried.eucplanet.ui.theme.ThemeAccent.primaryArgb(themeController.activeColors.value)
 }

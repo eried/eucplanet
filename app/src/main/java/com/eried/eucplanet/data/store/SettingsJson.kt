@@ -151,10 +151,7 @@ object SettingsJson {
         put("language", s.language)
         put("themeMode", s.themeMode)
         put("accentColor", s.accentColor)
-        put("activeThemeColorsJson", s.activeThemeColorsJson)
         put("activeThemeName", s.activeThemeName)
-        put("themeDirty", s.themeDirty)
-        put("unsavedThemesJson", s.unsavedThemesJson)
         put("themeEditorEnabled", s.themeEditorEnabled)
         put("showGaugeColorBand", s.showGaugeColorBand)
         put("gaugeOrangeThresholdPct", s.gaugeOrangeThresholdPct)
@@ -208,8 +205,6 @@ object SettingsJson {
         put("navDefaultTravelMode", s.navDefaultTravelMode)
         put("navGeocoderUrl", s.navGeocoderUrl)
         put("navRouterUrl", s.navRouterUrl)
-        put("navCurrentRouteJson", s.navCurrentRouteJson)
-        put("navCurrentRouteSavedAt", s.navCurrentRouteSavedAt)
         put("navMapType", s.navMapType)
         put("navUserMarkerPhotoDataUrl", s.navUserMarkerPhotoDataUrl)
         put("navSolveFullPath", s.navSolveFullPath)
@@ -352,10 +347,7 @@ object SettingsJson {
         language = j.optString("language", base.language),
         themeMode = j.optString("themeMode", base.themeMode),
         accentColor = j.optString("accentColor", base.accentColor),
-        activeThemeColorsJson = j.optString("activeThemeColorsJson", base.activeThemeColorsJson),
         activeThemeName = j.optString("activeThemeName", base.activeThemeName),
-        themeDirty = j.optBoolean("themeDirty", base.themeDirty),
-        unsavedThemesJson = j.optString("unsavedThemesJson", base.unsavedThemesJson),
         themeEditorEnabled = j.optBoolean("themeEditorEnabled", base.themeEditorEnabled),
         showGaugeColorBand = j.optBoolean("showGaugeColorBand", base.showGaugeColorBand),
         gaugeOrangeThresholdPct = j.optInt("gaugeOrangeThresholdPct", base.gaugeOrangeThresholdPct),
@@ -415,8 +407,6 @@ object SettingsJson {
         navDefaultTravelMode = j.optString("navDefaultTravelMode", base.navDefaultTravelMode),
         navGeocoderUrl = j.optString("navGeocoderUrl", base.navGeocoderUrl),
         navRouterUrl = j.optString("navRouterUrl", base.navRouterUrl),
-        navCurrentRouteJson = j.optStringOrNull("navCurrentRouteJson", base.navCurrentRouteJson),
-        navCurrentRouteSavedAt = j.optLong("navCurrentRouteSavedAt", base.navCurrentRouteSavedAt),
         navMapType = j.optString("navMapType", base.navMapType),
         navUserMarkerPhotoDataUrl = if (j.has("navUserMarkerPhotoDataUrl") && !j.isNull("navUserMarkerPhotoDataUrl"))
             j.optString("navUserMarkerPhotoDataUrl", "").ifBlank { null }

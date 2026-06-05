@@ -308,49 +308,15 @@ class MainActivity : AppCompatActivity() {
                     requestMissingPermissions()
                 }
             }
-            val systemDark = androidx.compose.foundation.isSystemInDarkTheme()
-            val persistedColors = androidx.compose.runtime.remember(
-                s?.activeThemeColorsJson, s?.themeMode, s?.accentColor, systemDark
-            ) {
-                com.eried.eucplanet.ui.theme.ThemeMigration.resolveColors(
-                    activeThemeColorsJson = s?.activeThemeColorsJson ?: "",
-                    themeMode = s?.themeMode ?: "system",
-                    accentKey = s?.accentColor ?: "default",
-                    systemDark = systemDark,
-                )
-            }
-            // Live editor preview (in-memory) overrides the persisted snapshot so
-            // the whole app re-skins instantly while a color slider is dragged.
-            // The target tool's transient pulse takes precedence over both.
+            // The active theme's resolved colors come from ThemeController (held in
+            // memory, re-derived from the persisted theme NAME on launch). The live
+            // editor preview overrides them so the whole app re-skins instantly
+            // while a slider drags; the target tool's pulse wins over both.
+            androidx.compose.runtime.LaunchedEffect(Unit) { themeController.ensureResolved() }
+            val resolvedColors = themeController.activeColors.collectAsState().value
             val liveColors = themeController.live.collectAsState().value
             val pulseColors = themeController.pulse.collectAsState().value
-            val themeColors = pulseColors ?: liveColors ?: persistedColors
-            // Seed the active-theme snapshot once from the legacy settings so the
-            // OS stops driving the theme after first launch / upgrade. After this,
-            // activeThemeColorsJson is the single source of truth.
-            androidx.compose.runtime.LaunchedEffect(s?.activeThemeColorsJson, systemDark) {
-                val cur = s
-                if (cur != null && cur.activeThemeColorsJson.isEmpty()) {
-                    val seed = com.eried.eucplanet.ui.theme.ThemeMigration
-                        .migrate(cur.themeMode, cur.accentColor, systemDark)
-                    settingsRepository.update(
-                        cur.copy(
-                            activeThemeColorsJson =
-                                com.eried.eucplanet.ui.theme.ThemeJson.colorsToString(seed.colors),
-                            activeThemeName = seed.name,
-                            themeDirty = seed.dirty,
-                            // A migrated custom-accent theme is a draft of its base
-                            // preset; register it so it shows in the combo too.
-                            unsavedThemesJson = if (seed.dirty)
-                                org.json.JSONObject().put(
-                                    seed.name,
-                                    com.eried.eucplanet.ui.theme.ThemeJson.colorsToJson(seed.colors)
-                                ).toString()
-                            else cur.unsavedThemesJson,
-                        )
-                    )
-                }
-            }
+            val themeColors = pulseColors ?: liveColors ?: resolvedColors
             EucPlanetTheme(colors = themeColors) {
                 Surface(
                     modifier = Modifier.fillMaxSize(),

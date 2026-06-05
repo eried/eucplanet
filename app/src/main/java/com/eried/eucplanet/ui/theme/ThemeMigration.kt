@@ -37,22 +37,4 @@ object ThemeMigration {
         )
         return ResolvedTheme(colors, builtIn.name, dirty = !defaultAccent)
     }
-
-    /**
-     * Colors to render right now. Uses the persisted snapshot when present (the
-     * OS no longer drives the theme); otherwise falls back to the legacy
-     * migration until the snapshot is seeded.
-     */
-    fun resolveColors(
-        activeThemeColorsJson: String,
-        themeMode: String,
-        accentKey: String,
-        systemDark: Boolean,
-    ): AppThemeColors {
-        if (activeThemeColorsJson.isNotEmpty()) {
-            ThemeJson.colorsFromString(activeThemeColorsJson, BuiltInThemes.pureBlack.colors)
-                ?.let { return it }
-        }
-        return migrate(themeMode, accentKey, systemDark).colors
-    }
 }

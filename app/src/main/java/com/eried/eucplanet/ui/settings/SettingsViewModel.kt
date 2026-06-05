@@ -674,6 +674,9 @@ class SettingsViewModel @Inject constructor(
      *  on screen entry / after a save so newly-saved themes appear. */
     val themeChoices: StateFlow<com.eried.eucplanet.ui.theme.ThemeChoices> = _themeChoices.asStateFlow()
 
+    /** True when the active theme is an unsaved working draft (in-memory only). */
+    val themeDirty: StateFlow<Boolean> = themeController.dirty
+
     fun refreshThemeChoices() {
         viewModelScope.launch { _themeChoices.value = themeController.availableThemes() }
     }
@@ -809,10 +812,24 @@ class SettingsViewModel @Inject constructor(
      *  current rider first if we'd be replacing a different one. */
     fun restoreRider(rider: RestorableRider) {
         viewModelScope.launch {
-            val ok = restoreWithSafety(rider.fileName)
+            val current = settingsRepository.get()
+            // If a DIFFERENT rider is already linked, snapshot current settings
+            // first so the previous identity stays recoverable.
+            if (current.eucstatsStoreId != null && current.eucstatsStoreId != rider.storeId) {
+                syncManager.snapshotBeforeRestore()
+            }
+            // Adopt the recovered online rider id and re-join. Name/flag/stats
+            // come from the server card; theme and all other settings untouched.
+            settingsRepository.update(
+                current.copy(
+                    eucstatsStoreId = rider.storeId,
+                    eucstatsConsentPublic = true,
+                    onlineUploadEnabled = true,
+                )
+            )
             _restorableRider.value = null
-            if (ok) refreshOnlineUploadCard()
-            _cloudEvent.value = if (ok) CloudEvent.RestoreSuccess else CloudEvent.RestoreFailed
+            refreshOnlineUploadCard()
+            _cloudEvent.value = CloudEvent.RestoreSuccess
         }
     }
 
@@ -1916,11 +1933,12 @@ class SettingsViewModel @Inject constructor(
         viewModelScope.launch {
             val ok = eucStatsRepository.register(displayName, flag, avatarPngBase64)
             if (ok) {
-                // Persist the rider identity (store_id) to a backup file in the
-                // sync folder so it survives a reinstall / new device --
-                // findRestorableRider can then recover the rider instead of
-                // forcing a fresh registration. Best-effort.
-                syncManager.backupSettings()
+                // Persist ONLY the rider identity to its own small file
+                // (eucstats_riderid.txt) -- NOT the full settings/theme -- so the
+                // rider survives a reinstall / new device and findRestorableRider
+                // can recover it, without dragging the theme or other settings.
+                // Best-effort.
+                syncManager.backupRiderIdentity()
             }
             onResult(ok)
         }
@@ -1943,7 +1961,30 @@ class SettingsViewModel @Inject constructor(
             // Preconditions: sync folder configured AND already registered.
             if (current.syncFolderUri == null || current.eucstatsStoreId == null) return@launch
             settingsRepository.update(current.copy(onlineUploadEnabled = true))
+            // Harden the recovery id file now that we're linked (write it if the
+            // folder doesn't have it yet); warn instead of clobbering a foreign id.
+            ensureRiderIdFileOrWarn()
             eucStatsRepository.refreshCard()
+        }
+    }
+
+    /**
+     * Unlink from the leaderboard. Before dropping the link, make sure the
+     * recovery id file exists in the sync folder so the rider can rejoin after a
+     * reinstall / new device (the local store_id is kept, but the file is the only
+     * copy that survives a wipe). A different rider's file is left untouched.
+     */
+    fun unlinkOnline() {
+        viewModelScope.launch {
+            ensureRiderIdFileOrWarn()
+            settingsRepository.update(settingsRepository.get().copy(onlineUploadEnabled = false))
+        }
+    }
+
+    /** Ensure the recovery id file, surfacing a warning if a different id is present. */
+    private suspend fun ensureRiderIdFileOrWarn() {
+        if (syncManager.ensureRiderIdFile() == SyncManager.RiderFileResult.MISMATCH) {
+            _cloudEvent.value = CloudEvent.RiderIdConflict
         }
     }
 
@@ -2267,4 +2308,7 @@ sealed interface CloudEvent {
     data class SyncFinished(val count: Int) : CloudEvent
     data object EucstatsNothingToSync : CloudEvent
     data class EucstatsSyncFinished(val count: Int) : CloudEvent
+    /** A DIFFERENT rider's recovery id is already in the sync folder; we left it
+     *  untouched instead of overwriting it. */
+    data object RiderIdConflict : CloudEvent
 }

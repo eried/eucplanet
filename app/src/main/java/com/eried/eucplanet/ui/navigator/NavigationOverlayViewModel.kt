@@ -33,7 +33,8 @@ class NavigationOverlayViewModel @Inject constructor(
     private val navigationEngine: NavigationEngine,
     private val settingsRepository: SettingsRepository,
     private val tripRepository: TripRepository,
-    private val routingService: RoutingService
+    private val routingService: RoutingService,
+    private val currentRouteStore: com.eried.eucplanet.nav.CurrentRouteStore
 ) : ViewModel() {
 
     init {
@@ -48,10 +49,8 @@ class NavigationOverlayViewModel @Inject constructor(
      * The route last left in the builder, or null when it has no stops. The
      * dashboard map menu offers "Start navigation" only while this is non-null.
      */
-    val savedRoute: StateFlow<NavRoute?> = settingsRepository.settings
-        .map { s ->
-            NavRoute.fromJson(s.navCurrentRouteJson)?.takeIf { it.waypoints.isNotEmpty() }
-        }
+    val savedRoute: StateFlow<NavRoute?> = currentRouteStore.route
+        .map { r -> r?.takeIf { it.waypoints.isNotEmpty() } }
         .stateIn(viewModelScope, SharingStarted.Eagerly, null)
 
     fun setMinimized(minimized: Boolean) = navigationEngine.setMinimized(minimized)

@@ -26,6 +26,12 @@ class ThemeEditorViewModel @Inject constructor(
     /** Live, un-persisted preview colors (null when no edit in flight). */
     val live: StateFlow<AppThemeColors?> = themeController.live
 
+    /** Resolved colors of the active theme (the render source of truth). */
+    val activeColors: StateFlow<AppThemeColors> = themeController.activeColors
+
+    /** True when the active theme is an unsaved working draft. */
+    val dirty: StateFlow<Boolean> = themeController.dirty
+
     private val _choices = MutableStateFlow(
         ThemeChoices(BuiltInThemes.all.map { it.name }, emptyList(), emptyList(), folderAvailable = false)
     )
