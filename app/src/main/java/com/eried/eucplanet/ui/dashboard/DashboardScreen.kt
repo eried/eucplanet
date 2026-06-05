@@ -1300,7 +1300,7 @@ fun DashboardScreen(
                     "ROLL" -> "%.1f°".format(wheelData.rollAngle)
                     "G_FORCE" -> "%.2fg".format(wheelData.gForce)
                     "LATERAL_G" -> "%.2fg".format(wheelData.accelX)
-                    "FORWARD_G" -> "%.2fg".format(wheelData.accelY)
+                    "FORWARD_G" -> "%.2fg".format(wheelData.forwardGFromSpeed)
                     "TORQUE" -> "%.1fNm".format(wheelData.torque)
                     "DYN_SPEED_LIMIT" -> if (wheelData.dynamicSpeedLimit > 0f)
                         "%.0f".format(wheelData.dynamicSpeedLimit) else placeholder

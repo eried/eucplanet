@@ -110,7 +110,7 @@ private fun rawCurrentValueFor(key: String, w: WheelData): Float = when (key) {
     "ROLL" -> w.rollAngle
     "G_FORCE" -> w.gForce
     "LATERAL_G" -> w.accelX
-    "FORWARD_G" -> w.accelY
+    "FORWARD_G" -> w.forwardGFromSpeed
     "TORQUE" -> w.torque
     "DYN_SPEED_LIMIT" -> w.dynamicSpeedLimit
     "DYN_CURRENT_LIMIT" -> w.dynamicCurrentLimit

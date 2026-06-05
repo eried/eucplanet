@@ -357,6 +357,29 @@ class WheelRepository @Inject constructor(
             }
         }
 
+        // Forward-G estimated from wheel-speed change (dv/dt / g). Orientation-independent,
+        // so far more reliable than the phone IMU's forward axis. Samples speed at 10 Hz and
+        // takes the slope over a short window. Drives the FORWARD_G dashboard metric only;
+        // the recorded IMU g-force columns are untouched.
+        scope.launch {
+            val buf = ArrayDeque<MetricSample>()
+            val windowMs = 600L
+            while (true) {
+                kotlinx.coroutines.delay(100L)
+                val now = System.currentTimeMillis()
+                buf.addLast(MetricSample(now, _wheelData.value.speed / 3.6f)) // km/h -> m/s
+                while (buf.isNotEmpty() && now - buf.first().timestampMs > windowMs) buf.removeFirst()
+                val fwdG = if (buf.size >= 2) {
+                    val dt = (buf.last().timestampMs - buf.first().timestampMs) / 1000f
+                    if (dt > 0.05f) (buf.last().value - buf.first().value) / dt / 9.80665f else 0f
+                } else 0f
+                val rounded = Math.round(fwdG * 100f) / 100f
+                if (rounded != _wheelData.value.forwardGFromSpeed) {
+                    _wheelData.value = _wheelData.value.copy(forwardGFromSpeed = rounded)
+                }
+            }
+        }
+
         // Track the rider's speed calibration. We mirror it into a volatile
         // multiplier so the hot telemetry path applies it without re-reading
         // the settings flow per frame. Also persist a copy into the per-wheel

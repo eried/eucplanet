@@ -1362,4 +1362,85 @@
     <string name="nav_setting_full_path_desc">Fra beregner kun næste stop og viser resten som stiplet forhåndsvisning</string>
     <string name="studio_cfg_clock_24h">24-timers format</string>
     <string name="studio_cfg_dial_color_band">Farvebånd</string>
+
+    <!-- ==== EucStats online upload onboarding ==== -->
+
+    <!-- Trin 1: Samtykke -->
+    <string name="online_upload_consent_title">Kom med på EUC Stats-ranglisten</string>
+    <string name="online_upload_consent_intro">Læs, hvad der bliver offentligt, inden du tilmelder dig:</string>
+    <string name="online_upload_consent_bullet_name">Dit visningsnavn</string>
+    <string name="online_upload_consent_bullet_flag">Dit landsflag</string>
+    <string name="online_upload_consent_bullet_avatar">Dit profilbillede</string>
+    <string name="online_upload_consent_bullet_stats">Dine samlede kørestatistikker, f.eks. distance og hastighed</string>
+    <string name="online_upload_consent_bullet_location">Turens start- og slutpunkt, grupperet i områder på 10 km (6 mi) eller større</string>
+    <string name="online_upload_consent_no_raw_gps">Rå GPS-spor offentliggøres aldrig.</string>
+    <string name="online_upload_consent_agree">Acceptér og fortsæt</string>
+
+    <!-- Trin 2: Profil -->
+    <string name="online_upload_profile_title">Opret din profil</string>
+    <string name="online_upload_profile_name_label">Visningsnavn</string>
+    <string name="online_upload_profile_country_label">Land</string>
+    <string name="online_upload_profile_country_select">Vælg dit land</string>
+    <string name="online_upload_country_search">Søg lande</string>
+    <string name="online_upload_profile_avatar_hint">Tryk for at tilføje et billede</string>
+    <string name="online_upload_profile_flag_label">Landekode (ISO 3166-1 alpha-2)</string>
+    <string name="online_upload_profile_flag_placeholder">f.eks. NO, US, DE</string>
+    <string name="online_upload_profile_flag_error">Indtast en 2-bogstavs landekode (f.eks. NO)</string>
+    <string name="online_upload_profile_avatar_pick">Vælg billede…</string>
+    <string name="online_upload_profile_avatar_change">Skift billede…</string>
+    <string name="online_upload_profile_avatar_required">Tryk for at vælge og beskære</string>
+    <string name="online_upload_profile_avatar_placeholder">Billede</string>
+
+    <!-- Registreringsresultat -->
+    <string name="online_upload_register_action">Registrér</string>
+    <string name="online_upload_register_error">Registrering mislykkedes. Tjek din forbindelse og prøv igen.</string>
+
+    <!-- Online stats til/fra og rytter-kort -->
+    <string name="section_online_stats">Online ranglister</string>
+    <string name="online_upload_toggle">Deltag i de online ranglister</string>
+    <string name="online_upload_card_loading">Indlæser…</string>
+    <string name="online_upload_card_unavailable">Kunne ikke hente dine statistikker.</string>
+    <string name="online_upload_actions_caption">Turstatistik-uploads</string>
+    <string name="online_upload_view_on_eucstats">Se på EUC Stats</string>
+    <string name="online_upload_retry">Prøv uploads igen</string>
+    <string name="online_upload_mileage_rank">#%d distancerangering</string>
+    <string name="online_upload_top_speed">top %1$s km/h · %2$s mph</string>
+    <string name="online_upload_trips">%d ture</string>
+    <string name="online_upload_total_km">%1$s km · %2$s mi</string>
+    <string name="online_upload_join">Tilmeld ranglisten</string>
+    <string name="online_status_shared">Delt på ranglisten</string>
+    <string name="online_status_flagged">Delt, under gennemgang</string>
+    <string name="online_status_pending">Uploader til ranglisten…</string>
+    <string name="online_status_failed">Online upload fejlede, tryk for at prøve igen</string>
+    <string name="online_upload_join_caption">Dine ture vises på den offentlige rangliste på</string>
+    <string name="online_upload_site_label">eucstats.ried.no</string>
+    <string name="online_upload_site_url">https://eucstats.ried.no/</string>
+    <string name="online_upload_unlink">Frakobl</string>
+    <string name="online_unlink_title">Frakobl fra ranglisten?</string>
+    <string name="online_unlink_body">Denne telefon stopper med at uploade ture. Dit rytter-ID gemmes, så du kan tilmelde dig igen som den samme rytter. Dine statistikker forbliver på EUC Stats; brug Slet konto for at fjerne dem.</string>
+    <string name="online_unlink_confirm">Frakobl</string>
+
+    <!-- Online profil (rediger/GDPR) -->
+    <string name="online_profile_manage">Administrér profil</string>
+    <string name="online_profile_title">Min profil</string>
+    <string name="online_profile_changeable_on">Kan ændres igen den %1$s</string>
+    <string name="online_profile_avatar_has">Indstillet</string>
+    <string name="online_profile_export_data">Eksportér mine data</string>
+    <string name="online_profile_delete_account">Slet konto</string>
+    <string name="online_profile_delete_confirm_title">Slet konto?</string>
+    <string name="online_profile_delete_confirm_body">Dette sletter permanent din EUC Stats-profil, statistikker og uploadede data. Dette kan ikke fortrydes.</string>
+    <string name="online_profile_delete_confirm_action">Slet permanent</string>
+    <string name="online_profile_save_rate_limited">Hastighedsbegrænsning aktiv, prøv igen senere.</string>
+    <string name="online_profile_save_failed">Gem mislykkedes (HTTP %1$d). Prøv igen.</string>
+
+    <string name="online_status_flagged_why">Holdt til en hurtig automatisk kontrol. Den tilsluttes ranglisten, når den er godkendt.</string>
+    <string name="online_restore_title">Gendan din rytter-profil?</string>
+    <string name="online_restore_body_new">Denne mappe har en gemt profil for %1$s. Gendan den for at beholde din ranglistenidentitet og dine statistikker.</string>
+    <string name="online_restore_body_switch">Denne mappe tilhører %1$s. Gendannelse skifter denne telefon til den rytter. Din nuværende profil sikkerhedskopieres først, så du kan skifte tilbage.</string>
+    <string name="online_restore_confirm">Gendan</string>
+    <string name="online_upload_card_missing">Denne telefons ranglisteprofil findes ikke længere på serveren, så nye uploads afvises. Hvis det er uventet, så kontakt ranglistens administrator.</string>
+    <string name="online_upload_linked_caption">Dine statistikker og ture vises på den offentlige rangliste på</string>
+    <string name="online_rejoin_title">Tilmeld ranglisten igen?</string>
+    <string name="online_rejoin_body">Du tilmelder dig igen som din gemte profil %1$s. Denne telefon genoptager upload af dine nye ture til den profil.</string>
+    <string name="online_rejoin_confirm">Tilmeld igen</string>
 </resources>

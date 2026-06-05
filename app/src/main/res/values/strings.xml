@@ -104,7 +104,7 @@
     <string name="tab_auto">Automations</string>
     <string name="tab_integration">Integration</string>
     <string name="tab_watch">Watch</string>
-    <string name="tab_cloud">Backup settings &amp; trips</string>
+    <string name="tab_cloud">Backups &amp; leaderboards</string>
 
     <!-- Dashboard layout (customizable home screen) -->
     <string name="tab_dashboard">Dashboard layout</string>
@@ -283,6 +283,7 @@
     <string name="metric_desc_range_estimate">Distance remaining at the current consumption rate.</string>
     <string name="metric_desc_wh_per_km">Energy used per kilometre — lower is more efficient.</string>
     <string name="metric_desc_slope">Road grade calculated from the wheel\'s pitch — positive is uphill.</string>
+    <string name="metric_desc_forward_g">Estimated from wheel-speed change (not the IMU) — works regardless of phone mounting.</string>
     <string name="metric_desc_regen_wh">Total watt-hours fed back to the battery while braking this trip.</string>
     <string name="metric_desc_bt_rssi">Bluetooth signal strength to the wheel — closer to 0 dBm is stronger.</string>
     <string name="metric_desc_gps_accuracy">GPS positioning error radius — lower is more accurate.</string>
@@ -446,7 +447,7 @@
 
     <!-- Settings: Backup -->
     <string name="section_cloud_folder">Backup folder</string>
-    <string name="cloud_caption">Folder where trip CSVs and settings backup land</string>
+    <string name="cloud_caption">Your backup folder for trips, settings, themes and overlays</string>
     <string name="cloud_choose_folder">Choose folder</string>
     <string name="cloud_change_folder">Change folder</string>
     <string name="cloud_remove_folder">Unlink</string>
@@ -1022,6 +1023,85 @@
     <string name="service_mode_enter">Enter</string>
     <string name="toast_external_speed_change">Speed updated from wheel: %1$d km/h tiltback, %2$d km/h alarm</string>
 
+    <!-- ==== EucStats online upload onboarding ==== -->
+
+    <!-- Step 1: Consent -->
+    <string name="online_upload_consent_title">Join the EUC Stats leaderboard</string>
+    <string name="online_upload_consent_intro">Before joining, please read what becomes public:</string>
+    <string name="online_upload_consent_bullet_name">Your display name</string>
+    <string name="online_upload_consent_bullet_flag">Your country flag</string>
+    <string name="online_upload_consent_bullet_avatar">Your avatar photo</string>
+    <string name="online_upload_consent_bullet_stats">Your overall riding stats, like distance and speed</string>
+    <string name="online_upload_consent_bullet_location">Trip start/end locations, grouped into areas of 10 km (6 mi) or larger</string>
+    <string name="online_upload_consent_no_raw_gps">Raw GPS tracks are never published.</string>
+    <string name="online_upload_consent_agree">Agree &amp; continue</string>
+
+    <!-- Step 2: Profile -->
+    <string name="online_upload_profile_title">Create your profile</string>
+    <string name="online_upload_profile_name_label">Display name</string>
+    <string name="online_upload_profile_country_label">Country</string>
+    <string name="online_upload_profile_country_select">Select your country</string>
+    <string name="online_upload_country_search">Search countries</string>
+    <string name="online_upload_profile_avatar_hint">Tap to add a photo</string>
+    <string name="online_upload_profile_flag_label">Country code (ISO 3166-1 alpha-2)</string>
+    <string name="online_upload_profile_flag_placeholder">e.g. NO, US, DE</string>
+    <string name="online_upload_profile_flag_error">Enter a 2-letter country code (e.g. NO)</string>
+    <string name="online_upload_profile_avatar_pick">Pick photo…</string>
+    <string name="online_upload_profile_avatar_change">Change photo…</string>
+    <string name="online_upload_profile_avatar_required">Tap to pick and crop</string>
+    <string name="online_upload_profile_avatar_placeholder">Photo</string>
+
+    <!-- Registration outcome -->
+    <string name="online_upload_register_action">Register</string>
+    <string name="online_upload_register_error">Registration failed. Check your connection and try again.</string>
+
+    <!-- Online stats toggle + rider card (Task E3) -->
+    <string name="section_online_stats">Online leaderboards</string>
+    <string name="online_upload_toggle">Join the online leaderboards</string>
+    <string name="online_upload_card_loading">Loading…</string>
+    <string name="online_upload_card_unavailable">Couldn\'t load your stats.</string>
+    <string name="online_upload_card_missing">This phone\'s leaderboard profile no longer exists on the server, so new uploads will be rejected. If this is unexpected, contact the leaderboard admin.</string>
+    <string name="online_upload_actions_caption">Trip stats uploads</string>
+    <string name="online_upload_view_on_eucstats">View on EUC Stats</string>
+    <string name="online_upload_retry">Retry uploads</string>
+    <string name="online_upload_mileage_rank">#%d mileage</string>
+    <string name="online_upload_top_speed">top %1$s km/h · %2$s mph</string>
+    <string name="online_upload_trips">%d trips</string>
+    <string name="online_upload_total_km">%1$s km · %2$s mi</string>
+    <string name="online_upload_join">Join leaderboard</string>
+    <string name="online_status_shared">Shared on the leaderboard</string>
+    <string name="online_status_flagged">Shared, under review</string>
+    <string name="online_status_pending">Uploading to leaderboard…</string>
+    <string name="online_status_failed">Online upload failed, tap to retry</string>
+    <string name="online_upload_join_caption">Join to send your stats and trips to the public leaderboard at</string>
+    <string name="online_upload_linked_caption">Your stats and trips appear on the public leaderboard at</string>
+    <string name="online_upload_site_label">eucstats.ried.no</string>
+    <string name="online_upload_site_url">https://eucstats.ried.no/</string>
+    <string name="online_upload_unlink">Unlink</string>
+    <string name="online_unlink_title">Unlink from the leaderboard?</string>
+    <string name="online_unlink_body">This phone stops uploading rides. Your rider ID stays saved so you can rejoin as the same rider. Your stats stay on EUC Stats; use Delete account to remove them.</string>
+    <string name="online_unlink_confirm">Unlink</string>
+
+    <!-- Online profile (edit/GDPR) -->
+    <string name="online_profile_manage">Manage profile</string>
+    <string name="online_profile_title">My profile</string>
+    <string name="online_profile_changeable_on">Changeable again on %1$s</string>
+    <string name="online_profile_avatar_has">Set</string>
+    <string name="online_profile_export_data">Export my data</string>
+    <string name="online_profile_delete_account">Delete account</string>
+    <string name="online_profile_delete_confirm_title">Delete account?</string>
+    <string name="online_profile_delete_confirm_body">This permanently deletes your EUC Stats profile, stats, and uploaded data. This cannot be undone.</string>
+    <string name="online_profile_delete_confirm_action">Delete permanently</string>
+    <string name="online_profile_save_rate_limited">Rate limited, try again later.</string>
+    <string name="online_profile_save_failed">Save failed (HTTP %1$d). Try again.</string>
+    <string name="online_status_flagged_why">Held for a quick automated check. It joins the leaderboard once it clears.</string>
+    <string name="online_restore_title">A saved profile was found</string>
+    <string name="online_restore_body_new">We found a saved profile here: %1$s. Continuing rejoins the public leaderboard as that rider — its name, flag, avatar and ride stats are public. It does not create a new profile.</string>
+    <string name="online_restore_body_switch">We found a different saved profile: %1$s. Continuing switches this phone to that rider; your current profile is backed up first.</string>
+    <string name="online_restore_confirm">Continue as %1$s</string>
+    <string name="online_rejoin_title">Rejoin the leaderboard?</string>
+    <string name="online_rejoin_body">You\'ll rejoin as your saved profile %1$s. This phone will resume uploading your new trips to that profile.</string>
+
     <!-- ==== Overlay Studio ==== -->
     <string name="studio_open">Open Overlay Studio</string>
     <string name="studio_not_connected">Not connected</string>
@@ -1499,4 +1579,5 @@
     <string name="warnings_fix_button">Fix</string>
     <string name="warnings_perm_notifications_title">Notifications off</string>
     <string name="warnings_perm_notifications_body">You won\'t see ride status in the status bar or get voice alerts on the notification shade</string>
+    <string name="online_rejoin_confirm">Rejoin</string>
 </resources>

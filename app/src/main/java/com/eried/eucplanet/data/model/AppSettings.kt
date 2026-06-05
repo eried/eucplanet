@@ -238,6 +238,14 @@ data class AppSettings(
     // "AMPS" or "WATTS", long-press the amps card to switch.
     val currentDisplayMode: String = "AMPS",
 
+    // --- eucstats online upload ---
+    val onlineUploadEnabled: Boolean = false,
+    val eucstatsStoreId: String? = null,        // UUIDv4; survives reinstall via the settings backup
+    val eucstatsDisplayName: String? = null,
+    val eucstatsFlag: String? = null,
+    val eucstatsConsentPublic: Boolean = false,
+    val eucstatsRegisteredAt: Long? = null,
+
     // Backup folder (SAF tree URI on local storage; companion sync app handles cloud upload)
     val syncFolderUri: String? = null,
     val lastSettingsBackupAt: Long? = null,

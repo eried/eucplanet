@@ -3,6 +3,7 @@ package com.eried.eucplanet.data.repository
 import android.annotation.SuppressLint
 import android.content.Context
 import android.location.Location
+import android.os.Build
 import android.os.Looper
 import android.util.Log
 import com.eried.eucplanet.R
@@ -83,6 +84,9 @@ class TripRepository @Inject constructor(
     private var currentTrip: TripRecord? = null
     private var recordJob: kotlinx.coroutines.Job? = null
 
+    // Tracks whether any location fix during the active recording was from a mock provider.
+    @Volatile private var tripHadMockFix = false
+
     // The just-stopped trip waiting for grace-period finalization, plus the job
     // running the timer. cancelPendingTrip() cancels the job and deletes the trip.
     private var pendingTrip: TripRecord? = null
@@ -110,6 +114,10 @@ class TripRepository @Inject constructor(
                             "acc=${"%.1f".format(loc.accuracy)}m " +
                             "speed=${if (loc.hasSpeed()) "%.1f m/s".format(loc.speed) else "n/a"}"
                 )
+            }
+            // Track mock-location usage during the active recording.
+            if (_recording.value) {
+                tripHadMockFix = tripHadMockFix || isMockLocation(loc)
             }
             _currentLocation.value = loc
         }
@@ -217,7 +225,17 @@ class TripRepository @Inject constructor(
         return dir
     }
 
+    // Wall-clock of the last failed recording start (e.g. an unwritable trips
+    // directory). Used to throttle the motion-gated auto-record path so it
+    // doesn't reattempt on every telemetry packet after a failure.
+    @Volatile private var lastStartFailureMs = 0L
+
     suspend fun startRecording() {
+        // Back off briefly after a failed start. evaluateAutoRecordOnTelemetry
+        // calls this on every moving packet (~10/s); without this it would spin
+        // retrying a doomed file open.
+        if (System.currentTimeMillis() - lastStartFailureMs < 10_000L) return
+
         // Atomically claim the recording slot. If another caller already flipped
         // _recording to true (e.g. connect + first-motion racing, or a duplicate
         // intent), this returns false and we bail before announcing or opening files.
@@ -242,14 +260,26 @@ class TripRepository @Inject constructor(
         val fileName = "trip_$dateStr.csv"
         val file = File(getTripsDir(), fileName)
 
+        // Opening the CSV can fail (read-only / bad-permission trips directory,
+        // full storage, etc.). This runs from the auto-record path the moment a
+        // wheel sends motion, so a thrown exception here would crash the whole
+        // app on connect. Fail soft: log, release the slot, and skip recording.
         val writer = CsvWriter(file)
-        writer.open()
+        try {
+            writer.open()
+        } catch (e: Exception) {
+            Log.e(TAG, "Could not open trip file ${file.name}; recording aborted", e)
+            lastStartFailureMs = System.currentTimeMillis()
+            _recording.value = false   // release the slot claimed above
+            return
+        }
         csvWriter = writer
 
         gpsDistanceKm = 0.0
         lastGpsPoint = null
+        tripHadMockFix = false
 
-        val trip = TripRecord(fileName = fileName)
+        val trip = TripRecord(fileName = fileName, tripUuid = java.util.UUID.randomUUID().toString())
         val id = tripDao.insert(trip)
         currentTrip = trip.copy(id = id)
         _currentTripId.value = id
@@ -278,7 +308,9 @@ class TripRepository @Inject constructor(
                             System.currentTimeMillis() - it.timestamp < RECORD_INTERVAL_MS * 3
                     }
                     ?.speedKmh
-                csvWriter?.writeRow(data, location, extSpeed)
+                val wheelConnected = wheelRepository.connectionState.value ==
+                    com.eried.eucplanet.ble.ConnectionState.CONNECTED
+                csvWriter?.writeRow(data, location, extSpeed, wheelConnected)
                 rowsWritten++
                 if (location != null) {
                     rowsWithGps++
@@ -310,6 +342,8 @@ class TripRepository @Inject constructor(
         recordJob?.cancel()
         recordJob = null
 
+        // Capture row count BEFORE closing and nulling the writer.
+        val capturedRowCount = csvWriter?.rows ?: 0
         csvWriter?.close()
         csvWriter = null
 
@@ -329,10 +363,22 @@ class TripRepository @Inject constructor(
         // GPS-derived distance is preferred; fall back to wheel session counter only if
         // we never accumulated any GPS movement (e.g. recording without location permission).
         val distance = if (gpsDistanceKm > 0.0) gpsDistanceKm.toFloat() else data.tripDistance
+        val capturedMock = tripHadMockFix
+        val wheelMeta = buildWheelMetaJson(
+            brand = wheelRepository.connectedBrand.value,
+            model = wheelRepository.modelName.value,
+            serial = null,
+            bleMac = settingsRepository.get().lastDeviceAddress,
+            bleName = wheelRepository.connectedDeviceName.value,
+            firmware = wheelRepository.firmwareVersion.value,
+        )
         val finishedTrip = trip.copy(
             endTime = System.currentTimeMillis(),
             distanceKm = distance,
-            uploadStatus = 0
+            uploadStatus = 0,
+            isMockLocation = capturedMock,
+            sampleCount = capturedRowCount,
+            wheelMetaJson = wheelMeta,
         )
         // Write endTime/distance immediately so the trip list shows it correctly.
         // uploadStatus stays 0, we only flip it to 1 (queued for sync) after grace.
@@ -374,14 +420,21 @@ class TripRepository @Inject constructor(
         val trip = pendingTrip ?: return
         val appSettings = settingsRepository.get()
         val willSync = appSettings.syncFolderUri != null
-        if (willSync) {
-            tripDao.update(trip.copy(uploadStatus = 1))
+        val willEucstats = appSettings.onlineUploadEnabled && appSettings.eucstatsStoreId != null
+        // Single update so the folder-sync and eucstats statuses can't clobber
+        // each other (both branch from the same `trip` snapshot).
+        if (willSync || willEucstats) {
+            tripDao.update(mergeFinalizeStatuses(trip, willSync, willEucstats))
         }
         pendingTrip = null
         _pendingTripId.value = null
         pendingFinalizeJob = null
-        Log.i(TAG, "Trip finalized: ${trip.fileName} (sync=$willSync)")
+        Log.i(TAG, "Trip finalized: ${trip.fileName} (sync=$willSync, eucstats=$willEucstats)")
         if (willSync) syncManager.enqueueTripUpload(appSettings)
+        if (willEucstats) {
+            syncManager.enqueueEucStatsUpload(appSettings)
+            Log.i(TAG, "Eucstats upload enqueued for trip ${trip.tripUuid}")
+        }
     }
 
     /**
@@ -444,3 +497,43 @@ class TripRepository @Inject constructor(
 
     fun getTripFile(trip: TripRecord): File = File(getTripsDir(), trip.fileName)
 }
+
+/** Returns true if the location fix came from a mock provider. */
+internal fun isMockLocation(loc: Location): Boolean =
+    if (Build.VERSION.SDK_INT >= 31) loc.isMock
+    else @Suppress("DEPRECATION") loc.isFromMockProvider
+
+/**
+ * Builds a JSON object string with the connected wheel's metadata.
+ * Returns null if ALL fields are null or blank (nothing to record).
+ * Only non-null, non-blank values are included in the JSON.
+ */
+fun buildWheelMetaJson(
+    brand: String?,
+    model: String?,
+    serial: String?,
+    bleMac: String?,
+    bleName: String?,
+    firmware: String?,
+): String? {
+    val obj = org.json.JSONObject()
+    if (!brand.isNullOrBlank())    obj.put("brand", brand)
+    if (!model.isNullOrBlank())    obj.put("model", model)
+    if (!serial.isNullOrBlank())   obj.put("serial", serial)
+    if (!bleMac.isNullOrBlank())   obj.put("ble_mac", bleMac)
+    if (!bleName.isNullOrBlank())  obj.put("ble_name", bleName)
+    if (!firmware.isNullOrBlank()) obj.put("firmware", firmware)
+    return if (obj.length() == 0) null else obj.toString()
+}
+
+/**
+ * Apply the finalize-time upload statuses in a SINGLE copy so the folder-sync
+ * status ([TripRecord.uploadStatus]) and the eucstats status
+ * ([TripRecord.eucstatsStatus]) never clobber each other. Each is set to 1
+ * ("pending") only when its destination is enabled; otherwise it is left as-is.
+ */
+fun mergeFinalizeStatuses(trip: TripRecord, willSync: Boolean, willEucstats: Boolean): TripRecord =
+    trip.copy(
+        uploadStatus = if (willSync) 1 else trip.uploadStatus,
+        eucstatsStatus = if (willEucstats) 1 else trip.eucstatsStatus,
+    )

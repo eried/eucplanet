@@ -1397,4 +1397,85 @@
     <string name="nav_setting_full_path_desc">Вимкнено — прокладає лише наступну зупинку, решту показує пунктирним передпереглядом</string>
     <string name="studio_cfg_clock_24h">24-годинний формат</string>
     <string name="studio_cfg_dial_color_band">Кольорова смуга</string>
+
+    <!-- ==== EucStats online upload onboarding ==== -->
+
+    <!-- Step 1: Consent -->
+    <string name="online_upload_consent_title">Приєднайся до таблиці лідерів EUC Stats</string>
+    <string name="online_upload_consent_intro">Перш ніж приєднатися, ознайомся з тим, що стане публічним:</string>
+    <string name="online_upload_consent_bullet_name">Твій псевдонім</string>
+    <string name="online_upload_consent_bullet_flag">Прапор твоєї країни</string>
+    <string name="online_upload_consent_bullet_avatar">Твій аватар</string>
+    <string name="online_upload_consent_bullet_stats">Загальна статистика поїздок: відстань, швидкість тощо</string>
+    <string name="online_upload_consent_bullet_location">Місця початку і кінця поїздок, згруповані в зони 10 km (6 mi) і більше</string>
+    <string name="online_upload_consent_no_raw_gps">GPS-треки ніколи не публікуються.</string>
+    <string name="online_upload_consent_agree">Погодитись і продовжити</string>
+
+    <!-- Step 2: Profile -->
+    <string name="online_upload_profile_title">Створи профіль</string>
+    <string name="online_upload_profile_name_label">Псевдонім</string>
+    <string name="online_upload_profile_country_label">Країна</string>
+    <string name="online_upload_profile_country_select">Обери країну</string>
+    <string name="online_upload_country_search">Пошук країни</string>
+    <string name="online_upload_profile_avatar_hint">Торкнись, щоб додати фото</string>
+    <string name="online_upload_profile_flag_label">Код країни (ISO 3166-1 alpha-2)</string>
+    <string name="online_upload_profile_flag_placeholder">напр. NO, US, DE</string>
+    <string name="online_upload_profile_flag_error">Введи 2-літерний код країни (напр. NO)</string>
+    <string name="online_upload_profile_avatar_pick">Обрати фото…</string>
+    <string name="online_upload_profile_avatar_change">Змінити фото…</string>
+    <string name="online_upload_profile_avatar_required">Торкнись, щоб обрати та обрізати</string>
+    <string name="online_upload_profile_avatar_placeholder">Фото</string>
+
+    <!-- Registration outcome -->
+    <string name="online_upload_register_action">Зареєструватись</string>
+    <string name="online_upload_register_error">Реєстрація не вдалась. Перевір з\'єднання та спробуй знову.</string>
+
+    <!-- Online stats toggle + rider card -->
+    <string name="section_online_stats">Онлайн-таблиці лідерів</string>
+    <string name="online_upload_toggle">Приєднатись до онлайн-таблиць лідерів</string>
+    <string name="online_upload_card_loading">Завантаження…</string>
+    <string name="online_upload_card_unavailable">Не вдалось завантажити статистику.</string>
+    <string name="online_upload_actions_caption">Вивантаження статистики поїздок</string>
+    <string name="online_upload_view_on_eucstats">Відкрити в EUC Stats</string>
+    <string name="online_upload_retry">Повторити вивантаження</string>
+    <string name="online_upload_mileage_rank">#%d за пробігом</string>
+    <string name="online_upload_top_speed">макс. %1$s km/h · %2$s mph</string>
+    <string name="online_upload_trips">%d поїздок</string>
+    <string name="online_upload_total_km">%1$s km · %2$s mi</string>
+    <string name="online_upload_join">Приєднатись до таблиці лідерів</string>
+    <string name="online_status_shared">Опубліковано в таблиці лідерів</string>
+    <string name="online_status_flagged">Опубліковано, на перевірці</string>
+    <string name="online_status_pending">Вивантаження до таблиці лідерів…</string>
+    <string name="online_status_failed">Вивантаження не вдалось, торкнись для повтору</string>
+    <string name="online_upload_join_caption">Твої поїздки з\'являться у публічній таблиці лідерів на</string>
+    <string name="online_upload_site_label">eucstats.ried.no</string>
+    <string name="online_upload_site_url">https://eucstats.ried.no/</string>
+    <string name="online_upload_unlink">Від\'єднати</string>
+    <string name="online_unlink_title">Від\'єднати від таблиці лідерів?</string>
+    <string name="online_unlink_body">Цей телефон припинить вивантажувати поїздки. Твій ідентифікатор райдера залишиться збереженим, щоб ти міг приєднатись знову під тим самим ім\'ям. Статистика залишиться в EUC Stats; для видалення скористайся пунктом «Видалити акаунт».</string>
+    <string name="online_unlink_confirm">Від\'єднати</string>
+
+    <!-- Online profile (edit/GDPR) -->
+    <string name="online_profile_manage">Керування профілем</string>
+    <string name="online_profile_title">Мій профіль</string>
+    <string name="online_profile_changeable_on">Можна змінити знову %1$s</string>
+    <string name="online_profile_avatar_has">Встановлено</string>
+    <string name="online_profile_export_data">Експортувати мої дані</string>
+    <string name="online_profile_delete_account">Видалити акаунт</string>
+    <string name="online_profile_delete_confirm_title">Видалити акаунт?</string>
+    <string name="online_profile_delete_confirm_body">Це назавжди видалить твій профіль, статистику та завантажені дані в EUC Stats. Цю дію не можна скасувати.</string>
+    <string name="online_profile_delete_confirm_action">Видалити назавжди</string>
+    <string name="online_profile_save_rate_limited">Забагато запитів, спробуй пізніше.</string>
+    <string name="online_profile_save_failed">Не вдалось зберегти (HTTP %1$d). Спробуй ще раз.</string>
+
+    <string name="online_status_flagged_why">Затримано на короткій автоматичній перевірці. Потрапить до таблиці лідерів одразу після її проходження.</string>
+    <string name="online_restore_title">Відновити профіль райдера?</string>
+    <string name="online_restore_body_new">У цій папці є збережений профіль %1$s. Відновіть його, щоб зберегти свою ідентичність і статистику в таблиці лідерів.</string>
+    <string name="online_restore_body_switch">Ця папка належить %1$s. Відновлення переключить цей телефон на того райдера. Поточний профіль спочатку буде збережено в резервну копію, тож ви зможете повернутись.</string>
+    <string name="online_restore_confirm">Відновити</string>
+    <string name="online_upload_card_missing">Профіль цього телефона в таблиці лідерів більше не існує на сервері, тож нові вивантаження будуть відхилені. Якщо це сталося несподівано, звернись до адміністратора таблиці лідерів.</string>
+    <string name="online_upload_linked_caption">Твоя статистика і поїздки з\'являються у публічній таблиці лідерів на</string>
+    <string name="online_rejoin_title">Приєднатись до таблиці лідерів знову?</string>
+    <string name="online_rejoin_body">Ти приєднаєшся знову як збережений профіль %1$s. Цей телефон відновить вивантаження твоїх нових поїздок до цього профілю.</string>
+    <string name="online_rejoin_confirm">Приєднатись знову</string>
 </resources>
