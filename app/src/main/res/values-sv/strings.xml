@@ -1436,4 +1436,8 @@
     <string name="online_restore_body_new">Den här mappen har en sparad profil för %1$s. Återställ den för att behålla din identitet och statistik på topplistan.</string>
     <string name="online_restore_body_switch">Den här mappen tillhör %1$s. Återställningen byter den här telefonen till den föraren. Din nuvarande profil säkerhetskopieras först, så du kan byta tillbaka.</string>
     <string name="online_restore_confirm">Återställ</string>
+    <string name="online_upload_card_missing">Den här telefonens förarprofil finns inte längre på servern, så nya uppladdningar avvisas. Om detta är oväntat, kontakta topplistans administratör.</string>
+    <string name="online_upload_linked_caption">Din statistik och dina turer visas på den publika topplistan på</string>
+    <string name="online_rejoin_title">Gå med i topplistan igen?</string>
+    <string name="online_rejoin_body">Du går med igen som din sparade profil %1$s. Den här telefonen återupptar uppladdningen av dina nya turer till den profilen.</string>
 </resources>

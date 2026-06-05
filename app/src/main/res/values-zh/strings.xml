@@ -1436,4 +1436,8 @@
     <string name="online_restore_body_new">此文件夹中保存了 %1$s 的资料。恢复后可保留你的排行榜身份和骑行数据。</string>
     <string name="online_restore_body_switch">此文件夹属于 %1$s。恢复后本机将切换为该骑手账号，当前资料会先备份，随时可切回。</string>
     <string name="online_restore_confirm">恢复</string>
+    <string name="online_upload_card_missing">此手机的排行榜资料已不在服务器上，新的上传将被拒绝。如果这不符合预期，请联系排行榜管理员。</string>
+    <string name="online_upload_linked_caption">你的统计数据和行程将显示在公开排行榜</string>
+    <string name="online_rejoin_title">重新加入排行榜？</string>
+    <string name="online_rejoin_body">你将以已保存的资料 %1$s 重新加入。此手机将恢复向该资料上传你的新行程。</string>
 </resources>

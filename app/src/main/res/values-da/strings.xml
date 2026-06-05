@@ -1438,4 +1438,8 @@
     <string name="online_restore_body_new">Denne mappe har en gemt profil for %1$s. Gendan den for at beholde din ranglistenidentitet og dine statistikker.</string>
     <string name="online_restore_body_switch">Denne mappe tilhører %1$s. Gendannelse skifter denne telefon til den rytter. Din nuværende profil sikkerhedskopieres først, så du kan skifte tilbage.</string>
     <string name="online_restore_confirm">Gendan</string>
+    <string name="online_upload_card_missing">Denne telefons ranglisteprofil findes ikke længere på serveren, så nye uploads afvises. Hvis det er uventet, så kontakt ranglistens administrator.</string>
+    <string name="online_upload_linked_caption">Dine statistikker og ture vises på den offentlige rangliste på</string>
+    <string name="online_rejoin_title">Tilmeld ranglisten igen?</string>
+    <string name="online_rejoin_body">Du tilmelder dig igen som din gemte profil %1$s. Denne telefon genoptager upload af dine nye ture til den profil.</string>
 </resources>

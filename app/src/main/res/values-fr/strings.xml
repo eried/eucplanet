@@ -1436,4 +1436,8 @@
     <string name="online_restore_body_new">Ce dossier contient un profil enregistré pour %1$s. Restaure-le pour conserver ton identité dans le classement et tes stats.</string>
     <string name="online_restore_body_switch">Ce dossier appartient à %1$s. La restauration bascule ce téléphone sur ce rider. Ton profil actuel est sauvegardé d\'abord, tu pourras repasser à l\'autre.</string>
     <string name="online_restore_confirm">Restaurer</string>
+    <string name="online_upload_card_missing">Le profil de classement de ce téléphone n\'existe plus sur le serveur, les nouveaux envois seront donc rejetés. Si cela est inattendu, contacte l\'administrateur du classement.</string>
+    <string name="online_upload_linked_caption">Tes stats et tes trajets apparaissent dans le classement public sur</string>
+    <string name="online_rejoin_title">Rejoindre le classement ?</string>
+    <string name="online_rejoin_body">Tu rejoindras le classement avec ton profil enregistré %1$s. Ce téléphone reprendra l\'envoi de tes nouveaux trajets vers ce profil.</string>
 </resources>

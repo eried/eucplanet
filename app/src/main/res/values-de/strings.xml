@@ -1453,4 +1453,8 @@
     <string name="online_restore_body_new">Dieser Ordner enthält ein gespeichertes Profil für %1$s. Stelle es wieder her, um deine Bestenlisten-Identität und Statistiken zu behalten.</string>
     <string name="online_restore_body_switch">Dieser Ordner gehört zu %1$s. Durch die Wiederherstellung wird das Telefon auf diesen Fahrer umgestellt. Dein aktuelles Profil wird zuerst gesichert, damit du zurückwechseln kannst.</string>
     <string name="online_restore_confirm">Wiederherstellen</string>
+    <string name="online_upload_card_missing">Das Bestenlisten-Profil dieses Telefons existiert nicht mehr auf dem Server, daher werden neue Uploads abgelehnt. Falls das unerwartet ist, wende dich an den Bestenlisten-Administrator.</string>
+    <string name="online_upload_linked_caption">Deine Statistiken und Fahrten erscheinen in der öffentlichen Bestenliste auf</string>
+    <string name="online_rejoin_title">Der Bestenliste wieder beitreten?</string>
+    <string name="online_rejoin_body">Du trittst wieder als dein gespeichertes Profil %1$s bei. Dieses Telefon lädt deine neuen Fahrten wieder in dieses Profil hoch.</string>
 </resources>

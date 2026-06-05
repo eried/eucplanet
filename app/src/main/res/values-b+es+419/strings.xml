@@ -1473,4 +1473,8 @@
     <string name="online_restore_body_new">Esta carpeta tiene un perfil guardado de %1$s. Restáuralo para conservar tu identidad y estadísticas en el marcador.</string>
     <string name="online_restore_body_switch">Esta carpeta pertenece a %1$s. Al restaurar, este teléfono cambia a ese piloto. Tu perfil actual se respalda primero para que puedas volver cuando quieras.</string>
     <string name="online_restore_confirm">Restaurar</string>
+    <string name="online_upload_card_missing">El perfil de este teléfono en el marcador ya no existe en el servidor, así que se rechazarán las subidas nuevas. Si esto es inesperado, contacta al administrador del marcador.</string>
+    <string name="online_upload_linked_caption">Tus estadísticas y viajes aparecen en el marcador público en</string>
+    <string name="online_rejoin_title">¿Volver a unirte al marcador?</string>
+    <string name="online_rejoin_body">Volverás a unirte como tu perfil guardado %1$s. Este teléfono reanudará la subida de tus viajes nuevos a ese perfil.</string>
 </resources>

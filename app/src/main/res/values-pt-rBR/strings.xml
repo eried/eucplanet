@@ -1472,4 +1472,8 @@
     <string name="online_restore_body_new">Esta pasta tem um perfil salvo de %1$s. Restaure para manter sua identidade e estatísticas no ranking.</string>
     <string name="online_restore_body_switch">Esta pasta pertence a %1$s. Restaurar muda este celular para esse piloto. Seu perfil atual é salvo em backup primeiro, então você pode voltar quando quiser.</string>
     <string name="online_restore_confirm">Restaurar</string>
+    <string name="online_upload_card_missing">O perfil deste celular no ranking não existe mais no servidor, então novos envios serão rejeitados. Se isso for inesperado, entre em contato com o administrador do ranking.</string>
+    <string name="online_upload_linked_caption">Suas estatísticas e viagens aparecem no ranking público em</string>
+    <string name="online_rejoin_title">Voltar ao ranking?</string>
+    <string name="online_rejoin_body">Você voltará como seu perfil salvo %1$s. Este celular retomará o envio das suas novas viagens para esse perfil.</string>
 </resources>

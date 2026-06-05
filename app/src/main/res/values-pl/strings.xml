@@ -1473,4 +1473,8 @@
     <string name="online_restore_body_new">W tym folderze jest zapisany profil dla %1$s. Przywróć go, aby zachować swoją tożsamość w rankingu i statystyki.</string>
     <string name="online_restore_body_switch">Ten folder należy do %1$s. Przywrócenie przełącza ten telefon na tego zawodnika. Twój obecny profil zostanie najpierw zapisany w kopii zapasowej, więc możesz wrócić.</string>
     <string name="online_restore_confirm">Przywróć</string>
+    <string name="online_upload_card_missing">Profil tego telefonu w rankingu już nie istnieje na serwerze, więc nowe przesyłki będą odrzucane. Jeśli to niespodziewane, skontaktuj się z administratorem rankingu.</string>
+    <string name="online_upload_linked_caption">Twoje statystyki i trasy pojawiają się w publicznym rankingu pod adresem</string>
+    <string name="online_rejoin_title">Dołączyć ponownie do rankingu?</string>
+    <string name="online_rejoin_body">Dołączysz ponownie jako Twój zapisany profil %1$s. Ten telefon wznowi przesyłanie nowych tras do tego profilu.</string>
 </resources>

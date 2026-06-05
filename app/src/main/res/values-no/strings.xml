@@ -1453,4 +1453,8 @@
     <string name="online_restore_body_new">Denne mappen har en lagret profil for %1$s. Gjenopprett den for å beholde ledertavle-identiteten og statistikken din.</string>
     <string name="online_restore_body_switch">Denne mappen tilhører %1$s. Gjenoppretting bytter denne telefonen til den rytteren. Din nåværende profil sikkerhetskopieres først, slik at du kan bytte tilbake.</string>
     <string name="online_restore_confirm">Gjenopprett</string>
+    <string name="online_upload_card_missing">Denne telefonens ledertavleprofil finnes ikke lenger på serveren, så nye opplastinger blir avvist. Hvis dette er uventet, kontakt administratoren for ledertavlen.</string>
+    <string name="online_upload_linked_caption">Statistikken og turene dine vises på den offentlige ledertavlen på</string>
+    <string name="online_rejoin_title">Bli med på ledertavlen igjen?</string>
+    <string name="online_rejoin_body">Du blir med igjen som den lagrede profilen din %1$s. Denne telefonen gjenopptar opplasting av de nye turene dine til den profilen.</string>
 </resources>
