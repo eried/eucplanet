@@ -191,6 +191,7 @@ Thanks to the people and projects that helped, kept in sync with the app (tap ve
 | FlyboyEUC (Adam) | Mten3, E20 and EX30 testing |
 | Soolek | KS-16X testing |
 | Jonathan Wiesner | LeaperKim Lynx S testing |
+| Bearkat713 | Motoeye E6 testing |
 | [WheelLog community](https://github.com/Wheellog/wheellog.android) | Open-source (GPLv3) EUC protocol research |
 | Ilya Shkolnik | Advice and help. Maintains DarknessBot. |
 | InMotion | For making a great V14 |
