@@ -58,6 +58,7 @@ class RouteBuilderViewModel @Inject constructor(
     private val incomingShareRepository:
         com.eried.eucplanet.data.repository.IncomingShareRepository,
     private val currentRouteStore: com.eried.eucplanet.nav.CurrentRouteStore,
+    private val navMarkerStore: com.eried.eucplanet.data.store.NavMarkerStore,
     @ApplicationContext private val context: Context
 ) : ViewModel() {
 
@@ -131,10 +132,10 @@ class RouteBuilderViewModel @Inject constructor(
     private val _mapType = MutableStateFlow("DARK")
     val mapType: StateFlow<String> = _mapType.asStateFlow()
 
-    /** Persisted custom rider-marker photo as a base64 data URL, or null
-     *  when the rider hasn't set one (fall back to the default puck). */
-    private val _userMarkerPhoto = MutableStateFlow<String?>(null)
-    val userMarkerPhoto: StateFlow<String?> = _userMarkerPhoto.asStateFlow()
+    /** Custom rider-marker photo as a base64 data URL, or null when the rider
+     *  hasn't set one (fall back to the default puck). Backed by an on-disk PNG
+     *  (NavMarkerStore, noBackupFilesDir), never the settings JSON. */
+    val userMarkerPhoto: StateFlow<String?> = navMarkerStore.photoDataUrl
 
     /** Last (centre, zoom) the rider was looking at on the map. Cached
      *  in-memory only (per VM lifetime) so a sub-navigation to Settings and
@@ -161,13 +162,10 @@ class RouteBuilderViewModel @Inject constructor(
     }
     private var lastSavedViewLogMs = 0L
 
-    /** Sets the rider-marker photo (or clears it) and persists to settings. */
+    /** Sets the rider-marker photo (or clears it), writing it to its on-disk PNG
+     *  (NavMarkerStore) -- not the settings JSON. */
     fun setUserMarkerPhoto(dataUrl: String?) {
-        _userMarkerPhoto.value = dataUrl
-        viewModelScope.launch {
-            val s = settingsRepository.get()
-            settingsRepository.update(s.copy(navUserMarkerPhotoDataUrl = dataUrl))
-        }
+        navMarkerStore.set(dataUrl)
     }
 
     /** Bumped whenever the map should redraw; [fit] asks it to re-frame bounds. */
@@ -256,7 +254,8 @@ class RouteBuilderViewModel @Inject constructor(
             _solveFullPath.value = s.navSolveFullPath
             _home.value = placeFromJson(s.navHomeJson)
             _work.value = placeFromJson(s.navWorkJson)
-            _userMarkerPhoto.value = s.navUserMarkerPhotoDataUrl
+            // userMarkerPhoto comes from NavMarkerStore (its own on-disk PNG),
+            // already loaded -- nothing to seed from settings here.
             // The current route lives only in memory (CurrentRouteStore), never
             // in settings/JSON, so nothing is backed up and a reinstall always
             // starts navigation from zero. Restore it into the Builder when

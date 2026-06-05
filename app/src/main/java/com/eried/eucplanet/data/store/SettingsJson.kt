@@ -206,7 +206,6 @@ object SettingsJson {
         put("navGeocoderUrl", s.navGeocoderUrl)
         put("navRouterUrl", s.navRouterUrl)
         put("navMapType", s.navMapType)
-        put("navUserMarkerPhotoDataUrl", s.navUserMarkerPhotoDataUrl)
         put("navSolveFullPath", s.navSolveFullPath)
         put("watchShowNavigation", s.watchShowNavigation)
         put("hudServerEnabled", s.hudServerEnabled)
@@ -408,9 +407,6 @@ object SettingsJson {
         navGeocoderUrl = j.optString("navGeocoderUrl", base.navGeocoderUrl),
         navRouterUrl = j.optString("navRouterUrl", base.navRouterUrl),
         navMapType = j.optString("navMapType", base.navMapType),
-        navUserMarkerPhotoDataUrl = if (j.has("navUserMarkerPhotoDataUrl") && !j.isNull("navUserMarkerPhotoDataUrl"))
-            j.optString("navUserMarkerPhotoDataUrl", "").ifBlank { null }
-        else base.navUserMarkerPhotoDataUrl,
         navSolveFullPath = j.optBoolean("navSolveFullPath", base.navSolveFullPath),
         watchShowNavigation = j.optBoolean("watchShowNavigation", base.watchShowNavigation),
         hudServerEnabled = j.optBoolean("hudServerEnabled", base.hudServerEnabled),

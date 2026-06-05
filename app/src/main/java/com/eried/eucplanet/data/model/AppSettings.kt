@@ -302,19 +302,15 @@ data class AppSettings(
     val navGeocoderUrl: String = "https://nominatim.openstreetmap.org/search",
     /** Routing endpoint, overridable for self-hosting. */
     val navRouterUrl: String = "https://routing.openstreetmap.de",
-    // The current navigation route is intentionally NOT a setting: it lives only
-    // in memory (com.eried.eucplanet.nav.CurrentRouteStore) so it is never written
-    // to the settings JSON / backup and a reinstall always starts navigation from
-    // zero. (The personalized nav marker icon below IS persisted.)
+    // Two nav things are intentionally NOT settings, so they never bloat the
+    // settings JSON / backup:
+    //  - the current navigation route -> in memory only
+    //    (com.eried.eucplanet.nav.CurrentRouteStore); a reinstall starts at zero.
+    //  - the custom user-marker photo -> its own PNG file in noBackupFilesDir
+    //    (com.eried.eucplanet.data.store.NavMarkerStore); survives app updates but
+    //    not a full uninstall / new device (never recovered).
     /** Route Builder map style: DARK / LIGHT / SATELLITE. */
     val navMapType: String = "LIGHT",
-    /**
-     * Custom user-marker photo as a `data:image/png;base64,…` URL, or null
-     * for the default circle/teardrop marker. Captured by the rider via the
-     * "Customize my marker" crop dialog at 64×64, ~3–5 KB encoded, same
-     * size order as a saved nav route.
-     */
-    val navUserMarkerPhotoDataUrl: String? = null,
     /**
      * When true (the default) the route builder solves the WHOLE multi-stop
      * tour in one routing request -- a single solid line, a whole-tour distance
