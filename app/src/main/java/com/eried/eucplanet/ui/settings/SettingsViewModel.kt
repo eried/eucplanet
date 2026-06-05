@@ -1915,6 +1915,13 @@ class SettingsViewModel @Inject constructor(
     ) {
         viewModelScope.launch {
             val ok = eucStatsRepository.register(displayName, flag, avatarPngBase64)
+            if (ok) {
+                // Persist the rider identity (store_id) to a backup file in the
+                // sync folder so it survives a reinstall / new device --
+                // findRestorableRider can then recover the rider instead of
+                // forcing a fresh registration. Best-effort.
+                syncManager.backupSettings()
+            }
             onResult(ok)
         }
     }
