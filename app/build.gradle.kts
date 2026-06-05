@@ -201,6 +201,9 @@ dependencies {
     implementation(libs.androidx.core)
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.appcompat)
+    // Explicit current fragment so Play Services' transitive 1.1.0 (flagged by
+    // Play's SDK index) is never what ships. See gradle/libs.versions.toml.
+    implementation(libs.androidx.fragment)
     implementation(libs.androidx.documentfile)
 
     // Lifecycle

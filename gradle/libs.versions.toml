@@ -41,6 +41,11 @@ compose-material-icons = { group = "androidx.compose.material", name = "material
 androidx-core = { group = "androidx.core", name = "core-ktx", version = "1.15.0" }
 androidx-activity-compose = { group = "androidx.activity", name = "activity-compose", version = "1.9.3" }
 androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version = "1.7.0" }
+# Pinned to a current version: Play Services transitively request fragment 1.1.0,
+# which Play's SDK index flags as outdated. appcompat already overrides it to
+# 1.5.4; this makes the override explicit and current so released bundles never
+# carry the flagged version.
+androidx-fragment = { group = "androidx.fragment", name = "fragment", version = "1.8.6" }
 androidx-documentfile = { group = "androidx.documentfile", name = "documentfile", version = "1.0.1" }
 
 # Lifecycle
