@@ -773,14 +773,29 @@ class SettingsViewModel @Inject constructor(
     val startOnboarding: StateFlow<Boolean> = _startOnboarding.asStateFlow()
     fun consumeStartOnboarding() { _startOnboarding.value = false }
 
-    /** Tapped "Join": if the linked folder's backup holds a previous rider
-     *  profile, surface it for a continue-or-not prompt (we never overwrite it);
-     *  otherwise start onboarding to create a new profile. */
+    private val _rejoinConfirm = MutableStateFlow(false)
+    /** True when the rider tapped Join but this phone ALREADY has a profile
+     *  (e.g. they unlinked, the store_id is retained). The UI confirms rejoining
+     *  as that existing rider rather than re-enabling silently. */
+    val rejoinConfirm: StateFlow<Boolean> = _rejoinConfirm.asStateFlow()
+    fun dismissRejoinConfirm() { _rejoinConfirm.value = false }
+    fun confirmRejoin() {
+        _rejoinConfirm.value = false
+        setOnlineUploadEnabled(true)
+    }
+
+    /** Tapped "Join". If this phone already has a rider, confirm rejoining as it.
+     *  Otherwise, if the linked folder's backup holds a previous profile, surface
+     *  it for a continue-or-not prompt; else start onboarding for a new one. */
     fun joinOrRecover() {
         viewModelScope.launch {
-            val found = syncManager.findRestorableRider()
             val current = settingsRepository.get().eucstatsStoreId
-            if (found != null && found.storeId != current) {
+            if (current != null) {
+                _rejoinConfirm.value = true
+                return@launch
+            }
+            val found = syncManager.findRestorableRider()
+            if (found != null) {
                 _restorableRider.value = found
             } else {
                 _startOnboarding.value = true

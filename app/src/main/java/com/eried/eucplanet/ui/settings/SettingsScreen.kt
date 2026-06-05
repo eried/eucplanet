@@ -6722,11 +6722,34 @@ private fun CloudTab(
         // otherwise joinOrRecover signals onboarding via startOnboarding.
         val restorableRider by viewModel.restorableRider.collectAsStateWithLifecycle()
         val startOnboarding by viewModel.startOnboarding.collectAsStateWithLifecycle()
+        val rejoinConfirm by viewModel.rejoinConfirm.collectAsStateWithLifecycle()
         LaunchedEffect(startOnboarding) {
             if (startOnboarding) {
                 showOnboarding = true
                 viewModel.consumeStartOnboarding()
             }
+        }
+        // Rejoin confirmation: this phone already has a profile, so pressing Join
+        // warns the rider they'll rejoin as that existing rider rather than
+        // re-enabling silently.
+        if (rejoinConfirm) {
+            val rejoinName = settings.eucstatsDisplayName?.takeIf { it.isNotBlank() }
+                ?: ("#" + (settings.eucstatsStoreId?.take(8) ?: ""))
+            AlertDialog(
+                onDismissRequest = { viewModel.dismissRejoinConfirm() },
+                title = { Text(stringResource(R.string.online_rejoin_title)) },
+                text = { Text(stringResource(R.string.online_rejoin_body, rejoinName)) },
+                confirmButton = {
+                    TextButton(onClick = { viewModel.confirmRejoin() }) {
+                        Text(stringResource(R.string.online_restore_confirm, rejoinName))
+                    }
+                },
+                dismissButton = {
+                    TextButton(onClick = { viewModel.dismissRejoinConfirm() }) {
+                        Text(stringResource(R.string.action_cancel))
+                    }
+                },
+            )
         }
         restorableRider?.let { rider ->
             val riderName = rider.displayName?.takeIf { it.isNotBlank() }
@@ -6836,10 +6859,7 @@ private fun CloudTab(
                 // Same button component the folder section uses (e.g. "Choose folder").
                 LeftAlignedScanButton(
                     label = stringResource(R.string.online_upload_join),
-                    onClick = {
-                        if (settings.eucstatsStoreId == null) viewModel.joinOrRecover()
-                        else viewModel.setOnlineUploadEnabled(true)
-                    },
+                    onClick = { viewModel.joinOrRecover() },
                 )
             }
         }

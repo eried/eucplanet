@@ -1099,6 +1099,8 @@
     <string name="online_restore_body_new">We found a saved profile here: %1$s. Continuing rejoins the public leaderboard as that rider — its name, flag, avatar and ride stats are public. It does not create a new profile.</string>
     <string name="online_restore_body_switch">We found a different saved profile: %1$s. Continuing switches this phone to that rider; your current profile is backed up first.</string>
     <string name="online_restore_confirm">Continue as %1$s</string>
+    <string name="online_rejoin_title">Rejoin the leaderboard?</string>
+    <string name="online_rejoin_body">You\'ll rejoin as your saved profile %1$s. Your trips and overall stats become public again under that profile.</string>
 
     <!-- ==== Overlay Studio ==== -->
     <string name="studio_open">Open Overlay Studio</string>
