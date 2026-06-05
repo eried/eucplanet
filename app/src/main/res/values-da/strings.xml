@@ -1442,4 +1442,5 @@
     <string name="online_upload_linked_caption">Dine statistikker og ture vises på den offentlige rangliste på</string>
     <string name="online_rejoin_title">Tilmeld ranglisten igen?</string>
     <string name="online_rejoin_body">Du tilmelder dig igen som din gemte profil %1$s. Denne telefon genoptager upload af dine nye ture til den profil.</string>
+    <string name="online_rejoin_confirm">Tilmeld igen</string>
 </resources>

@@ -1440,4 +1440,5 @@
     <string name="online_upload_linked_caption">Tes stats et tes trajets apparaissent dans le classement public sur</string>
     <string name="online_rejoin_title">Rejoindre le classement ?</string>
     <string name="online_rejoin_body">Tu rejoindras le classement avec ton profil enregistré %1$s. Ce téléphone reprendra l\'envoi de tes nouveaux trajets vers ce profil.</string>
+    <string name="online_rejoin_confirm">Rejoindre</string>
 </resources>

@@ -1457,4 +1457,5 @@
     <string name="online_upload_linked_caption">Tus estadísticas y viajes aparecen en el marcador público en</string>
     <string name="online_rejoin_title">¿Volver a unirte al marcador?</string>
     <string name="online_rejoin_body">Te unirás de nuevo con tu perfil guardado %1$s. Este teléfono reanudará la subida de tus nuevos viajes a ese perfil.</string>
+    <string name="online_rejoin_confirm">Volver a unirse</string>
 </resources>

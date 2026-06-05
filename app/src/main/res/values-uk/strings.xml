@@ -1477,4 +1477,5 @@
     <string name="online_upload_linked_caption">Твоя статистика і поїздки з\'являються у публічній таблиці лідерів на</string>
     <string name="online_rejoin_title">Приєднатись до таблиці лідерів знову?</string>
     <string name="online_rejoin_body">Ти приєднаєшся знову як збережений профіль %1$s. Цей телефон відновить вивантаження твоїх нових поїздок до цього профілю.</string>
+    <string name="online_rejoin_confirm">Приєднатись знову</string>
 </resources>

@@ -1475,4 +1475,5 @@
     <string name="online_upload_linked_caption">Je statistieken en ritten verschijnen op het openbare klassement op</string>
     <string name="online_rejoin_title">Opnieuw deelnemen aan het klassement?</string>
     <string name="online_rejoin_body">Je neemt opnieuw deel als je opgeslagen profiel %1$s. Deze telefoon hervat het uploaden van je nieuwe ritten naar dat profiel.</string>
+    <string name="online_rejoin_confirm">Opnieuw deelnemen</string>
 </resources>

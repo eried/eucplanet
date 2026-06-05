@@ -232,6 +232,7 @@ import com.eried.eucplanet.BuildConfig
 import com.eried.eucplanet.R
 import com.eried.eucplanet.data.sync.SyncChoice
 import com.eried.eucplanet.ui.settings.eucstats.OnlineUploadOnboardingDialog
+import com.eried.eucplanet.ui.settings.eucstats.flagEmoji
 import com.eried.eucplanet.service.VoiceOption
 import com.eried.eucplanet.ui.common.HintText
 import com.eried.eucplanet.ui.common.InfoHint
@@ -6738,10 +6739,10 @@ private fun CloudTab(
             AlertDialog(
                 onDismissRequest = { viewModel.dismissRejoinConfirm() },
                 title = { Text(stringResource(R.string.online_rejoin_title)) },
-                text = { Text(stringResource(R.string.online_rejoin_body, rejoinName)) },
+                text = { Text(stringResource(R.string.online_rejoin_body, "“$rejoinName”")) },
                 confirmButton = {
                     TextButton(onClick = { viewModel.confirmRejoin() }) {
-                        Text(stringResource(R.string.online_restore_confirm, rejoinName))
+                        Text(stringResource(R.string.online_rejoin_confirm))
                     }
                 },
                 dismissButton = {
@@ -6952,7 +6953,8 @@ private fun CloudTab(
                                     if (!card.displayName.isNullOrBlank()) append(card.displayName)
                                     if (!card.flag.isNullOrBlank()) {
                                         if (isNotEmpty()) append("  ")
-                                        append(card.flag)
+                                        // Show the flag emoji (e.g. 🇳🇴) instead of the raw code (NO).
+                                        append(flagEmoji(card.flag).ifEmpty { card.flag })
                                     }
                                 }
                                 if (nameAndFlag.isNotEmpty()) {

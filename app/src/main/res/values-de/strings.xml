@@ -1457,4 +1457,5 @@
     <string name="online_upload_linked_caption">Deine Statistiken und Fahrten erscheinen in der öffentlichen Bestenliste auf</string>
     <string name="online_rejoin_title">Der Bestenliste wieder beitreten?</string>
     <string name="online_rejoin_body">Du trittst wieder als dein gespeichertes Profil %1$s bei. Dieses Telefon lädt deine neuen Fahrten wieder in dieses Profil hoch.</string>
+    <string name="online_rejoin_confirm">Wieder beitreten</string>
 </resources>

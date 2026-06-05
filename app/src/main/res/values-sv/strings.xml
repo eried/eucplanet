@@ -1440,4 +1440,5 @@
     <string name="online_upload_linked_caption">Din statistik och dina turer visas på den publika topplistan på</string>
     <string name="online_rejoin_title">Gå med i topplistan igen?</string>
     <string name="online_rejoin_body">Du går med igen som din sparade profil %1$s. Den här telefonen återupptar uppladdningen av dina nya turer till den profilen.</string>
+    <string name="online_rejoin_confirm">Gå med igen</string>
 </resources>

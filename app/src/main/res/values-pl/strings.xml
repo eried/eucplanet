@@ -1477,4 +1477,5 @@
     <string name="online_upload_linked_caption">Twoje statystyki i trasy pojawiają się w publicznym rankingu pod adresem</string>
     <string name="online_rejoin_title">Dołączyć ponownie do rankingu?</string>
     <string name="online_rejoin_body">Dołączysz ponownie jako Twój zapisany profil %1$s. Ten telefon wznowi przesyłanie nowych tras do tego profilu.</string>
+    <string name="online_rejoin_confirm">Dołącz ponownie</string>
 </resources>

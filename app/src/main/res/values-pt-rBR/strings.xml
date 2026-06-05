@@ -1476,4 +1476,5 @@
     <string name="online_upload_linked_caption">Suas estatísticas e viagens aparecem no ranking público em</string>
     <string name="online_rejoin_title">Voltar ao ranking?</string>
     <string name="online_rejoin_body">Você voltará como seu perfil salvo %1$s. Este celular retomará o envio das suas novas viagens para esse perfil.</string>
+    <string name="online_rejoin_confirm">Voltar</string>
 </resources>

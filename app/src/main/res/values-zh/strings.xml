@@ -1440,4 +1440,5 @@
     <string name="online_upload_linked_caption">你的统计数据和行程将显示在公开排行榜</string>
     <string name="online_rejoin_title">重新加入排行榜？</string>
     <string name="online_rejoin_body">你将以已保存的资料 %1$s 重新加入。此手机将恢复向该资料上传你的新行程。</string>
+    <string name="online_rejoin_confirm">重新加入</string>
 </resources>
