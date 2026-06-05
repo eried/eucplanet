@@ -1412,7 +1412,7 @@
 
     <!-- Step 2: Profile -->
     <string name="online_upload_profile_title">Crea il tuo profilo</string>
-    <string name="online_upload_profile_name_label">Nome visualizzato</string>
+    <string name="online_upload_profile_name_label">Nome visualizzato unico</string>
     <string name="online_upload_profile_country_label">Paese</string>
     <string name="online_upload_profile_country_select">Seleziona il tuo paese</string>
     <string name="online_upload_country_search">Cerca paesi</string>
@@ -1491,4 +1491,5 @@
     <string name="online_upload_sync_done">Sincronizzati %1$d viaggi</string>
     <string name="online_upload_sync_nothing">Niente da sincronizzare</string>
     <string name="online_upload_sync_progress">Caricamento %1$d di %2$d</string>
+    <string name="online_upload_register_server_error">Registrazione non riuscita. Il server ha risposto: %1$s (%2$d)</string>
 </resources>

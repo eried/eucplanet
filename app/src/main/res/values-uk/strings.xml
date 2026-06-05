@@ -1413,7 +1413,7 @@
 
     <!-- Step 2: Profile -->
     <string name="online_upload_profile_title">Створи профіль</string>
-    <string name="online_upload_profile_name_label">Псевдонім</string>
+    <string name="online_upload_profile_name_label">Унікальний псевдонім</string>
     <string name="online_upload_profile_country_label">Країна</string>
     <string name="online_upload_profile_country_select">Обери країну</string>
     <string name="online_upload_country_search">Пошук країни</string>
@@ -1492,4 +1492,5 @@
     <string name="online_upload_sync_done">Синхронізовано поїздок: %1$d</string>
     <string name="online_upload_sync_nothing">Нічого для синхронізації</string>
     <string name="online_upload_sync_progress">Вивантаження %1$d з %2$d</string>
+    <string name="online_upload_register_server_error">Реєстрація не вдалася. Сервер повідомив: %1$s (%2$d)</string>
 </resources>

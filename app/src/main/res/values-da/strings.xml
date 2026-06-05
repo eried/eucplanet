@@ -1378,7 +1378,7 @@
 
     <!-- Trin 2: Profil -->
     <string name="online_upload_profile_title">Opret din profil</string>
-    <string name="online_upload_profile_name_label">Visningsnavn</string>
+    <string name="online_upload_profile_name_label">Unikt visningsnavn</string>
     <string name="online_upload_profile_country_label">Land</string>
     <string name="online_upload_profile_country_select">Vælg dit land</string>
     <string name="online_upload_country_search">Søg lande</string>
@@ -1457,4 +1457,5 @@
     <string name="online_upload_sync_done">Synkroniserede %1$d ture</string>
     <string name="online_upload_sync_nothing">Intet at synkronisere</string>
     <string name="online_upload_sync_progress">Uploader %1$d af %2$d</string>
+    <string name="online_upload_register_server_error">Registrering mislykkedes. Serveren sagde: %1$s (%2$d)</string>
 </resources>

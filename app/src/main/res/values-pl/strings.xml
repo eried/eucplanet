@@ -1413,7 +1413,7 @@
 
     <!-- Step 2: Profile -->
     <string name="online_upload_profile_title">Utwórz profil</string>
-    <string name="online_upload_profile_name_label">Nazwa wyświetlana</string>
+    <string name="online_upload_profile_name_label">Unikalna nazwa wyświetlana</string>
     <string name="online_upload_profile_country_label">Kraj</string>
     <string name="online_upload_profile_country_select">Wybierz kraj</string>
     <string name="online_upload_country_search">Szukaj krajów</string>
@@ -1492,4 +1492,5 @@
     <string name="online_upload_sync_done">Zsynchronizowano %1$d tras</string>
     <string name="online_upload_sync_nothing">Brak tras do synchronizacji</string>
     <string name="online_upload_sync_progress">Przesyłanie %1$d z %2$d</string>
+    <string name="online_upload_register_server_error">Rejestracja nie powiodła się. Serwer odpowiedział: %1$s (%2$d)</string>
 </resources>

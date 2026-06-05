@@ -1376,7 +1376,7 @@
 
     <!-- Step 2: Profile -->
     <string name="online_upload_profile_title">Skapa din profil</string>
-    <string name="online_upload_profile_name_label">Visningsnamn</string>
+    <string name="online_upload_profile_name_label">Unikt visningsnamn</string>
     <string name="online_upload_profile_country_label">Land</string>
     <string name="online_upload_profile_country_select">Välj ditt land</string>
     <string name="online_upload_country_search">Sök länder</string>
@@ -1455,4 +1455,5 @@
     <string name="online_upload_sync_done">Synkade %1$d turer</string>
     <string name="online_upload_sync_nothing">Inget att synka</string>
     <string name="online_upload_sync_progress">Laddar upp %1$d av %2$d</string>
+    <string name="online_upload_register_server_error">Registreringen misslyckades. Servern svarade: %1$s (%2$d)</string>
 </resources>

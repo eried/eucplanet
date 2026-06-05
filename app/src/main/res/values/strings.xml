@@ -1038,7 +1038,7 @@
 
     <!-- Step 2: Profile -->
     <string name="online_upload_profile_title">Create your profile</string>
-    <string name="online_upload_profile_name_label">Display name</string>
+    <string name="online_upload_profile_name_label">Unique display name</string>
     <string name="online_upload_profile_country_label">Country</string>
     <string name="online_upload_profile_country_select">Select your country</string>
     <string name="online_upload_country_search">Search countries</string>
@@ -1054,6 +1054,8 @@
     <!-- Registration outcome -->
     <string name="online_upload_register_action">Register</string>
     <string name="online_upload_register_error">Registration failed. Check your connection and try again.</string>
+    <!-- %1$s = the server's raw reason (e.g. display_name_taken), %2$d = HTTP status code -->
+    <string name="online_upload_register_server_error">Registration failed. The server said: %1$s (%2$d)</string>
 
     <!-- Online stats toggle + rider card (Task E3) -->
     <string name="section_online_stats">Online leaderboards</string>

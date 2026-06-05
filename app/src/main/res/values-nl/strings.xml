@@ -1412,7 +1412,7 @@
 
     <!-- Step 2: Profile -->
     <string name="online_upload_profile_title">Maak je profiel aan</string>
-    <string name="online_upload_profile_name_label">Weergavenaam</string>
+    <string name="online_upload_profile_name_label">Unieke weergavenaam</string>
     <string name="online_upload_profile_country_label">Land</string>
     <string name="online_upload_profile_country_select">Selecteer je land</string>
     <string name="online_upload_country_search">Landen zoeken</string>
@@ -1490,4 +1490,5 @@
     <string name="online_upload_sync_done">%1$d ritten gesynchroniseerd</string>
     <string name="online_upload_sync_nothing">Niets te synchroniseren</string>
     <string name="online_upload_sync_progress">Uploaden %1$d van %2$d</string>
+    <string name="online_upload_register_server_error">Registratie mislukt. De server zei: %1$s (%2$d)</string>
 </resources>

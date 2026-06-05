@@ -1393,7 +1393,7 @@
 
     <!-- Steg 2: Profil -->
     <string name="online_upload_profile_title">Opprett profilen din</string>
-    <string name="online_upload_profile_name_label">Visningsnavn</string>
+    <string name="online_upload_profile_name_label">Unikt visningsnavn</string>
     <string name="online_upload_profile_country_label">Land</string>
     <string name="online_upload_profile_country_select">Velg land</string>
     <string name="online_upload_country_search">Søk etter land</string>
@@ -1472,4 +1472,5 @@
     <string name="online_upload_sync_done">Synkroniserte %1$d turer</string>
     <string name="online_upload_sync_nothing">Ingenting å synkronisere</string>
     <string name="online_upload_sync_progress">Laster opp %1$d av %2$d</string>
+    <string name="online_upload_register_server_error">Registrering mislyktes. Serveren svarte: %1$s (%2$d)</string>
 </resources>

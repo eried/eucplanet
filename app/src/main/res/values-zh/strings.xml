@@ -1376,7 +1376,7 @@
 
     <!-- 第二步：个人资料 -->
     <string name="online_upload_profile_title">创建你的资料</string>
-    <string name="online_upload_profile_name_label">显示名称</string>
+    <string name="online_upload_profile_name_label">唯一显示名称</string>
     <string name="online_upload_profile_country_label">国家</string>
     <string name="online_upload_profile_country_select">选择你的国家</string>
     <string name="online_upload_country_search">搜索国家</string>
@@ -1455,4 +1455,5 @@
     <string name="online_upload_sync_done">已同步 %1$d 条行程</string>
     <string name="online_upload_sync_nothing">暂无需同步的内容</string>
     <string name="online_upload_sync_progress">正在上传 %1$d / %2$d</string>
+    <string name="online_upload_register_server_error">注册失败。服务器返回：%1$s（%2$d）</string>
 </resources>
