@@ -44,9 +44,12 @@ class EucStatsApiTest {
     }
 
     @Test fun getCard_parsesFields() = runBlocking {
+        // Mirrors the live server contract: stats nested under "stats", ranks
+        // under "ranks" (the avatar is served at /riders/{id}/avatar, no url field).
         server.enqueue(MockResponse().setResponseCode(200).setBody(
-            """{"display_name":"Erwin","flag":"NO","total_km":1284.0,"trips":12,"top_speed_kmh":62.0,"mileage_rank":7,"country":"NO","has_avatar":true,"avatar_url":"/api/v1/riders/s/avatar"}"""))
+            """{"display_name":"Erwin","flag":"NO","country":"NO","has_avatar":true,"stats":{"total_km":1284.0,"trips":12,"best_speed_kmh":62.0,"best_gforce":3.1},"ranks":{"distance":7}}"""))
         val c = api.getCard("s")!!
         assertEquals("Erwin", c.displayName); assertEquals(7, c.mileageRank); assertEquals(12, c.trips)
+        assertEquals(62.0, c.topSpeedKmh, 0.001); assertTrue(c.hasAvatar)
     }
 }

@@ -488,7 +488,10 @@ class EucStatsRepositoryTest {
 
     @Test fun fetchProfile_returnsProfileFromApi() = runBlocking {
         settingsPort.update(AppSettings(eucstatsStoreId = "store-1"))
-        api.profileResult = RiderProfile("Alice", "NO", true, null, "2026-12-01", null)
+        api.profileResult = RiderProfile(
+            displayName = "Alice", flag = "NO", hasAvatar = true, avatarUrl = null,
+            canChangeNameAfter = null, canChangeFlagAfter = "2026-12-01", canChangeAvatarAfter = null,
+        )
 
         val profile = repo.fetchProfile()
 
