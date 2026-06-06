@@ -498,9 +498,9 @@ private fun ButtonActionGuideOverlay(
         Arm("▼", shortActions.down, down),
         Arm("◀", shortActions.left, left),
         Arm("▶", shortActions.right, right)
-    )
-    // Nothing to teach in ANY direction: don't draw the card at all.
-    if (arms.all { it.shortLine == null && it.longLabel.isBlank() }) return
+    ).filter { it.shortLine != null || it.longLabel.isNotBlank() }
+    // Nothing to teach in any direction: don't draw the card.
+    if (arms.isEmpty()) return
 
     var visible by remember { mutableStateOf(false) }
     // Re-show only on screen change (rides with the screen toast); a d-pad press

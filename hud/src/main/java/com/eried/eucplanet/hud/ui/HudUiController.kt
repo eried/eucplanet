@@ -175,9 +175,9 @@ class HudUiController {
      *  means the direction has no screen-specific short action here (the
      *  overlay then omits line A for that arm).
      *
-     *  LEFT/RIGHT only carry a label when there's somewhere to go: with a
-     *  single enabled screen the carousel can't move, so we report null and
-     *  the overlay dims that arm unless a long action is bound. */
+     *  LEFT/RIGHT only carry a label when there's somewhere to go: null on the
+     *  first screen (no prev) and on the last (no next); a single screen has
+     *  neither. The overlay hides an arm with no short line and no long action. */
     class ShortActions(
         val up: String?,
         val down: String?,
@@ -186,9 +186,11 @@ class HudUiController {
     )
 
     fun shortActions(): ShortActions {
-        val multiScreen = screens.size > 1
-        val left = if (multiScreen) "Prev screen" else null
-        val right = if (multiScreen) "Next screen" else null
+        val idx = screens.indexOf(current)
+        // Prev only when not on the first screen, Next only when not on the last
+        // -- the carousel clamps (no wrap); a single screen has neither.
+        val left = if (idx > 0) "Prev screen" else null
+        val right = if (idx in 0 until screens.size - 1) "Next screen" else null
         val (up, down) = when (current) {
             Screen.Map, Screen.MapNav -> "Zoom in" to "Zoom out"
             Screen.Dashboard -> "Speed view" to "GPS view"
