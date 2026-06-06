@@ -77,6 +77,21 @@ class HudUiController {
     var current: Screen by mutableStateOf(Screen.Dashboard)
         private set
 
+    /** Monotonic counter bumped by the Activity on every d-pad press so the
+     *  button-action guide overlay can re-show itself even when the screen
+     *  hasn't changed. The overlay keys its show/auto-hide effect on this in
+     *  addition to [current]: a press on a screen the rider is already on
+     *  flashes the guide so they can recall their bound actions without
+     *  switching screens first. */
+    var guidePulse: Int by mutableStateOf(0)
+        private set
+
+    /** Called by the Activity on any d-pad key-down to flash the button-action
+     *  guide overlay (see [guidePulse]). */
+    fun pulseGuide() {
+        guidePulse++
+    }
+
     /** Sub-mode of the dashboard: false = EUC view, true = GPS view. Mirrors
      *  the up/down toggle the competitor's main screen uses. */
     var dashboardGpsView: Boolean by mutableStateOf(false)
@@ -151,6 +166,35 @@ class HudUiController {
             Screen.Map, Screen.MapNav -> mapZoom = (mapZoom - 1f).coerceAtLeast(MAP_ZOOM_MIN)
             else -> Unit
         }
+    }
+
+    /** Short-press behaviour labels for the button-action guide overlay
+     *  (line A). Each describes what a SHORT d-pad press does on the CURRENT
+     *  screen, derived from the same logic as [upAction] / [downAction] /
+     *  [previousScreen] / [nextScreen] so the two never drift. A null entry
+     *  means the direction has no screen-specific short action here (the
+     *  overlay then omits line A for that arm).
+     *
+     *  LEFT/RIGHT only carry a label when there's somewhere to go: with a
+     *  single enabled screen the carousel can't move, so we report null and
+     *  the overlay dims that arm unless a long action is bound. */
+    class ShortActions(
+        val up: String?,
+        val down: String?,
+        val left: String?,
+        val right: String?
+    )
+
+    fun shortActions(): ShortActions {
+        val multiScreen = screens.size > 1
+        val left = if (multiScreen) "Prev screen" else null
+        val right = if (multiScreen) "Next screen" else null
+        val (up, down) = when (current) {
+            Screen.Map, Screen.MapNav -> "Zoom in" to "Zoom out"
+            Screen.Dashboard -> "Speed view" to "GPS view"
+            else -> null to null
+        }
+        return ShortActions(up = up, down = down, left = left, right = right)
     }
 
     /** Optional sink wired up by HudActivity so the controller can forward

@@ -35,10 +35,15 @@ class HudActivity : ComponentActivity() {
 
     private lateinit var server: HudServer
     private lateinit var controller: HudUiController
-    // Set true by onKeyLongPress when a DPAD direction long-press fired a HUD
-    // joystick action, so the matching onKeyUp doesn't ALSO run the short-press
-    // carousel move. Reset on every key-up.
-    private var longPressConsumed = false
+    // Manual hold-duration timing for the four DPAD directions. We record the
+    // key-down uptime per keyCode and, on key-up, measure the held duration
+    // ourselves rather than relying on the framework's onKeyLongPress callback.
+    // The real MotoEye remote was mis-firing the short-press carousel move on a
+    // genuine long hold via the startTracking()/onKeyLongPress path; a manual
+    // threshold (LONG_PRESS_MS) makes the decision unambiguous: a short tap runs
+    // ONLY the short action, a long hold sends ONLY the long action. Keyed by
+    // keyCode so simultaneous directions can't clobber each other's timer.
+    private val dpadDownAt = HashMap<Int, Long>()
     // One shared tile cache for the lifetime of the activity. Both the
     // Map screen and the Custom overlay's MAP element read from this, so
     // tiles fetched on either side stay warm when the rider navigates
@@ -160,16 +165,24 @@ class HudActivity : ComponentActivity() {
         // covering everything.
         controller.dismissDisconnectedModal()
         return when (keyCode) {
-            // The four DPAD directions are dual-action: a SHORT press keeps the
-            // carousel behaviour (fired in onKeyUp), a LONG press fires the
-            // rider-configured HUD joystick action (fired in onKeyLongPress).
-            // We can't decide which yet on key-down, so we arm long-press
-            // tracking and defer the short-press behaviour to onKeyUp.
+            // The four DPAD directions are dual-action: a SHORT press runs the
+            // carousel / zoom / view behaviour, a LONG hold fires the rider-
+            // configured HUD button action. We can't tell which on key-down, so
+            // we just record the press time (and flash the guide overlay) here
+            // and decide in onKeyUp from the held duration. repeatCount > 0 is
+            // the framework's auto-repeat while the rider keeps holding -- we
+            // consume it but do nothing, so a hold never triggers a stream of
+            // actions, only the single long action on release.
             KeyEvent.KEYCODE_DPAD_LEFT,
             KeyEvent.KEYCODE_DPAD_RIGHT,
             KeyEvent.KEYCODE_DPAD_UP,
             KeyEvent.KEYCODE_DPAD_DOWN -> {
-                if (event?.repeatCount == 0) event.startTracking()
+                if (event?.repeatCount == 0) {
+                    dpadDownAt[keyCode] = android.os.SystemClock.uptimeMillis()
+                    // Flash the button-action guide so the rider can recall what
+                    // a long hold does on this screen, even without switching.
+                    controller.pulseGuide()
+                }
                 true
             }
             // L1 / R1 stay immediate -- they're the dedicated prev/next screen
@@ -183,22 +196,10 @@ class HudActivity : ComponentActivity() {
     }
 
     override fun onKeyLongPress(keyCode: Int, event: KeyEvent?): Boolean {
-        // Long-press on a DPAD direction fires the configurable HUD joystick
-        // action: we ship the slot to the phone, which maps it to a bound
-        // ActionCatalog key and dispatches eyes-free. Setting longPressConsumed
-        // stops the matching onKeyUp from also moving the carousel.
-        val slot = when (keyCode) {
-            KeyEvent.KEYCODE_DPAD_UP -> "UP"
-            KeyEvent.KEYCODE_DPAD_DOWN -> "DOWN"
-            KeyEvent.KEYCODE_DPAD_LEFT -> "LEFT"
-            KeyEvent.KEYCODE_DPAD_RIGHT -> "RIGHT"
-            else -> null
-        }
-        if (slot != null) {
-            server.sendCommand(com.eried.eucplanet.hud.protocol.HudCommand.Action(slot))
-            longPressConsumed = true
-            return true
-        }
+        // DPAD direction long-press is handled manually in onKeyUp now (see
+        // dpadDownAt), so we don't startTracking() them and this callback never
+        // fires for them. We keep it ONLY for ESC/BACK.
+        //
         // Long-press ESC exits the app (matches the competitor's UX so muscle
         // memory transfers). A short ESC press would interfere with hardware
         // back behaviours we may want later, so we keep it as a long press.
@@ -209,15 +210,30 @@ class HudActivity : ComponentActivity() {
     }
 
     override fun onKeyUp(keyCode: Int, event: KeyEvent?): Boolean {
-        // The short-press carousel behaviour the DPAD directions USED to run in
-        // onKeyDown now fires here, but only when a long-press didn't already
-        // consume this gesture.
+        // Decide short-vs-long for the four DPAD directions from the held
+        // duration we measured ourselves. >= LONG_PRESS_MS sends ONLY the
+        // rider-configured long action to the phone; a shorter tap runs ONLY
+        // the screen-specific short behaviour. Either way exactly one fires.
         when (keyCode) {
             KeyEvent.KEYCODE_DPAD_UP,
             KeyEvent.KEYCODE_DPAD_DOWN,
             KeyEvent.KEYCODE_DPAD_LEFT,
             KeyEvent.KEYCODE_DPAD_RIGHT -> {
-                if (!longPressConsumed) {
+                val downAt = dpadDownAt.remove(keyCode)
+                // No recorded down (e.g. key-up without our key-down): ignore.
+                if (downAt == null) return true
+                val held = android.os.SystemClock.uptimeMillis() - downAt
+                if (held >= LONG_PRESS_MS) {
+                    val slot = when (keyCode) {
+                        KeyEvent.KEYCODE_DPAD_UP -> "UP"
+                        KeyEvent.KEYCODE_DPAD_DOWN -> "DOWN"
+                        KeyEvent.KEYCODE_DPAD_LEFT -> "LEFT"
+                        else -> "RIGHT"
+                    }
+                    server.sendCommand(
+                        com.eried.eucplanet.hud.protocol.HudCommand.Action(slot)
+                    )
+                } else {
                     when (keyCode) {
                         KeyEvent.KEYCODE_DPAD_UP -> controller.upAction()
                         KeyEvent.KEYCODE_DPAD_DOWN -> controller.downAction()
@@ -225,10 +241,17 @@ class HudActivity : ComponentActivity() {
                         KeyEvent.KEYCODE_DPAD_RIGHT -> controller.nextScreen()
                     }
                 }
-                longPressConsumed = false
                 return true
             }
         }
         return super.onKeyUp(keyCode, event)
+    }
+
+    private companion object {
+        /** Hold threshold separating a short tap (screen behaviour) from a long
+         *  hold (configured button action). 450 ms is comfortably above an
+         *  accidental long tap yet short enough to feel intentional on the
+         *  MotoEye remote. */
+        const val LONG_PRESS_MS: Long = 450L
     }
 }
