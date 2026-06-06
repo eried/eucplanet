@@ -263,14 +263,18 @@ private val languageOptions = listOf(
     "es-419" to "Español (Latinoamérica)",
     "fr" to "Français",
     "it" to "Italiano",
+    "ja" to "日本語",
+    "ko" to "한국어",
     "nl" to "Nederlands",
     "no" to "Norsk",
     "pl" to "Polski",
     "pt-BR" to "Português (Brasil)",
     "ru" to "Русский",
     "sv" to "Svenska",
+    "tr" to "Türkçe",
     "uk" to "Українська",
-    "zh" to "中文"
+    "zh" to "简体中文",
+    "zh-TW" to "繁體中文"
 )
 
 @OptIn(ExperimentalMaterial3Api::class)

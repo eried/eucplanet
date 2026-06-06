@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">EUC Planet</string>
+    <string name="watch_waiting_phone">폰에서 EUC Planet을\n여세요</string>
+    <string name="watch_waiting_wheel">EUC Planet에서\n휠을 연결하세요</string>
+    <string name="watch_disconnected">연결 끊김</string>
+    <string name="watch_horn">경적</string>
+    <string name="watch_light">조명</string>
+    <string name="watch_speed_unit">km/h</string>
+    <string name="watch_speed_unit_mph">mph</string>
+    <string name="watch_speed_unit_ms" translatable="false">m/s</string>
+    <string name="watch_speed_unit_kn" translatable="false">kn</string>
+    <string name="watch_battery_label">배터리</string>
+    <string name="watch_voltage_label">전압</string>
+    <string name="watch_current_label">전류</string>
+    <string name="watch_pwm_label">PWM</string>
+    <string name="watch_power_label">파워</string>
+    <string name="watch_temp_label">온도</string>
+    <string name="watch_trip_label">이동</string>
+    <string name="watch_torque_label">토크</string>
+    <string name="watch_action_failed">폰에 연결할 수 없습니다</string>
+    <string name="watch_gps_label">GPS 속도</string>
+    <string name="watch_gps_permission">탭하여 GPS 허용</string>
+    <string name="watch_gps_waiting">신호 대기 중…</string>
+
+    <!-- Toast labels for hold-action triggers. Short so they fit on a Wear toast. -->
+    <string name="watch_action_horn">경적</string>
+    <string name="watch_action_light">조명</string>
+    <string name="watch_action_lock">휠 잠금</string>
+    <string name="watch_action_safety">법적 모드</string>
+    <string name="watch_action_safety_on">법적 모드 켜기</string>
+    <string name="watch_action_safety_off">법적 모드 끄기</string>
+    <string name="watch_action_voice">음성 보고</string>
+    <string name="watch_action_record">기록</string>
+    <string name="watch_action_record_start">기록 시작됨</string>
+    <string name="watch_action_record_stop">기록 중지됨</string>
+    <string name="watch_action_media_play">재생 / 일시정지</string>
+    <string name="watch_action_media_next">다음 트랙</string>
+    <string name="watch_action_media_prev">이전 트랙</string>
+    <string name="watch_action_long_press_hint">%1$s을(를) 길게 누르기</string>
+</resources>

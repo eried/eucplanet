@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">EUC Planet</string>
+    <string name="watch_waiting_phone">スマートフォンで\nEUC Planetを開いてください</string>
+    <string name="watch_waiting_wheel">EUC Planetで\nホイールを接続してください</string>
+    <string name="watch_disconnected">切断済み</string>
+    <string name="watch_horn">ホーン</string>
+    <string name="watch_light">ライト</string>
+    <string name="watch_speed_unit">km/h</string>
+    <string name="watch_speed_unit_mph">mph</string>
+    <string name="watch_speed_unit_ms" translatable="false">m/s</string>
+    <string name="watch_speed_unit_kn" translatable="false">kn</string>
+    <string name="watch_battery_label">バッテリー</string>
+    <string name="watch_voltage_label">電圧</string>
+    <string name="watch_current_label">電流</string>
+    <string name="watch_pwm_label">PWM</string>
+    <string name="watch_power_label">電力</string>
+    <string name="watch_temp_label">温度</string>
+    <string name="watch_trip_label">走行距離</string>
+    <string name="watch_torque_label">トルク</string>
+    <string name="watch_action_failed">スマートフォンに接続できませんでした</string>
+    <string name="watch_gps_label">GPS速度</string>
+    <string name="watch_gps_permission">タップしてGPSを許可</string>
+    <string name="watch_gps_waiting">GPSを待機中…</string>
+
+    <!-- Toast labels for hold-action triggers. Short so they fit on a Wear toast. -->
+    <string name="watch_action_horn">ホーン</string>
+    <string name="watch_action_light">ライト</string>
+    <string name="watch_action_lock">ホイールをロック</string>
+    <string name="watch_action_safety">リーガルモード</string>
+    <string name="watch_action_safety_on">リーガルモードON</string>
+    <string name="watch_action_safety_off">リーガルモードOFF</string>
+    <string name="watch_action_voice">音声レポート</string>
+    <string name="watch_action_record">録音中</string>
+    <string name="watch_action_record_start">録音開始</string>
+    <string name="watch_action_record_stop">録音停止</string>
+    <string name="watch_action_media_play">再生 / 一時停止</string>
+    <string name="watch_action_media_next">次のトラック</string>
+    <string name="watch_action_media_prev">前のトラック</string>
+    <string name="watch_action_long_press_hint">長押しで%1$s</string>
+</resources>
