@@ -295,7 +295,7 @@
   .toolbar {
     width: fit-content;
     max-width: 100%;
-    margin: 18px auto 0;
+    margin: 12px auto 0;
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
@@ -318,7 +318,7 @@
     font-size: 14px;
     font-weight: 600;
     border-radius: 9px;
-    transition: background 160ms ease, color 160ms ease, transform 160ms ease;
+    transition: background 160ms ease, color 160ms ease, transform 160ms ease, text-shadow 200ms ease;
     position: relative;
     white-space: nowrap;
   }
@@ -340,6 +340,115 @@
     transform: translateY(-1px);
   }
   .toolbar .tool.tool-primary svg { opacity: 1; }
+
+  /* Blue accent — Download. Coloured text + icon + soft halo, NOT a filled
+     button. Lets the toolbar stay a quiet panel and the colour reads as a
+     "highlight around the label" rather than a chunky chip. */
+  .toolbar .tool.tool-blue {
+    color: #79b8ff;
+    text-shadow: 0 0 12px rgba(56, 139, 253, 0.45);
+  }
+  .toolbar .tool.tool-blue svg {
+    opacity: 1;
+    filter: drop-shadow(0 0 6px rgba(56, 139, 253, 0.55));
+  }
+  .toolbar .tool.tool-blue:hover {
+    color: #b6dafc;
+    background: rgba(31, 111, 235, 0.08);
+    text-shadow: 0 0 16px rgba(99, 162, 255, 0.7);
+  }
+  .toolbar .tool.tool-blue:hover svg {
+    filter: drop-shadow(0 0 10px rgba(99, 162, 255, 0.85));
+  }
+
+  /* Gold accent — Leaderboard. Same "highlight only" idea as Download.
+     The hover lights it up with a slow shimmer so the eye catches the
+     "winners" tone without making the rest of the toolbar feel loud. */
+  .toolbar .tool.tool-gold {
+    color: #fcd34d;
+    text-shadow: 0 0 10px rgba(251, 191, 36, 0.4);
+  }
+  .toolbar .tool.tool-gold svg {
+    opacity: 1;
+    filter: drop-shadow(0 0 6px rgba(251, 191, 36, 0.5));
+  }
+  .toolbar .tool.tool-gold:hover {
+    color: #fef3c7;
+    background: rgba(251, 191, 36, 0.08);
+    animation: gold-shine 1.6s ease-in-out infinite;
+  }
+  .toolbar .tool.tool-gold:hover svg {
+    animation: gold-icon-glow 1.6s ease-in-out infinite;
+  }
+  @keyframes gold-shine {
+    0%, 100% {
+      text-shadow:
+        0 0 10px rgba(252, 211, 77, 0.7);
+    }
+    50% {
+      text-shadow:
+        0 0 18px rgba(252, 211, 77, 1),
+        0 0 32px rgba(252, 211, 77, 0.55),
+        0 0 6px rgba(255, 255, 255, 0.4);
+    }
+  }
+  @keyframes gold-icon-glow {
+    0%, 100% {
+      filter: drop-shadow(0 0 6px rgba(252, 211, 77, 0.65));
+    }
+    50% {
+      filter:
+        drop-shadow(0 0 12px rgba(252, 211, 77, 1))
+        drop-shadow(0 0 24px rgba(252, 211, 77, 0.45));
+    }
+  }
+
+  /* Pill-chip row for community / ecosystem links. Centered, wraps into
+     multiple balanced lines, scales freely as new links are added. */
+  .chip-row {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    margin: 22px auto 0;
+    /* Width tuned so ~3 chips fit per line — guarantees the second row
+       always has at least 2 (e.g. 5 chips → 3+2, 6 chips → 3+3). Without
+       this the row would either single-line on desktop with empty edges
+       or wrap as 4+1, which reads as "one orphan, layout is broken". */
+    max-width: 400px;
+  }
+  .chip-row .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 7px 14px;
+    background: rgba(22, 27, 34, 0.55);
+    border: 1px solid var(--border-strong);
+    color: #cbd5e1;
+    text-decoration: none;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 500;
+    white-space: nowrap;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    transition: background 160ms ease, border-color 160ms ease, color 160ms ease, transform 160ms ease;
+  }
+  .chip-row .chip:hover {
+    background: rgba(255, 255, 255, 0.06);
+    border-color: rgba(255, 255, 255, 0.3);
+    color: #fff;
+    transform: translateY(-1px);
+  }
+  .chip-row .chip svg {
+    width: 16px;
+    height: 16px;
+    opacity: 0.78;
+    flex-shrink: 0;
+    transition: opacity 160ms ease;
+  }
+  .chip-row .chip:hover svg { opacity: 1; }
 
   /* === SECTIONS === */
   section {
@@ -590,6 +699,16 @@
     .toolbar .tool { padding: 9px 12px; font-size: 13px; }
   }
 
+  /* Below ~600 px the four-tool toolbar would naturally wrap as 3+1 (the
+     long "Leaderboard" label gets pushed onto its own line by itself).
+     Cap the toolbar width so only two items fit per row — items keep
+     their natural compact width (no 50%-flex stretching) and wrap as a
+     clean 2+2. The cap is sized to hold the wider of the two rows
+     (Leaderboard + Donate ≈ 240 px) plus toolbar padding. */
+  @media (max-width: 600px) {
+    .toolbar { max-width: 270px; }
+  }
+
   /* === REDUCED MOTION === */
   @media (prefers-reduced-motion: reduce) {
     html { scroll-behavior: auto; }
@@ -646,9 +765,13 @@
         <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.4 3-.405 1.02.005 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg>
         <span>Source</span>
       </a>
-      <a class="tool tool-primary" href="https://github.com/eried/eucplanet/releases">
+      <a class="tool tool-blue" href="https://github.com/eried/eucplanet/releases">
         <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 3a1 1 0 0 1 1 1v9.59l3.3-3.3a1 1 0 1 1 1.4 1.42l-5 5a1 1 0 0 1-1.4 0l-5-5a1 1 0 1 1 1.4-1.42L11 13.6V4a1 1 0 0 1 1-1Zm-7 15a1 1 0 0 1 1 1v1h12v-1a1 1 0 1 1 2 0v2a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-2a1 1 0 0 1 1-1Z"/></svg>
         <span>Download</span>
+      </a>
+      <a class="tool tool-gold" href="https://eucstats.ried.no/" aria-label="EUC Stats leaderboard">
+        <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M19 5h-2V3H7v2H5C3.9 5 3 5.9 3 7v1c0 2.55 1.92 4.63 4.39 4.94.63 1.5 1.98 2.63 3.61 2.96V19H7v2h10v-2h-4v-3.1c1.63-.33 2.98-1.46 3.61-2.96C19.08 12.63 21 10.55 21 8V7c0-1.1-.9-2-2-2zM5 8V7h2v3.82C5.84 10.4 5 9.3 5 8zm14 0c0 1.3-.84 2.4-2 2.82V7h2v1z"/></svg>
+        <span>Leaderboard</span>
       </a>
       <a class="tool" href="https://www.paypal.com/donate/?hosted_button_id=AEB2RPZHNRTKG" aria-label="Donate via PayPal">
         <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
@@ -659,24 +782,28 @@
       <p>Free, open source, no ads, no in-app tracking, no upselling, no subscriptions, no telemetry phoned home, no nonsense.</p>
       <p>Live telemetry, turn-by-turn navigation, a video recorder with on-screen telemetry overlay, a Wear OS dial, and a trip recorder. Modern, fast, all in one app.</p>
     </div>
-    <nav class="toolbar" aria-label="Community &amp; ecosystem">
-      <a class="tool" href="https://eucstats.ried.no/">
-        <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M19 5h-2V3H7v2H5C3.9 5 3 5.9 3 7v1c0 2.55 1.92 4.63 4.39 4.94.63 1.5 1.98 2.63 3.61 2.96V19H7v2h10v-2h-4v-3.1c1.63-.33 2.98-1.46 3.61-2.96C19.08 12.63 21 10.55 21 8V7c0-1.1-.9-2-2-2zM5 8V7h2v3.82C5.84 10.4 5 9.3 5 8zm14 0c0 1.3-.84 2.4-2 2.82V7h2v1z"/></svg>
-        <span>Leaderboard</span>
-      </a>
-      <a class="tool" href="https://eucviewer.ried.no">
-        <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M3 3a1 1 0 0 1 1 1v15h16a1 1 0 1 1 0 2H3a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1Zm17.3 4.3a1 1 0 0 1 0 1.4l-5 5a1 1 0 0 1-1.4 0L11 10.4l-3.3 3.3a1 1 0 1 1-1.4-1.4l4-4a1 1 0 0 1 1.4 0L14.6 11l4.3-4.3a1 1 0 0 1 1.4 0Z"/></svg>
+    <div class="chip-row" aria-label="Community &amp; ecosystem">
+      <a class="chip" href="https://eucviewer.ried.no">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M3 3a1 1 0 0 1 1 1v15h16a1 1 0 1 1 0 2H3a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1Zm17.3 4.3a1 1 0 0 1 0 1.4l-5 5a1 1 0 0 1-1.4 0L11 10.4l-3.3 3.3a1 1 0 1 1-1.4-1.4l4-4a1 1 0 0 1 1.4 0L14.6 11l4.3-4.3a1 1 0 0 1 1.4 0Z"/></svg>
         <span>Trip viewer</span>
       </a>
-      <a class="tool" href="https://t.me/EUCPlanetApp">
-        <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20Zm4.6 6.9-1.5 7.4c-.1.5-.4.6-.9.4l-2.5-1.9-1.2 1.2c-.1.1-.3.2-.5.2l.2-2.7 5-4.5c.2-.2 0-.3-.3-.1L8.4 12 6 11.2c-.5-.2-.5-.5.1-.7l9.7-3.7c.4-.2.8.1.7.6Z"/></svg>
+      <a class="chip" href="https://t.me/EUCPlanetApp">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20Zm4.6 6.9-1.5 7.4c-.1.5-.4.6-.9.4l-2.5-1.9-1.2 1.2c-.1.1-.3.2-.5.2l.2-2.7 5-4.5c.2-.2 0-.3-.3-.1L8.4 12 6 11.2c-.5-.2-.5-.5.1-.7l9.7-3.7c.4-.2.8.1.7.6Z"/></svg>
         <span>Telegram</span>
       </a>
-      <a class="tool" href="https://ideas.ried.no/euc-planet">
-        <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2a7 7 0 0 0-4.2 12.6c.7.5 1.2 1.4 1.2 2.3V18a1 1 0 0 0 1 1h4a1 1 0 0 0 1-1v-1.1c0-.9.5-1.8 1.2-2.3A7 7 0 0 0 12 2Zm-2 19a1 1 0 0 0 1 1h2a1 1 0 0 0 1-1v-.5h-4Z"/></svg>
+      <a class="chip" href="https://ideas.ried.no/euc-planet">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2a7 7 0 0 0-4.2 12.6c.7.5 1.2 1.4 1.2 2.3V18a1 1 0 0 0 1 1h4a1 1 0 0 0 1-1v-1.1c0-.9.5-1.8 1.2-2.3A7 7 0 0 0 12 2Zm-2 19a1 1 0 0 0 1 1h2a1 1 0 0 0 1-1v-.5h-4Z"/></svg>
         <span>Ideas</span>
       </a>
-    </nav>
+      <a class="chip" href="https://apps.garmin.com/apps/630e5d32-637d-4612-84e3-35e6d0bbee10" aria-label="Garmin Connect IQ data field">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M16.4 4.6 16 1H8l-.4 3.6A6.97 6.97 0 0 0 5 10v4c0 2.36 1.18 4.45 3 5.7V23h8v-3.3c1.82-1.25 3-3.34 3-5.7v-4c0-2.18-1-4.13-2.6-5.4zM12 17a5 5 0 1 1 0-10 5 5 0 0 1 0 10z"/></svg>
+        <span>Garmin</span>
+      </a>
+      <a class="chip" href="hud/" aria-label="MotoEye / Android HUD companion">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zm0 12.5a5 5 0 1 1 0-10 5 5 0 0 1 0 10zm0-8a3 3 0 1 0 0 6 3 3 0 0 0 0-6z"/></svg>
+        <span>HUD</span>
+      </a>
+    </div>
   </section>
 
   <section class="reveal">
