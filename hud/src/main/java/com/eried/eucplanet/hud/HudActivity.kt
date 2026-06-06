@@ -43,7 +43,9 @@ class HudActivity : ComponentActivity() {
     // threshold (LONG_PRESS_MS) makes the decision unambiguous: a short tap runs
     // ONLY the short action, a long hold sends ONLY the long action. Keyed by
     // keyCode so simultaneous directions can't clobber each other's timer.
-    private val dpadDownAt = HashMap<Int, Long>()
+    private val dpadHandler = android.os.Handler(android.os.Looper.getMainLooper())
+    private val dpadLongPending = HashMap<Int, Runnable>()
+    private val dpadLongFired = java.util.HashSet<Int>()
     // One shared tile cache for the lifetime of the activity. Both the
     // Map screen and the Custom overlay's MAP element read from this, so
     // tiles fetched on either side stay warm when the rider navigates
@@ -177,8 +179,23 @@ class HudActivity : ComponentActivity() {
             KeyEvent.KEYCODE_DPAD_RIGHT,
             KeyEvent.KEYCODE_DPAD_UP,
             KeyEvent.KEYCODE_DPAD_DOWN -> {
-                if (event?.repeatCount == 0) {
-                    dpadDownAt[keyCode] = android.os.SystemClock.uptimeMillis()
+                if (event?.repeatCount == 0 && !dpadLongPending.containsKey(keyCode)) {
+                    dpadLongFired.remove(keyCode)
+                    val r = Runnable {
+                        dpadLongPending.remove(keyCode)
+                        dpadLongFired.add(keyCode)
+                        val slot = when (keyCode) {
+                            KeyEvent.KEYCODE_DPAD_UP -> "UP"
+                            KeyEvent.KEYCODE_DPAD_DOWN -> "DOWN"
+                            KeyEvent.KEYCODE_DPAD_LEFT -> "LEFT"
+                            else -> "RIGHT"
+                        }
+                        server.sendCommand(
+                            com.eried.eucplanet.hud.protocol.HudCommand.Action(slot)
+                        )
+                    }
+                    dpadLongPending[keyCode] = r
+                    dpadHandler.postDelayed(r, LONG_PRESS_MS)
                 }
                 true
             }
@@ -193,9 +210,9 @@ class HudActivity : ComponentActivity() {
     }
 
     override fun onKeyLongPress(keyCode: Int, event: KeyEvent?): Boolean {
-        // DPAD direction long-press is handled manually in onKeyUp now (see
-        // dpadDownAt), so we don't startTracking() them and this callback never
-        // fires for them. We keep it ONLY for ESC/BACK.
+        // DPAD direction long-press is handled by our own timer (see
+        // dpadLongPending), so we don't startTracking() them and this callback
+        // never fires for them. We keep it ONLY for ESC/BACK.
         //
         // Long-press ESC exits the app (matches the competitor's UX so muscle
         // memory transfers). A short ESC press would interfere with hardware
@@ -207,36 +224,26 @@ class HudActivity : ComponentActivity() {
     }
 
     override fun onKeyUp(keyCode: Int, event: KeyEvent?): Boolean {
-        // Decide short-vs-long for the four DPAD directions from the held
-        // duration we measured ourselves. >= LONG_PRESS_MS sends ONLY the
-        // rider-configured long action to the phone; a shorter tap runs ONLY
-        // the screen-specific short behaviour. Either way exactly one fires.
+        // Short-vs-long for the four DPAD directions is decided by the timer
+        // armed in onKeyDown: if it already fired the long action we swallow the
+        // release, otherwise this was a short tap and we run the screen
+        // behaviour. Exactly one of the two ever runs.
         when (keyCode) {
             KeyEvent.KEYCODE_DPAD_UP,
             KeyEvent.KEYCODE_DPAD_DOWN,
             KeyEvent.KEYCODE_DPAD_LEFT,
             KeyEvent.KEYCODE_DPAD_RIGHT -> {
-                val downAt = dpadDownAt.remove(keyCode)
-                // No recorded down (e.g. key-up without our key-down): ignore.
-                if (downAt == null) return true
-                val held = android.os.SystemClock.uptimeMillis() - downAt
-                if (held >= LONG_PRESS_MS) {
-                    val slot = when (keyCode) {
-                        KeyEvent.KEYCODE_DPAD_UP -> "UP"
-                        KeyEvent.KEYCODE_DPAD_DOWN -> "DOWN"
-                        KeyEvent.KEYCODE_DPAD_LEFT -> "LEFT"
-                        else -> "RIGHT"
-                    }
-                    server.sendCommand(
-                        com.eried.eucplanet.hud.protocol.HudCommand.Action(slot)
-                    )
-                } else {
-                    when (keyCode) {
-                        KeyEvent.KEYCODE_DPAD_UP -> controller.upAction()
-                        KeyEvent.KEYCODE_DPAD_DOWN -> controller.downAction()
-                        KeyEvent.KEYCODE_DPAD_LEFT -> controller.previousScreen()
-                        KeyEvent.KEYCODE_DPAD_RIGHT -> controller.nextScreen()
-                    }
+                // Short tap: the long timer is still pending -- cancel it and run
+                // the screen behaviour. Long hold: the timer already fired the
+                // configured action and set the flag, so swallow the release and
+                // run NO short action.
+                dpadLongPending.remove(keyCode)?.let { dpadHandler.removeCallbacks(it) }
+                if (dpadLongFired.remove(keyCode)) return true
+                when (keyCode) {
+                    KeyEvent.KEYCODE_DPAD_UP -> controller.upAction()
+                    KeyEvent.KEYCODE_DPAD_DOWN -> controller.downAction()
+                    KeyEvent.KEYCODE_DPAD_LEFT -> controller.previousScreen()
+                    KeyEvent.KEYCODE_DPAD_RIGHT -> controller.nextScreen()
                 }
                 return true
             }
@@ -249,6 +256,6 @@ class HudActivity : ComponentActivity() {
          *  hold (configured button action). 450 ms is comfortably above an
          *  accidental long tap yet short enough to feel intentional on the
          *  MotoEye remote. */
-        const val LONG_PRESS_MS: Long = 450L
+        const val LONG_PRESS_MS: Long = 350L
     }
 }
