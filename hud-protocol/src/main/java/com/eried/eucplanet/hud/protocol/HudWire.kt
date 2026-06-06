@@ -279,6 +279,15 @@ sealed class HudCommand {
     /** Stop the current navigation route. */
     @Serializable
     data object StopNavigation : HudCommand()
+
+    /** Fire a configurable phone-side action bound to a HUD joystick long-press.
+     *  [slot] is the direction: "UP" / "DOWN" / "LEFT" / "RIGHT". The phone maps
+     *  the slot to a configured ActionCatalog key (config lives on the phone,
+     *  like Flic / Wear) and dispatches it. Older phones that predate this
+     *  command will reject the frame; the HUD only sends it once paired, so a
+     *  protocol-version mismatch surfaces as the usual "update phone" hint. */
+    @Serializable
+    data class Action(val slot: String) : HudCommand()
 }
 
 /**

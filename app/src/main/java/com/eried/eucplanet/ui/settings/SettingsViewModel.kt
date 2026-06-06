@@ -457,6 +457,13 @@ class SettingsViewModel @Inject constructor(
         copy(hudServerPort = v.coerceIn(1024, 65535))
     }
     fun updateHudIp(v: String) = update { copy(hudIp = v.trim()) }
+
+    // HUD joystick long-press action bindings (UP / DOWN / LEFT / RIGHT). Same
+    // ActionCatalog vocabulary as Flic / Volume keys; "NONE" = unbound.
+    fun updateHudActionUp(v: String) = update { copy(hudActionUp = v) }
+    fun updateHudActionDown(v: String) = update { copy(hudActionDown = v) }
+    fun updateHudActionLeft(v: String) = update { copy(hudActionLeft = v) }
+    fun updateHudActionRight(v: String) = update { copy(hudActionRight = v) }
     /**
      * Set the HUD's "Custom" screen to mirror an Overlay Studio preset.
      * Caller supplies the resolved JSON so the ViewModel doesn't need to

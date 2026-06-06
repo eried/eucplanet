@@ -9100,11 +9100,44 @@ private fun HudIntegrationSection(
             onCheckedChange = { viewModel.updateHudServerEnabled(it) }
         )
 
-        // Two top-level collapsibles under the Integration card.
+        // Three top-level collapsibles under the Integration card.
         // HUD screens first because the reorder list inside is the
-        // primary repeat-visit destination; Map options second.
+        // primary repeat-visit destination; Map options second;
+        // Joystick actions last (set-once bindings).
         HudScreensCard(settings = settings, viewModel = viewModel)
         HudMapOptionsCard(settings = settings, viewModel = viewModel)
+        HudJoystickCard(settings = settings, viewModel = viewModel)
+    }
+}
+
+/** HUD joystick long-press bindings: one action picker per direction.
+ *  Reuses the same [ActionDropdown] (VOLUME_KEY action vocabulary) as the
+ *  Volume keys section so the rider sees a consistent eyes-free action set;
+ *  each picker persists through its own ViewModel setter. */
+@Composable
+private fun HudJoystickCard(
+    settings: com.eried.eucplanet.data.model.AppSettings,
+    viewModel: SettingsViewModel
+) {
+    AdvancedCollapsable(
+        title = stringResource(R.string.hud_joystick_title),
+        stateKey = "hud_joystick"
+    ) {
+        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            HintText(stringResource(R.string.hud_joystick_desc), small = true)
+            ActionDropdown(stringResource(R.string.hud_joystick_up), settings.hudActionUp) {
+                viewModel.updateHudActionUp(it)
+            }
+            ActionDropdown(stringResource(R.string.hud_joystick_down), settings.hudActionDown) {
+                viewModel.updateHudActionDown(it)
+            }
+            ActionDropdown(stringResource(R.string.hud_joystick_left), settings.hudActionLeft) {
+                viewModel.updateHudActionLeft(it)
+            }
+            ActionDropdown(stringResource(R.string.hud_joystick_right), settings.hudActionRight) {
+                viewModel.updateHudActionRight(it)
+            }
+        }
     }
 }
 

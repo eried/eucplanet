@@ -209,6 +209,10 @@ object SettingsJson {
         put("navSolveFullPath", s.navSolveFullPath)
         put("watchShowNavigation", s.watchShowNavigation)
         put("hudServerEnabled", s.hudServerEnabled)
+        put("hudActionUp", s.hudActionUp)
+        put("hudActionDown", s.hudActionDown)
+        put("hudActionLeft", s.hudActionLeft)
+        put("hudActionRight", s.hudActionRight)
         put("hudServerPort", s.hudServerPort)
         put("hudIp", s.hudIp)
         put("hudCustomOverlayName", s.hudCustomOverlayName)
@@ -410,6 +414,10 @@ object SettingsJson {
         navSolveFullPath = j.optBoolean("navSolveFullPath", base.navSolveFullPath),
         watchShowNavigation = j.optBoolean("watchShowNavigation", base.watchShowNavigation),
         hudServerEnabled = j.optBoolean("hudServerEnabled", base.hudServerEnabled),
+        hudActionUp = j.optString("hudActionUp", base.hudActionUp),
+        hudActionDown = j.optString("hudActionDown", base.hudActionDown),
+        hudActionLeft = j.optString("hudActionLeft", base.hudActionLeft),
+        hudActionRight = j.optString("hudActionRight", base.hudActionRight),
         hudServerPort = j.optInt("hudServerPort", base.hudServerPort),
         hudIp = j.optString("hudIp", base.hudIp),
         hudCustomOverlayName = j.optString("hudCustomOverlayName", base.hudCustomOverlayName),

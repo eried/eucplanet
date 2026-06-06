@@ -35,6 +35,10 @@ class HudActivity : ComponentActivity() {
 
     private lateinit var server: HudServer
     private lateinit var controller: HudUiController
+    // Set true by onKeyLongPress when a DPAD direction long-press fired a HUD
+    // joystick action, so the matching onKeyUp doesn't ALSO run the short-press
+    // carousel move. Reset on every key-up.
+    private var longPressConsumed = false
     // One shared tile cache for the lifetime of the activity. Both the
     // Map screen and the Custom overlay's MAP element read from this, so
     // tiles fetched on either side stay warm when the rider navigates
@@ -156,12 +160,22 @@ class HudActivity : ComponentActivity() {
         // covering everything.
         controller.dismissDisconnectedModal()
         return when (keyCode) {
+            // The four DPAD directions are dual-action: a SHORT press keeps the
+            // carousel behaviour (fired in onKeyUp), a LONG press fires the
+            // rider-configured HUD joystick action (fired in onKeyLongPress).
+            // We can't decide which yet on key-down, so we arm long-press
+            // tracking and defer the short-press behaviour to onKeyUp.
             KeyEvent.KEYCODE_DPAD_LEFT,
-            KeyEvent.KEYCODE_BUTTON_L1 -> { controller.previousScreen(); true }
             KeyEvent.KEYCODE_DPAD_RIGHT,
+            KeyEvent.KEYCODE_DPAD_UP,
+            KeyEvent.KEYCODE_DPAD_DOWN -> {
+                if (event?.repeatCount == 0) event.startTracking()
+                true
+            }
+            // L1 / R1 stay immediate -- they're the dedicated prev/next screen
+            // buttons with no long-press meaning.
+            KeyEvent.KEYCODE_BUTTON_L1 -> { controller.previousScreen(); true }
             KeyEvent.KEYCODE_BUTTON_R1 -> { controller.nextScreen(); true }
-            KeyEvent.KEYCODE_DPAD_UP -> { controller.upAction(); true }
-            KeyEvent.KEYCODE_DPAD_DOWN -> { controller.downAction(); true }
             KeyEvent.KEYCODE_DPAD_CENTER,
             KeyEvent.KEYCODE_ENTER -> { controller.centerAction(); true }
             else -> super.onKeyDown(keyCode, event)
@@ -169,6 +183,22 @@ class HudActivity : ComponentActivity() {
     }
 
     override fun onKeyLongPress(keyCode: Int, event: KeyEvent?): Boolean {
+        // Long-press on a DPAD direction fires the configurable HUD joystick
+        // action: we ship the slot to the phone, which maps it to a bound
+        // ActionCatalog key and dispatches eyes-free. Setting longPressConsumed
+        // stops the matching onKeyUp from also moving the carousel.
+        val slot = when (keyCode) {
+            KeyEvent.KEYCODE_DPAD_UP -> "UP"
+            KeyEvent.KEYCODE_DPAD_DOWN -> "DOWN"
+            KeyEvent.KEYCODE_DPAD_LEFT -> "LEFT"
+            KeyEvent.KEYCODE_DPAD_RIGHT -> "RIGHT"
+            else -> null
+        }
+        if (slot != null) {
+            server.sendCommand(com.eried.eucplanet.hud.protocol.HudCommand.Action(slot))
+            longPressConsumed = true
+            return true
+        }
         // Long-press ESC exits the app (matches the competitor's UX so muscle
         // memory transfers). A short ESC press would interfere with hardware
         // back behaviours we may want later, so we keep it as a long press.
@@ -176,5 +206,29 @@ class HudActivity : ComponentActivity() {
             finish(); return true
         }
         return super.onKeyLongPress(keyCode, event)
+    }
+
+    override fun onKeyUp(keyCode: Int, event: KeyEvent?): Boolean {
+        // The short-press carousel behaviour the DPAD directions USED to run in
+        // onKeyDown now fires here, but only when a long-press didn't already
+        // consume this gesture.
+        when (keyCode) {
+            KeyEvent.KEYCODE_DPAD_UP,
+            KeyEvent.KEYCODE_DPAD_DOWN,
+            KeyEvent.KEYCODE_DPAD_LEFT,
+            KeyEvent.KEYCODE_DPAD_RIGHT -> {
+                if (!longPressConsumed) {
+                    when (keyCode) {
+                        KeyEvent.KEYCODE_DPAD_UP -> controller.upAction()
+                        KeyEvent.KEYCODE_DPAD_DOWN -> controller.downAction()
+                        KeyEvent.KEYCODE_DPAD_LEFT -> controller.previousScreen()
+                        KeyEvent.KEYCODE_DPAD_RIGHT -> controller.nextScreen()
+                    }
+                }
+                longPressConsumed = false
+                return true
+            }
+        }
+        return super.onKeyUp(keyCode, event)
     }
 }

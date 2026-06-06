@@ -422,6 +422,19 @@ data class AppSettings(
      */
     val hudServerEnabled: Boolean = com.eried.eucplanet.BuildConfig.DEBUG,
     /**
+     * HUD joystick long-press bindings. The HUD's IR remote / joystick fires a
+     * long-press in one of four directions; the HUD sends an
+     * [com.eried.eucplanet.hud.protocol.HudCommand.Action] with the slot name and
+     * the PHONE decides what to do, so the action vocabulary matches Flic / Volume
+     * keys / Wear. Stored as an ActionCatalog key (e.g. "HORN", "VOICE_ANNOUNCE")
+     * or "NONE" for unbound. All default to "NONE" so the joystick keeps its
+     * existing short-press carousel behaviour until the rider binds something.
+     */
+    val hudActionUp: String = "NONE",
+    val hudActionDown: String = "NONE",
+    val hudActionLeft: String = "NONE",
+    val hudActionRight: String = "NONE",
+    /**
      * TCP port to dial on the HUD. Default mirrors `HudDiscovery.DEFAULT_PORT`.
      * Exposed as a setting because some carrier-grade hotspots refuse to
      * route certain port ranges; riders rarely need to touch it.
