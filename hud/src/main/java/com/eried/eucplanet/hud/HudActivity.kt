@@ -46,6 +46,7 @@ class HudActivity : ComponentActivity() {
     private val dpadHandler = android.os.Handler(android.os.Looper.getMainLooper())
     private val dpadLongPending = HashMap<Int, Runnable>()
     private val dpadLongFired = java.util.HashSet<Int>()
+    private val dpadShortPending = HashMap<Int, Runnable>()
     // One shared tile cache for the lifetime of the activity. Both the
     // Map screen and the Custom overlay's MAP element read from this, so
     // tiles fetched on either side stay warm when the rider navigates
@@ -151,6 +152,7 @@ class HudActivity : ComponentActivity() {
     }
 
     override fun onDestroy() {
+        dpadHandler.removeCallbacksAndMessages(null)
         server.stop()
         super.onDestroy()
     }
@@ -179,8 +181,13 @@ class HudActivity : ComponentActivity() {
             KeyEvent.KEYCODE_DPAD_RIGHT,
             KeyEvent.KEYCODE_DPAD_UP,
             KeyEvent.KEYCODE_DPAD_DOWN -> {
-                if (event?.repeatCount == 0 && !dpadLongPending.containsKey(keyCode)) {
-                    dpadLongFired.remove(keyCode)
+                // A hold arrives as a stream of ~30 ms down/up PAIRS, not one
+                // sustained press. A down cancels any pending release (the hold
+                // is still going) and, if no session is running yet, starts one:
+                // a timer that fires the configured LONG action once we cross the
+                // threshold. The session lives until a debounced release.
+                dpadShortPending.remove(keyCode)?.let { dpadHandler.removeCallbacks(it) }
+                if (!dpadLongPending.containsKey(keyCode) && keyCode !in dpadLongFired) {
                     val r = Runnable {
                         dpadLongPending.remove(keyCode)
                         dpadLongFired.add(keyCode)
@@ -233,18 +240,24 @@ class HudActivity : ComponentActivity() {
             KeyEvent.KEYCODE_DPAD_DOWN,
             KeyEvent.KEYCODE_DPAD_LEFT,
             KeyEvent.KEYCODE_DPAD_RIGHT -> {
-                // Short tap: the long timer is still pending -- cancel it and run
-                // the screen behaviour. Long hold: the timer already fired the
-                // configured action and set the flag, so swallow the release and
-                // run NO short action.
-                dpadLongPending.remove(keyCode)?.let { dpadHandler.removeCallbacks(it) }
-                if (dpadLongFired.remove(keyCode)) return true
-                when (keyCode) {
-                    KeyEvent.KEYCODE_DPAD_UP -> controller.upAction()
-                    KeyEvent.KEYCODE_DPAD_DOWN -> controller.downAction()
-                    KeyEvent.KEYCODE_DPAD_LEFT -> controller.previousScreen()
-                    KeyEvent.KEYCODE_DPAD_RIGHT -> controller.nextScreen()
+                // Debounced release: rescheduled on every up, it only runs when
+                // no new down arrives within the window (a real release, not the
+                // gap between hold pairs). Then: if the long action already fired
+                // we swallow it; otherwise this was a tap -> run the screen action.
+                dpadShortPending.remove(keyCode)?.let { dpadHandler.removeCallbacks(it) }
+                val r = Runnable {
+                    dpadShortPending.remove(keyCode)
+                    dpadLongPending.remove(keyCode)?.let { dpadHandler.removeCallbacks(it) }
+                    if (dpadLongFired.remove(keyCode)) return@Runnable
+                    when (keyCode) {
+                        KeyEvent.KEYCODE_DPAD_UP -> controller.upAction()
+                        KeyEvent.KEYCODE_DPAD_DOWN -> controller.downAction()
+                        KeyEvent.KEYCODE_DPAD_LEFT -> controller.previousScreen()
+                        KeyEvent.KEYCODE_DPAD_RIGHT -> controller.nextScreen()
+                    }
                 }
+                dpadShortPending[keyCode] = r
+                dpadHandler.postDelayed(r, DPAD_RELEASE_DEBOUNCE_MS)
                 return true
             }
         }
@@ -257,5 +270,11 @@ class HudActivity : ComponentActivity() {
          *  accidental long tap yet short enough to feel intentional on the
          *  MotoEye remote. */
         const val LONG_PRESS_MS: Long = 350L
+        /** A hold streams as ~30 ms down/up PAIRS (the emulator, and some
+         *  remotes, don't send a sustained press). We debounce the release by
+         *  this much: a new down inside the window means the hold continues;
+         *  only a clean release ends the session. Well above the ~2 ms inter-pair
+         *  gap, low enough to keep a tap feeling instant. */
+        const val DPAD_RELEASE_DEBOUNCE_MS: Long = 90L
     }
 }
