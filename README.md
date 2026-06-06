@@ -5,6 +5,7 @@
 [![Google Play](https://img.shields.io/badge/Google_Play-EUC_Planet-3DDC84?logo=googleplay&logoColor=white)](https://play.google.com/store/apps/details?id=com.eried.eucplanet)
 [![Garmin Connect IQ](https://img.shields.io/badge/Connect_IQ-EUC_Planet-007CC3?logo=garmin&logoColor=white)](https://apps.garmin.com/apps/630e5d32-637d-4612-84e3-35e6d0bbee10)
 [![Telegram](https://img.shields.io/badge/Telegram-EUCPlanetApp-26A5E4?logo=telegram&logoColor=white)](https://t.me/EUCPlanetApp)
+[![Leaderboard](https://img.shields.io/badge/Leaderboard-eucstats.ried.no-FF8F00)](https://eucstats.ried.no/)
 [![Donate](https://img.shields.io/badge/Donate-PayPal-00457C?logo=paypal&logoColor=white)](https://www.paypal.com/donate/?hosted_button_id=AEB2RPZHNRTKG)
 [![Downloads](https://img.shields.io/github/downloads/eried/eucplanet/total)](https://github.com/eried/eucplanet/releases)
 
@@ -86,7 +87,9 @@ recording.
 
 **Trip recording.** GPS and telemetry to DarknessBot-compatible CSV, auto-record,
 live track preview, and a trip list with quick export and share. View them later in
-the [web Trip Viewer](https://github.com/eried/eucviewer).
+the [web Trip Viewer](https://github.com/eried/eucviewer), or opt in to share them on
+the [EUC Stats leaderboard](https://eucstats.ried.no/) and rank your distance against
+riders worldwide, by country.
 
 **Automations.** Auto Lights on before sunset, off after sunrise, from live GPS.
 Handles midnight sun and polar night (I live in the arctic circle 🧐). Auto Volume
