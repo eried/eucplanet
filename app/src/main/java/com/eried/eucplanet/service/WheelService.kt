@@ -429,8 +429,13 @@ class WheelService : LifecycleService() {
         voiceJob?.cancel()
         voiceJob = lifecycleScope.launch {
             while (true) {
+                delay(settingsRepository.get().voiceIntervalSeconds * 1000L)
+                // Re-read settings *after* the wait, not before it. If the rider
+                // turns "Report status periodically" off during the countdown, the
+                // pending report is dropped instead of one last one slipping through.
+                // Only this periodic report is gated here — alarm/trigger/nav voice
+                // lives on separate paths and is unaffected.
                 val settings = settingsRepository.get()
-                delay(settings.voiceIntervalSeconds * 1000L)
                 if (settings.voiceEnabled && settings.voicePeriodicEnabled) {
                     val connected = wheelRepository.connectionState.value == ConnectionState.CONNECTED
                     if (settings.voiceOnlyWhenConnected && !connected) continue
