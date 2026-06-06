@@ -1,4 +1,8 @@
-- Each metric's MIN/MAX caption, plus the map and camera icons, now have their own theme colors you can edit independently.
-- Multi-metric tiles keep the standard tile height instead of breaking the dashboard layout.
-- Fixed the color identifier freezing on some phones when you tap Identify.
-- The theme editor widget and the color-identifier window are now 90% opaque, and the widget hides while you aim the eyedropper.
+🧪 Beta build — you get new features before they reach the stable release.
+
+A lot is new since 0.9:
+🏆 Online leaderboard (eucstats) — share trips, rank by country
+🎨 Custom themes + live theme editor
+🚗 Varia rear-view radar
+🧭 Turn-by-turn Navigator improvements
+📟 Helmet HUD improvements
