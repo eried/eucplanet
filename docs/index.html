@@ -403,8 +403,9 @@
     }
   }
 
-  /* Pill-chip row for community / ecosystem links. Centered, wraps into
-     multiple balanced lines, scales freely as new links are added. */
+  /* Pill-chip row for community / ecosystem links. Centered; sits on a
+     single line when there's room and only wraps when the viewport is too
+     narrow to fit them all. Scales freely as new links are added. */
   .chip-row {
     display: flex;
     flex-wrap: wrap;
@@ -412,11 +413,6 @@
     align-items: center;
     gap: 8px;
     margin: 22px auto 0;
-    /* Width tuned so ~3 chips fit per line — guarantees the second row
-       always has at least 2 (e.g. 5 chips → 3+2, 6 chips → 3+3). Without
-       this the row would either single-line on desktop with empty edges
-       or wrap as 4+1, which reads as "one orphan, layout is broken". */
-    max-width: 400px;
   }
   .chip-row .chip {
     display: inline-flex;
