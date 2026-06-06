@@ -315,8 +315,33 @@ class FlicManager @Inject constructor(
         if (key.isEmpty() || key == "NONE") return
         _lastActionAt.value = System.currentTimeMillis()
         Log.d(TAG, "executeAction key=$key")
+
+        // Shared precondition gate (chokepoint A). Every eyes-free surface
+        // funnels here, so this single check covers Flic, volume keys, the
+        // dashboard tiles, the watch, the HUD long-press and Garmin `action:`.
+        val connected = wheelRepository.connectionState.value ==
+            com.eried.eucplanet.ble.ConnectionState.CONNECTED
         if (CustomBleCommand.isCustomBleId(key)) {
+            // Custom frames go straight to the wheel; skip + log when there's
+            // nothing to send them to.
+            if (!connected) {
+                Log.i(TAG, "custom BLE $key blocked: precondition not met (connected=false)")
+                return
+            }
             dispatchCustomBle(key, settings)
+            return
+        }
+        // Catalog-driven gate: enabledReader == false means "must not fire
+        // right now". Null reader = always allowed.
+        val spec = com.eried.eucplanet.data.model.ActionCatalog.byKey(key)
+        val ctx = com.eried.eucplanet.data.model.StatusContext(
+            wheel = wheelRepository.wheelData.value,
+            tripRecording = tripRepository.recording.value,
+            safetyActive = wheelRepository.safetySpeedActive.value,
+            connected = connected
+        )
+        if (spec?.enabledReader?.invoke(ctx) == false) {
+            Log.i(TAG, "action $key blocked: precondition not met (connected=$connected)")
             return
         }
         when (key) {
