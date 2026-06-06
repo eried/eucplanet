@@ -438,8 +438,16 @@ class WheelService : LifecycleService() {
                 val settings = settingsRepository.get()
                 if (settings.voiceEnabled && settings.voicePeriodicEnabled) {
                     val connected = wheelRepository.connectionState.value == ConnectionState.CONNECTED
-                    if (settings.voiceOnlyWhenConnected && !connected) continue
                     val data = wheelRepository.wheelData.value
+                    // "RIDING" means actually moving; 0.5 km/h matches the app's
+                    // "stationary" threshold so sensor jitter at a stop stays quiet.
+                    val moving = connected && kotlin.math.abs(data.speed) >= 0.5f
+                    val allowed = when (settings.voiceAnnounceWhen) {
+                        "ALWAYS" -> true
+                        "RIDING" -> moving
+                        else -> connected   // "CONNECTED" + any legacy/unknown value
+                    }
+                    if (!allowed) continue
                     voiceService.announceStatus(data, settings, isRecording = tripRepository.recording.value)
                 }
             }

@@ -270,7 +270,7 @@ class SettingsViewModel @Inject constructor(
     fun updateSafetyAlarm(value: Float) =
         update { copy(safetyAlarmKmh = value, safetyTiltbackKmh = safetyTiltbackKmh.coerceAtLeast(value)) }
     fun updateVoiceEnabled(enabled: Boolean) = update { copy(voiceEnabled = enabled) }
-    fun updateVoiceOnlyWhenConnected(enabled: Boolean) = update { copy(voiceOnlyWhenConnected = enabled) }
+    fun updateVoiceAnnounceWhen(value: String) = update { copy(voiceAnnounceWhen = value) }
     fun updateVoiceInterval(seconds: Int) = update { copy(voiceIntervalSeconds = seconds) }
     fun updateVoiceSpeechRate(v: Float) = update { copy(voiceSpeechRate = v) }
     fun updateVoiceReportSpeed(v: Boolean) = update { copy(voiceReportSpeed = v) }

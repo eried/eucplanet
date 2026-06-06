@@ -79,7 +79,7 @@ object SettingsJson {
         put("wheelNameDisplay", s.wheelNameDisplay)
         put("voiceEnabled", s.voiceEnabled)
         put("voicePeriodicEnabled", s.voicePeriodicEnabled)
-        put("voiceOnlyWhenConnected", s.voiceOnlyWhenConnected)
+        put("voiceAnnounceWhen", s.voiceAnnounceWhen)
         put("voiceIntervalSeconds", s.voiceIntervalSeconds)
         put("voiceSpeechRate", s.voiceSpeechRate)
         put("voiceLocale", s.voiceLocale)
@@ -277,7 +277,11 @@ object SettingsJson {
         wheelNameDisplay = j.optString("wheelNameDisplay", base.wheelNameDisplay),
         voiceEnabled = j.optBoolean("voiceEnabled", base.voiceEnabled),
         voicePeriodicEnabled = j.optBoolean("voicePeriodicEnabled", base.voicePeriodicEnabled),
-        voiceOnlyWhenConnected = j.optBoolean("voiceOnlyWhenConnected", base.voiceOnlyWhenConnected),
+        voiceAnnounceWhen = j.optString(
+            "voiceAnnounceWhen",
+            // Migrate the old boolean: connected-only → "CONNECTED", else "ALWAYS".
+            if (j.optBoolean("voiceOnlyWhenConnected", true)) "CONNECTED" else "ALWAYS"
+        ),
         voiceIntervalSeconds = j.optInt("voiceIntervalSeconds", base.voiceIntervalSeconds),
         voiceSpeechRate = j.optDouble("voiceSpeechRate", base.voiceSpeechRate.toDouble()).toFloat(),
         voiceLocale = j.optString("voiceLocale", base.voiceLocale),

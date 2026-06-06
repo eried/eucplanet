@@ -55,7 +55,11 @@ data class AppSettings(
     // voice still works for triggered events (manual button, Flic, alarms) but the periodic
     // loop is silent. Toggled from the dashboard via long-press on the Voice action.
     val voicePeriodicEnabled: Boolean = true,
-    val voiceOnlyWhenConnected: Boolean = true,
+    // When the periodic status report may speak, in increasing restriction:
+    // "ALWAYS" (even while disconnected), "CONNECTED" (only with a wheel
+    // connected), "RIDING" (only while connected and actually moving).
+    // Migrated from the old voiceOnlyWhenConnected boolean.
+    val voiceAnnounceWhen: String = "CONNECTED",
     val voiceIntervalSeconds: Int = 60,
     val voiceSpeechRate: Float = 1.2f,
     val voiceLocale: String = "en_US",  // locale tag for TTS voice

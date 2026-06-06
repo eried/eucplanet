@@ -99,8 +99,10 @@ class MainActivity : AppCompatActivity() {
         val s = _settings.value
         val needsServiceForBackgroundFeature = s != null && canStartWheelService() && (
             // Voice loop needs the service alive between rides so the periodic
-            // announcement keeps firing even before a wheel is connected.
-            (s.voiceEnabled && !s.voiceOnlyWhenConnected) ||
+            // announcement keeps firing even before a wheel is connected — but
+            // only in "ALWAYS" mode; the connected/riding modes have nothing to
+            // say until a wheel is on the line.
+            (s.voiceEnabled && s.voiceAnnounceWhen == "ALWAYS") ||
             // HUD companion: the embedded HTTP/SSE server lives inside
             // WheelService, so we need the service running for the HUD to
             // pair even before a wheel is on the line.
@@ -271,7 +273,7 @@ class MainActivity : AppCompatActivity() {
                     val forceHud = com.eried.eucplanet.hud.protocol.HudDebug
                         .read("debug.eucplanet.hud.force") == "true"
                     val needsService = canStartWheelService() && (
-                        (it.voiceEnabled && !it.voiceOnlyWhenConnected) ||
+                        (it.voiceEnabled && it.voiceAnnounceWhen == "ALWAYS") ||
                         it.hudServerEnabled ||
                         forceHud
                     )

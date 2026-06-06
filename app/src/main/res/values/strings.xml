@@ -573,6 +573,10 @@
     <string name="section_report_status">Report status</string>
     <string name="voice_enabled">Report status periodically</string>
     <string name="voice_only_when_connected">Only when wheel is connected</string>
+    <string name="voice_announce_when_label">Announce</string>
+    <string name="voice_announce_always">Always</string>
+    <string name="voice_announce_connected">Wheel connected</string>
+    <string name="voice_announce_riding">When riding</string>
     <string name="voice_interval">Interval</string>
     <string name="unit_sec">sec</string>
     <string name="announce_wheel_lock">Wheel lock / unlock</string>

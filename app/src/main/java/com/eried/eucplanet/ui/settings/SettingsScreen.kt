@@ -5574,9 +5574,10 @@ private fun VoiceTab(
         }
 
         if (settings.voiceEnabled) {
-            SwitchSetting(stringResource(R.string.voice_only_when_connected), settings.voiceOnlyWhenConnected) {
-                viewModel.updateVoiceOnlyWhenConnected(it)
-            }
+            AnnounceWhenSelector(
+                current = settings.voiceAnnounceWhen,
+                onChange = { viewModel.updateVoiceAnnounceWhen(it) }
+            )
             SliderSetting(
                 label = stringResource(R.string.voice_interval),
                 value = settings.voiceIntervalSeconds.toFloat(),
@@ -7976,6 +7977,24 @@ private fun OutputChannelSelector(
     )
     SegmentedChoice(
         label = stringResource(R.string.voice_output_channel_label),
+        options = options,
+        current = current,
+        onChange = onChange
+    )
+}
+
+@Composable
+private fun AnnounceWhenSelector(
+    current: String,
+    onChange: (String) -> Unit
+) {
+    val options = listOf(
+        "ALWAYS" to stringResource(R.string.voice_announce_always),
+        "CONNECTED" to stringResource(R.string.voice_announce_connected),
+        "RIDING" to stringResource(R.string.voice_announce_riding)
+    )
+    SegmentedChoice(
+        label = stringResource(R.string.voice_announce_when_label),
         options = options,
         current = current,
         onChange = onChange
