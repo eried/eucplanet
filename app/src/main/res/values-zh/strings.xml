@@ -1370,7 +1370,7 @@
     <string name="online_upload_consent_bullet_flag">你的国家旗帜</string>
     <string name="online_upload_consent_bullet_avatar">你的头像照片</string>
     <string name="online_upload_consent_bullet_stats">你的整体骑行数据，如里程和速度</string>
-    <string name="online_upload_consent_bullet_location">行程的起终点位置，精度在 10 km（6 mi）或更大范围内</string>
+    <string name="online_upload_consent_bullet_location">为保护隐私，位置会被聚合到地图上的大片区域</string>
     <string name="online_upload_consent_no_raw_gps">原始 GPS 轨迹永不公开。</string>
     <string name="online_upload_consent_agree">同意并继续</string>
 

@@ -1387,7 +1387,7 @@
     <string name="online_upload_consent_bullet_flag">Deine Landesflagge</string>
     <string name="online_upload_consent_bullet_avatar">Dein Profilfoto</string>
     <string name="online_upload_consent_bullet_stats">Deine Gesamtfahrstatistiken, wie Distanz und Geschwindigkeit</string>
-    <string name="online_upload_consent_bullet_location">Start- und Endpunkte der Fahrten, zusammengefasst auf Bereiche von 10 km (6 mi) oder größer</string>
+    <string name="online_upload_consent_bullet_location">Standorte werden zum Schutz der Privatsphäre zu großen Kartenbereichen zusammengefasst</string>
     <string name="online_upload_consent_no_raw_gps">Rohe GPS-Spuren werden nie veröffentlicht.</string>
     <string name="online_upload_consent_agree">Zustimmen &amp; weiter</string>
 

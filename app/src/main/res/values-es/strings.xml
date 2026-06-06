@@ -1387,7 +1387,7 @@
     <string name="online_upload_consent_bullet_flag">La bandera de tu país</string>
     <string name="online_upload_consent_bullet_avatar">Tu foto de perfil</string>
     <string name="online_upload_consent_bullet_stats">Tus estadísticas globales de rodaje, como distancia y velocidad</string>
-    <string name="online_upload_consent_bullet_location">Puntos de inicio y fin de los viajes, agrupados en zonas de 10 km (6 mi) o más</string>
+    <string name="online_upload_consent_bullet_location">Las ubicaciones se agrupan en amplias zonas del mapa para proteger tu privacidad</string>
     <string name="online_upload_consent_no_raw_gps">Los tracks GPS en bruto nunca se publican.</string>
     <string name="online_upload_consent_agree">Aceptar y continuar</string>
 

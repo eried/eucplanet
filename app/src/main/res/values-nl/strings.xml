@@ -1406,7 +1406,7 @@
     <string name="online_upload_consent_bullet_flag">Je landvlag</string>
     <string name="online_upload_consent_bullet_avatar">Je profielfoto</string>
     <string name="online_upload_consent_bullet_stats">Je totale rijstatistieken, zoals afstand en snelheid</string>
-    <string name="online_upload_consent_bullet_location">Start- en eindlocaties van ritten, gegroepeerd in gebieden van 10 km (6 mi) of groter</string>
+    <string name="online_upload_consent_bullet_location">Locaties worden voor je privacy samengevoegd tot brede gebieden op de kaart</string>
     <string name="online_upload_consent_no_raw_gps">Ruwe GPS-tracks worden nooit gepubliceerd.</string>
     <string name="online_upload_consent_agree">Akkoord en doorgaan</string>
 

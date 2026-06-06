@@ -1370,7 +1370,7 @@
     <string name="online_upload_consent_bullet_flag">Ton drapeau de pays</string>
     <string name="online_upload_consent_bullet_avatar">Ta photo de profil</string>
     <string name="online_upload_consent_bullet_stats">Tes stats globales : distance, vitesse, etc.</string>
-    <string name="online_upload_consent_bullet_location">Zones de départ/arrivée de tes trajets, regroupées par zones de 10 km (6 mi) ou plus</string>
+    <string name="online_upload_consent_bullet_location">Les positions sont regroupées en larges zones de la carte pour préserver ta confidentialité</string>
     <string name="online_upload_consent_no_raw_gps">Les traces GPS brutes ne sont jamais publiées.</string>
     <string name="online_upload_consent_agree">Accepter &amp; continuer</string>
 

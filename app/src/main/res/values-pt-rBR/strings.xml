@@ -1406,7 +1406,7 @@
     <string name="online_upload_consent_bullet_flag">Sua bandeira de país</string>
     <string name="online_upload_consent_bullet_avatar">Sua foto de avatar</string>
     <string name="online_upload_consent_bullet_stats">Suas estatísticas gerais, como distância e velocidade</string>
-    <string name="online_upload_consent_bullet_location">Localização de início/fim das viagens, agrupada em áreas de 10 km (6 mi) ou maiores</string>
+    <string name="online_upload_consent_bullet_location">As localizações são agrupadas em amplas áreas do mapa para proteger sua privacidade</string>
     <string name="online_upload_consent_no_raw_gps">Trilhas GPS brutas nunca são publicadas.</string>
     <string name="online_upload_consent_agree">Aceitar e continuar</string>
 

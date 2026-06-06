@@ -1387,7 +1387,7 @@
     <string name="online_upload_consent_bullet_flag">Landsflagget ditt</string>
     <string name="online_upload_consent_bullet_avatar">Profilbildet ditt</string>
     <string name="online_upload_consent_bullet_stats">Samlet kjørestatistikk, som distanse og fart</string>
-    <string name="online_upload_consent_bullet_location">Start- og sluttsted for turer, gruppert i områder på 10 km (6 mi) eller større</string>
+    <string name="online_upload_consent_bullet_location">Posisjoner samles i store områder på kartet av personvernhensyn</string>
     <string name="online_upload_consent_no_raw_gps">Rå GPS-spor publiseres aldri.</string>
     <string name="online_upload_consent_agree">Godta og fortsett</string>
 

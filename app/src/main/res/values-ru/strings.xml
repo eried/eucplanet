@@ -1422,7 +1422,7 @@
     <string name="online_upload_consent_bullet_flag">Флаг вашей страны</string>
     <string name="online_upload_consent_bullet_avatar">Ваш аватар</string>
     <string name="online_upload_consent_bullet_stats">Общая статистика поездок: пробег, скорость и другое</string>
-    <string name="online_upload_consent_bullet_location">Начало и конец поездок с точностью до района 10 км (6 mi) и крупнее</string>
+    <string name="online_upload_consent_bullet_location">Местоположения объединяются в широкие области карты для защиты конфиденциальности</string>
     <string name="online_upload_consent_no_raw_gps">GPS-треки никогда не публикуются.</string>
     <string name="online_upload_consent_agree">Принять и продолжить</string>
 

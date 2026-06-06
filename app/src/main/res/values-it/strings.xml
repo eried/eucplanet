@@ -1406,7 +1406,7 @@
     <string name="online_upload_consent_bullet_flag">La bandiera del tuo paese</string>
     <string name="online_upload_consent_bullet_avatar">La tua foto profilo</string>
     <string name="online_upload_consent_bullet_stats">Le tue statistiche di guida complessive, come distanza e velocità</string>
-    <string name="online_upload_consent_bullet_location">Posizioni di partenza/arrivo dei viaggi, raggruppate in aree di 10 km (6 mi) o più</string>
+    <string name="online_upload_consent_bullet_location">Le posizioni vengono raggruppate in ampie aree della mappa per tutelare la privacy</string>
     <string name="online_upload_consent_no_raw_gps">I tracciati GPS grezzi non vengono mai pubblicati.</string>
     <string name="online_upload_consent_agree">Accetta &amp; continua</string>
 

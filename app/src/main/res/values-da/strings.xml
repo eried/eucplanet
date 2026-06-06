@@ -1372,7 +1372,7 @@
     <string name="online_upload_consent_bullet_flag">Dit landsflag</string>
     <string name="online_upload_consent_bullet_avatar">Dit profilbillede</string>
     <string name="online_upload_consent_bullet_stats">Dine samlede kørestatistikker, f.eks. distance og hastighed</string>
-    <string name="online_upload_consent_bullet_location">Turens start- og slutpunkt, grupperet i områder på 10 km (6 mi) eller større</string>
+    <string name="online_upload_consent_bullet_location">Positioner samles i store områder på kortet af hensyn til privatlivet</string>
     <string name="online_upload_consent_no_raw_gps">Rå GPS-spor offentliggøres aldrig.</string>
     <string name="online_upload_consent_agree">Acceptér og fortsæt</string>
 

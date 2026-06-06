@@ -1407,7 +1407,7 @@
     <string name="online_upload_consent_bullet_flag">Flaga Twojego kraju</string>
     <string name="online_upload_consent_bullet_avatar">Twoje zdjęcie profilowe</string>
     <string name="online_upload_consent_bullet_stats">Twoje ogólne statystyki jazdy, m.in. dystans i prędkość</string>
-    <string name="online_upload_consent_bullet_location">Miejsca startu i końca trasy, zgrupowane w obszary 10 km (6 mi) lub większe</string>
+    <string name="online_upload_consent_bullet_location">Lokalizacje są grupowane w szerokie obszary mapy, aby chronić Twoją prywatność</string>
     <string name="online_upload_consent_no_raw_gps">Surowe ślady GPS nigdy nie są publikowane.</string>
     <string name="online_upload_consent_agree">Zgadzam się i kontynuuję</string>
 

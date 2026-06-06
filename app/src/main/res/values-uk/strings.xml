@@ -1407,7 +1407,7 @@
     <string name="online_upload_consent_bullet_flag">Прапор твоєї країни</string>
     <string name="online_upload_consent_bullet_avatar">Твій аватар</string>
     <string name="online_upload_consent_bullet_stats">Загальна статистика поїздок: відстань, швидкість тощо</string>
-    <string name="online_upload_consent_bullet_location">Місця початку і кінця поїздок, згруповані в зони 10 km (6 mi) і більше</string>
+    <string name="online_upload_consent_bullet_location">Місцезнаходження групуються в широкі області карти для захисту приватності</string>
     <string name="online_upload_consent_no_raw_gps">GPS-треки ніколи не публікуються.</string>
     <string name="online_upload_consent_agree">Погодитись і продовжити</string>
 
