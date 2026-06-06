@@ -108,9 +108,10 @@ Garmin watches (135+ devices). Get it on the
 [Connect IQ Store](https://apps.garmin.com/apps/630e5d32-637d-4612-84e3-35e6d0bbee10),
 or build it yourself from [docs/GARMIN_SETUP.md](docs/GARMIN_SETUP.md).
 
-**Varia rear-view radar.** Pair a Garmin Varia RTL515 or RCT715 and get
-rear-vehicle warnings on the dashboard, the watch and the HUD. Same sensor
-cyclists already trust, now wired into your EUC.
+**Varia rear-view radar.** Pair a Garmin Varia RTL515 or RCT715 and see
+approaching vehicles on the dashboard. Wire custom alarms (beep, voice, or
+vibrate) to rear-vehicle distance and closing speed. Same sensor cyclists
+already trust, now on your EUC.
 
 **Integrations.** Flic 2 buttons (up to two), physical volume-key shortcuts,
 external BLE GPS (RaceBox or compatible, for centimetre-class speed and altitude
