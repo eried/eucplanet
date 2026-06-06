@@ -205,11 +205,8 @@ fun HudApp(
 
                     // Top-left stack: the screen-change toast (title + blurb)
                     // with the button-action guide sitting directly UNDER it,
-                    // matching the disconnected badge's chrome. The guide shows
-                    // both on screen change AND on any d-pad press (the Activity
-                    // bumps controller.guidePulse), so the rider can recall what
-                    // each direction's short tap / long hold does without
-                    // leaving the screen they're on.
+                    // matching the disconnected badge's chrome. Both show only on
+                    // screen change, so the guide rides with the screen message.
                     Column(
                         modifier = Modifier
                             .align(Alignment.TopStart)
@@ -224,7 +221,6 @@ fun HudApp(
                         ButtonActionGuideOverlay(
                             screen = controller.current,
                             shortActions = controller.shortActions(),
-                            pulse = controller.guidePulse,
                             up = hud.joystickUp,
                             down = hud.joystickDown,
                             left = hud.joystickLeft,
@@ -444,12 +440,14 @@ private fun ScreenChangeToast(
                     fontWeight = FontWeight.SemiBold,
                     maxLines = 1
                 )
-                Text(
-                    text = "  $index1Based/$total",
-                    color = Color(0xFF808080),
-                    fontSize = 11.sp,
-                    maxLines = 1
-                )
+                if (total > 1) {
+                    Text(
+                        text = "  $index1Based/$total",
+                        color = Color(0xFF808080),
+                        fontSize = 11.sp,
+                        maxLines = 1
+                    )
+                }
             }
             Text(
                 text = ctx.getString(descRes),
@@ -478,15 +476,13 @@ private fun ScreenChangeToast(
  * there's nothing to teach for that arm. The whole overlay is skipped when no
  * direction has anything to show.
  *
- * Trigger + auto-hide mirror [ScreenChangeToast], but keyed on BOTH the current
- * [screen] AND [pulse] (a counter the Activity bumps on every d-pad press) so a
- * press re-flashes the guide even without a screen change.
+ * Trigger + auto-hide mirror [ScreenChangeToast] -- shown only on screen change,
+ * so the guide always rides with the screen message.
  */
 @Composable
 private fun ButtonActionGuideOverlay(
     screen: HudUiController.Screen,
     shortActions: HudUiController.ShortActions,
-    pulse: Int,
     up: String,
     down: String,
     left: String,
@@ -507,9 +503,9 @@ private fun ButtonActionGuideOverlay(
     if (arms.all { it.shortLine == null && it.longLabel.isBlank() }) return
 
     var visible by remember { mutableStateOf(false) }
-    // Re-show on screen change OR on any d-pad press (pulse). Keying the effect
-    // on both restarts the show/auto-hide cycle each time either changes.
-    androidx.compose.runtime.LaunchedEffect(screen, pulse) {
+    // Re-show only on screen change (rides with the screen toast); a d-pad press
+    // no longer flashes it on its own.
+    androidx.compose.runtime.LaunchedEffect(screen) {
         visible = true
         kotlinx.coroutines.delay(JOYSTICK_GUIDE_DURATION_MS)
         visible = false

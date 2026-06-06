@@ -179,9 +179,6 @@ class HudActivity : ComponentActivity() {
             KeyEvent.KEYCODE_DPAD_DOWN -> {
                 if (event?.repeatCount == 0) {
                     dpadDownAt[keyCode] = android.os.SystemClock.uptimeMillis()
-                    // Flash the button-action guide so the rider can recall what
-                    // a long hold does on this screen, even without switching.
-                    controller.pulseGuide()
                 }
                 true
             }
