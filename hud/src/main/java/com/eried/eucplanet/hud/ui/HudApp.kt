@@ -213,6 +213,21 @@ fun HudApp(
                         modifier = Modifier.align(Alignment.TopStart).padding(12.dp)
                     )
 
+                    // Joystick long-press guide: a small "+"-shaped overlay
+                    // labelling what each direction's LONG-PRESS does, shown
+                    // briefly on every screen change so the rider can recall
+                    // their configured actions. Centered, semi-transparent,
+                    // self-hides after JOYSTICK_GUIDE_DURATION_MS.
+                    JoystickGuideOverlay(
+                        screen = controller.current,
+                        up = hud.joystickUp,
+                        down = hud.joystickDown,
+                        left = hud.joystickLeft,
+                        right = hud.joystickRight,
+                        accent = accent,
+                        modifier = Modifier.align(Alignment.Center)
+                    )
+
                     // Ambient wall clock, TOP-right. Moved here from
                     // bottom-left after a tester reported it covering
                     // the Safety screen's voltage-sag readout. Borderless
@@ -441,7 +456,105 @@ private fun ScreenChangeToast(
     }
 }
 
+/**
+ * Brief "+"-shaped joystick guide shown on every screen change. Each arm of
+ * the cross labels what the corresponding joystick LONG-PRESS does, using the
+ * human-readable action labels the phone resolved and shipped in [HudState]
+ * (the HUD can't see the phone's action config itself).
+ *
+ * Glanceable and unobtrusive: a small translucent rounded card centered on
+ * screen, high-contrast text, accent-tinted direction caret. A direction with
+ * no configured action (empty label) renders a dim dash so the rider can see
+ * the slot is free. The whole overlay is skipped when ALL four are empty --
+ * there's nothing to teach, so we don't steal the rider's attention.
+ *
+ * Trigger + auto-hide mirror [ScreenChangeToast]: a [LaunchedEffect] keyed on
+ * the current [screen] shows it, waits [JOYSTICK_GUIDE_DURATION_MS], hides it.
+ */
+@Composable
+private fun JoystickGuideOverlay(
+    screen: HudUiController.Screen,
+    up: String,
+    down: String,
+    left: String,
+    right: String,
+    accent: Color,
+    modifier: Modifier = Modifier
+) {
+    // Nothing configured in any direction: don't draw anything. Avoids
+    // flashing an all-dashes card at the rider on every screen swap when
+    // they've not bound any long-press actions.
+    if (up.isBlank() && down.isBlank() && left.isBlank() && right.isBlank()) return
+
+    var visible by remember { mutableStateOf(false) }
+    androidx.compose.runtime.LaunchedEffect(screen) {
+        visible = true
+        kotlinx.coroutines.delay(JOYSTICK_GUIDE_DURATION_MS)
+        visible = false
+    }
+    androidx.compose.animation.AnimatedVisibility(
+        visible = visible,
+        enter = androidx.compose.animation.fadeIn(),
+        exit = androidx.compose.animation.fadeOut(),
+        modifier = modifier
+    ) {
+        // Same translucent-dark chrome family as the other overlays, but
+        // rounded (8.dp) so the centered card reads as a transient hint
+        // rather than fixed system chrome. Caret + label per direction laid
+        // out as a "+" cross.
+        Column(
+            modifier = Modifier
+                .clip(RoundedCornerShape(8.dp))
+                .background(Color(0xE6111111))
+                .border(1.dp, Color(0xFF6B6B6B), RoundedCornerShape(8.dp))
+                .padding(horizontal = 12.dp, vertical = 8.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(2.dp)
+        ) {
+            JoystickArm(caret = "▲", label = up, accent = accent)
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(16.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                JoystickArm(caret = "◀", label = left, accent = accent)
+                JoystickArm(caret = "▶", label = right, accent = accent)
+            }
+            JoystickArm(caret = "▼", label = down, accent = accent)
+        }
+    }
+}
+
+/** One arm of the [JoystickGuideOverlay] cross: an accent-tinted direction
+ *  caret above its long-press action label. An empty [label] renders a dim
+ *  dash so the rider can see the slot is unbound. */
+@Composable
+private fun JoystickArm(caret: String, label: String, accent: Color) {
+    val unset = label.isBlank()
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(1.dp)
+    ) {
+        Text(
+            text = caret,
+            color = if (unset) Color(0xFF6B6B6B) else accent,
+            fontSize = 12.sp,
+            fontWeight = FontWeight.Bold,
+            maxLines = 1
+        )
+        Text(
+            text = if (unset) "—" else label,
+            color = if (unset) Color(0xFF808080) else Color.White,
+            fontSize = 12.sp,
+            fontWeight = FontWeight.SemiBold,
+            maxLines = 1
+        )
+    }
+}
+
 private const val SCREEN_TOAST_DURATION_MS: Long = 3_000L
+/** How long the joystick long-press guide stays up after a screen change.
+ *  Matches the screen-change toast so both transient hints fade together. */
+private const val JOYSTICK_GUIDE_DURATION_MS: Long = 3_000L
 /** Boot-time grace before the disconnect chrome can appear. Covers the
  *  worst case of HUD boot + phone hotspot DHCP + phone-app cold start +
  *  WS handshake + at least one reconnect backoff (1 s) without ever

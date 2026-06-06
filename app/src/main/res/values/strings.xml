@@ -348,9 +348,9 @@
     <string name="hud_custom_overlay_none">Clear</string>
     <string name="hud_search_corpus">HUD heads-up display companion server stream telemetry hotspot motoeye turn arrow</string>
 
-    <!-- HUD joystick long-press actions -->
-    <string name="hud_joystick_title">Joystick actions</string>
-    <string name="hud_joystick_desc">Long-press a joystick direction on the HUD to fire an action on the phone. A short press still flips between screens.</string>
+    <!-- HUD button long-press actions -->
+    <string name="hud_joystick_title">Button actions</string>
+    <string name="hud_joystick_desc">Long-press a HUD button (Up/Down/Left/Right) to fire an action on the phone. A short press still flips between screens.</string>
     <string name="hud_joystick_up">Up (long press)</string>
     <string name="hud_joystick_down">Down (long press)</string>
     <string name="hud_joystick_left">Left (long press)</string>
