@@ -1583,4 +1583,41 @@
     <string name="warnings_perm_notifications_title">Notifications off</string>
     <string name="warnings_perm_notifications_body">You won\'t see ride status in the status bar or get voice alerts on the notification shade</string>
     <string name="online_rejoin_confirm">Rejoin</string>
+
+    <!-- Charging Monitor -->
+    <string name="charging_monitor">Battery monitor</string>
+    <string name="battery_history">Battery history</string>
+    <string name="setting_charging_auto_open">Auto-open when charging</string>
+    <string name="setting_charging_auto_open_desc">Opens the Battery monitor when the wheel starts charging</string>
+    <string name="setting_charging_dashboard_icon">Battery monitor icon in dashboard</string>
+    <string name="setting_charging_dashboard_icon_desc">Tap it to open the Battery monitor</string>
+    <string name="charging_back">Back</string>
+    <string name="charging_added">+%1$.1f%% this session</string>
+    <string name="charging_disconnected">No wheel connected</string>
+    <string name="charging_full">Fully charged</string>
+    <string name="charging_charging">Charging</string>
+    <string name="charging_idle">Not charging</string>
+    <string name="charging_estimating">Estimating…</string>
+    <string name="charging_eta_to_target">%1$s to %2$d%%</string>
+    <string name="charging_eta_to_full">%1$s to 100%%</string>
+    <string name="charging_eta_at">at %1$s</string>
+    <string name="charging_details">Details</string>
+    <string name="charging_rate">%1$.1f %%/min</string>
+    <string name="charging_tab_charge">Charge</string>
+    <string name="charging_tab_voltage">Voltage</string>
+    <string name="charging_tab_packs">Packs</string>
+    <string name="charging_estimate_to_full">Always estimate to 100%</string>
+    <string name="charging_options">Options</string>
+    <string name="charging_tab_power">Power</string>
+    <string name="charging_stat_added">Added</string>
+    <string name="charging_stat_rate">Rate</string>
+    <string name="charging_stat_voltage">Voltage</string>
+    <string name="charging_stat_pack1">Pack 1</string>
+    <string name="charging_stat_pack2">Pack 2</string>
+    <string name="charging_stat_temp">Temperature</string>
+    <string name="charging_stat_balance">Imbalance</string>
+    <string name="charging_stat_power">Power</string>
+    <string name="charging_stat_current">Current</string>
+    <string name="charging_chart_empty">Collecting data</string>
+    <string name="charging_no_current_note">Rate measured from the charge curve</string>
 </resources>

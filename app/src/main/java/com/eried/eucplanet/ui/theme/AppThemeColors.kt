@@ -128,6 +128,11 @@ data class AppThemeColors(
     val routeDrive: Color = Color.Unspecified,
     val routeStraight: Color = Color.Unspecified,
     val routePreview: Color = Color.Unspecified,
+    // Charging monitor: the spark icon accent + the two liquid-fill colors
+    // (current charge vs. energy added this session).
+    val chargingAccent: Color = Color.Unspecified,
+    val chargingFillCurrent: Color = Color.Unspecified,
+    val chargingFillAdded: Color = Color.Unspecified,
 )
 
 /**
@@ -173,6 +178,12 @@ fun AppThemeColors.fillDerived(): AppThemeColors = copy(
     routeDrive = routeDrive.takeOrElse { Color(0xFFFB8C00) },
     routeStraight = routeStraight.takeOrElse { Color(0xFF42A5F5) },
     routePreview = routePreview.takeOrElse { Color(0xFFFFCA28) },
+    chargingAccent = chargingAccent.takeOrElse { statusGood },
+    // Old charge (present at session start) = blue; new charge (added this
+    // session) = pink. Both resolve from existing metric hues so they track the
+    // theme and stay editable.
+    chargingFillCurrent = chargingFillCurrent.takeOrElse { metricVoltage },
+    chargingFillAdded = chargingFillAdded.takeOrElse { metricAccel },
 )
 
 /**
@@ -328,6 +339,10 @@ object ThemeTokens {
         ThemeTokenSpec("snackbarBackground", "Snackbar background", GROUP_FEEDBACK, { it.snackbarBackground }, { c, v -> c.copy(snackbarBackground = v) }),
         ThemeTokenSpec("snackbarText", "Snackbar text", GROUP_FEEDBACK, { it.snackbarText }, { c, v -> c.copy(snackbarText = v) }),
         ThemeTokenSpec("snackbarAction", "Snackbar action", GROUP_FEEDBACK, { it.snackbarAction }, { c, v -> c.copy(snackbarAction = v) }),
+
+        ThemeTokenSpec("chargingAccent", "Charging indicator", GROUP_STATUS, { it.chargingAccent }, { c, v -> c.copy(chargingAccent = v) }),
+        ThemeTokenSpec("chargingFillCurrent", "Charge fill (current)", GROUP_GAUGE, { it.chargingFillCurrent }, { c, v -> c.copy(chargingFillCurrent = v) }),
+        ThemeTokenSpec("chargingFillAdded", "Charge fill (added)", GROUP_GAUGE, { it.chargingFillAdded }, { c, v -> c.copy(chargingFillAdded = v) }),
     )
 
     /** Specs grouped in declaration order, for the editor's sectioned list. */

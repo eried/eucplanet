@@ -1458,4 +1458,41 @@
     <string name="online_rejoin_title">Der Bestenliste wieder beitreten?</string>
     <string name="online_rejoin_body">Du trittst wieder als dein gespeichertes Profil %1$s bei. Dieses Telefon lädt deine neuen Fahrten wieder in dieses Profil hoch.</string>
     <string name="online_rejoin_confirm">Wieder beitreten</string>
+
+    <!-- Battery / Charging screen -->
+    <string name="charging_monitor">Akku-Monitor</string>
+    <string name="charging_back">Zurück</string>
+    <string name="charging_added">+%1$.1f%% in dieser Sitzung</string>
+    <string name="charging_disconnected">Kein Rad verbunden</string>
+    <string name="charging_full">Vollständig geladen</string>
+    <string name="charging_charging">Lädt</string>
+    <string name="charging_idle">Lädt nicht</string>
+    <string name="charging_estimating">Wird geschätzt…</string>
+    <string name="charging_eta_to_target">%1$s bis %2$d%%</string>
+    <string name="charging_eta_to_full">%1$s bis 100%%</string>
+    <string name="charging_eta_at">um %1$s</string>
+    <string name="charging_details">Details</string>
+    <string name="charging_rate">%1$.1f %%/min</string>
+    <string name="charging_tab_charge">Laden</string>
+    <string name="charging_tab_voltage">Spannung</string>
+    <string name="charging_tab_packs">Packs</string>
+    <string name="charging_estimate_to_full">Immer bis 100% schätzen</string>
+    <string name="charging_options">Optionen</string>
+    <string name="charging_tab_power">Leistung</string>
+    <string name="charging_stat_added">Hinzugefügt</string>
+    <string name="charging_stat_rate">Rate</string>
+    <string name="charging_stat_voltage">Spannung</string>
+    <string name="charging_stat_pack1">Pack 1</string>
+    <string name="charging_stat_pack2">Pack 2</string>
+    <string name="charging_stat_temp">Temperatur</string>
+    <string name="charging_stat_balance">Ungleichgewicht</string>
+    <string name="charging_stat_power">Leistung</string>
+    <string name="charging_stat_current">Strom</string>
+    <string name="charging_chart_empty">Daten werden erfasst</string>
+    <string name="charging_no_current_note">Rate aus der Ladekurve gemessen</string>
+    <string name="battery_history">Akku-Verlauf</string>
+    <string name="setting_charging_auto_open">Beim Laden öffnen</string>
+    <string name="setting_charging_dashboard_icon">Akku-Monitor-Symbol im Dashboard</string>
+    <string name="setting_charging_auto_open_desc">Öffnet den Akku-Monitor, wenn das Rad zu laden beginnt</string>
+    <string name="setting_charging_dashboard_icon_desc">Tippe darauf, um den Akku-Monitor zu öffnen</string>
 </resources>

@@ -238,6 +238,9 @@ object SettingsJson {
         put("dashboardActionGroups", s.dashboardActionGroups)
         put("dashboardCustomTiles", s.dashboardCustomTiles)
         put("dashboardCustomBle", s.dashboardCustomBle)
+        put("chargingEstimateToFull", s.chargingEstimateToFull)
+        put("chargingAutoOpen", s.chargingAutoOpen)
+        put("chargingDashboardIcon", s.chargingDashboardIcon)
     }
 
     fun fromJson(j: JSONObject, base: AppSettings = AppSettings()): AppSettings = base.copy(
@@ -451,7 +454,10 @@ object SettingsJson {
         dashboardCompositeMetrics = j.optString("dashboardCompositeMetrics", base.dashboardCompositeMetrics),
         dashboardActionGroups = j.optString("dashboardActionGroups", base.dashboardActionGroups),
         dashboardCustomTiles = j.optString("dashboardCustomTiles", base.dashboardCustomTiles),
-        dashboardCustomBle = j.optString("dashboardCustomBle", base.dashboardCustomBle)
+        dashboardCustomBle = j.optString("dashboardCustomBle", base.dashboardCustomBle),
+        chargingEstimateToFull = j.optBoolean("chargingEstimateToFull", base.chargingEstimateToFull),
+        chargingAutoOpen = j.optBoolean("chargingAutoOpen", base.chargingAutoOpen),
+        chargingDashboardIcon = j.optBoolean("chargingDashboardIcon", base.chargingDashboardIcon)
     )
 
     /** `optString` returns `""` for null and absent keys, which we cannot

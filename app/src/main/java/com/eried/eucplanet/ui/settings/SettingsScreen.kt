@@ -367,6 +367,9 @@ fun SettingsScreen(
         }
     }
 
+    // tab 9 opens General but scrolls to the "Battery monitor" sub-header (not the
+    // General section top), so the monitor's Settings link lands right on it.
+    val scrollToBattery = initialTab == 9
     val targetSectionKey = remember(initialTab) { initialTabSectionKey(initialTab) }
     val scrollState = rememberScrollState()
     var scrollContainerTop by remember { mutableStateOf<Float?>(null) }
@@ -590,7 +593,9 @@ fun SettingsScreen(
 
     val sections: List<SectionDef> = listOf(
         SectionDef("general", titleGeneral, Icons.Default.Tune, corpusGeneral) {
-            GeneralTab(settings, viewModel)
+            GeneralTab(settings, viewModel, scrollToBattery) { y ->
+                if (targetSectionTop == null) targetSectionTop = y
+            }
         },
         SectionDef("dashboard", titleDashboard, Icons.Default.Dashboard, corpusDashboard) {
             DashboardLayoutTab(settings, viewModel)
@@ -760,7 +765,7 @@ fun SettingsScreen(
                     visibleSections.forEach { sec ->
                         val explicitlyExpanded = expandedSections.contains(sec.key)
                         val isExpanded = explicitlyExpanded || query.isNotEmpty()
-                        val sectionModifier = if (sec.key == targetSectionKey) {
+                        val sectionModifier = if (sec.key == targetSectionKey && !scrollToBattery) {
                             Modifier.onGloballyPositioned {
                                 if (targetSectionTop == null) {
                                     targetSectionTop = it.positionInWindow().y
@@ -801,6 +806,7 @@ private fun initialTabSectionKey(initialTab: Int): String? = when (initialTab) {
     6 -> "auto"
     7 -> "integration"
     8 -> "navigator"
+    9 -> "general"
     else -> null
 }
 
@@ -888,7 +894,9 @@ private fun CollapsibleSection(
 @Composable
 private fun GeneralTab(
     settings: com.eried.eucplanet.data.model.AppSettings,
-    viewModel: SettingsViewModel
+    viewModel: SettingsViewModel,
+    scrollToBattery: Boolean = false,
+    onBatteryTop: (Float) -> Unit = {},
 ) {
     Column(
         modifier = Modifier.fillMaxWidth(),
@@ -1002,6 +1010,21 @@ private fun GeneralTab(
         }
         HintText(stringResource(R.string.back_button_action_desc), small = true)
 
+        Box(
+            modifier = if (scrollToBattery) {
+                Modifier.onGloballyPositioned { onBatteryTop(it.positionInWindow().y) }
+            } else Modifier,
+        ) {
+            SectionHeader(stringResource(R.string.charging_monitor))
+        }
+        SwitchSetting(
+            stringResource(R.string.setting_charging_auto_open),
+            settings.chargingAutoOpen,
+        ) { viewModel.updateChargingAutoOpen(it) }
+        SwitchSetting(
+            stringResource(R.string.flic_show_on_dashboard),
+            settings.chargingDashboardIcon,
+        ) { viewModel.updateChargingDashboardIcon(it) }
     }
 }
 

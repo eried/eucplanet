@@ -33,6 +33,11 @@ data class WheelData(
     val dynamicSpeedLimit: Float = 0f,
     val dynamicCurrentLimit: Float = 0f,
     val lightOn: Boolean = false,
+    /** True when the wheel reports it is charging via an explicit firmware flag
+     *  (InMotion V14/V12 state-byte bit 7, KingSong 0xB9). Inference-only
+     *  families (Begode/Veteran/Ninebot/InMotion V1) leave this false; charging
+     *  for them is derived from sustained negative current in WheelRepository. */
+    val charging: Boolean = false,
     val pcMode: Int = -1,  // 0=lock, 1=drive, 2=shutdown, 3=idle (-1=unknown/no telemetry yet)
     /** Tiltback / max-speed threshold the wheel firmware reports in its telemetry,
      *  in km/h. -1 = the active adapter doesn't surface this. Used so the

@@ -1477,4 +1477,41 @@
     <string name="online_rejoin_title">Rientrare in classifica?</string>
     <string name="online_rejoin_body">Rientrerai come il tuo profilo salvato %1$s. Questo telefono riprenderà a caricare i tuoi nuovi viaggi su quel profilo.</string>
     <string name="online_rejoin_confirm">Rientra</string>
+
+    <!-- Battery / Charging screen -->
+    <string name="charging_monitor">Monitor batteria</string>
+    <string name="charging_back">Indietro</string>
+    <string name="charging_added">+%1$.1f%% questa sessione</string>
+    <string name="charging_disconnected">Nessuna ruota connessa</string>
+    <string name="charging_full">Carica completa</string>
+    <string name="charging_charging">In carica</string>
+    <string name="charging_idle">Non in carica</string>
+    <string name="charging_estimating">Stima…</string>
+    <string name="charging_eta_to_target">%1$s al %2$d%%</string>
+    <string name="charging_eta_to_full">%1$s al 100%%</string>
+    <string name="charging_eta_at">alle %1$s</string>
+    <string name="charging_details">Dettagli</string>
+    <string name="charging_rate">%1$.1f %%/min</string>
+    <string name="charging_tab_charge">Carica</string>
+    <string name="charging_tab_voltage">Tensione</string>
+    <string name="charging_tab_packs">Pacchi</string>
+    <string name="charging_estimate_to_full">Stima sempre al 100%</string>
+    <string name="charging_options">Opzioni</string>
+    <string name="charging_tab_power">Potenza</string>
+    <string name="charging_stat_added">Aggiunto</string>
+    <string name="charging_stat_rate">Tasso</string>
+    <string name="charging_stat_voltage">Tensione</string>
+    <string name="charging_stat_pack1">Pacco 1</string>
+    <string name="charging_stat_pack2">Pacco 2</string>
+    <string name="charging_stat_temp">Temperatura</string>
+    <string name="charging_stat_balance">Squilibrio</string>
+    <string name="charging_stat_power">Potenza</string>
+    <string name="charging_stat_current">Corrente</string>
+    <string name="charging_chart_empty">Raccolta dati</string>
+    <string name="charging_no_current_note">Tasso misurato dalla curva di carica</string>
+    <string name="battery_history">Cronologia batteria</string>
+    <string name="setting_charging_auto_open">Apri in carica</string>
+    <string name="setting_charging_dashboard_icon">Icona del monitor batteria nella dashboard</string>
+    <string name="setting_charging_auto_open_desc">Apre il Monitor batteria quando la ruota inizia a caricare</string>
+    <string name="setting_charging_dashboard_icon_desc">Toccalo per aprire il Monitor batteria</string>
 </resources>

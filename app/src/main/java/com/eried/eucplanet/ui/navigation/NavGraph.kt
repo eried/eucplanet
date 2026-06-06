@@ -18,6 +18,7 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
+import com.eried.eucplanet.ui.charging.ChargingMonitorScreen
 import com.eried.eucplanet.ui.dashboard.DashboardScreen
 import com.eried.eucplanet.ui.dashboard.MetricDetailScreen
 import com.eried.eucplanet.ui.navigator.RouteBuilderScreen
@@ -53,6 +54,7 @@ sealed class Screen(val route: String) {
     data object MetricDetail : Screen("metric_detail/{metric}") {
         fun createRoute(metric: String) = "metric_detail/$metric"
     }
+    data object ChargingMonitor : Screen("charging_monitor")
 }
 
 @Composable
@@ -96,6 +98,9 @@ fun NavGraph(navController: NavHostController) {
                 },
                 onNavigateToMetric = { metric ->
                     navController.navigateSingle(Screen.MetricDetail.createRoute(metric))
+                },
+                onNavigateToCharging = {
+                    navController.navigateSingle(Screen.ChargingMonitor.route)
                 }
             )
         }
@@ -246,6 +251,13 @@ fun NavGraph(navController: NavHostController) {
                     onBack = { navController.popSingle() }
                 )
             }
+        }
+        composable(Screen.ChargingMonitor.route) {
+            ChargingMonitorScreen(
+                onBack = { navController.popSingle() },
+                onOpenHistory = { navController.navigateSingle(Screen.MetricDetail.createRoute("BATTERY")) },
+                onOpenSettings = { navController.navigateSingle(Screen.Settings.createRoute(9)) }
+            )
         }
     }
 }

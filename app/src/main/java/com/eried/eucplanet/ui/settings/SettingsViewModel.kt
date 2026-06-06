@@ -348,6 +348,8 @@ class SettingsViewModel @Inject constructor(
     fun updateAutoRecordStartInMotion(v: Boolean) = update { copy(autoRecordStartInMotion = v) }
     fun updateAutoRecordStopIdleSeconds(v: Int) = update { copy(autoRecordStopIdleSeconds = v.coerceIn(30, 600)) }
     fun updateAutoConnect(v: Boolean) = update { copy(autoConnect = v) }
+    fun updateChargingAutoOpen(v: Boolean) = update { copy(chargingAutoOpen = v) }
+    fun updateChargingDashboardIcon(v: Boolean) = update { copy(chargingDashboardIcon = v) }
     fun updateBackButtonAction(value: String) = update { copy(backButtonAction = value) }
     fun updateSpeedCalibrationOffsetPct(v: Float) = update {
         // Round to 0.1 % granularity so the value reads cleanly across UI,
