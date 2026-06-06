@@ -218,51 +218,54 @@ class SyncManager @Inject constructor(
         var minMileage = Float.MAX_VALUE
         var maxMileage = 0f
         try {
-            val lines = file.readText().lines()
-            if (lines.size < 2) return CsvMeta(startTime, endTime, 0f)
-            val header = lines[0].lowercase().split(",").map { it.trim() }
-            val latIdx = header.indexOfFirst { it == "latitude" }.takeIf { it >= 0 } ?: 6
-            val lonIdx = header.indexOfFirst { it == "longitude" }.takeIf { it >= 0 } ?: 7
-            val mileageIdx = header.indexOfFirst { it.contains("mileage") }
-                .takeIf { it >= 0 } ?: 8
-            val darkness = SimpleDateFormat("dd.MM.yyyy HH:mm:ss", Locale.US)
-            val iso = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.US)
-            var first = true
-            for (i in 1 until lines.size) {
-                val line = lines[i].trim()
-                if (line.isEmpty()) continue
-                val parts = line.split(",")
-                if (parts.size < 2) continue
-                val dateStr = parts[0].trim()
-                val trimmed = if (dateStr.contains("T")) {
-                    val t = dateStr.substringAfter("T")
-                    dateStr.substringBefore("T") + "T" +
-                            if (t.contains(".")) t.substringBefore(".") else t
-                } else {
-                    if (dateStr.count { it == '.' } > 2) dateStr.substringBeforeLast(".")
-                    else dateStr
-                }
-                val parsed = try {
-                    if (dateStr.contains("T")) iso.parse(trimmed) else darkness.parse(trimmed)
-                } catch (_: Exception) { null }
-                if (parsed != null) {
-                    if (first) { startTime = parsed.time; first = false }
-                    endTime = parsed.time
-                }
-                val lat = parts.getOrNull(latIdx)?.toDoubleOrNull()
-                val lon = parts.getOrNull(lonIdx)?.toDoubleOrNull()
-                if (lat != null && lon != null && lat != 0.0 && lon != 0.0) {
-                    if (!lastLat.isNaN() && !lastLon.isNaN()) {
-                        val d = haversineMeters(lastLat, lastLon, lat, lon)
-                        if (d in 0.5..200.0) gpsDistanceKm += d / 1000.0
+            // Stream the CSV line-by-line instead of readText().lines(), so a
+            // long trip (a big CSV) never has to sit fully in memory at once.
+            file.bufferedReader().use { reader ->
+                val headerLine = reader.readLine() ?: return CsvMeta(startTime, endTime, 0f)
+                val header = headerLine.lowercase().split(",").map { it.trim() }
+                val latIdx = header.indexOfFirst { it == "latitude" }.takeIf { it >= 0 } ?: 6
+                val lonIdx = header.indexOfFirst { it == "longitude" }.takeIf { it >= 0 } ?: 7
+                val mileageIdx = header.indexOfFirst { it.contains("mileage") }
+                    .takeIf { it >= 0 } ?: 8
+                val darkness = SimpleDateFormat("dd.MM.yyyy HH:mm:ss", Locale.US)
+                val iso = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.US)
+                var first = true
+                reader.forEachLine { raw ->
+                    val line = raw.trim()
+                    if (line.isEmpty()) return@forEachLine
+                    val parts = line.split(",")
+                    if (parts.size < 2) return@forEachLine
+                    val dateStr = parts[0].trim()
+                    val trimmed = if (dateStr.contains("T")) {
+                        val t = dateStr.substringAfter("T")
+                        dateStr.substringBefore("T") + "T" +
+                                if (t.contains(".")) t.substringBefore(".") else t
+                    } else {
+                        if (dateStr.count { it == '.' } > 2) dateStr.substringBeforeLast(".")
+                        else dateStr
                     }
-                    lastLat = lat
-                    lastLon = lon
-                }
-                val mileage = parts.getOrNull(mileageIdx)?.toFloatOrNull()
-                if (mileage != null && mileage > 0f) {
-                    if (mileage < minMileage) minMileage = mileage
-                    if (mileage > maxMileage) maxMileage = mileage
+                    val parsed = try {
+                        if (dateStr.contains("T")) iso.parse(trimmed) else darkness.parse(trimmed)
+                    } catch (_: Exception) { null }
+                    if (parsed != null) {
+                        if (first) { startTime = parsed.time; first = false }
+                        endTime = parsed.time
+                    }
+                    val lat = parts.getOrNull(latIdx)?.toDoubleOrNull()
+                    val lon = parts.getOrNull(lonIdx)?.toDoubleOrNull()
+                    if (lat != null && lon != null && lat != 0.0 && lon != 0.0) {
+                        if (!lastLat.isNaN() && !lastLon.isNaN()) {
+                            val d = haversineMeters(lastLat, lastLon, lat, lon)
+                            if (d in 0.5..200.0) gpsDistanceKm += d / 1000.0
+                        }
+                        lastLat = lat
+                        lastLon = lon
+                    }
+                    val mileage = parts.getOrNull(mileageIdx)?.toFloatOrNull()
+                    if (mileage != null && mileage > 0f) {
+                        if (mileage < minMileage) minMileage = mileage
+                        if (mileage > maxMileage) maxMileage = mileage
+                    }
                 }
             }
         } catch (_: Exception) {}
