@@ -107,7 +107,7 @@
     <string name="cloud_last_backup_never">尚未备份</string>
     <string name="cloud_backup_success">设置已备份</string>
 <string name="cloud_backup_named_success">已备份为 %1$s</string>
-    <string name="cloud_backup_failed">备份失败 — 请检查文件夹访问权限</string>
+    <string name="cloud_backup_failed">备份失败, 请检查文件夹访问权限</string>
     <string name="cloud_restore_success">设置已恢复</string>
     <string name="cloud_restore_failed">文件夹中未找到备份</string>
     <string name="section_cloud_trips">行程备份</string>
@@ -1177,15 +1177,15 @@
     <string name="metric_chip_wheel_alarm_speed">车体报警</string>
     <string name="metric_chip_wheel_max_speed">车体限速</string>
     <string name="metric_desc_avg_trip_speed">行程距离除以已骑行时间。</string>
-    <string name="metric_desc_bt_rssi">到独轮车的蓝牙信号强度——越接近 0 dBm 越强。</string>
-    <string name="metric_desc_gps_accuracy">GPS 定位误差半径——越低越准确。</string>
+    <string name="metric_desc_bt_rssi">到独轮车的蓝牙信号强度，，越接近 0 dBm 越强。</string>
+    <string name="metric_desc_gps_accuracy">GPS 定位误差半径，，越低越准确。</string>
     <string name="metric_desc_headroom">回倾启动前剩余的速度余量。数字大 = 安全缓冲更多。</string>
     <string name="metric_desc_range_estimate">按当前消耗率剩余的距离。</string>
     <string name="metric_desc_regen_wh">本次行程刹车时回馈到电池的总瓦时。</string>
-    <string name="metric_desc_slope">由独轮车俯仰角推算的路面坡度——正值为上坡。</string>
+    <string name="metric_desc_slope">由独轮车俯仰角推算的路面坡度，，正值为上坡。</string>
     <string name="metric_desc_trip_max_speed">当前行程的最高速度（新行程重置）。</string>
     <string name="metric_desc_wh_consumed">本次行程从电池中提取的总瓦时。</string>
-    <string name="metric_desc_wh_per_km">每公里消耗能量——越低越高效。</string>
+    <string name="metric_desc_wh_per_km">每公里消耗能量，，越低越高效。</string>
     <string name="metric_detail_reset">重置</string>
     <string name="metric_detail_reset_all">全部重置</string>
     <string name="metric_detail_reset_all_confirm_body">清空所有指标的滚动历史缓冲。设置和行程记录不受影响。</string>
@@ -1448,7 +1448,7 @@
     <string name="dashboard_custom_ble_label">按钮标签</string>
     <string name="dashboard_custom_ble_template">BLE</string>
     <string name="dashboard_view_wide_menu">宽屏（适合平板）</string>
-    <string name="metric_desc_forward_g">由轮速变化估算（非 IMU）——无论手机安装方向如何均可使用。</string>
+    <string name="metric_desc_forward_g">由轮速变化估算（非 IMU），，无论手机安装方向如何均可使用。</string>
     <string name="online_rider_id_conflict">此文件夹中已保存了其他骑手的恢复 ID，已保留原有 ID，未覆盖。</string>
     <string name="online_upload_actions_desc">将尚未上传的行程发送到排行榜。</string>
     <string name="online_upload_sync_checking">正在检查待上传的行程…</string>

@@ -27,9 +27,9 @@
     <string name="watch_action_horn">喇叭</string>
     <string name="watch_action_light">燈光</string>
     <string name="watch_action_lock">鎖定車輪</string>
-    <string name="watch_action_safety">合法模式</string>
-    <string name="watch_action_safety_on">合法模式 開</string>
-    <string name="watch_action_safety_off">合法模式 關</string>
+    <string name="watch_action_safety">限速模式</string>
+    <string name="watch_action_safety_on">限速模式 開</string>
+    <string name="watch_action_safety_off">限速模式 關</string>
     <string name="watch_action_voice">語音播報</string>
     <string name="watch_action_record">錄製中</string>
     <string name="watch_action_record_start">錄製已開始</string>

@@ -2,7 +2,7 @@
 <resources>
     <string name="app_name">EUC Planet</string>
     <string name="notification_channel_name">휠 연결</string>
-    <string name="notification_channel_description">휠 연결 상태 및 원격 측정 표시</string>
+    <string name="notification_channel_description">휠 연결 상태 및 텔레메트리 표시</string>
 
     <!-- Common -->
     <string name="action_back">뒤로</string>
@@ -10,47 +10,47 @@
     <string name="action_ok">확인</string>
     <string name="action_done">완료</string>
     <string name="action_close">닫기</string>
-<string name="crash_log_action_prompt">%1$s을(를) 길게 눌렀습니다. 이 로그만 삭제하거나 전체를 삭제하세요. 공유하려면 취소를 탭한 후 파일을 탭하세요.</string>
+<string name="crash_log_action_prompt">%1$s을(를) 길게 눌렀습니다. 이 로그만 삭제하거나 전체 삭제할 수 있습니다. 공유하려면 취소 후 파일을 탭하세요.</string>
     <string name="crash_log_delete_one">이 로그 삭제</string>
     <string name="crash_log_delete_all">전체 삭제</string>
-    <string name="crash_log_delete_all_warning">저장된 모든 충돌 로그를 삭제하시겠습니까? 이 작업은 취소할 수 없습니다.</string>
+    <string name="crash_log_delete_all_warning">저장된 충돌 로그를 모두 삭제하시겠습니까? 되돌릴 수 없습니다.</string>
     <string name="action_save">저장</string>
     <string name="action_apply">적용</string>
     <string name="action_delete">삭제</string>
     <string name="action_edit">편집</string>
     <string name="action_test">테스트</string>
-    <string name="action_move_up">위로 이동</string>
-    <string name="action_move_down">아래로 이동</string>
+    <string name="action_move_up">위로</string>
+    <string name="action_move_down">아래로</string>
     <string name="action_reorder">드래그하여 순서 변경</string>
     <string name="show_gauge_color_band">속도 게이지 색상 띠</string>
     <string name="stat_watts">WATTS</string>
     <string name="flic_button">Flic 버튼</string>
     <string name="menu_auto_lights">자동 조명 설정</string>
-    <string name="menu_voice_periodic_on">주기적 알림 켜기</string>
-    <string name="menu_voice_periodic_off">주기적 알림 끄기</string>
-    <string name="menu_view_last_trip">마지막 이동 보기</string>
-    <string name="menu_view_current_trip">현재 이동 보기</string>
-    <string name="menu_start_recording">기록 시작</string>
-    <string name="menu_stop_recording">기록 중지</string>
-    <string name="discard_trip_pending_label">이동이 곧 백업됩니다</string>
-    <string name="no_trips_title">이동 기록 없음</string>
-    <string name="no_trips_body">기록을 시작하거나 이동을 가져오세요. 이 바로가기는 가장 최근 이동을 엽니다.</string>
-    <string name="no_trips_action_recorder">이동 기록기</string>
+    <string name="menu_voice_periodic_on">주기 알림 켜기</string>
+    <string name="menu_voice_periodic_off">주기 알림 끄기</string>
+    <string name="menu_view_last_trip">마지막 트립 보기</string>
+    <string name="menu_view_current_trip">현재 트립 보기</string>
+    <string name="menu_start_recording">녹화 시작</string>
+    <string name="menu_stop_recording">녹화 중지</string>
+    <string name="discard_trip_pending_label">트립이 곧 백업됩니다</string>
+    <string name="no_trips_title">트립 없음</string>
+    <string name="no_trips_body">녹화를 시작하거나 트립을 가져오세요. 이 바로가기는 가장 최근 트립을 엽니다.</string>
+    <string name="no_trips_action_recorder">트립 레코더</string>
     <string name="voice_volume_low_toast">볼륨이 낮아 음성이 들리지 않을 수 있습니다</string>
     <string name="action_grant_permission">권한 허용</string>
     <string name="action_open_settings">설정 열기</string>
 
     <!-- Permissions -->
     <string name="scan_permission_needed">권한 필요</string>
-    <string name="scan_permission_body">휠을 찾으려면 앱에 블루투스 및 위치 접근 권한이 필요합니다</string>
-    <string name="scan_permission_body_settings">권한이 거부되었습니다. 시스템 설정을 열어 블루투스 및 위치 접근을 허용하세요</string>
-    <string name="recording_location_permission_needed">위치 필요</string>
-    <string name="recording_location_permission_body">이동 기록은 경로를 지도에 표시할 수 있도록 GPS 위치를 저장합니다. 계속하려면 위치 접근을 허용하세요</string>
+    <string name="scan_permission_body">휠을 찾으려면 블루투스와 위치 접근 권한이 필요합니다</string>
+    <string name="scan_permission_body_settings">권한이 거부되었습니다. 시스템 설정을 열어 블루투스와 위치 접근을 허용해 주세요</string>
+    <string name="recording_location_permission_needed">위치 권한 필요</string>
+    <string name="recording_location_permission_body">트립 녹화 시 경로를 지도에 표시하기 위해 GPS 위치를 저장합니다. 계속하려면 위치 접근을 허용해 주세요</string>
 
     <!-- Experimental banner -->
-    <string name="experimental_banner">초기 지원 휠입니다. 문제를 보고하려면 탭하세요.</string>
+    <string name="experimental_banner">정식 지원 전 휠입니다. 탭하여 문제를 보고하세요.</string>
     <string name="experimental_dialog_title">EUC Planet 개선에 도움을 주세요</string>
-    <string name="experimental_dialog_body">이 휠에 대한 지원은 초기 단계입니다. InMotion V14 / V12 / P6 계열만 작성자가 직접 검증했습니다. KingSong, Veteran, Begode, Ninebot 및 구형 InMotion 모델은 미리보기로 제공되며 라이더 테스트가 필요합니다. 주의하여 사용하세요.\n\n이 배너를 탭하면 문제가 보고되어 작성자가 수정할 수 있습니다.</string>
+    <string name="experimental_dialog_body">이 휠은 아직 초기 지원 단계입니다. InMotion V14 / V12 / P6 계열만 작성자가 직접 검증했으며, KingSong, Veteran, Begode, Ninebot, 구형 InMotion 모델은 프리뷰로 제공되어 라이더 테스트가 필요합니다. 주의해서 사용하세요.\n\n이 배너를 탭하면 문제가 보고되어 작성자가 수정할 수 있습니다.</string>
     <string name="experimental_dialog_report">문제 보고</string>
 
     <!-- Scan: virtual wheel section (debug builds only) -->
@@ -66,11 +66,11 @@
     <string name="connection">연결</string>
     <string name="settings">설정</string>
     <string name="disconnect">연결 끊기</string>
-    <string name="disconnect_from">%1$s에서 연결을 끊으시겠습니까?</string>
+    <string name="disconnect_from">%1$s 연결을 끊으시겠습니까?</string>
     <string name="wheel_generic">휠</string>
     <string name="exit_title">EUC Planet 종료</string>
-    <string name="exit_body">백그라운드 서비스를 계속 실행하거나 모두 중지하시겠습니까?</string>
-    <string name="exit_stop_all">모두 중지</string>
+    <string name="exit_body">백그라운드 서비스를 유지하거나 모두 종료하시겠습니까?</string>
+    <string name="exit_stop_all">모두 종료</string>
     <string name="exit_background">백그라운드</string>
 
     <string name="stat_battery">BATTERY</string>
@@ -82,17 +82,17 @@
     <string name="stat_odo">ODO </string>
 
     <string name="action_horn">경적</string>
-    <string name="action_light">조명</string>
+    <string name="action_light">라이트</string>
     <string name="action_voice">음성</string>
-    <string name="action_legal_mode">법적 모드</string>
-    <string name="action_legal_on">법적 모드 켜기</string>
+    <string name="action_legal_mode">리걸 모드</string>
+    <string name="action_legal_on">리걸 ON</string>
     <string name="action_lock_wheel">휠 잠금</string>
     <string name="action_locked">잠김</string>
-    <string name="lock_blocked_in_motion_toast">휠을 잠그려면 속도를 줄이세요</string>
-    <string name="action_recorder">기록기</string>
-    <string name="action_recorder_trips">기록기\n(%1$d개 이동)</string>
-    <string name="action_recorder_trips_one">기록기
-(%1$d개 이동)</string>
+    <string name="lock_blocked_in_motion_toast">속도를 줄인 후 잠금하세요</string>
+    <string name="action_recorder">레코더</string>
+    <string name="action_recorder_trips">레코더\n(%1$d트립)</string>
+    <string name="action_recorder_trips_one">레코더
+(%1$d트립)</string>
 
     <!-- Settings tabs -->
     <string name="search_settings">설정 검색</string>
@@ -103,33 +103,33 @@
     <string name="tab_alarms">알람 규칙</string>
     <string name="tab_auto">자동화</string>
     <string name="tab_integration">연동</string>
-    <string name="tab_watch">시계</string>
+    <string name="tab_watch">워치</string>
     <string name="tab_cloud">백업 &amp; 리더보드</string>
 
     <!-- Dashboard layout (customizable home screen) -->
     <string name="tab_dashboard">대시보드 레이아웃</string>
-    <string name="dashboard_section_metrics">측정항목</string>
-    <string name="dashboard_section_actions">동작 버튼</string>
+    <string name="dashboard_section_metrics">지표</string>
+    <string name="dashboard_section_actions">액션 버튼</string>
     <string name="dashboard_columns">열</string>
     <string name="dashboard_grid_hint">길게 눌러 드래그, 탭하여 편집</string>
-    <string name="dashboard_pool_metrics">사용 가능한 측정항목</string>
-    <string name="dashboard_pool_actions">사용 가능한 동작</string>
-    <string name="dashboard_pool_tap_toast">길게 눌러 위의 슬롯으로 드래그하여 사용</string>
-    <string name="dashboard_rolling_window">롤링 통계 창</string>
-    <string name="dashboard_stats_length">통계 길이</string>
+    <string name="dashboard_pool_metrics">사용 가능한 지표</string>
+    <string name="dashboard_pool_actions">사용 가능한 액션</string>
+    <string name="dashboard_pool_tap_toast">길게 눌러 위의 슬롯으로 드래그하세요</string>
+    <string name="dashboard_rolling_window">롤링 통계 구간</string>
+    <string name="dashboard_stats_length">통계 구간</string>
     <string name="dashboard_view">보기</string>
     <string name="dashboard_view_default">기본</string>
-    <string name="dashboard_view_wide">넓게</string>
+    <string name="dashboard_view_wide">와이드</string>
     <!-- Shown only in the expanded layout dropdown so riders know Wide is the tablet/3-column layout; the collapsed field stays just "Wide" so it fits. -->
-    <string name="dashboard_view_wide_menu">넓게 (태블릿용)</string>
+    <string name="dashboard_view_wide_menu">와이드 (태블릿용)</string>
     <string name="dashboard_composite_template_label">MULTI</string>
     <string name="dashboard_group_template_label">GROUP</string>
     <string name="dashboard_custom_ble_template">BLE</string>
-    <string name="dashboard_custom_ble_default_name">사용자 BLE</string>
+    <string name="dashboard_custom_ble_default_name">커스텀 BLE</string>
     <string name="dashboard_custom_ble_label">버튼 레이블</string>
     <string name="dashboard_custom_ble_family">휠 계열 필터</string>
     <string name="dashboard_custom_ble_frames">프레임 (16진수)</string>
-    <string name="dashboard_custom_ble_frames_error">잘못된 16진수 — 4c 6b 41 70 같은 바이트 쌍 형식 사용</string>
+    <string name="dashboard_custom_ble_frames_error">잘못된 16진수입니다. 4c 6b 41 70처럼 바이트 쌍으로 입력하세요</string>
     <string name="dashboard_composite_layout_row2">2행</string>
     <string name="dashboard_composite_layout_col2">2열</string>
     <string name="dashboard_composite_layout_col3">3열</string>
@@ -139,10 +139,10 @@
     <!-- "(empty)" is the reserving placeholder: cell renders blank, layout intact. -->
     <string name="dashboard_composite_blank_label">(비어 있음)</string>
     <string name="dashboard_stat_empty">(비어 있음)</string>
-    <string name="dashboard_group_default_name">내 동작</string>
-    <string name="dashboard_group_empty_toast">표시할 동작 없음</string>
+    <string name="dashboard_group_default_name">내 액션</string>
+    <string name="dashboard_group_empty_toast">표시할 액션 없음</string>
     <string name="dashboard_group_name_label">그룹 이름</string>
-    <string name="dashboard_group_action_slot">동작 %1$d</string>
+    <string name="dashboard_group_action_slot">액션 %1$d</string>
     <string name="dashboard_group_action_none">(없음)</string>
     <string name="dashboard_custom_tile_template_label">TEXT</string>
     <string name="dashboard_custom_tile_text_label">텍스트</string>
@@ -164,14 +164,14 @@
     <string name="dashboard_restore_slot">슬롯 복원</string>
     <string name="metric_detail_reset">초기화</string>
     <string name="metric_detail_reset_all">모두 초기화</string>
-    <string name="metric_detail_reset_all_confirm_title">모든 기록을 초기화하시겠습니까?</string>
-    <string name="metric_detail_reset_all_confirm_body">모든 측정항목의 롤링 기록 버퍼를 지웁니다. 설정 및 이동 기록에는 영향을 주지 않습니다.</string>
+    <string name="metric_detail_reset_all_confirm_title">기록을 모두 초기화하시겠습니까?</string>
+    <string name="metric_detail_reset_all_confirm_body">모든 지표의 롤링 기록 버퍼를 지웁니다. 설정과 트립 기록에는 영향 없습니다.</string>
     <string name="metric_detail_show_label">값</string>
     <string name="dashboard_close">닫기</string>
     <string name="dashboard_corner_left">왼쪽</string>
     <string name="dashboard_corner_center">가운데</string>
     <string name="dashboard_corner_right">오른쪽</string>
-    <string name="dashboard_slot_sparkline">라이브 추세 배경</string>
+    <string name="dashboard_slot_sparkline">실시간 추세 배경</string>
     <string name="dashboard_slot_sparkline_chip">통계</string>
     <!-- Open-menu label for DashboardStat.NONE; closed-field shows a literal
          "-" glyph from statSelectedLabel so the rider sees the visual at a
@@ -200,18 +200,18 @@
     <string name="metric_chip_voltage">전압</string>
     <string name="metric_chip_current">전류</string>
     <string name="metric_chip_load">PWM</string>
-    <string name="metric_chip_trip">이동</string>
+    <string name="metric_chip_trip">트립</string>
     <string name="metric_chip_speed">속도</string>
     <string name="metric_chip_power">파워</string>
-    <string name="metric_chip_odometer">주행 거리계</string>
+    <string name="metric_chip_odometer">주행거리계</string>
     <string name="metric_chip_motor_power">모터 출력</string>
     <string name="metric_chip_battery_power">배터리 출력</string>
     <string name="metric_chip_battery_1">팩 1</string>
     <string name="metric_chip_battery_2">팩 2</string>
     <string name="metric_chip_pitch">피치</string>
     <string name="metric_chip_roll">롤</string>
-    <string name="metric_chip_g_force">G-포스</string>
-    <string name="metric_chip_lateral_g">측면 G</string>
+    <string name="metric_chip_g_force">G-force</string>
+    <string name="metric_chip_lateral_g">횡방향 G</string>
     <string name="metric_chip_forward_g">전방 G</string>
     <string name="metric_chip_torque">토크</string>
     <string name="metric_chip_dyn_speed_limit">동적 속도 제한</string>
@@ -219,29 +219,29 @@
     <string name="metric_chip_motor_temp">모터 온도</string>
     <string name="metric_chip_controller_temp">컨트롤러 온도</string>
     <string name="metric_chip_battery_temp">배터리 온도</string>
-    <string name="metric_chip_headroom">여유 속도</string>
-    <string name="metric_chip_trip_time">이동 시간</string>
-    <string name="metric_chip_trip_max_speed">이동 최고 속도</string>
+    <string name="metric_chip_headroom">헤드룸</string>
+    <string name="metric_chip_trip_time">트립 시간</string>
+    <string name="metric_chip_trip_max_speed">트립 최고속</string>
     <string name="metric_chip_avg_trip_speed">평균 속도</string>
-    <string name="metric_chip_wh_consumed">에너지</string>
-    <string name="metric_chip_range_estimate">주행 가능 거리</string>
+    <string name="metric_chip_wh_consumed">소비 에너지</string>
+    <string name="metric_chip_range_estimate">예상 주행거리</string>
     <string name="metric_chip_wh_per_km">Wh / km</string>
     <string name="metric_chip_phone_battery">폰 배터리</string>
     <string name="metric_chip_gps_altitude">고도</string>
     <string name="metric_chip_gps_speed">GPS 속도</string>
-    <string name="metric_chip_gps_heading">방향</string>
+    <string name="metric_chip_gps_heading">방위</string>
     <string name="metric_chip_gps_accuracy">GPS 정확도</string>
-    <string name="metric_chip_slope">경사도</string>
-    <string name="metric_chip_ascent">상승</string>
-    <string name="metric_chip_descent">하강</string>
+    <string name="metric_chip_slope">경사</string>
+    <string name="metric_chip_ascent">오르막</string>
+    <string name="metric_chip_descent">내리막</string>
     <string name="metric_chip_motor_rpm">RPM</string>
-    <string name="metric_chip_regen_wh">회생</string>
+    <string name="metric_chip_regen_wh">회생제동</string>
     <string name="metric_chip_bt_rssi">BT 신호</string>
     <string name="metric_chip_lat_long">위도, 경도</string>
-    <string name="metric_chip_wheel_max_speed">휠 최고 속도</string>
+    <string name="metric_chip_wheel_max_speed">휠 최고속</string>
     <string name="metric_chip_wheel_alarm_speed">휠 알람 속도</string>
     <string name="metric_chip_pc_mode">주행 모드</string>
-    <string name="metric_chip_light_on">조명</string>
+    <string name="metric_chip_light_on">라이트</string>
 
     <!-- Short variants for the dashboard tile face. When present, the tile
          shows this; the slot editor sheet keeps showing the full
@@ -262,107 +262,107 @@
     <string name="metric_chip_trip_max_speed_tile">최고속</string>
     <string name="metric_chip_avg_trip_speed_tile">평균속</string>
     <string name="metric_chip_wh_consumed_tile">Wh사용</string>
-    <string name="metric_chip_ascent_tile">상승</string>
-    <string name="metric_chip_descent_tile">하강</string>
+    <string name="metric_chip_ascent_tile">오르막</string>
+    <string name="metric_chip_descent_tile">내리막</string>
     <string name="metric_chip_gps_speed_tile">GPS속</string>
     <string name="metric_chip_gps_altitude_tile">고도</string>
     <string name="metric_chip_gps_heading_tile">방위</string>
     <string name="metric_chip_trip_time_tile">시간</string>
     <string name="metric_chip_g_force_tile">G</string>
     <string name="metric_chip_forward_g_tile">전방G</string>
-    <string name="metric_chip_lateral_g_tile">측면G</string>
+    <string name="metric_chip_lateral_g_tile">횡방G</string>
     <string name="metric_chip_bt_rssi_tile">BT</string>
 
     <!-- Descriptions shown in the slot-sheet info box for metrics whose
          meaning isn't obvious from the name alone. Strings end with a
          period so they read like complete sentences. -->
-    <string name="metric_desc_headroom">틸트백이 발동하기 전의 남은 속도 여유. 숫자가 클수록 안전 버퍼가 더 큽니다.</string>
-    <string name="metric_desc_trip_max_speed">현재 이동 중 최고 속도 (새 이동 시 초기화).</string>
-    <string name="metric_desc_avg_trip_speed">이동 거리를 현재까지의 주행 시간으로 나눈 값.</string>
-    <string name="metric_desc_wh_consumed">이번 이동에서 배터리에서 사용된 총 와트시.</string>
+    <string name="metric_desc_headroom">틸트백이 작동하기까지 남은 속도 여유. 숫자가 클수록 안전 마진이 큽니다.</string>
+    <string name="metric_desc_trip_max_speed">현재 트립 중 최고 속도 (새 트립 시작 시 초기화).</string>
+    <string name="metric_desc_avg_trip_speed">트립 거리를 주행 시간으로 나눈 값.</string>
+    <string name="metric_desc_wh_consumed">이번 트립에서 배터리에서 사용한 총 Wh.</string>
     <string name="metric_desc_range_estimate">현재 소비율 기준 남은 주행 가능 거리.</string>
-    <string name="metric_desc_wh_per_km">킬로미터당 사용 에너지 — 낮을수록 효율적입니다.</string>
-    <string name="metric_desc_slope">휠의 피치에서 계산된 도로 경사도 — 양수는 오르막입니다.</string>
-    <string name="metric_desc_forward_g">IMU가 아닌 휠 속도 변화에서 추정 — 폰 거치 방향에 관계없이 작동합니다.</string>
-    <string name="metric_desc_regen_wh">이번 이동에서 제동 중 배터리로 회생된 총 와트시.</string>
-    <string name="metric_desc_bt_rssi">휠까지의 블루투스 신호 강도 — 0 dBm에 가까울수록 강합니다.</string>
-    <string name="metric_desc_gps_accuracy">GPS 위치 오차 반경 — 낮을수록 정확합니다.</string>
+    <string name="metric_desc_wh_per_km">km당 에너지 소비량. 낮을수록 효율적입니다.</string>
+    <string name="metric_desc_slope">휠 피치에서 계산한 도로 경사. 양수는 오르막입니다.</string>
+    <string name="metric_desc_forward_g">IMU가 아닌 휠 속도 변화로 추정. 폰 거치 방향에 무관하게 동작합니다.</string>
+    <string name="metric_desc_regen_wh">이번 트립에서 제동 중 배터리로 회생된 총 Wh.</string>
+    <string name="metric_desc_bt_rssi">휠까지의 블루투스 신호 강도. 0 dBm에 가까울수록 강합니다.</string>
+    <string name="metric_desc_gps_accuracy">GPS 위치 오차 반경. 낮을수록 정확합니다.</string>
 
     <!-- Action labels for the dashboard layout chips -->
     <string name="action_chip_horn">경적</string>
-    <string name="action_chip_light">조명</string>
+    <string name="action_chip_light">라이트</string>
     <string name="action_chip_voice">음성</string>
-    <string name="action_chip_safety">법적 모드</string>
+    <string name="action_chip_safety">리걸 모드</string>
     <string name="action_chip_lock">휠 잠금</string>
-    <string name="action_chip_record">기록기</string>
-    <string name="action_chip_safety_on">법적 켜기</string>
-    <string name="action_chip_safety_off">법적 끄기</string>
-    <string name="action_chip_record_start">기록 시작</string>
-    <string name="action_chip_record_stop">기록 중지</string>
+    <string name="action_chip_record">레코더</string>
+    <string name="action_chip_safety_on">리걸 ON</string>
+    <string name="action_chip_safety_off">리걸 OFF</string>
+    <string name="action_chip_record_start">녹화 시작</string>
+    <string name="action_chip_record_stop">녹화 중지</string>
     <string name="action_chip_media_play">재생 / 일시정지</string>
     <string name="action_chip_media_next">다음 트랙</string>
     <string name="action_chip_media_prev">이전 트랙</string>
-    <string name="action_chip_open_navigation">지도 표시</string>
+    <string name="action_chip_open_navigation">지도 보기</string>
     <string name="action_chip_open_studio">오버레이 스튜디오</string>
     <string name="action_chip_open_about">정보</string>
     <string name="action_chip_open_service">서비스 모드</string>
-    <string name="action_chip_open_trips">이동 기록</string>
+    <string name="action_chip_open_trips">트립</string>
     <string name="action_chip_mute_alarms">알람 음소거</string>
-    <string name="action_chip_reset_trip">이동 초기화</string>
+    <string name="action_chip_reset_trip">트립 초기화</string>
     <string name="action_chip_toggle_units">단위 전환</string>
-    <string name="action_unsupported_on_wheel">이 휠에서 지원하지 않음</string>
+    <string name="action_unsupported_on_wheel">이 휠에서 지원하지 않습니다</string>
 
     <!-- Watch companion settings: shared across Wear OS + Garmin -->
     <string name="section_watch_device">기기</string>
     <string name="section_watch_paired">페어링된 기기</string>
-    <string name="watch_paired_none">페어링된 시계 없음</string>
-    <string name="watch_paired_none_desc">Wear OS 또는 Garmin 시계에 EUC Planet 동반 앱을 설치하면 여기서 다이얼을 받을 수 있습니다</string>
+    <string name="watch_paired_none">페어링된 워치 없음</string>
+    <string name="watch_paired_none_desc">Wear OS 또는 Garmin 워치에 EUC Planet 컴패니언 앱을 설치하면 여기서 다이얼을 수신합니다</string>
     <string name="watch_paired_kind_wear">Wear OS</string>
     <string name="watch_paired_kind_garmin">Garmin Connect IQ</string>
     <string name="watch_paired_active">라이브</string>
-    <string name="watch_paired_idle">대기 중</string>
+    <string name="watch_paired_idle">대기</string>
     <string name="watch_paired_rate_hz">%1$.1f Hz</string>
     <string name="watch_paired_garmin_limits_title">Garmin 제한 사항</string>
-    <string name="watch_paired_garmin_limit_launch">Garmin은 시계 앱을 자동으로 시작하지 않습니다</string>
-    <string name="watch_paired_garmin_limit_rate">Garmin은 Wear OS보다 느리게 새로 고침됩니다</string>
-    <string name="watch_paired_garmin_limit_rotation">다이얼 회전을 사용할 수 없습니다. Connect IQ에는 렌더링된 다이얼을 회전하는 기본 변환 행렬이 없습니다.</string>
+    <string name="watch_paired_garmin_limit_launch">Garmin은 워치 앱을 자동으로 실행하지 않습니다</string>
+    <string name="watch_paired_garmin_limit_rate">Garmin은 Wear OS보다 업데이트 속도가 느립니다</string>
+    <string name="watch_paired_garmin_limit_rotation">다이얼 회전을 사용할 수 없습니다. Connect IQ는 렌더링된 다이얼을 회전하는 네이티브 변환 행렬을 지원하지 않습니다.</string>
 
     <!-- HUD companion settings -->
-    <string name="section_hud_companion">MotoEye HUD</string>
+    <string name="section_hud_companion">Motoeye HUD</string>
     <string name="hud_server_enabled">데이터 링크 활성화</string>
     <string name="hud_ip_label">기기 IP</string>
     <string name="hud_ip_label_autodetect">기기 IP (자동)</string>
-    <string name="hud_ip_desc">HUD의 화면 배너에 표시된 IP를 입력하세요.</string>
+    <string name="hud_ip_desc">HUD 화면에 표시된 IP를 입력하세요.</string>
     <string name="hud_server_port">포트</string>
     <string name="hud_server_port_desc">기본값 28080.</string>
-    <string name="hud_hotspot_off_hint">폰 핫스팟이 꺼져 있습니다. HUD와 폰이 같은 WiFi 네트워크에 있는지 확인하세요.</string>
-    <string name="hud_hotspot_on_hint">폰 핫스팟이 활성화되어 있습니다. HUD를 이 폰의 WiFi에 연결하면 링크를 활성화할 수 있습니다.</string>
-    <string name="hud_overlay_subsection">사용자 오버레이</string>
-    <string name="hud_overlay_subsection_desc">Overlay Studio 프리셋을 배경 없이 HUD의 사용자 화면에 가져옵니다. 프리셋이 여기에 복사되므로 스튜디오에서 이후 편집한 내용은 다시 가져올 때까지 HUD에 반영되지 않습니다</string>
+    <string name="hud_hotspot_off_hint">폰 핫스팟이 꺼져 있습니다. HUD와 폰이 같은 Wi-Fi 네트워크에 있는지 확인하세요.</string>
+    <string name="hud_hotspot_on_hint">폰 핫스팟이 켜져 있습니다. HUD를 이 폰의 Wi-Fi에 연결하면 링크가 활성화됩니다.</string>
+    <string name="hud_overlay_subsection">커스텀 오버레이</string>
+    <string name="hud_overlay_subsection_desc">Overlay Studio 프리셋을 배경 없이 HUD 커스텀 화면에 가져옵니다. 프리셋은 여기에 복사되므로 스튜디오에서 편집해도 다시 가져오기 전까지 HUD에 반영되지 않습니다</string>
     <string name="hud_overlay_select_preset">프리셋 가져오기</string>
     <string name="hud_overlay_current_preset">현재: %1$s</string>
-    <string name="hud_custom_overlay_label">사용자 HUD 오버레이</string>
+    <string name="hud_custom_overlay_label">커스텀 HUD 오버레이</string>
     <string name="hud_custom_overlay_placeholder">Overlay Studio 프리셋 선택</string>
-    <string name="hud_custom_overlay_no_folder">백업 폴더가 설정되지 않음</string>
-    <string name="hud_custom_overlay_bundled_only">스타터 선택 (백업 폴더 미설정)</string>
+    <string name="hud_custom_overlay_no_folder">백업 폴더가 설정되지 않았습니다</string>
+    <string name="hud_custom_overlay_bundled_only">기본 프리셋 선택 (백업 폴더 미설정)</string>
     <string name="hud_custom_overlay_none">지우기</string>
-    <string name="hud_search_corpus">HUD 헤드업 디스플레이 동반 서버 스트림 원격측정 핫스팟 motoeye 방향 화살표</string>
+    <string name="hud_search_corpus">HUD 헤드업 디스플레이 컴패니언 서버 스트림 텔레메트리 핫스팟 motoeye 방향 화살표</string>
 
     <!-- HUD Personalize collapsible card -->
-    <string name="hud_personalize_title">맞춤 설정</string>
+    <string name="hud_personalize_title">개인화</string>
     <string name="hud_screens_title">HUD 화면</string>
     <string name="hud_map_options_title">지도 옵션</string>
-    <string name="hud_personalize_desc">HUD에 표시할 화면과 순환 순서를 선택하세요. 최소 하나의 화면은 활성화되어 있어야 합니다.</string>
+    <string name="hud_personalize_desc">HUD에 표시할 화면과 순환 순서를 선택하세요. 최소 하나의 화면은 활성화해야 합니다.</string>
     <string name="hud_screen_name_dashboard">대시보드</string>
     <string name="hud_screen_name_camera">후방 카메라</string>
-    <string name="hud_screen_name_telemetry">원격 측정</string>
-    <string name="hud_screen_name_custom">사용자 오버레이 + 검정</string>
-    <string name="hud_screen_name_custom_cam">사용자 오버레이 + 카메라</string>
+    <string name="hud_screen_name_telemetry">텔레메트리</string>
+    <string name="hud_screen_name_custom">커스텀 오버레이 + 검정</string>
+    <string name="hud_screen_name_custom_cam">커스텀 오버레이 + 카메라</string>
     <string name="hud_screen_name_map">지도</string>
     <string name="hud_screen_name_nav">내비게이터</string>
     <string name="hud_screen_name_map_nav">지도 + 내비</string>
-    <string name="hud_screen_name_power">와트 및 주행 거리</string>
-    <string name="hud_screen_name_trip_stats">이동 통계</string>
+    <string name="hud_screen_name_power">와트 및 주행거리</string>
+    <string name="hud_screen_name_trip_stats">트립 통계</string>
     <string name="hud_screen_name_compass">나침반</string>
     <string name="hud_screen_name_safety">안전</string>
     <string name="hud_screen_name_big_clock">큰 시계</string>
@@ -386,46 +386,46 @@
     -->
     <string name="hud_install_hint">HUD 앱이 필요하신가요? <b>eucplanet.ried.no/hud</b>에서 받으세요</string>
     <string name="hud_update_url">eucplanet.ried.no/hud</string>
-    <string name="hud_version_hint_hud_behind">HUD 업데이트 가능. <b>eucplanet.ried.no/hud</b>에서 HUD를 업데이트하기 전까지 최신 폰 기능이 표시되지 않습니다</string>
-    <string name="hud_version_hint_phone_behind">폰 업데이트 가능. <b>eucplanet.ried.no/hud</b>에서 이 폰 앱을 업데이트하기 전까지 일부 HUD 기능이 표시되지 않습니다</string>
-    <string name="hud_version_block_hud_behind">HUD 업데이트 필요. HUD 앱이 너무 오래되어 이 폰과 통신할 수 없습니다. 계속하려면 <b>eucplanet.ried.no/hud</b>에서 업데이트하세요.</string>
-    <string name="hud_version_block_phone_behind">폰 업데이트 필요. 이 폰 앱이 너무 오래되어 HUD와 통신할 수 없습니다. 계속하려면 <b>eucplanet.ried.no/hud</b>에서 업데이트하세요.</string>
+    <string name="hud_version_hint_hud_behind">HUD 업데이트 가능. <b>eucplanet.ried.no/hud</b>에서 HUD를 업데이트해야 최신 폰 기능이 표시됩니다</string>
+    <string name="hud_version_hint_phone_behind">폰 업데이트 가능. <b>eucplanet.ried.no/hud</b>에서 폰 앱을 업데이트해야 일부 HUD 기능이 표시됩니다</string>
+    <string name="hud_version_block_hud_behind">HUD 업데이트 필요. HUD 앱이 너무 오래되어 이 폰과 통신할 수 없습니다. <b>eucplanet.ried.no/hud</b>에서 업데이트하세요.</string>
+    <string name="hud_version_block_phone_behind">폰 업데이트 필요. 이 폰 앱이 너무 오래되어 HUD와 통신할 수 없습니다. <b>eucplanet.ried.no/hud</b>에서 업데이트하세요.</string>
 
     <!-- Wear OS companion settings -->
     <string name="section_watch_general">일반</string>
     <string name="section_watch_display">화면</string>
     <string name="section_watch_advanced">고급</string>
     <string name="section_voice_advanced">고급</string>
-    <string name="watch_keep_on">화면 계속 켜기</string>
-    <string name="watch_keep_on_desc">앱이 열려 있는 동안 시계를 켜 놓습니다</string>
-    <string name="watch_update_rate">업데이트 빈도</string>
-    <string name="watch_update_rate_desc">업데이트 빈도를 낮추면 폰과 시계의 배터리를 절약합니다</string>
+    <string name="watch_keep_on">화면 항상 켜기</string>
+    <string name="watch_keep_on_desc">앱이 열려 있는 동안 워치 화면을 유지합니다</string>
+    <string name="watch_update_rate">업데이트 속도</string>
+    <string name="watch_update_rate_desc">업데이트 속도를 낮추면 폰과 워치 배터리를 절약합니다</string>
     <string name="watch_update_conservative">절약</string>
     <string name="watch_update_normal">보통</string>
     <string name="watch_update_fast">빠름</string>
-    <string name="watch_auto_start">시계에서 자동 시작</string>
-    <string name="watch_auto_start_desc">폰 앱과 함께 시계 앱 열기</string>
-    <string name="watch_close_on_exit">시계에서 자동 중지</string>
-    <string name="watch_close_on_exit_desc">모두 중지 시 시계 앱 중지</string>
+    <string name="watch_auto_start">워치 자동 시작</string>
+    <string name="watch_auto_start_desc">폰 앱과 함께 워치 앱을 시작합니다</string>
+    <string name="watch_close_on_exit">워치 자동 종료</string>
+    <string name="watch_close_on_exit_desc">모두 종료 시 워치 앱도 종료합니다</string>
     <string name="watch_show_wheel_battery">휠 배터리 표시</string>
     <string name="watch_show_phone_battery">폰 배터리 표시</string>
-    <string name="watch_show_watch_battery">시계 배터리 표시</string>
-    <string name="watch_pwm_display">PWM 표시기</string>
+    <string name="watch_show_watch_battery">워치 배터리 표시</string>
+    <string name="watch_pwm_display">PWM 표시</string>
     <string name="watch_pwm_bar">바</string>
-    <string name="watch_pwm_numbers">텍스트</string>
+    <string name="watch_pwm_numbers">숫자</string>
     <string name="watch_pwm_both">둘 다</string>
-    <string name="watch_show_speed_unit">속도 단위 레이블</string>
-    <string name="watch_show_speed_unit_desc">큰 속도 숫자 옆에 단위 레이블 표시</string>
+    <string name="watch_show_speed_unit">속도 단위 표시</string>
+    <string name="watch_show_speed_unit_desc">큰 속도 숫자 옆에 단위 레이블을 표시합니다</string>
     <string name="watch_prioritize_pwm">PWM 우선 표시</string>
-    <string name="watch_prioritize_pwm_desc">PWM 바와 숫자를 속도보다 크게 표시</string>
+    <string name="watch_prioritize_pwm_desc">PWM 바와 숫자를 속도보다 크게 표시합니다</string>
     <string name="watch_dial_rotation">다이얼 회전</string>
 
     <!-- Watch hardware buttons -->
     <string name="watch_button_click_label">클릭</string>
     <string name="watch_button_hold_label">길게 누르기</string>
-    <string name="section_watch_hardware_buttons">하드웨어 버튼</string>
-    <string name="watch_buttons_hardware_info">일부 시계에서는 시스템이 길게 누르기를 가로챌 수 있습니다</string>
-    <string name="watch_buttons_touch_info">시계 지원 여부에 따라 다릅니다</string>
+    <string name="section_watch_hardware_buttons">물리 버튼</string>
+    <string name="watch_buttons_hardware_info">일부 워치에서는 시스템이 길게 누르기를 가로챌 수 있습니다</string>
+    <string name="watch_buttons_touch_info">워치 지원 여부에 따라 다릅니다</string>
     <string name="watch_buttons_hardware_label">물리적</string>
     <string name="watch_buttons_touch_label">터치</string>
     <string name="section_watch_buttons">버튼</string>
@@ -438,16 +438,16 @@
          hardware stem buttons because most Galaxy Wear OS watches do not
          deliver KEYCODE_STEM_* to third-party apps. -->
     <string name="section_watch_screen_buttons">터치 버튼</string>
-    <string name="section_watch_screen_buttons_desc">시계 다이얼에 표시되는 탭 대상</string>
-    <string name="section_watch_hardware_buttons_desc">시계의 측면 버튼</string>
+    <string name="section_watch_screen_buttons_desc">워치 다이얼에 표시되는 탭 영역</string>
+    <string name="section_watch_hardware_buttons_desc">워치 측면 버튼</string>
     <string name="watch_screen_button_1">버튼 1</string>
     <string name="watch_screen_button_2">버튼 2</string>
-    <string name="watch_haptic_on_action">동작 시 진동</string>
-    <string name="watch_haptic_on_action_desc">지원되는 경우 누를 때마다 시계가 짧게 진동합니다</string>
+    <string name="watch_haptic_on_action">액션 시 진동</string>
+    <string name="watch_haptic_on_action_desc">지원되는 경우 버튼을 누를 때마다 워치가 짧게 진동합니다</string>
 
     <!-- Settings: Backup -->
     <string name="section_cloud_folder">백업 폴더</string>
-    <string name="cloud_caption">이동, 설정, 테마 및 오버레이를 위한 백업 폴더</string>
+    <string name="cloud_caption">트립, 설정, 테마, 오버레이의 백업 폴더</string>
     <string name="cloud_choose_folder">폴더 선택</string>
     <string name="cloud_change_folder">폴더 변경</string>
     <string name="cloud_remove_folder">연결 해제</string>
@@ -457,56 +457,56 @@
     <string name="cloud_restore">복원</string>
     <string name="cloud_last_backup">마지막 백업: %1$s</string>
 <string name="cloud_last_backup_named">마지막 백업: %1$s ("%2$s"로 저장)</string>
-    <string name="cloud_last_backup_never">아직 백업하지 않음</string>
+    <string name="cloud_last_backup_never">아직 백업하지 않았습니다</string>
     <string name="cloud_backup_success">설정이 백업되었습니다</string>
 <string name="cloud_backup_named_success">%1$s로 백업되었습니다</string>
-    <string name="cloud_backup_failed">백업 실패 — 폴더 접근 권한을 확인하세요</string>
+    <string name="cloud_backup_failed">백업 실패. 폴더 접근 권한을 확인하세요</string>
     <string name="cloud_restore_success">설정이 복원되었습니다</string>
     <string name="cloud_restore_failed">폴더에서 백업을 찾을 수 없습니다</string>
-    <string name="section_cloud_trips">이동 백업</string>
-    <string name="cloud_trips_caption">새 이동은 자동으로 폴더에 저장됩니다</string>
-    <string name="cloud_retry_now">모두 동기화</string>
+    <string name="section_cloud_trips">트립 백업</string>
+    <string name="cloud_trips_caption">새 트립은 자동으로 폴더에 저장됩니다</string>
+    <string name="cloud_retry_now">전체 동기화</string>
     <string name="cloud_retry_enqueued">업로드 예약됨</string>
     <string name="sync_progress">%1$d / %2$d 동기화 중</string>
     <string name="sync_no_folder">먼저 백업 폴더를 선택하세요</string>
-    <string name="sync_finished">%1$d개 이동 동기화됨</string>
+    <string name="sync_finished">트립 %1$d개 동기화 완료</string>
     <string name="sync_conflict_title">동기화 충돌</string>
-    <string name="sync_conflict_body">%1$d개의 이동이 양쪽에 모두 있습니다.</string>
+    <string name="sync_conflict_body">%1$d개 트립이 양쪽에 모두 있습니다.</string>
     <string name="sync_conflict_app">앱 → 백업으로 복사</string>
     <string name="sync_conflict_folder">백업 → 앱으로 복사</string>
-    <string name="sync_conflict_ignore">모든 충돌 건너뛰기</string>
+    <string name="sync_conflict_ignore">충돌 전체 건너뛰기</string>
     <string name="cloud_uploaded_on">%1$s에 백업됨</string>
-    <string name="cloud_not_uploaded">아직 백업하지 않음</string>
+    <string name="cloud_not_uploaded">아직 백업하지 않았습니다</string>
     <string name="cloud_restore_confirm_title">설정 복원</string>
     <string name="cloud_restore_confirm_body_p1">현재 설정이 백업의 설정으로 교체됩니다.</string>
-    <string name="cloud_restore_confirm_body_p2">Flic 제스처는 복원되지만 버튼과 휠은 이 폰에서 다시 페어링해야 합니다. 블루투스 본딩은 앱이 아닌 Android에 저장됩니다.</string>
+    <string name="cloud_restore_confirm_body_p2">Flic 제스처는 복원되지만, 버튼과 휠은 이 폰에서 다시 페어링해야 합니다. 블루투스 본드는 앱이 아닌 Android에 저장됩니다.</string>
     <string name="sync_checking">백업 폴더 확인 중…</string>
     <string name="action_restore">복원</string>
     <string name="action_overwrite">덮어쓰기</string>
-    <string name="cloud_backup_long_press_hint">더 많은 옵션을 보려면 길게 누르세요</string>
+    <string name="cloud_backup_long_press_hint">더 많은 옵션은 길게 누르세요</string>
     <string name="cloud_backup_name_label">백업 이름</string>
     <string name="cloud_backup_name_preview">%1$s로 저장됩니다</string>
     <string name="cloud_backup_overwrite_title">"%1$s"를 덮어쓰시겠습니까?</string>
-    <string name="cloud_backup_overwrite_body">이 이름의 백업이 이미 폴더에 존재합니다.</string>
+    <string name="cloud_backup_overwrite_body">이 이름의 백업이 이미 폴더에 있습니다.</string>
     <string name="cloud_restore_picker_default">(기본)</string>
     <string name="cloud_restore_picker_factory">(공장 초기화)</string>
-    <string name="cloud_restore_picker_empty">동기화 폴더에서 백업을 찾을 수 없습니다</string>
+    <string name="cloud_restore_picker_empty">동기화 폴더에 백업이 없습니다</string>
     <string name="cloud_factory_confirm_title">공장 초기화하시겠습니까?</string>
     <string name="cloud_factory_confirm_body_p1">모든 앱 설정을 기본값으로 초기화합니다.</string>
-    <string name="cloud_factory_confirm_body_p2">페어링된 기기와 저장된 백업은 유지됩니다. 이 작업은 취소할 수 없습니다.</string>
+    <string name="cloud_factory_confirm_body_p2">페어링된 기기와 저장된 백업은 유지됩니다. 되돌릴 수 없습니다.</string>
     <string name="cloud_factory_confirm_action">초기화</string>
 
     <!-- Settings: General -->
-    <string name="section_recording">기록</string>
+    <string name="section_recording">녹화</string>
     <string name="section_connection">연결</string>
     <string name="section_display">화면</string>
-    <string name="auto_record_on_start">시작 시 자동 기록</string>
-    <string name="auto_record_caption">휠이 연결되면 이동을 기록합니다</string>
-    <string name="auto_record_start_in_motion">움직일 때 기록 시작</string>
-    <string name="auto_record_start_in_motion_caption">움직임 시 시작, 정지 후 자동 중지, 다음 주행 시 재시작</string>
-    <string name="auto_record_stop_idle_seconds">정지 후 중지</string>
+    <string name="auto_record_on_start">시작 시 자동 녹화</string>
+    <string name="auto_record_caption">휠이 연결되면 트립을 녹화합니다</string>
+    <string name="auto_record_start_in_motion">움직일 때 녹화 시작</string>
+    <string name="auto_record_start_in_motion_caption">움직이면 시작, 정지 후 자동 종료, 다음 주행에서 재시작</string>
+    <string name="auto_record_stop_idle_seconds">정지 후 종료</string>
     <string name="auto_connect_on_start">시작 시 자동 연결</string>
-    <string name="auto_connect_caption">마지막으로 페어링된 휠에 자동으로 재연결합니다</string>
+    <string name="auto_connect_caption">마지막으로 페어링한 휠에 자동으로 재연결합니다</string>
     <string name="wheel_name_display">휠 이름</string>
     <string name="wheel_name_none">없음</string>
     <string name="wheel_name_model">이름</string>
@@ -514,10 +514,10 @@
     <string name="last_device">마지막 기기: %1$s</string>
     <string name="section_application">앱</string>
     <string name="back_button_action">뒤로 동작</string>
-    <string name="back_button_action_desc">대시보드에서 스와이프하거나 뒤로 버튼을 누를 때 발생하는 동작</string>
+    <string name="back_button_action_desc">대시보드에서 스와이프하거나 뒤로 버튼을 눌렀을 때의 동작</string>
     <string name="back_button_action_ask">묻기</string>
     <string name="back_button_action_background">백그라운드</string>
-    <string name="back_button_action_stop">모두 중지</string>
+    <string name="back_button_action_stop">모두 종료</string>
     <string name="units_label">단위</string>
     <string name="units_metric">미터법</string>
     <string name="units_imperial">야드파운드법</string>
@@ -537,16 +537,16 @@
     <string name="units_temp_c">섭씨</string>
     <string name="units_temp_f">화씨</string>
     <string name="units_temp_k">켈빈</string>
-    <string name="phone_keep_screen_on">화면 계속 켜기</string>
+    <string name="phone_keep_screen_on">화면 항상 켜기</string>
     <string name="language">언어</string>
     <string name="theme">테마</string>
-    <string name="theme_black">순수 검정</string>
-    <string name="theme_dark">어둡게</string>
-    <string name="theme_light">밝게</string>
+    <string name="theme_black">순수 블랙</string>
+    <string name="theme_dark">다크</string>
+    <string name="theme_light">라이트</string>
     <string name="theme_system">시스템 따르기</string>
     <string name="accent_color">강조 색상</string>
     <string name="tts_switch_title">음성을 %1$s로 전환하시겠습니까?</string>
-    <string name="tts_switch_body">현재 텍스트 음성 변환 음성이 선택된 언어와 일치하지 않습니다. 알림에 %1$s 음성으로 전환하시겠습니까?</string>
+    <string name="tts_switch_body">현재 TTS 음성이 선택한 언어와 다릅니다. 알림에 %1$s 음성을 사용하시겠습니까?</string>
     <string name="tts_switch_yes">음성 전환</string>
     <string name="tts_switch_no">현재 유지</string>
 
@@ -554,14 +554,14 @@
     <string name="section_speed_limits">속도 제한</string>
     <string name="section_speed_calibration">속도 보정</string>
     <string name="speed_calibration_label">속도 오프셋</string>
-    <string name="speed_calibration_caption">휠이 보고하는 속도를 조정합니다. 알람, 음성 및 이동 로그에 영향을 줍니다</string>
-    <string name="section_legal_mode_speed">법적 모드 속도</string>
-    <string name="legal_mode_caption">법적 모드가 켜져 있을 때 사용됩니다. 일반 틸트백보다 낮아야 합니다</string>
+    <string name="speed_calibration_caption">휠이 보고하는 속도를 조정합니다. 알람, 음성, 트립 로그에 영향을 줍니다</string>
+    <string name="section_legal_mode_speed">리걸 모드 속도</string>
+    <string name="legal_mode_caption">리걸 모드 켜짐 시 사용. 일반 틸트백보다 낮아야 합니다</string>
     <string name="speed_limits_disconnected">속도 제한을 편집하려면 휠을 연결하세요</string>
     <string name="speed_tiltback">틸트백 속도</string>
     <string name="speed_alarm">알람 속도</string>
-    <string name="speed_legal_tiltback">법적 틸트백</string>
-    <string name="speed_legal_alarm">법적 알람</string>
+    <string name="speed_legal_tiltback">리걸 틸트백</string>
+    <string name="speed_legal_alarm">리걸 알람</string>
     <string name="unit_kmh">km/h</string>
     <string name="unit_ms">m/s</string>
     <string name="unit_kn">kn</string>
@@ -575,12 +575,12 @@
     <string name="voice_only_when_connected">휠이 연결된 경우에만</string>
     <string name="voice_interval">간격</string>
     <string name="unit_sec">초</string>
-    <string name="announce_wheel_lock">휠 잠금 / 잠금 해제</string>
-    <string name="announce_lights">조명 켜기 / 끄기</string>
-    <string name="announce_recording">이동 기록</string>
+    <string name="announce_wheel_lock">휠 잠금 / 해제</string>
+    <string name="announce_lights">라이트 켜기 / 끄기</string>
+    <string name="announce_recording">트립 녹화</string>
     <string name="announce_connection">휠 연결 / 해제</string>
     <string name="announce_gps">GPS 신호 손실 / 복구</string>
-    <string name="announce_legal_mode">법적 모드 켜기 / 끄기</string>
+    <string name="announce_legal_mode">리걸 모드 켜기 / 끄기</string>
     <string name="announce_welcome">앱 시작 시 환영 메시지</string>
     <!-- First-launch dashboard welcome tour. The %1$s / %2$s placeholders are
          filled with the real Settings label strings so the copy matches the UI
@@ -592,22 +592,22 @@
     <string name="welcome_tut_step">%1$d / %2$d</string>
     <string name="welcome_tut_skip_title">환영 투어를 건너뛰시겠습니까?</string>
     <string name="welcome_tut_skip_body">다시 표시되지 않습니다</string>
-    <string name="welcome_tut_skip_yes">어쨌든 건너뛰기</string>
-    <string name="welcome_tut_welcome">전동 외발 자전거를 위한 오픈소스 앱, EUC Planet에 오신 것을 환영합니다</string>
+    <string name="welcome_tut_skip_yes">그래도 건너뛰기</string>
+    <string name="welcome_tut_welcome">전동 외발휠(EUC) 전용 오픈소스 앱, EUC Planet에 오신 것을 환영합니다</string>
     <string name="welcome_tut_bt">여기서 휠을 연결하거나 끊으세요</string>
-    <string name="welcome_tut_version">많은 휠이 테스터만 있으면 완전히 지원될 수 있습니다. 버전을 탭하여 정보를 열고 도움을 주세요</string>
-    <string name="welcome_tut_outro_title">투어가 끝났습니다!</string>
-    <string name="welcome_tut_outro_backup">이동을 저장하려면: 설정 → %2$s에서 %1$s를 선택한 다음 eucviewer.ried.no에서 확인하세요</string>
-    <string name="welcome_tut_outro_buttons">많은 버튼에 추가 동작이 있습니다. 길게 눌러 보세요</string>
-    <string name="welcome_tut_outro_alarms">설정 → %1$s에서 강력한 사용자 알람 편집기를 탐색해 보세요</string>
-    <string name="welcome_tut_outro_integrations">Flic 버튼, 시계, HUD, Garmin Connect IQ, 후방 레이더 등의 연동을 탐색해 보세요</string>
-    <string name="welcome_tut_outro_end">외발 자전거를 타는 동안 눈은 도로에, 이 앱은 보지 마세요!</string>
-    <string name="welcome_tut_speed">실시간 속도입니다. 설정 → %1$s에서 단위를 변경하세요</string>
+    <string name="welcome_tut_version">대부분의 휠은 테스터만 있으면 쉽게 지원 추가가 가능합니다. 버전을 탭해 정보 화면을 열고 도움을 주세요</string>
+    <string name="welcome_tut_outro_title">투어 완료!</string>
+    <string name="welcome_tut_outro_backup">트립을 저장하려면: 설정 → %2$s에서 %1$s를 선택한 후 eucviewer.ried.no에서 확인하세요</string>
+    <string name="welcome_tut_outro_buttons">많은 버튼에 추가 기능이 있습니다. 길게 눌러 보세요</string>
+    <string name="welcome_tut_outro_alarms">설정 → %1$s에서 강력한 알람 편집기를 탐색해 보세요</string>
+    <string name="welcome_tut_outro_integrations">Flic 버튼, 워치, HUD, Garmin Connect IQ, 후방 레이더 등의 연동 기능을 살펴보세요</string>
+    <string name="welcome_tut_outro_end">외발휠 주행 중에는 눈을 도로에 고정하고 앱을 보지 마세요!</string>
+    <string name="welcome_tut_speed">실시간 속도입니다. 설정 → %1$s에서 단위를 바꾸세요</string>
     <string name="welcome_tut_metrics">실시간 배터리, 온도, 전압 등. 설정 → %1$s에서 순서를 변경하세요</string>
     <string name="welcome_tut_actions">빠른 컨트롤. 같은 위치의 %2$s에서 조정하세요</string>
-    <string name="welcome_tut_map">내비게이터를 열어 경로를 계획하고 턴바이턴 안내를 받으세요</string>
-    <string name="welcome_tut_gps">탭하면 여기서 실시간 데이터를 확인하고 GPS 속도 기준으로 휠 속도를 보정할 수 있습니다. 나중에 설정 → %1$s에서 보정을 확인하세요</string>
-    <string name="welcome_tut_camera">라이브 원격측정 오버레이로 영상을 녹화하세요. 사용자 오버레이를 만들고 내보내 과거 이동 데이터로 나만의 영상을 제작하세요</string>
+    <string name="welcome_tut_map">내비게이터를 열어 경로를 계획하고 턴-바이-턴 안내를 받으세요</string>
+    <string name="welcome_tut_gps">탭하면 실시간 데이터를 확인하고 GPS 속도 기준으로 휠 속도를 보정할 수 있습니다. 나중에 설정 → %1$s에서도 보정할 수 있습니다</string>
+    <string name="welcome_tut_camera">실시간 텔레메트리 오버레이로 영상을 녹화하세요. 커스텀 오버레이를 만들어 과거 트립 데이터로 나만의 영상을 제작하세요</string>
     <string name="welcome_tut_pd">주차 또는 주행을 표시합니다. 탭하여 %1$s를 설정하세요</string>
     <string name="voice_selector_label">음성</string>
     <string name="voice_speech_speed">말하기 속도</string>
@@ -630,17 +630,17 @@
     <string name="engine_source_synth">합성</string>
     <string name="engine_volume">볼륨</string>
     <string name="engine_muffler_label">머플러</string>
-    <string name="engine_muffler_open">열림</string>
-    <string name="engine_muffler_half">반개</string>
-    <string name="engine_muffler_muffled">소음기</string>
+    <string name="engine_muffler_open">오픈</string>
+    <string name="engine_muffler_half">하프</string>
+    <string name="engine_muffler_muffled">머플드</string>
     <string name="engine_gearbox_label">기어박스</string>
     <string name="engine_gearbox_off">끄기</string>
     <string name="engine_gearbox_four">4단</string>
     <string name="engine_gearbox_six">6단</string>
-    <string name="engine_idle_label">주차 시</string>
+    <string name="engine_idle_label">주차 중</string>
     <string name="engine_idle_always">항상 공회전</string>
     <string name="engine_idle_fade">페이드 아웃</string>
-    <string name="engine_idle_moving">이동 중에만</string>
+    <string name="engine_idle_moving">주행 중에만</string>
     <string name="engine_decel_label">감속 특성</string>
     <string name="engine_decel_smooth">부드럽게</string>
     <string name="engine_decel_standard">표준</string>
@@ -649,12 +649,12 @@
     <string name="engine_brake_off">끄기</string>
     <string name="engine_brake_light">약하게</string>
     <string name="engine_brake_strong">강하게</string>
-    <string name="engine_duck_label">음성 말하는 동안</string>
+    <string name="engine_duck_label">음성 출력 중</string>
     <string name="engine_duck_duck">줄이기</string>
     <string name="engine_duck_pause">일시정지</string>
-    <string name="engine_duck_mix">혼합</string>
+    <string name="engine_duck_mix">믹스</string>
     <string name="engine_headphones_only">헤드폰 사용 시에만</string>
-    <string name="engine_headphones_only_hint">폰 스피커 건너뜀. 유선 또는 블루투스 오디오 사용 시에만 엔진 사운드 재생</string>
+    <string name="engine_headphones_only_hint">폰 스피커로는 출력 안 함. 유선 또는 블루투스 오디오 연결 시에만 재생</string>
     <!-- Engine preset names -->
     <string name="engine_preset_two_stroke">2행정</string>
     <string name="engine_preset_four_stroke_single">4행정 단기통</string>
@@ -665,15 +665,15 @@
     <string name="engine_preset_v12_italian">V12 이탈리안</string>
     <string name="engine_preset_v16_luxury">V16 럭셔리</string>
     <string name="engine_preset_boxer_6">박서 6기통</string>
-    <string name="engine_preset_inline_6_silky">직렬 6기통 (부드러운)</string>
+    <string name="engine_preset_inline_6_silky">직렬 6기통 (실키)</string>
     <string name="engine_preset_tractor">트랙터</string>
     <string name="engine_preset_steam_loco">증기 기관차</string>
-    <string name="engine_preset_tron_whine">트론 휘파람</string>
+    <string name="engine_preset_tron_whine">트론 사운드</string>
     <string name="engine_preset_pod_racer">포드 레이서</string>
-    <string name="engine_preset_lightsaber">광선검</string>
+    <string name="engine_preset_lightsaber">라이트세이버</string>
     <string name="engine_preset_jet_turbine">제트 터빈</string>
     <string name="engine_preset_ufo_hover">UFO 호버</string>
-    <string name="engine_preset_f1_electric">F1 전기 휘파람</string>
+    <string name="engine_preset_f1_electric">F1 전기 사운드</string>
     <string name="engine_preset_hover_bike">호버 바이크</string>
     <string name="engine_preset_sampled_v8_cobra">V8 Cobra</string>
     <string name="engine_preset_sampled_vtwin_ducati">V-twin Ducati</string>
@@ -697,19 +697,19 @@
     <string name="report_temp">온도</string>
     <string name="report_pwm">PWM</string>
     <string name="report_distance">거리</string>
-    <string name="report_recording">기록</string>
+    <string name="report_recording">녹화</string>
     <string name="report_time">시간</string>
     <string name="report_navigation">내비게이션</string>
 
     <!-- Settings: Integration -->
     <string name="section_flic_buttons">Flic 2 버튼</string>
-    <string name="flic_show_on_dashboard">대시보드에 빠른 접근 아이콘</string>
+    <string name="flic_show_on_dashboard">대시보드에 빠른 접근 아이콘 표시</string>
     <string name="flic_scan_hint">Flic 2 버튼을 6초 동안 눌러 페어링 모드로 전환한 후 스캔을 탭하세요</string>
     <string name="flic_stop_scan">스캔 중지</string>
     <string name="flic_start_scan">스캔 시작</string>
-    <string name="flic_forget">잊어버리기</string>
-    <string name="flic_forget_title">이 버튼을 잊어버리시겠습니까?</string>
-    <string name="flic_forget_body">%1$s의 페어링이 해제되고 동작이 지워집니다. 언제든지 다시 페어링할 수 있습니다.</string>
+    <string name="flic_forget">삭제</string>
+    <string name="flic_forget_title">이 버튼을 삭제하시겠습니까?</string>
+    <string name="flic_forget_body">%1$s의 페어링이 해제되고 액션이 지워집니다. 언제든지 다시 페어링할 수 있습니다.</string>
     <string name="flic_rename">이름 변경</string>
     <string name="flic_click">클릭</string>
     <string name="flic_double_click">더블 클릭</string>
@@ -725,9 +725,9 @@
     <string name="external_gps_state_disconnected">연결 끊김</string>
     <string name="external_gps_reconnect">재연결</string>
     <string name="external_gps_disconnect">연결 끊기</string>
-    <string name="external_gps_unpair">기기 잊어버리기</string>
+    <string name="external_gps_unpair">기기 삭제</string>
     <string name="external_gps_axes_title">축 방향</string>
-    <string name="external_gps_axes_desc">각 출력 축을 장치의 원시 축에 재매핑합니다</string>
+    <string name="external_gps_axes_desc">각 출력 축을 기기의 원시 축에 재매핑합니다</string>
     <string name="external_gps_map_x">출력 X</string>
     <string name="external_gps_map_y">출력 Y</string>
     <string name="external_gps_map_z">출력 Z</string>
@@ -735,20 +735,20 @@
     <string name="external_gps_autodetect_title">축 자동 감지</string>
     <string name="external_gps_autodetect_prep">기기를 움직일 준비를 하세요</string>
     <string name="external_gps_autodetect_forward">다음을 누르고 몇 초간 앞으로 걸어가세요</string>
-    <string name="external_gps_autodetect_forward_capture">걷는 동작 읽는 중…</string>
-    <string name="external_gps_autodetect_lateral">다음을 누르고 기기 방향을 바꾸지 않으면서 왼쪽으로 걸어가세요</string>
-    <string name="external_gps_autodetect_lateral_capture">측면 동작 읽는 중…</string>
+    <string name="external_gps_autodetect_forward_capture">전진 동작 감지 중…</string>
+    <string name="external_gps_autodetect_lateral">다음을 누르고 기기 방향을 바꾸지 않고 왼쪽으로 걸어가세요</string>
+    <string name="external_gps_autodetect_lateral_capture">측면 동작 감지 중…</string>
     <string name="external_gps_autodetect_vertical">다음을 누르고 기기를 천천히 바닥으로 내리세요</string>
-    <string name="external_gps_autodetect_vertical_capture">수직 동작 읽는 중…</string>
+    <string name="external_gps_autodetect_vertical_capture">수직 동작 감지 중…</string>
     <string name="external_gps_autodetect_done">축이 감지되어 적용되었습니다</string>
     <string name="external_gps_autodetect_abort">취소</string>
     <string name="external_gps_autodetect_next">다음</string>
     <string name="gps_prioritize_external">외부 GPS 우선 사용</string>
     <string name="gps_show_on_dashboard">대시보드에 속도 표시</string>
-    <string name="gps_show_on_dashboard_desc">속도 다이얼에 GPS 측정값을 나타내는 색상 점 추가</string>
+    <string name="gps_show_on_dashboard_desc">속도 다이얼에 GPS 값을 나타내는 색상 점을 추가합니다</string>
     <string name="section_volume_keys">볼륨 버튼</string>
-    <string name="volume_keys_caption">폰 볼륨 버튼을 바로가기로 사용 (앱이 표시될 때만)</string>
-    <string name="volume_keys_enable">볼륨 버튼 동작 활성화</string>
+    <string name="volume_keys_caption">폰 볼륨 버튼을 바로가기로 사용합니다 (앱이 화면에 표시될 때만)</string>
+    <string name="volume_keys_enable">볼륨 버튼 단축키 활성화</string>
     <string name="volume_up">볼륨 올리기</string>
     <string name="volume_down">볼륨 내리기</string>
 
@@ -763,10 +763,10 @@
     <string name="radar_state_disconnected">연결 끊김</string>
     <string name="radar_reconnect">재연결</string>
     <string name="radar_disconnect">연결 끊기</string>
-    <string name="radar_unpair">기기 잊어버리기</string>
+    <string name="radar_unpair">기기 삭제</string>
     <string name="radar_battery_fmt">배터리 %1$d%%</string>
-    <string name="radar_clear">차선이 비어 있습니다</string>
-    <string name="radar_threats_count">%1$d대 차량 추적 중:</string>
+    <string name="radar_clear">뒤가 안전합니다</string>
+    <string name="radar_threats_count">차량 %1$d대 감지 중:</string>
     <string name="radar_show_overlay">위협 오버레이 표시</string>
     <string name="radar_show_overlay_desc">대시보드 양쪽에 얇은 레이더 차선. 감지된 차량마다 색상 점 하나. 대시보드에서만 표시됩니다.</string>
     <string name="radar_overlay_left">왼쪽 가장자리</string>
@@ -778,24 +778,24 @@
     <string name="voice_battery_fmt">배터리 %1$d 퍼센트</string>
     <string name="voice_temp_fmt">온도 %1$s 도</string>
     <string name="voice_load_fmt">부하 %1$s 퍼센트</string>
-    <string name="voice_trip_fmt">이동 %1$s 킬로미터</string>
-    <string name="voice_trip_miles_fmt">이동 %1$s 마일</string>
-    <string name="voice_trip_meters_fmt">이동 %1$s 미터</string>
+    <string name="voice_trip_fmt">트립 %1$s 킬로미터</string>
+    <string name="voice_trip_miles_fmt">트립 %1$s 마일</string>
+    <string name="voice_trip_meters_fmt">트립 %1$s 미터</string>
     <string name="voice_time_fmt">시간 %1$s</string>
-    <string name="voice_recording_on">기록 중</string>
-    <string name="voice_recording_off">기록 안 함</string>
+    <string name="voice_recording_on">녹화 중</string>
+    <string name="voice_recording_off">녹화 안 함</string>
     <string name="voice_wheel_locked">휠 잠김</string>
     <string name="voice_wheel_unlocked">휠 잠금 해제</string>
-    <string name="voice_lights_on">조명 켜짐</string>
-    <string name="voice_lights_off">조명 꺼짐</string>
-    <string name="voice_recording_started">기록 시작됨</string>
-    <string name="voice_recording_finished">기록 완료됨</string>
+    <string name="voice_lights_on">라이트 켜짐</string>
+    <string name="voice_lights_off">라이트 꺼짐</string>
+    <string name="voice_recording_started">녹화 시작됨</string>
+    <string name="voice_recording_finished">녹화 완료됨</string>
     <string name="voice_wheel_connected">휠 연결됨</string>
     <string name="voice_wheel_disconnected">휠 연결 끊김</string>
     <string name="voice_gps_acquired">GPS 신호 확보됨</string>
     <string name="voice_gps_lost">GPS 신호 손실됨</string>
-    <string name="voice_legal_on">법적 모드 켜짐</string>
-    <string name="voice_legal_off">법적 모드 꺼짐</string>
+    <string name="voice_legal_on">리걸 모드 켜짐</string>
+    <string name="voice_legal_off">리걸 모드 꺼짐</string>
     <string name="voice_welcome">EUC Planet에 다시 오신 것을 환영합니다</string>
 
     <!-- Alarm metrics -->
@@ -816,15 +816,15 @@
     <!-- Flic actions -->
     <string name="flic_action_none">없음</string>
     <string name="flic_action_horn">경적</string>
-    <string name="flic_action_light">조명 전환</string>
+    <string name="flic_action_light">라이트 전환</string>
     <string name="flic_action_lock">휠 잠금</string>
-    <string name="flic_action_legal_toggle">법적 모드 전환</string>
-    <string name="flic_action_legal_on">법적 모드 켜기</string>
-    <string name="flic_action_legal_off">법적 모드 끄기</string>
+    <string name="flic_action_legal_toggle">리걸 모드 전환</string>
+    <string name="flic_action_legal_on">리걸 모드 켜기</string>
+    <string name="flic_action_legal_off">리걸 모드 끄기</string>
     <string name="flic_action_voice">음성 보고</string>
-    <string name="flic_action_record">기록 전환</string>
-    <string name="flic_action_record_start">이동 기록 시작</string>
-    <string name="flic_action_record_stop">이동 기록 중지</string>
+    <string name="flic_action_record">녹화 전환</string>
+    <string name="flic_action_record_start">트립 녹화 시작</string>
+    <string name="flic_action_record_stop">트립 녹화 중지</string>
     <string name="flic_action_media_play">음악 재생 / 일시정지</string>
     <string name="flic_action_media_next">다음 곡</string>
     <string name="flic_action_media_prev">이전 곡</string>
@@ -838,8 +838,8 @@
     <string name="alarm_summary_vibrate">진동</string>
 
     <!-- Share / export chooser titles -->
-    <string name="share_trip_chooser">이동 공유</string>
-    <string name="export_trips_chooser">이동 내보내기</string>
+    <string name="share_trip_chooser">트립 공유</string>
+    <string name="export_trips_chooser">트립 내보내기</string>
 
     <!-- Alarm preview default text -->
     <string name="alarm_test_default">알람 테스트</string>
@@ -852,11 +852,11 @@
     <string name="flic_status_scan_failed_fmt">스캔 실패 (코드 %1$d)</string>
 
     <!-- Scan screen -->
-    <string name="scan_title">휠에 연결</string>
+    <string name="scan_title">휠 연결</string>
     <string name="scan_scanning">검색 중…</string>
     <string name="scan_start">스캔 시작</string>
     <string name="scan_show_all_title">모든 기기 표시</string>
-    <string name="scan_show_all_subtitle">휠이 나타나지 않으면 켜세요</string>
+    <string name="scan_show_all_subtitle">휠이 목록에 나타나지 않으면 켜세요</string>
 
     <!-- Metric detail -->
     <string name="metric_detail_title">기록</string>
@@ -875,30 +875,30 @@
     <!-- Recording screen -->
     <string name="action_delete_all">전체 삭제</string>
     <string name="action_import">가져오기</string>
-    <string name="action_trip_backup_options">이동 백업 옵션</string>
+    <string name="action_trip_backup_options">트립 백업 옵션</string>
     <string name="action_export_all">전체 내보내기</string>
     <string name="action_share">공유</string>
     <string name="action_manage">관리</string>
     <string name="action_view">보기</string>
-    <string name="action_record">기록</string>
+    <string name="action_record">녹화</string>
     <string name="action_stop">중지</string>
-    <string name="recording_title">이동 기록기</string>
-    <string name="recording_clear_all_title">모든 이동 삭제</string>
-    <string name="recording_clear_all_body">기록된 모든 이동과 데이터 파일이 영구적으로 삭제됩니다. 이 작업은 취소할 수 없습니다.</string>
-    <string name="recording_delete_trip_title">이동 삭제</string>
-    <string name="recording_delete_trip_body">이 이동과 데이터 파일을 삭제하시겠습니까?</string>
+    <string name="recording_title">트립 레코더</string>
+    <string name="recording_clear_all_title">모든 트립 삭제</string>
+    <string name="recording_clear_all_body">녹화된 모든 트립과 데이터 파일이 영구 삭제됩니다. 되돌릴 수 없습니다.</string>
+    <string name="recording_delete_trip_title">트립 삭제</string>
+    <string name="recording_delete_trip_body">이 트립과 데이터 파일을 삭제하시겠습니까?</string>
     <string name="recording_clear_all_menu">전체 삭제</string>
-    <string name="recording_empty">표시할 데이터가 없습니다. 가져오거나 새로 기록하세요</string>
-    <string name="recording_will_auto_stop">%1$d초 정지 후 기록이 자동 중지됩니다</string>
-    <string name="recording_stat_trips">이동</string>
+    <string name="recording_empty">데이터가 없습니다. 가져오거나 새로 녹화하세요</string>
+    <string name="recording_will_auto_stop">%1$d초 정지 후 녹화가 자동 종료됩니다</string>
+    <string name="recording_stat_trips">트립</string>
     <string name="recording_stat_distance">거리</string>
     <string name="recording_stat_time">시간</string>
     <string name="recording_gps_locked">GPS 잠금됨</string>
     <string name="recording_gps_waiting">GPS 대기 중…</string>
 
     <!-- Trip detail screen -->
-    <string name="recording_detail_title">이동 세부 정보</string>
-    <string name="recording_no_data">이 이동에 기록된 데이터가 없습니다</string>
+    <string name="recording_detail_title">트립 상세</string>
+    <string name="recording_no_data">이 트립에 녹화된 데이터가 없습니다</string>
     <string name="recording_route">경로</string>
     <string name="recording_summary_distance">거리</string>
     <string name="recording_summary_duration">소요 시간</string>
@@ -923,30 +923,30 @@
     <string name="recording_chart_pwm">PWM (%)</string>
 
     <!-- Automations / Auto tab -->
-    <string name="auto_lights_title">조명</string>
-    <string name="auto_lights_desc">일몰과 일출에 따라 헤드라이트를 켜거나 끕니다</string>
-    <string name="auto_lights_on_before_sunset">일몰 전 조명 켜기</string>
-    <string name="auto_lights_off_after_sunrise">일출 후 조명 끄기</string>
+    <string name="auto_lights_title">라이트</string>
+    <string name="auto_lights_desc">일몰과 일출에 따라 헤드라이트를 자동으로 켜고 끕니다</string>
+    <string name="auto_lights_on_before_sunset">일몰 전 라이트 켜기</string>
+    <string name="auto_lights_off_after_sunrise">일출 후 라이트 끄기</string>
     <string name="auto_minutes_fmt">%1$d분</string>
     <string name="auto_waiting_gps">GPS 위치 대기 중…</string>
     <string name="auto_volume_title">볼륨</string>
     <string name="auto_volume_desc">속도에 따라 음악 볼륨을 높입니다</string>
     <string name="auto_sunrise_sunset">일출 및 일몰</string>
     <string name="auto_midnight_sun_title">백야</string>
-    <string name="auto_midnight_sun_body">오늘은 이 위도에서 해가 지지 않습니다. 조명이 꺼진 상태로 유지됩니다</string>
+    <string name="auto_midnight_sun_body">오늘은 이 위도에서 해가 지지 않습니다. 라이트가 꺼진 상태로 유지됩니다</string>
     <string name="auto_polar_night_title">극야</string>
-    <string name="auto_polar_night_body">오늘은 이 위도에서 해가 뜨지 않습니다. 조명이 켜진 상태로 유지됩니다</string>
-    <string name="auto_lights_suspended">이번 세션에서 사용자가 조명을 전환하여 일시 중지됨. 휠을 재연결하거나 앱을 재시작하면 재개됩니다</string>
+    <string name="auto_polar_night_body">오늘은 이 위도에서 해가 뜨지 않습니다. 라이트가 켜진 상태로 유지됩니다</string>
+    <string name="auto_lights_suspended">이번 세션에서 사용자가 라이트를 수동으로 조작하여 자동화가 일시 중지됨. 휠을 재연결하거나 앱을 재시작하면 재개됩니다</string>
 
     <!-- Alarms tab -->
-    <string name="alarm_help">규칙은 측정항목별로 위에서 아래로 확인됩니다. 각 측정항목에 대해 첫 번째 일치하는 규칙이 발동됩니다</string>
-    <string name="alarm_empty">알람 규칙이 없습니다</string>
+    <string name="alarm_help">규칙은 지표별로 위에서 아래 순서로 검사됩니다. 각 지표에서 첫 번째로 일치하는 규칙이 발동됩니다</string>
+    <string name="alarm_empty">알람 규칙 없음</string>
     <string name="alarm_add">새 알람</string>
     <string name="alarm_new">새 알람</string>
     <string name="alarm_edit">알람 편집</string>
     <string name="alarm_delete_title">이 알람을 삭제하시겠습니까?</string>
-    <string name="alarm_delete_body">%1$s가 제거됩니다. 이 작업은 취소할 수 없습니다.</string>
-    <string name="alarm_metric_label">측정항목</string>
+    <string name="alarm_delete_body">%1$s가 제거됩니다. 되돌릴 수 없습니다.</string>
+    <string name="alarm_metric_label">지표</string>
     <string name="alarm_comparator_label">조건</string>
     <string name="alarm_threshold_fmt">임계값: %1$s %2$s</string>
     <string name="alarm_threshold_decrease">임계값 낮추기</string>
@@ -962,12 +962,12 @@
     <string name="sources_compare">비교</string>
     <string name="sources_same_source">동일한 소스 선택됨</string>
     <string name="sources_speed">속도</string>
-    <string name="sources_heading">방향</string>
+    <string name="sources_heading">방위</string>
     <string name="sources_vertical_speed">수직 속도</string>
     <string name="sources_position">위치</string>
-    <string name="sources_gforce">G-포스</string>
+    <string name="sources_gforce">G-force</string>
     <string name="sources_g_horizontal">|G| (수평)</string>
-    <string name="sources_lateral_x">측면 (X)</string>
+    <string name="sources_lateral_x">횡방향 (X)</string>
     <string name="sources_vertical_y">수직 (Y)</string>
     <string name="sources_forward_z">전방 (Z)</string>
     <string name="sources_distance_between_fixes">측위 간격 거리</string>
@@ -977,10 +977,10 @@
     <string name="sources_fresh_minutes_fmt">%1$d분 전</string>
     <string name="sources_fresh_hours_fmt">%1$d시간 전</string>
     <string name="sources_sats_fmt">위성 %1$d개</string>
-    <string name="sources_other_metrics">기타 측정항목</string>
+    <string name="sources_other_metrics">기타 지표</string>
     <string name="sources_collecting">수집 중…</string>
     <string name="sources_reset_avg">평균 초기화</string>
-    <string name="sources_apply_calibration">휠 보정</string>
+    <string name="sources_apply_calibration">휠 속도 보정</string>
     <string name="sources_apply_calibration_title">속도 보정 적용</string>
     <string name="sources_apply_calibration_body_fmt">휠 속도 보정을 %1$+.1f %%로 설정하시겠습니까?\n\n나중에 휠 파라미터에서 변경할 수 있습니다.</string>
     <string name="sources_apply">적용</string>
@@ -1001,51 +1001,51 @@
     <string name="alarm_vibrate_duration_fmt">지속 시간: %1$dms</string>
     <string name="alarm_vibrate_target_label">진동 위치</string>
     <string name="alarm_vibrate_target_phone">폰</string>
-    <string name="alarm_vibrate_target_watch">시계</string>
+    <string name="alarm_vibrate_target_watch">워치</string>
     <string name="alarm_vibrate_target_both">모두</string>
     <string name="alarm_section_timing">타이밍</string>
     <string name="alarm_cooldown_fmt">쿨다운: %1$d초</string>
     <string name="alarm_cooldown_help">조건이 계속 일치하더라도 이 규칙이 발동하는 최소 간격입니다</string>
-    <string name="alarm_repeat">활성 상태 중 반복</string>
-    <string name="alarm_repeat_help">켜기: 조건이 유지되는 동안 매 쿨다운마다 재발동합니다.\n끄기: 한 번 발동되고 조건이 해제될 때까지 조용히 유지됩니다</string>
+    <string name="alarm_repeat">활성 중 반복</string>
+    <string name="alarm_repeat_help">켜기: 조건이 유지되는 동안 매 쿨다운마다 재발동합니다.\n끄기: 한 번 발동 후 조건이 해제될 때까지 조용히 유지됩니다</string>
 
     <!-- About / crash logs -->
     <string name="about_crash_logs">충돌 로그</string>
     <string name="about_crash_logs_empty">기록된 충돌 없음</string>
     <string name="about_share_crash">충돌 로그 공유</string>
     <string name="about_thanks">크레딧</string>
-    <string name="about_thanks_body">너무 느리게 발전하고, 구식으로 보이고, 새 기능에 독단적인 규칙이 있으며, 커뮤니티를 고객으로 대하고, 라이더들이 서로 돕는 것을 잊어버린 EUC 앱에 지쳐 만들었습니다. 이 앱은 그 반대를 추구합니다.</string>
+    <string name="about_thanks_body">너무 느리게 발전하고, 구식으로 보이며, 새 기능에 독단적인 규칙을 적용하고, 커뮤니티를 고객 취급하며, 라이더끼리 서로 돕는 문화를 잊어버린 EUC 앱에 지쳐 만들었습니다. 이 앱은 그 반대를 추구합니다.</string>
     <string name="about_license">라이선스</string>
     <string name="service_mode_title">서비스 모드</string>
-    <string name="service_mode_caution">주의: 서비스 모드를 잘못 사용하면 휠 기능 상실, 심각한 부상 또는 사망에 이를 수 있습니다</string>
-    <string name="service_mode_purpose">서비스 모드는 자격을 갖춘 EUC 전문가가 진단, 수리, 보정 및 프로토콜 연구를 수행하기 위한 것입니다</string>
-    <string name="service_mode_recording">활성 상태 동안 앱은 휠로 전송되거나 수신되는 모든 BLE 바이트와 테스트 명령을 기록합니다. 로그는 앱이 닫힐 때까지 메모리에 저장됩니다.</string>
-    <string name="service_mode_link">자세한 내용은 eucplanet.ried.no/service를 방문하세요.</string>
+    <string name="service_mode_caution">주의: 서비스 모드를 잘못 사용하면 휠 기능 손상, 심각한 부상 또는 사망으로 이어질 수 있습니다</string>
+    <string name="service_mode_purpose">서비스 모드는 자격을 갖춘 EUC 전문가가 진단, 수리, 보정 및 프로토콜 연구를 수행하기 위한 기능입니다</string>
+    <string name="service_mode_recording">활성 중에는 휠에 주고받는 모든 BLE 바이트와 테스트 명령이 기록됩니다. 로그는 앱을 닫을 때까지 메모리에 보존됩니다.</string>
+    <string name="service_mode_link">자세한 내용은 eucplanet.ried.no/service를 참고하세요.</string>
     <string name="service_mode_enter">진입</string>
-    <string name="toast_external_speed_change">휠에서 속도 업데이트됨: 틸트백 %1$d km/h, 알람 %2$d km/h</string>
+    <string name="toast_external_speed_change">휠 속도 업데이트됨: 틸트백 %1$d km/h, 알람 %2$d km/h</string>
 
     <!-- ==== EucStats online upload onboarding ==== -->
 
     <!-- Step 1: Consent -->
     <string name="online_upload_consent_title">EUC Stats 리더보드에 참가</string>
-    <string name="online_upload_consent_intro">참가 전에 공개되는 정보를 읽어보세요:</string>
+    <string name="online_upload_consent_intro">참가 전에 공개되는 정보를 확인하세요:</string>
     <string name="online_upload_consent_bullet_name">표시 이름</string>
-    <string name="online_upload_consent_bullet_flag">국가 깃발</string>
-    <string name="online_upload_consent_bullet_avatar">아바타 사진</string>
+    <string name="online_upload_consent_bullet_flag">국가 국기</string>
+    <string name="online_upload_consent_bullet_avatar">프로필 사진</string>
     <string name="online_upload_consent_bullet_stats">거리 및 속도 등 전체 주행 통계</string>
-    <string name="online_upload_consent_bullet_location">위치는 개인 정보 보호를 위해 지도의 넓은 영역으로 클러스터링됩니다</string>
-    <string name="online_upload_consent_no_raw_gps">원시 GPS 경로는 공개되지 않습니다.</string>
+    <string name="online_upload_consent_bullet_location">위치는 개인정보 보호를 위해 지도의 넓은 구역으로 묶여 표시됩니다</string>
+    <string name="online_upload_consent_no_raw_gps">원시 GPS 트랙은 공개되지 않습니다.</string>
     <string name="online_upload_consent_agree">동의 &amp; 계속</string>
 
     <!-- Step 2: Profile -->
     <string name="online_upload_profile_title">프로필 만들기</string>
     <string name="online_upload_profile_name_label">고유 표시 이름</string>
     <string name="online_upload_profile_country_label">국가</string>
-    <string name="online_upload_profile_country_select">국가를 선택하세요</string>
+    <string name="online_upload_profile_country_select">국가 선택</string>
     <string name="online_upload_country_search">국가 검색</string>
     <string name="online_upload_profile_avatar_hint">탭하여 사진 추가</string>
     <string name="online_upload_profile_flag_label">국가 코드 (ISO 3166-1 alpha-2)</string>
-    <string name="online_upload_profile_flag_placeholder">예: NO, US, DE</string>
+    <string name="online_upload_profile_flag_placeholder">예: NO, US, KR</string>
     <string name="online_upload_profile_flag_error">2자리 국가 코드를 입력하세요 (예: KR)</string>
     <string name="online_upload_profile_avatar_pick">사진 선택…</string>
     <string name="online_upload_profile_avatar_change">사진 변경…</string>
@@ -1063,53 +1063,53 @@
     <string name="online_upload_toggle">온라인 리더보드에 참가</string>
     <string name="online_upload_card_loading">불러오는 중…</string>
     <string name="online_upload_card_unavailable">통계를 불러올 수 없습니다.</string>
-    <string name="online_upload_card_missing">이 폰의 리더보드 프로필이 서버에 더 이상 없으므로 새 업로드가 거부됩니다. 예상치 못한 상황이라면 리더보드 관리자에게 문의하세요.</string>
-    <string name="online_upload_actions_caption">이동 통계 업로드</string>
-    <string name="online_upload_actions_desc">아직 업로드되지 않은 이동을 리더보드로 보냅니다.</string>
+    <string name="online_upload_card_missing">이 폰의 리더보드 프로필이 서버에 없어 새 업로드가 거부됩니다. 예상치 못한 상황이라면 리더보드 관리자에게 문의하세요.</string>
+    <string name="online_upload_actions_caption">트립 통계 업로드</string>
+    <string name="online_upload_actions_desc">아직 업로드되지 않은 트립을 리더보드로 전송합니다.</string>
     <string name="online_upload_sync_nothing">동기화할 항목 없음</string>
-    <string name="online_upload_sync_done">%1$d개 이동 동기화됨</string>
-    <string name="online_upload_sync_checking">업로드할 이동 확인 중…</string>
+    <string name="online_upload_sync_done">트립 %1$d개 동기화됨</string>
+    <string name="online_upload_sync_checking">업로드할 트립 확인 중…</string>
     <string name="online_upload_sync_progress">%1$d / %2$d 업로드 중</string>
-    <string name="online_rider_id_conflict">이 폴더에 이미 다른 라이더의 복구 ID가 저장되어 있습니다 — 유지했으며 덮어쓰지 않았습니다.</string>
+    <string name="online_rider_id_conflict">이 폴더에 이미 다른 라이더의 복구 ID가 있습니다. 기존 ID를 유지하고 덮어쓰지 않았습니다.</string>
     <string name="online_upload_view_on_eucstats">EUC Stats에서 보기</string>
     <string name="online_upload_retry">업로드 재시도</string>
-    <string name="online_upload_mileage_rank">#%d 주행 거리</string>
+    <string name="online_upload_mileage_rank">#%d 주행거리</string>
     <string name="online_upload_top_speed">최고 %1$s %2$s</string>
-    <string name="online_upload_trips">%d개 이동</string>
+    <string name="online_upload_trips">%d트립</string>
     <string name="online_upload_total_km">%1$s %2$s</string>
     <string name="online_upload_join">리더보드 참가</string>
     <string name="online_status_shared">리더보드에 공유됨</string>
     <string name="online_status_flagged">공유됨, 검토 중</string>
     <string name="online_status_pending">리더보드에 업로드 중…</string>
-    <string name="online_status_failed">온라인 업로드 실패, 탭하여 재시도</string>
-    <string name="online_upload_join_caption">통계와 이동을 다음 공개 리더보드로 보내려면 참가하세요</string>
-    <string name="online_upload_linked_caption">통계와 이동이 다음 공개 리더보드에 표시됩니다</string>
+    <string name="online_status_failed">업로드 실패. 탭하여 재시도</string>
+    <string name="online_upload_join_caption">통계와 트립을 다음 공개 리더보드로 보내려면 참가하세요</string>
+    <string name="online_upload_linked_caption">통계와 트립이 다음 공개 리더보드에 표시됩니다</string>
     <string name="online_upload_site_label">eucstats.ried.no</string>
     <string name="online_upload_site_url">https://eucstats.ried.no/</string>
     <string name="online_upload_unlink">연결 해제</string>
-    <string name="online_unlink_title">리더보드에서 연결을 해제하시겠습니까?</string>
-    <string name="online_unlink_body">이 폰은 더 이상 주행을 업로드하지 않습니다. 라이더 ID가 저장되므로 같은 라이더로 다시 참가할 수 있습니다. 통계는 EUC Stats에 유지됩니다. 삭제하려면 계정 삭제를 사용하세요.</string>
+    <string name="online_unlink_title">리더보드 연결을 해제하시겠습니까?</string>
+    <string name="online_unlink_body">이 폰은 더 이상 주행을 업로드하지 않습니다. 라이더 ID는 저장되어 있어 같은 라이더로 다시 참가할 수 있습니다. 통계는 EUC Stats에 유지됩니다. 삭제하려면 계정 삭제를 사용하세요.</string>
     <string name="online_unlink_confirm">연결 해제</string>
 
     <!-- Online profile (edit/GDPR) -->
     <string name="online_profile_manage">프로필 관리</string>
     <string name="online_profile_title">내 프로필</string>
-    <string name="online_profile_changeable_on">%1$s에 다시 변경할 수 있습니다</string>
+    <string name="online_profile_changeable_on">%1$s부터 다시 변경할 수 있습니다</string>
     <string name="online_profile_avatar_has">설정됨</string>
     <string name="online_profile_export_data">내 데이터 내보내기</string>
     <string name="online_profile_delete_account">계정 삭제</string>
     <string name="online_profile_delete_confirm_title">계정을 삭제하시겠습니까?</string>
-    <string name="online_profile_delete_confirm_body">EUC Stats 프로필, 통계 및 업로드된 데이터가 영구적으로 삭제됩니다. 이 작업은 취소할 수 없습니다.</string>
+    <string name="online_profile_delete_confirm_body">EUC Stats 프로필, 통계, 업로드된 데이터가 영구 삭제됩니다. 되돌릴 수 없습니다.</string>
     <string name="online_profile_delete_confirm_action">영구 삭제</string>
-    <string name="online_profile_save_rate_limited">요청 제한됨. 나중에 다시 시도하세요.</string>
+    <string name="online_profile_save_rate_limited">요청이 너무 잦습니다. 나중에 다시 시도하세요.</string>
     <string name="online_profile_save_failed">저장 실패 (HTTP %1$d). 다시 시도하세요.</string>
-    <string name="online_status_flagged_why">빠른 자동 검사 중입니다. 통과되면 리더보드에 합류합니다.</string>
-    <string name="online_restore_title">저장된 프로필이 발견되었습니다</string>
-    <string name="online_restore_body_new">여기에 저장된 프로필이 있습니다: %1$s. 계속하면 해당 라이더로 공개 리더보드에 다시 참가하게 됩니다. 이름, 깃발, 아바타 및 주행 통계가 공개됩니다. 새 프로필이 만들어지지 않습니다.</string>
-    <string name="online_restore_body_switch">저장된 다른 프로필이 있습니다: %1$s. 계속하면 이 폰이 해당 라이더로 전환됩니다. 현재 프로필이 먼저 백업됩니다.</string>
+    <string name="online_status_flagged_why">자동 검사 중입니다. 통과되면 리더보드에 반영됩니다.</string>
+    <string name="online_restore_title">저장된 프로필 발견</string>
+    <string name="online_restore_body_new">여기에 저장된 프로필이 있습니다: %1$s. 계속하면 해당 라이더로 공개 리더보드에 다시 참가합니다. 이름, 국기, 사진, 주행 통계가 공개됩니다. 새 프로필은 만들어지지 않습니다.</string>
+    <string name="online_restore_body_switch">다른 저장된 프로필이 있습니다: %1$s. 계속하면 이 폰이 해당 라이더로 전환됩니다. 현재 프로필은 먼저 백업됩니다.</string>
     <string name="online_restore_confirm">%1$s로 계속</string>
     <string name="online_rejoin_title">리더보드에 다시 참가하시겠습니까?</string>
-    <string name="online_rejoin_body">저장된 프로필 %1$s로 다시 참가합니다. 이 폰은 해당 프로필에 새 이동을 다시 업로드합니다.</string>
+    <string name="online_rejoin_body">저장된 프로필 %1$s로 다시 참가합니다. 이 폰은 해당 프로필에 새 트립을 업로드합니다.</string>
 
     <!-- ==== Overlay Studio ==== -->
     <string name="studio_open">Overlay Studio 열기</string>
@@ -1121,9 +1121,9 @@
     <string name="studio_photo_failed">사진을 저장할 수 없습니다</string>
     <string name="studio_recording_saved">녹화가 갤러리에 저장되었습니다</string>
     <string name="studio_recording_failed">녹화를 저장할 수 없습니다</string>
-    <string name="studio_image_failed">해당 이미지를 불러올 수 없습니다</string>
+    <string name="studio_image_failed">이미지를 불러올 수 없습니다</string>
     <string name="studio_preset_saved">프리셋이 저장되었습니다</string>
-    <string name="studio_preset_loaded">프리셋이 불러와졌습니다</string>
+    <string name="studio_preset_loaded">프리셋을 불러왔습니다</string>
     <string name="studio_preset_failed">프리셋을 저장할 수 없습니다</string>
     <string name="studio_no_folder">프리셋을 저장하려면 먼저 백업 폴더를 설정하세요</string>
     <string name="studio_your_presets_empty">저장된 프리셋이 없습니다. 현재 레이아웃을 저장하여 추가하세요.</string>
@@ -1168,7 +1168,7 @@
 
     <!-- Studio: confirm dialogs -->
     <string name="studio_dlg_new_title">새 프리셋?</string>
-    <string name="studio_dlg_new_body">모든 오버레이가 지워지고 화면이 단일 카메라 뷰포트로 초기화됩니다. 저장된 프리셋에는 영향을 주지 않습니다.</string>
+    <string name="studio_dlg_new_body">모든 오버레이가 지워지고 화면이 단일 카메라 뷰포트로 초기화됩니다. 저장된 프리셋에는 영향 없습니다.</string>
     <string name="studio_dlg_new_confirm">새로 만들기</string>
     <string name="studio_dlg_load_title">프리셋을 불러오시겠습니까?</string>
     <string name="studio_dlg_load_body">"%1$s"을(를) 불러오면 현재 프리셋이 교체됩니다. 유지하려면 먼저 저장하세요.</string>
@@ -1188,7 +1188,7 @@
     <string name="studio_section_landscape">가로</string>
     <string name="studio_section_your_presets">내 프리셋</string>
     <string name="studio_dlg_delete_preset_title">프리셋을 삭제하시겠습니까?</string>
-    <string name="studio_dlg_delete_preset_body">"%1$s"이(가) 영구적으로 삭제됩니다.</string>
+    <string name="studio_dlg_delete_preset_body">"%1$s"이(가) 영구 삭제됩니다.</string>
     <string name="studio_cd_delete_preset">프리셋 삭제</string>
 
     <!-- Studio: add element sheet -->
@@ -1205,21 +1205,21 @@
     <string name="studio_element_floating_camera">플로팅 카메라</string>
     <string name="studio_element_image">이미지 / 클립아트</string>
     <string name="studio_element_clock">시계</string>
-    <string name="studio_element_g_force">G-포스</string>
+    <string name="studio_element_g_force">G-force</string>
     <string name="studio_element_map">지도</string>
 
     <!-- Studio: element type hints (shown in add-element list) -->
     <string name="studio_hint_wheel_name">연결된 휠의 이름</string>
     <string name="studio_hint_app_badge">EUC Planet 이름 및 아이콘</string>
-    <string name="studio_hint_text">직접 작성하는 사용자 텍스트</string>
-    <string name="studio_hint_data_value">속도 또는 배터리와 같은 실시간 값</string>
+    <string name="studio_hint_text">직접 작성하는 커스텀 텍스트</string>
+    <string name="studio_hint_data_value">속도나 배터리 같은 실시간 값</string>
     <string name="studio_hint_data_graph">값의 롤링 그래프</string>
     <string name="studio_hint_data_dial">값의 원형 다이얼 게이지</string>
     <string name="studio_hint_data_bar">값의 선형 바 게이지</string>
-    <string name="studio_hint_floating_camera">소형 화면 속 화면 카메라</string>
-    <string name="studio_hint_image">프리셋에 포함된 사용자 이미지</string>
+    <string name="studio_hint_floating_camera">소형 PIP 카메라</string>
+    <string name="studio_hint_image">프리셋에 포함된 이미지</string>
     <string name="studio_hint_clock">시계, 아날로그 워치 또는 스톱워치</string>
-    <string name="studio_hint_g_force">G-포스 궤적 원</string>
+    <string name="studio_hint_g_force">G-force 궤적 원</string>
     <string name="studio_hint_map">궤적이 있는 실시간 미니 지도</string>
 
     <!-- Studio: layout picker -->
@@ -1271,7 +1271,7 @@
     <string name="studio_cfg_filter_sepia">세피아</string>
     <string name="studio_cfg_filter_warm">따뜻하게</string>
     <string name="studio_cfg_filter_cool">차갑게</string>
-    <string name="studio_cfg_zoom">확대/축소</string>
+    <string name="studio_cfg_zoom">줌</string>
     <string name="studio_cfg_shadow">그림자</string>
     <string name="studio_cfg_style">스타일</string>
     <string name="studio_cfg_geometry">형태</string>
@@ -1285,7 +1285,7 @@
 
     <!-- Studio: element config sheet -->
     <string name="studio_cfg_text_label">텍스트</string>
-    <string name="studio_cfg_text_variables">변수: {speed} {battery} {temp} {voltage} {current} {power} {pwm} {trip} {odometer} {pitch} {roll} {wheel}. 새 줄을 시작하려면 Enter를 누르세요.</string>
+    <string name="studio_cfg_text_variables">변수: {speed} {battery} {temp} {voltage} {current} {power} {pwm} {trip} {odometer} {pitch} {roll} {wheel}. 새 줄은 Enter 키를 누르세요.</string>
     <string name="studio_cfg_alignment">정렬</string>
     <string name="studio_cfg_align_left">왼쪽</string>
     <string name="studio_cfg_align_centre">가운데</string>
@@ -1295,26 +1295,26 @@
     <string name="studio_cfg_clock_analog">아날로그</string>
     <string name="studio_cfg_clock_text">텍스트</string>
     <string name="studio_cfg_clock_stopwatch">스톱워치</string>
-    <string name="studio_cfg_clock_show_date">날짜 줄 표시</string>
+    <string name="studio_cfg_clock_show_date">날짜 표시</string>
     <string name="studio_cfg_clock_24h">24시간 형식</string>
-    <string name="studio_cfg_metric_label">측정항목</string>
+    <string name="studio_cfg_metric_label">지표</string>
     <string name="studio_cfg_max_label">최댓값</string>
     <string name="studio_cfg_show_label">레이블 표시</string>
-    <string name="studio_cfg_badge_stacked">겹치기 (위에 아이콘)</string>
+    <string name="studio_cfg_badge_stacked">세로 배치 (위에 아이콘)</string>
     <string name="studio_cfg_badge_show_name">앱 이름 표시</string>
     <string name="studio_cfg_badge_show_version">버전 번호 표시</string>
-    <string name="studio_cfg_time_window_label">시간 창</string>
+    <string name="studio_cfg_time_window_label">시간 구간</string>
     <string name="studio_cfg_time_window_fmt">%1$d초</string>
     <string name="studio_cfg_trail_label">궤적 길이</string>
     <string name="studio_cfg_map_style">지도 스타일</string>
     <string name="studio_cfg_map_street">거리</string>
-    <string name="studio_cfg_map_dark">어둡게</string>
+    <string name="studio_cfg_map_dark">다크</string>
     <string name="studio_cfg_map_satellite">위성</string>
-    <string name="studio_cfg_map_zoom">확대/축소</string>
+    <string name="studio_cfg_map_zoom">줌</string>
     <string name="studio_cfg_map_rotate">이동 방향으로 회전</string>
     <string name="studio_cfg_map_trace">궤적 표시</string>
-    <string name="studio_cfg_map_use_custom_marker">맞춤 마커 우선 사용</string>
-    <string name="studio_cfg_map_use_custom_marker_hint">내비게이터 → 내 마커 맞춤 설정에서 사진을 설정하세요</string>
+    <string name="studio_cfg_map_use_custom_marker">커스텀 마커 우선 사용</string>
+    <string name="studio_cfg_map_use_custom_marker_hint">내비게이터 → 내 마커 커스텀에서 사진을 설정하세요</string>
     <string name="studio_cfg_camera_label">카메라</string>
     <string name="studio_cfg_replace_image">이미지 교체</string>
     <string name="studio_cfg_chroma_key">색상을 투명하게 만들기</string>
@@ -1331,22 +1331,22 @@
 
     <!-- Studio: manage elements sheet -->
     <string name="studio_manage_title">요소 관리</string>
-    <string name="studio_manage_empty">아직 요소가 없습니다. 요소 추가를 사용하여 배치하세요.</string>
+    <string name="studio_manage_empty">요소가 없습니다. 요소 추가를 사용하여 배치하세요.</string>
     <string name="studio_manage_hint">드래그하여 순서 변경, 행 탭하여 선택</string>
     <string name="studio_cd_drag_reorder">드래그하여 순서 변경</string>
     <string name="studio_cd_delete_element">요소 삭제</string>
 
     <!-- Studio: colour picker -->
-    <string name="studio_colour_picker_title">사용자 색상</string>
+    <string name="studio_colour_picker_title">커스텀 색상</string>
     <string name="studio_colour_opacity_label">불투명도</string>
     <string name="studio_colour_opacity_fmt">%1$d%%</string>
     <string name="studio_colour_select">선택</string>
     <string name="studio_cd_invisible">투명</string>
-    <string name="studio_cd_custom_colour">사용자 색상</string>
+    <string name="studio_cd_custom_colour">커스텀 색상</string>
 
     <!-- Studio: viewport pane messages -->
     <string name="studio_pane_camera_access_needed">카메라 접근 권한 필요</string>
-    <string name="studio_pane_camera_conflict">이 기기에서 %1$s는 다른 카메라와 함께 실행할 수 없습니다</string>
+    <string name="studio_pane_camera_conflict">이 기기에서 %1$s는 다른 카메라와 동시에 사용할 수 없습니다</string>
     <string name="studio_pane_camera_unavailable">카메라를 사용할 수 없습니다</string>
     <string name="studio_pane_choose_image">렌치를 탭하여 이미지를 선택하세요</string>
     <string name="studio_cd_resize_section">섹션 크기 조정</string>
@@ -1359,12 +1359,12 @@
     <!-- Studio: replay panel -->
     <string name="studio_replay_title">리플레이</string>
     <string name="studio_flyout_live">라이브</string>
-    <string name="studio_replay_choose_trip">이동 선택</string>
+    <string name="studio_replay_choose_trip">트립 선택</string>
     <string name="studio_replay_speed_title">리플레이 속도</string>
     <string name="studio_replay_cd_fade">패널 페이드</string>
     <string name="studio_replay_cd_back">뒤로</string>
     <string name="studio_replay_cd_close">리플레이 닫기</string>
-    <string name="studio_replay_no_trips">아직 기록된 이동이 없습니다</string>
+    <string name="studio_replay_no_trips">아직 녹화된 트립이 없습니다</string>
     <string name="studio_replay_cd_play">재생</string>
     <string name="studio_replay_cd_pause">일시정지</string>
     <string name="studio_replay_cd_speed">리플레이 속도</string>
@@ -1377,11 +1377,11 @@
     <string name="studio_metric_current">전류</string>
     <string name="studio_metric_power">파워</string>
     <string name="studio_metric_pwm">PWM</string>
-    <string name="studio_metric_trip_distance">이동 거리</string>
-    <string name="studio_metric_odometer">주행 거리계</string>
+    <string name="studio_metric_trip_distance">트립 거리</string>
+    <string name="studio_metric_odometer">주행거리계</string>
     <string name="studio_metric_pitch">피치</string>
     <string name="studio_metric_roll">롤</string>
-    <string name="studio_metric_g_force">G-포스</string>
+    <string name="studio_metric_g_force">G-force</string>
 
     <!-- Navigator -->
     <string name="tab_navigator">내비게이터</string>
@@ -1389,9 +1389,9 @@
     <string name="nav_title">경로 작성기</string>
     <string name="nav_search_hint">주소 또는 장소 검색</string>
     <string name="nav_searching">검색 중…</string>
-    <string name="nav_locating">위치를 찾는 중…</string>
+    <string name="nav_locating">위치 찾는 중…</string>
     <string name="nav_skip_locating">건너뛰기</string>
-    <string name="nav_no_results">일치하는 결과 없음</string>
+    <string name="nav_no_results">결과 없음</string>
     <string name="nav_mode_cycling">자전거</string>
     <string name="nav_mode_driving">자동차</string>
     <string name="nav_mode_walking">도보</string>
@@ -1400,28 +1400,28 @@
     <string name="nav_menu_save">경로 저장 (GPX)</string>
     <string name="nav_menu_load">경로 불러오기 (GPX)</string>
     <string name="nav_menu_clear">새 경로</string>
-    <string name="nav_clear_home">집 잊어버리기</string>
-    <string name="nav_clear_work">직장 잊어버리기</string>
+    <string name="nav_clear_home">집 삭제</string>
+    <string name="nav_clear_work">직장 삭제</string>
     <string name="nav_menu_exit">대시보드로 돌아가기</string>
     <string name="nav_waypoints">경유지</string>
     <string name="nav_waypoint_default">핀 %1$d</string>
-    <string name="nav_role_start">시작</string>
+    <string name="nav_role_start">출발</string>
     <string name="nav_role_current_location">현재 위치</string>
     <string name="nav_role_destination">목적지</string>
-    <string name="nav_max_stops">목적지 1개 및 경유지 24개까지</string>
+    <string name="nav_max_stops">목적지 1개 및 경유지 최대 24개</string>
     <string name="nav_pin_set_my_location">내 위치로 설정</string>
     <string name="nav_pin_remove">제거</string>
-    <string name="nav_pin_center">지도에서 가운데로</string>
+    <string name="nav_pin_center">지도 중앙으로</string>
     <string name="nav_save_home">집으로 저장</string>
-    <string name="nav_customize_marker">내 마커 맞춤 설정</string>
-    <string name="nav_customize_marker_short">맞춤 설정</string>
+    <string name="nav_customize_marker">내 마커 커스텀</string>
+    <string name="nav_customize_marker_short">커스텀</string>
     <string name="nav_remove_marker_photo">내 마커 초기화</string>
     <string name="nav_remove_marker_photo_short">초기화</string>
     <string name="nav_save_work">직장으로 저장</string>
     <string name="nav_self_title">내 위치</string>
     <string name="nav_self_add_stop">경유지로 추가</string>
     <string name="nav_clear_confirm">새 경로를 시작하시겠습니까?</string>
-    <string name="nav_clear_confirm_body">현재 경유지가 지워집니다.</string>
+    <string name="nav_clear_confirm_body">현재 경유지가 모두 지워집니다.</string>
     <string name="nav_load_confirm">현재 경로를 불러온 GPX로 교체하시겠습니까?</string>
     <string name="nav_menu_load_short">불러오기</string>
     <string name="nav_tap_on_self">경유지 목록에서 경유지를 길게 눌러 내 위치로 설정하세요</string>
@@ -1432,8 +1432,8 @@
     <string name="nav_last_stop">마지막 경유지</string>
     <string name="nav_need_destination">먼저 목적지를 추가하세요</string>
     <string name="nav_map_style">지도 스타일</string>
-    <string name="nav_map_dark">어두운 지도</string>
-    <string name="nav_map_light">밝은 지도</string>
+    <string name="nav_map_dark">다크 지도</string>
+    <string name="nav_map_light">라이트 지도</string>
     <string name="nav_map_satellite">위성 지도</string>
     <string-array name="nav_stop_ordinals">
         <item>첫 번째 경유지</item>
@@ -1448,12 +1448,12 @@
     <string name="nav_my_location">내 위치</string>
     <string name="nav_no_location">GPS 신호 대기 중…</string>
     <string name="nav_route_distance">경로 거리: %1$s</string>
-    <string name="nav_empty_hint">지도를 탭하거나, 검색하거나, GPX 파일을 불러오세요</string>
+    <string name="nav_empty_hint">지도를 탭하거나 검색하거나 GPX 파일을 불러오세요</string>
     <string name="nav_need_two">내비게이션을 시작하려면 경유지를 두 개 이상 추가하세요.</string>
-    <string name="nav_routing">경로를 찾는 중…</string>
-    <string name="nav_route_failed">경로 서비스를 사용할 수 없습니다. 직선으로 표시합니다</string>
-    <string name="nav_cant_add_while_running">내비게이션 실행 중에는 경유지를 추가할 수 없습니다</string>
-    <string name="nav_search_no_results">해당 주소에 대한 결과 없음</string>
+    <string name="nav_routing">경로 탐색 중…</string>
+    <string name="nav_route_failed">경로 서비스를 사용할 수 없어 직선으로 표시합니다</string>
+    <string name="nav_cant_add_while_running">내비게이션 중에는 경유지를 추가할 수 없습니다</string>
+    <string name="nav_search_no_results">해당 주소의 결과가 없습니다</string>
     <string name="nav_save_failed">경로를 저장할 수 없습니다</string>
     <string name="nav_route_saved">경로가 저장되었습니다</string>
     <string name="nav_load_failed">해당 GPX 파일을 읽을 수 없습니다</string>
@@ -1463,7 +1463,7 @@
 
     <!-- Navigation overlay -->
     <string name="nav_start_riding">주행 시작</string>
-    <string name="nav_arrived">도착했습니다</string>
+    <string name="nav_arrived">목적지 도착</string>
     <string name="nav_arrived_goal">목표 %1$d 도달</string>
     <string name="nav_end_title">내비게이션을 종료하시겠습니까?</string>
     <string name="nav_end_body">현재 경로의 안내를 중지하시겠습니까?</string>
@@ -1471,12 +1471,12 @@
     <string name="nav_minimize">최소화</string>
     <string name="nav_expand">확장</string>
     <string name="nav_close">내비게이션 종료</string>
-    <string name="nav_off_route">경로를 벗어남</string>
-    <string name="nav_recalculating">경로 재계산 중…</string>
+    <string name="nav_off_route">경로 이탈</string>
+    <string name="nav_recalculating">경로 재탐색 중…</string>
     <string name="nav_turn_left">좌회전</string>
     <string name="nav_turn_right">우회전</string>
-    <string name="nav_turn_slight_left">왼쪽으로 약간</string>
-    <string name="nav_turn_slight_right">오른쪽으로 약간</string>
+    <string name="nav_turn_slight_left">왼쪽으로 살짝</string>
+    <string name="nav_turn_slight_right">오른쪽으로 살짝</string>
     <string name="nav_turn_sharp_left">급좌회전</string>
     <string name="nav_turn_sharp_right">급우회전</string>
     <string name="nav_continue">직진</string>
@@ -1485,14 +1485,14 @@
     <string name="nav_goal_label">목표 %1$d / %2$d</string>
 
     <!-- Treasure Hunt directions -->
-    <string name="nav_dir_ahead">앞에</string>
-    <string name="nav_dir_left">왼쪽에</string>
-    <string name="nav_dir_right">오른쪽에</string>
-    <string name="nav_dir_slight_left">약간 왼쪽에</string>
-    <string name="nav_dir_slight_right">약간 오른쪽에</string>
-    <string name="nav_dir_behind">뒤에</string>
-    <string name="nav_dir_behind_left">뒤 왼쪽에</string>
-    <string name="nav_dir_behind_right">뒤 오른쪽에</string>
+    <string name="nav_dir_ahead">앞쪽</string>
+    <string name="nav_dir_left">왼쪽</string>
+    <string name="nav_dir_right">오른쪽</string>
+    <string name="nav_dir_slight_left">약간 왼쪽</string>
+    <string name="nav_dir_slight_right">약간 오른쪽</string>
+    <string name="nav_dir_behind">뒤쪽</string>
+    <string name="nav_dir_behind_left">뒤 왼쪽</string>
+    <string name="nav_dir_behind_right">뒤 오른쪽</string>
     <string name="nav_hunt_primary">%1$s %2$s</string>
     <string name="nav_label_next_stop">다음 경유지</string>
     <string name="nav_label_destination">목적지</string>
@@ -1518,7 +1518,7 @@
     <string name="voice_prox_warmer">더 가까워지고 있습니다</string>
     <string name="voice_prox_colder">더 멀어지고 있습니다</string>
     <string name="voice_prox_even_colder">훨씬 더 멀어지고 있습니다</string>
-    <string name="voice_prox_freezing">아주 멀어졌습니다</string>
+    <string name="voice_prox_freezing">아주 많이 멀어졌습니다</string>
     <string name="voice_prox_lost">아직 멀었나요?</string>
     <string name="voice_prox_hot">아주 가까이 있습니다</string>
     <string name="voice_dist_m">%1$d 미터</string>
@@ -1528,29 +1528,29 @@
 
     <!-- Navigation settings -->
     <string name="nav_setting_voice">음성 안내</string>
-    <string name="nav_setting_voice_desc">방향 전환 및 보물 찾기 안내 음성 읽기</string>
-    <string name="nav_setting_arrival_radius">도착 반경</string>
-    <string name="nav_setting_arrival_radius_desc">경유지에 도달했다고 인정하는 거리</string>
+    <string name="nav_setting_voice_desc">방향 전환 및 보물 찾기 안내를 음성으로 읽습니다</string>
+    <string name="nav_setting_arrival_radius">도착 판정 반경</string>
+    <string name="nav_setting_arrival_radius_desc">경유지에 도달한 것으로 인정하는 거리</string>
     <string name="nav_setting_offroute">경로 이탈 허용 거리</string>
-    <string name="nav_setting_offroute_desc">경로 이탈 알림이 발동하기 전까지 벗어날 수 있는 거리</string>
+    <string name="nav_setting_offroute_desc">이탈 알림이 발동하기 전까지 벗어날 수 있는 거리</string>
     <string name="nav_setting_default_mode">기본 이동 수단</string>
     <string name="nav_setting_open_builder">경로 작성기 열기</string>
     <string name="nav_setting_params">내비게이션 설정</string>
     <string name="nav_setting_full_path">전체 경로 항상 계산</string>
     <string name="nav_setting_full_path_desc">끄기: 다음 경유지만 계산하고 나머지는 점선 미리보기로 표시</string>
     <string name="nav_setting_endpoints">경로 탐색 서비스</string>
-    <string name="nav_setting_endpoints_hint">기본적으로 무료 공개 OpenStreetMap 사용. 자체 서버를 사용하려면 변경하세요</string>
+    <string name="nav_setting_endpoints_hint">기본값은 무료 공개 OpenStreetMap. 자체 서버를 사용하려면 변경하세요</string>
     <string name="nav_setting_geocoder_url">주소 검색 URL</string>
     <string name="nav_setting_router_url">경로 탐색 URL</string>
     <string name="watch_show_navigation">내비게이션 표시</string>
-    <string name="watch_show_navigation_desc">내비게이션 중 시계에 방향 전환 화살표와 거리 표시</string>
+    <string name="watch_show_navigation_desc">내비게이션 중 워치에 방향 화살표와 거리를 표시합니다</string>
     <!-- ==== Trip share / actions ==== -->
     <string name="trip_action_share_file">파일 공유</string>
-    <string name="trip_action_share_file_desc">이동 CSV를 다른 앱으로 보내기</string>
+    <string name="trip_action_share_file_desc">트립 CSV를 다른 앱으로 보내기</string>
     <string name="trip_action_view_online">온라인에서 보기</string>
     <string name="trip_action_view_online_desc">EUC Viewer 지도에서 열기</string>
     <string name="trip_action_replay">Studio에서 리플레이</string>
-    <string name="trip_action_replay_desc">라이브 데이터 오버레이로 주행 스크럽</string>
+    <string name="trip_action_replay_desc">실시간 데이터 오버레이로 주행 스크럽</string>
     <!-- ==== Dashboard quick menus ==== -->
     <string name="dash_view_video_gallery">동영상 갤러리 보기</string>
     <string name="dash_view_photo_gallery">사진 갤러리 보기</string>
@@ -1560,17 +1560,17 @@
     <string name="studio_group_media">카메라 &amp; 이미지</string>
     <string name="studio_cfg_border_colour">테두리 색상</string>
     <string name="studio_cfg_border_width">테두리 두께</string>
-    <string name="studio_rendering_keep_open">렌더링이 완료될 때까지 폰을 켜고 이 화면을 열어두세요</string>
+    <string name="studio_rendering_keep_open">렌더링이 완료될 때까지 폰을 켜고 이 화면을 유지하세요</string>
     <string name="studio_cfg_g_scale">크기</string>
-    <string name="studio_cfg_g_smoothing">부드럽게</string>
-    <string name="studio_export_force_opaque_hint">불투명하지 않은 형식은 크로마 키 색상을 사용합니다. 반투명 레이어에서 보기 안 좋을 수 있습니다</string>
+    <string name="studio_cfg_g_smoothing">스무딩</string>
+    <string name="studio_export_force_opaque_hint">불투명하지 않은 형식은 크로마 키 색상을 사용합니다. 반투명 레이어에서 의도와 다르게 보일 수 있습니다</string>
     <string name="studio_cfg_filter_vivid">선명하게</string>
     <string name="studio_cfg_filter_noir">누아르</string>
     <string name="studio_cfg_filter_vintage">빈티지</string>
     <string name="studio_cfg_filter_matte">매트</string>
     <string name="dash_external_gps_settings">외부 GPS 설정</string>
-    <string name="external_gps_caption">기기 전원을 켜고 페어링을 탭하면 속도와 G-포스를 실시간으로 제공하며 각 이동 CSV에도 저장됩니다</string>
-    <string name="gps_prioritize_external_desc">속도, 위치 및 G-포스에 폰 대신 연결된 기기를 우선 사용</string>
+    <string name="external_gps_caption">기기 전원을 켜고 페어링을 탭하면 속도와 G-force를 실시간으로 제공하며 각 트립 CSV에도 저장됩니다</string>
+    <string name="gps_prioritize_external_desc">속도, 위치, G-force에 폰 대신 연결된 외부 기기를 우선 사용합니다</string>
     <string name="studio_cfg_show_value">값 표시</string>
     <string name="studio_cfg_unit_position">단위</string>
     <string name="studio_cfg_unit_left">값 앞에</string>
@@ -1579,18 +1579,14 @@
     <string name="studio_cfg_dial_full">원형</string>
     <string name="studio_cfg_dial_semi">반원</string>
     <string name="studio_cfg_dial_color_band">색상 띠</string>
-    <string name="studio_snap_to_grid">그리드에 맞추기</string>
+    <string name="studio_snap_to_grid">그리드 스냅</string>
     <string name="studio_overwrite_title">프리셋을 덮어쓰시겠습니까?</string>
-    <string name="studio_overwrite_body">"%1$s"라는 이름의 프리셋이 이미 존재합니다.</string>
+    <string name="studio_overwrite_body">"%1$s"라는 프리셋이 이미 존재합니다.</string>
     <string name="studio_overwrite_confirm">덮어쓰기</string>
     <string name="warnings_indicator_desc">앱 경고</string>
-    <string name="warnings_dialog_title">주의 필요</string>
+    <string name="warnings_dialog_title">확인 필요</string>
     <string name="warnings_fix_button">수정</string>
     <string name="warnings_perm_notifications_title">알림 꺼짐</string>
     <string name="warnings_perm_notifications_body">상태 표시줄에서 주행 상태를 볼 수 없고 알림 창에서 음성 알림을 받을 수 없습니다</string>
     <string name="online_rejoin_confirm">다시 참가</string>
 </resources>
-
-
-
-

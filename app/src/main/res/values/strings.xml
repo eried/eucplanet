@@ -129,7 +129,7 @@
     <string name="dashboard_custom_ble_label">Button label</string>
     <string name="dashboard_custom_ble_family">Wheel family filter</string>
     <string name="dashboard_custom_ble_frames">Frames (hex)</string>
-    <string name="dashboard_custom_ble_frames_error">Invalid hex — use byte pairs like 4c 6b 41 70</string>
+    <string name="dashboard_custom_ble_frames_error">Invalid hex, use byte pairs like 4c 6b 41 70</string>
     <string name="dashboard_composite_layout_row2">2 rows</string>
     <string name="dashboard_composite_layout_col2">2 columns</string>
     <string name="dashboard_composite_layout_col3">3 columns</string>
@@ -281,12 +281,12 @@
     <string name="metric_desc_avg_trip_speed">Trip distance divided by riding time so far.</string>
     <string name="metric_desc_wh_consumed">Total watt-hours drawn from the battery this trip.</string>
     <string name="metric_desc_range_estimate">Distance remaining at the current consumption rate.</string>
-    <string name="metric_desc_wh_per_km">Energy used per kilometre — lower is more efficient.</string>
-    <string name="metric_desc_slope">Road grade calculated from the wheel\'s pitch — positive is uphill.</string>
-    <string name="metric_desc_forward_g">Estimated from wheel-speed change (not the IMU) — works regardless of phone mounting.</string>
+    <string name="metric_desc_wh_per_km">Energy used per kilometre, lower is more efficient.</string>
+    <string name="metric_desc_slope">Road grade calculated from the wheel\'s pitch, positive is uphill.</string>
+    <string name="metric_desc_forward_g">Estimated from wheel-speed change (not the IMU), works regardless of phone mounting.</string>
     <string name="metric_desc_regen_wh">Total watt-hours fed back to the battery while braking this trip.</string>
-    <string name="metric_desc_bt_rssi">Bluetooth signal strength to the wheel — closer to 0 dBm is stronger.</string>
-    <string name="metric_desc_gps_accuracy">GPS positioning error radius — lower is more accurate.</string>
+    <string name="metric_desc_bt_rssi">Bluetooth signal strength to the wheel, closer to 0 dBm is stronger.</string>
+    <string name="metric_desc_gps_accuracy">GPS positioning error radius, lower is more accurate.</string>
 
     <!-- Action labels for the dashboard layout chips -->
     <string name="action_chip_horn">Horn</string>
@@ -460,7 +460,7 @@
     <string name="cloud_last_backup_never">Not backed up yet</string>
     <string name="cloud_backup_success">Settings backed up</string>
 <string name="cloud_backup_named_success">Backed up as %1$s</string>
-    <string name="cloud_backup_failed">Backup failed — check folder access</string>
+    <string name="cloud_backup_failed">Backup failed, check folder access</string>
     <string name="cloud_restore_success">Settings restored</string>
     <string name="cloud_restore_failed">No backup found in folder</string>
     <string name="section_cloud_trips">Trips backup</string>
@@ -1069,7 +1069,7 @@
     <string name="online_upload_sync_done">Synced %1$d trips</string>
     <string name="online_upload_sync_checking">Checking for trips to upload…</string>
     <string name="online_upload_sync_progress">Uploading %1$d of %2$d</string>
-    <string name="online_rider_id_conflict">A different rider\'s recovery id is already saved in this folder — kept it, didn\'t overwrite.</string>
+    <string name="online_rider_id_conflict">A different rider\'s recovery id is already saved in this folder, kept it, didn\'t overwrite.</string>
     <string name="online_upload_view_on_eucstats">View on EUC Stats</string>
     <string name="online_upload_retry">Retry uploads</string>
     <string name="online_upload_mileage_rank">#%d mileage</string>
@@ -1104,7 +1104,7 @@
     <string name="online_profile_save_failed">Save failed (HTTP %1$d). Try again.</string>
     <string name="online_status_flagged_why">Held for a quick automated check. It joins the leaderboard once it clears.</string>
     <string name="online_restore_title">A saved profile was found</string>
-    <string name="online_restore_body_new">We found a saved profile here: %1$s. Continuing rejoins the public leaderboard as that rider — its name, flag, avatar and ride stats are public. It does not create a new profile.</string>
+    <string name="online_restore_body_new">We found a saved profile here: %1$s. Continuing rejoins the public leaderboard as that rider, its name, flag, avatar and ride stats are public. It does not create a new profile.</string>
     <string name="online_restore_body_switch">We found a different saved profile: %1$s. Continuing switches this phone to that rider; your current profile is backed up first.</string>
     <string name="online_restore_confirm">Continue as %1$s</string>
     <string name="online_rejoin_title">Rejoin the leaderboard?</string>

@@ -2,31 +2,31 @@
 <resources>
     <string name="app_name">EUC Planet</string>
     <string name="watch_waiting_phone">EUC Planet\'ı\ntelefonunda aç</string>
-    <string name="watch_waiting_wheel">EUC Planet\'ta\nbir tekerlek bağla</string>
-    <string name="watch_disconnected">Bağlantı Kesildi</string>
+    <string name="watch_waiting_wheel">EUC Planet\'ta\nbir teker bağla</string>
+    <string name="watch_disconnected">Bağlantı kesildi</string>
     <string name="watch_horn">Korna</string>
     <string name="watch_light">Işık</string>
     <string name="watch_speed_unit">km/h</string>
     <string name="watch_speed_unit_mph">mph</string>
     <string name="watch_speed_unit_ms" translatable="false">m/s</string>
     <string name="watch_speed_unit_kn" translatable="false">kn</string>
-    <string name="watch_battery_label">Batarya</string>
-    <string name="watch_voltage_label">Voltaj</string>
+    <string name="watch_battery_label">Akü</string>
+    <string name="watch_voltage_label">Gerilim</string>
     <string name="watch_current_label">Akım</string>
     <string name="watch_pwm_label">PWM</string>
     <string name="watch_power_label">Güç</string>
     <string name="watch_temp_label">Sıcaklık</string>
-    <string name="watch_trip_label">Yolculuk</string>
+    <string name="watch_trip_label">Sefer</string>
     <string name="watch_torque_label">Tork</string>
     <string name="watch_action_failed">Telefona ulaşılamadı</string>
     <string name="watch_gps_label">GPS hızı</string>
-    <string name="watch_gps_permission">GPS\'e izin vermek için dokun</string>
+    <string name="watch_gps_permission">GPS için izin vermek için dokunun</string>
     <string name="watch_gps_waiting">Sinyal bekleniyor…</string>
 
     <!-- Toast labels for hold-action triggers. Short so they fit on a Wear toast. -->
     <string name="watch_action_horn">Korna</string>
     <string name="watch_action_light">Işık</string>
-    <string name="watch_action_lock">Tekerleği kilitle</string>
+    <string name="watch_action_lock">Tekeri kilitle</string>
     <string name="watch_action_safety">Yasal mod</string>
     <string name="watch_action_safety_on">Yasal mod açık</string>
     <string name="watch_action_safety_off">Yasal mod kapalı</string>

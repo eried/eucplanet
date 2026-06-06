@@ -169,7 +169,7 @@
     <string name="cloud_last_backup_never">Nessun backup ancora</string>
     <string name="cloud_backup_success">Impostazioni salvate</string>
 <string name="cloud_backup_named_success">Salvato come %1$s</string>
-    <string name="cloud_backup_failed">Backup fallito — verifica l\'accesso alla cartella</string>
+    <string name="cloud_backup_failed">Backup fallito, verifica l\'accesso alla cartella</string>
     <string name="cloud_restore_success">Impostazioni ripristinate</string>
     <string name="cloud_restore_failed">Nessun backup trovato nella cartella</string>
     <string name="section_cloud_trips">Backup dei viaggi</string>
@@ -1213,15 +1213,15 @@
     <string name="metric_chip_wheel_alarm_speed">Allarme ruota</string>
     <string name="metric_chip_wheel_max_speed">Max ruota</string>
     <string name="metric_desc_avg_trip_speed">Distanza del tragitto divisa per il tempo di guida finora.</string>
-    <string name="metric_desc_bt_rssi">Intensità del segnale Bluetooth verso la ruota — più vicino a 0 dBm è più forte.</string>
-    <string name="metric_desc_gps_accuracy">Raggio di errore di posizionamento GPS — minore è più preciso.</string>
+    <string name="metric_desc_bt_rssi">Intensità del segnale Bluetooth verso la ruota, più vicino a 0 dBm è più forte.</string>
+    <string name="metric_desc_gps_accuracy">Raggio di errore di posizionamento GPS, minore è più preciso.</string>
     <string name="metric_desc_headroom">Margine di velocità rimanente prima del tilt-back. Numero grande = più sicurezza.</string>
     <string name="metric_desc_range_estimate">Distanza rimanente al ritmo di consumo attuale.</string>
     <string name="metric_desc_regen_wh">Wattora totali restituiti alla batteria frenando in questo tragitto.</string>
-    <string name="metric_desc_slope">Pendenza stradale calcolata dal beccheggio della ruota — positiva è salita.</string>
+    <string name="metric_desc_slope">Pendenza stradale calcolata dal beccheggio della ruota, positiva è salita.</string>
     <string name="metric_desc_trip_max_speed">Velocità massima del tragitto attuale (si azzera a ogni nuovo tragitto).</string>
     <string name="metric_desc_wh_consumed">Wattora totali prelevati dalla batteria in questo tragitto.</string>
-    <string name="metric_desc_wh_per_km">Energia usata per chilometro — minore è più efficiente.</string>
+    <string name="metric_desc_wh_per_km">Energia usata per chilometro, minore è più efficiente.</string>
     <string name="metric_detail_reset">Resetta</string>
     <string name="metric_detail_reset_all">Resetta tutto</string>
     <string name="metric_detail_reset_all_confirm_body">Svuota il buffer della cronologia di tutte le metriche. Impostazioni e tragitti non sono interessati.</string>
@@ -1480,12 +1480,12 @@
     <string name="dashboard_custom_ble_default_name">BLE personalizzato</string>
     <string name="dashboard_custom_ble_family">Filtro famiglia di ruote</string>
     <string name="dashboard_custom_ble_frames">Frame (hex)</string>
-    <string name="dashboard_custom_ble_frames_error">Hex non valido — usa coppie di byte come 4c 6b 41 70</string>
+    <string name="dashboard_custom_ble_frames_error">Hex non valido, usa coppie di byte come 4c 6b 41 70</string>
     <string name="dashboard_custom_ble_label">Etichetta pulsante</string>
     <string name="dashboard_custom_ble_template">BLE</string>
     <string name="dashboard_view_wide_menu">Ampia (per tablet)</string>
-    <string name="metric_desc_forward_g">Stimata dalla variazione di velocità della ruota (non dall\'IMU) — funziona indipendentemente dall\'orientamento del telefono.</string>
-    <string name="online_rider_id_conflict">In questa cartella è già salvato l\'ID di recupero di un altro rider — è stato mantenuto, non sovrascritto.</string>
+    <string name="metric_desc_forward_g">Stimata dalla variazione di velocità della ruota (non dall\'IMU), funziona indipendentemente dall\'orientamento del telefono.</string>
+    <string name="online_rider_id_conflict">In questa cartella è già salvato l\'ID di recupero di un altro rider, è stato mantenuto, non sovrascritto.</string>
     <string name="online_upload_actions_desc">Invia i viaggi non ancora caricati nella classifica.</string>
     <string name="online_upload_sync_checking">Controllo dei viaggi da caricare…</string>
     <string name="online_upload_sync_done">Sincronizzati %1$d viaggi</string>

@@ -23,29 +23,29 @@
     <string name="action_move_down">下へ移動</string>
     <string name="action_reorder">ドラッグして並べ替え</string>
     <string name="show_gauge_color_band">速度ゲージのカラーバンド</string>
-    <string name="stat_watts">ワット</string>
+    <string name="stat_watts">WATTS</string>
     <string name="flic_button">Flic ボタン</string>
     <string name="menu_auto_lights">自動ライト設定</string>
-    <string name="menu_voice_periodic_on">定期アナウンスをオンにする</string>
-    <string name="menu_voice_periodic_off">定期アナウンスをオフにする</string>
-    <string name="menu_view_last_trip">前回のトリップを見る</string>
-    <string name="menu_view_current_trip">現在のトリップを見る</string>
-    <string name="menu_start_recording">録音開始</string>
-    <string name="menu_stop_recording">録音停止</string>
+    <string name="menu_voice_periodic_on">定期アナウンスをオン</string>
+    <string name="menu_voice_periodic_off">定期アナウンスをオフ</string>
+    <string name="menu_view_last_trip">前回のトリップを表示</string>
+    <string name="menu_view_current_trip">現在のトリップを表示</string>
+    <string name="menu_start_recording">記録開始</string>
+    <string name="menu_stop_recording">記録停止</string>
     <string name="discard_trip_pending_label">トリップはまもなくバックアップされます</string>
     <string name="no_trips_title">トリップなし</string>
-    <string name="no_trips_body">録音を開始するかトリップをインポートしてください。このショートカットは最新のものを開きます。</string>
+    <string name="no_trips_body">記録を開始するかトリップをインポートしてください。このショートカットは最新のトリップを開きます。</string>
     <string name="no_trips_action_recorder">トリップレコーダー</string>
-    <string name="voice_volume_low_toast">音量が低いため、音声が聞こえない可能性があります</string>
-    <string name="action_grant_permission">権限を付与</string>
+    <string name="voice_volume_low_toast">音量が低いため音声が聞こえない可能性があります</string>
+    <string name="action_grant_permission">権限を許可</string>
     <string name="action_open_settings">設定を開く</string>
 
     <!-- Permissions -->
     <string name="scan_permission_needed">権限が必要です</string>
-    <string name="scan_permission_body">ホイールを検索するには、Bluetooth と位置情報へのアクセスが必要です</string>
+    <string name="scan_permission_body">ホイールを検索するには Bluetooth と位置情報へのアクセスが必要です</string>
     <string name="scan_permission_body_settings">権限が拒否されました。システム設定を開いて Bluetooth と位置情報のアクセスを許可してください</string>
     <string name="recording_location_permission_needed">位置情報が必要です</string>
-    <string name="recording_location_permission_body">トリップ録音では GPS ポイントを保存してルートをマップで確認できます。続けるには位置情報へのアクセスを許可してください</string>
+    <string name="recording_location_permission_body">トリップ記録では GPS ポイントを保存してルートをマップで確認できます。続けるには位置情報へのアクセスを許可してください</string>
 
     <!-- Experimental banner -->
     <string name="experimental_banner">サポート中（試験版）のホイールです。タップして問題を報告してください。</string>
@@ -73,13 +73,13 @@
     <string name="exit_stop_all">すべて停止</string>
     <string name="exit_background">バックグラウンド</string>
 
-    <string name="stat_battery">バッテリー</string>
-    <string name="stat_temp">温度</string>
-    <string name="stat_voltage">電圧</string>
-    <string name="stat_amps">電流</string>
+    <string name="stat_battery">BATTERY</string>
+    <string name="stat_temp">TEMP</string>
+    <string name="stat_voltage">VOLTAGE</string>
+    <string name="stat_amps">AMPS</string>
     <string name="stat_load">PWM</string>
-    <string name="stat_trip">トリップ</string>
-    <string name="stat_odo">走行距離 </string>
+    <string name="stat_trip">TRIP</string>
+    <string name="stat_odo">ODO </string>
 
     <string name="action_horn">ホーン</string>
     <string name="action_light">ライト</string>
@@ -90,9 +90,9 @@
     <string name="action_locked">ロック済み</string>
     <string name="lock_blocked_in_motion_toast">ホイールをロックするには減速してください</string>
     <string name="action_recorder">レコーダー</string>
-    <string name="action_recorder_trips">レコーダー\n(%1$d トリップ)</string>
+    <string name="action_recorder_trips">レコーダー\n(%1$d 件)</string>
     <string name="action_recorder_trips_one">レコーダー
-(%1$d トリップ)</string>
+(%1$d 件)</string>
 
     <!-- Settings tabs -->
     <string name="search_settings">設定を検索</string>
@@ -116,7 +116,7 @@
     <string name="dashboard_pool_actions">利用可能なアクション</string>
     <string name="dashboard_pool_tap_toast">長押しして上のスロットにドラッグして使用</string>
     <string name="dashboard_rolling_window">ローリング統計ウィンドウ</string>
-    <string name="dashboard_stats_length">統計の長さ</string>
+    <string name="dashboard_stats_length">統計期間</string>
     <string name="dashboard_view">表示</string>
     <string name="dashboard_view_default">デフォルト</string>
     <string name="dashboard_view_wide">ワイド</string>
@@ -129,7 +129,7 @@
     <string name="dashboard_custom_ble_label">ボタンラベル</string>
     <string name="dashboard_custom_ble_family">ホイールファミリーフィルター</string>
     <string name="dashboard_custom_ble_frames">フレーム（16進数）</string>
-    <string name="dashboard_custom_ble_frames_error">無効な16進数 — 4c 6b 41 70 のようにバイトペアで入力してください</string>
+    <string name="dashboard_custom_ble_frames_error">無効な16進数, 4c 6b 41 70 のようにバイトペアで入力してください</string>
     <string name="dashboard_composite_layout_row2">2 行</string>
     <string name="dashboard_composite_layout_col2">2 列</string>
     <string name="dashboard_composite_layout_col3">3 列</string>
@@ -203,7 +203,7 @@
     <string name="metric_chip_trip">トリップ</string>
     <string name="metric_chip_speed">速度</string>
     <string name="metric_chip_power">電力</string>
-    <string name="metric_chip_odometer">走行距離計</string>
+    <string name="metric_chip_odometer">オドメーター</string>
     <string name="metric_chip_motor_power">モーター電力</string>
     <string name="metric_chip_battery_power">バッテリー電力</string>
     <string name="metric_chip_battery_1">パック 1</string>
@@ -223,7 +223,7 @@
     <string name="metric_chip_trip_time">トリップ時間</string>
     <string name="metric_chip_trip_max_speed">トリップ最高速</string>
     <string name="metric_chip_avg_trip_speed">平均速度</string>
-    <string name="metric_chip_wh_consumed">エネルギー</string>
+    <string name="metric_chip_wh_consumed">消費エネルギー</string>
     <string name="metric_chip_range_estimate">航続距離</string>
     <string name="metric_chip_wh_per_km">Wh / km</string>
     <string name="metric_chip_phone_battery">スマホバッテリー</string>
@@ -276,17 +276,17 @@
     <!-- Descriptions shown in the slot-sheet info box for metrics whose
          meaning isn't obvious from the name alone. Strings end with a
          period so they read like complete sentences. -->
-    <string name="metric_desc_headroom">チルトバックが作動するまでの残り速度マージン。数値が大きいほど安全余裕があります。</string>
+    <string name="metric_desc_headroom">チルトバックが作動するまでの残り速度マージン。数値が大きいほど余裕があります。</string>
     <string name="metric_desc_trip_max_speed">現在のトリップ中のピーク速度（新しいトリップ開始時にリセット）。</string>
     <string name="metric_desc_avg_trip_speed">トリップ距離を走行時間で割った値。</string>
     <string name="metric_desc_wh_consumed">このトリップでバッテリーから消費した総ワット時。</string>
     <string name="metric_desc_range_estimate">現在の消費レートで走れる残り距離。</string>
-    <string name="metric_desc_wh_per_km">1キロメートルあたりのエネルギー消費量 — 低いほど効率的。</string>
-    <string name="metric_desc_slope">ホイールのピッチから計算した道路勾配 — プラスは上り坂。</string>
-    <string name="metric_desc_forward_g">IMUではなくホイール速度の変化から推定 — スマホの取り付け方向に関わらず機能します。</string>
-    <string name="metric_desc_regen_wh">このトリップのブレーキ中にバッテリーに回生した総ワット時。</string>
-    <string name="metric_desc_bt_rssi">ホイールへの Bluetooth 信号強度 — 0 dBm に近いほど強い。</string>
-    <string name="metric_desc_gps_accuracy">GPS 測位誤差半径 — 低いほど正確。</string>
+    <string name="metric_desc_wh_per_km">1キロあたりの消費エネルギー, 低いほど効率的。</string>
+    <string name="metric_desc_slope">ホイールのピッチから計算した路面勾配, プラスは上り坂。</string>
+    <string name="metric_desc_forward_g">IMU ではなくホイール速度の変化から推定, スマホの取り付け方向に関わらず機能します。</string>
+    <string name="metric_desc_regen_wh">このトリップのブレーキ中にバッテリーへ回生した総ワット時。</string>
+    <string name="metric_desc_bt_rssi">ホイールへの Bluetooth 信号強度, 0 dBm に近いほど強い。</string>
+    <string name="metric_desc_gps_accuracy">GPS 測位誤差半径, 低いほど正確。</string>
 
     <!-- Action labels for the dashboard layout chips -->
     <string name="action_chip_horn">ホーン</string>
@@ -297,8 +297,8 @@
     <string name="action_chip_record">レコーダー</string>
     <string name="action_chip_safety_on">リーガル ON</string>
     <string name="action_chip_safety_off">リーガル OFF</string>
-    <string name="action_chip_record_start">録音開始</string>
-    <string name="action_chip_record_stop">録音停止</string>
+    <string name="action_chip_record_start">記録開始</string>
+    <string name="action_chip_record_stop">記録停止</string>
     <string name="action_chip_media_play">再生 / 一時停止</string>
     <string name="action_chip_media_next">次のトラック</string>
     <string name="action_chip_media_prev">前のトラック</string>
@@ -315,8 +315,8 @@
     <!-- Watch companion settings: shared across Wear OS + Garmin -->
     <string name="section_watch_device">デバイス</string>
     <string name="section_watch_paired">ペアリング済みデバイス</string>
-    <string name="watch_paired_none">ペアリングされたウォッチなし</string>
-    <string name="watch_paired_none_desc">Wear OS または Garmin ウォッチに EUC Planet コンパニオンアプリをインストールして、このダイヤルを受信してください</string>
+    <string name="watch_paired_none">ウォッチが未接続</string>
+    <string name="watch_paired_none_desc">Wear OS または Garmin ウォッチに EUC Planet コンパニオンアプリをインストールするとここでダイヤルを受信できます</string>
     <string name="watch_paired_kind_wear">Wear OS</string>
     <string name="watch_paired_kind_garmin">Garmin Connect IQ</string>
     <string name="watch_paired_active">ライブ</string>
@@ -338,7 +338,7 @@
     <string name="hud_hotspot_off_hint">スマホのホットスポットがオフです。HUD とスマホが同じ WiFi ネットワークに接続されているか確認してください。</string>
     <string name="hud_hotspot_on_hint">スマホのホットスポットが起動中です。HUD をこのスマホの WiFi に接続してリンクを有効にしてください。</string>
     <string name="hud_overlay_subsection">カスタムオーバーレイ</string>
-    <string name="hud_overlay_subsection_desc">オーバーレイスタジオのプリセットを背景なしで HUD のカスタム画面にインポートします。プリセットはここにコピーされるため、スタジオで後から編集しても、再インポートするまで HUD には反映されません</string>
+    <string name="hud_overlay_subsection_desc">オーバーレイスタジオのプリセットを背景なしで HUD のカスタム画面にインポートします。プリセットはここにコピーされるため、スタジオで後から編集しても再インポートするまで HUD には反映されません</string>
     <string name="hud_overlay_select_preset">プリセットをインポート</string>
     <string name="hud_overlay_current_preset">現在: %1$s</string>
     <string name="hud_custom_overlay_label">カスタム HUD オーバーレイ</string>
@@ -352,7 +352,7 @@
     <string name="hud_personalize_title">カスタマイズ</string>
     <string name="hud_screens_title">HUD 画面</string>
     <string name="hud_map_options_title">マップオプション</string>
-    <string name="hud_personalize_desc">HUD が表示する画面とそのサイクル順序を選択してください。少なくとも 1 つの画面を有効のままにしてください。</string>
+    <string name="hud_personalize_desc">HUD が表示する画面とサイクル順序を選択してください。少なくとも 1 つの画面を有効にしてください。</string>
     <string name="hud_screen_name_dashboard">ダッシュボード</string>
     <string name="hud_screen_name_camera">リアカメラ</string>
     <string name="hud_screen_name_telemetry">テレメトリー</string>
@@ -361,11 +361,11 @@
     <string name="hud_screen_name_map">マップ</string>
     <string name="hud_screen_name_nav">ナビゲーター</string>
     <string name="hud_screen_name_map_nav">マップ + ナビ</string>
-    <string name="hud_screen_name_power">ワット数と航続距離</string>
+    <string name="hud_screen_name_power">電力と航続距離</string>
     <string name="hud_screen_name_trip_stats">トリップ統計</string>
     <string name="hud_screen_name_compass">コンパス</string>
-    <string name="hud_screen_name_safety">安全</string>
-    <string name="hud_screen_name_big_clock">大きな時計</string>
+    <string name="hud_screen_name_safety">セーフティ</string>
+    <string name="hud_screen_name_big_clock">大型時計</string>
 
     <!-- Map tile style picker (HUD Map screen and Custom overlay MAP element).
          The slug values themselves are shown to the rider as the dropdown
@@ -386,10 +386,10 @@
     -->
     <string name="hud_install_hint">HUD アプリが必要ですか？<b>eucplanet.ried.no/hud</b> から入手してください</string>
     <string name="hud_update_url">eucplanet.ried.no/hud</string>
-    <string name="hud_version_hint_hud_behind">HUD のアップデートが利用可能です。<b>eucplanet.ried.no/hud</b> から HUD をアップデートするまで、新しいスマホ機能は表示されません</string>
-    <string name="hud_version_hint_phone_behind">スマホのアップデートが利用可能です。<b>eucplanet.ried.no/hud</b> からこのスマホアプリをアップデートするまで、一部の HUD 機能は表示されません</string>
-    <string name="hud_version_block_hud_behind">HUD のアップデートが必要です。HUD アプリが古すぎてこのスマホと通信できません。続けるには <b>eucplanet.ried.no/hud</b> からアップデートしてください。</string>
-    <string name="hud_version_block_phone_behind">スマホのアップデートが必要です。このスマホアプリが古すぎて HUD と通信できません。続けるには <b>eucplanet.ried.no/hud</b> からアップデートしてください。</string>
+    <string name="hud_version_hint_hud_behind">HUD のアップデートが利用可能です。<b>eucplanet.ried.no/hud</b> から HUD をアップデートするまで新しいスマホ機能は表示されません</string>
+    <string name="hud_version_hint_phone_behind">スマホのアップデートが利用可能です。<b>eucplanet.ried.no/hud</b> からこのアプリをアップデートするまで一部の HUD 機能は表示されません</string>
+    <string name="hud_version_block_hud_behind">HUD のアップデートが必要です。HUD アプリが古すぎてこのスマホと通信できません。<b>eucplanet.ried.no/hud</b> からアップデートして続けてください。</string>
+    <string name="hud_version_block_phone_behind">スマホのアップデートが必要です。このアプリが古すぎて HUD と通信できません。<b>eucplanet.ried.no/hud</b> からアップデートして続けてください。</string>
 
     <!-- Wear OS companion settings -->
     <string name="section_watch_general">一般</string>
@@ -460,7 +460,7 @@
     <string name="cloud_last_backup_never">まだバックアップされていません</string>
     <string name="cloud_backup_success">設定をバックアップしました</string>
 <string name="cloud_backup_named_success">%1$s としてバックアップしました</string>
-    <string name="cloud_backup_failed">バックアップ失敗 — フォルダーへのアクセスを確認してください</string>
+    <string name="cloud_backup_failed">バックアップ失敗, フォルダーへのアクセスを確認してください</string>
     <string name="cloud_restore_success">設定を復元しました</string>
     <string name="cloud_restore_failed">フォルダー内にバックアップが見つかりません</string>
     <string name="section_cloud_trips">トリップバックアップ</string>
@@ -491,20 +491,20 @@
     <string name="cloud_restore_picker_default">（デフォルト）</string>
     <string name="cloud_restore_picker_factory">（工場出荷時）</string>
     <string name="cloud_restore_picker_empty">同期フォルダーにバックアップが見つかりません</string>
-    <string name="cloud_factory_confirm_title">工場出荷時のデフォルトにリセットしますか？</string>
+    <string name="cloud_factory_confirm_title">工場出荷時の設定にリセットしますか？</string>
     <string name="cloud_factory_confirm_body_p1">すべてのアプリ設定をデフォルトにリセットします。</string>
     <string name="cloud_factory_confirm_body_p2">ペアリング済みデバイスと保存済みバックアップは保持されます。この操作は取り消せません。</string>
     <string name="cloud_factory_confirm_action">リセット</string>
 
     <!-- Settings: General -->
-    <string name="section_recording">録音</string>
+    <string name="section_recording">記録</string>
     <string name="section_connection">接続</string>
     <string name="section_display">表示</string>
-    <string name="auto_record_on_start">起動時に自動録音</string>
-    <string name="auto_record_caption">ホイール接続時にトリップを録音します</string>
-    <string name="auto_record_start_in_motion">走行中に録音を開始</string>
-    <string name="auto_record_start_in_motion_caption">動き始めに開始し、アイドル後に自動停止、次の走行時に再開始</string>
-    <string name="auto_record_stop_idle_seconds">アイドル後に停止</string>
+    <string name="auto_record_on_start">起動時に自動記録</string>
+    <string name="auto_record_caption">ホイール接続時にトリップを記録します</string>
+    <string name="auto_record_start_in_motion">走行中に記録を開始</string>
+    <string name="auto_record_start_in_motion_caption">動き始めに開始し、停止後に自動終了、次の走行時に再開始</string>
+    <string name="auto_record_stop_idle_seconds">停止後に記録終了</string>
     <string name="auto_connect_on_start">起動時に自動接続</string>
     <string name="auto_connect_caption">最後にペアリングしたホイールに自動再接続します</string>
     <string name="wheel_name_display">ホイール名</string>
@@ -513,7 +513,7 @@
     <string name="wheel_name_brand">ブランド</string>
     <string name="last_device">最後のデバイス: %1$s</string>
     <string name="section_application">アプリケーション</string>
-    <string name="back_button_action">戻るアクション</string>
+    <string name="back_button_action">戻るボタンの動作</string>
     <string name="back_button_action_desc">ダッシュボードからスワイプまたは戻るを押したときの動作</string>
     <string name="back_button_action_ask">確認する</string>
     <string name="back_button_action_background">バックグラウンド</string>
@@ -546,9 +546,9 @@
     <string name="theme_system">システムに合わせる</string>
     <string name="accent_color">アクセントカラー</string>
     <string name="tts_switch_title">音声を %1$s に切り替えますか？</string>
-    <string name="tts_switch_body">現在のテキスト読み上げ音声が選択した言語と一致しません。アナウンス用に %1$s の音声に切り替えますか？</string>
+    <string name="tts_switch_body">現在の読み上げ音声が選択した言語と一致しません。アナウンス用に %1$s の音声に切り替えますか？</string>
     <string name="tts_switch_yes">音声を切り替え</string>
-    <string name="tts_switch_no">現在のまま維持</string>
+    <string name="tts_switch_no">現在のまま</string>
 
     <!-- Settings: Speed -->
     <string name="section_speed_limits">速度制限</string>
@@ -577,7 +577,7 @@
     <string name="unit_sec">秒</string>
     <string name="announce_wheel_lock">ホイールのロック / アンロック</string>
     <string name="announce_lights">ライトのオン / オフ</string>
-    <string name="announce_recording">トリップ録音</string>
+    <string name="announce_recording">トリップ記録</string>
     <string name="announce_connection">ホイールの接続 / 切断</string>
     <string name="announce_gps">GPS 信号の喪失 / 復帰</string>
     <string name="announce_legal_mode">リーガルモードのオン / オフ</string>
@@ -593,21 +593,21 @@
     <string name="welcome_tut_skip_title">ウェルカムツアーをスキップしますか？</string>
     <string name="welcome_tut_skip_body">次回以降は表示されません</string>
     <string name="welcome_tut_skip_yes">スキップする</string>
-    <string name="welcome_tut_welcome">EUC Planet へようこそ。電動一輪車向けのシンプルなオープンソースアプリです</string>
+    <string name="welcome_tut_welcome">EUC Planet へようこそ。電動一輪車（EUC）向けのシンプルなオープンソースアプリです</string>
     <string name="welcome_tut_bt">ここでホイールを接続・切断できます</string>
     <string name="welcome_tut_version">多くのホイールはテスターがいれば完全サポートになります。バージョンをタップしてアプリについてを開き、ご協力ください</string>
-    <string name="welcome_tut_outro_title">ツアー終了です！</string>
+    <string name="welcome_tut_outro_title">以上がツアーです！</string>
     <string name="welcome_tut_outro_backup">トリップを保存するには: 設定 → %2$s でバックアップ用の %1$s を選択し、eucviewer.ried.no で閲覧できます</string>
     <string name="welcome_tut_outro_buttons">多くのボタンには追加アクションがあります。長押しを試してみてください</string>
-    <string name="welcome_tut_outro_alarms">設定 → %1$s で強力なカスタムアラームエディターを探索してください</string>
-    <string name="welcome_tut_outro_integrations">連携機能を探索してください: Flic ボタン、ウォッチ、HUD、Garmin Connect IQ、後方レーダー</string>
+    <string name="welcome_tut_outro_alarms">設定 → %1$s で強力なカスタムアラームエディターを試してください</string>
+    <string name="welcome_tut_outro_integrations">連携機能を試してください: Flic ボタン、ウォッチ、HUD、Garmin Connect IQ、後方レーダー</string>
     <string name="welcome_tut_outro_end">一輪車に乗りながらこのアプリを操作せず、前方に注意してください！</string>
     <string name="welcome_tut_speed">ライブ速度。設定 → %1$s で単位を変更できます</string>
     <string name="welcome_tut_metrics">ライブバッテリー、温度、電圧など。設定 → %1$s で並べ替えられます</string>
     <string name="welcome_tut_actions">クイックコントロール。同じ場所の %2$s でカスタマイズできます</string>
-    <string name="welcome_tut_map">ナビゲーターを開いてルートを計画し、ターンバイターンのガイダンスを取得できます</string>
-    <string name="welcome_tut_gps">タップでライブデータビューを表示。GPS 速度に基づいてホイール速度をキャリブレーションすることもできます。設定 → %1$s で後からキャリブレーションを確認できます</string>
-    <string name="welcome_tut_camera">ライブテレメトリーオーバーレイで動画を録画。カスタムオーバーレイを作成してエクスポートし、過去のトリップデータで自分だけの動画を作れます</string>
+    <string name="welcome_tut_map">ナビゲーターを開いてルートを計画し、ターンバイターンのガイダンスを利用できます</string>
+    <string name="welcome_tut_gps">タップでライブデータを表示。GPS 速度を元にホイール速度をキャリブレーションすることもできます。設定 → %1$s で後から確認できます</string>
+    <string name="welcome_tut_camera">ライブテレメトリーオーバーレイで動画を録画。カスタムオーバーレイを作成・エクスポートして過去のトリップデータで自分だけの動画を作れます</string>
     <string name="welcome_tut_pd">パークまたはドライブを表示します。タップして %1$s を設定</string>
     <string name="voice_selector_label">音声</string>
     <string name="voice_speech_speed">話速</string>
@@ -687,7 +687,7 @@
     <string name="engine_preset_sampled_car_cruise">カークルーズ</string>
     <string name="engine_preset_sampled_aston_martin">Aston Martin</string>
     <string name="engine_preset_sampled_big_diesel">大型ディーゼル</string>
-    <string name="engine_preset_sampled_broken_exhaust">破損したマフラー</string>
+    <string name="engine_preset_sampled_broken_exhaust">壊れたマフラー</string>
     <string name="engine_preset_sampled_quad_atv">クワッド ATV</string>
 
     <string name="col_periodic">定期</string>
@@ -697,7 +697,7 @@
     <string name="report_temp">温度</string>
     <string name="report_pwm">PWM</string>
     <string name="report_distance">距離</string>
-    <string name="report_recording">録音</string>
+    <string name="report_recording">記録</string>
     <string name="report_time">時間</string>
     <string name="report_navigation">ナビゲーション</string>
 
@@ -707,8 +707,8 @@
     <string name="flic_scan_hint">Flic 2 ボタンを 6 秒間長押ししてペアリングモードにし、スキャンをタップしてください</string>
     <string name="flic_stop_scan">スキャン停止</string>
     <string name="flic_start_scan">スキャン開始</string>
-    <string name="flic_forget">忘れる</string>
-    <string name="flic_forget_title">このボタンを忘れますか？</string>
+    <string name="flic_forget">削除</string>
+    <string name="flic_forget_title">このボタンを削除しますか？</string>
     <string name="flic_forget_body">%1$s のペアリングが解除され、アクションがクリアされます。いつでも再ペアリングできます。</string>
     <string name="flic_rename">名前を変更</string>
     <string name="flic_click">クリック</string>
@@ -725,7 +725,7 @@
     <string name="external_gps_state_disconnected">切断済み</string>
     <string name="external_gps_reconnect">再接続</string>
     <string name="external_gps_disconnect">切断</string>
-    <string name="external_gps_unpair">デバイスを忘れる</string>
+    <string name="external_gps_unpair">デバイスを削除</string>
     <string name="external_gps_axes_title">軸の方向</string>
     <string name="external_gps_axes_desc">各出力軸をボックスの生の軸にリマップします</string>
     <string name="external_gps_map_x">出力 X</string>
@@ -735,7 +735,7 @@
     <string name="external_gps_autodetect_title">軸の自動検出</string>
     <string name="external_gps_autodetect_prep">デバイスを動かす準備をしてください</string>
     <string name="external_gps_autodetect_forward">次へを押して数秒間前に歩いてください</string>
-    <string name="external_gps_autodetect_forward_capture">歩行動作を読み取り中…</string>
+    <string name="external_gps_autodetect_forward_capture">前方向の動作を読み取り中…</string>
     <string name="external_gps_autodetect_lateral">次へを押してデバイスの向きを変えずに左に歩いてください</string>
     <string name="external_gps_autodetect_lateral_capture">横方向の動作を読み取り中…</string>
     <string name="external_gps_autodetect_vertical">次へを押してデバイスをゆっくりと地面に下ろしてください</string>
@@ -763,9 +763,9 @@
     <string name="radar_state_disconnected">切断済み</string>
     <string name="radar_reconnect">再接続</string>
     <string name="radar_disconnect">切断</string>
-    <string name="radar_unpair">デバイスを忘れる</string>
+    <string name="radar_unpair">デバイスを削除</string>
     <string name="radar_battery_fmt">バッテリー %1$d%%</string>
-    <string name="radar_clear">車線は安全です</string>
+    <string name="radar_clear">後方クリア</string>
     <string name="radar_threats_count">%1$d 台の車両を追跡中:</string>
     <string name="radar_show_overlay">脅威オーバーレイを表示</string>
     <string name="radar_show_overlay_desc">ダッシュボードの端に細いレーダーレーンを表示。検出された車両ごとに色付きのドット。ダッシュボードでのみ表示。</string>
@@ -782,14 +782,14 @@
     <string name="voice_trip_miles_fmt">トリップ %1$s マイル</string>
     <string name="voice_trip_meters_fmt">トリップ %1$s メートル</string>
     <string name="voice_time_fmt">時間 %1$s</string>
-    <string name="voice_recording_on">録音中</string>
-    <string name="voice_recording_off">録音停止中</string>
-    <string name="voice_wheel_locked">ホイールがロックされました</string>
-    <string name="voice_wheel_unlocked">ホイールのロックが解除されました</string>
+    <string name="voice_recording_on">記録中</string>
+    <string name="voice_recording_off">記録停止中</string>
+    <string name="voice_wheel_locked">ホイールをロックしました</string>
+    <string name="voice_wheel_unlocked">ホイールのロックを解除しました</string>
     <string name="voice_lights_on">ライトオン</string>
     <string name="voice_lights_off">ライトオフ</string>
-    <string name="voice_recording_started">録音を開始しました</string>
-    <string name="voice_recording_finished">録音を終了しました</string>
+    <string name="voice_recording_started">記録を開始しました</string>
+    <string name="voice_recording_finished">記録を終了しました</string>
     <string name="voice_wheel_connected">ホイールが接続されました</string>
     <string name="voice_wheel_disconnected">ホイールが切断されました</string>
     <string name="voice_gps_acquired">GPS 信号を取得しました</string>
@@ -810,7 +810,7 @@
     <string name="alarm_metric_radar_approach">車両接近</string>
 
     <!-- Alarm comparators -->
-    <string name="alarm_cmp_lt">以下</string>
+    <string name="alarm_cmp_lt">未満</string>
     <string name="alarm_cmp_ge">以上</string>
 
     <!-- Flic actions -->
@@ -822,9 +822,9 @@
     <string name="flic_action_legal_on">リーガルモード ON</string>
     <string name="flic_action_legal_off">リーガルモード OFF</string>
     <string name="flic_action_voice">音声レポート</string>
-    <string name="flic_action_record">録音を切り替え</string>
-    <string name="flic_action_record_start">トリップ録音を開始</string>
-    <string name="flic_action_record_stop">トリップ録音を停止</string>
+    <string name="flic_action_record">記録を切り替え</string>
+    <string name="flic_action_record_start">トリップ記録を開始</string>
+    <string name="flic_action_record_stop">トリップ記録を停止</string>
     <string name="flic_action_media_play">音楽を再生 / 一時停止</string>
     <string name="flic_action_media_next">次の曲</string>
     <string name="flic_action_media_prev">前の曲</string>
@@ -880,16 +880,16 @@
     <string name="action_share">共有</string>
     <string name="action_manage">管理</string>
     <string name="action_view">表示</string>
-    <string name="action_record">録音</string>
+    <string name="action_record">記録</string>
     <string name="action_stop">停止</string>
     <string name="recording_title">トリップレコーダー</string>
     <string name="recording_clear_all_title">すべてのトリップを消去</string>
-    <string name="recording_clear_all_body">録音されたすべてのトリップとデータファイルが完全に削除されます。この操作は取り消せません。</string>
+    <string name="recording_clear_all_body">記録されたすべてのトリップとデータファイルが完全に削除されます。この操作は取り消せません。</string>
     <string name="recording_delete_trip_title">トリップを削除</string>
     <string name="recording_delete_trip_body">このトリップとデータファイルを削除しますか？</string>
     <string name="recording_clear_all_menu">すべて消去</string>
-    <string name="recording_empty">表示するデータがありません。新しいものをインポートまたは録音してください</string>
-    <string name="recording_will_auto_stop">%1$d 秒アイドル後に録音が自動停止します</string>
+    <string name="recording_empty">データがありません。新しいトリップをインポートまたは記録してください</string>
+    <string name="recording_will_auto_stop">%1$d 秒停止後に記録が自動終了します</string>
     <string name="recording_stat_trips">トリップ</string>
     <string name="recording_stat_distance">距離</string>
     <string name="recording_stat_time">時間</string>
@@ -898,7 +898,7 @@
 
     <!-- Trip detail screen -->
     <string name="recording_detail_title">トリップ詳細</string>
-    <string name="recording_no_data">このトリップには録音データがありません</string>
+    <string name="recording_no_data">このトリップには記録データがありません</string>
     <string name="recording_route">ルート</string>
     <string name="recording_summary_distance">距離</string>
     <string name="recording_summary_duration">時間</string>
@@ -924,18 +924,18 @@
 
     <!-- Automations / Auto tab -->
     <string name="auto_lights_title">ライト</string>
-    <string name="auto_lights_desc">日の入りと日の出に基づいてヘッドライトをオン/オフにします</string>
+    <string name="auto_lights_desc">日の入りと日の出に基づいてヘッドライトをオン / オフにします</string>
     <string name="auto_lights_on_before_sunset">日没前にライト ON</string>
     <string name="auto_lights_off_after_sunrise">日の出後にライト OFF</string>
     <string name="auto_minutes_fmt">%1$d 分</string>
     <string name="auto_waiting_gps">GPS 位置情報を待機中…</string>
     <string name="auto_volume_title">音量</string>
-    <string name="auto_volume_desc">速度に基づいて音楽の音量を上げます</string>
+    <string name="auto_volume_desc">速度に応じて音楽の音量を上げます</string>
     <string name="auto_sunrise_sunset">日の出と日の入り</string>
     <string name="auto_midnight_sun_title">白夜</string>
-    <string name="auto_midnight_sun_body">この緯度では今日は日没がなく、ライトはオフのままになります</string>
+    <string name="auto_midnight_sun_body">この緯度では今日は日没がないため、ライトはオフのままになります</string>
     <string name="auto_polar_night_title">極夜</string>
-    <string name="auto_polar_night_body">この緯度では今日は日の出がなく、ライトはオンのままになります</string>
+    <string name="auto_polar_night_body">この緯度では今日は日の出がないため、ライトはオンのままになります</string>
     <string name="auto_lights_suspended">このセッションでユーザーがライトを手動操作したため一時停止中。ホイールを再接続またはアプリを再起動すると再開します</string>
 
     <!-- Alarms tab -->
@@ -970,7 +970,7 @@
     <string name="sources_lateral_x">横方向 (X)</string>
     <string name="sources_vertical_y">垂直方向 (Y)</string>
     <string name="sources_forward_z">前方向 (Z)</string>
-    <string name="sources_distance_between_fixes">フィックス間の距離</string>
+    <string name="sources_distance_between_fixes">測位間距離</string>
     <string name="sources_last_update">最終更新</string>
     <string name="sources_fresh_just_now">たった今</string>
     <string name="sources_fresh_seconds_fmt">%1$d 秒前</string>
@@ -1005,7 +1005,7 @@
     <string name="alarm_vibrate_target_both">すべて</string>
     <string name="alarm_section_timing">タイミング</string>
     <string name="alarm_cooldown_fmt">クールダウン: %1$d 秒</string>
-    <string name="alarm_cooldown_help">条件が一致し続けていても、このルールの発動間の最短時間</string>
+    <string name="alarm_cooldown_help">条件が一致し続けていても、このルールの発動間に必要な最短時間</string>
     <string name="alarm_repeat">アクティブ中に繰り返す</string>
     <string name="alarm_repeat_help">ON: 条件が続く間クールダウンごとに再発動。\nOFF: 一度発動し、条件がクリアされるまで無音</string>
 
@@ -1014,11 +1014,11 @@
     <string name="about_crash_logs_empty">クラッシュは記録されていません</string>
     <string name="about_share_crash">クラッシュログを共有</string>
     <string name="about_thanks">クレジット</string>
-    <string name="about_thanks_body">進化が遅く、見た目が古く、新機能に厳格なルールを設け、コミュニティを顧客として扱い、EUC ライダーが互いに助け合う姿を忘れたアプリにうんざりしていました。このアプリはその逆を目指しています。</string>
+    <string name="about_thanks_body">進化が遅く、見た目が古く、新機能に厳格なルールを設け、コミュニティを顧客扱いし、ライダーが互いに助け合う姿を忘れた EUC アプリにうんざりしていました。このアプリはその逆を目指しています。</string>
     <string name="about_license">ライセンス</string>
     <string name="service_mode_title">サービスモード</string>
     <string name="service_mode_caution">注意: サービスモードの不適切な使用は、ホイールの機能喪失、重傷、または死亡につながる可能性があります</string>
-    <string name="service_mode_purpose">サービスモードは、診断、修理、キャリブレーション、プロトコル研究を行う資格のある EUC 専門家のためのものです</string>
+    <string name="service_mode_purpose">サービスモードは、診断、修理、キャリブレーション、プロトコル研究を行う資格のある EUC 専門家向けです</string>
     <string name="service_mode_recording">アクティブ中、アプリはホイールとの間で送受信されたすべての BLE バイトおよびテストコマンドを記録します。ログはアプリを閉じるまでメモリに保存されます。</string>
     <string name="service_mode_link">詳細は eucplanet.ried.no/service をご覧ください。</string>
     <string name="service_mode_enter">入る</string>
@@ -1033,7 +1033,7 @@
     <string name="online_upload_consent_bullet_flag">国旗</string>
     <string name="online_upload_consent_bullet_avatar">アバター写真</string>
     <string name="online_upload_consent_bullet_stats">距離や速度などの総合走行統計</string>
-    <string name="online_upload_consent_bullet_location">プライバシー保護のため、位置情報は地図上の広いエリアにクラスタリングされます</string>
+    <string name="online_upload_consent_bullet_location">プライバシー保護のため、位置情報は地図上の広いエリアにまとめられます</string>
     <string name="online_upload_consent_no_raw_gps">生の GPS トラックは公開されません。</string>
     <string name="online_upload_consent_agree">同意して続ける</string>
 
@@ -1070,7 +1070,7 @@
     <string name="online_upload_sync_done">%1$d 件のトリップを同期しました</string>
     <string name="online_upload_sync_checking">アップロードするトリップを確認中…</string>
     <string name="online_upload_sync_progress">%1$d / %2$d をアップロード中</string>
-    <string name="online_rider_id_conflict">このフォルダーには別のライダーのリカバリー ID がすでに保存されています — 上書きしませんでした。</string>
+    <string name="online_rider_id_conflict">このフォルダーには別のライダーのリカバリー ID がすでに保存されています, 上書きしませんでした。</string>
     <string name="online_upload_view_on_eucstats">EUC Stats で表示</string>
     <string name="online_upload_retry">アップロードを再試行</string>
     <string name="online_upload_mileage_rank">#%d 走行距離</string>
@@ -1081,14 +1081,14 @@
     <string name="online_status_shared">リーダーボードで共有中</string>
     <string name="online_status_flagged">共有中、審査中</string>
     <string name="online_status_pending">リーダーボードにアップロード中…</string>
-    <string name="online_status_failed">オンラインアップロード失敗、タップして再試行</string>
+    <string name="online_status_failed">アップロード失敗、タップして再試行</string>
     <string name="online_upload_join_caption">参加してあなたの統計とトリップを公開リーダーボードに送信してください:</string>
     <string name="online_upload_linked_caption">あなたの統計とトリップが公開リーダーボードに表示されています:</string>
     <string name="online_upload_site_label">eucstats.ried.no</string>
     <string name="online_upload_site_url">https://eucstats.ried.no/</string>
     <string name="online_upload_unlink">リンク解除</string>
     <string name="online_unlink_title">リーダーボードとのリンクを解除しますか？</string>
-    <string name="online_unlink_body">このスマホは走行記録のアップロードを停止します。ライダー ID は保存されているため、同じライダーとして再参加できます。あなたの統計は EUC Stats に残ります。削除するにはアカウントを削除してください。</string>
+    <string name="online_unlink_body">このスマホは走行記録のアップロードを停止します。ライダー ID は保存されているため、同じライダーとして再参加できます。統計は EUC Stats に残ります。削除するにはアカウントを削除してください。</string>
     <string name="online_unlink_confirm">リンク解除</string>
 
     <!-- Online profile (edit/GDPR) -->
@@ -1101,12 +1101,12 @@
     <string name="online_profile_delete_confirm_title">アカウントを削除しますか？</string>
     <string name="online_profile_delete_confirm_body">EUC Stats のプロフィール、統計、アップロードされたデータが完全に削除されます。この操作は取り消せません。</string>
     <string name="online_profile_delete_confirm_action">完全に削除</string>
-    <string name="online_profile_save_rate_limited">レート制限中です。後でもう一度お試しください。</string>
+    <string name="online_profile_save_rate_limited">レート制限中です。しばらくしてから再試行してください。</string>
     <string name="online_profile_save_failed">保存失敗（HTTP %1$d）。再試行してください。</string>
     <string name="online_status_flagged_why">自動チェック中です。クリアされるとリーダーボードに追加されます。</string>
     <string name="online_restore_title">保存済みプロフィールが見つかりました</string>
-    <string name="online_restore_body_new">ここに保存されたプロフィールが見つかりました: %1$s。続けると、そのライダーとして公開リーダーボードに再参加します — 名前、国旗、アバター、走行統計が公開されます。新しいプロフィールは作成されません。</string>
-    <string name="online_restore_body_switch">別の保存済みプロフィールが見つかりました: %1$s。続けるとこのスマホをそのライダーに切り替えます。現在のプロフィールは最初にバックアップされます。</string>
+    <string name="online_restore_body_new">ここに保存されたプロフィールが見つかりました: %1$s。続けると、そのライダーとして公開リーダーボードに再参加します, 名前、国旗、アバター、走行統計が公開されます。新しいプロフィールは作成されません。</string>
+    <string name="online_restore_body_switch">別の保存済みプロフィールが見つかりました: %1$s。続けるとこのスマホをそのライダーに切り替えます。現在のプロフィールは先にバックアップされます。</string>
     <string name="online_restore_confirm">%1$s として続ける</string>
     <string name="online_rejoin_title">リーダーボードに再参加しますか？</string>
     <string name="online_rejoin_body">保存済みプロフィール %1$s として再参加します。このスマホはそのプロフィールへの新しいトリップのアップロードを再開します。</string>
@@ -1247,7 +1247,7 @@
     <string name="studio_viewport_replace_image">置き換え</string>
     <string name="studio_viewport_clear_image">クリア</string>
     <string name="studio_camera_none">このデバイスにカメラが検出されませんでした。</string>
-    <string name="studio_camera_limit">Android はカメラストリーム数を制限しているため、2 台使用中の場合、残りは無効になります。</string>
+    <string name="studio_camera_limit">Android はカメラストリーム数を制限しているため、2 台使用中の場合は残りが無効になります。</string>
 
     <!-- Studio: background editor -->
     <string name="studio_bg_solid">ソリッド</string>
@@ -1364,7 +1364,7 @@
     <string name="studio_replay_cd_fade">パネルをフェード</string>
     <string name="studio_replay_cd_back">戻る</string>
     <string name="studio_replay_cd_close">リプレイを閉じる</string>
-    <string name="studio_replay_no_trips">録音されたトリップがまだありません</string>
+    <string name="studio_replay_no_trips">記録されたトリップがまだありません</string>
     <string name="studio_replay_cd_play">再生</string>
     <string name="studio_replay_cd_pause">一時停止</string>
     <string name="studio_replay_cd_speed">リプレイ速度</string>
@@ -1378,7 +1378,7 @@
     <string name="studio_metric_power">電力</string>
     <string name="studio_metric_pwm">PWM</string>
     <string name="studio_metric_trip_distance">トリップ距離</string>
-    <string name="studio_metric_odometer">走行距離計</string>
+    <string name="studio_metric_odometer">オドメーター</string>
     <string name="studio_metric_pitch">ピッチ</string>
     <string name="studio_metric_roll">ロール</string>
     <string name="studio_metric_g_force">G フォース</string>
@@ -1436,7 +1436,7 @@
     <string name="nav_map_light">ライトマップ</string>
     <string name="nav_map_satellite">衛星マップ</string>
     <string-array name="nav_stop_ordinals">
-        <item>最初の経由地</item>
+        <item>1番目の経由地</item>
         <item>2番目の経由地</item>
         <item>3番目の経由地</item>
         <item>4番目の経由地</item>
@@ -1497,8 +1497,8 @@
     <string name="nav_label_next_stop">次の経由地</string>
     <string name="nav_label_destination">目的地</string>
     <string name="nav_prox_hot">すぐそこ</string>
-    <string name="nav_prox_warm">温かくなってきた</string>
-    <string name="nav_prox_cold">冷たくなってきた</string>
+    <string name="nav_prox_warm">近づいてきた</string>
+    <string name="nav_prox_cold">遠ざかってきた</string>
 
     <!-- Distance formats -->
     <string name="nav_dist_m">%1$d m</string>
@@ -1515,12 +1515,12 @@
     <string name="voice_nav_hunt">%1$s は %2$s %3$s にあります</string>
     <string name="voice_nav_hunt_prox">%1$s、%2$s</string>
     <string name="voice_nav_hunt_distance">%1$s はあと %2$s</string>
-    <string name="voice_prox_warmer">温かくなってきた</string>
-    <string name="voice_prox_colder">冷たくなってきた</string>
-    <string name="voice_prox_even_colder">さらに冷たくなってきた</string>
-    <string name="voice_prox_freezing">氷のように冷たい</string>
-    <string name="voice_prox_lost">もうすぐ着きますか？</string>
-    <string name="voice_prox_hot">とても近くにいます</string>
+    <string name="voice_prox_warmer">近づいてきた</string>
+    <string name="voice_prox_colder">遠ざかってきた</string>
+    <string name="voice_prox_even_colder">さらに遠ざかってきた</string>
+    <string name="voice_prox_freezing">かなり遠い</string>
+    <string name="voice_prox_lost">まだ着きませんか？</string>
+    <string name="voice_prox_hot">すぐそこです</string>
     <string name="voice_dist_m">%1$d メートル</string>
     <string name="voice_dist_km">%1$s キロメートル</string>
     <string name="voice_dist_ft">%1$d フィート</string>
@@ -1543,7 +1543,7 @@
     <string name="nav_setting_geocoder_url">住所検索 URL</string>
     <string name="nav_setting_router_url">ルーティング URL</string>
     <string name="watch_show_navigation">ナビゲーションを表示</string>
-    <string name="watch_show_navigation_desc">ナビゲーション中にウォッチにターン矢印と距離をミラーリングします</string>
+    <string name="watch_show_navigation_desc">ナビゲーション中にウォッチへターン矢印と距離をミラーリングします</string>
     <!-- ==== Trip share / actions ==== -->
     <string name="trip_action_share_file">ファイルを共有</string>
     <string name="trip_action_share_file_desc">トリップ CSV を別のアプリに送信します</string>
@@ -1590,7 +1590,5 @@
     <string name="warnings_perm_notifications_body">ステータスバーに走行状態が表示されず、通知シェードでの音声アラートも受け取れません</string>
     <string name="online_rejoin_confirm">再参加</string>
 </resources>
-
-
 
 
