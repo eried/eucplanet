@@ -350,7 +350,7 @@
 
     <!-- HUD button long-press actions -->
     <string name="hud_joystick_title">Button actions</string>
-    <string name="hud_joystick_desc">Long-press a HUD button (Up/Down/Left/Right) to fire an action on the phone. A short press still flips between screens.</string>
+    <string name="hud_joystick_desc">Map actions to the HUD buttons. Short presses are already used for default actions</string>
     <string name="hud_joystick_up">Up (long press)</string>
     <string name="hud_joystick_down">Down (long press)</string>
     <string name="hud_joystick_left">Left (long press)</string>
