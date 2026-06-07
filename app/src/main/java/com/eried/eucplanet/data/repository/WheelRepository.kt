@@ -178,9 +178,9 @@ class WheelRepository @Inject constructor(
     // Charging session (estimator + per-session history) lives here so the
     // prediction persists across navigation; updated each telemetry frame.
     private val chargingEstimator = ChargingEstimator(
-        cvTaperFactor = 3.5f,           // 80→100 % CV taper charges far slower than CC
-        warmupMinPercentGain = 0.5f,    // wait for 0.5 % before predicting
-        warmupMinDurationMs = 20_000L,  // …and one full jitter window for a stable rate
+        cvTaperFactor = 1.6f,           // modest 80→100 % CV taper (3.5 was far too pessimistic)
+        warmupMinPercentGain = 1.0f,    // wait for a stabler rate before the first prediction
+        warmupMinDurationMs = 40_000L,  // two jitter windows for a steady rate
     )
     private var chargingSessionActive = false
     private val chargePctHist = ArrayDeque<MetricSample>()

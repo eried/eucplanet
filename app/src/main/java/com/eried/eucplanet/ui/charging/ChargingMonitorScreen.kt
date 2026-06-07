@@ -116,7 +116,7 @@ fun ChargingMonitorScreen(
     var showSheet by remember { mutableStateOf(false) }
     val sheetState = rememberModalBottomSheetState()
 
-    val pct = rememberAnimatedPercent(state.percent, state.ratePctPerMin, charging)
+    val pct = rememberAnimatedPercent(state.percent, state.ratePctPerMin, charging, full = state.status == ChargeStatus.Full)
     // Live clock so the ETA counts down in real time between telemetry frames.
     val nowMs by produceState(initialValue = System.currentTimeMillis()) {
         while (true) {
@@ -373,10 +373,11 @@ private fun PredictionText(state: ChargingUiState, nowMs: Long, clockAt: (Long) 
  * to the reading when not charging.
  */
 @Composable
-private fun rememberAnimatedPercent(measured: Float, ratePerMin: Float, charging: Boolean): State<Float> {
+private fun rememberAnimatedPercent(measured: Float, ratePerMin: Float, charging: Boolean, full: Boolean): State<Float> {
     val measuredState = rememberUpdatedState(measured)
     val rateState = rememberUpdatedState(ratePerMin)
     val chargingState = rememberUpdatedState(charging)
+    val fullState = rememberUpdatedState(full)
     val display = remember { mutableFloatStateOf(measured) }
 
     LaunchedEffect(Unit) {
@@ -388,6 +389,13 @@ private fun rememberAnimatedPercent(measured: Float, ratePerMin: Float, charging
                 val m = measuredState.value
                 val d = display.floatValue
                 when {
+                    // End of charge — rush hard to 100 % (fast, but not an instant jump).
+                    fullState.value -> {
+                        if (dt > 0f) {
+                            val v = ((100f - d) * 1.8f).coerceAtLeast(0.8f)
+                            display.floatValue = (d + v * dt).coerceAtMost(100f)
+                        }
+                    }
                     !chargingState.value -> display.floatValue = m
                     // Snap a big jump (first real value after the 0 default, or reconnect).
                     kotlin.math.abs(m - d) > 3f -> display.floatValue = m
