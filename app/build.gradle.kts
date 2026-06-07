@@ -214,16 +214,15 @@ dependencies {
                 version { strictly("1.15.0") }
                 because("pebblekit2 pulls core 1.17.0 which needs compileSdk 36 / AGP 8.9.1")
             }
-            // pebblekit2 1.1.0 was built against Kotlin 2.3.20 and drags its
-            // stdlib in. This build is on Kotlin 2.0.21, so hold the stdlib at
-            // the project's version (the -Xskip-metadata-version-check flag in
-            // kotlinOptions lets the 2.0.21 compiler still READ the library's
-            // 2.3 metadata). Bump both together when the project moves to a
-            // newer Kotlin.
-            implementation("org.jetbrains.kotlin:kotlin-stdlib") {
-                version { strictly(libs.versions.kotlin.get()) }
-                because("keep stdlib on the project's Kotlin; pebblekit2 forces 2.3.20")
-            }
+            // Do NOT pin kotlin-stdlib down. pebblekit2 1.1.0's suspend
+            // functions (e.g. DefaultPebbleSender.sendDataToPebble) are
+            // Kotlin-2.3.20 bytecode that references
+            // kotlin.coroutines.jvm.internal.SpillingKt — a class ABSENT from
+            // the 2.0.21 stdlib. Holding stdlib at 2.0.21 compiles fine (via
+            // -Xskip-metadata-version-check) but makes every Pebble send crash
+            // at runtime with "Failed resolution of: ...SpillingKt". Let stdlib
+            // resolve up to pebblekit2's 2.3.20 (a superset, so the
+            // 2.0.21-compiled app still runs). Only on the pebbleEnabled path.
         }
     }
 
