@@ -12,7 +12,14 @@
     "enableMultiJS": false,
     "targetPlatforms": ["emery", "basalt", "chalk", "diorite", "aplite"],
     "watchapp": { "watchface": false },
-    "companionApp": { "android": "com.eried.eucplanet" },
+    "companionApp": {
+      "android": {
+        "url": "https://github.com/eried/eucplanet",
+        "apps": [
+          { "package": "com.eried.eucplanet" }
+        ]
+      }
+    },
     "messageKeys": ["EUC_TELEMETRY"],
     "resources": { "media": [] }
   }
