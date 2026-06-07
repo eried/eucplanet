@@ -1492,4 +1492,10 @@
     <string name="online_upload_sync_nothing">Niente da sincronizzare</string>
     <string name="online_upload_sync_progress">Caricamento %1$d di %2$d</string>
     <string name="online_upload_register_server_error">Registrazione non riuscita. Il server ha risposto: %1$s (%2$d)</string>
+    <string name="hud_joystick_title">Azioni dei pulsanti</string>
+    <string name="hud_joystick_desc">Tocca due volte un pulsante dell\'HUD per eseguire un\'azione. Un tocco singolo cambia comunque schermata</string>
+    <string name="hud_joystick_up">Su (doppio tocco)</string>
+    <string name="hud_joystick_down">Giù (doppio tocco)</string>
+    <string name="hud_joystick_left">Sinistra (doppio tocco)</string>
+    <string name="hud_joystick_right">Destra (doppio tocco)</string>
 </resources>

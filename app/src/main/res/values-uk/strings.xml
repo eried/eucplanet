@@ -1588,6 +1588,12 @@
     <string name="warnings_fix_button">Виправити</string>
     <string name="warnings_perm_notifications_title">Сповіщення вимкнено</string>
     <string name="warnings_perm_notifications_body">Статус поїздки не з\'явиться в рядку стану, голосові сповіщення не з\'являться в шторці</string>
+    <string name="hud_joystick_title">Дії кнопок</string>
+    <string name="hud_joystick_desc">Двічі натисни кнопку HUD, щоб виконати дію. Одиночне натискання все одно перемикає екрани</string>
+    <string name="hud_joystick_up">Вгору (подвійне натискання)</string>
+    <string name="hud_joystick_down">Вниз (подвійне натискання)</string>
+    <string name="hud_joystick_left">Вліво (подвійне натискання)</string>
+    <string name="hud_joystick_right">Вправо (подвійне натискання)</string>
 </resources>
 
 

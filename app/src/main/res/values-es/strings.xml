@@ -1588,5 +1588,11 @@
     <string name="warnings_perm_notifications_title">Notificaciones desactivadas</string>
     <string name="warnings_perm_notifications_body">No verás el estado del viaje en la barra de estado ni recibirás avisos por voz en las notificaciones</string>
     <string name="online_rejoin_confirm">Volver a unirse</string>
+    <string name="hud_joystick_title">Acciones de los botones</string>
+    <string name="hud_joystick_desc">Toca dos veces un botón del HUD para ejecutar una acción. Un toque sencillo sigue cambiando de pantalla</string>
+    <string name="hud_joystick_up">Arriba (doble toque)</string>
+    <string name="hud_joystick_down">Abajo (doble toque)</string>
+    <string name="hud_joystick_left">Izquierda (doble toque)</string>
+    <string name="hud_joystick_right">Derecha (doble toque)</string>
 </resources>
 

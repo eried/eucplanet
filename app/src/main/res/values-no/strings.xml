@@ -1473,4 +1473,10 @@
     <string name="online_upload_sync_nothing">Ingenting å synkronisere</string>
     <string name="online_upload_sync_progress">Laster opp %1$d av %2$d</string>
     <string name="online_upload_register_server_error">Registrering mislyktes. Serveren svarte: %1$s (%2$d)</string>
+    <string name="hud_joystick_title">Knappehandlinger</string>
+    <string name="hud_joystick_desc">Trykk to ganger på en HUD-knapp for å kjøre en handling. Ett enkelt trykk bytter fortsatt skjerm</string>
+    <string name="hud_joystick_up">Opp (dobbelttrykk)</string>
+    <string name="hud_joystick_down">Ned (dobbelttrykk)</string>
+    <string name="hud_joystick_left">Venstre (dobbelttrykk)</string>
+    <string name="hud_joystick_right">Høyre (dobbelttrykk)</string>
 </resources>

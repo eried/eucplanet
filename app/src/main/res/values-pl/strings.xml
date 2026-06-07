@@ -1586,4 +1586,10 @@
     <string name="external_gps_caption">Włącz urządzenie i dotknij Sparuj, aby zasilać aplikację prędkością i siłą G na żywo, dane są też zapisywane w CSV trasy</string>
     <string name="gps_prioritize_external_desc">Preferuj podłączone urządzenie zamiast telefonu dla prędkości, pozycji i siły G</string>
     <string name="online_rejoin_confirm">Dołącz ponownie</string>
+    <string name="hud_joystick_title">Akcje przycisków</string>
+    <string name="hud_joystick_desc">Dotknij dwukrotnie przycisku HUD, aby uruchomić akcję. Pojedyncze dotknięcie nadal przełącza ekrany</string>
+    <string name="hud_joystick_up">Góra (dwukrotne dotknięcie)</string>
+    <string name="hud_joystick_down">Dół (dwukrotne dotknięcie)</string>
+    <string name="hud_joystick_left">Lewo (dwukrotne dotknięcie)</string>
+    <string name="hud_joystick_right">Prawo (dwukrotne dotknięcie)</string>
 </resources>

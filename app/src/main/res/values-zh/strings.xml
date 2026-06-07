@@ -1456,4 +1456,10 @@
     <string name="online_upload_sync_nothing">暂无需同步的内容</string>
     <string name="online_upload_sync_progress">正在上传 %1$d / %2$d</string>
     <string name="online_upload_register_server_error">注册失败。服务器返回：%1$s（%2$d）</string>
+    <string name="hud_joystick_title">按键操作</string>
+    <string name="hud_joystick_desc">双击 HUD 按键可执行一个操作。单击仍会切换屏幕</string>
+    <string name="hud_joystick_up">上（双击）</string>
+    <string name="hud_joystick_down">下（双击）</string>
+    <string name="hud_joystick_left">左（双击）</string>
+    <string name="hud_joystick_right">右（双击）</string>
 </resources>

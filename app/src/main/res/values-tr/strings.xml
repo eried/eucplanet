@@ -1589,6 +1589,12 @@
     <string name="warnings_perm_notifications_title">Bildirimler kapalı</string>
     <string name="warnings_perm_notifications_body">Durum çubuğunda sürüş durumunu göremez ve bildirim panelinde sesli uyarı alamazsınız</string>
     <string name="online_rejoin_confirm">Yeniden katıl</string>
+    <string name="hud_joystick_title">Tuş eylemleri</string>
+    <string name="hud_joystick_desc">Bir eylem çalıştırmak için HUD tuşuna çift dokunun. Tek dokunuş yine ekran değiştirir</string>
+    <string name="hud_joystick_up">Yukarı (çift dokunma)</string>
+    <string name="hud_joystick_down">Aşağı (çift dokunma)</string>
+    <string name="hud_joystick_left">Sol (çift dokunma)</string>
+    <string name="hud_joystick_right">Sağ (çift dokunma)</string>
 </resources>
 
 

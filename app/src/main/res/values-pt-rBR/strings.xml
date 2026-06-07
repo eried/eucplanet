@@ -1588,5 +1588,11 @@
     <string name="warnings_perm_notifications_title">Notificações desativadas</string>
     <string name="warnings_perm_notifications_body">Você não verá o status do trajeto na barra de status nem receberá alertas por voz nas notificações</string>
     <string name="online_rejoin_confirm">Voltar</string>
+    <string name="hud_joystick_title">Ações dos botões</string>
+    <string name="hud_joystick_desc">Toque duas vezes em um botão do HUD para executar uma ação. Um toque simples continua trocando de tela</string>
+    <string name="hud_joystick_up">Cima (toque duplo)</string>
+    <string name="hud_joystick_down">Baixo (toque duplo)</string>
+    <string name="hud_joystick_left">Esquerda (toque duplo)</string>
+    <string name="hud_joystick_right">Direita (toque duplo)</string>
 </resources>
 

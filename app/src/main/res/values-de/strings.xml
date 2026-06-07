@@ -1591,4 +1591,10 @@
     <string name="warnings_fix_button">Beheben</string>
     <string name="warnings_perm_notifications_title">Benachrichtigungen deaktiviert</string>
     <string name="warnings_perm_notifications_body">Der Fahrstatus erscheint nicht in der Statusleiste und Sprachhinweise kommen nicht in der Benachrichtigungsleiste an</string>
+    <string name="hud_joystick_title">Tastenaktionen</string>
+    <string name="hud_joystick_desc">Tippe eine HUD-Taste doppelt an, um eine Aktion auszuführen. Ein einzelner Tipp wechselt weiterhin den Bildschirm</string>
+    <string name="hud_joystick_up">Oben (Doppeltipp)</string>
+    <string name="hud_joystick_down">Unten (Doppeltipp)</string>
+    <string name="hud_joystick_left">Links (Doppeltipp)</string>
+    <string name="hud_joystick_right">Rechts (Doppeltipp)</string>
 </resources>

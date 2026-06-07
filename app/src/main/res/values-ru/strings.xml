@@ -1588,5 +1588,11 @@
     <string name="warnings_perm_notifications_title">Уведомления выключены</string>
     <string name="warnings_perm_notifications_body">Статус поездки не появится в строке состояния, голосовые оповещения не будут показаны в шторке</string>
     <string name="online_rejoin_confirm">Вернуться</string>
+    <string name="hud_joystick_title">Действия кнопок</string>
+    <string name="hud_joystick_desc">Дважды нажмите кнопку HUD, чтобы выполнить действие. Одиночное нажатие по-прежнему переключает экраны</string>
+    <string name="hud_joystick_up">Вверх (двойное нажатие)</string>
+    <string name="hud_joystick_down">Вниз (двойное нажатие)</string>
+    <string name="hud_joystick_left">Влево (двойное нажатие)</string>
+    <string name="hud_joystick_right">Вправо (двойное нажатие)</string>
 </resources>
 

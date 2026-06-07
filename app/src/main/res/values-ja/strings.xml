@@ -1589,6 +1589,12 @@
     <string name="warnings_perm_notifications_title">通知がオフです</string>
     <string name="warnings_perm_notifications_body">ステータスバーに走行状態が表示されず、通知シェードでの音声アラートも受け取れません</string>
     <string name="online_rejoin_confirm">再参加</string>
+    <string name="hud_joystick_title">ボタン操作</string>
+    <string name="hud_joystick_desc">HUD のボタンをダブルタップするとアクションを実行します。シングルタップは引き続き画面を切り替えます</string>
+    <string name="hud_joystick_up">上（ダブルタップ）</string>
+    <string name="hud_joystick_down">下（ダブルタップ）</string>
+    <string name="hud_joystick_left">左（ダブルタップ）</string>
+    <string name="hud_joystick_right">右（ダブルタップ）</string>
 </resources>
 
 

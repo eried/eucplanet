@@ -1588,4 +1588,10 @@
     <string name="warnings_fix_button">Ret</string>
     <string name="warnings_perm_notifications_title">Notifikationer slået fra</string>
     <string name="warnings_perm_notifications_body">Du ser ikke turstatus i statuslinjen og får ingen talevarsler i notifikationsskuffen</string>
+    <string name="hud_joystick_title">Knaphandlinger</string>
+    <string name="hud_joystick_desc">Tryk to gange på en HUD-knap for at køre en handling. Et enkelt tryk skifter stadig skærm</string>
+    <string name="hud_joystick_up">Op (dobbelttryk)</string>
+    <string name="hud_joystick_down">Ned (dobbelttryk)</string>
+    <string name="hud_joystick_left">Venstre (dobbelttryk)</string>
+    <string name="hud_joystick_right">Højre (dobbelttryk)</string>
 </resources>

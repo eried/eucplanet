@@ -1595,4 +1595,10 @@
     <string name="warnings_perm_notifications_title">Notifications désactivées</string>
     <string name="warnings_perm_notifications_body">Tu ne verras pas l\'état du ride dans la barre d\'état et tu n\'auras pas d\'alertes vocales dans les notifications</string>
 
+    <string name="hud_joystick_title">Actions des touches</string>
+    <string name="hud_joystick_desc">Appuie deux fois sur une touche du HUD pour lancer une action. Un seul appui change toujours d\'écran</string>
+    <string name="hud_joystick_up">Haut (double appui)</string>
+    <string name="hud_joystick_down">Bas (double appui)</string>
+    <string name="hud_joystick_left">Gauche (double appui)</string>
+    <string name="hud_joystick_right">Droite (double appui)</string>
 </resources>

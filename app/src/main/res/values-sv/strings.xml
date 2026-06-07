@@ -1588,4 +1588,10 @@
     <string name="warnings_perm_notifications_title">Aviseringar av</string>
     <string name="warnings_perm_notifications_body">Du ser inte åkstatus i statusfältet och får inga talvarningar i aviseringspanelen</string>
     <string name="online_rejoin_confirm">Gå med igen</string>
+    <string name="hud_joystick_title">Knappåtgärder</string>
+    <string name="hud_joystick_desc">Tryck två gånger på en HUD-knapp för att köra en åtgärd. Ett enkelt tryck byter fortfarande skärm</string>
+    <string name="hud_joystick_up">Upp (dubbeltryck)</string>
+    <string name="hud_joystick_down">Ner (dubbeltryck)</string>
+    <string name="hud_joystick_left">Vänster (dubbeltryck)</string>
+    <string name="hud_joystick_right">Höger (dubbeltryck)</string>
 </resources>

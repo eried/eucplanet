@@ -1589,4 +1589,10 @@
     <string name="warnings_perm_notifications_title">알림 꺼짐</string>
     <string name="warnings_perm_notifications_body">상태 표시줄에서 주행 상태를 볼 수 없고 알림 창에서 음성 알림을 받을 수 없습니다</string>
     <string name="online_rejoin_confirm">다시 참가</string>
+    <string name="hud_joystick_title">버튼 동작</string>
+    <string name="hud_joystick_desc">HUD 버튼을 두 번 탭하면 동작을 실행합니다. 한 번 탭하면 계속 화면을 전환합니다</string>
+    <string name="hud_joystick_up">위 (두 번 탭)</string>
+    <string name="hud_joystick_down">아래 (두 번 탭)</string>
+    <string name="hud_joystick_left">왼쪽 (두 번 탭)</string>
+    <string name="hud_joystick_right">오른쪽 (두 번 탭)</string>
 </resources>

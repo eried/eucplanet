@@ -1589,5 +1589,11 @@
     <string name="warnings_fix_button">Oplossen</string>
     <string name="warnings_perm_notifications_title">Meldingen uit</string>
     <string name="warnings_perm_notifications_body">Je ziet de ritstatus niet in de statusbalk en krijgt geen spraakmeldingen in het meldingenpaneel</string>
+    <string name="hud_joystick_title">Knopacties</string>
+    <string name="hud_joystick_desc">Tik twee keer op een HUD-knop om een actie uit te voeren. Een enkele tik wisselt nog steeds van scherm</string>
+    <string name="hud_joystick_up">Omhoog (dubbele tik)</string>
+    <string name="hud_joystick_down">Omlaag (dubbele tik)</string>
+    <string name="hud_joystick_left">Links (dubbele tik)</string>
+    <string name="hud_joystick_right">Rechts (dubbele tik)</string>
 </resources>
 
