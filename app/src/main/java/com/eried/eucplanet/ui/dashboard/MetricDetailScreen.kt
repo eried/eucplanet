@@ -762,12 +762,30 @@ internal fun MetricGraph(
             clipRect(0f, 0f, w, h) {
                 if (baselineValue != null) {
                     val baseY = (h - h * (baselineValue - bounds.min) / padded.coerceAtLeast(0.001f)).coerceIn(0f, h)
-                    // Existing charge: a band below the session-start level.
+                    // Existing charge: a soft band below the session-start level with
+                    // a diagonal hatch on top to read as "carried over from before".
                     drawRect(
-                        color = baselineColor.copy(alpha = 0.12f),
+                        color = baselineColor.copy(alpha = 0.08f),
                         topLeft = Offset(0f, baseY),
                         size = Size(w, h - baseY),
                     )
+                    val bandH = h - baseY
+                    if (bandH > 1f) {
+                        clipRect(0f, baseY, w, h) {
+                            val spacing = 10f
+                            val stripe = baselineColor.copy(alpha = 0.22f)
+                            var x = -bandH
+                            while (x < w) {
+                                drawLine(
+                                    stripe,
+                                    Offset(x, baseY),
+                                    Offset(x + bandH, h),
+                                    strokeWidth = 1f,
+                                )
+                                x += spacing
+                            }
+                        }
+                    }
                     // Added this session: fill only above the start level.
                     clipRect(0f, 0f, w, baseY) {
                         drawPath(fillPath, color = color.copy(alpha = 0.20f))
