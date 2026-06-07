@@ -115,6 +115,21 @@
             </intent-filter>
         </service>
 
+        <!-- Pebble companion listener (PebbleKitAndroid2): receives watchapp
+             open/close events. The class lives in BOTH the pebbleEnabled source
+             set (real, extends BasePebbleListenerService) and pebbleStub (a
+             no-op Service), so the slim `-PpebbleEnabled=false` build keeps a
+             harmless dead entry rather than referencing a missing class.
+             Declared here in main (not a source-set manifest override) so the
+             merge never drops the app's own application/launcher. -->
+        <service
+            android:name=".pebble.PebbleListenerService"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="io.rebble.pebblekit2.RECEIVE_DATA_FROM_WATCH" />
+            </intent-filter>
+        </service>
+
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="${applicationId}.fileprovider"

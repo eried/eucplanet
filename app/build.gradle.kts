@@ -180,11 +180,13 @@ android {
         getByName("main") {
             kotlin.srcDir(if (garminEnabled) "src/garminEnabled/kotlin" else "src/garminStub/kotlin")
             kotlin.srcDir(if (pebbleEnabled) "src/pebbleEnabled/kotlin" else "src/pebbleStub/kotlin")
-            // The listener-service manifest entry only exists on the enabled
-            // path, so the stub build never references a class it doesn't have.
-            if (pebbleEnabled) {
-                manifest.srcFile("src/pebbleEnabled/AndroidManifest.xml")
-            }
+            // NOTE: do NOT override main's manifest for the pebble service.
+            // `manifest.srcFile(...)` REPLACES the main manifest (it doesn't
+            // merge), which silently dropped the app's <application> name +
+            // launcher and made the pebbleEnabled build unlaunchable. The
+            // PebbleListenerService is declared in src/main/AndroidManifest.xml
+            // instead; its class is provided by both the pebbleEnabled (real)
+            // and pebbleStub (no-op) source sets.
         }
     }
 }

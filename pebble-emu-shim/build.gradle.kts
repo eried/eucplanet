@@ -41,8 +41,14 @@ dependencies {
     implementation(libs.pebblekit2.server)
     implementation(libs.coroutines.android)
 
-    // Same transitive-version pins the :app uses for pebblekit2 1.1.0 (it pulls
-    // androidx.core 1.17.0 / Kotlin 2.3.20 stdlib, both ahead of this build).
+    // Pin androidx.core down (pebblekit2 1.1.0 pulls 1.17.0, which would force
+    // compileSdk 36 / AGP 8.9.1) — same as :app. But UNLIKE :app, do NOT pin
+    // kotlin-stdlib down: this module actually invokes pebblekit2's server-side
+    // suspend functions (DefaultPebbleListenerConnector), whose Kotlin-2.3.20
+    // bytecode references kotlin.coroutines.jvm.internal.SpillingKt — a class
+    // absent from the 2.0.21 stdlib. Let stdlib resolve up to pebblekit2's
+    // 2.3.20 (a superset, so the 2.0.21-compiled shim code still runs) or the
+    // listener connector crashes with ClassNotFoundException at runtime.
     constraints {
         implementation(libs.androidx.core) {
             version { strictly("1.15.0") }
@@ -51,10 +57,6 @@ dependencies {
         implementation("androidx.core:core:1.15.0") {
             version { strictly("1.15.0") }
             because("pebblekit2 pulls core 1.17.0 which needs compileSdk 36 / AGP 8.9.1")
-        }
-        implementation("org.jetbrains.kotlin:kotlin-stdlib") {
-            version { strictly(libs.versions.kotlin.get()) }
-            because("keep stdlib on the project's Kotlin; pebblekit2 forces 2.3.20")
         }
     }
 }

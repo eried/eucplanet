@@ -2,6 +2,7 @@ package com.eried.eucshim
 
 import android.app.Activity
 import android.os.Bundle
+import android.util.Log
 import android.view.Gravity
 import android.widget.Button
 import android.widget.LinearLayout
@@ -61,12 +62,22 @@ class ShimActivity : Activity() {
         root.addView(connect)
         root.addView(disconnect)
         setContentView(root)
+
+        // Scriptable for the emulator demo / tester handoff:
+        //   adb shell am start -n com.eried.eucshim/.ShimActivity --ez autoconnect true
+        val auto = intent?.getBooleanExtra("autoconnect", false) == true
+        Log.i(TAG, "onCreate autoconnect=$auto")
+        if (auto) open()
     }
 
     private fun open() = scope.launch {
+        Log.i(TAG, "open(): sendOnAppOpened -> $EUC_PKG")
         val ok = withContext(Dispatchers.IO) {
-            runCatching { connector.sendOnAppOpened(WATCHAPP_UUID, SHIM_WATCH) }.getOrDefault(false)
+            runCatching { connector.sendOnAppOpened(WATCHAPP_UUID, SHIM_WATCH) }
+                .onFailure { Log.e(TAG, "sendOnAppOpened threw", it) }
+                .getOrDefault(false)
         }
+        Log.i(TAG, "open(): result=$ok")
         status.text = if (ok) {
             "Connected. EUC app should show Pebble (active) and stream telemetry to the emulator."
         } else {
@@ -87,6 +98,7 @@ class ShimActivity : Activity() {
     }
 
     companion object {
+        private const val TAG = "EucPebbleShim"
         private const val EUC_PKG = "com.eried.eucplanet"
         // Must match pebble-watch-app/package.json + PebbleBridge.PEBBLE_APP_UUID.
         private val WATCHAPP_UUID = UUID.fromString("71cc8578-8aad-4179-8d5c-98bb0b13c2e1")
