@@ -332,12 +332,12 @@ private fun PredictionText(state: ChargingUiState, nowMs: Long, clockAt: (Long) 
             blurRadius = 16f,
         ),
     )
-    // Countdown: "<1 min", "44 min", then "1h 23m" once past an hour.
+    // Countdown: "<1 min", "44 min" up to "99 min", then "1h 40m".
     fun mmss(ms: Long): String {
         val sec = (ms / 1000L).coerceAtLeast(0L)
         if (sec < 60L) return "<1 min"
         val totalMin = kotlin.math.ceil(sec / 60.0).toLong()
-        if (totalMin < 60L) return "$totalMin min"
+        if (totalMin < 100L) return "$totalMin min"
         val h = totalMin / 60L
         val m = totalMin % 60L
         return if (m == 0L) "${h}h" else "${h}h ${m}m"
