@@ -319,6 +319,7 @@
     <string name="watch_paired_none_desc">Zainstaluj aplikację EUC Planet na zegarku Wear OS lub Garmin, aby zacząć odbierać tarczę tutaj</string>
     <string name="watch_paired_kind_wear">Wear OS</string>
     <string name="watch_paired_kind_garmin">Garmin Connect IQ</string>
+    <string name="watch_paired_kind_pebble">Pebble</string>
     <string name="watch_paired_active">Na żywo</string>
     <string name="watch_paired_idle">Nieaktywny</string>
     <string name="watch_paired_rate_hz">%1$.1f Hz</string>

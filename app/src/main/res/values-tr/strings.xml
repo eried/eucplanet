@@ -319,6 +319,7 @@
     <string name="watch_paired_none_desc">Kadranı almaya başlamak için Wear OS veya Garmin saatinize EUC Planet eşlik uygulamasını yükleyin</string>
     <string name="watch_paired_kind_wear">Wear OS</string>
     <string name="watch_paired_kind_garmin">Garmin Connect IQ</string>
+    <string name="watch_paired_kind_pebble">Pebble</string>
     <string name="watch_paired_active">Canlı</string>
     <string name="watch_paired_idle">Beklemede</string>
     <string name="watch_paired_rate_hz">%1$.1f Hz</string>

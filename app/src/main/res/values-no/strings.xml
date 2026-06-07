@@ -1304,6 +1304,7 @@
     <string name="watch_paired_none_desc">Installer EUC Planet-følgeappen på en Wear OS- eller Garmin-klokke for å begynne å motta urskiven her</string>
     <string name="watch_paired_kind_wear">Wear OS</string>
     <string name="watch_paired_kind_garmin">Garmin Connect IQ</string>
+    <string name="watch_paired_kind_pebble">Pebble</string>
     <string name="watch_paired_active">Live</string>
     <string name="watch_paired_idle">Inaktiv</string>
     <string name="watch_paired_rate_hz">%1$.1f Hz</string>

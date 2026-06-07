@@ -319,6 +319,7 @@
     <string name="watch_paired_none_desc">Instala la app complementaria EUC Planet en un reloj Wear OS o Garmin para empezar a recibir el dial aquí</string>
     <string name="watch_paired_kind_wear">Wear OS</string>
     <string name="watch_paired_kind_garmin">Garmin Connect IQ</string>
+    <string name="watch_paired_kind_pebble">Pebble</string>
     <string name="watch_paired_active">En vivo</string>
     <string name="watch_paired_idle">Inactivo</string>
     <string name="watch_paired_rate_hz">%1$.1f Hz</string>

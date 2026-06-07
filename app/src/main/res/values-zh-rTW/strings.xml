@@ -319,6 +319,7 @@
     <string name="watch_paired_none_desc">在 Wear OS 或 Garmin 手錶上安裝 EUC Planet 配件應用程式，即可在此接收錶盤資料</string>
     <string name="watch_paired_kind_wear">Wear OS</string>
     <string name="watch_paired_kind_garmin">Garmin Connect IQ</string>
+    <string name="watch_paired_kind_pebble">Pebble</string>
     <string name="watch_paired_active">即時</string>
     <string name="watch_paired_idle">閒置</string>
     <string name="watch_paired_rate_hz">%1$.1f Hz</string>

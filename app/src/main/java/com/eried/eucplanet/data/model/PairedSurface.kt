@@ -2,16 +2,22 @@ package com.eried.eucplanet.data.model
 
 /**
  * Snapshot of a paired companion device — Wear OS watch, Garmin watch, Garmin
- * Edge. Used by the Settings → Watch screen to render the collapsible
+ * Edge, or Pebble. Used by the Settings → Watch screen to render the collapsible
  * "Paired devices" card so the rider sees what surfaces will actually receive
  * the dial.
  *
- * Both surfaces can be active at the same time: the phone publishes the same
- * telemetry frame to every paired Wear OS node AND every paired Garmin
- * device. The two bridges don't coordinate — each treats the phone as the
- * source of truth — and the wheel only processes one horn command per
+ * Every surface can be active at the same time: the phone publishes the same
+ * telemetry frame to every paired Wear OS node, every paired Garmin device, AND
+ * an open Pebble watchapp. The bridges don't coordinate — each treats the phone
+ * as the source of truth — and the wheel only processes one horn command per
  * debounce window, so double-fire from "horn pressed on both wrists at once"
  * is harmless.
+ *
+ * Detection differs by platform. Wear/Garmin report *paired* devices (known even
+ * when our app isn't running on the watch), with friendly names. PebbleKit
+ * Android 2 exposes no passive paired-watch query — only watchapp open/close —
+ * so the Pebble surface appears while its watchapp is OPEN and carries no model
+ * name (the [Kind.PEBBLE] label stands in).
  */
 data class PairedSurface(
     val kind: Kind,
@@ -30,5 +36,5 @@ data class PairedSurface(
      */
     val updateRateHz: Double = 0.0
 ) {
-    enum class Kind { WEAR_OS, GARMIN }
+    enum class Kind { WEAR_OS, GARMIN, PEBBLE }
 }

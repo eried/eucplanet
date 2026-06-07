@@ -43,6 +43,7 @@ class SettingsViewModel @Inject constructor(
     private val automationManager: AutomationManager,
     private val wearBridge: com.eried.eucplanet.wear.WearBridge,
     private val garminBridge: com.eried.eucplanet.garmin.GarminBridge,
+    private val pebbleBridge: com.eried.eucplanet.pebble.PebbleBridge,
     private val engineSoundEngine: com.eried.eucplanet.audio.EngineSoundEngine,
     val cheatState: com.eried.eucplanet.cheats.CheatState,
     private val overlayPresetStore: com.eried.eucplanet.data.store.OverlayPresetStore,
@@ -145,13 +146,17 @@ class SettingsViewModel @Inject constructor(
             garminBridge.pairedDevices,
             settingsRepository.settings,
             garminBridge.deliveryRateHz,
-            garminBridge.lastSuccessAtMs
+            garminBridge.lastSuccessAtMs,
+            pebbleBridge.watchAppOpen,
+            pebbleBridge.lastSentAtMs
         ) { args ->
             @Suppress("UNCHECKED_CAST") val wear = args[0] as List<String>
             @Suppress("UNCHECKED_CAST") val garmin = args[1] as List<String>
             val settings = args[2] as AppSettings?
             val garminHz = args[3] as Double
             val lastGarminMs = args[4] as Long
+            val pebbleOpen = args[5] as Boolean
+            val lastPebbleMs = args[6] as Long
             val wearHz = settings?.let { wearRateHzFor(it.watchUpdateRate) } ?: 5.0
             // "Active" = the bridge has delivered a frame in the last 3 s.
             // Reading the timestamp (not the rolling rate) avoids the
@@ -159,6 +164,8 @@ class SettingsViewModel @Inject constructor(
             // running at exactly 1 Hz and our rate poller is also 1 Hz.
             val garminActive = lastGarminMs > 0L &&
                 (System.currentTimeMillis() - lastGarminMs) < 3_000L
+            val pebbleActive = lastPebbleMs > 0L &&
+                (System.currentTimeMillis() - lastPebbleMs) < 3_000L
             val wearActive = wear.isNotEmpty()
             buildList {
                 wear.forEach { name ->
@@ -166,6 +173,13 @@ class SettingsViewModel @Inject constructor(
                 }
                 garmin.forEach { name ->
                     add(PairedSurface(PairedSurface.Kind.GARMIN, name, garminActive, garminHz))
+                }
+                // Pebble has no passive paired-watch query — the surface shows
+                // while its watchapp is open AND the integration is enabled. No
+                // model name comes over PebbleKit, so the card falls back to the
+                // "Pebble" kind label. Nominal rate = the pump's 280 ms sample.
+                if (pebbleOpen && settings?.pebbleEnabled == true) {
+                    add(PairedSurface(PairedSurface.Kind.PEBBLE, "", pebbleActive, 1000.0 / 280.0))
                 }
             }
         }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())

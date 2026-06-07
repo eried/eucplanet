@@ -319,6 +319,7 @@
     <string name="watch_paired_none_desc">Installeer de EUC Planet-companion op een Wear OS- of Garmin-horloge om de wijzerplaat hier te ontvangen</string>
     <string name="watch_paired_kind_wear">Wear OS</string>
     <string name="watch_paired_kind_garmin">Garmin Connect IQ</string>
+    <string name="watch_paired_kind_pebble">Pebble</string>
     <string name="watch_paired_active">Live</string>
     <string name="watch_paired_idle">Inactief</string>
     <string name="watch_paired_rate_hz">%1$.1f Hz</string>

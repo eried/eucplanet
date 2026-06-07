@@ -319,6 +319,7 @@
     <string name="watch_paired_none_desc">Wear OS 또는 Garmin 워치에 EUC Planet 컴패니언 앱을 설치하면 여기서 다이얼을 수신합니다</string>
     <string name="watch_paired_kind_wear">Wear OS</string>
     <string name="watch_paired_kind_garmin">Garmin Connect IQ</string>
+    <string name="watch_paired_kind_pebble">Pebble</string>
     <string name="watch_paired_active">라이브</string>
     <string name="watch_paired_idle">대기</string>
     <string name="watch_paired_rate_hz">%1$.1f Hz</string>

@@ -13,6 +13,9 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.sample
 import kotlinx.coroutines.launch
 import java.util.UUID
@@ -60,8 +63,18 @@ class PebbleBridge @Inject constructor(
     private var pumpJob: Job? = null
 
     /** Flipped by [PebbleListenerService] on watchapp open/close. We only push
-     *  telemetry while a watchapp is actually on-screen. */
-    @Volatile private var appOpen = false
+     *  telemetry while a watchapp is actually on-screen, and the Settings
+     *  "Paired devices" card mirrors this as the Pebble surface's presence —
+     *  PebbleKitAndroid2 gives us no passive paired-watch query, so "watchapp
+     *  open" is the connection signal. */
+    private val _watchAppOpen = MutableStateFlow(false)
+    val watchAppOpen: StateFlow<Boolean> = _watchAppOpen.asStateFlow()
+
+    /** Wall-clock ms of the last successful AppMessage send. Drives the card's
+     *  Active/Idle dot the same way [com.eried.eucplanet.garmin.GarminBridge]'s
+     *  `lastSuccessAtMs` does. */
+    private val _lastSentAtMs = MutableStateFlow(0L)
+    val lastSentAtMs: StateFlow<Long> = _lastSentAtMs.asStateFlow()
 
     @Volatile private var started = false
 
@@ -79,13 +92,13 @@ class PebbleBridge @Inject constructor(
 
     /** Called by [PebbleListenerService] when the watchapp opens on a watch. */
     fun onWatchAppOpened() {
-        appOpen = true
+        _watchAppOpen.value = true
         startPump()
     }
 
     /** Called by [PebbleListenerService] when the watchapp closes. */
     fun onWatchAppClosed() {
-        appOpen = false
+        _watchAppOpen.value = false
         pumpJob?.cancel()
         pumpJob = null
     }
@@ -96,13 +109,14 @@ class PebbleBridge @Inject constructor(
             wheelRepository.wheelData
                 .sample(SAMPLE_INTERVAL_MS)
                 .collect { data ->
-                    if (!appOpen) return@collect
+                    if (!_watchAppOpen.value) return@collect
                     val s = settingsRepository.get()
                     if (!s.pebbleEnabled) return@collect
                     val connected =
                         wheelRepository.connectionState.value == ConnectionState.CONNECTED
                     val dict = PebbleTelemetry.build(data, connected, s).toPebbleDictionary()
                     runCatching { sender.sendDataToPebble(PEBBLE_APP_UUID, dict) }
+                        .onSuccess { _lastSentAtMs.value = System.currentTimeMillis() }
                         .onFailure { Log.d(TAG, "send failed: ${it.message}") }
                 }
         }

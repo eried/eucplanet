@@ -319,6 +319,7 @@
     <string name="watch_paired_none_desc">Instale o app EUC Planet em um relógio Wear OS ou Garmin para começar a receber o mostrador aqui</string>
     <string name="watch_paired_kind_wear">Wear OS</string>
     <string name="watch_paired_kind_garmin">Garmin Connect IQ</string>
+    <string name="watch_paired_kind_pebble">Pebble</string>
     <string name="watch_paired_active">Ao vivo</string>
     <string name="watch_paired_idle">Inativo</string>
     <string name="watch_paired_rate_hz">%1$.1f Hz</string>

@@ -8764,6 +8764,7 @@ private fun DeviceCard(
                 imageVector = when (surface.kind) {
                     com.eried.eucplanet.data.model.PairedSurface.Kind.WEAR_OS -> Icons.Outlined.WatchOutlined
                     com.eried.eucplanet.data.model.PairedSurface.Kind.GARMIN -> Icons.Default.Watch
+                    com.eried.eucplanet.data.model.PairedSurface.Kind.PEBBLE -> Icons.Default.Watch
                 },
                 contentDescription = null,
                 modifier = Modifier.size(22.dp)
@@ -8883,6 +8884,8 @@ private fun surfaceKindLabel(kind: com.eried.eucplanet.data.model.PairedSurface.
             stringResource(R.string.watch_paired_kind_wear)
         com.eried.eucplanet.data.model.PairedSurface.Kind.GARMIN ->
             stringResource(R.string.watch_paired_kind_garmin)
+        com.eried.eucplanet.data.model.PairedSurface.Kind.PEBBLE ->
+            stringResource(R.string.watch_paired_kind_pebble)
     }
 @Composable
 private fun HudInstallHint(pairedHudVersion: String?, hudEverConnected: Boolean) {

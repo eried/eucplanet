@@ -319,6 +319,7 @@
     <string name="watch_paired_none_desc">Wear OS または Garmin ウォッチに EUC Planet コンパニオンアプリをインストールするとここでダイヤルを受信できます</string>
     <string name="watch_paired_kind_wear">Wear OS</string>
     <string name="watch_paired_kind_garmin">Garmin Connect IQ</string>
+    <string name="watch_paired_kind_pebble">Pebble</string>
     <string name="watch_paired_active">ライブ</string>
     <string name="watch_paired_idle">アイドル</string>
     <string name="watch_paired_rate_hz">%1$.1f Hz</string>

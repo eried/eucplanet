@@ -1287,6 +1287,7 @@
     <string name="watch_paired_none_desc">在 Wear OS 或 Garmin 手表上安装 EUC Planet 配套应用，即可在此处接收表盘</string>
     <string name="watch_paired_kind_wear">Wear OS</string>
     <string name="watch_paired_kind_garmin">Garmin Connect IQ</string>
+    <string name="watch_paired_kind_pebble">Pebble</string>
     <string name="watch_paired_active">实时</string>
     <string name="watch_paired_idle">空闲</string>
     <string name="watch_paired_rate_hz">%1$.1f Hz</string>
