@@ -579,6 +579,8 @@ private fun BatteryFillGraphic(
                             }
                             if (dpx[k] < -30f || dpx[k] > ww + 30f) dlife[k] = 0f
                         }
+                        // Bubble animation disabled for now (kept for easy re-enable).
+                        /*
                         // Bubbles rise + fade in; energy ramps with SOC (calm to
                         // ~50 %, a little active by 80 %, chaotic near 100 %) and they
                         // go ultra-slow + ~50 % fewer when not charging.
@@ -611,6 +613,7 @@ private fun BatteryFillGraphic(
                                 bubF[k] = 0f
                             }
                         }
+                        */
                     }
                 }
                 prev = now
@@ -760,8 +763,8 @@ private fun BatteryFillGraphic(
                 )
             }
 
-            // Bubbles rise; sway grows chaotic with SOC; alpha fades in on spawn
-            // and out as they near the surface.
+            // Bubble animation disabled for now.
+            /*
             if (connected) {
                 val socC = curFrac.coerceIn(0f, 1f)
                 val chaos = socC * socC * socC
@@ -783,6 +786,7 @@ private fun BatteryFillGraphic(
                     )
                 }
             }
+            */
         }
         // Splash droplets — only when connected.
         if (connected) {
