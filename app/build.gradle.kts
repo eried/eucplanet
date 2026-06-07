@@ -154,10 +154,25 @@ val embedWear = (project.findProperty("embedWear") as? String)?.lowercase() != "
 // Garmin support (saves ~150 KB on the apk). Default is enabled.
 val garminEnabled = (project.findProperty("garminEnabled") as? String)?.lowercase() != "false"
 
+// PebbleKitAndroid2 (talks to a paired Pebble Time 2 / PebbleOS watch running
+// the pebble-watch-app/ C-SDK companion). Pulled from JitPack
+// (`io.rebble.pebblekit2:client`, declared in settings.gradle.kts).
+//
+// `pebbleStub` source set is the fallback when the build property
+// `-PpebbleEnabled=false` is set, useful for slim builds that don't need
+// Pebble support. Default is enabled. Mirrors the garminEnabled gating above.
+val pebbleEnabled = (project.findProperty("pebbleEnabled") as? String)?.lowercase() != "false"
+
 android {
     sourceSets {
         getByName("main") {
             kotlin.srcDir(if (garminEnabled) "src/garminEnabled/kotlin" else "src/garminStub/kotlin")
+            kotlin.srcDir(if (pebbleEnabled) "src/pebbleEnabled/kotlin" else "src/pebbleStub/kotlin")
+            // The listener-service manifest entry only exists on the enabled
+            // path, so the stub build never references a class it doesn't have.
+            if (pebbleEnabled) {
+                manifest.srcFile("src/pebbleEnabled/AndroidManifest.xml")
+            }
         }
     }
 }
@@ -168,6 +183,9 @@ dependencies {
     }
     if (garminEnabled) {
         implementation(libs.garmin.ciq)
+    }
+    if (pebbleEnabled) {
+        implementation(libs.pebblekit2.client)
     }
 
     // Shared wire-format types for the HUD companion app. Lives in its own

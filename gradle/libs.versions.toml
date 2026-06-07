@@ -20,6 +20,7 @@ media3 = "1.4.1"
 camerax = "1.4.1"
 zxing = "3.5.3"
 garminCiq = "2.4.0"
+pebblekit2 = "1.1.0"
 ktor = "2.3.13"
 okhttp = "4.12.0"
 kotlinxSerialization = "1.7.3"
@@ -140,6 +141,11 @@ zxing-core = { group = "com.google.zxing", name = "core", version.ref = "zxing" 
 
 # Garmin Connect IQ Mobile SDK (paired Garmin watch / Edge companion)
 garmin-ciq = { group = "com.garmin.connectiq", name = "ciq-companion-app-sdk", version.ref = "garminCiq" }
+
+# PebbleKitAndroid2 client (paired Pebble Time 2 / PebbleOS companion). Pulled
+# from JitPack (already declared in settings.gradle.kts) only on the
+# -PpebbleEnabled path; the pebbleStub source set keeps slim builds free of it.
+pebblekit2-client = { group = "io.rebble.pebblekit2", name = "client", version.ref = "pebblekit2" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
