@@ -48,6 +48,8 @@ data class ChargingSnapshot(
     /** Smoothed absolute finish time (ms) for the target / 100 %, or null. */
     val targetEtaMs: Long? = null,
     val fullEtaMs: Long? = null,
+    /** Signed Wh integrated since session start (+ charging, − discharging). */
+    val sessionEnergyWh: Float = 0f,
 )
 
 data class FullMetricHistory(
@@ -194,6 +196,10 @@ class WheelRepository @Inject constructor(
     private var committedTargetAnchorMs = 0L
     private var committedFullEtaMs: Long? = null
     private var committedFullAnchorMs = 0L
+    // Trapezoidal energy integral for the session (sign matches V*I).
+    private var sessionEnergyWh = 0f
+    private var sessionLastEnergyMs = 0L
+    private var sessionLastPowerW = 0f
     private val _chargingSnapshot = MutableStateFlow(ChargingSnapshot())
     val chargingSnapshot: StateFlow<ChargingSnapshot> = _chargingSnapshot.asStateFlow()
 
@@ -548,9 +554,21 @@ class WheelRepository @Inject constructor(
                 committedTargetAnchorMs = 0L
                 committedFullEtaMs = null
                 committedFullAnchorMs = 0L
+                sessionEnergyWh = 0f
+                sessionLastEnergyMs = data.timestamp
+                sessionLastPowerW = data.voltage * data.current
             }
             val pct = batteryPercentOf(data)
             chargingEstimator.addSample(data.timestamp, pct)
+            // Trapezoidal energy integration: avg(prev, now) * dt. Capped dt
+            // so a long pause/clock jump doesn't accumulate a phantom bucket.
+            val nowPowerW = data.voltage * data.current
+            val dtMs = (data.timestamp - sessionLastEnergyMs).coerceIn(0L, 5_000L)
+            if (dtMs > 0L) {
+                sessionEnergyWh += ((sessionLastPowerW + nowPowerW) * 0.5f) * (dtMs / 3_600_000f)
+            }
+            sessionLastEnergyMs = data.timestamp
+            sessionLastPowerW = nowPowerW
             // History for the charts is downsampled (~5 s) so a multi-hour charge
             // still fits the rolling buffer.
             // ~15 s spacing × 1000-sample cap ≈ a 4-hour charge window in the chart.
@@ -568,6 +586,9 @@ class WheelRepository @Inject constructor(
             committedTargetAnchorMs = 0L
             committedFullEtaMs = null
             committedFullAnchorMs = 0L
+            sessionEnergyWh = 0f
+            sessionLastEnergyMs = 0L
+            sessionLastPowerW = 0f
         }
         val est = chargingEstimator.estimate()
         val (te, ta) = commitEta(committedTargetEtaMs, committedTargetAnchorMs, est.minutesToTarget, data.timestamp)
@@ -581,6 +602,7 @@ class WheelRepository @Inject constructor(
             tempHistory = chargeTempHist.toList(),
             targetEtaMs = committedTargetEtaMs,
             fullEtaMs = committedFullEtaMs,
+            sessionEnergyWh = sessionEnergyWh,
         )
     }
 

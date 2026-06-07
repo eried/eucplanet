@@ -849,12 +849,23 @@ private fun InfoTabs(state: ChargingUiState) {
                         ) { _, _ -> GraphScale.fixed(0f, 100f) }
                         Spacer(Modifier.height(8.dp))
                         StatRow(stringResource(R.string.charging_stat_added), "%+.1f%%".format(state.addedPercent))
-                        // Explicit sign so a downward slope while discharging reads as
-                        // "-0.40 %/min" rather than hiding behind the same glyphs as a
-                        // tiny positive rate near zero.
-                        StatRow(stringResource(R.string.charging_stat_rate), "%+.2f %%/min".format(state.ratePctPerMin))
-                        state.powerW?.takeIf { it > 0 }?.let {
-                            StatRow(stringResource(R.string.charging_stat_power), "%d W".format(it))
+                        // Rate: prefer W (EV/charger convention) when the wheel reports a
+                        // real current; %/min becomes the secondary read either way so the
+                        // sign of a discharging slope is still visible.
+                        val rateText = buildString {
+                            state.powerW?.takeIf { it > 0 }?.let { append("%d W  ·  ".format(it)) }
+                            append("%+.2f %%/min".format(state.ratePctPerMin))
+                        }
+                        StatRow(stringResource(R.string.charging_stat_rate), rateText)
+                        // Energy integrated this session, sign matches V*I (charging +,
+                        // discharging −). Only shown when the wheel reports a real
+                        // current -- on V14-class wheels (~0 A while charging) we'd
+                        // accumulate ~0 Wh which would be misleading.
+                        if (state.hasRealCurrent) {
+                            val wh = state.energyWh
+                            val energyText = if (kotlin.math.abs(wh) >= 1000f) "%+.2f kWh".format(wh / 1000f)
+                                              else "%+.0f Wh".format(wh)
+                            StatRow(stringResource(R.string.charging_stat_energy), energyText)
                         }
                         StatRow(stringResource(R.string.charging_stat_voltage), "%.1f V".format(state.voltage))
                     }

@@ -40,6 +40,8 @@ data class ChargingUiState(
     val battery1: Float = 0f,
     val battery2: Float = 0f,
     val ratePctPerMin: Float = 0f,
+    /** Signed Wh integrated this session (+ charging, − discharging). */
+    val energyWh: Float = 0f,
     val warmedUp: Boolean = false,
     val minutesToTarget: Float? = null,
     val minutesToFull: Float? = null,
@@ -139,6 +141,7 @@ class ChargingMonitorViewModel @Inject constructor(
             // At 100 % the charge is done — stop reporting a rate (the wheel just
             // balances cells, so any residual slope is noise, not charging).
             ratePctPerMin = if (status == ChargeStatus.Full) 0f else est.ratePctPerMin,
+            energyWh = snap.sessionEnergyWh,
             warmedUp = est.warmedUp,
             minutesToTarget = est.minutesToTarget,
             minutesToFull = est.minutesToFull,

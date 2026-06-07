@@ -1642,6 +1642,7 @@
     <string name="charging_stat_balance">Imbalance</string>
     <string name="charging_stat_power">Power</string>
     <string name="charging_stat_current">Current</string>
+    <string name="charging_stat_energy">Energy</string>
     <string name="charging_chart_empty">Collecting data</string>
     <string name="charging_no_current_note">Rate measured from the charge curve</string>
 </resources>
