@@ -1,0 +1,19 @@
+{
+  "name": "eucplanet",
+  "author": "EUC Planet",
+  "version": "1.0.0",
+  "keywords": ["pebble-app", "euc", "telemetry"],
+  "private": true,
+  "dependencies": {},
+  "pebble": {
+    "displayName": "EUC Planet",
+    "uuid": "71cc8578-8aad-4179-8d5c-98bb0b13c2e1",
+    "sdkVersion": "3",
+    "enableMultiJS": false,
+    "targetPlatforms": ["emery", "basalt", "chalk", "diorite", "aplite"],
+    "watchapp": { "watchface": false },
+    "companionApp": { "android": "com.eried.eucplanet" },
+    "messageKeys": ["EUC_TELEMETRY"],
+    "resources": { "media": [] }
+  }
+}
