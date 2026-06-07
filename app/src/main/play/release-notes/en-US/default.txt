@@ -1,8 +1,15 @@
-🧪 Beta build — you get new features before they reach the stable release.
+🔋 New Battery monitor: live charge rate, energy added, and a
+   per-session prediction (time to 80% and time to full) that
+   learns your wheel's charging curve.
+🔧 Wheel fixes: KingSong KS-18XL light toggle, Veteran Oryx
+   battery/speed readout, and more.
+☁️ Online leaderboard and profile (eucstats.ried.no): clearer
+   errors, smoother registration, more reliable trip backup.
+📡 Bluetooth improved everywhere: faster reconnect when the
+   radio is toggled, clearer permission prompts, sturdier
+   disconnect/reconnect handling.
+🗣️ Voice polish: decimal numbers read correctly in every
+   language; no periodic announcements while parked.
+✨ General UI polish and small fixes throughout.
 
-A lot is new since 0.9:
-🏆 Online leaderboard (eucstats) — share trips, rank by country
-🎨 Custom themes + live theme editor
-🚗 Varia rear-view radar
-🧭 Turn-by-turn Navigator improvements
-📟 Helmet HUD improvements
+🧪 Beta build, early access before the stable release.
