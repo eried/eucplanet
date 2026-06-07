@@ -414,6 +414,13 @@
     gap: 8px;
     margin: 22px auto 0;
   }
+  /* Keep the last two chips (Garmin + HUD) together: the pair is one flex
+     item, so they wrap to the next line as a unit instead of one stranding
+     alone. Inner gap matches the row gap so it reads as a seamless row. */
+  .chip-row .chip-pair {
+    display: inline-flex;
+    gap: 8px;
+  }
   .chip-row .chip {
     display: inline-flex;
     align-items: center;
@@ -791,14 +798,16 @@
         <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2a7 7 0 0 0-4.2 12.6c.7.5 1.2 1.4 1.2 2.3V18a1 1 0 0 0 1 1h4a1 1 0 0 0 1-1v-1.1c0-.9.5-1.8 1.2-2.3A7 7 0 0 0 12 2Zm-2 19a1 1 0 0 0 1 1h2a1 1 0 0 0 1-1v-.5h-4Z"/></svg>
         <span>Ideas</span>
       </a>
-      <a class="chip" href="https://apps.garmin.com/apps/630e5d32-637d-4612-84e3-35e6d0bbee10" aria-label="Garmin Connect IQ data field">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M16.4 4.6 16 1H8l-.4 3.6A6.97 6.97 0 0 0 5 10v4c0 2.36 1.18 4.45 3 5.7V23h8v-3.3c1.82-1.25 3-3.34 3-5.7v-4c0-2.18-1-4.13-2.6-5.4zM12 17a5 5 0 1 1 0-10 5 5 0 0 1 0 10z"/></svg>
-        <span>Garmin</span>
-      </a>
-      <a class="chip" href="hud/" aria-label="MotoEye / Android HUD companion">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zm0 12.5a5 5 0 1 1 0-10 5 5 0 0 1 0 10zm0-8a3 3 0 1 0 0 6 3 3 0 0 0 0-6z"/></svg>
-        <span>HUD</span>
-      </a>
+      <span class="chip-pair">
+        <a class="chip" href="https://apps.garmin.com/apps/630e5d32-637d-4612-84e3-35e6d0bbee10" aria-label="Garmin Connect IQ data field">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M16.4 4.6 16 1H8l-.4 3.6A6.97 6.97 0 0 0 5 10v4c0 2.36 1.18 4.45 3 5.7V23h8v-3.3c1.82-1.25 3-3.34 3-5.7v-4c0-2.18-1-4.13-2.6-5.4zM12 17a5 5 0 1 1 0-10 5 5 0 0 1 0 10z"/></svg>
+          <span>Garmin</span>
+        </a>
+        <a class="chip" href="hud/" aria-label="MotoEye / Android HUD companion">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zm0 12.5a5 5 0 1 1 0-10 5 5 0 0 1 0 10zm0-8a3 3 0 1 0 0 6 3 3 0 0 0 0-6z"/></svg>
+          <span>HUD</span>
+        </a>
+      </span>
     </div>
   </section>
 
