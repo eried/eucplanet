@@ -638,11 +638,11 @@ fun DashboardScreen(
                             val chargingNow = chargeStatus == com.eried.eucplanet.data.model.ChargeStatus.Charging ||
                                 chargeStatus == com.eried.eucplanet.data.model.ChargeStatus.Full
                             Icon(
-                                // Car-charger plug while charging; disconnected plug otherwise.
+                                // The shape conveys state (charger plugged vs disconnected),
+                                // not colour — so it stays a neutral tint either way.
                                 imageVector = if (chargingNow) Icons.Filled.EvStation else Icons.Filled.PowerOff,
                                 contentDescription = stringResource(R.string.charging_monitor),
-                                tint = if (chargingNow) MaterialTheme.appColors.chargingAccent
-                                else MaterialTheme.appColors.textSecondary
+                                tint = MaterialTheme.appColors.textSecondary,
                             )
                         }
                     }
