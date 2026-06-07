@@ -841,6 +841,8 @@ private fun InfoTabs(state: ChargingUiState) {
                             state.chargeHistory,
                             MaterialTheme.appColors.metricVoltage,
                             "%",
+                            baselineValue = state.startPercent,
+                            baselineColor = MaterialTheme.appColors.hint,
                             series2 = state.voltageHistory,
                             color2 = MaterialTheme.appColors.metricBattery,
                             unit2 = "V",
