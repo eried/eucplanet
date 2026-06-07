@@ -21,6 +21,11 @@ val keystoreProps = Properties().apply {
     }
 }
 
+// PebbleKitAndroid2 gating. Declared up here (not just before the source-set
+// swap below) because kotlinOptions in the first android{} block also needs it.
+// See the source-set + dependency block further down for the full rationale.
+val pebbleEnabled = (project.findProperty("pebbleEnabled") as? String)?.lowercase() != "false"
+
 android {
     namespace = "com.eried.eucplanet"
     compileSdk = 35
@@ -103,6 +108,12 @@ android {
 
     kotlinOptions {
         jvmTarget = "17"
+        // pebblekit2 1.1.0 ships Kotlin 2.3 metadata; this build's compiler is
+        // 2.0.21. Let it READ the newer metadata instead of erroring out. Only
+        // applied on the enabled path so the slim/stub build stays strict.
+        if (pebbleEnabled) {
+            freeCompilerArgs = freeCompilerArgs + "-Xskip-metadata-version-check"
+        }
     }
 
     buildFeatures {
@@ -161,7 +172,8 @@ val garminEnabled = (project.findProperty("garminEnabled") as? String)?.lowercas
 // `pebbleStub` source set is the fallback when the build property
 // `-PpebbleEnabled=false` is set, useful for slim builds that don't need
 // Pebble support. Default is enabled. Mirrors the garminEnabled gating above.
-val pebbleEnabled = (project.findProperty("pebbleEnabled") as? String)?.lowercase() != "false"
+// (`pebbleEnabled` itself is declared near the top of this file so kotlinOptions
+// can read it too.)
 
 android {
     sourceSets {
@@ -186,6 +198,31 @@ dependencies {
     }
     if (pebbleEnabled) {
         implementation(libs.pebblekit2.client)
+        // pebblekit2 1.1.0 transitively requests androidx.core(-ktx) 1.17.0,
+        // which would force compileSdk 36 + AGP 8.9.1 (this build is AGP 8.7.3 /
+        // compileSdk 35). Pin core back to the project's already-declared 1.15.0
+        // -- same explicit-override approach the build uses for androidx.fragment.
+        // Revisit when the project moves to AGP 8.9+ / compileSdk 36.
+        constraints {
+            implementation(libs.androidx.core) {
+                version { strictly("1.15.0") }
+                because("pebblekit2 pulls core 1.17.0 which needs compileSdk 36 / AGP 8.9.1")
+            }
+            implementation("androidx.core:core:1.15.0") {
+                version { strictly("1.15.0") }
+                because("pebblekit2 pulls core 1.17.0 which needs compileSdk 36 / AGP 8.9.1")
+            }
+            // pebblekit2 1.1.0 was built against Kotlin 2.3.20 and drags its
+            // stdlib in. This build is on Kotlin 2.0.21, so hold the stdlib at
+            // the project's version (the -Xskip-metadata-version-check flag in
+            // kotlinOptions lets the 2.0.21 compiler still READ the library's
+            // 2.3 metadata). Bump both together when the project moves to a
+            // newer Kotlin.
+            implementation("org.jetbrains.kotlin:kotlin-stdlib") {
+                version { strictly(libs.versions.kotlin.get()) }
+                because("keep stdlib on the project's Kotlin; pebblekit2 forces 2.3.20")
+            }
+        }
     }
 
     // Shared wire-format types for the HUD companion app. Lives in its own
