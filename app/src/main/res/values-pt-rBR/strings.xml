@@ -279,6 +279,10 @@
     <string name="section_report_status">Relatar status</string>
     <string name="voice_enabled">Relatar status periodicamente</string>
     <string name="voice_only_when_connected">Somente quando a roda estiver conectada</string>
+    <string name="voice_announce_when_label">Anunciar</string>
+    <string name="voice_announce_always">Sempre</string>
+    <string name="voice_announce_connected">Conectada</string>
+    <string name="voice_announce_riding">Ao pilotar</string>
     <string name="voice_interval">Intervalo</string>
     <string name="unit_sec">seg</string>
     <string name="announce_wheel_lock">Travamento / destravamento da roda</string>

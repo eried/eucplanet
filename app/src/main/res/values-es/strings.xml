@@ -210,6 +210,10 @@
     <string name="section_report_status">Informe de estado</string>
     <string name="voice_enabled">Informar estado periódicamente</string>
     <string name="voice_only_when_connected">Solo cuando la rueda esté conectada</string>
+    <string name="voice_announce_when_label">Anunciar</string>
+    <string name="voice_announce_always">Siempre</string>
+    <string name="voice_announce_connected">Conectada</string>
+    <string name="voice_announce_riding">Al conducir</string>
     <string name="voice_interval">Intervalo</string>
     <string name="unit_sec">seg</string>
     <string name="announce_wheel_lock">Bloqueo / desbloqueo de rueda</string>

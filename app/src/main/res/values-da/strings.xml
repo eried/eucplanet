@@ -216,6 +216,10 @@
     <string name="section_report_status">Statusrapport</string>
     <string name="voice_enabled">Rapportér status løbende</string>
     <string name="voice_only_when_connected">Kun når hjulet er forbundet</string>
+    <string name="voice_announce_when_label">Annoncér</string>
+    <string name="voice_announce_always">Altid</string>
+    <string name="voice_announce_connected">Forbundet</string>
+    <string name="voice_announce_riding">Under kørsel</string>
     <string name="voice_interval">Interval</string>
     <string name="unit_sec">sek</string>
     <string name="announce_wheel_lock">Lås / lås op</string>

@@ -279,6 +279,10 @@
     <string name="section_report_status">Statusrapport</string>
     <string name="voice_enabled">Periodiek status melden</string>
     <string name="voice_only_when_connected">Alleen wanneer wiel verbonden is</string>
+    <string name="voice_announce_when_label">Aankondigen</string>
+    <string name="voice_announce_always">Altijd</string>
+    <string name="voice_announce_connected">Verbonden</string>
+    <string name="voice_announce_riding">Tijdens het rijden</string>
     <string name="voice_interval">Interval</string>
     <string name="unit_sec">sec</string>
     <string name="announce_wheel_lock">Wiel vergrendelen / ontgrendelen</string>

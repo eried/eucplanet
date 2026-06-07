@@ -214,6 +214,10 @@
     <string name="section_report_status">状态播报</string>
     <string name="voice_enabled">定时播报状态</string>
     <string name="voice_only_when_connected">仅在独轮车连接时播报</string>
+    <string name="voice_announce_when_label">播报</string>
+    <string name="voice_announce_always">始终</string>
+    <string name="voice_announce_connected">已连接</string>
+    <string name="voice_announce_riding">骑行时</string>
     <string name="voice_interval">间隔</string>
     <string name="unit_sec">秒</string>
     <string name="announce_wheel_lock">锁车 / 解锁</string>

@@ -279,6 +279,10 @@
     <string name="section_report_status">Raport statusu</string>
     <string name="voice_enabled">Cyklicznie raportuj status</string>
     <string name="voice_only_when_connected">Tylko gdy koło jest połączone</string>
+    <string name="voice_announce_when_label">Ogłaszaj</string>
+    <string name="voice_announce_always">Zawsze</string>
+    <string name="voice_announce_connected">Połączono</string>
+    <string name="voice_announce_riding">Podczas jazdy</string>
     <string name="voice_interval">Interwał</string>
     <string name="unit_sec">s</string>
     <string name="announce_wheel_lock">Blokada / odblokowanie koła</string>

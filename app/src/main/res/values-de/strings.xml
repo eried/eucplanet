@@ -210,6 +210,10 @@
     <string name="section_report_status">Statusbericht</string>
     <string name="voice_enabled">Status regelmäßig melden</string>
     <string name="voice_only_when_connected">Nur wenn Rad verbunden ist</string>
+    <string name="voice_announce_when_label">Ansagen</string>
+    <string name="voice_announce_always">Immer</string>
+    <string name="voice_announce_connected">Verbunden</string>
+    <string name="voice_announce_riding">Beim Fahren</string>
     <string name="voice_interval">Intervall</string>
     <string name="unit_sec">Sek</string>
     <string name="announce_wheel_lock">Rad sperren / entsperren</string>

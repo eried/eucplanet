@@ -279,6 +279,10 @@
     <string name="section_report_status">Звіт про стан</string>
     <string name="voice_enabled">Періодично озвучувати стан</string>
     <string name="voice_only_when_connected">Лише коли моноколесо підключене</string>
+    <string name="voice_announce_when_label">Озвучувати</string>
+    <string name="voice_announce_always">Завжди</string>
+    <string name="voice_announce_connected">Підключено</string>
+    <string name="voice_announce_riding">Під час руху</string>
     <string name="voice_interval">Інтервал</string>
     <string name="unit_sec">с</string>
     <string name="announce_wheel_lock">Блокування і розблокування</string>

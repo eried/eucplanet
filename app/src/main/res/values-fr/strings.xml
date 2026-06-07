@@ -214,6 +214,10 @@
     <string name="section_report_status">Rapport d\'état</string>
     <string name="voice_enabled">Rapport d\'état périodique</string>
     <string name="voice_only_when_connected">Seulement quand la roue est connectée</string>
+    <string name="voice_announce_when_label">Annoncer</string>
+    <string name="voice_announce_always">Toujours</string>
+    <string name="voice_announce_connected">Connectée</string>
+    <string name="voice_announce_riding">En roulant</string>
     <string name="voice_interval">Intervalle</string>
     <string name="unit_sec">s</string>
     <string name="announce_wheel_lock">Verrouillage / déverrouillage</string>

@@ -210,6 +210,10 @@
     <string name="section_report_status">Отчёт о состоянии</string>
     <string name="voice_enabled">Регулярный отчёт</string>
     <string name="voice_only_when_connected">Только когда колесо подключено</string>
+    <string name="voice_announce_when_label">Объявлять</string>
+    <string name="voice_announce_always">Всегда</string>
+    <string name="voice_announce_connected">Подключено</string>
+    <string name="voice_announce_riding">При движении</string>
     <string name="voice_interval">Интервал</string>
     <string name="unit_sec">с</string>
     <string name="announce_wheel_lock">Блокировка и разблокировка</string>
