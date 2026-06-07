@@ -502,7 +502,7 @@ class WheelRepository @Inject constructor(
         }
     }
 
-    fun connect(address: String, name: String? = null) {
+    fun connect(address: String, name: String? = null, isAuto: Boolean = false) {
         if (lastConnectedAddress != null && lastConnectedAddress != address) {
             // Different wheel, clear history
             battHist.clear(); tempHist.clear(); voltHist.clear()
@@ -511,7 +511,7 @@ class WheelRepository @Inject constructor(
             _fullHistory.value = FullMetricHistory()
         }
         lastConnectedAddress = address
-        bleManager.connect(address, name)
+        bleManager.connect(address, name, isAuto)
     }
 
     fun disconnect() {

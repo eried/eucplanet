@@ -513,6 +513,10 @@
     <string name="auto_record_start_in_motion">Start recording when in motion</string>
     <string name="auto_record_start_in_motion_caption">Starts on movement, auto-stops after idle, restarts next ride</string>
     <string name="auto_record_stop_idle_seconds">Stop after idle for</string>
+    <string name="auto_record_mode_label">Auto-start trip recording</string>
+    <string name="auto_record_mode_never">Never</string>
+    <string name="auto_record_mode_connected">Connected</string>
+    <string name="auto_record_mode_riding">When riding</string>
     <string name="auto_connect_on_start">Auto-connect on start</string>
     <string name="auto_connect_caption">Reconnects to the last paired wheel automatically</string>
     <string name="wheel_name_display">Wheel name</string>
@@ -866,6 +870,9 @@
     <string name="scan_title">Connect to wheel</string>
     <string name="scan_scanning">Searching\u2026</string>
     <string name="scan_start">Start Scan</string>
+    <string name="scan_bluetooth_off_title">Bluetooth is off</string>
+    <string name="scan_bluetooth_off_body">Turn on Bluetooth to scan for wheels.</string>
+    <string name="scan_enable_bluetooth">Enable Bluetooth</string>
     <string name="scan_show_all_title">Show all devices</string>
     <string name="scan_show_all_subtitle">Turn on if your wheel does not appear</string>
 

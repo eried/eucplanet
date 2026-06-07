@@ -59,6 +59,10 @@ class WheelService : LifecycleService() {
         const val ACTION_STOP_ALL_AND_KILL = "com.eried.eucplanet.STOP_ALL_AND_KILL"
         const val EXTRA_ADDRESS = "device_address"
         const val EXTRA_NAME = "device_name"
+        /** Marks an ACTION_CONNECT as auto-initiated (app-start / reconnect)
+         *  rather than a wheel the rider picked, so the scan-screen hold can
+         *  let user picks through while blocking auto-connects. */
+        const val EXTRA_AUTO = "auto_connect"
     }
 
     @Inject lateinit var wheelRepository: WheelRepository
@@ -66,6 +70,11 @@ class WheelService : LifecycleService() {
 
     @Volatile
     private var speedUnitCached: String = "kmh"
+    // Last paired wheel's name, mirrored from settings so the notification can
+    // show it (Tesla-style) without suspending - used when no wheel is actively
+    // connected (e.g. while "Connecting" or after a drop).
+    @Volatile
+    private var lastDeviceNameCached: String? = null
     @Inject lateinit var voiceService: VoiceService
     @Inject lateinit var tripRepository: TripRepository
     @Inject lateinit var automationManager: AutomationManager
@@ -139,6 +148,7 @@ class WheelService : LifecycleService() {
                 // Notification builder reads the speed unit without suspending;
                 // mirror the latest value here every settings update.
                 speedUnitCached = com.eried.eucplanet.util.Units.effectiveSpeedUnit(s)
+                lastDeviceNameCached = s.lastDeviceName
                 engineSoundEngine.applySettings(s)
                 engineSoundEngine.setConnected(
                     wheelRepository.connectionState.value == ConnectionState.CONNECTED,
@@ -292,8 +302,9 @@ class WheelService : LifecycleService() {
                 }
                 val address = intent.getStringExtra(EXTRA_ADDRESS)
                 val name = intent.getStringExtra(EXTRA_NAME)
+                val isAuto = intent.getBooleanExtra(EXTRA_AUTO, false)
                 if (address != null) {
-                    wheelRepository.connect(address, name)
+                    wheelRepository.connect(address, name, isAuto)
                 }
             }
             ACTION_DISCONNECT -> {
@@ -505,8 +516,16 @@ class WheelService : LifecycleService() {
             state.name.lowercase().replaceFirstChar { it.uppercase() }
         }
 
+        // Title = the wheel's name (Tesla shows the car name here), so the
+        // expanded notification doesn't repeat the app name that's already in
+        // the header. Prefer the actively-connected name; fall back to the last
+        // paired wheel; only show the app name when we've never paired one.
+        val wheelName = wheelRepository.connectedDeviceName.value
+            ?: lastDeviceNameCached
+            ?: getString(R.string.app_name)
+
         return NotificationCompat.Builder(this, CHANNEL_ID)
-            .setContentTitle(getString(R.string.app_name))
+            .setContentTitle(wheelName)
             .setContentText(text)
             .setSmallIcon(android.R.drawable.stat_sys_data_bluetooth)
             .setContentIntent(pendingIntent)

@@ -140,6 +140,11 @@ class BleScanner @Inject constructor(
         return false
     }
 
+    /** True only when the adapter exists and Bluetooth is turned on. The scan
+     *  screen checks this so a tap on "Start scan" with Bluetooth off prompts
+     *  the rider to enable it instead of silently doing nothing. */
+    fun isBluetoothEnabled(): Boolean = bluetoothAdapter?.isEnabled == true
+
     @SuppressLint("MissingPermission")
     fun stopScan() {
         val scanner = bluetoothAdapter?.bluetoothLeScanner ?: return
