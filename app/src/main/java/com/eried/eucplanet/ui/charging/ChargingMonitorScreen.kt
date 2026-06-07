@@ -477,6 +477,7 @@ private fun BatteryFillGraphic(
     val bubR = remember { FloatArray(maxBubbles) }
     val bubS = remember { FloatArray(maxBubbles) }
     val bubA = remember { FloatArray(maxBubbles) }
+    val bubF = remember { FloatArray(maxBubbles) }
     DisposableEffect(Unit) {
         val sm = ctx.getSystemService(android.content.Context.SENSOR_SERVICE) as? android.hardware.SensorManager
         val listener = object : android.hardware.SensorEventListener {
@@ -565,29 +566,36 @@ private fun BatteryFillGraphic(
                             }
                             if (dpx[k] < -30f || dpx[k] > ww + 30f) dlife[k] = 0f
                         }
-                        // Bubbles always rise; speed scales with SOC, is much slower
-                        // when not charging, and turns violent near 100 %.
+                        // Bubbles rise + fade in; energy ramps with SOC (calm to
+                        // ~50 %, a little active by 80 %, chaotic near 100 %) and they
+                        // go ultra-slow + ~50 % fewer when not charging.
                         val hh = geo[1]
                         val socFrac = (1f - topY / hh.coerceAtLeast(1f)).coerceIn(0f, 1f)
-                        val chargeMul = 0.3f + 0.7f * g.value
-                        val violence = 1f + (socFrac.coerceAtLeast(0.6f) - 0.6f) / 0.4f * 2.5f
-                        val bubScale = (0.25f + 0.9f * socFrac) * chargeMul * violence
+                        val energy = 0.25f + 2.5f * socFrac * socFrac * socFrac
+                        val chargeMul = 0.15f + 0.85f * g.value
+                        val bubScale = energy * chargeMul
+                        val activeCount = if (g.value > 0.5f) maxBubbles else maxBubbles / 2
                         for (k in 0 until maxBubbles) {
+                            if (k >= activeCount) { bubY[k] = -1f; continue }
                             if (bubY[k] < 0f) {
                                 bubX[k] = rnd.nextFloat()
                                 bubY[k] = topY + (hh - topY) * (0.1f + rnd.nextFloat() * 0.9f)
                                 bubR[k] = 2f + rnd.nextFloat() * rnd.nextFloat() * 9f
                                 bubS[k] = 8f + rnd.nextFloat() * 24f
-                                bubA[k] = 0.10f + rnd.nextFloat() * 0.16f
+                                // Squared random → many very faint, a few not so faint.
+                                bubA[k] = 0.04f + rnd.nextFloat() * rnd.nextFloat() * 0.30f
+                                bubF[k] = 0f
                             }
                             bubY[k] -= bubS[k] * bubScale * dt
+                            bubF[k] = (bubF[k] + dt / 1.2f).coerceAtMost(1f)
                             val sb = topY + surfH[(bubX[k] * FLUID_COLS).toInt().coerceIn(0, FLUID_COLS)]
                             if (bubY[k] <= sb + bubR[k]) {
                                 bubX[k] = rnd.nextFloat()
                                 bubY[k] = topY + (hh - topY) * (0.1f + rnd.nextFloat() * 0.9f)
                                 bubR[k] = 2f + rnd.nextFloat() * rnd.nextFloat() * 9f
                                 bubS[k] = 8f + rnd.nextFloat() * 24f
-                                bubA[k] = 0.10f + rnd.nextFloat() * 0.16f
+                                bubA[k] = 0.04f + rnd.nextFloat() * rnd.nextFloat() * 0.30f
+                                bubF[k] = 0f
                             }
                         }
                     }
@@ -739,19 +747,23 @@ private fun BatteryFillGraphic(
                 )
             }
 
-            // Faint bubbles rising through the liquid — only when connected.
+            // Bubbles rise; sway grows chaotic with SOC; alpha fades in on spawn
+            // and out as they near the surface.
             if (connected) {
-                // Sway gets larger + faster (more chaotic) the higher the SOC.
                 val socC = curFrac.coerceIn(0f, 1f)
-                val swayAmp = 0.006f + 0.024f * socC
-                val swayFreq = 1.0f + 3f * socC
+                val chaos = socC * socC * socC
+                val swayAmp = 0.004f + 0.03f * chaos
+                val swayFreq = 1.0f + 4f * chaos
                 for (k in 0 until maxBubbles) {
                     val by = bubY[k]
                     if (by < yTop || by > fillBottom) continue
                     val sway = sin(clock.floatValue * swayFreq + k * 1.7f) * swayAmp +
-                        sin(clock.floatValue * (swayFreq * 2.3f) + k * 0.9f) * swayAmp * 0.6f * socC
+                        sin(clock.floatValue * (swayFreq * 2.3f) + k * 0.9f) * swayAmp * chaos
+                    val edgeFade = ((by - yTop) / 40f).coerceIn(0f, 1f)
+                    val a = bubA[k] * bubF[k] * edgeFade
+                    if (a <= 0.001f) continue
                     drawCircle(
-                        color = bubbleColor.copy(alpha = bubA[k]),
+                        color = bubbleColor.copy(alpha = a),
                         radius = bubR[k],
                         center = Offset(fillLeft + (bubX[k] + sway).coerceIn(0f, 1f) * fillW, by),
                         style = Stroke(width = 1.5.dp.toPx()),
