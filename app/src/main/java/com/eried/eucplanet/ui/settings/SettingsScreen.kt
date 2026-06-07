@@ -8068,8 +8068,7 @@ private fun SegmentedChoice(
         Row(verticalAlignment = Alignment.CenterVertically) {
             Text(
                 label,
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+                style = MaterialTheme.typography.bodyLarge
             )
             if (onPreview != null) {
                 Spacer(Modifier.width(4.dp))
@@ -8088,18 +8087,15 @@ private fun SegmentedChoice(
                     selected = current == key,
                     onClick = { onChange(key) },
                     shape = SegmentedButtonDefaults.itemShape(index = index, count = options.size),
-                    icon = {},
-                    label = {
-                        Text(
-                            optLabel,
-                            style = MaterialTheme.typography.labelMedium,
-                            textAlign = TextAlign.Center,
-                            maxLines = 2,
-                            overflow = TextOverflow.Ellipsis
-                        )
-                    },
                     colors = themedSegmentedColors(),
-                )
+                ) {
+                    Text(
+                        optLabel,
+                        textAlign = TextAlign.Center,
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
             }
         }
     }
