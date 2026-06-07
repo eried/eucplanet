@@ -347,6 +347,21 @@ class SettingsViewModel @Inject constructor(
     fun updateAutoRecord(v: Boolean) = update { copy(autoRecord = v) }
     fun updateAutoRecordStartInMotion(v: Boolean) = update { copy(autoRecordStartInMotion = v) }
     fun updateAutoRecordStopIdleSeconds(v: Int) = update { copy(autoRecordStopIdleSeconds = v.coerceIn(30, 600)) }
+
+    /**
+     * Sets the auto-start trip-recording mode in one atomic write over the
+     * existing two booleans (no new persisted field):
+     *  - NEVER     -> autoRecord off
+     *  - CONNECTED -> on, runs from connect to disconnect (no idle stop)
+     *  - RIDING    -> on + motion-linked (start on movement, stop after idle)
+     */
+    fun updateAutoRecordMode(mode: String) = update {
+        when (mode) {
+            "NEVER" -> copy(autoRecord = false)
+            "CONNECTED" -> copy(autoRecord = true, autoRecordStartInMotion = false)
+            else -> copy(autoRecord = true, autoRecordStartInMotion = true) // RIDING
+        }
+    }
     fun updateAutoConnect(v: Boolean) = update { copy(autoConnect = v) }
     fun updateChargingAutoOpen(v: Boolean) = update { copy(chargingAutoOpen = v) }
     fun updateChargingDashboardIcon(v: Boolean) = update { copy(chargingDashboardIcon = v) }

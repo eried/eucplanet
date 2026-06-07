@@ -558,6 +558,7 @@ class DashboardViewModel @Inject constructor(
                 action = WheelService.ACTION_CONNECT
                 putExtra(WheelService.EXTRA_ADDRESS, address)
                 putExtra(WheelService.EXTRA_NAME, settings.lastDeviceName)
+                putExtra(WheelService.EXTRA_AUTO, true)
             }
             context.startForegroundService(intent)
         }

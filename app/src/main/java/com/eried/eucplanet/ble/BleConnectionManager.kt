@@ -1,6 +1,7 @@
 package com.eried.eucplanet.ble
 
 import android.annotation.SuppressLint
+import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
 import android.bluetooth.BluetoothGatt
 import android.bluetooth.BluetoothGattCallback
@@ -8,9 +9,17 @@ import android.bluetooth.BluetoothGattCharacteristic
 import android.bluetooth.BluetoothGattDescriptor
 import android.bluetooth.BluetoothManager
 import android.bluetooth.BluetoothProfile
+import android.bluetooth.le.ScanCallback
+import android.bluetooth.le.ScanFilter
+import android.bluetooth.le.ScanResult
+import android.bluetooth.le.ScanSettings
+import android.content.BroadcastReceiver
 import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
 import android.os.Build
 import android.util.Log
+import androidx.core.content.ContextCompat
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -85,6 +94,12 @@ class BleConnectionManager @Inject constructor(
      */
     @Volatile var autoConnectSuppressed: Boolean = false
 
+    // True when the current (or most recent) connection was started by
+    // auto-connect — app-start auto-connect or the reconnect loop — rather
+    // than the rider explicitly picking a wheel on the scan screen. Lets the
+    // scan screen drop an auto connection without touching a user-chosen one.
+    @Volatile private var currentConnectIsAuto = false
+
     // Write serialization - only one BLE write at a time
     private val writeChannel = Channel<ByteArray>(Channel.BUFFERED)
     private var writeReady = false
@@ -95,16 +110,176 @@ class BleConnectionManager @Inject constructor(
     // they had arrived as real BLE notifications. GATT handles stay null.
     @Volatile private var virtualWheel: VirtualWheel? = null
 
-    init {
-        scope.launch { processWriteQueue() }
+    /**
+     * Track the adapter going down and coming back up. Two jobs:
+     *  - STATE_OFF: force the connection to DISCONNECTED. The GATT
+     *    onConnectionStateChange callback is unreliable when the adapter itself
+     *    is switched off (the Bluetooth binder can die before it fires), so the
+     *    UI would otherwise stay "connected" with no live wheel - especially for
+     *    push-only wheels that aren't being polled, where the write-queue guard
+     *    never trips.
+     *  - STATE_ON: re-arm auto-connect. The OS does not retry a
+     *    connectGatt(autoConnect = false) for us, and the disconnect-time
+     *    reconnect is a single delayed attempt that's already spent while the
+     *    adapter is still off.
+     */
+    private val bluetoothStateReceiver = object : BroadcastReceiver() {
+        override fun onReceive(ctx: Context?, intent: Intent?) {
+            if (intent?.action != BluetoothAdapter.ACTION_STATE_CHANGED) return
+            when (intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, BluetoothAdapter.ERROR)) {
+                BluetoothAdapter.STATE_TURNING_OFF,
+                BluetoothAdapter.STATE_OFF -> onBluetoothOff()
+                BluetoothAdapter.STATE_ON -> onBluetoothOn()
+            }
+        }
+    }
+
+    private fun onBluetoothOff() {
+        // Any in-flight reconnect scan is dead once the adapter goes down.
+        stopReconnectScan()
+        // Virtual wheels run without GATT, so the adapter going down is
+        // irrelevant to them - leave the simulator connected.
+        if (virtualWheel != null) return
+        if (_connectionState.value == ConnectionState.DISCONNECTED) return
+        Log.i(TAG, "Bluetooth turned off; forcing disconnect")
+        // Keep shouldReconnect / currentAddress so onBluetoothOn() can re-arm.
+        rxCharacteristic = null
+        writeReady = false
+        gatt?.let { g -> try { g.close() } catch (_: Exception) {} }
+        gatt = null
+        wheelAdapter.onDisconnect()
+        _connectionState.value = ConnectionState.DISCONNECTED
+    }
+
+    private fun onBluetoothOn() {
+        // Reconnect only when the rider hasn't disconnected on purpose
+        // (shouldReconnect), isn't on the scan screen picking a wheel
+        // (autoConnectSuppressed), there's a last wheel to return to, and we
+        // aren't already connected.
+        if (!shouldReconnect || autoConnectSuppressed) return
+        val address = currentAddress ?: return
+        if (_connectionState.value == ConnectionState.CONNECTED) return
+
+        scope.launch {
+            // The BLE stack isn't ready the instant the adapter reports ON.
+            // Give it a beat, then re-check nothing changed before reconnecting.
+            delay(1500)
+            if (shouldReconnect &&
+                !autoConnectSuppressed &&
+                currentAddress == address &&
+                _connectionState.value != ConnectionState.CONNECTED &&
+                bluetoothManager.adapter?.isEnabled == true
+            ) {
+                Log.i(TAG, "Bluetooth turned on; scanning to reconnect to $address")
+                reconnectViaScan(address, currentName)
+            }
+        }
+    }
+
+    private var reconnectScanCallback: ScanCallback? = null
+
+    /**
+     * Reliable auto-reconnect: instead of a blind direct connect (which times
+     * out with status 147 if the wheel isn't connectable in its 30s window -
+     * exactly what happens right after a Bluetooth toggle), scan for the wheel's
+     * address and only fire a direct connect once we've actually seen it
+     * advertising. Falls back to a plain connect if no scanner is available.
+     */
+    @SuppressLint("MissingPermission")
+    private fun reconnectViaScan(address: String, name: String?) {
+        val scanner = bluetoothManager.adapter?.bluetoothLeScanner
+        if (scanner == null) {
+            connect(address, name, isAuto = true)
+            return
+        }
+        stopReconnectScan()
+        _connectionState.value = ConnectionState.SCANNING
+        val filter = ScanFilter.Builder().setDeviceAddress(address).build()
+        val settings = ScanSettings.Builder()
+            .setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY)
+            .build()
+        val cb = object : ScanCallback() {
+            override fun onScanResult(callbackType: Int, result: ScanResult) {
+                Log.i(TAG, "Reconnect scan found $address; connecting")
+                stopReconnectScan()
+                connect(address, name, isAuto = true)
+            }
+            override fun onScanFailed(errorCode: Int) {
+                Log.w(TAG, "Reconnect scan failed ($errorCode); trying direct connect")
+                stopReconnectScan()
+                connect(address, name, isAuto = true)
+            }
+        }
+        reconnectScanCallback = cb
+        try {
+            scanner.startScan(listOf(filter), settings, cb)
+        } catch (e: Exception) {
+            Log.w(TAG, "Reconnect scan start threw; direct connect", e)
+            reconnectScanCallback = null
+            connect(address, name, isAuto = true)
+            return
+        }
+        // Don't scan forever: if the wheel never shows (off / out of range),
+        // stop after a while and leave it to the next disconnect/BT event.
+        scope.launch {
+            delay(60_000)
+            if (reconnectScanCallback === cb) {
+                Log.i(TAG, "Reconnect scan timed out for $address")
+                stopReconnectScan()
+                if (_connectionState.value == ConnectionState.SCANNING) {
+                    _connectionState.value = ConnectionState.DISCONNECTED
+                }
+            }
+        }
     }
 
     @SuppressLint("MissingPermission")
-    fun connect(address: String, name: String? = null) {
+    private fun stopReconnectScan() {
+        val cb = reconnectScanCallback ?: return
+        reconnectScanCallback = null
+        try { bluetoothManager.adapter?.bluetoothLeScanner?.stopScan(cb) } catch (_: Exception) {}
+    }
+
+    init {
+        scope.launch { processWriteQueue() }
+        ContextCompat.registerReceiver(
+            context,
+            bluetoothStateReceiver,
+            IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED),
+            ContextCompat.RECEIVER_NOT_EXPORTED
+        )
+    }
+
+    @SuppressLint("MissingPermission")
+    fun connect(address: String, name: String? = null, isAuto: Boolean = false) {
+        // Single chokepoint for every wheel connection. While the rider is on
+        // the scan screen, hold every AUTO-connect (app start, reconnect loop,
+        // post-scan re-arm); a wheel the rider picks (isAuto = false) always
+        // goes through.
+        if (isAuto && autoConnectSuppressed) {
+            Log.i(TAG, "Auto-connect to $address held: scan screen is open")
+            return
+        }
+        currentConnectIsAuto = isAuto
         // Demo / simulator mode: VIRTUAL:<id> bypasses GATT and connects to a fake wheel.
         val virtualId = VirtualWheelRegistry.parsePseudoAddress(address)
         if (virtualId != null) {
             connectVirtual(virtualId)
+            return
+        }
+
+        // A real GATT connection needs the adapter on. Issuing connectGatt while
+        // Bluetooth is off fails with status 133, and the reconnect loop retries
+        // it every couple of seconds - each failed attempt leaks a GATT client
+        // until even later connects (once Bluetooth is back) fail too. So while
+        // the adapter is off, just remember the target and let onBluetoothOn()
+        // drive the reconnect when STATE_ON arrives.
+        if (bluetoothManager.adapter?.isEnabled != true) {
+            Log.i(TAG, "connect($address) deferred: Bluetooth is off")
+            currentAddress = address
+            currentName = name ?: currentName
+            shouldReconnect = true
+            _connectionState.value = ConnectionState.DISCONNECTED
             return
         }
 
@@ -131,7 +306,44 @@ class BleConnectionManager @Inject constructor(
         _connectedBrand.value = wheelAdapter.brand
 
         val device: BluetoothDevice = bluetoothManager.adapter.getRemoteDevice(address)
+        // Close any prior handle first so a reconnect (or two racing attempts)
+        // can't leave an orphaned GATT client behind - leaked clients are the
+        // usual road to permanent status-133 connect failures.
+        gatt?.let { g -> try { g.close() } catch (_: Exception) {} }
+        // Direct connect. Auto-reconnects route through reconnectViaScan() first,
+        // so by the time we get here the wheel has been seen advertising and a
+        // direct connect lands fast - far more reliable than a blind direct
+        // connect (30s status-147 timeout) or autoConnect=true (slow/flaky on
+        // some stacks).
         gatt = device.connectGatt(context, false, gattCallback, BluetoothDevice.TRANSPORT_LE)
+    }
+
+    /**
+     * Scan screen opened. Hold auto-reconnect and drop any in-flight or active
+     * AUTO connection so the rider isn't pulled back to the previous wheel
+     * mid-search. A connection the rider chose explicitly is left untouched.
+     */
+    fun suppressAutoConnect() {
+        autoConnectSuppressed = true
+        // The scan screen runs its own scan; never leave a reconnect scan racing it.
+        stopReconnectScan()
+        if (currentConnectIsAuto && _connectionState.value != ConnectionState.DISCONNECTED) {
+            Log.i(TAG, "Scan opened while auto-connected/connecting; dropping it")
+            disconnect()
+        }
+    }
+
+    /**
+     * Scan screen closed. Re-enable auto-reconnect. If the rider left without
+     * picking a new wheel, the caller passes the last wheel; we reconnect to it
+     * only when still disconnected (a fresh pick already moved us off
+     * DISCONNECTED). A null address just lifts the hold.
+     */
+    fun resumeAutoConnect(reconnectAddress: String?, reconnectName: String?) {
+        autoConnectSuppressed = false
+        if (reconnectAddress != null && _connectionState.value == ConnectionState.DISCONNECTED) {
+            connect(reconnectAddress, reconnectName, isAuto = true)
+        }
     }
 
     /**
@@ -211,6 +423,7 @@ class BleConnectionManager @Inject constructor(
     @SuppressLint("MissingPermission")
     fun disconnect() {
         shouldReconnect = false
+        stopReconnectScan()
         currentAddress = null
         currentName = null
         rxCharacteristic = null
@@ -287,17 +500,37 @@ class BleConnectionManager @Inject constructor(
             // WRITE_TYPE_DEFAULT writes. InMotion V2 / V1 stay on the
             // safer WRITE_TYPE_DEFAULT.
             val writeType = wheelAdapter.bleProfile().writeType
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                val result = g.writeCharacteristic(characteristic, data, writeType)
-                Log.d(TAG, "writeCharacteristic result: $result (${data.size} bytes, type=$writeType)")
-            } else {
-                @Suppress("DEPRECATION")
-                characteristic.value = data
-                @Suppress("DEPRECATION")
-                characteristic.writeType = writeType
-                @Suppress("DEPRECATION")
-                val result = g.writeCharacteristic(characteristic)
-                Log.d(TAG, "writeCharacteristic result: $result (${data.size} bytes, type=$writeType)")
+            try {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    val result = g.writeCharacteristic(characteristic, data, writeType)
+                    Log.d(TAG, "writeCharacteristic result: $result (${data.size} bytes, type=$writeType)")
+                } else {
+                    @Suppress("DEPRECATION")
+                    characteristic.value = data
+                    @Suppress("DEPRECATION")
+                    characteristic.writeType = writeType
+                    @Suppress("DEPRECATION")
+                    val result = g.writeCharacteristic(characteristic)
+                    Log.d(TAG, "writeCharacteristic result: $result (${data.size} bytes, type=$writeType)")
+                }
+            } catch (e: Exception) {
+                // The GATT binder can die mid-write - Bluetooth toggled off, or
+                // the wheel dropping out of range - and writeCharacteristic
+                // surfaces that as a DeadObjectException wrapped in a
+                // RuntimeException. It is not a checked throw, so an uncaught one
+                // crashes the whole app from this background coroutine. Treat it
+                // as a lost connection: drop the dead GATT and fall back to
+                // DISCONNECTED so the normal disconnect/reconnect path recovers.
+                Log.w(TAG, "writeCharacteristic threw; connection lost, tearing down", e)
+                if (gatt === g) {
+                    rxCharacteristic = null
+                    try { g.close() } catch (_: Exception) {}
+                    gatt = null
+                    wheelAdapter.onDisconnect()
+                    _connectionState.value = ConnectionState.DISCONNECTED
+                }
+                writeReady = true
+                continue
             }
 
             // Wait for write callback or timeout
@@ -361,7 +594,7 @@ class BleConnectionManager @Inject constructor(
                                 currentAddress == reconnectAddress &&
                                 _connectionState.value == ConnectionState.DISCONNECTED
                             ) {
-                                connect(reconnectAddress)
+                                connect(reconnectAddress, isAuto = true)
                             }
                         }
                     }

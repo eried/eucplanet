@@ -68,6 +68,7 @@ fun ExternalGpsSection(
     val sample by viewModel.currentSample.collectAsState()
     val settings by settingsViewModel.settings.collectAsState()
     val autoDetectPhase by viewModel.autoDetect.collectAsState()
+    val bluetoothOff by viewModel.bluetoothOff.collectAsState()
 
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
         BringIntoViewSection(expanded = true, spacing = 8.dp) {
@@ -89,6 +90,9 @@ fun ExternalGpsSection(
 
         if (pairedAddress == null) {
             HintText(stringResource(R.string.external_gps_caption), small = true)
+            if (bluetoothOff) {
+                HintText(stringResource(R.string.scan_bluetooth_off_title), small = true)
+            }
             UnpairedExternalGpsCard(
                 scanning = scanning,
                 results = scanResults,
