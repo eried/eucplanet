@@ -105,7 +105,14 @@
     <string name="tab_watch">Orologio</string>
     <string name="tab_cloud">Backup impostazioni e viaggi</string>
 
+    <!-- Pebble companion settings -->
+    <string name="section_pebble">Pebble</string>
+    <string name="pebble_enabled">Invia telemetria a Pebble</string>
+    <string name="pebble_status_hint">Apri l\'app EUC Planet sul tuo Pebble per il quadrante dal vivo</string>
+    <string name="pebble_get_app_hint">Installa l\'app EUC Planet dallo store Rebble</string>
+
     <!-- HUD companion settings -->
+
     <string name="section_hud_companion">Motoeye HUD</string>
     <string name="hud_server_enabled">Abilita collegamento dati</string>
     <string name="hud_ip_label">IP del dispositivo</string>

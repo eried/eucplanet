@@ -327,7 +327,14 @@
     <string name="watch_paired_garmin_limit_rate">Garmin, Wear OS\'a göre daha yavaş güncellenir</string>
     <string name="watch_paired_garmin_limit_rotation">Kadran döndürme mevcut değil. Connect IQ, oluşturulan kadranı döndürmek için yerleşik dönüşüm matrisine sahip değil.</string>
 
+    <!-- Pebble companion settings -->
+    <string name="section_pebble">Pebble</string>
+    <string name="pebble_enabled">Telemetriyi Pebble\'a gönder</string>
+    <string name="pebble_status_hint">Canlı kadranı görmek için Pebble\'da EUC Planet uygulamasını aç</string>
+    <string name="pebble_get_app_hint">EUC Planet uygulamasını Rebble mağazasından yükle</string>
+
     <!-- HUD companion settings -->
+
     <string name="section_hud_companion">Motoeye HUD</string>
     <string name="hud_server_enabled">Veri bağlantısını etkinleştir</string>
     <string name="hud_ip_label">Cihaz IP</string>

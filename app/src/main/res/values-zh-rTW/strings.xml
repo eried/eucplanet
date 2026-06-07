@@ -327,6 +327,13 @@
     <string name="watch_paired_garmin_limit_rate">Garmin 的更新速度比 Wear OS 慢</string>
     <string name="watch_paired_garmin_limit_rotation">錶盤旋轉不可用。Connect IQ 沒有原生轉換矩陣可旋轉已渲染的錶盤。</string>
 
+    <!-- Pebble companion settings -->
+    <string name="section_pebble">Pebble</string>
+    <string name="pebble_enabled">向 Pebble 傳送遙測</string>
+    <string name="pebble_status_hint">在 Pebble 上開啟 EUC Planet 錶面應用程式即可查看即時儀表</string>
+    <string name="pebble_get_app_hint">從 Rebble 商店安裝 EUC Planet 錶面應用程式</string>
+
+
     <!-- HUD companion settings -->
     <string name="section_hud_companion">MotoEye HUD</string>
     <string name="hud_server_enabled">啟用資料連結</string>

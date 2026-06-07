@@ -327,6 +327,12 @@
     <string name="watch_paired_garmin_limit_rate">Garmin refreshes slower than Wear OS</string>
     <string name="watch_paired_garmin_limit_rotation">Dial rotation isn\'t available. Connect IQ has no native transform matrix for rotating the rendered dial.</string>
 
+    <!-- Pebble companion settings -->
+    <string name="section_pebble">Pebble</string>
+    <string name="pebble_enabled">Send telemetry to Pebble</string>
+    <string name="pebble_status_hint">Open the EUC Planet watchapp on your Pebble to see the live dial</string>
+    <string name="pebble_get_app_hint">Install the EUC Planet watchapp from the Rebble store</string>
+
     <!-- HUD companion settings -->
     <string name="section_hud_companion">Motoeye HUD</string>
     <string name="hud_server_enabled">Enable data link</string>

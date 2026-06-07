@@ -327,7 +327,14 @@
     <string name="watch_paired_garmin_limit_rate">Garmin se met à jour plus lentement que Wear OS</string>
     <string name="watch_paired_garmin_limit_rotation">La rotation du cadran n\'est pas disponible. Connect IQ ne dispose pas de matrice de transformation native pour faire pivoter le cadran rendu.</string>
 
+    <!-- Pebble companion settings -->
+    <string name="section_pebble">Pebble</string>
+    <string name="pebble_enabled">Envoyer la télémétrie vers Pebble</string>
+    <string name="pebble_status_hint">Ouvre l\'appli EUC Planet sur ta Pebble pour voir le cadran en direct</string>
+    <string name="pebble_get_app_hint">Installe l\'appli EUC Planet depuis le store Rebble</string>
+
     <!-- HUD companion settings -->
+
     <string name="section_hud_companion">Motoeye HUD</string>
     <string name="hud_server_enabled">Activer la liaison de données</string>
     <string name="hud_ip_label">IP de l\'appareil</string>

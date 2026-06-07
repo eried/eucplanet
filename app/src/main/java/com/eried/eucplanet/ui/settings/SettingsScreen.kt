@@ -557,6 +557,8 @@ fun SettingsScreen(
         stringResource(R.string.volume_keys_enable),
         stringResource(R.string.section_radar),
         stringResource(R.string.radar_caption),
+        stringResource(R.string.section_pebble),
+        stringResource(R.string.pebble_enabled),
         stringResource(R.string.section_hud_companion),
         stringResource(R.string.hud_server_enabled),
         stringResource(R.string.hud_search_corpus)
@@ -5957,6 +5959,8 @@ private fun FlicTab(
         SectionHeader(stringResource(R.string.section_radar))
         RadarSection()
 
+        PebbleIntegrationSection(settings = settings, viewModel = settingsViewModel)
+
         settingsViewModel.settings.collectAsState().value?.let { s ->
             HudIntegrationSection(settings = s, viewModel = settingsViewModel)
         }
@@ -8972,6 +8976,43 @@ private fun detectHotspotEnabled(ctx: android.content.Context): Boolean {
             )
         }
     }.getOrDefault(false)
+}
+
+// --- Pebble section (lives inside the Integration tab) ---
+
+/**
+ * Pebble companion settings, surfaced as a section in the Integration tab next
+ * to the Garmin/Wear and HUD companions.
+ *
+ * Telemetry-only in this cut: one master switch plus a hint. Everything else
+ * (units, accent, gauge thresholds) is the same shared phone settings the watch
+ * reads, so a single source of truth governs phone + watch. The phone-side push
+ * is gated on [com.eried.eucplanet.data.model.AppSettings.pebbleEnabled] AND on
+ * the watchapp being open (see [com.eried.eucplanet.pebble.PebbleBridge]).
+ */
+@Composable
+private fun PebbleIntegrationSection(
+    settings: com.eried.eucplanet.data.model.AppSettings,
+    viewModel: SettingsViewModel
+) {
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+        SectionHeader(stringResource(R.string.section_pebble))
+        HintText(stringResource(R.string.pebble_status_hint), small = true)
+        SwitchSetting(
+            label = stringResource(R.string.pebble_enabled),
+            checked = settings.pebbleEnabled,
+            onCheckedChange = { viewModel.updatePebbleEnabled(it) }
+        )
+        // Install hint sits under the toggle: the rider enables the link here,
+        // then grabs the watchapp on-watch. Shown only while enabled so a rider
+        // who never uses Pebble isn't nagged.
+        if (settings.pebbleEnabled) {
+            HintText(stringResource(R.string.pebble_get_app_hint), small = true)
+        }
+    }
 }
 
 // --- HUD section (lives inside the Integration tab) ---

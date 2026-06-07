@@ -406,6 +406,16 @@ data class AppSettings(
      */
     val watchShowNavigation: Boolean = true,
 
+    // --- Pebble companion (paired Pebble Time 2 / PebbleOS watch, see PebbleBridge) ---
+    /**
+     * Master switch for the phone-side telemetry push to a Pebble watchapp over
+     * PebbleKitAndroid2. Off by default. The watchapp is a separate C-SDK app
+     * (`pebble-watch-app/`); the phone only pushes while the rider has both this
+     * enabled AND the watchapp open on-wrist. Mirrors the other companion
+     * toggles (Wear / Garmin / HUD).
+     */
+    val pebbleEnabled: Boolean = false,
+
     // --- HUD companion (paired by typing the HUD IP, see HudServer) ---
     /**
      * Master switch for the phone-side WebSocket dialer that pushes telemetry

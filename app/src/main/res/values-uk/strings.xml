@@ -327,6 +327,13 @@
     <string name="watch_paired_garmin_limit_rate">Garmin оновлює повільніше, ніж Wear OS</string>
     <string name="watch_paired_garmin_limit_rotation">Обертання циферблата недоступне. Connect IQ не має вбудованої матриці перетворення для обертання намальованого циферблата.</string>
 
+    <!-- Pebble companion settings -->
+    <string name="section_pebble">Pebble</string>
+    <string name="pebble_enabled">Надсилати телеметрію на Pebble</string>
+    <string name="pebble_status_hint">Відкрийте застосунок EUC Planet на Pebble, щоб бачити циферблат наживо</string>
+    <string name="pebble_get_app_hint">Встановіть застосунок EUC Planet із магазину Rebble</string>
+
+
     <!-- HUD companion settings -->
     <string name="section_hud_companion">Motoeye HUD</string>
     <string name="hud_server_enabled">Увімкнути канал даних</string>

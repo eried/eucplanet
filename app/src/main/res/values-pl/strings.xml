@@ -327,6 +327,13 @@
     <string name="watch_paired_garmin_limit_rate">Garmin odświeża wolniej niż Wear OS</string>
     <string name="watch_paired_garmin_limit_rotation">Obrót tarczy niedostępny. Connect IQ nie obsługuje natywnej macierzy transformacji do obracania renderowanej tarczy.</string>
 
+    <!-- Pebble companion settings -->
+    <string name="section_pebble">Pebble</string>
+    <string name="pebble_enabled">Wysyłaj telemetrię do Pebble</string>
+    <string name="pebble_status_hint">Otwórz aplikację EUC Planet na Pebble, aby zobaczyć tarczę na żywo</string>
+    <string name="pebble_get_app_hint">Zainstaluj aplikację EUC Planet ze sklepu Rebble</string>
+
+
     <!-- HUD companion settings -->
     <string name="section_hud_companion">Motoeye HUD</string>
     <string name="hud_server_enabled">Włącz transmisję danych</string>

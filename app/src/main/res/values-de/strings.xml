@@ -327,6 +327,13 @@
     <string name="watch_paired_garmin_limit_rate">Garmin aktualisiert langsamer als Wear OS</string>
     <string name="watch_paired_garmin_limit_rotation">Zifferblatt-Drehung nicht verfügbar. Connect IQ hat keine native Transformationsmatrix für das gerenderte Zifferblatt.</string>
 
+    <!-- Pebble companion settings -->
+    <string name="section_pebble">Pebble</string>
+    <string name="pebble_enabled">Telemetrie an Pebble senden</string>
+    <string name="pebble_status_hint">Öffne die EUC Planet Watchapp auf deinem Pebble für das Live-Zifferblatt</string>
+    <string name="pebble_get_app_hint">Installiere die EUC Planet Watchapp aus dem Rebble-Store</string>
+
+
     <!-- HUD companion settings -->
     <string name="section_hud_companion">Motoeye HUD</string>
     <string name="hud_server_enabled">Datenverbindung aktivieren</string>

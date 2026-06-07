@@ -449,6 +449,9 @@ class SettingsViewModel @Inject constructor(
     fun updateWheelNameDisplay(v: String) = update { copy(wheelNameDisplay = v) }
     fun updateWatchShowNavigation(v: Boolean) = update { copy(watchShowNavigation = v) }
 
+    // Pebble companion
+    fun updatePebbleEnabled(v: Boolean) = update { copy(pebbleEnabled = v) }
+
     // HUD companion
     fun updateHudServerEnabled(v: Boolean) = update { copy(hudServerEnabled = v) }
     fun updateHudServerPort(v: Int) = update {

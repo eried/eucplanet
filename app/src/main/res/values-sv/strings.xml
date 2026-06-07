@@ -327,6 +327,13 @@
     <string name="watch_paired_garmin_limit_rate">Garmin uppdaterar långsammare än Wear OS</string>
     <string name="watch_paired_garmin_limit_rotation">Rotation av urtavlan är inte tillgänglig. Connect IQ saknar inbyggd transformationsmatris för att rotera den renderade urtavlan.</string>
 
+    <!-- Pebble companion settings -->
+    <string name="section_pebble">Pebble</string>
+    <string name="pebble_enabled">Skicka telemetri till Pebble</string>
+    <string name="pebble_status_hint">Öppna EUC Planet-appen på din Pebble för den live urtavlan</string>
+    <string name="pebble_get_app_hint">Installera EUC Planet-appen från Rebble-butiken</string>
+
+
     <!-- HUD companion settings -->
     <string name="section_hud_companion">Motoeye HUD</string>
     <string name="hud_server_enabled">Aktivera datalänk</string>

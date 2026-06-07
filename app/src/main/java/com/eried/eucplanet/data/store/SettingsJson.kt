@@ -208,6 +208,7 @@ object SettingsJson {
         put("navMapType", s.navMapType)
         put("navSolveFullPath", s.navSolveFullPath)
         put("watchShowNavigation", s.watchShowNavigation)
+        put("pebbleEnabled", s.pebbleEnabled)
         put("hudServerEnabled", s.hudServerEnabled)
         put("hudActionUp", s.hudActionUp)
         put("hudActionDown", s.hudActionDown)
@@ -421,6 +422,7 @@ object SettingsJson {
         navMapType = j.optString("navMapType", base.navMapType),
         navSolveFullPath = j.optBoolean("navSolveFullPath", base.navSolveFullPath),
         watchShowNavigation = j.optBoolean("watchShowNavigation", base.watchShowNavigation),
+        pebbleEnabled = j.optBoolean("pebbleEnabled", base.pebbleEnabled),
         hudServerEnabled = j.optBoolean("hudServerEnabled", base.hudServerEnabled),
         hudActionUp = j.optString("hudActionUp", base.hudActionUp),
         hudActionDown = j.optString("hudActionDown", base.hudActionDown),

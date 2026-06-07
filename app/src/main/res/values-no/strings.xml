@@ -77,6 +77,13 @@
     <string name="tab_integration">Integrasjon</string>
     <string name="tab_cloud">Backup av innstillinger og turer</string>
 
+    <!-- Pebble companion settings -->
+    <string name="section_pebble">Pebble</string>
+    <string name="pebble_enabled">Send telemetri til Pebble</string>
+    <string name="pebble_status_hint">Åpne EUC Planet-appen på Pebble-klokka for den direkte skiva</string>
+    <string name="pebble_get_app_hint">Installer EUC Planet-appen fra Rebble-butikken</string>
+
+
     <!-- HUD companion settings -->
     <string name="section_hud_companion">Motoeye HUD</string>
     <string name="hud_server_enabled">Aktiver datalink</string>

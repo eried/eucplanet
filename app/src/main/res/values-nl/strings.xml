@@ -327,6 +327,13 @@
     <string name="watch_paired_garmin_limit_rate">Garmin ververst langzamer dan Wear OS</string>
     <string name="watch_paired_garmin_limit_rotation">Wijzerplaatrotatie is niet beschikbaar. Connect IQ heeft geen native transformatiematrix om de gerenderde wijzerplaat te draaien.</string>
 
+    <!-- Pebble companion settings -->
+    <string name="section_pebble">Pebble</string>
+    <string name="pebble_enabled">Telemetrie naar Pebble sturen</string>
+    <string name="pebble_status_hint">Open de EUC Planet-watchapp op je Pebble voor de live wijzerplaat</string>
+    <string name="pebble_get_app_hint">Installeer de EUC Planet-watchapp uit de Rebble-store</string>
+
+
     <!-- HUD companion settings -->
     <string name="section_hud_companion">Motoeye HUD</string>
     <string name="hud_server_enabled">Gegevenslink inschakelen</string>

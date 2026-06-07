@@ -327,6 +327,13 @@
     <string name="watch_paired_garmin_limit_rate">Garmin は Wear OS より更新が遅い</string>
     <string name="watch_paired_garmin_limit_rotation">ダイヤルの回転は利用できません。Connect IQ にはレンダリング済みダイヤルを回転させるネイティブ変換行列がありません。</string>
 
+    <!-- Pebble companion settings -->
+    <string name="section_pebble">Pebble</string>
+    <string name="pebble_enabled">Pebble にテレメトリを送信</string>
+    <string name="pebble_status_hint">Pebble で EUC Planet ウォッチアプリを開くとライブのダイヤルが表示されます</string>
+    <string name="pebble_get_app_hint">Rebble ストアから EUC Planet ウォッチアプリをインストール</string>
+
+
     <!-- HUD companion settings -->
     <string name="section_hud_companion">MotoEye HUD</string>
     <string name="hud_server_enabled">データリンクを有効にする</string>

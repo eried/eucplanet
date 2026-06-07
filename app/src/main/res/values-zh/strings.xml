@@ -77,6 +77,13 @@
     <string name="tab_integration">集成</string>
     <string name="tab_cloud">设置与行程备份</string>
 
+    <!-- Pebble companion settings -->
+    <string name="section_pebble">Pebble</string>
+    <string name="pebble_enabled">向 Pebble 发送遥测</string>
+    <string name="pebble_status_hint">在 Pebble 上打开 EUC Planet 表盘应用即可查看实时仪表</string>
+    <string name="pebble_get_app_hint">从 Rebble 商店安装 EUC Planet 表盘应用</string>
+
+
     <!-- HUD companion settings -->
     <string name="section_hud_companion">Motoeye HUD</string>
     <string name="hud_server_enabled">启用数据连接</string>

@@ -327,6 +327,13 @@
     <string name="watch_paired_garmin_limit_rate">Garmin은 Wear OS보다 업데이트 속도가 느립니다</string>
     <string name="watch_paired_garmin_limit_rotation">다이얼 회전을 사용할 수 없습니다. Connect IQ는 렌더링된 다이얼을 회전하는 네이티브 변환 행렬을 지원하지 않습니다.</string>
 
+    <!-- Pebble companion settings -->
+    <string name="section_pebble">Pebble</string>
+    <string name="pebble_enabled">Pebble로 텔레메트리 전송</string>
+    <string name="pebble_status_hint">Pebble에서 EUC Planet 워치앱을 열면 실시간 다이얼이 표시됩니다</string>
+    <string name="pebble_get_app_hint">Rebble 스토어에서 EUC Planet 워치앱 설치</string>
+
+
     <!-- HUD companion settings -->
     <string name="section_hud_companion">Motoeye HUD</string>
     <string name="hud_server_enabled">데이터 링크 활성화</string>
