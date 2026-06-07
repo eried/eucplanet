@@ -65,47 +65,44 @@ Export the four vars in `~/.bashrc` to make it the default.
   Windows) clears them.
 - The seed flag `EUC_DEMO` in `src/c/eucplanet.c` must be `0` in committed builds.
 
-## Connecting the phone app (OPEN PROBLEM)
+## Connecting the phone app — needs real hardware (researched, settled)
 
-Goal: the real EUC Planet app drives the emulator with live telemetry, exactly as
-it would a real Pebble Time 2 — so the link can be tested without hardware.
+Goal was: drive the emulator from the real EUC Planet app so the link could be
+tested without hardware. **Researched conclusion: not possible. PebbleKit Android
+companion apps require a physical Pebble.** Don't re-investigate this.
 
 The stack:
 
 ```
 EUC Planet app (PebbleKitAndroid2)
-  → Pebble Android app (coredevices.coreapp)   [Android IPC, same phone]
-  → transport
+  → Pebble Android app (coredevices.coreapp / CoreApp)   [Android IPC, same phone]
+  → Bluetooth LE
   → watch
 ```
 
-Why it isn't plug-and-play:
+Why there is no emulator bridge:
 
-- A real watch's transport is **BLE**. The `emulator-5588` Android emulator has
-  **no Bluetooth radio**, and the QEMU emulator is not a BLE device.
-- The QEMU emulator's "phone" is **pypkjs** (the pebble tool's built-in phone
-  simulator), not the Core Devices Pebble app. The real app talks to the real
-  Pebble app, so there is no out-of-the-box bridge between the two.
+- The emulator covers the **watch side only**. Rebble + `pebble-android-sdk`
+  docs state plainly: *"a physical Pebble is needed to test PebbleKit Android
+  apps, since the emulator cannot communicate with a phone."*
+- The emulator's "phone" is **pypkjs**, which only runs PebbleKit **JS** — not
+  native PebbleKit Android / PebbleKitAndroid2.
+- The Core Devices **CoreApp** (github.com/coredevices/mobileapp) is
+  **Bluetooth-LE only** — no emulator mode, no dev-connection or TCP transport.
+  Their own team "manually tested with real hardware." So there is no
+  phone→emulator path, not even TCP.
+- `emulator-5588` (Android emulator) also has no Bluetooth radio.
 
-Avenues to investigate (rough order):
+### How Pebble devs actually split this
 
-1. **Does the Core Devices Pebble app support an emulator / TCP transport?** It's
-   open source (github.com/coredevices, `libpebblecommon`). Look for a
-   developer/QEMU/socket transport that could point at the emulator instead of
-   BLE.
-2. **The emulator's serial/TCP sockets.** qemu_micro_pebble exposes local TCP
-   sockets that pypkjs attaches to for the Bluetooth-link emulation; list them
-   with `ss -tlnp` while the emulator runs. If the Pebble app can speak that
-   protocol it could attach directly.
-3. **Networking 5588 ↔ WSL.** The Android emulator reaches the Windows host via
-   `10.0.2.2`; the WSL distro has its own IP. Any TCP bridge needs port
-   forwarding between them (`netsh interface portproxy` on Windows), or run the
-   app on a physical phone on the same LAN as WSL.
+- **Watch-side** (the C watchapp): develop + verify in the emulator (this doc).
+- **Phone-side** (the PebbleKitAndroid2 companion): a real **Pebble Time 2** +
+  CoreApp over BLE. This is how everyone, including Core Devices, does it.
 
-### Practical local test without solving the link
+### Closest local test without hardware
 
 Inject the telemetry the phone *would* send straight into the emulator via a
 `pkjs` (pypkjs executes it), so the watchapp renders live values over the real
-AppMessage receive path. This validates the watch end; only the BLE/transport
+AppMessage receive path. This validates the watch end; only the BLE companion
 hop is left for real hardware. Do **not** ship the pkjs — the phone app is the
 production companion; it's a test harness only.
