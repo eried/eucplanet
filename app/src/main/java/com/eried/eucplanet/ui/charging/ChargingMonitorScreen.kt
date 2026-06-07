@@ -849,11 +849,13 @@ private fun InfoTabs(state: ChargingUiState) {
                         ) { _, _ -> GraphScale.fixed(0f, 100f) }
                         Spacer(Modifier.height(8.dp))
                         StatRow(stringResource(R.string.charging_stat_added), "%+.1f%%".format(state.addedPercent))
-                        val rateText = buildString {
-                            append("%.2f %%/min".format(state.ratePctPerMin))
-                            state.powerW?.takeIf { it > 0 }?.let { append("  ·  %d W".format(it)) }
+                        // Explicit sign so a downward slope while discharging reads as
+                        // "-0.40 %/min" rather than hiding behind the same glyphs as a
+                        // tiny positive rate near zero.
+                        StatRow(stringResource(R.string.charging_stat_rate), "%+.2f %%/min".format(state.ratePctPerMin))
+                        state.powerW?.takeIf { it > 0 }?.let {
+                            StatRow(stringResource(R.string.charging_stat_power), "%d W".format(it))
                         }
-                        StatRow(stringResource(R.string.charging_stat_rate), rateText)
                         StatRow(stringResource(R.string.charging_stat_voltage), "%.1f V".format(state.voltage))
                     }
                     "packs" -> {
@@ -958,14 +960,15 @@ private fun PackTile(index: Int, percent: Float, avg: Float, modifier: Modifier 
     val frac = (percent / 100f).coerceIn(0f, 1f)
     val delta = percent - avg
     val hatchColor = MaterialTheme.appColors.hint
+    val backingColor = MaterialTheme.appColors.metricVoltage
     Box(
         modifier = modifier
             .aspectRatio(1f)
             .clip(RoundedCornerShape(10.dp))
             .background(MaterialTheme.appColors.tileBackground),
     ) {
-        // Pack-level fill from the bottom, drawn as a diagonal hatch on a soft
-        // muted backing -- same visual language as the Charge-graph baseline band.
+        // Pack-level fill from the bottom: faint dark-blue backing + sparse
+        // diagonal hatch, same visual language as the Charge-graph baseline band.
         Canvas(
             modifier = Modifier
                 .fillMaxWidth()
@@ -975,15 +978,15 @@ private fun PackTile(index: Int, percent: Float, avg: Float, modifier: Modifier 
             val w = size.width
             val h = size.height
             if (h < 1f) return@Canvas
-            drawRect(color = hatchColor.copy(alpha = 0.08f))
-            val spacing = 10f
+            drawRect(color = backingColor.copy(alpha = 0.10f))
+            val spacing = 26f
             val stripe = hatchColor.copy(alpha = 0.30f)
-            var x = -h
-            while (x < w) {
+            var x = 0f
+            while (x < w + h) {
                 drawLine(
                     stripe,
                     Offset(x, 0f),
-                    Offset(x + h, h),
+                    Offset(x - h, h),
                     strokeWidth = 1f,
                 )
                 x += spacing

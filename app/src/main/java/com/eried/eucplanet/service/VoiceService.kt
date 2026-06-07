@@ -453,7 +453,8 @@ class VoiceService @Inject constructor(
                             "m" -> R.string.voice_trip_meters_fmt
                             else -> R.string.voice_trip_fmt
                         },
-                        if (distanceUnit == "m") "%.0f".format(displayTrip) else "%.1f".format(displayTrip)
+                        if (distanceUnit == "m") "%.0f".format(displayTrip)
+                        else String.format(Locale.US, "%.1f", displayTrip)
                     ))
                     "Recording" -> parts.add(context.getString(if (isRecording) R.string.voice_recording_on else R.string.voice_recording_off))
                     "Time" -> parts.add(context.getString(R.string.voice_time_fmt,

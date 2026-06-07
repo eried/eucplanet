@@ -18,6 +18,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import java.util.Locale
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlin.math.absoluteValue
@@ -278,9 +279,12 @@ class AlarmEngine @Inject constructor(
             .replace("{battery}", "${data.batteryPercent}")
             .replace("{temp}", "%.0f".format(tempConverted))
             .replace("{pwm}", "%.0f".format(data.pwm.absoluteValue))
-            .replace("{voltage}", "%.1f".format(data.voltage))
-            .replace("{current}", "%.1f".format(data.current.absoluteValue))
-            .replace("{trip}", "%.1f".format(tripConverted))
+            // Force a dot decimal for numbers that go to TTS -- some voices in
+            // comma-decimal locales read "7,1" as "seven one" rather than
+            // "seven point one". Same convention as nav/NavFormat.oneDecimal.
+            .replace("{voltage}", String.format(Locale.US, "%.1f", data.voltage))
+            .replace("{current}", String.format(Locale.US, "%.1f", data.current.absoluteValue))
+            .replace("{trip}", String.format(Locale.US, "%.1f", tripConverted))
             .replace("{value}", "%.0f".format(convertedValue))
             .replace("{metric}", metricLabel)
             .replace("{threshold}", "%.0f".format(convertedThreshold))
