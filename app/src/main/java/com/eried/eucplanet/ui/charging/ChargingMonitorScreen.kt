@@ -314,7 +314,7 @@ private fun PercentReadout(pctState: State<Float>, decimalsVisible: Boolean, con
                 )
             }
         } else {
-            Text("-", fontSize = mainSp.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.appColors.textPrimary, style = glow, modifier = Modifier.alignByBaseline())
+            Text("--", fontSize = mainSp.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.appColors.textPrimary, style = glow, modifier = Modifier.alignByBaseline())
         }
         Text(
             "%",
@@ -527,7 +527,6 @@ private fun BatteryFillGraphic(
                 if (prev != 0L) {
                     val dt = ((now - prev) / 1_000_000_000f).coerceIn(0f, 0.05f)
                     rise.floatValue = (rise.floatValue + g.value * 0.04f * dt) % 1f
-                    clock.floatValue += dt
                     val tilt = tiltX.floatValue
                     val kick = gyroKick.floatValue
                     gyroKick.floatValue = kick * 0.86f
@@ -587,41 +586,24 @@ private fun BatteryFillGraphic(
                             if (dpx[k] < -30f || dpx[k] > ww + 30f) dlife[k] = 0f
                         }
                         // Bubble animation disabled for now (kept for easy re-enable).
-                        /*
-                        // Bubbles rise + fade in; energy ramps with SOC (calm to
-                        // ~50 %, a little active by 80 %, chaotic near 100 %) and they
-                        // go ultra-slow + ~50 % fewer when not charging.
-                        val hh = geo[1]
-                        val socFrac = (1f - topY / hh.coerceAtLeast(1f)).coerceIn(0f, 1f)
-                        val energy = 0.25f + 2.5f * socFrac * socFrac * socFrac
-                        val chargeMul = 0.15f + 0.85f * g.value
-                        val bubScale = energy * chargeMul
-                        val activeCount = if (g.value > 0.5f) maxBubbles else maxBubbles / 2
-                        for (k in 0 until maxBubbles) {
-                            if (k >= activeCount) { bubY[k] = -1f; continue }
-                            if (bubY[k] < 0f) {
-                                bubX[k] = rnd.nextFloat()
-                                bubY[k] = topY + (hh - topY) * (0.1f + rnd.nextFloat() * 0.9f)
-                                bubR[k] = 2f + rnd.nextFloat() * rnd.nextFloat() * 9f
-                                bubS[k] = 8f + rnd.nextFloat() * 24f
-                                // Squared random → many very faint, a few not so faint.
-                                bubA[k] = 0.04f + rnd.nextFloat() * rnd.nextFloat() * 0.30f
-                                bubF[k] = 0f
-                            }
-                            bubY[k] -= bubS[k] * bubScale * dt
-                            bubF[k] = (bubF[k] + dt / 1.2f).coerceAtMost(1f)
-                            val sb = topY + surfH[(bubX[k] * FLUID_COLS).toInt().coerceIn(0, FLUID_COLS)]
-                            if (bubY[k] <= sb + bubR[k]) {
-                                bubX[k] = rnd.nextFloat()
-                                bubY[k] = topY + (hh - topY) * (0.1f + rnd.nextFloat() * 0.9f)
-                                bubR[k] = 2f + rnd.nextFloat() * rnd.nextFloat() * 9f
-                                bubS[k] = 8f + rnd.nextFloat() * 24f
-                                bubA[k] = 0.04f + rnd.nextFloat() * rnd.nextFloat() * 0.30f
-                                bubF[k] = 0f
-                            }
-                        }
-                        */
                     }
+                    // Energy gate: only advance the clock (and therefore keep
+                    // forcing Canvas redraws / withFrameNanos wake-ups) while
+                    // there is actually something visible animating. Once the
+                    // surface settles and there are no active droplets, the
+                    // loop pauses; a sensor event re-invalidates the Canvas
+                    // (it reads tiltX / gyroKick) and the loop resumes.
+                    var active = false
+                    for (i in 0..FLUID_COLS) {
+                        if (kotlin.math.abs(surfV[i]) > 1f || kotlin.math.abs(surfH[i]) > 0.5f) {
+                            active = true; break
+                        }
+                    }
+                    if (!active) {
+                        for (k in 0 until maxDrops) if (dlife[k] > 0f) { active = true; break }
+                    }
+                    if (!active && kotlin.math.abs(kick) > 0.05f) active = true
+                    if (active || g.value > 0.01f) clock.floatValue += dt
                 }
                 prev = now
             }
@@ -630,6 +612,14 @@ private fun BatteryFillGraphic(
 
     Canvas(modifier) {
         val percent = percentProvider()
+        // Subscribe to clock + the two sensor channels so:
+        //  - while the simulation is active the per-frame clock tick invalidates
+        //    this Canvas, requesting another frame (loop self-sustains);
+        //  - while the surface is settled the loop pauses (no clock advance, no
+        //    redraw, no CPU) -- but a fresh sensor event mutates tiltX /
+        //    gyroKick, which invalidates Canvas, requests a frame, and wakes
+        //    the LaunchedEffect's withFrameNanos again.
+        @Suppress("UNUSED_VARIABLE") val tick = clock.floatValue + tiltX.floatValue + gyroKick.floatValue
         val w = size.width
         val h = size.height
         // Whole-screen battery: the fill IS the background — no frame, edge to edge.
@@ -771,31 +761,8 @@ private fun BatteryFillGraphic(
             }
 
             // Bubble animation disabled for now.
-            /*
-            if (connected) {
-                val socC = curFrac.coerceIn(0f, 1f)
-                val chaos = socC * socC * socC
-                val swayAmp = 0.004f + 0.03f * chaos
-                val swayFreq = 1.0f + 4f * chaos
-                for (k in 0 until maxBubbles) {
-                    val by = bubY[k]
-                    if (by < yTop || by > fillBottom) continue
-                    val sway = sin(clock.floatValue * swayFreq + k * 1.7f) * swayAmp +
-                        sin(clock.floatValue * (swayFreq * 2.3f) + k * 0.9f) * swayAmp * chaos
-                    val edgeFade = ((by - yTop) / 40f).coerceIn(0f, 1f)
-                    val a = bubA[k] * bubF[k] * edgeFade
-                    if (a <= 0.001f) continue
-                    drawCircle(
-                        color = bubbleColor.copy(alpha = a),
-                        radius = bubR[k],
-                        center = Offset(fillLeft + (bubX[k] + sway).coerceIn(0f, 1f) * fillW, by),
-                        style = Stroke(width = 1.5.dp.toPx()),
-                    )
-                }
-            }
-            */
         }
-        // Splash droplets — only when connected.
+        // Splash droplets -- only when connected.
         if (connected) {
             for (k in 0 until maxDrops) {
                 if (dlife[k] <= 0f) continue
