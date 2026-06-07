@@ -899,16 +899,24 @@ private fun GeneralTab(
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         SectionHeader(stringResource(R.string.section_recording))
-        BringIntoViewSection(expanded = settings.autoRecord) {
-        SwitchSetting(stringResource(R.string.auto_record_on_start), settings.autoRecord) { viewModel.updateAutoRecord(it) }
-        HintText(stringResource(R.string.auto_record_caption), small = true)
-        if (settings.autoRecord) {
-            SwitchSetting(
-                stringResource(R.string.auto_record_start_in_motion),
-                settings.autoRecordStartInMotion
-            ) { viewModel.updateAutoRecordStartInMotion(it) }
-            HintText(stringResource(R.string.auto_record_start_in_motion_caption), small = true)
-            if (settings.autoRecordStartInMotion) {
+        // 3-way auto-start, presented over the existing autoRecord /
+        // autoRecordStartInMotion booleans (no new persisted field):
+        //   Never     -> autoRecord off
+        //   Connected -> on, runs connect -> disconnect (no idle stop)
+        //   When riding-> on + motion-linked, with the idle stop below.
+        val recordMode = when {
+            !settings.autoRecord -> "NEVER"
+            !settings.autoRecordStartInMotion -> "CONNECTED"
+            else -> "RIDING"
+        }
+        BringIntoViewSection(expanded = recordMode == "RIDING") {
+            AutoRecordModeSelector(current = recordMode) { viewModel.updateAutoRecordMode(it) }
+            // Reuse the existing captions, shown for the mode they describe.
+            when (recordMode) {
+                "CONNECTED" -> HintText(stringResource(R.string.auto_record_caption), small = true)
+                "RIDING" -> HintText(stringResource(R.string.auto_record_start_in_motion_caption), small = true)
+            }
+            if (recordMode == "RIDING") {
                 val idleSec = settings.autoRecordStopIdleSeconds
                 SliderSetting(
                     label = stringResource(R.string.auto_record_stop_idle_seconds),
@@ -924,8 +932,7 @@ private fun GeneralTab(
                     }
                 )
             }
-        }
-        }   // end autoRecord BringIntoViewSection
+        }   // end recording BringIntoViewSection
 
         SectionHeader(stringResource(R.string.section_connection))
         SwitchSetting(stringResource(R.string.auto_connect_on_start), settings.autoConnect) { viewModel.updateAutoConnect(it) }
@@ -8001,6 +8008,24 @@ private fun AnnounceWhenSelector(
     )
     SegmentedChoice(
         label = stringResource(R.string.voice_announce_when_label),
+        options = options,
+        current = current,
+        onChange = onChange
+    )
+}
+
+@Composable
+private fun AutoRecordModeSelector(
+    current: String,
+    onChange: (String) -> Unit
+) {
+    val options = listOf(
+        "NEVER" to stringResource(R.string.auto_record_mode_never),
+        "CONNECTED" to stringResource(R.string.auto_record_mode_connected),
+        "RIDING" to stringResource(R.string.auto_record_mode_riding)
+    )
+    SegmentedChoice(
+        label = stringResource(R.string.auto_record_mode_label),
         options = options,
         current = current,
         onChange = onChange
