@@ -65,44 +65,65 @@ Export the four vars in `~/.bashrc` to make it the default.
   Windows) clears them.
 - The seed flag `EUC_DEMO` in `src/c/eucplanet.c` must be `0` in committed builds.
 
-## Connecting the phone app — needs real hardware (researched, settled)
+## Testing without hardware
 
-Goal was: drive the emulator from the real EUC Planet app so the link could be
-tested without hardware. **Researched conclusion: not possible. PebbleKit Android
-companion apps require a physical Pebble.** Don't re-investigate this.
-
-The stack:
+Split the link in two. The **watch side** (rendering + the AppMessage receive
+path) is fully testable in the emulator. Only the **app → CoreApp → watch BLE
+leg** needs a real Pebble.
 
 ```
 EUC Planet app (PebbleKitAndroid2)
   → Pebble Android app (coredevices.coreapp / CoreApp)   [Android IPC, same phone]
-  → Bluetooth LE
-  → watch
+  → Bluetooth LE                                          ← only this leg needs HW
+  → watch  (== the emulator, for everything below the BLE leg)
 ```
 
-Why there is no emulator bridge:
+### Feed the emulator with `send-app-message` (WORKS — the no-hardware test)
 
-- The emulator covers the **watch side only**. Rebble + `pebble-android-sdk`
-  docs state plainly: *"a physical Pebble is needed to test PebbleKit Android
-  apps, since the emulator cannot communicate with a phone."*
-- The emulator's "phone" is **pypkjs**, which only runs PebbleKit **JS** — not
-  native PebbleKit Android / PebbleKitAndroid2.
-- The Core Devices **CoreApp** (github.com/coredevices/mobileapp) is
-  **Bluetooth-LE only** — no emulator mode, no dev-connection or TCP transport.
-  Their own team "manually tested with real hardware." So there is no
-  phone→emulator path, not even TCP.
-- `emulator-5588` (Android emulator) also has no Bluetooth radio.
+The Core Devices `pebble` tool (4.9.169) ships a `send-app-message` command that
+injects an AppMessage dict straight into the running emulator over the QEMU
+protocol — a "fake phone" driving the watchapp's real `inbox_received`. Raw
+integer keys map 1:1 to `eucplanet.c` / `PebbleProtocol.kt`:
 
-### How Pebble devs actually split this
+```bash
+pebble build && pebble install --emulator emery
+pebble send-app-message --emulator emery \
+  --app-uuid 71cc8578-8aad-4179-8d5c-98bb0b13c2e1 \
+  --int 0=1 1=234 2=77 3=841 4=52 5=41 6=300 --string 7=kmh 8=C
+# dial shows: EUC PLANET, 23 kmh, BATT 77%, PWM 41%, 84.1V 30C
+```
 
-- **Watch-side** (the C watchapp): develop + verify in the emulator (this doc).
-- **Phone-side** (the PebbleKitAndroid2 companion): a real **Pebble Time 2** +
-  CoreApp over BLE. This is how everyone, including Core Devices, does it.
+`tools/emu-feed.sh [frames]` loops this into an animated simulated ride. This is
+the real receive path with the exact wire format `PebbleBridge` sends; it does
+NOT exercise PebbleKit Android's intent plumbing (that's the BLE leg). Note: the
+`src/pkjs/` JS route does NOT work — this SDK doesn't bundle `src/pkjs/` into the
+`.pbw`, so the JS never runs. Use `send-app-message`, not pkjs.
 
-### Closest local test without hardware
+### Driving it from the REAL app — not today, but scaffolded
 
-Inject the telemetry the phone *would* send straight into the emulator via a
-`pkjs` (pypkjs executes it), so the watchapp renders live values over the real
-AppMessage receive path. This validates the watch end; only the BLE companion
-hop is left for real hardware. Do **not** ship the pkjs — the phone app is the
-production companion; it's a test harness only.
+The CoreApp can't attach to the emulator over TCP **yet**. Source dig of
+`coredevices/mobileapp` `libpebble3` (master):
+
+- The transport layer already defines `PebbleSocketIdentifier(address)`,
+  `TransportType.Socket`, and a full Kotlin port of the QEMU `0xFEED/0xBEEF`
+  framing (`packets/Emulator.kt`) — clear groundwork for an emulator transport.
+- BUT only `PebbleBle` and `PebbleBtClassic` `TransportConnector`s are
+  implemented; a socket identifier hits `error("Transport not implemented")`
+  (`di/LibPebbleModule.kt`), and nothing constructs a `PebbleSocketIdentifier`
+  at runtime. So it's a stub.
+- The new "developer connection" (`DevConnectionLANServer`, port 9000) is an
+  *inbound* WebSocket server that lets pebble-tool/CloudPebble ride the phone's
+  existing watch link — NOT an outbound emulator client.
+
+So "PebbleKit Android needs a physical Pebble" is still effectively true for the
+full app→CoreApp→watch path — but it's a "not yet," not a "never": if Core
+Devices finishes the socket connector, you'd attach a
+`PebbleSocketIdentifier("host:12344")` to a qemu-pebble serial socket. Worth
+re-checking their repo periodically.
+
+- Community option: `finebyte/AppMsgBridge` bridges an Android app / web UI /
+  file → the emulator's pypkjs WebSocket (uses libpebble2). Lets an Android app
+  push AppMessages into qemu-pebble — but via that bridge, not via CoreApp, and
+  its README warns reliability isn't 100%.
+- `emulator-5588` (Android emulator) has no Bluetooth radio either, so the BLE
+  leg can't run there regardless.
