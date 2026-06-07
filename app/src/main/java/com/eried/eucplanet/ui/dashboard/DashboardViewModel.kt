@@ -92,6 +92,10 @@ class DashboardViewModel @Inject constructor(
 
     val locked: StateFlow<Boolean> = wheelRepository.locked
     val lockBusy: StateFlow<Boolean> = wheelRepository.lockBusy
+
+    /** Charging state for the dashboard spark icon (hint + tap-to-open). */
+    val chargeStatus: StateFlow<com.eried.eucplanet.data.model.ChargeStatus> =
+        wheelRepository.chargeStatus
     val lightBusy: StateFlow<Boolean> = wheelRepository.lightBusy
 
     val recording: StateFlow<Boolean> = tripRepository.recording
@@ -251,6 +255,16 @@ class DashboardViewModel @Inject constructor(
     val voicePeriodicEnabled: StateFlow<Boolean> = settingsRepository.settings
         .map { it.voicePeriodicEnabled }
         .stateIn(viewModelScope, SharingStarted.Eagerly, initialSettings.voicePeriodicEnabled)
+
+    /** Whether the dashboard top-bar Battery-monitor (spark) icon renders at all. */
+    val chargingDashboardIcon: StateFlow<Boolean> = settingsRepository.settings
+        .map { it.chargingDashboardIcon }
+        .stateIn(viewModelScope, SharingStarted.Eagerly, initialSettings.chargingDashboardIcon)
+
+    /** Auto-open the Battery monitor when the wheel starts charging. */
+    val chargingAutoOpen: StateFlow<Boolean> = settingsRepository.settings
+        .map { it.chargingAutoOpen }
+        .stateIn(viewModelScope, SharingStarted.Eagerly, initialSettings.chargingAutoOpen)
 
     val flicFlashAt: StateFlow<Long> = flicManager.lastActionAt
 

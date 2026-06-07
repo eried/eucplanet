@@ -12,7 +12,11 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
+import androidx.compose.foundation.gestures.awaitLongPressOrCancellation
 import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.gestures.waitForUpOrCancellation
+import kotlinx.coroutines.withTimeoutOrNull
+import androidx.compose.foundation.gestures.drag
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -53,13 +57,16 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.clipRect
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.drawText
@@ -636,11 +643,16 @@ private fun EmptyGraph(
 }
 
 @Composable
-private fun MetricGraph(
+internal fun MetricGraph(
     samples: List<MetricSample>,
     color: Color,
     boundsFor: (Float, Float) -> GraphBounds,
     unitLabel: String,
+    baselineValue: Float? = null,
+    baselineColor: Color = color,
+    series2: List<MetricSample>? = null,
+    color2: Color = color,
+    unit2: String = "",
     modifier: Modifier = Modifier
 ) {
     val gridColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.15f)
@@ -651,35 +663,48 @@ private fun MetricGraph(
     val maxRaw = values.max()
     val bounds = boundsFor(minRaw, maxRaw)
     val padded = bounds.max - bounds.min
+    // Optional secondary series (e.g. voltage) on its own auto-scaled axis.
+    val s2 = series2?.takeIf { it.size >= 2 }
+    val bounds2 = s2?.let { GraphScale.pad(it.minOf { p -> p.value }, it.maxOf { p -> p.value }, 1f) }
+    val padded2 = bounds2?.let { it.max - it.min } ?: 1f
 
-    var hoverX by remember { mutableStateOf<Float?>(null) }
-    val updatedSamples = rememberUpdatedState(samples)
+    var touchX by remember { mutableStateOf<Float?>(null) }
+    val haptics = LocalHapticFeedback.current
+    val tooltipBg = MaterialTheme.colorScheme.surface
+    val tooltipFg = MaterialTheme.colorScheme.onSurface
 
     Box(
         modifier = modifier
             .clip(RoundedCornerShape(12.dp))
             .background(MaterialTheme.colorScheme.surface)
-            .pointerInput(samples) {
+            // Keyed on Unit (not samples) so a live data update every few seconds
+            // doesn't restart the gesture and drop an in-progress hold/scrub.
+            .pointerInput(Unit) {
+                // Arm scrubbing after a short hold (~300 ms); a quick tap/flick falls
+                // through to the bottom sheet. Once armed, every event is consumed
+                // until the finger lifts, so the sheet can't move while you track the
+                // pointer across the chart.
                 awaitEachGesture {
                     val down = awaitFirstDown(requireUnconsumed = false)
-                    hoverX = down.position.x
+                    val armed = withTimeoutOrNull(300L) { waitForUpOrCancellation() } == null
+                    if (!armed) return@awaitEachGesture
+                    haptics.performHapticFeedback(HapticFeedbackType.LongPress)
+                    touchX = down.position.x
                     while (true) {
                         val event = awaitPointerEvent()
-                        val anyPressed = event.changes.any { it.pressed }
-                        if (!anyPressed) break
-                        event.changes.firstOrNull()?.let { hoverX = it.position.x }
+                        val change = event.changes.firstOrNull { it.id == down.id }
+                        if (change != null) touchX = change.position.x
+                        event.changes.forEach { it.consume() }
+                        if (change == null || !change.pressed) break
                     }
-                    hoverX = null
+                    touchX = null
                 }
-            }
-            .pointerInput(Unit) {
-                detectTapGestures(onTap = { hoverX = null })
             }
     ) {
         Canvas(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(start = 44.dp, bottom = 28.dp, top = 12.dp, end = 12.dp)
+                .padding(start = 44.dp, bottom = 28.dp, top = 16.dp, end = if (s2 != null) 44.dp else 12.dp)
         ) {
             val w = size.width
             val h = size.height
@@ -693,14 +718,30 @@ private fun MetricGraph(
                     "%.0f".format(value), TextStyle(fontSize = 10.sp, color = axisLabelColor)
                 )
                 drawText(label, topLeft = Offset(-label.size.width - 6f, y - label.size.height / 2f))
+                // Right axis = secondary series (e.g. voltage) on its own scale.
+                if (bounds2 != null) {
+                    val v2 = bounds2.min + padded2 * i / 4f
+                    val r = textMeasurer.measure(
+                        "%.0f".format(v2), TextStyle(fontSize = 10.sp, color = color2)
+                    )
+                    drawText(r, topLeft = Offset(w + 6f, y - r.size.height / 2f))
+                }
+            }
+            // Left unit ("%") above the left axis; secondary unit drawn on the right.
+            if (unitLabel.isNotBlank()) {
+                val unitText = textMeasurer.measure(
+                    unitLabel, TextStyle(fontSize = 10.sp, color = axisLabelColor, fontWeight = FontWeight.Bold)
+                )
+                drawText(unitText, topLeft = Offset(6f, -unitText.size.height - 2f))
             }
             val timeSpanSec = ((samples.last().timestampMs - samples.first().timestampMs) / 1000).coerceAtLeast(1L)
             for (i in 0..3) {
                 val x = w * i / 3f
                 drawLine(gridColor, Offset(x, 0f), Offset(x, h), strokeWidth = 1f, pathEffect = dash)
                 val secondsAgo = timeSpanSec * (3 - i) / 3
+                val timeText = if (secondsAgo <= 0L) "now" else "%d:%02d".format(secondsAgo / 60, secondsAgo % 60)
                 val label = textMeasurer.measure(
-                    "-${secondsAgo}s", TextStyle(fontSize = 10.sp, color = axisLabelColor)
+                    timeText, TextStyle(fontSize = 10.sp, color = axisLabelColor)
                 )
                 drawText(label, topLeft = Offset(x - label.size.width / 2f, h + 6f))
             }
@@ -719,25 +760,92 @@ private fun MetricGraph(
             fillPath.lineTo(0f, h)
             fillPath.close()
             clipRect(0f, 0f, w, h) {
-                drawPath(fillPath, color = color.copy(alpha = 0.1f))
+                if (baselineValue != null) {
+                    val baseY = (h - h * (baselineValue - bounds.min) / padded.coerceAtLeast(0.001f)).coerceIn(0f, h)
+                    // Existing charge: a band below the session-start level.
+                    drawRect(
+                        color = baselineColor.copy(alpha = 0.12f),
+                        topLeft = Offset(0f, baseY),
+                        size = Size(w, h - baseY),
+                    )
+                    // Added this session: fill only above the start level.
+                    clipRect(0f, 0f, w, baseY) {
+                        drawPath(fillPath, color = color.copy(alpha = 0.20f))
+                    }
+                    drawLine(
+                        baselineColor.copy(alpha = 0.6f),
+                        Offset(0f, baseY), Offset(w, baseY),
+                        strokeWidth = 1.5f, pathEffect = dash,
+                    )
+                } else {
+                    drawPath(fillPath, color = color.copy(alpha = 0.1f))
+                }
                 drawPath(path, color = color, style = Stroke(width = 3f))
             }
-        }
 
-        // Crosshair + tooltip
-        AnimatedVisibility(visible = hoverX != null, enter = fadeIn(animationSpec = tween(150)), exit = fadeOut()) {
-            val x = hoverX ?: return@AnimatedVisibility
-            Box(modifier = Modifier.fillMaxSize()) {
-                Canvas(modifier = Modifier.fillMaxSize().padding(start = 44.dp, bottom = 28.dp, top = 12.dp, end = 12.dp)) {
-                    val padLeft = 0f
-                    val padRight = size.width
-                    val xClamped = (x - 44f).coerceIn(padLeft, padRight)
-                    drawLine(
-                        color = Color.White.copy(alpha = 0.4f),
-                        start = Offset(xClamped, 0f), end = Offset(xClamped, size.height),
-                        strokeWidth = 1.5f
-                    )
+            // Secondary series (e.g. voltage) on its own scale, no fill.
+            if (s2 != null && bounds2 != null) {
+                val p2 = androidx.compose.ui.graphics.Path()
+                val t0b = s2.first().timestampMs
+                val tNb = s2.last().timestampMs
+                s2.forEachIndexed { idx, smp ->
+                    val x = w * (smp.timestampMs - t0b).toFloat() / (tNb - t0b).coerceAtLeast(1).toFloat()
+                    val y = h - h * (smp.value - bounds2.min) / padded2.coerceAtLeast(0.001f)
+                    if (idx == 0) p2.moveTo(x, y) else p2.lineTo(x, y)
                 }
+                clipRect(0f, 0f, w, h) { drawPath(p2, color = color2, style = Stroke(width = 2.5f)) }
+                if (unit2.isNotBlank()) {
+                    val u2 = textMeasurer.measure(
+                        unit2, TextStyle(fontSize = 10.sp, color = color2, fontWeight = FontWeight.Bold)
+                    )
+                    drawText(u2, topLeft = Offset(w - u2.size.width - 6f, -u2.size.height - 2f))
+                }
+            }
+
+            // Scrub cursor + value tooltip (long-press drag). touchX is in Box
+            // coords; the plot begins after the left-axis padding.
+            val tx = touchX
+            if (tx != null && samples.size >= 2) {
+                val cursorX = (tx - 44.dp.toPx()).coerceIn(0f, w)
+                val t0 = samples.first().timestampMs
+                val tN = samples.last().timestampMs
+                val frac = (cursorX / w).coerceIn(0f, 1f)
+                val tTarget = t0 + (frac * (tN - t0).toDouble()).toLong()
+                val li = samples.indexOfLast { it.timestampMs <= tTarget }.coerceIn(0, samples.size - 1)
+                val ri = (li + 1).coerceAtMost(samples.size - 1)
+                val a = samples[li]
+                val b = samples[ri]
+                val sp = (b.timestampMs - a.timestampMs).coerceAtLeast(1L)
+                val ff = ((tTarget - a.timestampMs).toFloat() / sp).coerceIn(0f, 1f)
+                val value = a.value + (b.value - a.value) * ff
+                val cursorY = (h - h * (value - bounds.min) / padded.coerceAtLeast(0.001f)).coerceIn(0f, h)
+
+                drawLine(color.copy(alpha = 0.5f), Offset(cursorX, 0f), Offset(cursorX, h), strokeWidth = 1.5f)
+                drawCircle(color, radius = 4f, center = Offset(cursorX, cursorY))
+                drawCircle(Color.White, radius = 2f, center = Offset(cursorX, cursorY))
+
+                val labelText = buildString {
+                    append(if (unitLabel.isBlank()) "%.1f".format(value) else "%.1f %s".format(value, unitLabel))
+                    if (s2 != null) {
+                        val li2 = s2.indexOfLast { it.timestampMs <= tTarget }.coerceIn(0, s2.size - 1)
+                        val ri2 = (li2 + 1).coerceAtMost(s2.size - 1)
+                        val a2 = s2[li2]; val b2 = s2[ri2]
+                        val sp2 = (b2.timestampMs - a2.timestampMs).coerceAtLeast(1L)
+                        val ff2 = ((tTarget - a2.timestampMs).toFloat() / sp2).coerceIn(0f, 1f)
+                        append("  •  %.1f %s".format(a2.value + (b2.value - a2.value) * ff2, unit2))
+                    }
+                }
+                val measured = textMeasurer.measure(
+                    labelText, TextStyle(fontSize = 10.sp, color = tooltipFg, fontWeight = FontWeight.Medium)
+                )
+                val padX = 5f
+                val padY = 2f
+                val boxW = measured.size.width + padX * 2
+                val boxH = measured.size.height + padY * 2
+                val boxX = (cursorX - boxW / 2f).coerceIn(0f, w - boxW)
+                val boxY = (cursorY - boxH - 6f).coerceAtLeast(0f)
+                drawRoundRect(tooltipBg, topLeft = Offset(boxX, boxY), size = Size(boxW, boxH), cornerRadius = CornerRadius(5f, 5f))
+                drawText(measured, topLeft = Offset(boxX + padX, boxY + padY))
             }
         }
     }

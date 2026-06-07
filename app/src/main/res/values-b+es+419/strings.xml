@@ -1594,7 +1594,60 @@
     <string name="warnings_dialog_title">Requiere atención</string>
     <string name="warnings_fix_button">Arreglar</string>
     <string name="warnings_perm_notifications_title">Notificaciones desactivadas</string>
-    <string name="warnings_perm_notifications_body">No verás el estado del viaje en la barra de estado ni recibirás avisos por voz en el panel de notificaciones</string>
+    <string name="warnings_perm_notifications_body">No verás el estado del viaje en la barra de estado ni recibirás avisos por voz en las notificaciones</string>
+
+    <!-- HUD Overlay / Personalize / Map / Versions (added) -->
+
+    <!-- ==== EucStats online upload onboarding ==== -->
+
+    <!-- Step 1: Consent -->
+
+    <!-- Step 2: Profile -->
+
+    <!-- Registration outcome -->
+
+    <!-- Online stats toggle + rider card -->
+
+    <!-- Online profile (edit/GDPR) -->
+
+    <!-- Online leaderboard: flagged status + profile restore -->
+
+    <!-- Battery / Charging screen -->
+    <string name="charging_monitor">Monitor de batería</string>
+    <string name="charging_back">Atrás</string>
+    <string name="charging_added">+%1$.1f%% esta sesión</string>
+    <string name="charging_disconnected">Sin rueda conectada</string>
+    <string name="charging_full">Carga completa</string>
+    <string name="charging_charging">Cargando</string>
+    <string name="charging_idle">Sin cargar</string>
+    <string name="charging_estimating">Estimando…</string>
+    <string name="charging_eta_to_target">%1$s para %2$d%%</string>
+    <string name="charging_eta_to_full">%1$s para 100%%</string>
+    <string name="charging_eta_at">a las %1$s</string>
+    <string name="charging_details">Detalles</string>
+    <string name="charging_rate">%1$.1f %%/min</string>
+    <string name="charging_tab_charge">Carga</string>
+    <string name="charging_tab_voltage">Voltaje</string>
+    <string name="charging_tab_packs">Packs</string>
+    <string name="charging_estimate_to_full">Estimar siempre al 100%</string>
+    <string name="charging_options">Opciones</string>
+    <string name="charging_tab_power">Potencia</string>
+    <string name="charging_stat_added">Añadido</string>
+    <string name="charging_stat_rate">Ritmo</string>
+    <string name="charging_stat_voltage">Voltaje</string>
+    <string name="charging_stat_pack1">Pack 1</string>
+    <string name="charging_stat_pack2">Pack 2</string>
+    <string name="charging_stat_temp">Temperatura</string>
+    <string name="charging_stat_balance">Desequilibrio</string>
+    <string name="charging_stat_power">Potencia</string>
+    <string name="charging_stat_current">Corriente</string>
+    <string name="charging_chart_empty">Recopilando datos</string>
+    <string name="charging_no_current_note">Ritmo medido a partir de la curva de carga</string>
+    <string name="battery_history">Historial de batería</string>
+    <string name="setting_charging_auto_open">Abrir al cargar</string>
+    <string name="setting_charging_dashboard_icon">Icono del monitor de batería en el panel</string>
+    <string name="setting_charging_auto_open_desc">Abre el Monitor de batería cuando la rueda empieza a cargar</string>
+    <string name="setting_charging_dashboard_icon_desc">Tócalo para abrir el Monitor de batería</string>
     <string name="hud_joystick_title">Acciones de los botones</string>
     <string name="hud_joystick_desc">Toca dos veces un botón del HUD para ejecutar una acción. Un toque simple sigue cambiando de pantalla</string>
     <string name="hud_joystick_up">Arriba (doble toque)</string>

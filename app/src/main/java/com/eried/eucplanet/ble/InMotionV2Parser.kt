@@ -49,6 +49,9 @@ object InMotionV2Parser {
 
         // PC Mode at offset 74: encodes wheel state
         val pcMode = if (data.size > 74) data[74].toInt() and 0x07 else 0
+        // Bit 7 of the same state byte is the charging flag (verified on a
+        // labelled V14 capture: 0x84 on every frame while plugged in).
+        val isCharging = if (data.size > 74) (data[74].toInt() and 0x80) != 0 else false
 
         // Light state at offset 76
         val lightOn = if (data.size > 76) {
@@ -79,6 +82,7 @@ object InMotionV2Parser {
             dynamicSpeedLimit = dynamicSpeedLimit,
             dynamicCurrentLimit = dynamicCurrentLimit,
             lightOn = lightOn,
+            charging = isCharging,
             pcMode = pcMode,
             timestamp = System.currentTimeMillis()
         )

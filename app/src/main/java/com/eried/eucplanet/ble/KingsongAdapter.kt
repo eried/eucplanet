@@ -164,12 +164,15 @@ class KingsongAdapter @Inject constructor() : WheelAdapter {
                 lastTempB9 = trip.maxTemperature
                 val combinedTemps = listOf(lastTempA9, lastTempB9).filter { it != 0f }
                 val echoedLight = KingsongParser.parseLightOn(rawBytes)
+                // The 0xB9 frame also carries the explicit charging flag.
+                val isCharging = KingsongParser.isCharging(rawBytes)
                 lastTelemetry = lastTelemetry.copy(
                     tripDistance = trip.tripDistance,
                     dynamicSpeedLimit = trip.dynamicSpeedLimit,
                     temperatures = combinedTemps,
                     maxTemperature = combinedTemps.maxOrNull() ?: 0f,
                     lightOn = echoedLight ?: lastTelemetry.lightOn,
+                    charging = isCharging,
                     timestamp = trip.timestamp
                 )
                 listOf(DecodeResult.Telemetry(lastTelemetry))
