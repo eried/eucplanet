@@ -233,7 +233,10 @@ class V14VirtualWheel : VirtualWheel {
         // current negative (regen) with a little noise on top. Idle draws a
         // trickle.
         val current = when {
-            charging -> 0f                       // V14 charge sensor reads ~0 A
+            // Real V14 charge sensor reads ~0 A while charging; the sim instead
+            // reports a plausible ~3.5 A so the Battery monitor's W/Wh rows have
+            // something to draw. Production behavior is unchanged on real wheels.
+            charging -> 3.5f + (rnd.nextFloat() - 0.5f) * 0.3f
             speedKmh > 1f -> 5f + accel * 1.1f + (rnd.nextFloat() - 0.5f) * 5f
             else -> 0.3f
         }

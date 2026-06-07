@@ -1622,6 +1622,7 @@
     <string name="charging_stat_balance">Дисбаланс</string>
     <string name="charging_stat_power">Мощность</string>
     <string name="charging_stat_current">Ток</string>
+    <string name="charging_stat_energy">Энергия</string>
     <string name="charging_chart_empty">Сбор данных</string>
     <string name="charging_no_current_note">Скорость по кривой заряда</string>
     <string name="battery_history">История батареи</string>

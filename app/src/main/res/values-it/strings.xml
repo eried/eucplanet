@@ -1511,6 +1511,7 @@
     <string name="charging_stat_balance">Squilibrio</string>
     <string name="charging_stat_power">Potenza</string>
     <string name="charging_stat_current">Corrente</string>
+    <string name="charging_stat_energy">Energia</string>
     <string name="charging_chart_empty">Raccolta dati</string>
     <string name="charging_no_current_note">Tasso misurato dalla curva di carica</string>
     <string name="battery_history">Cronologia batteria</string>

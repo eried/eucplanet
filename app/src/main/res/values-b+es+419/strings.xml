@@ -1641,6 +1641,7 @@
     <string name="charging_stat_balance">Desequilibrio</string>
     <string name="charging_stat_power">Potencia</string>
     <string name="charging_stat_current">Corriente</string>
+    <string name="charging_stat_energy">Energía</string>
     <string name="charging_chart_empty">Recopilando datos</string>
     <string name="charging_no_current_note">Ritmo medido a partir de la curva de carga</string>
     <string name="battery_history">Historial de batería</string>

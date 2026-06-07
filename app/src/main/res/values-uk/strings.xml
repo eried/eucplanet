@@ -1144,6 +1144,7 @@
     <string name="charging_stat_balance">Дисбаланс</string>
     <string name="charging_stat_power">Потужність</string>
     <string name="charging_stat_current">Струм</string>
+    <string name="charging_stat_energy">Енергія</string>
     <string name="charging_chart_empty">Збір даних</string>
     <string name="charging_no_current_note">Швидкість за кривою заряду</string>
     <string name="battery_history">Історія батареї</string>

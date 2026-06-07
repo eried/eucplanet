@@ -1620,6 +1620,7 @@
     <string name="charging_stat_balance">Niezrównoważenie</string>
     <string name="charging_stat_power">Moc</string>
     <string name="charging_stat_current">Prąd</string>
+    <string name="charging_stat_energy">Energia</string>
     <string name="charging_chart_empty">Zbieranie danych</string>
     <string name="charging_no_current_note">Tempo z krzywej ładowania</string>
     <string name="battery_history">Historia baterii</string>

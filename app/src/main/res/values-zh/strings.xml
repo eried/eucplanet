@@ -1475,6 +1475,7 @@
     <string name="charging_stat_balance">不均衡</string>
     <string name="charging_stat_power">功率</string>
     <string name="charging_stat_current">电流</string>
+    <string name="charging_stat_energy">能量</string>
     <string name="charging_chart_empty">正在收集数据</string>
     <string name="charging_no_current_note">速率根据充电曲线测算</string>
     <string name="battery_history">电池历史</string>

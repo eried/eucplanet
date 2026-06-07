@@ -1142,6 +1142,7 @@
     <string name="charging_stat_balance">Disbalans</string>
     <string name="charging_stat_power">Vermogen</string>
     <string name="charging_stat_current">Stroom</string>
+    <string name="charging_stat_energy">Energie</string>
     <string name="charging_chart_empty">Gegevens verzamelen</string>
     <string name="charging_no_current_note">Snelheid gemeten uit de laadcurve</string>
     <string name="battery_history">Accugeschiedenis</string>

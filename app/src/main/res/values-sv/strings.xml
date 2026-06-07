@@ -1618,6 +1618,7 @@
     <string name="charging_stat_balance">Obalans</string>
     <string name="charging_stat_power">Effekt</string>
     <string name="charging_stat_current">Ström</string>
+    <string name="charging_stat_energy">Energi</string>
     <string name="charging_chart_empty">Samlar in data</string>
     <string name="charging_no_current_note">Takt mätt från laddkurvan</string>
     <string name="battery_history">Batterihistorik</string>

@@ -1636,6 +1636,7 @@
     <string name="charging_stat_balance">Ungleichgewicht</string>
     <string name="charging_stat_power">Leistung</string>
     <string name="charging_stat_current">Strom</string>
+    <string name="charging_stat_energy">Energie</string>
     <string name="charging_chart_empty">Daten werden erfasst</string>
     <string name="charging_no_current_note">Rate aus der Ladekurve gemessen</string>
     <string name="battery_history">Akku-Verlauf</string>

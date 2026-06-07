@@ -375,6 +375,15 @@ fun SettingsScreen(
     // General section top), so the monitor's Settings link lands right on it.
     val scrollToBattery = initialTab == 9
     val targetSectionKey = remember(initialTab) { initialTabSectionKey(initialTab) }
+    // expandedSections is rememberSaveable above and only seeds on first ever
+    // composition; on subsequent visits the user's saved expansion state can hide
+    // the section the deep-link is trying to scroll to. Honour the incoming tab
+    // by ensuring its section is expanded every time.
+    androidx.compose.runtime.LaunchedEffect(targetSectionKey) {
+        if (targetSectionKey != null && !expandedSections.contains(targetSectionKey)) {
+            expandedSections.add(targetSectionKey)
+        }
+    }
     val scrollState = rememberScrollState()
     var scrollContainerTop by remember { mutableStateOf<Float?>(null) }
     var targetSectionTop by remember { mutableStateOf<Float?>(null) }
