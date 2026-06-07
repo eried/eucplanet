@@ -5,6 +5,7 @@ import androidx.hilt.work.HiltWorkerFactory
 import androidx.work.Configuration
 import com.eried.eucplanet.flic.FlicManager
 import com.eried.eucplanet.garmin.GarminBridge
+import com.eried.eucplanet.pebble.PebbleBridge
 import com.eried.eucplanet.util.CrashHandler
 import com.eried.eucplanet.wear.WearBridge
 import dagger.hilt.android.HiltAndroidApp
@@ -17,6 +18,7 @@ class EucPlanetApp : Application(), Configuration.Provider {
     @Inject lateinit var workerFactory: HiltWorkerFactory
     @Inject lateinit var wearBridge: WearBridge
     @Inject lateinit var garminBridge: GarminBridge
+    @Inject lateinit var pebbleBridge: PebbleBridge
 
     override val workManagerConfiguration: Configuration
         get() = Configuration.Builder()
@@ -29,5 +31,6 @@ class EucPlanetApp : Application(), Configuration.Provider {
         flicManager.initialize()
         wearBridge.start()
         garminBridge.start()
+        pebbleBridge.start()
     }
 }
