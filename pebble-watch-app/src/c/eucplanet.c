@@ -70,7 +70,7 @@ static void dial_update(Layer *layer, GContext *ctx) {
     GRect(0, 4, b.size.w, 18), GTextOverflowModeTrailingEllipsis, GTextAlignmentCenter, NULL);
 
   // Big speed (whole number) + unit.
-  char speedbuf[8];
+  char speedbuf[12];
   snprintf(speedbuf, sizeof(speedbuf), "%d", (s_have_data ? speed_in_unit_x10() : 0) / 10);
   graphics_draw_text(ctx, speedbuf, fonts_get_system_font(FONT_KEY_LECO_42_NUMBERS),
     GRect(0, 26, b.size.w, 50), GTextOverflowModeFill, GTextAlignmentCenter, NULL);
@@ -79,7 +79,7 @@ static void dial_update(Layer *layer, GContext *ctx) {
 
   // Battery bar.
   int by = b.size.h - 78;
-  char batbuf[8];
+  char batbuf[16];
   snprintf(batbuf, sizeof(batbuf), "%d%%", s_battery);
   label_pair(ctx, b, by, "BATT", batbuf);
   GColor batcol = s_battery <= 20 ? GColorRed : (s_battery <= 40 ? GColorOrange : GColorGreen);
@@ -87,14 +87,14 @@ static void dial_update(Layer *layer, GContext *ctx) {
 
   // PWM bar (the headroom number that matters).
   int py = b.size.h - 46;
-  char pwmbuf[8];
+  char pwmbuf[16];
   snprintf(pwmbuf, sizeof(pwmbuf), "%d%%", s_pwm);
   label_pair(ctx, b, py, "PWM", pwmbuf);
   GColor pwmcol = s_pwm >= 90 ? GColorRed : (s_pwm >= 80 ? GColorOrange : GColorGreen);
   draw_bar(ctx, GRect(6, py + 16, b.size.w - 12, 10), s_pwm, pwmcol);
 
   // Volts + temp footer.
-  char foot[24];
+  char foot[40];
   snprintf(foot, sizeof(foot), "%d.%dV  %d%s", s_voltage10 / 10, s_voltage10 % 10,
            temp_in_unit(), s_unit_temp);
   graphics_draw_text(ctx, foot, fonts_get_system_font(FONT_KEY_GOTHIC_14),
