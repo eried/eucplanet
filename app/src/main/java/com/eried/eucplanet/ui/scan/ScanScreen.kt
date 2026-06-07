@@ -1,5 +1,6 @@
 package com.eried.eucplanet.ui.scan
 
+import android.bluetooth.BluetoothAdapter
 import android.content.Intent
 import android.net.Uri
 import android.provider.Settings
@@ -70,6 +71,7 @@ fun ScanScreen(
     val devices by viewModel.devices.collectAsState()
     val isScanning by viewModel.isScanning.collectAsState()
     val missingPermissions by viewModel.missingPermissions.collectAsState()
+    val bluetoothOff by viewModel.bluetoothOff.collectAsState()
     val showAllDevices by viewModel.showAllDevices.collectAsState()
     var simulateExpanded by rememberSaveable { mutableStateOf(false) }
 
@@ -91,6 +93,14 @@ fun ScanScreen(
             permanentlyDenied = true
         }
         askedOnce = true
+    }
+
+    val enableBluetoothLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) {
+        // Whether or not they turned it on, re-evaluate: startScan() rechecks
+        // Bluetooth state and either scans or re-shows the prompt.
+        viewModel.startScan()
     }
 
     fun openAppSettings() {
@@ -173,6 +183,35 @@ fun ScanScreen(
                                 if (permanentlyDenied) R.string.action_open_settings
                                 else R.string.action_grant_permission
                             ))
+                        }
+                    }
+                }
+            } else if (bluetoothOff) {
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.surfaceVariant
+                    )
+                ) {
+                    Column(
+                        modifier = Modifier.padding(16.dp),
+                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        Text(
+                            stringResource(R.string.scan_bluetooth_off_title),
+                            style = MaterialTheme.typography.titleLarge
+                        )
+                        Text(
+                            stringResource(R.string.scan_bluetooth_off_body),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                        Button(onClick = {
+                            enableBluetoothLauncher.launch(
+                                Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
+                            )
+                        }) {
+                            Text(stringResource(R.string.scan_enable_bluetooth))
                         }
                     }
                 }

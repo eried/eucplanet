@@ -661,7 +661,14 @@ data class AppSettings(
      *
      * Stat values: NONE | CURRENT | MIN | MAX | AVG.
      */
-    val dashboardMetricStats: String = "{}"
+    val dashboardMetricStats: String = "{}",
+
+    /** Battery screen: estimate straight to 100 % instead of stopping at 80 %. */
+    val chargingEstimateToFull: Boolean = false,
+    /** Auto-open the Battery monitor when the wheel starts charging. */
+    val chargingAutoOpen: Boolean = true,
+    /** Show the Battery monitor access icon (spark) in the dashboard top bar. */
+    val chargingDashboardIcon: Boolean = true
 )
 
 // FlicAction enum removed (2026-05). Replaced by

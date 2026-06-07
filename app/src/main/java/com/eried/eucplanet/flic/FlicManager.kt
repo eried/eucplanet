@@ -1,5 +1,6 @@
 package com.eried.eucplanet.flic
 
+import android.bluetooth.BluetoothManager
 import android.content.Context
 import android.media.AudioManager
 import android.os.Handler
@@ -112,6 +113,14 @@ class FlicManager @Inject constructor(
 
     fun startScan() {
         val manager = flic2Manager ?: return
+        // Flic2's startScan throws when the adapter is off, which would crash
+        // the app. Surface it as a status message instead.
+        val btManager = context.getSystemService(Context.BLUETOOTH_SERVICE) as? BluetoothManager
+        if (btManager?.adapter?.isEnabled != true) {
+            _scanning.value = false
+            _scanStatus.value = context.getString(R.string.scan_bluetooth_off_title)
+            return
+        }
         _scanning.value = true
         _scanStatus.value = ""
 

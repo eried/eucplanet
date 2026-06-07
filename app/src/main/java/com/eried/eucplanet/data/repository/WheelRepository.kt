@@ -8,9 +8,12 @@ import com.eried.eucplanet.ble.ConnectionState
 import com.eried.eucplanet.ble.DecodeResult
 import com.eried.eucplanet.ble.WheelAdapter
 import com.eried.eucplanet.data.model.AppSettings
+import com.eried.eucplanet.data.model.ChargeStatus
 import com.eried.eucplanet.data.model.WheelData
 import com.eried.eucplanet.data.model.WheelSettings
 import com.eried.eucplanet.service.AlarmEngine
+import com.eried.eucplanet.service.ChargingEstimate
+import com.eried.eucplanet.service.ChargingEstimator
 import com.eried.eucplanet.service.VoiceService
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CompletableDeferred
@@ -34,6 +37,18 @@ import javax.inject.Singleton
 import kotlin.math.absoluteValue
 
 data class MetricSample(val timestampMs: Long, val value: Float)
+
+/** Persistent charging-session snapshot — lives in the singleton repository so
+ *  the prediction/history survives navigating in and out of the Battery screen. */
+data class ChargingSnapshot(
+    val estimate: ChargingEstimate = ChargingEstimate(),
+    val chargeHistory: List<MetricSample> = emptyList(),
+    val voltageHistory: List<MetricSample> = emptyList(),
+    val tempHistory: List<MetricSample> = emptyList(),
+    /** Smoothed absolute finish time (ms) for the target / 100 %, or null. */
+    val targetEtaMs: Long? = null,
+    val fullEtaMs: Long? = null,
+)
 
 data class FullMetricHistory(
     val battery: List<MetricSample> = emptyList(),
@@ -145,6 +160,42 @@ class WheelRepository @Inject constructor(
     // Lock state derived from wheel telemetry pcMode
     private val _locked = MutableStateFlow(false)
     val locked: StateFlow<Boolean> = _locked.asStateFlow()
+
+    // Charging state — explicit firmware flag (V14/V12/KingSong) when available,
+    // otherwise inferred from sustained negative current. Drives the dashboard
+    // spark icon and the Charging Monitor screen.
+    private val _chargeStatus = MutableStateFlow(ChargeStatus.Disconnected)
+    val chargeStatus: StateFlow<ChargeStatus> = _chargeStatus.asStateFlow()
+
+    // Hysteresis state for the current-based charging inference (families that
+    // don't ship an explicit flag). Latches on after a run of negative samples,
+    // off after a run of near-zero ones; the trickle band in between holds the
+    // last state so the icon doesn't flicker as the charger tapers near full.
+    private var chargeInferred = false
+    private var chargeNegSamples = 0
+    private var chargePosSamples = 0
+
+    // Charging session (estimator + per-session history) lives here so the
+    // prediction persists across navigation; updated each telemetry frame.
+    private val chargingEstimator = ChargingEstimator(
+        cvTaperFactor = 1.6f,           // modest 80→100 % CV taper (3.5 was far too pessimistic)
+        warmupMinPercentGain = 1.0f,    // wait for a stabler rate before the first prediction
+        warmupMinDurationMs = 40_000L,  // two jitter windows for a steady rate
+    )
+    private var chargingSessionActive = false
+    private val chargePctHist = ArrayDeque<MetricSample>()
+    private val chargeVoltHist = ArrayDeque<MetricSample>()
+    private val chargeTempHist = ArrayDeque<MetricSample>()
+    private var chargeLastHistMs = 0L
+    // Committed finish times: chosen once (remaining rounded up to the minute),
+    // counted down in real time, only gently re-anchored every ~2 min so the UI
+    // never jumps frame-to-frame.
+    private var committedTargetEtaMs: Long? = null
+    private var committedTargetAnchorMs = 0L
+    private var committedFullEtaMs: Long? = null
+    private var committedFullAnchorMs = 0L
+    private val _chargingSnapshot = MutableStateFlow(ChargingSnapshot())
+    val chargingSnapshot: StateFlow<ChargingSnapshot> = _chargingSnapshot.asStateFlow()
 
     private val _modelName = MutableStateFlow<String?>(null)
     val modelName: StateFlow<String?> = _modelName.asStateFlow()
@@ -439,6 +490,16 @@ class WheelRepository @Inject constructor(
                         // Reset states that depend on wheel connection
                         _safetySpeedActive.value = false
                         _locked.value = false
+                        _chargeStatus.value = ChargeStatus.Disconnected
+                        chargeInferred = false
+                        chargeNegSamples = 0
+                        chargePosSamples = 0
+                        chargingSessionActive = false
+                        chargingEstimator.reset()
+                        chargePctHist.clear()
+                        chargeVoltHist.clear()
+                        chargeTempHist.clear()
+                        _chargingSnapshot.value = ChargingSnapshot()
                         _modelName.value = null
                         _firmwareVersion.value = null
                         _maxSpeedCap.value = DEFAULT_MAX_SPEED_KMH
@@ -464,6 +525,128 @@ class WheelRepository @Inject constructor(
      * point for this wheel and future tweaks are written back via
      * [persistWheelProfile].
      */
+    /**
+     * Map the latest telemetry to a [ChargeStatus]. Prefers the explicit
+     * firmware charging flag (InMotion V14/V12 bit 7, KingSong 0xB9); for
+     * families without one, infers from sustained negative current with
+     * hysteresis (latches on after 5 negative samples, off after 10 near-zero
+     * ones, holds through the trickle band) so the dashboard doesn't flicker as
+     * the charger tapers near full. A moving wheel is never reported charging.
+     */
+    private fun updateChargingSession(data: WheelData, status: ChargeStatus) {
+        // Connection-scoped: the session runs whenever a wheel is connected (so the
+        // charts / Added / Rate keep updating while riding too) and only resets on
+        // disconnect. Charging itself only drives the prediction + green colour.
+        val connected = status != ChargeStatus.Disconnected
+        if (connected) {
+            if (!chargingSessionActive) {
+                chargingSessionActive = true
+                chargingEstimator.reset()
+                chargePctHist.clear(); chargeVoltHist.clear(); chargeTempHist.clear()
+                chargeLastHistMs = 0L
+                committedTargetEtaMs = null
+                committedTargetAnchorMs = 0L
+                committedFullEtaMs = null
+                committedFullAnchorMs = 0L
+            }
+            val pct = batteryPercentOf(data)
+            chargingEstimator.addSample(data.timestamp, pct)
+            // History for the charts is downsampled (~5 s) so a multi-hour charge
+            // still fits the rolling buffer.
+            // ~15 s spacing × 1000-sample cap ≈ a 4-hour charge window in the chart.
+            if (data.timestamp - chargeLastHistMs >= 15_000L) {
+                chargeLastHistMs = data.timestamp
+                pushHist(chargePctHist, data.timestamp, pct)
+                pushHist(chargeVoltHist, data.timestamp, data.voltage)
+                pushHist(chargeTempHist, data.timestamp, data.maxTemperature)
+            }
+        } else if (chargingSessionActive) {
+            chargingSessionActive = false
+            chargingEstimator.reset()
+            chargePctHist.clear(); chargeVoltHist.clear(); chargeTempHist.clear()
+            committedTargetEtaMs = null
+            committedTargetAnchorMs = 0L
+            committedFullEtaMs = null
+            committedFullAnchorMs = 0L
+        }
+        val est = chargingEstimator.estimate()
+        val (te, ta) = commitEta(committedTargetEtaMs, committedTargetAnchorMs, est.minutesToTarget, data.timestamp)
+        committedTargetEtaMs = te; committedTargetAnchorMs = ta
+        val (fe, fa) = commitEta(committedFullEtaMs, committedFullAnchorMs, est.minutesToFull, data.timestamp)
+        committedFullEtaMs = fe; committedFullAnchorMs = fa
+        _chargingSnapshot.value = ChargingSnapshot(
+            estimate = est,
+            chargeHistory = chargePctHist.toList(),
+            voltageHistory = chargeVoltHist.toList(),
+            tempHistory = chargeTempHist.toList(),
+            targetEtaMs = committedTargetEtaMs,
+            fullEtaMs = committedFullEtaMs,
+        )
+    }
+
+    /**
+     * Commit to a finish time and count it down in real time, re-anchoring toward
+     * the fresh estimate every ~20 s. The step is PROPORTIONAL to the relative
+     * error: a badly-wrong prediction (e.g. 12 min showing when it's really 3)
+     * corrects within a minute or two, while small frame-to-frame jitter is heavily
+     * damped — so it tracks reality without swinging on noise. Returns (etaMs, anchorMs).
+     */
+    private fun commitEta(prevEta: Long?, prevAnchorMs: Long, minutes: Float?, nowMs: Long): Pair<Long?, Long> {
+        if (minutes == null || minutes < 0f) return null to 0L
+        val rawRem = (minutes * 60_000f).toLong()
+        if (prevEta == null) return (nowMs + ceilToMinuteMs(rawRem)) to nowMs
+        if (nowMs - prevAnchorMs < 20_000L) return prevEta to prevAnchorMs
+        val remPrev = (prevEta - nowMs).coerceAtLeast(0L)
+        val gap = rawRem - remPrev
+        val relGap = kotlin.math.abs(gap).toFloat() / remPrev.coerceAtLeast(60_000L)
+        val blend = relGap.coerceIn(0.15f, 0.8f)
+        val newRem = remPrev + (gap * blend).toLong()
+        return (nowMs + ceilToMinuteMs(newRem)) to nowMs
+    }
+
+    private fun ceilToMinuteMs(ms: Long): Long =
+        kotlin.math.ceil(ms / 60_000.0).toLong().coerceAtLeast(1L) * 60_000L
+
+    private fun pushHist(dq: ArrayDeque<MetricSample>, t: Long, v: Float) {
+        dq.addLast(MetricSample(t, v))
+        while (dq.size > 1000) dq.removeFirst()
+    }
+
+    private fun batteryPercentOf(d: WheelData): Float = when {
+        d.battery1Percent > 0f && d.battery2Percent > 0f -> (d.battery1Percent + d.battery2Percent) / 2f
+        d.battery1Percent > 0f -> d.battery1Percent
+        else -> d.batteryPercent.toFloat()
+    }
+
+    private fun deriveChargeStatus(data: WheelData): ChargeStatus {
+        if (bleManager.connectionState.value != ConnectionState.CONNECTED) {
+            chargeInferred = false
+            chargeNegSamples = 0
+            chargePosSamples = 0
+            return ChargeStatus.Disconnected
+        }
+        when {
+            data.current < -0.3f -> {
+                chargeNegSamples++
+                chargePosSamples = 0
+                if (chargeNegSamples >= 5) chargeInferred = true
+            }
+            data.current > -0.05f -> {
+                chargePosSamples++
+                chargeNegSamples = 0
+                if (chargePosSamples >= 10) chargeInferred = false
+            }
+            // trickle band (-0.3..-0.05 A): hold the latched state
+        }
+        val moving = data.speed > 1f
+        val charging = !moving && (data.charging || chargeInferred)
+        return when {
+            charging && data.batteryPercent >= 100 -> ChargeStatus.Full
+            charging -> ChargeStatus.Charging
+            else -> ChargeStatus.Idle
+        }
+    }
+
     private suspend fun loadOrSeedWheelProfile() {
         val s = settingsRepository.get()
         val name = s.lastDeviceName ?: return
@@ -502,7 +685,7 @@ class WheelRepository @Inject constructor(
         }
     }
 
-    fun connect(address: String, name: String? = null) {
+    fun connect(address: String, name: String? = null, isAuto: Boolean = false) {
         if (lastConnectedAddress != null && lastConnectedAddress != address) {
             // Different wheel, clear history
             battHist.clear(); tempHist.clear(); voltHist.clear()
@@ -511,7 +694,7 @@ class WheelRepository @Inject constructor(
             _fullHistory.value = FullMetricHistory()
         }
         lastConnectedAddress = address
-        bleManager.connect(address, name)
+        bleManager.connect(address, name, isAuto)
     }
 
     fun disconnect() {
@@ -1045,6 +1228,10 @@ class WheelRepository @Inject constructor(
                     totalDistance = totalKm,
                     lightOn = lightOn
                 )
+                _chargeStatus.value = deriveChargeStatus(_wheelData.value)
+                // Never let the charging-session bookkeeping throw out of the
+                // telemetry path — telemetry/dashboard must keep flowing regardless.
+                runCatching { updateChargingSession(_wheelData.value, _chargeStatus.value) }
                 // Mirror wheel-reported tilt-back / alarm thresholds into the
                 // app's settings store on adapters that surface them (Veteran),
                 // so the Settings UI shows what the wheel firmware is actually

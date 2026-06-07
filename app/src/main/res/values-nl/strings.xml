@@ -1120,6 +1120,42 @@
     <string name="online_rejoin_body">Je neemt opnieuw deel als je opgeslagen profiel %1$s. Deze telefoon hervat het uploaden van je nieuwe ritten naar dat profiel.</string>
     <string name="online_rejoin_confirm">Opnieuw deelnemen</string>
 
+    <!-- Battery / Charging screen -->
+    <string name="charging_monitor">Accumonitor</string>
+    <string name="charging_back">Terug</string>
+    <string name="charging_added">+%1$.1f%% deze sessie</string>
+    <string name="charging_disconnected">Geen wiel verbonden</string>
+    <string name="charging_full">Volledig opgeladen</string>
+    <string name="charging_charging">Opladen</string>
+    <string name="charging_idle">Niet aan het opladen</string>
+    <string name="charging_estimating">Schatten…</string>
+    <string name="charging_eta_to_target">%1$s tot %2$d%%</string>
+    <string name="charging_eta_to_full">%1$s tot 100%%</string>
+    <string name="charging_eta_at">om %1$s</string>
+    <string name="charging_details">Details</string>
+    <string name="charging_rate">%1$.1f %%/min</string>
+    <string name="charging_tab_charge">Laden</string>
+    <string name="charging_tab_voltage">Spanning</string>
+    <string name="charging_tab_packs">Packs</string>
+    <string name="charging_estimate_to_full">Altijd schatten tot 100%</string>
+    <string name="charging_options">Opties</string>
+    <string name="charging_tab_power">Vermogen</string>
+    <string name="charging_stat_added">Toegevoegd</string>
+    <string name="charging_stat_rate">Snelheid</string>
+    <string name="charging_stat_voltage">Spanning</string>
+    <string name="charging_stat_pack1">Pack 1</string>
+    <string name="charging_stat_pack2">Pack 2</string>
+    <string name="charging_stat_temp">Temperatuur</string>
+    <string name="charging_stat_balance">Disbalans</string>
+    <string name="charging_stat_power">Vermogen</string>
+    <string name="charging_stat_current">Stroom</string>
+    <string name="charging_chart_empty">Gegevens verzamelen</string>
+    <string name="charging_no_current_note">Snelheid gemeten uit de laadcurve</string>
+    <string name="battery_history">Accugeschiedenis</string>
+    <string name="setting_charging_auto_open">Openen bij opladen</string>
+    <string name="setting_charging_dashboard_icon">Accumonitor-pictogram in dashboard</string>
+    <string name="setting_charging_auto_open_desc">Opent de Accumonitor zodra het wiel begint te laden</string>
+    <string name="setting_charging_dashboard_icon_desc">Tik erop om de Accumonitor te openen</string>
     <!-- ==== Overlay Studio ==== -->
     <string name="studio_open">Overlay Studio openen</string>
     <string name="studio_not_connected">Niet verbonden</string>

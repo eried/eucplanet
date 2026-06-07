@@ -1599,6 +1599,58 @@
     <string name="warnings_fix_button">Ret</string>
     <string name="warnings_perm_notifications_title">Notifikationer slået fra</string>
     <string name="warnings_perm_notifications_body">Du ser ikke turstatus i statuslinjen og får ingen talevarsler i notifikationsskuffen</string>
+
+    <!-- HUD Overlay / Personalize / Map / Versions (added) -->
+
+    <!-- ==== EucStats online upload onboarding ==== -->
+
+    <!-- Trin 1: Samtykke -->
+
+    <!-- Trin 2: Profil -->
+
+    <!-- Registreringsresultat -->
+
+    <!-- Online stats til/fra og rytter-kort -->
+
+    <!-- Online profil (rediger/GDPR) -->
+
+
+    <!-- Battery / Charging screen -->
+    <string name="charging_monitor">Batterimonitor</string>
+    <string name="charging_back">Tilbage</string>
+    <string name="charging_added">+%1$.1f%% denne session</string>
+    <string name="charging_disconnected">Intet hjul forbundet</string>
+    <string name="charging_full">Fuldt opladet</string>
+    <string name="charging_charging">Oplader</string>
+    <string name="charging_idle">Oplader ikke</string>
+    <string name="charging_estimating">Beregner…</string>
+    <string name="charging_eta_to_target">%1$s til %2$d%%</string>
+    <string name="charging_eta_to_full">%1$s til 100%%</string>
+    <string name="charging_eta_at">kl. %1$s</string>
+    <string name="charging_details">Detaljer</string>
+    <string name="charging_rate">%1$.1f %%/min</string>
+    <string name="charging_tab_charge">Opladning</string>
+    <string name="charging_tab_voltage">Spænding</string>
+    <string name="charging_tab_packs">Pakker</string>
+    <string name="charging_estimate_to_full">Beregn altid til 100%</string>
+    <string name="charging_options">Valg</string>
+    <string name="charging_tab_power">Effekt</string>
+    <string name="charging_stat_added">Tilføjet</string>
+    <string name="charging_stat_rate">Takt</string>
+    <string name="charging_stat_voltage">Spænding</string>
+    <string name="charging_stat_pack1">Pakke 1</string>
+    <string name="charging_stat_pack2">Pakke 2</string>
+    <string name="charging_stat_temp">Temperatur</string>
+    <string name="charging_stat_balance">Ubalance</string>
+    <string name="charging_stat_power">Effekt</string>
+    <string name="charging_stat_current">Strøm</string>
+    <string name="charging_chart_empty">Indsamler data</string>
+    <string name="charging_no_current_note">Takt målt fra ladekurven</string>
+    <string name="battery_history">Batterihistorik</string>
+    <string name="setting_charging_auto_open">Åbn ved opladning</string>
+    <string name="setting_charging_dashboard_icon">Batterimonitor-ikon på dashboardet</string>
+    <string name="setting_charging_auto_open_desc">Åbner Batterimonitor når hjulet begynder at lade</string>
+    <string name="setting_charging_dashboard_icon_desc">Tryk for at åbne Batterimonitor</string>
     <string name="hud_joystick_title">Knaphandlinger</string>
     <string name="hud_joystick_desc">Tryk to gange på en HUD-knap for at køre en handling. Et enkelt tryk skifter stadig skærm</string>
     <string name="hud_joystick_up">Op (dobbelttryk)</string>

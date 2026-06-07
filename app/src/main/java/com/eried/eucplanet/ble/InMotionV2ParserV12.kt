@@ -79,6 +79,8 @@ object InMotionV2ParserV12 {
 
         val stateByte = data[54].toInt() and 0xFF
         val pcMode = stateByte and 0x07
+        // Bit 7 of the state byte is the charging flag (same layout as V14).
+        val isCharging = (stateByte and 0x80) != 0
 
         val lightByte = data[55].toInt() and 0xFF
         // Treat any beam (low or high) as "light on" for the dashboard indicator
@@ -109,6 +111,7 @@ object InMotionV2ParserV12 {
             dynamicSpeedLimit = dynamicSpeedLimit,
             dynamicCurrentLimit = dynamicCurrentLimit,
             lightOn = lightOn,
+            charging = isCharging,
             pcMode = pcMode,
             timestamp = System.currentTimeMillis()
         )
