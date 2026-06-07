@@ -25,3 +25,7 @@ include(":app")
 include(":wear")
 include(":hud")
 include(":hud-protocol")
+// Dev-only fake Pebble app: stands in for the CoreApp so the EUC phone app's
+// telemetry can be tested against the QEMU emulator with no Pebble hardware.
+// Not part of any shipped artifact. See pebble-emu-shim/README.md.
+include(":pebble-emu-shim")

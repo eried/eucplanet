@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Dev-only fake Pebble app. The SEND_DATA_TO_WATCH service is what makes the EUC
+  phone app's PebbleKitAndroid2 treat this app as "the installed Pebble app"
+  (DefaultPebbleAndroidAppPicker discovers it by this exact intent-filter and,
+  with auto-select on, picks it when it's the only such app installed). Install
+  this on the same device as the EUC app and make sure the real CoreApp is NOT
+  installed, so this shim wins the auto-select.
+-->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <uses-permission android:name="android.permission.INTERNET" />
+
+    <application
+        android:allowBackup="false"
+        android:label="EUC Pebble Shim"
+        android:theme="@android:style/Theme.Material.Light">
+
+        <activity
+            android:name=".ShimActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <service
+            android:name=".ShimSenderReceiverService"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="io.rebble.pebblekit2.SEND_DATA_TO_WATCH" />
+            </intent-filter>
+        </service>
+    </application>
+</manifest>
