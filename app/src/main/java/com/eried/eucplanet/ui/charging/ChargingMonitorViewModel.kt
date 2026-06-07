@@ -136,7 +136,9 @@ class ChargingMonitorViewModel @Inject constructor(
             maxTemp = data.maxTemperature,
             battery1 = data.battery1Percent,
             battery2 = data.battery2Percent,
-            ratePctPerMin = est.ratePctPerMin,
+            // At 100 % the charge is done — stop reporting a rate (the wheel just
+            // balances cells, so any residual slope is noise, not charging).
+            ratePctPerMin = if (status == ChargeStatus.Full) 0f else est.ratePctPerMin,
             warmedUp = est.warmedUp,
             minutesToTarget = est.minutesToTarget,
             minutesToFull = est.minutesToFull,

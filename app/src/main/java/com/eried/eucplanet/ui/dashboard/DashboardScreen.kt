@@ -63,6 +63,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.BluetoothSearching
 import androidx.compose.material.icons.filled.Bluetooth
 import androidx.compose.material.icons.filled.Bolt
+import androidx.compose.material.icons.filled.EvStation
+import androidx.compose.material.icons.filled.PowerOff
 import androidx.compose.material.icons.filled.BugReport
 import androidx.compose.material.icons.filled.Campaign
 import androidx.compose.material.icons.filled.WarningAmber
@@ -633,12 +635,13 @@ fun DashboardScreen(
                     val showChargingIcon by viewModel.chargingDashboardIcon.collectAsState()
                     if (showChargingIcon) {
                         IconButton(onClick = onNavigateToCharging) {
+                            val chargingNow = chargeStatus == com.eried.eucplanet.data.model.ChargeStatus.Charging ||
+                                chargeStatus == com.eried.eucplanet.data.model.ChargeStatus.Full
                             Icon(
-                                imageVector = Icons.Filled.Bolt,
+                                // Car-charger plug while charging; disconnected plug otherwise.
+                                imageVector = if (chargingNow) Icons.Filled.EvStation else Icons.Filled.PowerOff,
                                 contentDescription = stringResource(R.string.charging_monitor),
-                                tint = if (chargeStatus == com.eried.eucplanet.data.model.ChargeStatus.Charging ||
-                                    chargeStatus == com.eried.eucplanet.data.model.ChargeStatus.Full
-                                ) MaterialTheme.appColors.chargingAccent
+                                tint = if (chargingNow) MaterialTheme.appColors.chargingAccent
                                 else MaterialTheme.appColors.textSecondary
                             )
                         }
