@@ -22,15 +22,34 @@ Toolchain is the modern Core Devices SDK via `uv`:
     uv tool install pebble-tool --python 3.13
     pebble sdk install latest
 
-Build and run in the Pebble Time 2 emulator:
+Build, then run in the Pebble Time 2 emulator:
 
     pebble build
     pebble install --emulator emery
 
-On Linux the QEMU emulator needs `libsdl2-2.0-0 libsndio7.0 libfdt1`. On Windows
-use WSL2 (with WSLg for the window) or CloudPebble (browser, zero setup). For a
-headless screenshot: `SDL_VIDEODRIVER=dummy pebble install --emulator emery`
-then `pebble screenshot out.png`.
+The QEMU emulator needs SDL + a few libs: `libsdl2-2.0-0 libsndio7.0 libfdt1`.
+
+### Visible window on Windows (WSL2 + WSLg)
+
+A plain `pebble install --emulator emery` under WSLg opens a window that instantly
+dies: WSLg's GPU GL path (d3d12) crashes qemu-pebble, and XWayland's RandR also
+reports a bogus `131072x1` screen. Force SDL's native Wayland backend + software
+GL (this is the known-good incantation):
+
+    SDL_VIDEODRIVER=wayland SDL_VIDEO_X11_XRANDR=0 \
+    LIBGL_ALWAYS_SOFTWARE=1 GALLIUM_DRIVER=llvmpipe \
+    pebble install --emulator emery
+
+Export those four in `~/.bashrc` to make it the default. Fallbacks if the window
+still misbehaves: qemu's built-in VNC -- `... --vnc` (needs
+`sudo apt install qemu-system-data` plus a
+`/usr/local/share/qemu/keymaps -> /usr/share/qemu/keymaps` symlink), then a VNC
+viewer on `localhost:5900`; or CloudPebble (browser, zero setup).
+
+For a headless screenshot (CI / quick check):
+
+    SDL_VIDEODRIVER=dummy pebble install --emulator emery
+    pebble screenshot out.png
 
 Flip `EUC_DEMO` to `1` in `eucplanet.c` to seed sample telemetry in the emulator
 without a phone. It MUST be `0` in committed builds.
