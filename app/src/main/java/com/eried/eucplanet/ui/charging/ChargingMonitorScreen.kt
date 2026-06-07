@@ -206,7 +206,12 @@ fun ChargingMonitorScreen(
                     .align(BiasAlignment(0f, -0.5f))
                     .padding(horizontal = 24.dp),
             ) {
-                PercentReadout(pct, decimalsVisible = charging && state.warmedUp, connected = state.connected)
+                PercentReadout(
+                    pct,
+                    // No decimals at 100 % — it reads a clean "100%".
+                    decimalsVisible = charging && state.warmedUp && state.status != ChargeStatus.Full && state.percent < 99.5f,
+                    connected = state.connected,
+                )
             }
             if (state.connected && charging) {
                 Column(
@@ -342,13 +347,15 @@ private fun PredictionText(state: ChargingUiState, nowMs: Long, clockAt: (Long) 
         val m = totalMin % 60L
         return if (m == 0L) "${h}h" else "${h}h ${m}m"
     }
+    // At 100 % there's nothing to say — the big number means full (the wheel may
+    // even stop reporting "charging"; we just keep showing 100 %). The countdown is
+    // dropped here too, so it never reaches 0:00 / goes negative.
+    if (state.status == ChargeStatus.Full || state.percent >= 99.5f) return
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         when {
-            state.status == ChargeStatus.Full ->
-                Text(stringResource(R.string.charging_full), fontSize = 42.sp, fontWeight = FontWeight.Bold, color = color, style = glow)
-            // Show ONLY the relevant estimate — to the target until reached, then
-            // to 100 %. Nothing while still warming up.
-            !state.estimateToFull && state.targetEtaMs != null -> {
+            // Show ONLY the relevant estimate — to the target until reached, then to
+            // 100 %. Hidden once the countdown elapses, or while still warming up.
+            !state.estimateToFull && state.targetEtaMs != null && state.targetEtaMs!! - nowMs > 0L -> {
                 val eta = state.targetEtaMs!!
                 Text(
                     stringResource(R.string.charging_eta_to_target, mmss(eta - nowMs), state.targetPercent.roundToInt()),
@@ -356,7 +363,7 @@ private fun PredictionText(state: ChargingUiState, nowMs: Long, clockAt: (Long) 
                 )
                 Text(stringResource(R.string.charging_eta_at, clockAt(eta)), fontSize = 26.sp, color = color, style = glow)
             }
-            state.fullEtaMs != null -> {
+            state.fullEtaMs != null && state.fullEtaMs!! - nowMs > 0L -> {
                 val eta = state.fullEtaMs!!
                 Text(
                     stringResource(R.string.charging_eta_to_full, mmss(eta - nowMs)),
@@ -364,7 +371,7 @@ private fun PredictionText(state: ChargingUiState, nowMs: Long, clockAt: (Long) 
                 )
                 Text(stringResource(R.string.charging_eta_at, clockAt(eta)), fontSize = 26.sp, color = color, style = glow)
             }
-            // Charging but not warmed up enough to predict yet.
+            // Charging but not warmed up yet, or the countdown already elapsed.
             else ->
                 Text(stringResource(R.string.charging_charging), fontSize = 40.sp, fontWeight = FontWeight.Bold, color = color, style = glow)
         }
