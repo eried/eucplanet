@@ -553,7 +553,8 @@ class WheelRepository @Inject constructor(
             chargingEstimator.addSample(data.timestamp, pct)
             // History for the charts is downsampled (~5 s) so a multi-hour charge
             // still fits the rolling buffer.
-            if (data.timestamp - chargeLastHistMs >= 5_000L) {
+            // ~15 s spacing × 1000-sample cap ≈ a 4-hour charge window in the chart.
+            if (data.timestamp - chargeLastHistMs >= 15_000L) {
                 chargeLastHistMs = data.timestamp
                 pushHist(chargePctHist, data.timestamp, pct)
                 pushHist(chargeVoltHist, data.timestamp, data.voltage)
