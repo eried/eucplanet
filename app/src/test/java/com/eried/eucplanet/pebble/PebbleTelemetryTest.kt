@@ -25,9 +25,13 @@ class PebbleTelemetryTest {
         val s = AppSettings() // metric defaults
         val m = PebbleTelemetry.build(data, connected = true, settings = s)
 
+        // Every live field a connected wheel reports must encode correctly —
+        // this is the "sends real speed/battery/volts/amps/pwm/temp" guarantee.
         assertEquals(234, m[PebbleKeys.SPEED])      // speed * 10, int (km/h)
-        assertEquals(77, m[PebbleKeys.BATTERY])
-        assertEquals(41, m[PebbleKeys.PWM])
+        assertEquals(77, m[PebbleKeys.BATTERY])     // percent
+        assertEquals(841, m[PebbleKeys.VOLTAGE])    // volts * 10
+        assertEquals(52, m[PebbleKeys.CURRENT])     // amps * 10
+        assertEquals(41, m[PebbleKeys.PWM])         // percent
         assertEquals(300, m[PebbleKeys.TEMP])       // temp * 10, int (°C)
         assertEquals(1, m[PebbleKeys.CONNECTED])
         assertEquals("kmh", m[PebbleKeys.UNIT_SPEED])
