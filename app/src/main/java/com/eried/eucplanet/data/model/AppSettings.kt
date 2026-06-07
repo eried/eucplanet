@@ -58,8 +58,9 @@ data class AppSettings(
     // When the periodic status report may speak, in increasing restriction:
     // "ALWAYS" (even while disconnected), "CONNECTED" (only with a wheel
     // connected), "RIDING" (only while connected and actually moving).
-    // Migrated from the old voiceOnlyWhenConnected boolean.
-    val voiceAnnounceWhen: String = "CONNECTED",
+    // New installs default to RIDING; existing installs migrate from the old
+    // voiceOnlyWhenConnected boolean (see SettingsJson).
+    val voiceAnnounceWhen: String = "RIDING",
     val voiceIntervalSeconds: Int = 60,
     val voiceSpeechRate: Float = 1.2f,
     val voiceLocale: String = "en_US",  // locale tag for TTS voice

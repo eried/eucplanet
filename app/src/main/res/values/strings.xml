@@ -575,7 +575,7 @@
     <string name="voice_only_when_connected">Only when wheel is connected</string>
     <string name="voice_announce_when_label">Announce</string>
     <string name="voice_announce_always">Always</string>
-    <string name="voice_announce_connected">Wheel connected</string>
+    <string name="voice_announce_connected">Connected</string>
     <string name="voice_announce_riding">When riding</string>
     <string name="voice_interval">Interval</string>
     <string name="unit_sec">sec</string>

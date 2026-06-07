@@ -279,8 +279,12 @@ object SettingsJson {
         voicePeriodicEnabled = j.optBoolean("voicePeriodicEnabled", base.voicePeriodicEnabled),
         voiceAnnounceWhen = j.optString(
             "voiceAnnounceWhen",
-            // Migrate the old boolean: connected-only → "CONNECTED", else "ALWAYS".
-            if (j.optBoolean("voiceOnlyWhenConnected", true)) "CONNECTED" else "ALWAYS"
+            // Migrate the old boolean only when an existing install actually has
+            // it (true → CONNECTED, false → ALWAYS). Brand-new installs have
+            // neither key and fall through to the model default (RIDING).
+            if (j.has("voiceOnlyWhenConnected"))
+                (if (j.optBoolean("voiceOnlyWhenConnected", true)) "CONNECTED" else "ALWAYS")
+            else base.voiceAnnounceWhen
         ),
         voiceIntervalSeconds = j.optInt("voiceIntervalSeconds", base.voiceIntervalSeconds),
         voiceSpeechRate = j.optDouble("voiceSpeechRate", base.voiceSpeechRate.toDouble()).toFloat(),

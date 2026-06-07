@@ -33,6 +33,11 @@ class WheelService : LifecycleService() {
 
     companion object {
         private const val TAG = "WheelService"
+        // Minimum |speed| (km/h) that counts as "in motion" — shared by the
+        // auto-record start/stop loop and the "When riding" announcement gate
+        // so the two never drift. Small enough to catch a real roll, large
+        // enough to ignore sensor jitter at a standstill.
+        private const val MOTION_MIN_KMH = 0.1f
         // Bumped to _v2 so the new lock-screen visibility on the channel actually
         // applies: a NotificationChannel's settings are frozen after first
         // creation, so an existing install ignores code changes to the old id.
@@ -361,8 +366,8 @@ class WheelService : LifecycleService() {
 
     // --- Auto-record motion gating ---
 
-    // Timestamp of the last sample with motion (speed > 0) while connected.
-    // Used by the idle-timeout loop to decide when to auto-stop.
+    // Timestamp of the last sample in motion (|speed| > MOTION_MIN_KMH) while
+    // connected. Used by the idle-timeout loop to decide when to auto-stop.
     private var lastMotionAtMs: Long = 0L
 
     private fun evaluateAutoRecordOnTelemetry(
@@ -370,7 +375,7 @@ class WheelService : LifecycleService() {
         settings: com.eried.eucplanet.data.model.AppSettings
     ) {
         if (!settings.autoRecord) return
-        val moving = kotlin.math.abs(data.speed) > 0f
+        val moving = kotlin.math.abs(data.speed) > MOTION_MIN_KMH
         if (moving) lastMotionAtMs = System.currentTimeMillis()
 
         // Motion-linked loop: start on first motion and restart after each idle auto-stop.
@@ -392,7 +397,7 @@ class WheelService : LifecycleService() {
                 if (!tripRepository.recording.value) continue
 
                 val connected = wheelRepository.connectionState.value == ConnectionState.CONNECTED
-                val moving = connected && kotlin.math.abs(wheelRepository.wheelData.value.speed) > 0f
+                val moving = connected && kotlin.math.abs(wheelRepository.wheelData.value.speed) > MOTION_MIN_KMH
                 if (moving) {
                     lastMotionAtMs = System.currentTimeMillis()
                     continue
@@ -439,9 +444,9 @@ class WheelService : LifecycleService() {
                 if (settings.voiceEnabled && settings.voicePeriodicEnabled) {
                     val connected = wheelRepository.connectionState.value == ConnectionState.CONNECTED
                     val data = wheelRepository.wheelData.value
-                    // "RIDING" means actually moving; 0.5 km/h matches the app's
-                    // "stationary" threshold so sensor jitter at a stop stays quiet.
-                    val moving = connected && kotlin.math.abs(data.speed) >= 0.5f
+                    // "RIDING" = the same "in motion" test that auto-starts a trip
+                    // recording (shared MOTION_MIN_KMH), so the two stay in lockstep.
+                    val moving = connected && kotlin.math.abs(data.speed) > MOTION_MIN_KMH
                     val allowed = when (settings.voiceAnnounceWhen) {
                         "ALWAYS" -> true
                         "RIDING" -> moving
