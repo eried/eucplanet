@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">EUC Planet</string>
-    <string name="watch_waiting_phone">Abrí EUC Planet\nen tu celular</string>
-    <string name="watch_waiting_wheel">Conectá una rueda\nen EUC Planet</string>
+    <string name="watch_waiting_phone">Abre EUC Planet\nen tu teléfono</string>
+    <string name="watch_waiting_wheel">Conecta una rueda\nen EUC Planet</string>
     <string name="watch_disconnected">Desconectada</string>
     <string name="watch_horn">Bocina</string>
     <string name="watch_light">Luz</string>
@@ -18,18 +18,18 @@
     <string name="watch_temp_label">Temp</string>
     <string name="watch_trip_label">Viaje</string>
     <string name="watch_torque_label">Torque</string>
-    <string name="watch_action_failed">Sin conexión al celular</string>
+    <string name="watch_action_failed">Sin conexión al teléfono</string>
     <string name="watch_gps_label">GPS</string>
-    <string name="watch_gps_permission">Tocá para activar GPS</string>
+    <string name="watch_gps_permission">Toca para activar GPS</string>
     <string name="watch_gps_waiting">Esperando señal…</string>
 
     <!-- Toast labels for hold-action triggers. Short so they fit on a Wear toast. -->
     <string name="watch_action_horn">Bocina</string>
     <string name="watch_action_light">Luz</string>
     <string name="watch_action_lock">Bloquear rueda</string>
-    <string name="watch_action_safety">Modo Legal</string>
-    <string name="watch_action_safety_on">Modo Legal activado</string>
-    <string name="watch_action_safety_off">Modo Legal desactivado</string>
+    <string name="watch_action_safety">Modo legal</string>
+    <string name="watch_action_safety_on">Modo legal activado</string>
+    <string name="watch_action_safety_off">Modo legal desactivado</string>
     <string name="watch_action_voice">Reporte de voz</string>
     <string name="watch_action_record">Grabación</string>
     <string name="watch_action_record_start">Grabación iniciada</string>
@@ -37,5 +37,5 @@
     <string name="watch_action_media_play">Reproducir / pausar</string>
     <string name="watch_action_media_next">Siguiente</string>
     <string name="watch_action_media_prev">Anterior</string>
-    <string name="watch_action_long_press_hint">Mantené apretado para %1$s</string>
+    <string name="watch_action_long_press_hint">Mantén presionado para %1$s</string>
 </resources>

@@ -96,12 +96,11 @@ fun ThemeEditorWidget(
     // separator below updates).
     LaunchedEffect(settings.syncFolderUri, settings.activeThemeName) { vm.refreshChoices() }
 
-    val persisted = remember(settings.activeThemeColorsJson) {
-        settings.activeThemeColorsJson.takeIf { it.isNotEmpty() }
-            ?.let { ThemeJson.colorsFromString(it, BuiltInThemes.pureBlack.colors) }
-            ?: BuiltInThemes.pureBlack.colors
-    }
-    val base: AppThemeColors = liveColors ?: persisted
+    // Active theme colors come from ThemeController (in memory); the live preview
+    // overrides them while a slider drags.
+    val activeColors = vm.activeColors.collectAsState().value
+    val dirty = vm.dirty.collectAsState().value
+    val base: AppThemeColors = liveColors ?: activeColors
 
     var offset by remember { mutableStateOf(Offset(36f, 220f)) }
     var collapsed by remember { mutableStateOf(false) }
@@ -171,7 +170,7 @@ fun ThemeEditorWidget(
     }
 
     val titleName = settings.activeThemeName.ifEmpty { "Theme" }
-    val title = if (settings.themeDirty) "$titleName (unsaved)" else titleName
+    val title = if (dirty) "$titleName (unsaved)" else titleName
 
     // Re-clamp when the widget changes size (expand <-> collapse) or the screen
     // resizes, so collapsing a card that sat near an edge can't strand the pill.
@@ -336,7 +335,7 @@ fun ThemeEditorWidget(
                                     onCommit = {
                                         // Editing a clean theme that already has a
                                         // draft would clobber it — confirm first.
-                                        if (!settings.themeDirty &&
+                                        if (!dirty &&
                                             settings.activeThemeName in choices.unsaved
                                         ) pendingOverwrite = true
                                         else vm.commit()

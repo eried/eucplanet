@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">EUC Planet</string>
-    <string name="watch_waiting_phone">Öffne EUC Planet\nauf deinem Handy</string>
-    <string name="watch_waiting_wheel">Verbinde ein Wheel\nin EUC Planet</string>
+    <string name="watch_waiting_phone">EUC Planet\nauf dem Handy öffnen</string>
+    <string name="watch_waiting_wheel">Wheel in\nEUC Planet verbinden</string>
     <string name="watch_disconnected">Getrennt</string>
     <string name="watch_horn">Hupe</string>
     <string name="watch_light">Licht</string>
@@ -16,8 +16,8 @@
     <string name="watch_pwm_label">PWM</string>
     <string name="watch_power_label">Leistung</string>
     <string name="watch_temp_label">Temp</string>
-    <string name="watch_trip_label">Fahrt</string>
-    <string name="watch_torque_label">Moment</string>
+    <string name="watch_trip_label">Trip</string>
+    <string name="watch_torque_label">Drehmoment</string>
     <string name="watch_action_failed">Handy nicht erreichbar</string>
     <string name="watch_gps_label">GPS-Tempo</string>
     <string name="watch_gps_permission">Tippen für GPS</string>
@@ -26,14 +26,14 @@
     <!-- Toast labels for hold-action triggers. Short so they fit on a Wear toast. -->
     <string name="watch_action_horn">Hupe</string>
     <string name="watch_action_light">Licht</string>
-    <string name="watch_action_lock">Rad sperren</string>
+    <string name="watch_action_lock">Wheel sperren</string>
     <string name="watch_action_safety">Legal-Modus</string>
     <string name="watch_action_safety_on">Legal-Modus an</string>
     <string name="watch_action_safety_off">Legal-Modus aus</string>
     <string name="watch_action_voice">Sprachansage</string>
-    <string name="watch_action_record">Aufzeichnung</string>
-    <string name="watch_action_record_start">Aufzeichnung gestartet</string>
-    <string name="watch_action_record_stop">Aufzeichnung gestoppt</string>
+    <string name="watch_action_record">Aufnahme</string>
+    <string name="watch_action_record_start">Aufnahme gestartet</string>
+    <string name="watch_action_record_stop">Aufnahme gestoppt</string>
     <string name="watch_action_media_play">Play / Pause</string>
     <string name="watch_action_media_next">Nächster Titel</string>
     <string name="watch_action_media_prev">Vorheriger Titel</string>

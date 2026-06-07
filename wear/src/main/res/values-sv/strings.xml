@@ -16,11 +16,11 @@
     <string name="watch_pwm_label">PWM</string>
     <string name="watch_power_label">Effekt</string>
     <string name="watch_temp_label">Temp</string>
-    <string name="watch_trip_label">Resa</string>
+    <string name="watch_trip_label">Tur</string>
     <string name="watch_torque_label">Moment</string>
     <string name="watch_action_failed">Når inte mobilen</string>
     <string name="watch_gps_label">GPS-fart</string>
-    <string name="watch_gps_permission">Tryck för GPS</string>
+    <string name="watch_gps_permission">Tryck för att tillåta GPS</string>
     <string name="watch_gps_waiting">Väntar på fix…</string>
 
     <!-- Toast labels for hold-action triggers. Short so they fit on a Wear toast. -->
@@ -35,7 +35,7 @@
     <string name="watch_action_record_start">Inspelning startad</string>
     <string name="watch_action_record_stop">Inspelning stoppad</string>
     <string name="watch_action_media_play">Spela / pausa</string>
-    <string name="watch_action_media_next">Nästa låt</string>
-    <string name="watch_action_media_prev">Föregående låt</string>
-    <string name="watch_action_long_press_hint">Håll in för %1$s</string>
+    <string name="watch_action_media_next">Nästa spår</string>
+    <string name="watch_action_media_prev">Föregående spår</string>
+    <string name="watch_action_long_press_hint">Håll inne för %1$s</string>
 </resources>

@@ -1507,7 +1507,7 @@ fun ElementConfigSheet(
     styleExpanded: Boolean,
     /**
      * True when the rider has a custom marker photo saved
-     * (`AppSettings.navUserMarkerPhotoDataUrl != null`). Controls whether the
+     * (NavMarkerStore has an on-disk PNG). Controls whether the
      * MAP element shows an active "Prefer customized marker" toggle or just a
      * hint pointing the rider to the Navigator to set one.
      */

@@ -95,6 +95,11 @@ fun OnlineUploadOnboardingDialog(
     // ---- Registration state --------------------------------------------------
     var registering   by remember { mutableStateOf(false) }
     var registerError by remember { mutableStateOf(false) }
+    // The server's failure (HTTP code + detail) for a register error, or null for
+    // a network failure -> falls back to the generic connection message.
+    var registerFailure by remember {
+        mutableStateOf<com.eried.eucplanet.data.eucstats.RegisterResult.Failed?>(null)
+    }
 
     // ---- Image picker --------------------------------------------------------
     val context = LocalContext.current
@@ -329,8 +334,17 @@ fun OnlineUploadOnboardingDialog(
 
                 // ---- Inline registration error -------------------------------
                 if (registerError) {
+                    val failure = registerFailure
                     Text(
-                        text = stringResource(R.string.online_upload_register_error),
+                        // The server's own reason + HTTP code when it responded
+                        // (e.g. "display_name_taken (409)"); the generic
+                        // connection message only for a real network failure.
+                        text = if (failure != null)
+                            stringResource(
+                                R.string.online_upload_register_server_error,
+                                failure.detail ?: "?", failure.code,
+                            )
+                        else stringResource(R.string.online_upload_register_error),
                         color = MaterialTheme.appColors.statusDanger,
                         style = MaterialTheme.typography.bodySmall,
                     )
@@ -354,14 +368,25 @@ fun OnlineUploadOnboardingDialog(
                         val bitmap = croppedBitmap ?: return@Button
                         registering   = true
                         registerError = false
+                        registerFailure = null
                         val base64 = encodeBitmapToBase64(bitmap)
                         viewModel.registerOnlineUpload(
                             displayName = displayName.trim(),
                             flag        = flagCode.uppercase(),
                             avatarPngBase64 = base64,
-                        ) { ok ->
+                        ) { result ->
                             registering = false
-                            if (ok) onRegistered() else registerError = true
+                            if (result == com.eried.eucplanet.data.eucstats.RegisterResult.Ok) {
+                                onRegistered()
+                            } else {
+                                registerError = true
+                                // Keep the server failure (code + detail) only when
+                                // the server actually responded (code != 0); a
+                                // network failure falls back to the generic message.
+                                registerFailure = (result as?
+                                    com.eried.eucplanet.data.eucstats.RegisterResult.Failed)
+                                    ?.takeIf { it.code != 0 }
+                            }
                         }
                     },
                     enabled = canRegister && !registering,

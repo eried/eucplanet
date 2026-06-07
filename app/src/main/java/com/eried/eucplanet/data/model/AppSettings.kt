@@ -213,24 +213,14 @@ data class AppSettings(
 
     // --- Custom theme system ---
     /**
-     * The active theme's resolved tokens as JSON (see ui/theme/ThemeJson). Empty
-     * until first launch / upgrade seeds it from the legacy [themeMode] +
-     * [accentColor]; once seeded it is the single source of truth (the OS no
-     * longer drives the theme). Rides along with the settings backup.
+     * Name of the active theme: a built-in (Light / Dark / Pure Black) or a saved
+     * custom. This is the ONLY theme state that is persisted — the resolved colors
+     * are re-derived from it on launch (see ui/theme/ThemeController), a built-in
+     * from code or a saved `.json` from the themes folder, falling back to a preset
+     * if the file is gone. The dirty flag and unsaved working drafts are in-memory
+     * only and intentionally lost on app kill.
      */
-    val activeThemeColorsJson: String = "",
-    /** Display / base name of the active theme: a built-in name or a saved custom. */
     val activeThemeName: String = "",
-    /** True when the active theme is an unsaved working draft (edited, not yet saved). */
-    val themeDirty: Boolean = false,
-    /**
-     * Persistent unsaved working drafts, keyed by the base theme they were forked
-     * from, as JSON: `{ "<baseName>": "<colors json>", ... }`. Each appears in the
-     * theme combo as "<baseName> (unsaved)" so the rider can switch away to a
-     * preset and back to a draft without losing edits. Editing a clean theme adds
-     * its draft here; Save-as removes it.
-     */
-    val unsavedThemesJson: String = "{}",
     /** Master switch for the floating theme editor widget. Off = theme combo only. */
     val themeEditorEnabled: Boolean = false,
     // Colored danger-zone band behind the speed arc (yellow/orange/red thresholds).
@@ -317,29 +307,15 @@ data class AppSettings(
     val navGeocoderUrl: String = "https://nominatim.openstreetmap.org/search",
     /** Routing endpoint, overridable for self-hosting. */
     val navRouterUrl: String = "https://routing.openstreetmap.de",
-    /**
-     * The route currently loaded in the builder and used by live navigation,
-     * persisted as JSON ([com.eried.eucplanet.data.model.NavRoute.toJson]) so it
-     * survives an app restart. Null when no route is set.
-     */
-    val navCurrentRouteJson: String? = null,
-    /**
-     * Epoch millis when [navCurrentRouteJson] was last written. Used as a
-     * freshness gate on Builder open so a route that survived a Google Auto
-     * Backup -> reinstall round-trip (or just an app left untouched for days)
-     * doesn't reappear as ghost stops the rider doesn't recognise. 0 = never
-     * stamped, treated as stale.
-     */
-    val navCurrentRouteSavedAt: Long = 0L,
+    // Two nav things are intentionally NOT settings, so they never bloat the
+    // settings JSON / backup:
+    //  - the current navigation route -> in memory only
+    //    (com.eried.eucplanet.nav.CurrentRouteStore); a reinstall starts at zero.
+    //  - the custom user-marker photo -> its own PNG file in noBackupFilesDir
+    //    (com.eried.eucplanet.data.store.NavMarkerStore); survives app updates but
+    //    not a full uninstall / new device (never recovered).
     /** Route Builder map style: DARK / LIGHT / SATELLITE. */
     val navMapType: String = "LIGHT",
-    /**
-     * Custom user-marker photo as a `data:image/png;base64,…` URL, or null
-     * for the default circle/teardrop marker. Captured by the rider via the
-     * "Customize my marker" crop dialog at 64×64, ~3–5 KB encoded, same
-     * size order as a saved nav route.
-     */
-    val navUserMarkerPhotoDataUrl: String? = null,
     /**
      * When true (the default) the route builder solves the WHOLE multi-stop
      * tour in one routing request -- a single solid line, a whole-tour distance
@@ -450,6 +426,19 @@ data class AppSettings(
      * on a dial loop they'll never use.
      */
     val hudServerEnabled: Boolean = com.eried.eucplanet.BuildConfig.DEBUG,
+    /**
+     * HUD joystick long-press bindings. The HUD's IR remote / joystick fires a
+     * long-press in one of four directions; the HUD sends an
+     * [com.eried.eucplanet.hud.protocol.HudCommand.Action] with the slot name and
+     * the PHONE decides what to do, so the action vocabulary matches Flic / Volume
+     * keys / Wear. Stored as an ActionCatalog key (e.g. "HORN", "VOICE_ANNOUNCE")
+     * or "NONE" for unbound. All default to "NONE" so the joystick keeps its
+     * existing short-press carousel behaviour until the rider binds something.
+     */
+    val hudActionUp: String = "NONE",
+    val hudActionDown: String = "NONE",
+    val hudActionLeft: String = "NONE",
+    val hudActionRight: String = "NONE",
     /**
      * TCP port to dial on the HUD. Default mirrors `HudDiscovery.DEFAULT_PORT`.
      * Exposed as a setting because some carrier-grade hotspots refuse to

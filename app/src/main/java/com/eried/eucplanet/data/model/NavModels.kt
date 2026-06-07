@@ -7,10 +7,10 @@ import org.json.JSONObject
  * Data model for the Navigator feature: route building (waypoints + resolved
  * geometry) and the live-guidance runtime state.
  *
- * Everything here is plain data with hand-written JSON mapping, the current
- * route is persisted as a single JSON string in [AppSettings.navCurrentRouteJson]
- * (same DataStore-blob philosophy the rest of the app's settings use) and the
- * compact nav state is what both the phone popup and the watch render from.
+ * Everything here is plain data with hand-written JSON mapping. The current
+ * route is held only in memory (com.eried.eucplanet.nav.CurrentRouteStore), never
+ * persisted, so a reinstall starts navigation from zero; the compact nav state is
+ * what both the phone popup and the watch render from.
  */
 
 /** A latitude/longitude pair in WGS84 degrees. */

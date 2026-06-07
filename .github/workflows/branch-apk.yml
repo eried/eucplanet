@@ -94,7 +94,7 @@ jobs:
           if [ -f hud/build.gradle.kts ]; then
             targets="$targets :hud:assembleDebug"
           fi
-          ./gradlew $targets --no-daemon --stacktrace
+          ./gradlew :app:testDebugUnitTest :hud-protocol:test $targets --no-daemon --stacktrace
         env:
           GRADLE_OPTS: -Xmx4g -Dorg.gradle.jvmargs=-Xmx4g
 

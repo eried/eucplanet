@@ -257,7 +257,7 @@ fun DashboardScreen(
     // engine behind this VM is shared with the floating navigation overlay).
     val navOverlayVm: NavigationOverlayViewModel = hiltViewModel()
     val navState by navOverlayVm.navState.collectAsState()
-    val savedRoute by navOverlayVm.savedRoute.collectAsState()
+    val currentRoute by navOverlayVm.currentRoute.collectAsState()
     val flicFlashAt by viewModel.flicFlashAt.collectAsState()
     val latestTripId by viewModel.latestTripId.collectAsState()
     val currentTripId by viewModel.currentTripId.collectAsState()
@@ -995,12 +995,12 @@ fun DashboardScreen(
                                     navOverlayVm.endNavigation()
                                 }
                             )
-                        } else if (savedRoute != null) {
+                        } else if (currentRoute != null) {
                             DropdownMenuItem(
                                 text = { Text(stringResource(R.string.nav_start_short)) },
                                 onClick = {
                                     showMapMenu = false
-                                    navOverlayVm.startSavedRoute()
+                                    navOverlayVm.startCurrentRoute()
                                 }
                             )
                         }
