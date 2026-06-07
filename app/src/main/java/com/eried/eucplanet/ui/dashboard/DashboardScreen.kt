@@ -62,9 +62,9 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.BluetoothSearching
 import androidx.compose.material.icons.filled.Bluetooth
+import androidx.compose.material.icons.filled.BatteryChargingFull
+import androidx.compose.material.icons.filled.BatteryFull
 import androidx.compose.material.icons.filled.Bolt
-import androidx.compose.material.icons.filled.EvStation
-import androidx.compose.material.icons.filled.PowerOff
 import androidx.compose.material.icons.filled.BugReport
 import androidx.compose.material.icons.filled.Campaign
 import androidx.compose.material.icons.filled.WarningAmber
@@ -638,9 +638,9 @@ fun DashboardScreen(
                             val chargingNow = chargeStatus == com.eried.eucplanet.data.model.ChargeStatus.Charging ||
                                 chargeStatus == com.eried.eucplanet.data.model.ChargeStatus.Full
                             Icon(
-                                // The shape conveys state (charger plugged vs disconnected),
-                                // not colour — so it stays a neutral tint either way.
-                                imageVector = if (chargingNow) Icons.Filled.EvStation else Icons.Filled.PowerOff,
+                                // Vertical battery: with the charging bolt while charging,
+                                // plain full battery otherwise. Neutral tint (no green).
+                                imageVector = if (chargingNow) Icons.Filled.BatteryChargingFull else Icons.Filled.BatteryFull,
                                 contentDescription = stringResource(R.string.charging_monitor),
                                 tint = MaterialTheme.appColors.textSecondary,
                             )
