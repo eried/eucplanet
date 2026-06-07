@@ -468,8 +468,8 @@ private fun ScreenChangeToast(
  *            [HudUiController.shortActions] (e.g. "Next screen", "Zoom in",
  *            "GPS view"). Null when the direction has no screen-specific short
  *            action here.
- *   line B = the LONG action label the phone resolved and shipped in
- *            [HudState] ([up]/[down]/[left]/[right]), rendered "<label> (long)".
+ *   line B = the double-tap action label the phone resolved and shipped in
+ *            [HudState] ([up]/[down]/[left]/[right]), rendered "<label> (2x)".
  *            Omitted when the label is empty (slot unbound).
  *
  * A direction with NEITHER a short line nor a long label is dimmed/skipped --
@@ -540,7 +540,7 @@ private fun ButtonActionGuideOverlay(
 }
 
 /** One direction row of [ButtonActionGuideOverlay]: an accent-tinted glyph
- *  followed by its short line (top) and "<label> (long)" line (bottom). A row
+ *  followed by its short line (top) and "<label> (2x)" line (bottom). A row
  *  with neither dims the glyph so the rider can see the direction is free. */
 @Composable
 private fun ButtonActionArm(
@@ -573,7 +573,7 @@ private fun ButtonActionArm(
             }
             if (hasLong) {
                 Text(
-                    text = "$longLabel (long)",
+                    text = "$longLabel (2x)",
                     color = if (hasShort) Color(0xFFB0B0B0) else Color.White,
                     fontSize = 11.sp,
                     fontWeight = FontWeight.SemiBold,

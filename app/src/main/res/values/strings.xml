@@ -350,11 +350,11 @@
 
     <!-- HUD button long-press actions -->
     <string name="hud_joystick_title">Button actions</string>
-    <string name="hud_joystick_desc">Map actions to the HUD buttons. Short presses are already used for default actions</string>
-    <string name="hud_joystick_up">Up (long press)</string>
-    <string name="hud_joystick_down">Down (long press)</string>
-    <string name="hud_joystick_left">Left (long press)</string>
-    <string name="hud_joystick_right">Right (long press)</string>
+    <string name="hud_joystick_desc">Double-tap a HUD button to run an action. A single tap still switches screens</string>
+    <string name="hud_joystick_up">Up (double-tap)</string>
+    <string name="hud_joystick_down">Down (double-tap)</string>
+    <string name="hud_joystick_left">Left (double-tap)</string>
+    <string name="hud_joystick_right">Right (double-tap)</string>
 
     <!-- HUD Personalize collapsible card -->
     <string name="hud_personalize_title">Personalize</string>
