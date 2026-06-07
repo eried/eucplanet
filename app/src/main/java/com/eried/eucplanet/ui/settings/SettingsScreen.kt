@@ -263,14 +263,18 @@ private val languageOptions = listOf(
     "es-419" to "Español (Latinoamérica)",
     "fr" to "Français",
     "it" to "Italiano",
+    "ja" to "日本語",
+    "ko" to "한국어",
     "nl" to "Nederlands",
     "no" to "Norsk",
     "pl" to "Polski",
     "pt-BR" to "Português (Brasil)",
     "ru" to "Русский",
     "sv" to "Svenska",
+    "tr" to "Türkçe",
     "uk" to "Українська",
-    "zh" to "中文"
+    "zh" to "简体中文",
+    "zh-TW" to "繁體中文"
 )
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -5295,7 +5299,8 @@ private fun DisplayTab(
     // (visible once a backup folder is set). Replaces the legacy theme-mode +
     // accent pickers — the accent is now the active theme's `primary` token.
     val themeChoices = viewModel.themeChoices.collectAsState().value
-    LaunchedEffect(settings.activeThemeName, settings.syncFolderUri, settings.themeDirty) {
+    val themeDirty = viewModel.themeDirty.collectAsState().value
+    LaunchedEffect(settings.activeThemeName, settings.syncFolderUri, themeDirty) {
         viewModel.refreshThemeChoices()
     }
     val currentTheme = settings.activeThemeName.ifEmpty {
@@ -5321,7 +5326,7 @@ private fun DisplayTab(
 
         ThemeDropdown(
             label = stringResource(R.string.theme),
-            current = if (settings.themeDirty) "$currentTheme (unsaved)" else currentTheme,
+            current = if (themeDirty) "$currentTheme (unsaved)" else currentTheme,
             builtIns = themeChoices.builtIns,
             saved = themeChoices.saved,
             unsaved = themeChoices.unsaved,
@@ -5597,9 +5602,10 @@ private fun VoiceTab(
         }
 
         if (settings.voiceEnabled) {
-            SwitchSetting(stringResource(R.string.voice_only_when_connected), settings.voiceOnlyWhenConnected) {
-                viewModel.updateVoiceOnlyWhenConnected(it)
-            }
+            AnnounceWhenSelector(
+                current = settings.voiceAnnounceWhen,
+                onChange = { viewModel.updateVoiceAnnounceWhen(it) }
+            )
             SliderSetting(
                 label = stringResource(R.string.voice_interval),
                 value = settings.voiceIntervalSeconds.toFloat(),
@@ -6434,6 +6440,7 @@ private fun CloudTab(
             is CloudEvent.SyncFinished -> context.getString(R.string.sync_finished, event.count)
             CloudEvent.EucstatsNothingToSync -> context.getString(R.string.online_upload_sync_nothing)
             is CloudEvent.EucstatsSyncFinished -> context.getString(R.string.online_upload_sync_done, event.count)
+            CloudEvent.RiderIdConflict -> context.getString(R.string.online_rider_id_conflict)
         }
         if (msg != null) snackbarScope.launch { snackbar.showSnackbar(msg) }
         viewModel.consumeCloudEvent()
@@ -6836,7 +6843,7 @@ private fun CloudTab(
                 text = { Text(stringResource(R.string.online_unlink_body)) },
                 confirmButton = {
                     TextButton(onClick = {
-                        viewModel.setOnlineUploadEnabled(false)
+                        viewModel.unlinkOnline()
                         showUnlinkConfirm = false
                     }) { Text(stringResource(R.string.online_unlink_confirm)) }
                 },
@@ -7139,14 +7146,14 @@ private fun CloudTab(
                             modifier = Modifier.fillMaxWidth(),
                         )
                         Text(
-                            stringResource(R.string.sync_progress, done, total),
+                            stringResource(R.string.online_upload_sync_progress, done, total),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.appColors.textSecondary,
                         )
                     } else {
                         LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
                         Text(
-                            stringResource(R.string.sync_checking),
+                            stringResource(R.string.online_upload_sync_checking),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.appColors.textSecondary,
                         )
@@ -7999,6 +8006,24 @@ private fun OutputChannelSelector(
     )
     SegmentedChoice(
         label = stringResource(R.string.voice_output_channel_label),
+        options = options,
+        current = current,
+        onChange = onChange
+    )
+}
+
+@Composable
+private fun AnnounceWhenSelector(
+    current: String,
+    onChange: (String) -> Unit
+) {
+    val options = listOf(
+        "ALWAYS" to stringResource(R.string.voice_announce_always),
+        "CONNECTED" to stringResource(R.string.voice_announce_connected),
+        "RIDING" to stringResource(R.string.voice_announce_riding)
+    )
+    SegmentedChoice(
+        label = stringResource(R.string.voice_announce_when_label),
         options = options,
         current = current,
         onChange = onChange
@@ -9117,11 +9142,44 @@ private fun HudIntegrationSection(
             onCheckedChange = { viewModel.updateHudServerEnabled(it) }
         )
 
-        // Two top-level collapsibles under the Integration card.
+        // Three top-level collapsibles under the Integration card.
         // HUD screens first because the reorder list inside is the
-        // primary repeat-visit destination; Map options second.
+        // primary repeat-visit destination; Map options second;
+        // Joystick actions last (set-once bindings).
         HudScreensCard(settings = settings, viewModel = viewModel)
         HudMapOptionsCard(settings = settings, viewModel = viewModel)
+        HudJoystickCard(settings = settings, viewModel = viewModel)
+    }
+}
+
+/** HUD joystick long-press bindings: one action picker per direction.
+ *  Reuses the same [ActionDropdown] (VOLUME_KEY action vocabulary) as the
+ *  Volume keys section so the rider sees a consistent eyes-free action set;
+ *  each picker persists through its own ViewModel setter. */
+@Composable
+private fun HudJoystickCard(
+    settings: com.eried.eucplanet.data.model.AppSettings,
+    viewModel: SettingsViewModel
+) {
+    AdvancedCollapsable(
+        title = stringResource(R.string.hud_joystick_title),
+        stateKey = "hud_joystick"
+    ) {
+        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            HintText(stringResource(R.string.hud_joystick_desc), small = true)
+            ActionDropdown(stringResource(R.string.hud_joystick_up), settings.hudActionUp) {
+                viewModel.updateHudActionUp(it)
+            }
+            ActionDropdown(stringResource(R.string.hud_joystick_down), settings.hudActionDown) {
+                viewModel.updateHudActionDown(it)
+            }
+            ActionDropdown(stringResource(R.string.hud_joystick_left), settings.hudActionLeft) {
+                viewModel.updateHudActionLeft(it)
+            }
+            ActionDropdown(stringResource(R.string.hud_joystick_right), settings.hudActionRight) {
+                viewModel.updateHudActionRight(it)
+            }
+        }
     }
 }
 

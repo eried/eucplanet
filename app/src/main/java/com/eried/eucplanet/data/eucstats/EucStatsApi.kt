@@ -30,9 +30,22 @@ data class RiderProfile(
 
 sealed interface UploadResult {
     data class Ok(val validationStatus: String?, val duplicate: Boolean) : UploadResult
-    data class PermanentFailure(val code: Int, val body: String) : UploadResult  // 400/413/422
+    data class PermanentFailure(val code: Int, val body: String) : UploadResult  // 400/403/413/422
     data class AuthFailure(val code: Int) : UploadResult                          // 401 (re-mint)
     data class Retry(val code: Int, val retryAfterSec: Long?) : UploadResult      // 429/5xx/network
+}
+
+/**
+ * Result of POST /riders. Per the eucstats rate-limit spec, only a 429
+ * (`rate_limited:rider_create`, per IP) is retryable -- re-registering an
+ * existing store_id is never limited; anything else is terminal for the attempt.
+ */
+sealed interface RegisterResult {
+    data object Ok : RegisterResult                            // 2xx with a body (store_id is client-generated)
+    data object RateLimited : RegisterResult                   // 429 rate_limited:rider_create
+    /** Any other failure. [code] is the HTTP status (0 = network / no response);
+     *  [detail] is the server's "detail" string when present (e.g. display_name_taken). */
+    data class Failed(val code: Int, val detail: String?) : RegisterResult
 }
 
 /**
@@ -41,7 +54,7 @@ sealed interface UploadResult {
  * without a live server or OkHttp.
  */
 interface EucStatsApiContract {
-    fun registerRider(payload: JSONObject): JSONObject?
+    fun registerRider(payload: JSONObject): RegisterResult
     fun getCard(storeId: String): RiderCard?
     fun getProfile(storeId: String): RiderProfile?
     /** true = rider exists (200), false = not found (404, e.g. dataset reset
@@ -64,16 +77,30 @@ class EucStatsApi(
     // NEVER an uncaught exception that crashes the app (e.g. registering while
     // the server is unreachable). uploadTrip already does this.
 
-    override fun registerRider(payload: JSONObject): JSONObject? {
+    override fun registerRider(payload: JSONObject): RegisterResult {
         val req = Request.Builder().url("${baseUrl()}/riders")
             .post(payload.toString().toRequestBody(json)).build()
         return try {
             client.newCall(req).execute().use { resp ->
                 val body = resp.body?.string().orEmpty()
-                if (resp.isSuccessful && body.isNotEmpty()) JSONObject(body) else null
+                when {
+                    // store_id is client-generated, so we don't read the body on
+                    // success; a non-empty 2xx is enough.
+                    resp.isSuccessful && body.isNotEmpty() -> RegisterResult.Ok
+                    resp.code == 429 -> RegisterResult.RateLimited
+                    else -> {
+                        // Surface the server's reason. FastAPI errors are
+                        // {"detail":"..."} (e.g. display_name_taken, or a
+                        // "display_name must be ..." validation message).
+                        val detail = runCatching {
+                            JSONObject(body).optString("detail").ifEmpty { null }
+                        }.getOrNull()
+                        RegisterResult.Failed(resp.code, detail)
+                    }
+                }
             }
         } catch (e: Exception) {
-            null
+            RegisterResult.Failed(0, null) // network / no response
         }
     }
 
@@ -189,8 +216,16 @@ class EucStatsApi(
                     }
                     409 -> UploadResult.Ok(null, true)
                     401 -> UploadResult.AuthFailure(401)
-                    400, 413, 422 -> UploadResult.PermanentFailure(resp.code, text)
+                    // Terminal for this upload (per the eucstats rate-limit/ban
+                    // spec): 403 rider_banned / rider_not_allowlisted, 400
+                    // rider_not_registered, 413 payload_too_large, 422 data
+                    // problem. Never auto-retried -- only 429 (and a one-time 401
+                    // re-mint) retry.
+                    400, 403, 413, 422 -> UploadResult.PermanentFailure(resp.code, text)
+                    // Rate limited -- temporary, keep the trip queued and retry
+                    // with backoff (no Retry-After header today, so own backoff).
                     429 -> UploadResult.Retry(429, resp.header("Retry-After")?.toLongOrNull())
+                    // 5xx / unexpected -> transient, retry (the trip is never dropped).
                     else -> UploadResult.Retry(resp.code, null)
                 }
             }

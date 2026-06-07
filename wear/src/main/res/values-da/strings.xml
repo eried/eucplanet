@@ -27,9 +27,9 @@
     <string name="watch_action_horn">Horn</string>
     <string name="watch_action_light">Lys</string>
     <string name="watch_action_lock">Lås hjul</string>
-    <string name="watch_action_safety">Lovlig tilstand</string>
-    <string name="watch_action_safety_on">Lovlig til</string>
-    <string name="watch_action_safety_off">Lovlig fra</string>
+    <string name="watch_action_safety">Legal-tilstand</string>
+    <string name="watch_action_safety_on">Legal til</string>
+    <string name="watch_action_safety_off">Legal fra</string>
     <string name="watch_action_voice">Stemmerapport</string>
     <string name="watch_action_record">Optagelse</string>
     <string name="watch_action_record_start">Optagelse startet</string>

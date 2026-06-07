@@ -48,7 +48,8 @@ class WearBridge @Inject constructor(
     private val cheatState: com.eried.eucplanet.cheats.CheatState,
     private val externalGpsRepository: com.eried.eucplanet.data.repository.ExternalGpsRepository,
     private val tripRepository: com.eried.eucplanet.data.repository.TripRepository,
-    private val navigationEngine: com.eried.eucplanet.nav.NavigationEngine
+    private val navigationEngine: com.eried.eucplanet.nav.NavigationEngine,
+    private val themeController: com.eried.eucplanet.ui.theme.ThemeController
 ) {
     companion object {
         private const val TAG = "WearBridge"
@@ -326,7 +327,7 @@ class WearBridge @Inject constructor(
                 dataMap.putString(
                     K_ACCENT,
                     com.eried.eucplanet.ui.theme.ThemeAccent.primaryArgb(
-                        settings.activeThemeColorsJson, settings.accentColor
+                        themeController.activeColors.value
                     )
                 )
                 // Full theme palette so the watch face background, gauge, battery
@@ -334,7 +335,7 @@ class WearBridge @Inject constructor(
                 dataMap.putString(
                     K_THEME,
                     com.eried.eucplanet.ui.theme.ThemeAccent.packForWatch(
-                        settings.activeThemeColorsJson
+                        themeController.activeColors.value
                     )
                 )
                 dataMap.putBoolean(K_OPT_KEEP_ON, settings.watchKeepScreenOn)

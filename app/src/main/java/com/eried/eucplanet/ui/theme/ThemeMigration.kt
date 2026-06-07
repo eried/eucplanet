@@ -12,8 +12,11 @@ data class ResolvedTheme(
 
 /**
  * One-time bridge from the legacy `themeMode` + `accentColor` settings to the
- * custom theme system. Maps the old mode to a built-in and folds the old accent
- * into the `primary`-derived tokens, so an upgraded user looks identical.
+ * custom theme system. Its job now is mainly to map the legacy `themeMode` to a
+ * built-in theme NAME — that's all the sole caller (ThemeController.ensureResolved)
+ * reads, rendering the clean built-in by name. It still folds the old accent into
+ * the `primary`-derived tokens here, but the caller ignores those colors, so a
+ * legacy custom-accent user does NOT look identical after upgrade.
  */
 object ThemeMigration {
 
@@ -36,23 +39,5 @@ object ThemeMigration {
             gaugeFill = accent,
         )
         return ResolvedTheme(colors, builtIn.name, dirty = !defaultAccent)
-    }
-
-    /**
-     * Colors to render right now. Uses the persisted snapshot when present (the
-     * OS no longer drives the theme); otherwise falls back to the legacy
-     * migration until the snapshot is seeded.
-     */
-    fun resolveColors(
-        activeThemeColorsJson: String,
-        themeMode: String,
-        accentKey: String,
-        systemDark: Boolean,
-    ): AppThemeColors {
-        if (activeThemeColorsJson.isNotEmpty()) {
-            ThemeJson.colorsFromString(activeThemeColorsJson, BuiltInThemes.pureBlack.colors)
-                ?.let { return it }
-        }
-        return migrate(themeMode, accentKey, systemDark).colors
     }
 }

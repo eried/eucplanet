@@ -27,9 +27,9 @@
     <string name="watch_action_horn">Bocina</string>
     <string name="watch_action_light">Luz</string>
     <string name="watch_action_lock">Bloquear rueda</string>
-    <string name="watch_action_safety">Modo Legal</string>
-    <string name="watch_action_safety_on">Modo Legal activado</string>
-    <string name="watch_action_safety_off">Modo Legal desactivado</string>
+    <string name="watch_action_safety">Modo legal</string>
+    <string name="watch_action_safety_on">Modo legal activado</string>
+    <string name="watch_action_safety_off">Modo legal desactivado</string>
     <string name="watch_action_voice">Reporte de voz</string>
     <string name="watch_action_record">Grabación</string>
     <string name="watch_action_record_start">Grabación iniciada</string>

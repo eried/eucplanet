@@ -42,8 +42,8 @@ import javax.inject.Inject
 
 /**
  * Backing state for the Route Builder screen: the ordered waypoint list, the
- * resolved [NavRoute], address search, GPX import/export, and persistence of
- * the "current route" so it survives leaving the screen.
+ * resolved [NavRoute], address search, GPX import/export, and holding the
+ * "current route" in memory (CurrentRouteStore) so it survives leaving the screen.
  *
  * Whenever the waypoints or travel mode change the route is recomputed (with a
  * short debounce so dragging a pin doesn't fire a request per frame), and once
@@ -57,6 +57,8 @@ class RouteBuilderViewModel @Inject constructor(
     private val navigationEngine: NavigationEngine,
     private val incomingShareRepository:
         com.eried.eucplanet.data.repository.IncomingShareRepository,
+    private val currentRouteStore: com.eried.eucplanet.nav.CurrentRouteStore,
+    private val navMarkerStore: com.eried.eucplanet.data.store.NavMarkerStore,
     @ApplicationContext private val context: Context
 ) : ViewModel() {
 
@@ -70,14 +72,6 @@ class RouteBuilderViewModel @Inject constructor(
 
         /** How far the rider moves before the route preview is recomputed. */
         private const val ORIGIN_REROUTE_M = 25.0
-
-        /**
-         * How long a navigation route persists on disk for the Builder
-         * to restore on next open. Beyond this we assume the rider has
-         * moved on (or the route came back via Google Auto Backup from
-         * a previous install) and starting fresh is friendlier.
-         */
-        private const val RESTORE_TTL_MS: Long = 24 * 60 * 60 * 1000L
     }
 
     private val _waypoints = MutableStateFlow<List<Waypoint>>(emptyList())
@@ -138,10 +132,10 @@ class RouteBuilderViewModel @Inject constructor(
     private val _mapType = MutableStateFlow("DARK")
     val mapType: StateFlow<String> = _mapType.asStateFlow()
 
-    /** Persisted custom rider-marker photo as a base64 data URL, or null
-     *  when the rider hasn't set one (fall back to the default puck). */
-    private val _userMarkerPhoto = MutableStateFlow<String?>(null)
-    val userMarkerPhoto: StateFlow<String?> = _userMarkerPhoto.asStateFlow()
+    /** Custom rider-marker photo as a base64 data URL, or null when the rider
+     *  hasn't set one (fall back to the default puck). Backed by an on-disk PNG
+     *  (NavMarkerStore, noBackupFilesDir), never the settings JSON. */
+    val userMarkerPhoto: StateFlow<String?> = navMarkerStore.photoDataUrl
 
     /** Last (centre, zoom) the rider was looking at on the map. Cached
      *  in-memory only (per VM lifetime) so a sub-navigation to Settings and
@@ -168,13 +162,10 @@ class RouteBuilderViewModel @Inject constructor(
     }
     private var lastSavedViewLogMs = 0L
 
-    /** Sets the rider-marker photo (or clears it) and persists to settings. */
+    /** Sets the rider-marker photo (or clears it), writing it to its on-disk PNG
+     *  (NavMarkerStore) -- not the settings JSON. */
     fun setUserMarkerPhoto(dataUrl: String?) {
-        _userMarkerPhoto.value = dataUrl
-        viewModelScope.launch {
-            val s = settingsRepository.get()
-            settingsRepository.update(s.copy(navUserMarkerPhotoDataUrl = dataUrl))
-        }
+        navMarkerStore.set(dataUrl)
     }
 
     /** Bumped whenever the map should redraw; [fit] asks it to re-frame bounds. */
@@ -245,8 +236,8 @@ class RouteBuilderViewModel @Inject constructor(
                 handleIncomingShare(req)
             }
         }
-        // Signal raised once the persisted route (if any) has been read
-        // back into _waypoints / _route. The arrived collector below
+        // Signal raised once the current (in-memory) route (if any) has been
+        // read back into _waypoints / _route. The arrived collector below
         // awaits this BEFORE processing any nav events, so a VM that was
         // just re-created mid-navigation (e.g. rider switched tabs and
         // came back during the arrival dismiss window) can't see
@@ -263,37 +254,24 @@ class RouteBuilderViewModel @Inject constructor(
             _solveFullPath.value = s.navSolveFullPath
             _home.value = placeFromJson(s.navHomeJson)
             _work.value = placeFromJson(s.navWorkJson)
-            _userMarkerPhoto.value = s.navUserMarkerPhotoDataUrl
-            // navCurrentRouteJson is now only ever written at the moment
-            // navigation actually STARTS (and trimmed as goals are reached,
-            // cleared on arrival / explicit Clear). Draft pins live only
-            // in-memory -- this stops Google Auto Backup from shipping a
-            // long-forgotten route to the cloud and silently restoring it
-            // as ghost stops after a reinstall.
-            //
-            // Restore only when the saved route is one the rider actually
-            // started in this install: either guidance is still running,
-            // OR the route was saved within RESTORE_TTL_MS. Older entries
-            // typically came back via Google Auto Backup from a previous
-            // install and would otherwise appear as ghost stops with a
-            // matching ghost travel mode -- the bug we are fixing.
-            //
-            // When the gate passes we restore everything, including
-            // travelMode, because the rider explicitly chose that mode
-            // when they started this navigation and the Builder should
-            // mirror the active session faithfully.
-            val now = System.currentTimeMillis()
-            val isFresh = s.navCurrentRouteSavedAt != 0L &&
-                (now - s.navCurrentRouteSavedAt) < RESTORE_TTL_MS
-            if (navigationEngine.isActive || isFresh) {
-                NavRoute.fromJson(s.navCurrentRouteJson)?.let { existing ->
+            // userMarkerPhoto comes from NavMarkerStore (its own on-disk PNG),
+            // already loaded -- nothing to seed from settings here.
+            // The current route lives only in memory (CurrentRouteStore), never
+            // in settings/JSON, so nothing is backed up and a reinstall always
+            // starts navigation from zero. Restore it into the Builder when
+            // guidance is running or a route is loaded this session (e.g. after
+            // navigating away and back -- the singleton outlived this ViewModel).
+            // We restore everything, including travelMode, so the Builder mirrors
+            // the active session faithfully.
+            if (navigationEngine.isActive || currentRouteStore.get() != null) {
+                currentRouteStore.get()?.let { existing ->
                     if (existing.waypoints.isNotEmpty() || existing.geometry.isNotEmpty()) {
                         routeName = existing.name
                         _travelMode.value = existing.travelMode
                         _waypoints.value = existing.waypoints
-                        // Only adopt the persisted route as _route when it
-                        // actually carries geometry. With the new "stops +
-                        // travel mode only" persistence, geometry is
+                        // Only adopt the current (in-memory) route as _route
+                        // when it actually carries geometry. With the new
+                        // "stops + travel mode only" caching, geometry is
                         // always empty -- overwriting _route with an empty
                         // leg here would clobber whatever the activeLeg
                         // observer just put in (during active nav) and
@@ -316,8 +294,8 @@ class RouteBuilderViewModel @Inject constructor(
             }
             android.util.Log.i(
                 "RouteBuilderVM",
-                "RESTORE engineActive=${navigationEngine.isActive} isFresh=$isFresh " +
-                    "savedAt=${s.navCurrentRouteSavedAt} " +
+                "RESTORE engineActive=${navigationEngine.isActive} " +
+                    "hasRoute=${currentRouteStore.get() != null} " +
                     "_waypoints=${_waypoints.value.size}"
             )
             // Signal restore-complete after the section above finishes --
@@ -329,8 +307,8 @@ class RouteBuilderViewModel @Inject constructor(
         // engine's navState carries the index of the *next* unvisited goal;
         // each time that advances, we trim the corresponding stops from the
         // head of [_waypoints]. The map redraws automatically from the
-        // bumpRender() call inside the trim. When nav stops, the saved
-        // navCurrentRouteJson holds whatever is left, so the next time the
+        // bumpRender() call inside the trim. When nav stops, the in-memory
+        // CurrentRouteStore holds whatever is left, so the next time the
         // builder is opened it reflects the trimmed route too.
         // While navigation is running, each leg is a single-destination
         // route (origin -> next non-passed stop). On arrival, mark the
@@ -350,7 +328,7 @@ class RouteBuilderViewModel @Inject constructor(
         // would see two or three stops vanish from one physical arrival.
         var arrivalProcessed = false
         viewModelScope.launch {
-            // Wait until the persisted route has been read back into
+            // Wait until the current (in-memory) route has been read back into
             // _waypoints before processing arrival events. Without this,
             // a VM re-created during the engine's post-arrival window
             // would observe arrived=true with _waypoints still empty,
@@ -371,7 +349,8 @@ class RouteBuilderViewModel @Inject constructor(
                 if (arrivalProcessed) return@collect
                 arrivalProcessed = true
                 // The engine is now the sole orchestrator of multi-stop
-                // progress: it writes passed=true to the saved JSON itself
+                // progress: it writes passed=true to the in-memory current
+                // route (CurrentRouteStore) itself
                 // and (for intermediate stops) builds the next leg + calls
                 // advanceLeg from inside its own scope. The Navigator VM
                 // used to race the engine's intermediate-flash window by
@@ -380,8 +359,9 @@ class RouteBuilderViewModel @Inject constructor(
                 // emitted arrived=false again and yanked the "Reached
                 // goal N" popup off-screen ~150 ms in. Now we just mirror
                 // the passed flag into the visible list so the marker
-                // flips to a flag immediately; the engine's saved-JSON
-                // write below is the source of truth on disk, and
+                // flips to a flag immediately; the engine's write to the
+                // in-memory current route (CurrentRouteStore) below is the
+                // source of truth, and
                 // _route is updated by the engine's advanceLeg-driven
                 // navState emission picked up by other observers /
                 // bumpRender paths.
@@ -536,7 +516,7 @@ class RouteBuilderViewModel @Inject constructor(
         // A plain stop was just added; clear the "last preset" memory so the
         // Home / Work search suggestions both come back. addPreset() re-sets it.
         _lastAddedPresetKind.value = null
-        persistDraft()
+        cacheDraft()
         val edge = if (neighbor != null) listOf(neighbor, GeoPoint(lat, lng)) else emptyList()
         scheduleRecompute(fit = fit, previewEdge = edge)
     }
@@ -590,7 +570,7 @@ class RouteBuilderViewModel @Inject constructor(
         list.add(insertIndex, Waypoint(lat, lng))
         _waypoints.value = list
         _lastAddedPresetKind.value = null
-        persistDraft()
+        cacheDraft()
         val edge = listOfNotNull(left, GeoPoint(lat, lng), right)
         scheduleRecompute(fit = false, previewEdge = if (edge.size >= 2) edge else emptyList())
     }
@@ -608,7 +588,7 @@ class RouteBuilderViewModel @Inject constructor(
         // the role until the next route solves and re-resolves the address.
         list[index] = list[index].copy(lat = lat, lng = lng, name = "")
         _waypoints.value = list
-        persistDraft()
+        cacheDraft()
         val edge = listOfNotNull(left, GeoPoint(lat, lng), right)
         scheduleRecompute(fit = false, previewEdge = if (edge.size >= 2) edge else emptyList())
     }
@@ -618,7 +598,7 @@ class RouteBuilderViewModel @Inject constructor(
         if (index !in list.indices) return
         list.removeAt(index)
         _waypoints.value = list
-        persistDraft()
+        cacheDraft()
         scheduleRecompute(fit = false)
     }
 
@@ -627,7 +607,7 @@ class RouteBuilderViewModel @Inject constructor(
         if (from !in list.indices || to !in list.indices) return
         list.add(to, list.removeAt(from))
         _waypoints.value = list
-        persistDraft()
+        cacheDraft()
         scheduleRecompute(fit = false)
     }
 
@@ -638,51 +618,40 @@ class RouteBuilderViewModel @Inject constructor(
             val s = settingsRepository.get()
             settingsRepository.update(s.copy(navDefaultTravelMode = mode.name))
         }
-        persistDraft()
+        cacheDraft()
         scheduleRecompute(fit = false)
     }
 
     /**
-     * Mirror the current draft (stops + travel mode) into the persisted
-     * navCurrentRouteJson so it survives navigating away from the Builder
-     * and back. Skipped while guidance is running -- the [NavigationEngine]
-     * owns the JSON then (syncBuilderRoute trims passed stops as the rider
-     * progresses, and a draft overwrite from here would race with it).
+     * Mirror the current draft (stops + travel mode) into the in-memory
+     * [CurrentRouteStore] so it survives navigating away from the Builder and
+     * back. Skipped while guidance is running -- the [NavigationEngine] owns the
+     * route then (syncBuilderRoute trims passed stops as the rider progresses,
+     * and a draft overwrite from here would race with it).
      *
-     * Stops emptying out clears the JSON; otherwise we write a thin route
-     * with no geometry / maneuvers (the Builder recomputes those when it
-     * re-opens). The savedAt timestamp is bumped so the next VM init's
-     * isFresh check passes; the 24 h RESTORE_TTL keeps Google Auto Backup
-     * from resurrecting drafts on a fresh install.
+     * Stops emptying out clears the store; otherwise we hold a thin route with
+     * no geometry / maneuvers (the Builder recomputes those when it re-opens).
+     * Nothing is persisted, so a reinstall always starts navigation from zero.
      */
-    private fun persistDraft() {
+    private fun cacheDraft() {
         if (navigationEngine.isActive) return
         val wps = _waypoints.value
-        val mode = _travelMode.value
-        val name = routeName
-        viewModelScope.launch {
-            val s = settingsRepository.get()
-            if (wps.isEmpty()) {
-                settingsRepository.update(
-                    s.copy(navCurrentRouteJson = null, navCurrentRouteSavedAt = 0L)
-                )
-                return@launch
-            }
-            val route = NavRoute(
-                name = name,
+        if (wps.isEmpty()) {
+            currentRouteStore.clear()
+            return
+        }
+        // In-memory only (CurrentRouteStore): stops + travel mode, no geometry --
+        // recomputed on re-open. Survives leaving the Builder, gone on app kill.
+        currentRouteStore.set(
+            NavRoute(
+                name = routeName,
                 waypoints = wps,
-                travelMode = mode,
+                travelMode = _travelMode.value,
                 geometry = emptyList(),
                 maneuvers = emptyList(),
                 totalDistanceM = 0.0
             )
-            settingsRepository.update(
-                s.copy(
-                    navCurrentRouteJson = route.toJson().toString(),
-                    navCurrentRouteSavedAt = System.currentTimeMillis()
-                )
-            )
-        }
+        )
     }
 
     fun clear() {
@@ -694,7 +663,7 @@ class RouteBuilderViewModel @Inject constructor(
         _lastAddedPresetKind.value = null
         lastRouteOrigin = null
         bumpRender(fit = false)
-        clearPersistedRoute()
+        clearCurrentRoute()
     }
 
 
@@ -907,23 +876,15 @@ class RouteBuilderViewModel @Inject constructor(
     }
 
     /**
-     * Clears the disk-side current-route snapshot. Used by [clear] and the
-     * GPX load-replace flow so the rider's "I'm done with this route"
-     * action is honoured across the next Builder open. We deliberately
-     * NEVER persist a draft route here (that's done only when navigation
-     * actually starts -- see startNavigation), because:
-     *   * draft pins are explicitly disposable per the design (rider saves
-     *     a GPX if they want them back),
-     *   * persisting them caused them to be uploaded by Google Auto Backup
-     *     and silently restored as ghost stops on reinstall.
+     * Clears the in-memory current route ([CurrentRouteStore]). Used by [clear]
+     * and the GPX load-replace flow so the rider's "I'm done with this route"
+     * action is honoured across the next Builder open. We deliberately NEVER
+     * cache a draft route here (that's done only when navigation actually
+     * starts -- see startNavigation), because draft pins are explicitly
+     * disposable per the design (the rider saves a GPX if they want them back).
      */
-    private fun clearPersistedRoute() {
-        viewModelScope.launch {
-            val s = settingsRepository.get()
-            settingsRepository.update(
-                s.copy(navCurrentRouteJson = null, navCurrentRouteSavedAt = 0L)
-            )
-        }
+    private fun clearCurrentRoute() {
+        currentRouteStore.clear()
     }
 
     // --- GPX import / export -----------------------------------------------------
@@ -1183,28 +1144,19 @@ class RouteBuilderViewModel @Inject constructor(
             _routing.value = false
             bumpRender(fit = false)
             navigationEngine.start(navRoute, mode)
-            // Keep the saved builder route in sync with what's being navigated
+            // Keep the in-memory builder route in sync with what's being navigated
             // (minus the prepended rider pin) so re-opening the builder during
             // guidance shows that route with its real travel mode, not a stale
-            // draft. The engine clears this again once the trip is finished.
-            runCatching {
-                val s = settingsRepository.get()
-                // Persist stops + travel mode only -- cached geometry /
-                // maneuvers / totalDistance are recomputed on the next
-                // open so prefs stay small and the JSON survives router
-                // changes / map updates cleanly.
-                settingsRepository.update(
-                    s.copy(
-                        navCurrentRouteJson = navRoute.copy(
-                            waypoints = dests,
-                            geometry = emptyList(),
-                            maneuvers = emptyList(),
-                            totalDistanceM = 0.0
-                        ).toJson().toString(),
-                        navCurrentRouteSavedAt = System.currentTimeMillis()
-                    )
+            // draft. Stops + travel mode only -- geometry/maneuvers are recomputed
+            // on the next open. The engine clears this once the trip finishes.
+            currentRouteStore.set(
+                navRoute.copy(
+                    waypoints = dests,
+                    geometry = emptyList(),
+                    maneuvers = emptyList(),
+                    totalDistanceM = 0.0
                 )
-            }
+            )
         }
     }
 

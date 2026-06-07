@@ -35,6 +35,27 @@ class HudActivity : ComponentActivity() {
 
     private lateinit var server: HudServer
     private lateinit var controller: HudUiController
+    // DPAD gesture state machine for the four directions. The remote reports a
+    // HOLD not as one sustained press but as a stream of ~30 ms down/up PAIRS
+    // (each UP followed ~1 ms later by the next DOWN). A TAP is one isolated
+    // pair (~150 ms held). A DOUBLE-TAP is two taps with a human "lift" gap
+    // (~100-250 ms) between them.
+    //
+    //   single tap   -> the screen action (carousel / zoom / view)
+    //   double tap    -> the configured HudCommand.Action (NO screen switch)
+    //   hold session  -> nothing (left for the MotoEye device)
+    //
+    // We use ONE shared handler and per-keyCode maps. pressStart records the
+    // uptime a session began; releasePending debounces an UP so a follow-up
+    // DOWN inside PRESS_DEBOUNCE_MS keeps the session alive (hold pairs / fast
+    // taps); singleTapPending holds a deferred screen action while we wait
+    // DOUBLE_TAP_MS for a possible 2nd tap; consumed marks a session whose
+    // double-tap already fired so its press-end is a no-op.
+    private val dpadHandler = android.os.Handler(android.os.Looper.getMainLooper())
+    private val pressStart = HashMap<Int, Long>()
+    private val releasePending = HashMap<Int, Runnable>()
+    private val singleTapPending = HashMap<Int, Runnable>()
+    private val consumed = java.util.HashSet<Int>()
     // One shared tile cache for the lifetime of the activity. Both the
     // Map screen and the Custom overlay's MAP element read from this, so
     // tiles fetched on either side stay warm when the rider navigates
@@ -140,6 +161,7 @@ class HudActivity : ComponentActivity() {
     }
 
     override fun onDestroy() {
+        dpadHandler.removeCallbacksAndMessages(null)
         server.stop()
         super.onDestroy()
     }
@@ -156,12 +178,43 @@ class HudActivity : ComponentActivity() {
         // covering everything.
         controller.dismissDisconnectedModal()
         return when (keyCode) {
+            // The four DPAD directions are gesture-driven: a single tap runs the
+            // screen behaviour, a double tap fires the rider-configured HUD button
+            // action, and a hold session does nothing (left for the MotoEye). We
+            // can't tell which on key-down, so we track press sessions here and
+            // decide on the debounced release (see handlePressEnd). repeatCount is
+            // always 0 even during a hold (the remote streams down/up pairs), so
+            // we don't special-case auto-repeat.
             KeyEvent.KEYCODE_DPAD_LEFT,
-            KeyEvent.KEYCODE_BUTTON_L1 -> { controller.previousScreen(); true }
             KeyEvent.KEYCODE_DPAD_RIGHT,
+            KeyEvent.KEYCODE_DPAD_UP,
+            KeyEvent.KEYCODE_DPAD_DOWN -> {
+                // A down means the press continues (hold pairs) or a new tap
+                // starts -- either way, cancel any debounced release for this key.
+                releasePending.remove(keyCode)?.let { dpadHandler.removeCallbacks(it) }
+                if (singleTapPending.containsKey(keyCode)) {
+                    // We were waiting after a first tap -> this down is the 2nd
+                    // tap. Fire the configured action and switch NO screen.
+                    singleTapPending.remove(keyCode)?.let { dpadHandler.removeCallbacks(it) }
+                    server.sendCommand(
+                        com.eried.eucplanet.hud.protocol.HudCommand.Action(slotFor(keyCode))
+                    )
+                    // Mark this 2nd-tap session consumed so its press-end is a
+                    // no-op, and stamp a fresh start so handlePressEnd finds it.
+                    consumed.add(keyCode)
+                    pressStart[keyCode] = android.os.SystemClock.uptimeMillis()
+                } else if (!pressStart.containsKey(keyCode)) {
+                    // Start a fresh session.
+                    pressStart[keyCode] = android.os.SystemClock.uptimeMillis()
+                    consumed.remove(keyCode)
+                }
+                // else: session already active (hold stream / auto-repeat) -> nothing.
+                true
+            }
+            // L1 / R1 stay immediate -- they're the dedicated prev/next screen
+            // buttons with no long-press meaning.
+            KeyEvent.KEYCODE_BUTTON_L1 -> { controller.previousScreen(); true }
             KeyEvent.KEYCODE_BUTTON_R1 -> { controller.nextScreen(); true }
-            KeyEvent.KEYCODE_DPAD_UP -> { controller.upAction(); true }
-            KeyEvent.KEYCODE_DPAD_DOWN -> { controller.downAction(); true }
             KeyEvent.KEYCODE_DPAD_CENTER,
             KeyEvent.KEYCODE_ENTER -> { controller.centerAction(); true }
             else -> super.onKeyDown(keyCode, event)
@@ -169,6 +222,10 @@ class HudActivity : ComponentActivity() {
     }
 
     override fun onKeyLongPress(keyCode: Int, event: KeyEvent?): Boolean {
+        // The DPAD directions don't startTracking(), so this callback never
+        // fires for them -- their gestures are decided in onKeyUp/handlePressEnd.
+        // We keep this ONLY for ESC/BACK.
+        //
         // Long-press ESC exits the app (matches the competitor's UX so muscle
         // memory transfers). A short ESC press would interfere with hardware
         // back behaviours we may want later, so we keep it as a long press.
@@ -176,5 +233,106 @@ class HudActivity : ComponentActivity() {
             finish(); return true
         }
         return super.onKeyLongPress(keyCode, event)
+    }
+
+    override fun onKeyUp(keyCode: Int, event: KeyEvent?): Boolean {
+        // Debounced release for the four DPAD directions. A hold streams as
+        // down/up PAIRS, so a bare UP doesn't mean the press ended -- we post
+        // a delayed press-end and let a follow-up DOWN within PRESS_DEBOUNCE_MS
+        // cancel it (the hold continues). Only a clean release runs the gesture
+        // decision in handlePressEnd.
+        when (keyCode) {
+            KeyEvent.KEYCODE_DPAD_UP,
+            KeyEvent.KEYCODE_DPAD_DOWN,
+            KeyEvent.KEYCODE_DPAD_LEFT,
+            KeyEvent.KEYCODE_DPAD_RIGHT -> {
+                val r = Runnable { handlePressEnd(keyCode) }
+                releasePending.remove(keyCode)?.let { dpadHandler.removeCallbacks(it) }
+                releasePending[keyCode] = r
+                dpadHandler.postDelayed(r, PRESS_DEBOUNCE_MS)
+                return true
+            }
+        }
+        return super.onKeyUp(keyCode, event)
+    }
+
+    /**
+     * A DPAD press session ended (debounced release fired without a follow-up
+     * down). Decide the gesture:
+     *   - consumed session (double-tap already fired) -> no-op
+     *   - held >= HOLD_MS                              -> hold, do nothing (MotoEye)
+     *   - tap on an UNBOUND direction                 -> screen action immediately
+     *   - tap on a BOUND direction                    -> defer DOUBLE_TAP_MS for a
+     *                                                     2nd tap; if none, screen
+     */
+    private fun handlePressEnd(keyCode: Int) {
+        releasePending.remove(keyCode)
+        val start = pressStart.remove(keyCode) ?: return
+        // Double-tap already fired on this session: this was just the 2nd-tap
+        // release. Swallow it.
+        if (consumed.remove(keyCode)) return
+        val dur = android.os.SystemClock.uptimeMillis() - start
+        if (dur >= HOLD_MS) return  // a hold -> leave it for MotoEye
+        if (!isBound(keyCode)) {
+            screenAction(keyCode)
+            return
+        }
+        // Bound direction: wait for a possible 2nd tap. If it doesn't arrive
+        // within DOUBLE_TAP_MS, this was a single tap -> screen action.
+        val st = Runnable {
+            singleTapPending.remove(keyCode)
+            screenAction(keyCode)
+        }
+        singleTapPending[keyCode] = st
+        dpadHandler.postDelayed(st, DOUBLE_TAP_MS)
+    }
+
+    /** Wire slot name for a DPAD keyCode. */
+    private fun slotFor(keyCode: Int): String = when (keyCode) {
+        KeyEvent.KEYCODE_DPAD_UP -> "UP"
+        KeyEvent.KEYCODE_DPAD_DOWN -> "DOWN"
+        KeyEvent.KEYCODE_DPAD_LEFT -> "LEFT"
+        else -> "RIGHT"
+    }
+
+    /** A direction is "bound" when the phone shipped a non-blank human label
+     *  for it -- only then do we defer a tap to wait for a double-tap. Unbound
+     *  directions fire the screen action immediately so screen switching is
+     *  instant. */
+    private fun isBound(keyCode: Int): Boolean {
+        val s = server.state.value
+        val label = when (keyCode) {
+            KeyEvent.KEYCODE_DPAD_UP -> s.joystickUp
+            KeyEvent.KEYCODE_DPAD_DOWN -> s.joystickDown
+            KeyEvent.KEYCODE_DPAD_LEFT -> s.joystickLeft
+            else -> s.joystickRight
+        }
+        return label.isNotBlank()
+    }
+
+    /** The single-tap screen behaviour for a DPAD direction. */
+    private fun screenAction(keyCode: Int) {
+        when (keyCode) {
+            KeyEvent.KEYCODE_DPAD_UP -> controller.upAction()
+            KeyEvent.KEYCODE_DPAD_DOWN -> controller.downAction()
+            KeyEvent.KEYCODE_DPAD_LEFT -> controller.previousScreen()
+            KeyEvent.KEYCODE_DPAD_RIGHT -> controller.nextScreen()
+        }
+    }
+
+    private companion object {
+        /** Debounce window after a key-up before we treat the press as ended.
+         *  A hold streams as down/up pairs ~1 ms apart, so a follow-up down
+         *  inside this window cancels the press-end and keeps the session
+         *  alive. Low enough that a real release still feels instant. */
+        const val PRESS_DEBOUNCE_MS: Long = 70L
+        /** Held-duration threshold separating a tap from a hold. A session
+         *  whose press lasted at least this long is a hold -> we do nothing and
+         *  leave it for the MotoEye device. */
+        const val HOLD_MS: Long = 400L
+        /** Window after a first tap's release in which a second tap (a new down)
+         *  upgrades the gesture to a double-tap. Covers the human "lift" gap
+         *  (~100-250 ms) between the two taps. */
+        const val DOUBLE_TAP_MS: Long = 280L
     }
 }

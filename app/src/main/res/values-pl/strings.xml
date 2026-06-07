@@ -10,11 +10,12 @@
     <string name="action_ok">OK</string>
     <string name="action_done">Gotowe</string>
     <string name="action_close">Zamknij</string>
-<string name="crash_log_action_prompt">Przytrzymano %1$s. Usuń tylko ten dziennik lub wszystkie. Aby udostępnić, dotknij Anuluj, a potem dotknij pliku.</string>
+<string name="crash_log_action_prompt">Przytrzymano %1$s. Usuń ten log, albo wszystkie. Aby udostępnić, dotknij Anuluj, a następnie dotknij pliku.</string>
     <string name="crash_log_delete_one">Usuń ten log</string>
     <string name="crash_log_delete_all">Usuń wszystkie</string>
-    <string name="crash_log_delete_all_warning">Usunąć wszystkie zapisane dzienniki awarii? Tej operacji nie można cofnąć.</string>
+    <string name="crash_log_delete_all_warning">Usunąć wszystkie zapisane logi awarii? Tej operacji nie można cofnąć.</string>
     <string name="action_save">Zapisz</string>
+    <string name="action_apply">Zastosuj</string>
     <string name="action_delete">Usuń</string>
     <string name="action_edit">Edytuj</string>
     <string name="action_test">Testuj</string>
@@ -33,7 +34,7 @@
     <string name="menu_stop_recording">Zatrzymaj nagrywanie</string>
     <string name="discard_trip_pending_label">Trasa zostanie wkrótce zarchiwizowana</string>
     <string name="no_trips_title">Brak tras</string>
-    <string name="no_trips_body">Zacznij nagrywać lub zaimportuj trasy. Ten skrót otwiera ostatnią z nich.</string>
+    <string name="no_trips_body">Zacznij nagrywać lub zaimportuj trasy. Ten skrót otwiera ostatnią.</string>
     <string name="no_trips_action_recorder">Rejestrator tras</string>
     <string name="voice_volume_low_toast">Głośność jest niska, komunikaty mogą być niesłyszalne</string>
     <string name="action_grant_permission">Przyznaj uprawnienia</string>
@@ -41,20 +42,20 @@
 
     <!-- Permissions -->
     <string name="scan_permission_needed">Wymagane uprawnienia</string>
-    <string name="scan_permission_body">Aby znaleźć Twoje koło, aplikacja potrzebuje dostępu do Bluetooth i lokalizacji</string>
-    <string name="scan_permission_body_settings">Uprawnienia zostały odrzucone. Otwórz ustawienia systemowe, aby zezwolić na dostęp do Bluetooth i lokalizacji</string>
+    <string name="scan_permission_body">Aby znaleźć koło, aplikacja potrzebuje dostępu do Bluetooth i lokalizacji</string>
+    <string name="scan_permission_body_settings">Uprawnienia zostały odrzucone. Otwórz ustawienia systemowe, aby zezwolić na Bluetooth i lokalizację</string>
     <string name="recording_location_permission_needed">Wymagana lokalizacja</string>
-    <string name="recording_location_permission_body">Nagrywanie trasy zapisuje punkty GPS, abyś mógł zobaczyć swoją trasę na mapie. Przyznaj dostęp do lokalizacji, aby kontynuować</string>
+    <string name="recording_location_permission_body">Nagrywanie trasy zapisuje punkty GPS, żebyś mógł zobaczyć trasę na mapie. Przyznaj dostęp do lokalizacji, aby kontynuować</string>
 
     <!-- Experimental banner -->
     <string name="experimental_banner">Wstępne wsparcie tego koła. Stuknij, aby zgłosić problem.</string>
     <string name="experimental_dialog_title">Pomóż ulepszyć EUC Planet</string>
-    <string name="experimental_dialog_body">Wsparcie dla tego koła jest wstępne. Tylko rodzina V14 i P6 są zweryfikowane przez autora. Używaj ostrożnie.\n\nStuknięcie tego baneru zgłosi problem, dzięki czemu autor będzie mógł naprawić to, co nie działa.</string>
+    <string name="experimental_dialog_body">Wsparcie dla tego koła jest wstępne, tylko rodzina InMotion V14 / V12 / P6 jest zweryfikowana przez autora. KingSong, Veteran, Begode, Ninebot i starsze modele InMotion są w wersji Preview i wymagają testów przez riderów. Używaj ostrożnie.\n\nStuknięcie tego banera zgłosi problem, żeby autor mógł naprawić to, co nie działa.</string>
     <string name="experimental_dialog_report">Zgłoś problem</string>
 
     <!-- Scan: virtual wheel section (debug builds only) -->
     <string name="scan_simulate_title">Wirtualne koła</string>
-    <string name="scan_simulate_subtitle">Pomija BLE i podaje gotowe odpowiedzi. Tylko w wersjach deweloperskich.</string>
+    <string name="scan_simulate_subtitle">Pomija BLE i podaje gotowe odpowiedzi. Tylko w buildach debug.</string>
 
     <!-- Dashboard -->
     <string name="connection_connected">Połączono</string>
@@ -96,30 +97,299 @@
     <!-- Settings tabs -->
     <string name="search_settings">Szukaj w ustawieniach</string>
     <string name="tab_general">Ogólne</string>
-    <string name="tab_speed">Limity prędkości koła</string>
+    <string name="tab_speed">Parametry koła</string>
     <string name="tab_display">Ekran i wygląd</string>
     <string name="tab_voice">Głos i komunikaty</string>
     <string name="tab_alarms">Reguły alarmów</string>
     <string name="tab_auto">Automatyzacje</string>
     <string name="tab_integration">Integracja</string>
     <string name="tab_watch">Zegarek</string>
-    <string name="tab_cloud">Kopia zapasowa ustawień i tras</string>
+    <string name="tab_cloud">Kopie zapasowe i rankingi</string>
+
+    <!-- Dashboard layout (customizable home screen) -->
+    <string name="tab_dashboard">Układ pulpitu</string>
+    <string name="dashboard_section_metrics">Metryki</string>
+    <string name="dashboard_section_actions">Przyciski akcji</string>
+    <string name="dashboard_columns">Kolumny</string>
+    <string name="dashboard_grid_hint">Przytrzymaj, aby przeciągnąć; dotknij, aby edytować</string>
+    <string name="dashboard_pool_metrics">Dostępne metryki</string>
+    <string name="dashboard_pool_actions">Dostępne akcje</string>
+    <string name="dashboard_pool_tap_toast">Przytrzymaj i przeciągnij do slotu powyżej, aby użyć</string>
+    <string name="dashboard_rolling_window">Okno statystyk kroczących</string>
+    <string name="dashboard_stats_length">Długość statystyk</string>
+    <string name="dashboard_view">Widok</string>
+    <string name="dashboard_view_default">Domyślny</string>
+    <string name="dashboard_view_wide">Szeroki</string>
+    <!-- Shown only in the expanded layout dropdown so riders know Wide is the tablet/3-column layout; the collapsed field stays just "Wide" so it fits. -->
+    <string name="dashboard_view_wide_menu">Szeroki (dla tabletów)</string>
+    <string name="dashboard_composite_template_label">MULTI</string>
+    <string name="dashboard_group_template_label">GRUPA</string>
+    <string name="dashboard_custom_ble_template">BLE</string>
+    <string name="dashboard_custom_ble_default_name">Niestandardowy BLE</string>
+    <string name="dashboard_custom_ble_label">Etykieta przycisku</string>
+    <string name="dashboard_custom_ble_family">Filtr rodziny kół</string>
+    <string name="dashboard_custom_ble_frames">Ramki (hex)</string>
+    <string name="dashboard_custom_ble_frames_error">Nieprawidłowy hex, użyj par bajtów, np. 4c 6b 41 70</string>
+    <string name="dashboard_composite_layout_row2">2 wiersze</string>
+    <string name="dashboard_composite_layout_col2">2 kolumny</string>
+    <string name="dashboard_composite_layout_col3">3 kolumny</string>
+    <string name="dashboard_composite_cell_label">Komórka %1$d</string>
+    <!-- "(blank)" is the collapsing placeholder: cell renders "-", layout collapses. -->
+    <string name="dashboard_composite_empty_label">(wolne)</string>
+    <!-- "(empty)" is the reserving placeholder: cell renders blank, layout intact. -->
+    <string name="dashboard_composite_blank_label">(pusta)</string>
+    <string name="dashboard_stat_empty">(pusta)</string>
+    <string name="dashboard_group_default_name">Moje akcje</string>
+    <string name="dashboard_group_empty_toast">Brak akcji do pokazania</string>
+    <string name="dashboard_group_name_label">Nazwa grupy</string>
+    <string name="dashboard_group_action_slot">Akcja %1$d</string>
+    <string name="dashboard_group_action_none">(brak)</string>
+    <string name="dashboard_custom_tile_template_label">TEKST</string>
+    <string name="dashboard_custom_tile_text_label">Tekst</string>
+    <string name="dashboard_custom_tile_text_placeholder">np. Mój Instagram</string>
+    <string name="dashboard_custom_tile_action_none">Tekst</string>
+    <string name="dashboard_custom_tile_action_url">Otwórz URL</string>
+    <string name="dashboard_custom_tile_action_qr">Pokaż QR</string>
+    <string name="dashboard_custom_tile_empty_toast">Ten kafelek jest pusty</string>
+    <string name="dashboard_custom_tile_url_label">URL</string>
+    <string name="dashboard_rolling_window_30s">30 s</string>
+    <string name="dashboard_rolling_window_1m">1 min</string>
+    <string name="dashboard_rolling_window_2m">2 min</string>
+    <string name="dashboard_rolling_window_3m">3 min</string>
+    <string name="dashboard_rolling_window_5m">5 min</string>
+    <string name="dashboard_rolling_window_10m">10 min</string>
+    <string name="dashboard_rolling_window_15m">15 min</string>
+    <string name="dashboard_rolling_window_30m">30 min</string>
+    <string name="dashboard_rolling_window_1h">1 godz.</string>
+    <string name="dashboard_restore_slot">Przywróć slot</string>
+    <string name="metric_detail_reset">Zeruj</string>
+    <string name="metric_detail_reset_all">Zeruj wszystkie</string>
+    <string name="metric_detail_reset_all_confirm_title">Wyzerować całą historię?</string>
+    <string name="metric_detail_reset_all_confirm_body">Czyści bufor historii kroczącej dla każdej metryki. Ustawienia i trasy pozostają nienaruszone.</string>
+    <string name="metric_detail_show_label">Wartość</string>
+    <string name="dashboard_close">Zamknij</string>
+    <string name="dashboard_corner_left">Lewo</string>
+    <string name="dashboard_corner_center">Środek</string>
+    <string name="dashboard_corner_right">Prawo</string>
+    <string name="dashboard_slot_sparkline">Trend na żywo w tle</string>
+    <string name="dashboard_slot_sparkline_chip">Stat.</string>
+    <!-- Open-menu label for DashboardStat.NONE; closed-field shows a literal
+         "-" glyph from statSelectedLabel so the rider sees the visual at a
+         glance regardless of locale. -->
+    <string name="dashboard_stat_none">(wolne)</string>
+    <string name="dashboard_stat_current">Teraz</string>
+    <string name="dashboard_stat_min">Min.</string>
+    <string name="dashboard_stat_max">Maks. / Szczyt</string>
+    <string name="dashboard_stat_sustained_peak">Stały szczyt</string>
+    <string name="dashboard_stat_sustained_peak_short">S.Szczyt</string>
+    <string name="dashboard_stat_avg">Śr.</string>
+    <string name="dashboard_stat_median">Mediana (P50)</string>
+    <string name="dashboard_stat_p75">75. percentyl</string>
+    <string name="dashboard_stat_p95">95. percentyl</string>
+    <string name="dashboard_stat_p99">99. percentyl</string>
+    <!-- Short variants used inside the dropdown trailing-icon field when an
+         option is selected; the menu list still shows the verbose name above. -->
+    <string name="dashboard_stat_median_short">P50</string>
+    <string name="dashboard_stat_p75_short">P75</string>
+    <string name="dashboard_stat_p95_short">P95</string>
+    <string name="dashboard_stat_p99_short">P99</string>
+
+    <!-- Metric labels for the dashboard layout chips -->
+    <string name="metric_chip_battery">Bateria</string>
+    <string name="metric_chip_temperature">Temperatura</string>
+    <string name="metric_chip_voltage">Napięcie</string>
+    <string name="metric_chip_current">Prąd</string>
+    <string name="metric_chip_load">PWM</string>
+    <string name="metric_chip_trip">Trasa</string>
+    <string name="metric_chip_speed">Prędkość</string>
+    <string name="metric_chip_power">Moc</string>
+    <string name="metric_chip_odometer">Licznik km</string>
+    <string name="metric_chip_motor_power">Moc silnika</string>
+    <string name="metric_chip_battery_power">Moc baterii</string>
+    <string name="metric_chip_battery_1">Pack 1</string>
+    <string name="metric_chip_battery_2">Pack 2</string>
+    <string name="metric_chip_pitch">Pochylenie</string>
+    <string name="metric_chip_roll">Przechył</string>
+    <string name="metric_chip_g_force">Siła g</string>
+    <string name="metric_chip_lateral_g">Boczne g</string>
+    <string name="metric_chip_forward_g">Wzdł. g</string>
+    <string name="metric_chip_torque">Moment</string>
+    <string name="metric_chip_dyn_speed_limit">Dynamiczny limit prędkości</string>
+    <string name="metric_chip_dyn_current_limit">Dynamiczny limit prądu</string>
+    <string name="metric_chip_motor_temp">Temperatura silnika</string>
+    <string name="metric_chip_controller_temp">Temperatura sterownika</string>
+    <string name="metric_chip_battery_temp">Temperatura baterii</string>
+    <string name="metric_chip_headroom">Zapas</string>
+    <string name="metric_chip_trip_time">Czas trasy</string>
+    <string name="metric_chip_trip_max_speed">Szczyt trasy</string>
+    <string name="metric_chip_avg_trip_speed">Śr. prędkość</string>
+    <string name="metric_chip_wh_consumed">Energia</string>
+    <string name="metric_chip_range_estimate">Zasięg</string>
+    <string name="metric_chip_wh_per_km">Wh / km</string>
+    <string name="metric_chip_phone_battery">Bateria telefonu</string>
+    <string name="metric_chip_gps_altitude">Wysokość</string>
+    <string name="metric_chip_gps_speed">Pręd. GPS</string>
+    <string name="metric_chip_gps_heading">Kurs</string>
+    <string name="metric_chip_gps_accuracy">Dokładność GPS</string>
+    <string name="metric_chip_slope">Nachylenie</string>
+    <string name="metric_chip_ascent">Wzniesienie</string>
+    <string name="metric_chip_descent">Zjazd</string>
+    <string name="metric_chip_motor_rpm">obr/min</string>
+    <string name="metric_chip_regen_wh">Regen.</string>
+    <string name="metric_chip_bt_rssi">Sygnał BT</string>
+    <string name="metric_chip_lat_long">Lat, Long</string>
+    <string name="metric_chip_wheel_max_speed">Maks koła</string>
+    <string name="metric_chip_wheel_alarm_speed">Alarm koła</string>
+    <string name="metric_chip_pc_mode">Tryb jazdy</string>
+    <string name="metric_chip_light_on">Światło</string>
+
+    <!-- Short variants for the dashboard tile face. When present, the tile
+         shows this; the slot editor sheet keeps showing the full
+         metric_chip_<key> string so the rider still sees the full name
+         when picking metrics. Only define here for metrics whose full
+         name doesn't fit cleanly on a tile face. -->
+    <string name="metric_chip_temperature_tile">Temp</string>
+    <string name="metric_chip_battery_power_tile">Bat W</string>
+    <string name="metric_chip_motor_power_tile">Mot W</string>
+    <string name="metric_chip_battery_temp_tile">Bat T</string>
+    <string name="metric_chip_motor_temp_tile">Mot T</string>
+    <string name="metric_chip_controller_temp_tile">Ctrl T</string>
+    <string name="metric_chip_dyn_speed_limit_tile">Sp limit</string>
+    <string name="metric_chip_dyn_current_limit_tile">A limit</string>
+    <string name="metric_chip_phone_battery_tile">Tel</string>
+    <string name="metric_chip_gps_accuracy_tile">GPS ±</string>
+    <string name="metric_chip_odometer_tile">Odo</string>
+    <string name="metric_chip_trip_max_speed_tile">Max sp</string>
+    <string name="metric_chip_avg_trip_speed_tile">Avg sp</string>
+    <string name="metric_chip_wh_consumed_tile">Wh</string>
+    <string name="metric_chip_ascent_tile">Pod</string>
+    <string name="metric_chip_descent_tile">Zjazd</string>
+    <string name="metric_chip_gps_speed_tile">GPS sp</string>
+    <string name="metric_chip_gps_altitude_tile">Alt</string>
+    <string name="metric_chip_gps_heading_tile">Kurs</string>
+    <string name="metric_chip_trip_time_tile">Czas</string>
+    <string name="metric_chip_g_force_tile">G</string>
+    <string name="metric_chip_forward_g_tile">Fwd g</string>
+    <string name="metric_chip_lateral_g_tile">Side g</string>
+    <string name="metric_chip_bt_rssi_tile">BT</string>
+
+    <!-- Descriptions shown in the slot-sheet info box for metrics whose
+         meaning isn't obvious from the name alone. Strings end with a
+         period so they read like complete sentences. -->
+    <string name="metric_desc_headroom">Pozostały margines prędkości przed włączeniem tiltbacku. Duża liczba = większy bufor bezpieczeństwa.</string>
+    <string name="metric_desc_trip_max_speed">Szczytowa prędkość na bieżącej trasie (resetuje się przy nowej trasie).</string>
+    <string name="metric_desc_avg_trip_speed">Dystans trasy podzielony przez dotychczasowy czas jazdy.</string>
+    <string name="metric_desc_wh_consumed">Łączne watogodziny pobrane z baterii na tej trasie.</string>
+    <string name="metric_desc_range_estimate">Pozostały zasięg przy bieżącym zużyciu.</string>
+    <string name="metric_desc_wh_per_km">Energia na kilometr, niższe jest wydajniejsze.</string>
+    <string name="metric_desc_slope">Nachylenie drogi wyliczone z pochylenia koła, dodatnie oznacza pod górę.</string>
+    <string name="metric_desc_forward_g">Szacowane na podstawie zmiany prędkości koła (nie IMU), działa niezależnie od sposobu montażu telefonu.</string>
+    <string name="metric_desc_regen_wh">Łączne watogodziny zwrócone do baterii podczas hamowania na tej trasie.</string>
+    <string name="metric_desc_bt_rssi">Siła sygnału Bluetooth do koła, bliżej 0 dBm jest silniejsze.</string>
+    <string name="metric_desc_gps_accuracy">Promień błędu pozycji GPS, niższy oznacza większą dokładność.</string>
+
+    <!-- Action labels for the dashboard layout chips -->
+    <string name="action_chip_horn">Klakson</string>
+    <string name="action_chip_light">Światło</string>
+    <string name="action_chip_voice">Głos</string>
+    <string name="action_chip_safety">Tryb legalny</string>
+    <string name="action_chip_lock">Zablokuj koło</string>
+    <string name="action_chip_record">Rejestrator</string>
+    <string name="action_chip_safety_on">Legal WŁ.</string>
+    <string name="action_chip_safety_off">Legal WYŁ.</string>
+    <string name="action_chip_record_start">Start nagr.</string>
+    <string name="action_chip_record_stop">Stop nagr.</string>
+    <string name="action_chip_media_play">Odtwórz / pauza</string>
+    <string name="action_chip_media_next">Następny utwór</string>
+    <string name="action_chip_media_prev">Poprzedni utwór</string>
+    <string name="action_chip_open_navigation">Pokaż mapę</string>
+    <string name="action_chip_open_studio">Overlay Studio</string>
+    <string name="action_chip_open_about">O aplikacji</string>
+    <string name="action_chip_open_service">Tryb serwisowy</string>
+    <string name="action_chip_open_trips">Trasy</string>
+    <string name="action_chip_mute_alarms">Wycisz alarmy</string>
+    <string name="action_chip_reset_trip">Zeruj trip</string>
+    <string name="action_chip_toggle_units">Zmień jednostki</string>
+    <string name="action_unsupported_on_wheel">Nieobsługiwane na tym kole</string>
+
+    <!-- Watch companion settings: shared across Wear OS + Garmin -->
+    <string name="section_watch_device">Urządzenia</string>
+    <string name="section_watch_paired">Sparowane urządzenia</string>
+    <string name="watch_paired_none">Brak sparowanych zegarków</string>
+    <string name="watch_paired_none_desc">Zainstaluj aplikację EUC Planet na zegarku Wear OS lub Garmin, aby zacząć odbierać tarczę tutaj</string>
+    <string name="watch_paired_kind_wear">Wear OS</string>
+    <string name="watch_paired_kind_garmin">Garmin Connect IQ</string>
+    <string name="watch_paired_active">Na żywo</string>
+    <string name="watch_paired_idle">Nieaktywny</string>
+    <string name="watch_paired_rate_hz">%1$.1f Hz</string>
+    <string name="watch_paired_garmin_limits_title">Ograniczenia Garmin</string>
+    <string name="watch_paired_garmin_limit_launch">Garmin nie uruchamia automatycznie aplikacji zegarka</string>
+    <string name="watch_paired_garmin_limit_rate">Garmin odświeża wolniej niż Wear OS</string>
+    <string name="watch_paired_garmin_limit_rotation">Obrót tarczy niedostępny. Connect IQ nie obsługuje natywnej macierzy transformacji do obracania renderowanej tarczy.</string>
 
     <!-- HUD companion settings -->
     <string name="section_hud_companion">Motoeye HUD</string>
     <string name="hud_server_enabled">Włącz transmisję danych</string>
     <string name="hud_ip_label">IP urządzenia</string>
     <string name="hud_ip_label_autodetect">IP urządzenia (automatycznie)</string>
-    <string name="hud_ip_desc">Wpisz IP wyświetlany przez HUD na ekranie.</string>
+    <string name="hud_ip_desc">Wpisz IP wyświetlane przez HUD na ekranie.</string>
     <string name="hud_server_port">Port</string>
     <string name="hud_server_port_desc">Domyślnie 28080.</string>
     <string name="hud_hotspot_off_hint">Hotspot telefonu jest wyłączony. Upewnij się, że HUD i telefon są w tej samej sieci WiFi.</string>
-    <string name="hud_hotspot_on_hint">Hotspot telefonu nadaje. Połącz HUD z WiFi tego telefonu, aby aktywować połączenie.</string>
-    <string name="hud_custom_overlay_label">Niestandardowa nakładka HUD</string>
+    <string name="hud_hotspot_on_hint">Hotspot telefonu jest aktywny. Połącz HUD z WiFi tego telefonu, aby aktywować łącze.</string>
+    <string name="hud_overlay_subsection">Własna nakładka</string>
+    <string name="hud_overlay_subsection_desc">Zaimportuj preset z Overlay Studio na ekran Custom HUD-a, bez tła. Preset jest kopiowany, więc późniejsze zmiany w studio nie trafią do HUD-a, dopóki nie zaimportujesz ponownie</string>
+    <string name="hud_overlay_select_preset">Importuj preset</string>
+    <string name="hud_overlay_current_preset">Aktualny: %1$s</string>
+    <string name="hud_custom_overlay_label">Własna nakładka HUD</string>
     <string name="hud_custom_overlay_placeholder">Wybierz preset Overlay Studio</string>
-    <string name="hud_custom_overlay_no_folder">Folder kopii zapasowej nie skonfigurowany</string>
+    <string name="hud_custom_overlay_no_folder">Folder kopii zapasowej nie jest skonfigurowany</string>
     <string name="hud_custom_overlay_bundled_only">Wybierz szablon (folder kopii zapasowej nie ustawiony)</string>
-    <string name="hud_custom_overlay_none">Brak</string>
+    <string name="hud_custom_overlay_none">Wyczyść</string>
+    <string name="hud_search_corpus">HUD wyświetlacz przezierny towarzysz serwer strumień telemetria hotspot motoeye strzałka skrętu</string>
+
+    <!-- HUD Personalize collapsible card -->
+    <string name="hud_personalize_title">Personalizuj</string>
+    <string name="hud_screens_title">Ekrany HUD</string>
+    <string name="hud_map_options_title">Opcje mapy</string>
+    <string name="hud_personalize_desc">Wybierz, które ekrany pokazuje HUD i kolejność, w jakiej się przełączają. Co najmniej jeden ekran musi pozostać włączony.</string>
+    <string name="hud_screen_name_dashboard">Pulpit</string>
+    <string name="hud_screen_name_camera">Kamera tylna</string>
+    <string name="hud_screen_name_telemetry">Telemetria</string>
+    <string name="hud_screen_name_custom">Własna nakładka + czarne tło</string>
+    <string name="hud_screen_name_custom_cam">Własna nakładka + kamera</string>
+    <string name="hud_screen_name_map">Mapa</string>
+    <string name="hud_screen_name_nav">Nawigator</string>
+    <string name="hud_screen_name_map_nav">Mapa + Nawigacja</string>
+    <string name="hud_screen_name_power">Waty i zasięg</string>
+    <string name="hud_screen_name_trip_stats">Statystyki trasy</string>
+    <string name="hud_screen_name_compass">Kompas</string>
+    <string name="hud_screen_name_safety">Bezpieczeństwo</string>
+    <string name="hud_screen_name_big_clock">Duży zegar</string>
+
+    <!-- Map tile style picker (HUD Map screen and Custom overlay MAP element).
+         The slug values themselves are shown to the rider as the dropdown
+         items, so only the field LABEL is localised here. -->
+    <string name="hud_map_style_label">Styl mapy</string>
+    <string name="hud_map_contrast_label">Kontrast</string>
+    <string name="hud_map_brightness_label">Jasność</string>
+
+    <!--
+        HUD companion install hint + protocol version mismatch.
+        Severity carried in WORDS as well as colour:
+            "available" = soft hint (info-styled, surfaceVariant), link
+                          still works, rider can ignore for now.
+            "required"  = blocking (errorContainer, red), HUD has stopped
+                          accepting wire frames and the dashboard there
+                          is frozen until updated.
+        Each variant names which side the rider must update on.
+    -->
+    <string name="hud_install_hint">Potrzebujesz aplikacji HUD? Pobierz ją z <b>eucplanet.ried.no/hud</b></string>
+    <string name="hud_update_url">eucplanet.ried.no/hud</string>
+    <string name="hud_version_hint_hud_behind">Dostępna aktualizacja HUD-a. Nowe funkcje telefonu pojawią się dopiero po aktualizacji HUD-a z <b>eucplanet.ried.no/hud</b></string>
+    <string name="hud_version_hint_phone_behind">Dostępna aktualizacja telefonu. Niektóre funkcje HUD-a pojawią się dopiero po aktualizacji aplikacji z <b>eucplanet.ried.no/hud</b></string>
+    <string name="hud_version_block_hud_behind">Wymagana aktualizacja HUD-a. Aplikacja HUD jest za stara, by współpracować z tym telefonem. Zaktualizuj ją z <b>eucplanet.ried.no/hud</b>, aby kontynuować.</string>
+    <string name="hud_version_block_phone_behind">Wymagana aktualizacja telefonu. Ta aplikacja jest za stara, by współpracować z HUD-em. Zaktualizuj ją z <b>eucplanet.ried.no/hud</b>, aby kontynuować.</string>
 
     <!-- Wear OS companion settings -->
     <string name="section_watch_general">Ogólne</string>
@@ -134,9 +404,9 @@
     <string name="watch_update_normal">Normalny</string>
     <string name="watch_update_fast">Szybki</string>
     <string name="watch_auto_start">Auto-start na zegarku</string>
-    <string name="watch_auto_start_desc">Otwórz aplikację na zegarku razem z aplikacją na telefonie</string>
-    <string name="watch_close_on_exit">Auto-zatrzymanie na zegarku</string>
-    <string name="watch_close_on_exit_desc">Zatrzymaj aplikację zegarka przy Zatrzymaj wszystko</string>
+    <string name="watch_auto_start_desc">Otwiera aplikację na zegarku razem z aplikacją na telefonie</string>
+    <string name="watch_close_on_exit">Auto-stop na zegarku</string>
+    <string name="watch_close_on_exit_desc">Zatrzymuje aplikację zegarka przy Zatrzymaj wszystko</string>
     <string name="watch_show_wheel_battery">Pokaż baterię koła</string>
     <string name="watch_show_phone_battery">Pokaż baterię telefonu</string>
     <string name="watch_show_watch_battery">Pokaż baterię zegarka</string>
@@ -146,17 +416,38 @@
     <string name="watch_pwm_both">Oba</string>
     <string name="watch_show_speed_unit">Etykieta jednostki prędkości</string>
     <string name="watch_show_speed_unit_desc">Pokazuje jednostkę obok dużej liczby z prędkością</string>
-    <string name="watch_prioritize_pwm">Priorytet dla PWM</string>
+    <string name="watch_prioritize_pwm">Priorytet PWM</string>
     <string name="watch_prioritize_pwm_desc">Powiększa pasek i wartość PWM ponad odczyt prędkości</string>
     <string name="watch_dial_rotation">Obrót tarczy</string>
 
     <!-- Watch hardware buttons -->
     <string name="watch_button_click_label">Kliknięcie</string>
     <string name="watch_button_hold_label">Długie naciśnięcie</string>
+    <string name="section_watch_hardware_buttons">Przyciski sprzętowe</string>
+    <string name="watch_buttons_hardware_info">Przytrzymania mogą być przechwytywane przez system na niektórych zegarkach</string>
+    <string name="watch_buttons_touch_info">Zależy od możliwości zegarka</string>
+    <string name="watch_buttons_hardware_label">Fizyczne</string>
+    <string name="watch_buttons_touch_label">Dotyk</string>
+    <string name="section_watch_buttons">Przyciski</string>
+    <string name="watch_hardware_button_1">Przycisk 1</string>
+    <string name="watch_hardware_button_2">Przycisk 2</string>
+    <string name="watch_hardware_button_1_subtitle">Garmin: Start · Galaxy Watch Ultra: pomarańczowy przycisk Action</string>
+    <string name="watch_hardware_button_2_subtitle">Garmin: W górę (długie naciśnięcie) · Galaxy Watch Ultra: dolny przycisk boczny</string>
+
+    <!-- Watch on-screen buttons (shown on the dial), separate from the
+         hardware stem buttons because most Galaxy Wear OS watches do not
+         deliver KEYCODE_STEM_* to third-party apps. -->
+    <string name="section_watch_screen_buttons">Przyciski dotykowe</string>
+    <string name="section_watch_screen_buttons_desc">Obszary dotykowe narysowane na tarczy zegarka</string>
+    <string name="section_watch_hardware_buttons_desc">Boczne przyciski zegarka</string>
+    <string name="watch_screen_button_1">Przycisk 1</string>
+    <string name="watch_screen_button_2">Przycisk 2</string>
+    <string name="watch_haptic_on_action">Wibracja przy akcji</string>
+    <string name="watch_haptic_on_action_desc">Krótka wibracja przy każdym naciśnięciu, jeśli obsługiwane</string>
 
     <!-- Settings: Backup -->
     <string name="section_cloud_folder">Folder kopii zapasowej</string>
-    <string name="cloud_caption">Folder na CSV-y tras i kopię ustawień</string>
+    <string name="cloud_caption">Folder na trasy, ustawienia, motywy i nakładki</string>
     <string name="cloud_choose_folder">Wybierz folder</string>
     <string name="cloud_change_folder">Zmień folder</string>
     <string name="cloud_remove_folder">Odłącz</string>
@@ -169,12 +460,12 @@
     <string name="cloud_last_backup_never">Brak kopii zapasowej</string>
     <string name="cloud_backup_success">Ustawienia zapisane w kopii</string>
 <string name="cloud_backup_named_success">Zapisano jako %1$s</string>
-    <string name="cloud_backup_failed">Kopia nie powiodła się — sprawdź dostęp do folderu</string>
+    <string name="cloud_backup_failed">Kopia nie powiodła się, sprawdź dostęp do folderu</string>
     <string name="cloud_restore_success">Ustawienia przywrócone</string>
     <string name="cloud_restore_failed">Nie znaleziono kopii w folderze</string>
     <string name="section_cloud_trips">Kopia zapasowa tras</string>
-    <string name="cloud_trips_caption">Nowe trasy są zapisywane w Twoim folderze automatycznie</string>
-    <string name="cloud_retry_now">Synchr. wsz.</string>
+    <string name="cloud_trips_caption">Nowe trasy są automatycznie zapisywane w folderze</string>
+    <string name="cloud_retry_now">Synchronizuj wszystko</string>
     <string name="cloud_retry_enqueued">Wysyłanie zaplanowane</string>
     <string name="sync_progress">Synchronizowanie %1$d z %2$d</string>
     <string name="sync_no_folder">Najpierw wybierz folder kopii</string>
@@ -187,23 +478,23 @@
     <string name="cloud_uploaded_on">Kopia z %1$s</string>
     <string name="cloud_not_uploaded">Brak kopii zapasowej</string>
     <string name="cloud_restore_confirm_title">Przywróć ustawienia</string>
-    <string name="cloud_restore_confirm_body_p1">Twoje obecne ustawienia zostaną zastąpione ustawieniami z kopii.</string>
-    <string name="cloud_restore_confirm_body_p2">Gesty Flic są przywracane, ale przyciski i koło trzeba ponownie sparować na tym telefonie. Ich powiązania Bluetooth żyją w Androidzie, a nie w aplikacji.</string>
+    <string name="cloud_restore_confirm_body_p1">Twoje obecne ustawienia zostaną zastąpione ustawieniami z kopii zapasowej.</string>
+    <string name="cloud_restore_confirm_body_p2">Gesty Flic są przywracane, ale przyciski i koło trzeba ponownie sparować na tym telefonie. Ich połączenia Bluetooth są w Androidzie, nie w aplikacji.</string>
     <string name="sync_checking">Sprawdzanie folderu kopii…</string>
     <string name="action_restore">Przywróć</string>
     <string name="action_overwrite">Nadpisz</string>
     <string name="cloud_backup_long_press_hint">Przytrzymaj, aby zobaczyć więcej opcji</string>
     <string name="cloud_backup_name_label">Nazwa kopii</string>
     <string name="cloud_backup_name_preview">Zapisze jako %1$s</string>
-    <string name="cloud_backup_overwrite_title">Nadpisać "%1$s"?</string>
+    <string name="cloud_backup_overwrite_title">Nadpisać \"%1$s\"?</string>
     <string name="cloud_backup_overwrite_body">Kopia o tej nazwie już istnieje w folderze.</string>
     <string name="cloud_restore_picker_default">(domyślna)</string>
     <string name="cloud_restore_picker_factory">(fabryczna)</string>
+    <string name="cloud_restore_picker_empty">Brak kopii w folderze synchronizacji</string>
     <string name="cloud_factory_confirm_title">Przywrócić ustawienia fabryczne?</string>
     <string name="cloud_factory_confirm_body_p1">Przywraca wszystkie ustawienia aplikacji do stanu fabrycznego.</string>
-    <string name="cloud_factory_confirm_body_p2">Twoje sparowane urządzenia i zapisane kopie zostają zachowane. Tej operacji nie można cofnąć.</string>
+    <string name="cloud_factory_confirm_body_p2">Sparowane urządzenia i zapisane kopie zostają zachowane. Tej operacji nie można cofnąć.</string>
     <string name="cloud_factory_confirm_action">Resetuj</string>
-    <string name="cloud_restore_picker_empty">Brak kopii w folderze</string>
 
     <!-- Settings: General -->
     <string name="section_recording">Nagrywanie</string>
@@ -223,7 +514,7 @@
     <string name="last_device">Ostatnie urządzenie: %1$s</string>
     <string name="section_application">Aplikacja</string>
     <string name="back_button_action">Akcja wstecz</string>
-    <string name="back_button_action_desc">Co się dzieje po przesunięciu lub naciśnięciu wstecz z głównego ekranu</string>
+    <string name="back_button_action_desc">Co się dzieje po przesunięciu lub naciśnięciu wstecz z pulpitu</string>
     <string name="back_button_action_ask">Pytaj</string>
     <string name="back_button_action_background">W tle</string>
     <string name="back_button_action_stop">Zatrzymaj wszystko</string>
@@ -261,17 +552,20 @@
 
     <!-- Settings: Speed -->
     <string name="section_speed_limits">Limity prędkości</string>
+    <string name="section_speed_calibration">Kalibracja prędkości</string>
+    <string name="speed_calibration_label">Korekta prędkości</string>
+    <string name="speed_calibration_caption">Koryguje prędkość zgłaszaną przez koło; wpływa na alarmy, głos i log trasy</string>
     <string name="section_legal_mode_speed">Prędkość trybu legalnego</string>
-    <string name="legal_mode_caption">Używane przy Trybie Legal; musi być niższe niż normalny tiltback</string>
+    <string name="legal_mode_caption">Używane przy trybie legalnym; musi być niższe niż normalny tiltback</string>
     <string name="speed_limits_disconnected">Połącz koło, aby edytować limity prędkości</string>
-    <string name="speed_tiltback">Prędkość tiltbacka</string>
+    <string name="speed_tiltback">Prędkość tiltbacku</string>
     <string name="speed_alarm">Prędkość alarmu</string>
     <string name="speed_legal_tiltback">Tiltback legalny</string>
     <string name="speed_legal_alarm">Alarm legalny</string>
     <string name="unit_kmh">km/h</string>
-    <string name="unit_mph">mph</string>
     <string name="unit_ms">m/s</string>
     <string name="unit_kn">kn</string>
+    <string name="unit_mph">mph</string>
 
     <!-- Settings: Voice -->
     <string name="section_announcements">Komunikaty</string>
@@ -279,6 +573,10 @@
     <string name="section_report_status">Raport statusu</string>
     <string name="voice_enabled">Cyklicznie raportuj status</string>
     <string name="voice_only_when_connected">Tylko gdy koło jest połączone</string>
+    <string name="voice_announce_when_label">Ogłaszaj</string>
+    <string name="voice_announce_always">Zawsze</string>
+    <string name="voice_announce_connected">Połączono</string>
+    <string name="voice_announce_riding">Podczas jazdy</string>
     <string name="voice_interval">Interwał</string>
     <string name="unit_sec">s</string>
     <string name="announce_wheel_lock">Blokada / odblokowanie koła</string>
@@ -288,6 +586,33 @@
     <string name="announce_gps">Sygnał GPS utracony / odzyskany</string>
     <string name="announce_legal_mode">Tryb legalny wł. / wył.</string>
     <string name="announce_welcome">Powitanie przy uruchomieniu aplikacji</string>
+    <!-- First-launch dashboard welcome tour. The %1$s / %2$s placeholders are
+         filled with the real Settings label strings so the copy matches the UI
+         and translates with them. -->
+    <string name="welcome_tut_skip">Pomiń</string>
+    <string name="welcome_tut_next">Dalej</string>
+    <string name="welcome_tut_prev">Wstecz</string>
+    <string name="welcome_tut_done">Gotowe</string>
+    <string name="welcome_tut_step">%1$d / %2$d</string>
+    <string name="welcome_tut_skip_title">Pominąć samouczek powitalny?</string>
+    <string name="welcome_tut_skip_body">Nie zostanie pokazany ponownie</string>
+    <string name="welcome_tut_skip_yes">Pomiń mimo to</string>
+    <string name="welcome_tut_welcome">Witaj w EUC Planet, prostej i konkretnej aplikacji open source dla elektrycznych monocykli</string>
+    <string name="welcome_tut_bt">Tutaj połączysz i rozłączysz swoje koło</string>
+    <string name="welcome_tut_version">Wiele kół potrzebuje tylko testerów, żeby uzyskać pełne wsparcie, zwykle to prosta sprawa. Dotknij wersji, aby otworzyć ekran O aplikacji i pomóc</string>
+    <string name="welcome_tut_outro_title">To koniec samouczka!</string>
+    <string name="welcome_tut_outro_backup">Zapisuj swoje przejazdy: wybierz %1$s w Ustawienia → %2$s, a potem przeglądaj je na eucviewer.ried.no</string>
+    <string name="welcome_tut_outro_buttons">Wiele przycisków ma dodatkowe akcje, spróbuj je przytrzymać</string>
+    <string name="welcome_tut_outro_alarms">Poznaj rozbudowany edytor alarmów w Ustawienia → %1$s</string>
+    <string name="welcome_tut_outro_integrations">Poznaj integracje: przyciski Flic, zegarek, HUD, Garmin Connect IQ i radar tylny</string>
+    <string name="welcome_tut_outro_end">Podczas jazdy patrz na drogę, nie na tę aplikację!</string>
+    <string name="welcome_tut_speed">Twoja bieżąca prędkość. Zmień jednostki w Ustawienia → %1$s</string>
+    <string name="welcome_tut_metrics">Bateria, temperatura, napięcie i więcej na żywo. Zmień układ w Ustawienia → %1$s</string>
+    <string name="welcome_tut_actions">Szybkie sterowanie. Dostosuj je w tym samym miejscu, w sekcji %2$s</string>
+    <string name="welcome_tut_map">Otwórz nawigator, aby planować trasy i otrzymywać nawigację zakręt po zakręcie</string>
+    <string name="welcome_tut_gps">Dotknij, aby zobaczyć dane na żywo, a nawet skalibrować prędkość koła na podstawie GPS. Kalibrację zmienisz później w Ustawienia → %1$s</string>
+    <string name="welcome_tut_camera">Nagrywaj wideo z nakładką telemetrii. Twórz własne nakładki i eksportuj filmy z danymi z wcześniejszych przejazdów</string>
+    <string name="welcome_tut_pd">Pokazuje Postój lub Jazda. Dotknij, aby ustawić swój %1$s</string>
     <string name="voice_selector_label">Głos</string>
     <string name="voice_speech_speed">Tempo mowy</string>
     <string name="unit_x">x</string>
@@ -299,6 +624,76 @@
     <string name="voice_output_channel_media">Multimedia</string>
     <string name="voice_output_channel_notification">Powiadomienia</string>
     <string name="voice_output_channel_alarm">Alarm</string>
+
+    <!-- Engine sound generator -->
+    <string name="section_engine_sound">Dźwięk silnika</string>
+    <string name="engine_sound_enabled">Dźwięk silnika</string>
+    <string name="engine_sound_enabled_hint">Steruje obrotami silnika na żywo z prędkości i obciążenia koła</string>
+    <string name="engine_type_label">Silnik</string>
+    <string name="engine_source_sampled">Próbka</string>
+    <string name="engine_source_synth">Synth</string>
+    <string name="engine_volume">Głośność</string>
+    <string name="engine_muffler_label">Tłumik</string>
+    <string name="engine_muffler_open">Otwarty</string>
+    <string name="engine_muffler_half">Średni</string>
+    <string name="engine_muffler_muffled">Wytłumiony</string>
+    <string name="engine_gearbox_label">Skrzynia biegów</string>
+    <string name="engine_gearbox_off">Wył.</string>
+    <string name="engine_gearbox_four">4-biegowa</string>
+    <string name="engine_gearbox_six">6-biegowa</string>
+    <string name="engine_idle_label">W spoczynku</string>
+    <string name="engine_idle_always">Stały bieg jałowy</string>
+    <string name="engine_idle_fade">Wyciszanie</string>
+    <string name="engine_idle_moving">Tylko w ruchu</string>
+    <string name="engine_decel_label">Charakter hamowania</string>
+    <string name="engine_decel_smooth">Płynne</string>
+    <string name="engine_decel_standard">Standard</string>
+    <string name="engine_decel_backfire">Strzał z wydechu</string>
+    <string name="engine_brake_label">Hamulec silnikiem</string>
+    <string name="engine_brake_off">Wył.</string>
+    <string name="engine_brake_light">Lekki</string>
+    <string name="engine_brake_strong">Mocny</string>
+    <string name="engine_duck_label">Podczas głosu</string>
+    <string name="engine_duck_duck">Ścisz</string>
+    <string name="engine_duck_pause">Pauza</string>
+    <string name="engine_duck_mix">Mieszaj</string>
+    <string name="engine_headphones_only">Tylko ze słuchawkami</string>
+    <string name="engine_headphones_only_hint">Pomija głośnik telefonu. Silnik gra wyłącznie przy audio przewodowym lub Bluetooth</string>
+    <!-- Engine preset names -->
+    <string name="engine_preset_two_stroke">2-suw</string>
+    <string name="engine_preset_four_stroke_single">4-suw jednocyl.</string>
+    <string name="engine_preset_quad_bike">Quad</string>
+    <string name="engine_preset_v_twin">V-twin</string>
+    <string name="engine_preset_inline_4">Rzędowy 4</string>
+    <string name="engine_preset_v8_muscle">V8 muscle</string>
+    <string name="engine_preset_v12_italian">V12 włoski</string>
+    <string name="engine_preset_v16_luxury">V16 luksus</string>
+    <string name="engine_preset_boxer_6">Boxer 6</string>
+    <string name="engine_preset_inline_6_silky">Rzędowy 6 (jedwabisty)</string>
+    <string name="engine_preset_tractor">Traktor</string>
+    <string name="engine_preset_steam_loco">Lokomotywa parowa</string>
+    <string name="engine_preset_tron_whine">Pisk Tron</string>
+    <string name="engine_preset_pod_racer">Pod racer</string>
+    <string name="engine_preset_lightsaber">Miecz świetlny</string>
+    <string name="engine_preset_jet_turbine">Turbina odrzutowa</string>
+    <string name="engine_preset_ufo_hover">UFO w zawisie</string>
+    <string name="engine_preset_f1_electric">F1 elektryczne</string>
+    <string name="engine_preset_hover_bike">Lewitujący motocykl</string>
+    <string name="engine_preset_sampled_v8_cobra">V8 Cobra</string>
+    <string name="engine_preset_sampled_vtwin_ducati">V-twin Ducati</string>
+    <string name="engine_preset_sampled_diesel_iveco">Ciężarówka diesel</string>
+    <string name="engine_preset_sampled_motorcycle">Motocykl</string>
+    <string name="engine_preset_sampled_city_car">Auto miejskie</string>
+    <string name="engine_preset_sampled_helicopter">Helikopter</string>
+    <string name="engine_preset_sampled_tractor">Traktor</string>
+    <string name="engine_preset_sampled_lawnmower">Kosiarka</string>
+    <string name="engine_preset_sampled_steam_loco">Lokomotywa parowa</string>
+    <string name="engine_preset_sampled_car_cruise">Auto w trasie</string>
+    <string name="engine_preset_sampled_aston_martin">Aston Martin</string>
+    <string name="engine_preset_sampled_big_diesel">Duży diesel</string>
+    <string name="engine_preset_sampled_broken_exhaust">Zepsuty wydech</string>
+    <string name="engine_preset_sampled_quad_atv">Quad ATV</string>
+
     <string name="col_periodic">Cyklicznie</string>
     <string name="col_trigger">Wyzwalacz</string>
     <string name="report_speed">Prędkość</string>
@@ -312,13 +707,10 @@
 
     <!-- Settings: Integration -->
     <string name="section_flic_buttons">Przyciski Flic 2</string>
-    <string name="flic_show_on_dashboard">Szybki dostęp na panelu</string>
-    <string name="flic_scan_hint">Przytrzymaj przycisk Flic 2 przez 6 sekund, aby sparować, potem dotknij Skanuj</string>
-    <string name="flic_stop_scan">Zatrzymaj skan</string>
-    <string name="flic_start_scan">Rozpocznij skan</string>
-    <string name="external_gps_pair_button">Rozpocznij skan</string>
-    <string name="external_gps_pair_action">Sparuj</string>
-    <string name="external_gps_stop_scan">Zatrzymaj skan</string>
+    <string name="flic_show_on_dashboard">Szybki dostęp na pulpicie</string>
+    <string name="flic_scan_hint">Przytrzymaj przycisk Flic 2 przez 6 sekund, aby wejść w tryb parowania, a potem dotknij Skanuj</string>
+    <string name="flic_stop_scan">Zatrzymaj skanowanie</string>
+    <string name="flic_start_scan">Rozpocznij skanowanie</string>
     <string name="flic_forget">Zapomnij</string>
     <string name="flic_forget_title">Zapomnieć ten przycisk?</string>
     <string name="flic_forget_body">%1$s zostanie odparowany, a jego akcje wyczyszczone. Możesz go sparować ponownie w każdej chwili.</string>
@@ -326,19 +718,35 @@
     <string name="flic_click">Kliknięcie</string>
     <string name="flic_double_click">Podwójne kliknięcie</string>
     <string name="flic_hold">Przytrzymanie</string>
+    <string name="section_external_gps">GPS i czujniki</string>
+    <string name="external_gps_device_title">Zewnętrzny GPS</string>
+    <string name="external_gps_pair_button">Rozpocznij skanowanie</string>
+    <string name="external_gps_pair_action">Sparuj</string>
+    <string name="external_gps_stop_scan">Zatrzymaj skanowanie</string>
+    <string name="external_gps_paired_with">Sparowano z %1$s</string>
+    <string name="external_gps_state_connected">Połączono</string>
+    <string name="external_gps_state_connecting">Łączenie…</string>
+    <string name="external_gps_state_disconnected">Rozłączono</string>
+    <string name="external_gps_reconnect">Połącz ponownie</string>
+    <string name="external_gps_disconnect">Rozłącz</string>
+    <string name="external_gps_unpair">Zapomnij urządzenie</string>
     <string name="external_gps_axes_title">Orientacja osi</string>
-    <string name="external_gps_axes_desc">Przypisz każdą oś wyjściową do osi surowej urządzenia. Autowykrywanie ustawi je automatycznie.</string>
+    <string name="external_gps_axes_desc">Przypisz każdą oś wyjściową do surowej osi urządzenia</string>
     <string name="external_gps_map_x">Wyjście X</string>
     <string name="external_gps_map_y">Wyjście Y</string>
     <string name="external_gps_map_z">Wyjście Z</string>
     <string name="external_gps_autodetect">Autowykrywanie</string>
     <string name="external_gps_autodetect_title">Autowykrywanie osi</string>
     <string name="external_gps_autodetect_prep">Przygotuj się do ruszania urządzeniem</string>
-    <string name="external_gps_autodetect_forward">Poruszaj urządzeniem w przód i w tył</string>
-    <string name="external_gps_autodetect_lateral">Poruszaj urządzeniem w lewo i w prawo</string>
-    <string name="external_gps_autodetect_vertical">Poruszaj urządzeniem w górę i w dół</string>
+    <string name="external_gps_autodetect_forward">Naciśnij Dalej i idź do przodu przez kilka sekund</string>
+    <string name="external_gps_autodetect_forward_capture">Odczyt ruchu do przodu…</string>
+    <string name="external_gps_autodetect_lateral">Naciśnij Dalej i idź w lewo bez zmiany orientacji urządzenia</string>
+    <string name="external_gps_autodetect_lateral_capture">Odczyt ruchu bocznego…</string>
+    <string name="external_gps_autodetect_vertical">Naciśnij Dalej i powoli opuść urządzenie ku ziemi</string>
+    <string name="external_gps_autodetect_vertical_capture">Odczyt ruchu pionowego…</string>
     <string name="external_gps_autodetect_done">Osie wykryte i zastosowane</string>
-    <string name="external_gps_autodetect_abort">Przerwij</string>
+    <string name="external_gps_autodetect_abort">Anuluj</string>
+    <string name="external_gps_autodetect_next">Dalej</string>
     <string name="gps_prioritize_external">Priorytet zewnętrznego GPS</string>
     <string name="gps_show_on_dashboard">Pokaż prędkość na pulpicie</string>
     <string name="gps_show_on_dashboard_desc">Dodaje kolorową kropkę na prędkościomierzu z odczytem GPS</string>
@@ -347,6 +755,27 @@
     <string name="volume_keys_enable">Włącz akcje klawiszy głośności</string>
     <string name="volume_up">Głośność w górę</string>
     <string name="volume_down">Głośność w dół</string>
+
+    <!-- Rear-view radar (Garmin Varia today) -->
+    <string name="section_radar">Radar tylny</string>
+    <string name="radar_caption">Przytrzymaj przycisk Varia przez 2 sekundy, aż zacznie pulsować na fioletowo, a następnie rozpocznij skanowanie.</string>
+    <string name="radar_pair_button">Rozpocznij skanowanie</string>
+    <string name="radar_pair_action">Sparuj</string>
+    <string name="radar_stop_scan">Zatrzymaj skanowanie</string>
+    <string name="radar_state_connected">Połączono</string>
+    <string name="radar_state_connecting">Łączenie…</string>
+    <string name="radar_state_disconnected">Rozłączono</string>
+    <string name="radar_reconnect">Połącz ponownie</string>
+    <string name="radar_disconnect">Rozłącz</string>
+    <string name="radar_unpair">Zapomnij urządzenie</string>
+    <string name="radar_battery_fmt">Bateria %1$d%%</string>
+    <string name="radar_clear">Pas wolny</string>
+    <string name="radar_threats_count">Śledzonych pojazdów: %1$d</string>
+    <string name="radar_show_overlay">Pokaż nakładkę zagrożeń</string>
+    <string name="radar_show_overlay_desc">Wąski pasek radaru na krawędziach pulpitu. Jedna kolorowa kropka na pojazd. Widoczny tylko na pulpicie.</string>
+    <string name="radar_overlay_left">Lewa krawędź</string>
+    <string name="radar_overlay_both">Obie krawędzie</string>
+    <string name="radar_overlay_right">Prawa krawędź</string>
 
     <!-- Voice (spoken) templates -->
     <string name="voice_speed_fmt">prędkość %1$s</string>
@@ -363,24 +792,25 @@
     <string name="voice_wheel_unlocked">Koło odblokowane</string>
     <string name="voice_lights_on">Światła włączone</string>
     <string name="voice_lights_off">Światła wyłączone</string>
-    <string name="voice_recording_started">Nagrywanie rozpoczęte</string>
+    <string name="voice_recording_started">Nagrywanie włączone</string>
     <string name="voice_recording_finished">Nagrywanie zakończone</string>
     <string name="voice_wheel_connected">Koło połączone</string>
     <string name="voice_wheel_disconnected">Koło rozłączone</string>
-    <string name="voice_gps_acquired">Sygnał GPS pozyskany</string>
+    <string name="voice_gps_acquired">Sygnał GPS uzyskany</string>
     <string name="voice_gps_lost">Sygnał GPS utracony</string>
     <string name="voice_legal_on">Tryb legalny włączony</string>
     <string name="voice_legal_off">Tryb legalny wyłączony</string>
     <string name="voice_welcome">Witaj ponownie w EUC Planet</string>
-
-    <!-- Language display names (shown for TTS mismatch prompt) -->
     <!-- Alarm metrics -->
     <string name="alarm_metric_speed">Prędkość</string>
     <string name="alarm_metric_battery">Bateria</string>
     <string name="alarm_metric_temperature">Temperatura</string>
     <string name="alarm_metric_pwm">Obciążenie (PWM)</string>
+    <string name="alarm_metric_pwm_voice" translatable="false">PWM</string>
     <string name="alarm_metric_voltage">Napięcie</string>
     <string name="alarm_metric_current">Prąd</string>
+    <string name="alarm_metric_radar_distance">Odległość pojazdu</string>
+    <string name="alarm_metric_radar_approach">Zbliżający się pojazd</string>
 
     <!-- Alarm comparators -->
     <string name="alarm_cmp_lt">Mniej niż</string>
@@ -396,7 +826,9 @@
     <string name="flic_action_legal_off">Tryb legalny WYŁ</string>
     <string name="flic_action_voice">Raport głosowy</string>
     <string name="flic_action_record">Przełącz nagrywanie</string>
-    <string name="flic_action_media_play">Odtwórz / Wstrzymaj muzykę</string>
+    <string name="flic_action_record_start">Rozpocznij nagrywanie trasy</string>
+    <string name="flic_action_record_stop">Zatrzymaj nagrywanie trasy</string>
+    <string name="flic_action_media_play">Odtwórz / wstrzymaj muzykę</string>
     <string name="flic_action_media_next">Następny utwór</string>
     <string name="flic_action_media_prev">Poprzedni utwór</string>
 
@@ -455,7 +887,7 @@
     <string name="action_stop">Stop</string>
     <string name="recording_title">Rejestrator tras</string>
     <string name="recording_clear_all_title">Wyczyść wszystkie trasy</string>
-    <string name="recording_clear_all_body">Operacja trwale usunie wszystkie nagrane trasy oraz ich pliki danych. Tej operacji nie można cofnąć.</string>
+    <string name="recording_clear_all_body">Operacja trwale usunie wszystkie nagrane trasy i ich pliki danych. Tej operacji nie można cofnąć.</string>
     <string name="recording_delete_trip_title">Usuń trasę</string>
     <string name="recording_delete_trip_body">Usunąć tę trasę i jej plik danych?</string>
     <string name="recording_clear_all_menu">Wyczyść wszystko</string>
@@ -477,6 +909,7 @@
     <string name="recording_summary_top_speed">Maks. prędkość</string>
     <string name="recording_summary_avg_speed">Śr. prędkość</string>
     <string name="recording_summary_min_battery">Min. bateria</string>
+    <string name="recording_summary_max_temp">Maks. temp.</string>
     <string name="recording_summary_battery">Bateria (-%1$d%%)</string>
     <string name="recording_summary_voltage">Napięcie</string>
     <string name="recording_summary_avg_moving">Śr. w ruchu</string>
@@ -485,7 +918,6 @@
     <string name="recording_summary_max_pwm">Maks. PWM</string>
     <string name="recording_summary_max_current">Maks. prąd</string>
     <string name="recording_summary_max_power">Maks. moc</string>
-    <string name="recording_summary_max_temp">Maks. temp.</string>
     <string name="recording_chart_speed">Prędkość (%1$s)</string>
     <string name="recording_chart_battery">Bateria (%)</string>
     <string name="recording_chart_temp">Temperatura (%1$s)</string>
@@ -507,10 +939,10 @@
     <string name="auto_midnight_sun_body">Słońce dziś nie zachodzi na tej szerokości geograficznej, światła pozostaną WYŁ.</string>
     <string name="auto_polar_night_title">Noc polarna</string>
     <string name="auto_polar_night_body">Słońce dziś nie wschodzi na tej szerokości geograficznej, światła pozostaną WŁ.</string>
-    <string name="auto_lights_suspended">Wstrzymane z powodu ręcznego przełączenia świateł w tej sesji. Połącz koło ponownie lub uruchom aplikację, aby wznowić</string>
+    <string name="auto_lights_suspended">Wstrzymane z powodu ręcznego przełączenia świateł w tej sesji. Połącz koło ponownie lub uruchom aplikację ponownie, aby wznowić</string>
 
     <!-- Alarms tab -->
-    <string name="alarm_help">Reguły są sprawdzane od góry do dołu dla każdej metryki. Pierwsza pasująca reguła dla metryki uruchamia alarm</string>
+    <string name="alarm_help">Reguły są sprawdzane od góry do dołu dla każdej metryki. Pierwsza pasująca reguła wyzwala alarm</string>
     <string name="alarm_empty">Brak reguł alarmów</string>
     <string name="alarm_add">Nowy alarm</string>
     <string name="alarm_new">Nowy alarm</string>
@@ -544,6 +976,7 @@
     <string name="sources_fresh_minutes_fmt">%1$dm temu</string>
     <string name="sources_fresh_hours_fmt">%1$dh temu</string>
     <string name="sources_sats_fmt">%1$d sat</string>
+    <string name="sources_other_metrics">Inne metryki</string>
     <string name="sources_collecting">Zbieranie…</string>
     <string name="sources_reset_avg">Resetuj średnią</string>
     <string name="sources_apply_calibration">Kalibruj koło</string>
@@ -570,7 +1003,7 @@
     <string name="alarm_vibrate_target_label">Wibruj na</string>
     <string name="alarm_vibrate_target_phone">Telefonie</string>
     <string name="alarm_vibrate_target_watch">Zegarku</string>
-    <string name="alarm_vibrate_target_both">Wszystkie</string>
+    <string name="alarm_vibrate_target_both">Wszystkich</string>
     <string name="alarm_section_timing">Czasy</string>
     <string name="alarm_cooldown_fmt">Odstęp: %1$ds</string>
     <string name="alarm_cooldown_help">Minimalny czas między uruchomieniami tej reguły, nawet jeśli warunek wciąż jest spełniony</string>
@@ -578,825 +1011,19 @@
     <string name="alarm_repeat_help">WŁ.: uruchamia się ponownie co odstęp, dopóki warunek jest spełniony.\nWYŁ.: uruchamia się raz i milczy, dopóki warunek nie ustąpi</string>
 
     <!-- About / crash logs -->
-    <string name="about_crash_logs">Dzienniki awarii</string>
+    <string name="about_crash_logs">Logi awarii</string>
     <string name="about_crash_logs_empty">Brak zarejestrowanych awarii</string>
     <string name="about_share_crash">Udostępnij log awarii</string>
     <string name="about_thanks">Podziękowania</string>
-    <string name="about_thanks_body">Zmęczyły mnie aplikacje do EUC, które rozwijają się zbyt wolno, wyglądają archaicznie, mają drakońskie zasady wokół nowych funkcji, traktują swoje społeczności jak klientów i zapominają, że riderzy EUC są najlepsi, gdy sobie nawzajem pomagają. Ta próbuje być przeciwieństwem.</string>
-    <string name="toast_external_speed_change">Prędkość zaktualizowana z koła: tiltback %1$d km/h, alarm %2$d km/h</string>
-    <string name="flic_action_record_start">Rozpocznij nagrywanie trasy</string>
-    <string name="flic_action_record_stop">Zatrzymaj nagrywanie trasy</string>
-    <string name="section_watch_screen_buttons">Przyciski</string>
-    <string name="watch_screen_button_1">Przycisk 1</string>
-    <string name="watch_screen_button_2">Przycisk 2</string>
-    <string name="watch_haptic_on_action">Wibracja przy akcji</string>
-    <string name="watch_haptic_on_action_desc">Krótka wibracja przy każdym naciśnięciu, jeśli obsługiwane</string>
-
-    <!-- Engine sound generator -->
-    <string name="section_engine_sound">Dźwięk silnika</string>
-    <string name="engine_sound_enabled">Dźwięk silnika</string>
-    <string name="engine_sound_enabled_hint">Steruje obrotami silnika na żywo z prędkości i obciążenia</string>
-    <string name="engine_type_label">Silnik</string>
-    <string name="engine_source_sampled">Próbka</string>
-    <string name="engine_source_synth">Synth</string>
-    <string name="engine_volume">Głośność</string>
-    <string name="engine_muffler_label">Tłumik</string>
-    <string name="engine_muffler_open">Otwarty</string>
-    <string name="engine_muffler_half">Średni</string>
-    <string name="engine_muffler_muffled">Wytłumiony</string>
-    <string name="engine_gearbox_label">Skrzynia biegów</string>
-    <string name="engine_gearbox_off">Wył</string>
-    <string name="engine_gearbox_four">4-biegowa</string>
-    <string name="engine_gearbox_six">6-biegowa</string>
-    <string name="engine_idle_label">W spoczynku</string>
-    <string name="engine_idle_always">Stały bieg jałowy</string>
-    <string name="engine_idle_fade">Wyciszanie</string>
-    <string name="engine_idle_moving">Tylko w ruchu</string>
-    <string name="engine_decel_label">Przy hamowaniu silnikiem</string>
-    <string name="engine_decel_smooth">Płynne</string>
-    <string name="engine_decel_standard">Standard</string>
-    <string name="engine_decel_backfire">Strzał z wydechu</string>
-    <string name="engine_brake_label">Hamulec silnikiem</string>
-    <string name="engine_brake_off">Wył</string>
-    <string name="engine_brake_light">Lekki</string>
-    <string name="engine_brake_strong">Mocny</string>
-    <string name="engine_duck_label">Podczas głosu</string>
-    <string name="engine_duck_duck">Ścisz</string>
-    <string name="engine_duck_pause">Pauza</string>
-    <string name="engine_duck_mix">Mieszaj</string>
-    <string name="engine_headphones_only">Tylko ze słuchawkami</string>
-    <string name="engine_headphones_only_hint">Pomija głośnik telefonu. Silnik gra wyłącznie przy audio przewodowym lub Bluetooth</string>
-
-    <!-- Engine sound: generic preset names + parked hint -->
-    <string name="engine_preset_two_stroke">2-suw</string>
-    <string name="engine_preset_four_stroke_single">4-suw jednocyl</string>
-    <string name="engine_preset_quad_bike">Quad</string>
-    <string name="engine_preset_inline_4">Rzędowy 4</string>
-    <string name="engine_preset_inline_6_silky">Rzędowy 6 (jedwabisty)</string>
-    <string name="engine_preset_tractor">Traktor</string>
-    <string name="engine_preset_steam_loco">Lokomotywa parowa</string>
-    <string name="engine_preset_jet_turbine">Turbina odrzutowa</string>
-    <string name="engine_preset_ufo_hover">UFO w zawisie</string>
-    <string name="engine_preset_f1_electric">F1 elektryczne</string>
-    <string name="engine_preset_hover_bike">Lewitujący motocykl</string>
-    <string name="engine_preset_lightsaber">Miecz świetlny</string>
-    <string name="engine_preset_sampled_diesel_iveco">Ciężarówka diesel</string>
-    <string name="engine_preset_sampled_motorcycle">Motocykl</string>
-    <string name="engine_preset_sampled_city_car">Auto miejskie</string>
-    <string name="engine_preset_sampled_helicopter">Helikopter</string>
-    <string name="engine_preset_sampled_tractor">Traktor</string>
-    <string name="engine_preset_sampled_lawnmower">Kosiarka</string>
-    <string name="engine_preset_sampled_steam_loco">Lokomotywa parowa</string>
-    <string name="engine_preset_sampled_big_diesel">Duży diesel</string>
-    <string name="engine_preset_sampled_car_cruise">Auto w trasie</string>
-    <string name="engine_preset_sampled_broken_exhaust">Zepsuty wydech</string>
-    <string name="engine_preset_sampled_quad_atv">Quad</string>
-
-    <string name="external_gps_autodetect_forward_capture">Odczyt ruchu do przodu…</string>
-    <string name="external_gps_autodetect_lateral_capture">Odczyt ruchu na boki…</string>
-    <string name="external_gps_autodetect_next">Dalej</string>
-    <string name="external_gps_autodetect_vertical_capture">Odczyt ruchu pionowego…</string>
-    <string name="external_gps_disconnect">Rozłącz</string>
-    <string name="external_gps_paired_with">Sparowano z %1$s</string>
-    <string name="external_gps_reconnect">Połącz ponownie</string>
-    <string name="external_gps_state_connected">Połączono</string>
-    <string name="external_gps_state_connecting">Wyszukiwanie…</string>
-    <string name="external_gps_state_disconnected">Rozłączono</string>
-    <string name="external_gps_unpair">Zapomnij urządzenie</string>
-    <string name="section_external_gps">GPS i czujniki</string>
-    <string name="external_gps_device_title">Zewnętrzny GPS</string>
-    <string name="section_speed_calibration">Kalibracja prędkości</string>
-    <string name="speed_calibration_caption">Koryguje prędkość zgłaszaną przez koło; wpływa na alarmy, głos i log</string>
-    <string name="speed_calibration_label">Korekta prędkości</string>
-    <string name="sources_other_metrics">Inne metryki</string>
-
-    <!-- ==== Navigator / Studio / Voice (new) ==== -->
-    <string name="nav_arrived">Dotarłeś na miejsce</string>
-    <string name="nav_arrived_goal">Osiągnięto cel %1$d</string>
-    <string name="nav_clear_confirm">Rozpocząć nową trasę?</string>
-    <string name="nav_clear_confirm_body">Twoje obecne przystanki zostaną usunięte.</string>
-    <string name="nav_clear_home">Zapomnij dom</string>
-    <string name="nav_clear_work">Zapomnij pracę</string>
-    <string name="nav_close">Zakończ nawigację</string>
-    <string name="nav_continue">Jedź prosto</string>
-    <string name="nav_default_route_name">Moja trasa</string>
-    <string name="nav_depart">Ruszaj</string>
-    <string name="nav_dir_ahead">przed Tobą</string>
-    <string name="nav_dir_behind">za Tobą</string>
-    <string name="nav_dir_behind_left">za tobą, po lewej</string>
-    <string name="nav_dir_behind_right">za tobą, po prawej</string>
-    <string name="nav_dir_left">po Twojej lewej</string>
-    <string name="nav_dir_right">po Twojej prawej</string>
-    <string name="nav_dir_slight_left">lekko w lewo</string>
-    <string name="nav_dir_slight_right">lekko w prawo</string>
-    <string name="nav_dist_ft">%1$d ft</string>
-    <string name="nav_dist_km">%1$s km</string>
-    <string name="nav_dist_m">%1$d m</string>
-    <string name="nav_dist_mi">%1$s mi</string>
-    <string name="nav_drag_stop">Zmień kolejność</string>
-    <string name="nav_empty_hint">Stuknij mapę, wyszukaj lub wczytaj plik GPX</string>
-    <string name="nav_end_body">Zatrzymać prowadzenie po aktywnej trasie?</string>
-    <string name="nav_end_confirm">Zakończ</string>
-    <string name="nav_end_title">Zakończyć nawigację?</string>
-    <string name="nav_expand">Rozwiń</string>
-    <string name="nav_goal_label">Cel %1$d z %2$d</string>
-    <string name="nav_hunt_primary">%1$s %2$s</string>
-    <string name="nav_label_destination">Cel</string>
-    <string name="nav_label_next_stop">Następny stop</string>
-    <string name="nav_last_stop">Ostatni stop</string>
-    <string name="nav_load_failed">Nie udało się odczytać tego pliku GPX</string>
-    <string name="nav_locating">Ustalanie Twojej lokalizacji…</string>
-    <string name="nav_map_dark">Ciemna mapa</string>
-    <string name="nav_map_light">Jasna mapa</string>
-    <string name="nav_map_satellite">Mapa satelitarna</string>
-    <string name="nav_map_style">Styl mapy</string>
-    <string name="nav_max_stops">Maksymalnie cel i 24 przystanków</string>
-    <string name="nav_menu">Menu</string>
-    <string name="nav_menu_clear">Nowa trasa</string>
-    <string name="nav_menu_exit">Powrót do pulpitu</string>
-    <string name="nav_menu_load">Wczytaj trasę (GPX)</string>
-    <string name="nav_menu_save">Zapisz trasę (GPX)</string>
-    <string name="nav_minimize">Zminimalizuj</string>
-    <string name="nav_mode_cycling">Rower</string>
-    <string name="nav_mode_driving">Samochód</string>
-    <string name="nav_mode_straight">Bezpośrednio</string>
-    <string name="nav_mode_walking">Pieszo</string>
-    <string name="nav_my_location">Moja lokalizacja</string>
-    <string name="nav_need_destination">Najpierw dodaj cel</string>
-    <string name="nav_need_two">Dodaj co najmniej dwa przystanki, aby nawigować.</string>
-    <string name="nav_no_location">Czekam na sygnał GPS…</string>
-    <string name="nav_no_results">Nie znaleziono pasujących wyników</string>
-    <string name="nav_off_route">Poza trasą</string>
-    <string name="nav_open">Otwórz nawigator</string>
-    <string name="nav_pin_center">Wyśrodkuj na mapie</string>
-    <string name="nav_pin_remove">Usuń</string>
-    <string name="nav_pin_set_my_location">Ustaw na moją lokalizację</string>
-    <string name="nav_prox_cold">Zimniej</string>
-    <string name="nav_prox_hot">Gorąco</string>
-    <string name="nav_prox_warm">Cieplej</string>
-    <string name="nav_recalculating">Przeliczanie…</string>
-    <string name="nav_remove_stop">Usuń stop</string>
-    <string name="nav_role_current_location">Bieżąca lokalizacja</string>
-    <string name="nav_role_destination">Cel</string>
-    <string name="nav_role_start">Start</string>
-    <string name="nav_route_distance">Długość trasy: %1$s</string>
-    <string name="nav_route_failed">Usługa tras niedostępna, używam linii prostych</string>
-    <string name="nav_routing">Wyznaczanie trasy…</string>
-    <string name="nav_save_failed">Nie udało się zapisać trasy</string>
-    <string name="nav_route_saved">Trasa zapisana</string>
-    <string name="nav_save_home">Zapisz jako dom</string>
-    <string name="nav_save_work">Zapisz jako pracę</string>
-    <string name="nav_search_hint">Szukaj adresu lub miejsca</string>
-    <string name="nav_searching">Wyszukiwanie…</string>
-    <string name="nav_self_add_stop">Dodaj jako stop</string>
-    <string name="nav_self_title">Twoja lokalizacja</string>
-    <string name="nav_setting_arrival_radius">Promień dotarcia</string>
-    <string name="nav_setting_arrival_radius_desc">Jak blisko liczy się jako dotarcie do stopu</string>
-    <string name="nav_setting_default_mode">Domyślny tryb podróży</string>
-    <string name="nav_setting_endpoints">Usługi wyznaczania trasy</string>
-    <string name="nav_setting_endpoints_hint">Domyślnie publiczny OpenStreetMap; zmień, aby użyć własnego serwera</string>
-    <string name="nav_setting_geocoder_url">Adres URL wyszukiwania adresów</string>
-    <string name="nav_setting_offroute">Tolerancja zejścia z trasy</string>
-    <string name="nav_setting_offroute_desc">Jak daleko od trasy zanim wywoła się alert o zboczeniu z trasy</string>
-    <string name="nav_setting_open_builder">Otwórz kreator tras</string>
-    <string name="nav_setting_params">Parametry nawigacji</string>
-    <string name="nav_setting_router_url">Adres URL wyznaczania trasy</string>
-    <string name="nav_setting_voice">Prowadzenie głosowe</string>
-    <string name="nav_setting_voice_desc">Wypowiadaj instrukcje zakrętów i Poszukiwania skarbu</string>
-    <string name="nav_skip_locating">Pomiń</string>
-    <string name="nav_start_riding">Zacznij jazdę</string>
-    <string name="nav_start_short">Rozpocznij nawigację</string>
-    <string name="nav_stop_short">Zatrzymaj nawigację</string>
-    <string name="nav_stops_left">Pozostało %1$d przystanków</string>
-    <string name="nav_next_distance">Następny: %1$s</string>
-    <string name="nav_tap_on_self">Na liście Przystanki przytrzymaj stop, aby ustawić go na Twoją lokalizację</string>
-    <string name="nav_title">Kreator tras</string>
-    <string name="nav_turn_left">Skręć w lewo</string>
-    <string name="nav_turn_right">Skręć w prawo</string>
-    <string name="nav_turn_sharp_left">Ostro w lewo</string>
-    <string name="nav_turn_sharp_right">Ostro w prawo</string>
-    <string name="nav_turn_slight_left">Trzymaj się lewej</string>
-    <string name="nav_turn_slight_right">Trzymaj się prawej</string>
-    <string name="nav_uturn">Zawróć</string>
-    <string name="nav_waypoint_default">Pinezka %1$d</string>
-    <string name="nav_waypoints">Przystanki</string>
-    <string name="studio_camera_permission">Dostęp do aparatu jest potrzebny do podglądów</string>
-    <string name="studio_grant">Przyznaj dostęp</string>
-    <string name="studio_image_failed">Nie udało się wczytać tego obrazu</string>
-    <string name="studio_no_folder">Najpierw ustaw folder kopii zapasowej, aby zapisywać presety</string>
-    <string name="studio_your_presets_empty">Brak zapisanych presetów. Zapisz aktualny układ, aby dodać.</string>
-    <string name="studio_not_connected">Nie połączono</string>
-    <string name="studio_open">Otwórz Overlay Studio</string>
-    <string name="studio_photo_failed">Nie udało się zapisać zdjęcia</string>
-    <string name="studio_photo_saved">Zdjęcie zapisane w galerii</string>
-    <string name="studio_preset_failed">Nie udało się zapisać presetu</string>
-    <string name="studio_preset_loaded">Preset wczytany</string>
-    <string name="studio_preset_saved">Preset zapisany</string>
-    <string name="studio_recording_failed">Nie udało się zapisać nagrania</string>
-    <string name="studio_recording_saved">Nagranie zapisane w galerii</string>
-    <string name="studio_stop">Stop</string>
-    <string name="tab_navigator">Nawigator</string>
-    <string name="voice_dist_ft">%1$d stóp</string>
-    <string name="voice_dist_km">%1$s kilometrów</string>
-    <string name="voice_dist_m">%1$d metrów</string>
-    <string name="voice_dist_mi">%1$s mil</string>
-    <string name="voice_nav_arrived">Dotarłeś do celu</string>
-    <string name="voice_nav_goal_reached">Dotarłeś do przystanku</string>
-    <string name="voice_nav_hunt">%1$s jest %2$s %3$s</string>
-    <string name="voice_nav_hunt_prox">%1$s, %2$s</string>
-    <string name="voice_nav_hunt_distance">%1$s w odległości %2$s</string>
-    <string name="voice_nav_now">%1$s teraz</string>
-    <string name="voice_nav_prepare">Za %1$s %2$s</string>
-    <string name="voice_nav_start_riding">Zacznij jazdę</string>
-    <string name="voice_prox_colder">robi się zimniej</string>
-    <string name="voice_prox_even_colder">jeszcze zimniej</string>
-    <string name="voice_prox_freezing">lodowato</string>
-    <string name="voice_prox_lost">Czy już dojechaliśmy?</string>
-    <string name="voice_prox_hot">jesteś bardzo blisko</string>
-    <string name="voice_prox_warmer">robi się cieplej</string>
-    <string name="watch_show_navigation">Pokaż nawigację</string>
-    <string name="watch_show_navigation_desc">Pokazuj strzałkę zakrętu i odległość na zegarku podczas nawigacji</string>
-    <!-- ==== Overlay Studio (new) ==== -->
-    <string name="studio_add_element_title">Dodaj element</string>
-    <string name="studio_bg_add_stop">Dodaj punkt</string>
-    <string name="studio_bg_colour_label">Kolor</string>
-    <string name="studio_bg_colour_stops">Punkty koloru</string>
-    <string name="studio_bg_direction_fmt">%1$d°</string>
-    <string name="studio_bg_direction_label">Kierunek</string>
-    <string name="studio_bg_linear">Liniowy</string>
-    <string name="studio_bg_radial">Promienisty</string>
-    <string name="studio_bg_solid">Jednolity</string>
-    <string name="studio_camera_limit">Android ogranicza liczbę strumieni z aparatów, więc gdy używane są dwa aparaty, pozostałe są wyłączone.</string>
-    <string name="studio_camera_none">Nie wykryto aparatów w tym urządzeniu.</string>
-    <string name="studio_cd_custom_colour">Własny kolor</string>
-    <string name="studio_cd_delete_element">Usuń element</string>
-    <string name="studio_cd_delete_preset">Usuń preset</string>
-    <string name="studio_cd_divider_options">Opcje linii podziału</string>
-    <string name="studio_cd_drag_reorder">Przeciągnij, aby zmienić kolejność</string>
-    <string name="studio_cd_invisible">Niewidoczny</string>
-    <string name="studio_cd_remove_stop">Usuń punkt</string>
-    <string name="studio_cd_resize">Zmień rozmiar</string>
-    <string name="studio_cd_resize_section">Zmień rozmiar sekcji</string>
-    <string name="studio_cfg_align_centre">Do środka</string>
-    <string name="studio_cfg_align_left">Do lewej</string>
-    <string name="studio_cfg_align_right">Do prawej</string>
-    <string name="studio_cfg_alignment">Wyrównanie</string>
-    <string name="studio_cfg_background">Tło</string>
-    <string name="studio_cfg_badge_show_name">Pokaż nazwę aplikacji</string>
-    <string name="studio_cfg_badge_show_version">Pokaż numer wersji</string>
-    <string name="studio_cfg_badge_stacked">Pionowo (ikona na górze)</string>
-    <string name="studio_cfg_camera_label">Aparat</string>
-    <string name="studio_cfg_chroma_key">Uczyń kolor przezroczystym</string>
-    <string name="studio_cfg_clock_analog">Analogowy</string>
-    <string name="studio_cfg_clock_digital">Cyfrowy</string>
-    <string name="studio_cfg_clock_show_date">Pokaż wiersz z datą</string>
-    <string name="studio_cfg_clock_stopwatch">Stoper</string>
-    <string name="studio_cfg_clock_style">Styl</string>
-    <string name="studio_cfg_clock_text">Tekst</string>
-    <string name="studio_cfg_mask_colour">Kolor maski</string>
-    <string name="studio_cfg_max_label">Maksimum</string>
-    <string name="studio_cfg_metric_label">Metryka</string>
-    <string name="studio_cfg_opacity_fmt">%1$d%%</string>
-    <string name="studio_cfg_opacity_label">Krycie</string>
-    <string name="studio_cfg_replace_image">Zmień obraz</string>
-    <string name="studio_cfg_reset_position">Resetuj pozycję</string>
-    <string name="studio_cfg_rotation_fmt">%1$d°</string>
-    <string name="studio_cfg_rotation_label">Obrót</string>
-    <string name="studio_cfg_show_label">Pokaż etykietę</string>
-    <string name="studio_cfg_text_colour">Kolor tekstu</string>
-    <string name="studio_cfg_text_label">Tekst</string>
-    <string name="studio_cfg_text_variables">Zmienne: {speed} {battery} {temp} {voltage} {current} {power} {pwm} {trip} {odometer} {pitch} {roll} {wheel}. Naciśnij enter, aby przejść do nowego wiersza.</string>
-    <string name="studio_cfg_threshold_fmt">%1$d%%</string>
-    <string name="studio_cfg_threshold_label">Próg</string>
-    <string name="studio_cfg_time_window_fmt">%1$ds</string>
-    <string name="studio_cfg_time_window_label">Okno czasowe</string>
-    <string name="studio_colour_opacity_fmt">%1$d%%</string>
-    <string name="studio_colour_opacity_label">Krycie</string>
-    <string name="studio_colour_picker_title">Własny kolor</string>
-    <string name="studio_colour_select">Wybierz</string>
-    <string name="studio_divider_colour_label">Kolor linii</string>
-    <string name="studio_divider_thickness_fmt">%1$d dp</string>
-    <string name="studio_divider_thickness_label">Grubość</string>
-    <string name="studio_divider_title">Linie podziału</string>
-    <string name="studio_dlg_cancel_render_body">Klip z powtórki nie zostanie zapisany.</string>
-    <string name="studio_dlg_cancel_render_confirm">Anuluj renderowanie</string>
-    <string name="studio_dlg_cancel_render_dismiss">Renderuj dalej</string>
-    <string name="studio_dlg_cancel_render_title">Anulować renderowanie?</string>
-    <string name="studio_dlg_delete_preset_body">\"%1$s\" zostanie trwale usunięty.</string>
-    <string name="studio_dlg_delete_preset_title">Usunąć preset?</string>
-    <string name="studio_dlg_load_body">Wczytanie \"%1$s\" zastąpi bieżący preset. Najpierw zapisz obecny, jeśli chcesz go zachować.</string>
-    <string name="studio_dlg_load_builtin_title">Wczytać wbudowany preset?</string>
-    <string name="studio_dlg_load_confirm">Wczytaj</string>
-    <string name="studio_dlg_load_title">Wczytać preset?</string>
-    <string name="studio_dlg_new_body">To usuwa wszystkie nakładki i przywraca ekran do jednego okna aparatu. Zapisane presety pozostają nienaruszone.</string>
-    <string name="studio_dlg_new_confirm">Nowy</string>
-    <string name="studio_dlg_new_title">Nowy preset?</string>
-    <string name="studio_element_app_badge">Plakietka aplikacji</string>
-    <string name="studio_element_clock">Zegar</string>
-    <string name="studio_element_data_bar">Pasek liniowy</string>
-    <string name="studio_element_data_dial">Wskaźnik tarczowy</string>
-    <string name="studio_element_data_graph">Wykres danych</string>
-    <string name="studio_element_data_value">Wartość danych</string>
-    <string name="studio_element_floating_camera">Pływający aparat</string>
-    <string name="studio_element_image">Obraz / clipart</string>
-    <string name="studio_element_text">Dowolny tekst</string>
-    <string name="studio_element_wheel_name">Nazwa koła</string>
-    <string name="studio_flyout_add">Dodaj</string>
-    <string name="studio_flyout_load">Wczytaj</string>
-    <string name="studio_flyout_manage">Zarządzaj</string>
-    <string name="studio_flyout_new">Nowy</string>
-    <string name="studio_flyout_panes">Okna</string>
-    <string name="studio_flyout_save">Zapisz</string>
-    <string name="studio_flyout_section_elements">Elementy</string>
-    <string name="studio_flyout_section_mode">Tryb</string>
-    <string name="studio_flyout_section_preset">Preset</string>
-    <string name="studio_hint_app_badge">Nazwa i ikona EUC Planet</string>
-    <string name="studio_hint_clock">Zegar, zegarek analogowy lub stoper</string>
-    <string name="studio_hint_data_bar">Liniowy wskaźnik paskowy dla wartości</string>
-    <string name="studio_hint_data_dial">Okrągły wskaźnik tarczowy dla wartości</string>
-    <string name="studio_hint_data_graph">Przewijany wykres wartości</string>
-    <string name="studio_hint_data_value">Wartość na żywo, np. prędkość lub bateria</string>
-    <string name="studio_hint_floating_camera">Mały aparat typu obraz w obrazie</string>
-    <string name="studio_hint_image">Twój własny obraz, osadzony w presecie</string>
-    <string name="studio_hint_text">Własny tekst, który sam wpiszesz</string>
-    <string name="studio_hint_wheel_name">Nazwa połączonego koła</string>
-    <string name="studio_layout_2_columns">2 kolumny</string>
-    <string name="studio_layout_2_rows">2 wiersze</string>
-    <string name="studio_layout_3_columns">3 kolumny</string>
-    <string name="studio_layout_3_rows">3 wiersze</string>
-    <string name="studio_layout_full_screen">Pełny ekran</string>
-    <string name="studio_layout_grid_4">Siatka 2 × 2</string>
-    <string name="studio_layout_title">Okna aparatów</string>
-    <string name="studio_load_preset_title">Wczytaj preset</string>
-    <string name="studio_manage_empty">Brak elementów,użyj Dodaj element, aby umieścić pierwszy.</string>
-    <string name="studio_manage_hint">Przeciągnij, aby zmienić kolejność, stuknij wiersz, aby go wybrać</string>
-    <string name="studio_manage_title">Zarządzaj elementami</string>
-    <string name="studio_metric_battery">Bateria</string>
-    <string name="studio_metric_current">Prąd</string>
-    <string name="studio_metric_g_force">G-Force</string>
-    <string name="studio_metric_odometer">Przebieg</string>
-    <string name="studio_metric_pitch">Pochylenie</string>
-    <string name="studio_metric_power">Moc</string>
-    <string name="studio_metric_pwm">PWM</string>
-    <string name="studio_metric_roll">Przechył</string>
-    <string name="studio_metric_speed">Prędkość</string>
-    <string name="studio_metric_temperature">Temperatura</string>
-    <string name="studio_metric_trip_distance">Długość trasy</string>
-    <string name="studio_metric_voltage">Napięcie</string>
-    <string name="studio_no_folder_body">Ustaw folder kopii zapasowej, aby wczytywać i zapisywać presety</string>
-    <string name="studio_pane_camera_access_needed">Wymagany dostęp do aparatu</string>
-    <string name="studio_pane_camera_conflict">%1$s nie może działać równolegle z innym aparatem na tym urządzeniu</string>
-    <string name="studio_pane_camera_unavailable">Aparat niedostępny</string>
-    <string name="studio_pane_choose_image">Stuknij klucz, aby wybrać obraz</string>
-    <string name="studio_rendering">Renderowanie</string>
-    <string name="studio_rendering_cancel">Anuluj</string>
-    <string name="studio_replay_cd_back">Wstecz</string>
-    <string name="studio_replay_cd_close">Zamknij powtórkę</string>
-    <string name="studio_replay_cd_fade">Wygaś panel</string>
-    <string name="studio_replay_cd_pause">Wstrzymaj</string>
-    <string name="studio_replay_cd_play">Odtwórz</string>
-    <string name="studio_replay_cd_speed">Prędkość powtórki</string>
-    <string name="studio_replay_choose_trip">Wybierz trasę</string>
-    <string name="studio_replay_clip_saved">Klip z powtórki zapisany</string>
-    <string name="studio_replay_export_failed">Eksport powtórki nie powiódł się</string>
-    <string name="studio_replay_no_trips">Brak nagranych tras</string>
-    <string name="studio_replay_render_cancelled">Renderowanie anulowane</string>
-    <string name="studio_replay_speed_title">Prędkość powtórki</string>
-    <string name="studio_replay_title">Powtórka</string>
-    <string name="studio_flyout_live">Na żywo</string>
-    <string name="studio_save_btn">Zapisz</string>
-    <string name="studio_save_preset_body">Presety są zapisywane jako osobne pliki .json w folderze kopii zapasowej, w katalogu overlays/</string>
-    <string name="studio_save_preset_name_label">Nazwa presetu</string>
-    <string name="studio_save_preset_title">Zapisz preset</string>
-    <string name="studio_section_landscape">Pozioma</string>
-    <string name="studio_section_portrait">Pionowa</string>
-    <string name="studio_section_your_presets">Twoje presety</string>
-    <string name="studio_viewport_camera">Aparat</string>
-    <string name="studio_viewport_camera_label">Aparat</string>
-    <string name="studio_viewport_choose_image">Wybierz</string>
-    <string name="studio_viewport_clear_image">Wyczyść</string>
-    <string name="studio_viewport_fill">Wypełnij</string>
-    <string name="studio_viewport_image">Obraz</string>
-    <string name="studio_viewport_replace_image">Zmień</string>
-    <string name="studio_viewport_title">Źródło sekcji %1$d</string>
-    <string name="dash_view_video_gallery">Zobacz galerię wideo</string>
-    <string name="dash_view_photo_gallery">Zobacz galerię zdjęć</string>
-    <string name="dash_no_gallery_app">Nie znaleziono aplikacji galerii</string>
-    <string name="trip_action_share_file">Udostępnij plik</string>
-    <string name="trip_action_share_file_desc">Wyślij plik CSV przejazdu do innej aplikacji</string>
-    <string name="trip_action_view_online">Zobacz online</string>
-    <string name="trip_action_view_online_desc">Otwórz na mapie EUC Viewer</string>
-    <string name="trip_action_replay">Odtwórz w Studio</string>
-    <string name="trip_action_replay_desc">Przewijaj przejazd z nakładkami danych na żywo</string>
-    <string name="studio_element_g_force">G-Force</string>
-    <string name="studio_hint_g_force">Okrąg śladu przeciążenia</string>
-    <string name="studio_cfg_trail_label">Długość śladu</string>
-    <string name="studio_cfg_mirror">Odbij w poziomie</string>
-    <string name="studio_cfg_orientation">Orientacja</string>
-    <string name="studio_element_map">Mapa</string>
-    <string name="studio_hint_map">Mała mapa na żywo z twoją trasą</string>
-    <string name="studio_cfg_map_style">Styl mapy</string>
-    <string name="studio_cfg_map_street">Ulice</string>
-    <string name="studio_cfg_map_dark">Ciemny</string>
-    <string name="studio_cfg_map_satellite">Satelita</string>
-    <string name="studio_cfg_map_zoom">Powiększenie</string>
-    <string name="studio_cfg_map_rotate">Obracaj zgodnie z ruchem</string>
-    <string name="studio_cfg_map_trace">Pokaż trasę</string>
-    <string name="studio_group_data">Dane</string>
-    <string name="studio_group_text">Tekst i informacje</string>
-    <string name="studio_group_media">Kamera i obrazy</string>
-    <string name="studio_cfg_fit">Skalowanie</string>
-    <string name="studio_cfg_fit_crop">Przytnij</string>
-    <string name="studio_cfg_fit_contain">Dopasuj</string>
-    <string name="studio_cfg_fit_center">Wyśrodkuj</string>
-    <string name="studio_cfg_brightness">Jasność</string>
-    <string name="studio_cfg_contrast">Kontrast</string>
-    <string name="studio_cfg_saturation">Nasycenie</string>
-    <string name="studio_cfg_filter">Filtr</string>
-    <string name="studio_cfg_filter_none">Brak</string>
-    <string name="studio_cfg_filter_bw">Cz-b</string>
-    <string name="studio_cfg_filter_sepia">Sepia</string>
-    <string name="studio_cfg_filter_warm">Ciepły</string>
-    <string name="studio_cfg_filter_cool">Chłodny</string>
-    <string name="studio_cfg_zoom">Powiększenie</string>
-    <string name="studio_cfg_shadow">Cień</string>
-    <string name="studio_export_format">Format wyjściowy</string>
-    <string name="studio_export_photo">Zdjęcie</string>
-    <string name="studio_export_video">Wideo</string>
-    <string name="studio_export_chroma">Klucz koloru</string>
-    <string name="studio_export_options">Opcje wyjścia</string>
-    <string name="studio_export_scale">Skala</string>
-    <string name="studio_chroma_magenta">Magenta</string>
-    <string name="studio_chroma_green">Zielony</string>
-    <string name="studio_chroma_blue">Niebieski</string>
-    <string name="studio_chroma_black">Czarny</string>
-    <string name="studio_chroma_white">Biały</string>
-    <string name="studio_cfg_style">Styl</string>
-    <string name="studio_cfg_shadow_colour">Kolor cienia</string>
-    <string name="studio_cfg_shadow_strength">Siła cienia</string>
-    <string name="studio_cfg_shadow_offset">Przesunięcie cienia</string>
-    <string name="studio_cfg_shadow_angle">Kierunek cienia</string>
-    <string name="studio_cd_rotate">Obróć</string>
-    <string name="studio_cfg_border_colour">Kolor obramowania</string>
-    <string name="studio_cfg_border_width">Grubość obramowania</string>
-    <string name="studio_rendering_keep_open">Trzymaj telefon włączony i ten ekran otwarty, dopóki renderowanie się nie zakończy</string>
-    <string name="studio_chroma_bright_green">Jaskrawozielony</string>
-    <string name="studio_chroma_cyan">Cyjan</string>
-    <string name="studio_export_force_opaque">Wymuś pełną nieprzezroczystość</string>
-    <string name="studio_cfg_g_scale">Skala</string>
-    <string name="studio_cfg_g_smoothing">Wygładzanie</string>
-    <string name="studio_cfg_geometry">Geometria</string>
-    <string name="studio_export_force_opaque_hint">Formaty bez przezroczystości używają koloru chroma key; może źle wyglądać na półprzezroczystych warstwach</string>
-    <string name="studio_cfg_filter_vivid">Żywy</string>
-    <string name="studio_cfg_filter_noir">Noir</string>
-    <string name="studio_cfg_filter_vintage">Vintage</string>
-    <string name="studio_cfg_filter_matte">Matowy</string>
-    <string name="dash_external_gps_settings">Ustawienia zewnętrznego GPS</string>
-    <string name="external_gps_caption">Włącz urządzenie i dotknij Paruj; prędkość i siła G zasilają aplikację na żywo i są zapisywane w CSV trasy</string>
-    <string name="gps_prioritize_external_desc">Preferuj podłączone urządzenie zamiast telefonu dla prędkości, pozycji i siły G</string>
-    <string name="studio_cfg_show_value">Pokaż wartość</string>
-    <string name="studio_cfg_unit_position">Jednostka</string>
-    <string name="studio_cfg_unit_left">Przed</string>
-    <string name="studio_cfg_unit_right">Po</string>
-    <string name="studio_cfg_dial_style">Tarcza</string>
-    <string name="studio_cfg_dial_full">Koło</string>
-    <string name="studio_cfg_dial_semi">Połowa</string>
-    <string name="studio_snap_to_grid">Przyciągaj do siatki</string>
-    <string name="studio_overwrite_title">Nadpisać preset?</string>
-    <string name="studio_overwrite_body">Preset o nazwie \"%1$s\" już istnieje.</string>
-    <string name="studio_overwrite_confirm">Nadpisz</string>
-
+    <string name="about_thanks_body">Zmęczyły mnie aplikacje do EUC, które rozwijają się zbyt wolno, wyglądają archaicznie, mają drakońskie zasady wokół nowych funkcji, traktują swoje społeczności jak klientów i zapominają, że riderzy EUC są najlepsi, gdy sobie nawzajem pomagają. Ta próbuje być ich przeciwieństwem.</string>
     <string name="about_license">Licencja</string>
-    <string name="action_apply">Zastosuj</string>
-    <string name="action_chip_horn">Klakson</string>
-    <string name="action_chip_light">Światło</string>
-    <string name="action_chip_lock">Zablokuj koło</string>
-    <string name="action_chip_media_next">Następny utwór</string>
-    <string name="action_chip_media_play">Odtwórz / pauza</string>
-    <string name="action_chip_media_prev">Poprzedni utwór</string>
-    <string name="action_chip_mute_alarms">Wycisz alarmy</string>
-    <string name="action_chip_open_about">O aplikacji</string>
-    <string name="action_chip_open_navigation">Pokaż mapę</string>
-    <string name="action_chip_open_service">Tryb serwisowy</string>
-    <string name="action_chip_open_studio">Overlay Studio</string>
-    <string name="action_chip_open_trips">Trasy</string>
-    <string name="action_chip_record">Rejestrator</string>
-    <string name="action_chip_record_start">Start nagr.</string>
-    <string name="action_chip_record_stop">Stop nagr.</string>
-    <string name="action_chip_reset_trip">Zeruj trip</string>
-    <string name="action_chip_safety">Tryb legalny</string>
-    <string name="action_chip_safety_off">Legal WYŁ.</string>
-    <string name="action_chip_safety_on">Legal WŁ.</string>
-    <string name="action_chip_toggle_units">Zmień jednostki</string>
-    <string name="action_chip_voice">Głos</string>
-    <string name="action_unsupported_on_wheel">Nieobsługiwane na tym kole</string>
-    <string name="alarm_metric_pwm_voice"></string>
-    <string name="dashboard_close">Zamknij</string>
-    <string name="dashboard_columns">Kolumny</string>
-    <string name="dashboard_composite_blank_label">(pusta)</string>
-    <string name="dashboard_composite_cell_label">Komórka %1$d</string>
-    <string name="dashboard_composite_empty_label">(wolne)</string>
-    <string name="dashboard_composite_layout_col2">2 kolumny</string>
-    <string name="dashboard_composite_layout_col3">3 kolumny</string>
-    <string name="dashboard_composite_layout_row2">2 wiersze</string>
-    <string name="dashboard_composite_template_label">MULTI</string>
-    <string name="dashboard_corner_center">Środek</string>
-    <string name="dashboard_corner_left">Lewo</string>
-    <string name="dashboard_corner_right">Prawo</string>
-    <string name="dashboard_custom_tile_action_none">Tekst</string>
-    <string name="dashboard_custom_tile_action_qr">Pokaż QR</string>
-    <string name="dashboard_custom_tile_empty_toast">Ten kafelek jest pusty</string>
-    <string name="dashboard_custom_tile_action_url">Otwórz URL</string>
-    <string name="dashboard_custom_tile_template_label">TEKST</string>
-    <string name="dashboard_custom_tile_text_label">Tekst</string>
-    <string name="dashboard_custom_tile_text_placeholder">np. Mój Instagram</string>
-    <string name="dashboard_custom_tile_url_label">URL</string>
-    <string name="dashboard_grid_hint">Przytrzymaj, aby przeciągnąć; dotknij, aby edytować</string>
-    <string name="dashboard_group_action_none">(brak)</string>
-    <string name="dashboard_group_action_slot">Akcja %1$d</string>
-    <string name="dashboard_group_default_name">Moje akcje</string>
-    <string name="dashboard_group_empty_toast">Brak akcji do pokazania</string>
-    <string name="dashboard_group_name_label">Nazwa grupy</string>
-    <string name="dashboard_group_template_label">GRUPA</string>
-    <string name="dashboard_pool_actions">Dostępne akcje</string>
-    <string name="dashboard_pool_metrics">Dostępne metryki</string>
-    <string name="dashboard_pool_tap_toast">Przytrzymaj i przeciągnij do gniazda powyżej, aby użyć</string>
-    <string name="dashboard_restore_slot">Przywróć slot</string>
-    <string name="dashboard_rolling_window">Okno statystyk kroczących</string>
-    <string name="dashboard_rolling_window_10m">10 min</string>
-    <string name="dashboard_rolling_window_15m">15 min</string>
-    <string name="dashboard_rolling_window_1h">1 godz.</string>
-    <string name="dashboard_rolling_window_1m">1 min</string>
-    <string name="dashboard_rolling_window_2m">2 min</string>
-    <string name="dashboard_rolling_window_30m">30 min</string>
-    <string name="dashboard_rolling_window_30s">30 s</string>
-    <string name="dashboard_rolling_window_3m">3 min</string>
-    <string name="dashboard_rolling_window_5m">5 min</string>
-    <string name="dashboard_section_actions">Przyciski akcji</string>
-    <string name="dashboard_section_metrics">Metryki</string>
-    <string name="dashboard_slot_sparkline">Trend na żywo w tle</string>
-    <string name="dashboard_slot_sparkline_chip">Stat.</string>
-    <string name="dashboard_stat_avg">Śr</string>
-    <string name="dashboard_stat_current">Teraz</string>
-    <string name="dashboard_stat_empty">(pusta)</string>
-    <string name="dashboard_stat_max">Maks. / Szczyt</string>
-    <string name="dashboard_stat_median">Mediana (P50)</string>
-    <string name="dashboard_stat_median_short">P50</string>
-    <string name="dashboard_stat_min">Min.</string>
-    <string name="dashboard_stat_none">(wolne)</string>
-    <string name="dashboard_stat_p75">75. percentyl</string>
-    <string name="dashboard_stat_p75_short">P75</string>
-    <string name="dashboard_stat_p95">95. percentyl</string>
-    <string name="dashboard_stat_p95_short">P95</string>
-    <string name="dashboard_stat_p99">99. percentyl</string>
-    <string name="dashboard_stat_p99_short">P99</string>
-    <string name="dashboard_stat_sustained_peak">Stały szczyt</string>
-    <string name="dashboard_stat_sustained_peak_short">S.Szczyt</string>
-    <string name="dashboard_stats_length">Długość statystyk</string>
-    <string name="dashboard_view">Widok</string>
-    <string name="dashboard_view_default">Domyślny</string>
-    <string name="dashboard_view_wide">Szeroki</string>
-    <string name="engine_preset_boxer_6">Boxer 6</string>
-    <string name="engine_preset_pod_racer">Pod racer</string>
-    <string name="engine_preset_sampled_aston_martin">Aston Martin</string>
-    <string name="engine_preset_sampled_v8_cobra">V8 Cobra</string>
-    <string name="engine_preset_sampled_vtwin_ducati">V-twin Ducati</string>
-    <string name="engine_preset_tron_whine">Pisk Tron</string>
-    <string name="engine_preset_v12_italian">V12 włoski</string>
-    <string name="engine_preset_v16_luxury">V16 luksus</string>
-    <string name="engine_preset_v8_muscle">V8 muscle</string>
-    <string name="engine_preset_v_twin">V-twin</string>
-    <string name="metric_chip_ascent">Wzniesienie</string>
-    <string name="metric_chip_avg_trip_speed">Śr. prędkość</string>
-    <string name="metric_chip_battery">Bateria</string>
-    <string name="metric_chip_battery_1">Pack 1</string>
-    <string name="metric_chip_battery_2">Pack 2</string>
-    <string name="metric_chip_battery_power">Moc baterii</string>
-    <string name="metric_chip_battery_temp">Temperatura baterii</string>
-    <string name="metric_chip_bt_rssi">Sygnał BT</string>
-    <string name="metric_chip_controller_temp">Temperatura sterownika</string>
-    <string name="metric_chip_current">Prąd</string>
-    <string name="metric_chip_descent">Zjazd</string>
-    <string name="metric_chip_dyn_current_limit">Dynamiczny limit prądu</string>
-    <string name="metric_chip_dyn_speed_limit">Dynamiczny limit prędkości</string>
-    <string name="metric_chip_forward_g">Wzdł. g</string>
-    <string name="metric_chip_g_force">Siła g</string>
-    <string name="metric_chip_gps_accuracy">Dokładność GPS</string>
-    <string name="metric_chip_gps_altitude">Wysokość</string>
-    <string name="metric_chip_gps_heading">Kurs</string>
-    <string name="metric_chip_gps_speed">Pręd. GPS</string>
-    <string name="metric_chip_headroom">Zapas</string>
-    <string name="metric_chip_lat_long">Lat, Long</string>
-    <string name="metric_chip_lateral_g">Boczne g</string>
-    <string name="metric_chip_light_on">Światło</string>
-    <string name="metric_chip_load">PWM</string>
-    <string name="metric_chip_motor_power">Moc silnika</string>
-    <string name="metric_chip_motor_rpm">obr/min</string>
-    <string name="metric_chip_motor_temp">Temperatura silnika</string>
-    <string name="metric_chip_odometer">Licznik km</string>
-    <string name="metric_chip_pc_mode">Tryb jazdy</string>
-    <string name="metric_chip_phone_battery">Bateria telefonu</string>
-    <string name="metric_chip_pitch">Pochylenie</string>
-    <string name="metric_chip_power">Moc</string>
-    <string name="metric_chip_range_estimate">Zasięg</string>
-    <string name="metric_chip_regen_wh">Regen.</string>
-    <string name="metric_chip_roll">Przechył</string>
-    <string name="metric_chip_slope">Nachylenie</string>
-    <string name="metric_chip_speed">Prędkość</string>
-    <string name="metric_chip_temperature">Temperatura</string>
-    <string name="metric_chip_torque">Moment</string>
-    <string name="metric_chip_trip">Trasa</string>
-    <string name="metric_chip_trip_max_speed">Szczyt trasy</string>
-    <string name="metric_chip_trip_time">Czas trasy</string>
-    <string name="metric_chip_voltage">Napięcie</string>
-    <string name="metric_chip_wh_consumed">Energia</string>
-    <string name="metric_chip_wh_per_km">Wh / km</string>
-    <string name="metric_chip_wheel_alarm_speed">Alarm koła</string>
-    <string name="metric_chip_wheel_max_speed">Maks koła</string>
-    <string name="metric_desc_avg_trip_speed">Dystans trasy podzielony przez dotychczasowy czas jazdy.</string>
-    <string name="metric_desc_bt_rssi">Siła sygnału Bluetooth do koła — bliżej 0 dBm jest silniejsze.</string>
-    <string name="metric_desc_gps_accuracy">Promień błędu pozycji GPS — niższy jest dokładniejszy.</string>
-    <string name="metric_desc_headroom">Pozostały margines prędkości przed włączeniem tilt-backu. Duża liczba = więcej buforu bezpieczeństwa.</string>
-    <string name="metric_desc_range_estimate">Pozostała odległość przy bieżącym zużyciu.</string>
-    <string name="metric_desc_regen_wh">Łączne watogodziny zwrócone do baterii podczas hamowania na tej trasie.</string>
-    <string name="metric_desc_slope">Nachylenie drogi obliczone z pochylenia koła — dodatnie oznacza pod górę.</string>
-    <string name="metric_desc_trip_max_speed">Szczytowa prędkość na bieżącej trasie (resetuje się przy każdej nowej trasie).</string>
-    <string name="metric_desc_wh_consumed">Łączne watogodziny pobrane z baterii na tej trasie.</string>
-    <string name="metric_desc_wh_per_km">Energia na kilometr — niższe jest bardziej wydajne.</string>
-    <string name="metric_detail_reset">Zeruj</string>
-    <string name="metric_detail_reset_all">Zeruj wszystkie</string>
-    <string name="metric_detail_reset_all_confirm_body">Czyści bufor historii kroczącej dla każdej metryki. Ustawienia i trasy pozostają nienaruszone.</string>
-    <string name="metric_detail_reset_all_confirm_title">Wyzerować całą historię?</string>
-    <string name="metric_detail_show_label">Wartość</string>
-    <string name="nav_cant_add_while_running">Nie można dodać przystanku podczas nawigacji</string>
-    <string name="nav_customize_marker">Dostosuj mój marker</string>
-    <string name="nav_customize_marker_short">Dostosuj</string>
-    <string name="nav_load_confirm">Zastąpić bieżącą trasę wczytanym GPX?</string>
-    <string name="nav_menu_load_short">Wczytaj</string>
-    <string name="nav_remove_marker_photo">Zresetuj mój marker</string>
-    <string name="nav_remove_marker_photo_short">Zresetuj</string>
-    <string name="nav_search_no_results">Brak wyników dla tego adresu</string>
-    <string-array name="nav_stop_ordinals">
-        <item>Pierwszy przystanek</item>
-        <item>Drugi przystanek</item>
-        <item>Trzeci przystanek</item>
-        <item>Czwarty przystanek</item>
-        <item>Piąty przystanek</item>
-        <item>Szósty przystanek</item>
-        <item>Siódmy przystanek</item>
-        <item>Ósmy przystanek</item>
-    </string-array>
-    <string name="service_mode_caution">UWAGA: niewłaściwe użycie trybu serwisowego może spowodować utratę funkcjonalności koła, poważne obrażenia lub śmierć</string>
-    <string name="service_mode_enter">Wejdź</string>
-    <string name="service_mode_link">Więcej informacji na eucplanet.ried.no/service.</string>
-    <string name="service_mode_purpose">Tryb serwisowy jest przeznaczony dla wykwalifikowanych specjalistów EUC do diagnostyki, napraw, kalibracji i badań protokołów</string>
-    <string name="service_mode_recording">Gdy aktywny, aplikacja rejestruje każdy bajt BLE wysłany do koła i odebrany z niego oraz wszystkie wywołane komendy testowe. Dziennik pozostaje w pamięci do zamknięcia aplikacji.</string>
     <string name="service_mode_title">Tryb serwisowy</string>
-    <string name="studio_cfg_map_use_custom_marker">Preferuj własny marker</string>
-    <string name="studio_cfg_map_use_custom_marker_hint">Ustaw swoje zdjęcie w Nawigator → Dostosuj mój marker</string>
-    <string name="tab_dashboard">Układ pulpitu</string>
-    <string name="welcome_tut_skip">Pomiń</string>
-    <string name="welcome_tut_next">Dalej</string>
-    <string name="welcome_tut_prev">Wstecz</string>
-    <string name="welcome_tut_done">Gotowe</string>
-    <string name="welcome_tut_step">%1$d / %2$d</string>
-    <string name="welcome_tut_skip_title">Pominąć samouczek powitalny?</string>
-    <string name="welcome_tut_skip_body">Nie zostanie pokazany ponownie</string>
-    <string name="welcome_tut_skip_yes">Pomiń mimo to</string>
-    <string name="welcome_tut_welcome">Witaj w EUC Planet, prostej i konkretnej aplikacji open source dla monocykli elektrycznych</string>
-    <string name="welcome_tut_bt">Tutaj połączysz i rozłączysz swoje koło</string>
-    <string name="welcome_tut_version">Wiele kół potrzebuje tylko testerów, żeby uzyskać pełne wsparcie, zwykle to drobnostka. Dotknij wersji, aby otworzyć ekran O aplikacji i pomóc</string>
-    <string name="welcome_tut_outro_title">To koniec samouczka!</string>
-    <string name="welcome_tut_outro_backup">Zapisuj swoje przejazdy: wybierz %1$s w Ustawienia → %2$s, a potem przeglądaj je na eucviewer.ried.no</string>
-    <string name="welcome_tut_outro_buttons">Wiele przycisków ma dodatkowe akcje, spróbuj przytrzymać je dłużej</string>
-    <string name="welcome_tut_speed">Twoja bieżąca prędkość. Zmień jednostki w Ustawienia → %1$s</string>
-    <string name="welcome_tut_metrics">Bieżąca bateria, temperatura, napięcie i więcej. Zmień ich układ w Ustawienia → %1$s</string>
-    <string name="welcome_tut_actions">Szybkie sterowanie. Dostosuj je w Ustawienia → %1$s → %2$s</string>
-    <string name="welcome_tut_map">Otwórz nawigator, aby planować trasy i otrzymywać nawigację zakręt po zakręcie</string>
-    <string name="welcome_tut_gps">Dotknij, aby zobaczyć dane na żywo, możesz nawet skalibrować prędkość koła na podstawie prędkości GPS. Kalibrację sprawdzisz później w Ustawienia → %1$s</string>
-    <string name="welcome_tut_camera">Nagrywaj wideo z nakładką telemetrii na żywo. Twórz własne efektowne nakładki i eksportuj je, aby przygotować swoje filmy z danymi z wcześniejszych przejazdów</string>
-    <string name="welcome_tut_pd">Pokazuje Postój lub Jazda. Dotknij, aby ustawić swój %1$s</string>
-    <string name="welcome_tut_outro_alarms">Poznaj rozbudowany edytor własnych alarmów w Ustawienia → %1$s</string>
-    <string name="welcome_tut_outro_integrations">Poznaj integracje: przyciski Flic, twój zegarek, HUD, Garmin Connect IQ i radar tylny</string>
-    <string name="welcome_tut_outro_end">Podczas jazdy trzymaj wzrok na drodze, a nie na tej aplikacji!</string>
-
-    <!-- Short variants for the dashboard tile face. Same English abbreviations
-         used across all locales for compactness; the full localized name is
-         still shown in the slot editor sheet via metric_chip_<key>. -->
-    <string name="metric_chip_temperature_tile">Temp</string>
-    <string name="metric_chip_battery_power_tile">Bat W</string>
-    <string name="metric_chip_motor_power_tile">Mot W</string>
-    <string name="metric_chip_battery_temp_tile">Bat T</string>
-    <string name="metric_chip_motor_temp_tile">Mot T</string>
-    <string name="metric_chip_controller_temp_tile">Ctrl T</string>
-    <string name="metric_chip_dyn_speed_limit_tile">Sp limit</string>
-    <string name="metric_chip_dyn_current_limit_tile">A limit</string>
-    <string name="metric_chip_phone_battery_tile">Tel</string>
-    <string name="metric_chip_gps_accuracy_tile">GPS ±</string>
-    <string name="metric_chip_odometer_tile">Odo</string>
-    <string name="metric_chip_trip_max_speed_tile">Max sp</string>
-    <string name="metric_chip_avg_trip_speed_tile">Avg sp</string>
-    <string name="metric_chip_wh_consumed_tile">Wh</string>
-    <string name="metric_chip_ascent_tile">Pod</string>
-    <string name="metric_chip_descent_tile">Zjazd</string>
-    <string name="metric_chip_gps_speed_tile">GPS sp</string>
-    <string name="metric_chip_gps_altitude_tile">Alt</string>
-    <string name="metric_chip_gps_heading_tile">Kurs</string>
-    <string name="metric_chip_trip_time_tile">Czas</string>
-    <string name="metric_chip_g_force_tile">G</string>
-    <string name="metric_chip_forward_g_tile">Fwd g</string>
-    <string name="metric_chip_lateral_g_tile">Side g</string>
-    <string name="metric_chip_bt_rssi_tile">BT</string>
-    <string name="section_watch_device">Urządzenia</string>
-    <string name="section_watch_paired">Sparowane urządzenia</string>
-    <string name="watch_paired_none">Brak sparowanych zegarków</string>
-    <string name="watch_paired_none_desc">Zainstaluj aplikację towarzyszącą EUC Planet na zegarku Wear OS lub Garmin, aby zacząć odbierać tutaj tarczę</string>
-    <string name="watch_paired_kind_wear">Wear OS</string>
-    <string name="watch_paired_kind_garmin">Garmin Connect IQ</string>
-    <string name="watch_paired_active">Na żywo</string>
-    <string name="watch_paired_idle">Nieaktywny</string>
-    <string name="watch_paired_rate_hz">%1$.1f Hz</string>
-    <string name="watch_paired_garmin_limits_title">Ograniczenia Garmin</string>
-    <string name="watch_paired_garmin_limit_launch">Garmin nie uruchamia automatycznie aplikacji zegarka</string>
-    <string name="watch_paired_garmin_limit_rate">Garmin odświeża wolniej niż Wear OS</string>
-    <string name="watch_paired_garmin_limit_rotation">Obrót tarczy nie jest dostępny. Connect IQ nie ma natywnej macierzy transformacji do obracania renderowanej tarczy.</string>
-    <string name="section_watch_hardware_buttons">Przyciski sprzętowe</string>
-    <string name="watch_buttons_hardware_info">Przytrzymania mogą być przejmowane przez system na niektórych zegarkach</string>
-    <string name="watch_buttons_touch_info">Zależy od twojego zegarka</string>
-    <string name="watch_buttons_hardware_label">Fizyczne</string>
-    <string name="watch_buttons_touch_label">Dotyk</string>
-    <string name="section_watch_buttons">Przyciski</string>
-    <string name="watch_hardware_button_1">Przycisk 1</string>
-    <string name="watch_hardware_button_2">Przycisk 2</string>
-    <string name="watch_hardware_button_1_subtitle">Garmin: Start · Galaxy Watch Ultra: pomarańczowy przycisk Action</string>
-    <string name="watch_hardware_button_2_subtitle">Garmin: W górę (długie naciśnięcie) · Galaxy Watch Ultra: dolny przycisk boczny</string>
-    <string name="section_watch_screen_buttons_desc">Obszary dotykowe narysowane na tarczy zegarka</string>
-    <string name="section_watch_hardware_buttons_desc">Boczne przyciski zegarka</string>
-    <!-- Radar tylny (obecnie Garmin Varia) -->
-    <string name="section_radar">Radar tylny</string>
-    <string name="radar_caption">Przytrzymaj przycisk Varia przez 2 sekundy, aż zacznie pulsować na fioletowo, a następnie rozpocznij skanowanie.</string>
-    <string name="radar_pair_button">Rozpocznij skanowanie</string>
-    <string name="radar_pair_action">Sparuj</string>
-    <string name="radar_stop_scan">Zatrzymaj skanowanie</string>
-    <string name="radar_state_connected">Połączono</string>
-    <string name="radar_state_connecting">Łączenie…</string>
-    <string name="radar_state_disconnected">Rozłączono</string>
-    <string name="radar_reconnect">Połącz ponownie</string>
-    <string name="radar_disconnect">Rozłącz</string>
-    <string name="radar_unpair">Zapomnij urządzenie</string>
-    <string name="radar_battery_fmt">Bateria %1$d %%</string>
-    <string name="radar_clear">Pas wolny</string>
-    <string name="radar_threats_count">Śledzonych pojazdów: %1$d</string>
-    <string name="radar_show_overlay">Pokaż nakładkę zagrożeń</string>
-    <string name="radar_show_overlay_desc">Wąski pasek radaru na krawędziach panelu. Jedna kolorowa kropka na pojazd. Widoczny tylko na panelu.</string>
-    <string name="radar_overlay_left">Lewa krawędź</string>
-    <string name="radar_overlay_both">Obie krawędzie</string>
-    <string name="radar_overlay_right">Prawa krawędź</string>
-    <string name="alarm_metric_radar_distance">Odległość samochodu</string>
-    <string name="alarm_metric_radar_approach">Zbliżający się samochód</string>
-
-    <string name="warnings_indicator_desc">Ostrzeżenia aplikacji</string>
-    <string name="warnings_dialog_title">Wymaga uwagi</string>
-    <string name="warnings_fix_button">Napraw</string>
-    <string name="warnings_perm_notifications_title">Powiadomienia wyłączone</string>
-    <string name="warnings_perm_notifications_body">Nie zobaczysz statusu jazdy w pasku stanu ani nie otrzymasz głosowych powiadomień</string>
-    <string name="hud_screen_name_map_nav">Mapa + Nawigacja</string>
-
-    <!-- HUD Overlay / Personalize / Map / Versions (added) -->
-    <string name="hud_overlay_subsection">Własna nakładka</string>
-    <string name="hud_overlay_subsection_desc">Zaimportuj preset z Overlay Studio na ekran Custom HUD-a, bez tła. Preset jest tu kopiowany, więc późniejsze zmiany w studio nie zmienią HUD-a, dopóki nie zaimportujesz ponownie</string>
-    <string name="hud_overlay_select_preset">Importuj preset</string>
-    <string name="hud_overlay_current_preset">Aktualny: %1$s</string>
-    <string name="hud_search_corpus">HUD wyświetlacz przezierny towarzysz serwer strumień telemetria hotspot motoeye strzałka skrętu</string>
-    <string name="hud_personalize_title">Personalizuj</string>
-    <string name="hud_screens_title">Ekrany HUD</string>
-    <string name="hud_map_options_title">Opcje mapy</string>
-    <string name="hud_personalize_desc">Wybierz, które ekrany pokazuje HUD i kolejność, w jakiej się przełączają. Co najmniej jeden ekran musi pozostać włączony.</string>
-    <string name="hud_screen_name_dashboard">Pulpit</string>
-    <string name="hud_screen_name_camera">Kamera tylna</string>
-    <string name="hud_screen_name_telemetry">Telemetria</string>
-    <string name="hud_screen_name_custom">Własna nakładka + czarne tło</string>
-    <string name="hud_screen_name_custom_cam">Własna nakładka + kamera</string>
-    <string name="hud_screen_name_map">Mapa</string>
-    <string name="hud_screen_name_nav">Nawigator</string>
-    <string name="hud_screen_name_power">Waty i zasięg</string>
-    <string name="hud_screen_name_trip_stats">Statystyki trasy</string>
-    <string name="hud_screen_name_compass">Kompas</string>
-    <string name="hud_screen_name_safety">Bezpieczeństwo</string>
-    <string name="hud_screen_name_big_clock">Duży zegar</string>
-    <string name="hud_map_style_label">Styl mapy</string>
-    <string name="hud_map_contrast_label">Kontrast</string>
-    <string name="hud_map_brightness_label">Jasność</string>
-    <string name="hud_install_hint">Potrzebujesz aplikacji HUD? Pobierz ją z <b>eucplanet.ried.no/hud</b></string>
-    <string name="hud_update_url">eucplanet.ried.no/hud</string>
-    <string name="hud_version_hint_hud_behind">Dostępna aktualizacja HUD-a. Nowe funkcje telefonu pojawią się dopiero po aktualizacji HUD-a z <b>eucplanet.ried.no/hud</b></string>
-    <string name="hud_version_hint_phone_behind">Dostępna aktualizacja telefonu. Niektóre funkcje HUD-a pojawią się dopiero po aktualizacji tej aplikacji z <b>eucplanet.ried.no/hud</b></string>
-    <string name="hud_version_block_hud_behind">Aktualizacja HUD-a wymagana. Aplikacja HUD jest za stara, by współpracować z tym telefonem. Zaktualizuj ją z <b>eucplanet.ried.no/hud</b>, aby kontynuować.</string>
-    <string name="hud_version_block_phone_behind">Aktualizacja telefonu wymagana. Ta aplikacja jest za stara, by współpracować z HUD-em. Zaktualizuj ją z <b>eucplanet.ried.no/hud</b>, aby kontynuować.</string>
-    <string name="nav_setting_full_path">Zawsze wyznaczaj całą trasę</string>
-    <string name="nav_setting_full_path_desc">Wyłączone — wyznacza tylko następny przystanek, resztę pokazuje jako przerywany podgląd</string>
-    <string name="studio_cfg_clock_24h">Format 24-godzinny</string>
-    <string name="studio_cfg_dial_color_band">Pasek koloru</string>
+    <string name="service_mode_caution">UWAGA: niewłaściwe użycie trybu serwisowego może spowodować utratę funkcjonalności koła, poważne obrażenia lub śmierć</string>
+    <string name="service_mode_purpose">Tryb serwisowy jest przeznaczony dla wykwalifikowanych specjalistów EUC do diagnostyki, napraw, kalibracji i badań protokołów</string>
+    <string name="service_mode_recording">Gdy aktywny, aplikacja rejestruje każdy bajt BLE wysłany do koła i odebrany z niego oraz wszystkie wywołane komendy testowe. Log pozostaje w pamięci do czasu zamknięcia aplikacji.</string>
+    <string name="service_mode_link">Więcej informacji na eucplanet.ried.no/service.</string>
+    <string name="service_mode_enter">Wejdź</string>
+    <string name="toast_external_speed_change">Prędkość zaktualizowana z koła: tiltback %1$d km/h, alarm %2$d km/h</string>
 
     <!-- ==== EucStats online upload onboarding ==== -->
 
@@ -1407,13 +1034,13 @@
     <string name="online_upload_consent_bullet_flag">Flaga Twojego kraju</string>
     <string name="online_upload_consent_bullet_avatar">Twoje zdjęcie profilowe</string>
     <string name="online_upload_consent_bullet_stats">Twoje ogólne statystyki jazdy, m.in. dystans i prędkość</string>
-    <string name="online_upload_consent_bullet_location">Miejsca startu i końca trasy, zgrupowane w obszary 10 km (6 mi) lub większe</string>
+    <string name="online_upload_consent_bullet_location">Lokalizacje są grupowane w szerokie obszary mapy, aby chronić prywatność</string>
     <string name="online_upload_consent_no_raw_gps">Surowe ślady GPS nigdy nie są publikowane.</string>
     <string name="online_upload_consent_agree">Zgadzam się i kontynuuję</string>
 
     <!-- Step 2: Profile -->
     <string name="online_upload_profile_title">Utwórz profil</string>
-    <string name="online_upload_profile_name_label">Nazwa wyświetlana</string>
+    <string name="online_upload_profile_name_label">Unikalna nazwa wyświetlana</string>
     <string name="online_upload_profile_country_label">Kraj</string>
     <string name="online_upload_profile_country_select">Wybierz kraj</string>
     <string name="online_upload_country_search">Szukaj krajów</string>
@@ -1429,13 +1056,22 @@
     <!-- Registration outcome -->
     <string name="online_upload_register_action">Zarejestruj</string>
     <string name="online_upload_register_error">Rejestracja nie powiodła się. Sprawdź połączenie i spróbuj ponownie.</string>
+    <!-- %1$s = the server's raw reason (e.g. display_name_taken), %2$d = HTTP status code -->
+    <string name="online_upload_register_server_error">Rejestracja nie powiodła się. Serwer odpowiedział: %1$s (%2$d)</string>
 
-    <!-- Online stats toggle + rider card -->
+    <!-- Online stats toggle + rider card (Task E3) -->
     <string name="section_online_stats">Rankingi online</string>
     <string name="online_upload_toggle">Dołącz do rankingów online</string>
     <string name="online_upload_card_loading">Wczytywanie…</string>
     <string name="online_upload_card_unavailable">Nie udało się załadować statystyk.</string>
+    <string name="online_upload_card_missing">Profil tego telefonu w rankingu już nie istnieje na serwerze, więc nowe przesyłania będą odrzucane. Jeśli to niespodziewane, skontaktuj się z administratorem rankingu.</string>
     <string name="online_upload_actions_caption">Przesyłanie statystyk tras</string>
+    <string name="online_upload_actions_desc">Wyślij trasy jeszcze nieprzesłane do rankingu.</string>
+    <string name="online_upload_sync_nothing">Brak tras do synchronizacji</string>
+    <string name="online_upload_sync_done">Zsynchronizowano %1$d tras</string>
+    <string name="online_upload_sync_checking">Sprawdzanie tras do przesłania…</string>
+    <string name="online_upload_sync_progress">Przesyłanie %1$d z %2$d</string>
+    <string name="online_rider_id_conflict">W tym folderze jest już zapisane ID odzyskiwania innego zawodnika, zachowano je bez nadpisania.</string>
     <string name="online_upload_view_on_eucstats">Zobacz w EUC Stats</string>
     <string name="online_upload_retry">Ponów przesyłanie</string>
     <string name="online_upload_mileage_rank">#%d dystans</string>
@@ -1447,7 +1083,8 @@
     <string name="online_status_flagged">Udostępniono, w weryfikacji</string>
     <string name="online_status_pending">Przesyłanie do rankingu…</string>
     <string name="online_status_failed">Przesyłanie nie powiodło się, stuknij, aby ponowić</string>
-    <string name="online_upload_join_caption">Twoje trasy pojawiają się w publicznym rankingu pod adresem</string>
+    <string name="online_upload_join_caption">Dołącz, aby wysyłać statystyki i trasy do publicznego rankingu na</string>
+    <string name="online_upload_linked_caption">Twoje statystyki i trasy pojawiają się w publicznym rankingu na</string>
     <string name="online_upload_site_label">eucstats.ried.no</string>
     <string name="online_upload_site_url">https://eucstats.ried.no/</string>
     <string name="online_upload_unlink">Odłącz</string>
@@ -1467,16 +1104,491 @@
     <string name="online_profile_delete_confirm_action">Usuń trwale</string>
     <string name="online_profile_save_rate_limited">Zbyt wiele prób, spróbuj ponownie później.</string>
     <string name="online_profile_save_failed">Zapisanie nie powiodło się (HTTP %1$d). Spróbuj ponownie.</string>
-
     <string name="online_status_flagged_why">Wstrzymano do krótkiej automatycznej weryfikacji. Pojawi się w rankingu po jej przejściu.</string>
-    <string name="online_restore_title">Przywrócić profil zawodnika?</string>
-    <string name="online_restore_body_new">W tym folderze jest zapisany profil dla %1$s. Przywróć go, aby zachować swoją tożsamość w rankingu i statystyki.</string>
-    <string name="online_restore_body_switch">Ten folder należy do %1$s. Przywrócenie przełącza ten telefon na tego zawodnika. Twój obecny profil zostanie najpierw zapisany w kopii zapasowej, więc możesz wrócić.</string>
-    <string name="online_restore_confirm">Przywróć</string>
-    <string name="online_upload_card_missing">Profil tego telefonu w rankingu już nie istnieje na serwerze, więc nowe przesyłki będą odrzucane. Jeśli to niespodziewane, skontaktuj się z administratorem rankingu.</string>
-    <string name="online_upload_linked_caption">Twoje statystyki i trasy pojawiają się w publicznym rankingu pod adresem</string>
+    <string name="online_restore_title">Znaleziono zapisany profil</string>
+    <string name="online_restore_body_new">Znaleziono zapisany profil: %1$s. Kontynuowanie dołącza do publicznego rankingu jako ten zawodnik, jego nazwa, flaga, avatar i statystyki jazdy są publiczne. Nie tworzy nowego profilu.</string>
+    <string name="online_restore_body_switch">Znaleziono inny zapisany profil: %1$s. Kontynuowanie przełącza ten telefon na tego zawodnika; Twój obecny profil zostanie najpierw zapisany w kopii zapasowej.</string>
+    <string name="online_restore_confirm">Kontynuuj jako %1$s</string>
     <string name="online_rejoin_title">Dołączyć ponownie do rankingu?</string>
     <string name="online_rejoin_body">Dołączysz ponownie jako Twój zapisany profil %1$s. Ten telefon wznowi przesyłanie nowych tras do tego profilu.</string>
+
+    <!-- ==== Overlay Studio ==== -->
+    <string name="studio_open">Otwórz Overlay Studio</string>
+    <string name="studio_not_connected">Nie połączono</string>
+    <string name="studio_stop">Stop</string>
+    <string name="studio_grant">Przyznaj dostęp</string>
+    <string name="studio_camera_permission">Dostęp do aparatu jest potrzebny do podglądów</string>
+    <string name="studio_photo_saved">Zdjęcie zapisane w galerii</string>
+    <string name="studio_photo_failed">Nie udało się zapisać zdjęcia</string>
+    <string name="studio_recording_saved">Nagranie zapisane w galerii</string>
+    <string name="studio_recording_failed">Nie udało się zapisać nagrania</string>
+    <string name="studio_image_failed">Nie udało się wczytać tego obrazu</string>
+    <string name="studio_preset_saved">Preset zapisany</string>
+    <string name="studio_preset_loaded">Preset wczytany</string>
+    <string name="studio_preset_failed">Nie udało się zapisać presetu</string>
+    <string name="studio_no_folder">Najpierw ustaw folder kopii zapasowej, aby zapisywać presety</string>
+    <string name="studio_your_presets_empty">Brak zapisanych presetów. Zapisz aktualny układ, aby dodać pierwszy.</string>
+
+    <!-- Studio: render progress overlay -->
+    <string name="studio_rendering">Renderowanie</string>
+    <string name="studio_rendering_cancel">Anuluj</string>
+    <string name="studio_dlg_cancel_render_title">Anulować renderowanie?</string>
+    <string name="studio_dlg_cancel_render_body">Klip z powtórki nie zostanie zapisany.</string>
+    <string name="studio_dlg_cancel_render_confirm">Anuluj renderowanie</string>
+    <string name="studio_dlg_cancel_render_dismiss">Renderuj dalej</string>
+    <string name="studio_replay_clip_saved">Klip z powtórki zapisany</string>
+    <string name="studio_replay_render_cancelled">Renderowanie anulowane</string>
+    <string name="studio_replay_export_failed">Eksport powtórki nie powiódł się</string>
+
+    <!-- Studio: replay output-format chooser -->
+    <string name="studio_export_format">Format wyjściowy</string>
+    <string name="studio_export_photo">Zdjęcie</string>
+    <string name="studio_export_video">Wideo</string>
+    <string name="studio_export_chroma">Klucz koloru</string>
+    <string name="studio_export_options">Opcje wyjścia</string>
+    <string name="studio_export_scale">Skala</string>
+    <string name="studio_export_force_opaque">Wymuś pełną nieprzezroczystość</string>
+    <string name="studio_chroma_magenta">Magenta</string>
+    <string name="studio_chroma_green">Zielony</string>
+    <string name="studio_chroma_bright_green">Jaskrawozielony</string>
+    <string name="studio_chroma_cyan">Cyjan</string>
+    <string name="studio_chroma_blue">Niebieski</string>
+    <string name="studio_chroma_black">Czarny</string>
+    <string name="studio_chroma_white">Biały</string>
+
+    <!-- Studio: flyout menu -->
+    <string name="studio_flyout_section_preset">Preset</string>
+    <string name="studio_flyout_panes">Okna</string>
+    <string name="studio_flyout_new">Nowy</string>
+    <string name="studio_flyout_load">Wczytaj</string>
+    <string name="studio_flyout_save">Zapisz</string>
+    <string name="studio_flyout_section_mode">Tryb</string>
+    <string name="studio_flyout_section_elements">Elementy</string>
+    <string name="studio_flyout_manage">Zarządzaj</string>
+    <string name="studio_flyout_add">Dodaj</string>
+
+    <!-- Studio: confirm dialogs -->
+    <string name="studio_dlg_new_title">Nowy preset?</string>
+    <string name="studio_dlg_new_body">To usuwa wszystkie nakładki i przywraca ekran do jednego okna aparatu. Zapisane presety pozostają nienaruszone.</string>
+    <string name="studio_dlg_new_confirm">Nowy</string>
+    <string name="studio_dlg_load_title">Wczytać preset?</string>
+    <string name="studio_dlg_load_body">Wczytanie \"%1$s\" zastąpi bieżący preset. Najpierw zapisz obecny, jeśli chcesz go zachować.</string>
+    <string name="studio_dlg_load_builtin_title">Wczytać wbudowany preset?</string>
+    <string name="studio_dlg_load_confirm">Wczytaj</string>
+
+    <!-- Studio: save preset dialog -->
+    <string name="studio_save_preset_title">Zapisz preset</string>
+    <string name="studio_save_preset_body">Presety są zapisywane jako osobne pliki .json w folderze kopii zapasowej, w katalogu overlays/</string>
+    <string name="studio_save_preset_name_label">Nazwa presetu</string>
+    <string name="studio_save_btn">Zapisz</string>
+    <string name="studio_no_folder_body">Ustaw folder kopii zapasowej, aby wczytywać i zapisywać presety</string>
+
+    <!-- Studio: load preset sheet -->
+    <string name="studio_load_preset_title">Wczytaj preset</string>
+    <string name="studio_section_portrait">Pionowa</string>
+    <string name="studio_section_landscape">Pozioma</string>
+    <string name="studio_section_your_presets">Twoje presety</string>
+    <string name="studio_dlg_delete_preset_title">Usunąć preset?</string>
+    <string name="studio_dlg_delete_preset_body">\"%1$s\" zostanie trwale usunięty.</string>
+    <string name="studio_cd_delete_preset">Usuń preset</string>
+
+    <!-- Studio: add element sheet -->
+    <string name="studio_add_element_title">Dodaj element</string>
+
+    <!-- Studio: element type labels -->
+    <string name="studio_element_wheel_name">Nazwa koła</string>
+    <string name="studio_element_app_badge">Plakietka aplikacji</string>
+    <string name="studio_element_text">Dowolny tekst</string>
+    <string name="studio_element_data_value">Wartość danych</string>
+    <string name="studio_element_data_graph">Wykres danych</string>
+    <string name="studio_element_data_dial">Wskaźnik tarczowy</string>
+    <string name="studio_element_data_bar">Pasek liniowy</string>
+    <string name="studio_element_floating_camera">Pływający aparat</string>
+    <string name="studio_element_image">Obraz / clipart</string>
+    <string name="studio_element_clock">Zegar</string>
+    <string name="studio_element_g_force">G-Force</string>
+    <string name="studio_element_map">Mapa</string>
+
+    <!-- Studio: element type hints (shown in add-element list) -->
+    <string name="studio_hint_wheel_name">Nazwa połączonego koła</string>
+    <string name="studio_hint_app_badge">Nazwa i ikona EUC Planet</string>
+    <string name="studio_hint_text">Własny tekst, który sam wpiszesz</string>
+    <string name="studio_hint_data_value">Wartość na żywo, np. prędkość lub bateria</string>
+    <string name="studio_hint_data_graph">Przewijany wykres wartości</string>
+    <string name="studio_hint_data_dial">Okrągły wskaźnik tarczowy dla wartości</string>
+    <string name="studio_hint_data_bar">Liniowy wskaźnik paskowy dla wartości</string>
+    <string name="studio_hint_floating_camera">Mały aparat typu obraz w obrazie</string>
+    <string name="studio_hint_image">Twój własny obraz, osadzony w presecie</string>
+    <string name="studio_hint_clock">Zegar, zegarek analogowy lub stoper</string>
+    <string name="studio_hint_g_force">Okrąg śladu przeciążenia</string>
+    <string name="studio_hint_map">Mała mapa na żywo z Twoją trasą</string>
+
+    <!-- Studio: layout picker -->
+    <string name="studio_layout_title">Okna aparatów</string>
+    <string name="studio_layout_full_screen">Pełny ekran</string>
+    <string name="studio_layout_2_rows">2 wiersze</string>
+    <string name="studio_layout_2_columns">2 kolumny</string>
+    <string name="studio_layout_3_rows">3 wiersze</string>
+    <string name="studio_layout_3_columns">3 kolumny</string>
+    <string name="studio_layout_grid_4">Siatka 2 × 2</string>
+
+    <!-- Studio: divider config -->
+    <string name="studio_divider_title">Linie podziału</string>
+    <string name="studio_divider_colour_label">Kolor linii</string>
+    <string name="studio_divider_thickness_label">Grubość</string>
+    <string name="studio_divider_thickness_fmt">%1$d dp</string>
+
+    <!-- Studio: viewport config -->
+    <string name="studio_viewport_title">Źródło sekcji %1$d</string>
+    <string name="studio_viewport_camera">Aparat</string>
+    <string name="studio_viewport_fill">Wypełnij</string>
+    <string name="studio_viewport_image">Obraz</string>
+    <string name="studio_viewport_camera_label">Aparat</string>
+    <string name="studio_viewport_choose_image">Wybierz</string>
+    <string name="studio_viewport_replace_image">Zmień</string>
+    <string name="studio_viewport_clear_image">Wyczyść</string>
+    <string name="studio_camera_none">Nie wykryto aparatów w tym urządzeniu.</string>
+    <string name="studio_camera_limit">Android ogranicza liczbę strumieni z aparatów, więc gdy używane są dwa aparaty, pozostałe są wyłączone.</string>
+
+    <!-- Studio: background editor -->
+    <string name="studio_bg_solid">Jednolity</string>
+    <string name="studio_bg_linear">Liniowy</string>
+    <string name="studio_bg_radial">Promienisty</string>
+    <string name="studio_bg_colour_label">Kolor</string>
+    <string name="studio_bg_direction_label">Kierunek</string>
+    <string name="studio_bg_direction_fmt">%1$d°</string>
+    <string name="studio_cfg_mirror">Odbij w poziomie</string>
+    <string name="studio_cfg_orientation">Orientacja</string>
+    <string name="studio_cfg_fit">Skalowanie</string>
+    <string name="studio_cfg_fit_crop">Przytnij</string>
+    <string name="studio_cfg_fit_contain">Dopasuj</string>
+    <string name="studio_cfg_fit_center">Wyśrodkuj</string>
+    <string name="studio_cfg_brightness">Jasność</string>
+    <string name="studio_cfg_contrast">Kontrast</string>
+    <string name="studio_cfg_saturation">Nasycenie</string>
+    <string name="studio_cfg_filter">Filtr</string>
+    <string name="studio_cfg_filter_none">Brak</string>
+    <string name="studio_cfg_filter_bw">Cz-b</string>
+    <string name="studio_cfg_filter_sepia">Sepia</string>
+    <string name="studio_cfg_filter_warm">Ciepły</string>
+    <string name="studio_cfg_filter_cool">Chłodny</string>
+    <string name="studio_cfg_filter_vivid">Żywy</string>
+    <string name="studio_cfg_filter_noir">Noir</string>
+    <string name="studio_cfg_filter_vintage">Vintage</string>
+    <string name="studio_cfg_filter_matte">Matowy</string>
+    <string name="studio_cfg_zoom">Powiększenie</string>
+    <string name="studio_cfg_shadow">Cień</string>
+    <string name="studio_cfg_style">Styl</string>
+    <string name="studio_cfg_geometry">Geometria</string>
+    <string name="studio_cfg_shadow_colour">Kolor cienia</string>
+    <string name="studio_cfg_shadow_strength">Siła cienia</string>
+    <string name="studio_cfg_shadow_offset">Przesunięcie cienia</string>
+    <string name="studio_cfg_shadow_angle">Kierunek cienia</string>
+    <string name="studio_bg_colour_stops">Punkty koloru</string>
+    <string name="studio_bg_add_stop">Dodaj punkt</string>
+    <string name="studio_cd_remove_stop">Usuń punkt</string>
+
+    <!-- Studio: element config sheet -->
+    <string name="studio_cfg_text_label">Tekst</string>
+    <string name="studio_cfg_text_variables">Zmienne: {speed} {battery} {temp} {voltage} {current} {power} {pwm} {trip} {odometer} {pitch} {roll} {wheel}. Naciśnij enter, aby przejść do nowego wiersza.</string>
+    <string name="studio_cfg_alignment">Wyrównanie</string>
+    <string name="studio_cfg_align_left">Do lewej</string>
+    <string name="studio_cfg_align_centre">Do środka</string>
+    <string name="studio_cfg_align_right">Do prawej</string>
+    <string name="studio_cfg_clock_style">Styl</string>
+    <string name="studio_cfg_clock_digital">Cyfrowy</string>
+    <string name="studio_cfg_clock_analog">Analogowy</string>
+    <string name="studio_cfg_clock_text">Tekst</string>
+    <string name="studio_cfg_clock_stopwatch">Stoper</string>
+    <string name="studio_cfg_clock_show_date">Pokaż wiersz z datą</string>
+    <string name="studio_cfg_clock_24h">Format 24-godzinny</string>
+    <string name="studio_cfg_metric_label">Metryka</string>
+    <string name="studio_cfg_max_label">Maksimum</string>
+    <string name="studio_cfg_show_label">Pokaż etykietę</string>
+    <string name="studio_cfg_badge_stacked">Pionowo (ikona na górze)</string>
+    <string name="studio_cfg_badge_show_name">Pokaż nazwę aplikacji</string>
+    <string name="studio_cfg_badge_show_version">Pokaż numer wersji</string>
+    <string name="studio_cfg_time_window_label">Okno czasowe</string>
+    <string name="studio_cfg_time_window_fmt">%1$ds</string>
+    <string name="studio_cfg_trail_label">Długość śladu</string>
+    <string name="studio_cfg_map_style">Styl mapy</string>
+    <string name="studio_cfg_map_street">Ulice</string>
+    <string name="studio_cfg_map_dark">Ciemny</string>
+    <string name="studio_cfg_map_satellite">Satelita</string>
+    <string name="studio_cfg_map_zoom">Powiększenie</string>
+    <string name="studio_cfg_map_rotate">Obracaj zgodnie z ruchem</string>
+    <string name="studio_cfg_map_trace">Pokaż trasę</string>
+    <string name="studio_cfg_map_use_custom_marker">Preferuj własny marker</string>
+    <string name="studio_cfg_map_use_custom_marker_hint">Ustaw swoje zdjęcie w Nawigator → Dostosuj mój marker</string>
+    <string name="studio_cfg_camera_label">Aparat</string>
+    <string name="studio_cfg_replace_image">Zmień obraz</string>
+    <string name="studio_cfg_chroma_key">Uczyń kolor przezroczystym</string>
+    <string name="studio_cfg_mask_colour">Kolor maski</string>
+    <string name="studio_cfg_threshold_label">Próg</string>
+    <string name="studio_cfg_threshold_fmt">%1$d%%</string>
+    <string name="studio_cfg_text_colour">Kolor tekstu</string>
+    <string name="studio_cfg_background">Tło</string>
+    <string name="studio_cfg_opacity_label">Krycie</string>
+    <string name="studio_cfg_opacity_fmt">%1$d%%</string>
+    <string name="studio_cfg_rotation_label">Obrót</string>
+    <string name="studio_cfg_rotation_fmt">%1$d°</string>
+    <string name="studio_cfg_reset_position">Resetuj pozycję</string>
+    <string name="studio_cfg_show_value">Pokaż wartość</string>
+    <string name="studio_cfg_unit_position">Jednostka</string>
+    <string name="studio_cfg_unit_left">Przed wartością</string>
+    <string name="studio_cfg_unit_right">Po wartości</string>
+    <string name="studio_cfg_dial_style">Tarcza</string>
+    <string name="studio_cfg_dial_full">Koło</string>
+    <string name="studio_cfg_dial_semi">Połowa</string>
+    <string name="studio_cfg_dial_color_band">Pasek koloru</string>
+    <string name="studio_cfg_g_scale">Skala</string>
+    <string name="studio_cfg_g_smoothing">Wygładzanie</string>
+    <string name="studio_cfg_border_colour">Kolor obramowania</string>
+    <string name="studio_cfg_border_width">Grubość obramowania</string>
+
+    <!-- Studio: manage elements sheet -->
+    <string name="studio_manage_title">Zarządzaj elementami</string>
+    <string name="studio_manage_empty">Brak elementów. Użyj Dodaj element, aby umieścić pierwszy.</string>
+    <string name="studio_manage_hint">Przeciągnij, aby zmienić kolejność; stuknij wiersz, aby go wybrać</string>
+    <string name="studio_cd_drag_reorder">Przeciągnij, aby zmienić kolejność</string>
+    <string name="studio_cd_delete_element">Usuń element</string>
+
+    <!-- Studio: colour picker -->
+    <string name="studio_colour_picker_title">Własny kolor</string>
+    <string name="studio_colour_opacity_label">Krycie</string>
+    <string name="studio_colour_opacity_fmt">%1$d%%</string>
+    <string name="studio_colour_select">Wybierz</string>
+    <string name="studio_cd_invisible">Niewidoczny</string>
+    <string name="studio_cd_custom_colour">Własny kolor</string>
+
+    <!-- Studio: viewport pane messages -->
+    <string name="studio_pane_camera_access_needed">Wymagany dostęp do aparatu</string>
+    <string name="studio_pane_camera_conflict">%1$s nie może działać równolegle z innym aparatem na tym urządzeniu</string>
+    <string name="studio_pane_camera_unavailable">Aparat niedostępny</string>
+    <string name="studio_pane_choose_image">Stuknij klucz, aby wybrać obraz</string>
+    <string name="studio_cd_resize_section">Zmień rozmiar sekcji</string>
+    <string name="studio_cd_divider_options">Opcje linii podziału</string>
+
+    <!-- Studio: element chrome content descriptions -->
+    <string name="studio_cd_resize">Zmień rozmiar</string>
+    <string name="studio_cd_rotate">Obróć</string>
+
+    <!-- Studio: replay panel -->
+    <string name="studio_replay_title">Powtórka</string>
+    <string name="studio_flyout_live">Na żywo</string>
+    <string name="studio_replay_choose_trip">Wybierz trasę</string>
+    <string name="studio_replay_speed_title">Prędkość powtórki</string>
+    <string name="studio_replay_cd_fade">Wygaś panel</string>
+    <string name="studio_replay_cd_back">Wstecz</string>
+    <string name="studio_replay_cd_close">Zamknij powtórkę</string>
+    <string name="studio_replay_no_trips">Brak nagranych tras</string>
+    <string name="studio_replay_cd_play">Odtwórz</string>
+    <string name="studio_replay_cd_pause">Wstrzymaj</string>
+    <string name="studio_replay_cd_speed">Prędkość powtórki</string>
+
+    <!-- Studio: metric display names -->
+    <string name="studio_metric_speed">Prędkość</string>
+    <string name="studio_metric_battery">Bateria</string>
+    <string name="studio_metric_temperature">Temperatura</string>
+    <string name="studio_metric_voltage">Napięcie</string>
+    <string name="studio_metric_current">Prąd</string>
+    <string name="studio_metric_power">Moc</string>
+    <string name="studio_metric_pwm">PWM</string>
+    <string name="studio_metric_trip_distance">Długość trasy</string>
+    <string name="studio_metric_odometer">Przebieg</string>
+    <string name="studio_metric_pitch">Pochylenie</string>
+    <string name="studio_metric_roll">Przechył</string>
+    <string name="studio_metric_g_force">G-Force</string>
+
+    <!-- Navigator -->
+    <string name="tab_navigator">Nawigator</string>
+    <string name="nav_open">Otwórz nawigator</string>
+    <string name="nav_title">Kreator tras</string>
+    <string name="nav_search_hint">Szukaj adresu lub miejsca</string>
+    <string name="nav_searching">Wyszukiwanie…</string>
+    <string name="nav_locating">Ustalanie Twojej lokalizacji…</string>
+    <string name="nav_skip_locating">Pomiń</string>
+    <string name="nav_no_results">Nie znaleziono wyników</string>
+    <string name="nav_mode_cycling">Rower</string>
+    <string name="nav_mode_driving">Samochód</string>
+    <string name="nav_mode_walking">Pieszo</string>
+    <string name="nav_mode_straight">Bezpośrednio</string>
+    <string name="nav_menu">Menu</string>
+    <string name="nav_menu_save">Zapisz trasę (GPX)</string>
+    <string name="nav_menu_load">Wczytaj trasę (GPX)</string>
+    <string name="nav_menu_clear">Nowa trasa</string>
+    <string name="nav_clear_home">Zapomnij dom</string>
+    <string name="nav_clear_work">Zapomnij pracę</string>
+    <string name="nav_menu_exit">Powrót do pulpitu</string>
+    <string name="nav_waypoints">Przystanki</string>
+    <string name="nav_waypoint_default">Pinezka %1$d</string>
+    <string name="nav_role_start">Start</string>
+    <string name="nav_role_current_location">Bieżąca lokalizacja</string>
+    <string name="nav_role_destination">Cel</string>
+    <string name="nav_max_stops">Maksymalnie cel i 24 przystanki</string>
+    <string name="nav_pin_set_my_location">Ustaw na moją lokalizację</string>
+    <string name="nav_pin_remove">Usuń</string>
+    <string name="nav_pin_center">Wyśrodkuj na mapie</string>
+    <string name="nav_save_home">Zapisz jako dom</string>
+    <string name="nav_customize_marker">Dostosuj mój marker</string>
+    <string name="nav_customize_marker_short">Dostosuj</string>
+    <string name="nav_remove_marker_photo">Zresetuj mój marker</string>
+    <string name="nav_remove_marker_photo_short">Zresetuj</string>
+    <string name="nav_save_work">Zapisz jako pracę</string>
+    <string name="nav_self_title">Twoja lokalizacja</string>
+    <string name="nav_self_add_stop">Dodaj jako przystanek</string>
+    <string name="nav_clear_confirm">Rozpocząć nową trasę?</string>
+    <string name="nav_clear_confirm_body">Twoje bieżące przystanki zostaną usunięte.</string>
+    <string name="nav_load_confirm">Zastąpić bieżącą trasę wczytanym GPX?</string>
+    <string name="nav_menu_load_short">Wczytaj</string>
+    <string name="nav_tap_on_self">Na liście Przystanki przytrzymaj przystanek, aby ustawić go na Twoją lokalizację</string>
+    <string name="nav_start_short">Rozpocznij nawigację</string>
+    <string name="nav_stop_short">Zatrzymaj nawigację</string>
+    <string name="nav_stops_left">Pozostało %1$d przystanków</string>
+    <string name="nav_next_distance">Następny: %1$s</string>
+    <string name="nav_last_stop">Ostatni przystanek</string>
+    <string name="nav_need_destination">Najpierw dodaj cel</string>
+    <string name="nav_map_style">Styl mapy</string>
+    <string name="nav_map_dark">Ciemna mapa</string>
+    <string name="nav_map_light">Jasna mapa</string>
+    <string name="nav_map_satellite">Mapa satelitarna</string>
+    <string-array name="nav_stop_ordinals">
+        <item>Pierwszy przystanek</item>
+        <item>Drugi przystanek</item>
+        <item>Trzeci przystanek</item>
+        <item>Czwarty przystanek</item>
+        <item>Piąty przystanek</item>
+        <item>Szósty przystanek</item>
+        <item>Siódmy przystanek</item>
+        <item>Ósmy przystanek</item>
+    </string-array>
+    <string name="nav_my_location">Moja lokalizacja</string>
+    <string name="nav_no_location">Czekam na sygnał GPS…</string>
+    <string name="nav_route_distance">Długość trasy: %1$s</string>
+    <string name="nav_empty_hint">Stuknij mapę, wyszukaj lub wczytaj plik GPX</string>
+    <string name="nav_need_two">Dodaj co najmniej dwa przystanki, aby nawigować.</string>
+    <string name="nav_routing">Wyznaczanie trasy…</string>
+    <string name="nav_route_failed">Usługa tras niedostępna, używam linii prostych</string>
+    <string name="nav_cant_add_while_running">Nie można dodać przystanku podczas nawigacji</string>
+    <string name="nav_search_no_results">Brak wyników dla tego adresu</string>
+    <string name="nav_save_failed">Nie udało się zapisać trasy</string>
+    <string name="nav_route_saved">Trasa zapisana</string>
+    <string name="nav_load_failed">Nie udało się odczytać tego pliku GPX</string>
+    <string name="nav_remove_stop">Usuń przystanek</string>
+    <string name="nav_drag_stop">Zmień kolejność</string>
+    <string name="nav_default_route_name">Moja trasa</string>
+
+    <!-- Navigation overlay -->
+    <string name="nav_start_riding">Zacznij jazdę</string>
+    <string name="nav_arrived">Dotarłeś na miejsce</string>
+    <string name="nav_arrived_goal">Osiągnięto cel %1$d</string>
+    <string name="nav_end_title">Zakończyć nawigację?</string>
+    <string name="nav_end_body">Zatrzymać prowadzenie po aktywnej trasie?</string>
+    <string name="nav_end_confirm">Zakończ</string>
+    <string name="nav_minimize">Zminimalizuj</string>
+    <string name="nav_expand">Rozwiń</string>
+    <string name="nav_close">Zakończ nawigację</string>
+    <string name="nav_off_route">Poza trasą</string>
+    <string name="nav_recalculating">Przeliczanie…</string>
+    <string name="nav_turn_left">Skręć w lewo</string>
+    <string name="nav_turn_right">Skręć w prawo</string>
+    <string name="nav_turn_slight_left">Trzymaj się lewej</string>
+    <string name="nav_turn_slight_right">Trzymaj się prawej</string>
+    <string name="nav_turn_sharp_left">Ostro w lewo</string>
+    <string name="nav_turn_sharp_right">Ostro w prawo</string>
+    <string name="nav_continue">Jedź prosto</string>
+    <string name="nav_uturn">Zawróć</string>
+    <string name="nav_depart">Ruszaj</string>
+    <string name="nav_goal_label">Cel %1$d z %2$d</string>
+
+    <!-- Treasure Hunt directions -->
+    <string name="nav_dir_ahead">przed Tobą</string>
+    <string name="nav_dir_left">po Twojej lewej</string>
+    <string name="nav_dir_right">po Twojej prawej</string>
+    <string name="nav_dir_slight_left">lekko w lewo</string>
+    <string name="nav_dir_slight_right">lekko w prawo</string>
+    <string name="nav_dir_behind">za Tobą</string>
+    <string name="nav_dir_behind_left">za tobą, po lewej</string>
+    <string name="nav_dir_behind_right">za tobą, po prawej</string>
+    <string name="nav_hunt_primary">%1$s %2$s</string>
+    <string name="nav_label_next_stop">Następny przystanek</string>
+    <string name="nav_label_destination">Cel</string>
+    <string name="nav_prox_hot">Gorąco</string>
+    <string name="nav_prox_warm">Cieplej</string>
+    <string name="nav_prox_cold">Zimniej</string>
+
+    <!-- Distance formats -->
+    <string name="nav_dist_m">%1$d m</string>
+    <string name="nav_dist_km">%1$s km</string>
+    <string name="nav_dist_ft">%1$d ft</string>
+    <string name="nav_dist_mi">%1$s mi</string>
+
+    <!-- Spoken navigation -->
+    <string name="voice_nav_start_riding">Zacznij jazdę</string>
+    <string name="voice_nav_prepare">Za %1$s %2$s</string>
+    <string name="voice_nav_now">%1$s teraz</string>
+    <string name="voice_nav_arrived">Dotarłeś do celu</string>
+    <string name="voice_nav_goal_reached">Dotarto do przystanku</string>
+    <string name="voice_nav_hunt">%1$s jest %2$s %3$s</string>
+    <string name="voice_nav_hunt_prox">%1$s, %2$s</string>
+    <string name="voice_nav_hunt_distance">%1$s w odległości %2$s</string>
+    <string name="voice_prox_warmer">robi się cieplej</string>
+    <string name="voice_prox_colder">robi się zimniej</string>
+    <string name="voice_prox_even_colder">jeszcze zimniej</string>
+    <string name="voice_prox_freezing">lodowato</string>
+    <string name="voice_prox_lost">Czy już dojechaliśmy?</string>
+    <string name="voice_prox_hot">jesteś bardzo blisko</string>
+    <string name="voice_dist_m">%1$d metrów</string>
+    <string name="voice_dist_km">%1$s kilometrów</string>
+    <string name="voice_dist_ft">%1$d stóp</string>
+    <string name="voice_dist_mi">%1$s mil</string>
+
+    <!-- Navigation settings -->
+    <string name="nav_setting_voice">Prowadzenie głosowe</string>
+    <string name="nav_setting_voice_desc">Wypowiadaj instrukcje zakrętów i Poszukiwania skarbu</string>
+    <string name="nav_setting_arrival_radius">Promień dotarcia</string>
+    <string name="nav_setting_arrival_radius_desc">Jak blisko liczy się jako dotarcie do przystanku</string>
+    <string name="nav_setting_offroute">Tolerancja zejścia z trasy</string>
+    <string name="nav_setting_offroute_desc">Jak daleko od trasy, zanim pojawi się alert o zejściu z trasy</string>
+    <string name="nav_setting_default_mode">Domyślny tryb podróży</string>
+    <string name="nav_setting_open_builder">Otwórz kreator tras</string>
+    <string name="nav_setting_params">Ustawienia nawigacji</string>
+    <string name="nav_setting_full_path">Zawsze wyznaczaj całą trasę</string>
+    <string name="nav_setting_full_path_desc">Wyłączone, wyznacza tylko następny przystanek, resztę pokazuje jako przerywany podgląd</string>
+    <string name="nav_setting_endpoints">Usługi wyznaczania trasy</string>
+    <string name="nav_setting_endpoints_hint">Domyślnie publiczny OpenStreetMap; zmień, aby użyć własnego serwera</string>
+    <string name="nav_setting_geocoder_url">URL wyszukiwania adresów</string>
+    <string name="nav_setting_router_url">URL wyznaczania trasy</string>
+    <string name="watch_show_navigation">Pokaż nawigację</string>
+    <string name="watch_show_navigation_desc">Pokazuj strzałkę zakrętu i odległość na zegarku podczas nawigacji</string>
+    <!-- ==== Trip share / actions ==== -->
+    <string name="trip_action_share_file">Udostępnij plik</string>
+    <string name="trip_action_share_file_desc">Wyślij plik CSV trasy do innej aplikacji</string>
+    <string name="trip_action_view_online">Zobacz online</string>
+    <string name="trip_action_view_online_desc">Otwórz na mapie EUC Viewer</string>
+    <string name="trip_action_replay">Odtwórz w Studio</string>
+    <string name="trip_action_replay_desc">Przewijaj przejazd z nakładkami danych na żywo</string>
+    <!-- ==== Dashboard quick menus ==== -->
+    <string name="dash_view_video_gallery">Zobacz galerię wideo</string>
+    <string name="dash_view_photo_gallery">Zobacz galerię zdjęć</string>
+    <string name="dash_no_gallery_app">Nie znaleziono aplikacji galerii</string>
+    <string name="studio_group_data">Dane</string>
+    <string name="studio_group_text">Tekst i informacje</string>
+    <string name="studio_group_media">Kamera i obrazy</string>
+    <string name="studio_rendering_keep_open">Trzymaj telefon włączony i ten ekran otwarty, dopóki renderowanie się nie zakończy</string>
+    <string name="studio_export_force_opaque_hint">Formaty bez przezroczystości używają koloru chroma key; może źle wyglądać na półprzezroczystych warstwach</string>
+    <string name="studio_snap_to_grid">Przyciągaj do siatki</string>
+    <string name="studio_overwrite_title">Nadpisać preset?</string>
+    <string name="studio_overwrite_body">Preset o nazwie \"%1$s\" już istnieje.</string>
+    <string name="studio_overwrite_confirm">Nadpisz</string>
+    <string name="warnings_indicator_desc">Ostrzeżenia aplikacji</string>
+    <string name="warnings_dialog_title">Wymaga uwagi</string>
+    <string name="warnings_fix_button">Napraw</string>
+    <string name="warnings_perm_notifications_title">Powiadomienia wyłączone</string>
+    <string name="warnings_perm_notifications_body">Nie zobaczysz statusu jazdy w pasku stanu ani nie otrzymasz głosowych powiadomień w obszarze powiadomień</string>
+    <string name="dash_external_gps_settings">Ustawienia zewnętrznego GPS</string>
+    <string name="external_gps_caption">Włącz urządzenie i dotknij Sparuj, aby zasilać aplikację prędkością i siłą G na żywo, dane są też zapisywane w CSV trasy</string>
+    <string name="gps_prioritize_external_desc">Preferuj podłączone urządzenie zamiast telefonu dla prędkości, pozycji i siły G</string>
     <string name="online_rejoin_confirm">Dołącz ponownie</string>
 
     <!-- Battery / Charging screen -->
@@ -1515,4 +1627,10 @@
     <string name="setting_charging_dashboard_icon">Ikona monitora baterii na pulpicie</string>
     <string name="setting_charging_auto_open_desc">Otwiera Monitor baterii, gdy koło zaczyna się ładować</string>
     <string name="setting_charging_dashboard_icon_desc">Dotknij, aby otworzyć Monitor baterii</string>
+    <string name="hud_joystick_title">Akcje przycisków</string>
+    <string name="hud_joystick_desc">Dotknij dwukrotnie przycisku HUD, aby uruchomić akcję. Pojedyncze dotknięcie nadal przełącza ekrany</string>
+    <string name="hud_joystick_up">Góra (dwukrotne dotknięcie)</string>
+    <string name="hud_joystick_down">Dół (dwukrotne dotknięcie)</string>
+    <string name="hud_joystick_left">Lewo (dwukrotne dotknięcie)</string>
+    <string name="hud_joystick_right">Prawo (dwukrotne dotknięcie)</string>
 </resources>

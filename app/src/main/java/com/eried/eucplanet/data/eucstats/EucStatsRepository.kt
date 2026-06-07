@@ -63,13 +63,14 @@ class EucStatsRepository @Inject constructor(
     /**
      * Register a new rider (or re-register if not yet persisted).
      * Generates a new UUIDv4 store_id when one doesn't exist yet.
-     * Returns true on success.
+     * Returns the final [RegisterResult]: Ok on success; Failed carries the
+     * server's HTTP status + detail so the UI can show why it failed.
      */
     suspend fun register(
         displayName: String,
         flag: String,
         avatarPngBase64: String,
-    ): Boolean = withContext(Dispatchers.IO) {
+    ): RegisterResult = withContext(Dispatchers.IO) {
         val current = settings.get()
         val storeId = current.eucstatsStoreId ?: UUID.randomUUID().toString()
 
@@ -95,9 +96,25 @@ class EucStatsRepository @Inject constructor(
             }
         )
 
-        val response = api.registerRider(payload) ?: return@withContext false
+        // POST /riders, retrying ONLY a 429 (rider_create rate limit) a couple of
+        // times with a short backoff per the eucstats rate-limit spec ("retry
+        // shortly" -- no Retry-After header today). Everything else is terminal
+        // for this attempt; the rider can tap register again. Bounded so the
+        // onboarding spinner never hangs.
+        var attempt = 0
+        while (true) {
+            when (val r = api.registerRider(payload)) {
+                RegisterResult.Ok -> break
+                RegisterResult.RateLimited -> {
+                    if (attempt >= 2) return@withContext RegisterResult.RateLimited
+                    attempt++
+                    kotlinx.coroutines.delay(2_000L * attempt)
+                }
+                is RegisterResult.Failed -> return@withContext r
+            }
+        }
 
-        // Persist everything on success (non-null response body).
+        // Persist everything on success.
         val now = clock()
         settings.update(
             current.copy(
@@ -110,7 +127,7 @@ class EucStatsRepository @Inject constructor(
             )
         )
         refreshCard()
-        true
+        RegisterResult.Ok
     }
 
     // -------------------------------------------------------------------------

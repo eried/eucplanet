@@ -129,7 +129,7 @@
     <string name="dashboard_custom_ble_label">Button label</string>
     <string name="dashboard_custom_ble_family">Wheel family filter</string>
     <string name="dashboard_custom_ble_frames">Frames (hex)</string>
-    <string name="dashboard_custom_ble_frames_error">Invalid hex — use byte pairs like 4c 6b 41 70</string>
+    <string name="dashboard_custom_ble_frames_error">Invalid hex, use byte pairs like 4c 6b 41 70</string>
     <string name="dashboard_composite_layout_row2">2 rows</string>
     <string name="dashboard_composite_layout_col2">2 columns</string>
     <string name="dashboard_composite_layout_col3">3 columns</string>
@@ -281,12 +281,12 @@
     <string name="metric_desc_avg_trip_speed">Trip distance divided by riding time so far.</string>
     <string name="metric_desc_wh_consumed">Total watt-hours drawn from the battery this trip.</string>
     <string name="metric_desc_range_estimate">Distance remaining at the current consumption rate.</string>
-    <string name="metric_desc_wh_per_km">Energy used per kilometre — lower is more efficient.</string>
-    <string name="metric_desc_slope">Road grade calculated from the wheel\'s pitch — positive is uphill.</string>
-    <string name="metric_desc_forward_g">Estimated from wheel-speed change (not the IMU) — works regardless of phone mounting.</string>
+    <string name="metric_desc_wh_per_km">Energy used per kilometre, lower is more efficient.</string>
+    <string name="metric_desc_slope">Road grade calculated from the wheel\'s pitch, positive is uphill.</string>
+    <string name="metric_desc_forward_g">Estimated from wheel-speed change (not the IMU), works regardless of phone mounting.</string>
     <string name="metric_desc_regen_wh">Total watt-hours fed back to the battery while braking this trip.</string>
-    <string name="metric_desc_bt_rssi">Bluetooth signal strength to the wheel — closer to 0 dBm is stronger.</string>
-    <string name="metric_desc_gps_accuracy">GPS positioning error radius — lower is more accurate.</string>
+    <string name="metric_desc_bt_rssi">Bluetooth signal strength to the wheel, closer to 0 dBm is stronger.</string>
+    <string name="metric_desc_gps_accuracy">GPS positioning error radius, lower is more accurate.</string>
 
     <!-- Action labels for the dashboard layout chips -->
     <string name="action_chip_horn">Horn</string>
@@ -347,6 +347,14 @@
     <string name="hud_custom_overlay_bundled_only">Pick a starter (Backup folder not set)</string>
     <string name="hud_custom_overlay_none">Clear</string>
     <string name="hud_search_corpus">HUD heads-up display companion server stream telemetry hotspot motoeye turn arrow</string>
+
+    <!-- HUD button long-press actions -->
+    <string name="hud_joystick_title">Button actions</string>
+    <string name="hud_joystick_desc">Double-tap a HUD button to run an action. A single tap still switches screens</string>
+    <string name="hud_joystick_up">Up (double-tap)</string>
+    <string name="hud_joystick_down">Down (double-tap)</string>
+    <string name="hud_joystick_left">Left (double-tap)</string>
+    <string name="hud_joystick_right">Right (double-tap)</string>
 
     <!-- HUD Personalize collapsible card -->
     <string name="hud_personalize_title">Personalize</string>
@@ -460,7 +468,7 @@
     <string name="cloud_last_backup_never">Not backed up yet</string>
     <string name="cloud_backup_success">Settings backed up</string>
 <string name="cloud_backup_named_success">Backed up as %1$s</string>
-    <string name="cloud_backup_failed">Backup failed — check folder access</string>
+    <string name="cloud_backup_failed">Backup failed, check folder access</string>
     <string name="cloud_restore_success">Settings restored</string>
     <string name="cloud_restore_failed">No backup found in folder</string>
     <string name="section_cloud_trips">Trips backup</string>
@@ -573,6 +581,10 @@
     <string name="section_report_status">Report status</string>
     <string name="voice_enabled">Report status periodically</string>
     <string name="voice_only_when_connected">Only when wheel is connected</string>
+    <string name="voice_announce_when_label">Announce</string>
+    <string name="voice_announce_always">Always</string>
+    <string name="voice_announce_connected">Connected</string>
+    <string name="voice_announce_riding">When riding</string>
     <string name="voice_interval">Interval</string>
     <string name="unit_sec">sec</string>
     <string name="announce_wheel_lock">Wheel lock / unlock</string>
@@ -1032,13 +1044,13 @@
     <string name="online_upload_consent_bullet_flag">Your country flag</string>
     <string name="online_upload_consent_bullet_avatar">Your avatar photo</string>
     <string name="online_upload_consent_bullet_stats">Your overall riding stats, like distance and speed</string>
-    <string name="online_upload_consent_bullet_location">Trip start/end locations, grouped into areas of 10 km (6 mi) or larger</string>
+    <string name="online_upload_consent_bullet_location">Locations are clustered into wide areas of the map for privacy</string>
     <string name="online_upload_consent_no_raw_gps">Raw GPS tracks are never published.</string>
     <string name="online_upload_consent_agree">Agree &amp; continue</string>
 
     <!-- Step 2: Profile -->
     <string name="online_upload_profile_title">Create your profile</string>
-    <string name="online_upload_profile_name_label">Display name</string>
+    <string name="online_upload_profile_name_label">Unique display name</string>
     <string name="online_upload_profile_country_label">Country</string>
     <string name="online_upload_profile_country_select">Select your country</string>
     <string name="online_upload_country_search">Search countries</string>
@@ -1054,6 +1066,8 @@
     <!-- Registration outcome -->
     <string name="online_upload_register_action">Register</string>
     <string name="online_upload_register_error">Registration failed. Check your connection and try again.</string>
+    <!-- %1$s = the server's raw reason (e.g. display_name_taken), %2$d = HTTP status code -->
+    <string name="online_upload_register_server_error">Registration failed. The server said: %1$s (%2$d)</string>
 
     <!-- Online stats toggle + rider card (Task E3) -->
     <string name="section_online_stats">Online leaderboards</string>
@@ -1065,6 +1079,9 @@
     <string name="online_upload_actions_desc">Send any trips not yet uploaded to the leaderboard.</string>
     <string name="online_upload_sync_nothing">Nothing to sync</string>
     <string name="online_upload_sync_done">Synced %1$d trips</string>
+    <string name="online_upload_sync_checking">Checking for trips to upload…</string>
+    <string name="online_upload_sync_progress">Uploading %1$d of %2$d</string>
+    <string name="online_rider_id_conflict">A different rider\'s recovery id is already saved in this folder, kept it, didn\'t overwrite.</string>
     <string name="online_upload_view_on_eucstats">View on EUC Stats</string>
     <string name="online_upload_retry">Retry uploads</string>
     <string name="online_upload_mileage_rank">#%d mileage</string>
@@ -1099,7 +1116,7 @@
     <string name="online_profile_save_failed">Save failed (HTTP %1$d). Try again.</string>
     <string name="online_status_flagged_why">Held for a quick automated check. It joins the leaderboard once it clears.</string>
     <string name="online_restore_title">A saved profile was found</string>
-    <string name="online_restore_body_new">We found a saved profile here: %1$s. Continuing rejoins the public leaderboard as that rider — its name, flag, avatar and ride stats are public. It does not create a new profile.</string>
+    <string name="online_restore_body_new">We found a saved profile here: %1$s. Continuing rejoins the public leaderboard as that rider, its name, flag, avatar and ride stats are public. It does not create a new profile.</string>
     <string name="online_restore_body_switch">We found a different saved profile: %1$s. Continuing switches this phone to that rider; your current profile is backed up first.</string>
     <string name="online_restore_confirm">Continue as %1$s</string>
     <string name="online_rejoin_title">Rejoin the leaderboard?</string>

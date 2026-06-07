@@ -54,7 +54,8 @@ class GarminBridge @Inject constructor(
     private val externalGpsRepository: com.eried.eucplanet.data.repository.ExternalGpsRepository,
     private val tripRepository: com.eried.eucplanet.data.repository.TripRepository,
     private val navigationEngine: NavigationEngine,
-    private val flicManager: FlicManager
+    private val flicManager: FlicManager,
+    private val themeController: com.eried.eucplanet.ui.theme.ThemeController
 ) {
     companion object {
         private const val TAG = "GarminBridge"
@@ -493,7 +494,7 @@ class GarminBridge @Inject constructor(
             put(
                 GarminKeys.ACCENT,
                 com.eried.eucplanet.ui.theme.ThemeAccent.primaryArgb(
-                    settings.activeThemeColorsJson, settings.accentColor
+                    themeController.activeColors.value
                 )
             )
             put(GarminKeys.OPT_KEEP_ON, settings.watchKeepScreenOn)

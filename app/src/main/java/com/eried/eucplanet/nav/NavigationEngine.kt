@@ -58,7 +58,8 @@ class NavigationEngine @Inject constructor(
     private val wheelRepository: WheelRepository,
     private val settingsRepository: SettingsRepository,
     private val routingService: RoutingService,
-    private val voiceService: VoiceService
+    private val voiceService: VoiceService,
+    private val currentRouteStore: CurrentRouteStore
 ) {
     companion object {
         private const val TAG = "NavigationEngine"
@@ -224,7 +225,7 @@ class NavigationEngine @Inject constructor(
      *  re-establishes (GPS teleport during testing, or a slow walk where
      *  the heading window hasn't filled). */
     private var lastArrivalPoint: GeoPoint? = null
-    // Destinations already visited and mirrored to the builder's saved route.
+    // Destinations already visited and mirrored to the in-memory current route.
     private var lastSyncedReached = 0
 
     /** Begins guidance. Must be called while the app is in the foreground. */
@@ -860,7 +861,8 @@ class NavigationEngine @Inject constructor(
     }
 
     /**
-     * Mirrors navigation progress back to the builder's saved route: drops the
+     * Mirrors navigation progress back to the in-memory current route
+     * ([CurrentRouteStore]): drops the
      * stops already visited and clears the geometry, so re-opening the builder
      * mid-trip shows only the stops still ahead and recomputes from where the
      * rider is now. When the last stop is done the route is left empty.
@@ -871,29 +873,17 @@ class NavigationEngine @Inject constructor(
         val route = activeRoute ?: return
         // route.waypoints is [rider, dest1, dest2, ...], keep the unvisited.
         val remaining = route.waypoints.drop(1 + reachedDests)
-        scope.launch {
-            runCatching {
-                val s = settingsRepository.get()
-                val json = if (remaining.isEmpty()) "" else route.copy(
-                    waypoints = remaining,
-                    geometry = emptyList(),
-                    maneuvers = emptyList(),
-                    totalDistanceM = 0.0
-                ).toJson().toString()
-                // Re-stamp the freshness timestamp on every trim so the
-                // Builder treats this as a "live" navigation even after
-                // hours of riding -- only really old entries (likely
-                // Google-Auto-Backup ghosts from a previous install) get
-                // gated out on re-open.
-                settingsRepository.update(
-                    s.copy(
-                        navCurrentRouteJson = json,
-                        navCurrentRouteSavedAt = if (remaining.isEmpty())
-                            0L else System.currentTimeMillis()
-                    )
-                )
-            }
-        }
+        // In-memory only (no persistence): drop the visited stops so re-opening
+        // the Builder mid-trip shows only what's ahead; clear once all are done.
+        currentRouteStore.set(
+            if (remaining.isEmpty()) null
+            else route.copy(
+                waypoints = remaining,
+                geometry = emptyList(),
+                maneuvers = emptyList(),
+                totalDistanceM = 0.0
+            )
+        )
     }
 
     private fun speakHunt(
@@ -1039,18 +1029,18 @@ class NavigationEngine @Inject constructor(
         val totalGoals: Int
     )
 
-    /** Marks the just-arrived stop passed in the persisted multi-stop route
+    /** Marks the just-arrived stop passed in the in-memory current
+     *  multi-stop route
      *  and returns enough context to drive the next handleArrival step:
      *  the next non-passed stop (or null if this was the final), plus the
      *  1-based goal-number of the stop we just reached so the popup can
-     *  show "Reached goal N". Returns null when the saved route is gone
+     *  show "Reached goal N". Returns null when the current route is gone
      *  or has no matching waypoint -- the caller falls back to the
      *  final-arrival flow. */
     private suspend fun markPassedAndFindNext(justArrivedGoal: GeoPoint?): ArrivalInfo? {
         if (justArrivedGoal == null) return null
         return runCatching {
-            val s = settingsRepository.get()
-            val existing = NavRoute.fromJson(s.navCurrentRouteJson)
+            val existing = currentRouteStore.get()
                 ?: return@runCatching null
             var justArrivedIndex = -1
             val updatedWps = existing.waypoints.mapIndexed { idx, w ->
@@ -1064,19 +1054,16 @@ class NavigationEngine @Inject constructor(
             }
             Log.i(
                 TAG,
-                "PERSIST-MARK justArrivedIndex=$justArrivedIndex " +
+                "MARK justArrivedIndex=$justArrivedIndex " +
                     "waypoints=${updatedWps.map { it.passed }}"
             )
             if (justArrivedIndex > 0) {
-                settingsRepository.update(
-                    s.copy(
-                        navCurrentRouteJson = existing.copy(
-                            waypoints = updatedWps,
-                            geometry = emptyList(),
-                            maneuvers = emptyList(),
-                            totalDistanceM = 0.0
-                        ).toJson().toString(),
-                        navCurrentRouteSavedAt = System.currentTimeMillis()
+                currentRouteStore.set(
+                    existing.copy(
+                        waypoints = updatedWps,
+                        geometry = emptyList(),
+                        maneuvers = emptyList(),
+                        totalDistanceM = 0.0
                     )
                 )
             }

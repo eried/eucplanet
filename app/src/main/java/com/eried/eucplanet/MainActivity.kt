@@ -99,8 +99,10 @@ class MainActivity : AppCompatActivity() {
         val s = _settings.value
         val needsServiceForBackgroundFeature = s != null && canStartWheelService() && (
             // Voice loop needs the service alive between rides so the periodic
-            // announcement keeps firing even before a wheel is connected.
-            (s.voiceEnabled && !s.voiceOnlyWhenConnected) ||
+            // announcement keeps firing even before a wheel is connected — but
+            // only in "ALWAYS" mode; the connected/riding modes have nothing to
+            // say until a wheel is on the line.
+            (s.voiceEnabled && s.voiceAnnounceWhen == "ALWAYS") ||
             // HUD companion: the embedded HTTP/SSE server lives inside
             // WheelService, so we need the service running for the HUD to
             // pair even before a wheel is on the line.
@@ -271,7 +273,7 @@ class MainActivity : AppCompatActivity() {
                     val forceHud = com.eried.eucplanet.hud.protocol.HudDebug
                         .read("debug.eucplanet.hud.force") == "true"
                     val needsService = canStartWheelService() && (
-                        (it.voiceEnabled && !it.voiceOnlyWhenConnected) ||
+                        (it.voiceEnabled && it.voiceAnnounceWhen == "ALWAYS") ||
                         it.hudServerEnabled ||
                         forceHud
                     )
@@ -286,14 +288,20 @@ class MainActivity : AppCompatActivity() {
         // already carries the rider's custom theme. Without this, _settings is
         // null for one frame and the app flashes the system-default theme before
         // DataStore loads. Best-effort + time-boxed: on failure _settings stays
-        // null and resolveColors() falls back to the OS-based built-in (Pure
-        // Black / Light).
+        // null and the theme falls back to the resolved/seeded built-in.
         if (_settings.value == null) {
             runCatching {
                 kotlinx.coroutines.runBlocking {
                     kotlinx.coroutines.withTimeoutOrNull(700) { settingsRepository.get() }
                 }
-            }.getOrNull()?.let { _settings.value = it.copy(themeEditorEnabled = false) }
+            }.getOrNull()?.let {
+                _settings.value = it.copy(themeEditorEnabled = false)
+                // The active theme now lives in ThemeController (resolved async),
+                // so seed it synchronously from the just-loaded name too -- else a
+                // process-death resume flashes pure black before the async resolve
+                // lands. Built-ins seed instantly; saved themes finish async.
+                themeController.seedSync(it.activeThemeName)
+            }
         }
 
         setContent {
@@ -308,49 +316,15 @@ class MainActivity : AppCompatActivity() {
                     requestMissingPermissions()
                 }
             }
-            val systemDark = androidx.compose.foundation.isSystemInDarkTheme()
-            val persistedColors = androidx.compose.runtime.remember(
-                s?.activeThemeColorsJson, s?.themeMode, s?.accentColor, systemDark
-            ) {
-                com.eried.eucplanet.ui.theme.ThemeMigration.resolveColors(
-                    activeThemeColorsJson = s?.activeThemeColorsJson ?: "",
-                    themeMode = s?.themeMode ?: "system",
-                    accentKey = s?.accentColor ?: "default",
-                    systemDark = systemDark,
-                )
-            }
-            // Live editor preview (in-memory) overrides the persisted snapshot so
-            // the whole app re-skins instantly while a color slider is dragged.
-            // The target tool's transient pulse takes precedence over both.
+            // The active theme's resolved colors come from ThemeController (held in
+            // memory, re-derived from the persisted theme NAME on launch). The live
+            // editor preview overrides them so the whole app re-skins instantly
+            // while a slider drags; the target tool's pulse wins over both.
+            androidx.compose.runtime.LaunchedEffect(Unit) { themeController.ensureResolved() }
+            val resolvedColors = themeController.activeColors.collectAsState().value
             val liveColors = themeController.live.collectAsState().value
             val pulseColors = themeController.pulse.collectAsState().value
-            val themeColors = pulseColors ?: liveColors ?: persistedColors
-            // Seed the active-theme snapshot once from the legacy settings so the
-            // OS stops driving the theme after first launch / upgrade. After this,
-            // activeThemeColorsJson is the single source of truth.
-            androidx.compose.runtime.LaunchedEffect(s?.activeThemeColorsJson, systemDark) {
-                val cur = s
-                if (cur != null && cur.activeThemeColorsJson.isEmpty()) {
-                    val seed = com.eried.eucplanet.ui.theme.ThemeMigration
-                        .migrate(cur.themeMode, cur.accentColor, systemDark)
-                    settingsRepository.update(
-                        cur.copy(
-                            activeThemeColorsJson =
-                                com.eried.eucplanet.ui.theme.ThemeJson.colorsToString(seed.colors),
-                            activeThemeName = seed.name,
-                            themeDirty = seed.dirty,
-                            // A migrated custom-accent theme is a draft of its base
-                            // preset; register it so it shows in the combo too.
-                            unsavedThemesJson = if (seed.dirty)
-                                org.json.JSONObject().put(
-                                    seed.name,
-                                    com.eried.eucplanet.ui.theme.ThemeJson.colorsToJson(seed.colors)
-                                ).toString()
-                            else cur.unsavedThemesJson,
-                        )
-                    )
-                }
-            }
+            val themeColors = pulseColors ?: liveColors ?: resolvedColors
             EucPlanetTheme(colors = themeColors) {
                 Surface(
                     modifier = Modifier.fillMaxSize(),

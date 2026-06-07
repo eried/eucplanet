@@ -1,15 +1,21 @@
 package com.eried.eucplanet.service.hud
 
 import android.util.Log
+import com.eried.eucplanet.data.repository.SettingsRepository
 import com.eried.eucplanet.data.repository.WheelRepository
+import com.eried.eucplanet.flic.FlicManager
 import com.eried.eucplanet.hud.protocol.HudCommand
 import com.eried.eucplanet.hud.protocol.VersionCompat
 import com.eried.eucplanet.nav.NavigationEngine
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
 
 /**
  * Routes the small set of commands the HUD remote can issue into the same
@@ -25,9 +31,17 @@ import kotlinx.coroutines.flow.asStateFlow
 @Singleton
 class HudCommandSink @Inject constructor(
     private val wheelRepository: WheelRepository,
-    private val navigationEngine: NavigationEngine
+    private val navigationEngine: NavigationEngine,
+    private val settingsRepository: SettingsRepository,
+    private val flicManager: FlicManager
 ) {
     companion object { private const val TAG = "HudCommandSink" }
+
+    // Reading the rider's joystick bindings is a suspend call (settings live in
+    // DataStore), so HudCommand.Action handling hops onto a coroutine. Main
+    // immediate keeps the common "already on main" dispatch synchronous-ish and
+    // matches where HudServer delivers commands from.
+    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
 
     private val _hudVersionCompat = MutableStateFlow(VersionCompat.EXACT)
     /** Phone's classification of the connected HUD's protocol version
@@ -79,6 +93,27 @@ class HudCommandSink @Inject constructor(
             HudCommand.StopNavigation -> {
                 Log.i(TAG, "HUD command: StopNavigation")
                 navigationEngine.stop()
+            }
+            is HudCommand.Action -> {
+                // The slot ("UP"/"DOWN"/"LEFT"/"RIGHT") maps to a rider-configured
+                // ActionCatalog key stored on the phone, just like Flic / Volume /
+                // Wear. We read the binding and fire it eyes-free through FlicManager,
+                // which already handles "" / "NONE" as no-ops.
+                scope.launch {
+                    val settings = settingsRepository.get()
+                    val key = when (cmd.slot) {
+                        "UP" -> settings.hudActionUp
+                        "DOWN" -> settings.hudActionDown
+                        "LEFT" -> settings.hudActionLeft
+                        "RIGHT" -> settings.hudActionRight
+                        else -> {
+                            Log.w(TAG, "HUD command: Action unknown slot=${cmd.slot}")
+                            return@launch
+                        }
+                    }
+                    Log.i(TAG, "HUD command: Action slot=${cmd.slot} -> $key")
+                    flicManager.dispatchActionByName(key)
+                }
             }
         }
     }

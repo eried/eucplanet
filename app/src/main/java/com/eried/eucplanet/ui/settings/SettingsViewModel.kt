@@ -270,7 +270,7 @@ class SettingsViewModel @Inject constructor(
     fun updateSafetyAlarm(value: Float) =
         update { copy(safetyAlarmKmh = value, safetyTiltbackKmh = safetyTiltbackKmh.coerceAtLeast(value)) }
     fun updateVoiceEnabled(enabled: Boolean) = update { copy(voiceEnabled = enabled) }
-    fun updateVoiceOnlyWhenConnected(enabled: Boolean) = update { copy(voiceOnlyWhenConnected = enabled) }
+    fun updateVoiceAnnounceWhen(value: String) = update { copy(voiceAnnounceWhen = value) }
     fun updateVoiceInterval(seconds: Int) = update { copy(voiceIntervalSeconds = seconds) }
     fun updateVoiceSpeechRate(v: Float) = update { copy(voiceSpeechRate = v) }
     fun updateVoiceReportSpeed(v: Boolean) = update { copy(voiceReportSpeed = v) }
@@ -459,6 +459,13 @@ class SettingsViewModel @Inject constructor(
         copy(hudServerPort = v.coerceIn(1024, 65535))
     }
     fun updateHudIp(v: String) = update { copy(hudIp = v.trim()) }
+
+    // HUD joystick long-press action bindings (UP / DOWN / LEFT / RIGHT). Same
+    // ActionCatalog vocabulary as Flic / Volume keys; "NONE" = unbound.
+    fun updateHudActionUp(v: String) = update { copy(hudActionUp = v) }
+    fun updateHudActionDown(v: String) = update { copy(hudActionDown = v) }
+    fun updateHudActionLeft(v: String) = update { copy(hudActionLeft = v) }
+    fun updateHudActionRight(v: String) = update { copy(hudActionRight = v) }
     /**
      * Set the HUD's "Custom" screen to mirror an Overlay Studio preset.
      * Caller supplies the resolved JSON so the ViewModel doesn't need to
@@ -676,6 +683,9 @@ class SettingsViewModel @Inject constructor(
      *  on screen entry / after a save so newly-saved themes appear. */
     val themeChoices: StateFlow<com.eried.eucplanet.ui.theme.ThemeChoices> = _themeChoices.asStateFlow()
 
+    /** True when the active theme is an unsaved working draft (in-memory only). */
+    val themeDirty: StateFlow<Boolean> = themeController.dirty
+
     fun refreshThemeChoices() {
         viewModelScope.launch { _themeChoices.value = themeController.availableThemes() }
     }
@@ -783,7 +793,7 @@ class SettingsViewModel @Inject constructor(
     fun dismissRejoinConfirm() { _rejoinConfirm.value = false }
     fun confirmRejoin() {
         _rejoinConfirm.value = false
-        setOnlineUploadEnabled(true)
+        enableOnlineUpload()
     }
 
     /** Tapped "Join". If this phone already has a rider, confirm rejoining as it.
@@ -807,14 +817,28 @@ class SettingsViewModel @Inject constructor(
 
     fun dismissRestorableRider() { _restorableRider.value = null }
 
-    /** Adopt the rider carried by [rider] (restore its backup), snapshotting the
-     *  current rider first if we'd be replacing a different one. */
+    /** Adopt the rider carried by [rider] (adopt its recovered rider id),
+     *  snapshotting the current rider first if we'd be replacing a different one. */
     fun restoreRider(rider: RestorableRider) {
         viewModelScope.launch {
-            val ok = restoreWithSafety(rider.fileName)
+            val current = settingsRepository.get()
+            // If a DIFFERENT rider is already linked, snapshot current settings
+            // first so the previous identity stays recoverable.
+            if (current.eucstatsStoreId != null && current.eucstatsStoreId != rider.storeId) {
+                syncManager.snapshotBeforeRestore()
+            }
+            // Adopt the recovered online rider id and re-join. Name/flag/stats
+            // come from the server card; theme and all other settings untouched.
+            settingsRepository.update(
+                current.copy(
+                    eucstatsStoreId = rider.storeId,
+                    eucstatsConsentPublic = true,
+                    onlineUploadEnabled = true,
+                )
+            )
             _restorableRider.value = null
-            if (ok) refreshOnlineUploadCard()
-            _cloudEvent.value = if (ok) CloudEvent.RestoreSuccess else CloudEvent.RestoreFailed
+            refreshOnlineUploadCard()
+            _cloudEvent.value = CloudEvent.RestoreSuccess
         }
     }
 
@@ -1913,39 +1937,57 @@ class SettingsViewModel @Inject constructor(
         displayName: String,
         flag: String,
         avatarPngBase64: String,
-        onResult: (Boolean) -> Unit,
+        onResult: (com.eried.eucplanet.data.eucstats.RegisterResult) -> Unit,
     ) {
         viewModelScope.launch {
-            val ok = eucStatsRepository.register(displayName, flag, avatarPngBase64)
-            if (ok) {
-                // Persist the rider identity (store_id) to a backup file in the
-                // sync folder so it survives a reinstall / new device --
-                // findRestorableRider can then recover the rider instead of
-                // forcing a fresh registration. Best-effort.
-                syncManager.backupSettings()
+            val result = eucStatsRepository.register(displayName, flag, avatarPngBase64)
+            if (result == com.eried.eucplanet.data.eucstats.RegisterResult.Ok) {
+                // Persist ONLY the rider identity to its own small file
+                // (eucstats_riderid.txt) -- NOT the full settings/theme -- so the
+                // rider survives a reinstall / new device and findRestorableRider
+                // can recover it, without dragging the theme or other settings.
+                // Best-effort.
+                syncManager.backupRiderIdentity()
             }
-            onResult(ok)
+            onResult(result)
         }
     }
 
     /**
-     * Enable or disable online upload.
-     *
-     * Disabling always succeeds and just flips the flag.
-     * Enabling is silently skipped when a sync folder or store_id is absent —
-     * the UI is responsible for routing the rider through onboarding first.
+     * Enable online upload. Silently skipped when a sync folder or store_id is
+     * absent — the UI routes the rider through onboarding first. (Disabling is
+     * done by [unlinkOnline].)
      */
-    fun setOnlineUploadEnabled(enabled: Boolean) {
+    fun enableOnlineUpload() {
         viewModelScope.launch {
             val current = settingsRepository.get()
-            if (!enabled) {
-                settingsRepository.update(current.copy(onlineUploadEnabled = false))
-                return@launch
-            }
             // Preconditions: sync folder configured AND already registered.
             if (current.syncFolderUri == null || current.eucstatsStoreId == null) return@launch
             settingsRepository.update(current.copy(onlineUploadEnabled = true))
+            // Harden the recovery id file now that we're linked (write it if the
+            // folder doesn't have it yet); warn instead of clobbering a foreign id.
+            ensureRiderIdFileOrWarn()
             eucStatsRepository.refreshCard()
+        }
+    }
+
+    /**
+     * Unlink from the leaderboard. Before dropping the link, make sure the
+     * recovery id file exists in the sync folder so the rider can rejoin after a
+     * reinstall / new device (the local store_id is kept, but the file is the only
+     * copy that survives a wipe). A different rider's file is left untouched.
+     */
+    fun unlinkOnline() {
+        viewModelScope.launch {
+            ensureRiderIdFileOrWarn()
+            settingsRepository.update(settingsRepository.get().copy(onlineUploadEnabled = false))
+        }
+    }
+
+    /** Ensure the recovery id file, surfacing a warning if a different id is present. */
+    private suspend fun ensureRiderIdFileOrWarn() {
+        if (syncManager.ensureRiderIdFile() == SyncManager.RiderFileResult.MISMATCH) {
+            _cloudEvent.value = CloudEvent.RiderIdConflict
         }
     }
 
@@ -2015,6 +2057,10 @@ class SettingsViewModel @Inject constructor(
     fun deleteOnlineAccount(onResult: (Boolean) -> Unit) {
         viewModelScope.launch {
             val ok = eucStatsRepository.deleteAccount()
+            // Remove the local recovery file too, so the just-deleted profile is
+            // not offered for "restore" on the next Join (it no longer exists
+            // server-side). Best-effort, only when the server delete succeeded.
+            if (ok) syncManager.deleteRiderIdFile()
             onResult(ok)
         }
     }
@@ -2269,4 +2315,7 @@ sealed interface CloudEvent {
     data class SyncFinished(val count: Int) : CloudEvent
     data object EucstatsNothingToSync : CloudEvent
     data class EucstatsSyncFinished(val count: Int) : CloudEvent
+    /** A DIFFERENT rider's recovery id is already in the sync folder; we left it
+     *  untouched instead of overwriting it. */
+    data object RiderIdConflict : CloudEvent
 }

@@ -203,15 +203,31 @@ fun HudApp(
                             BigClockScreen(hud = hud)
                     }
 
-                    // Brief toast when the rider switches screens, top-left,
-                    // matching the disconnected badge's chrome (clipped corner,
-                    // dark fill + gray stroke, same font sizes).
-                    ScreenChangeToast(
-                        screen = controller.current,
-                        index1Based = controller.currentIndex1Based(),
-                        total = controller.totalScreens(),
-                        modifier = Modifier.align(Alignment.TopStart).padding(12.dp)
-                    )
+                    // Top-left stack: the screen-change toast (title + blurb)
+                    // with the button-action guide sitting directly UNDER it,
+                    // matching the disconnected badge's chrome. Both show only on
+                    // screen change, so the guide rides with the screen message.
+                    Column(
+                        modifier = Modifier
+                            .align(Alignment.TopStart)
+                            .padding(12.dp),
+                        verticalArrangement = Arrangement.spacedBy(6.dp)
+                    ) {
+                        ScreenChangeToast(
+                            screen = controller.current,
+                            index1Based = controller.currentIndex1Based(),
+                            total = controller.totalScreens()
+                        )
+                        ButtonActionGuideOverlay(
+                            screen = controller.current,
+                            shortActions = controller.shortActions(),
+                            up = hud.joystickUp,
+                            down = hud.joystickDown,
+                            left = hud.joystickLeft,
+                            right = hud.joystickRight,
+                            accent = accent
+                        )
+                    }
 
                     // Ambient wall clock, TOP-right. Moved here from
                     // bottom-left after a tester reported it covering
@@ -424,12 +440,14 @@ private fun ScreenChangeToast(
                     fontWeight = FontWeight.SemiBold,
                     maxLines = 1
                 )
-                Text(
-                    text = "  $index1Based/$total",
-                    color = Color(0xFF808080),
-                    fontSize = 11.sp,
-                    maxLines = 1
-                )
+                if (total > 1) {
+                    Text(
+                        text = "  $index1Based/$total",
+                        color = Color(0xFF808080),
+                        fontSize = 11.sp,
+                        maxLines = 1
+                    )
+                }
             }
             Text(
                 text = ctx.getString(descRes),
@@ -441,7 +459,147 @@ private fun ScreenChangeToast(
     }
 }
 
+/**
+ * Compact button-action guide, shown UNDER the screen-change toast (title +
+ * blurb). Each of the four d-pad directions gets one row laid out as a small
+ * cross of glyphs (▲▼◀▶), with up to two lines per direction:
+ *
+ *   line A = the SHORT-press behaviour on the CURRENT screen, supplied by
+ *            [HudUiController.shortActions] (e.g. "Next screen", "Zoom in",
+ *            "GPS view"). Null when the direction has no screen-specific short
+ *            action here.
+ *   line B = the double-tap action label the phone resolved and shipped in
+ *            [HudState] ([up]/[down]/[left]/[right]), rendered "<label> (2x)".
+ *            Omitted when the label is empty (slot unbound).
+ *
+ * A direction with NEITHER a short line nor a long label is dimmed/skipped --
+ * there's nothing to teach for that arm. The whole overlay is skipped when no
+ * direction has anything to show.
+ *
+ * Trigger + auto-hide mirror [ScreenChangeToast] -- shown only on screen change,
+ * so the guide always rides with the screen message.
+ */
+@Composable
+private fun ButtonActionGuideOverlay(
+    screen: HudUiController.Screen,
+    shortActions: HudUiController.ShortActions,
+    up: String,
+    down: String,
+    left: String,
+    right: String,
+    accent: Color,
+    modifier: Modifier = Modifier
+) {
+    // Per-direction rows. Each carries the short line (may be null) and the long
+    // label (may be blank). A row with neither is "empty" and gets dimmed.
+    data class Arm(val glyph: String, val shortLine: String?, val longLabel: String)
+    val arms = listOf(
+        Arm("▲", shortActions.up, up),
+        Arm("▼", shortActions.down, down),
+        Arm("◀", shortActions.left, left),
+        Arm("▶", shortActions.right, right)
+    ).filter { it.shortLine != null || it.longLabel.isNotBlank() }
+    // Nothing to teach in any direction: don't draw the card.
+    if (arms.isEmpty()) return
+
+    var visible by remember { mutableStateOf(false) }
+    // Re-show only on screen change (rides with the screen toast); a d-pad press
+    // no longer flashes it on its own.
+    androidx.compose.runtime.LaunchedEffect(screen) {
+        visible = true
+        kotlinx.coroutines.delay(JOYSTICK_GUIDE_DURATION_MS)
+        visible = false
+    }
+    androidx.compose.animation.AnimatedVisibility(
+        visible = visible,
+        enter = androidx.compose.animation.fadeIn(),
+        exit = androidx.compose.animation.fadeOut(),
+        modifier = modifier
+    ) {
+        // Same chrome as the screen-change toast (clipped square corners,
+        // 0xE6111111 fill, 0xFF6B6B6B stroke) so it reads as part of the same
+        // top-left hint stack rather than a competing card.
+        Column(
+            modifier = Modifier
+                .clip(RectangleShape)
+                .background(Color(0xE6111111))
+                .border(1.dp, Color(0xFF6B6B6B), RectangleShape)
+                .padding(horizontal = 10.dp, vertical = 6.dp),
+            verticalArrangement = Arrangement.spacedBy(3.dp)
+        ) {
+            arms.forEach { arm ->
+                ButtonActionArm(
+                    glyph = arm.glyph,
+                    shortLine = arm.shortLine,
+                    longLabel = arm.longLabel,
+                    accent = accent
+                )
+            }
+        }
+    }
+}
+
+/** One direction row of [ButtonActionGuideOverlay]: an accent-tinted glyph
+ *  followed by its short line (top) and "<label> (2x)" line (bottom). A row
+ *  with neither dims the glyph so the rider can see the direction is free. */
+@Composable
+private fun ButtonActionArm(
+    glyph: String,
+    shortLine: String?,
+    longLabel: String,
+    accent: Color
+) {
+    val hasShort = !shortLine.isNullOrBlank()
+    val hasLong = longLabel.isNotBlank()
+    val empty = !hasShort && !hasLong
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        Text(
+            text = glyph,
+            color = if (empty) Color(0xFF6B6B6B) else accent,
+            fontSize = 12.sp,
+            fontWeight = FontWeight.Bold,
+            maxLines = 1
+        )
+        Spacer(Modifier.width(8.dp))
+        Column(verticalArrangement = Arrangement.spacedBy(0.dp)) {
+            if (hasShort) {
+                Text(
+                    text = shortLine!!,
+                    color = Color.White,
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    maxLines = 1
+                )
+            }
+            if (hasLong) {
+                Text(
+                    text = "$longLabel (2x)",
+                    color = if (hasShort) Color(0xFFB0B0B0) else Color.White,
+                    fontSize = 11.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    maxLines = 1
+                )
+            }
+            // Direction free in BOTH meanings: a single dim dash so the row
+            // still occupies its place in the cross without looking broken.
+            if (empty) {
+                Text(
+                    text = "—",
+                    color = Color(0xFF808080),
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    maxLines = 1
+                )
+            }
+        }
+    }
+}
+
 private const val SCREEN_TOAST_DURATION_MS: Long = 3_000L
+/** How long the button-action guide stays up after a screen change or a d-pad
+ *  press. Matches the screen-change toast so both transient hints fade
+ *  together. */
+private const val JOYSTICK_GUIDE_DURATION_MS: Long = 3_000L
 /** Boot-time grace before the disconnect chrome can appear. Covers the
  *  worst case of HUD boot + phone hotspot DHCP + phone-app cold start +
  *  WS handshake + at least one reconnect backoff (1 s) without ever

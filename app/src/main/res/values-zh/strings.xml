@@ -107,7 +107,7 @@
     <string name="cloud_last_backup_never">尚未备份</string>
     <string name="cloud_backup_success">设置已备份</string>
 <string name="cloud_backup_named_success">已备份为 %1$s</string>
-    <string name="cloud_backup_failed">备份失败 — 请检查文件夹访问权限</string>
+    <string name="cloud_backup_failed">备份失败, 请检查文件夹访问权限</string>
     <string name="cloud_restore_success">设置已恢复</string>
     <string name="cloud_restore_failed">文件夹中未找到备份</string>
     <string name="section_cloud_trips">行程备份</string>
@@ -214,6 +214,10 @@
     <string name="section_report_status">状态播报</string>
     <string name="voice_enabled">定时播报状态</string>
     <string name="voice_only_when_connected">仅在独轮车连接时播报</string>
+    <string name="voice_announce_when_label">播报</string>
+    <string name="voice_announce_always">始终</string>
+    <string name="voice_announce_connected">已连接</string>
+    <string name="voice_announce_riding">骑行时</string>
     <string name="voice_interval">间隔</string>
     <string name="unit_sec">秒</string>
     <string name="announce_wheel_lock">锁车 / 解锁</string>
@@ -1177,15 +1181,15 @@
     <string name="metric_chip_wheel_alarm_speed">车体报警</string>
     <string name="metric_chip_wheel_max_speed">车体限速</string>
     <string name="metric_desc_avg_trip_speed">行程距离除以已骑行时间。</string>
-    <string name="metric_desc_bt_rssi">到独轮车的蓝牙信号强度——越接近 0 dBm 越强。</string>
-    <string name="metric_desc_gps_accuracy">GPS 定位误差半径——越低越准确。</string>
+    <string name="metric_desc_bt_rssi">到独轮车的蓝牙信号强度，，越接近 0 dBm 越强。</string>
+    <string name="metric_desc_gps_accuracy">GPS 定位误差半径，，越低越准确。</string>
     <string name="metric_desc_headroom">回倾启动前剩余的速度余量。数字大 = 安全缓冲更多。</string>
     <string name="metric_desc_range_estimate">按当前消耗率剩余的距离。</string>
     <string name="metric_desc_regen_wh">本次行程刹车时回馈到电池的总瓦时。</string>
-    <string name="metric_desc_slope">由独轮车俯仰角推算的路面坡度——正值为上坡。</string>
+    <string name="metric_desc_slope">由独轮车俯仰角推算的路面坡度，，正值为上坡。</string>
     <string name="metric_desc_trip_max_speed">当前行程的最高速度（新行程重置）。</string>
     <string name="metric_desc_wh_consumed">本次行程从电池中提取的总瓦时。</string>
-    <string name="metric_desc_wh_per_km">每公里消耗能量——越低越高效。</string>
+    <string name="metric_desc_wh_per_km">每公里消耗能量，，越低越高效。</string>
     <string name="metric_detail_reset">重置</string>
     <string name="metric_detail_reset_all">全部重置</string>
     <string name="metric_detail_reset_all_confirm_body">清空所有指标的滚动历史缓冲。设置和行程记录不受影响。</string>
@@ -1370,13 +1374,13 @@
     <string name="online_upload_consent_bullet_flag">你的国家旗帜</string>
     <string name="online_upload_consent_bullet_avatar">你的头像照片</string>
     <string name="online_upload_consent_bullet_stats">你的整体骑行数据，如里程和速度</string>
-    <string name="online_upload_consent_bullet_location">行程的起终点位置，精度在 10 km（6 mi）或更大范围内</string>
+    <string name="online_upload_consent_bullet_location">为保护隐私，位置会被聚合到地图上的大片区域</string>
     <string name="online_upload_consent_no_raw_gps">原始 GPS 轨迹永不公开。</string>
     <string name="online_upload_consent_agree">同意并继续</string>
 
     <!-- 第二步：个人资料 -->
     <string name="online_upload_profile_title">创建你的资料</string>
-    <string name="online_upload_profile_name_label">显示名称</string>
+    <string name="online_upload_profile_name_label">唯一显示名称</string>
     <string name="online_upload_profile_country_label">国家</string>
     <string name="online_upload_profile_country_select">选择你的国家</string>
     <string name="online_upload_country_search">搜索国家</string>
@@ -1478,4 +1482,25 @@
     <string name="setting_charging_dashboard_icon">在仪表盘显示电池监控图标</string>
     <string name="setting_charging_auto_open_desc">车轮开始充电时打开电池监控</string>
     <string name="setting_charging_dashboard_icon_desc">点按即可打开电池监控</string>
+    <string name="dashboard_custom_ble_default_name">自定义 BLE</string>
+    <string name="dashboard_custom_ble_family">车型系列筛选</string>
+    <string name="dashboard_custom_ble_frames">数据帧（hex）</string>
+    <string name="dashboard_custom_ble_frames_error">十六进制格式无效，请使用字节对，如 4c 6b 41 70</string>
+    <string name="dashboard_custom_ble_label">按钮标签</string>
+    <string name="dashboard_custom_ble_template">BLE</string>
+    <string name="dashboard_view_wide_menu">宽屏（适合平板）</string>
+    <string name="metric_desc_forward_g">由轮速变化估算（非 IMU），，无论手机安装方向如何均可使用。</string>
+    <string name="online_rider_id_conflict">此文件夹中已保存了其他骑手的恢复 ID，已保留原有 ID，未覆盖。</string>
+    <string name="online_upload_actions_desc">将尚未上传的行程发送到排行榜。</string>
+    <string name="online_upload_sync_checking">正在检查待上传的行程…</string>
+    <string name="online_upload_sync_done">已同步 %1$d 条行程</string>
+    <string name="online_upload_sync_nothing">暂无需同步的内容</string>
+    <string name="online_upload_sync_progress">正在上传 %1$d / %2$d</string>
+    <string name="online_upload_register_server_error">注册失败。服务器返回：%1$s（%2$d）</string>
+    <string name="hud_joystick_title">按键操作</string>
+    <string name="hud_joystick_desc">双击 HUD 按键可执行一个操作。单击仍会切换屏幕</string>
+    <string name="hud_joystick_up">上（双击）</string>
+    <string name="hud_joystick_down">下（双击）</string>
+    <string name="hud_joystick_left">左（双击）</string>
+    <string name="hud_joystick_right">右（双击）</string>
 </resources>

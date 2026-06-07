@@ -108,7 +108,7 @@
     <string name="cloud_last_backup_never">Ikke tatt backup ennå</string>
     <string name="cloud_backup_success">Innstillinger sikkerhetskopiert</string>
 <string name="cloud_backup_named_success">Lagret som %1$s</string>
-    <string name="cloud_backup_failed">Sikkerhetskopi mislyktes — sjekk mappetilgang</string>
+    <string name="cloud_backup_failed">Sikkerhetskopi mislyktes, sjekk mappetilgang</string>
     <string name="cloud_restore_success">Innstillinger gjenopprettet</string>
     <string name="cloud_restore_failed">Ingen backup funnet i mappen</string>
     <string name="section_cloud_trips">Tur-backup</string>
@@ -210,6 +210,10 @@
     <string name="section_report_status">Statusrapport</string>
     <string name="voice_enabled">Rapporter status jevnlig</string>
     <string name="voice_only_when_connected">Kun når hjulet er tilkoblet</string>
+    <string name="voice_announce_when_label">Annonser</string>
+    <string name="voice_announce_always">Alltid</string>
+    <string name="voice_announce_connected">Tilkoblet</string>
+    <string name="voice_announce_riding">Under kjøring</string>
     <string name="voice_interval">Intervall</string>
     <string name="unit_sec">sek</string>
     <string name="announce_wheel_lock">Hjul lås / lås opp</string>
@@ -1194,15 +1198,15 @@
     <string name="metric_chip_wheel_alarm_speed">Hjulalarm</string>
     <string name="metric_chip_wheel_max_speed">Maks hjul</string>
     <string name="metric_desc_avg_trip_speed">Turdistanse delt på kjøretid så langt.</string>
-    <string name="metric_desc_bt_rssi">Bluetooth-signalstyrke til hjulet — nærmere 0 dBm er sterkere.</string>
-    <string name="metric_desc_gps_accuracy">GPS-posisjonsfeilradius — lavere er mer nøyaktig.</string>
+    <string name="metric_desc_bt_rssi">Bluetooth-signalstyrke til hjulet, nærmere 0 dBm er sterkere.</string>
+    <string name="metric_desc_gps_accuracy">GPS-posisjonsfeilradius, lavere er mer nøyaktig.</string>
     <string name="metric_desc_headroom">Gjenværende fartsmargin før tilt-back slår inn. Høyt tall = mer sikkerhetsbuffer.</string>
     <string name="metric_desc_range_estimate">Gjenværende distanse med dagens forbruk.</string>
     <string name="metric_desc_regen_wh">Totalt antall wattimer matet tilbake til batteriet under bremsing på denne turen.</string>
-    <string name="metric_desc_slope">Veibakke regnet ut fra hjulets helling — positivt er oppoverbakke.</string>
+    <string name="metric_desc_slope">Veibakke regnet ut fra hjulets helling, positivt er oppoverbakke.</string>
     <string name="metric_desc_trip_max_speed">Toppfart på nåværende tur (nullstilles ved ny tur).</string>
     <string name="metric_desc_wh_consumed">Totalt antall wattimer trukket fra batteriet på denne turen.</string>
-    <string name="metric_desc_wh_per_km">Energi per kilometer — lavere er mer effektivt.</string>
+    <string name="metric_desc_wh_per_km">Energi per kilometer, lavere er mer effektivt.</string>
     <string name="metric_detail_reset">Nullstill</string>
     <string name="metric_detail_reset_all">Nullstill alle</string>
     <string name="metric_detail_reset_all_confirm_body">Tømmer den rullende historikkbufferen for hver måling. Innstillinger og turer berøres ikke.</string>
@@ -1387,13 +1391,13 @@
     <string name="online_upload_consent_bullet_flag">Landsflagget ditt</string>
     <string name="online_upload_consent_bullet_avatar">Profilbildet ditt</string>
     <string name="online_upload_consent_bullet_stats">Samlet kjørestatistikk, som distanse og fart</string>
-    <string name="online_upload_consent_bullet_location">Start- og sluttsted for turer, gruppert i områder på 10 km (6 mi) eller større</string>
+    <string name="online_upload_consent_bullet_location">Posisjoner samles i store områder på kartet av personvernhensyn</string>
     <string name="online_upload_consent_no_raw_gps">Rå GPS-spor publiseres aldri.</string>
     <string name="online_upload_consent_agree">Godta og fortsett</string>
 
     <!-- Steg 2: Profil -->
     <string name="online_upload_profile_title">Opprett profilen din</string>
-    <string name="online_upload_profile_name_label">Visningsnavn</string>
+    <string name="online_upload_profile_name_label">Unikt visningsnavn</string>
     <string name="online_upload_profile_country_label">Land</string>
     <string name="online_upload_profile_country_select">Velg land</string>
     <string name="online_upload_country_search">Søk etter land</string>
@@ -1495,4 +1499,25 @@
     <string name="setting_charging_dashboard_icon">Batterimonitor-ikon på dashbordet</string>
     <string name="setting_charging_auto_open_desc">Åpner Batterimonitor når hjulet begynner å lade</string>
     <string name="setting_charging_dashboard_icon_desc">Trykk for å åpne Batterimonitor</string>
+    <string name="dashboard_custom_ble_default_name">Tilpasset BLE</string>
+    <string name="dashboard_custom_ble_family">Filter for hjulfamilie</string>
+    <string name="dashboard_custom_ble_frames">Rammer (hex)</string>
+    <string name="dashboard_custom_ble_frames_error">Ugyldig hex, bruk bytepar som 4c 6b 41 70</string>
+    <string name="dashboard_custom_ble_label">Knappetikett</string>
+    <string name="dashboard_custom_ble_template">BLE</string>
+    <string name="dashboard_view_wide_menu">Bred (for nettbrett)</string>
+    <string name="metric_desc_forward_g">Beregnet fra hjulets fartsendring (ikke IMU), fungerer uavhengig av hvordan telefonen er montert.</string>
+    <string name="online_rider_id_conflict">En annen rytters gjenopprettings-ID er allerede lagret i denne mappen, beholdt den, ikke overskrevet.</string>
+    <string name="online_upload_actions_desc">Send turer som ikke er lastet opp til ledertavlen ennå.</string>
+    <string name="online_upload_sync_checking">Sjekker etter turer å laste opp…</string>
+    <string name="online_upload_sync_done">Synkroniserte %1$d turer</string>
+    <string name="online_upload_sync_nothing">Ingenting å synkronisere</string>
+    <string name="online_upload_sync_progress">Laster opp %1$d av %2$d</string>
+    <string name="online_upload_register_server_error">Registrering mislyktes. Serveren svarte: %1$s (%2$d)</string>
+    <string name="hud_joystick_title">Knappehandlinger</string>
+    <string name="hud_joystick_desc">Trykk to ganger på en HUD-knapp for å kjøre en handling. Ett enkelt trykk bytter fortsatt skjerm</string>
+    <string name="hud_joystick_up">Opp (dobbelttrykk)</string>
+    <string name="hud_joystick_down">Ned (dobbelttrykk)</string>
+    <string name="hud_joystick_left">Venstre (dobbelttrykk)</string>
+    <string name="hud_joystick_right">Høyre (dobbelttrykk)</string>
 </resources>

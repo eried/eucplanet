@@ -94,7 +94,11 @@ data class StatusContext(
     /** Alarms-muted flag from settings. Not yet wired upstream — defaults false. */
     val alarmsMuted: Boolean = false,
     /** True when the wheel is currently in safety / legal mode. */
-    val safetyActive: Boolean = false
+    val safetyActive: Boolean = false,
+    /** True when a wheel is connected over BLE. Consumed by [ActionSpec.enabledReader]
+     *  to gate actions that write to the wheel. Defaults false so existing
+     *  construction sites that don't plumb it keep compiling. */
+    val connected: Boolean = false
 )
 
 data class ActionSpec(
@@ -118,7 +122,17 @@ data class ActionSpec(
      * reader returns true when pressing would be a no-op, so the UI can
      * disable or de-emphasize the button.
      */
-    val statusReader: ((StatusContext) -> Boolean)? = null
+    val statusReader: ((StatusContext) -> Boolean)? = null,
+    /**
+     * Parallels [statusReader] but answers "may this action run right now?".
+     * - Null → always allowed (no precondition).
+     * - Returns true → preconditions met, surfaces may fire it.
+     * - Returns false → surfaces must NOT fire it (and may grey it out).
+     * Set on actions that write BLE to the wheel so every eyes-free surface
+     * (Flic, volume, watch, HUD, Garmin) is gated consistently when no wheel
+     * is connected — instead of each surface re-implementing the check.
+     */
+    val enabledReader: ((StatusContext) -> Boolean)? = null
 )
 
 object ActionCatalog {
@@ -129,14 +143,16 @@ object ActionCatalog {
             key = "HORN",
             labelRes = R.string.action_chip_horn,
             icon = Icons.Filled.Campaign,
-            isEyesFreeSafe = true
+            isEyesFreeSafe = true,
+            enabledReader = { it.connected }
         ),
         ActionSpec(
             key = "LIGHT_TOGGLE",
             labelRes = R.string.action_chip_light,
             icon = Icons.Filled.FlashlightOn,
             isEyesFreeSafe = true,
-            statusReader = { it.wheel.lightOn }
+            statusReader = { it.wheel.lightOn },
+            enabledReader = { it.connected }
         ),
         ActionSpec(
             key = "LOCK_TOGGLE",
@@ -146,14 +162,16 @@ object ActionCatalog {
             // pcMode == 0 means locked. -1 (unknown) returns false so the
             // tile doesn't render an "active" state before the wheel has
             // sent a mode frame.
-            statusReader = { it.wheel.pcMode == 0 }
+            statusReader = { it.wheel.pcMode == 0 },
+            enabledReader = { it.connected }
         ),
         ActionSpec(
             key = "SAFETY_TOGGLE",
             labelRes = R.string.action_chip_safety,
             icon = Icons.Filled.Shield,
             isEyesFreeSafe = true,
-            statusReader = { it.safetyActive }
+            statusReader = { it.safetyActive },
+            enabledReader = { it.connected }
         ),
         ActionSpec(
             key = "SAFETY_ON",
@@ -162,7 +180,8 @@ object ActionCatalog {
             isEyesFreeSafe = true,
             // Highlight when ALREADY in safety mode — pressing this is a
             // no-op in that case, so the active state warns the rider.
-            statusReader = { it.safetyActive }
+            statusReader = { it.safetyActive },
+            enabledReader = { it.connected }
         ),
         ActionSpec(
             key = "SAFETY_OFF",
@@ -170,7 +189,8 @@ object ActionCatalog {
             icon = Icons.Filled.Shield,
             isEyesFreeSafe = true,
             // Mirror of SAFETY_ON — highlight when already off.
-            statusReader = { !it.safetyActive }
+            statusReader = { !it.safetyActive },
+            enabledReader = { it.connected }
         ),
         ActionSpec(
             key = "VOICE_ANNOUNCE",
@@ -255,7 +275,8 @@ object ActionCatalog {
         ActionSpec(
             key = "RESET_TRIP",
             labelRes = R.string.action_chip_reset_trip,
-            icon = Icons.Filled.Restore
+            icon = Icons.Filled.Restore,
+            enabledReader = { it.connected }
         ),
         ActionSpec(
             key = "TOGGLE_UNITS",

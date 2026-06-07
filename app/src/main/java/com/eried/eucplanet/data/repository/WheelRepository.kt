@@ -736,7 +736,18 @@ class WheelRepository @Inject constructor(
 
     // --- Control commands ---
 
+    /**
+     * Hard floor (chokepoint B) for every direct wheel-write entry path.
+     * The HUD's fixed ToggleLight/Horn and Garmin's horn/light/safety call
+     * these methods directly (bypassing FlicManager.executeAction), and the
+     * dashboard buttons land here too. Gate all of them in one place so a
+     * BLE write — or an optimistic state flip like toggleLight's lightOn —
+     * never happens with no wheel connected.
+     */
+    private fun wheelConnected() = bleManager.connectionState.value == ConnectionState.CONNECTED
+
     fun sendHorn() {
+        if (!wheelConnected()) return  // no wheel -> ignore (HUD/Garmin/Flic/UI all land here)
         val cmd = wheelAdapter.horn()
         if (cmd != null) {
             bleManager.writeCommand(cmd)
@@ -797,6 +808,7 @@ class WheelRepository @Inject constructor(
 
     /** Write a custom BLE command's frames verbatim — one BLE write each, in order. */
     fun sendCustomBle(frames: List<ByteArray>) {
+        if (!wheelConnected()) return  // no wheel -> ignore (HUD/Garmin/Flic/UI all land here)
         frames.forEach { if (it.isNotEmpty()) bleManager.writeCommand(it) }
     }
 
@@ -808,12 +820,14 @@ class WheelRepository @Inject constructor(
      * "not supported on this wheel" feedback.
      */
     fun resetTripMeter(): Boolean {
+        if (!wheelConnected()) return false  // no wheel -> ignore (HUD/Garmin/Flic/UI all land here)
         val cmd = wheelAdapter.resetTripMeter() ?: return false
         bleManager.writeCommand(cmd)
         return true
     }
 
     fun toggleLight() {
+        if (!wheelConnected()) return  // no wheel -> ignore (HUD/Garmin/Flic/UI all land here)
         if (_lightBusy.value) return  // cooldown active, ignore the spam tap
         val current = _wheelData.value.lightOn
         val next = !current
@@ -830,6 +844,7 @@ class WheelRepository @Inject constructor(
     }
 
     fun toggleLock() {
+        if (!wheelConnected()) return  // no wheel -> ignore (HUD/Garmin/Flic/UI all land here)
         if (_lockBusy.value) return  // cooldown active, ignore the spam tap
         val targetState = !_locked.value
         // Hard block the lock direction when the wheel is moving, any entry
@@ -954,6 +969,7 @@ class WheelRepository @Inject constructor(
     }
 
     suspend fun toggleSafetySpeed() {
+        if (!wheelConnected()) return  // no wheel -> ignore (HUD/Garmin/Flic/UI all land here)
         val wantActive = !_safetySpeedActive.value
         val settings = settingsRepository.get()
 
@@ -976,12 +992,14 @@ class WheelRepository @Inject constructor(
     }
 
     fun enableSafetySpeed() {
+        if (!wheelConnected()) return  // no wheel -> ignore (HUD/Garmin/Flic/UI all land here)
         if (!_safetySpeedActive.value) {
             scope.launch { toggleSafetySpeed() }
         }
     }
 
     fun disableSafetySpeed() {
+        if (!wheelConnected()) return  // no wheel -> ignore (HUD/Garmin/Flic/UI all land here)
         if (_safetySpeedActive.value) {
             scope.launch { toggleSafetySpeed() }
         }

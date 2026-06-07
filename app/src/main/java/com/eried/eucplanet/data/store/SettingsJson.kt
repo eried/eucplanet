@@ -79,7 +79,7 @@ object SettingsJson {
         put("wheelNameDisplay", s.wheelNameDisplay)
         put("voiceEnabled", s.voiceEnabled)
         put("voicePeriodicEnabled", s.voicePeriodicEnabled)
-        put("voiceOnlyWhenConnected", s.voiceOnlyWhenConnected)
+        put("voiceAnnounceWhen", s.voiceAnnounceWhen)
         put("voiceIntervalSeconds", s.voiceIntervalSeconds)
         put("voiceSpeechRate", s.voiceSpeechRate)
         put("voiceLocale", s.voiceLocale)
@@ -151,10 +151,7 @@ object SettingsJson {
         put("language", s.language)
         put("themeMode", s.themeMode)
         put("accentColor", s.accentColor)
-        put("activeThemeColorsJson", s.activeThemeColorsJson)
         put("activeThemeName", s.activeThemeName)
-        put("themeDirty", s.themeDirty)
-        put("unsavedThemesJson", s.unsavedThemesJson)
         put("themeEditorEnabled", s.themeEditorEnabled)
         put("showGaugeColorBand", s.showGaugeColorBand)
         put("gaugeOrangeThresholdPct", s.gaugeOrangeThresholdPct)
@@ -208,13 +205,14 @@ object SettingsJson {
         put("navDefaultTravelMode", s.navDefaultTravelMode)
         put("navGeocoderUrl", s.navGeocoderUrl)
         put("navRouterUrl", s.navRouterUrl)
-        put("navCurrentRouteJson", s.navCurrentRouteJson)
-        put("navCurrentRouteSavedAt", s.navCurrentRouteSavedAt)
         put("navMapType", s.navMapType)
-        put("navUserMarkerPhotoDataUrl", s.navUserMarkerPhotoDataUrl)
         put("navSolveFullPath", s.navSolveFullPath)
         put("watchShowNavigation", s.watchShowNavigation)
         put("hudServerEnabled", s.hudServerEnabled)
+        put("hudActionUp", s.hudActionUp)
+        put("hudActionDown", s.hudActionDown)
+        put("hudActionLeft", s.hudActionLeft)
+        put("hudActionRight", s.hudActionRight)
         put("hudServerPort", s.hudServerPort)
         put("hudIp", s.hudIp)
         put("hudCustomOverlayName", s.hudCustomOverlayName)
@@ -280,7 +278,15 @@ object SettingsJson {
         wheelNameDisplay = j.optString("wheelNameDisplay", base.wheelNameDisplay),
         voiceEnabled = j.optBoolean("voiceEnabled", base.voiceEnabled),
         voicePeriodicEnabled = j.optBoolean("voicePeriodicEnabled", base.voicePeriodicEnabled),
-        voiceOnlyWhenConnected = j.optBoolean("voiceOnlyWhenConnected", base.voiceOnlyWhenConnected),
+        voiceAnnounceWhen = j.optString(
+            "voiceAnnounceWhen",
+            // Migrate the old boolean only when an existing install actually has
+            // it (true → CONNECTED, false → ALWAYS). Brand-new installs have
+            // neither key and fall through to the model default (RIDING).
+            if (j.has("voiceOnlyWhenConnected"))
+                (if (j.optBoolean("voiceOnlyWhenConnected", true)) "CONNECTED" else "ALWAYS")
+            else base.voiceAnnounceWhen
+        ),
         voiceIntervalSeconds = j.optInt("voiceIntervalSeconds", base.voiceIntervalSeconds),
         voiceSpeechRate = j.optDouble("voiceSpeechRate", base.voiceSpeechRate.toDouble()).toFloat(),
         voiceLocale = j.optString("voiceLocale", base.voiceLocale),
@@ -355,10 +361,7 @@ object SettingsJson {
         language = j.optString("language", base.language),
         themeMode = j.optString("themeMode", base.themeMode),
         accentColor = j.optString("accentColor", base.accentColor),
-        activeThemeColorsJson = j.optString("activeThemeColorsJson", base.activeThemeColorsJson),
         activeThemeName = j.optString("activeThemeName", base.activeThemeName),
-        themeDirty = j.optBoolean("themeDirty", base.themeDirty),
-        unsavedThemesJson = j.optString("unsavedThemesJson", base.unsavedThemesJson),
         themeEditorEnabled = j.optBoolean("themeEditorEnabled", base.themeEditorEnabled),
         showGaugeColorBand = j.optBoolean("showGaugeColorBand", base.showGaugeColorBand),
         gaugeOrangeThresholdPct = j.optInt("gaugeOrangeThresholdPct", base.gaugeOrangeThresholdPct),
@@ -418,15 +421,14 @@ object SettingsJson {
         navDefaultTravelMode = j.optString("navDefaultTravelMode", base.navDefaultTravelMode),
         navGeocoderUrl = j.optString("navGeocoderUrl", base.navGeocoderUrl),
         navRouterUrl = j.optString("navRouterUrl", base.navRouterUrl),
-        navCurrentRouteJson = j.optStringOrNull("navCurrentRouteJson", base.navCurrentRouteJson),
-        navCurrentRouteSavedAt = j.optLong("navCurrentRouteSavedAt", base.navCurrentRouteSavedAt),
         navMapType = j.optString("navMapType", base.navMapType),
-        navUserMarkerPhotoDataUrl = if (j.has("navUserMarkerPhotoDataUrl") && !j.isNull("navUserMarkerPhotoDataUrl"))
-            j.optString("navUserMarkerPhotoDataUrl", "").ifBlank { null }
-        else base.navUserMarkerPhotoDataUrl,
         navSolveFullPath = j.optBoolean("navSolveFullPath", base.navSolveFullPath),
         watchShowNavigation = j.optBoolean("watchShowNavigation", base.watchShowNavigation),
         hudServerEnabled = j.optBoolean("hudServerEnabled", base.hudServerEnabled),
+        hudActionUp = j.optString("hudActionUp", base.hudActionUp),
+        hudActionDown = j.optString("hudActionDown", base.hudActionDown),
+        hudActionLeft = j.optString("hudActionLeft", base.hudActionLeft),
+        hudActionRight = j.optString("hudActionRight", base.hudActionRight),
         hudServerPort = j.optInt("hudServerPort", base.hudServerPort),
         hudIp = j.optString("hudIp", base.hudIp),
         hudCustomOverlayName = j.optString("hudCustomOverlayName", base.hudCustomOverlayName),

@@ -319,7 +319,7 @@ private fun renderCircleCrop(
 /**
  * Convenience for callers: encode a Bitmap as a `data:image/png;base64,...`
  * URL suitable for stuffing into a CSS `background-image` (the map JS reads
- * it that way) and for persisting in `AppSettings` JSON.
+ * it that way) and for saving the nav marker photo via NavMarkerStore (on-disk PNG).
  */
 fun Bitmap.toBase64DataUrl(): String {
     val baos = ByteArrayOutputStream()
