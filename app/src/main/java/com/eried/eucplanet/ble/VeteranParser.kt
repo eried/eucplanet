@@ -156,9 +156,14 @@ class VeteranParser {
         // smart-BMS frame and carries a CRC32 trailer.
         private const val LONG_FRAME_THRESHOLD = 38
 
-        // Spec section 3 step 6: drop partial buffers if the wheel goes quiet
-        // mid-frame for ~100 ms.
-        private const val RESYNC_TIMEOUT_MS = 100L
+        // Drop partial buffers if the wheel goes quiet mid-frame. The spec
+        // suggested ~100 ms, but the Oryx delivers each frame as two BLE
+        // notifications ~190 ms apart -- a long frame (87 bytes) straddles
+        // the gap, so a 100 ms timeout cleared the first half before the
+        // second arrived and the parser never produced any frames. 500 ms
+        // gives a ~2.5x margin on the observed gap while still discarding
+        // genuinely-stale buffers when the wheel disconnects mid-frame.
+        private const val RESYNC_TIMEOUT_MS = 500L
 
         // ---- Telemetry parsing ---------------------------------------------------
 
