@@ -33,6 +33,11 @@ class WheelService : LifecycleService() {
 
     companion object {
         private const val TAG = "WheelService"
+        // Minimum |speed| (km/h) that counts as "in motion" — shared by the
+        // auto-record start/stop loop and the "When riding" announcement gate
+        // so the two never drift. Small enough to catch a real roll, large
+        // enough to ignore sensor jitter at a standstill.
+        private const val MOTION_MIN_KMH = 0.1f
         // Bumped to _v2 so the new lock-screen visibility on the channel actually
         // applies: a NotificationChannel's settings are frozen after first
         // creation, so an existing install ignores code changes to the old id.
@@ -54,6 +59,10 @@ class WheelService : LifecycleService() {
         const val ACTION_STOP_ALL_AND_KILL = "com.eried.eucplanet.STOP_ALL_AND_KILL"
         const val EXTRA_ADDRESS = "device_address"
         const val EXTRA_NAME = "device_name"
+        /** Marks an ACTION_CONNECT as auto-initiated (app-start / reconnect)
+         *  rather than a wheel the rider picked, so the scan-screen hold can
+         *  let user picks through while blocking auto-connects. */
+        const val EXTRA_AUTO = "auto_connect"
     }
 
     @Inject lateinit var wheelRepository: WheelRepository
@@ -61,6 +70,11 @@ class WheelService : LifecycleService() {
 
     @Volatile
     private var speedUnitCached: String = "kmh"
+    // Last paired wheel's name, mirrored from settings so the notification can
+    // show it (Tesla-style) without suspending - used when no wheel is actively
+    // connected (e.g. while "Connecting" or after a drop).
+    @Volatile
+    private var lastDeviceNameCached: String? = null
     @Inject lateinit var voiceService: VoiceService
     @Inject lateinit var tripRepository: TripRepository
     @Inject lateinit var automationManager: AutomationManager
@@ -134,6 +148,7 @@ class WheelService : LifecycleService() {
                 // Notification builder reads the speed unit without suspending;
                 // mirror the latest value here every settings update.
                 speedUnitCached = com.eried.eucplanet.util.Units.effectiveSpeedUnit(s)
+                lastDeviceNameCached = s.lastDeviceName
                 engineSoundEngine.applySettings(s)
                 engineSoundEngine.setConnected(
                     wheelRepository.connectionState.value == ConnectionState.CONNECTED,
@@ -287,8 +302,9 @@ class WheelService : LifecycleService() {
                 }
                 val address = intent.getStringExtra(EXTRA_ADDRESS)
                 val name = intent.getStringExtra(EXTRA_NAME)
+                val isAuto = intent.getBooleanExtra(EXTRA_AUTO, false)
                 if (address != null) {
-                    wheelRepository.connect(address, name)
+                    wheelRepository.connect(address, name, isAuto)
                 }
             }
             ACTION_DISCONNECT -> {
@@ -361,8 +377,8 @@ class WheelService : LifecycleService() {
 
     // --- Auto-record motion gating ---
 
-    // Timestamp of the last sample with motion (speed > 0) while connected.
-    // Used by the idle-timeout loop to decide when to auto-stop.
+    // Timestamp of the last sample in motion (|speed| > MOTION_MIN_KMH) while
+    // connected. Used by the idle-timeout loop to decide when to auto-stop.
     private var lastMotionAtMs: Long = 0L
 
     private fun evaluateAutoRecordOnTelemetry(
@@ -370,7 +386,7 @@ class WheelService : LifecycleService() {
         settings: com.eried.eucplanet.data.model.AppSettings
     ) {
         if (!settings.autoRecord) return
-        val moving = kotlin.math.abs(data.speed) > 0f
+        val moving = kotlin.math.abs(data.speed) > MOTION_MIN_KMH
         if (moving) lastMotionAtMs = System.currentTimeMillis()
 
         // Motion-linked loop: start on first motion and restart after each idle auto-stop.
@@ -392,7 +408,7 @@ class WheelService : LifecycleService() {
                 if (!tripRepository.recording.value) continue
 
                 val connected = wheelRepository.connectionState.value == ConnectionState.CONNECTED
-                val moving = connected && kotlin.math.abs(wheelRepository.wheelData.value.speed) > 0f
+                val moving = connected && kotlin.math.abs(wheelRepository.wheelData.value.speed) > MOTION_MIN_KMH
                 if (moving) {
                     lastMotionAtMs = System.currentTimeMillis()
                     continue
@@ -438,8 +454,16 @@ class WheelService : LifecycleService() {
                 val settings = settingsRepository.get()
                 if (settings.voiceEnabled && settings.voicePeriodicEnabled) {
                     val connected = wheelRepository.connectionState.value == ConnectionState.CONNECTED
-                    if (settings.voiceOnlyWhenConnected && !connected) continue
                     val data = wheelRepository.wheelData.value
+                    // "RIDING" = the same "in motion" test that auto-starts a trip
+                    // recording (shared MOTION_MIN_KMH), so the two stay in lockstep.
+                    val moving = connected && kotlin.math.abs(data.speed) > MOTION_MIN_KMH
+                    val allowed = when (settings.voiceAnnounceWhen) {
+                        "ALWAYS" -> true
+                        "RIDING" -> moving
+                        else -> connected   // "CONNECTED" + any legacy/unknown value
+                    }
+                    if (!allowed) continue
                     voiceService.announceStatus(data, settings, isRecording = tripRepository.recording.value)
                 }
             }
@@ -492,8 +516,16 @@ class WheelService : LifecycleService() {
             state.name.lowercase().replaceFirstChar { it.uppercase() }
         }
 
+        // Title = the wheel's name (Tesla shows the car name here), so the
+        // expanded notification doesn't repeat the app name that's already in
+        // the header. Prefer the actively-connected name; fall back to the last
+        // paired wheel; only show the app name when we've never paired one.
+        val wheelName = wheelRepository.connectedDeviceName.value
+            ?: lastDeviceNameCached
+            ?: getString(R.string.app_name)
+
         return NotificationCompat.Builder(this, CHANNEL_ID)
-            .setContentTitle(getString(R.string.app_name))
+            .setContentTitle(wheelName)
             .setContentText(text)
             .setSmallIcon(android.R.drawable.stat_sys_data_bluetooth)
             .setContentIntent(pendingIntent)

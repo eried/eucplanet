@@ -108,7 +108,7 @@
     <string name="cloud_last_backup_never">Ikke tatt backup ennå</string>
     <string name="cloud_backup_success">Innstillinger sikkerhetskopiert</string>
 <string name="cloud_backup_named_success">Lagret som %1$s</string>
-    <string name="cloud_backup_failed">Sikkerhetskopi mislyktes — sjekk mappetilgang</string>
+    <string name="cloud_backup_failed">Sikkerhetskopi mislyktes, sjekk mappetilgang</string>
     <string name="cloud_restore_success">Innstillinger gjenopprettet</string>
     <string name="cloud_restore_failed">Ingen backup funnet i mappen</string>
     <string name="section_cloud_trips">Tur-backup</string>
@@ -210,6 +210,10 @@
     <string name="section_report_status">Statusrapport</string>
     <string name="voice_enabled">Rapporter status jevnlig</string>
     <string name="voice_only_when_connected">Kun når hjulet er tilkoblet</string>
+    <string name="voice_announce_when_label">Annonser</string>
+    <string name="voice_announce_always">Alltid</string>
+    <string name="voice_announce_connected">Tilkoblet</string>
+    <string name="voice_announce_riding">Under kjøring</string>
     <string name="voice_interval">Intervall</string>
     <string name="unit_sec">sek</string>
     <string name="announce_wheel_lock">Hjul lås / lås opp</string>
@@ -1194,15 +1198,15 @@
     <string name="metric_chip_wheel_alarm_speed">Hjulalarm</string>
     <string name="metric_chip_wheel_max_speed">Maks hjul</string>
     <string name="metric_desc_avg_trip_speed">Turdistanse delt på kjøretid så langt.</string>
-    <string name="metric_desc_bt_rssi">Bluetooth-signalstyrke til hjulet — nærmere 0 dBm er sterkere.</string>
-    <string name="metric_desc_gps_accuracy">GPS-posisjonsfeilradius — lavere er mer nøyaktig.</string>
+    <string name="metric_desc_bt_rssi">Bluetooth-signalstyrke til hjulet, nærmere 0 dBm er sterkere.</string>
+    <string name="metric_desc_gps_accuracy">GPS-posisjonsfeilradius, lavere er mer nøyaktig.</string>
     <string name="metric_desc_headroom">Gjenværende fartsmargin før tilt-back slår inn. Høyt tall = mer sikkerhetsbuffer.</string>
     <string name="metric_desc_range_estimate">Gjenværende distanse med dagens forbruk.</string>
     <string name="metric_desc_regen_wh">Totalt antall wattimer matet tilbake til batteriet under bremsing på denne turen.</string>
-    <string name="metric_desc_slope">Veibakke regnet ut fra hjulets helling — positivt er oppoverbakke.</string>
+    <string name="metric_desc_slope">Veibakke regnet ut fra hjulets helling, positivt er oppoverbakke.</string>
     <string name="metric_desc_trip_max_speed">Toppfart på nåværende tur (nullstilles ved ny tur).</string>
     <string name="metric_desc_wh_consumed">Totalt antall wattimer trukket fra batteriet på denne turen.</string>
-    <string name="metric_desc_wh_per_km">Energi per kilometer — lavere er mer effektivt.</string>
+    <string name="metric_desc_wh_per_km">Energi per kilometer, lavere er mer effektivt.</string>
     <string name="metric_detail_reset">Nullstill</string>
     <string name="metric_detail_reset_all">Nullstill alle</string>
     <string name="metric_detail_reset_all_confirm_body">Tømmer den rullende historikkbufferen for hver måling. Innstillinger og turer berøres ikke.</string>
@@ -1377,4 +1381,144 @@
     <string name="nav_setting_full_path_desc">Av beregner bare neste stopp og viser resten som stiplet forhåndsvisning</string>
     <string name="studio_cfg_clock_24h">24-timers format</string>
     <string name="studio_cfg_dial_color_band">Fargebånd</string>
+
+    <!-- ==== EUC Stats online opplasting / innføring ==== -->
+
+    <!-- Steg 1: Samtykke -->
+    <string name="online_upload_consent_title">Bli med på EUC Stats-ledertavlen</string>
+    <string name="online_upload_consent_intro">Før du blir med, les hva som blir offentlig:</string>
+    <string name="online_upload_consent_bullet_name">Visningsnavnet ditt</string>
+    <string name="online_upload_consent_bullet_flag">Landsflagget ditt</string>
+    <string name="online_upload_consent_bullet_avatar">Profilbildet ditt</string>
+    <string name="online_upload_consent_bullet_stats">Samlet kjørestatistikk, som distanse og fart</string>
+    <string name="online_upload_consent_bullet_location">Posisjoner samles i store områder på kartet av personvernhensyn</string>
+    <string name="online_upload_consent_no_raw_gps">Rå GPS-spor publiseres aldri.</string>
+    <string name="online_upload_consent_agree">Godta og fortsett</string>
+
+    <!-- Steg 2: Profil -->
+    <string name="online_upload_profile_title">Opprett profilen din</string>
+    <string name="online_upload_profile_name_label">Unikt visningsnavn</string>
+    <string name="online_upload_profile_country_label">Land</string>
+    <string name="online_upload_profile_country_select">Velg land</string>
+    <string name="online_upload_country_search">Søk etter land</string>
+    <string name="online_upload_profile_avatar_hint">Trykk for å legge til bilde</string>
+    <string name="online_upload_profile_flag_label">Landkode (ISO 3166-1 alpha-2)</string>
+    <string name="online_upload_profile_flag_placeholder">f.eks. NO, US, DE</string>
+    <string name="online_upload_profile_flag_error">Skriv inn en tobokstavs landkode (f.eks. NO)</string>
+    <string name="online_upload_profile_avatar_pick">Velg bilde…</string>
+    <string name="online_upload_profile_avatar_change">Bytt bilde…</string>
+    <string name="online_upload_profile_avatar_required">Trykk for å velge og beskjære</string>
+    <string name="online_upload_profile_avatar_placeholder">Bilde</string>
+
+    <!-- Registreringsresultat -->
+    <string name="online_upload_register_action">Registrer</string>
+    <string name="online_upload_register_error">Registrering mislyktes. Sjekk nettforbindelsen og prøv igjen.</string>
+
+    <!-- Nettstatistikk-bryter og rytterkoret -->
+    <string name="section_online_stats">Ledertavler på nett</string>
+    <string name="online_upload_toggle">Bli med på ledertavlene</string>
+    <string name="online_upload_card_loading">Laster…</string>
+    <string name="online_upload_card_unavailable">Kunne ikke laste statistikken din.</string>
+    <string name="online_upload_actions_caption">Opplasting av turstatistikk</string>
+    <string name="online_upload_view_on_eucstats">Vis på EUC Stats</string>
+    <string name="online_upload_retry">Prøv opplastinger på nytt</string>
+    <string name="online_upload_mileage_rank">#%d kilometer</string>
+    <string name="online_upload_top_speed">topp %1$s %2$s</string>
+    <string name="online_upload_trips">%d turer</string>
+    <string name="online_upload_total_km">%1$s %2$s</string>
+    <string name="online_upload_join">Bli med på ledertavlen</string>
+    <string name="online_status_shared">Delt på ledertavlen</string>
+    <string name="online_status_flagged">Delt, til gjennomgang</string>
+    <string name="online_status_pending">Laster opp til ledertavlen…</string>
+    <string name="online_status_failed">Opplasting mislyktes, trykk for å prøve igjen</string>
+    <string name="online_upload_join_caption">Turene dine vises på den offentlige ledertavlen på</string>
+    <string name="online_upload_site_label">eucstats.ried.no</string>
+    <string name="online_upload_site_url">https://eucstats.ried.no/</string>
+    <string name="online_upload_unlink">Koble fra</string>
+    <string name="online_unlink_title">Koble fra ledertavlen?</string>
+    <string name="online_unlink_body">Denne telefonen slutter å laste opp turer. Rytterprofilen din lagres slik at du kan gjenoppta som samme rytter. Statistikken din beholdes på EUC Stats; bruk Slett konto for å fjerne den.</string>
+    <string name="online_unlink_confirm">Koble fra</string>
+
+    <!-- Nettbasert profil (rediger / GDPR) -->
+    <string name="online_profile_manage">Administrer profil</string>
+    <string name="online_profile_title">Min profil</string>
+    <string name="online_profile_changeable_on">Du kan endre dette igjen den %1$s</string>
+    <string name="online_profile_avatar_has">Satt</string>
+    <string name="online_profile_export_data">Eksporter dataene mine</string>
+    <string name="online_profile_delete_account">Slett konto</string>
+    <string name="online_profile_delete_confirm_title">Slette konto?</string>
+    <string name="online_profile_delete_confirm_body">Dette sletter EUC Stats-profilen din, statistikk og opplastede data permanent. Dette kan ikke angres.</string>
+    <string name="online_profile_delete_confirm_action">Slett permanent</string>
+    <string name="online_profile_save_rate_limited">Frekvensgrense nådd, prøv igjen senere.</string>
+    <string name="online_profile_save_failed">Lagring mislyktes (HTTP %1$d). Prøv igjen.</string>
+
+    <string name="online_status_flagged_why">Holdt for en kort automatisk sjekk. Den kommer på ledertavlen når den er godkjent.</string>
+    <string name="online_restore_title">Gjenopprett rytterprofilen din?</string>
+    <string name="online_restore_body_new">Denne mappen har en lagret profil for %1$s. Gjenopprett den for å beholde ledertavle-identiteten og statistikken din.</string>
+    <string name="online_restore_body_switch">Denne mappen tilhører %1$s. Gjenoppretting bytter denne telefonen til den rytteren. Din nåværende profil sikkerhetskopieres først, slik at du kan bytte tilbake.</string>
+    <string name="online_restore_confirm">Gjenopprett</string>
+    <string name="online_upload_card_missing">Denne telefonens ledertavleprofil finnes ikke lenger på serveren, så nye opplastinger blir avvist. Hvis dette er uventet, kontakt administratoren for ledertavlen.</string>
+    <string name="online_upload_linked_caption">Statistikken og turene dine vises på den offentlige ledertavlen på</string>
+    <string name="online_rejoin_title">Bli med på ledertavlen igjen?</string>
+    <string name="online_rejoin_body">Du blir med igjen som den lagrede profilen din %1$s. Denne telefonen gjenopptar opplasting av de nye turene dine til den profilen.</string>
+    <string name="online_rejoin_confirm">Bli med igjen</string>
+
+    <!-- Battery / Charging screen -->
+    <string name="charging_monitor">Batterimonitor</string>
+    <string name="charging_back">Tilbake</string>
+    <string name="charging_added">+%1$.1f%% denne økten</string>
+    <string name="charging_disconnected">Ingen hjul tilkoblet</string>
+    <string name="charging_full">Fulladet</string>
+    <string name="charging_charging">Lader</string>
+    <string name="charging_idle">Lader ikke</string>
+    <string name="charging_estimating">Beregner…</string>
+    <string name="charging_eta_to_target">%1$s til %2$d%%</string>
+    <string name="charging_eta_to_full">%1$s til 100%%</string>
+    <string name="charging_eta_at">kl. %1$s</string>
+    <string name="charging_details">Detaljer</string>
+    <string name="charging_rate">%1$.1f %%/min</string>
+    <string name="charging_tab_charge">Lading</string>
+    <string name="charging_tab_voltage">Spenning</string>
+    <string name="charging_tab_packs">Pakker</string>
+    <string name="charging_estimate_to_full">Beregn alltid til 100%</string>
+    <string name="charging_options">Valg</string>
+    <string name="charging_tab_power">Effekt</string>
+    <string name="charging_stat_added">Lagt til</string>
+    <string name="charging_stat_rate">Rate</string>
+    <string name="charging_stat_voltage">Spenning</string>
+    <string name="charging_stat_pack1">Pakke 1</string>
+    <string name="charging_stat_pack2">Pakke 2</string>
+    <string name="charging_stat_temp">Temperatur</string>
+    <string name="charging_stat_balance">Ubalanse</string>
+    <string name="charging_stat_power">Effekt</string>
+    <string name="charging_stat_current">Strøm</string>
+    <string name="charging_stat_energy">Energi</string>
+    <string name="charging_chart_empty">Samler inn data</string>
+    <string name="charging_no_current_note">Rate målt fra ladekurven</string>
+    <string name="battery_history">Batterihistorikk</string>
+    <string name="setting_charging_auto_open">Åpne ved lading</string>
+    <string name="setting_charging_dashboard_icon">Batterimonitor-ikon på dashbordet</string>
+    <string name="setting_charging_auto_open_desc">Åpner Batterimonitor når hjulet begynner å lade</string>
+    <string name="setting_charging_dashboard_icon_desc">Trykk for å åpne Batterimonitor</string>
+    <string name="dashboard_custom_ble_default_name">Tilpasset BLE</string>
+    <string name="dashboard_custom_ble_family">Filter for hjulfamilie</string>
+    <string name="dashboard_custom_ble_frames">Rammer (hex)</string>
+    <string name="dashboard_custom_ble_frames_error">Ugyldig hex, bruk bytepar som 4c 6b 41 70</string>
+    <string name="dashboard_custom_ble_label">Knappetikett</string>
+    <string name="dashboard_custom_ble_template">BLE</string>
+    <string name="dashboard_view_wide_menu">Bred (for nettbrett)</string>
+    <string name="metric_desc_forward_g">Beregnet fra hjulets fartsendring (ikke IMU), fungerer uavhengig av hvordan telefonen er montert.</string>
+    <string name="online_rider_id_conflict">En annen rytters gjenopprettings-ID er allerede lagret i denne mappen, beholdt den, ikke overskrevet.</string>
+    <string name="online_upload_actions_desc">Send turer som ikke er lastet opp til ledertavlen ennå.</string>
+    <string name="online_upload_sync_checking">Sjekker etter turer å laste opp…</string>
+    <string name="online_upload_sync_done">Synkroniserte %1$d turer</string>
+    <string name="online_upload_sync_nothing">Ingenting å synkronisere</string>
+    <string name="online_upload_sync_progress">Laster opp %1$d av %2$d</string>
+    <string name="online_upload_register_server_error">Registrering mislyktes. Serveren svarte: %1$s (%2$d)</string>
+    <string name="hud_joystick_title">Knappehandlinger</string>
+    <string name="hud_joystick_desc">Trykk to ganger på en HUD-knapp for å kjøre en handling. Ett enkelt trykk bytter fortsatt skjerm</string>
+    <string name="hud_joystick_up">Opp (dobbelttrykk)</string>
+    <string name="hud_joystick_down">Ned (dobbelttrykk)</string>
+    <string name="hud_joystick_left">Venstre (dobbelttrykk)</string>
+    <string name="hud_joystick_right">Høyre (dobbelttrykk)</string>
 </resources>

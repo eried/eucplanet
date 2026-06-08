@@ -79,6 +79,18 @@ class VeteranAdapter @Inject constructor() : WheelAdapter {
      */
     @Volatile private var lastLightOn: Boolean = false
 
+    // Last Oryx BMS state-of-charge read from a page-2 sub-frame (byte 50).
+    // The wheel only sends page 2 ~1 frame in 9, so we cache it and stamp it
+    // onto every telemetry; otherwise battery would flicker back to the
+    // voltage-curve estimate on the other 8 pages. -1 until the first page-2.
+    @Volatile private var lastOryxBatterySoc: Int = -1
+
+    // Resolved model name emitted once per connection, so the dashboard and the
+    // experimental-banner gate can tell e.g. an Oryx from a Sherman. Veteran
+    // wheels often advertise a generic BLE name, so we resolve from the in-frame
+    // mVer (offset 28) and fall back to the name-derived model.
+    @Volatile private var emittedModel: Boolean = false
+
     override fun setLight(on: Boolean): ByteArray {
         lastLightOn = on
         // HIGH beam by default (LkAp frame; LdAp companion via [setLightFollowup]).
@@ -194,11 +206,41 @@ class VeteranAdapter @Inject constructor() : WheelAdapter {
         if (frames.isEmpty()) return emptyList()
         val out = mutableListOf<DecodeResult>()
         for (f in frames) {
-            DiagnosticsLogger.note(
-                "Veteran realtime len=${f.bytes.size} body=${f.bytes.joinToString(" ") { "%02x".format(it) }}"
-            )
             val telem = VeteranParser.parseTelemetry(f.bytes, detectedModel)
-            if (telem != null) out += DecodeResult.Telemetry(telem.copy(lightOn = lastLightOn))
+            val emitted = if (telem != null) {
+                // An Oryx (mVer 8) page-2 frame carries the wheel's own BMS SoC
+                // (parseTelemetry put it in batteryPercent); cache it and stamp
+                // the cached value onto every frame so battery stays steady
+                // between page-2 frames. Gated on mVer 8 so other Veterans, which
+                // don't carry SoC at byte 50, keep their per-frame curve value.
+                if (VeteranParser.mVerOf(f.bytes) == 8 &&
+                    VeteranParser.pageId(f.bytes) == 2 &&
+                    telem.batteryPercent in 0..100
+                ) {
+                    lastOryxBatterySoc = telem.batteryPercent
+                }
+                val battery = if (lastOryxBatterySoc in 0..100) lastOryxBatterySoc
+                              else telem.batteryPercent
+                telem.copy(lightOn = lastLightOn, batteryPercent = battery)
+            } else null
+            // Log the DECODED values (not just raw bytes) per frame so a
+            // service-mode capture shows the speed/battery timeline directly -
+            // i.e. whether telemetry updates smoothly or in random bursts.
+            DiagnosticsLogger.note(
+                "Veteran realtime spd=${emitted?.let { "%.1f".format(it.speed) } ?: "-"} " +
+                    "bat=${emitted?.batteryPercent ?: "-"} pg=${VeteranParser.pageId(f.bytes)} " +
+                    "len=${f.bytes.size} body=${f.bytes.joinToString(" ") { "%02x".format(it) }}"
+            )
+            if (emitted != null) out += DecodeResult.Telemetry(emitted)
+            // Surface the resolved model once, so the UI and the experimental
+            // banner can distinguish models within the Veteran family.
+            if (!emittedModel) {
+                val model = VeteranModel.fromMVer(VeteranParser.mVerOf(f.bytes)) ?: detectedModel
+                if (model != null) {
+                    out += DecodeResult.ModelName(model.displayName, model)
+                    emittedModel = true
+                }
+            }
             if (f.isLong) {
                 // Best-effort BMS parse so a malformed slice can't crash the
                 // pipeline; result is discarded until the UI is ready for it.
@@ -211,6 +253,8 @@ class VeteranAdapter @Inject constructor() : WheelAdapter {
     override fun onDisconnect() {
         parser.reset()
         detectedModel = null
+        lastOryxBatterySoc = -1
+        emittedModel = false
         // A wheel reboot loses light state on the wheel side, so the rider's
         // most reliable mental model after a reconnect is "light is off until
         // I press the button again". Reset the cache to match.

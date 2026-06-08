@@ -59,10 +59,14 @@ fun RadarSection(
     val scanResults by viewModel.scanResults.collectAsState()
     val connectionState by viewModel.connectionState.collectAsState()
     val frame by viewModel.currentFrame.collectAsState()
+    val bluetoothOff by viewModel.bluetoothOff.collectAsState()
 
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
         if (pairedAddress == null) {
             HintText(stringResource(R.string.radar_caption), small = true)
+            if (bluetoothOff) {
+                HintText(stringResource(R.string.scan_bluetooth_off_title), small = true)
+            }
             UnpairedRadarCard(
                 scanning = scanning,
                 results = scanResults,

@@ -358,7 +358,7 @@ fun RouteBuilderScreen(
     }
 
     // First load: frame the map on the rider instead of the whole world.
-    // Skipped when a saved route is present, that route frames itself.
+    // Skipped when a current route is present, that route frames itself.
     LaunchedEffect(pageReady, userLocation, route) {
         val loc = userLocation
         if (pageReady && !didInitialCenter && route == null && loc != null) {
@@ -469,51 +469,12 @@ fun RouteBuilderScreen(
         if (uri == null) return@rememberLauncherForActivityResult
         scope.launch {
             val bmp = runCatching {
-                // Two-pass decode: first probe the size to compute an
-                // inSampleSize that brings the long edge to ~1024 px, then
-                // decode for real. BitmapFactory.Options.inSampleSize must
-                // be a power of two; we round UP so we never end up larger
-                // than the target.
-                //
-                // Real-world phone photos easily hit 50+ megapixels (the
-                // crash log showed a 191 MB bitmap from a single picture),
-                // and Android's RecordingCanvas has a hard 100 MB limit per
-                // bitmap. Going above the limit takes the activity down
-                // with "Canvas: trying to draw too large(...) bitmap".
-                val targetLongEdge = 1024
-                val probe = android.graphics.BitmapFactory.Options().apply {
-                    inJustDecodeBounds = true
-                }
-                context.contentResolver.openInputStream(uri)?.use {
-                    android.graphics.BitmapFactory.decodeStream(it, null, probe)
-                }
-                val long = maxOf(probe.outWidth, probe.outHeight).coerceAtLeast(1)
-                var sample = 1
-                while (long / sample > targetLongEdge) sample *= 2
-                val opts = android.graphics.BitmapFactory.Options().apply {
-                    inSampleSize = sample
-                    inPreferredConfig = android.graphics.Bitmap.Config.ARGB_8888
-                }
-                val decoded = context.contentResolver.openInputStream(uri)?.use {
-                    android.graphics.BitmapFactory.decodeStream(it, null, opts)
-                }
-                // Belt-to-the-braces: inSampleSize is a HINT (some decoders
-                // -- HEIC, certain Pixel ones -- return a bitmap larger than
-                // requested), so explicitly cap the long edge via
-                // createScaledBitmap if needed.
-                if (decoded != null) {
-                    val curLong = maxOf(decoded.width, decoded.height)
-                    if (curLong > targetLongEdge) {
-                        val scale = targetLongEdge.toFloat() / curLong
-                        val nw = (decoded.width * scale).toInt().coerceAtLeast(1)
-                        val nh = (decoded.height * scale).toInt().coerceAtLeast(1)
-                        val scaled = android.graphics.Bitmap.createScaledBitmap(
-                            decoded, nw, nh, true
-                        )
-                        if (scaled !== decoded) decoded.recycle()
-                        scaled
-                    } else decoded
-                } else null
+                // Shared downsampled decode -- see [decodeDownsampledBitmap].
+                // Full-res phone photos (50+ MP, the crash log once showed a
+                // 191 MB bitmap) OOM or exceed RecordingCanvas's 100 MB
+                // per-bitmap limit and take the activity down; the helper
+                // brings the long edge to ~1024 px before we ever draw it.
+                decodeDownsampledBitmap(context, uri)
             }.getOrNull()
             if (bmp != null) pendingMarkerSource = bmp
         }

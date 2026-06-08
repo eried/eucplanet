@@ -155,6 +155,19 @@ data class HudState(
     /** True when the rider is at the final destination. */
     val navArrived: Boolean = false,
 
+    // --- Joystick long-press action labels ---
+    /** Human-readable label of the action bound to the HUD joystick
+     *  LONG-PRESS in each direction, resolved from the phone's settings via
+     *  the ActionCatalog. Empty = None/unset for that direction. The HUD
+     *  briefly shows a "+"-shaped joystick guide on screen change so the
+     *  rider can recall what each long-press does. Config lives on the phone,
+     *  so the labels have to ride along in the state frame. Older HUDs
+     *  (PROTOCOL_MINOR < 7) ignore these fields and never draw the guide. */
+    val joystickUp: String = "",
+    val joystickDown: String = "",
+    val joystickLeft: String = "",
+    val joystickRight: String = "",
+
     /**
      * Server clock at the moment of capture in epoch millis. Lets the HUD
      * compute a "frame freshness" signal independent of its own wall clock,
@@ -183,7 +196,7 @@ data class HudState(
          * surfaces a soft "update available" hint when the HUD's reported
          * minor is below ours.
          */
-        const val PROTOCOL_MINOR: Int = 6
+        const val PROTOCOL_MINOR: Int = 7
 
         /** Legacy alias. New code should read [PROTOCOL_MAJOR] / [PROTOCOL_MINOR]. */
         @Deprecated(
@@ -279,6 +292,15 @@ sealed class HudCommand {
     /** Stop the current navigation route. */
     @Serializable
     data object StopNavigation : HudCommand()
+
+    /** Fire a configurable phone-side action bound to a HUD joystick long-press.
+     *  [slot] is the direction: "UP" / "DOWN" / "LEFT" / "RIGHT". The phone maps
+     *  the slot to a configured ActionCatalog key (config lives on the phone,
+     *  like Flic / Wear) and dispatches it. Older phones that predate this
+     *  command will reject the frame; the HUD only sends it once paired, so a
+     *  protocol-version mismatch surfaces as the usual "update phone" hint. */
+    @Serializable
+    data class Action(val slot: String) : HudCommand()
 }
 
 /**

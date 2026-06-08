@@ -40,6 +40,7 @@ import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -148,6 +149,7 @@ import androidx.compose.ui.draganddrop.DragAndDropTransferData
 import androidx.compose.ui.draganddrop.toAndroidDragEvent
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.text.rememberTextMeasurer
 import com.eried.eucplanet.ui.theme.AccentOrange
 import androidx.compose.ui.text.drawText
@@ -226,8 +228,11 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.compose.ui.graphics.vector.ImageVector
+import com.eried.eucplanet.BuildConfig
 import com.eried.eucplanet.R
 import com.eried.eucplanet.data.sync.SyncChoice
+import com.eried.eucplanet.ui.settings.eucstats.OnlineUploadOnboardingDialog
+import com.eried.eucplanet.ui.settings.eucstats.flagEmoji
 import com.eried.eucplanet.service.VoiceOption
 import com.eried.eucplanet.ui.common.HintText
 import com.eried.eucplanet.ui.common.InfoHint
@@ -258,14 +263,18 @@ private val languageOptions = listOf(
     "es-419" to "Español (Latinoamérica)",
     "fr" to "Français",
     "it" to "Italiano",
+    "ja" to "日本語",
+    "ko" to "한국어",
     "nl" to "Nederlands",
     "no" to "Norsk",
     "pl" to "Polski",
     "pt-BR" to "Português (Brasil)",
     "ru" to "Русский",
     "sv" to "Svenska",
+    "tr" to "Türkçe",
     "uk" to "Українська",
-    "zh" to "中文"
+    "zh" to "简体中文",
+    "zh-TW" to "繁體中文"
 )
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -362,7 +371,19 @@ fun SettingsScreen(
         }
     }
 
+    // tab 9 opens General but scrolls to the "Battery monitor" sub-header (not the
+    // General section top), so the monitor's Settings link lands right on it.
+    val scrollToBattery = initialTab == 9
     val targetSectionKey = remember(initialTab) { initialTabSectionKey(initialTab) }
+    // expandedSections is rememberSaveable above and only seeds on first ever
+    // composition; on subsequent visits the user's saved expansion state can hide
+    // the section the deep-link is trying to scroll to. Honour the incoming tab
+    // by ensuring its section is expanded every time.
+    androidx.compose.runtime.LaunchedEffect(targetSectionKey) {
+        if (targetSectionKey != null && !expandedSections.contains(targetSectionKey)) {
+            expandedSections.add(targetSectionKey)
+        }
+    }
     val scrollState = rememberScrollState()
     var scrollContainerTop by remember { mutableStateOf<Float?>(null) }
     var targetSectionTop by remember { mutableStateOf<Float?>(null) }
@@ -585,7 +606,9 @@ fun SettingsScreen(
 
     val sections: List<SectionDef> = listOf(
         SectionDef("general", titleGeneral, Icons.Default.Tune, corpusGeneral) {
-            GeneralTab(settings, viewModel)
+            GeneralTab(settings, viewModel, scrollToBattery) { y ->
+                if (targetSectionTop == null) targetSectionTop = y
+            }
         },
         SectionDef("dashboard", titleDashboard, Icons.Default.Dashboard, corpusDashboard) {
             DashboardLayoutTab(settings, viewModel)
@@ -755,7 +778,7 @@ fun SettingsScreen(
                     visibleSections.forEach { sec ->
                         val explicitlyExpanded = expandedSections.contains(sec.key)
                         val isExpanded = explicitlyExpanded || query.isNotEmpty()
-                        val sectionModifier = if (sec.key == targetSectionKey) {
+                        val sectionModifier = if (sec.key == targetSectionKey && !scrollToBattery) {
                             Modifier.onGloballyPositioned {
                                 if (targetSectionTop == null) {
                                     targetSectionTop = it.positionInWindow().y
@@ -796,6 +819,7 @@ private fun initialTabSectionKey(initialTab: Int): String? = when (initialTab) {
     6 -> "auto"
     7 -> "integration"
     8 -> "navigator"
+    9 -> "general"
     else -> null
 }
 
@@ -883,23 +907,33 @@ private fun CollapsibleSection(
 @Composable
 private fun GeneralTab(
     settings: com.eried.eucplanet.data.model.AppSettings,
-    viewModel: SettingsViewModel
+    viewModel: SettingsViewModel,
+    scrollToBattery: Boolean = false,
+    onBatteryTop: (Float) -> Unit = {},
 ) {
     Column(
         modifier = Modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         SectionHeader(stringResource(R.string.section_recording))
-        BringIntoViewSection(expanded = settings.autoRecord) {
-        SwitchSetting(stringResource(R.string.auto_record_on_start), settings.autoRecord) { viewModel.updateAutoRecord(it) }
-        HintText(stringResource(R.string.auto_record_caption), small = true)
-        if (settings.autoRecord) {
-            SwitchSetting(
-                stringResource(R.string.auto_record_start_in_motion),
-                settings.autoRecordStartInMotion
-            ) { viewModel.updateAutoRecordStartInMotion(it) }
-            HintText(stringResource(R.string.auto_record_start_in_motion_caption), small = true)
-            if (settings.autoRecordStartInMotion) {
+        // 3-way auto-start, presented over the existing autoRecord /
+        // autoRecordStartInMotion booleans (no new persisted field):
+        //   Never     -> autoRecord off
+        //   Connected -> on, runs connect -> disconnect (no idle stop)
+        //   When riding-> on + motion-linked, with the idle stop below.
+        val recordMode = when {
+            !settings.autoRecord -> "NEVER"
+            !settings.autoRecordStartInMotion -> "CONNECTED"
+            else -> "RIDING"
+        }
+        BringIntoViewSection(expanded = recordMode == "RIDING") {
+            AutoRecordModeSelector(current = recordMode) { viewModel.updateAutoRecordMode(it) }
+            // Reuse the existing captions, shown for the mode they describe.
+            when (recordMode) {
+                "CONNECTED" -> HintText(stringResource(R.string.auto_record_caption), small = true)
+                "RIDING" -> HintText(stringResource(R.string.auto_record_start_in_motion_caption), small = true)
+            }
+            if (recordMode == "RIDING") {
                 val idleSec = settings.autoRecordStopIdleSeconds
                 SliderSetting(
                     label = stringResource(R.string.auto_record_stop_idle_seconds),
@@ -915,8 +949,7 @@ private fun GeneralTab(
                     }
                 )
             }
-        }
-        }   // end autoRecord BringIntoViewSection
+        }   // end recording BringIntoViewSection
 
         SectionHeader(stringResource(R.string.section_connection))
         SwitchSetting(stringResource(R.string.auto_connect_on_start), settings.autoConnect) { viewModel.updateAutoConnect(it) }
@@ -997,6 +1030,21 @@ private fun GeneralTab(
         }
         HintText(stringResource(R.string.back_button_action_desc), small = true)
 
+        Box(
+            modifier = if (scrollToBattery) {
+                Modifier.onGloballyPositioned { onBatteryTop(it.positionInWindow().y) }
+            } else Modifier,
+        ) {
+            SectionHeader(stringResource(R.string.charging_monitor))
+        }
+        SwitchSetting(
+            stringResource(R.string.setting_charging_auto_open),
+            settings.chargingAutoOpen,
+        ) { viewModel.updateChargingAutoOpen(it) }
+        SwitchSetting(
+            stringResource(R.string.flic_show_on_dashboard),
+            settings.chargingDashboardIcon,
+        ) { viewModel.updateChargingDashboardIcon(it) }
     }
 }
 
@@ -4625,28 +4673,44 @@ private fun SlotStatsEditor(
             DashboardStat.P75, DashboardStat.P95, DashboardStat.P99
         )
     }
-    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-        CornerStatDropdown(
-            modifier = Modifier.weight(1f),
-            label = stringResource(R.string.dashboard_corner_left),
-            value = stats.left,
-            options = sideOptions,
-            onSelect = { onCornerChange(SlotCorner.LEFT, it) }
-        )
-        CornerStatDropdown(
-            modifier = Modifier.weight(1f),
-            label = stringResource(R.string.dashboard_corner_center),
-            value = stats.center,
-            options = centerOptions,
-            onSelect = { onCornerChange(SlotCorner.CENTER, it) }
-        )
-        CornerStatDropdown(
-            modifier = Modifier.weight(1f),
-            label = stringResource(R.string.dashboard_corner_right),
-            value = stats.right,
-            options = sideOptions,
-            onSelect = { onCornerChange(SlotCorner.RIGHT, it) }
-        )
+    // Self-documenting metrics (e.g. Forward G is speed-derived) explain themselves
+    // right here in the editor — the descriptionRes shows as an italic subtitle.
+    val descRes = remember(key) {
+        com.eried.eucplanet.data.model.MetricCatalog.all.firstOrNull { it.key == key }?.descriptionRes
+    }
+    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+        descRes?.let {
+            Text(
+                stringResource(it),
+                style = MaterialTheme.typography.bodySmall.copy(
+                    fontStyle = androidx.compose.ui.text.font.FontStyle.Italic
+                ),
+                color = MaterialTheme.appColors.textSecondary,
+            )
+        }
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            CornerStatDropdown(
+                modifier = Modifier.weight(1f),
+                label = stringResource(R.string.dashboard_corner_left),
+                value = stats.left,
+                options = sideOptions,
+                onSelect = { onCornerChange(SlotCorner.LEFT, it) }
+            )
+            CornerStatDropdown(
+                modifier = Modifier.weight(1f),
+                label = stringResource(R.string.dashboard_corner_center),
+                value = stats.center,
+                options = centerOptions,
+                onSelect = { onCornerChange(SlotCorner.CENTER, it) }
+            )
+            CornerStatDropdown(
+                modifier = Modifier.weight(1f),
+                label = stringResource(R.string.dashboard_corner_right),
+                value = stats.right,
+                options = sideOptions,
+                onSelect = { onCornerChange(SlotCorner.RIGHT, it) }
+            )
+        }
     }
 }
 
@@ -5251,7 +5315,8 @@ private fun DisplayTab(
     // (visible once a backup folder is set). Replaces the legacy theme-mode +
     // accent pickers — the accent is now the active theme's `primary` token.
     val themeChoices = viewModel.themeChoices.collectAsState().value
-    LaunchedEffect(settings.activeThemeName, settings.syncFolderUri, settings.themeDirty) {
+    val themeDirty = viewModel.themeDirty.collectAsState().value
+    LaunchedEffect(settings.activeThemeName, settings.syncFolderUri, themeDirty) {
         viewModel.refreshThemeChoices()
     }
     val currentTheme = settings.activeThemeName.ifEmpty {
@@ -5277,7 +5342,7 @@ private fun DisplayTab(
 
         ThemeDropdown(
             label = stringResource(R.string.theme),
-            current = if (settings.themeDirty) "$currentTheme (unsaved)" else currentTheme,
+            current = if (themeDirty) "$currentTheme (unsaved)" else currentTheme,
             builtIns = themeChoices.builtIns,
             saved = themeChoices.saved,
             unsaved = themeChoices.unsaved,
@@ -5553,9 +5618,10 @@ private fun VoiceTab(
         }
 
         if (settings.voiceEnabled) {
-            SwitchSetting(stringResource(R.string.voice_only_when_connected), settings.voiceOnlyWhenConnected) {
-                viewModel.updateVoiceOnlyWhenConnected(it)
-            }
+            AnnounceWhenSelector(
+                current = settings.voiceAnnounceWhen,
+                onChange = { viewModel.updateVoiceAnnounceWhen(it) }
+            )
             SliderSetting(
                 label = stringResource(R.string.voice_interval),
                 value = settings.voiceIntervalSeconds.toFloat(),
@@ -6347,6 +6413,8 @@ private fun CloudTab(
     val cloudEvent by viewModel.cloudEvent.collectAsState()
     val syncProgress by viewModel.syncProgress.collectAsState()
     val syncRunning by viewModel.syncRunning.collectAsState()
+    val eucstatsSyncRunning by viewModel.eucstatsSyncRunning.collectAsState()
+    val eucstatsSyncProgress by viewModel.eucstatsSyncProgress.collectAsState()
     val syncConflict by viewModel.syncConflictPrompt.collectAsState()
     var showRestoreDialog by remember { mutableStateOf(false) }
     var showBackupNameDialog by remember { mutableStateOf(false) }
@@ -6386,6 +6454,9 @@ private fun CloudTab(
             CloudEvent.UploadEnqueued -> sEnqueued
             CloudEvent.SyncNoFolder -> sSyncNoFolder
             is CloudEvent.SyncFinished -> context.getString(R.string.sync_finished, event.count)
+            CloudEvent.EucstatsNothingToSync -> context.getString(R.string.online_upload_sync_nothing)
+            is CloudEvent.EucstatsSyncFinished -> context.getString(R.string.online_upload_sync_done, event.count)
+            CloudEvent.RiderIdConflict -> context.getString(R.string.online_rider_id_conflict)
         }
         if (msg != null) snackbarScope.launch { snackbar.showSnackbar(msg) }
         viewModel.consumeCloudEvent()
@@ -6684,6 +6755,423 @@ private fun CloudTab(
                             stringResource(R.string.sync_checking),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                }
+            }
+        }
+
+        // ---- Online stats section ----
+        // State for the onboarding dialog, profile dialog, and unlink confirmation
+        var showOnboarding  by remember { mutableStateOf(false) }
+        var showOnlineProfile by remember { mutableStateOf(false) }
+        var showUnlinkConfirm by remember { mutableStateOf(false) }
+
+        // Rider recovery: tapping "Join" runs joinOrRecover(). If a previous
+        // profile is found in the linked folder's backup, we prompt to continue
+        // as that rider (the dialog below) rather than create a new identity;
+        // otherwise joinOrRecover signals onboarding via startOnboarding.
+        val restorableRider by viewModel.restorableRider.collectAsStateWithLifecycle()
+        val startOnboarding by viewModel.startOnboarding.collectAsStateWithLifecycle()
+        val rejoinConfirm by viewModel.rejoinConfirm.collectAsStateWithLifecycle()
+        LaunchedEffect(startOnboarding) {
+            if (startOnboarding) {
+                showOnboarding = true
+                viewModel.consumeStartOnboarding()
+            }
+        }
+        // Rejoin confirmation: this phone already has a profile, so pressing Join
+        // warns the rider they'll rejoin as that existing rider rather than
+        // re-enabling silently.
+        if (rejoinConfirm) {
+            val rejoinName = settings.eucstatsDisplayName?.takeIf { it.isNotBlank() }
+                ?: ("#" + (settings.eucstatsStoreId?.take(8) ?: ""))
+            AlertDialog(
+                onDismissRequest = { viewModel.dismissRejoinConfirm() },
+                title = { Text(stringResource(R.string.online_rejoin_title)) },
+                text = { Text(stringResource(R.string.online_rejoin_body, "“$rejoinName”")) },
+                confirmButton = {
+                    TextButton(onClick = { viewModel.confirmRejoin() }) {
+                        Text(stringResource(R.string.online_rejoin_confirm))
+                    }
+                },
+                dismissButton = {
+                    TextButton(onClick = { viewModel.dismissRejoinConfirm() }) {
+                        Text(stringResource(R.string.action_cancel))
+                    }
+                },
+            )
+        }
+        restorableRider?.let { rider ->
+            val riderName = rider.displayName?.takeIf { it.isNotBlank() }
+                ?: ("#" + rider.storeId.take(8))
+            val switching = settings.eucstatsStoreId != null
+            AlertDialog(
+                onDismissRequest = { viewModel.dismissRestorableRider() },
+                title = { Text(stringResource(R.string.online_restore_title)) },
+                text = {
+                    Text(
+                        stringResource(
+                            if (switching) R.string.online_restore_body_switch
+                            else R.string.online_restore_body_new,
+                            riderName,
+                        )
+                    )
+                },
+                confirmButton = {
+                    TextButton(onClick = { viewModel.restoreRider(rider) }) {
+                        Text(stringResource(R.string.online_restore_confirm, riderName))
+                    }
+                },
+                dismissButton = {
+                    TextButton(onClick = { viewModel.dismissRestorableRider() }) {
+                        Text(stringResource(R.string.action_cancel))
+                    }
+                },
+            )
+        }
+
+        if (showOnboarding) {
+            OnlineUploadOnboardingDialog(
+                onDismiss = { showOnboarding = false },
+                onRegistered = {
+                    showOnboarding = false
+                    viewModel.refreshOnlineUploadCard()
+                },
+                viewModel = viewModel,
+            )
+        }
+
+        if (showOnlineProfile) {
+            com.eried.eucplanet.ui.settings.eucstats.OnlineProfileDialog(
+                onDismiss = {
+                    showOnlineProfile = false
+                    viewModel.refreshOnlineUploadCard()
+                },
+                viewModel = viewModel,
+            )
+        }
+
+        if (showUnlinkConfirm) {
+            AlertDialog(
+                onDismissRequest = { showUnlinkConfirm = false },
+                title = { Text(stringResource(R.string.online_unlink_title)) },
+                text = { Text(stringResource(R.string.online_unlink_body)) },
+                confirmButton = {
+                    TextButton(onClick = {
+                        viewModel.unlinkOnline()
+                        showUnlinkConfirm = false
+                    }) { Text(stringResource(R.string.online_unlink_confirm)) }
+                },
+                dismissButton = {
+                    TextButton(onClick = { showUnlinkConfirm = false }) {
+                        Text(stringResource(R.string.action_cancel))
+                    }
+                },
+            )
+        }
+
+        // Online leaderboards — only shown once a backup folder is configured.
+        if (settings.syncFolderUri != null) {
+            SectionHeader(stringResource(R.string.section_online_stats))
+
+            if (!settings.onlineUploadEnabled) {
+                val siteUrl = stringResource(R.string.online_upload_site_url)
+                // Caption + inline link (one flowing, naturally-wrapping sentence),
+                // shown ABOVE the Join button.
+                val caption = stringResource(R.string.online_upload_join_caption)
+                val siteLabel = stringResource(R.string.online_upload_site_label)
+                val linkColor = MaterialTheme.appColors.primary
+                val captionText = androidx.compose.ui.text.buildAnnotatedString {
+                    append(caption)
+                    append(" ")
+                    withStyle(
+                        androidx.compose.ui.text.SpanStyle(
+                            color = linkColor,
+                            textDecoration = androidx.compose.ui.text.style.TextDecoration.Underline,
+                        )
+                    ) { append(siteLabel) }
+                }
+                Text(
+                    captionText,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.appColors.textSecondary,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable {
+                            val intent = android.content.Intent(
+                                android.content.Intent.ACTION_VIEW,
+                                android.net.Uri.parse(siteUrl)
+                            )
+                            runCatching { context.startActivity(intent) }
+                        }
+                        .padding(bottom = 8.dp),
+                )
+                // Same button component the folder section uses (e.g. "Choose folder").
+                LeftAlignedScanButton(
+                    label = stringResource(R.string.online_upload_join),
+                    onClick = { viewModel.joinOrRecover() },
+                )
+            }
+        }
+
+        // Rider card + actions: shown when online upload is enabled and storeId is known.
+        if (settings.syncFolderUri != null && settings.onlineUploadEnabled && settings.eucstatsStoreId != null) {
+            LaunchedEffect(Unit) { viewModel.refreshOnlineUploadCard() }
+            val riderCard by viewModel.onlineUploadCard.collectAsStateWithLifecycle()
+            val cardLoaded by viewModel.onlineUploadCardLoaded.collectAsStateWithLifecycle()
+            val cardMissing by viewModel.onlineUploadCardMissing.collectAsStateWithLifecycle()
+            val card = riderCard
+
+            // Link to the public site: a short caption with the URL underlined;
+            // tapping the line opens eucstats in the browser.
+            val siteUrl = stringResource(R.string.online_upload_site_url)
+            val linkedCaption = stringResource(R.string.online_upload_linked_caption)
+            val linkedLabel = stringResource(R.string.online_upload_site_label)
+            val linkColor = MaterialTheme.appColors.primary
+            val linkedText = androidx.compose.ui.text.buildAnnotatedString {
+                append(linkedCaption)
+                append(" ")
+                withStyle(
+                    androidx.compose.ui.text.SpanStyle(
+                        color = linkColor,
+                        textDecoration = androidx.compose.ui.text.style.TextDecoration.Underline,
+                    )
+                ) { append(linkedLabel) }
+            }
+            // Link to the public site, shown ABOVE the box at full width
+            // (not inset by the box padding).
+            Text(
+                linkedText,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.appColors.textSecondary,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable {
+                        val intent = android.content.Intent(
+                            android.content.Intent.ACTION_VIEW,
+                            android.net.Uri.parse(siteUrl)
+                        )
+                        runCatching { context.startActivity(intent) }
+                    }
+                    .padding(vertical = 4.dp),
+            )
+
+            // The stats card uses the exact same flat surface + small shape as
+            // the Devices cards (DeviceCard = Surface(appColors.surface)).
+            Surface(
+                modifier = Modifier.fillMaxWidth(),
+                shape = MaterialTheme.shapes.small,
+                color = MaterialTheme.appColors.surface,
+                contentColor = MaterialTheme.appColors.textPrimary,
+            ) {
+                Column(
+                    modifier = Modifier.padding(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                ) {
+                    if (card != null) {
+                        // Avatar + name/flag row
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(12.dp),
+                            modifier = Modifier.fillMaxWidth(),
+                        ) {
+                            // Avatar: the real photo when available, falling back to
+                            // a circular initial while it loads or if it fails.
+                            val initial = card.displayName?.firstOrNull()?.uppercaseChar()?.toString() ?: "?"
+                            com.eried.eucplanet.ui.settings.eucstats.RemoteAvatar(
+                                url = card.avatarUrl,
+                                modifier = Modifier.size(48.dp).clip(CircleShape),
+                            ) {
+                                Box(
+                                    modifier = Modifier
+                                        .size(48.dp)
+                                        .clip(CircleShape)
+                                        .background(MaterialTheme.appColors.primary),
+                                    contentAlignment = Alignment.Center,
+                                ) {
+                                    Text(
+                                        text = initial,
+                                        style = MaterialTheme.typography.titleMedium,
+                                        color = MaterialTheme.appColors.onPrimary,
+                                    )
+                                }
+                            }
+                            // Name and flag
+                            Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                                val nameAndFlag = buildString {
+                                    if (!card.displayName.isNullOrBlank()) append(card.displayName)
+                                    if (!card.flag.isNullOrBlank()) {
+                                        if (isNotEmpty()) append("  ")
+                                        // Show the flag emoji (e.g. 🇳🇴) instead of the raw code (NO).
+                                        append(flagEmoji(card.flag).ifEmpty { card.flag })
+                                    }
+                                }
+                                if (nameAndFlag.isNotEmpty()) {
+                                    Text(
+                                        nameAndFlag,
+                                        style = MaterialTheme.typography.bodyLarge,
+                                        color = MaterialTheme.appColors.textPrimary,
+                                    )
+                                }
+                                if (!card.country.isNullOrBlank()) {
+                                    Text(
+                                        card.country,
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.appColors.textSecondary,
+                                    )
+                                }
+                            }
+                        }
+
+                        // Stats — shown in the unit system the app is currently set to
+                        // (not both metric + imperial). 1 decimal for small distances.
+                        val distUnit = Units.effectiveDistanceUnit(settings)
+                        val spdUnit = Units.effectiveSpeedUnit(settings)
+                        val totalVal = Units.distance(card.totalKm.toFloat(), distUnit)
+                        val totalStr = if (totalVal < 100f) "%.1f".format(totalVal) else "%.0f".format(totalVal)
+                        Text(
+                            stringResource(R.string.online_upload_total_km, totalStr, Units.distanceUnit(distUnit)),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.appColors.textSecondary,
+                        )
+                        if (card.mileageRank != null) {
+                            Text(
+                                stringResource(R.string.online_upload_mileage_rank, card.mileageRank),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.appColors.textSecondary,
+                            )
+                        }
+                        Text(
+                            stringResource(
+                                R.string.online_upload_top_speed,
+                                "%.0f".format(Units.speed(card.topSpeedKmh.toFloat(), spdUnit)),
+                                Units.speedUnit(context, spdUnit)
+                            ),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.appColors.textSecondary,
+                        )
+                        Text(
+                            stringResource(R.string.online_upload_trips, card.trips),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.appColors.textSecondary,
+                        )
+                    } else if (cardMissing) {
+                        // The rider 404s on the server (dataset reset, deleted, or
+                        // possibly banned). We deliberately do NOT offer to
+                        // re-register here -- the app can't tell a removed account
+                        // from a banned one, and a banned rider must not be able to
+                        // re-create themselves. Warn clearly and stop here.
+                        Text(
+                            stringResource(R.string.online_upload_card_missing),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.appColors.statusDanger,
+                        )
+                    } else if (cardLoaded) {
+                        // Tried and got nothing back (a transient load failure),
+                        // so don't spin forever.
+                        Text(
+                            stringResource(R.string.online_upload_card_unavailable),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.appColors.textSecondary,
+                        )
+                    } else {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        ) {
+                            CircularProgressIndicator(
+                                modifier = Modifier.size(16.dp),
+                                strokeWidth = 2.dp,
+                                color = MaterialTheme.appColors.primary,
+                            )
+                            Text(
+                                stringResource(R.string.online_upload_card_loading),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.appColors.textSecondary,
+                            )
+                        }
+                    }
+                }
+            }
+
+            // Buttons live OUTSIDE the stats card, at the section margin.
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                Button(
+                    onClick = { showOnlineProfile = true },
+                    modifier = Modifier.weight(1f),
+                ) {
+                    Text(stringResource(R.string.online_profile_manage))
+                }
+                Spacer(modifier = Modifier.weight(1f))
+            }
+
+            // "Trip stats uploads" subsection — a title plus a one-line
+            // description, matching the title + caption pattern used by the
+            // other subsections in this group (e.g. Trips backup).
+            Text(
+                stringResource(R.string.online_upload_actions_caption),
+                style = MaterialTheme.typography.titleSmall,
+                color = MaterialTheme.appColors.textPrimary,
+                modifier = Modifier.padding(top = 8.dp),
+            )
+            Text(
+                stringResource(R.string.online_upload_actions_desc),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.appColors.textSecondary,
+                modifier = Modifier.padding(bottom = 4.dp),
+            )
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                Button(
+                    onClick = { viewModel.syncEucstatsNow() },
+                    enabled = !eucstatsSyncRunning,
+                    modifier = Modifier.weight(1f),
+                ) {
+                    Text(stringResource(R.string.cloud_retry_now))
+                }
+                Button(
+                    onClick = { showUnlinkConfirm = true },
+                    enabled = !eucstatsSyncRunning,
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.appColors.statusDanger,
+                        contentColor   = MaterialTheme.appColors.onPrimary,
+                    ),
+                    modifier = Modifier.weight(1f),
+                ) {
+                    Text(stringResource(R.string.online_upload_unlink))
+                }
+            }
+            // Determinate progress while syncing — mirrors the trips-backup
+            // "Sync all" (indeterminate "checking…" first, then done/total).
+            if (eucstatsSyncRunning) {
+                Column(
+                    verticalArrangement = Arrangement.spacedBy(4.dp),
+                    modifier = Modifier.padding(top = 6.dp),
+                ) {
+                    val p = eucstatsSyncProgress
+                    if (p != null) {
+                        val (done, total) = p
+                        LinearProgressIndicator(
+                            progress = { if (total > 0) done.toFloat() / total else 0f },
+                            modifier = Modifier.fillMaxWidth(),
+                        )
+                        Text(
+                            stringResource(R.string.online_upload_sync_progress, done, total),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.appColors.textSecondary,
+                        )
+                    } else {
+                        LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
+                        Text(
+                            stringResource(R.string.online_upload_sync_checking),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.appColors.textSecondary,
                         )
                     }
                 }
@@ -7541,6 +8029,42 @@ private fun OutputChannelSelector(
 }
 
 @Composable
+private fun AnnounceWhenSelector(
+    current: String,
+    onChange: (String) -> Unit
+) {
+    val options = listOf(
+        "ALWAYS" to stringResource(R.string.voice_announce_always),
+        "CONNECTED" to stringResource(R.string.voice_announce_connected),
+        "RIDING" to stringResource(R.string.voice_announce_riding)
+    )
+    SegmentedChoice(
+        label = stringResource(R.string.voice_announce_when_label),
+        options = options,
+        current = current,
+        onChange = onChange
+    )
+}
+
+@Composable
+private fun AutoRecordModeSelector(
+    current: String,
+    onChange: (String) -> Unit
+) {
+    val options = listOf(
+        "NEVER" to stringResource(R.string.auto_record_mode_never),
+        "CONNECTED" to stringResource(R.string.auto_record_mode_connected),
+        "RIDING" to stringResource(R.string.auto_record_mode_riding)
+    )
+    SegmentedChoice(
+        label = stringResource(R.string.auto_record_mode_label),
+        options = options,
+        current = current,
+        onChange = onChange
+    )
+}
+
+@Composable
 private fun SegmentedChoice(
     label: String,
     options: List<Pair<String, String>>,
@@ -7553,8 +8077,7 @@ private fun SegmentedChoice(
         Row(verticalAlignment = Alignment.CenterVertically) {
             Text(
                 label,
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+                style = MaterialTheme.typography.bodyLarge
             )
             if (onPreview != null) {
                 Spacer(Modifier.width(4.dp))
@@ -7573,18 +8096,15 @@ private fun SegmentedChoice(
                     selected = current == key,
                     onClick = { onChange(key) },
                     shape = SegmentedButtonDefaults.itemShape(index = index, count = options.size),
-                    icon = {},
-                    label = {
-                        Text(
-                            optLabel,
-                            style = MaterialTheme.typography.labelMedium,
-                            textAlign = TextAlign.Center,
-                            maxLines = 2,
-                            overflow = TextOverflow.Ellipsis
-                        )
-                    },
                     colors = themedSegmentedColors(),
-                )
+                ) {
+                    Text(
+                        optLabel,
+                        textAlign = TextAlign.Center,
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
             }
         }
     }
@@ -8652,11 +9172,44 @@ private fun HudIntegrationSection(
             onCheckedChange = { viewModel.updateHudServerEnabled(it) }
         )
 
-        // Two top-level collapsibles under the Integration card.
+        // Three top-level collapsibles under the Integration card.
         // HUD screens first because the reorder list inside is the
-        // primary repeat-visit destination; Map options second.
+        // primary repeat-visit destination; Map options second;
+        // Joystick actions last (set-once bindings).
         HudScreensCard(settings = settings, viewModel = viewModel)
         HudMapOptionsCard(settings = settings, viewModel = viewModel)
+        HudJoystickCard(settings = settings, viewModel = viewModel)
+    }
+}
+
+/** HUD joystick long-press bindings: one action picker per direction.
+ *  Reuses the same [ActionDropdown] (VOLUME_KEY action vocabulary) as the
+ *  Volume keys section so the rider sees a consistent eyes-free action set;
+ *  each picker persists through its own ViewModel setter. */
+@Composable
+private fun HudJoystickCard(
+    settings: com.eried.eucplanet.data.model.AppSettings,
+    viewModel: SettingsViewModel
+) {
+    AdvancedCollapsable(
+        title = stringResource(R.string.hud_joystick_title),
+        stateKey = "hud_joystick"
+    ) {
+        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            HintText(stringResource(R.string.hud_joystick_desc), small = true)
+            ActionDropdown(stringResource(R.string.hud_joystick_up), settings.hudActionUp) {
+                viewModel.updateHudActionUp(it)
+            }
+            ActionDropdown(stringResource(R.string.hud_joystick_down), settings.hudActionDown) {
+                viewModel.updateHudActionDown(it)
+            }
+            ActionDropdown(stringResource(R.string.hud_joystick_left), settings.hudActionLeft) {
+                viewModel.updateHudActionLeft(it)
+            }
+            ActionDropdown(stringResource(R.string.hud_joystick_right), settings.hudActionRight) {
+                viewModel.updateHudActionRight(it)
+            }
+        }
     }
 }
 

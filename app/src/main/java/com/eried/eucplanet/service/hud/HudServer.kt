@@ -68,7 +68,8 @@ class HudServer @Inject constructor(
     private val externalGpsRepository: ExternalGpsRepository,
     private val tripRepository: TripRepository,
     private val navigationEngine: NavigationEngine,
-    private val commandSink: HudCommandSink
+    private val commandSink: HudCommandSink,
+    private val themeController: com.eried.eucplanet.ui.theme.ThemeController
 ) {
 
     companion object {
@@ -487,10 +488,27 @@ class HudServer @Inject constructor(
             navPrimary = d?.navPrimary ?: nav.primaryText,
             navDistance = d?.navDistance ?: nav.distanceText,
             navArrived = d?.navArrived ?: nav.arrived,
+            // Human-readable labels for the HUD joystick long-press guide.
+            // The HUD has no access to the phone's action config, so resolve
+            // each configured slot key to its catalog label here. Reuses the
+            // already-read settings `s`; no extra IO in the publish loop.
+            joystickUp = joystickLabel(s.hudActionUp),
+            joystickDown = joystickLabel(s.hudActionDown),
+            joystickLeft = joystickLabel(s.hudActionLeft),
+            joystickRight = joystickLabel(s.hudActionRight),
             timestampMs = System.currentTimeMillis()
         )
     }
 
+    /** Resolve a configured joystick-slot action [key] to its human-readable
+     *  catalog label. "" / "NONE" (the unset sentinel) and any key the catalog
+     *  doesn't know map to "" so the HUD draws that direction as unset. */
+    private fun joystickLabel(key: String): String {
+        if (key.isBlank() || key == "NONE") return ""
+        val spec = com.eried.eucplanet.data.model.ActionCatalog.byKey(key) ?: return ""
+        return context.getString(spec.labelRes)
+    }
+
     private fun resolveAccentArgb(s: AppSettings): String =
-        com.eried.eucplanet.ui.theme.ThemeAccent.primaryArgb(s.activeThemeColorsJson, s.accentColor)
+        com.eried.eucplanet.ui.theme.ThemeAccent.primaryArgb(themeController.activeColors.value)
 }

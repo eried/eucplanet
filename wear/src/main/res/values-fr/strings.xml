@@ -5,7 +5,7 @@
     <string name="watch_waiting_wheel">Connecte une roue\ndans EUC Planet</string>
     <string name="watch_disconnected">Déconnectée</string>
     <string name="watch_horn">Klaxon</string>
-    <string name="watch_light">Lumière</string>
+    <string name="watch_light">Phare</string>
     <string name="watch_speed_unit">km/h</string>
     <string name="watch_speed_unit_mph">mph</string>
     <string name="watch_speed_unit_ms" translatable="false">m/s</string>
@@ -25,7 +25,7 @@
 
     <!-- Toast labels for hold-action triggers. Short so they fit on a Wear toast. -->
     <string name="watch_action_horn">Klaxon</string>
-    <string name="watch_action_light">Lumière</string>
+    <string name="watch_action_light">Phare</string>
     <string name="watch_action_lock">Verrouiller la roue</string>
     <string name="watch_action_safety">Mode légal</string>
     <string name="watch_action_safety_on">Mode légal activé</string>

@@ -62,6 +62,9 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.BluetoothSearching
 import androidx.compose.material.icons.filled.Bluetooth
+import androidx.compose.material.icons.filled.BatteryChargingFull
+import androidx.compose.material.icons.filled.BatteryFull
+import androidx.compose.material.icons.filled.Bolt
 import androidx.compose.material.icons.filled.BugReport
 import androidx.compose.material.icons.filled.Campaign
 import androidx.compose.material.icons.filled.WarningAmber
@@ -178,6 +181,7 @@ fun DashboardScreen(
     onNavigateToFlic: () -> Unit = {},
     onNavigateToTripDetail: (Long) -> Unit = {},
     onNavigateToMetric: (String) -> Unit = {},
+    onNavigateToCharging: () -> Unit = {},
     viewModel: DashboardViewModel = hiltViewModel()
 ) {
     DisposableEffect(Unit) {
@@ -234,6 +238,17 @@ fun DashboardScreen(
     val gaugeOrangePct by viewModel.gaugeOrangePct.collectAsState()
     val gaugeRedPct by viewModel.gaugeRedPct.collectAsState()
     val currentMode by viewModel.currentDisplayMode.collectAsState()
+
+    // Auto-open the Battery monitor when charging starts (rising edge), if enabled.
+    val chargeStatusForAutoOpen by viewModel.chargeStatus.collectAsState()
+    val chargingAutoOpen by viewModel.chargingAutoOpen.collectAsState()
+    var lastChargeStatus by remember { mutableStateOf(chargeStatusForAutoOpen) }
+    LaunchedEffect(chargeStatusForAutoOpen, chargingAutoOpen) {
+        val started = chargeStatusForAutoOpen == com.eried.eucplanet.data.model.ChargeStatus.Charging &&
+            lastChargeStatus != com.eried.eucplanet.data.model.ChargeStatus.Charging
+        lastChargeStatus = chargeStatusForAutoOpen
+        if (started && chargingAutoOpen) onNavigateToCharging()
+    }
     // Customizable dashboard layout — falls back to the catalog defaults
     // (BATTERY, TEMPERATURE, VOLTAGE, CURRENT, LOAD, TRIP) when the
     // saved order is blank or has fewer than 6 entries.
@@ -257,7 +272,7 @@ fun DashboardScreen(
     // engine behind this VM is shared with the floating navigation overlay).
     val navOverlayVm: NavigationOverlayViewModel = hiltViewModel()
     val navState by navOverlayVm.navState.collectAsState()
-    val savedRoute by navOverlayVm.savedRoute.collectAsState()
+    val currentRoute by navOverlayVm.currentRoute.collectAsState()
     val flicFlashAt by viewModel.flicFlashAt.collectAsState()
     val latestTripId by viewModel.latestTripId.collectAsState()
     val currentTripId by viewModel.currentTripId.collectAsState()
@@ -613,6 +628,23 @@ fun DashboardScreen(
                             flashAt = flicFlashAt,
                             onClick = onNavigateToFlic
                         )
+                    }
+                    // Battery spark — tap opens the Battery monitor; visibility is a
+                    // setting. Tint signals charging (accent) vs not (muted).
+                    val chargeStatus by viewModel.chargeStatus.collectAsState()
+                    val showChargingIcon by viewModel.chargingDashboardIcon.collectAsState()
+                    if (showChargingIcon) {
+                        IconButton(onClick = onNavigateToCharging) {
+                            val chargingNow = chargeStatus == com.eried.eucplanet.data.model.ChargeStatus.Charging ||
+                                chargeStatus == com.eried.eucplanet.data.model.ChargeStatus.Full
+                            Icon(
+                                // Vertical battery: with the charging bolt while charging,
+                                // plain full battery otherwise. Neutral tint (no green).
+                                imageVector = if (chargingNow) Icons.Filled.BatteryChargingFull else Icons.Filled.BatteryFull,
+                                contentDescription = stringResource(R.string.charging_monitor),
+                                tint = MaterialTheme.appColors.textSecondary,
+                            )
+                        }
                     }
                     IconButton(
                         onClick = {
@@ -995,12 +1027,12 @@ fun DashboardScreen(
                                     navOverlayVm.endNavigation()
                                 }
                             )
-                        } else if (savedRoute != null) {
+                        } else if (currentRoute != null) {
                             DropdownMenuItem(
                                 text = { Text(stringResource(R.string.nav_start_short)) },
                                 onClick = {
                                     showMapMenu = false
-                                    navOverlayVm.startSavedRoute()
+                                    navOverlayVm.startCurrentRoute()
                                 }
                             )
                         }
@@ -1300,7 +1332,7 @@ fun DashboardScreen(
                     "ROLL" -> "%.1f°".format(wheelData.rollAngle)
                     "G_FORCE" -> "%.2fg".format(wheelData.gForce)
                     "LATERAL_G" -> "%.2fg".format(wheelData.accelX)
-                    "FORWARD_G" -> "%.2fg".format(wheelData.accelY)
+                    "FORWARD_G" -> "%.2fg".format(wheelData.forwardGFromSpeed)
                     "TORQUE" -> "%.1fNm".format(wheelData.torque)
                     "DYN_SPEED_LIMIT" -> if (wheelData.dynamicSpeedLimit > 0f)
                         "%.0f".format(wheelData.dynamicSpeedLimit) else placeholder
@@ -1424,26 +1456,44 @@ fun DashboardScreen(
                         // catalog with a placeholder value where the
                         // dashboard hasn't extended the value path yet.
                         when (key) {
-                            "BATTERY" -> LiveMetricTile(
-                                label = stringResource(R.string.stat_battery),
-                                value = centerOverride ?: if (live && wheelData.batteryPercent > 0)
-                                    "${wheelData.batteryPercent}%" else placeholder,
-                                accent = battColor,
-                                sparkData = history.battery,
-                                sparkStyle = spec?.sparkline ?: SparklineStyle.AREA,
-                                sparklineEnabled = sparklineEnabled,
-                                bipolarBaseline = spec?.bipolarBaseline ?: 0f,
-                                bipolarNegativeAccent = spec?.bipolarNegativeAccent,
-                                cornerLeftLabel = cornerLeftLabel,
-                                cornerLeftValue = cornerLeftValue,
-                                cornerRightLabel = cornerRightLabel,
-                                cornerRightValue = cornerRightValue,
-                                leftReservesSlot = slotStats.left == com.eried.eucplanet.ui.settings.DashboardStat.EMPTY,
-                                rightReservesSlot = slotStats.right == com.eried.eucplanet.ui.settings.DashboardStat.EMPTY,
-                                centerStatLabel = centerStatLabel,
-                                modifier = Modifier.weight(1f),
-                                onClick = { onNavigateToMetric("BATTERY") }
-                            )
+                            "BATTERY" -> Box(modifier = Modifier.weight(1f)) {
+                                // Tap → Battery monitor; long-press → pick monitor or history.
+                                var batteryMenuOpen by remember { mutableStateOf(false) }
+                                LiveMetricTile(
+                                    label = stringResource(R.string.stat_battery),
+                                    value = centerOverride ?: if (live && wheelData.batteryPercent > 0)
+                                        "${wheelData.batteryPercent}%" else placeholder,
+                                    accent = battColor,
+                                    sparkData = history.battery,
+                                    sparkStyle = spec?.sparkline ?: SparklineStyle.AREA,
+                                    sparklineEnabled = sparklineEnabled,
+                                    bipolarBaseline = spec?.bipolarBaseline ?: 0f,
+                                    bipolarNegativeAccent = spec?.bipolarNegativeAccent,
+                                    cornerLeftLabel = cornerLeftLabel,
+                                    cornerLeftValue = cornerLeftValue,
+                                    cornerRightLabel = cornerRightLabel,
+                                    cornerRightValue = cornerRightValue,
+                                    leftReservesSlot = slotStats.left == com.eried.eucplanet.ui.settings.DashboardStat.EMPTY,
+                                    rightReservesSlot = slotStats.right == com.eried.eucplanet.ui.settings.DashboardStat.EMPTY,
+                                    centerStatLabel = centerStatLabel,
+                                    modifier = Modifier.fillMaxWidth(),
+                                    onClick = { onNavigateToCharging() },
+                                    onLongClick = { batteryMenuOpen = true },
+                                )
+                                DropdownMenu(
+                                    expanded = batteryMenuOpen,
+                                    onDismissRequest = { batteryMenuOpen = false },
+                                ) {
+                                    DropdownMenuItem(
+                                        text = { Text(stringResource(R.string.charging_monitor)) },
+                                        onClick = { batteryMenuOpen = false; onNavigateToCharging() },
+                                    )
+                                    DropdownMenuItem(
+                                        text = { Text(stringResource(R.string.battery_history)) },
+                                        onClick = { batteryMenuOpen = false; onNavigateToMetric("BATTERY") },
+                                    )
+                                }
+                            }
                             "TEMPERATURE" -> {
                                 val tempUnknown = wheelData.maxTemperature <= 0f
                                 LiveMetricTile(
@@ -2539,6 +2589,7 @@ fun DashboardScreen(
                                                     "FlyboyEUC (Adam)" to "Mten3, E20 and EX30 testing.",
                                                     "Soolek" to "KS-16X testing.",
                                                     "Jonathan Wiesner" to "LeaperKim Lynx S testing.",
+                                                    "Felix K" to "LeaperKim Oryx testing.",
                                                     "WheelLog community" to "Open-source (GPLv3) EUC protocol research.",
                                                     "Ilya Shkolnik" to "Advice and help, and maintains DarknessBot.",
                                                     "InMotion" to "For making my awesome V14."
@@ -2844,7 +2895,10 @@ fun DashboardScreen(
         // Welcome tour overlay -- drawn last so it sits above the dashboard
         // (and the top bar) and can spotlight any element by its bounds.
         if (showWelcomeTour) {
-            WelcomeTutorialOverlay(coachmark) {
+            WelcomeTutorialOverlay(
+                state = coachmark,
+                onVoiceToggle = { on -> viewModel.setAllVoiceAnnouncements(on) },
+            ) {
                 viewModel.markWelcomeTutorialSeen()
                 tourDismissed = true
             }

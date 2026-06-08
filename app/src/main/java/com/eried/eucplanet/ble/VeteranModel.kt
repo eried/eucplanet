@@ -36,8 +36,8 @@ enum class VeteranModel(
     SHERMAN_L(     "Veteran Sherman L",    151, 120),
     NOSFET_APEX(   "Veteran Nosfet Apex",  151, 120),
     NOSFET_AEON(   "Veteran Nosfet Aeon",  151, 120),
-    // mVer 8: Oryx, dual-pack 218 V class
-    ORYX(          "Veteran Oryx",         218, 130);
+    // mVer 8: Oryx, 42-cell ~175 V pack
+    ORYX(          "Veteran Oryx",         175, 130);
 
     companion object {
         fun fromReportedName(name: String): VeteranModel? {

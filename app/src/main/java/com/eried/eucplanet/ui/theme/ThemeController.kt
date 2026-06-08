@@ -1,11 +1,19 @@
 package com.eried.eucplanet.ui.theme
 
+import android.content.Context
+import android.content.res.Configuration
 import com.eried.eucplanet.data.repository.SettingsRepository
 import com.eried.eucplanet.data.store.ThemeStore
+import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import org.json.JSONObject
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -22,18 +30,47 @@ data class ThemeChoices(
  * Single place that mutates the active theme, used by both the Settings combo
  * and the floating editor widget so they never drift.
  *
+ * **Persistence model:** settings store only the active theme's *name*
+ * ([AppSettings.activeThemeName]). The resolved colors are NOT persisted — they
+ * live here in memory ([activeColors]) and are re-derived on launch from the
+ * name: a built-in from code, or a saved `.json` from the themes folder, falling
+ * back to a preset if the file is gone. Nothing theme-related rides along in the
+ * settings backup except the name.
+ *
  * Built-in (and saved) themes are never mutated in place. Editing a theme writes
- * a **working draft** keyed by the base theme's name into `unsavedThemesJson`;
- * that draft shows in the combo as "<base> (unsaved)" and persists, so the rider
- * can switch to another theme and back. "Save as" writes a `.json` file via
- * [ThemeStore] (overwriting a saved theme of the same name; presets are files-less
- * so they can never be overwritten) and drops the draft.
+ * an **in-memory** working draft keyed by the base theme's name into [drafts];
+ * that draft shows in the combo as "<base> (unsaved)" for this process only and
+ * is intentionally lost on app kill (that is what "unsaved" means). "Save as"
+ * writes a `.json` file via [ThemeStore] and drops the draft.
  */
 @Singleton
 class ThemeController @Inject constructor(
+    @ApplicationContext private val context: Context,
     private val settingsRepository: SettingsRepository,
     private val themeStore: ThemeStore,
 ) {
+    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+    private val resolveMutex = Mutex()
+    @Volatile private var resolved = false
+
+    /**
+     * The resolved colors of the active theme — the single render source of
+     * truth. Re-derived from the persisted name on launch (see [ensureResolved]).
+     */
+    private val _activeColors = MutableStateFlow(BuiltInThemes.pureBlack.colors)
+    val activeColors: StateFlow<AppThemeColors> = _activeColors.asStateFlow()
+
+    /** True when the active theme is an unsaved working draft. In-memory only. */
+    private val _dirty = MutableStateFlow(false)
+    val dirty: StateFlow<Boolean> = _dirty.asStateFlow()
+
+    /**
+     * Unsaved working drafts, keyed by the base theme they were forked from.
+     * In-memory only — lost on app kill. Re-activating a draft lets the rider
+     * switch away to a preset and back without losing edits within a session.
+     */
+    private val drafts = LinkedHashMap<String, AppThemeColors>()
+
     /**
      * In-memory live-preview channel. While the editor drags a slider we push
      * here (instant, no IO) so the whole app reskins at 60fps; we persist to the
@@ -54,78 +91,114 @@ class ThemeController @Inject constructor(
 
     fun pulse(colors: AppThemeColors?) { _pulse.value = colors }
 
-    /** Persist the current live preview into the working draft. No-op if idle. */
-    suspend fun commitLive() {
-        _live.value?.let { applyColors(it) }
+    init { scope.launch { ensureResolved() } }
+
+    /**
+     * Resolve the active colors from the persisted theme name, once. On a first
+     * upgrade (no name yet) this seeds the name from the legacy themeMode/accent
+     * and persists it, so the OS stops driving the theme thereafter.
+     */
+    suspend fun ensureResolved() {
+        if (resolved) return
+        resolveMutex.withLock {
+            if (resolved) return
+            val s = settingsRepository.get()
+            if (s.activeThemeName.isNotEmpty()) {
+                _activeColors.value = resolveByName(s.activeThemeName) ?: BuiltInThemes.pureBlack.colors
+            } else {
+                // First upgrade from the legacy theme settings: pick a built-in by
+                // name and persist it; render its (clean) colors.
+                val migrated = ThemeMigration.migrate(s.themeMode, s.accentColor, systemDark())
+                val builtIn = BuiltInThemes.byName(migrated.name) ?: BuiltInThemes.pureBlack
+                _activeColors.value = builtIn.colors
+                settingsRepository.update(settingsRepository.get().copy(activeThemeName = builtIn.name))
+            }
+            resolved = true
+        }
     }
+
+    /** Built-in from code, else saved `.json` from the themes folder, else null. */
+    private suspend fun resolveByName(name: String): AppThemeColors? =
+        BuiltInThemes.byName(name)?.colors ?: themeStore.loadTheme(name)
+
+    /**
+     * Synchronous best-effort seed of [activeColors] from the persisted theme
+     * NAME, so the very FIRST composed frame already carries the rider's theme --
+     * even on a process-death resume (e.g. returning from an external browser
+     * link) where the async [ensureResolved] would otherwise leave pure black for
+     * a frame and flash the whole screen. Only the built-in case is handled here
+     * (instant, no IO); a saved theme or an empty name is finished by
+     * [ensureResolved]. Call from the UI's synchronous startup with the already-
+     * loaded [AppSettings.activeThemeName] so no extra DataStore read is needed.
+     */
+    fun seedSync(activeThemeName: String) {
+        if (resolved) return
+        BuiltInThemes.byName(activeThemeName)?.let {
+            _activeColors.value = it.colors
+            resolved = true
+        }
+    }
+
+    private fun systemDark(): Boolean =
+        (context.resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) ==
+            Configuration.UI_MODE_NIGHT_YES
 
     /** Resolved colors of the active theme (the working draft if edited). */
     suspend fun currentColors(): AppThemeColors {
-        val s = settingsRepository.get()
-        return ThemeJson.colorsFromString(s.activeThemeColorsJson, BuiltInThemes.pureBlack.colors)
-            ?: BuiltInThemes.pureBlack.colors
+        ensureResolved()
+        return _activeColors.value
     }
 
-    /** Built-ins (always) + saved customs + unsaved drafts. */
+    /** Built-ins (always) + saved customs + in-memory unsaved drafts. */
     suspend fun availableThemes(): ThemeChoices {
-        val s = settingsRepository.get()
+        ensureResolved()
         val folder = themeStore.themesFolderAvailable()
         val saved = if (folder) themeStore.listSaved() else emptyList()
-        val unsaved = parseDrafts(s.unsavedThemesJson).keys.toList()
-        return ThemeChoices(themeStore.builtInNames(), saved, unsaved, folder)
+        return ThemeChoices(themeStore.builtInNames(), saved, drafts.keys.toList(), folder)
     }
 
     /** Make a clean built-in or saved theme active. The dirty flag is cleared; any
      *  existing drafts are left untouched so the rider can switch back to them. */
     suspend fun selectTheme(name: String) {
-        val colors = BuiltInThemes.byName(name)?.colors ?: themeStore.loadTheme(name) ?: return
-        val s = settingsRepository.get()
-        settingsRepository.update(
-            s.copy(
-                activeThemeColorsJson = ThemeJson.colorsToString(colors),
-                activeThemeName = name,
-                themeDirty = false,
-            )
-        )
+        val colors = resolveByName(name) ?: return
+        _activeColors.value = colors
+        _dirty.value = false
         // Drop any lingering live/pulse preview so the newly-selected theme's
-        // persisted colors actually render (otherwise the switch looks like a no-op).
+        // colors actually render (otherwise the switch looks like a no-op).
         _live.value = null
         _pulse.value = null
+        settingsRepository.update(settingsRepository.get().copy(activeThemeName = name))
     }
 
-    /** Re-activate the unsaved working draft for [base], continuing as it was. */
+    /** Re-activate the in-memory working draft for [base], continuing as it was. */
     suspend fun selectUnsaved(base: String) {
-        val s = settingsRepository.get()
-        val colors = parseDrafts(s.unsavedThemesJson)[base] ?: return
-        settingsRepository.update(
-            s.copy(
-                activeThemeColorsJson = ThemeJson.colorsToString(colors),
-                activeThemeName = base,
-                themeDirty = true,
-            )
-        )
+        val colors = drafts[base] ?: return
+        _activeColors.value = colors
+        _dirty.value = true
         _live.value = null
         _pulse.value = null
+        settingsRepository.update(settingsRepository.get().copy(activeThemeName = base))
     }
 
     /**
-     * Apply an edit. The result is stored as the working draft for the current
-     * base theme (creating that draft the first time a clean theme is edited), so
-     * the base — preset or saved — is never mutated.
+     * Apply an edit. The result becomes the in-memory working draft for the
+     * current base theme (creating that draft the first time a clean theme is
+     * edited), so the base — preset or saved — is never mutated.
      */
     suspend fun applyColors(colors: AppThemeColors) {
-        val s = settingsRepository.get()
-        val base = s.activeThemeName.ifEmpty { BuiltInThemes.pureBlack.name }
-        val drafts = parseDrafts(s.unsavedThemesJson)
+        ensureResolved()
+        val base = settingsRepository.get().activeThemeName.ifEmpty { BuiltInThemes.pureBlack.name }
         drafts[base] = colors
-        settingsRepository.update(
-            s.copy(
-                activeThemeColorsJson = ThemeJson.colorsToString(colors),
-                activeThemeName = base,
-                themeDirty = true,
-                unsavedThemesJson = serializeDrafts(drafts),
-            )
-        )
+        _activeColors.value = colors
+        _dirty.value = true
+        if (settingsRepository.get().activeThemeName.isEmpty()) {
+            settingsRepository.update(settingsRepository.get().copy(activeThemeName = base))
+        }
+    }
+
+    /** Persist the current live preview into the working draft. No-op if idle. */
+    suspend fun commitLive() {
+        _live.value?.let { applyColors(it) }
     }
 
     /**
@@ -136,44 +209,14 @@ class ThemeController @Inject constructor(
     suspend fun saveAs(name: String): Boolean {
         val ok = themeStore.saveTheme(name, currentColors())
         if (ok) {
-            val s = settingsRepository.get()
-            val drafts = parseDrafts(s.unsavedThemesJson)
-            drafts.remove(s.activeThemeName)
-            settingsRepository.update(
-                s.copy(
-                    activeThemeName = name,
-                    themeDirty = false,
-                    unsavedThemesJson = serializeDrafts(drafts),
-                )
-            )
+            drafts.remove(settingsRepository.get().activeThemeName)
+            _dirty.value = false
+            settingsRepository.update(settingsRepository.get().copy(activeThemeName = name))
         }
         return ok
     }
 
     suspend fun setEditorEnabled(enabled: Boolean) {
-        val s = settingsRepository.get()
-        settingsRepository.update(s.copy(themeEditorEnabled = enabled))
-    }
-
-    // --- Unsaved-draft (de)serialization: { "<base>": { isLight, colors{} } } ---
-
-    private fun parseDrafts(json: String): LinkedHashMap<String, AppThemeColors> {
-        val map = LinkedHashMap<String, AppThemeColors>()
-        runCatching {
-            val obj = JSONObject(json)
-            for (key in obj.keys()) {
-                val co = obj.optJSONObject(key) ?: continue
-                val floor = if (co.optBoolean("isLight", false)) BuiltInThemes.light.colors
-                else BuiltInThemes.pureBlack.colors
-                map[key] = ThemeJson.colorsFromJson(co, floor)
-            }
-        }
-        return map
-    }
-
-    private fun serializeDrafts(map: Map<String, AppThemeColors>): String {
-        val obj = JSONObject()
-        map.forEach { (k, v) -> obj.put(k, ThemeJson.colorsToJson(v)) }
-        return obj.toString()
+        settingsRepository.update(settingsRepository.get().copy(themeEditorEnabled = enabled))
     }
 }

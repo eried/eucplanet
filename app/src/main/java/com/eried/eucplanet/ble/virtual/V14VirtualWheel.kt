@@ -25,12 +25,28 @@ class V14VirtualWheel : VirtualWheel {
     override val displayName = "Virtual InMotion V14 (50GB)"
     override val id = "V14"
 
+    private companion object {
+        // Window after connect during which the V14 sim reports "charging" so the
+        // Charging Monitor can be exercised on the emulator. 30 minutes so the
+        // whole 45→100 % curve (incl. the slow CV taper) plays out for testing.
+        const val CHARGE_DEMO_MS = 1_800_000L
+    }
+
     private var locked = false
     private var maxSpeedKmh = 50f
     private var alarmSpeedKmh = 40f
     private var lightOn = false
     private var startTimeMs = System.currentTimeMillis()
     private var batteryStart = 80f
+    // Live battery % (climbs while "charging", decays while riding).
+    private var batterySim = 80f
+    // Jittered charge: a random 0–0.3 % step every 5 s, with the 4th step of each
+    // 20 s window topped up so the window adds exactly 1 % (steady 3 %/min average,
+    // uneven per-step) — the noisy input the ETA smoothing must stay steady against.
+    private var chargeTickMs = 0L
+    private var chargeWindowAdded = 0f
+    private var chargeWindowTick = 0
+    private var wasLocked = false
     // Random-walk ride simulation state.
     private var simSpeed = 0f
     private var prevSpeed = 0f
@@ -44,6 +60,11 @@ class V14VirtualWheel : VirtualWheel {
         lightOn = false
         startTimeMs = System.currentTimeMillis()
         batteryStart = 80f
+        batterySim = 80f
+        chargeTickMs = 0L
+        chargeWindowAdded = 0f
+        chargeWindowTick = 0
+        wasLocked = false
         simSpeed = 0f
         prevSpeed = 0f
         lastBuildMs = 0L
@@ -156,10 +177,18 @@ class V14VirtualWheel : VirtualWheel {
                     else ((now - lastBuildMs) / 1000f).coerceIn(0.02f, 1f)
         lastBuildMs = now
 
-        // Speed: an organic random walk, a random drift plus a gentle pull
-        // back toward a mid cruising speed, instead of a clean sine, so the
-        // trace looks like a real, varied ride. Locked wheel stays at 0.
-        if (locked) {
+        // Charging is simulated when the wheel is "locked", the headlight is on,
+        // or during a window right after connect (so the Charging Monitor is
+        // demonstrable on the emulator without any control command — the sim
+        // doesn't act on lock/light writes). While charging the wheel is parked
+        // (speed 0) and the current sensor reads ~0 A like a real V14, so
+        // detection leans on the explicit bit-7 charging flag.
+        val charging = locked || lightOn || (now - startTimeMs) < CHARGE_DEMO_MS
+
+        // Speed: an organic random walk, a random drift plus a gentle pull back
+        // toward a mid cruising speed, so the trace looks like a real, varied
+        // ride. A charging (parked) wheel stays at 0.
+        if (charging) {
             simSpeed = 0f
         } else {
             val drift = (rnd.nextFloat() - 0.5f) * 26f * dtSec
@@ -170,20 +199,48 @@ class V14VirtualWheel : VirtualWheel {
         val accel = (speedKmh - prevSpeed) / dtSec   // km/h per second
         prevSpeed = speedKmh
 
-        // Battery slowly decays, ~1 % per minute
-        val batteryPct = (batteryStart - elapsed / 60_000f).coerceAtLeast(20f)
+        if (charging && !wasLocked) {
+            // "Plug in" at a low-ish charge so the 45→100 % curve exercises both
+            // the "to 80 %" and the pessimistic "to full" ETAs.
+            batterySim = 45f
+            chargeTickMs = now
+            chargeWindowAdded = 0f
+            chargeWindowTick = 0
+        }
+        wasLocked = charging
+        if (charging) {
+            // Random 0–0.3 % per 5 s; 4th step of each 20 s window tops up to 1 %.
+            if (now - chargeTickMs >= 5_000L) {
+                chargeTickMs = now
+                val inc = if (chargeWindowTick < 3) {
+                    (rnd.nextFloat() * 0.3f).coerceAtMost((1f - chargeWindowAdded).coerceAtLeast(0f))
+                } else {
+                    (1f - chargeWindowAdded).coerceAtLeast(0f)
+                }
+                batterySim = (batterySim + inc).coerceAtMost(100f)
+                chargeWindowAdded += inc
+                chargeWindowTick = (chargeWindowTick + 1) % 4
+                if (chargeWindowTick == 0) chargeWindowAdded = 0f
+            }
+        } else {
+            batterySim = (batterySim - dtSec / 60f).coerceAtLeast(20f)   // ~1 %/min decay
+        }
+        val batteryPct = batterySim
         val voltage = 84f - (80f - batteryPct) * 0.1f  // roughly 76 V at 0 %, 84 V at 80 %
 
         // Current tracks effort: a friction baseline while rolling plus a term
         // proportional to acceleration, so braking (negative accel) swings the
         // current negative (regen) with a little noise on top. Idle draws a
         // trickle.
-        val current = if (speedKmh > 1f) {
-            5f + accel * 1.1f + (rnd.nextFloat() - 0.5f) * 5f
-        } else {
-            0.3f
+        val current = when {
+            // Real V14 charge sensor reads ~0 A while charging; the sim instead
+            // reports a plausible ~3.5 A so the Battery monitor's W/Wh rows have
+            // something to draw. Production behavior is unchanged on real wheels.
+            charging -> 3.5f + (rnd.nextFloat() - 0.5f) * 0.3f
+            speedKmh > 1f -> 5f + accel * 1.1f + (rnd.nextFloat() - 0.5f) * 5f
+            else -> 0.3f
         }
-        val pwm = if (speedKmh > 1f) {
+        val pwm = if (!charging && speedKmh > 1f) {
             (18f + kotlin.math.abs(current) * 1.8f).coerceIn(0f, 95f)
         } else 0f
 
@@ -210,7 +267,9 @@ class V14VirtualWheel : VirtualWheel {
         d[61] = 210.toByte() // 34°C
         d[62] = 209.toByte() // 33°C
         d[63] = 212.toByte() // 36°C
-        d[74] = if (locked) 0x00 else 0x01  // pcMode: 0=lock, 1=drive
+        // pcMode in bits 0..2 (0=lock, 1=drive); bit 7 = charging flag.
+        val chargingBit = if (charging) 0x80 else 0x00
+        d[74] = ((if (locked) 0x00 else 0x01) or chargingBit).toByte()
         d[76] = if (lightOn) 0x02 else 0x00 // light bit 1
 
         return InMotionV2Protocol.buildPacket(0x14, Command.REAL_TIME_INFO, d)

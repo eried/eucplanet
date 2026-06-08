@@ -24,13 +24,16 @@ class CsvWriter(private val file: File) {
     private var writer: BufferedWriter? = null
     private var rowCount = 0
 
+    /** Number of data rows written so far (excluding the header). */
+    val rows: Int get() = rowCount
+
     fun open() {
         writer = BufferedWriter(FileWriter(file))
         writer?.write("Date,Speed,Voltage,Temperature,Battery level,Altitude,Latitude,Longitude,Total mileage,GPS speed,Current,PWM,G-Force,G-Force X,G-Force Y")
         writer?.newLine()
     }
 
-    fun writeRow(data: WheelData, location: Location?, externalGpsSpeedKmh: Float? = null) {
+    fun writeRow(data: WheelData, location: Location?, externalGpsSpeedKmh: Float? = null, wheelConnected: Boolean = true) {
         val w = writer ?: return
         // Use wallclock so rows recorded without wheel telemetry (disconnected or
         // never connected) still carry a correct date. WheelData.timestamp defaults to
@@ -42,9 +45,13 @@ class CsvWriter(private val file: File) {
         val lon = location?.longitude ?: 0.0
         val alt = location?.altitude ?: 0.0
 
-        // Prefer wheel speed; fall back to GPS speed (m/s -> km/h) when the wheel is silent.
         val phoneGpsKmh = if (location?.hasSpeed() == true) location.speed * 3.6f else 0f
-        val speed = if (data.speed != 0f) data.speed else phoneGpsKmh
+        // Prefer the wheel's own speed whenever it's connected -- 0 is a valid
+        // "stopped" reading, so don't treat it as "no data". Only fall back to
+        // GPS speed when NO wheel is connected; otherwise indoor / walking-pace
+        // GPS noise (e.g. 28 km/h while wheeling it across a room) leaks into the
+        // speed-of-record column.
+        val speed = if (wheelConnected) data.speed else phoneGpsKmh
         // GPS speed column: the external box's speed when the rider prioritises
         // external GPS (passed in non-null), otherwise the phone's GPS speed.
         val gpsSpeedKmh = externalGpsSpeedKmh ?: phoneGpsKmh

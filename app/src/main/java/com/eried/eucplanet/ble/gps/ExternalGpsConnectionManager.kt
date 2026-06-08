@@ -13,6 +13,7 @@ import android.os.Build
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
+import com.eried.eucplanet.ble.BleAutoReconnector
 import com.eried.eucplanet.ble.ConnectionState
 import com.eried.eucplanet.data.model.ExternalGpsSample
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -63,6 +64,19 @@ class ExternalGpsConnectionManager @Inject constructor(
 
     @Volatile private var gatt: BluetoothGatt? = null
     @Volatile private var activeAdapter: ExternalGpsAdapter? = null
+    @Volatile private var currentAddress: String? = null
+    @Volatile private var currentInitWrites: List<ByteArray> = emptyList()
+
+    // Auto-reconnect (mirrors the wheel): scan-then-connect when Bluetooth
+    // returns or after an unexpected drop, instead of leaving the GPS stuck
+    // until the rider taps Reconnect.
+    private val reconnector = BleAutoReconnector(
+        context = context,
+        tag = TAG,
+        isConnected = { _connectionState.value == ConnectionState.CONNECTED },
+        reconnect = { address -> connectInternal(address) },
+        forceDisconnect = { forceDisconnect() }
+    ).also { it.start() }
 
     /**
      * Pending init writes the adapter wants to send on the RX char after the
@@ -76,10 +90,27 @@ class ExternalGpsConnectionManager @Inject constructor(
 
     @SuppressLint("MissingPermission")
     fun connect(address: String, adapter: ExternalGpsAdapter, initWrites: List<ByteArray>) {
-        disconnect()
         activeAdapter = adapter
+        currentAddress = address
+        currentInitWrites = initWrites
+        reconnector.arm(address)
+        connectInternal(address)
+    }
+
+    /** GATT-only (re)connect using the remembered adapter + init writes; does
+     *  not touch the reconnector, so it's safe to call from the reconnect path. */
+    @SuppressLint("MissingPermission")
+    private fun connectInternal(address: String) {
+        teardownGatt()
+        // Don't issue a GATT connect while Bluetooth is off - it fails (status
+        // 133/147) and churns; the reconnector's STATE_ON handler drives it.
+        if (bluetoothManager.adapter?.isEnabled != true) {
+            Log.i(TAG, "connect($address) deferred: Bluetooth is off")
+            _connectionState.value = ConnectionState.DISCONNECTED
+            return
+        }
         pendingInitWrites.clear()
-        pendingInitWrites.addAll(initWrites)
+        pendingInitWrites.addAll(currentInitWrites)
         val device: BluetoothDevice = try {
             bluetoothManager.adapter.getRemoteDevice(address)
         } catch (e: IllegalArgumentException) {
@@ -88,21 +119,38 @@ class ExternalGpsConnectionManager @Inject constructor(
             return
         }
         _connectionState.value = ConnectionState.CONNECTING
-        Log.i(TAG, "Connecting to ${adapter.source.displayName} @ $address (${initWrites.size} init writes queued)")
+        Log.i(TAG, "Connecting to ${activeAdapter?.source?.displayName} @ $address (${currentInitWrites.size} init writes queued)")
         gatt = device.connectGatt(context, /* autoConnect = */ false, callback)
     }
 
+    /** Deliberate, user-initiated disconnect: stop auto-reconnect too. */
     @SuppressLint("MissingPermission")
     fun disconnect() {
+        reconnector.cancel()
+        currentAddress = null
+        currentInitWrites = emptyList()
+        activeAdapter = null
+        teardownGatt()
+        _connectionState.value = ConnectionState.DISCONNECTED
+    }
+
+    /** Bluetooth went off: drop the dead GATT but keep the target so the
+     *  reconnector can re-arm when it comes back. */
+    @SuppressLint("MissingPermission")
+    private fun forceDisconnect() {
+        teardownGatt()
+        _connectionState.value = ConnectionState.DISCONNECTED
+    }
+
+    @SuppressLint("MissingPermission")
+    private fun teardownGatt() {
         gatt?.let {
             try { it.disconnect() } catch (_: Exception) {}
             try { it.close() } catch (_: Exception) {}
         }
         gatt = null
-        activeAdapter = null
         rxCharacteristic = null
         pendingInitWrites.clear()
-        _connectionState.value = ConnectionState.DISCONNECTED
     }
 
     private val callback = object : BluetoothGattCallback() {
@@ -140,6 +188,9 @@ class ExternalGpsConnectionManager @Inject constructor(
                         rxCharacteristic = null
                         pendingInitWrites.clear()
                     }
+                    // Auto-reconnect on an unexpected drop (status != 0); a
+                    // deliberate disconnect() already cancelled the reconnector.
+                    reconnector.onUnexpectedDisconnect(status)
                 }
             }
         }

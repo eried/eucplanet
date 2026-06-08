@@ -115,6 +115,21 @@ object AppModule {
     }
 
     /**
+     * v46 -> v47: add eucstats online-upload columns to the trips table.
+     */
+    private val MIGRATION_46_47 = object : Migration(46, 47) {
+        override fun migrate(db: SupportSQLiteDatabase) {
+            db.execSQL("ALTER TABLE trips ADD COLUMN tripUuid TEXT")
+            db.execSQL("ALTER TABLE trips ADD COLUMN eucstatsStatus INTEGER NOT NULL DEFAULT 0")
+            db.execSQL("ALTER TABLE trips ADD COLUMN eucstatsUploadedAt INTEGER")
+            db.execSQL("ALTER TABLE trips ADD COLUMN eucstatsValidation TEXT")
+            db.execSQL("ALTER TABLE trips ADD COLUMN isMockLocation INTEGER NOT NULL DEFAULT 0")
+            db.execSQL("ALTER TABLE trips ADD COLUMN sampleCount INTEGER NOT NULL DEFAULT 0")
+            db.execSQL("ALTER TABLE trips ADD COLUMN wheelMetaJson TEXT")
+        }
+    }
+
+    /**
      * Build the Room database with the v44->v45 migration. If the open still
      * fails (e.g. a future identity-hash mismatch from a forgotten migration),
      * wipe the DB file and rebuild, trip / alarm / profile loss is regrettable
@@ -138,7 +153,7 @@ object AppModule {
 
     private fun buildDb(context: Context): AppDatabase =
         Room.databaseBuilder(context, AppDatabase::class.java, DB_NAME)
-            .addMigrations(MIGRATION_44_45, MIGRATION_45_46)
+            .addMigrations(MIGRATION_44_45, MIGRATION_45_46, MIGRATION_46_47)
             .build()
 
     @Provides

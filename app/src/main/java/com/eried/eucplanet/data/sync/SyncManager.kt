@@ -5,9 +5,13 @@ import android.content.Intent
 import android.net.Uri
 import android.util.Log
 import androidx.documentfile.provider.DocumentFile
+import androidx.work.BackoffPolicy
+import androidx.work.Constraints
 import androidx.work.ExistingWorkPolicy
+import androidx.work.NetworkType
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
+import java.util.concurrent.TimeUnit
 import com.eried.eucplanet.data.db.AlarmDao
 import com.eried.eucplanet.data.db.TripDao
 import com.eried.eucplanet.data.model.AlarmRule
@@ -54,8 +58,14 @@ class SyncManager @Inject constructor(
         const val SETTINGS_BACKUP_NAME = "eucplanet_settings.json"
         const val SETTINGS_BACKUP_PREFIX = "eucplanet_settings-"
         const val SETTINGS_BACKUP_SUFFIX = ".json"
+        // Plain-text file holding ONLY the eucstats online rider id (the
+        // store_id UUID, nothing else) -- the recovery token for "found a
+        // previous profile" after a reinstall / new device. Name/flag/stats all
+        // come from the server, so the id is the entire identity.
+        const val RIDER_BACKUP_NAME = "eucstats_riderid.txt"
         const val TRIPS_SUBFOLDER = "trips"
         const val UPLOAD_WORK_NAME = "trip_upload"
+        const val EUCSTATS_UPLOAD_WORK_NAME = "eucstats_upload"
     }
 
     // App-scoped so trip sync survives settings screen navigation.
@@ -208,51 +218,54 @@ class SyncManager @Inject constructor(
         var minMileage = Float.MAX_VALUE
         var maxMileage = 0f
         try {
-            val lines = file.readText().lines()
-            if (lines.size < 2) return CsvMeta(startTime, endTime, 0f)
-            val header = lines[0].lowercase().split(",").map { it.trim() }
-            val latIdx = header.indexOfFirst { it == "latitude" }.takeIf { it >= 0 } ?: 6
-            val lonIdx = header.indexOfFirst { it == "longitude" }.takeIf { it >= 0 } ?: 7
-            val mileageIdx = header.indexOfFirst { it.contains("mileage") }
-                .takeIf { it >= 0 } ?: 8
-            val darkness = SimpleDateFormat("dd.MM.yyyy HH:mm:ss", Locale.US)
-            val iso = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.US)
-            var first = true
-            for (i in 1 until lines.size) {
-                val line = lines[i].trim()
-                if (line.isEmpty()) continue
-                val parts = line.split(",")
-                if (parts.size < 2) continue
-                val dateStr = parts[0].trim()
-                val trimmed = if (dateStr.contains("T")) {
-                    val t = dateStr.substringAfter("T")
-                    dateStr.substringBefore("T") + "T" +
-                            if (t.contains(".")) t.substringBefore(".") else t
-                } else {
-                    if (dateStr.count { it == '.' } > 2) dateStr.substringBeforeLast(".")
-                    else dateStr
-                }
-                val parsed = try {
-                    if (dateStr.contains("T")) iso.parse(trimmed) else darkness.parse(trimmed)
-                } catch (_: Exception) { null }
-                if (parsed != null) {
-                    if (first) { startTime = parsed.time; first = false }
-                    endTime = parsed.time
-                }
-                val lat = parts.getOrNull(latIdx)?.toDoubleOrNull()
-                val lon = parts.getOrNull(lonIdx)?.toDoubleOrNull()
-                if (lat != null && lon != null && lat != 0.0 && lon != 0.0) {
-                    if (!lastLat.isNaN() && !lastLon.isNaN()) {
-                        val d = haversineMeters(lastLat, lastLon, lat, lon)
-                        if (d in 0.5..200.0) gpsDistanceKm += d / 1000.0
+            // Stream the CSV line-by-line instead of readText().lines(), so a
+            // long trip (a big CSV) never has to sit fully in memory at once.
+            file.bufferedReader().use { reader ->
+                val headerLine = reader.readLine() ?: return CsvMeta(startTime, endTime, 0f)
+                val header = headerLine.lowercase().split(",").map { it.trim() }
+                val latIdx = header.indexOfFirst { it == "latitude" }.takeIf { it >= 0 } ?: 6
+                val lonIdx = header.indexOfFirst { it == "longitude" }.takeIf { it >= 0 } ?: 7
+                val mileageIdx = header.indexOfFirst { it.contains("mileage") }
+                    .takeIf { it >= 0 } ?: 8
+                val darkness = SimpleDateFormat("dd.MM.yyyy HH:mm:ss", Locale.US)
+                val iso = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.US)
+                var first = true
+                reader.forEachLine { raw ->
+                    val line = raw.trim()
+                    if (line.isEmpty()) return@forEachLine
+                    val parts = line.split(",")
+                    if (parts.size < 2) return@forEachLine
+                    val dateStr = parts[0].trim()
+                    val trimmed = if (dateStr.contains("T")) {
+                        val t = dateStr.substringAfter("T")
+                        dateStr.substringBefore("T") + "T" +
+                                if (t.contains(".")) t.substringBefore(".") else t
+                    } else {
+                        if (dateStr.count { it == '.' } > 2) dateStr.substringBeforeLast(".")
+                        else dateStr
                     }
-                    lastLat = lat
-                    lastLon = lon
-                }
-                val mileage = parts.getOrNull(mileageIdx)?.toFloatOrNull()
-                if (mileage != null && mileage > 0f) {
-                    if (mileage < minMileage) minMileage = mileage
-                    if (mileage > maxMileage) maxMileage = mileage
+                    val parsed = try {
+                        if (dateStr.contains("T")) iso.parse(trimmed) else darkness.parse(trimmed)
+                    } catch (_: Exception) { null }
+                    if (parsed != null) {
+                        if (first) { startTime = parsed.time; first = false }
+                        endTime = parsed.time
+                    }
+                    val lat = parts.getOrNull(latIdx)?.toDoubleOrNull()
+                    val lon = parts.getOrNull(lonIdx)?.toDoubleOrNull()
+                    if (lat != null && lon != null && lat != 0.0 && lon != 0.0) {
+                        if (!lastLat.isNaN() && !lastLon.isNaN()) {
+                            val d = haversineMeters(lastLat, lastLon, lat, lon)
+                            if (d in 0.5..200.0) gpsDistanceKm += d / 1000.0
+                        }
+                        lastLat = lat
+                        lastLon = lon
+                    }
+                    val mileage = parts.getOrNull(mileageIdx)?.toFloatOrNull()
+                    if (mileage != null && mileage > 0f) {
+                        if (mileage < minMileage) minMileage = mileage
+                        if (mileage > maxMileage) maxMileage = mileage
+                    }
                 }
             }
         } catch (_: Exception) {}
@@ -304,7 +317,11 @@ class SyncManager @Inject constructor(
             } catch (_: Exception) {
             }
         }
-        settingsRepository.update(s.copy(syncFolderUri = null, lastSettingsBackupAt = null))
+        settingsRepository.update(s.copy(
+            syncFolderUri = null,
+            lastSettingsBackupAt = null,
+            onlineUploadEnabled = false,  // online upload requires a folder
+        ))
     }
 
     /** The chosen folder's DocumentFile, or null if none or no longer accessible. */
@@ -379,6 +396,88 @@ class SyncManager @Inject constructor(
         } catch (e: Exception) {
             Log.e(TAG, "Settings backup failed", e)
             BackupOutcome.Failed
+        }
+    }
+
+    /**
+     * Write the eucstats leaderboard rider identity to its own small file
+     * (RIDER_BACKUP_NAME) in the sync folder -- just the rider fields, NOT the
+     * full settings/theme. This is the recovery file for "found a previous
+     * profile" after a reinstall / new device. No-op (false) without a folder
+     * or a registered rider. Best-effort.
+     */
+    suspend fun backupRiderIdentity(): Boolean {
+        val current = settingsRepository.get()
+        val storeId = current.eucstatsStoreId ?: return false
+        val folder = getSyncFolder(current) ?: return false
+        // Just the store_id UUID as plain text -- that's the whole identity.
+        // Name/flag/avatar/stats all live on the server.
+        return try {
+            folder.findFile(RIDER_BACKUP_NAME)?.delete()
+            val file = folder.createFile("text/plain", RIDER_BACKUP_NAME)
+                ?: return false
+            context.contentResolver.openOutputStream(file.uri)?.use { out ->
+                out.write(storeId.toByteArray(Charsets.UTF_8))
+            } ?: return false
+            true
+        } catch (e: Exception) {
+            Log.e(TAG, "Rider id backup failed", e)
+            false
+        }
+    }
+
+    /** Delete the recovery file ([RIDER_BACKUP_NAME]) -- used when the rider
+     *  deletes their account so the just-deleted profile is NOT offered for
+     *  "restore" on the next Join (the store_id no longer exists server-side).
+     *  Best-effort; returns true if a file was deleted. */
+    suspend fun deleteRiderIdFile(): Boolean {
+        val folder = getSyncFolder(settingsRepository.get()) ?: return false
+        return folder.findFile(RIDER_BACKUP_NAME)?.delete() ?: false
+    }
+
+    /** Read the plain-text online rider id (store_id) from RIDER_BACKUP_NAME, or null. */
+    suspend fun readRiderIdFile(): String? {
+        val current = settingsRepository.get()
+        val folder = getSyncFolder(current) ?: return null
+        val file = folder.findFile(RIDER_BACKUP_NAME) ?: return null
+        return try {
+            context.contentResolver.openInputStream(file.uri)?.use {
+                String(it.readBytes(), Charsets.UTF_8).trim()
+            }?.takeIf { it.isNotBlank() }
+        } catch (e: Exception) {
+            Log.e(TAG, "Could not read rider id file", e)
+            null
+        }
+    }
+
+    /** Outcome of [ensureRiderIdFile]. */
+    enum class RiderFileResult {
+        /** No folder or no registered rider — nothing to do. */
+        SKIPPED,
+        /** The file already holds this rider's id. */
+        ALREADY_PRESENT,
+        /** The file was absent and has now been written with this rider's id. */
+        WROTE,
+        /** A DIFFERENT rider's id is in the file; left untouched so the caller can warn. */
+        MISMATCH,
+    }
+
+    /**
+     * Make sure the recovery file ([RIDER_BACKUP_NAME]) holds THIS phone's rider
+     * id: write it if absent, no-op if it already matches, and — if a DIFFERENT
+     * id is present — leave that foreign file untouched and report [RiderFileResult.MISMATCH]
+     * so the caller can warn instead of silently clobbering someone else's recovery
+     * token. Used on unlink / link so the id is hardened for the reinstall / new-
+     * device case (where it is the only surviving identity) before it might be lost.
+     */
+    suspend fun ensureRiderIdFile(): RiderFileResult {
+        val current = settingsRepository.get()
+        val storeId = current.eucstatsStoreId ?: return RiderFileResult.SKIPPED
+        getSyncFolder(current) ?: return RiderFileResult.SKIPPED
+        return when (val existing = readRiderIdFile()) {
+            storeId -> RiderFileResult.ALREADY_PRESENT
+            null -> if (backupRiderIdentity()) RiderFileResult.WROTE else RiderFileResult.SKIPPED
+            else -> RiderFileResult.MISMATCH
         }
     }
 
@@ -464,6 +563,57 @@ class SyncManager @Inject constructor(
         return out + named
     }
 
+    /**
+     * Read just the rider identity (store_id + display name) out of a backup
+     * file WITHOUT applying it, so the UI can offer to restore an existing rider
+     * when a sync folder is linked. Returns null if the file is missing,
+     * unreadable, or carries no store_id.
+     */
+    suspend fun peekRider(fileName: String): RestorableRider? {
+        val current = settingsRepository.get()
+        val folder = getSyncFolder(current) ?: return null
+        val file = folder.findFile(fileName) ?: return null
+        return try {
+            val bytes = context.contentResolver.openInputStream(file.uri)?.use { it.readBytes() }
+                ?: return null
+            val json = JSONObject(String(bytes, Charsets.UTF_8))
+            val storeId = json.optString("eucstatsStoreId", "").takeIf { it.isNotBlank() }
+                ?: return null
+            val name = json.optString("eucstatsDisplayName", "").takeIf { it.isNotBlank() }
+            RestorableRider(fileName = fileName, storeId = storeId, displayName = name)
+        } catch (e: Exception) {
+            Log.e(TAG, "Could not read rider from backup $fileName", e)
+            null
+        }
+    }
+
+    /** The recoverable rider identity for this sync folder. Prefers the
+     *  dedicated `eucstats_riderid.txt` file FIRST; if that's absent, falls
+     *  back to the first settings backup that carries a rider. */
+    suspend fun findRestorableRider(): RestorableRider? {
+        // Prefer the dedicated plain-text rider-id file.
+        readRiderIdFile()?.let { id ->
+            return RestorableRider(fileName = RIDER_BACKUP_NAME, storeId = id, displayName = null)
+        }
+        // Fall back to any settings backup that carries a rider (older data,
+        // e.g. a full settings backup made via the manual Backup button).
+        for (entry in listSettingsBackups()) {
+            peekRider(entry.fileName)?.let { return it }
+        }
+        return null
+    }
+
+    /**
+     * Save a timestamped safety copy of the CURRENT settings before a restore
+     * that would replace the rider identity, so the previous rider stays
+     * recoverable even if the rider taps through the confirm. Best-effort.
+     */
+    suspend fun snapshotBeforeRestore(): Boolean {
+        val stamp = java.text.SimpleDateFormat("yyyyMMdd-HHmm", java.util.Locale.US)
+            .format(java.util.Date())
+        return backupSettingsAs(name = "before-restore-$stamp", overwrite = false) == BackupOutcome.Saved
+    }
+
     /** Path-safe sanitiser. Strips anything that isn't [A-Za-z0-9_- ], trims,
      *  collapses whitespace, caps at 32 chars. Empty input returns null so the
      *  caller can show a validation error. */
@@ -485,6 +635,22 @@ class SyncManager @Inject constructor(
         val request = OneTimeWorkRequestBuilder<TripUploadWorker>().build()
         WorkManager.getInstance(context).enqueueUniqueWork(
             UPLOAD_WORK_NAME,
+            ExistingWorkPolicy.REPLACE,
+            request
+        )
+    }
+
+    /** Enqueue the eucstats upload worker with a network constraint and exponential backoff. */
+    fun enqueueEucStatsUpload(settings: AppSettings) {
+        val constraints = Constraints.Builder()
+            .setRequiredNetworkType(NetworkType.CONNECTED)
+            .build()
+        val request = OneTimeWorkRequestBuilder<EucStatsUploadWorker>()
+            .setConstraints(constraints)
+            .setBackoffCriteria(BackoffPolicy.EXPONENTIAL, 30, TimeUnit.SECONDS)
+            .build()
+        WorkManager.getInstance(context).enqueueUniqueWork(
+            EUCSTATS_UPLOAD_WORK_NAME,
             ExistingWorkPolicy.REPLACE,
             request
         )
@@ -611,3 +777,9 @@ sealed interface BackupOutcome {
  * (`eucplanet_settings.json`); non-null is the rider-supplied snapshot name.
  */
 data class BackupEntry(val fileName: String, val label: String?, val isFactory: Boolean = false)
+
+/**
+ * The rider identity carried by a settings backup, read without applying it.
+ * Used to offer "restore your existing rider" when a sync folder is linked.
+ */
+data class RestorableRider(val fileName: String, val storeId: String, val displayName: String?)

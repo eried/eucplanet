@@ -29,8 +29,8 @@ android {
         applicationId = "com.eried.eucplanet"
         minSdk = 29
         targetSdk = 35
-        versionCode = 238
-        versionName = "0.9.13"
+        versionCode = 244
+        versionName = "0.9.18"
 
         val buildStamp = SimpleDateFormat("yyMMdd.HHmm")
             .apply { timeZone = TimeZone.getTimeZone("UTC") }
@@ -47,6 +47,9 @@ android {
             if (process.exitValue() == 0) out else ""
         } catch (e: Exception) { "" }
         buildConfigField("String", "GIT_BRANCH", "\"$gitBranch\"")
+
+        buildConfigField("String", "EUCSTATS_API_BASE_URL", "\"https://eucstats.ried.no/api/v1\"")
+        buildConfigField("long", "EUCSTATS_GCP_PROJECT_NUMBER", "0L")
     }
 
     signingConfigs {
@@ -61,6 +64,15 @@ android {
     }
 
     buildTypes {
+        debug {
+            // Debug builds target the PRODUCTION eucstats API by default, so
+            // branch/sideload debug APKs work on real phones (10.0.2.2 is the
+            // emulator-to-host alias and is unreachable on physical devices).
+            // Opt into a local dev server with: ./gradlew assembleDebug -PeucstatsLocal
+            if (project.hasProperty("eucstatsLocal")) {
+                buildConfigField("String", "EUCSTATS_API_BASE_URL", "\"http://10.0.2.2:8000/api/v1\"")
+            }
+        }
         release {
             isMinifyEnabled = true
             isShrinkResources = true
@@ -189,6 +201,9 @@ dependencies {
     implementation(libs.androidx.core)
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.appcompat)
+    // Explicit current fragment so Play Services' transitive 1.1.0 (flagged by
+    // Play's SDK index) is never what ships. See gradle/libs.versions.toml.
+    implementation(libs.androidx.fragment)
     implementation(libs.androidx.documentfile)
 
     // Lifecycle
@@ -254,8 +269,17 @@ dependencies {
     implementation(libs.camerax.camera2)
     implementation(libs.camerax.lifecycle)
 
+    // Play Integrity API (Standard Integrity Manager for request-hash-bound tokens)
+    implementation("com.google.android.play:integrity:1.4.0")
+
     // Unit tests for pure-Kotlin parsers (VariaAdapter, etc.)
     testImplementation(libs.junit)
+    // org.json is bundled in the Android SDK but not available on the JVM test
+    // classpath. Adding the standalone artifact makes SettingsJson JVM tests work
+    // without Robolectric.
+    testImplementation("org.json:json:20240303")
+    // MockWebServer for EucStatsApi JVM tests — version must match libs.okhttp (4.12.0)
+    testImplementation("com.squareup.okhttp3:mockwebserver:4.12.0")
 }
 
 // Gradle Play Publisher -- LOCAL publishing only (no browser, NOT wired into CI):

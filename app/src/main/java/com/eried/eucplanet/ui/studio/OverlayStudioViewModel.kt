@@ -99,7 +99,8 @@ class OverlayStudioViewModel @Inject constructor(
     private val presetStore: OverlayPresetStore,
     private val tripRepository: TripRepository,
     private val phoneSensorRepository: PhoneSensorRepository,
-    private val externalGpsRepository: ExternalGpsRepository
+    private val externalGpsRepository: ExternalGpsRepository,
+    private val navMarkerStore: com.eried.eucplanet.data.store.NavMarkerStore
 ) : ViewModel() {
 
     companion object {
@@ -187,12 +188,7 @@ class OverlayStudioViewModel @Inject constructor(
      * Updates live: if the rider changes their photo in the Navigator while
      * the Studio is open, the next frame picks it up.
      */
-    val riderMarkerPhotoDataUrl: StateFlow<String?> = settingsRepository.settings
-        .map { it.navUserMarkerPhotoDataUrl }
-        .stateIn(
-            viewModelScope, SharingStarted.Eagerly,
-            initialSettings.navUserMarkerPhotoDataUrl
-        )
+    val riderMarkerPhotoDataUrl: StateFlow<String?> = navMarkerStore.photoDataUrl
 
     val wheelName: StateFlow<String> = combine(
         wheelRepository.modelName,

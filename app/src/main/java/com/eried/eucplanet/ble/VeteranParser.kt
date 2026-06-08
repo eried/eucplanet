@@ -39,11 +39,6 @@ class VeteranParser {
     // Empty when we're scanning for the next magic.
     private val buffer = ArrayList<Byte>(64)
 
-    // Wall-clock millis of the last byte that landed in the buffer. Used to
-    // drop stale partials when the wheel goes quiet mid-frame (e.g. the BLE
-    // stack dropped a notification). Spec calls for ~100 ms tolerance.
-    private var lastFedAt: Long = 0L
-
     /**
      * Push raw notification bytes into the reassembler. Returns zero or more
      * complete frames in arrival order. Each returned frame is the full
@@ -51,21 +46,19 @@ class VeteranParser {
      * CRC32 trailer; CRC has already been verified against the payload, so
      * downstream code can ignore the trailing 4 bytes.
      *
-     * The 100 ms re-sync is checked against [now] so tests can drive the
-     * clock; production callers pass System.currentTimeMillis().
+     * No wall-clock timeout: bytes accumulate until either LEN + 4 form a
+     * complete frame (validated by CRC32 for long frames) or the buffer
+     * re-aligns to the next magic. An earlier 100 ms resync timeout killed
+     * every long frame on the Oryx, which delivers each frame as two BLE
+     * notifications ~190 ms apart -- the head of the frame was cleared
+     * before the tail arrived. CRC mismatches and bad LEN bytes already
+     * self-heal: tryExtractFrame drops the failed buffer slice and the next
+     * magic-trim sync re-aligns. Session-level cleanup happens via
+     * [reset], called from the adapter on disconnect.
      */
-    fun feed(rawBytes: ByteArray, now: Long = System.currentTimeMillis()): List<Frame> {
+    fun feed(rawBytes: ByteArray): List<Frame> {
         val out = mutableListOf<Frame>()
         if (rawBytes.isEmpty()) return out
-
-        // Stale partial: the wheel paused mid-frame. Drop what we had so
-        // the new bytes can re-sync on their own magic; bytes inside the
-        // dropped chunk that happened to look like a magic triple are gone
-        // for good, but that's the right trade per spec.
-        if (buffer.isNotEmpty() && (now - lastFedAt) > RESYNC_TIMEOUT_MS) {
-            buffer.clear()
-        }
-        lastFedAt = now
 
         for (b in rawBytes) {
             buffer.add(b)
@@ -86,10 +79,9 @@ class VeteranParser {
         return out
     }
 
-    /** Drop any partial frame and reset the re-sync clock. */
+    /** Drop any partial frame. Called by the adapter on disconnect. */
     fun reset() {
         buffer.clear()
-        lastFedAt = 0L
     }
 
     /**
@@ -155,10 +147,6 @@ class VeteranParser {
         // Spec: short telemetry frame is LEN=38; anything larger is a
         // smart-BMS frame and carries a CRC32 trailer.
         private const val LONG_FRAME_THRESHOLD = 38
-
-        // Spec section 3 step 6: drop partial buffers if the wheel goes quiet
-        // mid-frame for ~100 ms.
-        private const val RESYNC_TIMEOUT_MS = 100L
 
         // ---- Telemetry parsing ---------------------------------------------------
 
@@ -228,7 +216,14 @@ class VeteranParser {
             // Pitch angle in hundredths of a degree, signed. Positive forward.
             val pitch = if (frame.size >= 34) ByteUtils.getInt16BE(frame, 32) / 100f else 0f
 
-            val percent = batteryPercentForModel(voltageCv, resolvedModel)
+            // The Oryx reports its own BMS state-of-charge verbatim at byte 50
+            // of the page-2 sub-frame (page selector at byte 46), which is the
+            // value the wheel and vendor app display. Prefer it; fall back to
+            // the voltage curve for the other pages / older firmware. The
+            // adapter caches the last page-2 reading so battery doesn't flicker
+            // back to the curve on the ~8-in-9 non-page-2 frames.
+            val percent = oryxBatterySoc(frame, resolvedModel)
+                ?: batteryPercentForModel(voltageCv, resolvedModel)
 
             // Veteran frames don't carry power directly; estimate from
             // voltage * current so the POWER tile populates.
@@ -341,6 +336,30 @@ class VeteranParser {
 
         // --- Helpers --------------------------------------------------------------
 
+        /** Page id of the rotating sub-frame, at byte 46 (cycles 0..8). -1 if
+         *  the frame is too short to carry it. */
+        fun pageId(frame: ByteArray): Int =
+            if (frame.size >= 47) frame[46].toInt() and 0xFF else -1
+
+        /** Major model version (mVer) from the u16 at byte 28 / 1000. -1 if the
+         *  frame is too short. mVer 8 == Oryx. */
+        fun mVerOf(frame: ByteArray): Int =
+            if (frame.size >= 30) ByteUtils.getUint16BE(frame, 28) / 1000 else -1
+
+        /**
+         * Oryx battery: the wheel's own BMS SoC, read verbatim from byte 50, but
+         * only valid in the page-2 sub-frame. Returns null for other models, the
+         * other pages, or an out-of-range value so the caller uses the voltage
+         * curve instead.
+         */
+        fun oryxBatterySoc(frame: ByteArray, model: VeteranModel?): Int? {
+            if (model != VeteranModel.ORYX) return null
+            if (pageId(frame) != 2) return null
+            if (frame.size < 51) return null
+            val soc = frame[50].toInt() and 0xFF
+            return if (soc in 0..100) soc else null
+        }
+
         private fun applySignMode(raw: Int, mode: Int): Int = when (mode) {
             0 -> abs(raw)
             -1 -> -raw
@@ -353,15 +372,10 @@ class VeteranParser {
          * Spec: docs/protocols/veteran.md section 7.
          */
         private fun batteryPercentForModel(voltageCv: Int, model: VeteranModel?): Int {
-            // Pick the per-pack-class curve. Per WheelLog, Sherman / Abrams /
-            // Sherman S / Sherman Max all share the 100 V 24-cell range,
-            // 134 V wheels (Patton + Patton S + Nosfet Aero) share their
-            // own range, and 151 V wheels (Lynx + Sherman L + Lynx S +
-            // Nosfet Apex + Nosfet Aeon) share theirs. Oryx is dual-pack
-            // 218 V, scaled from the 151 V curve since WheelLog's exact
-            // coefficients for that model weren't published when this was
-            // written; flagged for refinement once an Oryx rider can sanity
-            // check the readout.
+            // Per-pack-class linear curves: Sherman / Abrams / Sherman S /
+            // Sherman Max share the 100 V 24-cell range, 134 V wheels (Patton +
+            // Patton S + Nosfet Aero) their own, and 151 V wheels (Lynx +
+            // Sherman L + Lynx S + Nosfet Apex + Nosfet Aeon) theirs.
             val percent = when (model) {
                 VeteranModel.PATTON,
                 VeteranModel.PATTON_S,
@@ -373,8 +387,13 @@ class VeteranParser {
                 VeteranModel.NOSFET_APEX,
                 VeteranModel.NOSFET_AEON ->
                     ((voltageCv - 11902) / 29.03f).roundToInt()
+                // Oryx (mVer 8) is a 42-cell ~175 V pack. Calibrated to the
+                // wheel's own readout: ~94 % at 171.5 V, reaching 100 % near
+                // 173.3 V. The previous curve read a near-full pack as 0 %.
+                // Single linear pass until a low-charge sample lets the bottom
+                // end be tuned; coerceIn below clamps the unmeasured extremes.
                 VeteranModel.ORYX ->
-                    ((voltageCv - 17186) / 41.92f).roundToInt()
+                    ((voltageCv - 14280) / 30.5f).roundToInt()
                 // SHERMAN / ABRAMS / SHERMAN_S / SHERMAN_MAX / null all share
                 // the 24-cell 100 V range.
                 else ->

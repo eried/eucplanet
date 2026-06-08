@@ -1,4 +1,6 @@
-- Each metric's MIN/MAX caption, plus the map and camera icons, now have their own theme colors you can edit independently.
-- Multi-metric tiles keep the standard tile height instead of breaking the dashboard layout.
-- Fixed the color identifier freezing on some phones when you tap Identify.
-- The theme editor widget and the color-identifier window are now 90% opaque, and the widget hides while you aim the eyedropper.
+🔋 New Battery monitor screen.
+🌐 Online leaderboard at eucstats.ried.no: share trips and
+   check ranks.
+📡 Bluetooth: general improvements.
+🔧 Wheel improvements and tests across every supported brand.
+🗣️ Voice: several fixes.

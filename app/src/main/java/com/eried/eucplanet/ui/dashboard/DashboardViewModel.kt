@@ -92,6 +92,10 @@ class DashboardViewModel @Inject constructor(
 
     val locked: StateFlow<Boolean> = wheelRepository.locked
     val lockBusy: StateFlow<Boolean> = wheelRepository.lockBusy
+
+    /** Charging state for the dashboard spark icon (hint + tap-to-open). */
+    val chargeStatus: StateFlow<com.eried.eucplanet.data.model.ChargeStatus> =
+        wheelRepository.chargeStatus
     val lightBusy: StateFlow<Boolean> = wheelRepository.lightBusy
 
     val recording: StateFlow<Boolean> = tripRepository.recording
@@ -252,6 +256,16 @@ class DashboardViewModel @Inject constructor(
         .map { it.voicePeriodicEnabled }
         .stateIn(viewModelScope, SharingStarted.Eagerly, initialSettings.voicePeriodicEnabled)
 
+    /** Whether the dashboard top-bar Battery-monitor (spark) icon renders at all. */
+    val chargingDashboardIcon: StateFlow<Boolean> = settingsRepository.settings
+        .map { it.chargingDashboardIcon }
+        .stateIn(viewModelScope, SharingStarted.Eagerly, initialSettings.chargingDashboardIcon)
+
+    /** Auto-open the Battery monitor when the wheel starts charging. */
+    val chargingAutoOpen: StateFlow<Boolean> = settingsRepository.settings
+        .map { it.chargingAutoOpen }
+        .stateIn(viewModelScope, SharingStarted.Eagerly, initialSettings.chargingAutoOpen)
+
     val flicFlashAt: StateFlow<Long> = flicManager.lastActionAt
 
     val hasSyncFolder: StateFlow<Boolean> = settingsRepository.settings
@@ -311,6 +325,30 @@ class DashboardViewModel @Inject constructor(
             if (!current.welcomeTutorialSeen) {
                 settingsRepository.update(current.copy(welcomeTutorialSeen = true))
             }
+        }
+    }
+
+    /** Flip every spoken-event flag in one shot. Called from the welcome
+     *  wizard's voice toggle: turning it on immediately enables every spoken
+     *  alert and speaks the welcome greeting as a live preview; turning it
+     *  off (still inside the wizard) reverts. The per-event toggles remain
+     *  individually adjustable in Settings → Voice afterwards. */
+    fun setAllVoiceAnnouncements(enabled: Boolean) {
+        viewModelScope.launch {
+            val s = settingsRepository.get()
+            settingsRepository.update(
+                s.copy(
+                    voicePeriodicEnabled = enabled,
+                    announceWheelLock = enabled,
+                    announceLights = enabled,
+                    announceRecording = enabled,
+                    announceConnection = enabled,
+                    announceGps = enabled,
+                    announceSafetyMode = enabled,
+                    announceWelcome = enabled,
+                )
+            )
+            if (enabled) voiceService.speakWelcomeNow()
         }
     }
 
@@ -544,6 +582,7 @@ class DashboardViewModel @Inject constructor(
                 action = WheelService.ACTION_CONNECT
                 putExtra(WheelService.EXTRA_ADDRESS, address)
                 putExtra(WheelService.EXTRA_NAME, settings.lastDeviceName)
+                putExtra(WheelService.EXTRA_AUTO, true)
             }
             context.startForegroundService(intent)
         }

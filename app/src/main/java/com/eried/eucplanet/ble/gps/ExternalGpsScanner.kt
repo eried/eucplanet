@@ -75,6 +75,11 @@ class ExternalGpsScanner @Inject constructor(
         }
     }
 
+    /** True only when the adapter exists and Bluetooth is turned on. Callers
+     *  check this before [scan] so a tap with Bluetooth off surfaces a prompt
+     *  instead of crashing on the null leScanner thrown inside the flow. */
+    fun isBluetoothEnabled(): Boolean = bluetoothAdapter?.isEnabled == true
+
     @SuppressLint("MissingPermission")
     fun stop() {
         val scanner = bluetoothAdapter?.bluetoothLeScanner ?: return

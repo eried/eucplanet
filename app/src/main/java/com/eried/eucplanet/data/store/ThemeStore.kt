@@ -23,9 +23,10 @@ import javax.inject.Singleton
  *    under a `themes/` subfolder — so saving / loading is writing / reading one
  *    file, which is why a backup folder must be set for saved themes to appear.
  *
- * The *active* theme (including the unsaved working draft) does NOT live here —
- * it is a JSON snapshot in AppSettings/DataStore so it works with no folder and
- * rides along with the settings backup.
+ * The *active* theme (and any unsaved working draft) does NOT live here — settings
+ * persist only the active theme's NAME; the resolved colors and in-memory drafts
+ * are held by [com.eried.eucplanet.ui.theme.ThemeController] and re-derived from
+ * the name on launch (a built-in from code, or a saved `.json` loaded from here).
  */
 @Singleton
 class ThemeStore @Inject constructor(

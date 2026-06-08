@@ -107,7 +107,7 @@
     <string name="cloud_last_backup_never">尚未备份</string>
     <string name="cloud_backup_success">设置已备份</string>
 <string name="cloud_backup_named_success">已备份为 %1$s</string>
-    <string name="cloud_backup_failed">备份失败 — 请检查文件夹访问权限</string>
+    <string name="cloud_backup_failed">备份失败, 请检查文件夹访问权限</string>
     <string name="cloud_restore_success">设置已恢复</string>
     <string name="cloud_restore_failed">文件夹中未找到备份</string>
     <string name="section_cloud_trips">行程备份</string>
@@ -214,6 +214,10 @@
     <string name="section_report_status">状态播报</string>
     <string name="voice_enabled">定时播报状态</string>
     <string name="voice_only_when_connected">仅在独轮车连接时播报</string>
+    <string name="voice_announce_when_label">播报</string>
+    <string name="voice_announce_always">始终</string>
+    <string name="voice_announce_connected">已连接</string>
+    <string name="voice_announce_riding">骑行时</string>
     <string name="voice_interval">间隔</string>
     <string name="unit_sec">秒</string>
     <string name="announce_wheel_lock">锁车 / 解锁</string>
@@ -1177,15 +1181,15 @@
     <string name="metric_chip_wheel_alarm_speed">车体报警</string>
     <string name="metric_chip_wheel_max_speed">车体限速</string>
     <string name="metric_desc_avg_trip_speed">行程距离除以已骑行时间。</string>
-    <string name="metric_desc_bt_rssi">到独轮车的蓝牙信号强度——越接近 0 dBm 越强。</string>
-    <string name="metric_desc_gps_accuracy">GPS 定位误差半径——越低越准确。</string>
+    <string name="metric_desc_bt_rssi">到独轮车的蓝牙信号强度，，越接近 0 dBm 越强。</string>
+    <string name="metric_desc_gps_accuracy">GPS 定位误差半径，，越低越准确。</string>
     <string name="metric_desc_headroom">回倾启动前剩余的速度余量。数字大 = 安全缓冲更多。</string>
     <string name="metric_desc_range_estimate">按当前消耗率剩余的距离。</string>
     <string name="metric_desc_regen_wh">本次行程刹车时回馈到电池的总瓦时。</string>
-    <string name="metric_desc_slope">由独轮车俯仰角推算的路面坡度——正值为上坡。</string>
+    <string name="metric_desc_slope">由独轮车俯仰角推算的路面坡度，，正值为上坡。</string>
     <string name="metric_desc_trip_max_speed">当前行程的最高速度（新行程重置）。</string>
     <string name="metric_desc_wh_consumed">本次行程从电池中提取的总瓦时。</string>
-    <string name="metric_desc_wh_per_km">每公里消耗能量——越低越高效。</string>
+    <string name="metric_desc_wh_per_km">每公里消耗能量，，越低越高效。</string>
     <string name="metric_detail_reset">重置</string>
     <string name="metric_detail_reset_all">全部重置</string>
     <string name="metric_detail_reset_all_confirm_body">清空所有指标的滚动历史缓冲。设置和行程记录不受影响。</string>
@@ -1360,4 +1364,144 @@
     <string name="nav_setting_full_path_desc">关闭时仅解算下一个站点，其余以虚线预览显示</string>
     <string name="studio_cfg_clock_24h">24 小时制</string>
     <string name="studio_cfg_dial_color_band">色带</string>
+
+    <!-- ==== EucStats 在线上传引导 ==== -->
+
+    <!-- 第一步：同意 -->
+    <string name="online_upload_consent_title">加入 EUC Stats 排行榜</string>
+    <string name="online_upload_consent_intro">加入前，请阅读以下将公开的内容：</string>
+    <string name="online_upload_consent_bullet_name">你的显示名称</string>
+    <string name="online_upload_consent_bullet_flag">你的国家旗帜</string>
+    <string name="online_upload_consent_bullet_avatar">你的头像照片</string>
+    <string name="online_upload_consent_bullet_stats">你的整体骑行数据，如里程和速度</string>
+    <string name="online_upload_consent_bullet_location">为保护隐私，位置会被聚合到地图上的大片区域</string>
+    <string name="online_upload_consent_no_raw_gps">原始 GPS 轨迹永不公开。</string>
+    <string name="online_upload_consent_agree">同意并继续</string>
+
+    <!-- 第二步：个人资料 -->
+    <string name="online_upload_profile_title">创建你的资料</string>
+    <string name="online_upload_profile_name_label">唯一显示名称</string>
+    <string name="online_upload_profile_country_label">国家</string>
+    <string name="online_upload_profile_country_select">选择你的国家</string>
+    <string name="online_upload_country_search">搜索国家</string>
+    <string name="online_upload_profile_avatar_hint">点击添加照片</string>
+    <string name="online_upload_profile_flag_label">国家代码（ISO 3166-1 alpha-2）</string>
+    <string name="online_upload_profile_flag_placeholder">例如 NO、US、DE</string>
+    <string name="online_upload_profile_flag_error">请输入 2 位国家代码（例如 NO）</string>
+    <string name="online_upload_profile_avatar_pick">选择照片…</string>
+    <string name="online_upload_profile_avatar_change">更换照片…</string>
+    <string name="online_upload_profile_avatar_required">点击选择并裁剪</string>
+    <string name="online_upload_profile_avatar_placeholder">照片</string>
+
+    <!-- 注册结果 -->
+    <string name="online_upload_register_action">注册</string>
+    <string name="online_upload_register_error">注册失败，请检查网络后重试。</string>
+
+    <!-- 在线统计开关和骑手卡片 -->
+    <string name="section_online_stats">在线排行榜</string>
+    <string name="online_upload_toggle">加入在线排行榜</string>
+    <string name="online_upload_card_loading">加载中…</string>
+    <string name="online_upload_card_unavailable">无法加载你的数据。</string>
+    <string name="online_upload_actions_caption">行程数据上传</string>
+    <string name="online_upload_view_on_eucstats">在 EUC Stats 上查看</string>
+    <string name="online_upload_retry">重试上传</string>
+    <string name="online_upload_mileage_rank">里程第 #%d 名</string>
+    <string name="online_upload_top_speed">最高 %1$s %2$s</string>
+    <string name="online_upload_trips">%d 次行程</string>
+    <string name="online_upload_total_km">%1$s %2$s</string>
+    <string name="online_upload_join">加入排行榜</string>
+    <string name="online_status_shared">已分享到排行榜</string>
+    <string name="online_status_flagged">已分享，审核中</string>
+    <string name="online_status_pending">正在上传到排行榜…</string>
+    <string name="online_status_failed">上传失败，点击重试</string>
+    <string name="online_upload_join_caption">你的骑行记录将显示在公开排行榜</string>
+    <string name="online_upload_site_label">eucstats.ried.no</string>
+    <string name="online_upload_site_url">https://eucstats.ried.no/</string>
+    <string name="online_upload_unlink">取消关联</string>
+    <string name="online_unlink_title">取消与排行榜的关联？</string>
+    <string name="online_unlink_body">此手机将停止上传骑行记录。你的骑手 ID 会保留，之后可以原账号重新加入。你的数据仍保留在 EUC Stats 上，如需删除请使用「删除账号」。</string>
+    <string name="online_unlink_confirm">取消关联</string>
+
+    <!-- 在线资料（编辑/GDPR） -->
+    <string name="online_profile_manage">管理资料</string>
+    <string name="online_profile_title">我的资料</string>
+    <string name="online_profile_changeable_on">你可以在 %1$s 再次更改</string>
+    <string name="online_profile_avatar_has">已设置</string>
+    <string name="online_profile_export_data">导出我的数据</string>
+    <string name="online_profile_delete_account">删除账号</string>
+    <string name="online_profile_delete_confirm_title">删除账号？</string>
+    <string name="online_profile_delete_confirm_body">此操作将永久删除你在 EUC Stats 上的资料、数据和上传记录，无法撤销。</string>
+    <string name="online_profile_delete_confirm_action">永久删除</string>
+    <string name="online_profile_save_rate_limited">操作过于频繁，请稍后再试。</string>
+    <string name="online_profile_save_failed">保存失败（HTTP %1$d），请重试。</string>
+
+    <string name="online_status_flagged_why">正在进行自动审核，通过后即加入排行榜。</string>
+    <string name="online_restore_title">恢复骑手资料？</string>
+    <string name="online_restore_body_new">此文件夹中保存了 %1$s 的资料。恢复后可保留你的排行榜身份和骑行数据。</string>
+    <string name="online_restore_body_switch">此文件夹属于 %1$s。恢复后本机将切换为该骑手账号，当前资料会先备份，随时可切回。</string>
+    <string name="online_restore_confirm">恢复</string>
+    <string name="online_upload_card_missing">此手机的排行榜资料已不在服务器上，新的上传将被拒绝。如果这不符合预期，请联系排行榜管理员。</string>
+    <string name="online_upload_linked_caption">你的统计数据和行程将显示在公开排行榜</string>
+    <string name="online_rejoin_title">重新加入排行榜？</string>
+    <string name="online_rejoin_body">你将以已保存的资料 %1$s 重新加入。此手机将恢复向该资料上传你的新行程。</string>
+    <string name="online_rejoin_confirm">重新加入</string>
+
+    <!-- ==== Battery / Charging screen ==== -->
+    <string name="charging_monitor">电池监控</string>
+    <string name="charging_back">返回</string>
+    <string name="charging_added">本次 +%1$.1f%%</string>
+    <string name="charging_disconnected">未连接独轮车</string>
+    <string name="charging_full">已充满</string>
+    <string name="charging_charging">充电中</string>
+    <string name="charging_idle">未充电</string>
+    <string name="charging_estimating">估算中…</string>
+    <string name="charging_eta_to_target">%1$s 到 %2$d%%</string>
+    <string name="charging_eta_to_full">%1$s 到 100%%</string>
+    <string name="charging_eta_at">于 %1$s</string>
+    <string name="charging_details">详情</string>
+    <string name="charging_rate">%1$.1f %%/分钟</string>
+    <string name="charging_tab_charge">充电</string>
+    <string name="charging_tab_voltage">电压</string>
+    <string name="charging_tab_packs">电池组</string>
+    <string name="charging_estimate_to_full">始终预计到 100%</string>
+    <string name="charging_options">选项</string>
+    <string name="charging_tab_power">功率</string>
+    <string name="charging_stat_added">已增加</string>
+    <string name="charging_stat_rate">速率</string>
+    <string name="charging_stat_voltage">电压</string>
+    <string name="charging_stat_pack1">电池组 1</string>
+    <string name="charging_stat_pack2">电池组 2</string>
+    <string name="charging_stat_temp">温度</string>
+    <string name="charging_stat_balance">不均衡</string>
+    <string name="charging_stat_power">功率</string>
+    <string name="charging_stat_current">电流</string>
+    <string name="charging_stat_energy">能量</string>
+    <string name="charging_chart_empty">正在收集数据</string>
+    <string name="charging_no_current_note">速率根据充电曲线测算</string>
+    <string name="battery_history">电池历史</string>
+    <string name="setting_charging_auto_open">充电时自动打开</string>
+    <string name="setting_charging_dashboard_icon">在仪表盘显示电池监控图标</string>
+    <string name="setting_charging_auto_open_desc">车轮开始充电时打开电池监控</string>
+    <string name="setting_charging_dashboard_icon_desc">点按即可打开电池监控</string>
+    <string name="dashboard_custom_ble_default_name">自定义 BLE</string>
+    <string name="dashboard_custom_ble_family">车型系列筛选</string>
+    <string name="dashboard_custom_ble_frames">数据帧（hex）</string>
+    <string name="dashboard_custom_ble_frames_error">十六进制格式无效，请使用字节对，如 4c 6b 41 70</string>
+    <string name="dashboard_custom_ble_label">按钮标签</string>
+    <string name="dashboard_custom_ble_template">BLE</string>
+    <string name="dashboard_view_wide_menu">宽屏（适合平板）</string>
+    <string name="metric_desc_forward_g">由轮速变化估算（非 IMU），，无论手机安装方向如何均可使用。</string>
+    <string name="online_rider_id_conflict">此文件夹中已保存了其他骑手的恢复 ID，已保留原有 ID，未覆盖。</string>
+    <string name="online_upload_actions_desc">将尚未上传的行程发送到排行榜。</string>
+    <string name="online_upload_sync_checking">正在检查待上传的行程…</string>
+    <string name="online_upload_sync_done">已同步 %1$d 条行程</string>
+    <string name="online_upload_sync_nothing">暂无需同步的内容</string>
+    <string name="online_upload_sync_progress">正在上传 %1$d / %2$d</string>
+    <string name="online_upload_register_server_error">注册失败。服务器返回：%1$s（%2$d）</string>
+    <string name="hud_joystick_title">按键操作</string>
+    <string name="hud_joystick_desc">双击 HUD 按键可执行一个操作。单击仍会切换屏幕</string>
+    <string name="hud_joystick_up">上（双击）</string>
+    <string name="hud_joystick_down">下（双击）</string>
+    <string name="hud_joystick_left">左（双击）</string>
+    <string name="hud_joystick_right">右（双击）</string>
 </resources>

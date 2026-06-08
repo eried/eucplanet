@@ -11,6 +11,7 @@ import android.bluetooth.BluetoothProfile
 import android.content.Context
 import android.os.Build
 import android.util.Log
+import com.eried.eucplanet.ble.BleAutoReconnector
 import com.eried.eucplanet.ble.ConnectionState
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -85,6 +86,18 @@ class RadarConnectionManager @Inject constructor(
 
     @Volatile private var gatt: BluetoothGatt? = null
     @Volatile private var activeAdapter: RadarAdapter? = null
+    @Volatile private var currentAddress: String? = null
+
+    // Auto-reconnect (mirrors the wheel): scan-then-connect when Bluetooth
+    // returns or after an unexpected drop, instead of leaving the radar stuck
+    // until the rider taps Reconnect.
+    private val reconnector = BleAutoReconnector(
+        context = context,
+        tag = TAG,
+        isConnected = { _connectionState.value == ConnectionState.CONNECTED },
+        reconnect = { address -> connectInternal(address) },
+        forceDisconnect = { forceDisconnect() }
+    ).also { it.start() }
 
     /**
      * CCCDs queued for the post-discover subscribe sequence. The GATT API
@@ -95,8 +108,24 @@ class RadarConnectionManager @Inject constructor(
 
     @SuppressLint("MissingPermission")
     fun connect(address: String, adapter: RadarAdapter) {
-        disconnect()
         activeAdapter = adapter
+        currentAddress = address
+        reconnector.arm(address)
+        connectInternal(address)
+    }
+
+    /** GATT-only (re)connect using the remembered [activeAdapter]; does not
+     *  touch the reconnector, so it's safe to call from the reconnect path. */
+    @SuppressLint("MissingPermission")
+    private fun connectInternal(address: String) {
+        teardownGatt()
+        // Don't issue a GATT connect while Bluetooth is off - it fails (status
+        // 133/147) and churns; the reconnector's STATE_ON handler drives it.
+        if (bluetoothManager.adapter?.isEnabled != true) {
+            Log.i(TAG, "connect($address) deferred: Bluetooth is off")
+            _connectionState.value = ConnectionState.DISCONNECTED
+            return
+        }
         val device: BluetoothDevice = try {
             bluetoothManager.adapter.getRemoteDevice(address)
         } catch (e: IllegalArgumentException) {
@@ -105,20 +134,36 @@ class RadarConnectionManager @Inject constructor(
             return
         }
         _connectionState.value = ConnectionState.CONNECTING
-        Log.i(TAG, "Connecting to ${adapter.vendor.displayName} @ $address")
+        Log.i(TAG, "Connecting to ${activeAdapter?.vendor?.displayName} @ $address")
         gatt = device.connectGatt(context, /* autoConnect = */ false, callback)
     }
 
+    /** Deliberate, user-initiated disconnect: stop auto-reconnect too. */
     @SuppressLint("MissingPermission")
     fun disconnect() {
+        reconnector.cancel()
+        currentAddress = null
+        activeAdapter = null
+        teardownGatt()
+        _connectionState.value = ConnectionState.DISCONNECTED
+    }
+
+    /** Bluetooth went off: drop the dead GATT but keep the target so the
+     *  reconnector can re-arm when it comes back. */
+    @SuppressLint("MissingPermission")
+    private fun forceDisconnect() {
+        teardownGatt()
+        _connectionState.value = ConnectionState.DISCONNECTED
+    }
+
+    @SuppressLint("MissingPermission")
+    private fun teardownGatt() {
         gatt?.let {
             try { it.disconnect() } catch (_: Exception) {}
             try { it.close() } catch (_: Exception) {}
         }
         gatt = null
-        activeAdapter = null
         pendingCccdWrites.clear()
-        _connectionState.value = ConnectionState.DISCONNECTED
     }
 
     private val callback = object : BluetoothGattCallback() {
@@ -141,6 +186,9 @@ class RadarConnectionManager @Inject constructor(
                         gatt = null
                         pendingCccdWrites.clear()
                     }
+                    // Auto-reconnect on an unexpected drop (status != 0); a
+                    // deliberate disconnect() already cancelled the reconnector.
+                    reconnector.onUnexpectedDisconnect(status)
                 }
             }
         }

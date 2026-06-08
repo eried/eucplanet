@@ -104,7 +104,7 @@
     <string name="tab_auto">Automations</string>
     <string name="tab_integration">Integration</string>
     <string name="tab_watch">Watch</string>
-    <string name="tab_cloud">Backup settings &amp; trips</string>
+    <string name="tab_cloud">Backups &amp; leaderboards</string>
 
     <!-- Dashboard layout (customizable home screen) -->
     <string name="tab_dashboard">Dashboard layout</string>
@@ -129,7 +129,7 @@
     <string name="dashboard_custom_ble_label">Button label</string>
     <string name="dashboard_custom_ble_family">Wheel family filter</string>
     <string name="dashboard_custom_ble_frames">Frames (hex)</string>
-    <string name="dashboard_custom_ble_frames_error">Invalid hex — use byte pairs like 4c 6b 41 70</string>
+    <string name="dashboard_custom_ble_frames_error">Invalid hex, use byte pairs like 4c 6b 41 70</string>
     <string name="dashboard_composite_layout_row2">2 rows</string>
     <string name="dashboard_composite_layout_col2">2 columns</string>
     <string name="dashboard_composite_layout_col3">3 columns</string>
@@ -281,11 +281,12 @@
     <string name="metric_desc_avg_trip_speed">Trip distance divided by riding time so far.</string>
     <string name="metric_desc_wh_consumed">Total watt-hours drawn from the battery this trip.</string>
     <string name="metric_desc_range_estimate">Distance remaining at the current consumption rate.</string>
-    <string name="metric_desc_wh_per_km">Energy used per kilometre — lower is more efficient.</string>
-    <string name="metric_desc_slope">Road grade calculated from the wheel\'s pitch — positive is uphill.</string>
+    <string name="metric_desc_wh_per_km">Energy used per kilometre, lower is more efficient.</string>
+    <string name="metric_desc_slope">Road grade calculated from the wheel\'s pitch, positive is uphill.</string>
+    <string name="metric_desc_forward_g">Estimated from wheel-speed change (not the IMU), works regardless of phone mounting.</string>
     <string name="metric_desc_regen_wh">Total watt-hours fed back to the battery while braking this trip.</string>
-    <string name="metric_desc_bt_rssi">Bluetooth signal strength to the wheel — closer to 0 dBm is stronger.</string>
-    <string name="metric_desc_gps_accuracy">GPS positioning error radius — lower is more accurate.</string>
+    <string name="metric_desc_bt_rssi">Bluetooth signal strength to the wheel, closer to 0 dBm is stronger.</string>
+    <string name="metric_desc_gps_accuracy">GPS positioning error radius, lower is more accurate.</string>
 
     <!-- Action labels for the dashboard layout chips -->
     <string name="action_chip_horn">Horn</string>
@@ -346,6 +347,14 @@
     <string name="hud_custom_overlay_bundled_only">Pick a starter (Backup folder not set)</string>
     <string name="hud_custom_overlay_none">Clear</string>
     <string name="hud_search_corpus">HUD heads-up display companion server stream telemetry hotspot motoeye turn arrow</string>
+
+    <!-- HUD button long-press actions -->
+    <string name="hud_joystick_title">Button actions</string>
+    <string name="hud_joystick_desc">Double-tap a HUD button to run an action. A single tap still switches screens</string>
+    <string name="hud_joystick_up">Up (double-tap)</string>
+    <string name="hud_joystick_down">Down (double-tap)</string>
+    <string name="hud_joystick_left">Left (double-tap)</string>
+    <string name="hud_joystick_right">Right (double-tap)</string>
 
     <!-- HUD Personalize collapsible card -->
     <string name="hud_personalize_title">Personalize</string>
@@ -446,7 +455,7 @@
 
     <!-- Settings: Backup -->
     <string name="section_cloud_folder">Backup folder</string>
-    <string name="cloud_caption">Folder where trip CSVs and settings backup land</string>
+    <string name="cloud_caption">Your backup folder for trips, settings, themes and overlays</string>
     <string name="cloud_choose_folder">Choose folder</string>
     <string name="cloud_change_folder">Change folder</string>
     <string name="cloud_remove_folder">Unlink</string>
@@ -459,7 +468,7 @@
     <string name="cloud_last_backup_never">Not backed up yet</string>
     <string name="cloud_backup_success">Settings backed up</string>
 <string name="cloud_backup_named_success">Backed up as %1$s</string>
-    <string name="cloud_backup_failed">Backup failed — check folder access</string>
+    <string name="cloud_backup_failed">Backup failed, check folder access</string>
     <string name="cloud_restore_success">Settings restored</string>
     <string name="cloud_restore_failed">No backup found in folder</string>
     <string name="section_cloud_trips">Trips backup</string>
@@ -504,6 +513,10 @@
     <string name="auto_record_start_in_motion">Start recording when in motion</string>
     <string name="auto_record_start_in_motion_caption">Starts on movement, auto-stops after idle, restarts next ride</string>
     <string name="auto_record_stop_idle_seconds">Stop after idle for</string>
+    <string name="auto_record_mode_label">Auto-start trip recording</string>
+    <string name="auto_record_mode_never">Never</string>
+    <string name="auto_record_mode_connected">Connected</string>
+    <string name="auto_record_mode_riding">When riding</string>
     <string name="auto_connect_on_start">Auto-connect on start</string>
     <string name="auto_connect_caption">Reconnects to the last paired wheel automatically</string>
     <string name="wheel_name_display">Wheel name</string>
@@ -572,6 +585,10 @@
     <string name="section_report_status">Report status</string>
     <string name="voice_enabled">Report status periodically</string>
     <string name="voice_only_when_connected">Only when wheel is connected</string>
+    <string name="voice_announce_when_label">Announce</string>
+    <string name="voice_announce_always">Always</string>
+    <string name="voice_announce_connected">Connected</string>
+    <string name="voice_announce_riding">When riding</string>
     <string name="voice_interval">Interval</string>
     <string name="unit_sec">sec</string>
     <string name="announce_wheel_lock">Wheel lock / unlock</string>
@@ -593,6 +610,8 @@
     <string name="welcome_tut_skip_body">It will not be shown again</string>
     <string name="welcome_tut_skip_yes">Skip anyway</string>
     <string name="welcome_tut_welcome">Welcome to EUC Planet, a no-nonsense, open-source app for electric unicycles</string>
+    <string name="welcome_tut_voice_title">Enable voice alerts</string>
+    <string name="welcome_tut_voice_desc">You can enable or disable individual voice messages later in Settings → Voice and announcements.</string>
     <string name="welcome_tut_bt">Connect and disconnect your wheel here</string>
     <string name="welcome_tut_version">Many wheels just need testers to be fully supported, usually an easy fix. Tap the version to open About and help out</string>
     <string name="welcome_tut_outro_title">That is the tour!</string>
@@ -853,6 +872,9 @@
     <string name="scan_title">Connect to wheel</string>
     <string name="scan_scanning">Searching\u2026</string>
     <string name="scan_start">Start Scan</string>
+    <string name="scan_bluetooth_off_title">Bluetooth is off</string>
+    <string name="scan_bluetooth_off_body">Turn on Bluetooth to scan for wheels.</string>
+    <string name="scan_enable_bluetooth">Enable Bluetooth</string>
     <string name="scan_show_all_title">Show all devices</string>
     <string name="scan_show_all_subtitle">Turn on if your wheel does not appear</string>
 
@@ -1021,6 +1043,93 @@
     <string name="service_mode_link">Visit eucplanet.ried.no/service for more information.</string>
     <string name="service_mode_enter">Enter</string>
     <string name="toast_external_speed_change">Speed updated from wheel: %1$d km/h tiltback, %2$d km/h alarm</string>
+
+    <!-- ==== EucStats online upload onboarding ==== -->
+
+    <!-- Step 1: Consent -->
+    <string name="online_upload_consent_title">Join the EUC Stats leaderboard</string>
+    <string name="online_upload_consent_intro">Before joining, please read what becomes public:</string>
+    <string name="online_upload_consent_bullet_name">Your display name</string>
+    <string name="online_upload_consent_bullet_flag">Your country flag</string>
+    <string name="online_upload_consent_bullet_avatar">Your avatar photo</string>
+    <string name="online_upload_consent_bullet_stats">Your overall riding stats, like distance and speed</string>
+    <string name="online_upload_consent_bullet_location">Locations are clustered into wide areas of the map for privacy</string>
+    <string name="online_upload_consent_no_raw_gps">Raw GPS tracks are never published.</string>
+    <string name="online_upload_consent_agree">Agree &amp; continue</string>
+
+    <!-- Step 2: Profile -->
+    <string name="online_upload_profile_title">Create your profile</string>
+    <string name="online_upload_profile_name_label">Unique display name</string>
+    <string name="online_upload_profile_country_label">Country</string>
+    <string name="online_upload_profile_country_select">Select your country</string>
+    <string name="online_upload_country_search">Search countries</string>
+    <string name="online_upload_profile_avatar_hint">Tap to add a photo</string>
+    <string name="online_upload_profile_flag_label">Country code (ISO 3166-1 alpha-2)</string>
+    <string name="online_upload_profile_flag_placeholder">e.g. NO, US, DE</string>
+    <string name="online_upload_profile_flag_error">Enter a 2-letter country code (e.g. NO)</string>
+    <string name="online_upload_profile_avatar_pick">Pick photo…</string>
+    <string name="online_upload_profile_avatar_change">Change photo…</string>
+    <string name="online_upload_profile_avatar_required">Tap to pick and crop</string>
+    <string name="online_upload_profile_avatar_placeholder">Photo</string>
+
+    <!-- Registration outcome -->
+    <string name="online_upload_register_action">Register</string>
+    <string name="online_upload_register_error">Registration failed. Check your connection and try again.</string>
+    <!-- %1$s = the server's raw reason (e.g. display_name_taken), %2$d = HTTP status code -->
+    <string name="online_upload_register_server_error">Registration failed. The server said: %1$s (%2$d)</string>
+
+    <!-- Online stats toggle + rider card (Task E3) -->
+    <string name="section_online_stats">Online leaderboards</string>
+    <string name="online_upload_toggle">Join the online leaderboards</string>
+    <string name="online_upload_card_loading">Loading…</string>
+    <string name="online_upload_card_unavailable">Couldn\'t load your stats.</string>
+    <string name="online_upload_card_missing">This phone\'s leaderboard profile no longer exists on the server, so new uploads will be rejected. If this is unexpected, contact the leaderboard admin.</string>
+    <string name="online_upload_actions_caption">Trip stats uploads</string>
+    <string name="online_upload_actions_desc">Send any trips not yet uploaded to the leaderboard.</string>
+    <string name="online_upload_sync_nothing">Nothing to sync</string>
+    <string name="online_upload_sync_done">Synced %1$d trips</string>
+    <string name="online_upload_sync_checking">Checking for trips to upload…</string>
+    <string name="online_upload_sync_progress">Uploading %1$d of %2$d</string>
+    <string name="online_rider_id_conflict">A different rider\'s recovery id is already saved in this folder, kept it, didn\'t overwrite.</string>
+    <string name="online_upload_view_on_eucstats">View on EUC Stats</string>
+    <string name="online_upload_retry">Retry uploads</string>
+    <string name="online_upload_mileage_rank">#%d mileage</string>
+    <string name="online_upload_top_speed">top %1$s %2$s</string>
+    <string name="online_upload_trips">%d trips</string>
+    <string name="online_upload_total_km">%1$s %2$s</string>
+    <string name="online_upload_join">Join leaderboard</string>
+    <string name="online_status_shared">Shared on the leaderboard</string>
+    <string name="online_status_flagged">Shared, under review</string>
+    <string name="online_status_pending">Uploading to leaderboard…</string>
+    <string name="online_status_failed">Online upload failed, tap to retry</string>
+    <string name="online_upload_join_caption">Join to send your stats and trips to the public leaderboard at</string>
+    <string name="online_upload_linked_caption">Your stats and trips appear on the public leaderboard at</string>
+    <string name="online_upload_site_label">eucstats.ried.no</string>
+    <string name="online_upload_site_url">https://eucstats.ried.no/</string>
+    <string name="online_upload_unlink">Unlink</string>
+    <string name="online_unlink_title">Unlink from the leaderboard?</string>
+    <string name="online_unlink_body">This phone stops uploading rides. Your rider ID stays saved so you can rejoin as the same rider. Your stats stay on EUC Stats; use Delete account to remove them.</string>
+    <string name="online_unlink_confirm">Unlink</string>
+
+    <!-- Online profile (edit/GDPR) -->
+    <string name="online_profile_manage">Manage profile</string>
+    <string name="online_profile_title">My profile</string>
+    <string name="online_profile_changeable_on">You can change this again on %1$s</string>
+    <string name="online_profile_avatar_has">Set</string>
+    <string name="online_profile_export_data">Export my data</string>
+    <string name="online_profile_delete_account">Delete account</string>
+    <string name="online_profile_delete_confirm_title">Delete account?</string>
+    <string name="online_profile_delete_confirm_body">This permanently deletes your EUC Stats profile, stats, and uploaded data. This cannot be undone.</string>
+    <string name="online_profile_delete_confirm_action">Delete permanently</string>
+    <string name="online_profile_save_rate_limited">Rate limited, try again later.</string>
+    <string name="online_profile_save_failed">Save failed (HTTP %1$d). Try again.</string>
+    <string name="online_status_flagged_why">Held for a quick automated check. It joins the leaderboard once it clears.</string>
+    <string name="online_restore_title">A saved profile was found</string>
+    <string name="online_restore_body_new">We found a saved profile here: %1$s. Continuing rejoins the public leaderboard as that rider, its name, flag, avatar and ride stats are public. It does not create a new profile.</string>
+    <string name="online_restore_body_switch">We found a different saved profile: %1$s. Continuing switches this phone to that rider; your current profile is backed up first.</string>
+    <string name="online_restore_confirm">Continue as %1$s</string>
+    <string name="online_rejoin_title">Rejoin the leaderboard?</string>
+    <string name="online_rejoin_body">You\'ll rejoin as your saved profile %1$s. This phone will resume uploading your new trips to that profile.</string>
 
     <!-- ==== Overlay Studio ==== -->
     <string name="studio_open">Open Overlay Studio</string>
@@ -1499,4 +1608,43 @@
     <string name="warnings_fix_button">Fix</string>
     <string name="warnings_perm_notifications_title">Notifications off</string>
     <string name="warnings_perm_notifications_body">You won\'t see ride status in the status bar or get voice alerts on the notification shade</string>
+    <string name="online_rejoin_confirm">Rejoin</string>
+
+    <!-- Charging Monitor -->
+    <string name="charging_monitor">Battery monitor</string>
+    <string name="battery_history">Battery history</string>
+    <string name="setting_charging_auto_open">Auto-open when charging</string>
+    <string name="setting_charging_auto_open_desc">Opens the Battery monitor when the wheel starts charging</string>
+    <string name="setting_charging_dashboard_icon">Battery monitor icon in dashboard</string>
+    <string name="setting_charging_dashboard_icon_desc">Tap it to open the Battery monitor</string>
+    <string name="charging_back">Back</string>
+    <string name="charging_added">+%1$.1f%% this session</string>
+    <string name="charging_disconnected">No wheel connected</string>
+    <string name="charging_full">Fully charged</string>
+    <string name="charging_charging">Charging</string>
+    <string name="charging_idle">Not charging</string>
+    <string name="charging_estimating">Estimating…</string>
+    <string name="charging_eta_to_target">%1$s to %2$d%%</string>
+    <string name="charging_eta_to_full">%1$s to 100%%</string>
+    <string name="charging_eta_at">at %1$s</string>
+    <string name="charging_details">Details</string>
+    <string name="charging_rate">%1$.1f %%/min</string>
+    <string name="charging_tab_charge">Charge</string>
+    <string name="charging_tab_voltage">Voltage</string>
+    <string name="charging_tab_packs">Packs</string>
+    <string name="charging_estimate_to_full">Always estimate to 100%</string>
+    <string name="charging_options">Options</string>
+    <string name="charging_tab_power">Power</string>
+    <string name="charging_stat_added">Added</string>
+    <string name="charging_stat_rate">Rate</string>
+    <string name="charging_stat_voltage">Voltage</string>
+    <string name="charging_stat_pack1">Pack 1</string>
+    <string name="charging_stat_pack2">Pack 2</string>
+    <string name="charging_stat_temp">Temperature</string>
+    <string name="charging_stat_balance">Imbalance</string>
+    <string name="charging_stat_power">Power</string>
+    <string name="charging_stat_current">Current</string>
+    <string name="charging_stat_energy">Energy</string>
+    <string name="charging_chart_empty">Collecting data</string>
+    <string name="charging_no_current_note">Rate measured from the charge curve</string>
 </resources>

@@ -16,9 +16,9 @@
     <string name="watch_pwm_label">PWM</string>
     <string name="watch_power_label">Potência</string>
     <string name="watch_temp_label">Temp</string>
-    <string name="watch_trip_label">Viagem</string>
+    <string name="watch_trip_label">Trip</string>
     <string name="watch_torque_label">Torque</string>
-    <string name="watch_action_failed">Sem acesso ao celular</string>
+    <string name="watch_action_failed">Sem resposta do celular</string>
     <string name="watch_gps_label">Vel. GPS</string>
     <string name="watch_gps_permission">Toque para ativar o GPS</string>
     <string name="watch_gps_waiting">Aguardando sinal…</string>

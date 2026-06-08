@@ -62,6 +62,14 @@ object SettingsJson {
         put("lastSettingsBackupAt", s.lastSettingsBackupAt)
         put("lastSettingsBackupName", s.lastSettingsBackupName)
 
+        // eucstats online upload — NOT device-specific; survive cross-device restore
+        put("onlineUploadEnabled", s.onlineUploadEnabled)
+        put("eucstatsStoreId", s.eucstatsStoreId)
+        put("eucstatsDisplayName", s.eucstatsDisplayName)
+        put("eucstatsFlag", s.eucstatsFlag)
+        put("eucstatsConsentPublic", s.eucstatsConsentPublic)
+        s.eucstatsRegisteredAt?.let { put("eucstatsRegisteredAt", it) }
+
         put("tiltbackSpeedKmh", s.tiltbackSpeedKmh)
         put("alarmSpeedKmh", s.alarmSpeedKmh)
         put("safetyTiltbackKmh", s.safetyTiltbackKmh)
@@ -71,7 +79,7 @@ object SettingsJson {
         put("wheelNameDisplay", s.wheelNameDisplay)
         put("voiceEnabled", s.voiceEnabled)
         put("voicePeriodicEnabled", s.voicePeriodicEnabled)
-        put("voiceOnlyWhenConnected", s.voiceOnlyWhenConnected)
+        put("voiceAnnounceWhen", s.voiceAnnounceWhen)
         put("voiceIntervalSeconds", s.voiceIntervalSeconds)
         put("voiceSpeechRate", s.voiceSpeechRate)
         put("voiceLocale", s.voiceLocale)
@@ -143,10 +151,7 @@ object SettingsJson {
         put("language", s.language)
         put("themeMode", s.themeMode)
         put("accentColor", s.accentColor)
-        put("activeThemeColorsJson", s.activeThemeColorsJson)
         put("activeThemeName", s.activeThemeName)
-        put("themeDirty", s.themeDirty)
-        put("unsavedThemesJson", s.unsavedThemesJson)
         put("themeEditorEnabled", s.themeEditorEnabled)
         put("showGaugeColorBand", s.showGaugeColorBand)
         put("gaugeOrangeThresholdPct", s.gaugeOrangeThresholdPct)
@@ -200,13 +205,14 @@ object SettingsJson {
         put("navDefaultTravelMode", s.navDefaultTravelMode)
         put("navGeocoderUrl", s.navGeocoderUrl)
         put("navRouterUrl", s.navRouterUrl)
-        put("navCurrentRouteJson", s.navCurrentRouteJson)
-        put("navCurrentRouteSavedAt", s.navCurrentRouteSavedAt)
         put("navMapType", s.navMapType)
-        put("navUserMarkerPhotoDataUrl", s.navUserMarkerPhotoDataUrl)
         put("navSolveFullPath", s.navSolveFullPath)
         put("watchShowNavigation", s.watchShowNavigation)
         put("hudServerEnabled", s.hudServerEnabled)
+        put("hudActionUp", s.hudActionUp)
+        put("hudActionDown", s.hudActionDown)
+        put("hudActionLeft", s.hudActionLeft)
+        put("hudActionRight", s.hudActionRight)
         put("hudServerPort", s.hudServerPort)
         put("hudIp", s.hudIp)
         put("hudCustomOverlayName", s.hudCustomOverlayName)
@@ -230,6 +236,9 @@ object SettingsJson {
         put("dashboardActionGroups", s.dashboardActionGroups)
         put("dashboardCustomTiles", s.dashboardCustomTiles)
         put("dashboardCustomBle", s.dashboardCustomBle)
+        put("chargingEstimateToFull", s.chargingEstimateToFull)
+        put("chargingAutoOpen", s.chargingAutoOpen)
+        put("chargingDashboardIcon", s.chargingDashboardIcon)
     }
 
     fun fromJson(j: JSONObject, base: AppSettings = AppSettings()): AppSettings = base.copy(
@@ -252,6 +261,14 @@ object SettingsJson {
             j.optLong("lastSettingsBackupAt", base.lastSettingsBackupAt ?: 0L)
         else base.lastSettingsBackupAt,
         lastSettingsBackupName = j.optStringOrNull("lastSettingsBackupName", base.lastSettingsBackupName),
+        onlineUploadEnabled = j.optBoolean("onlineUploadEnabled", base.onlineUploadEnabled),
+        eucstatsStoreId = j.optStringOrNull("eucstatsStoreId", base.eucstatsStoreId),
+        eucstatsDisplayName = j.optStringOrNull("eucstatsDisplayName", base.eucstatsDisplayName),
+        eucstatsFlag = j.optStringOrNull("eucstatsFlag", base.eucstatsFlag),
+        eucstatsConsentPublic = j.optBoolean("eucstatsConsentPublic", base.eucstatsConsentPublic),
+        eucstatsRegisteredAt = if (j.has("eucstatsRegisteredAt") && !j.isNull("eucstatsRegisteredAt"))
+            j.optLong("eucstatsRegisteredAt", base.eucstatsRegisteredAt ?: 0L)
+        else base.eucstatsRegisteredAt,
         tiltbackSpeedKmh = j.optDouble("tiltbackSpeedKmh", base.tiltbackSpeedKmh.toDouble()).toFloat(),
         alarmSpeedKmh = j.optDouble("alarmSpeedKmh", base.alarmSpeedKmh.toDouble()).toFloat(),
         safetyTiltbackKmh = j.optDouble("safetyTiltbackKmh", base.safetyTiltbackKmh.toDouble()).toFloat(),
@@ -261,7 +278,15 @@ object SettingsJson {
         wheelNameDisplay = j.optString("wheelNameDisplay", base.wheelNameDisplay),
         voiceEnabled = j.optBoolean("voiceEnabled", base.voiceEnabled),
         voicePeriodicEnabled = j.optBoolean("voicePeriodicEnabled", base.voicePeriodicEnabled),
-        voiceOnlyWhenConnected = j.optBoolean("voiceOnlyWhenConnected", base.voiceOnlyWhenConnected),
+        voiceAnnounceWhen = j.optString(
+            "voiceAnnounceWhen",
+            // Migrate the old boolean only when an existing install actually has
+            // it (true → CONNECTED, false → ALWAYS). Brand-new installs have
+            // neither key and fall through to the model default (RIDING).
+            if (j.has("voiceOnlyWhenConnected"))
+                (if (j.optBoolean("voiceOnlyWhenConnected", true)) "CONNECTED" else "ALWAYS")
+            else base.voiceAnnounceWhen
+        ),
         voiceIntervalSeconds = j.optInt("voiceIntervalSeconds", base.voiceIntervalSeconds),
         voiceSpeechRate = j.optDouble("voiceSpeechRate", base.voiceSpeechRate.toDouble()).toFloat(),
         voiceLocale = j.optString("voiceLocale", base.voiceLocale),
@@ -336,10 +361,7 @@ object SettingsJson {
         language = j.optString("language", base.language),
         themeMode = j.optString("themeMode", base.themeMode),
         accentColor = j.optString("accentColor", base.accentColor),
-        activeThemeColorsJson = j.optString("activeThemeColorsJson", base.activeThemeColorsJson),
         activeThemeName = j.optString("activeThemeName", base.activeThemeName),
-        themeDirty = j.optBoolean("themeDirty", base.themeDirty),
-        unsavedThemesJson = j.optString("unsavedThemesJson", base.unsavedThemesJson),
         themeEditorEnabled = j.optBoolean("themeEditorEnabled", base.themeEditorEnabled),
         showGaugeColorBand = j.optBoolean("showGaugeColorBand", base.showGaugeColorBand),
         gaugeOrangeThresholdPct = j.optInt("gaugeOrangeThresholdPct", base.gaugeOrangeThresholdPct),
@@ -399,15 +421,14 @@ object SettingsJson {
         navDefaultTravelMode = j.optString("navDefaultTravelMode", base.navDefaultTravelMode),
         navGeocoderUrl = j.optString("navGeocoderUrl", base.navGeocoderUrl),
         navRouterUrl = j.optString("navRouterUrl", base.navRouterUrl),
-        navCurrentRouteJson = j.optStringOrNull("navCurrentRouteJson", base.navCurrentRouteJson),
-        navCurrentRouteSavedAt = j.optLong("navCurrentRouteSavedAt", base.navCurrentRouteSavedAt),
         navMapType = j.optString("navMapType", base.navMapType),
-        navUserMarkerPhotoDataUrl = if (j.has("navUserMarkerPhotoDataUrl") && !j.isNull("navUserMarkerPhotoDataUrl"))
-            j.optString("navUserMarkerPhotoDataUrl", "").ifBlank { null }
-        else base.navUserMarkerPhotoDataUrl,
         navSolveFullPath = j.optBoolean("navSolveFullPath", base.navSolveFullPath),
         watchShowNavigation = j.optBoolean("watchShowNavigation", base.watchShowNavigation),
         hudServerEnabled = j.optBoolean("hudServerEnabled", base.hudServerEnabled),
+        hudActionUp = j.optString("hudActionUp", base.hudActionUp),
+        hudActionDown = j.optString("hudActionDown", base.hudActionDown),
+        hudActionLeft = j.optString("hudActionLeft", base.hudActionLeft),
+        hudActionRight = j.optString("hudActionRight", base.hudActionRight),
         hudServerPort = j.optInt("hudServerPort", base.hudServerPort),
         hudIp = j.optString("hudIp", base.hudIp),
         hudCustomOverlayName = j.optString("hudCustomOverlayName", base.hudCustomOverlayName),
@@ -435,7 +456,10 @@ object SettingsJson {
         dashboardCompositeMetrics = j.optString("dashboardCompositeMetrics", base.dashboardCompositeMetrics),
         dashboardActionGroups = j.optString("dashboardActionGroups", base.dashboardActionGroups),
         dashboardCustomTiles = j.optString("dashboardCustomTiles", base.dashboardCustomTiles),
-        dashboardCustomBle = j.optString("dashboardCustomBle", base.dashboardCustomBle)
+        dashboardCustomBle = j.optString("dashboardCustomBle", base.dashboardCustomBle),
+        chargingEstimateToFull = j.optBoolean("chargingEstimateToFull", base.chargingEstimateToFull),
+        chargingAutoOpen = j.optBoolean("chargingAutoOpen", base.chargingAutoOpen),
+        chargingDashboardIcon = j.optBoolean("chargingDashboardIcon", base.chargingDashboardIcon)
     )
 
     /** `optString` returns `""` for null and absent keys, which we cannot

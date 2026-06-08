@@ -6,6 +6,7 @@
 [![Garmin Connect IQ](https://img.shields.io/badge/Connect_IQ-EUC_Planet-007CC3?logo=garmin&logoColor=white)](https://apps.garmin.com/apps/630e5d32-637d-4612-84e3-35e6d0bbee10)
 [![Telegram](https://img.shields.io/badge/Telegram-EUCPlanetApp-26A5E4?logo=telegram&logoColor=white)](https://t.me/EUCPlanetApp)
 [![Leaderboard](https://img.shields.io/badge/Leaderboard-eucstats.ried.no-FF8F00)](https://eucstats.ried.no/)
+[![Trip Viewer](https://img.shields.io/badge/Trip_Viewer-eucview.ried.no-2b6fd6)](https://eucview.ried.no/)
 [![Donate](https://img.shields.io/badge/Donate-PayPal-00457C?logo=paypal&logoColor=white)](https://www.paypal.com/donate/?hosted_button_id=AEB2RPZHNRTKG)
 [![Downloads](https://img.shields.io/github/downloads/eried/eucplanet/total)](https://github.com/eried/eucplanet/releases)
 
@@ -24,6 +25,7 @@ riders who have the wheel.
 |---|---|
 | **Verified** | InMotion V14 (50GB / 50S) |
 | **Verified** | InMotion P6 |
+| **Rider-tested** | Veteran Lynx S, Oryx · Begode/Gotway Mten3, EX30, E20 · KingSong S16X |
 | **In test** | Begode/Gotway Master, Master Pro, T3, T4, RS, RS-HT, EX, EX.N, EX2, MSP, MSX, Hero, XWay, Mten4, Mten5, MCM5 |
 | **In test** | Veteran Sherman, Sherman S, Sherman Max, Patton, Lynx, Abrams |
 | **In test** | KingSong S22, S20, S19, S18, S16, KS-14/16/18, F18P, F22P |
@@ -31,8 +33,6 @@ riders who have the wheel.
 | **Waiting to be tested** | InMotion V1 family: V5, V8, V8F, V8S, V10, V10F, V10S, V10T, V10FT, L6, Lively, Glide 3 |
 | **Waiting to be tested** | Ninebot Z6, Z10, plus legacy One E / E+ / S2 / Mini (read-only) |
 | **Experimental** | InMotion V9, V11, V13 |
-
-More on the tiers and the protocol docs: [WHEELS.md](WHEELS.md).
 
 Help with your wheel, check the [BLE capture guide](docs/BLE_CAPTURE_GUIDE.md).
 Already connects but a reading looks wrong? See the [in-app diagnostics guide](docs/DIAGNOSTICS_GUIDE.md).
@@ -125,7 +125,7 @@ key features. A top-bar warning chip surfaces any permissions you've denied
 (BLE, location, notifications) with one-tap Fix actions, so a denial doesn't
 silently break a feature later in the ride.
 
-**14 languages.** Full UI localisation, at parity across all of them.
+**Multi-language support.** Full UI localisation, at parity across all of them.
 
 ---
 
@@ -143,7 +143,7 @@ Build from source:
 
 ```bash
 ./gradlew assembleDebug
-adb install app/build/outputs/apk/debug/app-debug.apk
+adb install app/build/outputs/apk/debug/phone-debug.apk
 ```
 
 Needs Android 10 (API 29) or newer, a supported wheel, and Bluetooth + location
@@ -195,6 +195,7 @@ Thanks to the people and projects that helped, kept in sync with the app (tap ve
 | FlyboyEUC (Adam) | Mten3, E20 and EX30 testing |
 | Soolek | KS-16X testing |
 | Jonathan Wiesner | LeaperKim Lynx S testing |
+| Felix K | LeaperKim Oryx testing |
 | Bearkat713 | Motoeye E6 testing |
 | [WheelLog community](https://github.com/Wheellog/wheellog.android) | Open-source (GPLv3) EUC protocol research |
 | Ilya Shkolnik | Advice and help. Maintains DarknessBot. |
