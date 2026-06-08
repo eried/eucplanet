@@ -1,89 +1,77 @@
-# Installing the watch app on a Galaxy Watch (or any Wear OS 4+)
+# Installing the watch app (Wear OS 4+)
 
-The Wear OS companion is shipped two ways:
+Works the same on Pixel Watch, Galaxy Watch, TicWatch, OnePlus Watch
+and any other Wear OS 4+ device. The only step that differs between
+brands is how you reach Developer options (covered below).
 
-- **Bundled inside the phone AAB on Google Play.** Installing the phone
-  app from Play automatically delivers the watch app to any Wear OS
-  device already paired to the phone. Nothing else to do; nothing to
-  sideload. This is the recommended path.
-- **As a standalone `wearos-<version>.apk`** attached to every GitHub
-  release. Use this when you have a Play-distributed phone build that
-  doesn't auto-deliver, or you want to test a pre-release watch build
-  ahead of Play rollout.
+The watch app ships two ways:
 
-The rest of this guide is the **sideload** path.
+- **Bundled in the phone AAB on Google Play.** Installing the phone
+  app from Play auto-delivers the watch app to any paired Wear OS
+  device. Nothing to sideload. This is the recommended path.
+- **Standalone `wearos-<version>.apk`** on every GitHub release. Use
+  this for pre-release builds, or when Play auto-delivery is not an
+  option.
 
-## The error that brings most people here
+The rest is the sideload path.
 
-> `/data/local/tmp/wearos-0.9.17.apk[1]: syntax error: unexpected
-> 'M-ILI,IK-*53JK'`
+## "syntax error: unexpected 'M-ILI,IK-*53JK'"
 
-That is the Android shell trying to *execute* the APK as a shell script.
-An APK is a ZIP archive; `sh` reads the first byte (`PK\x03\x04` — the
-ZIP magic), can't tokenize it, and dies. **The APK is fine.** Whatever
-tool you used picked an "Open" / "Run" action instead of an "Install"
-action; pick install and the same file goes on cleanly.
+The shell is trying to run the APK as a script. Pick the install
+action in your ADB tool instead of open/run and the same file goes
+on cleanly.
 
-## Path A — sideload from a PC
+## 1. Enable ADB on the watch
 
-Easiest if you already have `adb` (Android Studio's platform-tools).
+Reach Developer options. The path differs by brand:
 
-1. **On the watch**: Settings → About watch → Software (or "Software
-   information") → tap **Software version** 7 times until "Developer
-   mode enabled" appears. Then Settings → Developer options → enable
-   **ADB debugging** and **Debug over Wi-Fi**. The watch will display
-   an IP + port and a pairing code.
-2. **Make sure the watch and the PC are on the same Wi-Fi network**
-   (Bluetooth alone is not enough for wireless ADB).
-3. **On the PC**:
-   ```
-   adb pair <watch-ip>:<pair-port>    # paste the pairing code from the watch
-   adb connect <watch-ip>:<port>
-   adb devices                         # should list the watch
-   adb -s <watch-device-id> install wearos-<version>.apk
-   ```
-4. The app appears in the watch launcher. First launch needs the
-   permissions the watch will prompt for (sensors, microphone if you
-   use voice).
+- **Samsung Galaxy Watch:** Settings, About watch, Software, tap
+  Software version 7 times.
+- **Pixel Watch / OnePlus / TicWatch / generic Wear OS:** Settings,
+  System, About, tap Build number 7 times.
 
-## Path B — sideload from a phone (no PC)
+Then in Settings, Developer options, enable:
 
-Use a phone-side ADB client. The community usually picks
+- ADB debugging
+- Debug over Wi-Fi
+
+The watch shows an IP, a port and a pairing code. Keep them visible.
+
+The watch and the device running ADB must be on the same Wi-Fi
+network. Bluetooth alone is not enough.
+
+## 2a. Install from a PC
+
+```
+adb pair <watch-ip>:<pair-port>     # paste the code from the watch
+adb connect <watch-ip>:<port>
+adb -s <watch-id> install wearos-<version>.apk
+```
+
+## 2b. Install from a phone (no PC)
+
+Use a phone-side ADB client like
 [Bugjaeger](https://play.google.com/store/apps/details?id=com.example.bugjaeger).
-Same flow, no PC required:
 
-1. Enable ADB debugging and Debug over Wi-Fi on the watch as in
-   Path A step 1. Note the IP + port + pairing code.
-2. In Bugjaeger, add a new device → **Pair with code** → enter the
-   watch IP / port / code from the watch. Wait for the device to
-   appear in Bugjaeger's device list.
-3. Make sure the **target device** in Bugjaeger is the watch (not the
-   phone you're running Bugjaeger on).
-4. Tap **Install APK** and pick the `wearos-<version>.apk` file. Do
-   NOT use "Open" / "Run" — that's the path that produces the
-   `syntax error` above.
-
-## Path C — Play Store auto-delivery
-
-If you install the phone app from Google Play and a Wear OS device is
-already paired to the phone, Play auto-delivers the embedded watch
-APK within a few minutes. Open the Play Store on the watch to nudge
-it if it doesn't arrive on its own. No sideload needed.
+1. Add device, Pair with code, enter the watch IP / port / code.
+2. Confirm the target device is the watch (not the phone you are
+  running Bugjaeger on).
+3. Tap Install APK and pick `wearos-<version>.apk`. Do not pick
+  Open or Run.
 
 ## Troubleshooting
 
-| Symptom | Likely cause / fix |
+| Symptom | Fix |
 |---|---|
-| `syntax error: unexpected …` | APK was *executed* instead of *installed*. Use the install action. |
-| `INSTALL_FAILED_INSUFFICIENT_STORAGE` | Free space on the watch. ~80 MB needed. |
-| `INSTALL_FAILED_VERSION_DOWNGRADE` | Already a newer build installed. `pm uninstall com.eried.eucplanet` first, then install. |
-| `INSTALL_PARSE_FAILED_NO_CERTIFICATES` | Re-download the APK; the previous transfer was truncated. |
-| Pair succeeds, connect times out | Watch and PC/phone aren't on the same Wi-Fi network, or the watch's port rotated. Re-read the port from the watch and try again. |
-| App installs but won't open | Watch is on Wear OS 3 or older. EUC Planet's watch app needs Wear OS 4+. |
+| `syntax error: unexpected …` | Install action, not Open/Run. |
+| `INSTALL_FAILED_INSUFFICIENT_STORAGE` | Free ~80 MB on the watch. |
+| `INSTALL_FAILED_VERSION_DOWNGRADE` | `pm uninstall com.eried.eucplanet` first. |
+| `INSTALL_PARSE_FAILED_NO_CERTIFICATES` | Re-download; the file was truncated. |
+| Pair succeeds, connect times out | Same Wi-Fi, fresh port from the watch. |
+| Installs but won't open | Needs Wear OS 4+. |
 
-## Where to find the APK
+## APK location
 
 Each [GitHub release](https://github.com/eried/eucplanet/releases)
-attaches `wearos-<version>.apk` alongside the phone APK. The rolling
-branch pre-releases follow the same pattern
-(`wearos-<branch>-<sha>.apk`).
+attaches `wearos-<version>.apk` alongside the phone APK. Branch
+pre-releases follow the same pattern (`wearos-<branch>-<sha>.apk`).
