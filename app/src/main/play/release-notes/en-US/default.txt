@@ -1,15 +1,6 @@
-🔋 New Battery monitor: live charge rate, energy added, and a
-   per-session prediction (time to 80% and time to full) that
-   learns your wheel's charging curve.
-🔧 Wheel fixes: KingSong KS-18XL light toggle, Veteran Oryx
-   battery/speed readout, and more.
-☁️ Online leaderboard and profile (eucstats.ried.no): clearer
-   errors, smoother registration, more reliable trip backup.
-📡 Bluetooth improved everywhere: faster reconnect when the
-   radio is toggled, clearer permission prompts, sturdier
-   disconnect/reconnect handling.
-🗣️ Voice polish: decimal numbers read correctly in every
-   language; no periodic announcements while parked.
-✨ General UI polish and small fixes throughout.
-
-🧪 Beta build, early access before the stable release.
+🔋 New Battery monitor screen.
+🌐 Online leaderboard at eucstats.ried.no: share trips and
+   check ranks.
+📡 Bluetooth: general improvements.
+🔧 Wheel improvements and tests across every supported brand.
+🗣️ Voice: several fixes.
