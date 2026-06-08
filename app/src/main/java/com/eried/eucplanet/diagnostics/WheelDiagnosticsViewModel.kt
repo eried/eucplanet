@@ -66,7 +66,8 @@ class WheelDiagnosticsViewModel @Inject constructor(
      *  shared log carries everything we'd ask for in a bug report. */
     fun captureSessionInfo() {
         // App + build
-        DiagnosticsLogger.info("app v${BuildConfig.VERSION_NAME} (${BuildConfig.VERSION_CODE}) build ${BuildConfig.BUILD_STAMP}")
+        val branchSuffix = BuildConfig.GIT_BRANCH.takeIf { it.isNotBlank() && it != "main" }?.let { " branch=$it" } ?: ""
+        DiagnosticsLogger.info("app v${BuildConfig.VERSION_NAME} (${BuildConfig.VERSION_CODE}) build ${BuildConfig.BUILD_STAMP}$branchSuffix")
         DiagnosticsLogger.info("package ${context.packageName}")
 
         // Phone hardware + Android OS
