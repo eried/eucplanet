@@ -39,11 +39,6 @@ class VeteranParser {
     // Empty when we're scanning for the next magic.
     private val buffer = ArrayList<Byte>(64)
 
-    // Wall-clock millis of the last byte that landed in the buffer. Used to
-    // drop stale partials when the wheel goes quiet mid-frame (e.g. the BLE
-    // stack dropped a notification). Spec calls for ~100 ms tolerance.
-    private var lastFedAt: Long = 0L
-
     /**
      * Push raw notification bytes into the reassembler. Returns zero or more
      * complete frames in arrival order. Each returned frame is the full
@@ -51,21 +46,19 @@ class VeteranParser {
      * CRC32 trailer; CRC has already been verified against the payload, so
      * downstream code can ignore the trailing 4 bytes.
      *
-     * The 100 ms re-sync is checked against [now] so tests can drive the
-     * clock; production callers pass System.currentTimeMillis().
+     * No wall-clock timeout: bytes accumulate until either LEN + 4 form a
+     * complete frame (validated by CRC32 for long frames) or the buffer
+     * re-aligns to the next magic. An earlier 100 ms resync timeout killed
+     * every long frame on the Oryx, which delivers each frame as two BLE
+     * notifications ~190 ms apart -- the head of the frame was cleared
+     * before the tail arrived. CRC mismatches and bad LEN bytes already
+     * self-heal: tryExtractFrame drops the failed buffer slice and the next
+     * magic-trim sync re-aligns. Session-level cleanup happens via
+     * [reset], called from the adapter on disconnect.
      */
-    fun feed(rawBytes: ByteArray, now: Long = System.currentTimeMillis()): List<Frame> {
+    fun feed(rawBytes: ByteArray): List<Frame> {
         val out = mutableListOf<Frame>()
         if (rawBytes.isEmpty()) return out
-
-        // Stale partial: the wheel paused mid-frame. Drop what we had so
-        // the new bytes can re-sync on their own magic; bytes inside the
-        // dropped chunk that happened to look like a magic triple are gone
-        // for good, but that's the right trade per spec.
-        if (buffer.isNotEmpty() && (now - lastFedAt) > RESYNC_TIMEOUT_MS) {
-            buffer.clear()
-        }
-        lastFedAt = now
 
         for (b in rawBytes) {
             buffer.add(b)
@@ -86,10 +79,9 @@ class VeteranParser {
         return out
     }
 
-    /** Drop any partial frame and reset the re-sync clock. */
+    /** Drop any partial frame. Called by the adapter on disconnect. */
     fun reset() {
         buffer.clear()
-        lastFedAt = 0L
     }
 
     /**
@@ -155,15 +147,6 @@ class VeteranParser {
         // Spec: short telemetry frame is LEN=38; anything larger is a
         // smart-BMS frame and carries a CRC32 trailer.
         private const val LONG_FRAME_THRESHOLD = 38
-
-        // Drop partial buffers if the wheel goes quiet mid-frame. The spec
-        // suggested ~100 ms, but the Oryx delivers each frame as two BLE
-        // notifications ~190 ms apart -- a long frame (87 bytes) straddles
-        // the gap, so a 100 ms timeout cleared the first half before the
-        // second arrived and the parser never produced any frames. 500 ms
-        // gives a ~2.5x margin on the observed gap while still discarding
-        // genuinely-stale buffers when the wheel disconnects mid-frame.
-        private const val RESYNC_TIMEOUT_MS = 500L
 
         // ---- Telemetry parsing ---------------------------------------------------
 
