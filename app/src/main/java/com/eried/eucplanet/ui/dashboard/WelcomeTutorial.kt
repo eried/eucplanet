@@ -11,6 +11,7 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.background
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
@@ -31,6 +32,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -42,6 +44,7 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.BiasAlignment
@@ -51,7 +54,10 @@ import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.geometry.RoundRect
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.PathFillType
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.boundsInRoot
@@ -67,7 +73,9 @@ import androidx.compose.ui.text.withLink
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import com.eried.eucplanet.R
+import com.eried.eucplanet.ui.common.HintText
 import com.eried.eucplanet.ui.theme.appColors
+import com.eried.eucplanet.ui.theme.themedSwitchColors
 import java.nio.ByteBuffer
 
 /**
@@ -233,7 +241,11 @@ private fun LoopingClip(assetName: String, modifier: Modifier) {
  * last step's Done.
  */
 @Composable
-fun WelcomeTutorialOverlay(state: CoachmarkState, onFinish: () -> Unit) {
+fun WelcomeTutorialOverlay(
+    state: CoachmarkState,
+    onVoiceToggle: (Boolean) -> Unit = {},
+    onFinish: () -> Unit,
+) {
     val steps = tutorialSteps()
     val idx = state.stepIndex.coerceIn(0, steps.lastIndex)
     val step = steps[idx]
@@ -245,6 +257,11 @@ fun WelcomeTutorialOverlay(state: CoachmarkState, onFinish: () -> Unit) {
     val scrimColor = MaterialTheme.appColors.scrim
 
     var showSkipConfirm by remember { mutableStateOf(false) }
+    // Voice opt-in switch on step 0. Flipping it instantly applies (so the
+    // rider gets a spoken welcome as live confirmation) and persists, so
+    // closing the wizard with the switch on leaves voice enabled and the
+    // switch off leaves it silent -- nothing else to apply on Next/Skip.
+    var voicesOptIn by rememberSaveable { mutableStateOf(false) }
     fun advance() { if (isLast) onFinish() else state.stepIndex = idx + 1 }
     fun back() { if (idx > 0) state.stepIndex = idx - 1 }
 
@@ -282,15 +299,30 @@ fun WelcomeTutorialOverlay(state: CoachmarkState, onFinish: () -> Unit) {
             val rt = (ar + pad).coerceAtMost(size.width)
             val b = (ab + pad).coerceAtMost(size.height)
             val scrim = scrimColor.copy(alpha = 0.74f)
-            drawRect(scrim, topLeft = Offset(0f, 0f), size = Size(size.width, t))
-            drawRect(scrim, topLeft = Offset(0f, b), size = Size(size.width, size.height - b))
-            drawRect(scrim, topLeft = Offset(0f, t), size = Size(l, b - t))
-            drawRect(scrim, topLeft = Offset(rt, t), size = Size(size.width - rt, b - t))
+            val cornerRpx = 12.dp.toPx()
+            // Scrim cut as a single even-odd path: outer rect minus the
+            // rounded spotlight, so the hole has the same corner radius as
+            // the accent border stroke. The previous 4-rect outer cut left
+            // a rectangular hole with the rounded stroke sitting inside it,
+            // and the rectangular corners poked out past the stroke.
             if (b - t > 0f && rt - l > 0f) {
+                val cutoutPath = Path().apply {
+                    fillType = PathFillType.EvenOdd
+                    addRect(Rect(0f, 0f, size.width, size.height))
+                    addRoundRect(
+                        RoundRect(
+                            left = l, top = t, right = rt, bottom = b,
+                            cornerRadius = CornerRadius(cornerRpx),
+                        )
+                    )
+                }
+                drawPath(cutoutPath, color = scrim)
                 if (cut < 1f) {
-                    drawRect(
-                        scrimColor.copy(alpha = 0.74f * (1f - cut)),
-                        topLeft = Offset(l, t), size = Size(rt - l, b - t)
+                    drawRoundRect(
+                        color = scrimColor.copy(alpha = 0.74f * (1f - cut)),
+                        topLeft = Offset(l, t),
+                        size = Size(rt - l, b - t),
+                        cornerRadius = CornerRadius(cornerRpx),
                     )
                 }
                 if (cut > 0.01f) {
@@ -298,10 +330,13 @@ fun WelcomeTutorialOverlay(state: CoachmarkState, onFinish: () -> Unit) {
                         color = accent.copy(alpha = cut * (0.55f + 0.45f * breathe)),
                         topLeft = Offset(l, t),
                         size = Size(rt - l, b - t),
-                        cornerRadius = CornerRadius(12.dp.toPx()),
+                        cornerRadius = CornerRadius(cornerRpx),
                         style = Stroke(width = (2f + 1.5f * breathe).dp.toPx())
                     )
                 }
+            } else {
+                // No spotlight target yet (intro / outro): cover the whole screen.
+                drawRect(scrim, topLeft = Offset(0f, 0f), size = Size(size.width, size.height))
             }
         }
 
@@ -385,6 +420,34 @@ fun WelcomeTutorialOverlay(state: CoachmarkState, onFinish: () -> Unit) {
                         } else {
                             Spacer(Modifier.height(8.dp))
                             Text(s.text, style = MaterialTheme.typography.bodyLarge)
+                            // Step 0: voice opt-in. Same row pattern as every other
+                            // SwitchSetting in Settings (label on the left, themed
+                            // Switch on the right) + a HintText below, so this card
+                            // matches the rest of the app one-for-one. Flipping ON
+                            // applies all 8 announce flags and speaks the welcome
+                            // line as live confirmation; OFF reverts.
+                            if (i == 0) {
+                                Spacer(Modifier.height(16.dp))
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                    verticalAlignment = Alignment.CenterVertically,
+                                ) {
+                                    Text(
+                                        stringResource(R.string.welcome_tut_voice_title),
+                                        style = MaterialTheme.typography.bodyLarge,
+                                    )
+                                    Switch(
+                                        checked = voicesOptIn,
+                                        onCheckedChange = {
+                                            voicesOptIn = it
+                                            onVoiceToggle(it)
+                                        },
+                                        colors = themedSwitchColors(),
+                                    )
+                                }
+                                HintText(stringResource(R.string.welcome_tut_voice_desc))
+                            }
                         }
                     }
                 }
