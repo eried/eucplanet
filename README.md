@@ -3,9 +3,10 @@
 [![Latest release](https://img.shields.io/github/v/release/eried/eucplanet)](https://github.com/eried/eucplanet/releases)
 [![License: MIT](https://img.shields.io/github/license/eried/eucplanet)](LICENSE)
 [![Google Play](https://img.shields.io/badge/Google_Play-EUC_Planet-3DDC84?logo=googleplay&logoColor=white)](https://play.google.com/store/apps/details?id=com.eried.eucplanet)
-[![Stats](https://img.shields.io/badge/Web-Stats-39d98a)](https://github.com/eried/eucstats)
-[![Trip Viewer](https://img.shields.io/badge/Web-Trip_Viewer-2b6fd6)](https://github.com/eried/eucviewer)
+[![Garmin Connect IQ](https://img.shields.io/badge/Connect_IQ-EUC_Planet-007CC3?logo=garmin&logoColor=white)](https://apps.garmin.com/apps/630e5d32-637d-4612-84e3-35e6d0bbee10)
 [![Telegram](https://img.shields.io/badge/Telegram-EUCPlanetApp-26A5E4?logo=telegram&logoColor=white)](https://t.me/EUCPlanetApp)
+[![Leaderboard](https://img.shields.io/badge/Leaderboard-eucstats.ried.no-FF8F00)](https://eucstats.ried.no/)
+[![Trip Viewer](https://img.shields.io/badge/Trip_Viewer-eucview.ried.no-2b6fd6)](https://eucview.ried.no/)
 [![Donate](https://img.shields.io/badge/Donate-PayPal-00457C?logo=paypal&logoColor=white)](https://www.paypal.com/donate/?hosted_button_id=AEB2RPZHNRTKG)
 [![Downloads](https://img.shields.io/github/downloads/eried/eucplanet/total)](https://github.com/eried/eucplanet/releases)
 
@@ -24,6 +25,7 @@ riders who have the wheel.
 |---|---|
 | **Verified** | InMotion V14 (50GB / 50S) |
 | **Verified** | InMotion P6 |
+| **Rider-tested** | Veteran Lynx S, Oryx · Begode/Gotway Mten3, EX30, E20 · KingSong S16X |
 | **In test** | Begode/Gotway Master, Master Pro, T3, T4, RS, RS-HT, EX, EX.N, EX2, MSP, MSX, Hero, XWay, Mten4, Mten5, MCM5 |
 | **In test** | Veteran Sherman, Sherman S, Sherman Max, Patton, Lynx, Abrams |
 | **In test** | KingSong S22, S20, S19, S18, S16, KS-14/16/18, F18P, F22P |
@@ -31,8 +33,6 @@ riders who have the wheel.
 | **Waiting to be tested** | InMotion V1 family: V5, V8, V8F, V8S, V10, V10F, V10S, V10T, V10FT, L6, Lively, Glide 3 |
 | **Waiting to be tested** | Ninebot Z6, Z10, plus legacy One E / E+ / S2 / Mini (read-only) |
 | **Experimental** | InMotion V9, V11, V13 |
-
-More on the tiers and the protocol docs: [WHEELS.md](WHEELS.md).
 
 Help with your wheel, check the [BLE capture guide](docs/BLE_CAPTURE_GUIDE.md).
 Already connects but a reading looks wrong? See the [in-app diagnostics guide](docs/DIAGNOSTICS_GUIDE.md).
@@ -64,7 +64,9 @@ runtime clock. Tap any tile for its history graph. Metric or imperial.
 
 **Turn-by-turn navigator.** Multi-stop routes on a map (walk, bike, car,
 straight-line), voice cues, off-route reroute, sticky GPS, and a Treasure Hunt
-proximity mode for unmarked spots. The next-turn arrow can mirror to your watch.
+proximity mode for unmarked spots. Full Path mode lets you tap any point along
+the route to add a detour (skip sand, gravel, the wrong side of a one-way).
+The next-turn arrow can mirror to your watch, HUD, or Garmin Edge.
 
 **Overlay Studio.** Record video and stills with a customisable telemetry overlay:
 dials, gauges, rolling graphs, `{speed}`-style text, mini-map, layered cameras. Save
@@ -85,28 +87,45 @@ recording.
 
 **Trip recording.** GPS and telemetry to DarknessBot-compatible CSV, auto-record,
 live track preview, and a trip list with quick export and share. View them later in
-the [web Trip Viewer](https://github.com/eried/eucviewer).
+the [web Trip Viewer](https://github.com/eried/eucviewer), or opt in to share them on
+the [EUC Stats leaderboard](https://eucstats.ried.no/) and rank your distance against
+riders worldwide, by country.
 
 **Automations.** Auto Lights on before sunset, off after sunrise, from live GPS.
 Handles midnight sun and polar night (I live in the arctic circle 🧐). Auto Volume
 scales phone volume with speed.
 
+**Helmet HUD.** Sideload the small HUD companion on a MotoEye E6 or any
+Android-based head-up display and the dashboard mirrors live to your visor
+over local WiFi. New Map + Nav combined screen in the HUD shows the route
+arrow on top of a moving map (Garmin Edge style). See
+[eucplanet.ried.no/hud](https://eucplanet.ried.no/hud/).
+
+**Garmin Edge / watches.** A Connect IQ data field shows live EUC speed,
+battery, PWM, current and motor temperature on your bar-mounted Edge or
+on your wrist. Supports Edge 530/540/830/840/1030/1040/1050 and most modern
+Garmin watches (135+ devices). Get it on the
+[Connect IQ Store](https://apps.garmin.com/apps/630e5d32-637d-4612-84e3-35e6d0bbee10),
+or build it yourself from [docs/GARMIN_SETUP.md](docs/GARMIN_SETUP.md).
+
+**Varia rear-view radar.** Pair a Garmin Varia RTL515 or RCT715 and see
+approaching vehicles on the dashboard. Wire custom alarms (beep, voice, or
+vibrate) to rear-vehicle distance and closing speed. Same sensor cyclists
+already trust, now on your EUC.
+
 **Integrations.** Flic 2 buttons (up to two), physical volume-key shortcuts,
 external BLE GPS (RaceBox or compatible, for centimetre-class speed and altitude
-without draining the phone radio; auto-falls back to phone GPS), a Wear OS
-companion (speed dial, three batteries, horn/light remotes, navigation mirror;
-tested on Galaxy Watch Ultra, works on any Wear OS 5+ watch), and a Garmin
-Connect IQ companion (same dial on Garmin watches and Edge bike computers,
-settings shared with Wear OS; on the
-[Connect IQ Store](https://apps.garmin.com/apps/630e5d32-637d-4612-84e3-35e6d0bbee10)).
+without draining the phone radio; auto-falls back to phone GPS), and a Wear OS
+companion (speed dial, three batteries, horn/light remotes, navigation mirror,
+Touch / Physical buttons split; tested on Galaxy Watch Ultra, works on any
+Wear OS 5+ watch).
 
-**14 languages.** Full UI localisation, at parity across all of them.
-### Integrations
-- **Flic 2 buttons**: pair up to two buttons.
-- **Volume keys**: use the phone's physical volume up/down for extra shortcuts.
-- **External GPS**: pair a RaceBox (or any compatible BLE GPS) for centimetre-class speed and altitude without burning the phone radio. Falls back to phone GPS automatically.
-- **Garmin Varia rear-view radar**: pair a Varia (RTL515 / RTL516 / RVR315 / RCT715 / eRTL615 / RearVue 820 / RVR53320). A translucent lane bar hovers on the screen edge with one coloured dot per detected vehicle, red glow on fast closers. Two new alarm metrics (*Car distance*, *Car approach*) plug into the existing alarm engine so you can wire vibrate / beep / voice to "car within 30 m" or "car closing at 60+ km/h". Light control is not yet supported (Garmin keeps that UUID under NDA; every public client drives Varia lights over ANT+ instead).
-- **Wear OS companion**: full-bleed speed dial, three batteries (wheel/phone/watch), accent and unit settings synced from the phone, horn + light remote controls, navigation cue mirror. Tested on Galaxy Watch Ultra; works on any Wear OS 5+ watch.
+**First-run tour & health.** A short Welcome tour walks new riders through the
+key features. A top-bar warning chip surfaces any permissions you've denied
+(BLE, location, notifications) with one-tap Fix actions, so a denial doesn't
+silently break a feature later in the ride.
+
+**Multi-language support.** Full UI localisation, at parity across all of them.
 
 ---
 
@@ -116,6 +135,9 @@ settings shared with Wear OS; on the
 a small symbolic price, treat it as a tip if you'd like to support the project and
 get automatic updates. Or grab the latest APK from [releases](../../releases) for
 free and sideload it. Same app either way.
+
+On a Garmin watch or Edge, install the EUC Planet data field straight from the
+[Connect IQ Store](https://apps.garmin.com/apps/630e5d32-637d-4612-84e3-35e6d0bbee10).
 
 Build from source:
 
@@ -163,10 +185,21 @@ EUC Planet is free and stays free. If it saved you a subscription, or for any ot
 reason you want to chip in: [donate via PayPal](https://www.paypal.com/donate/?hosted_button_id=AEB2RPZHNRTKG).
 Entirely optional, very appreciated.
 
-## Thanks
+## Acknowledgements
 
-Riders who test wheels and gear I don't own keep this honest. The full list is in
-the app under **About → Credits** — including **Bearkat713** (Motoeye E6 testing).
+Thanks to the people and projects that helped, kept in sync with the app (tap version number → **Thanks**):
+
+| Who | For |
+| --- | --- |
+| Gio (Wheel In Motion) | Promotion, suggestions and P6 testing |
+| FlyboyEUC (Adam) | Mten3, E20 and EX30 testing |
+| Soolek | KS-16X testing |
+| Jonathan Wiesner | LeaperKim Lynx S testing |
+| Felix K | LeaperKim Oryx testing |
+| Bearkat713 | Motoeye E6 testing |
+| [WheelLog community](https://github.com/Wheellog/wheellog.android) | Open-source (GPLv3) EUC protocol research |
+| Ilya Shkolnik | Advice and help. Maintains DarknessBot. |
+| InMotion | For making a great V14 |
 
 ## License
 
