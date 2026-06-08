@@ -2895,7 +2895,10 @@ fun DashboardScreen(
         // Welcome tour overlay -- drawn last so it sits above the dashboard
         // (and the top bar) and can spotlight any element by its bounds.
         if (showWelcomeTour) {
-            WelcomeTutorialOverlay(coachmark) {
+            WelcomeTutorialOverlay(
+                state = coachmark,
+                onVoiceToggle = { on -> viewModel.setAllVoiceAnnouncements(on) },
+            ) {
                 viewModel.markWelcomeTutorialSeen()
                 tourDismissed = true
             }

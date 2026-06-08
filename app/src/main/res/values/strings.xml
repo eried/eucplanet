@@ -610,6 +610,8 @@
     <string name="welcome_tut_skip_body">It will not be shown again</string>
     <string name="welcome_tut_skip_yes">Skip anyway</string>
     <string name="welcome_tut_welcome">Welcome to EUC Planet, a no-nonsense, open-source app for electric unicycles</string>
+    <string name="welcome_tut_voice_title">Enable voice alerts</string>
+    <string name="welcome_tut_voice_desc">You can enable or disable individual voice messages later in Settings → Voice and announcements.</string>
     <string name="welcome_tut_bt">Connect and disconnect your wheel here</string>
     <string name="welcome_tut_version">Many wheels just need testers to be fully supported, usually an easy fix. Tap the version to open About and help out</string>
     <string name="welcome_tut_outro_title">That is the tour!</string>

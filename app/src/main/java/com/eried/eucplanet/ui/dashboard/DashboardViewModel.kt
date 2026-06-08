@@ -328,6 +328,30 @@ class DashboardViewModel @Inject constructor(
         }
     }
 
+    /** Flip every spoken-event flag in one shot. Called from the welcome
+     *  wizard's voice toggle: turning it on immediately enables every spoken
+     *  alert and speaks the welcome greeting as a live preview; turning it
+     *  off (still inside the wizard) reverts. The per-event toggles remain
+     *  individually adjustable in Settings → Voice afterwards. */
+    fun setAllVoiceAnnouncements(enabled: Boolean) {
+        viewModelScope.launch {
+            val s = settingsRepository.get()
+            settingsRepository.update(
+                s.copy(
+                    voicePeriodicEnabled = enabled,
+                    announceWheelLock = enabled,
+                    announceLights = enabled,
+                    announceRecording = enabled,
+                    announceConnection = enabled,
+                    announceGps = enabled,
+                    announceSafetyMode = enabled,
+                    announceWelcome = enabled,
+                )
+            )
+            if (enabled) voiceService.speakWelcomeNow()
+        }
+    }
+
     fun startRecording() {
         viewModelScope.launch { tripRepository.startRecording() }
     }

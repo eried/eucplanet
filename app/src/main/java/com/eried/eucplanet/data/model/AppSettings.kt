@@ -54,7 +54,7 @@ data class AppSettings(
     // Independent toggle for the periodic (every N seconds) status announcements. When false,
     // voice still works for triggered events (manual button, Flic, alarms) but the periodic
     // loop is silent. Toggled from the dashboard via long-press on the Voice action.
-    val voicePeriodicEnabled: Boolean = true,
+    val voicePeriodicEnabled: Boolean = false,
     // When the periodic status report may speak, in increasing restriction:
     // "ALWAYS" (even while disconnected), "CONNECTED" (only with a wheel
     // connected), "RIDING" (only while connected and actually moving).
@@ -103,14 +103,16 @@ data class AppSettings(
     // Voice report item order (comma-separated: Speed,Battery,Time,Temp,PWM,Distance,Recording)
     val voiceReportOrder: String = "Speed,Battery,Time,Temp,PWM,Distance,Recording",
 
-    // Special announcements (event-driven)
-    val announceWheelLock: Boolean = true,
-    val announceLights: Boolean = true,
-    val announceRecording: Boolean = true,
-    val announceConnection: Boolean = true,
-    val announceGps: Boolean = true,
-    val announceSafetyMode: Boolean = true,
-    val announceWelcome: Boolean = true,
+    // Special announcements (event-driven). All silent by default; the welcome
+    // wizard's first step offers a single toggle that flips this whole block on
+    // for riders who want spoken alerts.
+    val announceWheelLock: Boolean = false,
+    val announceLights: Boolean = false,
+    val announceRecording: Boolean = false,
+    val announceConnection: Boolean = false,
+    val announceGps: Boolean = false,
+    val announceSafetyMode: Boolean = false,
+    val announceWelcome: Boolean = false,
     /**
      * Whether the first-launch dashboard welcome tour has been shown. Starts
      * false; set true once the rider finishes or skips the tour, so it only
