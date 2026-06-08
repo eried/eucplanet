@@ -85,6 +85,12 @@ class VeteranAdapter @Inject constructor() : WheelAdapter {
     // voltage-curve estimate on the other 8 pages. -1 until the first page-2.
     @Volatile private var lastOryxBatterySoc: Int = -1
 
+    // Resolved model name emitted once per connection, so the dashboard and the
+    // experimental-banner gate can tell e.g. an Oryx from a Sherman. Veteran
+    // wheels often advertise a generic BLE name, so we resolve from the in-frame
+    // mVer (offset 28) and fall back to the name-derived model.
+    @Volatile private var emittedModel: Boolean = false
+
     override fun setLight(on: Boolean): ByteArray {
         lastLightOn = on
         // HIGH beam by default (LkAp frame; LdAp companion via [setLightFollowup]).
@@ -226,6 +232,15 @@ class VeteranAdapter @Inject constructor() : WheelAdapter {
                     "len=${f.bytes.size} body=${f.bytes.joinToString(" ") { "%02x".format(it) }}"
             )
             if (emitted != null) out += DecodeResult.Telemetry(emitted)
+            // Surface the resolved model once, so the UI and the experimental
+            // banner can distinguish models within the Veteran family.
+            if (!emittedModel) {
+                val model = VeteranModel.fromMVer(VeteranParser.mVerOf(f.bytes)) ?: detectedModel
+                if (model != null) {
+                    out += DecodeResult.ModelName(model.displayName, model)
+                    emittedModel = true
+                }
+            }
             if (f.isLong) {
                 // Best-effort BMS parse so a malformed slice can't crash the
                 // pipeline; result is discarded until the UI is ready for it.
@@ -239,6 +254,7 @@ class VeteranAdapter @Inject constructor() : WheelAdapter {
         parser.reset()
         detectedModel = null
         lastOryxBatterySoc = -1
+        emittedModel = false
         // A wheel reboot loses light state on the wheel side, so the rider's
         // most reliable mental model after a reconnect is "light is off until
         // I press the button again". Reset the cache to match.

@@ -171,15 +171,28 @@ private fun urlEncode(s: String): String =
     URLEncoder.encode(s, StandardCharsets.UTF_8.name())
 
 /**
- * Returns true for wheels we treat as preliminary, connected wheels that are
- * not in the verified set. V14 (author's daily wheel) and P6 (telemetry +
- * controls verified against labelled real-hardware captures) are verified;
- * anything else trips the banner so the user knows to file a wheel report
- * if values look off. Disconnected (null name) → hidden too.
+ * Model-name fragments for wheels confirmed on real hardware - the author's
+ * V14 / P6, plus the rider-tested wheels (see README + in-app About → Credits).
+ * Matching is a case-insensitive substring of the resolved model name, so it
+ * keys off distinctive tokens ("Oryx", "Lynx S", "16X") rather than the whole
+ * name. It can only fail safe: an unmatched tested wheel still shows the banner
+ * (conservative), and the tokens are distinct enough not to exempt an untested
+ * sibling (e.g. "Lynx S" doesn't match a plain "Lynx", "16X" doesn't match "KS-16").
+ */
+private val VERIFIED_WHEEL_TOKENS = listOf(
+    "V14", "P6",                 // InMotion (author-verified)
+    "Oryx", "Lynx S",            // Veteran (rider-tested)
+    "Mten3", "EX30", "E20",      // Begode (rider-tested)
+    "16X",                       // KingSong KS-16X (rider-tested)
+)
+
+/**
+ * Returns true for wheels we treat as preliminary: a connected wheel whose
+ * resolved model isn't in the verified/rider-tested set above. Anything else
+ * trips the banner so the user knows to file a wheel report if values look off.
+ * Disconnected (null name) → hidden too.
  */
 private fun isPreliminaryWheel(name: String?): Boolean {
     if (name.isNullOrBlank()) return false
-    if (name.contains("V14")) return false
-    if (name.contains("P6", ignoreCase = true)) return false
-    return true
+    return VERIFIED_WHEEL_TOKENS.none { name.contains(it, ignoreCase = true) }
 }
