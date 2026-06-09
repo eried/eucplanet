@@ -1,6 +1,5 @@
 package com.eried.eucplanet.ble
 
-import java.util.UUID
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -72,12 +71,12 @@ class CompositeWheelAdapter @Inject constructor(
      * per-adapter `onRawNotification` and can be added without changing here.
      */
     override fun pickAdapterByDiscoveredServices(
-        discoveredServiceUuids: Set<UUID>,
+        discoveredServiceUuids: Set<String>,
         deviceName: String?
     ): Boolean {
         // V1 exposes BOTH the bare HM-10 0xFFE0 service AND a second 0xFFE5
         // service for writes; presence of FFE5 is the unambiguous tell.
-        val v1WriteServiceUuid = UUID.fromString("0000ffe5-0000-1000-8000-00805f9b34fb")
+        val v1WriteServiceUuid = "0000ffe5-0000-1000-8000-00805f9b34fb"
         val newActive = when {
             BleProfile.NORDIC_UART.serviceUuid in discoveredServiceUuids -> inmotion
             v1WriteServiceUuid in discoveredServiceUuids -> inmotionV1

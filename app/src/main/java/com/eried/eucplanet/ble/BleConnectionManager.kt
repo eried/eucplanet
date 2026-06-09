@@ -499,7 +499,10 @@ class BleConnectionManager @Inject constructor(
             // match WheelLog - those modules don't reliably ACK
             // WRITE_TYPE_DEFAULT writes. InMotion V2 / V1 stay on the
             // safer WRITE_TYPE_DEFAULT.
-            val writeType = wheelAdapter.bleProfile().writeType
+            val writeType = when (wheelAdapter.bleProfile().writeType) {
+                BleWriteType.NO_RESPONSE -> BluetoothGattCharacteristic.WRITE_TYPE_NO_RESPONSE
+                BleWriteType.DEFAULT -> BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT
+            }
             try {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                     val result = g.writeCharacteristic(characteristic, data, writeType)
@@ -616,20 +619,20 @@ class BleConnectionManager @Inject constructor(
             }
 
             var profile = wheelAdapter.bleProfile()
-            var service = gatt.getService(profile.serviceUuid)
+            var service = gatt.getService(UUID.fromString(profile.serviceUuid))
             if (service == null) {
                 // Name-based routing picked the wrong adapter (most often: an
                 // unrecognised name fell through to the InMotion V2 default,
                 // but the wheel is a KingSong-class HM-10 module advertising
                 // as `RW` or similar). Ask the dispatcher to re-route based
                 // on the GATT-discovered service set, then retry.
-                val discoveredUuids = gatt.services.map { it.uuid }.toSet()
+                val discoveredUuids = gatt.services.map { it.uuid.toString() }.toSet()
                 Log.w(TAG, "Adapter ${wheelAdapter.familyId} service ${profile.serviceUuid} not on wheel; " +
                         "discovered services=$discoveredUuids - attempting fallback")
                 val rerouted = wheelAdapter.pickAdapterByDiscoveredServices(discoveredUuids, currentName)
                 if (rerouted) {
                     profile = wheelAdapter.bleProfile()
-                    service = gatt.getService(profile.serviceUuid)
+                    service = gatt.getService(UUID.fromString(profile.serviceUuid))
                     if (service != null) {
                         Log.i(TAG, "Adapter rerouted by service-UUID to ${wheelAdapter.familyId}")
                         _connectedBrand.value = wheelAdapter.brand
@@ -641,8 +644,8 @@ class BleConnectionManager @Inject constructor(
                 }
             }
 
-            rxCharacteristic = service.getCharacteristic(profile.writeCharacteristic)
-            val txCharacteristic = service.getCharacteristic(profile.notifyCharacteristic)
+            rxCharacteristic = service.getCharacteristic(UUID.fromString(profile.writeCharacteristic))
+            val txCharacteristic = service.getCharacteristic(UUID.fromString(profile.notifyCharacteristic))
 
             if (rxCharacteristic == null || txCharacteristic == null) {
                 failConnectAndTeardown(gatt,
@@ -671,7 +674,7 @@ class BleConnectionManager @Inject constructor(
                 // INITIALIZING and the descriptor write looks "stuck".
                 // Gated on the HM-10 notify char (0xFFE1) so V14 / P6
                 // (Nordic UART) and InMotion V1 (0xFFE4) aren't touched.
-                if (txCharacteristic.uuid == BleProfile.HM10.notifyCharacteristic) {
+                if (txCharacteristic.uuid == UUID.fromString(BleProfile.HM10.notifyCharacteristic)) {
                     scope.launch {
                         kotlinx.coroutines.delay(750L)
                         if (_connectionState.value == ConnectionState.INITIALIZING &&
