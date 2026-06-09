@@ -16,8 +16,12 @@ kotlin {
     // iOS targets only build on macOS. On Windows/Linux they are skipped so the
     // Android-green loop stays clean; iOS compilation is verified on the Mac.
     if (HostManager.hostIsMac) {
-        iosArm64()
-        iosSimulatorArm64()
+        listOf(iosArm64(), iosSimulatorArm64()).forEach { target ->
+            target.binaries.framework {
+                baseName = "Shared"
+                isStatic = true
+            }
+        }
     }
 
     compilerOptions {
