@@ -1,6 +1,6 @@
 package com.eried.eucplanet.ble
 
-import java.io.ByteArrayOutputStream
+import com.eried.eucplanet.util.ByteArrayBuilder
 
 /**
  * Wire format for the InMotion V1 family (V5 / V8 / V10 / L6 / R-series / V3).
@@ -55,7 +55,7 @@ object InMotionV1Protocol {
     /** Wrap an unescaped CAN frame in `AA AA … <ck> 55 55` with byte stuffing. */
     fun wrap(frame: ByteArray): ByteArray {
         val checksum = checksum(frame)
-        val body = ByteArrayOutputStream(frame.size + 4)
+        val body = ByteArrayBuilder(frame.size + 4)
         body.write(0xAA); body.write(0xAA)
         for (b in frame) writeEscaped(body, b)
         writeEscaped(body, checksum)
@@ -73,7 +73,7 @@ object InMotionV1Protocol {
         if (framed[0] != HEADER || framed[1] != HEADER) return null
         val n = framed.size
         if (framed[n - 2] != TRAILER || framed[n - 1] != TRAILER) return null
-        val unescaped = ByteArrayOutputStream(n)
+        val unescaped = ByteArrayBuilder(n)
         var i = 2
         while (i < n - 2) {
             val b = framed[i]
@@ -101,7 +101,7 @@ object InMotionV1Protocol {
         return sum.toByte()
     }
 
-    private fun writeEscaped(out: ByteArrayOutputStream, b: Byte) {
+    private fun writeEscaped(out: ByteArrayBuilder, b: Byte) {
         when (b) {
             HEADER, TRAILER, ESCAPE -> {
                 out.write(0xA5)

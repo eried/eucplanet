@@ -3,6 +3,7 @@ package com.eried.eucplanet.ble
 import com.eried.eucplanet.data.model.WheelData
 import com.eried.eucplanet.data.model.WheelSettings
 import com.eried.eucplanet.util.ByteUtils
+import com.eried.eucplanet.util.nowEpochMillis
 import kotlin.math.abs
 
 /**
@@ -81,7 +82,7 @@ object InMotionV1Parser {
             pitchAngle = pitch,
             rollAngle = roll,
             pcMode = pcMode,
-            timestamp = System.currentTimeMillis()
+            timestamp = nowEpochMillis()
         )
     }
 
@@ -167,7 +168,7 @@ object InMotionV1Parser {
      */
     private fun parseSerial(payload: ByteArray): String {
         val sb = StringBuilder(16)
-        for (i in 7 downTo 0) sb.append("%02X".format(payload[i].toInt() and 0xFF))
+        for (i in 7 downTo 0) sb.append((payload[i].toInt() and 0xFF).toString(16).uppercase().padStart(2, '0'))
         return sb.toString()
     }
 
