@@ -1,5 +1,7 @@
 package com.eried.eucplanet.ble
 
+import kotlin.concurrent.Volatile
+
 /**
  * Stream-cipher helper for the Ninebot Z protocol. The wheel and phone agree
  * on a 16-byte session key during the GetKey handshake (param 0x00 to

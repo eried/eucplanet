@@ -3,6 +3,7 @@ package com.eried.eucplanet.ble
 import com.eried.eucplanet.data.model.WheelData
 import com.eried.eucplanet.data.model.WheelSettings
 import com.eried.eucplanet.util.ByteUtils
+import kotlin.concurrent.Volatile
 import com.eried.eucplanet.util.Log
 import com.eried.eucplanet.util.SharedDiagnostics
 import com.eried.eucplanet.util.nowEpochMillis

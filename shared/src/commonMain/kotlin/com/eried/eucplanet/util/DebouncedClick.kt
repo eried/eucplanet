@@ -7,7 +7,7 @@ package com.eried.eucplanet.util
 class MultipleEventsCutter(private val intervalMs: Long = 500L) {
     private var lastEventTime = 0L
     fun processEvent(event: () -> Unit) {
-        val now = System.currentTimeMillis()
+        val now = nowEpochMillis()
         if (now - lastEventTime >= intervalMs) {
             lastEventTime = now
             event()
