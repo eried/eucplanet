@@ -3,6 +3,7 @@ package com.eried.eucplanet.ble
 import com.eried.eucplanet.data.model.WheelData
 import com.eried.eucplanet.data.model.WheelSettings
 import com.eried.eucplanet.util.ByteUtils
+import com.eried.eucplanet.util.nowEpochMillis
 
 /**
  * Parsers for inbound KingSong BLE frames. Each frame is a fixed 20-byte
@@ -73,7 +74,7 @@ object KingsongParser {
             batteryPower = powerW,
             motorPower = powerW,
             pcMode = pcMode,
-            timestamp = System.currentTimeMillis()
+            timestamp = nowEpochMillis()
         )
     }
 
@@ -98,7 +99,7 @@ object KingsongParser {
             dynamicSpeedLimit = topSpeed,
             temperatures = listOf(temperature2),
             maxTemperature = temperature2,
-            timestamp = System.currentTimeMillis()
+            timestamp = nowEpochMillis()
         )
     }
 
@@ -138,7 +139,7 @@ object KingsongParser {
     fun parseModelName(frame: ByteArray): String? {
         if (frame.size < 20) return null
         if (frame[16] != 0xBB.toByte()) return null
-        val raw = String(frame, 2, 14, Charsets.US_ASCII).trimEnd { it == ' ' || it.code == 0 }
+        val raw = frame.decodeToString(2, 16).trimEnd { it == ' ' || it.code == 0 }
         if (raw.isBlank()) return null
         val lastDash = raw.lastIndexOf('-')
         return if (lastDash > 0 && raw.substring(lastDash + 1).all { it.isDigit() }) {
@@ -154,13 +155,13 @@ object KingsongParser {
     fun parseFirmwareVersion(frame: ByteArray): String? {
         if (frame.size < 20) return null
         if (frame[16] != 0xBB.toByte()) return null
-        val raw = String(frame, 2, 14, Charsets.US_ASCII).trimEnd { it == ' ' || it.code == 0 }
+        val raw = frame.decodeToString(2, 16).trimEnd { it == ' ' || it.code == 0 }
         val lastDash = raw.lastIndexOf('-')
         if (lastDash <= 0) return null
         val token = raw.substring(lastDash + 1)
         if (token.isEmpty() || !token.all { it.isDigit() }) return null
         val v = token.toInt()
-        return "%.2f".format(v / 100f)
+        return "${v / 100}.${(v % 100).toString().padStart(2, '0')}"
     }
 
     /**
@@ -173,9 +174,9 @@ object KingsongParser {
         if (frame[0] != HEADER0 || frame[1] != HEADER1) return null
         if (frame[16] != 0xB3.toByte()) return null
         val bytes = ByteArray(17)
-        System.arraycopy(frame, 2, bytes, 0, 14)
-        System.arraycopy(frame, 17, bytes, 14, 3)
-        return String(bytes, Charsets.US_ASCII)
+        frame.copyInto(bytes, 0, 2, 16)
+        frame.copyInto(bytes, 14, 17, 20)
+        return bytes.decodeToString()
             .trimEnd { it == ' ' || it.code == 0 }
             .ifBlank { null }
     }
@@ -191,7 +192,7 @@ object KingsongParser {
         val pwmPercent = (frame[15].toInt() and 0xFF).toFloat()
         return WheelData(
             pwm = pwmPercent,
-            timestamp = System.currentTimeMillis()
+            timestamp = nowEpochMillis()
         )
     }
 
@@ -202,7 +203,7 @@ object KingsongParser {
         val limitKmh = ByteUtils.getUint16LE(frame, 2) / 100f
         return WheelData(
             dynamicSpeedLimit = limitKmh,
-            timestamp = System.currentTimeMillis()
+            timestamp = nowEpochMillis()
         )
     }
 
