@@ -7489,8 +7489,14 @@ private fun ThemeDropdown(
         expanded = expanded,
         onExpandedChange = { expanded = !expanded }
     ) {
+        // Custom themes carry a .json suffix internally (so "Light" the
+        // built-in and a user-saved "Light" never collide on lookup). Strip
+        // it for display only -- the underlying name passed to onSelect
+        // keeps the suffix so resolution still picks the right file.
+        fun displayName(n: String): String =
+            if (n.endsWith(".json", ignoreCase = true)) n.dropLast(5) else n
         OutlinedTextField(
-            value = current,
+            value = displayName(current),
             onValueChange = {},
             readOnly = true,
             label = { Text(highlightMatches(label, LocalSettingsSearchQuery.current)) },
@@ -7514,7 +7520,7 @@ private fun ThemeDropdown(
             }
             saved.forEach { name ->
                 DropdownMenuItem(
-                    text = { Text(name) },
+                    text = { Text(displayName(name)) },
                     onClick = { onSelect(name); expanded = false }
                 )
             }

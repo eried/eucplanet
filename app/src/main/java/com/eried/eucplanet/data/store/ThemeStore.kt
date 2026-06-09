@@ -48,20 +48,28 @@ class ThemeStore @Inject constructor(
         syncManager.getSyncFolder(settingsRepository.get()) != null
     }
 
-    /** Names of every saved custom theme, sorted case-insensitively. */
+    /**
+     * Names of every saved custom theme, sorted case-insensitively. Names are
+     * returned WITH the `.json` extension on purpose so the picker and the
+     * stored `activeThemeName` always disambiguate custom from built-in (a
+     * user theme called "Light" surfaces as "Light.json" and can no longer be
+     * shadowed by the built-in "Light").
+     */
     suspend fun listSaved(): List<String> = withContext(Dispatchers.IO) {
         val folder = themesFolder() ?: return@withContext emptyList()
         folder.listFiles()
             .mapNotNull { doc ->
                 val n = doc.name ?: return@mapNotNull null
-                if (doc.isFile && n.endsWith(SUFFIX, ignoreCase = true)) n.dropLast(SUFFIX.length) else null
+                if (doc.isFile && n.endsWith(SUFFIX, ignoreCase = true)) n else null
             }
             .sortedBy { it.lowercase() }
     }
 
-    /** Write [colors] as `<name>.json`, overwriting any file with that name. */
+    /** Write [colors] as `<name>.json`. Trailing `.json` in `name` is tolerated
+     *  so callers can pass either the bare base name or the listSaved form. */
     suspend fun saveTheme(name: String, colors: AppThemeColors): Boolean = withContext(Dispatchers.IO) {
-        val safe = syncManager.sanitizeBackupName(name) ?: return@withContext false
+        val base = if (name.endsWith(SUFFIX, ignoreCase = true)) name.dropLast(SUFFIX.length) else name
+        val safe = syncManager.sanitizeBackupName(base) ?: return@withContext false
         val folder = themesFolder() ?: return@withContext false
         val fileName = "$safe$SUFFIX"
         runCatching {
@@ -78,10 +86,12 @@ class ThemeStore @Inject constructor(
         }
     }
 
-    /** Load the named saved theme, or null if missing / unreadable. */
+    /** Load the named saved theme, or null if missing / unreadable. `name`
+     *  may be passed with or without the `.json` suffix. */
     suspend fun loadTheme(name: String): AppThemeColors? = withContext(Dispatchers.IO) {
         val folder = themesFolder() ?: return@withContext null
-        val file = folder.findFile("$name$SUFFIX") ?: return@withContext null
+        val withSuffix = if (name.endsWith(SUFFIX, ignoreCase = true)) name else "$name$SUFFIX"
+        val file = folder.findFile(withSuffix) ?: return@withContext null
         runCatching {
             val bytes = context.contentResolver.openInputStream(file.uri)?.use { it.readBytes() }
                 ?: return@withContext null
@@ -97,10 +107,12 @@ class ThemeStore @Inject constructor(
         }
     }
 
-    /** Delete the named saved theme file. */
+    /** Delete the named saved theme file. `name` may be passed with or
+     *  without the `.json` suffix. */
     suspend fun deleteTheme(name: String): Boolean = withContext(Dispatchers.IO) {
         val folder = themesFolder() ?: return@withContext false
-        folder.findFile("$name$SUFFIX")?.delete() ?: false
+        val withSuffix = if (name.endsWith(SUFFIX, ignoreCase = true)) name else "$name$SUFFIX"
+        folder.findFile(withSuffix)?.delete() ?: false
     }
 
     /** The `themes/` subfolder of the backup folder, created on demand. */
