@@ -1,5 +1,6 @@
 package com.eried.eucplanet.ui.theme
 
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -330,7 +331,14 @@ fun ThemeEditorWidget(
                                     if (selectedKey == spec.key) selectedKey = null
                                     else { selectedKey = spec.key; blink(spec) }
                                 },
-                                onPlay = { blink(spec) }
+                                onPlay = { blink(spec) },
+                                onHexEdit = { c -> vm.preview(spec.set(base, c)) },
+                                onHexCommit = {
+                                    if (!dirty &&
+                                        settings.activeThemeName in choices.unsaved
+                                    ) pendingOverwrite = true
+                                    else vm.commit()
+                                }
                             )
                             if (selectedKey == spec.key) {
                                 ColorSliders(
@@ -474,6 +482,8 @@ private fun TokenRow(
     color: Color,
     onClick: () -> Unit,
     onPlay: () -> Unit,
+    onHexEdit: (Color) -> Unit,
+    onHexCommit: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Row(
@@ -502,10 +512,57 @@ private fun TokenRow(
             )
         }
         Spacer(Modifier.weight(1f))
-        Text(
-            "#" + color.toHex().drop(2),
-            style = MaterialTheme.typography.labelSmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
+        HexInput(color, onHexEdit, onHexCommit)
+    }
+}
+
+/**
+ * Inline editable hex code. Shows the current RRGGBB; typing a valid 6-char
+ * hex previews the change live, IME Done / focus loss commits. Invalid input
+ * is held in the field without mutating the color so the rider can keep
+ * typing without their work being yanked away.
+ */
+@Composable
+private fun HexInput(
+    color: Color,
+    onHexEdit: (Color) -> Unit,
+    onHexCommit: () -> Unit,
+) {
+    val external = color.toHex().drop(2) // strip AA from AARRGGBB
+    var text by remember(external) { mutableStateOf(external) }
+    val style = MaterialTheme.typography.labelSmall.copy(
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
+        fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace,
+    )
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        Text("#", style = style)
+        androidx.compose.foundation.text.BasicTextField(
+            value = text,
+            onValueChange = { raw ->
+                val cleaned = raw.removePrefix("#")
+                    .filter { it.isDigit() || it in 'a'..'f' || it in 'A'..'F' }
+                    .take(6)
+                    .uppercase()
+                text = cleaned
+                if (cleaned.length == 6) {
+                    hexToColor(cleaned)?.let(onHexEdit)
+                }
+            },
+            singleLine = true,
+            textStyle = style,
+            cursorBrush = androidx.compose.ui.graphics.SolidColor(MaterialTheme.colorScheme.onSurfaceVariant),
+            keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(
+                keyboardType = androidx.compose.ui.text.input.KeyboardType.Ascii,
+                imeAction = androidx.compose.ui.text.input.ImeAction.Done,
+                capitalization = androidx.compose.ui.text.input.KeyboardCapitalization.Characters,
+                autoCorrectEnabled = false,
+            ),
+            keyboardActions = androidx.compose.foundation.text.KeyboardActions(
+                onDone = { onHexCommit() }
+            ),
+            modifier = Modifier
+                .width(58.dp)
+                .onFocusChanged { f -> if (!f.isFocused && text.length == 6) onHexCommit() },
         )
     }
 }
