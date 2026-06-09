@@ -132,10 +132,10 @@ object InMotionV2ParserV12 {
      *   byte 22      speaker volume
      *   byte 39      bit 0 = NOT mute, bit 6 = transport mode
      *
-     * V12 has no reliable lockState byte in the public layout; WheelLog leaves
-     * it commented out. We keep [WheelSettings.lockState] at 0 (unlocked) and
-     * rely on the wheel's actual response to the lock command for state, not
-     * settings introspection.
+     * V12 has no reliable lockState byte in the public layout. We keep
+     * [WheelSettings.lockState] at 0 (unlocked) and rely on the wheel's
+     * actual response to the lock command for state, not settings
+     * introspection.
      */
     fun parseSettings(data: ByteArray): WheelSettings? {
         if (data.size < 42) return null

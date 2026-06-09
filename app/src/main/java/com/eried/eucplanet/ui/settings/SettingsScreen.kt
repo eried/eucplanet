@@ -5515,10 +5515,10 @@ private fun SpeedTab(
         )
 
         SectionHeader(stringResource(R.string.section_speed_limits))
-        // Lower bound is 0 km/h to match WheelLog: some Begode/Veteran wheels
-        // report tiltback at 0 (= disabled) or a very low value the rider set
-        // on the wheel itself, and clamping the slider's floor at 10 used to
-        // produce inverted ranges (10..0) that crashed the screen.
+        // Lower bound is 0 km/h: some Begode / Veteran wheels report
+        // tiltback at 0 (= disabled) or a very low value the rider set
+        // on the wheel itself, and clamping the slider's floor at 10
+        // used to produce inverted ranges (10..0) that crashed the screen.
         SpeedSliderSetting(
             label = stringResource(R.string.speed_tiltback),
             valueKmh = settings.tiltbackSpeedKmh,

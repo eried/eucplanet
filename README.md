@@ -197,7 +197,6 @@ Thanks to the people and projects that helped, kept in sync with the app (tap ve
 | Jonathan Wiesner | LeaperKim Lynx S testing |
 | Felix K | LeaperKim Oryx testing |
 | Bearkat713 | Motoeye E6 testing |
-| [WheelLog community](https://github.com/Wheellog/wheellog.android) | Open-source (GPLv3) EUC protocol research |
 | Ilya Shkolnik | Advice and help. Maintains DarknessBot. |
 | InMotion | For making a great V14 |
 

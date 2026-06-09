@@ -23,10 +23,6 @@ import javax.inject.Singleton
  * blob, `SetLightON/OFF`, `SETh/m/s` pedal stiffness, `CLEARMETER` trip
  * reset. No software lock, no volume, no max-speed write (the SET* family
  * sets thresholds, not absolute max; see spec section 6 "Notes").
- *
- * Protocol research credit: the WheelLog community (
- * https://github.com/Wheellog/wheellog.android, GPLv3, used as a protocol
- * reference; the implementation here is original).
  */
 @Singleton
 class VeteranAdapter @Inject constructor() : WheelAdapter {
@@ -57,10 +53,10 @@ class VeteranAdapter @Inject constructor() : WheelAdapter {
 
     /**
      * Current Lynx-class firmware only sounds the horn when the `LkAp` frame
-     * from [horn] is followed by this `LdAp` companion. WheelLog sends just the
-     * `LkAp` half, so its horn is silently ignored on these wheels (the frame is
-     * accepted but produces no beep). Decoded from a LeaperKim-app btsnoop on a
-     * Lynx S (mVer 9). [com.eried.eucplanet.data.repository.WheelRepository.sendHorn]
+     * from [horn] is followed by this `LdAp` companion. Sending the `LkAp`
+     * half alone leaves the wheel silent (the frame is accepted but
+     * produces no beep). Decoded from a LeaperKim-app btsnoop on a Lynx S
+     * (mVer 9). [com.eried.eucplanet.data.repository.WheelRepository.sendHorn]
      * writes both, in order.
      */
     override fun hornFollowup(): ByteArray = VeteranCommands.hornCompanion()

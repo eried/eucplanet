@@ -9,8 +9,7 @@ package com.eried.eucplanet.ble
  * Per-model voltage class drives the battery-percent curve (Li-ion EUC packs
  * have well-defined linear regions between full-charge and empty).
  *
- * Spec: docs/protocols/kingsong.md. Protocol research credit goes to WheelLog
- * community; the implementation here is original.
+ * Spec: docs/protocols/kingsong.md.
  */
 enum class KingsongModel(
     val displayName: String,

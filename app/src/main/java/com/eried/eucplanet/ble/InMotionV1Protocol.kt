@@ -14,10 +14,6 @@ import java.io.ByteArrayOutputStream
  *
  * Checksum is `sum(unescaped CAN bytes) mod 256` and is itself escaped on the
  * same rules.
- *
- * Protocol research credit: the WheelLog community (
- * https://github.com/Wheellog/wheellog.android, GPLv3, used as a protocol
- * reference; the implementation here is original).
  */
 object InMotionV1Protocol {
 

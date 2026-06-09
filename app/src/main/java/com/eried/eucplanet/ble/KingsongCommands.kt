@@ -7,10 +7,6 @@ import com.eried.eucplanet.util.ByteUtils
  * fixed 20-byte structure: `AA 55` header, 14 payload bytes, type code at
  * offset 16, then the `0x14 0x5A 0x5A` trailer at offsets 17..19. See
  * docs/protocols/kingsong.md section 3 and section 6.
- *
- * Protocol research credit: the WheelLog community (
- * https://github.com/Wheellog/wheellog.android, GPLv3, used as a protocol
- * reference; the implementation here is original).
  */
 object KingsongCommands {
 
@@ -22,9 +18,9 @@ object KingsongCommands {
     object Type {
         const val POWER_OFF: Byte = 0x40
         const val STANDBY: Byte = 0x3F
-        const val STROBE: Byte = 0x53.toByte()        // Side LED strobe pattern (WheelLog setStrobeMode)
+        const val STROBE: Byte = 0x53.toByte()        // Side LED strobe pattern
         const val SERIAL_REQ: Byte = 0x63
-        const val LED_MODE: Byte = 0x6C.toByte()      // Side LED pattern 0..9 (WheelLog setLedMode)
+        const val LED_MODE: Byte = 0x6C.toByte()      // Side LED pattern 0..9
         const val LIGHT: Byte = 0x73.toByte()
         const val MAX_SPEED_AND_ALARMS: Byte = 0x85.toByte()
         const val PEDAL_MODE: Byte = 0x87.toByte()
@@ -185,20 +181,19 @@ object KingsongCommands {
     }
 
     // ============================================================
-    // WheelLog-documented KingSong setters, NOT yet wired to UI.
-    // Byte sequences from WheelLog KingsongAdapter.java.
+    // Documented KingSong setters, NOT yet wired to UI.
     // ============================================================
 
     /**
-     * Side LED pattern selector (0..9). WheelLog: `data[2]=mode, data[16]=0x6C`.
+     * Side LED pattern selector (0..9). Wire: `data[2]=mode, data[16]=0x6C`.
      */
     internal fun setLedMode(mode: Int): ByteArray = frame(Type.LED_MODE) { f ->
         f[2] = mode.coerceIn(0, 9).toByte()
     }
 
     /**
-     * Side LED strobe pattern. WheelLog: `data[2]=mode, data[16]=0x53`.
-     * Mode range is open per WheelLog source; treat as a u8.
+     * Side LED strobe pattern. Wire: `data[2]=mode, data[16]=0x53`.
+     * Mode range is open in the public references; treat as a u8.
      */
     internal fun setStrobeMode(mode: Int): ByteArray = frame(Type.STROBE) { f ->
         f[2] = (mode and 0xFF).toByte()

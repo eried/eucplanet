@@ -6,10 +6,6 @@ package com.eried.eucplanet.ble
  * KeyGenerator address 0x16), then XOR every subsequent on-wire frame against
  * that key with no IV, no rotation, and no authentication. See
  * docs/protocols/ninebot.md section 6.
- *
- * Protocol research credit: the WheelLog community (
- * https://github.com/Wheellog/wheellog.android, GPLv3, used as a protocol
- * reference; the implementation here is original).
  */
 class NinebotZCrypto {
 

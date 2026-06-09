@@ -55,11 +55,11 @@ object InMotionV2LegacyCommands {
         )
 
     /**
-     * Headlight for V12 HS / HT / Pro. WheelLog's `setLightV12` uses a
-     * two-beam packet at sub-cmd 0x50, where the rider can drive the low
-     * and high beam independently. We map our single on/off toggle to
-     * both beams so the dashboard's Light button behaves like a master
-     * switch: on -> both beams on (1, 1), off -> both off (0, 0).
+     * Headlight for V12 HS / HT / Pro. The legacy V12 form uses a
+     * two-beam packet at sub-cmd 0x50, where the rider can drive the
+     * low and high beam independently. We map our single on/off toggle
+     * to both beams so the dashboard's Light button behaves like a
+     * master switch: on -> both beams on (1, 1), off -> both off (0, 0).
      *
      *   payload: [0x50, lowBeam, highBeam]   (each 0 or 1)
      *
@@ -75,9 +75,9 @@ object InMotionV2LegacyCommands {
     }
 
     /**
-     * Two-tier alarm-speed for V12 HS / HT / Pro. WheelLog's `setAlarmSpeedV12`
-     * accepts two thresholds in one packet (sub-cmd 0x3e). Our app exposes a
-     * single alarm threshold, so we send the same value for both tiers.
+     * Two-tier alarm-speed for V12 HS / HT / Pro. The legacy V12 form
+     * accepts two thresholds in one packet (sub-cmd 0x3e). Our app exposes
+     * a single alarm threshold, so we send the same value for both tiers.
      *
      *   payload: [0x3e, alarm1_lo, alarm1_hi, alarm2_lo, alarm2_hi]
      *            (each uint16-LE * 100)

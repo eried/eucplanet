@@ -28,7 +28,7 @@ android {
         applicationId = "com.eried.eucplanet.hud"
         // The Motoeye E6 ships with what aftermarket vendors call "Android",
         // but the firmware revision is unpublished and the manuals are vague.
-        // The EUC World HUD app (known to install) targets minSdk=24
+        // Other HUD apps known to install on these units target minSdk=24
         // (Android 7), so we match that. Some E6 units appear to be Android
         // 7 or 8 from forum reports, which would parse-reject any APK with
         // minSdk >= 26. targetSdk 33 keeps us inside the API surface we

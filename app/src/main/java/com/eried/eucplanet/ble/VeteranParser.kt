@@ -11,20 +11,18 @@ import kotlin.math.roundToInt
  *
  * Frames are sent in pieces over notifications and must be reassembled before
  * we can parse them. Each frame starts with the magic `DC 5A 5C`, a one-byte
- * LEN at offset 3, then payload bytes; total buffer size is always LEN + 4
- * bytes. For long (LEN > 38, smart-BMS) frames the last 4 bytes are a
- * big-endian CRC32 covering bytes 0..LEN-1; short frames have no CRC and
- * the full LEN + 4 bytes are payload data. Wire layout, offsets, scale
- * factors and per-model voltage curves come from docs/protocols/veteran.md.
+ * LEN at offset 3, then payload bytes, then a 4-byte big-endian CRC32 trailer
+ * over bytes 0..LEN-1 (zlib polynomial 0xEDB88320). Total buffer is always
+ * LEN + 4 bytes. Wire layout, offsets, scale factors and per-model voltage
+ * curves come from docs/protocols/veteran.md.
  *
  * The parser is a small state machine driven by [feed]. A 100 ms gap without
  * continuation drops the partial buffer and re-syncs on the next magic; the
  * connection manager calls [feed] from the same coroutine that schedules
  * notifications, so wall-clock time on each call is the right re-sync clock.
  *
- * Protocol research credit: the WheelLog community (
- * https://github.com/Wheellog/wheellog.android, GPLv3, used as a protocol
- * reference; the implementation here is original).
+ * Protocol reference (upstream, GPLv3):
+ * https://github.com/Wheellog/wheellog.android/blob/master/app/src/main/java/com/cooper/wheellog/utils/VeteranAdapter.java
  */
 class VeteranParser {
 
@@ -98,19 +96,27 @@ class VeteranParser {
 
     /**
      * Pull one complete frame off the front of the buffer, or return null if
-     * we don't have enough bytes yet. Drops the frame and re-syncs if the
-     * CRC fails on a long frame.
+     * we don't have enough bytes yet. Every accepted frame is CRC32-verified.
      *
-     * Frame size rule (verified against WheelLog's VeteranAdapter and against
-     * a captured Lynx S long frame whose CRC32 over the first LEN bytes
-     * matched the trailing 4 bytes exactly): total buffer = LEN + 4 bytes,
-     * always. For LEN > 38 the last 4 bytes are a CRC32 trailer covering
-     * bytes 0..LEN-1. For short (LEN <= 38) frames there is no CRC and all
-     * LEN+4 bytes are frame content (magic + LEN_byte + payload). An earlier
-     * version of this parser used LEN + 3 (+ optional 4 for CRC) which was
-     * off by 3 bytes for long frames and one of the causes of BMS-equipped
-     * Veterans (Lynx, Lynx S, Patton smart-BMS, Oryx) showing 0V / 0% on
-     * the dashboard.
+     * **CRC is mandatory.** Every BMS-equipped Veteran in the supported set
+     * (Sherman, Lynx S, Patton, Oryx) streams long, CRC-trailed frames
+     * (77/87/99-byte cycle, per page). An earlier version of this parser
+     * accepted any frame with LEN <= 38 without verifying a CRC (legacy
+     * "short telemetry" path). The wheels we support never emit such a
+     * frame, but the magic-trim loop can re-sync to a false `DC 5A 5C`
+     * triple sitting inside another frame's payload; if the byte after the
+     * false magic happened to fall in [0, 38] (~15% of the time) the
+     * resulting garbage was accepted with no validation and decoded as
+     * telemetry. That is how a stationary Oryx once shipped `654.3 V /
+     * 137 A` peaks to eucstats. Mandating CRC closes the gap:
+     * `P(false-positive CRC32) ≈ 1 / 2^32`, ten orders of magnitude
+     * tighter. Validated by tools/veteran_decode.py against real captures
+     * (29 false alignments across two sessions, every one now caught).
+     *
+     * On CRC failure we drop **only the first magic byte** and let the
+     * magic-trim loop resume on the next `DC 5A 5C`. Eating the full
+     * `totalSize` slice on failure would discard any real frame that
+     * happened to start inside it.
      */
     private fun tryExtractFrame(): Frame? {
         if (buffer.size < 4) return null
@@ -121,32 +127,21 @@ class VeteranParser {
         val frame = ByteArray(totalSize)
         for (i in 0 until totalSize) frame[i] = buffer[i]
 
-        // Pop the bytes we just consumed. ArrayList.subList(...).clear() is
-        // the cheapest contiguous-prefix removal Kotlin gives us.
-        buffer.subList(0, totalSize).clear()
-
-        val isLong = len > LONG_FRAME_THRESHOLD
-        if (isLong) {
-            // CRC32 covers bytes 0..LEN-1 (magic + LEN_byte + payload); trailer
-            // sits at offsets LEN..LEN+3 as a big-endian u32. Mismatch means
-            // we resync on the next magic; partial garbage that aligned with
-            // a `DC 5A 5C` triple gets eaten this way.
-            val crc = CRC32().apply { update(frame, 0, len) }.value
-            val expected = ByteUtils.getUint32BE(frame, len)
-            if (crc != expected) return null
+        val crc = CRC32().apply { update(frame, 0, len) }.value
+        val expected = ByteUtils.getUint32BE(frame, len)
+        if (crc != expected) {
+            buffer.removeAt(0)
+            return null
         }
 
-        return Frame(frame, isLong)
+        buffer.subList(0, totalSize).clear()
+        return Frame(frame, isLong = true)
     }
 
     companion object {
         private const val MAGIC0: Byte = 0xDC.toByte()
         private const val MAGIC1: Byte = 0x5A.toByte()
         private const val MAGIC2: Byte = 0x5C.toByte()
-
-        // Spec: short telemetry frame is LEN=38; anything larger is a
-        // smart-BMS frame and carries a CRC32 trailer.
-        private const val LONG_FRAME_THRESHOLD = 38
 
         // ---- Telemetry parsing ---------------------------------------------------
 
@@ -160,9 +155,9 @@ class VeteranParser {
          * the hardware PWM field at offsets 34..35 (only valid for
          * model >= Abrams firmware per spec section 7).
          *
-         * [signedSpeedMode] mirrors WheelLog's "GotwayNegative" preference:
-         * 0 = unsigned (force absolute), 1 = use the i16 sign as-is, -1 = invert.
-         * Default 1 matches what most firmwares emit honestly.
+         * [signedSpeedMode] mirrors the canonical "gotwayNegative" preference:
+         * 0 = unsigned (force absolute), 1 = use the i16 sign as-is,
+         * -1 = invert. Default 1 matches what most firmwares emit honestly.
          */
         fun parseTelemetry(
             frame: ByteArray,
@@ -179,28 +174,27 @@ class VeteranParser {
             val rawCurrent = ByteUtils.getInt16BE(frame, 16)
             val rawTempC = ByteUtils.getInt16BE(frame, 18)
             // Wheel-enforced speed-alert and tilt-back thresholds, both u16 BE
-            // in 0.1 km/h. These are set by the vendor (LeaperKim) app on the
-            // wheel firmware itself; our adapter has no write command for them
-            // (spec section 8) so we surface them read-only so Settings reflects
-            // reality. WheelLog reference at VeteranAdapter.java:46-47.
+            // in 0.1 km/h. These are set by the vendor (LeaperKim) app on
+            // the wheel firmware itself; our adapter has no write command
+            // for them (spec section 8) so we surface them read-only so
+            // Settings reflects reality.
             val rawAlertKmh = if (frame.size >= 26) ByteUtils.getUint16BE(frame, 24) / 10f else -1f
             val rawTiltbackKmh = if (frame.size >= 28) ByteUtils.getUint16BE(frame, 26) / 10f else -1f
 
-            // mVer from offset 28 (u16 BE / 1000 per WheelLog convention).
-            // When non-zero this is the authoritative source for model id,
-            // battery curve, PWM gate, beep variant, and cell count;
-            // overrides the BLE-name match because many wheels advertise
-            // as a generic "Veteran-xxxx" with no model token.
+            // mVer from offset 28 (u16 BE / 1000). When non-zero this is
+            // the authoritative source for model id, battery curve, PWM
+            // gate, beep variant, and cell count; overrides the BLE-name
+            // match because many wheels advertise as a generic
+            // "Veteran-xxxx" with no model token.
             val rawVersion = if (frame.size >= 30) ByteUtils.getUint16BE(frame, 28) else 0
             val mVer = rawVersion / 1000
             val resolvedModel = VeteranModel.fromMVer(mVer) ?: model
 
             val voltage = voltageCv / 100f
             val speedKmh = applySignMode(rawSpeed, signedSpeedMode) / 10f
-            // Note: this offset carries PHASE current per WheelLog's
-            // setPhaseCurrent. We expose it on the `current` field for now;
-            // downstream consumers that need bus current have to derive
-            // it from phase * pwm / 100.
+            // Note: this offset carries PHASE current. We expose it on the
+            // `current` field for now; downstream consumers that need bus
+            // current have to derive it from phase * pwm / 100.
             val current = applySignMode(rawCurrent, signedSpeedMode) / 10f
             val tripKm = rawTrip / 1000f
             val totalKm = rawTotal / 1000f

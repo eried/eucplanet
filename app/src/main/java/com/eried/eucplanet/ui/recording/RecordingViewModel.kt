@@ -405,7 +405,7 @@ class RecordingViewModel @Inject constructor(
             val headerLine = reader.readLine() ?: return emptyList()
             val headers = headerLine.lowercase().split(",").map { it.trim() }
 
-            // Detect column indices from header to support both DarknessBot and EUC World formats
+            // Detect column indices from header to support DarknessBot and similar formats
             val iSpeed = headers.indexOfFirst { it == "speed" }.takeIf { it >= 0 } ?: 1
             val iVoltage = headers.indexOfFirst { it == "voltage" }.takeIf { it >= 0 } ?: 2
             val iTemp = headers.indexOfFirst { it == "temperature" }.takeIf { it >= 0 } ?: 3

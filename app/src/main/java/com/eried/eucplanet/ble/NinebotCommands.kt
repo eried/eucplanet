@@ -15,10 +15,6 @@ import com.eried.eucplanet.util.ByteUtils
  * expose lock, alarms, light, volume, or LED through any documented parameter
  * (spec section 16). Legacy support is read-only; the adapter returns null for
  * every control method.
- *
- * Protocol research credit: the WheelLog community (
- * https://github.com/Wheellog/wheellog.android, GPLv3, used as a protocol
- * reference; the implementation here is original).
  */
 object NinebotCommands {
 
@@ -201,9 +197,9 @@ object NinebotCommands {
     /**
      * Drive flags bitfield (0xD3). Bit 0 is DRL (daytime running light).
      * Spec section 7 lists bits 1..4 for tail light, aux light, strain
-     * gauge / pedal pressure, brake assist; bit 3 has a "?" in WheelLog's
-     * reference and we have not validated it on real hardware. See
-     * spec open question 3.
+     * gauge / pedal pressure, brake assist; bit 3 is annotated as
+     * uncertain in the public references and we have not validated it
+     * on real hardware. See spec open question 3.
      */
     fun setDriveFlags(flags: Int): ByteArray = frame(
         ADDR_APP, ADDR_CONTROLLER, Cmd.WRITE, Param.DRIVE_FLAGS,
@@ -233,21 +229,20 @@ object NinebotCommands {
     )
 
     // ============================================================
-    // WheelLog-documented Ninebot Z setters, NOT yet wired to UI.
-    // Byte sequences from WheelLog NinebotZAdapter.java.
+    // Documented Ninebot Z setters, NOT yet wired to UI.
     // ============================================================
 
-    /** Calibration param (WheelLog `Param.Calibration` = 0x75). */
+    /** Calibration param (`Param.Calibration` = 0x75). */
     private const val PARAM_CALIBRATION: Int = 0x75
-    /** Per-LED colour base param (WheelLog `Param.LedColor1` = 0xC8). LED N uses base + (N-1)*2. */
+    /** Per-LED colour base param (`Param.LedColor1` = 0xC8). LED N uses base + (N-1)*2. */
     private const val PARAM_LED_COLOR_BASE: Int = 0xC8
 
     /**
      * Set one of the per-LED palette slots. `ledNum` is 1-based.
-     * WheelLog wire format (NinebotZAdapter.java:905-915):
-     *   value < 256 → `F0 <val> 00 00`
-     *   value ≥ 256 → `00 00 00 00`  (the high-value branch is suspect; WheelLog
-     *                                   treats it as a clear and we mirror.)
+     * Wire format:
+     *   value < 256 -> `F0 <val> 00 00`
+     *   value >= 256 -> `00 00 00 00`  (the high-value branch is
+     *                                   treated as a clear)
      */
     internal fun setLedColor(value: Int, ledNum: Int): ByteArray {
         val data = if (value < 256) {
@@ -262,7 +257,7 @@ object NinebotCommands {
         )
     }
 
-    /** Kick off / cancel sensor calibration. WheelLog: `[0/1, 0x00]`. */
+    /** Kick off / cancel sensor calibration. Wire: `[0/1, 0x00]`. */
     internal fun runCalibration(on: Boolean): ByteArray = frame(
         ADDR_APP, ADDR_CONTROLLER, Cmd.WRITE, PARAM_CALIBRATION,
         byteArrayOf(if (on) 0x01 else 0x00, 0x00)

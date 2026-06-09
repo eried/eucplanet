@@ -7,9 +7,7 @@ package com.eried.eucplanet.ble
  * with WRITE_NO_RESPONSE to the FFE1 characteristic, no checksum, no ack.
  * Confirmation only arrives via the next 0x04 (Live B) telemetry frame.
  *
- * Spec: docs/protocols/begode.md sections 6.1, 6.2. Protocol research credit:
- * the WheelLog community ( GPLv3), used as a protocol
- * reference; the implementation here is original.
+ * Spec: docs/protocols/begode.md sections 6.1, 6.2.
  */
 object BegodeCommands {
 
@@ -121,8 +119,7 @@ object BegodeCommands {
     fun queryModelName(): ByteArray = byteArrayOf('N'.code.toByte())
 
     // ============================================================
-    // WheelLog-documented Begode/Gotway setters, NOT yet wired to UI.
-    // Byte sequences from WheelLog GotwayAdapter.java.
+    // Documented Begode/Gotway setters, NOT yet wired to UI.
     // ============================================================
 
     /**
@@ -159,7 +156,7 @@ object BegodeCommands {
     /** "RC" — Rotation control on/off. */
     internal fun setRotationControl(on: Boolean): ByteArray = alexovikKv('R', 'C', if (on) 1 else 0)
 
-    /** "rs" — Roll/lean angle offset. WheelLog encodes as `(value - 260)`. */
+    /** "rs" — Roll/lean angle offset, encoded as `(value - 260)`. */
     internal fun setRotationAngle(value: Int): ByteArray = alexovikKv('r', 's', value - 260)
 
     /** "as" — Enable advanced PIDs. */

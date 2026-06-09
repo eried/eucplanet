@@ -18,10 +18,6 @@ import javax.inject.Singleton
  * Outbound commands are short ASCII strings written WITHOUT response; see
  * [BegodeCommands]. Begode pushes telemetry unsolicited; init / poll loops
  * are empty.
- *
- * Protocol research credit: the WheelLog community (
- * https://github.com/Wheellog/wheellog.android, GPLv3, used as a protocol
- * reference; the implementation here is original).
  */
 @Singleton
 class BegodeAdapter @Inject constructor() : WheelAdapter {
@@ -40,11 +36,11 @@ class BegodeAdapter @Inject constructor() : WheelAdapter {
     @Volatile private var lightOn: Boolean = false
 
     /**
-     * Lazy V/N probe state, mirroring WheelLog's GotwayAdapter.decode():
-     * we ask the wheel for its firmware banner once at connect; if the
-     * banner doesn't arrive (or the wheel only volunteers model), we
-     * re-queue the probe each time a notification arrives until the
-     * relevant field is filled. Self-disables once both are populated.
+     * Lazy V/N probe state: we ask the wheel for its firmware banner once
+     * at connect; if the banner doesn't arrive (or the wheel only
+     * volunteers model), we re-queue the probe each time a notification
+     * arrives until the relevant field is filled. Self-disables once
+     * both are populated.
      */
     @Volatile private var detectedFirmware: String? = null
     @Volatile private var detectedModelName: String? = null
@@ -61,8 +57,7 @@ class BegodeAdapter @Inject constructor() : WheelAdapter {
 
     // Begode streams telemetry unsolicited (spec 5), but the firmware and
     // model-name banners only arrive in response to ASCII "V" / "N" queries.
-    // WheelLog asks for them lazily inside its decode callback; we mirror
-    // that with a one-shot V at connect plus an N re-queue triggered by
+    // Ask lazily: one-shot V at connect plus an N re-queue triggered by
     // [onRawNotification] until both banners populate.
     override fun initSequence(): List<ByteArray> = listOf(BegodeCommands.queryFirmware())
 
@@ -124,7 +119,7 @@ class BegodeAdapter @Inject constructor() : WheelAdapter {
         // response to a "V" or "N" query. These arrive as raw text on the
         // same notify pipe as 55-AA telemetry frames, so we sniff them
         // *before* handing the chunk to the binary parser. Recognised
-        // prefixes match WheelLog: GW/CFW/BF/JN/NAME-style banners.
+        // prefixes: GW / CFW / BF / JN / NAME-style banners.
         val ascii = tryParseBanner(rawBytes)
         if (ascii != null) {
             if (ascii.firmware != null && detectedFirmware == null) {
@@ -152,9 +147,8 @@ class BegodeAdapter @Inject constructor() : WheelAdapter {
             results += parser.feed(rawBytes, detectedModel)
         }
 
-        // Re-queue the next probe lazily, matching WheelLog: once firmware
-        // arrives we move on to the model query; once both are filled we
-        // stop asking.
+        // Re-queue the next probe lazily: once firmware arrives we move
+        // on to the model query; once both are filled we stop asking.
         if (detectedFirmware == null) {
             pendingProbe = BegodeCommands.queryFirmware()
         } else if (detectedModelName == null) {

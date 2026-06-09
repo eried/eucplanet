@@ -19,9 +19,11 @@ import com.eried.eucplanet.util.ByteUtils
  * live-data replies into two notifies), validates CRC, and dispatches
  * payload bytes to the per-family decoder.
  *
- * Protocol research credit: the WheelLog community (
- * https://github.com/Wheellog/wheellog.android, GPLv3, used as a protocol
- * reference; the implementation here is original).
+ * Protocol references (upstream, GPLv3):
+ *   - Legacy (One E/E+/S2/Mini):
+ *     https://github.com/Wheellog/wheellog.android/blob/master/app/src/main/java/com/cooper/wheellog/utils/NinebotAdapter.java
+ *   - Z encrypted variant:
+ *     https://github.com/Wheellog/wheellog.android/blob/master/app/src/main/java/com/cooper/wheellog/utils/NinebotZAdapter.java
  */
 class NinebotParser(private val protocol: NinebotProtocol) {
 
@@ -227,9 +229,9 @@ class NinebotParser(private val protocol: NinebotProtocol) {
 
     /**
      * Drive flags bitfield (0xD3). Spec section 7 marks bit 3 as
-     * "Strain gauge / pedal pressure" with a "?"; the WheelLog comment
-     * the spec is paraphrased from has a question mark on that bit, and
-     * we have not toggled it on a real Z10 to confirm. See open question 3.
+     * "Strain gauge / pedal pressure" with a "?" -- public references
+     * also leave that bit annotated as uncertain, and we have not
+     * toggled it on a real Z10 to confirm. See open question 3.
      */
     fun parseZDriveFlags(data: ByteArray): Int? {
         if (data.isEmpty()) return null
@@ -256,10 +258,10 @@ class NinebotParser(private val protocol: NinebotProtocol) {
 
     fun parseZFirmware(data: ByteArray): String? {
         if (data.size < 2) return null
-        // Two-byte version word. WheelLog's reference treats this as a
-        // packed BCD-ish hex, e.g. 0x010A => "1.10". Without a labelled
-        // capture we keep the raw hex pair joined by a dot; caller can
-        // re-format later.
+        // Two-byte version word. Convention treats this as a packed
+        // BCD-ish hex, e.g. 0x010A => "1.10". Without a labelled
+        // capture we keep the raw hex pair joined by a dot; caller
+        // can re-format later.
         val hi = data[1].toInt() and 0xFF
         val lo = data[0].toInt() and 0xFF
         return "$hi.$lo"
@@ -282,10 +284,9 @@ class NinebotParser(private val protocol: NinebotProtocol) {
         val voltage = ByteUtils.getUint16LE(data, 24) / 100f
         val current = ByteUtils.getInt16LE(data, 26) / 100f
 
-        // Speed offset is variant-dependent. WheelLog's adapter conditions on
-        // the BleVersion ASCII tag; we condition on the model registry which
-        // already encodes the variant. S2 needs at least 30 bytes for the
-        // late-frame slot.
+        // Speed offset is variant-dependent. We condition on the model
+        // registry, which already encodes the variant. S2 needs at
+        // least 30 bytes for the late-frame slot.
         val speed: Float = when (model?.legacyVariant) {
             NinebotLegacyVariant.S2 -> {
                 if (data.size < 30) 0f

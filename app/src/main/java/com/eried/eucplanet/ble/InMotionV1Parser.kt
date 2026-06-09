@@ -12,9 +12,8 @@ import kotlin.math.abs
  *
  * Spec: docs/protocols/inmotion_v1.md sections 4 (fast info) and 5 (slow info).
  *
- * Protocol research credit: the WheelLog community (
- * https://github.com/Wheellog/wheellog.android, GPLv3, used as a protocol
- * reference; the implementation here is original).
+ * Protocol reference (upstream, GPLv3):
+ * https://github.com/Wheellog/wheellog.android/blob/master/app/src/main/java/com/cooper/wheellog/utils/InMotionAdapter.java
  */
 object InMotionV1Parser {
 
@@ -160,10 +159,10 @@ object InMotionV1Parser {
     }
 
     /**
-     * Serial as 8 hex bytes read in reverse order, matching the WheelLog
-     * reference. The first 8 bytes of the slow-info payload are the serial
-     * stored little-endian relative to the printed format on the chassis;
-     * iterating 7..0 reproduces the rider-visible value.
+     * Serial as 8 hex bytes read in reverse order. The first 8 bytes of
+     * the slow-info payload are the serial stored little-endian relative
+     * to the printed format on the chassis; iterating 7..0 reproduces
+     * the rider-visible value.
      */
     private fun parseSerial(payload: ByteArray): String {
         val sb = StringBuilder(16)
@@ -210,9 +209,9 @@ object InMotionV1Parser {
     }
 
     /**
-     * Default piecewise-linear curve used by V5 / R-series / L6 / V3. Slopes
-     * picked to match WheelLog within 1-2 percent; the breakpoints come from
-     * spec 4.5 (82.0 / 77.8 / 74.8 / 71.8 / 70.3 / 68.0 V).
+     * Default piecewise-linear curve used by V5 / R-series / L6 / V3.
+     * Slopes match the public references within 1-2 percent; breakpoints
+     * come from spec 4.5 (82.0 / 77.8 / 74.8 / 71.8 / 70.3 / 68.0 V).
      */
     private fun defaultCurve(v: Float): Float = when {
         v >= 82.0f -> 1.0f

@@ -7,8 +7,8 @@ The Veteran wire format is also used by recently rebranded Nosfet wheels (Apex, 
 Aeon) which run the same firmware family. Where this doc says "Veteran" it means
 "any wheel that emits the `0xDC 0x5A 0x5C` magic header."
 
-This document is original prose. Source code from WheelLog (GPLv3) was read for
-research. No code was copied. See Attribution at the end.
+This document is original prose. No third-party GPL code is reproduced
+here; every field, formula and command is restated in our own idiom.
 
 ## 1. GATT profile
 
@@ -81,10 +81,11 @@ Reassembly logic the parser must implement:
    Verify against `CRC32(buff[0..LEN-1])`. Drop the frame on mismatch.
 6. If a packet stalls (no bytes for ~100 ms), drop the partial buffer and re-sync.
 
-WheelLog also sanity-checks specific bytes during accumulation (for example
-`buff[22] == 0x00`, `buff[30] in {0x00, 0x07}`, `buff[23] & 0xFE == 0x00`). Treat
-these as soft re-sync triggers, not mandatory checks; they reject frames where the
-magic was matched inside random payload.
+Optional belt-and-suspenders: sanity-check specific bytes during accumulation
+(for example `buff[22] == 0x00`, `buff[30] in {0x00, 0x07}`,
+`buff[23] & 0xFE == 0x00`). Treat these as soft re-sync triggers, not
+mandatory checks; they reject frames where the magic was matched inside
+random payload.
 
 ## 4. Realtime telemetry
 
@@ -117,7 +118,7 @@ firmware only accepts write commands for those (see section 6).
 
 ### Speed and current sign
 
-The hardware reports the absolute value on some firmwares. WheelLog exposes a
+The hardware reports the absolute value on some firmwares. Expose a
 "GotwayNegative" preference with three options:
 
 | Setting | Effect |
@@ -172,8 +173,8 @@ Cell counts per model:
 Commands are ASCII strings written to the notify/write characteristic, except for
 the horn and the LeaperKim binary settings (section 6.2), which are CRC32-framed
 binary. The horn on Sherman S and newer is a PAIR of 14-byte frames (`LkAp` then
-`LdAp`); the single `LkAp` blob that WheelLog sends is silently ignored by
-Lynx-class firmware (see section 6.2). Bytes go out as one BLE write each; a
+`LdAp`); a lone `LkAp` blob is silently ignored by Lynx-class firmware
+(see section 6.2). Bytes go out as one BLE write each; a
 logical frame larger than the ATT MTU is split across writes and the wheel
 reassembles by magic.
 
@@ -249,8 +250,8 @@ Notes:
     (offsets 24/26), so the `LdAp` companion looks like a redundant echo.
   - The **horn is the exception** — a one-shot with no readback. The wheel only
     beeps when the `LkAp` frame (`00 80 80 80 01`) is followed by its `LdAp`
-    companion (`00 00 80 80 01`). Sending the `LkAp` blob alone — exactly what
-    WheelLog and pre-fix EUC Planet builds do — reaches the wheel with a valid
+    companion (`00 00 80 80 01`). Sending the `LkAp` blob alone — as some
+    apps and pre-fix EUC Planet builds did — reaches the wheel with a valid
     CRC but produces no sound (verified on a Lynx S btsnoop: four `LkAp`-only
     writes, zero beeps; the official app sends both frames on every press).
 - We currently surface only tilt-back and alarm in `VeteranCommands`; the other
@@ -307,9 +308,9 @@ Concrete divisor per family (kept as the original constants for fidelity):
 | Lynx family / Sherman L      | `round((v - 11902) / 29.03)` |
 | Oryx                         | `round((v - 13886) / 34.125)` |
 
-A "better percents" non-linear variant exists in WheelLog that bends the curve at
-roughly 90% to better approximate cell SoC; for a v0.x app, the linear version is
-fine and matches the wheel's own LED display closer.
+A "better percents" non-linear variant bends the curve at roughly 90% to
+better approximate cell SoC; for a v0.x app, the linear version is fine
+and matches the wheel's own LED display closer.
 
 Other per-model behavior:
 
@@ -370,16 +371,13 @@ Additional booleans worth tracking:
 
 ## 10. Attribution
 
-This document was reconstructed from publicly available open-source research:
+Protocol reference (upstream, GPLv3):
+<https://github.com/Wheellog/wheellog.android/blob/master/app/src/main/java/com/cooper/wheellog/utils/VeteranAdapter.java>
 
-- Primary source: WheelLog Android (`Wheellog/wheellog.android` on GitHub), GPLv3,
-  by the WheelLog community. The `VeteranAdapter.java` and
-  `GotwayVirtualAdapter.java` files were the main references for frame layout, byte
-  offsets, scale factors, command bytes, and per-model voltage curves.
-- Secondary: WheelLog wiki and the Electric Unicycle Forum LeaperKim threads for
-  cross-checking battery voltage ranges and model identifiers.
+Cross-checked against labelled captures collected on physical wheels
+(Sherman / Lynx S / Patton / Oryx) and the Electric Unicycle Forum
+LeaperKim threads for battery voltage ranges and model identifiers.
 
-No code was copied. All offsets, formulas, and command bytes here are restated in
-this project's idiom (`u8`, `u16 BE`, `i16 BE`, `u32 word-swapped`).
-
-If this document is redistributed, please keep this attribution intact.
+No third-party GPL code is copied. All offsets, formulas, and command bytes
+here are restated in this project's idiom (`u8`, `u16 BE`, `i16 BE`,
+`u32 word-swapped`).

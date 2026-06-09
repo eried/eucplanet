@@ -142,9 +142,9 @@ class WheelRepository @Inject constructor(
         // for the user's first light/horn/max-speed tap. 24 * 250ms = 6s.
         private const val CONNECT_AUTH_REFRESH_INTERVAL = 24
 
-        // Fallback slider ceiling when no wheel is connected or when the model
-        // ID isn't in our registry (mirrors WheelLog's default of 100; we use
-        // the historical 90 to match what the V14-only build always showed).
+        // Fallback slider ceiling when no wheel is connected or when the
+        // model ID isn't in our registry; 90 matches what the V14-only
+        // build always showed.
         private const val DEFAULT_MAX_SPEED_KMH = 90f
     }
 
@@ -1196,8 +1196,9 @@ class WheelRepository @Inject constructor(
             is DecodeResult.ModelName -> {
                 _modelName.value = result.name
                 // Resize the slider ceiling to whatever the detected model
-                // actually supports. WheelLog values for the V14 family etc;
-                // P6 gets 130 km/h since it isn't in WheelLog's table.
+                // actually supports. Published per-model speeds for the
+                // V14 family; P6 gets 130 km/h since it isn't in the
+                // canonical reference table.
                 val model = result.model as? com.eried.eucplanet.ble.InMotionV2Model
                 _maxSpeedCap.value = model?.maxSpeedKmh?.toFloat() ?: DEFAULT_MAX_SPEED_KMH
             }

@@ -17,9 +17,8 @@ import com.eried.eucplanet.util.ByteUtils
  *   - The HM-10 bridge occasionally injects spurious 0x5A bytes; spec 3.6
  *     documents the explicit re-sync rules implemented in [feed].
  *
- * Protocol research credit: the WheelLog community (
- * https://github.com/Wheellog/wheellog.android, GPLv3, used as a protocol
- * reference; the implementation here is original).
+ * Protocol reference (upstream, GPLv3):
+ * https://github.com/Wheellog/wheellog.android/blob/master/app/src/main/java/com/cooper/wheellog/utils/GotwayAdapter.java
  */
 class BegodeParser {
 
@@ -33,7 +32,7 @@ class BegodeParser {
      * (in volts). When non-zero, this is the ground-truth voltage and
      * the Live-A path uses it instead of the per-model tier-multiplied
      * estimate. Sidesteps tier guesswork on new wheels like the Race
-     * (50S / 210V class) where the WheelLog stock voltage table doesn't
+     * (50S / 210V class) where the canonical voltage tier table doesn't
      * have an entry.
      */
     @Volatile private var lastBmsVoltage: Float = 0f
@@ -201,13 +200,15 @@ class BegodeParser {
         // on the wire even though the protocol spec doesn't acknowledge it.
         // Multiply by MILES_TO_KM so every downstream consumer keeps seeing
         // canonical km/h. (Reported by riders comparing wheel + GPS speed in
-        // Compare; WheelLog has the same bug but masks it by auto-flipping
-        // its own display preference to mph in that case.)
+        // Compare; the wheel-side firmware bug is well known, and apps that
+        // auto-flip their display preference to mph in that case effectively
+        // mask it.)
         val speed = if (wheelInMiles) rawSpeedKmh * MILES_TO_KM else rawSpeedKmh
 
-        // WheelLog reads only the low u16 at offset 8 as trip-meters; the high
-        // word at 6..7 is unused on most firmwares (open question 9). We follow
-        // that convention so we don't render bogus distance from older wheels.
+        // Only the low u16 at offset 8 is consistently populated as trip-meters;
+        // the high word at 6..7 is unused on most firmwares (open question 9).
+        // We follow that convention so we don't render bogus distance from
+        // older wheels.
         val tripMeters = ByteUtils.getUint16BE(frame, 8)
         val tripKmRaw = tripMeters / 1000f
         val tripKm = if (wheelInMiles) tripKmRaw * MILES_TO_KM else tripKmRaw
@@ -225,8 +226,8 @@ class BegodeParser {
         // (e.g. Mten3) emit a constant noise value of 1, so a bare "non-zero"
         // test wrongly latches onto 0.1 %. We therefore trust offset 14 only
         // when a CF/BF banner has flagged the firmware as HW-PWM capable
-        // ([hwPwmFirmware]); otherwise we derive PWM from speed/voltage like
-        // WheelLog, so Master / Mten3 / EX30 / E20 riders see a real number.
+        // ([hwPwmFirmware]); otherwise we derive PWM from speed/voltage so
+        // Master / Mten3 / EX30 / E20 riders see a real number.
         val hardwarePwmRaw = ByteUtils.getInt16BE(frame, 14)
         val hardwarePwmPct = hardwarePwmRaw / 10f
         val pwmPct = when {
@@ -304,8 +305,8 @@ class BegodeParser {
 
     /**
      * BMS summary (spec 4.7 frame 0x01). Pack voltage at bytes 6..7 is
-     * u16 BE in decivolts: `(buff[6..7] / 10)` gives real volts. Matches
-     * WheelLog's `batVoltage * 10` (decivolts -> centivolts -> /100 = V).
+     * u16 BE in decivolts: `(buff[6..7] / 10)` gives real volts
+     * (decivolts -> centivolts -> /100 = V).
      *
      * We only cache the value here; the next Live-A frame picks it up
      * via [lastBmsVoltage] and surfaces it as the dashboard voltage,
@@ -329,25 +330,23 @@ class BegodeParser {
      * After the first 0x07 we trust these over the derived values from 0x00.
      */
     private fun parseExtras(frame: ByteArray): WheelData? {
-        // WheelLog inverts the sign here (`setCurrent((-1) * batteryCurrent)`)
-        // so positive current means motoring and negative means regen; the
-        // convention used everywhere else in the app. Without the flip the
-        // dashboard reads backwards during acceleration vs braking.
+        // Invert the raw sign so positive current means motoring and
+        // negative means regen; the convention used everywhere else in
+        // the app. Without the flip the dashboard reads backwards during
+        // acceleration vs braking.
         val battCurrent = -(ByteUtils.getInt16BE(frame, 2) / 100f)
         val motorTempC = ByteUtils.getInt16BE(frame, 6).toFloat()
         // 0x07 offset 8 carries true PWM as a signed short already in PERCENT
-        // (raw 50 = 50 % PWM). WheelLog confirms: `wd.setOutput(hwPWMb * 100);
-        // mCalculatedPwm = mOutput/10000.0; getCalculatedPwm = mCalculatedPwm
-        // * 100.0` collapses to raw == percent. Our previous `/ 100f` was
-        // dividing again and producing 0.x % for every reading.
+        // (raw 50 = 50 % PWM); no further scaling needed. An earlier `/ 100f`
+        // here was dividing again and producing 0.x % for every reading.
         val truePwmRaw = ByteUtils.getInt16BE(frame, 8)
         val truePwm = truePwmRaw.toFloat()
 
         // Only latch onto the 0x07 PWM path when the field is actually
-        // populated, matching WheelLog's `Math.abs(hwPWMb) > 0` arming check.
-        // Some Begode firmwares emit 0x07 frames with offset 8 = 0 at idle,
-        // and the old unconditional latch silently locked us out of the
-        // 0x00 / derived PWM fallbacks forever after.
+        // populated (`abs(hwPWMb) > 0` arming check). Some Begode firmwares
+        // emit 0x07 frames with offset 8 = 0 at idle, and the old
+        // unconditional latch silently locked us out of the 0x00 /
+        // derived PWM fallbacks forever after.
         if (truePwmRaw != 0) {
             hasExtras = true
             lastPwmPct = truePwm
@@ -379,17 +378,16 @@ class BegodeParser {
     /**
      * Stock Begode firmware doesn't populate either the 0x07 true-PWM field
      * or the 0x00 hardware-PWM field, so without a fallback the dashboard
-     * reads 0 % forever on Master / Mten3 / EX30 / E20 and friends. WheelLog
-     * covers this case by deriving:
+     * reads 0 % forever on Master / Mten3 / EX30 / E20 and friends. Derive
+     * it instead:
      *
      *   pwm = speed / (rotationSpeed / rotationVoltage * voltage * powerFactor)
      *
      * with per-model `rotationSpeed` (km/h at full PWM) and `rotationVoltage`
-     * (V at full PWM) constants from `DialogHelper.kt:90-114`. Default
-     * `powerFactor` is 0.9.
+     * (V at full PWM) constants. Default `powerFactor` is 0.9.
      *
      * Returns a value in 0..100 (percent). Models we don't have explicit
-     * numbers for fall back to WheelLog's stock defaults (50, 84), which is
+     * numbers for fall back to generic (50, 84) defaults, which is
      * qualitatively correct but quantitatively over-reads on high-voltage
      * wheels; better to refine via a labelled capture than to ship 0 %.
      */
@@ -402,7 +400,7 @@ class BegodeParser {
         return (kotlin.math.abs(speedKmh) / denom * 100f).coerceIn(0f, 100f)
     }
 
-    /** WheelLog `DialogHelper.kt:90-114` Begode rotation constants by model. */
+    /** Begode rotation constants by model (km/h at full PWM, V at full PWM). */
     private fun rotationConstantsFor(model: BegodeModel?): Pair<Float, Float> = when (model) {
         BegodeModel.MTEN4    -> 56.0f to 84.0f
         BegodeModel.MTEN5    -> 79.0f to 100.8f
@@ -421,7 +419,7 @@ class BegodeParser {
         BegodeModel.T4       -> 66.5f to 84.0f
         BegodeModel.MASTER   -> 113.0f to 134.4f
         BegodeModel.MASTER_PRO -> 113.0f to 134.4f
-        else -> 50.0f to 84.0f   // WheelLog AppConfig defaults, generic fallback
+        else -> 50.0f to 84.0f   // generic fallback for unknown models
     }
 
     /**
@@ -468,13 +466,13 @@ class BegodeParser {
                 84 -> 1.25f
                 100 -> 1.50f
                 116 -> 1.7381f
-                126 -> 1.875f // Spec note: 30S packs are not in WheelLog's list; treat as manual override.
+                126 -> 1.875f // Spec note: 30S packs are not in the canonical tier list; treat as manual override.
                 134 -> 2.00f
                 151 -> 2.25f
                 168 -> 2.50f
-                // 50S packs (Begode Race) - not in WheelLog's stock table, but
-                // ratio = nominalV / 67.2 fits the family pattern and matches
-                // labelled cell-voltage telemetry (4.085 V x 50 = 204 V real).
+                // 50S packs (Begode Race) - not in the canonical tier table,
+                // but ratio = nominalV / 67.2 fits the family pattern and
+                // matches labelled cell-voltage telemetry (4.085 V x 50 = 204 V real).
                 210 -> 3.125f
                 else -> 1.25f
             }

@@ -495,10 +495,9 @@ class BleConnectionManager @Inject constructor(
             val g = gatt ?: continue
 
             // Pick the write type from the active adapter's profile. HM-10
-            // (KingSong / Begode / Veteran) uses WRITE_TYPE_NO_RESPONSE to
-            // match WheelLog - those modules don't reliably ACK
-            // WRITE_TYPE_DEFAULT writes. InMotion V2 / V1 stay on the
-            // safer WRITE_TYPE_DEFAULT.
+            // (KingSong / Begode / Veteran) uses WRITE_TYPE_NO_RESPONSE
+            // because those modules don't reliably ACK WRITE_TYPE_DEFAULT
+            // writes. InMotion V2 / V1 stay on the safer WRITE_TYPE_DEFAULT.
             val writeType = wheelAdapter.bleProfile().writeType
             try {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
@@ -560,8 +559,8 @@ class BleConnectionManager @Inject constructor(
                     // family (V14 / P6 telemetry frames are 65-86 bytes and
                     // would otherwise arrive as multi-chunk reassembly), not
                     // a correctness requirement; the V2 adapter reassembles
-                    // either way. WheelLog upstream uses the same fire-and-
-                    // forget pattern via the Blessed library.
+                    // either way. Fire-and-forget is the established
+                    // convention for these stacks.
                     gatt.discoverServices()
                 }
                 BluetoothProfile.STATE_DISCONNECTED -> {
@@ -665,10 +664,10 @@ class BleConnectionManager @Inject constructor(
             if (descriptor != null) {
                 writeEnableNotificationDescriptor(gatt, descriptor)
                 // HM-10 (KingSong / Begode / Veteran) modules occasionally
-                // drop the first CCCD write silently; WheelLog ships a
-                // belt-and-braces redundant write for the same family. Fire
-                // a second write ~750 ms after the first if we're still
-                // INITIALIZING and the descriptor write looks "stuck".
+                // drop the first CCCD write silently; belt-and-braces a
+                // redundant write for the same family. Fire a second write
+                // ~750 ms after the first if we're still INITIALIZING and
+                // the descriptor write looks "stuck".
                 // Gated on the HM-10 notify char (0xFFE1) so V14 / P6
                 // (Nordic UART) and InMotion V1 (0xFFE4) aren't touched.
                 if (txCharacteristic.uuid == BleProfile.HM10.notifyCharacteristic) {

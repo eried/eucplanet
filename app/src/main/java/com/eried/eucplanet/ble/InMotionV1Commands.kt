@@ -8,10 +8,6 @@ import com.eried.eucplanet.util.ByteUtils
  * an 8-byte CAN payload wrapped by [InMotionV1Protocol.buildFrame] in the
  * `AA AA … 55 55` envelope with `0xA5` byte stuffing and a sum-mod-256
  * checksum applied. See docs/protocols/inmotion_v1.md section 6 for the table.
- *
- * Protocol research credit: the WheelLog community (
- * https://github.com/Wheellog/wheellog.android, GPLv3, used as a protocol
- * reference; the implementation here is original).
  */
 object InMotionV1Commands {
 
