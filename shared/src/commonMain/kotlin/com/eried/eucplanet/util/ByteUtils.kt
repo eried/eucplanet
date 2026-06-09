@@ -67,8 +67,13 @@ object ByteUtils {
         )
     }
 
+    private const val HEX = "0123456789abcdef"
+
     fun ByteArray.toHexString(): String =
-        joinToString(" ") { "%02x".format(it) }
+        joinToString(" ") {
+            val v = it.toInt() and 0xFF
+            "${HEX[v ushr 4]}${HEX[v and 0xF]}"
+        }
 
     fun parseTemperature(raw: Byte): Float {
         return (raw.toInt() and 0xFF) - 176f
