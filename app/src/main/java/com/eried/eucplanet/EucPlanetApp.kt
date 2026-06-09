@@ -5,7 +5,9 @@ import androidx.hilt.work.HiltWorkerFactory
 import androidx.work.Configuration
 import com.eried.eucplanet.flic.FlicManager
 import com.eried.eucplanet.garmin.GarminBridge
+import com.eried.eucplanet.diagnostics.DiagnosticsLogger
 import com.eried.eucplanet.util.CrashHandler
+import com.eried.eucplanet.util.SharedDiagnostics
 import com.eried.eucplanet.wear.WearBridge
 import dagger.hilt.android.HiltAndroidApp
 import javax.inject.Inject
@@ -25,6 +27,7 @@ class EucPlanetApp : Application(), Configuration.Provider {
 
     override fun onCreate() {
         super.onCreate()
+        SharedDiagnostics.handler = DiagnosticsLogger::note
         CrashHandler.install(this)
         flicManager.initialize()
         wearBridge.start()

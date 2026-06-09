@@ -1,9 +1,9 @@
 package com.eried.eucplanet.ble
 
-import android.util.Log
 import com.eried.eucplanet.data.model.WheelData
 import com.eried.eucplanet.data.model.WheelSettings
 import com.eried.eucplanet.util.ByteUtils
+import com.eried.eucplanet.util.nowEpochMillis
 
 /**
  * Frame reassembler + parser for both Ninebot protocol families.
@@ -193,7 +193,7 @@ class NinebotParser(private val protocol: NinebotProtocol) {
             totalDistance = totalDistanceMeters / 1000f,
             batteryPower = powerW,
             motorPower = powerW,
-            timestamp = System.currentTimeMillis()
+            timestamp = nowEpochMillis()
         )
     }
 
@@ -249,7 +249,7 @@ class NinebotParser(private val protocol: NinebotProtocol) {
 
     fun parseZSerial(data: ByteArray): String? {
         if (data.isEmpty()) return null
-        return String(data, Charsets.US_ASCII)
+        return data.decodeToString()
             .trimEnd { it == ' ' || it.code == 0 }
             .ifBlank { null }
     }
@@ -306,7 +306,7 @@ class NinebotParser(private val protocol: NinebotProtocol) {
             totalDistance = totalDistanceMeters / 1000f,
             batteryPower = powerW,
             motorPower = powerW,
-            timestamp = System.currentTimeMillis()
+            timestamp = nowEpochMillis()
         )
     }
 
@@ -317,13 +317,13 @@ class NinebotParser(private val protocol: NinebotProtocol) {
      */
     fun parseLegacyBleVersionTag(data: ByteArray): String? {
         if (data.isEmpty()) return null
-        return String(data, Charsets.US_ASCII)
+        return data.decodeToString()
             .trimEnd { it == ' ' || it.code == 0 }
     }
 
     fun parseLegacySerial(data: ByteArray): String? {
         if (data.isEmpty()) return null
-        return String(data, Charsets.US_ASCII)
+        return data.decodeToString()
             .trimEnd { it == ' ' || it.code == 0 }
             .ifBlank { null }
     }

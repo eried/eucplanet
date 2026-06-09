@@ -79,7 +79,7 @@ object NinebotCommands {
         out[4] = (dst and 0xFF).toByte()
         out[5] = (cmd and 0xFF).toByte()
         out[6] = (param and 0xFF).toByte()
-        System.arraycopy(data, 0, out, 7, len)
+        data.copyInto(out, 7, 0, len)
 
         // CRC = ones-complement of the 16-bit running sum, length field
         // through the last data byte (spec section 3, "Checksum").
@@ -306,7 +306,7 @@ object NinebotCommands {
         out[3] = (src and 0xFF).toByte()
         out[4] = (dst and 0xFF).toByte()
         out[5] = (param and 0xFF).toByte()
-        System.arraycopy(data, 0, out, 6, len)
+        data.copyInto(out, 6, 0, len)
 
         var sum = 0
         for (i in 2 until 6 + len) sum = (sum + (out[i].toInt() and 0xFF)) and 0xFFFF

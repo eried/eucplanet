@@ -1,9 +1,11 @@
 package com.eried.eucplanet.ble
 
-import android.util.Log
 import com.eried.eucplanet.data.model.WheelData
 import com.eried.eucplanet.data.model.WheelSettings
 import com.eried.eucplanet.util.ByteUtils
+import com.eried.eucplanet.util.Log
+import com.eried.eucplanet.util.SharedDiagnostics
+import com.eried.eucplanet.util.nowEpochMillis
 
 /**
  * Frame reassembler + parser for Begode/Gotway wheels.
@@ -156,8 +158,8 @@ class BegodeParser {
         // we include it in the prefix-stamped line; the body covers all 24
         // bytes (header through terminator) so an investigator can sanity-
         // check framing as well as payload.
-        com.eried.eucplanet.diagnostics.DiagnosticsLogger.note(
-            "Begode realtime tag=0x${"%02x".format(tag)} len=${frame.size} body=${frame.joinToString(" ") { "%02x".format(it) }}"
+        SharedDiagnostics.note(
+            "Begode realtime tag=0x${tag.toString(16).padStart(2, '0')} len=${frame.size} body=${frame.joinToString(" ") { (it.toInt() and 0xFF).toString(16).padStart(2, '0') }}"
         )
         return when (tag) {
             0x00 -> parseLiveA(frame, model)?.let { DecodeResult.Telemetry(it) }
@@ -172,7 +174,7 @@ class BegodeParser {
                 null
             }
             else -> {
-                Log.d(TAG, "unknown tag 0x${"%02x".format(tag)}, frame discarded")
+                Log.d(TAG, "unknown tag 0x${tag.toString(16).padStart(2, '0')}, frame discarded")
                 null
             }
         }
@@ -264,7 +266,7 @@ class BegodeParser {
             motorPower = powerW,
             lightOn = lastLightOn,
             pcMode = lastPcMode,
-            timestamp = System.currentTimeMillis()
+            timestamp = nowEpochMillis()
         )
     }
 
@@ -372,7 +374,7 @@ class BegodeParser {
             motorPower = powerW,
             lightOn = lastLightOn,
             pcMode = lastPcMode,
-            timestamp = System.currentTimeMillis()
+            timestamp = nowEpochMillis()
         )
     }
 
