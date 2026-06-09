@@ -206,19 +206,6 @@ class VeteranParser {
             val totalKm = rawTotal / 1000f
             val tempC = rawTempC / 100f
 
-            // Plausibility gate: drop frames with values that no real EUC
-            // could produce. Even with a passing CRC32 a rare 1-in-billions
-            // false positive (or a frame whose magic triple landed inside
-            // payload bytes) can decode garbage that then gets uploaded to
-            // eucstats and peaks the trip max -- this is how a stationary
-            // Oryx reported "137 A, 654.3 V" once. Covers all current EUC
-            // voltage classes (100 V Sherman .. ~175 V Oryx, .. ~218 V if
-            // future) and physical maxima for speed/current/temp.
-            if (voltage < 50f || voltage > 250f) return null
-            if (kotlin.math.abs(speedKmh) > 200f) return null
-            if (kotlin.math.abs(current) > 400f) return null
-            if (tempC < -40f || tempC > 150f) return null
-
             // Hardware PWM is only meaningful on mVer >= 2 (Abrams onwards
             // per spec). Older firmwares put garbage there. Fall back to
             // the model-based gate when mVer is unknown.
