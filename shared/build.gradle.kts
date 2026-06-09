@@ -20,6 +20,12 @@ kotlin {
         iosSimulatorArm64()
     }
 
+    compilerOptions {
+        // We intentionally use expect/actual objects (e.g. the Log facade);
+        // opt into the Beta feature to silence the KT-61573 warning.
+        freeCompilerArgs.add("-Xexpect-actual-classes")
+    }
+
     sourceSets {
         commonTest.dependencies {
             implementation(kotlin("test"))
