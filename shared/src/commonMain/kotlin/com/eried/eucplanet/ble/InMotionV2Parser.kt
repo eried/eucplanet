@@ -4,6 +4,7 @@ import com.eried.eucplanet.data.model.WheelData
 import com.eried.eucplanet.data.model.WheelSettings
 import com.eried.eucplanet.util.ByteUtils
 import com.eried.eucplanet.util.ByteUtils.parseTemperature
+import com.eried.eucplanet.util.nowEpochMillis
 import kotlin.math.roundToInt
 
 /**
@@ -84,7 +85,7 @@ object InMotionV2Parser {
             lightOn = lightOn,
             charging = isCharging,
             pcMode = pcMode,
-            timestamp = System.currentTimeMillis()
+            timestamp = nowEpochMillis()
         )
     }
 
@@ -332,7 +333,7 @@ object InMotionV2Parser {
             // InMotion app show as the motor temperature.
             maxTemperature = motorC ?: 0f,
             lightOn = lightOn,
-            timestamp = System.currentTimeMillis()
+            timestamp = nowEpochMillis()
         )
     }
 
@@ -406,7 +407,7 @@ object InMotionV2Parser {
         if (data.size < 17 || data[0] != 0x01.toByte()) return null
         val serialBytes = data.copyOfRange(1, 17)
         // Trim trailing nulls and spaces so we don't render junk in the UI.
-        return String(serialBytes, Charsets.US_ASCII)
+        return serialBytes.decodeToString()
             .trimEnd { it == ' ' || it.code == 0 }
             .ifBlank { null }
     }

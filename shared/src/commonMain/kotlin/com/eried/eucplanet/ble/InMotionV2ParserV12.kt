@@ -4,6 +4,7 @@ import com.eried.eucplanet.data.model.WheelData
 import com.eried.eucplanet.data.model.WheelSettings
 import com.eried.eucplanet.util.ByteUtils
 import com.eried.eucplanet.util.ByteUtils.parseTemperature
+import com.eried.eucplanet.util.nowEpochMillis
 import kotlin.math.roundToInt
 
 /**
@@ -113,7 +114,7 @@ object InMotionV2ParserV12 {
             lightOn = lightOn,
             charging = isCharging,
             pcMode = pcMode,
-            timestamp = System.currentTimeMillis()
+            timestamp = nowEpochMillis()
         )
     }
 
