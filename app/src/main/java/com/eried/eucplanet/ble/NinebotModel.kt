@@ -14,7 +14,7 @@ package com.eried.eucplanet.ble
  * `55 AA` framing. Read-only telemetry; no documented settings writes.
  *
  * Spec: docs/protocols/ninebot.md. Protocol research credit goes to WheelLog
- * (Ilya Shkolnik / Palachzzz and contributors); the implementation here is
+ * community; the implementation here is
  * original.
  */
 enum class NinebotProtocol {

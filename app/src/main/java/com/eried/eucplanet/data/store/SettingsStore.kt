@@ -78,9 +78,24 @@ class SettingsStore(private val context: Context) {
         }
     }
 
-    /** US, Liberia and Myanmar are the three imperial-system countries. */
-    private fun isImperialLocale(): Boolean =
-        java.util.Locale.getDefault().country in setOf("US", "LR", "MM")
+    /**
+     * Imperial only when BOTH the cell-network country AND the locale country
+     * are one of the three imperial-system countries (US, Liberia, Myanmar).
+     * The two-signal rule prevents bilingual mis-detection: a Norwegian who
+     * sets the device language to "English (United States)" has locale.country
+     * = "US" alone, but their carrier is Telenor (NO) so the network disagrees
+     * and we correctly default to metric. Blank / unavailable signals (Wi-Fi
+     * tablet, emulator without a SIM) count as "not imperial" so the default
+     * stays metric -- safer to be wrong toward metric and let the rider flip
+     * units once than to silently force imperial on the wrong continent.
+     */
+    private fun isImperialLocale(): Boolean {
+        val imperialCountries = setOf("US", "LR", "MM")
+        val tm = context.getSystemService(Context.TELEPHONY_SERVICE) as? android.telephony.TelephonyManager
+        val network = tm?.networkCountryIso?.uppercase().orEmpty()
+        val locale = java.util.Locale.getDefault().country.uppercase()
+        return network in imperialCountries && locale in imperialCountries
+    }
 
     private fun readSettings(prefs: Preferences): AppSettings {
         val json = prefs[KEY_JSON] ?: return AppSettings()

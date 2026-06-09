@@ -10,7 +10,7 @@ package com.eried.eucplanet.ble
  * have well-defined linear regions between full-charge and empty).
  *
  * Spec: docs/protocols/kingsong.md. Protocol research credit goes to WheelLog
- * (Ilya Shkolnik and contributors); the implementation here is original.
+ * community; the implementation here is original.
  */
 enum class KingsongModel(
     val displayName: String,

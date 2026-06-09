@@ -13,7 +13,7 @@ package com.eried.eucplanet.ble
  * only for the legacy R-series (R1S / R0).
  *
  * Spec: docs/protocols/inmotion_v1.md. Protocol research credit goes to
- * WheelLog (Ilya Shkolnik and contributors); the implementation here is original.
+ * WheelLog community; the implementation here is original.
  */
 enum class InMotionV1Model(
     val modelId: Int,

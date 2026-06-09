@@ -8,7 +8,7 @@ package com.eried.eucplanet.ble
  *
  * Spec: docs/protocols/veteran.md section 6.
  *
- * Protocol research credit: WheelLog (Ilya Shkolnik and contributors,
+ * Protocol research credit: the WheelLog community (
  * https://github.com/Wheellog/wheellog.android, GPLv3, used as a protocol
  * reference; the implementation here is original).
  */

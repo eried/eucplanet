@@ -22,7 +22,7 @@ import kotlin.math.roundToInt
  * connection manager calls [feed] from the same coroutine that schedules
  * notifications, so wall-clock time on each call is the right re-sync clock.
  *
- * Protocol research credit: WheelLog (Ilya Shkolnik and contributors,
+ * Protocol research credit: the WheelLog community (
  * https://github.com/Wheellog/wheellog.android, GPLv3, used as a protocol
  * reference; the implementation here is original).
  */

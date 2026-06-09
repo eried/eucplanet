@@ -13,7 +13,7 @@ import com.eried.eucplanet.util.ByteUtils
  * so callers can route by type byte and silently drop frames they can't
  * decode (for example, BMS pages on a wheel that doesn't ship that page).
  *
- * Protocol research credit: WheelLog (Ilya Shkolnik and contributors,
+ * Protocol research credit: the WheelLog community (
  * https://github.com/Wheellog/wheellog.android, GPLv3, used as a protocol
  * reference; the implementation here is original).
  */

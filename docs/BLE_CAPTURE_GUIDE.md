@@ -1,9 +1,9 @@
 # BLE capture guide for new wheels
 
 EUC Planet learns each wheel's BLE protocol from real captures of the
-manufacturer's app talking to the wheel. If your wheel isn't supported yet
-(or works but with missing data), a 5 to 10 minute capture from you is what
-unlocks it.
+manufacturer's app talking to the wheel. If your wheel isn't supported yet,
+works but with missing data, or has actions that don't work yet (like horn,
+headlights, or DRL), a 5 to 10 minute capture from you is what unlocks it.
 
 ## What you'll send back
 

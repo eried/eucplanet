@@ -169,7 +169,11 @@ fun ThemeEditorWidget(
         }
     }
 
-    val titleName = settings.activeThemeName.ifEmpty { "Theme" }
+    // activeThemeName for a custom theme carries the ".json" suffix
+    // internally (disambiguates from built-in names of the same word). Strip
+    // it before displaying so the rider sees "Light" not "Light.json".
+    val rawName = settings.activeThemeName.ifEmpty { "Theme" }
+    val titleName = if (rawName.endsWith(".json", ignoreCase = true)) rawName.dropLast(5) else rawName
     val title = if (dirty) "$titleName (unsaved)" else titleName
 
     // Re-clamp when the widget changes size (expand <-> collapse) or the screen
@@ -365,7 +369,12 @@ fun ThemeEditorWidget(
     }
 
     if (showSave) {
-        var name by remember { mutableStateOf(settings.activeThemeName) }
+        // Default the textfield to the active theme's display name (without
+        // the .json suffix) so the rider edits "Light", not "Light.json".
+        val seedName = settings.activeThemeName.let {
+            if (it.endsWith(".json", ignoreCase = true)) it.dropLast(5) else it
+        }
+        var name by remember { mutableStateOf(seedName) }
         AlertDialog(
             onDismissRequest = { showSave = false },
             title = { Text("Save theme") },
@@ -381,10 +390,14 @@ fun ThemeEditorWidget(
                     enabled = name.isNotBlank(),
                     onClick = {
                         val n = name.trim()
-                        // Saving onto a DIFFERENT existing saved theme would clobber
-                        // it — confirm first. Re-saving the one you're editing, or a
-                        // brand-new name, saves straight away.
-                        if (n in choices.saved && n != settings.activeThemeName) {
+                        // One clean rule: if the typed name matches ANY existing
+                        // saved theme (including the one the rider is currently
+                        // editing), confirm the overwrite. Compare bare names
+                        // since choices.saved carries the .json suffix.
+                        val savedBare = choices.saved.map {
+                            if (it.endsWith(".json", ignoreCase = true)) it.dropLast(5) else it
+                        }
+                        if (n in savedBare) {
                             pendingReplaceName = n
                         } else {
                             vm.saveAs(n) { showSave = false }

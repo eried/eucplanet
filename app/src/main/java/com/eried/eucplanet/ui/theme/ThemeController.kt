@@ -211,7 +211,11 @@ class ThemeController @Inject constructor(
         if (ok) {
             drafts.remove(settingsRepository.get().activeThemeName)
             _dirty.value = false
-            settingsRepository.update(settingsRepository.get().copy(activeThemeName = name))
+            // Custom themes always store activeThemeName WITH the .json
+            // suffix so resolveByName routes to the saved file even when the
+            // bare name collides with a built-in (e.g. "Light").
+            val stored = if (name.endsWith(".json", ignoreCase = true)) name else "$name.json"
+            settingsRepository.update(settingsRepository.get().copy(activeThemeName = stored))
         }
         return ok
     }

@@ -1,6 +1,5 @@
-🔋 New Battery monitor screen.
-🌐 Online leaderboard at eucstats.ried.no: share trips and
-   check ranks.
-📡 Bluetooth: general improvements.
-🔧 Wheel improvements and tests across every supported brand.
-🗣️ Voice: several fixes.
+⚙️ First-launch fixes: language and units now detect
+   correctly on every fresh install.
+🎨 Theme picker: custom themes no longer collide with
+   built-ins; save warns before replacing an existing one.
+✨ Minor polish.

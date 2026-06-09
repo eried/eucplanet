@@ -48,6 +48,7 @@ import javax.inject.Inject
 // persisted "on" state exactly once per launch (this survives Activity recreation
 // such as a rotation, so toggling it on mid-session isn't undone).
 private var widgetSessionReset = false
+private var languageReconciled = false
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
@@ -220,6 +221,23 @@ class MainActivity : AppCompatActivity() {
                 } else {
                     window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
                 }
+                // Detect a default app language as soon as we see a blank
+                // `settings.language`, not only on the very first settings
+                // emission. The synchronous seed above sets _settings.value
+                // before this collect runs, so `first` is already false here
+                // and the original gate never fired -- on a clean install the
+                // app would end up with language="" and an empty picker. The
+                // process-level languageReconciled flag stops this re-firing
+                // every time settings update.
+                if (it.language.isBlank() && !languageReconciled) {
+                    languageReconciled = true
+                    val detected = com.eried.eucplanet.util.LocaleHelper.detectSystemLanguage()
+                    // Defensive: detectSystemLanguage already falls back to
+                    // "en" for unrecognised system locales, but guard against
+                    // a future regression that returns blank.
+                    val safe = detected.ifBlank { "en" }
+                    settingsRepository.update(it.copy(language = safe))
+                }
                 if (first) {
                     // Prime the location stream on cold launches where the
                     // permission was already granted on a previous run -- on
@@ -230,32 +248,15 @@ class MainActivity : AppCompatActivity() {
                     if (hasLocationPermission()) {
                         tripRepository.startLocationUpdates()
                     }
-                    if (it.language.isBlank()) {
-                        // First launch ever: persist the detected supported
-                        // locale so the in-app picker has the right initial
-                        // value, but DO NOT call LocaleHelper.apply().
-                        // setApplicationLocales triggers an Activity.recreate
-                        // on every running activity, and on a clean install
-                        // this fires while the runtime permission dialogs are
-                        // open, the recreate races with the dialog and the
-                        // rebuilt activity ends up behind the launcher,
-                        // leaving the rider answering permissions over the
-                        // home screen. Skipping the apply is safe: with no
-                        // AppCompatDelegate override, Android falls back to
-                        // the system locale (which is exactly what detect
-                        // mapped from), so the UI ends up in the same
-                        // language anyway. The user's later pick in Settings
-                        // calls LocaleHelper.apply directly when they ARE
-                        // overriding the system.
-                        val detected = com.eried.eucplanet.util.LocaleHelper.detectSystemLanguage()
-                        settingsRepository.update(it.copy(language = detected))
-                    } else {
-                        // Settings.language and the OS-level per-app locale can
-                        // drift (e.g. user changes language via Android System
-                        // Settings → Languages, bypassing our in-app picker).
-                        // Reconcile to whatever AppCompatDelegate actually has
-                        // applied so the in-app language picker shows the
-                        // truth, not a stale column.
+                    // Settings.language and the OS-level per-app locale can
+                    // drift (e.g. user changes language via Android System
+                    // Settings -> Languages, bypassing our in-app picker).
+                    // Reconcile to whatever AppCompatDelegate actually has
+                    // applied so the in-app language picker shows the truth,
+                    // not a stale column. The blank-language path is handled
+                    // separately above so on a clean install the picker is
+                    // populated regardless of whether `first` ever fires.
+                    if (it.language.isNotBlank()) {
                         val applied = com.eried.eucplanet.util.LocaleHelper.current()
                         if (applied.isNotBlank()) {
                             val normalized = com.eried.eucplanet.util.LocaleHelper.normalizeToSupportedTag(applied)

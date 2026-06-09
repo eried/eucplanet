@@ -609,8 +609,7 @@ trusting any of these:
 - Ninebot Z encryption analysis grounded in WheelLog's
   `NinebotZAdapter.java`: GetKey opcode `0x5B`, the 16-byte gamma key,
   and the XOR loop `data[j] ^= gamma[(j-1) % 16]`.
-- WheelLog credits Ilya Shkolnik (Palachzzz) and the WheelLog
-  contributor community for the original reverse-engineering work on
-  Ninebot wheels.
+- The original reverse-engineering work on Ninebot wheels is credited to
+  the WheelLog contributor community.
 - Cross-checked against forum write-ups on the Electric Unicycle Forum
   (esp. Z10 BLE-stack discussions).

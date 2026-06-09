@@ -2590,7 +2590,7 @@ fun DashboardScreen(
                                                     "Soolek" to "KS-16X testing.",
                                                     "Jonathan Wiesner" to "LeaperKim Lynx S testing.",
                                                     "Felix K" to "LeaperKim Oryx testing.",
-                                                    "WheelLog community" to "Open-source (GPLv3) protocol research, used as a reference for our independent re-implementation. github.com/Wheellog",
+                                                    "WheelLog community" to "Open-source (GPLv3) EUC protocol research.",
                                                     "Ilya Shkolnik" to "Advice and help, and maintains DarknessBot.",
                                                     "InMotion" to "For making my awesome V14."
                                                 )

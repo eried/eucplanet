@@ -24,7 +24,7 @@ import javax.inject.Singleton
  * reset. No software lock, no volume, no max-speed write (the SET* family
  * sets thresholds, not absolute max; see spec section 6 "Notes").
  *
- * Protocol research credit: WheelLog (Ilya Shkolnik and contributors,
+ * Protocol research credit: the WheelLog community (
  * https://github.com/Wheellog/wheellog.android, GPLv3, used as a protocol
  * reference; the implementation here is original).
  */

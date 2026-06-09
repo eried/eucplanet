@@ -9,7 +9,7 @@ number, no length field, no formal versioning. Frame layout mutates by
 firmware. Treat every field as best-effort and keep heuristics for invalid
 frames.
 
-Research source: WheelLog (Ilya Shkolnik and contributors), `GotwayAdapter.java`
+Research source: WheelLog (the WheelLog community), `GotwayAdapter.java`
 and `GotwayVirtualAdapter.java`. WheelLog is GPLv3; this document restates the
 protocol in our own words and tables, no code copied.
 
@@ -590,7 +590,7 @@ Suggested `WheelCapabilities` defaults for our adapter:
 
 ## 10. Attribution
 
-Primary research source: WheelLog Android by Ilya Shkolnik and contributors --
+Primary research source: WheelLog Android by the WheelLog community --
 `GotwayAdapter.java` and `GotwayVirtualAdapter.java`, GPLv3.
 Repository: https://github.com/Wheellog/wheellog.android
 
