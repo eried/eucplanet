@@ -2,7 +2,8 @@ package com.eried.eucplanet.ble
 
 import com.eried.eucplanet.data.model.WheelData
 import com.eried.eucplanet.util.ByteUtils
-import java.util.zip.CRC32
+import com.eried.eucplanet.util.Crc32
+import com.eried.eucplanet.util.nowEpochMillis
 import kotlin.math.abs
 import kotlin.math.roundToInt
 
@@ -131,7 +132,7 @@ class VeteranParser {
             // sits at offsets LEN..LEN+3 as a big-endian u32. Mismatch means
             // we resync on the next magic; partial garbage that aligned with
             // a `DC 5A 5C` triple gets eaten this way.
-            val crc = CRC32().apply { update(frame, 0, len) }.value
+            val crc = Crc32.compute(frame, 0, len)
             val expected = ByteUtils.getUint32BE(frame, len)
             if (crc != expected) return null
         }
@@ -243,7 +244,7 @@ class VeteranParser {
                 pitchAngle = pitch,
                 wheelMaxSpeedKmh = rawTiltbackKmh,
                 wheelAlarmSpeedKmh = rawAlertKmh,
-                timestamp = System.currentTimeMillis()
+                timestamp = nowEpochMillis()
             )
         }
 

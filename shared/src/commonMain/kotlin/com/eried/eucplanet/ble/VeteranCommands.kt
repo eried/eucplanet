@@ -1,5 +1,7 @@
 package com.eried.eucplanet.ble
 
+import com.eried.eucplanet.util.Crc32
+
 /**
  * Outbound command builders for the Veteran (LeaperKim) BLE protocol.
  * Commands are mostly short ASCII writes to the same 0xFFE1 characteristic
@@ -65,8 +67,8 @@ object VeteranCommands {
 
     /** Low-beam on / off. ASCII strings the wheel matches verbatim. */
     fun setLight(on: Boolean): ByteArray =
-        if (on) "SetLightON".toByteArray(Charsets.US_ASCII)
-        else "SetLightOFF".toByteArray(Charsets.US_ASCII)
+        if (on) "SetLightON".encodeToByteArray()
+        else "SetLightOFF".encodeToByteArray()
 
     /**
      * High beam on/off — the LeaperKim binary headlight command (`LkAp` frame;
@@ -96,15 +98,15 @@ object VeteranCommands {
      * pedals knob. The wheel echoes the new mode at offset 30 of the next
      * telemetry frame, so callers can confirm the write took.
      */
-    fun setPedalsHard(): ByteArray = "SETh".toByteArray(Charsets.US_ASCII)
-    fun setPedalsMedium(): ByteArray = "SETm".toByteArray(Charsets.US_ASCII)
-    fun setPedalsSoft(): ByteArray = "SETs".toByteArray(Charsets.US_ASCII)
+    fun setPedalsHard(): ByteArray = "SETh".encodeToByteArray()
+    fun setPedalsMedium(): ByteArray = "SETm".encodeToByteArray()
+    fun setPedalsSoft(): ByteArray = "SETs".encodeToByteArray()
 
     /**
      * Reset trip meter. Wheel zeroes the trip distance at offset 8..11 of
      * the next telemetry frame; total distance at 12..15 is unaffected.
      */
-    fun resetTrip(): ByteArray = "CLEARMETER".toByteArray(Charsets.US_ASCII)
+    fun resetTrip(): ByteArray = "CLEARMETER".encodeToByteArray()
 
     /**
      * Set the wheel's enforced tilt-back speed in km/h. Frame format
@@ -212,7 +214,7 @@ object VeteranCommands {
         payloadHead.copyInto(out, 5)
         out[5 + payloadHead.size] = valueByte
         val crcEnd = totalLen - 4
-        val crc = java.util.zip.CRC32().apply { update(out, 0, crcEnd) }.value.toInt()
+        val crc = Crc32.compute(out, 0, crcEnd).toInt()
         out[crcEnd]     = ((crc ushr 24) and 0xFF).toByte()
         out[crcEnd + 1] = ((crc ushr 16) and 0xFF).toByte()
         out[crcEnd + 2] = ((crc ushr 8) and 0xFF).toByte()
