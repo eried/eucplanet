@@ -1,5 +1,7 @@
 package com.eried.eucplanet.data.model
 
+import com.eried.eucplanet.util.nowEpochMillis
+
 data class WheelData(
     val speed: Float = 0f,
     val voltage: Float = 0f,
@@ -46,5 +48,5 @@ data class WheelData(
     val wheelMaxSpeedKmh: Float = -1f,
     /** Alarm-speed threshold the wheel firmware reports, in km/h. -1 = unknown. */
     val wheelAlarmSpeedKmh: Float = -1f,
-    val timestamp: Long = System.currentTimeMillis()
+    val timestamp: Long = nowEpochMillis()
 )
