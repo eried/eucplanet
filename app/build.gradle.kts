@@ -174,6 +174,7 @@ dependencies {
     // module so the phone and the HUD compile against the same Kotlin
     // classes, no manual JSON parity drift.
     implementation(project(":hud-protocol"))
+    implementation(project(":shared"))
     implementation(libs.kotlinx.serialization.json)
 
     // OkHttp powers the outbound WebSocket [HudServer] uses to dial the HUD
