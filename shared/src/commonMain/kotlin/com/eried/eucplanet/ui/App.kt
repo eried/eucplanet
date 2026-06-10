@@ -22,6 +22,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Bluetooth
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -375,11 +376,11 @@ private fun ScanScreen(
         Text("Select a wheel", color = c.textSecondary, fontSize = 14.sp)
         Spacer(Modifier.height(8.dp))
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Box(Modifier.size(8.dp).clip(CircleShape).background(c.statusGood))
-            Spacer(Modifier.width(6.dp))
+            CircularProgressIndicator(modifier = Modifier.size(13.dp), strokeWidth = 2.dp, color = c.primary)
+            Spacer(Modifier.width(8.dp))
             Text(
-                if (connectingName != null) "connecting to $connectingName…" else "scanning…",
-                color = c.textDisabled, fontSize = 12.sp,
+                if (connectingName != null) "connecting to $connectingName…" else "scanning for wheels…",
+                color = c.textSecondary, fontSize = 12.sp,
             )
         }
         if (error != null) {

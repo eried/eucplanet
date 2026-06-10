@@ -18,16 +18,21 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.AutoMode
-import androidx.compose.material.icons.filled.GraphicEq
+import androidx.compose.material.icons.filled.Archive
+import androidx.compose.material.icons.filled.AutoAwesome
+import androidx.compose.material.icons.filled.Dashboard
+import androidx.compose.material.icons.filled.DisplaySettings
+import androidx.compose.material.icons.filled.Extension
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
-import androidx.compose.material.icons.filled.LocationOn
+import androidx.compose.material.icons.filled.Motorcycle
+import androidx.compose.material.icons.filled.Navigation
 import androidx.compose.material.icons.filled.NotificationsActive
-import androidx.compose.material.icons.filled.Palette
 import androidx.compose.material.icons.filled.RecordVoiceOver
+import androidx.compose.material.icons.filled.Sensors
 import androidx.compose.material.icons.filled.Speed
 import androidx.compose.material.icons.filled.Tune
+import androidx.compose.material.icons.filled.Watch
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Slider
@@ -74,7 +79,32 @@ internal fun SettingsScreen(
         ScreenTopBar(c, "Settings", onBack)
         Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(horizontal = 12.dp, vertical = 8.dp)) {
 
-            Section(c, "Speed", Icons.Filled.Speed, expandedDefault = true) {
+            Section(c, "General", Icons.Filled.Tune, expandedDefault = true) {
+                SwitchRow(c, "Auto-connect last wheel", settings.autoConnectLastWheel) { onUpdate { s -> s.copy(autoConnectLastWheel = it) } }
+                SwitchRow(c, "Keep screen on while riding", settings.keepScreenOn) { onUpdate { s -> s.copy(keepScreenOn = it) } }
+                SwitchRow(c, "Auto-start trip recording", settings.autoStartRecording) { onUpdate { s -> s.copy(autoStartRecording = it) } }
+                SwitchRow(c, "Back button exits app", settings.backButtonExits) { onUpdate { s -> s.copy(backButtonExits = it) } }
+            }
+
+            Section(c, "Dashboard", Icons.Filled.Dashboard) {
+                LabelRow(c, "Metric tile columns")
+                Segmented(c, listOf("2", "3"), (settings.dashboardColumns - 2).coerceIn(0, 1)) { onUpdate { s -> s.copy(dashboardColumns = it + 2) } }
+                Spacer(Modifier.height(8.dp))
+                SwitchRow(c, "Show MIN / MAX corner stats", settings.statCorners) { onUpdate { s -> s.copy(statCorners = it) } }
+                Note(c, "Custom tile order + action-grid editor is Android-only for now.")
+            }
+
+            Section(c, "Display", Icons.Filled.DisplaySettings) {
+                LabelRow(c, "Theme")
+                Segmented(c, listOf("Light", "Dark", "Pure Black"), settings.theme) { onUpdate { s -> s.copy(theme = it) } }
+                Spacer(Modifier.height(10.dp))
+                LabelRow(c, "Accent")
+                Segmented(c, listOf("Cyan", "Green", "Orange", "Pink"), settings.accent) { onUpdate { s -> s.copy(accent = it) } }
+                Spacer(Modifier.height(8.dp))
+                SwitchRow(c, "Gauge color band (warn/danger)", settings.gaugeColorBand) { onUpdate { s -> s.copy(gaugeColorBand = it) } }
+            }
+
+            Section(c, "Speed", Icons.Filled.Speed) {
                 SliderRow(c, "Tiltback (max) speed", "${settings.tiltbackKmh.roundToInt()} km/h", settings.tiltbackKmh, 10f..70f) {
                     onUpdate { s -> s.copy(tiltbackKmh = it) }
                 }
@@ -100,14 +130,16 @@ internal fun SettingsScreen(
                 SwitchRow(c, "Announce light changes", settings.announceLights) { onUpdate { s -> s.copy(announceLights = it) } }
             }
 
-            Section(c, "Display", Icons.Filled.Palette) {
-                LabelRow(c, "Theme")
-                Segmented(c, listOf("Light", "Dark", "Pure Black"), settings.theme) { onUpdate { s -> s.copy(theme = it) } }
-                Spacer(Modifier.height(10.dp))
-                LabelRow(c, "Accent")
-                Segmented(c, listOf("Cyan", "Green", "Orange", "Pink"), settings.accent) { onUpdate { s -> s.copy(accent = it) } }
-                Spacer(Modifier.height(8.dp))
-                SwitchRow(c, "Gauge color band (warn/danger)", settings.gaugeColorBand) { onUpdate { s -> s.copy(gaugeColorBand = it) } }
+            Section(c, "Motor", Icons.Filled.Motorcycle) {
+                SwitchRow(c, "Engine sound synthesis", settings.engineSound) { onUpdate { s -> s.copy(engineSound = it) } }
+                SliderRow(c, "Engine volume", "${settings.engineVolume.roundToInt()}%", settings.engineVolume, 0f..100f) { onUpdate { s -> s.copy(engineVolume = it) } }
+                Note(c, "Full engine-sound synthesis (type / muffler / gearbox / idle) is Android-only for now.")
+            }
+
+            Section(c, "Cloud", Icons.Filled.Archive) {
+                SwitchRow(c, "Sync settings to cloud", settings.cloudSyncSettings) { onUpdate { s -> s.copy(cloudSyncSettings = it) } }
+                SwitchRow(c, "Auto-backup trips", settings.autoBackupTrips) { onUpdate { s -> s.copy(autoBackupTrips = it) } }
+                Note(c, "Cloud folder sync lands with the iOS storage actuals.")
             }
 
             Section(c, "Alarms", Icons.Filled.NotificationsActive) {
@@ -121,27 +153,33 @@ internal fun SettingsScreen(
                 SliderRow(c, "PWM threshold", "${settings.pwmAlarmPct.roundToInt()}%", settings.pwmAlarmPct, 50f..95f) { onUpdate { s -> s.copy(pwmAlarmPct = it) } }
             }
 
-            Section(c, "Automations", Icons.Filled.AutoMode) {
+            Section(c, "Automations", Icons.Filled.AutoAwesome) {
                 SwitchRow(c, "Auto lights at speed", settings.autoLights) { onUpdate { s -> s.copy(autoLights = it) } }
                 SliderRow(c, "Lights-on speed", "${settings.autoLightsSpeedKmh.roundToInt()} km/h", settings.autoLightsSpeedKmh, 0f..20f) { onUpdate { s -> s.copy(autoLightsSpeedKmh = it) } }
                 SwitchRow(c, "Auto volume ramp by speed", settings.autoVolume) { onUpdate { s -> s.copy(autoVolume = it) } }
             }
 
-            Section(c, "Motor sound", Icons.Filled.GraphicEq) {
-                SwitchRow(c, "Engine sound synthesis", settings.engineSound) { onUpdate { s -> s.copy(engineSound = it) } }
-                SliderRow(c, "Engine volume", "${settings.engineVolume.roundToInt()}%", settings.engineVolume, 0f..100f) { onUpdate { s -> s.copy(engineVolume = it) } }
+            Section(c, "Navigator", Icons.Filled.Navigation) {
+                SwitchRow(c, "Voice guidance", settings.navVoiceGuidance) { onUpdate { s -> s.copy(navVoiceGuidance = it) } }
+                Note(c, "Maps / route navigation is Android-only (out of the iOS v1 scope).")
             }
 
-            Section(c, "Location", Icons.Filled.LocationOn) {
+            Section(c, "Location", Icons.Filled.Sensors) {
                 SwitchRow(c, "Prioritise external GPS", settings.externalGpsPriority) { onUpdate { s -> s.copy(externalGpsPriority = it) } }
                 SwitchRow(c, "Show GPS speed on dashboard", settings.showGpsOnDashboard) { onUpdate { s -> s.copy(showGpsOnDashboard = it) } }
             }
 
-            Section(c, "General", Icons.Filled.Tune) {
-                SwitchRow(c, "Auto-connect last wheel", settings.autoConnectLastWheel) { onUpdate { s -> s.copy(autoConnectLastWheel = it) } }
-                SwitchRow(c, "Keep screen on while riding", settings.keepScreenOn) { onUpdate { s -> s.copy(keepScreenOn = it) } }
-                SwitchRow(c, "Auto-start trip recording", settings.autoStartRecording) { onUpdate { s -> s.copy(autoStartRecording = it) } }
-                SwitchRow(c, "Back button exits app", settings.backButtonExits) { onUpdate { s -> s.copy(backButtonExits = it) } }
+            Section(c, "Integration", Icons.Filled.Extension) {
+                SwitchRow(c, "Flic button", settings.flicEnabled) { onUpdate { s -> s.copy(flicEnabled = it) } }
+                SwitchRow(c, "Volume-key controls", settings.volumeKeyControls) { onUpdate { s -> s.copy(volumeKeyControls = it) } }
+                SwitchRow(c, "Radar (obstacle detection)", settings.radarEnabled) { onUpdate { s -> s.copy(radarEnabled = it) } }
+                Note(c, "Flic / Radar / HUD hardware integration is Android-only for now.")
+            }
+
+            Section(c, "Watch", Icons.Filled.Watch) {
+                SwitchRow(c, "Keep watch screen on", settings.watchKeepOn) { onUpdate { s -> s.copy(watchKeepOn = it) } }
+                SwitchRow(c, "Auto-start on watch", settings.watchAutoStart) { onUpdate { s -> s.copy(watchAutoStart = it) } }
+                Note(c, "Wear OS / Garmin watch companion is Android-only.")
             }
 
             Spacer(Modifier.height(10.dp))
@@ -199,6 +237,11 @@ private fun Section(
 @Composable
 private fun LabelRow(c: AppThemeColors, label: String) {
     Text(label, color = c.textPrimary, fontSize = 14.sp, modifier = Modifier.padding(vertical = 6.dp))
+}
+
+@Composable
+private fun Note(c: AppThemeColors, text: String) {
+    Text(text, color = c.textDisabled, fontSize = 10.sp, modifier = Modifier.padding(top = 8.dp))
 }
 
 @Composable

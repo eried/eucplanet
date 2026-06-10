@@ -59,4 +59,24 @@ data class AppSettings(
     val keepScreenOn: Boolean = true,
     val autoStartRecording: Boolean = false,
     val backButtonExits: Boolean = false,
+
+    // Dashboard
+    val dashboardColumns: Int = 2,
+    val statCorners: Boolean = true,
+
+    // Cloud / backup
+    val cloudSyncSettings: Boolean = false,
+    val autoBackupTrips: Boolean = false,
+
+    // Navigator
+    val navVoiceGuidance: Boolean = true,
+
+    // Integration
+    val flicEnabled: Boolean = false,
+    val volumeKeyControls: Boolean = false,
+    val radarEnabled: Boolean = false,
+
+    // Watch
+    val watchKeepOn: Boolean = true,
+    val watchAutoStart: Boolean = false,
 )
