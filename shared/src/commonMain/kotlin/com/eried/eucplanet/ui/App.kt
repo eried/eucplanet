@@ -38,6 +38,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -83,11 +85,23 @@ fun App() {
     val scope = rememberCoroutineScope()
     val settingsStore = remember { SettingsStore() }
     val settings by settingsStore.settings.collectAsState()
-    val themeColors = when (settings.theme) {
+    val baseColors = when (settings.theme) {
         0 -> BuiltInThemes.light.colors
         2 -> BuiltInThemes.pureBlack.colors
         else -> BuiltInThemes.dark.colors
     }
+    val accent = when (settings.accent) {
+        1 -> Color(0xFF43A047) // green
+        2 -> Color(0xFFFB8C00) // orange
+        3 -> Color(0xFFEC407A) // pink
+        else -> null           // cyan / theme default
+    }
+    val themeColors = if (accent == null) baseColors else baseColors.copy(
+        primary = accent,
+        onPrimary = if (accent.luminance() > 0.5f) Color(0xFF101010) else Color.White,
+        link = accent, switchOn = accent, sliderActive = accent, chipSelected = accent,
+        segmentSelectedText = accent, tonalButtonText = accent, textButton = accent, snackbarAction = accent,
+    )
     EucPlanetTheme(colors = themeColors) {
         val connectModel = remember { ConnectModel(scope) }
         val recorder = remember { TripRecorder() }
