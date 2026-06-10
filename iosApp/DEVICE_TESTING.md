@@ -24,17 +24,27 @@ run goes over wifi — no cable again.
 
 ## Building + running the app
 
-The shared framework is built by Gradle; the app is a thin UIKit host
-(`iosApp/AppDelegate.swift` → `MainViewControllerKt.MainViewController()`).
+There's now a ready, **verified** Xcode project: **`iosApp/iosApp.xcodeproj`**
+(target `EucPlanet`, bundle id `com.eried.eucplanet.ios`). A Gradle build phase
+builds the shared framework for the active SDK (device or simulator), the thin
+UIKit host (`AppDelegate.swift` → `MainViewControllerKt.MainViewController()`)
+compiles against it, and `Shared.framework` is embedded + signed automatically.
+It was verified with `xcodebuild` (simulator) and the produced app runs.
+
+To run on your iPhone (on the Mac, in the synced `~/eucplanet` checkout):
+
+1. `open iosApp/iosApp.xcodeproj`
+2. Target **EucPlanet** → **Signing & Capabilities** → set **Team** to your
+   Personal Team (the Apple ID you added). Automatic signing handles the cert +
+   provisioning profile + device registration.
+3. Pick your iPhone in the device menu (USB once; wifi after) → **Run** (⌘R).
+
+Notes: the build phase sets `JAVA_HOME` from `~/.jdks/jdk-17*` and `ANDROID_HOME`
+from `~/Library/Android/sdk`; `ENABLE_USER_SCRIPT_SANDBOXING` is off so it can run
+Gradle. Manual framework builds if needed:
 
 - Device framework: `./gradlew :shared:linkDebugFrameworkIosArm64`
 - Simulator framework: `./gradlew :shared:linkDebugFrameworkIosSimulatorArm64`
-
-To run on the device you need a signed `.app`. The cleanest route is a small Xcode
-project that embeds the framework and signs with your Personal Team — open it,
-pick your iPhone, hit Run (USB once, then wifi). Ping me when your Apple ID is in
-Xcode and the phone is pairable and I'll wire that project up with you so we can
-iterate on any signing prompts live.
 
 ## Notes / gotchas
 
