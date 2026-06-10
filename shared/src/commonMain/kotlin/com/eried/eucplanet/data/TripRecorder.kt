@@ -14,7 +14,7 @@ import kotlinx.coroutines.flow.asStateFlow
  * actuals); the shape is the seam the Recordings screen reads. Seeded with a few
  * representative trips so the list isn't empty before the first ride.
  */
-class TripRecorder {
+class TripRecorder(private val fileStore: FileStore = createFileStore()) {
     private val _trips = MutableStateFlow(seedTrips)
     val trips: StateFlow<List<TripSummary>> = _trips.asStateFlow()
 
@@ -42,11 +42,15 @@ class TripRecorder {
 
     fun stop() {
         _recording.value = false
-        if (samples.size < 2) return
+        if (samples.size < 2) {
+            samples.clear()
+            return
+        }
         val durationMin = ((nowEpochMillis() - startMs) / 60_000L).toInt().coerceAtLeast(1)
         val speeds = samples.map { it.speed }
         val distance = (samples.last().tripDistance - samples.first().tripDistance).coerceAtLeast(0f)
         rideCount += 1
+        val csvPath = fileStore.writeText("euc_trip_$rideCount.csv", buildCsv(samples))
         val trip = TripSummary(
             date = "Ride $rideCount · just now",
             distanceKm = distance,
@@ -55,9 +59,30 @@ class TripRecorder {
             maxKmh = speeds.maxOrNull() ?: 0f,
             gpsLock = false,
             synced = false,
+            csvPath = csvPath,
         )
         _trips.value = listOf(trip) + _trips.value
         samples.clear()
+    }
+
+    /** DarknessBot-compatible-ish CSV of the ride samples. */
+    private fun buildCsv(s: List<WheelData>): String {
+        val sb = StringBuilder()
+        sb.append("t_s,speed_kmh,voltage_v,current_a,power_w,battery_pct,distance_km,pwm_pct,temp_c\n")
+        val t0 = s.firstOrNull()?.timestamp ?: 0L
+        for (w in s) {
+            val t = (w.timestamp - t0) / 1000.0
+            sb.append(t).append(',')
+                .append(w.speed).append(',')
+                .append(w.voltage).append(',')
+                .append(w.current).append(',')
+                .append(w.motorPower).append(',')
+                .append(w.batteryPercent).append(',')
+                .append(w.tripDistance).append(',')
+                .append(w.pwm).append(',')
+                .append(w.maxTemperature).append('\n')
+        }
+        return sb.toString()
     }
 
     private companion object {

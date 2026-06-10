@@ -75,6 +75,10 @@ private fun TripCard(c: AppThemeColors, t: TripSummary) {
             Text(if (t.gpsLock) "GPS" else "no GPS", color = if (t.gpsLock) c.statusGood else c.textDisabled, fontSize = 10.sp)
             Spacer(Modifier.width(10.dp))
             Text(if (t.synced) "☁ synced" else "☁ local", color = if (t.synced) c.primary else c.textDisabled, fontSize = 10.sp)
+            if (t.csvPath != null) {
+                Spacer(Modifier.width(10.dp))
+                Text("CSV", color = c.statusGood, fontSize = 10.sp, fontWeight = FontWeight.Medium)
+            }
         }
         Spacer(Modifier.height(10.dp))
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {

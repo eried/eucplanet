@@ -9,4 +9,6 @@ data class TripSummary(
     val maxKmh: Float,
     val gpsLock: Boolean,
     val synced: Boolean,
+    /** Path of the exported DarknessBot-compatible CSV, or null (seed/unsaved). */
+    val csvPath: String? = null,
 )

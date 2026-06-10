@@ -37,6 +37,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.eried.eucplanet.audio.createHaptics
 import com.eried.eucplanet.audio.createSpeaker
 import com.eried.eucplanet.ble.WheelSession
 import com.eried.eucplanet.ble.transport.BleDevice
@@ -81,6 +82,7 @@ fun App() {
         val settingsStore = remember { SettingsStore() }
         val recorder = remember { TripRecorder() }
         val speaker = remember { createSpeaker() }
+        val haptics = remember { createHaptics() }
         remember { DiagnosticsLog.install() } // tee adapter inspect notes into the Service Mode log
         val settings by settingsStore.settings.collectAsState()
         val recording by recorder.recording.collectAsState()
@@ -138,10 +140,13 @@ fun App() {
         // Speak alarms when the active-alarm set changes (not every frame).
         val alarmKinds = alarms.map { it.kind }
         LaunchedEffect(alarmKinds) {
-            if (alarmKinds.isNotEmpty() && settings.ttsEnabled) {
-                speaker.stop() // interrupt any in-flight/queued utterance
-                speaker.rate = ttsRate()
-                speaker.speak("Warning, " + alarms.joinToString(", ") { it.label })
+            if (alarmKinds.isNotEmpty()) {
+                haptics.warning() // haptic + alert sound, independent of TTS
+                if (settings.ttsEnabled) {
+                    speaker.stop() // interrupt any in-flight/queued utterance
+                    speaker.rate = ttsRate()
+                    speaker.speak("Warning, " + alarms.joinToString(", ") { it.label })
+                }
             }
         }
 
