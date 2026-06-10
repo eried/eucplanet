@@ -143,10 +143,18 @@ internal fun SettingsScreen(
                         SwitchRow(c, "Text-to-speech announcements", settings.ttsEnabled) { onUpdate { s -> s.copy(ttsEnabled = it) } }
                         SliderRow(c, "Speech rate", "${settings.speechRate.roundToInt()}%", settings.speechRate, 0f..100f) { onUpdate { s -> s.copy(speechRate = it) } }
                         SliderRow(c, "Announce interval", "${settings.announceIntervalSec}s", settings.announceIntervalSec.toFloat(), 10f..300f) { onUpdate { s -> s.copy(announceIntervalSec = it.roundToInt()) } }
+                        Spacer(Modifier.height(6.dp))
+                        LabelRow(c, "Periodic report")
                         SwitchRow(c, "Report speed", settings.announceSpeed) { onUpdate { s -> s.copy(announceSpeed = it) } }
                         SwitchRow(c, "Report battery", settings.announceBattery) { onUpdate { s -> s.copy(announceBattery = it) } }
                         SwitchRow(c, "Report temperature", settings.announceTemp) { onUpdate { s -> s.copy(announceTemp = it) } }
-                        SwitchRow(c, "Announce light changes", settings.announceLights) { onUpdate { s -> s.copy(announceLights = it) } }
+                        Spacer(Modifier.height(6.dp))
+                        LabelRow(c, "Spoken events")
+                        SwitchRow(c, "Lights on / off", settings.announceLights) { onUpdate { s -> s.copy(announceLights = it) } }
+                        SwitchRow(c, "Wheel lock / unlock", settings.announceWheelLock) { onUpdate { s -> s.copy(announceWheelLock = it) } }
+                        SwitchRow(c, "Legal mode on / off", settings.announceLegalMode) { onUpdate { s -> s.copy(announceLegalMode = it) } }
+                        SwitchRow(c, "Recording start / stop", settings.announceRecording) { onUpdate { s -> s.copy(announceRecording = it) } }
+                        Note(c, "Connection / GPS / welcome announcements arrive with the iOS connection + location actuals.")
                     }
 
                     SettingsSectionId.Motor -> Section(c, "Motor", Icons.Filled.Motorcycle) {

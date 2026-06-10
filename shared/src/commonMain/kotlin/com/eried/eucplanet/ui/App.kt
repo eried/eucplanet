@@ -78,6 +78,10 @@ private val sampleWheels = listOf(
 
 private enum class Route { Dashboard, Settings, Recording, ServiceMode }
 
+/** Ride actions that can be spoken aloud the moment they happen (gated by the
+ *  matching per-event toggle in Voice settings). */
+private enum class RideEvent { LockOn, LockOff, LightsOn, LightsOff, LegalOn, LegalOff, RecStart, RecStop }
+
 /**
  * Shared EUC Planet app shell — a multi-screen port of the Android app: Scan →
  * Dashboard (live telemetry, metric grid, action grid) ↔ Settings ↔ Recordings.
@@ -176,6 +180,25 @@ fun App() {
             if (parts.isEmpty()) parts += "Speed ${UnitFormat.speed(current.speed, settings.unitSpeed).roundToInt()}"
             speaker.rate = ttsRate()
             speaker.speak(parts.joinToString(", "))
+        }
+
+        // Speak a ride action the instant it happens, if its per-event toggle is on.
+        fun announceEvent(e: RideEvent) {
+            if (!settings.ttsEnabled) return
+            val (enabled, phrase) = when (e) {
+                RideEvent.LockOn -> settings.announceWheelLock to "Wheel locked"
+                RideEvent.LockOff -> settings.announceWheelLock to "Wheel unlocked"
+                RideEvent.LightsOn -> settings.announceLights to "Lights on"
+                RideEvent.LightsOff -> settings.announceLights to "Lights off"
+                RideEvent.LegalOn -> settings.announceLegalMode to "Legal mode on"
+                RideEvent.LegalOff -> settings.announceLegalMode to "Legal mode off"
+                RideEvent.RecStart -> settings.announceRecording to "Recording started"
+                RideEvent.RecStop -> settings.announceRecording to "Recording finished"
+            }
+            if (enabled) {
+                speaker.rate = ttsRate()
+                speaker.speak(phrase)
+            }
         }
 
         // Speak alarms when the active-alarm set changes (not every frame).
@@ -281,8 +304,13 @@ fun App() {
                     unitDistance = settings.unitDistance,
                     unitTemp = settings.unitTemp,
                     recording = recording,
-                    onToggleRecord = { recorder.toggle() },
+                    onToggleRecord = {
+                        val wasRecording = recording
+                        recorder.toggle()
+                        announceEvent(if (wasRecording) RideEvent.RecStop else RideEvent.RecStart)
+                    },
                     onAnnounce = { announce() },
+                    onRideEvent = { announceEvent(it) },
                     announceIntervalSec = settings.announceIntervalSec,
                     onScan = { leaveRide() },
                     onSettings = { route = Route.Settings },
@@ -310,6 +338,7 @@ private fun DashboardRoute(
     recording: Boolean,
     onToggleRecord: () -> Unit,
     onAnnounce: () -> Unit,
+    onRideEvent: (RideEvent) -> Unit,
     announceIntervalSec: Int,
     onScan: () -> Unit,
     onSettings: () -> Unit,
@@ -362,12 +391,17 @@ private fun DashboardRoute(
         onHorn = { session?.let { s -> scope.launch { s.horn() } } },
         onToggleLight = {
             lightOn = !lightOn
+            onRideEvent(if (lightOn) RideEvent.LightsOn else RideEvent.LightsOff)
             session?.let { s -> scope.launch { s.setLight(lightOn) } }
         },
         onToggleVoice = { val nowOn = !voiceOn; voiceOn = nowOn; if (nowOn) onAnnounce() },
-        onToggleLegal = { legalMode = !legalMode },
+        onToggleLegal = {
+            legalMode = !legalMode
+            onRideEvent(if (legalMode) RideEvent.LegalOn else RideEvent.LegalOff)
+        },
         onToggleLock = {
             locked = !locked
+            onRideEvent(if (locked) RideEvent.LockOn else RideEvent.LockOff)
             session?.let { s -> scope.launch { s.setLock(locked) } }
         },
         onToggleRecord = onToggleRecord,

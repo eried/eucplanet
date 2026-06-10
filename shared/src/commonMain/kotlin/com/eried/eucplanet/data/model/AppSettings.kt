@@ -24,7 +24,11 @@ data class AppSettings(
     val announceSpeed: Boolean = true,
     val announceBattery: Boolean = true,
     val announceTemp: Boolean = false,
+    // Spoken events (fired on the action, not periodically)
     val announceLights: Boolean = false,
+    val announceWheelLock: Boolean = false,
+    val announceLegalMode: Boolean = false,
+    val announceRecording: Boolean = false,
 
     // Display
     val theme: Int = 1,          // 0 = Light, 1 = Dark, 2 = Pure Black
