@@ -135,6 +135,7 @@ fun App() {
             val screen = debugStartScreen()?.lowercase() ?: return@LaunchedEffect
             demoWheel = sampleWheels[0]
             demoModel = DashboardModel(scope)
+            if (settings.autoStartRecording) recorder.start() // mirror the real connect path
             when (screen) {
                 "settings" -> route = Route.Settings
                 "recording", "recordings" -> route = Route.Recording
@@ -215,6 +216,7 @@ fun App() {
         }
 
         fun leaveRide() {
+            recorder.stop() // finalize + save any in-progress recording (no-op if not recording)
             session?.stop()
             demoModel?.stop()
             speaker.stop()
@@ -241,6 +243,7 @@ fun App() {
                         scope.launch {
                             try {
                                 session = connectModel.connect(dev)
+                                if (settings.autoStartRecording) recorder.start()
                                 route = Route.Dashboard
                             } catch (e: Throwable) {
                                 error = e.message ?: "connection failed"
@@ -252,6 +255,7 @@ fun App() {
                     onConnectDemo = { w ->
                         demoWheel = w
                         demoModel = DashboardModel(scope)
+                        if (settings.autoStartRecording) recorder.start()
                         route = Route.Dashboard
                     },
                 )
