@@ -191,7 +191,7 @@ fun App() {
             if (settings.announceSpeed) parts += "Speed ${UnitFormat.speed(current.speed, settings.unitSpeed).roundToInt()}"
             if (settings.announceBattery) parts += "Battery ${current.batteryPercent} percent"
             if (settings.announceTemp) parts += "Temperature ${UnitFormat.temperature(current.maxTemperature, settings.unitTemp).roundToInt()} degrees"
-            if (parts.isEmpty()) parts += "Speed ${UnitFormat.speed(current.speed, settings.unitSpeed).roundToInt()}"
+            if (parts.isEmpty()) return // all periodic-report toggles off = the rider wants silence
             speaker.rate = ttsRate()
             speaker.volume = ttsVolume()
             speaker.speak(parts.joinToString(", "))
@@ -253,7 +253,7 @@ fun App() {
                 try {
                     session = connectModel.connect(dev)
                     settingsStore.update { it.copy(lastWheelAddress = dev.address) }
-                    if (settings.autoStartRecording) recorder.start()
+                    if (settingsStore.current.autoStartRecording) recorder.start() // read latest, not the closure
                     route = Route.Dashboard
                 } catch (e: Throwable) {
                     error = e.message ?: "connection failed"
