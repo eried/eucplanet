@@ -15,6 +15,9 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
@@ -256,14 +259,15 @@ private fun Segmented(c: AppThemeColors, options: List<String>, selected: Int, o
 @Composable
 internal fun ScreenTopBar(c: AppThemeColors, title: String, onBack: () -> Unit) {
     Row(
-        Modifier.fillMaxWidth().background(c.topBar).padding(start = 12.dp, end = 16.dp, top = 14.dp, bottom = 12.dp),
+        Modifier.fillMaxWidth().background(c.topBar).padding(start = 8.dp, end = 16.dp, top = 12.dp, bottom = 12.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Text(
-            "‹ Back", color = c.primary, fontSize = 14.sp, fontWeight = FontWeight.Medium,
-            modifier = Modifier.clip(RoundedCornerShape(8.dp)).clickable { onBack() }.padding(horizontal = 8.dp, vertical = 4.dp),
-        )
-        Spacer(Modifier.size(8.dp))
+        Box(
+            Modifier.clip(androidx.compose.foundation.shape.CircleShape).clickable { onBack() }.padding(8.dp),
+        ) {
+            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = c.primary, modifier = Modifier.size(22.dp))
+        }
+        Spacer(Modifier.size(6.dp))
         Text(title, color = c.textPrimary, fontSize = 18.sp, fontWeight = FontWeight.Bold)
     }
 }

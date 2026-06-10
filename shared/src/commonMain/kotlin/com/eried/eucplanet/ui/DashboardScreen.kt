@@ -16,10 +16,29 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Bluetooth
+import androidx.compose.material.icons.filled.BluetoothSearching
+import androidx.compose.material.icons.filled.Campaign
+import androidx.compose.material.icons.filled.FiberManualRecord
+import androidx.compose.material.icons.filled.FlashlightOn
+import androidx.compose.material.icons.filled.History
+import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.LockOpen
+import androidx.compose.material.icons.filled.RecordVoiceOver
+import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.Shield
+import androidx.compose.material.icons.filled.Warning
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -29,6 +48,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -61,17 +81,18 @@ internal val defaultMetrics = listOf(
 )
 
 /** One dashboard control button. [activeColor] is used when [active] is true. */
-private class RideAction(
+internal class RideAction(
     val label: String,
-    val glyph: String,
+    val icon: ImageVector,
     val activeColor: (AppThemeColors) -> Color,
 )
 
 /**
  * The shared EUC Planet dashboard — a faithful port of the Android live-ride
- * screen: status top bar, speed gauge filling the upper area, the 6-tile metric
- * grid with background sparklines, and the 6-button action grid. Drives off a
- * single [WheelData] (live from a WheelSession, or simulated in demo mode).
+ * screen: status top bar (connection dot + name + Bluetooth/Settings/History
+ * icons), the speed gauge, the 6-tile metric grid with background sparklines,
+ * the 6-button Material-icon action grid, and the odometer / About / brand
+ * bottom row. Drives off a single [WheelData] (live or simulated).
  */
 @Composable
 internal fun DashboardScreen(
@@ -99,8 +120,10 @@ internal fun DashboardScreen(
     onMetricClick: (String) -> Unit,
 ) {
     val c = MaterialTheme.appColors
+    var showAbout by remember { mutableStateOf(false) }
+
     Column(Modifier.fillMaxSize().background(c.appBackground)) {
-        DashboardTopBar(c, title, subtitle, connected, onScan, onSettings)
+        DashboardTopBar(c, title, subtitle, connected, alarms.isNotEmpty(), onScan, onSettings, onRecordingScreen)
 
         if (alarms.isNotEmpty()) AlarmBanner(c, alarms)
 
@@ -126,21 +149,21 @@ internal fun DashboardScreen(
             }
         }
 
-        // 6-button action grid (3 columns x 2 rows).
+        // 6-button Material-icon action grid (3 columns x 2 rows).
         val actions = listOf(
-            Triple(RideAction("HORN", "►", { cc: AppThemeColors -> cc.primary }), false) { onHorn() },
-            Triple(RideAction("LIGHT", "☀", { cc: AppThemeColors -> cc.statusWarn }), lightOn) { onToggleLight() },
-            Triple(RideAction("VOICE", "♪", { cc: AppThemeColors -> cc.primary }), voiceOn) { onToggleVoice() },
-            Triple(RideAction("LEGAL", "◈", { cc: AppThemeColors -> cc.primary }), legalMode) { onToggleLegal() },
-            Triple(RideAction("LOCK", "⚿", { cc: AppThemeColors -> cc.statusDanger }), locked) { onToggleLock() },
-            Triple(RideAction("REC", "●", { cc: AppThemeColors -> cc.statusDanger }), recording) { onToggleRecord() },
+            ActionSpec(RideAction("Horn", Icons.Filled.Campaign) { it.primary }, false, true, onHorn),
+            ActionSpec(RideAction("Light", Icons.Filled.FlashlightOn) { it.statusWarn }, lightOn, true, onToggleLight),
+            ActionSpec(RideAction("Voice", Icons.Filled.RecordVoiceOver) { it.primary }, voiceOn, true, onToggleVoice),
+            ActionSpec(RideAction("Legal", Icons.Filled.Shield) { it.primary }, legalMode, true, onToggleLegal),
+            ActionSpec(RideAction("Lock", if (locked) Icons.Filled.Lock else Icons.Filled.LockOpen) { it.statusDanger }, locked, true, onToggleLock),
+            ActionSpec(RideAction("Rec", Icons.Filled.FiberManualRecord) { it.statusDanger }, recording, true, onToggleRecord),
         )
         Column(Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 4.dp)) {
             actions.chunked(3).forEach { row ->
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    row.forEach { (action, active, onClick) ->
+                    row.forEach { spec ->
                         Box(Modifier.weight(1f)) {
-                            ActionButton(c, action, active, connected, onClick)
+                            ActionButton(c, spec.action, spec.active, spec.enabled, spec.onClick)
                         }
                     }
                 }
@@ -148,24 +171,49 @@ internal fun DashboardScreen(
             }
         }
 
-        // Bottom info row: odometer · firmware/about · trips.
+        // Bottom info row: odometer · About (version) · brand — matches Android.
         Row(
             Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Text("ODO ${d.totalDistance.f1()} km", color = c.textSecondary, fontSize = 11.sp, modifier = Modifier.weight(1f))
             Text(
-                if (connected) subtitle else "demo · shared Compose",
-                color = c.textDisabled, fontSize = 11.sp,
-                textAlign = TextAlign.Center, modifier = Modifier.weight(1f),
+                "EUC Planet 0.1", color = c.textDisabled, fontSize = 11.sp,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.weight(1f).clip(RoundedCornerShape(6.dp)).clickable { showAbout = true }.padding(vertical = 2.dp),
             )
             Text(
-                "Trips ›", color = c.primary, fontSize = 11.sp, textAlign = TextAlign.End,
-                modifier = Modifier.weight(1f).clickable { onRecordingScreen() },
+                if (connected) "live" else "demo",
+                color = if (connected) c.statusGood else c.textDisabled, fontSize = 11.sp,
+                textAlign = TextAlign.End, modifier = Modifier.weight(1f),
             )
         }
     }
+
+    if (showAbout) {
+        AlertDialog(
+            onDismissRequest = { showAbout = false },
+            confirmButton = { TextButton(onClick = { showAbout = false }) { Text("Close", color = c.primary) } },
+            title = { Text("EUC Planet", color = c.textPrimary, fontWeight = FontWeight.Bold) },
+            text = {
+                Column {
+                    Text("Version 0.1 — shared Compose Multiplatform (iOS / Android)", color = c.textSecondary, fontSize = 13.sp)
+                    Spacer(Modifier.height(8.dp))
+                    Text("Wheel: $title", color = c.textSecondary, fontSize = 13.sp)
+                    Text(subtitle, color = c.textDisabled, fontSize = 12.sp)
+                }
+            },
+            containerColor = c.dialog,
+        )
+    }
 }
+
+private class ActionSpec(
+    val action: RideAction,
+    val active: Boolean,
+    val enabled: Boolean,
+    val onClick: () -> Unit,
+)
 
 @Composable
 private fun DashboardTopBar(
@@ -173,11 +221,13 @@ private fun DashboardTopBar(
     title: String,
     subtitle: String,
     connected: Boolean,
+    hasAlarm: Boolean,
     onScan: () -> Unit,
     onSettings: () -> Unit,
+    onRecordings: () -> Unit,
 ) {
     Row(
-        Modifier.fillMaxWidth().background(c.topBar).padding(start = 16.dp, end = 12.dp, top = 14.dp, bottom = 12.dp),
+        Modifier.fillMaxWidth().background(c.topBar).padding(start = 16.dp, end = 8.dp, top = 14.dp, bottom = 12.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Box(
@@ -189,18 +239,26 @@ private fun DashboardTopBar(
             Text(title, color = c.textPrimary, fontSize = 17.sp, fontWeight = FontWeight.Bold, maxLines = 1)
             Text(subtitle, color = c.textSecondary, fontSize = 11.sp, maxLines = 1)
         }
-        TopBarAction(if (connected) "Disconnect" else "Scan", if (connected) c.statusDanger else c.primary, onScan)
-        Spacer(Modifier.size(8.dp))
-        TopBarAction("Settings", c.primary, onSettings)
+        if (hasAlarm) IconBtn(Icons.Filled.Warning, "Alarm", c.statusDanger) {}
+        IconBtn(Icons.Filled.History, "Recordings", c.textSecondary, onRecordings)
+        IconBtn(
+            if (connected) Icons.Filled.Bluetooth else Icons.Filled.BluetoothSearching,
+            if (connected) "Disconnect" else "Scan",
+            if (connected) c.statusGood else c.primary,
+            onScan,
+        )
+        IconBtn(Icons.Filled.Settings, "Settings", c.primary, onSettings)
     }
 }
 
 @Composable
-private fun TopBarAction(label: String, color: Color, onClick: () -> Unit) {
-    Text(
-        label, color = color, fontSize = 13.sp, fontWeight = FontWeight.Medium,
-        modifier = Modifier.clip(RoundedCornerShape(8.dp)).clickable { onClick() }.padding(horizontal = 8.dp, vertical = 4.dp),
-    )
+private fun IconBtn(icon: ImageVector, desc: String, tint: Color, onClick: () -> Unit) {
+    Box(
+        Modifier.clip(CircleShape).clickable { onClick() }.padding(7.dp),
+        contentAlignment = Alignment.Center,
+    ) {
+        Icon(icon, contentDescription = desc, tint = tint, modifier = Modifier.size(22.dp))
+    }
 }
 
 @Composable
@@ -209,7 +267,6 @@ private fun MetricTile(c: AppThemeColors, m: Metric, d: WheelData, history: List
     Box(
         Modifier.fillMaxWidth().height(64.dp).clip(RoundedCornerShape(10.dp)).background(c.tileBackground).clickable { onClick() },
     ) {
-        // Background sparkline of this metric's recent history.
         val series = history.map { m.value(it) }
         if (series.size >= 2) {
             Sparkline(series, color.copy(alpha = 0.35f), Modifier.fillMaxSize().padding(top = 22.dp))
@@ -250,8 +307,8 @@ private fun ActionButton(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
     ) {
-        Text(action.glyph, color = fg, fontSize = 20.sp)
-        Spacer(Modifier.height(3.dp))
+        Icon(action.icon, contentDescription = action.label, tint = fg, modifier = Modifier.size(24.dp))
+        Spacer(Modifier.height(4.dp))
         Text(action.label, color = fg, fontSize = 11.sp, fontWeight = FontWeight.Medium)
     }
 }
@@ -295,7 +352,7 @@ private fun AlarmBanner(c: AppThemeColors, alarms: List<RideAlarm>) {
             .padding(horizontal = 14.dp, vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Text("⚠", color = c.statusDanger, fontSize = 16.sp)
+        Icon(Icons.Filled.Warning, contentDescription = "Alarm", tint = c.statusDanger, modifier = Modifier.size(18.dp))
         Spacer(Modifier.size(8.dp))
         Text(
             alarms.joinToString("   ·   ") { it.label },
