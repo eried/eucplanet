@@ -60,6 +60,7 @@ import com.eried.eucplanet.ui.theme.BuiltInThemes
 import com.eried.eucplanet.ui.theme.EucPlanetTheme
 import com.eried.eucplanet.ui.theme.appColors
 import com.eried.eucplanet.util.UnitFormat
+import com.eried.eucplanet.util.setKeepScreenOn
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.isActive
@@ -229,6 +230,12 @@ fun App() {
         }
 
         val inRide = session != null || demoModel != null
+
+        // Keep the screen awake during a ride when the General setting is on
+        // (iOS idleTimerDisabled); reset when the ride ends or the toggle flips.
+        LaunchedEffect(inRide, settings.keepScreenOn) {
+            setKeepScreenOn(inRide && settings.keepScreenOn)
+        }
 
         Surface(Modifier.fillMaxSize(), color = MaterialTheme.appColors.appBackground) {
             Box(Modifier.fillMaxSize().windowInsetsPadding(WindowInsets.safeDrawing)) {
