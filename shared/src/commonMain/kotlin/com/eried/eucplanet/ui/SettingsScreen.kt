@@ -54,6 +54,7 @@ internal fun SettingsScreen(
     connected: Boolean,
     onUpdate: ((AppSettings) -> AppSettings) -> Unit,
     onApplyMaxSpeed: (tiltbackKmh: Float, alarmKmh: Float) -> Unit,
+    onServiceMode: () -> Unit,
     onBack: () -> Unit,
 ) {
     val c = MaterialTheme.appColors
@@ -131,9 +132,19 @@ internal fun SettingsScreen(
                 SwitchRow(c, "Back button exits app", settings.backButtonExits) { onUpdate { s -> s.copy(backButtonExits = it) } }
             }
 
-            Spacer(Modifier.height(20.dp))
+            Spacer(Modifier.height(10.dp))
+            Row(
+                Modifier.fillMaxWidth().clip(RoundedCornerShape(12.dp)).background(c.surface)
+                    .clickable { onServiceMode() }.padding(16.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text("Service Mode / Wheel Diagnostics", color = c.textPrimary, fontSize = 14.sp, fontWeight = FontWeight.SemiBold, modifier = Modifier.weight(1f))
+                Text("›", color = c.primary, fontSize = 16.sp)
+            }
+
+            Spacer(Modifier.height(16.dp))
             Text(
-                "Settings persist in-session now; disk persistence (kotlinx.serialization) lands with the iOS storage actuals. Speed limits apply to the wheel live.",
+                "Settings persist to device storage (NSUserDefaults on iOS). Speed limits apply to the wheel live.",
                 color = c.textDisabled, fontSize = 10.sp,
             )
             Spacer(Modifier.height(24.dp))

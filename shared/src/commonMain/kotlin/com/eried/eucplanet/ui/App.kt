@@ -40,6 +40,7 @@ import androidx.compose.ui.unit.sp
 import com.eried.eucplanet.audio.createSpeaker
 import com.eried.eucplanet.ble.WheelSession
 import com.eried.eucplanet.ble.transport.BleDevice
+import com.eried.eucplanet.data.DiagnosticsLog
 import com.eried.eucplanet.data.RideAlarm
 import com.eried.eucplanet.data.SettingsStore
 import com.eried.eucplanet.data.TripRecorder
@@ -62,7 +63,7 @@ private val sampleWheels = listOf(
     Wheel("Begode_Master_4C", "Begode", -74),
 )
 
-private enum class Route { Dashboard, Settings, Recording }
+private enum class Route { Dashboard, Settings, Recording, ServiceMode }
 
 /**
  * Shared EUC Planet app shell — a multi-screen port of the Android app: Scan →
@@ -80,6 +81,7 @@ fun App() {
         val settingsStore = remember { SettingsStore() }
         val recorder = remember { TripRecorder() }
         val speaker = remember { createSpeaker() }
+        remember { DiagnosticsLog.install() } // tee adapter inspect notes into the Service Mode log
         val settings by settingsStore.settings.collectAsState()
         val recording by recorder.recording.collectAsState()
         val trips by recorder.trips.collectAsState()
@@ -100,6 +102,7 @@ fun App() {
             when (screen) {
                 "settings" -> route = Route.Settings
                 "recording", "recordings" -> route = Route.Recording
+                "servicemode", "service" -> route = Route.ServiceMode
                 "metric", "metricdetail" -> { route = Route.Dashboard; selectedMetric = "voltage" }
                 else -> route = Route.Dashboard
             }
@@ -189,9 +192,15 @@ fun App() {
                     onApplyMaxSpeed = { tiltback, alarm ->
                         session?.let { s -> scope.launch { s.setMaxSpeed(tiltback, alarm) } }
                     },
+                    onServiceMode = { route = Route.ServiceMode },
                     onBack = { route = Route.Dashboard },
                 )
                 route == Route.Recording -> RecordingScreen(trips = trips, onBack = { route = Route.Dashboard })
+                route == Route.ServiceMode -> ServiceModeScreen(
+                    connected = session != null,
+                    onFire = { bytes -> session?.let { s -> scope.launch { s.sendRaw(bytes) } } },
+                    onBack = { route = Route.Settings },
+                )
                 selectedMetric != null -> MetricDetailScreen(
                     metricKey = selectedMetric!!,
                     history = history,

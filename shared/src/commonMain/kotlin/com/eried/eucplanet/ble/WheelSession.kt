@@ -116,6 +116,11 @@ class WheelSession(
         adapter.setLock(locked)?.let { connection.write(it) }
     }
 
+    /** Fire a raw diagnostic command's bytes at the wheel (Service Mode). */
+    suspend fun sendRaw(bytes: ByteArray) {
+        if (bytes.isNotEmpty()) connection.write(bytes)
+    }
+
     /** Write the tiltback (max) + alarm thresholds, pacing any follow-up commits
      *  the family needs (P6 alarm commit, V14 single-packet, etc.). */
     suspend fun setMaxSpeed(tiltbackKmh: Float, alarmKmh: Float) {
