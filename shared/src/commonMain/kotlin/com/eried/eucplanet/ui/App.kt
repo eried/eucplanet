@@ -56,7 +56,9 @@ import com.eried.eucplanet.data.model.WheelData
 import com.eried.eucplanet.ui.theme.BuiltInThemes
 import com.eried.eucplanet.ui.theme.EucPlanetTheme
 import com.eried.eucplanet.ui.theme.appColors
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
@@ -246,6 +248,7 @@ fun App() {
                     recording = recording,
                     onToggleRecord = { recorder.toggle() },
                     onAnnounce = { announce() },
+                    announceIntervalSec = settings.announceIntervalSec,
                     onScan = { leaveRide() },
                     onSettings = { route = Route.Settings },
                     onRecording = { route = Route.Recording },
@@ -269,6 +272,7 @@ private fun DashboardRoute(
     recording: Boolean,
     onToggleRecord: () -> Unit,
     onAnnounce: () -> Unit,
+    announceIntervalSec: Int,
     onScan: () -> Unit,
     onSettings: () -> Unit,
     onRecording: () -> Unit,
@@ -283,6 +287,16 @@ private fun DashboardRoute(
     var locked by remember { mutableStateOf(false) }
     var legalMode by remember { mutableStateOf(false) }
     var voiceOn by remember { mutableStateOf(false) }
+
+    // Periodic spoken status while the VOICE button is active, on the interval.
+    LaunchedEffect(voiceOn, announceIntervalSec) {
+        if (voiceOn) {
+            while (isActive) {
+                delay(announceIntervalSec.coerceAtLeast(5).toLong() * 1000L)
+                onAnnounce()
+            }
+        }
+    }
 
     val title = if (live) (liveModel ?: session!!.brand) else demoTitle
     val subtitle = if (live) "${session!!.brand} · live" else "$demoBrand · demo"
