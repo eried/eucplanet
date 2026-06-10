@@ -6,6 +6,7 @@ plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.compose.multiplatform)
+    alias(libs.plugins.kotlin.serialization)
 }
 
 kotlin {
@@ -40,6 +41,7 @@ kotlin {
             implementation(compose.ui)
             implementation(libs.coroutines.core)
             implementation(libs.koin.core)
+            implementation(libs.kotlinx.serialization.json)
         }
         commonTest.dependencies {
             implementation(kotlin("test"))

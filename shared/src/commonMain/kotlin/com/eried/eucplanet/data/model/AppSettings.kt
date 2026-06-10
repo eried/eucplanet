@@ -1,5 +1,7 @@
 package com.eried.eucplanet.data.model
 
+import kotlinx.serialization.Serializable
+
 /**
  * The shared app-settings model — the v1 "core ride slice" subset of the Android
  * `AppSettings` (which has 200+ fields). Plain immutable data so it serializes
@@ -7,6 +9,7 @@ package com.eried.eucplanet.data.model
  * drives both the Settings UI and the alarm/automation logic. Add fields as more
  * of the Android surface is ported.
  */
+@Serializable
 data class AppSettings(
     // Speed
     val tiltbackKmh: Float = 45f,
