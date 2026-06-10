@@ -57,6 +57,7 @@ import com.eried.eucplanet.data.RideAlarm
 import com.eried.eucplanet.data.model.WheelData
 import com.eried.eucplanet.ui.theme.AppThemeColors
 import com.eried.eucplanet.ui.theme.appColors
+import com.eried.eucplanet.util.UnitFormat
 import kotlin.math.roundToInt
 
 /** One metric tile's spec: how to pull its value + unit + accent from [WheelData]. */
@@ -69,15 +70,18 @@ internal class Metric(
     val text: (WheelData) -> String,
 )
 
-/** The default 6-tile grid, mirroring the Android dashboard's BATTERY / TEMP /
- *  VOLTAGE / CURRENT / LOAD / TRIP layout. Also the lookup for MetricDetail. */
-internal val defaultMetrics = listOf(
+/** The 6-tile grid, mirroring the Android dashboard's BATTERY / TEMP / VOLTAGE /
+ *  CURRENT / LOAD / TRIP layout. Also the lookup for MetricDetail. TEMP and TRIP
+ *  are unit-aware (converted to the rider's chosen display unit); the rest are
+ *  unit-agnostic. The value/text lambdas convert too, so sparklines + MIN/MAX
+ *  read in the displayed unit. */
+internal fun metricsFor(unitDistance: String, unitTemp: String): List<Metric> = listOf(
     Metric("battery", "BATTERY", "%", { it.metricBattery }, { it.batteryPercent.toFloat() }, { it.batteryPercent.toString() }),
-    Metric("temp", "TEMP", "°C", { it.metricTemp }, { it.maxTemperature }, { it.maxTemperature.f0() }),
+    Metric("temp", "TEMP", UnitFormat.tempLabel(unitTemp), { it.metricTemp }, { UnitFormat.temperature(it.maxTemperature, unitTemp) }, { UnitFormat.temperature(it.maxTemperature, unitTemp).f0() }),
     Metric("voltage", "VOLTAGE", "V", { it.metricVoltage }, { it.voltage }, { it.voltage.f1() }),
     Metric("current", "CURRENT", "A", { it.metricAccel }, { it.current }, { it.current.f1() }),
     Metric("load", "LOAD", "%", { it.metricPosition }, { it.pwm }, { it.pwm.f0() }),
-    Metric("trip", "TRIP", "km", { it.statusGood }, { it.tripDistance }, { it.tripDistance.f1() }),
+    Metric("trip", "TRIP", UnitFormat.distanceLabel(unitDistance), { it.statusGood }, { UnitFormat.distance(it.tripDistance, unitDistance) }, { UnitFormat.distance(it.tripDistance, unitDistance).f1() }),
 )
 
 /** One dashboard control button. [activeColor] is used when [active] is true. */
@@ -108,6 +112,9 @@ internal fun DashboardScreen(
     recording: Boolean,
     alarms: List<RideAlarm>,
     gaugeBand: Boolean,
+    unitSpeed: String,
+    unitDistance: String,
+    unitTemp: String,
     onHorn: () -> Unit,
     onToggleLight: () -> Unit,
     onToggleVoice: () -> Unit,
@@ -132,12 +139,12 @@ internal fun DashboardScreen(
             Modifier.fillMaxWidth().weight(1f).padding(horizontal = 12.dp),
             contentAlignment = Alignment.Center,
         ) {
-            SpeedGauge(d.speed, max = 60f, pwm = d.pwm, charging = d.charging, band = gaugeBand, c = c)
+            SpeedGauge(d.speed, max = 60f, unitSpeed = unitSpeed, pwm = d.pwm, charging = d.charging, band = gaugeBand, c = c)
         }
 
         // 6-tile metric grid (2 columns x 3 rows).
         Column(Modifier.fillMaxWidth().padding(horizontal = 12.dp)) {
-            defaultMetrics.chunked(2).forEach { row ->
+            metricsFor(unitDistance, unitTemp).chunked(2).forEach { row ->
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     row.forEach { m ->
                         Box(Modifier.weight(1f)) {
@@ -176,7 +183,7 @@ internal fun DashboardScreen(
             Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            Text("ODO ${d.totalDistance.f1()} km", color = c.textSecondary, fontSize = 11.sp, modifier = Modifier.weight(1f))
+            Text("ODO ${UnitFormat.distance(d.totalDistance, unitDistance).f1()} ${UnitFormat.distanceLabel(unitDistance)}", color = c.textSecondary, fontSize = 11.sp, modifier = Modifier.weight(1f))
             Text(
                 if (connected) "live" else "demo",
                 color = if (connected) c.statusGood else c.textDisabled, fontSize = 11.sp,
@@ -299,7 +306,8 @@ private fun MetricTile(c: AppThemeColors, m: Metric, d: WheelData, history: List
     }
 }
 
-private fun statText(v: Float, unit: String): String = if (unit == "%" || unit == "°C") v.f0() else v.f1()
+private fun statText(v: Float, unit: String): String =
+    if (unit == "%" || unit.startsWith("°") || unit == "K") v.f0() else v.f1()
 
 @Composable
 private fun ActionButton(
@@ -329,7 +337,8 @@ private fun ActionButton(
 }
 
 @Composable
-internal fun SpeedGauge(speed: Float, max: Float, pwm: Float, charging: Boolean, band: Boolean, c: AppThemeColors) {
+internal fun SpeedGauge(speed: Float, max: Float, unitSpeed: String, pwm: Float, charging: Boolean, band: Boolean, c: AppThemeColors) {
+    // frac is a ratio, so it's unit-invariant — only the readout + label convert.
     val frac = (speed / max).coerceIn(0f, 1f)
     val arcColor = when {
         !band -> c.gaugeFill
@@ -355,8 +364,8 @@ internal fun SpeedGauge(speed: Float, max: Float, pwm: Float, charging: Boolean,
             drawArc(arcColor, 135f, 270f * frac, false, topLeft = topLeft, size = arcSize, style = stroke)
         }
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            Text(speed.f1(), color = c.textPrimary, fontSize = 58.sp, fontWeight = FontWeight.Bold)
-            Text("km/h", color = c.textSecondary, fontSize = 14.sp)
+            Text(UnitFormat.speed(speed, unitSpeed).f1(), color = c.textPrimary, fontSize = 58.sp, fontWeight = FontWeight.Bold)
+            Text(UnitFormat.speedLabel(unitSpeed), color = c.textSecondary, fontSize = 14.sp)
             Spacer(Modifier.height(2.dp))
             Text(
                 if (charging) "CHARGING" else "PWM ${pwm.f0()}%",

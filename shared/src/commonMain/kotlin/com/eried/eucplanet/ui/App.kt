@@ -59,6 +59,7 @@ import com.eried.eucplanet.data.model.WheelData
 import com.eried.eucplanet.ui.theme.BuiltInThemes
 import com.eried.eucplanet.ui.theme.EucPlanetTheme
 import com.eried.eucplanet.ui.theme.appColors
+import com.eried.eucplanet.util.UnitFormat
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.isActive
@@ -169,10 +170,10 @@ fun App() {
         fun announce() {
             if (!settings.ttsEnabled) return
             val parts = mutableListOf<String>()
-            if (settings.announceSpeed) parts += "Speed ${current.speed.roundToInt()}"
+            if (settings.announceSpeed) parts += "Speed ${UnitFormat.speed(current.speed, settings.unitSpeed).roundToInt()}"
             if (settings.announceBattery) parts += "Battery ${current.batteryPercent} percent"
-            if (settings.announceTemp) parts += "Temperature ${current.maxTemperature.roundToInt()} degrees"
-            if (parts.isEmpty()) parts += "Speed ${current.speed.roundToInt()} kilometers per hour"
+            if (settings.announceTemp) parts += "Temperature ${UnitFormat.temperature(current.maxTemperature, settings.unitTemp).roundToInt()} degrees"
+            if (parts.isEmpty()) parts += "Speed ${UnitFormat.speed(current.speed, settings.unitSpeed).roundToInt()}"
             speaker.rate = ttsRate()
             speaker.speak(parts.joinToString(", "))
         }
@@ -258,6 +259,8 @@ fun App() {
                     metricKey = selectedMetric!!,
                     history = history,
                     current = current,
+                    unitDistance = settings.unitDistance,
+                    unitTemp = settings.unitTemp,
                     onBack = { selectedMetric = null },
                 )
                 else -> DashboardRoute(
@@ -268,6 +271,9 @@ fun App() {
                     history = history,
                     alarms = alarms,
                     gaugeBand = settings.gaugeColorBand,
+                    unitSpeed = settings.unitSpeed,
+                    unitDistance = settings.unitDistance,
+                    unitTemp = settings.unitTemp,
                     recording = recording,
                     onToggleRecord = { recorder.toggle() },
                     onAnnounce = { announce() },
@@ -292,6 +298,9 @@ private fun DashboardRoute(
     history: List<WheelData>,
     alarms: List<RideAlarm>,
     gaugeBand: Boolean,
+    unitSpeed: String,
+    unitDistance: String,
+    unitTemp: String,
     recording: Boolean,
     onToggleRecord: () -> Unit,
     onAnnounce: () -> Unit,
@@ -341,6 +350,9 @@ private fun DashboardRoute(
         recording = recording,
         alarms = alarms,
         gaugeBand = gaugeBand,
+        unitSpeed = unitSpeed,
+        unitDistance = unitDistance,
+        unitTemp = unitTemp,
         onHorn = { session?.let { s -> scope.launch { s.horn() } } },
         onToggleLight = {
             lightOn = !lightOn

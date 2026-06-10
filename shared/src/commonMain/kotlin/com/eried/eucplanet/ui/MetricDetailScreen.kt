@@ -40,10 +40,13 @@ internal fun MetricDetailScreen(
     metricKey: String,
     history: List<WheelData>,
     current: WheelData,
+    unitDistance: String,
+    unitTemp: String,
     onBack: () -> Unit,
 ) {
     val c = MaterialTheme.appColors
-    val metric = defaultMetrics.firstOrNull { it.key == metricKey } ?: defaultMetrics.first()
+    val metrics = metricsFor(unitDistance, unitTemp)
+    val metric = metrics.firstOrNull { it.key == metricKey } ?: metrics.first()
     val color = metric.color(c)
     val series = history.map { metric.value(it) }
     val lo = series.minOrNull() ?: 0f
@@ -132,5 +135,6 @@ private fun StatBox(c: AppThemeColors, label: String, value: String, color: Colo
     }
 }
 
-/** One-decimal for fractional units, integer for %/°C-style. */
-private fun Float.fmt(unit: String): String = if (unit == "%" || unit == "°C") f0() else f1()
+/** One-decimal for fractional units, integer for %/temperature-style. */
+private fun Float.fmt(unit: String): String =
+    if (unit == "%" || unit.startsWith("°") || unit == "K") f0() else f1()

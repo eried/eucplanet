@@ -31,6 +31,11 @@ data class AppSettings(
     val accent: Int = 0,
     val gaugeColorBand: Boolean = true,
 
+    // Units (display only — stored telemetry is always metric: km/h, km, °C)
+    val unitSpeed: String = "kmh",   // kmh | mph | ms | kn
+    val unitDistance: String = "km", // km | mi | m | ft | mil
+    val unitTemp: String = "C",      // C | F | K
+
     // Alarms
     val speedAlarmEnabled: Boolean = true,
     val speedAlarmKmh: Float = 45f,

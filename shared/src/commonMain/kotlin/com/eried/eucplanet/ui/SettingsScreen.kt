@@ -105,6 +105,15 @@ internal fun SettingsScreen(
                     }
 
                     SettingsSectionId.Display -> Section(c, "Display", Icons.Filled.DisplaySettings) {
+                        LabelRow(c, "Units")
+                        Segmented(c, listOf("Metric", "Imperial"), if (settings.unitSpeed == "mph") 1 else 0) { idx ->
+                            onUpdate { s ->
+                                if (idx == 1) s.copy(unitSpeed = "mph", unitDistance = "mi", unitTemp = "F")
+                                else s.copy(unitSpeed = "kmh", unitDistance = "km", unitTemp = "C")
+                            }
+                        }
+                        Note(c, "Metric = km/h · km · °C.  Imperial = mph · mi · °F.  Per-unit custom (m/s, knots, K) is Android-only for now.")
+                        Spacer(Modifier.height(10.dp))
                         LabelRow(c, "Theme")
                         Segmented(c, listOf("Light", "Dark", "Pure Black"), settings.theme) { onUpdate { s -> s.copy(theme = it) } }
                         Spacer(Modifier.height(10.dp))
