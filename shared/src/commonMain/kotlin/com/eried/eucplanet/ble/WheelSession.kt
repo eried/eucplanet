@@ -112,6 +112,18 @@ class WheelSession(
         adapter.setLightFollowup(on)?.let { connection.write(it) }
     }
 
+    suspend fun setLock(locked: Boolean) {
+        adapter.setLock(locked)?.let { connection.write(it) }
+    }
+
+    /** Write the tiltback (max) + alarm thresholds, pacing any follow-up commits
+     *  the family needs (P6 alarm commit, V14 single-packet, etc.). */
+    suspend fun setMaxSpeed(tiltbackKmh: Float, alarmKmh: Float) {
+        adapter.setMaxSpeed(tiltbackKmh, alarmKmh)?.let { connection.write(it) }
+        adapter.setMaxSpeedCommit(tiltbackKmh)?.let { connection.write(it) }
+        adapter.setAlarmSpeedCommit(alarmKmh)?.let { connection.write(it) }
+    }
+
     /** Stop polling, reset adapter state, and drop the BLE link. */
     fun stop() {
         pollJob?.cancel()

@@ -1,27 +1,32 @@
 package com.eried.eucplanet.ui
 
-import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -29,21 +34,17 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.StrokeCap
-import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.eried.eucplanet.ble.WheelSession
 import com.eried.eucplanet.ble.transport.BleDevice
 import com.eried.eucplanet.data.model.WheelData
-import com.eried.eucplanet.ui.theme.AppThemeColors
 import com.eried.eucplanet.ui.theme.BuiltInThemes
 import com.eried.eucplanet.ui.theme.EucPlanetTheme
 import com.eried.eucplanet.ui.theme.appColors
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
-import kotlin.math.roundToInt
 
 /** A demo wheel for the Simulator (no Bluetooth), driving the simulated dashboard. */
 private data class Wheel(val name: String, val brand: String, val rssi: Int)
@@ -55,12 +56,25 @@ private val sampleWheels = listOf(
     Wheel("Begode_Master_4C", "Begode", -74),
 )
 
+private enum class Route { Dashboard, Settings, Recording }
+
+/** Screenshot harness: maps the `EUC_DEMO_SCREEN` env var (see [debugStartScreen])
+ *  to a screen, so a headless Simulator run can auto-open a demo ride on any
+ *  screen. Null (the default) means the normal Scan-first flow. */
+private fun debugAutoDemoRoute(): Route? = when (debugStartScreen()?.lowercase()) {
+    "dashboard" -> Route.Dashboard
+    "settings" -> Route.Settings
+    "recording", "recordings" -> Route.Recording
+    else -> null
+}
+
 /**
- * Shared EUC Planet app shell. State-based navigation (no nav lib for v1), the
- * real theme, and shared Compose screens. On a real iPhone the Connect screen
- * lists nearby wheels from the CoreBluetooth transport and tapping one opens a
- * live [WheelSession] dashboard; the Simulator (no Bluetooth) shows demo wheels
- * driven by a simulated telemetry flow. Renders identically on iOS/Android.
+ * Shared EUC Planet app shell — a multi-screen port of the Android app: Scan →
+ * Dashboard (live telemetry, metric grid, action grid) ↔ Settings ↔ Recordings.
+ * On a real iPhone the Scan screen lists nearby wheels from the CoreBluetooth
+ * transport and tapping one opens a live [WheelSession]; the Simulator (no
+ * Bluetooth) offers demo wheels driven by a simulated telemetry flow. Identical
+ * on iOS and Android.
  */
 @Composable
 fun App() {
@@ -68,17 +82,34 @@ fun App() {
         val scope = rememberCoroutineScope()
         val connectModel = remember { ConnectModel(scope) }
         var session by remember { mutableStateOf<WheelSession?>(null) }
-        var demo by remember { mutableStateOf<Wheel?>(null) }
+        var demoModel by remember { mutableStateOf<DashboardModel?>(null) }
+        var demoWheel by remember { mutableStateOf<Wheel?>(null) }
         var connectingName by remember { mutableStateOf<String?>(null) }
         var error by remember { mutableStateOf<String?>(null) }
+        var route by remember { mutableStateOf(Route.Dashboard) }
+
+        LaunchedEffect(Unit) {
+            debugAutoDemoRoute()?.let { r ->
+                demoWheel = sampleWheels[0]
+                demoModel = DashboardModel(scope)
+                route = r
+            }
+        }
+
+        fun leaveRide() {
+            session?.stop()
+            session = null
+            demoModel = null
+            demoWheel = null
+            route = Route.Dashboard
+        }
+
+        val inRide = session != null || demoModel != null
 
         Surface(Modifier.fillMaxSize(), color = MaterialTheme.appColors.appBackground) {
-            val s = session
-            val d = demo
+            Box(Modifier.fillMaxSize().windowInsetsPadding(WindowInsets.safeDrawing)) {
             when {
-                s != null -> LiveDashboardScreen(s, onDisconnect = { s.stop(); session = null })
-                d != null -> DemoDashboardScreen(d, onDisconnect = { demo = null })
-                else -> ConnectScreen(
+                !inRide -> ScanScreen(
                     connectModel = connectModel,
                     connectingName = connectingName,
                     error = error,
@@ -88,6 +119,7 @@ fun App() {
                         scope.launch {
                             try {
                                 session = connectModel.connect(dev)
+                                route = Route.Dashboard
                             } catch (e: Throwable) {
                                 error = e.message ?: "connection failed"
                             } finally {
@@ -95,15 +127,99 @@ fun App() {
                             }
                         }
                     },
-                    onConnectDemo = { demo = it },
+                    onConnectDemo = { w ->
+                        demoWheel = w
+                        demoModel = DashboardModel(scope)
+                        route = Route.Dashboard
+                    },
                 )
+                route == Route.Settings -> SettingsScreen(
+                    connected = session != null,
+                    onApplyMaxSpeed = { tiltback, alarm ->
+                        session?.let { s -> scope.launch { s.setMaxSpeed(tiltback, alarm) } }
+                    },
+                    onBack = { route = Route.Dashboard },
+                )
+                route == Route.Recording -> RecordingScreen(onBack = { route = Route.Dashboard })
+                else -> DashboardRoute(
+                    session = session,
+                    demoModel = demoModel,
+                    demoTitle = demoWheel?.name ?: "EUC Planet",
+                    demoBrand = demoWheel?.brand ?: "demo",
+                    onScan = { leaveRide() },
+                    onSettings = { route = Route.Settings },
+                    onRecording = { route = Route.Recording },
+                )
+            }
             }
         }
     }
 }
 
 @Composable
-private fun ConnectScreen(
+private fun DashboardRoute(
+    session: WheelSession?,
+    demoModel: DashboardModel?,
+    demoTitle: String,
+    demoBrand: String,
+    onScan: () -> Unit,
+    onSettings: () -> Unit,
+    onRecording: () -> Unit,
+) {
+    val scope = rememberCoroutineScope()
+    val live = session != null
+    val dataFlow = session?.data ?: demoModel!!.data
+    val d by dataFlow.collectAsState()
+    val fallbackModel = remember { MutableStateFlow<String?>(null) }
+    val liveModel by (session?.modelName ?: fallbackModel).collectAsState()
+
+    // Recent telemetry history backing the metric-tile sparklines.
+    val history = remember { mutableStateListOf<WheelData>() }
+    LaunchedEffect(d) {
+        history.add(d)
+        if (history.size > 48) history.removeAt(0)
+    }
+
+    var lightOn by remember { mutableStateOf(false) }
+    var locked by remember { mutableStateOf(false) }
+    var legalMode by remember { mutableStateOf(false) }
+    var voiceOn by remember { mutableStateOf(false) }
+    var recording by remember { mutableStateOf(false) }
+
+    val title = if (live) (liveModel ?: session!!.brand) else demoTitle
+    val subtitle = if (live) "${session!!.brand} · live" else "$demoBrand · demo"
+
+    DashboardScreen(
+        d = d,
+        history = history,
+        title = title,
+        subtitle = subtitle,
+        connected = live,
+        lightOn = lightOn,
+        locked = locked,
+        legalMode = legalMode,
+        voiceOn = voiceOn,
+        recording = recording,
+        onHorn = { session?.let { s -> scope.launch { s.horn() } } },
+        onToggleLight = {
+            lightOn = !lightOn
+            session?.let { s -> scope.launch { s.setLight(lightOn) } }
+        },
+        onToggleVoice = { voiceOn = !voiceOn },
+        onToggleLegal = { legalMode = !legalMode },
+        onToggleLock = {
+            locked = !locked
+            session?.let { s -> scope.launch { s.setLock(locked) } }
+        },
+        onToggleRecord = { recording = !recording },
+        onScan = onScan,
+        onSettings = onSettings,
+        onRecordingScreen = onRecording,
+    )
+}
+
+@Composable
+private fun ScanScreen(
     connectModel: ConnectModel,
     connectingName: String?,
     error: String?,
@@ -112,7 +228,7 @@ private fun ConnectScreen(
 ) {
     val c = MaterialTheme.appColors
     val devices by connectModel.devices.collectAsState()
-    Column(Modifier.fillMaxSize().padding(24.dp)) {
+    Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(24.dp)) {
         Spacer(Modifier.height(40.dp))
         Text("EUC Planet", color = c.primary, fontSize = 30.sp, fontWeight = FontWeight.Bold)
         Text("Select a wheel", color = c.textSecondary, fontSize = 14.sp)
@@ -131,18 +247,11 @@ private fun ConnectScreen(
         }
         Spacer(Modifier.height(16.dp))
 
-        // Real peripherals from the CoreBluetooth transport (empty on Simulator).
         if (devices.isNotEmpty()) {
             Text("NEARBY", color = c.textSecondary, fontSize = 11.sp, fontWeight = FontWeight.Medium)
             Spacer(Modifier.height(4.dp))
             devices.forEach { dev ->
-                WheelRow(
-                    c = c,
-                    name = dev.name ?: "(unnamed)",
-                    subtitle = dev.address,
-                    rssi = dev.rssi,
-                    onClick = { onConnectReal(dev) },
-                )
+                WheelRow(c, dev.name ?: "(unnamed)", dev.address, dev.rssi) { onConnectReal(dev) }
             }
             Spacer(Modifier.height(16.dp))
         }
@@ -150,25 +259,20 @@ private fun ConnectScreen(
         Text("DEMO", color = c.textSecondary, fontSize = 11.sp, fontWeight = FontWeight.Medium)
         Spacer(Modifier.height(4.dp))
         sampleWheels.forEach { w ->
-            WheelRow(
-                c = c,
-                name = w.name,
-                subtitle = w.brand,
-                rssi = w.rssi,
-                onClick = { onConnectDemo(w) },
-            )
+            WheelRow(c, w.name, w.brand, w.rssi) { onConnectDemo(w) }
         }
         Spacer(Modifier.height(20.dp))
         Text(
             "Simulator has no Bluetooth — real scan uses the shared CoreBluetooth transport on device.",
             color = c.textDisabled, fontSize = 10.sp,
         )
+        Spacer(Modifier.height(24.dp))
     }
 }
 
 @Composable
 private fun WheelRow(
-    c: AppThemeColors,
+    c: com.eried.eucplanet.ui.theme.AppThemeColors,
     name: String,
     subtitle: String,
     rssi: Int,
@@ -193,114 +297,3 @@ private fun WheelRow(
         Text("Connect ›", color = c.primary, fontSize = 14.sp, fontWeight = FontWeight.Medium)
     }
 }
-
-@Composable
-private fun LiveDashboardScreen(session: WheelSession, onDisconnect: () -> Unit) {
-    val d by session.data.collectAsState()
-    val model by session.modelName.collectAsState()
-    DashboardBody(
-        d = d,
-        title = model ?: session.brand,
-        subtitle = "${session.brand} · live",
-        onDisconnect = onDisconnect,
-    )
-}
-
-@Composable
-private fun DemoDashboardScreen(wheel: Wheel, onDisconnect: () -> Unit) {
-    val scope = rememberCoroutineScope()
-    val model = remember { DashboardModel(scope) }
-    val d by model.data.collectAsState()
-    DashboardBody(
-        d = d,
-        title = wheel.name,
-        subtitle = "${wheel.brand} · demo",
-        onDisconnect = onDisconnect,
-    )
-}
-
-@Composable
-private fun DashboardBody(d: WheelData, title: String, subtitle: String, onDisconnect: () -> Unit) {
-    val c = MaterialTheme.appColors
-    Column(
-        Modifier.fillMaxSize().padding(20.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-    ) {
-        Spacer(Modifier.height(36.dp))
-        Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-            Column(Modifier.weight(1f)) {
-                Text(title, color = c.textPrimary, fontSize = 18.sp, fontWeight = FontWeight.Bold)
-                Text(subtitle, color = c.primary, fontSize = 12.sp)
-            }
-            Text(
-                "Disconnect", color = c.statusDanger, fontSize = 13.sp,
-                modifier = Modifier.clickable { onDisconnect() },
-            )
-        }
-        Spacer(Modifier.height(8.dp))
-        SpeedGauge(d.speed, max = 60f, pwm = d.pwm, c = c)
-        Spacer(Modifier.height(18.dp))
-        Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-            Tile(c, "BATTERY", d.batteryPercent.toString(), "%", c.metricBattery)
-            Tile(c, "VOLTAGE", d.voltage.f1(), "V", c.metricVoltage)
-        }
-        Spacer(Modifier.height(10.dp))
-        Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-            Tile(c, "TEMP", d.maxTemperature.f0(), "°C", c.metricTemp)
-            Tile(c, "CURRENT", d.current.f1(), "A", c.metricAccel)
-        }
-        Spacer(Modifier.height(14.dp))
-        Text("trip ${d.tripDistance.f1()} km · shared Compose · iOS", color = c.textDisabled, fontSize = 11.sp)
-    }
-}
-
-@Composable
-private fun SpeedGauge(speed: Float, max: Float, pwm: Float, c: AppThemeColors) {
-    val frac = (speed / max).coerceIn(0f, 1f)
-    val arcColor = when {
-        pwm > 85f -> c.gaugeDanger
-        pwm > 65f -> c.gaugeWarn
-        else -> c.gaugeFill
-    }
-    Box(Modifier.size(200.dp), contentAlignment = Alignment.Center) {
-        Canvas(Modifier.fillMaxSize()) {
-            val stroke = Stroke(width = 20f, cap = StrokeCap.Round)
-            val inset = 18f
-            val sz = androidx.compose.ui.geometry.Size(size.width - inset * 2, size.height - inset * 2)
-            val off = androidx.compose.ui.geometry.Offset(inset, inset)
-            drawArc(c.gaugeTrack, 135f, 270f, false, topLeft = off, size = sz, style = stroke)
-            drawArc(arcColor, 135f, 270f * frac, false, topLeft = off, size = sz, style = stroke)
-        }
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            Text(speed.f1(), color = c.textPrimary, fontSize = 50.sp, fontWeight = FontWeight.Bold)
-            Text("km/h", color = c.textSecondary, fontSize = 14.sp)
-            Text("PWM ${pwm.f0()}%", color = arcColor, fontSize = 12.sp, fontWeight = FontWeight.Medium)
-        }
-    }
-}
-
-@Composable
-private fun Tile(c: AppThemeColors, label: String, value: String, unit: String, valueColor: Color) {
-    Column(
-        Modifier
-            .width(150.dp)
-            .clip(RoundedCornerShape(14.dp))
-            .background(c.tileBackground)
-            .padding(vertical = 14.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-    ) {
-        Text(label, color = c.textSecondary, fontSize = 11.sp, fontWeight = FontWeight.Medium)
-        Spacer(Modifier.height(3.dp))
-        Text(value, color = valueColor, fontSize = 26.sp, fontWeight = FontWeight.Bold)
-        Text(unit, color = c.textSecondary, fontSize = 12.sp)
-    }
-}
-
-private fun Float.f1(): String {
-    val r = (this * 10).roundToInt()
-    val neg = r < 0
-    val a = if (neg) -r else r
-    return "${if (neg) "-" else ""}${a / 10}.${a % 10}"
-}
-
-private fun Float.f0(): String = this.roundToInt().toString()
