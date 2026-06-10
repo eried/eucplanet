@@ -80,15 +80,20 @@ private enum class Route { Dashboard, Settings, Recording, ServiceMode }
  */
 @Composable
 fun App() {
-    EucPlanetTheme(colors = BuiltInThemes.dark.colors) {
-        val scope = rememberCoroutineScope()
+    val scope = rememberCoroutineScope()
+    val settingsStore = remember { SettingsStore() }
+    val settings by settingsStore.settings.collectAsState()
+    val themeColors = when (settings.theme) {
+        0 -> BuiltInThemes.light.colors
+        2 -> BuiltInThemes.pureBlack.colors
+        else -> BuiltInThemes.dark.colors
+    }
+    EucPlanetTheme(colors = themeColors) {
         val connectModel = remember { ConnectModel(scope) }
-        val settingsStore = remember { SettingsStore() }
         val recorder = remember { TripRecorder() }
         val speaker = remember { createSpeaker() }
         val haptics = remember { createHaptics() }
         remember { DiagnosticsLog.install() } // tee adapter inspect notes into the Service Mode log
-        val settings by settingsStore.settings.collectAsState()
         val recording by recorder.recording.collectAsState()
         val trips by recorder.trips.collectAsState()
         var session by remember { mutableStateOf<WheelSession?>(null) }
