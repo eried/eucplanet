@@ -34,6 +34,9 @@ data class AppSettings(
     val theme: Int = 1,          // 0 = Light, 1 = Dark, 2 = Pure Black
     val accent: Int = 0,
     val gaugeColorBand: Boolean = true,
+    // Theme editor: per-token color overrides on top of the selected built-in.
+    val customThemeEnabled: Boolean = false,
+    val customThemeColors: Map<String, Int> = emptyMap(), // ThemeTokenSpec.key -> ARGB Int
 
     // Units (display only — stored telemetry is always metric: km/h, km, °C)
     val unitSpeed: String = "kmh",   // kmh | mph | ms | kn

@@ -76,6 +76,7 @@ internal fun SettingsScreen(
     onUpdate: ((AppSettings) -> AppSettings) -> Unit,
     onApplyMaxSpeed: (tiltbackKmh: Float, alarmKmh: Float) -> Unit,
     onServiceMode: () -> Unit,
+    onThemeEditor: () -> Unit,
     onBack: () -> Unit,
 ) {
     val c = MaterialTheme.appColors
@@ -121,6 +122,17 @@ internal fun SettingsScreen(
                         Segmented(c, listOf("Cyan", "Green", "Orange", "Pink"), settings.accent) { onUpdate { s -> s.copy(accent = it) } }
                         Spacer(Modifier.height(8.dp))
                         SwitchRow(c, "Gauge color band (warn/danger)", settings.gaugeColorBand) { onUpdate { s -> s.copy(gaugeColorBand = it) } }
+                        Spacer(Modifier.height(6.dp))
+                        Row(
+                            Modifier.fillMaxWidth().clip(RoundedCornerShape(10.dp)).background(c.surface)
+                                .clickable { onThemeEditor() }.padding(horizontal = 12.dp, vertical = 12.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            Text("Customize theme colors", color = c.textPrimary, fontSize = 14.sp, fontWeight = FontWeight.Medium, modifier = Modifier.weight(1f))
+                            if (settings.customThemeEnabled) Text("custom on", color = c.primary, fontSize = 10.sp, fontWeight = FontWeight.Medium)
+                            Spacer(Modifier.width(8.dp))
+                            Text("›", color = c.primary, fontSize = 16.sp)
+                        }
                     }
 
                     SettingsSectionId.Speed -> Section(c, "Speed", Icons.Filled.Speed) {

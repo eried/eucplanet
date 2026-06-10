@@ -58,6 +58,7 @@ import com.eried.eucplanet.data.model.TripSummary
 import com.eried.eucplanet.data.model.WheelData
 import com.eried.eucplanet.ui.theme.BuiltInThemes
 import com.eried.eucplanet.ui.theme.EucPlanetTheme
+import com.eried.eucplanet.ui.theme.ThemeTokens
 import com.eried.eucplanet.ui.theme.appColors
 import com.eried.eucplanet.util.UnitFormat
 import com.eried.eucplanet.util.setKeepScreenOn
@@ -78,7 +79,7 @@ private val sampleWheels = listOf(
     Wheel("Begode_Master_4C", "Begode", -74),
 )
 
-private enum class Route { Dashboard, Settings, Recording, ServiceMode }
+private enum class Route { Dashboard, Settings, Recording, ServiceMode, ThemeEditor }
 
 /** Ride actions that can be spoken aloud the moment they happen (gated by the
  *  matching per-event toggle in Voice settings). */
@@ -108,12 +109,17 @@ fun App() {
         3 -> Color(0xFFEC407A) // pink
         else -> null           // cyan / theme default
     }
-    val themeColors = if (accent == null) baseColors else baseColors.copy(
+    val accentColors = if (accent == null) baseColors else baseColors.copy(
         primary = accent,
         onPrimary = if (accent.luminance() > 0.179f) Color(0xFF101010) else Color.White,
         link = accent, switchOn = accent, sliderActive = accent, chipSelected = accent,
         segmentSelectedText = accent, tonalButtonText = accent, textButton = accent, snackbarAction = accent,
     )
+    // Apply per-token theme-editor overrides on top of the built-in + accent.
+    val themeColors = if (!settings.customThemeEnabled || settings.customThemeColors.isEmpty()) accentColors
+        else ThemeTokens.specs.fold(accentColors) { acc, spec ->
+            settings.customThemeColors[spec.key]?.let { spec.set(acc, it.argbToColor()) } ?: acc
+        }
     EucPlanetTheme(colors = themeColors) {
         val connectModel = remember { ConnectModel(scope) }
         val recorder = remember { TripRecorder() }
@@ -142,6 +148,7 @@ fun App() {
                 "settings" -> route = Route.Settings
                 "recording", "recordings" -> route = Route.Recording
                 "servicemode", "service" -> route = Route.ServiceMode
+                "themeeditor", "theme" -> route = Route.ThemeEditor
                 "metric", "metricdetail" -> { route = Route.Dashboard; selectedMetric = "voltage" }
                 "tripdetail", "trip" -> {
                     val s = (0 until 48).map { i ->
@@ -299,7 +306,13 @@ fun App() {
                         session?.let { s -> scope.launch { s.setMaxSpeed(tiltback, alarm) } }
                     },
                     onServiceMode = { route = Route.ServiceMode },
+                    onThemeEditor = { route = Route.ThemeEditor },
                     onBack = { route = Route.Dashboard },
+                )
+                route == Route.ThemeEditor -> ThemeEditorScreen(
+                    settings = settings,
+                    onUpdate = { transform -> settingsStore.update(transform) },
+                    onBack = { route = Route.Settings },
                 )
                 route == Route.Recording -> {
                     val st = selectedTrip
