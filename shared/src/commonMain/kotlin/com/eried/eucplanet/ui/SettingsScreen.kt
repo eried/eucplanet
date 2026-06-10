@@ -12,11 +12,22 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.AutoMode
+import androidx.compose.material.icons.filled.GraphicEq
+import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.KeyboardArrowUp
+import androidx.compose.material.icons.filled.LocationOn
+import androidx.compose.material.icons.filled.NotificationsActive
+import androidx.compose.material.icons.filled.Palette
+import androidx.compose.material.icons.filled.RecordVoiceOver
+import androidx.compose.material.icons.filled.Speed
+import androidx.compose.material.icons.filled.Tune
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Slider
@@ -33,6 +44,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -62,7 +74,7 @@ internal fun SettingsScreen(
         ScreenTopBar(c, "Settings", onBack)
         Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(horizontal = 12.dp, vertical = 8.dp)) {
 
-            Section(c, "Speed", expandedDefault = true) {
+            Section(c, "Speed", Icons.Filled.Speed, expandedDefault = true) {
                 SliderRow(c, "Tiltback (max) speed", "${settings.tiltbackKmh.roundToInt()} km/h", settings.tiltbackKmh, 10f..70f) {
                     onUpdate { s -> s.copy(tiltbackKmh = it) }
                 }
@@ -78,7 +90,7 @@ internal fun SettingsScreen(
                 ApplyRow(c, connected) { onApplyMaxSpeed(settings.tiltbackKmh, settings.alarmKmh) }
             }
 
-            Section(c, "Voice") {
+            Section(c, "Voice", Icons.Filled.RecordVoiceOver) {
                 SwitchRow(c, "Text-to-speech announcements", settings.ttsEnabled) { onUpdate { s -> s.copy(ttsEnabled = it) } }
                 SliderRow(c, "Speech rate", "${settings.speechRate.roundToInt()}%", settings.speechRate, 0f..100f) { onUpdate { s -> s.copy(speechRate = it) } }
                 SliderRow(c, "Announce interval", "${settings.announceIntervalSec}s", settings.announceIntervalSec.toFloat(), 10f..300f) { onUpdate { s -> s.copy(announceIntervalSec = it.roundToInt()) } }
@@ -88,7 +100,7 @@ internal fun SettingsScreen(
                 SwitchRow(c, "Announce light changes", settings.announceLights) { onUpdate { s -> s.copy(announceLights = it) } }
             }
 
-            Section(c, "Display") {
+            Section(c, "Display", Icons.Filled.Palette) {
                 LabelRow(c, "Theme")
                 Segmented(c, listOf("Light", "Dark", "Pure Black"), settings.theme) { onUpdate { s -> s.copy(theme = it) } }
                 Spacer(Modifier.height(10.dp))
@@ -98,7 +110,7 @@ internal fun SettingsScreen(
                 SwitchRow(c, "Gauge color band (warn/danger)", settings.gaugeColorBand) { onUpdate { s -> s.copy(gaugeColorBand = it) } }
             }
 
-            Section(c, "Alarms") {
+            Section(c, "Alarms", Icons.Filled.NotificationsActive) {
                 SwitchRow(c, "Speed alarm", settings.speedAlarmEnabled) { onUpdate { s -> s.copy(speedAlarmEnabled = it) } }
                 SliderRow(c, "Speed threshold", "${settings.speedAlarmKmh.roundToInt()} km/h", settings.speedAlarmKmh, 10f..80f) { onUpdate { s -> s.copy(speedAlarmKmh = it) } }
                 SwitchRow(c, "Temperature alarm", settings.tempAlarmEnabled) { onUpdate { s -> s.copy(tempAlarmEnabled = it) } }
@@ -109,23 +121,23 @@ internal fun SettingsScreen(
                 SliderRow(c, "PWM threshold", "${settings.pwmAlarmPct.roundToInt()}%", settings.pwmAlarmPct, 50f..95f) { onUpdate { s -> s.copy(pwmAlarmPct = it) } }
             }
 
-            Section(c, "Automations") {
+            Section(c, "Automations", Icons.Filled.AutoMode) {
                 SwitchRow(c, "Auto lights at speed", settings.autoLights) { onUpdate { s -> s.copy(autoLights = it) } }
                 SliderRow(c, "Lights-on speed", "${settings.autoLightsSpeedKmh.roundToInt()} km/h", settings.autoLightsSpeedKmh, 0f..20f) { onUpdate { s -> s.copy(autoLightsSpeedKmh = it) } }
                 SwitchRow(c, "Auto volume ramp by speed", settings.autoVolume) { onUpdate { s -> s.copy(autoVolume = it) } }
             }
 
-            Section(c, "Motor sound") {
+            Section(c, "Motor sound", Icons.Filled.GraphicEq) {
                 SwitchRow(c, "Engine sound synthesis", settings.engineSound) { onUpdate { s -> s.copy(engineSound = it) } }
                 SliderRow(c, "Engine volume", "${settings.engineVolume.roundToInt()}%", settings.engineVolume, 0f..100f) { onUpdate { s -> s.copy(engineVolume = it) } }
             }
 
-            Section(c, "Location") {
+            Section(c, "Location", Icons.Filled.LocationOn) {
                 SwitchRow(c, "Prioritise external GPS", settings.externalGpsPriority) { onUpdate { s -> s.copy(externalGpsPriority = it) } }
                 SwitchRow(c, "Show GPS speed on dashboard", settings.showGpsOnDashboard) { onUpdate { s -> s.copy(showGpsOnDashboard = it) } }
             }
 
-            Section(c, "General") {
+            Section(c, "General", Icons.Filled.Tune) {
                 SwitchRow(c, "Auto-connect last wheel", settings.autoConnectLastWheel) { onUpdate { s -> s.copy(autoConnectLastWheel = it) } }
                 SwitchRow(c, "Keep screen on while riding", settings.keepScreenOn) { onUpdate { s -> s.copy(keepScreenOn = it) } }
                 SwitchRow(c, "Auto-start trip recording", settings.autoStartRecording) { onUpdate { s -> s.copy(autoStartRecording = it) } }
@@ -156,22 +168,28 @@ internal fun SettingsScreen(
 private fun Section(
     c: AppThemeColors,
     title: String,
+    icon: ImageVector,
     expandedDefault: Boolean = false,
     content: @Composable () -> Unit,
 ) {
     var expanded by remember { mutableStateOf(expandedDefault) }
     Column(
-        Modifier.fillMaxWidth().padding(vertical = 5.dp).clip(RoundedCornerShape(12.dp)).background(c.surface),
+        Modifier.fillMaxWidth().padding(vertical = 5.dp).clip(RoundedCornerShape(12.dp)).background(c.surfaceVariant),
     ) {
         Row(
-            Modifier.fillMaxWidth().clickable { expanded = !expanded }.padding(horizontal = 16.dp, vertical = 14.dp),
+            Modifier.fillMaxWidth().clickable { expanded = !expanded }.padding(horizontal = 16.dp, vertical = 12.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            Text(title, color = c.sectionHeader, fontSize = 15.sp, fontWeight = FontWeight.SemiBold, modifier = Modifier.weight(1f))
-            Text(if (expanded) "▾" else "▸", color = c.textSecondary, fontSize = 14.sp)
+            Icon(icon, contentDescription = null, tint = c.primary, modifier = Modifier.size(22.dp))
+            Spacer(Modifier.width(17.dp))
+            Text(title, color = c.textPrimary, fontSize = 16.sp, fontWeight = FontWeight.Medium, modifier = Modifier.weight(1f))
+            Icon(
+                if (expanded) Icons.Filled.KeyboardArrowUp else Icons.Filled.KeyboardArrowDown,
+                contentDescription = null, tint = c.textSecondary, modifier = Modifier.size(24.dp),
+            )
         }
         if (expanded) {
-            Column(Modifier.fillMaxWidth().padding(start = 16.dp, end = 16.dp, bottom = 12.dp)) {
+            Column(Modifier.fillMaxWidth().padding(start = 16.dp, end = 16.dp, top = 4.dp, bottom = 16.dp)) {
                 content()
             }
         }

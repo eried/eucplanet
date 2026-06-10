@@ -26,15 +26,15 @@ class DashboardModel(scope: CoroutineScope) {
         var t = 0.0
         while (isActive) {
             t += 0.12
-            val temp = (44 + 6 * sin(t * 0.5)).toFloat()
-            // A spirited demo ride: speed + PWM peak into alarm/danger range
-            // periodically so the gauge band + alarm banner are exercised.
+            val temp = (42 + 5 * sin(t * 0.5)).toFloat() // ~37-47 °C, below alarm
+            // A relaxed demo cruise that stays in normal ranges, so it doesn't
+            // constantly trip the alarms (those fire on real over-threshold data).
             _data.value = WheelData(
-                speed = (32 + 20 * sin(t)).toFloat().coerceAtLeast(0f),
+                speed = (24 + 12 * sin(t)).toFloat().coerceAtLeast(0f),       // ~12-36 km/h
                 voltage = 94.1f + 1.2f * sin(t).toFloat(),
-                current = (14 + 9 * sin(t * 2)).toFloat().coerceAtLeast(0f),
+                current = (10 + 6 * sin(t * 2)).toFloat().coerceAtLeast(0f),  // ~4-16 A
                 batteryPercent = 78 - (t.toInt() % 16),
-                pwm = (48 + 42 * sin(t + 0.4)).toFloat().coerceIn(0f, 100f),
+                pwm = (38 + 16 * sin(t + 0.4)).toFloat().coerceIn(0f, 100f),  // ~22-54 %, below warn
                 temperatures = listOf(temp),
                 maxTemperature = temp,
                 tripDistance = (t * 0.05).toFloat(),

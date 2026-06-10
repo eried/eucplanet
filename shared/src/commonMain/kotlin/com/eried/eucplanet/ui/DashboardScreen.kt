@@ -178,14 +178,14 @@ internal fun DashboardScreen(
         ) {
             Text("ODO ${d.totalDistance.f1()} km", color = c.textSecondary, fontSize = 11.sp, modifier = Modifier.weight(1f))
             Text(
-                "EUC Planet 0.1", color = c.textDisabled, fontSize = 11.sp,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.weight(1f).clip(RoundedCornerShape(6.dp)).clickable { showAbout = true }.padding(vertical = 2.dp),
-            )
-            Text(
                 if (connected) "live" else "demo",
                 color = if (connected) c.statusGood else c.textDisabled, fontSize = 11.sp,
-                textAlign = TextAlign.End, modifier = Modifier.weight(1f),
+                textAlign = TextAlign.Center, modifier = Modifier.weight(1f),
+            )
+            Text(
+                "EUC Planet 0.1", color = c.primary, fontSize = 11.sp,
+                textAlign = TextAlign.End,
+                modifier = Modifier.weight(1f).clip(RoundedCornerShape(6.dp)).clickable { showAbout = true }.padding(vertical = 2.dp),
             )
         }
     }
