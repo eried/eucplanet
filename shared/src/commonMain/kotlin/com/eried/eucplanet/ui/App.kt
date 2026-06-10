@@ -317,6 +317,16 @@ fun App() {
                     },
                     onAnnounce = { announce() },
                     onRideEvent = { announceEvent(it) },
+                    onApplyLegalLimits = { legal ->
+                        // Toggling legal mode writes the legal (or normal) tiltback +
+                        // alarm to the connected wheel, like Android. Device-only: a
+                        // no-op without a live session (demo just flips the visual).
+                        session?.let { s ->
+                            val tb = if (legal) settings.legalTiltbackKmh else settings.tiltbackKmh
+                            val al = if (legal) settings.legalAlarmKmh else settings.alarmKmh
+                            scope.launch { s.setMaxSpeed(tb, al) }
+                        }
+                    },
                     announceIntervalSec = settings.announceIntervalSec,
                     onScan = { leaveRide() },
                     onSettings = { route = Route.Settings },
@@ -347,6 +357,7 @@ private fun DashboardRoute(
     onToggleRecord: () -> Unit,
     onAnnounce: () -> Unit,
     onRideEvent: (RideEvent) -> Unit,
+    onApplyLegalLimits: (Boolean) -> Unit,
     announceIntervalSec: Int,
     onScan: () -> Unit,
     onSettings: () -> Unit,
@@ -408,6 +419,7 @@ private fun DashboardRoute(
         onToggleLegal = {
             legalMode = !legalMode
             onRideEvent(if (legalMode) RideEvent.LegalOn else RideEvent.LegalOff)
+            onApplyLegalLimits(legalMode)
         },
         onToggleLock = {
             locked = !locked
