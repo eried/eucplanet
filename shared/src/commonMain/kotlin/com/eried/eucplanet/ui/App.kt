@@ -37,6 +37,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.eried.eucplanet.audio.createSpeaker
 import com.eried.eucplanet.ble.WheelSession
 import com.eried.eucplanet.ble.transport.BleDevice
 import com.eried.eucplanet.data.RideAlarm
@@ -49,6 +50,7 @@ import com.eried.eucplanet.ui.theme.EucPlanetTheme
 import com.eried.eucplanet.ui.theme.appColors
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
+import kotlin.math.roundToInt
 
 /** A demo wheel for the Simulator (no Bluetooth), driving the simulated dashboard. */
 private data class Wheel(val name: String, val brand: String, val rssi: Int)
@@ -77,6 +79,7 @@ fun App() {
         val connectModel = remember { ConnectModel(scope) }
         val settingsStore = remember { SettingsStore() }
         val recorder = remember { TripRecorder() }
+        val speaker = remember { createSpeaker() }
         val settings by settingsStore.settings.collectAsState()
         val recording by recorder.recording.collectAsState()
         val trips by recorder.trips.collectAsState()
@@ -116,6 +119,27 @@ fun App() {
         }
         val current = history.lastOrNull() ?: WheelData()
         val alarms = activeAlarms(current, settings)
+
+        fun ttsRate() = 0.3f + (settings.speechRate / 100f) * 0.3f
+        fun announce() {
+            if (!settings.ttsEnabled) return
+            val parts = mutableListOf<String>()
+            if (settings.announceSpeed) parts += "Speed ${current.speed.roundToInt()}"
+            if (settings.announceBattery) parts += "Battery ${current.batteryPercent} percent"
+            if (settings.announceTemp) parts += "Temperature ${current.maxTemperature.roundToInt()} degrees"
+            if (parts.isEmpty()) parts += "Speed ${current.speed.roundToInt()} kilometers per hour"
+            speaker.rate = ttsRate()
+            speaker.speak(parts.joinToString(", "))
+        }
+
+        // Speak alarms when the active-alarm set changes (not every frame).
+        val alarmKinds = alarms.map { it.kind }
+        LaunchedEffect(alarmKinds) {
+            if (alarmKinds.isNotEmpty() && settings.ttsEnabled) {
+                speaker.rate = ttsRate()
+                speaker.speak("Warning, " + alarms.joinToString(", ") { it.label })
+            }
+        }
 
         fun leaveRide() {
             session?.stop()
@@ -181,6 +205,7 @@ fun App() {
                     gaugeBand = settings.gaugeColorBand,
                     recording = recording,
                     onToggleRecord = { recorder.toggle() },
+                    onAnnounce = { announce() },
                     onScan = { leaveRide() },
                     onSettings = { route = Route.Settings },
                     onRecording = { route = Route.Recording },
@@ -203,6 +228,7 @@ private fun DashboardRoute(
     gaugeBand: Boolean,
     recording: Boolean,
     onToggleRecord: () -> Unit,
+    onAnnounce: () -> Unit,
     onScan: () -> Unit,
     onSettings: () -> Unit,
     onRecording: () -> Unit,
@@ -239,7 +265,7 @@ private fun DashboardRoute(
             lightOn = !lightOn
             session?.let { s -> scope.launch { s.setLight(lightOn) } }
         },
-        onToggleVoice = { voiceOn = !voiceOn },
+        onToggleVoice = { voiceOn = !voiceOn; onAnnounce() },
         onToggleLegal = { legalMode = !legalMode },
         onToggleLock = {
             locked = !locked
