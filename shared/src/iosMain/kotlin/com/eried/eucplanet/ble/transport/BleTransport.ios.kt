@@ -9,6 +9,7 @@ import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.cinterop.ObjCSignatureOverride
 import kotlinx.cinterop.addressOf
 import kotlinx.cinterop.usePinned
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
@@ -18,6 +19,7 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withTimeout
 import platform.CoreBluetooth.CBCentralManager
 import platform.CoreBluetooth.CBCentralManagerDelegateProtocol
 import platform.CoreBluetooth.CBCharacteristic
@@ -91,6 +93,16 @@ private class IosBleTransport : BleTransport {
     }
 
     override suspend fun connect(address: String, profile: BleProfile): BleConnection {
+        // A new connect supersedes any in-flight one (e.g. the user tapped a
+        // second wheel before the first resolved): fail the old continuation and
+        // tear down the old connection so we never abandon a suspended coroutine.
+        connectCont?.completeExceptionally(CancellationException("superseded by a new connect"))
+        connectCont = null
+        active?.close()
+        active = null
+        // Stop scanning AND clear the intent, so a later centralManagerDidUpdateState
+        // (e.g. on background resume) doesn't restart a scan during the connection.
+        wantScan = false
         central.stopScan()
         val p = peripherals[address]
             ?: (central.retrievePeripheralsWithIdentifiers(listOf(NSUUID(uUIDString = address)))
@@ -98,11 +110,20 @@ private class IosBleTransport : BleTransport {
             ?: throw IllegalStateException("peripheral $address not found")
         val conn = IosBleConnection(central, p, profile)
         active = conn
-        connectCont = CompletableDeferred()
+        val cont = CompletableDeferred<Unit>()
+        connectCont = cont
         central.connectPeripheral(p, null)
-        connectCont!!.await()
+        cont.await()
+        // Begin discovery, then DO NOT return until the write characteristic is
+        // bound — otherwise the adapter's init/auth writes (issued immediately by
+        // WheelSession) would hit a null writeChar and be silently dropped.
         conn.start()
+        withTimeout(GATT_READY_TIMEOUT_MS) { conn.awaitReady() }
         return conn
+    }
+
+    private companion object {
+        const val GATT_READY_TIMEOUT_MS = 15_000L
     }
 }
 
@@ -119,14 +140,25 @@ private class IosBleConnection(
     private var writeChar: CBCharacteristic? = null
     private val delegate = PeripheralDelegate()
 
+    /** Completed once the write characteristic is bound (or discovery fails), so
+     *  the transport doesn't start writing into a null characteristic. */
+    private val ready = CompletableDeferred<Unit>()
+
     fun start() {
         peripheral.delegate = delegate
-        _state.value = BleConnState.Connected
+        // Stay Connecting until characteristics are discovered; only then is the
+        // connection actually usable for writes (writeChar bound, notify enabled).
         peripheral.discoverServices(listOf(CBUUID.UUIDWithString(profile.serviceUuid)))
     }
 
+    /** Suspends until services/characteristics are discovered and bound. */
+    suspend fun awaitReady() = ready.await()
+
     fun onDisconnected() {
         _state.value = BleConnState.Disconnected
+        if (!ready.isCompleted) {
+            ready.completeExceptionally(IllegalStateException("disconnected during discovery"))
+        }
     }
 
     private inner class PeripheralDelegate : NSObject(), CBPeripheralDelegateProtocol {
@@ -153,6 +185,13 @@ private class IosBleConnection(
                 val u = c.UUID.UUIDString
                 if (u.equals(profile.notifyCharacteristic, ignoreCase = true)) peripheral.setNotifyValue(true, c)
                 if (u.equals(profile.writeCharacteristic, ignoreCase = true)) writeChar = c
+            }
+            // Now that the write characteristic is bound, the connection is usable:
+            // flip to Connected and release the transport's connect() gate so the
+            // first init/auth writes actually reach the wheel.
+            if (writeChar != null && !ready.isCompleted) {
+                _state.value = BleConnState.Connected
+                ready.complete(Unit)
             }
         }
 

@@ -136,6 +136,7 @@ fun App() {
         val alarmKinds = alarms.map { it.kind }
         LaunchedEffect(alarmKinds) {
             if (alarmKinds.isNotEmpty() && settings.ttsEnabled) {
+                speaker.stop() // interrupt any in-flight/queued utterance
                 speaker.rate = ttsRate()
                 speaker.speak("Warning, " + alarms.joinToString(", ") { it.label })
             }
@@ -143,6 +144,8 @@ fun App() {
 
         fun leaveRide() {
             session?.stop()
+            demoModel?.stop()
+            speaker.stop()
             session = null
             demoModel = null
             demoWheel = null
