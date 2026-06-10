@@ -316,6 +316,8 @@ fun App() {
                     unitTemp = settings.unitTemp,
                     columns = settings.dashboardColumns,
                     statCorners = settings.statCorners,
+                    autoLights = settings.autoLights,
+                    autoLightsSpeedKmh = settings.autoLightsSpeedKmh,
                     recording = recording,
                     onToggleRecord = {
                         val wasRecording = recording
@@ -360,6 +362,8 @@ private fun DashboardRoute(
     unitTemp: String,
     columns: Int,
     statCorners: Boolean,
+    autoLights: Boolean,
+    autoLightsSpeedKmh: Float,
     recording: Boolean,
     onToggleRecord: () -> Unit,
     onAnnounce: () -> Unit,
@@ -392,6 +396,19 @@ private fun DashboardRoute(
                 delay(announceIntervalSec.coerceAtLeast(5).toLong() * 1000L)
                 currentAnnounce()
             }
+        }
+    }
+
+    // Auto-lights: switch the lights on once speed crosses the configured
+    // threshold — the iOS speed-triggered variant of Android's auto-lights.
+    // Keyed on the boolean so it fires on the crossing, not every frame; one-way
+    // (turns on, never auto-off) so it doesn't fight a manual toggle.
+    val aboveLightSpeed = data.speed >= autoLightsSpeedKmh
+    LaunchedEffect(autoLights, aboveLightSpeed) {
+        if (autoLights && aboveLightSpeed && !lightOn) {
+            lightOn = true
+            onRideEvent(RideEvent.LightsOn)
+            session?.setLight(true)
         }
     }
 
