@@ -27,6 +27,12 @@
     <!-- Required by Compose Multiplatform (PlistSanityCheck aborts without it). -->
     <key>CADisableMinimumFrameDurationOnPhone</key>
     <true/>
+    <!-- Bluetooth: required before CoreBluetooth scan on a real device (the shared
+         BleTransport). Harmless on the Simulator (no radio, never scans). -->
+    <key>NSBluetoothAlwaysUsageDescription</key>
+    <string>EUC Planet connects to your electric unicycle over Bluetooth to show live ride telemetry.</string>
+    <key>NSBluetoothPeripheralUsageDescription</key>
+    <string>EUC Planet connects to your electric unicycle over Bluetooth to show live ride telemetry.</string>
     <!-- Platform metadata so `simctl install` accepts the hand-built bundle. -->
     <key>CFBundleSupportedPlatforms</key>
     <array>

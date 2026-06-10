@@ -35,17 +35,17 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.eried.eucplanet.ble.WheelSession
+import com.eried.eucplanet.ble.transport.BleDevice
+import com.eried.eucplanet.data.model.WheelData
 import com.eried.eucplanet.ui.theme.AppThemeColors
 import com.eried.eucplanet.ui.theme.BuiltInThemes
 import com.eried.eucplanet.ui.theme.EucPlanetTheme
 import com.eried.eucplanet.ui.theme.appColors
+import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
-private enum class Screen { Connect, Dashboard }
-
-/** Discovered wheels. On real hardware this list comes from the shared BleScanner
- *  (CoreBluetooth on iOS); the Simulator has no Bluetooth, so we show a sample
- *  of the supported families to exercise the connect → dashboard flow. */
+/** A demo wheel for the Simulator (no Bluetooth), driving the simulated dashboard. */
 private data class Wheel(val name: String, val brand: String, val rssi: Int)
 
 private val sampleWheels = listOf(
@@ -55,19 +55,47 @@ private val sampleWheels = listOf(
     Wheel("Begode_Master_4C", "Begode", -74),
 )
 
-/** Shared EUC Planet app shell — state-based navigation (no nav lib for v1),
- *  the real theme, and shared Compose screens. Renders identically on iOS/Android. */
+/**
+ * Shared EUC Planet app shell. State-based navigation (no nav lib for v1), the
+ * real theme, and shared Compose screens. On a real iPhone the Connect screen
+ * lists nearby wheels from the CoreBluetooth transport and tapping one opens a
+ * live [WheelSession] dashboard; the Simulator (no Bluetooth) shows demo wheels
+ * driven by a simulated telemetry flow. Renders identically on iOS/Android.
+ */
 @Composable
 fun App() {
     EucPlanetTheme(colors = BuiltInThemes.dark.colors) {
-        var screen by remember { mutableStateOf(Screen.Connect) }
-        var connected by remember { mutableStateOf<Wheel?>(null) }
+        val scope = rememberCoroutineScope()
+        val connectModel = remember { ConnectModel(scope) }
+        var session by remember { mutableStateOf<WheelSession?>(null) }
+        var demo by remember { mutableStateOf<Wheel?>(null) }
+        var connectingName by remember { mutableStateOf<String?>(null) }
+        var error by remember { mutableStateOf<String?>(null) }
+
         Surface(Modifier.fillMaxSize(), color = MaterialTheme.appColors.appBackground) {
-            when (screen) {
-                Screen.Connect -> ConnectScreen(onConnect = { connected = it; screen = Screen.Dashboard })
-                Screen.Dashboard -> DashboardScreen(
-                    wheel = connected,
-                    onDisconnect = { screen = Screen.Connect },
+            val s = session
+            val d = demo
+            when {
+                s != null -> LiveDashboardScreen(s, onDisconnect = { s.stop(); session = null })
+                d != null -> DemoDashboardScreen(d, onDisconnect = { demo = null })
+                else -> ConnectScreen(
+                    connectModel = connectModel,
+                    connectingName = connectingName,
+                    error = error,
+                    onConnectReal = { dev ->
+                        error = null
+                        connectingName = dev.name ?: dev.address
+                        scope.launch {
+                            try {
+                                session = connectModel.connect(dev)
+                            } catch (e: Throwable) {
+                                error = e.message ?: "connection failed"
+                            } finally {
+                                connectingName = null
+                            }
+                        }
+                    },
+                    onConnectDemo = { demo = it },
                 )
             }
         }
@@ -75,8 +103,15 @@ fun App() {
 }
 
 @Composable
-private fun ConnectScreen(onConnect: (Wheel) -> Unit) {
+private fun ConnectScreen(
+    connectModel: ConnectModel,
+    connectingName: String?,
+    error: String?,
+    onConnectReal: (BleDevice) -> Unit,
+    onConnectDemo: (Wheel) -> Unit,
+) {
     val c = MaterialTheme.appColors
+    val devices by connectModel.devices.collectAsState()
     Column(Modifier.fillMaxSize().padding(24.dp)) {
         Spacer(Modifier.height(40.dp))
         Text("EUC Planet", color = c.primary, fontSize = 30.sp, fontWeight = FontWeight.Bold)
@@ -85,28 +120,43 @@ private fun ConnectScreen(onConnect: (Wheel) -> Unit) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Box(Modifier.size(8.dp).clip(CircleShape).background(c.statusGood))
             Spacer(Modifier.width(6.dp))
-            Text("scanning…", color = c.textDisabled, fontSize = 12.sp)
+            Text(
+                if (connectingName != null) "connecting to $connectingName…" else "scanning…",
+                color = c.textDisabled, fontSize = 12.sp,
+            )
         }
-        Spacer(Modifier.height(20.dp))
-        sampleWheels.forEach { w ->
-            Row(
-                Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 6.dp)
-                    .clip(RoundedCornerShape(14.dp))
-                    .background(c.tileBackground)
-                    .clickable { onConnect(w) }
-                    .padding(horizontal = 18.dp, vertical = 16.dp),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Column(Modifier.weight(1f)) {
-                    Text(w.name, color = c.textPrimary, fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
-                    Text(w.brand, color = c.textSecondary, fontSize = 12.sp)
-                }
-                Text("${w.rssi} dBm", color = c.textDisabled, fontSize = 12.sp)
-                Spacer(Modifier.width(12.dp))
-                Text("Connect ›", color = c.primary, fontSize = 14.sp, fontWeight = FontWeight.Medium)
+        if (error != null) {
+            Spacer(Modifier.height(6.dp))
+            Text(error, color = c.statusDanger, fontSize = 12.sp)
+        }
+        Spacer(Modifier.height(16.dp))
+
+        // Real peripherals from the CoreBluetooth transport (empty on Simulator).
+        if (devices.isNotEmpty()) {
+            Text("NEARBY", color = c.textSecondary, fontSize = 11.sp, fontWeight = FontWeight.Medium)
+            Spacer(Modifier.height(4.dp))
+            devices.forEach { dev ->
+                WheelRow(
+                    c = c,
+                    name = dev.name ?: "(unnamed)",
+                    subtitle = dev.address,
+                    rssi = dev.rssi,
+                    onClick = { onConnectReal(dev) },
+                )
             }
+            Spacer(Modifier.height(16.dp))
+        }
+
+        Text("DEMO", color = c.textSecondary, fontSize = 11.sp, fontWeight = FontWeight.Medium)
+        Spacer(Modifier.height(4.dp))
+        sampleWheels.forEach { w ->
+            WheelRow(
+                c = c,
+                name = w.name,
+                subtitle = w.brand,
+                rssi = w.rssi,
+                onClick = { onConnectDemo(w) },
+            )
         }
         Spacer(Modifier.height(20.dp))
         Text(
@@ -117,11 +167,61 @@ private fun ConnectScreen(onConnect: (Wheel) -> Unit) {
 }
 
 @Composable
-private fun DashboardScreen(wheel: Wheel?, onDisconnect: () -> Unit) {
-    val c = MaterialTheme.appColors
+private fun WheelRow(
+    c: AppThemeColors,
+    name: String,
+    subtitle: String,
+    rssi: Int,
+    onClick: () -> Unit,
+) {
+    Row(
+        Modifier
+            .fillMaxWidth()
+            .padding(vertical = 6.dp)
+            .clip(RoundedCornerShape(14.dp))
+            .background(c.tileBackground)
+            .clickable { onClick() }
+            .padding(horizontal = 18.dp, vertical = 16.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Column(Modifier.weight(1f)) {
+            Text(name, color = c.textPrimary, fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
+            Text(subtitle, color = c.textSecondary, fontSize = 12.sp)
+        }
+        Text("$rssi dBm", color = c.textDisabled, fontSize = 12.sp)
+        Spacer(Modifier.width(12.dp))
+        Text("Connect ›", color = c.primary, fontSize = 14.sp, fontWeight = FontWeight.Medium)
+    }
+}
+
+@Composable
+private fun LiveDashboardScreen(session: WheelSession, onDisconnect: () -> Unit) {
+    val d by session.data.collectAsState()
+    val model by session.modelName.collectAsState()
+    DashboardBody(
+        d = d,
+        title = model ?: session.brand,
+        subtitle = "${session.brand} · live",
+        onDisconnect = onDisconnect,
+    )
+}
+
+@Composable
+private fun DemoDashboardScreen(wheel: Wheel, onDisconnect: () -> Unit) {
     val scope = rememberCoroutineScope()
     val model = remember { DashboardModel(scope) }
     val d by model.data.collectAsState()
+    DashboardBody(
+        d = d,
+        title = wheel.name,
+        subtitle = "${wheel.brand} · demo",
+        onDisconnect = onDisconnect,
+    )
+}
+
+@Composable
+private fun DashboardBody(d: WheelData, title: String, subtitle: String, onDisconnect: () -> Unit) {
+    val c = MaterialTheme.appColors
     Column(
         Modifier.fillMaxSize().padding(20.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -129,11 +229,13 @@ private fun DashboardScreen(wheel: Wheel?, onDisconnect: () -> Unit) {
         Spacer(Modifier.height(36.dp))
         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
             Column(Modifier.weight(1f)) {
-                Text(wheel?.name ?: "EUC Planet", color = c.textPrimary, fontSize = 18.sp, fontWeight = FontWeight.Bold)
-                Text(wheel?.brand ?: "demo", color = c.primary, fontSize = 12.sp)
+                Text(title, color = c.textPrimary, fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                Text(subtitle, color = c.primary, fontSize = 12.sp)
             }
-            Text("Disconnect", color = c.statusDanger, fontSize = 13.sp,
-                modifier = Modifier.clickable { onDisconnect() })
+            Text(
+                "Disconnect", color = c.statusDanger, fontSize = 13.sp,
+                modifier = Modifier.clickable { onDisconnect() },
+            )
         }
         Spacer(Modifier.height(8.dp))
         SpeedGauge(d.speed, max = 60f, pwm = d.pwm, c = c)
