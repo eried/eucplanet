@@ -39,7 +39,8 @@ import com.eried.eucplanet.ui.theme.appColors
 import kotlin.math.roundToInt
 
 /** One metric tile's spec: how to pull its value + unit + accent from [WheelData]. */
-private class Metric(
+internal class Metric(
+    val key: String,
     val label: String,
     val unit: String,
     val color: (AppThemeColors) -> Color,
@@ -48,14 +49,14 @@ private class Metric(
 )
 
 /** The default 6-tile grid, mirroring the Android dashboard's BATTERY / TEMP /
- *  VOLTAGE / CURRENT / LOAD / TRIP layout. */
-private val defaultMetrics = listOf(
-    Metric("BATTERY", "%", { it.metricBattery }, { it.batteryPercent.toFloat() }, { it.batteryPercent.toString() }),
-    Metric("TEMP", "°C", { it.metricTemp }, { it.maxTemperature }, { it.maxTemperature.f0() }),
-    Metric("VOLTAGE", "V", { it.metricVoltage }, { it.voltage }, { it.voltage.f1() }),
-    Metric("CURRENT", "A", { it.metricAccel }, { it.current }, { it.current.f1() }),
-    Metric("LOAD", "%", { it.metricPosition }, { it.pwm }, { it.pwm.f0() }),
-    Metric("TRIP", "km", { it.statusGood }, { it.tripDistance }, { it.tripDistance.f1() }),
+ *  VOLTAGE / CURRENT / LOAD / TRIP layout. Also the lookup for MetricDetail. */
+internal val defaultMetrics = listOf(
+    Metric("battery", "BATTERY", "%", { it.metricBattery }, { it.batteryPercent.toFloat() }, { it.batteryPercent.toString() }),
+    Metric("temp", "TEMP", "°C", { it.metricTemp }, { it.maxTemperature }, { it.maxTemperature.f0() }),
+    Metric("voltage", "VOLTAGE", "V", { it.metricVoltage }, { it.voltage }, { it.voltage.f1() }),
+    Metric("current", "CURRENT", "A", { it.metricAccel }, { it.current }, { it.current.f1() }),
+    Metric("load", "LOAD", "%", { it.metricPosition }, { it.pwm }, { it.pwm.f0() }),
+    Metric("trip", "TRIP", "km", { it.statusGood }, { it.tripDistance }, { it.tripDistance.f1() }),
 )
 
 /** One dashboard control button. [activeColor] is used when [active] is true. */
@@ -92,6 +93,7 @@ internal fun DashboardScreen(
     onScan: () -> Unit,
     onSettings: () -> Unit,
     onRecordingScreen: () -> Unit,
+    onMetricClick: (String) -> Unit,
 ) {
     val c = MaterialTheme.appColors
     Column(Modifier.fillMaxSize().background(c.appBackground)) {
@@ -111,7 +113,7 @@ internal fun DashboardScreen(
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     row.forEach { m ->
                         Box(Modifier.weight(1f)) {
-                            MetricTile(c, m, d, history)
+                            MetricTile(c, m, d, history) { onMetricClick(m.key) }
                         }
                     }
                 }
@@ -197,10 +199,10 @@ private fun TopBarAction(label: String, color: Color, onClick: () -> Unit) {
 }
 
 @Composable
-private fun MetricTile(c: AppThemeColors, m: Metric, d: WheelData, history: List<WheelData>) {
+private fun MetricTile(c: AppThemeColors, m: Metric, d: WheelData, history: List<WheelData>, onClick: () -> Unit) {
     val color = m.color(c)
     Box(
-        Modifier.fillMaxWidth().height(64.dp).clip(RoundedCornerShape(10.dp)).background(c.tileBackground),
+        Modifier.fillMaxWidth().height(64.dp).clip(RoundedCornerShape(10.dp)).background(c.tileBackground).clickable { onClick() },
     ) {
         // Background sparkline of this metric's recent history.
         val series = history.map { m.value(it) }

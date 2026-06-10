@@ -58,16 +58,6 @@ private val sampleWheels = listOf(
 
 private enum class Route { Dashboard, Settings, Recording }
 
-/** Screenshot harness: maps the `EUC_DEMO_SCREEN` env var (see [debugStartScreen])
- *  to a screen, so a headless Simulator run can auto-open a demo ride on any
- *  screen. Null (the default) means the normal Scan-first flow. */
-private fun debugAutoDemoRoute(): Route? = when (debugStartScreen()?.lowercase()) {
-    "dashboard" -> Route.Dashboard
-    "settings" -> Route.Settings
-    "recording", "recordings" -> Route.Recording
-    else -> null
-}
-
 /**
  * Shared EUC Planet app shell — a multi-screen port of the Android app: Scan →
  * Dashboard (live telemetry, metric grid, action grid) ↔ Settings ↔ Recordings.
@@ -87,20 +77,41 @@ fun App() {
         var connectingName by remember { mutableStateOf<String?>(null) }
         var error by remember { mutableStateOf<String?>(null) }
         var route by remember { mutableStateOf(Route.Dashboard) }
+        var selectedMetric by remember { mutableStateOf<String?>(null) }
 
+        // Screenshot harness: EUC_DEMO_SCREEN auto-opens a demo ride on a screen
+        // (see debugStartScreen). Unset in normal use → Scan-first flow.
         LaunchedEffect(Unit) {
-            debugAutoDemoRoute()?.let { r ->
-                demoWheel = sampleWheels[0]
-                demoModel = DashboardModel(scope)
-                route = r
+            val screen = debugStartScreen()?.lowercase() ?: return@LaunchedEffect
+            demoWheel = sampleWheels[0]
+            demoModel = DashboardModel(scope)
+            when (screen) {
+                "settings" -> route = Route.Settings
+                "recording", "recordings" -> route = Route.Recording
+                "metric", "metricdetail" -> { route = Route.Dashboard; selectedMetric = "voltage" }
+                else -> route = Route.Dashboard
             }
         }
+
+        // Rolling telemetry history (hoisted here so it survives Dashboard ↔
+        // MetricDetail navigation) collected from whichever source is active.
+        val activeFlow = session?.data ?: demoModel?.data
+        val history = remember { mutableStateListOf<WheelData>() }
+        LaunchedEffect(activeFlow) {
+            history.clear()
+            activeFlow?.collect { wd ->
+                history.add(wd)
+                if (history.size > 150) history.removeAt(0)
+            }
+        }
+        val current = history.lastOrNull() ?: WheelData()
 
         fun leaveRide() {
             session?.stop()
             session = null
             demoModel = null
             demoWheel = null
+            selectedMetric = null
             route = Route.Dashboard
         }
 
@@ -141,14 +152,22 @@ fun App() {
                     onBack = { route = Route.Dashboard },
                 )
                 route == Route.Recording -> RecordingScreen(onBack = { route = Route.Dashboard })
+                selectedMetric != null -> MetricDetailScreen(
+                    metricKey = selectedMetric!!,
+                    history = history,
+                    current = current,
+                    onBack = { selectedMetric = null },
+                )
                 else -> DashboardRoute(
                     session = session,
-                    demoModel = demoModel,
                     demoTitle = demoWheel?.name ?: "EUC Planet",
                     demoBrand = demoWheel?.brand ?: "demo",
+                    data = current,
+                    history = history,
                     onScan = { leaveRide() },
                     onSettings = { route = Route.Settings },
                     onRecording = { route = Route.Recording },
+                    onMetricClick = { selectedMetric = it },
                 )
             }
             }
@@ -159,26 +178,19 @@ fun App() {
 @Composable
 private fun DashboardRoute(
     session: WheelSession?,
-    demoModel: DashboardModel?,
     demoTitle: String,
     demoBrand: String,
+    data: WheelData,
+    history: List<WheelData>,
     onScan: () -> Unit,
     onSettings: () -> Unit,
     onRecording: () -> Unit,
+    onMetricClick: (String) -> Unit,
 ) {
     val scope = rememberCoroutineScope()
     val live = session != null
-    val dataFlow = session?.data ?: demoModel!!.data
-    val d by dataFlow.collectAsState()
     val fallbackModel = remember { MutableStateFlow<String?>(null) }
     val liveModel by (session?.modelName ?: fallbackModel).collectAsState()
-
-    // Recent telemetry history backing the metric-tile sparklines.
-    val history = remember { mutableStateListOf<WheelData>() }
-    LaunchedEffect(d) {
-        history.add(d)
-        if (history.size > 48) history.removeAt(0)
-    }
 
     var lightOn by remember { mutableStateOf(false) }
     var locked by remember { mutableStateOf(false) }
@@ -190,7 +202,7 @@ private fun DashboardRoute(
     val subtitle = if (live) "${session!!.brand} · live" else "$demoBrand · demo"
 
     DashboardScreen(
-        d = d,
+        d = data,
         history = history,
         title = title,
         subtitle = subtitle,
@@ -215,6 +227,7 @@ private fun DashboardRoute(
         onScan = onScan,
         onSettings = onSettings,
         onRecordingScreen = onRecording,
+        onMetricClick = onMetricClick,
     )
 }
 
