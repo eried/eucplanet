@@ -1,8 +1,7 @@
 package com.eried.eucplanet.ble
 
 import com.eried.eucplanet.diagnostics.DiagnosticCommand
-import javax.inject.Inject
-import javax.inject.Singleton
+import kotlin.concurrent.Volatile
 
 /**
  * Begode/Gotway wheel adapter for Master / RS / EX / T4 / MSP / Hero / Mten /
@@ -23,8 +22,7 @@ import javax.inject.Singleton
  * https://github.com/Wheellog/wheellog.android, GPLv3, used as a protocol
  * reference; the implementation here is original).
  */
-@Singleton
-class BegodeAdapter @Inject constructor() : WheelAdapter {
+class BegodeAdapter : WheelAdapter {
     override val familyId = "begode"
     override val familyDisplayName = "Begode / Gotway"
     override val capabilities = WheelCapabilities.BEGODE
@@ -189,7 +187,7 @@ class BegodeAdapter @Inject constructor() : WheelAdapter {
         if (!rawBytes.all { it == 0x0A.toByte() || it == 0x0D.toByte() || it == 0x09.toByte() || (it in 0x20..0x7E) }) {
             return null
         }
-        val text = rawBytes.toString(Charsets.US_ASCII).trim()
+        val text = rawBytes.decodeToString().trim()
         if (text.isEmpty()) return null
         return when {
             text.startsWith("GW") -> Banner(firmware = text, model = null)

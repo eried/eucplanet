@@ -1,7 +1,6 @@
 package com.eried.eucplanet.ble
 
-import javax.inject.Inject
-import javax.inject.Singleton
+import kotlin.concurrent.Volatile
 
 /**
  * Adapter dispatcher. Holds the six per-family adapters (InMotion V2, InMotion
@@ -17,15 +16,17 @@ import javax.inject.Singleton
  * verified default). That keeps existing V14 / P6 setups working unchanged
  * when a wheel name doesn't match any other family pattern.
  */
-@Singleton
-class CompositeWheelAdapter @Inject constructor(
-    private val inmotion: InMotionV2Adapter,
-    private val inmotionV1: InMotionV1Adapter,
-    private val kingsong: KingsongAdapter,
-    private val begode: BegodeAdapter,
-    private val veteran: VeteranAdapter,
-    private val ninebot: NinebotAdapter
-) : WheelAdapter {
+class CompositeWheelAdapter : WheelAdapter {
+
+    // Stateless per-family adapters, constructed once. Previously @Inject'd
+    // singletons; the Composite is the only consumer, so it owns them directly
+    // now that the whole family lives in :shared (no Hilt in commonMain).
+    private val inmotion = InMotionV2Adapter()
+    private val inmotionV1 = InMotionV1Adapter()
+    private val kingsong = KingsongAdapter()
+    private val begode = BegodeAdapter()
+    private val veteran = VeteranAdapter()
+    private val ninebot = NinebotAdapter()
 
     @Volatile private var active: WheelAdapter = inmotion
 

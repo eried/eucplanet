@@ -1,9 +1,10 @@
 package com.eried.eucplanet.ble
 
 import com.eried.eucplanet.diagnostics.DiagnosticCommand
-import com.eried.eucplanet.diagnostics.DiagnosticsLogger
-import javax.inject.Inject
-import javax.inject.Singleton
+import com.eried.eucplanet.util.SharedDiagnostics
+import kotlin.concurrent.Volatile
+import kotlin.math.abs
+import kotlin.math.roundToInt
 
 /**
  * Veteran wheel adapter. Recognises Sherman / Sherman S / Sherman Max /
@@ -28,8 +29,7 @@ import javax.inject.Singleton
  * https://github.com/Wheellog/wheellog.android, GPLv3, used as a protocol
  * reference; the implementation here is original).
  */
-@Singleton
-class VeteranAdapter @Inject constructor() : WheelAdapter {
+class VeteranAdapter : WheelAdapter {
     override val familyId = "veteran"
     override val familyDisplayName = "Veteran"
     override val capabilities = WheelCapabilities.VETERAN
@@ -226,10 +226,10 @@ class VeteranAdapter @Inject constructor() : WheelAdapter {
             // Log the DECODED values (not just raw bytes) per frame so a
             // service-mode capture shows the speed/battery timeline directly -
             // i.e. whether telemetry updates smoothly or in random bursts.
-            DiagnosticsLogger.note(
-                "Veteran realtime spd=${emitted?.let { "%.1f".format(it.speed) } ?: "-"} " +
+            SharedDiagnostics.note(
+                "Veteran realtime spd=${emitted?.let { oneDecimal(it.speed) } ?: "-"} " +
                     "bat=${emitted?.batteryPercent ?: "-"} pg=${VeteranParser.pageId(f.bytes)} " +
-                    "len=${f.bytes.size} body=${f.bytes.joinToString(" ") { "%02x".format(it) }}"
+                    "len=${f.bytes.size} body=${f.bytes.joinToString(" ") { (it.toInt() and 0xFF).toString(16).padStart(2, '0') }}"
             )
             if (emitted != null) out += DecodeResult.Telemetry(emitted)
             // Surface the resolved model once, so the UI and the experimental
@@ -260,4 +260,11 @@ class VeteranAdapter @Inject constructor() : WheelAdapter {
         // I press the button again". Reset the cache to match.
         lastLightOn = false
     }
+}
+
+/** One-decimal formatter for diagnostics notes (commonMain has no String.format). */
+private fun oneDecimal(v: Float): String {
+    val r = (abs(v) * 10).roundToInt()
+    val s = "${r / 10}.${r % 10}"
+    return if (v < 0) "-$s" else s
 }

@@ -1,10 +1,8 @@
 package com.eried.eucplanet.ble
 
-import android.util.Log
 import com.eried.eucplanet.diagnostics.DiagnosticCommand
-import java.io.ByteArrayOutputStream
-import javax.inject.Inject
-import javax.inject.Singleton
+import com.eried.eucplanet.util.ByteArrayBuilder
+import kotlin.concurrent.Volatile
 
 /**
  * WheelAdapter for the InMotion V2 protocol family: V11, V12HS/HT/PRO/S, V13, V14.
@@ -17,8 +15,7 @@ import javax.inject.Singleton
  * The decode dispatch mirrors the legacy WheelRepository.handlePacket() switch
  * exactly so the refactor is provably no-op for V14.
  */
-@Singleton
-class InMotionV2Adapter @Inject constructor() : WheelAdapter {
+class InMotionV2Adapter : WheelAdapter {
 
     override val familyId: String = "inmotion_v2"
     override val familyDisplayName: String = "InMotion V14 / V12 / P6"
@@ -52,7 +49,7 @@ class InMotionV2Adapter @Inject constructor() : WheelAdapter {
      * sibling adapters (V1, KingSong, Veteran) can keep their own framing state
      * without interference.
      */
-    private val reassemblyBuffer = ByteArrayOutputStream()
+    private val reassemblyBuffer = ByteArrayBuilder()
 
     /**
      * Pre-select model from the BLE advertised name. The InMotion P6 uses an
@@ -373,8 +370,8 @@ class InMotionV2Adapter @Inject constructor() : WheelAdapter {
                 // surface it for V14-family models the same way it does the
                 // P6 extended-routing 0x07 path. Same `<type> len=N body=...`
                 // format both sides parse.
-                com.eried.eucplanet.diagnostics.DiagnosticsLogger.note(
-                    "V14 realtime len=${data.size} body=${data.joinToString(" ") { "%02x".format(it) }}"
+                com.eried.eucplanet.util.SharedDiagnostics.note(
+                    "V14 realtime len=${data.size} body=${data.joinToString(" ") { (it.toInt() and 0xFF).toString(16).padStart(2, '0') }}"
                 )
                 parseTelemetryForModel(data)?.let { DecodeResult.Telemetry(it) } ?: DecodeResult.Unknown
             }
@@ -399,8 +396,8 @@ class InMotionV2Adapter @Inject constructor() : WheelAdapter {
                 // realtime: skip the `02 87 01 00` prefix to land on the data block
                 if (data.size < 4) return DecodeResult.Unknown
                 val body = data.copyOfRange(4, data.size)
-                com.eried.eucplanet.diagnostics.DiagnosticsLogger.note(
-                    "P6 realtime len=${body.size} body=${body.joinToString(" ") { "%02x".format(it) }}"
+                com.eried.eucplanet.util.SharedDiagnostics.note(
+                    "P6 realtime len=${body.size} body=${body.joinToString(" ") { (it.toInt() and 0xFF).toString(16).padStart(2, '0') }}"
                 )
                 val telem = InMotionV2Parser.parseP6Telemetry(body)
                 telem?.let { DecodeResult.Telemetry(it) } ?: DecodeResult.Unknown
@@ -412,8 +409,8 @@ class InMotionV2Adapter @Inject constructor() : WheelAdapter {
                 // capture's analysis.
                 if (data.size < 2) return DecodeResult.Unknown
                 val body = data.copyOfRange(2, data.size)
-                com.eried.eucplanet.diagnostics.DiagnosticsLogger.note(
-                    "P6 detailed len=${body.size} body=${body.joinToString(" ") { "%02x".format(it) }}"
+                com.eried.eucplanet.util.SharedDiagnostics.note(
+                    "P6 detailed len=${body.size} body=${body.joinToString(" ") { (it.toInt() and 0xFF).toString(16).padStart(2, '0') }}"
                 )
                 val temps = InMotionV2Parser.parseP6DetailedData(body)
                 temps?.let {

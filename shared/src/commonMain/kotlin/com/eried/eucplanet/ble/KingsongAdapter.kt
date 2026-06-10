@@ -2,9 +2,8 @@ package com.eried.eucplanet.ble
 
 import com.eried.eucplanet.data.model.WheelData
 import com.eried.eucplanet.diagnostics.DiagnosticCommand
-import com.eried.eucplanet.diagnostics.DiagnosticsLogger
-import javax.inject.Inject
-import javax.inject.Singleton
+import com.eried.eucplanet.util.SharedDiagnostics
+import kotlin.concurrent.Volatile
 
 /**
  * KingSong wheel adapter. Recognises KS-* / S22 / S20 / S18 family wheels on
@@ -19,8 +18,7 @@ import javax.inject.Singleton
  * https://github.com/Wheellog/wheellog.android, GPLv3, used as a protocol
  * reference; the implementation here is original).
  */
-@Singleton
-class KingsongAdapter @Inject constructor() : WheelAdapter {
+class KingsongAdapter : WheelAdapter {
     override val familyId = "kingsong"
     override val familyDisplayName = "KingSong"
     override val capabilities = WheelCapabilities.KINGSONG
@@ -133,8 +131,8 @@ class KingsongAdapter @Inject constructor() : WheelAdapter {
                 // 14-byte payload at offsets 2..15 so the bytes match the
                 // labelled offsets in docs/protocols/kingsong.md section 4.1.
                 val body = rawBytes.copyOfRange(2, 16)
-                DiagnosticsLogger.note(
-                    "KingSong realtime len=${body.size} body=${body.joinToString(" ") { "%02x".format(it) }}"
+                SharedDiagnostics.note(
+                    "KingSong realtime len=${body.size} body=${body.joinToString(" ") { (it.toInt() and 0xFF).toString(16).padStart(2, '0') }}"
                 )
                 val telem = KingsongParser.parseLiveTelemetry(rawBytes, detectedModel)
                     ?: return emptyList()

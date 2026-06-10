@@ -1,9 +1,8 @@
 package com.eried.eucplanet.ble
 
-import android.util.Log
 import com.eried.eucplanet.data.model.WheelSettings
-import javax.inject.Inject
-import javax.inject.Singleton
+import com.eried.eucplanet.util.Log
+import kotlin.concurrent.Volatile
 
 /**
  * Ninebot / Segway-Ninebot wheel adapter. Two protocol families live behind
@@ -25,8 +24,7 @@ import javax.inject.Singleton
  * https://github.com/Wheellog/wheellog.android, GPLv3, used as a protocol
  * reference; the implementation here is original).
  */
-@Singleton
-class NinebotAdapter @Inject constructor() : WheelAdapter {
+class NinebotAdapter : WheelAdapter {
 
     /**
      * Detected model. Carries the protocol family; the rest of the adapter
@@ -282,8 +280,8 @@ class NinebotAdapter @Inject constructor() : WheelAdapter {
                 // Inspect tab can rummage through offsets the parser doesn't
                 // yet touch (status word, alarms, BMS hand-off bytes). Format
                 // matches the V14 / P6 NOTE entries the same picker reads.
-                com.eried.eucplanet.diagnostics.DiagnosticsLogger.note(
-                    "Ninebot realtime (Z) len=${frame.data.size} body=${frame.data.joinToString(" ") { "%02x".format(it) }}"
+                com.eried.eucplanet.util.SharedDiagnostics.note(
+                    "Ninebot realtime (Z) len=${frame.data.size} body=${frame.data.joinToString(" ") { (it.toInt() and 0xFF).toString(16).padStart(2, '0') }}"
                 )
                 val telem = parser.parseZTelemetry(frame.data, detectedModel)
                 if (telem != null) listOf(DecodeResult.Telemetry(telem)) else emptyList()
@@ -345,8 +343,8 @@ class NinebotAdapter @Inject constructor() : WheelAdapter {
                 // Same NOTE prefix as the Z path so the Inspect tab can
                 // subscribe to a single "Ninebot realtime" filter regardless
                 // of which sub-protocol the connected wheel speaks.
-                com.eried.eucplanet.diagnostics.DiagnosticsLogger.note(
-                    "Ninebot realtime (Legacy) len=${frame.data.size} body=${frame.data.joinToString(" ") { "%02x".format(it) }}"
+                com.eried.eucplanet.util.SharedDiagnostics.note(
+                    "Ninebot realtime (Legacy) len=${frame.data.size} body=${frame.data.joinToString(" ") { (it.toInt() and 0xFF).toString(16).padStart(2, '0') }}"
                 )
                 val telem = parser.parseLegacyTelemetry(frame.data, detectedModel)
                 if (telem != null) listOf(DecodeResult.Telemetry(telem)) else emptyList()

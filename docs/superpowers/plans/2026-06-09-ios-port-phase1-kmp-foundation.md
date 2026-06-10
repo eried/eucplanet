@@ -407,8 +407,7 @@ This task is **blocked until Xcode is installed on the Mac mini** and the repo i
 
 - [ ] **Step 1: Sync this branch to the Mac**
 
-On Windows: `git push -u origin feat/ios-multiplatform` (first push of the branch).
-On the Mac: `git clone https://github.com/eried/eucplanet.git && cd eucplanet && git checkout feat/ios-multiplatform` (or `git pull` if already cloned).
+Sync to the Mac **without pushing to GitHub** (project directive — the branch stays private until it's hardware-tested): use the local `tar`-over-SSH transfer already used to populate `~/eucplanet` (re-run it to refresh), or a `git bundle` scp'd over. Do **NOT** `git push` this branch.
 
 - [ ] **Step 2: Confirm iOS targets are now present (macOS host)**
 

@@ -1,10 +1,9 @@
 package com.eried.eucplanet.ble
 
 import com.eried.eucplanet.diagnostics.DiagnosticCommand
-import com.eried.eucplanet.diagnostics.DiagnosticsLogger
-import java.io.ByteArrayOutputStream
-import javax.inject.Inject
-import javax.inject.Singleton
+import com.eried.eucplanet.util.ByteArrayBuilder
+import com.eried.eucplanet.util.SharedDiagnostics
+import kotlin.concurrent.Volatile
 
 /**
  * WheelAdapter for the InMotion V1 protocol family: V5 / V8 / V10 / L6 /
@@ -21,8 +20,7 @@ import javax.inject.Singleton
  * https://github.com/Wheellog/wheellog.android, GPLv3, used as a protocol
  * reference; the implementation here is original).
  */
-@Singleton
-class InMotionV1Adapter @Inject constructor() : WheelAdapter {
+class InMotionV1Adapter : WheelAdapter {
 
     override val familyId = "inmotion_v1"
     override val familyDisplayName = "InMotion V1 / V3 / V5 / V8"
@@ -44,7 +42,7 @@ class InMotionV1Adapter @Inject constructor() : WheelAdapter {
      * notifications. V1 frames are larger than the typical 20-byte MTU
      * (slow-info replies run 132+ bytes), so reassembly is mandatory.
      */
-    private val reassemblyBuffer = ByteArrayOutputStream()
+    private val reassemblyBuffer = ByteArrayBuilder()
 
     override fun bleProfile(): BleProfile = BleProfile.INMOTION_V1
 
@@ -230,16 +228,16 @@ class InMotionV1Adapter @Inject constructor() : WheelAdapter {
         return when (canId) {
             InMotionV1Protocol.CanId.FAST_INFO -> {
                 val payload = InMotionV1Parser.extPayload(unwrapped)
-                DiagnosticsLogger.note(
-                    "InMotion V1 realtime len=${payload.size} body=${payload.joinToString(" ") { "%02x".format(it) }}"
+                SharedDiagnostics.note(
+                    "InMotion V1 realtime len=${payload.size} body=${payload.joinToString(" ") { (it.toInt() and 0xFF).toString(16).padStart(2, '0') }}"
                 )
                 val telem = InMotionV1Parser.parseFastInfo(payload, detectedModel)
                 if (telem != null) listOf(DecodeResult.Telemetry(telem)) else emptyList()
             }
             InMotionV1Protocol.CanId.SLOW_INFO -> {
                 val payload = InMotionV1Parser.extPayload(unwrapped)
-                DiagnosticsLogger.note(
-                    "InMotion V1 slow-info len=${payload.size} body=${payload.joinToString(" ") { "%02x".format(it) }}"
+                SharedDiagnostics.note(
+                    "InMotion V1 slow-info len=${payload.size} body=${payload.joinToString(" ") { (it.toInt() and 0xFF).toString(16).padStart(2, '0') }}"
                 )
                 val info = InMotionV1Parser.parseSlowInfo(payload) ?: return emptyList()
                 if (info.model != null) detectedModel = info.model
