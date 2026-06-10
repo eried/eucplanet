@@ -34,6 +34,7 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -100,7 +101,7 @@ fun App() {
     }
     val themeColors = if (accent == null) baseColors else baseColors.copy(
         primary = accent,
-        onPrimary = if (accent.luminance() > 0.5f) Color(0xFF101010) else Color.White,
+        onPrimary = if (accent.luminance() > 0.179f) Color(0xFF101010) else Color.White,
         link = accent, switchOn = accent, sliderActive = accent, chipSelected = accent,
         segmentSelectedText = accent, tonalButtonText = accent, textButton = accent, snackbarAction = accent,
     )
@@ -289,11 +290,15 @@ private fun DashboardRoute(
     var voiceOn by remember { mutableStateOf(false) }
 
     // Periodic spoken status while the VOICE button is active, on the interval.
+    // rememberUpdatedState so the long-lived loop always calls the latest
+    // onAnnounce (which closes over live telemetry), not the one captured when
+    // voice was first switched on.
+    val currentAnnounce by rememberUpdatedState(onAnnounce)
     LaunchedEffect(voiceOn, announceIntervalSec) {
         if (voiceOn) {
             while (isActive) {
                 delay(announceIntervalSec.coerceAtLeast(5).toLong() * 1000L)
-                onAnnounce()
+                currentAnnounce()
             }
         }
     }
@@ -319,7 +324,7 @@ private fun DashboardRoute(
             lightOn = !lightOn
             session?.let { s -> scope.launch { s.setLight(lightOn) } }
         },
-        onToggleVoice = { voiceOn = !voiceOn; onAnnounce() },
+        onToggleVoice = { val nowOn = !voiceOn; voiceOn = nowOn; if (nowOn) onAnnounce() },
         onToggleLegal = { legalMode = !legalMode },
         onToggleLock = {
             locked = !locked
