@@ -39,6 +39,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.eried.eucplanet.ble.WheelSession
 import com.eried.eucplanet.ble.transport.BleDevice
+import com.eried.eucplanet.data.RideAlarm
+import com.eried.eucplanet.data.SettingsStore
+import com.eried.eucplanet.data.TripRecorder
+import com.eried.eucplanet.data.activeAlarms
 import com.eried.eucplanet.data.model.WheelData
 import com.eried.eucplanet.ui.theme.BuiltInThemes
 import com.eried.eucplanet.ui.theme.EucPlanetTheme
@@ -71,6 +75,11 @@ fun App() {
     EucPlanetTheme(colors = BuiltInThemes.dark.colors) {
         val scope = rememberCoroutineScope()
         val connectModel = remember { ConnectModel(scope) }
+        val settingsStore = remember { SettingsStore() }
+        val recorder = remember { TripRecorder() }
+        val settings by settingsStore.settings.collectAsState()
+        val recording by recorder.recording.collectAsState()
+        val trips by recorder.trips.collectAsState()
         var session by remember { mutableStateOf<WheelSession?>(null) }
         var demoModel by remember { mutableStateOf<DashboardModel?>(null) }
         var demoWheel by remember { mutableStateOf<Wheel?>(null) }
@@ -102,9 +111,11 @@ fun App() {
             activeFlow?.collect { wd ->
                 history.add(wd)
                 if (history.size > 150) history.removeAt(0)
+                recorder.sample(wd)
             }
         }
         val current = history.lastOrNull() ?: WheelData()
+        val alarms = activeAlarms(current, settings)
 
         fun leaveRide() {
             session?.stop()
@@ -145,13 +156,15 @@ fun App() {
                     },
                 )
                 route == Route.Settings -> SettingsScreen(
+                    settings = settings,
                     connected = session != null,
+                    onUpdate = { transform -> settingsStore.update(transform) },
                     onApplyMaxSpeed = { tiltback, alarm ->
                         session?.let { s -> scope.launch { s.setMaxSpeed(tiltback, alarm) } }
                     },
                     onBack = { route = Route.Dashboard },
                 )
-                route == Route.Recording -> RecordingScreen(onBack = { route = Route.Dashboard })
+                route == Route.Recording -> RecordingScreen(trips = trips, onBack = { route = Route.Dashboard })
                 selectedMetric != null -> MetricDetailScreen(
                     metricKey = selectedMetric!!,
                     history = history,
@@ -164,6 +177,10 @@ fun App() {
                     demoBrand = demoWheel?.brand ?: "demo",
                     data = current,
                     history = history,
+                    alarms = alarms,
+                    gaugeBand = settings.gaugeColorBand,
+                    recording = recording,
+                    onToggleRecord = { recorder.toggle() },
                     onScan = { leaveRide() },
                     onSettings = { route = Route.Settings },
                     onRecording = { route = Route.Recording },
@@ -182,6 +199,10 @@ private fun DashboardRoute(
     demoBrand: String,
     data: WheelData,
     history: List<WheelData>,
+    alarms: List<RideAlarm>,
+    gaugeBand: Boolean,
+    recording: Boolean,
+    onToggleRecord: () -> Unit,
     onScan: () -> Unit,
     onSettings: () -> Unit,
     onRecording: () -> Unit,
@@ -196,7 +217,6 @@ private fun DashboardRoute(
     var locked by remember { mutableStateOf(false) }
     var legalMode by remember { mutableStateOf(false) }
     var voiceOn by remember { mutableStateOf(false) }
-    var recording by remember { mutableStateOf(false) }
 
     val title = if (live) (liveModel ?: session!!.brand) else demoTitle
     val subtitle = if (live) "${session!!.brand} · live" else "$demoBrand · demo"
@@ -212,6 +232,8 @@ private fun DashboardRoute(
         legalMode = legalMode,
         voiceOn = voiceOn,
         recording = recording,
+        alarms = alarms,
+        gaugeBand = gaugeBand,
         onHorn = { session?.let { s -> scope.launch { s.horn() } } },
         onToggleLight = {
             lightOn = !lightOn
@@ -223,7 +245,7 @@ private fun DashboardRoute(
             locked = !locked
             session?.let { s -> scope.launch { s.setLock(locked) } }
         },
-        onToggleRecord = { recording = !recording },
+        onToggleRecord = onToggleRecord,
         onScan = onScan,
         onSettings = onSettings,
         onRecordingScreen = onRecording,

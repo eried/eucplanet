@@ -33,6 +33,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.eried.eucplanet.data.RideAlarm
 import com.eried.eucplanet.data.model.WheelData
 import com.eried.eucplanet.ui.theme.AppThemeColors
 import com.eried.eucplanet.ui.theme.appColors
@@ -84,6 +85,8 @@ internal fun DashboardScreen(
     legalMode: Boolean,
     voiceOn: Boolean,
     recording: Boolean,
+    alarms: List<RideAlarm>,
+    gaugeBand: Boolean,
     onHorn: () -> Unit,
     onToggleLight: () -> Unit,
     onToggleVoice: () -> Unit,
@@ -99,12 +102,14 @@ internal fun DashboardScreen(
     Column(Modifier.fillMaxSize().background(c.appBackground)) {
         DashboardTopBar(c, title, subtitle, connected, onScan, onSettings)
 
+        if (alarms.isNotEmpty()) AlarmBanner(c, alarms)
+
         // Speed gauge — fills the upper flexible area.
         Box(
             Modifier.fillMaxWidth().weight(1f).padding(horizontal = 12.dp),
             contentAlignment = Alignment.Center,
         ) {
-            SpeedGauge(d.speed, max = 60f, pwm = d.pwm, charging = d.charging, c = c)
+            SpeedGauge(d.speed, max = 60f, pwm = d.pwm, charging = d.charging, band = gaugeBand, c = c)
         }
 
         // 6-tile metric grid (2 columns x 3 rows).
@@ -252,9 +257,10 @@ private fun ActionButton(
 }
 
 @Composable
-internal fun SpeedGauge(speed: Float, max: Float, pwm: Float, charging: Boolean, c: AppThemeColors) {
+internal fun SpeedGauge(speed: Float, max: Float, pwm: Float, charging: Boolean, band: Boolean, c: AppThemeColors) {
     val frac = (speed / max).coerceIn(0f, 1f)
     val arcColor = when {
+        !band -> c.gaugeFill
         pwm > 85f -> c.gaugeDanger
         pwm > 65f -> c.gaugeWarn
         else -> c.gaugeFill
@@ -278,6 +284,23 @@ internal fun SpeedGauge(speed: Float, max: Float, pwm: Float, charging: Boolean,
                 fontSize = 12.sp, fontWeight = FontWeight.Medium,
             )
         }
+    }
+}
+
+@Composable
+private fun AlarmBanner(c: AppThemeColors, alarms: List<RideAlarm>) {
+    Row(
+        Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 4.dp)
+            .clip(RoundedCornerShape(10.dp)).background(c.statusDanger.copy(alpha = 0.18f))
+            .padding(horizontal = 14.dp, vertical = 8.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Text("⚠", color = c.statusDanger, fontSize = 16.sp)
+        Spacer(Modifier.size(8.dp))
+        Text(
+            alarms.joinToString("   ·   ") { it.label },
+            color = c.statusDanger, fontSize = 13.sp, fontWeight = FontWeight.SemiBold,
+        )
     }
 }
 

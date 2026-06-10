@@ -33,20 +33,23 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.eried.eucplanet.data.model.AppSettings
 import com.eried.eucplanet.ui.theme.AppThemeColors
 import com.eried.eucplanet.ui.theme.appColors
 import kotlin.math.roundToInt
 
 /**
  * Shared Settings screen — a port of the Android settings surface as collapsible
- * sections (Speed / Voice / Display / General, the v1 core). Controls are real
- * Material3 sliders/switches; the Speed sliders push tiltback/alarm to the wheel
- * when connected (no-op in demo). App-level prefs are local state for now;
- * persistence lands with the storage actuals.
+ * sections, bound to the shared [AppSettings] via [onUpdate] (so changes flow
+ * through the SettingsStore and into the gauge / alarms / automations live). The
+ * Speed sliders also push tiltback/alarm to the connected wheel. Persistence to
+ * disk lands with the storage actuals; the model + UI are ready for it.
  */
 @Composable
 internal fun SettingsScreen(
+    settings: AppSettings,
     connected: Boolean,
+    onUpdate: ((AppSettings) -> AppSettings) -> Unit,
     onApplyMaxSpeed: (tiltbackKmh: Float, alarmKmh: Float) -> Unit,
     onBack: () -> Unit,
 ) {
@@ -55,54 +58,79 @@ internal fun SettingsScreen(
         ScreenTopBar(c, "Settings", onBack)
         Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(horizontal = 12.dp, vertical = 8.dp)) {
 
-            // --- Speed ---
-            var tiltback by remember { mutableStateOf(45f) }
-            var alarm by remember { mutableStateOf(38f) }
             Section(c, "Speed", expandedDefault = true) {
-                SliderRow(c, "Tiltback (max) speed", "${tiltback.roundToInt()} km/h", tiltback, 10f..70f) {
-                    tiltback = it
+                SliderRow(c, "Tiltback (max) speed", "${settings.tiltbackKmh.roundToInt()} km/h", settings.tiltbackKmh, 10f..70f) {
+                    onUpdate { s -> s.copy(tiltbackKmh = it) }
                 }
-                SliderRow(c, "Alarm speed", "${alarm.roundToInt()} km/h", alarm, 5f..70f) { alarm = it }
-                ApplyRow(c, connected) { onApplyMaxSpeed(tiltback, alarm) }
+                SliderRow(c, "Alarm speed", "${settings.alarmKmh.roundToInt()} km/h", settings.alarmKmh, 5f..70f) {
+                    onUpdate { s -> s.copy(alarmKmh = it) }
+                }
+                SliderRow(c, "Legal-mode tiltback", "${settings.legalTiltbackKmh.roundToInt()} km/h", settings.legalTiltbackKmh, 10f..40f) {
+                    onUpdate { s -> s.copy(legalTiltbackKmh = it) }
+                }
+                SliderRow(c, "Legal-mode alarm", "${settings.legalAlarmKmh.roundToInt()} km/h", settings.legalAlarmKmh, 5f..40f) {
+                    onUpdate { s -> s.copy(legalAlarmKmh = it) }
+                }
+                ApplyRow(c, connected) { onApplyMaxSpeed(settings.tiltbackKmh, settings.alarmKmh) }
             }
 
-            // --- Voice ---
             Section(c, "Voice") {
-                var tts by remember { mutableStateOf(true) }
-                var rate by remember { mutableStateOf(50f) }
-                var announceSpeed by remember { mutableStateOf(true) }
-                var announceBattery by remember { mutableStateOf(true) }
-                var announceTemp by remember { mutableStateOf(false) }
-                SwitchRow(c, "Text-to-speech announcements", tts) { tts = it }
-                SliderRow(c, "Speech rate", "${rate.roundToInt()}%", rate, 0f..100f) { rate = it }
-                SwitchRow(c, "Report speed", announceSpeed) { announceSpeed = it }
-                SwitchRow(c, "Report battery", announceBattery) { announceBattery = it }
-                SwitchRow(c, "Report temperature", announceTemp) { announceTemp = it }
+                SwitchRow(c, "Text-to-speech announcements", settings.ttsEnabled) { onUpdate { s -> s.copy(ttsEnabled = it) } }
+                SliderRow(c, "Speech rate", "${settings.speechRate.roundToInt()}%", settings.speechRate, 0f..100f) { onUpdate { s -> s.copy(speechRate = it) } }
+                SliderRow(c, "Announce interval", "${settings.announceIntervalSec}s", settings.announceIntervalSec.toFloat(), 10f..300f) { onUpdate { s -> s.copy(announceIntervalSec = it.roundToInt()) } }
+                SwitchRow(c, "Report speed", settings.announceSpeed) { onUpdate { s -> s.copy(announceSpeed = it) } }
+                SwitchRow(c, "Report battery", settings.announceBattery) { onUpdate { s -> s.copy(announceBattery = it) } }
+                SwitchRow(c, "Report temperature", settings.announceTemp) { onUpdate { s -> s.copy(announceTemp = it) } }
+                SwitchRow(c, "Announce light changes", settings.announceLights) { onUpdate { s -> s.copy(announceLights = it) } }
             }
 
-            // --- Display ---
             Section(c, "Display") {
-                var theme by remember { mutableStateOf(1) } // 0 Light, 1 Dark, 2 Pure Black
-                var colorBand by remember { mutableStateOf(true) }
                 LabelRow(c, "Theme")
-                Segmented(c, listOf("Light", "Dark", "Pure Black"), theme) { theme = it }
+                Segmented(c, listOf("Light", "Dark", "Pure Black"), settings.theme) { onUpdate { s -> s.copy(theme = it) } }
+                Spacer(Modifier.height(10.dp))
+                LabelRow(c, "Accent")
+                Segmented(c, listOf("Cyan", "Green", "Orange", "Pink"), settings.accent) { onUpdate { s -> s.copy(accent = it) } }
                 Spacer(Modifier.height(8.dp))
-                SwitchRow(c, "Gauge color band (warn/danger)", colorBand) { colorBand = it }
+                SwitchRow(c, "Gauge color band (warn/danger)", settings.gaugeColorBand) { onUpdate { s -> s.copy(gaugeColorBand = it) } }
             }
 
-            // --- General ---
+            Section(c, "Alarms") {
+                SwitchRow(c, "Speed alarm", settings.speedAlarmEnabled) { onUpdate { s -> s.copy(speedAlarmEnabled = it) } }
+                SliderRow(c, "Speed threshold", "${settings.speedAlarmKmh.roundToInt()} km/h", settings.speedAlarmKmh, 10f..80f) { onUpdate { s -> s.copy(speedAlarmKmh = it) } }
+                SwitchRow(c, "Temperature alarm", settings.tempAlarmEnabled) { onUpdate { s -> s.copy(tempAlarmEnabled = it) } }
+                SliderRow(c, "Temp threshold", "${settings.tempAlarmC.roundToInt()}°C", settings.tempAlarmC, 40f..90f) { onUpdate { s -> s.copy(tempAlarmC = it) } }
+                SwitchRow(c, "Current alarm", settings.currentAlarmEnabled) { onUpdate { s -> s.copy(currentAlarmEnabled = it) } }
+                SliderRow(c, "Current threshold", "${settings.currentAlarmA.roundToInt()} A", settings.currentAlarmA, 10f..120f) { onUpdate { s -> s.copy(currentAlarmA = it) } }
+                SwitchRow(c, "PWM alarm", settings.pwmAlarmEnabled) { onUpdate { s -> s.copy(pwmAlarmEnabled = it) } }
+                SliderRow(c, "PWM threshold", "${settings.pwmAlarmPct.roundToInt()}%", settings.pwmAlarmPct, 50f..95f) { onUpdate { s -> s.copy(pwmAlarmPct = it) } }
+            }
+
+            Section(c, "Automations") {
+                SwitchRow(c, "Auto lights at speed", settings.autoLights) { onUpdate { s -> s.copy(autoLights = it) } }
+                SliderRow(c, "Lights-on speed", "${settings.autoLightsSpeedKmh.roundToInt()} km/h", settings.autoLightsSpeedKmh, 0f..20f) { onUpdate { s -> s.copy(autoLightsSpeedKmh = it) } }
+                SwitchRow(c, "Auto volume ramp by speed", settings.autoVolume) { onUpdate { s -> s.copy(autoVolume = it) } }
+            }
+
+            Section(c, "Motor sound") {
+                SwitchRow(c, "Engine sound synthesis", settings.engineSound) { onUpdate { s -> s.copy(engineSound = it) } }
+                SliderRow(c, "Engine volume", "${settings.engineVolume.roundToInt()}%", settings.engineVolume, 0f..100f) { onUpdate { s -> s.copy(engineVolume = it) } }
+            }
+
+            Section(c, "Location") {
+                SwitchRow(c, "Prioritise external GPS", settings.externalGpsPriority) { onUpdate { s -> s.copy(externalGpsPriority = it) } }
+                SwitchRow(c, "Show GPS speed on dashboard", settings.showGpsOnDashboard) { onUpdate { s -> s.copy(showGpsOnDashboard = it) } }
+            }
+
             Section(c, "General") {
-                var autoConnect by remember { mutableStateOf(true) }
-                var keepScreenOn by remember { mutableStateOf(true) }
-                var autoRecord by remember { mutableStateOf(false) }
-                SwitchRow(c, "Auto-connect last wheel", autoConnect) { autoConnect = it }
-                SwitchRow(c, "Keep screen on while riding", keepScreenOn) { keepScreenOn = it }
-                SwitchRow(c, "Auto-start trip recording", autoRecord) { autoRecord = it }
+                SwitchRow(c, "Auto-connect last wheel", settings.autoConnectLastWheel) { onUpdate { s -> s.copy(autoConnectLastWheel = it) } }
+                SwitchRow(c, "Keep screen on while riding", settings.keepScreenOn) { onUpdate { s -> s.copy(keepScreenOn = it) } }
+                SwitchRow(c, "Auto-start trip recording", settings.autoStartRecording) { onUpdate { s -> s.copy(autoStartRecording = it) } }
+                SwitchRow(c, "Back button exits app", settings.backButtonExits) { onUpdate { s -> s.copy(backButtonExits = it) } }
             }
 
-            Spacer(Modifier.height(24.dp))
+            Spacer(Modifier.height(20.dp))
             Text(
-                "Settings persist once the iOS storage actuals land; speed limits apply to the wheel live.",
+                "Settings persist in-session now; disk persistence (kotlinx.serialization) lands with the iOS storage actuals. Speed limits apply to the wheel live.",
                 color = c.textDisabled, fontSize = 10.sp,
             )
             Spacer(Modifier.height(24.dp))
@@ -143,10 +171,7 @@ private fun LabelRow(c: AppThemeColors, label: String) {
 
 @Composable
 private fun SwitchRow(c: AppThemeColors, label: String, checked: Boolean, onChange: (Boolean) -> Unit) {
-    Row(
-        Modifier.fillMaxWidth().padding(vertical = 4.dp),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
+    Row(Modifier.fillMaxWidth().padding(vertical = 4.dp), verticalAlignment = Alignment.CenterVertically) {
         Text(label, color = c.textPrimary, fontSize = 14.sp, modifier = Modifier.weight(1f))
         Switch(
             checked = checked, onCheckedChange = onChange,

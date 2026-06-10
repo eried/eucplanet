@@ -25,16 +25,19 @@ class DashboardModel(scope: CoroutineScope) {
             var t = 0.0
             while (true) {
                 t += 0.12
-                val temp = (41 + 3 * sin(t * 0.5)).toFloat()
+                val temp = (44 + 6 * sin(t * 0.5)).toFloat()
+                // A spirited demo ride: speed + PWM peak into alarm/danger range
+                // periodically so the gauge band + alarm banner are exercised.
                 _data.value = WheelData(
-                    speed = (30 + 12 * sin(t)).toFloat().coerceAtLeast(0f),
-                    voltage = 94.1f + sin(t).toFloat(),
-                    current = (8 + 5 * sin(t * 2)).toFloat(),
-                    batteryPercent = 78 - (t.toInt() % 14),
-                    pwm = (35 + 22 * sin(t)).toFloat().coerceIn(0f, 100f),
+                    speed = (32 + 20 * sin(t)).toFloat().coerceAtLeast(0f),
+                    voltage = 94.1f + 1.2f * sin(t).toFloat(),
+                    current = (14 + 9 * sin(t * 2)).toFloat().coerceAtLeast(0f),
+                    batteryPercent = 78 - (t.toInt() % 16),
+                    pwm = (48 + 42 * sin(t + 0.4)).toFloat().coerceIn(0f, 100f),
                     temperatures = listOf(temp),
                     maxTemperature = temp,
                     tripDistance = (t * 0.05).toFloat(),
+                    totalDistance = 1240f + (t * 0.05).toFloat(),
                 )
                 delay(180)
             }

@@ -23,37 +23,18 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.eried.eucplanet.data.model.TripSummary
 import com.eried.eucplanet.ui.theme.AppThemeColors
 import com.eried.eucplanet.ui.theme.appColors
-
-/** A recorded trip summary as shown in the Recording list. The real trip store
- *  (CSV, DarknessBot-compatible) lands with the storage actuals; until then the
- *  list shows representative entries so the screen reads like the real app. */
-internal data class TripSummary(
-    val date: String,
-    val distanceKm: Float,
-    val durationMin: Int,
-    val avgKmh: Float,
-    val maxKmh: Float,
-    val gpsLock: Boolean,
-    val synced: Boolean,
-)
-
-private val sampleTrips = listOf(
-    TripSummary("Jun 9 · 18:42", 12.4f, 31, 24.1f, 41.6f, gpsLock = true, synced = true),
-    TripSummary("Jun 8 · 08:15", 6.1f, 17, 21.7f, 38.2f, gpsLock = true, synced = false),
-    TripSummary("Jun 6 · 14:03", 28.9f, 74, 26.4f, 47.0f, gpsLock = false, synced = true),
-)
 
 /**
  * Shared Recording (trip history) screen — a port of the Android RecordingScreen:
  * a scrolling list of trip cards with distance / duration / avg / max and GPS +
- * sync status, plus an empty state.
+ * sync status, plus an empty state. Trips come from the [com.eried.eucplanet.data.TripRecorder].
  */
 @Composable
-internal fun RecordingScreen(onBack: () -> Unit) {
+internal fun RecordingScreen(trips: List<TripSummary>, onBack: () -> Unit) {
     val c = MaterialTheme.appColors
-    val trips = sampleTrips
     Column(Modifier.fillMaxSize().background(c.appBackground)) {
         ScreenTopBar(c, "Recordings", onBack)
         if (trips.isEmpty()) {
