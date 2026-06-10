@@ -63,6 +63,7 @@ import com.eried.eucplanet.util.UnitFormat
 import com.eried.eucplanet.util.setKeepScreenOn
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
@@ -229,12 +230,43 @@ fun App() {
             route = Route.Dashboard
         }
 
+        // Connect to a real wheel, remember it for auto-reconnect, and (optionally)
+        // start recording. Shared by the manual Scan tap and the auto-connect below.
+        fun connectReal(dev: BleDevice) {
+            error = null
+            connectingName = dev.name ?: dev.address
+            scope.launch {
+                try {
+                    session = connectModel.connect(dev)
+                    settingsStore.update { it.copy(lastWheelAddress = dev.address) }
+                    if (settings.autoStartRecording) recorder.start()
+                    route = Route.Dashboard
+                } catch (e: Throwable) {
+                    error = e.message ?: "connection failed"
+                } finally {
+                    connectingName = null
+                }
+            }
+        }
+
         val inRide = session != null || demoModel != null
 
         // Keep the screen awake during a ride when the General setting is on
         // (iOS idleTimerDisabled); reset when the ride ends or the toggle flips.
         LaunchedEffect(inRide, settings.keepScreenOn) {
             setKeepScreenOn(inRide && settings.keepScreenOn)
+        }
+
+        // Auto-reconnect: on launch (not in a ride), if enabled and a wheel was
+        // remembered, wait for it to reappear in the scan, then connect. Device-only
+        // — the Simulator has no radio, so the match never arrives. The keys restart
+        // the wait on state change; a successful connect flips inRide and cancels it.
+        LaunchedEffect(inRide, settings.autoConnectLastWheel, settings.lastWheelAddress) {
+            if (inRide || !settings.autoConnectLastWheel || settings.lastWheelAddress.isBlank()) return@LaunchedEffect
+            val addr = settings.lastWheelAddress
+            val match = connectModel.devices.first { devs -> devs.any { it.address == addr } }
+                .first { it.address == addr }
+            if (connectingName == null) connectReal(match)
         }
 
         Surface(Modifier.fillMaxSize(), color = MaterialTheme.appColors.appBackground) {
@@ -244,21 +276,7 @@ fun App() {
                     connectModel = connectModel,
                     connectingName = connectingName,
                     error = error,
-                    onConnectReal = { dev ->
-                        error = null
-                        connectingName = dev.name ?: dev.address
-                        scope.launch {
-                            try {
-                                session = connectModel.connect(dev)
-                                if (settings.autoStartRecording) recorder.start()
-                                route = Route.Dashboard
-                            } catch (e: Throwable) {
-                                error = e.message ?: "connection failed"
-                            } finally {
-                                connectingName = null
-                            }
-                        }
-                    },
+                    onConnectReal = { dev -> connectReal(dev) },
                     onConnectDemo = { w ->
                         demoWheel = w
                         demoModel = DashboardModel(scope)

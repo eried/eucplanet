@@ -65,6 +65,7 @@ data class AppSettings(
 
     // General
     val autoConnectLastWheel: Boolean = true,
+    val lastWheelAddress: String = "", // remembered for auto-reconnect (device id)
     val keepScreenOn: Boolean = true,
     val autoStartRecording: Boolean = false,
     val backButtonExits: Boolean = false,
