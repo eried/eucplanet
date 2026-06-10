@@ -29,7 +29,7 @@ class VeteranAdapter @Inject constructor() : WheelAdapter {
     override val familyId = "veteran"
     // Internal id stays "veteran" so existing stored profiles / custom
     // commands keep working; user-visible label is the actual brand.
-    override val familyDisplayName = "Leaperkim"
+    override val familyDisplayName = "LeaperKim"
     override val capabilities = WheelCapabilities.VETERAN
 
     @Volatile private var detectedModel: VeteranModel? = null

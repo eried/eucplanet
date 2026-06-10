@@ -174,14 +174,19 @@ class CompositeWheelAdapter @Inject constructor(
                     Regex("^s(?:1[6-9]|2[02])(?:\\b|[-_ ])").containsMatchIn(n) ||
                     n.startsWith("f18") || n.startsWith("f22") -> kingsong
 
-            // Veteran: explicit names. Veteran wheels sometimes also
-            // advertise as "GotWay_*" with the same firmware family;
-            // when that happens we'll catch them post-connect by
-            // sniffing the `DC 5A 5C` magic in the future router. For
-            // the BLE-name pre-select we only route Veteran when the
-            // model name is unambiguous.
+            // LeaperKim ("Veteran" family on the wire): match on model
+            // tokens and on the wheel's own BLE prefixes -- the Oryx
+            // advertises as `LK19957` (LK = LeaperKim initials), Nosfet
+            // rebrands use `nosfet *`. Without these the HM-10 fallback
+            // in pickAdapterByDiscoveredServices would briefly label
+            // the wheel as KingSong until the first DC 5A 5C frame
+            // arrives and onRawNotification swaps the active adapter.
+            // We still keep that magic-byte rescue for any LeaperKim
+            // BLE name we don't recognise yet (e.g. future rebrands).
             "sherman" in n || "patton" in n || "abrams" in n ||
-                    "lynx" in n -> veteran
+                    "lynx" in n || "oryx" in n ||
+                    "nosfet" in n || "leaperkim" in n ||
+                    Regex("^lk\\d").containsMatchIn(n) -> veteran
 
             // Ninebot / Segway-Ninebot. Two protocol families live behind
             // the same brand prefix; the Ninebot adapter resolves Z vs

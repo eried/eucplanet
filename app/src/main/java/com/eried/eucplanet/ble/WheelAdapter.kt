@@ -264,10 +264,10 @@ interface WheelAdapter {
         "kingsong" -> "KingSong"
         // Internal familyId is the legacy "veteran" string (kept for stored
         // profiles / custom commands / settings). The brand on the chassis,
-        // packaging and distributor pages is Leaperkim (Guangzhou Veteran
+        // packaging and distributor pages is LeaperKim (Guangzhou Veteran
         // Intelligent Technology Co.); Veteran was just the original
         // product line.
-        "veteran" -> "Leaperkim"
+        "veteran" -> "LeaperKim"
         "ninebot" -> "Ninebot"
         "inmotion_v1", "inmotion_v2" -> "InMotion"
         else -> familyDisplayName

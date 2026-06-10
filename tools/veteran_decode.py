@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Veteran/Leaperkim decoder, replays a diagnostics .txt file through the same
+Veteran/LeaperKim decoder, replays a diagnostics .txt file through the same
 reassembler logic the app uses (LEN-based, CRC32 mandatory for LEN > 38) and
 prints what comes out per frame. Used to validate the decoder against real
 captures and pinpoint where bad telemetry would enter.

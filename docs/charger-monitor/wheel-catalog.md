@@ -152,7 +152,7 @@ test wheels, so draw these first:
   unidentified / not-yet-drawn wheel. *Ship this first; everything works without
   per-model art.*
 - **Tier 1 — Reference + popular current-gen.** V14, P6, Begode Master +
-  Master Pro/RS, KS-S22/S20, Leaperkim Sherman/Patton/Lynx, InMotion V11/V12/V13.
+  Master Pro/RS, KS-S22/S20, LeaperKim Sherman/Patton/Lynx, InMotion V11/V12/V13.
 - **Tier 2 — Remaining current-gen.**
 - **Tier 3 — Legacy** (InMotion V5/V8/V10, KS-14/16, Ninebot Mini/One, older
   Begode/Gotway).
