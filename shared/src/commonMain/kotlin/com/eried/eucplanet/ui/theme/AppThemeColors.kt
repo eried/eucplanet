@@ -11,7 +11,6 @@ import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.takeOrElse
 import androidx.compose.ui.graphics.toArgb
-import org.json.JSONObject
 
 /**
  * The full set of semantic color tokens that make up one theme. A theme is
@@ -381,37 +380,6 @@ fun hexToColor(hex: String): Color? = runCatching {
     }
     Color(argb.toInt())
 }.getOrNull()
-
-/**
- * JSON shape: `{ "name": "...", "isLight": false, "colors": { "<key>": "AARRGGBB", ... } }`.
- * Unknown keys are ignored on read; missing keys fall back to [fallback] so an
- * older saved theme that predates a new token still loads cleanly.
- */
-object ThemeJson {
-    fun colorsToJson(c: AppThemeColors): JSONObject = JSONObject().apply {
-        put("isLight", c.isLight)
-        val colors = JSONObject()
-        ThemeTokens.specs.forEach { spec -> colors.put(spec.key, spec.get(c).toHex()) }
-        put("colors", colors)
-    }
-
-    fun colorsFromJson(j: JSONObject, fallback: AppThemeColors): AppThemeColors {
-        val isLight = j.optBoolean("isLight", fallback.isLight)
-        val colors = j.optJSONObject("colors") ?: JSONObject()
-        var result = fallback.copy(isLight = isLight)
-        ThemeTokens.specs.forEach { spec ->
-            val hex = colors.optString(spec.key, "")
-            val parsed = if (hex.isNotEmpty()) hexToColor(hex) else null
-            if (parsed != null) result = spec.set(result, parsed)
-        }
-        return result
-    }
-
-    fun colorsToString(c: AppThemeColors): String = colorsToJson(c).toString()
-
-    fun colorsFromString(s: String, fallback: AppThemeColors): AppThemeColors? =
-        runCatching { colorsFromJson(JSONObject(s), fallback) }.getOrNull()
-}
 
 /**
  * The active theme's tokens, provided once at the app root. Static because the
