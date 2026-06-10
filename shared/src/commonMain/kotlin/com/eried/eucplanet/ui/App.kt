@@ -303,6 +303,8 @@ fun App() {
                     unitSpeed = settings.unitSpeed,
                     unitDistance = settings.unitDistance,
                     unitTemp = settings.unitTemp,
+                    columns = settings.dashboardColumns,
+                    statCorners = settings.statCorners,
                     recording = recording,
                     onToggleRecord = {
                         val wasRecording = recording
@@ -335,6 +337,8 @@ private fun DashboardRoute(
     unitSpeed: String,
     unitDistance: String,
     unitTemp: String,
+    columns: Int,
+    statCorners: Boolean,
     recording: Boolean,
     onToggleRecord: () -> Unit,
     onAnnounce: () -> Unit,
@@ -388,6 +392,8 @@ private fun DashboardRoute(
         unitSpeed = unitSpeed,
         unitDistance = unitDistance,
         unitTemp = unitTemp,
+        columns = columns,
+        statCorners = statCorners,
         onHorn = { session?.let { s -> scope.launch { s.horn() } } },
         onToggleLight = {
             lightOn = !lightOn

@@ -115,6 +115,8 @@ internal fun DashboardScreen(
     unitSpeed: String,
     unitDistance: String,
     unitTemp: String,
+    columns: Int,
+    statCorners: Boolean,
     onHorn: () -> Unit,
     onToggleLight: () -> Unit,
     onToggleVoice: () -> Unit,
@@ -142,15 +144,19 @@ internal fun DashboardScreen(
             SpeedGauge(d.speed, max = 60f, unitSpeed = unitSpeed, pwm = d.pwm, charging = d.charging, band = gaugeBand, c = c)
         }
 
-        // 6-tile metric grid (2 columns x 3 rows).
+        // Metric grid — honours the rider's column count (2 or 3) from Dashboard
+        // settings. With a non-full last row, the trailing Spacer keeps tiles the
+        // same width as full rows instead of stretching them.
+        val cols = columns.coerceIn(1, 3)
         Column(Modifier.fillMaxWidth().padding(horizontal = 12.dp)) {
-            metricsFor(unitDistance, unitTemp).chunked(2).forEach { row ->
+            metricsFor(unitDistance, unitTemp).chunked(cols).forEach { row ->
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     row.forEach { m ->
                         Box(Modifier.weight(1f)) {
-                            MetricTile(c, m, d, history) { onMetricClick(m.key) }
+                            MetricTile(c, m, d, history, statCorners) { onMetricClick(m.key) }
                         }
                     }
+                    repeat(cols - row.size) { Spacer(Modifier.weight(1f)) }
                 }
                 Spacer(Modifier.height(8.dp))
             }
@@ -269,7 +275,7 @@ private fun IconBtn(icon: ImageVector, desc: String, tint: Color, onClick: () ->
 }
 
 @Composable
-private fun MetricTile(c: AppThemeColors, m: Metric, d: WheelData, history: List<WheelData>, onClick: () -> Unit) {
+private fun MetricTile(c: AppThemeColors, m: Metric, d: WheelData, history: List<WheelData>, showCorners: Boolean, onClick: () -> Unit) {
     val color = m.color(c)
     val series = history.map { m.value(it) }
     val mx = series.maxOrNull()
@@ -284,8 +290,9 @@ private fun MetricTile(c: AppThemeColors, m: Metric, d: WheelData, history: List
             m.label, color = c.tileLabel, fontSize = 10.sp, fontWeight = FontWeight.Medium,
             modifier = Modifier.align(Alignment.TopStart).padding(start = 10.dp, top = 7.dp),
         )
-        // MIN/MAX corner stats over the visible history, like the Android tiles.
-        if (mx != null && mn != null && series.size >= 3) {
+        // MIN/MAX corner stats over the visible history, like the Android tiles
+        // (gated by the Dashboard "Show MIN / MAX corner stats" toggle).
+        if (showCorners && mx != null && mn != null && series.size >= 3) {
             Text(
                 "max ${statText(mx, m.unit)}", color = c.cornerStatLabel, fontSize = 9.sp,
                 modifier = Modifier.align(Alignment.TopEnd).padding(end = 8.dp, top = 7.dp),
