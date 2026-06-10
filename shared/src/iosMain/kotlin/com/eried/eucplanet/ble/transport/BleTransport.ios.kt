@@ -1,42 +1,195 @@
+@file:OptIn(ExperimentalForeignApi::class, BetaInteropApi::class)
+
 package com.eried.eucplanet.ble.transport
 
+import com.eried.eucplanet.ble.BleProfile
+import com.eried.eucplanet.ble.BleWriteType
+import kotlinx.cinterop.BetaInteropApi
 import kotlinx.cinterop.ExperimentalForeignApi
+import kotlinx.cinterop.ObjCSignatureOverride
+import kotlinx.cinterop.addressOf
+import kotlinx.cinterop.usePinned
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.launch
 import platform.CoreBluetooth.CBCentralManager
 import platform.CoreBluetooth.CBCentralManagerDelegateProtocol
+import platform.CoreBluetooth.CBCharacteristic
+import platform.CoreBluetooth.CBCharacteristicWriteWithResponse
+import platform.CoreBluetooth.CBCharacteristicWriteWithoutResponse
 import platform.CoreBluetooth.CBManagerStatePoweredOn
 import platform.CoreBluetooth.CBPeripheral
+import platform.CoreBluetooth.CBPeripheralDelegateProtocol
+import platform.CoreBluetooth.CBService
+import platform.CoreBluetooth.CBUUID
+import platform.Foundation.NSData
+import platform.Foundation.NSError
 import platform.Foundation.NSNumber
+import platform.Foundation.NSUUID
+import platform.Foundation.create
 import platform.darwin.NSObject
+import platform.posix.memcpy
 
-@OptIn(ExperimentalForeignApi::class)
 actual fun createBleTransport(): BleTransport = IosBleTransport()
 
-/** CoreBluetooth scanner. CBCentralManager starts scanning once the radio powers
- *  on; each discovery is forwarded to the [scan] flow. */
-@OptIn(ExperimentalForeignApi::class)
+/** CoreBluetooth-backed transport. Plain Kotlin (implements [BleTransport]) that
+ *  owns a CBCentralManager + a separate NSObject delegate (Kotlin/Native forbids
+ *  one class mixing a Kotlin interface with Obj-C supertypes). */
 private class IosBleTransport : BleTransport {
-    override fun scan(): Flow<BleDevice> = callbackFlow {
-        val delegate = object : NSObject(), CBCentralManagerDelegateProtocol {
-            override fun centralManagerDidUpdateState(central: CBCentralManager) {
-                if (central.state == CBManagerStatePoweredOn) {
-                    central.scanForPeripheralsWithServices(null, null)
-                }
-            }
+    private val discoveries = MutableSharedFlow<BleDevice>(extraBufferCapacity = 128)
+    private val peripherals = mutableMapOf<String, CBPeripheral>()
+    private var poweredOn = false
+    private var wantScan = false
+    private var active: IosBleConnection? = null
+    private var connectCont: CompletableDeferred<Unit>? = null
+    private val delegate = CentralDelegate()
+    private val central = CBCentralManager(delegate, null)
 
-            override fun centralManager(
-                central: CBCentralManager,
-                didDiscoverPeripheral: CBPeripheral,
-                advertisementData: Map<Any?, *>,
-                RSSI: NSNumber,
-            ) {
-                val id = didDiscoverPeripheral.identifier.UUIDString
-                trySend(BleDevice(id, didDiscoverPeripheral.name, RSSI.intValue))
+    private inner class CentralDelegate : NSObject(), CBCentralManagerDelegateProtocol {
+        override fun centralManagerDidUpdateState(central: CBCentralManager) {
+            poweredOn = central.state == CBManagerStatePoweredOn
+            if (poweredOn && wantScan) central.scanForPeripheralsWithServices(null, null)
+        }
+
+        override fun centralManager(
+            central: CBCentralManager,
+            didDiscoverPeripheral: CBPeripheral,
+            advertisementData: Map<Any?, *>,
+            RSSI: NSNumber,
+        ) {
+            val id = didDiscoverPeripheral.identifier.UUIDString
+            peripherals[id] = didDiscoverPeripheral
+            discoveries.tryEmit(BleDevice(id, didDiscoverPeripheral.name, RSSI.intValue))
+        }
+
+        override fun centralManager(central: CBCentralManager, didConnectPeripheral: CBPeripheral) {
+            connectCont?.complete(Unit)
+        }
+
+        @ObjCSignatureOverride
+        override fun centralManager(central: CBCentralManager, didFailToConnectPeripheral: CBPeripheral, error: NSError?) {
+            connectCont?.completeExceptionally(IllegalStateException("BLE connect failed: ${error?.localizedDescription}"))
+        }
+
+        @ObjCSignatureOverride
+        override fun centralManager(central: CBCentralManager, didDisconnectPeripheral: CBPeripheral, error: NSError?) {
+            active?.onDisconnected()
+        }
+    }
+
+    override fun scan(): Flow<BleDevice> = callbackFlow {
+        wantScan = true
+        if (poweredOn) central.scanForPeripheralsWithServices(null, null)
+        val job = launch { discoveries.collect { trySend(it) } }
+        awaitClose { wantScan = false; central.stopScan(); job.cancel() }
+    }
+
+    override suspend fun connect(address: String, profile: BleProfile): BleConnection {
+        central.stopScan()
+        val p = peripherals[address]
+            ?: (central.retrievePeripheralsWithIdentifiers(listOf(NSUUID(uUIDString = address)))
+                .firstOrNull() as? CBPeripheral)
+            ?: throw IllegalStateException("peripheral $address not found")
+        val conn = IosBleConnection(central, p, profile)
+        active = conn
+        connectCont = CompletableDeferred()
+        central.connectPeripheral(p, null)
+        connectCont!!.await()
+        conn.start()
+        return conn
+    }
+}
+
+private class IosBleConnection(
+    private val central: CBCentralManager,
+    private val peripheral: CBPeripheral,
+    private val profile: BleProfile,
+) : BleConnection {
+
+    private val _state = MutableStateFlow(BleConnState.Connecting)
+    override val state = _state.asStateFlow()
+    private val _incoming = MutableSharedFlow<ByteArray>(extraBufferCapacity = 256)
+    override val incoming = _incoming.asSharedFlow()
+    private var writeChar: CBCharacteristic? = null
+    private val delegate = PeripheralDelegate()
+
+    fun start() {
+        peripheral.delegate = delegate
+        _state.value = BleConnState.Connected
+        peripheral.discoverServices(listOf(CBUUID.UUIDWithString(profile.serviceUuid)))
+    }
+
+    fun onDisconnected() {
+        _state.value = BleConnState.Disconnected
+    }
+
+    private inner class PeripheralDelegate : NSObject(), CBPeripheralDelegateProtocol {
+        override fun peripheral(peripheral: CBPeripheral, didDiscoverServices: NSError?) {
+            val svc = peripheral.services?.firstOrNull {
+                (it as CBService).UUID.UUIDString.equals(profile.serviceUuid, ignoreCase = true)
+            } as? CBService ?: return
+            peripheral.discoverCharacteristics(
+                listOf(
+                    CBUUID.UUIDWithString(profile.writeCharacteristic),
+                    CBUUID.UUIDWithString(profile.notifyCharacteristic),
+                ),
+                svc,
+            )
+        }
+
+        override fun peripheral(
+            peripheral: CBPeripheral,
+            didDiscoverCharacteristicsForService: CBService,
+            error: NSError?,
+        ) {
+            (didDiscoverCharacteristicsForService.characteristics ?: emptyList<Any?>()).forEach { ch ->
+                val c = ch as CBCharacteristic
+                val u = c.UUID.UUIDString
+                if (u.equals(profile.notifyCharacteristic, ignoreCase = true)) peripheral.setNotifyValue(true, c)
+                if (u.equals(profile.writeCharacteristic, ignoreCase = true)) writeChar = c
             }
         }
-        val manager = CBCentralManager(delegate, null)
-        awaitClose { manager.stopScan() }
+
+        override fun peripheral(
+            peripheral: CBPeripheral,
+            didUpdateValueForCharacteristic: CBCharacteristic,
+            error: NSError?,
+        ) {
+            val data = didUpdateValueForCharacteristic.value ?: return
+            _incoming.tryEmit(data.toByteArray())
+        }
     }
+
+    override suspend fun write(bytes: ByteArray) {
+        val c = writeChar ?: return
+        val type = if (profile.writeType == BleWriteType.NO_RESPONSE) {
+            CBCharacteristicWriteWithoutResponse
+        } else {
+            CBCharacteristicWriteWithResponse
+        }
+        peripheral.writeValue(bytes.toNSData(), c, type)
+    }
+
+    override fun close() {
+        central.cancelPeripheralConnection(peripheral)
+    }
+}
+
+private fun NSData.toByteArray(): ByteArray {
+    val len = length.toInt()
+    if (len == 0) return ByteArray(0)
+    val out = ByteArray(len)
+    out.usePinned { memcpy(it.addressOf(0), bytes, length) }
+    return out
+}
+
+private fun ByteArray.toNSData(): NSData {
+    if (isEmpty()) return NSData()
+    return usePinned { NSData.create(bytes = it.addressOf(0), length = size.toULong()) }
 }
