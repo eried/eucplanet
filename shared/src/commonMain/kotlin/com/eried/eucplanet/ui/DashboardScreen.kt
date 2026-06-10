@@ -344,6 +344,14 @@ internal fun SpeedGauge(speed: Float, max: Float, pwm: Float, charging: Boolean,
             val arcSize = Size(size.width - inset * 2, size.height - inset * 2)
             val topLeft = Offset(inset, inset)
             drawArc(c.gaugeTrack, 135f, 270f, false, topLeft = topLeft, size = arcSize, style = stroke)
+            // Threshold color band on the dial (warn 70-85%, danger 85-100%),
+            // like the Android gauge, when enabled in Display settings.
+            if (band) {
+                val warnStart = 135f + 270f * 0.70f
+                val dangerStart = 135f + 270f * 0.85f
+                drawArc(c.gaugeWarn.copy(alpha = 0.5f), warnStart, dangerStart - warnStart, false, topLeft = topLeft, size = arcSize, style = stroke)
+                drawArc(c.gaugeDanger.copy(alpha = 0.6f), dangerStart, (135f + 270f) - dangerStart, false, topLeft = topLeft, size = arcSize, style = stroke)
+            }
             drawArc(arcColor, 135f, 270f * frac, false, topLeft = topLeft, size = arcSize, style = stroke)
         }
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
