@@ -54,6 +54,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.eried.eucplanet.data.model.AppSettings
+import com.eried.eucplanet.ui.settings.SettingsSectionId
 import com.eried.eucplanet.ui.theme.AppThemeColors
 import com.eried.eucplanet.ui.theme.appColors
 import kotlin.math.roundToInt
@@ -62,8 +63,11 @@ import kotlin.math.roundToInt
  * Shared Settings screen — a port of the Android settings surface as collapsible
  * sections, bound to the shared [AppSettings] via [onUpdate] (so changes flow
  * through the SettingsStore and into the gauge / alarms / automations live). The
- * Speed sliders also push tiltback/alarm to the connected wheel. Persistence to
- * disk lands with the storage actuals; the model + UI are ready for it.
+ * Speed sliders also push tiltback/alarm to the connected wheel.
+ *
+ * The *set and order* of sections is shared with the Android app via
+ * [SettingsSectionId] (the single source of truth), so the two platforms can't
+ * drift; only the section bodies below are iOS-specific (the v1 subset).
  */
 @Composable
 internal fun SettingsScreen(
@@ -79,107 +83,115 @@ internal fun SettingsScreen(
         ScreenTopBar(c, "Settings", onBack)
         Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(horizontal = 12.dp, vertical = 8.dp)) {
 
-            Section(c, "General", Icons.Filled.Tune, expandedDefault = true) {
-                SwitchRow(c, "Auto-connect last wheel", settings.autoConnectLastWheel) { onUpdate { s -> s.copy(autoConnectLastWheel = it) } }
-                SwitchRow(c, "Keep screen on while riding", settings.keepScreenOn) { onUpdate { s -> s.copy(keepScreenOn = it) } }
-                SwitchRow(c, "Auto-start trip recording", settings.autoStartRecording) { onUpdate { s -> s.copy(autoStartRecording = it) } }
-                SwitchRow(c, "Back button exits app", settings.backButtonExits) { onUpdate { s -> s.copy(backButtonExits = it) } }
-            }
+            // Render every shared section in its canonical order. The `when` is
+            // used as an expression (via `.let`) so Kotlin enforces exhaustiveness:
+            // add a SettingsSectionId in :shared and this stops compiling until iOS
+            // handles it — that's the guarantee the two platforms can't drift.
+            SettingsSectionId.entries.forEach { id ->
+                when (id) {
+                    SettingsSectionId.General -> Section(c, "General", Icons.Filled.Tune, expandedDefault = true) {
+                        SwitchRow(c, "Auto-connect last wheel", settings.autoConnectLastWheel) { onUpdate { s -> s.copy(autoConnectLastWheel = it) } }
+                        SwitchRow(c, "Keep screen on while riding", settings.keepScreenOn) { onUpdate { s -> s.copy(keepScreenOn = it) } }
+                        SwitchRow(c, "Auto-start trip recording", settings.autoStartRecording) { onUpdate { s -> s.copy(autoStartRecording = it) } }
+                        SwitchRow(c, "Back button exits app", settings.backButtonExits) { onUpdate { s -> s.copy(backButtonExits = it) } }
+                    }
 
-            Section(c, "Dashboard", Icons.Filled.Dashboard) {
-                LabelRow(c, "Metric tile columns")
-                Segmented(c, listOf("2", "3"), (settings.dashboardColumns - 2).coerceIn(0, 1)) { onUpdate { s -> s.copy(dashboardColumns = it + 2) } }
-                Spacer(Modifier.height(8.dp))
-                SwitchRow(c, "Show MIN / MAX corner stats", settings.statCorners) { onUpdate { s -> s.copy(statCorners = it) } }
-                Note(c, "Custom tile order + action-grid editor is Android-only for now.")
-            }
+                    SettingsSectionId.Dashboard -> Section(c, "Dashboard", Icons.Filled.Dashboard) {
+                        LabelRow(c, "Metric tile columns")
+                        Segmented(c, listOf("2", "3"), (settings.dashboardColumns - 2).coerceIn(0, 1)) { onUpdate { s -> s.copy(dashboardColumns = it + 2) } }
+                        Spacer(Modifier.height(8.dp))
+                        SwitchRow(c, "Show MIN / MAX corner stats", settings.statCorners) { onUpdate { s -> s.copy(statCorners = it) } }
+                        Note(c, "Custom tile order + action-grid editor is Android-only for now.")
+                    }
 
-            Section(c, "Display", Icons.Filled.DisplaySettings) {
-                LabelRow(c, "Theme")
-                Segmented(c, listOf("Light", "Dark", "Pure Black"), settings.theme) { onUpdate { s -> s.copy(theme = it) } }
-                Spacer(Modifier.height(10.dp))
-                LabelRow(c, "Accent")
-                Segmented(c, listOf("Cyan", "Green", "Orange", "Pink"), settings.accent) { onUpdate { s -> s.copy(accent = it) } }
-                Spacer(Modifier.height(8.dp))
-                SwitchRow(c, "Gauge color band (warn/danger)", settings.gaugeColorBand) { onUpdate { s -> s.copy(gaugeColorBand = it) } }
-            }
+                    SettingsSectionId.Display -> Section(c, "Display", Icons.Filled.DisplaySettings) {
+                        LabelRow(c, "Theme")
+                        Segmented(c, listOf("Light", "Dark", "Pure Black"), settings.theme) { onUpdate { s -> s.copy(theme = it) } }
+                        Spacer(Modifier.height(10.dp))
+                        LabelRow(c, "Accent")
+                        Segmented(c, listOf("Cyan", "Green", "Orange", "Pink"), settings.accent) { onUpdate { s -> s.copy(accent = it) } }
+                        Spacer(Modifier.height(8.dp))
+                        SwitchRow(c, "Gauge color band (warn/danger)", settings.gaugeColorBand) { onUpdate { s -> s.copy(gaugeColorBand = it) } }
+                    }
 
-            Section(c, "Speed", Icons.Filled.Speed) {
-                SliderRow(c, "Tiltback (max) speed", "${settings.tiltbackKmh.roundToInt()} km/h", settings.tiltbackKmh, 10f..70f) {
-                    onUpdate { s -> s.copy(tiltbackKmh = it) }
-                }
-                SliderRow(c, "Alarm speed", "${settings.alarmKmh.roundToInt()} km/h", settings.alarmKmh, 5f..70f) {
-                    onUpdate { s -> s.copy(alarmKmh = it) }
-                }
-                SliderRow(c, "Legal-mode tiltback", "${settings.legalTiltbackKmh.roundToInt()} km/h", settings.legalTiltbackKmh, 10f..40f) {
-                    onUpdate { s -> s.copy(legalTiltbackKmh = it) }
-                }
-                SliderRow(c, "Legal-mode alarm", "${settings.legalAlarmKmh.roundToInt()} km/h", settings.legalAlarmKmh, 5f..40f) {
-                    onUpdate { s -> s.copy(legalAlarmKmh = it) }
-                }
-                ApplyRow(c, connected) { onApplyMaxSpeed(settings.tiltbackKmh, settings.alarmKmh) }
-            }
+                    SettingsSectionId.Speed -> Section(c, "Speed", Icons.Filled.Speed) {
+                        SliderRow(c, "Tiltback (max) speed", "${settings.tiltbackKmh.roundToInt()} km/h", settings.tiltbackKmh, 10f..70f) {
+                            onUpdate { s -> s.copy(tiltbackKmh = it) }
+                        }
+                        SliderRow(c, "Alarm speed", "${settings.alarmKmh.roundToInt()} km/h", settings.alarmKmh, 5f..70f) {
+                            onUpdate { s -> s.copy(alarmKmh = it) }
+                        }
+                        SliderRow(c, "Legal-mode tiltback", "${settings.legalTiltbackKmh.roundToInt()} km/h", settings.legalTiltbackKmh, 10f..40f) {
+                            onUpdate { s -> s.copy(legalTiltbackKmh = it) }
+                        }
+                        SliderRow(c, "Legal-mode alarm", "${settings.legalAlarmKmh.roundToInt()} km/h", settings.legalAlarmKmh, 5f..40f) {
+                            onUpdate { s -> s.copy(legalAlarmKmh = it) }
+                        }
+                        ApplyRow(c, connected) { onApplyMaxSpeed(settings.tiltbackKmh, settings.alarmKmh) }
+                    }
 
-            Section(c, "Voice", Icons.Filled.RecordVoiceOver) {
-                SwitchRow(c, "Text-to-speech announcements", settings.ttsEnabled) { onUpdate { s -> s.copy(ttsEnabled = it) } }
-                SliderRow(c, "Speech rate", "${settings.speechRate.roundToInt()}%", settings.speechRate, 0f..100f) { onUpdate { s -> s.copy(speechRate = it) } }
-                SliderRow(c, "Announce interval", "${settings.announceIntervalSec}s", settings.announceIntervalSec.toFloat(), 10f..300f) { onUpdate { s -> s.copy(announceIntervalSec = it.roundToInt()) } }
-                SwitchRow(c, "Report speed", settings.announceSpeed) { onUpdate { s -> s.copy(announceSpeed = it) } }
-                SwitchRow(c, "Report battery", settings.announceBattery) { onUpdate { s -> s.copy(announceBattery = it) } }
-                SwitchRow(c, "Report temperature", settings.announceTemp) { onUpdate { s -> s.copy(announceTemp = it) } }
-                SwitchRow(c, "Announce light changes", settings.announceLights) { onUpdate { s -> s.copy(announceLights = it) } }
-            }
+                    SettingsSectionId.Voice -> Section(c, "Voice", Icons.Filled.RecordVoiceOver) {
+                        SwitchRow(c, "Text-to-speech announcements", settings.ttsEnabled) { onUpdate { s -> s.copy(ttsEnabled = it) } }
+                        SliderRow(c, "Speech rate", "${settings.speechRate.roundToInt()}%", settings.speechRate, 0f..100f) { onUpdate { s -> s.copy(speechRate = it) } }
+                        SliderRow(c, "Announce interval", "${settings.announceIntervalSec}s", settings.announceIntervalSec.toFloat(), 10f..300f) { onUpdate { s -> s.copy(announceIntervalSec = it.roundToInt()) } }
+                        SwitchRow(c, "Report speed", settings.announceSpeed) { onUpdate { s -> s.copy(announceSpeed = it) } }
+                        SwitchRow(c, "Report battery", settings.announceBattery) { onUpdate { s -> s.copy(announceBattery = it) } }
+                        SwitchRow(c, "Report temperature", settings.announceTemp) { onUpdate { s -> s.copy(announceTemp = it) } }
+                        SwitchRow(c, "Announce light changes", settings.announceLights) { onUpdate { s -> s.copy(announceLights = it) } }
+                    }
 
-            Section(c, "Motor", Icons.Filled.Motorcycle) {
-                SwitchRow(c, "Engine sound synthesis", settings.engineSound) { onUpdate { s -> s.copy(engineSound = it) } }
-                SliderRow(c, "Engine volume", "${settings.engineVolume.roundToInt()}%", settings.engineVolume, 0f..100f) { onUpdate { s -> s.copy(engineVolume = it) } }
-                Note(c, "Full engine-sound synthesis (type / muffler / gearbox / idle) is Android-only for now.")
-            }
+                    SettingsSectionId.Motor -> Section(c, "Motor", Icons.Filled.Motorcycle) {
+                        SwitchRow(c, "Engine sound synthesis", settings.engineSound) { onUpdate { s -> s.copy(engineSound = it) } }
+                        SliderRow(c, "Engine volume", "${settings.engineVolume.roundToInt()}%", settings.engineVolume, 0f..100f) { onUpdate { s -> s.copy(engineVolume = it) } }
+                        Note(c, "Full engine-sound synthesis (type / muffler / gearbox / idle) is Android-only for now.")
+                    }
 
-            Section(c, "Cloud", Icons.Filled.Archive) {
-                SwitchRow(c, "Sync settings to cloud", settings.cloudSyncSettings) { onUpdate { s -> s.copy(cloudSyncSettings = it) } }
-                SwitchRow(c, "Auto-backup trips", settings.autoBackupTrips) { onUpdate { s -> s.copy(autoBackupTrips = it) } }
-                Note(c, "Cloud folder sync lands with the iOS storage actuals.")
-            }
+                    SettingsSectionId.Cloud -> Section(c, "Cloud", Icons.Filled.Archive) {
+                        SwitchRow(c, "Sync settings to cloud", settings.cloudSyncSettings) { onUpdate { s -> s.copy(cloudSyncSettings = it) } }
+                        SwitchRow(c, "Auto-backup trips", settings.autoBackupTrips) { onUpdate { s -> s.copy(autoBackupTrips = it) } }
+                        Note(c, "Cloud folder sync lands with the iOS storage actuals.")
+                    }
 
-            Section(c, "Alarms", Icons.Filled.NotificationsActive) {
-                SwitchRow(c, "Speed alarm", settings.speedAlarmEnabled) { onUpdate { s -> s.copy(speedAlarmEnabled = it) } }
-                SliderRow(c, "Speed threshold", "${settings.speedAlarmKmh.roundToInt()} km/h", settings.speedAlarmKmh, 10f..80f) { onUpdate { s -> s.copy(speedAlarmKmh = it) } }
-                SwitchRow(c, "Temperature alarm", settings.tempAlarmEnabled) { onUpdate { s -> s.copy(tempAlarmEnabled = it) } }
-                SliderRow(c, "Temp threshold", "${settings.tempAlarmC.roundToInt()}°C", settings.tempAlarmC, 40f..90f) { onUpdate { s -> s.copy(tempAlarmC = it) } }
-                SwitchRow(c, "Current alarm", settings.currentAlarmEnabled) { onUpdate { s -> s.copy(currentAlarmEnabled = it) } }
-                SliderRow(c, "Current threshold", "${settings.currentAlarmA.roundToInt()} A", settings.currentAlarmA, 10f..120f) { onUpdate { s -> s.copy(currentAlarmA = it) } }
-                SwitchRow(c, "PWM alarm", settings.pwmAlarmEnabled) { onUpdate { s -> s.copy(pwmAlarmEnabled = it) } }
-                SliderRow(c, "PWM threshold", "${settings.pwmAlarmPct.roundToInt()}%", settings.pwmAlarmPct, 50f..95f) { onUpdate { s -> s.copy(pwmAlarmPct = it) } }
-            }
+                    SettingsSectionId.Alarms -> Section(c, "Alarms", Icons.Filled.NotificationsActive) {
+                        SwitchRow(c, "Speed alarm", settings.speedAlarmEnabled) { onUpdate { s -> s.copy(speedAlarmEnabled = it) } }
+                        SliderRow(c, "Speed threshold", "${settings.speedAlarmKmh.roundToInt()} km/h", settings.speedAlarmKmh, 10f..80f) { onUpdate { s -> s.copy(speedAlarmKmh = it) } }
+                        SwitchRow(c, "Temperature alarm", settings.tempAlarmEnabled) { onUpdate { s -> s.copy(tempAlarmEnabled = it) } }
+                        SliderRow(c, "Temp threshold", "${settings.tempAlarmC.roundToInt()}°C", settings.tempAlarmC, 40f..90f) { onUpdate { s -> s.copy(tempAlarmC = it) } }
+                        SwitchRow(c, "Current alarm", settings.currentAlarmEnabled) { onUpdate { s -> s.copy(currentAlarmEnabled = it) } }
+                        SliderRow(c, "Current threshold", "${settings.currentAlarmA.roundToInt()} A", settings.currentAlarmA, 10f..120f) { onUpdate { s -> s.copy(currentAlarmA = it) } }
+                        SwitchRow(c, "PWM alarm", settings.pwmAlarmEnabled) { onUpdate { s -> s.copy(pwmAlarmEnabled = it) } }
+                        SliderRow(c, "PWM threshold", "${settings.pwmAlarmPct.roundToInt()}%", settings.pwmAlarmPct, 50f..95f) { onUpdate { s -> s.copy(pwmAlarmPct = it) } }
+                    }
 
-            Section(c, "Automations", Icons.Filled.AutoAwesome) {
-                SwitchRow(c, "Auto lights at speed", settings.autoLights) { onUpdate { s -> s.copy(autoLights = it) } }
-                SliderRow(c, "Lights-on speed", "${settings.autoLightsSpeedKmh.roundToInt()} km/h", settings.autoLightsSpeedKmh, 0f..20f) { onUpdate { s -> s.copy(autoLightsSpeedKmh = it) } }
-                SwitchRow(c, "Auto volume ramp by speed", settings.autoVolume) { onUpdate { s -> s.copy(autoVolume = it) } }
-            }
+                    SettingsSectionId.Automations -> Section(c, "Automations", Icons.Filled.AutoAwesome) {
+                        SwitchRow(c, "Auto lights at speed", settings.autoLights) { onUpdate { s -> s.copy(autoLights = it) } }
+                        SliderRow(c, "Lights-on speed", "${settings.autoLightsSpeedKmh.roundToInt()} km/h", settings.autoLightsSpeedKmh, 0f..20f) { onUpdate { s -> s.copy(autoLightsSpeedKmh = it) } }
+                        SwitchRow(c, "Auto volume ramp by speed", settings.autoVolume) { onUpdate { s -> s.copy(autoVolume = it) } }
+                    }
 
-            Section(c, "Navigator", Icons.Filled.Navigation) {
-                SwitchRow(c, "Voice guidance", settings.navVoiceGuidance) { onUpdate { s -> s.copy(navVoiceGuidance = it) } }
-                Note(c, "Maps / route navigation is Android-only (out of the iOS v1 scope).")
-            }
+                    SettingsSectionId.Navigator -> Section(c, "Navigator", Icons.Filled.Navigation) {
+                        SwitchRow(c, "Voice guidance", settings.navVoiceGuidance) { onUpdate { s -> s.copy(navVoiceGuidance = it) } }
+                        Note(c, "Maps / route navigation is Android-only (out of the iOS v1 scope).")
+                    }
 
-            Section(c, "Location", Icons.Filled.Sensors) {
-                SwitchRow(c, "Prioritise external GPS", settings.externalGpsPriority) { onUpdate { s -> s.copy(externalGpsPriority = it) } }
-                SwitchRow(c, "Show GPS speed on dashboard", settings.showGpsOnDashboard) { onUpdate { s -> s.copy(showGpsOnDashboard = it) } }
-            }
+                    SettingsSectionId.Location -> Section(c, "Location", Icons.Filled.Sensors) {
+                        SwitchRow(c, "Prioritise external GPS", settings.externalGpsPriority) { onUpdate { s -> s.copy(externalGpsPriority = it) } }
+                        SwitchRow(c, "Show GPS speed on dashboard", settings.showGpsOnDashboard) { onUpdate { s -> s.copy(showGpsOnDashboard = it) } }
+                    }
 
-            Section(c, "Integration", Icons.Filled.Extension) {
-                SwitchRow(c, "Flic button", settings.flicEnabled) { onUpdate { s -> s.copy(flicEnabled = it) } }
-                SwitchRow(c, "Volume-key controls", settings.volumeKeyControls) { onUpdate { s -> s.copy(volumeKeyControls = it) } }
-                SwitchRow(c, "Radar (obstacle detection)", settings.radarEnabled) { onUpdate { s -> s.copy(radarEnabled = it) } }
-                Note(c, "Flic / Radar / HUD hardware integration is Android-only for now.")
-            }
+                    SettingsSectionId.Integration -> Section(c, "Integration", Icons.Filled.Extension) {
+                        SwitchRow(c, "Flic button", settings.flicEnabled) { onUpdate { s -> s.copy(flicEnabled = it) } }
+                        SwitchRow(c, "Volume-key controls", settings.volumeKeyControls) { onUpdate { s -> s.copy(volumeKeyControls = it) } }
+                        SwitchRow(c, "Radar (obstacle detection)", settings.radarEnabled) { onUpdate { s -> s.copy(radarEnabled = it) } }
+                        Note(c, "Flic / Radar / HUD hardware integration is Android-only for now.")
+                    }
 
-            Section(c, "Watch", Icons.Filled.Watch) {
-                SwitchRow(c, "Keep watch screen on", settings.watchKeepOn) { onUpdate { s -> s.copy(watchKeepOn = it) } }
-                SwitchRow(c, "Auto-start on watch", settings.watchAutoStart) { onUpdate { s -> s.copy(watchAutoStart = it) } }
-                Note(c, "Wear OS / Garmin watch companion is Android-only.")
+                    SettingsSectionId.Watch -> Section(c, "Watch", Icons.Filled.Watch) {
+                        SwitchRow(c, "Keep watch screen on", settings.watchKeepOn) { onUpdate { s -> s.copy(watchKeepOn = it) } }
+                        SwitchRow(c, "Auto-start on watch", settings.watchAutoStart) { onUpdate { s -> s.copy(watchAutoStart = it) } }
+                        Note(c, "Apple Watch companion is planned; Wear OS / Garmin pairs with Android only.")
+                    }
+                }.let { /* exhaustive: a new SettingsSectionId without a branch fails to compile here */ }
             }
 
             Spacer(Modifier.height(10.dp))

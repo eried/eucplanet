@@ -604,49 +604,57 @@ fun SettingsScreen(
         stringResource(R.string.watch_show_speed_unit)
     ).joinToString(" ")
 
-    val sections: List<SectionDef> = listOf(
-        SectionDef("general", titleGeneral, Icons.Default.Tune, corpusGeneral) {
-            GeneralTab(settings, viewModel, scrollToBattery) { y ->
-                if (targetSectionTop == null) targetSectionTop = y
+    // The set + order of sections is shared with the iOS app via
+    // SettingsSectionId (in :shared), so the two can't drift: the list is built
+    // by mapping every shared id to its Android SectionDef through an exhaustive
+    // `when`. Add an id in :shared and this stops compiling until it's handled
+    // here. The section *bodies* stay Android-specific (Hilt view-models, Room,
+    // WorkManager, R.string) — only the structure is the single source of truth.
+    val sections: List<SectionDef> = SettingsSectionId.entries.map { id ->
+        when (id) {
+            SettingsSectionId.General -> SectionDef("general", titleGeneral, Icons.Default.Tune, corpusGeneral) {
+                GeneralTab(settings, viewModel, scrollToBattery) { y ->
+                    if (targetSectionTop == null) targetSectionTop = y
+                }
             }
-        },
-        SectionDef("dashboard", titleDashboard, Icons.Default.Dashboard, corpusDashboard) {
-            DashboardLayoutTab(settings, viewModel)
-        },
-        SectionDef("display", titleDisplay, Icons.Default.DisplaySettings, corpusDisplay) {
-            DisplayTab(settings, viewModel)
-        },
-        SectionDef("speed", titleSpeed, Icons.Default.Speed, corpusSpeed) {
-            SpeedTab(settings, maxSpeedCap, isConnected, viewModel)
-        },
-        SectionDef("voice", titleVoice, Icons.Default.RecordVoiceOver, corpusVoice) {
-            VoiceTab(settings, viewModel)
-        },
-        SectionDef("motor", titleMotor, Icons.Default.Motorcycle, corpusMotor) {
-            EngineSoundSection(settings, viewModel, engineParked)
-        },
-        SectionDef("cloud", titleCloud, Icons.Default.Archive, corpusCloud) {
-            CloudTab(settings, viewModel, snackbar, snackbarScope)
-        },
-        SectionDef("alarms", titleAlarms, Icons.Default.NotificationsActive, corpusAlarms) {
-            AlarmSettingsContent()
-        },
-        SectionDef("auto", titleAuto, Icons.Default.AutoAwesome, corpusAuto) {
-            AutomationsContent()
-        },
-        SectionDef("navigator", titleNavigator, Icons.Default.Navigation, corpusNavigator) {
-            NavigatorSettingsContent()
-        },
-        SectionDef("location", titleGpsSensors, Icons.Default.Sensors, corpusGpsSensors) {
-            ExternalGpsSection()
-        },
-        SectionDef("integration", titleIntegration, Icons.Default.Extension, corpusIntegration) {
-            FlicTab()
-        },
-        SectionDef("watch", titleWatch, Icons.Default.Watch, corpusWatch) {
-            WatchTab(settings, viewModel)
+            SettingsSectionId.Dashboard -> SectionDef("dashboard", titleDashboard, Icons.Default.Dashboard, corpusDashboard) {
+                DashboardLayoutTab(settings, viewModel)
+            }
+            SettingsSectionId.Display -> SectionDef("display", titleDisplay, Icons.Default.DisplaySettings, corpusDisplay) {
+                DisplayTab(settings, viewModel)
+            }
+            SettingsSectionId.Speed -> SectionDef("speed", titleSpeed, Icons.Default.Speed, corpusSpeed) {
+                SpeedTab(settings, maxSpeedCap, isConnected, viewModel)
+            }
+            SettingsSectionId.Voice -> SectionDef("voice", titleVoice, Icons.Default.RecordVoiceOver, corpusVoice) {
+                VoiceTab(settings, viewModel)
+            }
+            SettingsSectionId.Motor -> SectionDef("motor", titleMotor, Icons.Default.Motorcycle, corpusMotor) {
+                EngineSoundSection(settings, viewModel, engineParked)
+            }
+            SettingsSectionId.Cloud -> SectionDef("cloud", titleCloud, Icons.Default.Archive, corpusCloud) {
+                CloudTab(settings, viewModel, snackbar, snackbarScope)
+            }
+            SettingsSectionId.Alarms -> SectionDef("alarms", titleAlarms, Icons.Default.NotificationsActive, corpusAlarms) {
+                AlarmSettingsContent()
+            }
+            SettingsSectionId.Automations -> SectionDef("auto", titleAuto, Icons.Default.AutoAwesome, corpusAuto) {
+                AutomationsContent()
+            }
+            SettingsSectionId.Navigator -> SectionDef("navigator", titleNavigator, Icons.Default.Navigation, corpusNavigator) {
+                NavigatorSettingsContent()
+            }
+            SettingsSectionId.Location -> SectionDef("location", titleGpsSensors, Icons.Default.Sensors, corpusGpsSensors) {
+                ExternalGpsSection()
+            }
+            SettingsSectionId.Integration -> SectionDef("integration", titleIntegration, Icons.Default.Extension, corpusIntegration) {
+                FlicTab()
+            }
+            SettingsSectionId.Watch -> SectionDef("watch", titleWatch, Icons.Default.Watch, corpusWatch) {
+                WatchTab(settings, viewModel)
+            }
         }
-    )
+    }
 
     Scaffold(
         topBar = {
