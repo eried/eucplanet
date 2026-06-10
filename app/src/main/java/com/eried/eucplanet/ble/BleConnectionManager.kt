@@ -393,7 +393,7 @@ class BleConnectionManager @Inject constructor(
             writeReady = true
             _connectionState.value = ConnectionState.CONNECTED
             com.eried.eucplanet.diagnostics.DiagnosticsLogger.note(
-                "Connected (virtual): name=${currentName ?: "(none)"} adapter=${wheelAdapter.familyId}"
+                "Connected (virtual): name=${currentName ?: "(none)"} adapter=${wheelAdapter.familyDisplayName}"
             )
         }
 
@@ -623,14 +623,14 @@ class BleConnectionManager @Inject constructor(
                 // as `RW` or similar). Ask the dispatcher to re-route based
                 // on the GATT-discovered service set, then retry.
                 val discoveredUuids = gatt.services.map { it.uuid }.toSet()
-                Log.w(TAG, "Adapter ${wheelAdapter.familyId} service ${profile.serviceUuid} not on wheel; " +
+                Log.w(TAG, "Adapter ${wheelAdapter.familyDisplayName} service ${profile.serviceUuid} not on wheel; " +
                         "discovered services=$discoveredUuids - attempting fallback")
                 val rerouted = wheelAdapter.pickAdapterByDiscoveredServices(discoveredUuids, currentName)
                 if (rerouted) {
                     profile = wheelAdapter.bleProfile()
                     service = gatt.getService(profile.serviceUuid)
                     if (service != null) {
-                        Log.i(TAG, "Adapter rerouted by service-UUID to ${wheelAdapter.familyId}")
+                        Log.i(TAG, "Adapter rerouted by service-UUID to ${wheelAdapter.familyDisplayName}")
                         _connectedBrand.value = wheelAdapter.brand
                     }
                 }
@@ -659,7 +659,7 @@ class BleConnectionManager @Inject constructor(
             // started after a manual write nudged the stack into settling the
             // CCCD ~30 s after connect.)
             gatt.setCharacteristicNotification(txCharacteristic, true)
-            Log.i(TAG, "Service ${profile.serviceUuid} ready (adapter=${wheelAdapter.familyId})")
+            Log.i(TAG, "Service ${profile.serviceUuid} ready (adapter=${wheelAdapter.familyDisplayName})")
             val descriptor = txCharacteristic.getDescriptor(CCCD_UUID)
             if (descriptor != null) {
                 writeEnableNotificationDescriptor(gatt, descriptor)
@@ -783,9 +783,9 @@ class BleConnectionManager @Inject constructor(
         if (_connectionState.value != ConnectionState.INITIALIZING) return
         writeReady = true
         _connectionState.value = ConnectionState.CONNECTED
-        Log.i(TAG, "Connected (adapter=${wheelAdapter.familyId})")
+        Log.i(TAG, "Connected (adapter=${wheelAdapter.familyDisplayName})")
         com.eried.eucplanet.diagnostics.DiagnosticsLogger.note(
-            "Connected: name=${currentName ?: "(unknown)"} adapter=${wheelAdapter.familyId}"
+            "Connected: name=${currentName ?: "(unknown)"} adapter=${wheelAdapter.familyDisplayName}"
         )
         // Fire-and-forget MTU bump. Has to happen AFTER the CCCD descriptor
         // write completes - Android GATT is strictly serial and overlapping

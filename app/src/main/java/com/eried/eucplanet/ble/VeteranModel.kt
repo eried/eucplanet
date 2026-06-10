@@ -15,28 +15,28 @@ enum class VeteranModel(
     val maxSpeedKmh: Int
 ) {
     // mVer 0/1: Sherman, 100 V curve.
-    SHERMAN(       "Veteran Sherman",      100,  65),
+    SHERMAN(       "Leaperkim Sherman",      100,  65),
     // mVer 2: Abrams shares the Sherman 100 V curve. An earlier 168 V
     // tag here routed Abrams through the wrong scaler and showed a
     // flat 100 % battery to riders.
-    ABRAMS(        "Veteran Abrams",       100, 120),
+    ABRAMS(        "Leaperkim Abrams",       100, 120),
     // mVer 3: Sherman S still sits in the <4 / 100 V battery family.
-    SHERMAN_S(     "Veteran Sherman S",    134, 100),
+    SHERMAN_S(     "Leaperkim Sherman S",    134, 100),
     // Retained for backward compatibility with existing settings;
     // treated as Sherman at runtime.
-    SHERMAN_MAX(   "Veteran Sherman Max",  134, 100),
+    SHERMAN_MAX(   "Leaperkim Sherman Max",  134, 100),
     // mVer 4 / 7 / 43: Patton family (134 V curve)
-    PATTON(        "Veteran Patton",       134, 110),
-    PATTON_S(      "Veteran Patton S",     134, 110),
-    NOSFET_AERO(   "Veteran Nosfet Aero",  134, 110),
+    PATTON(        "Leaperkim Patton",       134, 110),
+    PATTON_S(      "Leaperkim Patton S",     134, 110),
+    NOSFET_AERO(   "Leaperkim Nosfet Aero",  134, 110),
     // mVer 5 / 6 / 9 / 42 / 44: Lynx / Sherman L / Nosfet (151 V curve)
-    LYNX(          "Veteran Lynx",         151, 120),
-    LYNX_S(        "Veteran Lynx S",       151, 120),
-    SHERMAN_L(     "Veteran Sherman L",    151, 120),
-    NOSFET_APEX(   "Veteran Nosfet Apex",  151, 120),
-    NOSFET_AEON(   "Veteran Nosfet Aeon",  151, 120),
+    LYNX(          "Leaperkim Lynx",         151, 120),
+    LYNX_S(        "Leaperkim Lynx S",       151, 120),
+    SHERMAN_L(     "Leaperkim Sherman L",    151, 120),
+    NOSFET_APEX(   "Leaperkim Nosfet Apex",  151, 120),
+    NOSFET_AEON(   "Leaperkim Nosfet Aeon",  151, 120),
     // mVer 8: Oryx, 42-cell ~175 V pack
-    ORYX(          "Veteran Oryx",         175, 130);
+    ORYX(          "Leaperkim Oryx",         175, 130);
 
     companion object {
         fun fromReportedName(name: String): VeteranModel? {

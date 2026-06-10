@@ -262,7 +262,12 @@ interface WheelAdapter {
     val brand: String get() = when (familyId) {
         "begode" -> "Begode"
         "kingsong" -> "KingSong"
-        "veteran" -> "Veteran"
+        // Internal familyId is the legacy "veteran" string (kept for stored
+        // profiles / custom commands / settings). The brand on the chassis,
+        // packaging and distributor pages is Leaperkim (Guangzhou Veteran
+        // Intelligent Technology Co.); Veteran was just the original
+        // product line.
+        "veteran" -> "Leaperkim"
         "ninebot" -> "Ninebot"
         "inmotion_v1", "inmotion_v2" -> "InMotion"
         else -> familyDisplayName

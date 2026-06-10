@@ -27,7 +27,9 @@ import javax.inject.Singleton
 @Singleton
 class VeteranAdapter @Inject constructor() : WheelAdapter {
     override val familyId = "veteran"
-    override val familyDisplayName = "Veteran"
+    // Internal id stays "veteran" so existing stored profiles / custom
+    // commands keep working; user-visible label is the actual brand.
+    override val familyDisplayName = "Leaperkim"
     override val capabilities = WheelCapabilities.VETERAN
 
     @Volatile private var detectedModel: VeteranModel? = null
