@@ -174,6 +174,10 @@ fun App() {
         val alarms = activeAlarms(current, settings)
 
         fun ttsRate() = 0.3f + (settings.speechRate / 100f) * 0.3f
+        // Auto-volume ramp: announcements get quieter when slow, full by ~40 km/h
+        // when the Automations toggle is on; otherwise always full. (iOS controls
+        // the AVSpeechUtterance volume — system media volume isn't app-settable.)
+        fun ttsVolume() = if (settings.autoVolume) (0.6f + 0.4f * (current.speed / 40f)).coerceIn(0.6f, 1f) else 1f
         fun announce() {
             if (!settings.ttsEnabled) return
             val parts = mutableListOf<String>()
@@ -182,6 +186,7 @@ fun App() {
             if (settings.announceTemp) parts += "Temperature ${UnitFormat.temperature(current.maxTemperature, settings.unitTemp).roundToInt()} degrees"
             if (parts.isEmpty()) parts += "Speed ${UnitFormat.speed(current.speed, settings.unitSpeed).roundToInt()}"
             speaker.rate = ttsRate()
+            speaker.volume = ttsVolume()
             speaker.speak(parts.joinToString(", "))
         }
 
@@ -200,6 +205,7 @@ fun App() {
             }
             if (enabled) {
                 speaker.rate = ttsRate()
+                speaker.volume = ttsVolume()
                 speaker.speak(phrase)
             }
         }
@@ -212,6 +218,7 @@ fun App() {
                 if (settings.ttsEnabled) {
                     speaker.stop() // interrupt any in-flight/queued utterance
                     speaker.rate = ttsRate()
+                    speaker.volume = 1f // alarms always at full volume, ignoring the auto-volume ramp
                     speaker.speak("Warning, " + alarms.joinToString(", ") { it.label })
                 }
             }

@@ -7,6 +7,7 @@ package com.eried.eucplanet.audio
  */
 private class NoopSpeaker : Speaker {
     override var rate: Float = 0.5f
+    override var volume: Float = 1f
     override fun speak(text: String) {}
     override fun stop() {}
 }

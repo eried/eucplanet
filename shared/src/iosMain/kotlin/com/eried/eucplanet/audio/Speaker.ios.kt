@@ -8,11 +8,13 @@ import platform.AVFAudio.AVSpeechUtterance
 private class IosSpeaker : Speaker {
     private val synth = AVSpeechSynthesizer()
     override var rate: Float = 0.5f
+    override var volume: Float = 1f
 
     override fun speak(text: String) {
         if (text.isBlank()) return
         val utterance = AVSpeechUtterance(string = text)
         utterance.rate = rate.coerceIn(0f, 1f)
+        utterance.volume = volume.coerceIn(0f, 1f)
         synth.speakUtterance(utterance)
     }
 
