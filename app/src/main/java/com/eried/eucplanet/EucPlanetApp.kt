@@ -3,6 +3,7 @@ package com.eried.eucplanet
 import android.app.Application
 import androidx.hilt.work.HiltWorkerFactory
 import androidx.work.Configuration
+import com.eried.eucplanet.di.KoinInitializer
 import com.eried.eucplanet.flic.FlicManager
 import com.eried.eucplanet.garmin.GarminBridge
 import com.eried.eucplanet.diagnostics.DiagnosticsLogger
@@ -26,6 +27,9 @@ class EucPlanetApp : Application(), Configuration.Provider {
             .build()
 
     override fun onCreate() {
+        // Stand up the shared Koin graph BEFORE super.onCreate() so any Hilt
+        // @Provides that delegate to Koin can resolve during field injection.
+        KoinInitializer.start()
         super.onCreate()
         SharedDiagnostics.handler = DiagnosticsLogger::note
         CrashHandler.install(this)

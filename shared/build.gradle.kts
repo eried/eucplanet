@@ -39,6 +39,7 @@ kotlin {
             implementation(compose.material3)
             implementation(compose.ui)
             implementation(libs.coroutines.core)
+            implementation(libs.koin.core)
         }
         commonTest.dependencies {
             implementation(kotlin("test"))

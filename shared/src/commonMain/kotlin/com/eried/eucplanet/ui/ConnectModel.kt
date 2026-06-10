@@ -3,12 +3,14 @@ package com.eried.eucplanet.ui
 import com.eried.eucplanet.ble.CompositeWheelAdapter
 import com.eried.eucplanet.ble.WheelSession
 import com.eried.eucplanet.ble.transport.BleDevice
-import com.eried.eucplanet.ble.transport.createBleTransport
+import com.eried.eucplanet.ble.transport.BleTransport
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 
 /**
  * Backs the Connect screen: owns the platform [createBleTransport], runs a scan,
@@ -17,8 +19,8 @@ import kotlinx.coroutines.launch
  * wheels instead; on a real iPhone it fills with nearby wheels and tapping one
  * opens a live [WheelSession].
  */
-class ConnectModel(private val scope: CoroutineScope) {
-    private val transport = createBleTransport()
+class ConnectModel(private val scope: CoroutineScope) : KoinComponent {
+    private val transport: BleTransport by inject()
 
     private val _devices = MutableStateFlow<List<BleDevice>>(emptyList())
     val devices: StateFlow<List<BleDevice>> = _devices.asStateFlow()

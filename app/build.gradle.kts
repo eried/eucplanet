@@ -231,6 +231,10 @@ dependencies {
     ksp(libs.hilt.compiler)
     implementation(libs.hilt.navigation.compose)
 
+    // Koin (alongside Hilt during the strangler migration; :shared owns the
+    // common DI graph and :app's v1 @Provides delegate to it).
+    implementation(libs.koin.android)
+
     // Coroutines
     implementation(libs.coroutines.core)
     implementation(libs.coroutines.android)
