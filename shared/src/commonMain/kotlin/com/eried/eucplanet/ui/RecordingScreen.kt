@@ -32,6 +32,7 @@ import androidx.compose.ui.unit.sp
 import com.eried.eucplanet.data.model.TripSummary
 import com.eried.eucplanet.ui.theme.AppThemeColors
 import com.eried.eucplanet.ui.theme.appColors
+import com.eried.eucplanet.util.UnitFormat
 
 /**
  * Shared Recording (trip history) screen — a port of the Android RecordingScreen:
@@ -39,7 +40,13 @@ import com.eried.eucplanet.ui.theme.appColors
  * sync status, plus an empty state. Trips come from the [com.eried.eucplanet.data.TripRecorder].
  */
 @Composable
-internal fun RecordingScreen(trips: List<TripSummary>, onOpen: (TripSummary) -> Unit, onBack: () -> Unit) {
+internal fun RecordingScreen(
+    trips: List<TripSummary>,
+    unitSpeed: String,
+    unitDistance: String,
+    onOpen: (TripSummary) -> Unit,
+    onBack: () -> Unit,
+) {
     val c = MaterialTheme.appColors
     Column(Modifier.fillMaxSize().background(c.appBackground)) {
         ScreenTopBar(c, "Recordings", onBack)
@@ -56,7 +63,7 @@ internal fun RecordingScreen(trips: List<TripSummary>, onOpen: (TripSummary) -> 
         } else {
             Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(horizontal = 12.dp, vertical = 8.dp)) {
                 trips.forEach { t ->
-                    TripCard(c, t) { onOpen(t) }
+                    TripCard(c, t, unitSpeed, unitDistance) { onOpen(t) }
                     Spacer(Modifier.height(8.dp))
                 }
                 Spacer(Modifier.height(8.dp))
@@ -71,7 +78,7 @@ internal fun RecordingScreen(trips: List<TripSummary>, onOpen: (TripSummary) -> 
 }
 
 @Composable
-private fun TripCard(c: AppThemeColors, t: TripSummary, onClick: () -> Unit) {
+private fun TripCard(c: AppThemeColors, t: TripSummary, unitSpeed: String, unitDistance: String, onClick: () -> Unit) {
     Column(
         Modifier.fillMaxWidth().clip(RoundedCornerShape(12.dp)).background(c.surface)
             .clickable { onClick() }.padding(16.dp),
@@ -88,10 +95,10 @@ private fun TripCard(c: AppThemeColors, t: TripSummary, onClick: () -> Unit) {
         }
         Spacer(Modifier.height(10.dp))
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-            TripStat(c, "DIST", "${t.distanceKm.f1()} km", c.metricBattery)
+            TripStat(c, "DIST", "${UnitFormat.distance(t.distanceKm, unitDistance).f1()} ${UnitFormat.distanceLabel(unitDistance)}", c.metricBattery)
             TripStat(c, "TIME", "${t.durationMin} min", c.textPrimary)
-            TripStat(c, "AVG", "${t.avgKmh.f0()} km/h", c.metricVoltage)
-            TripStat(c, "MAX", "${t.maxKmh.f1()} km/h", c.gaugeWarn)
+            TripStat(c, "AVG", "${UnitFormat.speed(t.avgKmh, unitSpeed).f0()} ${UnitFormat.speedLabel(unitSpeed)}", c.metricVoltage)
+            TripStat(c, "MAX", "${UnitFormat.speed(t.maxKmh, unitSpeed).f1()} ${UnitFormat.speedLabel(unitSpeed)}", c.gaugeWarn)
         }
     }
 }
@@ -110,25 +117,25 @@ private fun TripStat(c: AppThemeColors, label: String, value: String, color: Col
  * stats + speed/voltage history graphs (for in-app recorded rides) + GPS/sync/CSV.
  */
 @Composable
-internal fun TripDetailScreen(trip: TripSummary, onBack: () -> Unit) {
+internal fun TripDetailScreen(trip: TripSummary, unitSpeed: String, unitDistance: String, onBack: () -> Unit) {
     val c = MaterialTheme.appColors
     Column(Modifier.fillMaxSize().background(c.appBackground)) {
         ScreenTopBar(c, trip.date, onBack)
         Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp)) {
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                BigStat(c, "DISTANCE", "${trip.distanceKm.f1()} km", c.metricBattery)
+                BigStat(c, "DISTANCE", "${UnitFormat.distance(trip.distanceKm, unitDistance).f1()} ${UnitFormat.distanceLabel(unitDistance)}", c.metricBattery)
                 BigStat(c, "DURATION", "${trip.durationMin} min", c.textPrimary)
             }
             Spacer(Modifier.height(18.dp))
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                BigStat(c, "AVG SPEED", "${trip.avgKmh.f0()} km/h", c.metricVoltage)
-                BigStat(c, "MAX SPEED", "${trip.maxKmh.f1()} km/h", c.gaugeWarn)
+                BigStat(c, "AVG SPEED", "${UnitFormat.speed(trip.avgKmh, unitSpeed).f0()} ${UnitFormat.speedLabel(unitSpeed)}", c.metricVoltage)
+                BigStat(c, "MAX SPEED", "${UnitFormat.speed(trip.maxKmh, unitSpeed).f1()} ${UnitFormat.speedLabel(unitSpeed)}", c.gaugeWarn)
             }
             Spacer(Modifier.height(20.dp))
             if (trip.samples.size >= 2) {
-                Text("SPEED (km/h)", color = c.sectionHeader, fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                Text("SPEED (${UnitFormat.speedLabel(unitSpeed)})", color = c.sectionHeader, fontSize = 11.sp, fontWeight = FontWeight.Bold)
                 Spacer(Modifier.height(6.dp))
-                TripGraph(trip.samples.map { it.speed }, c.metricBattery, c, Modifier.fillMaxWidth().height(130.dp))
+                TripGraph(trip.samples.map { UnitFormat.speed(it.speed, unitSpeed) }, c.metricBattery, c, Modifier.fillMaxWidth().height(130.dp))
                 Spacer(Modifier.height(16.dp))
                 Text("VOLTAGE (V)", color = c.sectionHeader, fontSize = 11.sp, fontWeight = FontWeight.Bold)
                 Spacer(Modifier.height(6.dp))

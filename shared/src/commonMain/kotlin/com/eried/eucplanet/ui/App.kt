@@ -245,9 +245,15 @@ fun App() {
                 route == Route.Recording -> {
                     val st = selectedTrip
                     if (st != null) {
-                        TripDetailScreen(st, onBack = { selectedTrip = null })
+                        TripDetailScreen(st, unitSpeed = settings.unitSpeed, unitDistance = settings.unitDistance, onBack = { selectedTrip = null })
                     } else {
-                        RecordingScreen(trips = trips, onOpen = { selectedTrip = it }, onBack = { route = Route.Dashboard })
+                        RecordingScreen(
+                            trips = trips,
+                            unitSpeed = settings.unitSpeed,
+                            unitDistance = settings.unitDistance,
+                            onOpen = { selectedTrip = it },
+                            onBack = { route = Route.Dashboard },
+                        )
                     }
                 }
                 route == Route.ServiceMode -> ServiceModeScreen(
