@@ -46,6 +46,21 @@ Gradle. Manual framework builds if needed:
 - Device framework: `./gradlew :shared:linkDebugFrameworkIosArm64`
 - Simulator framework: `./gradlew :shared:linkDebugFrameworkIosSimulatorArm64`
 
+## One-command deploy (after the one-time setup)
+
+Once your Apple ID is in Xcode and the iPhone is paired, you don't need the Xcode
+GUI each time — there's a script:
+
+```sh
+TEAM=<YOURTEAMID> bash iosApp/deploy-device.sh
+```
+
+It finds the paired device, builds + signs (`xcodebuild -allowProvisioningUpdates`,
+which auto-creates the provisioning profile), and installs via `devicectl` (USB or
+wifi). Your Team ID is in Xcode → Settings → Accounts, or the `(TEAMID)` suffix from
+`security find-identity -v -p codesigning`. I can run this for you over SSH once the
+prerequisites exist.
+
 ## Notes / gotchas
 
 - **Free provisioning expires after 7 days** — the app stops launching and you
