@@ -264,10 +264,12 @@ private fun IconBtn(icon: ImageVector, desc: String, tint: Color, onClick: () ->
 @Composable
 private fun MetricTile(c: AppThemeColors, m: Metric, d: WheelData, history: List<WheelData>, onClick: () -> Unit) {
     val color = m.color(c)
+    val series = history.map { m.value(it) }
+    val mx = series.maxOrNull()
+    val mn = series.minOrNull()
     Box(
         Modifier.fillMaxWidth().height(64.dp).clip(RoundedCornerShape(10.dp)).background(c.tileBackground).clickable { onClick() },
     ) {
-        val series = history.map { m.value(it) }
         if (series.size >= 2) {
             Sparkline(series, color.copy(alpha = 0.35f), Modifier.fillMaxSize().padding(top = 22.dp))
         }
@@ -275,6 +277,17 @@ private fun MetricTile(c: AppThemeColors, m: Metric, d: WheelData, history: List
             m.label, color = c.tileLabel, fontSize = 10.sp, fontWeight = FontWeight.Medium,
             modifier = Modifier.align(Alignment.TopStart).padding(start = 10.dp, top = 7.dp),
         )
+        // MIN/MAX corner stats over the visible history, like the Android tiles.
+        if (mx != null && mn != null && series.size >= 3) {
+            Text(
+                "max ${statText(mx, m.unit)}", color = c.cornerStatLabel, fontSize = 9.sp,
+                modifier = Modifier.align(Alignment.TopEnd).padding(end = 8.dp, top = 7.dp),
+            )
+            Text(
+                "min ${statText(mn, m.unit)}", color = c.cornerStatLabel, fontSize = 9.sp,
+                modifier = Modifier.align(Alignment.BottomEnd).padding(end = 8.dp, bottom = 8.dp),
+            )
+        }
         Row(
             Modifier.align(Alignment.BottomStart).padding(start = 10.dp, bottom = 7.dp),
             verticalAlignment = Alignment.Bottom,
@@ -285,6 +298,8 @@ private fun MetricTile(c: AppThemeColors, m: Metric, d: WheelData, history: List
         }
     }
 }
+
+private fun statText(v: Float, unit: String): String = if (unit == "%" || unit == "°C") v.f0() else v.f1()
 
 @Composable
 private fun ActionButton(
