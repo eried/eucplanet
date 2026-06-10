@@ -1,5 +1,6 @@
 package com.eried.eucplanet.ui
 
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -20,6 +21,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -33,7 +39,7 @@ import com.eried.eucplanet.ui.theme.appColors
  * sync status, plus an empty state. Trips come from the [com.eried.eucplanet.data.TripRecorder].
  */
 @Composable
-internal fun RecordingScreen(trips: List<TripSummary>, onBack: () -> Unit) {
+internal fun RecordingScreen(trips: List<TripSummary>, onOpen: (TripSummary) -> Unit, onBack: () -> Unit) {
     val c = MaterialTheme.appColors
     Column(Modifier.fillMaxSize().background(c.appBackground)) {
         ScreenTopBar(c, "Recordings", onBack)
@@ -50,12 +56,12 @@ internal fun RecordingScreen(trips: List<TripSummary>, onBack: () -> Unit) {
         } else {
             Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(horizontal = 12.dp, vertical = 8.dp)) {
                 trips.forEach { t ->
-                    TripCard(c, t)
+                    TripCard(c, t) { onOpen(t) }
                     Spacer(Modifier.height(8.dp))
                 }
                 Spacer(Modifier.height(8.dp))
                 Text(
-                    "Trip CSV export (DarknessBot-compatible) lands with the storage actuals.",
+                    "Tap a trip for detail. Recorded trips export a DarknessBot-compatible CSV to the app's Documents folder.",
                     color = c.textDisabled, fontSize = 10.sp,
                 )
                 Spacer(Modifier.height(16.dp))
@@ -65,10 +71,10 @@ internal fun RecordingScreen(trips: List<TripSummary>, onBack: () -> Unit) {
 }
 
 @Composable
-private fun TripCard(c: AppThemeColors, t: TripSummary) {
+private fun TripCard(c: AppThemeColors, t: TripSummary, onClick: () -> Unit) {
     Column(
         Modifier.fillMaxWidth().clip(RoundedCornerShape(12.dp)).background(c.surface)
-            .clickable { }.padding(16.dp),
+            .clickable { onClick() }.padding(16.dp),
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Text(t.date, color = c.textPrimary, fontSize = 15.sp, fontWeight = FontWeight.SemiBold, modifier = Modifier.weight(1f))
@@ -91,10 +97,91 @@ private fun TripCard(c: AppThemeColors, t: TripSummary) {
 }
 
 @Composable
-private fun TripStat(c: AppThemeColors, label: String, value: String, color: androidx.compose.ui.graphics.Color) {
+private fun TripStat(c: AppThemeColors, label: String, value: String, color: Color) {
     Column(horizontalAlignment = Alignment.Start) {
         Text(label, color = c.cornerStatLabel, fontSize = 9.sp, fontWeight = FontWeight.Medium)
         Spacer(Modifier.height(2.dp))
         Text(value, color = color, fontSize = 14.sp, fontWeight = FontWeight.Bold)
+    }
+}
+
+/**
+ * Shared trip-detail screen — a port of the Android TripDetailScreen: big trip
+ * stats + speed/voltage history graphs (for in-app recorded rides) + GPS/sync/CSV.
+ */
+@Composable
+internal fun TripDetailScreen(trip: TripSummary, onBack: () -> Unit) {
+    val c = MaterialTheme.appColors
+    Column(Modifier.fillMaxSize().background(c.appBackground)) {
+        ScreenTopBar(c, trip.date, onBack)
+        Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp)) {
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                BigStat(c, "DISTANCE", "${trip.distanceKm.f1()} km", c.metricBattery)
+                BigStat(c, "DURATION", "${trip.durationMin} min", c.textPrimary)
+            }
+            Spacer(Modifier.height(18.dp))
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                BigStat(c, "AVG SPEED", "${trip.avgKmh.f0()} km/h", c.metricVoltage)
+                BigStat(c, "MAX SPEED", "${trip.maxKmh.f1()} km/h", c.gaugeWarn)
+            }
+            Spacer(Modifier.height(20.dp))
+            if (trip.samples.size >= 2) {
+                Text("SPEED (km/h)", color = c.sectionHeader, fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                Spacer(Modifier.height(6.dp))
+                TripGraph(trip.samples.map { it.speed }, c.metricBattery, c, Modifier.fillMaxWidth().height(130.dp))
+                Spacer(Modifier.height(16.dp))
+                Text("VOLTAGE (V)", color = c.sectionHeader, fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                Spacer(Modifier.height(6.dp))
+                TripGraph(trip.samples.map { it.voltage }, c.metricVoltage, c, Modifier.fillMaxWidth().height(110.dp))
+            } else {
+                Text("Per-sample graphs are available for rides recorded in-app (tap REC on the dashboard).", color = c.textDisabled, fontSize = 12.sp)
+            }
+            Spacer(Modifier.height(20.dp))
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(if (trip.gpsLock) "GPS lock" else "no GPS", color = if (trip.gpsLock) c.statusGood else c.textDisabled, fontSize = 11.sp)
+                Spacer(Modifier.width(12.dp))
+                Text(if (trip.synced) "☁ synced" else "☁ local", color = if (trip.synced) c.primary else c.textDisabled, fontSize = 11.sp)
+            }
+            if (trip.csvPath != null) {
+                Spacer(Modifier.height(8.dp))
+                Text("CSV: ${trip.csvPath}", color = c.textDisabled, fontSize = 10.sp)
+            }
+            Spacer(Modifier.height(24.dp))
+        }
+    }
+}
+
+@Composable
+private fun BigStat(c: AppThemeColors, label: String, value: String, color: Color) {
+    Column(horizontalAlignment = Alignment.Start) {
+        Text(label, color = c.cornerStatLabel, fontSize = 10.sp, fontWeight = FontWeight.Medium)
+        Spacer(Modifier.height(3.dp))
+        Text(value, color = color, fontSize = 24.sp, fontWeight = FontWeight.Bold)
+    }
+}
+
+@Composable
+private fun TripGraph(series: List<Float>, color: Color, c: AppThemeColors, modifier: Modifier) {
+    Canvas(modifier) {
+        if (series.size < 2) return@Canvas
+        val lo = series.minOrNull() ?: 0f
+        val hi = series.maxOrNull() ?: 0f
+        val span = (hi - lo).takeIf { it > 0.0001f } ?: 1f
+        val dx = size.width / (series.size - 1)
+        fun yOf(v: Float) = size.height - ((v - lo) / span) * size.height
+        drawLine(c.outline, Offset(0f, size.height), Offset(size.width, size.height), strokeWidth = 1f)
+        val line = Path()
+        val area = Path()
+        area.moveTo(0f, size.height)
+        series.forEachIndexed { i, v ->
+            val x = dx * i
+            val y = yOf(v)
+            if (i == 0) line.moveTo(x, y) else line.lineTo(x, y)
+            area.lineTo(x, y)
+        }
+        area.lineTo(size.width, size.height)
+        area.close()
+        drawPath(area, color.copy(alpha = 0.18f))
+        drawPath(line, color, style = Stroke(width = 3f, cap = StrokeCap.Round))
     }
 }

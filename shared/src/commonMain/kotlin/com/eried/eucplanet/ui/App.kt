@@ -53,6 +53,7 @@ import com.eried.eucplanet.data.RideAlarm
 import com.eried.eucplanet.data.SettingsStore
 import com.eried.eucplanet.data.TripRecorder
 import com.eried.eucplanet.data.activeAlarms
+import com.eried.eucplanet.data.model.TripSummary
 import com.eried.eucplanet.data.model.WheelData
 import com.eried.eucplanet.ui.theme.BuiltInThemes
 import com.eried.eucplanet.ui.theme.EucPlanetTheme
@@ -120,6 +121,7 @@ fun App() {
         var error by remember { mutableStateOf<String?>(null) }
         var route by remember { mutableStateOf(Route.Dashboard) }
         var selectedMetric by remember { mutableStateOf<String?>(null) }
+        var selectedTrip by remember { mutableStateOf<TripSummary?>(null) }
 
         // Screenshot harness: EUC_DEMO_SCREEN auto-opens a demo ride on a screen
         // (see debugStartScreen). Unset in normal use → Scan-first flow.
@@ -132,6 +134,17 @@ fun App() {
                 "recording", "recordings" -> route = Route.Recording
                 "servicemode", "service" -> route = Route.ServiceMode
                 "metric", "metricdetail" -> { route = Route.Dashboard; selectedMetric = "voltage" }
+                "tripdetail", "trip" -> {
+                    val s = (0 until 48).map { i ->
+                        WheelData(
+                            speed = 18f + 12f * kotlin.math.sin(i * 0.25).toFloat(),
+                            voltage = 92f + 3f * kotlin.math.sin(i * 0.18).toFloat(),
+                            timestamp = i * 1000L,
+                        )
+                    }
+                    selectedTrip = TripSummary("Demo ride · just now", 12.4f, 31, 24.1f, 41.6f, gpsLock = true, synced = false, csvPath = "Documents/euc_trip_1.csv", samples = s)
+                    route = Route.Recording
+                }
                 else -> route = Route.Dashboard
             }
         }
@@ -184,6 +197,7 @@ fun App() {
             demoModel = null
             demoWheel = null
             selectedMetric = null
+            selectedTrip = null
             route = Route.Dashboard
         }
 
@@ -226,7 +240,14 @@ fun App() {
                     onServiceMode = { route = Route.ServiceMode },
                     onBack = { route = Route.Dashboard },
                 )
-                route == Route.Recording -> RecordingScreen(trips = trips, onBack = { route = Route.Dashboard })
+                route == Route.Recording -> {
+                    val st = selectedTrip
+                    if (st != null) {
+                        TripDetailScreen(st, onBack = { selectedTrip = null })
+                    } else {
+                        RecordingScreen(trips = trips, onOpen = { selectedTrip = it }, onBack = { route = Route.Dashboard })
+                    }
+                }
                 route == Route.ServiceMode -> ServiceModeScreen(
                     connected = session != null,
                     onFire = { bytes -> session?.let { s -> scope.launch { s.sendRaw(bytes) } } },

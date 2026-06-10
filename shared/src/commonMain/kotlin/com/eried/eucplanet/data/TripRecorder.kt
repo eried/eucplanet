@@ -60,6 +60,7 @@ class TripRecorder(private val fileStore: FileStore = createFileStore()) {
             gpsLock = false,
             synced = false,
             csvPath = csvPath,
+            samples = samples.toList(),
         )
         _trips.value = listOf(trip) + _trips.value
         samples.clear()

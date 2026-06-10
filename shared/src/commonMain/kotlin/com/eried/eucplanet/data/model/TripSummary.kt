@@ -11,4 +11,6 @@ data class TripSummary(
     val synced: Boolean,
     /** Path of the exported DarknessBot-compatible CSV, or null (seed/unsaved). */
     val csvPath: String? = null,
+    /** Per-sample telemetry for the trip-detail graphs (empty for seed trips). */
+    val samples: List<WheelData> = emptyList(),
 )
