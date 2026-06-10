@@ -16,19 +16,27 @@
     <string>0.1</string>
     <key>CFBundlePackageType</key>
     <string>APPL</string>
+    <key>CFBundleInfoDictionaryVersion</key>
+    <string>6.0</string>
     <key>LSRequiresIPhoneOS</key>
     <true/>
     <key>MinimumOSVersion</key>
-    <string>14.0</string>
+    <string>15.0</string>
     <key>UILaunchScreen</key>
     <dict/>
-    <key>UIRequiredDeviceCapabilities</key>
+    <!-- Required by Compose Multiplatform (PlistSanityCheck aborts without it). -->
+    <key>CADisableMinimumFrameDurationOnPhone</key>
+    <true/>
+    <!-- Platform metadata so `simctl install` accepts the hand-built bundle. -->
+    <key>CFBundleSupportedPlatforms</key>
     <array>
-        <string>arm64</string>
+        <string>iPhoneSimulator</string>
     </array>
-    <key>UISupportedInterfaceOrientations</key>
+    <key>DTPlatformName</key>
+    <string>iphonesimulator</string>
+    <key>UIDeviceFamily</key>
     <array>
-        <string>UIInterfaceOrientationPortrait</string>
+        <integer>1</integer>
     </array>
 </dict>
 </plist>
