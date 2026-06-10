@@ -2,6 +2,7 @@ package com.eried.eucplanet.ui
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -19,6 +20,9 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Bluetooth
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -363,15 +367,36 @@ private fun WheelRow(
             .clip(RoundedCornerShape(14.dp))
             .background(c.tileBackground)
             .clickable { onClick() }
-            .padding(horizontal = 18.dp, vertical = 16.dp),
+            .padding(horizontal = 16.dp, vertical = 14.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
+        Icon(Icons.Filled.Bluetooth, contentDescription = "wheel", tint = c.primary, modifier = Modifier.size(20.dp))
+        Spacer(Modifier.width(12.dp))
         Column(Modifier.weight(1f)) {
             Text(name, color = c.textPrimary, fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
             Text(subtitle, color = c.textSecondary, fontSize = 12.sp)
         }
-        Text("$rssi dBm", color = c.textDisabled, fontSize = 12.sp)
-        Spacer(Modifier.width(12.dp))
+        SignalBars(c, rssi)
+        Spacer(Modifier.width(14.dp))
         Text("Connect ›", color = c.primary, fontSize = 14.sp, fontWeight = FontWeight.Medium)
+    }
+}
+
+@Composable
+private fun SignalBars(c: com.eried.eucplanet.ui.theme.AppThemeColors, rssi: Int) {
+    val level = when {
+        rssi >= -55 -> 4
+        rssi >= -65 -> 3
+        rssi >= -75 -> 2
+        else -> 1
+    }
+    Row(verticalAlignment = Alignment.Bottom, horizontalArrangement = Arrangement.spacedBy(2.dp)) {
+        for (i in 1..4) {
+            Box(
+                Modifier.width(4.dp).height((4 + i * 3).dp)
+                    .clip(RoundedCornerShape(1.dp))
+                    .background(if (i <= level) c.statusGood else c.surfaceVariant),
+            )
+        }
     }
 }
