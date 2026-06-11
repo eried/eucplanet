@@ -1257,6 +1257,12 @@ class WheelRepository @Inject constructor(
                 // canonical reference table.
                 val model = result.model as? com.eried.eucplanet.ble.InMotionV2Model
                 _maxSpeedCap.value = model?.maxSpeedKmh?.toFloat() ?: DEFAULT_MAX_SPEED_KMH
+                // Veteran-family brand is model-dependent (NOSFET vs
+                // LeaperKim). The initial brand at connect time was set
+                // pre-detection; pulse the connection manager so the
+                // dashboard / Settings / eucstats meta pick up the
+                // correct manufacturer.
+                bleManager.refreshBrand()
             }
             is DecodeResult.Firmware -> {
                 _firmwareVersion.value = result.display

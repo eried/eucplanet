@@ -41,6 +41,12 @@ class CompositeWheelAdapter @Inject constructor(
     )
 
     override val familyId: String get() = active.familyId
+    override val familyDisplayName: String get() = active.familyDisplayName
+    // Delegate `brand` to the active sub-adapter rather than letting the
+    // interface default resolve via familyId. Model-aware sub-adapters (e.g.
+    // VeteranAdapter, which switches between LeaperKim and NOSFET based on
+    // the detected model) rely on their own getter running.
+    override val brand: String get() = active.brand
     override val capabilities: WheelCapabilities get() = active.capabilities
 
     override fun bleProfile(): BleProfile = active.bleProfile()

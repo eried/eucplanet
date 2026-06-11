@@ -222,6 +222,15 @@ class VeteranParser {
             // Veteran frames don't carry power directly; estimate from
             // voltage * current so the POWER tile populates.
             val powerW = (voltage * current).toInt()
+
+            // Charge mode byte at offset 0x17 (= 23). >0 means the wheel is
+            // on a charger. The base current field at offset 0x10 is too
+            // coarse for the balance-phase tail at 100 % (the charger
+            // pulses on/off and `current` reads ~0 for long stretches),
+            // so the charging-session detector misses balancing without
+            // this explicit flag. All wheel pages carry it identically.
+            val chargingFlag = frame.size > 23 && (frame[23].toInt() and 0xFF) > 0
+
             return WheelData(
                 speed = speedKmh,
                 voltage = voltage,
@@ -237,6 +246,7 @@ class VeteranParser {
                 pitchAngle = pitch,
                 wheelMaxSpeedKmh = rawTiltbackKmh,
                 wheelAlarmSpeedKmh = rawAlertKmh,
+                charging = chargingFlag,
                 timestamp = System.currentTimeMillis()
             )
         }

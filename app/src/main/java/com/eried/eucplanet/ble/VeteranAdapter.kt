@@ -30,6 +30,13 @@ class VeteranAdapter @Inject constructor() : WheelAdapter {
     // Internal id stays "veteran" so existing stored profiles / custom
     // commands keep working; user-visible label is the actual brand.
     override val familyDisplayName = "LeaperKim"
+    // Brand is model-aware so the NOSFET rebrands (Aero / Apex / Aeon),
+    // which share the wire protocol but are a separate manufacturer, surface
+    // their own brand on the dashboard, in Settings and in eucstats meta
+    // instead of inheriting LeaperKim. Until a model is detected the family
+    // default is used. BleConnectionManager re-reads `brand` on each
+    // ModelName decode, so the change propagates without a reconnect.
+    override val brand: String get() = detectedModel?.brandOverride ?: familyDisplayName
     override val capabilities = WheelCapabilities.VETERAN
 
     @Volatile private var detectedModel: VeteranModel? = null

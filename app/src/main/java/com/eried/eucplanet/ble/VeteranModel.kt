@@ -12,7 +12,14 @@ package com.eried.eucplanet.ble
 enum class VeteranModel(
     val displayName: String,
     val nominalVoltage: Int,
-    val maxSpeedKmh: Int
+    val maxSpeedKmh: Int,
+    /**
+     * Brand override for non-LeaperKim wheels that ride on the same Veteran
+     * wire protocol. NOSFET (Apex / Aero / Aeon) is a separate manufacturer
+     * that licenses the firmware family; the dashboard / eucstats brand
+     * should read "NOSFET" rather than "LeaperKim" for those.
+     */
+    val brandOverride: String? = null,
 ) {
     // mVer 0/1: Sherman, 100 V curve.
     SHERMAN(       "Veteran Sherman",      100,  65),
@@ -28,13 +35,13 @@ enum class VeteranModel(
     // mVer 4 / 7 / 43: Patton family (134 V curve)
     PATTON(        "Veteran Patton",       134, 110),
     PATTON_S(      "Veteran Patton S",     134, 110),
-    NOSFET_AERO(   "Veteran Nosfet Aero",  134, 110),
+    NOSFET_AERO(   "NOSFET Aero",          134, 110, brandOverride = "NOSFET"),
     // mVer 5 / 6 / 9 / 42 / 44: Lynx / Sherman L / Nosfet (151 V curve)
     LYNX(          "Veteran Lynx",         151, 120),
     LYNX_S(        "Veteran Lynx S",       151, 120),
     SHERMAN_L(     "Veteran Sherman L",    151, 120),
-    NOSFET_APEX(   "Veteran Nosfet Apex",  151, 120),
-    NOSFET_AEON(   "Veteran Nosfet Aeon",  151, 120),
+    NOSFET_APEX(   "NOSFET Apex",          151, 120, brandOverride = "NOSFET"),
+    NOSFET_AEON(   "NOSFET Aeon",          151, 120, brandOverride = "NOSFET"),
     // mVer 8: Oryx, 42-cell ~175 V pack
     ORYX(          "Veteran Oryx",         175, 130);
 

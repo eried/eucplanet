@@ -75,6 +75,17 @@ class BleConnectionManager @Inject constructor(
     private val _connectedBrand = MutableStateFlow<String?>(null)
     val connectedBrand: StateFlow<String?> = _connectedBrand.asStateFlow()
 
+    /**
+     * Re-read the active adapter's [WheelAdapter.brand] and push the result
+     * to [connectedBrand]. Called whenever a new model is detected mid-
+     * session, because the Veteran family's brand is model-dependent
+     * (NOSFET wheels vs LeaperKim) and the initial value chosen at
+     * connect time is pre-detection.
+     */
+    fun refreshBrand() {
+        _connectedBrand.value = wheelAdapter.brand
+    }
+
     private val _decodedResults = MutableSharedFlow<DecodeResult>(extraBufferCapacity = 64)
     /** Stream of decoded results from the active wheel adapter. */
     val decodedResults: SharedFlow<DecodeResult> = _decodedResults.asSharedFlow()
