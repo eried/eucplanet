@@ -347,10 +347,13 @@ private fun ActionButton(
 internal fun SpeedGauge(speed: Float, max: Float, unitSpeed: String, pwm: Float, charging: Boolean, band: Boolean, c: AppThemeColors) {
     // frac is a ratio, so it's unit-invariant — only the readout + label convert.
     val frac = (speed / max).coerceIn(0f, 1f)
+    // Colour rule matches Android: when the band is on, the tier is driven by how
+    // close speed is to max (orange at 65% of the arc, red at 85%) — NOT by PWM.
+    val orangeFrac = 0.65f
+    val redFrac = 0.85f
     val arcColor = when {
-        !band -> c.gaugeFill
-        pwm > 85f -> c.gaugeDanger
-        pwm > 65f -> c.gaugeWarn
+        band && frac >= redFrac -> c.gaugeDanger
+        band && frac >= orangeFrac -> c.gaugeWarn
         else -> c.gaugeFill
     }
     Box(Modifier.fillMaxWidth().aspectRatio(1.15f), contentAlignment = Alignment.Center) {
@@ -363,8 +366,8 @@ internal fun SpeedGauge(speed: Float, max: Float, unitSpeed: String, pwm: Float,
             // Threshold color band on the dial (warn 70-85%, danger 85-100%),
             // like the Android gauge, when enabled in Display settings.
             if (band) {
-                val warnStart = 135f + 270f * 0.70f
-                val dangerStart = 135f + 270f * 0.85f
+                val warnStart = 135f + 270f * orangeFrac
+                val dangerStart = 135f + 270f * redFrac
                 drawArc(c.gaugeWarn.copy(alpha = 0.5f), warnStart, dangerStart - warnStart, false, topLeft = topLeft, size = arcSize, style = stroke)
                 drawArc(c.gaugeDanger.copy(alpha = 0.6f), dangerStart, (135f + 270f) - dangerStart, false, topLeft = topLeft, size = arcSize, style = stroke)
             }
