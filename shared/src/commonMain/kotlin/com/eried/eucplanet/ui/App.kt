@@ -114,7 +114,7 @@ fun App() {
         }
     EucPlanetTheme(colors = themeColors) {
         val connectModel = remember { ConnectModel(scope) }
-        val recorder = remember { TripRecorder() }
+        val recorder = remember { TripRecorder(seedDemo = isSimulator()) }
         val speaker = remember { createSpeaker() }
         val haptics = remember { createHaptics() }
         val alarmEngine = remember { AlarmEngine() }

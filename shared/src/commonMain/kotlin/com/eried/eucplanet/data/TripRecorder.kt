@@ -14,8 +14,10 @@ import kotlinx.coroutines.flow.asStateFlow
  * actuals); the shape is the seam the Recordings screen reads. Seeded with a few
  * representative trips so the list isn't empty before the first ride.
  */
-class TripRecorder(private val fileStore: FileStore = createFileStore()) {
-    private val _trips = MutableStateFlow(seedTrips)
+class TripRecorder(private val fileStore: FileStore = createFileStore(), seedDemo: Boolean = false) {
+    // Seed sample trips only where there can be no real ones (the Simulator), so a
+    // real device shows only the rider's own recordings — like Android.
+    private val _trips = MutableStateFlow(if (seedDemo) seedTrips else emptyList())
     val trips: StateFlow<List<TripSummary>> = _trips.asStateFlow()
 
     private val _recording = MutableStateFlow(false)
