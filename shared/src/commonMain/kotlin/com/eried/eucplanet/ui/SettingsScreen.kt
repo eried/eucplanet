@@ -90,7 +90,13 @@ internal fun SettingsScreen(
                     SettingsSectionId.General -> Section(c, "General", Icons.Filled.Tune, expandedDefault = true) {
                         SwitchRow(c, "Auto-connect last wheel", settings.autoConnectLastWheel) { onUpdate { s -> s.copy(autoConnectLastWheel = it) } }
                         SwitchRow(c, "Keep screen on while riding", settings.keepScreenOn) { onUpdate { s -> s.copy(keepScreenOn = it) } }
-                        SwitchRow(c, "Auto-start trip recording", settings.autoStartRecording) { onUpdate { s -> s.copy(autoStartRecording = it) } }
+                        SwitchRow(c, "Auto-record trips", settings.autoStartRecording) { onUpdate { s -> s.copy(autoStartRecording = it) } }
+                        if (settings.autoStartRecording) {
+                            SwitchRow(c, "Start when moving", settings.autoRecordStartInMotion) { onUpdate { s -> s.copy(autoRecordStartInMotion = it) } }
+                            if (settings.autoRecordStartInMotion) {
+                                SliderRow(c, "Stop after idle", "${settings.autoRecordStopIdleSeconds}s", settings.autoRecordStopIdleSeconds.toFloat(), 30f..600f) { onUpdate { s -> s.copy(autoRecordStopIdleSeconds = it.roundToInt()) } }
+                            }
+                        }
                     }
 
                     SettingsSectionId.Dashboard -> Section(c, "Dashboard", Icons.Filled.Dashboard) {

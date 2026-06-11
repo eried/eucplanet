@@ -137,7 +137,7 @@ fun App() {
             val screen = debugStartScreen()?.lowercase() ?: return@LaunchedEffect
             demoWheel = sampleWheels[0]
             demoModel = DashboardModel(scope)
-            if (settings.autoStartRecording) recorder.start() // mirror the real connect path
+            if (settings.autoStartRecording && !settings.autoRecordStartInMotion) recorder.start() // mirror the real connect path
             when (screen) {
                 "settings" -> route = Route.Settings
                 "recording", "recordings" -> route = Route.Recording
@@ -166,13 +166,14 @@ fun App() {
         val history = remember { mutableStateListOf<WheelData>() }
         LaunchedEffect(activeFlow) {
             history.clear()
+            var lastMotionMs = 0L
             activeFlow?.collect { wd ->
                 history.add(wd)
                 if (history.size > 150) history.removeAt(0)
                 recorder.sample(wd)
+                val s = settingsStore.current
                 // Alarm engine: evaluate the rules each frame and fire the actions of
                 // any rule that's due (honouring per-rule cooldown / repeat-while-active).
-                val s = settingsStore.current
                 val toFire = alarmEngine.step(activeAlarms(wd, s.alarmRules), s.alarmRules, nowEpochMillis())
                 if (toFire.isNotEmpty()) {
                     if (toFire.any { it.vibrateEnabled }) haptics.warning()
@@ -181,6 +182,19 @@ fun App() {
                         speaker.stop()
                         speaker.rate = 0.3f + (s.speechRate / 100f) * 0.3f
                         speaker.speak(spoken.joinToString(", "))
+                    }
+                }
+                // Auto-record motion gating (matches Android): in start-in-motion mode,
+                // begin on first motion and auto-stop after autoRecordStopIdleSeconds of
+                // idle. (On-connect start is handled at connect time.) 0.1 km/h = "moving".
+                if (s.autoStartRecording && s.autoRecordStartInMotion) {
+                    val moving = kotlin.math.abs(wd.speed) > 0.1f
+                    if (moving) {
+                        lastMotionMs = nowEpochMillis()
+                        if (!recorder.recording.value) recorder.start()
+                    } else if (recorder.recording.value) {
+                        if (lastMotionMs == 0L) lastMotionMs = nowEpochMillis()
+                        if (nowEpochMillis() - lastMotionMs >= s.autoRecordStopIdleSeconds * 1000L) recorder.stop()
                     }
                 }
             }
@@ -249,7 +263,9 @@ fun App() {
                 try {
                     session = connectModel.connect(dev)
                     settingsStore.update { it.copy(lastWheelAddress = dev.address) }
-                    if (settingsStore.current.autoStartRecording) recorder.start() // read latest, not the closure
+                    // Start now only if auto-record is on AND not gated on motion (else the
+                    // telemetry loop starts it on first movement). Read latest, not the closure.
+                    if (settingsStore.current.autoStartRecording && !settingsStore.current.autoRecordStartInMotion) recorder.start()
                     route = Route.Dashboard
                 } catch (e: Throwable) {
                     error = e.message ?: "connection failed"
@@ -290,7 +306,7 @@ fun App() {
                     onConnectDemo = { w ->
                         demoWheel = w
                         demoModel = DashboardModel(scope)
-                        if (settings.autoStartRecording) recorder.start()
+                        if (settings.autoStartRecording && !settings.autoRecordStartInMotion) recorder.start()
                         route = Route.Dashboard
                     },
                 )

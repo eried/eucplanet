@@ -63,7 +63,9 @@ data class AppSettings(
     val autoConnectLastWheel: Boolean = true,
     val lastWheelAddress: String = "", // remembered for auto-reconnect (device id)
     val keepScreenOn: Boolean = true,
-    val autoStartRecording: Boolean = false,
+    val autoStartRecording: Boolean = true,           // master auto-record (Android: autoRecord)
+    val autoRecordStartInMotion: Boolean = true,       // start on first motion vs on connect
+    val autoRecordStopIdleSeconds: Int = 180,          // auto-stop after this many idle seconds
     val backButtonExits: Boolean = false,
 
     // Dashboard
