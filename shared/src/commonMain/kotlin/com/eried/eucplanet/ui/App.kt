@@ -169,11 +169,14 @@ fun App() {
             history.clear()
             alarmEngine.reset() // fresh alarm firing state per ride (no cross-ride cooldown leak)
             var lastMotionMs = 0L
-            activeFlow?.collect { wd ->
+            activeFlow?.collect { raw ->
+                val s = settingsStore.current
+                // Apply the speed-calibration offset at the source so the gauge, alarms,
+                // voice and recorder all see the same calibrated speed (matches Android).
+                val wd = if (s.speedCalibrationPct != 0f) raw.copy(speed = raw.speed * (1f + s.speedCalibrationPct / 100f)) else raw
                 history.add(wd)
                 if (history.size > 150) history.removeAt(0)
                 recorder.sample(wd)
-                val s = settingsStore.current
                 // Alarm engine: evaluate the rules each frame and fire the actions of
                 // any rule that's due (honouring per-rule cooldown / repeat-while-active).
                 val toFire = alarmEngine.step(activeAlarms(wd, s.alarmRules), s.alarmRules, nowEpochMillis())

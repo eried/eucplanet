@@ -155,6 +155,9 @@ internal fun SettingsScreen(
                     }
 
                     SettingsSectionId.Speed -> Section(c, "Speed", Icons.Filled.Speed) {
+                        SliderRow(c, "Speed calibration", "${if (settings.speedCalibrationPct >= 0f) "+" else ""}${(settings.speedCalibrationPct * 10).roundToInt() / 10f}%", settings.speedCalibrationPct, -15f..15f) {
+                            onUpdate { s -> s.copy(speedCalibrationPct = it) }
+                        }
                         SliderRow(c, "Tiltback (max) speed", "${settings.tiltbackKmh.roundToInt()} km/h", settings.tiltbackKmh, 10f..70f) {
                             onUpdate { s -> s.copy(tiltbackKmh = it) }
                         }

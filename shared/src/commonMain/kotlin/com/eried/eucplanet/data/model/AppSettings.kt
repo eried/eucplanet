@@ -12,6 +12,7 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class AppSettings(
     // Speed
+    val speedCalibrationPct: Float = 0f,   // -15..+15 % offset applied to wheel speed
     val tiltbackKmh: Float = 45f,
     val alarmKmh: Float = 38f,
     val legalTiltbackKmh: Float = 25f,
