@@ -89,7 +89,7 @@ app is showing to the bytes the wheel sent at that moment.
 
 ### Standard Android (Pixel and most non-Samsung)
 
-1. Settings, System, Developer options, **Take bug report**, choose
+1. Settings, System, Developer options, **Bug report**, choose
    **Interactive**
 2. Wait for the notification, then share the resulting zip
 3. The file we need is inside the zip at
