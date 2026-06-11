@@ -141,6 +141,10 @@ internal fun SettingsScreen(
                         Segmented(c, listOf("Light", "Dark", "Pure Black"), settings.theme) { onUpdate { s -> s.copy(theme = it) } }
                         Spacer(Modifier.height(8.dp))
                         SwitchRow(c, "Gauge color band (warn/danger)", settings.gaugeColorBand) { onUpdate { s -> s.copy(gaugeColorBand = it) } }
+                        if (settings.gaugeColorBand) {
+                            SliderRow(c, "Warn threshold", "${settings.gaugeOrangeThresholdPct}%", settings.gaugeOrangeThresholdPct.toFloat(), 40f..90f) { onUpdate { s -> s.copy(gaugeOrangeThresholdPct = it.roundToInt()) } }
+                            SliderRow(c, "Danger threshold", "${settings.gaugeRedThresholdPct}%", settings.gaugeRedThresholdPct.toFloat(), 50f..95f) { onUpdate { s -> s.copy(gaugeRedThresholdPct = it.roundToInt()) } }
+                        }
                         Spacer(Modifier.height(6.dp))
                         Row(
                             Modifier.fillMaxWidth().clip(RoundedCornerShape(10.dp)).background(c.surface)

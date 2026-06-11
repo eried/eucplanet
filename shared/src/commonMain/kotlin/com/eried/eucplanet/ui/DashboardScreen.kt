@@ -113,6 +113,8 @@ internal fun DashboardScreen(
     alarms: List<RideAlarm>,
     gaugeBand: Boolean,
     gaugeMax: Float,
+    orangeThresholdPct: Int,
+    redThresholdPct: Int,
     unitSpeed: String,
     unitDistance: String,
     unitTemp: String,
@@ -142,7 +144,7 @@ internal fun DashboardScreen(
             Modifier.fillMaxWidth().weight(1f).padding(horizontal = 12.dp),
             contentAlignment = Alignment.Center,
         ) {
-            SpeedGauge(d.speed, max = gaugeMax, unitSpeed = unitSpeed, pwm = d.pwm, charging = d.charging, band = gaugeBand, c = c)
+            SpeedGauge(d.speed, max = gaugeMax, unitSpeed = unitSpeed, pwm = d.pwm, charging = d.charging, band = gaugeBand, orangeThresholdPct = orangeThresholdPct, redThresholdPct = redThresholdPct, c = c)
         }
 
         // Metric grid — honours the rider's column count (2 or 3) from Dashboard
@@ -345,13 +347,13 @@ private fun ActionButton(
 }
 
 @Composable
-internal fun SpeedGauge(speed: Float, max: Float, unitSpeed: String, pwm: Float, charging: Boolean, band: Boolean, c: AppThemeColors) {
+internal fun SpeedGauge(speed: Float, max: Float, unitSpeed: String, pwm: Float, charging: Boolean, band: Boolean, orangeThresholdPct: Int, redThresholdPct: Int, c: AppThemeColors) {
     // frac is a ratio, so it's unit-invariant — only the readout + label convert.
     val frac = (speed / max).coerceIn(0f, 1f)
     // Colour rule matches Android: when the band is on, the tier is driven by how
-    // close speed is to max (orange at 65% of the arc, red at 85%) — NOT by PWM.
-    val orangeFrac = 0.65f
-    val redFrac = 0.85f
+    // close speed is to max (orange/red at the configured % of the arc) — NOT by PWM.
+    val orangeFrac = (orangeThresholdPct / 100f).coerceIn(0.05f, 0.95f)
+    val redFrac = (redThresholdPct / 100f).coerceIn(orangeFrac + 0.04f, 0.95f)
     val arcColor = when {
         band && frac >= redFrac -> c.gaugeDanger
         band && frac >= orangeFrac -> c.gaugeWarn

@@ -36,6 +36,8 @@ data class AppSettings(
     val theme: Int = 1,          // 0 = Light, 1 = Dark, 2 = Pure Black
     val accent: Int = 0,
     val gaugeColorBand: Boolean = true,
+    val gaugeOrangeThresholdPct: Int = 65,  // gauge arc goes orange at this % of the dial
+    val gaugeRedThresholdPct: Int = 85,      // ...and red at this %
     // Theme editor: per-token color overrides on top of the selected built-in.
     val customThemeEnabled: Boolean = false,
     val customThemeColors: Map<String, Int> = emptyMap(), // ThemeTokenSpec.key -> ARGB Int
