@@ -99,13 +99,32 @@ internal fun SettingsScreen(
 
                     SettingsSectionId.Display -> Section(c, "Display", Icons.Filled.DisplaySettings) {
                         LabelRow(c, "Units")
-                        Segmented(c, listOf("Metric", "Imperial"), if (settings.unitSpeed == "mph") 1 else 0) { idx ->
+                        // Selected system is DERIVED from the three per-unit choices,
+                        // like Android: all-metric -> Metric, all-imperial -> Imperial,
+                        // any other mix -> Custom (which reveals the per-unit pickers).
+                        val unitSystem = when {
+                            settings.unitSpeed == "kmh" && settings.unitDistance == "km" && settings.unitTemp == "C" -> 0
+                            settings.unitSpeed == "mph" && settings.unitDistance == "mi" && settings.unitTemp == "F" -> 1
+                            else -> 2
+                        }
+                        Segmented(c, listOf("Metric", "Imperial", "Custom"), unitSystem) { idx ->
                             onUpdate { s ->
-                                if (idx == 1) s.copy(unitSpeed = "mph", unitDistance = "mi", unitTemp = "F")
-                                else s.copy(unitSpeed = "kmh", unitDistance = "km", unitTemp = "C")
+                                when (idx) {
+                                    0 -> s.copy(unitSpeed = "kmh", unitDistance = "km", unitTemp = "C")
+                                    1 -> s.copy(unitSpeed = "mph", unitDistance = "mi", unitTemp = "F")
+                                    // Tapping Custom from a preset nudges speed to m/s so the
+                                    // Custom segment actually selects (matches Android); an
+                                    // already-custom combo is left as the user set it.
+                                    else -> if (unitSystem != 2) s.copy(unitSpeed = "ms") else s
+                                }
                             }
                         }
-                        Note(c, "Metric = km/h · km · °C.  Imperial = mph · mi · °F.  Per-unit custom (m/s, knots, K) is Android-only for now.")
+                        if (unitSystem == 2) {
+                            Spacer(Modifier.height(8.dp))
+                            UnitPicker(c, "Speed", listOf("km/h" to "kmh", "mph" to "mph", "m/s" to "ms", "kn" to "kn"), settings.unitSpeed) { onUpdate { s -> s.copy(unitSpeed = it) } }
+                            UnitPicker(c, "Distance", listOf("km" to "km", "mi" to "mi", "m" to "m", "ft" to "ft", "mil" to "mil"), settings.unitDistance) { onUpdate { s -> s.copy(unitDistance = it) } }
+                            UnitPicker(c, "Temperature", listOf("°C" to "C", "°F" to "F", "K" to "K"), settings.unitTemp) { onUpdate { s -> s.copy(unitTemp = it) } }
+                        }
                         Spacer(Modifier.height(10.dp))
                         LabelRow(c, "Theme")
                         Segmented(c, listOf("Light", "Dark", "Pure Black"), settings.theme) { onUpdate { s -> s.copy(theme = it) } }
@@ -250,6 +269,16 @@ private fun LabelRow(c: AppThemeColors, label: String) {
 @Composable
 private fun Note(c: AppThemeColors, text: String) {
     Text(text, color = c.textDisabled, fontSize = 10.sp, modifier = Modifier.padding(top = 8.dp))
+}
+
+/** A labelled per-unit picker: [options] is (display label -> stored key). */
+@Composable
+private fun UnitPicker(c: AppThemeColors, label: String, options: List<Pair<String, String>>, current: String, onSelect: (String) -> Unit) {
+    Column(Modifier.fillMaxWidth().padding(vertical = 3.dp)) {
+        Text(label, color = c.textSecondary, fontSize = 12.sp, modifier = Modifier.padding(bottom = 3.dp))
+        val idx = options.indexOfFirst { it.second == current }.coerceAtLeast(0)
+        Segmented(c, options.map { it.first }, idx) { onSelect(options[it].second) }
+    }
 }
 
 @Composable
