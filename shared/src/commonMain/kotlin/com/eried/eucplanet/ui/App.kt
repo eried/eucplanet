@@ -382,6 +382,10 @@ fun App() {
                     history = history,
                     alarms = alarms,
                     gaugeBand = settings.gaugeColorBand,
+                    // Gauge scales to the rider's tiltback (rounded up to the next 10,
+                    // min 30) like Android, so the warn/danger bands land at meaningful
+                    // speeds instead of a fixed 60.
+                    gaugeMax = (((settings.tiltbackKmh / 10f).toInt() + 1) * 10f).coerceAtLeast(30f),
                     unitSpeed = settings.unitSpeed,
                     unitDistance = settings.unitDistance,
                     unitTemp = settings.unitTemp,
@@ -426,6 +430,7 @@ private fun DashboardRoute(
     history: List<WheelData>,
     alarms: List<RideAlarm>,
     gaugeBand: Boolean,
+    gaugeMax: Float,
     unitSpeed: String,
     unitDistance: String,
     unitTemp: String,
@@ -482,6 +487,7 @@ private fun DashboardRoute(
         recording = recording,
         alarms = alarms,
         gaugeBand = gaugeBand,
+        gaugeMax = gaugeMax,
         unitSpeed = unitSpeed,
         unitDistance = unitDistance,
         unitTemp = unitTemp,

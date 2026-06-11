@@ -112,6 +112,7 @@ internal fun DashboardScreen(
     recording: Boolean,
     alarms: List<RideAlarm>,
     gaugeBand: Boolean,
+    gaugeMax: Float,
     unitSpeed: String,
     unitDistance: String,
     unitTemp: String,
@@ -141,7 +142,7 @@ internal fun DashboardScreen(
             Modifier.fillMaxWidth().weight(1f).padding(horizontal = 12.dp),
             contentAlignment = Alignment.Center,
         ) {
-            SpeedGauge(d.speed, max = 60f, unitSpeed = unitSpeed, pwm = d.pwm, charging = d.charging, band = gaugeBand, c = c)
+            SpeedGauge(d.speed, max = gaugeMax, unitSpeed = unitSpeed, pwm = d.pwm, charging = d.charging, band = gaugeBand, c = c)
         }
 
         // Metric grid — honours the rider's column count (2 or 3) from Dashboard
