@@ -41,7 +41,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -103,21 +102,11 @@ fun App() {
         2 -> BuiltInThemes.pureBlack.colors
         else -> BuiltInThemes.dark.colors
     }
-    val accent = when (settings.accent) {
-        1 -> Color(0xFF43A047) // green
-        2 -> Color(0xFFFB8C00) // orange
-        3 -> Color(0xFFEC407A) // pink
-        else -> null           // cyan / theme default
-    }
-    val accentColors = if (accent == null) baseColors else baseColors.copy(
-        primary = accent,
-        onPrimary = if (accent.luminance() > 0.179f) Color(0xFF101010) else Color.White,
-        link = accent, switchOn = accent, sliderActive = accent, chipSelected = accent,
-        segmentSelectedText = accent, tonalButtonText = accent, textButton = accent, snackbarAction = accent,
-    )
-    // Apply per-token theme-editor overrides on top of the built-in + accent.
-    val themeColors = if (!settings.customThemeEnabled || settings.customThemeColors.isEmpty()) accentColors
-        else ThemeTokens.specs.fold(accentColors) { acc, spec ->
+    // Theme = the selected built-in + any per-token theme-editor overrides. There
+    // is NO separate accent picker — like current Android, the accent simply IS the
+    // active theme's `primary` token (Android removed the standalone accent picker).
+    val themeColors = if (!settings.customThemeEnabled || settings.customThemeColors.isEmpty()) baseColors
+        else ThemeTokens.specs.fold(baseColors) { acc, spec ->
             settings.customThemeColors[spec.key]?.let { spec.set(acc, it.argbToColor()) } ?: acc
         }
     EucPlanetTheme(colors = themeColors) {
@@ -181,10 +170,6 @@ fun App() {
         val alarms = activeAlarms(current, settings)
 
         fun ttsRate() = 0.3f + (settings.speechRate / 100f) * 0.3f
-        // Auto-volume ramp: announcements get quieter when slow, full by ~40 km/h
-        // when the Automations toggle is on; otherwise always full. (iOS controls
-        // the AVSpeechUtterance volume — system media volume isn't app-settable.)
-        fun ttsVolume() = if (settings.autoVolume) (0.6f + 0.4f * (current.speed / 40f)).coerceIn(0.6f, 1f) else 1f
         fun announce() {
             if (!settings.ttsEnabled) return
             val parts = mutableListOf<String>()
@@ -193,7 +178,6 @@ fun App() {
             if (settings.announceTemp) parts += "Temperature ${UnitFormat.temperature(current.maxTemperature, settings.unitTemp).roundToInt()} degrees"
             if (parts.isEmpty()) return // all periodic-report toggles off = the rider wants silence
             speaker.rate = ttsRate()
-            speaker.volume = ttsVolume()
             speaker.speak(parts.joinToString(", "))
         }
 
@@ -212,7 +196,6 @@ fun App() {
             }
             if (enabled) {
                 speaker.rate = ttsRate()
-                speaker.volume = ttsVolume()
                 speaker.speak(phrase)
             }
         }
@@ -354,8 +337,6 @@ fun App() {
                     unitTemp = settings.unitTemp,
                     columns = settings.dashboardColumns,
                     statCorners = settings.statCorners,
-                    autoLights = settings.autoLights,
-                    autoLightsSpeedKmh = settings.autoLightsSpeedKmh,
                     recording = recording,
                     onToggleRecord = {
                         val wasRecording = recording
@@ -400,8 +381,6 @@ private fun DashboardRoute(
     unitTemp: String,
     columns: Int,
     statCorners: Boolean,
-    autoLights: Boolean,
-    autoLightsSpeedKmh: Float,
     recording: Boolean,
     onToggleRecord: () -> Unit,
     onAnnounce: () -> Unit,
@@ -434,19 +413,6 @@ private fun DashboardRoute(
                 delay(announceIntervalSec.coerceAtLeast(5).toLong() * 1000L)
                 currentAnnounce()
             }
-        }
-    }
-
-    // Auto-lights: switch the lights on once speed crosses the configured
-    // threshold — the iOS speed-triggered variant of Android's auto-lights.
-    // Keyed on the boolean so it fires on the crossing, not every frame; one-way
-    // (turns on, never auto-off) so it doesn't fight a manual toggle.
-    val aboveLightSpeed = data.speed >= autoLightsSpeedKmh
-    LaunchedEffect(autoLights, aboveLightSpeed) {
-        if (autoLights && aboveLightSpeed && !lightOn) {
-            lightOn = true
-            onRideEvent(RideEvent.LightsOn)
-            session?.setLight(true)
         }
     }
 
