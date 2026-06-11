@@ -642,6 +642,22 @@ private fun EmptyGraph(
     }
 }
 
+/**
+ * X-axis formatter mode. `Relative` is the default "1:30 ago / now" stamp used
+ * by the live dashboard graphs. `Clock` switches to absolute clock-time labels
+ * at 15-minute boundaries (locale-aware 12 h vs 24 h), useful for long-running
+ * charge sessions where minutes-ago is hard to map back to a wall clock.
+ */
+enum class TimeAxisFormat { Relative, Clock }
+
+/**
+ * One ghost marker overlaid on top of [MetricGraph], typically used to plot
+ * the history of running predictions on the Battery screen: each prediction
+ * snapshot becomes a small dot at `(timestampMs, value)`. The set of markers
+ * lets the rider see the prediction converging or drifting over time.
+ */
+data class PredictionMarker(val timestampMs: Long, val value: Float)
+
 @Composable
 internal fun MetricGraph(
     samples: List<MetricSample>,
@@ -653,6 +669,15 @@ internal fun MetricGraph(
     series2: List<MetricSample>? = null,
     color2: Color = color,
     unit2: String = "",
+    timeAxisFormat: TimeAxisFormat = TimeAxisFormat.Relative,
+    /**
+     * Optional prediction-history overlay -- rendered as small, faint dots in
+     * [predictionColor], in addition to the main line. When non-empty, the
+     * chart's X-axis is extended to include the latest marker time so dots
+     * that lie in the future (i.e. predicted finish times) stay on-canvas.
+     */
+    predictionMarkers: List<PredictionMarker>? = null,
+    predictionColor: Color = Color(0xFFFF4081),
     modifier: Modifier = Modifier
 ) {
     val gridColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.15f)
@@ -672,6 +697,25 @@ internal fun MetricGraph(
     val haptics = LocalHapticFeedback.current
     val tooltipBg = MaterialTheme.colorScheme.surface
     val tooltipFg = MaterialTheme.colorScheme.onSurface
+
+    // Locale clock format for the Clock-axis path. We don't need a
+    // SimpleDateFormat per draw -- remember one, keyed on the 24 h preference,
+    // and the TimeZone update is automatic via Calendar.getInstance().
+    val ctx = androidx.compose.ui.platform.LocalContext.current
+    val is24h = remember(ctx) { android.text.format.DateFormat.is24HourFormat(ctx) }
+    val clockFmt = remember(is24h) {
+        java.text.SimpleDateFormat(if (is24h) "HH:mm" else "h:mm a", java.util.Locale.getDefault())
+    }
+    // X-axis time range. When prediction markers exist, push the right edge
+    // out to the latest marker so future-dated points (predicted ETAs)
+    // remain on-canvas instead of getting clipped at samples.last().
+    val markers = predictionMarkers?.takeIf { it.isNotEmpty() }
+    val xMinMs = samples.first().timestampMs
+    val xMaxMs = maxOf(
+        samples.last().timestampMs,
+        markers?.maxOf { it.timestampMs } ?: Long.MIN_VALUE,
+    )
+    val xSpanMs = (xMaxMs - xMinMs).coerceAtLeast(1L)
 
     Box(
         modifier = modifier
@@ -734,29 +778,85 @@ internal fun MetricGraph(
                 )
                 drawText(unitText, topLeft = Offset(6f, -unitText.size.height - 2f))
             }
-            val timeSpanSec = ((samples.last().timestampMs - samples.first().timestampMs) / 1000).coerceAtLeast(1L)
-            for (i in 0..3) {
-                val x = w * i / 3f
-                drawLine(gridColor, Offset(x, 0f), Offset(x, h), strokeWidth = 1f, pathEffect = dash)
-                val secondsAgo = timeSpanSec * (3 - i) / 3
-                val timeText = if (secondsAgo <= 0L) "now" else "%d:%02d".format(secondsAgo / 60, secondsAgo % 60)
-                val label = textMeasurer.measure(
-                    timeText, TextStyle(fontSize = 10.sp, color = axisLabelColor)
-                )
-                drawText(label, topLeft = Offset(x - label.size.width / 2f, h + 6f))
+            when (timeAxisFormat) {
+                TimeAxisFormat.Relative -> {
+                    val timeSpanSec = ((samples.last().timestampMs - samples.first().timestampMs) / 1000).coerceAtLeast(1L)
+                    for (i in 0..3) {
+                        val x = w * i / 3f
+                        drawLine(gridColor, Offset(x, 0f), Offset(x, h), strokeWidth = 1f, pathEffect = dash)
+                        val secondsAgo = timeSpanSec * (3 - i) / 3
+                        val timeText = if (secondsAgo <= 0L) "now"
+                            else "%d:%02d".format(secondsAgo / 60, secondsAgo % 60)
+                        val label = textMeasurer.measure(
+                            timeText, TextStyle(fontSize = 10.sp, color = axisLabelColor)
+                        )
+                        drawText(label, topLeft = Offset(x - label.size.width / 2f, h + 6f))
+                    }
+                }
+                TimeAxisFormat.Clock -> {
+                    // Vertical gridline + clock-time label every 15 min, snapped
+                    // to the wall-clock :00 / :15 / :30 / :45. Bump the spacing
+                    // to 30/60 min when the chart spans more than ~2.5 h so the
+                    // labels don't overrun each other on a phone-width canvas.
+                    val gridStepMs = 15L * 60_000L
+                    val spanMin = xSpanMs / 60_000L
+                    val labelStepMs = when {
+                        spanMin > 6 * 60 -> 60L * 60_000L
+                        spanMin > 150L   -> 30L * 60_000L
+                        else             -> gridStepMs
+                    }
+                    val cal = java.util.Calendar.getInstance().apply {
+                        timeInMillis = xMinMs
+                        // Round UP to the next 15-min boundary so the first
+                        // gridline lands on a "nice" wall-clock minute.
+                        val rem = (get(java.util.Calendar.MINUTE) % 15) * 60_000L +
+                            get(java.util.Calendar.SECOND) * 1000L +
+                            get(java.util.Calendar.MILLISECOND)
+                        if (rem > 0L) add(java.util.Calendar.MILLISECOND, (gridStepMs - rem).toInt())
+                        set(java.util.Calendar.SECOND, 0)
+                        set(java.util.Calendar.MILLISECOND, 0)
+                    }
+                    var tickMs = cal.timeInMillis
+                    while (tickMs <= xMaxMs) {
+                        val x = w * (tickMs - xMinMs).toFloat() / xSpanMs.toFloat()
+                        drawLine(gridColor, Offset(x, 0f), Offset(x, h), strokeWidth = 1f, pathEffect = dash)
+                        if ((tickMs - cal.timeInMillis) % labelStepMs == 0L) {
+                            val label = textMeasurer.measure(
+                                clockFmt.format(java.util.Date(tickMs)),
+                                TextStyle(fontSize = 10.sp, color = axisLabelColor),
+                            )
+                            drawText(label, topLeft = Offset(x - label.size.width / 2f, h + 6f))
+                        }
+                        tickMs += gridStepMs
+                    }
+                    // "now" tick at samples.last so the rider can tell history
+                    // (left of it) from projected predictions (right of it).
+                    if (markers != null) {
+                        val nowMs = samples.last().timestampMs
+                        val xNow = w * (nowMs - xMinMs).toFloat() / xSpanMs.toFloat()
+                        drawLine(
+                            predictionColor.copy(alpha = 0.55f),
+                            Offset(xNow, 0f), Offset(xNow, h),
+                            strokeWidth = 1.5f,
+                        )
+                    }
+                }
             }
 
-            // Build path
+            // Build path. X positions are normalised against the *extended*
+            // span so the data line ends at the "now" marker even when the
+            // chart extends further right for prediction overlays.
             val path = androidx.compose.ui.graphics.Path()
+            var lastX = 0f
             samples.forEachIndexed { idx, s ->
-                val x = w * (s.timestampMs - samples.first().timestampMs).toFloat() /
-                    (samples.last().timestampMs - samples.first().timestampMs).coerceAtLeast(1).toFloat()
+                val x = w * (s.timestampMs - xMinMs).toFloat() / xSpanMs.toFloat()
                 val y = h - h * (s.value - bounds.min) / padded.coerceAtLeast(0.001f)
                 if (idx == 0) path.moveTo(x, y) else path.lineTo(x, y)
+                lastX = x
             }
             val fillPath = androidx.compose.ui.graphics.Path()
             fillPath.addPath(path)
-            fillPath.lineTo(w, h)
+            fillPath.lineTo(lastX, h)
             fillPath.lineTo(0f, h)
             fillPath.close()
             clipRect(0f, 0f, w, h) {
@@ -801,13 +901,13 @@ internal fun MetricGraph(
                 drawPath(path, color = color, style = Stroke(width = 3f))
             }
 
-            // Secondary series (e.g. voltage) on its own scale, no fill.
+            // Secondary series (e.g. voltage) on its own value scale, but
+            // sharing the primary X-axis so both lines align on the same
+            // wall-clock minute.
             if (s2 != null && bounds2 != null) {
                 val p2 = androidx.compose.ui.graphics.Path()
-                val t0b = s2.first().timestampMs
-                val tNb = s2.last().timestampMs
                 s2.forEachIndexed { idx, smp ->
-                    val x = w * (smp.timestampMs - t0b).toFloat() / (tNb - t0b).coerceAtLeast(1).toFloat()
+                    val x = w * (smp.timestampMs - xMinMs).toFloat() / xSpanMs.toFloat()
                     val y = h - h * (smp.value - bounds2.min) / padded2.coerceAtLeast(0.001f)
                     if (idx == 0) p2.moveTo(x, y) else p2.lineTo(x, y)
                 }
@@ -820,15 +920,35 @@ internal fun MetricGraph(
                 }
             }
 
+            // Prediction-history markers: small faint dots clustered around
+            // the running predicted finish time. As the prediction stabilises
+            // they cluster tightly; if it drifts they spread along X. Draw
+            // before the tooltip so the cursor still wins on top.
+            if (markers != null) {
+                clipRect(0f, 0f, w, h) {
+                    for (m in markers) {
+                        val x = w * (m.timestampMs - xMinMs).toFloat() / xSpanMs.toFloat()
+                        val y = (h - h * (m.value - bounds.min) / padded.coerceAtLeast(0.001f))
+                            .coerceIn(0f, h)
+                        drawCircle(predictionColor.copy(alpha = 0.55f), radius = 2.5f, center = Offset(x, y))
+                    }
+                }
+            }
+
             // Scrub cursor + value tooltip (long-press drag). touchX is in Box
-            // coords; the plot begins after the left-axis padding.
+            // coords; the plot begins after the left-axis padding. Cursor time
+            // is mapped against the extended xMinMs/xMaxMs so hovering past
+            // "now" (into the prediction region) reports the correct future
+            // clock minute.
             val tx = touchX
             if (tx != null && samples.size >= 2) {
                 val cursorX = (tx - 44.dp.toPx()).coerceIn(0f, w)
-                val t0 = samples.first().timestampMs
                 val tN = samples.last().timestampMs
                 val frac = (cursorX / w).coerceIn(0f, 1f)
-                val tTarget = t0 + (frac * (tN - t0).toDouble()).toLong()
+                val tTargetExtended = xMinMs + (frac * xSpanMs.toDouble()).toLong()
+                // For sample-lookup the cursor is clamped to the data range
+                // (no extrapolation of the value past the last sample).
+                val tTarget = tTargetExtended.coerceAtMost(tN)
                 val li = samples.indexOfLast { it.timestampMs <= tTarget }.coerceIn(0, samples.size - 1)
                 val ri = (li + 1).coerceAtMost(samples.size - 1)
                 val a = samples[li]
@@ -843,6 +963,16 @@ internal fun MetricGraph(
                 drawCircle(Color.White, radius = 2f, center = Offset(cursorX, cursorY))
 
                 val labelText = buildString {
+                    if (timeAxisFormat == TimeAxisFormat.Clock) {
+                        // Show the wall-clock time the cursor is on so the
+                        // rider can match a reading back to a precise minute
+                        // mid-charge. Uses the extended time so the rider
+                        // can scrub past "now" into the prediction region
+                        // and still see a meaningful future time. Locale
+                        // chooses 12 h / 24 h automatically.
+                        append(clockFmt.format(java.util.Date(tTargetExtended)))
+                        append("  •  ")
+                    }
                     append(if (unitLabel.isBlank()) "%.1f".format(value) else "%.1f %s".format(value, unitLabel))
                     if (s2 != null) {
                         val li2 = s2.indexOfLast { it.timestampMs <= tTarget }.coerceIn(0, s2.size - 1)

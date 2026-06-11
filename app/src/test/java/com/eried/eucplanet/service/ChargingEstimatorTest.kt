@@ -47,14 +47,14 @@ class ChargingEstimatorTest {
         val e = est.estimate()
         assertTrue("warmed up after +2% over 2min", e.warmedUp)
         assertEquals(1.0f, e.ratePctPerMin, 0.05f)
-        // current 52% -> (80-52)/1 = 28 min
+        // current 52% -> (80-52)/1 * targetTaper(1.05) = 29.4 min
         assertNotNull(e.minutesToTarget)
-        assertEquals(28f, e.minutesToTarget!!, 0.5f)
+        assertEquals(29.4f, e.minutesToTarget!!, 0.5f)
     }
 
     @Test
     fun `eta to full is pessimistic versus naive linear due to cv taper`() {
-        val est = ChargingEstimator() // default target 80, taper 2.2
+        val est = ChargingEstimator() // defaults: targetTaper 1.05, cvTaper 1.3
         est.feedLinear(startPct = 50f, pctPerMin = 1f, count = 5) // -> 52%
         val e = est.estimate()
         val naiveToFull = (100f - 52f) / 1f // 48 min if it never tapered
@@ -63,8 +63,8 @@ class ChargingEstimatorTest {
             "full ETA (${e.minutesToFull}) must exceed naive linear ($naiveToFull)",
             e.minutesToFull!! > naiveToFull
         )
-        // cc: (80-52)/1 = 28 ; cv: (100-80)*2.2/1 = 44 ; total 72
-        assertEquals(72f, e.minutesToFull!!, 1.0f)
+        // cc: (80-52)/1 * 1.05 = 29.4 ; cv: (100-80)*1.3/1 = 26 ; total 55.4
+        assertEquals(55.4f, e.minutesToFull!!, 1.0f)
     }
 
     @Test
@@ -74,9 +74,9 @@ class ChargingEstimatorTest {
         val e = est.estimate()
         assertTrue(e.warmedUp)
         assertNull("already past 80%", e.minutesToTarget)
-        // only cv part: (100-87)*2.2/1 = 28.6
+        // only cv part: (100-87)*1.3/1 = 16.9
         assertNotNull(e.minutesToFull)
-        assertEquals(28.6f, e.minutesToFull!!, 1.0f)
+        assertEquals(16.9f, e.minutesToFull!!, 1.0f)
     }
 
     @Test

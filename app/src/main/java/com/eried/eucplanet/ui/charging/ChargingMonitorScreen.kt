@@ -804,6 +804,26 @@ private fun InfoTabs(state: ChargingUiState) {
                     "charge" -> {
                         // Charge % (blue, like the battery fill, left scale) +
                         // voltage (green, own scale).
+                        // Project each running prediction snapshot onto the
+                        // chart as a small dot at its predicted target time
+                        // (y = 80 %) and full-charge time (y = 100 %). A
+                        // tight cluster around a single x-value means the
+                        // model converged; a spread along the x-axis shows
+                        // how the prediction drifted over the session. The
+                        // dot at "now" (samples.last) doubles as the
+                        // currently-active prediction.
+                        val predictionMarkers = remember(state.predictionHistory) {
+                            buildList {
+                                for (p in state.predictionHistory) {
+                                    p.targetEtaMs?.let {
+                                        add(com.eried.eucplanet.ui.dashboard.PredictionMarker(it, 80f))
+                                    }
+                                    p.fullEtaMs?.let {
+                                        add(com.eried.eucplanet.ui.dashboard.PredictionMarker(it, 100f))
+                                    }
+                                }
+                            }
+                        }
                         ChargingChart(
                             state.chargeHistory,
                             MaterialTheme.appColors.metricVoltage,
@@ -813,6 +833,7 @@ private fun InfoTabs(state: ChargingUiState) {
                             series2 = state.voltageHistory,
                             color2 = MaterialTheme.appColors.metricBattery,
                             unit2 = "V",
+                            predictionMarkers = predictionMarkers.takeIf { it.isNotEmpty() },
                         ) { _, _ -> GraphScale.fixed(0f, 100f) }
                         Spacer(Modifier.height(8.dp))
                         StatRow(stringResource(R.string.charging_stat_added), "%+.1f%%".format(state.addedPercent))
@@ -869,11 +890,15 @@ private fun ChargingChart(
     series2: List<MetricSample>? = null,
     color2: Color = color,
     unit2: String = "",
+    predictionMarkers: List<com.eried.eucplanet.ui.dashboard.PredictionMarker>? = null,
     boundsFor: (Float, Float) -> GraphBounds,
 ) {
     if (samples.size >= 2) {
         // Reuse the app's interactive history chart — units, time axis, and
         // hold-to-scrub, same as the metric graphs elsewhere in the app.
+        // Battery charts always run in Clock mode so the 15-min wall-clock
+        // gridlines line up with the rider's mental model of "when did this
+        // start, when will it end".
         MetricGraph(
             samples = samples,
             color = color,
@@ -884,6 +909,8 @@ private fun ChargingChart(
             series2 = series2,
             color2 = color2,
             unit2 = unit2,
+            timeAxisFormat = com.eried.eucplanet.ui.dashboard.TimeAxisFormat.Clock,
+            predictionMarkers = predictionMarkers,
             modifier = Modifier.fillMaxWidth().height(200.dp),
         )
     } else {
