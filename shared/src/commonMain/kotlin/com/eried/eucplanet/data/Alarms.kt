@@ -15,6 +15,40 @@ data class RideAlarm(val ruleId: Long, val label: String, val voiceEnabled: Bool
  * (TTS, haptics) fire off the same result. Cooldown / repeat timing is applied by
  * the caller when it decides whether to *re-fire* an already-active rule.
  */
+/**
+ * Stateful alarm firing — tracks per-rule last-fired time so each rule's
+ * [AlarmRule.cooldownSeconds] / [AlarmRule.repeatWhileActive] are honoured.
+ * Call [step] once per telemetry frame with the currently-tripped rules; it
+ * returns the subset whose actions (voice / vibrate) should fire right now.
+ */
+class AlarmEngine {
+    private val lastFiredMs = HashMap<Long, Long>()
+    private val wasActive = HashSet<Long>()
+
+    fun step(active: List<RideAlarm>, rules: List<AlarmRule>, nowMs: Long): List<RideAlarm> {
+        val activeIds = HashSet<Long>(active.size)
+        val fire = ArrayList<RideAlarm>()
+        for (ra in active) {
+            activeIds.add(ra.ruleId)
+            val rule = rules.firstOrNull { it.id == ra.ruleId } ?: continue
+            val cooldownMs = rule.cooldownSeconds * 1000L
+            val last = lastFiredMs[ra.ruleId]
+            val cooldownElapsed = last == null || nowMs - last >= cooldownMs
+            val justActivated = ra.ruleId !in wasActive
+            // Fire on activation, then again every cooldown while active if repeat is on.
+            if (cooldownElapsed && (justActivated || rule.repeatWhileActive)) {
+                fire += ra
+                lastFiredMs[ra.ruleId] = nowMs
+            }
+        }
+        // Forget rules that are no longer active so they fire again on re-activation
+        // instead of being suppressed by a stale cooldown.
+        wasActive.clear(); wasActive.addAll(activeIds)
+        lastFiredMs.keys.retainAll(activeIds)
+        return fire
+    }
+}
+
 fun activeAlarms(d: WheelData, rules: List<AlarmRule>): List<RideAlarm> {
     val out = ArrayList<RideAlarm>()
     for (r in rules) {

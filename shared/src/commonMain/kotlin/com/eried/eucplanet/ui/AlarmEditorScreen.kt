@@ -45,9 +45,8 @@ import kotlin.math.roundToInt
 /**
  * Editor for a single [AlarmRule] — the per-rule half of the ported Android alarm
  * customizer. Edits are live: every change calls [onChange] so the rules list and
- * the running alarm engine pick them up immediately. (Cooldown / repeat-while-
- * active are kept in the model but not yet exposed — they land with the stateful
- * firing engine, so there are no dead controls here.)
+ * the running alarm engine pick them up immediately. Cooldown / repeat-while-
+ * active are honoured by the stateful AlarmEngine in App's telemetry loop.
  */
 @Composable
 internal fun AlarmEditorScreen(
@@ -88,6 +87,10 @@ internal fun AlarmEditorScreen(
                 Text("{metric} and {value} are filled in when the alarm fires.", color = c.textDisabled, fontSize = 10.sp, modifier = Modifier.padding(top = 4.dp))
             }
             SwitchField(c, "Vibrate (haptic)", rule.vibrateEnabled) { set(rule.copy(vibrateEnabled = it)) }
+
+            FieldLabel(c, "Timing")
+            SliderField(c, "Cooldown", "${rule.cooldownSeconds}s", rule.cooldownSeconds.toFloat(), 0f..30f) { set(rule.copy(cooldownSeconds = it.roundToInt())) }
+            SwitchField(c, "Repeat while active", rule.repeatWhileActive) { set(rule.copy(repeatWhileActive = it)) }
 
             Spacer(Modifier.height(20.dp))
             Box(

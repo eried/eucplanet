@@ -50,6 +50,7 @@ import com.eried.eucplanet.ble.WheelSession
 import com.eried.eucplanet.ble.transport.BleDevice
 import com.eried.eucplanet.data.DiagnosticsLog
 import com.eried.eucplanet.data.RideAlarm
+import com.eried.eucplanet.data.AlarmEngine
 import com.eried.eucplanet.data.SettingsStore
 import com.eried.eucplanet.data.TripRecorder
 import com.eried.eucplanet.data.model.AlarmRule
@@ -61,6 +62,7 @@ import com.eried.eucplanet.ui.theme.EucPlanetTheme
 import com.eried.eucplanet.ui.theme.ThemeTokens
 import com.eried.eucplanet.ui.theme.appColors
 import com.eried.eucplanet.util.UnitFormat
+import com.eried.eucplanet.util.nowEpochMillis
 import com.eried.eucplanet.util.setKeepScreenOn
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -115,6 +117,7 @@ fun App() {
         val recorder = remember { TripRecorder() }
         val speaker = remember { createSpeaker() }
         val haptics = remember { createHaptics() }
+        val alarmEngine = remember { AlarmEngine() }
         remember { DiagnosticsLog.install() } // tee adapter inspect notes into the Service Mode log
         val recording by recorder.recording.collectAsState()
         val trips by recorder.trips.collectAsState()
@@ -167,6 +170,19 @@ fun App() {
                 history.add(wd)
                 if (history.size > 150) history.removeAt(0)
                 recorder.sample(wd)
+                // Alarm engine: evaluate the rules each frame and fire the actions of
+                // any rule that's due (honouring per-rule cooldown / repeat-while-active).
+                val s = settingsStore.current
+                val toFire = alarmEngine.step(activeAlarms(wd, s.alarmRules), s.alarmRules, nowEpochMillis())
+                if (toFire.isNotEmpty()) {
+                    if (toFire.any { it.vibrateEnabled }) haptics.warning()
+                    val spoken = toFire.filter { it.voiceEnabled }.map { it.spoken }
+                    if (s.ttsEnabled && spoken.isNotEmpty()) {
+                        speaker.stop()
+                        speaker.rate = 0.3f + (s.speechRate / 100f) * 0.3f
+                        speaker.speak(spoken.joinToString(", "))
+                    }
+                }
             }
         }
         val current = history.lastOrNull() ?: WheelData()
@@ -200,21 +216,6 @@ fun App() {
             if (enabled) {
                 speaker.rate = ttsRate()
                 speaker.speak(phrase)
-            }
-        }
-
-        // Fire each rule's actions when the active-rule set changes (not every
-        // frame): vibrate if any active rule asks for it, speak the voice text of
-        // the voice-enabled ones. (Per-rule cooldown / repeat land with the engine.)
-        val alarmIds = alarms.map { it.ruleId }
-        LaunchedEffect(alarmIds) {
-            if (alarms.isEmpty()) return@LaunchedEffect
-            if (alarms.any { it.vibrateEnabled }) haptics.warning()
-            val spoken = alarms.filter { it.voiceEnabled }.map { it.spoken }
-            if (settings.ttsEnabled && spoken.isNotEmpty()) {
-                speaker.stop() // interrupt any in-flight/queued utterance
-                speaker.rate = ttsRate()
-                speaker.speak(spoken.joinToString(", "))
             }
         }
 
