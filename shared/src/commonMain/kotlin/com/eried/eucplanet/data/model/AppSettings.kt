@@ -19,6 +19,7 @@ data class AppSettings(
 
     // Voice / TTS
     val ttsEnabled: Boolean = true,
+    val voiceId: String = "",        // selected system-voice identifier ("" = default)
     val speechRate: Float = 50f,
     val announceIntervalSec: Int = 60,
     val announceSpeed: Boolean = true,

@@ -1,6 +1,7 @@
 package com.eried.eucplanet.audio
 
 import platform.AVFAudio.AVSpeechBoundary
+import platform.AVFAudio.AVSpeechSynthesisVoice
 import platform.AVFAudio.AVSpeechSynthesizer
 import platform.AVFAudio.AVSpeechUtterance
 
@@ -9,12 +10,16 @@ private class IosSpeaker : Speaker {
     private val synth = AVSpeechSynthesizer()
     override var rate: Float = 0.5f
     override var volume: Float = 1f
+    override var voiceId: String? = null
 
     override fun speak(text: String) {
         if (text.isBlank()) return
         val utterance = AVSpeechUtterance(string = text)
         utterance.rate = rate.coerceIn(0f, 1f)
         utterance.volume = volume.coerceIn(0f, 1f)
+        voiceId?.takeIf { it.isNotBlank() }?.let { id ->
+            AVSpeechSynthesisVoice.voiceWithIdentifier(id)?.let { utterance.voice = it }
+        }
         synth.speakUtterance(utterance)
     }
 
@@ -24,3 +29,8 @@ private class IosSpeaker : Speaker {
 }
 
 actual fun createSpeaker(): Speaker = IosSpeaker()
+
+actual fun availableTtsVoices(): List<TtsVoice> =
+    AVSpeechSynthesisVoice.speechVoices().mapNotNull { v ->
+        (v as? AVSpeechSynthesisVoice)?.let { TtsVoice(it.identifier, it.name, it.language) }
+    }

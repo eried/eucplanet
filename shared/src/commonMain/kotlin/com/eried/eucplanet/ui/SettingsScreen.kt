@@ -74,6 +74,7 @@ internal fun SettingsScreen(
     onServiceMode: () -> Unit,
     onThemeEditor: () -> Unit,
     onEditAlarm: (AlarmRule) -> Unit,
+    onVoicePicker: () -> Unit,
     onBack: () -> Unit,
 ) {
     val c = MaterialTheme.appColors
@@ -171,6 +172,16 @@ internal fun SettingsScreen(
 
                     SettingsSectionId.Voice -> Section(c, "Voice", Icons.Filled.RecordVoiceOver) {
                         SwitchRow(c, "Text-to-speech announcements", settings.ttsEnabled) { onUpdate { s -> s.copy(ttsEnabled = it) } }
+                        Row(
+                            Modifier.fillMaxWidth().padding(vertical = 4.dp).clip(RoundedCornerShape(10.dp)).background(c.surface)
+                                .clickable { onVoicePicker() }.padding(horizontal = 12.dp, vertical = 11.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            Text("Voice", color = c.textPrimary, fontSize = 14.sp, modifier = Modifier.weight(1f))
+                            Text(if (settings.voiceId.isBlank()) "System default" else "Custom", color = c.textSecondary, fontSize = 12.sp)
+                            Spacer(Modifier.width(8.dp))
+                            Text("›", color = c.primary, fontSize = 16.sp)
+                        }
                         SliderRow(c, "Speech rate", "${settings.speechRate.roundToInt()}%", settings.speechRate, 0f..100f) { onUpdate { s -> s.copy(speechRate = it) } }
                         SliderRow(c, "Announce interval", "${settings.announceIntervalSec}s", settings.announceIntervalSec.toFloat(), 10f..300f) { onUpdate { s -> s.copy(announceIntervalSec = it.roundToInt()) } }
                         Spacer(Modifier.height(6.dp))

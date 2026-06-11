@@ -81,7 +81,7 @@ private val sampleWheels = listOf(
     Wheel("Begode_Master_4C", "Begode", -74),
 )
 
-private enum class Route { Dashboard, Settings, Recording, ServiceMode, ThemeEditor, AlarmEditor }
+private enum class Route { Dashboard, Settings, Recording, ServiceMode, ThemeEditor, AlarmEditor, VoicePicker }
 
 /** Ride actions that can be spoken aloud the moment they happen (gated by the
  *  matching per-event toggle in Voice settings). */
@@ -144,6 +144,7 @@ fun App() {
                 "servicemode", "service" -> route = Route.ServiceMode
                 "themeeditor", "theme" -> route = Route.ThemeEditor
                 "alarmeditor", "alarm" -> { editingAlarm = AlarmRule(id = 1, name = "Overspeed", threshold = 45f); route = Route.AlarmEditor }
+                "voicepicker", "voice" -> route = Route.VoicePicker
                 "metric", "metricdetail" -> { route = Route.Dashboard; selectedMetric = "voltage" }
                 "tripdetail", "trip" -> {
                     val s = (0 until 48).map { i ->
@@ -182,6 +183,7 @@ fun App() {
                     if (s.ttsEnabled && spoken.isNotEmpty()) {
                         speaker.stop()
                         speaker.rate = 0.3f + (s.speechRate / 100f) * 0.3f
+                        speaker.voiceId = s.voiceId
                         speaker.speak(spoken.joinToString(", "))
                     }
                 }
@@ -212,6 +214,7 @@ fun App() {
             if (settings.announceTemp) parts += "Temperature ${UnitFormat.temperature(current.maxTemperature, settings.unitTemp).roundToInt()} degrees"
             if (parts.isEmpty()) return // all periodic-report toggles off = the rider wants silence
             speaker.rate = ttsRate()
+            speaker.voiceId = settings.voiceId
             speaker.speak(parts.joinToString(", "))
         }
 
@@ -230,6 +233,7 @@ fun App() {
             }
             if (enabled) {
                 speaker.rate = ttsRate()
+                speaker.voiceId = settings.voiceId
                 speaker.speak(phrase)
             }
         }
@@ -321,7 +325,13 @@ fun App() {
                     onServiceMode = { route = Route.ServiceMode },
                     onThemeEditor = { route = Route.ThemeEditor },
                     onEditAlarm = { editingAlarm = it; route = Route.AlarmEditor },
+                    onVoicePicker = { route = Route.VoicePicker },
                     onBack = { route = Route.Dashboard },
+                )
+                route == Route.VoicePicker -> VoicePickerScreen(
+                    currentVoiceId = settings.voiceId,
+                    onSelect = { id -> settingsStore.update { it.copy(voiceId = id) } },
+                    onBack = { route = Route.Settings },
                 )
                 route == Route.ThemeEditor -> ThemeEditorScreen(
                     settings = settings,

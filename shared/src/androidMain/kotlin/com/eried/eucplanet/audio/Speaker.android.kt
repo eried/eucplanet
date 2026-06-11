@@ -8,8 +8,11 @@ package com.eried.eucplanet.audio
 private class NoopSpeaker : Speaker {
     override var rate: Float = 0.5f
     override var volume: Float = 1f
+    override var voiceId: String? = null
     override fun speak(text: String) {}
     override fun stop() {}
 }
 
 actual fun createSpeaker(): Speaker = NoopSpeaker()
+
+actual fun availableTtsVoices(): List<TtsVoice> = emptyList()
