@@ -732,6 +732,30 @@
     <string name="flic_click">Click</string>
     <string name="flic_double_click">Double Click</string>
     <string name="flic_hold">Hold</string>
+    <!-- Settings: TPMS -->
+    <string name="section_tpms">Tire pressure (TPMS)</string>
+    <string name="tpms_empty">No sensors yet. Tap + to add one.</string>
+    <string name="tpms_add">Add sensor</string>
+    <string name="tpms_add_nearby">Scan nearby</string>
+    <string name="tpms_add_manual">Enter ID</string>
+    <string name="tpms_scanning_hint">Wake the sensor (tap it or briefly let a little air out). It will appear here.</string>
+    <string name="tpms_id_hint">Sensor ID (6 hex chars on the sticker)</string>
+    <string name="tpms_label_hint">Label (e.g. Oryx front)</string>
+    <string name="tpms_unnamed">Unnamed sensor</string>
+    <string name="tpms_bind">Bind</string>
+    <string name="tpms_waiting">Waiting for first reading…</string>
+    <string name="tpms_forget">Forget</string>
+    <string name="tpms_forget_title">Forget this sensor?</string>
+    <string name="tpms_forget_body">%1$s will be removed. You can bind it again any time.</string>
+    <string name="tpms_pressure">Pressure</string>
+    <string name="tpms_temperature">Temp</string>
+    <string name="tpms_battery">Battery</string>
+    <string name="tpms_alarm_ok">OK</string>
+    <string name="tpms_alarm_high">HIGH</string>
+    <string name="tpms_alarm_low">LOW</string>
+    <string name="tpms_pressure_unit">Pressure unit</string>
+    <string name="dash_tpms_settings">Tire pressure sensors</string>
+
     <string name="section_external_gps">GPS &amp; sensors</string>
     <string name="external_gps_device_title">External GPS</string>
     <string name="external_gps_pair_button">Start scan</string>

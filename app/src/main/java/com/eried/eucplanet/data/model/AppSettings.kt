@@ -660,7 +660,24 @@ data class AppSettings(
     /** Auto-open the Battery monitor when the wheel starts charging. */
     val chargingAutoOpen: Boolean = true,
     /** Show the Battery monitor access icon (spark) in the dashboard top bar. */
-    val chargingDashboardIcon: Boolean = true
+    val chargingDashboardIcon: Boolean = true,
+
+    /**
+     * Bound TPMS sensors as a JSON array of
+     * [com.eried.eucplanet.ble.tpms.TpmsSensor] values. Stored as a JSON
+     * string for the same reason every other list-shaped setting does:
+     * the Proto-DataStore schema is fixed and an opaque string lets us
+     * iterate on the sensor shape without a schema migration. Empty by
+     * default; the rider adds sensors from Settings -> TPMS.
+     */
+    val tpmsSensors: String = "[]",
+    /**
+     * Pressure unit for every TPMS surface (dashboard tile, settings,
+     * trip viewer chart, CSV column unit suffix). Internal CSV column is
+     * always kPa to keep the export lossless across the three options.
+     * Values: "kpa" / "bar" / "psi".
+     */
+    val pressureUnit: String = "kpa",
 )
 
 // FlicAction enum removed (2026-05). Replaced by

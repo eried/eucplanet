@@ -43,7 +43,8 @@ class TripRepository @Inject constructor(
     private val voiceService: VoiceService,
     private val settingsRepository: SettingsRepository,
     private val syncManager: SyncManager,
-    private val externalGpsRepository: ExternalGpsRepository
+    private val externalGpsRepository: ExternalGpsRepository,
+    private val tpmsRepository: TpmsRepository,
 ) {
     companion object {
         private const val TAG = "TripRepo"
@@ -310,7 +311,20 @@ class TripRepository @Inject constructor(
                     ?.speedKmh
                 val wheelConnected = wheelRepository.connectionState.value ==
                     com.eried.eucplanet.ble.ConnectionState.CONNECTED
-                csvWriter?.writeRow(data, location, extSpeed, wheelConnected)
+                // TPMS: take the most-recent pressure across every bound
+                // sensor (we don't yet model "this sensor is on this tire").
+                // Multi-sensor split lands in a later phase; for now a
+                // single column is plenty for the trip viewer chart.
+                val tpmsPressureKPa = tpmsRepository.readings.value.values
+                    .mapNotNull { it.pressureKPa }
+                    .maxOrNull()
+                csvWriter?.writeRow(
+                    data = data,
+                    location = location,
+                    externalGpsSpeedKmh = extSpeed,
+                    wheelConnected = wheelConnected,
+                    tirePressureKPa = tpmsPressureKPa,
+                )
                 rowsWritten++
                 if (location != null) {
                     rowsWithGps++

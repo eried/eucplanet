@@ -28,6 +28,7 @@ import com.eried.eucplanet.ui.recording.RecordingViewModel
 import com.eried.eucplanet.ui.recording.TripDetailScreen
 import com.eried.eucplanet.ui.scan.ScanScreen
 import com.eried.eucplanet.ui.settings.FlicScreen
+import com.eried.eucplanet.ui.settings.TpmsScreen
 import com.eried.eucplanet.ui.studio.OverlayStudioScreen
 import com.eried.eucplanet.ui.settings.SettingsScreen
 import com.eried.eucplanet.util.MultipleEventsCutter
@@ -48,6 +49,7 @@ sealed class Screen(val route: String) {
     }
     data object RouteBuilder : Screen("route_builder")
     data object Flic : Screen("flic")
+    data object Tpms : Screen("tpms")
     data object TripDetail : Screen("trip_detail/{tripId}") {
         fun createRoute(tripId: Long) = "trip_detail/$tripId"
     }
@@ -121,11 +123,17 @@ fun NavGraph(navController: NavHostController) {
             SettingsScreen(
                 onBack = { navController.popSingle() },
                 onNavigateToFlic = { navController.navigateSingle(Screen.Flic.route) },
+                onNavigateToTpms = { navController.navigateSingle(Screen.Tpms.route) },
                 initialTab = tab
             )
         }
         composable(Screen.Flic.route) {
             FlicScreen(
+                onBack = { navController.popSingle() }
+            )
+        }
+        composable(Screen.Tpms.route) {
+            TpmsScreen(
                 onBack = { navController.popSingle() }
             )
         }

@@ -58,7 +58,8 @@ import com.eried.eucplanet.ui.theme.themedSwitchColors
 @Composable
 fun ExternalGpsSection(
     viewModel: ExternalGpsViewModel = hiltViewModel(),
-    settingsViewModel: SettingsViewModel = hiltViewModel()
+    settingsViewModel: SettingsViewModel = hiltViewModel(),
+    onOpenTpms: () -> Unit = {},
 ) {
     val pairedAddress by viewModel.pairedAddress.collectAsState()
     val pairedName by viewModel.pairedName.collectAsState()
@@ -72,6 +73,23 @@ fun ExternalGpsSection(
 
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
         BringIntoViewSection(expanded = true, spacing = 8.dp) {
+        // Quick entry into the TPMS screen. Sensors are bound there
+        // because the rider may have many (one per wheel) and the list
+        // would otherwise dominate this section.
+        TextButton(
+            onClick = onOpenTpms,
+            modifier = Modifier.fillMaxWidth(),
+            colors = ButtonDefaults.textButtonColors(
+                contentColor = MaterialTheme.appColors.textPrimary,
+            ),
+        ) {
+            Text(
+                stringResource(R.string.dash_tpms_settings),
+                modifier = Modifier.weight(1f),
+            )
+            Text(">", color = MaterialTheme.appColors.hint)
+        }
+
         // Show speed on the dashboard, a general display option, kept first
         // because it has nothing to do with the external box below it.
         ToggleRow(

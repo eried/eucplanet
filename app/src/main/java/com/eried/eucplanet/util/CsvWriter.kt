@@ -11,12 +11,15 @@ import java.util.Locale
 
 /**
  * Writes DarknessBot-compatible CSV files.
- * Format: `Date,Speed,Voltage,Temperature,Battery level,Altitude,Latitude,Longitude,Total mileage,GPS speed,Current,PWM,G-Force,G-Force X,G-Force Y`
- * The trailing GPS-speed, Current, PWM and G-Force columns are EUC Planet
+ * Format: `Date,Speed,Voltage,Temperature,Battery level,Altitude,Latitude,Longitude,Total mileage,GPS speed,Current,PWM,G-Force,G-Force X,G-Force Y,TPMS kPa`
+ * The trailing GPS-speed, Current, PWM, G-Force and TPMS columns are EUC Planet
  * extensions; DarknessBot viewers ignore trailing columns. `GPS speed` carries
  * the external BLE GPS box's reading when the rider prioritises external GPS,
  * otherwise the phone's own GPS speed. `Current` (amps, signed) and `PWM`
- * (percent) come straight from the wheel telemetry.
+ * (percent) come straight from the wheel telemetry. `TPMS kPa` is the most
+ * recently received TPMS-sensor pressure, in kPa. Always stored as kPa so the
+ * column stays lossless regardless of the rider's display-unit choice; the
+ * viewer converts on render.
  */
 class CsvWriter(private val file: File) {
 
@@ -29,11 +32,17 @@ class CsvWriter(private val file: File) {
 
     fun open() {
         writer = BufferedWriter(FileWriter(file))
-        writer?.write("Date,Speed,Voltage,Temperature,Battery level,Altitude,Latitude,Longitude,Total mileage,GPS speed,Current,PWM,G-Force,G-Force X,G-Force Y")
+        writer?.write("Date,Speed,Voltage,Temperature,Battery level,Altitude,Latitude,Longitude,Total mileage,GPS speed,Current,PWM,G-Force,G-Force X,G-Force Y,TPMS kPa")
         writer?.newLine()
     }
 
-    fun writeRow(data: WheelData, location: Location?, externalGpsSpeedKmh: Float? = null, wheelConnected: Boolean = true) {
+    fun writeRow(
+        data: WheelData,
+        location: Location?,
+        externalGpsSpeedKmh: Float? = null,
+        wheelConnected: Boolean = true,
+        tirePressureKPa: Float? = null,
+    ) {
         val w = writer ?: return
         // Use wallclock so rows recorded without wheel telemetry (disconnected or
         // never connected) still carry a correct date. WheelData.timestamp defaults to
@@ -56,10 +65,14 @@ class CsvWriter(private val file: File) {
         // external GPS (passed in non-null), otherwise the phone's GPS speed.
         val gpsSpeedKmh = externalGpsSpeedKmh ?: phoneGpsKmh
 
+        // TPMS column: blank when no sensor has reported yet -- a blank cell
+        // makes Excel / Sheets treat the column as "no data" instead of
+        // counting a misleading 0 kPa.
+        val tpmsField = tirePressureKPa?.let { String.format(Locale.US, "%.1f", it) } ?: ""
         w.write(
             String.format(
                 Locale.US,
-                "%s,%.1f,%.1f,%.1f,%d,%.1f,%.6f,%.6f,%.1f,%.1f,%.1f,%.1f,%.3f,%.3f,%.3f",
+                "%s,%.1f,%.1f,%.1f,%d,%.1f,%.6f,%.6f,%.1f,%.1f,%.1f,%.1f,%.3f,%.3f,%.3f,%s",
                 date,
                 speed,
                 data.voltage,
@@ -74,7 +87,8 @@ class CsvWriter(private val file: File) {
                 data.pwm,
                 data.gForce,
                 data.accelX,
-                data.accelY
+                data.accelY,
+                tpmsField,
             )
         )
         w.newLine()

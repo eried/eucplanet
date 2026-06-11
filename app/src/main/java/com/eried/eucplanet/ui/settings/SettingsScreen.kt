@@ -282,6 +282,7 @@ private val languageOptions = listOf(
 fun SettingsScreen(
     onBack: () -> Unit,
     onNavigateToFlic: () -> Unit = {},
+    onNavigateToTpms: () -> Unit = {},
     initialTab: Int = 0,
     viewModel: SettingsViewModel = hiltViewModel()
 ) {
@@ -638,7 +639,7 @@ fun SettingsScreen(
             NavigatorSettingsContent()
         },
         SectionDef("location", titleGpsSensors, Icons.Default.Sensors, corpusGpsSensors) {
-            ExternalGpsSection()
+            ExternalGpsSection(onOpenTpms = onNavigateToTpms)
         },
         SectionDef("integration", titleIntegration, Icons.Default.Extension, corpusIntegration) {
             FlicTab()
