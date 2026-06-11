@@ -1,5 +1,6 @@
-package com.eried.eucplanet.data.model
+package com.eried.eucplanet.data
 
+import com.eried.eucplanet.data.model.WheelData
 import kotlinx.serialization.Serializable
 
 /**
@@ -8,9 +9,14 @@ import kotlinx.serialization.Serializable
  * take when it trips (speak / vibrate) and timing ([cooldownSeconds] /
  * [repeatWhileActive]).
  *
- * Trimmed vs Android to what iOS supports: the **beep-tone synthesizer**
- * (needs an iOS tone generator), the **radar** metrics, and the per-rule
- * **watch vibrate target** are omitted — vibrate fires the phone's haptic.
+ * NOTE: this lives in `com.eried.eucplanet.data` (not `data.model`) ON PURPOSE —
+ * Android already has `com.eried.eucplanet.data.model.AlarmRule` as a Room @Entity,
+ * and reusing that FQN here collides on the shared classpath (Room's generated DAO
+ * then fails to compile). Same reason `UnitFormat` isn't named `Units`.
+ *
+ * Trimmed vs Android to what iOS supports: the **beep-tone synthesizer**, the
+ * **radar** metrics, and the per-rule **watch vibrate target** are omitted —
+ * vibrate fires the phone's haptic.
  */
 @Serializable
 data class AlarmRule(

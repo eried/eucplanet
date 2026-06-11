@@ -35,9 +35,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.eried.eucplanet.data.model.AlarmComparator
-import com.eried.eucplanet.data.model.AlarmMetric
-import com.eried.eucplanet.data.model.AlarmRule
+import com.eried.eucplanet.data.AlarmComparator
+import com.eried.eucplanet.data.AlarmMetric
+import com.eried.eucplanet.data.AlarmRule
 import com.eried.eucplanet.ui.theme.AppThemeColors
 import com.eried.eucplanet.ui.theme.appColors
 import kotlin.math.roundToInt

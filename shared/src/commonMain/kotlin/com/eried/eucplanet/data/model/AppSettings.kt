@@ -1,5 +1,7 @@
 package com.eried.eucplanet.data.model
 
+import com.eried.eucplanet.data.AlarmRule
+import com.eried.eucplanet.data.defaultAlarmRules
 import kotlinx.serialization.Serializable
 
 /**

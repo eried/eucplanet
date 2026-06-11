@@ -53,7 +53,7 @@ import com.eried.eucplanet.data.RideAlarm
 import com.eried.eucplanet.data.AlarmEngine
 import com.eried.eucplanet.data.SettingsStore
 import com.eried.eucplanet.data.TripRecorder
-import com.eried.eucplanet.data.model.AlarmRule
+import com.eried.eucplanet.data.AlarmRule
 import com.eried.eucplanet.data.activeAlarms
 import com.eried.eucplanet.data.model.TripSummary
 import com.eried.eucplanet.data.model.WheelData
