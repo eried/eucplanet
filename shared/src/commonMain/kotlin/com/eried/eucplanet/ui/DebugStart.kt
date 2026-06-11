@@ -7,3 +7,10 @@ package com.eried.eucplanet.ui
  * `EUC_DEMO_SCREEN` env var; Android always returns null.
  */
 expect fun debugStartScreen(): String?
+
+/**
+ * True when running on the iOS Simulator (which has no Bluetooth), so the Scan
+ * screen can offer demo wheels there and show only real peripherals on device —
+ * matching Android, which never lists fake wheels. Android returns false.
+ */
+expect fun isSimulator(): Boolean

@@ -550,16 +550,20 @@ private fun ScanScreen(
             Spacer(Modifier.height(16.dp))
         }
 
-        Text("DEMO", color = c.textSecondary, fontSize = 11.sp, fontWeight = FontWeight.Medium)
-        Spacer(Modifier.height(4.dp))
-        sampleWheels.forEach { w ->
-            WheelRow(c, w.name, w.brand, w.rssi) { onConnectDemo(w) }
+        // Demo wheels exist only because the Simulator has no Bluetooth radio. On a
+        // real device we list only actual peripherals (like Android) — no fake names.
+        if (isSimulator()) {
+            Text("DEMO", color = c.textSecondary, fontSize = 11.sp, fontWeight = FontWeight.Medium)
+            Spacer(Modifier.height(4.dp))
+            sampleWheels.forEach { w ->
+                WheelRow(c, w.name, w.brand, w.rssi) { onConnectDemo(w) }
+            }
+            Spacer(Modifier.height(20.dp))
+            Text(
+                "Simulator has no Bluetooth — real scan uses the shared CoreBluetooth transport on device.",
+                color = c.textDisabled, fontSize = 10.sp,
+            )
         }
-        Spacer(Modifier.height(20.dp))
-        Text(
-            "Simulator has no Bluetooth — real scan uses the shared CoreBluetooth transport on device.",
-            color = c.textDisabled, fontSize = 10.sp,
-        )
         Spacer(Modifier.height(24.dp))
     }
 }
