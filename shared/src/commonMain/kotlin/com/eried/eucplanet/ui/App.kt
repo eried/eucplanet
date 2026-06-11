@@ -52,6 +52,7 @@ import com.eried.eucplanet.data.DiagnosticsLog
 import com.eried.eucplanet.data.RideAlarm
 import com.eried.eucplanet.data.SettingsStore
 import com.eried.eucplanet.data.TripRecorder
+import com.eried.eucplanet.data.model.AlarmRule
 import com.eried.eucplanet.data.activeAlarms
 import com.eried.eucplanet.data.model.TripSummary
 import com.eried.eucplanet.data.model.WheelData
@@ -78,7 +79,7 @@ private val sampleWheels = listOf(
     Wheel("Begode_Master_4C", "Begode", -74),
 )
 
-private enum class Route { Dashboard, Settings, Recording, ServiceMode, ThemeEditor }
+private enum class Route { Dashboard, Settings, Recording, ServiceMode, ThemeEditor, AlarmEditor }
 
 /** Ride actions that can be spoken aloud the moment they happen (gated by the
  *  matching per-event toggle in Voice settings). */
@@ -125,6 +126,7 @@ fun App() {
         var route by remember { mutableStateOf(Route.Dashboard) }
         var selectedMetric by remember { mutableStateOf<String?>(null) }
         var selectedTrip by remember { mutableStateOf<TripSummary?>(null) }
+        var editingAlarm by remember { mutableStateOf<AlarmRule?>(null) }
 
         // Screenshot harness: EUC_DEMO_SCREEN auto-opens a demo ride on a screen
         // (see debugStartScreen). Unset in normal use → Scan-first flow.
@@ -138,6 +140,7 @@ fun App() {
                 "recording", "recordings" -> route = Route.Recording
                 "servicemode", "service" -> route = Route.ServiceMode
                 "themeeditor", "theme" -> route = Route.ThemeEditor
+                "alarmeditor", "alarm" -> { editingAlarm = AlarmRule(id = 1, name = "Overspeed", threshold = 45f); route = Route.AlarmEditor }
                 "metric", "metricdetail" -> { route = Route.Dashboard; selectedMetric = "voltage" }
                 "tripdetail", "trip" -> {
                     val s = (0 until 48).map { i ->
@@ -167,7 +170,7 @@ fun App() {
             }
         }
         val current = history.lastOrNull() ?: WheelData()
-        val alarms = activeAlarms(current, settings)
+        val alarms = activeAlarms(current, settings.alarmRules)
 
         fun ttsRate() = 0.3f + (settings.speechRate / 100f) * 0.3f
         fun announce() {
@@ -200,19 +203,28 @@ fun App() {
             }
         }
 
-        // Speak alarms when the active-alarm set changes (not every frame).
-        val alarmKinds = alarms.map { it.kind }
-        LaunchedEffect(alarmKinds) {
-            if (alarmKinds.isNotEmpty()) {
-                haptics.warning() // haptic + alert sound, independent of TTS
-                if (settings.ttsEnabled) {
-                    speaker.stop() // interrupt any in-flight/queued utterance
-                    speaker.rate = ttsRate()
-                    speaker.volume = 1f // alarms always at full volume, ignoring the auto-volume ramp
-                    speaker.speak("Warning, " + alarms.joinToString(", ") { it.label })
-                }
+        // Fire each rule's actions when the active-rule set changes (not every
+        // frame): vibrate if any active rule asks for it, speak the voice text of
+        // the voice-enabled ones. (Per-rule cooldown / repeat land with the engine.)
+        val alarmIds = alarms.map { it.ruleId }
+        LaunchedEffect(alarmIds) {
+            if (alarms.isEmpty()) return@LaunchedEffect
+            if (alarms.any { it.vibrateEnabled }) haptics.warning()
+            val spoken = alarms.filter { it.voiceEnabled }.map { it.spoken }
+            if (settings.ttsEnabled && spoken.isNotEmpty()) {
+                speaker.stop() // interrupt any in-flight/queued utterance
+                speaker.rate = ttsRate()
+                speaker.speak(spoken.joinToString(", "))
             }
         }
+
+        // Insert or update a rule by id; persists through SettingsStore so the list
+        // + the running alarm engine pick it up live.
+        fun upsertAlarm(rule: AlarmRule) = settingsStore.update { s ->
+            val exists = s.alarmRules.any { it.id == rule.id }
+            s.copy(alarmRules = if (exists) s.alarmRules.map { if (it.id == rule.id) rule else it } else s.alarmRules + rule)
+        }
+        fun deleteAlarm(id: Long) = settingsStore.update { s -> s.copy(alarmRules = s.alarmRules.filter { it.id != id }) }
 
         fun leaveRide() {
             recorder.stop() // finalize + save any in-progress recording (no-op if not recording)
@@ -290,12 +302,19 @@ fun App() {
                     },
                     onServiceMode = { route = Route.ServiceMode },
                     onThemeEditor = { route = Route.ThemeEditor },
+                    onEditAlarm = { editingAlarm = it; route = Route.AlarmEditor },
                     onBack = { route = Route.Dashboard },
                 )
                 route == Route.ThemeEditor -> ThemeEditorScreen(
                     settings = settings,
                     onUpdate = { transform -> settingsStore.update(transform) },
                     onBack = { route = Route.Settings },
+                )
+                route == Route.AlarmEditor && editingAlarm != null -> AlarmEditorScreen(
+                    initial = editingAlarm!!,
+                    onChange = { upsertAlarm(it) },
+                    onDelete = { deleteAlarm(editingAlarm!!.id); editingAlarm = null; route = Route.Settings },
+                    onBack = { editingAlarm = null; route = Route.Settings },
                 )
                 route == Route.Recording -> {
                     val st = selectedTrip

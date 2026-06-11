@@ -46,6 +46,9 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.eried.eucplanet.data.model.AlarmComparator
+import com.eried.eucplanet.data.model.AlarmMetric
+import com.eried.eucplanet.data.model.AlarmRule
 import com.eried.eucplanet.data.model.AppSettings
 import com.eried.eucplanet.ui.settings.SettingsSectionId
 import com.eried.eucplanet.ui.theme.AppThemeColors
@@ -70,6 +73,7 @@ internal fun SettingsScreen(
     onApplyMaxSpeed: (tiltbackKmh: Float, alarmKmh: Float) -> Unit,
     onServiceMode: () -> Unit,
     onThemeEditor: () -> Unit,
+    onEditAlarm: (AlarmRule) -> Unit,
     onBack: () -> Unit,
 ) {
     val c = MaterialTheme.appColors
@@ -187,14 +191,25 @@ internal fun SettingsScreen(
                     SettingsSectionId.Cloud -> {}
 
                     SettingsSectionId.Alarms -> Section(c, "Alarms", Icons.Filled.NotificationsActive) {
-                        SwitchRow(c, "Speed alarm", settings.speedAlarmEnabled) { onUpdate { s -> s.copy(speedAlarmEnabled = it) } }
-                        SliderRow(c, "Speed threshold", "${settings.speedAlarmKmh.roundToInt()} km/h", settings.speedAlarmKmh, 10f..80f) { onUpdate { s -> s.copy(speedAlarmKmh = it) } }
-                        SwitchRow(c, "Temperature alarm", settings.tempAlarmEnabled) { onUpdate { s -> s.copy(tempAlarmEnabled = it) } }
-                        SliderRow(c, "Temp threshold", "${settings.tempAlarmC.roundToInt()}°C", settings.tempAlarmC, 40f..90f) { onUpdate { s -> s.copy(tempAlarmC = it) } }
-                        SwitchRow(c, "Current alarm", settings.currentAlarmEnabled) { onUpdate { s -> s.copy(currentAlarmEnabled = it) } }
-                        SliderRow(c, "Current threshold", "${settings.currentAlarmA.roundToInt()} A", settings.currentAlarmA, 10f..120f) { onUpdate { s -> s.copy(currentAlarmA = it) } }
-                        SwitchRow(c, "PWM alarm", settings.pwmAlarmEnabled) { onUpdate { s -> s.copy(pwmAlarmEnabled = it) } }
-                        SliderRow(c, "PWM threshold", "${settings.pwmAlarmPct.roundToInt()}%", settings.pwmAlarmPct, 50f..95f) { onUpdate { s -> s.copy(pwmAlarmPct = it) } }
+                        if (settings.alarmRules.isEmpty()) {
+                            Note(c, "No alarms. Add one to be warned on speed, temperature, PWM, voltage, current or battery.")
+                        }
+                        settings.alarmRules.forEach { rule ->
+                            AlarmRuleRow(c, rule, onEdit = { onEditAlarm(rule) }) { en ->
+                                onUpdate { s -> s.copy(alarmRules = s.alarmRules.map { if (it.id == rule.id) it.copy(enabled = en) else it }) }
+                            }
+                        }
+                        Spacer(Modifier.height(8.dp))
+                        Row(
+                            Modifier.fillMaxWidth().clip(RoundedCornerShape(10.dp)).background(c.surface)
+                                .clickable {
+                                    val nextId = (settings.alarmRules.maxOfOrNull { it.id } ?: 0L) + 1L
+                                    onEditAlarm(AlarmRule(id = nextId))
+                                }.padding(vertical = 11.dp),
+                            horizontalArrangement = Arrangement.Center, verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            Text("+ Add alarm", color = c.primary, fontSize = 14.sp, fontWeight = FontWeight.Medium)
+                        }
                     }
 
                     SettingsSectionId.Automations -> {}
@@ -278,6 +293,31 @@ private fun UnitPicker(c: AppThemeColors, label: String, options: List<Pair<Stri
         Text(label, color = c.textSecondary, fontSize = 12.sp, modifier = Modifier.padding(bottom = 3.dp))
         val idx = options.indexOfFirst { it.second == current }.coerceAtLeast(0)
         Segmented(c, options.map { it.first }, idx) { onSelect(options[it].second) }
+    }
+}
+
+@Composable
+private fun AlarmRuleRow(c: AppThemeColors, rule: AlarmRule, onEdit: () -> Unit, onToggle: (Boolean) -> Unit) {
+    val metric = AlarmMetric.parse(rule.metric)
+    val cmp = AlarmComparator.parse(rule.comparator)
+    Row(
+        Modifier.fillMaxWidth().padding(vertical = 4.dp).clip(RoundedCornerShape(10.dp)).background(c.surfaceVariant)
+            .clickable { onEdit() }.padding(horizontal = 12.dp, vertical = 10.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Column(Modifier.weight(1f)) {
+            Text(rule.name.ifBlank { metric.label }, color = c.textPrimary, fontSize = 14.sp, fontWeight = FontWeight.Medium)
+            Text("${metric.label} ${cmp.symbol} ${rule.threshold.roundToInt()} ${metric.unit}", color = c.textSecondary, fontSize = 11.sp)
+        }
+        Switch(
+            checked = rule.enabled, onCheckedChange = onToggle,
+            colors = SwitchDefaults.colors(
+                checkedThumbColor = c.onPrimary, checkedTrackColor = c.switchOn,
+                uncheckedTrackColor = c.switchOff, uncheckedBorderColor = c.outline, checkedBorderColor = c.switchOn,
+            ),
+        )
+        Spacer(Modifier.width(6.dp))
+        Text("›", color = c.primary, fontSize = 16.sp)
     }
 }
 

@@ -43,15 +43,8 @@ data class AppSettings(
     val unitDistance: String = "km", // km | mi | m | ft | mil
     val unitTemp: String = "C",      // C | F | K
 
-    // Alarms
-    val speedAlarmEnabled: Boolean = true,
-    val speedAlarmKmh: Float = 45f,
-    val tempAlarmEnabled: Boolean = true,
-    val tempAlarmC: Float = 65f,
-    val currentAlarmEnabled: Boolean = false,
-    val currentAlarmA: Float = 60f,
-    val pwmAlarmEnabled: Boolean = true,
-    val pwmAlarmPct: Float = 80f,
+    // Alarms — a customizable rule list (ported from Android's AlarmRule engine).
+    val alarmRules: List<AlarmRule> = defaultAlarmRules,
 
     // Automations
     val autoLights: Boolean = false,
