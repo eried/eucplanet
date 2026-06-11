@@ -166,6 +166,7 @@ fun App() {
         val history = remember { mutableStateListOf<WheelData>() }
         LaunchedEffect(activeFlow) {
             history.clear()
+            alarmEngine.reset() // fresh alarm firing state per ride (no cross-ride cooldown leak)
             var lastMotionMs = 0L
             activeFlow?.collect { wd ->
                 history.add(wd)

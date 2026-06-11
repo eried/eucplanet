@@ -89,7 +89,7 @@ internal fun AlarmEditorScreen(
             SwitchField(c, "Vibrate (haptic)", rule.vibrateEnabled) { set(rule.copy(vibrateEnabled = it)) }
 
             FieldLabel(c, "Timing")
-            SliderField(c, "Cooldown", "${rule.cooldownSeconds}s", rule.cooldownSeconds.toFloat(), 0f..30f) { set(rule.copy(cooldownSeconds = it.roundToInt())) }
+            SliderField(c, "Cooldown", "${rule.cooldownSeconds}s", rule.cooldownSeconds.toFloat(), 1f..30f) { set(rule.copy(cooldownSeconds = it.roundToInt())) }
             SwitchField(c, "Repeat while active", rule.repeatWhileActive) { set(rule.copy(repeatWhileActive = it)) }
 
             Spacer(Modifier.height(20.dp))

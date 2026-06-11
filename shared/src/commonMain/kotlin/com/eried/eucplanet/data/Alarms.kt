@@ -25,13 +25,21 @@ class AlarmEngine {
     private val lastFiredMs = HashMap<Long, Long>()
     private val wasActive = HashSet<Long>()
 
+    /** Clear all firing state — call when a ride ends/starts so a rule fires on its
+     *  first trip of the new ride instead of being suppressed by last ride's cooldown. */
+    fun reset() {
+        lastFiredMs.clear()
+        wasActive.clear()
+    }
+
     fun step(active: List<RideAlarm>, rules: List<AlarmRule>, nowMs: Long): List<RideAlarm> {
         val activeIds = HashSet<Long>(active.size)
         val fire = ArrayList<RideAlarm>()
         for (ra in active) {
             activeIds.add(ra.ruleId)
             val rule = rules.firstOrNull { it.id == ra.ruleId } ?: continue
-            val cooldownMs = rule.cooldownSeconds * 1000L
+            // Floor at 1s so cooldown=0 + repeat can't fire every telemetry frame.
+            val cooldownMs = rule.cooldownSeconds.coerceAtLeast(1) * 1000L
             val last = lastFiredMs[ra.ruleId]
             val cooldownElapsed = last == null || nowMs - last >= cooldownMs
             val justActivated = ra.ruleId !in wasActive
