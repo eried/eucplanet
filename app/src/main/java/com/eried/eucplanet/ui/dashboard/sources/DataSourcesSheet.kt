@@ -1483,7 +1483,16 @@ private fun GForceSparkline(
     val maxAbsG = (trace.maxOfOrNull { kotlin.math.abs(it.second) } ?: 0f)
         .coerceAtLeast(1f)
     val baselineColor = color.copy(alpha = 0.18f)
-    val lineColor = color
+    // Acceleration uses the source's own theme colour so the rider can tell
+    // at a glance which source the trace belongs to even at a glance. Braking
+    // uses statusDanger (the theme's red) so a regen / hard-brake segment
+    // visually pops out of the cruise baseline -- the convention every
+    // automotive dashboard uses for "you are decelerating".
+    val accelColor = color
+    val brakeColor = MaterialTheme.appColors.statusDanger
+    // Numeric label colour follows the current sign so the digits also tell
+    // the rider whether they are accelerating or braking right now.
+    val labelColor = if (currentG >= 0f) accelColor else brakeColor
 
     Row(
         verticalAlignment = Alignment.CenterVertically,
@@ -1509,22 +1518,58 @@ private fun GForceSparkline(
             val xSpan = (nowMs - cutoffMs).coerceAtLeast(1L).toFloat()
             // ±maxAbsG fills (h/2) on each side of the zero baseline.
             val yScale = (h / 2f) / maxAbsG
-            val path = Path()
-            trace.forEachIndexed { idx, (t, g) ->
-                val x = w * (t - xMin) / xSpan
-                val y = (zeroY - g * yScale).coerceIn(0f, h)
-                if (idx == 0) path.moveTo(x, y) else path.lineTo(x, y)
+
+            // Draw the trace as per-segment line pairs, picking the colour
+            // from the average g across that segment. When a segment
+            // straddles the zero baseline we split it at the crossing so
+            // each half renders in its own colour and the colour transition
+            // lands exactly on 0g -- otherwise the colour would flip a few
+            // pixels early or late and look mis-aligned with the baseline.
+            for (i in 0 until trace.size - 1) {
+                val (t1, g1) = trace[i]
+                val (t2, g2) = trace[i + 1]
+                val x1 = w * (t1 - xMin) / xSpan
+                val y1 = (zeroY - g1 * yScale).coerceIn(0f, h)
+                val x2 = w * (t2 - xMin) / xSpan
+                val y2 = (zeroY - g2 * yScale).coerceIn(0f, h)
+                if ((g1 >= 0f) == (g2 >= 0f)) {
+                    // Whole segment on one side of zero.
+                    val segColor = if (g1 + g2 >= 0f) accelColor else brakeColor
+                    drawLine(
+                        color = segColor,
+                        start = Offset(x1, y1),
+                        end = Offset(x2, y2),
+                        strokeWidth = 2f,
+                        cap = StrokeCap.Round,
+                    )
+                } else {
+                    // Zero-crossing: split at the crossing time, draw two
+                    // segments in opposite colours.
+                    val frac = g1 / (g1 - g2)                          // 0..1
+                    val xMid = x1 + (x2 - x1) * frac
+                    val firstColor = if (g1 >= 0f) accelColor else brakeColor
+                    val secondColor = if (g2 >= 0f) accelColor else brakeColor
+                    drawLine(
+                        color = firstColor,
+                        start = Offset(x1, y1),
+                        end = Offset(xMid, zeroY),
+                        strokeWidth = 2f,
+                        cap = StrokeCap.Round,
+                    )
+                    drawLine(
+                        color = secondColor,
+                        start = Offset(xMid, zeroY),
+                        end = Offset(x2, y2),
+                        strokeWidth = 2f,
+                        cap = StrokeCap.Round,
+                    )
+                }
             }
-            drawPath(
-                path = path,
-                color = lineColor,
-                style = Stroke(width = 2f, cap = StrokeCap.Round),
-            )
         }
         Spacer(Modifier.width(8.dp))
         Text(
             text = "%+.2f g".format(currentG),
-            color = color,
+            color = labelColor,
             fontSize = 12.sp,
             fontWeight = FontWeight.Medium,
             modifier = Modifier.widthIn(min = 56.dp),
