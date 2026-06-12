@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
@@ -143,6 +144,9 @@ fun DataSourcesSheet(
             // Body: single-source view, "same source" placeholder, or
             // comparison panels.
             if (!inCompareMode) {
+                val sourceSpeedSeries = viewModel.speedSeries[selectedSource]
+                    ?.collectAsState()?.value
+                    ?: DataSourcesViewModel.TimedSeries()
                 SourceTab(
                     source = selectedSource,
                     snapshot = snapshots[selectedSource] ?: SourceSnapshot(),
@@ -151,7 +155,8 @@ fun DataSourcesSheet(
                         DataSource.RACEBOX -> racebox
                         else -> emptyList()
                     },
-                    speedUnit = speedUnit
+                    speedUnit = speedUnit,
+                    speedSeries = sourceSpeedSeries,
                 )
             } else {
                 val b = compareWith ?: DataSource.PHONE
@@ -378,7 +383,8 @@ private fun SourceTab(
     source: DataSource,
     snapshot: SourceSnapshot,
     trail: List<Offset>,
-    speedUnit: String
+    speedUnit: String,
+    speedSeries: DataSourcesViewModel.TimedSeries = DataSourcesViewModel.TimedSeries(),
 ) {
     val context = androidx.compose.ui.platform.LocalContext.current
     val speedUnitLabel = Units.speedUnit(context, speedUnit)
@@ -404,6 +410,23 @@ private fun SourceTab(
             value = snapshot.speedKmh?.let { "%.1f %s".format(Units.speed(it, speedUnit), speedUnitLabel) },
             color = sourceColor
         )
+        // Speed-derived g-force sparkline. Useful on every source with
+        // a speed reading, but specifically valuable on the GPS-only
+        // sources where there is no IMU -- riders can still see a
+        // launch / brake event without one. On the wheel source the
+        // line is an estimate that the rider can eyeball against the
+        // IMU rows below (useful for diagnostics: stale GPS, wheel
+        // speed mis-calibration, etc.).
+        if (snapshot.speedKmh != null && speedSeries.points.size >= 2) {
+            GForceSparkline(
+                speedSeries = speedSeries,
+                nowMs = nowMs,
+                color = sourceColor,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(36.dp),
+            )
+        }
         if (source.hasPosition) {
             ValueRow(
                 label = stringResource(com.eried.eucplanet.R.string.sources_heading),
@@ -1423,6 +1446,147 @@ private fun MiniMap(
         }
     }
 }
+
+/**
+ * Tiny rolling sparkline of g-force estimated from the source's own speed
+ * stream (km/h). Each visible point is the **linear-regression slope** of
+ * speed-vs-time over the last [GFORCE_SLOPE_WINDOW_MS] ending at that point,
+ * converted to g (1 g = 9.81 m/s²). Regression smoothing kills the
+ * frame-to-frame flicker that a naive `Δv/Δt` would have on a BLE-jitter
+ * stream while still responding inside ~250 ms.
+ *
+ * The graph window is fixed at [GFORCE_GRAPH_WINDOW_MS] (12 s by default --
+ * long enough to see a full launch + brake cycle, short enough that the
+ * line stays readable). Y-axis is symmetric ±1 g with auto-grow if the
+ * trace exceeds that. A faint horizontal zero baseline is always drawn so
+ * the rider can read sign at a glance.
+ *
+ * Numeric "current g" label sits to the right of the trace; the source
+ * already publishes IMU readings below for sources that have one, so we
+ * keep the sparkline lightweight (no axis labels, no grid).
+ */
+@Composable
+private fun GForceSparkline(
+    speedSeries: DataSourcesViewModel.TimedSeries,
+    nowMs: Long,
+    color: Color,
+    modifier: Modifier = Modifier,
+) {
+    val cutoffMs = nowMs - GFORCE_GRAPH_WINDOW_MS
+    // The trace is regenerated whenever the underlying points list changes
+    // OR the wall-clock tick advances; the latter keeps the right edge
+    // drifting left at idle so the "now" position doesn't appear frozen.
+    val trace = remember(speedSeries.points, nowMs / 1000L) {
+        deriveGTrace(speedSeries.points, cutoffMs)
+    }
+    val currentG = trace.lastOrNull()?.second ?: 0f
+    val maxAbsG = (trace.maxOfOrNull { kotlin.math.abs(it.second) } ?: 0f)
+        .coerceAtLeast(1f)
+    val baselineColor = color.copy(alpha = 0.18f)
+    val lineColor = color
+
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = modifier,
+    ) {
+        Canvas(
+            modifier = Modifier
+                .weight(1f)
+                .height(36.dp),
+        ) {
+            val w = size.width
+            val h = size.height
+            // Zero baseline
+            val zeroY = h / 2f
+            drawLine(
+                color = baselineColor,
+                start = Offset(0f, zeroY),
+                end = Offset(w, zeroY),
+                strokeWidth = 1f,
+            )
+            if (trace.size < 2) return@Canvas
+            val xMin = cutoffMs.toFloat()
+            val xSpan = (nowMs - cutoffMs).coerceAtLeast(1L).toFloat()
+            // ±maxAbsG fills (h/2) on each side of the zero baseline.
+            val yScale = (h / 2f) / maxAbsG
+            val path = Path()
+            trace.forEachIndexed { idx, (t, g) ->
+                val x = w * (t - xMin) / xSpan
+                val y = (zeroY - g * yScale).coerceIn(0f, h)
+                if (idx == 0) path.moveTo(x, y) else path.lineTo(x, y)
+            }
+            drawPath(
+                path = path,
+                color = lineColor,
+                style = Stroke(width = 2f, cap = StrokeCap.Round),
+            )
+        }
+        Spacer(Modifier.width(8.dp))
+        Text(
+            text = "%+.2f g".format(currentG),
+            color = color,
+            fontSize = 12.sp,
+            fontWeight = FontWeight.Medium,
+            modifier = Modifier.widthIn(min = 56.dp),
+        )
+    }
+}
+
+/**
+ * Convert a `(timeMs, speedKmh)` series into `(timeMs, g)` over the visible
+ * window. For each visible sample, the g-value is the regression slope of
+ * speed-vs-time over the prior [GFORCE_SLOPE_WINDOW_MS] of samples, divided
+ * by 9.81 m/s². Samples older than [cutoffMs] are skipped.
+ */
+private fun deriveGTrace(
+    speedPoints: List<Pair<Long, Float>>,
+    cutoffMs: Long,
+): List<Pair<Long, Float>> {
+    if (speedPoints.size < 2) return emptyList()
+    // Take a slightly wider input window than the visible cutoff so the
+    // first visible point still has a full regression window behind it.
+    val analysisFromMs = cutoffMs - GFORCE_SLOPE_WINDOW_MS
+    val analysisInput = speedPoints.dropWhile { it.first < analysisFromMs }
+    if (analysisInput.size < 2) return emptyList()
+    val out = ArrayList<Pair<Long, Float>>(analysisInput.size)
+    for (i in analysisInput.indices) {
+        val tEnd = analysisInput[i].first
+        if (tEnd < cutoffMs) continue
+        val tStart = tEnd - GFORCE_SLOPE_WINDOW_MS
+        // Walk back from i to gather samples in [tStart, tEnd].
+        val startIdx = (i downTo 0).firstOrNull { analysisInput[it].first < tStart }
+            ?.let { it + 1 } ?: 0
+        val window = analysisInput.subList(startIdx, i + 1)
+        if (window.size < 2) {
+            out.add(tEnd to 0f)
+            continue
+        }
+        val t0 = window[0].first
+        var sumX = 0.0
+        var sumY = 0.0
+        var sumXY = 0.0
+        var sumXX = 0.0
+        val n = window.size
+        for ((t, v) in window) {
+            val x = (t - t0) / 1000.0  // seconds
+            val y = v.toDouble()        // km/h
+            sumX += x
+            sumY += y
+            sumXY += x * y
+            sumXX += x * x
+        }
+        val denom = n * sumXX - sumX * sumX
+        val slopeKmhPerSec = if (denom == 0.0) 0.0 else (n * sumXY - sumX * sumY) / denom
+        // km/h per second -> m/s² is /3.6
+        val aMps2 = slopeKmhPerSec / 3.6
+        val g = (aMps2 / 9.81).toFloat()
+        out.add(tEnd to g)
+    }
+    return out
+}
+
+private const val GFORCE_GRAPH_WINDOW_MS = 12_000L
+private const val GFORCE_SLOPE_WINDOW_MS = 500L
 
 private fun haversineMeters(lat1: Double, lon1: Double, lat2: Double, lon2: Double): Double {
     val r = 6_371_000.0
