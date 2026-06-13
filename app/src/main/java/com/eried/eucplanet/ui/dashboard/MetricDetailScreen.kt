@@ -711,9 +711,17 @@ internal fun MetricGraph(
     // remain on-canvas instead of getting clipped at samples.last().
     val markers = predictionMarkers?.takeIf { it.isNotEmpty() }
     val xMinMs = samples.first().timestampMs
+    // Cap how far into the future the chart will stretch. Without this, one
+    // bogus prediction marker (e.g. a transiently-tiny slope giving a 24-day
+    // ETA on a stalled-percent window) would extend xMaxMs absurdly far and
+    // the 15-min tick loop below would do hundreds of thousands of iterations
+    // -- enough to lock the UI for several seconds when the detail pane
+    // opens. The cap also clips the marker dots themselves so a single
+    // outlier prediction doesn't visually compress the rest of the trace.
+    val futureCapMs = samples.last().timestampMs + MAX_PREDICTION_HORIZON_MS
     val xMaxMs = maxOf(
         samples.last().timestampMs,
-        markers?.maxOf { it.timestampMs } ?: Long.MIN_VALUE,
+        (markers?.maxOf { it.timestampMs } ?: Long.MIN_VALUE).coerceAtMost(futureCapMs),
     )
     val xSpanMs = (xMaxMs - xMinMs).coerceAtLeast(1L)
 
@@ -817,7 +825,13 @@ internal fun MetricGraph(
                         set(java.util.Calendar.MILLISECOND, 0)
                     }
                     var tickMs = cal.timeInMillis
-                    while (tickMs <= xMaxMs) {
+                    // Hard ceiling on the tick loop -- a defensive backstop in
+                    // case xMaxMs drifts off-the-rails despite the cap above.
+                    // The grid auto-relaxes to 30 / 60 min for long spans so
+                    // 250 is comfortably more than needed for any real chart
+                    // (a 24 h span at 60 min ticks is 24).
+                    var safety = 0
+                    while (tickMs <= xMaxMs && safety < MAX_TICK_COUNT) {
                         val x = w * (tickMs - xMinMs).toFloat() / xSpanMs.toFloat()
                         drawLine(gridColor, Offset(x, 0f), Offset(x, h), strokeWidth = 1f, pathEffect = dash)
                         if ((tickMs - cal.timeInMillis) % labelStepMs == 0L) {
@@ -828,6 +842,7 @@ internal fun MetricGraph(
                             drawText(label, topLeft = Offset(x - label.size.width / 2f, h + 6f))
                         }
                         tickMs += gridStepMs
+                        safety++
                     }
                     // "now" tick at samples.last so the rider can tell history
                     // (left of it) from projected predictions (right of it).
@@ -1004,3 +1019,18 @@ private fun formatDuration(seconds: Long): String {
     val s = seconds % 60
     return "${m}:${"%02d".format(s)}"
 }
+
+/**
+ * Maximum chart x-axis extension into the future, in ms. Caps how far the
+ * chart will stretch to fit a prediction marker -- prevents one bogus ETA
+ * (transiently-tiny slope on integer-percent BMSs) from stretching the
+ * axis weeks into the future and blowing up the tick loop.
+ */
+private const val MAX_PREDICTION_HORIZON_MS = 8L * 60L * 60_000L  // 8 h
+
+/**
+ * Hard ceiling on the Clock-axis tick loop. A 24 h chart at 60-min ticks
+ * only needs 24; 250 is a defence-in-depth backstop in case anything ever
+ * sneaks past the prediction horizon cap.
+ */
+private const val MAX_TICK_COUNT = 250

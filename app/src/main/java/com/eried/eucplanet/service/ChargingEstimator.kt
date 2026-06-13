@@ -51,7 +51,21 @@ class ChargingEstimator(
     private val cvTaperFactor: Float = 1.3f,
     private val warmupMinPercentGain: Float = 2f,
     private val warmupMinDurationMs: Long = 30_000L,
-    private val windowMs: Long = 120_000L,
+    // 5 min window (was 2 min). LeaperKim / Veteran / other BMS-equipped
+    // wheels report SoC as INTEGER percent; with a narrow 2 min window the
+    // slope estimate flipped each time a 1 % transition entered or left
+    // the window, swinging the ETA between 50 min and 2-3 h on the same
+    // physical charge rate. Five minutes smooths over enough integer
+    // transitions that the slope stabilises within a few %. Wheels that
+    // expose fractional SoC (voltage-curve fallbacks) were already smooth
+    // and don't notice the change.
+    private val windowMs: Long = 300_000L,
+    // Hard cap on a sensible ETA. Any computed minutesToFull above this
+    // means the slope just got transiently tiny (a sample sequence where
+    // no integer step has yet landed in the window); return null instead
+    // and let the commitEta layer hold the previous value. 8 h covers
+    // even worst-case real charge cycles (0 % -> 100 % on a slow brick).
+    private val sanityCapMinutes: Float = 480f,
 ) {
     private data class Sample(val t: Long, val p: Float)
 
@@ -94,7 +108,8 @@ class ChargingEstimator(
         val minutesToTarget: Float? = when {
             !warmedUp -> null
             percent >= targetPercent -> null
-            else -> (targetPercent - percent) / rate * targetTaperFactor
+            else -> ((targetPercent - percent) / rate * targetTaperFactor)
+                .takeIf { it.isFinite() && it <= sanityCapMinutes }
         }
 
         val minutesToFull: Float? = when {
@@ -107,7 +122,7 @@ class ChargingEstimator(
                 val cvStart = max(percent, targetPercent)
                 val cvRange = 100f - cvStart
                 val cvPart = cvRange * cvTaperFactor / rate
-                ccPart + cvPart
+                (ccPart + cvPart).takeIf { it.isFinite() && it <= sanityCapMinutes }
             }
         }
 
