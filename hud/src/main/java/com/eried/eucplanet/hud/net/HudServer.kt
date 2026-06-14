@@ -114,6 +114,11 @@ class HudServer(private val context: Context) {
     private var server: io.ktor.server.engine.ApplicationEngine? = null
     private var jmdns: JmDNS? = null
     private var multicastLock: WifiManager.MulticastLock? = null
+    // Always-on UDP broadcast beacon so the phone can find us on networks
+    // where mDNS multicast is blocked (most phone hotspots, every carrier
+    // mobile hotspot). Runs in parallel with the mDNS advertise -- whichever
+    // discovery channel survives the network gets used.
+    private val udpBeacon = HudUdpBeacon()
 
     fun start() {
         scope.launch { lifecycleLock.withLock { doStart() } }
@@ -224,9 +229,15 @@ class HudServer(private val context: Context) {
         }.start(wait = false)
         server = s
         startMdnsAdvertise()
+        // Start the UDP beacon only AFTER the IP has been resolved -- a
+        // packet with `ip=0.0.0.0` is worse than no packet at all.
+        _localIp.value?.takeIf { it.isNotBlank() }?.let { ip ->
+            udpBeacon.start(hudIpv4 = ip, hudPort = PORT)
+        }
     }
 
     private suspend fun doStop() {
+        udpBeacon.stop()
         try { jmdns?.close() } catch (_: Throwable) {}
         jmdns = null
         try { multicastLock?.release() } catch (_: Throwable) {}

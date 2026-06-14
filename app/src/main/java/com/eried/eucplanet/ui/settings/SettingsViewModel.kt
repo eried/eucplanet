@@ -48,8 +48,12 @@ class SettingsViewModel @Inject constructor(
     private val overlayPresetStore: com.eried.eucplanet.data.store.OverlayPresetStore,
     private val themeController: com.eried.eucplanet.ui.theme.ThemeController,
     hudCommandSink: com.eried.eucplanet.service.hud.HudCommandSink,
+    hudServer: com.eried.eucplanet.service.hud.HudServer,
     private val eucStatsRepository: EucStatsRepository,
 ) : ViewModel() {
+
+    /** Which discovery channel produced the current HUD link address. */
+    val hudConnectionSource = hudServer.connectionSource
 
     /** Live HUD protocol compatibility for the Settings/Integration card.
      *  Surfaces the "update HUD" / "update phone" hints. EXACT means nothing
@@ -474,6 +478,7 @@ class SettingsViewModel @Inject constructor(
         copy(hudServerPort = v.coerceIn(1024, 65535))
     }
     fun updateHudIp(v: String) = update { copy(hudIp = v.trim()) }
+    fun updateHudAutoDiscover(v: Boolean) = update { copy(hudAutoDiscover = v) }
 
     // HUD joystick long-press action bindings (UP / DOWN / LEFT / RIGHT). Same
     // ActionCatalog vocabulary as Flic / Volume keys; "NONE" = unbound.

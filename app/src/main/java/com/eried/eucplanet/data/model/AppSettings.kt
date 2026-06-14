@@ -457,6 +457,16 @@ data class AppSettings(
      */
     val hudIp: String = "",
     /**
+     * When ON (default), the phone runs a 4-layer discovery chain to find
+     * the HUD's IP automatically: UDP beacon → mDNS browse → manual hint
+     * (whatever is in [hudIp]) → subnet probe of the phone's own /24. The
+     * winning channel is published on the HUD-settings status line so the
+     * rider can see how the link was established. When OFF, only [hudIp]
+     * is tried -- legacy behaviour, retained as an escape hatch for cases
+     * where every auto path is broken (very rare).
+     */
+    val hudAutoDiscover: Boolean = true,
+    /**
      * Name of the Overlay Studio preset the rider chose to mirror on the
      * HUD as a "Custom" screen. Empty = no custom overlay configured.
      * Resolved against bundled assets + the rider's backup folder by the

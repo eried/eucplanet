@@ -9166,6 +9166,18 @@ private fun HudIntegrationSection(
                 colors = themedFieldColors(),
             )
         }
+        // Auto-discovery toggle. Default ON: the phone tries UDP beacon
+        // -> mDNS -> manual IP -> /24 subnet probe. Default OFF: only the
+        // manual IP above is used. The switch sits ABOVE the link toggle
+        // because configuring "how we find the HUD" precedes "open the
+        // link" mentally.
+        SwitchSettingWithDesc(
+            label = stringResource(R.string.hud_auto_discover),
+            description = stringResource(R.string.hud_auto_discover_desc),
+            checked = settings.hudAutoDiscover,
+            onCheckedChange = { viewModel.updateHudAutoDiscover(it) }
+        )
+
         // Toggle goes UNDER the IP/port -- the rider configures the
         // address first and then flips the switch to dial out. Flipping
         // it also locks the fields above so the live connection can't
@@ -9177,6 +9189,27 @@ private fun HudIntegrationSection(
             checked = settings.hudServerEnabled,
             onCheckedChange = { viewModel.updateHudServerEnabled(it) }
         )
+
+        // Live status line: which channel established the current link.
+        // Hidden when the link is off (status would always be "none").
+        if (settings.hudServerEnabled) {
+            val src by viewModel.hudConnectionSource.collectAsState()
+            val statusText = when (src) {
+                com.eried.eucplanet.service.hud.HudServer.ConnectionSource.UDP_BEACON ->
+                    stringResource(R.string.hud_status_udp_beacon)
+                com.eried.eucplanet.service.hud.HudServer.ConnectionSource.MDNS ->
+                    stringResource(R.string.hud_status_mdns)
+                com.eried.eucplanet.service.hud.HudServer.ConnectionSource.MANUAL ->
+                    stringResource(R.string.hud_status_manual)
+                com.eried.eucplanet.service.hud.HudServer.ConnectionSource.SUBNET_PROBE ->
+                    stringResource(R.string.hud_status_subnet_probe)
+                com.eried.eucplanet.service.hud.HudServer.ConnectionSource.DEBUG_OVERRIDE ->
+                    stringResource(R.string.hud_status_debug_override)
+                com.eried.eucplanet.service.hud.HudServer.ConnectionSource.NONE ->
+                    stringResource(R.string.hud_status_searching)
+            }
+            HintText(stringResource(R.string.hud_status_label, statusText), small = true)
+        }
 
         // Three top-level collapsibles under the Integration card.
         // HUD screens first because the reorder list inside is the

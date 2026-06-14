@@ -327,4 +327,30 @@ object HudDiscovery {
     const val PATH_COMMAND: String = "/command"
     const val PATH_TILES_PREFIX: String = "/tiles"
     const val PATH_HEALTH: String = "/health"
+
+    /**
+     * UDP beacon port. The HUD broadcasts a small text packet here every
+     * [BEACON_INTERVAL_MS] so the phone can locate it without typing an IP,
+     * even on networks where mDNS is blocked (phone hotspots, carrier
+     * mobile hotspots). The phone listens on the same port and updates its
+     * "discovered HUD" address whenever a fresher beacon arrives.
+     *
+     * 28079 was chosen one below [DEFAULT_PORT] so it's easy to remember
+     * and far from any well-known port.
+     */
+    const val BEACON_UDP_PORT: Int = 28079
+    const val BEACON_INTERVAL_MS: Long = 2_000L
+
+    /**
+     * Beacon payload format. ASCII, newline-terminated, fixed prefix +
+     * key=value fields. Future fields just append; the parser ignores
+     * anything it doesn't recognise.
+     *
+     *   `EUCPLANET-HUD v1 ip=10.80.67.125 port=28080 name=motoeye-e6`
+     *
+     * The prefix is the gate against accidentally matching unrelated UDP
+     * traffic on the same port; the version (`v1`) lets us evolve the
+     * payload without breaking older listeners.
+     */
+    const val BEACON_PREFIX: String = "EUCPLANET-HUD v1"
 }

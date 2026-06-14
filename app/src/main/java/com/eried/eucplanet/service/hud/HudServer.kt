@@ -69,7 +69,9 @@ class HudServer @Inject constructor(
     private val tripRepository: TripRepository,
     private val navigationEngine: NavigationEngine,
     private val commandSink: HudCommandSink,
-    private val themeController: com.eried.eucplanet.ui.theme.ThemeController
+    private val themeController: com.eried.eucplanet.ui.theme.ThemeController,
+    private val udpListener: HudUdpListener,
+    private val subnetProbe: HudSubnetProbe,
 ) {
 
     companion object {
@@ -130,6 +132,18 @@ class HudServer @Inject constructor(
     @Volatile private var ws: WebSocket? = null
     @Volatile private var multicastLock: WifiManager.MulticastLock? = null
 
+    /**
+     * Which discovery channel produced the address that opened the current
+     * WebSocket. Surfaced on the HUD settings screen as a "Connected via:"
+     * status line so the rider can tell whether the manual hint is even
+     * being used or whether auto-discovery did the job.
+     */
+    enum class ConnectionSource { UDP_BEACON, MDNS, MANUAL, SUBNET_PROBE, DEBUG_OVERRIDE, NONE }
+    private val _connectionSource =
+        kotlinx.coroutines.flow.MutableStateFlow(ConnectionSource.NONE)
+    val connectionSource: kotlinx.coroutines.flow.StateFlow<ConnectionSource>
+        get() = _connectionSource
+
     private val demo = HudDemoSource()
     @Volatile private var latest: HudState = HudState()
 
@@ -177,6 +191,11 @@ class HudServer @Inject constructor(
             }
         }
 
+        // UDP beacon listener runs the whole time the HUD link is on so
+        // the discovery chain has a fresh sighting cached the moment a
+        // dial attempt happens. Idle cost is one bound socket + occasional
+        // recv -- negligible.
+        udpListener.start()
         loopJob = scope.launch { dialLoop() }
     }
 
@@ -187,48 +206,63 @@ class HudServer @Inject constructor(
         ws = null
         publishJob?.cancel(); publishJob = null
         loopJob?.cancel(); loopJob = null
+        udpListener.stop()
+        _connectionSource.value = ConnectionSource.NONE
         try { multicastLock?.release() } catch (_: Throwable) {}
         multicastLock = null
     }
 
     /**
-     * Outer loop: re-read the HUD address from settings every iteration so a
-     * rider editing the IP doesn't have to toggle the link off and on. Open
-     * a WebSocket, pump state until it dies, then back off and retry.
+     * Outer loop: discover-or-read the HUD address, open a WebSocket, pump
+     * state until it dies, back off, retry.
      *
-     * Reading settings on each iteration (instead of subscribing to a flow)
-     * keeps the loop simple; the cost is a typed read per reconnect, which
-     * is negligible.
+     * When [AppSettings.hudAutoDiscover] is ON (default), we walk a
+     * priority chain on each iteration:
+     *
+     *   1. UDP beacon sighting (freshest first; cheap, the most reliable
+     *      channel because it works on hotspots that block multicast)
+     *   2. mDNS browse on `_eucplanet._tcp.local.` (5 s wait)
+     *   3. Manual `hudIp` from settings (treated as a last-known hint
+     *      rather than the only truth)
+     *   4. /24 subnet probe of the phone's own IP (slow, ~3 s, only fires
+     *      when the first three failed)
+     *
+     * When auto-discover is OFF we fall back to the legacy single-path
+     * behaviour: manual IP only. That mode exists as an escape hatch for
+     * the very rare environment where all three auto channels mislead us.
+     *
+     * Each attempt's source is published on [connectionSource] so the
+     * settings screen can show "Connected via: UDP beacon" and the rider
+     * has a one-glance read on which channel did the work.
      */
     private suspend fun dialLoop() {
         var attempt = 0
         while (true) {
             val s = runCatching { settingsRepository.get() }.getOrNull()
-            val hudIp = s?.hudIp?.trim().orEmpty()
-            // Allow a debug system prop to override settings for emulator
-            // testing where there's no UI input device:
-            //   adb shell setprop debug.eucplanet.hud.peer 10.0.2.2:28080
             val override = HudDebug.read("debug.eucplanet.hud.peer")?.takeIf { it.isNotBlank() }
-            val peer = when {
-                override != null -> override
-                hudIp.isNotBlank() -> {
-                    val port = s?.hudServerPort?.takeIf { it in 1..65535 }
-                        ?: HudDiscovery.DEFAULT_PORT
-                    "$hudIp:$port"
-                }
-                // Blank IP: fall back to mDNS so the rider doesn't have to
-                // type anything when the HUD is on the same network. The
-                // HUD advertises _eucplanet._tcp via JmDNS on its side.
-                else -> resolveViaMdns()
+            val autoDiscover = s?.hudAutoDiscover ?: true
+            val manualIp = s?.hudIp?.trim().orEmpty()
+            val manualPort = s?.hudServerPort?.takeIf { it in 1..65535 }
+                ?: HudDiscovery.DEFAULT_PORT
+
+            val (peer, source) = when {
+                override != null -> override to ConnectionSource.DEBUG_OVERRIDE
+                !autoDiscover && manualIp.isNotBlank() ->
+                    "$manualIp:$manualPort" to ConnectionSource.MANUAL
+                !autoDiscover -> null to ConnectionSource.NONE
+                else -> resolvePeer(manualIp, manualPort)
             }
 
             if (peer == null) {
-                // No setting, no mDNS hit yet. Wait briefly before the
-                // next resolve attempt -- mDNS responses can take a few
-                // seconds when multicast is congested.
+                _connectionSource.value = ConnectionSource.NONE
+                // No source produced an address. Brief wait so the next
+                // attempt isn't an immediate retry -- the UDP beacon
+                // listener is still receiving in the background and may
+                // populate a sighting any second.
                 delay(2_000L)
                 continue
             }
+            _connectionSource.value = source
             val ok = streamUntilClosed(peer)
             if (!ok) {
                 delay(backoff(attempt++))
@@ -236,6 +270,35 @@ class HudServer @Inject constructor(
                 attempt = 0
             }
         }
+    }
+
+    /**
+     * Run the discovery priority chain and return the first usable
+     * `host:port` plus the source it came from. Each step's timing is
+     * tuned so the full chain bottoms out in ~10 s even in the worst case
+     * (no UDP, no mDNS, no manual hint, subnet probe runs).
+     */
+    private suspend fun resolvePeer(
+        manualIp: String,
+        manualPort: Int,
+    ): Pair<String?, ConnectionSource> {
+        // 1. UDP beacon (instant if a recent sighting is cached)
+        udpListener.latest.value?.let { sighting ->
+            // Stale guard: ignore sightings older than 10 s so we don't
+            // dial a HUD we haven't heard from in a while.
+            if (System.currentTimeMillis() - sighting.receivedAtMs < 10_000L) {
+                return "${sighting.ip}:${sighting.port}" to ConnectionSource.UDP_BEACON
+            }
+        }
+        // 2. mDNS (slow path, may take a few seconds)
+        resolveViaMdns()?.let { return it to ConnectionSource.MDNS }
+        // 3. Manual hint
+        if (manualIp.isNotBlank()) return "$manualIp:$manualPort" to ConnectionSource.MANUAL
+        // 4. Subnet probe -- last resort, several seconds of network noise
+        subnetProbe.probe(manualPort)?.let {
+            return "$it:$manualPort" to ConnectionSource.SUBNET_PROBE
+        }
+        return null to ConnectionSource.NONE
     }
 
     /** Resolve `_eucplanet._tcp.local.` on whatever subnet we have. Returns

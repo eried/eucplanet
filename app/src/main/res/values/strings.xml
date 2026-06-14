@@ -333,6 +333,15 @@
     <string name="hud_ip_label">Device IP</string>
     <string name="hud_ip_label_autodetect">Device IP (automatic)</string>
     <string name="hud_ip_desc">Type the IP the HUD shows on its on-screen banner.</string>
+    <string name="hud_auto_discover">Auto-discover HUD</string>
+    <string name="hud_auto_discover_desc">Find the HUD even when its IP changes. Tries UDP broadcast, then mDNS, then your manual IP, then a quick scan of the local network.</string>
+    <string name="hud_status_label">Connected via: %1$s</string>
+    <string name="hud_status_udp_beacon">UDP beacon</string>
+    <string name="hud_status_mdns">mDNS</string>
+    <string name="hud_status_manual">Manual IP</string>
+    <string name="hud_status_subnet_probe">Subnet scan</string>
+    <string name="hud_status_debug_override">Debug override</string>
+    <string name="hud_status_searching">Searching…</string>
     <string name="hud_server_port">Port</string>
     <string name="hud_server_port_desc">Default 28080.</string>
     <string name="hud_hotspot_off_hint">Phone hotspot is off. Make sure the HUD and the phone are on the same WiFi network.</string>
