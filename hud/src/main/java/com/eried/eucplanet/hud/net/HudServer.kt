@@ -119,6 +119,10 @@ class HudServer(private val context: Context) {
     // mobile hotspot). Runs in parallel with the mDNS advertise -- whichever
     // discovery channel survives the network gets used.
     private val udpBeacon = HudUdpBeacon()
+    // Symmetric discovery: HUD also actively shouts a probe so on hostile
+    // networks where the phone's RX of broadcast is blocked, the phone's
+    // OWN broadcast (if any) lands via the same socket the HUD opened.
+    val phoneFinder = HudPhoneFinder()
 
     fun start() {
         scope.launch { lifecycleLock.withLock { doStart() } }
@@ -153,6 +157,10 @@ class HudServer(private val context: Context) {
                     Log.i(TAG, "phone connected: $remote")
                     _peer.value = remote
                     _status.value = Status.CONNECTED
+                    // Diagnostic: remember the phone IP across reconnects
+                    // so the HUD-side stats card can show "last phone: X"
+                    // even after the link drops.
+                    phoneFinder.notePhone(remote)
 
                     // Greet the phone with our version. The phone uses
                     // this to decide whether to show "update HUD" or
@@ -229,15 +237,20 @@ class HudServer(private val context: Context) {
         }.start(wait = false)
         server = s
         startMdnsAdvertise()
-        // Start the UDP beacon only AFTER the IP has been resolved -- a
-        // packet with `ip=0.0.0.0` is worse than no packet at all.
-        _localIp.value?.takeIf { it.isNotBlank() }?.let { ip ->
-            udpBeacon.start(hudIpv4 = ip, hudPort = PORT)
-        }
+        // Beacon re-resolves its own IPv4 each tick now, so we can fire it
+        // immediately even when the local IP isn't ready yet -- the first
+        // few ticks may be no-ops while DHCP completes and the beacon will
+        // pick up the address as soon as it's assigned.
+        udpBeacon.start(hudPort = PORT)
+        // Active "I'm looking for you" probe runs in parallel so the phone
+        // sees us via at least one of the two channels even on hotspots
+        // that filter the beacon direction.
+        phoneFinder.start()
     }
 
     private suspend fun doStop() {
         udpBeacon.stop()
+        phoneFinder.stop()
         try { jmdns?.close() } catch (_: Throwable) {}
         jmdns = null
         try { multicastLock?.release() } catch (_: Throwable) {}

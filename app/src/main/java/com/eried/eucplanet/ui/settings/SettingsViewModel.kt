@@ -54,6 +54,27 @@ class SettingsViewModel @Inject constructor(
 
     /** Which discovery channel produced the current HUD link address. */
     val hudConnectionSource = hudServer.connectionSource
+    /** Live rolling activity log of the discovery / dial layer. */
+    val hudDiscoveryLog = hudServer.discoveryLog
+
+    /**
+     * Bundle the phone-side UDP listener counters into a single state for
+     * the diagnostic card. Polled on a 1s tick from the screen so the user
+     * sees the numbers move without us having to wire every counter into
+     * its own flow.
+     */
+    private val hudListenerRef = hudServer.udpListener
+    fun hudDiagSnapshot(): HudDiagSnapshot = HudDiagSnapshot(
+        listenerReceived = hudListenerRef.totalReceived,
+        listenerLastRxMs = hudListenerRef.lastReceiveAtMs,
+        listenerBindError = hudListenerRef.lastBindError,
+    )
+
+    data class HudDiagSnapshot(
+        val listenerReceived: Long,
+        val listenerLastRxMs: Long,
+        val listenerBindError: String,
+    )
 
     /** Live HUD protocol compatibility for the Settings/Integration card.
      *  Surfaces the "update HUD" / "update phone" hints. EXACT means nothing

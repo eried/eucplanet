@@ -18,6 +18,7 @@ import com.eried.eucplanet.nav.NavigationEngine
 import com.eried.eucplanet.ui.theme.AccentOptions
 import com.eried.eucplanet.ui.theme.AccentTeal
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -70,7 +71,7 @@ class HudServer @Inject constructor(
     private val navigationEngine: NavigationEngine,
     private val commandSink: HudCommandSink,
     private val themeController: com.eried.eucplanet.ui.theme.ThemeController,
-    private val udpListener: HudUdpListener,
+    val udpListener: HudUdpListener,
     private val subnetProbe: HudSubnetProbe,
 ) {
 
@@ -89,6 +90,12 @@ class HudServer @Inject constructor(
         // "no IP / not autodetected" state within a reasonable wait.
         private const val MDNS_RESOLVE_TIMEOUT_MS = 5_000L
         private const val MULTICAST_LOCK_TAG = "eucplanet-hud-discovery"
+        /** Aggressive-retry window after the link is enabled. During this
+         *  period the dial loop bottoms out at a 2 s tick so a freshly
+         *  reachable HUD is grabbed within a few seconds. After the window
+         *  expires the tick relaxes to 5 s. */
+        private const val DISCOVERY_SPRINT_MS = 30_000L
+        private const val DISCOVERY_LOG_CAP = 40
         // Default carousel order shipped with all 12 known screens.
         // Mirrors SettingsViewModel.defaultEnabledHudScreens so a fresh
         // install gets a non-empty wire field on the first frame --
@@ -130,6 +137,25 @@ class HudServer @Inject constructor(
     @Volatile private var loopJob: Job? = null
     @Volatile private var publishJob: Job? = null
     @Volatile private var ws: WebSocket? = null
+
+    init {
+        // Watch the toggle ourselves so the link starts the moment the
+        // rider flips `Enable data link` -- no dependency on WheelService
+        // being alive. WheelService still gets to call start/stop too
+        // (older code paths); start() and stop() are idempotent so the
+        // races are harmless.
+        scope.launch {
+            var on = false
+            settingsRepository.settings.collect { s ->
+                val want = s.hudServerEnabled ||
+                    com.eried.eucplanet.hud.protocol.HudDebug.read("debug.eucplanet.hud.force") == "true"
+                if (want != on) {
+                    if (want) start() else stop()
+                    on = want
+                }
+            }
+        }
+    }
     @Volatile private var multicastLock: WifiManager.MulticastLock? = null
 
     /**
@@ -143,6 +169,32 @@ class HudServer @Inject constructor(
         kotlinx.coroutines.flow.MutableStateFlow(ConnectionSource.NONE)
     val connectionSource: kotlinx.coroutines.flow.StateFlow<ConnectionSource>
         get() = _connectionSource
+
+    /**
+     * Rolling log of what the discovery / dial layer has been doing, with
+     * a wall-clock timestamp. Surfaced in HUD Settings as a small scrolling
+     * region so the rider sees, in real time, "mDNS probe started", "no
+     * answer", "trying manual IP", "WS connected" etc. The log is the
+     * single best diagnostic surface when the rider says "it doesn't
+     * connect": instead of one static line we get a story.
+     *
+     * Capped at [DISCOVERY_LOG_CAP] entries so the StateFlow never grows
+     * unbounded. Most recent at the END of the list (Compose lazy lists
+     * scroll-to-bottom naturally on append that way).
+     */
+    data class DiscoveryLog(val timestampMs: Long, val message: String)
+    private val _discoveryLog =
+        kotlinx.coroutines.flow.MutableStateFlow<List<DiscoveryLog>>(emptyList())
+    val discoveryLog: kotlinx.coroutines.flow.StateFlow<List<DiscoveryLog>>
+        get() = _discoveryLog
+
+    private fun log(msg: String) {
+        Log.i(TAG, "[disc] $msg")
+        _discoveryLog.update { prev ->
+            (prev + DiscoveryLog(System.currentTimeMillis(), msg))
+                .takeLast(DISCOVERY_LOG_CAP)
+        }
+    }
 
     private val demo = HudDemoSource()
     @Volatile private var latest: HudState = HudState()
@@ -158,6 +210,8 @@ class HudServer @Inject constructor(
     private suspend fun doStart() {
         if (loopJob != null) return
         Log.i(TAG, "Starting HUD link")
+        _discoveryLog.value = emptyList()
+        log("Link enabled, starting discovery")
         if (HudDebug.read("debug.eucplanet.demo") == "true") {
             Log.i(TAG, "Demo telemetry mode is ON")
             demo.start()
@@ -191,16 +245,27 @@ class HudServer @Inject constructor(
             }
         }
 
-        // UDP beacon listener runs the whole time the HUD link is on so
-        // the discovery chain has a fresh sighting cached the moment a
-        // dial attempt happens. Idle cost is one bound socket + occasional
-        // recv -- negligible.
-        udpListener.start()
+        // UDP beacon listener only runs when auto-discovery is enabled.
+        // When the rider has turned auto-discovery off they explicitly do
+        // not want any background "find" activity -- only the manual IP
+        // they typed should be dialled.
+        val s = runCatching { settingsRepository.get() }.getOrNull()
+        if (s?.hudAutoDiscover == true) {
+            udpListener.start()
+            log("Auto-discovery on (UDP + mDNS + subnet + manual)")
+        } else {
+            val ip = s?.hudIp?.trim().orEmpty()
+            val port = s?.hudServerPort?.takeIf { it in 1..65535 }
+                ?: HudDiscovery.DEFAULT_PORT
+            val target = if (ip.isBlank()) "(no IP set)" else "$ip:$port"
+            log("Auto-discovery off, manual only -> $target")
+        }
         loopJob = scope.launch { dialLoop() }
     }
 
     private suspend fun doStop() {
         Log.i(TAG, "Stopping HUD link")
+        log("Link disabled")
         try { demo.stop() } catch (_: Throwable) {}
         try { ws?.close(1000, "stopping") } catch (_: Throwable) {}
         ws = null
@@ -237,6 +302,7 @@ class HudServer @Inject constructor(
      */
     private suspend fun dialLoop() {
         var attempt = 0
+        val sprintStartedAtMs = System.currentTimeMillis()
         while (true) {
             val s = runCatching { settingsRepository.get() }.getOrNull()
             val override = HudDebug.read("debug.eucplanet.hud.peer")?.takeIf { it.isNotBlank() }
@@ -247,19 +313,19 @@ class HudServer @Inject constructor(
 
             val (peer, source) = when {
                 override != null -> override to ConnectionSource.DEBUG_OVERRIDE
-                !autoDiscover && manualIp.isNotBlank() ->
-                    "$manualIp:$manualPort" to ConnectionSource.MANUAL
-                !autoDiscover -> null to ConnectionSource.NONE
+                !autoDiscover -> resolveManualOnly(s, manualIp, manualPort)
                 else -> resolvePeer(manualIp, manualPort)
             }
 
             if (peer == null) {
                 _connectionSource.value = ConnectionSource.NONE
-                // No source produced an address. Brief wait so the next
-                // attempt isn't an immediate retry -- the UDP beacon
-                // listener is still receiving in the background and may
-                // populate a sighting any second.
-                delay(2_000L)
+                // Sprint mode: aggressively retry every 2 s for the first
+                // 30 s after the dial loop kicks off so the rider gets a
+                // fast connection on a healthy network. After the sprint
+                // window we relax to a 5 s tick to be kinder to the radio
+                // when the network is genuinely broken.
+                val sinceStart = System.currentTimeMillis() - sprintStartedAtMs
+                delay(if (sinceStart < DISCOVERY_SPRINT_MS) 2_000L else 5_000L)
                 continue
             }
             _connectionSource.value = source
@@ -278,27 +344,127 @@ class HudServer @Inject constructor(
      * tuned so the full chain bottoms out in ~10 s even in the worst case
      * (no UDP, no mDNS, no manual hint, subnet probe runs).
      */
-    private suspend fun resolvePeer(
+    /**
+     * Resolve a peer when auto-discovery is OFF. We trust whatever the rider
+     * typed, fill in only what's missing with mDNS (no UDP, no subnet probe
+     * - the rider has explicitly said they don't want the full sweep):
+     *  - IP set, port set:      dial as-is
+     *  - IP set, port missing:  use default 28080
+     *  - port set, IP missing:  resolve IP via mDNS, attach the typed port
+     *  - both missing:          resolve full host:port via mDNS
+     */
+    private suspend fun resolveManualOnly(
+        s: com.eried.eucplanet.data.model.AppSettings?,
         manualIp: String,
         manualPort: Int,
     ): Pair<String?, ConnectionSource> {
-        // 1. UDP beacon (instant if a recent sighting is cached)
-        udpListener.latest.value?.let { sighting ->
-            // Stale guard: ignore sightings older than 10 s so we don't
-            // dial a HUD we haven't heard from in a while.
-            if (System.currentTimeMillis() - sighting.receivedAtMs < 10_000L) {
-                return "${sighting.ip}:${sighting.port}" to ConnectionSource.UDP_BEACON
+        val typedPort = s?.hudServerPort?.takeIf { it in 1..65535 }
+        if (manualIp.isNotBlank()) {
+            // Always honour the typed IP. Port falls back to default 28080
+            // when the rider left it blank / invalid.
+            return "$manualIp:$manualPort" to ConnectionSource.MANUAL
+        }
+        // IP not set: rely on mDNS for the address, attach the typed port
+        // if the rider set one.
+        log("No IP set, falling back to mDNS for the address")
+        val resolved = resolveViaMdns() ?: run {
+            log("mDNS: no answer")
+            return null to ConnectionSource.NONE
+        }
+        // resolveViaMdns returns "host:port". If the rider typed a port we
+        // override the mDNS-reported one with theirs.
+        val finalPeer = if (typedPort != null) {
+            val justHost = resolved.substringBefore(':')
+            "$justHost:$typedPort"
+        } else resolved
+        log("mDNS resolved address: $finalPeer")
+        return finalPeer to ConnectionSource.MDNS
+    }
+
+    /**
+     * Race all discovery channels in parallel and return the first one
+     * that produces a usable address. Whichever channel answers first
+     * wins; the others get cancelled immediately so we don't waste any
+     * radio time after we already know where to dial.
+     *
+     * Channels fired together:
+     *  - UDP beacon (instant if the listener has a fresh cached sighting,
+     *    otherwise blocks waiting for the next packet up to a soft cap)
+     *  - mDNS browse (5 s timeout, common on real WiFi)
+     *  - Subnet probe across the phone's own /24 (~3 s on fast LAN)
+     *  - Manual IP, fired after a short grace period so the first three
+     *    have a chance to win cleanly when they will
+     *
+     * This is the "try harder" the rider asked for: instead of stepping
+     * through sequentially and waiting for each to give up before the
+     * next one starts, every channel runs at once. Bottoms out at the
+     * SLOWEST channel only when none of them find a HUD.
+     */
+    private suspend fun resolvePeer(
+        manualIp: String,
+        manualPort: Int,
+    ): Pair<String?, ConnectionSource> = kotlinx.coroutines.coroutineScope {
+        log("Searching (all channels in parallel)…")
+        val results = kotlinx.coroutines.channels.Channel<Pair<String, ConnectionSource>>(
+            kotlinx.coroutines.channels.Channel.UNLIMITED
+        )
+
+        val udpJob = launch {
+            // Check the listener's cache repeatedly so a freshly-arrived
+            // beacon shows up within ~200 ms instead of waiting for the
+            // dial loop's next iteration. Bounded so we eventually give
+            // up if the other channels are also losing.
+            val until = System.currentTimeMillis() + 8_000L
+            while (System.currentTimeMillis() < until) {
+                val s = udpListener.latest.value
+                if (s != null && System.currentTimeMillis() - s.receivedAtMs < 10_000L) {
+                    log("UDP beacon: ${s.ip}:${s.port}")
+                    results.send("${s.ip}:${s.port}" to ConnectionSource.UDP_BEACON)
+                    return@launch
+                }
+                kotlinx.coroutines.delay(200L)
+            }
+            log("UDP beacon: no broadcast received")
+        }
+
+        val mdnsJob = launch {
+            log("mDNS: browsing _eucplanet._tcp.local…")
+            val v = resolveViaMdns()
+            if (v != null) {
+                log("mDNS: found $v")
+                results.send(v to ConnectionSource.MDNS)
+            } else {
+                log("mDNS: no answer in ${MDNS_RESOLVE_TIMEOUT_MS / 1000}s")
             }
         }
-        // 2. mDNS (slow path, may take a few seconds)
-        resolveViaMdns()?.let { return it to ConnectionSource.MDNS }
-        // 3. Manual hint
-        if (manualIp.isNotBlank()) return "$manualIp:$manualPort" to ConnectionSource.MANUAL
-        // 4. Subnet probe -- last resort, several seconds of network noise
-        subnetProbe.probe(manualPort)?.let {
-            return "$it:$manualPort" to ConnectionSource.SUBNET_PROBE
+
+        val probeJob = launch {
+            log("Subnet probe: scanning /24…")
+            val ip = subnetProbe.probe(manualPort)
+            if (ip != null) {
+                log("Subnet probe: $ip:$manualPort answered")
+                results.send("$ip:$manualPort" to ConnectionSource.SUBNET_PROBE)
+            } else {
+                log("Subnet probe: nothing answered")
+            }
         }
-        return null to ConnectionSource.NONE
+
+        val manualJob = if (manualIp.isNotBlank()) {
+            launch {
+                // Small grace period so a healthy UDP / mDNS hit wins the
+                // race before we fall back to a possibly-stale manual IP.
+                kotlinx.coroutines.delay(1_500L)
+                log("Manual hint: $manualIp:$manualPort")
+                results.send("$manualIp:$manualPort" to ConnectionSource.MANUAL)
+            }
+        } else null
+
+        val allJobs = listOfNotNull(udpJob, mdnsJob, probeJob, manualJob)
+        val winner = kotlinx.coroutines.withTimeoutOrNull(15_000L) {
+            results.receive()
+        }
+        allJobs.forEach { it.cancel() }
+        if (winner != null) winner else null to ConnectionSource.NONE
     }
 
     /** Resolve `_eucplanet._tcp.local.` on whatever subnet we have. Returns
@@ -364,6 +530,7 @@ class HudServer @Inject constructor(
     /** Open one WebSocket and pump frames until it closes. Returns true on
      *  clean close, false on transport error (which gates backoff). */
     private suspend fun streamUntilClosed(peer: String): Boolean {
+        log("Dial ws://$peer/state")
         val done = kotlinx.coroutines.CompletableDeferred<Boolean>()
         val req = Request.Builder()
             .url("ws://$peer${HudDiscovery.PATH_STATE}")
@@ -372,6 +539,7 @@ class HudServer @Inject constructor(
             private var sendJob: Job? = null
             override fun onOpen(webSocket: WebSocket, response: Response) {
                 Log.i(TAG, "HUD link open: $peer")
+                log("Connected to $peer ✓")
                 ws = webSocket
                 // Push a frame every PUBLISH_INTERVAL_MS off the snapshot
                 // buffer. We don't dedupe: even when no field changed, the
@@ -425,6 +593,7 @@ class HudServer @Inject constructor(
             }
             override fun onFailure(webSocket: WebSocket, t: Throwable, response: Response?) {
                 Log.w(TAG, "HUD link failure: ${t.message} (${response?.code})")
+                log("Not found: ${t.message ?: t::class.simpleName}")
                 sendJob?.cancel()
                 ws = null
                 commandSink.onHudDisconnected()

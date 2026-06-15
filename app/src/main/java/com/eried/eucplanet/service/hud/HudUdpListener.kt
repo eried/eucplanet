@@ -1,7 +1,14 @@
 package com.eried.eucplanet.service.hud
 
+import android.content.Context
+import android.net.ConnectivityManager
+import android.net.Network
+import android.net.NetworkCapabilities
+import android.net.NetworkRequest
+import android.net.wifi.WifiManager
 import android.util.Log
 import com.eried.eucplanet.hud.protocol.HudDiscovery
+import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.coroutines.CoroutineScope
@@ -41,7 +48,9 @@ import java.net.InetSocketAddress
  * permanently silence the listener.
  */
 @Singleton
-class HudUdpListener @Inject constructor() {
+class HudUdpListener @Inject constructor(
+    @ApplicationContext private val appContext: Context,
+) {
     private val port: Int = HudDiscovery.BEACON_UDP_PORT
     data class Sighting(val ip: String, val port: Int, val receivedAtMs: Long)
 
@@ -50,13 +59,26 @@ class HudUdpListener @Inject constructor() {
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     private var job: Job? = null
+    private var multicastLock: WifiManager.MulticastLock? = null
+    private var networkCallback: ConnectivityManager.NetworkCallback? = null
+
+    /** Diagnostic counters surfaced on the HUD-settings status panel so the
+     *  rider can see whether broadcasts are arriving at all. */
+    @Volatile var totalReceived: Long = 0L; private set
+    @Volatile var lastReceiveAtMs: Long = 0L; private set
+    @Volatile var lastBindError: String = ""; private set
 
     fun start() {
         if (job != null) return
+        acquireMulticastLock()
+        watchNetworkChanges()
         job = scope.launch {
             while (isActive) {
                 runCatching { runListenLoop() }
-                    .onFailure { Log.w(TAG, "UDP listener crashed, restarting", it) }
+                    .onFailure {
+                        Log.w(TAG, "UDP listener crashed, restarting", it)
+                        lastBindError = it.message ?: it::class.simpleName.orEmpty()
+                    }
                 // Brief backoff so a persistent failure (e.g. permission
                 // denied) doesn't spin a tight retry loop and chew battery.
                 kotlinx.coroutines.delay(1_000L)
@@ -67,20 +89,101 @@ class HudUdpListener @Inject constructor() {
     fun stop() {
         job?.cancel()
         job = null
+        releaseMulticastLock()
+        unwatchNetworkChanges()
         _latest.value = null
+    }
+
+    /**
+     * Many Android WiFi drivers silently drop inbound *broadcast* (yes,
+     * broadcast, not just multicast) unless a `MulticastLock` is held.
+     * The lock is reference-counted and cheap; we acquire it for the
+     * lifetime of the listener and release on stop.
+     */
+    private fun acquireMulticastLock() {
+        if (multicastLock != null) return
+        runCatching {
+            val wifi = appContext.applicationContext
+                .getSystemService(Context.WIFI_SERVICE) as? WifiManager
+                ?: return@runCatching
+            val lock = wifi.createMulticastLock(LOCK_TAG)
+            lock.setReferenceCounted(false)
+            lock.acquire()
+            multicastLock = lock
+            Log.i(TAG, "multicast lock acquired")
+        }.onFailure { Log.w(TAG, "couldn't acquire multicast lock", it) }
+    }
+
+    private fun releaseMulticastLock() {
+        runCatching { multicastLock?.release() }
+        multicastLock = null
+    }
+
+    /**
+     * Watch for WiFi connection state changes so a rider's mid-session
+     * reconnect (hotspot toggle, AP switch) kicks the listener cleanly.
+     * Without this the bound socket can survive a network change in a
+     * silently-broken state.
+     */
+    private fun watchNetworkChanges() {
+        runCatching {
+            val cm = appContext.getSystemService(Context.CONNECTIVITY_SERVICE)
+                as? ConnectivityManager ?: return@runCatching
+            val req = NetworkRequest.Builder()
+                .addTransportType(NetworkCapabilities.TRANSPORT_WIFI)
+                .addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
+                .build()
+            val cb = object : ConnectivityManager.NetworkCallback() {
+                override fun onAvailable(network: Network) {
+                    Log.i(TAG, "wifi available; recycling listener")
+                    job?.cancel()
+                    job = scope.launch {
+                        kotlinx.coroutines.delay(250L) // let socket fully release
+                        while (isActive) {
+                            runCatching { runListenLoop() }
+                            kotlinx.coroutines.delay(1_000L)
+                        }
+                    }
+                }
+                override fun onLost(network: Network) {
+                    Log.i(TAG, "wifi lost")
+                }
+            }
+            cm.registerNetworkCallback(req, cb)
+            networkCallback = cb
+        }.onFailure { Log.w(TAG, "couldn't register network callback", it) }
+    }
+
+    private fun unwatchNetworkChanges() {
+        val cb = networkCallback ?: return
+        runCatching {
+            val cm = appContext.getSystemService(Context.CONNECTIVITY_SERVICE)
+                as? ConnectivityManager
+            cm?.unregisterNetworkCallback(cb)
+        }
+        networkCallback = null
     }
 
     private fun runListenLoop() {
         DatagramSocket(null).use { socket ->
             socket.reuseAddress = true
             socket.broadcast = true
+            socket.soTimeout = 0
             socket.bind(InetSocketAddress(port))
+            lastBindError = ""
+            Log.i(TAG, "listening on 0.0.0.0:$port")
             val buf = ByteArray(512)
             while (job?.isCancelled == false) {
                 val packet = DatagramPacket(buf, buf.size)
                 socket.receive(packet) // blocks
                 val text = String(packet.data, 0, packet.length, Charsets.US_ASCII).trim()
-                parse(text, packet.address.hostAddress.orEmpty())?.let { _latest.value = it }
+                val srcIp = packet.address.hostAddress.orEmpty()
+                parse(text, srcIp)?.let {
+                    _latest.value = it
+                    totalReceived++
+                    lastReceiveAtMs = System.currentTimeMillis()
+                    Log.v(TAG, "beacon RX from $srcIp -> ${it.ip}:${it.port}")
+                }
             }
         }
     }
@@ -107,5 +210,8 @@ class HudUdpListener @Inject constructor() {
         return Sighting(ip = ip, port = port, receivedAtMs = System.currentTimeMillis())
     }
 
-    companion object { private const val TAG = "HudUdpListener" }
+    companion object {
+        private const val TAG = "HudUdpListener"
+        private const val LOCK_TAG = "eucplanet-hud-udp-listener"
+    }
 }

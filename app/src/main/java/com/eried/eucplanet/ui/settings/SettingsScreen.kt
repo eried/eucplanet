@@ -4,6 +4,10 @@ import android.content.ClipData
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.animation.animateBounds
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.animateFloat
@@ -6369,8 +6373,10 @@ private fun SwitchSettingWithDesc(
     checked: Boolean,
     onCheckedChange: (Boolean) -> Unit,
     onTest: (() -> Unit)? = null,
-    badge: (@Composable () -> Unit)? = null
+    badge: (@Composable () -> Unit)? = null,
+    enabled: Boolean = true,
 ) {
+    val dimAlpha = if (enabled) 1f else 0.4f
     Column(modifier = Modifier.fillMaxWidth()) {
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -6379,7 +6385,8 @@ private fun SwitchSettingWithDesc(
             Row(modifier = Modifier.weight(1f), verticalAlignment = Alignment.CenterVertically) {
                 Text(
                     highlightMatches(label, LocalSettingsSearchQuery.current),
-                    style = MaterialTheme.typography.bodyLarge
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = dimAlpha),
                 )
                 if (onTest != null) {
                     Spacer(Modifier.width(4.dp))
@@ -6390,13 +6397,23 @@ private fun SwitchSettingWithDesc(
                     badge()
                 }
             }
-            Switch(checked = checked, onCheckedChange = onCheckedChange, colors = themedSwitchColors())
+            Switch(
+                checked = checked,
+                onCheckedChange = onCheckedChange,
+                colors = themedSwitchColors(),
+                enabled = enabled,
+            )
         }
-        Text(
-            description,
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
+        if (description.isNotBlank()) {
+            // Skip the Text entirely when caller passes "" -- an empty Text
+            // still claims one line of vertical space, which reads as a
+            // mystery gap below the switch.
+            Text(
+                description,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = dimAlpha)
+            )
+        }
     }
 }
 
@@ -9079,10 +9096,25 @@ private fun HudIntegrationSection(
         // hotspot is intentionally off doesn't think anything is wrong.
         HudHotspotHint()
 
+        // "Find HUD automatically" comes FIRST -- it's the choice that
+        // decides whether the rider needs to know the IP at all.
+        // Default ON. While the link is enabled the toggle is locked, so a
+        // mid-session flip can't drop the connection by switching paths.
+        SwitchSettingWithDesc(
+            label = stringResource(R.string.hud_auto_discover),
+            description = stringResource(R.string.hud_auto_discover_desc),
+            checked = settings.hudAutoDiscover,
+            onCheckedChange = { viewModel.updateHudAutoDiscover(it) },
+            enabled = !settings.hudServerEnabled,
+        )
+
         // IP + port live side by side as one logical input: the rider
         // reads the IP off the HUD's screen, port is almost always the
         // default. They're disabled while the link is active so an
-        // accidental keystroke can't drop a live connection.
+        // accidental keystroke can't drop a live connection. We HIDE the
+        // whole row when auto-find is ON, since the rider doesn't need to
+        // know the IP in that mode and showing fields they shouldn't touch
+        // is just visual noise.
         val fieldsEnabled = !settings.hudServerEnabled
         // Local edit buffers, seeded from settings ONCE at first
         // composition and never re-keyed. The DataStore-backed write
@@ -9091,6 +9123,7 @@ private fun HudIntegrationSection(
         // mid-edit keystrokes (testers reported "192" appearing as "921").
         var ipText by remember { mutableStateOf(settings.hudIp) }
         var portText by remember { mutableStateOf(settings.hudServerPort.toString()) }
+        AnimatedVisibility(visible = !settings.hudAutoDiscover) {
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -9166,17 +9199,7 @@ private fun HudIntegrationSection(
                 colors = themedFieldColors(),
             )
         }
-        // Auto-discovery toggle. Default ON: the phone tries UDP beacon
-        // -> mDNS -> manual IP -> /24 subnet probe. Default OFF: only the
-        // manual IP above is used. The switch sits ABOVE the link toggle
-        // because configuring "how we find the HUD" precedes "open the
-        // link" mentally.
-        SwitchSettingWithDesc(
-            label = stringResource(R.string.hud_auto_discover),
-            description = stringResource(R.string.hud_auto_discover_desc),
-            checked = settings.hudAutoDiscover,
-            onCheckedChange = { viewModel.updateHudAutoDiscover(it) }
-        )
+        }  // end AnimatedVisibility for the IP/port row
 
         // Toggle goes UNDER the IP/port -- the rider configures the
         // address first and then flips the switch to dial out. Flipping
@@ -9209,6 +9232,69 @@ private fun HudIntegrationSection(
                     stringResource(R.string.hud_status_searching)
             }
             HintText(stringResource(R.string.hud_status_label, statusText), small = true)
+
+            // Live discovery log -- the rider sees every probe / answer /
+            // dial attempt as it happens. Much more diagnostic than a
+            // single static "Searching…" line. Bounded height so the
+            // settings page doesn't grow unbounded; auto-scrolls to the
+            // newest entry on each append.
+            val logEntries by viewModel.hudDiscoveryLog.collectAsState()
+            val listState = rememberLazyListState()
+            // Key on the last entry's timestamp, not the list size: once the
+            // log hits its cap the size stops changing but new lines keep
+            // pushing the bottom further -- a size-keyed effect would stop
+            // auto-scrolling at that point, which is exactly when the rider
+            // most needs to see the latest line.
+            LaunchedEffect(logEntries.lastOrNull()?.timestampMs) {
+                if (logEntries.isNotEmpty()) {
+                    listState.animateScrollToItem(logEntries.lastIndex)
+                }
+            }
+            val timeFmt = remember {
+                java.text.SimpleDateFormat("HH:mm:ss", java.util.Locale.getDefault())
+            }
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 6.dp)
+                    .height(90.dp)
+                    .clip(RoundedCornerShape(6.dp))
+                    .background(MaterialTheme.appColors.tileBackground)
+            ) {
+                if (logEntries.isEmpty()) {
+                    Text(
+                        text = stringResource(R.string.hud_log_empty),
+                        color = MaterialTheme.appColors.hint,
+                        fontSize = 11.sp,
+                        modifier = Modifier
+                            .padding(10.dp)
+                    )
+                } else {
+                    LazyColumn(
+                        state = listState,
+                        modifier = Modifier.fillMaxSize().padding(8.dp),
+                        verticalArrangement = Arrangement.spacedBy(2.dp)
+                    ) {
+                        items(logEntries) { entry ->
+                            Row {
+                                Text(
+                                    timeFmt.format(java.util.Date(entry.timestampMs)),
+                                    color = MaterialTheme.appColors.hint,
+                                    fontSize = 11.sp,
+                                    fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace,
+                                )
+                                Spacer(Modifier.width(8.dp))
+                                Text(
+                                    entry.message,
+                                    color = MaterialTheme.appColors.textPrimary,
+                                    fontSize = 11.sp,
+                                    fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace,
+                                )
+                            }
+                        }
+                    }
+                }
+            }
         }
 
         // Three top-level collapsibles under the Integration card.

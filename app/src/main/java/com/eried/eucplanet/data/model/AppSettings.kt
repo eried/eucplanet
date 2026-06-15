@@ -427,7 +427,14 @@ data class AppSettings(
      * users still see it disabled so a HUDless rider doesn't burn battery
      * on a dial loop they'll never use.
      */
-    val hudServerEnabled: Boolean = com.eried.eucplanet.BuildConfig.DEBUG,
+    /**
+     * Link master switch. Always OFF by default -- the rider has to opt
+     * in by flipping it on. Used to default to BuildConfig.DEBUG so debug
+     * builds came pre-armed, but that hid a real-world quirk (the rider
+     * never saw the toggle) and conflated "is this a debug APK?" with
+     * "should the radio be running?". The two should be independent.
+     */
+    val hudServerEnabled: Boolean = false,
     /**
      * HUD joystick long-press bindings. The HUD's IR remote / joystick fires a
      * long-press in one of four directions; the HUD sends an

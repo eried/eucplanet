@@ -17,6 +17,14 @@ class EucPlanetApp : Application(), Configuration.Provider {
     @Inject lateinit var workerFactory: HiltWorkerFactory
     @Inject lateinit var wearBridge: WearBridge
     @Inject lateinit var garminBridge: GarminBridge
+    /**
+     * Constructed eagerly at app start so HudServer's `init` block runs
+     * and starts watching `settings.hudServerEnabled`. Without this, the
+     * server is lazy-constructed when SettingsScreen first inflates -- so
+     * the toggle is only "live" while the rider is sitting on the
+     * Settings page, which is exactly the opposite of what you want.
+     */
+    @Inject lateinit var hudServer: com.eried.eucplanet.service.hud.HudServer
 
     override val workManagerConfiguration: Configuration
         get() = Configuration.Builder()
@@ -29,5 +37,9 @@ class EucPlanetApp : Application(), Configuration.Provider {
         flicManager.initialize()
         wearBridge.start()
         garminBridge.start()
+        // Touch hudServer so its init{} runs even on a cold app start.
+        // The reference assignment alone is enough; HudServer's settings
+        // collector takes over from there.
+        hudServer.hashCode()
     }
 }
