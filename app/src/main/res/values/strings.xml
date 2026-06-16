@@ -89,6 +89,7 @@
     <string name="action_lock_wheel">Lock Wheel</string>
     <string name="action_locked">Locked</string>
     <string name="lock_blocked_in_motion_toast">Slow down to lock the wheel</string>
+    <string name="lock_not_supported_toast">Lock isn\'t available on this wheel</string>
     <string name="action_recorder">Recorder</string>
     <string name="action_recorder_trips">Recorder\n(%1$d trips)</string>
     <string name="action_recorder_trips_one">Recorder

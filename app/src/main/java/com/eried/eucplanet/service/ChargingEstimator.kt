@@ -31,34 +31,39 @@ data class ChargingEstimate(
  * guessing, no per-wheel settings, and no cross-session learning.
  *
  * Feed it `(timestampMs, percent)` samples while a session is active. It:
+ *  - **median-filters the raw input** over [medianFilterSize] samples so a
+ *    single-frame voltage dip can't drag the regression. Veteran captures
+ *    of a Lynx charging at 5 A show ~1 % of frames carrying a wildly low
+ *    voltage (the wheel's pack-V measurement briefly tracks the charger's
+ *    on/off PWM pulses); median filtering knocks those out cleanly without
+ *    a per-wheel allow-list;
  *  - waits for a short warm-up ([warmupMinPercentGain] gained AND
- *    [warmupMinDurationMs] elapsed) so plugging in at 79 % still observes a
- *    couple of percent before predicting;
+ *    [warmupMinDurationMs] elapsed) so a plug-in moment that lands inside
+ *    a noisy stretch doesn't ship a wild ETA;
  *  - fits a least-squares slope over a rolling [windowMs] window for the rate;
  *  - extrapolates linearly to [targetPercent] (e.g. 80 %), with an optional
  *    very-small [targetTaperFactor] (default 1.05) so the 80 % ETA errs a
  *    hair long rather than over-promising;
- *  - extrapolates the `target → 100 %` segment with a modest pessimism
- *    [cvTaperFactor] (default 1.3). On real EUC BMSs the reported SoC above
- *    the target is often nearly linear or only mildly slower than the CC
- *    phase, so the historical 2.2× multiplier produced 100 % ETAs that were
- *    consistently ~1 h late on a 4 h charge. 1.3 leaves the prediction
- *    slightly pessimistic without the wild overshoot.
+ *  - extrapolates the `target → 100 %` segment with [cvTaperFactor] (default
+ *    2.0). A Lynx-class report at 5 A showed our 1.3 factor under-predicting
+ *    the 100 % ETA by ~50 % (predicted 2 h, actual ~3.5 h); 2.0 sits roughly
+ *    between that and the historical 2.2 — pessimistic enough to cover the
+ *    real CV taper without the wild 1 h overshoot that pushed us off 2.2.
  */
 class ChargingEstimator(
     private val targetPercent: Float = 80f,
     private val targetTaperFactor: Float = 1.05f,
-    private val cvTaperFactor: Float = 1.3f,
-    private val warmupMinPercentGain: Float = 2f,
-    private val warmupMinDurationMs: Long = 30_000L,
-    // 5 min window (was 2 min). LeaperKim / Veteran / other BMS-equipped
-    // wheels report SoC as INTEGER percent; with a narrow 2 min window the
-    // slope estimate flipped each time a 1 % transition entered or left
-    // the window, swinging the ETA between 50 min and 2-3 h on the same
-    // physical charge rate. Five minutes smooths over enough integer
-    // transitions that the slope stabilises within a few %. Wheels that
-    // expose fractional SoC (voltage-curve fallbacks) were already smooth
-    // and don't notice the change.
+    private val cvTaperFactor: Float = 2.0f,
+    // Warm-up: 3 % gained over 3 min (was 2 % / 30 s). At ~5 A on a typical
+    // BMS-equipped pack 3 % is roughly 3 min of charge anyway, so this
+    // suppresses the first 15 minutes of jittery early predictions that
+    // testers reported as "way off" and shows the rider a "warming up" hint
+    // for that window. After warm-up the slope is steady enough to commit.
+    private val warmupMinPercentGain: Float = 3f,
+    private val warmupMinDurationMs: Long = 180_000L,
+    // 5 min window: enough integer SoC transitions in the window that the
+    // slope estimate stays within a few % of the truth even on a BMS that
+    // ticks at 1 % resolution.
     private val windowMs: Long = 300_000L,
     // Hard cap on a sensible ETA. Any computed minutesToFull above this
     // means the slope just got transiently tiny (a sample sequence where
@@ -66,20 +71,27 @@ class ChargingEstimator(
     // and let the commitEta layer hold the previous value. 8 h covers
     // even worst-case real charge cycles (0 % -> 100 % on a slow brick).
     private val sanityCapMinutes: Float = 480f,
+    // Median-filter window (must be odd, ≥ 1; 1 disables filtering). 7 covers
+    // ~0.8 s of telemetry at the 9 Hz Veteran cadence — small enough that the
+    // smoothed series tracks real % transitions with sub-second lag, big
+    // enough that a single rogue voltage dip is dropped completely.
+    private val medianFilterSize: Int = 7,
 ) {
     private data class Sample(val t: Long, val p: Float)
 
     private val samples = ArrayDeque<Sample>()
+    private val rawWindow = ArrayDeque<Float>()
     private var startPercent: Float? = null
     private var startTimeMs: Long = 0L
 
     /** Add a battery-percent reading. Call once per telemetry tick while charging. */
     fun addSample(timestampMs: Long, percent: Float) {
+        val smoothed = medianFilter(percent)
         if (startPercent == null) {
-            startPercent = percent
+            startPercent = smoothed
             startTimeMs = timestampMs
         }
-        samples.addLast(Sample(timestampMs, percent))
+        samples.addLast(Sample(timestampMs, smoothed))
         // Drop samples older than the rolling window (keep at least one).
         while (samples.size > 1 && timestampMs - samples.first().t > windowMs) {
             samples.removeFirst()
@@ -89,8 +101,21 @@ class ChargingEstimator(
     /** Clear all session state (call when a charging session ends/starts fresh). */
     fun reset() {
         samples.clear()
+        rawWindow.clear()
         startPercent = null
         startTimeMs = 0L
+    }
+
+    /** Rolling median of the last [medianFilterSize] raw inputs. Single-frame
+     *  outliers (the wheel briefly reporting a sagged voltage during a
+     *  charger PWM pulse) get dropped completely; persistent transitions are
+     *  preserved with sub-second lag at the typical 9 Hz Veteran rate. */
+    private fun medianFilter(percent: Float): Float {
+        if (medianFilterSize <= 1) return percent
+        rawWindow.addLast(percent)
+        while (rawWindow.size > medianFilterSize) rawWindow.removeFirst()
+        val sorted = rawWindow.toFloatArray().also { it.sort() }
+        return sorted[sorted.size / 2]
     }
 
     fun estimate(): ChargingEstimate {

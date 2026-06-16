@@ -188,6 +188,15 @@ class WheelRepository @Inject constructor(
     private val _locked = MutableStateFlow(false)
     val locked: StateFlow<Boolean> = _locked.asStateFlow()
 
+    /** Whether the currently connected wheel's adapter implements a lock
+     *  command. Drives the dashboard so the lock button can fall back to a
+     *  "not supported on this wheel" snackbar instead of optimistically
+     *  flipping the lock icon and then silently snapping back when the next
+     *  settings poll resets it. False while disconnected (no adapter yet) so
+     *  the button shows the same hint until a real capability is known. */
+    private val _wheelHasLock = MutableStateFlow(false)
+    val wheelHasLock: StateFlow<Boolean> = _wheelHasLock.asStateFlow()
+
     // Charging state — explicit firmware flag (V14/V12/KingSong) when available,
     // otherwise inferred from sustained negative current. Drives the dashboard
     // spark icon and the Charging Monitor screen.
@@ -513,6 +522,13 @@ class WheelRepository @Inject constructor(
                         // BLE-advertised name; if no profile exists, we save
                         // the current values as the seed.
                         scope.launch { loadOrSeedWheelProfile() }
+                        // Publish per-adapter capabilities now that the BLE
+                        // name has resolved which sub-adapter the Composite
+                        // is routing through. Today only `hasLock` drives a
+                        // UI gate (lock button on the dashboard), but the
+                        // pattern is generic enough to grow other gates
+                        // without touching the connection observer.
+                        _wheelHasLock.value = wheelAdapter.capabilities.hasLock
                     }
                     ConnectionState.DISCONNECTED -> {
                         pollingActive = false
@@ -529,6 +545,7 @@ class WheelRepository @Inject constructor(
                         // Reset states that depend on wheel connection
                         _safetySpeedActive.value = false
                         _locked.value = false
+                        _wheelHasLock.value = false
                         _chargeStatus.value = ChargeStatus.Disconnected
                         chargeInferred = false
                         chargeNegSamples = 0
@@ -925,6 +942,16 @@ class WheelRepository @Inject constructor(
     fun toggleLock() {
         if (!wheelConnected()) return  // no wheel -> ignore (HUD/Garmin/Flic/UI all land here)
         if (_lockBusy.value) return  // cooldown active, ignore the spam tap
+        // Capability gate. Without this the optimistic `_locked.value = !..`
+        // below flips the lock icon for a moment even on wheels whose
+        // adapter returns null from setLock(); the next settings poll then
+        // snaps it back and the rider sees a misleading "it worked, then
+        // un-worked" UI. The dashboard / Flic / wear paths all land here so
+        // the early-return covers every entry.
+        if (!wheelAdapter.capabilities.hasLock) {
+            Log.d(TAG, "toggleLock: ${wheelAdapter.familyId} doesn't expose a BLE lock command")
+            return
+        }
         val targetState = !_locked.value
         // Hard block the lock direction when the wheel is moving, any entry
         // path (Flic, watch, volume keys, dashboard) lands here. Unlock is

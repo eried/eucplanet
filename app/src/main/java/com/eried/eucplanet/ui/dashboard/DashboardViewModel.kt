@@ -92,6 +92,11 @@ class DashboardViewModel @Inject constructor(
 
     val locked: StateFlow<Boolean> = wheelRepository.locked
     val lockBusy: StateFlow<Boolean> = wheelRepository.lockBusy
+    /** True when the connected wheel's adapter implements a BLE lock command.
+     *  Drives the dashboard lock button to fall back to a "not supported" hint
+     *  on wheels (Veteran / LeaperKim, Begode, etc.) whose firmware doesn't
+     *  expose lock over BLE today. */
+    val wheelHasLock: StateFlow<Boolean> = wheelRepository.wheelHasLock
 
     /** Charging state for the dashboard spark icon (hint + tap-to-open). */
     val chargeStatus: StateFlow<com.eried.eucplanet.data.model.ChargeStatus> =

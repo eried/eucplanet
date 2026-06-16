@@ -1855,6 +1855,7 @@ fun DashboardScreen(
             val periodicVoiceOn by viewModel.voicePeriodicEnabled.collectAsState()
             val lockAtAnySpeed by viewModel.cheatState.lockAtAnySpeed.collectAsState()
             val lockBlockedBySpeed = !locked && kotlin.math.abs(wheelData.speed) >= 5f && !lockAtAnySpeed
+            val wheelHasLock by viewModel.wheelHasLock.collectAsState()
 
             // Two rows of 3 — match today's layout. Tablets (wideStats)
             // and phones both render 3 columns; only the height changes.
@@ -1961,8 +1962,21 @@ fun DashboardScreen(
                                 activeColor = if (useAccent) primary else MaterialTheme.appColors.statusDanger,
                                 enabled = connectionState == ConnectionState.CONNECTED && !lockBusy,
                                 onClick = {
-                                    if (lockBlockedBySpeed) {
-                                        val msg = toastContext.getString(R.string.lock_blocked_in_motion_toast)
+                                    // Two suppression cases route to a snackbar
+                                    // instead of the actual toggle: (a) wheel
+                                    // doesn't expose a BLE lock command at all
+                                    // (Veteran / LeaperKim, Begode, KingSong,
+                                    // InMotion V1), (b) safe-speed gate while
+                                    // the wheel is moving. Both keep the button
+                                    // tappable so the rider gets explicit
+                                    // feedback rather than a dead control.
+                                    val msgRes = when {
+                                        !wheelHasLock -> R.string.lock_not_supported_toast
+                                        lockBlockedBySpeed -> R.string.lock_blocked_in_motion_toast
+                                        else -> null
+                                    }
+                                    if (msgRes != null) {
+                                        val msg = toastContext.getString(msgRes)
                                         snackbarScope.launch { snackbar.showSnackbar(msg) }
                                     } else {
                                         viewModel.onLockToggle()
