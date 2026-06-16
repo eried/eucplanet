@@ -9253,6 +9253,7 @@ private fun HudIntegrationSection(
             val timeFmt = remember {
                 java.text.SimpleDateFormat("HH:mm:ss", java.util.Locale.getDefault())
             }
+            val ctxForShare = LocalContext.current
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -9292,6 +9293,42 @@ private fun HudIntegrationSection(
                                 )
                             }
                         }
+                    }
+                }
+                // Share button overlay (top-right). Only enabled when the
+                // log has content -- a share of "nothing" is misleading.
+                // Bundles a one-line header (app version + locale-formatted
+                // datetime) so when the rider DMs me the dump I can match
+                // it back to a build without asking. ISO-ish timestamps on
+                // each line so any text viewer's monospace renders them
+                // aligned.
+                if (logEntries.isNotEmpty()) {
+                    androidx.compose.material3.IconButton(
+                        onClick = {
+                            val body = buildHudLogShareText(
+                                ctxForShare, logEntries, timeFmt
+                            )
+                            val intent = android.content.Intent(android.content.Intent.ACTION_SEND).apply {
+                                type = "text/plain"
+                                putExtra(android.content.Intent.EXTRA_SUBJECT,
+                                    "EUC Planet HUD discovery log")
+                                putExtra(android.content.Intent.EXTRA_TEXT, body)
+                            }
+                            ctxForShare.startActivity(
+                                android.content.Intent.createChooser(intent, null)
+                                    .addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)
+                            )
+                        },
+                        modifier = Modifier
+                            .align(Alignment.TopEnd)
+                            .size(28.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Filled.Share,
+                            contentDescription = stringResource(R.string.action_share),
+                            tint = MaterialTheme.appColors.hint,
+                            modifier = Modifier.size(16.dp)
+                        )
                     }
                 }
             }
@@ -9718,3 +9755,33 @@ private fun HudOverlayPicker(
     }
 }
 
+/** Format the in-memory HUD discovery log as a single shareable text dump.
+ *  The header is short on purpose: rider name / device serial deliberately
+ *  not included (the log can be sent to a chat I don't control), only what
+ *  helps me match the dump back to a build — app version + the wall-clock
+ *  moment they shared it. Entries use the same time format the UI shows
+ *  so the dump reads identically to the on-screen list. */
+private fun buildHudLogShareText(
+    context: android.content.Context,
+    entries: List<com.eried.eucplanet.service.hud.HudServer.DiscoveryLog>,
+    timeFmt: java.text.SimpleDateFormat,
+): String = buildString {
+    val pkg = context.packageName
+    val version = runCatching {
+        val pi = context.packageManager.getPackageInfo(pkg, 0)
+        "v${pi.versionName} (${pi.longVersionCode})"
+    }.getOrDefault("v?")
+    val now = java.text.SimpleDateFormat(
+        "yyyy-MM-dd HH:mm:ss", java.util.Locale.US
+    ).format(java.util.Date())
+    append("EUC Planet HUD discovery log — ").append(version)
+        .append(" — shared at ").append(now).append('\n')
+    append("entries: ").append(entries.size).append('\n')
+    append('\n')
+    for (e in entries) {
+        append(timeFmt.format(java.util.Date(e.timestampMs)))
+        append("  ")
+        append(e.message)
+        append('\n')
+    }
+}
