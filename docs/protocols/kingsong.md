@@ -175,6 +175,20 @@ Suggested mapping for our parser: store a struct `{ minV, maxV, curve }`
 keyed by model string, then linear-interpolate between known break points.
 Values from the public reference are documented in section 7.
 
+Per-cell endpoints used by `KingsongParser.batteryPercentFromVoltage`,
+reverse-engineered from KS-16X side-by-side captures:
+
+| V / cell | % |
+| --- | --- |
+| 3.10 | 0 |
+| 4.15 | 100 |
+
+The KS app uses a flat linear curve between these endpoints across the
+rideable range; the three captures we have line up on this single line to
+within rounding (52% at 73 V / 57% at 74 V / 96-97% at 82.27 V on 20S).
+Apply the same per-cell endpoints to every voltage class — packs share
+the same 18650/21700 NMC chemistry, only the series count changes.
+
 ### 4.6 CPU and PWM, type `0xF5`
 
 | Offset | Bytes | Type | Field | Units |

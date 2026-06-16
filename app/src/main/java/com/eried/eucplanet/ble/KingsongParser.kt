@@ -259,42 +259,39 @@ object KingsongParser {
     }
 
     /**
-     * Voltage-to-percent curve, keyed by the wheel's nominal pack voltage.
-     * KingSong never transmits a battery percentage, so it is estimated
-     * from pack voltage.
+     * Voltage-to-percent curve. KingSong never transmits a battery
+     * percentage, so it's estimated from per-cell pack voltage.
      *
-     * Ported verbatim from WheelLog's `KingsongAdapter` (its default, non-
-     * "better-percents" curve) so the dashboard agrees with the reference
-     * app. The endpoints matter: a "full" 84 V KingSong pack settles near
-     * 82.5 V, not 84 V; anchoring 100% at 84 V (as an earlier curve did)
-     * made the gauge under-read by ~7% across the whole range.
+     * Reverse-engineered from side-by-side captures against the official
+     * KingSong app on a KS-16X (20S):
      *
-     * WheelLog works in centivolts; the curve is reproduced in those units
-     * (integer division included) so the result matches it exactly.
+     *   pack V   per cell   KS app    matches our formula
+     *   73.00 V  3.6500 V   52 %      52.4 %  ->  52
+     *   74.00 V  3.7000 V   57 %      57.1 %  ->  57
+     *   82.27 V  4.1135 V   96-97 %   96.5 %  ->  96-97
      *
-     * Returns 0 when no model is detected; the dashboard renders the empty
+     * Those three points sit exactly on a single per-cell line from
+     * 3.10 V/cell (0 %) to 4.15 V/cell (100 %). The KS app does not appear
+     * to apply a knee in the rideable range; the previous 3-knee fit was a
+     * wrong guess. Endpoint span is 1.05 V/cell -> 0.0105 V/cell per 1 %.
+     *
+     * Same per-cell line applies across every voltage class (16/20/24/30/36/42)
+     * because all KS packs share the same 18650/21700 NMC chemistry; per-class
+     * pack endpoints are just `cells * 3.10` and `cells * 4.15`.
+     *
+     * Returns 0 when no model is detected so the dashboard renders an empty
      * battery rather than a stale fallback.
      */
     private fun batteryPercentFromVoltage(voltage: Float, model: KingsongModel?): Int {
         if (model == null || voltage <= 0f) return 0
-        val cv = (voltage * 100f).toInt()
-        // empty = 0% threshold, full = 100% threshold, span = centivolts per 1%.
-        val empty: Int
-        val full: Int
-        val span: Int
-        when (model.nominalVoltage) {
-            67  -> { empty = 5000;  full = 6600;  span = 16 }
-            84  -> { empty = 6250;  full = 8250;  span = 20 }
-            100 -> { empty = 7500;  full = 9900;  span = 24 }
-            126 -> { empty = 9375;  full = 12375; span = 30 }
-            151 -> { empty = 11250; full = 14850; span = 36 }
-            176 -> { empty = 13125; full = 17325; span = 42 }
-            else -> return 0
-        }
-        return when {
-            cv < empty -> 0
-            cv >= full -> 100
-            else -> ((cv - empty) / span).coerceIn(0, 100)
-        }
+        val cells = model.cellsSeries
+        if (cells <= 0) return 0
+        val vPerCell = voltage / cells
+        val raw = ((vPerCell - KS_EMPTY_V_PER_CELL) * 100f) /
+            (KS_FULL_V_PER_CELL - KS_EMPTY_V_PER_CELL)
+        return raw.toInt().coerceIn(0, 100)
     }
+
+    private const val KS_EMPTY_V_PER_CELL: Float = 3.10f
+    private const val KS_FULL_V_PER_CELL:  Float = 4.15f
 }
