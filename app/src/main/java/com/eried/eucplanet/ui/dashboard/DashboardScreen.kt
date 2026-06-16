@@ -1960,23 +1960,10 @@ fun DashboardScreen(
                                     else stringResource(R.string.action_lock_wheel),
                                 active = locked,
                                 activeColor = if (useAccent) primary else MaterialTheme.appColors.statusDanger,
-                                enabled = connectionState == ConnectionState.CONNECTED && !lockBusy,
+                                enabled = connectionState == ConnectionState.CONNECTED && !lockBusy && wheelHasLock,
                                 onClick = {
-                                    // Two suppression cases route to a snackbar
-                                    // instead of the actual toggle: (a) wheel
-                                    // doesn't expose a BLE lock command at all
-                                    // (Veteran / LeaperKim, Begode, KingSong,
-                                    // InMotion V1), (b) safe-speed gate while
-                                    // the wheel is moving. Both keep the button
-                                    // tappable so the rider gets explicit
-                                    // feedback rather than a dead control.
-                                    val msgRes = when {
-                                        !wheelHasLock -> R.string.lock_not_supported_toast
-                                        lockBlockedBySpeed -> R.string.lock_blocked_in_motion_toast
-                                        else -> null
-                                    }
-                                    if (msgRes != null) {
-                                        val msg = toastContext.getString(msgRes)
+                                    if (lockBlockedBySpeed) {
+                                        val msg = toastContext.getString(R.string.lock_blocked_in_motion_toast)
                                         snackbarScope.launch { snackbar.showSnackbar(msg) }
                                     } else {
                                         viewModel.onLockToggle()
