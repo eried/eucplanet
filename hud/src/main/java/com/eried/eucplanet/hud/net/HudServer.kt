@@ -19,8 +19,10 @@ import io.ktor.websocket.send
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -32,7 +34,9 @@ import kotlinx.coroutines.sync.withLock
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import java.net.Inet4Address
+import java.net.InetSocketAddress
 import java.net.NetworkInterface
+import java.net.Socket
 import javax.jmdns.JmDNS
 import javax.jmdns.ServiceInfo
 
@@ -63,6 +67,17 @@ class HudServer(private val context: Context) {
         /** Server bind port. Matches [HudDiscovery.DEFAULT_PORT] so testers
          *  don't need to change anything in the phone settings. */
         private val PORT = HudDiscovery.DEFAULT_PORT
+        /** How often the self-heal watchdog ticks (ms). 30 s is small
+         *  enough to catch a dead listener within a single missed
+         *  reconnect window, large enough that it never noticeably
+         *  loads the device. */
+        private const val WATCHDOG_INTERVAL_MS: Long = 30_000L
+        /** Consecutive failed localhost probes before forcing a server
+         *  restart. Two misses (= ~60 s) covers an Android Doze blip
+         *  without acting on a transient. */
+        private const val WATCHDOG_FAIL_THRESHOLD: Int = 2
+        /** Per-attempt timeout for the watchdog's localhost TCP probe (ms). */
+        private const val TCP_PROBE_TIMEOUT_MS: Int = 1_500
     }
 
     /** Connection state surfaced to the UI status banner. */
@@ -114,6 +129,14 @@ class HudServer(private val context: Context) {
     private var server: io.ktor.server.engine.ApplicationEngine? = null
     private var jmdns: JmDNS? = null
     private var multicastLock: WifiManager.MulticastLock? = null
+    /** Self-heal watchdog. Polls the local listener and the current IPv4 every
+     *  [WATCHDOG_INTERVAL_MS] so a hotspot IP-renew or a silently-dead Ktor
+     *  socket gets fixed without the rider having to reboot the HUD. */
+    private var watchdogJob: Job? = null
+    /** Count of consecutive watchdog ticks where the local TCP probe failed.
+     *  We require [WATCHDOG_FAIL_THRESHOLD] in a row before a full restart so
+     *  a transient localhost blip doesn't churn the server. */
+    @Volatile private var watchdogFailStreak: Int = 0
     // Always-on UDP broadcast beacon so the phone can find us on networks
     // where mDNS multicast is blocked (most phone hotspots, every carrier
     // mobile hotspot). Runs in parallel with the mDNS advertise -- whichever
@@ -204,6 +227,12 @@ class HudServer(private val context: Context) {
                         }
                     }
 
+                    // Capture WHY the for-loop ended so the next time the
+                    // rider reports a 2-min drop we know whether it was a
+                    // clean phone close, a heartbeat timeout, or an
+                    // exception coming back up. Without this the disconnect
+                    // signal is "phone disconnected" and nothing more.
+                    var endReason: String = "frames exhausted"
                     try {
                         for (frame in incoming) {
                             if (frame is Frame.Text) {
@@ -226,9 +255,11 @@ class HudServer(private val context: Context) {
                                 }
                             }
                         }
+                    } catch (t: Throwable) {
+                        endReason = "exception: ${t::class.simpleName} ${t.message}"
                     } finally {
                         sender.cancel()
-                        Log.i(TAG, "phone disconnected: $remote")
+                        Log.i(TAG, "phone disconnected: $remote ($endReason)")
                         _peer.value = null
                         _status.value = Status.LISTENING
                     }
@@ -246,9 +277,22 @@ class HudServer(private val context: Context) {
         // sees us via at least one of the two channels even on hotspots
         // that filter the beacon direction.
         phoneFinder.start()
+        // Self-heal watchdog: a tester reported the link dies after ~2 min
+        // and the HUD has to be rebooted before EUC Planet can reconnect.
+        // The most plausible culprits are (a) a silently-dead Ktor socket
+        // after a network blip, and (b) a DHCP IP renew that the mDNS
+        // advertise and on-screen banner never picked up. The watchdog
+        // covers both: probes localhost:PORT every WATCHDOG_INTERVAL_MS,
+        // and full-restarts after WATCHDOG_FAIL_THRESHOLD consecutive
+        // misses; on every tick it also re-resolves the local IPv4 and
+        // re-broadcasts mDNS if it changed.
+        watchdogFailStreak = 0
+        watchdogJob = scope.launch { runWatchdog() }
     }
 
     private suspend fun doStop() {
+        watchdogJob?.cancel()
+        watchdogJob = null
         udpBeacon.stop()
         phoneFinder.stop()
         try { jmdns?.close() } catch (_: Throwable) {}
@@ -259,6 +303,75 @@ class HudServer(private val context: Context) {
         server = null
         _peer.value = null
         _status.value = Status.LISTENING
+    }
+
+    /** Watchdog loop. Two jobs per tick:
+     *
+     *   1. Re-resolve the local IPv4. If it changed (hotspot DHCP renew,
+     *      WiFi reconnect on a new subnet), push the new value into
+     *      [_localIp] so the on-screen banner refreshes, and rebuild the
+     *      mDNS advertise so phones looking us up via mDNS resolve to the
+     *      new address.
+     *   2. TCP-probe `127.0.0.1:PORT` to confirm the Ktor server is still
+     *      accepting connections. If the probe fails [WATCHDOG_FAIL_THRESHOLD]
+     *      ticks in a row, tear everything down and restart the server.
+     *      A single probe miss is tolerated because localhost can blip
+     *      during Android suspend windows; consecutive misses is the
+     *      signal that something's actually wrong. */
+    private suspend fun runWatchdog() {
+        // delay() is a cancellation point, so the parent watchdogJob cancel
+        // unwinds the loop without an explicit isActive check.
+        while (true) {
+            delay(WATCHDOG_INTERVAL_MS)
+            // 1. IP-change handling.
+            val current = pickLocalIp()
+            val prior = _localIp.value
+            if (!current.isNullOrBlank() && current != prior) {
+                Log.i(TAG, "watchdog: local IP changed $prior -> $current; refreshing mDNS")
+                _localIp.value = current
+                try { jmdns?.close() } catch (_: Throwable) {}
+                jmdns = null
+                try { multicastLock?.release() } catch (_: Throwable) {}
+                multicastLock = null
+                startMdnsAdvertise()
+            }
+            // 2. Server-liveness probe.
+            val alive = tcpProbe("127.0.0.1", PORT)
+            if (alive) {
+                watchdogFailStreak = 0
+            } else {
+                watchdogFailStreak++
+                Log.w(TAG, "watchdog: localhost:$PORT probe miss (streak=$watchdogFailStreak)")
+                if (watchdogFailStreak >= WATCHDOG_FAIL_THRESHOLD) {
+                    Log.w(TAG, "watchdog: server appears wedged after $watchdogFailStreak " +
+                        "consecutive misses; forcing restart")
+                    watchdogFailStreak = 0
+                    // Restart in its own coroutine so the watchdog loop itself
+                    // doesn't suspend on the start/stop lock that doStart()
+                    // takes. If the watchdog held its own lifecycle-lock here
+                    // we'd deadlock with a concurrent stop() coming from the
+                    // activity onDestroy.
+                    scope.launch { lifecycleLock.withLock {
+                        doStop()
+                        doStart()
+                    } }
+                    // Exit this iteration; doStart() will spawn a fresh watchdog.
+                    return
+                }
+            }
+        }
+    }
+
+    /** Synchronous TCP connect with a tight timeout. Used by the watchdog to
+     *  check the Ktor listener is still accepting; we don't need to send any
+     *  data, the three-way handshake completing is enough proof. */
+    private fun tcpProbe(host: String, port: Int): Boolean {
+        return runCatching {
+            Socket().use { s ->
+                s.connect(InetSocketAddress(host, port), TCP_PROBE_TIMEOUT_MS)
+                true
+            }
+        }.getOrDefault(false)
     }
 
     private fun startMdnsAdvertise() {
