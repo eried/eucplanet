@@ -314,9 +314,9 @@ fun TripDetailScreen(
                 }
                 val speedOverlays = buildList {
                     if (gpsSpeedSeries.any { !it.isNaN() })
-                        add(ChartOverlay(gpsSpeedSeries, MaterialTheme.appColors.metricPosition))
+                        add(ChartOverlay(gpsSpeedSeries, MaterialTheme.appColors.metricPosition, label = "GPS"))
                     if (extSpeedSeries.any { !it.isNaN() })
-                        add(ChartOverlay(extSpeedSeries, MaterialTheme.appColors.metricTemp))
+                        add(ChartOverlay(extSpeedSeries, MaterialTheme.appColors.metricTemp, label = "Ext"))
                 }
                 val speedMinSpan = when (speedUnit) {
                     "mph" -> GraphScale.SPAN_SPEED_MPH
@@ -568,9 +568,11 @@ private fun buildMapHtml(coordsJson: String, isLive: Boolean): String = """
  * Optional secondary series drawn behind the main chart line. Used by the
  * speed chart to overlay external GPS speed (RaceBox) when available, with
  * NaN values treated as breaks in the line so missing samples don't pull
- * the curve down to zero.
+ * the curve down to zero. [label] tags the series in the scrub tooltip
+ * (e.g. "GPS", "Ext"); null = overlay shown on the chart but not labelled
+ * in the tooltip.
  */
-data class ChartOverlay(val values: List<Float>, val color: Color)
+data class ChartOverlay(val values: List<Float>, val color: Color, val label: String? = null)
 
 /**
  * Single-metric line chart card.
@@ -764,24 +766,57 @@ private fun ChartCard(
                     drawCircle(color, radius = 4f, center = Offset(cursorX, cursorY))
                     drawCircle(Color.White, radius = 2f, center = Offset(cursorX, cursorY))
 
-                    val labelText = "%.1f %s".format(interpValue, unitLabel)
-                    val measured = textMeasurer.measure(
-                        labelText,
-                        TextStyle(fontSize = 10.sp, color = tooltipFg, fontWeight = FontWeight.Medium)
+                    // Sample each labelled overlay at the cursor too. NaN
+                    // values are treated as "no sample here" and skipped,
+                    // matching how the overlay line itself breaks on NaN.
+                    fun sampleAt(series: List<Float>): Float? {
+                        if (series.size != values.size) return null
+                        val lv2 = series[leftIdx]
+                        val rv2 = series[rightIdx]
+                        return when {
+                            lv2.isNaN() && rv2.isNaN() -> null
+                            lv2.isNaN() -> rv2
+                            rv2.isNaN() -> lv2
+                            else -> lv2 + (rv2 - lv2) * frac
+                        }
+                    }
+                    val labelStyle = TextStyle(
+                        fontSize = 10.sp, color = tooltipFg, fontWeight = FontWeight.Medium
                     )
+                    // Lines for the tooltip: main value first (always present),
+                    // each labelled overlay with its colour, then a delta row
+                    // per overlay so the rider sees "wheel vs GPS" at a glance.
+                    data class TLine(val text: String, val tint: Color)
+                    val lines = mutableListOf<TLine>()
+                    lines += TLine("%.1f %s".format(interpValue, unitLabel), tooltipFg)
+                    overlays.forEach { ov ->
+                        val lbl = ov.label ?: return@forEach
+                        val s = sampleAt(ov.values) ?: return@forEach
+                        lines += TLine("$lbl %.1f".format(s), ov.color)
+                        lines += TLine("Δ %+.1f".format(s - interpValue), ov.color)
+                    }
+                    val measuredLines = lines.map { line ->
+                        line to textMeasurer.measure(line.text, labelStyle.copy(color = line.tint))
+                    }
                     val padX = 5f
                     val padY = 2f
-                    val boxW = measured.size.width + padX * 2
-                    val boxH = measured.size.height + padY * 2
+                    val lineGap = 1f
+                    val boxW = (measuredLines.maxOf { it.second.size.width } + padX * 2)
+                    val boxH = measuredLines.sumOf { it.second.size.height } + padY * 2 +
+                        lineGap * (measuredLines.size - 1).coerceAtLeast(0)
                     val boxX = (cursorX - boxW / 2f).coerceIn(0f, w - boxW)
                     val boxY = (cursorY - boxH - 6f).coerceAtLeast(0f)
                     drawRoundRect(
                         color = tooltipBg,
                         topLeft = Offset(boxX, boxY),
-                        size = Size(boxW, boxH),
+                        size = Size(boxW, boxH.toFloat()),
                         cornerRadius = CornerRadius(5f, 5f)
                     )
-                    drawText(measured, topLeft = Offset(boxX + padX, boxY + padY))
+                    var rowY = boxY + padY
+                    measuredLines.forEach { (_, layout) ->
+                        drawText(layout, topLeft = Offset(boxX + padX, rowY))
+                        rowY += layout.size.height + lineGap
+                    }
                 }
             }
         }
