@@ -92,6 +92,21 @@ class TripRepository @Inject constructor(
     private var pendingTrip: TripRecord? = null
     private var pendingFinalizeJob: kotlinx.coroutines.Job? = null
 
+    init {
+        // App-start recovery sweep. The eucstats worker now also picks up
+        // orphaned trips (UUID + endTime + status 0) — kick it once on
+        // startup so a trip that finalized in the broken pre-fix state
+        // (the trip-231 symptom: no folder, finalize skipped, status
+        // stayed 0/0, no icon) gets uploaded on the next app launch
+        // without requiring a fresh ride.
+        scope.launch {
+            val appSettings = runCatching { settingsRepository.get() }.getOrNull() ?: return@launch
+            if (appSettings.onlineUploadEnabled && appSettings.eucstatsStoreId != null) {
+                syncManager.enqueueEucStatsUpload(appSettings)
+            }
+        }
+    }
+
     // GPS-accumulated distance for the active recording. Reset at start, read at stop.
     // Preferred over wheel tripDistance because BLE can drop mid-ride, leaving the wheel
     // counter stale or zero while GPS keeps producing valid fixes.
@@ -394,24 +409,43 @@ class TripRepository @Inject constructor(
             }
         }
 
-        // No sync folder = no upload to defer = no grace window. The trip is fully
-        // saved locally already (endTime/distance written above); just exit.
-        if (appSettings.syncFolderUri == null) {
-            Log.i(TAG, "Recording stopped (no sync folder, finalized immediately)")
+        val willSync = appSettings.syncFolderUri != null
+        val willEucstats = appSettings.onlineUploadEnabled && appSettings.eucstatsStoreId != null
+
+        // No upload destination at all: nothing to defer. Trip is already
+        // saved locally above; just exit.
+        if (!willSync && !willEucstats) {
+            Log.i(TAG, "Recording stopped (no sync, no cloud, finalized immediately)")
             return
         }
 
         pendingTrip = finishedTrip
         _pendingTripId.value = finishedTrip.id
-        Log.i(TAG, "Recording stopped, ${FINALIZE_GRACE_MS / 1000}s grace before sync")
 
-        pendingFinalizeJob = scope.launch {
-            try {
-                kotlinx.coroutines.delay(FINALIZE_GRACE_MS)
-                finalizePendingTrip()
-            } catch (_: kotlinx.coroutines.CancellationException) {
-                // Cancelled by deleteTrip on the pending trip, user discarded it.
+        if (willSync) {
+            // Folder sync gets the discard-grace window so the rider can
+            // undo a short / accidental trip before it lands in their cloud
+            // folder. Eucstats (if also enabled) gets enqueued at the end
+            // of the same grace, so a discarded trip never reaches the
+            // online profile either.
+            Log.i(TAG, "Recording stopped, ${FINALIZE_GRACE_MS / 1000}s grace before sync")
+            pendingFinalizeJob = scope.launch {
+                try {
+                    kotlinx.coroutines.delay(FINALIZE_GRACE_MS)
+                    finalizePendingTrip()
+                } catch (_: kotlinx.coroutines.CancellationException) {
+                    // Cancelled by deleteTrip on the pending trip, user discarded it.
+                }
             }
+        } else {
+            // Cloud-only (no folder backup configured). The discard-grace
+            // existed for the folder upload undo; without that destination,
+            // the grace would just delay the eucstats enqueue for no
+            // user-visible benefit AND, more importantly, used to skip
+            // finalize entirely — that's how the trip-231 orphan happened
+            // (status 0 / 0, no icon at all). Finalize immediately.
+            Log.i(TAG, "Recording stopped (cloud-only, finalized immediately)")
+            scope.launch { finalizePendingTrip() }
         }
     }
 
@@ -431,9 +465,14 @@ class TripRepository @Inject constructor(
         pendingFinalizeJob = null
         Log.i(TAG, "Trip finalized: ${trip.fileName} (sync=$willSync, eucstats=$willEucstats)")
         if (willSync) syncManager.enqueueTripUpload(appSettings)
-        if (willEucstats) {
+        // Eucstats: enqueue ANY time the rider has it on, not only when this
+        // specific trip needs uploading. The worker walks every trip eligible
+        // for upload (pending=1 / failed=3 / orphaned=0), so this is also the
+        // automatic retry path — a trip that failed last ride gets one more
+        // shot the next time the rider finishes a ride.
+        if (appSettings.onlineUploadEnabled && appSettings.eucstatsStoreId != null) {
             syncManager.enqueueEucStatsUpload(appSettings)
-            Log.i(TAG, "Eucstats upload enqueued for trip ${trip.tripUuid}")
+            Log.i(TAG, "Eucstats upload enqueued (incl. retry sweep for prior failures)")
         }
     }
 
