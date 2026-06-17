@@ -157,6 +157,16 @@ class HudServer @Inject constructor(
         }
     }
     @Volatile private var multicastLock: WifiManager.MulticastLock? = null
+    /** High-performance WiFi lock acquired while the HUD link is enabled.
+     *  Without this, the radio enters DTIM power-save once the screen is off
+     *  or the app loses foreground priority, and OkHttp's 15 s ping starts
+     *  landing in a radio-sleep window — surfaces as "Software caused
+     *  connection abort" / "ping but didn't receive pong" every 30-60 s on
+     *  the rider's HUD discovery log even though the route is fine. The
+     *  multicast lock is for inbound mDNS only; it does NOT pin the radio
+     *  out of power-save. Small power cost (a few mA), eliminates the
+     *  background-throttling drops entirely. */
+    @Volatile private var wifiLock: WifiManager.WifiLock? = null
 
     /**
      * Which discovery channel produced the address that opened the current
@@ -260,6 +270,7 @@ class HudServer @Inject constructor(
             val target = if (ip.isBlank()) "(no IP set)" else "$ip:$port"
             log("Auto-discovery off, manual only -> $target")
         }
+        acquireWifiPerfLock()
         loopJob = scope.launch { dialLoop() }
     }
 
@@ -275,6 +286,29 @@ class HudServer @Inject constructor(
         _connectionSource.value = ConnectionSource.NONE
         try { multicastLock?.release() } catch (_: Throwable) {}
         multicastLock = null
+        try { wifiLock?.release() } catch (_: Throwable) {}
+        wifiLock = null
+    }
+
+    /** Acquire a high-performance WiFi lock so the radio stays out of
+     *  DTIM power-save while the HUD link is enabled. Idempotent and
+     *  best-effort: if the lock can't be acquired we still run, the link
+     *  just risks the background-throttling drops. */
+    private fun acquireWifiPerfLock() {
+        if (wifiLock?.isHeld == true) return
+        try {
+            val wifi = context.getSystemService(Context.WIFI_SERVICE) as? WifiManager
+                ?: return
+            val lock = wifi.createWifiLock(
+                WifiManager.WIFI_MODE_FULL_HIGH_PERF,
+                "eucplanet-hud-link"
+            )
+            lock.setReferenceCounted(false)
+            lock.acquire()
+            wifiLock = lock
+        } catch (t: Throwable) {
+            Log.w(TAG, "wifi perf lock acquire failed: ${t.message}")
+        }
     }
 
     /**
