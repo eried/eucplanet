@@ -232,6 +232,7 @@ Known sub-frames, all observed in a single captured session:
 | Horn (frame 1)   | LkAp  | 14        | `00 80 80 80 01`                         | n/a — one-shot trigger; MUST be sent with frame 2 |
 | Horn (frame 2)   | LdAp  | 14        | `00 00 80 80 01`                         | n/a — companion; without it Lynx-class firmware stays silent |
 | High beam on/off | LkAp + LdAp | 13   | `01 80 80 <0\|1>` then `01 00 80 <0\|1>` | u8 boolean, last byte `01`=on / `00`=off. Separate from the ASCII `SetLightON/OFF` low beam. |
+| Software lock    | LdAp  | 25        | `00 05 1a 06 11 0f 0a <ctr> 02 04 0c ab <state> 00 00 00` | `<state>` = `01` lock / `00` unlock. `<ctr>` is an opaque session byte; reference capture used `0x09` lock / `0x0E` unlock and any value works as long as the CRC matches. No PIN handshake. Captured from a Lynx S, June 2026. |
 
 Notes:
 
@@ -333,12 +334,12 @@ For our `WheelCapabilities` record:
 |------------------|---------------|-------|
 | `hasHorn`        | true          | `b` or 14-byte blob (per model) |
 | `hasLight`       | true          | `SetLightON` / `SetLightOFF` |
-| `hasLock`        | false         | not exposed over BLE |
+| `hasLock`        | true          | 25-byte LdAp frame, no PIN (Lynx S capture, mVer 9) |
 | `hasMaxSpeed`    | read-only     | values at offsets 24, 26 are read-only over BLE |
 | `hasAlarmSpeed`  | read-only     | same as above |
 | `hasVolume`      | false         | no command known |
 | `hasDRL`         | false         | no separate DRL command |
-| `needsAuthForLock` | n/a         | lock not supported |
+| `needsAuthForLock` | false       | no PIN handshake — wheel CRC-validates the frame and locks |
 
 Additional booleans worth tracking:
 

@@ -392,14 +392,15 @@ data class WheelCapabilities(
         )
 
         /**
-         * Veteran: minimal control surface. Telemetry is rich (cells,
-         * BMS) but writes are limited to horn, light on/off and a few
-         * threshold setters.
+         * Veteran: rich telemetry (cells, BMS) plus the LeaperKim-decoded
+         * write set — horn, low + high beam, pedal stiffness, reset trip,
+         * tiltback / alarm speed, and the 25-byte LdAp software-lock frame
+         * captured from a Lynx S btsnoop in June 2026.
          */
         val VETERAN = WheelCapabilities(
             hasHorn = true,
             hasLight = true,
-            hasLock = false,
+            hasLock = true,        // LdAp 25-byte frame (Lynx S capture, no PIN)
             hasMaxSpeed = true,    // LdAp 17-byte frame (decoded from a captured LeaperKim session)
             hasAlarmSpeed = true,  // LkAp 17-byte frame (same source)
             hasVolume = false,

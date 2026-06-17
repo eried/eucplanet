@@ -1855,6 +1855,7 @@ fun DashboardScreen(
             val periodicVoiceOn by viewModel.voicePeriodicEnabled.collectAsState()
             val lockAtAnySpeed by viewModel.cheatState.lockAtAnySpeed.collectAsState()
             val lockBlockedBySpeed = !locked && kotlin.math.abs(wheelData.speed) >= 5f && !lockAtAnySpeed
+            val wheelHasLock by viewModel.wheelHasLock.collectAsState()
 
             // Two rows of 3 — match today's layout. Tablets (wideStats)
             // and phones both render 3 columns; only the height changes.
@@ -1959,7 +1960,7 @@ fun DashboardScreen(
                                     else stringResource(R.string.action_lock_wheel),
                                 active = locked,
                                 activeColor = if (useAccent) primary else MaterialTheme.appColors.statusDanger,
-                                enabled = connectionState == ConnectionState.CONNECTED && !lockBusy,
+                                enabled = connectionState == ConnectionState.CONNECTED && !lockBusy && wheelHasLock,
                                 onClick = {
                                     if (lockBlockedBySpeed) {
                                         val msg = toastContext.getString(R.string.lock_blocked_in_motion_toast)

@@ -102,6 +102,42 @@ object VeteranCommands {
     fun resetTrip(): ByteArray = "CLEARMETER".toByteArray(Charsets.US_ASCII)
 
     /**
+     * Software lock / unlock. Captured from the official LeaperKim app on a
+     * Lynx S (mVer 9, June 2026): a 25-byte `LdAp` vendor frame with payload
+     *
+     *   00 05 1a 06 11 0f 0a <counter> 02 04 0c ab <state> 00 00 00
+     *
+     * followed by a big-endian CRC32 over magic + length + payload. `<state>`
+     * is `0x01` for lock, `0x00` for unlock — confirmed against two paired
+     * captures whose CRC trailers match byte-perfectly with this layout.
+     *
+     * `<counter>` is a session-monotonic anti-replay byte. The btsnoop shows
+     * it increment across writes — the wheel almost certainly rejects a
+     * counter that doesn't advance, so we let the adapter pass in a
+     * per-session sequence and bake whatever value into the CRC. The
+     * reference capture's first lock used `0x09` and the first unlock used
+     * `0x0e`; the adapter starts its sequence so that values match the
+     * capture on the first toggle of each direction and increment from
+     * there.
+     *
+     * Older Sherman / Sherman Max wheels (model < 3) haven't been captured
+     * doing this; the wheel will silently ignore a frame it doesn't
+     * recognise, so wiring this on the whole family is safe.
+     */
+    fun setLock(locked: Boolean, counter: Int): ByteArray {
+        val state: Byte = if (locked) 0x01 else 0x00
+        return buildVendorFrame(
+            magic = LDAP, totalLen = 25,
+            payloadHead = byteArrayOf(
+                0x00, 0x05, 0x1A, 0x06, 0x11, 0x0F, 0x0A,
+                (counter and 0xFF).toByte(), 0x02, 0x04, 0x0C, 0xAB.toByte(),
+                state, 0x00, 0x00,
+            ),
+            valueByte = 0x00,
+        )
+    }
+
+    /**
      * Set the wheel's enforced tilt-back speed in km/h. Frame format
      * decoded from a captured LeaperKim-app session against a Lynx S
      * (mVer 9, May 2026): 17-byte `LdAp` frame with 8-byte payload
