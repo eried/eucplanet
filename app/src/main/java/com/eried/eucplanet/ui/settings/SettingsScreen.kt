@@ -6802,7 +6802,7 @@ private fun CloudTab(
         // warns the rider they'll rejoin as that existing rider rather than
         // re-enabling silently.
         if (rejoinConfirm) {
-            // No locally-cached name anymore — fall back to credit-card-style
+            // No locally-cached name anymore. Fall back to credit-card-style
             // last 6 chars of the store_id ("····034c"), the same identifier
             // shape the restore dialog uses for an unknown rider.
             val rejoinName = riderStoreId?.let { riderIdShort(it) } ?: ""
@@ -9217,7 +9217,7 @@ private fun HudIntegrationSection(
 
         // Discovery activity (which channel found the HUD, probes, dial
         // attempts, transient reconnects after a WiFi switch, etc.) is
-        // piped to the Service Mode log as NOTE entries — riders don't see
+        // piped to the Service Mode log as NOTE entries. Riders don't see
         // any of it unless they explicitly open the diagnostics dialog.
         // The connection-source StateFlow on HudServer stays around because
         // the watchdog and tests still consult it; only the rider-facing
@@ -9646,6 +9646,6 @@ private fun HudOverlayPicker(
 
 /** Credit-card style abbreviation of a rider store_id for prompts where the
  *  server name isn't loaded yet (or doesn't exist). Shows the last 6 chars
- *  preceded by a dotted prefix, e.g. "····034c1f" — small enough to read at a
+ *  preceded by a dotted prefix, e.g. "····034c1f". Small enough to read at a
  *  glance, distinct enough to match against a printed copy. */
 private fun riderIdShort(storeId: String): String = "····" + storeId.takeLast(6)

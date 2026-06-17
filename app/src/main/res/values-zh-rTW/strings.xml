@@ -1062,7 +1062,8 @@
     <string name="section_online_stats">線上排行榜</string>
     <string name="online_upload_toggle">加入線上排行榜</string>
     <string name="online_upload_card_loading">載入中…</string>
-    <string name="online_upload_card_unavailable">無法載入您的統計資料。</string>
+    <string name="online_upload_card_unavailable">無法載入</string>
+    <string name="online_profile_retry">重試</string>
     <string name="online_upload_card_missing">此手機的排行榜個人資料已不存在於伺服器，新上傳將被拒絕。若有疑問，請聯絡排行榜管理員。</string>
     <string name="online_upload_actions_caption">行程統計上傳</string>
     <string name="online_upload_actions_desc">將尚未上傳的行程傳送至排行榜。</string>
@@ -1109,7 +1110,7 @@
     <string name="online_restore_body_switch">找到不同的已儲存個人資料：%1$s。繼續將把此手機切換至該騎手，您目前的個人資料將先備份。</string>
     <string name="online_restore_confirm">以 %1$s 身份繼續</string>
     <string name="online_rejoin_title">重新加入排行榜？</string>
-    <string name="online_rejoin_body">您將以已儲存的個人資料 %1$s 重新加入。此手機將恢復向該個人資料上傳新行程。</string>
+    <string name="online_rejoin_body">已儲存的個人資料 ID：\n%1$s</string>
 
     <!-- ==== Overlay Studio ==== -->
     <string name="studio_open">開啟疊加工作室</string>

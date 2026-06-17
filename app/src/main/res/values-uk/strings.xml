@@ -1065,7 +1065,8 @@
     <string name="section_online_stats">Онлайн-таблиці лідерів</string>
     <string name="online_upload_toggle">Приєднатись до онлайн-таблиць лідерів</string>
     <string name="online_upload_card_loading">Завантаження…</string>
-    <string name="online_upload_card_unavailable">Не вдалось завантажити статистику.</string>
+    <string name="online_upload_card_unavailable">Не вдалося завантажити</string>
+    <string name="online_profile_retry">Повторити</string>
     <string name="online_upload_card_missing">Профіль цього телефона в таблиці лідерів більше не існує на сервері, тож нові вивантаження будуть відхилені. Якщо це несподівано, зверніться до адміністратора таблиці лідерів.</string>
     <string name="online_upload_actions_caption">Вивантаження статистики поїздок</string>
     <string name="online_upload_actions_desc">Надіслати до таблиці лідерів поїздки, які ще не вивантажено.</string>
@@ -1111,8 +1112,8 @@
     <string name="online_restore_body_new">У цій папці знайдено збережений профіль: %1$s. Продовжуючи, ти знову приєднуєшся до публічної таблиці лідерів як цей райдер, його ім\'я, прапор, аватар і статистика поїздок публічні. Новий профіль не створюється.</string>
     <string name="online_restore_body_switch">Знайдено інший збережений профіль: %1$s. Продовжуючи, цей телефон переключиться на того райдера; поточний профіль спочатку буде збережено в резервну копію.</string>
     <string name="online_restore_confirm">Продовжити як %1$s</string>
-    <string name="online_rejoin_title">Приєднатись до таблиці лідерів знову?</string>
-    <string name="online_rejoin_body">Ти приєднаєшся знову як збережений профіль %1$s. Цей телефон відновить вивантаження нових поїздок до цього профілю.</string>
+    <string name="online_rejoin_title">Приєднатись знову до таблиці лідерів?</string>
+    <string name="online_rejoin_body">Збережений ID профілю:\n%1$s</string>
     <string name="online_rejoin_confirm">Приєднатись знову</string>
 
     <!-- Battery / Charging screen -->

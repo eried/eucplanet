@@ -1437,7 +1437,8 @@
     <string name="section_online_stats">Classifiche online</string>
     <string name="online_upload_toggle">Partecipa alle classifiche online</string>
     <string name="online_upload_card_loading">Caricamento…</string>
-    <string name="online_upload_card_unavailable">Impossibile caricare le tue statistiche.</string>
+    <string name="online_upload_card_unavailable">Impossibile caricare</string>
+    <string name="online_profile_retry">Riprova</string>
     <string name="online_upload_actions_caption">Upload statistiche viaggi</string>
     <string name="online_upload_view_on_eucstats">Vedi su EUC Stats</string>
     <string name="online_upload_retry">Riprova upload</string>
@@ -1479,7 +1480,7 @@
     <string name="online_upload_card_missing">Il profilo di classifica di questo telefono non esiste più sul server, quindi i nuovi upload verranno rifiutati. Se non te lo aspettavi, contatta l\'amministratore della classifica.</string>
     <string name="online_upload_linked_caption">Le tue statistiche e i tuoi viaggi appaiono nella classifica pubblica su</string>
     <string name="online_rejoin_title">Rientrare in classifica?</string>
-    <string name="online_rejoin_body">Rientrerai come il tuo profilo salvato %1$s. Questo telefono riprenderà a caricare i tuoi nuovi viaggi su quel profilo.</string>
+    <string name="online_rejoin_body">L\'ID profilo salvato era\n%1$s</string>
     <string name="online_rejoin_confirm">Rientra</string>
 
     <!-- Battery / Charging screen -->

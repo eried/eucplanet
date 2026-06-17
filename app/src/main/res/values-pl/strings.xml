@@ -1063,7 +1063,8 @@
     <string name="section_online_stats">Rankingi online</string>
     <string name="online_upload_toggle">Dołącz do rankingów online</string>
     <string name="online_upload_card_loading">Wczytywanie…</string>
-    <string name="online_upload_card_unavailable">Nie udało się załadować statystyk.</string>
+    <string name="online_upload_card_unavailable">Nie udało się załadować</string>
+    <string name="online_profile_retry">Ponów</string>
     <string name="online_upload_card_missing">Profil tego telefonu w rankingu już nie istnieje na serwerze, więc nowe przesyłania będą odrzucane. Jeśli to niespodziewane, skontaktuj się z administratorem rankingu.</string>
     <string name="online_upload_actions_caption">Przesyłanie statystyk tras</string>
     <string name="online_upload_actions_desc">Wyślij trasy jeszcze nieprzesłane do rankingu.</string>
@@ -1110,7 +1111,7 @@
     <string name="online_restore_body_switch">Znaleziono inny zapisany profil: %1$s. Kontynuowanie przełącza ten telefon na tego zawodnika; Twój obecny profil zostanie najpierw zapisany w kopii zapasowej.</string>
     <string name="online_restore_confirm">Kontynuuj jako %1$s</string>
     <string name="online_rejoin_title">Dołączyć ponownie do rankingu?</string>
-    <string name="online_rejoin_body">Dołączysz ponownie jako Twój zapisany profil %1$s. Ten telefon wznowi przesyłanie nowych tras do tego profilu.</string>
+    <string name="online_rejoin_body">Zapisany identyfikator profilu to\n%1$s</string>
 
     <!-- ==== Overlay Studio ==== -->
     <string name="studio_open">Otwórz Overlay Studio</string>

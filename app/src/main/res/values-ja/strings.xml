@@ -1062,7 +1062,8 @@
     <string name="section_online_stats">オンラインリーダーボード</string>
     <string name="online_upload_toggle">オンラインリーダーボードに参加</string>
     <string name="online_upload_card_loading">読み込み中…</string>
-    <string name="online_upload_card_unavailable">統計を読み込めませんでした。</string>
+    <string name="online_upload_card_unavailable">読み込めません</string>
+    <string name="online_profile_retry">再試行</string>
     <string name="online_upload_card_missing">このスマホのリーダーボードプロフィールがサーバーに存在しなくなったため、新しいアップロードは拒否されます。心当たりがない場合はリーダーボード管理者にお問い合わせください。</string>
     <string name="online_upload_actions_caption">トリップ統計のアップロード</string>
     <string name="online_upload_actions_desc">まだアップロードされていないトリップをリーダーボードに送信します。</string>
@@ -1108,8 +1109,8 @@
     <string name="online_restore_body_new">ここに保存されたプロフィールが見つかりました: %1$s。続けると、そのライダーとして公開リーダーボードに再参加します, 名前、国旗、アバター、走行統計が公開されます。新しいプロフィールは作成されません。</string>
     <string name="online_restore_body_switch">別の保存済みプロフィールが見つかりました: %1$s。続けるとこのスマホをそのライダーに切り替えます。現在のプロフィールは先にバックアップされます。</string>
     <string name="online_restore_confirm">%1$s として続ける</string>
-    <string name="online_rejoin_title">リーダーボードに再参加しますか？</string>
-    <string name="online_rejoin_body">保存済みプロフィール %1$s として再参加します。このスマホはそのプロフィールへの新しいトリップのアップロードを再開します。</string>
+    <string name="online_rejoin_title">リーダーボードに再参加？</string>
+    <string name="online_rejoin_body">保存されたプロフィールID:\n%1$s</string>
 
     <!-- ==== Overlay Studio ==== -->
     <string name="studio_open">オーバーレイスタジオを開く</string>

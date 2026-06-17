@@ -1401,7 +1401,8 @@
     <string name="section_online_stats">在线排行榜</string>
     <string name="online_upload_toggle">加入在线排行榜</string>
     <string name="online_upload_card_loading">加载中…</string>
-    <string name="online_upload_card_unavailable">无法加载你的数据。</string>
+    <string name="online_upload_card_unavailable">无法加载</string>
+    <string name="online_profile_retry">重试</string>
     <string name="online_upload_actions_caption">行程数据上传</string>
     <string name="online_upload_view_on_eucstats">在 EUC Stats 上查看</string>
     <string name="online_upload_retry">重试上传</string>
@@ -1443,7 +1444,7 @@
     <string name="online_upload_card_missing">此手机的排行榜资料已不在服务器上，新的上传将被拒绝。如果这不符合预期，请联系排行榜管理员。</string>
     <string name="online_upload_linked_caption">你的统计数据和行程将显示在公开排行榜</string>
     <string name="online_rejoin_title">重新加入排行榜？</string>
-    <string name="online_rejoin_body">你将以已保存的资料 %1$s 重新加入。此手机将恢复向该资料上传你的新行程。</string>
+    <string name="online_rejoin_body">已保存的资料 ID：\n%1$s</string>
     <string name="online_rejoin_confirm">重新加入</string>
 
     <!-- ==== Battery / Charging screen ==== -->

@@ -1065,7 +1065,8 @@
     <string name="section_online_stats">Classements en ligne</string>
     <string name="online_upload_toggle">Rejoindre les classements en ligne</string>
     <string name="online_upload_card_loading">Chargement…</string>
-    <string name="online_upload_card_unavailable">Impossible de charger tes stats.</string>
+    <string name="online_upload_card_unavailable">Chargement impossible</string>
+    <string name="online_profile_retry">Réessayer</string>
     <string name="online_upload_card_missing">Le profil de classement de ce téléphone n\'existe plus sur le serveur, les nouveaux envois seront rejetés. Si c\'est inattendu, contacte l\'administrateur du classement.</string>
     <string name="online_upload_actions_caption">Envois de stats de trajet</string>
     <string name="online_upload_actions_desc">Envoyer les trajets pas encore versés au classement.</string>
@@ -1111,8 +1112,8 @@
     <string name="online_restore_body_new">Un profil enregistré a été trouvé : %1$s. Continuer te reconnecte au classement public en tant que ce rider, son pseudo, drapeau, avatar et stats de ride sont publics. Cela ne crée pas de nouveau profil.</string>
     <string name="online_restore_body_switch">Un autre profil enregistré a été trouvé : %1$s. Continuer bascule ce téléphone sur ce rider ; ton profil actuel est d\'abord sauvegardé.</string>
     <string name="online_restore_confirm">Continuer en tant que %1$s</string>
-    <string name="online_rejoin_title">Rejoindre le classement ?</string>
-    <string name="online_rejoin_body">Tu rejoindras le classement avec ton profil enregistré %1$s. Ce téléphone reprendra l\'envoi de tes nouveaux trajets vers ce profil.</string>
+    <string name="online_rejoin_title">Rejoindre les classements ?</string>
+    <string name="online_rejoin_body">L\'identifiant enregistré était\n%1$s</string>
     <string name="online_rejoin_confirm">Rejoindre</string>
 
     <!-- Battery / Charging screen -->

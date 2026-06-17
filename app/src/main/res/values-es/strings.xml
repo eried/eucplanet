@@ -1065,7 +1065,8 @@
     <string name="section_online_stats">Marcadores online</string>
     <string name="online_upload_toggle">Unirme a los marcadores online</string>
     <string name="online_upload_card_loading">Cargando…</string>
-    <string name="online_upload_card_unavailable">No se pudieron cargar tus estadísticas.</string>
+    <string name="online_upload_card_unavailable">No se pudo cargar</string>
+    <string name="online_profile_retry">Reintentar</string>
     <string name="online_upload_card_missing">El perfil de este teléfono en el marcador ya no existe en el servidor, así que se rechazarán las nuevas subidas. Si esto es inesperado, contacta con el administrador del marcador.</string>
     <string name="online_upload_actions_caption">Subidas de estadísticas de viajes</string>
     <string name="online_upload_actions_desc">Envía al marcador los viajes que aún no se han subido.</string>
@@ -1111,8 +1112,8 @@
     <string name="online_restore_body_new">Encontramos un perfil guardado aquí: %1$s. Continuar vuelve a unirte al marcador público como ese rider; su nombre, bandera, avatar y estadísticas son públicos. No crea un perfil nuevo.</string>
     <string name="online_restore_body_switch">Encontramos un perfil distinto guardado: %1$s. Continuar cambia este teléfono a ese rider; tu perfil actual se respalda primero.</string>
     <string name="online_restore_confirm">Continuar como %1$s</string>
-    <string name="online_rejoin_title">¿Volver a unirte al marcador?</string>
-    <string name="online_rejoin_body">Te unirás de nuevo con tu perfil guardado %1$s. Este teléfono reanudará la subida de tus nuevos viajes a ese perfil.</string>
+    <string name="online_rejoin_title">¿Volver a las clasificaciones?</string>
+    <string name="online_rejoin_body">El identificador guardado era\n%1$s</string>
 
     <!-- ==== Overlay Studio ==== -->
     <string name="studio_open">Abrir Overlay Studio</string>

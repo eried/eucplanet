@@ -1061,7 +1061,8 @@
     <string name="section_online_stats">Online-topplistor</string>
     <string name="online_upload_toggle">Gå med i online-topplistorna</string>
     <string name="online_upload_card_loading">Laddar…</string>
-    <string name="online_upload_card_unavailable">Kunde inte ladda din statistik.</string>
+    <string name="online_upload_card_unavailable">Kunde inte ladda</string>
+    <string name="online_profile_retry">Försök igen</string>
     <string name="online_upload_card_missing">Den här telefonens förarprofil finns inte längre på servern, så nya uppladdningar avvisas. Om detta är oväntat, kontakta topplistans administratör.</string>
     <string name="online_upload_actions_caption">Uppladdning av turstatistik</string>
     <string name="online_upload_actions_desc">Skicka turer som ännu inte laddats upp till topplistan.</string>
@@ -1108,7 +1109,7 @@
     <string name="online_restore_body_switch">Vi hittade en annan sparad profil: %1$s. Om du fortsätter byter den här telefonen till den föraren. Din nuvarande profil säkerhetskopieras först.</string>
     <string name="online_restore_confirm">Fortsätt som %1$s</string>
     <string name="online_rejoin_title">Gå med i topplistan igen?</string>
-    <string name="online_rejoin_body">Du går med igen som din sparade profil %1$s. Den här telefonen återupptar uppladdningen av dina nya turer till den profilen.</string>
+    <string name="online_rejoin_body">Sparat profil-id var\n%1$s</string>
 
     <!-- ==== Overlay Studio ==== -->
     <string name="studio_open">Öppna Overlay Studio</string>

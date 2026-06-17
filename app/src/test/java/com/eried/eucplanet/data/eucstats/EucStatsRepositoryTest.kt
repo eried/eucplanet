@@ -451,7 +451,7 @@ class EucStatsRepositoryTest {
 
         assertTrue(ok)
         // After delete the rider-id file is gone and the upload toggle is off.
-        // No other eucstats local state exists anymore — display name / flag /
+        // No other eucstats local state exists anymore. Display name / flag /
         // consent all live on the server, which the API call already wiped.
         assertNull(settingsPort.riderStoreId())
         assertFalse(settingsPort.get().onlineUploadEnabled)

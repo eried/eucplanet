@@ -24,8 +24,8 @@ class SettingsJsonEucstatsTest {
         assertEquals(false, restoredOff.onlineUploadEnabled)
     }
 
-    /** The serialized JSON must not carry any of the dropped eucstats keys —
-     *  a stale field in a backup would re-introduce the cached profile data
+    /** The serialized JSON must not carry any of the dropped eucstats keys.
+     *  A stale field in a backup would re-introduce the cached profile data
      *  we explicitly moved to the server. */
     @Test fun backupJson_doesNotMentionDroppedKeys() {
         val s = AppSettings(onlineUploadEnabled = true)

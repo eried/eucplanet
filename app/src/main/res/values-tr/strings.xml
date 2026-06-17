@@ -1062,7 +1062,8 @@
     <string name="section_online_stats">Çevrimiçi lider tabloları</string>
     <string name="online_upload_toggle">Çevrimiçi lider tablolarına katıl</string>
     <string name="online_upload_card_loading">Yükleniyor…</string>
-    <string name="online_upload_card_unavailable">İstatistikleriniz yüklenemedi.</string>
+    <string name="online_upload_card_unavailable">Yüklenemedi</string>
+    <string name="online_profile_retry">Yeniden dene</string>
     <string name="online_upload_card_missing">Bu telefonun lider tablosu profili sunucuda artık mevcut değil, yeni yüklemeler reddedilecek. Beklenmedik bir durumsa lider tablosu yöneticisiyle iletişime geçin.</string>
     <string name="online_upload_actions_caption">Sefer istatistikleri yüklemeleri</string>
     <string name="online_upload_actions_desc">Henüz yüklenmemiş seferleri lider tablosuna gönderin.</string>
@@ -1108,8 +1109,8 @@
     <string name="online_restore_body_new">Burada kayıtlı bir profil bulduk: %1$s. Devam etmek, o sürücü olarak herkese açık lider tablosuna yeniden katılır; adı, bayrağı, avatarı ve sürüş istatistikleri herkese açıktır. Yeni profil oluşturulmaz.</string>
     <string name="online_restore_body_switch">Farklı bir kayıtlı profil bulduk: %1$s. Devam etmek bu telefonu o sürücüye geçirir; mevcut profiliniz önce yedeklenir.</string>
     <string name="online_restore_confirm">%1$s olarak devam et</string>
-    <string name="online_rejoin_title">Lider tablosuna yeniden katılınsın mı?</string>
-    <string name="online_rejoin_body">Kayıtlı profiliniz %1$s olarak yeniden katılacaksınız. Bu telefon yeni seferlerinizi o profile yüklemeye devam edecek.</string>
+    <string name="online_rejoin_title">Lider tablosuna yeniden katıl?</string>
+    <string name="online_rejoin_body">Kayıtlı profil kimliği:\n%1$s</string>
 
     <!-- ==== Overlay Studio ==== -->
     <string name="studio_open">Overlay Studio\'yu aç</string>

@@ -46,7 +46,7 @@ interface TripDao {
      *   3 = previously failed (auto-retry on the next sweep).
      *   0 = "orphaned": a live-recorded trip (tripUuid set) that finished
      *       cleanly but whose finalize hook never enqueued it (the trip-231
-     *       symptom — finalize early-returned because the rider had no sync
+     *       symptom: finalize early-returned because the rider had no sync
      *       folder configured, even though eucstats was on). Catches the
      *       trip on the next sweep so the rider doesn't have to do anything.
      *

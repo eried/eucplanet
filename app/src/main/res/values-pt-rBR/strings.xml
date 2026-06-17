@@ -1065,7 +1065,8 @@
     <string name="section_online_stats">Rankings online</string>
     <string name="online_upload_toggle">Entrar nos rankings online</string>
     <string name="online_upload_card_loading">Carregando…</string>
-    <string name="online_upload_card_unavailable">Não foi possível carregar suas estatísticas.</string>
+    <string name="online_upload_card_unavailable">Não foi possível carregar</string>
+    <string name="online_profile_retry">Tentar novamente</string>
     <string name="online_upload_card_missing">O perfil deste celular no ranking não existe mais no servidor, então novos envios serão rejeitados. Se isso for inesperado, entre em contato com o administrador do ranking.</string>
     <string name="online_upload_actions_caption">Envios de stats de viagem</string>
     <string name="online_upload_actions_desc">Enviar ao ranking as viagens que ainda não foram enviadas.</string>
@@ -1112,7 +1113,7 @@
     <string name="online_restore_body_switch">Encontramos um perfil diferente: %1$s. Continuar muda este celular para esse piloto; seu perfil atual é salvo em backup primeiro.</string>
     <string name="online_restore_confirm">Continuar como %1$s</string>
     <string name="online_rejoin_title">Voltar ao ranking?</string>
-    <string name="online_rejoin_body">Você voltará como seu perfil salvo %1$s. Este celular retomará o envio das suas novas viagens para esse perfil.</string>
+    <string name="online_rejoin_body">O ID do perfil salvo era\n%1$s</string>
 
     <!-- ==== Overlay Studio ==== -->
     <string name="studio_open">Abrir Overlay Studio</string>

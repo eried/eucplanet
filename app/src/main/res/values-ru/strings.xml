@@ -1065,7 +1065,8 @@
     <string name="section_online_stats">Онлайн-таблицы лидеров</string>
     <string name="online_upload_toggle">Присоединиться к онлайн-таблицам лидеров</string>
     <string name="online_upload_card_loading">Загрузка…</string>
-    <string name="online_upload_card_unavailable">Не удалось загрузить статистику.</string>
+    <string name="online_upload_card_unavailable">Не удалось загрузить</string>
+    <string name="online_profile_retry">Повторить</string>
     <string name="online_upload_card_missing">Профиль этого телефона больше не существует на сервере, поэтому новые загрузки будут отклонены. Если это неожиданно, свяжитесь с администратором таблицы лидеров.</string>
     <string name="online_upload_actions_caption">Загрузки статистики поездок</string>
     <string name="online_upload_actions_desc">Отправить поездки, ещё не загруженные в таблицу лидеров.</string>
@@ -1112,7 +1113,7 @@
     <string name="online_restore_body_switch">Найден другой сохранённый профиль: %1$s. Продолжение переключит этот телефон на того райдера; ваш текущий профиль предварительно сохранится в резервную копию.</string>
     <string name="online_restore_confirm">Продолжить как %1$s</string>
     <string name="online_rejoin_title">Вернуться в таблицу лидеров?</string>
-    <string name="online_rejoin_body">Вы вернётесь как ваш сохранённый профиль %1$s. Этот телефон возобновит загрузку новых поездок в этот профиль.</string>
+    <string name="online_rejoin_body">Сохранённый ID профиля:\n%1$s</string>
 
     <!-- ==== Overlay Studio ==== -->
     <string name="studio_open">Открыть Overlay Studio</string>

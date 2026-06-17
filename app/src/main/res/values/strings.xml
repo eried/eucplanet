@@ -1097,9 +1097,7 @@
     <string name="section_online_stats">Online leaderboards</string>
     <string name="online_upload_toggle">Join the online leaderboards</string>
     <string name="online_upload_card_loading">Loading…</string>
-    <string name="online_upload_card_unavailable">Couldn\'t reach the leaderboard. Check your connection and try again.</string>
-    <string name="online_profile_offline_title">Couldn\'t load your profile</string>
-    <string name="online_profile_offline_body">We couldn\'t reach the leaderboard right now, so editing and deleting are paused — they need the server to apply.</string>
+    <string name="online_upload_card_unavailable">Couldn\'t load</string>
     <string name="online_profile_retry">Retry</string>
     <string name="online_upload_card_missing">This phone\'s leaderboard profile no longer exists on the server, so new uploads will be rejected. If this is unexpected, contact the leaderboard admin.</string>
     <string name="online_upload_actions_caption">Trip stats uploads</string>
@@ -1146,8 +1144,8 @@
     <string name="online_restore_body_new">We found a saved profile here: %1$s. Continuing rejoins the public leaderboard as that rider, its name, flag, avatar and ride stats are public. It does not create a new profile.</string>
     <string name="online_restore_body_switch">We found a different saved profile: %1$s. Continuing switches this phone to that rider; your current profile is backed up first.</string>
     <string name="online_restore_confirm">Continue as %1$s</string>
-    <string name="online_rejoin_title">A saved profile id was found</string>
-    <string name="online_rejoin_body">%1$s\n\nTapping Rejoin will resume uploading your new trips under this profile.</string>
+    <string name="online_rejoin_title">Rejoin leaderboards?</string>
+    <string name="online_rejoin_body">Saved profile id was\n%1$s</string>
 
     <!-- ==== Overlay Studio ==== -->
     <string name="studio_open">Open Overlay Studio</string>

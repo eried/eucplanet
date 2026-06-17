@@ -62,7 +62,7 @@ object SettingsJson {
         put("lastSettingsBackupAt", s.lastSettingsBackupAt)
         put("lastSettingsBackupName", s.lastSettingsBackupName)
 
-        // eucstats online upload — only the on/off toggle ships in settings.
+        // eucstats online upload. Only the on/off toggle ships in settings.
         // The store_id lives in `eucstats_riderid.txt`; profile fields
         // (display name, flag, consent, registered-at, stats) live on the
         // server and are fetched on demand.

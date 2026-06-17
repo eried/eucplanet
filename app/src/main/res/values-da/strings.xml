@@ -1065,7 +1065,8 @@
     <string name="section_online_stats">Online ranglister</string>
     <string name="online_upload_toggle">Deltag i de online ranglister</string>
     <string name="online_upload_card_loading">Indlæser…</string>
-    <string name="online_upload_card_unavailable">Kunne ikke hente dine statistikker.</string>
+    <string name="online_upload_card_unavailable">Kunne ikke indlæses</string>
+    <string name="online_profile_retry">Prøv igen</string>
     <string name="online_upload_card_missing">Denne telefons ranglisteprofil findes ikke længere på serveren, så nye uploads afvises. Kontakt ranglistens administrator, hvis det er uventet.</string>
     <string name="online_upload_actions_caption">Turstatistik-uploads</string>
     <string name="online_upload_actions_desc">Send ture, der endnu ikke er uploadet til ranglisten.</string>
@@ -1112,7 +1113,7 @@
     <string name="online_restore_body_switch">Vi fandt en anden gemt profil: %1$s. Hvis du fortsætter, skifter denne telefon til den rytter. Din nuværende profil sikkerhedskopieres først.</string>
     <string name="online_restore_confirm">Fortsæt som %1$s</string>
     <string name="online_rejoin_title">Tilmeld ranglisten igen?</string>
-    <string name="online_rejoin_body">Du tilmelder dig igen som din gemte profil %1$s. Denne telefon genoptager upload af nye ture til den profil.</string>
+    <string name="online_rejoin_body">Gemt profil-id var\n%1$s</string>
     <string name="online_rejoin_confirm">Tilmeld igen</string>
 
     <!-- ==== Overlay Studio ==== -->

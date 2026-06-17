@@ -94,7 +94,7 @@ class TripRepository @Inject constructor(
 
     init {
         // App-start recovery sweep. The eucstats worker now also picks up
-        // orphaned trips (UUID + endTime + status 0) — kick it once on
+        // orphaned trips (UUID + endTime + status 0). Kick it once on
         // startup so a trip that finalized in the broken pre-fix state
         // (the trip-231 symptom: no folder, finalize skipped, status
         // stayed 0/0, no icon) gets uploaded on the next app launch
@@ -442,7 +442,7 @@ class TripRepository @Inject constructor(
             // existed for the folder upload undo; without that destination,
             // the grace would just delay the eucstats enqueue for no
             // user-visible benefit AND, more importantly, used to skip
-            // finalize entirely — that's how the trip-231 orphan happened
+            // finalize entirely, that's how the trip-231 orphan happened
             // (status 0 / 0, no icon at all). Finalize immediately.
             Log.i(TAG, "Recording stopped (cloud-only, finalized immediately)")
             scope.launch { finalizePendingTrip() }
@@ -468,7 +468,7 @@ class TripRepository @Inject constructor(
         // Eucstats: enqueue ANY time the rider has it on, not only when this
         // specific trip needs uploading. The worker walks every trip eligible
         // for upload (pending=1 / failed=3 / orphaned=0), so this is also the
-        // automatic retry path — a trip that failed last ride gets one more
+        // automatic retry path: a trip that failed last ride gets one more
         // shot the next time the rider finishes a ride.
         if (appSettings.onlineUploadEnabled && syncManager.riderStoreId.value != null) {
             syncManager.enqueueEucStatsUpload(appSettings)

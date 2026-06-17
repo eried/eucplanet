@@ -1059,7 +1059,8 @@
     <string name="section_online_stats">Online-Bestenlisten</string>
     <string name="online_upload_toggle">Online-Bestenlisten beitreten</string>
     <string name="online_upload_card_loading">Wird geladen…</string>
-    <string name="online_upload_card_unavailable">Statistiken konnten nicht geladen werden.</string>
+    <string name="online_upload_card_unavailable">Konnte nicht geladen werden</string>
+    <string name="online_profile_retry">Erneut versuchen</string>
     <string name="online_upload_card_missing">Das Bestenlisten-Profil dieses Handys existiert nicht mehr auf dem Server, neue Uploads werden abgelehnt. Falls unerwartet, an den Bestenlisten-Admin wenden.</string>
     <string name="online_upload_actions_caption">Fahrten-Uploads</string>
     <string name="online_upload_actions_desc">Noch nicht hochgeladene Fahrten jetzt in die Bestenliste laden.</string>
@@ -1106,7 +1107,7 @@
     <string name="online_restore_body_switch">Wir haben ein anderes gespeichertes Profil gefunden: %1$s. Durch Fortfahren wird dieses Handy auf diesen Rider umgestellt. Dein aktuelles Profil wird vorher gesichert.</string>
     <string name="online_restore_confirm">Weiter als %1$s</string>
     <string name="online_rejoin_title">Bestenliste wieder beitreten?</string>
-    <string name="online_rejoin_body">Du trittst wieder als dein gespeichertes Profil %1$s bei. Dieses Handy lädt deine neuen Fahrten in dieses Profil hoch.</string>
+    <string name="online_rejoin_body">Gespeicherte Profil-ID war\n%1$s</string>
     <string name="online_rejoin_confirm">Wieder beitreten</string>
 
     <!-- ==== Overlay Studio ==== -->

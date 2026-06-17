@@ -76,7 +76,7 @@ class SyncManager @Inject constructor(
     /**
      * The current rider's store_id, read from the `.txt` recovery file in the
      * sync folder. This is the **single source of truth** for the rider's
-     * online identity — we deliberately do NOT keep it in DataStore /
+     * online identity. We deliberately do NOT keep it in DataStore /
      * AppSettings, so the .txt and the server card together carry everything
      * a profile needs and nothing about the rider's name / flag / join date
      * ends up persisted on-device beyond what the server already holds.
@@ -431,7 +431,7 @@ class SyncManager @Inject constructor(
     /**
      * Write a rider's store_id to the recovery file ([RIDER_BACKUP_NAME]) in
      * the sync folder and publish it on [riderStoreId]. This is the
-     * registration / restore path's persistence step — we don't keep the id
+     * registration / restore path's persistence step; we don't keep the id
      * anywhere else on-device. Name / flag / avatar / stats all live on the
      * server. Returns true on success; false if there's no folder or the
      * write failed.
@@ -454,7 +454,7 @@ class SyncManager @Inject constructor(
         return ok
     }
 
-    /** Delete the recovery file ([RIDER_BACKUP_NAME]) — used when the rider
+    /** Delete the recovery file ([RIDER_BACKUP_NAME]). Used when the rider
      *  deletes their account so the just-deleted profile is NOT offered for
      *  "restore" on the next Join (the store_id no longer exists server-side).
      *  Also clears [riderStoreId] so every consumer sees the unregistered
@@ -596,7 +596,7 @@ class SyncManager @Inject constructor(
     /**
      * The recoverable rider identity for this sync folder. The store_id in
      * `eucstats_riderid.txt` is the only thing the app needs to identify the
-     * rider on reinstall — the display name and the rest of the profile come
+     * rider on reinstall. The display name and the rest of the profile come
      * from `api.getCard(storeId)` once the rider opts in to restore. Returns
      * null when no folder is configured, no `.txt` file is present, or the
      * file is empty.

@@ -864,7 +864,7 @@ class SettingsViewModel @Inject constructor(
     /** Adopt the rider carried by [rider]: write the recovered store_id to
      *  the `.txt` (single source of truth) and flip the online toggle on.
      *  Name / flag / stats are fetched from the server card on the next
-     *  refresh. Settings backup is not touched here — only the rider id. */
+     *  refresh. Settings backup is not touched here, only the rider id. */
     fun restoreRider(rider: RestorableRider) {
         viewModelScope.launch {
             syncManager.writeRiderId(rider.storeId)

@@ -1063,7 +1063,8 @@
     <string name="section_online_stats">Online klassementen</string>
     <string name="online_upload_toggle">Deelnemen aan online klassementen</string>
     <string name="online_upload_card_loading">Laden…</string>
-    <string name="online_upload_card_unavailable">Kan je statistieken niet laden.</string>
+    <string name="online_upload_card_unavailable">Kan niet laden</string>
+    <string name="online_profile_retry">Opnieuw</string>
     <string name="online_upload_card_missing">Het klassementprofiel van deze telefoon bestaat niet meer op de server, dus nieuwe uploads worden geweigerd. Als dit onverwacht is, neem dan contact op met de klassementbeheerder.</string>
     <string name="online_upload_actions_caption">Uploads van ritstatistieken</string>
     <string name="online_upload_actions_desc">Stuur alle ritten die nog niet naar het klassement zijn geüpload.</string>
@@ -1109,8 +1110,8 @@
     <string name="online_restore_body_new">We vonden een opgeslagen profiel: %1$s. Doorgaan voegt je opnieuw toe aan het openbare klassement als die rijder, naam, vlag, avatar en rijstatistieken zijn openbaar. Er wordt geen nieuw profiel aangemaakt.</string>
     <string name="online_restore_body_switch">We vonden een ander opgeslagen profiel: %1$s. Doorgaan schakelt deze telefoon over naar die rijder; je huidige profiel wordt eerst geback-upt.</string>
     <string name="online_restore_confirm">Doorgaan als %1$s</string>
-    <string name="online_rejoin_title">Opnieuw deelnemen aan het klassement?</string>
-    <string name="online_rejoin_body">Je neemt opnieuw deel als je opgeslagen profiel %1$s. Deze telefoon hervat het uploaden van je nieuwe ritten naar dat profiel.</string>
+    <string name="online_rejoin_title">Opnieuw deelnemen aan klassement?</string>
+    <string name="online_rejoin_body">Opgeslagen profiel-id was\n%1$s</string>
     <string name="online_rejoin_confirm">Opnieuw deelnemen</string>
 
     <!-- Battery / Charging screen -->
