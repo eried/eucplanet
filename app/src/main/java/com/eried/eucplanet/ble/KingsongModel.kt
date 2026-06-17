@@ -14,20 +14,24 @@ package com.eried.eucplanet.ble
 enum class KingsongModel(
     val displayName: String,
     val nominalVoltage: Int,
-    val maxSpeedKmh: Int
+    val maxSpeedKmh: Int,
+    /** 18650/21700 cells in series. Derives 1:1 from [nominalVoltage] /
+     *  4.2 V/cell for every KingSong model we ship today; kept explicit so
+     *  the charging screen and battery curve don't have to round-divide. */
+    val cellsSeries: Int
 ) {
-    KS14(   "KingSong KS-14",   67,  35),
-    KS16(   "KingSong KS-16",   67,  40),
-    KS_16X( "KingSong KS-16X",  84,  50),
-    KS_16S( "KingSong KS-16S",  84,  50),
-    KS18(   "KingSong KS-18",   84,  50),
-    KS_S16( "KingSong KS-S16",  84,  55),
-    KS_S18( "KingSong KS-S18",  84,  60),
-    KS_S19( "KingSong KS-S19", 100,  65),
-    KS_S20( "KingSong KS-S20", 126,  85),
-    KS_S22( "KingSong KS-S22", 126, 100),
-    KS_F18P("KingSong F18P",   151, 110),
-    KS_F22P("KingSong F22P",   176, 120);
+    KS14(   "KingSong KS-14",   67,  35, 16),
+    KS16(   "KingSong KS-16",   67,  40, 16),
+    KS_16X( "KingSong KS-16X",  84,  50, 20),
+    KS_16S( "KingSong KS-16S",  84,  50, 20),
+    KS18(   "KingSong KS-18",   84,  50, 20),
+    KS_S16( "KingSong KS-S16",  84,  55, 20),
+    KS_S18( "KingSong KS-S18",  84,  60, 20),
+    KS_S19( "KingSong KS-S19", 100,  65, 24),
+    KS_S20( "KingSong KS-S20", 126,  85, 30),
+    KS_S22( "KingSong KS-S22", 126, 100, 30),
+    KS_F18P("KingSong F18P",   151, 110, 36),
+    KS_F22P("KingSong F22P",   176, 120, 42);
 
     companion object {
         /**
