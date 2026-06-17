@@ -348,7 +348,6 @@
     <string name="hud_diag_never">never</string>
     <string name="hud_diag_secs_ago">%1$ds ago</string>
     <string name="hud_diag_hint">If beacons received stays at 0 for &gt; 10 s on the same WiFi as the HUD, broadcast is filtered by the router. Try a different hotspot, or set Manual IP from the HUD banner.</string>
-    <string name="hud_log_empty">Discovery activity will appear here while the link is enabled.</string>
     <string name="hud_server_port">Port</string>
     <string name="hud_server_port_desc">Default 28080.</string>
     <string name="hud_hotspot_off_hint">Phone hotspot is off. Make sure the HUD and the phone are on the same WiFi network.</string>

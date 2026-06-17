@@ -9233,105 +9233,13 @@ private fun HudIntegrationSection(
             }
             HintText(stringResource(R.string.hud_status_label, statusText), small = true)
 
-            // Live discovery log -- the rider sees every probe / answer /
-            // dial attempt as it happens. Much more diagnostic than a
-            // single static "Searching…" line. Bounded height so the
-            // settings page doesn't grow unbounded; auto-scrolls to the
-            // newest entry on each append.
-            val logEntries by viewModel.hudDiscoveryLog.collectAsState()
-            val listState = rememberLazyListState()
-            // Key on the last entry's timestamp, not the list size: once the
-            // log hits its cap the size stops changing but new lines keep
-            // pushing the bottom further -- a size-keyed effect would stop
-            // auto-scrolling at that point, which is exactly when the rider
-            // most needs to see the latest line.
-            LaunchedEffect(logEntries.lastOrNull()?.timestampMs) {
-                if (logEntries.isNotEmpty()) {
-                    listState.animateScrollToItem(logEntries.lastIndex)
-                }
-            }
-            val timeFmt = remember {
-                java.text.SimpleDateFormat("HH:mm:ss", java.util.Locale.getDefault())
-            }
-            val ctxForShare = LocalContext.current
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 6.dp)
-                    .height(90.dp)
-                    .clip(RoundedCornerShape(6.dp))
-                    .background(MaterialTheme.appColors.tileBackground)
-            ) {
-                if (logEntries.isEmpty()) {
-                    Text(
-                        text = stringResource(R.string.hud_log_empty),
-                        color = MaterialTheme.appColors.hint,
-                        fontSize = 11.sp,
-                        modifier = Modifier
-                            .padding(10.dp)
-                    )
-                } else {
-                    LazyColumn(
-                        state = listState,
-                        modifier = Modifier.fillMaxSize().padding(8.dp),
-                        verticalArrangement = Arrangement.spacedBy(2.dp)
-                    ) {
-                        items(logEntries) { entry ->
-                            Row {
-                                Text(
-                                    timeFmt.format(java.util.Date(entry.timestampMs)),
-                                    color = MaterialTheme.appColors.hint,
-                                    fontSize = 11.sp,
-                                    fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace,
-                                )
-                                Spacer(Modifier.width(8.dp))
-                                Text(
-                                    entry.message,
-                                    color = MaterialTheme.appColors.textPrimary,
-                                    fontSize = 11.sp,
-                                    fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace,
-                                )
-                            }
-                        }
-                    }
-                }
-                // Share button overlay (top-right). Only enabled when the
-                // log has content -- a share of "nothing" is misleading.
-                // Bundles a one-line header (app version + locale-formatted
-                // datetime) so when the rider DMs me the dump I can match
-                // it back to a build without asking. ISO-ish timestamps on
-                // each line so any text viewer's monospace renders them
-                // aligned.
-                if (logEntries.isNotEmpty()) {
-                    androidx.compose.material3.IconButton(
-                        onClick = {
-                            val body = buildHudLogShareText(
-                                ctxForShare, logEntries, timeFmt
-                            )
-                            val intent = android.content.Intent(android.content.Intent.ACTION_SEND).apply {
-                                type = "text/plain"
-                                putExtra(android.content.Intent.EXTRA_SUBJECT,
-                                    "EUC Planet HUD discovery log")
-                                putExtra(android.content.Intent.EXTRA_TEXT, body)
-                            }
-                            ctxForShare.startActivity(
-                                android.content.Intent.createChooser(intent, null)
-                                    .addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)
-                            )
-                        },
-                        modifier = Modifier
-                            .align(Alignment.TopEnd)
-                            .size(28.dp)
-                    ) {
-                        Icon(
-                            imageVector = Icons.Filled.Share,
-                            contentDescription = stringResource(R.string.action_share),
-                            tint = MaterialTheme.appColors.hint,
-                            modifier = Modifier.size(16.dp)
-                        )
-                    }
-                }
-            }
+            // Per-event discovery activity (probe started, no answer, dial
+            // attempt, WS connected, transient reconnect after a WiFi
+            // switch, etc.) is piped to the Service Mode log as NOTE
+            // entries — the rider doesn't see them unless they explicitly
+            // open the diagnostics dialog. Keeps this card focused on the
+            // one-line status above and avoids a permanent scrolling log
+            // that mostly mattered while we were still building this out.
         }
 
         // Three top-level collapsibles under the Integration card.
@@ -9755,33 +9663,3 @@ private fun HudOverlayPicker(
     }
 }
 
-/** Format the in-memory HUD discovery log as a single shareable text dump.
- *  The header is short on purpose: rider name / device serial deliberately
- *  not included (the log can be sent to a chat I don't control), only what
- *  helps me match the dump back to a build — app version + the wall-clock
- *  moment they shared it. Entries use the same time format the UI shows
- *  so the dump reads identically to the on-screen list. */
-private fun buildHudLogShareText(
-    context: android.content.Context,
-    entries: List<com.eried.eucplanet.service.hud.HudServer.DiscoveryLog>,
-    timeFmt: java.text.SimpleDateFormat,
-): String = buildString {
-    val pkg = context.packageName
-    val version = runCatching {
-        val pi = context.packageManager.getPackageInfo(pkg, 0)
-        "v${pi.versionName} (${pi.longVersionCode})"
-    }.getOrDefault("v?")
-    val now = java.text.SimpleDateFormat(
-        "yyyy-MM-dd HH:mm:ss", java.util.Locale.US
-    ).format(java.util.Date())
-    append("EUC Planet HUD discovery log — ").append(version)
-        .append(" — shared at ").append(now).append('\n')
-    append("entries: ").append(entries.size).append('\n')
-    append('\n')
-    for (e in entries) {
-        append(timeFmt.format(java.util.Date(e.timestampMs)))
-        append("  ")
-        append(e.message)
-        append('\n')
-    }
-}

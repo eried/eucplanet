@@ -54,8 +54,6 @@ class SettingsViewModel @Inject constructor(
 
     /** Which discovery channel produced the current HUD link address. */
     val hudConnectionSource = hudServer.connectionSource
-    /** Live rolling activity log of the discovery / dial layer. */
-    val hudDiscoveryLog = hudServer.discoveryLog
 
     /**
      * Bundle the phone-side UDP listener counters into a single state for

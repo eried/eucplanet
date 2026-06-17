@@ -95,7 +95,6 @@ class HudServer @Inject constructor(
          *  reachable HUD is grabbed within a few seconds. After the window
          *  expires the tick relaxes to 5 s. */
         private const val DISCOVERY_SPRINT_MS = 30_000L
-        private const val DISCOVERY_LOG_CAP = 40
         // Default carousel order shipped with all 12 known screens.
         // Mirrors SettingsViewModel.defaultEnabledHudScreens so a fresh
         // install gets a non-empty wire field on the first frame --
@@ -181,29 +180,18 @@ class HudServer @Inject constructor(
         get() = _connectionSource
 
     /**
-     * Rolling log of what the discovery / dial layer has been doing, with
-     * a wall-clock timestamp. Surfaced in HUD Settings as a small scrolling
-     * region so the rider sees, in real time, "mDNS probe started", "no
-     * answer", "trying manual IP", "WS connected" etc. The log is the
-     * single best diagnostic surface when the rider says "it doesn't
-     * connect": instead of one static line we get a story.
+     * Discovery / dial-layer trace. Always written to logcat for OEM-side
+     * debugging; piped through [DiagnosticsLogger] as NOTE entries so a
+     * Service Mode capture has the full story (probe started, no answer,
+     * dial attempt, WS connected, etc.) without us cluttering the Settings
+     * page with a permanent log widget that's only useful while debugging.
      *
-     * Capped at [DISCOVERY_LOG_CAP] entries so the StateFlow never grows
-     * unbounded. Most recent at the END of the list (Compose lazy lists
-     * scroll-to-bottom naturally on append that way).
+     * Riders never opened Service Mode for normal use, so this stays cheap
+     * — `DiagnosticsLogger.note` is a no-op when the logger isn't enabled.
      */
-    data class DiscoveryLog(val timestampMs: Long, val message: String)
-    private val _discoveryLog =
-        kotlinx.coroutines.flow.MutableStateFlow<List<DiscoveryLog>>(emptyList())
-    val discoveryLog: kotlinx.coroutines.flow.StateFlow<List<DiscoveryLog>>
-        get() = _discoveryLog
-
     private fun log(msg: String) {
         Log.i(TAG, "[disc] $msg")
-        _discoveryLog.update { prev ->
-            (prev + DiscoveryLog(System.currentTimeMillis(), msg))
-                .takeLast(DISCOVERY_LOG_CAP)
-        }
+        com.eried.eucplanet.diagnostics.DiagnosticsLogger.note("HUD disc: $msg")
     }
 
     private val demo = HudDemoSource()
@@ -220,7 +208,6 @@ class HudServer @Inject constructor(
     private suspend fun doStart() {
         if (loopJob != null) return
         Log.i(TAG, "Starting HUD link")
-        _discoveryLog.value = emptyList()
         log("Link enabled, starting discovery")
         if (HudDebug.read("debug.eucplanet.demo") == "true") {
             Log.i(TAG, "Demo telemetry mode is ON")
