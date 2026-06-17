@@ -6809,7 +6809,7 @@ private fun CloudTab(
             AlertDialog(
                 onDismissRequest = { viewModel.dismissRejoinConfirm() },
                 title = { Text(stringResource(R.string.online_rejoin_title)) },
-                text = { Text(stringResource(R.string.online_rejoin_body, "“$rejoinName”")) },
+                text = { Text(stringResource(R.string.online_rejoin_body, rejoinName)) },
                 confirmButton = {
                     TextButton(onClick = { viewModel.confirmRejoin() }) {
                         Text(stringResource(R.string.online_rejoin_confirm))

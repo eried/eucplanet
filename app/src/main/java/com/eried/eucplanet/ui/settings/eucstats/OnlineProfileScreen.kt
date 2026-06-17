@@ -308,6 +308,39 @@ fun OnlineProfileDialog(
                             style = MaterialTheme.typography.bodySmall,
                         )
                     }
+                } else if (profile == null) {
+                    // Couldn't reach the server. Don't render the edit fields
+                    // and delete button — both need a successful round-trip to
+                    // apply, so showing them as tappable would invite a tap
+                    // that silently fails. Retry button calls fetchProfile
+                    // again; the user can also dismiss and come back when
+                    // they're online.
+                    Text(
+                        text = stringResource(R.string.online_profile_offline_title),
+                        color = MaterialTheme.appColors.statusDanger,
+                        style = MaterialTheme.typography.titleMedium,
+                    )
+                    Text(
+                        text = stringResource(R.string.online_profile_offline_body),
+                        color = MaterialTheme.appColors.textSecondary,
+                        style = MaterialTheme.typography.bodyMedium,
+                    )
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    ) {
+                        Button(
+                            onClick = {
+                                loading = true
+                                viewModel.loadOnlineProfile { p ->
+                                    profile = p
+                                    displayName = p?.displayName.orEmpty()
+                                    flagCode    = p?.flag.orEmpty()
+                                    loading = false
+                                }
+                            },
+                        ) { Text(stringResource(R.string.online_profile_retry)) }
+                    }
                 } else {
                     // ---- Avatar (centered, tappable) -------------------------
                     Column(
@@ -487,7 +520,11 @@ fun OnlineProfileDialog(
             ) {
                 TextButton(
                     onClick = { showDeleteConfirm = true },
-                    enabled = !saving && !deleting,
+                    // Also gated on having a loaded profile: deleteAccount
+                    // needs the server round-trip to actually wipe the
+                    // record, and without a successful card load we don't
+                    // even know if the rider still exists on that side.
+                    enabled = !saving && !deleting && profile != null,
                     colors = ButtonDefaults.textButtonColors(
                         contentColor = MaterialTheme.appColors.statusDanger,
                     )
