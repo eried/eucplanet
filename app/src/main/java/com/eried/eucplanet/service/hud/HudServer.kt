@@ -191,7 +191,7 @@ class HudServer @Inject constructor(
      */
     private fun log(msg: String) {
         Log.i(TAG, "[disc] $msg")
-        com.eried.eucplanet.diagnostics.DiagnosticsLogger.note("HUD disc: $msg")
+        com.eried.eucplanet.diagnostics.DiagnosticsLogger.note("hud_link: $msg")
     }
 
     private val demo = HudDemoSource()
