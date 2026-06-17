@@ -127,10 +127,14 @@ class VeteranAdapter @Inject constructor() : WheelAdapter {
     override fun setAlarmSpeedCommit(alarmKmh: Float): ByteArray =
         VeteranCommands.setAlarmSpeed(alarmKmh.toInt())
 
-    // No volume, no DRL, no software lock per spec section 8.
+    // No volume, no DRL on this family.
     override fun setVolume(percent: Int): ByteArray? = null
     override fun setDRL(on: Boolean): ByteArray? = null
-    override fun setLock(locked: Boolean): ByteArray? = null
+    // Software lock decoded from a Lynx S btsnoop, June 2026 (see
+    // VeteranCommands.setLock). Wheel CRC-validates the frame, so older
+    // models that don't recognise the opcode silently ignore it — safe to
+    // expose on every Veteran-family wheel without per-model gating.
+    override fun setLock(locked: Boolean): ByteArray = VeteranCommands.setLock(locked)
 
     // CLEARMETER zeroes offset 8..11 (trip) on the next frame; see
     // VeteranCommands.resetTrip and spec section 6.
