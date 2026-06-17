@@ -9213,34 +9213,13 @@ private fun HudIntegrationSection(
             onCheckedChange = { viewModel.updateHudServerEnabled(it) }
         )
 
-        // Live status line: which channel established the current link.
-        // Hidden when the link is off (status would always be "none").
-        if (settings.hudServerEnabled) {
-            val src by viewModel.hudConnectionSource.collectAsState()
-            val statusText = when (src) {
-                com.eried.eucplanet.service.hud.HudServer.ConnectionSource.UDP_BEACON ->
-                    stringResource(R.string.hud_status_udp_beacon)
-                com.eried.eucplanet.service.hud.HudServer.ConnectionSource.MDNS ->
-                    stringResource(R.string.hud_status_mdns)
-                com.eried.eucplanet.service.hud.HudServer.ConnectionSource.MANUAL ->
-                    stringResource(R.string.hud_status_manual)
-                com.eried.eucplanet.service.hud.HudServer.ConnectionSource.SUBNET_PROBE ->
-                    stringResource(R.string.hud_status_subnet_probe)
-                com.eried.eucplanet.service.hud.HudServer.ConnectionSource.DEBUG_OVERRIDE ->
-                    stringResource(R.string.hud_status_debug_override)
-                com.eried.eucplanet.service.hud.HudServer.ConnectionSource.NONE ->
-                    stringResource(R.string.hud_status_searching)
-            }
-            HintText(stringResource(R.string.hud_status_label, statusText), small = true)
-
-            // Per-event discovery activity (probe started, no answer, dial
-            // attempt, WS connected, transient reconnect after a WiFi
-            // switch, etc.) is piped to the Service Mode log as NOTE
-            // entries — the rider doesn't see them unless they explicitly
-            // open the diagnostics dialog. Keeps this card focused on the
-            // one-line status above and avoids a permanent scrolling log
-            // that mostly mattered while we were still building this out.
-        }
+        // Discovery activity (which channel found the HUD, probes, dial
+        // attempts, transient reconnects after a WiFi switch, etc.) is
+        // piped to the Service Mode log as NOTE entries — riders don't see
+        // any of it unless they explicitly open the diagnostics dialog.
+        // The connection-source StateFlow on HudServer stays around because
+        // the watchdog and tests still consult it; only the rider-facing
+        // surface is gone.
 
         // Three top-level collapsibles under the Integration card.
         // HUD screens first because the reorder list inside is the
