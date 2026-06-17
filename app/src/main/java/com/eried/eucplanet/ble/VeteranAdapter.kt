@@ -90,13 +90,22 @@ class VeteranAdapter @Inject constructor() : WheelAdapter {
     // voltage-curve estimate on the other 8 pages. -1 until the first page-2.
     @Volatile private var lastOryxBatterySoc: Int = -1
 
-    // Lock-frame anti-replay counter, monotonic across one BLE session. The
-    // wheel's lock frame carries an 8-bit sequence at payload offset 7 that
-    // increments on every write; a stale value triggers the wheel to ignore
-    // the command. Btsnoop on a Lynx S used 0x09 for the first lock and 0x0e
-    // for the first unlock, so we start the sequence at 0 and emit
-    // `base + sequence` where base is 0x09 for lock and 0x0e for unlock.
-    // Reset on every disconnect so a fresh BLE session restarts from 0.
+    // Lock-frame anti-replay counter. The wheel's lock frame carries an
+    // 8-bit sequence at payload offset 7 that increments on every write; a
+    // stale value triggers the wheel to ignore the command. Btsnoop on a
+    // Lynx S used 0x09 for the first lock and 0x0e for the first unlock, so
+    // we emit `base + sequence` where base is 0x09 for lock and 0x0e for
+    // unlock.
+    //
+    // **Counter persists across BLE disconnects** for the lifetime of the
+    // process. Resetting on disconnect would risk a replay rejection the
+    // first toggle after a reconnect if the wheel keeps its expected-next
+    // counter across the BLE session (likely — these wheels keep most state
+    // until power-off). The trade-off if the wheel DOES reset its
+    // expectation per session is harmless: a higher-than-expected counter
+    // still increases, so the wheel accepts it. The only failure mode is the
+    // counter wrapping past 0xFF after 246 toggles, which would take a few
+    // months of daily toggling and self-heals on the next app restart.
     private val lockSequence = java.util.concurrent.atomic.AtomicInteger(0)
 
     // Resolved model name emitted once per connection, so the dashboard and the
@@ -281,10 +290,9 @@ class VeteranAdapter @Inject constructor() : WheelAdapter {
         detectedModel = null
         lastOryxBatterySoc = -1
         emittedModel = false
-        // Fresh BLE session means the wheel's lock-frame anti-replay state
-        // resets too — start our outgoing sequence back at 0 so the first
-        // toggle in the new session matches the btsnoop base value.
-        lockSequence.set(0)
+        // NB: `lockSequence` is deliberately NOT reset here — see the field
+        // declaration. Resetting on disconnect risks a replay rejection on
+        // the first toggle after a reconnect.
         // A wheel reboot loses light state on the wheel side, so the rider's
         // most reliable mental model after a reconnect is "light is off until
         // I press the button again". Reset the cache to match.
