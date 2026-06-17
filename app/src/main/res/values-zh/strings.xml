@@ -1443,8 +1443,8 @@
     <string name="online_restore_confirm">恢复</string>
     <string name="online_upload_card_missing">此手机的排行榜资料已不在服务器上，新的上传将被拒绝。如果这不符合预期，请联系排行榜管理员。</string>
     <string name="online_upload_linked_caption">你的统计数据和行程将显示在公开排行榜</string>
-    <string name="online_rejoin_title">重新加入排行榜？</string>
-    <string name="online_rejoin_body">已保存的资料 ID：\n%1$s</string>
+    <string name="online_rejoin_title">已保存的排行榜资料</string>
+    <string name="online_rejoin_body">备份文件夹中包含一个用于排行榜的资料。\n\n%1$s</string>
     <string name="online_rejoin_confirm">重新加入</string>
 
     <!-- ==== Battery / Charging screen ==== -->

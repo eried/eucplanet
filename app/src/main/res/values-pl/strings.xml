@@ -1110,8 +1110,8 @@
     <string name="online_restore_body_new">Znaleziono zapisany profil: %1$s. Kontynuowanie dołącza do publicznego rankingu jako ten zawodnik, jego nazwa, flaga, avatar i statystyki jazdy są publiczne. Nie tworzy nowego profilu.</string>
     <string name="online_restore_body_switch">Znaleziono inny zapisany profil: %1$s. Kontynuowanie przełącza ten telefon na tego zawodnika; Twój obecny profil zostanie najpierw zapisany w kopii zapasowej.</string>
     <string name="online_restore_confirm">Kontynuuj jako %1$s</string>
-    <string name="online_rejoin_title">Dołączyć ponownie do rankingu?</string>
-    <string name="online_rejoin_body">Zapisany identyfikator profilu to\n%1$s</string>
+    <string name="online_rejoin_title">Zapisany profil rankingu</string>
+    <string name="online_rejoin_body">Folder kopii zapasowej zawiera profil używany w rankingu.\n\n%1$s</string>
 
     <!-- ==== Overlay Studio ==== -->
     <string name="studio_open">Otwórz Overlay Studio</string>

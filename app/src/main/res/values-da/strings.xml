@@ -1112,8 +1112,8 @@
     <string name="online_restore_body_new">Vi fandt en gemt profil her: %1$s. Hvis du fortsætter, genindtræder du på den offentlige rangliste som den rytter, med navn, flag, profilbillede og kørestatistikker synlige. Der oprettes ikke en ny profil.</string>
     <string name="online_restore_body_switch">Vi fandt en anden gemt profil: %1$s. Hvis du fortsætter, skifter denne telefon til den rytter. Din nuværende profil sikkerhedskopieres først.</string>
     <string name="online_restore_confirm">Fortsæt som %1$s</string>
-    <string name="online_rejoin_title">Tilmeld ranglisten igen?</string>
-    <string name="online_rejoin_body">Gemt profil-id var\n%1$s</string>
+    <string name="online_rejoin_title">Gemt rangliste-profil</string>
+    <string name="online_rejoin_body">Backup-mappen indeholder en profil, der blev brugt til ranglisten.\n\n%1$s</string>
     <string name="online_rejoin_confirm">Tilmeld igen</string>
 
     <!-- ==== Overlay Studio ==== -->

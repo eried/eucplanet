@@ -1112,8 +1112,8 @@
     <string name="online_restore_body_new">Encontramos um perfil salvo aqui: %1$s. Continuar volta ao ranking público como esse piloto, nome, bandeira, avatar e stats são públicos. Não cria um novo perfil.</string>
     <string name="online_restore_body_switch">Encontramos um perfil diferente: %1$s. Continuar muda este celular para esse piloto; seu perfil atual é salvo em backup primeiro.</string>
     <string name="online_restore_confirm">Continuar como %1$s</string>
-    <string name="online_rejoin_title">Voltar ao ranking?</string>
-    <string name="online_rejoin_body">O ID do perfil salvo era\n%1$s</string>
+    <string name="online_rejoin_title">Perfil de ranking salvo</string>
+    <string name="online_rejoin_body">A pasta de backup contém um perfil que foi usado no ranking.\n\n%1$s</string>
 
     <!-- ==== Overlay Studio ==== -->
     <string name="studio_open">Abrir Overlay Studio</string>

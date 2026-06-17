@@ -1460,8 +1460,8 @@
     <string name="online_restore_confirm">Gjenopprett</string>
     <string name="online_upload_card_missing">Denne telefonens ledertavleprofil finnes ikke lenger på serveren, så nye opplastinger blir avvist. Hvis dette er uventet, kontakt administratoren for ledertavlen.</string>
     <string name="online_upload_linked_caption">Statistikken og turene dine vises på den offentlige ledertavlen på</string>
-    <string name="online_rejoin_title">Bli med på ledertavlen igjen?</string>
-    <string name="online_rejoin_body">Lagret profil-ID var\n%1$s</string>
+    <string name="online_rejoin_title">Lagret ledertavle-profil</string>
+    <string name="online_rejoin_body">Sikkerhetskopimappen inneholder en profil som ble brukt for ledertavlen.\n\n%1$s</string>
     <string name="online_rejoin_confirm">Bli med igjen</string>
 
     <!-- Battery / Charging screen -->

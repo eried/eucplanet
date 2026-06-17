@@ -1109,8 +1109,8 @@
     <string name="online_restore_body_new">Burada kayıtlı bir profil bulduk: %1$s. Devam etmek, o sürücü olarak herkese açık lider tablosuna yeniden katılır; adı, bayrağı, avatarı ve sürüş istatistikleri herkese açıktır. Yeni profil oluşturulmaz.</string>
     <string name="online_restore_body_switch">Farklı bir kayıtlı profil bulduk: %1$s. Devam etmek bu telefonu o sürücüye geçirir; mevcut profiliniz önce yedeklenir.</string>
     <string name="online_restore_confirm">%1$s olarak devam et</string>
-    <string name="online_rejoin_title">Lider tablosuna yeniden katıl?</string>
-    <string name="online_rejoin_body">Kayıtlı profil kimliği:\n%1$s</string>
+    <string name="online_rejoin_title">Kayıtlı lider tablosu profili</string>
+    <string name="online_rejoin_body">Yedek klasörü, lider tablosu için kullanılmış bir profil içeriyor.\n\n%1$s</string>
 
     <!-- ==== Overlay Studio ==== -->
     <string name="studio_open">Overlay Studio\'yu aç</string>

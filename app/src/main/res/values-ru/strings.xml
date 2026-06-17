@@ -1112,8 +1112,8 @@
     <string name="online_restore_body_new">В этой папке найден сохранённый профиль: %1$s. Продолжение возвращает вас в публичную таблицу лидеров с тем же аккаунтом, ник, флаг, аватар и статистика поездок публичны. Новый профиль не создаётся.</string>
     <string name="online_restore_body_switch">Найден другой сохранённый профиль: %1$s. Продолжение переключит этот телефон на того райдера; ваш текущий профиль предварительно сохранится в резервную копию.</string>
     <string name="online_restore_confirm">Продолжить как %1$s</string>
-    <string name="online_rejoin_title">Вернуться в таблицу лидеров?</string>
-    <string name="online_rejoin_body">Сохранённый ID профиля:\n%1$s</string>
+    <string name="online_rejoin_title">Сохранённый профиль таблицы лидеров</string>
+    <string name="online_rejoin_body">В папке резервной копии есть профиль, который использовался в таблице лидеров.\n\n%1$s</string>
 
     <!-- ==== Overlay Studio ==== -->
     <string name="studio_open">Открыть Overlay Studio</string>

@@ -1110,8 +1110,8 @@
     <string name="online_restore_body_new">We vonden een opgeslagen profiel: %1$s. Doorgaan voegt je opnieuw toe aan het openbare klassement als die rijder, naam, vlag, avatar en rijstatistieken zijn openbaar. Er wordt geen nieuw profiel aangemaakt.</string>
     <string name="online_restore_body_switch">We vonden een ander opgeslagen profiel: %1$s. Doorgaan schakelt deze telefoon over naar die rijder; je huidige profiel wordt eerst geback-upt.</string>
     <string name="online_restore_confirm">Doorgaan als %1$s</string>
-    <string name="online_rejoin_title">Opnieuw deelnemen aan klassement?</string>
-    <string name="online_rejoin_body">Opgeslagen profiel-id was\n%1$s</string>
+    <string name="online_rejoin_title">Opgeslagen klassementprofiel</string>
+    <string name="online_rejoin_body">De back-upmap bevat een profiel dat voor het klassement gebruikt werd.\n\n%1$s</string>
     <string name="online_rejoin_confirm">Opnieuw deelnemen</string>
 
     <!-- Battery / Charging screen -->
