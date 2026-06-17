@@ -90,6 +90,15 @@ class VeteranAdapter @Inject constructor() : WheelAdapter {
     // voltage-curve estimate on the other 8 pages. -1 until the first page-2.
     @Volatile private var lastOryxBatterySoc: Int = -1
 
+    // Lock-frame anti-replay counter, monotonic across one BLE session. The
+    // wheel's lock frame carries an 8-bit sequence at payload offset 7 that
+    // increments on every write; a stale value triggers the wheel to ignore
+    // the command. Btsnoop on a Lynx S used 0x09 for the first lock and 0x0e
+    // for the first unlock, so we start the sequence at 0 and emit
+    // `base + sequence` where base is 0x09 for lock and 0x0e for unlock.
+    // Reset on every disconnect so a fresh BLE session restarts from 0.
+    private val lockSequence = java.util.concurrent.atomic.AtomicInteger(0)
+
     // Resolved model name emitted once per connection, so the dashboard and the
     // experimental-banner gate can tell e.g. an Oryx from a Sherman. Veteran
     // wheels often advertise a generic BLE name, so we resolve from the in-frame
@@ -134,7 +143,15 @@ class VeteranAdapter @Inject constructor() : WheelAdapter {
     // VeteranCommands.setLock). Wheel CRC-validates the frame, so older
     // models that don't recognise the opcode silently ignore it — safe to
     // expose on every Veteran-family wheel without per-model gating.
-    override fun setLock(locked: Boolean): ByteArray = VeteranCommands.setLock(locked)
+    // The lock frame carries a session-monotonic counter: lock starts at
+    // 0x09 + n, unlock at 0x0e + n, where n is the sequence of setLock
+    // calls in this BLE session (matches the btsnoop on the first toggle
+    // of each direction).
+    override fun setLock(locked: Boolean): ByteArray {
+        val n = lockSequence.getAndIncrement()
+        val base = if (locked) 0x09 else 0x0E
+        return VeteranCommands.setLock(locked, base + n)
+    }
 
     // CLEARMETER zeroes offset 8..11 (trip) on the next frame; see
     // VeteranCommands.resetTrip and spec section 6.
@@ -264,6 +281,10 @@ class VeteranAdapter @Inject constructor() : WheelAdapter {
         detectedModel = null
         lastOryxBatterySoc = -1
         emittedModel = false
+        // Fresh BLE session means the wheel's lock-frame anti-replay state
+        // resets too — start our outgoing sequence back at 0 so the first
+        // toggle in the new session matches the btsnoop base value.
+        lockSequence.set(0)
         // A wheel reboot loses light state on the wheel side, so the rider's
         // most reliable mental model after a reconnect is "light is off until
         // I press the button again". Reset the cache to match.
