@@ -215,6 +215,7 @@ object SettingsJson {
         put("hudActionRight", s.hudActionRight)
         put("hudServerPort", s.hudServerPort)
         put("hudIp", s.hudIp)
+        put("hudAutoDiscover", s.hudAutoDiscover)
         put("hudCustomOverlayName", s.hudCustomOverlayName)
         put("hudCustomOverlayJson", s.hudCustomOverlayJson)
         put("hudScreensEnabled", s.hudScreensEnabled)
@@ -431,6 +432,7 @@ object SettingsJson {
         hudActionRight = j.optString("hudActionRight", base.hudActionRight),
         hudServerPort = j.optInt("hudServerPort", base.hudServerPort),
         hudIp = j.optString("hudIp", base.hudIp),
+        hudAutoDiscover = j.optBoolean("hudAutoDiscover", base.hudAutoDiscover),
         hudCustomOverlayName = j.optString("hudCustomOverlayName", base.hudCustomOverlayName),
         hudCustomOverlayJson = j.optString("hudCustomOverlayJson", base.hudCustomOverlayJson),
         hudScreensEnabled = j.optString("hudScreensEnabled", base.hudScreensEnabled),

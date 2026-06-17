@@ -427,7 +427,14 @@ data class AppSettings(
      * users still see it disabled so a HUDless rider doesn't burn battery
      * on a dial loop they'll never use.
      */
-    val hudServerEnabled: Boolean = com.eried.eucplanet.BuildConfig.DEBUG,
+    /**
+     * Link master switch. Always OFF by default -- the rider has to opt
+     * in by flipping it on. Used to default to BuildConfig.DEBUG so debug
+     * builds came pre-armed, but that hid a real-world quirk (the rider
+     * never saw the toggle) and conflated "is this a debug APK?" with
+     * "should the radio be running?". The two should be independent.
+     */
+    val hudServerEnabled: Boolean = false,
     /**
      * HUD joystick long-press bindings. The HUD's IR remote / joystick fires a
      * long-press in one of four directions; the HUD sends an
@@ -456,6 +463,16 @@ data class AppSettings(
      * many phones.
      */
     val hudIp: String = "",
+    /**
+     * When ON (default), the phone runs a 4-layer discovery chain to find
+     * the HUD's IP automatically: UDP beacon → mDNS browse → manual hint
+     * (whatever is in [hudIp]) → subnet probe of the phone's own /24. The
+     * winning channel is published on the HUD-settings status line so the
+     * rider can see how the link was established. When OFF, only [hudIp]
+     * is tried -- legacy behaviour, retained as an escape hatch for cases
+     * where every auto path is broken (very rare).
+     */
+    val hudAutoDiscover: Boolean = true,
     /**
      * Name of the Overlay Studio preset the rider chose to mirror on the
      * HUD as a "Custom" screen. Empty = no custom overlay configured.
