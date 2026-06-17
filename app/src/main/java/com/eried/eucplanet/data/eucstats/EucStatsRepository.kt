@@ -20,12 +20,25 @@ enum class Outcome { UPLOADED, FAILED_PERMANENT, NEEDS_RETRY }
 
 /**
  * Narrow settings port: exposes only the eucstats-relevant AppSettings
- * fields so [EucStatsRepository] stays JVM-testable without a DataStore
- * or Android Context.
+ * fields plus the .txt-backed rider id so [EucStatsRepository] stays
+ * JVM-testable without a DataStore, Android Context, or SyncManager.
+ *
+ *  - [get] / [update] read / write the (now slim) AppSettings record
+ *    (which carries only `onlineUploadEnabled` on the eucstats side; the
+ *    full profile no longer ships in DataStore).
+ *  - [riderStoreId] reads the current rider id from whichever backing
+ *    store the host wires up. In production this delegates to
+ *    `SyncManager.riderStoreId.value` (the `.txt` recovery file is the
+ *    single source of truth); tests can substitute a fake.
+ *  - [writeRiderId] / [deleteRiderId] persist the id (write to / delete
+ *    from the .txt) and update the runtime flow in lock-step.
  */
 interface EucStatsSettingsPort {
     suspend fun get(): AppSettings
     suspend fun update(settings: AppSettings)
+    fun riderStoreId(): String?
+    suspend fun writeRiderId(storeId: String): Boolean
+    suspend fun deleteRiderId(): Boolean
 }
 
 @Singleton
@@ -71,8 +84,7 @@ class EucStatsRepository @Inject constructor(
         flag: String,
         avatarPngBase64: String,
     ): RegisterResult = withContext(Dispatchers.IO) {
-        val current = settings.get()
-        val storeId = current.eucstatsStoreId ?: UUID.randomUUID().toString()
+        val storeId = settings.riderStoreId() ?: UUID.randomUUID().toString()
 
         // Build the payload without attestation first so we can hash it.
         val payload = JSONObject().apply {
@@ -114,18 +126,12 @@ class EucStatsRepository @Inject constructor(
             }
         }
 
-        // Persist everything on success.
-        val now = clock()
-        settings.update(
-            current.copy(
-                eucstatsStoreId = storeId,
-                eucstatsDisplayName = displayName,
-                eucstatsFlag = flag,
-                eucstatsConsentPublic = true,
-                eucstatsRegisteredAt = now,
-                onlineUploadEnabled = true,
-            )
-        )
+        // Persist only what the app needs locally: the rider id goes to the
+        // sync-folder `.txt` (single source of truth), and the on/off toggle
+        // goes to settings. Display name / flag / consent / registered-at all
+        // live on the server now and are fetched via `refreshCard()`.
+        settings.writeRiderId(storeId)
+        settings.update(settings.get().copy(onlineUploadEnabled = true))
         refreshCard()
         RegisterResult.Ok
     }
@@ -135,7 +141,7 @@ class EucStatsRepository @Inject constructor(
     // -------------------------------------------------------------------------
 
     suspend fun refreshCard() = withContext(Dispatchers.IO) {
-        val storeId = settings.get().eucstatsStoreId ?: return@withContext
+        val storeId = settings.riderStoreId() ?: return@withContext
         try {
             val card = api.getCard(storeId)
             _card.value = card
@@ -155,7 +161,7 @@ class EucStatsRepository @Inject constructor(
     // -------------------------------------------------------------------------
 
     suspend fun uploadTrip(trip: TripRecord): Outcome = withContext(Dispatchers.IO) {
-        val storeId = settings.get().eucstatsStoreId
+        val storeId = settings.riderStoreId()
             ?: return@withContext Outcome.NEEDS_RETRY
 
         val csv = tripFileBytes(trip)
@@ -256,7 +262,7 @@ class EucStatsRepository @Inject constructor(
 
     /** GET the full rider profile including can_change_* gating dates. */
     suspend fun fetchProfile(): RiderProfile? = withContext(Dispatchers.IO) {
-        val storeId = settings.get().eucstatsStoreId ?: return@withContext null
+        val storeId = settings.riderStoreId() ?: return@withContext null
         api.getProfile(storeId)
     }
 
@@ -266,7 +272,7 @@ class EucStatsRepository @Inject constructor(
         flag: String? = null,
         avatarPngBase64: String? = null,
     ): Int = withContext(Dispatchers.IO) {
-        val storeId = settings.get().eucstatsStoreId ?: return@withContext 400
+        val storeId = settings.riderStoreId() ?: return@withContext 400
         val payload = JSONObject().apply {
             displayName?.let { put("display_name", it) }
             flag?.let { put("flag", it) }
@@ -275,22 +281,13 @@ class EucStatsRepository @Inject constructor(
         api.patchRider(storeId, payload)
     }
 
-    /** DELETE the rider account, then clear local eucstats settings. */
+    /** DELETE the rider account, then clear the rider id file + online toggle. */
     suspend fun deleteAccount(): Boolean = withContext(Dispatchers.IO) {
-        val current = settings.get()
-        val storeId = current.eucstatsStoreId ?: return@withContext false
+        val storeId = settings.riderStoreId() ?: return@withContext false
         val ok = api.deleteRider(storeId)
         if (ok) {
-            settings.update(
-                current.copy(
-                    eucstatsStoreId = null,
-                    eucstatsDisplayName = null,
-                    eucstatsFlag = null,
-                    eucstatsConsentPublic = false,
-                    eucstatsRegisteredAt = null,
-                    onlineUploadEnabled = false,
-                )
-            )
+            settings.deleteRiderId()
+            settings.update(settings.get().copy(onlineUploadEnabled = false))
             _card.value = null
         }
         ok
@@ -298,7 +295,7 @@ class EucStatsRepository @Inject constructor(
 
     /** GET the rider's exported data JSON. */
     suspend fun exportData(): String? = withContext(Dispatchers.IO) {
-        val storeId = settings.get().eucstatsStoreId ?: return@withContext null
+        val storeId = settings.riderStoreId() ?: return@withContext null
         api.exportRider(storeId)
     }
 

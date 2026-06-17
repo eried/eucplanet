@@ -85,12 +85,26 @@ class FakeEucStatsApi : EucStatsApiContract {
     }
 }
 
-/** In-memory fake for EucStatsSettingsPort. */
-class FakeSettingsPort(initial: AppSettings = AppSettings()) : EucStatsSettingsPort {
+/** In-memory fake for EucStatsSettingsPort. The rider id is held separately
+ *  from AppSettings (real impl reads it from `eucstats_riderid.txt` via
+ *  SyncManager), so tests can seed an initial id without leaning on a field
+ *  that no longer exists on AppSettings. */
+class FakeSettingsPort(
+    initial: AppSettings = AppSettings(),
+    initialStoreId: String? = null,
+) : EucStatsSettingsPort {
     private var current = initial
+    private var storeId: String? = initialStoreId
 
     override suspend fun get(): AppSettings = current
     override suspend fun update(settings: AppSettings) { current = settings }
+    override fun riderStoreId(): String? = storeId
+    override suspend fun writeRiderId(storeId: String): Boolean {
+        this.storeId = storeId; return true
+    }
+    override suspend fun deleteRiderId(): Boolean {
+        val had = storeId != null; storeId = null; return had
+    }
 }
 
 /** In-memory fake for TripDao (Room @Dao interface). */
@@ -138,7 +152,7 @@ private val SAMPLE_CSV = "Date,Speed\n01.06.2026 20:00:00.000,10\n".toByteArray(
 private fun makeRepo(
     api: FakeEucStatsApi = FakeEucStatsApi(),
     attestation: Attestation = StubAttestation(),
-    settings: FakeSettingsPort = FakeSettingsPort(AppSettings(eucstatsStoreId = "store-1")),
+    settings: FakeSettingsPort = FakeSettingsPort(initialStoreId = "store-1"),
     tripDao: FakeTripDao = FakeTripDao(),
     clock: () -> Long = { 1_000_000L },
 ): Triple<EucStatsRepository, FakeEucStatsApi, FakeSettingsPort> {
@@ -168,7 +182,7 @@ class EucStatsRepositoryTest {
 
     @Before fun setUp() {
         api = FakeEucStatsApi()
-        settingsPort = FakeSettingsPort(AppSettings(eucstatsStoreId = null))
+        settingsPort = FakeSettingsPort()
         tripDao = FakeTripDao()
         repo = EucStatsRepository(
             api = api,
@@ -191,12 +205,13 @@ class EucStatsRepositoryTest {
 
         assertEquals(RegisterResult.Ok, result)
         val saved = settingsPort.get()
-        assertNotNull("store_id must be persisted", saved.eucstatsStoreId)
+        // The store_id is now persisted to the rider-id file (here: the
+        // FakeSettingsPort's in-memory slot), NOT to AppSettings. Display
+        // name / flag / consent / registered-at all live on the server now
+        // and are fetched via api.getCard, so they have no settings home.
+        assertNotNull("store_id must be persisted to the rider-id file",
+            settingsPort.riderStoreId())
         assertTrue("onlineUploadEnabled must be true", saved.onlineUploadEnabled)
-        assertEquals("display name must be saved", "Alice", saved.eucstatsDisplayName)
-        assertEquals("flag must be saved", "NO", saved.eucstatsFlag)
-        assertTrue("consent_public must be true", saved.eucstatsConsentPublic)
-        assertEquals("registered_at must match clock", 12345L, saved.eucstatsRegisteredAt)
     }
 
     @Test fun register_callsApiWithAttestationObject() = runBlocking {
@@ -230,12 +245,12 @@ class EucStatsRepositoryTest {
     }
 
     @Test fun register_usesExistingStoreIdIfAlreadySet() = runBlocking {
-        settingsPort.update(AppSettings(eucstatsStoreId = "existing-id"))
+        settingsPort.writeRiderId("existing-id")
         repo.register("Dave", "FR", "avatar==")
 
         val payload = api.registerCalls.first()
         assertEquals("existing-id", payload.getString("store_id"))
-        assertEquals("existing-id", settingsPort.get().eucstatsStoreId)
+        assertEquals("existing-id", settingsPort.riderStoreId())
     }
 
     @Test fun register_returnsFailedWhenApiFails() = runBlocking {
@@ -257,7 +272,7 @@ class EucStatsRepositoryTest {
     // -----------------------------------------------------------------------
 
     @Test fun uploadTrip_okSetsStatus2AndReturnsUploaded() = runBlocking {
-        settingsPort.update(AppSettings(eucstatsStoreId = "store-1"))
+        settingsPort.writeRiderId("store-1")
         api.uploadResult = UploadResult.Ok("validated", false)
         tripDao.trips.add(SAMPLE_TRIP)
 
@@ -271,7 +286,7 @@ class EucStatsRepositoryTest {
     }
 
     @Test fun uploadTrip_okCallsRefreshCard() = runBlocking {
-        settingsPort.update(AppSettings(eucstatsStoreId = "store-1"))
+        settingsPort.writeRiderId("store-1")
         api.uploadResult = UploadResult.Ok("validated", false)
         tripDao.trips.add(SAMPLE_TRIP)
         val beforeCount = api.getCardCallCount
@@ -286,7 +301,7 @@ class EucStatsRepositoryTest {
     // -----------------------------------------------------------------------
 
     @Test fun uploadTrip_permanentFailureSetsStatus3() = runBlocking {
-        settingsPort.update(AppSettings(eucstatsStoreId = "store-1"))
+        settingsPort.writeRiderId("store-1")
         api.uploadResult = UploadResult.PermanentFailure(422, "bad schema")
         tripDao.trips.add(SAMPLE_TRIP)
 
@@ -302,7 +317,7 @@ class EucStatsRepositoryTest {
     // -----------------------------------------------------------------------
 
     @Test fun uploadTrip_retryLeavesStatusUnchangedAndReturnsNeedsRetry() = runBlocking {
-        settingsPort.update(AppSettings(eucstatsStoreId = "store-1"))
+        settingsPort.writeRiderId("store-1")
         api.uploadResult = UploadResult.Retry(503, null)
         tripDao.trips.add(SAMPLE_TRIP)
 
@@ -321,7 +336,7 @@ class EucStatsRepositoryTest {
     // -----------------------------------------------------------------------
 
     @Test fun uploadTrip_authFailureRemintsTokenOnce() = runBlocking {
-        settingsPort.update(AppSettings(eucstatsStoreId = "store-1"))
+        settingsPort.writeRiderId("store-1")
         // First call → AuthFailure, second call (re-mint) → Retry.
         api.enqueueUploadResult(UploadResult.AuthFailure(401), UploadResult.Retry(503, null))
         tripDao.trips.add(SAMPLE_TRIP)
@@ -336,7 +351,7 @@ class EucStatsRepositoryTest {
     }
 
     @Test fun uploadTrip_authFailureThenOkUploads() = runBlocking {
-        settingsPort.update(AppSettings(eucstatsStoreId = "store-1"))
+        settingsPort.writeRiderId("store-1")
         api.enqueueUploadResult(UploadResult.AuthFailure(401), UploadResult.Ok("validated", false))
         tripDao.trips.add(SAMPLE_TRIP)
 
@@ -352,7 +367,7 @@ class EucStatsRepositoryTest {
     // -----------------------------------------------------------------------
 
     @Test fun uploadTrip_postedMetaContainsAttestationWithCorrectRequestHash() = runBlocking {
-        settingsPort.update(AppSettings(eucstatsStoreId = "store-1"))
+        settingsPort.writeRiderId("store-1")
         api.uploadResult = UploadResult.Ok("validated", false)
         tripDao.trips.add(SAMPLE_TRIP)
 
@@ -370,7 +385,7 @@ class EucStatsRepositoryTest {
     }
 
     @Test fun uploadTrip_csvIsGzippedBeforeSend() = runBlocking {
-        settingsPort.update(AppSettings(eucstatsStoreId = "store-1"))
+        settingsPort.writeRiderId("store-1")
         api.uploadResult = UploadResult.Ok(null, false)
         tripDao.trips.add(SAMPLE_TRIP)
 
@@ -387,7 +402,7 @@ class EucStatsRepositoryTest {
     // -----------------------------------------------------------------------
 
     @Test fun refreshCard_updatesStateFlow() = runBlocking {
-        settingsPort.update(AppSettings(eucstatsStoreId = "store-x"))
+        settingsPort.writeRiderId("store-x")
         api.cardResult = RiderCard(
             displayName = "Test", flag = "NO", hasAvatar = false, avatarUrl = null,
             totalKm = 50.0, trips = 5, topSpeedKmh = 30.0, maxGforce = 0.0,
@@ -398,7 +413,7 @@ class EucStatsRepositoryTest {
     }
 
     @Test fun refreshCard_doesNothingWhenNoStoreId() = runBlocking {
-        settingsPort.update(AppSettings(eucstatsStoreId = null))
+        settingsPort.deleteRiderId()
         repo.refreshCard()
         assertEquals(0, api.getCardCallCount)
         assertNull(repo.card.value)
@@ -409,7 +424,7 @@ class EucStatsRepositoryTest {
     // -----------------------------------------------------------------------
 
     @Test fun editProfile_returnsHttpCode() = runBlocking {
-        settingsPort.update(AppSettings(eucstatsStoreId = "store-1"))
+        settingsPort.writeRiderId("store-1")
         api.patchResult = 200
         val code = repo.editProfile(displayName = "New Name")
         assertEquals(200, code)
@@ -417,7 +432,7 @@ class EucStatsRepositoryTest {
     }
 
     @Test fun editProfile_returns400WhenNoStoreId() = runBlocking {
-        settingsPort.update(AppSettings(eucstatsStoreId = null))
+        settingsPort.deleteRiderId()
         val code = repo.editProfile(displayName = "Name")
         assertEquals(400, code)
         assertTrue(api.patchCalls.isEmpty())
@@ -428,30 +443,24 @@ class EucStatsRepositoryTest {
     // -----------------------------------------------------------------------
 
     @Test fun deleteAccount_clearsLocalSettingsAndDisablesUpload() = runBlocking {
-        settingsPort.update(
-            AppSettings(
-                eucstatsStoreId = "store-del",
-                eucstatsDisplayName = "Delete Me",
-                eucstatsFlag = "NO",
-                eucstatsConsentPublic = true,
-                eucstatsRegisteredAt = 1000L,
-                onlineUploadEnabled = true,
-            )
-        )
+        settingsPort.writeRiderId("store-del")
+        settingsPort.update(AppSettings(onlineUploadEnabled = true))
         api.deleteResult = true
 
         val ok = repo.deleteAccount()
 
         assertTrue(ok)
-        val saved = settingsPort.get()
-        assertNull(saved.eucstatsStoreId)
-        assertNull(saved.eucstatsDisplayName)
-        assertFalse(saved.onlineUploadEnabled)
+        // After delete the rider-id file is gone and the upload toggle is off.
+        // No other eucstats local state exists anymore — display name / flag /
+        // consent all live on the server, which the API call already wiped.
+        assertNull(settingsPort.riderStoreId())
+        assertFalse(settingsPort.get().onlineUploadEnabled)
         assertNull(repo.card.value)
     }
 
     @Test fun deleteAccount_returnsFalseWhenApiFails() = runBlocking {
-        settingsPort.update(AppSettings(eucstatsStoreId = "store-1", onlineUploadEnabled = true))
+        settingsPort.writeRiderId("store-1")
+        settingsPort.update(AppSettings(onlineUploadEnabled = true))
         api.deleteResult = false
 
         val ok = repo.deleteAccount()
@@ -466,7 +475,7 @@ class EucStatsRepositoryTest {
     // -----------------------------------------------------------------------
 
     @Test fun exportData_returnsJsonFromApi() = runBlocking {
-        settingsPort.update(AppSettings(eucstatsStoreId = "store-1"))
+        settingsPort.writeRiderId("store-1")
         api.exportResult = """{"trips":[]}"""
 
         val data = repo.exportData()
@@ -476,7 +485,7 @@ class EucStatsRepositoryTest {
     }
 
     @Test fun exportData_returnsNullWhenNoStoreId() = runBlocking {
-        settingsPort.update(AppSettings(eucstatsStoreId = null))
+        settingsPort.deleteRiderId()
         val data = repo.exportData()
         assertNull(data)
         assertFalse(api.exportCalled)
@@ -487,7 +496,7 @@ class EucStatsRepositoryTest {
     // -----------------------------------------------------------------------
 
     @Test fun fetchProfile_returnsProfileFromApi() = runBlocking {
-        settingsPort.update(AppSettings(eucstatsStoreId = "store-1"))
+        settingsPort.writeRiderId("store-1")
         api.profileResult = RiderProfile(
             displayName = "Alice", flag = "NO", hasAvatar = true, avatarUrl = null,
             canChangeNameAfter = null, canChangeFlagAfter = "2026-12-01", canChangeAvatarAfter = null,
@@ -503,7 +512,7 @@ class EucStatsRepositoryTest {
     }
 
     @Test fun fetchProfile_returnsNullWhenNoStoreId() = runBlocking {
-        settingsPort.update(AppSettings(eucstatsStoreId = null))
+        settingsPort.deleteRiderId()
 
         val profile = repo.fetchProfile()
 

@@ -813,6 +813,12 @@ class SettingsViewModel @Inject constructor(
 
     // ---- eucstats rider recovery from a linked backup folder ----
 
+    /** The current rider's store_id, read from the sync-folder `.txt` recovery
+     *  file. Null when no folder is configured / no `.txt` is present.
+     *  Mirrors [SyncManager.riderStoreId] so the UI can collect it like any
+     *  other settings flow without depending directly on SyncManager. */
+    val riderStoreId: StateFlow<String?> = syncManager.riderStoreId
+
     private val _restorableRider = MutableStateFlow<RestorableRider?>(null)
     /** A rider identity found in the linked folder's backup that this phone could
      *  adopt. Non-null → UI shows the "continue as this rider?" prompt. */
@@ -840,8 +846,7 @@ class SettingsViewModel @Inject constructor(
      *  it for a continue-or-not prompt; else start onboarding for a new one. */
     fun joinOrRecover() {
         viewModelScope.launch {
-            val current = settingsRepository.get().eucstatsStoreId
-            if (current != null) {
+            if (syncManager.riderStoreId.value != null) {
                 _rejoinConfirm.value = true
                 return@launch
             }
@@ -856,24 +861,15 @@ class SettingsViewModel @Inject constructor(
 
     fun dismissRestorableRider() { _restorableRider.value = null }
 
-    /** Adopt the rider carried by [rider] (adopt its recovered rider id),
-     *  snapshotting the current rider first if we'd be replacing a different one. */
+    /** Adopt the rider carried by [rider]: write the recovered store_id to
+     *  the `.txt` (single source of truth) and flip the online toggle on.
+     *  Name / flag / stats are fetched from the server card on the next
+     *  refresh. Settings backup is not touched here — only the rider id. */
     fun restoreRider(rider: RestorableRider) {
         viewModelScope.launch {
-            val current = settingsRepository.get()
-            // If a DIFFERENT rider is already linked, snapshot current settings
-            // first so the previous identity stays recoverable.
-            if (current.eucstatsStoreId != null && current.eucstatsStoreId != rider.storeId) {
-                syncManager.snapshotBeforeRestore()
-            }
-            // Adopt the recovered online rider id and re-join. Name/flag/stats
-            // come from the server card; theme and all other settings untouched.
+            syncManager.writeRiderId(rider.storeId)
             settingsRepository.update(
-                current.copy(
-                    eucstatsStoreId = rider.storeId,
-                    eucstatsConsentPublic = true,
-                    onlineUploadEnabled = true,
-                )
+                settingsRepository.get().copy(onlineUploadEnabled = true)
             )
             _restorableRider.value = null
             refreshOnlineUploadCard()
@@ -881,20 +877,12 @@ class SettingsViewModel @Inject constructor(
         }
     }
 
-    /**
-     * Restore a backup, but if it would replace an EXISTING, DIFFERENT rider
-     * identity, first save a timestamped safety copy of the current settings so
-     * the previous rider stays recoverable even if the rider tapped through the
-     * confirm. Applies to every restore path (recovery prompt and manual picker).
-     */
-    private suspend fun restoreWithSafety(fileName: String): Boolean {
-        val currentId = settingsRepository.get().eucstatsStoreId
-        val incoming = syncManager.peekRider(fileName)
-        if (currentId != null && incoming != null && incoming.storeId != currentId) {
-            syncManager.snapshotBeforeRestore()
-        }
-        return syncManager.restoreSettingsFrom(fileName)
-    }
+    /** Settings-backup restore. Theme / thresholds / wheel pairings only;
+     *  the rider id never lived in this file (it's in `eucstats_riderid.txt`),
+     *  so the previous safety-snapshot guard against silent rider-switch is
+     *  no longer needed and was dropped. */
+    private suspend fun restoreWithSafety(fileName: String): Boolean =
+        syncManager.restoreSettingsFrom(fileName)
 
     /** Reset all rider configuration to factory defaults (keeps pairings, sync
      *  folder and saved backups). Reuses the restore merge in [SyncManager]. */
@@ -1980,14 +1968,9 @@ class SettingsViewModel @Inject constructor(
     ) {
         viewModelScope.launch {
             val result = eucStatsRepository.register(displayName, flag, avatarPngBase64)
-            if (result == com.eried.eucplanet.data.eucstats.RegisterResult.Ok) {
-                // Persist ONLY the rider identity to its own small file
-                // (eucstats_riderid.txt) -- NOT the full settings/theme -- so the
-                // rider survives a reinstall / new device and findRestorableRider
-                // can recover it, without dragging the theme or other settings.
-                // Best-effort.
-                syncManager.backupRiderIdentity()
-            }
+            // The repository writes the rider id to `eucstats_riderid.txt`
+            // itself on success (single source of truth for the store_id),
+            // so no extra backup call is needed here.
             onResult(result)
         }
     }
@@ -2000,33 +1983,36 @@ class SettingsViewModel @Inject constructor(
     fun enableOnlineUpload() {
         viewModelScope.launch {
             val current = settingsRepository.get()
+            val storeId = syncManager.riderStoreId.value
             // Preconditions: sync folder configured AND already registered.
-            if (current.syncFolderUri == null || current.eucstatsStoreId == null) return@launch
+            if (current.syncFolderUri == null || storeId == null) return@launch
             settingsRepository.update(current.copy(onlineUploadEnabled = true))
             // Harden the recovery id file now that we're linked (write it if the
             // folder doesn't have it yet); warn instead of clobbering a foreign id.
-            ensureRiderIdFileOrWarn()
+            if (syncManager.ensureRiderIdFile(storeId) == SyncManager.RiderFileResult.MISMATCH) {
+                _cloudEvent.value = CloudEvent.RiderIdConflict
+            }
             eucStatsRepository.refreshCard()
         }
     }
 
     /**
-     * Unlink from the leaderboard. Before dropping the link, make sure the
-     * recovery id file exists in the sync folder so the rider can rejoin after a
-     * reinstall / new device (the local store_id is kept, but the file is the only
-     * copy that survives a wipe). A different rider's file is left untouched.
+     * Unlink from the leaderboard. The store_id lives only in the `.txt`
+     * recovery file in the sync folder, so as long as that file is intact
+     * the rider can rejoin from this same folder later. Defensive re-write
+     * here in case the rider deleted the file manually between register and
+     * unlink (small but non-zero failure mode). A different rider's file is
+     * left untouched and the rider is warned.
      */
     fun unlinkOnline() {
         viewModelScope.launch {
-            ensureRiderIdFileOrWarn()
+            val id = syncManager.riderStoreId.value
+            if (id != null) {
+                if (syncManager.ensureRiderIdFile(id) == SyncManager.RiderFileResult.MISMATCH) {
+                    _cloudEvent.value = CloudEvent.RiderIdConflict
+                }
+            }
             settingsRepository.update(settingsRepository.get().copy(onlineUploadEnabled = false))
-        }
-    }
-
-    /** Ensure the recovery id file, surfacing a warning if a different id is present. */
-    private suspend fun ensureRiderIdFileOrWarn() {
-        if (syncManager.ensureRiderIdFile() == SyncManager.RiderFileResult.MISMATCH) {
-            _cloudEvent.value = CloudEvent.RiderIdConflict
         }
     }
 

@@ -27,7 +27,9 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import org.json.JSONArray
 import org.json.JSONObject
@@ -70,6 +72,33 @@ class SyncManager @Inject constructor(
 
     // App-scoped so trip sync survives settings screen navigation.
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+
+    /**
+     * The current rider's store_id, read from the `.txt` recovery file in the
+     * sync folder. This is the **single source of truth** for the rider's
+     * online identity — we deliberately do NOT keep it in DataStore /
+     * AppSettings, so the .txt and the server card together carry everything
+     * a profile needs and nothing about the rider's name / flag / join date
+     * ends up persisted on-device beyond what the server already holds.
+     *
+     * Null while the rider is unregistered, while no sync folder is
+     * configured, or while the .txt is missing. Re-read on init and on any
+     * `syncFolderUri` change so a fresh folder pick or an unlink updates
+     * every consumer (trip upload, profile card, the restore prompt) in
+     * lock-step.
+     */
+    private val _riderStoreId = MutableStateFlow<String?>(null)
+    val riderStoreId: StateFlow<String?> = _riderStoreId.asStateFlow()
+
+    init {
+        scope.launch {
+            _riderStoreId.value = readRiderIdFile()
+            settingsRepository.settings
+                .map { it.syncFolderUri }
+                .distinctUntilChanged()
+                .collect { _riderStoreId.value = readRiderIdFile() }
+        }
+    }
 
     private val _syncRunning = MutableStateFlow(false)
     val syncRunning: StateFlow<Boolean> = _syncRunning.asStateFlow()
@@ -400,19 +429,16 @@ class SyncManager @Inject constructor(
     }
 
     /**
-     * Write the eucstats leaderboard rider identity to its own small file
-     * (RIDER_BACKUP_NAME) in the sync folder -- just the rider fields, NOT the
-     * full settings/theme. This is the recovery file for "found a previous
-     * profile" after a reinstall / new device. No-op (false) without a folder
-     * or a registered rider. Best-effort.
+     * Write a rider's store_id to the recovery file ([RIDER_BACKUP_NAME]) in
+     * the sync folder and publish it on [riderStoreId]. This is the
+     * registration / restore path's persistence step — we don't keep the id
+     * anywhere else on-device. Name / flag / avatar / stats all live on the
+     * server. Returns true on success; false if there's no folder or the
+     * write failed.
      */
-    suspend fun backupRiderIdentity(): Boolean {
-        val current = settingsRepository.get()
-        val storeId = current.eucstatsStoreId ?: return false
-        val folder = getSyncFolder(current) ?: return false
-        // Just the store_id UUID as plain text -- that's the whole identity.
-        // Name/flag/avatar/stats all live on the server.
-        return try {
+    suspend fun writeRiderId(storeId: String): Boolean {
+        val folder = getSyncFolder(settingsRepository.get()) ?: return false
+        val ok = try {
             folder.findFile(RIDER_BACKUP_NAME)?.delete()
             val file = folder.createFile("text/plain", RIDER_BACKUP_NAME)
                 ?: return false
@@ -421,18 +447,26 @@ class SyncManager @Inject constructor(
             } ?: return false
             true
         } catch (e: Exception) {
-            Log.e(TAG, "Rider id backup failed", e)
+            Log.e(TAG, "Rider id write failed", e)
             false
         }
+        if (ok) _riderStoreId.value = storeId
+        return ok
     }
 
-    /** Delete the recovery file ([RIDER_BACKUP_NAME]) -- used when the rider
+    /** Delete the recovery file ([RIDER_BACKUP_NAME]) — used when the rider
      *  deletes their account so the just-deleted profile is NOT offered for
      *  "restore" on the next Join (the store_id no longer exists server-side).
-     *  Best-effort; returns true if a file was deleted. */
+     *  Also clears [riderStoreId] so every consumer sees the unregistered
+     *  state immediately. Best-effort; returns true if a file was deleted. */
     suspend fun deleteRiderIdFile(): Boolean {
-        val folder = getSyncFolder(settingsRepository.get()) ?: return false
-        return folder.findFile(RIDER_BACKUP_NAME)?.delete() ?: false
+        val folder = getSyncFolder(settingsRepository.get()) ?: run {
+            _riderStoreId.value = null
+            return false
+        }
+        val deleted = folder.findFile(RIDER_BACKUP_NAME)?.delete() ?: false
+        _riderStoreId.value = null
+        return deleted
     }
 
     /** Read the plain-text online rider id (store_id) from RIDER_BACKUP_NAME, or null. */
@@ -463,20 +497,16 @@ class SyncManager @Inject constructor(
     }
 
     /**
-     * Make sure the recovery file ([RIDER_BACKUP_NAME]) holds THIS phone's rider
-     * id: write it if absent, no-op if it already matches, and — if a DIFFERENT
-     * id is present — leave that foreign file untouched and report [RiderFileResult.MISMATCH]
-     * so the caller can warn instead of silently clobbering someone else's recovery
-     * token. Used on unlink / link so the id is hardened for the reinstall / new-
-     * device case (where it is the only surviving identity) before it might be lost.
+     * Ensure the recovery file holds [storeId]. Used at registration / link
+     * time so the rider's identity is hardened in the sync folder before
+     * anything else can clobber it. Leaves a foreign rider's file untouched
+     * and reports [RiderFileResult.MISMATCH] so the caller can warn.
      */
-    suspend fun ensureRiderIdFile(): RiderFileResult {
-        val current = settingsRepository.get()
-        val storeId = current.eucstatsStoreId ?: return RiderFileResult.SKIPPED
-        getSyncFolder(current) ?: return RiderFileResult.SKIPPED
-        return when (val existing = readRiderIdFile()) {
+    suspend fun ensureRiderIdFile(storeId: String): RiderFileResult {
+        getSyncFolder(settingsRepository.get()) ?: return RiderFileResult.SKIPPED
+        return when (readRiderIdFile()) {
             storeId -> RiderFileResult.ALREADY_PRESENT
-            null -> if (backupRiderIdentity()) RiderFileResult.WROTE else RiderFileResult.SKIPPED
+            null -> if (writeRiderId(storeId)) RiderFileResult.WROTE else RiderFileResult.SKIPPED
             else -> RiderFileResult.MISMATCH
         }
     }
@@ -564,43 +594,16 @@ class SyncManager @Inject constructor(
     }
 
     /**
-     * Read just the rider identity (store_id + display name) out of a backup
-     * file WITHOUT applying it, so the UI can offer to restore an existing rider
-     * when a sync folder is linked. Returns null if the file is missing,
-     * unreadable, or carries no store_id.
+     * The recoverable rider identity for this sync folder. The store_id in
+     * `eucstats_riderid.txt` is the only thing the app needs to identify the
+     * rider on reinstall — the display name and the rest of the profile come
+     * from `api.getCard(storeId)` once the rider opts in to restore. Returns
+     * null when no folder is configured, no `.txt` file is present, or the
+     * file is empty.
      */
-    suspend fun peekRider(fileName: String): RestorableRider? {
-        val current = settingsRepository.get()
-        val folder = getSyncFolder(current) ?: return null
-        val file = folder.findFile(fileName) ?: return null
-        return try {
-            val bytes = context.contentResolver.openInputStream(file.uri)?.use { it.readBytes() }
-                ?: return null
-            val json = JSONObject(String(bytes, Charsets.UTF_8))
-            val storeId = json.optString("eucstatsStoreId", "").takeIf { it.isNotBlank() }
-                ?: return null
-            val name = json.optString("eucstatsDisplayName", "").takeIf { it.isNotBlank() }
-            RestorableRider(fileName = fileName, storeId = storeId, displayName = name)
-        } catch (e: Exception) {
-            Log.e(TAG, "Could not read rider from backup $fileName", e)
-            null
-        }
-    }
-
-    /** The recoverable rider identity for this sync folder. Prefers the
-     *  dedicated `eucstats_riderid.txt` file FIRST; if that's absent, falls
-     *  back to the first settings backup that carries a rider. */
     suspend fun findRestorableRider(): RestorableRider? {
-        // Prefer the dedicated plain-text rider-id file.
-        readRiderIdFile()?.let { id ->
-            return RestorableRider(fileName = RIDER_BACKUP_NAME, storeId = id, displayName = null)
-        }
-        // Fall back to any settings backup that carries a rider (older data,
-        // e.g. a full settings backup made via the manual Backup button).
-        for (entry in listSettingsBackups()) {
-            peekRider(entry.fileName)?.let { return it }
-        }
-        return null
+        val id = readRiderIdFile() ?: return null
+        return RestorableRider(fileName = RIDER_BACKUP_NAME, storeId = id)
     }
 
     /**
@@ -782,4 +785,4 @@ data class BackupEntry(val fileName: String, val label: String?, val isFactory: 
  * The rider identity carried by a settings backup, read without applying it.
  * Used to offer "restore your existing rider" when a sync folder is linked.
  */
-data class RestorableRider(val fileName: String, val storeId: String, val displayName: String?)
+data class RestorableRider(val fileName: String, val storeId: String)

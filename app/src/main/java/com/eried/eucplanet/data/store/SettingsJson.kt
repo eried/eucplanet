@@ -62,13 +62,11 @@ object SettingsJson {
         put("lastSettingsBackupAt", s.lastSettingsBackupAt)
         put("lastSettingsBackupName", s.lastSettingsBackupName)
 
-        // eucstats online upload — NOT device-specific; survive cross-device restore
+        // eucstats online upload — only the on/off toggle ships in settings.
+        // The store_id lives in `eucstats_riderid.txt`; profile fields
+        // (display name, flag, consent, registered-at, stats) live on the
+        // server and are fetched on demand.
         put("onlineUploadEnabled", s.onlineUploadEnabled)
-        put("eucstatsStoreId", s.eucstatsStoreId)
-        put("eucstatsDisplayName", s.eucstatsDisplayName)
-        put("eucstatsFlag", s.eucstatsFlag)
-        put("eucstatsConsentPublic", s.eucstatsConsentPublic)
-        s.eucstatsRegisteredAt?.let { put("eucstatsRegisteredAt", it) }
 
         put("tiltbackSpeedKmh", s.tiltbackSpeedKmh)
         put("alarmSpeedKmh", s.alarmSpeedKmh)
@@ -263,13 +261,6 @@ object SettingsJson {
         else base.lastSettingsBackupAt,
         lastSettingsBackupName = j.optStringOrNull("lastSettingsBackupName", base.lastSettingsBackupName),
         onlineUploadEnabled = j.optBoolean("onlineUploadEnabled", base.onlineUploadEnabled),
-        eucstatsStoreId = j.optStringOrNull("eucstatsStoreId", base.eucstatsStoreId),
-        eucstatsDisplayName = j.optStringOrNull("eucstatsDisplayName", base.eucstatsDisplayName),
-        eucstatsFlag = j.optStringOrNull("eucstatsFlag", base.eucstatsFlag),
-        eucstatsConsentPublic = j.optBoolean("eucstatsConsentPublic", base.eucstatsConsentPublic),
-        eucstatsRegisteredAt = if (j.has("eucstatsRegisteredAt") && !j.isNull("eucstatsRegisteredAt"))
-            j.optLong("eucstatsRegisteredAt", base.eucstatsRegisteredAt ?: 0L)
-        else base.eucstatsRegisteredAt,
         tiltbackSpeedKmh = j.optDouble("tiltbackSpeedKmh", base.tiltbackSpeedKmh.toDouble()).toFloat(),
         alarmSpeedKmh = j.optDouble("alarmSpeedKmh", base.alarmSpeedKmh.toDouble()).toFloat(),
         safetyTiltbackKmh = j.optDouble("safetyTiltbackKmh", base.safetyTiltbackKmh.toDouble()).toFloat(),

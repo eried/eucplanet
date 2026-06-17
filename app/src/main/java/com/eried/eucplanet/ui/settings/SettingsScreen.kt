@@ -6791,6 +6791,7 @@ private fun CloudTab(
         val restorableRider by viewModel.restorableRider.collectAsStateWithLifecycle()
         val startOnboarding by viewModel.startOnboarding.collectAsStateWithLifecycle()
         val rejoinConfirm by viewModel.rejoinConfirm.collectAsStateWithLifecycle()
+        val riderStoreId by viewModel.riderStoreId.collectAsStateWithLifecycle()
         LaunchedEffect(startOnboarding) {
             if (startOnboarding) {
                 showOnboarding = true
@@ -6801,8 +6802,10 @@ private fun CloudTab(
         // warns the rider they'll rejoin as that existing rider rather than
         // re-enabling silently.
         if (rejoinConfirm) {
-            val rejoinName = settings.eucstatsDisplayName?.takeIf { it.isNotBlank() }
-                ?: ("#" + (settings.eucstatsStoreId?.take(8) ?: ""))
+            // No locally-cached name anymore — fall back to credit-card-style
+            // last 6 chars of the store_id ("····034c"), the same identifier
+            // shape the restore dialog uses for an unknown rider.
+            val rejoinName = riderStoreId?.let { riderIdShort(it) } ?: ""
             AlertDialog(
                 onDismissRequest = { viewModel.dismissRejoinConfirm() },
                 title = { Text(stringResource(R.string.online_rejoin_title)) },
@@ -6820,9 +6823,8 @@ private fun CloudTab(
             )
         }
         restorableRider?.let { rider ->
-            val riderName = rider.displayName?.takeIf { it.isNotBlank() }
-                ?: ("#" + rider.storeId.take(8))
-            val switching = settings.eucstatsStoreId != null
+            val riderName = riderIdShort(rider.storeId)
+            val switching = riderStoreId != null
             AlertDialog(
                 onDismissRequest = { viewModel.dismissRestorableRider() },
                 title = { Text(stringResource(R.string.online_restore_title)) },
@@ -6933,7 +6935,7 @@ private fun CloudTab(
         }
 
         // Rider card + actions: shown when online upload is enabled and storeId is known.
-        if (settings.syncFolderUri != null && settings.onlineUploadEnabled && settings.eucstatsStoreId != null) {
+        if (settings.syncFolderUri != null && settings.onlineUploadEnabled && riderStoreId != null) {
             LaunchedEffect(Unit) { viewModel.refreshOnlineUploadCard() }
             val riderCard by viewModel.onlineUploadCard.collectAsStateWithLifecycle()
             val cardLoaded by viewModel.onlineUploadCardLoaded.collectAsStateWithLifecycle()
@@ -9642,3 +9644,8 @@ private fun HudOverlayPicker(
     }
 }
 
+/** Credit-card style abbreviation of a rider store_id for prompts where the
+ *  server name isn't loaded yet (or doesn't exist). Shows the last 6 chars
+ *  preceded by a dotted prefix, e.g. "····034c1f" — small enough to read at a
+ *  glance, distinct enough to match against a printed copy. */
+private fun riderIdShort(storeId: String): String = "····" + storeId.takeLast(6)

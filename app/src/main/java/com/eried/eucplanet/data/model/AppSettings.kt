@@ -236,12 +236,13 @@ data class AppSettings(
     val currentDisplayMode: String = "AMPS",
 
     // --- eucstats online upload ---
+    // `onlineUploadEnabled` is the only eucstats setting we persist on-device.
+    // The rider's store_id is read at runtime from the `eucstats_riderid.txt`
+    // file in the sync folder (via SyncManager.riderStoreId), and the rest of
+    // the profile (display name, flag, registered-at, public-consent flag,
+    // stats) is fetched on demand from `api.getCard(storeId)`. Everything
+    // about the rider that isn't local intent lives on the server.
     val onlineUploadEnabled: Boolean = false,
-    val eucstatsStoreId: String? = null,        // UUIDv4; survives reinstall via the settings backup
-    val eucstatsDisplayName: String? = null,
-    val eucstatsFlag: String? = null,
-    val eucstatsConsentPublic: Boolean = false,
-    val eucstatsRegisteredAt: Long? = null,
 
     // Backup folder (SAF tree URI on local storage; companion sync app handles cloud upload)
     val syncFolderUri: String? = null,

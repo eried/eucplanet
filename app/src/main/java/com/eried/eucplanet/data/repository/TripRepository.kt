@@ -101,7 +101,7 @@ class TripRepository @Inject constructor(
         // without requiring a fresh ride.
         scope.launch {
             val appSettings = runCatching { settingsRepository.get() }.getOrNull() ?: return@launch
-            if (appSettings.onlineUploadEnabled && appSettings.eucstatsStoreId != null) {
+            if (appSettings.onlineUploadEnabled && syncManager.riderStoreId.value != null) {
                 syncManager.enqueueEucStatsUpload(appSettings)
             }
         }
@@ -410,7 +410,7 @@ class TripRepository @Inject constructor(
         }
 
         val willSync = appSettings.syncFolderUri != null
-        val willEucstats = appSettings.onlineUploadEnabled && appSettings.eucstatsStoreId != null
+        val willEucstats = appSettings.onlineUploadEnabled && syncManager.riderStoreId.value != null
 
         // No upload destination at all: nothing to defer. Trip is already
         // saved locally above; just exit.
@@ -454,7 +454,7 @@ class TripRepository @Inject constructor(
         val trip = pendingTrip ?: return
         val appSettings = settingsRepository.get()
         val willSync = appSettings.syncFolderUri != null
-        val willEucstats = appSettings.onlineUploadEnabled && appSettings.eucstatsStoreId != null
+        val willEucstats = appSettings.onlineUploadEnabled && syncManager.riderStoreId.value != null
         // Single update so the folder-sync and eucstats statuses can't clobber
         // each other (both branch from the same `trip` snapshot).
         if (willSync || willEucstats) {
@@ -470,7 +470,7 @@ class TripRepository @Inject constructor(
         // for upload (pending=1 / failed=3 / orphaned=0), so this is also the
         // automatic retry path — a trip that failed last ride gets one more
         // shot the next time the rider finishes a ride.
-        if (appSettings.onlineUploadEnabled && appSettings.eucstatsStoreId != null) {
+        if (appSettings.onlineUploadEnabled && syncManager.riderStoreId.value != null) {
             syncManager.enqueueEucStatsUpload(appSettings)
             Log.i(TAG, "Eucstats upload enqueued (incl. retry sweep for prior failures)")
         }
