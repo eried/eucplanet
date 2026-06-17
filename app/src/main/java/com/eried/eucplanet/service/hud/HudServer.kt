@@ -1,6 +1,10 @@
 package com.eried.eucplanet.service.hud
 
 import android.content.Context
+import android.net.ConnectivityManager
+import android.net.Network
+import android.net.NetworkCapabilities
+import android.net.NetworkRequest
 import android.net.wifi.WifiManager
 import android.util.Log
 import com.eried.eucplanet.ble.ConnectionState
@@ -24,8 +28,11 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.selects.onTimeout
+import kotlinx.coroutines.selects.select
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.serialization.encodeToString
@@ -136,6 +143,22 @@ class HudServer @Inject constructor(
     @Volatile private var loopJob: Job? = null
     @Volatile private var publishJob: Job? = null
     @Volatile private var ws: WebSocket? = null
+
+    /**
+     * Cancels any pending dial-loop backoff the moment something interesting
+     * happens at the network layer (rider's phone hopped from a hotspot to
+     * home WiFi, came back from airplane mode, etc.). Without this the loop
+     * sits in its 5 s idle tick before noticing the network changed, and the
+     * rider sees a 5 s gap when their phone briefly disconnects.
+     *
+     * Capacity 1 + drop-oldest: only the FACT that a kick happened matters,
+     * not how many times. Send / receive never blocks the network callback
+     * thread.
+     */
+    private val reconnectKick = Channel<Unit>(capacity = Channel.CONFLATED)
+
+    /** Currently-registered ConnectivityManager callback; cleared on doStop. */
+    @Volatile private var netCallback: ConnectivityManager.NetworkCallback? = null
 
     init {
         // Watch the toggle ourselves so the link starts the moment the
@@ -258,6 +281,7 @@ class HudServer @Inject constructor(
             log("Auto-discovery off, manual only -> $target")
         }
         acquireWifiPerfLock()
+        registerNetworkCallback()
         loopJob = scope.launch { dialLoop() }
     }
 
@@ -275,6 +299,71 @@ class HudServer @Inject constructor(
         multicastLock = null
         try { wifiLock?.release() } catch (_: Throwable) {}
         wifiLock = null
+        unregisterNetworkCallback()
+    }
+
+    /**
+     * Watch the system for network availability changes while the link is
+     * enabled. Two reactions:
+     *
+     *  - `onAvailable(network)`: kick the dial loop so a pending backoff /
+     *    idle tick gets cancelled and we immediately try to re-discover the
+     *    HUD on the new network. Closes the 1-3 s gap riders saw when their
+     *    phone hopped from a hotspot to home WiFi mid-session.
+     *  - `onLosing(network, msToLive)`: Android has decided this network is
+     *    going away soon. Close the WebSocket cleanly now so the next attempt
+     *    starts from a clean slate instead of waiting for OkHttp to surface
+     *    "Software caused connection abort" on the radio teardown.
+     *
+     * Filter for WiFi-internet-capable networks so we don't react to every
+     * cellular or Bluetooth tether handoff that doesn't touch our reachability.
+     */
+    private fun registerNetworkCallback() {
+        if (netCallback != null) return
+        val cm = context.getSystemService(Context.CONNECTIVITY_SERVICE) as? ConnectivityManager
+            ?: return
+        val request = NetworkRequest.Builder()
+            .addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
+            .addTransportType(NetworkCapabilities.TRANSPORT_WIFI)
+            .build()
+        val cb = object : ConnectivityManager.NetworkCallback() {
+            override fun onAvailable(network: Network) {
+                Log.i(TAG, "network onAvailable: kicking dial loop")
+                log("Network came up, retrying immediately")
+                reconnectKick.trySend(Unit)
+            }
+            override fun onLosing(network: Network, maxMsToLive: Int) {
+                Log.i(TAG, "network onLosing (${maxMsToLive}ms): closing WS preemptively")
+                log("Network dropping in ${maxMsToLive}ms, closing WS")
+                try { ws?.close(1000, "network-losing") } catch (_: Throwable) {}
+            }
+        }
+        try {
+            cm.registerNetworkCallback(request, cb)
+            netCallback = cb
+        } catch (t: Throwable) {
+            Log.w(TAG, "registerNetworkCallback failed: ${t.message}")
+        }
+    }
+
+    private fun unregisterNetworkCallback() {
+        val cb = netCallback ?: return
+        netCallback = null
+        try {
+            val cm = context.getSystemService(Context.CONNECTIVITY_SERVICE) as? ConnectivityManager
+            cm?.unregisterNetworkCallback(cb)
+        } catch (_: Throwable) {}
+    }
+
+    /** Delay up to [ms], returning early when a network-availability kick
+     *  arrives via [reconnectKick]. Used by the dial loop in place of plain
+     *  `delay()` so a network change cancels any pending backoff. */
+    private suspend fun delayOrKick(ms: Long) {
+        if (ms <= 0L) return
+        select<Unit> {
+            onTimeout(ms) { }
+            reconnectKick.onReceive { }
+        }
     }
 
     /** Acquire a high-performance WiFi lock so the radio stays out of
@@ -344,15 +433,18 @@ class HudServer @Inject constructor(
                 // 30 s after the dial loop kicks off so the rider gets a
                 // fast connection on a healthy network. After the sprint
                 // window we relax to a 5 s tick to be kinder to the radio
-                // when the network is genuinely broken.
+                // when the network is genuinely broken. A NetworkCallback
+                // kick (phone hopped to a different WiFi, came back from
+                // airplane mode) cancels whichever delay is pending so we
+                // retry immediately instead of waiting out the tick.
                 val sinceStart = System.currentTimeMillis() - sprintStartedAtMs
-                delay(if (sinceStart < DISCOVERY_SPRINT_MS) 2_000L else 5_000L)
+                delayOrKick(if (sinceStart < DISCOVERY_SPRINT_MS) 2_000L else 5_000L)
                 continue
             }
             _connectionSource.value = source
             val ok = streamUntilClosed(peer)
             if (!ok) {
-                delay(backoff(attempt++))
+                delayOrKick(backoff(attempt++))
             } else {
                 attempt = 0
             }
