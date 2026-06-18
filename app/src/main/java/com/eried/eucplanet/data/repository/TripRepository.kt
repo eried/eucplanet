@@ -98,16 +98,22 @@ class TripRepository @Inject constructor(
     private var pendingFinalizeJob: kotlinx.coroutines.Job? = null
 
     init {
-        // App-start recovery sweep. The eucstats worker now also picks up
-        // orphaned trips (UUID + endTime + status 0). Kick it once on
-        // startup so a trip that finalized in the broken pre-fix state
-        // (the trip-231 symptom: no folder, finalize skipped, status
-        // stayed 0/0, no icon) gets uploaded on the next app launch
-        // without requiring a fresh ride.
+        // App-start recovery sweep. Both workers also pick up orphaned/failed
+        // trips (folder: uploadStatus=3; eucstats: status 0 with UUID, 1, or 3),
+        // so this catches anything left behind by a previous session that
+        // couldn't finish its upload.
+        //
+        // Uses the delayed (follow-up) unique-work name so startRecording can
+        // cancel it: a rider who opens the app to immediately start a ride
+        // doesn't need a sweep running while they're hopping on. The next
+        // finalize will schedule its own sweep that covers everything.
         scope.launch {
             val appSettings = runCatching { settingsRepository.get() }.getOrNull() ?: return@launch
+            if (appSettings.syncFolderUri != null) {
+                syncManager.enqueueTripUploadDelayed(appSettings, FOLLOWUP_DELAY_SECONDS)
+            }
             if (appSettings.onlineUploadEnabled && syncManager.riderStoreId.value != null) {
-                syncManager.enqueueEucStatsUpload(appSettings)
+                syncManager.enqueueEucStatsUploadDelayed(appSettings, FOLLOWUP_DELAY_SECONDS)
             }
         }
     }
