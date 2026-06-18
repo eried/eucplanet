@@ -18,6 +18,14 @@ import javax.inject.Singleton
 /** Outcome of a single [EucStatsRepository.uploadTrip] call. */
 enum class Outcome { UPLOADED, FAILED_PERMANENT, NEEDS_RETRY }
 
+/** Outcome of a [EucStatsRepository.syncPendingNow] batch. [total] is the
+ *  number of trips that were eligible at the start of the run; [uploaded] is
+ *  the number that landed cleanly. Callers use both to render an honest
+ *  message ("nothing to sync" / "synced N" / "all failed"). */
+data class SyncResult(val total: Int, val uploaded: Int) {
+    val allFailed: Boolean get() = total > 0 && uploaded == 0
+}
+
 /**
  * Narrow settings port: exposes only the eucstats-relevant AppSettings
  * fields plus the .txt-backed rider id so [EucStatsRepository] stays
@@ -238,22 +246,27 @@ class EucStatsRepository @Inject constructor(
     /**
      * Foreground sync of every pending eucstats trip, reporting progress via
      * [onProgress] (done, total) so the UI can show a determinate bar like the
-     * trips-backup "Sync all". Returns the number of trips that were pending
-     * (0 = nothing to sync). Trips that fail stay pending and retry later.
+     * trips-backup "Sync all". Returns a [SyncResult] carrying both the total
+     * eligible count and the number that actually uploaded, so callers can
+     * tell "nothing to do" apart from "all attempts failed" — the previous
+     * Int return reported the total either way and led to misleading
+     * "Synced N trips" snackbars when uploads silently failed.
      */
-    suspend fun syncPendingNow(onProgress: (done: Int, total: Int) -> Unit): Int =
+    suspend fun syncPendingNow(onProgress: (done: Int, total: Int) -> Unit): SyncResult =
         withContext(Dispatchers.IO) {
             val pending = tripDao.getPendingEucstatsUploads()
             val total = pending.size
-            if (total == 0) return@withContext 0
+            if (total == 0) return@withContext SyncResult(0, 0)
             onProgress(0, total)
+            var uploaded = 0
             var done = 0
             for (trip in pending) {
-                runCatching { uploadTrip(trip) }
+                val outcome = runCatching { uploadTrip(trip) }.getOrNull()
+                if (outcome == Outcome.UPLOADED) uploaded++
                 done++
                 onProgress(done, total)
             }
-            total
+            SyncResult(total = total, uploaded = uploaded)
         }
 
     // -------------------------------------------------------------------------

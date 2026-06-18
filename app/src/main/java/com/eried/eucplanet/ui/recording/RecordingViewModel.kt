@@ -94,16 +94,27 @@ class RecordingViewModel @Inject constructor(
         viewModelScope.launch {
             _onlineRetryRunning.value = true
             try {
+                val settings = settingsRepository.get()
+                // Prereqs gone since the icon was shown (unlinked, deleted,
+                // folder lost). Don't attempt the upload and don't relight the
+                // worker safety net — it would just bail at the gate anyway.
+                if (!settings.onlineUploadEnabled || syncManager.riderStoreId.value == null) {
+                    _toasts.send(context.getString(R.string.online_upload_sync_nothing))
+                    return@launch
+                }
                 _toasts.send(context.getString(R.string.online_status_pending))
-                val count = eucStatsRepository.syncPendingNow { _, _ -> }
-                val msg = if (count == 0)
-                    context.getString(R.string.online_upload_sync_nothing)
-                else
-                    context.getString(R.string.online_upload_sync_done, count)
+                val result = eucStatsRepository.syncPendingNow { _, _ -> }
+                val msg = when {
+                    result.total == 0 -> context.getString(R.string.online_upload_sync_nothing)
+                    result.allFailed -> context.getString(R.string.online_status_failed)
+                    else -> context.getString(R.string.online_upload_sync_done, result.uploaded)
+                }
                 _toasts.send(msg)
+                // Background safety net for the next network change. Skipped when
+                // we early-bailed above so we don't queue work doomed to no-op.
+                syncManager.enqueueEucStatsUpload(settings)
             } finally {
                 _onlineRetryRunning.value = false
-                syncManager.enqueueEucStatsUpload(settingsRepository.get())
             }
         }
     }

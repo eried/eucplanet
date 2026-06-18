@@ -2017,6 +2017,10 @@ class SettingsViewModel @Inject constructor(
             // would catch them anyway but cancelling now keeps the unique-work
             // entry from sitting around until its delay elapses.
             syncManager.cancelEucStatsUpload()
+            // Clear orange / red cloud icons for trips that can no longer
+            // upload. Status=2 trips keep their green tick since the rider can
+            // rejoin the same account from the same folder.
+            syncManager.resetUnfinishedEucstatsRows()
         }
     }
 
@@ -2046,15 +2050,18 @@ class SettingsViewModel @Inject constructor(
             _eucstatsSyncRunning.value = true
             _eucstatsSyncProgress.value = null
             kotlinx.coroutines.delay(600) // brief "checking…" so a 0-pending tap doesn't just flash
-            val count = eucStatsRepository.syncPendingNow { done, total ->
+            val result = eucStatsRepository.syncPendingNow { done, total ->
                 _eucstatsSyncProgress.value = done to total
             }
-            if (count == 0) kotlinx.coroutines.delay(300)
+            if (result.total == 0) kotlinx.coroutines.delay(300)
             _eucstatsSyncProgress.value = null
             _eucstatsSyncRunning.value = false
-            _cloudEvent.value = if (count == 0) CloudEvent.EucstatsNothingToSync
-                                else CloudEvent.EucstatsSyncFinished(count)
-            if (count > 0) refreshOnlineUploadCard()
+            _cloudEvent.value = when {
+                result.total == 0 -> CloudEvent.EucstatsNothingToSync
+                result.allFailed -> CloudEvent.EucstatsSyncFailed
+                else -> CloudEvent.EucstatsSyncFinished(result.uploaded)
+            }
+            if (result.uploaded > 0) refreshOnlineUploadCard()
         }
     }
 
@@ -2094,6 +2101,9 @@ class SettingsViewModel @Inject constructor(
                 // Drop any queued / in-backoff eucstats retries so they don't
                 // wake up later and hit a deleted account.
                 syncManager.cancelEucStatsUpload()
+                // Wipe every eucstats status, including green ticks: the
+                // server has nothing for this rider anymore.
+                syncManager.resetAllEucstatsRows()
             }
             onResult(ok)
         }
@@ -2349,6 +2359,10 @@ sealed interface CloudEvent {
     data class SyncFinished(val count: Int) : CloudEvent
     data object EucstatsNothingToSync : CloudEvent
     data class EucstatsSyncFinished(val count: Int) : CloudEvent
+    /** A sync ran with trips to upload but every attempt failed (network down,
+     *  server unreachable, etc.). The trip rows stay in pending / failed state
+     *  so the icon and background worker keep their normal retry behaviour. */
+    data object EucstatsSyncFailed : CloudEvent
     /** A DIFFERENT rider's recovery id is already in the sync folder; we left it
      *  untouched instead of overwriting it. */
     data object RiderIdConflict : CloudEvent

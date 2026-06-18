@@ -6473,6 +6473,7 @@ private fun CloudTab(
             is CloudEvent.SyncFinished -> context.getString(R.string.sync_finished, event.count)
             CloudEvent.EucstatsNothingToSync -> context.getString(R.string.online_upload_sync_nothing)
             is CloudEvent.EucstatsSyncFinished -> context.getString(R.string.online_upload_sync_done, event.count)
+            CloudEvent.EucstatsSyncFailed -> context.getString(R.string.online_status_failed)
             CloudEvent.RiderIdConflict -> context.getString(R.string.online_rider_id_conflict)
         }
         if (msg != null) snackbarScope.launch { snackbar.showSnackbar(msg) }

@@ -61,4 +61,18 @@ interface TripDao {
             "ORDER BY startTime DESC"
     )
     suspend fun getPendingEucstatsUploads(): List<TripRecord>
+
+    /** Clear unfinished eucstats statuses (pending / failed). Used when online
+     *  uploads are toggled off or the sync folder is unlinked, so the orange /
+     *  red cloud icon stops appearing for trips that can no longer upload.
+     *  Status 2 (already on the leaderboard) is preserved because the server
+     *  still has those trips and the user can rejoin the same rider id. */
+    @Query("UPDATE trips SET eucstatsStatus = 0 WHERE eucstatsStatus IN (1, 3)")
+    suspend fun resetUnfinishedEucstatsStatuses()
+
+    /** Clear EVERY non-zero eucstats status. Used only when the account is
+     *  deleted server-side; the green tick would otherwise advertise trips
+     *  that no longer exist on the leaderboard. */
+    @Query("UPDATE trips SET eucstatsStatus = 0 WHERE eucstatsStatus != 0")
+    suspend fun resetAllEucstatsStatuses()
 }

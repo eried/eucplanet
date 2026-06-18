@@ -381,6 +381,10 @@ class SyncManager @Inject constructor(
         // sit on a backed-off worker that would only no-op when it finally fires.
         cancelTripUpload()
         cancelEucStatsUpload()
+        // Clear pending/failed eucstats icons; status=2 (already on the
+        // leaderboard) is preserved so a rider who restores the same folder
+        // doesn't lose their "uploaded" history.
+        resetUnfinishedEucstatsRows()
     }
 
     /** The chosen folder's DocumentFile, or null if none or no longer accessible. */
@@ -707,6 +711,22 @@ class SyncManager @Inject constructor(
      *  state in lockstep. */
     fun cancelEucStatsUpload() {
         WorkManager.getInstance(context).cancelUniqueWork(EUCSTATS_UPLOAD_WORK_NAME)
+    }
+
+    /** Clear pending / failed eucstats statuses for every trip. Used by the
+     *  toggle-off and folder-unlink paths so the orange / red cloud icons stop
+     *  appearing for trips that no longer have a path to upload. Status=2
+     *  trips (already on the leaderboard) are preserved. */
+    suspend fun resetUnfinishedEucstatsRows() {
+        tripDao.resetUnfinishedEucstatsStatuses()
+    }
+
+    /** Clear ALL non-zero eucstats statuses, including the green ticks for
+     *  previously-uploaded trips. Used only by the account-delete path: the
+     *  server has nothing for this rider anymore so even status=2 is
+     *  misleading. */
+    suspend fun resetAllEucstatsRows() {
+        tripDao.resetAllEucstatsStatuses()
     }
 
     /** Schedule the eucstats worker for [attempt]. See [scheduleTripUploadAttempt]
