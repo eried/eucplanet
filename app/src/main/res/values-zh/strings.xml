@@ -1244,7 +1244,7 @@
     <string name="welcome_tut_pd">显示驻车或行驶状态。点按即可设置你的 %1$s</string>
     <string name="welcome_tut_outro_alarms">在设置 → %1$s 中体验强大的自定义警报编辑器</string>
     <string name="welcome_tut_outro_integrations">探索集成：头盔 HUD、WearOS 手表、Flic 按钮、Garmin Connect IQ 和后视雷达</string>
-    <string name="welcome_tut_share">在同一个 设置 → %1$s 中，你也可以在 eucstats.ried.no 加入公开排行榜</string>
+    <string name="welcome_tut_share">在 设置 → %1$s 中备份你的行程。可以在 %2$s 中查看，也可以在 eucviewer.ried.no 分析备份。\n在同一部分还可以在 eucstats.ried.no 加入公开排行榜</string>
     <string name="welcome_tut_outro_end">骑独轮车时请专注路面，别盯着本应用看！</string>
 
     <!-- Short variants for the dashboard tile face. Same English abbreviations

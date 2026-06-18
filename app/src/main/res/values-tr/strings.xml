@@ -600,7 +600,7 @@
     <string name="welcome_tut_outro_buttons">Pek çok düğmenin ek eylemi var, uzun basmayı deneyin</string>
     <string name="welcome_tut_outro_alarms">Ayarlar → %1$s kısmındaki güçlü alarm düzenleyicisini keşfedin</string>
     <string name="welcome_tut_outro_integrations">Entegrasyonları keşfet: kask HUD\'ları, WearOS saatler, Flic düğmeleri, Garmin Connect IQ ve arka radar</string>
-    <string name="welcome_tut_share">Aynı Ayarlar → %1$s bölümünden eucstats.ried.no\'daki halka açık lider tablolarına da katılabilirsin</string>
+    <string name="welcome_tut_share">Sürüşlerini Ayarlar → %1$s altında yedekle. %2$s bölümünden gözden geçirebilir veya yedekleri eucviewer.ried.no\'da inceleyebilirsin.\nAynı bölümden eucstats.ried.no\'daki halka açık lider tablolarına da katılabilirsin</string>
     <string name="welcome_tut_outro_end">EUC sürerken gözlerinizi yolda tutun, uygulamadan uzak!</string>
     <string name="welcome_tut_speed">Anlık hızınız. Ayarlar → %1$s kısmından birimleri değiştirin</string>
     <string name="welcome_tut_metrics">Anlık akü, sıcaklık, gerilim ve daha fazlası. Ayarlar → %1$s kısmından yeniden düzenleyin</string>

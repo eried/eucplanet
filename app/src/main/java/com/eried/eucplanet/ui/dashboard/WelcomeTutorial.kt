@@ -381,17 +381,19 @@ fun WelcomeTutorialOverlay(
                             fontWeight = FontWeight.SemiBold
                         )
                         if (s.showShare) {
-                            // Leaderboards mention: single plain-text line
-                            // (same bodyLarge style as every other tour step),
-                            // no title, no bullets. The eucstats.ried.no
-                            // marker in the localised string becomes a
-                            // tappable link via annotateRiedLinks.
+                            // Backup + leaderboards mention: plain bodyLarge
+                            // line (same chrome as every other tour step), no
+                            // title, no bullets. The eucviewer.ried.no and
+                            // eucstats.ried.no markers in the localised
+                            // string become tappable links via
+                            // annotateRiedLinks.
                             Spacer(Modifier.height(8.dp))
                             Text(
                                 annotateRiedLinks(
                                     stringResource(
                                         R.string.welcome_tut_share,
-                                        stringResource(R.string.tab_cloud)
+                                        stringResource(R.string.tab_cloud),
+                                        stringResource(R.string.recording_title),
                                     )
                                 ),
                                 style = MaterialTheme.typography.bodyLarge,

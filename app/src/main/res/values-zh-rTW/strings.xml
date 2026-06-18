@@ -600,7 +600,7 @@
     <string name="welcome_tut_outro_buttons">許多按鈕有額外操作，試試長按它們</string>
     <string name="welcome_tut_outro_alarms">在設定 → %1$s 中探索強大的自訂警報編輯器</string>
     <string name="welcome_tut_outro_integrations">探索整合功能：頭盔 HUD、WearOS 手錶、Flic 按鈕、Garmin Connect IQ 與後視雷達</string>
-    <string name="welcome_tut_share">在同一個 設定 → %1$s 中，也可以在 eucstats.ried.no 加入公開排行榜</string>
+    <string name="welcome_tut_share">在 設定 → %1$s 中備份你的行程。可以在 %2$s 中查看，也可以在 eucviewer.ried.no 分析備份。\n在同一區段中也可以在 eucstats.ried.no 加入公開排行榜</string>
     <string name="welcome_tut_outro_end">騎獨輪車時請專注路況，勿盯著此應用程式！</string>
     <string name="welcome_tut_speed">您的即時速度。在設定 → %1$s 中更改單位</string>
     <string name="welcome_tut_metrics">即時電池、溫度、電壓等資訊。在設定 → %1$s 中重新排列</string>
