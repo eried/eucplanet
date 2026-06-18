@@ -1106,8 +1106,8 @@
     <string name="online_restore_body_new">Wir haben ein gespeichertes Profil gefunden: %1$s. Durch Fortfahren trittst du der öffentlichen Bestenliste als dieser Rider bei, Name, Flagge, Avatar und Fahrtstatistiken sind öffentlich. Es wird kein neues Profil erstellt.</string>
     <string name="online_restore_body_switch">Wir haben ein anderes gespeichertes Profil gefunden: %1$s. Durch Fortfahren wird dieses Handy auf diesen Rider umgestellt. Dein aktuelles Profil wird vorher gesichert.</string>
     <string name="online_restore_confirm">Weiter als %1$s</string>
-    <string name="online_rejoin_title">Gespeichertes Bestenlisten-Profil</string>
-    <string name="online_rejoin_body">Der Backup-Ordner enthält ein Profil, das für die Bestenliste verwendet wurde.\n\n%1$s</string>
+    <string name="online_rejoin_title">Profil reaktivieren</string>
+    <string name="online_rejoin_body">Der Backup-Ordner enthält ein Profil, das für die Bestenliste verwendet wurde.\n\nFahrer-ID: %1$s</string>
     <string name="online_rejoin_confirm">Wieder beitreten</string>
 
     <!-- ==== Overlay Studio ==== -->

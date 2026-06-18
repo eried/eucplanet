@@ -1109,8 +1109,8 @@
     <string name="online_restore_body_new">在此找到已儲存的個人資料：%1$s。繼續將以該騎手身份重新加入公開排行榜，其名稱、旗幟、頭像和騎乘統計將公開顯示。這不會建立新的個人資料。</string>
     <string name="online_restore_body_switch">找到不同的已儲存個人資料：%1$s。繼續將把此手機切換至該騎手，您目前的個人資料將先備份。</string>
     <string name="online_restore_confirm">以 %1$s 身份繼續</string>
-    <string name="online_rejoin_title">已儲存的排行榜個人資料</string>
-    <string name="online_rejoin_body">備份資料夾中含有一個曾用於排行榜的個人資料。\n\n%1$s</string>
+    <string name="online_rejoin_title">重新啟用個人資料</string>
+    <string name="online_rejoin_body">備份資料夾中含有一個曾用於排行榜的個人資料。\n\n騎手 ID: %1$s</string>
 
     <!-- ==== Overlay Studio ==== -->
     <string name="studio_open">開啟疊加工作室</string>

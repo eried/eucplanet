@@ -1109,8 +1109,8 @@
     <string name="online_restore_body_new">여기에 저장된 프로필이 있습니다: %1$s. 계속하면 해당 라이더로 공개 리더보드에 다시 참가합니다. 이름, 국기, 사진, 주행 통계가 공개됩니다. 새 프로필은 만들어지지 않습니다.</string>
     <string name="online_restore_body_switch">다른 저장된 프로필이 있습니다: %1$s. 계속하면 이 폰이 해당 라이더로 전환됩니다. 현재 프로필은 먼저 백업됩니다.</string>
     <string name="online_restore_confirm">%1$s로 계속</string>
-    <string name="online_rejoin_title">저장된 리더보드 프로필</string>
-    <string name="online_rejoin_body">백업 폴더에 리더보드에서 사용되던 프로필이 있습니다.\n\n%1$s</string>
+    <string name="online_rejoin_title">프로필 재활성화</string>
+    <string name="online_rejoin_body">백업 폴더에 리더보드에서 사용되던 프로필이 있습니다.\n\n라이더 ID: %1$s</string>
 
     <!-- ==== Overlay Studio ==== -->
     <string name="studio_open">Overlay Studio 열기</string>

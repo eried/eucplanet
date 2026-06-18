@@ -1112,8 +1112,8 @@
     <string name="online_restore_body_new">Un profil enregistré a été trouvé : %1$s. Continuer te reconnecte au classement public en tant que ce rider, son pseudo, drapeau, avatar et stats de ride sont publics. Cela ne crée pas de nouveau profil.</string>
     <string name="online_restore_body_switch">Un autre profil enregistré a été trouvé : %1$s. Continuer bascule ce téléphone sur ce rider ; ton profil actuel est d\'abord sauvegardé.</string>
     <string name="online_restore_confirm">Continuer en tant que %1$s</string>
-    <string name="online_rejoin_title">Profil de classement enregistré</string>
-    <string name="online_rejoin_body">Le dossier de sauvegarde contient un profil qui était utilisé pour le classement.\n\n%1$s</string>
+    <string name="online_rejoin_title">Réactiver le profil</string>
+    <string name="online_rejoin_body">Le dossier de sauvegarde contient un profil qui était utilisé pour le classement.\n\nIdentifiant de rider: %1$s</string>
     <string name="online_rejoin_confirm">Rejoindre</string>
 
     <!-- Battery / Charging screen -->

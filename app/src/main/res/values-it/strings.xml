@@ -1479,8 +1479,8 @@
     <string name="online_restore_confirm">Ripristina</string>
     <string name="online_upload_card_missing">Il profilo di classifica di questo telefono non esiste più sul server, quindi i nuovi upload verranno rifiutati. Se non te lo aspettavi, contatta l\'amministratore della classifica.</string>
     <string name="online_upload_linked_caption">Le tue statistiche e i tuoi viaggi appaiono nella classifica pubblica su</string>
-    <string name="online_rejoin_title">Profilo classifica salvato</string>
-    <string name="online_rejoin_body">La cartella di backup contiene un profilo che era usato per la classifica.\n\n%1$s</string>
+    <string name="online_rejoin_title">Riattiva profilo</string>
+    <string name="online_rejoin_body">La cartella di backup contiene un profilo che era usato per la classifica.\n\nID rider: %1$s</string>
     <string name="online_rejoin_confirm">Rientra</string>
 
     <!-- Battery / Charging screen -->

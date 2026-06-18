@@ -1108,8 +1108,8 @@
     <string name="online_restore_body_new">Vi hittade en sparad profil här: %1$s. Om du fortsätter återgår du till den publika topplistan som den föraren. Namn, flagga, foto och körstatistik är offentliga. Ingen ny profil skapas.</string>
     <string name="online_restore_body_switch">Vi hittade en annan sparad profil: %1$s. Om du fortsätter byter den här telefonen till den föraren. Din nuvarande profil säkerhetskopieras först.</string>
     <string name="online_restore_confirm">Fortsätt som %1$s</string>
-    <string name="online_rejoin_title">Sparad topplisteprofil</string>
-    <string name="online_rejoin_body">Säkerhetskopia-mappen innehåller en profil som användes för topplistan.\n\n%1$s</string>
+    <string name="online_rejoin_title">Återaktivera profil</string>
+    <string name="online_rejoin_body">Säkerhetskopia-mappen innehåller en profil som användes för topplistan.\n\nRider-ID: %1$s</string>
 
     <!-- ==== Overlay Studio ==== -->
     <string name="studio_open">Öppna Overlay Studio</string>

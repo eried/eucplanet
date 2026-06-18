@@ -1112,8 +1112,8 @@
     <string name="online_restore_body_new">Encontramos un perfil guardado aquí: %1$s. Continuar vuelve a unirte al marcador público como ese rider; su nombre, bandera, avatar y estadísticas son públicos. No crea un perfil nuevo.</string>
     <string name="online_restore_body_switch">Encontramos un perfil distinto guardado: %1$s. Continuar cambia este teléfono a ese rider; tu perfil actual se respalda primero.</string>
     <string name="online_restore_confirm">Continuar como %1$s</string>
-    <string name="online_rejoin_title">Perfil de clasificación guardado</string>
-    <string name="online_rejoin_body">La carpeta de copia de seguridad contiene un perfil que se usaba en la clasificación.\n\n%1$s</string>
+    <string name="online_rejoin_title">Reactivar perfil</string>
+    <string name="online_rejoin_body">La carpeta de copia de seguridad contiene un perfil que se usaba en la clasificación.\n\nID de rider: %1$s</string>
 
     <!-- ==== Overlay Studio ==== -->
     <string name="studio_open">Abrir Overlay Studio</string>
