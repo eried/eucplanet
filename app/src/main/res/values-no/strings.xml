@@ -1251,7 +1251,6 @@
     <string name="welcome_tut_bt">Koble hjulet til og fra her</string>
     <string name="welcome_tut_version">Mange hjul trenger bare testere for å få full støtte, ofte en enkel sak. Trykk på versjonen for å åpne Om og bidra</string>
     <string name="welcome_tut_outro_title">Det var hele turen!</string>
-    <string name="welcome_tut_outro_backup">Lagre turene dine: velg en %1$s under Innstillinger → %2$s, og se dem på eucviewer.ried.no</string>
     <string name="welcome_tut_outro_buttons">Mange knapper har ekstra handlinger, prøv å holde dem inne</string>
     <string name="welcome_tut_speed">Farten din i sanntid. Endre enheter under Innstillinger → %1$s</string>
     <string name="welcome_tut_metrics">Batteri, temperatur, spenning og mer i sanntid. Endre rekkefølgen under Innstillinger → %1$s</string>
@@ -1261,7 +1260,10 @@
     <string name="welcome_tut_camera">Ta opp video med et telemetri-overlegg i sanntid. Lag egne stilige overlegg og eksporter dem for å lage dine egne videoer med data fra tidligere turer</string>
     <string name="welcome_tut_pd">Viser Park eller Kjør. Trykk for å stille inn %1$s</string>
     <string name="welcome_tut_outro_alarms">Utforsk den kraftige editoren for egendefinerte alarmer under Innstillinger → %1$s</string>
-    <string name="welcome_tut_outro_integrations">Utforsk integrasjonene: Flic-knapper, klokken din, HUD-en, Garmin Connect IQ og bakveisradaren</string>
+    <string name="welcome_tut_outro_integrations">Utforsk integrasjonene: hjelm-HUDer, WearOS-klokker, Flic-knapper, Garmin Connect IQ og bakradaren</string>
+    <string name="welcome_tut_share_title">Lagre og del turene dine</string>
+    <string name="welcome_tut_share_backup">Lagre turene dine: velg en %1$s under Innstillinger → %2$s, og se dem på eucviewer.ried.no</string>
+    <string name="welcome_tut_share_leaderboards">Bli med på de offentlige ledertavlene på eucstats.ried.no</string>
     <string name="welcome_tut_outro_end">Hold blikket på veien og vekk fra denne appen mens du kjører!</string>
 
     <!-- Short variants for the dashboard tile face. Same English abbreviations

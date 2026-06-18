@@ -1234,7 +1234,6 @@
     <string name="welcome_tut_bt">在这里连接和断开你的独轮车</string>
     <string name="welcome_tut_version">很多车型只需有人测试即可获得完整支持，通常很容易搞定。点按版本号即可打开关于页面，一起来帮忙吧</string>
     <string name="welcome_tut_outro_title">导览到此结束！</string>
-    <string name="welcome_tut_outro_backup">保存你的行程：在设置 → %2$s 中选择一个 %1$s，然后在 eucviewer.ried.no 查看</string>
     <string name="welcome_tut_outro_buttons">很多按钮都有额外操作，试试长按它们</string>
     <string name="welcome_tut_speed">你的实时速度。可在设置 → %1$s 中更改单位</string>
     <string name="welcome_tut_metrics">实时显示电量、温度、电压等信息。可在设置 → %1$s 中重新排列</string>
@@ -1244,7 +1243,10 @@
     <string name="welcome_tut_camera">录制带有实时遥测叠加信息的视频。你还能制作炫酷的自定义叠加层并将其导出，用过往行程的数据打造属于自己的视频</string>
     <string name="welcome_tut_pd">显示驻车或行驶状态。点按即可设置你的 %1$s</string>
     <string name="welcome_tut_outro_alarms">在设置 → %1$s 中体验强大的自定义警报编辑器</string>
-    <string name="welcome_tut_outro_integrations">探索集成：Flic 按钮、你的手表、HUD、Garmin Connect IQ 和后视雷达</string>
+    <string name="welcome_tut_outro_integrations">探索集成：头盔 HUD、WearOS 手表、Flic 按钮、Garmin Connect IQ 和后视雷达</string>
+    <string name="welcome_tut_share_title">保存并分享行程</string>
+    <string name="welcome_tut_share_backup">保存行程：在 设置 → %2$s 中选择一个 %1$s，然后在 eucviewer.ried.no 查看</string>
+    <string name="welcome_tut_share_leaderboards">在 eucstats.ried.no 加入公开排行榜</string>
     <string name="welcome_tut_outro_end">骑独轮车时请专注路面，别盯着本应用看！</string>
 
     <!-- Short variants for the dashboard tile face. Same English abbreviations

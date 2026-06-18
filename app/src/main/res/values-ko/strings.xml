@@ -597,10 +597,12 @@
     <string name="welcome_tut_bt">여기서 휠을 연결하거나 끊으세요</string>
     <string name="welcome_tut_version">대부분의 휠은 테스터만 있으면 쉽게 지원 추가가 가능합니다. 버전을 탭해 정보 화면을 열고 도움을 주세요</string>
     <string name="welcome_tut_outro_title">투어 완료!</string>
-    <string name="welcome_tut_outro_backup">트립을 저장하려면: 설정 → %2$s에서 %1$s를 선택한 후 eucviewer.ried.no에서 확인하세요</string>
     <string name="welcome_tut_outro_buttons">많은 버튼에 추가 기능이 있습니다. 길게 눌러 보세요</string>
     <string name="welcome_tut_outro_alarms">설정 → %1$s에서 강력한 알람 편집기를 탐색해 보세요</string>
-    <string name="welcome_tut_outro_integrations">Flic 버튼, 워치, HUD, Garmin Connect IQ, 후방 레이더 등의 연동 기능을 살펴보세요</string>
+    <string name="welcome_tut_outro_integrations">통합 기능 살펴보기: 헬멧 HUD, WearOS 시계, Flic 버튼, Garmin Connect IQ, 후방 레이더</string>
+    <string name="welcome_tut_share_title">트립 저장 및 공유</string>
+    <string name="welcome_tut_share_backup">트립 저장: 설정 → %2$s 에서 %1$s 을(를) 선택하면 eucviewer.ried.no 에서 볼 수 있습니다</string>
+    <string name="welcome_tut_share_leaderboards">공개 리더보드 참가: eucstats.ried.no</string>
     <string name="welcome_tut_outro_end">외발휠 주행 중에는 눈을 도로에 고정하고 앱을 보지 마세요!</string>
     <string name="welcome_tut_speed">실시간 속도입니다. 설정 → %1$s에서 단위를 바꾸세요</string>
     <string name="welcome_tut_metrics">실시간 배터리, 온도, 전압 등. 설정 → %1$s에서 순서를 변경하세요</string>

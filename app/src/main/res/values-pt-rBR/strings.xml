@@ -601,10 +601,12 @@
     <string name="welcome_tut_bt">Conecte e desconecte sua roda aqui</string>
     <string name="welcome_tut_version">Muitas rodas só precisam de testadores para ter suporte completo, geralmente um ajuste simples. Toque na versão para abrir Sobre e ajudar</string>
     <string name="welcome_tut_outro_title">Esse é o tour!</string>
-    <string name="welcome_tut_outro_backup">Salve suas viagens: escolha um %1$s em Configurações → %2$s e depois veja-as em eucviewer.ried.no</string>
     <string name="welcome_tut_outro_buttons">Muitos botões têm ações extras, experimente pressionar e segurar</string>
     <string name="welcome_tut_outro_alarms">Explore o poderoso editor de alarmes personalizados em Configurações → %1$s</string>
-    <string name="welcome_tut_outro_integrations">Explore as integrações: botões Flic, seu relógio, o HUD, Garmin Connect IQ e o radar traseiro</string>
+    <string name="welcome_tut_outro_integrations">Explore as integrações: HUDs de capacete, relógios WearOS, botões Flic, Garmin Connect IQ e o radar traseiro</string>
+    <string name="welcome_tut_share_title">Salve e compartilhe suas viagens</string>
+    <string name="welcome_tut_share_backup">Salve suas viagens: escolha uma %1$s em Ajustes → %2$s e veja-as em eucviewer.ried.no</string>
+    <string name="welcome_tut_share_leaderboards">Participe dos rankings públicos em eucstats.ried.no</string>
     <string name="welcome_tut_outro_end">Atenção na estrada e longe deste app enquanto anda na roda!</string>
     <string name="welcome_tut_speed">Sua velocidade ao vivo. Mude as unidades em Configurações → %1$s</string>
     <string name="welcome_tut_metrics">Bateria, temperatura, tensão e mais ao vivo. Reorganize em Configurações → %1$s</string>

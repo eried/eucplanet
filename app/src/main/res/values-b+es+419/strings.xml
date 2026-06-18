@@ -601,10 +601,12 @@
     <string name="welcome_tut_bt">Conecta y desconecta tu rueda aquí</string>
     <string name="welcome_tut_version">Muchas ruedas solo necesitan testers para tener soporte completo, generalmente es un arreglo fácil. Toca la versión para abrir Acerca de y ayudar</string>
     <string name="welcome_tut_outro_title">¡Eso fue el recorrido!</string>
-    <string name="welcome_tut_outro_backup">Guarda tus viajes: elige un %1$s en Configuración → %2$s y luego míralos en eucviewer.ried.no</string>
     <string name="welcome_tut_outro_buttons">Muchos botones tienen acciones extra; prueba mantenerlos presionados</string>
     <string name="welcome_tut_outro_alarms">Explora el potente editor de alarmas personalizadas en Configuración → %1$s</string>
-    <string name="welcome_tut_outro_integrations">Explora las integraciones: botones Flic, tu reloj, el HUD, Garmin Connect IQ y el radar retrovisor</string>
+    <string name="welcome_tut_outro_integrations">Explora las integraciones: HUDs de casco, relojes WearOS, botones Flic, Garmin Connect IQ y el radar trasero</string>
+    <string name="welcome_tut_share_title">Guarda y comparte tus viajes</string>
+    <string name="welcome_tut_share_backup">Guarda tus viajes: elige una %1$s en Ajustes → %2$s, luego míralos en eucviewer.ried.no</string>
+    <string name="welcome_tut_share_leaderboards">Únete a las tablas públicas en eucstats.ried.no</string>
     <string name="welcome_tut_outro_end">Mantén la vista en el camino y lejos de esta app mientras rodas en tu monociclo</string>
     <string name="welcome_tut_speed">Tu velocidad en vivo. Cambia las unidades en Configuración → %1$s</string>
     <string name="welcome_tut_metrics">Batería, temperatura, voltaje y más en vivo. Reorganízalos en Configuración → %1$s</string>

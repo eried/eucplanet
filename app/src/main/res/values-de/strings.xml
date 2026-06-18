@@ -597,10 +597,12 @@
     <string name="welcome_tut_bt">Hier verbindest und trennst du dein Wheel</string>
     <string name="welcome_tut_version">Viele Wheels brauchen nur Tester, um vollständig unterstützt zu werden, meist eine schnelle Sache. Tippe auf die Version, um Infos zu öffnen und mitzuhelfen</string>
     <string name="welcome_tut_outro_title">Das war die Tour!</string>
-    <string name="welcome_tut_outro_backup">Sichere deine Fahrten: Wähle eine %1$s unter Einstellungen → %2$s und sieh sie dir auf eucviewer.ried.no an</string>
     <string name="welcome_tut_outro_buttons">Viele Buttons haben Zusatzfunktionen, einfach lang drücken</string>
     <string name="welcome_tut_outro_alarms">Entdecke den leistungsstarken Alarm-Editor unter Einstellungen → %1$s</string>
-    <string name="welcome_tut_outro_integrations">Entdecke die Integrationen: Flic-Tasten, Uhr, HUD, Garmin Connect IQ und Rückspiegelradar</string>
+    <string name="welcome_tut_outro_integrations">Entdecke die Integrationen: Helm-HUDs, WearOS-Uhren, Flic-Buttons, Garmin Connect IQ und das Rückradar</string>
+    <string name="welcome_tut_share_title">Speichere und teile deine Fahrten</string>
+    <string name="welcome_tut_share_backup">Speichere deine Fahrten: wähle einen %1$s in Einstellungen → %2$s und sieh sie auf eucviewer.ried.no</string>
+    <string name="welcome_tut_share_leaderboards">Tritt den öffentlichen Bestenlisten auf eucstats.ried.no bei</string>
     <string name="welcome_tut_outro_end">Augen auf die Straße, nicht auf die App, wenn du fährst!</string>
     <string name="welcome_tut_speed">Deine aktuelle Geschwindigkeit. Einheiten ändern unter Einstellungen → %1$s</string>
     <string name="welcome_tut_metrics">Akku, Temperatur, Spannung und mehr in Echtzeit. Unter Einstellungen → %1$s neu anordnen</string>

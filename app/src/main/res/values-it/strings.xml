@@ -1270,7 +1270,6 @@
     <string name="welcome_tut_bt">Collega e scollega il tuo monoruota qui</string>
     <string name="welcome_tut_version">Molti monoruota hanno solo bisogno di tester per essere pienamente supportati, di solito è una correzione semplice. Tocca la versione per aprire Informazioni e dare una mano</string>
     <string name="welcome_tut_outro_title">Il tour è finito!</string>
-    <string name="welcome_tut_outro_backup">Salva i tuoi viaggi: scegli un %1$s in Impostazioni → %2$s, poi visualizzali su eucviewer.ried.no</string>
     <string name="welcome_tut_outro_buttons">Molti pulsanti hanno azioni aggiuntive, prova a tenerli premuti a lungo</string>
     <string name="welcome_tut_speed">La tua velocità in tempo reale. Cambia le unità in Impostazioni → %1$s</string>
     <string name="welcome_tut_metrics">Batteria, temperatura, tensione e altro in tempo reale. Riordinali in Impostazioni → %1$s</string>
@@ -1280,7 +1279,10 @@
     <string name="welcome_tut_camera">Registra video con una sovrapposizione di telemetria in tempo reale. Crea overlay personalizzati ed esportali per realizzare i tuoi video con i dati dei viaggi passati</string>
     <string name="welcome_tut_pd">Mostra Park o Drive. Toccalo per impostare la tua %1$s</string>
     <string name="welcome_tut_outro_alarms">Esplora il potente editor di allarmi personalizzati in Impostazioni → %1$s</string>
-    <string name="welcome_tut_outro_integrations">Esplora le integrazioni: pulsanti Flic, il tuo orologio, l\'HUD, Garmin Connect IQ e il radar posteriore</string>
+    <string name="welcome_tut_outro_integrations">Esplora le integrazioni: HUD da casco, orologi WearOS, pulsanti Flic, Garmin Connect IQ e il radar posteriore</string>
+    <string name="welcome_tut_share_title">Salva e condividi i tuoi viaggi</string>
+    <string name="welcome_tut_share_backup">Salva i tuoi viaggi: scegli una %1$s in Impostazioni → %2$s, poi visualizzali su eucviewer.ried.no</string>
+    <string name="welcome_tut_share_leaderboards">Entra nelle classifiche pubbliche su eucstats.ried.no</string>
     <string name="welcome_tut_outro_end">Tieni gli occhi sulla strada e lontani da questa app mentre guidi il monoruota!</string>
 
     <!-- Short variants for the dashboard tile face. Same English abbreviations

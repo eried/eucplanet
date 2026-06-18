@@ -601,10 +601,12 @@
     <string name="welcome_tut_bt">Tilslut og afbryd dit hjul her</string>
     <string name="welcome_tut_version">Mange hjul mangler bare testere for at blive fuldt understøttet, som regel en nem sag. Tryk på versionen for at åbne Om og hjælpe til</string>
     <string name="welcome_tut_outro_title">Det var turen!</string>
-    <string name="welcome_tut_outro_backup">Gem dine ture: vælg en %1$s under Indstillinger → %2$s, og se dem på eucviewer.ried.no</string>
     <string name="welcome_tut_outro_buttons">Mange knapper har ekstra funktioner, prøv at holde dem nede</string>
     <string name="welcome_tut_outro_alarms">Udforsk den kraftfulde alarmredigering under Indstillinger → %1$s</string>
-    <string name="welcome_tut_outro_integrations">Udforsk integrationerne: Flic-knapper, dit ur, HUDen, Garmin Connect IQ og bagudvendt radar</string>
+    <string name="welcome_tut_outro_integrations">Udforsk integrationerne: hjelm-HUD\'er, WearOS-ure, Flic-knapper, Garmin Connect IQ og bakradar</string>
+    <string name="welcome_tut_share_title">Gem og del dine ture</string>
+    <string name="welcome_tut_share_backup">Gem dine ture: vælg en %1$s under Indstillinger → %2$s, og se dem på eucviewer.ried.no</string>
+    <string name="welcome_tut_share_leaderboards">Tilmeld dig de offentlige ranglister på eucstats.ried.no</string>
     <string name="welcome_tut_outro_end">Hold øjnene på vejen og væk fra denne app, mens du kører ethjulet!</string>
     <string name="welcome_tut_speed">Din aktuelle fart. Skift enheder under Indstillinger → %1$s</string>
     <string name="welcome_tut_metrics">Live batteri, temperatur, spænding og mere. Omarranger dem under Indstillinger → %1$s</string>

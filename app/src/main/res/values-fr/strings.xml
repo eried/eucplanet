@@ -601,10 +601,12 @@
     <string name="welcome_tut_bt">Connecte et déconnecte ta roue ici</string>
     <string name="welcome_tut_version">Beaucoup de roues ont juste besoin de testeurs pour être pleinement prises en charge, c\'est souvent simple à régler. Touche la version pour ouvrir À propos et donner un coup de main</string>
     <string name="welcome_tut_outro_title">Voilà pour la visite !</string>
-    <string name="welcome_tut_outro_backup">Sauvegarde tes trajets : choisis un %1$s dans Paramètres → %2$s, puis consulte-les sur eucviewer.ried.no</string>
     <string name="welcome_tut_outro_buttons">Beaucoup de boutons offrent des actions supplémentaires, essaie un appui long</string>
     <string name="welcome_tut_outro_alarms">Découvre le puissant éditeur d\'alarmes dans Paramètres → %1$s</string>
-    <string name="welcome_tut_outro_integrations">Découvre les intégrations : boutons Flic, ta montre, le HUD, Garmin Connect IQ et le radar de recul</string>
+    <string name="welcome_tut_outro_integrations">Explore les intégrations : HUD de casque, montres WearOS, boutons Flic, Garmin Connect IQ et le radar arrière</string>
+    <string name="welcome_tut_share_title">Sauvegarde et partage tes trajets</string>
+    <string name="welcome_tut_share_backup">Sauvegarde tes trajets : choisis un %1$s dans Réglages → %2$s, puis consulte-les sur eucviewer.ried.no</string>
+    <string name="welcome_tut_share_leaderboards">Rejoins les classements publics sur eucstats.ried.no</string>
     <string name="welcome_tut_outro_end">Garde les yeux sur la route et loin de cette appli quand tu roules !</string>
     <string name="welcome_tut_speed">Ta vitesse en direct. Change les unités dans Paramètres → %1$s</string>
     <string name="welcome_tut_metrics">Batterie, température, tension et plus, en direct. Réorganise-les dans Paramètres → %1$s</string>

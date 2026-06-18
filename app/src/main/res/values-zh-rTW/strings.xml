@@ -597,10 +597,12 @@
     <string name="welcome_tut_bt">在此連接或斷開您的車輪</string>
     <string name="welcome_tut_version">許多車輪只需測試者即可完全支援，通常修復很簡單。點擊版本號開啟「關於」頁面來提供協助</string>
     <string name="welcome_tut_outro_title">導覽結束！</string>
-    <string name="welcome_tut_outro_backup">儲存您的行程：在設定 → %2$s 中選擇 %1$s，然後至 eucviewer.ried.no 查看</string>
     <string name="welcome_tut_outro_buttons">許多按鈕有額外操作，試試長按它們</string>
     <string name="welcome_tut_outro_alarms">在設定 → %1$s 中探索強大的自訂警報編輯器</string>
-    <string name="welcome_tut_outro_integrations">探索各種整合功能：Flic 按鈕、您的手錶、HUD、Garmin Connect IQ 及後視雷達</string>
+    <string name="welcome_tut_outro_integrations">探索整合功能：頭盔 HUD、WearOS 手錶、Flic 按鈕、Garmin Connect IQ 與後視雷達</string>
+    <string name="welcome_tut_share_title">儲存並分享行程</string>
+    <string name="welcome_tut_share_backup">儲存行程：在 設定 → %2$s 中選擇一個 %1$s，然後在 eucviewer.ried.no 查看</string>
+    <string name="welcome_tut_share_leaderboards">在 eucstats.ried.no 加入公開排行榜</string>
     <string name="welcome_tut_outro_end">騎獨輪車時請專注路況，勿盯著此應用程式！</string>
     <string name="welcome_tut_speed">您的即時速度。在設定 → %1$s 中更改單位</string>
     <string name="welcome_tut_metrics">即時電池、溫度、電壓等資訊。在設定 → %1$s 中重新排列</string>
