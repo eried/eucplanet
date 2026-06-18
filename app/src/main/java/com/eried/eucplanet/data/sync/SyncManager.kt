@@ -376,6 +376,11 @@ class SyncManager @Inject constructor(
             lastSettingsBackupAt = null,
             onlineUploadEnabled = false,  // online upload requires a folder
         ))
+        // Both destinations just lost their prerequisites: folder is gone, and
+        // the rider id file went with it. Drop any pending retries so we don't
+        // sit on a backed-off worker that would only no-op when it finally fires.
+        cancelTripUpload()
+        cancelEucStatsUpload()
     }
 
     /** The chosen folder's DocumentFile, or null if none or no longer accessible. */
@@ -685,6 +690,23 @@ class SyncManager @Inject constructor(
             ExistingWorkPolicy.REPLACE,
             request
         )
+    }
+
+    /** Cancel any queued / in-backoff folder-upload work. Used when the rider
+     *  unlinks the sync folder so a long-tail retry doesn't sit waiting for a
+     *  destination that no longer exists. */
+    fun cancelTripUpload() {
+        WorkManager.getInstance(context).cancelUniqueWork(UPLOAD_WORK_NAME)
+    }
+
+    /** Cancel any queued / in-backoff eucstats-upload work. Used when the rider
+     *  toggles leaderboards off, deletes their account, or unlinks the sync
+     *  folder (since the rider id lives in that folder). Without this, a retry
+     *  parked on the 32m / 1h step would still fire later and find the
+     *  prerequisites gone; cancelling here keeps the trip icons and WorkManager
+     *  state in lockstep. */
+    fun cancelEucStatsUpload() {
+        WorkManager.getInstance(context).cancelUniqueWork(EUCSTATS_UPLOAD_WORK_NAME)
     }
 
     /** Schedule the eucstats worker for [attempt]. See [scheduleTripUploadAttempt]

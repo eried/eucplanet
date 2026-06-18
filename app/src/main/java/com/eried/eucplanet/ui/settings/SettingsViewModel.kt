@@ -2013,6 +2013,10 @@ class SettingsViewModel @Inject constructor(
                 }
             }
             settingsRepository.update(settingsRepository.get().copy(onlineUploadEnabled = false))
+            // Drop any queued / in-backoff retries; the gate inside the worker
+            // would catch them anyway but cancelling now keeps the unique-work
+            // entry from sitting around until its delay elapses.
+            syncManager.cancelEucStatsUpload()
         }
     }
 
@@ -2085,7 +2089,12 @@ class SettingsViewModel @Inject constructor(
             // Remove the local recovery file too, so the just-deleted profile is
             // not offered for "restore" on the next Join (it no longer exists
             // server-side). Best-effort, only when the server delete succeeded.
-            if (ok) syncManager.deleteRiderIdFile()
+            if (ok) {
+                syncManager.deleteRiderIdFile()
+                // Drop any queued / in-backoff eucstats retries so they don't
+                // wake up later and hit a deleted account.
+                syncManager.cancelEucStatsUpload()
+            }
             onResult(ok)
         }
     }
