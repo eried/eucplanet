@@ -68,6 +68,8 @@ class SyncManager @Inject constructor(
         const val TRIPS_SUBFOLDER = "trips"
         const val UPLOAD_WORK_NAME = "trip_upload"
         const val EUCSTATS_UPLOAD_WORK_NAME = "eucstats_upload"
+        const val UPLOAD_FOLLOWUP_WORK_NAME = "trip_upload_followup"
+        const val EUCSTATS_UPLOAD_FOLLOWUP_WORK_NAME = "eucstats_upload_followup"
     }
 
     // App-scoped so trip sync survives settings screen navigation.
@@ -654,6 +656,42 @@ class SyncManager @Inject constructor(
             .build()
         WorkManager.getInstance(context).enqueueUniqueWork(
             EUCSTATS_UPLOAD_WORK_NAME,
+            ExistingWorkPolicy.REPLACE,
+            request
+        )
+    }
+
+    /**
+     * Schedule a delayed follow-up sweep on a SEPARATE unique work name so it does
+     * not REPLACE the immediate enqueue. Both workers exit instantly on empty
+     * pending, so this is a no-op when the first attempt already drained the queue
+     * (the "unless all was sync" branch). When the first attempt failed transiently
+     * (no network, server burp), this is a free second swing outside WorkManager's
+     * exponential backoff curve.
+     */
+    fun enqueueTripUploadDelayed(settings: AppSettings, delaySeconds: Long) {
+        if (settings.syncFolderUri == null) return
+        val request = OneTimeWorkRequestBuilder<TripUploadWorker>()
+            .setInitialDelay(delaySeconds, TimeUnit.SECONDS)
+            .build()
+        WorkManager.getInstance(context).enqueueUniqueWork(
+            UPLOAD_FOLLOWUP_WORK_NAME,
+            ExistingWorkPolicy.REPLACE,
+            request
+        )
+    }
+
+    fun enqueueEucStatsUploadDelayed(settings: AppSettings, delaySeconds: Long) {
+        val constraints = Constraints.Builder()
+            .setRequiredNetworkType(NetworkType.CONNECTED)
+            .build()
+        val request = OneTimeWorkRequestBuilder<EucStatsUploadWorker>()
+            .setConstraints(constraints)
+            .setInitialDelay(delaySeconds, TimeUnit.SECONDS)
+            .setBackoffCriteria(BackoffPolicy.EXPONENTIAL, 30, TimeUnit.SECONDS)
+            .build()
+        WorkManager.getInstance(context).enqueueUniqueWork(
+            EUCSTATS_UPLOAD_FOLLOWUP_WORK_NAME,
             ExistingWorkPolicy.REPLACE,
             request
         )

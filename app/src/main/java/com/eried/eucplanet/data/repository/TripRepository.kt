@@ -54,6 +54,11 @@ class TripRepository @Inject constructor(
         // Without a sync folder there's nothing to defer, the trip just stays in
         // the local DB regardless, so the grace window is skipped entirely.
         private const val FINALIZE_GRACE_MS = 15_000L
+        // Delay before the post-finalize follow-up upload sweep fires. Catches the
+        // case where the immediate worker run hit a transient failure and was
+        // parked on backoff; gives one extra swing without waiting for the next
+        // ride or app launch.
+        private const val FOLLOWUP_DELAY_SECONDS = 60L
     }
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
@@ -464,7 +469,12 @@ class TripRepository @Inject constructor(
         _pendingTripId.value = null
         pendingFinalizeJob = null
         Log.i(TAG, "Trip finalized: ${trip.fileName} (sync=$willSync, eucstats=$willEucstats)")
-        if (willSync) syncManager.enqueueTripUpload(appSettings)
+        if (willSync) {
+            syncManager.enqueueTripUpload(appSettings)
+            // One free second swing 60s later in case the first attempt failed
+            // transiently. Worker no-ops on empty pending.
+            syncManager.enqueueTripUploadDelayed(appSettings, FOLLOWUP_DELAY_SECONDS)
+        }
         // Eucstats: enqueue ANY time the rider has it on, not only when this
         // specific trip needs uploading. The worker walks every trip eligible
         // for upload (pending=1 / failed=3 / orphaned=0), so this is also the
@@ -472,6 +482,7 @@ class TripRepository @Inject constructor(
         // shot the next time the rider finishes a ride.
         if (appSettings.onlineUploadEnabled && syncManager.riderStoreId.value != null) {
             syncManager.enqueueEucStatsUpload(appSettings)
+            syncManager.enqueueEucStatsUploadDelayed(appSettings, FOLLOWUP_DELAY_SECONDS)
             Log.i(TAG, "Eucstats upload enqueued (incl. retry sweep for prior failures)")
         }
     }
