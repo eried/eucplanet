@@ -1261,7 +1261,7 @@
     <string name="welcome_tut_pd">Viser Park eller Kjør. Trykk for å stille inn %1$s</string>
     <string name="welcome_tut_outro_alarms">Utforsk den kraftige editoren for egendefinerte alarmer under Innstillinger → %1$s</string>
     <string name="welcome_tut_outro_integrations">Utforsk integrasjonene: hjelm-HUDer, WearOS-klokker, Flic-knapper, Garmin Connect IQ og bakradaren</string>
-    <string name="welcome_tut_share">Sikkerhetskopier turene dine i Innstillinger → %1$s. Se dem i %2$s-seksjonen, eller analyser sikkerhetskopiene på eucviewer.ried.no.\nI samme seksjon kan du også bli med på de offentlige ledertavlene på eucstats.ried.no</string>
+    <string name="welcome_tut_share">Sikkerhetskopier turene dine i Innstillinger → %1$s. Se dem i %2$s, eller analyser sikkerhetskopiene på eucviewer.ried.no.\n\nI samme seksjon kan du bli med på de offentlige ledertavlene på eucstats.ried.no</string>
     <string name="welcome_tut_outro_end">Hold blikket på veien og vekk fra denne appen mens du kjører!</string>
 
     <!-- Short variants for the dashboard tile face. Same English abbreviations

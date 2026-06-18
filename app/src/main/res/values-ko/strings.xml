@@ -600,7 +600,7 @@
     <string name="welcome_tut_outro_buttons">많은 버튼에 추가 기능이 있습니다. 길게 눌러 보세요</string>
     <string name="welcome_tut_outro_alarms">설정 → %1$s에서 강력한 알람 편집기를 탐색해 보세요</string>
     <string name="welcome_tut_outro_integrations">통합 기능 살펴보기: 헬멧 HUD, WearOS 시계, Flic 버튼, Garmin Connect IQ, 후방 레이더</string>
-    <string name="welcome_tut_share">설정 → %1$s 에서 트립을 백업하세요. %2$s 섹션에서 확인하거나 백업을 eucviewer.ried.no 에서 분석할 수 있습니다.\n같은 섹션에서 eucstats.ried.no 의 공개 리더보드에도 참가할 수 있습니다</string>
+    <string name="welcome_tut_share">설정 → %1$s 에서 트립을 백업하세요. %2$s 에서 확인하거나 백업을 eucviewer.ried.no 에서 분석할 수 있습니다.\n\n같은 섹션에서 eucstats.ried.no 의 공개 리더보드에 참가할 수 있습니다</string>
     <string name="welcome_tut_outro_end">외발휠 주행 중에는 눈을 도로에 고정하고 앱을 보지 마세요!</string>
     <string name="welcome_tut_speed">실시간 속도입니다. 설정 → %1$s에서 단위를 바꾸세요</string>
     <string name="welcome_tut_metrics">실시간 배터리, 온도, 전압 등. 설정 → %1$s에서 순서를 변경하세요</string>

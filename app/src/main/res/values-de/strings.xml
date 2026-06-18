@@ -600,7 +600,7 @@
     <string name="welcome_tut_outro_buttons">Viele Buttons haben Zusatzfunktionen, einfach lang drücken</string>
     <string name="welcome_tut_outro_alarms">Entdecke den leistungsstarken Alarm-Editor unter Einstellungen → %1$s</string>
     <string name="welcome_tut_outro_integrations">Entdecke die Integrationen: Helm-HUDs, WearOS-Uhren, Flic-Buttons, Garmin Connect IQ und das Rückradar</string>
-    <string name="welcome_tut_share">Sichere deine Fahrten in Einstellungen → %1$s. Sieh sie im Abschnitt %2$s an oder analysiere die Backups auf eucviewer.ried.no.\nIm selben Abschnitt kannst du auch den öffentlichen Bestenlisten auf eucstats.ried.no beitreten</string>
+    <string name="welcome_tut_share">Sichere deine Fahrten in Einstellungen → %1$s. Sieh sie in %2$s an oder analysiere die Backups auf eucviewer.ried.no.\n\nIm selben Abschnitt kannst du den öffentlichen Bestenlisten auf eucstats.ried.no beitreten</string>
     <string name="welcome_tut_outro_end">Augen auf die Straße, nicht auf die App, wenn du fährst!</string>
     <string name="welcome_tut_speed">Deine aktuelle Geschwindigkeit. Einheiten ändern unter Einstellungen → %1$s</string>
     <string name="welcome_tut_metrics">Akku, Temperatur, Spannung und mehr in Echtzeit. Unter Einstellungen → %1$s neu anordnen</string>

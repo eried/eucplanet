@@ -604,7 +604,7 @@
     <string name="welcome_tut_outro_buttons">Багато кнопок мають додаткові дії, спробуй утримувати їх</string>
     <string name="welcome_tut_outro_alarms">Дослідіть потужний редактор власних тривог у Налаштування → %1$s</string>
     <string name="welcome_tut_outro_integrations">Дослідіть інтеграції: HUD-и для шолома, годинники WearOS, кнопки Flic, Garmin Connect IQ і задній радар</string>
-    <string name="welcome_tut_share">Створюйте резервні копії поїздок у Налаштування → %1$s. Перегляньте їх у розділі %2$s або проаналізуйте копії на eucviewer.ried.no.\nУ тому самому розділі можна приєднатися до публічних таблиць лідерів на eucstats.ried.no</string>
+    <string name="welcome_tut_share">Створюйте резервні копії поїздок у Налаштування → %1$s. Перегляньте їх у %2$s або проаналізуйте копії на eucviewer.ried.no.\n\nУ тому самому розділі можна приєднатися до публічних таблиць лідерів на eucstats.ried.no</string>
     <string name="welcome_tut_outro_end">Дивись на дорогу, а не в цей застосунок під час їзди на моноколесі!</string>
     <string name="welcome_tut_speed">Твоя швидкість наживо. Зміни одиниці в Налаштування → %1$s</string>
     <string name="welcome_tut_metrics">Заряд, температура, напруга та інше наживо. Зміни їх порядок у Налаштування → %1$s</string>
