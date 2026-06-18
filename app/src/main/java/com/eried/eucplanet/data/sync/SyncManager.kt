@@ -681,6 +681,15 @@ class SyncManager @Inject constructor(
         )
     }
 
+    /** Drop any pending follow-up sweeps. Called when a new recording starts so the
+     *  previous trip's 60s follow-up doesn't fire mid-ride; the next finalize will
+     *  schedule its own. */
+    fun cancelUploadFollowups() {
+        val wm = WorkManager.getInstance(context)
+        wm.cancelUniqueWork(UPLOAD_FOLLOWUP_WORK_NAME)
+        wm.cancelUniqueWork(EUCSTATS_UPLOAD_FOLLOWUP_WORK_NAME)
+    }
+
     fun enqueueEucStatsUploadDelayed(settings: AppSettings, delaySeconds: Long) {
         val constraints = Constraints.Builder()
             .setRequiredNetworkType(NetworkType.CONNECTED)

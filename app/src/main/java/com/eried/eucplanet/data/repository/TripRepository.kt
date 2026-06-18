@@ -261,6 +261,11 @@ class TripRepository @Inject constructor(
         // intent), this returns false and we bail before announcing or opening files.
         if (!_recording.compareAndSet(expect = false, update = true)) return
 
+        // Drop any pending follow-up upload sweep from the previous trip. The
+        // upcoming stopRecording will schedule its own follow-up that covers this
+        // ride and anything earlier still pending.
+        syncManager.cancelUploadFollowups()
+
         // Sanity-check location permission at recording start so missing permission is obvious in logs.
         val hasFine = androidx.core.content.ContextCompat.checkSelfPermission(
             context, android.Manifest.permission.ACCESS_FINE_LOCATION
