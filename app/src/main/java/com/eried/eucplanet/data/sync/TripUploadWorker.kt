@@ -60,6 +60,12 @@ class TripUploadWorker @AssistedInject constructor(
             }
         }
 
-        return if (anyFailed) Result.retry() else Result.success()
+        if (anyFailed) {
+            val attempt = inputData.getInt(SyncManager.KEY_ATTEMPT, 0)
+            val next = attempt + 1
+            Log.i(TAG, "Scheduling retry attempt $next in ${SyncManager.delayForAttempt(next)}s")
+            syncManager.scheduleTripUploadAttempt(next)
+        }
+        return Result.success()
     }
 }

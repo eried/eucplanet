@@ -21,6 +21,7 @@ class EucStatsUploadWorker @AssistedInject constructor(
     @Assisted params: WorkerParameters,
     private val tripDao: TripDao,
     private val eucStatsRepository: EucStatsRepository,
+    private val syncManager: SyncManager,
 ) : CoroutineWorker(ctx, params) {
 
     companion object { private const val TAG = "EucStatsUploadWorker" }
@@ -43,7 +44,13 @@ class EucStatsUploadWorker @AssistedInject constructor(
             }
         }
 
-        return if (workerResultRetry(outcomes)) Result.retry() else Result.success()
+        if (workerResultRetry(outcomes)) {
+            val attempt = inputData.getInt(SyncManager.KEY_ATTEMPT, 0)
+            val next = attempt + 1
+            Log.i(TAG, "Scheduling retry attempt $next in ${SyncManager.delayForAttempt(next)}s")
+            syncManager.scheduleEucStatsUploadAttempt(next)
+        }
+        return Result.success()
     }
 }
 

@@ -5,12 +5,12 @@ import android.content.Intent
 import android.net.Uri
 import android.util.Log
 import androidx.documentfile.provider.DocumentFile
-import androidx.work.BackoffPolicy
 import androidx.work.Constraints
 import androidx.work.ExistingWorkPolicy
 import androidx.work.NetworkType
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
+import androidx.work.workDataOf
 import java.util.concurrent.TimeUnit
 import com.eried.eucplanet.data.db.AlarmDao
 import com.eried.eucplanet.data.db.TripDao
@@ -68,11 +68,31 @@ class SyncManager @Inject constructor(
         const val TRIPS_SUBFOLDER = "trips"
         const val UPLOAD_WORK_NAME = "trip_upload"
         const val EUCSTATS_UPLOAD_WORK_NAME = "eucstats_upload"
-        // Tightened backoff base for both workers. WorkManager's default 30s
-        // doubles fast (30s, 1m, 2m, 4m, 8m…) so a transient failure can park
-        // an upload for ages. 15s base keeps the early retries snappy while
-        // still respecting WM's 10s minimum.
+        const val KEY_ATTEMPT = "attempt"
+
+        // Custom backoff curve, since WorkManager's native MAX_BACKOFF_MILLIS is
+        // a hard-coded 5h and the workers schedule their own next attempt rather
+        // than returning Result.retry().
+        //
+        // attempt 0  → immediate (initial enqueue)
+        // attempt 1  → 15s
+        // attempt 2  → 30s
+        // attempt 3  → 1m
+        // attempt 4  → 2m
+        // attempt 5  → 4m
+        // attempt 6  → 8m
+        // attempt 7  → 16m
+        // attempt 8  → 32m
+        // attempt 9+ → 1h (capped, retries forever)
         private const val BACKOFF_BASE_SECONDS = 15L
+        private const val BACKOFF_MAX_SECONDS = 3600L
+
+        fun delayForAttempt(attempt: Int): Long {
+            if (attempt <= 0) return 0L
+            val shift = (attempt - 1).coerceAtMost(20)
+            val raw = BACKOFF_BASE_SECONDS * (1L shl shift)
+            return raw.coerceAtMost(BACKOFF_MAX_SECONDS)
+        }
     }
 
     // App-scoped so trip sync survives settings screen navigation.
@@ -637,11 +657,28 @@ class SyncManager @Inject constructor(
     private fun buildBackupFileName(name: String?): String =
         if (name == null) SETTINGS_BACKUP_NAME else "$SETTINGS_BACKUP_PREFIX$name$SETTINGS_BACKUP_SUFFIX"
 
-    /** Enqueue the trip upload worker with a tight exponential backoff. */
+    /** Initial enqueue of the folder-backup worker. Retries are scheduled by the
+     *  worker itself via [scheduleTripUploadAttempt]. */
     fun enqueueTripUpload(settings: AppSettings) {
         if (settings.syncFolderUri == null) return
+        scheduleTripUploadAttempt(attempt = 0)
+    }
+
+    /** Initial enqueue of the eucstats worker. Retries are scheduled by the worker
+     *  itself via [scheduleEucStatsUploadAttempt]. */
+    fun enqueueEucStatsUpload(settings: AppSettings) {
+        scheduleEucStatsUploadAttempt(attempt = 0)
+    }
+
+    /** Schedule the folder worker for [attempt]. attempt=0 fires immediately;
+     *  higher attempts use the [delayForAttempt] curve. Always under the same
+     *  unique-work name so a fresh enqueue (new trip, manual retry) cancels and
+     *  resets the retry chain. */
+    fun scheduleTripUploadAttempt(attempt: Int) {
+        val data = workDataOf(KEY_ATTEMPT to attempt)
         val request = OneTimeWorkRequestBuilder<TripUploadWorker>()
-            .setBackoffCriteria(BackoffPolicy.EXPONENTIAL, BACKOFF_BASE_SECONDS, TimeUnit.SECONDS)
+            .setInputData(data)
+            .setInitialDelay(delayForAttempt(attempt), TimeUnit.SECONDS)
             .build()
         WorkManager.getInstance(context).enqueueUniqueWork(
             UPLOAD_WORK_NAME,
@@ -650,14 +687,17 @@ class SyncManager @Inject constructor(
         )
     }
 
-    /** Enqueue the eucstats upload worker with a network constraint and exponential backoff. */
-    fun enqueueEucStatsUpload(settings: AppSettings) {
+    /** Schedule the eucstats worker for [attempt]. See [scheduleTripUploadAttempt]
+     *  for semantics; this one also carries the CONNECTED network constraint. */
+    fun scheduleEucStatsUploadAttempt(attempt: Int) {
         val constraints = Constraints.Builder()
             .setRequiredNetworkType(NetworkType.CONNECTED)
             .build()
+        val data = workDataOf(KEY_ATTEMPT to attempt)
         val request = OneTimeWorkRequestBuilder<EucStatsUploadWorker>()
             .setConstraints(constraints)
-            .setBackoffCriteria(BackoffPolicy.EXPONENTIAL, BACKOFF_BASE_SECONDS, TimeUnit.SECONDS)
+            .setInputData(data)
+            .setInitialDelay(delayForAttempt(attempt), TimeUnit.SECONDS)
             .build()
         WorkManager.getInstance(context).enqueueUniqueWork(
             EUCSTATS_UPLOAD_WORK_NAME,
