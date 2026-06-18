@@ -1280,9 +1280,7 @@
     <string name="welcome_tut_pd">Mostra Park o Drive. Toccalo per impostare la tua %1$s</string>
     <string name="welcome_tut_outro_alarms">Esplora il potente editor di allarmi personalizzati in Impostazioni → %1$s</string>
     <string name="welcome_tut_outro_integrations">Esplora le integrazioni: HUD da casco, orologi WearOS, pulsanti Flic, Garmin Connect IQ e il radar posteriore</string>
-    <string name="welcome_tut_share_title">Salva e condividi i tuoi viaggi</string>
-    <string name="welcome_tut_share_backup">Salva i tuoi viaggi: scegli una %1$s in Impostazioni → %2$s, poi visualizzali su eucviewer.ried.no</string>
-    <string name="welcome_tut_share_leaderboards">Entra nelle classifiche pubbliche su eucstats.ried.no</string>
+    <string name="welcome_tut_share">Nella stessa sezione Impostazioni → %1$s puoi anche entrare nelle classifiche pubbliche su eucstats.ried.no</string>
     <string name="welcome_tut_outro_end">Tieni gli occhi sulla strada e lontani da questa app mentre guidi il monoruota!</string>
 
     <!-- Short variants for the dashboard tile face. Same English abbreviations

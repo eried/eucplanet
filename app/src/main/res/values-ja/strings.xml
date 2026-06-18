@@ -600,9 +600,7 @@
     <string name="welcome_tut_outro_buttons">多くのボタンには追加アクションがあります。長押しを試してみてください</string>
     <string name="welcome_tut_outro_alarms">設定 → %1$s で強力なカスタムアラームエディターを試してください</string>
     <string name="welcome_tut_outro_integrations">連携を試してみてください：ヘルメットHUD、WearOSウォッチ、Flicボタン、Garmin Connect IQ、リアビューレーダー</string>
-    <string name="welcome_tut_share_title">走行データを保存して共有</string>
-    <string name="welcome_tut_share_backup">走行データを保存：設定 → %2$s で %1$s を選び、eucviewer.ried.no で確認できます</string>
-    <string name="welcome_tut_share_leaderboards">公開リーダーボードへの参加は eucstats.ried.no から</string>
+    <string name="welcome_tut_share">同じ 設定 → %1$s セクションから、eucstats.ried.no の公開リーダーボードにも参加できます</string>
     <string name="welcome_tut_outro_end">一輪車に乗りながらこのアプリを操作せず、前方に注意してください！</string>
     <string name="welcome_tut_speed">ライブ速度。設定 → %1$s で単位を変更できます</string>
     <string name="welcome_tut_metrics">ライブバッテリー、温度、電圧など。設定 → %1$s で並べ替えられます</string>

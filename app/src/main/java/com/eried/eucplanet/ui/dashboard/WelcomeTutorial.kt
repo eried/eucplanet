@@ -185,21 +185,17 @@ private fun OutroBullet(text: String) {
     }
 }
 
-/**
- * Like [OutroBullet] but turns any of the known `*.ried.no` markers into
- * tappable links that open in the browser. The marker strings are the same
- * across every locale, so splitting on them keeps the links working in
- * every translation. Passes through unchanged when no marker is present.
- */
+/** Turn any of the known `*.ried.no` markers in [text] into tappable Url
+ *  links. The marker strings are constant across every locale, so splitting
+ *  on them keeps the links working in every translation. Passes the text
+ *  through unchanged when no marker is present. */
 @Composable
-private fun OutroLinkBullet(text: String) {
-    val accent = MaterialTheme.colorScheme.primary
+private fun annotateRiedLinks(text: String): androidx.compose.ui.text.AnnotatedString {
     val link = MaterialTheme.appColors.link
     val markers = listOf("eucviewer.ried.no", "eucstats.ried.no")
-    val annotated = buildAnnotatedString {
+    return buildAnnotatedString {
         var cursor = 0
         while (cursor < text.length) {
-            // Find the earliest occurrence of any marker from `cursor` on.
             val hit = markers
                 .mapNotNull { m -> text.indexOf(m, cursor).takeIf { it >= 0 }?.let { it to m } }
                 .minByOrNull { it.first }
@@ -218,11 +214,6 @@ private fun OutroLinkBullet(text: String) {
             ) { append(marker) }
             cursor = idx + marker.length
         }
-    }
-    Row(modifier = Modifier.fillMaxWidth()) {
-        Text("•", style = MaterialTheme.typography.bodyMedium, color = accent)
-        Spacer(Modifier.width(10.dp))
-        Text(annotated, modifier = Modifier.weight(1f), style = MaterialTheme.typography.bodyMedium)
     }
 }
 
@@ -390,26 +381,21 @@ fun WelcomeTutorialOverlay(
                             fontWeight = FontWeight.SemiBold
                         )
                         if (s.showShare) {
-                            // Save-and-share step: title + two link-bearing
-                            // bullets (eucviewer for trip backup, eucstats for
-                            // the public leaderboards). Same chrome as the
-                            // outro card, no clip.
-                            Spacer(Modifier.height(12.dp))
-                            Text(
-                                stringResource(R.string.welcome_tut_share_title),
-                                style = MaterialTheme.typography.titleMedium,
-                                fontWeight = FontWeight.SemiBold
-                            )
-                            Spacer(Modifier.height(10.dp))
-                            OutroLinkBullet(
-                                stringResource(
-                                    R.string.welcome_tut_share_backup,
-                                    stringResource(R.string.section_cloud_folder),
-                                    stringResource(R.string.tab_cloud)
-                                )
-                            )
+                            // Leaderboards mention: single plain-text line
+                            // (same bodyLarge style as every other tour step),
+                            // no title, no bullets. The eucstats.ried.no
+                            // marker in the localised string becomes a
+                            // tappable link via annotateRiedLinks.
                             Spacer(Modifier.height(8.dp))
-                            OutroLinkBullet(stringResource(R.string.welcome_tut_share_leaderboards))
+                            Text(
+                                annotateRiedLinks(
+                                    stringResource(
+                                        R.string.welcome_tut_share,
+                                        stringResource(R.string.tab_cloud)
+                                    )
+                                ),
+                                style = MaterialTheme.typography.bodyLarge,
+                            )
                         } else if (s.showClip) {
                             // Outro: clip + a tidy title and bulleted tips.
                             // The "save your trips" line moved out into the

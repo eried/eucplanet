@@ -634,9 +634,7 @@
     <string name="welcome_tut_outro_alarms">Explore the powerful custom alarm editor in Settings → %1$s</string>
     <string name="welcome_tut_outro_integrations">Explore the integrations: helmet HUDs, WearOS watches, Flic buttons, Garmin Connect IQ, and the rear-view radar</string>
     <string name="welcome_tut_outro_end">Keep the eyes on the road and away from this app while unicycling!</string>
-    <string name="welcome_tut_share_title">Save and share your trips</string>
-    <string name="welcome_tut_share_backup">Save your trips: pick a %1$s in Settings → %2$s, then view them at eucviewer.ried.no</string>
-    <string name="welcome_tut_share_leaderboards">Join the public leaderboards at eucstats.ried.no</string>
+    <string name="welcome_tut_share">In the same Settings → %1$s section you can also join the public leaderboards at eucstats.ried.no</string>
     <string name="welcome_tut_speed">Your live speed. Change units in Settings → %1$s</string>
     <string name="welcome_tut_metrics">Live battery, temp, voltage and more. Rearrange them in Settings → %1$s</string>
     <string name="welcome_tut_actions">Quick controls. Tweak them in the same place, under %2$s</string>

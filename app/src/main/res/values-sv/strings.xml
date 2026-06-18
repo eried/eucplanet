@@ -600,9 +600,7 @@
     <string name="welcome_tut_outro_buttons">Många knappar har extra åtgärder, prova att hålla inne dem</string>
     <string name="welcome_tut_outro_alarms">Utforska den kraftfulla larmredigeraren under Inställningar → %1$s</string>
     <string name="welcome_tut_outro_integrations">Utforska integrationerna: hjälm-HUD:ar, WearOS-klockor, Flic-knappar, Garmin Connect IQ och backradarn</string>
-    <string name="welcome_tut_share_title">Spara och dela dina turer</string>
-    <string name="welcome_tut_share_backup">Spara dina turer: välj en %1$s under Inställningar → %2$s, och se dem på eucviewer.ried.no</string>
-    <string name="welcome_tut_share_leaderboards">Gå med i de offentliga topplistorna på eucstats.ried.no</string>
+    <string name="welcome_tut_share">I samma Inställningar → %1$s -avsnitt kan du också gå med i de offentliga topplistorna på eucstats.ried.no</string>
     <string name="welcome_tut_outro_end">Håll blicken på vägen och bort från appen när du åker!</string>
     <string name="welcome_tut_speed">Din aktuella fart. Byt enheter under Inställningar → %1$s</string>
     <string name="welcome_tut_metrics">Batteri, temperatur, spänning och mer, live. Ordna om dem under Inställningar → %1$s</string>

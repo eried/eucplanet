@@ -604,9 +604,7 @@
     <string name="welcome_tut_outro_buttons">Veel knoppen hebben extra acties, probeer er lang op te drukken</string>
     <string name="welcome_tut_outro_alarms">Ontdek de krachtige alarmeditor in Instellingen → %1$s</string>
     <string name="welcome_tut_outro_integrations">Verken de integraties: helm-HUDs, WearOS-horloges, Flic-knoppen, Garmin Connect IQ en de achteruitkijkradar</string>
-    <string name="welcome_tut_share_title">Sla je ritten op en deel ze</string>
-    <string name="welcome_tut_share_backup">Sla je ritten op: kies een %1$s onder Instellingen → %2$s en bekijk ze op eucviewer.ried.no</string>
-    <string name="welcome_tut_share_leaderboards">Doe mee aan de openbare klassementen op eucstats.ried.no</string>
+    <string name="welcome_tut_share">In hetzelfde Instellingen → %1$s gedeelte kun je ook deelnemen aan de openbare klassementen op eucstats.ried.no</string>
     <string name="welcome_tut_outro_end">Houd je ogen op de weg en niet op deze app tijdens het rijden!</string>
     <string name="welcome_tut_speed">Je actuele snelheid. Wijzig de eenheden in Instellingen → %1$s</string>
     <string name="welcome_tut_metrics">Live accu, temperatuur, spanning en meer. Herschik ze in Instellingen → %1$s</string>
