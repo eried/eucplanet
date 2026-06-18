@@ -72,6 +72,7 @@ class RecordingViewModel @Inject constructor(
     private val wheelRepository: com.eried.eucplanet.data.repository.WheelRepository,
     private val settingsRepository: SettingsRepository,
     private val syncManager: com.eried.eucplanet.data.sync.SyncManager,
+    private val eucStatsRepository: com.eried.eucplanet.data.eucstats.EucStatsRepository,
     @ApplicationContext private val context: Context
 ) : ViewModel() {
 
@@ -79,10 +80,31 @@ class RecordingViewModel @Inject constructor(
         private const val TAG = "RecordingVM"
     }
 
-    /** Re-enqueue the eucstats upload worker to retry pending/failed online uploads. */
+    private val _onlineRetryRunning = MutableStateFlow(false)
+    val onlineRetryRunning: StateFlow<Boolean> = _onlineRetryRunning.asStateFlow()
+
+    /**
+     * Foreground retry of any pending / failed online uploads. Mirrors the Settings
+     * "Sync all" path so a tap on the orange or red cloud icon actually does
+     * something now instead of just enqueueing a WorkManager job that the OS may
+     * defer for minutes. A background worker is still enqueued as a safety net.
+     */
     fun retryOnlineUploads() {
+        if (_onlineRetryRunning.value) return
         viewModelScope.launch {
-            syncManager.enqueueEucStatsUpload(settingsRepository.get())
+            _onlineRetryRunning.value = true
+            try {
+                _toasts.send(context.getString(R.string.online_status_pending))
+                val count = eucStatsRepository.syncPendingNow { _, _ -> }
+                val msg = if (count == 0)
+                    context.getString(R.string.online_upload_sync_nothing)
+                else
+                    context.getString(R.string.online_upload_sync_done, count)
+                _toasts.send(msg)
+            } finally {
+                _onlineRetryRunning.value = false
+                syncManager.enqueueEucStatsUpload(settingsRepository.get())
+            }
         }
     }
 

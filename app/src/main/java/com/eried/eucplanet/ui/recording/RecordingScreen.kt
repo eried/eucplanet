@@ -631,6 +631,7 @@ private fun OnlineStatusIcon(trip: TripRecord, onRetry: () -> Unit) {
         when {
             isRetry -> onRetry()
             flagged -> showSnackbarLocal(snackbar, scope, flaggedWhy)
+            trip.eucstatsStatus == 1 -> onRetry()
             else -> showSnackbarLocal(snackbar, scope, msg)
         }
     }) {
