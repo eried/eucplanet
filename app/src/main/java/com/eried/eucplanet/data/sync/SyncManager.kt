@@ -68,8 +68,11 @@ class SyncManager @Inject constructor(
         const val TRIPS_SUBFOLDER = "trips"
         const val UPLOAD_WORK_NAME = "trip_upload"
         const val EUCSTATS_UPLOAD_WORK_NAME = "eucstats_upload"
-        const val UPLOAD_FOLLOWUP_WORK_NAME = "trip_upload_followup"
-        const val EUCSTATS_UPLOAD_FOLLOWUP_WORK_NAME = "eucstats_upload_followup"
+        // Tightened backoff base for both workers. WorkManager's default 30s
+        // doubles fast (30s, 1m, 2m, 4m, 8m…) so a transient failure can park
+        // an upload for ages. 15s base keeps the early retries snappy while
+        // still respecting WM's 10s minimum.
+        private const val BACKOFF_BASE_SECONDS = 15L
     }
 
     // App-scoped so trip sync survives settings screen navigation.
@@ -634,10 +637,12 @@ class SyncManager @Inject constructor(
     private fun buildBackupFileName(name: String?): String =
         if (name == null) SETTINGS_BACKUP_NAME else "$SETTINGS_BACKUP_PREFIX$name$SETTINGS_BACKUP_SUFFIX"
 
-    /** Enqueue the trip upload worker. */
+    /** Enqueue the trip upload worker with a tight exponential backoff. */
     fun enqueueTripUpload(settings: AppSettings) {
         if (settings.syncFolderUri == null) return
-        val request = OneTimeWorkRequestBuilder<TripUploadWorker>().build()
+        val request = OneTimeWorkRequestBuilder<TripUploadWorker>()
+            .setBackoffCriteria(BackoffPolicy.EXPONENTIAL, BACKOFF_BASE_SECONDS, TimeUnit.SECONDS)
+            .build()
         WorkManager.getInstance(context).enqueueUniqueWork(
             UPLOAD_WORK_NAME,
             ExistingWorkPolicy.REPLACE,
@@ -652,55 +657,10 @@ class SyncManager @Inject constructor(
             .build()
         val request = OneTimeWorkRequestBuilder<EucStatsUploadWorker>()
             .setConstraints(constraints)
-            .setBackoffCriteria(BackoffPolicy.EXPONENTIAL, 30, TimeUnit.SECONDS)
+            .setBackoffCriteria(BackoffPolicy.EXPONENTIAL, BACKOFF_BASE_SECONDS, TimeUnit.SECONDS)
             .build()
         WorkManager.getInstance(context).enqueueUniqueWork(
             EUCSTATS_UPLOAD_WORK_NAME,
-            ExistingWorkPolicy.REPLACE,
-            request
-        )
-    }
-
-    /**
-     * Schedule a delayed follow-up sweep on a SEPARATE unique work name so it does
-     * not REPLACE the immediate enqueue. Both workers exit instantly on empty
-     * pending, so this is a no-op when the first attempt already drained the queue
-     * (the "unless all was sync" branch). When the first attempt failed transiently
-     * (no network, server burp), this is a free second swing outside WorkManager's
-     * exponential backoff curve.
-     */
-    fun enqueueTripUploadDelayed(settings: AppSettings, delaySeconds: Long) {
-        if (settings.syncFolderUri == null) return
-        val request = OneTimeWorkRequestBuilder<TripUploadWorker>()
-            .setInitialDelay(delaySeconds, TimeUnit.SECONDS)
-            .build()
-        WorkManager.getInstance(context).enqueueUniqueWork(
-            UPLOAD_FOLLOWUP_WORK_NAME,
-            ExistingWorkPolicy.REPLACE,
-            request
-        )
-    }
-
-    /** Drop any pending follow-up sweeps. Called when a new recording starts so the
-     *  previous trip's 60s follow-up doesn't fire mid-ride; the next finalize will
-     *  schedule its own. */
-    fun cancelUploadFollowups() {
-        val wm = WorkManager.getInstance(context)
-        wm.cancelUniqueWork(UPLOAD_FOLLOWUP_WORK_NAME)
-        wm.cancelUniqueWork(EUCSTATS_UPLOAD_FOLLOWUP_WORK_NAME)
-    }
-
-    fun enqueueEucStatsUploadDelayed(settings: AppSettings, delaySeconds: Long) {
-        val constraints = Constraints.Builder()
-            .setRequiredNetworkType(NetworkType.CONNECTED)
-            .build()
-        val request = OneTimeWorkRequestBuilder<EucStatsUploadWorker>()
-            .setConstraints(constraints)
-            .setInitialDelay(delaySeconds, TimeUnit.SECONDS)
-            .setBackoffCriteria(BackoffPolicy.EXPONENTIAL, 30, TimeUnit.SECONDS)
-            .build()
-        WorkManager.getInstance(context).enqueueUniqueWork(
-            EUCSTATS_UPLOAD_FOLLOWUP_WORK_NAME,
             ExistingWorkPolicy.REPLACE,
             request
         )

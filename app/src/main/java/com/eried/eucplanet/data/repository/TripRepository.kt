@@ -54,11 +54,6 @@ class TripRepository @Inject constructor(
         // Without a sync folder there's nothing to defer, the trip just stays in
         // the local DB regardless, so the grace window is skipped entirely.
         private const val FINALIZE_GRACE_MS = 15_000L
-        // Delay before the post-finalize follow-up upload sweep fires. Catches the
-        // case where the immediate worker run hit a transient failure and was
-        // parked on backoff; gives one extra swing without waiting for the next
-        // ride or app launch.
-        private const val FOLLOWUP_DELAY_SECONDS = 60L
     }
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
@@ -102,18 +97,13 @@ class TripRepository @Inject constructor(
         // trips (folder: uploadStatus=3; eucstats: status 0 with UUID, 1, or 3),
         // so this catches anything left behind by a previous session that
         // couldn't finish its upload.
-        //
-        // Uses the delayed (follow-up) unique-work name so startRecording can
-        // cancel it: a rider who opens the app to immediately start a ride
-        // doesn't need a sweep running while they're hopping on. The next
-        // finalize will schedule its own sweep that covers everything.
         scope.launch {
             val appSettings = runCatching { settingsRepository.get() }.getOrNull() ?: return@launch
             if (appSettings.syncFolderUri != null) {
-                syncManager.enqueueTripUploadDelayed(appSettings, FOLLOWUP_DELAY_SECONDS)
+                syncManager.enqueueTripUpload(appSettings)
             }
             if (appSettings.onlineUploadEnabled && syncManager.riderStoreId.value != null) {
-                syncManager.enqueueEucStatsUploadDelayed(appSettings, FOLLOWUP_DELAY_SECONDS)
+                syncManager.enqueueEucStatsUpload(appSettings)
             }
         }
     }
@@ -266,11 +256,6 @@ class TripRepository @Inject constructor(
         // _recording to true (e.g. connect + first-motion racing, or a duplicate
         // intent), this returns false and we bail before announcing or opening files.
         if (!_recording.compareAndSet(expect = false, update = true)) return
-
-        // Drop any pending follow-up upload sweep from the previous trip. The
-        // upcoming stopRecording will schedule its own follow-up that covers this
-        // ride and anything earlier still pending.
-        syncManager.cancelUploadFollowups()
 
         // Sanity-check location permission at recording start so missing permission is obvious in logs.
         val hasFine = androidx.core.content.ContextCompat.checkSelfPermission(
@@ -480,12 +465,7 @@ class TripRepository @Inject constructor(
         _pendingTripId.value = null
         pendingFinalizeJob = null
         Log.i(TAG, "Trip finalized: ${trip.fileName} (sync=$willSync, eucstats=$willEucstats)")
-        if (willSync) {
-            syncManager.enqueueTripUpload(appSettings)
-            // One free second swing 60s later in case the first attempt failed
-            // transiently. Worker no-ops on empty pending.
-            syncManager.enqueueTripUploadDelayed(appSettings, FOLLOWUP_DELAY_SECONDS)
-        }
+        if (willSync) syncManager.enqueueTripUpload(appSettings)
         // Eucstats: enqueue ANY time the rider has it on, not only when this
         // specific trip needs uploading. The worker walks every trip eligible
         // for upload (pending=1 / failed=3 / orphaned=0), so this is also the
@@ -493,7 +473,6 @@ class TripRepository @Inject constructor(
         // shot the next time the rider finishes a ride.
         if (appSettings.onlineUploadEnabled && syncManager.riderStoreId.value != null) {
             syncManager.enqueueEucStatsUpload(appSettings)
-            syncManager.enqueueEucStatsUploadDelayed(appSettings, FOLLOWUP_DELAY_SECONDS)
             Log.i(TAG, "Eucstats upload enqueued (incl. retry sweep for prior failures)")
         }
     }
