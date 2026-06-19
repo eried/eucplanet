@@ -88,4 +88,53 @@ class VeteranLockTest {
         assertEquals(23, frame[11].toInt() and 0xFF)
         assertEquals(42, frame[12].toInt() and 0xFF)
     }
+
+    /**
+     * The wheel only accepts the lock frame when it's written as two
+     * separate ATT writes (20 + 5 bytes), matching the LeaperKim app's
+     * btsnoop. A single 25-byte write is truncated to 20 bytes by the
+     * default ATT MTU and the wheel rejects it on CRC check — the bug
+     * that made the previous "wall-clock only" fix still appear broken.
+     */
+    @Test
+    fun `adapter splits lock frame into 20 plus 5 byte writes`() {
+        val adapter = VeteranAdapter()
+        val first = adapter.setLock(true)
+        val tail = adapter.setLockFollowup(true)
+        assertEquals("first ATT write is 20 bytes", 20, first.size)
+        assertEquals("followup ATT write is 5 bytes", 5, tail!!.size)
+        // The two halves concatenated must be a CRC-valid 25-byte LdAp frame.
+        val full = first + tail
+        assertEquals(25, full.size)
+        // Magic + length
+        assertEquals(0x4C.toByte(), full[0])
+        assertEquals(0x64.toByte(), full[1])
+        assertEquals(0x41.toByte(), full[2])
+        assertEquals(0x70.toByte(), full[3])
+        assertEquals(25.toByte(), full[4])
+        // CRC32-BE over bytes 0..20 must equal the trailer in bytes 21..24
+        val want = CRC32().apply { update(full, 0, 21) }.value.toInt()
+        val got = ((full[21].toInt() and 0xFF) shl 24) or
+                  ((full[22].toInt() and 0xFF) shl 16) or
+                  ((full[23].toInt() and 0xFF) shl 8) or
+                  (full[24].toInt() and 0xFF)
+        assertEquals(want, got)
+    }
+
+    /**
+     * setLockFollowup MUST come from the same build as the preceding setLock
+     * (the CRC covers the wall-clock bytes; a fresh build at the next second
+     * would produce a different CRC and split halves wouldn't agree).
+     */
+    @Test
+    fun `followup tail matches the preceding setLock build`() {
+        val adapter = VeteranAdapter()
+        val first = adapter.setLock(false)
+        // Simulate the WheelRepository call order: setLock immediately, then
+        // followup. The cache in the adapter holds the full frame.
+        val tail = adapter.setLockFollowup(false)!!
+        val full = first + tail
+        // Repeat: state == 0 (UNLOCK) at payload byte 12 (offset 17 in frame).
+        assertEquals(0x00.toByte(), full[17])
+    }
 }

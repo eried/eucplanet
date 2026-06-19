@@ -266,4 +266,10 @@ object VeteranCommands {
     private val LDAP = byteArrayOf(0x4C, 0x64, 0x41, 0x70)  // "LdAp"
     private const val SUBOP_TILTBACK: Byte = 0x02
     private const val SUBOP_ALARM: Byte = 0x80.toByte()
+
+    /** Total bytes in a built lock LdAp frame. */
+    internal const val LOCK_TOTAL_SIZE = 25
+    /** First-write boundary for the lock frame: matches the LeaperKim app's
+     *  20-byte ATT split. Anything beyond this goes in the followup write. */
+    internal const val LOCK_FIRST_WRITE_SIZE = 20
 }

@@ -131,14 +131,38 @@ class VeteranAdapter @Inject constructor() : WheelAdapter {
     override fun setVolume(percent: Int): ByteArray? = null
     override fun setDRL(on: Boolean): ByteArray? = null
     // Software lock decoded from a Lynx S btsnoop, June 2026 (see
-    // VeteranCommands.setLock). Bytes 4..7 of the payload are the rider's
-    // wall clock at the moment of writing; the wheel rejects frames whose
-    // timestamp doesn't match, which is why the earlier session-counter
-    // version of this never actually locked the wheel. Wheel CRC-validates
-    // the frame, so older models that don't recognise the opcode silently
-    // ignore it — safe to expose on every Veteran-family wheel without
-    // per-model gating.
-    override fun setLock(locked: Boolean): ByteArray = VeteranCommands.setLock(locked)
+    // VeteranCommands.setLock). 25-byte LdAp vendor frame split across TWO
+    // ATT writes because Lynx-class firmware doesn't negotiate an MTU big
+    // enough for the full frame:
+    //   - setLock: first 20 bytes (magic + length + first 14 payload bytes)
+    //   - setLockFollowup: trailing 5 bytes (valueByte + CRC32-BE)
+    // The LeaperKim official app does the same split; sending the full 25
+    // bytes as one ATT write delivers only the first 20 bytes and the wheel
+    // rejects the truncated frame on CRC check, which is exactly what the
+    // earlier single-write build hit on every toggle.
+    //
+    // The full frame is cached after [setLock] so [setLockFollowup] returns
+    // the tail of THAT exact frame: bytes 4..7 of the payload are the rider's
+    // wall clock at the moment of writing, and the trailing CRC32 is computed
+    // over the whole frame, so the two halves MUST come from a single build
+    // or the wheel's CRC check fails. authMutex in WheelRepository serialises
+    // setLock+setLockFollowup pairs so the cache is safe.
+    @Volatile private var pendingLockFrame: ByteArray? = null
+
+    override fun setLock(locked: Boolean): ByteArray {
+        val full = VeteranCommands.setLock(locked)
+        pendingLockFrame = full
+        return full.copyOfRange(0, VeteranCommands.LOCK_FIRST_WRITE_SIZE)
+    }
+
+    override fun setLockFollowup(locked: Boolean): ByteArray? {
+        val full = pendingLockFrame ?: return null
+        pendingLockFrame = null
+        return full.copyOfRange(
+            VeteranCommands.LOCK_FIRST_WRITE_SIZE,
+            VeteranCommands.LOCK_TOTAL_SIZE,
+        )
+    }
 
     // CLEARMETER zeroes offset 8..11 (trip) on the next frame; see
     // VeteranCommands.resetTrip and spec section 6.

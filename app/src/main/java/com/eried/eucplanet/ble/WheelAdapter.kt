@@ -185,6 +185,18 @@ interface WheelAdapter {
     fun setLock(locked: Boolean): ByteArray?
 
     /**
+     * Tail bytes to write immediately after [setLock], on wheels whose lock
+     * frame exceeds the default ATT MTU and must be sent as two writes. The
+     * caller writes [setLock] first, then this. Default null for families
+     * whose lock fits in one packet. Veteran (Lynx-class, 25-byte LdAp lock
+     * frame) returns the trailing 5 bytes (valueByte + CRC32) here; without
+     * the split the wheel only receives the first 20 bytes and the CRC check
+     * fails on the wheel side, so the lock silently no-ops — the exact
+     * symptom users reported.
+     */
+    fun setLockFollowup(locked: Boolean): ByteArray? = null
+
+    /**
      * Resets the wheel's onboard trip meter (the field reported as
      * [com.eried.eucplanet.data.model.WheelData.tripDistance]) by sending the
      * family-specific reset command. Returns null on wheels where the

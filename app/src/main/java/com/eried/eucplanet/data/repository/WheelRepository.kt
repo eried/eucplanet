@@ -997,9 +997,15 @@ class WheelRepository @Inject constructor(
      */
     private suspend fun authenticateAndLock(locked: Boolean): Boolean = authMutex.withLock {
         val lockPacket = wheelAdapter.setLock(locked) ?: return@withLock false
+        // Lynx-class Veteran returns a second 5-byte tail because its 25-byte
+        // lock frame is split across two writes; pulled IMMEDIATELY after
+        // setLock so the cached full-frame in the adapter is still valid.
+        // Null on every other family (single-write lock).
+        val lockTail = wheelAdapter.setLockFollowup(locked)
 
         if (!wheelAdapter.capabilities.needsAuthForLock) {
             bleManager.writeCommand(lockPacket)
+            lockTail?.let { bleManager.writeCommand(it) }
             return@withLock true
         }
 
@@ -1049,6 +1055,7 @@ class WheelRepository @Inject constructor(
         // Step 3: Send lock/unlock command
         Log.i(TAG, "Lock packet (${lockPacket.size} bytes): ${lockPacket.joinToString(" ") { "%02X".format(it) }}")
         bleManager.writeCommand(lockPacket)
+        lockTail?.let { bleManager.writeCommand(it) }
         true
     }
 
