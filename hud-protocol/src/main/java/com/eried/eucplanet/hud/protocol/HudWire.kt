@@ -168,6 +168,21 @@ data class HudState(
     val joystickLeft: String = "",
     val joystickRight: String = "",
 
+    // --- Rear-view radar (Garmin Varia) ---
+    /** True when a rear-view radar is paired AND has a live BLE link.
+     *  Lets the HUD distinguish "no radar configured" (idle) from
+     *  "radar connected, lane clear" (empty [radarTargets]). Older HUDs
+     *  (PROTOCOL_MINOR < 8) ignore this and never draw a radar widget. */
+    val radarConnected: Boolean = false,
+    /** Radar device battery percentage, or -1 when the radar does not
+     *  publish it / no radar is paired. */
+    val radarBatteryPercent: Int = -1,
+    /** Vehicles the radar currently tracks, nearest-first is NOT guaranteed
+     *  -- the renderer sorts. Empty = the radar reports a clear lane (only
+     *  meaningful when [radarConnected]). Capped phone-side at 8 to bound
+     *  the frame size; the Varia rarely reports more. */
+    val radarTargets: List<RadarTargetWire> = emptyList(),
+
     /**
      * Server clock at the moment of capture in epoch millis. Lets the HUD
      * compute a "frame freshness" signal independent of its own wall clock,
@@ -195,8 +210,12 @@ data class HudState(
          * Old HUDs ignore the new field but the link keeps working. Phone
          * surfaces a soft "update available" hint when the HUD's reported
          * minor is below ours.
+         *
+         * 8: added rear-view radar fields ([radarConnected],
+         *    [radarBatteryPercent], [radarTargets]) and the RADAR overlay
+         *    element type. Older HUDs ignore them and skip the radar widget.
          */
-        const val PROTOCOL_MINOR: Int = 7
+        const val PROTOCOL_MINOR: Int = 8
 
         /** Legacy alias. New code should read [PROTOCOL_MAJOR] / [PROTOCOL_MINOR]. */
         @Deprecated(
@@ -206,6 +225,29 @@ data class HudState(
         const val PROTOCOL_VERSION: Int = PROTOCOL_MAJOR
     }
 }
+
+/**
+ * One vehicle tracked by the rear-view radar, in the compact form sent over
+ * the wire. Mirrors the phone-side `RadarThreat` minus the fields the HUD
+ * doesn't need (vendor track bookkeeping, first-seen timestamp).
+ *
+ * The Varia is rear-facing and reports range + closing speed only -- there
+ * is NO bearing, so the HUD cannot place a car left/right; the "mirror" view
+ * mode lights both sides together by [level].
+ */
+@Serializable
+data class RadarTargetWire(
+    /** Stable per-car track id while the vehicle is in view. */
+    val id: Int = 0,
+    /** Range from the rider's rear, in metres (Varia saturates ~140 m). */
+    val distanceM: Int = 0,
+    /** Closing speed in km/h; positive = approaching. */
+    val approachSpeedKmh: Int = 0,
+    /** Severity, as the `ThreatLevel` ordinal: 0 = NONE, 1 = APPROACHING,
+     *  2 = FAST_APPROACH. An int (not the phone enum) so the protocol module
+     *  stays free of app types and tolerates future levels. */
+    val level: Int = 0
+)
 
 /**
  * Outcome of comparing the protocol version on the OTHER side of the link

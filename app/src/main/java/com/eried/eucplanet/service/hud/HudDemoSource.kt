@@ -2,6 +2,7 @@ package com.eried.eucplanet.service.hud
 
 import android.util.Log
 import com.eried.eucplanet.hud.protocol.HudState
+import com.eried.eucplanet.hud.protocol.RadarTargetWire
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -115,6 +116,11 @@ class HudDemoSource {
         }
         val arrived = phase > 0.97
 
+        // Rear-view radar: a main car closing 140 -> 8 m across the loop, plus
+        // a couple of extras phased in so the widget shows several colour
+        // bands (green far, amber mid, red near) and multiple blips at once.
+        val radarTargets = radarTargets(phase)
+
         return Frame(
             speedKmh = speedKmh,
             batteryPct = battery,
@@ -131,8 +137,40 @@ class HudDemoSource {
             navAngleDeg = turnAngle,
             navPrimary = navPrimary,
             navDistance = if (arrived) "" else "${distM} m",
-            navArrived = arrived
+            navArrived = arrived,
+            radarConnected = true,
+            radarBatteryPercent = 78,
+            radarTargets = radarTargets
         )
+    }
+
+    /** Scripted radar cars for the demo. Distances chosen so a full loop
+     *  walks the LANE/MIRROR colour bands; ids stay stable while a car is
+     *  present so the renderer can track it. */
+    private fun radarTargets(phase: Double): List<RadarTargetWire> {
+        val targets = mutableListOf<RadarTargetWire>()
+        // Main car: closes steadily over the whole cycle.
+        val mainDist = (140.0 - 132.0 * phase).toInt().coerceIn(6, 140)
+        targets += RadarTargetWire(1, mainDist, 22, radarLevel(mainDist))
+        // Second car: drifts in for the back two-thirds of the loop.
+        if (phase > 0.35) {
+            val d2 = (95.0 - 60.0 * ((phase - 0.35) / 0.65)).toInt().coerceIn(20, 95)
+            targets += RadarTargetWire(2, d2, 9, radarLevel(d2))
+        }
+        // Third car: a brief fast approacher mid-cycle (always red).
+        if (phase in 0.45..0.75) {
+            val d3 = (40.0 - 30.0 * ((phase - 0.45) / 0.30)).toInt().coerceIn(8, 40)
+            targets += RadarTargetWire(3, d3, 46, 2)
+        }
+        return targets
+    }
+
+    /** Demo threat level by distance: red <=30 m, amber <=80 m, else green.
+     *  Mirrors the visual bands the LANE/MIRROR renderers use. */
+    private fun radarLevel(distM: Int): Int = when {
+        distM <= 30 -> 2
+        distM <= 80 -> 1
+        else -> 0
     }
 
     data class Frame(
@@ -150,6 +188,9 @@ class HudDemoSource {
         val navAngleDeg: Float = 0f,
         val navPrimary: String = "",
         val navDistance: String = "",
-        val navArrived: Boolean = false
+        val navArrived: Boolean = false,
+        val radarConnected: Boolean = false,
+        val radarBatteryPercent: Int = -1,
+        val radarTargets: List<RadarTargetWire> = emptyList()
     )
 }

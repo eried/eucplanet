@@ -34,6 +34,7 @@ import androidx.compose.material.icons.filled.AddPhotoAlternate
 import androidx.compose.material.icons.filled.Badge
 import androidx.compose.material.icons.filled.BarChart
 import androidx.compose.material.icons.filled.Colorize
+import androidx.compose.material.icons.filled.Radar
 import androidx.compose.material.icons.filled.TrackChanges
 import androidx.compose.material.icons.filled.Dashboard
 import androidx.compose.material.icons.filled.Delete
@@ -214,6 +215,7 @@ private val OverlayElementType.labelRes: Int
         OverlayElementType.CLOCK -> R.string.studio_element_clock
         OverlayElementType.G_FORCE -> R.string.studio_element_g_force
         OverlayElementType.MAP -> R.string.studio_element_map
+        OverlayElementType.RADAR -> R.string.studio_element_radar
     }
 
 @Composable
@@ -233,6 +235,7 @@ private val OverlayElementType.icon
         OverlayElementType.CLOCK -> Icons.Default.Schedule
         OverlayElementType.G_FORCE -> Icons.Default.TrackChanges
         OverlayElementType.MAP -> Icons.Default.Map
+        OverlayElementType.RADAR -> Icons.Default.Radar
     }
 
 // --------------------------------------------------------------------------
@@ -582,7 +585,8 @@ private val ADD_ELEMENT_GROUPS: List<Pair<Int, List<OverlayElementType>>> = list
         OverlayElementType.DATA_DIAL,    // Dial gauge
         OverlayElementType.G_FORCE,      // G-Force
         OverlayElementType.DATA_BAR,     // Linear bar
-        OverlayElementType.MAP           // Map
+        OverlayElementType.MAP,          // Map
+        OverlayElementType.RADAR         // Rear-view radar
     ),
     R.string.studio_group_text to listOf(
         OverlayElementType.APP_BADGE,    // App badge
@@ -663,6 +667,7 @@ private fun elementHint(type: OverlayElementType): String = when (type) {
     OverlayElementType.CLOCK -> stringResource(R.string.studio_hint_clock)
     OverlayElementType.G_FORCE -> stringResource(R.string.studio_hint_g_force)
     OverlayElementType.MAP -> stringResource(R.string.studio_hint_map)
+    OverlayElementType.RADAR -> stringResource(R.string.studio_hint_radar)
 }
 
 // --------------------------------------------------------------------------
@@ -1852,6 +1857,53 @@ fun ElementConfigSheet(
                     ),
                     element.mapBorderWidth, 0f, 8f
                 ) { onChange(element.copy(mapBorderWidth = it)) }
+                Spacer(Modifier.height(8.dp))
+            }
+
+            if (element.type == OverlayElementType.RADAR) {
+                Text(stringResource(R.string.studio_cfg_radar_mode), fontWeight = FontWeight.SemiBold)
+                val radarLane = stringResource(R.string.studio_cfg_radar_lane)
+                val radarMirror = stringResource(R.string.studio_cfg_radar_mirror)
+                val radarMinimal = stringResource(R.string.studio_cfg_radar_minimal)
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    listOf(
+                        "LANE" to radarLane, "MIRROR" to radarMirror,
+                        "MINIMAL" to radarMinimal
+                    ).forEach { (key, lbl) ->
+                        FilterChip(
+                            selected = element.radarMode == key,
+                            onClick = { onChange(element.copy(radarMode = key)) },
+                            label = { Text(lbl) },
+                            colors = themedFilterChipColors(),
+                        )
+                    }
+                }
+                // The Varia is rear-facing only (no left/right bearing), so the
+                // Mirror view lights both sides together. Spell that out so the
+                // rider isn't surprised it can't point at a specific lane.
+                if (element.radarMode == "MIRROR") {
+                    Text(
+                        stringResource(R.string.studio_cfg_radar_mirror_hint),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.padding(top = 4.dp, bottom = 4.dp)
+                    )
+                }
+                LabeledSlider(
+                    stringResource(R.string.studio_cfg_radar_range),
+                    stringResource(R.string.studio_cfg_radar_range_fmt, element.radarRangeM.roundToInt()),
+                    element.radarRangeM, 40f, 200f, steps = 7
+                ) { onChange(element.copy(radarRangeM = it)) }
+                if (element.radarMode == "LANE") {
+                    ToggleRow(
+                        stringResource(R.string.studio_cfg_radar_distance_labels),
+                        element.radarShowDistanceLabels
+                    ) { onChange(element.copy(radarShowDistanceLabels = it)) }
+                    ToggleRow(
+                        stringResource(R.string.studio_cfg_show_label),
+                        element.showLabel
+                    ) { onChange(element.copy(showLabel = it)) }
+                }
                 Spacer(Modifier.height(8.dp))
             }
 
