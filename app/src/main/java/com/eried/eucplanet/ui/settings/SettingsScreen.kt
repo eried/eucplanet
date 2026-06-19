@@ -4,6 +4,10 @@ import android.content.ClipData
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.animation.animateBounds
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.animateFloat
@@ -5515,10 +5519,10 @@ private fun SpeedTab(
         )
 
         SectionHeader(stringResource(R.string.section_speed_limits))
-        // Lower bound is 0 km/h to match WheelLog: some Begode/Veteran wheels
-        // report tiltback at 0 (= disabled) or a very low value the rider set
-        // on the wheel itself, and clamping the slider's floor at 10 used to
-        // produce inverted ranges (10..0) that crashed the screen.
+        // Lower bound is 0 km/h: some Begode / Veteran wheels report
+        // tiltback at 0 (= disabled) or a very low value the rider set
+        // on the wheel itself, and clamping the slider's floor at 10
+        // used to produce inverted ranges (10..0) that crashed the screen.
         SpeedSliderSetting(
             label = stringResource(R.string.speed_tiltback),
             valueKmh = settings.tiltbackSpeedKmh,
@@ -6369,8 +6373,10 @@ private fun SwitchSettingWithDesc(
     checked: Boolean,
     onCheckedChange: (Boolean) -> Unit,
     onTest: (() -> Unit)? = null,
-    badge: (@Composable () -> Unit)? = null
+    badge: (@Composable () -> Unit)? = null,
+    enabled: Boolean = true,
 ) {
+    val dimAlpha = if (enabled) 1f else 0.4f
     Column(modifier = Modifier.fillMaxWidth()) {
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -6379,7 +6385,8 @@ private fun SwitchSettingWithDesc(
             Row(modifier = Modifier.weight(1f), verticalAlignment = Alignment.CenterVertically) {
                 Text(
                     highlightMatches(label, LocalSettingsSearchQuery.current),
-                    style = MaterialTheme.typography.bodyLarge
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = dimAlpha),
                 )
                 if (onTest != null) {
                     Spacer(Modifier.width(4.dp))
@@ -6390,13 +6397,23 @@ private fun SwitchSettingWithDesc(
                     badge()
                 }
             }
-            Switch(checked = checked, onCheckedChange = onCheckedChange, colors = themedSwitchColors())
+            Switch(
+                checked = checked,
+                onCheckedChange = onCheckedChange,
+                colors = themedSwitchColors(),
+                enabled = enabled,
+            )
         }
-        Text(
-            description,
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
+        if (description.isNotBlank()) {
+            // Skip the Text entirely when caller passes "" -- an empty Text
+            // still claims one line of vertical space, which reads as a
+            // mystery gap below the switch.
+            Text(
+                description,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = dimAlpha)
+            )
+        }
     }
 }
 
@@ -9079,10 +9096,25 @@ private fun HudIntegrationSection(
         // hotspot is intentionally off doesn't think anything is wrong.
         HudHotspotHint()
 
+        // "Find HUD automatically" comes FIRST -- it's the choice that
+        // decides whether the rider needs to know the IP at all.
+        // Default ON. While the link is enabled the toggle is locked, so a
+        // mid-session flip can't drop the connection by switching paths.
+        SwitchSettingWithDesc(
+            label = stringResource(R.string.hud_auto_discover),
+            description = stringResource(R.string.hud_auto_discover_desc),
+            checked = settings.hudAutoDiscover,
+            onCheckedChange = { viewModel.updateHudAutoDiscover(it) },
+            enabled = !settings.hudServerEnabled,
+        )
+
         // IP + port live side by side as one logical input: the rider
         // reads the IP off the HUD's screen, port is almost always the
         // default. They're disabled while the link is active so an
-        // accidental keystroke can't drop a live connection.
+        // accidental keystroke can't drop a live connection. We HIDE the
+        // whole row when auto-find is ON, since the rider doesn't need to
+        // know the IP in that mode and showing fields they shouldn't touch
+        // is just visual noise.
         val fieldsEnabled = !settings.hudServerEnabled
         // Local edit buffers, seeded from settings ONCE at first
         // composition and never re-keyed. The DataStore-backed write
@@ -9091,6 +9123,7 @@ private fun HudIntegrationSection(
         // mid-edit keystrokes (testers reported "192" appearing as "921").
         var ipText by remember { mutableStateOf(settings.hudIp) }
         var portText by remember { mutableStateOf(settings.hudServerPort.toString()) }
+        AnimatedVisibility(visible = !settings.hudAutoDiscover) {
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -9166,6 +9199,8 @@ private fun HudIntegrationSection(
                 colors = themedFieldColors(),
             )
         }
+        }  // end AnimatedVisibility for the IP/port row
+
         // Toggle goes UNDER the IP/port -- the rider configures the
         // address first and then flips the switch to dial out. Flipping
         // it also locks the fields above so the live connection can't
@@ -9177,6 +9212,14 @@ private fun HudIntegrationSection(
             checked = settings.hudServerEnabled,
             onCheckedChange = { viewModel.updateHudServerEnabled(it) }
         )
+
+        // Discovery activity (which channel found the HUD, probes, dial
+        // attempts, transient reconnects after a WiFi switch, etc.) is
+        // piped to the Service Mode log as NOTE entries — riders don't see
+        // any of it unless they explicitly open the diagnostics dialog.
+        // The connection-source StateFlow on HudServer stays around because
+        // the watchdog and tests still consult it; only the rider-facing
+        // surface is gone.
 
         // Three top-level collapsibles under the Integration card.
         // HUD screens first because the reorder list inside is the

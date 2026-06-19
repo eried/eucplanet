@@ -75,6 +75,17 @@ class BleConnectionManager @Inject constructor(
     private val _connectedBrand = MutableStateFlow<String?>(null)
     val connectedBrand: StateFlow<String?> = _connectedBrand.asStateFlow()
 
+    /**
+     * Re-read the active adapter's [WheelAdapter.brand] and push the result
+     * to [connectedBrand]. Called whenever a new model is detected mid-
+     * session, because the Veteran family's brand is model-dependent
+     * (NOSFET wheels vs LeaperKim) and the initial value chosen at
+     * connect time is pre-detection.
+     */
+    fun refreshBrand() {
+        _connectedBrand.value = wheelAdapter.brand
+    }
+
     private val _decodedResults = MutableSharedFlow<DecodeResult>(extraBufferCapacity = 64)
     /** Stream of decoded results from the active wheel adapter. */
     val decodedResults: SharedFlow<DecodeResult> = _decodedResults.asSharedFlow()
@@ -393,7 +404,7 @@ class BleConnectionManager @Inject constructor(
             writeReady = true
             _connectionState.value = ConnectionState.CONNECTED
             com.eried.eucplanet.diagnostics.DiagnosticsLogger.note(
-                "Connected (virtual): name=${currentName ?: "(none)"} adapter=${wheelAdapter.familyId}"
+                "Connected (virtual): name=${currentName ?: "(none)"} adapter=${wheelAdapter.familyDisplayName}"
             )
         }
 
@@ -495,10 +506,9 @@ class BleConnectionManager @Inject constructor(
             val g = gatt ?: continue
 
             // Pick the write type from the active adapter's profile. HM-10
-            // (KingSong / Begode / Veteran) uses WRITE_TYPE_NO_RESPONSE to
-            // match WheelLog - those modules don't reliably ACK
-            // WRITE_TYPE_DEFAULT writes. InMotion V2 / V1 stay on the
-            // safer WRITE_TYPE_DEFAULT.
+            // (KingSong / Begode / Veteran) uses WRITE_TYPE_NO_RESPONSE
+            // because those modules don't reliably ACK WRITE_TYPE_DEFAULT
+            // writes. InMotion V2 / V1 stay on the safer WRITE_TYPE_DEFAULT.
             val writeType = wheelAdapter.bleProfile().writeType
             try {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
@@ -560,8 +570,8 @@ class BleConnectionManager @Inject constructor(
                     // family (V14 / P6 telemetry frames are 65-86 bytes and
                     // would otherwise arrive as multi-chunk reassembly), not
                     // a correctness requirement; the V2 adapter reassembles
-                    // either way. WheelLog upstream uses the same fire-and-
-                    // forget pattern via the Blessed library.
+                    // either way. Fire-and-forget is the established
+                    // convention for these stacks.
                     gatt.discoverServices()
                 }
                 BluetoothProfile.STATE_DISCONNECTED -> {
@@ -624,14 +634,14 @@ class BleConnectionManager @Inject constructor(
                 // as `RW` or similar). Ask the dispatcher to re-route based
                 // on the GATT-discovered service set, then retry.
                 val discoveredUuids = gatt.services.map { it.uuid }.toSet()
-                Log.w(TAG, "Adapter ${wheelAdapter.familyId} service ${profile.serviceUuid} not on wheel; " +
+                Log.w(TAG, "Adapter ${wheelAdapter.familyDisplayName} service ${profile.serviceUuid} not on wheel; " +
                         "discovered services=$discoveredUuids - attempting fallback")
                 val rerouted = wheelAdapter.pickAdapterByDiscoveredServices(discoveredUuids, currentName)
                 if (rerouted) {
                     profile = wheelAdapter.bleProfile()
                     service = gatt.getService(profile.serviceUuid)
                     if (service != null) {
-                        Log.i(TAG, "Adapter rerouted by service-UUID to ${wheelAdapter.familyId}")
+                        Log.i(TAG, "Adapter rerouted by service-UUID to ${wheelAdapter.familyDisplayName}")
                         _connectedBrand.value = wheelAdapter.brand
                     }
                 }
@@ -660,15 +670,15 @@ class BleConnectionManager @Inject constructor(
             // started after a manual write nudged the stack into settling the
             // CCCD ~30 s after connect.)
             gatt.setCharacteristicNotification(txCharacteristic, true)
-            Log.i(TAG, "Service ${profile.serviceUuid} ready (adapter=${wheelAdapter.familyId})")
+            Log.i(TAG, "Service ${profile.serviceUuid} ready (adapter=${wheelAdapter.familyDisplayName})")
             val descriptor = txCharacteristic.getDescriptor(CCCD_UUID)
             if (descriptor != null) {
                 writeEnableNotificationDescriptor(gatt, descriptor)
                 // HM-10 (KingSong / Begode / Veteran) modules occasionally
-                // drop the first CCCD write silently; WheelLog ships a
-                // belt-and-braces redundant write for the same family. Fire
-                // a second write ~750 ms after the first if we're still
-                // INITIALIZING and the descriptor write looks "stuck".
+                // drop the first CCCD write silently; belt-and-braces a
+                // redundant write for the same family. Fire a second write
+                // ~750 ms after the first if we're still INITIALIZING and
+                // the descriptor write looks "stuck".
                 // Gated on the HM-10 notify char (0xFFE1) so V14 / P6
                 // (Nordic UART) and InMotion V1 (0xFFE4) aren't touched.
                 if (txCharacteristic.uuid == BleProfile.HM10.notifyCharacteristic) {
@@ -784,9 +794,9 @@ class BleConnectionManager @Inject constructor(
         if (_connectionState.value != ConnectionState.INITIALIZING) return
         writeReady = true
         _connectionState.value = ConnectionState.CONNECTED
-        Log.i(TAG, "Connected (adapter=${wheelAdapter.familyId})")
+        Log.i(TAG, "Connected (adapter=${wheelAdapter.familyDisplayName})")
         com.eried.eucplanet.diagnostics.DiagnosticsLogger.note(
-            "Connected: name=${currentName ?: "(unknown)"} adapter=${wheelAdapter.familyId}"
+            "Connected: name=${currentName ?: "(unknown)"} adapter=${wheelAdapter.familyDisplayName}"
         )
         // Fire-and-forget MTU bump. Has to happen AFTER the CCCD descriptor
         // write completes - Android GATT is strictly serial and overlapping

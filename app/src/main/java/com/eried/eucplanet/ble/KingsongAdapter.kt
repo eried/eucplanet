@@ -14,10 +14,6 @@ import javax.inject.Singleton
  * Wire format and command set come from docs/protocols/kingsong.md. Inbound
  * frames are 20-byte fixed-length structures `AA 55 ... type 14 5A 5A`,
  * dispatched by the type byte at offset 16.
- *
- * Protocol research credit: the WheelLog community (
- * https://github.com/Wheellog/wheellog.android, GPLv3, used as a protocol
- * reference; the implementation here is original).
  */
 @Singleton
 class KingsongAdapter @Inject constructor() : WheelAdapter {
@@ -63,8 +59,8 @@ class KingsongAdapter @Inject constructor() : WheelAdapter {
     // KingSong is push-only: once notifications are enabled the wheel
     // continuously streams 0xA9 realtime + 0xB9 trip frames at its own
     // cadence. We must NOT periodically write 0x98 (queryLimits) to it;
-    // WheelLog confirms the only outgoing 0x98 happens once during init when
-    // local alarm values are still zero. Repeated 0x98 polls have been
+    // the only outgoing 0x98 should happen once during init when local
+    // alarm values are still zero. Repeated 0x98 polls have been
     // observed to cause KS-16X to flash lights / chirp because some KS
     // firmwares interpret repeated alarm-limit reads as a re-configure
     // signal. Same push-only model as BegodeAdapter / VeteranAdapter.

@@ -25,9 +25,9 @@ riders who have the wheel.
 |---|---|
 | **Verified** | InMotion V14 (50GB / 50S) |
 | **Verified** | InMotion P6 |
-| **Rider-tested** | Veteran Lynx S, Oryx · Begode/Gotway Mten3, EX30, E20 · KingSong S16X |
+| **Rider-tested** | LeaperKim Lynx S, Oryx · Begode/Gotway Mten3, EX30, E20 · KingSong S16X |
 | **In test** | Begode/Gotway Master, Master Pro, T3, T4, RS, RS-HT, EX, EX.N, EX2, MSP, MSX, Hero, XWay, Mten4, Mten5, MCM5 |
-| **In test** | Veteran Sherman, Sherman S, Sherman Max, Patton, Lynx, Abrams |
+| **In test** | LeaperKim Sherman, Sherman S, Sherman Max, Patton, Lynx, Abrams |
 | **In test** | KingSong S22, S20, S19, S18, S16, KS-14/16/18, F18P, F22P |
 | **Waiting to be tested** | InMotion V12 HS / HT / Pro |
 | **Waiting to be tested** | InMotion V1 family: V5, V8, V8F, V8S, V10, V10F, V10S, V10T, V10FT, L6, Lively, Glide 3 |
@@ -197,7 +197,6 @@ Thanks to the people and projects that helped, kept in sync with the app (tap ve
 | Jonathan Wiesner | LeaperKim Lynx S testing |
 | Felix K | LeaperKim Oryx testing |
 | Bearkat713 | Motoeye E6 testing |
-| [WheelLog community](https://github.com/Wheellog/wheellog.android) | Open-source (GPLv3) EUC protocol research |
 | Ilya Shkolnik | Advice and help. Maintains DarknessBot. |
 | InMotion | For making a great V14 |
 

@@ -38,6 +38,23 @@ import kotlin.math.absoluteValue
 
 data class MetricSample(val timestampMs: Long, val value: Float)
 
+/**
+ * One snapshot of the running prediction. Appended to [ChargingSnapshot.predictionHistory]
+ * every ~30 s while a charge session is active so the chart can plot how the
+ * predicted finish times have drifted over the course of the charge -- a
+ * stable cluster around the actual end time means the model was accurate;
+ * spread means it was chasing reality.
+ *
+ * `sampleTimeMs` is when the prediction was made, the two ETAs are absolute
+ * clock times for the target (e.g. 80 %) and 100 % respectively, or null if
+ * the estimator wasn't warmed up at that point.
+ */
+data class PredictionSample(
+    val sampleTimeMs: Long,
+    val targetEtaMs: Long?,
+    val fullEtaMs: Long?,
+)
+
 /** Persistent charging-session snapshot — lives in the singleton repository so
  *  the prediction/history survives navigating in and out of the Battery screen. */
 data class ChargingSnapshot(
@@ -48,6 +65,8 @@ data class ChargingSnapshot(
     /** Smoothed absolute finish time (ms) for the target / 100 %, or null. */
     val targetEtaMs: Long? = null,
     val fullEtaMs: Long? = null,
+    /** Rolling log of the running prediction, see [PredictionSample]. */
+    val predictionHistory: List<PredictionSample> = emptyList(),
     /** Signed Wh integrated since session start (+ charging, − discharging). */
     val sessionEnergyWh: Float = 0f,
 )
@@ -125,6 +144,12 @@ class WheelRepository @Inject constructor(
         // takeLast(300) shows ~5m10s instead of a clean 5m because the
         // sampler drifts. Time-bounding here makes the chart truly 5 min.
         private const val HISTORY_WINDOW_MS = 5 * 60 * 1000L
+        // Append one PredictionSample to the charge-session log every 30 s
+        // while charging. Spans a 4 h session in ~480 entries (cheap), with
+        // enough resolution to see the prediction stabilise over the first
+        // few minutes after warm-up.
+        private const val PREDICTION_LOG_INTERVAL_MS = 30_000L
+        private const val PREDICTION_LOG_MAX_ENTRIES = 600
         // Re-request settings every N realtime polls to pick up external changes
         // (lock/unlock via InMotion app or physical button). 12 * 250ms = 3s.
         private const val SETTINGS_REFRESH_INTERVAL = 12
@@ -142,9 +167,9 @@ class WheelRepository @Inject constructor(
         // for the user's first light/horn/max-speed tap. 24 * 250ms = 6s.
         private const val CONNECT_AUTH_REFRESH_INTERVAL = 24
 
-        // Fallback slider ceiling when no wheel is connected or when the model
-        // ID isn't in our registry (mirrors WheelLog's default of 100; we use
-        // the historical 90 to match what the V14-only build always showed).
+        // Fallback slider ceiling when no wheel is connected or when the
+        // model ID isn't in our registry; 90 matches what the V14-only
+        // build always showed.
         private const val DEFAULT_MAX_SPEED_KMH = 90f
     }
 
@@ -179,8 +204,11 @@ class WheelRepository @Inject constructor(
 
     // Charging session (estimator + per-session history) lives here so the
     // prediction persists across navigation; updated each telemetry frame.
+    // Defaults from ChargingEstimator: targetTaperFactor 1.05, cvTaperFactor
+    // 1.3 -- a tiny safety margin for the 80 % ETA, modest pessimism for
+    // 80 % -> 100 %. Riders consistently saw the old 2.2 multiplier produce
+    // 100 % ETAs that were ~1 h late on a 4 h charge.
     private val chargingEstimator = ChargingEstimator(
-        cvTaperFactor = 1.6f,           // modest 80→100 % CV taper (3.5 was far too pessimistic)
         warmupMinPercentGain = 1.0f,    // wait for a stabler rate before the first prediction
         warmupMinDurationMs = 40_000L,  // two jitter windows for a steady rate
     )
@@ -196,6 +224,11 @@ class WheelRepository @Inject constructor(
     private var committedTargetAnchorMs = 0L
     private var committedFullEtaMs: Long? = null
     private var committedFullAnchorMs = 0L
+    // Rolling log of (sampleTime, predicted ETAs) appended every
+    // PREDICTION_LOG_INTERVAL_MS while a charge session is active so the
+    // chart can visualise how the prediction drifted over the session.
+    private val predictionHistory = ArrayDeque<PredictionSample>()
+    private var lastPredictionLogMs = 0L
     // Trapezoidal energy integral for the session (sign matches V*I).
     private var sessionEnergyWh = 0f
     private var sessionLastEnergyMs = 0L
@@ -554,6 +587,8 @@ class WheelRepository @Inject constructor(
                 committedTargetAnchorMs = 0L
                 committedFullEtaMs = null
                 committedFullAnchorMs = 0L
+                predictionHistory.clear()
+                lastPredictionLogMs = 0L
                 sessionEnergyWh = 0f
                 sessionLastEnergyMs = data.timestamp
                 sessionLastPowerW = data.voltage * data.current
@@ -586,6 +621,8 @@ class WheelRepository @Inject constructor(
             committedTargetAnchorMs = 0L
             committedFullEtaMs = null
             committedFullAnchorMs = 0L
+            predictionHistory.clear()
+            lastPredictionLogMs = 0L
             sessionEnergyWh = 0f
             sessionLastEnergyMs = 0L
             sessionLastPowerW = 0f
@@ -595,6 +632,24 @@ class WheelRepository @Inject constructor(
         committedTargetEtaMs = te; committedTargetAnchorMs = ta
         val (fe, fa) = commitEta(committedFullEtaMs, committedFullAnchorMs, est.minutesToFull, data.timestamp)
         committedFullEtaMs = fe; committedFullAnchorMs = fa
+        // Periodic prediction snapshot for the "history of predictions"
+        // overlay on the Battery chart. We log even when both ETAs are null
+        // (pre-warmup) so the gap is visible; the chart draws nothing for
+        // those entries.
+        if (connected && est.warmedUp &&
+            data.timestamp - lastPredictionLogMs >= PREDICTION_LOG_INTERVAL_MS) {
+            lastPredictionLogMs = data.timestamp
+            predictionHistory.addLast(
+                PredictionSample(
+                    sampleTimeMs = data.timestamp,
+                    targetEtaMs = committedTargetEtaMs,
+                    fullEtaMs = committedFullEtaMs,
+                )
+            )
+            while (predictionHistory.size > PREDICTION_LOG_MAX_ENTRIES) {
+                predictionHistory.removeFirst()
+            }
+        }
         _chargingSnapshot.value = ChargingSnapshot(
             estimate = est,
             chargeHistory = chargePctHist.toList(),
@@ -602,6 +657,7 @@ class WheelRepository @Inject constructor(
             tempHistory = chargeTempHist.toList(),
             targetEtaMs = committedTargetEtaMs,
             fullEtaMs = committedFullEtaMs,
+            predictionHistory = predictionHistory.toList(),
             sessionEnergyWh = sessionEnergyWh,
         )
     }
@@ -1196,10 +1252,17 @@ class WheelRepository @Inject constructor(
             is DecodeResult.ModelName -> {
                 _modelName.value = result.name
                 // Resize the slider ceiling to whatever the detected model
-                // actually supports. WheelLog values for the V14 family etc;
-                // P6 gets 130 km/h since it isn't in WheelLog's table.
+                // actually supports. Published per-model speeds for the
+                // V14 family; P6 gets 130 km/h since it isn't in the
+                // canonical reference table.
                 val model = result.model as? com.eried.eucplanet.ble.InMotionV2Model
                 _maxSpeedCap.value = model?.maxSpeedKmh?.toFloat() ?: DEFAULT_MAX_SPEED_KMH
+                // Veteran-family brand is model-dependent (NOSFET vs
+                // LeaperKim). The initial brand at connect time was set
+                // pre-detection; pulse the connection manager so the
+                // dashboard / Settings / eucstats meta pick up the
+                // correct manufacturer.
+                bleManager.refreshBrand()
             }
             is DecodeResult.Firmware -> {
                 _firmwareVersion.value = result.display

@@ -1,16 +1,15 @@
 package com.eried.eucplanet.ble
 
 /**
- * Models in the InMotion V2 protocol family. The ID is encoded as `series*10+type`
- * in the `MainInfo` response (cmd 0x02, sub 0x01); exactly what WheelLog calls
- * `Model.findById(modelId)`.
+ * Models in the InMotion V2 protocol family. The ID is encoded as
+ * `series*10+type` in the `MainInfo` response (cmd 0x02, sub 0x01).
  *
- * Each model has flags that drive per-model command and parser dispatch in
- * [InMotionV2Adapter]. Source of truth for these mappings is WheelLog's
- * `InmotionAdapterV2.java` (lines 118–272 in the master branch as of this writing).
+ * Each model has flags that drive per-model command and parser dispatch
+ * in [InMotionV2Adapter].
  *
- * Phase 2 only declares the registry; per-model command branching lands in
- * Phase 3 when V12/V11/V13 owners can validate against real hardware.
+ * Phase 2 only declares the registry; per-model command branching lands
+ * in Phase 3 when V12 / V11 / V13 owners can validate against real
+ * hardware.
  */
 enum class InMotionV2Model(
     val modelId: Int,
@@ -35,9 +34,9 @@ enum class InMotionV2Model(
      */
     val usesV12LightForm: Boolean = false,
     /**
-     * Upper bound for the user-configurable tiltback slider in km/h. Numbers
-     * mirror WheelLog's `InmotionAdapterV2.getMaxSpeed()` table; P6 isn't in
-     * WheelLog so it gets 130 km/h to match community-reported top speeds.
+     * Upper bound for the user-configurable tiltback slider in km/h.
+     * Numbers mirror the published per-model speed table; P6 gets
+     * 130 km/h to match community-reported top speeds.
      * This is *not* the firmware-enforced cap; V14 firmware steps
      * 70 → 80 → 90 km/h depending on revision and break-in mileage. The slider
      * just lets the user request up to this value; the wheel clamps further
@@ -68,9 +67,9 @@ enum class InMotionV2Model(
     V9(    121, "InMotion V9",         maxSpeedHasAlarms = true,  hornOpcode = 0x18, maxSpeedKmh = 120);
 
     companion object {
-        /** Horn sub-cmd byte for `playBeep` (V13/V14/V11Y per WheelLog). */
+        /** Horn sub-cmd byte for `playBeep` (V13 / V14 / V11Y). */
         const val HORN_PLAY_BEEP: Byte = 0x02
-        /** Horn sub-cmd byte for `playSound` (V11/V12HS/HT/PRO/V12S/V9 per WheelLog). */
+        /** Horn sub-cmd byte for `playSound` (V11 / V12HS / HT / PRO / V12S / V9). */
         const val HORN_PLAY_SOUND: Byte = 0x18
 
         fun fromId(modelId: Int): InMotionV2Model? =

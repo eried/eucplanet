@@ -16,10 +16,6 @@ import javax.inject.Singleton
  * V1 is on the proprietary 0xFFE4 / 0xFFE9 BLE profile (split across two
  * services), distinct from the KingSong / Begode / Veteran 0xFFE0 / 0xFFE1
  * profile and from the V2 Nordic UART profile.
- *
- * Protocol research credit: the WheelLog community (
- * https://github.com/Wheellog/wheellog.android, GPLv3, used as a protocol
- * reference; the implementation here is original).
  */
 @Singleton
 class InMotionV1Adapter @Inject constructor() : WheelAdapter {

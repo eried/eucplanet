@@ -280,18 +280,17 @@ object InMotionV2Commands {
         )
 
     // ============================================================
-    // WheelLog-documented V2 setters, NOT yet wired to UI.
+    // Documented V2 setters, NOT yet wired to UI.
     //
-    // Sourced byte-for-byte from WheelLog InmotionAdapterV2.java.
     // Each is `internal fun` so the protocol knowledge is preserved
     // in code (and unit-testable) without growing the public
     // WheelAdapter surface or risking a misfire on other families.
     //
-    // Byte-order note: WheelLog uses big-endian for V2 multi-byte
-    // values (writes `value[1] value[0]` where getBytes() returned
+    // Byte-order note: V2 multi-byte values are big-endian on the
+    // wire (writes `value[1] value[0]` where getBytes() returned
     // little-endian). The P6-specific builders above use LE because
     // that's what the labelled P6 capture proved; the V11/V12/V13/V14
-    // path below follows WheelLog's BE convention.
+    // path below follows the BE convention.
     // ============================================================
 
     private fun be16(value: Int): Pair<Byte, Byte> =
@@ -334,7 +333,7 @@ object InMotionV2Commands {
             Command.CONTROL, byteArrayOf(0x24, if (on) 0x01 else 0x00)
         )
 
-    /** Pedal sensitivity (`60 25` + value × 2). Same value twice per WheelLog. */
+    /** Pedal sensitivity (`60 25` + value × 2). Same value twice. */
     internal fun v2SetPedalSensitivity(sensitivity: Int): ByteArray {
         val v = (sensitivity and 0xFF).toByte()
         return InMotionV2Protocol.buildExtendedPacket(
@@ -477,10 +476,11 @@ object InMotionV2Commands {
         )
 
     /**
-     * Two-stage power off: this is stage 1, sent as a Diagnostic command rather
-     * than a Control sub-cmd. Stage 2 (an explicit confirm) is undocumented in
-     * the WheelLog source; the V14's own UI likely sends a second packet after
-     * a short pause but we don't have its bytes captured.
+     * Two-stage power off: this is stage 1, sent as a Diagnostic command
+     * rather than a Control sub-cmd. Stage 2 (an explicit confirm) is
+     * undocumented in the public references; the V14's own UI likely
+     * sends a second packet after a short pause but we don't have its
+     * bytes captured.
      */
     internal fun v2WheelOffFirstStage(): ByteArray =
         InMotionV2Protocol.buildExtendedPacket(

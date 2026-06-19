@@ -20,10 +20,7 @@ import javax.inject.Singleton
  * place. Legacy needs no handshake; it streams unsolicited live-data once
  * notifications are enabled.
  *
- * Wire format and command set come from docs/protocols/ninebot.md. Protocol
- * research credit: the WheelLog community (
- * https://github.com/Wheellog/wheellog.android, GPLv3, used as a protocol
- * reference; the implementation here is original).
+ * Wire format and command set come from docs/protocols/ninebot.md.
  */
 @Singleton
 class NinebotAdapter @Inject constructor() : WheelAdapter {
@@ -352,9 +349,9 @@ class NinebotAdapter @Inject constructor() : WheelAdapter {
                 if (telem != null) listOf(DecodeResult.Telemetry(telem)) else emptyList()
             }
             NinebotCommands.Param.BLE_VERSION -> {
-                // Legacy reply selects the variant. WheelLog reads an ASCII
-                // tag here ("S2" / "Mini" / empty for default). Re-resolve
-                // the model so the parser uses the right speed offset.
+                // Legacy reply selects the variant: an ASCII tag here
+                // ("S2" / "Mini" / empty for default). Re-resolve the
+                // model so the parser uses the right speed offset.
                 val tag = parser.parseLegacyBleVersionTag(frame.data) ?: return emptyList()
                 val model = when (tag.uppercase()) {
                     "S2" -> NinebotModel.ONE_S2

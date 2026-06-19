@@ -13,9 +13,8 @@ import com.eried.eucplanet.util.ByteUtils
  * so callers can route by type byte and silently drop frames they can't
  * decode (for example, BMS pages on a wheel that doesn't ship that page).
  *
- * Protocol research credit: the WheelLog community (
- * https://github.com/Wheellog/wheellog.android, GPLv3, used as a protocol
- * reference; the implementation here is original).
+ * Protocol reference (upstream, GPLv3):
+ * https://github.com/Wheellog/wheellog.android/blob/master/app/src/main/java/com/cooper/wheellog/utils/KingsongAdapter.java
  */
 object KingsongParser {
 
@@ -43,11 +42,11 @@ object KingsongParser {
 
         val voltage = ByteUtils.getUint16LE(frame, 2) / 100f
         val speed = ByteUtils.getInt16LE(frame, 4) / 100f
-        // 0xA9 offset 6 carries the LIFETIME odometer (`setTotalDistance` in
-        // WheelLog), not the per-power-cycle trip. We previously wired this
-        // to `tripDistance`, which was then overwritten by 0xB9's real trip
-        // value on the next frame, so riders never saw their lifetime odo
-        // and sometimes saw mid-ride trip resets.
+        // 0xA9 offset 6 carries the LIFETIME odometer, not the per-power-
+        // cycle trip. An earlier wire-up routed this to `tripDistance`,
+        // which was then overwritten by 0xB9's real trip value on the
+        // next frame, so riders never saw their lifetime odo and
+        // sometimes saw mid-ride trip resets.
         val totalDistanceMeters = readWordSwappedLE32(frame, 6)
         val current = ByteUtils.getInt16LE(frame, 10) / 100f
         val temperature = ByteUtils.getInt16LE(frame, 12) / 100f
@@ -263,14 +262,12 @@ object KingsongParser {
      * KingSong never transmits a battery percentage, so it is estimated
      * from pack voltage.
      *
-     * Ported verbatim from WheelLog's `KingsongAdapter` (its default, non-
-     * "better-percents" curve) so the dashboard agrees with the reference
-     * app. The endpoints matter: a "full" 84 V KingSong pack settles near
+     * The endpoints matter: a "full" 84 V KingSong pack settles near
      * 82.5 V, not 84 V; anchoring 100% at 84 V (as an earlier curve did)
      * made the gauge under-read by ~7% across the whole range.
      *
-     * WheelLog works in centivolts; the curve is reproduced in those units
-     * (integer division included) so the result matches it exactly.
+     * Centivolt math (integer division included) matches the canonical
+     * reference curve exactly.
      *
      * Returns 0 when no model is detected; the dashboard renders the empty
      * battery rather than a stale fallback.

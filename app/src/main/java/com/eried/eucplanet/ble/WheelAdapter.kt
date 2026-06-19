@@ -15,10 +15,10 @@ import java.util.UUID
  *
  * [writeType] picks `WRITE_TYPE_DEFAULT` (with response) vs `WRITE_TYPE_NO_RESPONSE`.
  * HM-10 modules (KingSong / Begode / Veteran / Ninebot legacy) are notorious for
- * unreliable write-with-response ACKs - WheelLog ships `WITHOUT_RESPONSE` for the
- * whole family and the EUC ecosystem follows. V2 (Nordic UART) keeps the safer
- * `DEFAULT` because V14 / P6 protocols have application-level checksums and the
- * Nordic firmware honors L2CAP-level ACKs reliably.
+ * unreliable write-with-response ACKs, so the whole family uses NO_RESPONSE.
+ * V2 (Nordic UART) keeps the safer `DEFAULT` because V14 / P6 protocols have
+ * application-level checksums and the Nordic firmware honors L2CAP-level ACKs
+ * reliably.
  */
 data class BleProfile(
     val serviceUuid: UUID,
@@ -44,9 +44,9 @@ data class BleProfile(
          * the first frame's magic bytes (`AA 55` = KingSong, `55 AA` =
          * Begode, `DC 5A 5C` = Veteran).
          *
-         * Writes use NO_RESPONSE to match WheelLog. The CC2540/CC2541
-         * modules in these wheels do not reliably deliver onCharacteristicWrite
-         * with WRITE_TYPE_DEFAULT, which previously had us leaning on a
+         * Writes use NO_RESPONSE. The CC2540/CC2541 modules in these
+         * wheels do not reliably deliver onCharacteristicWrite with
+         * WRITE_TYPE_DEFAULT, which previously had us leaning on a
          * 200 ms writeReady-timeout fallback. NO_RESPONSE removes that race.
          */
         val HM10 = BleProfile(
@@ -262,7 +262,12 @@ interface WheelAdapter {
     val brand: String get() = when (familyId) {
         "begode" -> "Begode"
         "kingsong" -> "KingSong"
-        "veteran" -> "Veteran"
+        // Internal familyId is the legacy "veteran" string (kept for stored
+        // profiles / custom commands / settings). The brand on the chassis,
+        // packaging and distributor pages is LeaperKim (Guangzhou Veteran
+        // Intelligent Technology Co.); Veteran was just the original
+        // product line.
+        "veteran" -> "LeaperKim"
         "ninebot" -> "Ninebot"
         "inmotion_v1", "inmotion_v2" -> "InMotion"
         else -> familyDisplayName

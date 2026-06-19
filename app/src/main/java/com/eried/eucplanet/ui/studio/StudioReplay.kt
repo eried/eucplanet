@@ -40,7 +40,7 @@ class ReplayTrip(
 /**
  * Parses a trip CSV into a [ReplayTrip]. **Header-driven**: each telemetry
  * column is located by name, so it works for native recordings *and* imported
- * CSVs (DarknessBot / EUC World / WheelLog) whose column order and date format
+ * CSVs (DarknessBot and similar) whose column order and date format
  * differ. Several date layouts are accepted, including ISO `T`-separated stamps
  * with sub-millisecond precision.
  */

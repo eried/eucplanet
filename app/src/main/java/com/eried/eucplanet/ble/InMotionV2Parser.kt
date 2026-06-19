@@ -8,7 +8,9 @@ import kotlin.math.roundToInt
 
 /**
  * Parses telemetry and settings responses from InMotion V14.
- * Field offsets based on WheelLog InmotionAdapterV2 V14 parsing.
+ *
+ * Protocol reference (upstream, GPLv3):
+ * https://github.com/Wheellog/wheellog.android/blob/master/app/src/main/java/com/cooper/wheellog/utils/InmotionAdapterV2.java
  */
 object InMotionV2Parser {
 
@@ -437,7 +439,7 @@ data class CarInfo(
     val type: Int,
     val modelId: Int,
     val modelName: String,
-    /** Resolved model from the WheelLog registry, or null if the wheel reports an unknown ID. */
+    /** Resolved model from the registry, or null if the wheel reports an unknown ID. */
     val model: InMotionV2Model? = null
 )
 

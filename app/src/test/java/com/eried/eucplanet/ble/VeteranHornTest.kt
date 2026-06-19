@@ -8,12 +8,13 @@ import java.util.zip.CRC32
 /**
  * Pins the Veteran horn command for current (Lynx-class) LeaperKim firmware.
  *
- * Decoded from a btsnoop of the official LeaperKim app sounding the horn on a
- * Lynx S (mVer 9, May 2026): every press writes an `LkAp` frame immediately
- * followed by an `LdAp` companion frame. WheelLog (and older EUC Planet builds)
- * send only the `LkAp` half, which Lynx-class firmware silently ignores, so the
- * horn never beeps. Both frames are byte-for-byte fixed (no nonce/counter across
- * the three captured presses). Pure-JVM test; no Android runtime needed.
+ * Decoded from a btsnoop of the official LeaperKim app sounding the horn on
+ * a Lynx S (mVer 9, May 2026): every press writes an `LkAp` frame immediately
+ * followed by an `LdAp` companion frame. Older EUC Planet builds sent only
+ * the `LkAp` half, which Lynx-class firmware silently ignores, so the horn
+ * never beeped. Both frames are byte-for-byte fixed (no nonce/counter
+ * across the three captured presses). Pure-JVM test; no Android runtime
+ * needed.
  */
 class VeteranHornTest {
 

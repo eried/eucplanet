@@ -23,15 +23,20 @@ import javax.inject.Singleton
  * blob, `SetLightON/OFF`, `SETh/m/s` pedal stiffness, `CLEARMETER` trip
  * reset. No software lock, no volume, no max-speed write (the SET* family
  * sets thresholds, not absolute max; see spec section 6 "Notes").
- *
- * Protocol research credit: the WheelLog community (
- * https://github.com/Wheellog/wheellog.android, GPLv3, used as a protocol
- * reference; the implementation here is original).
  */
 @Singleton
 class VeteranAdapter @Inject constructor() : WheelAdapter {
     override val familyId = "veteran"
-    override val familyDisplayName = "Veteran"
+    // Internal id stays "veteran" so existing stored profiles / custom
+    // commands keep working; user-visible label is the actual brand.
+    override val familyDisplayName = "LeaperKim"
+    // Brand is model-aware so the NOSFET rebrands (Aero / Apex / Aeon),
+    // which share the wire protocol but are a separate manufacturer, surface
+    // their own brand on the dashboard, in Settings and in eucstats meta
+    // instead of inheriting LeaperKim. Until a model is detected the family
+    // default is used. BleConnectionManager re-reads `brand` on each
+    // ModelName decode, so the change propagates without a reconnect.
+    override val brand: String get() = detectedModel?.brandOverride ?: familyDisplayName
     override val capabilities = WheelCapabilities.VETERAN
 
     @Volatile private var detectedModel: VeteranModel? = null
@@ -57,10 +62,10 @@ class VeteranAdapter @Inject constructor() : WheelAdapter {
 
     /**
      * Current Lynx-class firmware only sounds the horn when the `LkAp` frame
-     * from [horn] is followed by this `LdAp` companion. WheelLog sends just the
-     * `LkAp` half, so its horn is silently ignored on these wheels (the frame is
-     * accepted but produces no beep). Decoded from a LeaperKim-app btsnoop on a
-     * Lynx S (mVer 9). [com.eried.eucplanet.data.repository.WheelRepository.sendHorn]
+     * from [horn] is followed by this `LdAp` companion. Sending the `LkAp`
+     * half alone leaves the wheel silent (the frame is accepted but
+     * produces no beep). Decoded from a LeaperKim-app btsnoop on a Lynx S
+     * (mVer 9). [com.eried.eucplanet.data.repository.WheelRepository.sendHorn]
      * writes both, in order.
      */
     override fun hornFollowup(): ByteArray = VeteranCommands.hornCompanion()

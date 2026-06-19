@@ -35,14 +35,20 @@ data class ChargingEstimate(
  *    [warmupMinDurationMs] elapsed) so plugging in at 79 % still observes a
  *    couple of percent before predicting;
  *  - fits a least-squares slope over a rolling [windowMs] window for the rate;
- *  - extrapolates linearly to [targetPercent] (e.g. 80 %);
- *  - models the constant-voltage taper above the target pessimistically: the
- *    `target → 100 %` segment is charged at `rate / cvTaperFactor`, so the
- *    full-charge ETA errs long rather than over-promising.
+ *  - extrapolates linearly to [targetPercent] (e.g. 80 %), with an optional
+ *    very-small [targetTaperFactor] (default 1.05) so the 80 % ETA errs a
+ *    hair long rather than over-promising;
+ *  - extrapolates the `target → 100 %` segment with a modest pessimism
+ *    [cvTaperFactor] (default 1.3). On real EUC BMSs the reported SoC above
+ *    the target is often nearly linear or only mildly slower than the CC
+ *    phase, so the historical 2.2× multiplier produced 100 % ETAs that were
+ *    consistently ~1 h late on a 4 h charge. 1.3 leaves the prediction
+ *    slightly pessimistic without the wild overshoot.
  */
 class ChargingEstimator(
     private val targetPercent: Float = 80f,
-    private val cvTaperFactor: Float = 2.2f,
+    private val targetTaperFactor: Float = 1.05f,
+    private val cvTaperFactor: Float = 1.3f,
     private val warmupMinPercentGain: Float = 2f,
     private val warmupMinDurationMs: Long = 30_000L,
     private val windowMs: Long = 120_000L,
@@ -88,14 +94,16 @@ class ChargingEstimator(
         val minutesToTarget: Float? = when {
             !warmedUp -> null
             percent >= targetPercent -> null
-            else -> (targetPercent - percent) / rate
+            else -> (targetPercent - percent) / rate * targetTaperFactor
         }
 
         val minutesToFull: Float? = when {
             !warmedUp -> null
             percent >= 100f -> null
             else -> {
-                val ccPart = if (percent < targetPercent) (targetPercent - percent) / rate else 0f
+                val ccPart = if (percent < targetPercent)
+                    (targetPercent - percent) / rate * targetTaperFactor
+                else 0f
                 val cvStart = max(percent, targetPercent)
                 val cvRange = 100f - cvStart
                 val cvPart = cvRange * cvTaperFactor / rate

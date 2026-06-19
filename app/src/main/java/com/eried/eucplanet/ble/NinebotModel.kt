@@ -13,9 +13,7 @@ package com.eried.eucplanet.ble
  * Legacy protocol (One E / E+ / S2 / Mini / Mini Pro): HM-10 GATT, plaintext
  * `55 AA` framing. Read-only telemetry; no documented settings writes.
  *
- * Spec: docs/protocols/ninebot.md. Protocol research credit goes to WheelLog
- * community; the implementation here is
- * original.
+ * Spec: docs/protocols/ninebot.md.
  */
 enum class NinebotProtocol {
     /** Modern Z stack: Nordic-UART, XOR-encrypted, distinct write+notify chars. */

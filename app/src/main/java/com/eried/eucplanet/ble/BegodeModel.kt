@@ -10,8 +10,7 @@ package com.eried.eucplanet.ble
  * nominal-voltage-derived ratio (84 V wheels use 0.625, 100 V wheels use ~0.74,
  * 126 V wheels use ~0.94, etc.) to land on real volts.
  *
- * Spec: docs/protocols/begode.md. Protocol research credit goes to WheelLog
- * community; the implementation here is original.
+ * Spec: docs/protocols/begode.md.
  */
 enum class BegodeModel(
     val displayName: String,

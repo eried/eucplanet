@@ -2590,7 +2590,6 @@ fun DashboardScreen(
                                                     "Soolek" to "KS-16X testing.",
                                                     "Jonathan Wiesner" to "LeaperKim Lynx S testing.",
                                                     "Felix K" to "LeaperKim Oryx testing.",
-                                                    "WheelLog community" to "Open-source (GPLv3) EUC protocol research.",
                                                     "Ilya Shkolnik" to "Advice and help, and maintains DarknessBot.",
                                                     "InMotion" to "For making my awesome V14."
                                                 )
@@ -2637,7 +2636,6 @@ fun DashboardScreen(
                                                 )
                                                 Spacer(Modifier.height(6.dp))
                                                 val resources = listOf(
-                                                    "WheelLog community, wheel protocols" to "Wheellog/wheellog.android, GPLv3. Public reverse-engineering of the EUC BLE protocols, used as the reference for the KingSong, Begode, Veteran, Ninebot and InMotion adapters. The implementation here is original; no WheelLog code is reused.",
                                                     "BigSoundBank, engine samples" to "Joseph SARDIN. CC0 / public domain. All sampled engines in the Motor sound generator (V8 Cobra, V-twin Ducati, diesel truck, motorcycle, city car, helicopter, tractor, lawn mower, steam locomotive, Aston Martin, big diesel, car cruise, broken exhaust, quad ATV).",
                                                     "Jetpack Compose, Material 3" to "Google. Apache 2.0. UI toolkit and design system.",
                                                     "Hilt, Room, WorkManager, Navigation" to "Google. Apache 2.0. DI, persistence, background jobs, navigation graph.",

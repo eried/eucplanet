@@ -7,27 +7,22 @@ package com.eried.eucplanet.ble
  * binary blob whose internal structure is partially understood (see spec).
  *
  * Spec: docs/protocols/veteran.md section 6.
- *
- * Protocol research credit: the WheelLog community (
- * https://github.com/Wheellog/wheellog.android, GPLv3, used as a protocol
- * reference; the implementation here is original).
  */
 object VeteranCommands {
 
     /**
      * Horn — first of a TWO-frame command on current LeaperKim firmware.
      *
-     * A Lynx S btsnoop (mVer 9, May 2026) shows the official app sounds the horn
-     * by writing this `LkAp` frame immediately followed by the [hornCompanion]
-     * `LdAp` frame. WheelLog and older EUC Planet builds send only this `LkAp`
-     * half; Lynx-class firmware accepts it (the CRC32 is valid) but does NOT beep
-     * on it alone — confirmed in the field where the blob reached the wheel four
-     * times with no sound. Always send [horn] then [hornCompanion].
+     * A Lynx S btsnoop (mVer 9, May 2026) shows the official app sounds the
+     * horn by writing this `LkAp` frame immediately followed by the
+     * [hornCompanion] `LdAp` frame. Sending the `LkAp` half alone is
+     * accepted (the CRC32 is valid) but does NOT beep -- confirmed in the
+     * field where the blob reached the wheel four times with no sound.
+     * Always send [horn] then [hornCompanion].
      *
-     * Wire: `4c 6b 41 70 0e 00 80 80 80 01 ca 87 e6 6f` — a 14-byte vendor frame
-     * (payload `00 80 80 80 01`, big-endian CRC32 trailer), identical to the byte
-     * blob WheelLog hard-codes. Pre-2020 Sherman (model < 3) instead take the
-     * single byte [hornLegacy].
+     * Wire: `4c 6b 41 70 0e 00 80 80 80 01 ca 87 e6 6f` -- a 14-byte
+     * vendor frame (payload `00 80 80 80 01`, big-endian CRC32 trailer).
+     * Pre-2020 Sherman (model < 3) instead take the single byte [hornLegacy].
      *
      * Spec: docs/protocols/veteran.md section 6, "Beep".
      */

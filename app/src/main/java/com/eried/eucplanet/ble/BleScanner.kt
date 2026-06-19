@@ -31,11 +31,11 @@ class BleScanner @Inject constructor(
     /**
      * Start a BLE scan and emit one [BleDevice] per advertisement match.
      *
-     * @param showAll  when true, every named peripheral is forwarded (matches
-     *                 WheelLog's behaviour). When false, only names that match
-     *                 a known wheel prefix are forwarded; useful for keeping
-     *                 the scan list short and free of unrelated devices in
-     *                 typical usage.
+     * @param showAll  when true, every named peripheral is forwarded.
+     *                 When false, only names that match a known wheel
+     *                 prefix are forwarded; useful for keeping the scan
+     *                 list short and free of unrelated devices in typical
+     *                 usage.
      */
     @SuppressLint("MissingPermission")
     fun scanForDevices(showAll: Boolean = false): Flow<BleDevice> = callbackFlow {

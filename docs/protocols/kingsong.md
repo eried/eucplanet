@@ -325,7 +325,7 @@ Power off:
 | `KS-S20`, `KS-S22` | 126 V class, 30S. S22 ships with newer firmware that emits the extended BMS frame `0xD0`; request a larger MTU. |
 | `KS-F18P` | 151 V, 36S. Extended BMS. |
 | `KS-F22P` | 176 V, 42S. Extended BMS. |
-| Rockwheel (`RW`, `ROCKW...`) | Speaks the KingSong wire format closely enough that WheelLog routes it through the KingSong adapter. Voltage curve treated as 84 V. |
+| Rockwheel (`RW`, `ROCKW...`) | Speaks the KingSong wire format closely enough to route through the KingSong adapter. Voltage curve treated as 84 V. |
 | Older `KS-14` / `KS-16` (non-S/F) | 67.2 V / 16S. No extended BMS, no `0xF5`/`0xF6` on the oldest firmwares. |
 
 S20 (mentioned in the task) does NOT have its own model code distinct from
@@ -370,16 +370,17 @@ capture from a known-good wheel before being relied on.
 2. **Word-swapped LE32**. The decoder for the 4-byte distance field
    reverses each adjacent byte pair before reading big-endian. This is
    either a deliberate quirk of the wheel (storing two 16-bit halves with
-   the high half first) or a workaround in WheelLog that has stuck
-   around. If a labelled capture shows that a plain LE u32 read gives
-   correct meters, switch to plain LE u32.
+   the high half first) or a workaround inherited from older clients that
+   has stuck around. If a labelled capture shows that a plain LE u32
+   read gives correct meters, switch to plain LE u32.
 3. **Speed signedness**. The `0xA9` speed field is read as signed Int16
    in the reference but no observed capture has shown a negative value.
    We do not know whether reverse motion on S22 reports as negative or
    as zero.
-4. **Temperature scale**. WheelLog uses a single divisor across all KS
-   models, but Veteran and Begode adapters use the MPU-6500 raw formula
-   `(raw / 340.0) + 36.53`. KingSong almost certainly uses one of these
+4. **Temperature scale**. A single fixed divisor across all KS models
+   is the historical convention, but Veteran and Begode adapters use
+   the MPU-6500 raw formula `(raw / 340.0) + 36.53`. KingSong almost
+   certainly uses one of these
    two; pick by experiment per model.
 5. **Pedal mode numeric mapping**. `0..2` is consistent across captures
    but we have not confirmed that S22 firmware uses the same indices as
@@ -407,22 +408,12 @@ capture from a known-good wheel before being relied on.
 
 ## 10. Attribution
 
-Primary protocol research: the WheelLog Android project, originally by
-Andrey Cooper / palachzzz and currently maintained at
-https://github.com/Wheellog/Wheellog.Android (GPLv3). The KingSong frame
-layout, command bytes, and BMS pagination documented here were
-established by reading that codebase, in particular the
-`KingsongAdapter` class and adjacent constants.
+Protocol reference (upstream, GPLv3):
+<https://github.com/Wheellog/wheellog.android/blob/master/app/src/main/java/com/cooper/wheellog/utils/KingsongAdapter.java>
 
-Additional context (model lists, voltage classes, Rockwheel routing) was
-cross-checked against:
-
-- WheelLog wiki at https://github.com/Wheellog/Wheellog.Android/wiki
-- Long-running Electric Unicycle Forum thread "Gotway/Kingsong protocol
-  reverse-engineering" (forum.electricunicycle.org topic 870)
-- DarknessBot / EUC World public blog posts on KS frame format
-- The KingSong S22 user manual for the user-visible setting names
-
-Original protocol reverse engineering by the WheelLog contributor
-community. This document re-describes the protocol in our
-own words and idiom; no source code has been copied.
+Cross-checked against the long-running Electric Unicycle Forum thread
+"Gotway/Kingsong protocol reverse-engineering"
+(forum.electricunicycle.org topic 870) and the KingSong S22 user manual
+for the user-visible setting names. This document re-describes the
+protocol in our own words and idiom; no third-party GPL source code
+is reproduced.

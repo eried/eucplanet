@@ -3,39 +3,45 @@ package com.eried.eucplanet.ble
 /**
  * Models in the Veteran BLE protocol family. Veteran's `DC 5A 5C 20`-prefixed
  * frame carries a model byte at offset 6 (versionLow) and a hardware-revision
- * byte at offset 7 (versionHigh) per WheelLog's research; we don't try to map
- * every (lo, hi) pair here; instead we derive the enum from the BLE-advertised
- * device name when possible, and fall back to a generic Veteran profile.
+ * byte at offset 7 (versionHigh); we don't try to map every (lo, hi) pair
+ * here, instead we derive the enum from the BLE-advertised device name when
+ * possible and fall back to a generic Veteran profile.
  *
- * Spec: docs/protocols/veteran.md. Protocol research credit goes to WheelLog
- * community; the implementation here is original.
+ * Spec: docs/protocols/veteran.md.
  */
 enum class VeteranModel(
     val displayName: String,
     val nominalVoltage: Int,
-    val maxSpeedKmh: Int
+    val maxSpeedKmh: Int,
+    /**
+     * Brand override for non-LeaperKim wheels that ride on the same Veteran
+     * wire protocol. NOSFET (Apex / Aero / Aeon) is a separate manufacturer
+     * that licenses the firmware family; the dashboard / eucstats brand
+     * should read "NOSFET" rather than "LeaperKim" for those.
+     */
+    val brandOverride: String? = null,
 ) {
-    // mVer 0/1: Sherman 100 V curve
+    // mVer 0/1: Sherman, 100 V curve.
     SHERMAN(       "Veteran Sherman",      100,  65),
-    // mVer 2: Abrams shares the same 100 V battery curve as Sherman per
-    // WheelLog. We previously mis-tagged this at 168 V which routed it
-    // through the wrong scaler and caused riders to see a flat 100 % battery.
+    // mVer 2: Abrams shares the Sherman 100 V curve. An earlier 168 V
+    // tag here routed Abrams through the wrong scaler and showed a
+    // flat 100 % battery to riders.
     ABRAMS(        "Veteran Abrams",       100, 120),
-    // mVer 3: Sherman S (still in the <4 / 100 V battery family per WL)
+    // mVer 3: Sherman S still sits in the <4 / 100 V battery family.
     SHERMAN_S(     "Veteran Sherman S",    134, 100),
-    // Retained for backward compatibility with existing settings; no
-    // WheelLog equivalent. Treated as Sherman at runtime.
+    // Retained for backward compatibility with existing settings;
+    // treated as Sherman at runtime.
     SHERMAN_MAX(   "Veteran Sherman Max",  134, 100),
     // mVer 4 / 7 / 43: Patton family (134 V curve)
     PATTON(        "Veteran Patton",       134, 110),
     PATTON_S(      "Veteran Patton S",     134, 110),
-    NOSFET_AERO(   "Veteran Nosfet Aero",  134, 110),
+    NOSFET_AERO(   "NOSFET Aero",          134, 110, brandOverride = "NOSFET"),
     // mVer 5 / 6 / 9 / 42 / 44: Lynx / Sherman L / Nosfet (151 V curve)
     LYNX(          "Veteran Lynx",         151, 120),
     LYNX_S(        "Veteran Lynx S",       151, 120),
     SHERMAN_L(     "Veteran Sherman L",    151, 120),
-    NOSFET_APEX(   "Veteran Nosfet Apex",  151, 120),
-    NOSFET_AEON(   "Veteran Nosfet Aeon",  151, 120),
+    NOSFET_APEX(   "NOSFET Apex",          151, 120, brandOverride = "NOSFET"),
+    NOSFET_AEON(   "NOSFET Aeon",          151, 120, brandOverride = "NOSFET"),
     // mVer 8: Oryx, 42-cell ~175 V pack
     ORYX(          "Veteran Oryx",         175, 130);
 
@@ -62,9 +68,9 @@ enum class VeteranModel(
 
         /**
          * Map the `mVer` value the wheel reports at frame offset 28
-         * (u16 BE / 1000 per WheelLog's convention) to a concrete model.
-         * This is authoritative when the BLE name is generic; many wheels
-         * advertise as just "Veteran-xxxx" with no model token.
+         * (u16 BE / 1000) to a concrete model. Authoritative when the
+         * BLE name is generic; many wheels advertise as just
+         * "Veteran-xxxx" with no model token.
          */
         fun fromMVer(mVer: Int): VeteranModel? = when (mVer) {
             0, 1 -> SHERMAN

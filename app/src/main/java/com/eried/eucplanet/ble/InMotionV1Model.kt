@@ -12,8 +12,7 @@ package com.eried.eucplanet.ble
  * section 4.1: `speedFactor` is 3812 for the V8 / V10 generation and 1000
  * only for the legacy R-series (R1S / R0).
  *
- * Spec: docs/protocols/inmotion_v1.md. Protocol research credit goes to
- * WheelLog community; the implementation here is original.
+ * Spec: docs/protocols/inmotion_v1.md.
  */
 enum class InMotionV1Model(
     val modelId: Int,
@@ -52,7 +51,7 @@ enum class InMotionV1Model(
     /** L6 mileage at offset 44 is u64 in centimetres; everything else is u32 in metres. */
     val isL6: Boolean get() = modelId == 60
 
-    /** R0 mileage at offset 44 is u64 in metres, per WheelLog `WL:1128`. */
+    /** R0 mileage at offset 44 is u64 in metres. */
     val isR0: Boolean get() = modelId == 30
 
     /** V8F / V8S / V10 family / Glide 3 expose the dedicated horn opcode `0xB2 ... 0x11`. */
@@ -80,11 +79,11 @@ enum class InMotionV1Model(
          * capture clarifies whether a third digit lives at another offset.
          */
         fun fromCarType(low: Int, high: Int): InMotionV1Model? {
-            // WheelLog: the bytes are raw decimal numbers, not packed BCD.
-            // For id 143 (e.g. V10F), byte[107]=1, byte[104]=43, concatenated
-            // as the string "143". For 2-digit ids, high is zero and only
-            // low is meaningful. We were ANDing each byte with 0x0F which
-            // destroyed any id >= 100 (low byte 43 -> 3, id became 13).
+            // The bytes are raw decimal numbers, not packed BCD. For id
+            // 143 (e.g. V10F), byte[107]=1, byte[104]=43, concatenated as
+            // the string "143". For 2-digit ids, high is zero and only
+            // low is meaningful. An earlier `& 0x0F` per byte destroyed
+            // any id >= 100 (low byte 43 -> 3, id became 13).
             val id = if (high > 0) high * 100 + low else low
             return values().firstOrNull { it.modelId == id }
         }

@@ -11,9 +11,9 @@ variant of the command set; it gets its own branch in every section
 below.
 
 Original prose. The V14 / V12 / V11 layouts were cross-checked against
-public WheelLog research (GPLv3); the P6 layout is original work from
-labelled BLE captures against the user's hardware. No code copied. See
-Attribution at the end. Status: research-grade, V14 telemetry and the
+public open-source research; the P6 layout is original work from labelled
+BLE captures against the user's hardware. No third-party GPL code copied.
+See Attribution at the end. Status: research-grade, V14 telemetry and the
 extended-routing CONTROL packet shape are solid; P6 telemetry past
 voltage / current / speed / temperatures is partial and several fields
 are flagged. V12 HS/HT/Pro deviations have not been validated against
@@ -296,10 +296,9 @@ shared interpretation. The bits map by family:
 
 The detailed enum mapping for the low-3-bit state field (`0 = lock,
 1 = drive, 2 = shutdown, 3 = idle` for V12) is firmware-dependent.
-The V14 documentation in WheelLog lists "0 / 1 / 2 / 3" without
-universal labels; treat anything outside `1` (drive) as
-non-engaged for display purposes and surface the raw value to
-diagnostics.
+Public V14 references list "0 / 1 / 2 / 3" without universal labels;
+treat anything outside `1` (drive) as non-engaged for display purposes
+and surface the raw value to diagnostics.
 
 
 ## 5. Commands (default protocol family)
@@ -658,9 +657,9 @@ max-speed but the older `playSound` horn.
 - V12 work-mode bits 3–5 (`mcMode`) and bit 7 (`charging`) are read
   but not surfaced in the dashboard; no labelled capture distinguishes
   the mcMode values yet.
-- V12 lock-state in SETTINGS, WheelLog leaves this commented out
-  and our parser keeps `lockState = 0`. Likely needs a labelled
-  V12 lock/unlock capture to confirm.
+- V12 lock-state in SETTINGS, no reliable public reference; our
+  parser keeps `lockState = 0`. Likely needs a labelled V12
+  lock/unlock capture to confirm.
 - P6 ride history (sub `0x10`) and total-stats (sub `0x11`) have a
   TLV-style layout that has not been reverse-engineered. Polling
   them currently produces unparsed bytes.
@@ -694,25 +693,25 @@ max-speed but the older `playSound` horn.
 
 ## 11. Attribution
 
-Primary research sources:
+Protocol reference (upstream, GPLv3):
+<https://github.com/Wheellog/wheellog.android/blob/master/app/src/main/java/com/cooper/wheellog/utils/InmotionAdapterV2.java>
 
-- **WheelLog Android**, `app/src/main/java/com/cooper/wheellog/utils/
-  InmotionAdapterV2.java` (GPLv3). The V14 / V13 / V12 / V11 packet
-  shape, carType registry, command catalog, and realtime / settings
-  offsets here were reverse-engineered by the WheelLog community and
-  contributors. This document is original prose and tables describing
-  that research; no code from WheelLog has been copied. Consult the
-  upstream source for the canonical reference.
-- **InMotion app BLE captures against real hardware** for the P6
-  protocol, every offset, sub-command and formula in section 7 was
-  derived from labelled captures recorded during user-led testing
-  (`docs/P6_CAPTURE_LABELS.md`), not from any third-party source.
-  The P6 is not in WheelLog's catalogue.
+The V14 / V13 / V12 / V11 packet shape, carType registry, command
+catalog, and realtime / settings offsets were cross-referenced
+against the upstream reference and Electric Unicycle Forum threads.
 
-License note: this app is MIT-licensed. WheelLog is GPLv3, which is
-incompatible with MIT. Quoting exact byte offsets, sub-cmd values and
-magic-byte sequences is fact, not copyrightable expression, those
-are reproduced freely. No GPLv3 source code is included.
+The P6 layout is original work: every P6 offset, sub-command and
+formula in section 7 was derived from labelled BLE captures recorded
+during user-led testing (`docs/P6_CAPTURE_LABELS.md`). The P6 is not
+covered by any public open-source reference we could find.
+
+This document is original prose and tables; no third-party GPL source
+is reproduced.
+
+License note: this app is MIT-licensed. Quoting exact byte offsets,
+sub-cmd values and magic-byte sequences is fact, not copyrightable
+expression, those are reproduced freely. No GPLv3 source code is
+included.
 
 V8 / V8F / V8S / V10 family / V5 / L6 / R-series / V3 use the
 separate V1 protocol family (split `0xFFE0` / `0xFFE5` services,

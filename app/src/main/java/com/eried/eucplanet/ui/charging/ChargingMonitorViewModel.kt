@@ -6,6 +6,7 @@ import com.eried.eucplanet.data.model.ChargeStatus
 import com.eried.eucplanet.data.model.WheelData
 import com.eried.eucplanet.data.repository.ChargingSnapshot
 import com.eried.eucplanet.data.repository.MetricSample
+import com.eried.eucplanet.data.repository.PredictionSample
 import com.eried.eucplanet.data.repository.SettingsRepository
 import com.eried.eucplanet.data.repository.WheelRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -53,6 +54,8 @@ data class ChargingUiState(
     val chargeHistory: List<MetricSample> = emptyList(),
     val voltageHistory: List<MetricSample> = emptyList(),
     val tempHistory: List<MetricSample> = emptyList(),
+    /** Per-session snapshots of the running 80 % / 100 % predictions. */
+    val predictionHistory: List<PredictionSample> = emptyList(),
 )
 
 /**
@@ -151,6 +154,7 @@ class ChargingMonitorViewModel @Inject constructor(
             chargeHistory = snap.chargeHistory,
             voltageHistory = snap.voltageHistory,
             tempHistory = snap.tempHistory,
+            predictionHistory = snap.predictionHistory,
         )
     }
 
