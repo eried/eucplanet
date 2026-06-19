@@ -141,6 +141,7 @@ fun OverlayStudioScreen(
     val trips by viewModel.trips.collectAsState()
     val wheelName by viewModel.wheelName.collectAsState()
     val connected by viewModel.connected.collectAsState()
+    val radar by viewModel.radar.collectAsState()
     val history by viewModel.history.collectAsState()
     val folderAvailable by viewModel.folderAvailable.collectAsState()
     val savedPresets by viewModel.savedPresets.collectAsState()
@@ -938,7 +939,12 @@ fun OverlayStudioScreen(
                         // this empty; the overlay falls back to wheelData /
                         // history derived from the scrubbed trip row.
                         liveGForceTrail = if (replayMode) emptyList() else liveGForceTrail,
-                        riderMarkerPhotoDataUrl = riderMarkerPhoto
+                        riderMarkerPhotoDataUrl = riderMarkerPhoto,
+                        // Radar has no trip-replay history (CSV doesn't store it),
+                        // so it only feeds the live preview; replay shows idle.
+                        radarConnected = if (replayMode) false else radar.connected,
+                        radarBatteryPercent = if (replayMode) -1 else radar.batteryPercent,
+                        radarTargets = if (replayMode) emptyList() else radar.targets
                     ),
                     editable = editable,
                     selectedId = selectedId,
@@ -1322,6 +1328,15 @@ fun OverlayStudioScreen(
             val existingNames = remember(savedPresets) {
                 savedPresets.map { it.trim().lowercase() }.toSet()
             }
+            // First free "base (n)" for the "Keep both" choice.
+            fun uniqueName(base: String): String {
+                var n = 1
+                var candidate = "$base ($n)"
+                while (candidate.trim().lowercase() in existingNames) {
+                    n++; candidate = "$base ($n)"
+                }
+                return candidate
+            }
             fun doSave(name: String) {
                 viewModel.savePresetAs(name) { result ->
                     val msg = when (result) {
@@ -1358,10 +1373,21 @@ fun OverlayStudioScreen(
                     title = { Text(stringResource(R.string.studio_overwrite_title)) },
                     text = { Text(stringResource(R.string.studio_overwrite_body, pending)) },
                     confirmButton = {
-                        androidx.compose.material3.TextButton(onClick = {
-                            pendingOverwriteName = null
-                            doSave(pending)
-                        }) { Text(stringResource(R.string.studio_overwrite_confirm)) }
+                        androidx.compose.foundation.layout.Row(
+                            horizontalArrangement = Arrangement.spacedBy(4.dp)
+                        ) {
+                            // Keep both: save under the next free "name (n)"
+                            // instead of replacing the existing preset.
+                            androidx.compose.material3.TextButton(onClick = {
+                                val keep = uniqueName(pending)
+                                pendingOverwriteName = null
+                                doSave(keep)
+                            }) { Text(stringResource(R.string.studio_save_keep_both)) }
+                            androidx.compose.material3.TextButton(onClick = {
+                                pendingOverwriteName = null
+                                doSave(pending)
+                            }) { Text(stringResource(R.string.studio_overwrite_confirm)) }
+                        }
                     },
                     dismissButton = {
                         androidx.compose.material3.TextButton(onClick = {
@@ -1553,6 +1579,22 @@ private fun newElement(
             mapZoom = 16,
             mapStyle = "STREET",
             foreground = 0xFF2196F3L, // blue border / trace / marker
+            background = 0x66000000L,
+            rotationDeg = ((360 - deviceRotation) % 360).toFloat()
+        )
+    }
+    if (type == OverlayElementType.RADAR) {
+        // Narrow by default: the LANE mode is a tall proximity bar. The rider
+        // widens it or switches to MIRROR/MINIMAL from the config sheet.
+        return OverlayElement(
+            type = type,
+            x = nx,
+            y = ny,
+            width = 0.2f,
+            radarMode = "LANE",
+            radarRangeM = 140f,
+            radarShowDistanceLabels = true,
+            foreground = 0xFFFFFFFFL, // lane lines / labels / rider marker
             background = 0x66000000L,
             rotationDeg = ((360 - deviceRotation) % 360).toFloat()
         )
