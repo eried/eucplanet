@@ -159,8 +159,14 @@ class RecordingViewModel @Inject constructor(
     val trips: StateFlow<List<TripRecord>> = tripRepository.allTrips
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
-    val liveTripDistanceKm: StateFlow<Float> = wheelRepository.wheelData
-        .map { it.tripDistance }
+    // Live label uses GPS-accumulated distance (same source the saved trip
+    // distance uses at finalize), with the wheel's tripDistance as a fallback
+    // only when GPS hasn't moved yet. Without this the label would freeze /
+    // snap on BLE drop or wheel power-cycle while the time keeps ticking.
+    val liveTripDistanceKm: StateFlow<Float> = kotlinx.coroutines.flow.combine(
+        tripRepository.liveGpsDistanceKm,
+        wheelRepository.wheelData.map { it.tripDistance }
+    ) { gps, wheel -> if (gps > 0f) gps else wheel }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0f)
 
     val gpsFix: StateFlow<Boolean> = tripRepository.currentLocation

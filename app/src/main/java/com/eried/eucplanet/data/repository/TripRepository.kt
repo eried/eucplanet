@@ -77,6 +77,14 @@ class TripRepository @Inject constructor(
     private val _pendingTripId = MutableStateFlow<Long?>(null)
     val pendingTripId: StateFlow<Long?> = _pendingTripId.asStateFlow()
 
+    // Live GPS-accumulated trip distance, in km. Mirrors the [gpsDistanceKm]
+    // accumulator below so the trip-row label can show the same source of
+    // truth the SAVED distance uses at finalize. Without this the UI defaults
+    // to wheel-reported tripDistance which freezes on BLE drop and snaps back
+    // to 0 when the wheel power-cycles mid-ride.
+    private val _liveGpsDistanceKm = MutableStateFlow(0f)
+    val liveGpsDistanceKm: StateFlow<Float> = _liveGpsDistanceKm.asStateFlow()
+
     val allTrips: Flow<List<TripRecord>> = tripDao.observeAll()
     val tripCount: Flow<Int> = tripDao.observeCount()
 
@@ -292,6 +300,7 @@ class TripRepository @Inject constructor(
         csvWriter = writer
 
         gpsDistanceKm = 0.0
+        _liveGpsDistanceKm.value = 0f
         lastGpsPoint = null
         tripHadMockFix = false
 
@@ -338,6 +347,7 @@ class TripRepository @Inject constructor(
                         val deltaMeters = prev.distanceTo(location)
                         if (deltaMeters in 0.5f..200f) {
                             gpsDistanceKm += deltaMeters / 1000.0
+                            _liveGpsDistanceKm.value = gpsDistanceKm.toFloat()
                         }
                     }
                     lastGpsPoint = location
