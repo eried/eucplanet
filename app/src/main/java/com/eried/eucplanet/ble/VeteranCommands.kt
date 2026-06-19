@@ -102,35 +102,46 @@ object VeteranCommands {
     fun resetTrip(): ByteArray = "CLEARMETER".toByteArray(Charsets.US_ASCII)
 
     /**
-     * Software lock / unlock. Captured from the official LeaperKim app on a
-     * Lynx S (mVer 9, June 2026): a 25-byte `LdAp` vendor frame with payload
+     * Software lock / unlock. 25-byte `LdAp` vendor frame with payload
      *
-     *   00 05 1a 06 11 0f 0a <counter> 02 04 0c ab <state> 00 00 00
+     *   00 05 1a 06 <day> <hour> <minute> <second> 02 04 0c ab <state> 00 00 00
      *
      * followed by a big-endian CRC32 over magic + length + payload. `<state>`
-     * is `0x01` for lock, `0x00` for unlock — confirmed against two paired
-     * captures whose CRC trailers match byte-perfectly with this layout.
+     * is `0x01` for lock, `0x00` for unlock.
      *
-     * `<counter>` is a session-monotonic anti-replay byte. The btsnoop shows
-     * it increment across writes — the wheel almost certainly rejects a
-     * counter that doesn't advance, so we let the adapter pass in a
-     * per-session sequence and bake whatever value into the CRC. The
-     * reference capture's first lock used `0x09` and the first unlock used
-     * `0x0e`; the adapter starts its sequence so that values match the
-     * capture on the first toggle of each direction and increment from
-     * there.
+     * Bytes 4..7 of the payload encode the rider's local wall-clock at the
+     * moment of writing: day-of-month, hour-of-day, minute, second — each one
+     * 1 byte, no encoding tricks. Verified against a Lynx S btsnoop where
+     * twenty paired lock/unlock writes all match within a second of the
+     * captured packet's HCI timestamp, including a minute rollover from
+     * 10:59 → 11:00 mid-test.
+     *
+     * The first attempt at this protocol treated byte 7 as a session-
+     * monotonic counter, hardcoded bytes 4..6 to the wall-clock at the
+     * moment of the original capture (the 17th at 15:10), and bumped the
+     * counter on each write. Every frame we sent was a frozen "17 days ago
+     * at 15:10:09" timestamp — the wheel rejected them and toggles silently
+     * no-op'd. Using the real wall clock each write fixes it.
      *
      * Older Sherman / Sherman Max wheels (model < 3) haven't been captured
      * doing this; the wheel will silently ignore a frame it doesn't
      * recognise, so wiring this on the whole family is safe.
      */
-    fun setLock(locked: Boolean, counter: Int): ByteArray {
+    fun setLock(locked: Boolean): ByteArray = setLock(locked, java.util.Calendar.getInstance())
+
+    /** Testable overload: pass a fixed [Calendar] to verify the wire bytes. */
+    internal fun setLock(locked: Boolean, now: java.util.Calendar): ByteArray {
         val state: Byte = if (locked) 0x01 else 0x00
+        val day = now.get(java.util.Calendar.DAY_OF_MONTH).toByte()
+        val hour = now.get(java.util.Calendar.HOUR_OF_DAY).toByte()
+        val minute = now.get(java.util.Calendar.MINUTE).toByte()
+        val second = now.get(java.util.Calendar.SECOND).toByte()
         return buildVendorFrame(
             magic = LDAP, totalLen = 25,
             payloadHead = byteArrayOf(
-                0x00, 0x05, 0x1A, 0x06, 0x11, 0x0F, 0x0A,
-                (counter and 0xFF).toByte(), 0x02, 0x04, 0x0C, 0xAB.toByte(),
+                0x00, 0x05, 0x1A, 0x06,
+                day, hour, minute, second,
+                0x02, 0x04, 0x0C, 0xAB.toByte(),
                 state, 0x00, 0x00,
             ),
             valueByte = 0x00,
