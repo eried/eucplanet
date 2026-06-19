@@ -64,6 +64,8 @@ import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.wear.compose.material.Button
 import androidx.wear.compose.material.ButtonDefaults
 import androidx.wear.compose.material.Icon
@@ -245,12 +247,14 @@ private fun MainScreen(state: WatchState, accent: Color) {
         // page (DetailsScreen) is where the explicit "Disconnected" hint
         // lives. Mirrors the phone dashboard's behaviour.
         val sw = maxWidth.value
-        val batteryFontSp = (sw * 0.034f).coerceIn(9f, 12f).sp
-        val batteryIconDp = (sw * 0.038f).coerceIn(10f, 14f).dp
+        // Min clamps are the size users actually see on every Wear OS device:
+        // sw is ~160-225 dp across the device range, so the scale-factor side
+        // of these formulas never wins. Mins have to be readable on their own.
+        val batteryFontSp = (sw * 0.034f).coerceIn(11f, 14f).sp
+        val batteryIconDp = (sw * 0.038f).coerceIn(12f, 15f).dp
         val batterySpacingDp = (sw * 0.018f).coerceIn(5f, 9f).dp
-        // ~10% bigger than the previous 0.115f / 0.055f values.
-        val buttonDp = (sw * 0.127f).coerceIn(37f, 55f).dp
-        val buttonIconDp = (sw * 0.060f).coerceIn(18f, 26f).dp
+        val buttonDp = (sw * 0.127f).coerceIn(40f, 56f).dp
+        val buttonIconDp = (sw * 0.060f).coerceIn(20f, 26f).dp
         // "Prioritize PWM" inverts the size hierarchy: when on, speed shrinks
         // by ~35% and PWM (bar + number) grows by ~60% so cutout-margin becomes
         // the dominant glance signal.
@@ -315,10 +319,10 @@ private fun MainScreen(state: WatchState, accent: Color) {
         // The unit is tiny and rendered with an invisible mirror on the left
         // so the speed glyph stays visually centred; the row is symmetric
         // around the speed even when the unit is shown.
-        val unitSp = (sw * 0.030f).coerceIn(9f, 12f).sp
+        val unitSp = (sw * 0.030f).coerceIn(11f, 14f).sp
         // Prioritize PWM blows up the number; was 0.075f / 28sp cap, now 0.11f / 40sp cap
         // so on a round 454-px Wear face the PWM glyph reads as the dial's headline.
-        val pwmNumberSp = (sw * if (prioritizePwm) 0.110f else 0.038f).coerceIn(11f, 40f).sp
+        val pwmNumberSp = (sw * if (prioritizePwm) 0.110f else 0.038f).coerceIn(12f, 40f).sp
         val showBar = state.pwmDisplay == "BAR" || state.pwmDisplay == "BOTH"
         val showPwmNumber = state.pwmDisplay == "NUMBERS" || state.pwmDisplay == "BOTH"
         // In "BOTH" mode the bar shares a row with the percent number, so we shrink the
@@ -826,16 +830,17 @@ private fun DetailsScreen(state: WatchState, accent: Color) {
         contentAlignment = Alignment.Center
     ) {
         val sw = maxWidth.value
-        val labelSp = (sw * 0.034f).coerceIn(10f, 13f).sp
-        val valueSp = (sw * 0.038f).coerceIn(11f, 14f).sp
-        // Header (wheel name / "Disconnected") is meant to be a quiet caption,
-        // not a heading; it shrinks under the speed which carries the visual
-        // weight on this page.
-        val headerSp = (sw * 0.030f).coerceIn(9f, 12f).sp
-        val speedSp = (sw * 0.060f).coerceIn(18f, 26f).sp
-        val speedUnitSp = (sw * 0.030f).coerceIn(9f, 12f).sp
-        val labelWidth = (sw * 0.22f).coerceIn(60f, 90f).dp
-        val valueWidth = (sw * 0.28f).coerceIn(75f, 110f).dp
+        // See MainScreen comment: min clamps drive the rendered size on every
+        // Wear OS form factor, so bump them to readable values.
+        val labelSp = (sw * 0.034f).coerceIn(12f, 15f).sp
+        val valueSp = (sw * 0.038f).coerceIn(13f, 16f).sp
+        val headerSp = (sw * 0.030f).coerceIn(11f, 13f).sp
+        val speedSp = (sw * 0.060f).coerceIn(22f, 30f).sp
+        val speedUnitSp = (sw * 0.030f).coerceIn(11f, 13f).sp
+        // Label / value widths grow with the new minimum font sizes so the
+        // longer labels ("Voltage", "Current") still fit on a single line.
+        val labelWidth = (sw * 0.22f).coerceIn(68f, 96f).dp
+        val valueWidth = (sw * 0.28f).coerceIn(84f, 114f).dp
 
         // Hide all unit labels until the phone has actually told us which unit
         // system the rider uses; otherwise an mph user sees km/h on launch and
@@ -856,44 +861,65 @@ private fun DetailsScreen(state: WatchState, accent: Color) {
         val speedDisplay = WatchUnits.speed(state.speedKmh, state.speedUnit)
         val powerW = state.voltage * state.current
 
+        val useAccent = state.accentKey != "default"
+        val detailMaxSpeed = if (state.maxSpeedKmh > 0f) state.maxSpeedKmh else 70f
+        val speedColor = if (useAccent) accent
+            else speedBandColor(state.speedKmh, detailMaxSpeed, true,
+                state.gaugeOrangeThresholdPct, state.gaugeRedThresholdPct, colors)
+        val live = state.connected && phoneAlive
+        val cyanColor = accent
+        val tempColor = when {
+            useAccent -> accent
+            !live -> colors.gaugeFill
+            state.temperatureC > 60f -> colors.gaugeDanger
+            state.temperatureC > 45f -> colors.gaugeWarn
+            else -> colors.gaugeFill
+        }
+        val pwmColor = when {
+            useAccent -> accent
+            !live -> colors.gaugeFill
+            state.pwmPercent > 80f -> colors.gaugeDanger
+            state.pwmPercent > 60f -> colors.gaugeWarn
+            else -> colors.gaugeFill
+        }
+
+        // Scrollable column rather than ScalingLazyColumn: the wear-compose
+        // ScalingLazyColumn currently crashes on Android 15+ trying to read
+        // the restricted Settings.Global.reduce_motion key when targetSdk
+        // is above 34 (a known library bug fixed only in newer wear-compose
+        // versions). Plain Column + verticalScroll gives us scrolling without
+        // the system-settings dependency; the rider drags to see anything
+        // pushed off the round display by the bigger fonts. Top + bottom
+        // padding scale with display width so the round bezel doesn't clip
+        // the first or last row when scrolled to the extremes.
+        val edgePad = (sw * 0.14f).coerceIn(20f, 40f).dp
         Column(
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp),
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState())
+                .padding(horizontal = 16.dp, vertical = edgePad),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(2.dp)
+            verticalArrangement = Arrangement.spacedBy(3.dp)
         ) {
-            // Wheel-name and Disconnected header both wear the same muted
-            // caption tint as the phone dashboard's status row; the speed
-            // is the page's visual focus, the header is just context.
-            // Stale phone counts as disconnected from the rider's POV.
             if (!state.connected || !phoneAlive) {
                 Text(
                     text = stringResource(R.string.watch_disconnected),
                     fontSize = headerSp,
                     color = colors.textSecondary,
-                    fontWeight = FontWeight.SemiBold
+                    fontWeight = FontWeight.SemiBold,
+                    textAlign = TextAlign.Center
                 )
             } else if (state.wheelName.isNotBlank()) {
                 Text(
                     text = state.wheelName,
                     fontSize = headerSp,
                     color = colors.textPrimary,
-                    fontWeight = FontWeight.SemiBold
+                    fontWeight = FontWeight.SemiBold,
+                    textAlign = TextAlign.Center
                 )
             }
-            // Speed number colours per main-screen rules; the km/h unit
-            // stays the muted grey from the dashboard's small label.
-            val useAccent = state.accentKey != "default"
-            val detailMaxSpeed = if (state.maxSpeedKmh > 0f) state.maxSpeedKmh else 70f
-            val speedColor = if (useAccent) accent
-                else speedBandColor(state.speedKmh, detailMaxSpeed, true,
-                    state.gaugeOrangeThresholdPct, state.gaugeRedThresholdPct, colors)
             Row(verticalAlignment = Alignment.Bottom) {
                 Text(
-                    // Headline speed dashes out the same way the main-screen
-                    // glyph does. Without this the page keeps showing the
-                    // last reading forever after the phone app dies.
                     text = if (phoneAlive) "%.0f".format(speedDisplay) else DASH,
                     fontSize = speedSp,
                     fontWeight = FontWeight.Bold,
@@ -909,33 +935,6 @@ private fun DetailsScreen(state: WatchState, accent: Color) {
                 )
             }
             Spacer(Modifier.height(4.dp))
-            // A live row needs BOTH a connected wheel and a phone that's
-            // still pushing; otherwise we dash the whole strip.
-            val live = state.connected && phoneAlive
-            // Per-metric coloring on default accent mirrors the phone
-            // dashboard: voltage / current / power / trip / torque get the
-            // accent (which IS cyan when accent=default), temp and PWM use
-            // tiered green / amber / red thresholds, battery in BatteryRow
-            // is already tier-coloured. Custom accent collapses everything
-            // to the picked accent so the watch wears one identity colour.
-            // Disconnected dashes wear the same colour the live value
-            // would at zero (green safe-tier or accent) so the row reads
-            // continuous with the speed glyph at the top of the page.
-            val cyanColor = accent
-            val tempColor = when {
-                useAccent -> accent
-                !live -> colors.gaugeFill
-                state.temperatureC > 60f -> colors.gaugeDanger
-                state.temperatureC > 45f -> colors.gaugeWarn
-                else -> colors.gaugeFill
-            }
-            val pwmColor = when {
-                useAccent -> accent
-                !live -> colors.gaugeFill
-                state.pwmPercent > 80f -> colors.gaugeDanger
-                state.pwmPercent > 60f -> colors.gaugeWarn
-                else -> colors.gaugeFill
-            }
             DetailRow(R.string.watch_voltage_label, if (live) "%.1f V".format(state.voltage) else DASH, labelSp, valueSp, labelWidth, valueWidth, cyanColor)
             DetailRow(R.string.watch_current_label, if (live) "%.1f A".format(state.current) else DASH, labelSp, valueSp, labelWidth, valueWidth, cyanColor)
             DetailRow(R.string.watch_power_label, if (live) "%.0f W".format(powerW) else DASH, labelSp, valueSp, labelWidth, valueWidth, cyanColor)
