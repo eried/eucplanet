@@ -7,6 +7,7 @@ import com.eried.eucplanet.ble.ConnectionState
 import com.eried.eucplanet.data.model.AppSettings
 import com.eried.eucplanet.data.model.arrowAngleDeg
 import com.eried.eucplanet.data.repository.ExternalGpsRepository
+import com.eried.eucplanet.data.repository.RadarRepository
 import com.eried.eucplanet.data.repository.SettingsRepository
 import com.eried.eucplanet.data.repository.TripRepository
 import com.eried.eucplanet.data.repository.WheelRepository
@@ -14,6 +15,7 @@ import com.eried.eucplanet.hud.protocol.HudCommand
 import com.eried.eucplanet.hud.protocol.HudDebug
 import com.eried.eucplanet.hud.protocol.HudDiscovery
 import com.eried.eucplanet.hud.protocol.HudState
+import com.eried.eucplanet.hud.protocol.RadarTargetWire
 import com.eried.eucplanet.nav.NavigationEngine
 import com.eried.eucplanet.ui.theme.AccentOptions
 import com.eried.eucplanet.ui.theme.AccentTeal
@@ -67,6 +69,7 @@ class HudServer @Inject constructor(
     private val settingsRepository: SettingsRepository,
     private val externalGpsRepository: ExternalGpsRepository,
     private val tripRepository: TripRepository,
+    private val radarRepository: RadarRepository,
     private val navigationEngine: NavigationEngine,
     private val commandSink: HudCommandSink,
     private val themeController: com.eried.eucplanet.ui.theme.ThemeController
@@ -405,6 +408,12 @@ class HudServer @Inject constructor(
 
         val d = if (demo.active) demo.frame else null
 
+        // Rear-view radar (Varia). In demo mode the synthetic source supplies
+        // scripted cars; otherwise read the live frame. "connected" gates the
+        // HUD radar widget between "idle / no radar" and "lane clear".
+        val radarFrame = radarRepository.currentFrame.value
+        val radarLive = radarRepository.connectionState.value == ConnectionState.CONNECTED
+
         // Debug-only protocol-version overrides so a tester can drive
         // the version-mismatch UI on a single APK pair without rebuilding.
         // Set via:
@@ -496,6 +505,18 @@ class HudServer @Inject constructor(
             joystickDown = joystickLabel(s.hudActionDown),
             joystickLeft = joystickLabel(s.hudActionLeft),
             joystickRight = joystickLabel(s.hudActionRight),
+            radarConnected = if (d != null) d.radarConnected else radarLive,
+            radarBatteryPercent = if (d != null) d.radarBatteryPercent
+                else (radarFrame?.batteryPercent ?: -1),
+            radarTargets = if (d != null) d.radarTargets
+                else radarFrame?.threats?.take(8)?.map {
+                    RadarTargetWire(
+                        id = it.id,
+                        distanceM = it.distanceM,
+                        approachSpeedKmh = it.approachSpeedKmh,
+                        level = it.threatLevel.ordinal
+                    )
+                }.orEmpty(),
             timestampMs = System.currentTimeMillis()
         )
     }

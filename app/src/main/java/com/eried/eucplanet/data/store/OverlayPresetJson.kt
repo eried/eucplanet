@@ -162,6 +162,9 @@ object OverlayPresetJson {
         put("dialShowColorBand", el.dialShowColorBand)
         put("dialOrangeThresholdPct", el.dialOrangeThresholdPct)
         put("dialRedThresholdPct", el.dialRedThresholdPct)
+        put("radarMode", el.radarMode)
+        put("radarRangeM", el.radarRangeM.toDouble())
+        put("radarShowDistanceLabels", el.radarShowDistanceLabels)
     }
 
     private fun elementFromJson(o: JSONObject): OverlayElement? {
@@ -225,7 +228,12 @@ object OverlayPresetJson {
             unitPosition = o.optString("unitPosition", d.unitPosition),
             dialShowColorBand = o.optBoolean("dialShowColorBand", d.dialShowColorBand),
             dialOrangeThresholdPct = o.optInt("dialOrangeThresholdPct", d.dialOrangeThresholdPct),
-            dialRedThresholdPct = o.optInt("dialRedThresholdPct", d.dialRedThresholdPct)
+            dialRedThresholdPct = o.optInt("dialRedThresholdPct", d.dialRedThresholdPct),
+            radarMode = o.optString("radarMode", d.radarMode),
+            radarRangeM = o.optDouble("radarRangeM", d.radarRangeM.toDouble()).toFloat(),
+            radarShowDistanceLabels = o.optBoolean(
+                "radarShowDistanceLabels", d.radarShowDistanceLabels
+            )
         )
     }
 

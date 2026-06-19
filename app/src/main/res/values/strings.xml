@@ -1227,6 +1227,7 @@
     <string name="studio_element_clock">Clock</string>
     <string name="studio_element_g_force">G-Force</string>
     <string name="studio_element_map">Map</string>
+    <string name="studio_element_radar">Radar</string>
 
     <!-- Studio: element type hints (shown in add-element list) -->
     <string name="studio_hint_wheel_name">The connected wheel\'s name</string>
@@ -1241,6 +1242,7 @@
     <string name="studio_hint_clock">A clock, analog watch or stopwatch</string>
     <string name="studio_hint_g_force">A G-force trail circle</string>
     <string name="studio_hint_map">A live mini-map with your trace</string>
+    <string name="studio_hint_radar">Rear-view radar: approaching vehicles</string>
 
     <!-- Studio: layout picker -->
     <string name="studio_layout_title">Camera panes</string>
@@ -1335,6 +1337,14 @@
     <string name="studio_cfg_map_trace">Show trace</string>
     <string name="studio_cfg_map_use_custom_marker">Prefer customized marker</string>
     <string name="studio_cfg_map_use_custom_marker_hint">Set your photo in Navigator → Customize my marker</string>
+    <string name="studio_cfg_radar_mode">Radar view</string>
+    <string name="studio_cfg_radar_lane">Lane</string>
+    <string name="studio_cfg_radar_mirror">Mirror</string>
+    <string name="studio_cfg_radar_minimal">Minimal</string>
+    <string name="studio_cfg_radar_mirror_hint">The radar sees behind you but not which side, so both markers light by threat.</string>
+    <string name="studio_cfg_radar_range">Range</string>
+    <string name="studio_cfg_radar_range_fmt">%1$d m</string>
+    <string name="studio_cfg_radar_distance_labels">Distance labels</string>
     <string name="studio_cfg_camera_label">Camera</string>
     <string name="studio_cfg_replace_image">Replace image</string>
     <string name="studio_cfg_chroma_key">Make a colour transparent</string>
