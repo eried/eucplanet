@@ -1328,6 +1328,15 @@ fun OverlayStudioScreen(
             val existingNames = remember(savedPresets) {
                 savedPresets.map { it.trim().lowercase() }.toSet()
             }
+            // First free "base (n)" for the "Keep both" choice.
+            fun uniqueName(base: String): String {
+                var n = 1
+                var candidate = "$base ($n)"
+                while (candidate.trim().lowercase() in existingNames) {
+                    n++; candidate = "$base ($n)"
+                }
+                return candidate
+            }
             fun doSave(name: String) {
                 viewModel.savePresetAs(name) { result ->
                     val msg = when (result) {
@@ -1364,10 +1373,21 @@ fun OverlayStudioScreen(
                     title = { Text(stringResource(R.string.studio_overwrite_title)) },
                     text = { Text(stringResource(R.string.studio_overwrite_body, pending)) },
                     confirmButton = {
-                        androidx.compose.material3.TextButton(onClick = {
-                            pendingOverwriteName = null
-                            doSave(pending)
-                        }) { Text(stringResource(R.string.studio_overwrite_confirm)) }
+                        androidx.compose.foundation.layout.Row(
+                            horizontalArrangement = Arrangement.spacedBy(4.dp)
+                        ) {
+                            // Keep both: save under the next free "name (n)"
+                            // instead of replacing the existing preset.
+                            androidx.compose.material3.TextButton(onClick = {
+                                val keep = uniqueName(pending)
+                                pendingOverwriteName = null
+                                doSave(keep)
+                            }) { Text(stringResource(R.string.studio_save_keep_both)) }
+                            androidx.compose.material3.TextButton(onClick = {
+                                pendingOverwriteName = null
+                                doSave(pending)
+                            }) { Text(stringResource(R.string.studio_overwrite_confirm)) }
+                        }
                     },
                     dismissButton = {
                         androidx.compose.material3.TextButton(onClick = {
