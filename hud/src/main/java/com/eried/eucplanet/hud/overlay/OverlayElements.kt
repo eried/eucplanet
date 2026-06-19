@@ -1039,18 +1039,21 @@ private fun RadarMirror(element: OverlayElement, data: StudioElementData) {
                         maxLines = 1
                     )
                     else -> {
+                        // Number on its own line so the digits sit dead-centre;
+                        // the unit + closing speed ride a smaller line below
+                        // (a "12 m" string would push the number off-centre).
                         Text(
-                            text = "${closest.distanceM} m",
+                            text = "${closest.distanceM}",
                             color = fg,
                             fontWeight = FontWeight.Bold,
-                            fontSize = (w * 0.13f).coerceIn(16f, 44f).sp,
+                            fontSize = (w * 0.17f).coerceIn(20f, 54f).sp,
                             maxLines = 1
                         )
                         Text(
-                            text = "+${targets.maxOf { it.approachSpeedKmh }} km/h",
+                            text = "m · +${targets.maxOf { it.approachSpeedKmh }} km/h",
                             color = markColor,
                             fontWeight = FontWeight.SemiBold,
-                            fontSize = (w * 0.06f).coerceIn(9f, 22f).sp,
+                            fontSize = (w * 0.055f).coerceIn(9f, 20f).sp,
                             maxLines = 1
                         )
                     }
