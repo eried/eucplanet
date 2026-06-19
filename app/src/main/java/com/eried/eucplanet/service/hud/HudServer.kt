@@ -130,7 +130,13 @@ class HudServer @Inject constructor(
     private val lifecycleLock = Mutex()
 
     private val http: OkHttpClient = OkHttpClient.Builder()
-        .pingInterval(15, TimeUnit.SECONDS)
+        // 5s, not 15s: a frozen/half-open HUD keeps the TCP socket open, so
+        // outbound frame sends succeed into the OS buffer and never error --
+        // only a missed pong reveals the dead peer. On the local hotspot link
+        // (sub-10ms RTT) a 5s ping detects a dead HUD in ~5s and triggers the
+        // dial-loop's rediscover+reconnect, instead of the rider staring at a
+        // frozen HUD for 15s+. Cheap on a LAN.
+        .pingInterval(5, TimeUnit.SECONDS)
         .connectTimeout(4, TimeUnit.SECONDS)
         .readTimeout(0, TimeUnit.MILLISECONDS)
         .retryOnConnectionFailure(true)
