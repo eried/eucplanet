@@ -421,15 +421,16 @@ class InMotionV2Adapter @Inject constructor() : WheelAdapter {
                 } ?: DecodeResult.Unknown
             }
             0x06 -> {
-                // info bundle: skip `02 86 01 00`, then ASCII serial follows the
-                // 0x01 record marker. We surface the serial as the model name so
-                // the dashboard has *something* to identify the wheel until a
-                // proper P6 parser lands.
+                // info bundle: skip `02 86 01 00`, then ASCII serial follows
+                // the 0x01 record marker. Emit the serial in its own decode
+                // result so the eucstats upload meta gets `model = "InMotion
+                // P6"` (uniform with V14 / V12) and `serial = "..."` in a
+                // separate JSON field. The dashboard label was already set
+                // earlier from notifyConnectingTo (line 72), so we don't need
+                // to re-emit a ModelName here.
                 if (data.size < 4) return DecodeResult.Unknown
                 val serial = InMotionV2Parser.parseP6Serial(data.copyOfRange(4, data.size))
-                if (serial != null) {
-                    DecodeResult.ModelName("InMotion P6 ($serial)", InMotionV2Model.P6)
-                } else DecodeResult.Unknown
+                if (serial != null) DecodeResult.Serial(serial) else DecodeResult.Unknown
             }
             0x20 -> {
                 // settings page A: `02 a0 [body]`. The body starts with a 0x20

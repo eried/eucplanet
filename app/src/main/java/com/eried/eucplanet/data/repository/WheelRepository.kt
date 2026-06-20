@@ -248,6 +248,13 @@ class WheelRepository @Inject constructor(
     private val _modelName = MutableStateFlow<String?>(null)
     val modelName: StateFlow<String?> = _modelName.asStateFlow()
 
+    // Wheel serial number reported by the firmware (currently emitted by the
+    // KingSong 0xB3 sub-cmd and the InMotion P6 0x06 info bundle). Separate
+    // from modelName so eucstats meta carries them in different JSON fields
+    // and the dashboard's model label stays uniform across riders.
+    private val _wheelSerial = MutableStateFlow<String?>(null)
+    val wheelSerial: StateFlow<String?> = _wheelSerial.asStateFlow()
+
     private val _firmwareVersion = MutableStateFlow<String?>(null)
     val firmwareVersion: StateFlow<String?> = _firmwareVersion.asStateFlow()
 
@@ -557,6 +564,7 @@ class WheelRepository @Inject constructor(
                         chargeTempHist.clear()
                         _chargingSnapshot.value = ChargingSnapshot()
                         _modelName.value = null
+                        _wheelSerial.value = null
                         _firmwareVersion.value = null
                         _maxSpeedCap.value = DEFAULT_MAX_SPEED_KMH
                         _wheelData.value =
@@ -1301,6 +1309,10 @@ class WheelRepository @Inject constructor(
             is DecodeResult.Firmware -> {
                 _firmwareVersion.value = result.display
                 Log.i(TAG, "Firmware: Main=${result.mainBoard} Drv=${result.driverBoard} BLE=${result.ble}")
+            }
+            is DecodeResult.Serial -> {
+                _wheelSerial.value = result.serial
+                Log.i(TAG, "Wheel serial: ${result.serial}")
             }
             is DecodeResult.AuthKey -> {
                 Log.i(TAG, "Auth key received: ${result.encryptedKey.joinToString(" ") { "%02X".format(it) }}")

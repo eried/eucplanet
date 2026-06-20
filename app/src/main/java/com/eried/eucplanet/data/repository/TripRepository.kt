@@ -393,7 +393,7 @@ class TripRepository @Inject constructor(
         val wheelMeta = buildWheelMetaJson(
             brand = wheelRepository.connectedBrand.value,
             model = wheelRepository.modelName.value,
-            serial = null,
+            serial = wheelRepository.wheelSerial.value,
             bleMac = settingsRepository.get().lastDeviceAddress,
             bleName = wheelRepository.connectedDeviceName.value,
             firmware = wheelRepository.firmwareVersion.value,

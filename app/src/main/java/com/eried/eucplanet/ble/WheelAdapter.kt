@@ -308,6 +308,11 @@ sealed class DecodeResult {
      * for display.
      */
     data class ModelName(val name: String, val model: Any? = null) : DecodeResult()
+    /** Wheel-reported serial number. Stays out of [ModelName.name] so the
+     *  eucstats upload meta keeps `model` uniform across families (e.g.
+     *  "InMotion P6", never "InMotion P6 (SN12345)") and the `serial` slot
+     *  carries the per-unit identifier separately. */
+    data class Serial(val serial: String) : DecodeResult()
     data class Firmware(val display: String, val mainBoard: String, val driverBoard: String, val ble: String) : DecodeResult()
     data class TotalDistance(val km: Float) : DecodeResult()
     data class AuthKey(val encryptedKey: ByteArray) : DecodeResult() {

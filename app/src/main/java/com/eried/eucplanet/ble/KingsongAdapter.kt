@@ -191,8 +191,13 @@ class KingsongAdapter @Inject constructor() : WheelAdapter {
                 results
             }
             0xB3 -> {
+                // Serial reply from the 0xB3 sub-cmd. Was previously
+                // overwriting the model name (set earlier by the 0xBB
+                // sub-cmd) so the dashboard label and eucstats upload meta
+                // ended up showing the bare serial instead of "KingSong
+                // S22" / etc. Emit it in its own slot so model stays clean.
                 val serial = KingsongParser.parseSerial(rawBytes) ?: return emptyList()
-                listOf(DecodeResult.ModelName(serial, detectedModel))
+                listOf(DecodeResult.Serial(serial))
             }
             0xF5 -> {
                 val cpu = KingsongParser.parseCpuPwm(rawBytes) ?: return emptyList()
