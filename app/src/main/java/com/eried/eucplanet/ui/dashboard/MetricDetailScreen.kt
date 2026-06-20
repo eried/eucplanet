@@ -470,11 +470,21 @@ private fun MetricDetailBody(
             null -> { mn, mx -> GraphScale.pad(mn, mx, 1f) }
         }
 
+        // Bipolar regen split: when the metric can take both signs (current,
+        // power, forward-G), the trace below the zero line draws in green so
+        // regen / braking reads at a glance the same way it does in the
+        // trip-detail Amps chart. Other metrics stay single-colour.
+        val isBipolar = legacyType == MetricType.CURRENT ||
+            key == "POWER" || key == "BATTERY_POWER" ||
+            key == "MOTOR_POWER" || key == "FORWARD_G"
+        val regenColor = if (isBipolar) MaterialTheme.appColors.metricBattery else null
+
         MetricGraph(
             samples = windowSamples,
             color = accentColor,
             boundsFor = boundsFor,
             unitLabel = unitLabel,
+            regenColor = regenColor,
             modifier = Modifier
                 .fillMaxWidth()
                 .height(280.dp)
@@ -678,6 +688,16 @@ internal fun MetricGraph(
      */
     predictionMarkers: List<PredictionMarker>? = null,
     predictionColor: Color = Color(0xFFFF4081),
+    /**
+     * Bipolar split colour: when non-null AND the rendered Y-range crosses
+     * zero, the trace above the zero baseline is drawn in [color] and the
+     * trace below in [regenColor]. Mirrors the TripDetailScreen ChartCard
+     * convention used for the current chart so regen vs draw reads at a
+     * glance on the per-metric history viewer too. No-op when the data is
+     * single-polarity or [baselineValue] is set (the baseline already
+     * carries semantic meaning for that mode).
+     */
+    regenColor: Color? = null,
     modifier: Modifier = Modifier
 ) {
     val gridColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.15f)
@@ -910,10 +930,30 @@ internal fun MetricGraph(
                         Offset(0f, baseY), Offset(w, baseY),
                         strokeWidth = 1.5f, pathEffect = dash,
                     )
+                    drawPath(path, color = color, style = Stroke(width = 3f))
+                } else if (regenColor != null && bounds.min < 0f && bounds.max > 0f) {
+                    // Bipolar split at the zero baseline. Mirrors the trip-detail
+                    // ChartCard convention so current / power / forward-G read the
+                    // same way on the dashboard's per-metric history viewer.
+                    val zeroY = (h - h * (0f - bounds.min) / padded.coerceAtLeast(0.001f)).coerceIn(0f, h)
+                    clipRect(top = 0f, bottom = zeroY) {
+                        drawPath(fillPath, color = color.copy(alpha = 0.18f))
+                        drawPath(path, color = color, style = Stroke(width = 3f))
+                    }
+                    clipRect(top = zeroY, bottom = h) {
+                        drawPath(fillPath, color = regenColor.copy(alpha = 0.18f))
+                        drawPath(path, color = regenColor, style = Stroke(width = 3f))
+                    }
+                    // Subtle zero-line so the split is visually anchored.
+                    drawLine(
+                        color.copy(alpha = 0.4f),
+                        Offset(0f, zeroY), Offset(w, zeroY),
+                        strokeWidth = 1.5f,
+                    )
                 } else {
                     drawPath(fillPath, color = color.copy(alpha = 0.1f))
+                    drawPath(path, color = color, style = Stroke(width = 3f))
                 }
-                drawPath(path, color = color, style = Stroke(width = 3f))
             }
 
             // Secondary series (e.g. voltage) on its own value scale, but
