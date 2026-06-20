@@ -809,23 +809,22 @@ private fun InfoTabs(state: ChargingUiState) {
                     "charge" -> {
                         // Charge % (blue, like the battery fill, left scale) +
                         // voltage (green, own scale).
-                        // Project each running prediction snapshot onto the
-                        // chart as a small dot at its predicted target time
-                        // (y = 80 %) and full-charge time (y = 100 %). A
-                        // tight cluster around a single x-value means the
-                        // model converged; a spread along the x-axis shows
-                        // how the prediction drifted over the session. The
-                        // dot at "now" (samples.last) doubles as the
-                        // currently-active prediction.
+                        // Two prediction markers — one at the 80 % target and
+                        // one at 100 % — taken from the MOST RECENT prediction
+                        // snapshot. Earlier snapshots were also being plotted
+                        // (one dot per snapshot at each level) but the cluster
+                        // got dense fast on long sessions and obscured the
+                        // chart instead of helping the rider. The single
+                        // current-prediction dot is the actionable read: "if
+                        // I keep charging at this rate, here's when it lands."
                         val predictionMarkers = remember(state.predictionHistory) {
+                            val latest = state.predictionHistory.lastOrNull()
                             buildList {
-                                for (p in state.predictionHistory) {
-                                    p.targetEtaMs?.let {
-                                        add(com.eried.eucplanet.ui.dashboard.PredictionMarker(it, 80f))
-                                    }
-                                    p.fullEtaMs?.let {
-                                        add(com.eried.eucplanet.ui.dashboard.PredictionMarker(it, 100f))
-                                    }
+                                latest?.targetEtaMs?.let {
+                                    add(com.eried.eucplanet.ui.dashboard.PredictionMarker(it, 80f))
+                                }
+                                latest?.fullEtaMs?.let {
+                                    add(com.eried.eucplanet.ui.dashboard.PredictionMarker(it, 100f))
                                 }
                             }
                         }
