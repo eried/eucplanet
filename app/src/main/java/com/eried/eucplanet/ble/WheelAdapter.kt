@@ -328,6 +328,23 @@ sealed class DecodeResult {
         val motorC: Float?,
         val driverBoardC: Float?
     ) : DecodeResult()
+    /** One sub-frame of smart-BMS data. Cells arrive in rolling pages
+     *  (pages 1+2+3 for single-pack, 5+6+7 for the second pack), so the
+     *  caller merges successive slices into a full per-cell view. Veteran
+     *  smart-BMS wheels (Lynx, Sherman L, Patton with smart BMS, Oryx,
+     *  NOSFET) ship this; older models that don't have a smart BMS never
+     *  emit it. */
+    data class Bms(
+        val packIndex: Int,
+        /** Per-cell pack voltages in V, indexed by absolute cell number. Only
+         *  the range this slice covered ([cellRangeStart] inclusive,
+         *  length = cellVoltages.size) is meaningful. */
+        val cellVoltages: List<Float>? = null,
+        val cellRangeStart: Int? = null,
+        val bmsTempsC: List<Float>? = null,
+        val packCurrent1A: Float? = null,
+        val packCurrent2A: Float? = null,
+    ) : DecodeResult()
     data object Unknown : DecodeResult()
 }
 

@@ -20,6 +20,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Check
@@ -786,6 +788,9 @@ private fun InfoTabs(state: ChargingUiState) {
         add(stringResource(R.string.charging_tab_charge) to "charge")
         if (state.hasPacks) add(stringResource(R.string.charging_tab_packs) to "packs")
         if (state.hasRealCurrent) add(stringResource(R.string.charging_tab_power) to "power")
+        // Smart-BMS wheels (Lynx / Sherman L / Oryx / NOSFET / Patton-with-BMS)
+        // report per-cell voltages; everyone else has empty packs and skips it.
+        if (state.bms.hasCells) add(stringResource(R.string.charging_tab_cells) to "cells")
     }
     var selected by remember { mutableIntStateOf(0) }
     if (selected >= tabs.size) selected = 0
@@ -874,6 +879,9 @@ private fun InfoTabs(state: ChargingUiState) {
                         StatRow(stringResource(R.string.charging_stat_current), "%.1f A".format(abs(state.current)))
                         StatRow(stringResource(R.string.charging_stat_voltage), "%.1f V".format(state.voltage))
                     }
+                    "cells" -> {
+                        CellsTabContent(state.bms)
+                    }
                 }
             }
         }
@@ -924,6 +932,125 @@ private fun ChargingChart(
         ) {
             Text(stringResource(R.string.charging_chart_empty), color = MaterialTheme.appColors.hint, fontSize = 13.sp)
         }
+    }
+}
+
+/**
+ * Per-cell view for smart-BMS wheels (Lynx / Sherman L / Oryx / NOSFET /
+ * smart-BMS Patton). For each pack: top stat row with the cell count, min /
+ * max / delta in mV, then a grid of small cell-voltage chips. Each chip is
+ * tinted by its deviation from the pack average so cells that have drifted
+ * out of balance pop visually (red = lowest, blue = highest). Scrolls when
+ * a pack has many cells (the Lynx S has 42 cells per pack, so the grid is
+ * long).
+ */
+@Composable
+private fun CellsTabContent(bms: com.eried.eucplanet.data.model.BmsState) {
+    val colors = MaterialTheme.appColors
+    val packs = bms.packs.filter { it.knownCells.isNotEmpty() }
+    if (packs.isEmpty()) {
+        // Smart-BMS wheel just connected and pages 1+2+3 haven't all landed
+        // yet — show the hint instead of an empty surface.
+        Box(modifier = Modifier.fillMaxWidth().padding(top = 24.dp), contentAlignment = Alignment.Center) {
+            Text(
+                stringResource(R.string.charging_cells_waiting),
+                color = colors.hint,
+                style = MaterialTheme.typography.bodyMedium,
+            )
+        }
+        return
+    }
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .verticalScroll(rememberScrollState()),
+        verticalArrangement = Arrangement.spacedBy(12.dp),
+    ) {
+        packs.forEach { pack ->
+            val cells = pack.knownCells
+            val mn = pack.minCellV ?: 0f
+            val mx = pack.maxCellV ?: 0f
+            val deltaMv = pack.cellDeltaMv ?: 0
+            // Per-pack header: pack name (if multi-pack), cell count, min / max / Δ.
+            // Δ > 50 mV is the conventional "needs balance" threshold on Li-ion EUCs.
+            val deltaColor = when {
+                deltaMv >= 100 -> colors.statusDanger
+                deltaMv >= 50 -> colors.statusWarn
+                else -> colors.statusGood
+            }
+            if (packs.size > 1) {
+                Text(
+                    stringResource(R.string.charging_cells_pack_n, pack.packIndex + 1),
+                    style = MaterialTheme.typography.titleSmall,
+                    color = colors.metricVoltage,
+                    fontWeight = FontWeight.SemiBold,
+                )
+            }
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
+            ) {
+                CellHeaderStat(stringResource(R.string.charging_cells_count), "${cells.size}", modifier = Modifier.weight(1f))
+                CellHeaderStat(stringResource(R.string.charging_cells_min), "%.3f V".format(mn), modifier = Modifier.weight(1f))
+                CellHeaderStat(stringResource(R.string.charging_cells_max), "%.3f V".format(mx), modifier = Modifier.weight(1f))
+                CellHeaderStat(stringResource(R.string.charging_cells_delta), "$deltaMv mV", color = deltaColor, modifier = Modifier.weight(1f))
+            }
+            // Cell grid: 6 columns, each chip ~52 dp wide. With 42 cells that's
+            // 7 rows; smaller packs use the same chip width and just have
+            // fewer rows.
+            val cols = 6
+            cells.chunked(cols).forEach { row ->
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(4.dp),
+                ) {
+                    row.forEach { (idx, v) ->
+                        CellChip(
+                            cellNumber = idx + 1,
+                            voltage = v,
+                            min = mn,
+                            max = mx,
+                            modifier = Modifier.weight(1f),
+                        )
+                    }
+                    repeat(cols - row.size) { Spacer(Modifier.weight(1f)) }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun CellHeaderStat(label: String, value: String, color: Color = MaterialTheme.appColors.metricVoltage, modifier: Modifier = Modifier) {
+    Column(modifier = modifier, horizontalAlignment = Alignment.CenterHorizontally) {
+        Text(label, fontSize = 10.sp, color = MaterialTheme.appColors.hint)
+        Text(value, fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = color)
+    }
+}
+
+@Composable
+private fun CellChip(cellNumber: Int, voltage: Float, min: Float, max: Float, modifier: Modifier = Modifier) {
+    val colors = MaterialTheme.appColors
+    // Position the voltage on the pack's [min..max] band: lowest cell → red,
+    // highest → blue, middle → neutral hint. Within a single-volt-wide band
+    // even tiny imbalances are visually obvious.
+    val span = (max - min).coerceAtLeast(0.001f)
+    val pos = ((voltage - min) / span).coerceIn(0f, 1f)
+    val chipColor = when {
+        pos < 0.15f -> colors.statusDanger
+        pos < 0.35f -> colors.statusWarn
+        pos > 0.85f -> colors.metricVoltage
+        else -> colors.metricBattery
+    }
+    Column(
+        modifier = modifier
+            .padding(vertical = 2.dp)
+            .background(chipColor.copy(alpha = 0.18f), shape = RoundedCornerShape(6.dp))
+            .padding(vertical = 4.dp, horizontal = 4.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        Text("#$cellNumber", fontSize = 9.sp, color = colors.hint)
+        Text("%.3f".format(voltage), fontSize = 11.sp, fontWeight = FontWeight.Medium, color = chipColor)
     }
 }
 

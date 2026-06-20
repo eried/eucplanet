@@ -294,8 +294,21 @@ class VeteranAdapter @Inject constructor() : WheelAdapter {
             }
             if (f.isLong) {
                 // Best-effort BMS parse so a malformed slice can't crash the
-                // pipeline; result is discarded until the UI is ready for it.
-                VeteranParser.parseLongFrame(f.bytes)
+                // pipeline. Emit the slice up to WheelRepository which stitches
+                // successive pages (cells 0..14, 15..29, 30..41 per pack) into
+                // a full per-cell view that the Battery monitor's Cells tab
+                // reads.
+                val slice = VeteranParser.parseLongFrame(f.bytes)
+                if (slice != null) {
+                    out += DecodeResult.Bms(
+                        packIndex = slice.packIndex,
+                        cellVoltages = slice.cellVoltages,
+                        cellRangeStart = slice.cellRangeStart,
+                        bmsTempsC = slice.bmsTempsC,
+                        packCurrent1A = slice.packCurrent1A,
+                        packCurrent2A = slice.packCurrent2A,
+                    )
+                }
             }
         }
         return out

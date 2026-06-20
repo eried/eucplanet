@@ -1662,6 +1662,13 @@
     <string name="charging_estimate_to_full">Always estimate to 100%</string>
     <string name="charging_options">Options</string>
     <string name="charging_tab_power">Power</string>
+    <string name="charging_tab_cells">Cells</string>
+    <string name="charging_cells_pack_n">Pack %1$d</string>
+    <string name="charging_cells_count">Cells</string>
+    <string name="charging_cells_min">Min</string>
+    <string name="charging_cells_max">Max</string>
+    <string name="charging_cells_delta">Δ</string>
+    <string name="charging_cells_waiting">Waiting for cell-voltage data…</string>
     <string name="charging_stat_added">Added</string>
     <string name="charging_stat_rate">Rate</string>
     <string name="charging_stat_voltage">Voltage</string>

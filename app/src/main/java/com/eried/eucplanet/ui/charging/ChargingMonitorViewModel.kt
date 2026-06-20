@@ -56,6 +56,10 @@ data class ChargingUiState(
     val tempHistory: List<MetricSample> = emptyList(),
     /** Per-session snapshots of the running 80 % / 100 % predictions. */
     val predictionHistory: List<PredictionSample> = emptyList(),
+    /** Stitched smart-BMS state. Empty packs list means this wheel hasn't
+     *  reported per-cell data (older Sherman / KingSong / P6); the Cells tab
+     *  hides in that case. */
+    val bms: com.eried.eucplanet.data.model.BmsState = com.eried.eucplanet.data.model.BmsState(),
 )
 
 /**
@@ -75,13 +79,16 @@ class ChargingMonitorViewModel @Inject constructor(
     private var seenCurrent = false
 
     val uiState: StateFlow<ChargingUiState> = combine(
-        wheelRepository.wheelData,
-        wheelRepository.chargeStatus,
-        wheelRepository.connectedDeviceName,
-        wheelRepository.chargingSnapshot,
+        combine(
+            wheelRepository.wheelData,
+            wheelRepository.chargeStatus,
+            wheelRepository.connectedDeviceName,
+            wheelRepository.chargingSnapshot,
+        ) { data, status, name, snap -> Quad(data, status, name, snap) },
         settingsRepository.settings,
-    ) { data, status, name, snap, settings ->
-        buildState(data, status, name, snap, settings.chargingEstimateToFull)
+        wheelRepository.bmsState,
+    ) { quad, settings, bms ->
+        buildState(quad.data, quad.status, quad.name, quad.snap, settings.chargingEstimateToFull, bms)
     }.stateIn(
         viewModelScope,
         SharingStarted.WhileSubscribed(5_000),
@@ -93,7 +100,15 @@ class ChargingMonitorViewModel @Inject constructor(
             wheelRepository.connectedDeviceName.value,
             wheelRepository.chargingSnapshot.value,
             false,
+            wheelRepository.bmsState.value,
         ),
+    )
+
+    private data class Quad(
+        val data: WheelData,
+        val status: ChargeStatus,
+        val name: String?,
+        val snap: ChargingSnapshot,
     )
 
     /** Toggle whether the prediction targets 100 % instead of 80 % (persisted). */
@@ -109,6 +124,7 @@ class ChargingMonitorViewModel @Inject constructor(
         name: String?,
         snap: ChargingSnapshot,
         estimateToFull: Boolean,
+        bms: com.eried.eucplanet.data.model.BmsState = com.eried.eucplanet.data.model.BmsState(),
     ): ChargingUiState {
         val charging = status == ChargeStatus.Charging || status == ChargeStatus.Full
         val connected = status != ChargeStatus.Disconnected
@@ -155,6 +171,7 @@ class ChargingMonitorViewModel @Inject constructor(
             voltageHistory = snap.voltageHistory,
             tempHistory = snap.tempHistory,
             predictionHistory = snap.predictionHistory,
+            bms = bms,
         )
     }
 
