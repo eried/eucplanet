@@ -54,13 +54,15 @@ class ChargingEstimator(
     private val targetPercent: Float = 80f,
     private val targetTaperFactor: Float = 1.05f,
     private val cvTaperFactor: Float = 2.0f,
-    // Warm-up: 3 % gained over 3 min (was 2 % / 30 s). At ~5 A on a typical
-    // BMS-equipped pack 3 % is roughly 3 min of charge anyway, so this
-    // suppresses the first 15 minutes of jittery early predictions that
-    // testers reported as "way off" and shows the rider a "warming up" hint
-    // for that window. After warm-up the slope is steady enough to commit.
-    private val warmupMinPercentGain: Float = 3f,
-    private val warmupMinDurationMs: Long = 180_000L,
+    // Warm-up: 5 % gained over 5 min (was 3 % / 3 min). Bumped after testers
+    // reported predictions wobbling for the first ~10 min on Lynx / Oryx; the
+    // post-fix Veteran voltage stream is cleaner but the % gate dominates on
+    // slow-tapering chargers near full anyway, so the extra 2 % buys real
+    // slope-quality at the cost of a longer "warming up" splash. The rider
+    // still sees the live 0.001 % battery readout during warm-up — only the
+    // "X min to full" line waits for these gates to clear.
+    private val warmupMinPercentGain: Float = 5f,
+    private val warmupMinDurationMs: Long = 300_000L,
     // 5 min window: enough integer SoC transitions in the window that the
     // slope estimate stays within a few % of the truth even on a BMS that
     // ticks at 1 % resolution.

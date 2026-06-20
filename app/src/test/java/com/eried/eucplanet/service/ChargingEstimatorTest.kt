@@ -11,10 +11,22 @@ import org.junit.Test
  * by the observed %-climb rate (no pack capacity), so these feed synthetic
  * (timestamp, percent) samples and assert on the derived rate / ETAs.
  *
- * Note: warm-up requires 3 % gained over 3 min (was 2 % / 30 s); the
- * feedLinear helper defaults to a sample stream long enough to satisfy that.
+ * Tests focused on rate / ETA math pin the warm-up gates explicitly to the
+ * pre-tightening values (3 % / 3 min) via [smallGates] so each test ships a
+ * stream that warms up. The warmup-specific tests still use the current
+ * production defaults (5 % / 5 min).
  */
 class ChargingEstimatorTest {
+
+    /** Pre-tightening warm-up gates so tests focused on rate math can warm
+     *  up without inflating their sample streams. The production defaults
+     *  are deliberately stricter (5 % / 5 min) to keep early predictions
+     *  honest on slow chargers. */
+    private fun smallGates() = ChargingEstimator(
+        warmupMinPercentGain = 3f,
+        warmupMinDurationMs = 180_000L,
+    )
+
 
     /** Feed a steady linear charge of [pctPerMin] starting at [startPct] for
      *  [count] samples spaced [stepMs] apart, beginning at t=0. Default is
@@ -48,9 +60,9 @@ class ChargingEstimatorTest {
 
     @Test
     fun `steady one percent per minute gives correct rate and eta to 80`() {
-        val est = ChargingEstimator()
+        val est = smallGates()
         // 50% climbing at 1%/min, samples every 1s for 4 min -> reaches 54%.
-        // Past the 3% / 3min warm-up gate.
+        // Past the 3% / 3min warm-up gate (smallGates).
         est.feedLinear(startPct = 50f, pctPerMin = 1f)
         val e = est.estimate()
         assertTrue("warmed up after +4% over 4min", e.warmedUp)
@@ -62,7 +74,7 @@ class ChargingEstimatorTest {
 
     @Test
     fun `eta to full is pessimistic versus naive linear due to cv taper`() {
-        val est = ChargingEstimator() // defaults: targetTaper 1.05, cvTaper 2.0
+        val est = smallGates() // defaults: targetTaper 1.05, cvTaper 2.0
         est.feedLinear(startPct = 50f, pctPerMin = 1f) // -> 54%
         val e = est.estimate()
         val naiveToFull = (100f - 54f) / 1f // 46 min if it never tapered
@@ -77,7 +89,7 @@ class ChargingEstimatorTest {
 
     @Test
     fun `past the 80 target reports no eta to target but still to full`() {
-        val est = ChargingEstimator()
+        val est = smallGates()
         est.feedLinear(startPct = 85f, pctPerMin = 1f) // -> 89%
         val e = est.estimate()
         assertTrue(e.warmedUp)
@@ -126,7 +138,7 @@ class ChargingEstimatorTest {
 
     @Test
     fun `median filter drops a single-frame outlier without skewing the slope`() {
-        val est = ChargingEstimator()
+        val est = smallGates()
         // Steady 1 %/min stream over 4 min at 1 Hz, with every 30th sample
         // dropping 20 percentage points (the noisy-voltage outlier pattern
         // from real Lynx captures: ~1 % of frames carry a wildly low pack-V
