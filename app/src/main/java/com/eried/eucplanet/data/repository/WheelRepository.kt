@@ -255,6 +255,15 @@ class WheelRepository @Inject constructor(
     private val _wheelSerial = MutableStateFlow<String?>(null)
     val wheelSerial: StateFlow<String?> = _wheelSerial.asStateFlow()
 
+    // Stitched smart-BMS state. The Veteran adapter ships BMS sub-frames as
+    // DecodeResult.Bms slices covering a 12-15 cell window each; handleDecoded
+    // merges successive slices into a full per-pack view. Empty packs list
+    // means "no smart BMS / no data yet" — the Battery monitor's Cells tab
+    // gates on this so non-BMS wheels (older Sherman / KingSong / P6) don't
+    // see an empty tab.
+    private val _bmsState = MutableStateFlow(com.eried.eucplanet.data.model.BmsState())
+    val bmsState: StateFlow<com.eried.eucplanet.data.model.BmsState> = _bmsState.asStateFlow()
+
     private val _firmwareVersion = MutableStateFlow<String?>(null)
     val firmwareVersion: StateFlow<String?> = _firmwareVersion.asStateFlow()
 
@@ -565,6 +574,7 @@ class WheelRepository @Inject constructor(
                         _chargingSnapshot.value = ChargingSnapshot()
                         _modelName.value = null
                         _wheelSerial.value = null
+                        _bmsState.value = com.eried.eucplanet.data.model.BmsState()
                         _firmwareVersion.value = null
                         _maxSpeedCap.value = DEFAULT_MAX_SPEED_KMH
                         _wheelData.value =
@@ -1314,6 +1324,9 @@ class WheelRepository @Inject constructor(
                 _wheelSerial.value = result.serial
                 Log.i(TAG, "Wheel serial: ${result.serial}")
             }
+            is DecodeResult.Bms -> {
+                _bmsState.value = mergeBmsSlice(_bmsState.value, result)
+            }
             is DecodeResult.AuthKey -> {
                 Log.i(TAG, "Auth key received: ${result.encryptedKey.joinToString(" ") { "%02X".format(it) }}")
                 pendingAuthKeyDeferred?.complete(result.encryptedKey)
@@ -1541,3 +1554,52 @@ data class ExternalSpeedChange(
     val alarmKmh: Float,
     val legalMode: Boolean
 )
+
+/**
+ * Stitch a fresh BMS slice into the per-pack rolling state. Each Veteran
+ * smart-BMS sub-frame carries only a 12-15 cell window plus an optional
+ * temp / current header; the wheel cycles through pages 1+2+3 (cells 0..41
+ * for pack 0) and 5+6+7 (pack 1) at ~5 Hz so the full per-cell view
+ * assembles over ~1.5 s. Fields the slice didn't carry are preserved from
+ * the previous state for that pack.
+ */
+internal fun mergeBmsSlice(
+    prev: com.eried.eucplanet.data.model.BmsState,
+    slice: com.eried.eucplanet.ble.DecodeResult.Bms,
+): com.eried.eucplanet.data.model.BmsState {
+    val existing = prev.packs.firstOrNull { it.packIndex == slice.packIndex }
+        ?: com.eried.eucplanet.data.model.BmsState.PackState(packIndex = slice.packIndex)
+    // Grow the per-pack cell-voltage array as new ranges arrive. Index by
+    // absolute cell number so a slice covering cells 30..41 lands in the
+    // right slot without disturbing the 0..29 entries we already have.
+    val cells = existing.cellVoltages.toMutableList()
+    val sliceCells = slice.cellVoltages
+    val rangeStart = slice.cellRangeStart
+    if (sliceCells != null && rangeStart != null) {
+        val needed = rangeStart + sliceCells.size
+        while (cells.size < needed) cells.add(0f)
+        for (i in sliceCells.indices) {
+            val v = sliceCells[i]
+            if (v > 0f) cells[rangeStart + i] = v
+        }
+    }
+    // Slice 3/7 also carries 6 BMS temperatures. Slice 0/4 carries pack
+    // currents (two values: one per pack). For pack 0 we use packCurrent1A;
+    // for pack 1 we use packCurrent2A.
+    val newCurrent = when (slice.packIndex) {
+        0 -> slice.packCurrent1A ?: existing.currentA
+        1 -> slice.packCurrent2A ?: existing.currentA
+        else -> existing.currentA
+    }
+    val newTemps = slice.bmsTempsC ?: existing.temperaturesC
+    val updated = existing.copy(
+        cellVoltages = cells,
+        temperaturesC = newTemps,
+        currentA = newCurrent,
+    )
+    val others = prev.packs.filter { it.packIndex != slice.packIndex }
+    return com.eried.eucplanet.data.model.BmsState(
+        packs = (others + updated).sortedBy { it.packIndex },
+        updatedAt = System.currentTimeMillis(),
+    )
+}
