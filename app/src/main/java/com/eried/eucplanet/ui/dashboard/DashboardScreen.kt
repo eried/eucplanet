@@ -160,6 +160,13 @@ import com.eried.eucplanet.ui.theme.themedFieldColors
  * saves into Movies/EUC Planet and Pictures/EUC Planet; Android has no reliable
  * "open exactly this folder" intent, so this filters the gallery by media type.
  */
+/** How long the wheel must have been at standstill before charging-rising-edge
+ *  is allowed to trigger the Battery monitor auto-open. Short enough that a
+ *  rider who just stopped and plugged in still gets the auto-open within a
+ *  few seconds, long enough that regen-while-rocking and balance corrections
+ *  can't slip through. */
+private const val AUTO_OPEN_STILL_MS = 3000L
+
 private fun openMediaGallery(context: Context, video: Boolean, onNoGalleryApp: () -> Unit) {
     val collection = if (video) MediaStore.Video.Media.EXTERNAL_CONTENT_URI
     else MediaStore.Images.Media.EXTERNAL_CONTENT_URI
@@ -239,15 +246,30 @@ fun DashboardScreen(
     val gaugeRedPct by viewModel.gaugeRedPct.collectAsState()
     val currentMode by viewModel.currentDisplayMode.collectAsState()
 
-    // Auto-open the Battery monitor when charging starts (rising edge), if enabled.
+    // Auto-open the Battery monitor when charging starts (rising edge), if
+    // enabled. Standstill debounce: only allow the auto-open when the wheel
+    // has been stationary for at least AUTO_OPEN_STILL_MS. Charging while
+    // moving (or just-stopped) is almost certainly a false positive — regen
+    // while rocking the wheel, balance corrections on a parked wheel, a
+    // momentary current dip the inference layer latched on, etc. Without
+    // this the rider could be coasting down the street and have the Battery
+    // monitor steal the dashboard, which is both wrong and unsafe.
     val chargeStatusForAutoOpen by viewModel.chargeStatus.collectAsState()
     val chargingAutoOpen by viewModel.chargingAutoOpen.collectAsState()
     var lastChargeStatus by remember { mutableStateOf(chargeStatusForAutoOpen) }
+    var lastNonZeroSpeedAt by remember { mutableStateOf(System.currentTimeMillis()) }
+    LaunchedEffect(wheelData.speed) {
+        if (kotlin.math.abs(wheelData.speed) >= 0.5f) {
+            lastNonZeroSpeedAt = System.currentTimeMillis()
+        }
+    }
     LaunchedEffect(chargeStatusForAutoOpen, chargingAutoOpen) {
         val started = chargeStatusForAutoOpen == com.eried.eucplanet.data.model.ChargeStatus.Charging &&
             lastChargeStatus != com.eried.eucplanet.data.model.ChargeStatus.Charging
         lastChargeStatus = chargeStatusForAutoOpen
-        if (started && chargingAutoOpen) onNavigateToCharging()
+        val stillForLongEnough =
+            System.currentTimeMillis() - lastNonZeroSpeedAt >= AUTO_OPEN_STILL_MS
+        if (started && chargingAutoOpen && stillForLongEnough) onNavigateToCharging()
     }
     // Customizable dashboard layout — falls back to the catalog defaults
     // (BATTERY, TEMPERATURE, VOLTAGE, CURRENT, LOAD, TRIP) when the

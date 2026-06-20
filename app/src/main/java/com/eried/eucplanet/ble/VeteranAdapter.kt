@@ -243,7 +243,21 @@ class VeteranAdapter @Inject constructor() : WheelAdapter {
         if (frames.isEmpty()) return emptyList()
         val out = mutableListOf<DecodeResult>()
         for (f in frames) {
-            val telem = VeteranParser.parseTelemetry(f.bytes, detectedModel)
+            // The Veteran wheel cycles through four frame layouts identified by
+            // the byte right after the magic: 0x49 / 0x53 / 0x47 carry standard
+            // telemetry at the offsets parseTelemetry knows about; 0x5f is the
+            // smart-BMS sub-frame whose bytes 4..5 carry a BMS-side ADC reading,
+            // NOT pack voltage. Running parseTelemetry on 0x5f frames produced
+            // ~3-7 V spikes every ~200 ms (proven from a Lynx S diagnostic
+            // where 0x5f's voltage spread was 146-153 V vs the other pages'
+            // 148-150 V), polluting the dashboard chart and the charging
+            // estimator's curve fit. Gate the telemetry parse on the page byte;
+            // the BMS payload is still decoded separately by parseLongFrame on
+            // the `f.isLong` branch below.
+            val isStandardTelemetry =
+                f.bytes.size > 3 && f.bytes[3] != 0x5f.toByte()
+            val telem = if (isStandardTelemetry)
+                VeteranParser.parseTelemetry(f.bytes, detectedModel) else null
             val emitted = if (telem != null) {
                 // An Oryx (mVer 8) page-2 frame carries the wheel's own BMS SoC
                 // (parseTelemetry put it in batteryPercent); cache it and stamp
