@@ -1655,4 +1655,8 @@
     <string name="voice_announce_always">Immer</string>
     <string name="voice_announce_connected">Verbunden</string>
     <string name="voice_announce_riding">Beim Fahren</string>
+    <string name="nav_share_dialog_title">Geteiltes Ziel hinzufügen?</string>
+    <string name="nav_share_dialog_body">Deine Route hat bereits Stopps. Als nächsten Stopp hinzufügen oder neu starten?</string>
+    <string name="nav_share_dialog_append">Als nächsten Stopp</string>
+    <string name="nav_share_dialog_new">Neue Route</string>
 </resources>

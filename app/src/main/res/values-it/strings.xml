@@ -1541,4 +1541,8 @@
     <string name="hud_joystick_down">Giù (doppio tocco)</string>
     <string name="hud_joystick_left">Sinistra (doppio tocco)</string>
     <string name="hud_joystick_right">Destra (doppio tocco)</string>
+    <string name="nav_share_dialog_title">Aggiungere la destinazione condivisa?</string>
+    <string name="nav_share_dialog_body">Il tuo percorso ha già delle tappe. Aggiungere come prossima tappa o ricominciare?</string>
+    <string name="nav_share_dialog_append">Aggiungi come prossima</string>
+    <string name="nav_share_dialog_new">Nuovo percorso</string>
 </resources>

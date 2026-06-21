@@ -1596,6 +1596,10 @@
     <string name="hud_joystick_down">Aşağı (çift dokunma)</string>
     <string name="hud_joystick_left">Sol (çift dokunma)</string>
     <string name="hud_joystick_right">Sağ (çift dokunma)</string>
+    <string name="nav_share_dialog_title">Paylaşılan hedef eklensin mi?</string>
+    <string name="nav_share_dialog_body">Rotanızda zaten duraklar var. Sonraki durak olarak eklensin mi, yoksa yeniden mi başlasın?</string>
+    <string name="nav_share_dialog_append">Sonraki olarak ekle</string>
+    <string name="nav_share_dialog_new">Yeni rota</string>
 </resources>
 
 

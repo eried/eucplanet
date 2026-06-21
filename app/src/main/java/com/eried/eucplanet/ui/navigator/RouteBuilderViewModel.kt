@@ -479,6 +479,61 @@ class RouteBuilderViewModel @Inject constructor(
             _messages.tryEmit(R.string.nav_cant_add_while_running)
             return
         }
+        if (_waypoints.value.isEmpty()) {
+            // Empty route: act immediately. Coordinates drop a pin; address
+            // strings fill the search field so the rider sees what was sent
+            // and can still edit / cancel before the geocoder commits to a
+            // specific match.
+            consumeIncomingShare(req)
+            return
+        }
+        // Existing stops: hand off to the screen via _pendingShare so the
+        // rider can pick "Start new route" (clears stops then consumes) or
+        // "Add as next stop" (consumes onto the tail).
+        _pendingShare.value = req
+    }
+
+    /**
+     * Backing for the "what to do with this share?" AlertDialog. Set by
+     * [handleIncomingShare] when the route already has stops; cleared by
+     * the dialog's resolve / dismiss callbacks AND by the screen's
+     * lifecycle observer on background (so a backgrounded dialog doesn't
+     * silently reappear later).
+     */
+    private val _pendingShare =
+        MutableStateFlow<com.eried.eucplanet.data.repository.IncomingShareRepository.Pending?>(null)
+    val pendingShare: StateFlow<com.eried.eucplanet.data.repository.IncomingShareRepository.Pending?> =
+        _pendingShare.asStateFlow()
+
+    /** One-shot stream the screen consumes to set its search text. Used
+     *  when an address share lands and we want the rider to see exactly
+     *  what was passed in (instead of silently fanning out to a geocoder
+     *  guess). */
+    private val _fillSearchText = kotlinx.coroutines.flow.MutableSharedFlow<String>(
+        extraBufferCapacity = 1
+    )
+    val fillSearchText: kotlinx.coroutines.flow.SharedFlow<String> = _fillSearchText
+
+    fun acceptPendingShareAppend() {
+        val req = _pendingShare.value ?: return
+        _pendingShare.value = null
+        consumeIncomingShare(req)
+    }
+
+    fun acceptPendingShareAsNewRoute() {
+        val req = _pendingShare.value ?: return
+        _pendingShare.value = null
+        clear()
+        consumeIncomingShare(req)
+    }
+
+    fun dismissPendingShare() {
+        _pendingShare.value = null
+    }
+
+    private fun consumeIncomingShare(
+        req: com.eried.eucplanet.data.repository.IncomingShareRepository.Pending
+    ) {
         val lat = req.lat
         val lng = req.lng
         if (lat != null && lng != null) {
@@ -487,17 +542,81 @@ class RouteBuilderViewModel @Inject constructor(
         }
         val q = req.query
         if (q.isNullOrBlank()) return
-        viewModelScope.launch {
-            val origin = currentLocation.value?.let {
-                GeoPoint(it.latitude, it.longitude)
+        // Google Maps's mobile share sheet often ships only a shortened
+        // `maps.app.goo.gl/xxx` URL — no place name, no coords in the
+        // payload itself. Follow the HTTP redirect off the main thread,
+        // re-parse the expanded URL (which DOES carry `@lat,lng,zoom`),
+        // and continue with whatever the resolved version yields.
+        if (q.startsWith("http", ignoreCase = true)) {
+            viewModelScope.launch {
+                val resolved = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
+                    resolveShortlink(q)
+                }
+                val reparsed: com.eried.eucplanet.data.repository.IncomingShareRepository.Pending? =
+                    resolved?.let {
+                        com.eried.eucplanet.data.repository
+                            .IncomingShareRepository.parse(it)
+                    }
+                if (reparsed != null && reparsed.query != q &&
+                    (reparsed.lat != null || !reparsed.query.isNullOrBlank())
+                ) {
+                    consumeIncomingShare(reparsed)
+                } else {
+                    // Surface the raw URL so the rider sees what we got;
+                    // they can edit it into a real address by hand.
+                    _fillSearchText.tryEmit(q)
+                    _messages.tryEmit(R.string.nav_search_no_results)
+                }
             }
-            val results = routingService.geocode(q, geocoderUrl, origin)
-            val first = results.firstOrNull()
-            if (first != null) {
-                addWaypoint(first.lat, first.lng, name = first.name, fit = true)
-            } else {
-                _messages.tryEmit(R.string.nav_search_no_results)
+            return
+        }
+        // Surface the query in the screen's address field so the rider sees
+        // what was shared, then kick off the geocoder lookup that already
+        // adds the first hit as a waypoint.
+        _fillSearchText.tryEmit(q)
+        search(q)
+    }
+
+    /**
+     * Follow HTTP redirects (up to 5 hops) to expand a shortened map URL
+     * into its full `google.com/maps/...@lat,lng,zoom...` form. Returns
+     * the final URL, or null on any IO error.
+     *
+     * `maps.app.goo.gl` typically chains 2-3 redirects: shortlink ->
+     * `www.google.com/maps?...` -> `consent.google.com/?continue=...` ->
+     * actual maps page with `@lat,lng`. We follow them all manually
+     * (instanceFollowRedirects is too eager for cross-host hops on
+     * Android) and log each hop so non-coord results are diagnosable.
+     */
+    private fun resolveShortlink(url: String): String? {
+        return try {
+            var current = url
+            repeat(5) { hop ->
+                val conn = (java.net.URL(current).openConnection() as java.net.HttpURLConnection).apply {
+                    instanceFollowRedirects = false
+                    requestMethod = "GET"
+                    connectTimeout = 4000
+                    readTimeout = 4000
+                    setRequestProperty("User-Agent", "Mozilla/5.0 (Android) EucPlanet")
+                }
+                try {
+                    val code = conn.responseCode
+                    if (code !in 300..399) {
+                        // Reached a 2xx (or error). Return the URL we tried.
+                        return current
+                    }
+                    val loc = conn.getHeaderField("Location")
+                    if (loc.isNullOrBlank()) return current
+                    current = if (loc.startsWith("http", ignoreCase = true)) loc
+                              else java.net.URL(java.net.URL(current), loc).toString()
+                } finally {
+                    conn.disconnect()
+                }
             }
+            current
+        } catch (e: Exception) {
+            android.util.Log.w("EucShare", "shortlink resolve failed: $e")
+            null
         }
     }
 

@@ -85,6 +85,7 @@ import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -168,6 +169,30 @@ fun RouteBuilderScreen(
 
     var searchText by rememberSaveable { mutableStateOf("") }
     var searchFocused by remember { mutableStateOf(false) }
+
+    // An address-shape Share intent pushes its raw text here so the rider
+    // sees what was passed in (and can edit / cancel) instead of the VM
+    // silently picking one of several Nominatim hits.
+    LaunchedEffect(Unit) {
+        viewModel.fillSearchText.collect { txt ->
+            searchText = txt
+        }
+    }
+
+    // Backgrounding the app dismisses any pending "Add shared destination?"
+    // dialog — matches the rider's mental model that walking away from the
+    // prompt cancels it, and avoids a stale dialog reappearing days later.
+    val lifecycleOwner = androidx.lifecycle.compose.LocalLifecycleOwner.current
+    DisposableEffect(lifecycleOwner) {
+        val obs = androidx.lifecycle.LifecycleEventObserver { _, e ->
+            if (e == androidx.lifecycle.Lifecycle.Event.ON_STOP) {
+                viewModel.dismissPendingShare()
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(obs)
+        onDispose { lifecycleOwner.lifecycle.removeObserver(obs) }
+    }
+    val pendingShare by viewModel.pendingShare.collectAsState()
     val focusManager = LocalFocusManager.current
     val density = androidx.compose.ui.platform.LocalDensity.current
     var menuOpen by remember { mutableStateOf(false) }
@@ -1133,8 +1158,32 @@ fun RouteBuilderScreen(
                 )
             }
 
+            // A Share-to-app intent landed on a route that already has
+            // stops. Ask before stomping on the rider's current route —
+            // "New route" wipes stops then drops the shared point, "Add
+            // as next" appends. Dismissing (back / outside tap) cancels
+            // the share; the lifecycle observer also clears it on app
+            // backgrounding so a stale dialog never reappears later.
+            if (pendingShare != null) {
+                androidx.compose.material3.AlertDialog(
+                    onDismissRequest = { viewModel.dismissPendingShare() },
+                    title = { Text(stringResource(R.string.nav_share_dialog_title)) },
+                    text = { Text(stringResource(R.string.nav_share_dialog_body)) },
+                    confirmButton = {
+                        TextButton(onClick = { viewModel.acceptPendingShareAppend() }) {
+                            Text(stringResource(R.string.nav_share_dialog_append))
+                        }
+                    },
+                    dismissButton = {
+                        TextButton(onClick = { viewModel.acceptPendingShareAsNewRoute() }) {
+                            Text(stringResource(R.string.nav_share_dialog_new))
+                        }
+                    }
+                )
+            }
+
             // Confirm before replacing an unsaved multi-stop route with the
-            // GPX the rider just picked. We already have the URI in hand , 
+            // GPX the rider just picked. We already have the URI in hand ,
             // confirming "Replace?" only makes sense AFTER a file is chosen,
             // because cancelling the picker should be a no-op.
             val pendingUri = pendingGpxUri

@@ -1596,4 +1596,8 @@
     <string name="hud_joystick_down">아래 (두 번 탭)</string>
     <string name="hud_joystick_left">왼쪽 (두 번 탭)</string>
     <string name="hud_joystick_right">오른쪽 (두 번 탭)</string>
+    <string name="nav_share_dialog_title">공유된 목적지를 추가할까요?</string>
+    <string name="nav_share_dialog_body">경로에 이미 정류장이 있습니다. 다음 정류장으로 추가할까요, 아니면 새로 시작할까요?</string>
+    <string name="nav_share_dialog_append">다음에 추가</string>
+    <string name="nav_share_dialog_new">새 경로</string>
 </resources>

@@ -1636,6 +1636,10 @@
     <string name="hud_joystick_down">Вниз (подвійне натискання)</string>
     <string name="hud_joystick_left">Вліво (подвійне натискання)</string>
     <string name="hud_joystick_right">Вправо (подвійне натискання)</string>
+    <string name="nav_share_dialog_title">Додати переданий пункт?</string>
+    <string name="nav_share_dialog_body">У маршруті вже є зупинки. Додати як наступну зупинку чи почати спочатку?</string>
+    <string name="nav_share_dialog_append">Додати далі</string>
+    <string name="nav_share_dialog_new">Новий маршрут</string>
 </resources>
 
 

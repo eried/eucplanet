@@ -1637,4 +1637,8 @@
     <string name="voice_announce_always">Alltid</string>
     <string name="voice_announce_connected">Ansluten</string>
     <string name="voice_announce_riding">Vid körning</string>
+    <string name="nav_share_dialog_title">Lägg till delad destination?</string>
+    <string name="nav_share_dialog_body">Rutten har redan stopp. Lägg till som nästa stopp, eller börja om?</string>
+    <string name="nav_share_dialog_append">Lägg till som nästa</string>
+    <string name="nav_share_dialog_new">Ny rutt</string>
 </resources>

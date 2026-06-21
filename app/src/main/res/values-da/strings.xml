@@ -1652,4 +1652,8 @@
     <string name="hud_joystick_down">Ned (dobbelttryk)</string>
     <string name="hud_joystick_left">Venstre (dobbelttryk)</string>
     <string name="hud_joystick_right">Højre (dobbelttryk)</string>
+    <string name="nav_share_dialog_title">Tilføj delt destination?</string>
+    <string name="nav_share_dialog_body">Ruten har allerede stop. Tilføj som næste stop, eller start forfra?</string>
+    <string name="nav_share_dialog_append">Tilføj som næste</string>
+    <string name="nav_share_dialog_new">Ny rute</string>
 </resources>

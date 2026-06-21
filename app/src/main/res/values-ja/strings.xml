@@ -1596,6 +1596,10 @@
     <string name="hud_joystick_down">下（ダブルタップ）</string>
     <string name="hud_joystick_left">左（ダブルタップ）</string>
     <string name="hud_joystick_right">右（ダブルタップ）</string>
+    <string name="nav_share_dialog_title">共有された目的地を追加しますか？</string>
+    <string name="nav_share_dialog_body">ルートにはすでに経由地があります。次の経由地として追加しますか、それとも新しく開始しますか？</string>
+    <string name="nav_share_dialog_append">次に追加</string>
+    <string name="nav_share_dialog_new">新しいルート</string>
 </resources>
 
 

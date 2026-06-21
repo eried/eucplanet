@@ -1637,5 +1637,9 @@
     <string name="hud_joystick_down">Abajo (doble toque)</string>
     <string name="hud_joystick_left">Izquierda (doble toque)</string>
     <string name="hud_joystick_right">Derecha (doble toque)</string>
+    <string name="nav_share_dialog_title">¿Añadir destino compartido?</string>
+    <string name="nav_share_dialog_body">Tu ruta ya tiene paradas. ¿Añadirlo como siguiente parada o empezar de cero?</string>
+    <string name="nav_share_dialog_append">Añadir como siguiente</string>
+    <string name="nav_share_dialog_new">Nueva ruta</string>
 </resources>
 

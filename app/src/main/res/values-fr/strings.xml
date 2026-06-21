@@ -1643,4 +1643,8 @@
     <string name="hud_joystick_down">Bas (double appui)</string>
     <string name="hud_joystick_left">Gauche (double appui)</string>
     <string name="hud_joystick_right">Droite (double appui)</string>
+    <string name="nav_share_dialog_title">Ajouter la destination partagée ?</string>
+    <string name="nav_share_dialog_body">Votre itinéraire a déjà des étapes. L\'ajouter comme étape suivante, ou recommencer ?</string>
+    <string name="nav_share_dialog_append">Comme étape suivante</string>
+    <string name="nav_share_dialog_new">Nouvel itinéraire</string>
 </resources>

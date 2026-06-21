@@ -1637,5 +1637,9 @@
     <string name="hud_joystick_down">Omlaag (dubbele tik)</string>
     <string name="hud_joystick_left">Links (dubbele tik)</string>
     <string name="hud_joystick_right">Rechts (dubbele tik)</string>
+    <string name="nav_share_dialog_title">Gedeelde bestemming toevoegen?</string>
+    <string name="nav_share_dialog_body">Je route heeft al stops. Toevoegen als volgende stop, of opnieuw beginnen?</string>
+    <string name="nav_share_dialog_append">Als volgende stop</string>
+    <string name="nav_share_dialog_new">Nieuwe route</string>
 </resources>
 

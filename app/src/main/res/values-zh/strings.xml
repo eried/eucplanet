@@ -1505,4 +1505,8 @@
     <string name="hud_joystick_down">下（双击）</string>
     <string name="hud_joystick_left">左（双击）</string>
     <string name="hud_joystick_right">右（双击）</string>
+    <string name="nav_share_dialog_title">添加分享的目的地？</string>
+    <string name="nav_share_dialog_body">路线已有停靠点。添加为下一个停靠点，还是重新开始？</string>
+    <string name="nav_share_dialog_append">添加为下一个</string>
+    <string name="nav_share_dialog_new">新路线</string>
 </resources>

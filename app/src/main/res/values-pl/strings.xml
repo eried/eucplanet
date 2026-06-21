@@ -1635,4 +1635,8 @@
     <string name="hud_joystick_down">Dół (dwukrotne dotknięcie)</string>
     <string name="hud_joystick_left">Lewo (dwukrotne dotknięcie)</string>
     <string name="hud_joystick_right">Prawo (dwukrotne dotknięcie)</string>
+    <string name="nav_share_dialog_title">Dodać udostępniony cel?</string>
+    <string name="nav_share_dialog_body">Trasa ma już przystanki. Dodać jako kolejny przystanek, czy zacząć od nowa?</string>
+    <string name="nav_share_dialog_append">Dodaj jako kolejny</string>
+    <string name="nav_share_dialog_new">Nowa trasa</string>
 </resources>
