@@ -88,7 +88,11 @@ import com.eried.eucplanet.hudlink.OverlayElementType
 import com.eried.eucplanet.hudlink.OverlayPreset
 import com.eried.eucplanet.hudlink.OverlayPresetCodec
 import com.eried.eucplanet.location.LocationService
-import com.eried.eucplanet.ui.map.MapScreen
+import com.eried.eucplanet.nav.CurrentRouteStore
+import com.eried.eucplanet.nav.NavigationEngine
+import com.eried.eucplanet.nav.RoutingService
+import com.eried.eucplanet.ui.navigator.RouteBuilderScreen
+import com.eried.eucplanet.ui.navigator.RouteBuilderViewModel
 import com.eried.eucplanet.ui.eucstats.ManageProfileDialog
 import com.eried.eucplanet.ui.eucstats.OnlineOnboardingDialog
 import com.eried.eucplanet.ui.studio.OverlayStudioScreen
@@ -518,6 +522,38 @@ fun App() {
             if (settingsStore.current.announceWelcome) speakNow("Welcome back to $SPOKEN_APP_NAME")
         }
 
+        // --- Navigator (route planner + live turn-by-turn guidance) ---
+        // Live wheel speed read lazily so the long-lived engine always sees the
+        // latest telemetry (the engine instance is created once via remember).
+        val liveWheelSpeed = rememberUpdatedState(current.speed)
+        val routingService = remember { RoutingService() }
+        val currentRouteStore = remember { CurrentRouteStore() }
+        val navigationEngine = remember {
+            NavigationEngine(
+                location = LocationService.location,
+                wheelSpeedKmh = { liveWheelSpeed.value },
+                settings = settingsStore.settings,
+                routingService = routingService,
+                currentRouteStore = currentRouteStore,
+                speak = { speakNow(it) },
+                setNavCue = { },
+                startLocation = { LocationService.start() },
+                nowMs = { nowEpochMillis() },
+            )
+        }
+        val routeBuilderVm = remember {
+            RouteBuilderViewModel(
+                routingService = routingService,
+                currentRouteStore = currentRouteStore,
+                navigationEngine = navigationEngine,
+                location = LocationService.location,
+                settings = settingsStore.settings,
+                updateSettings = { transform -> settingsStore.update(transform) },
+                startLocation = { LocationService.start() },
+                scope = scope,
+            )
+        }
+
         // Insert or update a rule by id; persists through SettingsStore so the list
         // + the running alarm engine pick it up live.
         fun upsertAlarm(rule: AlarmRule) = settingsStore.update { s ->
@@ -847,7 +883,7 @@ fun App() {
                     connected = session != null,
                     onBack = { route = Route.Dashboard },
                 )
-                r == Route.Map -> MapScreen(unitSpeed = settings.unitSpeed, onBack = { route = Route.Dashboard })
+                r == Route.Map -> RouteBuilderScreen(routeBuilderVm, onBack = { route = Route.Dashboard })
                 r == Route.OverlayStudio -> OverlayStudioScreen(
                     initial = OverlayPresetCodec.decode(settings.hudCustomOverlayJson) ?: OverlayPreset(),
                     live = current,

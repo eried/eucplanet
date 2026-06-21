@@ -107,6 +107,10 @@ data class AppSettings(
     val navSolveFullPath: Boolean = true,
     val navRouterUrl: String = "",
     val navGeocoderUrl: String = "",
+    val navDefaultTravelMode: String = "CYCLING", // CYCLING | DRIVING | WALKING | STRAIGHT
+    val navMapType: String = "DARK",              // DARK | LIGHT | SATELLITE
+    val navHomeJson: String = "",
+    val navWorkJson: String = "",
 
     // Integration
     val flicEnabled: Boolean = false,
