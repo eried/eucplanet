@@ -35,6 +35,17 @@
     <string>EUC Planet connects to your electric unicycle over Bluetooth to show live ride telemetry.</string>
     <key>NSLocationWhenInUseUsageDescription</key>
     <string>EUC Planet uses your location for GPS speed, trip tracking, and sunset-based automatic lights.</string>
+    <!-- Local Network: iOS 14+ blocks LAN connections (the HUD on your WiFi, e.g.
+         192.168.x.x) until this is declared AND the rider grants the permission.
+         Loopback (127.0.0.1) is exempt, which is why the HUD link worked in test
+         but never reached a real HUD. NSBonjourServices enables mDNS auto-discovery
+         of the HUD (_eucplanet._tcp), matching Android's blank-IP fallback. -->
+    <key>NSLocalNetworkUsageDescription</key>
+    <string>EUC Planet streams live ride telemetry to your external HUD over your local Wi-Fi network.</string>
+    <key>NSBonjourServices</key>
+    <array>
+        <string>_eucplanet._tcp</string>
+    </array>
     <!-- Platform metadata so `simctl install` accepts the hand-built bundle. -->
     <key>CFBundleSupportedPlatforms</key>
     <array>
