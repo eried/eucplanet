@@ -192,19 +192,29 @@ internal fun SettingsScreen(
                         SliderRow(c, "Speed calibration", "${if (settings.speedCalibrationPct >= 0f) "+" else ""}${(settings.speedCalibrationPct * 10).roundToInt() / 10f}%", settings.speedCalibrationPct, -15f..15f) {
                             onUpdate { s -> s.copy(speedCalibrationPct = it) }
                         }
+                        // Tiltback + alarm write to the wheel LIVE on change, exactly
+                        // like Android (updateTiltbackSpeed/updateAlarmSpeed call
+                        // wheelRepository.setSpeed immediately) — no manual "Apply".
+                        // onApplyMaxSpeed is a no-op without a connected wheel.
                         SliderRow(c, "Tiltback (max) speed", "${settings.tiltbackKmh.roundToInt()} km/h", settings.tiltbackKmh, 10f..70f) {
-                            onUpdate { s -> s.copy(tiltbackKmh = it) }
+                            val tb = it; val al = settings.alarmKmh.coerceAtMost(tb)
+                            onUpdate { s -> s.copy(tiltbackKmh = tb, alarmKmh = s.alarmKmh.coerceAtMost(tb)) }
+                            onApplyMaxSpeed(tb, al)
                         }
                         SliderRow(c, "Alarm speed", "${settings.alarmKmh.roundToInt()} km/h", settings.alarmKmh, 5f..70f) {
-                            onUpdate { s -> s.copy(alarmKmh = it) }
+                            val al = it; val tb = settings.tiltbackKmh.coerceAtLeast(al)
+                            onUpdate { s -> s.copy(alarmKmh = al, tiltbackKmh = s.tiltbackKmh.coerceAtLeast(al)) }
+                            onApplyMaxSpeed(tb, al)
                         }
+                        // Legal-mode limits apply when Legal mode is toggled on (matches
+                        // Android updateSafetyTiltback, which only persists the setting).
                         SliderRow(c, "Legal-mode tiltback", "${settings.legalTiltbackKmh.roundToInt()} km/h", settings.legalTiltbackKmh, 10f..40f) {
                             onUpdate { s -> s.copy(legalTiltbackKmh = it) }
                         }
                         SliderRow(c, "Legal-mode alarm", "${settings.legalAlarmKmh.roundToInt()} km/h", settings.legalAlarmKmh, 5f..40f) {
                             onUpdate { s -> s.copy(legalAlarmKmh = it) }
                         }
-                        ApplyRow(c, connected) { onApplyMaxSpeed(settings.tiltbackKmh, settings.alarmKmh) }
+                        if (!connected) HintText(c, "Connect a wheel to write speed limits live.")
                     }
 
                     SettingsSectionId.Voice -> Section(c, "Voice", Icons.Filled.RecordVoiceOver, keywords = "tts text to speech announce report rate interval lights lock legal recording spoken voice") {
@@ -539,22 +549,8 @@ private fun SliderRow(
 }
 
 @Composable
-private fun ApplyRow(c: AppThemeColors, connected: Boolean, onApply: () -> Unit) {
-    Row(Modifier.fillMaxWidth().padding(top = 4.dp), verticalAlignment = Alignment.CenterVertically) {
-        Text(
-            if (connected) "Tap to write these limits to the wheel" else "Connect a wheel to apply",
-            color = c.textSecondary, fontSize = 11.sp, modifier = Modifier.weight(1f),
-        )
-        Text(
-            "Apply",
-            color = if (connected) c.onPrimary else c.textDisabled,
-            fontSize = 13.sp, fontWeight = FontWeight.Medium,
-            modifier = Modifier.clip(RoundedCornerShape(8.dp))
-                .background(if (connected) c.primary else c.surfaceVariant)
-                .clickable(enabled = connected) { onApply() }
-                .padding(horizontal = 14.dp, vertical = 7.dp),
-        )
-    }
+private fun HintText(c: AppThemeColors, text: String) {
+    Text(text, color = c.textSecondary, fontSize = 11.sp, modifier = Modifier.fillMaxWidth().padding(top = 4.dp))
 }
 
 @Composable

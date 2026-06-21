@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.core.tween
+import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -218,6 +219,9 @@ fun App() {
         var connectingName by remember { mutableStateOf<String?>(null) }
         var error by remember { mutableStateOf<String?>(null) }
         var route by remember { mutableStateOf(Route.Dashboard) }
+        // Retains each screen's saveable UI state (scroll, expanded sections) across
+        // navigation, the way Navigation Compose does per destination.
+        val screenStateHolder = rememberSaveableStateHolder()
         var selectedMetric by remember { mutableStateOf<String?>(null) }
         var selectedTrip by remember { mutableStateOf<TripSummary?>(null) }
         var editingAlarm by remember { mutableStateOf<AlarmRule?>(null) }
@@ -737,8 +741,12 @@ fun App() {
         Surface(Modifier.fillMaxSize(), color = MaterialTheme.appColors.appBackground) {
             Box(Modifier.fillMaxSize().windowInsetsPadding(WindowInsets.safeDrawing)) {
             // Crossfade between top-level screens, matching Android's Navigation Compose
-            // default fade (vs. the old instant/sharp swap).
+            // default fade (vs. the old instant/sharp swap). Each screen also gets its
+            // own SaveableStateProvider (like Navigation Compose gives each destination),
+            // so per-screen UI state — scroll position, expanded sections — survives a
+            // round-trip to a sub-screen and back, instead of resetting to the top.
             Crossfade(targetState = route, animationSpec = tween(260), label = "screen") { r ->
+            screenStateHolder.SaveableStateProvider(r.name) {
             when {
                 // Dashboard is home — even with no wheel connected (matches Android:
                 // launch straight to the main screen; the rider decides when to scan).
@@ -900,6 +908,7 @@ fun App() {
                     disconnected = !inRide,
                 )
             }
+            } // end SaveableStateProvider
             } // end Crossfade
 
             // EUC Stats profile flow — overlays the whole app.

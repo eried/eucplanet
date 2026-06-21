@@ -39,6 +39,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
@@ -54,6 +55,7 @@ import com.eried.eucplanet.hudlink.ViewportConfig
 import com.eried.eucplanet.hudlink.ViewportSourceType
 import com.eried.eucplanet.ui.theme.AppThemeColors
 import com.eried.eucplanet.ui.theme.appColors
+import kotlin.math.abs
 import kotlin.math.roundToInt
 
 /**
@@ -136,22 +138,42 @@ internal fun OverlayStudioScreen(
                             }
                             .pointerInput(el.id) { detectTapGestures { selectedId = el.id; showAdd = false } },
                     ) {
-                        StudioElementView(el, live, wheelName, accent, unitSpeed, unitDistance, unitTemp, Modifier.alpha(el.opacity).fillMaxWidth())
+                        StudioElementView(el, live, wheelName, accent, unitSpeed, unitDistance, unitTemp, Modifier.alpha(el.opacity).rotate(el.rotationDeg).fillMaxWidth())
                         if (isSel) {
+                            // Resize handle (bottom-right). Width always tracks the drag;
+                            // height stays 0 ("natural aspect", like Android) while the drag
+                            // is mostly horizontal, and only engages free-height when the
+                            // rider deliberately drags vertically.
                             Box(
                                 Modifier.align(Alignment.BottomEnd).size(20.dp).clip(CircleShape).background(accent)
                                     .pointerInput(el.id, wPx, hPx) {
                                         detectDragGestures { ch, drag ->
                                             ch.consume()
                                             mutate(el.id) {
+                                                val keepNatural = it.height <= 0f && abs(drag.y) <= abs(drag.x)
                                                 it.copy(
                                                     width = (it.width + drag.x / wPx).coerceIn(0.08f, 1f),
-                                                    height = ((if (it.height <= 0f) 0.18f else it.height) + drag.y / hPx).coerceIn(0.05f, 1f),
+                                                    height = if (keepNatural) 0f
+                                                    else ((if (it.height <= 0f) 0.18f else it.height) + drag.y / hPx).coerceIn(0.05f, 1f),
                                                 )
                                             }
                                         }
                                     },
                             ) { Text("⤡", color = c.onPrimary, fontSize = 11.sp, modifier = Modifier.align(Alignment.Center)) }
+                            // Rotation handle (bottom-left), mirroring Android's rotate grip.
+                            Box(
+                                Modifier.align(Alignment.BottomStart).size(20.dp).clip(CircleShape).background(c.tertiary)
+                                    .pointerInput(el.id) {
+                                        detectDragGestures { ch, drag ->
+                                            ch.consume()
+                                            mutate(el.id) {
+                                                var deg = it.rotationDeg + drag.x * 0.6f
+                                                if (deg > 180f) deg -= 360f; if (deg < -180f) deg += 360f
+                                                it.copy(rotationDeg = deg)
+                                            }
+                                        }
+                                    },
+                            ) { Text("↻", color = c.onPrimary, fontSize = 12.sp, modifier = Modifier.align(Alignment.Center)) }
                         }
                     }
                 }
@@ -277,6 +299,9 @@ private fun ConfigPanel(c: AppThemeColors, accent: Color, el: OverlayElement, ch
 
     Spacer(Modifier.height(4.dp))
     SliderRow(c, "Size", "${(el.width * 100).roundToInt()}%", el.width, 0.1f..1f) { v -> change { it.copy(width = v) } }
+    // Rotation matches Android's Style-section rotation slider (-180..180°, applied
+    // via graphicsLayer there, Modifier.rotate on the preview here).
+    SliderRow(c, "Rotation", "${el.rotationDeg.roundToInt()}°", el.rotationDeg, -180f..180f) { v -> change { it.copy(rotationDeg = v) } }
     SliderRow(c, "Opacity", "${(el.opacity * 100).roundToInt()}%", el.opacity, 0.1f..1f) { v -> change { it.copy(opacity = v) } }
     Label(c, "Text / line colour"); SwatchRow(FG_PALETTE, el.foreground) { v -> change { it.copy(foreground = v) } }
     Label(c, "Background"); SwatchRow(BG_PALETTE, el.background) { v -> change { it.copy(background = v) } }

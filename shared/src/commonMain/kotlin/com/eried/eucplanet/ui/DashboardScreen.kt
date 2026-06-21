@@ -180,15 +180,18 @@ internal fun DashboardScreen(
         }
 
         // 6-button Material-icon action grid (3 columns x 2 rows).
-        // Controls need a wheel (or demo) — dim them when disconnected.
+        // Wheel-bound controls (Horn / Light / Legal / Lock) need a connected wheel
+        // (or demo) — dim them when disconnected, exactly like Android. Voice (speak
+        // current stats) and Rec (trip recording) work without a wheel, so Android
+        // leaves them enabled at all times — match that here.
         val ctl = !disconnected
         val actions = listOf(
             ActionSpec(RideAction("Horn", Icons.Filled.Campaign) { it.primary }, false, ctl, onHorn),
             ActionSpec(RideAction("Light", Icons.Filled.FlashlightOn) { it.statusWarn }, lightOn, ctl, onToggleLight),
-            ActionSpec(RideAction("Voice", Icons.Filled.RecordVoiceOver) { it.primary }, voiceOn, ctl, onToggleVoice),
+            ActionSpec(RideAction("Voice", Icons.Filled.RecordVoiceOver) { it.primary }, voiceOn, true, onToggleVoice),
             ActionSpec(RideAction("Legal", Icons.Filled.Shield) { it.primary }, legalMode, ctl, onToggleLegal),
             ActionSpec(RideAction("Lock", if (locked) Icons.Filled.Lock else Icons.Filled.LockOpen) { it.statusDanger }, locked, ctl, onToggleLock),
-            ActionSpec(RideAction("Rec", Icons.Filled.FiberManualRecord) { it.statusDanger }, recording, ctl, onToggleRecord),
+            ActionSpec(RideAction("Rec", Icons.Filled.FiberManualRecord) { it.statusDanger }, recording, true, onToggleRecord),
         )
         Column(Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 4.dp).coachmark("actions")) {
             actions.chunked(3).forEach { row ->
