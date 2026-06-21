@@ -49,10 +49,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.eried.eucplanet.data.createFileStore
 import com.eried.eucplanet.data.model.NavMode
 import com.eried.eucplanet.data.model.TravelMode
 import com.eried.eucplanet.nav.NavFormat
 import com.eried.eucplanet.ui.theme.appColors
+import kotlinx.coroutines.delay
 import kotlin.math.roundToInt
 
 /**
@@ -82,6 +84,10 @@ fun RouteBuilderScreen(vm: RouteBuilderViewModel, onBack: () -> Unit) {
     var mapReady by remember { mutableStateOf(false) }
     var query by remember { mutableStateOf("") }
     var menuOpen by remember { mutableStateOf(false) }
+    val fileStore = remember { createFileStore() }
+    var toast by remember { mutableStateOf<String?>(null) }
+    LaunchedEffect(Unit) { vm.messages.collect { toast = it } }
+    LaunchedEffect(toast) { if (toast != null) { delay(2200); toast = null } }
 
     val callbacks = remember {
         NavMapCallbacks(
@@ -154,6 +160,11 @@ fun RouteBuilderScreen(vm: RouteBuilderViewModel, onBack: () -> Unit) {
                     DropdownMenu(expanded = menuOpen, onDismissRequest = { menuOpen = false }) {
                         if (waypoints.isNotEmpty()) {
                             DropdownMenuItem(text = { Text("Clear route") }, onClick = { menuOpen = false; vm.clear() })
+                            DropdownMenuItem(text = { Text("Save GPX") }, onClick = {
+                                menuOpen = false
+                                val path = fileStore.writeText("route.gpx", vm.saveGpx())
+                                toast = if (path != null) "Saved route.gpx to Documents" else "Couldn't save the route"
+                            })
                         }
                         home?.let { h -> DropdownMenuItem(text = { Text("Add Home") }, onClick = { menuOpen = false; vm.addPreset(h, "HOME") }) }
                         work?.let { w -> DropdownMenuItem(text = { Text("Add Work") }, onClick = { menuOpen = false; vm.addPreset(w, "WORK") }) }
@@ -271,6 +282,16 @@ fun RouteBuilderScreen(vm: RouteBuilderViewModel, onBack: () -> Unit) {
                         fontSize = 14.sp, fontWeight = FontWeight.Bold,
                     )
                 }
+            }
+        }
+
+        // Transient snackbar for VM messages (route saved, routing failed, no results…).
+        toast?.let { msg ->
+            Box(Modifier.fillMaxSize().windowInsetsPadding(WindowInsets.safeDrawing), contentAlignment = Alignment.TopCenter) {
+                Text(
+                    msg, color = c.onPrimary, fontSize = 13.sp, fontWeight = FontWeight.Medium,
+                    modifier = Modifier.padding(top = 70.dp).clip(RoundedCornerShape(20.dp)).background(c.primary).padding(horizontal = 16.dp, vertical = 9.dp),
+                )
             }
         }
     }
