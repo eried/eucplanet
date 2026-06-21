@@ -24,9 +24,12 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Layers
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.MyLocation
 import androidx.compose.material.icons.filled.Navigation
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -73,9 +76,12 @@ fun RouteBuilderScreen(vm: RouteBuilderViewModel, onBack: () -> Unit) {
     val tourDist by vm.tourDistanceM.collectAsState()
     val navRunning by vm.navRunning.collectAsState()
     val imperial by vm.imperialUnits.collectAsState()
+    val home by vm.home.collectAsState()
+    val work by vm.work.collectAsState()
 
     var mapReady by remember { mutableStateOf(false) }
     var query by remember { mutableStateOf("") }
+    var menuOpen by remember { mutableStateOf(false) }
 
     val callbacks = remember {
         NavMapCallbacks(
@@ -142,6 +148,19 @@ fun RouteBuilderScreen(vm: RouteBuilderViewModel, onBack: () -> Unit) {
                         unfocusedIndicatorColor = Color.Transparent,
                     ),
                 )
+                Spacer(Modifier.width(8.dp))
+                Box {
+                    RoundIcon(Icons.Filled.MoreVert, c.dialog, c.textPrimary) { menuOpen = true }
+                    DropdownMenu(expanded = menuOpen, onDismissRequest = { menuOpen = false }) {
+                        if (waypoints.isNotEmpty()) {
+                            DropdownMenuItem(text = { Text("Clear route") }, onClick = { menuOpen = false; vm.clear() })
+                        }
+                        home?.let { h -> DropdownMenuItem(text = { Text("Add Home") }, onClick = { menuOpen = false; vm.addPreset(h, "HOME") }) }
+                        work?.let { w -> DropdownMenuItem(text = { Text("Add Work") }, onClick = { menuOpen = false; vm.addPreset(w, "WORK") }) }
+                        DropdownMenuItem(text = { Text(if (home == null) "Save my location as Home" else "Replace Home") }, onClick = { menuOpen = false; vm.saveSelfAsHome() })
+                        DropdownMenuItem(text = { Text(if (work == null) "Save my location as Work" else "Replace Work") }, onClick = { menuOpen = false; vm.saveSelfAsWork() })
+                    }
+                }
             }
             // Search results dropdown.
             if (searchResults.isNotEmpty()) {
