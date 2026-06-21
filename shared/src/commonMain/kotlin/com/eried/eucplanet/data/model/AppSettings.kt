@@ -102,6 +102,11 @@ data class AppSettings(
 
     // Navigator
     val navVoiceGuidance: Boolean = true,
+    val navArrivalRadiusM: Int = 25,
+    val navOffRouteToleranceM: Int = 40,
+    val navSolveFullPath: Boolean = true,
+    val navRouterUrl: String = "",
+    val navGeocoderUrl: String = "",
 
     // Integration
     val flicEnabled: Boolean = false,
