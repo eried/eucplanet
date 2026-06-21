@@ -46,6 +46,16 @@ class InMotionV2Adapter @Inject constructor() : WheelAdapter {
      */
     @Volatile private var useP6Protocol: Boolean = false
 
+    /** Per-pack cells-query rotation index. V14 BMS has 4 packs at addresses
+     *  0x24..0x27; we cycle through them on each pollStats() call so all 4
+     *  refresh on the stats cadence without spamming BLE traffic. */
+    @Volatile private var v14PackPollIndex: Int = 0
+
+    /** V14 internal-bus addresses for the 4 BMS packs. The list of subdevices
+     *  on the V14 bus also includes 0x21 (main MCU) and 0x23 (unknown), but
+     *  only these four address the per-pack BMS smart cells. */
+    private val V14_BMS_PACK_ADDRS = byteArrayOf(0x24, 0x25, 0x26, 0x27)
+
     /**
      * BLE notifications can split a single AA AA frame across multiple packets.
      * Buffer them here and scan for complete frames. Stays in this adapter so
@@ -120,11 +130,24 @@ class InMotionV2Adapter @Inject constructor() : WheelAdapter {
         if (useP6Protocol) InMotionV2Commands.getP6Settings()
         else InMotionV2Commands.getCurrentSettings()
 
-    /** P6 totalStats / extended status query: the realtime 0x87 stream already
-     *  carries motor / MOS / driver-board temps at body[31/30/32] (verified
-     *  against a labelled capture), so we don't poll the rich 0x84 detailed-
-     *  data response. Returns null for both V14 and P6 today. */
-    override fun pollStats(): ByteArray? = null
+    /** Stats-cadence poll. For V14 family, rotates through the 4 BMS pack
+     *  cell-voltage queries (one per call), so the 128 cells refresh once
+     *  per ~18s at the default poll cadence. For P6 it's null — the realtime
+     *  0x87 stream already carries motor/MOS/driver-board temps, and P6 has
+     *  no per-pack BMS protocol path. */
+    override fun pollStats(): ByteArray? {
+        if (useP6Protocol) return null
+        val pack = V14_BMS_PACK_ADDRS[v14PackPollIndex and 0x03]
+        v14PackPollIndex = (v14PackPollIndex + 1) and 0x03
+        // `aa aa 16 [len=3] 02 [pack=0x24..27] 02 [xor]` — InMotion's per-pack
+        // cells query. Uses buildPacket with cmd=0x02 because the wire layout
+        // is `flags len cmd data[0]=routing data[1]=pack data[2]=sub`, which
+        // happens to fall out of the standard helper when cmd=0x02 and
+        // data=[pack, 0x02].
+        return InMotionV2Protocol.buildPacket(
+            InMotionV2Protocol.Flags.EXTENDED, 0x02, byteArrayOf(pack, 0x02)
+        )
+    }
 
     /**
      * Horn dispatch. V14 family models (V14g/V14s/V13/V13PRO/V11Y) use the
@@ -391,7 +414,54 @@ class InMotionV2Adapter @Inject constructor() : WheelAdapter {
             0x11 -> InMotionV2Parser.parseTotalStats(data)?.let { DecodeResult.TotalDistance(it.totalDistanceKm) } ?: DecodeResult.Unknown
             0x20 -> parseSettingsForModel(data)?.let { DecodeResult.Settings(it) } ?: DecodeResult.Unknown
             0x21 -> decodeP6Extended(data)
+            // V14 per-pack BMS responses. The wheel's internal bus addresses
+            // each pack independently (0x24 / 0x25 / 0x26 / 0x27); each
+            // response carries that pack's cells / status. Mapped to BmsState
+            // packIndex 0..3 keyed off (addr - 0x24).
+            0x24, 0x25, 0x26, 0x27 -> decodeV14Pack(command, data)
             else -> DecodeResult.Unknown
+        }
+    }
+
+    // Decode a response from one of the 4 V14 BMS pack subdevices.
+    // Wire layout after parsePacket strips the outer V2 envelope:
+    // byte 0 = 0x02 routing prefix
+    // byte 1 = 0x80 | sub (response marker for whichever sub-cmd was queried)
+    // bytes 2+ = body
+    // Sub 0x02 (response 0x82) carries 32 cell voltages as uint16 LE mV.
+    // Other subs (0x01 status, 0x03 hw, 0x0b firmware) are logged for future
+    // decoding.
+    private fun decodeV14Pack(command: Byte, data: ByteArray): DecodeResult {
+        val packIndex = (command.toInt() and 0xFF) - 0x24
+        if (data.size < 2 || data[0] != 0x02.toByte()) return DecodeResult.Unknown
+        val sub = data[1].toInt() and 0x7F
+        return when (sub) {
+            0x02 -> {
+                val cells = InMotionV2Parser.parseV14PackCells(data)
+                if (cells != null) {
+                    com.eried.eucplanet.diagnostics.DiagnosticsLogger.note(
+                        "V14 pack%d cells: %s".format(
+                            packIndex,
+                            cells.joinToString(", ") { "%.3fV".format(it) }
+                        )
+                    )
+                    DecodeResult.Bms(
+                        packIndex = packIndex,
+                        cellVoltages = cells,
+                        cellRangeStart = 0,
+                    )
+                } else DecodeResult.Unknown
+            }
+            else -> {
+                val body = data.copyOfRange(2, data.size)
+                com.eried.eucplanet.diagnostics.DiagnosticsLogger.note(
+                    "V14 pack%d sub=0x%02x len=%d body=%s".format(
+                        packIndex, sub, body.size,
+                        body.joinToString(" ") { "%02x".format(it) }
+                    )
+                )
+                DecodeResult.Unknown
+            }
         }
     }
 

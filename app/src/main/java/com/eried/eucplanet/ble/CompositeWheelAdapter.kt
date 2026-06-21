@@ -102,6 +102,7 @@ class CompositeWheelAdapter @Inject constructor(
     override fun initSequence(): List<ByteArray> = active.initSequence()
     override fun pollRealtime(): ByteArray = active.pollRealtime()
     override fun pollSettings(): ByteArray = active.pollSettings()
+    override fun pollStats(): ByteArray? = active.pollStats()
 
     override fun horn(): ByteArray? = active.horn()
     override fun hornFollowup(): ByteArray? = active.hornFollowup()

@@ -426,6 +426,32 @@ object InMotionV2Parser {
     }
 
     /**
+     * Decode a V14 per-pack cells response (sub 0x02 on subdevice addresses
+     * 0x24..0x27). After the outer V2 envelope is stripped, [data] looks like
+     *   `02 82 [c0_lo c0_hi] [c1_lo c1_hi] ... [c31_lo c31_hi]`
+     * That's the `02` routing + 0x80|0x02 response marker + 32 cell voltages
+     * as uint16 LE millivolts (e.g. `03 10` = 0x1003 = 4099 = 4.099 V).
+     *
+     * Reverse-engineered from a labelled Nordic-sniffer pcap of the InMotion
+     * Android app against a V14 Adventure; matches the per-cell view in the
+     * manufacturer app cell-for-cell.
+     */
+    fun parseV14PackCells(data: ByteArray): List<Float>? {
+        if (data.size < 2 + 64) return null
+        if (data[0] != 0x02.toByte()) return null
+        if ((data[1].toInt() and 0xFF) != 0x82) return null
+        val cells = mutableListOf<Float>()
+        var off = 2
+        repeat(32) {
+            val mv = (data[off].toInt() and 0xFF) or
+                ((data[off + 1].toInt() and 0xFF) shl 8)
+            cells.add(mv / 1000f)
+            off += 2
+        }
+        return cells
+    }
+
+    /**
      * Decode the V14 BATTERY_INFO (cmd `0x05`) response. Reverse-engineered from
      * a single capture at 100 % SOC paired with the InMotion app's "cells" view
      * (which shows 4 entries on a V14). The body is 32 bytes = 4 × 8-byte

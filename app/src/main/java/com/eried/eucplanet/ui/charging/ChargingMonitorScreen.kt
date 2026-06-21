@@ -6,9 +6,6 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.gestures.Orientation
-import androidx.compose.foundation.gestures.draggable
-import androidx.compose.foundation.gestures.rememberDraggableState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -22,7 +19,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -84,7 +80,6 @@ import androidx.compose.ui.graphics.drawscope.clipRect
 import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -801,22 +796,33 @@ private fun InfoTabs(state: ChargingUiState) {
     var selected by remember { mutableIntStateOf(0) }
     if (selected >= tabs.size) selected = 0
 
-    // Cells tab opens taller than the other tabs and the rider can drag the
-    // handle on top of the cell grid up to grow it further — packs with many
-    // cells (Lynx 42/pack, etc.) need the room. Other tabs keep the fixed
-    // 280 dp so flicking between them doesn't jiggle the sheet height.
-    val density = LocalDensity.current
+    // Cells tab opens taller than the other tabs (128 cells need room on V14
+    // 4-pack rigs and Veteran-family 42-cell packs); content scrolls vertically
+    // inside that height. Other tabs keep the fixed 280 dp so flicking between
+    // them doesn't jiggle the sheet height.
     val configuration = LocalConfiguration.current
     val screenH = configuration.screenHeightDp.dp
-    val cellsMinH = 280.dp
-    val cellsMaxH = (screenH * 0.85f).coerceAtLeast(420.dp)
-    val cellsDefaultH = (screenH * 0.55f).coerceIn(cellsMinH, cellsMaxH)
-    var cellsHeightPx by remember(cellsDefaultH) {
-        mutableFloatStateOf(with(density) { cellsDefaultH.toPx() })
-    }
-    val cellsHeightDp = with(density) { cellsHeightPx.toDp() }
+    val cellsH = (screenH * 0.75f).coerceIn(420.dp, (screenH * 0.9f).coerceAtLeast(500.dp))
     val isCellsTab = tabs.getOrNull(selected)?.second == "cells"
-    val contentH = if (isCellsTab) cellsHeightDp else 280.dp
+    val contentH = if (isCellsTab) cellsH else 280.dp
+
+    // Hoisted so the count survives Cells <-> Packs tab switches. Initialize
+    // from the already-cached BmsState so opening the bottom sheet on a wheel
+    // that's been connected a while doesn't briefly collapse to the 2-pack
+    // telemetry fallback while the debounce climbs back up to 4. The debounce
+    // only delays GROWTH past the initial value (when new packs arrive during
+    // this sheet session), so a 4-pack wheel opens straight at 4.
+    val bmsPacksReady = state.bms.packs.count { it.knownCells.isNotEmpty() }
+    var stableBmsCount by remember { mutableIntStateOf(bmsPacksReady) }
+    LaunchedEffect(bmsPacksReady) {
+        if (bmsPacksReady > stableBmsCount) {
+            kotlinx.coroutines.delay(2500)
+            stableBmsCount = bmsPacksReady
+        } else if (bmsPacksReady < stableBmsCount) {
+            // Wheel disconnect / swap: drop immediately.
+            stableBmsCount = bmsPacksReady
+        }
+    }
 
     Column(modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp)) {
         PrimaryTabRow(selectedTabIndex = selected) {
@@ -884,14 +890,33 @@ private fun InfoTabs(state: ChargingUiState) {
                         StatRow(stringResource(R.string.charging_stat_voltage), "%.1f V".format(state.voltage))
                     }
                     "packs" -> {
-                        val packs = buildList {
-                            if (state.battery1 > 0f) add(state.battery1)
-                            if (state.battery2 > 0f) add(state.battery2)
+                        // Per-pack BMS data takes a few seconds to arrive (one
+                        // pack query per ~4.5 s stats tick), so the tile count
+                        // would otherwise tick up 1 → 2 → 3 → 4 and reflow the
+                        // grid every time. stableBmsCount is debounced one
+                        // level up (in InfoTabs) so the value also survives
+                        // Cells <-> Packs tab switches.
+                        val bmsPacks = state.bms.packs.filter { it.knownCells.isNotEmpty() }
+                        val packs = if (stableBmsCount > 0 && bmsPacks.size >= stableBmsCount) {
+                            bmsPacks.take(stableBmsCount).map { pack ->
+                                val avgCellV = pack.knownCells.map { it.second }.average().toFloat()
+                                // Linear interp 3.0V (empty) -> 4.20V (full)
+                                ((avgCellV - 3.0f) / 1.2f * 100f).coerceIn(0f, 100f)
+                            }
+                        } else {
+                            buildList {
+                                if (state.battery1 > 0f) add(state.battery1)
+                                if (state.battery2 > 0f) add(state.battery2)
+                            }
                         }
                         PacksGrid(packs)
                         Spacer(Modifier.height(8.dp))
                         if (packs.size >= 2) {
-                            StatRow(stringResource(R.string.charging_stat_balance), "%.1f%%".format(packs.max() - packs.min()))
+                            // 2 decimals + explicit sign so a fully balanced
+                            // pack reads "+0.00%" rather than dropping to an
+                            // empty-looking line. Imbalance is max-min so it's
+                            // never negative; the + keeps the row stable.
+                            StatRow(stringResource(R.string.charging_stat_balance), "%+.2f%%".format(packs.max() - packs.min()))
                         }
                         StatRow(stringResource(R.string.charging_stat_temp), "%.0f°C".format(state.maxTemp))
                     }
@@ -901,33 +926,6 @@ private fun InfoTabs(state: ChargingUiState) {
                         StatRow(stringResource(R.string.charging_stat_voltage), "%.1f V".format(state.voltage))
                     }
                     "cells" -> {
-                        val minPx = with(density) { cellsMinH.toPx() }
-                        val maxPx = with(density) { cellsMaxH.toPx() }
-                        val handleColor = MaterialTheme.appColors.hint
-                        Box(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .draggable(
-                                    orientation = Orientation.Vertical,
-                                    // dy positive = finger moves down. Pulling the
-                                    // handle UP (dy < 0) should grow the panel, so
-                                    // we subtract.
-                                    state = rememberDraggableState { dy ->
-                                        cellsHeightPx = (cellsHeightPx - dy)
-                                            .coerceIn(minPx, maxPx)
-                                    },
-                                )
-                                .padding(vertical = 6.dp),
-                            contentAlignment = Alignment.Center,
-                        ) {
-                            Box(
-                                Modifier
-                                    .width(40.dp)
-                                    .height(4.dp)
-                                    .clip(RoundedCornerShape(2.dp))
-                                    .background(handleColor.copy(alpha = 0.6f)),
-                            )
-                        }
                         CellsTabContent(state.bms)
                     }
                 }
@@ -1012,7 +1010,7 @@ private fun CellsTabContent(bms: com.eried.eucplanet.data.model.BmsState) {
         modifier = Modifier
             .fillMaxWidth()
             .verticalScroll(rememberScrollState()),
-        verticalArrangement = Arrangement.spacedBy(12.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
         packs.forEach { pack ->
             val cells = pack.knownCells
@@ -1043,25 +1041,27 @@ private fun CellsTabContent(bms: com.eried.eucplanet.data.model.BmsState) {
                 CellHeaderStat(stringResource(R.string.charging_cells_max), "%.3f V".format(mx), modifier = Modifier.weight(1f))
                 CellHeaderStat(stringResource(R.string.charging_cells_delta), "$deltaMv mV", color = deltaColor, modifier = Modifier.weight(1f))
             }
-            // Cell grid: 6 columns, each chip ~52 dp wide. With 42 cells that's
-            // 7 rows; smaller packs use the same chip width and just have
-            // fewer rows.
-            val cols = 6
-            cells.chunked(cols).forEach { row ->
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(4.dp),
-                ) {
-                    row.forEach { (idx, v) ->
-                        CellChip(
-                            cellNumber = idx + 1,
-                            voltage = v,
-                            min = mn,
-                            max = mx,
-                            modifier = Modifier.weight(1f),
-                        )
+            // Cell grid: 8 columns so a 32-cell V14 pack lands as a clean
+            // 4x8 block; larger Veteran-family packs (42 cells) get 5-6 rows.
+            // 1 dp gaps so chips look like one continuous block per pack.
+            val cols = 8
+            Column(verticalArrangement = Arrangement.spacedBy(1.dp)) {
+                cells.chunked(cols).forEach { row ->
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(1.dp),
+                    ) {
+                        row.forEach { (idx, v) ->
+                            CellChip(
+                                cellNumber = idx + 1,
+                                voltage = v,
+                                min = mn,
+                                max = mx,
+                                modifier = Modifier.weight(1f),
+                            )
+                        }
+                        repeat(cols - row.size) { Spacer(Modifier.weight(1f)) }
                     }
-                    repeat(cols - row.size) { Spacer(Modifier.weight(1f)) }
                 }
             }
         }
@@ -1092,13 +1092,12 @@ private fun CellChip(cellNumber: Int, voltage: Float, min: Float, max: Float, mo
     }
     Column(
         modifier = modifier
-            .padding(vertical = 2.dp)
-            .background(chipColor.copy(alpha = 0.18f), shape = RoundedCornerShape(6.dp))
-            .padding(vertical = 4.dp, horizontal = 4.dp),
+            .background(chipColor.copy(alpha = 0.18f))
+            .padding(vertical = 2.dp, horizontal = 2.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        Text("#$cellNumber", fontSize = 9.sp, color = colors.hint)
-        Text("%.3f".format(voltage), fontSize = 11.sp, fontWeight = FontWeight.Medium, color = chipColor)
+        Text("#$cellNumber", fontSize = 8.sp, color = colors.hint)
+        Text("%.3f".format(voltage), fontSize = 10.sp, fontWeight = FontWeight.Medium, color = chipColor)
     }
 }
 
@@ -1110,45 +1109,64 @@ private fun CellChip(cellNumber: Int, voltage: Float, min: Float, max: Float, mo
 private fun PacksGrid(packs: List<Float>) {
     if (packs.isEmpty()) return
     val n = packs.size
-    val cols = when {
-        n <= 1 -> 1
-        n == 2 || n == 4 -> 2
-        n <= 6 -> 3
-        else -> 4
-    }
     val avg = packs.average().toFloat()
-    Column(
+    val mn = packs.min()
+    val mx = packs.max()
+    val span = (mx - mn).coerceAtLeast(0.01f)
+    // Always render in a single row. Tile width = 1/max(n, 2), so a single
+    // pack takes half the row (instead of stretching to a giant square)
+    // and the layout never reflows as new BMS packs arrive: when only one
+    // pack is up, the right half is just a placeholder spacer that the
+    // additional packs slot into. Three or more packs spread evenly.
+    val effectiveCols = maxOf(2, n)
+    Row(
         modifier = Modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(8.dp),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
     ) {
-        packs.chunked(cols).forEachIndexed { rowIdx, row ->
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-            ) {
-                row.forEachIndexed { colIdx, pct ->
-                    PackTile(index = rowIdx * cols + colIdx + 1, percent = pct, avg = avg, modifier = Modifier.weight(1f))
-                }
-                repeat(cols - row.size) { Spacer(Modifier.weight(1f)) }
+        packs.forEachIndexed { idx, pct ->
+            val pos = ((pct - mn) / span).coerceIn(0f, 1f)
+            // Same red-low / blue-high palette as the cell chips, so a quick
+            // glance lines up the worst pack across both tabs visually.
+            val tileColor = when {
+                pos < 0.25f -> MaterialTheme.appColors.statusDanger
+                pos > 0.75f -> MaterialTheme.appColors.metricVoltage
+                else -> MaterialTheme.appColors.metricBattery
             }
+            PackTile(
+                index = idx + 1,
+                percent = pct,
+                avg = avg,
+                fillColor = tileColor,
+                modifier = Modifier.weight(1f),
+            )
         }
+        // Pad to the effective column count so a 1-pack render still shows
+        // a half-width tile (placeholder weight on the right keeps the tile
+        // sized as if 2 packs were on screen).
+        repeat(effectiveCols - n) { Spacer(Modifier.weight(1f)) }
     }
 }
 
 @Composable
-private fun PackTile(index: Int, percent: Float, avg: Float, modifier: Modifier = Modifier) {
+private fun PackTile(
+    index: Int,
+    percent: Float,
+    avg: Float,
+    fillColor: Color = MaterialTheme.appColors.metricVoltage,
+    modifier: Modifier = Modifier,
+) {
     val frac = (percent / 100f).coerceIn(0f, 1f)
     val delta = percent - avg
     val hatchColor = MaterialTheme.appColors.hint
-    val backingColor = MaterialTheme.appColors.metricVoltage
     Box(
         modifier = modifier
             .aspectRatio(1f)
             .clip(RoundedCornerShape(10.dp))
             .background(MaterialTheme.appColors.tileBackground),
     ) {
-        // Pack-level fill from the bottom: faint dark-blue backing + sparse
-        // diagonal hatch, same visual language as the Charge-graph baseline band.
+        // Pack-level fill from the bottom: backing color tinted by the pack's
+        // imbalance position (red = lowest, blue = highest, green = middle —
+        // matches the cell chips' color language).
         Canvas(
             modifier = Modifier
                 .fillMaxWidth()
@@ -1158,7 +1176,7 @@ private fun PackTile(index: Int, percent: Float, avg: Float, modifier: Modifier 
             val w = size.width
             val h = size.height
             if (h < 1f) return@Canvas
-            drawRect(color = backingColor.copy(alpha = 0.10f))
+            drawRect(color = fillColor.copy(alpha = 0.20f))
             val spacing = 26f
             val stripe = hatchColor.copy(alpha = 0.30f)
             var x = 0f
@@ -1183,15 +1201,21 @@ private fun PackTile(index: Int, percent: Float, avg: Float, modifier: Modifier 
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.appColors.textPrimary,
             )
-            // Deviation from the pack average (+ above, - below).
-            if (kotlin.math.abs(delta) >= 0.05f) {
-                Text(
-                    "%+.1f%%".format(delta),
-                    fontSize = 12.sp,
-                    fontWeight = FontWeight.Medium,
-                    color = if (delta >= 0f) MaterialTheme.appColors.metricBattery else MaterialTheme.appColors.metricVoltage,
-                )
-            }
+            // Deviation from the pack average. Always shown so a balanced
+            // pack reads "+0.00%" instead of an empty line — keeps the 4-pack
+            // row visually uniform. 2 decimals preserve the real sign even
+            // for sub-tenth values (a -0.04 % delta shows as "-0.04%" instead
+            // of getting rounded down to a confusing "-0.0%").
+            Text(
+                "%+.2f%%".format(delta),
+                fontSize = 11.sp,
+                fontWeight = FontWeight.Medium,
+                color = when {
+                    delta > 0.005f -> MaterialTheme.appColors.metricBattery
+                    delta < -0.005f -> MaterialTheme.appColors.metricVoltage
+                    else -> MaterialTheme.appColors.hint
+                },
+            )
         }
     }
 }
