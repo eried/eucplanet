@@ -40,14 +40,35 @@ kotlin {
             implementation(compose.material3)
             implementation(compose.materialIconsExtended)
             implementation(compose.ui)
+            implementation(compose.components.resources)
             implementation(libs.coroutines.core)
             implementation(libs.koin.core)
             implementation(libs.kotlinx.serialization.json)
+            implementation(libs.ktor.client.core)
+            implementation(libs.ktor.client.websockets)
+        }
+        androidMain.dependencies {
+            implementation(libs.ktor.client.okhttp)
         }
         commonTest.dependencies {
             implementation(kotlin("test"))
         }
+        // iOS engine only configured on macOS (iOS targets are Mac-gated above).
+        if (HostManager.hostIsMac) {
+            iosMain.dependencies {
+                implementation(libs.ktor.client.darwin)
+            }
+        }
     }
+}
+
+// Reuse Android's strings.xml + translations via Compose Multiplatform Resources
+// (files copied verbatim into commonMain/composeResources/values*). One source of
+// truth for text on both platforms; the device locale picks the translation.
+compose.resources {
+    publicResClass = true
+    generateResClass = always
+    packageOfResClass = "com.eried.eucplanet.resources"
 }
 
 android {

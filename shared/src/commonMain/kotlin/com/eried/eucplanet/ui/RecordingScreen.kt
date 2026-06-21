@@ -29,6 +29,7 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.eried.eucplanet.data.model.TripBackup
 import com.eried.eucplanet.data.model.TripSummary
 import com.eried.eucplanet.ui.theme.AppThemeColors
 import com.eried.eucplanet.ui.theme.appColors
@@ -44,12 +45,33 @@ internal fun RecordingScreen(
     trips: List<TripSummary>,
     unitSpeed: String,
     unitDistance: String,
+    backupEnabled: Boolean = false,
     onOpen: (TripSummary) -> Unit,
+    onSyncAll: () -> Unit = {},
+    onRetry: (TripSummary) -> Unit = {},
     onBack: () -> Unit,
 ) {
     val c = MaterialTheme.appColors
+    val pending = trips.count { it.backup == TripBackup.Off || it.backup == TripBackup.Failed }
     Column(Modifier.fillMaxSize().background(c.appBackground)) {
         ScreenTopBar(c, "Recordings", onBack)
+        if (backupEnabled && pending > 0) {
+            Row(
+                Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 6.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text("$pending trip${if (pending == 1) "" else "s"} not backed up", color = c.textSecondary, fontSize = 12.sp, modifier = Modifier.weight(1f))
+                Text(
+                    "Back up now", color = c.onPrimary, fontSize = 12.sp, fontWeight = FontWeight.SemiBold,
+                    modifier = Modifier.clip(RoundedCornerShape(8.dp)).background(c.primary).clickable { onSyncAll() }.padding(horizontal = 14.dp, vertical = 7.dp),
+                )
+            }
+        } else if (!backupEnabled) {
+            Text(
+                "Register in Settings · Online · EUC Stats to back up trips online.",
+                color = c.textDisabled, fontSize = 11.sp, modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp),
+            )
+        }
         if (trips.isEmpty()) {
             Column(
                 Modifier.fillMaxSize().padding(32.dp),
@@ -63,7 +85,7 @@ internal fun RecordingScreen(
         } else {
             Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(horizontal = 12.dp, vertical = 8.dp)) {
                 trips.forEach { t ->
-                    TripCard(c, t, unitSpeed, unitDistance) { onOpen(t) }
+                    TripCard(c, t, unitSpeed, unitDistance, onRetry = { onRetry(t) }) { onOpen(t) }
                     Spacer(Modifier.height(8.dp))
                 }
                 Spacer(Modifier.height(8.dp))
@@ -78,7 +100,7 @@ internal fun RecordingScreen(
 }
 
 @Composable
-private fun TripCard(c: AppThemeColors, t: TripSummary, unitSpeed: String, unitDistance: String, onClick: () -> Unit) {
+private fun TripCard(c: AppThemeColors, t: TripSummary, unitSpeed: String, unitDistance: String, onRetry: () -> Unit, onClick: () -> Unit) {
     Column(
         Modifier.fillMaxWidth().clip(RoundedCornerShape(12.dp)).background(c.surface)
             .clickable { onClick() }.padding(16.dp),
@@ -87,7 +109,9 @@ private fun TripCard(c: AppThemeColors, t: TripSummary, unitSpeed: String, unitD
             Text(t.date, color = c.textPrimary, fontSize = 15.sp, fontWeight = FontWeight.SemiBold, modifier = Modifier.weight(1f))
             Text(if (t.gpsLock) "GPS" else "no GPS", color = if (t.gpsLock) c.statusGood else c.textDisabled, fontSize = 10.sp)
             Spacer(Modifier.width(10.dp))
-            Text(if (t.synced) "☁ synced" else "☁ local", color = if (t.synced) c.primary else c.textDisabled, fontSize = 10.sp)
+            // Backup badge; tap to retry when it failed.
+            val backupMod = if (t.backup == TripBackup.Failed) Modifier.clip(RoundedCornerShape(6.dp)).clickable { onRetry() }.padding(horizontal = 4.dp, vertical = 1.dp) else Modifier
+            Text(backupLabel(t.backup), color = backupColor(c, t.backup), fontSize = 10.sp, fontWeight = if (t.backup == TripBackup.Failed) FontWeight.SemiBold else FontWeight.Normal, modifier = backupMod)
             if (t.csvPath != null) {
                 Spacer(Modifier.width(10.dp))
                 Text("CSV", color = c.statusGood, fontSize = 10.sp, fontWeight = FontWeight.Medium)
@@ -101,6 +125,20 @@ private fun TripCard(c: AppThemeColors, t: TripSummary, unitSpeed: String, unitD
             TripStat(c, "MAX", "${UnitFormat.speed(t.maxKmh, unitSpeed).f1()} ${UnitFormat.speedLabel(unitSpeed)}", c.gaugeWarn)
         }
     }
+}
+
+private fun backupLabel(b: TripBackup): String = when (b) {
+    TripBackup.Off -> "☁ local"
+    TripBackup.Pending -> "☁ backing up…"
+    TripBackup.Uploaded -> "☁ synced"
+    TripBackup.Failed -> "☁ failed · retry"
+}
+
+private fun backupColor(c: AppThemeColors, b: TripBackup): Color = when (b) {
+    TripBackup.Off -> c.textDisabled
+    TripBackup.Pending -> c.primary
+    TripBackup.Uploaded -> c.statusGood
+    TripBackup.Failed -> c.statusDanger
 }
 
 @Composable
@@ -147,7 +185,7 @@ internal fun TripDetailScreen(trip: TripSummary, unitSpeed: String, unitDistance
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(if (trip.gpsLock) "GPS lock" else "no GPS", color = if (trip.gpsLock) c.statusGood else c.textDisabled, fontSize = 11.sp)
                 Spacer(Modifier.width(12.dp))
-                Text(if (trip.synced) "☁ synced" else "☁ local", color = if (trip.synced) c.primary else c.textDisabled, fontSize = 11.sp)
+                Text(backupLabel(trip.backup), color = backupColor(c, trip.backup), fontSize = 11.sp)
             }
             if (trip.csvPath != null) {
                 Spacer(Modifier.height(8.dp))

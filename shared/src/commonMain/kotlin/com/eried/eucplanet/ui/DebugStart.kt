@@ -8,6 +8,10 @@ package com.eried.eucplanet.ui
  */
 expect fun debugStartScreen(): String?
 
+/** Debug harness: `EUC_HUD_PEER` ("ip:port") makes the demo app stream to a test
+ *  HUD over WebSocket, to verify the HUD client end-to-end. null in normal use. */
+expect fun debugHudPeer(): String?
+
 /**
  * True when running on the iOS Simulator (which has no Bluetooth), so the Scan
  * screen can offer demo wheels there and show only real peripherals on device —

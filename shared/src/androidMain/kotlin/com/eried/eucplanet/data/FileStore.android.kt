@@ -11,6 +11,8 @@ private class MemoryFileStore : FileStore {
         return "(memory)/$name"
     }
     override fun list(): List<String> = files.keys.toList()
+    override fun readText(name: String): String? = files[name]
+    override fun delete(name: String): Boolean = files.remove(name) != null
 }
 
 actual fun createFileStore(): FileStore = MemoryFileStore()

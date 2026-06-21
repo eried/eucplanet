@@ -1,5 +1,6 @@
 package com.eried.eucplanet.data
 
+import com.eried.eucplanet.data.model.TripBackup
 import com.eried.eucplanet.data.model.TripSummary
 import com.eried.eucplanet.data.model.WheelData
 import com.eried.eucplanet.util.nowEpochMillis
@@ -26,6 +27,21 @@ class TripRecorder(private val fileStore: FileStore = createFileStore(), seedDem
     private val samples = ArrayList<WheelData>()
     private var startMs = 0L
     private var rideCount = 0
+    private var nextId = 1L
+
+    /** Invoked when a ride is saved, with everything EucStats needs to upload it
+     *  (the trip id for status callbacks, start/end epoch ms, sample count, CSV
+     *  text). Set by the app layer; null = no online backup. Kept out of the
+     *  recorder so it stays platform-free. */
+    var onTripSaved: ((tripId: Long, startMs: Long, endMs: Long, sampleCount: Int, csv: String) -> Unit)? = null
+
+    /** Update a trip's online-backup state (called by the app as uploads resolve). */
+    fun setBackup(tripId: Long, status: TripBackup) {
+        _trips.value = _trips.value.map { if (it.id == tripId) it.copy(backup = status) else it }
+    }
+
+    /** Rebuild the upload CSV for a trip from its samples (for manual re-sync / retry). */
+    fun csvFor(trip: TripSummary): String = buildCsv(trip.samples)
 
     fun toggle() {
         if (_recording.value) stop() else start()
@@ -48,24 +64,31 @@ class TripRecorder(private val fileStore: FileStore = createFileStore(), seedDem
             samples.clear()
             return
         }
-        val durationMin = ((nowEpochMillis() - startMs) / 60_000L).toInt().coerceAtLeast(1)
+        val endMs = nowEpochMillis()
+        val durationMin = ((endMs - startMs) / 60_000L).toInt().coerceAtLeast(1)
         val speeds = samples.map { it.speed }
         val distance = (samples.last().tripDistance - samples.first().tripDistance).coerceAtLeast(0f)
         rideCount += 1
-        val csvPath = fileStore.writeText("euc_trip_$rideCount.csv", buildCsv(samples))
+        val csv = buildCsv(samples)
+        val sampleCount = samples.size
+        val csvPath = fileStore.writeText("euc_trip_$rideCount.csv", csv)
+        val tripId = nextId++
         val trip = TripSummary(
             date = "Ride $rideCount · just now",
             distanceKm = distance,
             durationMin = durationMin,
             avgKmh = if (speeds.isNotEmpty()) (speeds.sum() / speeds.size) else 0f,
             maxKmh = speeds.maxOrNull() ?: 0f,
-            gpsLock = false,
-            synced = false,
+            gpsLock = samples.any { it.latitude != 0.0 || it.longitude != 0.0 },
+            backup = TripBackup.Off,
+            id = tripId,
             csvPath = csvPath,
             samples = samples.toList(),
         )
         _trips.value = listOf(trip) + _trips.value
         samples.clear()
+        // Hand the raw ride to the app layer for online backup (EucStats), if wired.
+        onTripSaved?.invoke(tripId, startMs, endMs, sampleCount, csv)
     }
 
     /** DarknessBot-compatible-ish CSV of the ride samples. */
@@ -90,9 +113,9 @@ class TripRecorder(private val fileStore: FileStore = createFileStore(), seedDem
 
     private companion object {
         val seedTrips = listOf(
-            TripSummary("Jun 9 · 18:42", 12.4f, 31, 24.1f, 41.6f, gpsLock = true, synced = true),
-            TripSummary("Jun 8 · 08:15", 6.1f, 17, 21.7f, 38.2f, gpsLock = true, synced = false),
-            TripSummary("Jun 6 · 14:03", 28.9f, 74, 26.4f, 47.0f, gpsLock = false, synced = true),
+            TripSummary("Jun 9 · 18:42", 12.4f, 31, 24.1f, 41.6f, gpsLock = true, backup = TripBackup.Uploaded, id = -1L),
+            TripSummary("Jun 8 · 08:15", 6.1f, 17, 21.7f, 38.2f, gpsLock = true, backup = TripBackup.Off, id = -2L),
+            TripSummary("Jun 6 · 14:03", 28.9f, 74, 26.4f, 47.0f, gpsLock = false, backup = TripBackup.Failed, id = -3L),
         )
     }
 }

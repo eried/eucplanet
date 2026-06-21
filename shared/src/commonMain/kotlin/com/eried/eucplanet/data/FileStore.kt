@@ -8,6 +8,8 @@ package com.eried.eucplanet.data
 interface FileStore {
     fun writeText(name: String, content: String): String?
     fun list(): List<String>
+    fun readText(name: String): String?
+    fun delete(name: String): Boolean
 }
 
 /** Platform-provided file store. */

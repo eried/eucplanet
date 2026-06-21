@@ -10,6 +10,8 @@ import platform.posix.getenv
  *  on a `simctl launch`) so screenshots can target a specific screen. */
 actual fun debugStartScreen(): String? = getenv("EUC_DEMO_SCREEN")?.toKString()
 
+actual fun debugHudPeer(): String? = getenv("EUC_HUD_PEER")?.toKString()
+
 /** The iOS Simulator exports SIMULATOR_* env vars to launched apps; a real
  *  device has none. */
 actual fun isSimulator(): Boolean = getenv("SIMULATOR_UDID") != null

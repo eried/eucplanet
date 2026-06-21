@@ -234,3 +234,59 @@ class CompositeWheelAdapter : WheelAdapter {
         return false
     }
 }
+
+/**
+ * BLE-name allowlist for the default ("known wheels only") scan mode — a faithful
+ * port of Android `BleScanner.isLikelyWheel`. The iOS scan otherwise lists every
+ * BLE peripheral; this filters it to recognised wheel names (InMotion V1/V2,
+ * KingSong, Begode/Gotway, Veteran, Ninebot). The Scan screen offers a "show all"
+ * toggle for wheels with an unusual name, matching Android.
+ */
+fun isLikelyWheel(name: String?): Boolean {
+    if (name.isNullOrBlank()) return false
+    // InMotion V2 family
+    if (name.startsWith("Adventure-")) return true
+    if (name.startsWith("P6-")) return true
+    if (name.startsWith("InMotion")) return true
+    // V8-…, V10-…, V11Y-…, V12HS-…: leading V, a digit, then at least one more char.
+    if (name.length >= 3 && name[0] == 'V' && name[1].isDigit()) {
+        var i = 2
+        while (i < name.length && name[i].isDigit()) i++
+        if (i < name.length) return true
+    }
+    // InMotion V1 legacy: "IM<digits>", "L6-", "Lively", "Glide" / "Solowheel".
+    if (name.length >= 3 && (name[0] == 'I' || name[0] == 'i') &&
+        (name[1] == 'M' || name[1] == 'm') && name[2].isDigit()) return true
+    if (name.startsWith("L6-", ignoreCase = true)) return true
+    if (name.startsWith("Lively", ignoreCase = true)) return true
+    if (name.startsWith("Glide", ignoreCase = true) ||
+        name.startsWith("Solowheel", ignoreCase = true)) return true
+    // KingSong
+    if (name.startsWith("KS-") || name.startsWith("KS ") ||
+        name.startsWith("KingSong", ignoreCase = true)) return true
+    if (Regex("^S(?:1[6-9]|2[02])(?:\\b|[-_ ])").containsMatchIn(name)) return true
+    if (name.startsWith("F18P", ignoreCase = true) ||
+        name.startsWith("F22P", ignoreCase = true)) return true
+    // Begode/Gotway
+    if (name.startsWith("Gotway", ignoreCase = true) ||
+        name.startsWith("Begode", ignoreCase = true) ||
+        name.startsWith("Master_", ignoreCase = true) ||
+        name.startsWith("RS_", ignoreCase = true) || name.startsWith("RS-", ignoreCase = true) ||
+        name.startsWith("EX_", ignoreCase = true) || name.startsWith("EX.", ignoreCase = true) ||
+        name.startsWith("EX2", ignoreCase = true) ||
+        name.startsWith("MSP", ignoreCase = true) || name.startsWith("MSX", ignoreCase = true) ||
+        name.startsWith("Mten", ignoreCase = true) || name.startsWith("MCM5", ignoreCase = true) ||
+        name.startsWith("Hero", ignoreCase = true) ||
+        name.startsWith("T3", ignoreCase = true) || name.startsWith("T4", ignoreCase = true)) return true
+    // Veteran
+    val nl = name.lowercase()
+    if ("sherman" in nl || "patton" in nl || "abrams" in nl ||
+        Regex("\\blynx\\b").containsMatchIn(nl)) return true
+    // Ninebot / Segway-Ninebot
+    if (name.startsWith("Ninebot", ignoreCase = true) ||
+        name.startsWith("Segway", ignoreCase = true)) return true
+    if (Regex("^ZN\\d", RegexOption.IGNORE_CASE).containsMatchIn(name)) return true
+    if (name.startsWith("MiniPLUS", ignoreCase = true) ||
+        name.startsWith("Mini Plus", ignoreCase = true)) return true
+    return false
+}

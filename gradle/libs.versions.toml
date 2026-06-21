@@ -123,6 +123,14 @@ ktor-server-status-pages = { group = "io.ktor", name = "ktor-server-status-pages
 # means no extra module needed beyond the core artifact.
 okhttp = { group = "com.squareup.okhttp3", name = "okhttp", version.ref = "okhttp" }
 
+# Ktor CLIENT (multiplatform) — shared EucStats REST client. core in commonMain;
+# platform engines: OkHttp on Android, Darwin (NSURLSession) on iOS.
+ktor-client-core = { group = "io.ktor", name = "ktor-client-core", version.ref = "ktor" }
+ktor-client-okhttp = { group = "io.ktor", name = "ktor-client-okhttp", version.ref = "ktor" }
+ktor-client-darwin = { group = "io.ktor", name = "ktor-client-darwin", version.ref = "ktor" }
+# WebSockets plugin for the shared HUD client (phone dials the HUD over ws://).
+ktor-client-websockets = { group = "io.ktor", name = "ktor-client-websockets", version.ref = "ktor" }
+
 # kotlinx.serialization for the JSON wire format. Used on both sides.
 kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "kotlinxSerialization" }
 

@@ -29,6 +29,8 @@ import androidx.compose.ui.unit.sp
 import com.eried.eucplanet.data.model.WheelData
 import com.eried.eucplanet.ui.theme.AppThemeColors
 import com.eried.eucplanet.ui.theme.appColors
+import com.eried.eucplanet.util.UnitFormat
+import kotlin.math.roundToInt
 
 /**
  * Shared per-metric detail screen — a port of the Android MetricDetailScreen:
@@ -40,13 +42,16 @@ internal fun MetricDetailScreen(
     metricKey: String,
     history: List<WheelData>,
     current: WheelData,
+    unitSpeed: String,
     unitDistance: String,
     unitTemp: String,
     onBack: () -> Unit,
 ) {
     val c = MaterialTheme.appColors
     val metrics = metricsFor(unitDistance, unitTemp)
-    val metric = metrics.firstOrNull { it.key == metricKey } ?: metrics.first()
+    // "speed" is the dial (not a tile), so build it on the fly for its detail view.
+    val speedMetric = Metric("speed", "SPEED", UnitFormat.speedLabel(unitSpeed), { it.gaugeFill }, { UnitFormat.speed(it.speed, unitSpeed) }, { UnitFormat.speed(it.speed, unitSpeed).roundToInt().toString() })
+    val metric = if (metricKey == "speed") speedMetric else metrics.firstOrNull { it.key == metricKey } ?: metrics.first()
     val color = metric.color(c)
     val series = history.map { metric.value(it) }
     val lo = series.minOrNull() ?: 0f

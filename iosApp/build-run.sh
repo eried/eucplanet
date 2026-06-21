@@ -20,10 +20,15 @@ APP="/tmp/EucPlanet.app"
 
 rm -rf "$APP"; mkdir -p "$APP/Frameworks"
 xcrun -sdk iphonesimulator swiftc -target arm64-apple-ios15.0-simulator -parse-as-library \
-  -F "$FW" -framework Shared -Xlinker -rpath -Xlinker @executable_path/Frameworks \
-  iosApp/AppDelegate.swift -o "$APP/EucPlanet"
+  -F "$FW" -framework Shared -framework WatchConnectivity -framework PhotosUI -framework CoreLocation \
+  -Xlinker -rpath -Xlinker @executable_path/Frameworks \
+  iosApp/AppDelegate.swift iosApp/WatchSessionManager.swift iosApp/AvatarPhotoPicker.swift iosApp/LocationBridge.swift -o "$APP/EucPlanet"
 cp iosApp/Info.plist "$APP/Info.plist"
 cp -R "$FW/Shared.framework" "$APP/Frameworks/"
+# Bundle the Compose Multiplatform resources (reused Android strings.xml) at the
+# EXACT path the generated accessors load: composeResources/<resClassPackage>/...
+RESDIR="shared/build/generated/compose/resourceGenerator/preparedResources/commonMain/composeResources"
+[ -d "$RESDIR" ] && { D="$APP/compose-resources/composeResources/com.eried.eucplanet.resources"; mkdir -p "$D"; cp -R "$RESDIR/." "$D/"; }
 codesign --force --sign - "$APP/Frameworks/Shared.framework" >/dev/null 2>&1
 codesign --force --sign - "$APP" >/dev/null 2>&1
 

@@ -3,6 +3,7 @@
 package com.eried.eucplanet.data
 
 import kotlinx.cinterop.ExperimentalForeignApi
+import kotlinx.cinterop.readBytes
 import platform.Foundation.NSDocumentDirectory
 import platform.Foundation.NSFileManager
 import platform.Foundation.NSSearchPathForDirectoriesInDomains
@@ -27,6 +28,20 @@ private class IosFileStore : FileStore {
         val dir = docsDir() ?: return emptyList()
         val items = NSFileManager.defaultManager.contentsOfDirectoryAtPath(dir, null) ?: return emptyList()
         return items.filterIsInstance<String>()
+    }
+
+    override fun readText(name: String): String? {
+        val dir = docsDir() ?: return null
+        val data = NSFileManager.defaultManager.contentsAtPath("$dir/$name") ?: return null
+        val len = data.length.toInt()
+        if (len == 0) return ""
+        val bytes = data.bytes?.readBytes(len) ?: return null
+        return bytes.decodeToString()
+    }
+
+    override fun delete(name: String): Boolean {
+        val dir = docsDir() ?: return false
+        return NSFileManager.defaultManager.removeItemAtPath("$dir/$name", error = null)
     }
 }
 

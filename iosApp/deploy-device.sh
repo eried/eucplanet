@@ -27,10 +27,25 @@ if [ -z "$DEV_ID" ]; then
 fi
 echo "Target device: $DEV_ID"
 
+# Best-effort: auto-detect the signing team from the installed Apple Development
+# cert, so this script is zero-config once you've signed into Xcode (Settings >
+# Accounts). The Team ID is the cert subject's organizationalUnitName (OU).
+if [ -z "${TEAM:-}" ]; then
+  TEAM=$(security find-certificate -a -c "Apple Develop" -p 2>/dev/null \
+    | openssl x509 -noout -subject -nameopt multiline 2>/dev/null \
+    | sed -n 's/.*organizationalUnitName *= *//p' | head -1)
+  [ -n "$TEAM" ] && echo "Auto-detected signing team: $TEAM"
+fi
+if ! security find-identity -v -p codesigning 2>/dev/null | grep -q "Apple Develop"; then
+  echo "WARNING: no 'Apple Development' signing identity in the keychain yet."
+  echo "  One-time: Xcode > Settings (Cmd+,) > Accounts > + > Apple ID (free is OK),"
+  echo "  then re-run this script. (Code-signing will fail until that is done.)"
+fi
+
 DD=/tmp/eucdd-device
 xcodebuild -project iosApp/iosApp.xcodeproj -scheme EucPlanet -configuration Debug \
   -destination "generic/platform=iOS" -derivedDataPath "$DD" \
-  -allowProvisioningUpdates ${TEAM:+DEVELOPMENT_TEAM="$TEAM"} build
+  -allowProvisioningUpdates -allowProvisioningDeviceRegistration ${TEAM:+DEVELOPMENT_TEAM="$TEAM"} build
 
 APP="$DD/Build/Products/Debug-iphoneos/EucPlanet.app"
 echo "Installing $APP ..."

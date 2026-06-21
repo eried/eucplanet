@@ -26,7 +26,9 @@ import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.LockOpen
 import androidx.compose.material.icons.filled.RecordVoiceOver
+import androidx.compose.material.icons.filled.Place
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.Videocam
 import androidx.compose.material.icons.filled.Shield
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.AlertDialog
@@ -49,16 +51,24 @@ import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.drawText
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.eried.eucplanet.data.RideAlarm
 import com.eried.eucplanet.data.model.WheelData
 import com.eried.eucplanet.ui.theme.AppThemeColors
+import com.eried.eucplanet.ui.about.AboutDialog
 import com.eried.eucplanet.ui.theme.appColors
+import com.eried.eucplanet.ui.welcome.coachmark
 import com.eried.eucplanet.util.UnitFormat
+import kotlin.math.PI
+import kotlin.math.cos
 import kotlin.math.roundToInt
+import kotlin.math.sin
 
 /** One metric tile's spec: how to pull its value + unit + accent from [WheelData]. */
 internal class Metric(
@@ -120,6 +130,7 @@ internal fun DashboardScreen(
     unitTemp: String,
     columns: Int,
     statCorners: Boolean,
+    disconnected: Boolean = false,
     onHorn: () -> Unit,
     onToggleLight: () -> Unit,
     onToggleVoice: () -> Unit,
@@ -130,18 +141,21 @@ internal fun DashboardScreen(
     onSettings: () -> Unit,
     onRecordingScreen: () -> Unit,
     onMetricClick: (String) -> Unit,
+    onStudio: () -> Unit = {},
+    onMap: () -> Unit = {},
 ) {
     val c = MaterialTheme.appColors
-    var showAbout by remember { mutableStateOf(false) }
+    var showAbout by remember { mutableStateOf(debugStartScreen()?.lowercase() == "about") }
 
     Column(Modifier.fillMaxSize().background(c.appBackground)) {
-        DashboardTopBar(c, title, subtitle, connected, alarms.isNotEmpty(), onScan, onSettings, onRecordingScreen)
+        DashboardTopBar(c, title, subtitle, connected, alarms.isNotEmpty(), onScan, onSettings, onRecordingScreen, onStudio, onMap)
 
         if (alarms.isNotEmpty()) AlarmBanner(c, alarms)
 
-        // Speed gauge — fills the upper flexible area.
+        // Speed gauge — fills the upper flexible area. Tap to open the speed
+        // history / detail, exactly like Android (onNavigateToMetric("SPEED")).
         Box(
-            Modifier.fillMaxWidth().weight(1f).padding(horizontal = 12.dp),
+            Modifier.fillMaxWidth().weight(1f).padding(horizontal = 12.dp).coachmark("speed").clickable { onMetricClick("speed") },
             contentAlignment = Alignment.Center,
         ) {
             SpeedGauge(d.speed, max = gaugeMax, unitSpeed = unitSpeed, pwm = d.pwm, charging = d.charging, band = gaugeBand, orangeThresholdPct = orangeThresholdPct, redThresholdPct = redThresholdPct, c = c)
@@ -151,7 +165,7 @@ internal fun DashboardScreen(
         // settings. With a non-full last row, the trailing Spacer keeps tiles the
         // same width as full rows instead of stretching them.
         val cols = columns.coerceIn(1, 3)
-        Column(Modifier.fillMaxWidth().padding(horizontal = 12.dp)) {
+        Column(Modifier.fillMaxWidth().padding(horizontal = 12.dp).coachmark("metrics")) {
             metricsFor(unitDistance, unitTemp).chunked(cols).forEach { row ->
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     row.forEach { m ->
@@ -166,15 +180,17 @@ internal fun DashboardScreen(
         }
 
         // 6-button Material-icon action grid (3 columns x 2 rows).
+        // Controls need a wheel (or demo) — dim them when disconnected.
+        val ctl = !disconnected
         val actions = listOf(
-            ActionSpec(RideAction("Horn", Icons.Filled.Campaign) { it.primary }, false, true, onHorn),
-            ActionSpec(RideAction("Light", Icons.Filled.FlashlightOn) { it.statusWarn }, lightOn, true, onToggleLight),
-            ActionSpec(RideAction("Voice", Icons.Filled.RecordVoiceOver) { it.primary }, voiceOn, true, onToggleVoice),
-            ActionSpec(RideAction("Legal", Icons.Filled.Shield) { it.primary }, legalMode, true, onToggleLegal),
-            ActionSpec(RideAction("Lock", if (locked) Icons.Filled.Lock else Icons.Filled.LockOpen) { it.statusDanger }, locked, true, onToggleLock),
-            ActionSpec(RideAction("Rec", Icons.Filled.FiberManualRecord) { it.statusDanger }, recording, true, onToggleRecord),
+            ActionSpec(RideAction("Horn", Icons.Filled.Campaign) { it.primary }, false, ctl, onHorn),
+            ActionSpec(RideAction("Light", Icons.Filled.FlashlightOn) { it.statusWarn }, lightOn, ctl, onToggleLight),
+            ActionSpec(RideAction("Voice", Icons.Filled.RecordVoiceOver) { it.primary }, voiceOn, ctl, onToggleVoice),
+            ActionSpec(RideAction("Legal", Icons.Filled.Shield) { it.primary }, legalMode, ctl, onToggleLegal),
+            ActionSpec(RideAction("Lock", if (locked) Icons.Filled.Lock else Icons.Filled.LockOpen) { it.statusDanger }, locked, ctl, onToggleLock),
+            ActionSpec(RideAction("Rec", Icons.Filled.FiberManualRecord) { it.statusDanger }, recording, ctl, onToggleRecord),
         )
-        Column(Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 4.dp)) {
+        Column(Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 4.dp).coachmark("actions")) {
             actions.chunked(3).forEach { row ->
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     row.forEach { spec ->
@@ -194,33 +210,20 @@ internal fun DashboardScreen(
         ) {
             Text("ODO ${UnitFormat.distance(d.totalDistance, unitDistance).f1()} ${UnitFormat.distanceLabel(unitDistance)}", color = c.textSecondary, fontSize = 11.sp, modifier = Modifier.weight(1f))
             Text(
-                if (connected) "live" else "demo",
+                if (disconnected) "offline" else if (connected) "live" else "demo",
                 color = if (connected) c.statusGood else c.textDisabled, fontSize = 11.sp,
                 textAlign = TextAlign.Center, modifier = Modifier.weight(1f),
             )
             Text(
                 "EUC Planet 0.1", color = c.primary, fontSize = 11.sp,
                 textAlign = TextAlign.End,
-                modifier = Modifier.weight(1f).clip(RoundedCornerShape(6.dp)).clickable { showAbout = true }.padding(vertical = 2.dp),
+                modifier = Modifier.weight(1f).coachmark("version").clip(RoundedCornerShape(6.dp)).clickable { showAbout = true }.padding(vertical = 2.dp),
             )
         }
     }
 
     if (showAbout) {
-        AlertDialog(
-            onDismissRequest = { showAbout = false },
-            confirmButton = { TextButton(onClick = { showAbout = false }) { Text("Close", color = c.primary) } },
-            title = { Text("EUC Planet", color = c.textPrimary, fontWeight = FontWeight.Bold) },
-            text = {
-                Column {
-                    Text("Version 0.1 — shared Compose Multiplatform (iOS / Android)", color = c.textSecondary, fontSize = 13.sp)
-                    Spacer(Modifier.height(8.dp))
-                    Text("Wheel: $title", color = c.textSecondary, fontSize = 13.sp)
-                    Text(subtitle, color = c.textDisabled, fontSize = 12.sp)
-                }
-            },
-            containerColor = c.dialog,
-        )
+        AboutDialog(connected = connected, connectedTitle = title, onDismiss = { showAbout = false })
     }
 }
 
@@ -241,9 +244,11 @@ private fun DashboardTopBar(
     onScan: () -> Unit,
     onSettings: () -> Unit,
     onRecordings: () -> Unit,
+    onStudio: () -> Unit = {},
+    onMap: () -> Unit = {},
 ) {
     Row(
-        Modifier.fillMaxWidth().background(c.topBar).padding(start = 16.dp, end = 8.dp, top = 14.dp, bottom = 12.dp),
+        Modifier.fillMaxWidth().background(c.topBar).padding(start = 16.dp, end = 6.dp, top = 14.dp, bottom = 12.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Box(
@@ -255,22 +260,25 @@ private fun DashboardTopBar(
             Text(title, color = c.textPrimary, fontSize = 17.sp, fontWeight = FontWeight.Bold, maxLines = 1)
             Text(subtitle, color = c.textSecondary, fontSize = 11.sp, maxLines = 1)
         }
-        if (hasAlarm) IconBtn(Icons.Filled.Warning, "Alarm", c.statusDanger) {}
+        if (hasAlarm) IconBtn(Icons.Filled.Warning, "Alarm", c.statusDanger, {})
+        IconBtn(Icons.Filled.Place, "Map", c.textSecondary, onMap, Modifier.coachmark("map"))
+        IconBtn(Icons.Filled.Videocam, "Overlay Studio", c.textSecondary, onStudio, Modifier.coachmark("studio"))
         IconBtn(Icons.Filled.History, "Recordings", c.textSecondary, onRecordings)
         IconBtn(
             if (connected) Icons.Filled.Bluetooth else Icons.Filled.BluetoothSearching,
             if (connected) "Disconnect" else "Scan",
             if (connected) c.statusGood else c.primary,
             onScan,
+            Modifier.coachmark("bluetooth"),
         )
         IconBtn(Icons.Filled.Settings, "Settings", c.primary, onSettings)
     }
 }
 
 @Composable
-private fun IconBtn(icon: ImageVector, desc: String, tint: Color, onClick: () -> Unit) {
+private fun IconBtn(icon: ImageVector, desc: String, tint: Color, onClick: () -> Unit, modifier: Modifier = Modifier) {
     Box(
-        Modifier.clip(CircleShape).clickable { onClick() }.padding(7.dp),
+        modifier.clip(CircleShape).clickable { onClick() }.padding(7.dp),
         contentAlignment = Alignment.Center,
     ) {
         Icon(icon, contentDescription = desc, tint = tint, modifier = Modifier.size(22.dp))
@@ -359,26 +367,66 @@ internal fun SpeedGauge(speed: Float, max: Float, unitSpeed: String, pwm: Float,
         band && frac >= orangeFrac -> c.gaugeWarn
         else -> c.gaugeFill
     }
-    Box(Modifier.fillMaxWidth().aspectRatio(1.15f), contentAlignment = Alignment.Center) {
-        Canvas(Modifier.fillMaxSize().padding(24.dp)) {
-            val stroke = Stroke(width = size.minDimension * 0.07f, cap = StrokeCap.Round)
-            val inset = stroke.width
-            val arcSize = Size(size.width - inset * 2, size.height - inset * 2)
-            val topLeft = Offset(inset, inset)
-            drawArc(c.gaugeTrack, 135f, 270f, false, topLeft = topLeft, size = arcSize, style = stroke)
-            // Threshold color band on the dial (warn 70-85%, danger 85-100%),
-            // like the Android gauge, when enabled in Display settings.
+    val tickColor = c.textDisabled
+    val measurer = rememberTextMeasurer()
+    // Numeric scale labels around the dial (0 .. max in the display unit), like Android.
+    val displayMax = UnitFormat.speed(max, unitSpeed).roundToInt()
+    val step = (displayMax / 3).coerceAtLeast(5)
+    val scaleLabels = listOf(0, step, step * 2, displayMax)
+    val startAngle = 140f
+    val sweepTotal = 260f
+    val rad = (PI / 180f).toFloat()
+
+    // fillMaxSize + a minDimension-based circle means the gauge can't get squished
+    // when the column squeezes it — it just scales to the available square.
+    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+        Canvas(Modifier.fillMaxSize().padding(8.dp)) {
+            val dim = size.minDimension
+            val arcThickness = dim * 0.07f
+            val arcRadius = dim / 2f - arcThickness - dim * 0.13f
+            val center = Offset(size.width / 2f, size.height / 2f)
+            val tl = Offset(center.x - arcRadius, center.y - arcRadius)
+            val sz = Size(arcRadius * 2, arcRadius * 2)
+            val stroke = Stroke(width = arcThickness, cap = StrokeCap.Round)
+
+            drawArc(c.gaugeTrack, startAngle, sweepTotal, false, topLeft = tl, size = sz, style = stroke)
+            // Thin threshold colour band behind the arc (safe → warn → danger).
             if (band) {
-                val warnStart = 135f + 270f * orangeFrac
-                val dangerStart = 135f + 270f * redFrac
-                drawArc(c.gaugeWarn.copy(alpha = 0.5f), warnStart, dangerStart - warnStart, false, topLeft = topLeft, size = arcSize, style = stroke)
-                drawArc(c.gaugeDanger.copy(alpha = 0.6f), dangerStart, (135f + 270f) - dangerStart, false, topLeft = topLeft, size = arcSize, style = stroke)
+                val bandTh = arcThickness * 0.4f
+                val bandR = arcRadius + arcThickness * 0.55f + bandTh * 0.5f
+                val bandTl = Offset(center.x - bandR, center.y - bandR)
+                val bandSz = Size(bandR * 2, bandR * 2)
+                drawArc(c.gaugeWarn.copy(alpha = 0.6f), startAngle + sweepTotal * orangeFrac, sweepTotal * (redFrac - orangeFrac), false, topLeft = bandTl, size = bandSz, style = Stroke(bandTh))
+                drawArc(c.gaugeDanger.copy(alpha = 0.6f), startAngle + sweepTotal * redFrac, sweepTotal * (1f - redFrac), false, topLeft = bandTl, size = bandSz, style = Stroke(bandTh))
             }
-            drawArc(arcColor, 135f, 270f * frac, false, topLeft = topLeft, size = arcSize, style = stroke)
+            if (frac > 0.001f) drawArc(arcColor, startAngle, sweepTotal * frac, false, topLeft = tl, size = sz, style = stroke)
+
+            // Tick marks just outside the arc (major every 8th, minor every 4th of 24).
+            val tickOuter = arcRadius + arcThickness * 0.75f
+            val tickInner = arcRadius + arcThickness * 0.1f
+            for (i in 0..24) {
+                val major = i % 8 == 0
+                if (!major && i % 4 != 0) continue
+                val a = (startAngle + sweepTotal * i / 24f) * rad
+                drawLine(
+                    if (major) tickColor else tickColor.copy(alpha = 0.4f),
+                    Offset(center.x + tickInner * cos(a), center.y + tickInner * sin(a)),
+                    Offset(center.x + tickOuter * cos(a), center.y + tickOuter * sin(a)),
+                    strokeWidth = if (major) 2.5f else 1.2f,
+                )
+            }
+            // Numeric scale labels outside the ticks.
+            val labelR = arcRadius + arcThickness + dim * 0.075f
+            scaleLabels.forEachIndexed { idx, label ->
+                val a = (startAngle + sweepTotal * idx / (scaleLabels.size - 1)) * rad
+                val m = measurer.measure("$label", style = TextStyle(fontSize = (dim * 0.045f).sp, color = tickColor))
+                drawText(m, topLeft = Offset(center.x + labelR * cos(a) - m.size.width / 2f, center.y + labelR * sin(a) - m.size.height / 2f))
+            }
         }
+        // Centre readout — number / unit / PWM, overlaid on the dial centre.
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            Text(UnitFormat.speed(speed, unitSpeed).f1(), color = c.textPrimary, fontSize = 58.sp, fontWeight = FontWeight.Bold)
-            Text(UnitFormat.speedLabel(unitSpeed), color = c.textSecondary, fontSize = 14.sp)
+            Text(UnitFormat.speed(speed, unitSpeed).f1(), color = c.textPrimary, fontSize = 54.sp, fontWeight = FontWeight.Bold)
+            Text(UnitFormat.speedLabel(unitSpeed), color = c.textSecondary, fontSize = 13.sp)
             Spacer(Modifier.height(2.dp))
             Text(
                 if (charging) "CHARGING" else "PWM ${pwm.f0()}%",

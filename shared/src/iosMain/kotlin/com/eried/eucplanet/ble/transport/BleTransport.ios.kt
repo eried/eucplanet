@@ -81,7 +81,10 @@ private class IosBleTransport : BleTransport {
 
         @ObjCSignatureOverride
         override fun centralManager(central: CBCentralManager, didDisconnectPeripheral: CBPeripheral, error: NSError?) {
-            active?.onDisconnected()
+            // Only react to the ACTIVE connection's peripheral — a superseded
+            // connect's late disconnect must not tear down the connection that
+            // replaced it (user double-tapped a second wheel before the first resolved).
+            if (active?.peripheral === didDisconnectPeripheral) active?.onDisconnected()
         }
     }
 
@@ -129,7 +132,7 @@ private class IosBleTransport : BleTransport {
 
 private class IosBleConnection(
     private val central: CBCentralManager,
-    private val peripheral: CBPeripheral,
+    val peripheral: CBPeripheral,
     private val profile: BleProfile,
 ) : BleConnection {
 

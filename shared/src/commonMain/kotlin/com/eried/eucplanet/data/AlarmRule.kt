@@ -48,14 +48,16 @@ enum class AlarmMetric(val label: String, val unit: String, val range: ClosedFlo
     VOLTAGE("Voltage", "V", 0f..150f),
     CURRENT("Current", "A", 0f..150f);
 
-    /** Pull this metric's current value out of a telemetry frame. */
+    /** Pull this metric's current value out of a telemetry frame. Speed / PWM /
+     *  current are taken as magnitudes (matches Android's `.absoluteValue`) so a
+     *  rule still trips while braking / rolling backward (signed telemetry). */
     fun valueOf(d: WheelData): Float = when (this) {
-        SPEED -> d.speed
+        SPEED -> kotlin.math.abs(d.speed)
         BATTERY -> d.batteryPercent.toFloat()
         TEMPERATURE -> d.maxTemperature
-        PWM -> d.pwm
+        PWM -> kotlin.math.abs(d.pwm)
         VOLTAGE -> d.voltage
-        CURRENT -> d.current
+        CURRENT -> kotlin.math.abs(d.current)
     }
 
     companion object {
