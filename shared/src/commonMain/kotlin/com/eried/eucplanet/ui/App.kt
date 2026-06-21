@@ -91,6 +91,7 @@ import com.eried.eucplanet.location.LocationService
 import com.eried.eucplanet.nav.CurrentRouteStore
 import com.eried.eucplanet.nav.NavigationEngine
 import com.eried.eucplanet.nav.RoutingService
+import com.eried.eucplanet.ui.navigator.NavigationOverlay
 import com.eried.eucplanet.ui.navigator.RouteBuilderScreen
 import com.eried.eucplanet.ui.navigator.RouteBuilderViewModel
 import com.eried.eucplanet.ui.eucstats.ManageProfileDialog
@@ -986,6 +987,17 @@ fun App() {
                     initialStep = if (demoScreen == "welcome") 2 else 0,
                 )
             }
+            // Live turn-by-turn popup — hovers over every screen while guidance runs
+            // (suppressed on the map screen itself, which already shows the route).
+            val navState by navigationEngine.navState.collectAsState()
+            NavigationOverlay(
+                state = navState,
+                onMinimize = { navigationEngine.setMinimized(true) },
+                onEndNav = { navigationEngine.stop() },
+                onOpenMap = { route = Route.Map },
+                onCueVisible = { navigationEngine.setCueVisible(it) },
+                suppressOnPhone = route == Route.Map,
+            )
             }
         }
     }

@@ -25,6 +25,7 @@ import androidx.compose.material.icons.filled.DisplaySettings
 import androidx.compose.material.icons.filled.FlashlightOn
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
+import androidx.compose.material.icons.filled.Navigation
 import androidx.compose.material.icons.filled.NotificationsActive
 import androidx.compose.material.icons.filled.RecordVoiceOver
 import androidx.compose.material.icons.filled.Settings
@@ -326,7 +327,18 @@ internal fun SettingsScreen(
                         }
                     }
 
-                    SettingsSectionId.Navigator -> {}
+                    SettingsSectionId.Navigator -> Section(c, "Navigator", Icons.Filled.Navigation, keywords = "route navigation map gps turn directions waypoint arrival off route router geocoder osrm nominatim guidance full path") {
+                        val imp = settings.unitDistance == "mi" || settings.unitDistance == "ft"
+                        fun distLabel(m: Int) = if (imp) "${(m * 3.28084).roundToInt()} ft" else "$m m"
+                        SwitchRow(c, "Solve the full route", settings.navSolveFullPath) { onUpdate { s -> s.copy(navSolveFullPath = it) } }
+                        Note(c, "On: route through every stop at once. Off: route only the next leg and dash the rest.")
+                        SwitchRow(c, "Voice guidance", settings.navVoiceGuidance) { onUpdate { s -> s.copy(navVoiceGuidance = it) } }
+                        SliderRow(c, "Arrival radius", distLabel(settings.navArrivalRadiusM), settings.navArrivalRadiusM.toFloat(), 5f..100f) { onUpdate { s -> s.copy(navArrivalRadiusM = (it / 5f).roundToInt() * 5) } }
+                        SliderRow(c, "Off-route tolerance", distLabel(settings.navOffRouteToleranceM), settings.navOffRouteToleranceM.toFloat(), 15f..150f) { onUpdate { s -> s.copy(navOffRouteToleranceM = (it / 5f).roundToInt() * 5) } }
+                        Note(c, "Routing endpoints (advanced) — leave blank for the default OpenStreetMap services.")
+                        CloudTextField(c, settings.navGeocoderUrl, "Geocoder URL (Nominatim)") { onUpdate { s -> s.copy(navGeocoderUrl = it.trim()) } }
+                        CloudTextField(c, settings.navRouterUrl, "Router URL (OSRM)") { onUpdate { s -> s.copy(navRouterUrl = it.trim()) } }
+                    }
 
                     SettingsSectionId.Location -> Section(c, "Location", Icons.Filled.Tune, keywords = "gps location speed permission satellite announce") {
                         Note(c, "EUC Planet uses your phone GPS for speed, trip tracking and sunset-based auto-lights. Allow location access when prompted (or in iOS Settings ▸ EUC Planet ▸ Location).")
