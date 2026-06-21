@@ -82,6 +82,8 @@ import com.eried.eucplanet.ui.theme.ThemeTokens
 import com.eried.eucplanet.ui.theme.appColors
 import com.eried.eucplanet.hudlink.HudClient
 import com.eried.eucplanet.hudlink.HudCommand
+import com.eried.eucplanet.hudlink.HudDiscovery
+import com.eried.eucplanet.hudlink.HudDiscoveryClient
 import com.eried.eucplanet.hudlink.HudState
 import com.eried.eucplanet.hudlink.OverlayElement
 import com.eried.eucplanet.hudlink.OverlayElementType
@@ -464,8 +466,24 @@ fun App() {
             )
         }
         LaunchedEffect(settings.hudEnabled, settings.hudIp, settings.hudPort) {
-            if (settings.hudEnabled && settings.hudIp.isNotBlank()) hudClient.start(settings.hudIp, settings.hudPort)
-            else hudClient.stop()
+            when {
+                !settings.hudEnabled -> { hudClient.stop(); HudDiscoveryClient.stop() }
+                settings.hudIp.isNotBlank() -> { HudDiscoveryClient.stop(); hudClient.start(settings.hudIp, settings.hudPort) }
+                // Blank IP → browse mDNS (_eucplanet._tcp) for the HUD on the LAN,
+                // exactly like Android's HudServer.resolveViaMdns fallback.
+                else -> { hudClient.stop(); HudDiscoveryClient.start() }
+            }
+        }
+        // Dial whatever mDNS discovers, when the rider left the HUD IP blank.
+        val hudDiscovered by HudDiscoveryClient.resolved.collectAsState()
+        LaunchedEffect(hudDiscovered, settings.hudEnabled, settings.hudIp) {
+            val peer = hudDiscovered
+            if (settings.hudEnabled && settings.hudIp.isBlank() && peer != null) {
+                val parts = peer.split(":")
+                val h = parts.getOrNull(0)
+                val p = parts.getOrNull(1)?.toIntOrNull() ?: HudDiscovery.DEFAULT_PORT
+                if (!h.isNullOrBlank()) hudClient.start(h, p)
+            }
         }
         val hudStatus by hudClient.status.collectAsState()
         val hudStatusLabel = when (hudStatus) {

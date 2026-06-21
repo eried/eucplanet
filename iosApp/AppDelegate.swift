@@ -10,6 +10,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     let avatarPicker = AvatarPhotoPicker()
     // Retained CoreLocation bridge driven by the shared LocationService hooks.
     let locationBridge = LocationBridge()
+    // Retained Bonjour bridge driven by the shared HudDiscoveryClient hooks —
+    // auto-discovers the HUD on the LAN when the rider leaves the IP blank.
+    let hudDiscovery = HudDiscoveryBridge()
 
     func application(
         _ application: UIApplication,
@@ -38,6 +41,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         // Wire the shared GPS seam to CoreLocation.
         LocationService.shared.nativeStart = { [weak self] in self?.locationBridge.start() }
         LocationService.shared.nativeStop = { [weak self] in self?.locationBridge.stop() }
+        // Wire the shared HUD mDNS discovery seam to Bonjour (NetServiceBrowser).
+        HudDiscoveryClient.shared.nativeStart = { [weak self] in self?.hudDiscovery.start() }
+        HudDiscoveryClient.shared.nativeStop = { [weak self] in self?.hudDiscovery.stop() }
         return true
     }
 }
