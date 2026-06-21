@@ -985,7 +985,12 @@ internal fun MetricGraph(
                         val x = w * (m.timestampMs - xMinMs).toFloat() / xSpanMs.toFloat()
                         val y = (h - h * (m.value - bounds.min) / padded.coerceAtLeast(0.001f))
                             .coerceIn(0f, h)
-                        drawCircle(predictionColor.copy(alpha = 0.55f), radius = 2.5f, center = Offset(x, y))
+                        // Filled centre + a faint halo so the marker reads
+                        // clearly against both the line and the background fill.
+                        // Sized so each dot is glanceable on a phone screen
+                        // without competing with the live trace.
+                        drawCircle(predictionColor.copy(alpha = 0.20f), radius = 9f, center = Offset(x, y))
+                        drawCircle(predictionColor, radius = 5f, center = Offset(x, y))
                     }
                 }
             }
