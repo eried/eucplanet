@@ -48,6 +48,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.eried.eucplanet.audio.createHaptics
+import com.eried.eucplanet.audio.EngineSoundController
 import com.eried.eucplanet.audio.createSpeaker
 import com.eried.eucplanet.ble.WheelSession
 import com.eried.eucplanet.ble.isLikelyWheel
@@ -377,6 +378,10 @@ fun App() {
                     enabledHudScreens = HUD_SCREENS,
                 )
                 recorder.sample(wd)
+                // Motor sound: feed live telemetry to the engine synth (no-op until
+                // EngineSoundController is running, i.e. enabled + in a ride).
+                EngineSoundController.setMaxSpeedRef((((s.tiltbackKmh / 10f).toInt() + 1) * 10f).coerceAtLeast(30f))
+                EngineSoundController.pushTelemetry(wd.speed, wd.pwm)
                 // Alarm engine: evaluate the rules each frame and fire the actions of
                 // any rule that's due (honouring per-rule cooldown / repeat-while-active).
                 val toFire = alarmEngine.step(activeAlarms(wd, s.alarmRules), s.alarmRules, nowEpochMillis())
@@ -759,6 +764,9 @@ fun App() {
         }
 
         val inRide = session != null || demoModel != null
+        // Motor sound: apply settings live and start/stop the audio with the ride.
+        LaunchedEffect(settings) { EngineSoundController.applySettings(settings) }
+        LaunchedEffect(inRide) { EngineSoundController.setConnected(inRide, settingsStore.current) }
 
         // Detect a dropped wheel: when the transport flips to Disconnected (out of
         // range, powered off, BLE glitch) leave the ride and surface it on Scan —

@@ -25,6 +25,8 @@ import androidx.compose.material.icons.filled.DisplaySettings
 import androidx.compose.material.icons.filled.FlashlightOn
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
+import androidx.compose.foundation.horizontalScroll
+import androidx.compose.material.icons.filled.MusicNote
 import androidx.compose.material.icons.filled.Navigation
 import androidx.compose.material.icons.filled.NotificationsActive
 import androidx.compose.material.icons.filled.RecordVoiceOver
@@ -60,6 +62,7 @@ import com.eried.eucplanet.cloud.RiderCard
 import com.eried.eucplanet.data.AlarmComparator
 import com.eried.eucplanet.data.AlarmMetric
 import com.eried.eucplanet.data.AlarmRule
+import com.eried.eucplanet.audio.EngineProfile
 import com.eried.eucplanet.data.model.AppSettings
 import com.eried.eucplanet.ui.settings.SettingsSectionId
 import com.eried.eucplanet.ui.theme.AppThemeColors
@@ -258,7 +261,29 @@ internal fun SettingsScreen(
                     // cloud sync, GPS-scheduled automations, maps/navigation, external
                     // GPS, Flic/Radar, Wear OS / Garmin). The shared enum still forces
                     // a deliberate show/hide decision whenever Android adds a section.
-                    SettingsSectionId.Motor -> {}
+                    SettingsSectionId.Motor -> Section(c, "Motor sound", Icons.Filled.MusicNote, keywords = "engine motor sound exhaust vroom v8 v12 muffler gearbox idle decel backfire brake duck synth two stroke") {
+                        SwitchRow(c, "Engine sound", settings.engineSoundEnabled) { onUpdate { s -> s.copy(engineSoundEnabled = it) } }
+                        if (settings.engineSoundEnabled) {
+                            Note(c, "Engine")
+                            Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                                EngineProfile.PROFILES.forEach { p ->
+                                    val sel = p.key == settings.engineType
+                                    Box(
+                                        Modifier.clip(RoundedCornerShape(8.dp)).background(if (sel) c.primary else c.surfaceVariant)
+                                            .clickable { onUpdate { s -> s.copy(engineType = p.key) } }.padding(horizontal = 12.dp, vertical = 7.dp),
+                                    ) { Text(p.displayName, color = if (sel) c.onPrimary else c.textSecondary, fontSize = 12.sp, fontWeight = if (sel) FontWeight.SemiBold else FontWeight.Normal) }
+                                }
+                            }
+                            SliderRow(c, "Volume", "${(settings.engineVolume * 100).roundToInt()}%", settings.engineVolume, 0f..1f) { onUpdate { s -> s.copy(engineVolume = it) } }
+                            Note(c, "Muffler"); Segmented(c, listOf("Open", "Half", "Muffled"), listOf("OPEN", "HALF", "MUFFLED").indexOf(settings.engineMuffler).coerceAtLeast(0)) { i -> onUpdate { s -> s.copy(engineMuffler = listOf("OPEN", "HALF", "MUFFLED")[i]) } }
+                            Note(c, "Gearbox"); Segmented(c, listOf("Off", "4-speed", "6-speed"), listOf("OFF", "FOUR", "SIX").indexOf(settings.engineGearbox).coerceAtLeast(0)) { i -> onUpdate { s -> s.copy(engineGearbox = listOf("OFF", "FOUR", "SIX")[i]) } }
+                            Note(c, "Idle"); Segmented(c, listOf("Always", "Fade", "Moving"), listOf("ALWAYS", "FADE", "MOVING").indexOf(settings.engineIdleBehavior).coerceAtLeast(0)) { i -> onUpdate { s -> s.copy(engineIdleBehavior = listOf("ALWAYS", "FADE", "MOVING")[i]) } }
+                            Note(c, "Deceleration"); Segmented(c, listOf("Smooth", "Standard", "Backfire"), listOf("SMOOTH", "STANDARD", "BACKFIRE").indexOf(settings.engineDecelChar).coerceAtLeast(0)) { i -> onUpdate { s -> s.copy(engineDecelChar = listOf("SMOOTH", "STANDARD", "BACKFIRE")[i]) } }
+                            Note(c, "Engine brake"); Segmented(c, listOf("Off", "Light", "Strong"), listOf("OFF", "LIGHT", "STRONG").indexOf(settings.engineBrake).coerceAtLeast(0)) { i -> onUpdate { s -> s.copy(engineBrake = listOf("OFF", "LIGHT", "STRONG")[i]) } }
+                            Note(c, "Duck on voice"); Segmented(c, listOf("Duck", "Pause", "Mix"), listOf("DUCK", "PAUSE", "MIX").indexOf(settings.engineDuckOnVoice).coerceAtLeast(0)) { i -> onUpdate { s -> s.copy(engineDuckOnVoice = listOf("DUCK", "PAUSE", "MIX")[i]) } }
+                            Note(c, "Synthesizes a virtual engine from your live speed + PWM, through the phone speaker. iOS renders the synth engines; sampled engines fall back to synthesis.")
+                        }
+                    }
 
                     SettingsSectionId.Cloud -> Section(c, "Backup · EUC Stats", Icons.Filled.CloudUpload, keywords = "eucstats online backup leaderboard rank rider register upload cloud flag profile avatar delete export") {
                         val registered = settings.eucStatsStoreId.isNotBlank()

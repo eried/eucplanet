@@ -68,10 +68,6 @@ data class AppSettings(
     val autoLightsSpeedKmh: Float = 5f,
     val autoVolume: Boolean = false,
 
-    // Motor sound (engine synthesis)
-    val engineSound: Boolean = false,
-    val engineVolume: Float = 50f,
-
     // Location / sensors
     val externalGpsPriority: Boolean = false,
     val showGpsOnDashboard: Boolean = true,
@@ -111,6 +107,20 @@ data class AppSettings(
     val navMapType: String = "DARK",              // DARK | LIGHT | SATELLITE
     val navHomeJson: String = "",
     val navWorkJson: String = "",
+
+    // Motor (synthesized engine sound) — fields/defaults mirror Android.
+    val engineSoundEnabled: Boolean = false,
+    val engineType: String = "FOUR_STROKE_SINGLE",
+    val engineVolume: Float = 0.6f,
+    val engineVolumeAutoEnabled: Boolean = false,
+    val engineVolumeAutoCurve: String = "0:1.00,25:0.10,50:0.10,75:0.00",
+    val engineMuffler: String = "HALF",      // OPEN | HALF | MUFFLED
+    val engineGearbox: String = "FOUR",      // OFF | FOUR | SIX
+    val engineIdleBehavior: String = "FADE", // ALWAYS | FADE | MOVING
+    val engineDecelChar: String = "STANDARD",// SMOOTH | STANDARD | BACKFIRE
+    val engineBrake: String = "LIGHT",       // OFF | LIGHT | STRONG
+    val engineDuckOnVoice: String = "DUCK",  // DUCK | PAUSE | MIX
+    val engineHeadphonesOnly: Boolean = false,
 
     // Integration
     val flicEnabled: Boolean = false,

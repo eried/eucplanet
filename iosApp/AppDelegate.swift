@@ -13,6 +13,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     // Retained Bonjour bridge driven by the shared HudDiscoveryClient hooks —
     // auto-discovers the HUD on the LAN when the rider leaves the IP blank.
     let hudDiscovery = HudDiscoveryBridge()
+    // Retained AVAudioEngine bridge driven by the shared EngineSoundController hooks
+    // — synthesizes the motor/engine sound from live telemetry.
+    let engineAudio = EngineAudioBridge()
 
     func application(
         _ application: UIApplication,
@@ -44,6 +47,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         // Wire the shared HUD mDNS discovery seam to Bonjour (NetServiceBrowser).
         HudDiscoveryClient.shared.nativeStart = { [weak self] in self?.hudDiscovery.start() }
         HudDiscoveryClient.shared.nativeStop = { [weak self] in self?.hudDiscovery.stop() }
+        // Wire the shared engine-sound seam to AVAudioEngine.
+        EngineSoundController.shared.nativeStart = { [weak self] in self?.engineAudio.start() }
+        EngineSoundController.shared.nativeStop = { [weak self] in self?.engineAudio.stop() }
         return true
     }
 }
