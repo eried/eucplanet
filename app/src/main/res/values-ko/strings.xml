@@ -1682,4 +1682,10 @@
     <string name="voice_announce_connected">연결 시</string>
     <string name="voice_announce_riding">주행 중</string>
     <string name="voice_announce_when_label">안내</string>
+    <string name="dropbox_section_caption">온라인 백업</string>
+    <string name="dropbox_section_desc">주행 기록과 설정을 비공개 Dropbox 폴더에 미러링해 새 휴대전화에서 복원할 수 있습니다.</string>
+    <string name="dropbox_link">Dropbox 연결</string>
+    <string name="dropbox_unlink">연결 해제</string>
+    <string name="dropbox_linked_as">연결됨: %1$s</string>
+    <string name="dropbox_linked">연결됨</string>
 </resources>

@@ -1568,4 +1568,10 @@
     <string name="studio_save_keep_both">Behold begge</string>
     <string name="welcome_tut_voice_desc">Du kan slå enkelte talemeldinger av eller på senere i Innstillinger → Tale og varsler.</string>
     <string name="welcome_tut_voice_title">Aktiver talevarsler</string>
+    <string name="dropbox_section_caption">Skylagring</string>
+    <string name="dropbox_section_desc">Speil turer og innstillinger til en privat Dropbox-mappe så du kan gjenopprette dem på en ny telefon.</string>
+    <string name="dropbox_link">Koble til Dropbox</string>
+    <string name="dropbox_unlink">Koble fra</string>
+    <string name="dropbox_linked_as">Tilkoblet: %1$s</string>
+    <string name="dropbox_linked">Tilkoblet</string>
 </resources>

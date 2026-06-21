@@ -6694,6 +6694,52 @@ private fun CloudTab(
             )
         }
 
+        // --- Online backup (Dropbox) -----------------------------------
+        // Sits under the folder picker so the rider sees both "where do
+        // local copies go" and "is the cloud mirror linked" in one place.
+        // The visual structure (titleSmall + bodySmall + Row of buttons)
+        // matches the Online leaderboards subsection further down.
+        run {
+            val dbxLinked by viewModel.dropboxLinked.collectAsState()
+            val dbxAccount by viewModel.dropboxAccountLabel.collectAsState()
+            val context = LocalContext.current
+            Text(
+                stringResource(R.string.dropbox_section_caption),
+                style = MaterialTheme.typography.titleSmall,
+                color = MaterialTheme.appColors.textPrimary,
+                modifier = Modifier.padding(top = 12.dp),
+            )
+            Text(
+                stringResource(R.string.dropbox_section_desc),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.appColors.textSecondary,
+                modifier = Modifier.padding(bottom = 4.dp),
+            )
+            if (dbxLinked) {
+                Text(
+                    if (dbxAccount.isNotBlank())
+                        stringResource(R.string.dropbox_linked_as, dbxAccount)
+                    else stringResource(R.string.dropbox_linked),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.appColors.textSecondary,
+                    modifier = Modifier.padding(bottom = 4.dp),
+                )
+                Button(
+                    onClick = { viewModel.unlinkDropbox() },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.appColors.statusDanger,
+                        contentColor   = MaterialTheme.appColors.onPrimary,
+                    ),
+                    modifier = Modifier.fillMaxWidth(),
+                ) { Text(stringResource(R.string.dropbox_unlink)) }
+            } else {
+                Button(
+                    onClick = { viewModel.linkDropbox(context) },
+                    modifier = Modifier.fillMaxWidth(),
+                ) { Text(stringResource(R.string.dropbox_link)) }
+            }
+        }
+
         if (hasFolder) {
             SectionHeader(stringResource(R.string.section_cloud_settings))
             val lastBackupText = settings.lastSettingsBackupAt?.let { ts ->

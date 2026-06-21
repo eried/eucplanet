@@ -47,6 +47,10 @@ androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version
 # carry the flagged version.
 androidx-fragment = { group = "androidx.fragment", name = "fragment", version = "1.8.6" }
 androidx-documentfile = { group = "androidx.documentfile", name = "documentfile", version = "1.0.1" }
+# Chrome Custom Tabs: launches the Dropbox OAuth consent page in a tabbed
+# overlay (browser engine, cookies / passwords / 2FA all available) instead
+# of an in-app WebView. Used only by the Dropbox link flow today.
+androidx-browser = { group = "androidx.browser", name = "browser", version = "1.8.0" }
 
 # Lifecycle
 lifecycle-runtime = { group = "androidx.lifecycle", name = "lifecycle-runtime-ktx", version.ref = "lifecycle" }

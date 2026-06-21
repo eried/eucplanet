@@ -1689,4 +1689,10 @@
     <string name="studio_save_keep_both">Garder les deux</string>
     <string name="welcome_tut_voice_desc">Tu peux activer ou désactiver les messages vocaux individuels plus tard dans Réglages → Voix et annonces.</string>
     <string name="welcome_tut_voice_title">Activer les alertes vocales</string>
+    <string name="dropbox_section_caption">Sauvegarde en ligne</string>
+    <string name="dropbox_section_desc">Réplique tes trajets et réglages dans un dossier Dropbox privé pour les restaurer sur un autre téléphone.</string>
+    <string name="dropbox_link">Lier Dropbox</string>
+    <string name="dropbox_unlink">Délier</string>
+    <string name="dropbox_linked_as">Lié : %1$s</string>
+    <string name="dropbox_linked">Lié</string>
 </resources>

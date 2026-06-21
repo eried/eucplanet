@@ -1683,5 +1683,11 @@
     <string name="studio_save_keep_both">Сохранить оба</string>
     <string name="welcome_tut_voice_desc">Отдельные голосовые сообщения можно включить или отключить позже в Настройки → Голос и оповещения.</string>
     <string name="welcome_tut_voice_title">Включить голосовые оповещения</string>
+    <string name="dropbox_section_caption">Облачная копия</string>
+    <string name="dropbox_section_desc">Зеркалит поездки и настройки в личную папку Dropbox, чтобы восстановить их на новом телефоне.</string>
+    <string name="dropbox_link">Подключить Dropbox</string>
+    <string name="dropbox_unlink">Отключить</string>
+    <string name="dropbox_linked_as">Подключено: %1$s</string>
+    <string name="dropbox_linked">Подключено</string>
 </resources>
 

@@ -1701,4 +1701,10 @@
     <string name="studio_save_keep_both">Beide behalten</string>
     <string name="welcome_tut_voice_desc">Einzelne Sprachmeldungen kannst du später in Einstellungen → Sprache und Ansagen ein- oder ausschalten.</string>
     <string name="welcome_tut_voice_title">Sprachwarnungen aktivieren</string>
+    <string name="dropbox_section_caption">Online-Backup</string>
+    <string name="dropbox_section_desc">Spiegelt Fahrten und Einstellungen in einen privaten Dropbox-Ordner, damit du sie auf einem neuen Telefon wiederherstellen kannst.</string>
+    <string name="dropbox_link">Dropbox verbinden</string>
+    <string name="dropbox_unlink">Trennen</string>
+    <string name="dropbox_linked_as">Verbunden: %1$s</string>
+    <string name="dropbox_linked">Verbunden</string>
 </resources>

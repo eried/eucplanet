@@ -1682,6 +1682,12 @@
     <string name="voice_announce_connected">連線時</string>
     <string name="voice_announce_riding">騎乘時</string>
     <string name="voice_announce_when_label">通報</string>
+    <string name="dropbox_section_caption">雲端備份</string>
+    <string name="dropbox_section_desc">將行程與設定同步到私人 Dropbox 資料夾，方便在新手機上還原。</string>
+    <string name="dropbox_link">連結 Dropbox</string>
+    <string name="dropbox_unlink">解除連結</string>
+    <string name="dropbox_linked_as">已連結：%1$s</string>
+    <string name="dropbox_linked">已連結</string>
 </resources>
 
 

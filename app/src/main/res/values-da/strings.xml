@@ -1698,4 +1698,10 @@
     <string name="studio_save_keep_both">Behold begge</string>
     <string name="welcome_tut_voice_desc">Du kan aktivere eller deaktivere enkelte stemmebeskeder senere i Indstillinger → Stemme og meddelelser.</string>
     <string name="welcome_tut_voice_title">Aktivér stemmebeskeder</string>
+    <string name="dropbox_section_caption">Skylagring</string>
+    <string name="dropbox_section_desc">Speil ture og indstillinger til en privat Dropbox-mappe, så du kan gendanne dem på en ny telefon.</string>
+    <string name="dropbox_link">Tilknyt Dropbox</string>
+    <string name="dropbox_unlink">Fjern tilknytning</string>
+    <string name="dropbox_linked_as">Tilknyttet: %1$s</string>
+    <string name="dropbox_linked">Tilknyttet</string>
 </resources>

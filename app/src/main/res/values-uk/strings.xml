@@ -1682,6 +1682,12 @@
     <string name="studio_save_keep_both">Зберегти обидва</string>
     <string name="welcome_tut_voice_desc">Окремі голосові повідомлення можна вмикати або вимикати пізніше в Налаштування → Голос та сповіщення.</string>
     <string name="welcome_tut_voice_title">Увімкнути голосові сповіщення</string>
+    <string name="dropbox_section_caption">Хмарне резервне</string>
+    <string name="dropbox_section_desc">Дзеркалить поїздки та налаштування в приватну теку Dropbox, щоб відновити їх на новому телефоні.</string>
+    <string name="dropbox_link">Під\'єднати Dropbox</string>
+    <string name="dropbox_unlink">Від\'єднати</string>
+    <string name="dropbox_linked_as">Під\'єднано: %1$s</string>
+    <string name="dropbox_linked">Під\'єднано</string>
 </resources>
 
 

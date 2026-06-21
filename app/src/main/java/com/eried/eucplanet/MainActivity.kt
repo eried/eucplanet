@@ -62,6 +62,8 @@ class MainActivity : AppCompatActivity() {
     @Inject lateinit var wheelRepository: com.eried.eucplanet.data.repository.WheelRepository
     @Inject lateinit var incomingShareRepository:
         com.eried.eucplanet.data.repository.IncomingShareRepository
+    @Inject lateinit var dropboxRepository:
+        com.eried.eucplanet.data.repository.DropboxRepository
     @Inject lateinit var appHealthRepository:
         com.eried.eucplanet.data.repository.AppHealthRepository
 
@@ -169,6 +171,18 @@ class MainActivity : AppCompatActivity() {
      */
     private fun consumeShareIntent(intent: Intent?): Boolean {
         intent ?: return false
+        // Dropbox OAuth (PKCE) bounces back as `db-<APPKEY>://1/connect?
+        // code=...`. Intercept those before the generic share handler so
+        // the code never gets fed to the geocoder.
+        val data = intent.data
+        if (intent.action == Intent.ACTION_VIEW && data != null &&
+            data.scheme == "db-${com.eried.eucplanet.data.repository.DropboxRepository.APP_KEY}"
+        ) {
+            kotlinx.coroutines.GlobalScope.launch(kotlinx.coroutines.Dispatchers.IO) {
+                dropboxRepository.handleAuthCallback(data)
+            }
+            return true
+        }
         val raw = when (intent.action) {
             Intent.ACTION_SEND -> intent.getStringExtra(Intent.EXTRA_TEXT)
             Intent.ACTION_VIEW -> intent.data?.toString()

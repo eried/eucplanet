@@ -1587,4 +1587,10 @@
     <string name="studio_save_keep_both">Tieni entrambi</string>
     <string name="welcome_tut_voice_desc">Puoi attivare o disattivare singoli messaggi vocali più tardi in Impostazioni → Voce e annunci.</string>
     <string name="welcome_tut_voice_title">Attiva avvisi vocali</string>
+    <string name="dropbox_section_caption">Backup online</string>
+    <string name="dropbox_section_desc">Replica viaggi e impostazioni in una cartella Dropbox privata per ripristinarli su un altro telefono.</string>
+    <string name="dropbox_link">Collega Dropbox</string>
+    <string name="dropbox_unlink">Scollega</string>
+    <string name="dropbox_linked_as">Collegato: %1$s</string>
+    <string name="dropbox_linked">Collegato</string>
 </resources>

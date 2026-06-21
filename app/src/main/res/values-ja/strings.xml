@@ -1682,6 +1682,12 @@
     <string name="voice_announce_connected">接続時</string>
     <string name="voice_announce_riding">走行中</string>
     <string name="voice_announce_when_label">アナウンス</string>
+    <string name="dropbox_section_caption">オンラインバックアップ</string>
+    <string name="dropbox_section_desc">走行記録と設定をプライベート Dropbox フォルダにミラーして、新しい端末で復元できます。</string>
+    <string name="dropbox_link">Dropbox を連携</string>
+    <string name="dropbox_unlink">解除</string>
+    <string name="dropbox_linked_as">連携中: %1$s</string>
+    <string name="dropbox_linked">連携中</string>
 </resources>
 
 

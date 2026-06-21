@@ -1683,5 +1683,11 @@
     <string name="studio_save_keep_both">Conservar ambos</string>
     <string name="welcome_tut_voice_desc">Puedes activar o desactivar mensajes de voz individuales luego en Ajustes → Voz y anuncios.</string>
     <string name="welcome_tut_voice_title">Activar alertas de voz</string>
+    <string name="dropbox_section_caption">Copia en la nube</string>
+    <string name="dropbox_section_desc">Replica tus viajes y ajustes en una carpeta privada de Dropbox para restaurarlos en otro teléfono.</string>
+    <string name="dropbox_link">Vincular Dropbox</string>
+    <string name="dropbox_unlink">Desvincular</string>
+    <string name="dropbox_linked_as">Vinculado: %1$s</string>
+    <string name="dropbox_linked">Vinculado</string>
 </resources>
 

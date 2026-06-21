@@ -678,7 +678,18 @@ data class AppSettings(
     /** Auto-open the Battery monitor when the wheel starts charging. */
     val chargingAutoOpen: Boolean = true,
     /** Show the Battery monitor access icon (spark) in the dashboard top bar. */
-    val chargingDashboardIcon: Boolean = true
+    val chargingDashboardIcon: Boolean = true,
+
+    // --- Dropbox online backup (Phase 1: link state only) ---------------
+    /** Long-lived Dropbox short-lived access token (4h TTL on Dropbox). */
+    val dropboxAccessToken: String = "",
+    /** Refresh token kept across launches; used to mint new access tokens. */
+    val dropboxRefreshToken: String = "",
+    /** Wall-clock ms at which [dropboxAccessToken] expires; 0 = unknown. */
+    val dropboxAccessTokenExpiresAt: Long = 0L,
+    /** Dropbox account display string (e.g. email) shown in Settings while
+     *  linked. Cleared on unlink. Purely cosmetic. */
+    val dropboxAccountLabel: String = ""
 )
 
 // FlicAction enum removed (2026-05). Replaced by

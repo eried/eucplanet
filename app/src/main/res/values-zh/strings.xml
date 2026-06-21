@@ -1551,4 +1551,10 @@
     <string name="studio_save_keep_both">全部保留</string>
     <string name="welcome_tut_voice_desc">稍后可在设置 → 语音和通告 中开启或关闭单条语音消息。</string>
     <string name="welcome_tut_voice_title">启用语音提醒</string>
+    <string name="dropbox_section_caption">云端备份</string>
+    <string name="dropbox_section_desc">将行程和设置同步到私有 Dropbox 文件夹，方便在新手机上恢复。</string>
+    <string name="dropbox_link">关联 Dropbox</string>
+    <string name="dropbox_unlink">解除关联</string>
+    <string name="dropbox_linked_as">已关联：%1$s</string>
+    <string name="dropbox_linked">已关联</string>
 </resources>

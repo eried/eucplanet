@@ -50,6 +50,7 @@ class SettingsViewModel @Inject constructor(
     hudCommandSink: com.eried.eucplanet.service.hud.HudCommandSink,
     hudServer: com.eried.eucplanet.service.hud.HudServer,
     private val eucStatsRepository: EucStatsRepository,
+    private val dropboxRepository: com.eried.eucplanet.data.repository.DropboxRepository,
 ) : ViewModel() {
 
     /** Which discovery channel produced the current HUD link address. */
@@ -2004,6 +2005,28 @@ class SettingsViewModel @Inject constructor(
      * unlink (small but non-zero failure mode). A different rider's file is
      * left untouched and the rider is warned.
      */
+    // --- Dropbox (Phase 1: link / unlink state surfaced to UI) ----------
+
+    /** True once the rider has a stored Dropbox access token. */
+    val dropboxLinked: StateFlow<Boolean> = dropboxRepository.linked
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000L), false)
+
+    /** Display string (email or name) for the linked Dropbox account, or
+     *  empty when not linked. Cosmetic only. */
+    val dropboxAccountLabel: StateFlow<String> = dropboxRepository.accountLabel
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000L), "")
+
+    /** Kick off OAuth (Chrome Custom Tab). The result lands back via
+     *  MainActivity's intent-filter, which forwards to
+     *  [com.eried.eucplanet.data.repository.DropboxRepository.handleAuthCallback]. */
+    fun linkDropbox(context: android.content.Context) {
+        dropboxRepository.startLinkFlow(context)
+    }
+
+    fun unlinkDropbox() {
+        viewModelScope.launch { dropboxRepository.unlink() }
+    }
+
     fun unlinkOnline() {
         viewModelScope.launch {
             val id = syncManager.riderStoreId.value

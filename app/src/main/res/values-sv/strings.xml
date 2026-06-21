@@ -1683,4 +1683,10 @@
     <string name="studio_save_keep_both">Behåll båda</string>
     <string name="welcome_tut_voice_desc">Du kan slå på eller av enskilda röstmeddelanden senare i Inställningar → Röst och meddelanden.</string>
     <string name="welcome_tut_voice_title">Aktivera röstvarningar</string>
+    <string name="dropbox_section_caption">Molnsäkerhetskopiering</string>
+    <string name="dropbox_section_desc">Speglar turer och inställningar till en privat Dropbox-mapp så att du kan återställa dem på en ny telefon.</string>
+    <string name="dropbox_link">Anslut Dropbox</string>
+    <string name="dropbox_unlink">Koppla från</string>
+    <string name="dropbox_linked_as">Ansluten: %1$s</string>
+    <string name="dropbox_linked">Ansluten</string>
 </resources>

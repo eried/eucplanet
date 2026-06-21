@@ -1683,5 +1683,11 @@
     <string name="studio_save_keep_both">Beide bewaren</string>
     <string name="welcome_tut_voice_desc">Je kunt individuele spraakberichten later aan- of uitzetten in Instellingen → Spraak en aankondigingen.</string>
     <string name="welcome_tut_voice_title">Spraakwaarschuwingen inschakelen</string>
+    <string name="dropbox_section_caption">Online back-up</string>
+    <string name="dropbox_section_desc">Spiegel ritten en instellingen naar een privé Dropbox-map zodat je ze op een nieuwe telefoon kunt herstellen.</string>
+    <string name="dropbox_link">Dropbox koppelen</string>
+    <string name="dropbox_unlink">Ontkoppelen</string>
+    <string name="dropbox_linked_as">Gekoppeld: %1$s</string>
+    <string name="dropbox_linked">Gekoppeld</string>
 </resources>
 
