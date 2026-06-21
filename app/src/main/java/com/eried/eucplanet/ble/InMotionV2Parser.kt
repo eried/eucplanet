@@ -424,6 +424,36 @@ object InMotionV2Parser {
             totalPowerOnTimeS = ByteUtils.getUint32LE(data, 16)
         )
     }
+
+    /**
+     * Decode the V14 BATTERY_INFO (cmd `0x05`) response. Reverse-engineered from
+     * a single capture at 100 % SOC paired with the InMotion app's "cells" view
+     * (which shows 4 entries on a V14). The body is 32 bytes = 4 × 8-byte
+     * records; each record's first 2 bytes is a pack voltage in cV (uint16 LE).
+     * The remaining 6 bytes per record were constant across all four readings
+     * in the capture (`00 00 fe ff 07 00`), so they're parked as unknown until
+     * a partial-SOC capture lets us pin current / status fields.
+     *
+     * Note these aren't individual lithium cells (each reading was ~131 V):
+     * they look like pack/bank voltages duplicated into pairs (records 1 & 3
+     * matched, 2 & 4 matched). Calling them "cells" follows the InMotion app's
+     * own labelling so the EUC Planet UI lines up with what the rider already
+     * sees in the manufacturer app.
+     */
+    fun parseBatteryInfo(data: ByteArray): List<Float>? {
+        if (data.size < 32) return null
+        val cells = mutableListOf<Float>()
+        var off = 0
+        // 4 records × 8 bytes. Treat any zero voltage as a missing slot so the
+        // BMS-merge layer doesn't draw a blank cell.
+        repeat(4) {
+            val cV = ((data[off].toInt() and 0xFF) or
+                ((data[off + 1].toInt() and 0xFF) shl 8))
+            if (cV > 0) cells.add(cV / 100f)
+            off += 8
+        }
+        return cells.takeIf { it.size == 4 }
+    }
 }
 
 /** Sensor block parsed from the P6's `0x84` detailed-data response.

@@ -120,18 +120,10 @@ class InMotionV2Adapter @Inject constructor() : WheelAdapter {
         if (useP6Protocol) InMotionV2Commands.getP6Settings()
         else InMotionV2Commands.getCurrentSettings()
 
-    /** P6 totalStats / extended status query: the response carries motor and
-     *  driver-board temps that aren't in the realtime 0x87 stream. V14 family
-     *  doesn't need a separate poll (its `0x04` realtime already includes the
-     *  full sensor block) so returns null there.
-     *
-     *  P6 update: the realtime 0x87 stream already carries motor / MOS /
-     *  driver-board at body[31/30/32] (verified against a labelled capture),
-     *  so we no longer need to poll the rich 0x84 detailed-data response;
-     *  it adds BLE traffic and its variable layout was the source of the
-     *  earlier "blinking 0 / value" temperature bug. Returns null for both
-     *  V14 and P6 now; re-enable later only if a field comes up that the
-     *  realtime stream doesn't already expose. */
+    /** P6 totalStats / extended status query: the realtime 0x87 stream already
+     *  carries motor / MOS / driver-board temps at body[31/30/32] (verified
+     *  against a labelled capture), so we don't poll the rich 0x84 detailed-
+     *  data response. Returns null for both V14 and P6 today. */
     override fun pollStats(): ByteArray? = null
 
     /**
@@ -361,6 +353,14 @@ class InMotionV2Adapter @Inject constructor() : WheelAdapter {
                 InMotionV2Protocol.Command.SETTINGS, 0x22),
             query("Q0211", "Total stats", QUERY,
                 InMotionV2Protocol.Command.TOTAL_STATS),
+            // Per-pack battery summary. 32-byte response carries 4 records
+            // of 8 bytes (first 2 bytes = pack voltage in cV) — useful for
+            // verifying the BMS reports per-pack voltages in line with what
+            // the rider sees in the official app. NOT individual cells: the
+            // InMotion app's per-cell view (32 cells × 4 packs) uses other
+            // opcodes that we haven't pinned down yet.
+            query("Q0205", "Battery pack summary (4×8B)", QUERY,
+                InMotionV2Protocol.Command.BATTERY_INFO),
         )
     }
 
@@ -377,6 +377,16 @@ class InMotionV2Adapter @Inject constructor() : WheelAdapter {
                     "V14 realtime len=${data.size} body=${data.joinToString(" ") { "%02x".format(it) }}"
                 )
                 parseTelemetryForModel(data)?.let { DecodeResult.Telemetry(it) } ?: DecodeResult.Unknown
+            }
+            0x05 -> {
+                // BATTERY_INFO direct response. The 32-byte body decodes
+                // into 4 pack voltages (uint16 LE cV at offsets 0/8/16/24),
+                // but these are pack-level summaries, not individual cells.
+                // We log the parsed values for future research and don't
+                // yet plumb them to the BMS view (which expects per-cell
+                // 3-4.2 V data, not 130 V packs).
+                logBatteryInfo(data, prefix = "V14 battery")
+                DecodeResult.Unknown
             }
             0x11 -> InMotionV2Parser.parseTotalStats(data)?.let { DecodeResult.TotalDistance(it.totalDistanceKm) } ?: DecodeResult.Unknown
             0x20 -> parseSettingsForModel(data)?.let { DecodeResult.Settings(it) } ?: DecodeResult.Unknown
@@ -439,8 +449,48 @@ class InMotionV2Adapter @Inject constructor() : WheelAdapter {
                 val settings = InMotionV2Parser.parseP6Settings(data.copyOfRange(2, data.size))
                 settings?.let { DecodeResult.Settings(it) } ?: DecodeResult.Unknown
             }
-            else -> DecodeResult.Unknown
+            0x05 -> {
+                // Extended-wrapped BATTERY_INFO response: `02 85 [32-byte body]`.
+                // Same body shape as the direct (non-extended) 0x05 response,
+                // logged for now until the per-cell V14 protocol path is
+                // identified (the InMotion app uses other opcodes for that;
+                // see decodeP6Extended's `else` catchall comment).
+                if (data.size < 2) return DecodeResult.Unknown
+                logBatteryInfo(data.copyOfRange(2, data.size), prefix = "V14 battery (ext)")
+                DecodeResult.Unknown
+            }
+            else -> {
+                // Unknown extended-routing sub-cmd. Log the raw body so any
+                // probe issued from Service Mode (or a future poll change)
+                // gets its response surfaced without needing a per-opcode
+                // case. The InMotion app's per-cell BMS responses (62 / 72
+                // bytes) land here today — those need a richer parser once
+                // the right cmd byte has been identified.
+                val body = if (data.size >= 2) data.copyOfRange(2, data.size) else byteArrayOf()
+                val hex = body.joinToString(" ") { "%02x".format(it) }
+                com.eried.eucplanet.diagnostics.DiagnosticsLogger.note(
+                    "V14 ext sub=0x%02x len=%d body=%s".format(sub, body.size, hex)
+                )
+                DecodeResult.Unknown
+            }
         }
+    }
+
+    /**
+     * Log the 32-byte BATTERY_INFO body alongside the 4 decoded pack
+     * voltages. Kept as logger-only because the values are pack-level
+     * summaries (~130 V), not the individual lithium cells the BMS UI
+     * expects (3-4.2 V). Per-cell V14 telemetry lives behind a different
+     * opcode in the official InMotion app's protocol that we haven't yet
+     * pinned down — see Service Mode probe Q0205 and the catchall logger
+     * in [decodeP6Extended].
+     */
+    private fun logBatteryInfo(body: ByteArray, prefix: String) {
+        val cells = InMotionV2Parser.parseBatteryInfo(body)
+        val hex = body.joinToString(" ") { "%02x".format(it) }
+        val note = if (cells == null) "$prefix len=${body.size} body=$hex (unparsed)"
+                   else "$prefix len=${body.size} packs=${cells.joinToString(", ") { "%.2fV".format(it) }} body=$hex"
+        com.eried.eucplanet.diagnostics.DiagnosticsLogger.note(note)
     }
 
     /**

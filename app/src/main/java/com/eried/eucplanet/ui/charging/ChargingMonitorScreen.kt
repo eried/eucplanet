@@ -6,6 +6,9 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.gestures.draggable
+import androidx.compose.foundation.gestures.rememberDraggableState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -19,6 +22,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -78,7 +82,9 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.clipPath
 import androidx.compose.ui.graphics.drawscope.clipRect
 import androidx.compose.ui.graphics.lerp
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -795,6 +801,23 @@ private fun InfoTabs(state: ChargingUiState) {
     var selected by remember { mutableIntStateOf(0) }
     if (selected >= tabs.size) selected = 0
 
+    // Cells tab opens taller than the other tabs and the rider can drag the
+    // handle on top of the cell grid up to grow it further — packs with many
+    // cells (Lynx 42/pack, etc.) need the room. Other tabs keep the fixed
+    // 280 dp so flicking between them doesn't jiggle the sheet height.
+    val density = LocalDensity.current
+    val configuration = LocalConfiguration.current
+    val screenH = configuration.screenHeightDp.dp
+    val cellsMinH = 280.dp
+    val cellsMaxH = (screenH * 0.85f).coerceAtLeast(420.dp)
+    val cellsDefaultH = (screenH * 0.55f).coerceIn(cellsMinH, cellsMaxH)
+    var cellsHeightPx by remember(cellsDefaultH) {
+        mutableFloatStateOf(with(density) { cellsDefaultH.toPx() })
+    }
+    val cellsHeightDp = with(density) { cellsHeightPx.toDp() }
+    val isCellsTab = tabs.getOrNull(selected)?.second == "cells"
+    val contentH = if (isCellsTab) cellsHeightDp else 280.dp
+
     Column(modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp)) {
         PrimaryTabRow(selectedTabIndex = selected) {
             tabs.forEachIndexed { i, t ->
@@ -802,8 +825,7 @@ private fun InfoTabs(state: ChargingUiState) {
             }
         }
         Spacer(Modifier.height(12.dp))
-        // Fixed-height content so the sheet doesn't resize when switching tabs.
-        Box(modifier = Modifier.fillMaxWidth().height(280.dp)) {
+        Box(modifier = Modifier.fillMaxWidth().height(contentH)) {
             Column(modifier = Modifier.fillMaxWidth()) {
                 when (tabs.getOrNull(selected)?.second) {
                     "charge" -> {
@@ -879,6 +901,33 @@ private fun InfoTabs(state: ChargingUiState) {
                         StatRow(stringResource(R.string.charging_stat_voltage), "%.1f V".format(state.voltage))
                     }
                     "cells" -> {
+                        val minPx = with(density) { cellsMinH.toPx() }
+                        val maxPx = with(density) { cellsMaxH.toPx() }
+                        val handleColor = MaterialTheme.appColors.hint
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .draggable(
+                                    orientation = Orientation.Vertical,
+                                    // dy positive = finger moves down. Pulling the
+                                    // handle UP (dy < 0) should grow the panel, so
+                                    // we subtract.
+                                    state = rememberDraggableState { dy ->
+                                        cellsHeightPx = (cellsHeightPx - dy)
+                                            .coerceIn(minPx, maxPx)
+                                    },
+                                )
+                                .padding(vertical = 6.dp),
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            Box(
+                                Modifier
+                                    .width(40.dp)
+                                    .height(4.dp)
+                                    .clip(RoundedCornerShape(2.dp))
+                                    .background(handleColor.copy(alpha = 0.6f)),
+                            )
+                        }
                         CellsTabContent(state.bms)
                     }
                 }
