@@ -1705,17 +1705,20 @@
     <string name="welcome_tut_voice_desc">Einzelne Sprachmeldungen kannst du später in Einstellungen → Sprache und Ansagen ein- oder ausschalten.</string>
     <string name="welcome_tut_voice_title">Sprachwarnungen aktivieren</string>
     <string name="dropbox_section_caption">Online-Backup</string>
-    <string name="dropbox_section_desc">Spiegelt Fahrten und Einstellungen in einen privaten Dropbox-Ordner, damit du sie auf einem neuen Telefon wiederherstellen kannst.</string>
+    <string name="dropbox_section_desc">Fahrten lassen sich auch unter %1$s öffnen, wenn Dropbox verknüpft ist.</string>
+    <string name="dropbox_section_desc_url">eucviewer.ried.no</string>
     <string name="dropbox_link">Dropbox verbinden</string>
     <string name="dropbox_unlink">Trennen</string>
-    <string name="dropbox_linked_as">Verbunden: %1$s</string>
-    <string name="dropbox_linked">Verbunden</string>
-    <string name="dropbox_sync_now">Jetzt synchronisieren</string>
     <string name="dropbox_last_sync">Letzte Synchronisierung: %1$s</string>
     <string name="dropbox_never_synced">Nie synchronisiert</string>
+    <string name="dropbox_account_suffix">(Konto: %1$s)</string>
     <string name="dropbox_share_failed">Dropbox-Freigabe fehlgeschlagen</string>
+    <string name="dropbox_link_copied">eucviewer-Link kopiert</string>
     <string name="trip_action_share_dropbox">Über Dropbox teilen</string>
     <string name="trip_action_share_dropbox_desc">In deinen Dropbox-Ordner hochladen und den öffentlichen Link teilen</string>
-    <string name="trip_action_inspect_online">Online prüfen</string>
+    <string name="trip_action_inspect_online">In eucviewer öffnen</string>
     <string name="trip_action_inspect_online_desc">Tour im eucviewer-Browsertool öffnen</string>
+    <string name="trip_action_copy_link">eucviewer-Link kopieren</string>
+    <string name="trip_action_copy_link_desc">Teilbaren eucviewer.ried.no-Link in die Zwischenablage kopieren</string>
+    <string name="trip_action_dropbox_disabled">Dropbox in den Einstellungen verknüpfen, um das zu nutzen</string>
 </resources>

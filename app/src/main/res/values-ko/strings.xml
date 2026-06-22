@@ -1686,17 +1686,20 @@
     <string name="voice_announce_riding">주행 중</string>
     <string name="voice_announce_when_label">안내</string>
     <string name="dropbox_section_caption">온라인 백업</string>
-    <string name="dropbox_section_desc">주행 기록과 설정을 비공개 Dropbox 폴더에 미러링해 새 휴대전화에서 복원할 수 있습니다.</string>
+    <string name="dropbox_section_desc">Dropbox를 연결하면 주행을 %1$s에서도 열 수 있습니다.</string>
+    <string name="dropbox_section_desc_url">eucviewer.ried.no</string>
     <string name="dropbox_link">Dropbox 연결</string>
     <string name="dropbox_unlink">연결 해제</string>
-    <string name="dropbox_linked_as">연결됨: %1$s</string>
-    <string name="dropbox_linked">연결됨</string>
-    <string name="dropbox_sync_now">지금 동기화</string>
     <string name="dropbox_last_sync">마지막 동기화: %1$s</string>
     <string name="dropbox_never_synced">동기화한 적 없음</string>
+    <string name="dropbox_account_suffix">(계정: %1$s)</string>
     <string name="dropbox_share_failed">Dropbox 공유 실패</string>
+    <string name="dropbox_link_copied">eucviewer 링크 복사됨</string>
     <string name="trip_action_share_dropbox">Dropbox로 공유</string>
     <string name="trip_action_share_dropbox_desc">Dropbox 폴더에 업로드하고 공개 링크를 공유합니다</string>
-    <string name="trip_action_inspect_online">온라인으로 보기</string>
+    <string name="trip_action_inspect_online">eucviewer에서 열기</string>
     <string name="trip_action_inspect_online_desc">브라우저의 eucviewer 도구에서 주행을 엽니다</string>
+    <string name="trip_action_copy_link">eucviewer 링크 복사</string>
+    <string name="trip_action_copy_link_desc">공유 가능한 eucviewer.ried.no 링크를 클립보드에 복사</string>
+    <string name="trip_action_dropbox_disabled">설정에서 Dropbox를 연결하면 사용할 수 있습니다</string>
 </resources>

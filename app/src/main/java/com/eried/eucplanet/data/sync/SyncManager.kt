@@ -143,6 +143,12 @@ class SyncManager @Inject constructor(
     private val _syncConflictKind = MutableStateFlow(SyncConflictKind.FOLDER)
     val syncConflictKind: StateFlow<SyncConflictKind> = _syncConflictKind.asStateFlow()
 
+    /** Which sync is currently running, or null if idle. Lets the UI show
+     *  the progress bar under the SAF section vs the Dropbox section
+     *  depending on which Sync all button the rider tapped. */
+    private val _activeSyncKind = MutableStateFlow<SyncConflictKind?>(null)
+    val activeSyncKind: StateFlow<SyncConflictKind?> = _activeSyncKind.asStateFlow()
+
     private val _syncResult = MutableStateFlow<SyncResult?>(null)
     val syncResult: StateFlow<SyncResult?> = _syncResult.asStateFlow()
     fun consumeSyncResult() { _syncResult.value = null }
@@ -154,6 +160,7 @@ class SyncManager @Inject constructor(
 
     fun startSync() {
         if (!_syncRunning.compareAndSet(false, true)) return
+        _activeSyncKind.value = SyncConflictKind.FOLDER
         scope.launch {
             try {
                 runSync()
@@ -161,6 +168,7 @@ class SyncManager @Inject constructor(
                 _syncProgress.value = null
                 _syncConflictPrompt.value = null
                 conflictChoice = null
+                _activeSyncKind.value = null
                 _syncRunning.value = false
             }
         }
@@ -739,6 +747,7 @@ class SyncManager @Inject constructor(
      */
     fun startDropboxSync() {
         if (!_syncRunning.compareAndSet(false, true)) return
+        _activeSyncKind.value = SyncConflictKind.DROPBOX
         scope.launch {
             try {
                 runDropboxSync()
@@ -746,6 +755,7 @@ class SyncManager @Inject constructor(
                 _syncProgress.value = null
                 _syncConflictPrompt.value = null
                 conflictChoice = null
+                _activeSyncKind.value = null
                 _syncRunning.value = false
             }
         }

@@ -6714,25 +6714,48 @@ private fun CloudTab(
                 color = MaterialTheme.appColors.textPrimary,
                 modifier = Modifier.padding(top = 12.dp),
             )
-            Text(
-                stringResource(R.string.dropbox_section_desc),
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.appColors.textSecondary,
-                modifier = Modifier.padding(bottom = 4.dp),
-            )
-            if (dbxLinked) {
-                val lastSyncAt by viewModel.dropboxLastSyncAt.collectAsState()
+            run {
+                val url = stringResource(R.string.dropbox_section_desc_url)
+                val full = stringResource(R.string.dropbox_section_desc, url)
+                val urlStart = full.indexOf(url)
+                val annotated = androidx.compose.ui.text.buildAnnotatedString {
+                    append(full)
+                    if (urlStart >= 0) {
+                        addStyle(
+                            androidx.compose.ui.text.SpanStyle(
+                                color = MaterialTheme.appColors.link,
+                                textDecoration = androidx.compose.ui.text.style.TextDecoration.Underline,
+                            ),
+                            start = urlStart,
+                            end = urlStart + url.length,
+                        )
+                    }
+                }
                 Text(
-                    if (dbxAccount.isNotBlank())
-                        stringResource(R.string.dropbox_linked_as, dbxAccount)
-                    else stringResource(R.string.dropbox_linked),
+                    annotated,
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.appColors.textSecondary,
+                    modifier = Modifier
+                        .padding(bottom = 4.dp)
+                        .clickable {
+                            context.startActivity(
+                                android.content.Intent(
+                                    android.content.Intent.ACTION_VIEW,
+                                    android.net.Uri.parse("https://$url"),
+                                ).addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)
+                            )
+                        },
                 )
-                val lastSyncText = if (lastSyncAt > 0L) {
+            }
+            if (dbxLinked) {
+                val lastSyncAt by viewModel.dropboxLastSyncAt.collectAsState()
+                val lastSyncBase = if (lastSyncAt > 0L) {
                     val fmt = java.text.SimpleDateFormat("dd MMM yyyy HH:mm", java.util.Locale.getDefault())
                     stringResource(R.string.dropbox_last_sync, fmt.format(java.util.Date(lastSyncAt)))
                 } else stringResource(R.string.dropbox_never_synced)
+                val lastSyncText = if (dbxAccount.isNotBlank())
+                    lastSyncBase + " " + stringResource(R.string.dropbox_account_suffix, dbxAccount)
+                else lastSyncBase
                 Text(
                     lastSyncText,
                     style = MaterialTheme.typography.bodySmall,
@@ -6745,8 +6768,9 @@ private fun CloudTab(
                 ) {
                     Button(
                         onClick = { viewModel.syncDropboxNow() },
+                        enabled = !syncRunning,
                         modifier = Modifier.weight(1f),
-                    ) { Text(stringResource(R.string.dropbox_sync_now)) }
+                    ) { Text(stringResource(R.string.cloud_retry_now)) }
                     Button(
                         onClick = { viewModel.unlinkDropbox() },
                         colors = ButtonDefaults.buttonColors(
@@ -6756,11 +6780,44 @@ private fun CloudTab(
                         modifier = Modifier.weight(1f),
                     ) { Text(stringResource(R.string.dropbox_unlink)) }
                 }
+                val activeDbxKind by viewModel.activeSyncKind.collectAsState()
+                val showDbxProgress = syncRunning &&
+                    activeDbxKind == com.eried.eucplanet.data.sync.SyncConflictKind.DROPBOX
+                if (showDbxProgress) {
+                    val dbxProgress by viewModel.syncProgress.collectAsState()
+                    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                        if (dbxProgress != null) {
+                            val (done, total) = dbxProgress!!
+                            val fraction = if (total > 0) done.toFloat() / total else 0f
+                            LinearProgressIndicator(
+                                progress = { fraction },
+                                modifier = Modifier.fillMaxWidth()
+                            )
+                            Text(
+                                stringResource(R.string.sync_progress, done, total),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        } else {
+                            LinearProgressIndicator(
+                                modifier = Modifier.fillMaxWidth()
+                            )
+                        }
+                    }
+                }
             } else {
-                Button(
-                    onClick = { viewModel.linkDropbox(context) },
+                // Half-width to match the Sync/Unlink row that replaces this
+                // button once the rider links Dropbox.
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
                     modifier = Modifier.fillMaxWidth(),
-                ) { Text(stringResource(R.string.dropbox_link)) }
+                ) {
+                    Button(
+                        onClick = { viewModel.linkDropbox(context) },
+                        modifier = Modifier.weight(1f),
+                    ) { Text(stringResource(R.string.dropbox_link)) }
+                    Spacer(Modifier.weight(1f))
+                }
             }
         }
 
@@ -6821,7 +6878,10 @@ private fun CloudTab(
                 }
                 Spacer(modifier = Modifier.weight(1f))
             }
-            if (syncRunning) {
+            val activeSyncKind by viewModel.activeSyncKind.collectAsState()
+            val showFolderProgress = syncRunning &&
+                activeSyncKind == com.eried.eucplanet.data.sync.SyncConflictKind.FOLDER
+            if (showFolderProgress) {
                 Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
                     if (syncProgress != null) {
                         val (done, total) = syncProgress!!

@@ -1686,19 +1686,22 @@
     <string name="studio_save_keep_both">Сохранить оба</string>
     <string name="welcome_tut_voice_desc">Отдельные голосовые сообщения можно включить или отключить позже в Настройки → Голос и оповещения.</string>
     <string name="welcome_tut_voice_title">Включить голосовые оповещения</string>
-    <string name="dropbox_section_caption">Облачная копия</string>
-    <string name="dropbox_section_desc">Зеркалит поездки и настройки в личную папку Dropbox, чтобы восстановить их на новом телефоне.</string>
+    <string name="dropbox_section_caption">Онлайн-копия</string>
+    <string name="dropbox_section_desc">Поездки также открываются на %1$s, когда Dropbox привязан.</string>
+    <string name="dropbox_section_desc_url">eucviewer.ried.no</string>
     <string name="dropbox_link">Подключить Dropbox</string>
     <string name="dropbox_unlink">Отключить</string>
-    <string name="dropbox_linked_as">Подключено: %1$s</string>
-    <string name="dropbox_linked">Подключено</string>
-    <string name="dropbox_sync_now">Синхронизировать</string>
     <string name="dropbox_last_sync">Последняя синхронизация: %1$s</string>
     <string name="dropbox_never_synced">Не синхронизировано</string>
+    <string name="dropbox_account_suffix">(аккаунт: %1$s)</string>
     <string name="dropbox_share_failed">Не удалось поделиться через Dropbox</string>
+    <string name="dropbox_link_copied">Ссылка eucviewer скопирована</string>
     <string name="trip_action_share_dropbox">Поделиться через Dropbox</string>
     <string name="trip_action_share_dropbox_desc">Загрузить в папку Dropbox и поделиться публичной ссылкой</string>
-    <string name="trip_action_inspect_online">Открыть онлайн</string>
+    <string name="trip_action_inspect_online">Открыть в eucviewer</string>
     <string name="trip_action_inspect_online_desc">Открыть поездку в браузерном инструменте eucviewer</string>
+    <string name="trip_action_copy_link">Скопировать ссылку eucviewer</string>
+    <string name="trip_action_copy_link_desc">Скопировать ссылку eucviewer.ried.no в буфер обмена</string>
+    <string name="trip_action_dropbox_disabled">Привяжите Dropbox в настройках, чтобы включить</string>
 </resources>
 

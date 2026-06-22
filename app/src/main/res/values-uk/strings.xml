@@ -1685,20 +1685,23 @@
     <string name="studio_save_keep_both">Зберегти обидва</string>
     <string name="welcome_tut_voice_desc">Окремі голосові повідомлення можна вмикати або вимикати пізніше в Налаштування → Голос та сповіщення.</string>
     <string name="welcome_tut_voice_title">Увімкнути голосові сповіщення</string>
-    <string name="dropbox_section_caption">Хмарне резервне</string>
-    <string name="dropbox_section_desc">Дзеркалить поїздки та налаштування в приватну теку Dropbox, щоб відновити їх на новому телефоні.</string>
+    <string name="dropbox_section_caption">Онлайн-копія</string>
+    <string name="dropbox_section_desc">Поїздки також можна відкрити на %1$s, коли Dropbox під\'єднано.</string>
+    <string name="dropbox_section_desc_url">eucviewer.ried.no</string>
     <string name="dropbox_link">Під\'єднати Dropbox</string>
     <string name="dropbox_unlink">Від\'єднати</string>
-    <string name="dropbox_linked_as">Під\'єднано: %1$s</string>
-    <string name="dropbox_linked">Під\'єднано</string>
-    <string name="dropbox_sync_now">Синхронізувати</string>
     <string name="dropbox_last_sync">Остання синхронізація: %1$s</string>
     <string name="dropbox_never_synced">Не синхронізовано</string>
+    <string name="dropbox_account_suffix">(акаунт: %1$s)</string>
     <string name="dropbox_share_failed">Не вдалося поділитися через Dropbox</string>
+    <string name="dropbox_link_copied">Посилання eucviewer скопійовано</string>
     <string name="trip_action_share_dropbox">Поділитися через Dropbox</string>
     <string name="trip_action_share_dropbox_desc">Завантажити в твою папку Dropbox і поділитися публічним посиланням</string>
-    <string name="trip_action_inspect_online">Переглянути онлайн</string>
+    <string name="trip_action_inspect_online">Відкрити в eucviewer</string>
     <string name="trip_action_inspect_online_desc">Відкрити поїздку в браузерному інструменті eucviewer</string>
+    <string name="trip_action_copy_link">Скопіювати посилання eucviewer</string>
+    <string name="trip_action_copy_link_desc">Скопіювати посилання eucviewer.ried.no у буфер обміну</string>
+    <string name="trip_action_dropbox_disabled">Під\'єднай Dropbox у налаштуваннях, щоб увімкнути</string>
 </resources>
 
 

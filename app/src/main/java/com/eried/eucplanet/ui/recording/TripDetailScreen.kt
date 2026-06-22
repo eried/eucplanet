@@ -101,6 +101,7 @@ fun TripDetailScreen(
             dropboxLinked = dropboxLinked,
             onShareViaDropbox = { viewModel.shareViaDropbox(trip) },
             onInspectOnline = { viewModel.inspectOnline(trip) },
+            onCopyOnlineLink = { viewModel.copyEucviewerLink(trip) },
         )
     }
 

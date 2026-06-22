@@ -280,6 +280,34 @@ class RecordingViewModel @Inject constructor(
     }
 
     /**
+     * Build the eucviewer URL for [trip] and copy it to the clipboard.
+     * The rider can then paste it into any chat / email / note app —
+     * useful when the trip recipient isn't using the Android Share sheet.
+     */
+    fun copyEucviewerLink(trip: TripRecord) {
+        viewModelScope.launch {
+            val link = ensureDropboxLink(trip) ?: run {
+                android.widget.Toast.makeText(
+                    context, R.string.dropbox_share_failed, android.widget.Toast.LENGTH_SHORT
+                ).show()
+                return@launch
+            }
+            val rawLink = link.replace("?dl=0", "?dl=1")
+                .let { if (it.contains("?dl=")) it else "$it?dl=1" }
+            val viewerUrl = "https://eucviewer.ried.no/#trip=" +
+                java.net.URLEncoder.encode(rawLink, "UTF-8")
+            val clipboard = context.getSystemService(android.content.Context.CLIPBOARD_SERVICE)
+                as android.content.ClipboardManager
+            clipboard.setPrimaryClip(
+                android.content.ClipData.newPlainText("eucviewer link", viewerUrl)
+            )
+            android.widget.Toast.makeText(
+                context, R.string.dropbox_link_copied, android.widget.Toast.LENGTH_SHORT
+            ).show()
+        }
+    }
+
+    /**
      * Same upload-and-share-link path as [shareViaDropbox] but instead
      * of handing the link to a share sheet we hand it to the eucviewer
      * page via a `#trip=<url>` deep link. The viewer fetches the file

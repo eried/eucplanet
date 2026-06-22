@@ -1554,18 +1554,21 @@
     <string name="studio_save_keep_both">全部保留</string>
     <string name="welcome_tut_voice_desc">稍后可在设置 → 语音和通告 中开启或关闭单条语音消息。</string>
     <string name="welcome_tut_voice_title">启用语音提醒</string>
-    <string name="dropbox_section_caption">云端备份</string>
-    <string name="dropbox_section_desc">将行程和设置同步到私有 Dropbox 文件夹，方便在新手机上恢复。</string>
+    <string name="dropbox_section_caption">在线备份</string>
+    <string name="dropbox_section_desc">连接 Dropbox 后，行程也可以在 %1$s 上打开。</string>
+    <string name="dropbox_section_desc_url">eucviewer.ried.no</string>
     <string name="dropbox_link">关联 Dropbox</string>
     <string name="dropbox_unlink">解除关联</string>
-    <string name="dropbox_linked_as">已关联：%1$s</string>
-    <string name="dropbox_linked">已关联</string>
-    <string name="dropbox_sync_now">立即同步</string>
     <string name="dropbox_last_sync">上次同步：%1$s</string>
     <string name="dropbox_never_synced">从未同步</string>
+    <string name="dropbox_account_suffix">(账号: %1$s)</string>
     <string name="dropbox_share_failed">Dropbox 分享失败</string>
+    <string name="dropbox_link_copied">已复制 eucviewer 链接</string>
     <string name="trip_action_share_dropbox">通过 Dropbox 分享</string>
     <string name="trip_action_share_dropbox_desc">上传到你的 Dropbox 文件夹并分享公开链接</string>
-    <string name="trip_action_inspect_online">在线查看</string>
+    <string name="trip_action_inspect_online">在 eucviewer 中打开</string>
     <string name="trip_action_inspect_online_desc">在浏览器的 eucviewer 工具中打开行程</string>
+    <string name="trip_action_copy_link">复制 eucviewer 链接</string>
+    <string name="trip_action_copy_link_desc">将可分享的 eucviewer.ried.no 链接复制到剪贴板</string>
+    <string name="trip_action_dropbox_disabled">在设置中连接 Dropbox 以启用</string>
 </resources>

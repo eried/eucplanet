@@ -1686,19 +1686,22 @@
     <string name="voice_announce_riding">走行中</string>
     <string name="voice_announce_when_label">アナウンス</string>
     <string name="dropbox_section_caption">オンラインバックアップ</string>
-    <string name="dropbox_section_desc">走行記録と設定をプライベート Dropbox フォルダにミラーして、新しい端末で復元できます。</string>
+    <string name="dropbox_section_desc">Dropbox を連携すると、走行記録は %1$s でも開けます。</string>
+    <string name="dropbox_section_desc_url">eucviewer.ried.no</string>
     <string name="dropbox_link">Dropbox を連携</string>
     <string name="dropbox_unlink">解除</string>
-    <string name="dropbox_linked_as">連携中: %1$s</string>
-    <string name="dropbox_linked">連携中</string>
-    <string name="dropbox_sync_now">今すぐ同期</string>
     <string name="dropbox_last_sync">最終同期: %1$s</string>
     <string name="dropbox_never_synced">未同期</string>
+    <string name="dropbox_account_suffix">(アカウント: %1$s)</string>
     <string name="dropbox_share_failed">Dropbox 共有に失敗しました</string>
+    <string name="dropbox_link_copied">eucviewer リンクをコピーしました</string>
     <string name="trip_action_share_dropbox">Dropbox で共有</string>
     <string name="trip_action_share_dropbox_desc">Dropbox フォルダにアップロードして公開リンクを共有します</string>
-    <string name="trip_action_inspect_online">オンラインで確認</string>
+    <string name="trip_action_inspect_online">eucviewer で開く</string>
     <string name="trip_action_inspect_online_desc">ブラウザの eucviewer ツールで走行を開きます</string>
+    <string name="trip_action_copy_link">eucviewer のリンクをコピー</string>
+    <string name="trip_action_copy_link_desc">共有用 eucviewer.ried.no リンクをクリップボードにコピー</string>
+    <string name="trip_action_dropbox_disabled">設定で Dropbox を連携すると有効になります</string>
 </resources>
 
 

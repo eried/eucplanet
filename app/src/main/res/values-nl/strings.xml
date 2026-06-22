@@ -1687,18 +1687,21 @@
     <string name="welcome_tut_voice_desc">Je kunt individuele spraakberichten later aan- of uitzetten in Instellingen → Spraak en aankondigingen.</string>
     <string name="welcome_tut_voice_title">Spraakwaarschuwingen inschakelen</string>
     <string name="dropbox_section_caption">Online back-up</string>
-    <string name="dropbox_section_desc">Spiegel ritten en instellingen naar een privé Dropbox-map zodat je ze op een nieuwe telefoon kunt herstellen.</string>
+    <string name="dropbox_section_desc">Ritten zijn ook te openen op %1$s wanneer Dropbox is gekoppeld.</string>
+    <string name="dropbox_section_desc_url">eucviewer.ried.no</string>
     <string name="dropbox_link">Dropbox koppelen</string>
     <string name="dropbox_unlink">Ontkoppelen</string>
-    <string name="dropbox_linked_as">Gekoppeld: %1$s</string>
-    <string name="dropbox_linked">Gekoppeld</string>
-    <string name="dropbox_sync_now">Nu synchroniseren</string>
     <string name="dropbox_last_sync">Laatste synchronisatie: %1$s</string>
     <string name="dropbox_never_synced">Nog niet gesynchroniseerd</string>
+    <string name="dropbox_account_suffix">(account: %1$s)</string>
     <string name="dropbox_share_failed">Delen via Dropbox mislukt</string>
+    <string name="dropbox_link_copied">eucviewer-link gekopieerd</string>
     <string name="trip_action_share_dropbox">Delen via Dropbox</string>
     <string name="trip_action_share_dropbox_desc">Upload naar je Dropbox-map en deel de openbare link</string>
-    <string name="trip_action_inspect_online">Online inspecteren</string>
+    <string name="trip_action_inspect_online">Openen in eucviewer</string>
     <string name="trip_action_inspect_online_desc">Open de rit in de eucviewer-browsertool</string>
+    <string name="trip_action_copy_link">eucviewer-link kopiëren</string>
+    <string name="trip_action_copy_link_desc">Kopieer een deelbare eucviewer.ried.no-link naar het klembord</string>
+    <string name="trip_action_dropbox_disabled">Koppel Dropbox in instellingen om dit in te schakelen</string>
 </resources>
 
