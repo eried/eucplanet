@@ -203,8 +203,17 @@ object SettingsJson {
         put("navDefaultTravelMode", s.navDefaultTravelMode)
         put("navGeocoderUrl", s.navGeocoderUrl)
         put("navRouterUrl", s.navRouterUrl)
+        put("navOverpassUrl", s.navOverpassUrl)
+        put("navOcmApiKey", s.navOcmApiKey)
         put("navMapType", s.navMapType)
         put("navSolveFullPath", s.navSolveFullPath)
+        put("navAdvancedMap", s.navAdvancedMap)
+        put("navShowChargers", s.navShowChargers)
+        put("navPlaceCategories", s.navPlaceCategories)
+        put("navAvoidHighways", s.navAvoidHighways)
+        put("navAvoidTolls", s.navAvoidTolls)
+        put("navAvoidFerries", s.navAvoidFerries)
+        put("navAvoidUnpaved", s.navAvoidUnpaved)
         put("watchShowNavigation", s.watchShowNavigation)
         put("hudServerEnabled", s.hudServerEnabled)
         put("hudActionUp", s.hudActionUp)
@@ -413,8 +422,17 @@ object SettingsJson {
         navDefaultTravelMode = j.optString("navDefaultTravelMode", base.navDefaultTravelMode),
         navGeocoderUrl = j.optString("navGeocoderUrl", base.navGeocoderUrl),
         navRouterUrl = j.optString("navRouterUrl", base.navRouterUrl),
+        navOverpassUrl = j.optString("navOverpassUrl", base.navOverpassUrl),
+        navOcmApiKey = j.optString("navOcmApiKey", base.navOcmApiKey),
         navMapType = j.optString("navMapType", base.navMapType),
         navSolveFullPath = j.optBoolean("navSolveFullPath", base.navSolveFullPath),
+        navAdvancedMap = j.optBoolean("navAdvancedMap", base.navAdvancedMap),
+        navShowChargers = j.optBoolean("navShowChargers", base.navShowChargers),
+        navPlaceCategories = j.optString("navPlaceCategories", base.navPlaceCategories),
+        navAvoidHighways = j.optBoolean("navAvoidHighways", base.navAvoidHighways),
+        navAvoidTolls = j.optBoolean("navAvoidTolls", base.navAvoidTolls),
+        navAvoidFerries = j.optBoolean("navAvoidFerries", base.navAvoidFerries),
+        navAvoidUnpaved = j.optBoolean("navAvoidUnpaved", base.navAvoidUnpaved),
         watchShowNavigation = j.optBoolean("watchShowNavigation", base.watchShowNavigation),
         hudServerEnabled = j.optBoolean("hudServerEnabled", base.hudServerEnabled),
         hudActionUp = j.optString("hudActionUp", base.hudActionUp),

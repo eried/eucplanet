@@ -1,5 +1,6 @@
 package com.eried.eucplanet.ui.settings
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -24,7 +25,14 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.LinkAnnotation
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.withLink
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.eried.eucplanet.R
@@ -56,6 +64,14 @@ fun NavigatorSettingsContent(
         modifier = Modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
+        // --- Advanced map features (default OFF) ---
+        SwitchRow(
+            label = stringResource(R.string.nav_setting_advanced_map),
+            checked = settings.navAdvancedMap,
+            onChange = { viewModel.updateNavAdvancedMap(it) }
+        )
+        HintText(stringResource(R.string.nav_setting_advanced_map_desc), small = true)
+
         // --- Full path vs Next segment ---
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -96,7 +112,38 @@ fun NavigatorSettingsContent(
         )
         HintText(stringResource(R.string.nav_setting_offroute_desc), small = true)
 
+        // --- Avoidances (all OFF by default) ---
+        Text(
+            stringResource(R.string.nav_setting_avoid),
+            style = MaterialTheme.typography.titleMedium,
+            color = MaterialTheme.colorScheme.primary
+        )
+        HintText(stringResource(R.string.nav_setting_avoid_hint), small = true)
+        SwitchRow(
+            label = stringResource(R.string.nav_setting_avoid_highways),
+            checked = settings.navAvoidHighways,
+            onChange = { viewModel.updateNavAvoidHighways(it) }
+        )
+        SwitchRow(
+            label = stringResource(R.string.nav_setting_avoid_tolls),
+            checked = settings.navAvoidTolls,
+            onChange = { viewModel.updateNavAvoidTolls(it) }
+        )
+        SwitchRow(
+            label = stringResource(R.string.nav_setting_avoid_ferries),
+            checked = settings.navAvoidFerries,
+            onChange = { viewModel.updateNavAvoidFerries(it) }
+        )
+        SwitchRow(
+            label = stringResource(R.string.nav_setting_avoid_unpaved),
+            checked = settings.navAvoidUnpaved,
+            onChange = { viewModel.updateNavAvoidUnpaved(it) }
+        )
+
         // --- Routing endpoints (advanced) ---
+        // Only editable when advanced map features are on -- a simple user
+        // shouldn't have to touch raw service URLs.
+        val endpointsEnabled = settings.navAdvancedMap
         Text(
             stringResource(R.string.nav_setting_endpoints),
             style = MaterialTheme.typography.titleMedium,
@@ -112,6 +159,7 @@ fun NavigatorSettingsContent(
         OutlinedTextField(
             value = geocoder,
             onValueChange = { geocoder = it },
+            enabled = endpointsEnabled,
             label = { Text(stringResource(R.string.nav_setting_geocoder_url)) },
             singleLine = true,
             modifier = Modifier
@@ -130,6 +178,7 @@ fun NavigatorSettingsContent(
         OutlinedTextField(
             value = router,
             onValueChange = { router = it },
+            enabled = endpointsEnabled,
             label = { Text(stringResource(R.string.nav_setting_router_url)) },
             singleLine = true,
             modifier = Modifier
@@ -142,7 +191,90 @@ fun NavigatorSettingsContent(
             colors = themedFieldColors(),
         )
 
+        var overpass by rememberSaveable(settings.navOverpassUrl) {
+            mutableStateOf(settings.navOverpassUrl)
+        }
+        OutlinedTextField(
+            value = overpass,
+            onValueChange = { overpass = it },
+            enabled = endpointsEnabled,
+            label = { Text(stringResource(R.string.nav_setting_overpass_url)) },
+            singleLine = true,
+            modifier = Modifier
+                .fillMaxWidth()
+                .onFocusChanged { fs ->
+                    if (!fs.isFocused && overpass != settings.navOverpassUrl) {
+                        viewModel.updateNavOverpassUrl(overpass.trim())
+                    }
+                },
+            colors = themedFieldColors(),
+        )
+
+        // Title, then the description + clickable link directly under it, then
+        // the key field.
+        Text(
+            stringResource(R.string.nav_setting_ocm_subtitle),
+            style = MaterialTheme.typography.titleSmall,
+            color = if (endpointsEnabled) MaterialTheme.colorScheme.primary
+            else MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        // Description with the openchargemap.org link inline at the end.
+        val hint = stringResource(R.string.nav_setting_ocm_key_hint)
+        val urlText = stringResource(R.string.nav_setting_ocm_key_link)
+        val annotated = buildAnnotatedString {
+            withStyle(SpanStyle(color = MaterialTheme.colorScheme.onSurfaceVariant)) {
+                append("$hint ")
+            }
+            withLink(LinkAnnotation.Url("https://openchargemap.org/site/profile/applications")) {
+                withStyle(
+                    SpanStyle(
+                        color = MaterialTheme.colorScheme.primary,
+                        textDecoration = TextDecoration.Underline
+                    )
+                ) { append(urlText) }
+            }
+        }
+        Text(annotated, style = MaterialTheme.typography.bodySmall)
+        var ocmKey by rememberSaveable(settings.navOcmApiKey) {
+            mutableStateOf(settings.navOcmApiKey)
+        }
+        OutlinedTextField(
+            value = ocmKey,
+            onValueChange = { ocmKey = it },
+            enabled = endpointsEnabled,
+            label = { Text(stringResource(R.string.nav_setting_ocm_key)) },
+            singleLine = true,
+            modifier = Modifier
+                .fillMaxWidth()
+                .onFocusChanged { fs ->
+                    if (!fs.isFocused && ocmKey != settings.navOcmApiKey) {
+                        viewModel.updateNavOcmApiKey(ocmKey.trim())
+                    }
+                },
+            colors = themedFieldColors(),
+        )
+
         Spacer(Modifier.height(8.dp))
+    }
+}
+
+@Composable
+private fun SwitchRow(
+    label: String,
+    checked: Boolean,
+    onChange: (Boolean) -> Unit
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(label, style = MaterialTheme.typography.bodyLarge)
+        Switch(
+            checked = checked,
+            onCheckedChange = onChange,
+            colors = themedSwitchColors(),
+        )
     }
 }
 

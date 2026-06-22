@@ -616,12 +616,19 @@ class SettingsViewModel @Inject constructor(
     fun updateNavArrivalRadius(v: Int) = update { copy(navArrivalRadiusM = v.coerceIn(5, 100)) }
     fun updateNavOffRouteTolerance(v: Int) = update { copy(navOffRouteToleranceM = v.coerceIn(15, 150)) }
     fun updateNavSolveFullPath(v: Boolean) = update { copy(navSolveFullPath = v) }
+    fun updateNavAdvancedMap(v: Boolean) = update { copy(navAdvancedMap = v) }
+    fun updateNavAvoidHighways(v: Boolean) = update { copy(navAvoidHighways = v) }
+    fun updateNavAvoidTolls(v: Boolean) = update { copy(navAvoidTolls = v) }
+    fun updateNavAvoidFerries(v: Boolean) = update { copy(navAvoidFerries = v) }
+    fun updateNavAvoidUnpaved(v: Boolean) = update { copy(navAvoidUnpaved = v) }
 
     /** Cheat: clears the welcome-tour-seen flag so it replays next time the dashboard shows. */
     fun resetWelcomeTutorial() = update { copy(welcomeTutorialSeen = false) }
     fun updateNavDefaultTravelMode(v: String) = update { copy(navDefaultTravelMode = v) }
     fun updateNavGeocoderUrl(v: String) = update { copy(navGeocoderUrl = v) }
     fun updateNavRouterUrl(v: String) = update { copy(navRouterUrl = v) }
+    fun updateNavOverpassUrl(v: String) = update { copy(navOverpassUrl = v) }
+    fun updateNavOcmApiKey(v: String) = update { copy(navOcmApiKey = v) }
 
     private val _ttsSwitchPrompt = MutableStateFlow<String?>(null)
     val ttsSwitchPrompt: StateFlow<String?> = _ttsSwitchPrompt.asStateFlow()

@@ -19,6 +19,12 @@ import com.eried.eucplanet.data.repository.TripRepository
 import com.eried.eucplanet.nav.GeoMath
 import com.eried.eucplanet.nav.GeoResult
 import com.eried.eucplanet.nav.NavigationEngine
+import com.eried.eucplanet.nav.OcmCharger
+import com.eried.eucplanet.nav.OcmService
+import com.eried.eucplanet.nav.PoiKind
+import com.eried.eucplanet.nav.PoiService
+import com.eried.eucplanet.nav.PointOfInterest
+import com.eried.eucplanet.nav.RouteAvoidances
 import com.eried.eucplanet.nav.RoutingService
 import com.eried.eucplanet.util.GpxIO
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -52,6 +58,8 @@ import javax.inject.Inject
 @HiltViewModel
 class RouteBuilderViewModel @Inject constructor(
     private val routingService: RoutingService,
+    private val poiService: PoiService,
+    private val ocmService: OcmService,
     private val settingsRepository: SettingsRepository,
     private val tripRepository: TripRepository,
     private val navigationEngine: NavigationEngine,
@@ -89,6 +97,53 @@ class RouteBuilderViewModel @Inject constructor(
      */
     private val _pendingPreview = MutableStateFlow<List<GeoPoint>>(emptyList())
     val pendingPreview: StateFlow<List<GeoPoint>> = _pendingPreview.asStateFlow()
+
+    // --- Chargers & places along the route (opt-in POI layers) --------------------
+    /** Advanced map features (default false): unlocks the overlay layers. */
+    private val _advancedMap = MutableStateFlow(false)
+    val advancedMap: StateFlow<Boolean> = _advancedMap.asStateFlow()
+
+    /** ⚡ charger layer (electric charging only) on/off. */
+    private val _showChargers = MutableStateFlow(false)
+    val showChargers: StateFlow<Boolean> = _showChargers.asStateFlow()
+
+    /** Enabled "places" categories (subset of STORE/FOOD/REST/SIGHTS). The
+     *  places FAB toggles the whole group; long-press picks individual ones. */
+    private val _placeCats = MutableStateFlow<Set<PoiKind>>(emptySet())
+    val placeCats: StateFlow<Set<PoiKind>> = _placeCats.asStateFlow()
+
+    /** POIs currently shown near the route (union of the enabled layers). */
+    private val _pois = MutableStateFlow<List<PointOfInterest>>(emptyList())
+    val pois: StateFlow<List<PointOfInterest>> = _pois.asStateFlow()
+
+    /** The POI whose details sheet is open, or null when none. */
+    private val _selectedPoi = MutableStateFlow<PointOfInterest?>(null)
+    val selectedPoi: StateFlow<PointOfInterest?> = _selectedPoi.asStateFlow()
+
+    /** Open Charge Map community data for the open charger flyout, or null. */
+    private val _selectedPoiOcm = MutableStateFlow<OcmCharger?>(null)
+    val selectedPoiOcm: StateFlow<OcmCharger?> = _selectedPoiOcm.asStateFlow()
+
+    /** True while OCM data for the open flyout is being fetched. */
+    private val _ocmLoading = MutableStateFlow(false)
+    val ocmLoading: StateFlow<Boolean> = _ocmLoading.asStateFlow()
+
+    private var ocmApiKey = ""
+    private var ocmJob: Job? = null
+
+    /** True while a POI fetch is in flight (drives a spinner). */
+    private val _poiLoading = MutableStateFlow(false)
+    val poiLoading: StateFlow<Boolean> = _poiLoading.asStateFlow()
+
+    private var poiJob: Job? = null
+    private var lastPoiSignature: String? = null
+
+    /** The categories enabled by the layer toggles (empty in simple mode). */
+    private fun enabledCategories(): Set<PoiKind> = buildSet {
+        if (!_advancedMap.value) return@buildSet
+        if (_showChargers.value) add(PoiKind.CHARGER)
+        addAll(_placeCats.value)
+    }
 
     private val _travelMode = MutableStateFlow(TravelMode.CYCLING)
     val travelMode: StateFlow<TravelMode> = _travelMode.asStateFlow()
@@ -189,6 +244,9 @@ class RouteBuilderViewModel @Inject constructor(
     private var lastRouteOrigin: GeoPoint? = null
     private var geocoderUrl = RoutingService.DEFAULT_GEOCODER
     private var routerUrl = RoutingService.DEFAULT_ROUTER
+    /** Route avoidances; all-off (the default) keeps routing on OSRM. */
+    private var avoidances = RouteAvoidances.NONE
+    private var overpassUrl = PoiService.DEFAULT_OVERPASS
     private var routeName = context.getString(R.string.nav_default_route_name)
 
     // Declared above init{}: the init coroutine can resume synchronously (an
@@ -248,6 +306,12 @@ class RouteBuilderViewModel @Inject constructor(
             val s = settingsRepository.get()
             geocoderUrl = s.navGeocoderUrl.ifBlank { RoutingService.DEFAULT_GEOCODER }
             routerUrl = RoutingService.effectiveRouterUrl(s.navRouterUrl)
+            avoidances = RouteAvoidances.from(s)
+            overpassUrl = s.navOverpassUrl.ifBlank { PoiService.DEFAULT_OVERPASS }
+            ocmApiKey = s.navOcmApiKey
+            _advancedMap.value = s.navAdvancedMap
+            _showChargers.value = s.navShowChargers
+            _placeCats.value = parsePlaceCats(s.navPlaceCategories)
             _travelMode.value = TravelMode.fromName(s.navDefaultTravelMode)
             _mapType.value = s.navMapType.ifBlank { "LIGHT" }
             defaultRadiusM = s.navArrivalRadiusM
@@ -446,10 +510,64 @@ class RouteBuilderViewModel @Inject constructor(
         // `!=` guard makes this a no-op on unrelated settings emissions.
         viewModelScope.launch {
             settingsRepository.settings.collect { s ->
+                var changed = false
                 if (_solveFullPath.value != s.navSolveFullPath) {
                     _solveFullPath.value = s.navSolveFullPath
-                    if (!navigationEngine.isActive) scheduleRecompute(fit = false)
+                    changed = true
                 }
+                val newAvoid = RouteAvoidances.from(s)
+                if (avoidances != newAvoid) {
+                    avoidances = newAvoid
+                    changed = true
+                }
+                val newOverpass = s.navOverpassUrl.ifBlank { PoiService.DEFAULT_OVERPASS }
+                if (overpassUrl != newOverpass) {
+                    overpassUrl = newOverpass
+                    lastPoiSignature = null // force a refetch from the new source
+                }
+                ocmApiKey = s.navOcmApiKey
+                // Advanced map is a setting; when the rider flips it (turning it
+                // off forces the layers off), reconcile the on-map layers.
+                if (_advancedMap.value != s.navAdvancedMap) {
+                    _advancedMap.value = s.navAdvancedMap
+                    lastPoiSignature = null
+                    refreshPois()
+                }
+                if (changed && !navigationEngine.isActive) scheduleRecompute(fit = false)
+            }
+        }
+        // Keep the POI layers in sync with the route while one is on.
+        viewModelScope.launch {
+            _route.collect { if (enabledCategories().isNotEmpty()) refreshPois() }
+        }
+        // With a POI layer on but no route, search around the rider's position;
+        // refresh as they move (refreshPois dedupes by a coarse grid).
+        viewModelScope.launch {
+            tripRepository.currentLocation.collect {
+                if (_waypoints.value.isEmpty() && enabledCategories().isNotEmpty()) refreshPois()
+            }
+        }
+        // When a charger flyout opens and an OCM key is set, fetch community data
+        // (rating, comments, photos, connectors) for that spot.
+        viewModelScope.launch {
+            _selectedPoi.collect { poi -> fetchOcmFor(poi) }
+        }
+    }
+
+    private fun fetchOcmFor(poi: PointOfInterest?) {
+        ocmJob?.cancel()
+        _selectedPoiOcm.value = null
+        _ocmLoading.value = false
+        if (poi == null || poi.kind != com.eried.eucplanet.nav.PoiKind.CHARGER ||
+            ocmApiKey.isBlank()
+        ) return
+        _ocmLoading.value = true
+        ocmJob = viewModelScope.launch {
+            val ocm = ocmService.nearestCharger(poi.lat, poi.lng, ocmApiKey)
+            // Only apply if the same charger flyout is still open.
+            if (_selectedPoi.value?.id == poi.id) {
+                _selectedPoiOcm.value = ocm
+                _ocmLoading.value = false
             }
         }
     }
@@ -650,7 +768,7 @@ class RouteBuilderViewModel @Inject constructor(
      * and the dashed straight preview -- the JS side already confirmed the tap
      * landed on a drawn line before calling here.
      */
-    fun insertWaypointOnRoute(lat: Double, lng: Double) {
+    fun insertWaypointOnRoute(lat: Double, lng: Double, name: String = "") {
         if (navigationEngine.isActive) return
         val dests = _waypoints.value
         if (dests.size >= MAX_WAYPOINTS) {
@@ -658,7 +776,7 @@ class RouteBuilderViewModel @Inject constructor(
             return
         }
         if (dests.isEmpty()) {
-            addWaypoint(lat, lng)
+            addWaypoint(lat, lng, name)
             return
         }
         val tap = GeoPoint(lat, lng)
@@ -686,7 +804,7 @@ class RouteBuilderViewModel @Inject constructor(
         val left = if (insertIndex == 0) origin else dests[insertIndex - 1].point()
         val right = dests.getOrNull(insertIndex)?.point()
         val list = dests.toMutableList()
-        list.add(insertIndex, Waypoint(lat, lng))
+        list.add(insertIndex, Waypoint(lat, lng, name))
         _waypoints.value = list
         _lastAddedPresetKind.value = null
         cacheDraft()
@@ -942,7 +1060,7 @@ class RouteBuilderViewModel @Inject constructor(
         bumpRender(fit)
         routeJob = viewModelScope.launch {
             delay(300)
-            val computed = routingService.route(routeName, navWps, mode, routerUrl) ?: run {
+            val computed = routingService.route(routeName, navWps, mode, routerUrl, avoidances) ?: run {
                 _messages.tryEmit(R.string.nav_route_failed)
                 RoutingService.straightLineRoute(routeName, navWps)
             }
@@ -1209,6 +1327,189 @@ class RouteBuilderViewModel @Inject constructor(
         return arr.toString()
     }
 
+    // --- Charger & places layers -------------------------------------------------
+
+    /** Toggles the ⚡ charger layer; persisted so it's remembered. */
+    fun toggleChargers() {
+        _showChargers.value = !_showChargers.value
+        persistLayers()
+        refreshPois()
+    }
+
+    /** Toggles the whole "places" group: all off -> all on, otherwise -> off. */
+    fun togglePlaces() {
+        _placeCats.value = if (_placeCats.value.isEmpty()) PoiKind.PLACES else emptySet()
+        persistLayers()
+        refreshPois()
+    }
+
+    /** Long-press menu: toggles one place category on/off. */
+    fun setPlaceCategory(kind: PoiKind, on: Boolean) {
+        _placeCats.value = if (on) _placeCats.value + kind else _placeCats.value - kind
+        persistLayers()
+        refreshPois()
+    }
+
+    private fun persistLayers() {
+        val chargers = _showChargers.value
+        val cats = _placeCats.value.joinToString(",") { it.name }
+        viewModelScope.launch {
+            val s = settingsRepository.get()
+            settingsRepository.update(s.copy(navShowChargers = chargers, navPlaceCategories = cats))
+        }
+    }
+
+    private fun parsePlaceCats(csv: String): Set<PoiKind> =
+        csv.split(',').mapNotNull { s -> PoiKind.PLACES.firstOrNull { it.name == s.trim() } }.toSet()
+
+    /**
+     * Re-queries Overpass for the enabled categories, debounced and skipped when
+     * the search area hasn't moved. Searches along the route when there is one,
+     * otherwise around the rider's position (or the map centre) so the layer
+     * works before any stop is added. Surfaces loading / failure / empty toasts.
+     */
+    private fun refreshPois() {
+        val cats = enabledCategories()
+        if (cats.isEmpty()) {
+            poiJob?.cancel()
+            _poiLoading.value = false
+            _pois.value = emptyList()
+            _selectedPoi.value = null
+            lastPoiSignature = null
+            return
+        }
+        val geom = _route.value?.geometry ?: emptyList()
+        val center = currentLocation.value?.let { GeoPoint(it.latitude, it.longitude) }
+            ?: _savedView.value?.let { GeoPoint(it.lat, it.lng) }
+        // Need either a route or a point to search around.
+        if (geom.size < 2 && center == null) {
+            _pois.value = emptyList()
+            lastPoiSignature = null
+            return
+        }
+        val anchorSig = if (geom.size >= 2) poiSignature(geom)
+        else "${round2(center!!.lat)},${round2(center.lng)}"
+        val sig = "$anchorSig|${cats.joinToString(",")}"
+        if (sig == lastPoiSignature && _pois.value.isNotEmpty()) return
+        poiJob?.cancel()
+        poiJob = viewModelScope.launch {
+            delay(700) // debounce edits and stay polite to Overpass
+            _poiLoading.value = true
+            _messages.tryEmit(R.string.nav_pois_loading)
+            val result = if (geom.size >= 2)
+                poiService.poisAlongRoute(geom, overpassUrl, cats)
+            else poiService.poisAround(center!!, endpoint = overpassUrl, categories = cats)
+            _poiLoading.value = false
+            when {
+                result == null -> {
+                    // Network / service failure: keep any pins we already have
+                    // and don't cache the signature so the next nudge retries.
+                    _messages.tryEmit(R.string.nav_pois_failed)
+                }
+                else -> {
+                    lastPoiSignature = sig
+                    _pois.value = result
+                    if (result.isEmpty()) _messages.tryEmit(R.string.nav_pois_none)
+                }
+            }
+        }
+    }
+
+    private fun round2(d: Double) = Math.round(d * 100.0) / 100.0
+
+    /** Coarse (~1 km) bbox signature so small edits don't trigger a refetch. */
+    private fun poiSignature(geom: List<GeoPoint>): String {
+        val b = PoiService.routeBoundingBox(geom) ?: return ""
+        fun r(d: Double) = Math.round(d * 100.0) / 100.0
+        return "${r(b.minLat)},${r(b.minLng)},${r(b.maxLat)},${r(b.maxLng)}"
+    }
+
+    fun onPoiTapped(id: Long) {
+        _selectedPoi.value = _pois.value.firstOrNull { it.id == id }
+    }
+
+    fun dismissPoiDetails() {
+        _selectedPoi.value = null
+    }
+
+    /**
+     * Adds a POI as a stop at the position that adds the least extra distance to
+     * the route: **between** the two stops whose leg passes nearest the place
+     * (a detour, e.g. `1 ── * ── 2`), or **appended** after the last stop when
+     * the place lies beyond the route's end (`1 ── 2 ── *`). Same cheapest-
+     * insertion idea as a route-line tap, but it also considers appending, since
+     * a charger can sit past the final stop. No-op while guidance is running.
+     */
+    fun addPoiAsStop(poi: PointOfInterest) {
+        _selectedPoi.value = null
+        if (navigationEngine.isActive) return
+        val dests = _waypoints.value
+        if (dests.size >= MAX_WAYPOINTS) {
+            _messages.tryEmit(R.string.nav_max_stops)
+            return
+        }
+        val name = poi.name.ifBlank { poi.brand }
+        if (dests.isEmpty()) {
+            addWaypoint(poi.lat, poi.lng, name, fit = false)
+            return
+        }
+        val point = GeoPoint(poi.lat, poi.lng)
+        val insertIndex = cheapestInsertIndex(point)
+        val origin = currentLocation.value?.let { GeoPoint(it.latitude, it.longitude) }
+        val left = if (insertIndex == 0) origin else dests[insertIndex - 1].point()
+        val right = dests.getOrNull(insertIndex)?.point()
+        val list = dests.toMutableList()
+        list.add(insertIndex, Waypoint(poi.lat, poi.lng, name))
+        _waypoints.value = list
+        _lastAddedPresetKind.value = null
+        cacheDraft()
+        val edge = listOfNotNull(left, point, right)
+        scheduleRecompute(fit = false, previewEdge = if (edge.size >= 2) edge else emptyList())
+    }
+
+    /**
+     * The destination-list index at which inserting [point] adds the least extra
+     * straight-line distance, considering every gap between consecutive stops
+     * (the rider's live position is the implicit first point) AND appending
+     * after the last stop. Returns [dests.size] to append.
+     */
+    private fun cheapestInsertIndex(point: GeoPoint): Int {
+        val dests = _waypoints.value
+        val origin = currentLocation.value?.let { GeoPoint(it.latitude, it.longitude) }
+        val chain = buildList {
+            if (origin != null) add(origin)
+            dests.forEach { add(it.point()) }
+        }
+        if (chain.isEmpty()) return 0
+        val originOffset = if (origin != null) 1 else 0
+        var bestIdx = dests.size
+        // Appending extends the route by the leg from the last point to here.
+        var bestCost = GeoMath.distanceM(chain.last(), point)
+        // Inserting between a and b costs the detour d(a,P)+d(P,b)-d(a,b).
+        for (i in 0 until chain.size - 1) {
+            val a = chain[i]; val b = chain[i + 1]
+            val cost = GeoMath.distanceM(a, point) + GeoMath.distanceM(point, b) -
+                GeoMath.distanceM(a, b)
+            if (cost < bestCost) {
+                bestCost = cost
+                bestIdx = (i + 1 - originOffset).coerceIn(0, dests.size)
+            }
+        }
+        return bestIdx
+    }
+
+    /** POIs as [{id,lat,lng,kind,name}] for the map's faint layer. */
+    fun poisJson(): String {
+        val arr = JSONArray()
+        _pois.value.forEach { p ->
+            arr.put(JSONObject().apply {
+                put("id", p.id); put("lat", p.lat); put("lng", p.lng)
+                put("kind", p.kind.name); put("name", p.name)
+            })
+        }
+        return arr.toString()
+    }
+
     // --- Starting navigation -----------------------------------------------------
 
     /**
@@ -1251,7 +1552,7 @@ class RouteBuilderViewModel @Inject constructor(
             val navRoute = if (tMode == TravelMode.STRAIGHT) {
                 RoutingService.straightLineRoute(routeName, legWps)
             } else {
-                routingService.route(routeName, legWps, tMode, routerUrl)
+                routingService.route(routeName, legWps, tMode, routerUrl, avoidances)
                     ?: RoutingService.straightLineRoute(routeName, legWps)
             }
             // Mirror the new leg into _route so the map redraws with the

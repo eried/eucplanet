@@ -1,6 +1,7 @@
 [versions]
 agp = "8.7.3"
 kotlin = "2.0.21"
+coil = "2.7.0"
 ksp = "2.0.21-1.0.28"
 composeBom = "2025.04.01"
 hilt = "2.53.1"
@@ -28,6 +29,7 @@ junit = "4.13.2"
 playPublisher = "3.12.1"
 
 [libraries]
+coil-compose = { group = "io.coil-kt", name = "coil-compose", version.ref = "coil" }
 # Compose
 compose-bom = { group = "androidx.compose", name = "compose-bom", version.ref = "composeBom" }
 compose-ui = { group = "androidx.compose.ui", name = "ui" }

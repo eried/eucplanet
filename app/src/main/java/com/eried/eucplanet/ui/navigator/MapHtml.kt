@@ -160,13 +160,31 @@ private const val ROUTE_BUILDER_HTML_1: String = """
     box-shadow: inset 0 0 0 1px rgba(0,0,0,0.6);
     box-sizing:border-box;
   }
+  /* Home / Work are saved-place PINS (teardrop), deliberately NOT round chips:
+     the round badges now read as "tap me" (that's the charger/station POIs),
+     so a pin shape signals "this is just a saved location, not a button". */
   .place-badge{
-    width:30px;height:30px;border-radius:50%;box-sizing:border-box;
-    border:2px solid #000;display:flex;align-items:center;justify-content:center;
-    font:700 14px sans-serif;color:#fff;box-shadow:0 1px 5px rgba(0,0,0,0.7);
+    width:28px;height:28px;box-sizing:border-box;
+    border-radius:50% 50% 50% 0;
+    transform:rotate(-45deg);
+    border:2px solid #fff;display:flex;align-items:center;justify-content:center;
+    font:700 13px sans-serif;color:#fff;box-shadow:0 2px 4px rgba(0,0,0,0.55);
   }
+  .place-badge > *{ transform:rotate(45deg); } /* keep the icon upright */
   .place-home{ background:#43A047; }
   .place-work{ background:#5E35B1; }
+  /* Faint charger / station markers: deliberately low-contrast so they read
+     as "available, not part of the route" until the rider taps one. A ROUNDED
+     SQUARE (not a circle) gives them their own shape language -- round circles
+     are route stops, teardrop pins are saved places, rounded squares are
+     tappable POIs that open a details sheet. */
+  .poi-badge{
+    width:24px;height:24px;border-radius:6px;box-sizing:border-box;
+    border:1px solid rgba(255,255,255,0.55);
+    display:flex;align-items:center;justify-content:center;
+    font:600 13px sans-serif;background:rgba(25,25,25,0.45);
+    opacity:0.6;box-shadow:0 1px 3px rgba(0,0,0,0.4);
+  }
 </style>
 </head><body>
 <div id="map"></div>
@@ -1276,8 +1294,10 @@ private const val ROUTE_BUILDER_HTML_2: String = """
     var places = JSON.parse(json);
     places.forEach(function(p){
       var m = L.marker([p.lat, p.lng], {
+        // Teardrop pin: the sharp tip (bottom) marks the exact spot, so anchor
+        // at the tip, not the centre.
         icon: L.divIcon({
-          className:'', iconSize:[30,30], iconAnchor:[15,15],
+          className:'', iconSize:[28,36], iconAnchor:[14,34],
           html:'<div class="place-badge place-' + p.kind + '">' +
             (placeIcons[p.kind] || '') + '</div>'
         }),
@@ -1285,6 +1305,36 @@ private const val ROUTE_BUILDER_HTML_2: String = """
       });
       m.addTo(map);
       placeMarkers.push(m);
+    });
+  };
+
+  // --- Chargers & stations (faint, tappable POI layer) ---
+  var poiMarkers = [];
+  // ⚡ charger, 🏪 store/stop, 🍴 food & drink, 🚰 rest, 📸 sight
+  var poiIcons = { CHARGER:'⚡', STORE:'🏪', FOOD:'🍴', REST:'🚰', SIGHTS:'📸' };
+  window.nativeSetPois = function(json){
+    poiMarkers.forEach(function(m){ map.removeLayer(m); });
+    poiMarkers = [];
+    var pois;
+    try { pois = JSON.parse(json); } catch(e){ pois = []; }
+    pois.forEach(function(p){
+      var m = L.marker([p.lat, p.lng], {
+        icon: L.divIcon({
+          className:'', iconSize:[24,24], iconAnchor:[12,12],
+          html:'<div class="poi-badge">' + (poiIcons[p.kind] || '•') + '</div>'
+        }),
+        // Sit below the stop markers so a tap on an overlapping real stop wins.
+        zIndexOffset:-2000, keyboard:false
+      });
+      m.on('click', function(ev){
+        // A POI tap opens its details, it must not also drop / insert a stop.
+        if (ev && ev.originalEvent && L.DomEvent) L.DomEvent.stop(ev.originalEvent);
+        if (window.AndroidNav && AndroidNav.onPoiTapped){
+          AndroidNav.onPoiTapped(String(p.id));
+        }
+      });
+      m.addTo(map);
+      poiMarkers.push(m);
     });
   };
 

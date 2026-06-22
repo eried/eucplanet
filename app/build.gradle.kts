@@ -197,6 +197,9 @@ dependencies {
     implementation(libs.compose.material.icons)
     debugImplementation(libs.compose.ui.tooling)
 
+    // Coil: inline charger photos from Open Charge Map in the flyout
+    implementation(libs.coil.compose)
+
     // AndroidX
     implementation(libs.androidx.core)
     implementation(libs.androidx.activity.compose)
