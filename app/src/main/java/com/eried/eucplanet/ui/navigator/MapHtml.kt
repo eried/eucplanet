@@ -160,19 +160,19 @@ private const val ROUTE_BUILDER_HTML_1: String = """
     box-shadow: inset 0 0 0 1px rgba(0,0,0,0.6);
     box-sizing:border-box;
   }
-  /* Home / Work are saved-place PINS (teardrop), deliberately NOT round chips:
-     the round badges now read as "tap me" (that's the charger/station POIs),
-     so a pin shape signals "this is just a saved location, not a button". */
-  .place-badge{
-    width:28px;height:28px;box-sizing:border-box;
-    border-radius:50% 50% 50% 0;
-    transform:rotate(-45deg);
-    border:2px solid #fff;display:flex;align-items:center;justify-content:center;
-    font:700 13px sans-serif;color:#fff;box-shadow:0 2px 4px rgba(0,0,0,0.55);
+  /* Home / Work are saved-place markers: a FAINT icon inside a dashed
+     (segmented) ring, with no solid fill, border chip or shadow, so they read
+     as passive map labels and clearly not buttons. (Round solid badges are
+     tappable POIs; numbered circles are route stops; this shape is neither.)
+     The icon + ring share one faint colour via currentColor. */
+  .place-faint{
+    width:38px;height:38px;box-sizing:border-box;
+    border-radius:50%;
+    border:2px dashed currentColor;
+    display:flex;align-items:center;justify-content:center;
   }
-  .place-badge > *{ transform:rotate(45deg); } /* keep the icon upright */
-  .place-home{ background:#43A047; }
-  .place-work{ background:#5E35B1; }
+  .place-home{ color:rgba(46,110,50,0.7); }   /* faint green */
+  .place-work{ color:rgba(69,39,130,0.7); }   /* faint purple */
   /* Faint charger / station markers: deliberately low-contrast so they read
      as "available, not part of the route" until the rider taps one. A ROUNDED
      SQUARE (not a circle) gives them their own shape language -- round circles
@@ -1281,9 +1281,9 @@ private const val ROUTE_BUILDER_HTML_2: String = """
   // Saved Home / Work places, always shown, drawn behind the stops.
   var placeMarkers = [];
   var placeIcons = {
-    home: '<svg viewBox="0 0 24 24" width="18" height="18" fill="#fff">' +
+    home: '<svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">' +
       '<path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>',
-    work: '<svg viewBox="0 0 24 24" width="18" height="18" fill="#fff">' +
+    work: '<svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">' +
       '<path d="M20 6h-4V4c0-1.1-.9-2-2-2h-4c-1.1 0-2 .9-2 2v2H4c-1.1 0-2 ' +
       '.9-2 2v11c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm-6 ' +
       '0h-4V4h4v2z"/></svg>'
@@ -1294,11 +1294,10 @@ private const val ROUTE_BUILDER_HTML_2: String = """
     var places = JSON.parse(json);
     places.forEach(function(p){
       var m = L.marker([p.lat, p.lng], {
-        // Teardrop pin: the sharp tip (bottom) marks the exact spot, so anchor
-        // at the tip, not the centre.
+        // Faint icon + dashed ring, centred on the spot (no teardrop tip).
         icon: L.divIcon({
-          className:'', iconSize:[28,36], iconAnchor:[14,34],
-          html:'<div class="place-badge place-' + p.kind + '">' +
+          className:'', iconSize:[38,38], iconAnchor:[19,19],
+          html:'<div class="place-faint place-' + p.kind + '">' +
             (placeIcons[p.kind] || '') + '</div>'
         }),
         interactive:false, zIndexOffset:-1000
