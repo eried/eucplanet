@@ -178,8 +178,18 @@ class MainActivity : AppCompatActivity() {
         if (intent.action == Intent.ACTION_VIEW && data != null &&
             data.scheme == "db-${com.eried.eucplanet.data.repository.DropboxRepository.APP_KEY}"
         ) {
-            kotlinx.coroutines.GlobalScope.launch(kotlinx.coroutines.Dispatchers.IO) {
-                dropboxRepository.handleAuthCallback(data)
+            // Exchange the code for a token, then tell the rider whether the
+            // link actually took. Without this the OAuth result is silent, so a
+            // failed token exchange (e.g. no internet) looks identical to a
+            // success and the rider is left wondering why Dropbox features stay
+            // greyed out.
+            lifecycleScope.launch {
+                val ok = dropboxRepository.handleAuthCallback(data)
+                android.widget.Toast.makeText(
+                    this@MainActivity,
+                    if (ok) R.string.dropbox_link_ok else R.string.dropbox_link_failed,
+                    android.widget.Toast.LENGTH_LONG
+                ).show()
             }
             return true
         }
