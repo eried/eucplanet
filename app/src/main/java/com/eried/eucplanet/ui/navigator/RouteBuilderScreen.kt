@@ -1251,6 +1251,34 @@ fun RouteBuilderScreen(
                             }
                         )
                     }
+                    // Remove this stop. Hidden while navigation is running or once
+                    // the whole route is passed (matches the list-row menu).
+                    val canRemoveMarker = !navRunning &&
+                        !(waypoints.isNotEmpty() && waypoints.all { it.passed })
+                    if (canRemoveMarker) {
+                        if (homePlace == null || workPlace == null) {
+                            HorizontalDivider(color = MaterialTheme.appColors.divider)
+                        }
+                        DropdownMenuItem(
+                            leadingIcon = {
+                                Icon(
+                                    Icons.Default.Delete,
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.error
+                                )
+                            },
+                            text = {
+                                Text(
+                                    stringResource(R.string.nav_remove_stop),
+                                    color = MaterialTheme.colorScheme.error
+                                )
+                            },
+                            onClick = {
+                                val i = markerMenuIndex; markerMenuIndex = -1
+                                if (i >= 0) viewModel.removeWaypoint(i)
+                            }
+                        )
+                    }
                 }
             }
 
