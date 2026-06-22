@@ -174,7 +174,8 @@ fun RouteBuilderScreen(
     val selectedPoi by viewModel.selectedPoi.collectAsState()
     val selectedPoiOcm by viewModel.selectedPoiOcm.collectAsState()
     val ocmLoading by viewModel.ocmLoading.collectAsState()
-    val poiLoading by viewModel.poiLoading.collectAsState()
+    val chargerLoading by viewModel.chargerLoading.collectAsState()
+    val placeLoading by viewModel.placeLoading.collectAsState()
     // Persisted custom marker photo (base64 data URL or null).
     val markerPhoto by viewModel.userMarkerPhoto.collectAsState()
     // When a freshly-picked image is decoded, it lands here and the crop
@@ -1004,10 +1005,13 @@ fun RouteBuilderScreen(
                 if (advancedMap) {
                     OverlayFab(
                         active = showChargers,
-                        loading = poiLoading && showChargers,
+                        loading = chargerLoading,
                         icon = Icons.Default.EvStation,
                         contentDescription = stringResource(R.string.nav_show_chargers),
                         onClick = { viewModel.toggleChargers() },
+                        // Long-press jumps to Navigation settings (where the
+                        // Open Charge Map / charger community key lives).
+                        onLongClick = { onOpenNavSettings() },
                         modifier = Modifier
                             .align(Alignment.End)
                             .padding(end = 16.dp, bottom = 12.dp)
@@ -1016,7 +1020,7 @@ fun RouteBuilderScreen(
                         var placesMenu by remember { mutableStateOf(false) }
                         OverlayFab(
                             active = showPlaces,
-                            loading = poiLoading && showPlaces,
+                            loading = placeLoading,
                             icon = Icons.Default.Explore,
                             contentDescription = stringResource(R.string.nav_show_places),
                             onClick = { viewModel.togglePlaces() },
@@ -1912,6 +1916,25 @@ private fun BottomPanel(
                                             DropdownMenuItem(
                                                 text = { Text(stringResource(R.string.nav_save_work)) },
                                                 onClick = { rowMenu = false; onSaveWork(index) }
+                                            )
+                                        }
+                                        if (!navRunning && !allPassed) {
+                                            HorizontalDivider(color = MaterialTheme.appColors.divider)
+                                            DropdownMenuItem(
+                                                leadingIcon = {
+                                                    Icon(
+                                                        Icons.Default.Delete,
+                                                        contentDescription = null,
+                                                        tint = MaterialTheme.colorScheme.error
+                                                    )
+                                                },
+                                                text = {
+                                                    Text(
+                                                        stringResource(R.string.nav_remove_stop),
+                                                        color = MaterialTheme.colorScheme.error
+                                                    )
+                                                },
+                                                onClick = { rowMenu = false; onRemove(index) }
                                             )
                                         }
                                     }

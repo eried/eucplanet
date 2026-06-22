@@ -2,16 +2,21 @@ package com.eried.eucplanet.ui.settings
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.SegmentedButton
@@ -21,9 +26,12 @@ import androidx.compose.material3.Slider
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -120,42 +128,19 @@ fun NavigatorSettingsContent(
         )
         HintText(stringResource(R.string.nav_setting_endpoints_hint), small = true)
 
-        // The endpoint fields edit a local copy and persist only on focus loss,
-        // so a half-typed URL isn't written to DataStore on every keystroke.
-        var geocoder by rememberSaveable(settings.navGeocoderUrl) {
-            mutableStateOf(settings.navGeocoderUrl)
-        }
-        OutlinedTextField(
-            value = geocoder,
-            onValueChange = { geocoder = it },
-            label = { Text(stringResource(R.string.nav_setting_geocoder_url)) },
-            singleLine = true,
-            modifier = Modifier
-                .fillMaxWidth()
-                .onFocusChanged { fs ->
-                    if (!fs.isFocused && geocoder != settings.navGeocoderUrl) {
-                        viewModel.updateNavGeocoderUrl(geocoder.trim())
-                    }
-                },
-            colors = themedFieldColors(),
+        // Endpoint fields persist on focus loss AND on disposal (so a value
+        // typed then navigated-away-from / section-collapsed isn't lost).
+        EndpointField(
+            label = stringResource(R.string.nav_setting_geocoder_url),
+            value = settings.navGeocoderUrl,
+            enabled = true,
+            onCommit = { viewModel.updateNavGeocoderUrl(it) },
         )
-
-        var router by rememberSaveable(settings.navRouterUrl) {
-            mutableStateOf(settings.navRouterUrl)
-        }
-        OutlinedTextField(
-            value = router,
-            onValueChange = { router = it },
-            label = { Text(stringResource(R.string.nav_setting_router_url)) },
-            singleLine = true,
-            modifier = Modifier
-                .fillMaxWidth()
-                .onFocusChanged { fs ->
-                    if (!fs.isFocused && router != settings.navRouterUrl) {
-                        viewModel.updateNavRouterUrl(router.trim())
-                    }
-                },
-            colors = themedFieldColors(),
+        EndpointField(
+            label = stringResource(R.string.nav_setting_router_url),
+            value = settings.navRouterUrl,
+            enabled = true,
+            onCommit = { viewModel.updateNavRouterUrl(it) },
         )
 
         // --- Avoidances (collapsible; all OFF by default) ---
@@ -211,23 +196,12 @@ fun NavigatorSettingsContent(
         )
         HintText(stringResource(R.string.nav_setting_advanced_map_desc), small = true)
 
-        var overpass by rememberSaveable(settings.navOverpassUrl) {
-            mutableStateOf(settings.navOverpassUrl)
-        }
-        OutlinedTextField(
-            value = overpass,
-            onValueChange = { overpass = it },
+        EndpointField(
+            label = stringResource(R.string.nav_setting_overpass_url),
+            value = settings.navOverpassUrl,
             enabled = endpointsEnabled,
-            label = { Text(stringResource(R.string.nav_setting_overpass_url)) },
-            singleLine = true,
-            modifier = Modifier
-                .fillMaxWidth()
-                .onFocusChanged { fs ->
-                    if (!fs.isFocused && overpass != settings.navOverpassUrl) {
-                        viewModel.updateNavOverpassUrl(overpass.trim())
-                    }
-                },
-            colors = themedFieldColors(),
+            onCommit = { viewModel.updateNavOverpassUrl(it) },
+            presets = OVERPASS_PRESETS,
         )
 
         // Title, then the description + clickable link directly under it, then
@@ -255,26 +229,94 @@ fun NavigatorSettingsContent(
             }
         }
         Text(annotated, style = MaterialTheme.typography.bodySmall)
-        var ocmKey by rememberSaveable(settings.navOcmApiKey) {
-            mutableStateOf(settings.navOcmApiKey)
-        }
-        OutlinedTextField(
-            value = ocmKey,
-            onValueChange = { ocmKey = it },
+        EndpointField(
+            label = stringResource(R.string.nav_setting_ocm_key),
+            value = settings.navOcmApiKey,
             enabled = endpointsEnabled,
-            label = { Text(stringResource(R.string.nav_setting_ocm_key)) },
-            singleLine = true,
-            modifier = Modifier
-                .fillMaxWidth()
-                .onFocusChanged { fs ->
-                    if (!fs.isFocused && ocmKey != settings.navOcmApiKey) {
-                        viewModel.updateNavOcmApiKey(ocmKey.trim())
-                    }
-                },
-            colors = themedFieldColors(),
+            onCommit = { viewModel.updateNavOcmApiKey(it) },
         )
 
         Spacer(Modifier.height(8.dp))
+    }
+}
+
+/** Known public Overpass instances; the default first. Same protocol, so they
+ *  are interchangeable for the chargers & places query. */
+private val OVERPASS_PRESETS = listOf(
+    "OpenStreetMap (default)" to "https://overpass-api.de/api/interpreter",
+    "OpenStreetMap France" to "https://overpass.openstreetmap.fr/api/interpreter",
+    "Kumi Systems" to "https://overpass.kumi.systems/api/interpreter",
+    "Swiss OSM" to "https://overpass.osm.ch/api/interpreter",
+    "private.coffee" to "https://overpass.private.coffee/api/interpreter",
+)
+
+/**
+ * A URL / key field that commits its value on focus loss AND on disposal (so a
+ * value typed then navigated-away-from or section-collapsed is never lost), with
+ * an optional dropdown of known [presets] for services that have interchangeable
+ * public instances.
+ */
+@Composable
+private fun EndpointField(
+    label: String,
+    value: String,
+    enabled: Boolean,
+    onCommit: (String) -> Unit,
+    presets: List<Pair<String, String>> = emptyList(),
+) {
+    var text by rememberSaveable(value) { mutableStateOf(value) }
+    var expanded by remember { mutableStateOf(false) }
+    val latestText by rememberUpdatedState(text)
+    val persisted by rememberUpdatedState(value)
+    fun commit() {
+        val trimmed = latestText.trim()
+        if (trimmed != persisted) onCommit(trimmed)
+    }
+    DisposableEffect(Unit) { onDispose { commit() } }
+
+    Box(modifier = Modifier.fillMaxWidth()) {
+        OutlinedTextField(
+            value = text,
+            onValueChange = { text = it },
+            enabled = enabled,
+            label = { Text(label) },
+            singleLine = true,
+            trailingIcon = {
+                if (presets.isNotEmpty()) {
+                    IconButton(onClick = { expanded = true }, enabled = enabled) {
+                        Icon(Icons.Default.ArrowDropDown, contentDescription = null)
+                    }
+                }
+            },
+            modifier = Modifier
+                .fillMaxWidth()
+                .onFocusChanged { fs -> if (!fs.isFocused) commit() },
+            colors = themedFieldColors(),
+        )
+        DropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false },
+        ) {
+            presets.forEach { (name, url) ->
+                DropdownMenuItem(
+                    text = {
+                        Column {
+                            Text(name, style = MaterialTheme.typography.bodyMedium)
+                            Text(
+                                url,
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                    },
+                    onClick = {
+                        text = url
+                        expanded = false
+                        if (url != value) onCommit(url)
+                    }
+                )
+            }
+        }
     }
 }
 
