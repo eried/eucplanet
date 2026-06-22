@@ -117,7 +117,10 @@ class OcmService @Inject constructor() {
                 ratingCount = ratings.size,
                 comments = comments,
                 photoUrls = parsePhotos(o.optJSONArray("MediaItems")),
-                ocmUrl = "https://openchargemap.org/site/poi/details/$id",
+                // The map app shows the POI publicly; the legacy
+                // openchargemap.org/site/poi/details/<id> page now redirects to
+                // a login wall.
+                ocmUrl = "https://map.openchargemap.io/?id=$id",
             )
         }
 

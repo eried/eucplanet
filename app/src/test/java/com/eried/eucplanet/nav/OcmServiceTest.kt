@@ -41,7 +41,7 @@ class OcmServiceTest {
         assertEquals("Free", c.usageCost)
         assertEquals("Operational", c.status)
         assertEquals(4, c.numberOfPoints)
-        assertEquals("https://openchargemap.org/site/poi/details/12345", c.ocmUrl)
+        assertEquals("https://map.openchargemap.io/?id=12345", c.ocmUrl)
     }
 
     @Test fun connectors_dedupedWithPower() {
