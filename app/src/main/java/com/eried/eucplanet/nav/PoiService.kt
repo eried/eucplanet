@@ -78,6 +78,16 @@ class PoiService @Inject constructor() {
         /** Default Overpass endpoint (key-less, public). */
         const val DEFAULT_OVERPASS = "https://overpass-api.de/api/interpreter"
 
+        /**
+         * Fallback Overpass mirrors, tried in order when the default one fails
+         * (the public instances overload / go down often). Skipped when the
+         * rider has configured their own endpoint.
+         */
+        private val FALLBACK_OVERPASS = listOf(
+            "https://overpass.kumi.systems/api/interpreter",
+            "https://overpass.private.coffee/api/interpreter",
+        )
+
         private const val USER_AGENT = "EUCPlanet-Navigator/1.0 (github.com/eried/eucplanet)"
         private const val CONNECT_TIMEOUT_MS = 12_000
         private const val READ_TIMEOUT_MS = 25_000
@@ -316,8 +326,7 @@ class PoiService @Inject constructor() {
         if (geometry.size < 2 || categories.isEmpty()) return@withContext emptyList()
         val bbox = routeBoundingBox(geometry) ?: return@withContext emptyList()
         try {
-            val url = endpoint.ifBlank { DEFAULT_OVERPASS }
-            val body = httpPost(url, "data=" + enc(overpassQuery(bbox, categories)))
+            val body = fetchOverpass(endpoint, overpassQuery(bbox, categories))
             if (body == null) {
                 Log.w(TAG, "poisAlongRoute: null body (network/HTTP error)")
                 return@withContext null
@@ -347,8 +356,7 @@ class PoiService @Inject constructor() {
         val radiusM = radiusKm * 1000.0
         val bbox = bboxAround(center, radiusM)
         try {
-            val url = endpoint.ifBlank { DEFAULT_OVERPASS }
-            val body = httpPost(url, "data=" + enc(overpassQuery(bbox, categories)))
+            val body = fetchOverpass(endpoint, overpassQuery(bbox, categories))
             if (body == null) {
                 Log.w(TAG, "poisAround: null body (network/HTTP error)")
                 return@withContext null
@@ -361,6 +369,24 @@ class PoiService @Inject constructor() {
             Log.w(TAG, "poisAround failed: ${e.message}")
             null
         }
+    }
+
+    /**
+     * Runs an Overpass query against the configured endpoint, falling back to
+     * the public mirrors if it fails (the free instances overload often). A
+     * custom rider-configured endpoint is used as-is with no fallback.
+     */
+    private fun fetchOverpass(endpoint: String, query: String): String? {
+        val primary = endpoint.ifBlank { DEFAULT_OVERPASS }
+        val form = "data=" + enc(query)
+        httpPost(primary, form)?.let { return it }
+        if (primary == DEFAULT_OVERPASS) {
+            for (mirror in FALLBACK_OVERPASS) {
+                Log.w(TAG, "Overpass primary failed; trying mirror $mirror")
+                httpPost(mirror, form)?.let { return it }
+            }
+        }
+        return null
     }
 
     private fun enc(s: String): String = URLEncoder.encode(s, "UTF-8")

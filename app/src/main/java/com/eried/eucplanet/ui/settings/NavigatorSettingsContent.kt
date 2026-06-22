@@ -7,7 +7,11 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ExpandLess
+import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.SegmentedButton
@@ -64,14 +68,6 @@ fun NavigatorSettingsContent(
         modifier = Modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        // --- Advanced map features (default OFF) ---
-        SwitchRow(
-            label = stringResource(R.string.nav_setting_advanced_map),
-            checked = settings.navAdvancedMap,
-            onChange = { viewModel.updateNavAdvancedMap(it) }
-        )
-        HintText(stringResource(R.string.nav_setting_advanced_map_desc), small = true)
-
         // --- Full path vs Next segment ---
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -112,37 +108,54 @@ fun NavigatorSettingsContent(
         )
         HintText(stringResource(R.string.nav_setting_offroute_desc), small = true)
 
-        // --- Avoidances (all OFF by default) ---
-        Text(
-            stringResource(R.string.nav_setting_avoid),
-            style = MaterialTheme.typography.titleMedium,
-            color = MaterialTheme.colorScheme.primary
-        )
-        HintText(stringResource(R.string.nav_setting_avoid_hint), small = true)
-        SwitchRow(
-            label = stringResource(R.string.nav_setting_avoid_highways),
-            checked = settings.navAvoidHighways,
-            onChange = { viewModel.updateNavAvoidHighways(it) }
-        )
-        SwitchRow(
-            label = stringResource(R.string.nav_setting_avoid_tolls),
-            checked = settings.navAvoidTolls,
-            onChange = { viewModel.updateNavAvoidTolls(it) }
-        )
-        SwitchRow(
-            label = stringResource(R.string.nav_setting_avoid_ferries),
-            checked = settings.navAvoidFerries,
-            onChange = { viewModel.updateNavAvoidFerries(it) }
-        )
-        SwitchRow(
-            label = stringResource(R.string.nav_setting_avoid_unpaved),
-            checked = settings.navAvoidUnpaved,
-            onChange = { viewModel.updateNavAvoidUnpaved(it) }
-        )
+        // --- Avoidances (collapsible; all OFF by default) ---
+        var avoidExpanded by rememberSaveable { mutableStateOf(false) }
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable { avoidExpanded = !avoidExpanded },
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                stringResource(R.string.nav_setting_avoid),
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.primary
+            )
+            Icon(
+                if (avoidExpanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.primary
+            )
+        }
+        if (avoidExpanded) {
+            HintText(stringResource(R.string.nav_setting_avoid_hint), small = true)
+            SwitchRow(
+                label = stringResource(R.string.nav_setting_avoid_highways),
+                checked = settings.navAvoidHighways,
+                onChange = { viewModel.updateNavAvoidHighways(it) }
+            )
+            SwitchRow(
+                label = stringResource(R.string.nav_setting_avoid_tolls),
+                checked = settings.navAvoidTolls,
+                onChange = { viewModel.updateNavAvoidTolls(it) }
+            )
+            SwitchRow(
+                label = stringResource(R.string.nav_setting_avoid_ferries),
+                checked = settings.navAvoidFerries,
+                onChange = { viewModel.updateNavAvoidFerries(it) }
+            )
+            SwitchRow(
+                label = stringResource(R.string.nav_setting_avoid_unpaved),
+                checked = settings.navAvoidUnpaved,
+                onChange = { viewModel.updateNavAvoidUnpaved(it) }
+            )
+        }
 
-        // --- Routing endpoints (advanced) ---
-        // Only editable when advanced map features are on -- a simple user
-        // shouldn't have to touch raw service URLs.
+        // --- Routing services ---
+        // Address search + routing always work (basic navigation), so those URLs
+        // stay editable. Advanced map features add the on-map charger / places
+        // layers; only those extra source fields are gated behind it.
         val endpointsEnabled = settings.navAdvancedMap
         Text(
             stringResource(R.string.nav_setting_endpoints),
@@ -159,7 +172,6 @@ fun NavigatorSettingsContent(
         OutlinedTextField(
             value = geocoder,
             onValueChange = { geocoder = it },
-            enabled = endpointsEnabled,
             label = { Text(stringResource(R.string.nav_setting_geocoder_url)) },
             singleLine = true,
             modifier = Modifier
@@ -178,7 +190,6 @@ fun NavigatorSettingsContent(
         OutlinedTextField(
             value = router,
             onValueChange = { router = it },
-            enabled = endpointsEnabled,
             label = { Text(stringResource(R.string.nav_setting_router_url)) },
             singleLine = true,
             modifier = Modifier
@@ -190,6 +201,15 @@ fun NavigatorSettingsContent(
                 },
             colors = themedFieldColors(),
         )
+
+        // Advanced map features gate the on-map overlays + their source fields
+        // below (chargers / places / community), but NOT the basic URLs above.
+        SwitchRow(
+            label = stringResource(R.string.nav_setting_advanced_map),
+            checked = settings.navAdvancedMap,
+            onChange = { viewModel.updateNavAdvancedMap(it) }
+        )
+        HintText(stringResource(R.string.nav_setting_advanced_map_desc), small = true)
 
         var overpass by rememberSaveable(settings.navOverpassUrl) {
             mutableStateOf(settings.navOverpassUrl)

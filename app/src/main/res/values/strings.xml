@@ -1607,7 +1607,7 @@
     <string name="nav_setting_open_builder">Open route builder</string>
     <string name="nav_setting_params">Navigation settings</string>
     <string name="nav_setting_advanced_map">Advanced map features</string>
-    <string name="nav_setting_advanced_map_desc">Show chargers and places on the map, and set custom service URLs. Off keeps the map to just the route and stops</string>
+    <string name="nav_setting_advanced_map_desc">Show chargers and places along the route. Also unlocks their source fields below. Off keeps the map to just the route and stops</string>
     <string name="nav_setting_full_path">Always solve the full path</string>
     <string name="nav_setting_full_path_desc">Off solves only the next stop and shows the rest as a dashed preview</string>
     <string name="nav_setting_avoid">Avoid</string>
@@ -1657,7 +1657,7 @@
     <string name="nav_setting_endpoints_hint">Free public OpenStreetMap by default; change to use your own server</string>
     <string name="nav_setting_geocoder_url">Address search URL</string>
     <string name="nav_setting_router_url">Routing URL</string>
-    <string name="nav_setting_overpass_url">Chargers &amp; stations URL (Overpass)</string>
+    <string name="nav_setting_overpass_url">Chargers &amp; places URL (Overpass)</string>
     <string name="nav_setting_ocm_subtitle">Charger community (Open Charge Map)</string>
     <string name="nav_setting_ocm_key">Open Charge Map API key</string>
     <string name="nav_setting_ocm_key_hint">Optional. Adds reviews, photos and connector details to the charger flyout. Sign up for a free key at</string>
