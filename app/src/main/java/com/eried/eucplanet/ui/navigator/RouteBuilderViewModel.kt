@@ -1457,10 +1457,15 @@ class RouteBuilderViewModel @Inject constructor(
             val result = if (useOcm) {
                 val bbox = if (anchor.geom.size >= 2) PoiService.routeBoundingBox(anchor.geom)
                 else PoiService.bboxAround(anchor.center!!, PoiService.ROUTE_BUFFER_M)
-                bbox?.let { ocmService.chargersInBox(it, ocmApiKey) }?.let { raw ->
+                val ocm = bbox?.let { ocmService.chargersInBox(it, ocmApiKey) }?.let { raw ->
                     if (anchor.geom.size >= 2) PoiService.filterNearRoute(raw, anchor.geom)
                     else PoiService.filterNearPoint(raw, anchor.center!!)
                 }
+                // OCM failed (e.g. an invalid key, or the service is down): fall
+                // back to OpenStreetMap chargers so the layer still works instead
+                // of just erroring. A valid key returning no chargers is an empty
+                // list, not null, so it won't trigger the fallback.
+                ocm ?: fetchOverpassLayer(anchor, setOf(PoiKind.CHARGER))
             } else {
                 fetchOverpassLayer(anchor, setOf(PoiKind.CHARGER))
             }

@@ -1698,7 +1698,7 @@
     <string name="trip_action_share_dropbox">Dropbox로 공유</string>
     <string name="trip_action_share_dropbox_desc">Dropbox 폴더에 업로드하고 공개 링크를 공유합니다</string>
     <string name="trip_action_inspect_online">온라인으로 보기</string>
-    <string name="trip_action_inspect_online_desc">브라우저의 eucviewer 도구에서 주행을 엽니다</string>
+    <string name="trip_action_inspect_online_desc">이 주행을 온라인으로 보는 eucviewer.ried.no 링크를 공유합니다</string>
     <string name="trip_action_copy_link">eucviewer 링크 복사</string>
     <string name="trip_action_copy_link_desc">공유 가능한 eucviewer.ried.no 링크를 클립보드에 복사</string>
     <string name="trip_action_dropbox_disabled">설정에서 Dropbox를 연결하면 사용할 수 있습니다</string>
@@ -1742,17 +1742,19 @@
     <string name="nav_pois_places_hint">팁: 이 버튼을 길게 누르면 표시할 장소를 선택할 수 있습니다</string>
     <string name="nav_setting_advanced_map">고급 지도 기능</string>
     <string name="nav_setting_advanced_map_desc">경로를 따라 충전소와 장소를 표시합니다</string>
-    <string name="nav_setting_avoid">회피</string>
+    <string name="nav_setting_avoid">경로 탐색 시 회피</string>
     <string name="nav_setting_avoid_ferries">페리 회피</string>
     <string name="nav_setting_avoid_highways">고속도로 회피</string>
-    <string name="nav_setting_avoid_hint">기본값은 모두 꺼짐. 회피 옵션은 다른 경로 탐색 서비스를 사용하며, 이동 수단이 지원하는 경우에만 적용됩니다</string>
+    <string name="nav_setting_avoid_hint">회피 옵션은 다른 경로 탐색 서비스를 사용하며, 이동 수단이 지원하는 경우에만 적용됩니다</string>
     <string name="nav_setting_avoid_tolls">유료 도로 회피</string>
     <string name="nav_setting_avoid_unpaved">비포장 도로 회피</string>
     <string name="nav_setting_ocm_key">Open Charge Map API 키</string>
-    <string name="nav_setting_ocm_key_hint">선택 사항. 충전소 플라이아웃에 리뷰, 사진, 커넥터 정보를 추가합니다. 무료 키는 다음에서 발급받으세요:</string>
+    <string name="nav_setting_ocm_key_hint">충전소 플라이아웃에 리뷰, 사진, 커넥터 정보를 추가합니다. 무료 키는 다음에서 발급받으세요:</string>
     <string name="nav_setting_ocm_key_link">openchargemap.org</string>
     <string name="nav_setting_ocm_subtitle">충전소 커뮤니티 (Open Charge Map)</string>
     <string name="nav_setting_overpass_url">충전소 &amp; 장소 URL (Overpass)</string>
     <string name="nav_show_chargers">충전소 표시</string>
     <string name="nav_show_places">장소 표시 (상점, 음식, 명소)</string>
+    <string name="dropbox_link_ok">Dropbox 연결됨</string>
+    <string name="dropbox_link_failed">Dropbox를 연결할 수 없습니다. 연결 상태를 확인하고 다시 시도하세요</string>
 </resources>

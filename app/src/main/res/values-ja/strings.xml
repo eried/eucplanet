@@ -1698,7 +1698,7 @@
     <string name="trip_action_share_dropbox">Dropbox で共有</string>
     <string name="trip_action_share_dropbox_desc">Dropbox フォルダにアップロードして公開リンクを共有します</string>
     <string name="trip_action_inspect_online">オンラインで確認</string>
-    <string name="trip_action_inspect_online_desc">ブラウザの eucviewer ツールで走行を開きます</string>
+    <string name="trip_action_inspect_online_desc">eucviewer.ried.no リンクを共有してこの走行をオンラインで表示します</string>
     <string name="trip_action_copy_link">eucviewer のリンクをコピー</string>
     <string name="trip_action_copy_link_desc">共有用 eucviewer.ried.no リンクをクリップボードにコピー</string>
     <string name="trip_action_dropbox_disabled">設定で Dropbox を連携すると有効になります</string>
@@ -1728,11 +1728,11 @@
     <string name="nav_poi_operator">運営者</string>
     <string name="nav_poi_osm">オンラインで開く</string>
     <string name="nav_poi_phone">電話</string>
-    <string name="nav_poi_rest">トイレと水</string>
-    <string name="nav_poi_sights">観光スポット</string>
+    <string name="nav_poi_rest">トイレ &amp; 水</string>
+    <string name="nav_poi_sights">観光名所</string>
     <string name="nav_poi_sockets">ソケット</string>
     <string name="nav_poi_source">データは OpenStreetMap より</string>
-    <string name="nav_poi_store">店舗</string>
+    <string name="nav_poi_store">ショップ</string>
     <string name="nav_poi_type">種類</string>
     <string name="nav_poi_website">ウェブサイト</string>
     <string name="nav_pois_failed">場所を読み込めませんでした。接続を確認してください</string>
@@ -1741,20 +1741,22 @@
     <string name="nav_pois_none">このルート付近には見つかりませんでした</string>
     <string name="nav_pois_places_hint">ヒント: このボタンを長押しすると表示する場所を選択できます</string>
     <string name="nav_setting_advanced_map">高度なマップ機能</string>
-    <string name="nav_setting_advanced_map_desc">ルート沿いの充電器や場所を表示します</string>
-    <string name="nav_setting_avoid">回避</string>
+    <string name="nav_setting_advanced_map_desc">ルート沿いの充電器とスポットを表示</string>
+    <string name="nav_setting_avoid">ルート探索時に回避</string>
     <string name="nav_setting_avoid_ferries">フェリーを回避</string>
     <string name="nav_setting_avoid_highways">高速道路を回避</string>
-    <string name="nav_setting_avoid_hint">デフォルトはすべてオフ。回避設定は別のルーティングサービスを使用し、移動手段が対応している場合に適用されます</string>
+    <string name="nav_setting_avoid_hint">回避設定は別のルーティングサービスを使用し、移動手段が対応している場合に適用されます</string>
     <string name="nav_setting_avoid_tolls">有料道路を回避</string>
     <string name="nav_setting_avoid_unpaved">未舗装路を回避</string>
     <string name="nav_setting_ocm_key">Open Charge Map API キー</string>
-    <string name="nav_setting_ocm_key_hint">任意。充電器のフライアウトにレビュー、写真、コネクター詳細を追加します。無料キーの登録はこちら</string>
+    <string name="nav_setting_ocm_key_hint">充電器のフライアウトにレビュー、写真、コネクター詳細を追加します。無料キーの登録はこちら</string>
     <string name="nav_setting_ocm_key_link">openchargemap.org</string>
     <string name="nav_setting_ocm_subtitle">充電器コミュニティ（Open Charge Map）</string>
-    <string name="nav_setting_overpass_url">充電器と場所の URL（Overpass）</string>
+    <string name="nav_setting_overpass_url">充電器 &amp; スポットの URL（Overpass）</string>
     <string name="nav_show_chargers">充電器を表示</string>
     <string name="nav_show_places">場所を表示（店舗、飲食、観光）</string>
+    <string name="dropbox_link_ok">Dropbox を連携しました</string>
+    <string name="dropbox_link_failed">Dropbox を連携できませんでした。接続を確認してもう一度お試しください</string>
 </resources>
 
 

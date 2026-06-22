@@ -249,11 +249,16 @@ class RecordingViewModel @Inject constructor(
     /** True while a Dropbox account is linked — toggles the two extra
      *  options in the trip Share dialog. */
     val dropboxLinked: kotlinx.coroutines.flow.StateFlow<Boolean> =
-        dropboxRepository.linked.stateIn(
-            viewModelScope,
-            kotlinx.coroutines.flow.SharingStarted.WhileSubscribed(5_000L),
-            false
-        )
+        dropboxRepository.linked
+            .stateIn(
+                viewModelScope,
+                // Eagerly, not WhileSubscribed: the share dialog subscribes only
+                // when opened, and with WhileSubscribed it could render with the
+                // stale initial `false` (greyed rows) before the first emission
+                // landed. Keeping a single boolean live is cheap.
+                kotlinx.coroutines.flow.SharingStarted.Eagerly,
+                false
+            )
 
     /**
      * Upload [trip] to Dropbox if it's not already there, create (or

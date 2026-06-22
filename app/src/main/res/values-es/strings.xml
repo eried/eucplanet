@@ -1699,7 +1699,7 @@
     <string name="trip_action_share_dropbox">Compartir vía Dropbox</string>
     <string name="trip_action_share_dropbox_desc">Sube a tu carpeta de Dropbox y comparte el enlace público</string>
     <string name="trip_action_inspect_online">Inspeccionar en línea</string>
-    <string name="trip_action_inspect_online_desc">Abre el viaje en la herramienta eucviewer del navegador</string>
+    <string name="trip_action_inspect_online_desc">Comparte un enlace de eucviewer.ried.no para ver este viaje en línea</string>
     <string name="trip_action_copy_link">Copiar enlace de eucviewer</string>
     <string name="trip_action_copy_link_desc">Copia un enlace de eucviewer.ried.no al portapapeles</string>
     <string name="trip_action_dropbox_disabled">Vincula Dropbox en ajustes para habilitarlo</string>
@@ -1729,10 +1729,10 @@
     <string name="nav_poi_osm">Abrir online</string>
     <string name="nav_poi_phone">Teléfono</string>
     <string name="nav_poi_rest">Aseos y agua</string>
-    <string name="nav_poi_sights">Atracciones</string>
+    <string name="nav_poi_sights">Lugares de interés</string>
     <string name="nav_poi_sockets">Tomas</string>
     <string name="nav_poi_source">Datos de OpenStreetMap</string>
-    <string name="nav_poi_store">Tiendas</string>
+    <string name="nav_poi_store">Comercios</string>
     <string name="nav_poi_type">Tipo</string>
     <string name="nav_poi_website">Sitio web</string>
     <string name="nav_pois_failed">No se pudieron cargar los lugares. Comprueba tu conexión</string>
@@ -1742,18 +1742,20 @@
     <string name="nav_pois_places_hint">Consejo: mantén pulsado este botón para elegir qué lugares mostrar</string>
     <string name="nav_setting_advanced_map">Funciones avanzadas del mapa</string>
     <string name="nav_setting_advanced_map_desc">Muestra cargadores y lugares a lo largo de la ruta</string>
-    <string name="nav_setting_avoid">Evitar</string>
+    <string name="nav_setting_avoid">Evitar al calcular la ruta</string>
     <string name="nav_setting_avoid_ferries">Evitar transbordadores</string>
     <string name="nav_setting_avoid_highways">Evitar autopistas</string>
-    <string name="nav_setting_avoid_hint">Todo desactivado por defecto. Las exclusiones usan un servicio de rutas distinto y se aplican donde el modo de viaje las admite</string>
+    <string name="nav_setting_avoid_hint">Las exclusiones usan un servicio de rutas distinto y se aplican donde el modo de viaje las admite</string>
     <string name="nav_setting_avoid_tolls">Evitar peajes</string>
     <string name="nav_setting_avoid_unpaved">Evitar caminos sin asfaltar</string>
     <string name="nav_setting_ocm_key">Clave de API de Open Charge Map</string>
-    <string name="nav_setting_ocm_key_hint">Opcional. Añade reseñas, fotos y detalles de conectores a la ficha del cargador. Consigue una clave gratuita en</string>
+    <string name="nav_setting_ocm_key_hint">Añade reseñas, fotos y detalles de conectores a la ficha del cargador. Regístrate para una clave gratuita en</string>
     <string name="nav_setting_ocm_key_link">openchargemap.org</string>
     <string name="nav_setting_ocm_subtitle">Comunidad de cargadores (Open Charge Map)</string>
     <string name="nav_setting_overpass_url">URL de cargadores y lugares (Overpass)</string>
     <string name="nav_show_chargers">Mostrar cargadores</string>
     <string name="nav_show_places">Mostrar lugares (tiendas, comida, atracciones)</string>
+    <string name="dropbox_link_ok">Dropbox vinculado</string>
+    <string name="dropbox_link_failed">No se pudo vincular Dropbox. Comprueba tu conexión e inténtalo de nuevo</string>
 </resources>
 

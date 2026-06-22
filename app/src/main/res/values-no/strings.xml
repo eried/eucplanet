@@ -1584,7 +1584,7 @@
     <string name="trip_action_share_dropbox">Del via Dropbox</string>
     <string name="trip_action_share_dropbox_desc">Last opp til Dropbox-mappen din og del den offentlige lenken</string>
     <string name="trip_action_inspect_online">Inspiser på nett</string>
-    <string name="trip_action_inspect_online_desc">Åpne turen i eucviewer-nettleserverktøyet</string>
+    <string name="trip_action_inspect_online_desc">Del en eucviewer.ried.no-lenke for å se denne turen på nett</string>
     <string name="trip_action_copy_link">Kopier eucviewer-lenke</string>
     <string name="trip_action_copy_link_desc">Kopier en delbar eucviewer.ried.no-lenke til utklippstavlen</string>
     <string name="trip_action_dropbox_disabled">Koble til Dropbox i innstillinger for å aktivere</string>
@@ -1615,7 +1615,7 @@
     <string name="nav_poi_osm">Åpne på nett</string>
     <string name="nav_poi_phone">Telefon</string>
     <string name="nav_poi_rest">Toaletter &amp; vann</string>
-    <string name="nav_poi_sights">Severdigheter</string>
+    <string name="nav_poi_sights">Attraksjoner</string>
     <string name="nav_poi_sockets">Uttak</string>
     <string name="nav_poi_source">Data fra OpenStreetMap</string>
     <string name="nav_poi_store">Butikker</string>
@@ -1628,17 +1628,19 @@
     <string name="nav_pois_places_hint">Tips: hold inne denne knappen for å velge hvilke steder som vises</string>
     <string name="nav_setting_advanced_map">Avanserte kartfunksjoner</string>
     <string name="nav_setting_advanced_map_desc">Vis ladere og steder langs ruten</string>
-    <string name="nav_setting_avoid">Unngå</string>
+    <string name="nav_setting_avoid">Unngå ved ruteberegning</string>
     <string name="nav_setting_avoid_ferries">Unngå ferger</string>
     <string name="nav_setting_avoid_highways">Unngå motorveier</string>
-    <string name="nav_setting_avoid_hint">Alt av som standard. Unngåelser bruker en annen rutetjeneste og gjelder der reisemåten støtter dem</string>
+    <string name="nav_setting_avoid_hint">Unngåelser bruker en annen rutetjeneste og gjelder der reisemåten støtter dem</string>
     <string name="nav_setting_avoid_tolls">Unngå bomveier</string>
     <string name="nav_setting_avoid_unpaved">Unngå grusveier</string>
     <string name="nav_setting_ocm_key">Open Charge Map API-nøkkel</string>
-    <string name="nav_setting_ocm_key_hint">Valgfritt. Legger til anmeldelser, bilder og kontaktdetaljer i laderens infovindu. Registrer deg for en gratis nøkkel på</string>
+    <string name="nav_setting_ocm_key_hint">Legger til anmeldelser, bilder og kontaktdetaljer i laderens infovindu. Registrer deg for en gratis nøkkel på</string>
     <string name="nav_setting_ocm_key_link">openchargemap.org</string>
     <string name="nav_setting_ocm_subtitle">Laderfellesskap (Open Charge Map)</string>
     <string name="nav_setting_overpass_url">URL for ladere &amp; steder (Overpass)</string>
     <string name="nav_show_chargers">Vis ladere</string>
     <string name="nav_show_places">Vis steder (butikker, mat, severdigheter)</string>
+    <string name="dropbox_link_ok">Dropbox tilkoblet</string>
+    <string name="dropbox_link_failed">Klarte ikke å koble til Dropbox. Sjekk tilkoblingen og prøv igjen</string>
 </resources>

@@ -125,11 +125,12 @@ fun NavigatorSettingsContent(
             checked = settings.navAdvancedMap,
             onChange = { viewModel.updateNavAdvancedMap(it) }
         )
-        HintText(stringResource(R.string.nav_setting_advanced_map_desc), small = true)
 
-        // The charger / places source + community fields only matter when the
-        // overlays are on, so hide them entirely when advanced map is off.
+        // The "show chargers and places" description + the charger/places source
+        // and community fields only matter when the overlays are on, so hide
+        // them all when advanced map is off.
         if (endpointsEnabled) {
+            HintText(stringResource(R.string.nav_setting_advanced_map_desc), small = true)
             EndpointField(
                 label = stringResource(R.string.nav_setting_overpass_url),
                 value = settings.navOverpassUrl,

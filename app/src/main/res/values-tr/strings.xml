@@ -1698,7 +1698,7 @@
     <string name="trip_action_share_dropbox">Dropbox ile paylaş</string>
     <string name="trip_action_share_dropbox_desc">Dropbox klasörüne yükle ve herkese açık bağlantıyı paylaş</string>
     <string name="trip_action_inspect_online">Çevrimiçi incele</string>
-    <string name="trip_action_inspect_online_desc">Yolculuğu eucviewer tarayıcı aracında aç</string>
+    <string name="trip_action_inspect_online_desc">Bu sürüşü çevrimiçi görüntülemek için bir eucviewer.ried.no bağlantısı paylaş</string>
     <string name="trip_action_copy_link">eucviewer bağlantısını kopyala</string>
     <string name="trip_action_copy_link_desc">Paylaşılabilir eucviewer.ried.no bağlantısını panoya kopyalar</string>
     <string name="trip_action_dropbox_disabled">Etkinleştirmek için ayarlardan Dropbox\'ı bağla</string>
@@ -1742,19 +1742,21 @@
     <string name="nav_pois_places_hint">İpucu: hangi yerlerin gösterileceğini seçmek için bu düğmeyi basılı tutun</string>
     <string name="nav_setting_advanced_map">Gelişmiş harita özellikleri</string>
     <string name="nav_setting_advanced_map_desc">Rota boyunca şarj istasyonlarını ve yerleri göster</string>
-    <string name="nav_setting_avoid">Kaçın</string>
+    <string name="nav_setting_avoid">Rotalamada kaçınılacaklar</string>
     <string name="nav_setting_avoid_ferries">Feribotlardan kaçın</string>
     <string name="nav_setting_avoid_highways">Otoyollardan kaçın</string>
-    <string name="nav_setting_avoid_hint">Tümü varsayılan olarak kapalıdır. Kaçınmalar farklı bir rotalama servisi kullanır ve yalnızca seyahat modunun desteklediği yerlerde geçerlidir</string>
+    <string name="nav_setting_avoid_hint">Kaçınmalar farklı bir rotalama servisi kullanır ve yalnızca seyahat modunun desteklediği yerlerde geçerlidir</string>
     <string name="nav_setting_avoid_tolls">Paralı yollardan kaçın</string>
     <string name="nav_setting_avoid_unpaved">Asfaltsız yollardan kaçın</string>
     <string name="nav_setting_ocm_key">Open Charge Map API anahtarı</string>
-    <string name="nav_setting_ocm_key_hint">İsteğe bağlı. Şarj istasyonu kartına yorumlar, fotoğraflar ve konnektör ayrıntıları ekler. Ücretsiz bir anahtar için kaydolun:</string>
+    <string name="nav_setting_ocm_key_hint">Şarj istasyonu kartına yorumlar, fotoğraflar ve konnektör ayrıntıları ekler. Ücretsiz bir anahtar için şuraya kaydolun:</string>
     <string name="nav_setting_ocm_key_link">openchargemap.org</string>
     <string name="nav_setting_ocm_subtitle">Şarj topluluğu (Open Charge Map)</string>
     <string name="nav_setting_overpass_url">Şarj istasyonları &amp; yerler URL\'si (Overpass)</string>
     <string name="nav_show_chargers">Şarj istasyonlarını göster</string>
     <string name="nav_show_places">Yerleri göster (mağazalar, yiyecek, gezilecek yerler)</string>
+    <string name="dropbox_link_ok">Dropbox bağlandı</string>
+    <string name="dropbox_link_failed">Dropbox bağlanamadı. Bağlantınızı kontrol edip tekrar deneyin</string>
 </resources>
 
 

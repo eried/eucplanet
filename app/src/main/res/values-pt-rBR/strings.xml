@@ -1673,11 +1673,11 @@
     <string name="nav_poi_operator">Operador</string>
     <string name="nav_poi_osm">Abrir online</string>
     <string name="nav_poi_phone">Telefone</string>
-    <string name="nav_poi_rest">Banheiros &amp; água</string>
-    <string name="nav_poi_sights">Atrações</string>
+    <string name="nav_poi_rest">Banheiros e água</string>
+    <string name="nav_poi_sights">Pontos turísticos</string>
     <string name="nav_poi_sockets">Tomadas</string>
     <string name="nav_poi_source">Dados do OpenStreetMap</string>
-    <string name="nav_poi_store">Lojas</string>
+    <string name="nav_poi_store">Comércios</string>
     <string name="nav_poi_type">Tipo</string>
     <string name="nav_poi_website">Site</string>
     <string name="nav_pois_failed">Não foi possível carregar os locais. Verifique sua conexão</string>
@@ -1686,18 +1686,18 @@
     <string name="nav_pois_none">Nada encontrado perto desta rota</string>
     <string name="nav_pois_places_hint">Dica: mantenha este botão pressionado para escolher quais locais mostrar</string>
     <string name="nav_setting_advanced_map">Recursos avançados do mapa</string>
-    <string name="nav_setting_advanced_map_desc">Mostrar carregadores e locais ao longo da rota</string>
-    <string name="nav_setting_avoid">Evitar</string>
+    <string name="nav_setting_advanced_map_desc">Mostra carregadores e locais ao longo da rota</string>
+    <string name="nav_setting_avoid">Evitar ao traçar rota</string>
     <string name="nav_setting_avoid_ferries">Evitar balsas</string>
     <string name="nav_setting_avoid_highways">Evitar rodovias</string>
-    <string name="nav_setting_avoid_hint">Tudo desligado por padrão. As exclusões usam um serviço de roteamento diferente e se aplicam onde o modo de viagem as suporta</string>
+    <string name="nav_setting_avoid_hint">As exclusões usam um serviço de roteamento diferente e se aplicam onde o modo de viagem as suporta</string>
     <string name="nav_setting_avoid_tolls">Evitar pedágios</string>
     <string name="nav_setting_avoid_unpaved">Evitar estradas sem pavimento</string>
     <string name="nav_setting_ocm_key">Chave de API do Open Charge Map</string>
-    <string name="nav_setting_ocm_key_hint">Opcional. Adiciona avaliações, fotos e detalhes de conectores ao card do carregador. Cadastre-se para uma chave gratuita em</string>
+    <string name="nav_setting_ocm_key_hint">Adiciona avaliações, fotos e detalhes de conectores ao card do carregador. Cadastre-se para uma chave gratuita em</string>
     <string name="nav_setting_ocm_key_link">openchargemap.org</string>
     <string name="nav_setting_ocm_subtitle">Comunidade de carregadores (Open Charge Map)</string>
-    <string name="nav_setting_overpass_url">URL de carregadores &amp; locais (Overpass)</string>
+    <string name="nav_setting_overpass_url">URL de carregadores e locais (Overpass)</string>
     <string name="nav_show_chargers">Mostrar carregadores</string>
     <string name="nav_show_places">Mostrar locais (lojas, comida, atrações)</string>
     <string name="auto_record_mode_riding">Ao andar</string>
@@ -1752,9 +1752,11 @@
     <string name="trip_action_share_dropbox">Compartilhar via Dropbox</string>
     <string name="trip_action_share_dropbox_desc">Envie para a sua pasta do Dropbox e compartilhe o link público</string>
     <string name="trip_action_inspect_online">Inspecionar online</string>
-    <string name="trip_action_inspect_online_desc">Abre o trajeto na ferramenta eucviewer do navegador</string>
+    <string name="trip_action_inspect_online_desc">Compartilhe um link eucviewer.ried.no para ver este trajeto online</string>
     <string name="trip_action_copy_link">Copiar link do eucviewer</string>
     <string name="trip_action_copy_link_desc">Copia um link eucviewer.ried.no compartilhável para a área de transferência</string>
     <string name="trip_action_dropbox_disabled">Vincule o Dropbox nas configurações para habilitar</string>
+    <string name="dropbox_link_ok">Dropbox vinculado</string>
+    <string name="dropbox_link_failed">Não foi possível vincular o Dropbox. Verifique sua conexão e tente novamente</string>
 </resources>
 

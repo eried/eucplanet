@@ -1705,7 +1705,7 @@
     <string name="trip_action_share_dropbox">Partager via Dropbox</string>
     <string name="trip_action_share_dropbox_desc">Envoie dans ton dossier Dropbox et partage le lien public</string>
     <string name="trip_action_inspect_online">Inspecter en ligne</string>
-    <string name="trip_action_inspect_online_desc">Ouvre le trajet dans l\'outil eucviewer du navigateur</string>
+    <string name="trip_action_inspect_online_desc">Partage un lien eucviewer.ried.no pour voir ce trajet en ligne</string>
     <string name="trip_action_copy_link">Copier le lien eucviewer</string>
     <string name="trip_action_copy_link_desc">Copie un lien eucviewer.ried.no partageable dans le presse-papiers</string>
     <string name="trip_action_dropbox_disabled">Lie Dropbox dans les réglages pour activer</string>
@@ -1735,11 +1735,11 @@
     <string name="nav_poi_operator">Exploitant</string>
     <string name="nav_poi_osm">Ouvrir en ligne</string>
     <string name="nav_poi_phone">Téléphone</string>
-    <string name="nav_poi_rest">Toilettes et eau</string>
+    <string name="nav_poi_rest">Toilettes &amp; eau</string>
     <string name="nav_poi_sights">Attractions</string>
     <string name="nav_poi_sockets">Prises</string>
     <string name="nav_poi_source">Données d\'OpenStreetMap</string>
-    <string name="nav_poi_store">Commerces</string>
+    <string name="nav_poi_store">Boutiques</string>
     <string name="nav_poi_type">Type</string>
     <string name="nav_poi_website">Site web</string>
     <string name="nav_pois_failed">Impossible de charger les lieux. Vérifie ta connexion</string>
@@ -1749,17 +1749,19 @@
     <string name="nav_pois_places_hint">Astuce : maintiens ce bouton pour choisir les lieux à afficher</string>
     <string name="nav_setting_advanced_map">Fonctions avancées de la carte</string>
     <string name="nav_setting_advanced_map_desc">Affiche les bornes de recharge et les lieux le long de l\'itinéraire</string>
-    <string name="nav_setting_avoid">Éviter</string>
+    <string name="nav_setting_avoid">Éviter lors du calcul d\'itinéraire</string>
     <string name="nav_setting_avoid_ferries">Éviter les ferries</string>
     <string name="nav_setting_avoid_highways">Éviter les autoroutes</string>
-    <string name="nav_setting_avoid_hint">Tout désactivé par défaut. Les évitements utilisent un autre service de calcul d\'itinéraire et s\'appliquent lorsque le mode de déplacement les prend en charge</string>
+    <string name="nav_setting_avoid_hint">Les évitements utilisent un autre service de calcul d\'itinéraire et s\'appliquent lorsque le mode de déplacement les prend en charge</string>
     <string name="nav_setting_avoid_tolls">Éviter les routes à péage</string>
     <string name="nav_setting_avoid_unpaved">Éviter les routes non revêtues</string>
     <string name="nav_setting_ocm_key">Clé API Open Charge Map</string>
-    <string name="nav_setting_ocm_key_hint">Facultatif. Ajoute les avis, les photos et les détails des connecteurs à la fiche de la borne. Inscris-toi pour une clé gratuite sur</string>
+    <string name="nav_setting_ocm_key_hint">Ajoute les avis, les photos et les détails des connecteurs à la fiche de la borne. Inscris-toi pour une clé gratuite sur</string>
     <string name="nav_setting_ocm_key_link">openchargemap.org</string>
     <string name="nav_setting_ocm_subtitle">Communauté des bornes (Open Charge Map)</string>
-    <string name="nav_setting_overpass_url">URL des bornes et lieux (Overpass)</string>
+    <string name="nav_setting_overpass_url">URL des bornes &amp; lieux (Overpass)</string>
     <string name="nav_show_chargers">Afficher les bornes de recharge</string>
     <string name="nav_show_places">Afficher les lieux (commerces, restos, sites)</string>
+    <string name="dropbox_link_ok">Dropbox lié</string>
+    <string name="dropbox_link_failed">Impossible de lier Dropbox. Vérifie ta connexion et réessaie</string>
 </resources>

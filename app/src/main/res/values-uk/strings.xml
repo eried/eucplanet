@@ -1698,7 +1698,7 @@
     <string name="trip_action_share_dropbox">Поділитися через Dropbox</string>
     <string name="trip_action_share_dropbox_desc">Завантажити в твою папку Dropbox і поділитися публічним посиланням</string>
     <string name="trip_action_inspect_online">Переглянути онлайн</string>
-    <string name="trip_action_inspect_online_desc">Відкрити поїздку в браузерному інструменті eucviewer</string>
+    <string name="trip_action_inspect_online_desc">Поділитися посиланням eucviewer.ried.no для перегляду цієї поїздки онлайн</string>
     <string name="trip_action_copy_link">Скопіювати посилання eucviewer</string>
     <string name="trip_action_copy_link_desc">Скопіювати посилання eucviewer.ried.no у буфер обміну</string>
     <string name="trip_action_dropbox_disabled">Під\'єднай Dropbox у налаштуваннях, щоб увімкнути</string>
@@ -1729,10 +1729,10 @@
     <string name="nav_poi_osm">Відкрити онлайн</string>
     <string name="nav_poi_phone">Телефон</string>
     <string name="nav_poi_rest">Туалети та вода</string>
-    <string name="nav_poi_sights">Пам\'ятки</string>
+    <string name="nav_poi_sights">Визначні місця</string>
     <string name="nav_poi_sockets">Розетки</string>
     <string name="nav_poi_source">Дані з OpenStreetMap</string>
-    <string name="nav_poi_store">Магазини</string>
+    <string name="nav_poi_store">Крамниці</string>
     <string name="nav_poi_type">Тип</string>
     <string name="nav_poi_website">Вебсайт</string>
     <string name="nav_pois_failed">Не вдалося завантажити місця. Перевір з\'єднання</string>
@@ -1742,19 +1742,21 @@
     <string name="nav_pois_places_hint">Порада: утримуй цю кнопку, щоб вибрати, які місця показувати</string>
     <string name="nav_setting_advanced_map">Розширені функції карти</string>
     <string name="nav_setting_advanced_map_desc">Показувати зарядки та місця вздовж маршруту</string>
-    <string name="nav_setting_avoid">Уникати</string>
+    <string name="nav_setting_avoid">Уникати під час маршрутизації</string>
     <string name="nav_setting_avoid_ferries">Уникати поромів</string>
     <string name="nav_setting_avoid_highways">Уникати автомагістралей</string>
-    <string name="nav_setting_avoid_hint">Усе вимкнено за замовчуванням. Уникання використовують інший сервіс маршрутизації та діють там, де режим пересування їх підтримує</string>
+    <string name="nav_setting_avoid_hint">Уникання використовують інший сервіс маршрутизації та діють там, де режим пересування їх підтримує</string>
     <string name="nav_setting_avoid_tolls">Уникати платних доріг</string>
     <string name="nav_setting_avoid_unpaved">Уникати ґрунтових доріг</string>
     <string name="nav_setting_ocm_key">Ключ API Open Charge Map</string>
-    <string name="nav_setting_ocm_key_hint">Необов\'язково. Додає відгуки, фото та деталі конекторів у картку зарядки. Зареєструй безкоштовний ключ на</string>
+    <string name="nav_setting_ocm_key_hint">Додає відгуки, фото та деталі конекторів у картку зарядки. Зареєструй безкоштовний ключ на</string>
     <string name="nav_setting_ocm_key_link">openchargemap.org</string>
     <string name="nav_setting_ocm_subtitle">Спільнота зарядок (Open Charge Map)</string>
     <string name="nav_setting_overpass_url">URL зарядок і місць (Overpass)</string>
     <string name="nav_show_chargers">Показувати зарядки</string>
     <string name="nav_show_places">Показувати місця (магазини, їжа, пам\'ятки)</string>
+    <string name="dropbox_link_ok">Dropbox під\'єднано</string>
+    <string name="dropbox_link_failed">Не вдалося під\'єднати Dropbox. Перевір з\'єднання та спробуй ще раз</string>
 </resources>
 
 
