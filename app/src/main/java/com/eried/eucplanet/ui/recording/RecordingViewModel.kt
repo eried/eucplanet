@@ -280,35 +280,22 @@ class RecordingViewModel @Inject constructor(
     }
 
     /**
-     * Build the eucviewer URL for [trip] and copy it to the clipboard.
-     * The rider can then paste it into any chat / email / note app —
-     * useful when the trip recipient isn't using the Android Share sheet.
-     */
-    fun copyEucviewerLink(trip: TripRecord) {
-        viewModelScope.launch {
-            val viewerUrl = ensureEucviewerUrl(trip) ?: return@launch
-            val clipboard = context.getSystemService(android.content.Context.CLIPBOARD_SERVICE)
-                as android.content.ClipboardManager
-            clipboard.setPrimaryClip(
-                android.content.ClipData.newPlainText("eucviewer link", viewerUrl)
-            )
-            android.widget.Toast.makeText(
-                context, R.string.dropbox_link_copied, android.widget.Toast.LENGTH_SHORT
-            ).show()
-        }
-    }
-
-    /**
-     * Upload (idempotent) and open the trip in the eucviewer browser tool
-     * via `https://eucviewer.ried.no/?file=<direct-csv-url>`. The viewer
-     * fetches the CSV bytes and renders it like a local file.
+     * Upload (idempotent) and share the trip's eucviewer link
+     * (`https://eucviewer.ried.no/?file=<direct-csv-url>`) via the Android
+     * share sheet, so the recipient can open it in a browser and inspect the
+     * ride online. The rider can also pick a browser from the sheet to open it
+     * themselves.
      */
     fun inspectOnline(trip: TripRecord) {
         viewModelScope.launch {
             val viewerUrl = ensureEucviewerUrl(trip) ?: return@launch
-            val intent = Intent(Intent.ACTION_VIEW, android.net.Uri.parse(viewerUrl))
+            val send = Intent(Intent.ACTION_SEND).apply {
+                type = "text/plain"
+                putExtra(Intent.EXTRA_TEXT, viewerUrl)
+            }
+            val chooser = Intent.createChooser(send, null)
                 .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            context.startActivity(intent)
+            context.startActivity(chooser)
         }
     }
 

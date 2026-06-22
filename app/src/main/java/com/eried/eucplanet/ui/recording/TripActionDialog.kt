@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CloudUpload
-import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Public
 import androidx.compose.material.icons.filled.Share
@@ -27,12 +26,11 @@ import androidx.compose.ui.unit.dp
 import com.eried.eucplanet.R
 
 /**
- * Chooser shown when the rider taps Share on a trip. Four "always there"
- * items: Share file, Share via Dropbox, Open in eucviewer, Copy eucviewer
- * link, Replay. The three Dropbox-dependent items stay visible even when
- * Dropbox is not linked — they're greyed and their subtitle becomes
- * "Link Dropbox in settings to enable this" so the rider sees the
- * feature exists and how to turn it on.
+ * Chooser shown when the rider taps Share on a trip. Items: Share file, Share
+ * via Dropbox, Inspect online (shares the eucviewer link), Replay. The two
+ * Dropbox-dependent items stay visible even when Dropbox is not linked —
+ * they're greyed and their subtitle becomes "Link Dropbox in settings to
+ * enable this" so the rider sees the feature exists and how to turn it on.
  */
 @Composable
 fun TripActionDialog(
@@ -43,7 +41,6 @@ fun TripActionDialog(
     dropboxLinked: Boolean = false,
     onShareViaDropbox: () -> Unit = {},
     onInspectOnline: () -> Unit = {},
-    onCopyOnlineLink: () -> Unit = {},
 ) {
     val disabledHint = stringResource(R.string.trip_action_dropbox_disabled)
     AlertDialog(
@@ -67,12 +64,6 @@ fun TripActionDialog(
                     if (dropboxLinked) stringResource(R.string.trip_action_inspect_online_desc) else disabledHint,
                     enabled = dropboxLinked,
                 ) { onDismiss(); onInspectOnline() }
-                TripActionRow(
-                    Icons.Default.ContentCopy,
-                    stringResource(R.string.trip_action_copy_link),
-                    if (dropboxLinked) stringResource(R.string.trip_action_copy_link_desc) else disabledHint,
-                    enabled = dropboxLinked,
-                ) { onDismiss(); onCopyOnlineLink() }
                 TripActionRow(
                     Icons.Default.History,
                     stringResource(R.string.trip_action_replay),

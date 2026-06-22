@@ -274,6 +274,16 @@ private fun EndpointField(
     }
     DisposableEffect(Unit) { onDispose { commit() } }
 
+    // No presets -> no trailing icon at all (a conditionally-empty trailing
+    // composable still reserves space and leaves a visible notch on the right).
+    val dropdownIcon: (@Composable () -> Unit)? = if (presets.isEmpty()) null else {
+        {
+            IconButton(onClick = { expanded = true }, enabled = enabled) {
+                Icon(Icons.Default.ArrowDropDown, contentDescription = null)
+            }
+        }
+    }
+
     Box(modifier = Modifier.fillMaxWidth()) {
         OutlinedTextField(
             value = text,
@@ -281,13 +291,7 @@ private fun EndpointField(
             enabled = enabled,
             label = { Text(label) },
             singleLine = true,
-            trailingIcon = {
-                if (presets.isNotEmpty()) {
-                    IconButton(onClick = { expanded = true }, enabled = enabled) {
-                        Icon(Icons.Default.ArrowDropDown, contentDescription = null)
-                    }
-                }
-            },
+            trailingIcon = dropdownIcon,
             modifier = Modifier
                 .fillMaxWidth()
                 .onFocusChanged { fs -> if (!fs.isFocused) commit() },
