@@ -116,20 +116,67 @@ fun NavigatorSettingsContent(
         )
         HintText(stringResource(R.string.nav_setting_offroute_desc), small = true)
 
-        // --- Routing services ---
-        // Address search + routing always work (basic navigation), so those URLs
-        // stay editable. Advanced map features add the on-map charger / places
-        // layers; only those extra source fields are gated behind it.
+        // --- Advanced map features (on-map charger / places overlays + their
+        // source endpoints). The basic routing URLs further down are never
+        // gated and always apply. ---
         val endpointsEnabled = settings.navAdvancedMap
+        SwitchRow(
+            label = stringResource(R.string.nav_setting_advanced_map),
+            checked = settings.navAdvancedMap,
+            onChange = { viewModel.updateNavAdvancedMap(it) }
+        )
+        HintText(stringResource(R.string.nav_setting_advanced_map_desc), small = true)
+
+        EndpointField(
+            label = stringResource(R.string.nav_setting_overpass_url),
+            value = settings.navOverpassUrl,
+            enabled = endpointsEnabled,
+            onCommit = { viewModel.updateNavOverpassUrl(it) },
+            presets = OVERPASS_PRESETS,
+        )
+
+        // Charger community (Open Charge Map): title, then the description with
+        // the openchargemap.org link inline, then the key field.
+        Text(
+            stringResource(R.string.nav_setting_ocm_subtitle),
+            style = MaterialTheme.typography.titleSmall,
+            color = if (endpointsEnabled) MaterialTheme.colorScheme.primary
+            else MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        val hint = stringResource(R.string.nav_setting_ocm_key_hint)
+        val urlText = stringResource(R.string.nav_setting_ocm_key_link)
+        val annotated = buildAnnotatedString {
+            withStyle(SpanStyle(color = MaterialTheme.colorScheme.onSurfaceVariant)) {
+                append("$hint ")
+            }
+            withLink(LinkAnnotation.Url("https://openchargemap.org/site/profile/applications")) {
+                withStyle(
+                    SpanStyle(
+                        color = MaterialTheme.colorScheme.primary,
+                        textDecoration = TextDecoration.Underline
+                    )
+                ) { append(urlText) }
+            }
+        }
+        Text(annotated, style = MaterialTheme.typography.bodySmall)
+        EndpointField(
+            label = stringResource(R.string.nav_setting_ocm_key),
+            value = settings.navOcmApiKey,
+            enabled = endpointsEnabled,
+            onCommit = { viewModel.updateNavOcmApiKey(it) },
+        )
+
+        // --- Routing services (endpoint URLs), kept below the map features.
+        // Address search + routing always work (basic navigation), so these URLs
+        // stay editable regardless of advanced map features. They persist on
+        // focus loss AND on disposal (so a value typed then navigated-away-from
+        // isn't lost). ---
         Text(
             stringResource(R.string.nav_setting_endpoints),
             style = MaterialTheme.typography.titleMedium,
             color = MaterialTheme.colorScheme.primary
         )
         HintText(stringResource(R.string.nav_setting_endpoints_hint), small = true)
-
-        // Endpoint fields persist on focus loss AND on disposal (so a value
-        // typed then navigated-away-from / section-collapsed isn't lost).
         EndpointField(
             label = stringResource(R.string.nav_setting_geocoder_url),
             value = settings.navGeocoderUrl,
@@ -143,7 +190,7 @@ fun NavigatorSettingsContent(
             onCommit = { viewModel.updateNavRouterUrl(it) },
         )
 
-        // --- Avoidances (collapsible; all OFF by default) ---
+        // --- Avoidances (collapsible; all off by default) ---
         var avoidExpanded by rememberSaveable { mutableStateOf(false) }
         Row(
             modifier = Modifier
@@ -186,55 +233,6 @@ fun NavigatorSettingsContent(
                 onChange = { viewModel.updateNavAvoidUnpaved(it) }
             )
         }
-
-        // Advanced map features gate the on-map overlays + their source fields
-        // below (chargers / places / community), but NOT the basic URLs above.
-        SwitchRow(
-            label = stringResource(R.string.nav_setting_advanced_map),
-            checked = settings.navAdvancedMap,
-            onChange = { viewModel.updateNavAdvancedMap(it) }
-        )
-        HintText(stringResource(R.string.nav_setting_advanced_map_desc), small = true)
-
-        EndpointField(
-            label = stringResource(R.string.nav_setting_overpass_url),
-            value = settings.navOverpassUrl,
-            enabled = endpointsEnabled,
-            onCommit = { viewModel.updateNavOverpassUrl(it) },
-            presets = OVERPASS_PRESETS,
-        )
-
-        // Title, then the description + clickable link directly under it, then
-        // the key field.
-        Text(
-            stringResource(R.string.nav_setting_ocm_subtitle),
-            style = MaterialTheme.typography.titleSmall,
-            color = if (endpointsEnabled) MaterialTheme.colorScheme.primary
-            else MaterialTheme.colorScheme.onSurfaceVariant
-        )
-        // Description with the openchargemap.org link inline at the end.
-        val hint = stringResource(R.string.nav_setting_ocm_key_hint)
-        val urlText = stringResource(R.string.nav_setting_ocm_key_link)
-        val annotated = buildAnnotatedString {
-            withStyle(SpanStyle(color = MaterialTheme.colorScheme.onSurfaceVariant)) {
-                append("$hint ")
-            }
-            withLink(LinkAnnotation.Url("https://openchargemap.org/site/profile/applications")) {
-                withStyle(
-                    SpanStyle(
-                        color = MaterialTheme.colorScheme.primary,
-                        textDecoration = TextDecoration.Underline
-                    )
-                ) { append(urlText) }
-            }
-        }
-        Text(annotated, style = MaterialTheme.typography.bodySmall)
-        EndpointField(
-            label = stringResource(R.string.nav_setting_ocm_key),
-            value = settings.navOcmApiKey,
-            enabled = endpointsEnabled,
-            onCommit = { viewModel.updateNavOcmApiKey(it) },
-        )
 
         Spacer(Modifier.height(8.dp))
     }

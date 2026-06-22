@@ -1611,7 +1611,7 @@
     <string name="nav_setting_full_path">Always solve the full path</string>
     <string name="nav_setting_full_path_desc">Off solves only the next stop and shows the rest as a dashed preview</string>
     <string name="nav_setting_avoid">Avoid</string>
-    <string name="nav_setting_avoid_hint">All off by default. Avoidances use a different routing service and apply where the travel mode supports them</string>
+    <string name="nav_setting_avoid_hint">Avoidances use a different routing service and apply where the travel mode supports them</string>
     <string name="nav_setting_avoid_highways">Avoid highways</string>
     <string name="nav_setting_avoid_tolls">Avoid toll roads</string>
     <string name="nav_setting_avoid_ferries">Avoid ferries</string>
@@ -1661,7 +1661,7 @@
     <string name="nav_setting_overpass_url">Chargers &amp; places URL (Overpass)</string>
     <string name="nav_setting_ocm_subtitle">Charger community (Open Charge Map)</string>
     <string name="nav_setting_ocm_key">Open Charge Map API key</string>
-    <string name="nav_setting_ocm_key_hint">Optional. Adds reviews, photos and connector details to the charger flyout. Sign up for a free key at</string>
+    <string name="nav_setting_ocm_key_hint">Adds reviews, photos and connector details to the charger flyout. Sign up for a free key at</string>
     <string name="nav_setting_ocm_key_link">openchargemap.org</string>
     <string name="watch_show_navigation">Show navigation</string>
     <string name="watch_show_navigation_desc">Mirror the turn arrow and distance on the watch while navigating</string>
