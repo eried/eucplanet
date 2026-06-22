@@ -1685,7 +1685,7 @@
     <string name="studio_save_keep_both">Зберегти обидва</string>
     <string name="welcome_tut_voice_desc">Окремі голосові повідомлення можна вмикати або вимикати пізніше в Налаштування → Голос та сповіщення.</string>
     <string name="welcome_tut_voice_title">Увімкнути голосові сповіщення</string>
-    <string name="dropbox_section_caption">Онлайн-копія</string>
+    <string name="dropbox_section_caption">Онлайн-копія в Dropbox</string>
     <string name="dropbox_section_desc">Поїздки також можна відкрити на %1$s, коли Dropbox під\'єднано.</string>
     <string name="dropbox_section_desc_url">eucviewer.ried.no</string>
     <string name="dropbox_link">Під\'єднати Dropbox</string>

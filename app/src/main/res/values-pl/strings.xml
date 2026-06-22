@@ -1684,7 +1684,7 @@
     <string name="studio_save_keep_both">Zachowaj oba</string>
     <string name="welcome_tut_voice_desc">Pojedyncze komunikaty głosowe można później włączać i wyłączać w Ustawienia → Głos i komunikaty.</string>
     <string name="welcome_tut_voice_title">Włącz alerty głosowe</string>
-    <string name="dropbox_section_caption">Kopia online</string>
+    <string name="dropbox_section_caption">Kopia online w Dropbox</string>
     <string name="dropbox_section_desc">Przejazdy można też otwierać na %1$s, gdy Dropbox jest połączony.</string>
     <string name="dropbox_section_desc_url">eucviewer.ried.no</string>
     <string name="dropbox_link">Połącz Dropbox</string>

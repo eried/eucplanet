@@ -1685,7 +1685,7 @@
     <string name="voice_announce_connected">連線時</string>
     <string name="voice_announce_riding">騎乘時</string>
     <string name="voice_announce_when_label">通報</string>
-    <string name="dropbox_section_caption">線上備份</string>
+    <string name="dropbox_section_caption">線上備份到 Dropbox</string>
     <string name="dropbox_section_desc">連結 Dropbox 後，行程也可以在 %1$s 上開啟。</string>
     <string name="dropbox_section_desc_url">eucviewer.ried.no</string>
     <string name="dropbox_link">連結 Dropbox</string>

@@ -1554,7 +1554,7 @@
     <string name="studio_save_keep_both">全部保留</string>
     <string name="welcome_tut_voice_desc">稍后可在设置 → 语音和通告 中开启或关闭单条语音消息。</string>
     <string name="welcome_tut_voice_title">启用语音提醒</string>
-    <string name="dropbox_section_caption">在线备份</string>
+    <string name="dropbox_section_caption">在线备份到 Dropbox</string>
     <string name="dropbox_section_desc">连接 Dropbox 后，行程也可以在 %1$s 上打开。</string>
     <string name="dropbox_section_desc_url">eucviewer.ried.no</string>
     <string name="dropbox_link">关联 Dropbox</string>

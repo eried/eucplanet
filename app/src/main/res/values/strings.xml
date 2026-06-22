@@ -1477,7 +1477,7 @@
     <string name="nav_share_dialog_body">Your route already has stops. Add this as the next stop, or start fresh?</string>
     <string name="nav_share_dialog_append">Add as next</string>
     <string name="nav_share_dialog_new">New route</string>
-    <string name="dropbox_section_caption">Online backup</string>
+    <string name="dropbox_section_caption">Online backup to Dropbox</string>
     <string name="dropbox_section_desc">Trips can also be opened on %1$s when linked.</string>
     <string name="dropbox_section_desc_url">eucviewer.ried.no</string>
     <string name="dropbox_link">Link Dropbox</string>

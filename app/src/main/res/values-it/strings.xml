@@ -1590,7 +1590,7 @@
     <string name="studio_save_keep_both">Tieni entrambi</string>
     <string name="welcome_tut_voice_desc">Puoi attivare o disattivare singoli messaggi vocali più tardi in Impostazioni → Voce e annunci.</string>
     <string name="welcome_tut_voice_title">Attiva avvisi vocali</string>
-    <string name="dropbox_section_caption">Backup online</string>
+    <string name="dropbox_section_caption">Backup online su Dropbox</string>
     <string name="dropbox_section_desc">I viaggi si possono aprire anche su %1$s quando Dropbox è collegato.</string>
     <string name="dropbox_section_desc_url">eucviewer.ried.no</string>
     <string name="dropbox_link">Collega Dropbox</string>

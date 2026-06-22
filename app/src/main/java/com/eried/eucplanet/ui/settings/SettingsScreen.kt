@@ -6700,11 +6700,11 @@ private fun CloudTab(
         }
 
         // --- Online backup (Dropbox) -----------------------------------
-        // Sits under the folder picker so the rider sees both "where do
-        // local copies go" and "is the cloud mirror linked" in one place.
-        // The visual structure (titleSmall + bodySmall + Row of buttons)
-        // matches the Online leaderboards subsection further down.
-        run {
+        // Only shown once a SAF folder is chosen — the cloud copy is
+        // framed as a mirror of the local backup, so it doesn't make
+        // sense to offer Dropbox before the rider has set up the local
+        // side first.
+        if (hasFolder) run {
             val dbxLinked by viewModel.dropboxLinked.collectAsState()
             val dbxAccount by viewModel.dropboxAccountLabel.collectAsState()
             val context = LocalContext.current

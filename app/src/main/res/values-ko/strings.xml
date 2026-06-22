@@ -1685,7 +1685,7 @@
     <string name="voice_announce_connected">연결 시</string>
     <string name="voice_announce_riding">주행 중</string>
     <string name="voice_announce_when_label">안내</string>
-    <string name="dropbox_section_caption">온라인 백업</string>
+    <string name="dropbox_section_caption">Dropbox 온라인 백업</string>
     <string name="dropbox_section_desc">Dropbox를 연결하면 주행을 %1$s에서도 열 수 있습니다.</string>
     <string name="dropbox_section_desc_url">eucviewer.ried.no</string>
     <string name="dropbox_link">Dropbox 연결</string>

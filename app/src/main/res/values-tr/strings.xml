@@ -1685,7 +1685,7 @@
     <string name="voice_announce_connected">Bağlandığında</string>
     <string name="voice_announce_riding">Sürerken</string>
     <string name="voice_announce_when_label">Bildirim</string>
-    <string name="dropbox_section_caption">Çevrimiçi yedek</string>
+    <string name="dropbox_section_caption">Dropbox\'a çevrimiçi yedek</string>
     <string name="dropbox_section_desc">Yolculuklar Dropbox bağlandığında %1$s üzerinde de açılabilir.</string>
     <string name="dropbox_section_desc_url">eucviewer.ried.no</string>
     <string name="dropbox_link">Dropbox bağla</string>

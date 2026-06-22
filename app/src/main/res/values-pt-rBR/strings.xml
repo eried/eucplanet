@@ -1686,7 +1686,7 @@
     <string name="studio_save_keep_both">Manter ambos</string>
     <string name="welcome_tut_voice_desc">Você pode ativar ou desativar mensagens de voz individualmente depois em Ajustes → Voz e anúncios.</string>
     <string name="welcome_tut_voice_title">Ativar alertas de voz</string>
-    <string name="dropbox_section_caption">Backup online</string>
+    <string name="dropbox_section_caption">Backup online no Dropbox</string>
     <string name="dropbox_section_desc">Os trajetos também podem ser abertos em %1$s quando o Dropbox está vinculado.</string>
     <string name="dropbox_section_desc_url">eucviewer.ried.no</string>
     <string name="dropbox_link">Conectar Dropbox</string>

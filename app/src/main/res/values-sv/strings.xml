@@ -1686,7 +1686,7 @@
     <string name="studio_save_keep_both">Behåll båda</string>
     <string name="welcome_tut_voice_desc">Du kan slå på eller av enskilda röstmeddelanden senare i Inställningar → Röst och meddelanden.</string>
     <string name="welcome_tut_voice_title">Aktivera röstvarningar</string>
-    <string name="dropbox_section_caption">Onlinekopia</string>
+    <string name="dropbox_section_caption">Onlinekopia till Dropbox</string>
     <string name="dropbox_section_desc">Turer går också att öppna på %1$s när Dropbox är länkat.</string>
     <string name="dropbox_section_desc_url">eucviewer.ried.no</string>
     <string name="dropbox_link">Anslut Dropbox</string>

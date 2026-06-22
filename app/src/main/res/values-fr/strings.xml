@@ -1692,7 +1692,7 @@
     <string name="studio_save_keep_both">Garder les deux</string>
     <string name="welcome_tut_voice_desc">Tu peux activer ou désactiver les messages vocaux individuels plus tard dans Réglages → Voix et annonces.</string>
     <string name="welcome_tut_voice_title">Activer les alertes vocales</string>
-    <string name="dropbox_section_caption">Sauvegarde en ligne</string>
+    <string name="dropbox_section_caption">Sauvegarde en ligne sur Dropbox</string>
     <string name="dropbox_section_desc">Tes trajets peuvent aussi s\'ouvrir sur %1$s quand Dropbox est lié.</string>
     <string name="dropbox_section_desc_url">eucviewer.ried.no</string>
     <string name="dropbox_link">Lier Dropbox</string>

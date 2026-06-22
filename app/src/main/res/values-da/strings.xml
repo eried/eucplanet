@@ -1701,7 +1701,7 @@
     <string name="studio_save_keep_both">Behold begge</string>
     <string name="welcome_tut_voice_desc">Du kan aktivere eller deaktivere enkelte stemmebeskeder senere i Indstillinger → Stemme og meddelelser.</string>
     <string name="welcome_tut_voice_title">Aktivér stemmebeskeder</string>
-    <string name="dropbox_section_caption">Online-sikkerhedskopi</string>
+    <string name="dropbox_section_caption">Online-sikkerhedskopi til Dropbox</string>
     <string name="dropbox_section_desc">Ture kan også åbnes på %1$s når Dropbox er forbundet.</string>
     <string name="dropbox_section_desc_url">eucviewer.ried.no</string>
     <string name="dropbox_link">Tilknyt Dropbox</string>

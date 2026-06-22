@@ -1686,7 +1686,7 @@
     <string name="studio_save_keep_both">Conservar ambos</string>
     <string name="welcome_tut_voice_desc">Puedes activar o desactivar mensajes de voz individuales luego en Ajustes → Voz y anuncios.</string>
     <string name="welcome_tut_voice_title">Activar alertas de voz</string>
-    <string name="dropbox_section_caption">Copia online</string>
+    <string name="dropbox_section_caption">Copia online a Dropbox</string>
     <string name="dropbox_section_desc">Tus viajes también se pueden abrir en %1$s cuando está vinculado.</string>
     <string name="dropbox_section_desc_url">eucviewer.ried.no</string>
     <string name="dropbox_link">Vincular Dropbox</string>

@@ -1571,7 +1571,7 @@
     <string name="studio_save_keep_both">Behold begge</string>
     <string name="welcome_tut_voice_desc">Du kan slå enkelte talemeldinger av eller på senere i Innstillinger → Tale og varsler.</string>
     <string name="welcome_tut_voice_title">Aktiver talevarsler</string>
-    <string name="dropbox_section_caption">Nettkopi</string>
+    <string name="dropbox_section_caption">Nettkopi til Dropbox</string>
     <string name="dropbox_section_desc">Turer kan også åpnes på %1$s når Dropbox er koblet til.</string>
     <string name="dropbox_section_desc_url">eucviewer.ried.no</string>
     <string name="dropbox_link">Koble til Dropbox</string>
