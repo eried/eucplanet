@@ -84,6 +84,7 @@ class PoiService @Inject constructor() {
          * rider has configured their own endpoint.
          */
         private val FALLBACK_OVERPASS = listOf(
+            "https://overpass.openstreetmap.fr/api/interpreter",
             "https://overpass.kumi.systems/api/interpreter",
             "https://overpass.private.coffee/api/interpreter",
         )
@@ -391,18 +392,24 @@ class PoiService @Inject constructor() {
 
     private fun enc(s: String): String = URLEncoder.encode(s, "UTF-8")
 
-    /** Overpass prefers POST for queries; the body is form-encoded `data=...`. */
+    /**
+     * Overpass prefers POST for queries; the body is form-encoded `data=...`.
+     * Returns null (never throws) on any connection/HTTP failure so the caller
+     * can fall back to a mirror -- a thrown exception here would skip the
+     * fallback loop in [fetchOverpass].
+     */
     private fun httpPost(endpoint: String, formBody: String): String? {
-        val conn = (URL(endpoint).openConnection() as HttpURLConnection).apply {
-            requestMethod = "POST"
-            doOutput = true
-            connectTimeout = CONNECT_TIMEOUT_MS
-            readTimeout = READ_TIMEOUT_MS
-            setRequestProperty("User-Agent", USER_AGENT)
-            setRequestProperty("Content-Type", "application/x-www-form-urlencoded")
-            setRequestProperty("Accept", "application/json")
-        }
+        var conn: HttpURLConnection? = null
         return try {
+            conn = (URL(endpoint).openConnection() as HttpURLConnection).apply {
+                requestMethod = "POST"
+                doOutput = true
+                connectTimeout = CONNECT_TIMEOUT_MS
+                readTimeout = READ_TIMEOUT_MS
+                setRequestProperty("User-Agent", USER_AGENT)
+                setRequestProperty("Content-Type", "application/x-www-form-urlencoded")
+                setRequestProperty("Accept", "application/json")
+            }
             conn.outputStream.use { it.write(formBody.toByteArray(Charsets.UTF_8)) }
             if (conn.responseCode in 200..299) {
                 conn.inputStream.bufferedReader().use(BufferedReader::readText)
@@ -411,8 +418,11 @@ class PoiService @Inject constructor() {
                 runCatching { conn.errorStream?.use { it.readBytes() } }
                 null
             }
+        } catch (e: Exception) {
+            Log.w(TAG, "POST $endpoint failed: ${e.message}")
+            null
         } finally {
-            conn.disconnect()
+            conn?.disconnect()
         }
     }
 }
