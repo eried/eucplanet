@@ -12,6 +12,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
 import okhttp3.FormBody
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import org.json.JSONObject
@@ -120,6 +121,175 @@ class DropboxRepository @Inject constructor(
         } catch (e: Exception) {
             false
         }
+    }
+
+    /**
+     * Upload [bytes] to the App-Folder path [remotePath] (e.g.
+     * "/trips/trip_20260622_010203.csv"). Overwrites any existing file
+     * at the same path — caller is responsible for picking a path that
+     * doesn't collide with someone else's edit, or for comparing
+     * server_modified timestamps first via [listFolder].
+     *
+     * Returns true on success.
+     */
+    suspend fun uploadFile(remotePath: String, bytes: ByteArray): Boolean = withContext(Dispatchers.IO) {
+        val token = activeAccessToken() ?: return@withContext false
+        val args = JSONObject().apply {
+            put("path", remotePath)
+            put("mode", "overwrite")
+            put("autorename", false)
+            put("mute", true)
+            put("strict_conflict", false)
+        }
+        val mediaOctet = "application/octet-stream".toMediaTypeOrNull()
+        val req = Request.Builder()
+            .url("https://content.dropboxapi.com/2/files/upload")
+            .addHeader("Authorization", "Bearer $token")
+            .addHeader("Dropbox-API-Arg", args.toString())
+            .post(okhttp3.RequestBody.create(mediaOctet, bytes))
+            .build()
+        try {
+            http.newCall(req).execute().use { it.isSuccessful }
+        } catch (e: Exception) { false }
+    }
+
+    /**
+     * Download [remotePath] from the App Folder and return the raw bytes.
+     * Returns null on auth / network failure or if the file is missing.
+     */
+    suspend fun downloadFile(remotePath: String): ByteArray? = withContext(Dispatchers.IO) {
+        val token = activeAccessToken() ?: return@withContext null
+        val args = JSONObject().apply { put("path", remotePath) }
+        val req = Request.Builder()
+            .url("https://content.dropboxapi.com/2/files/download")
+            .addHeader("Authorization", "Bearer $token")
+            .addHeader("Dropbox-API-Arg", args.toString())
+            .post(okhttp3.RequestBody.create(null, ByteArray(0)))
+            .build()
+        try {
+            http.newCall(req).execute().use { resp ->
+                if (!resp.isSuccessful) return@withContext null
+                resp.body?.bytes()
+            }
+        } catch (e: Exception) { null }
+    }
+
+    /** Map of file-name → server_modified epoch-seconds for the given
+     *  Dropbox folder (App-Folder relative). Empty map on "not_found"
+     *  (folder doesn't exist yet — normal on first link). Null on auth
+     *  / network failure so caller can distinguish "no files" from
+     *  "couldn't check". */
+    suspend fun listFolder(remoteFolder: String): Map<String, Long>? = withContext(Dispatchers.IO) {
+        val token = activeAccessToken() ?: return@withContext null
+        val body = JSONObject().apply {
+            put("path", remoteFolder)
+            put("recursive", false)
+            put("include_deleted", false)
+        }
+        val req = Request.Builder()
+            .url("https://api.dropboxapi.com/2/files/list_folder")
+            .addHeader("Authorization", "Bearer $token")
+            .post(okhttp3.RequestBody.create("application/json".toMediaTypeOrNull(), body.toString()))
+            .build()
+        try {
+            http.newCall(req).execute().use { resp ->
+                if (resp.code == 409) return@withContext emptyMap()  // folder absent
+                if (!resp.isSuccessful) return@withContext null
+                val json = JSONObject(resp.body?.string().orEmpty())
+                val entries = json.optJSONArray("entries") ?: return@withContext emptyMap()
+                val out = mutableMapOf<String, Long>()
+                for (i in 0 until entries.length()) {
+                    val e = entries.getJSONObject(i)
+                    if (e.optString(".tag") != "file") continue
+                    val name = e.optString("name")
+                    val mod = e.optString("server_modified")  // ISO-8601
+                    val epoch = try {
+                        java.time.OffsetDateTime.parse(mod).toEpochSecond()
+                    } catch (_: Exception) { 0L }
+                    if (name.isNotBlank()) out[name] = epoch
+                }
+                out
+            }
+        } catch (e: Exception) { null }
+    }
+
+    /**
+     * Create (or fetch the existing) public shared link for [remotePath].
+     * The returned `?dl=0` URL renders a Dropbox preview; appending `?dl=1`
+     * downloads the raw file. Returns null on failure.
+     */
+    suspend fun createSharedLink(remotePath: String): String? = withContext(Dispatchers.IO) {
+        val token = activeAccessToken() ?: return@withContext null
+        val body = JSONObject().apply {
+            put("path", remotePath)
+            put("settings", JSONObject().apply {
+                put("requested_visibility", "public")
+                put("audience", "public")
+                put("access", "viewer")
+            })
+        }
+        val req = Request.Builder()
+            .url("https://api.dropboxapi.com/2/sharing/create_shared_link_with_settings")
+            .addHeader("Authorization", "Bearer $token")
+            .post(okhttp3.RequestBody.create("application/json".toMediaTypeOrNull(), body.toString()))
+            .build()
+        try {
+            http.newCall(req).execute().use { resp ->
+                val txt = resp.body?.string().orEmpty()
+                if (resp.isSuccessful) JSONObject(txt).optString("url").ifBlank { null }
+                else {
+                    // Already shared → Dropbox returns 409 with the existing
+                    // link in the error body. Pull it out so the second call
+                    // doesn't need a separate /list_shared_links round-trip.
+                    val err = JSONObject(txt).optJSONObject("error")
+                        ?.optJSONObject("shared_link_already_exists")
+                        ?.optJSONObject("metadata")
+                    err?.optString("url")?.ifBlank { null }
+                }
+            }
+        } catch (e: Exception) { null }
+    }
+
+    /**
+     * Return a currently-valid access token, refreshing via the stored
+     * refresh token if the cached one is within 60 s of expiry. Returns
+     * null if the rider isn't linked or the refresh call fails.
+     */
+    private suspend fun activeAccessToken(): String? {
+        val s = settingsRepository.get()
+        if (s.dropboxAccessToken.isBlank()) return null
+        val nowMs = System.currentTimeMillis()
+        if (s.dropboxAccessTokenExpiresAt > nowMs + 60_000L) return s.dropboxAccessToken
+        if (s.dropboxRefreshToken.isBlank()) return s.dropboxAccessToken  // best effort
+        return refreshAccessToken(s.dropboxRefreshToken)
+    }
+
+    private suspend fun refreshAccessToken(refreshToken: String): String? = withContext(Dispatchers.IO) {
+        val body = FormBody.Builder()
+            .add("grant_type", "refresh_token")
+            .add("refresh_token", refreshToken)
+            .add("client_id", APP_KEY)
+            .build()
+        val req = Request.Builder()
+            .url("https://api.dropbox.com/oauth2/token")
+            .post(body)
+            .build()
+        try {
+            http.newCall(req).execute().use { resp ->
+                if (!resp.isSuccessful) return@withContext null
+                val json = JSONObject(resp.body?.string().orEmpty())
+                val access = json.optString("access_token").ifBlank { return@withContext null }
+                val ttlSec = json.optLong("expires_in", 14400L)
+                val expiresAt = System.currentTimeMillis() + ttlSec * 1000L
+                settingsRepository.update {
+                    it.copy(
+                        dropboxAccessToken = access,
+                        dropboxAccessTokenExpiresAt = expiresAt,
+                    )
+                }
+                access
+            }
+        } catch (e: Exception) { null }
     }
 
     /** Drop the local tokens — does NOT revoke them on Dropbox's side

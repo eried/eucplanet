@@ -123,6 +123,9 @@
     <string name="sync_conflict_app">Kopier app til backup</string>
     <string name="sync_conflict_folder">Kopier backup til app</string>
     <string name="sync_conflict_ignore">Hopp over alle konflikter</string>
+    <string name="sync_conflict_body_dropbox">%1$d turer finnes både i Dropbox og på denne telefonen.</string>
+    <string name="sync_conflict_app_dropbox">Kopier app til Dropbox</string>
+    <string name="sync_conflict_dropbox">Kopier Dropbox til app</string>
     <string name="cloud_uploaded_on">Sikkerhetskopiert %1$s</string>
     <string name="cloud_not_uploaded">Ikke sikkerhetskopiert ennå</string>
     <string name="cloud_restore_confirm_title">Gjenopprett innstillinger</string>
@@ -1574,4 +1577,12 @@
     <string name="dropbox_unlink">Koble fra</string>
     <string name="dropbox_linked_as">Tilkoblet: %1$s</string>
     <string name="dropbox_linked">Tilkoblet</string>
+    <string name="dropbox_sync_now">Synkroniser nå</string>
+    <string name="dropbox_last_sync">Siste synk: %1$s</string>
+    <string name="dropbox_never_synced">Aldri synkronisert</string>
+    <string name="dropbox_share_failed">Dropbox-deling mislyktes</string>
+    <string name="trip_action_share_dropbox">Del via Dropbox</string>
+    <string name="trip_action_share_dropbox_desc">Last opp til Dropbox-mappen din og del den offentlige lenken</string>
+    <string name="trip_action_inspect_online">Inspiser på nett</string>
+    <string name="trip_action_inspect_online_desc">Åpne turen i eucviewer-nettleserverktøyet</string>
 </resources>

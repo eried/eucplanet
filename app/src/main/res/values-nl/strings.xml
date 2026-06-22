@@ -475,6 +475,9 @@
     <string name="sync_conflict_app">App naar back-up kopiëren</string>
     <string name="sync_conflict_folder">Back-up naar app kopiëren</string>
     <string name="sync_conflict_ignore">Alle conflicten overslaan</string>
+    <string name="sync_conflict_body_dropbox">%1$d ritten staan zowel op Dropbox als op deze telefoon.</string>
+    <string name="sync_conflict_app_dropbox">App naar Dropbox kopiëren</string>
+    <string name="sync_conflict_dropbox">Dropbox naar app kopiëren</string>
     <string name="cloud_uploaded_on">Geback-upt op %1$s</string>
     <string name="cloud_not_uploaded">Nog geen back-up</string>
     <string name="cloud_restore_confirm_title">Instellingen terugzetten</string>
@@ -1689,5 +1692,13 @@
     <string name="dropbox_unlink">Ontkoppelen</string>
     <string name="dropbox_linked_as">Gekoppeld: %1$s</string>
     <string name="dropbox_linked">Gekoppeld</string>
+    <string name="dropbox_sync_now">Nu synchroniseren</string>
+    <string name="dropbox_last_sync">Laatste synchronisatie: %1$s</string>
+    <string name="dropbox_never_synced">Nog niet gesynchroniseerd</string>
+    <string name="dropbox_share_failed">Delen via Dropbox mislukt</string>
+    <string name="trip_action_share_dropbox">Delen via Dropbox</string>
+    <string name="trip_action_share_dropbox_desc">Upload naar je Dropbox-map en deel de openbare link</string>
+    <string name="trip_action_inspect_online">Online inspecteren</string>
+    <string name="trip_action_inspect_online_desc">Open de rit in de eucviewer-browsertool</string>
 </resources>
 

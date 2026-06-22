@@ -242,6 +242,7 @@ object SettingsJson {
         put("dropboxRefreshToken", s.dropboxRefreshToken)
         put("dropboxAccessTokenExpiresAt", s.dropboxAccessTokenExpiresAt)
         put("dropboxAccountLabel", s.dropboxAccountLabel)
+        put("dropboxLastSyncAt", s.dropboxLastSyncAt)
     }
 
     fun fromJson(j: JSONObject, base: AppSettings = AppSettings()): AppSettings = base.copy(
@@ -460,7 +461,8 @@ object SettingsJson {
         dropboxAccessToken = j.optString("dropboxAccessToken", base.dropboxAccessToken),
         dropboxRefreshToken = j.optString("dropboxRefreshToken", base.dropboxRefreshToken),
         dropboxAccessTokenExpiresAt = j.optLong("dropboxAccessTokenExpiresAt", base.dropboxAccessTokenExpiresAt),
-        dropboxAccountLabel = j.optString("dropboxAccountLabel", base.dropboxAccountLabel)
+        dropboxAccountLabel = j.optString("dropboxAccountLabel", base.dropboxAccountLabel),
+        dropboxLastSyncAt = j.optLong("dropboxLastSyncAt", base.dropboxLastSyncAt)
     )
 
     /** `optString` returns `""` for null and absent keys, which we cannot

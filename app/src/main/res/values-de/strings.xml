@@ -475,6 +475,9 @@
     <string name="sync_conflict_app">App ins Backup kopieren</string>
     <string name="sync_conflict_folder">Backup in App kopieren</string>
     <string name="sync_conflict_ignore">Alle Konflikte überspringen</string>
+    <string name="sync_conflict_body_dropbox">%1$d Touren liegen sowohl in Dropbox als auch auf diesem Telefon.</string>
+    <string name="sync_conflict_app_dropbox">App nach Dropbox kopieren</string>
+    <string name="sync_conflict_dropbox">Dropbox in App kopieren</string>
     <string name="cloud_uploaded_on">Gesichert am %1$s</string>
     <string name="cloud_not_uploaded">Noch nicht gesichert</string>
     <string name="cloud_restore_confirm_title">Einstellungen wiederherstellen</string>
@@ -1707,4 +1710,12 @@
     <string name="dropbox_unlink">Trennen</string>
     <string name="dropbox_linked_as">Verbunden: %1$s</string>
     <string name="dropbox_linked">Verbunden</string>
+    <string name="dropbox_sync_now">Jetzt synchronisieren</string>
+    <string name="dropbox_last_sync">Letzte Synchronisierung: %1$s</string>
+    <string name="dropbox_never_synced">Nie synchronisiert</string>
+    <string name="dropbox_share_failed">Dropbox-Freigabe fehlgeschlagen</string>
+    <string name="trip_action_share_dropbox">Über Dropbox teilen</string>
+    <string name="trip_action_share_dropbox_desc">In deinen Dropbox-Ordner hochladen und den öffentlichen Link teilen</string>
+    <string name="trip_action_inspect_online">Online prüfen</string>
+    <string name="trip_action_inspect_online_desc">Tour im eucviewer-Browsertool öffnen</string>
 </resources>

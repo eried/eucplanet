@@ -92,11 +92,15 @@ fun TripDetailScreen(
     val isLiveTrip by viewModel.isTripLiveRecording(trip).collectAsState(initial = false)
 
     if (showShareDialog) {
+        val dropboxLinked by viewModel.dropboxLinked.collectAsState()
         TripActionDialog(
             onShareFile = { viewModel.shareTrip(trip) },
             onViewOnline = { onViewOnline?.invoke(trip.id) },
             onReplay = { onReplayTrip?.invoke(trip.id) },
-            onDismiss = { showShareDialog = false }
+            onDismiss = { showShareDialog = false },
+            dropboxLinked = dropboxLinked,
+            onShareViaDropbox = { viewModel.shareViaDropbox(trip) },
+            onInspectOnline = { viewModel.inspectOnline(trip) },
         )
     }
 

@@ -475,6 +475,9 @@
     <string name="sync_conflict_app">Copier l\'appli vers la sauvegarde</string>
     <string name="sync_conflict_folder">Copier la sauvegarde vers l\'appli</string>
     <string name="sync_conflict_ignore">Ignorer tous les conflits</string>
+    <string name="sync_conflict_body_dropbox">%1$d trajets existent à la fois sur Dropbox et sur ce téléphone.</string>
+    <string name="sync_conflict_app_dropbox">Copier l\'app vers Dropbox</string>
+    <string name="sync_conflict_dropbox">Copier Dropbox vers l\'app</string>
     <string name="cloud_uploaded_on">Sauvegardé le %1$s</string>
     <string name="cloud_not_uploaded">Pas encore sauvegardé</string>
     <string name="cloud_restore_confirm_title">Restaurer les paramètres</string>
@@ -1695,4 +1698,12 @@
     <string name="dropbox_unlink">Délier</string>
     <string name="dropbox_linked_as">Lié : %1$s</string>
     <string name="dropbox_linked">Lié</string>
+    <string name="dropbox_sync_now">Synchroniser</string>
+    <string name="dropbox_last_sync">Dernière synchro : %1$s</string>
+    <string name="dropbox_never_synced">Jamais synchronisé</string>
+    <string name="dropbox_share_failed">Échec du partage Dropbox</string>
+    <string name="trip_action_share_dropbox">Partager via Dropbox</string>
+    <string name="trip_action_share_dropbox_desc">Envoie dans ton dossier Dropbox et partage le lien public</string>
+    <string name="trip_action_inspect_online">Inspecter en ligne</string>
+    <string name="trip_action_inspect_online_desc">Ouvre le trajet dans l\'outil eucviewer du navigateur</string>
 </resources>

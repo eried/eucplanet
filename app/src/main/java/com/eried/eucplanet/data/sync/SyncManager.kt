@@ -17,6 +17,7 @@ import com.eried.eucplanet.data.db.TripDao
 import com.eried.eucplanet.data.model.AlarmRule
 import com.eried.eucplanet.data.model.AppSettings
 import com.eried.eucplanet.data.model.TripRecord
+import com.eried.eucplanet.data.repository.DropboxRepository
 import com.eried.eucplanet.data.repository.SettingsRepository
 import com.eried.eucplanet.data.store.SettingsJson
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -53,7 +54,8 @@ class SyncManager @Inject constructor(
     @ApplicationContext private val context: Context,
     private val settingsRepository: SettingsRepository,
     private val tripDao: TripDao,
-    private val alarmDao: AlarmDao
+    private val alarmDao: AlarmDao,
+    private val dropboxRepository: DropboxRepository
 ) {
     companion object {
         private const val TAG = "SyncManager"
@@ -68,6 +70,7 @@ class SyncManager @Inject constructor(
         const val TRIPS_SUBFOLDER = "trips"
         const val UPLOAD_WORK_NAME = "trip_upload"
         const val EUCSTATS_UPLOAD_WORK_NAME = "eucstats_upload"
+        const val DROPBOX_SYNC_WORK_NAME = "dropbox_sync"
         const val KEY_ATTEMPT = "attempt"
 
         // Custom backoff curve, since WorkManager's native MAX_BACKOFF_MILLIS is
@@ -134,6 +137,12 @@ class SyncManager @Inject constructor(
     private val _syncConflictPrompt = MutableStateFlow<Int?>(null)
     val syncConflictPrompt: StateFlow<Int?> = _syncConflictPrompt.asStateFlow()
 
+    /** Which sync the conflict dialog is for. The same dialog handles both
+     *  the SAF folder sync and Dropbox sync; the only difference is the
+     *  button labels (FOLDER → "Backup", DROPBOX → "Dropbox"). */
+    private val _syncConflictKind = MutableStateFlow(SyncConflictKind.FOLDER)
+    val syncConflictKind: StateFlow<SyncConflictKind> = _syncConflictKind.asStateFlow()
+
     private val _syncResult = MutableStateFlow<SyncResult?>(null)
     val syncResult: StateFlow<SyncResult?> = _syncResult.asStateFlow()
     fun consumeSyncResult() { _syncResult.value = null }
@@ -183,6 +192,7 @@ class SyncManager @Inject constructor(
         if (conflictKeys.isNotEmpty()) {
             val deferred = CompletableDeferred<SyncChoice>()
             conflictChoice = deferred
+            _syncConflictKind.value = SyncConflictKind.FOLDER
             _syncConflictPrompt.value = conflictKeys.size
             choice = deferred.await()
             _syncConflictPrompt.value = null
@@ -711,6 +721,144 @@ class SyncManager @Inject constructor(
      *  state in lockstep. */
     fun cancelEucStatsUpload() {
         WorkManager.getInstance(context).cancelUniqueWork(EUCSTATS_UPLOAD_WORK_NAME)
+    }
+
+    /** Initial enqueue of the Dropbox sync worker. Retries reschedule
+     *  themselves via [scheduleDropboxSyncAttempt]. Caller should check
+     *  the linked state before calling — this is unconditional. */
+    fun enqueueDropboxSync() {
+        scheduleDropboxSyncAttempt(0)
+    }
+
+    /**
+     * Foreground "Sync all" for Dropbox. Mirrors [startSync] but talks to
+     * Dropbox: compare local trips dir against /trips/, prompt the rider
+     * on shared file names with the same conflict dialog the SAF sync uses,
+     * then upload / download to reconcile. Runs in the app-scoped coroutine
+     * so leaving Settings does NOT cancel a half-finished reconcile.
+     */
+    fun startDropboxSync() {
+        if (!_syncRunning.compareAndSet(false, true)) return
+        scope.launch {
+            try {
+                runDropboxSync()
+            } finally {
+                _syncProgress.value = null
+                _syncConflictPrompt.value = null
+                conflictChoice = null
+                _syncRunning.value = false
+            }
+        }
+    }
+
+    private suspend fun runDropboxSync() {
+        val settings = settingsRepository.get()
+        if (settings.dropboxAccessToken.isBlank()) {
+            _syncResult.value = SyncResult.NoFolder
+            return
+        }
+        val remote = dropboxRepository.listFolder("/trips")
+        if (remote == null) {
+            // Auth or network failed: same UX as "no folder" since the rider
+            // can't act on the sync until they re-link or reconnect.
+            _syncResult.value = SyncResult.NoFolder
+            return
+        }
+        val tripsDir = getTripsDir()
+        val localFiles = tripsDir.listFiles { f -> f.isFile && f.name.endsWith(".csv", ignoreCase = true) }
+            ?.toList().orEmpty()
+        val localByLower = localFiles.associateBy { it.name.lowercase() }
+        val remoteByLower = remote.keys.associateBy { it.lowercase() }
+
+        val conflictKeys = remoteByLower.keys intersect localByLower.keys
+        val remoteOnly = remoteByLower.keys - localByLower.keys
+        val localOnly = localByLower.keys - remoteByLower.keys
+
+        var choice = SyncChoice.IGNORE
+        if (conflictKeys.isNotEmpty()) {
+            val deferred = CompletableDeferred<SyncChoice>()
+            conflictChoice = deferred
+            _syncConflictKind.value = SyncConflictKind.DROPBOX
+            _syncConflictPrompt.value = conflictKeys.size
+            choice = deferred.await()
+            _syncConflictPrompt.value = null
+            conflictChoice = null
+            if (choice == SyncChoice.CANCEL) return
+        }
+
+        val toUpload = mutableListOf<java.io.File>()
+        val toDownload = mutableListOf<String>()
+        localOnly.forEach { key -> localByLower[key]?.let { toUpload += it } }
+        remoteOnly.forEach { key -> remoteByLower[key]?.let { toDownload += it } }
+        when (choice) {
+            SyncChoice.APP -> conflictKeys.forEach { key -> localByLower[key]?.let { toUpload += it } }
+            SyncChoice.FOLDER -> conflictKeys.forEach { key -> remoteByLower[key]?.let { toDownload += it } }
+            SyncChoice.IGNORE, SyncChoice.CANCEL -> {}
+        }
+
+        val total = toUpload.size + toDownload.size
+        if (total == 0) {
+            _syncResult.value = SyncResult.Finished(0)
+            return
+        }
+
+        var done = 0
+        _syncProgress.value = done to total
+
+        for (file in toUpload) {
+            dropboxRepository.uploadFile("/trips/${file.name}", file.readBytes())
+            done++
+            _syncProgress.value = done to total
+        }
+
+        for (name in toDownload) {
+            val bytes = dropboxRepository.downloadFile("/trips/$name")
+            if (bytes != null) {
+                val dest = File(tripsDir, name)
+                dest.outputStream().use { it.write(bytes) }
+                // Mirror the SAF path: if the file is not yet known to Room,
+                // insert a row so it shows up in the trips list.
+                val existing = tripDao.findByFileName(name)
+                if (existing == null) {
+                    val meta = parseCsvMeta(dest)
+                    tripDao.insert(TripRecord(
+                        startTime = meta.startTime,
+                        endTime = meta.endTime,
+                        fileName = name,
+                        distanceKm = meta.distanceKm,
+                        uploadStatus = 0,
+                    ))
+                }
+            }
+            done++
+            _syncProgress.value = done to total
+        }
+
+        settingsRepository.update {
+            it.copy(dropboxLastSyncAt = System.currentTimeMillis())
+        }
+        _syncResult.value = SyncResult.Finished(total)
+    }
+
+    fun scheduleDropboxSyncAttempt(attempt: Int) {
+        val constraints = Constraints.Builder()
+            .setRequiredNetworkType(NetworkType.CONNECTED)
+            .build()
+        val data = workDataOf(KEY_ATTEMPT to attempt)
+        val request = OneTimeWorkRequestBuilder<DropboxSyncWorker>()
+            .setConstraints(constraints)
+            .setInputData(data)
+            .setInitialDelay(delayForAttempt(attempt), TimeUnit.SECONDS)
+            .build()
+        WorkManager.getInstance(context).enqueueUniqueWork(
+            DROPBOX_SYNC_WORK_NAME,
+            ExistingWorkPolicy.REPLACE,
+            request
+        )
+    }
+
+    fun cancelDropboxSync() {
+        WorkManager.getInstance(context).cancelUniqueWork(DROPBOX_SYNC_WORK_NAME)
     }
 
     /** Clear pending / failed eucstats statuses for every trip. Used by the

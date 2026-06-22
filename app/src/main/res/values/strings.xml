@@ -495,8 +495,11 @@
     <string name="sync_finished">Synchronized %1$d trips</string>
     <string name="sync_conflict_title">Synchronization conflict</string>
     <string name="sync_conflict_body">%1$d trips are on both sides.</string>
+    <string name="sync_conflict_body_dropbox">%1$d trips exist on both Dropbox and this phone.</string>
     <string name="sync_conflict_app">Copy App to Backup</string>
+    <string name="sync_conflict_app_dropbox">Copy App to Dropbox</string>
     <string name="sync_conflict_folder">Copy Backup to App</string>
+    <string name="sync_conflict_dropbox">Copy Dropbox to App</string>
     <string name="sync_conflict_ignore">Skip all conflicts</string>
     <string name="cloud_uploaded_on">Backed up on %1$s</string>
     <string name="cloud_not_uploaded">Not backed up yet</string>
@@ -1480,6 +1483,14 @@
     <string name="dropbox_unlink">Unlink</string>
     <string name="dropbox_linked_as">Linked: %1$s</string>
     <string name="dropbox_linked">Linked</string>
+    <string name="dropbox_sync_now">Sync now</string>
+    <string name="dropbox_last_sync">Last sync: %1$s</string>
+    <string name="dropbox_never_synced">Never synced</string>
+    <string name="dropbox_share_failed">Dropbox share failed</string>
+    <string name="trip_action_share_dropbox">Share via Dropbox</string>
+    <string name="trip_action_share_dropbox_desc">Upload to your Dropbox folder and share the public link</string>
+    <string name="trip_action_inspect_online">Inspect online</string>
+    <string name="trip_action_inspect_online_desc">Open the trip in the eucviewer browser tool</string>
     <string name="nav_tap_on_self">In the Stops list, long-press a stop to set it to your location</string>
     <string name="nav_start_short">Start navigation</string>
     <string name="nav_stop_short">Stop navigation</string>

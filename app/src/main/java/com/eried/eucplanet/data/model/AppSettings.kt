@@ -689,7 +689,11 @@ data class AppSettings(
     val dropboxAccessTokenExpiresAt: Long = 0L,
     /** Dropbox account display string (e.g. email) shown in Settings while
      *  linked. Cleared on unlink. Purely cosmetic. */
-    val dropboxAccountLabel: String = ""
+    val dropboxAccountLabel: String = "",
+    /** Wall-clock ms of the last successful Dropbox sync. Used by the
+     *  Sync all UI to label "Last synced 5 min ago" and by the worker to
+     *  decide whether the settings.json on Dropbox is current. */
+    val dropboxLastSyncAt: Long = 0L
 )
 
 // FlicAction enum removed (2026-05). Replaced by

@@ -6564,10 +6564,15 @@ private fun CloudTab(
     }
 
     if (syncConflict != null) {
+        val conflictKind by viewModel.syncConflictKind.collectAsState()
+        val isDropbox = conflictKind == com.eried.eucplanet.data.sync.SyncConflictKind.DROPBOX
+        val bodyRes = if (isDropbox) R.string.sync_conflict_body_dropbox else R.string.sync_conflict_body
+        val pullRes = if (isDropbox) R.string.sync_conflict_dropbox else R.string.sync_conflict_folder
+        val pushRes = if (isDropbox) R.string.sync_conflict_app_dropbox else R.string.sync_conflict_app
         AlertDialog(
             onDismissRequest = { viewModel.cancelSyncConflict() },
             title = { Text(stringResource(R.string.sync_conflict_title)) },
-            text = { Text(stringResource(R.string.sync_conflict_body, syncConflict!!)) },
+            text = { Text(stringResource(bodyRes, syncConflict!!)) },
             confirmButton = {
                 Column(
                     horizontalAlignment = Alignment.End,
@@ -6577,11 +6582,11 @@ private fun CloudTab(
                     Button(
                         onClick = { viewModel.resolveSyncConflict(SyncChoice.FOLDER) },
                         modifier = Modifier.fillMaxWidth()
-                    ) { Text(stringResource(R.string.sync_conflict_folder)) }
+                    ) { Text(stringResource(pullRes)) }
                     Button(
                         onClick = { viewModel.resolveSyncConflict(SyncChoice.APP) },
                         modifier = Modifier.fillMaxWidth()
-                    ) { Text(stringResource(R.string.sync_conflict_app)) }
+                    ) { Text(stringResource(pushRes)) }
                     Button(
                         onClick = { viewModel.resolveSyncConflict(SyncChoice.IGNORE) },
                         modifier = Modifier.fillMaxWidth()
@@ -6716,22 +6721,41 @@ private fun CloudTab(
                 modifier = Modifier.padding(bottom = 4.dp),
             )
             if (dbxLinked) {
+                val lastSyncAt by viewModel.dropboxLastSyncAt.collectAsState()
                 Text(
                     if (dbxAccount.isNotBlank())
                         stringResource(R.string.dropbox_linked_as, dbxAccount)
                     else stringResource(R.string.dropbox_linked),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.appColors.textSecondary,
+                )
+                val lastSyncText = if (lastSyncAt > 0L) {
+                    val fmt = java.text.SimpleDateFormat("dd MMM yyyy HH:mm", java.util.Locale.getDefault())
+                    stringResource(R.string.dropbox_last_sync, fmt.format(java.util.Date(lastSyncAt)))
+                } else stringResource(R.string.dropbox_never_synced)
+                Text(
+                    lastSyncText,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.appColors.textSecondary,
                     modifier = Modifier.padding(bottom = 4.dp),
                 )
-                Button(
-                    onClick = { viewModel.unlinkDropbox() },
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.appColors.statusDanger,
-                        contentColor   = MaterialTheme.appColors.onPrimary,
-                    ),
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
                     modifier = Modifier.fillMaxWidth(),
-                ) { Text(stringResource(R.string.dropbox_unlink)) }
+                ) {
+                    Button(
+                        onClick = { viewModel.syncDropboxNow() },
+                        modifier = Modifier.weight(1f),
+                    ) { Text(stringResource(R.string.dropbox_sync_now)) }
+                    Button(
+                        onClick = { viewModel.unlinkDropbox() },
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.appColors.statusDanger,
+                            contentColor   = MaterialTheme.appColors.onPrimary,
+                        ),
+                        modifier = Modifier.weight(1f),
+                    ) { Text(stringResource(R.string.dropbox_unlink)) }
+                }
             } else {
                 Button(
                     onClick = { viewModel.linkDropbox(context) },

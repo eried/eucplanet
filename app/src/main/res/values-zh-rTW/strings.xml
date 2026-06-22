@@ -475,6 +475,9 @@
     <string name="sync_conflict_app">以應用程式覆寫備份</string>
     <string name="sync_conflict_folder">以備份覆寫應用程式</string>
     <string name="sync_conflict_ignore">略過所有衝突</string>
+    <string name="sync_conflict_body_dropbox">有 %1$d 個行程同時在 Dropbox 和本機上。</string>
+    <string name="sync_conflict_app_dropbox">將應用程式複製到 Dropbox</string>
+    <string name="sync_conflict_dropbox">將 Dropbox 複製到應用程式</string>
     <string name="cloud_uploaded_on">於 %1$s 備份</string>
     <string name="cloud_not_uploaded">尚未備份</string>
     <string name="cloud_restore_confirm_title">還原設定</string>
@@ -1688,6 +1691,14 @@
     <string name="dropbox_unlink">解除連結</string>
     <string name="dropbox_linked_as">已連結：%1$s</string>
     <string name="dropbox_linked">已連結</string>
+    <string name="dropbox_sync_now">立即同步</string>
+    <string name="dropbox_last_sync">上次同步：%1$s</string>
+    <string name="dropbox_never_synced">從未同步</string>
+    <string name="dropbox_share_failed">Dropbox 分享失敗</string>
+    <string name="trip_action_share_dropbox">透過 Dropbox 分享</string>
+    <string name="trip_action_share_dropbox_desc">上傳至你的 Dropbox 資料夾並分享公開連結</string>
+    <string name="trip_action_inspect_online">線上檢視</string>
+    <string name="trip_action_inspect_online_desc">在瀏覽器的 eucviewer 工具中開啟行程</string>
 </resources>
 
 

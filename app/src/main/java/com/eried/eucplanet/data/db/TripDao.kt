@@ -39,6 +39,9 @@ interface TripDao {
     @Query("SELECT * FROM trips WHERE id = :id")
     suspend fun getById(id: Long): TripRecord?
 
+    @Query("SELECT * FROM trips WHERE fileName = :name LIMIT 1")
+    suspend fun findByFileName(name: String): TripRecord?
+
     /**
      * Trips eligible for an eucstats upload, newest first. Three buckets:
      *   1 = previously enqueued, never finished (could be a worker that got

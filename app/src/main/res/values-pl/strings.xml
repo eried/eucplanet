@@ -475,6 +475,9 @@
     <string name="sync_conflict_app">Skopiuj z aplikacji do kopii</string>
     <string name="sync_conflict_folder">Skopiuj z kopii do aplikacji</string>
     <string name="sync_conflict_ignore">Pomiń wszystkie konflikty</string>
+    <string name="sync_conflict_body_dropbox">%1$d przejazdów znajduje się jednocześnie w Dropbox i na tym telefonie.</string>
+    <string name="sync_conflict_app_dropbox">Kopiuj aplikację do Dropbox</string>
+    <string name="sync_conflict_dropbox">Kopiuj Dropbox do aplikacji</string>
     <string name="cloud_uploaded_on">Kopia z %1$s</string>
     <string name="cloud_not_uploaded">Brak kopii zapasowej</string>
     <string name="cloud_restore_confirm_title">Przywróć ustawienia</string>
@@ -1687,4 +1690,12 @@
     <string name="dropbox_unlink">Rozłącz</string>
     <string name="dropbox_linked_as">Połączono: %1$s</string>
     <string name="dropbox_linked">Połączono</string>
+    <string name="dropbox_sync_now">Synchronizuj teraz</string>
+    <string name="dropbox_last_sync">Ostatnia synchronizacja: %1$s</string>
+    <string name="dropbox_never_synced">Nigdy nie zsynchronizowano</string>
+    <string name="dropbox_share_failed">Nie udało się udostępnić przez Dropbox</string>
+    <string name="trip_action_share_dropbox">Udostępnij przez Dropbox</string>
+    <string name="trip_action_share_dropbox_desc">Wyślij do swojego folderu Dropbox i udostępnij publiczny link</string>
+    <string name="trip_action_inspect_online">Sprawdź online</string>
+    <string name="trip_action_inspect_online_desc">Otwórz przejazd w narzędziu eucviewer w przeglądarce</string>
 </resources>

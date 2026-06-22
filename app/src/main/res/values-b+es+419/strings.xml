@@ -475,6 +475,9 @@
     <string name="sync_conflict_app">Copiar app al respaldo</string>
     <string name="sync_conflict_folder">Copiar respaldo a la app</string>
     <string name="sync_conflict_ignore">Omitir todos los conflictos</string>
+    <string name="sync_conflict_body_dropbox">%1$d viajes están en Dropbox y en este teléfono.</string>
+    <string name="sync_conflict_app_dropbox">Copiar app a Dropbox</string>
+    <string name="sync_conflict_dropbox">Copiar Dropbox a app</string>
     <string name="cloud_uploaded_on">Respaldado el %1$s</string>
     <string name="cloud_not_uploaded">Sin respaldar todavía</string>
     <string name="cloud_restore_confirm_title">Restaurar configuración</string>
@@ -1708,5 +1711,13 @@
     <string name="dropbox_unlink">Desvincular</string>
     <string name="dropbox_linked_as">Vinculado: %1$s</string>
     <string name="dropbox_linked">Vinculado</string>
+    <string name="dropbox_sync_now">Sincronizar ahora</string>
+    <string name="dropbox_last_sync">Última sincronización: %1$s</string>
+    <string name="dropbox_never_synced">Nunca sincronizado</string>
+    <string name="dropbox_share_failed">Error al compartir con Dropbox</string>
+    <string name="trip_action_share_dropbox">Compartir vía Dropbox</string>
+    <string name="trip_action_share_dropbox_desc">Subí a tu carpeta de Dropbox y compartí el enlace público</string>
+    <string name="trip_action_inspect_online">Inspeccionar en línea</string>
+    <string name="trip_action_inspect_online_desc">Abrí el viaje en la herramienta eucviewer del navegador</string>
 </resources>
 

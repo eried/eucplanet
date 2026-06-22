@@ -475,6 +475,9 @@
     <string name="sync_conflict_app">Uygulamayı Yedeğe Kopyala</string>
     <string name="sync_conflict_folder">Yedeği Uygulamaya Kopyala</string>
     <string name="sync_conflict_ignore">Tüm çakışmaları atla</string>
+    <string name="sync_conflict_body_dropbox">%1$d yolculuk hem Dropbox\'ta hem de bu telefonda mevcut.</string>
+    <string name="sync_conflict_app_dropbox">Uygulamayı Dropbox\'a kopyala</string>
+    <string name="sync_conflict_dropbox">Dropbox\'ı uygulamaya kopyala</string>
     <string name="cloud_uploaded_on">%1$s tarihinde yedeklendi</string>
     <string name="cloud_not_uploaded">Henüz yedeklenmedi</string>
     <string name="cloud_restore_confirm_title">Ayarları geri yükle</string>
@@ -1688,6 +1691,14 @@
     <string name="dropbox_unlink">Bağlantıyı kes</string>
     <string name="dropbox_linked_as">Bağlı: %1$s</string>
     <string name="dropbox_linked">Bağlı</string>
+    <string name="dropbox_sync_now">Şimdi senkronize et</string>
+    <string name="dropbox_last_sync">Son senkron: %1$s</string>
+    <string name="dropbox_never_synced">Hiç senkronize edilmedi</string>
+    <string name="dropbox_share_failed">Dropbox paylaşımı başarısız</string>
+    <string name="trip_action_share_dropbox">Dropbox ile paylaş</string>
+    <string name="trip_action_share_dropbox_desc">Dropbox klasörüne yükle ve herkese açık bağlantıyı paylaş</string>
+    <string name="trip_action_inspect_online">Çevrimiçi incele</string>
+    <string name="trip_action_inspect_online_desc">Yolculuğu eucviewer tarayıcı aracında aç</string>
 </resources>
 
 

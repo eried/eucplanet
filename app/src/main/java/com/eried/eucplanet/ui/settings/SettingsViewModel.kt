@@ -915,6 +915,8 @@ class SettingsViewModel @Inject constructor(
     val syncRunning: StateFlow<Boolean> = syncManager.syncRunning
     val syncProgress: StateFlow<Pair<Int, Int>?> = syncManager.syncProgress
     val syncConflictPrompt: StateFlow<Int?> = syncManager.syncConflictPrompt
+    val syncConflictKind: StateFlow<com.eried.eucplanet.data.sync.SyncConflictKind> =
+        syncManager.syncConflictKind
 
     init {
         viewModelScope.launch {
@@ -2024,8 +2026,23 @@ class SettingsViewModel @Inject constructor(
     }
 
     fun unlinkDropbox() {
-        viewModelScope.launch { dropboxRepository.unlink() }
+        viewModelScope.launch {
+            syncManager.cancelDropboxSync()
+            dropboxRepository.unlink()
+        }
     }
+
+    /** Manual "Sync all" — runs the foreground bidirectional reconcile
+     *  with the same conflict dialog the SAF folder sync uses. Distinct
+     *  from the background DropboxSyncWorker that fires on trip-end /
+     *  settings-save; that one is upload-only and skips the prompt. */
+    fun syncDropboxNow() {
+        syncManager.startDropboxSync()
+    }
+
+    val dropboxLastSyncAt: StateFlow<Long> = settingsRepository.settings
+        .map { it.dropboxLastSyncAt }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000L), 0L)
 
     fun unlinkOnline() {
         viewModelScope.launch {

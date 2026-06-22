@@ -475,6 +475,9 @@
     <string name="sync_conflict_app">앱 → 백업으로 복사</string>
     <string name="sync_conflict_folder">백업 → 앱으로 복사</string>
     <string name="sync_conflict_ignore">충돌 전체 건너뛰기</string>
+    <string name="sync_conflict_body_dropbox">%1$d 개의 주행이 Dropbox와 이 휴대전화 모두에 있습니다.</string>
+    <string name="sync_conflict_app_dropbox">앱을 Dropbox로 복사</string>
+    <string name="sync_conflict_dropbox">Dropbox를 앱으로 복사</string>
     <string name="cloud_uploaded_on">%1$s에 백업됨</string>
     <string name="cloud_not_uploaded">아직 백업하지 않았습니다</string>
     <string name="cloud_restore_confirm_title">설정 복원</string>
@@ -1688,4 +1691,12 @@
     <string name="dropbox_unlink">연결 해제</string>
     <string name="dropbox_linked_as">연결됨: %1$s</string>
     <string name="dropbox_linked">연결됨</string>
+    <string name="dropbox_sync_now">지금 동기화</string>
+    <string name="dropbox_last_sync">마지막 동기화: %1$s</string>
+    <string name="dropbox_never_synced">동기화한 적 없음</string>
+    <string name="dropbox_share_failed">Dropbox 공유 실패</string>
+    <string name="trip_action_share_dropbox">Dropbox로 공유</string>
+    <string name="trip_action_share_dropbox_desc">Dropbox 폴더에 업로드하고 공개 링크를 공유합니다</string>
+    <string name="trip_action_inspect_online">온라인으로 보기</string>
+    <string name="trip_action_inspect_online_desc">브라우저의 eucviewer 도구에서 주행을 엽니다</string>
 </resources>

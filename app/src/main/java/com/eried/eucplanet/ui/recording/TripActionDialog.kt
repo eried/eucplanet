@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.CloudUpload
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Public
 import androidx.compose.material.icons.filled.Share
@@ -33,7 +34,10 @@ fun TripActionDialog(
     onShareFile: () -> Unit,
     onViewOnline: () -> Unit,
     onReplay: () -> Unit,
-    onDismiss: () -> Unit
+    onDismiss: () -> Unit,
+    dropboxLinked: Boolean = false,
+    onShareViaDropbox: () -> Unit = {},
+    onInspectOnline: () -> Unit = {},
 ) {
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -44,12 +48,23 @@ fun TripActionDialog(
                     stringResource(R.string.trip_action_share_file),
                     stringResource(R.string.trip_action_share_file_desc)
                 ) { onDismiss(); onShareFile() }
-                // View Online hidden for now -- the embedded WebView
-                // can't render the viewer's backdrop-filter panels and
-                // we ran into a stack of edge cases (panel zero-height,
-                // header-overlap, scaling) we don't have time to wrap
-                // up. Re-enable once the in-app viewer is solid or
-                // we've migrated to Chrome Custom Tabs.
+                if (dropboxLinked) {
+                    // Two extras when Dropbox is linked: upload the trip
+                    // there and share the public link, or hand the same
+                    // link to the eucviewer for in-browser inspection.
+                    // Both reuse the upload step, so the cost is one
+                    // round-trip to Dropbox.
+                    TripActionRow(
+                        Icons.Default.CloudUpload,
+                        stringResource(R.string.trip_action_share_dropbox),
+                        stringResource(R.string.trip_action_share_dropbox_desc)
+                    ) { onDismiss(); onShareViaDropbox() }
+                    TripActionRow(
+                        Icons.Default.Public,
+                        stringResource(R.string.trip_action_inspect_online),
+                        stringResource(R.string.trip_action_inspect_online_desc)
+                    ) { onDismiss(); onInspectOnline() }
+                }
                 TripActionRow(
                     Icons.Default.History,
                     stringResource(R.string.trip_action_replay),

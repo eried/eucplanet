@@ -73,6 +73,7 @@ class RecordingViewModel @Inject constructor(
     private val settingsRepository: SettingsRepository,
     private val syncManager: com.eried.eucplanet.data.sync.SyncManager,
     private val eucStatsRepository: com.eried.eucplanet.data.eucstats.EucStatsRepository,
+    private val dropboxRepository: com.eried.eucplanet.data.repository.DropboxRepository,
     @ApplicationContext private val context: Context
 ) : ViewModel() {
 
@@ -243,6 +244,77 @@ class RecordingViewModel @Inject constructor(
             }
             context.startActivity(Intent.createChooser(intent, context.getString(R.string.share_trip_chooser)).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
         }
+    }
+
+    /** True while a Dropbox account is linked — toggles the two extra
+     *  options in the trip Share dialog. */
+    val dropboxLinked: kotlinx.coroutines.flow.StateFlow<Boolean> =
+        dropboxRepository.linked.stateIn(
+            viewModelScope,
+            kotlinx.coroutines.flow.SharingStarted.WhileSubscribed(5_000L),
+            false
+        )
+
+    /**
+     * Upload [trip] to Dropbox if it's not already there, create (or
+     * fetch) a public shared link, then fire ACTION_SEND with the link
+     * as plain-text. The rider's contact app picks how to send it.
+     */
+    fun shareViaDropbox(trip: TripRecord) {
+        viewModelScope.launch {
+            val link = ensureDropboxLink(trip) ?: run {
+                android.widget.Toast.makeText(
+                    context, R.string.dropbox_share_failed, android.widget.Toast.LENGTH_SHORT
+                ).show()
+                return@launch
+            }
+            val intent = Intent(Intent.ACTION_SEND).apply {
+                type = "text/plain"
+                putExtra(Intent.EXTRA_TEXT, link)
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            }
+            context.startActivity(Intent.createChooser(
+                intent, context.getString(R.string.share_trip_chooser)
+            ).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
+        }
+    }
+
+    /**
+     * Same upload-and-share-link path as [shareViaDropbox] but instead
+     * of handing the link to a share sheet we hand it to the eucviewer
+     * page via a `#trip=<url>` deep link. The viewer fetches the file
+     * (Dropbox shared links resolve to the raw CSV with ?dl=1) and
+     * renders it.
+     */
+    fun inspectOnline(trip: TripRecord) {
+        viewModelScope.launch {
+            val link = ensureDropboxLink(trip) ?: run {
+                android.widget.Toast.makeText(
+                    context, R.string.dropbox_share_failed, android.widget.Toast.LENGTH_SHORT
+                ).show()
+                return@launch
+            }
+            // Force the direct-download variant so eucviewer fetches the
+            // raw CSV bytes instead of Dropbox's preview-page HTML.
+            val rawLink = link.replace("?dl=0", "?dl=1")
+                .let { if (it.contains("?dl=")) it else "$it?dl=1" }
+            val viewerUrl = "https://eucviewer.ried.no/#trip=" +
+                java.net.URLEncoder.encode(rawLink, "UTF-8")
+            val intent = Intent(Intent.ACTION_VIEW, android.net.Uri.parse(viewerUrl))
+                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            context.startActivity(intent)
+        }
+    }
+
+    private suspend fun ensureDropboxLink(trip: TripRecord): String? {
+        val file = tripRepository.getTripFile(trip)
+        if (!file.exists()) return null
+        val remote = "/trips/${file.name}"
+        // Upload first (idempotent; Dropbox dedupes content by hash so a
+        // repeat call returns instantly). Then ask for the shared link.
+        val ok = dropboxRepository.uploadFile(remote, file.readBytes())
+        if (!ok) return null
+        return dropboxRepository.createSharedLink(remote)
     }
 
     fun exportAllAsZip() {

@@ -475,6 +475,9 @@
     <string name="sync_conflict_app">Из приложения в копию</string>
     <string name="sync_conflict_folder">Из копии в приложение</string>
     <string name="sync_conflict_ignore">Пропустить все конфликты</string>
+    <string name="sync_conflict_body_dropbox">%1$d поездок есть и в Dropbox, и на этом телефоне.</string>
+    <string name="sync_conflict_app_dropbox">Скопировать приложение в Dropbox</string>
+    <string name="sync_conflict_dropbox">Скопировать Dropbox в приложение</string>
     <string name="cloud_uploaded_on">Сохранено %1$s</string>
     <string name="cloud_not_uploaded">Пока не сохранено</string>
     <string name="cloud_restore_confirm_title">Восстановить настройки</string>
@@ -1689,5 +1692,13 @@
     <string name="dropbox_unlink">Отключить</string>
     <string name="dropbox_linked_as">Подключено: %1$s</string>
     <string name="dropbox_linked">Подключено</string>
+    <string name="dropbox_sync_now">Синхронизировать</string>
+    <string name="dropbox_last_sync">Последняя синхронизация: %1$s</string>
+    <string name="dropbox_never_synced">Не синхронизировано</string>
+    <string name="dropbox_share_failed">Не удалось поделиться через Dropbox</string>
+    <string name="trip_action_share_dropbox">Поделиться через Dropbox</string>
+    <string name="trip_action_share_dropbox_desc">Загрузить в папку Dropbox и поделиться публичной ссылкой</string>
+    <string name="trip_action_inspect_online">Открыть онлайн</string>
+    <string name="trip_action_inspect_online_desc">Открыть поездку в браузерном инструменте eucviewer</string>
 </resources>
 
