@@ -1607,7 +1607,7 @@
     <string name="nav_setting_open_builder">Open route builder</string>
     <string name="nav_setting_params">Navigation settings</string>
     <string name="nav_setting_advanced_map">Advanced map features</string>
-    <string name="nav_setting_advanced_map_desc">Show chargers and places along the route. Also unlocks their source fields below. Off keeps the map to just the route and stops</string>
+    <string name="nav_setting_advanced_map_desc">Show chargers and places along the route</string>
     <string name="nav_setting_full_path">Always solve the full path</string>
     <string name="nav_setting_full_path_desc">Off solves only the next stop and shows the rest as a dashed preview</string>
     <string name="nav_setting_avoid">Avoid</string>
@@ -1622,11 +1622,12 @@
     <string name="nav_pois_failed">Couldn\'t load places. Check your connection</string>
     <string name="nav_pois_none">Nothing found near this route</string>
     <string name="nav_pois_need_route">Add a stop first to find places along the way</string>
+    <string name="nav_pois_places_hint">Tip: hold this button to choose which places to show</string>
     <string name="nav_poi_charger">Charging station</string>
-    <string name="nav_poi_store">Store / stop</string>
+    <string name="nav_poi_store">Shops</string>
     <string name="nav_poi_food">Food &amp; drink</string>
-    <string name="nav_poi_rest">Rest stop</string>
-    <string name="nav_poi_sights">Attraction</string>
+    <string name="nav_poi_rest">Toilets &amp; water</string>
+    <string name="nav_poi_sights">Attractions</string>
     <string name="nav_poi_cuisine">Cuisine</string>
     <string name="nav_poi_type">Type</string>
     <string name="nav_poi_add_stop">Add as stop</string>

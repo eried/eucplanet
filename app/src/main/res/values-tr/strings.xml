@@ -1702,6 +1702,59 @@
     <string name="trip_action_copy_link">eucviewer bağlantısını kopyala</string>
     <string name="trip_action_copy_link_desc">Paylaşılabilir eucviewer.ried.no bağlantısını panoya kopyalar</string>
     <string name="trip_action_dropbox_disabled">Etkinleştirmek için ayarlardan Dropbox\'ı bağla</string>
+
+    <!-- Navigation: OCM (Open Charge Map) and POIs -->
+    <string name="nav_ocm_attrib">Yorumlar &amp; fotoğraflar Open Charge Map ile (CC BY)</string>
+    <string name="nav_ocm_connectors">Konnektörler</string>
+    <string name="nav_ocm_cost">Ücret</string>
+    <string name="nav_ocm_loading">Topluluk verileri yükleniyor…</string>
+    <string name="nav_ocm_open">OCM\'de aç</string>
+    <string name="nav_ocm_photos">Fotoğraflar (%1$d)</string>
+    <string name="nav_ocm_points">Şarj noktaları</string>
+    <string name="nav_ocm_status">Durum</string>
+    <string name="nav_ocm_title">Open Charge Map</string>
+    <string name="nav_poi_access">Erişim</string>
+    <string name="nav_poi_add_stop">Durak olarak ekle</string>
+    <string name="nav_poi_capacity">Kapasite</string>
+    <string name="nav_poi_charger">Şarj istasyonu</string>
+    <string name="nav_poi_cuisine">Mutfak</string>
+    <string name="nav_poi_distance">Rotadan</string>
+    <string name="nav_poi_fee">Ücret</string>
+    <string name="nav_poi_food">Yiyecek &amp; içecek</string>
+    <string name="nav_poi_from_route">Rotadan %1$s</string>
+    <string name="nav_poi_fuels">Yakıtlar</string>
+    <string name="nav_poi_hours">Saatler</string>
+    <string name="nav_poi_network">Ağ</string>
+    <string name="nav_poi_operator">İşletmeci</string>
+    <string name="nav_poi_osm">Çevrimiçi aç</string>
+    <string name="nav_poi_phone">Telefon</string>
+    <string name="nav_poi_rest">Tuvaletler &amp; su</string>
+    <string name="nav_poi_sights">Gezilecek yerler</string>
+    <string name="nav_poi_sockets">Prizler</string>
+    <string name="nav_poi_source">Veriler OpenStreetMap\'ten</string>
+    <string name="nav_poi_store">Mağazalar</string>
+    <string name="nav_poi_type">Tür</string>
+    <string name="nav_poi_website">Web sitesi</string>
+    <string name="nav_pois_failed">Yerler yüklenemedi. Bağlantınızı kontrol edin</string>
+    <string name="nav_pois_loading">Yerler yükleniyor…</string>
+    <string name="nav_pois_need_route">Yol üzerindeki yerleri bulmak için önce bir durak ekleyin</string>
+    <string name="nav_pois_none">Bu rotanın yakınında bir şey bulunamadı</string>
+    <string name="nav_pois_places_hint">İpucu: hangi yerlerin gösterileceğini seçmek için bu düğmeyi basılı tutun</string>
+    <string name="nav_setting_advanced_map">Gelişmiş harita özellikleri</string>
+    <string name="nav_setting_advanced_map_desc">Rota boyunca şarj istasyonlarını ve yerleri göster</string>
+    <string name="nav_setting_avoid">Kaçın</string>
+    <string name="nav_setting_avoid_ferries">Feribotlardan kaçın</string>
+    <string name="nav_setting_avoid_highways">Otoyollardan kaçın</string>
+    <string name="nav_setting_avoid_hint">Tümü varsayılan olarak kapalıdır. Kaçınmalar farklı bir rotalama servisi kullanır ve yalnızca seyahat modunun desteklediği yerlerde geçerlidir</string>
+    <string name="nav_setting_avoid_tolls">Paralı yollardan kaçın</string>
+    <string name="nav_setting_avoid_unpaved">Asfaltsız yollardan kaçın</string>
+    <string name="nav_setting_ocm_key">Open Charge Map API anahtarı</string>
+    <string name="nav_setting_ocm_key_hint">İsteğe bağlı. Şarj istasyonu kartına yorumlar, fotoğraflar ve konnektör ayrıntıları ekler. Ücretsiz bir anahtar için kaydolun:</string>
+    <string name="nav_setting_ocm_key_link">openchargemap.org</string>
+    <string name="nav_setting_ocm_subtitle">Şarj topluluğu (Open Charge Map)</string>
+    <string name="nav_setting_overpass_url">Şarj istasyonları &amp; yerler URL\'si (Overpass)</string>
+    <string name="nav_show_chargers">Şarj istasyonlarını göster</string>
+    <string name="nav_show_places">Yerleri göster (mağazalar, yiyecek, gezilecek yerler)</string>
 </resources>
 
 

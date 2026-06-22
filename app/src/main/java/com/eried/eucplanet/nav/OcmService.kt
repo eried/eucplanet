@@ -70,6 +70,32 @@ class OcmService @Inject constructor() {
             return parsePoi(arr.optJSONObject(0) ?: return null)
         }
 
+        /**
+         * Parses an OCM `/poi` (compact) array into lightweight charger markers:
+         * just id / coordinates / name. The flyout fetches full detail on tap.
+         */
+        fun parseChargerMarkers(body: String): List<PointOfInterest> {
+            val arr = JSONArray(body)
+            val out = ArrayList<PointOfInterest>(arr.length())
+            for (i in 0 until arr.length()) {
+                val o = arr.optJSONObject(i) ?: continue
+                val addr = o.optJSONObject("AddressInfo") ?: continue
+                val lat = addr.optDouble("Latitude", Double.NaN)
+                val lng = addr.optDouble("Longitude", Double.NaN)
+                if (lat.isNaN() || lng.isNaN()) continue
+                out.add(
+                    PointOfInterest(
+                        id = o.optLong("ID"),
+                        lat = lat,
+                        lng = lng,
+                        kind = PoiKind.CHARGER,
+                        name = addr.optString("Title"),
+                    )
+                )
+            }
+            return out
+        }
+
         fun parsePoi(o: JSONObject): OcmCharger? {
             val id = o.optLong("ID", -1L)
             if (id < 0) return null
@@ -163,6 +189,33 @@ class OcmService @Inject constructor() {
             parseFirst(body)
         } catch (e: Exception) {
             Log.w(TAG, "nearestCharger failed: ${e.message}")
+            null
+        }
+    }
+
+    /**
+     * Charger markers within [bbox] for the on-map layer. OCM is a purpose-built
+     * EV API and far faster than Overpass for this (a compact bbox query returns
+     * in well under a second), so it's used for the charger layer whenever a key
+     * is set. Returns null on a blank key or any failure.
+     */
+    suspend fun chargersInBox(
+        bbox: BBox,
+        apiKey: String,
+        maxResults: Int = 500,
+    ): List<PointOfInterest>? = withContext(Dispatchers.IO) {
+        if (apiKey.isBlank()) return@withContext null
+        try {
+            val box = "(${bbox.minLat},${bbox.minLng}),(${bbox.maxLat},${bbox.maxLng})"
+            val url = ENDPOINT +
+                "?output=json&compact=true&verbose=false&maxresults=$maxResults" +
+                "&boundingbox=${enc(box)}&key=${enc(apiKey)}"
+            val body = httpGet(url) ?: return@withContext null
+            val list = parseChargerMarkers(body)
+            Log.i(TAG, "chargersInBox: ${list.size} chargers")
+            list
+        } catch (e: Exception) {
+            Log.w(TAG, "chargersInBox failed: ${e.message}")
             null
         }
     }

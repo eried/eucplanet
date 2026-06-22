@@ -1702,6 +1702,59 @@
     <string name="trip_action_copy_link">eucviewer のリンクをコピー</string>
     <string name="trip_action_copy_link_desc">共有用 eucviewer.ried.no リンクをクリップボードにコピー</string>
     <string name="trip_action_dropbox_disabled">設定で Dropbox を連携すると有効になります</string>
+
+    <!-- Navigator: Open Charge Map &amp; POI -->
+    <string name="nav_ocm_attrib">レビューと写真は Open Charge Map より（CC BY）</string>
+    <string name="nav_ocm_connectors">コネクター</string>
+    <string name="nav_ocm_cost">料金</string>
+    <string name="nav_ocm_loading">コミュニティデータを読み込み中…</string>
+    <string name="nav_ocm_open">OCM で開く</string>
+    <string name="nav_ocm_photos">写真（%1$d）</string>
+    <string name="nav_ocm_points">充電ポイント</string>
+    <string name="nav_ocm_status">ステータス</string>
+    <string name="nav_ocm_title">Open Charge Map</string>
+    <string name="nav_poi_access">利用条件</string>
+    <string name="nav_poi_add_stop">経由地として追加</string>
+    <string name="nav_poi_capacity">収容台数</string>
+    <string name="nav_poi_charger">充電ステーション</string>
+    <string name="nav_poi_cuisine">料理</string>
+    <string name="nav_poi_distance">ルートから</string>
+    <string name="nav_poi_fee">料金</string>
+    <string name="nav_poi_food">飲食</string>
+    <string name="nav_poi_from_route">ルートから %1$s</string>
+    <string name="nav_poi_fuels">燃料</string>
+    <string name="nav_poi_hours">営業時間</string>
+    <string name="nav_poi_network">ネットワーク</string>
+    <string name="nav_poi_operator">運営者</string>
+    <string name="nav_poi_osm">オンラインで開く</string>
+    <string name="nav_poi_phone">電話</string>
+    <string name="nav_poi_rest">トイレと水</string>
+    <string name="nav_poi_sights">観光スポット</string>
+    <string name="nav_poi_sockets">ソケット</string>
+    <string name="nav_poi_source">データは OpenStreetMap より</string>
+    <string name="nav_poi_store">店舗</string>
+    <string name="nav_poi_type">種類</string>
+    <string name="nav_poi_website">ウェブサイト</string>
+    <string name="nav_pois_failed">場所を読み込めませんでした。接続を確認してください</string>
+    <string name="nav_pois_loading">場所を読み込み中…</string>
+    <string name="nav_pois_need_route">先に経由地を追加すると、ルート沿いの場所を検索できます</string>
+    <string name="nav_pois_none">このルート付近には見つかりませんでした</string>
+    <string name="nav_pois_places_hint">ヒント: このボタンを長押しすると表示する場所を選択できます</string>
+    <string name="nav_setting_advanced_map">高度なマップ機能</string>
+    <string name="nav_setting_advanced_map_desc">ルート沿いの充電器や場所を表示します</string>
+    <string name="nav_setting_avoid">回避</string>
+    <string name="nav_setting_avoid_ferries">フェリーを回避</string>
+    <string name="nav_setting_avoid_highways">高速道路を回避</string>
+    <string name="nav_setting_avoid_hint">デフォルトはすべてオフ。回避設定は別のルーティングサービスを使用し、移動手段が対応している場合に適用されます</string>
+    <string name="nav_setting_avoid_tolls">有料道路を回避</string>
+    <string name="nav_setting_avoid_unpaved">未舗装路を回避</string>
+    <string name="nav_setting_ocm_key">Open Charge Map API キー</string>
+    <string name="nav_setting_ocm_key_hint">任意。充電器のフライアウトにレビュー、写真、コネクター詳細を追加します。無料キーの登録はこちら</string>
+    <string name="nav_setting_ocm_key_link">openchargemap.org</string>
+    <string name="nav_setting_ocm_subtitle">充電器コミュニティ（Open Charge Map）</string>
+    <string name="nav_setting_overpass_url">充電器と場所の URL（Overpass）</string>
+    <string name="nav_show_chargers">充電器を表示</string>
+    <string name="nav_show_places">場所を表示（店舗、飲食、観光）</string>
 </resources>
 
 

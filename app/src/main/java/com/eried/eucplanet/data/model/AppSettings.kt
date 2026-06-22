@@ -353,6 +353,8 @@ data class AppSettings(
      * group; long-press picks individual categories.
      */
     val navPlaceCategories: String = "",
+    /** True once the "hold for place categories" hint toast has been shown. */
+    val navPlacesHintShown: Boolean = false,
     // Route avoidances. All default false -> avoid nothing, identical to the
     // historic behaviour. When any is true the route is solved by the key-less
     // FOSSGIS Valhalla backend (the default OSRM service can't honour

@@ -130,6 +130,8 @@ class RouteBuilderViewModel @Inject constructor(
 
     private var ocmApiKey = ""
     private var ocmJob: Job? = null
+    /** True once the "hold for categories" hint toast has been shown. */
+    private var placesHintShown = false
 
     /** True while a POI fetch is in flight (drives a spinner). */
     private val _poiLoading = MutableStateFlow(false)
@@ -312,6 +314,7 @@ class RouteBuilderViewModel @Inject constructor(
             _advancedMap.value = s.navAdvancedMap
             _showChargers.value = s.navShowChargers
             _placeCats.value = parsePlaceCats(s.navPlaceCategories)
+            placesHintShown = s.navPlacesHintShown
             _travelMode.value = TravelMode.fromName(s.navDefaultTravelMode)
             _mapType.value = s.navMapType.ifBlank { "LIGHT" }
             defaultRadiusM = s.navArrivalRadiusM
@@ -1333,21 +1336,30 @@ class RouteBuilderViewModel @Inject constructor(
     fun toggleChargers() {
         _showChargers.value = !_showChargers.value
         persistLayers()
-        refreshPois()
+        refreshPois(userInitiated = true)
     }
 
     /** Toggles the whole "places" group: all off -> all on, otherwise -> off. */
     fun togglePlaces() {
-        _placeCats.value = if (_placeCats.value.isEmpty()) PoiKind.PLACES else emptySet()
+        val turningOn = _placeCats.value.isEmpty()
+        _placeCats.value = if (turningOn) PoiKind.PLACES else emptySet()
         persistLayers()
-        refreshPois()
+        // First time the rider enables places, point them at the long-press menu.
+        if (turningOn && !placesHintShown) {
+            placesHintShown = true
+            _messages.tryEmit(R.string.nav_pois_places_hint)
+            viewModelScope.launch {
+                settingsRepository.update(settingsRepository.get().copy(navPlacesHintShown = true))
+            }
+        }
+        refreshPois(userInitiated = true)
     }
 
     /** Long-press menu: toggles one place category on/off. */
     fun setPlaceCategory(kind: PoiKind, on: Boolean) {
         _placeCats.value = if (on) _placeCats.value + kind else _placeCats.value - kind
         persistLayers()
-        refreshPois()
+        refreshPois(userInitiated = true)
     }
 
     private fun persistLayers() {
@@ -1363,12 +1375,16 @@ class RouteBuilderViewModel @Inject constructor(
         csv.split(',').mapNotNull { s -> PoiKind.PLACES.firstOrNull { it.name == s.trim() } }.toSet()
 
     /**
-     * Re-queries Overpass for the enabled categories, debounced and skipped when
-     * the search area hasn't moved. Searches along the route when there is one,
-     * otherwise around the rider's position (or the map centre) so the layer
-     * works before any stop is added. Surfaces loading / failure / empty toasts.
+     * Re-queries Overpass for the enabled categories. Searches along the route
+     * when there is one, otherwise around the rider's position (or map centre).
+     *
+     * [userInitiated] is true only when the rider taps a layer toggle: those
+     * always refetch and surface the loading / failure / empty toasts.
+     * Background calls (a GPS drift, a route edit) are silent and skip a refetch
+     * when the search area + categories haven't changed, so the toast shows once
+     * per toggle and we don't keep re-hitting a flaky Overpass.
      */
-    private fun refreshPois() {
+    private fun refreshPois(userInitiated: Boolean = false) {
         val cats = enabledCategories()
         if (cats.isEmpty()) {
             poiJob?.cancel()
@@ -1390,27 +1406,53 @@ class RouteBuilderViewModel @Inject constructor(
         val anchorSig = if (geom.size >= 2) poiSignature(geom)
         else "${round2(center!!.lat)},${round2(center.lng)}"
         val sig = "$anchorSig|${cats.joinToString(",")}"
-        if (sig == lastPoiSignature && _pois.value.isNotEmpty()) return
+        // Same area + same categories already attempted: a background nudge is a
+        // no-op (a user toggle bypasses this and refetches).
+        if (!userInitiated && sig == lastPoiSignature) return
+        lastPoiSignature = sig
+
+        // Chargers come from Open Charge Map (a purpose-built EV API, sub-second)
+        // when a key is set; the other place types (and chargers without a key)
+        // come from Overpass. This makes the charger layer fast and keeps it
+        // working even when Overpass is overloaded.
+        val ocmCharger = PoiKind.CHARGER in cats && ocmApiKey.isNotBlank()
+        val overpassCats = buildSet {
+            addAll(_placeCats.value)
+            if (PoiKind.CHARGER in cats && !ocmCharger) add(PoiKind.CHARGER)
+        }
+
         poiJob?.cancel()
         poiJob = viewModelScope.launch {
-            delay(700) // debounce edits and stay polite to Overpass
+            delay(700) // debounce edits and stay polite to the services
             _poiLoading.value = true
-            _messages.tryEmit(R.string.nav_pois_loading)
-            val result = if (geom.size >= 2)
-                poiService.poisAlongRoute(geom, overpassUrl, cats)
-            else poiService.poisAround(center!!, endpoint = overpassUrl, categories = cats)
+            // Fast chargers first, so they show while Overpass places load.
+            val chargers = if (ocmCharger) {
+                val bbox = if (geom.size >= 2) PoiService.routeBoundingBox(geom)
+                else PoiService.bboxAround(center!!, PoiService.ROUTE_BUFFER_M)
+                bbox?.let { ocmService.chargersInBox(it, ocmApiKey) }?.let { raw ->
+                    if (geom.size >= 2) PoiService.filterNearRoute(raw, geom)
+                    else PoiService.filterNearPoint(raw, center!!)
+                }
+            } else null
+            if (chargers != null) _pois.value = chargers
+            // Other places (and key-less chargers) via Overpass.
+            val places = if (overpassCats.isNotEmpty()) {
+                if (geom.size >= 2) poiService.poisAlongRoute(geom, overpassUrl, overpassCats)
+                else poiService.poisAround(center!!, endpoint = overpassUrl, categories = overpassCats)
+            } else emptyList()
             _poiLoading.value = false
+
+            val merged = ((chargers ?: emptyList()) + (places ?: emptyList()))
+                .sortedBy { it.distanceFromRouteM }
+                .take(PoiService.MAX_POIS)
+            _pois.value = merged
+            // The FAB spinner is the loading cue, so no "loading" toast; only
+            // surface "couldn't load" (and "none") on a user toggle.
+            val anyFail = (ocmCharger && chargers == null) ||
+                (overpassCats.isNotEmpty() && places == null)
             when {
-                result == null -> {
-                    // Network / service failure: keep any pins we already have
-                    // and don't cache the signature so the next nudge retries.
-                    _messages.tryEmit(R.string.nav_pois_failed)
-                }
-                else -> {
-                    lastPoiSignature = sig
-                    _pois.value = result
-                    if (result.isEmpty()) _messages.tryEmit(R.string.nav_pois_none)
-                }
+                merged.isEmpty() && anyFail -> if (userInitiated) _messages.tryEmit(R.string.nav_pois_failed)
+                merged.isEmpty() -> if (userInitiated) _messages.tryEmit(R.string.nav_pois_none)
             }
         }
     }

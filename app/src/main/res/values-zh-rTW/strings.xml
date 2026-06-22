@@ -1702,6 +1702,59 @@
     <string name="trip_action_copy_link">複製 eucviewer 連結</string>
     <string name="trip_action_copy_link_desc">將可分享的 eucviewer.ried.no 連結複製到剪貼簿</string>
     <string name="trip_action_dropbox_disabled">在設定中連結 Dropbox 以啟用</string>
+
+    <!-- Map: Open Charge Map (OCM) charger flyout -->
+    <string name="nav_ocm_attrib">評論與照片由 Open Charge Map 提供（CC BY）</string>
+    <string name="nav_ocm_connectors">連接頭</string>
+    <string name="nav_ocm_cost">費用</string>
+    <string name="nav_ocm_loading">正在載入社群資料…</string>
+    <string name="nav_ocm_open">在 OCM 中開啟</string>
+    <string name="nav_ocm_photos">照片（%1$d）</string>
+    <string name="nav_ocm_points">充電點</string>
+    <string name="nav_ocm_status">狀態</string>
+    <string name="nav_ocm_title">Open Charge Map</string>
+    <string name="nav_poi_access">使用權限</string>
+    <string name="nav_poi_add_stop">新增為停靠點</string>
+    <string name="nav_poi_capacity">容量</string>
+    <string name="nav_poi_charger">充電站</string>
+    <string name="nav_poi_cuisine">料理類型</string>
+    <string name="nav_poi_distance">距路線</string>
+    <string name="nav_poi_fee">費用</string>
+    <string name="nav_poi_food">餐飲</string>
+    <string name="nav_poi_from_route">距路線 %1$s</string>
+    <string name="nav_poi_fuels">燃料</string>
+    <string name="nav_poi_hours">營業時間</string>
+    <string name="nav_poi_network">充電網路</string>
+    <string name="nav_poi_operator">營運商</string>
+    <string name="nav_poi_osm">線上開啟</string>
+    <string name="nav_poi_phone">電話</string>
+    <string name="nav_poi_rest">廁所與飲水</string>
+    <string name="nav_poi_sights">景點</string>
+    <string name="nav_poi_sockets">插座</string>
+    <string name="nav_poi_source">資料來自 OpenStreetMap</string>
+    <string name="nav_poi_store">商店</string>
+    <string name="nav_poi_type">類型</string>
+    <string name="nav_poi_website">網站</string>
+    <string name="nav_pois_failed">無法載入地點，請檢查您的連線</string>
+    <string name="nav_pois_loading">正在載入地點…</string>
+    <string name="nav_pois_need_route">請先新增停靠點，以尋找沿途的地點</string>
+    <string name="nav_pois_none">此路線附近未找到任何結果</string>
+    <string name="nav_pois_places_hint">提示：長按此按鈕可選擇要顯示的地點</string>
+    <string name="nav_setting_advanced_map">進階地圖功能</string>
+    <string name="nav_setting_advanced_map_desc">沿路線顯示充電站與地點</string>
+    <string name="nav_setting_avoid">避開</string>
+    <string name="nav_setting_avoid_ferries">避開渡輪</string>
+    <string name="nav_setting_avoid_highways">避開高速公路</string>
+    <string name="nav_setting_avoid_hint">預設全部關閉。避開項目使用不同的路線服務，並在行進模式支援時套用</string>
+    <string name="nav_setting_avoid_tolls">避開收費道路</string>
+    <string name="nav_setting_avoid_unpaved">避開未鋪設道路</string>
+    <string name="nav_setting_ocm_key">Open Charge Map API 金鑰</string>
+    <string name="nav_setting_ocm_key_hint">選填。為充電站彈出視窗加入評論、照片及連接頭詳情。可至此處免費註冊金鑰：</string>
+    <string name="nav_setting_ocm_key_link">openchargemap.org</string>
+    <string name="nav_setting_ocm_subtitle">充電站社群（Open Charge Map）</string>
+    <string name="nav_setting_overpass_url">充電站與地點網址（Overpass）</string>
+    <string name="nav_show_chargers">顯示充電站</string>
+    <string name="nav_show_places">顯示地點（商店、餐飲、景點）</string>
 </resources>
 
 

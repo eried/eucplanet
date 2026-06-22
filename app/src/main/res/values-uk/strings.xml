@@ -1702,6 +1702,59 @@
     <string name="trip_action_copy_link">Скопіювати посилання eucviewer</string>
     <string name="trip_action_copy_link_desc">Скопіювати посилання eucviewer.ried.no у буфер обміну</string>
     <string name="trip_action_dropbox_disabled">Під\'єднай Dropbox у налаштуваннях, щоб увімкнути</string>
+
+    <!-- ==== Navigation map: chargers & places (OCM / OSM) ==== -->
+    <string name="nav_ocm_attrib">Відгуки та фото через Open Charge Map (CC BY)</string>
+    <string name="nav_ocm_connectors">Конектори</string>
+    <string name="nav_ocm_cost">Вартість</string>
+    <string name="nav_ocm_loading">Завантаження даних спільноти…</string>
+    <string name="nav_ocm_open">Відкрити на OCM</string>
+    <string name="nav_ocm_photos">Фото (%1$d)</string>
+    <string name="nav_ocm_points">Точки заряджання</string>
+    <string name="nav_ocm_status">Стан</string>
+    <string name="nav_ocm_title">Open Charge Map</string>
+    <string name="nav_poi_access">Доступ</string>
+    <string name="nav_poi_add_stop">Додати як зупинку</string>
+    <string name="nav_poi_capacity">Місткість</string>
+    <string name="nav_poi_charger">Зарядна станція</string>
+    <string name="nav_poi_cuisine">Кухня</string>
+    <string name="nav_poi_distance">Від маршруту</string>
+    <string name="nav_poi_fee">Плата</string>
+    <string name="nav_poi_food">Їжа та напої</string>
+    <string name="nav_poi_from_route">%1$s від маршруту</string>
+    <string name="nav_poi_fuels">Паливо</string>
+    <string name="nav_poi_hours">Години роботи</string>
+    <string name="nav_poi_network">Мережа</string>
+    <string name="nav_poi_operator">Оператор</string>
+    <string name="nav_poi_osm">Відкрити онлайн</string>
+    <string name="nav_poi_phone">Телефон</string>
+    <string name="nav_poi_rest">Туалети та вода</string>
+    <string name="nav_poi_sights">Пам\'ятки</string>
+    <string name="nav_poi_sockets">Розетки</string>
+    <string name="nav_poi_source">Дані з OpenStreetMap</string>
+    <string name="nav_poi_store">Магазини</string>
+    <string name="nav_poi_type">Тип</string>
+    <string name="nav_poi_website">Вебсайт</string>
+    <string name="nav_pois_failed">Не вдалося завантажити місця. Перевір з\'єднання</string>
+    <string name="nav_pois_loading">Завантаження місць…</string>
+    <string name="nav_pois_need_route">Спершу додай зупинку, щоб знайти місця дорогою</string>
+    <string name="nav_pois_none">Поблизу цього маршруту нічого не знайдено</string>
+    <string name="nav_pois_places_hint">Порада: утримуй цю кнопку, щоб вибрати, які місця показувати</string>
+    <string name="nav_setting_advanced_map">Розширені функції карти</string>
+    <string name="nav_setting_advanced_map_desc">Показувати зарядки та місця вздовж маршруту</string>
+    <string name="nav_setting_avoid">Уникати</string>
+    <string name="nav_setting_avoid_ferries">Уникати поромів</string>
+    <string name="nav_setting_avoid_highways">Уникати автомагістралей</string>
+    <string name="nav_setting_avoid_hint">Усе вимкнено за замовчуванням. Уникання використовують інший сервіс маршрутизації та діють там, де режим пересування їх підтримує</string>
+    <string name="nav_setting_avoid_tolls">Уникати платних доріг</string>
+    <string name="nav_setting_avoid_unpaved">Уникати ґрунтових доріг</string>
+    <string name="nav_setting_ocm_key">Ключ API Open Charge Map</string>
+    <string name="nav_setting_ocm_key_hint">Необов\'язково. Додає відгуки, фото та деталі конекторів у картку зарядки. Зареєструй безкоштовний ключ на</string>
+    <string name="nav_setting_ocm_key_link">openchargemap.org</string>
+    <string name="nav_setting_ocm_subtitle">Спільнота зарядок (Open Charge Map)</string>
+    <string name="nav_setting_overpass_url">URL зарядок і місць (Overpass)</string>
+    <string name="nav_show_chargers">Показувати зарядки</string>
+    <string name="nav_show_places">Показувати місця (магазини, їжа, пам\'ятки)</string>
 </resources>
 
 

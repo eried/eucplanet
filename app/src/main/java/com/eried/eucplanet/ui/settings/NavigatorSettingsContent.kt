@@ -108,50 +108,6 @@ fun NavigatorSettingsContent(
         )
         HintText(stringResource(R.string.nav_setting_offroute_desc), small = true)
 
-        // --- Avoidances (collapsible; all OFF by default) ---
-        var avoidExpanded by rememberSaveable { mutableStateOf(false) }
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .clickable { avoidExpanded = !avoidExpanded },
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                stringResource(R.string.nav_setting_avoid),
-                style = MaterialTheme.typography.titleMedium,
-                color = MaterialTheme.colorScheme.primary
-            )
-            Icon(
-                if (avoidExpanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.primary
-            )
-        }
-        if (avoidExpanded) {
-            HintText(stringResource(R.string.nav_setting_avoid_hint), small = true)
-            SwitchRow(
-                label = stringResource(R.string.nav_setting_avoid_highways),
-                checked = settings.navAvoidHighways,
-                onChange = { viewModel.updateNavAvoidHighways(it) }
-            )
-            SwitchRow(
-                label = stringResource(R.string.nav_setting_avoid_tolls),
-                checked = settings.navAvoidTolls,
-                onChange = { viewModel.updateNavAvoidTolls(it) }
-            )
-            SwitchRow(
-                label = stringResource(R.string.nav_setting_avoid_ferries),
-                checked = settings.navAvoidFerries,
-                onChange = { viewModel.updateNavAvoidFerries(it) }
-            )
-            SwitchRow(
-                label = stringResource(R.string.nav_setting_avoid_unpaved),
-                checked = settings.navAvoidUnpaved,
-                onChange = { viewModel.updateNavAvoidUnpaved(it) }
-            )
-        }
-
         // --- Routing services ---
         // Address search + routing always work (basic navigation), so those URLs
         // stay editable. Advanced map features add the on-map charger / places
@@ -201,6 +157,50 @@ fun NavigatorSettingsContent(
                 },
             colors = themedFieldColors(),
         )
+
+        // --- Avoidances (collapsible; all OFF by default) ---
+        var avoidExpanded by rememberSaveable { mutableStateOf(false) }
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable { avoidExpanded = !avoidExpanded },
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                stringResource(R.string.nav_setting_avoid),
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.primary
+            )
+            Icon(
+                if (avoidExpanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.primary
+            )
+        }
+        if (avoidExpanded) {
+            HintText(stringResource(R.string.nav_setting_avoid_hint), small = true)
+            SwitchRow(
+                label = stringResource(R.string.nav_setting_avoid_highways),
+                checked = settings.navAvoidHighways,
+                onChange = { viewModel.updateNavAvoidHighways(it) }
+            )
+            SwitchRow(
+                label = stringResource(R.string.nav_setting_avoid_tolls),
+                checked = settings.navAvoidTolls,
+                onChange = { viewModel.updateNavAvoidTolls(it) }
+            )
+            SwitchRow(
+                label = stringResource(R.string.nav_setting_avoid_ferries),
+                checked = settings.navAvoidFerries,
+                onChange = { viewModel.updateNavAvoidFerries(it) }
+            )
+            SwitchRow(
+                label = stringResource(R.string.nav_setting_avoid_unpaved),
+                checked = settings.navAvoidUnpaved,
+                onChange = { viewModel.updateNavAvoidUnpaved(it) }
+            )
+        }
 
         // Advanced map features gate the on-map overlays + their source fields
         // below (chargers / places / community), but NOT the basic URLs above.
