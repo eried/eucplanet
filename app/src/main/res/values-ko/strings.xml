@@ -1697,7 +1697,7 @@
     <string name="dropbox_link_copied">eucviewer 링크 복사됨</string>
     <string name="trip_action_share_dropbox">Dropbox로 공유</string>
     <string name="trip_action_share_dropbox_desc">Dropbox 폴더에 업로드하고 공개 링크를 공유합니다</string>
-    <string name="trip_action_inspect_online">eucviewer에서 열기</string>
+    <string name="trip_action_inspect_online">온라인으로 보기</string>
     <string name="trip_action_inspect_online_desc">브라우저의 eucviewer 도구에서 주행을 엽니다</string>
     <string name="trip_action_copy_link">eucviewer 링크 복사</string>
     <string name="trip_action_copy_link_desc">공유 가능한 eucviewer.ried.no 링크를 클립보드에 복사</string>

@@ -1713,7 +1713,7 @@
     <string name="dropbox_link_copied">eucviewer-link kopieret</string>
     <string name="trip_action_share_dropbox">Del via Dropbox</string>
     <string name="trip_action_share_dropbox_desc">Upload til din Dropbox-mappe og del det offentlige link</string>
-    <string name="trip_action_inspect_online">Åbn i eucviewer</string>
+    <string name="trip_action_inspect_online">Inspicér online</string>
     <string name="trip_action_inspect_online_desc">Åbn turen i eucviewer-browserværktøjet</string>
     <string name="trip_action_copy_link">Kopiér eucviewer-link</string>
     <string name="trip_action_copy_link_desc">Kopiér et delbart eucviewer.ried.no-link til udklipsholderen</string>

@@ -1716,7 +1716,7 @@
     <string name="dropbox_link_copied">eucviewer-Link kopiert</string>
     <string name="trip_action_share_dropbox">Über Dropbox teilen</string>
     <string name="trip_action_share_dropbox_desc">In deinen Dropbox-Ordner hochladen und den öffentlichen Link teilen</string>
-    <string name="trip_action_inspect_online">In eucviewer öffnen</string>
+    <string name="trip_action_inspect_online">Online prüfen</string>
     <string name="trip_action_inspect_online_desc">Tour im eucviewer-Browsertool öffnen</string>
     <string name="trip_action_copy_link">eucviewer-Link kopieren</string>
     <string name="trip_action_copy_link_desc">Teilbaren eucviewer.ried.no-Link in die Zwischenablage kopieren</string>

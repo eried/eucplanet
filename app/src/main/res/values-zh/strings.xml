@@ -1566,7 +1566,7 @@
     <string name="dropbox_link_copied">已复制 eucviewer 链接</string>
     <string name="trip_action_share_dropbox">通过 Dropbox 分享</string>
     <string name="trip_action_share_dropbox_desc">上传到你的 Dropbox 文件夹并分享公开链接</string>
-    <string name="trip_action_inspect_online">在 eucviewer 中打开</string>
+    <string name="trip_action_inspect_online">在线查看</string>
     <string name="trip_action_inspect_online_desc">在浏览器的 eucviewer 工具中打开行程</string>
     <string name="trip_action_copy_link">复制 eucviewer 链接</string>
     <string name="trip_action_copy_link_desc">将可分享的 eucviewer.ried.no 链接复制到剪贴板</string>

@@ -1488,7 +1488,7 @@
     <string name="dropbox_share_failed">Dropbox share failed</string>
     <string name="trip_action_share_dropbox">Share via Dropbox</string>
     <string name="trip_action_share_dropbox_desc">Upload to your Dropbox folder and share the public link</string>
-    <string name="trip_action_inspect_online">Open in eucviewer</string>
+    <string name="trip_action_inspect_online">Inspect online</string>
     <string name="trip_action_inspect_online_desc">Open the trip in the eucviewer browser tool</string>
     <string name="trip_action_copy_link">Copy eucviewer link</string>
     <string name="trip_action_copy_link_desc">Copy a shareable eucviewer.ried.no link to the clipboard</string>

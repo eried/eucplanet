@@ -286,16 +286,7 @@ class RecordingViewModel @Inject constructor(
      */
     fun copyEucviewerLink(trip: TripRecord) {
         viewModelScope.launch {
-            val link = ensureDropboxLink(trip) ?: run {
-                android.widget.Toast.makeText(
-                    context, R.string.dropbox_share_failed, android.widget.Toast.LENGTH_SHORT
-                ).show()
-                return@launch
-            }
-            val rawLink = link.replace("?dl=0", "?dl=1")
-                .let { if (it.contains("?dl=")) it else "$it?dl=1" }
-            val viewerUrl = "https://eucviewer.ried.no/#trip=" +
-                java.net.URLEncoder.encode(rawLink, "UTF-8")
+            val viewerUrl = ensureEucviewerUrl(trip) ?: return@launch
             val clipboard = context.getSystemService(android.content.Context.CLIPBOARD_SERVICE)
                 as android.content.ClipboardManager
             clipboard.setPrimaryClip(
@@ -308,29 +299,49 @@ class RecordingViewModel @Inject constructor(
     }
 
     /**
-     * Same upload-and-share-link path as [shareViaDropbox] but instead
-     * of handing the link to a share sheet we hand it to the eucviewer
-     * page via a `#trip=<url>` deep link. The viewer fetches the file
-     * (Dropbox shared links resolve to the raw CSV with ?dl=1) and
-     * renders it.
+     * Upload (idempotent) and open the trip in the eucviewer browser tool
+     * via `https://eucviewer.ried.no/?file=<direct-csv-url>`. The viewer
+     * fetches the CSV bytes and renders it like a local file.
      */
     fun inspectOnline(trip: TripRecord) {
         viewModelScope.launch {
-            val link = ensureDropboxLink(trip) ?: run {
-                android.widget.Toast.makeText(
-                    context, R.string.dropbox_share_failed, android.widget.Toast.LENGTH_SHORT
-                ).show()
-                return@launch
-            }
-            // Force the direct-download variant so eucviewer fetches the
-            // raw CSV bytes instead of Dropbox's preview-page HTML.
-            val rawLink = link.replace("?dl=0", "?dl=1")
-                .let { if (it.contains("?dl=")) it else "$it?dl=1" }
-            val viewerUrl = "https://eucviewer.ried.no/#trip=" +
-                java.net.URLEncoder.encode(rawLink, "UTF-8")
+            val viewerUrl = ensureEucviewerUrl(trip) ?: return@launch
             val intent = Intent(Intent.ACTION_VIEW, android.net.Uri.parse(viewerUrl))
                 .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             context.startActivity(intent)
+        }
+    }
+
+    /**
+     * Build `https://eucviewer.ried.no/?file=<encoded-direct-url>` for
+     * [trip] — uploads to Dropbox if needed, swaps the share host to
+     * `dl.dropboxusercontent.com` and forces `dl=1` so the URL is a raw
+     * CSV download a browser can fetch without CORS pain. Shows a toast
+     * and returns null on failure.
+     */
+    private suspend fun ensureEucviewerUrl(trip: TripRecord): String? {
+        val link = ensureDropboxLink(trip) ?: run {
+            android.widget.Toast.makeText(
+                context, R.string.dropbox_share_failed, android.widget.Toast.LENGTH_SHORT
+            ).show()
+            return null
+        }
+        val direct = toDropboxDirectUrl(link)
+        return "https://eucviewer.ried.no/?file=" +
+            java.net.URLEncoder.encode(direct, "UTF-8")
+    }
+
+    /** Convert a www.dropbox.com share URL into a dl.dropboxusercontent.com
+     *  direct-download URL with `dl=1`. */
+    private fun toDropboxDirectUrl(link: String): String {
+        val onDirectHost = link
+            .replace("https://www.dropbox.com/", "https://dl.dropboxusercontent.com/")
+            .replace("https://dropbox.com/", "https://dl.dropboxusercontent.com/")
+        return when {
+            onDirectHost.contains("dl=0") -> onDirectHost.replace("dl=0", "dl=1")
+            onDirectHost.contains("dl=1") -> onDirectHost
+            onDirectHost.contains("?") -> "$onDirectHost&dl=1"
+            else -> "$onDirectHost?dl=1"
         }
     }
 

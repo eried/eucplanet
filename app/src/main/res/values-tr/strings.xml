@@ -1697,7 +1697,7 @@
     <string name="dropbox_link_copied">eucviewer bağlantısı kopyalandı</string>
     <string name="trip_action_share_dropbox">Dropbox ile paylaş</string>
     <string name="trip_action_share_dropbox_desc">Dropbox klasörüne yükle ve herkese açık bağlantıyı paylaş</string>
-    <string name="trip_action_inspect_online">eucviewer\'da aç</string>
+    <string name="trip_action_inspect_online">Çevrimiçi incele</string>
     <string name="trip_action_inspect_online_desc">Yolculuğu eucviewer tarayıcı aracında aç</string>
     <string name="trip_action_copy_link">eucviewer bağlantısını kopyala</string>
     <string name="trip_action_copy_link_desc">Paylaşılabilir eucviewer.ried.no bağlantısını panoya kopyalar</string>

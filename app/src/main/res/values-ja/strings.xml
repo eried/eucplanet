@@ -1697,7 +1697,7 @@
     <string name="dropbox_link_copied">eucviewer リンクをコピーしました</string>
     <string name="trip_action_share_dropbox">Dropbox で共有</string>
     <string name="trip_action_share_dropbox_desc">Dropbox フォルダにアップロードして公開リンクを共有します</string>
-    <string name="trip_action_inspect_online">eucviewer で開く</string>
+    <string name="trip_action_inspect_online">オンラインで確認</string>
     <string name="trip_action_inspect_online_desc">ブラウザの eucviewer ツールで走行を開きます</string>
     <string name="trip_action_copy_link">eucviewer のリンクをコピー</string>
     <string name="trip_action_copy_link_desc">共有用 eucviewer.ried.no リンクをクリップボードにコピー</string>

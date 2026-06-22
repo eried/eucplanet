@@ -1698,7 +1698,7 @@
     <string name="dropbox_link_copied">Link do eucviewer copiado</string>
     <string name="trip_action_share_dropbox">Compartilhar via Dropbox</string>
     <string name="trip_action_share_dropbox_desc">Envie para a sua pasta do Dropbox e compartilhe o link público</string>
-    <string name="trip_action_inspect_online">Abrir no eucviewer</string>
+    <string name="trip_action_inspect_online">Inspecionar online</string>
     <string name="trip_action_inspect_online_desc">Abre o trajeto na ferramenta eucviewer do navegador</string>
     <string name="trip_action_copy_link">Copiar link do eucviewer</string>
     <string name="trip_action_copy_link_desc">Copia um link eucviewer.ried.no compartilhável para a área de transferência</string>
