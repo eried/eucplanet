@@ -475,6 +475,9 @@
     <string name="sync_conflict_app">以應用程式覆寫備份</string>
     <string name="sync_conflict_folder">以備份覆寫應用程式</string>
     <string name="sync_conflict_ignore">略過所有衝突</string>
+    <string name="sync_conflict_body_dropbox">有 %1$d 個行程同時在 Dropbox 和本機上。</string>
+    <string name="sync_conflict_app_dropbox">將應用程式複製到 Dropbox</string>
+    <string name="sync_conflict_dropbox">將 Dropbox 複製到應用程式</string>
     <string name="cloud_uploaded_on">於 %1$s 備份</string>
     <string name="cloud_not_uploaded">尚未備份</string>
     <string name="cloud_restore_confirm_title">還原設定</string>
@@ -1682,6 +1685,23 @@
     <string name="voice_announce_connected">連線時</string>
     <string name="voice_announce_riding">騎乘時</string>
     <string name="voice_announce_when_label">通報</string>
+    <string name="dropbox_section_caption">線上備份到 Dropbox</string>
+    <string name="dropbox_section_desc">連結 Dropbox 後，行程也可以在 %1$s 上開啟。</string>
+    <string name="dropbox_section_desc_url">eucviewer.ried.no</string>
+    <string name="dropbox_link">連結 Dropbox</string>
+    <string name="dropbox_unlink">解除連結</string>
+    <string name="dropbox_last_sync">上次同步：%1$s</string>
+    <string name="dropbox_never_synced">從未同步</string>
+    <string name="dropbox_account_suffix">(帳號: %1$s)</string>
+    <string name="dropbox_share_failed">Dropbox 分享失敗</string>
+    <string name="dropbox_link_copied">已複製 eucviewer 連結</string>
+    <string name="trip_action_share_dropbox">透過 Dropbox 分享</string>
+    <string name="trip_action_share_dropbox_desc">上傳至你的 Dropbox 資料夾並分享公開連結</string>
+    <string name="trip_action_inspect_online">線上檢視</string>
+    <string name="trip_action_inspect_online_desc">在瀏覽器的 eucviewer 工具中開啟行程</string>
+    <string name="trip_action_copy_link">複製 eucviewer 連結</string>
+    <string name="trip_action_copy_link_desc">將可分享的 eucviewer.ried.no 連結複製到剪貼簿</string>
+    <string name="trip_action_dropbox_disabled">在設定中連結 Dropbox 以啟用</string>
 </resources>
 
 

@@ -475,6 +475,9 @@
     <string name="sync_conflict_app">Из приложения в копию</string>
     <string name="sync_conflict_folder">Из копии в приложение</string>
     <string name="sync_conflict_ignore">Пропустить все конфликты</string>
+    <string name="sync_conflict_body_dropbox">%1$d поездок есть и в Dropbox, и на этом телефоне.</string>
+    <string name="sync_conflict_app_dropbox">Скопировать приложение в Dropbox</string>
+    <string name="sync_conflict_dropbox">Скопировать Dropbox в приложение</string>
     <string name="cloud_uploaded_on">Сохранено %1$s</string>
     <string name="cloud_not_uploaded">Пока не сохранено</string>
     <string name="cloud_restore_confirm_title">Восстановить настройки</string>
@@ -1683,5 +1686,22 @@
     <string name="studio_save_keep_both">Сохранить оба</string>
     <string name="welcome_tut_voice_desc">Отдельные голосовые сообщения можно включить или отключить позже в Настройки → Голос и оповещения.</string>
     <string name="welcome_tut_voice_title">Включить голосовые оповещения</string>
+    <string name="dropbox_section_caption">Онлайн-копия в Dropbox</string>
+    <string name="dropbox_section_desc">Поездки также открываются на %1$s, когда Dropbox привязан.</string>
+    <string name="dropbox_section_desc_url">eucviewer.ried.no</string>
+    <string name="dropbox_link">Подключить Dropbox</string>
+    <string name="dropbox_unlink">Отключить</string>
+    <string name="dropbox_last_sync">Последняя синхронизация: %1$s</string>
+    <string name="dropbox_never_synced">Не синхронизировано</string>
+    <string name="dropbox_account_suffix">(аккаунт: %1$s)</string>
+    <string name="dropbox_share_failed">Не удалось поделиться через Dropbox</string>
+    <string name="dropbox_link_copied">Ссылка eucviewer скопирована</string>
+    <string name="trip_action_share_dropbox">Поделиться через Dropbox</string>
+    <string name="trip_action_share_dropbox_desc">Загрузить в папку Dropbox и поделиться публичной ссылкой</string>
+    <string name="trip_action_inspect_online">Открыть онлайн</string>
+    <string name="trip_action_inspect_online_desc">Открыть поездку в браузерном инструменте eucviewer</string>
+    <string name="trip_action_copy_link">Скопировать ссылку eucviewer</string>
+    <string name="trip_action_copy_link_desc">Скопировать ссылку eucviewer.ried.no в буфер обмена</string>
+    <string name="trip_action_dropbox_disabled">Привяжите Dropbox в настройках, чтобы включить</string>
 </resources>
 

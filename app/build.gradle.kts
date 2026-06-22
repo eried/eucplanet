@@ -208,6 +208,8 @@ dependencies {
     // Play's SDK index) is never what ships. See gradle/libs.versions.toml.
     implementation(libs.androidx.fragment)
     implementation(libs.androidx.documentfile)
+    // Chrome Custom Tabs for the Dropbox OAuth consent page.
+    implementation(libs.androidx.browser)
 
     // Lifecycle
     implementation(libs.lifecycle.runtime)

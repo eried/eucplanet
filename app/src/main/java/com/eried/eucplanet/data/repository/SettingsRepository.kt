@@ -19,6 +19,14 @@ class SettingsRepository @Inject constructor(
         store.update(settings)
     }
 
+    /** Read-modify-write wrapper for callers that only want to change a
+     *  field or two without echoing the whole [AppSettings] copy. Single
+     *  read + write inside the same coroutine, so there's no torn-write
+     *  window against the StateFlow. */
+    suspend fun update(transform: (AppSettings) -> AppSettings) {
+        update(transform(get()))
+    }
+
     suspend fun updateLastDevice(address: String, name: String) {
         val current = get()
         update(current.copy(lastDeviceAddress = address, lastDeviceName = name))

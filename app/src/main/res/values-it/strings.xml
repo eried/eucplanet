@@ -184,6 +184,9 @@
     <string name="sync_conflict_app">Copia da app a backup</string>
     <string name="sync_conflict_folder">Copia da backup ad app</string>
     <string name="sync_conflict_ignore">Ignora tutti i conflitti</string>
+    <string name="sync_conflict_body_dropbox">%1$d viaggi sono presenti sia su Dropbox sia su questo telefono.</string>
+    <string name="sync_conflict_app_dropbox">Copia app su Dropbox</string>
+    <string name="sync_conflict_dropbox">Copia Dropbox su app</string>
     <string name="cloud_uploaded_on">Salvato il %1$s</string>
     <string name="cloud_not_uploaded">Non ancora salvato</string>
     <string name="cloud_restore_confirm_title">Ripristina impostazioni</string>
@@ -1587,4 +1590,21 @@
     <string name="studio_save_keep_both">Tieni entrambi</string>
     <string name="welcome_tut_voice_desc">Puoi attivare o disattivare singoli messaggi vocali più tardi in Impostazioni → Voce e annunci.</string>
     <string name="welcome_tut_voice_title">Attiva avvisi vocali</string>
+    <string name="dropbox_section_caption">Backup online su Dropbox</string>
+    <string name="dropbox_section_desc">I viaggi si possono aprire anche su %1$s quando Dropbox è collegato.</string>
+    <string name="dropbox_section_desc_url">eucviewer.ried.no</string>
+    <string name="dropbox_link">Collega Dropbox</string>
+    <string name="dropbox_unlink">Scollega</string>
+    <string name="dropbox_last_sync">Ultima sincronizzazione: %1$s</string>
+    <string name="dropbox_never_synced">Mai sincronizzato</string>
+    <string name="dropbox_account_suffix">(account: %1$s)</string>
+    <string name="dropbox_share_failed">Condivisione Dropbox non riuscita</string>
+    <string name="dropbox_link_copied">Link eucviewer copiato</string>
+    <string name="trip_action_share_dropbox">Condividi su Dropbox</string>
+    <string name="trip_action_share_dropbox_desc">Carica nella tua cartella Dropbox e condividi il link pubblico</string>
+    <string name="trip_action_inspect_online">Ispeziona online</string>
+    <string name="trip_action_inspect_online_desc">Apri il viaggio nello strumento eucviewer del browser</string>
+    <string name="trip_action_copy_link">Copia link eucviewer</string>
+    <string name="trip_action_copy_link_desc">Copia un link condivisibile di eucviewer.ried.no negli appunti</string>
+    <string name="trip_action_dropbox_disabled">Collega Dropbox nelle impostazioni per abilitarlo</string>
 </resources>

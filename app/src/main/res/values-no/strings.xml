@@ -123,6 +123,9 @@
     <string name="sync_conflict_app">Kopier app til backup</string>
     <string name="sync_conflict_folder">Kopier backup til app</string>
     <string name="sync_conflict_ignore">Hopp over alle konflikter</string>
+    <string name="sync_conflict_body_dropbox">%1$d turer finnes både i Dropbox og på denne telefonen.</string>
+    <string name="sync_conflict_app_dropbox">Kopier app til Dropbox</string>
+    <string name="sync_conflict_dropbox">Kopier Dropbox til app</string>
     <string name="cloud_uploaded_on">Sikkerhetskopiert %1$s</string>
     <string name="cloud_not_uploaded">Ikke sikkerhetskopiert ennå</string>
     <string name="cloud_restore_confirm_title">Gjenopprett innstillinger</string>
@@ -1568,4 +1571,21 @@
     <string name="studio_save_keep_both">Behold begge</string>
     <string name="welcome_tut_voice_desc">Du kan slå enkelte talemeldinger av eller på senere i Innstillinger → Tale og varsler.</string>
     <string name="welcome_tut_voice_title">Aktiver talevarsler</string>
+    <string name="dropbox_section_caption">Nettkopi til Dropbox</string>
+    <string name="dropbox_section_desc">Turer kan også åpnes på %1$s når Dropbox er koblet til.</string>
+    <string name="dropbox_section_desc_url">eucviewer.ried.no</string>
+    <string name="dropbox_link">Koble til Dropbox</string>
+    <string name="dropbox_unlink">Koble fra</string>
+    <string name="dropbox_last_sync">Siste synk: %1$s</string>
+    <string name="dropbox_never_synced">Aldri synkronisert</string>
+    <string name="dropbox_account_suffix">(konto: %1$s)</string>
+    <string name="dropbox_share_failed">Dropbox-deling mislyktes</string>
+    <string name="dropbox_link_copied">eucviewer-lenke kopiert</string>
+    <string name="trip_action_share_dropbox">Del via Dropbox</string>
+    <string name="trip_action_share_dropbox_desc">Last opp til Dropbox-mappen din og del den offentlige lenken</string>
+    <string name="trip_action_inspect_online">Inspiser på nett</string>
+    <string name="trip_action_inspect_online_desc">Åpne turen i eucviewer-nettleserverktøyet</string>
+    <string name="trip_action_copy_link">Kopier eucviewer-lenke</string>
+    <string name="trip_action_copy_link_desc">Kopier en delbar eucviewer.ried.no-lenke til utklippstavlen</string>
+    <string name="trip_action_dropbox_disabled">Koble til Dropbox i innstillinger for å aktivere</string>
 </resources>

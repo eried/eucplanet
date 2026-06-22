@@ -475,6 +475,9 @@
     <string name="sync_conflict_app">アプリ → バックアップにコピー</string>
     <string name="sync_conflict_folder">バックアップ → アプリにコピー</string>
     <string name="sync_conflict_ignore">すべての競合をスキップ</string>
+    <string name="sync_conflict_body_dropbox">%1$d 件の走行が Dropbox と本機の両方にあります。</string>
+    <string name="sync_conflict_app_dropbox">アプリを Dropbox にコピー</string>
+    <string name="sync_conflict_dropbox">Dropbox をアプリにコピー</string>
     <string name="cloud_uploaded_on">%1$s にバックアップ済み</string>
     <string name="cloud_not_uploaded">まだバックアップされていません</string>
     <string name="cloud_restore_confirm_title">設定を復元</string>
@@ -1682,6 +1685,23 @@
     <string name="voice_announce_connected">接続時</string>
     <string name="voice_announce_riding">走行中</string>
     <string name="voice_announce_when_label">アナウンス</string>
+    <string name="dropbox_section_caption">Dropbox へのオンラインバックアップ</string>
+    <string name="dropbox_section_desc">Dropbox を連携すると、走行記録は %1$s でも開けます。</string>
+    <string name="dropbox_section_desc_url">eucviewer.ried.no</string>
+    <string name="dropbox_link">Dropbox を連携</string>
+    <string name="dropbox_unlink">解除</string>
+    <string name="dropbox_last_sync">最終同期: %1$s</string>
+    <string name="dropbox_never_synced">未同期</string>
+    <string name="dropbox_account_suffix">(アカウント: %1$s)</string>
+    <string name="dropbox_share_failed">Dropbox 共有に失敗しました</string>
+    <string name="dropbox_link_copied">eucviewer リンクをコピーしました</string>
+    <string name="trip_action_share_dropbox">Dropbox で共有</string>
+    <string name="trip_action_share_dropbox_desc">Dropbox フォルダにアップロードして公開リンクを共有します</string>
+    <string name="trip_action_inspect_online">オンラインで確認</string>
+    <string name="trip_action_inspect_online_desc">ブラウザの eucviewer ツールで走行を開きます</string>
+    <string name="trip_action_copy_link">eucviewer のリンクをコピー</string>
+    <string name="trip_action_copy_link_desc">共有用 eucviewer.ried.no リンクをクリップボードにコピー</string>
+    <string name="trip_action_dropbox_disabled">設定で Dropbox を連携すると有効になります</string>
 </resources>
 
 
