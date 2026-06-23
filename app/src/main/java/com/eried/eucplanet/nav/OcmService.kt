@@ -49,8 +49,20 @@ data class OcmCharger(
     val avgRating: Double?,
     val ratingCount: Int,
     val comments: List<OcmComment>,
-    val photoUrls: List<String>,
+    val photos: List<OcmPhoto>,
     val ocmUrl: String,
+)
+
+/**
+ * One charger photo from the OCM MediaItems array. We keep both URLs:
+ * the thumbnail is what we render inline (small, fast to load); the full
+ * URL is what we hand to the system browser when the rider taps the
+ * thumbnail, since the thumbnail itself is only ~120px wide and useless
+ * at full screen.
+ */
+data class OcmPhoto(
+    val thumbnailUrl: String,
+    val fullUrl: String,
 )
 
 /**
@@ -131,7 +143,7 @@ class OcmService @Inject constructor() {
                 avgRating = if (ratings.isNotEmpty()) ratings.average() else null,
                 ratingCount = ratings.size,
                 comments = comments,
-                photoUrls = parsePhotos(o.optJSONArray("MediaItems")),
+                photos = parsePhotos(o.optJSONArray("MediaItems")),
                 // The map app shows the POI publicly; the legacy
                 // openchargemap.org/site/poi/details/<id> page now redirects to
                 // a login wall.
@@ -189,13 +201,21 @@ class OcmService @Inject constructor() {
             }
         }
 
-        private fun parsePhotos(arr: JSONArray?): List<String> {
+        private fun parsePhotos(arr: JSONArray?): List<OcmPhoto> {
             if (arr == null) return emptyList()
             return (0 until arr.length()).mapNotNull { i ->
                 val m = arr.optJSONObject(i) ?: return@mapNotNull null
                 if (m.optBoolean("IsVideo", false)) return@mapNotNull null
-                m.optString("ItemThumbnailURL").ifBlank { m.optString("ItemURL") }
-                    .ifBlank { null }
+                val full = m.optString("ItemURL")
+                val thumb = m.optString("ItemThumbnailURL").ifBlank { full }
+                if (full.isBlank() && thumb.isBlank()) return@mapNotNull null
+                OcmPhoto(
+                    thumbnailUrl = thumb,
+                    // Fall back to the thumbnail only when no full URL is
+                    // provided; for some legacy entries OCM ships only the
+                    // thumbnail. Better a tiny image than a broken link.
+                    fullUrl = full.ifBlank { thumb },
+                )
             }
         }
     }

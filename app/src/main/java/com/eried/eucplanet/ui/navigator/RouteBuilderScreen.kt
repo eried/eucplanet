@@ -2210,23 +2210,26 @@ private fun OcmCommunityCard(ocm: OcmCharger, onOpenUrl: (String) -> Unit) {
             PoiInfoLine(stringResource(R.string.nav_poi_phone), ocm.phone)
             PoiInfoLine(stringResource(R.string.nav_ocm_access), ocm.accessComments)
             PoiInfoLine(stringResource(R.string.nav_ocm_verified), ocm.lastVerified)
-            // Inline photo thumbnails (Coil), tappable to open full size.
-            if (ocm.photoUrls.isNotEmpty()) {
+            // Inline photo thumbnails (Coil). Tap opens the full-size image
+            // in the browser -- the thumbnail itself is ~120px and useless
+            // at full screen, but the OCM API ships a second high-res URL
+            // we hand to the system browser on tap.
+            if (ocm.photos.isNotEmpty()) {
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
                         .horizontalScroll(rememberScrollState()),
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    ocm.photoUrls.take(8).forEach { url ->
+                    ocm.photos.take(8).forEach { photo ->
                         AsyncImage(
-                            model = url,
+                            model = photo.thumbnailUrl,
                             contentDescription = null,
                             contentScale = ContentScale.Crop,
                             modifier = Modifier
-                                .size(84.dp)
+                                .size(120.dp)
                                 .clip(RoundedCornerShape(8.dp))
-                                .clickable { onOpenUrl(url) }
+                                .clickable { onOpenUrl(photo.fullUrl) }
                         )
                     }
                 }
@@ -2260,7 +2263,15 @@ private fun OcmCommunityCard(ocm: OcmCharger, onOpenUrl: (String) -> Unit) {
                     val line = listOf(c.checkin, c.text).filter { it.isNotBlank() }
                         .joinToString(". ")
                     if (line.isNotBlank()) {
-                        Text(line, style = MaterialTheme.typography.bodySmall)
+                        // Body text in this sheet uses onSurface (see
+                        // PoiInfoLine); spell it out so the review text
+                        // doesn't read as the same accent colour as the
+                        // reviewer name above.
+                        Text(
+                            line,
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
                     }
                 }
             }
