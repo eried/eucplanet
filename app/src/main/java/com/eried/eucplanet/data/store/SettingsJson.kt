@@ -38,7 +38,15 @@ object SettingsJson {
         radarVendor = null,
         syncFolderUri = null,
         lastSettingsBackupAt = null,
-        lastSettingsBackupName = null
+        lastSettingsBackupName = null,
+        // Don't write the live Dropbox link into a backup / portable settings
+        // file -- it's device + account state, and an access token shouldn't sit
+        // in a shared file. fromJson keeps the device's current values anyway.
+        dropboxAccessToken = "",
+        dropboxRefreshToken = "",
+        dropboxAccessTokenExpiresAt = 0L,
+        dropboxAccountLabel = "",
+        dropboxLastSyncAt = 0L
     )
 
     fun toJson(s: AppSettings): JSONObject = JSONObject().apply {
@@ -478,11 +486,17 @@ object SettingsJson {
         chargingEstimateToFull = j.optBoolean("chargingEstimateToFull", base.chargingEstimateToFull),
         chargingAutoOpen = j.optBoolean("chargingAutoOpen", base.chargingAutoOpen),
         chargingDashboardIcon = j.optBoolean("chargingDashboardIcon", base.chargingDashboardIcon),
-        dropboxAccessToken = j.optString("dropboxAccessToken", base.dropboxAccessToken),
-        dropboxRefreshToken = j.optString("dropboxRefreshToken", base.dropboxRefreshToken),
-        dropboxAccessTokenExpiresAt = j.optLong("dropboxAccessTokenExpiresAt", base.dropboxAccessTokenExpiresAt),
-        dropboxAccountLabel = j.optString("dropboxAccountLabel", base.dropboxAccountLabel),
-        dropboxLastSyncAt = j.optLong("dropboxLastSyncAt", base.dropboxLastSyncAt)
+        // Dropbox link + sync state is device-bound, like the paired BLE address
+        // or the sync folder: a restore must keep the device's live token,
+        // account and last-sync, NOT swap in whatever a (possibly old) backup
+        // captured -- otherwise restoring changes the "Last sync" label and could
+        // even replace a working token with a stale one. Always carry the current
+        // values through, never the JSON's.
+        dropboxAccessToken = base.dropboxAccessToken,
+        dropboxRefreshToken = base.dropboxRefreshToken,
+        dropboxAccessTokenExpiresAt = base.dropboxAccessTokenExpiresAt,
+        dropboxAccountLabel = base.dropboxAccountLabel,
+        dropboxLastSyncAt = base.dropboxLastSyncAt
     )
 
     /** `optString` returns `""` for null and absent keys, which we cannot
