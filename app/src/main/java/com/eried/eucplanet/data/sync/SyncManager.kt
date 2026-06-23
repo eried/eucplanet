@@ -807,10 +807,6 @@ class SyncManager @Inject constructor(
         }
 
         val total = toUpload.size + toDownload.size
-        if (total == 0) {
-            _syncResult.value = SyncResult.Finished(0)
-            return
-        }
 
         var done = 0
         _syncProgress.value = done to total
@@ -844,10 +840,43 @@ class SyncManager @Inject constructor(
             _syncProgress.value = done to total
         }
 
+        // Refresh settings.json and mirror the rest of the backup folder
+        // (themes, overlays) so an explicit "Sync all" pushes the WHOLE folder,
+        // not just trips. Missing/newer only -- same per-file rule as trips, no
+        // extra conflict prompt.
+        var extra = 0
+        if (dropboxRepository.uploadFile(
+                "/settings.json",
+                SettingsJson.toJson(settings).toString().toByteArray(Charsets.UTF_8)
+            )
+        ) extra++
+        extra += mirrorBackupSubdirsToDropbox(settings)
+
         settingsRepository.update {
             it.copy(dropboxLastSyncAt = System.currentTimeMillis())
         }
-        _syncResult.value = SyncResult.Finished(total)
+        _syncResult.value = SyncResult.Finished(total + extra)
+    }
+
+    /** Upload the backup folder's themes/ and overlays/ files to Dropbox
+     *  (missing or newer only). Returns how many were uploaded. */
+    private suspend fun mirrorBackupSubdirsToDropbox(settings: AppSettings): Int {
+        val folder = getSyncFolder(settings) ?: return 0
+        var count = 0
+        for (sub in listOf("themes", "overlays")) {
+            val subDir = folder.findFile(sub)?.takeIf { it.isDirectory } ?: continue
+            val remote = dropboxRepository.listFolder("/$sub") ?: emptyMap()
+            for (doc in subDir.listFiles()) {
+                if (!doc.isFile) continue
+                val name = doc.name ?: continue
+                val localMod = doc.lastModified() / 1000L
+                if (remote[name]?.let { it >= localMod } == true) continue
+                val bytes = context.contentResolver
+                    .openInputStream(doc.uri)?.use { it.readBytes() } ?: continue
+                if (dropboxRepository.uploadFile("/$sub/$name", bytes)) count++
+            }
+        }
+        return count
     }
 
     fun scheduleDropboxSyncAttempt(attempt: Int) {

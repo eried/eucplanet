@@ -82,6 +82,32 @@ class DropboxSyncWorker @AssistedInject constructor(
             if (!ok) anyFailed = true
         }
 
+        // --- Themes + overlays: mirror the rest of the backup folder so the
+        //     cloud copy is the WHOLE folder, not just trips + settings. These
+        //     live as files in the SAF backup folder (ThemeStore /
+        //     OverlayPresetStore); upload anything missing or newer remotely,
+        //     same file-by-file conflict rule as trips.
+        val folder = syncManager.getSyncFolder(settings)
+        if (folder != null) {
+            for (sub in listOf("themes", "overlays")) {
+                val subDir = folder.findFile(sub)?.takeIf { it.isDirectory } ?: continue
+                val remoteSub = dropboxRepository.listFolder("/$sub") ?: emptyMap()
+                for (doc in subDir.listFiles()) {
+                    if (!doc.isFile) continue
+                    val name = doc.name ?: continue
+                    val localMod = doc.lastModified() / 1000L
+                    if (remoteSub[name]?.let { it >= localMod } == true) continue
+                    val bytes = applicationContext.contentResolver
+                        .openInputStream(doc.uri)?.use { it.readBytes() }
+                    if (bytes == null) { anyFailed = true; continue }
+                    if (dropboxRepository.uploadFile("/$sub/$name", bytes)) {
+                        uploaded++
+                        Log.i(TAG, "Uploaded /$sub/$name")
+                    } else anyFailed = true
+                }
+            }
+        }
+
         if (!anyFailed) {
             settingsRepository.update { it.copy(dropboxLastSyncAt = now) }
         }
