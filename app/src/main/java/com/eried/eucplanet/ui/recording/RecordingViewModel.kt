@@ -264,7 +264,7 @@ class RecordingViewModel @Inject constructor(
         viewModelScope.launch {
             _toasts.send(context.getString(R.string.dropbox_preparing))
             val link = ensureDropboxLink(trip) ?: run {
-                _toasts.send(context.getString(R.string.dropbox_share_failed))
+                _toasts.send(shareFailureMessage())
                 return@launch
             }
             val intent = Intent(Intent.ACTION_SEND).apply {
@@ -308,7 +308,7 @@ class RecordingViewModel @Inject constructor(
      */
     private suspend fun ensureEucviewerUrl(trip: TripRecord): String? {
         val link = ensureDropboxLink(trip) ?: run {
-            _toasts.send(context.getString(R.string.dropbox_share_failed))
+            _toasts.send(shareFailureMessage())
             return null
         }
         val direct = toDropboxDirectUrl(link)
@@ -332,6 +332,15 @@ class RecordingViewModel @Inject constructor(
             else -> "$onDirectHost?dl=1"
         }
     }
+
+    /** Share-failure message: a specific reason when Dropbox supplied one
+     *  (e.g. an unverified account email), else the generic failure. */
+    private fun shareFailureMessage(): String = context.getString(
+        when (dropboxRepository.lastShareErrorTag) {
+            "email_not_verified" -> R.string.dropbox_email_unverified
+            else -> R.string.dropbox_share_failed
+        }
+    )
 
     private suspend fun ensureDropboxLink(trip: TripRecord): String? {
         val file = tripRepository.getTripFile(trip)

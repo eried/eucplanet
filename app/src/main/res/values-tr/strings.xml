@@ -1694,6 +1694,7 @@
     <string name="dropbox_never_synced">Hiç senkronize edilmedi</string>
     <string name="dropbox_account_suffix">(hesap: %1$s)</string>
     <string name="dropbox_share_failed">Dropbox paylaşımı başarısız</string>
+    <string name="dropbox_email_unverified">Dropbox e-posta adresinizi doğrulayın, sonra tekrar paylaşmayı deneyin</string>
     <string name="dropbox_preparing">Bağlantı hazırlanıyor…</string>
     <string name="dropbox_link_copied">eucviewer bağlantısı kopyalandı</string>
     <string name="trip_action_share_dropbox">Dropbox ile paylaş</string>

@@ -1580,6 +1580,7 @@
     <string name="dropbox_never_synced">Aldri synkronisert</string>
     <string name="dropbox_account_suffix">(konto: %1$s)</string>
     <string name="dropbox_share_failed">Dropbox-deling mislyktes</string>
+    <string name="dropbox_email_unverified">Bekreft Dropbox-e-postadressen din, og prøv å dele igjen</string>
     <string name="dropbox_preparing">Forbereder lenken…</string>
     <string name="dropbox_link_copied">eucviewer-lenke kopiert</string>
     <string name="trip_action_share_dropbox">Del via Dropbox</string>

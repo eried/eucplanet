@@ -1695,6 +1695,7 @@
     <string name="dropbox_never_synced">Не синхронизировано</string>
     <string name="dropbox_account_suffix">(аккаунт: %1$s)</string>
     <string name="dropbox_share_failed">Не удалось поделиться через Dropbox</string>
+    <string name="dropbox_email_unverified">Подтвердите адрес эл. почты Dropbox и попробуйте поделиться снова</string>
     <string name="dropbox_preparing">Подготовка ссылки…</string>
     <string name="dropbox_link_ok">Dropbox привязан</string>
     <string name="dropbox_link_failed">Не удалось привязать Dropbox. Проверьте соединение и попробуйте снова</string>

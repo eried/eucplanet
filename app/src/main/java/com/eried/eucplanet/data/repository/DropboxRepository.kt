@@ -234,6 +234,17 @@ class DropboxRepository @Inject constructor(
      * The returned `?dl=0` URL renders a Dropbox preview; appending `?dl=1`
      * downloads the raw file. Returns null on failure.
      */
+    /** Error `.tag` from the most recent share-link attempt (e.g.
+     *  "email_not_verified"), or null after a success. Lets the UI explain
+     *  *why* a share failed instead of a generic message. */
+    @Volatile
+    var lastShareErrorTag: String? = null
+        private set
+
+    /** The Dropbox error `.tag` from a response body, or null. */
+    private fun errorTag(body: String): String? =
+        runCatching { JSONObject(body).optJSONObject("error")?.optString(".tag")?.ifBlank { null } }.getOrNull()
+
     suspend fun createSharedLink(remotePath: String): String? = withContext(Dispatchers.IO) {
         val token = activeAccessToken() ?: return@withContext null
         val body = JSONObject().apply {
@@ -255,9 +266,11 @@ class DropboxRepository @Inject constructor(
                 if (resp.isSuccessful) JSONObject(txt).optString("url").ifBlank { null }
                 else {
                     Log.w("DBXSHARE", "createSharedLink HTTP ${resp.code}: ${txt.take(300)}")
-                    // Already shared → Dropbox returns 409 with the existing
-                    // link in the error body. Pull it out so the second share
-                    // doesn't fail.
+                    val tag = errorTag(txt)
+                    // "shared_link_already_exists" isn't a real failure (the link
+                    // is in the body). Surface any other tag (e.g.
+                    // email_not_verified) so the UI can explain it.
+                    if (tag != null && tag != "shared_link_already_exists") lastShareErrorTag = tag
                     JSONObject(txt).optJSONObject("error")
                         ?.optJSONObject("shared_link_already_exists")
                         ?.optJSONObject("metadata")
@@ -269,7 +282,9 @@ class DropboxRepository @Inject constructor(
         // existing one out of the 409, ask Dropbox for the file's existing
         // shared links directly. This is what made re-sharing the same trip
         // fail after the first share.
-        created ?: listSharedLink(remotePath, token)
+        val result = created ?: listSharedLink(remotePath, token)
+        if (result != null) lastShareErrorTag = null
+        result
     }
 
     /** First existing public shared link for [remotePath], or null. */
@@ -316,8 +331,10 @@ class DropboxRepository @Inject constructor(
                 val txt = resp.body?.string().orEmpty()
                 if (!resp.isSuccessful) {
                     Log.w("DBXSHARE", "get_temporary_link HTTP ${resp.code}: ${txt.take(300)}")
+                    errorTag(txt)?.let { lastShareErrorTag = it }
                     return@withContext null
                 }
+                lastShareErrorTag = null
                 JSONObject(txt).optString("link").ifBlank { null }
             }
         } catch (e: Exception) { Log.w("DBXSHARE", "get_temporary_link exception: ${e.message}"); null }

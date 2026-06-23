@@ -1713,6 +1713,7 @@
     <string name="dropbox_never_synced">Nie synchronisiert</string>
     <string name="dropbox_account_suffix">(Konto: %1$s)</string>
     <string name="dropbox_share_failed">Dropbox-Freigabe fehlgeschlagen</string>
+    <string name="dropbox_email_unverified">Bestätige deine Dropbox-E-Mail-Adresse und teile dann erneut</string>
     <string name="dropbox_preparing">Link wird vorbereitet…</string>
     <string name="dropbox_link_copied">eucviewer-Link kopiert</string>
     <string name="dropbox_link_ok">Dropbox verbunden</string>

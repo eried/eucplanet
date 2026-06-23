@@ -37,6 +37,8 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
@@ -91,6 +93,14 @@ fun TripDetailScreen(
     // The in-progress trip can't be shared, its CSV isn't finalised yet.
     val isLiveTrip by viewModel.isTripLiveRecording(trip).collectAsState(initial = false)
 
+    // Render the ViewModel's messages (e.g. "Preparing the link…", share
+    // failures) here too — sharing is launched straight from this screen, which
+    // otherwise has no host so the snackbars went nowhere.
+    val snackbar = remember { SnackbarHostState() }
+    LaunchedEffect(viewModel) {
+        viewModel.toasts.collect { snackbar.showSnackbar(it) }
+    }
+
     if (showShareDialog) {
         val dropboxLinked by viewModel.dropboxLinked.collectAsState()
         TripActionDialog(
@@ -131,7 +141,8 @@ fun TripDetailScreen(
                     containerColor = MaterialTheme.colorScheme.background
                 )
             )
-        }
+        },
+        snackbarHost = { SnackbarHost(snackbar) }
     ) { padding ->
         if (dataPoints.isEmpty()) {
             Column(

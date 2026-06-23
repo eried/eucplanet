@@ -1563,6 +1563,7 @@
     <string name="dropbox_never_synced">从未同步</string>
     <string name="dropbox_account_suffix">(账号: %1$s)</string>
     <string name="dropbox_share_failed">Dropbox 分享失败</string>
+    <string name="dropbox_email_unverified">请先验证你的 Dropbox 邮箱地址，然后重试分享</string>
     <string name="dropbox_preparing">正在准备链接…</string>
     <string name="dropbox_link_copied">已复制 eucviewer 链接</string>
     <string name="trip_action_share_dropbox">通过 Dropbox 分享</string>

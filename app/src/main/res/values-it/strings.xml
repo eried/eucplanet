@@ -1599,6 +1599,7 @@
     <string name="dropbox_never_synced">Mai sincronizzato</string>
     <string name="dropbox_account_suffix">(account: %1$s)</string>
     <string name="dropbox_share_failed">Condivisione Dropbox non riuscita</string>
+    <string name="dropbox_email_unverified">Verifica l\'indirizzo email del tuo account Dropbox, poi riprova a condividere</string>
     <string name="dropbox_preparing">Preparazione del link…</string>
     <string name="dropbox_link_copied">Link eucviewer copiato</string>
     <string name="trip_action_share_dropbox">Condividi su Dropbox</string>
