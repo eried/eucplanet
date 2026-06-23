@@ -28,6 +28,19 @@ class ChargeEstimator(
         val minutesToFull: Float? = null,
         val energyWh: Float = 0f,
         val warmedUp: Boolean = false,
+        // --- richer charging-monitor fields (Android parity) ---
+        val voltage: Float = 0f,
+        val current: Float = 0f,
+        /** |V·I| when a real (dis)charge current is present; null on ~0 A wheels. */
+        val powerW: Int? = null,
+        val maxTemp: Float = 0f,
+        val battery1: Float = 0f,
+        val battery2: Float = 0f,
+        val hasPacks: Boolean = false,
+        /** Session-long downsampled histories (~1 sample / 10 s) for the curves. */
+        val chargeHistory: List<Float> = emptyList(),
+        val voltageHistory: List<Float> = emptyList(),
+        val tempHistory: List<Float> = emptyList(),
     )
 
     private data class Sample(val t: Long, val pct: Float)
@@ -37,10 +50,17 @@ class ChargeEstimator(
     private var energyWh = 0f
     private var lastT = 0L
     private var lastPowerW = 0f
+    private val chargeHist = ArrayList<Float>()
+    private val voltHist = ArrayList<Float>()
+    private val tempHist = ArrayList<Float>()
+    private var lastHistT = 0L
+    private var seenPacks = false
+    private var seenCurrent = false
 
     /** Call when a ride/session ends so the next session starts fresh. */
     fun reset() {
         window.clear(); started = false; energyWh = 0f; lastT = 0L; lastPowerW = 0f; startPercent = 0f
+        chargeHist.clear(); voltHist.clear(); tempHist.clear(); lastHistT = 0L; seenPacks = false; seenCurrent = false
     }
 
     fun step(d: WheelData): State {
@@ -70,6 +90,18 @@ class ChargeEstimator(
         val toTarget = if (charging && rate > 0.001f && pct < targetPercent) (targetPercent - pct) / rate else null
         val toFull = if (charging && rate > 0.001f && pct < 100f) (100f - pct) / rate else null
 
+        // Latch packs / real current so the tabs don't flicker on a momentary frame.
+        if (d.battery1Percent > 0f && d.battery2Percent > 0f) seenPacks = true
+        if (charging && abs(d.current) > 0.5f) seenCurrent = true
+        val powerWatts = if (seenCurrent) abs(d.voltage * d.current).toInt() else null
+
+        // Downsample the session curves to ~1 sample / 10 s, capped at ~1 h.
+        if (lastHistT == 0L || t - lastHistT >= 10_000L) {
+            lastHistT = t
+            chargeHist.add(pct); voltHist.add(d.voltage); tempHist.add(d.maxTemperature)
+            if (chargeHist.size > 360) { chargeHist.removeAt(0); voltHist.removeAt(0); tempHist.removeAt(0) }
+        }
+
         return State(
             charging = charging,
             percent = pct,
@@ -80,6 +112,16 @@ class ChargeEstimator(
             minutesToFull = toFull?.takeIf { warmedUp },
             energyWh = energyWh,
             warmedUp = warmedUp,
+            voltage = d.voltage,
+            current = d.current,
+            powerW = powerWatts,
+            maxTemp = d.maxTemperature,
+            battery1 = d.battery1Percent,
+            battery2 = d.battery2Percent,
+            hasPacks = seenPacks,
+            chargeHistory = chargeHist.toList(),
+            voltageHistory = voltHist.toList(),
+            tempHistory = tempHist.toList(),
         )
     }
 

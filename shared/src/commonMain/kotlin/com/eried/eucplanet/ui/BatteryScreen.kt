@@ -100,12 +100,36 @@ internal fun BatteryScreen(
             StatRow(c, "Charge rate", if (state.charging && state.warmedUp) "${oneDp(state.ratePctPerMin)} %/min" else "—")
             StatRow(c, "Time to 80%", etaText(state.minutesToTarget))
             StatRow(c, "Time to 100%", etaText(state.minutesToFull))
+            if (state.powerW != null) StatRow(c, "Charge power", "${state.powerW} W")
             StatRow(c, "Energy this session", "${state.energyWh.roundToInt()} Wh")
 
             Spacer(Modifier.height(12.dp))
             Text("PACK", color = c.sectionHeader, fontSize = 11.sp, fontWeight = FontWeight.Bold)
             StatRow(c, "Voltage", "${oneDp(voltage)} V")
+            if (state.current != 0f) StatRow(c, "Current", "${oneDp(state.current)} A")
             StatRow(c, "Temperature", "${UnitFormat.temperature(maxTempC, unitTemp).roundToInt()} ${UnitFormat.tempLabel(unitTemp)}")
+            if (state.hasPacks) {
+                StatRow(c, "Pack 1", "${state.battery1.roundToInt()} %")
+                StatRow(c, "Pack 2", "${state.battery2.roundToInt()} %")
+            }
+
+            // Voltage + temperature session curves (Android's Voltage / Temp tabs).
+            if (state.voltageHistory.size >= 2) {
+                Spacer(Modifier.height(16.dp))
+                Text("VOLTAGE", color = c.sectionHeader, fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                Spacer(Modifier.height(6.dp))
+                Box(Modifier.fillMaxWidth().height(70.dp).clip(RoundedCornerShape(10.dp)).background(c.tileBackground).padding(8.dp)) {
+                    BatterySpark(state.voltageHistory, c.metricVoltage, Modifier.fillMaxSize())
+                }
+            }
+            if (state.tempHistory.size >= 2) {
+                Spacer(Modifier.height(12.dp))
+                Text("TEMPERATURE", color = c.sectionHeader, fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                Spacer(Modifier.height(6.dp))
+                Box(Modifier.fillMaxWidth().height(70.dp).clip(RoundedCornerShape(10.dp)).background(c.tileBackground).padding(8.dp)) {
+                    BatterySpark(state.tempHistory, c.gaugeWarn, Modifier.fillMaxSize())
+                }
+            }
 
             if (!connected) {
                 Spacer(Modifier.height(12.dp))
