@@ -4,6 +4,7 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -155,7 +156,7 @@ private fun TripStat(c: AppThemeColors, label: String, value: String, color: Col
  * stats + speed/voltage history graphs (for in-app recorded rides) + GPS/sync/CSV.
  */
 @Composable
-internal fun TripDetailScreen(trip: TripSummary, unitSpeed: String, unitDistance: String, onBack: () -> Unit) {
+internal fun TripDetailScreen(trip: TripSummary, unitSpeed: String, unitDistance: String, onViewOnline: () -> Unit = {}, onBack: () -> Unit) {
     val c = MaterialTheme.appColors
     Column(Modifier.fillMaxSize().background(c.appBackground)) {
         ScreenTopBar(c, trip.date, onBack)
@@ -190,6 +191,15 @@ internal fun TripDetailScreen(trip: TripSummary, unitSpeed: String, unitDistance
             if (trip.csvPath != null) {
                 Spacer(Modifier.height(8.dp))
                 Text("CSV: ${trip.csvPath}", color = c.textDisabled, fontSize = 10.sp)
+            }
+            // View this ride in the embedded EUC Viewer (map + charts), like Android.
+            if (trip.samples.size >= 2) {
+                Spacer(Modifier.height(18.dp))
+                Box(
+                    Modifier.fillMaxWidth().clip(RoundedCornerShape(12.dp)).background(c.primary)
+                        .clickable { onViewOnline() }.padding(vertical = 13.dp),
+                    contentAlignment = Alignment.Center,
+                ) { Text("View online (map + charts)", color = c.onPrimary, fontSize = 14.sp, fontWeight = FontWeight.Bold) }
             }
             Spacer(Modifier.height(24.dp))
         }

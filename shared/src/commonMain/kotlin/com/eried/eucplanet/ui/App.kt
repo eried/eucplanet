@@ -59,6 +59,7 @@ import com.eried.eucplanet.ble.isLikelyWheel
 import com.eried.eucplanet.ble.transport.BleConnState
 import com.eried.eucplanet.ble.transport.BleDevice
 import com.eried.eucplanet.cloud.EditResult
+import com.eried.eucplanet.ui.recording.EucViewerScreen
 import com.eried.eucplanet.cloud.EucStatsRepository
 import com.eried.eucplanet.cloud.RegisterResult
 import com.eried.eucplanet.cloud.RiderCard
@@ -129,7 +130,7 @@ private val sampleWheels = listOf(
     Wheel("Begode_Master_4C", "Begode", -74),
 )
 
-private enum class Route { Dashboard, Settings, Recording, ServiceMode, ThemeEditor, AlarmEditor, VoicePicker, OverlayStudio, Map, Scan, Battery }
+private enum class Route { Dashboard, Settings, Recording, ServiceMode, ThemeEditor, AlarmEditor, VoicePicker, OverlayStudio, Map, Scan, Battery, EucViewer }
 
 /** Ride actions that can be spoken aloud the moment they happen (gated by the
  *  matching per-event toggle in Voice settings). */
@@ -895,10 +896,13 @@ fun App() {
                     onDelete = { deleteAlarm(editingAlarm!!.id); editingAlarm = null; route = Route.Settings },
                     onBack = { editingAlarm = null; route = Route.Settings },
                 )
+                r == Route.EucViewer -> selectedTrip?.let { st ->
+                    EucViewerScreen(recorder.csvFor(st), st.date.replace(Regex("[^A-Za-z0-9]"), "_") + ".csv", onBack = { route = Route.Recording })
+                } ?: run { route = Route.Recording }
                 r == Route.Recording -> {
                     val st = selectedTrip
                     if (st != null) {
-                        TripDetailScreen(st, unitSpeed = settings.unitSpeed, unitDistance = settings.unitDistance, onBack = { selectedTrip = null })
+                        TripDetailScreen(st, unitSpeed = settings.unitSpeed, unitDistance = settings.unitDistance, onViewOnline = { route = Route.EucViewer }, onBack = { selectedTrip = null })
                     } else {
                         RecordingScreen(
                             trips = trips,
