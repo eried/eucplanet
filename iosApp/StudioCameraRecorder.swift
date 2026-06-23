@@ -243,10 +243,11 @@ final class StudioCameraViewController: UIViewController,
         }
         if output == videoOut {
             guard let pb = CMSampleBufferGetImageBuffer(sampleBuffer), let adaptor = adaptor,
-                  let vin = videoIn, vin.isReadyForMoreMediaData else { return }
+                  let vin = videoIn, vin.isReadyForMoreMediaData,
+                  let pool = adaptor.pixelBufferPool else { return }
             overlaySize = CGSize(width: CVPixelBufferGetWidth(pb), height: CVPixelBufferGetHeight(pb))
             var out: CVPixelBuffer?
-            CVPixelBufferPoolCreatePixelBuffer(nil, adaptor.pixelBufferPool!, &out)
+            CVPixelBufferPoolCreatePixelBuffer(nil, pool, &out)
             guard let outPB = out else { return }
             var image = CIImage(cvPixelBuffer: pb)
             if let ov = overlayImage {
