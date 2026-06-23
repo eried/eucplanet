@@ -263,9 +263,7 @@ class RecordingViewModel @Inject constructor(
     fun shareViaDropbox(trip: TripRecord) {
         viewModelScope.launch {
             val link = ensureDropboxLink(trip) ?: run {
-                android.widget.Toast.makeText(
-                    context, R.string.dropbox_share_failed, android.widget.Toast.LENGTH_SHORT
-                ).show()
+                _toasts.send(context.getString(R.string.dropbox_share_failed))
                 return@launch
             }
             val intent = Intent(Intent.ACTION_SEND).apply {
@@ -308,9 +306,7 @@ class RecordingViewModel @Inject constructor(
      */
     private suspend fun ensureEucviewerUrl(trip: TripRecord): String? {
         val link = ensureDropboxLink(trip) ?: run {
-            android.widget.Toast.makeText(
-                context, R.string.dropbox_share_failed, android.widget.Toast.LENGTH_SHORT
-            ).show()
+            _toasts.send(context.getString(R.string.dropbox_share_failed))
             return null
         }
         val direct = toDropboxDirectUrl(link)
@@ -334,13 +330,17 @@ class RecordingViewModel @Inject constructor(
 
     private suspend fun ensureDropboxLink(trip: TripRecord): String? {
         val file = tripRepository.getTripFile(trip)
+        Log.i("DBXSHARE", "file=${file.path} exists=${file.exists()} size=${if (file.exists()) file.length() else -1L}")
         if (!file.exists()) return null
         val remote = "/trips/${file.name}"
         // Upload first (idempotent; Dropbox dedupes content by hash so a
         // repeat call returns instantly). Then ask for the shared link.
         val ok = dropboxRepository.uploadFile(remote, file.readBytes())
+        Log.i("DBXSHARE", "upload ok=$ok remote=$remote")
         if (!ok) return null
-        return dropboxRepository.createSharedLink(remote)
+        val link = dropboxRepository.createSharedLink(remote)
+        Log.i("DBXSHARE", "createSharedLink -> ${link ?: "NULL"}")
+        return link
     }
 
     fun exportAllAsZip() {

@@ -3,6 +3,7 @@ package com.eried.eucplanet.data.repository
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import android.util.Log
 import androidx.browser.customtabs.CustomTabsIntent
 import com.eried.eucplanet.data.model.AppSettings
 import javax.inject.Inject
@@ -70,6 +71,16 @@ class DropboxRepository @Inject constructor(
             .appendQueryParameter("code_challenge", challenge)
             .appendQueryParameter("code_challenge_method", "S256")
             .appendQueryParameter("token_access_type", "offline")
+            // Explicitly request every scope we use. Upload needs
+            // files.content.write, restore/eucviewer needs files.content.read,
+            // the "Inspect online" / share-link needs sharing.write (a missing
+            // sharing.write was returning 401 missing_scope on createSharedLink),
+            // and the account label needs account_info.read. These must also be
+            // enabled in the Dropbox app console's Permissions tab.
+            .appendQueryParameter(
+                "scope",
+                "account_info.read files.content.write files.content.read sharing.write"
+            )
             .appendQueryParameter("redirect_uri", REDIRECT_URI)
             .build()
         val intent = CustomTabsIntent.Builder().build().intent.apply {
@@ -149,8 +160,13 @@ class DropboxRepository @Inject constructor(
             .post(okhttp3.RequestBody.create(mediaOctet, bytes))
             .build()
         try {
-            http.newCall(req).execute().use { it.isSuccessful }
-        } catch (e: Exception) { false }
+            http.newCall(req).execute().use { resp ->
+                if (!resp.isSuccessful) {
+                    Log.w("DBXSHARE", "upload HTTP ${resp.code}: ${resp.body?.string()?.take(300)}")
+                }
+                resp.isSuccessful
+            }
+        } catch (e: Exception) { Log.w("DBXSHARE", "upload exception: ${e.message}"); false }
     }
 
     /**
@@ -236,6 +252,7 @@ class DropboxRepository @Inject constructor(
         try {
             http.newCall(req).execute().use { resp ->
                 val txt = resp.body?.string().orEmpty()
+                if (!resp.isSuccessful) Log.w("DBXSHARE", "createSharedLink HTTP ${resp.code}: ${txt.take(300)}")
                 if (resp.isSuccessful) JSONObject(txt).optString("url").ifBlank { null }
                 else {
                     // Already shared → Dropbox returns 409 with the existing
@@ -276,7 +293,10 @@ class DropboxRepository @Inject constructor(
             .build()
         try {
             http.newCall(req).execute().use { resp ->
-                if (!resp.isSuccessful) return@withContext null
+                if (!resp.isSuccessful) {
+                    Log.w("DBXSHARE", "token refresh HTTP ${resp.code}: ${resp.body?.string()?.take(300)}")
+                    return@withContext null
+                }
                 val json = JSONObject(resp.body?.string().orEmpty())
                 val access = json.optString("access_token").ifBlank { return@withContext null }
                 val ttlSec = json.optLong("expires_in", 14400L)
