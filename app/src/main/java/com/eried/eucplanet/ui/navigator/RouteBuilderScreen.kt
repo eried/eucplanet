@@ -2176,12 +2176,17 @@ private fun OcmCommunityCard(ocm: OcmCharger, onOpenUrl: (String) -> Unit) {
                 }
             }
             PoiInfoLine(stringResource(R.string.nav_ocm_connectors), ocm.connectors)
-            PoiInfoLine(stringResource(R.string.nav_poi_operator), ocm.operator)
-            PoiInfoLine(stringResource(R.string.nav_ocm_cost), ocm.usageCost)
-            PoiInfoLine(stringResource(R.string.nav_ocm_status), ocm.status)
             ocm.numberOfPoints?.let {
                 PoiInfoLine(stringResource(R.string.nav_ocm_points), it.toString())
             }
+            PoiInfoLine(stringResource(R.string.nav_ocm_usage), ocm.usageType)
+            PoiInfoLine(stringResource(R.string.nav_ocm_cost), ocm.usageCost)
+            PoiInfoLine(stringResource(R.string.nav_poi_operator), ocm.operator)
+            PoiInfoLine(stringResource(R.string.nav_ocm_status), ocm.status)
+            PoiInfoLine(stringResource(R.string.nav_ocm_address), ocm.address)
+            PoiInfoLine(stringResource(R.string.nav_poi_phone), ocm.phone)
+            PoiInfoLine(stringResource(R.string.nav_ocm_access), ocm.accessComments)
+            PoiInfoLine(stringResource(R.string.nav_ocm_verified), ocm.lastVerified)
             // Inline photo thumbnails (Coil), tappable to open full size.
             if (ocm.photoUrls.isNotEmpty()) {
                 Row(

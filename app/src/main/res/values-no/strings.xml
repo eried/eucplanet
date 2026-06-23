@@ -1598,6 +1598,10 @@
     <string name="nav_ocm_open">Åpne på OCM</string>
     <string name="nav_ocm_photos">Bilder (%1$d)</string>
     <string name="nav_ocm_points">Ladepunkter</string>
+    <string name="nav_ocm_usage">Bruk</string>
+    <string name="nav_ocm_address">Adresse</string>
+    <string name="nav_ocm_access">Tilgang</string>
+    <string name="nav_ocm_verified">Sist bekreftet</string>
     <string name="nav_ocm_status">Status</string>
     <string name="nav_ocm_title">Open Charge Map</string>
     <string name="nav_poi_access">Tilgang</string>

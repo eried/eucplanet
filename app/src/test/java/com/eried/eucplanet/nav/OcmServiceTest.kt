@@ -44,9 +44,10 @@ class OcmServiceTest {
         assertEquals("https://map.openchargemap.io/?id=12345", c.ocmUrl)
     }
 
-    @Test fun connectors_dedupedWithPower() {
+    @Test fun connectors_groupedWithQuantity() {
         val c = OcmService.parseFirst(sample)!!
-        assertEquals("Type 2 · 22 kW, CCS · 50 kW", c.connectors)
+        // two Type 2 entries collapse to "2×", distinct CCS stays separate
+        assertEquals("2× Type 2 · 22 kW, CCS · 50 kW", c.connectors)
     }
 
     @Test fun ratings_averagedAndCounted() {

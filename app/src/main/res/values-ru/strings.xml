@@ -1715,6 +1715,10 @@
     <string name="nav_ocm_open">Открыть в OCM</string>
     <string name="nav_ocm_photos">Фото (%1$d)</string>
     <string name="nav_ocm_points">Точки зарядки</string>
+    <string name="nav_ocm_usage">Использование</string>
+    <string name="nav_ocm_address">Адрес</string>
+    <string name="nav_ocm_access">Доступ</string>
+    <string name="nav_ocm_verified">Последняя проверка</string>
     <string name="nav_ocm_status">Статус</string>
     <string name="nav_ocm_title">Open Charge Map</string>
     <string name="nav_poi_access">Доступ</string>

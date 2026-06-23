@@ -1715,6 +1715,10 @@
     <string name="nav_ocm_open">Öppna på OCM</string>
     <string name="nav_ocm_photos">Foton (%1$d)</string>
     <string name="nav_ocm_points">Laddpunkter</string>
+    <string name="nav_ocm_usage">Användning</string>
+    <string name="nav_ocm_address">Adress</string>
+    <string name="nav_ocm_access">Åtkomst</string>
+    <string name="nav_ocm_verified">Senast verifierad</string>
     <string name="nav_ocm_status">Status</string>
     <string name="nav_ocm_title">Open Charge Map</string>
     <string name="nav_poi_access">Tillgång</string>

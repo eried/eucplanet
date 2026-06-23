@@ -1654,6 +1654,10 @@
     <string name="nav_ocm_cost">Cost</string>
     <string name="nav_ocm_status">Status</string>
     <string name="nav_ocm_points">Charge points</string>
+    <string name="nav_ocm_usage">Usage</string>
+    <string name="nav_ocm_address">Address</string>
+    <string name="nav_ocm_access">Access</string>
+    <string name="nav_ocm_verified">Last verified</string>
     <string name="nav_ocm_photos">Photos (%1$d)</string>
     <string name="nav_ocm_open">Open on OCM</string>
     <string name="nav_ocm_attrib">Reviews &amp; photos via Open Charge Map (CC BY)</string>

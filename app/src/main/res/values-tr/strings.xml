@@ -1712,6 +1712,10 @@
     <string name="nav_ocm_open">OCM\'de aç</string>
     <string name="nav_ocm_photos">Fotoğraflar (%1$d)</string>
     <string name="nav_ocm_points">Şarj noktaları</string>
+    <string name="nav_ocm_usage">Kullanım</string>
+    <string name="nav_ocm_address">Adres</string>
+    <string name="nav_ocm_access">Erişim</string>
+    <string name="nav_ocm_verified">Son doğrulama</string>
     <string name="nav_ocm_status">Durum</string>
     <string name="nav_ocm_title">Open Charge Map</string>
     <string name="nav_poi_access">Erişim</string>

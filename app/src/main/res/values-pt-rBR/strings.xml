@@ -1656,6 +1656,10 @@
     <string name="nav_ocm_open">Abrir no OCM</string>
     <string name="nav_ocm_photos">Fotos (%1$d)</string>
     <string name="nav_ocm_points">Pontos de carga</string>
+    <string name="nav_ocm_usage">Uso</string>
+    <string name="nav_ocm_address">Endereço</string>
+    <string name="nav_ocm_access">Acesso</string>
+    <string name="nav_ocm_verified">Última verificação</string>
     <string name="nav_ocm_status">Status</string>
     <string name="nav_ocm_title">Open Charge Map</string>
     <string name="nav_poi_access">Acesso</string>

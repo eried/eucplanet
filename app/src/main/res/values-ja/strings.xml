@@ -1712,6 +1712,10 @@
     <string name="nav_ocm_open">OCM で開く</string>
     <string name="nav_ocm_photos">写真（%1$d）</string>
     <string name="nav_ocm_points">充電ポイント</string>
+    <string name="nav_ocm_usage">利用</string>
+    <string name="nav_ocm_address">住所</string>
+    <string name="nav_ocm_access">アクセス</string>
+    <string name="nav_ocm_verified">最終確認</string>
     <string name="nav_ocm_status">ステータス</string>
     <string name="nav_ocm_title">Open Charge Map</string>
     <string name="nav_poi_access">利用条件</string>

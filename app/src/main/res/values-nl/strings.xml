@@ -1713,6 +1713,10 @@
     <string name="nav_ocm_open">Openen op OCM</string>
     <string name="nav_ocm_photos">Foto\'s (%1$d)</string>
     <string name="nav_ocm_points">Laadpunten</string>
+    <string name="nav_ocm_usage">Gebruik</string>
+    <string name="nav_ocm_address">Adres</string>
+    <string name="nav_ocm_access">Toegang</string>
+    <string name="nav_ocm_verified">Laatst geverifieerd</string>
     <string name="nav_ocm_status">Status</string>
     <string name="nav_ocm_title">Open Charge Map</string>
     <string name="nav_poi_access">Toegang</string>

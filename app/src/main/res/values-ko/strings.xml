@@ -1712,6 +1712,10 @@
     <string name="nav_ocm_open">OCM에서 열기</string>
     <string name="nav_ocm_photos">사진 (%1$d)</string>
     <string name="nav_ocm_points">충전 포인트</string>
+    <string name="nav_ocm_usage">이용</string>
+    <string name="nav_ocm_address">주소</string>
+    <string name="nav_ocm_access">접근</string>
+    <string name="nav_ocm_verified">마지막 확인</string>
     <string name="nav_ocm_status">상태</string>
     <string name="nav_ocm_title">Open Charge Map</string>
     <string name="nav_poi_access">이용 조건</string>

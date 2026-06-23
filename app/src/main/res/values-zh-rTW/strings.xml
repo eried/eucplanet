@@ -1712,6 +1712,10 @@
     <string name="nav_ocm_open">在 OCM 中開啟</string>
     <string name="nav_ocm_photos">照片（%1$d）</string>
     <string name="nav_ocm_points">充電點</string>
+    <string name="nav_ocm_usage">使用</string>
+    <string name="nav_ocm_address">地址</string>
+    <string name="nav_ocm_access">存取</string>
+    <string name="nav_ocm_verified">最後驗證</string>
     <string name="nav_ocm_status">狀態</string>
     <string name="nav_ocm_title">Open Charge Map</string>
     <string name="nav_poi_access">使用權限</string>

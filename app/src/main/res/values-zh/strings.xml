@@ -1579,6 +1579,10 @@
     <string name="nav_ocm_open">在 OCM 中打开</string>
     <string name="nav_ocm_photos">照片 (%1$d)</string>
     <string name="nav_ocm_points">充电点</string>
+    <string name="nav_ocm_usage">使用</string>
+    <string name="nav_ocm_address">地址</string>
+    <string name="nav_ocm_access">访问</string>
+    <string name="nav_ocm_verified">最后验证</string>
     <string name="nav_ocm_status">状态</string>
     <string name="nav_ocm_title">Open Charge Map</string>
     <string name="nav_poi_access">使用权限</string>

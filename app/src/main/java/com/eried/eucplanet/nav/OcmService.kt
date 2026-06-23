@@ -33,10 +33,19 @@ data class OcmCharger(
     val title: String,
     val operator: String,
     val usageCost: String,
+    /** Public / membership / private access model. */
+    val usageType: String,
     val status: String,
-    /** e.g. "Type 2 · 22 kW, CCS · 50 kW". */
+    /** e.g. "2× Type 2 · 22 kW, CCS · 50 kW". */
     val connectors: String,
     val numberOfPoints: Int?,
+    /** Street address line + town + postcode. */
+    val address: String,
+    val phone: String,
+    /** Free-text notes on how to reach / use the charger. */
+    val accessComments: String,
+    /** ISO date the listing was last verified (day only), or blank. */
+    val lastVerified: String,
     val avgRating: Double?,
     val ratingCount: Int,
     val comments: List<OcmComment>,
@@ -99,7 +108,8 @@ class OcmService @Inject constructor() {
         fun parsePoi(o: JSONObject): OcmCharger? {
             val id = o.optLong("ID", -1L)
             if (id < 0) return null
-            val title = o.optJSONObject("AddressInfo")?.optString("Title").orEmpty()
+            val addr = o.optJSONObject("AddressInfo")
+            val title = addr?.optString("Title").orEmpty()
             val operator = o.optJSONObject("OperatorInfo")?.optString("Title").orEmpty()
             val status = o.optJSONObject("StatusType")?.optString("Title").orEmpty()
             val comments = parseComments(o.optJSONArray("UserComments"))
@@ -109,10 +119,15 @@ class OcmService @Inject constructor() {
                 title = title,
                 operator = operator,
                 usageCost = o.optString("UsageCost"),
+                usageType = o.optJSONObject("UsageType")?.optString("Title").orEmpty(),
                 status = status,
                 connectors = summarizeConnectors(o.optJSONArray("Connections")),
                 numberOfPoints = if (o.has("NumberOfPoints") && !o.isNull("NumberOfPoints"))
                     o.optInt("NumberOfPoints") else null,
+                address = buildAddress(addr),
+                phone = addr?.optString("ContactTelephone1").orEmpty(),
+                accessComments = addr?.optString("AccessComments").orEmpty(),
+                lastVerified = o.optString("DateLastVerified").take(10),
                 avgRating = if (ratings.isNotEmpty()) ratings.average() else null,
                 ratingCount = ratings.size,
                 comments = comments,
@@ -124,18 +139,33 @@ class OcmService @Inject constructor() {
             )
         }
 
-        /** "Type 2 · 22 kW, CCS · 50 kW" from the Connections array (deduped). */
+        /** "Street, Town Postcode" from an OCM AddressInfo object. */
+        private fun buildAddress(a: JSONObject?): String {
+            if (a == null) return ""
+            val townLine = listOf(a.optString("Town"), a.optString("Postcode"))
+                .filter { it.isNotBlank() }.joinToString(" ")
+            return listOf(a.optString("AddressLine1"), townLine)
+                .filter { it.isNotBlank() }.joinToString(", ")
+        }
+
+        /** "2× Type 2 · 22 kW, CCS · 50 kW" from the Connections array, grouping
+         *  identical (type, power) connectors and summing their quantity. */
         fun summarizeConnectors(arr: JSONArray?): String {
             if (arr == null) return ""
-            val seen = LinkedHashSet<String>()
+            val counts = LinkedHashMap<String, Int>()
             for (i in 0 until arr.length()) {
                 val c = arr.optJSONObject(i) ?: continue
                 val type = c.optJSONObject("ConnectionType")?.optString("Title").orEmpty()
                 if (type.isBlank()) continue
                 val kw = c.optDouble("PowerKW", 0.0)
-                seen.add(if (kw > 0.0) "$type · ${fmtKw(kw)} kW" else type)
+                val label = if (kw > 0.0) "$type · ${fmtKw(kw)} kW" else type
+                val qty = if (c.has("Quantity") && !c.isNull("Quantity"))
+                    c.optInt("Quantity", 1).coerceAtLeast(1) else 1
+                counts[label] = (counts[label] ?: 0) + qty
             }
-            return seen.joinToString(", ")
+            return counts.entries.joinToString(", ") { (label, n) ->
+                if (n > 1) "$n× $label" else label
+            }
         }
 
         private fun fmtKw(kw: Double): String =
