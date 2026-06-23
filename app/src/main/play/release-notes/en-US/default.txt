@@ -1,5 +1,8 @@
-⚙️ First-launch fixes: language and units now detect
-   correctly on every fresh install.
-🎨 Theme picker: custom themes no longer collide with
-   built-ins; save warns before replacing an existing one.
-✨ Minor polish.
+Big update since the last release!
+
+🗺️ NEW Navigation & charging map: plan routes (avoid highways/tolls/unpaved), find charging stations with full details, connectors & reviews, plus places (food/shops/rest) — following the map as you zoom.
+☁️ NEW Dropbox backup: trips, settings, themes & overlays to the cloud; share rides online.
+🔋 Battery Cells tab for Veteran smart-BMS.
+📡 Garmin Varia radar overlay.
+📈 Per-metric history.
+➕ Many wheel/BMS fixes + more languages.
