@@ -50,6 +50,7 @@ class SettingsViewModel @Inject constructor(
     hudCommandSink: com.eried.eucplanet.service.hud.HudCommandSink,
     hudServer: com.eried.eucplanet.service.hud.HudServer,
     private val eucStatsRepository: EucStatsRepository,
+    private val dropboxRepository: com.eried.eucplanet.data.repository.DropboxRepository,
 ) : ViewModel() {
 
     /** Which discovery channel produced the current HUD link address. */
@@ -616,12 +617,19 @@ class SettingsViewModel @Inject constructor(
     fun updateNavArrivalRadius(v: Int) = update { copy(navArrivalRadiusM = v.coerceIn(5, 100)) }
     fun updateNavOffRouteTolerance(v: Int) = update { copy(navOffRouteToleranceM = v.coerceIn(15, 150)) }
     fun updateNavSolveFullPath(v: Boolean) = update { copy(navSolveFullPath = v) }
+    fun updateNavAdvancedMap(v: Boolean) = update { copy(navAdvancedMap = v) }
+    fun updateNavAvoidHighways(v: Boolean) = update { copy(navAvoidHighways = v) }
+    fun updateNavAvoidTolls(v: Boolean) = update { copy(navAvoidTolls = v) }
+    fun updateNavAvoidFerries(v: Boolean) = update { copy(navAvoidFerries = v) }
+    fun updateNavAvoidUnpaved(v: Boolean) = update { copy(navAvoidUnpaved = v) }
 
     /** Cheat: clears the welcome-tour-seen flag so it replays next time the dashboard shows. */
     fun resetWelcomeTutorial() = update { copy(welcomeTutorialSeen = false) }
     fun updateNavDefaultTravelMode(v: String) = update { copy(navDefaultTravelMode = v) }
     fun updateNavGeocoderUrl(v: String) = update { copy(navGeocoderUrl = v) }
     fun updateNavRouterUrl(v: String) = update { copy(navRouterUrl = v) }
+    fun updateNavOverpassUrl(v: String) = update { copy(navOverpassUrl = v) }
+    fun updateNavOcmApiKey(v: String) = update { copy(navOcmApiKey = v) }
 
     private val _ttsSwitchPrompt = MutableStateFlow<String?>(null)
     val ttsSwitchPrompt: StateFlow<String?> = _ttsSwitchPrompt.asStateFlow()
@@ -914,6 +922,10 @@ class SettingsViewModel @Inject constructor(
     val syncRunning: StateFlow<Boolean> = syncManager.syncRunning
     val syncProgress: StateFlow<Pair<Int, Int>?> = syncManager.syncProgress
     val syncConflictPrompt: StateFlow<Int?> = syncManager.syncConflictPrompt
+    val syncConflictKind: StateFlow<com.eried.eucplanet.data.sync.SyncConflictKind> =
+        syncManager.syncConflictKind
+    val activeSyncKind: StateFlow<com.eried.eucplanet.data.sync.SyncConflictKind?> =
+        syncManager.activeSyncKind
 
     init {
         viewModelScope.launch {
@@ -2004,6 +2016,43 @@ class SettingsViewModel @Inject constructor(
      * unlink (small but non-zero failure mode). A different rider's file is
      * left untouched and the rider is warned.
      */
+    // --- Dropbox (Phase 1: link / unlink state surfaced to UI) ----------
+
+    /** True once the rider has a stored Dropbox access token. */
+    val dropboxLinked: StateFlow<Boolean> = dropboxRepository.linked
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000L), false)
+
+    /** Display string (email or name) for the linked Dropbox account, or
+     *  empty when not linked. Cosmetic only. */
+    val dropboxAccountLabel: StateFlow<String> = dropboxRepository.accountLabel
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000L), "")
+
+    /** Kick off OAuth (Chrome Custom Tab). The result lands back via
+     *  MainActivity's intent-filter, which forwards to
+     *  [com.eried.eucplanet.data.repository.DropboxRepository.handleAuthCallback]. */
+    fun linkDropbox(context: android.content.Context) {
+        dropboxRepository.startLinkFlow(context)
+    }
+
+    fun unlinkDropbox() {
+        viewModelScope.launch {
+            syncManager.cancelDropboxSync()
+            dropboxRepository.unlink()
+        }
+    }
+
+    /** Manual "Sync all" — runs the foreground bidirectional reconcile
+     *  with the same conflict dialog the SAF folder sync uses. Distinct
+     *  from the background DropboxSyncWorker that fires on trip-end /
+     *  settings-save; that one is upload-only and skips the prompt. */
+    fun syncDropboxNow() {
+        syncManager.startDropboxSync()
+    }
+
+    val dropboxLastSyncAt: StateFlow<Long> = settingsRepository.settings
+        .map { it.dropboxLastSyncAt }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000L), 0L)
+
     fun unlinkOnline() {
         viewModelScope.launch {
             val id = syncManager.riderStoreId.value

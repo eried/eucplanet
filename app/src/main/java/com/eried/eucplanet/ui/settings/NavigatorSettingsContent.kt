@@ -1,12 +1,22 @@
 package com.eried.eucplanet.ui.settings
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material.icons.filled.ExpandLess
+import androidx.compose.material.icons.filled.ExpandMore
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.SegmentedButton
@@ -16,15 +26,25 @@ import androidx.compose.material3.Slider
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.LinkAnnotation
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.withLink
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.eried.eucplanet.R
@@ -96,53 +116,233 @@ fun NavigatorSettingsContent(
         )
         HintText(stringResource(R.string.nav_setting_offroute_desc), small = true)
 
-        // --- Routing endpoints (advanced) ---
+        // --- Advanced map features (on-map charger / places overlays + their
+        // source endpoints). The basic routing URLs further down are never
+        // gated and always apply. ---
+        val endpointsEnabled = settings.navAdvancedMap
+        SwitchRow(
+            label = stringResource(R.string.nav_setting_advanced_map),
+            checked = settings.navAdvancedMap,
+            onChange = { viewModel.updateNavAdvancedMap(it) }
+        )
+
+        // The "show chargers and places" description + the charger/places source
+        // and community fields only matter when the overlays are on, so hide
+        // them all when advanced map is off.
+        if (endpointsEnabled) {
+            HintText(stringResource(R.string.nav_setting_advanced_map_desc), small = true)
+            EndpointField(
+                label = stringResource(R.string.nav_setting_overpass_url),
+                value = settings.navOverpassUrl,
+                enabled = true,
+                onCommit = { viewModel.updateNavOverpassUrl(it) },
+                presets = OVERPASS_PRESETS,
+            )
+
+            // Charger community (Open Charge Map): title, then the description
+            // with the openchargemap.org link inline, then the key field.
+            Text(
+                stringResource(R.string.nav_setting_ocm_subtitle),
+                style = MaterialTheme.typography.titleSmall,
+                color = MaterialTheme.colorScheme.primary
+            )
+            val hint = stringResource(R.string.nav_setting_ocm_key_hint)
+            val urlText = stringResource(R.string.nav_setting_ocm_key_link)
+            val annotated = buildAnnotatedString {
+                withStyle(SpanStyle(color = MaterialTheme.colorScheme.onSurfaceVariant)) {
+                    append("$hint ")
+                }
+                withLink(LinkAnnotation.Url("https://openchargemap.org/site/profile/applications")) {
+                    withStyle(
+                        SpanStyle(
+                            color = MaterialTheme.colorScheme.primary,
+                            textDecoration = TextDecoration.Underline
+                        )
+                    ) { append(urlText) }
+                }
+            }
+            Text(annotated, style = MaterialTheme.typography.bodySmall)
+            EndpointField(
+                label = stringResource(R.string.nav_setting_ocm_key),
+                value = settings.navOcmApiKey,
+                enabled = true,
+                onCommit = { viewModel.updateNavOcmApiKey(it) },
+            )
+        }
+
+        // --- Routing services (endpoint URLs), kept below the map features.
+        // Address search + routing always work (basic navigation), so these URLs
+        // stay editable regardless of advanced map features. They persist on
+        // focus loss AND on disposal (so a value typed then navigated-away-from
+        // isn't lost). ---
         Text(
             stringResource(R.string.nav_setting_endpoints),
             style = MaterialTheme.typography.titleMedium,
             color = MaterialTheme.colorScheme.primary
         )
         HintText(stringResource(R.string.nav_setting_endpoints_hint), small = true)
-
-        // The endpoint fields edit a local copy and persist only on focus loss,
-        // so a half-typed URL isn't written to DataStore on every keystroke.
-        var geocoder by rememberSaveable(settings.navGeocoderUrl) {
-            mutableStateOf(settings.navGeocoderUrl)
-        }
-        OutlinedTextField(
-            value = geocoder,
-            onValueChange = { geocoder = it },
-            label = { Text(stringResource(R.string.nav_setting_geocoder_url)) },
-            singleLine = true,
-            modifier = Modifier
-                .fillMaxWidth()
-                .onFocusChanged { fs ->
-                    if (!fs.isFocused && geocoder != settings.navGeocoderUrl) {
-                        viewModel.updateNavGeocoderUrl(geocoder.trim())
-                    }
-                },
-            colors = themedFieldColors(),
+        EndpointField(
+            label = stringResource(R.string.nav_setting_geocoder_url),
+            value = settings.navGeocoderUrl,
+            enabled = true,
+            onCommit = { viewModel.updateNavGeocoderUrl(it) },
+        )
+        EndpointField(
+            label = stringResource(R.string.nav_setting_router_url),
+            value = settings.navRouterUrl,
+            enabled = true,
+            onCommit = { viewModel.updateNavRouterUrl(it) },
         )
 
-        var router by rememberSaveable(settings.navRouterUrl) {
-            mutableStateOf(settings.navRouterUrl)
-        }
-        OutlinedTextField(
-            value = router,
-            onValueChange = { router = it },
-            label = { Text(stringResource(R.string.nav_setting_router_url)) },
-            singleLine = true,
+        // --- Avoidances (collapsible; all off by default) ---
+        var avoidExpanded by rememberSaveable { mutableStateOf(false) }
+        Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .onFocusChanged { fs ->
-                    if (!fs.isFocused && router != settings.navRouterUrl) {
-                        viewModel.updateNavRouterUrl(router.trim())
-                    }
-                },
-            colors = themedFieldColors(),
-        )
+                .clickable { avoidExpanded = !avoidExpanded },
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                stringResource(R.string.nav_setting_avoid),
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.primary
+            )
+            Icon(
+                if (avoidExpanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.primary
+            )
+        }
+        if (avoidExpanded) {
+            HintText(stringResource(R.string.nav_setting_avoid_hint), small = true)
+            SwitchRow(
+                label = stringResource(R.string.nav_setting_avoid_highways),
+                checked = settings.navAvoidHighways,
+                onChange = { viewModel.updateNavAvoidHighways(it) }
+            )
+            SwitchRow(
+                label = stringResource(R.string.nav_setting_avoid_tolls),
+                checked = settings.navAvoidTolls,
+                onChange = { viewModel.updateNavAvoidTolls(it) }
+            )
+            SwitchRow(
+                label = stringResource(R.string.nav_setting_avoid_ferries),
+                checked = settings.navAvoidFerries,
+                onChange = { viewModel.updateNavAvoidFerries(it) }
+            )
+            SwitchRow(
+                label = stringResource(R.string.nav_setting_avoid_unpaved),
+                checked = settings.navAvoidUnpaved,
+                onChange = { viewModel.updateNavAvoidUnpaved(it) }
+            )
+        }
 
         Spacer(Modifier.height(8.dp))
+    }
+}
+
+/** Known public Overpass instances; the default first. Same protocol, so they
+ *  are interchangeable for the chargers & places query. */
+private val OVERPASS_PRESETS = listOf(
+    "OpenStreetMap (default)" to "https://overpass-api.de/api/interpreter",
+    "OpenStreetMap France" to "https://overpass.openstreetmap.fr/api/interpreter",
+    "Kumi Systems" to "https://overpass.kumi.systems/api/interpreter",
+    "Swiss OSM" to "https://overpass.osm.ch/api/interpreter",
+    "private.coffee" to "https://overpass.private.coffee/api/interpreter",
+)
+
+/**
+ * A URL / key field that commits its value on focus loss AND on disposal (so a
+ * value typed then navigated-away-from or section-collapsed is never lost), with
+ * an optional dropdown of known [presets] for services that have interchangeable
+ * public instances.
+ */
+@Composable
+private fun EndpointField(
+    label: String,
+    value: String,
+    enabled: Boolean,
+    onCommit: (String) -> Unit,
+    presets: List<Pair<String, String>> = emptyList(),
+) {
+    var text by rememberSaveable(value) { mutableStateOf(value) }
+    var expanded by remember { mutableStateOf(false) }
+    val latestText by rememberUpdatedState(text)
+    val persisted by rememberUpdatedState(value)
+    fun commit() {
+        val trimmed = latestText.trim()
+        if (trimmed != persisted) onCommit(trimmed)
+    }
+    DisposableEffect(Unit) { onDispose { commit() } }
+
+    // No presets -> no trailing icon at all (a conditionally-empty trailing
+    // composable still reserves space and leaves a visible notch on the right).
+    val dropdownIcon: (@Composable () -> Unit)? = if (presets.isEmpty()) null else {
+        {
+            IconButton(onClick = { expanded = true }, enabled = enabled) {
+                Icon(Icons.Default.ArrowDropDown, contentDescription = null)
+            }
+        }
+    }
+
+    Box(modifier = Modifier.fillMaxWidth()) {
+        OutlinedTextField(
+            value = text,
+            onValueChange = { text = it },
+            enabled = enabled,
+            label = { Text(label) },
+            singleLine = true,
+            trailingIcon = dropdownIcon,
+            modifier = Modifier
+                .fillMaxWidth()
+                .onFocusChanged { fs -> if (!fs.isFocused) commit() },
+            colors = themedFieldColors(),
+        )
+        DropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false },
+        ) {
+            presets.forEach { (name, url) ->
+                DropdownMenuItem(
+                    text = {
+                        Column {
+                            Text(name, style = MaterialTheme.typography.bodyMedium)
+                            Text(
+                                url,
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                    },
+                    onClick = {
+                        text = url
+                        expanded = false
+                        if (url != value) onCommit(url)
+                    }
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun SwitchRow(
+    label: String,
+    checked: Boolean,
+    onChange: (Boolean) -> Unit
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(label, style = MaterialTheme.typography.bodyLarge)
+        Switch(
+            checked = checked,
+            onCheckedChange = onChange,
+            colors = themedSwitchColors(),
+        )
     }
 }
 

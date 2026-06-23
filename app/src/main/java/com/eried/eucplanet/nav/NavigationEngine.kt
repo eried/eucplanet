@@ -170,6 +170,8 @@ class NavigationEngine @Inject constructor(
     private var arrivalRadiusM = 25.0
     private var offRouteToleranceM = 40.0
     private var routerUrl = RoutingService.DEFAULT_ROUTER
+    /** Route avoidances for mid-trip reroutes; all-off keeps reroutes on OSRM. */
+    private var avoidances = RouteAvoidances.NONE
 
     // --- trace / heading state ---
     private data class Fix(val point: GeoPoint, val timeMs: Long, val moving: Boolean)
@@ -253,6 +255,7 @@ class NavigationEngine @Inject constructor(
             arrivalRadiusM = s.navArrivalRadiusM.toDouble()
             offRouteToleranceM = s.navOffRouteToleranceM.toDouble()
             routerUrl = RoutingService.effectiveRouterUrl(s.navRouterUrl)
+            avoidances = RouteAvoidances.from(s)
 
             activeRoute = route
             _activeLeg.value = route
@@ -712,7 +715,7 @@ class NavigationEngine @Inject constructor(
                 }
                 val stops = listOf(Waypoint(from.lat, from.lng)) + remaining
                 if (stops.size >= 2) {
-                    val fresh = routingService.route(route.name, stops, route.travelMode, routerUrl)
+                    val fresh = routingService.route(route.name, stops, route.travelMode, routerUrl, avoidances)
                     // The session may have been stopped or restarted while the
                     // network request was in flight, only adopt the result if
                     // we are still navigating the very same route.
@@ -1089,7 +1092,7 @@ class NavigationEngine @Inject constructor(
         val newLeg = if (mode == TravelMode.STRAIGHT) {
             RoutingService.straightLineRoute(route.name, legWps)
         } else {
-            routingService.route(route.name, legWps, mode, routerUrl)
+            routingService.route(route.name, legWps, mode, routerUrl, avoidances)
                 ?: RoutingService.straightLineRoute(route.name, legWps)
         }
         Log.i(

@@ -38,7 +38,15 @@ object SettingsJson {
         radarVendor = null,
         syncFolderUri = null,
         lastSettingsBackupAt = null,
-        lastSettingsBackupName = null
+        lastSettingsBackupName = null,
+        // Don't write the live Dropbox link into a backup / portable settings
+        // file -- it's device + account state, and an access token shouldn't sit
+        // in a shared file. fromJson keeps the device's current values anyway.
+        dropboxAccessToken = "",
+        dropboxRefreshToken = "",
+        dropboxAccessTokenExpiresAt = 0L,
+        dropboxAccountLabel = "",
+        dropboxLastSyncAt = 0L
     )
 
     fun toJson(s: AppSettings): JSONObject = JSONObject().apply {
@@ -203,8 +211,18 @@ object SettingsJson {
         put("navDefaultTravelMode", s.navDefaultTravelMode)
         put("navGeocoderUrl", s.navGeocoderUrl)
         put("navRouterUrl", s.navRouterUrl)
+        put("navOverpassUrl", s.navOverpassUrl)
+        put("navOcmApiKey", s.navOcmApiKey)
         put("navMapType", s.navMapType)
         put("navSolveFullPath", s.navSolveFullPath)
+        put("navAdvancedMap", s.navAdvancedMap)
+        put("navShowChargers", s.navShowChargers)
+        put("navPlaceCategories", s.navPlaceCategories)
+        put("navPlacesHintShown", s.navPlacesHintShown)
+        put("navAvoidHighways", s.navAvoidHighways)
+        put("navAvoidTolls", s.navAvoidTolls)
+        put("navAvoidFerries", s.navAvoidFerries)
+        put("navAvoidUnpaved", s.navAvoidUnpaved)
         put("watchShowNavigation", s.watchShowNavigation)
         put("hudServerEnabled", s.hudServerEnabled)
         put("hudActionUp", s.hudActionUp)
@@ -238,6 +256,11 @@ object SettingsJson {
         put("chargingEstimateToFull", s.chargingEstimateToFull)
         put("chargingAutoOpen", s.chargingAutoOpen)
         put("chargingDashboardIcon", s.chargingDashboardIcon)
+        put("dropboxAccessToken", s.dropboxAccessToken)
+        put("dropboxRefreshToken", s.dropboxRefreshToken)
+        put("dropboxAccessTokenExpiresAt", s.dropboxAccessTokenExpiresAt)
+        put("dropboxAccountLabel", s.dropboxAccountLabel)
+        put("dropboxLastSyncAt", s.dropboxLastSyncAt)
     }
 
     fun fromJson(j: JSONObject, base: AppSettings = AppSettings()): AppSettings = base.copy(
@@ -413,8 +436,18 @@ object SettingsJson {
         navDefaultTravelMode = j.optString("navDefaultTravelMode", base.navDefaultTravelMode),
         navGeocoderUrl = j.optString("navGeocoderUrl", base.navGeocoderUrl),
         navRouterUrl = j.optString("navRouterUrl", base.navRouterUrl),
+        navOverpassUrl = j.optString("navOverpassUrl", base.navOverpassUrl),
+        navOcmApiKey = j.optString("navOcmApiKey", base.navOcmApiKey),
         navMapType = j.optString("navMapType", base.navMapType),
         navSolveFullPath = j.optBoolean("navSolveFullPath", base.navSolveFullPath),
+        navAdvancedMap = j.optBoolean("navAdvancedMap", base.navAdvancedMap),
+        navShowChargers = j.optBoolean("navShowChargers", base.navShowChargers),
+        navPlaceCategories = j.optString("navPlaceCategories", base.navPlaceCategories),
+        navPlacesHintShown = j.optBoolean("navPlacesHintShown", base.navPlacesHintShown),
+        navAvoidHighways = j.optBoolean("navAvoidHighways", base.navAvoidHighways),
+        navAvoidTolls = j.optBoolean("navAvoidTolls", base.navAvoidTolls),
+        navAvoidFerries = j.optBoolean("navAvoidFerries", base.navAvoidFerries),
+        navAvoidUnpaved = j.optBoolean("navAvoidUnpaved", base.navAvoidUnpaved),
         watchShowNavigation = j.optBoolean("watchShowNavigation", base.watchShowNavigation),
         hudServerEnabled = j.optBoolean("hudServerEnabled", base.hudServerEnabled),
         hudActionUp = j.optString("hudActionUp", base.hudActionUp),
@@ -452,7 +485,18 @@ object SettingsJson {
         dashboardCustomBle = j.optString("dashboardCustomBle", base.dashboardCustomBle),
         chargingEstimateToFull = j.optBoolean("chargingEstimateToFull", base.chargingEstimateToFull),
         chargingAutoOpen = j.optBoolean("chargingAutoOpen", base.chargingAutoOpen),
-        chargingDashboardIcon = j.optBoolean("chargingDashboardIcon", base.chargingDashboardIcon)
+        chargingDashboardIcon = j.optBoolean("chargingDashboardIcon", base.chargingDashboardIcon),
+        // Dropbox link + sync state is device-bound, like the paired BLE address
+        // or the sync folder: a restore must keep the device's live token,
+        // account and last-sync, NOT swap in whatever a (possibly old) backup
+        // captured -- otherwise restoring changes the "Last sync" label and could
+        // even replace a working token with a stale one. Always carry the current
+        // values through, never the JSON's.
+        dropboxAccessToken = base.dropboxAccessToken,
+        dropboxRefreshToken = base.dropboxRefreshToken,
+        dropboxAccessTokenExpiresAt = base.dropboxAccessTokenExpiresAt,
+        dropboxAccountLabel = base.dropboxAccountLabel,
+        dropboxLastSyncAt = base.dropboxLastSyncAt
     )
 
     /** `optString` returns `""` for null and absent keys, which we cannot

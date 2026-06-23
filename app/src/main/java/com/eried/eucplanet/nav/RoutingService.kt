@@ -22,6 +22,37 @@ import javax.inject.Singleton
 data class GeoResult(val name: String, val lat: Double, val lng: Double)
 
 /**
+ * Route avoidance preferences. All false (the default) means "avoid nothing",
+ * which is exactly the historic behaviour and keeps routing on the fast OSRM
+ * backend. Any flag set switches the request to Valhalla (the only key-less
+ * FOSSGIS backend that honours avoidances). Which flags actually bite depends
+ * on the travel mode's Valhalla costing -- see RoutingService.valhallaCosting.
+ */
+data class RouteAvoidances(
+    val highways: Boolean = false,
+    val tolls: Boolean = false,
+    val ferries: Boolean = false,
+    val unpaved: Boolean = false,
+) {
+    /** True when nothing is being avoided -> stay on OSRM. */
+    val none: Boolean get() = !highways && !tolls && !ferries && !unpaved
+
+    /** True when at least one avoidance is requested -> route via Valhalla. */
+    val any: Boolean get() = !none
+
+    companion object {
+        val NONE = RouteAvoidances()
+
+        fun from(s: com.eried.eucplanet.data.model.AppSettings) = RouteAvoidances(
+            highways = s.navAvoidHighways,
+            tolls = s.navAvoidTolls,
+            ferries = s.navAvoidFerries,
+            unpaved = s.navAvoidUnpaved,
+        )
+    }
+}
+
+/**
  * The Navigator's only network code. Talks to free, key-less OpenStreetMap
  * services, Nominatim for address search / reverse lookup, and the FOSSGIS
  * OSRM service (routing.openstreetmap.de, the very router that powers
@@ -48,6 +79,14 @@ class RoutingService @Inject constructor() {
          * openstreetmap.org's own directions: reliable and key-less.
          */
         const val DEFAULT_ROUTER = "https://routing.openstreetmap.de"
+
+        /**
+         * Avoidance-capable backend. The OSRM service above rejects every
+         * `exclude=` flag, so when the rider opts into an avoidance the request
+         * goes here instead: the key-less FOSSGIS Valhalla, same provider
+         * family, which exposes per-costing avoidance weights.
+         */
+        const val DEFAULT_VALHALLA = "https://valhalla1.openstreetmap.de/route"
 
         // Nominatim's usage policy asks for an identifying User-Agent.
         private const val USER_AGENT = "EUCPlanet-Navigator/1.0 (github.com/eried/eucplanet)"
@@ -104,6 +143,59 @@ class RoutingService @Inject constructor() {
                 maneuvers = emptyList(),
                 totalDistanceM = GeoMath.polylineLengthM(geometry)
             )
+        }
+
+        /** Valhalla costing string for a travel mode (STRAIGHT never routes). */
+        fun valhallaCosting(mode: TravelMode): String = when (mode) {
+            TravelMode.DRIVING -> "auto"
+            TravelMode.WALKING -> "pedestrian"
+            else -> "bicycle" // CYCLING / EUC
+        }
+
+        /**
+         * Builds the Valhalla `costing_options` object for one costing from the
+         * rider's avoidances. Valhalla expresses avoidances as 0..1 weights, so
+         * "avoid X" is `use_x = 0` (and `avoid_bad_surfaces = 1` for unpaved).
+         * Flags the costing has no knob for are simply omitted: a car costing
+         * has no surface knob, a bike/pedestrian costing has no highway/toll
+         * knob -- the toggle is still stored, it just doesn't bite in that mode.
+         * Returns null when nothing applies (caller then omits costing_options).
+         */
+        fun valhallaCostingOptions(costing: String, avoid: RouteAvoidances): JSONObject? {
+            val opts = JSONObject()
+            if (avoid.ferries) opts.put("use_ferry", 0)
+            when (costing) {
+                "auto" -> {
+                    if (avoid.highways) opts.put("use_highways", 0)
+                    if (avoid.tolls) opts.put("use_tolls", 0)
+                }
+                "bicycle" -> {
+                    if (avoid.unpaved) opts.put("avoid_bad_surfaces", 1)
+                }
+            }
+            if (opts.length() == 0) return null
+            return JSONObject().put(costing, opts)
+        }
+
+        /**
+         * Maps a Valhalla maneuver `type` (integer enum) to our normalised
+         * [TurnType]. Valhalla's enum is documented at
+         * valhalla.github.io/valhalla/api/turn-by-turn/api-reference (maneuver
+         * type table); the cases below cover the road/ramp/roundabout/ferry set
+         * the bicycle / auto / pedestrian costings emit.
+         */
+        fun mapValhallaManeuver(type: Int): TurnType = when (type) {
+            1, 2, 3 -> TurnType.DEPART                       // start / start right / start left
+            4, 5, 6 -> TurnType.ARRIVE                       // destination(s)
+            9 -> TurnType.SLIGHT_RIGHT
+            10, 18, 20, 23, 37 -> TurnType.RIGHT             // right / ramp-right / exit-right / stay-right / merge-right
+            11 -> TurnType.SHARP_RIGHT
+            12, 13 -> TurnType.UTURN
+            14 -> TurnType.SHARP_LEFT
+            15, 19, 21, 24, 38 -> TurnType.LEFT              // left / ramp-left / exit-left / stay-left / merge-left
+            16 -> TurnType.SLIGHT_LEFT
+            26, 27 -> TurnType.ROUNDABOUT                    // roundabout enter / exit
+            else -> TurnType.CONTINUE                        // continue / becomes / ramp-straight / stay-straight / merge / ferry / transit
         }
     }
 
@@ -175,10 +267,19 @@ class RoutingService @Inject constructor() {
         name: String,
         waypoints: List<Waypoint>,
         mode: TravelMode,
-        endpoint: String = DEFAULT_ROUTER
+        endpoint: String = DEFAULT_ROUTER,
+        avoid: RouteAvoidances = RouteAvoidances.NONE,
     ): NavRoute? = withContext(Dispatchers.IO) {
         if (waypoints.size < 2) return@withContext null
         if (mode == TravelMode.STRAIGHT) return@withContext straightLineRoute(name, waypoints)
+        // An avoidance was requested: the OSRM service can't honour it, so solve
+        // on Valhalla instead. If Valhalla fails, fall through to the OSRM
+        // attempt below so the rider still gets a route (without the avoidance)
+        // rather than nothing.
+        if (avoid.any) {
+            routeViaValhalla(name, waypoints, mode, avoid)?.let { return@withContext it }
+            Log.w(TAG, "Valhalla route failed; falling back to OSRM without avoidance")
+        }
         try {
             val base = endpoint.trimEnd('/')
             // OSRM coordinates are lon,lat pairs, semicolon-separated, in the path.
@@ -191,6 +292,107 @@ class RoutingService @Inject constructor() {
             Log.w(TAG, "route failed: ${e.message}")
             null
         }
+    }
+
+    // --- Valhalla (avoidance-capable) routing -------------------------------------
+
+    /**
+     * Solves [waypoints] on the FOSSGIS Valhalla backend with the rider's
+     * [avoid] preferences applied as costing options. Returns the same
+     * [NavRoute] shape as the OSRM path, or null on any failure (caller then
+     * falls back to OSRM). Uses a GET with the request as a url-encoded `json`
+     * param so it reuses [httpGet] -- the payload is tiny for <=25 stops.
+     */
+    private fun routeViaValhalla(
+        name: String,
+        waypoints: List<Waypoint>,
+        mode: TravelMode,
+        avoid: RouteAvoidances,
+    ): NavRoute? {
+        return try {
+            val costing = valhallaCosting(mode)
+            val req = JSONObject().apply {
+                put("locations", JSONArray().also { arr ->
+                    waypoints.forEach { w ->
+                        arr.put(JSONObject().put("lat", w.lat).put("lon", w.lng))
+                    }
+                })
+                put("costing", costing)
+                valhallaCostingOptions(costing, avoid)?.let { put("costing_options", it) }
+                put("directions_options", JSONObject().put("units", "kilometers"))
+            }
+            val url = "$DEFAULT_VALHALLA?json=${enc(req.toString())}"
+            val body = httpGet(url) ?: return null
+            parseValhalla(JSONObject(body), name, waypoints, mode)?.also {
+                Log.i(TAG, "routed via Valhalla ($costing, avoid=$avoid): ${it.geometry.size} pts")
+            }
+        } catch (e: Exception) {
+            Log.w(TAG, "Valhalla route failed: ${e.message}")
+            null
+        }
+    }
+
+    private fun parseValhalla(
+        json: JSONObject,
+        name: String,
+        waypoints: List<Waypoint>,
+        mode: TravelMode,
+    ): NavRoute? {
+        val trip = json.optJSONObject("trip") ?: return null
+        if (trip.optInt("status", -1) != 0) return null
+        val legs = trip.optJSONArray("legs") ?: return null
+        if (legs.length() == 0) return null
+
+        val geometry = ArrayList<GeoPoint>()
+        val maneuvers = ArrayList<Maneuver>()
+        var cumulativeM = 0.0
+        val lastLeg = legs.length() - 1
+        for (li in 0 until legs.length()) {
+            val leg = legs.getJSONObject(li)
+            val legShape = decodePolyline6(leg.optString("shape"))
+            // Concatenate legs into one polyline; each leg's first point repeats
+            // the previous leg's last point, so drop it after the first leg.
+            if (legShape.isNotEmpty()) {
+                if (geometry.isEmpty()) geometry.addAll(legShape)
+                else geometry.addAll(legShape.drop(1))
+            }
+            val steps = leg.optJSONArray("maneuvers") ?: continue
+            val lastMan = steps.length() - 1
+            for (si in 0 until steps.length()) {
+                val step = steps.getJSONObject(si)
+                val type = mapValhallaManeuver(step.optInt("type", 0))
+                val isFirst = li == 0 && si == 0
+                val isLast = li == lastLeg && si == lastMan
+                val keep = when (type) {
+                    TurnType.DEPART -> isFirst
+                    TurnType.ARRIVE -> isLast
+                    else -> true
+                }
+                val idx = step.optInt("begin_shape_index", -1)
+                val pt = legShape.getOrNull(idx)
+                if (keep && pt != null) {
+                    val streets = step.optJSONArray("street_names")
+                    val street = if (streets != null && streets.length() > 0)
+                        streets.optString(0) else ""
+                    maneuvers.add(
+                        Maneuver(
+                            point = pt,
+                            type = type,
+                            instruction = step.optString("instruction"),
+                            streetName = street,
+                            distanceFromStartM = cumulativeM
+                        )
+                    )
+                }
+                // Valhalla maneuver length is in km (we requested kilometers).
+                cumulativeM += step.optDouble("length", 0.0) * 1000.0
+            }
+        }
+        if (geometry.size < 2) return null
+        val summaryKm = trip.optJSONObject("summary")?.optDouble("length", 0.0) ?: 0.0
+        val totalM = if (summaryKm > 0.0) summaryKm * 1000.0
+        else GeoMath.polylineLengthM(geometry)
+        return NavRoute(name, waypoints, mode, geometry, maneuvers, totalM)
     }
 
     // --- OSRM response parsing ----------------------------------------------------

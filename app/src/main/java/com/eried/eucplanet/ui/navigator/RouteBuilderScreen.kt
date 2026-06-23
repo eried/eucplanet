@@ -28,7 +28,9 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -38,12 +40,18 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.DirectionsBike
 import androidx.compose.material.icons.filled.DirectionsCar
 import androidx.compose.material.icons.filled.DirectionsWalk
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.CheckBox
+import androidx.compose.material.icons.filled.CheckBoxOutlineBlank
+import androidx.compose.material.icons.filled.Explore
 import androidx.compose.material.icons.filled.DragHandle
+import androidx.compose.material.icons.filled.EvStation
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.Layers
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.MyLocation
+import androidx.compose.material.icons.filled.OpenInNew
 import androidx.compose.material.icons.filled.Place
 import androidx.compose.foundation.clickable
 import androidx.compose.material.icons.filled.Home
@@ -55,6 +63,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.material.icons.filled.Timeline
 import androidx.compose.material3.Button
+import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.rememberModalBottomSheetState
+import coil.compose.AsyncImage
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -85,6 +97,7 @@ import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -105,7 +118,16 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.eried.eucplanet.R
 import com.eried.eucplanet.data.model.NavMode
 import com.eried.eucplanet.data.model.TravelMode
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.sp
 import com.eried.eucplanet.nav.NavFormat
+import com.eried.eucplanet.nav.OcmCharger
+import com.eried.eucplanet.nav.PoiKind
+import com.eried.eucplanet.nav.PointOfInterest
+import kotlin.math.roundToInt
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import sh.calvin.reorderable.ReorderableColumn
 import com.eried.eucplanet.ui.theme.themedFieldColors
@@ -145,6 +167,16 @@ fun RouteBuilderScreen(
     val workPlace by viewModel.work.collectAsState()
     // While guidance runs the map is read-only: no search, no stop editing.
     val navRunning by viewModel.navRunning.collectAsState()
+    val advancedMap by viewModel.advancedMap.collectAsState()
+    val showChargers by viewModel.showChargers.collectAsState()
+    val placeCats by viewModel.placeCats.collectAsState()
+    val showPlaces = placeCats.isNotEmpty()
+    val pois by viewModel.pois.collectAsState()
+    val selectedPoi by viewModel.selectedPoi.collectAsState()
+    val selectedPoiOcm by viewModel.selectedPoiOcm.collectAsState()
+    val ocmLoading by viewModel.ocmLoading.collectAsState()
+    val chargerLoading by viewModel.chargerLoading.collectAsState()
+    val placeLoading by viewModel.placeLoading.collectAsState()
     // Persisted custom marker photo (base64 data URL or null).
     val markerPhoto by viewModel.userMarkerPhoto.collectAsState()
     // When a freshly-picked image is decoded, it lands here and the crop
@@ -168,6 +200,30 @@ fun RouteBuilderScreen(
 
     var searchText by rememberSaveable { mutableStateOf("") }
     var searchFocused by remember { mutableStateOf(false) }
+
+    // An address-shape Share intent pushes its raw text here so the rider
+    // sees what was passed in (and can edit / cancel) instead of the VM
+    // silently picking one of several Nominatim hits.
+    LaunchedEffect(Unit) {
+        viewModel.fillSearchText.collect { txt ->
+            searchText = txt
+        }
+    }
+
+    // Backgrounding the app dismisses any pending "Add shared destination?"
+    // dialog — matches the rider's mental model that walking away from the
+    // prompt cancels it, and avoids a stale dialog reappearing days later.
+    val lifecycleOwner = androidx.lifecycle.compose.LocalLifecycleOwner.current
+    DisposableEffect(lifecycleOwner) {
+        val obs = androidx.lifecycle.LifecycleEventObserver { _, e ->
+            if (e == androidx.lifecycle.Lifecycle.Event.ON_STOP) {
+                viewModel.dismissPendingShare()
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(obs)
+        onDispose { lifecycleOwner.lifecycle.removeObserver(obs) }
+    }
+    val pendingShare by viewModel.pendingShare.collectAsState()
     val focusManager = LocalFocusManager.current
     val density = androidx.compose.ui.platform.LocalDensity.current
     var menuOpen by remember { mutableStateOf(false) }
@@ -393,6 +449,16 @@ fun RouteBuilderScreen(
     LaunchedEffect(pageReady, mapType) {
         if (pageReady) {
             webView?.evaluateJavascript("nativeSetMapType('$mapType');", null)
+        }
+    }
+
+    // Push the faint charger/station layer to the map whenever it changes (an
+    // empty list clears it, e.g. when the rider turns the layer off).
+    LaunchedEffect(pageReady, pois) {
+        if (pageReady) {
+            webView?.evaluateJavascript(
+                "nativeSetPois(${jsString(viewModel.poisJson())});", null
+            )
         }
     }
 
@@ -710,6 +776,9 @@ fun RouteBuilderScreen(
                                 mapViewChanged = { lat, lng, zoom ->
                                     viewModel.setSavedView(lat, lng, zoom)
                                 },
+                                mapBoundsChanged = { s, w, n, e ->
+                                    viewModel.onMapViewportChanged(s, w, n, e)
+                                },
                                 tilesLoaded = {
                                     if (!tilesLoaded) tilesLoaded = true
                                 },
@@ -730,7 +799,8 @@ fun RouteBuilderScreen(
                                         markerMenuIndex = idx
                                         markerMenuOffset = DpOffset(x.dp, y.dp)
                                     }
-                                }
+                                },
+                                poiTapped = { id -> viewModel.onPoiTapped(id) }
                             ),
                             "AndroidNav"
                         )
@@ -932,6 +1002,57 @@ fun RouteBuilderScreen(
                     .align(Alignment.BottomCenter)
                     .fillMaxWidth()
             ) {
+                // The charger + places overlay toggles only exist when advanced
+                // map features are on. The icon stays visible while loading (a
+                // ring overlays it) so the button is always tappable, and the
+                // spinner only shows on the layer(s) actually being fetched.
+                if (advancedMap) {
+                    OverlayFab(
+                        active = showChargers,
+                        loading = chargerLoading,
+                        icon = Icons.Default.EvStation,
+                        contentDescription = stringResource(R.string.nav_show_chargers),
+                        onClick = { viewModel.toggleChargers() },
+                        // Long-press jumps to Navigation settings (where the
+                        // Open Charge Map / charger community key lives).
+                        onLongClick = { onOpenNavSettings() },
+                        modifier = Modifier
+                            .align(Alignment.End)
+                            .padding(end = 16.dp, bottom = 12.dp)
+                    )
+                    Box(modifier = Modifier.align(Alignment.End)) {
+                        var placesMenu by remember { mutableStateOf(false) }
+                        OverlayFab(
+                            active = showPlaces,
+                            loading = placeLoading,
+                            icon = Icons.Default.Explore,
+                            contentDescription = stringResource(R.string.nav_show_places),
+                            onClick = { viewModel.togglePlaces() },
+                            onLongClick = { placesMenu = true },
+                            modifier = Modifier.padding(end = 16.dp, bottom = 12.dp)
+                        )
+                        DropdownMenu(
+                            expanded = placesMenu,
+                            onDismissRequest = { placesMenu = false },
+                            containerColor = MaterialTheme.appColors.menuBackground
+                        ) {
+                            PoiKind.PLACES.forEach { kind ->
+                                val on = kind in placeCats
+                                DropdownMenuItem(
+                                    leadingIcon = {
+                                        Icon(
+                                            if (on) Icons.Default.CheckBox
+                                            else Icons.Default.CheckBoxOutlineBlank,
+                                            contentDescription = null
+                                        )
+                                    },
+                                    text = { Text(stringResource(placeCategoryLabel(kind))) },
+                                    onClick = { viewModel.setPlaceCategory(kind, !on) }
+                                )
+                            }
+                        }
+                    }
+                }
                 FloatingActionButton(
                     onClick = { viewModel.cycleMapType() },
                     modifier = Modifier
@@ -1001,6 +1122,29 @@ fun RouteBuilderScreen(
                     canStartNavigation = userLocation != null && waypoints.isNotEmpty(),
                     navRunning = navRunning && !navStarting,
                     modifier = Modifier.onSizeChanged { sz -> panelHeightPx = sz.height }
+                )
+            }
+
+            // Charger / station details, opened by tapping a faint POI marker.
+            selectedPoi?.let { poi ->
+                PoiDetailsSheet(
+                    poi = poi,
+                    imperial = imperial,
+                    canAdd = !navRunning,
+                    ocm = selectedPoiOcm,
+                    ocmLoading = ocmLoading,
+                    onAddStop = { viewModel.addPoiAsStop(poi) },
+                    onOpenUrl = { url ->
+                        runCatching {
+                            context.startActivity(
+                                android.content.Intent(
+                                    android.content.Intent.ACTION_VIEW,
+                                    android.net.Uri.parse(url)
+                                ).addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)
+                            )
+                        }
+                    },
+                    onDismiss = { viewModel.dismissPoiDetails() }
                 )
             }
 
@@ -1111,6 +1255,34 @@ fun RouteBuilderScreen(
                             }
                         )
                     }
+                    // Remove this stop. Hidden while navigation is running or once
+                    // the whole route is passed (matches the list-row menu).
+                    val canRemoveMarker = !navRunning &&
+                        !(waypoints.isNotEmpty() && waypoints.all { it.passed })
+                    if (canRemoveMarker) {
+                        if (homePlace == null || workPlace == null) {
+                            HorizontalDivider(color = MaterialTheme.appColors.divider)
+                        }
+                        DropdownMenuItem(
+                            leadingIcon = {
+                                Icon(
+                                    Icons.Default.Delete,
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.error
+                                )
+                            },
+                            text = {
+                                Text(
+                                    stringResource(R.string.nav_remove_stop),
+                                    color = MaterialTheme.colorScheme.error
+                                )
+                            },
+                            onClick = {
+                                val i = markerMenuIndex; markerMenuIndex = -1
+                                if (i >= 0) viewModel.removeWaypoint(i)
+                            }
+                        )
+                    }
                 }
             }
 
@@ -1133,8 +1305,32 @@ fun RouteBuilderScreen(
                 )
             }
 
+            // A Share-to-app intent landed on a route that already has
+            // stops. Ask before stomping on the rider's current route —
+            // "New route" wipes stops then drops the shared point, "Add
+            // as next" appends. Dismissing (back / outside tap) cancels
+            // the share; the lifecycle observer also clears it on app
+            // backgrounding so a stale dialog never reappears later.
+            if (pendingShare != null) {
+                androidx.compose.material3.AlertDialog(
+                    onDismissRequest = { viewModel.dismissPendingShare() },
+                    title = { Text(stringResource(R.string.nav_share_dialog_title)) },
+                    text = { Text(stringResource(R.string.nav_share_dialog_body)) },
+                    confirmButton = {
+                        TextButton(onClick = { viewModel.acceptPendingShareAppend() }) {
+                            Text(stringResource(R.string.nav_share_dialog_append))
+                        }
+                    },
+                    dismissButton = {
+                        TextButton(onClick = { viewModel.acceptPendingShareAsNewRoute() }) {
+                            Text(stringResource(R.string.nav_share_dialog_new))
+                        }
+                    }
+                )
+            }
+
             // Confirm before replacing an unsaved multi-stop route with the
-            // GPX the rider just picked. We already have the URI in hand , 
+            // GPX the rider just picked. We already have the URI in hand ,
             // confirming "Replace?" only makes sense AFTER a file is chosen,
             // because cancelling the picker should be a no-op.
             val pendingUri = pendingGpxUri
@@ -1754,6 +1950,25 @@ private fun BottomPanel(
                                                 onClick = { rowMenu = false; onSaveWork(index) }
                                             )
                                         }
+                                        if (!navRunning && !allPassed) {
+                                            HorizontalDivider(color = MaterialTheme.appColors.divider)
+                                            DropdownMenuItem(
+                                                leadingIcon = {
+                                                    Icon(
+                                                        Icons.Default.Delete,
+                                                        contentDescription = null,
+                                                        tint = MaterialTheme.colorScheme.error
+                                                    )
+                                                },
+                                                text = {
+                                                    Text(
+                                                        stringResource(R.string.nav_remove_stop),
+                                                        color = MaterialTheme.colorScheme.error
+                                                    )
+                                                },
+                                                onClick = { rowMenu = false; onRemove(index) }
+                                            )
+                                        }
                                     }
                                 }
                             }
@@ -1765,6 +1980,381 @@ private fun BottomPanel(
         }
     }
 }
+
+/**
+ * Bottom sheet shown when the rider taps a faint charger / station marker.
+ * Surfaces the place's name, kind, brand, opening hours, on-route distance and
+ * an Add-as-stop action (which inserts it intelligently into the route).
+ */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun PoiDetailsSheet(
+    poi: PointOfInterest,
+    imperial: Boolean,
+    canAdd: Boolean,
+    ocm: OcmCharger?,
+    ocmLoading: Boolean,
+    onAddStop: () -> Unit,
+    onOpenUrl: (String) -> Unit,
+    onDismiss: () -> Unit,
+) {
+    // Open fully expanded so the (taller) charger flyout with OCM details shows
+    // without the rider needing to drag the sheet up.
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    // The Open Charge Map card -- and its photos -- load async and grow the
+    // content in BURSTS. The earlier "expand on every measured-height change"
+    // failed because each burst restarts this effect and cancels the in-flight
+    // expand() animation mid-way, leaving the sheet half-open. Fix: debounce so
+    // the expand runs only once the height has settled (the cancel-restart no
+    // longer interrupts a real animation), then confirm a beat later in case the
+    // first attempt raced the sheet's own anchor refresh.
+    var contentHeight by remember { mutableStateOf(0) }
+    LaunchedEffect(contentHeight) {
+        if (!sheetState.isVisible || contentHeight == 0) return@LaunchedEffect
+        delay(110)
+        runCatching { sheetState.expand() }
+        delay(180)
+        runCatching { sheetState.expand() }
+    }
+    ModalBottomSheet(
+        onDismissRequest = onDismiss,
+        sheetState = sheetState
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .verticalScroll(rememberScrollState())
+                .onSizeChanged { contentHeight = it.height }
+                .padding(start = 20.dp, end = 20.dp, bottom = 28.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            val kindLabel = when (poi.kind) {
+                PoiKind.CHARGER -> stringResource(R.string.nav_poi_charger)
+                PoiKind.STORE -> stringResource(R.string.nav_poi_store)
+                PoiKind.FOOD -> stringResource(R.string.nav_poi_food)
+                PoiKind.REST -> stringResource(R.string.nav_poi_rest)
+                PoiKind.SIGHTS -> stringResource(R.string.nav_poi_sights)
+            }
+            Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                Text(
+                    poi.name.ifBlank { kindLabel },
+                    style = MaterialTheme.typography.titleLarge
+                )
+                val subtitle = if (poi.brand.isNotBlank() && poi.brand != poi.name)
+                    "$kindLabel · ${poi.brand}" else kindLabel
+                Text(
+                    subtitle,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.primary
+                )
+            }
+
+            // All the OSM detail gathered into one tidy card, each row shown
+            // only when that tag is present.
+            Surface(
+                shape = RoundedCornerShape(14.dp),
+                color = MaterialTheme.colorScheme.surfaceVariant,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Column(
+                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
+                    verticalArrangement = Arrangement.spacedBy(6.dp)
+                ) {
+                    val infoLabel = when (poi.kind) {
+                        PoiKind.CHARGER -> stringResource(R.string.nav_poi_sockets)
+                        PoiKind.FOOD -> stringResource(R.string.nav_poi_cuisine)
+                        else -> stringResource(R.string.nav_poi_type)
+                    }
+                    PoiInfoLine(infoLabel, poi.info)
+                    PoiInfoLine(stringResource(R.string.nav_poi_network), poi.network)
+                    PoiInfoLine(stringResource(R.string.nav_poi_operator), poi.operator)
+                    PoiInfoLine(stringResource(R.string.nav_poi_capacity), poi.capacity)
+                    PoiInfoLine(stringResource(R.string.nav_poi_hours), poi.openingHours)
+                    PoiInfoLine(stringResource(R.string.nav_poi_access), poi.access)
+                    PoiInfoLine(stringResource(R.string.nav_poi_fee), poi.fee)
+                    PoiInfoLine(stringResource(R.string.nav_poi_phone), poi.phone)
+                    PoiInfoLine(
+                        stringResource(R.string.nav_poi_distance),
+                        formatDistanceShort(poi.distanceFromRouteM, imperial)
+                    )
+                    // Tiny attribution tucked into the card, bottom-right.
+                    Text(
+                        stringResource(R.string.nav_poi_source),
+                        style = MaterialTheme.typography.labelSmall,
+                        fontSize = 9.sp,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
+                        modifier = Modifier.align(Alignment.End)
+                    )
+                }
+            }
+
+            // Community data from Open Charge Map, for chargers when a key is set.
+            if (ocmLoading) {
+                // Reserve roughly an OCM card's height while loading so the sheet
+                // opens tall enough to show the action buttons right away and
+                // barely needs to grow when the card arrives -- belt-and-braces
+                // with the debounced re-expand above.
+                Box(
+                    modifier = Modifier.fillMaxWidth().heightIn(min = 160.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(16.dp), strokeWidth = 2.dp
+                        )
+                        Spacer(Modifier.width(8.dp))
+                        Text(
+                            stringResource(R.string.nav_ocm_loading),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                }
+            }
+            ocm?.let { OcmCommunityCard(it, onOpenUrl) }
+
+            // Add-as-stop and open-online sit side by side, half and half. There
+            // is always somewhere to open online: the place's own website when
+            // OSM has one, otherwise its OpenStreetMap page (where any photos /
+            // extra tags / edits live).
+            val hasWebsite = poi.website.startsWith("http")
+            val onlineUrl = if (hasWebsite) poi.website
+            else "https://www.openstreetmap.org/node/${poi.id}"
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                Button(
+                    onClick = onAddStop,
+                    enabled = canAdd,
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Icon(Icons.Default.Add, contentDescription = null)
+                    Spacer(Modifier.width(6.dp))
+                    Text(stringResource(R.string.nav_poi_add_stop), maxLines = 1)
+                }
+                OutlinedButton(
+                    onClick = { onOpenUrl(onlineUrl) },
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Icon(Icons.Default.OpenInNew, contentDescription = null)
+                    Spacer(Modifier.width(6.dp))
+                    Text(
+                        stringResource(
+                            if (hasWebsite) R.string.nav_poi_website
+                            else R.string.nav_poi_osm
+                        ),
+                        maxLines = 1
+                    )
+                }
+            }
+        }
+    }
+}
+
+/**
+ * Open Charge Map community card for a charger: connectors, status, cost, an
+ * average rating, recent comments / check-ins, photos and a link out to OCM.
+ */
+@Composable
+private fun OcmCommunityCard(ocm: OcmCharger, onOpenUrl: (String) -> Unit) {
+    Surface(
+        shape = RoundedCornerShape(14.dp),
+        color = MaterialTheme.colorScheme.surfaceVariant,
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Column(
+            modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
+            verticalArrangement = Arrangement.spacedBy(6.dp)
+        ) {
+            // Title doubles as the link out to the OCM page (open-in-new icon).
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.clickable { onOpenUrl(ocm.ocmUrl) }
+                ) {
+                    Text(
+                        stringResource(R.string.nav_ocm_title),
+                        style = MaterialTheme.typography.titleSmall,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                    Spacer(Modifier.width(4.dp))
+                    Icon(
+                        Icons.Default.OpenInNew,
+                        contentDescription = stringResource(R.string.nav_ocm_open),
+                        tint = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.size(16.dp)
+                    )
+                }
+                ocm.avgRating?.let {
+                    Text(
+                        "★ %.1f (%d)".format(it, ocm.ratingCount),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                }
+            }
+            PoiInfoLine(stringResource(R.string.nav_ocm_connectors), ocm.connectors)
+            ocm.numberOfPoints?.let {
+                PoiInfoLine(stringResource(R.string.nav_ocm_points), it.toString())
+            }
+            PoiInfoLine(stringResource(R.string.nav_ocm_usage), ocm.usageType)
+            PoiInfoLine(stringResource(R.string.nav_ocm_cost), ocm.usageCost)
+            PoiInfoLine(stringResource(R.string.nav_poi_operator), ocm.operator)
+            PoiInfoLine(stringResource(R.string.nav_ocm_status), ocm.status)
+            PoiInfoLine(stringResource(R.string.nav_ocm_address), ocm.address)
+            PoiInfoLine(stringResource(R.string.nav_poi_phone), ocm.phone)
+            PoiInfoLine(stringResource(R.string.nav_ocm_access), ocm.accessComments)
+            PoiInfoLine(stringResource(R.string.nav_ocm_verified), ocm.lastVerified)
+            // Inline photo thumbnails (Coil), tappable to open full size.
+            if (ocm.photoUrls.isNotEmpty()) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .horizontalScroll(rememberScrollState()),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    ocm.photoUrls.take(8).forEach { url ->
+                        AsyncImage(
+                            model = url,
+                            contentDescription = null,
+                            contentScale = ContentScale.Crop,
+                            modifier = Modifier
+                                .size(84.dp)
+                                .clip(RoundedCornerShape(8.dp))
+                                .clickable { onOpenUrl(url) }
+                        )
+                    }
+                }
+            }
+            ocm.comments.take(3).forEach { c ->
+                Column(modifier = Modifier.padding(top = 4.dp)) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            c.user,
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                        if (c.rating != null) {
+                            Spacer(Modifier.width(6.dp))
+                            Text(
+                                "★".repeat(c.rating.coerceIn(1, 5)),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.primary
+                            )
+                        }
+                        Spacer(Modifier.weight(1f))
+                        Text(
+                            c.date,
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                    val line = listOf(c.checkin, c.text).filter { it.isNotBlank() }
+                        .joinToString(". ")
+                    if (line.isNotBlank()) {
+                        Text(line, style = MaterialTheme.typography.bodySmall)
+                    }
+                }
+            }
+            Text(
+                stringResource(R.string.nav_ocm_attrib),
+                style = MaterialTheme.typography.labelSmall,
+                fontSize = 9.sp,
+                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
+                modifier = Modifier.align(Alignment.End)
+            )
+        }
+    }
+}
+
+/**
+ * A FAB-styled toggle whose icon stays visible while [loading] (a ring overlays
+ * it, so the button is always tappable) and that supports an optional
+ * long-press. Used for the charger / places overlay toggles.
+ */
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+private fun OverlayFab(
+    active: Boolean,
+    loading: Boolean,
+    icon: ImageVector,
+    contentDescription: String,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    onLongClick: (() -> Unit)? = null,
+) {
+    val onColor = if (active) MaterialTheme.colorScheme.onPrimary
+    else MaterialTheme.colorScheme.onSurface
+    Surface(
+        shape = RoundedCornerShape(16.dp),
+        color = if (active) MaterialTheme.colorScheme.primary
+        else MaterialTheme.colorScheme.surface,
+        shadowElevation = 6.dp,
+        modifier = modifier
+            .size(56.dp)
+            .combinedClickable(onClick = onClick, onLongClick = onLongClick)
+    ) {
+        Box(contentAlignment = Alignment.Center) {
+            Icon(icon, contentDescription, tint = onColor)
+            if (loading) {
+                CircularProgressIndicator(
+                    modifier = Modifier.size(40.dp),
+                    strokeWidth = 2.dp,
+                    color = onColor.copy(alpha = 0.6f)
+                )
+            }
+        }
+    }
+}
+
+/** String resource for a place category label (used by the long-press picker). */
+private fun placeCategoryLabel(kind: PoiKind): Int = when (kind) {
+    PoiKind.STORE -> R.string.nav_poi_store
+    PoiKind.FOOD -> R.string.nav_poi_food
+    PoiKind.REST -> R.string.nav_poi_rest
+    PoiKind.SIGHTS -> R.string.nav_poi_sights
+    PoiKind.CHARGER -> R.string.nav_poi_charger
+}
+
+/** One "Label  value" row inside the details card; hidden when value is blank. */
+@Composable
+private fun PoiInfoLine(label: String, value: String) {
+    if (value.isBlank()) return
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        Text(
+            label,
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        Text(
+            value,
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurface,
+            textAlign = TextAlign.End,
+            modifier = Modifier.padding(start = 16.dp)
+        )
+    }
+}
+
+/** Short distance readout in the rider's units (m/km or ft/mi). */
+private fun formatDistanceShort(meters: Double, imperial: Boolean): String =
+    if (imperial) {
+        val ft = meters * 3.28084
+        if (ft < 1000) "${ft.roundToInt()} ft" else String.format("%.1f mi", meters / 1609.344)
+    } else {
+        if (meters < 1000) "${meters.roundToInt()} m" else String.format("%.1f km", meters / 1000.0)
+    }
 
 /**
  * JavaScript → native bridge for the Leaflet map. `@JavascriptInterface` methods
@@ -1781,7 +2371,9 @@ private class NavJsBridge(
     private val selfTap: (Int, Int) -> Unit,
     private val markerTapped: (Int, Int, Int) -> Unit,
     private val mapViewChanged: (Double, Double, Float) -> Unit,
-    private val tilesLoaded: () -> Unit
+    private val mapBoundsChanged: (Double, Double, Double, Double) -> Unit,
+    private val tilesLoaded: () -> Unit,
+    private val poiTapped: (Long) -> Unit
 ) {
     private val main = Handler(Looper.getMainLooper())
 
@@ -1824,8 +2416,19 @@ private class NavJsBridge(
     }
 
     @JavascriptInterface
+    fun onMapBounds(south: Double, west: Double, north: Double, east: Double) {
+        main.post { mapBoundsChanged(south, west, north, east) }
+    }
+
+    @JavascriptInterface
     fun onTilesLoaded() {
         main.post { tilesLoaded() }
+    }
+
+    @JavascriptInterface
+    fun onPoiTapped(id: String) {
+        val parsed = id.toLongOrNull() ?: return
+        main.post { poiTapped(parsed) }
     }
 }
 

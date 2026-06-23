@@ -173,11 +173,15 @@ fun RecordingScreen(
     }
 
     tripToShare?.let { trip ->
+        val dropboxLinked by viewModel.dropboxLinked.collectAsState()
         TripActionDialog(
             onShareFile = { viewModel.shareTrip(trip) },
             onViewOnline = { onViewOnline?.invoke(trip.id) },
             onReplay = { onReplayTrip?.invoke(trip.id) },
-            onDismiss = { tripToShare = null }
+            onDismiss = { tripToShare = null },
+            dropboxLinked = dropboxLinked,
+            onShareViaDropbox = { viewModel.shareViaDropbox(trip) },
+            onInspectOnline = { viewModel.inspectOnline(trip) },
         )
     }
 

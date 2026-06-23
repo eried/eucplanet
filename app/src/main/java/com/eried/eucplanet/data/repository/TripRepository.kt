@@ -113,6 +113,9 @@ class TripRepository @Inject constructor(
             if (appSettings.onlineUploadEnabled && syncManager.riderStoreId.value != null) {
                 syncManager.enqueueEucStatsUpload(appSettings)
             }
+            if (appSettings.dropboxAccessToken.isNotBlank()) {
+                syncManager.enqueueDropboxSync()
+            }
         }
     }
 
@@ -484,6 +487,12 @@ class TripRepository @Inject constructor(
         if (appSettings.onlineUploadEnabled && syncManager.riderStoreId.value != null) {
             syncManager.enqueueEucStatsUpload(appSettings)
             Log.i(TAG, "Eucstats upload enqueued (incl. retry sweep for prior failures)")
+        }
+        // Dropbox mirrors the trip too if the rider has it linked. Runs
+        // in parallel to the folder + eucstats workers under its own
+        // unique-work name so failures retry independently.
+        if (appSettings.dropboxAccessToken.isNotBlank()) {
+            syncManager.enqueueDropboxSync()
         }
     }
 
