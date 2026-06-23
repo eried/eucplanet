@@ -1996,9 +1996,16 @@ private fun PoiDetailsSheet(
 ) {
     // Open fully expanded so the (taller) charger flyout with OCM details shows
     // without the rider needing to drag the sheet up.
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    // The Open Charge Map card loads async; when it (or the loading row) changes
+    // the content height, re-expand so the sheet grows to fit instead of getting
+    // stuck half-open with the new content + action buttons below the fold.
+    LaunchedEffect(ocm, ocmLoading) {
+        if (sheetState.isVisible) runCatching { sheetState.expand() }
+    }
     ModalBottomSheet(
         onDismissRequest = onDismiss,
-        sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+        sheetState = sheetState
     ) {
         Column(
             modifier = Modifier
