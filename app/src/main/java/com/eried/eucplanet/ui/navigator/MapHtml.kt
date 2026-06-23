@@ -652,6 +652,12 @@ private const val ROUTE_BUILDER_HTML_1: String = """
     viewSyncTimer = setTimeout(function(){
       var c = map.getCenter();
       AndroidNav.onMapViewChanged(c.lat, c.lng, map.getZoom());
+      // Report the visible bounds so POIs (chargers / places) follow what's on
+      // screen as the rider pans / zooms. Guarded for older bridges.
+      if (AndroidNav.onMapBounds) {
+        var b = map.getBounds();
+        AndroidNav.onMapBounds(b.getSouth(), b.getWest(), b.getNorth(), b.getEast());
+      }
     }, 120);
   });
 

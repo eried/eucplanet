@@ -775,6 +775,9 @@ fun RouteBuilderScreen(
                                 mapViewChanged = { lat, lng, zoom ->
                                     viewModel.setSavedView(lat, lng, zoom)
                                 },
+                                mapBoundsChanged = { s, w, n, e ->
+                                    viewModel.onMapViewportChanged(s, w, n, e)
+                                },
                                 tilesLoaded = {
                                     if (!tilesLoaded) tilesLoaded = true
                                 },
@@ -2348,6 +2351,7 @@ private class NavJsBridge(
     private val selfTap: (Int, Int) -> Unit,
     private val markerTapped: (Int, Int, Int) -> Unit,
     private val mapViewChanged: (Double, Double, Float) -> Unit,
+    private val mapBoundsChanged: (Double, Double, Double, Double) -> Unit,
     private val tilesLoaded: () -> Unit,
     private val poiTapped: (Long) -> Unit
 ) {
@@ -2389,6 +2393,11 @@ private class NavJsBridge(
     @JavascriptInterface
     fun onMapViewChanged(lat: Double, lng: Double, zoom: Float) {
         main.post { mapViewChanged(lat, lng, zoom) }
+    }
+
+    @JavascriptInterface
+    fun onMapBounds(south: Double, west: Double, north: Double, east: Double) {
+        main.post { mapBoundsChanged(south, west, north, east) }
     }
 
     @JavascriptInterface

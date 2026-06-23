@@ -199,6 +199,25 @@ class PoiService @Inject constructor() {
             return BBox(center.lat - latPad, center.lng - lngPad, center.lat + latPad, center.lng + lngPad)
         }
 
+        /** Largest viewport the charger (OCM) layer searches -- ~an EUC's range.
+         *  OCM is purpose-built + maxresults-capped so this stays sub-second. */
+        const val CHARGER_VIEWPORT_MAX_KM = 100.0
+        /** Largest viewport the places (Overpass) layer searches -- bigger boxes
+         *  return tens of thousands of nodes and time out / get throttled. */
+        const val PLACES_VIEWPORT_MAX_KM = 15.0
+
+        /** Shrink [bbox] around its centre so neither side exceeds [maxKm] km, so
+         *  a zoomed-out viewport search stays bounded ("not too far from centre").
+         *  A box already smaller than the cap is returned unchanged. */
+        fun capBounds(bbox: BBox, maxKm: Double): BBox {
+            val center = GeoPoint((bbox.minLat + bbox.maxLat) / 2.0, (bbox.minLng + bbox.maxLng) / 2.0)
+            val cap = bboxAround(center, maxKm * 1000.0 / 2.0)
+            return BBox(
+                max(bbox.minLat, cap.minLat), max(bbox.minLng, cap.minLng),
+                min(bbox.maxLat, cap.maxLat), min(bbox.maxLng, cap.maxLng),
+            )
+        }
+
         /** Keeps POIs within [maxDistM] of [center], nearest-first, capped. */
         fun filterNearPoint(
             pois: List<PointOfInterest>,
@@ -368,6 +387,33 @@ class PoiService @Inject constructor() {
             filtered
         } catch (e: Exception) {
             Log.w(TAG, "poisAround failed: ${e.message}")
+            null
+        }
+    }
+
+    /**
+     * Fetch POIs inside an explicit bounding box (the visible map area). The box
+     * IS the filter -- results are sorted nearest-to-centre and capped, nothing
+     * is dropped for being "off-route". Null on network failure.
+     */
+    suspend fun poisInBounds(
+        bbox: BBox,
+        endpoint: String = DEFAULT_OVERPASS,
+        categories: Set<PoiKind>,
+    ): List<PointOfInterest>? = withContext(Dispatchers.IO) {
+        if (categories.isEmpty()) return@withContext emptyList()
+        val center = GeoPoint((bbox.minLat + bbox.maxLat) / 2.0, (bbox.minLng + bbox.maxLng) / 2.0)
+        try {
+            val body = fetchOverpass(endpoint, overpassQuery(bbox, categories)) ?: run {
+                Log.w(TAG, "poisInBounds: null body")
+                return@withContext null
+            }
+            val parsed = parseOverpass(body, categories)
+            val kept = filterNearPoint(parsed, center, maxDistM = Double.MAX_VALUE)
+            Log.i(TAG, "poisInBounds: cats=$categories parsed=${parsed.size} kept=${kept.size}")
+            kept
+        } catch (e: Exception) {
+            Log.w(TAG, "poisInBounds failed: ${e.message}")
             null
         }
     }

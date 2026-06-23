@@ -16,6 +16,7 @@ import com.eried.eucplanet.data.model.TravelMode
 import com.eried.eucplanet.data.model.Waypoint
 import com.eried.eucplanet.data.repository.SettingsRepository
 import com.eried.eucplanet.data.repository.TripRepository
+import com.eried.eucplanet.nav.BBox
 import com.eried.eucplanet.nav.GeoMath
 import com.eried.eucplanet.nav.GeoResult
 import com.eried.eucplanet.nav.NavigationEngine
@@ -149,6 +150,9 @@ class RouteBuilderViewModel @Inject constructor(
     private var placeJob: Job? = null
     private var chargerSig: String? = null
     private var placeSig: String? = null
+    /** Last visible map bounds the WebView reported (pan / zoom). When set, POIs
+     *  follow what's on screen instead of a fixed radius around the route. */
+    private val _viewportBounds = MutableStateFlow<BBox?>(null)
 
     /** The categories enabled by the layer toggles (empty in simple mode). */
     private fun enabledCategories(): Set<PoiKind> = buildSet {
@@ -1418,9 +1422,35 @@ class RouteBuilderViewModel @Inject constructor(
         return PoiAnchor(geom, center, sig)
     }
 
-    private suspend fun fetchOverpassLayer(anchor: PoiAnchor, cats: Set<PoiKind>): List<PointOfInterest>? =
-        if (anchor.geom.size >= 2) poiService.poisAlongRoute(anchor.geom, overpassUrl, cats)
-        else poiService.poisAround(anchor.center!!, endpoint = overpassUrl, categories = cats)
+    /** The map (WebView) reported new visible bounds after a pan / zoom. Drives
+     *  the viewport POI search so chargers + places follow what's on screen. */
+    fun onMapViewportChanged(south: Double, west: Double, north: Double, east: Double) {
+        _viewportBounds.value = BBox(south, west, north, east)
+        // refreshChargers/refreshPlaces no-op when their layer is off, and the
+        // signature check inside skips a refetch when the box barely moved.
+        refreshPois()
+    }
+
+    /** Area to search for a layer capped at [maxKm]: the visible viewport once
+     *  the map has reported it, else the route / centre anchor (before the first
+     *  pan/zoom). Returns the box + a coarse signature so only a real pan/zoom
+     *  (not jitter) triggers a refetch. */
+    private fun searchBox(maxKm: Double): Pair<BBox, String>? {
+        _viewportBounds.value?.let { vp ->
+            val b = PoiService.capBounds(vp, maxKm)
+            return b to "vp:${boxSig(b)}"
+        }
+        val anchor = poiAnchor() ?: return null
+        val raw = if (anchor.geom.size >= 2) PoiService.routeBoundingBox(anchor.geom)
+        else PoiService.bboxAround(anchor.center!!, PoiService.ROUTE_BUFFER_M)
+        return raw?.let { PoiService.capBounds(it, maxKm) to anchor.sig }
+    }
+
+    /** ~100 m-resolution signature of a box so tiny map jitter doesn't refetch. */
+    private fun boxSig(b: BBox): String {
+        fun r(d: Double) = Math.round(d * 1000.0) / 1000.0
+        return "${r(b.minLat)},${r(b.minLng)},${r(b.maxLat)},${r(b.maxLng)}"
+    }
 
     /**
      * Refreshes the charger layer. Chargers come from Open Charge Map (a
@@ -1441,33 +1471,33 @@ class RouteBuilderViewModel @Inject constructor(
             if (_chargerPois.value.isNotEmpty()) { _chargerPois.value = emptyList(); publishPois() }
             return
         }
-        val anchor = poiAnchor() ?: run {
+        val (box, sigBase) = searchBox(PoiService.CHARGER_VIEWPORT_MAX_KM) ?: run {
             chargerSig = null
             if (_chargerPois.value.isNotEmpty()) { _chargerPois.value = emptyList(); publishPois() }
             return
         }
         val useOcm = ocmApiKey.isNotBlank()
-        val sig = "${anchor.sig}|charger|$useOcm"
+        val sig = "$sigBase|charger|$useOcm"
         if (!userInitiated && sig == chargerSig) return
         chargerSig = sig
         chargerJob?.cancel()
         chargerJob = viewModelScope.launch {
             delay(700) // debounce edits and stay polite to the services
             _chargerLoading.value = true
+            val center = GeoPoint((box.minLat + box.maxLat) / 2.0, (box.minLng + box.maxLng) / 2.0)
             val result = if (useOcm) {
-                val bbox = if (anchor.geom.size >= 2) PoiService.routeBoundingBox(anchor.geom)
-                else PoiService.bboxAround(anchor.center!!, PoiService.ROUTE_BUFFER_M)
-                val ocm = bbox?.let { ocmService.chargersInBox(it, ocmApiKey) }?.let { raw ->
-                    if (anchor.geom.size >= 2) PoiService.filterNearRoute(raw, anchor.geom)
-                    else PoiService.filterNearPoint(raw, anchor.center!!)
+                // OCM (purpose-built EV API) over the visible box; nearest-to-
+                // centre and capped.
+                val ocm = ocmService.chargersInBox(box, ocmApiKey)?.let {
+                    PoiService.filterNearPoint(it, center, maxDistM = Double.MAX_VALUE)
                 }
                 // OCM failed (e.g. an invalid key, or the service is down): fall
-                // back to OpenStreetMap chargers so the layer still works instead
-                // of just erroring. A valid key returning no chargers is an empty
-                // list, not null, so it won't trigger the fallback.
-                ocm ?: fetchOverpassLayer(anchor, setOf(PoiKind.CHARGER))
+                // back to OpenStreetMap chargers so the layer still works. A valid
+                // key returning no chargers is an empty list, not null, so it
+                // won't trigger the fallback.
+                ocm ?: poiService.poisInBounds(box, overpassUrl, setOf(PoiKind.CHARGER))
             } else {
-                fetchOverpassLayer(anchor, setOf(PoiKind.CHARGER))
+                poiService.poisInBounds(box, overpassUrl, setOf(PoiKind.CHARGER))
             }
             _chargerLoading.value = false
             if (result != null) { _chargerPois.value = result; publishPois() }
@@ -1485,20 +1515,20 @@ class RouteBuilderViewModel @Inject constructor(
             if (_placePois.value.isNotEmpty()) { _placePois.value = emptyList(); publishPois() }
             return
         }
-        val anchor = poiAnchor() ?: run {
+        val (box, sigBase) = searchBox(PoiService.PLACES_VIEWPORT_MAX_KM) ?: run {
             placeSig = null
             if (_placePois.value.isNotEmpty()) { _placePois.value = emptyList(); publishPois() }
             return
         }
         val cats = _placeCats.value
-        val sig = "${anchor.sig}|${cats.joinToString(",")}"
+        val sig = "$sigBase|${cats.joinToString(",")}"
         if (!userInitiated && sig == placeSig) return
         placeSig = sig
         placeJob?.cancel()
         placeJob = viewModelScope.launch {
             delay(700)
             _placeLoading.value = true
-            val result = fetchOverpassLayer(anchor, cats)
+            val result = poiService.poisInBounds(box, overpassUrl, cats)
             _placeLoading.value = false
             if (result != null) { _placePois.value = result; publishPois() }
             if (userInitiated) {
