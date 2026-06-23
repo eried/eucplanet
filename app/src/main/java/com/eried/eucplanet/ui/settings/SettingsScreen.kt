@@ -6688,10 +6688,12 @@ private fun CloudTab(
             ) {
                 Button(
                     onClick = { pickFolder.launch(null) },
+                    enabled = !syncRunning,
                     modifier = Modifier.weight(1f)
                 ) { Text(stringResource(R.string.cloud_change_folder)) }
                 Button(
                     onClick = { viewModel.clearSyncFolder() },
+                    enabled = !syncRunning,
                     colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.appColors.statusDanger),
                     modifier = Modifier.weight(1f)
                 ) { Text(stringResource(R.string.cloud_remove_folder)) }
@@ -6779,6 +6781,7 @@ private fun CloudTab(
                     ) { Text(stringResource(R.string.cloud_retry_now)) }
                     Button(
                         onClick = { viewModel.unlinkDropbox() },
+                        enabled = !syncRunning,
                         colors = ButtonDefaults.buttonColors(
                             containerColor = MaterialTheme.appColors.statusDanger,
                             contentColor   = MaterialTheme.appColors.onPrimary,
@@ -6820,6 +6823,7 @@ private fun CloudTab(
                 ) {
                     Button(
                         onClick = { viewModel.linkDropbox(context) },
+                        enabled = !syncRunning,
                         modifier = Modifier.weight(1f),
                     ) { Text(stringResource(R.string.dropbox_link)) }
                     Spacer(Modifier.weight(1f))
@@ -6855,12 +6859,14 @@ private fun CloudTab(
                         backupNameDraft = ""
                         showBackupNameDialog = true
                     },
+                    enabled = !syncRunning,
                     modifier = Modifier.weight(1f)
                 )
                 LongPressActionButton(
                     text = stringResource(R.string.cloud_restore),
                     onClick = { showRestoreDialog = true },
                     onLongClick = { showRestorePicker = true },
+                    enabled = !syncRunning,
                     modifier = Modifier.weight(1f)
                 )
             }
@@ -8563,18 +8569,21 @@ private fun LongPressActionButton(
     text: String,
     onClick: () -> Unit,
     onLongClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
 ) {
     androidx.compose.material3.Surface(
         modifier = modifier
             .height(40.dp)
             .combinedClickable(
+                enabled = enabled,
                 onClick = onClick,
                 onLongClick = onLongClick,
                 role = androidx.compose.ui.semantics.Role.Button
             ),
         shape = androidx.compose.material3.ButtonDefaults.shape,
-        color = MaterialTheme.colorScheme.primary,
+        color = if (enabled) MaterialTheme.colorScheme.primary
+                else MaterialTheme.colorScheme.primary.copy(alpha = 0.38f),
         contentColor = MaterialTheme.colorScheme.onPrimary
     ) {
         Box(

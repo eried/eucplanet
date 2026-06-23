@@ -864,16 +864,24 @@ class SyncManager @Inject constructor(
         val folder = getSyncFolder(settings) ?: return 0
         var count = 0
         for (sub in listOf("themes", "overlays")) {
-            val subDir = folder.findFile(sub)?.takeIf { it.isDirectory } ?: continue
-            val remote = dropboxRepository.listFolder("/$sub") ?: emptyMap()
-            for (doc in subDir.listFiles()) {
-                if (!doc.isFile) continue
-                val name = doc.name ?: continue
-                val localMod = doc.lastModified() / 1000L
-                if (remote[name]?.let { it >= localMod } == true) continue
-                val bytes = context.contentResolver
-                    .openInputStream(doc.uri)?.use { it.readBytes() } ?: continue
-                if (dropboxRepository.uploadFile("/$sub/$name", bytes)) count++
+            // Wrap each subfolder: if the folder URI is revoked mid-sync (the UI
+            // disables Change/Remove folder while syncing, but be defensive) the
+            // SAF reads throw -- swallow rather than crash the whole sync.
+            try {
+                val subDir = folder.findFile(sub)?.takeIf { it.isDirectory } ?: continue
+                val remote = dropboxRepository.listFolder("/$sub") ?: emptyMap()
+                for (doc in subDir.listFiles()) {
+                    if (!doc.isFile) continue
+                    val name = doc.name ?: continue
+                    val localMod = doc.lastModified() / 1000L
+                    if (remote[name]?.let { it >= localMod } == true) continue
+                    val bytes = try {
+                        context.contentResolver.openInputStream(doc.uri)?.use { it.readBytes() }
+                    } catch (e: Exception) { null } ?: continue
+                    if (dropboxRepository.uploadFile("/$sub/$name", bytes)) count++
+                }
+            } catch (e: Exception) {
+                android.util.Log.w(TAG, "mirror /$sub failed: ${e.message}")
             }
         }
         return count

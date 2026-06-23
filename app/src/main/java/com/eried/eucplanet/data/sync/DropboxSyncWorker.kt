@@ -90,20 +90,26 @@ class DropboxSyncWorker @AssistedInject constructor(
         val folder = syncManager.getSyncFolder(settings)
         if (folder != null) {
             for (sub in listOf("themes", "overlays")) {
-                val subDir = folder.findFile(sub)?.takeIf { it.isDirectory } ?: continue
-                val remoteSub = dropboxRepository.listFolder("/$sub") ?: emptyMap()
-                for (doc in subDir.listFiles()) {
-                    if (!doc.isFile) continue
-                    val name = doc.name ?: continue
-                    val localMod = doc.lastModified() / 1000L
-                    if (remoteSub[name]?.let { it >= localMod } == true) continue
-                    val bytes = applicationContext.contentResolver
-                        .openInputStream(doc.uri)?.use { it.readBytes() }
-                    if (bytes == null) { anyFailed = true; continue }
-                    if (dropboxRepository.uploadFile("/$sub/$name", bytes)) {
-                        uploaded++
-                        Log.i(TAG, "Uploaded /$sub/$name")
-                    } else anyFailed = true
+                try {
+                    val subDir = folder.findFile(sub)?.takeIf { it.isDirectory } ?: continue
+                    val remoteSub = dropboxRepository.listFolder("/$sub") ?: emptyMap()
+                    for (doc in subDir.listFiles()) {
+                        if (!doc.isFile) continue
+                        val name = doc.name ?: continue
+                        val localMod = doc.lastModified() / 1000L
+                        if (remoteSub[name]?.let { it >= localMod } == true) continue
+                        val bytes = try {
+                            applicationContext.contentResolver
+                                .openInputStream(doc.uri)?.use { it.readBytes() }
+                        } catch (e: Exception) { null }
+                        if (bytes == null) { anyFailed = true; continue }
+                        if (dropboxRepository.uploadFile("/$sub/$name", bytes)) {
+                            uploaded++
+                            Log.i(TAG, "Uploaded /$sub/$name")
+                        } else anyFailed = true
+                    }
+                } catch (e: Exception) {
+                    Log.w(TAG, "mirror /$sub failed: ${e.message}")
                 }
             }
         }
