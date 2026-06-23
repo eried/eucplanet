@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.CloudUpload
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Public
 import androidx.compose.material.icons.filled.Share
@@ -25,16 +26,23 @@ import androidx.compose.ui.unit.dp
 import com.eried.eucplanet.R
 
 /**
- * Chooser shown when the rider taps Share on a trip, three things to do with
- * the recorded ride, plus Cancel.
+ * Chooser shown when the rider taps Share on a trip. Items: Share file, Share
+ * via Dropbox, Inspect online (shares the eucviewer link), Replay. The two
+ * Dropbox-dependent items stay visible even when Dropbox is not linked —
+ * they're greyed and their subtitle becomes "Link Dropbox in settings to
+ * enable this" so the rider sees the feature exists and how to turn it on.
  */
 @Composable
 fun TripActionDialog(
     onShareFile: () -> Unit,
     onViewOnline: () -> Unit,
     onReplay: () -> Unit,
-    onDismiss: () -> Unit
+    onDismiss: () -> Unit,
+    dropboxLinked: Boolean = false,
+    onShareViaDropbox: () -> Unit = {},
+    onInspectOnline: () -> Unit = {},
 ) {
+    val disabledHint = stringResource(R.string.trip_action_dropbox_disabled)
     AlertDialog(
         onDismissRequest = onDismiss,
         text = {
@@ -44,12 +52,18 @@ fun TripActionDialog(
                     stringResource(R.string.trip_action_share_file),
                     stringResource(R.string.trip_action_share_file_desc)
                 ) { onDismiss(); onShareFile() }
-                // View Online hidden for now -- the embedded WebView
-                // can't render the viewer's backdrop-filter panels and
-                // we ran into a stack of edge cases (panel zero-height,
-                // header-overlap, scaling) we don't have time to wrap
-                // up. Re-enable once the in-app viewer is solid or
-                // we've migrated to Chrome Custom Tabs.
+                TripActionRow(
+                    Icons.Default.CloudUpload,
+                    stringResource(R.string.trip_action_share_dropbox),
+                    if (dropboxLinked) stringResource(R.string.trip_action_share_dropbox_desc) else disabledHint,
+                    enabled = dropboxLinked,
+                ) { onDismiss(); onShareViaDropbox() }
+                TripActionRow(
+                    Icons.Default.Public,
+                    stringResource(R.string.trip_action_inspect_online),
+                    if (dropboxLinked) stringResource(R.string.trip_action_inspect_online_desc) else disabledHint,
+                    enabled = dropboxLinked,
+                ) { onDismiss(); onInspectOnline() }
                 TripActionRow(
                     Icons.Default.History,
                     stringResource(R.string.trip_action_replay),
@@ -69,23 +83,34 @@ private fun TripActionRow(
     icon: ImageVector,
     title: String,
     subtitle: String,
+    enabled: Boolean = true,
     onClick: () -> Unit
 ) {
+    val alpha = if (enabled) 1f else 0.5f
+    val rowModifier = Modifier
+        .fillMaxWidth()
+        .let { if (enabled) it.clickable(onClick = onClick) else it }
+        .padding(vertical = 12.dp)
     Row(
-        Modifier
-            .fillMaxWidth()
-            .clickable(onClick = onClick)
-            .padding(vertical = 12.dp),
+        rowModifier,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Icon(icon, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
+        Icon(
+            icon,
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.primary.copy(alpha = alpha),
+        )
         Spacer(Modifier.width(16.dp))
         Column {
-            Text(title, style = MaterialTheme.typography.bodyLarge)
+            Text(
+                title,
+                style = MaterialTheme.typography.bodyLarge,
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = alpha),
+            )
             Text(
                 subtitle,
                 style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = alpha),
             )
         }
     }

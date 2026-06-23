@@ -26,7 +26,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.graphics.nativeCanvas
 import androidx.core.graphics.drawable.toBitmap
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -87,6 +89,7 @@ fun OverlayElementRenderer(element: OverlayElement, data: StudioElementData) {
         OverlayElementType.CLOCK -> ClockElement(element, data)
         OverlayElementType.G_FORCE -> GForceElement(element, data)
         OverlayElementType.MAP -> MapElement(element, data)
+        OverlayElementType.RADAR -> RadarElement(element, data)
         // FLOATING_CAMERA + IMAGE skipped on the HUD; silently no-op.
         else -> Unit
     }
@@ -843,5 +846,308 @@ private fun lonLatToTileFloat(lon: Double, lat: Double, z: Int): Pair<Float, Flo
     val latRad = lat * PI / 180.0
     val y = (1.0 - ln(tan(latRad) + 1.0 / cos(latRad)) / PI) / 2.0 * n
     return x.toFloat() to y.toFloat()
+}
+
+// ---------- RADAR (Garmin Varia rear-view) ------------------------------
+// HUD-side twin of the phone's RadarElement. Same geometry/colours so a
+// radar widget added in the Overlay Studio reads identical when mirrored
+// to the Custom screen. Three modes: LANE (proximity bar), MIRROR
+// (blind-spot chevrons), MINIMAL (compact readout). The Varia reports
+// range + closing speed only, no bearing, so MIRROR lights both sides
+// together by the worst threat level.
+
+// Threat-band colours: same hex as the DATA_DIAL colour band above, so
+// green/amber/red read consistently across widgets.
+private val RADAR_GREEN = Color(0xFF66BB6A)
+private val RADAR_AMBER = Color(0xFFFFA726)
+private val RADAR_RED = Color(0xFFEF5350)
+
+private fun radarLevelColor(level: Int): Color = when {
+    level >= 2 -> RADAR_RED
+    level == 1 -> RADAR_AMBER
+    else -> RADAR_GREEN
+}
+
+@Composable
+private fun RadarElement(element: OverlayElement, data: StudioElementData) {
+    when (element.radarMode) {
+        "MIRROR" -> RadarMirror(element, data)
+        "MINIMAL" -> RadarMinimal(element, data)
+        else -> RadarLane(element, data)
+    }
+}
+
+@Composable
+private fun RadarLane(element: OverlayElement, data: StudioElementData) {
+    val fg = Color(element.foreground)
+    val range = element.radarRangeM.coerceAtLeast(20f)
+    val targets = data.radarTargets
+    BoxWithConstraints(
+        Modifier
+            .fillMaxWidth()
+            .aspectRatio(0.5f)
+            .background(Color(element.background), RoundedCornerShape(12.dp))
+            .padding(8.dp)
+    ) {
+        val w = maxWidth.value
+        Column(Modifier.fillMaxSize()) {
+            if (element.showLabel) {
+                Row(verticalAlignment = Alignment.Bottom) {
+                    Text(
+                        text = "RADAR",
+                        color = fg.copy(alpha = 0.7f),
+                        fontWeight = FontWeight.SemiBold,
+                        fontSize = (w * 0.09f).coerceIn(9f, 22f).sp,
+                        modifier = Modifier.weight(1f),
+                        maxLines = 1
+                    )
+                    if (data.radarBatteryPercent >= 0) {
+                        Text(
+                            text = "${data.radarBatteryPercent}%",
+                            color = fg.copy(alpha = 0.6f),
+                            fontSize = (w * 0.08f).coerceIn(8f, 18f).sp,
+                            maxLines = 1
+                        )
+                    }
+                }
+                Spacer(Modifier.height(4.dp))
+            }
+            Box(Modifier.fillMaxWidth().weight(1f)) {
+                if (!data.radarConnected) {
+                    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        Text(
+                            text = "No radar",
+                            color = fg.copy(alpha = 0.5f),
+                            fontSize = (w * 0.10f).coerceIn(10f, 22f).sp
+                        )
+                    }
+                    return@Box
+                }
+                Canvas(Modifier.fillMaxSize()) {
+                    val cw = size.width
+                    val ch = size.height
+                    val cx = cw / 2f
+                    val topHalf = cw * 0.13f
+                    val botHalf = cw * 0.44f
+                    // Lane fill + edges (far = narrow top, near = wide bottom).
+                    val lane = Path().apply {
+                        moveTo(cx - topHalf, 0f)
+                        lineTo(cx + topHalf, 0f)
+                        lineTo(cx + botHalf, ch)
+                        lineTo(cx - botHalf, ch)
+                        close()
+                    }
+                    drawPath(lane, color = fg.copy(alpha = 0.10f))
+                    drawLine(
+                        fg.copy(alpha = 0.35f),
+                        Offset(cx - topHalf, 0f), Offset(cx - botHalf, ch), 2f
+                    )
+                    drawLine(
+                        fg.copy(alpha = 0.35f),
+                        Offset(cx + topHalf, 0f), Offset(cx + botHalf, ch), 2f
+                    )
+                    // Distance gridlines at 25/50/75% of range.
+                    listOf(0.25f, 0.5f, 0.75f).forEach { f ->
+                        val y = ch * (1f - f)
+                        val half = topHalf + (botHalf - topHalf) * (1f - f)
+                        drawLine(
+                            fg.copy(alpha = 0.15f),
+                            Offset(cx - half, y), Offset(cx + half, y), 1.2f
+                        )
+                    }
+                    // Rider marker (you) at the bottom.
+                    val rsz = cw * 0.10f
+                    val rider = Path().apply {
+                        moveTo(cx, ch - rsz)
+                        lineTo(cx - rsz * 0.8f, ch)
+                        lineTo(cx + rsz * 0.8f, ch)
+                        close()
+                    }
+                    drawPath(rider, color = fg.copy(alpha = 0.9f))
+                    // Targets, far drawn first so nearer cars sit on top.
+                    targets.sortedByDescending { it.distanceM }.forEach { t ->
+                        val ratio = (t.distanceM / range).coerceIn(0f, 1f)
+                        val y = ch * (1f - ratio)
+                        val near = 1f - ratio
+                        val r = cw * 0.07f + cw * 0.09f * near
+                        val c = radarLevelColor(t.level)
+                        drawCircle(c.copy(alpha = 0.25f), radius = r * 1.6f, center = Offset(cx, y))
+                        drawCircle(c, radius = r, center = Offset(cx, y))
+                        if (element.radarShowDistanceLabels) {
+                            val paint = android.graphics.Paint().apply {
+                                color = android.graphics.Color.WHITE
+                                textSize = r * 1.0f
+                                isAntiAlias = true
+                                textAlign = android.graphics.Paint.Align.CENTER
+                                isFakeBoldText = true
+                            }
+                            drawContext.canvas.nativeCanvas.drawText(
+                                t.distanceM.toString(), cx, y + paint.textSize * 0.35f, paint
+                            )
+                        }
+                    }
+                }
+                if (targets.isEmpty()) {
+                    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        Text(
+                            text = "CLEAR",
+                            color = RADAR_GREEN,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = (w * 0.11f).coerceIn(11f, 26f).sp
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun RadarMirror(element: OverlayElement, data: StudioElementData) {
+    val fg = Color(element.foreground)
+    val targets = data.radarTargets
+    val maxLevel = targets.maxOfOrNull { it.level } ?: 0
+    val closest = targets.minByOrNull { it.distanceM }
+    val active = data.radarConnected && targets.isNotEmpty()
+    val markColor = if (active) radarLevelColor(maxLevel) else fg.copy(alpha = 0.22f)
+    BoxWithConstraints(
+        Modifier
+            .fillMaxWidth()
+            .aspectRatio(2.0f)
+            .background(Color(element.background), RoundedCornerShape(12.dp))
+            .padding(10.dp)
+    ) {
+        val w = maxWidth.value
+        Row(Modifier.fillMaxSize(), verticalAlignment = Alignment.CenterVertically) {
+            ChevronSide(left = true, color = markColor, modifier = Modifier.fillMaxHeight().weight(1f))
+            Column(
+                Modifier.weight(1.5f),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                when {
+                    !data.radarConnected -> Text(
+                        text = "No radar",
+                        color = fg.copy(alpha = 0.5f),
+                        fontSize = (w * 0.07f).coerceIn(10f, 22f).sp,
+                        maxLines = 1
+                    )
+                    closest == null -> Text(
+                        text = "CLEAR",
+                        color = RADAR_GREEN,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = (w * 0.10f).coerceIn(12f, 30f).sp,
+                        maxLines = 1
+                    )
+                    else -> {
+                        // Number on its own line so the digits sit dead-centre;
+                        // the unit + closing speed ride a smaller line below
+                        // (a "12 m" string would push the number off-centre).
+                        Text(
+                            text = "${closest.distanceM}",
+                            color = fg,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = (w * 0.17f).coerceIn(20f, 54f).sp,
+                            maxLines = 1
+                        )
+                        Text(
+                            text = "m · +${targets.maxOf { it.approachSpeedKmh }} km/h",
+                            color = markColor,
+                            fontWeight = FontWeight.SemiBold,
+                            fontSize = (w * 0.055f).coerceIn(9f, 20f).sp,
+                            maxLines = 1
+                        )
+                    }
+                }
+            }
+            ChevronSide(left = false, color = markColor, modifier = Modifier.fillMaxHeight().weight(1f))
+        }
+    }
+}
+
+@Composable
+private fun ChevronSide(left: Boolean, color: Color, modifier: Modifier) {
+    Canvas(modifier) {
+        val cw = size.width
+        val ch = size.height
+        val cy = ch / 2f
+        val half = ch * 0.30f
+        val chevW = cw * 0.45f
+        val gap = cw * 0.26f
+        val strokeW = cw * 0.13f
+        for (i in 0 until 3) {
+            val baseX = if (left) cw - i * gap else i * gap
+            val tipX = if (left) baseX - chevW else baseX + chevW
+            val a = (color.alpha * (1f - i * 0.3f)).coerceIn(0f, 1f)
+            val p = Path().apply {
+                moveTo(baseX, cy - half)
+                lineTo(tipX, cy)
+                lineTo(baseX, cy + half)
+            }
+            drawPath(
+                p,
+                color = color.copy(alpha = a),
+                style = Stroke(width = strokeW, cap = StrokeCap.Round)
+            )
+        }
+    }
+}
+
+@Composable
+private fun RadarMinimal(element: OverlayElement, data: StudioElementData) {
+    val fg = Color(element.foreground)
+    val targets = data.radarTargets
+    val maxLevel = targets.maxOfOrNull { it.level } ?: 0
+    val closest = targets.minByOrNull { it.distanceM }
+    val dotColor: Color
+    val line1: String
+    val line2: String?
+    when {
+        !data.radarConnected -> {
+            dotColor = fg.copy(alpha = 0.4f); line1 = "No radar"; line2 = null
+        }
+        closest == null -> {
+            dotColor = RADAR_GREEN; line1 = "Clear"; line2 = null
+        }
+        else -> {
+            dotColor = radarLevelColor(maxLevel)
+            line1 = "${closest.distanceM} m"
+            line2 = "+${targets.maxOf { it.approachSpeedKmh }} km/h"
+        }
+    }
+    BoxWithConstraints(
+        Modifier
+            .fillMaxWidth()
+            .background(Color(element.background), RoundedCornerShape(10.dp))
+            .padding(horizontal = 12.dp, vertical = 8.dp)
+    ) {
+        val w = maxWidth.value
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Box(
+                Modifier
+                    .size((w * 0.12f).coerceIn(10f, 28f).dp)
+                    .clip(CircleShape)
+                    .background(dotColor)
+            )
+            Spacer(Modifier.width(10.dp))
+            Column {
+                Text(
+                    text = line1,
+                    color = fg,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = (w * 0.16f).coerceIn(14f, 40f).sp,
+                    maxLines = 1
+                )
+                if (line2 != null) {
+                    Text(
+                        text = line2,
+                        color = dotColor,
+                        fontWeight = FontWeight.SemiBold,
+                        fontSize = (w * 0.09f).coerceIn(9f, 22f).sp,
+                        maxLines = 1
+                    )
+                }
+            }
+        }
+    }
 }
 

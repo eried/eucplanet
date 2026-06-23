@@ -439,15 +439,15 @@ private fun LogRow(e: DiagnosticsLogger.Entry) {
         TIME_FMT.format(Date(e.timestampMs))
     }
     val color = when (e.kind) {
-        DiagnosticsLogger.Kind.RX -> Color(0xFF40C4FF)
-        DiagnosticsLogger.Kind.TX -> Color(0xFFFFAB40)
-        DiagnosticsLogger.Kind.CMD -> Color(0xFFE040FB)
+        DiagnosticsLogger.Kind.RECV -> Color(0xFF40C4FF)
+        DiagnosticsLogger.Kind.SEND -> Color(0xFFFFAB40)
+        DiagnosticsLogger.Kind.TEST -> Color(0xFFE040FB)
         DiagnosticsLogger.Kind.NOTE -> Color(0xFF4DD0E1)
         DiagnosticsLogger.Kind.INFO -> Color(0xFF00FF41)
-        DiagnosticsLogger.Kind.COMMENT -> Color(0xFFFFEB3B)
+        DiagnosticsLogger.Kind.USER -> Color(0xFFFFEB3B)
     }
     Text(
-        "$ts ${e.kind.name.padEnd(7)} ${e.text}",
+        "$ts ${e.kind.name.padEnd(4)} ${e.text}",
         style = MaterialTheme.typography.labelSmall.copy(
             fontFamily = FontFamily.Monospace,
             fontSize = 10.sp,

@@ -5,12 +5,14 @@ import androidx.lifecycle.viewModelScope
 import com.eried.eucplanet.ble.ConnectionState
 import com.eried.eucplanet.hud.protocol.OverlayElement
 import com.eried.eucplanet.hud.protocol.OverlayPreset
+import com.eried.eucplanet.hud.protocol.RadarTargetWire
 import com.eried.eucplanet.hud.protocol.ViewportConfig
 import com.eried.eucplanet.hud.protocol.ViewportLayout
 import com.eried.eucplanet.data.model.TripRecord
 import com.eried.eucplanet.data.model.WheelData
 import com.eried.eucplanet.data.repository.ExternalGpsRepository
 import com.eried.eucplanet.data.repository.PhoneSensorRepository
+import com.eried.eucplanet.data.repository.RadarRepository
 import com.eried.eucplanet.data.repository.SettingsRepository
 import com.eried.eucplanet.data.repository.TripRepository
 import com.eried.eucplanet.data.repository.WheelRepository
@@ -86,6 +88,13 @@ data class ReplayExportPrefs(
 /** Outcome of a "save preset" attempt, surfaced to the UI as a snackbar. */
 enum class PresetSaveResult { SAVED, NO_FOLDER, FAILED }
 
+/** Snapshot of rear-view radar state handed to the Studio's RADAR element. */
+data class StudioRadarState(
+    val connected: Boolean = false,
+    val batteryPercent: Int = -1,
+    val targets: List<RadarTargetWire> = emptyList()
+)
+
 /**
  * Holds the working Overlay Studio layout and feeds the studio screen its live
  * telemetry. The layout is a single [OverlayPreset] mutated through the `update`
@@ -100,6 +109,7 @@ class OverlayStudioViewModel @Inject constructor(
     private val tripRepository: TripRepository,
     private val phoneSensorRepository: PhoneSensorRepository,
     private val externalGpsRepository: ExternalGpsRepository,
+    private val radarRepository: RadarRepository,
     private val navMarkerStore: com.eried.eucplanet.data.store.NavMarkerStore
 ) : ViewModel() {
 
@@ -179,6 +189,31 @@ class OverlayStudioViewModel @Inject constructor(
     val connected: StateFlow<Boolean> = wheelRepository.connectionState
         .map { it == ConnectionState.CONNECTED }
         .stateIn(viewModelScope, SharingStarted.Eagerly, false)
+
+    /**
+     * Live rear-view radar state for the RADAR overlay element's Studio
+     * preview. Targets are mapped to the same compact [RadarTargetWire] the
+     * HUD receives so the phone preview and the mirrored HUD render share one
+     * renderer shape. Empty / not-connected when no radar is paired; the
+     * widget then shows its idle "No radar" state.
+     */
+    val radar: StateFlow<StudioRadarState> = combine(
+        radarRepository.currentFrame,
+        radarRepository.connectionState
+    ) { frame, conn ->
+        StudioRadarState(
+            connected = conn == ConnectionState.CONNECTED,
+            batteryPercent = frame?.batteryPercent ?: -1,
+            targets = frame?.threats?.take(8)?.map {
+                RadarTargetWire(
+                    id = it.id,
+                    distanceM = it.distanceM,
+                    approachSpeedKmh = it.approachSpeedKmh,
+                    level = it.threatLevel.ordinal
+                )
+            } ?: emptyList()
+        )
+    }.stateIn(viewModelScope, SharingStarted.Eagerly, StudioRadarState())
 
     /**
      * Base64 `data:image/png` URL of the rider's custom marker photo (set in

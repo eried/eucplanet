@@ -77,6 +77,14 @@ class TripRepository @Inject constructor(
     private val _pendingTripId = MutableStateFlow<Long?>(null)
     val pendingTripId: StateFlow<Long?> = _pendingTripId.asStateFlow()
 
+    // Live GPS-accumulated trip distance, in km. Mirrors the [gpsDistanceKm]
+    // accumulator below so the trip-row label can show the same source of
+    // truth the SAVED distance uses at finalize. Without this the UI defaults
+    // to wheel-reported tripDistance which freezes on BLE drop and snaps back
+    // to 0 when the wheel power-cycles mid-ride.
+    private val _liveGpsDistanceKm = MutableStateFlow(0f)
+    val liveGpsDistanceKm: StateFlow<Float> = _liveGpsDistanceKm.asStateFlow()
+
     val allTrips: Flow<List<TripRecord>> = tripDao.observeAll()
     val tripCount: Flow<Int> = tripDao.observeCount()
 
@@ -91,6 +99,25 @@ class TripRepository @Inject constructor(
     // running the timer. cancelPendingTrip() cancels the job and deletes the trip.
     private var pendingTrip: TripRecord? = null
     private var pendingFinalizeJob: kotlinx.coroutines.Job? = null
+
+    init {
+        // App-start recovery sweep. Both workers also pick up orphaned/failed
+        // trips (folder: uploadStatus=3; eucstats: status 0 with UUID, 1, or 3),
+        // so this catches anything left behind by a previous session that
+        // couldn't finish its upload.
+        scope.launch {
+            val appSettings = runCatching { settingsRepository.get() }.getOrNull() ?: return@launch
+            if (appSettings.syncFolderUri != null) {
+                syncManager.enqueueTripUpload(appSettings)
+            }
+            if (appSettings.onlineUploadEnabled && syncManager.riderStoreId.value != null) {
+                syncManager.enqueueEucStatsUpload(appSettings)
+            }
+            if (appSettings.dropboxAccessToken.isNotBlank()) {
+                syncManager.enqueueDropboxSync()
+            }
+        }
+    }
 
     // GPS-accumulated distance for the active recording. Reset at start, read at stop.
     // Preferred over wheel tripDistance because BLE can drop mid-ride, leaving the wheel
@@ -276,6 +303,7 @@ class TripRepository @Inject constructor(
         csvWriter = writer
 
         gpsDistanceKm = 0.0
+        _liveGpsDistanceKm.value = 0f
         lastGpsPoint = null
         tripHadMockFix = false
 
@@ -322,6 +350,7 @@ class TripRepository @Inject constructor(
                         val deltaMeters = prev.distanceTo(location)
                         if (deltaMeters in 0.5f..200f) {
                             gpsDistanceKm += deltaMeters / 1000.0
+                            _liveGpsDistanceKm.value = gpsDistanceKm.toFloat()
                         }
                     }
                     lastGpsPoint = location
@@ -367,7 +396,7 @@ class TripRepository @Inject constructor(
         val wheelMeta = buildWheelMetaJson(
             brand = wheelRepository.connectedBrand.value,
             model = wheelRepository.modelName.value,
-            serial = null,
+            serial = wheelRepository.wheelSerial.value,
             bleMac = settingsRepository.get().lastDeviceAddress,
             bleName = wheelRepository.connectedDeviceName.value,
             firmware = wheelRepository.firmwareVersion.value,
@@ -394,24 +423,43 @@ class TripRepository @Inject constructor(
             }
         }
 
-        // No sync folder = no upload to defer = no grace window. The trip is fully
-        // saved locally already (endTime/distance written above); just exit.
-        if (appSettings.syncFolderUri == null) {
-            Log.i(TAG, "Recording stopped (no sync folder, finalized immediately)")
+        val willSync = appSettings.syncFolderUri != null
+        val willEucstats = appSettings.onlineUploadEnabled && syncManager.riderStoreId.value != null
+
+        // No upload destination at all: nothing to defer. Trip is already
+        // saved locally above; just exit.
+        if (!willSync && !willEucstats) {
+            Log.i(TAG, "Recording stopped (no sync, no cloud, finalized immediately)")
             return
         }
 
         pendingTrip = finishedTrip
         _pendingTripId.value = finishedTrip.id
-        Log.i(TAG, "Recording stopped, ${FINALIZE_GRACE_MS / 1000}s grace before sync")
 
-        pendingFinalizeJob = scope.launch {
-            try {
-                kotlinx.coroutines.delay(FINALIZE_GRACE_MS)
-                finalizePendingTrip()
-            } catch (_: kotlinx.coroutines.CancellationException) {
-                // Cancelled by deleteTrip on the pending trip, user discarded it.
+        if (willSync) {
+            // Folder sync gets the discard-grace window so the rider can
+            // undo a short / accidental trip before it lands in their cloud
+            // folder. Eucstats (if also enabled) gets enqueued at the end
+            // of the same grace, so a discarded trip never reaches the
+            // online profile either.
+            Log.i(TAG, "Recording stopped, ${FINALIZE_GRACE_MS / 1000}s grace before sync")
+            pendingFinalizeJob = scope.launch {
+                try {
+                    kotlinx.coroutines.delay(FINALIZE_GRACE_MS)
+                    finalizePendingTrip()
+                } catch (_: kotlinx.coroutines.CancellationException) {
+                    // Cancelled by deleteTrip on the pending trip, user discarded it.
+                }
             }
+        } else {
+            // Cloud-only (no folder backup configured). The discard-grace
+            // existed for the folder upload undo; without that destination,
+            // the grace would just delay the eucstats enqueue for no
+            // user-visible benefit AND, more importantly, used to skip
+            // finalize entirely, that's how the trip-231 orphan happened
+            // (status 0 / 0, no icon at all). Finalize immediately.
+            Log.i(TAG, "Recording stopped (cloud-only, finalized immediately)")
+            scope.launch { finalizePendingTrip() }
         }
     }
 
@@ -420,7 +468,7 @@ class TripRepository @Inject constructor(
         val trip = pendingTrip ?: return
         val appSettings = settingsRepository.get()
         val willSync = appSettings.syncFolderUri != null
-        val willEucstats = appSettings.onlineUploadEnabled && appSettings.eucstatsStoreId != null
+        val willEucstats = appSettings.onlineUploadEnabled && syncManager.riderStoreId.value != null
         // Single update so the folder-sync and eucstats statuses can't clobber
         // each other (both branch from the same `trip` snapshot).
         if (willSync || willEucstats) {
@@ -431,9 +479,20 @@ class TripRepository @Inject constructor(
         pendingFinalizeJob = null
         Log.i(TAG, "Trip finalized: ${trip.fileName} (sync=$willSync, eucstats=$willEucstats)")
         if (willSync) syncManager.enqueueTripUpload(appSettings)
-        if (willEucstats) {
+        // Eucstats: enqueue ANY time the rider has it on, not only when this
+        // specific trip needs uploading. The worker walks every trip eligible
+        // for upload (pending=1 / failed=3 / orphaned=0), so this is also the
+        // automatic retry path: a trip that failed last ride gets one more
+        // shot the next time the rider finishes a ride.
+        if (appSettings.onlineUploadEnabled && syncManager.riderStoreId.value != null) {
             syncManager.enqueueEucStatsUpload(appSettings)
-            Log.i(TAG, "Eucstats upload enqueued for trip ${trip.tripUuid}")
+            Log.i(TAG, "Eucstats upload enqueued (incl. retry sweep for prior failures)")
+        }
+        // Dropbox mirrors the trip too if the rider has it linked. Runs
+        // in parallel to the folder + eucstats workers under its own
+        // unique-work name so failures retry independently.
+        if (appSettings.dropboxAccessToken.isNotBlank()) {
+            syncManager.enqueueDropboxSync()
         }
     }
 

@@ -61,9 +61,14 @@ object EucStatsModule {
     @Singleton
     fun provideEucStatsSettingsPort(
         settingsRepository: SettingsRepository,
+        syncManager: com.eried.eucplanet.data.sync.SyncManager,
     ): EucStatsSettingsPort = object : EucStatsSettingsPort {
         override suspend fun get(): AppSettings = settingsRepository.get()
         override suspend fun update(settings: AppSettings) = settingsRepository.update(settings)
+        override fun riderStoreId(): String? = syncManager.riderStoreId.value
+        override suspend fun writeRiderId(storeId: String): Boolean =
+            syncManager.writeRiderId(storeId)
+        override suspend fun deleteRiderId(): Boolean = syncManager.deleteRiderIdFile()
     }
 
     /**

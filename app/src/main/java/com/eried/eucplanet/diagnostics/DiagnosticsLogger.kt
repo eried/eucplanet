@@ -25,9 +25,13 @@ import java.util.Locale
  */
 object DiagnosticsLogger {
 
-    private const val MAX_ENTRIES = 9999
+    // Bumped from 9999 so a long-running session (HUD link + wheel BLE +
+    // notes) can fill the buffer without dropping the early frames a tester
+    // asked about. At ~150 bytes/entry this caps the buffer near ~15 MB,
+    // still well under heap pressure on any modern phone.
+    private const val MAX_ENTRIES = 99999
 
-    enum class Kind { RX, TX, NOTE, CMD, COMMENT, INFO }
+    enum class Kind { RECV, SEND, NOTE, TEST, USER, INFO }
 
     data class Entry(
         val timestampMs: Long,
@@ -69,15 +73,15 @@ object DiagnosticsLogger {
         return true
     }
 
-    fun rx(bytes: ByteArray) = append(Kind.RX, "${bytes.size}  ${hex(bytes)}")
-    fun tx(bytes: ByteArray) = append(Kind.TX, "${bytes.size}  ${hex(bytes)}")
+    fun rx(bytes: ByteArray) = append(Kind.RECV, "${bytes.size}  ${hex(bytes)}")
+    fun tx(bytes: ByteArray) = append(Kind.SEND, "${bytes.size}  ${hex(bytes)}")
     fun note(msg: String) = append(Kind.NOTE, msg)
     fun info(msg: String) = append(Kind.INFO, msg)
-    fun comment(msg: String) = append(Kind.COMMENT, msg)
+    fun comment(msg: String) = append(Kind.USER, msg)
 
-    /** Diagnostic test command run from the dialog. Different from a normal TX. */
+    /** Diagnostic test command run from the dialog. Different from a normal SEND. */
     fun cmd(label: String, bytes: ByteArray) =
-        append(Kind.CMD, "$label  ${hex(bytes)}")
+        append(Kind.TEST, "$label  ${hex(bytes)}")
 
     private fun append(kind: Kind, text: String) {
         if (!_enabled.value) return
@@ -99,7 +103,7 @@ object DiagnosticsLogger {
         for (e in _entries.value) {
             sb.append(LINE_FMT.format(Date(e.timestampMs)))
             sb.append(' ')
-            sb.append(e.kind.name.padEnd(7))
+            sb.append(e.kind.name.padEnd(4))
             sb.append(' ')
             sb.append(e.text)
             sb.append('\n')

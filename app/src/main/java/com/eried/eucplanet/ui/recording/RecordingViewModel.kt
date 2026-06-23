@@ -72,6 +72,8 @@ class RecordingViewModel @Inject constructor(
     private val wheelRepository: com.eried.eucplanet.data.repository.WheelRepository,
     private val settingsRepository: SettingsRepository,
     private val syncManager: com.eried.eucplanet.data.sync.SyncManager,
+    private val eucStatsRepository: com.eried.eucplanet.data.eucstats.EucStatsRepository,
+    private val dropboxRepository: com.eried.eucplanet.data.repository.DropboxRepository,
     @ApplicationContext private val context: Context
 ) : ViewModel() {
 
@@ -79,10 +81,42 @@ class RecordingViewModel @Inject constructor(
         private const val TAG = "RecordingVM"
     }
 
-    /** Re-enqueue the eucstats upload worker to retry pending/failed online uploads. */
+    private val _onlineRetryRunning = MutableStateFlow(false)
+    val onlineRetryRunning: StateFlow<Boolean> = _onlineRetryRunning.asStateFlow()
+
+    /**
+     * Foreground retry of any pending / failed online uploads. Mirrors the Settings
+     * "Sync all" path so a tap on the orange or red cloud icon actually does
+     * something now instead of just enqueueing a WorkManager job that the OS may
+     * defer for minutes. A background worker is still enqueued as a safety net.
+     */
     fun retryOnlineUploads() {
+        if (_onlineRetryRunning.value) return
         viewModelScope.launch {
-            syncManager.enqueueEucStatsUpload(settingsRepository.get())
+            _onlineRetryRunning.value = true
+            try {
+                val settings = settingsRepository.get()
+                // Prereqs gone since the icon was shown (unlinked, deleted,
+                // folder lost). Don't attempt the upload and don't relight the
+                // worker safety net — it would just bail at the gate anyway.
+                if (!settings.onlineUploadEnabled || syncManager.riderStoreId.value == null) {
+                    _toasts.send(context.getString(R.string.online_upload_sync_nothing))
+                    return@launch
+                }
+                _toasts.send(context.getString(R.string.online_status_pending))
+                val result = eucStatsRepository.syncPendingNow { _, _ -> }
+                val msg = when {
+                    result.total == 0 -> context.getString(R.string.online_upload_sync_nothing)
+                    result.allFailed -> context.getString(R.string.online_status_failed)
+                    else -> context.getString(R.string.online_upload_sync_done, result.uploaded)
+                }
+                _toasts.send(msg)
+                // Background safety net for the next network change. Skipped when
+                // we early-bailed above so we don't queue work doomed to no-op.
+                syncManager.enqueueEucStatsUpload(settings)
+            } finally {
+                _onlineRetryRunning.value = false
+            }
         }
     }
 
@@ -126,8 +160,14 @@ class RecordingViewModel @Inject constructor(
     val trips: StateFlow<List<TripRecord>> = tripRepository.allTrips
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
-    val liveTripDistanceKm: StateFlow<Float> = wheelRepository.wheelData
-        .map { it.tripDistance }
+    // Live label uses GPS-accumulated distance (same source the saved trip
+    // distance uses at finalize), with the wheel's tripDistance as a fallback
+    // only when GPS hasn't moved yet. Without this the label would freeze /
+    // snap on BLE drop or wheel power-cycle while the time keeps ticking.
+    val liveTripDistanceKm: StateFlow<Float> = kotlinx.coroutines.flow.combine(
+        tripRepository.liveGpsDistanceKm,
+        wheelRepository.wheelData.map { it.tripDistance }
+    ) { gps, wheel -> if (gps > 0f) gps else wheel }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0f)
 
     val gpsFix: StateFlow<Boolean> = tripRepository.currentLocation
@@ -204,6 +244,117 @@ class RecordingViewModel @Inject constructor(
             }
             context.startActivity(Intent.createChooser(intent, context.getString(R.string.share_trip_chooser)).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
         }
+    }
+
+    /** True while a Dropbox account is linked — toggles the two extra
+     *  options in the trip Share dialog. */
+    val dropboxLinked: kotlinx.coroutines.flow.StateFlow<Boolean> =
+        dropboxRepository.linked.stateIn(
+            viewModelScope,
+            kotlinx.coroutines.flow.SharingStarted.WhileSubscribed(5_000L),
+            false
+        )
+
+    /**
+     * Upload [trip] to Dropbox if it's not already there, create (or
+     * fetch) a public shared link, then fire ACTION_SEND with the link
+     * as plain-text. The rider's contact app picks how to send it.
+     */
+    fun shareViaDropbox(trip: TripRecord) {
+        viewModelScope.launch {
+            _toasts.send(context.getString(R.string.dropbox_preparing))
+            val link = ensureDropboxLink(trip) ?: run {
+                _toasts.send(shareFailureMessage())
+                return@launch
+            }
+            val intent = Intent(Intent.ACTION_SEND).apply {
+                type = "text/plain"
+                putExtra(Intent.EXTRA_TEXT, link)
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            }
+            context.startActivity(Intent.createChooser(
+                intent, context.getString(R.string.share_trip_chooser)
+            ).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
+        }
+    }
+
+    /**
+     * Upload (idempotent) and share the trip's eucviewer link
+     * (`https://eucviewer.ried.no/?file=<direct-csv-url>`) via the Android
+     * share sheet, so the recipient can open it in a browser and inspect the
+     * ride online. The rider can also pick a browser from the sheet to open it
+     * themselves.
+     */
+    fun inspectOnline(trip: TripRecord) {
+        viewModelScope.launch {
+            _toasts.send(context.getString(R.string.dropbox_preparing))
+            val viewerUrl = ensureEucviewerUrl(trip) ?: return@launch
+            val send = Intent(Intent.ACTION_SEND).apply {
+                type = "text/plain"
+                putExtra(Intent.EXTRA_TEXT, viewerUrl)
+            }
+            val chooser = Intent.createChooser(send, null)
+                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            context.startActivity(chooser)
+        }
+    }
+
+    /**
+     * Build `https://eucviewer.ried.no/?file=<encoded-direct-url>` for
+     * [trip] — uploads to Dropbox if needed, swaps the share host to
+     * `dl.dropboxusercontent.com` and forces `dl=1` so the URL is a raw
+     * CSV download a browser can fetch without CORS pain. Shows a toast
+     * and returns null on failure.
+     */
+    private suspend fun ensureEucviewerUrl(trip: TripRecord): String? {
+        val link = ensureDropboxLink(trip) ?: run {
+            _toasts.send(shareFailureMessage())
+            return null
+        }
+        val direct = toDropboxDirectUrl(link)
+        return "https://eucviewer.ried.no/?file=" +
+            java.net.URLEncoder.encode(direct, "UTF-8")
+    }
+
+    /** Convert a www.dropbox.com share URL into a dl.dropboxusercontent.com
+     *  direct-download URL with `dl=1`. */
+    private fun toDropboxDirectUrl(link: String): String {
+        // A get_temporary_link result is already a direct download URL on
+        // dl.dropboxusercontent.com — leave it untouched (no dl=1 rewrite).
+        if (link.startsWith("https://dl.dropboxusercontent.com/")) return link
+        val onDirectHost = link
+            .replace("https://www.dropbox.com/", "https://dl.dropboxusercontent.com/")
+            .replace("https://dropbox.com/", "https://dl.dropboxusercontent.com/")
+        return when {
+            onDirectHost.contains("dl=0") -> onDirectHost.replace("dl=0", "dl=1")
+            onDirectHost.contains("dl=1") -> onDirectHost
+            onDirectHost.contains("?") -> "$onDirectHost&dl=1"
+            else -> "$onDirectHost?dl=1"
+        }
+    }
+
+    /** Share-failure message: a specific reason when Dropbox supplied one
+     *  (e.g. an unverified account email), else the generic failure. */
+    private fun shareFailureMessage(): String = context.getString(
+        when (dropboxRepository.lastShareErrorTag) {
+            "email_not_verified" -> R.string.dropbox_email_unverified
+            else -> R.string.dropbox_share_failed
+        }
+    )
+
+    private suspend fun ensureDropboxLink(trip: TripRecord): String? {
+        val file = tripRepository.getTripFile(trip)
+        if (!file.exists()) return null
+        val remote = "/trips/${file.name}"
+        // Upload first (idempotent; Dropbox dedupes content by hash so a
+        // repeat call returns instantly). Then ask for the shared link.
+        val ok = dropboxRepository.uploadFile(remote, file.readBytes())
+        if (!ok) return null
+        // Prefer a persistent shared link; fall back to a ~4-hour temporary
+        // link (needs only files.content.read) so sharing always works even
+        // without the sharing.* scopes and on repeat shares.
+        return dropboxRepository.createSharedLink(remote)
+            ?: dropboxRepository.getTemporaryLink(remote)
     }
 
     fun exportAllAsZip() {
@@ -405,7 +556,7 @@ class RecordingViewModel @Inject constructor(
             val headerLine = reader.readLine() ?: return emptyList()
             val headers = headerLine.lowercase().split(",").map { it.trim() }
 
-            // Detect column indices from header to support both DarknessBot and EUC World formats
+            // Detect column indices from header to support DarknessBot and similar formats
             val iSpeed = headers.indexOfFirst { it == "speed" }.takeIf { it >= 0 } ?: 1
             val iVoltage = headers.indexOfFirst { it == "voltage" }.takeIf { it >= 0 } ?: 2
             val iTemp = headers.indexOfFirst { it == "temperature" }.takeIf { it >= 0 } ?: 3

@@ -38,6 +38,23 @@ import kotlin.math.absoluteValue
 
 data class MetricSample(val timestampMs: Long, val value: Float)
 
+/**
+ * One snapshot of the running prediction. Appended to [ChargingSnapshot.predictionHistory]
+ * every ~30 s while a charge session is active so the chart can plot how the
+ * predicted finish times have drifted over the course of the charge -- a
+ * stable cluster around the actual end time means the model was accurate;
+ * spread means it was chasing reality.
+ *
+ * `sampleTimeMs` is when the prediction was made, the two ETAs are absolute
+ * clock times for the target (e.g. 80 %) and 100 % respectively, or null if
+ * the estimator wasn't warmed up at that point.
+ */
+data class PredictionSample(
+    val sampleTimeMs: Long,
+    val targetEtaMs: Long?,
+    val fullEtaMs: Long?,
+)
+
 /** Persistent charging-session snapshot — lives in the singleton repository so
  *  the prediction/history survives navigating in and out of the Battery screen. */
 data class ChargingSnapshot(
@@ -48,6 +65,8 @@ data class ChargingSnapshot(
     /** Smoothed absolute finish time (ms) for the target / 100 %, or null. */
     val targetEtaMs: Long? = null,
     val fullEtaMs: Long? = null,
+    /** Rolling log of the running prediction, see [PredictionSample]. */
+    val predictionHistory: List<PredictionSample> = emptyList(),
     /** Signed Wh integrated since session start (+ charging, − discharging). */
     val sessionEnergyWh: Float = 0f,
 )
@@ -125,6 +144,12 @@ class WheelRepository @Inject constructor(
         // takeLast(300) shows ~5m10s instead of a clean 5m because the
         // sampler drifts. Time-bounding here makes the chart truly 5 min.
         private const val HISTORY_WINDOW_MS = 5 * 60 * 1000L
+        // Append one PredictionSample to the charge-session log every 30 s
+        // while charging. Spans a 4 h session in ~480 entries (cheap), with
+        // enough resolution to see the prediction stabilise over the first
+        // few minutes after warm-up.
+        private const val PREDICTION_LOG_INTERVAL_MS = 30_000L
+        private const val PREDICTION_LOG_MAX_ENTRIES = 600
         // Re-request settings every N realtime polls to pick up external changes
         // (lock/unlock via InMotion app or physical button). 12 * 250ms = 3s.
         private const val SETTINGS_REFRESH_INTERVAL = 12
@@ -142,9 +167,9 @@ class WheelRepository @Inject constructor(
         // for the user's first light/horn/max-speed tap. 24 * 250ms = 6s.
         private const val CONNECT_AUTH_REFRESH_INTERVAL = 24
 
-        // Fallback slider ceiling when no wheel is connected or when the model
-        // ID isn't in our registry (mirrors WheelLog's default of 100; we use
-        // the historical 90 to match what the V14-only build always showed).
+        // Fallback slider ceiling when no wheel is connected or when the
+        // model ID isn't in our registry; 90 matches what the V14-only
+        // build always showed.
         private const val DEFAULT_MAX_SPEED_KMH = 90f
     }
 
@@ -163,6 +188,15 @@ class WheelRepository @Inject constructor(
     private val _locked = MutableStateFlow(false)
     val locked: StateFlow<Boolean> = _locked.asStateFlow()
 
+    /** Whether the currently connected wheel's adapter implements a lock
+     *  command. Drives the dashboard so the lock button can fall back to a
+     *  "not supported on this wheel" snackbar instead of optimistically
+     *  flipping the lock icon and then silently snapping back when the next
+     *  settings poll resets it. False while disconnected (no adapter yet) so
+     *  the button shows the same hint until a real capability is known. */
+    private val _wheelHasLock = MutableStateFlow(false)
+    val wheelHasLock: StateFlow<Boolean> = _wheelHasLock.asStateFlow()
+
     // Charging state — explicit firmware flag (V14/V12/KingSong) when available,
     // otherwise inferred from sustained negative current. Drives the dashboard
     // spark icon and the Charging Monitor screen.
@@ -179,8 +213,11 @@ class WheelRepository @Inject constructor(
 
     // Charging session (estimator + per-session history) lives here so the
     // prediction persists across navigation; updated each telemetry frame.
+    // Defaults from ChargingEstimator: targetTaperFactor 1.05, cvTaperFactor
+    // 1.3 -- a tiny safety margin for the 80 % ETA, modest pessimism for
+    // 80 % -> 100 %. Riders consistently saw the old 2.2 multiplier produce
+    // 100 % ETAs that were ~1 h late on a 4 h charge.
     private val chargingEstimator = ChargingEstimator(
-        cvTaperFactor = 1.6f,           // modest 80→100 % CV taper (3.5 was far too pessimistic)
         warmupMinPercentGain = 1.0f,    // wait for a stabler rate before the first prediction
         warmupMinDurationMs = 40_000L,  // two jitter windows for a steady rate
     )
@@ -196,6 +233,11 @@ class WheelRepository @Inject constructor(
     private var committedTargetAnchorMs = 0L
     private var committedFullEtaMs: Long? = null
     private var committedFullAnchorMs = 0L
+    // Rolling log of (sampleTime, predicted ETAs) appended every
+    // PREDICTION_LOG_INTERVAL_MS while a charge session is active so the
+    // chart can visualise how the prediction drifted over the session.
+    private val predictionHistory = ArrayDeque<PredictionSample>()
+    private var lastPredictionLogMs = 0L
     // Trapezoidal energy integral for the session (sign matches V*I).
     private var sessionEnergyWh = 0f
     private var sessionLastEnergyMs = 0L
@@ -205,6 +247,22 @@ class WheelRepository @Inject constructor(
 
     private val _modelName = MutableStateFlow<String?>(null)
     val modelName: StateFlow<String?> = _modelName.asStateFlow()
+
+    // Wheel serial number reported by the firmware (currently emitted by the
+    // KingSong 0xB3 sub-cmd and the InMotion P6 0x06 info bundle). Separate
+    // from modelName so eucstats meta carries them in different JSON fields
+    // and the dashboard's model label stays uniform across riders.
+    private val _wheelSerial = MutableStateFlow<String?>(null)
+    val wheelSerial: StateFlow<String?> = _wheelSerial.asStateFlow()
+
+    // Stitched smart-BMS state. The Veteran adapter ships BMS sub-frames as
+    // DecodeResult.Bms slices covering a 12-15 cell window each; handleDecoded
+    // merges successive slices into a full per-pack view. Empty packs list
+    // means "no smart BMS / no data yet" — the Battery monitor's Cells tab
+    // gates on this so non-BMS wheels (older Sherman / KingSong / P6) don't
+    // see an empty tab.
+    private val _bmsState = MutableStateFlow(com.eried.eucplanet.data.model.BmsState())
+    val bmsState: StateFlow<com.eried.eucplanet.data.model.BmsState> = _bmsState.asStateFlow()
 
     private val _firmwareVersion = MutableStateFlow<String?>(null)
     val firmwareVersion: StateFlow<String?> = _firmwareVersion.asStateFlow()
@@ -480,6 +538,13 @@ class WheelRepository @Inject constructor(
                         // BLE-advertised name; if no profile exists, we save
                         // the current values as the seed.
                         scope.launch { loadOrSeedWheelProfile() }
+                        // Publish per-adapter capabilities now that the BLE
+                        // name has resolved which sub-adapter the Composite
+                        // is routing through. Today only `hasLock` drives a
+                        // UI gate (lock button on the dashboard), but the
+                        // pattern is generic enough to grow other gates
+                        // without touching the connection observer.
+                        _wheelHasLock.value = wheelAdapter.capabilities.hasLock
                     }
                     ConnectionState.DISCONNECTED -> {
                         pollingActive = false
@@ -496,6 +561,7 @@ class WheelRepository @Inject constructor(
                         // Reset states that depend on wheel connection
                         _safetySpeedActive.value = false
                         _locked.value = false
+                        _wheelHasLock.value = false
                         _chargeStatus.value = ChargeStatus.Disconnected
                         chargeInferred = false
                         chargeNegSamples = 0
@@ -507,6 +573,8 @@ class WheelRepository @Inject constructor(
                         chargeTempHist.clear()
                         _chargingSnapshot.value = ChargingSnapshot()
                         _modelName.value = null
+                        _wheelSerial.value = null
+                        _bmsState.value = com.eried.eucplanet.data.model.BmsState()
                         _firmwareVersion.value = null
                         _maxSpeedCap.value = DEFAULT_MAX_SPEED_KMH
                         _wheelData.value =
@@ -554,6 +622,8 @@ class WheelRepository @Inject constructor(
                 committedTargetAnchorMs = 0L
                 committedFullEtaMs = null
                 committedFullAnchorMs = 0L
+                predictionHistory.clear()
+                lastPredictionLogMs = 0L
                 sessionEnergyWh = 0f
                 sessionLastEnergyMs = data.timestamp
                 sessionLastPowerW = data.voltage * data.current
@@ -586,6 +656,8 @@ class WheelRepository @Inject constructor(
             committedTargetAnchorMs = 0L
             committedFullEtaMs = null
             committedFullAnchorMs = 0L
+            predictionHistory.clear()
+            lastPredictionLogMs = 0L
             sessionEnergyWh = 0f
             sessionLastEnergyMs = 0L
             sessionLastPowerW = 0f
@@ -595,6 +667,24 @@ class WheelRepository @Inject constructor(
         committedTargetEtaMs = te; committedTargetAnchorMs = ta
         val (fe, fa) = commitEta(committedFullEtaMs, committedFullAnchorMs, est.minutesToFull, data.timestamp)
         committedFullEtaMs = fe; committedFullAnchorMs = fa
+        // Periodic prediction snapshot for the "history of predictions"
+        // overlay on the Battery chart. We log even when both ETAs are null
+        // (pre-warmup) so the gap is visible; the chart draws nothing for
+        // those entries.
+        if (connected && est.warmedUp &&
+            data.timestamp - lastPredictionLogMs >= PREDICTION_LOG_INTERVAL_MS) {
+            lastPredictionLogMs = data.timestamp
+            predictionHistory.addLast(
+                PredictionSample(
+                    sampleTimeMs = data.timestamp,
+                    targetEtaMs = committedTargetEtaMs,
+                    fullEtaMs = committedFullEtaMs,
+                )
+            )
+            while (predictionHistory.size > PREDICTION_LOG_MAX_ENTRIES) {
+                predictionHistory.removeFirst()
+            }
+        }
         _chargingSnapshot.value = ChargingSnapshot(
             estimate = est,
             chargeHistory = chargePctHist.toList(),
@@ -602,6 +692,7 @@ class WheelRepository @Inject constructor(
             tempHistory = chargeTempHist.toList(),
             targetEtaMs = committedTargetEtaMs,
             fullEtaMs = committedFullEtaMs,
+            predictionHistory = predictionHistory.toList(),
             sessionEnergyWh = sessionEnergyWh,
         )
     }
@@ -869,6 +960,16 @@ class WheelRepository @Inject constructor(
     fun toggleLock() {
         if (!wheelConnected()) return  // no wheel -> ignore (HUD/Garmin/Flic/UI all land here)
         if (_lockBusy.value) return  // cooldown active, ignore the spam tap
+        // Capability gate. Without this the optimistic `_locked.value = !..`
+        // below flips the lock icon for a moment even on wheels whose
+        // adapter returns null from setLock(); the next settings poll then
+        // snaps it back and the rider sees a misleading "it worked, then
+        // un-worked" UI. The dashboard / Flic / wear paths all land here so
+        // the early-return covers every entry.
+        if (!wheelAdapter.capabilities.hasLock) {
+            Log.d(TAG, "toggleLock: ${wheelAdapter.familyId} doesn't expose a BLE lock command")
+            return
+        }
         val targetState = !_locked.value
         // Hard block the lock direction when the wheel is moving, any entry
         // path (Flic, watch, volume keys, dashboard) lands here. Unlock is
@@ -914,9 +1015,15 @@ class WheelRepository @Inject constructor(
      */
     private suspend fun authenticateAndLock(locked: Boolean): Boolean = authMutex.withLock {
         val lockPacket = wheelAdapter.setLock(locked) ?: return@withLock false
+        // Lynx-class Veteran returns a second 5-byte tail because its 25-byte
+        // lock frame is split across two writes; pulled IMMEDIATELY after
+        // setLock so the cached full-frame in the adapter is still valid.
+        // Null on every other family (single-write lock).
+        val lockTail = wheelAdapter.setLockFollowup(locked)
 
         if (!wheelAdapter.capabilities.needsAuthForLock) {
             bleManager.writeCommand(lockPacket)
+            lockTail?.let { bleManager.writeCommand(it) }
             return@withLock true
         }
 
@@ -966,6 +1073,7 @@ class WheelRepository @Inject constructor(
         // Step 3: Send lock/unlock command
         Log.i(TAG, "Lock packet (${lockPacket.size} bytes): ${lockPacket.joinToString(" ") { "%02X".format(it) }}")
         bleManager.writeCommand(lockPacket)
+        lockTail?.let { bleManager.writeCommand(it) }
         true
     }
 
@@ -1196,14 +1304,28 @@ class WheelRepository @Inject constructor(
             is DecodeResult.ModelName -> {
                 _modelName.value = result.name
                 // Resize the slider ceiling to whatever the detected model
-                // actually supports. WheelLog values for the V14 family etc;
-                // P6 gets 130 km/h since it isn't in WheelLog's table.
+                // actually supports. Published per-model speeds for the
+                // V14 family; P6 gets 130 km/h since it isn't in the
+                // canonical reference table.
                 val model = result.model as? com.eried.eucplanet.ble.InMotionV2Model
                 _maxSpeedCap.value = model?.maxSpeedKmh?.toFloat() ?: DEFAULT_MAX_SPEED_KMH
+                // Veteran-family brand is model-dependent (NOSFET vs
+                // LeaperKim). The initial brand at connect time was set
+                // pre-detection; pulse the connection manager so the
+                // dashboard / Settings / eucstats meta pick up the
+                // correct manufacturer.
+                bleManager.refreshBrand()
             }
             is DecodeResult.Firmware -> {
                 _firmwareVersion.value = result.display
                 Log.i(TAG, "Firmware: Main=${result.mainBoard} Drv=${result.driverBoard} BLE=${result.ble}")
+            }
+            is DecodeResult.Serial -> {
+                _wheelSerial.value = result.serial
+                Log.i(TAG, "Wheel serial: ${result.serial}")
+            }
+            is DecodeResult.Bms -> {
+                _bmsState.value = mergeBmsSlice(_bmsState.value, result)
             }
             is DecodeResult.AuthKey -> {
                 Log.i(TAG, "Auth key received: ${result.encryptedKey.joinToString(" ") { "%02X".format(it) }}")
@@ -1432,3 +1554,52 @@ data class ExternalSpeedChange(
     val alarmKmh: Float,
     val legalMode: Boolean
 )
+
+/**
+ * Stitch a fresh BMS slice into the per-pack rolling state. Each Veteran
+ * smart-BMS sub-frame carries only a 12-15 cell window plus an optional
+ * temp / current header; the wheel cycles through pages 1+2+3 (cells 0..41
+ * for pack 0) and 5+6+7 (pack 1) at ~5 Hz so the full per-cell view
+ * assembles over ~1.5 s. Fields the slice didn't carry are preserved from
+ * the previous state for that pack.
+ */
+internal fun mergeBmsSlice(
+    prev: com.eried.eucplanet.data.model.BmsState,
+    slice: com.eried.eucplanet.ble.DecodeResult.Bms,
+): com.eried.eucplanet.data.model.BmsState {
+    val existing = prev.packs.firstOrNull { it.packIndex == slice.packIndex }
+        ?: com.eried.eucplanet.data.model.BmsState.PackState(packIndex = slice.packIndex)
+    // Grow the per-pack cell-voltage array as new ranges arrive. Index by
+    // absolute cell number so a slice covering cells 30..41 lands in the
+    // right slot without disturbing the 0..29 entries we already have.
+    val cells = existing.cellVoltages.toMutableList()
+    val sliceCells = slice.cellVoltages
+    val rangeStart = slice.cellRangeStart
+    if (sliceCells != null && rangeStart != null) {
+        val needed = rangeStart + sliceCells.size
+        while (cells.size < needed) cells.add(0f)
+        for (i in sliceCells.indices) {
+            val v = sliceCells[i]
+            if (v > 0f) cells[rangeStart + i] = v
+        }
+    }
+    // Slice 3/7 also carries 6 BMS temperatures. Slice 0/4 carries pack
+    // currents (two values: one per pack). For pack 0 we use packCurrent1A;
+    // for pack 1 we use packCurrent2A.
+    val newCurrent = when (slice.packIndex) {
+        0 -> slice.packCurrent1A ?: existing.currentA
+        1 -> slice.packCurrent2A ?: existing.currentA
+        else -> existing.currentA
+    }
+    val newTemps = slice.bmsTempsC ?: existing.temperaturesC
+    val updated = existing.copy(
+        cellVoltages = cells,
+        temperaturesC = newTemps,
+        currentA = newCurrent,
+    )
+    val others = prev.packs.filter { it.packIndex != slice.packIndex }
+    return com.eried.eucplanet.data.model.BmsState(
+        packs = (others + updated).sortedBy { it.packIndex },
+        updatedAt = System.currentTimeMillis(),
+    )
+}

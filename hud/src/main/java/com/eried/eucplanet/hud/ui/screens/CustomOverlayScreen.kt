@@ -339,6 +339,12 @@ private fun parseElement(o: JSONObject): OverlayElement? {
         unitPosition = o.optString("unitPosition", d.unitPosition),
         dialShowColorBand = o.optBoolean("dialShowColorBand", d.dialShowColorBand),
         dialOrangeThresholdPct = o.optInt("dialOrangeThresholdPct", d.dialOrangeThresholdPct),
-        dialRedThresholdPct = o.optInt("dialRedThresholdPct", d.dialRedThresholdPct)
+        dialRedThresholdPct = o.optInt("dialRedThresholdPct", d.dialRedThresholdPct),
+        // Radar widget options. Like clock24Hour above, this hand-rolled
+        // parser must read every field the phone emits or the HUD silently
+        // falls back to defaults (here: always LANE mode at 140 m).
+        radarMode = o.optString("radarMode", d.radarMode),
+        radarRangeM = o.optDouble("radarRangeM", d.radarRangeM.toDouble()).toFloat(),
+        radarShowDistanceLabels = o.optBoolean("radarShowDistanceLabels", d.radarShowDistanceLabels)
     )
 }

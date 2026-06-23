@@ -120,7 +120,11 @@ fun Modifier.coachmarkTargetUnion(state: CoachmarkState, target: TutorialTarget)
 private data class TutorialStep(
     val target: TutorialTarget?,
     val text: String,
-    val showClip: Boolean = false
+    val showClip: Boolean = false,
+    /** True for the "save & share" step that renders its own title + two
+     *  link-bearing bullets (eucviewer + eucstats). Mutually exclusive with
+     *  [showClip]; the body [text] is ignored when this is true. */
+    val showShare: Boolean = false,
 )
 
 /**
@@ -160,6 +164,9 @@ private fun tutorialSteps(): List<TutorialStep> = listOf(
         stringResource(R.string.welcome_tut_pd, stringResource(R.string.section_speed_limits))
     ),
     TutorialStep(TutorialTarget.VERSION, stringResource(R.string.welcome_tut_version)),
+    // Share step: links to the trip-viewer (folder sync) and the
+    // leaderboards (eucstats). No spotlight, two link-bearing bullets.
+    TutorialStep(null, "", showShare = true),
     // Outro: no single text -- the card renders a title + bulleted tips + clip.
     TutorialStep(null, "", showClip = true)
 )
@@ -178,22 +185,25 @@ private fun OutroBullet(text: String) {
     }
 }
 
-/**
- * Like [OutroBullet] but renders the "eucviewer.ried.no" mention as a tappable
- * link that opens the site in the browser. The marker string is identical across
- * all locales, so splitting on it keeps the link working in every translation.
- */
+/** Turn any of the known `*.ried.no` markers in [text] into tappable Url
+ *  links. The marker strings are constant across every locale, so splitting
+ *  on them keeps the links working in every translation. Passes the text
+ *  through unchanged when no marker is present. */
 @Composable
-private fun OutroLinkBullet(text: String) {
-    val accent = MaterialTheme.colorScheme.primary
+private fun annotateRiedLinks(text: String): androidx.compose.ui.text.AnnotatedString {
     val link = MaterialTheme.appColors.link
-    val marker = "eucviewer.ried.no"
-    val annotated = buildAnnotatedString {
-        val i = text.indexOf(marker)
-        if (i < 0) {
-            append(text)
-        } else {
-            append(text.substring(0, i))
+    val markers = listOf("eucviewer.ried.no", "eucstats.ried.no")
+    return buildAnnotatedString {
+        var cursor = 0
+        while (cursor < text.length) {
+            val hit = markers
+                .mapNotNull { m -> text.indexOf(m, cursor).takeIf { it >= 0 }?.let { it to m } }
+                .minByOrNull { it.first }
+            if (hit == null) {
+                append(text.substring(cursor)); break
+            }
+            val (idx, marker) = hit
+            append(text.substring(cursor, idx))
             withLink(
                 LinkAnnotation.Url(
                     "https://$marker",
@@ -202,13 +212,8 @@ private fun OutroLinkBullet(text: String) {
                     )
                 )
             ) { append(marker) }
-            append(text.substring(i + marker.length))
+            cursor = idx + marker.length
         }
-    }
-    Row(modifier = Modifier.fillMaxWidth()) {
-        Text("•", style = MaterialTheme.typography.bodyMedium, color = accent)
-        Spacer(Modifier.width(10.dp))
-        Text(annotated, modifier = Modifier.weight(1f), style = MaterialTheme.typography.bodyMedium)
     }
 }
 
@@ -375,8 +380,29 @@ fun WelcomeTutorialOverlay(
                             color = MaterialTheme.colorScheme.primary,
                             fontWeight = FontWeight.SemiBold
                         )
-                        if (s.showClip) {
+                        if (s.showShare) {
+                            // Backup + leaderboards mention: plain bodyLarge
+                            // line (same chrome as every other tour step), no
+                            // title, no bullets. The eucviewer.ried.no and
+                            // eucstats.ried.no markers in the localised
+                            // string become tappable links via
+                            // annotateRiedLinks.
+                            Spacer(Modifier.height(8.dp))
+                            Text(
+                                annotateRiedLinks(
+                                    stringResource(
+                                        R.string.welcome_tut_share,
+                                        stringResource(R.string.tab_cloud),
+                                        stringResource(R.string.recording_title),
+                                    )
+                                ),
+                                style = MaterialTheme.typography.bodyLarge,
+                            )
+                        } else if (s.showClip) {
                             // Outro: clip + a tidy title and bulleted tips.
+                            // The "save your trips" line moved out into the
+                            // dedicated share step above so the outro can
+                            // focus on the long-tail tips and the sign-off.
                             Spacer(Modifier.height(12.dp))
                             LoopingClip(
                                 assetName = "welcome_clip.webp",
@@ -392,14 +418,6 @@ fun WelcomeTutorialOverlay(
                                 fontWeight = FontWeight.SemiBold
                             )
                             Spacer(Modifier.height(10.dp))
-                            OutroLinkBullet(
-                                stringResource(
-                                    R.string.welcome_tut_outro_backup,
-                                    stringResource(R.string.section_cloud_folder),
-                                    stringResource(R.string.tab_cloud)
-                                )
-                            )
-                            Spacer(Modifier.height(8.dp))
                             OutroBullet(stringResource(R.string.welcome_tut_outro_buttons))
                             Spacer(Modifier.height(8.dp))
                             OutroBullet(

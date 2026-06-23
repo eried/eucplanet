@@ -98,6 +98,15 @@
                 <category android:name="android.intent.category.BROWSABLE" />
                 <data android:scheme="geo" />
             </intent-filter>
+            <!-- Dropbox OAuth (PKCE) redirect. App-key-prefixed scheme is
+                 the Dropbox-recommended way to bounce the consent page back
+                 into the app. See DropboxRepository.REDIRECT_URI. -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="db-5auhxf7gswy7j54" />
+            </intent-filter>
         </activity>
 
         <service

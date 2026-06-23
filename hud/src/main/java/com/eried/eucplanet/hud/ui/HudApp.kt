@@ -669,11 +669,12 @@ private fun DisconnectedDialog(localIp: String?) {
         Column(
             modifier = Modifier
                 // wrapContentSize sizes to the inner content (icon, title,
-                // instruction, IP/PORT block). Capped at 70% of the panel
-                // so a wide dev emulator doesn't sprawl the dialog edge-to-
-                // edge -- the cells now wrap to a content-driven width,
-                // so the dialog is naturally a lot tighter than before.
-                .widthIn(max = (maxWidth.value * 0.7f).dp)
+                // instruction, IP/PORT block). Capped at 88% of the panel
+                // so the now-billboard-sized IP cell has room to wrap to
+                // its natural width without being squeezed back. The cells
+                // are themselves wrapContentSize, so on a wide emulator the
+                // dialog still shrinks to its content rather than sprawling.
+                .widthIn(max = (maxWidth.value * 0.88f).dp)
                 .wrapContentSize()
                 .clip(RectangleShape)
                 .background(Color(0xE6111111))
@@ -741,13 +742,12 @@ private fun IpPortMatrix(
     accent: Color,
     side: Float
 ) {
-    val cellHMin = (side * 0.18f).dp
-    // Slightly smaller font so a long IP like "192.168.43.142" fits with
-    // headroom on real-device panels. Earlier 0.085×side clipped the last
-    // digit on a tester's Motoeye E6 -- the dialog width is constrained by
-    // the panel aspect and the cell ran out of room.
-    val cellFont = (side * 0.075f).sp
-    val labelFont = (side * 0.075f).sp
+    val cellHMin = (side * 0.22f).dp
+    // Big, billboard-style IP so the rider can read it from the saddle
+    // without leaning into the panel. The cell width below scales with the
+    // font so a typical IPv4 ("192.168.111.111") still fits with headroom.
+    val cellFont = (side * 0.105f).sp
+    val labelFont = (side * 0.095f).sp
     // Visible gap between IP and PORT so they read as two distinct fields
     // instead of one stacked block. Earlier 0.006×side made them visually
     // touch on the real HUD panel; ~0.03 gives a clean breathing space.
@@ -758,12 +758,10 @@ private fun IpPortMatrix(
     val innerHPad = (side * 0.035f).dp
     val labelColW = (side * 0.18f).dp
     // Cells sized for a typical IPv4 address ("192.168.111.111", 15 chars
-    // monospace + horizontal padding) -- prior weight(1f) made each cell
-    // expand to consume all remaining row width, padding the dialog with
-    // ~150 dp of empty space on each side. Fixed cell width keeps both
-    // rows perfectly aligned AND lets the wrapping dialog shrink to a
-    // tight bounding box.
-    val cellW = (side * 0.55f).dp
+    // monospace + horizontal padding). Scaled in proportion to cellFont:
+    // bumping the font above without widening the cell would clip the
+    // last octet on the real-device panel again.
+    val cellW = (side * 0.72f).dp
 
     // wrapContentWidth so the column sizes to its widest row instead of
     // stretching to fill the parent. The parent dialog Column is itself
@@ -968,35 +966,16 @@ private fun WallClockBadge(modifier: Modifier = Modifier) {
  */
 @Composable
 private fun WaitingForPhoneSplash(modifier: Modifier = Modifier) {
-    // Simple two-state pulse: dim for 900 ms, then bright for 900 ms.
-    // No animation curve crossfade -- a discrete swap reads as deliberate
-    // and avoids pulling another animation artifact in.
-    var bright by remember { mutableStateOf(false) }
-    LaunchedEffect(Unit) {
-        while (true) {
-            bright = !bright
-            kotlinx.coroutines.delay(900)
-        }
-    }
-    val dotAlpha = if (bright) 1f else 0.25f
+    // Plain static label. No pulsing dot, no animation -- the rider's
+    // attention should be on the diagnostic info above (IP, beacon ticks)
+    // rather than on a moving artefact.
     Box(modifier = modifier, contentAlignment = Alignment.Center) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Text(
-                text = "Waiting for phone",
-                color = Color.White,
-                fontSize = 22.sp,
-                fontWeight = FontWeight.Medium
-            )
-            Spacer(Modifier.width(10.dp))
-            Box(
-                Modifier
-                    .size(12.dp)
-                    .background(
-                        Color.White.copy(alpha = dotAlpha),
-                        RoundedCornerShape(50)
-                    )
-            )
-        }
+        Text(
+            text = "Waiting for phone",
+            color = Color.White,
+            fontSize = 28.sp,
+            fontWeight = FontWeight.Medium
+        )
     }
 }
 

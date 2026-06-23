@@ -5,18 +5,19 @@ import android.content.Intent
 import android.net.Uri
 import android.util.Log
 import androidx.documentfile.provider.DocumentFile
-import androidx.work.BackoffPolicy
 import androidx.work.Constraints
 import androidx.work.ExistingWorkPolicy
 import androidx.work.NetworkType
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
+import androidx.work.workDataOf
 import java.util.concurrent.TimeUnit
 import com.eried.eucplanet.data.db.AlarmDao
 import com.eried.eucplanet.data.db.TripDao
 import com.eried.eucplanet.data.model.AlarmRule
 import com.eried.eucplanet.data.model.AppSettings
 import com.eried.eucplanet.data.model.TripRecord
+import com.eried.eucplanet.data.repository.DropboxRepository
 import com.eried.eucplanet.data.repository.SettingsRepository
 import com.eried.eucplanet.data.store.SettingsJson
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -27,7 +28,9 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import org.json.JSONArray
 import org.json.JSONObject
@@ -51,7 +54,8 @@ class SyncManager @Inject constructor(
     @ApplicationContext private val context: Context,
     private val settingsRepository: SettingsRepository,
     private val tripDao: TripDao,
-    private val alarmDao: AlarmDao
+    private val alarmDao: AlarmDao,
+    private val dropboxRepository: DropboxRepository
 ) {
     companion object {
         private const val TAG = "SyncManager"
@@ -66,10 +70,63 @@ class SyncManager @Inject constructor(
         const val TRIPS_SUBFOLDER = "trips"
         const val UPLOAD_WORK_NAME = "trip_upload"
         const val EUCSTATS_UPLOAD_WORK_NAME = "eucstats_upload"
+        const val DROPBOX_SYNC_WORK_NAME = "dropbox_sync"
+        const val KEY_ATTEMPT = "attempt"
+
+        // Custom backoff curve, since WorkManager's native MAX_BACKOFF_MILLIS is
+        // a hard-coded 5h and the workers schedule their own next attempt rather
+        // than returning Result.retry().
+        //
+        // attempt 0  → immediate (initial enqueue)
+        // attempt 1  → 15s
+        // attempt 2  → 30s
+        // attempt 3  → 1m
+        // attempt 4  → 2m
+        // attempt 5  → 4m
+        // attempt 6  → 8m
+        // attempt 7  → 16m
+        // attempt 8  → 32m
+        // attempt 9+ → 1h (capped, retries forever)
+        private const val BACKOFF_BASE_SECONDS = 15L
+        private const val BACKOFF_MAX_SECONDS = 3600L
+
+        fun delayForAttempt(attempt: Int): Long {
+            if (attempt <= 0) return 0L
+            val shift = (attempt - 1).coerceAtMost(20)
+            val raw = BACKOFF_BASE_SECONDS * (1L shl shift)
+            return raw.coerceAtMost(BACKOFF_MAX_SECONDS)
+        }
     }
 
     // App-scoped so trip sync survives settings screen navigation.
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+
+    /**
+     * The current rider's store_id, read from the `.txt` recovery file in the
+     * sync folder. This is the **single source of truth** for the rider's
+     * online identity. We deliberately do NOT keep it in DataStore /
+     * AppSettings, so the .txt and the server card together carry everything
+     * a profile needs and nothing about the rider's name / flag / join date
+     * ends up persisted on-device beyond what the server already holds.
+     *
+     * Null while the rider is unregistered, while no sync folder is
+     * configured, or while the .txt is missing. Re-read on init and on any
+     * `syncFolderUri` change so a fresh folder pick or an unlink updates
+     * every consumer (trip upload, profile card, the restore prompt) in
+     * lock-step.
+     */
+    private val _riderStoreId = MutableStateFlow<String?>(null)
+    val riderStoreId: StateFlow<String?> = _riderStoreId.asStateFlow()
+
+    init {
+        scope.launch {
+            _riderStoreId.value = readRiderIdFile()
+            settingsRepository.settings
+                .map { it.syncFolderUri }
+                .distinctUntilChanged()
+                .collect { _riderStoreId.value = readRiderIdFile() }
+        }
+    }
 
     private val _syncRunning = MutableStateFlow(false)
     val syncRunning: StateFlow<Boolean> = _syncRunning.asStateFlow()
@@ -79,6 +136,18 @@ class SyncManager @Inject constructor(
 
     private val _syncConflictPrompt = MutableStateFlow<Int?>(null)
     val syncConflictPrompt: StateFlow<Int?> = _syncConflictPrompt.asStateFlow()
+
+    /** Which sync the conflict dialog is for. The same dialog handles both
+     *  the SAF folder sync and Dropbox sync; the only difference is the
+     *  button labels (FOLDER → "Backup", DROPBOX → "Dropbox"). */
+    private val _syncConflictKind = MutableStateFlow(SyncConflictKind.FOLDER)
+    val syncConflictKind: StateFlow<SyncConflictKind> = _syncConflictKind.asStateFlow()
+
+    /** Which sync is currently running, or null if idle. Lets the UI show
+     *  the progress bar under the SAF section vs the Dropbox section
+     *  depending on which Sync all button the rider tapped. */
+    private val _activeSyncKind = MutableStateFlow<SyncConflictKind?>(null)
+    val activeSyncKind: StateFlow<SyncConflictKind?> = _activeSyncKind.asStateFlow()
 
     private val _syncResult = MutableStateFlow<SyncResult?>(null)
     val syncResult: StateFlow<SyncResult?> = _syncResult.asStateFlow()
@@ -91,6 +160,7 @@ class SyncManager @Inject constructor(
 
     fun startSync() {
         if (!_syncRunning.compareAndSet(false, true)) return
+        _activeSyncKind.value = SyncConflictKind.FOLDER
         scope.launch {
             try {
                 runSync()
@@ -98,6 +168,7 @@ class SyncManager @Inject constructor(
                 _syncProgress.value = null
                 _syncConflictPrompt.value = null
                 conflictChoice = null
+                _activeSyncKind.value = null
                 _syncRunning.value = false
             }
         }
@@ -129,6 +200,7 @@ class SyncManager @Inject constructor(
         if (conflictKeys.isNotEmpty()) {
             val deferred = CompletableDeferred<SyncChoice>()
             conflictChoice = deferred
+            _syncConflictKind.value = SyncConflictKind.FOLDER
             _syncConflictPrompt.value = conflictKeys.size
             choice = deferred.await()
             _syncConflictPrompt.value = null
@@ -322,6 +394,15 @@ class SyncManager @Inject constructor(
             lastSettingsBackupAt = null,
             onlineUploadEnabled = false,  // online upload requires a folder
         ))
+        // Both destinations just lost their prerequisites: folder is gone, and
+        // the rider id file went with it. Drop any pending retries so we don't
+        // sit on a backed-off worker that would only no-op when it finally fires.
+        cancelTripUpload()
+        cancelEucStatsUpload()
+        // Clear pending/failed eucstats icons; status=2 (already on the
+        // leaderboard) is preserved so a rider who restores the same folder
+        // doesn't lose their "uploaded" history.
+        resetUnfinishedEucstatsRows()
     }
 
     /** The chosen folder's DocumentFile, or null if none or no longer accessible. */
@@ -400,19 +481,16 @@ class SyncManager @Inject constructor(
     }
 
     /**
-     * Write the eucstats leaderboard rider identity to its own small file
-     * (RIDER_BACKUP_NAME) in the sync folder -- just the rider fields, NOT the
-     * full settings/theme. This is the recovery file for "found a previous
-     * profile" after a reinstall / new device. No-op (false) without a folder
-     * or a registered rider. Best-effort.
+     * Write a rider's store_id to the recovery file ([RIDER_BACKUP_NAME]) in
+     * the sync folder and publish it on [riderStoreId]. This is the
+     * registration / restore path's persistence step; we don't keep the id
+     * anywhere else on-device. Name / flag / avatar / stats all live on the
+     * server. Returns true on success; false if there's no folder or the
+     * write failed.
      */
-    suspend fun backupRiderIdentity(): Boolean {
-        val current = settingsRepository.get()
-        val storeId = current.eucstatsStoreId ?: return false
-        val folder = getSyncFolder(current) ?: return false
-        // Just the store_id UUID as plain text -- that's the whole identity.
-        // Name/flag/avatar/stats all live on the server.
-        return try {
+    suspend fun writeRiderId(storeId: String): Boolean {
+        val folder = getSyncFolder(settingsRepository.get()) ?: return false
+        val ok = try {
             folder.findFile(RIDER_BACKUP_NAME)?.delete()
             val file = folder.createFile("text/plain", RIDER_BACKUP_NAME)
                 ?: return false
@@ -421,18 +499,26 @@ class SyncManager @Inject constructor(
             } ?: return false
             true
         } catch (e: Exception) {
-            Log.e(TAG, "Rider id backup failed", e)
+            Log.e(TAG, "Rider id write failed", e)
             false
         }
+        if (ok) _riderStoreId.value = storeId
+        return ok
     }
 
-    /** Delete the recovery file ([RIDER_BACKUP_NAME]) -- used when the rider
+    /** Delete the recovery file ([RIDER_BACKUP_NAME]). Used when the rider
      *  deletes their account so the just-deleted profile is NOT offered for
      *  "restore" on the next Join (the store_id no longer exists server-side).
-     *  Best-effort; returns true if a file was deleted. */
+     *  Also clears [riderStoreId] so every consumer sees the unregistered
+     *  state immediately. Best-effort; returns true if a file was deleted. */
     suspend fun deleteRiderIdFile(): Boolean {
-        val folder = getSyncFolder(settingsRepository.get()) ?: return false
-        return folder.findFile(RIDER_BACKUP_NAME)?.delete() ?: false
+        val folder = getSyncFolder(settingsRepository.get()) ?: run {
+            _riderStoreId.value = null
+            return false
+        }
+        val deleted = folder.findFile(RIDER_BACKUP_NAME)?.delete() ?: false
+        _riderStoreId.value = null
+        return deleted
     }
 
     /** Read the plain-text online rider id (store_id) from RIDER_BACKUP_NAME, or null. */
@@ -463,20 +549,16 @@ class SyncManager @Inject constructor(
     }
 
     /**
-     * Make sure the recovery file ([RIDER_BACKUP_NAME]) holds THIS phone's rider
-     * id: write it if absent, no-op if it already matches, and — if a DIFFERENT
-     * id is present — leave that foreign file untouched and report [RiderFileResult.MISMATCH]
-     * so the caller can warn instead of silently clobbering someone else's recovery
-     * token. Used on unlink / link so the id is hardened for the reinstall / new-
-     * device case (where it is the only surviving identity) before it might be lost.
+     * Ensure the recovery file holds [storeId]. Used at registration / link
+     * time so the rider's identity is hardened in the sync folder before
+     * anything else can clobber it. Leaves a foreign rider's file untouched
+     * and reports [RiderFileResult.MISMATCH] so the caller can warn.
      */
-    suspend fun ensureRiderIdFile(): RiderFileResult {
-        val current = settingsRepository.get()
-        val storeId = current.eucstatsStoreId ?: return RiderFileResult.SKIPPED
-        getSyncFolder(current) ?: return RiderFileResult.SKIPPED
-        return when (val existing = readRiderIdFile()) {
+    suspend fun ensureRiderIdFile(storeId: String): RiderFileResult {
+        getSyncFolder(settingsRepository.get()) ?: return RiderFileResult.SKIPPED
+        return when (readRiderIdFile()) {
             storeId -> RiderFileResult.ALREADY_PRESENT
-            null -> if (backupRiderIdentity()) RiderFileResult.WROTE else RiderFileResult.SKIPPED
+            null -> if (writeRiderId(storeId)) RiderFileResult.WROTE else RiderFileResult.SKIPPED
             else -> RiderFileResult.MISMATCH
         }
     }
@@ -564,43 +646,16 @@ class SyncManager @Inject constructor(
     }
 
     /**
-     * Read just the rider identity (store_id + display name) out of a backup
-     * file WITHOUT applying it, so the UI can offer to restore an existing rider
-     * when a sync folder is linked. Returns null if the file is missing,
-     * unreadable, or carries no store_id.
+     * The recoverable rider identity for this sync folder. The store_id in
+     * `eucstats_riderid.txt` is the only thing the app needs to identify the
+     * rider on reinstall. The display name and the rest of the profile come
+     * from `api.getCard(storeId)` once the rider opts in to restore. Returns
+     * null when no folder is configured, no `.txt` file is present, or the
+     * file is empty.
      */
-    suspend fun peekRider(fileName: String): RestorableRider? {
-        val current = settingsRepository.get()
-        val folder = getSyncFolder(current) ?: return null
-        val file = folder.findFile(fileName) ?: return null
-        return try {
-            val bytes = context.contentResolver.openInputStream(file.uri)?.use { it.readBytes() }
-                ?: return null
-            val json = JSONObject(String(bytes, Charsets.UTF_8))
-            val storeId = json.optString("eucstatsStoreId", "").takeIf { it.isNotBlank() }
-                ?: return null
-            val name = json.optString("eucstatsDisplayName", "").takeIf { it.isNotBlank() }
-            RestorableRider(fileName = fileName, storeId = storeId, displayName = name)
-        } catch (e: Exception) {
-            Log.e(TAG, "Could not read rider from backup $fileName", e)
-            null
-        }
-    }
-
-    /** The recoverable rider identity for this sync folder. Prefers the
-     *  dedicated `eucstats_riderid.txt` file FIRST; if that's absent, falls
-     *  back to the first settings backup that carries a rider. */
     suspend fun findRestorableRider(): RestorableRider? {
-        // Prefer the dedicated plain-text rider-id file.
-        readRiderIdFile()?.let { id ->
-            return RestorableRider(fileName = RIDER_BACKUP_NAME, storeId = id, displayName = null)
-        }
-        // Fall back to any settings backup that carries a rider (older data,
-        // e.g. a full settings backup made via the manual Backup button).
-        for (entry in listSettingsBackups()) {
-            peekRider(entry.fileName)?.let { return it }
-        }
-        return null
+        val id = readRiderIdFile() ?: return null
+        return RestorableRider(fileName = RIDER_BACKUP_NAME, storeId = id)
     }
 
     /**
@@ -629,10 +684,29 @@ class SyncManager @Inject constructor(
     private fun buildBackupFileName(name: String?): String =
         if (name == null) SETTINGS_BACKUP_NAME else "$SETTINGS_BACKUP_PREFIX$name$SETTINGS_BACKUP_SUFFIX"
 
-    /** Enqueue the trip upload worker. */
+    /** Initial enqueue of the folder-backup worker. Retries are scheduled by the
+     *  worker itself via [scheduleTripUploadAttempt]. */
     fun enqueueTripUpload(settings: AppSettings) {
         if (settings.syncFolderUri == null) return
-        val request = OneTimeWorkRequestBuilder<TripUploadWorker>().build()
+        scheduleTripUploadAttempt(attempt = 0)
+    }
+
+    /** Initial enqueue of the eucstats worker. Retries are scheduled by the worker
+     *  itself via [scheduleEucStatsUploadAttempt]. */
+    fun enqueueEucStatsUpload(settings: AppSettings) {
+        scheduleEucStatsUploadAttempt(attempt = 0)
+    }
+
+    /** Schedule the folder worker for [attempt]. attempt=0 fires immediately;
+     *  higher attempts use the [delayForAttempt] curve. Always under the same
+     *  unique-work name so a fresh enqueue (new trip, manual retry) cancels and
+     *  resets the retry chain. */
+    fun scheduleTripUploadAttempt(attempt: Int) {
+        val data = workDataOf(KEY_ATTEMPT to attempt)
+        val request = OneTimeWorkRequestBuilder<TripUploadWorker>()
+            .setInputData(data)
+            .setInitialDelay(delayForAttempt(attempt), TimeUnit.SECONDS)
+            .build()
         WorkManager.getInstance(context).enqueueUniqueWork(
             UPLOAD_WORK_NAME,
             ExistingWorkPolicy.REPLACE,
@@ -640,14 +714,227 @@ class SyncManager @Inject constructor(
         )
     }
 
-    /** Enqueue the eucstats upload worker with a network constraint and exponential backoff. */
-    fun enqueueEucStatsUpload(settings: AppSettings) {
+    /** Cancel any queued / in-backoff folder-upload work. Used when the rider
+     *  unlinks the sync folder so a long-tail retry doesn't sit waiting for a
+     *  destination that no longer exists. */
+    fun cancelTripUpload() {
+        WorkManager.getInstance(context).cancelUniqueWork(UPLOAD_WORK_NAME)
+    }
+
+    /** Cancel any queued / in-backoff eucstats-upload work. Used when the rider
+     *  toggles leaderboards off, deletes their account, or unlinks the sync
+     *  folder (since the rider id lives in that folder). Without this, a retry
+     *  parked on the 32m / 1h step would still fire later and find the
+     *  prerequisites gone; cancelling here keeps the trip icons and WorkManager
+     *  state in lockstep. */
+    fun cancelEucStatsUpload() {
+        WorkManager.getInstance(context).cancelUniqueWork(EUCSTATS_UPLOAD_WORK_NAME)
+    }
+
+    /** Initial enqueue of the Dropbox sync worker. Retries reschedule
+     *  themselves via [scheduleDropboxSyncAttempt]. Caller should check
+     *  the linked state before calling — this is unconditional. */
+    fun enqueueDropboxSync() {
+        scheduleDropboxSyncAttempt(0)
+    }
+
+    /**
+     * Foreground "Sync all" for Dropbox. Mirrors [startSync] but talks to
+     * Dropbox: compare local trips dir against /trips/, prompt the rider
+     * on shared file names with the same conflict dialog the SAF sync uses,
+     * then upload / download to reconcile. Runs in the app-scoped coroutine
+     * so leaving Settings does NOT cancel a half-finished reconcile.
+     */
+    fun startDropboxSync() {
+        if (!_syncRunning.compareAndSet(false, true)) return
+        _activeSyncKind.value = SyncConflictKind.DROPBOX
+        scope.launch {
+            try {
+                runDropboxSync()
+            } finally {
+                _syncProgress.value = null
+                _syncConflictPrompt.value = null
+                conflictChoice = null
+                _activeSyncKind.value = null
+                _syncRunning.value = false
+            }
+        }
+    }
+
+    private suspend fun runDropboxSync() {
+        val settings = settingsRepository.get()
+        if (settings.dropboxAccessToken.isBlank()) {
+            _syncResult.value = SyncResult.NoFolder
+            return
+        }
+        val remote = dropboxRepository.listFolder("/trips")
+        if (remote == null) {
+            // Auth or network failed: same UX as "no folder" since the rider
+            // can't act on the sync until they re-link or reconnect.
+            _syncResult.value = SyncResult.NoFolder
+            return
+        }
+        val tripsDir = getTripsDir()
+        val localFiles = tripsDir.listFiles { f -> f.isFile && f.name.endsWith(".csv", ignoreCase = true) }
+            ?.toList().orEmpty()
+        val localByLower = localFiles.associateBy { it.name.lowercase() }
+        val remoteByLower = remote.keys.associateBy { it.lowercase() }
+
+        val conflictKeys = remoteByLower.keys intersect localByLower.keys
+        val remoteOnly = remoteByLower.keys - localByLower.keys
+        val localOnly = localByLower.keys - remoteByLower.keys
+
+        var choice = SyncChoice.IGNORE
+        if (conflictKeys.isNotEmpty()) {
+            val deferred = CompletableDeferred<SyncChoice>()
+            conflictChoice = deferred
+            _syncConflictKind.value = SyncConflictKind.DROPBOX
+            _syncConflictPrompt.value = conflictKeys.size
+            choice = deferred.await()
+            _syncConflictPrompt.value = null
+            conflictChoice = null
+            if (choice == SyncChoice.CANCEL) return
+        }
+
+        val toUpload = mutableListOf<java.io.File>()
+        val toDownload = mutableListOf<String>()
+        localOnly.forEach { key -> localByLower[key]?.let { toUpload += it } }
+        remoteOnly.forEach { key -> remoteByLower[key]?.let { toDownload += it } }
+        when (choice) {
+            SyncChoice.APP -> conflictKeys.forEach { key -> localByLower[key]?.let { toUpload += it } }
+            SyncChoice.FOLDER -> conflictKeys.forEach { key -> remoteByLower[key]?.let { toDownload += it } }
+            SyncChoice.IGNORE, SyncChoice.CANCEL -> {}
+        }
+
+        val total = toUpload.size + toDownload.size
+
+        var done = 0
+        _syncProgress.value = done to total
+
+        for (file in toUpload) {
+            dropboxRepository.uploadFile("/trips/${file.name}", file.readBytes())
+            done++
+            _syncProgress.value = done to total
+        }
+
+        for (name in toDownload) {
+            val bytes = dropboxRepository.downloadFile("/trips/$name")
+            if (bytes != null) {
+                val dest = File(tripsDir, name)
+                dest.outputStream().use { it.write(bytes) }
+                // Mirror the SAF path: if the file is not yet known to Room,
+                // insert a row so it shows up in the trips list.
+                val existing = tripDao.findByFileName(name)
+                if (existing == null) {
+                    val meta = parseCsvMeta(dest)
+                    tripDao.insert(TripRecord(
+                        startTime = meta.startTime,
+                        endTime = meta.endTime,
+                        fileName = name,
+                        distanceKm = meta.distanceKm,
+                        uploadStatus = 0,
+                    ))
+                }
+            }
+            done++
+            _syncProgress.value = done to total
+        }
+
+        // Refresh settings.json and mirror the rest of the backup folder
+        // (themes, overlays) so an explicit "Sync all" pushes the WHOLE folder,
+        // not just trips. Missing/newer only -- same per-file rule as trips, no
+        // extra conflict prompt.
+        var extra = 0
+        if (dropboxRepository.uploadFile(
+                "/settings.json",
+                SettingsJson.toJson(settings).toString().toByteArray(Charsets.UTF_8)
+            )
+        ) extra++
+        extra += mirrorBackupSubdirsToDropbox(settings)
+
+        settingsRepository.update {
+            it.copy(dropboxLastSyncAt = System.currentTimeMillis())
+        }
+        _syncResult.value = SyncResult.Finished(total + extra)
+    }
+
+    /** Upload the backup folder's themes/ and overlays/ files to Dropbox
+     *  (missing or newer only). Returns how many were uploaded. */
+    private suspend fun mirrorBackupSubdirsToDropbox(settings: AppSettings): Int {
+        val folder = getSyncFolder(settings) ?: return 0
+        var count = 0
+        for (sub in listOf("themes", "overlays")) {
+            // Wrap each subfolder: if the folder URI is revoked mid-sync (the UI
+            // disables Change/Remove folder while syncing, but be defensive) the
+            // SAF reads throw -- swallow rather than crash the whole sync.
+            try {
+                val subDir = folder.findFile(sub)?.takeIf { it.isDirectory } ?: continue
+                val remote = dropboxRepository.listFolder("/$sub") ?: emptyMap()
+                for (doc in subDir.listFiles()) {
+                    if (!doc.isFile) continue
+                    val name = doc.name ?: continue
+                    val localMod = doc.lastModified() / 1000L
+                    if (remote[name]?.let { it >= localMod } == true) continue
+                    val bytes = try {
+                        context.contentResolver.openInputStream(doc.uri)?.use { it.readBytes() }
+                    } catch (e: Exception) { null } ?: continue
+                    if (dropboxRepository.uploadFile("/$sub/$name", bytes)) count++
+                }
+            } catch (e: Exception) {
+                android.util.Log.w(TAG, "mirror /$sub failed: ${e.message}")
+            }
+        }
+        return count
+    }
+
+    fun scheduleDropboxSyncAttempt(attempt: Int) {
         val constraints = Constraints.Builder()
             .setRequiredNetworkType(NetworkType.CONNECTED)
             .build()
+        val data = workDataOf(KEY_ATTEMPT to attempt)
+        val request = OneTimeWorkRequestBuilder<DropboxSyncWorker>()
+            .setConstraints(constraints)
+            .setInputData(data)
+            .setInitialDelay(delayForAttempt(attempt), TimeUnit.SECONDS)
+            .build()
+        WorkManager.getInstance(context).enqueueUniqueWork(
+            DROPBOX_SYNC_WORK_NAME,
+            ExistingWorkPolicy.REPLACE,
+            request
+        )
+    }
+
+    fun cancelDropboxSync() {
+        WorkManager.getInstance(context).cancelUniqueWork(DROPBOX_SYNC_WORK_NAME)
+    }
+
+    /** Clear pending / failed eucstats statuses for every trip. Used by the
+     *  toggle-off and folder-unlink paths so the orange / red cloud icons stop
+     *  appearing for trips that no longer have a path to upload. Status=2
+     *  trips (already on the leaderboard) are preserved. */
+    suspend fun resetUnfinishedEucstatsRows() {
+        tripDao.resetUnfinishedEucstatsStatuses()
+    }
+
+    /** Clear ALL non-zero eucstats statuses, including the green ticks for
+     *  previously-uploaded trips. Used only by the account-delete path: the
+     *  server has nothing for this rider anymore so even status=2 is
+     *  misleading. */
+    suspend fun resetAllEucstatsRows() {
+        tripDao.resetAllEucstatsStatuses()
+    }
+
+    /** Schedule the eucstats worker for [attempt]. See [scheduleTripUploadAttempt]
+     *  for semantics; this one also carries the CONNECTED network constraint. */
+    fun scheduleEucStatsUploadAttempt(attempt: Int) {
+        val constraints = Constraints.Builder()
+            .setRequiredNetworkType(NetworkType.CONNECTED)
+            .build()
+        val data = workDataOf(KEY_ATTEMPT to attempt)
         val request = OneTimeWorkRequestBuilder<EucStatsUploadWorker>()
             .setConstraints(constraints)
-            .setBackoffCriteria(BackoffPolicy.EXPONENTIAL, 30, TimeUnit.SECONDS)
+            .setInputData(data)
+            .setInitialDelay(delayForAttempt(attempt), TimeUnit.SECONDS)
             .build()
         WorkManager.getInstance(context).enqueueUniqueWork(
             EUCSTATS_UPLOAD_WORK_NAME,
@@ -782,4 +1069,4 @@ data class BackupEntry(val fileName: String, val label: String?, val isFactory: 
  * The rider identity carried by a settings backup, read without applying it.
  * Used to offer "restore your existing rider" when a sync folder is linked.
  */
-data class RestorableRider(val fileName: String, val storeId: String, val displayName: String?)
+data class RestorableRider(val fileName: String, val storeId: String)

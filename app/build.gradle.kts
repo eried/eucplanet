@@ -29,8 +29,8 @@ android {
         applicationId = "com.eried.eucplanet"
         minSdk = 29
         targetSdk = 35
-        versionCode = 245
-        versionName = "0.9.19"
+        versionCode = 247
+        versionName = "0.11.0"
 
         val buildStamp = SimpleDateFormat("yyMMdd.HHmm")
             .apply { timeZone = TimeZone.getTimeZone("UTC") }
@@ -198,6 +198,9 @@ dependencies {
     implementation(libs.compose.material.icons)
     debugImplementation(libs.compose.ui.tooling)
 
+    // Coil: inline charger photos from Open Charge Map in the flyout
+    implementation(libs.coil.compose)
+
     // AndroidX
     implementation(libs.androidx.core)
     implementation(libs.androidx.activity.compose)
@@ -206,6 +209,8 @@ dependencies {
     // Play's SDK index) is never what ships. See gradle/libs.versions.toml.
     implementation(libs.androidx.fragment)
     implementation(libs.androidx.documentfile)
+    // Chrome Custom Tabs for the Dropbox OAuth consent page.
+    implementation(libs.androidx.browser)
 
     // Lifecycle
     implementation(libs.lifecycle.runtime)

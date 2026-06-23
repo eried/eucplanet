@@ -2,6 +2,7 @@ package com.eried.eucplanet.hud.overlay
 
 import androidx.compose.ui.geometry.Offset
 import com.eried.eucplanet.hud.protocol.HudState
+import com.eried.eucplanet.hud.protocol.RadarTargetWire
 
 /**
  * HUD-side mirror of the phone's StudioElementData. Same shape so the
@@ -29,7 +30,14 @@ data class StudioElementData(
     /** Heading degrees (0 = north, +clockwise). NaN when no bearing. */
     val gpsHeadingDeg: Float = Float.NaN,
     /** Rider's accent colour as ARGB. */
-    val accentArgb: Long = 0xFF00C853L
+    val accentArgb: Long = 0xFF00C853L,
+    /** Rear-view radar: true when a radar is paired and linked. Lets the
+     *  RADAR widget tell "no radar" apart from "lane clear". */
+    val radarConnected: Boolean = false,
+    /** Radar device battery %, or -1 when unknown / no radar. */
+    val radarBatteryPercent: Int = -1,
+    /** Vehicles the radar currently tracks (empty = clear lane). */
+    val radarTargets: List<RadarTargetWire> = emptyList()
 ) {
     companion object {
         /** Build a StudioElementData from a [HudState] frame. The phone
@@ -63,7 +71,10 @@ data class StudioElementData(
                 latitude = hud.latitude,
                 longitude = hud.longitude,
                 gpsHeadingDeg = hud.gpsHeadingDeg,
-                accentArgb = parseArgbStringToLong(hud.accentArgb)
+                accentArgb = parseArgbStringToLong(hud.accentArgb),
+                radarConnected = hud.radarConnected,
+                radarBatteryPercent = hud.radarBatteryPercent,
+                radarTargets = hud.radarTargets
             )
         }
     }

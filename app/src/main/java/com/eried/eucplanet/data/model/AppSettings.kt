@@ -236,12 +236,13 @@ data class AppSettings(
     val currentDisplayMode: String = "AMPS",
 
     // --- eucstats online upload ---
+    // `onlineUploadEnabled` is the only eucstats setting we persist on-device.
+    // The rider's store_id is read at runtime from the `eucstats_riderid.txt`
+    // file in the sync folder (via SyncManager.riderStoreId), and the rest of
+    // the profile (display name, flag, registered-at, public-consent flag,
+    // stats) is fetched on demand from `api.getCard(storeId)`. Everything
+    // about the rider that isn't local intent lives on the server.
     val onlineUploadEnabled: Boolean = false,
-    val eucstatsStoreId: String? = null,        // UUIDv4; survives reinstall via the settings backup
-    val eucstatsDisplayName: String? = null,
-    val eucstatsFlag: String? = null,
-    val eucstatsConsentPublic: Boolean = false,
-    val eucstatsRegisteredAt: Long? = null,
 
     // Backup folder (SAF tree URI on local storage; companion sync app handles cloud upload)
     val syncFolderUri: String? = null,
@@ -309,6 +310,14 @@ data class AppSettings(
     val navGeocoderUrl: String = "https://nominatim.openstreetmap.org/search",
     /** Routing endpoint, overridable for self-hosting. */
     val navRouterUrl: String = "https://routing.openstreetmap.de",
+    /** Overpass (chargers / stations POI source) endpoint, overridable for self-hosting. */
+    val navOverpassUrl: String = "https://overpass-api.de/api/interpreter",
+    /**
+     * Open Charge Map API key (free, from openchargemap.org). Blank by default —
+     * when set, the charger flyout enriches with OCM community data (rating,
+     * comments, connectors, photos). Only used in advanced map mode for chargers.
+     */
+    val navOcmApiKey: String = "",
     // Two nav things are intentionally NOT settings, so they never bloat the
     // settings JSON / backup:
     //  - the current navigation route -> in memory only
@@ -329,6 +338,38 @@ data class AppSettings(
      * router); there it only flips the remaining legs between solid and dashed.
      */
     val navSolveFullPath: Boolean = true,
+    /**
+     * Advanced map features (off by default). When off the route builder shows
+     * just the route and stops, and the routing-service URL fields are disabled.
+     * Turn it on to unlock the on-map charger and places layers and the custom
+     * source endpoints.
+     */
+    val navAdvancedMap: Boolean = false,
+    /** On-map ⚡ charger layer enabled (electric charging only). Ignored unless advanced map is on. */
+    val navShowChargers: Boolean = false,
+    /**
+     * Enabled "places" categories as a CSV of PoiKind names (STORE, FOOD, REST,
+     * SIGHTS). Empty = the places layer is off. The places FAB toggles the whole
+     * group; long-press picks individual categories.
+     */
+    val navPlaceCategories: String = "",
+    /** True once the "hold for place categories" hint toast has been shown. */
+    val navPlacesHintShown: Boolean = false,
+    // Route avoidances. All default false -> avoid nothing, identical to the
+    // historic behaviour. When any is true the route is solved by the key-less
+    // FOSSGIS Valhalla backend (the default OSRM service can't honour
+    // avoidances); see com.eried.eucplanet.nav.RoutingService. Which flags
+    // actually bite depends on the travel mode's Valhalla costing
+    // (highways/tolls only apply to DRIVING; ferries to all; unpaved to
+    // CYCLING) -- a flag with no effect in the current mode is simply ignored.
+    /** Avoid motorways / highways (DRIVING). */
+    val navAvoidHighways: Boolean = false,
+    /** Avoid toll roads (DRIVING). */
+    val navAvoidTolls: Boolean = false,
+    /** Avoid ferries (all modes). */
+    val navAvoidFerries: Boolean = false,
+    /** Prefer paved roads, avoid unpaved / bad surfaces (CYCLING). */
+    val navAvoidUnpaved: Boolean = false,
 
     // --- Wear OS companion (only takes effect when a Wear OS watch is paired) ---
     val watchKeepScreenOn: Boolean = true,
@@ -427,7 +468,14 @@ data class AppSettings(
      * users still see it disabled so a HUDless rider doesn't burn battery
      * on a dial loop they'll never use.
      */
-    val hudServerEnabled: Boolean = com.eried.eucplanet.BuildConfig.DEBUG,
+    /**
+     * Link master switch. Always OFF by default -- the rider has to opt
+     * in by flipping it on. Used to default to BuildConfig.DEBUG so debug
+     * builds came pre-armed, but that hid a real-world quirk (the rider
+     * never saw the toggle) and conflated "is this a debug APK?" with
+     * "should the radio be running?". The two should be independent.
+     */
+    val hudServerEnabled: Boolean = false,
     /**
      * HUD joystick long-press bindings. The HUD's IR remote / joystick fires a
      * long-press in one of four directions; the HUD sends an
@@ -456,6 +504,16 @@ data class AppSettings(
      * many phones.
      */
     val hudIp: String = "",
+    /**
+     * When ON (default), the phone runs a 4-layer discovery chain to find
+     * the HUD's IP automatically: UDP beacon → mDNS browse → manual hint
+     * (whatever is in [hudIp]) → subnet probe of the phone's own /24. The
+     * winning channel is published on the HUD-settings status line so the
+     * rider can see how the link was established. When OFF, only [hudIp]
+     * is tried -- legacy behaviour, retained as an escape hatch for cases
+     * where every auto path is broken (very rare).
+     */
+    val hudAutoDiscover: Boolean = true,
     /**
      * Name of the Overlay Studio preset the rider chose to mirror on the
      * HUD as a "Custom" screen. Empty = no custom overlay configured.
@@ -660,7 +718,22 @@ data class AppSettings(
     /** Auto-open the Battery monitor when the wheel starts charging. */
     val chargingAutoOpen: Boolean = true,
     /** Show the Battery monitor access icon (spark) in the dashboard top bar. */
-    val chargingDashboardIcon: Boolean = true
+    val chargingDashboardIcon: Boolean = true,
+
+    // --- Dropbox online backup (Phase 1: link state only) ---------------
+    /** Long-lived Dropbox short-lived access token (4h TTL on Dropbox). */
+    val dropboxAccessToken: String = "",
+    /** Refresh token kept across launches; used to mint new access tokens. */
+    val dropboxRefreshToken: String = "",
+    /** Wall-clock ms at which [dropboxAccessToken] expires; 0 = unknown. */
+    val dropboxAccessTokenExpiresAt: Long = 0L,
+    /** Dropbox account display string (e.g. email) shown in Settings while
+     *  linked. Cleared on unlink. Purely cosmetic. */
+    val dropboxAccountLabel: String = "",
+    /** Wall-clock ms of the last successful Dropbox sync. Used by the
+     *  Sync all UI to label "Last synced 5 min ago" and by the worker to
+     *  decide whether the settings.json on Dropbox is current. */
+    val dropboxLastSyncAt: Long = 0L
 )
 
 // FlicAction enum removed (2026-05). Replaced by

@@ -31,11 +31,11 @@ class BleScanner @Inject constructor(
     /**
      * Start a BLE scan and emit one [BleDevice] per advertisement match.
      *
-     * @param showAll  when true, every named peripheral is forwarded (matches
-     *                 WheelLog's behaviour). When false, only names that match
-     *                 a known wheel prefix are forwarded; useful for keeping
-     *                 the scan list short and free of unrelated devices in
-     *                 typical usage.
+     * @param showAll  when true, every named peripheral is forwarded.
+     *                 When false, only names that match a known wheel
+     *                 prefix are forwarded; useful for keeping the scan
+     *                 list short and free of unrelated devices in typical
+     *                 usage.
      */
     @SuppressLint("MissingPermission")
     fun scanForDevices(showAll: Boolean = false): Flow<BleDevice> = callbackFlow {
@@ -124,10 +124,18 @@ class BleScanner @Inject constructor(
             name.startsWith("Mten", ignoreCase = true) || name.startsWith("MCM5", ignoreCase = true) ||
             name.startsWith("Hero", ignoreCase = true) ||
             name.startsWith("T3", ignoreCase = true) || name.startsWith("T4", ignoreCase = true)) return true
-        // Veteran
+        // Veteran (LeaperKim). Match the model tokens AND the brand's own
+        // serial-style BLE prefixes — many wheels advertise as `LK<digits>`
+        // (the rider's Lynx S showed up as `LK20712`, the Oryx as `LK19957`)
+        // with no model token in the name, so the scan filter has to know
+        // about the prefixes too. CompositeWheelAdapter.pickAdapter already
+        // routes these to the Veteran adapter at connect time; the same
+        // patterns belong here so they're not filtered out before scan.
         val nl = name.lowercase()
         if ("sherman" in nl || "patton" in nl || "abrams" in nl ||
-            Regex("\\blynx\\b").containsMatchIn(nl)) return true
+            "oryx" in nl || "nosfet" in nl || "leaperkim" in nl ||
+            Regex("\\blynx\\b").containsMatchIn(nl) ||
+            Regex("^lk\\d").containsMatchIn(nl)) return true
         // Ninebot / Segway-Ninebot. Both protocol families (Z and legacy)
         // start with the brand prefix; "ZN<serial>" is the bare-firmware
         // form on some Z6 wheels; "MiniPlus<serial>" advertises Z protocol

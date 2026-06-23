@@ -4,6 +4,10 @@ import android.content.ClipData
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.animation.animateBounds
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.animateFloat
@@ -33,6 +37,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.draganddrop.dragAndDropSource
 import androidx.compose.foundation.draganddrop.dragAndDropTarget
@@ -750,6 +755,11 @@ fun SettingsScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding)
+                // Consume the Scaffold insets (which include the bottom
+                // navigation-bar inset) so imePadding doesn't add them a SECOND
+                // time when the keyboard opens -- that double-count left a
+                // nav-bar-height white bar between the content and the keyboard.
+                .consumeWindowInsets(padding)
                 .imePadding()
                 .onGloballyPositioned {
                     if (scrollContainerTop == null) {
@@ -5523,10 +5533,10 @@ private fun SpeedTab(
         )
 
         SectionHeader(stringResource(R.string.section_speed_limits))
-        // Lower bound is 0 km/h to match WheelLog: some Begode/Veteran wheels
-        // report tiltback at 0 (= disabled) or a very low value the rider set
-        // on the wheel itself, and clamping the slider's floor at 10 used to
-        // produce inverted ranges (10..0) that crashed the screen.
+        // Lower bound is 0 km/h: some Begode / Veteran wheels report
+        // tiltback at 0 (= disabled) or a very low value the rider set
+        // on the wheel itself, and clamping the slider's floor at 10
+        // used to produce inverted ranges (10..0) that crashed the screen.
         SpeedSliderSetting(
             label = stringResource(R.string.speed_tiltback),
             valueKmh = settings.tiltbackSpeedKmh,
@@ -6377,8 +6387,10 @@ private fun SwitchSettingWithDesc(
     checked: Boolean,
     onCheckedChange: (Boolean) -> Unit,
     onTest: (() -> Unit)? = null,
-    badge: (@Composable () -> Unit)? = null
+    badge: (@Composable () -> Unit)? = null,
+    enabled: Boolean = true,
 ) {
+    val dimAlpha = if (enabled) 1f else 0.4f
     Column(modifier = Modifier.fillMaxWidth()) {
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -6387,7 +6399,8 @@ private fun SwitchSettingWithDesc(
             Row(modifier = Modifier.weight(1f), verticalAlignment = Alignment.CenterVertically) {
                 Text(
                     highlightMatches(label, LocalSettingsSearchQuery.current),
-                    style = MaterialTheme.typography.bodyLarge
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = dimAlpha),
                 )
                 if (onTest != null) {
                     Spacer(Modifier.width(4.dp))
@@ -6398,13 +6411,23 @@ private fun SwitchSettingWithDesc(
                     badge()
                 }
             }
-            Switch(checked = checked, onCheckedChange = onCheckedChange, colors = themedSwitchColors())
+            Switch(
+                checked = checked,
+                onCheckedChange = onCheckedChange,
+                colors = themedSwitchColors(),
+                enabled = enabled,
+            )
         }
-        Text(
-            description,
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
+        if (description.isNotBlank()) {
+            // Skip the Text entirely when caller passes "" -- an empty Text
+            // still claims one line of vertical space, which reads as a
+            // mystery gap below the switch.
+            Text(
+                description,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = dimAlpha)
+            )
+        }
     }
 }
 
@@ -6464,6 +6487,7 @@ private fun CloudTab(
             is CloudEvent.SyncFinished -> context.getString(R.string.sync_finished, event.count)
             CloudEvent.EucstatsNothingToSync -> context.getString(R.string.online_upload_sync_nothing)
             is CloudEvent.EucstatsSyncFinished -> context.getString(R.string.online_upload_sync_done, event.count)
+            CloudEvent.EucstatsSyncFailed -> context.getString(R.string.online_status_failed)
             CloudEvent.RiderIdConflict -> context.getString(R.string.online_rider_id_conflict)
         }
         if (msg != null) snackbarScope.launch { snackbar.showSnackbar(msg) }
@@ -6554,10 +6578,15 @@ private fun CloudTab(
     }
 
     if (syncConflict != null) {
+        val conflictKind by viewModel.syncConflictKind.collectAsState()
+        val isDropbox = conflictKind == com.eried.eucplanet.data.sync.SyncConflictKind.DROPBOX
+        val bodyRes = if (isDropbox) R.string.sync_conflict_body_dropbox else R.string.sync_conflict_body
+        val pullRes = if (isDropbox) R.string.sync_conflict_dropbox else R.string.sync_conflict_folder
+        val pushRes = if (isDropbox) R.string.sync_conflict_app_dropbox else R.string.sync_conflict_app
         AlertDialog(
             onDismissRequest = { viewModel.cancelSyncConflict() },
             title = { Text(stringResource(R.string.sync_conflict_title)) },
-            text = { Text(stringResource(R.string.sync_conflict_body, syncConflict!!)) },
+            text = { Text(stringResource(bodyRes, syncConflict!!)) },
             confirmButton = {
                 Column(
                     horizontalAlignment = Alignment.End,
@@ -6567,11 +6596,11 @@ private fun CloudTab(
                     Button(
                         onClick = { viewModel.resolveSyncConflict(SyncChoice.FOLDER) },
                         modifier = Modifier.fillMaxWidth()
-                    ) { Text(stringResource(R.string.sync_conflict_folder)) }
+                    ) { Text(stringResource(pullRes)) }
                     Button(
                         onClick = { viewModel.resolveSyncConflict(SyncChoice.APP) },
                         modifier = Modifier.fillMaxWidth()
-                    ) { Text(stringResource(R.string.sync_conflict_app)) }
+                    ) { Text(stringResource(pushRes)) }
                     Button(
                         onClick = { viewModel.resolveSyncConflict(SyncChoice.IGNORE) },
                         modifier = Modifier.fillMaxWidth()
@@ -6667,10 +6696,12 @@ private fun CloudTab(
             ) {
                 Button(
                     onClick = { pickFolder.launch(null) },
+                    enabled = !syncRunning,
                     modifier = Modifier.weight(1f)
                 ) { Text(stringResource(R.string.cloud_change_folder)) }
                 Button(
                     onClick = { viewModel.clearSyncFolder() },
+                    enabled = !syncRunning,
                     colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.appColors.statusDanger),
                     modifier = Modifier.weight(1f)
                 ) { Text(stringResource(R.string.cloud_remove_folder)) }
@@ -6682,6 +6713,130 @@ private fun CloudTab(
                 label = stringResource(R.string.cloud_choose_folder),
                 onClick = { pickFolder.launch(null) }
             )
+        }
+
+        // --- Online backup (Dropbox) -----------------------------------
+        // Only shown once a SAF folder is chosen — the cloud copy is
+        // framed as a mirror of the local backup, so it doesn't make
+        // sense to offer Dropbox before the rider has set up the local
+        // side first.
+        if (hasFolder) run {
+            val dbxLinked by viewModel.dropboxLinked.collectAsState()
+            val dbxAccount by viewModel.dropboxAccountLabel.collectAsState()
+            val context = LocalContext.current
+            Text(
+                stringResource(R.string.dropbox_section_caption),
+                style = MaterialTheme.typography.titleSmall,
+                color = MaterialTheme.appColors.textPrimary,
+                modifier = Modifier.padding(top = 12.dp),
+            )
+            run {
+                val url = stringResource(R.string.dropbox_section_desc_url)
+                val full = stringResource(R.string.dropbox_section_desc, url)
+                val urlStart = full.indexOf(url)
+                val annotated = androidx.compose.ui.text.buildAnnotatedString {
+                    append(full)
+                    if (urlStart >= 0) {
+                        addStyle(
+                            androidx.compose.ui.text.SpanStyle(
+                                color = MaterialTheme.appColors.link,
+                                textDecoration = androidx.compose.ui.text.style.TextDecoration.Underline,
+                            ),
+                            start = urlStart,
+                            end = urlStart + url.length,
+                        )
+                    }
+                }
+                Text(
+                    annotated,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.appColors.textSecondary,
+                    modifier = Modifier
+                        .padding(bottom = 4.dp)
+                        .clickable {
+                            context.startActivity(
+                                android.content.Intent(
+                                    android.content.Intent.ACTION_VIEW,
+                                    android.net.Uri.parse("https://$url"),
+                                ).addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)
+                            )
+                        },
+                )
+            }
+            if (dbxLinked) {
+                val lastSyncAt by viewModel.dropboxLastSyncAt.collectAsState()
+                val lastSyncBase = if (lastSyncAt > 0L) {
+                    val fmt = java.text.SimpleDateFormat("dd MMM yyyy HH:mm", java.util.Locale.getDefault())
+                    stringResource(R.string.dropbox_last_sync, fmt.format(java.util.Date(lastSyncAt)))
+                } else stringResource(R.string.dropbox_never_synced)
+                val lastSyncText = if (dbxAccount.isNotBlank())
+                    lastSyncBase + " " + stringResource(R.string.dropbox_account_suffix, dbxAccount)
+                else lastSyncBase
+                Text(
+                    lastSyncText,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.appColors.textSecondary,
+                    modifier = Modifier.padding(bottom = 4.dp),
+                )
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    modifier = Modifier.fillMaxWidth(),
+                ) {
+                    Button(
+                        onClick = { viewModel.syncDropboxNow() },
+                        enabled = !syncRunning,
+                        modifier = Modifier.weight(1f),
+                    ) { Text(stringResource(R.string.cloud_retry_now)) }
+                    Button(
+                        onClick = { viewModel.unlinkDropbox() },
+                        enabled = !syncRunning,
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.appColors.statusDanger,
+                            contentColor   = MaterialTheme.appColors.onPrimary,
+                        ),
+                        modifier = Modifier.weight(1f),
+                    ) { Text(stringResource(R.string.dropbox_unlink)) }
+                }
+                val activeDbxKind by viewModel.activeSyncKind.collectAsState()
+                val showDbxProgress = syncRunning &&
+                    activeDbxKind == com.eried.eucplanet.data.sync.SyncConflictKind.DROPBOX
+                if (showDbxProgress) {
+                    val dbxProgress by viewModel.syncProgress.collectAsState()
+                    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                        if (dbxProgress != null) {
+                            val (done, total) = dbxProgress!!
+                            val fraction = if (total > 0) done.toFloat() / total else 0f
+                            LinearProgressIndicator(
+                                progress = { fraction },
+                                modifier = Modifier.fillMaxWidth()
+                            )
+                            Text(
+                                stringResource(R.string.sync_progress, done, total),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        } else {
+                            LinearProgressIndicator(
+                                modifier = Modifier.fillMaxWidth()
+                            )
+                        }
+                    }
+                }
+            } else {
+                // Half-width to match the Sync/Unlink row that replaces this
+                // button once the rider links Dropbox.
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    modifier = Modifier.fillMaxWidth(),
+                ) {
+                    Button(
+                        onClick = { viewModel.linkDropbox(context) },
+                        enabled = !syncRunning,
+                        modifier = Modifier.weight(1f),
+                    ) { Text(stringResource(R.string.dropbox_link)) }
+                    Spacer(Modifier.weight(1f))
+                }
+            }
         }
 
         if (hasFolder) {
@@ -6712,12 +6867,14 @@ private fun CloudTab(
                         backupNameDraft = ""
                         showBackupNameDialog = true
                     },
+                    enabled = !syncRunning,
                     modifier = Modifier.weight(1f)
                 )
                 LongPressActionButton(
                     text = stringResource(R.string.cloud_restore),
                     onClick = { showRestoreDialog = true },
                     onLongClick = { showRestorePicker = true },
+                    enabled = !syncRunning,
                     modifier = Modifier.weight(1f)
                 )
             }
@@ -6741,7 +6898,10 @@ private fun CloudTab(
                 }
                 Spacer(modifier = Modifier.weight(1f))
             }
-            if (syncRunning) {
+            val activeSyncKind by viewModel.activeSyncKind.collectAsState()
+            val showFolderProgress = syncRunning &&
+                activeSyncKind == com.eried.eucplanet.data.sync.SyncConflictKind.FOLDER
+            if (showFolderProgress) {
                 Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
                     if (syncProgress != null) {
                         val (done, total) = syncProgress!!
@@ -6782,6 +6942,7 @@ private fun CloudTab(
         val restorableRider by viewModel.restorableRider.collectAsStateWithLifecycle()
         val startOnboarding by viewModel.startOnboarding.collectAsStateWithLifecycle()
         val rejoinConfirm by viewModel.rejoinConfirm.collectAsStateWithLifecycle()
+        val riderStoreId by viewModel.riderStoreId.collectAsStateWithLifecycle()
         LaunchedEffect(startOnboarding) {
             if (startOnboarding) {
                 showOnboarding = true
@@ -6792,12 +6953,14 @@ private fun CloudTab(
         // warns the rider they'll rejoin as that existing rider rather than
         // re-enabling silently.
         if (rejoinConfirm) {
-            val rejoinName = settings.eucstatsDisplayName?.takeIf { it.isNotBlank() }
-                ?: ("#" + (settings.eucstatsStoreId?.take(8) ?: ""))
+            // No locally-cached name anymore. Fall back to credit-card-style
+            // last 6 chars of the store_id ("····034c"), the same identifier
+            // shape the restore dialog uses for an unknown rider.
+            val rejoinName = riderStoreId?.let { riderIdShort(it) } ?: ""
             AlertDialog(
                 onDismissRequest = { viewModel.dismissRejoinConfirm() },
                 title = { Text(stringResource(R.string.online_rejoin_title)) },
-                text = { Text(stringResource(R.string.online_rejoin_body, "“$rejoinName”")) },
+                text = { Text(stringResource(R.string.online_rejoin_body, rejoinName)) },
                 confirmButton = {
                     TextButton(onClick = { viewModel.confirmRejoin() }) {
                         Text(stringResource(R.string.online_rejoin_confirm))
@@ -6811,9 +6974,8 @@ private fun CloudTab(
             )
         }
         restorableRider?.let { rider ->
-            val riderName = rider.displayName?.takeIf { it.isNotBlank() }
-                ?: ("#" + rider.storeId.take(8))
-            val switching = settings.eucstatsStoreId != null
+            val riderName = riderIdShort(rider.storeId)
+            val switching = riderStoreId != null
             AlertDialog(
                 onDismissRequest = { viewModel.dismissRestorableRider() },
                 title = { Text(stringResource(R.string.online_restore_title)) },
@@ -6924,7 +7086,7 @@ private fun CloudTab(
         }
 
         // Rider card + actions: shown when online upload is enabled and storeId is known.
-        if (settings.syncFolderUri != null && settings.onlineUploadEnabled && settings.eucstatsStoreId != null) {
+        if (settings.syncFolderUri != null && settings.onlineUploadEnabled && riderStoreId != null) {
             LaunchedEffect(Unit) { viewModel.refreshOnlineUploadCard() }
             val riderCard by viewModel.onlineUploadCard.collectAsStateWithLifecycle()
             val cardLoaded by viewModel.onlineUploadCardLoaded.collectAsStateWithLifecycle()
@@ -8415,18 +8577,21 @@ private fun LongPressActionButton(
     text: String,
     onClick: () -> Unit,
     onLongClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
 ) {
     androidx.compose.material3.Surface(
         modifier = modifier
             .height(40.dp)
             .combinedClickable(
+                enabled = enabled,
                 onClick = onClick,
                 onLongClick = onLongClick,
                 role = androidx.compose.ui.semantics.Role.Button
             ),
         shape = androidx.compose.material3.ButtonDefaults.shape,
-        color = MaterialTheme.colorScheme.primary,
+        color = if (enabled) MaterialTheme.colorScheme.primary
+                else MaterialTheme.colorScheme.primary.copy(alpha = 0.38f),
         contentColor = MaterialTheme.colorScheme.onPrimary
     ) {
         Box(
@@ -9087,10 +9252,25 @@ private fun HudIntegrationSection(
         // hotspot is intentionally off doesn't think anything is wrong.
         HudHotspotHint()
 
+        // "Find HUD automatically" comes FIRST -- it's the choice that
+        // decides whether the rider needs to know the IP at all.
+        // Default ON. While the link is enabled the toggle is locked, so a
+        // mid-session flip can't drop the connection by switching paths.
+        SwitchSettingWithDesc(
+            label = stringResource(R.string.hud_auto_discover),
+            description = stringResource(R.string.hud_auto_discover_desc),
+            checked = settings.hudAutoDiscover,
+            onCheckedChange = { viewModel.updateHudAutoDiscover(it) },
+            enabled = !settings.hudServerEnabled,
+        )
+
         // IP + port live side by side as one logical input: the rider
         // reads the IP off the HUD's screen, port is almost always the
         // default. They're disabled while the link is active so an
-        // accidental keystroke can't drop a live connection.
+        // accidental keystroke can't drop a live connection. We HIDE the
+        // whole row when auto-find is ON, since the rider doesn't need to
+        // know the IP in that mode and showing fields they shouldn't touch
+        // is just visual noise.
         val fieldsEnabled = !settings.hudServerEnabled
         // Local edit buffers, seeded from settings ONCE at first
         // composition and never re-keyed. The DataStore-backed write
@@ -9099,6 +9279,7 @@ private fun HudIntegrationSection(
         // mid-edit keystrokes (testers reported "192" appearing as "921").
         var ipText by remember { mutableStateOf(settings.hudIp) }
         var portText by remember { mutableStateOf(settings.hudServerPort.toString()) }
+        AnimatedVisibility(visible = !settings.hudAutoDiscover) {
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -9174,6 +9355,8 @@ private fun HudIntegrationSection(
                 colors = themedFieldColors(),
             )
         }
+        }  // end AnimatedVisibility for the IP/port row
+
         // Toggle goes UNDER the IP/port -- the rider configures the
         // address first and then flips the switch to dial out. Flipping
         // it also locks the fields above so the live connection can't
@@ -9185,6 +9368,14 @@ private fun HudIntegrationSection(
             checked = settings.hudServerEnabled,
             onCheckedChange = { viewModel.updateHudServerEnabled(it) }
         )
+
+        // Discovery activity (which channel found the HUD, probes, dial
+        // attempts, transient reconnects after a WiFi switch, etc.) is
+        // piped to the Service Mode log as NOTE entries. Riders don't see
+        // any of it unless they explicitly open the diagnostics dialog.
+        // The connection-source StateFlow on HudServer stays around because
+        // the watchdog and tests still consult it; only the rider-facing
+        // surface is gone.
 
         // Three top-level collapsibles under the Integration card.
         // HUD screens first because the reorder list inside is the
@@ -9607,3 +9798,8 @@ private fun HudOverlayPicker(
     }
 }
 
+/** Credit-card style abbreviation of a rider store_id for prompts where the
+ *  server name isn't loaded yet (or doesn't exist). Shows the last 6 chars
+ *  preceded by a dotted prefix, e.g. "····034c1f". Small enough to read at a
+ *  glance, distinct enough to match against a printed copy. */
+private fun riderIdShort(storeId: String): String = "····" + storeId.takeLast(6)

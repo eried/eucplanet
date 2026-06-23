@@ -160,6 +160,13 @@ import com.eried.eucplanet.ui.theme.themedFieldColors
  * saves into Movies/EUC Planet and Pictures/EUC Planet; Android has no reliable
  * "open exactly this folder" intent, so this filters the gallery by media type.
  */
+/** How long the wheel must have been at standstill before charging-rising-edge
+ *  is allowed to trigger the Battery monitor auto-open. Short enough that a
+ *  rider who just stopped and plugged in still gets the auto-open within a
+ *  few seconds, long enough that regen-while-rocking and balance corrections
+ *  can't slip through. */
+private const val AUTO_OPEN_STILL_MS = 3000L
+
 private fun openMediaGallery(context: Context, video: Boolean, onNoGalleryApp: () -> Unit) {
     val collection = if (video) MediaStore.Video.Media.EXTERNAL_CONTENT_URI
     else MediaStore.Images.Media.EXTERNAL_CONTENT_URI
@@ -239,15 +246,30 @@ fun DashboardScreen(
     val gaugeRedPct by viewModel.gaugeRedPct.collectAsState()
     val currentMode by viewModel.currentDisplayMode.collectAsState()
 
-    // Auto-open the Battery monitor when charging starts (rising edge), if enabled.
+    // Auto-open the Battery monitor when charging starts (rising edge), if
+    // enabled. Standstill debounce: only allow the auto-open when the wheel
+    // has been stationary for at least AUTO_OPEN_STILL_MS. Charging while
+    // moving (or just-stopped) is almost certainly a false positive — regen
+    // while rocking the wheel, balance corrections on a parked wheel, a
+    // momentary current dip the inference layer latched on, etc. Without
+    // this the rider could be coasting down the street and have the Battery
+    // monitor steal the dashboard, which is both wrong and unsafe.
     val chargeStatusForAutoOpen by viewModel.chargeStatus.collectAsState()
     val chargingAutoOpen by viewModel.chargingAutoOpen.collectAsState()
     var lastChargeStatus by remember { mutableStateOf(chargeStatusForAutoOpen) }
+    var lastNonZeroSpeedAt by remember { mutableStateOf(System.currentTimeMillis()) }
+    LaunchedEffect(wheelData.speed) {
+        if (kotlin.math.abs(wheelData.speed) >= 0.5f) {
+            lastNonZeroSpeedAt = System.currentTimeMillis()
+        }
+    }
     LaunchedEffect(chargeStatusForAutoOpen, chargingAutoOpen) {
         val started = chargeStatusForAutoOpen == com.eried.eucplanet.data.model.ChargeStatus.Charging &&
             lastChargeStatus != com.eried.eucplanet.data.model.ChargeStatus.Charging
         lastChargeStatus = chargeStatusForAutoOpen
-        if (started && chargingAutoOpen) onNavigateToCharging()
+        val stillForLongEnough =
+            System.currentTimeMillis() - lastNonZeroSpeedAt >= AUTO_OPEN_STILL_MS
+        if (started && chargingAutoOpen && stillForLongEnough) onNavigateToCharging()
     }
     // Customizable dashboard layout — falls back to the catalog defaults
     // (BATTERY, TEMPERATURE, VOLTAGE, CURRENT, LOAD, TRIP) when the
@@ -1855,6 +1877,7 @@ fun DashboardScreen(
             val periodicVoiceOn by viewModel.voicePeriodicEnabled.collectAsState()
             val lockAtAnySpeed by viewModel.cheatState.lockAtAnySpeed.collectAsState()
             val lockBlockedBySpeed = !locked && kotlin.math.abs(wheelData.speed) >= 5f && !lockAtAnySpeed
+            val wheelHasLock by viewModel.wheelHasLock.collectAsState()
 
             // Two rows of 3 — match today's layout. Tablets (wideStats)
             // and phones both render 3 columns; only the height changes.
@@ -1959,7 +1982,7 @@ fun DashboardScreen(
                                     else stringResource(R.string.action_lock_wheel),
                                 active = locked,
                                 activeColor = if (useAccent) primary else MaterialTheme.appColors.statusDanger,
-                                enabled = connectionState == ConnectionState.CONNECTED && !lockBusy,
+                                enabled = connectionState == ConnectionState.CONNECTED && !lockBusy && wheelHasLock,
                                 onClick = {
                                     if (lockBlockedBySpeed) {
                                         val msg = toastContext.getString(R.string.lock_blocked_in_motion_toast)
@@ -2590,7 +2613,6 @@ fun DashboardScreen(
                                                     "Soolek" to "KS-16X testing.",
                                                     "Jonathan Wiesner" to "LeaperKim Lynx S testing.",
                                                     "Felix K" to "LeaperKim Oryx testing.",
-                                                    "WheelLog community" to "Open-source (GPLv3) EUC protocol research.",
                                                     "Ilya Shkolnik" to "Advice and help, and maintains DarknessBot.",
                                                     "InMotion" to "For making my awesome V14."
                                                 )
@@ -2637,7 +2659,6 @@ fun DashboardScreen(
                                                 )
                                                 Spacer(Modifier.height(6.dp))
                                                 val resources = listOf(
-                                                    "WheelLog community, wheel protocols" to "Wheellog/wheellog.android, GPLv3. Public reverse-engineering of the EUC BLE protocols, used as the reference for the KingSong, Begode, Veteran, Ninebot and InMotion adapters. The implementation here is original; no WheelLog code is reused.",
                                                     "BigSoundBank, engine samples" to "Joseph SARDIN. CC0 / public domain. All sampled engines in the Motor sound generator (V8 Cobra, V-twin Ducati, diesel truck, motorcycle, city car, helicopter, tractor, lawn mower, steam locomotive, Aston Martin, big diesel, car cruise, broken exhaust, quad ATV).",
                                                     "Jetpack Compose, Material 3" to "Google. Apache 2.0. UI toolkit and design system.",
                                                     "Hilt, Room, WorkManager, Navigation" to "Google. Apache 2.0. DI, persistence, background jobs, navigation graph.",

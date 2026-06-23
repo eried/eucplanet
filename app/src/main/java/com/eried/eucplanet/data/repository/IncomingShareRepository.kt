@@ -78,7 +78,32 @@ class IncomingShareRepository @Inject constructor() {
                 if (coords != null) return Pending(lat = coords.first, lng = coords.second)
             }
 
-            // 2. Any URL or text containing lat,lng. The pattern matches
+            // 2a. Google Maps URLs encode coords in their internal protobuf
+            //     blob as `!3d<lat>!4d<lng>` inside the `data=...` segment.
+            //     This is what `maps.app.goo.gl` shortlinks resolve to after
+            //     redirects, so handle it specifically before the generic
+            //     comma-pair pattern.
+            val gmapsData = Regex("""!3d(-?\d+(?:\.\d+)?)!4d(-?\d+(?:\.\d+)?)""")
+                .find(text)
+            if (gmapsData != null) {
+                val lat = gmapsData.groupValues[1].toDoubleOrNull()
+                val lng = gmapsData.groupValues[2].toDoubleOrNull()
+                if (lat != null && lng != null &&
+                    lat in -90.0..90.0 && lng in -180.0..180.0 &&
+                    !(lat == 0.0 && lng == 0.0)
+                ) {
+                    // Try to pull the place name out of the URL path
+                    // (`/maps/place/<name>/`) so the new waypoint isn't
+                    // labelled with raw lat/lng. URL-decode + replace +'es
+                    // with spaces, then trim.
+                    val nameMatch = Regex("""/place/([^/?#]+)""").find(text)
+                    val label = nameMatch?.groupValues?.get(1)?.let { raw ->
+                        java.net.URLDecoder.decode(raw.replace('+', ' '), "UTF-8")
+                    }
+                    return Pending(lat = lat, lng = lng, label = label)
+                }
+            }
+            // 2b. Any URL or text containing lat,lng. The pattern matches
             //    "@lat,lng", "q=lat,lng", or just "lat,lng" anywhere.
             val coordRegex = Regex(
                 """(-?\d+(?:\.\d+)?)\s*[,/]\s*(-?\d+(?:\.\d+)?)"""
@@ -95,6 +120,16 @@ class IncomingShareRepository @Inject constructor() {
                     return Pending(lat = a, lng = b)
                 }
             }
+            // 2c. Google Maps URLs whose data blob didn't carry coords still
+            //     usually have a place name in the path. Extract it as a
+            //     geocoder query.
+            val nameOnly = Regex("""/place/([^/?#]+)""").find(text)
+            if (nameOnly != null) {
+                val decoded = java.net.URLDecoder.decode(
+                    nameOnly.groupValues[1].replace('+', ' '), "UTF-8"
+                )
+                if (decoded.isNotBlank()) return Pending(query = decoded)
+            }
 
             // 3. Fall back to the first non-URL line as a search query --
             //    Google Maps shares typically put the place name first,
@@ -102,7 +137,16 @@ class IncomingShareRepository @Inject constructor() {
             val nameLine = text.lines()
                 .map { it.trim() }
                 .firstOrNull { it.isNotEmpty() && !it.startsWith("http", ignoreCase = true) }
-            return if (!nameLine.isNullOrBlank()) Pending(query = nameLine) else null
+            if (!nameLine.isNullOrBlank()) return Pending(query = nameLine)
+            // 4. Last resort: a shortened maps link (no place name, no
+            //    coords in the URL itself — Google's modern share-sheet
+            //    usually sends ONLY the `maps.app.goo.gl/xxx` shortcode).
+            //    Pass it back as a query string so the VM can follow the
+            //    HTTP redirect and re-parse the expanded URL for coords.
+            val urlLine = text.lines()
+                .map { it.trim() }
+                .firstOrNull { it.startsWith("http", ignoreCase = true) }
+            return if (urlLine != null) Pending(query = urlLine) else null
         }
 
         private fun parseCoords(s: String): Pair<Double, Double>? {

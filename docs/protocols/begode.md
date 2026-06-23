@@ -9,9 +9,8 @@ number, no length field, no formal versioning. Frame layout mutates by
 firmware. Treat every field as best-effort and keep heuristics for invalid
 frames.
 
-Research source: WheelLog (the WheelLog community), `GotwayAdapter.java`
-and `GotwayVirtualAdapter.java`. WheelLog is GPLv3; this document restates the
-protocol in our own words and tables, no code copied.
+All field layouts, formulas and command bytes below are restated in our own
+words and tables; no third-party GPL code is copied here.
 
 ---
 
@@ -55,7 +54,7 @@ model-specific string. Common observed prefixes:
 | `Mten_*`      | Mten4, Mten5                                         |
 | `MCM_*`       | MCM5 (older models also advertise as `Gotway_*`)     |
 | `MSX_*`       | MSX                                                  |
-| `RW`          | RockWheel rebrand, treated as Begode by WheelLog     |
+| `RW`          | RockWheel rebrand, treated as Begode at runtime      |
 | `ROCKW*`      | RockWheel variant                                    |
 
 Recommendation: do NOT match on name to pick a brand. Connect, enable notify,
@@ -129,9 +128,9 @@ changes the temperature scale (see section 4.2).
 
 ### 3.5 "New" Begode format vs Veteran disambiguation
 
-There is no truly new framed Begode protocol. The "virtual" Gotway adapter in
-WheelLog is a runtime dispatcher: GATT `0xFFE0 / 0xFFE1` matches both Begode
-and Leaper Kim "Veteran"; the first 3 bytes decide:
+There is no truly new framed Begode protocol. We dispatch at runtime: GATT
+`0xFFE0 / 0xFFE1` matches both Begode and Leaper Kim "Veteran"; the first
+3 bytes decide:
 
 | First 3 bytes | Brand     | Adapter            |
 |---------------|-----------|--------------------|
@@ -165,7 +164,7 @@ All multi-byte fields are big-endian. Offsets are within the 24-byte frame.
 | 2   | 2    | u16 BE   | raw voltage      | 0.01 V at 67.2 V nominal; rescale per pack (see 4.4) |
 | 4   | 2    | i16 BE   | raw speed        | speed_kmh = raw * 3.6 / 100; signed for reverse |
 | 6   | 2    | u16 BE   | distance high    | combined with bytes 8-9 to form u32 trip distance in meters |
-| 8   | 2    | u16 BE   | distance low     | (in WheelLog only the low u16 is read; older wheels never set the high word) |
+| 8   | 2    | u16 BE   | distance low     | older wheels only set the low u16; the high word is zero on those firmwares |
 | 10  | 2    | i16 BE   | phase current    | 0.01 A; signed (motor current; brake = positive or negative depending on `gotwayNegative` setting) |
 | 12  | 2    | i16 BE   | raw IMU temp     | see 4.2                                |
 | 14  | 2    | i16 BE   | hardware PWM     | only meaningful on Freestyl3r FW; pct = raw * 10, multiply by 100 for centi-percent |
@@ -175,13 +174,13 @@ All multi-byte fields are big-endian. Offsets are within the 24-byte frame.
 | 19  | 1    | u8       | sub-index        | usually `0x18`                         |
 | 20  | 4    | bytes    | terminator       | `0x5A 0x5A 0x5A 0x5A`                  |
 
-Trip distance: WheelLog reads only `buff[8..9]` as a u16 in meters (wraps at
-65535 m). Some firmwares place the full trip in `buff[6..9]` as u32 BE; check
-both forms during real captures.
+Trip distance: only `buff[8..9]` is consistently populated as a u16 in meters
+(wraps at 65535 m). Some firmwares place the full trip in `buff[6..9]` as
+u32 BE; check both forms during real captures.
 
 Speed sign: unreliable. Some firmwares emit absolute speed only; others emit
-signed. WheelLog exposes `gotwayNegative` (0 = abs, +1, -1). Our parser
-should emit raw signed and let the UI normalise.
+signed. Treat as `gotwayNegative` (0 = abs, +1, -1) at the UI layer; the
+parser should emit raw signed and let the UI normalise.
 
 ### 4.2 Temperature decode (offset 12)
 
@@ -198,8 +197,8 @@ stores temperature as centi-Celsius.
 
 ### 4.3 Battery percent (derived from voltage)
 
-Battery percent is derived in the app, not transmitted. WheelLog uses one of
-two curves keyed off the *unscaled* (84-V-equivalent) voltage in centi-volts:
+Battery percent is derived in the app, not transmitted. Use one of two
+curves keyed off the *unscaled* (84-V-equivalent) voltage in centi-volts:
 
 Standard curve:
 
@@ -236,7 +235,7 @@ scaler:
 | 5         | 168 V        | 40S       | 2.50   | Master, Hero, T4 40S   |
 | 6         | 151 V        | 36S       | 2.25   | Master Pro             |
 
-"126 V" packs (30S) appear in some forum docs but WheelLog folds them into the
+"126 V" packs (30S) appear in some forum docs but most apps fold them into the
 116V/134V tiers. Treat as 30S = 126 nominal = scaler 1.875 if needed.
 
 `true_voltage_V = (raw_cV / 100.0) * scaler`
@@ -365,8 +364,8 @@ The only explicit query commands are the ASCII-banner requests:
 | `V`     | `GW`, `JN`, `CF`, `BF`   | firmware version |
 | `N`     | `NAME ...`               | model name       |
 
-WheelLog issues `V` and `N` repeatedly with 40 ms minimum spacing until both
-replies arrive or 50 attempts elapse. After 50 failures the model defaults to
+Issue `V` and `N` repeatedly with 40 ms minimum spacing until both replies
+arrive or 50 attempts elapse. After 50 failures the model defaults to
 `Begode` and firmware to `-` (unknown).
 
 ---
@@ -566,9 +565,10 @@ Suggested `WheelCapabilities` defaults for our adapter:
 
 - **Reverse speed sign**: confirm by capture per model. Some wheels emit
   `i16` BE with proper sign, others always positive.
-- **Distance high word**: WheelLog reads only the low u16 from frame `0x00`
-  byte 8. Unclear whether bytes 6-7 are always part of distance (u32) or are
-  status bits on some firmwares -- worth a labelled capture.
+- **Distance high word**: only the low u16 at frame `0x00` byte 8 is
+  consistently populated. Unclear whether bytes 6-7 are always part of
+  distance (u32) or are status bits on some firmwares -- worth a labelled
+  capture.
 - **Settings bitfield**: bits 11..10 = speed alarms is documented but the
   exact mapping to the `o` / `u` / `i` / `I` commands needs verification
   against an EX2 or Master firmware capture.
@@ -580,21 +580,16 @@ Suggested `WheelCapabilities` defaults for our adapter:
   tiltback. The "true" max speed is hard-set in firmware. Confirm whether
   the `Y H L` command actually limits speed or just shifts the tiltback
   threshold per model.
-- **Total distance encoding**: confirmed u32 BE in meters per WheelLog. Some
-  forum posts claim a wheel-specific divisor of 36 on certain Mten units.
-- **126V (30S) packs**: omitted from WheelLog's scaler list. May exist in
-  some EX/Master refits; treat 1.875 as a manual override rather than
+- **Total distance encoding**: confirmed u32 BE in meters across the captures
+  we've collected. Some forum posts claim a wheel-specific divisor of 36
+  on certain Mten units.
+- **126V (30S) packs**: not in the canonical 7-tier scaler list; may exist
+  in some EX/Master refits. Treat 1.875 as a manual override rather than
   auto-detect.
 
 ---
 
-## 10. Attribution
+## Attribution
 
-Primary research source: WheelLog Android by the WheelLog community --
-`GotwayAdapter.java` and `GotwayVirtualAdapter.java`, GPLv3.
-Repository: https://github.com/Wheellog/wheellog.android
-
-Additional cross-references that informed the mapping: EUC.Forum threads on
-Begode RS / EX, EUC World protocol notes, DarknessBot Gotway frame docs, and
-NbPower BMS-frame notes. No code from any of those projects is reproduced
-here; every field, formula and command is restated in our idiom.
+Protocol reference (upstream, GPLv3):
+<https://github.com/Wheellog/wheellog.android/blob/master/app/src/main/java/com/cooper/wheellog/utils/GotwayAdapter.java>

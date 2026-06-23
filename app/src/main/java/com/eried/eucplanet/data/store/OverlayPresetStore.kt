@@ -99,18 +99,26 @@ class OverlayPresetStore @Inject constructor(
             .sortedBy { it.lowercase() }
     }
 
-    /** Write [preset] as `<name>.json`, overwriting any file with that name. */
+    /** Write [preset] as `<name>.json`. If a file with that name already
+     *  exists it is overwritten IN PLACE (same document), not deleted and
+     *  recreated: `delete()` + `createFile()` races the SAF provider, which
+     *  then dedupes the new file to `name (1).json` instead of overwriting --
+     *  exactly the bug a rider hit when tapping "Overwrite". The "wt" mode
+     *  truncates so a shorter preset doesn't leave stale trailing bytes.
+     *
+     *  To deliberately keep both copies, the caller passes a fresh unique name
+     *  (e.g. "name (1)") -- which won't be found here, so a new file is made. */
     suspend fun savePreset(name: String, preset: OverlayPreset): Boolean =
         withContext(Dispatchers.IO) {
             val safe = syncManager.sanitizeBackupName(name) ?: return@withContext false
             val folder = overlaysFolder() ?: return@withContext false
             val fileName = "$safe$PRESET_SUFFIX"
             runCatching {
-                folder.findFile(fileName)?.delete()
-                val file = folder.createFile("application/json", fileName)
-                    ?: return@withContext false
                 val json = OverlayPresetJson.toJson(preset.copy(name = safe)).toString(2)
-                context.contentResolver.openOutputStream(file.uri)?.use { out ->
+                val target = (folder.findFile(fileName)
+                    ?: folder.createFile("application/json", fileName))?.uri
+                    ?: return@withContext false
+                context.contentResolver.openOutputStream(target, "wt")?.use { out ->
                     out.write(json.toByteArray(Charsets.UTF_8))
                 } ?: return@withContext false
                 true

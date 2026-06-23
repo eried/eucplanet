@@ -11,6 +11,10 @@
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.CHANGE_WIFI_MULTICAST_STATE" />
+    <!-- Partial CPU wake lock so the Ktor server, UDP beacon and self-heal
+         watchdog keep running if the device tries to suspend. A tester saw
+         the link freeze after ~2 min and need a HUD reboot to recover. -->
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
 
     <!-- ACCESS_WIFI_STATE auto-implies <uses-feature android.hardware.wifi
          required=true>, which blocks install on aftermarket HUDs whose

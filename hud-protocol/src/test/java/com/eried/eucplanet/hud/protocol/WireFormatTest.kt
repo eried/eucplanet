@@ -136,6 +136,45 @@ class WireFormatTest {
         assertEquals(4, decoded.protocolMinor)
     }
 
+    @Test fun radar_targets_roundtrip_preserves_all_fields() {
+        val original = HudState(
+            radarConnected = true,
+            radarBatteryPercent = 64,
+            radarTargets = listOf(
+                RadarTargetWire(id = 3, distanceM = 12, approachSpeedKmh = 28, level = 2),
+                RadarTargetWire(id = 7, distanceM = 84, approachSpeedKmh = 5, level = 1),
+                RadarTargetWire(id = 9, distanceM = 140, approachSpeedKmh = 0, level = 0)
+            )
+        )
+        val encoded = json.encodeToString(original)
+        val decoded = json.decodeFromString<HudState>(encoded)
+        assertEquals(original, decoded)
+        assertEquals(3, decoded.radarTargets.size)
+        assertEquals(12, decoded.radarTargets[0].distanceM)
+        assertEquals(2, decoded.radarTargets[0].level)
+        assertTrue(decoded.radarConnected)
+        assertEquals(64, decoded.radarBatteryPercent)
+    }
+
+    @Test fun frozen_v1_0_baseline_decodes_with_empty_radar() {
+        // The v1.0 snapshot predates the radar fields. Decoding it must
+        // yield the additive defaults: no radar, empty target list, unknown
+        // battery (-1). This proves adding radar was a MINOR (additive) bump.
+        val decoded = json.decodeFromString<HudState>(DEFAULT_FROZEN_V1_JSON)
+        assertTrue("radar targets default empty", decoded.radarTargets.isEmpty())
+        assertEquals(false, decoded.radarConnected)
+        assertEquals(-1, decoded.radarBatteryPercent)
+    }
+
+    @Test fun protocol_minor_bumped_for_radar() {
+        // Radar fields were added at MINOR 8. Guards against forgetting the
+        // bump (old phones/HUDs use it to surface the soft update hint).
+        assertTrue(
+            "PROTOCOL_MINOR must be >= 8 now that radar fields exist",
+            HudState.PROTOCOL_MINOR >= 8
+        )
+    }
+
     @Test fun pair_command_roundtrips_with_protocol_fields() {
         val original: HudCommand = HudCommand.Pair(
             hudId = "motoeye-e6-7f3a",

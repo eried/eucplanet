@@ -79,6 +79,13 @@ class V14VirtualWheel : VirtualWheel {
             cmd == (Command.MAIN_INFO.toInt() and 0xFF) && sub == 0x01 -> listOf(buildCarType())
             cmd == (Command.MAIN_INFO.toInt() and 0xFF) && sub == 0x02 -> listOf(buildSerial())
             cmd == (Command.MAIN_INFO.toInt() and 0xFF) && sub == 0x06 -> listOf(buildVersions())
+            // Per-pack BMS cells query: `aa aa 16 03 02 [pack=0x24..0x27] 02 [xor]`.
+            // parsePacket gives us command=0x02 with data=[pack, 0x02]. Reply
+            // with fake 32-cell voltages so the emulator's Cells tab populates
+            // for layout iteration without needing a real V14 hooked up.
+            cmd == 0x02 && packet.data.size >= 2 &&
+                packet.data[0] in 0x24..0x27 && (packet.data[1].toInt() and 0xFF) == 0x02 ->
+                listOf(buildPackCells(packet.data[0]))
             cmd == (Command.SETTINGS.toInt() and 0xFF) -> listOf(buildSettings())
             cmd == (Command.SOMETHING1.toInt() and 0xFF) -> emptyList()
             cmd == (Command.TOTAL_STATS.toInt() and 0xFF) -> listOf(buildTotalStats())
@@ -86,6 +93,34 @@ class V14VirtualWheel : VirtualWheel {
             cmd == (Command.CONTROL.toInt() and 0xFF) -> handleControl(packet.data)
             else -> emptyList()
         }
+    }
+
+    /**
+     * Build a per-pack cells response: `aa aa 16 [len] [pack] 02 82 [32 × uint16 LE mV] [xor]`.
+     * Cell voltages cluster around ~4.10 V with small jitter per pack so the
+     * BMS-derived "imbalance %" stays close to 0 (each pack reads similar) but
+     * with enough variance that the chip color-coding (min red / max blue)
+     * still shows distinct shading.
+     */
+    private fun buildPackCells(packAddr: Byte): ByteArray {
+        val packIndex = (packAddr.toInt() and 0xFF) - 0x24
+        val data = ByteArray(2 + 64)
+        data[0] = 0x02              // routing prefix
+        data[1] = 0x82.toByte()     // 0x80 | sub 0x02 = response marker
+        // Slight per-pack offset so the 4 packs aren't all identical at the
+        // pack-average level (a real V14 typically has ~10-40 mV between
+        // packs in good health).
+        val packOffsetMv = packIndex * 6
+        var off = 2
+        for (i in 0 until 32) {
+            // Small in-pack jitter (±15 mV) + per-cell index gradient so the
+            // grid shows variation in both directions.
+            val mv = 4100 + packOffsetMv + (rnd.nextInt(30) - 15) + i / 4
+            data[off] = (mv and 0xFF).toByte()
+            data[off + 1] = ((mv shr 8) and 0xFF).toByte()
+            off += 2
+        }
+        return InMotionV2Protocol.buildPacket(0x16, packAddr, data)
     }
 
     private fun handleControl(data: ByteArray): List<ByteArray> {

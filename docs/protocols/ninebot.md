@@ -576,12 +576,12 @@ distance. No settings writes.
 Confirm against a labelled capture from a known-good wheel before
 trusting any of these:
 
-1. **Z voltage scale.** WheelLog code is inconsistent (`/100` in some
-   places, raw in others). Z10 is nominally 84 V; capture and fix.
+1. **Z voltage scale.** Existing references are inconsistent (`/100` in
+   some places, raw in others). Z10 is nominally 84 V; capture and fix.
 2. **Z battery field source.** Whether offset 8..9 is the wheel's SOC
    or BMS pack-1 SOC. BMS dumps may contradict the LiveData value.
-3. **DriveFlags bit map.** WheelLog comment for `0xD3` includes a "?"
-   on the third bit. Toggle each bit on a Z10 to confirm meaning.
+3. **DriveFlags bit map.** Public references mark the `0xD3` third bit
+   with a "?". Toggle each bit on a Z10 to confirm meaning.
 4. **Z BleVersion reply format.** Treated as opaque "ready" signal; the
    reply layout is not well documented but is not needed.
 5. **Z key entropy.** Whether the 16-byte key is per-session random or
@@ -602,14 +602,16 @@ trusting any of these:
 
 ## 21. Attribution
 
-- Protocol research and Java reference implementation: WheelLog Android,
-  https://github.com/Wheellog/wheellog.android (GPLv3). No source from
-  WheelLog is reproduced; all tables and offset maps were re-described
-  in this project's idiom (`u8`, `u16 LE`, `i16 LE`, `0xA5`).
-- Ninebot Z encryption analysis grounded in WheelLog's
-  `NinebotZAdapter.java`: GetKey opcode `0x5B`, the 16-byte gamma key,
-  and the XOR loop `data[j] ^= gamma[(j-1) % 16]`.
-- The original reverse-engineering work on Ninebot wheels is credited to
-  the WheelLog contributor community.
-- Cross-checked against forum write-ups on the Electric Unicycle Forum
-  (esp. Z10 BLE-stack discussions).
+Protocol references (upstream, GPLv3):
+- Legacy (One E / E+ / S2 / Mini):
+  <https://github.com/Wheellog/wheellog.android/blob/master/app/src/main/java/com/cooper/wheellog/utils/NinebotAdapter.java>
+- Z encrypted variant:
+  <https://github.com/Wheellog/wheellog.android/blob/master/app/src/main/java/com/cooper/wheellog/utils/NinebotZAdapter.java>
+
+Cross-checked against forum write-ups on the Electric Unicycle Forum
+(esp. Z10 BLE-stack discussions). All tables and offset maps are
+re-described in this project's idiom (`u8`, `u16 LE`, `i16 LE`,
+`0xA5`); no third-party GPL source is reproduced.
+
+Ninebot Z encryption: GetKey opcode `0x5B`, the 16-byte gamma key,
+and the XOR loop `data[j] ^= gamma[(j-1) % 16]`.

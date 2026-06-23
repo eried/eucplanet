@@ -112,7 +112,10 @@ enum class OverlayElementType {
     /** A circular crosshair plotting live lateral × forward G-force with a comet trail. */
     G_FORCE,
     /** A live mini-map of the rider's GPS position with a route trace. */
-    MAP
+    MAP,
+    /** A rear-view radar (Garmin Varia) display: approaching vehicles by
+     *  distance + closing speed. Renders in one of several [OverlayElement.radarMode]s. */
+    RADAR
 }
 
 /**
@@ -249,7 +252,25 @@ data class OverlayElement(
      */
     val dialShowColorBand: Boolean = false,
     val dialOrangeThresholdPct: Int = 80,
-    val dialRedThresholdPct: Int = 90
+    val dialRedThresholdPct: Int = 90,
+
+    // RADAR, rear-view radar widget options.
+    /**
+     * Radar view mode:
+     *  - LANE: a vertical proximity bar, cars as colour-coded blips placed by
+     *    distance (the recorded-overlay twin of the dashboard radar mini).
+     *  - MIRROR: two blind-spot chevrons (left + right) that light together to
+     *    the current max threat level. The Varia has no bearing, so this is a
+     *    style, not real left/right placement.
+     *  - MINIMAL: a compact card with the threat dot, closest distance, and
+     *    fastest closing speed.
+     */
+    val radarMode: String = "LANE",
+    /** Distance in metres mapped to the far end of the LANE bar / MIRROR
+     *  ramp. The Varia's advertised reach is ~140 m. */
+    val radarRangeM: Float = 140f,
+    /** LANE mode: draw the per-car distance label inside each blip. */
+    val radarShowDistanceLabels: Boolean = true
 )
 
 /**

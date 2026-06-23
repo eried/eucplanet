@@ -37,6 +37,8 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
@@ -91,12 +93,24 @@ fun TripDetailScreen(
     // The in-progress trip can't be shared, its CSV isn't finalised yet.
     val isLiveTrip by viewModel.isTripLiveRecording(trip).collectAsState(initial = false)
 
+    // Render the ViewModel's messages (e.g. "Preparing the link…", share
+    // failures) here too — sharing is launched straight from this screen, which
+    // otherwise has no host so the snackbars went nowhere.
+    val snackbar = remember { SnackbarHostState() }
+    LaunchedEffect(viewModel) {
+        viewModel.toasts.collect { snackbar.showSnackbar(it) }
+    }
+
     if (showShareDialog) {
+        val dropboxLinked by viewModel.dropboxLinked.collectAsState()
         TripActionDialog(
             onShareFile = { viewModel.shareTrip(trip) },
             onViewOnline = { onViewOnline?.invoke(trip.id) },
             onReplay = { onReplayTrip?.invoke(trip.id) },
-            onDismiss = { showShareDialog = false }
+            onDismiss = { showShareDialog = false },
+            dropboxLinked = dropboxLinked,
+            onShareViaDropbox = { viewModel.shareViaDropbox(trip) },
+            onInspectOnline = { viewModel.inspectOnline(trip) },
         )
     }
 
@@ -127,7 +141,8 @@ fun TripDetailScreen(
                     containerColor = MaterialTheme.colorScheme.background
                 )
             )
-        }
+        },
+        snackbarHost = { SnackbarHost(snackbar) }
     ) { padding ->
         if (dataPoints.isEmpty()) {
             Column(
@@ -314,9 +329,9 @@ fun TripDetailScreen(
                 }
                 val speedOverlays = buildList {
                     if (gpsSpeedSeries.any { !it.isNaN() })
-                        add(ChartOverlay(gpsSpeedSeries, MaterialTheme.appColors.metricPosition))
+                        add(ChartOverlay(gpsSpeedSeries, MaterialTheme.appColors.metricPosition, label = "GPS"))
                     if (extSpeedSeries.any { !it.isNaN() })
-                        add(ChartOverlay(extSpeedSeries, MaterialTheme.appColors.metricTemp))
+                        add(ChartOverlay(extSpeedSeries, MaterialTheme.appColors.metricTemp, label = "Ext"))
                 }
                 val speedMinSpan = when (speedUnit) {
                     "mph" -> GraphScale.SPAN_SPEED_MPH
@@ -568,9 +583,11 @@ private fun buildMapHtml(coordsJson: String, isLive: Boolean): String = """
  * Optional secondary series drawn behind the main chart line. Used by the
  * speed chart to overlay external GPS speed (RaceBox) when available, with
  * NaN values treated as breaks in the line so missing samples don't pull
- * the curve down to zero.
+ * the curve down to zero. [label] tags the series in the scrub tooltip
+ * (e.g. "GPS", "Ext"); null = overlay shown on the chart but not labelled
+ * in the tooltip.
  */
-data class ChartOverlay(val values: List<Float>, val color: Color)
+data class ChartOverlay(val values: List<Float>, val color: Color, val label: String? = null)
 
 /**
  * Single-metric line chart card.
@@ -764,24 +781,57 @@ private fun ChartCard(
                     drawCircle(color, radius = 4f, center = Offset(cursorX, cursorY))
                     drawCircle(Color.White, radius = 2f, center = Offset(cursorX, cursorY))
 
-                    val labelText = "%.1f %s".format(interpValue, unitLabel)
-                    val measured = textMeasurer.measure(
-                        labelText,
-                        TextStyle(fontSize = 10.sp, color = tooltipFg, fontWeight = FontWeight.Medium)
+                    // Sample each labelled overlay at the cursor too. NaN
+                    // values are treated as "no sample here" and skipped,
+                    // matching how the overlay line itself breaks on NaN.
+                    fun sampleAt(series: List<Float>): Float? {
+                        if (series.size != values.size) return null
+                        val lv2 = series[leftIdx]
+                        val rv2 = series[rightIdx]
+                        return when {
+                            lv2.isNaN() && rv2.isNaN() -> null
+                            lv2.isNaN() -> rv2
+                            rv2.isNaN() -> lv2
+                            else -> lv2 + (rv2 - lv2) * frac
+                        }
+                    }
+                    val labelStyle = TextStyle(
+                        fontSize = 10.sp, color = tooltipFg, fontWeight = FontWeight.Medium
                     )
+                    // Lines for the tooltip: main value first (always present),
+                    // each labelled overlay with its colour, then a delta row
+                    // per overlay so the rider sees "wheel vs GPS" at a glance.
+                    data class TLine(val text: String, val tint: Color)
+                    val lines = mutableListOf<TLine>()
+                    lines += TLine("%.1f %s".format(interpValue, unitLabel), tooltipFg)
+                    overlays.forEach { ov ->
+                        val lbl = ov.label ?: return@forEach
+                        val s = sampleAt(ov.values) ?: return@forEach
+                        lines += TLine("$lbl %.1f".format(s), ov.color)
+                        lines += TLine("Δ %+.1f".format(s - interpValue), ov.color)
+                    }
+                    val measuredLines = lines.map { line ->
+                        line to textMeasurer.measure(line.text, labelStyle.copy(color = line.tint))
+                    }
                     val padX = 5f
                     val padY = 2f
-                    val boxW = measured.size.width + padX * 2
-                    val boxH = measured.size.height + padY * 2
+                    val lineGap = 1f
+                    val boxW = (measuredLines.maxOf { it.second.size.width } + padX * 2)
+                    val boxH = measuredLines.sumOf { it.second.size.height } + padY * 2 +
+                        lineGap * (measuredLines.size - 1).coerceAtLeast(0)
                     val boxX = (cursorX - boxW / 2f).coerceIn(0f, w - boxW)
                     val boxY = (cursorY - boxH - 6f).coerceAtLeast(0f)
                     drawRoundRect(
                         color = tooltipBg,
                         topLeft = Offset(boxX, boxY),
-                        size = Size(boxW, boxH),
+                        size = Size(boxW, boxH.toFloat()),
                         cornerRadius = CornerRadius(5f, 5f)
                     )
-                    drawText(measured, topLeft = Offset(boxX + padX, boxY + padY))
+                    var rowY = boxY + padY
+                    measuredLines.forEach { (_, layout) ->
+                        drawText(layout, topLeft = Offset(boxX + padX, rowY))
+                        rowY += layout.size.height + lineGap
+                    }
                 }
             }
         }
@@ -812,28 +862,41 @@ data class TripBatteryStats(
  * Computes battery and voltage extremes over a validity mask, walking the
  * trip's data points in time order.
  *
- * A point is invalid when:
- *  - `battery <= 0` or `voltage <= 0f` (wheel powered off / disconnected), or
- *  - `battery` dropped more than 10 percentage points below the last valid
- *    sample. At the ~1 Hz record rate a drop that large is physically
- *    impossible, so it is a disconnect / glitch artifact. Upward jumps (regen)
- *    are always accepted; `lastValidBattery` only advances on valid points.
+ * Two filters apply:
  *
- * Battery max/min and voltage max/min are reduced over the valid points only,
- * so disconnect garbage (e.g. a sudden 30% reading) is excluded from both.
+ *  1. **End-of-trip trim** ([trimEndIndex]). Anything from a voltage-cliff
+ *     onward is excluded entirely. The cliff catches BLE-frozen disconnect
+ *     tails (last frame echoes for minutes at a sagged voltage) AND wheel
+ *     power-off capacitor discharges (controller's V rail collapses ~80 V
+ *     in seconds and then sticks at a fake-low value while the pack is
+ *     still healthy). Both used to poison voltage min, battery min, and
+ *     peak power downward without it. Cliff = one-sample voltage drop
+ *     ≥ 5 % of the prior reading while current is light (<5 A or NaN);
+ *     gated to the trip's second half so a wheel still settling after
+ *     boot doesn't trigger it.
  *
- * The same valid-point mask also feeds the peak PWM / current / power maxima.
- * Those columns are NaN on trips that predate them, so NaN samples are skipped;
- * when a trip has no data at all for a column the corresponding peak stays NaN
- * and the screen renders a "--" placeholder.
+ *  2. **Per-sample glitch mask**. A point inside the kept range is
+ *     additionally invalid when `battery <= 0` / `voltage <= 0`, or when
+ *     `battery` dropped more than 10 percentage points below the last
+ *     valid sample (physically impossible at ~1 Hz). Regen-driven upward
+ *     jumps always accepted; `lastValidBattery` only advances on valid
+ *     points.
  *
- * Degenerate fallback: when no point is valid, the raw min/max over all points
- * is used so the card still shows something instead of crashing.
+ * Battery max/min, voltage max/min, and peak PWM/current/power are reduced
+ * over the kept-and-valid points. NaN PWM/current samples are skipped for
+ * their respective peak; when a trip has no data at all for a column the
+ * corresponding peak stays NaN and the screen renders a "--" placeholder.
+ *
+ * Degenerate fallback: when no point survives both filters, the raw min/max
+ * over all points is used so the card still shows something instead of crashing.
  */
 private fun computeBatteryStats(points: List<TripDataPoint>): TripBatteryStats {
     if (points.isEmpty()) {
         return TripBatteryStats(0, 0, 0, 0f, 0f, Float.NaN, Float.NaN, Float.NaN)
     }
+
+    val endIdx = trimEndIndex(points)
+    val ridePoints = if (endIdx in 1 until points.size) points.subList(0, endIdx) else points
 
     val validBatteries = mutableListOf<Int>()
     val validVoltages = mutableListOf<Float>()
@@ -844,7 +907,7 @@ private fun computeBatteryStats(points: List<TripDataPoint>): TripBatteryStats {
     var maxCurrent = Float.NaN
     var maxPower = Float.NaN
 
-    for (p in points) {
+    for (p in ridePoints) {
         val valid = p.battery > 0 &&
             p.voltage > 0f &&
             (lastValidBattery == null || p.battery >= lastValidBattery!! - 10)
@@ -894,3 +957,47 @@ private fun computeBatteryStats(points: List<TripDataPoint>): TripBatteryStats {
         maxPower = maxPower
     )
 }
+
+/** Returns the index where a trip-end voltage cliff begins, or `points.size`
+ *  if no cliff was found. A cliff is a one-sample voltage drop ≥ 5 % of the
+ *  prior valid voltage while current is light (|I| < 5 A or NaN). Caller
+ *  excludes the cliff sample and everything after it from trip stats.
+ *
+ *  Two real cases this catches:
+ *   - Wheel power-off: the controller's V rail capacitors discharge ~80 V
+ *     to ~14 V over five seconds at zero current, then the BLE freezes its
+ *     last frame for a couple of minutes while the rider walks away. The
+ *     pack itself never dropped — using those frames in voltage min /
+ *     battery min reports a fake catastrophic drain.
+ *   - BLE-frozen disconnect tail: the last good frame echoes for many
+ *     seconds with no current and an artificially-low voltage. Same
+ *     symptom in stats.
+ *
+ *  Gated to the trip's second half so the wheel's normal post-boot voltage
+ *  settling doesn't trigger it; gated to light current so a normal sag dip
+ *  during an acceleration is preserved. Trips shorter than 30 samples skip
+ *  the check entirely — there's not enough data for the half-gate to mean
+ *  anything. */
+private fun trimEndIndex(points: List<TripDataPoint>): Int {
+    if (points.size < TRIM_MIN_TRIP_SAMPLES) return points.size
+    val half = points.size / 2
+    var lastValidV = 0f
+    for (i in points.indices) {
+        val v = points[i].voltage
+        if (v <= 0f) continue
+        if (i > half && lastValidV > 0f) {
+            val dropFrac = (lastValidV - v) / lastValidV
+            val current = points[i].current
+            val lightCurrent = current.isNaN() || kotlin.math.abs(current) < TRIM_LIGHT_CURRENT_A
+            if (dropFrac >= TRIM_CLIFF_DROP_FRAC && lightCurrent) {
+                return i
+            }
+        }
+        lastValidV = v
+    }
+    return points.size
+}
+
+private const val TRIM_MIN_TRIP_SAMPLES: Int = 30
+private const val TRIM_CLIFF_DROP_FRAC: Float = 0.05f
+private const val TRIM_LIGHT_CURRENT_A: Float = 5f

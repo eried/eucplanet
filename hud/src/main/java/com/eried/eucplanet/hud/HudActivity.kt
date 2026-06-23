@@ -110,7 +110,11 @@ class HudActivity : ComponentActivity() {
         controller.onCommand = { server.sendCommand(it) }
         server.start()
 
-        // Forward connection events into the UI status banner.
+        // Forward connection events into the controller. The VISUAL disconnect
+        // alert is debounced separately in HudApp (DISCONNECT_RECONNECT_GRACE_MS)
+        // so a brief blip the link recovers from never flashes the splash --
+        // the internal detection (fast heartbeats) and the phone's reconnect
+        // loop stay snappy regardless of when the rider SEES the alert.
         lifecycleScope.launch {
             server.status.collect { controller.updateStatus(it) }
         }

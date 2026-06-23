@@ -259,29 +259,33 @@ fun OnlineProfileDialog(
                     color = MaterialTheme.appColors.textPrimary,
                     modifier = Modifier.weight(1f),
                 )
-                // Export my data -> a share action in the top-right corner.
-                IconButton(
-                    onClick = {
-                        viewModel.exportOnlineData { json ->
-                            if (json != null) {
-                                val shareIntent = Intent(Intent.ACTION_SEND).apply {
-                                    type = "application/json"
-                                    putExtra(Intent.EXTRA_TEXT, json)
-                                    putExtra(Intent.EXTRA_SUBJECT, "EUC Stats profile export")
-                                }
-                                runCatching {
-                                    context.startActivity(Intent.createChooser(shareIntent, null))
+                // Export my data: only when the profile loaded (export hits
+                // the same server the profile fetch did, so a broken card
+                // would also fail export).
+                if (profile != null) {
+                    IconButton(
+                        onClick = {
+                            viewModel.exportOnlineData { json ->
+                                if (json != null) {
+                                    val shareIntent = Intent(Intent.ACTION_SEND).apply {
+                                        type = "application/json"
+                                        putExtra(Intent.EXTRA_TEXT, json)
+                                        putExtra(Intent.EXTRA_SUBJECT, "EUC Stats profile export")
+                                    }
+                                    runCatching {
+                                        context.startActivity(Intent.createChooser(shareIntent, null))
+                                    }
                                 }
                             }
-                        }
-                    },
-                    enabled = !saving && !deleting,
-                ) {
-                    Icon(
-                        Icons.Default.Share,
-                        contentDescription = stringResource(R.string.online_profile_export_data),
-                        tint = MaterialTheme.appColors.textSecondary,
-                    )
+                        },
+                        enabled = !saving && !deleting,
+                    ) {
+                        Icon(
+                            Icons.Default.Share,
+                            contentDescription = stringResource(R.string.online_profile_export_data),
+                            tint = MaterialTheme.appColors.textSecondary,
+                        )
+                    }
                 }
             }
         },
@@ -308,6 +312,23 @@ fun OnlineProfileDialog(
                             style = MaterialTheme.typography.bodySmall,
                         )
                     }
+                } else if (profile == null) {
+                    Text(
+                        text = stringResource(R.string.online_upload_card_unavailable),
+                        color = MaterialTheme.appColors.textSecondary,
+                        style = MaterialTheme.typography.bodyMedium,
+                    )
+                    Button(
+                        onClick = {
+                            loading = true
+                            viewModel.loadOnlineProfile { p ->
+                                profile = p
+                                displayName = p?.displayName.orEmpty()
+                                flagCode    = p?.flag.orEmpty()
+                                loading = false
+                            }
+                        },
+                    ) { Text(stringResource(R.string.online_profile_retry)) }
                 } else {
                     // ---- Avatar (centered, tappable) -------------------------
                     Column(
@@ -487,7 +508,11 @@ fun OnlineProfileDialog(
             ) {
                 TextButton(
                     onClick = { showDeleteConfirm = true },
-                    enabled = !saving && !deleting,
+                    // Also gated on having a loaded profile: deleteAccount
+                    // needs the server round-trip to actually wipe the
+                    // record, and without a successful card load we don't
+                    // even know if the rider still exists on that side.
+                    enabled = !saving && !deleting && profile != null,
                     colors = ButtonDefaults.textButtonColors(
                         contentColor = MaterialTheme.appColors.statusDanger,
                     )

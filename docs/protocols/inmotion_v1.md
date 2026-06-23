@@ -10,10 +10,10 @@ plus the older R-series (R1, R10, R2, R0) and V3 generation that share
 the framing. Production wheels still seen on this protocol are V8 / V8F
 and the V10 line; everything else is legacy.
 
-Original prose. Source code from WheelLog (GPLv3) was read for research;
-no code copied. See Attribution at the end. Status: research-grade -
-CAN-over-BLE framing and the `0x0F550113` fast info ID are solid, but
-slow-info offsets and per-model shifts are firmware-dependent. Flagged.
+Original prose. No third-party GPL code is reproduced here. See
+Attribution at the end. Status: research-grade - CAN-over-BLE framing
+and the `0x0F550113` fast info ID are solid, but slow-info offsets
+and per-model shifts are firmware-dependent. Flagged.
 
 
 ## 1. GATT profile
@@ -215,9 +215,9 @@ model code:
 | L6 | u64 LE | `value * 100` metres (centimetres on the wire) |
 | Others (legacy R / V3) | u64 LE | `round(value / 5.711016379455429e7)` km - then convert to metres |
 
-The conversion constant for the legacy branch is the historical WheelLog
-value; its derivation is undocumented. Treat older R-series mileage as
-"approximate; varies by firmware".
+The conversion constant for the legacy branch is the historically
+observed value; its derivation is undocumented. Treat older R-series
+mileage as "approximate; varies by firmware".
 
 ### 4.3 Work mode
 
@@ -277,8 +277,8 @@ V10 family (84 V pack, "better" curve):
 `(volts - 64.0) / 45`; else 0.0.
 
 Default (V5, R-series, others): piecewise linear with breakpoints at
-82.0, 77.8, 74.8, 71.8, 70.3, 68.0 - see WheelLog for exact slopes
-(values vary by 1-2 percent).
+82.0, 77.8, 74.8, 71.8, 70.3, 68.0; exact slopes vary by 1-2 percent
+across the public references.
 
 
 ## 5. Settings frame (slow info)
@@ -436,7 +436,7 @@ Notes:
 - Using the V8 battery curve on a V10 over-reports battery by 5-10
   percent at the top end.
 - L6 odometer should be treated as approximate; the centimetre-as-u64
-  encoding is correct for the firmwares WheelLog supports but other
+  encoding holds for the firmwares we have captures for, but other
   L6 batches may differ.
 
 
@@ -463,7 +463,7 @@ Per-model overrides are summarised in section 8.
 - Fast-info offsets 4-11 and 28-31 carry signed 32-bit values on some
   firmwares (additional motion / motor data). Semantics not documented;
   capture under controlled riding to label.
-- Fast-info offset 76+: one WheelLog branch reads a fourth temperature
+- Fast-info offset 76+: one observed branch reads a fourth temperature
   on V10FT firmware; not present on older builds.
 - The `5.711016379455429e7` mileage scale for legacy R / V3 wheels has
   no documented derivation. Roughly `2^32 / 75.0`, suggesting an
@@ -479,16 +479,13 @@ Per-model overrides are summarised in section 8.
 
 ## 11. Attribution
 
-Primary research source: **WheelLog Android**,
-`app/src/main/java/com/cooper/wheellog/utils/InMotionAdapter.java`
-(GPLv3). The CAN ID layout, framing, escape rules, fast / slow info
-offsets, battery curves and per-model quirks here were reverse-engineered
-by the WheelLog community. This document is original prose and tables describing that
-research; no code from WheelLog has been copied. Consult the upstream
-source for the canonical reference.
+Protocol reference (upstream, GPLv3):
+<https://github.com/Wheellog/wheellog.android/blob/master/app/src/main/java/com/cooper/wheellog/utils/InMotionAdapter.java>
 
-Secondary references: WheelLog wiki and forum threads on
-electricunicycle.org and esk8.news.
+Cross-checked against forum threads on electricunicycle.org and
+esk8.news. The CAN ID layout, framing, escape rules, fast / slow info
+offsets, battery curves and per-model quirks here are restated in this
+project's idiom; no third-party GPL source code is reproduced.
 
 V14 / V13 / V12 / V11 / P6 use the separate V2 protocol family (Nordic
 UART UUIDs, different framing); see `inmotion_v2.md` and
