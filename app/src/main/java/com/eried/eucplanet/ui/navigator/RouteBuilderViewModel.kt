@@ -965,9 +965,25 @@ class RouteBuilderViewModel @Inject constructor(
             val near = currentLocation.value?.let {
                 com.eried.eucplanet.data.model.GeoPoint(it.latitude, it.longitude)
             }
-            _searchResults.value = routingService.geocode(query, geocoderUrl, near)
+            var results = routingService.geocode(query, geocoderUrl, near)
+            // Fallback for shared "Business name, Street, City" queries -- e.g. a
+            // Google Maps link with no coords, only a place path. Nominatim often
+            // returns nothing for the whole string because the leading business
+            // name isn't in OSM, even though the address geocodes fine. If we got
+            // nothing and there are commas, drop the leading segment(s) and retry.
+            if (results.isEmpty() && query.contains(',')) {
+                var parts = query.split(',').map { it.trim() }.filter { it.isNotEmpty() }
+                var tries = 0
+                while (results.isEmpty() && parts.size > 1 && tries < 2) {
+                    parts = parts.drop(1)
+                    tries++
+                    delay(1100) // Nominatim asks for <= 1 request/second
+                    results = routingService.geocode(parts.joinToString(", "), geocoderUrl, near)
+                }
+            }
+            _searchResults.value = results
             _searching.value = false
-            if (_searchResults.value.isEmpty()) _messages.tryEmit(R.string.nav_no_results)
+            if (results.isEmpty()) _messages.tryEmit(R.string.nav_no_results)
         }
     }
 
