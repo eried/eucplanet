@@ -1694,6 +1694,7 @@
     <string name="dropbox_never_synced">從未同步</string>
     <string name="dropbox_account_suffix">(帳號: %1$s)</string>
     <string name="dropbox_share_failed">Dropbox 分享失敗</string>
+    <string name="dropbox_preparing">正在準備連結…</string>
     <string name="dropbox_link_copied">已複製 eucviewer 連結</string>
     <string name="trip_action_share_dropbox">透過 Dropbox 分享</string>
     <string name="trip_action_share_dropbox_desc">上傳至你的 Dropbox 資料夾並分享公開連結</string>

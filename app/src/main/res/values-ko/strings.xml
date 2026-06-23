@@ -1694,6 +1694,7 @@
     <string name="dropbox_never_synced">동기화한 적 없음</string>
     <string name="dropbox_account_suffix">(계정: %1$s)</string>
     <string name="dropbox_share_failed">Dropbox 공유 실패</string>
+    <string name="dropbox_preparing">링크 준비 중…</string>
     <string name="dropbox_link_copied">eucviewer 링크 복사됨</string>
     <string name="trip_action_share_dropbox">Dropbox로 공유</string>
     <string name="trip_action_share_dropbox_desc">Dropbox 폴더에 업로드하고 공개 링크를 공유합니다</string>

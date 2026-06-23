@@ -79,7 +79,7 @@ class DropboxRepository @Inject constructor(
             // enabled in the Dropbox app console's Permissions tab.
             .appendQueryParameter(
                 "scope",
-                "account_info.read files.content.write files.content.read sharing.write"
+                "account_info.read files.content.write files.content.read sharing.write sharing.read"
             )
             .appendQueryParameter("redirect_uri", REDIRECT_URI)
             .build()
@@ -249,22 +249,52 @@ class DropboxRepository @Inject constructor(
             .addHeader("Authorization", "Bearer $token")
             .post(okhttp3.RequestBody.create("application/json".toMediaTypeOrNull(), body.toString()))
             .build()
+        val created = try {
+            http.newCall(req).execute().use { resp ->
+                val txt = resp.body?.string().orEmpty()
+                if (resp.isSuccessful) JSONObject(txt).optString("url").ifBlank { null }
+                else {
+                    Log.w("DBXSHARE", "createSharedLink HTTP ${resp.code}: ${txt.take(300)}")
+                    // Already shared → Dropbox returns 409 with the existing
+                    // link in the error body. Pull it out so the second share
+                    // doesn't fail.
+                    JSONObject(txt).optJSONObject("error")
+                        ?.optJSONObject("shared_link_already_exists")
+                        ?.optJSONObject("metadata")
+                        ?.optString("url")?.ifBlank { null }
+                }
+            }
+        } catch (e: Exception) { Log.w("DBXSHARE", "createSharedLink exception: ${e.message}"); null }
+        // Bulletproof fallback: if we couldn't create the link OR parse the
+        // existing one out of the 409, ask Dropbox for the file's existing
+        // shared links directly. This is what made re-sharing the same trip
+        // fail after the first share.
+        created ?: listSharedLink(remotePath, token)
+    }
+
+    /** First existing public shared link for [remotePath], or null. */
+    private suspend fun listSharedLink(remotePath: String, token: String): String? = withContext(Dispatchers.IO) {
+        val body = JSONObject().apply {
+            put("path", remotePath)
+            put("direct_only", true)
+        }
+        val req = Request.Builder()
+            .url("https://api.dropboxapi.com/2/sharing/list_shared_links")
+            .addHeader("Authorization", "Bearer $token")
+            .post(okhttp3.RequestBody.create("application/json".toMediaTypeOrNull(), body.toString()))
+            .build()
         try {
             http.newCall(req).execute().use { resp ->
                 val txt = resp.body?.string().orEmpty()
-                if (!resp.isSuccessful) Log.w("DBXSHARE", "createSharedLink HTTP ${resp.code}: ${txt.take(300)}")
-                if (resp.isSuccessful) JSONObject(txt).optString("url").ifBlank { null }
-                else {
-                    // Already shared → Dropbox returns 409 with the existing
-                    // link in the error body. Pull it out so the second call
-                    // doesn't need a separate /list_shared_links round-trip.
-                    val err = JSONObject(txt).optJSONObject("error")
-                        ?.optJSONObject("shared_link_already_exists")
-                        ?.optJSONObject("metadata")
-                    err?.optString("url")?.ifBlank { null }
+                if (!resp.isSuccessful) {
+                    Log.w("DBXSHARE", "list_shared_links HTTP ${resp.code}: ${txt.take(300)}")
+                    return@withContext null
                 }
+                val links = JSONObject(txt).optJSONArray("links") ?: return@withContext null
+                if (links.length() == 0) null
+                else links.optJSONObject(0)?.optString("url")?.ifBlank { null }
             }
-        } catch (e: Exception) { null }
+        } catch (e: Exception) { Log.w("DBXSHARE", "list_shared_links exception: ${e.message}"); null }
     }
 
     /**

@@ -1748,6 +1748,7 @@
     <string name="dropbox_never_synced">Nunca sincronizado</string>
     <string name="dropbox_account_suffix">(conta: %1$s)</string>
     <string name="dropbox_share_failed">Falha ao compartilhar no Dropbox</string>
+    <string name="dropbox_preparing">Preparando o link…</string>
     <string name="dropbox_link_copied">Link do eucviewer copiado</string>
     <string name="trip_action_share_dropbox">Compartilhar via Dropbox</string>
     <string name="trip_action_share_dropbox_desc">Envie para a sua pasta do Dropbox e compartilhe o link público</string>

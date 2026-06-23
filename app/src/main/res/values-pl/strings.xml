@@ -1693,6 +1693,7 @@
     <string name="dropbox_never_synced">Nigdy nie zsynchronizowano</string>
     <string name="dropbox_account_suffix">(konto: %1$s)</string>
     <string name="dropbox_share_failed">Nie udało się udostępnić przez Dropbox</string>
+    <string name="dropbox_preparing">Przygotowywanie linku…</string>
     <string name="dropbox_link_copied">Link eucviewer skopiowany</string>
     <string name="trip_action_share_dropbox">Udostępnij przez Dropbox</string>
     <string name="trip_action_share_dropbox_desc">Wyślij do swojego folderu Dropbox i udostępnij publiczny link</string>

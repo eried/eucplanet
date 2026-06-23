@@ -1710,6 +1710,7 @@
     <string name="dropbox_never_synced">Aldrig synkroniseret</string>
     <string name="dropbox_account_suffix">(konto: %1$s)</string>
     <string name="dropbox_share_failed">Dropbox-deling mislykkedes</string>
+    <string name="dropbox_preparing">Forbereder linket…</string>
     <string name="dropbox_link_copied">eucviewer-link kopieret</string>
     <string name="dropbox_link_ok">Dropbox tilknyttet</string>
     <string name="dropbox_link_failed">Kunne ikke tilknytte Dropbox. Tjek din forbindelse og prøv igen</string>

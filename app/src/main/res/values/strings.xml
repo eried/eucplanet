@@ -1486,6 +1486,7 @@
     <string name="dropbox_never_synced">Never synced</string>
     <string name="dropbox_account_suffix">(account: %1$s)</string>
     <string name="dropbox_share_failed">Dropbox share failed</string>
+    <string name="dropbox_preparing">Preparing the link…</string>
     <string name="dropbox_link_ok">Dropbox linked</string>
     <string name="dropbox_link_failed">Couldn\'t link Dropbox. Check your connection and try again</string>
     <string name="trip_action_share_dropbox">Share via Dropbox</string>

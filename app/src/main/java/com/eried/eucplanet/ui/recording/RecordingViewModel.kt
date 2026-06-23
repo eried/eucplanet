@@ -262,6 +262,7 @@ class RecordingViewModel @Inject constructor(
      */
     fun shareViaDropbox(trip: TripRecord) {
         viewModelScope.launch {
+            _toasts.send(context.getString(R.string.dropbox_preparing))
             val link = ensureDropboxLink(trip) ?: run {
                 _toasts.send(context.getString(R.string.dropbox_share_failed))
                 return@launch
@@ -286,6 +287,7 @@ class RecordingViewModel @Inject constructor(
      */
     fun inspectOnline(trip: TripRecord) {
         viewModelScope.launch {
+            _toasts.send(context.getString(R.string.dropbox_preparing))
             val viewerUrl = ensureEucviewerUrl(trip) ?: return@launch
             val send = Intent(Intent.ACTION_SEND).apply {
                 type = "text/plain"
