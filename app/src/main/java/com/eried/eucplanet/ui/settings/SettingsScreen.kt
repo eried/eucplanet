@@ -37,6 +37,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.draganddrop.dragAndDropSource
 import androidx.compose.foundation.draganddrop.dragAndDropTarget
@@ -746,6 +747,11 @@ fun SettingsScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding)
+                // Consume the Scaffold insets (which include the bottom
+                // navigation-bar inset) so imePadding doesn't add them a SECOND
+                // time when the keyboard opens -- that double-count left a
+                // nav-bar-height white bar between the content and the keyboard.
+                .consumeWindowInsets(padding)
                 .imePadding()
                 .onGloballyPositioned {
                     if (scrollContainerTop == null) {
