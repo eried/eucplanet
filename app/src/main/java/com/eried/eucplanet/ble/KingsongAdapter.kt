@@ -44,6 +44,35 @@ class KingsongAdapter @Inject constructor() : WheelAdapter {
      */
     @Volatile private var pendingEcho: ByteArray? = null
 
+    // ---- Connect-time write retry (KS-16X wake fix) -----------------------
+    //
+    // Some KS firmwares (KS-16X new revision in particular) silently drop
+    // writes during the first ~second after the phone subscribes to
+    // notifications. If the one-shot 0x9B / 0x98 we send during init lands
+    // in that window, the wheel never replies with the name (0xBB) or the
+    // alarm settings (0xA4) and never emits the connect-chirp the rider
+    // expects -- and on the worst firmwares it then stays silent for the
+    // whole session because no app-sent write has been acknowledged.
+    //
+    // Field reports: "EUC Planet works only after I run the official KS app
+    // first" -- the official app retries 0x9B aggressively (it re-asks on
+    // every incoming telemetry frame until name is non-empty), so eventually
+    // one write lands and the wheel unlocks. Once unlocked, the state
+    // appears to persist for the rest of the power-on cycle, which is why
+    // our subsequent connects start working.
+    //
+    // Fix: track whether we've actually heard back from the wheel for the
+    // two init queries (0xBB for name, 0xA4/0xB5 for alarms) and re-queue
+    // the corresponding command from [pollRealtime] until we do. Capped to
+    // a small number of attempts so a permanently silent wheel doesn't
+    // spam the BLE stack for the whole session.
+    @Volatile private var nameReceived: Boolean = false
+    @Volatile private var limitsReceived: Boolean = false
+    @Volatile private var firstFrameSeen: Boolean = false
+    @Volatile private var nameRetryCount: Int = 0
+    @Volatile private var limitsRetryCount: Int = 0
+    private val maxRetries = 10
+
     override fun bleProfile(): BleProfile = BleProfile.HM10
 
     override fun notifyConnectingTo(deviceName: String?): DecodeResult.ModelName? {
@@ -57,22 +86,35 @@ class KingsongAdapter @Inject constructor() : WheelAdapter {
     )
 
     // KingSong is push-only: once notifications are enabled the wheel
-    // continuously streams 0xA9 realtime + 0xB9 trip frames at its own
-    // cadence. We must NOT periodically write 0x98 (queryLimits) to it;
-    // the only outgoing 0x98 should happen once during init when local
-    // alarm values are still zero. Repeated 0x98 polls have been
-    // observed to cause KS-16X to flash lights / chirp because some KS
-    // firmwares interpret repeated alarm-limit reads as a re-configure
-    // signal. Same push-only model as BegodeAdapter / VeteranAdapter.
+    // streams 0xA9 / 0xB9 / 0xF5 / 0xF6 frames at its own cadence with no
+    // periodic poll required. Same push-only model as BegodeAdapter /
+    // VeteranAdapter.
     //
-    // The only thing we ever want to send during the realtime loop is an
-    // echo of an unsolicited 0xA4 settings frame that KingSong expects us
-    // to bounce back; see [pendingEcho] / [onRawNotification].
+    // Two things ride the poll tick:
+    //   1. Echo of an unsolicited 0xA4 settings push (see [pendingEcho]).
+    //   2. Retry of init writes (0x9B / 0x98) when we've started receiving
+    //      telemetry but haven't yet seen the replies the wheel owes us.
+    //      This unlocks KS-16X firmwares that drop the first ~second of
+    //      writes after subscribe.
     override fun pollRealtime(): ByteArray {
         val echo = pendingEcho
         if (echo != null) {
             pendingEcho = null
             return echo
+        }
+        // Don't start retrying until we've actually heard a frame from the
+        // wheel -- if zero frames have arrived, the BLE stack itself isn't
+        // ready yet and re-sending writes just queues them with the same
+        // fate as the init writes.
+        if (firstFrameSeen) {
+            if (!nameReceived && nameRetryCount < maxRetries) {
+                nameRetryCount++
+                return KingsongCommands.queryName()
+            }
+            if (!limitsReceived && limitsRetryCount < maxRetries) {
+                limitsRetryCount++
+                return KingsongCommands.queryLimits()
+            }
         }
         return ByteArray(0)
     }
@@ -120,6 +162,10 @@ class KingsongAdapter @Inject constructor() : WheelAdapter {
     override fun onRawNotification(rawBytes: ByteArray): List<DecodeResult> {
         if (rawBytes.size < 20) return emptyList()
         if (rawBytes[0] != 0xAA.toByte() || rawBytes[1] != 0x55.toByte()) return emptyList()
+
+        // Any well-formed inbound frame counts as "the BLE pipe is awake" --
+        // gates the retry path in pollRealtime().
+        firstFrameSeen = true
 
         val type = rawBytes[16].toInt() and 0xFF
         return when (type) {
@@ -174,6 +220,7 @@ class KingsongAdapter @Inject constructor() : WheelAdapter {
                 listOf(DecodeResult.Telemetry(lastTelemetry))
             }
             0xBB -> {
+                nameReceived = true
                 val name = KingsongParser.parseModelName(rawBytes) ?: return emptyList()
                 val resolved = KingsongModel.fromReportedName(name)
                 if (resolved != null) detectedModel = resolved
@@ -213,6 +260,7 @@ class KingsongAdapter @Inject constructor() : WheelAdapter {
                 listOf(DecodeResult.Telemetry(lastTelemetry))
             }
             0xA4, 0xB5 -> {
+                limitsReceived = true
                 val settings = KingsongParser.parseAlarmsAndMaxSpeed(rawBytes) ?: return emptyList()
                 if (KingsongParser.requiresAlarmEcho(rawBytes)) {
                     pendingEcho = KingsongParser.buildAlarmEcho(rawBytes)
@@ -229,6 +277,11 @@ class KingsongAdapter @Inject constructor() : WheelAdapter {
         lastTelemetry = WheelData()
         lastTempA9 = 0f
         lastTempB9 = 0f
+        nameReceived = false
+        limitsReceived = false
+        firstFrameSeen = false
+        nameRetryCount = 0
+        limitsRetryCount = 0
     }
 
     override fun inspectMessageTypes(): List<String> = listOf("KingSong realtime")
