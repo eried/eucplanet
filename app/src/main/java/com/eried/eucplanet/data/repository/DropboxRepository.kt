@@ -298,6 +298,32 @@ class DropboxRepository @Inject constructor(
     }
 
     /**
+     * A direct-download link for [remotePath], valid ~4 hours. Only needs
+     * files.content.read (NOT the sharing.* scopes), so it always works as a
+     * fallback when createSharedLink can't (missing sharing.write, etc.) and
+     * never hits the 409 "already shared" path. A fresh link every call.
+     */
+    suspend fun getTemporaryLink(remotePath: String): String? = withContext(Dispatchers.IO) {
+        val token = activeAccessToken() ?: return@withContext null
+        val body = JSONObject().apply { put("path", remotePath) }
+        val req = Request.Builder()
+            .url("https://api.dropboxapi.com/2/files/get_temporary_link")
+            .addHeader("Authorization", "Bearer $token")
+            .post(okhttp3.RequestBody.create("application/json".toMediaTypeOrNull(), body.toString()))
+            .build()
+        try {
+            http.newCall(req).execute().use { resp ->
+                val txt = resp.body?.string().orEmpty()
+                if (!resp.isSuccessful) {
+                    Log.w("DBXSHARE", "get_temporary_link HTTP ${resp.code}: ${txt.take(300)}")
+                    return@withContext null
+                }
+                JSONObject(txt).optString("link").ifBlank { null }
+            }
+        } catch (e: Exception) { Log.w("DBXSHARE", "get_temporary_link exception: ${e.message}"); null }
+    }
+
+    /**
      * Return a currently-valid access token, refreshing via the stored
      * refresh token if the cached one is within 60 s of expiry. Returns
      * null if the rider isn't linked or the refresh call fails.

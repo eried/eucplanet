@@ -319,6 +319,9 @@ class RecordingViewModel @Inject constructor(
     /** Convert a www.dropbox.com share URL into a dl.dropboxusercontent.com
      *  direct-download URL with `dl=1`. */
     private fun toDropboxDirectUrl(link: String): String {
+        // A get_temporary_link result is already a direct download URL on
+        // dl.dropboxusercontent.com — leave it untouched (no dl=1 rewrite).
+        if (link.startsWith("https://dl.dropboxusercontent.com/")) return link
         val onDirectHost = link
             .replace("https://www.dropbox.com/", "https://dl.dropboxusercontent.com/")
             .replace("https://dropbox.com/", "https://dl.dropboxusercontent.com/")
@@ -338,7 +341,11 @@ class RecordingViewModel @Inject constructor(
         // repeat call returns instantly). Then ask for the shared link.
         val ok = dropboxRepository.uploadFile(remote, file.readBytes())
         if (!ok) return null
+        // Prefer a persistent shared link; fall back to a ~4-hour temporary
+        // link (needs only files.content.read) so sharing always works even
+        // without the sharing.* scopes and on repeat shares.
         return dropboxRepository.createSharedLink(remote)
+            ?: dropboxRepository.getTemporaryLink(remote)
     }
 
     fun exportAllAsZip() {
