@@ -46,6 +46,14 @@
     <array>
         <string>_eucplanet._tcp</string>
     </array>
+    <!-- Overlay Studio video recording (camera + mic → MP4 burned with the overlay,
+         saved to Photos). Camera is unavailable on the Simulator; harmless there. -->
+    <key>NSCameraUsageDescription</key>
+    <string>EUC Planet records your ride with your custom overlay burned into the video.</string>
+    <key>NSMicrophoneUsageDescription</key>
+    <string>EUC Planet records audio with your ride videos.</string>
+    <key>NSPhotoLibraryAddUsageDescription</key>
+    <string>EUC Planet saves your recorded ride videos to your photo library.</string>
     <!-- Platform metadata so `simctl install` accepts the hand-built bundle. -->
     <key>CFBundleSupportedPlatforms</key>
     <array>

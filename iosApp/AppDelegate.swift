@@ -16,6 +16,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     // Retained AVAudioEngine bridge driven by the shared EngineSoundController hooks
     // — synthesizes the motor/engine sound from live telemetry.
     let engineAudio = EngineAudioBridge()
+    // Retained camera recorder driven by the shared StudioRecorder hooks — records
+    // the camera with the overlay burned in.
+    let studioRecorder = StudioCameraRecorder()
 
     func application(
         _ application: UIApplication,
@@ -50,6 +53,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         // Wire the shared engine-sound seam to AVAudioEngine.
         EngineSoundController.shared.nativeStart = { [weak self] in self?.engineAudio.start() }
         EngineSoundController.shared.nativeStop = { [weak self] in self?.engineAudio.stop() }
+        // Wire the shared studio recorder seam to the camera recorder.
+        StudioRecorder.shared.nativeStart = { [weak self] in self?.studioRecorder.start() }
+        StudioRecorder.shared.nativeStop = { [weak self] in self?.studioRecorder.stop() }
         return true
     }
 }

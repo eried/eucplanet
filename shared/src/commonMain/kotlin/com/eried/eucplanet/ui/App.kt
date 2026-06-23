@@ -48,8 +48,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.eried.eucplanet.audio.createHaptics
+import androidx.compose.runtime.SideEffect
+import androidx.compose.ui.graphics.toArgb
 import com.eried.eucplanet.audio.EngineSoundController
 import com.eried.eucplanet.audio.createSpeaker
+import com.eried.eucplanet.ui.studio.StudioOverlayDrawList
+import com.eried.eucplanet.ui.studio.StudioRecorder
 import com.eried.eucplanet.ble.WheelSession
 import com.eried.eucplanet.ble.isLikelyWheel
 import com.eried.eucplanet.ble.transport.BleConnState
@@ -501,6 +505,22 @@ fun App() {
             hudStatus == HudClient.Status.Connecting -> "Connecting…"
             hudStatus == HudClient.Status.Error -> "Not reachable — retrying"
             else -> "Off"
+        }
+
+        // Overlay Studio video recording: feed the live overlay draw-list to the
+        // platform camera recorder, which burns it into the captured MP4.
+        val liveWheelData = rememberUpdatedState(current)
+        val liveWheelName = rememberUpdatedState(session?.modelName?.value ?: demoWheel?.name ?: "EUC Planet")
+        val studioAccentArgb = MaterialTheme.appColors.primary.toArgb().toLong() and 0xFFFFFFFFL
+        SideEffect {
+            StudioRecorder.drawListProvider = { w, h ->
+                val s = settingsStore.current
+                val preset = OverlayPresetCodec.decode(s.hudCustomOverlayJson) ?: OverlayPreset()
+                StudioOverlayDrawList.build(
+                    preset, liveWheelData.value, liveWheelName.value, w, h,
+                    s.unitSpeed, s.unitDistance, s.unitTemp, studioAccentArgb,
+                )
+            }
         }
 
         fun ttsRate() = ttsRateOf(settings.speechRate)

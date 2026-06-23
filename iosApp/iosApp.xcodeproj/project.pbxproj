@@ -14,6 +14,7 @@
 		ED0000000000000000000035 /* LocationBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED0000000000000000000034 /* LocationBridge.swift */; };
 		ED0000000000000000000037 /* HudDiscoveryBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED0000000000000000000036 /* HudDiscoveryBridge.swift */; };
 		ED0000000000000000000039 /* EngineAudioBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED0000000000000000000038 /* EngineAudioBridge.swift */; };
+		ED000000000000000000003B /* StudioCameraRecorder.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED000000000000000000003A /* StudioCameraRecorder.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -23,6 +24,7 @@
 		ED0000000000000000000034 /* LocationBridge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationBridge.swift; sourceTree = "<group>"; };
 		ED0000000000000000000036 /* HudDiscoveryBridge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HudDiscoveryBridge.swift; sourceTree = "<group>"; };
 		ED0000000000000000000038 /* EngineAudioBridge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EngineAudioBridge.swift; sourceTree = "<group>"; };
+		ED000000000000000000003A /* StudioCameraRecorder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StudioCameraRecorder.swift; sourceTree = "<group>"; };
 		ED0000000000000000000007 /* EucPlanet.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = EucPlanet.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		ED0000000000000000000013 /* Info-xcode.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "Info-xcode.plist"; sourceTree = "<group>"; };
 		ED0000000000000000000020 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -37,7 +39,7 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXGroup section */
-		ED0000000000000000000002 = {isa = PBXGroup; children = (ED0000000000000000000005 /* AppDelegate.swift */, ED0000000000000000000030 /* WatchSessionManager.swift */, ED0000000000000000000032 /* AvatarPhotoPicker.swift */, ED0000000000000000000034 /* LocationBridge.swift */, ED0000000000000000000036 /* HudDiscoveryBridge.swift */, ED0000000000000000000038 /* EngineAudioBridge.swift */, ED0000000000000000000013 /* Info-xcode.plist */, ED0000000000000000000020 /* Assets.xcassets */, ED0000000000000000000003 /* Products */, ); sourceTree = "<group>"; };
+		ED0000000000000000000002 = {isa = PBXGroup; children = (ED0000000000000000000005 /* AppDelegate.swift */, ED0000000000000000000030 /* WatchSessionManager.swift */, ED0000000000000000000032 /* AvatarPhotoPicker.swift */, ED0000000000000000000034 /* LocationBridge.swift */, ED0000000000000000000036 /* HudDiscoveryBridge.swift */, ED0000000000000000000038 /* EngineAudioBridge.swift */, ED000000000000000000003A /* StudioCameraRecorder.swift */, ED0000000000000000000013 /* Info-xcode.plist */, ED0000000000000000000020 /* Assets.xcassets */, ED0000000000000000000003 /* Products */, ); sourceTree = "<group>"; };
 		ED0000000000000000000003 /* Products */ = {isa = PBXGroup; children = (ED0000000000000000000007 /* EucPlanet.app */, ); name = Products; sourceTree = "<group>"; };
 /* End PBXGroup section */
 
@@ -55,7 +57,7 @@
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
-		ED0000000000000000000008 /* Sources */ = {isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files = (ED0000000000000000000006 /* AppDelegate.swift in Sources */, ED0000000000000000000031 /* WatchSessionManager.swift in Sources */, ED0000000000000000000033 /* AvatarPhotoPicker.swift in Sources */, ED0000000000000000000035 /* LocationBridge.swift in Sources */, ED0000000000000000000037 /* HudDiscoveryBridge.swift in Sources */, ED0000000000000000000039 /* EngineAudioBridge.swift in Sources */, ); runOnlyForDeploymentPostprocessing = 0; };
+		ED0000000000000000000008 /* Sources */ = {isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files = (ED0000000000000000000006 /* AppDelegate.swift in Sources */, ED0000000000000000000031 /* WatchSessionManager.swift in Sources */, ED0000000000000000000033 /* AvatarPhotoPicker.swift in Sources */, ED0000000000000000000035 /* LocationBridge.swift in Sources */, ED0000000000000000000037 /* HudDiscoveryBridge.swift in Sources */, ED0000000000000000000039 /* EngineAudioBridge.swift in Sources */, ED000000000000000000003B /* StudioCameraRecorder.swift in Sources */, ); runOnlyForDeploymentPostprocessing = 0; };
 /* End PBXSourcesBuildPhase section */
 
 /* Begin XCBuildConfiguration section */

@@ -20,9 +20,9 @@ APP="/tmp/EucPlanet.app"
 
 rm -rf "$APP"; mkdir -p "$APP/Frameworks"
 xcrun -sdk iphonesimulator swiftc -target arm64-apple-ios15.0-simulator -parse-as-library \
-  -F "$FW" -framework Shared -framework WatchConnectivity -framework PhotosUI -framework CoreLocation -framework AVFoundation \
+  -F "$FW" -framework Shared -framework WatchConnectivity -framework PhotosUI -framework CoreLocation -framework AVFoundation -framework Photos \
   -Xlinker -rpath -Xlinker @executable_path/Frameworks \
-  iosApp/AppDelegate.swift iosApp/WatchSessionManager.swift iosApp/AvatarPhotoPicker.swift iosApp/LocationBridge.swift iosApp/HudDiscoveryBridge.swift iosApp/EngineAudioBridge.swift -o "$APP/EucPlanet"
+  iosApp/AppDelegate.swift iosApp/WatchSessionManager.swift iosApp/AvatarPhotoPicker.swift iosApp/LocationBridge.swift iosApp/HudDiscoveryBridge.swift iosApp/EngineAudioBridge.swift iosApp/StudioCameraRecorder.swift -o "$APP/EucPlanet"
 cp iosApp/Info.plist "$APP/Info.plist"
 cp -R "$FW/Shared.framework" "$APP/Frameworks/"
 # Bundle the Compose Multiplatform resources (reused Android strings.xml) at the

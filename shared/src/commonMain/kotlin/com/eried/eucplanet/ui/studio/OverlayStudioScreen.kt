@@ -30,6 +30,7 @@ import androidx.compose.material3.Slider
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
@@ -102,7 +103,13 @@ internal fun OverlayStudioScreen(
             Text("‹", color = c.primary, fontSize = 26.sp, fontWeight = FontWeight.Bold, modifier = Modifier.clickable { onBack() }.padding(end = 10.dp))
             Text("Overlay Studio", color = c.textPrimary, fontSize = 18.sp, fontWeight = FontWeight.SemiBold)
             Spacer(Modifier.weight(1f))
-            Text("${els.size} widget${if (els.size == 1) "" else "s"}", color = c.textDisabled, fontSize = 11.sp, modifier = Modifier.padding(end = 12.dp))
+            // Record the live camera with this overlay burned in → MP4 (Photos).
+            val recording by StudioRecorder.recording.collectAsState()
+            Box(
+                Modifier.clip(RoundedCornerShape(8.dp)).background(if (recording) c.statusDanger else c.surfaceVariant)
+                    .clickable { if (recording) StudioRecorder.stop() else StudioRecorder.start() }.padding(horizontal = 12.dp, vertical = 7.dp),
+            ) { Text(if (recording) "■ Stop" else "● Rec", color = if (recording) c.onPrimary else c.textPrimary, fontSize = 13.sp, fontWeight = FontWeight.Bold) }
+            Spacer(Modifier.width(8.dp))
             Box(Modifier.clip(RoundedCornerShape(8.dp)).background(c.primary).clickable { save() }.padding(horizontal = 16.dp, vertical = 7.dp)) {
                 Text("Save", color = c.onPrimary, fontSize = 13.sp, fontWeight = FontWeight.Bold)
             }
