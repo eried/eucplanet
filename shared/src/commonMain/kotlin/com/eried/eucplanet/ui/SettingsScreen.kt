@@ -140,6 +140,7 @@ internal fun SettingsScreen(
                                 SliderRow(c, "Stop after idle", "${settings.autoRecordStopIdleSeconds}s", settings.autoRecordStopIdleSeconds.toFloat(), 30f..600f) { onUpdate { s -> s.copy(autoRecordStopIdleSeconds = it.roundToInt()) } }
                             }
                         }
+                        SwitchRow(c, "Open battery monitor when charging", settings.chargingAutoOpen) { onUpdate { s -> s.copy(chargingAutoOpen = it) } }
                     }
 
                     SettingsSectionId.Dashboard -> Section(c, "Dashboard", Icons.Filled.Dashboard, keywords = "columns tiles min max corner stats grid") {

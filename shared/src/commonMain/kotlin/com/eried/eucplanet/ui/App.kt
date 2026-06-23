@@ -328,7 +328,13 @@ fun App() {
                 )
                 history.add(wd)
                 if (history.size > 150) history.removeAt(0)
+                val prevCharging = chargeState.charging
                 chargeState = chargeEstimator.step(wd)
+                // Auto-open the Battery monitor when charging starts (rising edge),
+                // matching Android's chargingAutoOpen.
+                if (chargeState.charging && !prevCharging && settingsStore.current.chargingAutoOpen && route == Route.Dashboard) {
+                    route = Route.Battery
+                }
                 // Apple Watch: push a compact snapshot each frame. iOS forwards it to
                 // the paired watch over WatchConnectivity; Android is a no-op (it has
                 // its own Wear bridge). Speed/temp go on the wire in km/h + °C; the

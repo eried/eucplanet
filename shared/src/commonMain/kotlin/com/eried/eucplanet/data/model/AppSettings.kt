@@ -68,6 +68,11 @@ data class AppSettings(
     val autoLightsSpeedKmh: Float = 5f,
     val autoVolume: Boolean = false,
 
+    // Charging monitor (matches Android)
+    val chargingAutoOpen: Boolean = true,       // open the Battery screen when charging starts
+    val chargingEstimateToFull: Boolean = false,// predict to 100% instead of 80%
+    val chargingDashboardIcon: Boolean = true,  // show a charging bolt on the dashboard
+
     // Location / sensors
     val externalGpsPriority: Boolean = false,
     val showGpsOnDashboard: Boolean = true,
