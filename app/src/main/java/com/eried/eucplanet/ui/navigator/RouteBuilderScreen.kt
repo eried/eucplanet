@@ -127,6 +127,7 @@ import com.eried.eucplanet.nav.OcmCharger
 import com.eried.eucplanet.nav.PoiKind
 import com.eried.eucplanet.nav.PointOfInterest
 import kotlin.math.roundToInt
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import sh.calvin.reorderable.ReorderableColumn
 import com.eried.eucplanet.ui.theme.themedFieldColors
@@ -2001,14 +2002,19 @@ private fun PoiDetailsSheet(
     // without the rider needing to drag the sheet up.
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     // The Open Charge Map card -- and its photos -- load async and grow the
-    // content. ModalBottomSheet doesn't re-settle to a taller anchor on its own,
-    // and a single expand() races the re-layout (so it was "sometimes" stuck
-    // half-open). Track the actual measured content height and re-expand to the
-    // taller anchor whenever it changes -- this fires AFTER each re-layout, so it
-    // reliably catches every growth (the OCM data, then the photos).
+    // content in BURSTS. The earlier "expand on every measured-height change"
+    // failed because each burst restarts this effect and cancels the in-flight
+    // expand() animation mid-way, leaving the sheet half-open. Fix: debounce so
+    // the expand runs only once the height has settled (the cancel-restart no
+    // longer interrupts a real animation), then confirm a beat later in case the
+    // first attempt raced the sheet's own anchor refresh.
     var contentHeight by remember { mutableStateOf(0) }
     LaunchedEffect(contentHeight) {
-        if (sheetState.isVisible && contentHeight > 0) runCatching { sheetState.expand() }
+        if (!sheetState.isVisible || contentHeight == 0) return@LaunchedEffect
+        delay(110)
+        runCatching { sheetState.expand() }
+        delay(180)
+        runCatching { sheetState.expand() }
     }
     ModalBottomSheet(
         onDismissRequest = onDismiss,
@@ -2084,16 +2090,25 @@ private fun PoiDetailsSheet(
 
             // Community data from Open Charge Map, for chargers when a key is set.
             if (ocmLoading) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    CircularProgressIndicator(
-                        modifier = Modifier.size(16.dp), strokeWidth = 2.dp
-                    )
-                    Spacer(Modifier.width(8.dp))
-                    Text(
-                        stringResource(R.string.nav_ocm_loading),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
+                // Reserve roughly an OCM card's height while loading so the sheet
+                // opens tall enough to show the action buttons right away and
+                // barely needs to grow when the card arrives -- belt-and-braces
+                // with the debounced re-expand above.
+                Box(
+                    modifier = Modifier.fillMaxWidth().heightIn(min = 160.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(16.dp), strokeWidth = 2.dp
+                        )
+                        Spacer(Modifier.width(8.dp))
+                        Text(
+                            stringResource(R.string.nav_ocm_loading),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
                 }
             }
             ocm?.let { OcmCommunityCard(it, onOpenUrl) }
