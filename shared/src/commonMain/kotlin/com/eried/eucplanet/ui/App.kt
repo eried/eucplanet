@@ -491,11 +491,16 @@ fun App() {
             }
         }
         val hudStatus by hudClient.status.collectAsState()
-        val hudStatusLabel = when (hudStatus) {
-            HudClient.Status.Connected -> "Connected"
-            HudClient.Status.Connecting -> "Connecting…"
-            HudClient.Status.Error -> "Not reachable — retrying"
-            HudClient.Status.Disabled -> "Off"
+        val hudStatusLabel = when {
+            !settings.hudEnabled -> "Off"
+            // Blank IP → mDNS auto-discovery (Android parity); surface the search.
+            settings.hudIp.isBlank() && hudDiscovered == null -> "Searching for HUD…"
+            settings.hudIp.isBlank() && hudStatus != HudClient.Status.Connected ->
+                "Found ${hudDiscovered?.substringBefore(":")} — connecting…"
+            hudStatus == HudClient.Status.Connected -> "Connected"
+            hudStatus == HudClient.Status.Connecting -> "Connecting…"
+            hudStatus == HudClient.Status.Error -> "Not reachable — retrying"
+            else -> "Off"
         }
 
         fun ttsRate() = ttsRateOf(settings.speechRate)

@@ -373,7 +373,7 @@ internal fun SettingsScreen(
                     SettingsSectionId.Integration -> Section(c, "Integration", Icons.Filled.Settings, keywords = "hud heads up display external screen handlebar motoeye websocket ip port stream") {
                         SwitchRow(c, "Stream to HUD", settings.hudEnabled) { onUpdate { s -> s.copy(hudEnabled = it) } }
                         if (settings.hudEnabled) {
-                            CloudTextField(c, settings.hudIp, "HUD IP address (e.g. 192.168.4.1)") { onUpdate { s -> s.copy(hudIp = it.trim()) } }
+                            CloudTextField(c, settings.hudIp, "HUD IP — leave blank to auto-discover") { onUpdate { s -> s.copy(hudIp = it.trim()) } }
                             CloudTextField(c, if (settings.hudPort > 0) settings.hudPort.toString() else "", "Port (default 28080)") { v ->
                                 val p = v.trim().toIntOrNull()?.coerceIn(1, 65535) ?: 28080
                                 onUpdate { s -> s.copy(hudPort = p) }
@@ -381,10 +381,14 @@ internal fun SettingsScreen(
                             Spacer(Modifier.height(6.dp))
                             Text(
                                 "HUD link: $hudStatus",
-                                color = when (hudStatus) { "Connected" -> c.statusGood; "Connecting…" -> c.primary; else -> c.textSecondary },
+                                color = when {
+                                    hudStatus == "Connected" -> c.statusGood
+                                    hudStatus.contains("onnecting") || hudStatus.startsWith("Searching") || hudStatus.startsWith("Found") -> c.primary
+                                    else -> c.textSecondary
+                                },
                                 fontSize = 13.sp, fontWeight = FontWeight.Medium,
                             )
-                            Note(c, "Find the IP on your HUD's screen. The phone streams telemetry to ws://<ip>:<port>/state at 5 Hz — same protocol as the Android HUD.")
+                            Note(c, "Leave the IP blank to auto-discover the HUD on your Wi-Fi (Bonjour / _eucplanet._tcp), or type the IP shown on the HUD's screen. The phone streams to ws://<ip>:<port>/state at 5 Hz — same protocol as the Android HUD. iOS prompts once for Local Network access; tap Allow.")
                         }
                         Spacer(Modifier.height(6.dp))
                         Row(
