@@ -63,10 +63,12 @@ import com.eried.eucplanet.data.AlarmComparator
 import com.eried.eucplanet.data.AlarmMetric
 import com.eried.eucplanet.data.AlarmRule
 import com.eried.eucplanet.audio.EngineProfile
+import com.eried.eucplanet.data.createFileStore
 import com.eried.eucplanet.data.model.AppSettings
 import com.eried.eucplanet.ui.settings.SettingsSectionId
 import com.eried.eucplanet.ui.theme.AppThemeColors
 import com.eried.eucplanet.ui.theme.appColors
+import com.eried.eucplanet.ui.theme.ThemeIO
 import kotlin.math.roundToInt
 
 /**
@@ -187,6 +189,24 @@ internal fun SettingsScreen(
                         Spacer(Modifier.height(10.dp))
                         LabelRow(c, "Theme")
                         Segmented(c, listOf("Light", "Dark", "Pure Black"), settings.theme) { onUpdate { s -> s.copy(theme = it) } }
+                        Spacer(Modifier.height(8.dp))
+                        // Export / import the theme (built-in choice + custom token overrides)
+                        // as euc_theme.json in Documents — Android-parity theme sharing.
+                        var themeMsg by remember { mutableStateOf<String?>(null) }
+                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            CloudButton(c, "Export theme", true) {
+                                val path = createFileStore().writeText("euc_theme.json", ThemeIO.export(settings))
+                                themeMsg = if (path != null) "Saved euc_theme.json to Documents" else "Export failed"
+                            }
+                            CloudButton(c, "Import theme", true) {
+                                val text = createFileStore().readText("euc_theme.json")
+                                if (text != null && ThemeIO.apply(text, settings) != null) {
+                                    onUpdate { s -> ThemeIO.apply(text, s) ?: s }
+                                    themeMsg = "Imported euc_theme.json"
+                                } else themeMsg = "No valid euc_theme.json in Documents"
+                            }
+                        }
+                        themeMsg?.let { HintText(c, it) }
                         Spacer(Modifier.height(8.dp))
                         SwitchRow(c, "Gauge color band (warn/danger)", settings.gaugeColorBand) { onUpdate { s -> s.copy(gaugeColorBand = it) } }
                         if (settings.gaugeColorBand) {
