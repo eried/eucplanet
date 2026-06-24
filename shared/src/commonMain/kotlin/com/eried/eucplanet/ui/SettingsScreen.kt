@@ -155,7 +155,7 @@ internal fun SettingsScreen(
                         SwitchRow(c, "Open battery monitor when charging", settings.chargingAutoOpen) { onUpdate { s -> s.copy(chargingAutoOpen = it) } }
                     }
 
-                    SettingsSectionId.Dashboard -> Section(c, "Dashboard", Icons.Filled.Dashboard, keywords = "columns tiles min max corner stats grid") {
+                    SettingsSectionId.Dashboard -> Section(c, "Dashboard layout", Icons.Filled.Dashboard, keywords = "columns tiles min max corner stats grid reorder hide") {
                         LabelRow(c, "Metric tile columns")
                         Segmented(c, listOf("2", "3"), (settings.dashboardColumns - 2).coerceIn(0, 1)) { onUpdate { s -> s.copy(dashboardColumns = it + 2) } }
                         Spacer(Modifier.height(8.dp))
@@ -170,7 +170,7 @@ internal fun SettingsScreen(
                         OrderEditor(c, settings.dashboardActionOrder, DASH_ACTION_KEYS) { onUpdate { s -> s.copy(dashboardActionOrder = it) } }
                     }
 
-                    SettingsSectionId.Display -> Section(c, "Display", Icons.Filled.DisplaySettings, keywords = "units metric imperial custom km mph distance temperature theme dark light pure black gauge colour color band warn danger threshold") {
+                    SettingsSectionId.Display -> Section(c, "Display & appearance", Icons.Filled.DisplaySettings, keywords = "units metric imperial custom km mph distance temperature theme dark light pure black gauge colour color band warn danger threshold amps watts") {
                         LabelRow(c, "Units")
                         // Selected system is DERIVED from the three per-unit choices,
                         // like Android: all-metric -> Metric, all-imperial -> Imperial,
@@ -230,7 +230,7 @@ internal fun SettingsScreen(
                         // 3 built-in themes are the supported set for now. onThemeEditor unused.
                     }
 
-                    SettingsSectionId.Speed -> Section(c, "Speed", Icons.Filled.Speed, keywords = "calibration tiltback max alarm legal limit km/h apply wheel") {
+                    SettingsSectionId.Speed -> Section(c, "Wheel parameters", Icons.Filled.Speed, keywords = "calibration tiltback max alarm legal limit km/h apply wheel speed") {
                         SliderRow(c, "Speed calibration", "${if (settings.speedCalibrationPct >= 0f) "+" else ""}${(settings.speedCalibrationPct * 10).roundToInt() / 10f}%", settings.speedCalibrationPct, -15f..15f) {
                             onUpdate { s -> s.copy(speedCalibrationPct = it) }
                         }
@@ -259,7 +259,7 @@ internal fun SettingsScreen(
                         if (!connected) HintText(c, "Connect a wheel to write speed limits live.")
                     }
 
-                    SettingsSectionId.Voice -> Section(c, "Voice", Icons.Filled.RecordVoiceOver, keywords = "tts text to speech announce report rate interval lights lock legal recording spoken voice") {
+                    SettingsSectionId.Voice -> Section(c, "Voice & announcements", Icons.Filled.RecordVoiceOver, keywords = "tts text to speech announce report rate interval lights lock legal recording spoken voice periodic") {
                         SwitchRow(c, "Text-to-speech announcements", settings.ttsEnabled) { onUpdate { s -> s.copy(ttsEnabled = it) } }
                         Row(
                             Modifier.fillMaxWidth().padding(vertical = 4.dp).clip(RoundedCornerShape(10.dp)).background(c.surface)
@@ -328,7 +328,7 @@ internal fun SettingsScreen(
                         }
                     }
 
-                    SettingsSectionId.Cloud -> Section(c, "Backup · EUC Stats", Icons.Filled.CloudUpload, keywords = "eucstats online backup leaderboard rank rider register upload cloud flag profile avatar delete export") {
+                    SettingsSectionId.Cloud -> Section(c, "Backups & leaderboards", Icons.Filled.CloudUpload, keywords = "eucstats online backup leaderboard rank rider register upload cloud flag profile avatar delete export dropbox sync") {
                         val registered = settings.eucStatsStoreId.isNotBlank()
                         if (!registered) {
                             Text("Join the public leaderboard at eucstats.ried.no — back up your rides and share distance, top speed and rank.", color = c.textSecondary, fontSize = 12.sp)
@@ -361,27 +361,25 @@ internal fun SettingsScreen(
                             Spacer(Modifier.height(4.dp))
                             Text(eucStatsMsg, color = c.textSecondary, fontSize = 11.sp)
                         }
-                        Note(c, "Trips back up to the leaderboard. Per-trip status + retry are in Recordings. Dev server: dev.eucstats.ried.no")
-                        // Dropbox backup (independent of EUC Stats) — Android parity.
-                        Spacer(Modifier.height(12.dp))
-                        LabelRow(c, "Dropbox backup")
+                        Spacer(Modifier.height(14.dp))
+                        LabelRow(c, "Online backup to Dropbox")
                         if (settings.dropboxAccessToken.isNotBlank()) {
-                            Text("Linked: ${settings.dropboxAccountLabel.ifBlank { "Dropbox" }}", color = c.statusGood, fontSize = 13.sp, fontWeight = FontWeight.Medium)
-                            SwitchRow(c, "Auto-back-up trips + settings", settings.dropboxAutoBackup) { onUpdate { s -> s.copy(dropboxAutoBackup = it) } }
+                            Text("Linked ${if (settings.dropboxAccountLabel.isNotBlank()) "(account: ${settings.dropboxAccountLabel})" else ""}", color = c.statusGood, fontSize = 13.sp, fontWeight = FontWeight.Medium)
+                            SwitchRow(c, "Auto-upload each ride", settings.dropboxAutoBackup) { onUpdate { s -> s.copy(dropboxAutoBackup = it) } }
                             Spacer(Modifier.height(6.dp))
                             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                                CloudButton(c, "Back up now", true) { onBackupDropbox() }
+                                CloudButton(c, "Backup", true) { onBackupDropbox() }
                                 CloudButton(c, "Unlink", true) { onUnlinkDropbox() }
                             }
                         } else {
-                            Text("Link Dropbox to back up your trips (DarknessBot CSV) and settings to your own App-Folder.", color = c.textSecondary, fontSize = 12.sp)
+                            Text("Trips can also be opened on eucviewer.ried.no when linked.", color = c.textSecondary, fontSize = 12.sp)
                             Spacer(Modifier.height(8.dp))
                             CloudButton(c, "Link Dropbox", true) { onLinkDropbox() }
                         }
                         if (dropboxMsg != null) HintText(c, dropboxMsg)
                     }
 
-                    SettingsSectionId.Alarms -> Section(c, "Alarms", Icons.Filled.NotificationsActive, keywords = "alarm speed temperature pwm voltage current battery warn rule mute") {
+                    SettingsSectionId.Alarms -> Section(c, "Alarm rules", Icons.Filled.NotificationsActive, keywords = "alarm speed temperature pwm voltage current battery warn rule mute") {
                         SwitchRow(c, "Mute all alarms (this + future sessions)", settings.alarmsMuted) { onUpdate { s -> s.copy(alarmsMuted = it) } }
                         if (settings.alarmRules.isEmpty()) {
                             Note(c, "No alarms. Add one to be warned on speed, temperature, PWM, voltage, current or battery.")
@@ -413,7 +411,7 @@ internal fun SettingsScreen(
                         }
                     }
 
-                    SettingsSectionId.Navigator -> Section(c, "Navigator", Icons.Filled.Navigation, keywords = "route navigation map gps turn directions waypoint arrival off route router geocoder osrm nominatim guidance full path") {
+                    SettingsSectionId.Navigator -> Section(c, "Navigation settings", Icons.Filled.Navigation, keywords = "route navigation map gps turn directions waypoint arrival off route router geocoder osrm nominatim guidance full path") {
                         val imp = settings.unitDistance == "mi" || settings.unitDistance == "ft"
                         fun distLabel(m: Int) = if (imp) "${(m * 3.28084).roundToInt()} ft" else "$m m"
                         SwitchRow(c, "Solve the full route", settings.navSolveFullPath) { onUpdate { s -> s.copy(navSolveFullPath = it) } }
@@ -426,7 +424,7 @@ internal fun SettingsScreen(
                         CloudTextField(c, settings.navRouterUrl, "Router URL (OSRM)") { onUpdate { s -> s.copy(navRouterUrl = it.trim()) } }
                     }
 
-                    SettingsSectionId.Location -> Section(c, "Location", Icons.Filled.Tune, keywords = "gps location speed permission satellite announce racebox external box draggy") {
+                    SettingsSectionId.Location -> Section(c, "GPS & sensors", Icons.Filled.Tune, keywords = "gps location speed permission satellite announce racebox external box draggy sensors") {
                         Note(c, "EUC Planet uses your phone GPS for speed, trip tracking and sunset-based auto-lights. Allow location access when prompted (or in iOS Settings ▸ EUC Planet ▸ Location).")
                         SwitchRow(c, "Announce GPS acquired / lost", settings.announceGps) { onUpdate { s -> s.copy(announceGps = it) } }
                         Spacer(Modifier.height(10.dp))
