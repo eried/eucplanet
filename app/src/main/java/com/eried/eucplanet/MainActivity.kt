@@ -67,7 +67,6 @@ class MainActivity : AppCompatActivity() {
     @Inject lateinit var appHealthRepository:
         com.eried.eucplanet.data.repository.AppHealthRepository
 
-    private val settingsFlow: StateFlow<AppSettings?> get() = _settings.asStateFlow()
     private val _settings = MutableStateFlow<AppSettings?>(null)
 
     private var volumeUpDownTime = 0L

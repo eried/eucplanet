@@ -344,50 +344,6 @@ private fun CenterPopup(
     }
 }
 
-@Composable
-private fun MinimizedPill(state: NavState, onExpand: () -> Unit) {
-    val cue = cueColor(state, MaterialTheme.colorScheme.primary)
-    val angle by animateFloatAsState(state.arrowAngleDeg(), tween(350), label = "pillArrow")
-    Surface(
-        modifier = Modifier
-            .padding(8.dp)
-            .clip(RoundedCornerShape(50))
-            .clickable { onExpand() },
-        color = MaterialTheme.colorScheme.surface,
-        tonalElevation = 6.dp,
-        shadowElevation = 6.dp
-    ) {
-        Row(
-            modifier = Modifier.padding(horizontal = 14.dp, vertical = 8.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Box(
-                modifier = Modifier
-                    .size(30.dp)
-                    .clip(CircleShape)
-                    .background(cue.copy(alpha = 0.18f)),
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(
-                    if (state.arrived) Icons.Default.Flag else Icons.Default.Navigation,
-                    contentDescription = null,
-                    tint = cue,
-                    modifier = Modifier
-                        .size(18.dp)
-                        .rotate(if (state.arrived) 0f else angle)
-                )
-            }
-            Spacer(Modifier.width(8.dp))
-            Text(
-                state.distanceText.ifBlank { state.primaryText },
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.SemiBold,
-                color = cue
-            )
-        }
-    }
-}
-
 /** Colour the cue takes: red when off-route, green on arrival, warmth-tinted in Treasure Hunt. */
 @Composable
 private fun cueColor(state: NavState, accent: Color): Color = when {

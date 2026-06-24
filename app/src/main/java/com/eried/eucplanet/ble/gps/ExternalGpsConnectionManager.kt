@@ -54,7 +54,6 @@ class ExternalGpsConnectionManager @Inject constructor(
 
     private val bluetoothManager =
         context.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
-    private val mainHandler = Handler(Looper.getMainLooper())
 
     private val _connectionState = MutableStateFlow(ConnectionState.DISCONNECTED)
     val connectionState: StateFlow<ConnectionState> = _connectionState.asStateFlow()

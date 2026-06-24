@@ -1526,37 +1526,6 @@ private sealed interface DashboardEditTarget {
     data class CustomBle(override val key: String, override val slotIndex: Int) : DashboardEditTarget
 }
 
-private const val DASHBOARD_DRAG_METRIC_LABEL = "eucplanet/dashMetric"
-private const val DASHBOARD_DRAG_ACTION_LABEL = "eucplanet/dashAction"
-
-// ---- Section helpers ---------------------------------------------------
-
-@Composable
-private fun DashboardColumnSelector(current: Int, onSelect: (Int) -> Unit) {
-    val options = listOf(2, 3, 4)
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Text(
-            stringResource(R.string.dashboard_columns),
-            style = MaterialTheme.typography.bodyLarge,
-            modifier = Modifier.padding(end = 12.dp)
-        )
-        SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
-            options.forEachIndexed { index, n ->
-                SegmentedButton(
-                    selected = n == current,
-                    onClick = { onSelect(n) },
-                    shape = SegmentedButtonDefaults.itemShape(index, options.size),
-                    colors = themedSegmentedColors(),
-                ) { Text(n.toString()) }
-            }
-        }
-    }
-}
-
-
 // ---- Metric grid -------------------------------------------------------
 //
 // Rendered as a Column of Rows so the layout stays in one piece for drag
@@ -2489,88 +2458,6 @@ internal fun extractDomainHint(url: String): String {
 }
 
 
-/**
- * Pool-sized variant of a composite tile. Same swap-with-grid drag semantics
- * as a regular pool pill, but renders the composite's actual layout + cells
- * inside the 102×52 pill so the rider sees what they have rather than the
- * raw "M:abc12345" ID. Tap routes to the composite edit sheet.
- */
-@Composable
-private fun CompositePoolPill(
-    id: String,
-    composite: MetricComposite,
-    valueOf: (String) -> String,
-    onTap: (String) -> Unit,
-    controller: DashboardDragController
-) {
-    val surfaceColor = MaterialTheme.colorScheme.surfaceVariant
-    val outlineColor = MaterialTheme.colorScheme.outlineVariant
-    val isBeingDragged = controller.draggingKey == id
-    Box(
-        modifier = Modifier
-            .width(102.dp)
-            .height(52.dp)
-            .clip(RoundedCornerShape(10.dp))
-            .background(surfaceColor)
-            .border(1.dp, outlineColor, RoundedCornerShape(10.dp))
-            .clickable { onTap(id) }
-            .dashboardDragSource(
-                key = id,
-                value = "",
-                sourceKind = DragSourceKind.METRIC,
-                controller = controller,
-                fromGrid = false
-            )
-    ) {
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .alpha(if (isBeingDragged) 0f else 1f)
-        ) {
-            CompositeMetricBody(composite = composite, valueOf = valueOf)
-        }
-    }
-}
-
-/**
- * Pool-sized variant of a custom tile. Renders the icon + text exactly like
- * a grid tile so a custom tile that ends up in the pool (via swap with a
- * pool metric) shows up as itself rather than the raw "C:abc12345" ID.
- */
-@Composable
-private fun CustomTilePoolPill(
-    id: String,
-    tile: CustomTile,
-    onTap: (String) -> Unit,
-    controller: DashboardDragController
-) {
-    val surfaceColor = MaterialTheme.colorScheme.surfaceVariant
-    val outlineColor = MaterialTheme.colorScheme.outlineVariant
-    val accent = MaterialTheme.colorScheme.primary
-    val isBeingDragged = controller.draggingKey == id
-    Box(
-        modifier = Modifier
-            .width(102.dp)
-            .height(52.dp)
-            .clip(RoundedCornerShape(10.dp))
-            .background(surfaceColor)
-            .border(1.dp, outlineColor, RoundedCornerShape(10.dp))
-            .clickable { onTap(id) }
-            .dashboardDragSource(
-                key = id,
-                value = "",
-                sourceKind = DragSourceKind.METRIC,
-                controller = controller,
-                fromGrid = false
-            )
-    ) {
-        Box(modifier = Modifier.fillMaxSize().alpha(if (isBeingDragged) 0f else 1f)) {
-            // Action glyph already lives in CustomTileBody's centre icon.
-            CustomTileBody(tile = tile)
-        }
-    }
-}
-
 @Composable
 private fun MetricPoolPill(
     key: String,
@@ -3247,69 +3134,6 @@ private fun CustomBleTemplatePill(
                 fontWeight = FontWeight.Medium,
                 letterSpacing = 0.5.sp,
                 maxLines = 1
-            )
-        }
-    }
-}
-
-/**
- * Pool-sized variant of an action-group tile. Same drag-to-grid semantics
- * as [ActionPoolPill] but renders the group's chosen icon + name inside
- * the 102×66 pool pill so a group dragged into the pool (via swap) shows
- * up as itself rather than the raw "G:abc12345" key.
- */
-@Composable
-private fun ActionGroupPoolPill(
-    id: String,
-    group: ActionGroup,
-    onTap: (String) -> Unit,
-    controller: DashboardDragController
-) {
-    val icon = groupIconFor(group.icon)
-    val label = group.name.ifBlank { stringResource(R.string.dashboard_group_default_name) }
-    val surfaceColor = MaterialTheme.colorScheme.surfaceVariant
-    val outlineColor = MaterialTheme.colorScheme.outlineVariant
-    val accent = MaterialTheme.colorScheme.primary
-    val isBeingDragged = controller.draggingKey == id
-    Box(
-        modifier = Modifier
-            .width(102.dp)
-            .height(66.dp)
-            .clip(RoundedCornerShape(10.dp))
-            .background(surfaceColor)
-            .border(1.dp, outlineColor, RoundedCornerShape(10.dp))
-            .clickable { onTap(id) }
-            .dashboardDragSource(
-                key = id,
-                value = "",
-                sourceKind = DragSourceKind.ACTION,
-                controller = controller,
-                fromGrid = false
-            )
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(horizontal = 4.dp, vertical = 6.dp)
-                .alpha(if (isBeingDragged) 0f else 1f),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
-        ) {
-            Icon(
-                icon,
-                contentDescription = null,
-                modifier = Modifier.size(22.dp),
-                tint = accent
-            )
-            Spacer(Modifier.height(2.dp))
-            Text(
-                label,
-                fontSize = 10.sp,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                fontWeight = FontWeight.Medium,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                textAlign = TextAlign.Center
             )
         }
     }
@@ -5229,27 +5053,6 @@ private fun WavePatternBackground(
         drawPath(fillPath, color = accent.copy(alpha = fillAlpha))
         drawPath(path, color = accent.copy(alpha = strokeAlpha), style = Stroke(width = 1.5.dp.toPx()))
     }
-}
-
-// Deterministic per-metric sparkline silhouette so the preview tiles aren't
-// empty rectangles. Each metric gets a stable shape derived from its key.
-private fun syntheticSpark(key: String): List<Float> {
-    val seed = key.hashCode().toLong()
-    val rng = java.util.Random(seed)
-    return List(24) { rng.nextFloat() }
-}
-
-/** Swaps `draggedKey` with whatever currently sits at `targetSlotIndex` so the
- *  grid can render a mid-drag tentative order. Real persistence happens on
- *  drop via the ViewModel — this is purely visual. */
-private fun previewSwap(order: List<String>, draggedKey: String, targetSlotIndex: Int): List<String> {
-    val items = order.toMutableList()
-    val from = items.indexOf(draggedKey)
-    if (from < 0 || targetSlotIndex !in items.indices || from == targetSlotIndex) return order
-    val a = items[from]
-    items[from] = items[targetSlotIndex]
-    items[targetSlotIndex] = a
-    return items
 }
 
 /**

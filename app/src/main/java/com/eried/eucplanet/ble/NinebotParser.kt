@@ -330,8 +330,6 @@ class NinebotParser(private val protocol: NinebotProtocol) {
     }
 
     companion object {
-        private const val TAG = "NinebotParser"
-
         // Z magic bytes. Order on the wire is 5A then A5 (spec section 3).
         private const val Z_MAGIC_0: Byte = 0x5A
         private const val Z_MAGIC_1: Byte = 0xA5.toByte()

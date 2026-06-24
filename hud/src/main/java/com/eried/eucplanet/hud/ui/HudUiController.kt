@@ -30,16 +30,6 @@ class HudUiController {
         Map, Nav, Power, TripStats, Compass, Safety, BigClock
     }
 
-    /** Default order, used when the rider hasn't customised the carousel
-     *  on the phone side. The new combined MapNav screen replaces the
-     *  standalone Map + Nav in the default set — riders who prefer the
-     *  dedicated full-screen turn arrow can opt them back in via the
-     *  phone Personalize list. */
-    private val defaultScreens: List<Screen> = listOf(
-        Screen.Dashboard, Screen.Camera, Screen.Telemetry,
-        Screen.Custom, Screen.CustomCam, Screen.MapNav
-    )
-
     /** Active carousel, kept observable so when [applyEnabledScreens] swaps
      *  it from a wire frame the N/M counter on the toast updates too.
      *  Starts EMPTY: until the phone ships a real list, the HUD renders a

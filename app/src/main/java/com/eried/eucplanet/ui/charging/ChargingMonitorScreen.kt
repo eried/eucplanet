@@ -99,9 +99,8 @@ import kotlin.math.exp
 import kotlin.math.roundToInt
 import kotlin.math.sin
 
-// How far the animated % may run ahead of the last reading, and its easing.
+// How far the animated % may run ahead of the last reading.
 private const val MAX_LEAD = 1.2f
-private const val EASE_TAU = 0.6f
 private const val FLUID_COLS = 40
 
 @OptIn(ExperimentalMaterial3Api::class)

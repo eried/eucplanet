@@ -293,18 +293,3 @@ private fun lonLatToTileFloat(lon: Double, lat: Double, z: Int): Pair<Float, Flo
     return x.toFloat() to y.toFloat()
 }
 
-/** Inverse of [lonLatToTileFloat] — kept here in case the navigator screen
- *  wants to project the next-turn marker onto the same tile grid later. */
-@Suppress("unused")
-private fun tileToLonLat(x: Double, y: Double, z: Int): Pair<Double, Double> {
-    val n = (1 shl z).toDouble()
-    val lonDeg = x / n * 360.0 - 180.0
-    val latRad = atan(sinh(PI * (1.0 - 2.0 * y / n)))
-    return lonDeg to (latRad * 180.0 / PI)
-}
-
-@Suppress("unused")
-private fun stubKeepImports() {
-    // Suppress "unused import" lints for BitmapFactory / Dispatchers etc.
-    BitmapFactory.Options()
-}

@@ -37,57 +37,6 @@ private const val VIEWER_URL = "https://eucviewer.ried.no/?embedded"
 private const val TAG = "EucViewer"
 
 /**
- * Self-contained diagnostic page that shows whether backdrop-filter
- * actually renders in this WebView. Two boxes over a vivid gradient: one
- * with just rgba(), one with backdrop-filter: blur(). If the blur box
- * looks frosted (gradient softened behind it) the WebView supports it
- * and the viewer's "lost objects" are caused by something else (CSS
- * stacking / will-change interaction). If both boxes look identical
- * (just dark semi-transparent overlay, gradient sharp behind both) the
- * WebView is silently dropping backdrop-filter and we need a different
- * path (Custom Tabs, fallback styles, or chromium feature flags).
- */
-private const val BACKDROP_TEST_HTML: String = """
-<!DOCTYPE html><html><head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
-<style>
-  html,body{margin:0;height:100%;font-family:-apple-system,sans-serif;color:#fff}
-  body{
-    background:linear-gradient(135deg,#ff6b6b 0%,#feca57 20%,#48dbfb 40%,
-      #1dd1a1 60%,#f368e0 80%,#ff6b6b 100%);
-    overflow:hidden;
-  }
-  .hdr{position:absolute;top:10px;left:10px;right:10px;
-    background:rgba(0,0,0,0.7);padding:10px 14px;border-radius:8px;font-size:14px}
-  .box{position:absolute;left:24px;width:260px;height:90px;
-    display:flex;align-items:center;justify-content:center;
-    border-radius:12px;font-size:14px;text-align:center;padding:0 12px;
-    text-shadow:0 1px 2px #000}
-  .a{top:90px;background:rgba(10,10,15,0.5)}
-  .b{top:200px;background:rgba(10,10,15,0.5);
-    backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
-  .sup{position:absolute;left:10px;right:10px;bottom:10px;
-    background:rgba(0,0,0,0.75);padding:12px 14px;border-radius:8px;
-    font-size:12px;font-family:monospace;white-space:pre-wrap;word-break:break-all}
-</style></head><body>
-<div class="hdr">Backdrop-filter WebView test</div>
-<div class="box a">No filter &mdash; just rgba(0,0,0,0.5)</div>
-<div class="box b">backdrop-filter: blur(12px)</div>
-<div class="sup" id="sup"></div>
-<script>
-  var s=CSS.supports('backdrop-filter','blur(12px)')
-    ||CSS.supports('-webkit-backdrop-filter','blur(12px)');
-  document.getElementById('sup').textContent=
-    'CSS.supports(backdrop-filter blur): '+s+'\n'+
-    'innerWidth x Height: '+window.innerWidth+' x '+window.innerHeight+'\n'+
-    'devicePixelRatio: '+window.devicePixelRatio+'\n'+
-    'UA: '+navigator.userAgent;
-</script>
-</body></html>
-"""
-
-/**
  * Hosts the EUC Viewer (eucviewer.ried.no) embedded in a WebView and feeds it
  * the trip's CSV.
  *
