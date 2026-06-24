@@ -44,46 +44,41 @@ class KingsongAdapter @Inject constructor() : WheelAdapter {
      */
     @Volatile private var pendingEcho: ByteArray? = null
 
-    // ---- Connect-time write nudge (KS-16X wake fix) -----------------------
+    // ---- Keep-alive + stream-start (KS-16X telemetry fix) -----------------
     //
-    // Some KS firmwares (KS-16X new revision in particular) silently drop
-    // writes during the first ~second after the phone subscribes to
-    // notifications, and don't begin pushing the 0xA9/0xB9 telemetry stream
-    // until a write is actually DELIVERED after the subscription is genuinely
-    // up. If the one-shot init writes land in that drop window, the wheel
-    // stays silent for the whole session -- no name reply, no stream.
+    // We previously treated KingSong as pure push-only: enable notifications
+    // and the wheel streams 0xA9/0xB9 on its own. That holds for older KS
+    // firmware but NOT the KS-16X new revision -- there the wheel stops (or
+    // never starts) pushing telemetry unless the app keeps writing to it.
     //
-    // The wheel is nominally push-only (enable notifications -> it streams),
-    // but on this firmware a delivered write is what unlocks the push. The
-    // official app re-asks the name query repeatedly until it gets a reply,
-    // so eventually one write lands and the wheel wakes.
+    // The official KingSong app's behaviour (BleService, taken as reference
+    // only) makes the requirement explicit: after enabling notifications it
+    // writes a benign keep-alive ping (opcode 0x00) about once a second for
+    // the whole session, and a one-shot stream-start kick (opcode 0x5E)
+    // ~2.5 s after subscribe. The per-second write is what keeps the push
+    // stream flowing; without it the firmware goes quiet (matching the field
+    // report: "got data once, then no data").
     //
-    // Fix: re-emit the benign name query (0x9B) from [pollRealtime] until the
-    // wheel answers. 0x9B is harmless -- it only solicits the 0xBB name reply,
-    // with no chirp/flash (unlike repeated 0x98 alarm reads, which some KS
-    // firmwares treat as a re-configure and chirp on). Crucially this nudge
-    // is FRAME-INDEPENDENT: the failure mode is *zero* inbound frames, so a
-    // retry gated on "we already saw a frame" can never fire in the exact
-    // case it's meant to fix. Capped + throttled so a permanently-silent
-    // wheel only sees a handful of name queries during the wake window.
-    //
-    // The 0x98 limits retry below stays gated on [firstFrameSeen] precisely
-    // because 0x98 can chirp -- we only re-ask it once the stream is alive.
-    @Volatile private var nameReceived: Boolean = false
+    // We replicate that here, KingSong-only, off our existing poll loop
+    // (pollRealtime runs ~every 250 ms): emit the 0x5E kick once past the
+    // firmware's post-subscribe write-drop window, then the 0x00 ping every
+    // ~1 s. Both are chirp/flash-free. The 0x98 limits retry stays gated on
+    // [firstFrameSeen] because repeated 0x98 alarm reads CAN chirp -- we only
+    // re-ask it once the stream is demonstrably alive.
     @Volatile private var limitsReceived: Boolean = false
     @Volatile private var firstFrameSeen: Boolean = false
-    @Volatile private var unlockNudgeCount: Int = 0
+    @Volatile private var streamKicked: Boolean = false
     @Volatile private var pollTick: Int = 0
     @Volatile private var limitsRetryCount: Int = 0
     private val maxRetries = 10
 
     companion object {
-        // How many frame-independent 0x9B name queries to send during the
-        // wake window before giving up, and how many poll ticks to space them
-        // by (pollRealtime runs ~every 250 ms, so stride 2 ~= one nudge every
-        // 500 ms -> ~3 s of nudging total). Tunable from a tester HCI snoop.
-        private const val MAX_UNLOCK_NUDGES = 6
-        private const val UNLOCK_NUDGE_STRIDE = 2
+        // pollRealtime runs ~every 250 ms (the rider's update rate). Stride 4
+        // -> a keep-alive ~every 1 s, matching the official app's cadence.
+        // Kick tick 10 -> the 0x5E stream-start fires ~2.5 s after connect,
+        // safely past the ~1 s post-subscribe drop window.
+        private const val KEEPALIVE_STRIDE = 4
+        private const val STREAM_KICK_TICK = 10
     }
 
     override fun bleProfile(): BleProfile = BleProfile.HM10
@@ -98,37 +93,31 @@ class KingsongAdapter @Inject constructor() : WheelAdapter {
         KingsongCommands.queryLimits()
     )
 
-    // KingSong is push-only: once notifications are enabled the wheel
-    // streams 0xA9 / 0xB9 / 0xF5 / 0xF6 frames at its own cadence with no
-    // periodic poll required. Same push-only model as BegodeAdapter /
-    // VeteranAdapter.
-    //
-    // Three things ride the poll tick:
+    // Drives the KS-16X keep-alive/kick described above. Per poll tick, in
+    // priority order:
     //   1. Echo of an unsolicited 0xA4 settings push (see [pendingEcho]).
-    //   2. Frame-INDEPENDENT 0x9B name nudge: re-send the benign name query
-    //      until the wheel answers, even with zero frames seen -- this is the
-    //      KS-16X wake fix (a delivered write unlocks the push stream).
-    //   3. 0x98 limits retry, gated on [firstFrameSeen] so we never spam a
-    //      chirp-prone 0x98 at a silent wheel; only once the stream is alive.
+    //   2. One-shot 0x5E stream-start kick, once tick >= STREAM_KICK_TICK.
+    //   3. ~1 Hz 0x00 keep-alive (every KEEPALIVE_STRIDE ticks) -- the write
+    //      that keeps the wheel pushing telemetry.
+    //   4. 0x98 limits retry, only once a frame has been seen (chirp-safe).
     override fun pollRealtime(): ByteArray {
         val echo = pendingEcho
         if (echo != null) {
             pendingEcho = null
             return echo
         }
-        // (2) Name nudge -- fires regardless of whether any frame has
-        // arrived, because the silent-wheel failure mode is precisely zero
-        // inbound frames. Throttled by stride, capped by MAX_UNLOCK_NUDGES,
-        // then it goes quiet.
-        if (!nameReceived && unlockNudgeCount < MAX_UNLOCK_NUDGES) {
-            pollTick++
-            if (pollTick % UNLOCK_NUDGE_STRIDE == 0) {
-                unlockNudgeCount++
-                return KingsongCommands.queryName()
-            }
-            return ByteArray(0)
+        pollTick++
+        // (2) One-shot stream-start kick, past the post-subscribe drop window.
+        if (!streamKicked && pollTick >= STREAM_KICK_TICK) {
+            streamKicked = true
+            return KingsongCommands.startStream()
         }
-        // (3) Limits retry -- only after the stream is demonstrably alive.
+        // (3) ~1 Hz keep-alive -- frame-independent; this is what sustains the
+        // push stream on KS-16X firmware that won't stream on subscribe alone.
+        if (pollTick % KEEPALIVE_STRIDE == 0) {
+            return KingsongCommands.keepAlive()
+        }
+        // (4) Limits retry -- only after the stream is demonstrably alive.
         if (firstFrameSeen && !limitsReceived && limitsRetryCount < maxRetries) {
             limitsRetryCount++
             return KingsongCommands.queryLimits()
@@ -237,7 +226,6 @@ class KingsongAdapter @Inject constructor() : WheelAdapter {
                 listOf(DecodeResult.Telemetry(lastTelemetry))
             }
             0xBB -> {
-                nameReceived = true
                 val name = KingsongParser.parseModelName(rawBytes) ?: return emptyList()
                 val resolved = KingsongModel.fromReportedName(name)
                 if (resolved != null) detectedModel = resolved
@@ -294,10 +282,9 @@ class KingsongAdapter @Inject constructor() : WheelAdapter {
         lastTelemetry = WheelData()
         lastTempA9 = 0f
         lastTempB9 = 0f
-        nameReceived = false
         limitsReceived = false
         firstFrameSeen = false
-        unlockNudgeCount = 0
+        streamKicked = false
         pollTick = 0
         limitsRetryCount = 0
     }

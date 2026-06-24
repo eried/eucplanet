@@ -328,6 +328,37 @@ Power off:
 ```
 
 
+## 6.1 Keep-alive + stream start (KS-16X new firmware)
+
+Older KS firmware is push-only: enable notifications on `0xFFE1` and the
+wheel streams `0xA9`/`0xB9` on its own. The **KS-16X new revision does NOT** —
+it stops (or never starts) pushing telemetry unless the app keeps writing to
+it. Two writes are required:
+
+| Command | Offset 16 | Cadence | Effect |
+| --- | --- | --- | --- |
+| Keep-alive ping | `0x00` | ~1 Hz, whole session | Sustains the `0xA9`/`0xB9` push stream; the firmware goes quiet if the app stops writing |
+| Stream-start kick | `0x5E` | once, ~2.5 s after enabling notifications | Wakes the stream on firmware that won't push on the subscribe alone |
+
+Both are otherwise-empty frames (`AA 55 ..00.. <type> 14 5A 5A`) and are
+chirp/flash-free, unlike repeated `0x98` alarm reads. Send the keep-alive
+forever while connected; send the kick once, after the ~1 s post-subscribe
+window in which this firmware silently drops writes.
+
+```
+Keep-alive ping:
+  AA 55 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 14 5A 5A
+Stream-start kick:
+  AA 55 00 00 00 00 00 00 00 00 00 00 00 00 00 00 5E 14 5A 5A
+```
+
+Source note: the `0x00`/`0x5E` opcodes and the ~1 Hz cadence are taken as
+**reference only** from the official KingSong app (`com.kingsong.dlc`,
+`BleService`), observed during interop debugging of a KS-16X that connected
+but never streamed. No third-party code is reproduced; only the wire
+behaviour is described.
+
+
 ## 7. Per-model quirks
 
 | Model | Quirk |

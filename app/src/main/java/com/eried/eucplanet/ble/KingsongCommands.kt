@@ -16,6 +16,14 @@ object KingsongCommands {
     private const val TRAILER1: Byte = 0x5A.toByte()
 
     object Type {
+        // Keep-alive ping + stream-start kick. Opcodes and the ~1 Hz cadence
+        // are taken (as reference only) from the official KingSong app's
+        // BleService: it writes the 0x00 ping every ~1 s while connected and
+        // a one-shot 0x5E ~2.5 s after enabling notifications. The KS-16X
+        // firmware stops pushing telemetry if the app goes silent, so these
+        // sustain the 0xA9/0xB9 stream (the wheel is NOT pure push-only).
+        const val KEEPALIVE: Byte = 0x00
+        const val START_STREAM: Byte = 0x5E
         const val POWER_OFF: Byte = 0x40
         const val STANDBY: Byte = 0x3F
         const val STROBE: Byte = 0x53.toByte()        // Side LED strobe pattern
@@ -66,6 +74,18 @@ object KingsongCommands {
         out[19] = TRAILER1
         return out
     }
+
+    /** ~1 Hz keep-alive ping (`AA 55 ..00.. 00 14 5A 5A`). The KS firmware
+     *  stops streaming telemetry if the app goes quiet; a periodic benign
+     *  write keeps the push alive. No chirp/flash. Reference only: mirrors
+     *  the official KingSong app's per-second BleService write. */
+    fun keepAlive(): ByteArray = frame(Type.KEEPALIVE)
+
+    /** One-shot stream-start kick (`AA 55 ..00.. 5E 14 5A 5A`). The official
+     *  KingSong app sends this ~2.5 s after enabling notifications; replicated
+     *  here (reference only) to wake KS-16X firmware that won't begin pushing
+     *  on the subscribe alone. */
+    fun startStream(): ByteArray = frame(Type.START_STREAM)
 
     /** Single short beep. */
     fun horn(): ByteArray = frame(Type.BEEP)
