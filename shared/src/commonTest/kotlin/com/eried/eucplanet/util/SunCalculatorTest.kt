@@ -19,7 +19,9 @@ class SunCalculatorTest {
     }
 
     @Test fun normalDaySunriseBeforeSunset() {
-        val r = SunCalculator.calculateState(40.0, -74.0, june) // New York-ish
+        // London-ish (≈0° longitude) so the solar day aligns with the UTC-midnight
+        // base; a -74° location with tzOffset 0 wraps sunset past the 24h window.
+        val r = SunCalculator.calculateState(51.5, 0.0, june)
         assertTrue(r is SunCalculator.SunResult.Normal, "expected Normal, got $r")
         r as SunCalculator.SunResult.Normal
         assertTrue(r.sunriseMillis < r.sunsetMillis, "sunrise should precede sunset")
