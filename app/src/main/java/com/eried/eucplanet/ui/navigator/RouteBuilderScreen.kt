@@ -2210,10 +2210,11 @@ private fun OcmCommunityCard(ocm: OcmCharger, onOpenUrl: (String) -> Unit) {
             PoiInfoLine(stringResource(R.string.nav_poi_phone), ocm.phone)
             PoiInfoLine(stringResource(R.string.nav_ocm_access), ocm.accessComments)
             PoiInfoLine(stringResource(R.string.nav_ocm_verified), ocm.lastVerified)
-            // Inline photo thumbnails (Coil). Tap opens the full-size image
-            // in the browser -- the thumbnail itself is ~120px and useless
-            // at full screen, but the OCM API ships a second high-res URL
-            // we hand to the system browser on tap.
+            // Inline photo strip (Coil). Size the box to the native
+            // ItemThumbnailURL resolution (~250-300 px) so the thumbnail
+            // renders crisp without upscaling. OCM ships only two sizes
+            // (this thumb + full), so a bigger inline box means visible
+            // blur on high-density screens. Tap opens the full URL.
             if (ocm.photos.isNotEmpty()) {
                 Row(
                     modifier = Modifier
@@ -2227,7 +2228,7 @@ private fun OcmCommunityCard(ocm: OcmCharger, onOpenUrl: (String) -> Unit) {
                             contentDescription = null,
                             contentScale = ContentScale.Crop,
                             modifier = Modifier
-                                .size(120.dp)
+                                .size(80.dp)
                                 .clip(RoundedCornerShape(8.dp))
                                 .clickable { onOpenUrl(photo.fullUrl) }
                         )
