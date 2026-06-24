@@ -55,6 +55,7 @@ import com.eried.eucplanet.audio.createSpeaker
 import com.eried.eucplanet.ui.studio.StudioOverlayDrawList
 import com.eried.eucplanet.ui.studio.StudioRecorder
 import com.eried.eucplanet.ble.WheelSession
+import com.eried.eucplanet.ble.extgps.ExternalGpsManager
 import com.eried.eucplanet.ble.isLikelyWheel
 import com.eried.eucplanet.ble.transport.BleConnState
 import com.eried.eucplanet.ble.transport.BleDevice
@@ -217,6 +218,16 @@ fun App() {
         // Shared battery-charging estimator — fed each telemetry frame below.
         val chargeEstimator = remember { ChargeEstimator() }
         var chargeState by remember { mutableStateOf(ChargeEstimator.State()) }
+        // External GPS (RaceBox) on its OWN BLE central, independent of the wheel.
+        val gpsManager = remember { ExternalGpsManager(scope) }
+        // Auto-connect / disconnect the box as the setting + paired address change.
+        LaunchedEffect(settings.externalGpsEnabled, settings.externalGpsAddress) {
+            if (settings.externalGpsEnabled && settings.externalGpsAddress.isNotBlank() && !gpsManager.connected.value) {
+                gpsManager.connect(settings.externalGpsAddress)
+            } else if (!settings.externalGpsEnabled && gpsManager.connected.value) {
+                gpsManager.disconnect()
+            }
+        }
         // Latest HUD frame, streamed to an external HUD by HudClient at 5 Hz.
         val hudFrame = remember { MutableStateFlow(HudState()) }
         var eucStatsMsg by remember { mutableStateOf<String?>(null) }
@@ -322,10 +333,16 @@ fun App() {
                 // Speed is shown as a MAGNITUDE: the wheel reports a signed value that
                 // goes negative rolling backward, but Android displays abs(speed).
                 val calSpeed = raw.speed * (1f + s.speedCalibrationPct / 100f)
+                // External GPS (RaceBox) speed takes over when enabled + prioritized and
+                // a fresh sample is present — matches Android's gpsPrioritizeExternal.
+                val gpsS = gpsManager.sample.value
+                val displaySpeed =
+                    if (s.externalGpsEnabled && s.gpsPrioritizeExternal && gpsS != null) gpsS.speedKmh
+                    else kotlin.math.abs(calSpeed)
                 val wd = raw.copy(
-                    speed = kotlin.math.abs(calSpeed),
-                    latitude = fix?.lat ?: raw.latitude,
-                    longitude = fix?.lng ?: raw.longitude,
+                    speed = displaySpeed,
+                    latitude = fix?.lat ?: gpsS?.latitude ?: raw.latitude,
+                    longitude = fix?.lng ?: gpsS?.longitude ?: raw.longitude,
                 )
                 history.add(wd)
                 if (history.size > 150) history.removeAt(0)
@@ -884,6 +901,7 @@ fun App() {
                     },
                     onServiceMode = { route = Route.ServiceMode },
                     onThemeEditor = { route = Route.ThemeEditor },
+                    gpsManager = gpsManager,
                     onEditAlarm = { editingAlarm = it; route = Route.AlarmEditor },
                     onVoicePicker = { route = Route.VoicePicker },
                     riderCard = riderCard,

@@ -49,6 +49,7 @@ import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -98,6 +99,7 @@ internal fun SettingsScreen(
     onApplyMaxSpeed: (tiltbackKmh: Float, alarmKmh: Float) -> Unit,
     onServiceMode: () -> Unit,
     onThemeEditor: () -> Unit,
+    gpsManager: com.eried.eucplanet.ble.extgps.ExternalGpsManager? = null,
     onEditAlarm: (AlarmRule) -> Unit,
     onVoicePicker: () -> Unit,
     riderCard: RiderCard?,
@@ -391,9 +393,14 @@ internal fun SettingsScreen(
                         CloudTextField(c, settings.navRouterUrl, "Router URL (OSRM)") { onUpdate { s -> s.copy(navRouterUrl = it.trim()) } }
                     }
 
-                    SettingsSectionId.Location -> Section(c, "Location", Icons.Filled.Tune, keywords = "gps location speed permission satellite announce") {
+                    SettingsSectionId.Location -> Section(c, "Location", Icons.Filled.Tune, keywords = "gps location speed permission satellite announce racebox external box draggy") {
                         Note(c, "EUC Planet uses your phone GPS for speed, trip tracking and sunset-based auto-lights. Allow location access when prompted (or in iOS Settings ▸ EUC Planet ▸ Location).")
                         SwitchRow(c, "Announce GPS acquired / lost", settings.announceGps) { onUpdate { s -> s.copy(announceGps = it) } }
+                        Spacer(Modifier.height(10.dp))
+                        LabelRow(c, "External GPS (RaceBox)")
+                        SwitchRow(c, "Use an external GPS box", settings.externalGpsEnabled) { onUpdate { s -> s.copy(externalGpsEnabled = it) } }
+                        if (settings.externalGpsEnabled && gpsManager != null) ExternalGpsControls(c, settings, gpsManager, onUpdate)
+                        else if (settings.externalGpsEnabled) HintText(c, "A RaceBox Mini / S / Pro streams high-rate GPS speed over its own Bluetooth, independent of the wheel.")
                     }
 
                     SettingsSectionId.Integration -> Section(c, "Integration", Icons.Filled.Settings, keywords = "hud heads up display external screen handlebar motoeye websocket ip port stream") {
@@ -618,6 +625,46 @@ private fun SliderRow(
 @Composable
 private fun HintText(c: AppThemeColors, text: String) {
     Text(text, color = c.textSecondary, fontSize = 11.sp, modifier = Modifier.fillMaxWidth().padding(top = 4.dp))
+}
+
+/** External-GPS (RaceBox) scan / connect / status controls in the Location section. */
+@Composable
+private fun ExternalGpsControls(
+    c: AppThemeColors,
+    settings: AppSettings,
+    mgr: com.eried.eucplanet.ble.extgps.ExternalGpsManager,
+    onUpdate: ((AppSettings) -> AppSettings) -> Unit,
+) {
+    val connected by mgr.connected.collectAsState()
+    val scanning by mgr.scanning.collectAsState()
+    val devices by mgr.devices.collectAsState()
+    val sample by mgr.sample.collectAsState()
+    if (connected) {
+        Text("Connected: ${settings.externalGpsName.ifBlank { "RaceBox" }}", color = c.statusGood, fontSize = 13.sp, fontWeight = FontWeight.Medium, modifier = Modifier.padding(top = 4.dp))
+        sample?.let { s -> HintText(c, "GPS speed ${s.speedKmh.toInt()} km/h · ${s.numSatellites ?: 0} sats · ±${s.accuracyMeters.toInt()} m") }
+        SwitchRow(c, "Use box speed instead of wheel", settings.gpsPrioritizeExternal) { onUpdate { s -> s.copy(gpsPrioritizeExternal = it) } }
+        Spacer(Modifier.height(6.dp))
+        CloudButton(c, "Disconnect", true) { mgr.disconnect(); onUpdate { s -> s.copy(externalGpsAddress = "", externalGpsName = "") } }
+    } else {
+        Spacer(Modifier.height(4.dp))
+        CloudButton(c, if (scanning) "Scanning…" else "Scan for RaceBox", true) { mgr.startScan() }
+        Spacer(Modifier.height(6.dp))
+        devices.forEach { d ->
+            Row(
+                Modifier.fillMaxWidth().clip(RoundedCornerShape(8.dp)).background(c.surface)
+                    .clickable {
+                        mgr.connect(d.address)
+                        onUpdate { s -> s.copy(externalGpsAddress = d.address, externalGpsName = d.name ?: "RaceBox") }
+                    }.padding(horizontal = 12.dp, vertical = 10.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text(d.name ?: d.address, color = c.textPrimary, fontSize = 13.sp, modifier = Modifier.weight(1f))
+                Text("Connect", color = c.primary, fontSize = 12.sp, fontWeight = FontWeight.Medium)
+            }
+            Spacer(Modifier.height(4.dp))
+        }
+        if (scanning && devices.isEmpty()) HintText(c, "Searching… make sure the RaceBox is powered on and nearby.")
+    }
 }
 
 private val DASH_METRIC_KEYS = listOf("battery" to "Battery", "temp" to "Temp", "voltage" to "Voltage", "current" to "Current", "load" to "Load", "trip" to "Trip")

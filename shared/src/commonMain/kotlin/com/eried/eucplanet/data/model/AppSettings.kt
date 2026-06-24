@@ -95,6 +95,13 @@ data class AppSettings(
     // User-defined raw BLE commands (fired from Service Mode).
     val customBleCommands: List<CustomBleCommand> = emptyList(),
 
+    // External GPS (RaceBox, on its own BLE central — Android parity)
+    val externalGpsEnabled: Boolean = false,
+    val externalGpsAddress: String = "",
+    val externalGpsName: String = "",
+    val gpsPrioritizeExternal: Boolean = true,   // use the box's speed over the wheel's
+    val gpsShowOnDashboard: Boolean = true,
+
     // Cloud / backup
     val cloudSyncSettings: Boolean = false,
     val autoBackupTrips: Boolean = false,
