@@ -65,9 +65,13 @@ class OcmServiceTest {
         assertEquals("2025-03-01", alice.date) // truncated to the day
     }
 
-    @Test fun photos_excludeVideos_preferThumbnail() {
+    @Test fun photos_excludeVideos_carryBothUrls() {
         val c = OcmService.parseFirst(sample)!!
-        assertEquals(listOf("https://ocm/thumb1.jpg"), c.photoUrls)
+        assertEquals(1, c.photos.size)
+        val photo = c.photos.single()
+        // Thumbnail used for the inline image, full URL for tap-to-open.
+        assertEquals("https://ocm/thumb1.jpg", photo.thumbnailUrl)
+        assertEquals("https://ocm/1.jpg", photo.fullUrl)
     }
 
     @Test fun emptyArray_isNull_andUnratedCommentHasNullRating() {

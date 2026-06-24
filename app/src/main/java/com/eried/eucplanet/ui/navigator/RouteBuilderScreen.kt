@@ -2210,23 +2210,27 @@ private fun OcmCommunityCard(ocm: OcmCharger, onOpenUrl: (String) -> Unit) {
             PoiInfoLine(stringResource(R.string.nav_poi_phone), ocm.phone)
             PoiInfoLine(stringResource(R.string.nav_ocm_access), ocm.accessComments)
             PoiInfoLine(stringResource(R.string.nav_ocm_verified), ocm.lastVerified)
-            // Inline photo thumbnails (Coil), tappable to open full size.
-            if (ocm.photoUrls.isNotEmpty()) {
+            // Inline photo strip (Coil). Size the box to the native
+            // ItemThumbnailURL resolution (~250-300 px) so the thumbnail
+            // renders crisp without upscaling. OCM ships only two sizes
+            // (this thumb + full), so a bigger inline box means visible
+            // blur on high-density screens. Tap opens the full URL.
+            if (ocm.photos.isNotEmpty()) {
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
                         .horizontalScroll(rememberScrollState()),
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    ocm.photoUrls.take(8).forEach { url ->
+                    ocm.photos.take(8).forEach { photo ->
                         AsyncImage(
-                            model = url,
+                            model = photo.thumbnailUrl,
                             contentDescription = null,
                             contentScale = ContentScale.Crop,
                             modifier = Modifier
-                                .size(84.dp)
+                                .size(80.dp)
                                 .clip(RoundedCornerShape(8.dp))
-                                .clickable { onOpenUrl(url) }
+                                .clickable { onOpenUrl(photo.fullUrl) }
                         )
                     }
                 }
@@ -2260,7 +2264,15 @@ private fun OcmCommunityCard(ocm: OcmCharger, onOpenUrl: (String) -> Unit) {
                     val line = listOf(c.checkin, c.text).filter { it.isNotBlank() }
                         .joinToString(". ")
                     if (line.isNotBlank()) {
-                        Text(line, style = MaterialTheme.typography.bodySmall)
+                        // Body text in this sheet uses onSurface (see
+                        // PoiInfoLine); spell it out so the review text
+                        // doesn't read as the same accent colour as the
+                        // reviewer name above.
+                        Text(
+                            line,
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
                     }
                 }
             }

@@ -25,8 +25,8 @@ android {
         // Wear OS variant rides on the same package as the phone, so we offset
         // its versionCode by 100000 to keep them distinct in Play Console while
         // preserving the phone-side numbering (37 -> 100037).
-        versionCode = 100246
-        versionName = "0.10.0"
+        versionCode = 100248
+        versionName = "0.11.1"
     }
 
     signingConfigs {
