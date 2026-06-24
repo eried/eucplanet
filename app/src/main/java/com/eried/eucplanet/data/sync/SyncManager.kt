@@ -575,7 +575,17 @@ class SyncManager @Inject constructor(
             val bytes = context.contentResolver.openInputStream(file.uri)?.use { it.readBytes() }
                 ?: return false
             val json = JSONObject(String(bytes, Charsets.UTF_8))
-            val restored = SettingsJson.fromJson(json, current)
+            // Keep the device's live Dropbox link/sync state -- a backup must
+            // never swap in a (possibly stale or blank) token. fromJson now
+            // reads these from the JSON like any other field, so re-apply the
+            // current values here.
+            val restored = SettingsJson.fromJson(json, current).copy(
+                dropboxAccessToken = current.dropboxAccessToken,
+                dropboxRefreshToken = current.dropboxRefreshToken,
+                dropboxAccessTokenExpiresAt = current.dropboxAccessTokenExpiresAt,
+                dropboxAccountLabel = current.dropboxAccountLabel,
+                dropboxLastSyncAt = current.dropboxLastSyncAt,
+            )
             settingsRepository.update(restored)
             // Replace alarm rules wholesale only if the backup contains an
             // "alarms" array. Older backups (pre-v0.4.3) keep the user's
@@ -605,7 +615,16 @@ class SyncManager @Inject constructor(
         val current = settingsRepository.get()
         return try {
             val factoryJson = SettingsJson.toJson(SettingsJson.stripDeviceBindings(AppSettings()))
-            settingsRepository.update(SettingsJson.fromJson(factoryJson, current))
+            // Factory reset keeps device bindings (pairings, sync folder) and
+            // the live Dropbox link, same as the restore path above.
+            val reset = SettingsJson.fromJson(factoryJson, current).copy(
+                dropboxAccessToken = current.dropboxAccessToken,
+                dropboxRefreshToken = current.dropboxRefreshToken,
+                dropboxAccessTokenExpiresAt = current.dropboxAccessTokenExpiresAt,
+                dropboxAccountLabel = current.dropboxAccountLabel,
+                dropboxLastSyncAt = current.dropboxLastSyncAt,
+            )
+            settingsRepository.update(reset)
             alarmDao.deleteAll()
             true
         } catch (e: Exception) {

@@ -486,17 +486,20 @@ object SettingsJson {
         chargingEstimateToFull = j.optBoolean("chargingEstimateToFull", base.chargingEstimateToFull),
         chargingAutoOpen = j.optBoolean("chargingAutoOpen", base.chargingAutoOpen),
         chargingDashboardIcon = j.optBoolean("chargingDashboardIcon", base.chargingDashboardIcon),
-        // Dropbox link + sync state is device-bound, like the paired BLE address
-        // or the sync folder: a restore must keep the device's live token,
-        // account and last-sync, NOT swap in whatever a (possibly old) backup
-        // captured -- otherwise restoring changes the "Last sync" label and could
-        // even replace a working token with a stale one. Always carry the current
-        // values through, never the JSON's.
-        dropboxAccessToken = base.dropboxAccessToken,
-        dropboxRefreshToken = base.dropboxRefreshToken,
-        dropboxAccessTokenExpiresAt = base.dropboxAccessTokenExpiresAt,
-        dropboxAccountLabel = base.dropboxAccountLabel,
-        dropboxLastSyncAt = base.dropboxLastSyncAt
+        // Dropbox link + sync state is device-bound, but it still has to round-
+        // trip through THIS function on every normal settings load (SettingsStore
+        // calls fromJson with the default blank base), so it must be read from
+        // the JSON like any other field -- otherwise the token persisted by
+        // toJson is silently dropped on the next read and the link never "takes".
+        // The restore / factory paths keep the live link instead of a backup's
+        // stale token by re-copying the current values AFTER this merge (see
+        // SyncManager.restoreSettingsFrom / restoreFactoryDefaults); backups
+        // also have these stripped to blank by stripDeviceBindings anyway.
+        dropboxAccessToken = j.optString("dropboxAccessToken", base.dropboxAccessToken),
+        dropboxRefreshToken = j.optString("dropboxRefreshToken", base.dropboxRefreshToken),
+        dropboxAccessTokenExpiresAt = j.optLong("dropboxAccessTokenExpiresAt", base.dropboxAccessTokenExpiresAt),
+        dropboxAccountLabel = j.optString("dropboxAccountLabel", base.dropboxAccountLabel),
+        dropboxLastSyncAt = j.optLong("dropboxLastSyncAt", base.dropboxLastSyncAt)
     )
 
     /** `optString` returns `""` for null and absent keys, which we cannot
