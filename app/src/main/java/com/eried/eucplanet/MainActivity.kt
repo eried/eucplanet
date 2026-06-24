@@ -66,6 +66,7 @@ class MainActivity : AppCompatActivity() {
         com.eried.eucplanet.data.repository.DropboxRepository
     @Inject lateinit var appHealthRepository:
         com.eried.eucplanet.data.repository.AppHealthRepository
+    @Inject lateinit var appNotifier: com.eried.eucplanet.util.AppNotifier
 
     private val _settings = MutableStateFlow<AppSettings?>(null)
 
@@ -184,11 +185,9 @@ class MainActivity : AppCompatActivity() {
             // greyed out.
             lifecycleScope.launch {
                 val ok = dropboxRepository.handleAuthCallback(data)
-                android.widget.Toast.makeText(
-                    this@MainActivity,
-                    if (ok) R.string.dropbox_link_ok else R.string.dropbox_link_failed,
-                    android.widget.Toast.LENGTH_LONG
-                ).show()
+                appNotifier.post(
+                    getString(if (ok) R.string.dropbox_link_ok else R.string.dropbox_link_failed)
+                )
             }
             return true
         }
@@ -482,6 +481,26 @@ class MainActivity : AppCompatActivity() {
                         // matches where their eyes already are and avoids
                         // fighting other screens (navigator, studio, settings)
                         // for the screen-edge gutter.
+
+                        // Root-level snackbar host for app-global transient
+                        // messages posted from background code (services,
+                        // repositories, the OAuth intent handler) via
+                        // AppNotifier. Floats above every screen so these
+                        // show as Material 3 snackbars instead of Toasts,
+                        // no matter which screen is on top. Per-screen
+                        // snackbars (LocalSnackbar) are unaffected.
+                        val rootSnackbar = androidx.compose.runtime.remember {
+                            androidx.compose.material3.SnackbarHostState()
+                        }
+                        androidx.compose.runtime.LaunchedEffect(Unit) {
+                            appNotifier.messages.collect { msg ->
+                                rootSnackbar.showSnackbar(msg)
+                            }
+                        }
+                        androidx.compose.material3.SnackbarHost(
+                            hostState = rootSnackbar,
+                            modifier = Modifier.align(androidx.compose.ui.Alignment.BottomCenter)
+                        )
                     }
                 }
             }

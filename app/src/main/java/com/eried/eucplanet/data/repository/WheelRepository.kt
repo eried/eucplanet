@@ -130,7 +130,8 @@ class WheelRepository @Inject constructor(
     private val wheelProfileDao: com.eried.eucplanet.data.db.WheelProfileDao,
     private val cheatState: com.eried.eucplanet.cheats.CheatState,
     private val phoneSensorRepository: PhoneSensorRepository,
-    private val externalGpsRepository: ExternalGpsRepository
+    private val externalGpsRepository: ExternalGpsRepository,
+    private val appNotifier: com.eried.eucplanet.util.AppNotifier
 ) {
     companion object {
         private const val TAG = "WheelRepo"
@@ -1522,17 +1523,14 @@ class WheelRepository @Inject constructor(
                             _externalSpeedChange.tryEmit(
                                 ExternalSpeedChange(newTilt, newAlarm, isSafety)
                             )
-                            // Surface a system Toast so the silent adoption is
+                            // Surface a snackbar so the silent adoption is
                             // visible no matter which screen the user is on.
-                            android.os.Handler(android.os.Looper.getMainLooper()).post {
-                                val unitMsg = context.getString(
+                            appNotifier.post(
+                                context.getString(
                                     R.string.toast_external_speed_change,
                                     newTilt.toInt(), newAlarm.toInt()
                                 )
-                                android.widget.Toast.makeText(
-                                    context, unitMsg, android.widget.Toast.LENGTH_SHORT
-                                ).show()
-                            }
+                            )
                             com.eried.eucplanet.diagnostics.DiagnosticsLogger.note(
                                 "Wheel-side speed change adopted: tiltback=$newTilt alarm=$newAlarm legal=$isSafety"
                             )

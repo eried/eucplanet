@@ -37,7 +37,8 @@ class FlicManager @Inject constructor(
     private val wheelRepository: WheelRepository,
     private val tripRepository: TripRepository,
     private val voiceService: VoiceService,
-    private val automationManager: AutomationManager
+    private val automationManager: AutomationManager,
+    private val appNotifier: com.eried.eucplanet.util.AppNotifier
 ) {
     companion object {
         private const val TAG = "FlicManager"
@@ -309,11 +310,7 @@ class FlicManager @Inject constructor(
                 else -> "unknown"
             }
             Log.i(TAG, "custom BLE $key skipped: $reason")
-            android.os.Handler(android.os.Looper.getMainLooper()).post {
-                android.widget.Toast.makeText(
-                    context, "Custom BLE: $reason", android.widget.Toast.LENGTH_SHORT
-                ).show()
-            }
+            appNotifier.post("Custom BLE: $reason")
             return
         }
         Log.i(TAG, "custom BLE $key -> ${cmd.frames.size} frame(s) on ${cmd.family}")

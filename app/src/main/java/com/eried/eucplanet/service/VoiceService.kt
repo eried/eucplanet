@@ -31,7 +31,8 @@ data class VoiceOption(val locale: Locale, val displayName: String)
 class VoiceService @Inject constructor(
     @ApplicationContext private val context: Context,
     private val settingsRepository: SettingsRepository,
-    private val cheatState: com.eried.eucplanet.cheats.CheatState
+    private val cheatState: com.eried.eucplanet.cheats.CheatState,
+    private val appNotifier: com.eried.eucplanet.util.AppNotifier
 ) {
     companion object {
         private const val TAG = "VoiceService"
@@ -393,13 +394,7 @@ class VoiceService @Inject constructor(
             val cur = audioManager.getStreamVolume(stream)
             val pct = cur.toFloat() / max.toFloat()
             if (pct <= 0.20f) {
-                scope.launch {
-                    android.widget.Toast.makeText(
-                        context,
-                        context.getString(R.string.voice_volume_low_toast),
-                        android.widget.Toast.LENGTH_SHORT
-                    ).show()
-                }
+                appNotifier.post(context.getString(R.string.voice_volume_low_toast))
             }
         } catch (_: Exception) {
         }

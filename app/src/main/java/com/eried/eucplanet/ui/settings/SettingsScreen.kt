@@ -1,7 +1,6 @@
 package com.eried.eucplanet.ui.settings
 
 import android.content.ClipData
-import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
