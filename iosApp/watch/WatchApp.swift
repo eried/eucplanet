@@ -22,6 +22,11 @@ struct WatchTelemetry {
     var unitSpeed = "kmh"
     var unitTemp = "C"
     var accent = "#FF36D1C4"
+    // Dial display preferences from Settings ▸ Apple Watch.
+    var showBattery = true
+    var showPwm = true
+    var showUnit = true
+    var rotation = 0.0
     /// True once a real phone frame has been applied (hides the demo look).
     var fresh = false
 }
@@ -32,6 +37,7 @@ private enum K {
     static let pwm = "pwm", temp = "temp", maxSpeed = "max", light = "light"
     static let hasHorn = "hasHorn", hasLight = "hasLight", unitSpeed = "us", unitTemp = "ut"
     static let accent = "accent", control = "control"
+    static let showBattery = "sb", showPwm = "sp", showUnit = "su", rotation = "rot"
 }
 
 final class WatchLinkClient: NSObject, ObservableObject, WCSessionDelegate {
@@ -73,6 +79,10 @@ final class WatchLinkClient: NSObject, ObservableObject, WCSessionDelegate {
         if let v = d[K.unitSpeed] as? String { n.unitSpeed = v }
         if let v = d[K.unitTemp] as? String { n.unitTemp = v }
         if let v = d[K.accent] as? String, !v.isEmpty { n.accent = v }
+        if let v = d[K.showBattery] as? Bool { n.showBattery = v }
+        if let v = d[K.showPwm] as? Bool { n.showPwm = v }
+        if let v = d[K.showUnit] as? Bool { n.showUnit = v }
+        if let v = d[K.rotation] as? Int { n.rotation = Double(v) } else if let v = d[K.rotation] as? Double { n.rotation = v }
         n.fresh = true
         DispatchQueue.main.async { self.t = n; self.lastFrame = Date() }
     }
@@ -127,15 +137,18 @@ struct DialView: View {
                             .font(.system(size: side * 0.34, weight: .bold, design: .rounded))
                             .foregroundColor(stale ? .gray : .white)
                             .monospacedDigit()
-                        Text(speedLabel(t.unitSpeed))
-                            .font(.system(size: side * 0.10))
-                            .foregroundColor(.gray)
-                        Text(t.pwm > 0 ? "PWM \(Int(t.pwm.rounded()))%" : " ")
+                        if t.showUnit {
+                            Text(speedLabel(t.unitSpeed))
+                                .font(.system(size: side * 0.10))
+                                .foregroundColor(.gray)
+                        }
+                        Text(t.showPwm && t.pwm > 0 ? "PWM \(Int(t.pwm.rounded()))%" : " ")
                             .font(.system(size: side * 0.085))
                             .foregroundColor(t.pwm >= 80 ? .red : (t.pwm >= 60 ? .orange : .gray))
                     }
                 }
-                BatteryRow(pct: t.battery, accent: accent)
+                .rotationEffect(.degrees(t.rotation))
+                if t.showBattery { BatteryRow(pct: t.battery, accent: accent) }
                 HStack(spacing: 10) {
                     ActionButton(system: "speaker.wave.2.fill", tint: accent, enabled: t.hasHorn) { link.send("horn") }
                     ActionButton(system: t.light ? "lightbulb.fill" : "lightbulb",

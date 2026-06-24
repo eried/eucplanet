@@ -36,6 +36,11 @@ data class WatchState(
     /** Active theme accent as "#AARRGGBB" so the watch dial follows the rider's
      *  theme; empty string means "use the watch's built-in palette". */
     val accentArgb: String = "",
+    // Dial display preferences (from Settings ▸ Apple Watch).
+    val showWheelBattery: Boolean = true,
+    val showPwm: Boolean = true,
+    val showSpeedUnit: Boolean = true,
+    val dialRotationDeg: Int = 0,
 )
 
 /**

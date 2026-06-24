@@ -33,6 +33,10 @@ final class WatchSessionManager: NSObject {
         static let unitTemp = "ut"
         static let accent = "accent"
         static let control = "control"   // matches WatchControl.KEY
+        static let showBattery = "sb"
+        static let showPwm = "sp"
+        static let showUnit = "su"
+        static let rotation = "rot"
     }
 
     // Throttle the deduped application-context push; the wheel publishes ~4–5 Hz.
@@ -87,6 +91,10 @@ final class WatchSessionManager: NSObject {
             Key.unitSpeed: s.unitSpeed,
             Key.unitTemp: s.unitTemp,
             Key.accent: s.accentArgb,
+            Key.showBattery: s.showWheelBattery,
+            Key.showPwm: s.showPwm,
+            Key.showUnit: s.showSpeedUnit,
+            Key.rotation: Int(s.dialRotationDeg),
         ]
     }
 }

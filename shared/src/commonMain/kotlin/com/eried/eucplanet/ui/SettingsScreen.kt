@@ -33,6 +33,7 @@ import androidx.compose.material.icons.filled.RecordVoiceOver
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Speed
 import androidx.compose.material.icons.filled.Tune
+import androidx.compose.material.icons.filled.Watch
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -440,7 +441,17 @@ internal fun SettingsScreen(
                         else if (settings.radarEnabled) HintText(c, "A Garmin Varia (RTL5xx / RVR / RCT) shows approaching vehicles on a dashboard lane overlay.")
                     }
 
-                    SettingsSectionId.Watch -> {}
+                    SettingsSectionId.Watch -> Section(c, "Apple Watch", Icons.Filled.Watch, keywords = "watch apple dial wrist battery pwm rotate haptic glance companion") {
+                        Note(c, "The EUC Planet watch app mirrors your speed on a glanceable dial with horn / light buttons. Install it from the Watch app on your iPhone.")
+                        SwitchRow(c, "Keep screen on while riding", settings.watchKeepOn) { onUpdate { s -> s.copy(watchKeepOn = it) } }
+                        SwitchRow(c, "Auto-start with the ride", settings.watchAutoStart) { onUpdate { s -> s.copy(watchAutoStart = it) } }
+                        SwitchRow(c, "Show wheel battery on dial", settings.watchShowWheelBattery) { onUpdate { s -> s.copy(watchShowWheelBattery = it) } }
+                        SwitchRow(c, "Show PWM under speed", settings.watchShowPwm) { onUpdate { s -> s.copy(watchShowPwm = it) } }
+                        SwitchRow(c, "Show speed unit", settings.watchShowSpeedUnit) { onUpdate { s -> s.copy(watchShowSpeedUnit = it) } }
+                        SwitchRow(c, "Haptic feedback on buttons", settings.watchHapticOnAction) { onUpdate { s -> s.copy(watchHapticOnAction = it) } }
+                        LabelRow(c, "Dial rotation: ${settings.watchDialRotationDeg}°")
+                        SliderRow(c, "Rotate dial (wrist mount)", "${settings.watchDialRotationDeg}°", settings.watchDialRotationDeg.toFloat(), -180f..180f) { onUpdate { s -> s.copy(watchDialRotationDeg = it.roundToInt()) } }
+                    }
                 }.let { /* exhaustive: a new SettingsSectionId without a branch fails to compile here */ }
             }
             } // end CompositionLocalProvider(LocalSettingsQuery)

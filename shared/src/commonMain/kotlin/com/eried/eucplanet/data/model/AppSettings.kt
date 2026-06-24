@@ -150,9 +150,14 @@ data class AppSettings(
     val flicEnabled: Boolean = false,
     val volumeKeyControls: Boolean = false,
 
-    // Watch
+    // Watch (Apple Watch dial — the Wear-only STEM/volume bindings don't apply)
     val watchKeepOn: Boolean = true,
     val watchAutoStart: Boolean = false,
+    val watchShowWheelBattery: Boolean = true,   // battery ring on the dial
+    val watchShowPwm: Boolean = true,            // PWM % under the speed
+    val watchShowSpeedUnit: Boolean = true,      // km/h / mph label
+    val watchDialRotationDeg: Int = 0,           // rotate the whole dial (wrist mount)
+    val watchHapticOnAction: Boolean = true,     // tap feedback on horn/light
 
     // HUD (external heads-up display — phone dials ws://<ip>:<port>/state)
     val hudEnabled: Boolean = false,

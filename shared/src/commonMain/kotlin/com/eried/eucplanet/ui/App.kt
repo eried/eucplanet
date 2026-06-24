@@ -383,6 +383,10 @@ fun App() {
                         unitSpeed = s.unitSpeed,
                         unitTemp = s.unitTemp,
                         accentArgb = watchAccentHex,
+                        showWheelBattery = s.watchShowWheelBattery,
+                        showPwm = s.watchShowPwm,
+                        showSpeedUnit = s.watchShowSpeedUnit,
+                        dialRotationDeg = s.watchDialRotationDeg,
                     ),
                 )
                 // External HUD frame (canonical metric; the HUD converts units).
