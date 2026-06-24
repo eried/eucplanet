@@ -1,5 +1,6 @@
 import UIKit
 import Shared
+import AuthenticationServices
 
 // UIKit host (no SwiftUI) so we don't hit the SwiftUICore link restriction on
 // Xcode 26 when assembling the app outside a normal Xcode target.
@@ -56,6 +57,31 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         // Wire the shared studio recorder seam to the camera recorder.
         StudioRecorder.shared.nativeStart = { [weak self] in self?.studioRecorder.start() }
         StudioRecorder.shared.nativeStop = { [weak self] in self?.studioRecorder.stop() }
+
+        // Dropbox OAuth: run the consent page in a web-auth session and hand the
+        // `?code=` from the db-<appkey>:// redirect back to the shared client.
+        DropboxLink.shared.nativeAuthorize = { [weak self] urlStr, scheme, onResult in
+            guard let self = self, let authURL = URL(string: urlStr) else { onResult(nil); return }
+            let session = ASWebAuthenticationSession(url: authURL, callbackURLScheme: scheme) { callbackURL, _ in
+                let code = callbackURL
+                    .flatMap { URLComponents(url: $0, resolvingAgainstBaseURL: false) }?
+                    .queryItems?.first(where: { $0.name == "code" })?.value
+                onResult(code)
+            }
+            session.presentationContextProvider = self
+            session.prefersEphemeralWebBrowserSession = false
+            self.dropboxAuthSession = session
+            DispatchQueue.main.async { session.start() }
+        }
         return true
+    }
+
+    /// Retains the in-flight Dropbox auth session (else it deallocates mid-flow).
+    private var dropboxAuthSession: ASWebAuthenticationSession?
+}
+
+extension AppDelegate: ASWebAuthenticationPresentationContextProviding {
+    func presentationAnchor(for session: ASWebAuthenticationSession) -> ASPresentationAnchor {
+        return window ?? ASPresentationAnchor()
     }
 }

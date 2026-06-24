@@ -111,6 +111,12 @@ data class AppSettings(
 
     // Cloud / backup
     val cloudSyncSettings: Boolean = false,
+    // Dropbox backup (OAuth tokens + linked-account label)
+    val dropboxAccessToken: String = "",
+    val dropboxRefreshToken: String = "",
+    val dropboxAccessTokenExpiresAt: Long = 0L,
+    val dropboxAccountLabel: String = "",
+    val dropboxAutoBackup: Boolean = true,   // upload trips/settings on save when linked
     val autoBackupTrips: Boolean = false,
 
     // EucStats online — trip backup + leaderboards (dev: dev.eucstats.ried.no).

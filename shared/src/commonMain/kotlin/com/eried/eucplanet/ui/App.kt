@@ -61,6 +61,8 @@ import com.eried.eucplanet.ble.isLikelyWheel
 import com.eried.eucplanet.radar.RadarManager
 import com.eried.eucplanet.ble.transport.BleConnState
 import com.eried.eucplanet.ble.transport.BleDevice
+import com.eried.eucplanet.cloud.DropboxClient
+import com.eried.eucplanet.cloud.DropboxLink
 import com.eried.eucplanet.cloud.EditResult
 import com.eried.eucplanet.ui.recording.EucViewerScreen
 import com.eried.eucplanet.cloud.EucStatsRepository
@@ -84,6 +86,7 @@ import com.eried.eucplanet.data.AlarmRule
 import com.eried.eucplanet.data.activeAlarms
 import com.eried.eucplanet.data.model.TripBackup
 import com.eried.eucplanet.data.model.TripSummary
+import com.eried.eucplanet.data.model.AppSettings
 import com.eried.eucplanet.data.model.CustomBleCommand
 import com.eried.eucplanet.data.model.WheelData
 import com.eried.eucplanet.ui.theme.BuiltInThemes
@@ -240,6 +243,21 @@ fun App() {
             } else if (!settings.radarEnabled && radarManager.connected.value) {
                 radarManager.disconnect()
             }
+        }
+        // Dropbox backup — own OAuth via the DropboxLink seam (independent of EUC Stats).
+        val dropbox = remember { DropboxClient() }
+        var dropboxMsg by remember { mutableStateOf<String?>(null) }
+        val dropboxJson = remember { kotlinx.serialization.json.Json { ignoreUnknownKeys = true; encodeDefaults = true } }
+        suspend fun activeDropboxToken(): String? {
+            val s = settingsStore.current
+            if (s.dropboxAccessToken.isBlank()) return null
+            if (nowEpochMillis() < s.dropboxAccessTokenExpiresAt - 60_000L) return s.dropboxAccessToken
+            val refreshed = if (s.dropboxRefreshToken.isNotBlank()) dropbox.refresh(s.dropboxRefreshToken) else null
+            if (refreshed != null) {
+                settingsStore.update { it.copy(dropboxAccessToken = refreshed.accessToken, dropboxAccessTokenExpiresAt = refreshed.expiresAtMs) }
+                return refreshed.accessToken
+            }
+            return s.dropboxAccessToken
         }
         // Latest HUD frame, streamed to an external HUD by HudClient at 5 Hz.
         val hudFrame = remember { MutableStateFlow(HudState()) }
@@ -920,6 +938,41 @@ fun App() {
                     onThemeEditor = { route = Route.ThemeEditor },
                     gpsManager = gpsManager,
                     radarManager = radarManager,
+                    dropboxMsg = dropboxMsg,
+                    onLinkDropbox = {
+                        val verifier = dropbox.newVerifier()
+                        val challenge = dropbox.challengeFor(verifier)
+                        dropboxMsg = "Opening Dropbox…"
+                        DropboxLink.authorize(dropbox.authorizeUrl(challenge), "db-${DropboxClient.APP_KEY}") { code ->
+                            if (code == null) dropboxMsg = "Link cancelled" else scope.launch {
+                                val tokens = dropbox.exchangeCode(code, verifier)
+                                if (tokens == null) dropboxMsg = "Link failed" else {
+                                    val label = dropbox.accountLabel(tokens.accessToken) ?: ""
+                                    settingsStore.update { it.copy(dropboxAccessToken = tokens.accessToken, dropboxRefreshToken = tokens.refreshToken.ifBlank { it.dropboxRefreshToken }, dropboxAccessTokenExpiresAt = tokens.expiresAtMs, dropboxAccountLabel = label) }
+                                    dropboxMsg = "Linked to ${label.ifBlank { "Dropbox" }}"
+                                }
+                            }
+                        }
+                    },
+                    onUnlinkDropbox = {
+                        settingsStore.update { it.copy(dropboxAccessToken = "", dropboxRefreshToken = "", dropboxAccessTokenExpiresAt = 0L, dropboxAccountLabel = "") }
+                        dropboxMsg = "Unlinked"
+                    },
+                    onBackupDropbox = {
+                        scope.launch {
+                            val token = activeDropboxToken()
+                            if (token == null) dropboxMsg = "Not linked" else {
+                                dropboxMsg = "Backing up…"
+                                val ok = dropbox.uploadFile(token, "/settings.json", dropboxJson.encodeToString(AppSettings.serializer(), settingsStore.current).encodeToByteArray())
+                                var trips = 0
+                                recorder.trips.value.filter { it.samples.size >= 2 }.forEach { t ->
+                                    val name = t.date.replace(Regex("[^A-Za-z0-9]"), "_") + ".csv"
+                                    if (dropbox.uploadFile(token, "/trips/$name", recorder.csvFor(t).encodeToByteArray())) trips++
+                                }
+                                dropboxMsg = if (ok) "Backed up settings + $trips trip(s)" else "Backup failed"
+                            }
+                        }
+                    },
                     onEditAlarm = { editingAlarm = it; route = Route.AlarmEditor },
                     onVoicePicker = { route = Route.VoicePicker },
                     riderCard = riderCard,

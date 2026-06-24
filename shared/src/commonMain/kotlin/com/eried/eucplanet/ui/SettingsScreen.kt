@@ -102,6 +102,10 @@ internal fun SettingsScreen(
     onThemeEditor: () -> Unit,
     gpsManager: com.eried.eucplanet.ble.extgps.ExternalGpsManager? = null,
     radarManager: com.eried.eucplanet.radar.RadarManager? = null,
+    onLinkDropbox: () -> Unit = {},
+    onUnlinkDropbox: () -> Unit = {},
+    onBackupDropbox: () -> Unit = {},
+    dropboxMsg: String? = null,
     onEditAlarm: (AlarmRule) -> Unit,
     onVoicePicker: () -> Unit,
     riderCard: RiderCard?,
@@ -349,6 +353,23 @@ internal fun SettingsScreen(
                             Text(eucStatsMsg, color = c.textSecondary, fontSize = 11.sp)
                         }
                         Note(c, "Trips back up to the leaderboard. Per-trip status + retry are in Recordings. Dev server: dev.eucstats.ried.no")
+                        // Dropbox backup (independent of EUC Stats) — Android parity.
+                        Spacer(Modifier.height(12.dp))
+                        LabelRow(c, "Dropbox backup")
+                        if (settings.dropboxAccessToken.isNotBlank()) {
+                            Text("Linked: ${settings.dropboxAccountLabel.ifBlank { "Dropbox" }}", color = c.statusGood, fontSize = 13.sp, fontWeight = FontWeight.Medium)
+                            SwitchRow(c, "Auto-back-up trips + settings", settings.dropboxAutoBackup) { onUpdate { s -> s.copy(dropboxAutoBackup = it) } }
+                            Spacer(Modifier.height(6.dp))
+                            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                CloudButton(c, "Back up now", true) { onBackupDropbox() }
+                                CloudButton(c, "Unlink", true) { onUnlinkDropbox() }
+                            }
+                        } else {
+                            Text("Link Dropbox to back up your trips (DarknessBot CSV) and settings to your own App-Folder.", color = c.textSecondary, fontSize = 12.sp)
+                            Spacer(Modifier.height(8.dp))
+                            CloudButton(c, "Link Dropbox", true) { onLinkDropbox() }
+                        }
+                        if (dropboxMsg != null) HintText(c, dropboxMsg)
                     }
 
                     SettingsSectionId.Alarms -> Section(c, "Alarms", Icons.Filled.NotificationsActive, keywords = "alarm speed temperature pwm voltage current battery warn rule") {
