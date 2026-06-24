@@ -805,7 +805,16 @@ class BleConnectionManager @Inject constructor(
         // frames arrive in one notification instead of being reassembled; if
         // not, the V2 adapter's reassembly path picks up the chunked frames
         // exactly as it has always done.
-        try { gatt?.requestMtu(512) } catch (_: Exception) {}
+        //
+        // Skip it for KingSong: KS frames are a fixed 20 bytes (never need a
+        // larger MTU), and on the HM-10 module an MTU exchange racing the
+        // first command write can wedge the just-established notify state -
+        // contributing to the KS-16X "connects but no telemetry" stall. The
+        // gate is familyId so every other family (V14 / P6 / Veteran /
+        // Begode / Ninebot) keeps the bump byte-for-byte.
+        if (wheelAdapter.familyId != "kingsong") {
+            try { gatt?.requestMtu(512) } catch (_: Exception) {}
+        }
     }
 
     /**
