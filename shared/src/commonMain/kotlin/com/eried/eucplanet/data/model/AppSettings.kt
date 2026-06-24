@@ -20,10 +20,19 @@ data class AppSettings(
     val legalTiltbackKmh: Float = 25f,
     val legalAlarmKmh: Float = 22f,
 
+    // How the dashboard top bar names the connected wheel.
+    val wheelNameDisplay: String = "MODEL",   // MODEL | BRAND | NONE
+    // Current/load tile shows amperage or power (long-press the tile to toggle).
+    val currentDisplayMode: String = "AMPS",  // AMPS | WATTS
+    // Session alarm mute (persists across restarts).
+    val alarmsMuted: Boolean = false,
+
     // Voice / TTS
     val ttsEnabled: Boolean = true,
     val voiceId: String = "",        // selected system-voice identifier ("" = default)
     val speechRate: Float = 1.1f,    // speed multiplier, 1.0 = normal (matches Android's voiceSpeechRate)
+    val voicePeriodicEnabled: Boolean = false, // periodic status announcements (vs only event/manual)
+    val voiceAnnounceWhen: String = "RIDING",  // ALWAYS | CONNECTED | RIDING — when periodic may speak
     val announceIntervalSec: Int = 60,
     val announceSpeed: Boolean = true,
     val announceBattery: Boolean = true,

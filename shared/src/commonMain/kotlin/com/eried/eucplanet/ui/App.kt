@@ -449,7 +449,9 @@ fun App() {
                 // Alarm engine: evaluate the rules each frame and fire the actions of
                 // any rule that's due (honouring per-rule cooldown / repeat-while-active).
                 val toFire = alarmEngine.step(activeAlarms(wd, s.alarmRules), s.alarmRules, nowEpochMillis())
-                if (toFire.isNotEmpty()) {
+                // alarmsMuted silences the audible alarm (haptic + spoken); the visual
+                // banner still shows. Matches Android's session mute.
+                if (toFire.isNotEmpty() && !s.alarmsMuted) {
                     if (toFire.any { it.vibrateEnabled }) haptics.warning()
                     val spoken = toFire.filter { it.voiceEnabled }.map { it.spoken }
                     if (s.ttsEnabled && spoken.isNotEmpty()) {
@@ -1118,6 +1120,17 @@ fun App() {
                     onSettings = { route = Route.Settings },
                     onRecording = { route = Route.Recording },
                     onMetricClick = { if (it == "battery") route = Route.Battery else selectedMetric = it },
+                    onMetricLongClick = { if (it == "current") settingsStore.update { s -> s.copy(currentDisplayMode = if (s.currentDisplayMode == "WATTS") "AMPS" else "WATTS") } },
+                    currentMode = settings.currentDisplayMode,
+                    wheelNameDisplay = settings.wheelNameDisplay,
+                    periodicAllowed = {
+                        val s = settingsStore.current
+                        s.voicePeriodicEnabled && when (s.voiceAnnounceWhen) {
+                            "CONNECTED" -> session != null
+                            "RIDING" -> (history.lastOrNull()?.speed ?: 0f) > 1f
+                            else -> true
+                        }
+                    },
                     onStudio = { route = Route.OverlayStudio },
                     onMap = { route = Route.Map },
                     disconnected = !inRide,
@@ -1220,6 +1233,10 @@ private fun DashboardRoute(
     onSettings: () -> Unit,
     onRecording: () -> Unit,
     onMetricClick: (String) -> Unit,
+    onMetricLongClick: (String) -> Unit = {},
+    currentMode: String = "AMPS",
+    wheelNameDisplay: String = "MODEL",
+    periodicAllowed: () -> Boolean = { true },
     onStudio: () -> Unit = {},
     onMap: () -> Unit = {},
     disconnected: Boolean = false,
@@ -1239,17 +1256,23 @@ private fun DashboardRoute(
     // onAnnounce (which closes over live telemetry), not the one captured when
     // voice was first switched on.
     val currentAnnounce by rememberUpdatedState(onAnnounce)
+    val currentPeriodicAllowed by rememberUpdatedState(periodicAllowed)
     LaunchedEffect(voiceOn, announceIntervalSec) {
         if (voiceOn) {
             while (isActive) {
                 delay(announceIntervalSec.coerceAtLeast(5).toLong() * 1000L)
-                currentAnnounce()
+                // Only speak periodic status when enabled + the "announce when" gate passes.
+                if (currentPeriodicAllowed()) currentAnnounce()
             }
         }
     }
 
     val title = when {
-        live -> liveModel ?: session!!.brand
+        live -> when (wheelNameDisplay) {
+            "NONE" -> "Connected"
+            "BRAND" -> session!!.brand
+            else -> liveModel ?: session!!.brand
+        }
         disconnected -> "EUC Planet"
         else -> demoTitle
     }
@@ -1305,6 +1328,8 @@ private fun DashboardRoute(
         onSettings = onSettings,
         onRecordingScreen = onRecording,
         onMetricClick = onMetricClick,
+        onMetricLongClick = onMetricLongClick,
+        currentMode = currentMode,
         onStudio = onStudio,
         onMap = onMap,
     )

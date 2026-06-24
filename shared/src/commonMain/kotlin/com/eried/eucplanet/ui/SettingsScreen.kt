@@ -142,6 +142,8 @@ internal fun SettingsScreen(
                 when (id) {
                     SettingsSectionId.General -> Section(c, "General", Icons.Filled.Tune, expandedDefault = true, keywords = "auto connect keep screen record recording motion idle backup") {
                         SwitchRow(c, "Auto-connect last wheel", settings.autoConnectLastWheel) { onUpdate { s -> s.copy(autoConnectLastWheel = it) } }
+                        LabelRow(c, "Wheel name on dashboard")
+                        Segmented(c, listOf("Model", "Brand", "Hidden"), listOf("MODEL", "BRAND", "NONE").indexOf(settings.wheelNameDisplay).coerceAtLeast(0)) { onUpdate { s -> s.copy(wheelNameDisplay = listOf("MODEL", "BRAND", "NONE")[it]) } }
                         SwitchRow(c, "Keep screen on while riding", settings.keepScreenOn) { onUpdate { s -> s.copy(keepScreenOn = it) } }
                         SwitchRow(c, "Auto-record trips", settings.autoStartRecording) { onUpdate { s -> s.copy(autoStartRecording = it) } }
                         if (settings.autoStartRecording) {
@@ -158,6 +160,8 @@ internal fun SettingsScreen(
                         Segmented(c, listOf("2", "3"), (settings.dashboardColumns - 2).coerceIn(0, 1)) { onUpdate { s -> s.copy(dashboardColumns = it + 2) } }
                         Spacer(Modifier.height(8.dp))
                         SwitchRow(c, "Show MIN / MAX corner stats", settings.statCorners) { onUpdate { s -> s.copy(statCorners = it) } }
+                        LabelRow(c, "Current tile shows")
+                        Segmented(c, listOf("Amps", "Watts"), if (settings.currentDisplayMode == "WATTS") 1 else 0) { onUpdate { s -> s.copy(currentDisplayMode = if (it == 1) "WATTS" else "AMPS") } }
                         Spacer(Modifier.height(8.dp))
                         LabelRow(c, "Metric tiles — reorder / hide")
                         OrderEditor(c, settings.dashboardMetricOrder, DASH_METRIC_KEYS) { onUpdate { s -> s.copy(dashboardMetricOrder = it) } }
@@ -274,7 +278,12 @@ internal fun SettingsScreen(
                             val rl = (mult * 10).roundToInt()
                             SliderRow(c, "Speech rate", "${rl / 10}.${rl % 10}×", mult, 0.5f..2.5f) { onUpdate { s -> s.copy(speechRate = (it * 10).roundToInt() / 10f) } }
                         }
-                        SliderRow(c, "Announce interval", "${settings.announceIntervalSec}s", settings.announceIntervalSec.toFloat(), 10f..300f) { onUpdate { s -> s.copy(announceIntervalSec = it.roundToInt()) } }
+                        SwitchRow(c, "Periodic status announcements", settings.voicePeriodicEnabled) { onUpdate { s -> s.copy(voicePeriodicEnabled = it) } }
+                        if (settings.voicePeriodicEnabled) {
+                            LabelRow(c, "Announce when")
+                            Segmented(c, listOf("Always", "Connected", "Riding"), listOf("ALWAYS", "CONNECTED", "RIDING").indexOf(settings.voiceAnnounceWhen).coerceAtLeast(0)) { onUpdate { s -> s.copy(voiceAnnounceWhen = listOf("ALWAYS", "CONNECTED", "RIDING")[it]) } }
+                            SliderRow(c, "Announce interval", "${settings.announceIntervalSec}s", settings.announceIntervalSec.toFloat(), 10f..300f) { onUpdate { s -> s.copy(announceIntervalSec = it.roundToInt()) } }
+                        }
                         Spacer(Modifier.height(6.dp))
                         LabelRow(c, "Periodic report")
                         SwitchRow(c, "Report speed", settings.announceSpeed) { onUpdate { s -> s.copy(announceSpeed = it) } }
@@ -372,7 +381,8 @@ internal fun SettingsScreen(
                         if (dropboxMsg != null) HintText(c, dropboxMsg)
                     }
 
-                    SettingsSectionId.Alarms -> Section(c, "Alarms", Icons.Filled.NotificationsActive, keywords = "alarm speed temperature pwm voltage current battery warn rule") {
+                    SettingsSectionId.Alarms -> Section(c, "Alarms", Icons.Filled.NotificationsActive, keywords = "alarm speed temperature pwm voltage current battery warn rule mute") {
+                        SwitchRow(c, "Mute all alarms (this + future sessions)", settings.alarmsMuted) { onUpdate { s -> s.copy(alarmsMuted = it) } }
                         if (settings.alarmRules.isEmpty()) {
                             Note(c, "No alarms. Add one to be warned on speed, temperature, PWM, voltage, current or battery.")
                         }

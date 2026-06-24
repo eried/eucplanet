@@ -2,7 +2,9 @@ package com.eried.eucplanet.ui
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -85,11 +87,15 @@ internal class Metric(
  *  are unit-aware (converted to the rider's chosen display unit); the rest are
  *  unit-agnostic. The value/text lambdas convert too, so sparklines + MIN/MAX
  *  read in the displayed unit. */
-internal fun metricsFor(unitDistance: String, unitTemp: String): List<Metric> = listOf(
+internal fun metricsFor(unitDistance: String, unitTemp: String, currentMode: String = "AMPS"): List<Metric> = listOf(
     Metric("battery", "BATTERY", "%", { it.metricBattery }, { it.batteryPercent.toFloat() }, { it.batteryPercent.toString() }),
     Metric("temp", "TEMP", UnitFormat.tempLabel(unitTemp), { it.metricTemp }, { UnitFormat.temperature(it.maxTemperature, unitTemp) }, { UnitFormat.temperature(it.maxTemperature, unitTemp).f0() }),
     Metric("voltage", "VOLTAGE", "V", { it.metricVoltage }, { it.voltage }, { it.voltage.f1() }),
-    Metric("current", "CURRENT", "A", { it.metricAccel }, { it.current }, { it.current.f1() }),
+    // Long-pressing this tile toggles AMPS ↔ WATTS (currentDisplayMode), like Android.
+    if (currentMode == "WATTS")
+        Metric("current", "POWER", "W", { it.metricAccel }, { kotlin.math.abs(it.voltage * it.current) }, { kotlin.math.abs(it.voltage * it.current).f0() })
+    else
+        Metric("current", "CURRENT", "A", { it.metricAccel }, { it.current }, { it.current.f1() }),
     Metric("load", "LOAD", "%", { it.metricPosition }, { it.pwm }, { it.pwm.f0() }),
     Metric("trip", "TRIP", UnitFormat.distanceLabel(unitDistance), { it.statusGood }, { UnitFormat.distance(it.tripDistance, unitDistance) }, { UnitFormat.distance(it.tripDistance, unitDistance).f1() }),
 )
@@ -143,6 +149,8 @@ internal fun DashboardScreen(
     onSettings: () -> Unit,
     onRecordingScreen: () -> Unit,
     onMetricClick: (String) -> Unit,
+    onMetricLongClick: (String) -> Unit = {},
+    currentMode: String = "AMPS",
     onStudio: () -> Unit = {},
     onMap: () -> Unit = {},
 ) {
@@ -168,7 +176,7 @@ internal fun DashboardScreen(
         // same width as full rows instead of stretching them.
         val cols = columns.coerceIn(1, 3)
         val orderedMetrics = run {
-            val all = metricsFor(unitDistance, unitTemp).associateBy { it.key }
+            val all = metricsFor(unitDistance, unitTemp, currentMode).associateBy { it.key }
             metricOrder.split(",").map { it.trim() }.mapNotNull { all[it] }.ifEmpty { all.values.toList() }
         }
         Column(Modifier.fillMaxWidth().padding(horizontal = 12.dp).coachmark("metrics")) {
@@ -176,7 +184,7 @@ internal fun DashboardScreen(
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     row.forEach { m ->
                         Box(Modifier.weight(1f)) {
-                            MetricTile(c, m, d, history, statCorners) { onMetricClick(m.key) }
+                            MetricTile(c, m, d, history, statCorners, onLongClick = { onMetricLongClick(m.key) }) { onMetricClick(m.key) }
                         }
                     }
                     repeat(cols - row.size) { Spacer(Modifier.weight(1f)) }
@@ -296,13 +304,15 @@ private fun IconBtn(icon: ImageVector, desc: String, tint: Color, onClick: () ->
 }
 
 @Composable
-private fun MetricTile(c: AppThemeColors, m: Metric, d: WheelData, history: List<WheelData>, showCorners: Boolean, onClick: () -> Unit) {
+@OptIn(ExperimentalFoundationApi::class)
+private fun MetricTile(c: AppThemeColors, m: Metric, d: WheelData, history: List<WheelData>, showCorners: Boolean, onLongClick: () -> Unit = {}, onClick: () -> Unit) {
     val color = m.color(c)
     val series = history.map { m.value(it) }
     val mx = series.maxOrNull()
     val mn = series.minOrNull()
     Box(
-        Modifier.fillMaxWidth().height(64.dp).clip(RoundedCornerShape(10.dp)).background(c.tileBackground).clickable { onClick() },
+        Modifier.fillMaxWidth().height(64.dp).clip(RoundedCornerShape(10.dp)).background(c.tileBackground)
+            .combinedClickable(onClick = onClick, onLongClick = onLongClick),
     ) {
         if (series.size >= 2) {
             Sparkline(series, color.copy(alpha = 0.35f), Modifier.fillMaxSize().padding(top = 22.dp))
