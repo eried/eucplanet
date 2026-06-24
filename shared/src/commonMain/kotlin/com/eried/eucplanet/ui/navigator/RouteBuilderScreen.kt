@@ -22,6 +22,11 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.DirectionsBike
+import androidx.compose.material.icons.filled.DirectionsCar
+import androidx.compose.material.icons.filled.DirectionsWalk
+import androidx.compose.material.icons.filled.Timeline
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Layers
 import androidx.compose.material.icons.filled.MoreVert
@@ -217,13 +222,16 @@ fun RouteBuilderScreen(vm: RouteBuilderViewModel, onBack: () -> Unit) {
                         Box(
                             Modifier.weight(1f).clip(RoundedCornerShape(10.dp))
                                 .background(if (sel) c.primary else c.surface)
-                                .clickable { vm.setTravelMode(m) }.padding(vertical = 8.dp),
+                                .clickable { vm.setTravelMode(m) }.padding(vertical = 7.dp),
                             contentAlignment = Alignment.Center,
                         ) {
-                            Text(
-                                modeLabel(m), color = if (sel) c.onPrimary else c.textSecondary,
-                                fontSize = 11.sp, fontWeight = if (sel) FontWeight.SemiBold else FontWeight.Normal,
-                            )
+                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                Icon(modeIcon(m), contentDescription = modeLabel(m), tint = if (sel) c.onPrimary else c.textSecondary, modifier = Modifier.size(19.dp))
+                                Text(
+                                    modeLabel(m), color = if (sel) c.onPrimary else c.textSecondary,
+                                    fontSize = 10.sp, fontWeight = if (sel) FontWeight.SemiBold else FontWeight.Normal,
+                                )
+                            }
                         }
                     }
                 }
@@ -320,6 +328,14 @@ private fun modeLabel(m: TravelMode): String = when (m) {
     TravelMode.DRIVING -> "Car"
     TravelMode.WALKING -> "Walk"
     TravelMode.STRAIGHT -> "Direct"
+}
+
+/** Travel-mode icons, matching Android (Timeline / DirectionsBike / DirectionsWalk / DirectionsCar). */
+private fun modeIcon(m: TravelMode): ImageVector = when (m) {
+    TravelMode.STRAIGHT -> Icons.Filled.Timeline
+    TravelMode.CYCLING -> Icons.Filled.DirectionsBike
+    TravelMode.WALKING -> Icons.Filled.DirectionsWalk
+    TravelMode.DRIVING -> Icons.Filled.DirectionsCar
 }
 
 private fun Color.toHex6(): String {

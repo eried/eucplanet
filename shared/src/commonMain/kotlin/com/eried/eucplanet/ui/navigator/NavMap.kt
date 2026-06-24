@@ -12,8 +12,11 @@ class NavMapController {
     internal var sink: ((String) -> Unit)? = null
     private fun js(code: String) { sink?.invoke(code) }
 
+    // nativeRender / nativeSetPlaces JSON.parse their first args, so the JSON must be
+    // passed as quoted JS strings — NOT raw literals (raw arrays make JSON.parse throw,
+    // which silently killed all marker/route drawing).
     fun render(wpJson: String, geomJson: String, fit: Boolean, pendingJson: String) =
-        js("window.nativeRender($wpJson,$geomJson,$fit,$pendingJson)")
+        js("window.nativeRender(${jsStr(wpJson)},${jsStr(geomJson)},$fit,${jsStr(pendingJson)})")
     fun setUser(lat: Double, lng: Double) = js("window.nativeSetUser($lat,$lng)")
     fun setUserHeading(deg: Double) = js("window.nativeSetUserHeading($deg)")
     fun setUserStill() = js("window.nativeSetUserStill()")
@@ -26,7 +29,7 @@ class NavMapController {
     fun setRouteColors(walk: String, bike: String, drive: String, straight: String, preview: String) =
         js("window.nativeSetRouteColors(${jsStr(walk)},${jsStr(bike)},${jsStr(drive)},${jsStr(straight)},${jsStr(preview)})")
     fun setMapType(type: String) = js("window.nativeSetMapType(${jsStr(type)})")
-    fun setPlaces(json: String) = js("window.nativeSetPlaces($json)")
+    fun setPlaces(json: String) = js("window.nativeSetPlaces(${jsStr(json)})")
     fun setNavLocked(locked: Boolean) = js("window.nativeSetNavLocked($locked)")
     fun setTravelMode(mode: String) = js("window.nativeSetTravelMode(${jsStr(mode)})")
     fun setFullPath(b: Boolean) = js("window.nativeSetFullPath($b)")
