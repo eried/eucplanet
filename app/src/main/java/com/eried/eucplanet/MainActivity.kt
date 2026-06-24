@@ -140,10 +140,12 @@ class MainActivity : AppCompatActivity() {
     }
 
     /**
-     * Pinging the wear bridge on every resume rather than only at process
-     * start makes the auto-launch reliable: opening the phone app brings
-     * the watch app to the foreground each time, even if the watch service
-     * was killed for memory after the previous session.
+     * Pinging both watch bridges on every resume rather than only at process
+     * start makes auto-launch reliable: opening the phone app brings the watch
+     * app to the foreground each time, even if the watch service was killed for
+     * memory after the previous session. On Garmin this now fires Connect IQ's
+     * openApplication() (a one-time "Always" consent on the watch, then
+     * automatic), so the Garmin path below is a real launch, not a no-op.
      */
     override fun onResume() {
         super.onResume()

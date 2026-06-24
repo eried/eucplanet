@@ -380,9 +380,61 @@ class GarminBridge @Inject constructor(
                 if (!sdkReady) return@launch
                 val settings = settingsRepository.get()
                 if (!settings.watchAutoStart) return@launch
+                // Actually LAUNCH a closed watch app, then nudge it. The old
+                // "Garmin doesn't allow phone apps to auto-launch the companion"
+                // copy was wrong: openApplication() does exactly this.
+                // sendKindToAll only reaches an ALREADY-open app, which is why
+                // riders previously had to open it by hand at the start of a ride.
+                openWatchApp()
                 sendKindToAll(GarminKeys.KIND_WAKE)
             } catch (e: Exception) {
                 Log.d(TAG, "Garmin wake skipped: ${e.message}")
+            }
+        }
+    }
+
+    /**
+     * Bring the EUC Planet watch app to the foreground on every paired Garmin
+     * so telemetry flows without the rider opening it by hand.
+     *
+     * The FIRST call surfaces a one-time "Launch EUC Planet?" prompt on the
+     * watch (Just This Once / Always / No); once the rider taps "Always",
+     * later calls open it silently — the same behaviour as other apps that
+     * "auto-launch" their Connect IQ companion. Gated identically to
+     * [pingWatchToWake] (sdkReady + watchAutoStart), and safe to call on every
+     * resume: an already-open app simply reports APP_IS_ALREADY_RUNNING with no
+     * further prompt, so there is no repeated-dialog storm.
+     */
+    private fun openWatchApp() {
+        for (device in registeredDevices.values) {
+            try {
+                connectIQ.openApplication(device, app, object : ConnectIQ.IQOpenApplicationListener {
+                    override fun onOpenApplicationResponse(
+                        d: IQDevice,
+                        a: IQApp,
+                        status: ConnectIQ.IQOpenApplicationStatus
+                    ) {
+                        when (status) {
+                            ConnectIQ.IQOpenApplicationStatus.APP_IS_ALREADY_RUNNING ->
+                                Log.d(TAG, "watch app already running on ${d.friendlyName}")
+                            ConnectIQ.IQOpenApplicationStatus.PROMPT_SHOWN_ON_DEVICE ->
+                                Log.i(TAG, "launch prompt shown on ${d.friendlyName}")
+                            ConnectIQ.IQOpenApplicationStatus.PROMPT_NOT_SHOWN_ON_DEVICE ->
+                                Log.d(TAG, "launch reached ${d.friendlyName} but no prompt (busy)")
+                            ConnectIQ.IQOpenApplicationStatus.APP_IS_NOT_INSTALLED ->
+                                Log.w(TAG, "watch app not installed on ${d.friendlyName}")
+                            else ->
+                                Log.w(TAG, "openApplication failed on ${d.friendlyName}: $status")
+                        }
+                    }
+                })
+            } catch (e: InvalidStateException) {
+                sdkReady = false
+                return
+            } catch (e: ServiceUnavailableException) {
+                Log.d(TAG, "openApplication on ${device.friendlyName}: Connect Mobile gone")
+            } catch (e: Exception) {
+                Log.w(TAG, "openApplication on ${device.friendlyName} failed", e)
             }
         }
     }

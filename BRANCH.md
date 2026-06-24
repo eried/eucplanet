@@ -1,24 +1,51 @@
-# next-version
+# Garmin watch app — automatic launch from the phone
 
-Staging branch for the next release of EUC Planet. Sits ahead of `main` with fixes and refinements being shaken out before they merge.
+This branch makes the **EUC Planet Garmin watch app start by itself** when you
+open the phone app — no more opening it by hand on the watch at the start of
+every ride. (We previously told users this was a Garmin limitation; it isn't —
+the Connect IQ Mobile SDK has had the launch call all along, we just weren't
+calling it.)
 
 ## Who should test this
 
-- **Owners of wheels affected by an active fix** flagged in the release notes section below ("What's new in this commit"). If your wheel isn't listed, the fix probably doesn't apply to you, but a quick smoke test (connect, dashboard, light/horn/alarm controls, a short ride with telemetry visible) is always welcome.
-- **Anyone willing to validate that an in-progress change hasn't broken their setup.** Connect, ride, report.
+- **Garmin watch / Edge owners** running the EUC Planet Connect IQ watch app.
+- Anyone on Wear OS who wants to confirm the watch auto-start still behaves.
 
-## How to install
+## What changed
 
-This is a CI-built debug APK. It is signed with the debug key, so it **cannot update an existing Play Store install in place**. To install:
+- The phone now calls Connect IQ's `openApplication()` to launch the watch app,
+  driven by the **Watch -> Auto-start** toggle and re-fired every time the phone
+  app comes to the foreground.
+- The **first** time, your watch shows a one-time **"Launch EUC Planet?"**
+  prompt — tap **Always**, and from then on it opens automatically at the start
+  of each trip. (Normal Connect IQ behaviour: first-run consent, not a per-ride
+  prompt.)
+- The "GARMIN — not supported" badge is gone from the Auto-start row, and
+  Auto-start now appears for Garmin-only setups too (it used to be hidden unless
+  a Wear OS watch was also paired). The genuine Garmin limits (telemetry rate
+  cap, no dial rotation) keep their badge.
 
-1. Uninstall the Play Store version (note: this wipes local app data).
-2. Sideload the phone APK from this release.
-3. If you use a Wear OS watch, sideload the wear APK too.
+## How to test
+
+1. Install this build's **phone APK** (uninstall the Play version first — it's a
+   different signature; this wipes local app data). If you don't already have
+   the watch app, install it from the `garmin-*.iq` (Connect IQ bundle) or your
+   device's `.prg` in the `garmin-*-prgs.zip` asset below.
+2. Pair your Garmin (watch or Edge) and confirm EUC Planet is installed on it.
+3. Phone -> Settings -> **Watch** -> turn **Auto-start** on. Confirm there is
+   **no "GARMIN" badge** on that row.
+4. Fully close the EUC Planet app on the watch. Then open (or
+   background -> foreground) the phone app. The watch should show
+   **"Launch EUC Planet?"** -> tap **Always**.
+5. Do it again: now the watch app should open **automatically with no prompt**,
+   and the dial should start showing live telemetry.
 
 ## Reporting back
 
-Open an issue at https://github.com/eried/eucplanet/issues or message in the project's testing channel. Include:
+Open an issue at https://github.com/eried/eucplanet/issues or message in the
+project's testing channel. Include:
 
-- Wheel model + firmware version (visible on the dashboard once connected).
+- Your **watch / Edge model + firmware** — especially if the "Launch EUC Planet?"
+  prompt never appears (a few Edge units on old firmware render a black dialog
+  instead, an acknowledged Garmin bug; on those you can still open it by hand).
 - Phone model + Android version.
-- For BLE issues: what state the connection got stuck in, and if possible the diagnostics log (Settings -> Diagnostics -> Share).

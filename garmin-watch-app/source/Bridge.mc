@@ -61,10 +61,11 @@ class PhoneBridge {
         if (kind == null || kind.equals(Keys.KIND_STATE)) {
             WatchState.update(data);
         } else if (kind.equals(Keys.KIND_WAKE)) {
-            // The phone fires this whenever its app comes to foreground. We
-            // don't need to launch anything (CIQ apps can't auto-launch
-            // anyway), but we do bump the snapshot's last-update so the
-            // disconnected placeholder gets out of the way if it was up.
+            // The phone fires this whenever its app comes to foreground. The
+            // phone separately calls ConnectIQ.openApplication() to actually
+            // launch this app when it was closed; this message only nudges an
+            // already-open app, so we just bump the snapshot's last-update to
+            // clear the disconnected placeholder if it was up.
             WatchState.snapshot.phoneSynced = true;
         } else if (kind.equals(Keys.KIND_QUIT)) {
             // User picked "Stop all" on the phone with "close watch on exit"
