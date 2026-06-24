@@ -817,7 +817,7 @@
     <string name="scan_show_all_subtitle">Aktivieren, falls dein Wheel nicht erscheint</string>
 
     <!-- Metric detail -->
-    <string name="metric_detail_title">%1$s</string>
+    <string name="metric_detail_title">Verlauf</string>
     <string name="metric_no_data">Keine Daten</string>
     <string name="metric_min">MIN</string>
     <string name="metric_avg">Ø</string>

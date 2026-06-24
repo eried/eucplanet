@@ -412,7 +412,7 @@
     <string name="scan_show_all_subtitle">Attivalo se la tua ruota non compare</string>
 
     <!-- Metric detail -->
-    <string name="metric_detail_title">%1$s</string>
+    <string name="metric_detail_title">Cronologia</string>
     <string name="metric_no_data">Nessun dato</string>
     <string name="metric_min">MIN</string>
     <string name="metric_avg">MEDIA</string>
@@ -1400,7 +1400,7 @@
     <string name="online_restore_title">Ripristinare il profilo rider?</string>
     <string name="online_restore_body_new">Questa cartella contiene un profilo salvato per %1$s. Ripristinalo per mantenere la tua identità in classifica e le tue statistiche.</string>
     <string name="online_restore_body_switch">Questa cartella appartiene a %1$s. Il ripristino passa questo telefono a quel rider. Il tuo profilo attuale viene salvato come backup prima, così puoi tornare indietro.</string>
-    <string name="online_restore_confirm">Ripristina</string>
+    <string name="online_restore_confirm">Continua come %1$s</string>
     <string name="online_upload_card_missing">Il profilo di classifica di questo telefono non esiste più sul server, quindi i nuovi upload verranno rifiutati. Se non te lo aspettavi, contatta l\'amministratore della classifica.</string>
     <string name="online_upload_linked_caption">Le tue statistiche e i tuoi viaggi appaiono nella classifica pubblica su</string>
     <string name="online_rejoin_title">Riattiva profilo</string>

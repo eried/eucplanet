@@ -322,7 +322,7 @@
     <string name="scan_scanning">搜索中\u2026</string>
     <string name="scan_start">开始搜索</string>
 
-    <string name="metric_detail_title">%1$s</string>
+    <string name="metric_detail_title">历史</string>
     <string name="metric_no_data">无数据</string>
     <string name="metric_min">最小</string>
     <string name="metric_avg">平均</string>
@@ -1364,7 +1364,7 @@
     <string name="online_restore_title">恢复骑手资料？</string>
     <string name="online_restore_body_new">此文件夹中保存了 %1$s 的资料。恢复后可保留你的排行榜身份和骑行数据。</string>
     <string name="online_restore_body_switch">此文件夹属于 %1$s。恢复后本机将切换为该骑手账号，当前资料会先备份，随时可切回。</string>
-    <string name="online_restore_confirm">恢复</string>
+    <string name="online_restore_confirm">以 %1$s 身份继续</string>
     <string name="online_upload_card_missing">此手机的排行榜资料已不在服务器上，新的上传将被拒绝。如果这不符合预期，请联系排行榜管理员。</string>
     <string name="online_upload_linked_caption">你的统计数据和行程将显示在公开排行榜</string>
     <string name="online_rejoin_title">重新激活资料</string>

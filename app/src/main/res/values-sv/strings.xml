@@ -817,7 +817,7 @@
     <string name="scan_show_all_subtitle">Slå på om ditt hjul inte syns</string>
 
     <!-- Metric detail -->
-    <string name="metric_detail_title">%1$s</string>
+    <string name="metric_detail_title">Historik</string>
     <string name="metric_no_data">Inga data</string>
     <string name="metric_min">MIN</string>
     <string name="metric_avg">SNITT</string>

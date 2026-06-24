@@ -821,7 +821,7 @@
     <string name="scan_show_all_subtitle">Actívalo si tu rueda no aparece</string>
 
     <!-- Metric detail -->
-    <string name="metric_detail_title">%1$s</string>
+    <string name="metric_detail_title">Historial</string>
     <string name="metric_no_data">Sin datos</string>
     <string name="metric_min">MÍN</string>
     <string name="metric_avg">PROM</string>

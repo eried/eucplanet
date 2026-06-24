@@ -821,7 +821,7 @@
     <string name="scan_show_all_subtitle">Slå til, hvis dit hjul ikke vises</string>
 
     <!-- Metric detail -->
-    <string name="metric_detail_title">%1$s</string>
+    <string name="metric_detail_title">Historik</string>
     <string name="metric_no_data">Ingen data</string>
     <string name="metric_min">MIN</string>
     <string name="metric_avg">GNS</string>

@@ -821,7 +821,7 @@
     <string name="scan_show_all_subtitle">Włącz, jeśli Twoje koło się nie pojawia</string>
 
     <!-- Metric detail -->
-    <string name="metric_detail_title">%1$s</string>
+    <string name="metric_detail_title">Historia</string>
     <string name="metric_no_data">Brak danych</string>
     <string name="metric_min">MIN</string>
     <string name="metric_avg">ŚR</string>

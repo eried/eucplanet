@@ -821,7 +821,7 @@
     <string name="scan_show_all_subtitle">Включите, если ваше колесо не появляется</string>
 
     <!-- Metric detail -->
-    <string name="metric_detail_title">%1$s</string>
+    <string name="metric_detail_title">История</string>
     <string name="metric_no_data">Данных пока нет</string>
     <string name="metric_min">МИН</string>
     <string name="metric_avg">СРЕД</string>

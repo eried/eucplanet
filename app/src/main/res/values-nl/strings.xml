@@ -821,7 +821,7 @@
     <string name="scan_show_all_subtitle">Schakel in als je wiel niet verschijnt</string>
 
     <!-- Metric detail -->
-    <string name="metric_detail_title">%1$s</string>
+    <string name="metric_detail_title">Geschiedenis</string>
     <string name="metric_no_data">Geen gegevens</string>
     <string name="metric_min">MIN</string>
     <string name="metric_avg">GEM</string>

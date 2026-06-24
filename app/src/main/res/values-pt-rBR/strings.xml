@@ -821,7 +821,7 @@
     <string name="scan_show_all_subtitle">Ative se sua roda não aparecer</string>
 
     <!-- Metric detail -->
-    <string name="metric_detail_title">%1$s</string>
+    <string name="metric_detail_title">Histórico</string>
     <string name="metric_no_data">Sem dados</string>
     <string name="metric_min">MÍN</string>
     <string name="metric_avg">MÉD</string>
