@@ -92,6 +92,8 @@ data class AppSettings(
     // Ordered, visible metric-tile + action-button keys (CSV) — drag/hide editor.
     val dashboardMetricOrder: String = "battery,temp,voltage,current,load,trip",
     val dashboardActionOrder: String = "horn,light,voice,legal,lock,rec",
+    // User-defined raw BLE commands (fired from Service Mode).
+    val customBleCommands: List<CustomBleCommand> = emptyList(),
 
     // Cloud / backup
     val cloudSyncSettings: Boolean = false,

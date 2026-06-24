@@ -81,6 +81,7 @@ import com.eried.eucplanet.data.AlarmRule
 import com.eried.eucplanet.data.activeAlarms
 import com.eried.eucplanet.data.model.TripBackup
 import com.eried.eucplanet.data.model.TripSummary
+import com.eried.eucplanet.data.model.CustomBleCommand
 import com.eried.eucplanet.data.model.WheelData
 import com.eried.eucplanet.ui.theme.BuiltInThemes
 import com.eried.eucplanet.ui.theme.EucPlanetTheme
@@ -926,6 +927,11 @@ fun App() {
                     connected = session != null,
                     onFire = { bytes -> session?.let { s -> scope.launch { s.sendRaw(bytes) } } },
                     onBack = { route = Route.Settings },
+                    customCommands = settings.customBleCommands,
+                    onAddCustom = { label, hex ->
+                        settingsStore.update { it.copy(customBleCommands = it.customBleCommands + CustomBleCommand(id = "B:" + nowEpochMillis(), label = label, framesHex = listOf(hex))) }
+                    },
+                    onDeleteCustom = { id -> settingsStore.update { it.copy(customBleCommands = it.customBleCommands.filterNot { c -> c.id == id }) } },
                 )
                 selectedMetric != null -> MetricDetailScreen(
                     metricKey = selectedMetric!!,

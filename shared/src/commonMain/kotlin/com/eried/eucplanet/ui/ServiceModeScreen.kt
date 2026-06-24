@@ -1,6 +1,7 @@
 package com.eried.eucplanet.ui
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
@@ -28,10 +29,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.eried.eucplanet.ble.CompositeWheelAdapter
+import com.eried.eucplanet.data.model.CustomBleCommand
 import com.eried.eucplanet.data.DiagnosticsLog
 import com.eried.eucplanet.diagnostics.DiagnosticCommand
 import com.eried.eucplanet.ui.theme.AppThemeColors
@@ -49,6 +53,9 @@ internal fun ServiceModeScreen(
     connected: Boolean,
     onFire: (ByteArray) -> Unit,
     onBack: () -> Unit,
+    customCommands: List<CustomBleCommand> = emptyList(),
+    onAddCustom: (label: String, hex: String) -> Unit = { _, _ -> },
+    onDeleteCustom: (String) -> Unit = {},
 ) {
     val c = MaterialTheme.appColors
     val composite = remember { CompositeWheelAdapter() }
@@ -56,6 +63,8 @@ internal fun ServiceModeScreen(
     var familyIdx by remember { mutableStateOf(0) }
     val commands = remember(familyIdx) { families[familyIdx].getDiagnosticCommands() }
     val logLines by DiagnosticsLog.lines.collectAsState()
+    var newLabel by remember { mutableStateOf("") }
+    var newHex by remember { mutableStateOf("") }
 
     Column(Modifier.fillMaxSize().background(c.appBackground)) {
         ScreenTopBar(c, "Service Mode", onBack)
@@ -80,6 +89,40 @@ internal fun ServiceModeScreen(
         Column(
             Modifier.fillMaxWidth().weight(1f).verticalScroll(rememberScrollState()).padding(horizontal = 12.dp, vertical = 4.dp),
         ) {
+            // User-defined custom commands (saved hex frames) — Android parity.
+            Text("CUSTOM COMMANDS", color = c.sectionHeader, fontSize = 11.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(vertical = 4.dp))
+            customCommands.forEach { cc ->
+                Row(
+                    Modifier.fillMaxWidth().clip(RoundedCornerShape(10.dp)).background(c.surface).padding(horizontal = 14.dp, vertical = 10.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Column(Modifier.weight(1f)) {
+                        Text(cc.label, color = c.textPrimary, fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
+                        Text(cc.framesHex.joinToString(" · ").take(48), color = c.textDisabled, fontSize = 10.sp)
+                    }
+                    Text("Delete", color = c.statusDanger, fontSize = 11.sp, modifier = Modifier.clickable { onDeleteCustom(cc.id) }.padding(horizontal = 8.dp, vertical = 4.dp))
+                    Text(
+                        "Send", color = if (connected) c.onPrimary else c.textDisabled, fontSize = 12.sp, fontWeight = FontWeight.Medium,
+                        modifier = Modifier.clip(RoundedCornerShape(8.dp)).background(if (connected) c.primary else c.surfaceVariant)
+                            .clickable(enabled = connected) { cc.framesHex.forEach { parseHexBytes(it)?.let(onFire) } }.padding(horizontal = 14.dp, vertical = 6.dp),
+                    )
+                }
+                Spacer(Modifier.height(6.dp))
+            }
+            // Add-form: label + hex (space/comma separated frames → one write each).
+            ServiceTextField(c, "Label", newLabel) { newLabel = it }
+            Spacer(Modifier.height(4.dp))
+            ServiceTextField(c, "Hex frames (space-separated)", newHex) { newHex = it }
+            Spacer(Modifier.height(4.dp))
+            Text(
+                "+ Save command", color = if (newLabel.isNotBlank() && newHex.isNotBlank()) c.primary else c.textDisabled,
+                fontSize = 13.sp, fontWeight = FontWeight.Medium,
+                modifier = Modifier.clickable(enabled = newLabel.isNotBlank() && newHex.isNotBlank()) {
+                    onAddCustom(newLabel.trim(), newHex.trim()); newLabel = ""; newHex = ""
+                }.padding(vertical = 6.dp),
+            )
+            Spacer(Modifier.height(10.dp))
+            Text("DIAGNOSTIC CATALOGUE", color = c.sectionHeader, fontSize = 11.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(vertical = 4.dp))
             if (commands.isEmpty()) {
                 Text("No diagnostic commands for this family.", color = c.textSecondary, fontSize = 13.sp, modifier = Modifier.padding(12.dp))
             }
@@ -177,4 +220,24 @@ private fun hexPreview(bytes: ByteArray): String {
     if (bytes.isEmpty()) return "(no bytes)"
     val hex = bytes.take(10).joinToString(" ") { (it.toInt() and 0xFF).toString(16).padStart(2, '0') }
     return if (bytes.size > 10) "$hex … (${bytes.size}B)" else hex
+}
+
+/** Lenient hex parse: ignores spaces/punctuation, needs an even nibble count. */
+internal fun parseHexBytes(s: String): ByteArray? {
+    val clean = s.filter { it.isDigit() || it in 'a'..'f' || it in 'A'..'F' }
+    if (clean.isEmpty() || clean.length % 2 != 0) return null
+    return ByteArray(clean.length / 2) { clean.substring(it * 2, it * 2 + 2).toInt(16).toByte() }
+}
+
+@Composable
+private fun ServiceTextField(c: AppThemeColors, placeholder: String, value: String, onChange: (String) -> Unit) {
+    Box(Modifier.fillMaxWidth().clip(RoundedCornerShape(8.dp)).background(c.surfaceVariant).padding(horizontal = 12.dp, vertical = 10.dp)) {
+        if (value.isEmpty()) Text(placeholder, color = c.textDisabled, fontSize = 13.sp)
+        BasicTextField(
+            value = value, onValueChange = onChange, singleLine = true,
+            textStyle = TextStyle(color = c.textPrimary, fontSize = 13.sp),
+            cursorBrush = SolidColor(c.primary),
+            modifier = Modifier.fillMaxWidth(),
+        )
+    }
 }
