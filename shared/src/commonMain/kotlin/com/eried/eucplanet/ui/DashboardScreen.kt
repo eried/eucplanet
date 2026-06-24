@@ -130,6 +130,8 @@ internal fun DashboardScreen(
     unitTemp: String,
     columns: Int,
     statCorners: Boolean,
+    metricOrder: String = "battery,temp,voltage,current,load,trip",
+    actionOrder: String = "horn,light,voice,legal,lock,rec",
     disconnected: Boolean = false,
     onHorn: () -> Unit,
     onToggleLight: () -> Unit,
@@ -165,8 +167,12 @@ internal fun DashboardScreen(
         // settings. With a non-full last row, the trailing Spacer keeps tiles the
         // same width as full rows instead of stretching them.
         val cols = columns.coerceIn(1, 3)
+        val orderedMetrics = run {
+            val all = metricsFor(unitDistance, unitTemp).associateBy { it.key }
+            metricOrder.split(",").map { it.trim() }.mapNotNull { all[it] }.ifEmpty { all.values.toList() }
+        }
         Column(Modifier.fillMaxWidth().padding(horizontal = 12.dp).coachmark("metrics")) {
-            metricsFor(unitDistance, unitTemp).chunked(cols).forEach { row ->
+            orderedMetrics.chunked(cols).forEach { row ->
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     row.forEach { m ->
                         Box(Modifier.weight(1f)) {
@@ -185,14 +191,15 @@ internal fun DashboardScreen(
         // current stats) and Rec (trip recording) work without a wheel, so Android
         // leaves them enabled at all times — match that here.
         val ctl = !disconnected
-        val actions = listOf(
-            ActionSpec(RideAction("Horn", Icons.Filled.Campaign) { it.primary }, false, ctl, onHorn),
-            ActionSpec(RideAction("Light", Icons.Filled.FlashlightOn) { it.statusWarn }, lightOn, ctl, onToggleLight),
-            ActionSpec(RideAction("Voice", Icons.Filled.RecordVoiceOver) { it.primary }, voiceOn, true, onToggleVoice),
-            ActionSpec(RideAction("Legal", Icons.Filled.Shield) { it.primary }, legalMode, ctl, onToggleLegal),
-            ActionSpec(RideAction("Lock", if (locked) Icons.Filled.Lock else Icons.Filled.LockOpen) { it.statusDanger }, locked, ctl, onToggleLock),
-            ActionSpec(RideAction("Rec", Icons.Filled.FiberManualRecord) { it.statusDanger }, recording, true, onToggleRecord),
+        val actionByKey = linkedMapOf(
+            "horn" to ActionSpec(RideAction("Horn", Icons.Filled.Campaign) { it.primary }, false, ctl, onHorn),
+            "light" to ActionSpec(RideAction("Light", Icons.Filled.FlashlightOn) { it.statusWarn }, lightOn, ctl, onToggleLight),
+            "voice" to ActionSpec(RideAction("Voice", Icons.Filled.RecordVoiceOver) { it.primary }, voiceOn, true, onToggleVoice),
+            "legal" to ActionSpec(RideAction("Legal", Icons.Filled.Shield) { it.primary }, legalMode, ctl, onToggleLegal),
+            "lock" to ActionSpec(RideAction("Lock", if (locked) Icons.Filled.Lock else Icons.Filled.LockOpen) { it.statusDanger }, locked, ctl, onToggleLock),
+            "rec" to ActionSpec(RideAction("Rec", Icons.Filled.FiberManualRecord) { it.statusDanger }, recording, true, onToggleRecord),
         )
+        val actions = actionOrder.split(",").map { it.trim() }.mapNotNull { actionByKey[it] }.ifEmpty { actionByKey.values.toList() }
         Column(Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 4.dp).coachmark("actions")) {
             actions.chunked(3).forEach { row ->
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {

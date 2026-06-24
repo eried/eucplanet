@@ -148,7 +148,12 @@ internal fun SettingsScreen(
                         Segmented(c, listOf("2", "3"), (settings.dashboardColumns - 2).coerceIn(0, 1)) { onUpdate { s -> s.copy(dashboardColumns = it + 2) } }
                         Spacer(Modifier.height(8.dp))
                         SwitchRow(c, "Show MIN / MAX corner stats", settings.statCorners) { onUpdate { s -> s.copy(statCorners = it) } }
-                        Note(c, "Custom tile order + action-grid editor is Android-only for now.")
+                        Spacer(Modifier.height(8.dp))
+                        LabelRow(c, "Metric tiles — reorder / hide")
+                        OrderEditor(c, settings.dashboardMetricOrder, DASH_METRIC_KEYS) { onUpdate { s -> s.copy(dashboardMetricOrder = it) } }
+                        Spacer(Modifier.height(8.dp))
+                        LabelRow(c, "Action buttons — reorder / hide")
+                        OrderEditor(c, settings.dashboardActionOrder, DASH_ACTION_KEYS) { onUpdate { s -> s.copy(dashboardActionOrder = it) } }
                     }
 
                     SettingsSectionId.Display -> Section(c, "Display", Icons.Filled.DisplaySettings, keywords = "units metric imperial custom km mph distance temperature theme dark light pure black gauge colour color band warn danger threshold") {
@@ -593,6 +598,42 @@ private fun SliderRow(
 @Composable
 private fun HintText(c: AppThemeColors, text: String) {
     Text(text, color = c.textSecondary, fontSize = 11.sp, modifier = Modifier.fillMaxWidth().padding(top = 4.dp))
+}
+
+private val DASH_METRIC_KEYS = listOf("battery" to "Battery", "temp" to "Temp", "voltage" to "Voltage", "current" to "Current", "load" to "Load", "trip" to "Trip")
+private val DASH_ACTION_KEYS = listOf("horn" to "Horn", "light" to "Light", "voice" to "Voice", "legal" to "Legal", "lock" to "Lock", "rec" to "Rec")
+
+/** Reorder + show/hide editor over a CSV of keys (dashboard tiles / actions). */
+@Composable
+private fun OrderEditor(c: AppThemeColors, currentCsv: String, allKeys: List<Pair<String, String>>, onChange: (String) -> Unit) {
+    val nameOf = allKeys.toMap()
+    val visible = currentCsv.split(",").map { it.trim() }.filter { it.isNotEmpty() && nameOf.containsKey(it) }
+    val hidden = allKeys.map { it.first }.filter { it !in visible }
+    Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(10.dp)).background(c.surface).padding(4.dp)) {
+        visible.forEachIndexed { i, key ->
+            Row(Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 5.dp), verticalAlignment = Alignment.CenterVertically) {
+                Text(nameOf[key] ?: key, color = c.textPrimary, fontSize = 13.sp, modifier = Modifier.weight(1f))
+                OrderBtn("↑", c, i > 0) { val l = visible.toMutableList(); l.add(i - 1, l.removeAt(i)); onChange(l.joinToString(",")) }
+                OrderBtn("↓", c, i < visible.size - 1) { val l = visible.toMutableList(); l.add(i + 1, l.removeAt(i)); onChange(l.joinToString(",")) }
+                Spacer(Modifier.width(4.dp))
+                Text("Hide", color = c.textDisabled, fontSize = 12.sp, modifier = Modifier.clickable { onChange((visible - key).joinToString(",")) }.padding(horizontal = 6.dp, vertical = 2.dp))
+            }
+        }
+        hidden.forEach { key ->
+            Row(Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 5.dp), verticalAlignment = Alignment.CenterVertically) {
+                Text(nameOf[key] ?: key, color = c.textDisabled, fontSize = 13.sp, modifier = Modifier.weight(1f))
+                Text("+ Show", color = c.primary, fontSize = 12.sp, fontWeight = FontWeight.Medium, modifier = Modifier.clickable { onChange((visible + key).joinToString(",")) }.padding(horizontal = 6.dp, vertical = 2.dp))
+            }
+        }
+    }
+}
+
+@Composable
+private fun OrderBtn(glyph: String, c: AppThemeColors, enabled: Boolean, onClick: () -> Unit) {
+    Text(
+        glyph, color = if (enabled) c.textSecondary else c.textDisabled.copy(alpha = 0.4f), fontSize = 16.sp,
+        modifier = Modifier.then(if (enabled) Modifier.clickable { onClick() } else Modifier).padding(horizontal = 6.dp),
+    )
 }
 
 @Composable

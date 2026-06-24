@@ -89,6 +89,9 @@ data class AppSettings(
     // Dashboard
     val dashboardColumns: Int = 2,
     val statCorners: Boolean = true,
+    // Ordered, visible metric-tile + action-button keys (CSV) — drag/hide editor.
+    val dashboardMetricOrder: String = "battery,temp,voltage,current,load,trip",
+    val dashboardActionOrder: String = "horn,light,voice,legal,lock,rec",
 
     // Cloud / backup
     val cloudSyncSettings: Boolean = false,

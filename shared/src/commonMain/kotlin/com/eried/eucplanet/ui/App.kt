@@ -978,6 +978,8 @@ fun App() {
                     unitTemp = settings.unitTemp,
                     columns = settings.dashboardColumns,
                     statCorners = settings.statCorners,
+                    metricOrder = settings.dashboardMetricOrder,
+                    actionOrder = settings.dashboardActionOrder,
                     recording = recording,
                     onToggleRecord = {
                         val wasRecording = recording
@@ -1081,6 +1083,8 @@ private fun DashboardRoute(
     unitTemp: String,
     columns: Int,
     statCorners: Boolean,
+    metricOrder: String = "battery,temp,voltage,current,load,trip",
+    actionOrder: String = "horn,light,voice,legal,lock,rec",
     recording: Boolean,
     onToggleRecord: () -> Unit,
     onAnnounce: () -> Unit,
@@ -1151,6 +1155,8 @@ private fun DashboardRoute(
         unitTemp = unitTemp,
         columns = columns,
         statCorners = statCorners,
+        metricOrder = metricOrder,
+        actionOrder = actionOrder,
         disconnected = disconnected,
         onHorn = { session?.let { s -> scope.launch { s.horn() } } },
         onToggleLight = {
