@@ -1,6 +1,7 @@
 package com.eried.eucplanet.ui
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -163,10 +164,10 @@ internal fun SettingsScreen(
                         LabelRow(c, "Current tile shows")
                         Segmented(c, listOf("Amps", "Watts"), if (settings.currentDisplayMode == "WATTS") 1 else 0) { onUpdate { s -> s.copy(currentDisplayMode = if (it == 1) "WATTS" else "AMPS") } }
                         Spacer(Modifier.height(8.dp))
-                        LabelRow(c, "Metric tiles — reorder / hide")
+                        LabelRow(c, "Metrics")
                         OrderEditor(c, settings.dashboardMetricOrder, DASH_METRIC_KEYS) { onUpdate { s -> s.copy(dashboardMetricOrder = it) } }
                         Spacer(Modifier.height(8.dp))
-                        LabelRow(c, "Action buttons — reorder / hide")
+                        LabelRow(c, "Action buttons")
                         OrderEditor(c, settings.dashboardActionOrder, DASH_ACTION_KEYS) { onUpdate { s -> s.copy(dashboardActionOrder = it) } }
                     }
 
@@ -231,32 +232,28 @@ internal fun SettingsScreen(
                     }
 
                     SettingsSectionId.Speed -> Section(c, "Wheel parameters", Icons.Filled.Speed, keywords = "calibration tiltback max alarm legal limit km/h apply wheel speed") {
-                        SliderRow(c, "Speed offset", "${if (settings.speedCalibrationPct >= 0f) "+" else ""}${(settings.speedCalibrationPct * 10).roundToInt() / 10f}%", settings.speedCalibrationPct, -15f..15f) {
+                        // Like Android's SpeedTab: the limits write to the wheel, so the whole
+                        // section is disabled until a wheel is connected.
+                        if (!connected) HintText(c, "Connect your wheel to edit speed limits")
+                        SliderRow(c, "Speed offset", "${if (settings.speedCalibrationPct >= 0f) "+" else ""}${(settings.speedCalibrationPct * 10).roundToInt() / 10f}%", settings.speedCalibrationPct, -15f..15f, enabled = connected) {
                             onUpdate { s -> s.copy(speedCalibrationPct = it) }
                         }
-                        // Tiltback + alarm write to the wheel LIVE on change, exactly
-                        // like Android (updateTiltbackSpeed/updateAlarmSpeed call
-                        // wheelRepository.setSpeed immediately) — no manual "Apply".
-                        // onApplyMaxSpeed is a no-op without a connected wheel.
-                        SliderRow(c, "Tiltback Speed", "${settings.tiltbackKmh.roundToInt()} km/h", settings.tiltbackKmh, 10f..70f) {
+                        SliderRow(c, "Tiltback Speed", "${settings.tiltbackKmh.roundToInt()} km/h", settings.tiltbackKmh, 10f..70f, enabled = connected) {
                             val tb = it; val al = settings.alarmKmh.coerceAtMost(tb)
                             onUpdate { s -> s.copy(tiltbackKmh = tb, alarmKmh = s.alarmKmh.coerceAtMost(tb)) }
                             onApplyMaxSpeed(tb, al)
                         }
-                        SliderRow(c, "Alarm Speed", "${settings.alarmKmh.roundToInt()} km/h", settings.alarmKmh, 5f..70f) {
+                        SliderRow(c, "Alarm Speed", "${settings.alarmKmh.roundToInt()} km/h", settings.alarmKmh, 5f..70f, enabled = connected) {
                             val al = it; val tb = settings.tiltbackKmh.coerceAtLeast(al)
                             onUpdate { s -> s.copy(alarmKmh = al, tiltbackKmh = s.tiltbackKmh.coerceAtLeast(al)) }
                             onApplyMaxSpeed(tb, al)
                         }
-                        // Legal-mode limits apply when Legal mode is toggled on (matches
-                        // Android updateSafetyTiltback, which only persists the setting).
-                        SliderRow(c, "Legal Tiltback", "${settings.legalTiltbackKmh.roundToInt()} km/h", settings.legalTiltbackKmh, 10f..40f) {
+                        SliderRow(c, "Legal Tiltback", "${settings.legalTiltbackKmh.roundToInt()} km/h", settings.legalTiltbackKmh, 10f..40f, enabled = connected) {
                             onUpdate { s -> s.copy(legalTiltbackKmh = it) }
                         }
-                        SliderRow(c, "Legal Alarm", "${settings.legalAlarmKmh.roundToInt()} km/h", settings.legalAlarmKmh, 5f..40f) {
+                        SliderRow(c, "Legal Alarm", "${settings.legalAlarmKmh.roundToInt()} km/h", settings.legalAlarmKmh, 5f..40f, enabled = connected) {
                             onUpdate { s -> s.copy(legalAlarmKmh = it) }
                         }
-                        if (!connected) HintText(c, "Connect your wheel to edit speed limits")
                     }
 
                     SettingsSectionId.Voice -> Section(c, "Voice & announcements", Icons.Filled.RecordVoiceOver, keywords = "tts text to speech announce report rate interval lights lock legal recording spoken voice periodic") {
@@ -330,7 +327,7 @@ internal fun SettingsScreen(
                     SettingsSectionId.Cloud -> Section(c, "Backups & leaderboards", Icons.Filled.CloudUpload, keywords = "eucstats online backup leaderboard rank rider register upload cloud flag profile avatar delete export dropbox sync") {
                         val registered = settings.eucStatsStoreId.isNotBlank()
                         if (!registered) {
-                            Text("Join the public leaderboard at eucstats.ried.no — back up your rides and share distance, top speed and rank.", color = c.textSecondary, fontSize = 12.sp)
+                            Text("Join to send your stats and trips to the public leaderboard at eucstats.ried.no", color = c.textSecondary, fontSize = 12.sp)
                             Spacer(Modifier.height(10.dp))
                             CloudButton(c, "Join leaderboard", enabled = !eucStatsBusy) { onJoinLeaderboard() }
                         } else {
@@ -639,19 +636,23 @@ private fun SliderRow(
     value: String,
     current: Float,
     range: ClosedFloatingPointRange<Float>,
+    enabled: Boolean = true,
     onChange: (Float) -> Unit,
 ) {
     Column(Modifier.fillMaxWidth().padding(vertical = 4.dp)) {
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Text(label, color = c.textPrimary, fontSize = 14.sp, modifier = Modifier.weight(1f))
-            Text(value, color = c.primary, fontSize = 14.sp, fontWeight = FontWeight.Medium)
+            Text(label, color = if (enabled) c.textPrimary else c.textDisabled, fontSize = 14.sp, modifier = Modifier.weight(1f))
+            Text(value, color = if (enabled) c.primary else c.textDisabled, fontSize = 14.sp, fontWeight = FontWeight.Medium)
         }
         Slider(
-            value = current, onValueChange = onChange, valueRange = range,
+            value = current, onValueChange = onChange, valueRange = range, enabled = enabled,
             colors = SliderDefaults.colors(
                 thumbColor = c.sliderActive,
                 activeTrackColor = c.sliderActive,
                 inactiveTrackColor = c.sliderTrack,
+                disabledThumbColor = c.textDisabled,
+                disabledActiveTrackColor = c.sliderTrack,
+                disabledInactiveTrackColor = c.sliderTrack,
             ),
         )
     }
@@ -785,19 +786,20 @@ private fun OrderBtn(glyph: String, c: AppThemeColors, enabled: Boolean, onClick
 @Composable
 private fun Segmented(c: AppThemeColors, options: List<String>, selected: Int, onSelect: (Int) -> Unit) {
     Row(
-        Modifier.fillMaxWidth().clip(RoundedCornerShape(10.dp)).background(c.surfaceVariant).padding(3.dp),
-        horizontalArrangement = Arrangement.spacedBy(3.dp),
+        Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(6.dp),
     ) {
         options.forEachIndexed { i, opt ->
             val sel = i == selected
             Box(
                 Modifier.weight(1f).clip(RoundedCornerShape(8.dp))
-                    .background(if (sel) c.primary else Color.Transparent)
-                    .clickable { onSelect(i) }.padding(vertical = 8.dp),
+                    .background(if (sel) c.primary else c.surface)
+                    .border(1.dp, if (sel) c.primary else c.outline, RoundedCornerShape(8.dp))
+                    .clickable { onSelect(i) }.padding(vertical = 9.dp),
                 contentAlignment = Alignment.Center,
             ) {
                 Text(
-                    opt, color = if (sel) c.onPrimary else c.textSecondary,
+                    opt, color = if (sel) c.onPrimary else c.textPrimary,
                     fontSize = 12.sp, fontWeight = if (sel) FontWeight.SemiBold else FontWeight.Normal,
                 )
             }

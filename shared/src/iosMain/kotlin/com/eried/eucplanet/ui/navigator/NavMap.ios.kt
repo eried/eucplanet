@@ -17,6 +17,7 @@ import kotlinx.serialization.json.doubleOrNull
 import kotlinx.serialization.json.intOrNull
 import kotlinx.serialization.json.jsonObject
 import platform.CoreGraphics.CGRectMake
+import platform.Foundation.NSURL
 import platform.WebKit.WKScriptMessage
 import platform.WebKit.WKScriptMessageHandlerProtocol
 import platform.WebKit.WKUserContentController
@@ -68,6 +69,14 @@ private class NavMsgHandler(private val cb: NavMapCallbacks) : NSObject(), WKScr
     }
 }
 
+/** iOS map HTML: the shared HTML references Leaflet as bundled relative assets (for
+ *  Android's file:///android_asset/ base); rewrite those to the CDN for iOS. */
+private fun iosMapHtml(mapType: String): String =
+    routeBuilderHtmlFor(mapType)
+        .replace("\"leaflet-rotate.js\"", "\"https://unpkg.com/leaflet-rotate@0.2.8/dist/leaflet-rotate-src.js\"")
+        .replace("\"leaflet.js\"", "\"https://unpkg.com/leaflet@1.9.4/dist/leaflet.js\"")
+        .replace("\"leaflet.css\"", "\"https://unpkg.com/leaflet@1.9.4/dist/leaflet.css\"")
+
 @Composable
 actual fun NavMapView(
     mapType: String,
@@ -83,7 +92,11 @@ actual fun NavMapView(
         cfg.userContentController.addScriptMessageHandler(NavMsgHandler(callbacks), name = "nav")
         WKWebView(frame = CGRectMake(0.0, 0.0, 1.0, 1.0), configuration = cfg).apply {
             setOpaque(false)
-            loadHTMLString(routeBuilderHtmlFor(mapType), baseURL = null)
+            // Android serves Leaflet from bundled file:///android_asset/ assets; iOS has no
+            // such base, so point the relative <script>/<link> tags at the CDN and give the
+            // page a real https origin (a null baseURL leaves an opaque origin that blocks
+            // the tile + library loads → the map renders black).
+            loadHTMLString(iosMapHtml(mapType), baseURL = NSURL.URLWithString("https://eucplanet.ried.no/"))
         }
     }
     // Route the controller's native→JS calls into this web view.

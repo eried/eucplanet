@@ -94,7 +94,7 @@ object StudioOverlayDrawList {
                     OverlayElementType.APP_BADGE ->
                         add(text(cx0, cy0 + 16f * s, 15f * s, fg, 0, 1, "◎ EUC Planet" + if (el.badgeShowVersion) " v0.1" else ""))
                     OverlayElementType.CLOCK ->
-                        add(text(cx0, cy0 + 24f * s, 24f * s, fg, 0, 1, if (el.clock24Hour) "—:—" else "—:— —"))
+                        add(text(cx0, cy0 + 24f * s, 24f * s, fg, 0, 1, if (el.clock24Hour) "--:--" else "--:-- -"))
                     // Heavy widgets (map/image/camera/graph/gforce) draw a label placeholder.
                     else -> add(text(cx0, cy0 + 12f * s, 11f * s, dim(fg), 0, 0, el.type.name.replace("_", " ")))
                 }

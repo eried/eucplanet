@@ -580,10 +580,10 @@ fun App() {
             // Blank IP → mDNS auto-discovery (Android parity); surface the search.
             settings.hudIp.isBlank() && hudDiscovered == null -> "Searching for HUD…"
             settings.hudIp.isBlank() && hudStatus != HudClient.Status.Connected ->
-                "Found ${hudDiscovered?.substringBefore(":")} — connecting…"
+                "Found ${hudDiscovered?.substringBefore(":")}, connecting…"
             hudStatus == HudClient.Status.Connected -> "Connected"
             hudStatus == HudClient.Status.Connecting -> "Connecting…"
-            hudStatus == HudClient.Status.Error -> "Not reachable — retrying"
+            hudStatus == HudClient.Status.Error -> "Not reachable. Retrying"
             else -> "Off"
         }
 
@@ -779,7 +779,7 @@ fun App() {
                         riderCard = eucStats.card(sid)
                         eucStatsMsg = "Registered"
                     }
-                    RegisterResult.RateLimited -> eucStatsMsg = "Rate limited — try again later"
+                    RegisterResult.RateLimited -> eucStatsMsg = "Rate limited. Try again later"
                     is RegisterResult.Failed -> eucStatsMsg = r.detail ?: "Failed (${r.code})"
                 }
                 eucStatsBusy = false
@@ -801,7 +801,7 @@ fun App() {
                         showOnboarding = false
                         eucStatsMsg = "Joined the leaderboard"
                     }
-                    RegisterResult.RateLimited -> eucStatsMsg = "Rate limited — try again later"
+                    RegisterResult.RateLimited -> eucStatsMsg = "Rate limited. Try again later"
                     is RegisterResult.Failed -> eucStatsMsg = r.detail ?: "Failed (${r.code})"
                 }
                 eucStatsBusy = false
@@ -824,7 +824,7 @@ fun App() {
                         showProfileDialog = false
                         eucStatsMsg = "Profile saved"
                     }
-                    EditResult.RateLimited -> eucStatsMsg = "Rate limited — try again later"
+                    EditResult.RateLimited -> eucStatsMsg = "Rate limited. Try again later"
                     is EditResult.Failed -> eucStatsMsg = r.detail ?: "Failed (${r.code})"
                 }
                 eucStatsBusy = false
@@ -841,7 +841,7 @@ fun App() {
                     riderCard = null; eucProfile = null; showProfileDialog = false
                     eucStatsMsg = "Account deleted"
                 } else {
-                    eucStatsMsg = "Delete failed — try again"
+                    eucStatsMsg = "Delete failed. Try again"
                 }
                 eucStatsBusy = false
             }
@@ -1278,7 +1278,7 @@ private fun DashboardRoute(
     }
     val subtitle = when {
         live -> "${session!!.brand} · live"
-        disconnected -> "Not connected — tap Bluetooth to scan"
+        disconnected -> "Not connected. Tap Bluetooth to scan"
         else -> "$demoBrand · demo"
     }
 
@@ -1422,7 +1422,7 @@ private fun ScanScreen(
             }
             Spacer(Modifier.height(20.dp))
             Text(
-                "Simulator has no Bluetooth — real scan uses the shared CoreBluetooth transport on device.",
+                "Simulator has no Bluetooth. Real scan uses the shared CoreBluetooth transport on device.",
                 color = c.textDisabled, fontSize = 10.sp,
             )
         }

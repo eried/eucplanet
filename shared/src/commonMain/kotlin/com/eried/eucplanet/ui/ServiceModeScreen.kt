@@ -80,7 +80,7 @@ internal fun ServiceModeScreen(
         }
 
         Text(
-            if (connected) "Tap a command to send it to the wheel." else "Not connected — catalogue is read-only.",
+            if (connected) "Tap a command to send it to the wheel." else "Not connected. Catalogue is read-only.",
             color = c.textDisabled, fontSize = 11.sp,
             modifier = Modifier.padding(horizontal = 16.dp, vertical = 2.dp),
         )

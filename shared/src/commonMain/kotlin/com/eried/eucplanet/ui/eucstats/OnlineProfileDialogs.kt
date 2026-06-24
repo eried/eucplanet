@@ -193,7 +193,7 @@ private fun AvatarPickerRow(c: AppThemeColors, hasPhoto: Boolean, enabled: Boole
             contentAlignment = Alignment.Center,
         ) { Text(if (hasPhoto) "✓" else "＋", color = if (hasPhoto) c.onPrimary else c.textSecondary, fontSize = 20.sp, fontWeight = FontWeight.Bold) }
         Spacer(Modifier.width(12.dp))
-        Text(if (hasPhoto) "Photo selected — tap to change" else "Tap to add a photo (optional)", color = c.textSecondary, fontSize = 13.sp)
+        Text(if (hasPhoto) "Photo selected. Tap to change" else "Tap to add a photo (optional)", color = c.textSecondary, fontSize = 13.sp)
     }
 }
 

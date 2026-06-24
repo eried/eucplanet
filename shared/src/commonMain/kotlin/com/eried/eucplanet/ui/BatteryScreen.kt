@@ -98,7 +98,7 @@ internal fun BatteryScreen(
 
             Spacer(Modifier.height(16.dp))
             Text("CHARGING", color = c.sectionHeader, fontSize = 11.sp, fontWeight = FontWeight.Bold)
-            StatRow(c, "Charge rate", if (state.charging && state.warmedUp) "${oneDp(state.ratePctPerMin)} %/min" else "—")
+            StatRow(c, "Charge rate", if (state.charging && state.warmedUp) "${oneDp(state.ratePctPerMin)} %/min" else "--")
             StatRow(c, "Time to 80%", etaText(state.minutesToTarget))
             StatRow(c, "Time to 100%", etaText(state.minutesToFull))
             if (state.powerW != null) StatRow(c, "Charge power", "${state.powerW} W")
@@ -159,7 +159,7 @@ private fun oneDp(v: Float): String {
 }
 
 private fun etaText(minutes: Float?): String {
-    if (minutes == null || minutes <= 0f || minutes > 6000f) return "—"
+    if (minutes == null || minutes <= 0f || minutes > 6000f) return "--"
     val m = minutes.roundToInt()
     return if (m >= 60) "${m / 60}h ${m % 60}m" else "$m min"
 }

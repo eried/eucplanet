@@ -299,7 +299,7 @@ private fun ConfigPanel(c: AppThemeColors, accent: Color, el: OverlayElement, ch
             Label(c, "Tiles"); ChipRow(c, listOf("Street", "Dark", "Satellite"), mapLabel(el.mapStyle)) { i -> change { it.copy(mapStyle = listOf("STREET", "DARK", "SATELLITE")[i]) } }
             Note(c, "The map is drawn on the HUD device (needs its GPS / tiles).")
         }
-        OverlayElementType.IMAGE -> Note(c, "Pick the image in the Android app — it embeds in the preset.")
+        OverlayElementType.IMAGE -> Note(c, "Pick the image in the Android app. It embeds in the preset.")
         OverlayElementType.FLOATING_CAMERA -> Note(c, "The HUD draws its own camera into this window.")
         else -> {}
     }

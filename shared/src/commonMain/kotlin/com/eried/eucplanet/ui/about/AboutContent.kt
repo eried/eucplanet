@@ -28,13 +28,13 @@ internal object AboutContent {
 
     val RESOURCES = listOf(
         CreditEntry(
-            "WheelLog community — wheel protocols",
+            "WheelLog community: wheel protocols",
             "Wheellog/wheellog.android, GPLv3. Public reverse-engineering of the EUC BLE protocols, used as " +
                 "the reference for the KingSong, Begode, Veteran, Ninebot and InMotion adapters. The " +
                 "implementation here is original; no WheelLog code is reused.",
         ),
         CreditEntry(
-            "BigSoundBank — engine samples",
+            "BigSoundBank: engine samples",
             "Joseph SARDIN. CC0 / public domain. Sampled engines in the motor-sound generator.",
         ),
         CreditEntry("Compose Multiplatform, Material 3", "JetBrains / Google. Apache 2.0. Shared UI toolkit + design system."),
