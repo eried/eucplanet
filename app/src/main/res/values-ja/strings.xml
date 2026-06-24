@@ -314,7 +314,6 @@
 
     <!-- Watch companion settings: shared across Wear OS + Garmin -->
     <string name="section_watch_device">デバイス</string>
-    <string name="section_watch_paired">ペアリング済みデバイス</string>
     <string name="watch_paired_none">ウォッチが未接続</string>
     <string name="watch_paired_none_desc">Wear OS または Garmin ウォッチに EUC Planet コンパニオンアプリをインストールするとここでダイヤルを受信できます</string>
     <string name="watch_paired_kind_wear">Wear OS</string>
@@ -322,37 +321,24 @@
     <string name="watch_paired_active">ライブ</string>
     <string name="watch_paired_idle">アイドル</string>
     <string name="watch_paired_rate_hz">%1$.1f Hz</string>
-    <string name="watch_paired_garmin_limits_title">Garmin の制限事項</string>
-    <string name="watch_paired_garmin_limit_launch">Garmin はウォッチアプリを自動起動しません</string>
-    <string name="watch_paired_garmin_limit_rate">Garmin は Wear OS より更新が遅い</string>
-    <string name="watch_paired_garmin_limit_rotation">ダイヤルの回転は利用できません。Connect IQ にはレンダリング済みダイヤルを回転させるネイティブ変換行列がありません。</string>
-
     <!-- HUD companion settings -->
     <string name="section_hud_companion">MotoEye HUD</string>
     <string name="hud_server_enabled">データリンクを有効にする</string>
     <string name="hud_ip_label">デバイス IP</string>
     <string name="hud_ip_label_autodetect">デバイス IP（自動）</string>
-    <string name="hud_ip_desc">HUD の画面バナーに表示されている IP を入力してください。</string>
     <string name="hud_server_port">ポート</string>
-    <string name="hud_server_port_desc">デフォルト 28080。</string>
     <string name="hud_hotspot_off_hint">スマホのホットスポットがオフです。HUD とスマホが同じ WiFi ネットワークに接続されているか確認してください。</string>
     <string name="hud_hotspot_on_hint">スマホのホットスポットが起動中です。HUD をこのスマホの WiFi に接続してリンクを有効にしてください。</string>
     <string name="hud_overlay_subsection">カスタムオーバーレイ</string>
     <string name="hud_overlay_subsection_desc">オーバーレイスタジオのプリセットを背景なしで HUD のカスタム画面にインポートします。プリセットはここにコピーされるため、スタジオで後から編集しても再インポートするまで HUD には反映されません</string>
     <string name="hud_overlay_select_preset">プリセットをインポート</string>
     <string name="hud_overlay_current_preset">現在: %1$s</string>
-    <string name="hud_custom_overlay_label">カスタム HUD オーバーレイ</string>
-    <string name="hud_custom_overlay_placeholder">オーバーレイスタジオのプリセットを選択</string>
-    <string name="hud_custom_overlay_no_folder">バックアップフォルダーが設定されていません</string>
-    <string name="hud_custom_overlay_bundled_only">スターターを選択（バックアップフォルダー未設定）</string>
     <string name="hud_custom_overlay_none">クリア</string>
     <string name="hud_search_corpus">HUD ヘッドアップディスプレイ コンパニオン サーバー ストリーム テレメトリー ホットスポット MotoEye ターン 矢印</string>
 
     <!-- HUD Personalize collapsible card -->
-    <string name="hud_personalize_title">カスタマイズ</string>
     <string name="hud_screens_title">HUD 画面</string>
     <string name="hud_map_options_title">マップオプション</string>
-    <string name="hud_personalize_desc">HUD が表示する画面とサイクル順序を選択してください。少なくとも 1 つの画面を有効にしてください。</string>
     <string name="hud_screen_name_dashboard">ダッシュボード</string>
     <string name="hud_screen_name_camera">リアカメラ</string>
     <string name="hud_screen_name_telemetry">テレメトリー</string>
@@ -386,11 +372,6 @@
     -->
     <string name="hud_install_hint">HUD アプリが必要ですか？<b>eucplanet.ried.no/hud</b> から入手してください</string>
     <string name="hud_update_url">eucplanet.ried.no/hud</string>
-    <string name="hud_version_hint_hud_behind">HUD のアップデートが利用可能です。<b>eucplanet.ried.no/hud</b> から HUD をアップデートするまで新しいスマホ機能は表示されません</string>
-    <string name="hud_version_hint_phone_behind">スマホのアップデートが利用可能です。<b>eucplanet.ried.no/hud</b> からこのアプリをアップデートするまで一部の HUD 機能は表示されません</string>
-    <string name="hud_version_block_hud_behind">HUD のアップデートが必要です。HUD アプリが古すぎてこのスマホと通信できません。<b>eucplanet.ried.no/hud</b> からアップデートして続けてください。</string>
-    <string name="hud_version_block_phone_behind">スマホのアップデートが必要です。このアプリが古すぎて HUD と通信できません。<b>eucplanet.ried.no/hud</b> からアップデートして続けてください。</string>
-
     <!-- Wear OS companion settings -->
     <string name="section_watch_general">一般</string>
     <string name="section_watch_display">表示</string>
@@ -423,7 +404,6 @@
     <!-- Watch hardware buttons -->
     <string name="watch_button_click_label">クリック</string>
     <string name="watch_button_hold_label">長押し</string>
-    <string name="section_watch_hardware_buttons">ハードウェアボタン</string>
     <string name="watch_buttons_hardware_info">一部のウォッチではシステムが長押しを横取りする場合があります</string>
     <string name="watch_buttons_touch_info">ウォッチのサポート状況によって異なります</string>
     <string name="watch_buttons_hardware_label">物理</string>
@@ -437,9 +417,6 @@
     <!-- Watch on-screen buttons (shown on the dial), separate from the
          hardware stem buttons because most Galaxy Wear OS watches do not
          deliver KEYCODE_STEM_* to third-party apps. -->
-    <string name="section_watch_screen_buttons">タッチボタン</string>
-    <string name="section_watch_screen_buttons_desc">ウォッチのダイヤル上に描かれるタップ領域</string>
-    <string name="section_watch_hardware_buttons_desc">ウォッチのサイドボタン</string>
     <string name="watch_screen_button_1">ボタン 1</string>
     <string name="watch_screen_button_2">ボタン 2</string>
     <string name="watch_haptic_on_action">アクション時に振動</string>
@@ -488,7 +465,6 @@
     <string name="action_overwrite">上書き</string>
     <string name="cloud_backup_long_press_hint">詳細オプションは長押し</string>
     <string name="cloud_backup_name_label">バックアップ名</string>
-    <string name="cloud_backup_name_preview">%1$s として保存されます</string>
     <string name="cloud_backup_overwrite_title">\"%1$s\" を上書きしますか？</string>
     <string name="cloud_backup_overwrite_body">この名前のバックアップがフォルダーにすでに存在します。</string>
     <string name="cloud_restore_picker_default">（デフォルト）</string>
@@ -543,11 +519,6 @@
     <string name="phone_keep_screen_on">画面をオンに保つ</string>
     <string name="language">言語</string>
     <string name="theme">テーマ</string>
-    <string name="theme_black">ピュアブラック</string>
-    <string name="theme_dark">ダーク</string>
-    <string name="theme_light">ライト</string>
-    <string name="theme_system">システムに合わせる</string>
-    <string name="accent_color">アクセントカラー</string>
     <string name="tts_switch_title">音声を %1$s に切り替えますか？</string>
     <string name="tts_switch_body">現在の読み上げ音声が選択した言語と一致しません。アナウンス用に %1$s の音声に切り替えますか？</string>
     <string name="tts_switch_yes">音声を切り替え</string>
@@ -575,7 +546,6 @@
     <string name="section_speech">音声</string>
     <string name="section_report_status">ステータス報告</string>
     <string name="voice_enabled">定期的にステータスを報告</string>
-    <string name="voice_only_when_connected">ホイール接続中のみ</string>
     <string name="voice_interval">間隔</string>
     <string name="unit_sec">秒</string>
     <string name="announce_wheel_lock">ホイールのロック / アンロック</string>
@@ -818,20 +788,6 @@
 
     <!-- Flic actions -->
     <string name="flic_action_none">なし</string>
-    <string name="flic_action_horn">ホーン</string>
-    <string name="flic_action_light">ライトを切り替え</string>
-    <string name="flic_action_lock">ホイールをロック</string>
-    <string name="flic_action_legal_toggle">リーガルモードを切り替え</string>
-    <string name="flic_action_legal_on">リーガルモード ON</string>
-    <string name="flic_action_legal_off">リーガルモード OFF</string>
-    <string name="flic_action_voice">音声レポート</string>
-    <string name="flic_action_record">記録を切り替え</string>
-    <string name="flic_action_record_start">トリップ記録を開始</string>
-    <string name="flic_action_record_stop">トリップ記録を停止</string>
-    <string name="flic_action_media_play">音楽を再生 / 一時停止</string>
-    <string name="flic_action_media_next">次の曲</string>
-    <string name="flic_action_media_prev">前の曲</string>
-
     <!-- Alarm editor misc -->
     <string name="alarm_preview_fmt">%1$s をプレビュー</string>
 
@@ -867,7 +823,6 @@
     <string name="metric_min">最小</string>
     <string name="metric_avg">平均</string>
     <string name="metric_max">最大</string>
-    <string name="metric_time">時間</string>
     <string name="metric_battery">バッテリー</string>
     <string name="metric_temperature">温度</string>
     <string name="metric_voltage">電圧</string>
@@ -908,7 +863,6 @@
     <string name="recording_summary_points">ポイント数</string>
     <string name="recording_summary_top_speed">最高速度</string>
     <string name="recording_summary_avg_speed">平均速度</string>
-    <string name="recording_summary_min_battery">最低バッテリー</string>
     <string name="recording_summary_max_temp">最高温度</string>
     <string name="recording_summary_battery">バッテリー (-%1$d%%)</string>
     <string name="recording_summary_voltage">電圧</string>
@@ -1047,14 +1001,6 @@
     <string name="online_upload_profile_country_select">国を選択</string>
     <string name="online_upload_country_search">国を検索</string>
     <string name="online_upload_profile_avatar_hint">タップして写真を追加</string>
-    <string name="online_upload_profile_flag_label">国コード（ISO 3166-1 alpha-2）</string>
-    <string name="online_upload_profile_flag_placeholder">例: NO、US、DE</string>
-    <string name="online_upload_profile_flag_error">2文字の国コードを入力してください（例: NO）</string>
-    <string name="online_upload_profile_avatar_pick">写真を選択…</string>
-    <string name="online_upload_profile_avatar_change">写真を変更…</string>
-    <string name="online_upload_profile_avatar_required">タップして選択・トリミング</string>
-    <string name="online_upload_profile_avatar_placeholder">写真</string>
-
     <!-- Registration outcome -->
     <string name="online_upload_register_action">登録</string>
     <string name="online_upload_register_error">登録に失敗しました。接続を確認して再試行してください。</string>
@@ -1063,7 +1009,6 @@
 
     <!-- Online stats toggle + rider card (Task E3) -->
     <string name="section_online_stats">オンラインリーダーボード</string>
-    <string name="online_upload_toggle">オンラインリーダーボードに参加</string>
     <string name="online_upload_card_loading">読み込み中…</string>
     <string name="online_upload_card_unavailable">読み込めません</string>
     <string name="online_profile_retry">再試行</string>
@@ -1075,8 +1020,6 @@
     <string name="online_upload_sync_checking">アップロードするトリップを確認中…</string>
     <string name="online_upload_sync_progress">%1$d / %2$d をアップロード中</string>
     <string name="online_rider_id_conflict">このフォルダーには別のライダーのリカバリー ID がすでに保存されています, 上書きしませんでした。</string>
-    <string name="online_upload_view_on_eucstats">EUC Stats で表示</string>
-    <string name="online_upload_retry">アップロードを再試行</string>
     <string name="online_upload_mileage_rank">#%d 走行距離</string>
     <string name="online_upload_top_speed">最高 %1$s %2$s</string>
     <string name="online_upload_trips">%d トリップ</string>
@@ -1099,7 +1042,6 @@
     <string name="online_profile_manage">プロフィールを管理</string>
     <string name="online_profile_title">マイプロフィール</string>
     <string name="online_profile_changeable_on">次回変更可能: %1$s</string>
-    <string name="online_profile_avatar_has">設定済み</string>
     <string name="online_profile_export_data">データをエクスポート</string>
     <string name="online_profile_delete_account">アカウントを削除</string>
     <string name="online_profile_delete_confirm_title">アカウントを削除しますか？</string>
@@ -1127,7 +1069,6 @@
     <string name="studio_recording_failed">録画を保存できませんでした</string>
     <string name="studio_image_failed">その画像を読み込めませんでした</string>
     <string name="studio_preset_saved">プリセットを保存しました</string>
-    <string name="studio_preset_loaded">プリセットを読み込みました</string>
     <string name="studio_preset_failed">プリセットを保存できませんでした</string>
     <string name="studio_no_folder">プリセットを保存するには先にバックアップフォルダーを設定してください</string>
     <string name="studio_your_presets_empty">保存済みプリセットはまだありません。現在のレイアウトを保存して追加してください。</string>
@@ -1335,8 +1276,6 @@
 
     <!-- Studio: manage elements sheet -->
     <string name="studio_manage_title">エレメントを管理</string>
-    <string name="studio_manage_empty">エレメントがありません。「エレメントを追加」で配置してください。</string>
-    <string name="studio_manage_hint">ドラッグして並べ替え、行をタップして選択</string>
     <string name="studio_cd_drag_reorder">ドラッグして並べ替え</string>
     <string name="studio_cd_delete_element">エレメントを削除</string>
 
@@ -1388,13 +1327,11 @@
     <string name="studio_metric_g_force">G フォース</string>
 
     <!-- Navigator -->
-    <string name="tab_navigator">ナビゲーター</string>
     <string name="nav_open">ナビゲーターを開く</string>
     <string name="nav_title">ルートビルダー</string>
     <string name="nav_search_hint">住所または場所を検索</string>
     <string name="nav_searching">検索中…</string>
     <string name="nav_locating">現在地を特定中…</string>
-    <string name="nav_skip_locating">スキップ</string>
     <string name="nav_no_results">一致する結果が見つかりません</string>
     <string name="nav_mode_cycling">自転車</string>
     <string name="nav_mode_driving">車</string>
@@ -1408,13 +1345,8 @@
     <string name="nav_clear_work">職場を削除</string>
     <string name="nav_menu_exit">ダッシュボードに戻る</string>
     <string name="nav_waypoints">経由地</string>
-    <string name="nav_waypoint_default">ピン %1$d</string>
-    <string name="nav_role_start">出発地</string>
-    <string name="nav_role_current_location">現在地</string>
     <string name="nav_role_destination">目的地</string>
     <string name="nav_max_stops">目的地と最大 24 の経由地</string>
-    <string name="nav_pin_set_my_location">現在地に設定</string>
-    <string name="nav_pin_remove">削除</string>
     <string name="nav_pin_center">マップで中心に表示</string>
     <string name="nav_save_home">ホームとして保存</string>
     <string name="nav_customize_marker">マーカーをカスタマイズ</string>
@@ -1422,7 +1354,6 @@
     <string name="nav_remove_marker_photo">マーカーをリセット</string>
     <string name="nav_remove_marker_photo_short">リセット</string>
     <string name="nav_save_work">職場として保存</string>
-    <string name="nav_self_title">現在地</string>
     <string name="nav_self_add_stop">経由地として追加</string>
     <string name="nav_clear_confirm">新しいルートを開始しますか？</string>
     <string name="nav_clear_confirm_body">現在の経由地がクリアされます。</string>
@@ -1432,13 +1363,9 @@
     <string name="nav_start_short">ナビ開始</string>
     <string name="nav_stop_short">ナビ停止</string>
     <string name="nav_stops_left">残り %1$d 箇所</string>
-    <string name="nav_next_distance">次まで: %1$s</string>
     <string name="nav_last_stop">最後の経由地</string>
     <string name="nav_need_destination">先に目的地を追加してください</string>
     <string name="nav_map_style">マップスタイル</string>
-    <string name="nav_map_dark">ダークマップ</string>
-    <string name="nav_map_light">ライトマップ</string>
-    <string name="nav_map_satellite">衛星マップ</string>
     <string-array name="nav_stop_ordinals">
         <item>1番目の経由地</item>
         <item>2番目の経由地</item>
@@ -1451,10 +1378,7 @@
     </string-array>
     <string name="nav_my_location">現在地</string>
     <string name="nav_no_location">GPS フィックスを待機中…</string>
-    <string name="nav_route_distance">ルート距離: %1$s</string>
     <string name="nav_empty_hint">マップをタップ、検索、または GPX ファイルを読み込んでください</string>
-    <string name="nav_need_two">ナビするには少なくとも 2 箇所の経由地を追加してください。</string>
-    <string name="nav_routing">ルートを探索中…</string>
     <string name="nav_route_failed">ルーティングサービスが利用できないため、直線を使用します</string>
     <string name="nav_cant_add_while_running">ナビゲーション実行中は経由地を追加できません</string>
     <string name="nav_search_no_results">その住所の結果が見つかりません</string>
@@ -1486,8 +1410,6 @@
     <string name="nav_continue">直進</string>
     <string name="nav_uturn">Uターン</string>
     <string name="nav_depart">出発</string>
-    <string name="nav_goal_label">目標 %1$d / %2$d</string>
-
     <!-- Treasure Hunt directions -->
     <string name="nav_dir_ahead">前方</string>
     <string name="nav_dir_left">左側</string>
@@ -1497,7 +1419,6 @@
     <string name="nav_dir_behind">後方</string>
     <string name="nav_dir_behind_left">後方左側</string>
     <string name="nav_dir_behind_right">後方右側</string>
-    <string name="nav_hunt_primary">%1$s %2$s</string>
     <string name="nav_label_next_stop">次の経由地</string>
     <string name="nav_label_destination">目的地</string>
     <string name="nav_prox_hot">すぐそこ</string>
@@ -1532,13 +1453,11 @@
 
     <!-- Navigation settings -->
     <string name="nav_setting_voice">音声ガイダンス</string>
-    <string name="nav_setting_voice_desc">ターンとトレジャーハントの指示を読み上げます</string>
     <string name="nav_setting_arrival_radius">到着半径</string>
     <string name="nav_setting_arrival_radius_desc">経由地に到達したと判定する距離</string>
     <string name="nav_setting_offroute">ルート逸脱許容範囲</string>
     <string name="nav_setting_offroute_desc">ルートからどの程度外れるとオフルートアラートが発動するか</string>
     <string name="nav_setting_default_mode">デフォルト移動手段</string>
-    <string name="nav_setting_open_builder">ルートビルダーを開く</string>
     <string name="nav_setting_params">ナビゲーション設定</string>
     <string name="nav_setting_full_path">常に全ルートを計算</string>
     <string name="nav_setting_full_path_desc">オフにすると次の経由地のみを計算し、残りは点線のプレビューで表示</string>
@@ -1566,7 +1485,6 @@
     <string name="studio_cfg_border_width">枠線の太さ</string>
     <string name="studio_rendering_keep_open">レンダリングが完了するまでスマホをオンにしてこの画面を開いたままにしてください</string>
     <string name="studio_cfg_g_scale">スケール</string>
-    <string name="studio_cfg_g_smoothing">スムージング</string>
     <string name="studio_export_force_opaque_hint">非透過フォーマットはクロマキーカラーを使用します。半透明レイヤーでは見た目がおかしくなる場合があります</string>
     <string name="studio_cfg_filter_vivid">ビビッド</string>
     <string name="studio_cfg_filter_noir">ノワール</string>
@@ -1616,19 +1534,6 @@
     <string name="charging_tab_cells">セル</string>
     <string name="hud_auto_discover">リンクアドレスを自動検出</string>
     <string name="hud_auto_discover_desc"></string>
-    <string name="hud_diag_bind_err">リスナーのバインドエラー: %1$s</string>
-    <string name="hud_diag_bind_ok">:28079 でリッスン中</string>
-    <string name="hud_diag_hint">HUD と同じ WiFi 上で &gt; 10 秒受信が 0 のままなら、ルーターがブロードキャストを遮断しています。別のホットスポットを試すか、HUD バナーから手動 IP を設定してください。</string>
-    <string name="hud_diag_never">なし</string>
-    <string name="hud_diag_rx">UDP ビーコン受信数: %1$d · 最終 %2$s</string>
-    <string name="hud_diag_secs_ago">%1$d秒前</string>
-    <string name="hud_status_debug_override">デバッグ上書き</string>
-    <string name="hud_status_label">接続方法: %1$s</string>
-    <string name="hud_status_manual">手動 IP</string>
-    <string name="hud_status_mdns">mDNS</string>
-    <string name="hud_status_searching">検索中…</string>
-    <string name="hud_status_subnet_probe">サブネットスキャン</string>
-    <string name="hud_status_udp_beacon">UDP ビーコン</string>
     <string name="scan_bluetooth_off_body">ホイールを検索するには Bluetooth をオンにしてください。</string>
     <string name="scan_bluetooth_off_title">Bluetooth がオフです</string>
     <string name="scan_enable_bluetooth">Bluetooth をオンにする</string>
@@ -1646,29 +1551,20 @@
     <string name="welcome_tut_voice_desc">個別の音声メッセージは後で設定 → 音声とアナウンスでオン/オフできます。</string>
     <string name="welcome_tut_voice_title">音声アラートを有効化</string>
     <string name="battery_history">バッテリー履歴</string>
-    <string name="charging_added">今回 +%1$.1f%%</string>
     <string name="charging_back">戻る</string>
     <string name="charging_charging">充電中</string>
     <string name="charging_chart_empty">データ収集中</string>
     <string name="charging_details">詳細</string>
-    <string name="charging_disconnected">ホイール未接続</string>
     <string name="charging_estimate_to_full">常に 100% まで予測</string>
-    <string name="charging_estimating">推定中…</string>
     <string name="charging_eta_at">%1$s に</string>
     <string name="charging_eta_to_full">100%% まで %1$s</string>
     <string name="charging_eta_to_target">%2$d%% まで %1$s</string>
-    <string name="charging_full">満充電</string>
-    <string name="charging_idle">未充電</string>
     <string name="charging_monitor">バッテリーモニター</string>
-    <string name="charging_no_current_note">充電曲線から算出した速度</string>
     <string name="charging_options">オプション</string>
-    <string name="charging_rate">%1$.1f %%/分</string>
     <string name="charging_stat_added">追加</string>
     <string name="charging_stat_balance">不均衡</string>
     <string name="charging_stat_current">電流</string>
     <string name="charging_stat_energy">エネルギー</string>
-    <string name="charging_stat_pack1">パック 1</string>
-    <string name="charging_stat_pack2">パック 2</string>
     <string name="charging_stat_power">電力</string>
     <string name="charging_stat_rate">速度</string>
     <string name="charging_stat_temp">温度</string>
@@ -1676,11 +1572,7 @@
     <string name="charging_tab_charge">充電</string>
     <string name="charging_tab_packs">パック</string>
     <string name="charging_tab_power">電力</string>
-    <string name="charging_tab_voltage">電圧</string>
     <string name="setting_charging_auto_open">充電開始時に自動オープン</string>
-    <string name="setting_charging_auto_open_desc">ホイールが充電を開始するとバッテリーモニターを開きます</string>
-    <string name="setting_charging_dashboard_icon">ダッシュボードにバッテリーモニターアイコン</string>
-    <string name="setting_charging_dashboard_icon_desc">タップするとバッテリーモニターが開きます</string>
     <string name="voice_announce_always">常に</string>
     <string name="voice_announce_connected">接続時</string>
     <string name="voice_announce_riding">走行中</string>
@@ -1696,7 +1588,6 @@
     <string name="dropbox_share_failed">Dropbox 共有に失敗しました</string>
     <string name="dropbox_email_unverified">Dropboxのメールアドレスを確認してから、もう一度共有してください</string>
     <string name="dropbox_preparing">リンクを準備中…</string>
-    <string name="dropbox_link_copied">eucviewer リンクをコピーしました</string>
     <string name="trip_action_share_dropbox">Dropbox で共有</string>
     <string name="trip_action_share_dropbox_desc">Dropbox フォルダにアップロードして公開リンクを共有します</string>
     <string name="trip_action_inspect_online">オンラインで確認</string>
@@ -1711,7 +1602,6 @@
     <string name="nav_ocm_cost">料金</string>
     <string name="nav_ocm_loading">コミュニティデータを読み込み中…</string>
     <string name="nav_ocm_open">OCM で開く</string>
-    <string name="nav_ocm_photos">写真（%1$d）</string>
     <string name="nav_ocm_points">充電ポイント</string>
     <string name="nav_ocm_usage">利用</string>
     <string name="nav_ocm_address">住所</string>
@@ -1727,8 +1617,6 @@
     <string name="nav_poi_distance">ルートから</string>
     <string name="nav_poi_fee">料金</string>
     <string name="nav_poi_food">飲食</string>
-    <string name="nav_poi_from_route">ルートから %1$s</string>
-    <string name="nav_poi_fuels">燃料</string>
     <string name="nav_poi_hours">営業時間</string>
     <string name="nav_poi_network">ネットワーク</string>
     <string name="nav_poi_operator">運営者</string>
@@ -1742,8 +1630,6 @@
     <string name="nav_poi_type">種類</string>
     <string name="nav_poi_website">ウェブサイト</string>
     <string name="nav_pois_failed">場所を読み込めませんでした。接続を確認してください</string>
-    <string name="nav_pois_loading">場所を読み込み中…</string>
-    <string name="nav_pois_need_route">先に経由地を追加すると、ルート沿いの場所を検索できます</string>
     <string name="nav_pois_none">このルート付近には見つかりませんでした</string>
     <string name="nav_pois_places_hint">ヒント: このボタンを長押しすると表示する場所を選択できます</string>
     <string name="nav_setting_advanced_map">高度なマップ機能</string>

@@ -314,7 +314,6 @@
 
     <!-- Watch companion settings: shared across Wear OS + Garmin -->
     <string name="section_watch_device">裝置</string>
-    <string name="section_watch_paired">已配對裝置</string>
     <string name="watch_paired_none">尚無已配對的手錶</string>
     <string name="watch_paired_none_desc">在 Wear OS 或 Garmin 手錶上安裝 EUC Planet 配件應用程式，即可在此接收錶盤資料</string>
     <string name="watch_paired_kind_wear">Wear OS</string>
@@ -322,37 +321,24 @@
     <string name="watch_paired_active">即時</string>
     <string name="watch_paired_idle">閒置</string>
     <string name="watch_paired_rate_hz">%1$.1f Hz</string>
-    <string name="watch_paired_garmin_limits_title">Garmin 限制</string>
-    <string name="watch_paired_garmin_limit_launch">Garmin 不會自動啟動手錶應用程式</string>
-    <string name="watch_paired_garmin_limit_rate">Garmin 的更新速度比 Wear OS 慢</string>
-    <string name="watch_paired_garmin_limit_rotation">錶盤旋轉不可用。Connect IQ 沒有原生轉換矩陣可旋轉已渲染的錶盤。</string>
-
     <!-- HUD companion settings -->
     <string name="section_hud_companion">MotoEye HUD</string>
     <string name="hud_server_enabled">啟用資料連結</string>
     <string name="hud_ip_label">裝置 IP</string>
     <string name="hud_ip_label_autodetect">裝置 IP（自動）</string>
-    <string name="hud_ip_desc">輸入 HUD 螢幕橫幅顯示的 IP 位址。</string>
     <string name="hud_server_port">埠號</string>
-    <string name="hud_server_port_desc">預設 28080。</string>
     <string name="hud_hotspot_off_hint">手機熱點已關閉。請確保 HUD 和手機在同一個 WiFi 網路上。</string>
     <string name="hud_hotspot_on_hint">手機熱點正在廣播。將 HUD 連至此手機的 WiFi 以啟用連結。</string>
     <string name="hud_overlay_subsection">自訂疊加層</string>
     <string name="hud_overlay_subsection_desc">將疊加工作室預設套用至 HUD 的自訂畫面（不含背景）。預設會複製至此處，因此稍後在工作室的編輯不會影響 HUD，直到您再次匯入為止</string>
     <string name="hud_overlay_select_preset">匯入預設</string>
     <string name="hud_overlay_current_preset">目前：%1$s</string>
-    <string name="hud_custom_overlay_label">自訂 HUD 疊加層</string>
-    <string name="hud_custom_overlay_placeholder">選擇疊加工作室預設</string>
-    <string name="hud_custom_overlay_no_folder">備份資料夾未設定</string>
-    <string name="hud_custom_overlay_bundled_only">選擇起始預設（備份資料夾未設定）</string>
     <string name="hud_custom_overlay_none">清除</string>
     <string name="hud_search_corpus">HUD 抬頭顯示器配件伺服器串流遙測熱點 motoeye 轉向箭頭</string>
 
     <!-- HUD Personalize collapsible card -->
-    <string name="hud_personalize_title">個人化</string>
     <string name="hud_screens_title">HUD 畫面</string>
     <string name="hud_map_options_title">地圖選項</string>
-    <string name="hud_personalize_desc">選擇 HUD 顯示的畫面及其循環順序。至少須保留一個畫面啟用。</string>
     <string name="hud_screen_name_dashboard">儀表板</string>
     <string name="hud_screen_name_camera">後鏡頭</string>
     <string name="hud_screen_name_telemetry">遙測</string>
@@ -386,11 +372,6 @@
     -->
     <string name="hud_install_hint">需要 HUD 應用程式？請至 <b>eucplanet.ried.no/hud</b> 取得</string>
     <string name="hud_update_url">eucplanet.ried.no/hud</string>
-    <string name="hud_version_hint_hud_behind">HUD 有可用更新。更新 HUD（<b>eucplanet.ried.no/hud</b>）前，較新的手機功能將無法顯示</string>
-    <string name="hud_version_hint_phone_behind">手機應用程式有可用更新。更新此手機應用程式（<b>eucplanet.ried.no/hud</b>）前，部分 HUD 功能將無法顯示</string>
-    <string name="hud_version_block_hud_behind">需要更新 HUD。HUD 應用程式版本過舊，無法與此手機通訊。請至 <b>eucplanet.ried.no/hud</b> 更新以繼續使用。</string>
-    <string name="hud_version_block_phone_behind">需要更新手機應用程式。此手機應用程式版本過舊，無法與 HUD 通訊。請至 <b>eucplanet.ried.no/hud</b> 更新以繼續使用。</string>
-
     <!-- Wear OS companion settings -->
     <string name="section_watch_general">一般</string>
     <string name="section_watch_display">顯示</string>
@@ -423,7 +404,6 @@
     <!-- Watch hardware buttons -->
     <string name="watch_button_click_label">點擊</string>
     <string name="watch_button_hold_label">長按</string>
-    <string name="section_watch_hardware_buttons">硬體按鈕</string>
     <string name="watch_buttons_hardware_info">某些手錶上的長按可能被系統攔截</string>
     <string name="watch_buttons_touch_info">取決於您的手錶所支援的功能</string>
     <string name="watch_buttons_hardware_label">實體</string>
@@ -437,9 +417,6 @@
     <!-- Watch on-screen buttons (shown on the dial), separate from the
          hardware stem buttons because most Galaxy Wear OS watches do not
          deliver KEYCODE_STEM_* to third-party apps. -->
-    <string name="section_watch_screen_buttons">觸控按鈕</string>
-    <string name="section_watch_screen_buttons_desc">繪製在手錶錶盤上的點擊區域</string>
-    <string name="section_watch_hardware_buttons_desc">手錶側面的實體按鈕</string>
     <string name="watch_screen_button_1">按鈕 1</string>
     <string name="watch_screen_button_2">按鈕 2</string>
     <string name="watch_haptic_on_action">操作時震動</string>
@@ -488,7 +465,6 @@
     <string name="action_overwrite">覆寫</string>
     <string name="cloud_backup_long_press_hint">長按以獲得更多選項</string>
     <string name="cloud_backup_name_label">備份名稱</string>
-    <string name="cloud_backup_name_preview">將儲存為 %1$s</string>
     <string name="cloud_backup_overwrite_title">覆寫「%1$s」？</string>
     <string name="cloud_backup_overwrite_body">您的資料夾中已存在同名的備份。</string>
     <string name="cloud_restore_picker_default">（預設）</string>
@@ -543,11 +519,6 @@
     <string name="phone_keep_screen_on">保持螢幕常亮</string>
     <string name="language">語言</string>
     <string name="theme">主題</string>
-    <string name="theme_black">純黑</string>
-    <string name="theme_dark">深色</string>
-    <string name="theme_light">淺色</string>
-    <string name="theme_system">跟隨系統</string>
-    <string name="accent_color">強調色</string>
     <string name="tts_switch_title">切換語音至 %1$s？</string>
     <string name="tts_switch_body">目前的文字轉語音聲音與所選語言不符。是否切換至 %1$s 語音進行播報？</string>
     <string name="tts_switch_yes">切換語音</string>
@@ -575,7 +546,6 @@
     <string name="section_speech">語音</string>
     <string name="section_report_status">定期播報</string>
     <string name="voice_enabled">定期播報狀態</string>
-    <string name="voice_only_when_connected">僅在車輪連線時</string>
     <string name="voice_interval">間隔</string>
     <string name="unit_sec">秒</string>
     <string name="announce_wheel_lock">車輪鎖定／解鎖</string>
@@ -818,20 +788,6 @@
 
     <!-- Flic actions -->
     <string name="flic_action_none">無</string>
-    <string name="flic_action_horn">喇叭</string>
-    <string name="flic_action_light">切換燈光</string>
-    <string name="flic_action_lock">鎖定車輪</string>
-    <string name="flic_action_legal_toggle">切換限速模式</string>
-    <string name="flic_action_legal_on">限速模式 開</string>
-    <string name="flic_action_legal_off">限速模式 關</string>
-    <string name="flic_action_voice">語音播報</string>
-    <string name="flic_action_record">切換錄製</string>
-    <string name="flic_action_record_start">開始行程錄製</string>
-    <string name="flic_action_record_stop">停止行程錄製</string>
-    <string name="flic_action_media_play">播放／暫停音樂</string>
-    <string name="flic_action_media_next">下一首</string>
-    <string name="flic_action_media_prev">上一首</string>
-
     <!-- Alarm editor misc -->
     <string name="alarm_preview_fmt">預覽 %1$s</string>
 
@@ -867,7 +823,6 @@
     <string name="metric_min">最小</string>
     <string name="metric_avg">平均</string>
     <string name="metric_max">最大</string>
-    <string name="metric_time">時間</string>
     <string name="metric_battery">電池</string>
     <string name="metric_temperature">溫度</string>
     <string name="metric_voltage">電壓</string>
@@ -908,7 +863,6 @@
     <string name="recording_summary_points">資料點</string>
     <string name="recording_summary_top_speed">最高速度</string>
     <string name="recording_summary_avg_speed">平均速度</string>
-    <string name="recording_summary_min_battery">最低電量</string>
     <string name="recording_summary_max_temp">最高溫度</string>
     <string name="recording_summary_battery">電池（-%1$d%%）</string>
     <string name="recording_summary_voltage">電壓</string>
@@ -1047,14 +1001,6 @@
     <string name="online_upload_profile_country_select">選擇您的國家</string>
     <string name="online_upload_country_search">搜尋國家</string>
     <string name="online_upload_profile_avatar_hint">點擊新增照片</string>
-    <string name="online_upload_profile_flag_label">國家代碼（ISO 3166-1 alpha-2）</string>
-    <string name="online_upload_profile_flag_placeholder">例如：TW、US、DE</string>
-    <string name="online_upload_profile_flag_error">請輸入 2 個字母的國家代碼（例如 TW）</string>
-    <string name="online_upload_profile_avatar_pick">選擇照片…</string>
-    <string name="online_upload_profile_avatar_change">更換照片…</string>
-    <string name="online_upload_profile_avatar_required">點擊選擇並裁剪</string>
-    <string name="online_upload_profile_avatar_placeholder">照片</string>
-
     <!-- Registration outcome -->
     <string name="online_upload_register_action">註冊</string>
     <string name="online_upload_register_error">註冊失敗。請檢查連線後重試。</string>
@@ -1063,7 +1009,6 @@
 
     <!-- Online stats toggle + rider card (Task E3) -->
     <string name="section_online_stats">線上排行榜</string>
-    <string name="online_upload_toggle">加入線上排行榜</string>
     <string name="online_upload_card_loading">載入中…</string>
     <string name="online_upload_card_unavailable">無法載入</string>
     <string name="online_profile_retry">重試</string>
@@ -1075,8 +1020,6 @@
     <string name="online_upload_sync_checking">正在檢查需要上傳的行程…</string>
     <string name="online_upload_sync_progress">正在上傳第 %1$d / %2$d 筆</string>
     <string name="online_rider_id_conflict">此資料夾已儲存了不同騎手的恢復 ID，已保留，未覆寫。</string>
-    <string name="online_upload_view_on_eucstats">在 EUC Stats 上查看</string>
-    <string name="online_upload_retry">重試上傳</string>
     <string name="online_upload_mileage_rank">里程第 #%d 名</string>
     <string name="online_upload_top_speed">最高 %1$s %2$s</string>
     <string name="online_upload_trips">%d 次行程</string>
@@ -1099,7 +1042,6 @@
     <string name="online_profile_manage">管理個人資料</string>
     <string name="online_profile_title">我的個人資料</string>
     <string name="online_profile_changeable_on">您可以在 %1$s 再次更改</string>
-    <string name="online_profile_avatar_has">已設定</string>
     <string name="online_profile_export_data">匯出我的資料</string>
     <string name="online_profile_delete_account">刪除帳號</string>
     <string name="online_profile_delete_confirm_title">刪除帳號？</string>
@@ -1127,7 +1069,6 @@
     <string name="studio_recording_failed">無法儲存錄影</string>
     <string name="studio_image_failed">無法載入該圖片</string>
     <string name="studio_preset_saved">預設已儲存</string>
-    <string name="studio_preset_loaded">預設已載入</string>
     <string name="studio_preset_failed">無法儲存預設</string>
     <string name="studio_no_folder">請先設定備份資料夾以儲存預設</string>
     <string name="studio_your_presets_empty">尚無已儲存的預設。儲存目前佈局以新增一個。</string>
@@ -1335,8 +1276,6 @@
 
     <!-- Studio: manage elements sheet -->
     <string name="studio_manage_title">管理元素</string>
-    <string name="studio_manage_empty">尚無元素，使用「新增元素」放置一個。</string>
-    <string name="studio_manage_hint">拖曳以重新排序，點擊列以選取</string>
     <string name="studio_cd_drag_reorder">拖曳以重新排序</string>
     <string name="studio_cd_delete_element">刪除元素</string>
 
@@ -1388,13 +1327,11 @@
     <string name="studio_metric_g_force">G 力</string>
 
     <!-- Navigator -->
-    <string name="tab_navigator">導航</string>
     <string name="nav_open">開啟導航</string>
     <string name="nav_title">路線規劃</string>
     <string name="nav_search_hint">搜尋地址或地點</string>
     <string name="nav_searching">搜尋中…</string>
     <string name="nav_locating">正在定位…</string>
-    <string name="nav_skip_locating">略過</string>
     <string name="nav_no_results">未找到符合結果</string>
     <string name="nav_mode_cycling">自行車</string>
     <string name="nav_mode_driving">開車</string>
@@ -1408,13 +1345,8 @@
     <string name="nav_clear_work">清除工作地點</string>
     <string name="nav_menu_exit">返回儀表板</string>
     <string name="nav_waypoints">停靠點</string>
-    <string name="nav_waypoint_default">圖釘 %1$d</string>
-    <string name="nav_role_start">起點</string>
-    <string name="nav_role_current_location">目前位置</string>
     <string name="nav_role_destination">目的地</string>
     <string name="nav_max_stops">最多一個目的地和 24 個停靠點</string>
-    <string name="nav_pin_set_my_location">設為我的位置</string>
-    <string name="nav_pin_remove">移除</string>
     <string name="nav_pin_center">在地圖上置中</string>
     <string name="nav_save_home">儲存為起點</string>
     <string name="nav_customize_marker">自訂我的標記</string>
@@ -1422,7 +1354,6 @@
     <string name="nav_remove_marker_photo">重設我的標記</string>
     <string name="nav_remove_marker_photo_short">重設</string>
     <string name="nav_save_work">儲存為工作地點</string>
-    <string name="nav_self_title">您的位置</string>
     <string name="nav_self_add_stop">新增為停靠點</string>
     <string name="nav_clear_confirm">開始新路線？</string>
     <string name="nav_clear_confirm_body">您目前的停靠點將被清除。</string>
@@ -1432,13 +1363,9 @@
     <string name="nav_start_short">開始導航</string>
     <string name="nav_stop_short">停止導航</string>
     <string name="nav_stops_left">剩餘 %1$d 個停靠點</string>
-    <string name="nav_next_distance">下一個：%1$s</string>
     <string name="nav_last_stop">最後停靠點</string>
     <string name="nav_need_destination">請先新增目的地</string>
     <string name="nav_map_style">地圖樣式</string>
-    <string name="nav_map_dark">深色地圖</string>
-    <string name="nav_map_light">淺色地圖</string>
-    <string name="nav_map_satellite">衛星地圖</string>
     <string-array name="nav_stop_ordinals">
         <item>第一站</item>
         <item>第二站</item>
@@ -1451,10 +1378,7 @@
     </string-array>
     <string name="nav_my_location">我的位置</string>
     <string name="nav_no_location">等待 GPS 定位…</string>
-    <string name="nav_route_distance">路線距離：%1$s</string>
     <string name="nav_empty_hint">點擊地圖、搜尋或載入 GPX 檔案</string>
-    <string name="nav_need_two">請至少新增兩個停靠點以開始導航。</string>
-    <string name="nav_routing">尋找路線中…</string>
     <string name="nav_route_failed">路線服務無法使用，改用直線連接</string>
     <string name="nav_cant_add_while_running">導航進行中無法新增停靠點</string>
     <string name="nav_search_no_results">未找到該地址的結果</string>
@@ -1486,8 +1410,6 @@
     <string name="nav_continue">直行</string>
     <string name="nav_uturn">掉頭</string>
     <string name="nav_depart">出發</string>
-    <string name="nav_goal_label">目標 %1$d / %2$d</string>
-
     <!-- Treasure Hunt directions -->
     <string name="nav_dir_ahead">前方</string>
     <string name="nav_dir_left">您的左方</string>
@@ -1497,7 +1419,6 @@
     <string name="nav_dir_behind">您的後方</string>
     <string name="nav_dir_behind_left">您的後左方</string>
     <string name="nav_dir_behind_right">您的後右方</string>
-    <string name="nav_hunt_primary">%1$s %2$s</string>
     <string name="nav_label_next_stop">下一站</string>
     <string name="nav_label_destination">目的地</string>
     <string name="nav_prox_hot">非常接近</string>
@@ -1532,13 +1453,11 @@
 
     <!-- Navigation settings -->
     <string name="nav_setting_voice">語音導航</string>
-    <string name="nav_setting_voice_desc">播報轉向及尋寶遊戲指示</string>
     <string name="nav_setting_arrival_radius">到達半徑</string>
     <string name="nav_setting_arrival_radius_desc">距停靠點多近算抵達</string>
     <string name="nav_setting_offroute">偏離路線容許度</string>
     <string name="nav_setting_offroute_desc">偏離路線多遠時觸發偏離警報</string>
     <string name="nav_setting_default_mode">預設行進模式</string>
-    <string name="nav_setting_open_builder">開啟路線規劃</string>
     <string name="nav_setting_params">導航設定</string>
     <string name="nav_setting_full_path">始終計算完整路徑</string>
     <string name="nav_setting_full_path_desc">關閉時僅計算下一站，其餘路段以虛線預覽</string>
@@ -1566,7 +1485,6 @@
     <string name="studio_cfg_border_width">邊框粗細</string>
     <string name="studio_rendering_keep_open">請保持手機開啟並停留在此畫面，直到渲染完成</string>
     <string name="studio_cfg_g_scale">縮放</string>
-    <string name="studio_cfg_g_smoothing">平滑度</string>
     <string name="studio_export_force_opaque_hint">不透明格式使用色鍵顏色，半透明圖層可能顯示異常</string>
     <string name="studio_cfg_filter_vivid">鮮豔</string>
     <string name="studio_cfg_filter_noir">黑色電影</string>
@@ -1616,19 +1534,6 @@
     <string name="charging_tab_cells">電芯</string>
     <string name="hud_auto_discover">自動偵測連結位址</string>
     <string name="hud_auto_discover_desc"></string>
-    <string name="hud_diag_bind_err">監聽繫結錯誤：%1$s</string>
-    <string name="hud_diag_bind_ok">監聽 :28079 OK</string>
-    <string name="hud_diag_hint">在與 HUD 同一 WiFi 下若 &gt; 10 秒未收到信標，路由器可能封鎖廣播。請嘗試其他熱點，或從 HUD 橫幅設定手動 IP。</string>
-    <string name="hud_diag_never">從未</string>
-    <string name="hud_diag_rx">收到 UDP 信標：%1$d · 最近 %2$s</string>
-    <string name="hud_diag_secs_ago">%1$d 秒前</string>
-    <string name="hud_status_debug_override">除錯覆寫</string>
-    <string name="hud_status_label">透過：%1$s 連線</string>
-    <string name="hud_status_manual">手動 IP</string>
-    <string name="hud_status_mdns">mDNS</string>
-    <string name="hud_status_searching">搜尋中…</string>
-    <string name="hud_status_subnet_probe">子網路掃描</string>
-    <string name="hud_status_udp_beacon">UDP 信標</string>
     <string name="scan_bluetooth_off_body">請開啟藍牙以搜尋車輪。</string>
     <string name="scan_bluetooth_off_title">藍牙已關閉</string>
     <string name="scan_enable_bluetooth">開啟藍牙</string>
@@ -1646,29 +1551,20 @@
     <string name="welcome_tut_voice_desc">稍後可在設定 → 語音與廣播中開啟或關閉個別語音訊息。</string>
     <string name="welcome_tut_voice_title">啟用語音警示</string>
     <string name="battery_history">電池記錄</string>
-    <string name="charging_added">本次 +%1$.1f%%</string>
     <string name="charging_back">返回</string>
     <string name="charging_charging">充電中</string>
     <string name="charging_chart_empty">正在收集資料</string>
     <string name="charging_details">詳細</string>
-    <string name="charging_disconnected">未連線車輪</string>
     <string name="charging_estimate_to_full">總是預估到 100%</string>
-    <string name="charging_estimating">預估中…</string>
     <string name="charging_eta_at">%1$s</string>
     <string name="charging_eta_to_full">100%% 還要 %1$s</string>
     <string name="charging_eta_to_target">%2$d%% 還要 %1$s</string>
-    <string name="charging_full">已充滿</string>
-    <string name="charging_idle">未充電</string>
     <string name="charging_monitor">電池監視</string>
-    <string name="charging_no_current_note">速率由充電曲線推算</string>
     <string name="charging_options">選項</string>
-    <string name="charging_rate">%1$.1f %%/分</string>
     <string name="charging_stat_added">已增加</string>
     <string name="charging_stat_balance">失衡</string>
     <string name="charging_stat_current">電流</string>
     <string name="charging_stat_energy">能量</string>
-    <string name="charging_stat_pack1">組 1</string>
-    <string name="charging_stat_pack2">組 2</string>
     <string name="charging_stat_power">功率</string>
     <string name="charging_stat_rate">速率</string>
     <string name="charging_stat_temp">溫度</string>
@@ -1676,11 +1572,7 @@
     <string name="charging_tab_charge">充電</string>
     <string name="charging_tab_packs">組</string>
     <string name="charging_tab_power">功率</string>
-    <string name="charging_tab_voltage">電壓</string>
     <string name="setting_charging_auto_open">充電時自動開啟</string>
-    <string name="setting_charging_auto_open_desc">車輪開始充電時自動開啟電池監視</string>
-    <string name="setting_charging_dashboard_icon">儀表板上電池監視圖示</string>
-    <string name="setting_charging_dashboard_icon_desc">點選即可開啟電池監視</string>
     <string name="voice_announce_always">永遠</string>
     <string name="voice_announce_connected">連線時</string>
     <string name="voice_announce_riding">騎乘時</string>
@@ -1696,7 +1588,6 @@
     <string name="dropbox_share_failed">Dropbox 分享失敗</string>
     <string name="dropbox_email_unverified">請先驗證你的 Dropbox 電子郵件地址，然後重試分享</string>
     <string name="dropbox_preparing">正在準備連結…</string>
-    <string name="dropbox_link_copied">已複製 eucviewer 連結</string>
     <string name="trip_action_share_dropbox">透過 Dropbox 分享</string>
     <string name="trip_action_share_dropbox_desc">上傳至你的 Dropbox 資料夾並分享公開連結</string>
     <string name="trip_action_inspect_online">線上檢視</string>
@@ -1711,7 +1602,6 @@
     <string name="nav_ocm_cost">費用</string>
     <string name="nav_ocm_loading">正在載入社群資料…</string>
     <string name="nav_ocm_open">在 OCM 中開啟</string>
-    <string name="nav_ocm_photos">照片（%1$d）</string>
     <string name="nav_ocm_points">充電點</string>
     <string name="nav_ocm_usage">使用</string>
     <string name="nav_ocm_address">地址</string>
@@ -1727,8 +1617,6 @@
     <string name="nav_poi_distance">距路線</string>
     <string name="nav_poi_fee">費用</string>
     <string name="nav_poi_food">餐飲</string>
-    <string name="nav_poi_from_route">距路線 %1$s</string>
-    <string name="nav_poi_fuels">燃料</string>
     <string name="nav_poi_hours">營業時間</string>
     <string name="nav_poi_network">充電網路</string>
     <string name="nav_poi_operator">營運商</string>
@@ -1742,8 +1630,6 @@
     <string name="nav_poi_type">類型</string>
     <string name="nav_poi_website">網站</string>
     <string name="nav_pois_failed">無法載入地點，請檢查您的連線</string>
-    <string name="nav_pois_loading">正在載入地點…</string>
-    <string name="nav_pois_need_route">請先新增停靠點，以尋找沿途的地點</string>
     <string name="nav_pois_none">此路線附近未找到任何結果</string>
     <string name="nav_pois_places_hint">提示：長按此按鈕可選擇要顯示的地點</string>
     <string name="nav_setting_advanced_map">進階地圖功能</string>

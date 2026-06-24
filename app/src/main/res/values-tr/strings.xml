@@ -314,7 +314,6 @@
 
     <!-- Watch companion settings: shared across Wear OS + Garmin -->
     <string name="section_watch_device">Cihazlar</string>
-    <string name="section_watch_paired">Eşleştirilmiş cihazlar</string>
     <string name="watch_paired_none">Eşleştirilmiş saat yok</string>
     <string name="watch_paired_none_desc">Kadranı almaya başlamak için Wear OS veya Garmin saatinize EUC Planet eşlik uygulamasını yükleyin</string>
     <string name="watch_paired_kind_wear">Wear OS</string>
@@ -322,37 +321,24 @@
     <string name="watch_paired_active">Canlı</string>
     <string name="watch_paired_idle">Beklemede</string>
     <string name="watch_paired_rate_hz">%1$.1f Hz</string>
-    <string name="watch_paired_garmin_limits_title">Garmin sınırlamaları</string>
-    <string name="watch_paired_garmin_limit_launch">Garmin, saat uygulamasını otomatik başlatmaz</string>
-    <string name="watch_paired_garmin_limit_rate">Garmin, Wear OS\'a göre daha yavaş güncellenir</string>
-    <string name="watch_paired_garmin_limit_rotation">Kadran döndürme mevcut değil. Connect IQ, oluşturulan kadranı döndürmek için yerleşik dönüşüm matrisine sahip değil.</string>
-
     <!-- HUD companion settings -->
     <string name="section_hud_companion">Motoeye HUD</string>
     <string name="hud_server_enabled">Veri bağlantısını etkinleştir</string>
     <string name="hud_ip_label">Cihaz IP</string>
     <string name="hud_ip_label_autodetect">Cihaz IP (otomatik)</string>
-    <string name="hud_ip_desc">HUD\'ın ekranında gösterdiği IP\'yi yazın.</string>
     <string name="hud_server_port">Port</string>
-    <string name="hud_server_port_desc">Varsayılan 28080.</string>
     <string name="hud_hotspot_off_hint">Telefon hotspot\'u kapalı. HUD ile telefonun aynı WiFi ağında olduğundan emin olun.</string>
     <string name="hud_hotspot_on_hint">Telefon hotspot\'u yayın yapıyor. Bağlantıyı etkinleştirmek için HUD\'ı bu telefonun WiFi\'sine bağlayın.</string>
     <string name="hud_overlay_subsection">Özel kaplama</string>
     <string name="hud_overlay_subsection_desc">Overlay Studio önayarını HUD\'ın Özel ekranına arka plan olmadan aktarır. Önayar buraya kopyalanır; stüdyodaki sonraki düzenlemeler tekrar içe aktarılmadan HUD\'ı etkilemez</string>
     <string name="hud_overlay_select_preset">Önayarı içe aktar</string>
     <string name="hud_overlay_current_preset">Mevcut: %1$s</string>
-    <string name="hud_custom_overlay_label">Özel HUD kaplaması</string>
-    <string name="hud_custom_overlay_placeholder">Bir Overlay Studio önayarı seçin</string>
-    <string name="hud_custom_overlay_no_folder">Yedek klasörü yapılandırılmamış</string>
-    <string name="hud_custom_overlay_bundled_only">Başlangıç seçin (yedek klasör ayarlanmamış)</string>
     <string name="hud_custom_overlay_none">Temizle</string>
     <string name="hud_search_corpus">HUD heads-up display companion server stream telemetry hotspot motoeye turn arrow</string>
 
     <!-- HUD Personalize collapsible card -->
-    <string name="hud_personalize_title">Kişiselleştir</string>
     <string name="hud_screens_title">HUD ekranları</string>
     <string name="hud_map_options_title">Harita seçenekleri</string>
-    <string name="hud_personalize_desc">HUD\'ın göstereceği ekranları ve döngü sırasını seçin. En az bir ekran etkin kalmalıdır.</string>
     <string name="hud_screen_name_dashboard">Gösterge paneli</string>
     <string name="hud_screen_name_camera">Arka kamera</string>
     <string name="hud_screen_name_telemetry">Telemetri</string>
@@ -386,11 +372,6 @@
     -->
     <string name="hud_install_hint">HUD uygulamasına mı ihtiyacınız var? <b>eucplanet.ried.no/hud</b> adresinden edinin</string>
     <string name="hud_update_url">eucplanet.ried.no/hud</string>
-    <string name="hud_version_hint_hud_behind">HUD güncellemesi mevcut. HUD\'ı <b>eucplanet.ried.no/hud</b> adresinden güncelleyene kadar yeni telefon özellikleri görünmez</string>
-    <string name="hud_version_hint_phone_behind">Telefon güncellemesi mevcut. Telefon uygulamasını <b>eucplanet.ried.no/hud</b> adresinden güncelleyene kadar bazı HUD özellikleri görünmez</string>
-    <string name="hud_version_block_hud_behind">HUD güncellemesi gerekli. HUD uygulaması bu telefonla konuşamayacak kadar eski. Devam etmek için <b>eucplanet.ried.no/hud</b> adresinden güncelleyin.</string>
-    <string name="hud_version_block_phone_behind">Telefon güncellemesi gerekli. Bu telefon uygulaması HUD ile konuşamayacak kadar eski. Devam etmek için <b>eucplanet.ried.no/hud</b> adresinden güncelleyin.</string>
-
     <!-- Wear OS companion settings -->
     <string name="section_watch_general">Genel</string>
     <string name="section_watch_display">Ekran</string>
@@ -423,7 +404,6 @@
     <!-- Watch hardware buttons -->
     <string name="watch_button_click_label">Tıklama</string>
     <string name="watch_button_hold_label">Uzun basma</string>
-    <string name="section_watch_hardware_buttons">Donanım düğmeleri</string>
     <string name="watch_buttons_hardware_info">Bazı saatlerde uzun basışlar sistem tarafından ele geçirilebilir</string>
     <string name="watch_buttons_touch_info">Saatinizin desteklediğine bağlıdır</string>
     <string name="watch_buttons_hardware_label">Fiziksel</string>
@@ -437,9 +417,6 @@
     <!-- Watch on-screen buttons (shown on the dial), separate from the
          hardware stem buttons because most Galaxy Wear OS watches do not
          deliver KEYCODE_STEM_* to third-party apps. -->
-    <string name="section_watch_screen_buttons">Dokunma düğmeleri</string>
-    <string name="section_watch_screen_buttons_desc">Saat kadranına çizilen dokunma hedefleri</string>
-    <string name="section_watch_hardware_buttons_desc">Saatin yan düğmeleri</string>
     <string name="watch_screen_button_1">Düğme 1</string>
     <string name="watch_screen_button_2">Düğme 2</string>
     <string name="watch_haptic_on_action">Eylemde titret</string>
@@ -488,7 +465,6 @@
     <string name="action_overwrite">Üzerine Yaz</string>
     <string name="cloud_backup_long_press_hint">Daha fazla seçenek için uzun basın</string>
     <string name="cloud_backup_name_label">Yedek adı</string>
-    <string name="cloud_backup_name_preview">%1$s olarak kaydedilecek</string>
     <string name="cloud_backup_overwrite_title">\"%1$s\" üzerine yazılsın mı?</string>
     <string name="cloud_backup_overwrite_body">Bu adda bir yedek klasörünüzde zaten var.</string>
     <string name="cloud_restore_picker_default">(varsayılan)</string>
@@ -543,11 +519,6 @@
     <string name="phone_keep_screen_on">Ekranı açık tut</string>
     <string name="language">Dil</string>
     <string name="theme">Tema</string>
-    <string name="theme_black">Saf siyah</string>
-    <string name="theme_dark">Koyu</string>
-    <string name="theme_light">Açık</string>
-    <string name="theme_system">Sistemi takip et</string>
-    <string name="accent_color">Vurgu rengi</string>
     <string name="tts_switch_title">%1$s sesine geçilsin mi?</string>
     <string name="tts_switch_body">Mevcut metin okuma sesi seçilen dille eşleşmiyor. Bildirimler için %1$s sesine geçilsin mi?</string>
     <string name="tts_switch_yes">Sesi değiştir</string>
@@ -575,7 +546,6 @@
     <string name="section_speech">Konuşma</string>
     <string name="section_report_status">Durum bildir</string>
     <string name="voice_enabled">Durumu periyodik olarak bildir</string>
-    <string name="voice_only_when_connected">Yalnızca teker bağlıyken</string>
     <string name="voice_interval">Aralık</string>
     <string name="unit_sec">sn</string>
     <string name="announce_wheel_lock">Teker kilitleme / kilit açma</string>
@@ -818,20 +788,6 @@
 
     <!-- Flic actions -->
     <string name="flic_action_none">Yok</string>
-    <string name="flic_action_horn">Korna</string>
-    <string name="flic_action_light">Işığı aç/kapat</string>
-    <string name="flic_action_lock">Tekeri Kilitle</string>
-    <string name="flic_action_legal_toggle">Yasal Modu aç/kapat</string>
-    <string name="flic_action_legal_on">Yasal Mod AÇIK</string>
-    <string name="flic_action_legal_off">Yasal Mod KAPALI</string>
-    <string name="flic_action_voice">Sesli Rapor</string>
-    <string name="flic_action_record">Kaydı aç/kapat</string>
-    <string name="flic_action_record_start">Sefer Kaydını Başlat</string>
-    <string name="flic_action_record_stop">Sefer Kaydını Durdur</string>
-    <string name="flic_action_media_play">Müziği Oynat / Duraklat</string>
-    <string name="flic_action_media_next">Sonraki Şarkı</string>
-    <string name="flic_action_media_prev">Önceki Şarkı</string>
-
     <!-- Alarm editor misc -->
     <string name="alarm_preview_fmt">%1$s önizle</string>
 
@@ -867,7 +823,6 @@
     <string name="metric_min">MİN</string>
     <string name="metric_avg">ORT</string>
     <string name="metric_max">MAKS</string>
-    <string name="metric_time">SÜRE</string>
     <string name="metric_battery">Akü</string>
     <string name="metric_temperature">Sıcaklık</string>
     <string name="metric_voltage">Gerilim</string>
@@ -908,7 +863,6 @@
     <string name="recording_summary_points">Nokta sayısı</string>
     <string name="recording_summary_top_speed">En Yüksek Hız</string>
     <string name="recording_summary_avg_speed">Ort. Hız</string>
-    <string name="recording_summary_min_battery">Min. Akü</string>
     <string name="recording_summary_max_temp">Maks. Sıcaklık</string>
     <string name="recording_summary_battery">Akü (-%1$d%%)</string>
     <string name="recording_summary_voltage">Gerilim</string>
@@ -1047,14 +1001,6 @@
     <string name="online_upload_profile_country_select">Ülkenizi seçin</string>
     <string name="online_upload_country_search">Ülkelerde ara</string>
     <string name="online_upload_profile_avatar_hint">Fotoğraf eklemek için dokunun</string>
-    <string name="online_upload_profile_flag_label">Ülke kodu (ISO 3166-1 alpha-2)</string>
-    <string name="online_upload_profile_flag_placeholder">örn. TR, US, DE</string>
-    <string name="online_upload_profile_flag_error">2 harfli ülke kodu girin (örn. TR)</string>
-    <string name="online_upload_profile_avatar_pick">Fotoğraf seç…</string>
-    <string name="online_upload_profile_avatar_change">Fotoğrafı değiştir…</string>
-    <string name="online_upload_profile_avatar_required">Seçmek ve kırpmak için dokunun</string>
-    <string name="online_upload_profile_avatar_placeholder">Fotoğraf</string>
-
     <!-- Registration outcome -->
     <string name="online_upload_register_action">Kayıt Ol</string>
     <string name="online_upload_register_error">Kayıt başarısız. Bağlantınızı kontrol edip tekrar deneyin.</string>
@@ -1063,7 +1009,6 @@
 
     <!-- Online stats toggle + rider card (Task E3) -->
     <string name="section_online_stats">Çevrimiçi lider tabloları</string>
-    <string name="online_upload_toggle">Çevrimiçi lider tablolarına katıl</string>
     <string name="online_upload_card_loading">Yükleniyor…</string>
     <string name="online_upload_card_unavailable">Yüklenemedi</string>
     <string name="online_profile_retry">Yeniden dene</string>
@@ -1075,8 +1020,6 @@
     <string name="online_upload_sync_checking">Yüklenecek seferler kontrol ediliyor…</string>
     <string name="online_upload_sync_progress">%2$d içinden %1$d yükleniyor</string>
     <string name="online_rider_id_conflict">Bu klasörde zaten farklı bir sürücünün kurtarma kimliği kayıtlı, korundu, üzerine yazılmadı.</string>
-    <string name="online_upload_view_on_eucstats">EUC Stats\'ta görüntüle</string>
-    <string name="online_upload_retry">Yüklemeleri yeniden dene</string>
     <string name="online_upload_mileage_rank">#%d kilometre sırası</string>
     <string name="online_upload_top_speed">en yüksek %1$s %2$s</string>
     <string name="online_upload_trips">%d sefer</string>
@@ -1099,7 +1042,6 @@
     <string name="online_profile_manage">Profili yönet</string>
     <string name="online_profile_title">Profilim</string>
     <string name="online_profile_changeable_on">Bunu %1$s tarihinde tekrar değiştirebilirsiniz</string>
-    <string name="online_profile_avatar_has">Ayarlı</string>
     <string name="online_profile_export_data">Verilerimi dışa aktar</string>
     <string name="online_profile_delete_account">Hesabı sil</string>
     <string name="online_profile_delete_confirm_title">Hesap silinsin mi?</string>
@@ -1127,7 +1069,6 @@
     <string name="studio_recording_failed">Kayıt kaydedilemedi</string>
     <string name="studio_image_failed">Görüntü yüklenemedi</string>
     <string name="studio_preset_saved">Önayar kaydedildi</string>
-    <string name="studio_preset_loaded">Önayar yüklendi</string>
     <string name="studio_preset_failed">Önayar kaydedilemedi</string>
     <string name="studio_no_folder">Önayar kaydetmek için önce yedek klasörü ayarlayın</string>
     <string name="studio_your_presets_empty">Henüz kayıtlı önayar yok. Eklemek için mevcut düzeni kaydedin.</string>
@@ -1335,8 +1276,6 @@
 
     <!-- Studio: manage elements sheet -->
     <string name="studio_manage_title">Öğeleri yönet</string>
-    <string name="studio_manage_empty">Henüz öğe yok; yerleştirmek için Öğe ekle\'yi kullanın.</string>
-    <string name="studio_manage_hint">Sıralamak için sürükleyin, seçmek için satıra dokunun</string>
     <string name="studio_cd_drag_reorder">Sıralamak için sürükle</string>
     <string name="studio_cd_delete_element">Öğeyi sil</string>
 
@@ -1388,13 +1327,11 @@
     <string name="studio_metric_g_force">G-Kuvveti</string>
 
     <!-- Navigator -->
-    <string name="tab_navigator">Navigatör</string>
     <string name="nav_open">Navigatörü aç</string>
     <string name="nav_title">Rota oluşturucu</string>
     <string name="nav_search_hint">Adres veya yer ara</string>
     <string name="nav_searching">Aranıyor…</string>
     <string name="nav_locating">Konumunuz bulunuyor…</string>
-    <string name="nav_skip_locating">Atla</string>
     <string name="nav_no_results">Eşleşme bulunamadı</string>
     <string name="nav_mode_cycling">Bisiklet</string>
     <string name="nav_mode_driving">Araba</string>
@@ -1408,13 +1345,8 @@
     <string name="nav_clear_work">İşyerini unut</string>
     <string name="nav_menu_exit">Gösterge paneline dön</string>
     <string name="nav_waypoints">Duraklar</string>
-    <string name="nav_waypoint_default">İğne %1$d</string>
-    <string name="nav_role_start">Başlangıç</string>
-    <string name="nav_role_current_location">Mevcut konum</string>
     <string name="nav_role_destination">Varış noktası</string>
     <string name="nav_max_stops">Bir varış noktası ve 24 durağa kadar</string>
-    <string name="nav_pin_set_my_location">Konumuma ayarla</string>
-    <string name="nav_pin_remove">Kaldır</string>
     <string name="nav_pin_center">Haritada ortala</string>
     <string name="nav_save_home">Ev olarak kaydet</string>
     <string name="nav_customize_marker">İşaretçimi özelleştir</string>
@@ -1422,7 +1354,6 @@
     <string name="nav_remove_marker_photo">İşaretçimi sıfırla</string>
     <string name="nav_remove_marker_photo_short">Sıfırla</string>
     <string name="nav_save_work">İşyeri olarak kaydet</string>
-    <string name="nav_self_title">Konumunuz</string>
     <string name="nav_self_add_stop">Durak olarak ekle</string>
     <string name="nav_clear_confirm">Yeni rota başlatılsın mı?</string>
     <string name="nav_clear_confirm_body">Mevcut duraklarınız temizlenecek.</string>
@@ -1432,13 +1363,9 @@
     <string name="nav_start_short">Navigasyonu başlat</string>
     <string name="nav_stop_short">Navigasyonu durdur</string>
     <string name="nav_stops_left">%1$d durak kaldı</string>
-    <string name="nav_next_distance">Sıradaki: %1$s</string>
     <string name="nav_last_stop">Son durak</string>
     <string name="nav_need_destination">Önce bir varış noktası ekleyin</string>
     <string name="nav_map_style">Harita stili</string>
-    <string name="nav_map_dark">Koyu harita</string>
-    <string name="nav_map_light">Açık harita</string>
-    <string name="nav_map_satellite">Uydu haritası</string>
     <string-array name="nav_stop_ordinals">
         <item>Birinci durak</item>
         <item>İkinci durak</item>
@@ -1451,10 +1378,7 @@
     </string-array>
     <string name="nav_my_location">Konumum</string>
     <string name="nav_no_location">GPS düzeltmesi bekleniyor…</string>
-    <string name="nav_route_distance">Rota mesafesi: %1$s</string>
     <string name="nav_empty_hint">Haritaya dokunun, arama yapın veya GPX dosyası yükleyin</string>
-    <string name="nav_need_two">Navigasyon için en az iki durak ekleyin.</string>
-    <string name="nav_routing">Rota bulunuyor…</string>
     <string name="nav_route_failed">Yönlendirme servisi kullanılamıyor, düz çizgiler kullanılıyor</string>
     <string name="nav_cant_add_while_running">Navigasyon çalışırken durak eklenemez</string>
     <string name="nav_search_no_results">O adres için sonuç bulunamadı</string>
@@ -1486,8 +1410,6 @@
     <string name="nav_continue">Düz devam edin</string>
     <string name="nav_uturn">U dönüşü yapın</string>
     <string name="nav_depart">Yola çıkın</string>
-    <string name="nav_goal_label">%2$d içinden %1$d. hedef</string>
-
     <!-- Treasure Hunt directions -->
     <string name="nav_dir_ahead">önünüzde</string>
     <string name="nav_dir_left">solunuzda</string>
@@ -1497,7 +1419,6 @@
     <string name="nav_dir_behind">arkanızda</string>
     <string name="nav_dir_behind_left">arkanızda, solunuzda</string>
     <string name="nav_dir_behind_right">arkanızda, sağınızda</string>
-    <string name="nav_hunt_primary">%1$s %2$s</string>
     <string name="nav_label_next_stop">Sonraki durak</string>
     <string name="nav_label_destination">Varış noktası</string>
     <string name="nav_prox_hot">Çok yakın</string>
@@ -1532,13 +1453,11 @@
 
     <!-- Navigation settings -->
     <string name="nav_setting_voice">Sesli rehberlik</string>
-    <string name="nav_setting_voice_desc">Dönüş ve Hazine Avı talimatlarını sesli söyle</string>
     <string name="nav_setting_arrival_radius">Varış yarıçapı</string>
     <string name="nav_setting_arrival_radius_desc">Bir durağa ulaşmak için ne kadar yakın olmak gerekir</string>
     <string name="nav_setting_offroute">Rota dışı toleransı</string>
     <string name="nav_setting_offroute_desc">Rota dışı uyarısının tetiklenmesi için rotadan ne kadar uzaklaşmak gerekir</string>
     <string name="nav_setting_default_mode">Varsayılan seyahat modu</string>
-    <string name="nav_setting_open_builder">Rota oluşturucuyu aç</string>
     <string name="nav_setting_params">Navigasyon ayarları</string>
     <string name="nav_setting_full_path">Her zaman tam yolu çöz</string>
     <string name="nav_setting_full_path_desc">Kapalıyken yalnızca sonraki durağı çözer, geri kalanı kesik çizgili önizleme olarak gösterilir</string>
@@ -1566,7 +1485,6 @@
     <string name="studio_cfg_border_width">Kenar kalınlığı</string>
     <string name="studio_rendering_keep_open">İşleme tamamlanana kadar telefonunuzu ve bu ekranı açık tutun</string>
     <string name="studio_cfg_g_scale">Ölçek</string>
-    <string name="studio_cfg_g_smoothing">Düzeltme</string>
     <string name="studio_export_force_opaque_hint">Şeffaf olmayan biçimler chroma key rengini kullanır; yarı şeffaf katmanlarda hatalı görünebilir</string>
     <string name="studio_cfg_filter_vivid">Canlı</string>
     <string name="studio_cfg_filter_noir">Noir</string>
@@ -1616,19 +1534,6 @@
     <string name="charging_tab_cells">Hücreler</string>
     <string name="hud_auto_discover">Bağlantı adresini otomatik bul</string>
     <string name="hud_auto_discover_desc"></string>
-    <string name="hud_diag_bind_err">Dinleyici bağlama hatası: %1$s</string>
-    <string name="hud_diag_bind_ok">Dinleyici :28079 üzerinde</string>
-    <string name="hud_diag_hint">HUD ile aynı WiFi\'de &gt; 10 sn alınan beacon sayısı 0 kalırsa router broadcast\'i süzüyor demektir. Başka bir hotspot deneyin veya HUD bannerından manuel IP ayarlayın.</string>
-    <string name="hud_diag_never">asla</string>
-    <string name="hud_diag_rx">Alınan UDP beacon: %1$d · son %2$s</string>
-    <string name="hud_diag_secs_ago">%1$d sn önce</string>
-    <string name="hud_status_debug_override">Hata ayıklama geçersiz kılma</string>
-    <string name="hud_status_label">Bağlantı: %1$s</string>
-    <string name="hud_status_manual">Manuel IP</string>
-    <string name="hud_status_mdns">mDNS</string>
-    <string name="hud_status_searching">Aranıyor…</string>
-    <string name="hud_status_subnet_probe">Alt ağ taraması</string>
-    <string name="hud_status_udp_beacon">UDP beacon</string>
     <string name="scan_bluetooth_off_body">Tekerlek aramak için Bluetooth\'u açın.</string>
     <string name="scan_bluetooth_off_title">Bluetooth kapalı</string>
     <string name="scan_enable_bluetooth">Bluetooth\'u aç</string>
@@ -1646,29 +1551,20 @@
     <string name="welcome_tut_voice_desc">Bireysel sesli mesajları daha sonra Ayarlar → Ses ve duyurular bölümünden açıp kapatabilirsiniz.</string>
     <string name="welcome_tut_voice_title">Sesli uyarıları etkinleştir</string>
     <string name="battery_history">Pil geçmişi</string>
-    <string name="charging_added">Bu oturumda +%1$.1f%%</string>
     <string name="charging_back">Geri</string>
     <string name="charging_charging">Şarj oluyor</string>
     <string name="charging_chart_empty">Veri toplanıyor</string>
     <string name="charging_details">Ayrıntılar</string>
-    <string name="charging_disconnected">Tekerlek bağlı değil</string>
     <string name="charging_estimate_to_full">Her zaman 100% için tahmin et</string>
-    <string name="charging_estimating">Tahmin ediliyor…</string>
     <string name="charging_eta_at">%1$s</string>
     <string name="charging_eta_to_full">100%% için %1$s</string>
     <string name="charging_eta_to_target">%2$d%% için %1$s</string>
-    <string name="charging_full">Tamamen şarjlı</string>
-    <string name="charging_idle">Şarj olmuyor</string>
     <string name="charging_monitor">Pil monitörü</string>
-    <string name="charging_no_current_note">Hız şarj eğrisinden hesaplanıyor</string>
     <string name="charging_options">Seçenekler</string>
-    <string name="charging_rate">%1$.1f %%/dk</string>
     <string name="charging_stat_added">Eklendi</string>
     <string name="charging_stat_balance">Dengesizlik</string>
     <string name="charging_stat_current">Akım</string>
     <string name="charging_stat_energy">Enerji</string>
-    <string name="charging_stat_pack1">Pack 1</string>
-    <string name="charging_stat_pack2">Pack 2</string>
     <string name="charging_stat_power">Güç</string>
     <string name="charging_stat_rate">Hız</string>
     <string name="charging_stat_temp">Sıcaklık</string>
@@ -1676,11 +1572,7 @@
     <string name="charging_tab_charge">Şarj</string>
     <string name="charging_tab_packs">Packs</string>
     <string name="charging_tab_power">Güç</string>
-    <string name="charging_tab_voltage">Voltaj</string>
     <string name="setting_charging_auto_open">Şarj başlayınca otomatik aç</string>
-    <string name="setting_charging_auto_open_desc">Tekerlek şarj olmaya başlayınca Pil monitörünü açar</string>
-    <string name="setting_charging_dashboard_icon">Panoda Pil monitörü simgesi</string>
-    <string name="setting_charging_dashboard_icon_desc">Dokununca Pil monitörünü açar</string>
     <string name="voice_announce_always">Her zaman</string>
     <string name="voice_announce_connected">Bağlandığında</string>
     <string name="voice_announce_riding">Sürerken</string>
@@ -1696,7 +1588,6 @@
     <string name="dropbox_share_failed">Dropbox paylaşımı başarısız</string>
     <string name="dropbox_email_unverified">Dropbox e-posta adresinizi doğrulayın, sonra tekrar paylaşmayı deneyin</string>
     <string name="dropbox_preparing">Bağlantı hazırlanıyor…</string>
-    <string name="dropbox_link_copied">eucviewer bağlantısı kopyalandı</string>
     <string name="trip_action_share_dropbox">Dropbox ile paylaş</string>
     <string name="trip_action_share_dropbox_desc">Dropbox klasörüne yükle ve herkese açık bağlantıyı paylaş</string>
     <string name="trip_action_inspect_online">Çevrimiçi incele</string>
@@ -1711,7 +1602,6 @@
     <string name="nav_ocm_cost">Ücret</string>
     <string name="nav_ocm_loading">Topluluk verileri yükleniyor…</string>
     <string name="nav_ocm_open">OCM\'de aç</string>
-    <string name="nav_ocm_photos">Fotoğraflar (%1$d)</string>
     <string name="nav_ocm_points">Şarj noktaları</string>
     <string name="nav_ocm_usage">Kullanım</string>
     <string name="nav_ocm_address">Adres</string>
@@ -1727,8 +1617,6 @@
     <string name="nav_poi_distance">Rotadan</string>
     <string name="nav_poi_fee">Ücret</string>
     <string name="nav_poi_food">Yiyecek &amp; içecek</string>
-    <string name="nav_poi_from_route">Rotadan %1$s</string>
-    <string name="nav_poi_fuels">Yakıtlar</string>
     <string name="nav_poi_hours">Saatler</string>
     <string name="nav_poi_network">Ağ</string>
     <string name="nav_poi_operator">İşletmeci</string>
@@ -1742,8 +1630,6 @@
     <string name="nav_poi_type">Tür</string>
     <string name="nav_poi_website">Web sitesi</string>
     <string name="nav_pois_failed">Yerler yüklenemedi. Bağlantınızı kontrol edin</string>
-    <string name="nav_pois_loading">Yerler yükleniyor…</string>
-    <string name="nav_pois_need_route">Yol üzerindeki yerleri bulmak için önce bir durak ekleyin</string>
     <string name="nav_pois_none">Bu rotanın yakınında bir şey bulunamadı</string>
     <string name="nav_pois_places_hint">İpucu: hangi yerlerin gösterileceğini seçmek için bu düğmeyi basılı tutun</string>
     <string name="nav_setting_advanced_map">Gelişmiş harita özellikleri</string>

@@ -314,7 +314,6 @@
 
     <!-- Watch companion settings: shared across Wear OS + Garmin -->
     <string name="section_watch_device">Пристрої</string>
-    <string name="section_watch_paired">Спарені пристрої</string>
     <string name="watch_paired_none">Годинники не з\'єднано</string>
     <string name="watch_paired_none_desc">Встанови супутній застосунок EUC Planet на годинник Wear OS або Garmin, щоб циферблат почав відображатися тут</string>
     <string name="watch_paired_kind_wear">Wear OS</string>
@@ -322,37 +321,24 @@
     <string name="watch_paired_active">У ефірі</string>
     <string name="watch_paired_idle">Не активно</string>
     <string name="watch_paired_rate_hz">%1$.1f Hz</string>
-    <string name="watch_paired_garmin_limits_title">Обмеження Garmin</string>
-    <string name="watch_paired_garmin_limit_launch">Garmin не запускає застосунок на годиннику автоматично</string>
-    <string name="watch_paired_garmin_limit_rate">Garmin оновлює повільніше, ніж Wear OS</string>
-    <string name="watch_paired_garmin_limit_rotation">Обертання циферблата недоступне. Connect IQ не має вбудованої матриці перетворення для обертання намальованого циферблата.</string>
-
     <!-- HUD companion settings -->
     <string name="section_hud_companion">Motoeye HUD</string>
     <string name="hud_server_enabled">Увімкнути канал даних</string>
     <string name="hud_ip_label">IP пристрою</string>
     <string name="hud_ip_label_autodetect">IP пристрою (автоматично)</string>
-    <string name="hud_ip_desc">Введіть IP-адресу, яку HUD показує на екрані.</string>
     <string name="hud_server_port">Порт</string>
-    <string name="hud_server_port_desc">За замовчуванням 28080.</string>
     <string name="hud_hotspot_off_hint">Точка доступу телефона вимкнена. Переконайся, що HUD і телефон підключені до однієї мережі Wi-Fi.</string>
     <string name="hud_hotspot_on_hint">Точка доступу телефона активна. Підключи HUD до Wi-Fi цього телефона, щоб активувати з\'єднання.</string>
     <string name="hud_overlay_subsection">Власний оверлей</string>
     <string name="hud_overlay_subsection_desc">Імпортуй пресет Overlay Studio на екран Custom HUD без фону. Пресет копіюється сюди, тому подальші зміни в студії не змінять HUD, поки не імпортуєш знову</string>
     <string name="hud_overlay_select_preset">Імпортувати пресет</string>
     <string name="hud_overlay_current_preset">Поточний: %1$s</string>
-    <string name="hud_custom_overlay_label">Власний HUD-оверлей</string>
-    <string name="hud_custom_overlay_placeholder">Виберіть пресет Overlay Studio</string>
-    <string name="hud_custom_overlay_no_folder">Папку резервних копій не налаштовано</string>
-    <string name="hud_custom_overlay_bundled_only">Виберіть шаблон (папку резервних копій не задано)</string>
     <string name="hud_custom_overlay_none">Очистити</string>
     <string name="hud_search_corpus">HUD проєкційний дисплей компаньйон сервер потік телеметрія точка доступу motoeye стрілка повороту</string>
 
     <!-- HUD Personalize collapsible card -->
-    <string name="hud_personalize_title">Персоналізація</string>
     <string name="hud_screens_title">Екрани HUD</string>
     <string name="hud_map_options_title">Параметри карти</string>
-    <string name="hud_personalize_desc">Обери, які екрани показує HUD і в якому порядку вони перемикаються. Принаймні один екран має лишатися активним.</string>
     <string name="hud_screen_name_dashboard">Панель</string>
     <string name="hud_screen_name_camera">Задня камера</string>
     <string name="hud_screen_name_telemetry">Телеметрія</string>
@@ -386,11 +372,6 @@
     -->
     <string name="hud_install_hint">Потрібен застосунок HUD? Завантаж з <b>eucplanet.ried.no/hud</b></string>
     <string name="hud_update_url">eucplanet.ried.no/hud</string>
-    <string name="hud_version_hint_hud_behind">Доступне оновлення HUD. Нові функції телефона не з\'являться, поки не оновиш HUD з <b>eucplanet.ried.no/hud</b></string>
-    <string name="hud_version_hint_phone_behind">Доступне оновлення телефона. Деякі функції HUD не з\'являться, поки не оновиш цей застосунок з <b>eucplanet.ried.no/hud</b></string>
-    <string name="hud_version_block_hud_behind">Потрібне оновлення HUD. Застосунок HUD застарий для цього телефона. Онови його з <b>eucplanet.ried.no/hud</b>, щоб продовжити.</string>
-    <string name="hud_version_block_phone_behind">Потрібне оновлення телефона. Цей застосунок застарий для HUD. Онови його з <b>eucplanet.ried.no/hud</b>, щоб продовжити.</string>
-
     <!-- Wear OS companion settings -->
     <string name="section_watch_general">Загальні</string>
     <string name="section_watch_display">Екран</string>
@@ -423,7 +404,6 @@
     <!-- Watch hardware buttons -->
     <string name="watch_button_click_label">Натискання</string>
     <string name="watch_button_hold_label">Довге натискання</string>
-    <string name="section_watch_hardware_buttons">Фізичні кнопки</string>
     <string name="watch_buttons_hardware_info">Утримання можуть перехоплюватись системою на деяких годинниках</string>
     <string name="watch_buttons_touch_info">Залежить від твого годинника</string>
     <string name="watch_buttons_hardware_label">Фізичні</string>
@@ -437,9 +417,6 @@
     <!-- Watch on-screen buttons (shown on the dial), separate from the
          hardware stem buttons because most Galaxy Wear OS watches do not
          deliver KEYCODE_STEM_* to third-party apps. -->
-    <string name="section_watch_screen_buttons">Сенсорні кнопки</string>
-    <string name="section_watch_screen_buttons_desc">Сенсорні зони, намальовані на циферблаті</string>
-    <string name="section_watch_hardware_buttons_desc">Бічні кнопки годинника</string>
     <string name="watch_screen_button_1">Кнопка 1</string>
     <string name="watch_screen_button_2">Кнопка 2</string>
     <string name="watch_haptic_on_action">Вібрація при дії</string>
@@ -488,7 +465,6 @@
     <string name="action_overwrite">Перезаписати</string>
     <string name="cloud_backup_long_press_hint">Утримуй для додаткових опцій</string>
     <string name="cloud_backup_name_label">Назва резервної копії</string>
-    <string name="cloud_backup_name_preview">Зберегти як %1$s</string>
     <string name="cloud_backup_overwrite_title">Перезаписати \"%1$s\"?</string>
     <string name="cloud_backup_overwrite_body">Резервна копія з такою назвою вже існує у твоїй папці.</string>
     <string name="cloud_restore_picker_default">(за замовчуванням)</string>
@@ -543,11 +519,6 @@
     <string name="phone_keep_screen_on">Не вимикати екран</string>
     <string name="language">Мова</string>
     <string name="theme">Тема</string>
-    <string name="theme_black">Чисто чорна</string>
-    <string name="theme_dark">Темна</string>
-    <string name="theme_light">Світла</string>
-    <string name="theme_system">Як у системі</string>
-    <string name="accent_color">Акцентний колір</string>
     <string name="tts_switch_title">Переключити голос на %1$s?</string>
     <string name="tts_switch_body">Поточний голос синтезу не відповідає вибраній мові. Переключити озвучення на голос %1$s?</string>
     <string name="tts_switch_yes">Переключити голос</string>
@@ -575,7 +546,6 @@
     <string name="section_speech">Мовлення</string>
     <string name="section_report_status">Звіт про стан</string>
     <string name="voice_enabled">Періодично озвучувати стан</string>
-    <string name="voice_only_when_connected">Лише коли моноколесо підключене</string>
     <string name="voice_announce_when_label">Озвучувати</string>
     <string name="voice_announce_always">Завжди</string>
     <string name="voice_announce_connected">Підключено</string>
@@ -821,20 +791,6 @@
 
     <!-- Flic actions -->
     <string name="flic_action_none">Нічого</string>
-    <string name="flic_action_horn">Сигнал</string>
-    <string name="flic_action_light">Перемкнути світло</string>
-    <string name="flic_action_lock">Заблокувати моноколесо</string>
-    <string name="flic_action_legal_toggle">Перемкнути легальний режим</string>
-    <string name="flic_action_legal_on">Увімкнути легальний режим</string>
-    <string name="flic_action_legal_off">Вимкнути легальний режим</string>
-    <string name="flic_action_voice">Голосовий звіт</string>
-    <string name="flic_action_record">Перемкнути запис</string>
-    <string name="flic_action_record_start">Почати запис поїздки</string>
-    <string name="flic_action_record_stop">Зупинити запис поїздки</string>
-    <string name="flic_action_media_play">Відтворення / пауза</string>
-    <string name="flic_action_media_next">Наступний трек</string>
-    <string name="flic_action_media_prev">Попередній трек</string>
-
     <!-- Alarm editor misc -->
     <string name="alarm_preview_fmt">Перегляд %1$s</string>
 
@@ -870,7 +826,6 @@
     <string name="metric_min">МІН</string>
     <string name="metric_avg">СЕР</string>
     <string name="metric_max">МАКС</string>
-    <string name="metric_time">ЧАС</string>
     <string name="metric_battery">Заряд</string>
     <string name="metric_temperature">Температура</string>
     <string name="metric_voltage">Напруга</string>
@@ -911,7 +866,6 @@
     <string name="recording_summary_points">Точок</string>
     <string name="recording_summary_top_speed">Макс. швидкість</string>
     <string name="recording_summary_avg_speed">Сер. швидкість</string>
-    <string name="recording_summary_min_battery">Мін. заряд</string>
     <string name="recording_summary_max_temp">Макс. темп.</string>
     <string name="recording_summary_battery">Заряд (-%1$d%%)</string>
     <string name="recording_summary_voltage">Напруга</string>
@@ -1050,14 +1004,6 @@
     <string name="online_upload_profile_country_select">Обери країну</string>
     <string name="online_upload_country_search">Пошук країни</string>
     <string name="online_upload_profile_avatar_hint">Торкнись, щоб додати фото</string>
-    <string name="online_upload_profile_flag_label">Код країни (ISO 3166-1 alpha-2)</string>
-    <string name="online_upload_profile_flag_placeholder">напр. NO, US, DE</string>
-    <string name="online_upload_profile_flag_error">Введи 2-літерний код країни (напр. NO)</string>
-    <string name="online_upload_profile_avatar_pick">Обрати фото…</string>
-    <string name="online_upload_profile_avatar_change">Змінити фото…</string>
-    <string name="online_upload_profile_avatar_required">Торкнись, щоб обрати та обрізати</string>
-    <string name="online_upload_profile_avatar_placeholder">Фото</string>
-
     <!-- Registration outcome -->
     <string name="online_upload_register_action">Зареєструватись</string>
     <string name="online_upload_register_error">Реєстрація не вдалась. Перевір з\'єднання та спробуй знову.</string>
@@ -1066,7 +1012,6 @@
 
     <!-- Online stats toggle + rider card (Task E3) -->
     <string name="section_online_stats">Онлайн-таблиці лідерів</string>
-    <string name="online_upload_toggle">Приєднатись до онлайн-таблиць лідерів</string>
     <string name="online_upload_card_loading">Завантаження…</string>
     <string name="online_upload_card_unavailable">Не вдалося завантажити</string>
     <string name="online_profile_retry">Повторити</string>
@@ -1078,8 +1023,6 @@
     <string name="online_upload_sync_checking">Перевіряємо поїздки для вивантаження…</string>
     <string name="online_upload_sync_progress">Вивантаження %1$d з %2$d</string>
     <string name="online_rider_id_conflict">У цій папці вже збережено ідентифікатор іншого райдера, залишено без змін, не перезаписано.</string>
-    <string name="online_upload_view_on_eucstats">Відкрити в EUC Stats</string>
-    <string name="online_upload_retry">Повторити вивантаження</string>
     <string name="online_upload_mileage_rank">#%d за пробігом</string>
     <string name="online_upload_top_speed">макс. %1$s %2$s</string>
     <string name="online_upload_trips">%d поїздок</string>
@@ -1102,7 +1045,6 @@
     <string name="online_profile_manage">Керування профілем</string>
     <string name="online_profile_title">Мій профіль</string>
     <string name="online_profile_changeable_on">Змінити це знову можна %1$s</string>
-    <string name="online_profile_avatar_has">Встановлено</string>
     <string name="online_profile_export_data">Експортувати мої дані</string>
     <string name="online_profile_delete_account">Видалити акаунт</string>
     <string name="online_profile_delete_confirm_title">Видалити акаунт?</string>
@@ -1122,19 +1064,12 @@
     <!-- Battery / Charging screen -->
     <string name="charging_monitor">Монітор батареї</string>
     <string name="charging_back">Назад</string>
-    <string name="charging_added">+%1$.1f%% за сесію</string>
-    <string name="charging_disconnected">Колесо не підключено</string>
-    <string name="charging_full">Повністю заряджено</string>
     <string name="charging_charging">Заряджання</string>
-    <string name="charging_idle">Не заряджається</string>
-    <string name="charging_estimating">Оцінка…</string>
     <string name="charging_eta_to_target">%1$s до %2$d%%</string>
     <string name="charging_eta_to_full">%1$s до 100%%</string>
     <string name="charging_eta_at">о %1$s</string>
     <string name="charging_details">Деталі</string>
-    <string name="charging_rate">%1$.1f %%/хв</string>
     <string name="charging_tab_charge">Заряд</string>
-    <string name="charging_tab_voltage">Напруга</string>
     <string name="charging_tab_packs">Блоки</string>
     <string name="charging_estimate_to_full">Завжди оцінювати до 100%</string>
     <string name="charging_options">Опції</string>
@@ -1142,20 +1077,14 @@
     <string name="charging_stat_added">Додано</string>
     <string name="charging_stat_rate">Швидкість</string>
     <string name="charging_stat_voltage">Напруга</string>
-    <string name="charging_stat_pack1">Блок 1</string>
-    <string name="charging_stat_pack2">Блок 2</string>
     <string name="charging_stat_temp">Температура</string>
     <string name="charging_stat_balance">Дисбаланс</string>
     <string name="charging_stat_power">Потужність</string>
     <string name="charging_stat_current">Струм</string>
     <string name="charging_stat_energy">Енергія</string>
     <string name="charging_chart_empty">Збір даних</string>
-    <string name="charging_no_current_note">Швидкість за кривою заряду</string>
     <string name="battery_history">Історія батареї</string>
     <string name="setting_charging_auto_open">Відкривати при зарядженні</string>
-    <string name="setting_charging_dashboard_icon">Значок монітора батареї на панелі</string>
-    <string name="setting_charging_auto_open_desc">Відкриває Монітор батареї, коли колесо починає заряджатися</string>
-    <string name="setting_charging_dashboard_icon_desc">Натисніть, щоб відкрити Монітор батареї</string>
     <!-- ==== Overlay Studio ==== -->
     <string name="studio_open">Відкрити Overlay Studio</string>
     <string name="studio_not_connected">Не підключено</string>
@@ -1168,7 +1097,6 @@
     <string name="studio_recording_failed">Не вдалося зберегти запис</string>
     <string name="studio_image_failed">Не вдалося завантажити зображення</string>
     <string name="studio_preset_saved">Пресет збережено</string>
-    <string name="studio_preset_loaded">Пресет завантажено</string>
     <string name="studio_preset_failed">Не вдалося зберегти пресет</string>
     <string name="studio_no_folder">Спершу вкажи папку резервних копій, щоб зберігати пресети</string>
     <string name="studio_your_presets_empty">Збережених пресетів ще немає. Збережи поточний макет, щоб додати.</string>
@@ -1376,8 +1304,6 @@
 
     <!-- Studio: manage elements sheet -->
     <string name="studio_manage_title">Керування елементами</string>
-    <string name="studio_manage_empty">Елементів поки немає, додай через «Додати елемент».</string>
-    <string name="studio_manage_hint">Перетягуй, щоб змінити порядок; торкнись рядка, щоб вибрати</string>
     <string name="studio_cd_drag_reorder">Перетягни, щоб змінити порядок</string>
     <string name="studio_cd_delete_element">Видалити елемент</string>
 
@@ -1429,13 +1355,11 @@
     <string name="studio_metric_g_force">G-Force</string>
 
     <!-- Navigator -->
-    <string name="tab_navigator">Навігатор</string>
     <string name="nav_open">Відкрити навігатор</string>
     <string name="nav_title">Конструктор маршрутів</string>
     <string name="nav_search_hint">Пошук адреси або місця</string>
     <string name="nav_searching">Шукаємо…</string>
     <string name="nav_locating">Визначаємо твоє місцеперебування…</string>
-    <string name="nav_skip_locating">Пропустити</string>
     <string name="nav_no_results">Збігів не знайдено</string>
     <string name="nav_mode_cycling">Байк</string>
     <string name="nav_mode_driving">Авто</string>
@@ -1449,13 +1373,8 @@
     <string name="nav_clear_work">Забути роботу</string>
     <string name="nav_menu_exit">Назад на панель</string>
     <string name="nav_waypoints">Зупинки</string>
-    <string name="nav_waypoint_default">Точка %1$d</string>
-    <string name="nav_role_start">Початок</string>
-    <string name="nav_role_current_location">Поточне місце</string>
     <string name="nav_role_destination">Пункт призначення</string>
     <string name="nav_max_stops">До пункту призначення та 24 зупинок</string>
-    <string name="nav_pin_set_my_location">Встановити на моє місце</string>
-    <string name="nav_pin_remove">Вилучити</string>
     <string name="nav_pin_center">Центрувати на карті</string>
     <string name="nav_save_home">Зберегти як дім</string>
     <string name="nav_customize_marker">Налаштувати мій маркер</string>
@@ -1463,7 +1382,6 @@
     <string name="nav_remove_marker_photo">Скинути мій маркер</string>
     <string name="nav_remove_marker_photo_short">Скинути</string>
     <string name="nav_save_work">Зберегти як роботу</string>
-    <string name="nav_self_title">Твоє місцеперебування</string>
     <string name="nav_self_add_stop">Додати як зупинку</string>
     <string name="nav_clear_confirm">Розпочати новий маршрут?</string>
     <string name="nav_clear_confirm_body">Поточні зупинки буде очищено.</string>
@@ -1473,13 +1391,9 @@
     <string name="nav_start_short">Почати навігацію</string>
     <string name="nav_stop_short">Зупинити навігацію</string>
     <string name="nav_stops_left">Залишилось зупинок: %1$d</string>
-    <string name="nav_next_distance">Наступна: %1$s</string>
     <string name="nav_last_stop">Остання зупинка</string>
     <string name="nav_need_destination">Спершу додай пункт призначення</string>
     <string name="nav_map_style">Стиль карти</string>
-    <string name="nav_map_dark">Темна карта</string>
-    <string name="nav_map_light">Світла карта</string>
-    <string name="nav_map_satellite">Супутникова карта</string>
     <string-array name="nav_stop_ordinals">
         <item>Перша зупинка</item>
         <item>Друга зупинка</item>
@@ -1492,10 +1406,7 @@
     </string-array>
     <string name="nav_my_location">Моє місцеперебування</string>
     <string name="nav_no_location">Очікуємо на сигнал GPS…</string>
-    <string name="nav_route_distance">Довжина маршруту: %1$s</string>
     <string name="nav_empty_hint">Торкнись карти, скористайся пошуком або завантаж файл GPX</string>
-    <string name="nav_need_two">Щоб прокласти маршрут, додай принаймні дві зупинки.</string>
-    <string name="nav_routing">Прокладаємо маршрут…</string>
     <string name="nav_route_failed">Сервіс маршрутів недоступний, використовуються прямі лінії</string>
     <string name="nav_cant_add_while_running">Не можна додати зупинку під час навігації</string>
     <string name="nav_search_no_results">Немає результатів за цією адресою</string>
@@ -1527,8 +1438,6 @@
     <string name="nav_continue">Прямо вперед</string>
     <string name="nav_uturn">Розверніться</string>
     <string name="nav_depart">Вирушаймо</string>
-    <string name="nav_goal_label">Ціль %1$d з %2$d</string>
-
     <!-- Treasure Hunt directions -->
     <string name="nav_dir_ahead">попереду</string>
     <string name="nav_dir_left">ліворуч від вас</string>
@@ -1538,7 +1447,6 @@
     <string name="nav_dir_behind">позаду вас</string>
     <string name="nav_dir_behind_left">позаду, ліворуч</string>
     <string name="nav_dir_behind_right">позаду, праворуч</string>
-    <string name="nav_hunt_primary">%1$s %2$s</string>
     <string name="nav_label_next_stop">Наступна зупинка</string>
     <string name="nav_label_destination">Пункт призначення</string>
     <string name="nav_prox_hot">Гаряче-гаряче</string>
@@ -1573,13 +1481,11 @@
 
     <!-- Navigation settings -->
     <string name="nav_setting_voice">Голосовий супровід</string>
-    <string name="nav_setting_voice_desc">Озвучувати повороти та підказки пошуку скарбів</string>
     <string name="nav_setting_arrival_radius">Радіус прибуття</string>
     <string name="nav_setting_arrival_radius_desc">Наскільки близько вважається досягненням зупинки</string>
     <string name="nav_setting_offroute">Допуск відхилення від маршруту</string>
     <string name="nav_setting_offroute_desc">Як далеко від маршруту, перш ніж спрацює сповіщення про відхилення</string>
     <string name="nav_setting_default_mode">Типовий режим пересування</string>
-    <string name="nav_setting_open_builder">Відкрити конструктор маршрутів</string>
     <string name="nav_setting_params">Параметри навігації</string>
     <string name="nav_setting_full_path">Завжди прокладати весь маршрут</string>
     <string name="nav_setting_full_path_desc">Вимкнено, прокладає лише наступну зупинку, решту показує пунктирним передпереглядом</string>
@@ -1607,7 +1513,6 @@
     <string name="studio_cfg_border_width">Товщина рамки</string>
     <string name="studio_rendering_keep_open">Не вимикай телефон і не закривай цей екран до завершення рендерингу</string>
     <string name="studio_cfg_g_scale">Масштаб</string>
-    <string name="studio_cfg_g_smoothing">Згладжування</string>
     <string name="studio_export_force_opaque_hint">Формати без прозорості використовують колір хромакея; може виглядати дивно на напівпрозорих шарах</string>
     <string name="studio_cfg_filter_vivid">Яскравий</string>
     <string name="studio_cfg_filter_noir">Нуар</string>
@@ -1656,19 +1561,6 @@
     <string name="charging_tab_cells">Комірки</string>
     <string name="hud_auto_discover">Автоматично знаходити адресу</string>
     <string name="hud_auto_discover_desc"></string>
-    <string name="hud_diag_bind_err">Помилка прослуховування: %1$s</string>
-    <string name="hud_diag_bind_ok">Прослуховування на :28079 OK</string>
-    <string name="hud_diag_hint">Якщо отриманих маячків залишається 0 понад &gt; 10 с у тій же мережі WiFi, що й HUD, маршрутизатор блокує broadcast. Спробуйте іншу точку доступу або задайте IP вручну з банера HUD.</string>
-    <string name="hud_diag_never">ніколи</string>
-    <string name="hud_diag_rx">Отримано UDP-маячків: %1$d · останній %2$s</string>
-    <string name="hud_diag_secs_ago">%1$d с тому</string>
-    <string name="hud_status_debug_override">Налагоджувальна заміна</string>
-    <string name="hud_status_label">Підключено через: %1$s</string>
-    <string name="hud_status_manual">Ручний IP</string>
-    <string name="hud_status_mdns">mDNS</string>
-    <string name="hud_status_searching">Пошук…</string>
-    <string name="hud_status_subnet_probe">Сканування підмережі</string>
-    <string name="hud_status_udp_beacon">UDP-маячок</string>
     <string name="scan_bluetooth_off_body">Увімкніть Bluetooth, щоб шукати колеса.</string>
     <string name="scan_bluetooth_off_title">Bluetooth вимкнено</string>
     <string name="scan_enable_bluetooth">Увімкнути Bluetooth</string>
@@ -1696,7 +1588,6 @@
     <string name="dropbox_share_failed">Не вдалося поділитися через Dropbox</string>
     <string name="dropbox_email_unverified">Підтвердьте адресу електронної пошти Dropbox і спробуйте поділитися знову</string>
     <string name="dropbox_preparing">Підготовка посилання…</string>
-    <string name="dropbox_link_copied">Посилання eucviewer скопійовано</string>
     <string name="trip_action_share_dropbox">Поділитися через Dropbox</string>
     <string name="trip_action_share_dropbox_desc">Завантажити в твою папку Dropbox і поділитися публічним посиланням</string>
     <string name="trip_action_inspect_online">Переглянути онлайн</string>
@@ -1711,7 +1602,6 @@
     <string name="nav_ocm_cost">Вартість</string>
     <string name="nav_ocm_loading">Завантаження даних спільноти…</string>
     <string name="nav_ocm_open">Відкрити на OCM</string>
-    <string name="nav_ocm_photos">Фото (%1$d)</string>
     <string name="nav_ocm_points">Точки заряджання</string>
     <string name="nav_ocm_usage">Використання</string>
     <string name="nav_ocm_address">Адреса</string>
@@ -1727,8 +1617,6 @@
     <string name="nav_poi_distance">Від маршруту</string>
     <string name="nav_poi_fee">Плата</string>
     <string name="nav_poi_food">Їжа та напої</string>
-    <string name="nav_poi_from_route">%1$s від маршруту</string>
-    <string name="nav_poi_fuels">Паливо</string>
     <string name="nav_poi_hours">Години роботи</string>
     <string name="nav_poi_network">Мережа</string>
     <string name="nav_poi_operator">Оператор</string>
@@ -1742,8 +1630,6 @@
     <string name="nav_poi_type">Тип</string>
     <string name="nav_poi_website">Вебсайт</string>
     <string name="nav_pois_failed">Не вдалося завантажити місця. Перевір з\'єднання</string>
-    <string name="nav_pois_loading">Завантаження місць…</string>
-    <string name="nav_pois_need_route">Спершу додай зупинку, щоб знайти місця дорогою</string>
     <string name="nav_pois_none">Поблизу цього маршруту нічого не знайдено</string>
     <string name="nav_pois_places_hint">Порада: утримуй цю кнопку, щоб вибрати, які місця показувати</string>
     <string name="nav_setting_advanced_map">Розширені функції карти</string>

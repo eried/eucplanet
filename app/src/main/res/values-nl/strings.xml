@@ -314,7 +314,6 @@
 
     <!-- Watch companion settings: shared across Wear OS + Garmin -->
     <string name="section_watch_device">Apparaten</string>
-    <string name="section_watch_paired">Gekoppelde apparaten</string>
     <string name="watch_paired_none">Geen horloges gekoppeld</string>
     <string name="watch_paired_none_desc">Installeer de EUC Planet-companion op een Wear OS- of Garmin-horloge om de wijzerplaat hier te ontvangen</string>
     <string name="watch_paired_kind_wear">Wear OS</string>
@@ -322,37 +321,24 @@
     <string name="watch_paired_active">Live</string>
     <string name="watch_paired_idle">Inactief</string>
     <string name="watch_paired_rate_hz">%1$.1f Hz</string>
-    <string name="watch_paired_garmin_limits_title">Garmin-beperkingen</string>
-    <string name="watch_paired_garmin_limit_launch">Garmin start de horloge-app niet automatisch</string>
-    <string name="watch_paired_garmin_limit_rate">Garmin ververst langzamer dan Wear OS</string>
-    <string name="watch_paired_garmin_limit_rotation">Wijzerplaatrotatie is niet beschikbaar. Connect IQ heeft geen native transformatiematrix om de gerenderde wijzerplaat te draaien.</string>
-
     <!-- HUD companion settings -->
     <string name="section_hud_companion">Motoeye HUD</string>
     <string name="hud_server_enabled">Gegevenslink inschakelen</string>
     <string name="hud_ip_label">Apparaat-IP</string>
     <string name="hud_ip_label_autodetect">Apparaat-IP (automatisch)</string>
-    <string name="hud_ip_desc">Voer het IP-adres in dat de HUD op zijn scherm toont.</string>
     <string name="hud_server_port">Poort</string>
-    <string name="hud_server_port_desc">Standaard 28080.</string>
     <string name="hud_hotspot_off_hint">Telefoon-hotspot is uit. Zorg dat de HUD en de telefoon op hetzelfde wifi-netwerk zitten.</string>
     <string name="hud_hotspot_on_hint">Telefoon-hotspot zendt uit. Verbind de HUD met de wifi van deze telefoon om de link te activeren.</string>
     <string name="hud_overlay_subsection">Eigen overlay</string>
     <string name="hud_overlay_subsection_desc">Importeer een Overlay Studio-preset op het Custom-scherm van de HUD, zonder achtergrond. De preset wordt hier gekopieerd, dus latere wijzigingen in de studio veranderen de HUD pas als je opnieuw importeert</string>
     <string name="hud_overlay_select_preset">Preset importeren</string>
     <string name="hud_overlay_current_preset">Huidig: %1$s</string>
-    <string name="hud_custom_overlay_label">Eigen HUD-overlay</string>
-    <string name="hud_custom_overlay_placeholder">Kies een Overlay Studio-preset</string>
-    <string name="hud_custom_overlay_no_folder">Back-upmap niet ingesteld</string>
-    <string name="hud_custom_overlay_bundled_only">Kies een startpreset (back-upmap niet ingesteld)</string>
     <string name="hud_custom_overlay_none">Wissen</string>
     <string name="hud_search_corpus">HUD heads-up display companion server stream telemetrie hotspot motoeye afslagpijl</string>
 
     <!-- HUD Personalize collapsible card -->
-    <string name="hud_personalize_title">Personaliseren</string>
     <string name="hud_screens_title">HUD-schermen</string>
     <string name="hud_map_options_title">Kaartopties</string>
-    <string name="hud_personalize_desc">Kies welke schermen de HUD toont en in welke volgorde ze wisselen. Minstens één scherm moet aan blijven.</string>
     <string name="hud_screen_name_dashboard">Dashboard</string>
     <string name="hud_screen_name_camera">Achtercamera</string>
     <string name="hud_screen_name_telemetry">Telemetrie</string>
@@ -386,11 +372,6 @@
     -->
     <string name="hud_install_hint">HUD-app nodig? Haal hem op via <b>eucplanet.ried.no/hud</b></string>
     <string name="hud_update_url">eucplanet.ried.no/hud</string>
-    <string name="hud_version_hint_hud_behind">HUD-update beschikbaar. Nieuwe telefoonfuncties verschijnen pas na een update van de HUD via <b>eucplanet.ried.no/hud</b></string>
-    <string name="hud_version_hint_phone_behind">Telefoon-update beschikbaar. Sommige HUD-functies verschijnen pas na een update van deze app via <b>eucplanet.ried.no/hud</b></string>
-    <string name="hud_version_block_hud_behind">HUD-update vereist. De HUD-app is te oud om met deze telefoon te communiceren. Werk hem bij via <b>eucplanet.ried.no/hud</b> om door te gaan.</string>
-    <string name="hud_version_block_phone_behind">Telefoon-update vereist. Deze app is te oud om met de HUD te communiceren. Werk hem bij via <b>eucplanet.ried.no/hud</b> om door te gaan.</string>
-
     <!-- Wear OS companion settings -->
     <string name="section_watch_general">Algemeen</string>
     <string name="section_watch_display">Weergave</string>
@@ -423,7 +404,6 @@
     <!-- Watch hardware buttons -->
     <string name="watch_button_click_label">Klik</string>
     <string name="watch_button_hold_label">Lang indrukken</string>
-    <string name="section_watch_hardware_buttons">Hardware-knoppen</string>
     <string name="watch_buttons_hardware_info">Lang indrukken kan door het systeem worden onderschept op sommige horloges</string>
     <string name="watch_buttons_touch_info">Afhankelijk van wat je horloge ondersteunt</string>
     <string name="watch_buttons_hardware_label">Fysiek</string>
@@ -437,9 +417,6 @@
     <!-- Watch on-screen buttons (shown on the dial), separate from the
          hardware stem buttons because most Galaxy Wear OS watches do not
          deliver KEYCODE_STEM_* to third-party apps. -->
-    <string name="section_watch_screen_buttons">Aanraakknoppen</string>
-    <string name="section_watch_screen_buttons_desc">Aanraakgebieden op de wijzerplaat</string>
-    <string name="section_watch_hardware_buttons_desc">Zijknoppen van het horloge</string>
     <string name="watch_screen_button_1">Knop 1</string>
     <string name="watch_screen_button_2">Knop 2</string>
     <string name="watch_haptic_on_action">Trillen bij actie</string>
@@ -488,7 +465,6 @@
     <string name="action_overwrite">Overschrijven</string>
     <string name="cloud_backup_long_press_hint">Lang indrukken voor meer opties</string>
     <string name="cloud_backup_name_label">Back-upnaam</string>
-    <string name="cloud_backup_name_preview">Wordt opgeslagen als %1$s</string>
     <string name="cloud_backup_overwrite_title">"%1$s" overschrijven?</string>
     <string name="cloud_backup_overwrite_body">Er bestaat al een back-up met deze naam in je map.</string>
     <string name="cloud_restore_picker_default">(standaard)</string>
@@ -543,11 +519,6 @@
     <string name="phone_keep_screen_on">Scherm aan houden</string>
     <string name="language">Taal</string>
     <string name="theme">Thema</string>
-    <string name="theme_black">Diep zwart</string>
-    <string name="theme_dark">Donker</string>
-    <string name="theme_light">Licht</string>
-    <string name="theme_system">Volg systeem</string>
-    <string name="accent_color">Accentkleur</string>
     <string name="tts_switch_title">Stem omschakelen naar %1$s?</string>
     <string name="tts_switch_body">De huidige tekst-naar-spraakstem komt niet overeen met de gekozen taal. Overschakelen naar een %1$s stem voor meldingen?</string>
     <string name="tts_switch_yes">Stem wisselen</string>
@@ -575,7 +546,6 @@
     <string name="section_speech">Spraak</string>
     <string name="section_report_status">Statusrapport</string>
     <string name="voice_enabled">Periodiek status melden</string>
-    <string name="voice_only_when_connected">Alleen wanneer wiel verbonden is</string>
     <string name="voice_announce_when_label">Aankondigen</string>
     <string name="voice_announce_always">Altijd</string>
     <string name="voice_announce_connected">Verbonden</string>
@@ -821,20 +791,6 @@
 
     <!-- Flic actions -->
     <string name="flic_action_none">Geen</string>
-    <string name="flic_action_horn">Toeter</string>
-    <string name="flic_action_light">Licht aan/uit</string>
-    <string name="flic_action_lock">Wiel vergrendelen</string>
-    <string name="flic_action_legal_toggle">Legal Mode aan/uit</string>
-    <string name="flic_action_legal_on">Legal Mode AAN</string>
-    <string name="flic_action_legal_off">Legal Mode UIT</string>
-    <string name="flic_action_voice">Statusrapport</string>
-    <string name="flic_action_record">Opname aan/uit</string>
-    <string name="flic_action_record_start">Ritopname starten</string>
-    <string name="flic_action_record_stop">Ritopname stoppen</string>
-    <string name="flic_action_media_play">Muziek afspelen / pauzeren</string>
-    <string name="flic_action_media_next">Volgend nummer</string>
-    <string name="flic_action_media_prev">Vorig nummer</string>
-
     <!-- Alarm editor misc -->
     <string name="alarm_preview_fmt">Voorbeeld %1$s</string>
 
@@ -870,7 +826,6 @@
     <string name="metric_min">MIN</string>
     <string name="metric_avg">GEM</string>
     <string name="metric_max">MAX</string>
-    <string name="metric_time">TIJD</string>
     <string name="metric_battery">Accu</string>
     <string name="metric_temperature">Temperatuur</string>
     <string name="metric_voltage">Spanning</string>
@@ -911,7 +866,6 @@
     <string name="recording_summary_points">Punten</string>
     <string name="recording_summary_top_speed">Topsnelheid</string>
     <string name="recording_summary_avg_speed">Gem. snelheid</string>
-    <string name="recording_summary_min_battery">Min. accu</string>
     <string name="recording_summary_battery">Accu (-%1$d%%)</string>
     <string name="recording_summary_voltage">Spanning</string>
     <string name="recording_summary_avg_moving">Gem. rijdend</string>
@@ -1048,14 +1002,6 @@
     <string name="online_upload_profile_country_select">Selecteer je land</string>
     <string name="online_upload_country_search">Landen zoeken</string>
     <string name="online_upload_profile_avatar_hint">Tik om een foto toe te voegen</string>
-    <string name="online_upload_profile_flag_label">Landcode (ISO 3166-1 alpha-2)</string>
-    <string name="online_upload_profile_flag_placeholder">bijv. NO, US, DE</string>
-    <string name="online_upload_profile_flag_error">Voer een landcode van 2 letters in (bijv. NO)</string>
-    <string name="online_upload_profile_avatar_pick">Foto kiezen…</string>
-    <string name="online_upload_profile_avatar_change">Foto wijzigen…</string>
-    <string name="online_upload_profile_avatar_required">Tik om te kiezen en bij te snijden</string>
-    <string name="online_upload_profile_avatar_placeholder">Foto</string>
-
     <!-- Registration outcome -->
     <string name="online_upload_register_action">Registreren</string>
     <string name="online_upload_register_error">Registratie mislukt. Controleer je verbinding en probeer opnieuw.</string>
@@ -1064,7 +1010,6 @@
 
     <!-- Online stats toggle + rider card (Task E3) -->
     <string name="section_online_stats">Online klassementen</string>
-    <string name="online_upload_toggle">Deelnemen aan online klassementen</string>
     <string name="online_upload_card_loading">Laden…</string>
     <string name="online_upload_card_unavailable">Kan niet laden</string>
     <string name="online_profile_retry">Opnieuw</string>
@@ -1076,8 +1021,6 @@
     <string name="online_upload_sync_checking">Controleren op te uploaden ritten…</string>
     <string name="online_upload_sync_progress">Uploaden %1$d van %2$d</string>
     <string name="online_rider_id_conflict">Er is al een herstel-ID van een andere rijder opgeslagen in deze map, die is behouden en niet overschreven.</string>
-    <string name="online_upload_view_on_eucstats">Bekijken op EUC Stats</string>
-    <string name="online_upload_retry">Uploads opnieuw proberen</string>
     <string name="online_upload_mileage_rank">#%d kilometerstand</string>
     <string name="online_upload_top_speed">top %1$s %2$s</string>
     <string name="online_upload_trips">%d ritten</string>
@@ -1100,7 +1043,6 @@
     <string name="online_profile_manage">Profiel beheren</string>
     <string name="online_profile_title">Mijn profiel</string>
     <string name="online_profile_changeable_on">Je kunt dit weer wijzigen op %1$s</string>
-    <string name="online_profile_avatar_has">Ingesteld</string>
     <string name="online_profile_export_data">Mijn gegevens exporteren</string>
     <string name="online_profile_delete_account">Account verwijderen</string>
     <string name="online_profile_delete_confirm_title">Account verwijderen?</string>
@@ -1120,19 +1062,12 @@
     <!-- Battery / Charging screen -->
     <string name="charging_monitor">Accumonitor</string>
     <string name="charging_back">Terug</string>
-    <string name="charging_added">+%1$.1f%% deze sessie</string>
-    <string name="charging_disconnected">Geen wiel verbonden</string>
-    <string name="charging_full">Volledig opgeladen</string>
     <string name="charging_charging">Opladen</string>
-    <string name="charging_idle">Niet aan het opladen</string>
-    <string name="charging_estimating">Schatten…</string>
     <string name="charging_eta_to_target">%1$s tot %2$d%%</string>
     <string name="charging_eta_to_full">%1$s tot 100%%</string>
     <string name="charging_eta_at">om %1$s</string>
     <string name="charging_details">Details</string>
-    <string name="charging_rate">%1$.1f %%/min</string>
     <string name="charging_tab_charge">Laden</string>
-    <string name="charging_tab_voltage">Spanning</string>
     <string name="charging_tab_packs">Packs</string>
     <string name="charging_estimate_to_full">Altijd schatten tot 100%</string>
     <string name="charging_options">Opties</string>
@@ -1140,20 +1075,14 @@
     <string name="charging_stat_added">Toegevoegd</string>
     <string name="charging_stat_rate">Snelheid</string>
     <string name="charging_stat_voltage">Spanning</string>
-    <string name="charging_stat_pack1">Pack 1</string>
-    <string name="charging_stat_pack2">Pack 2</string>
     <string name="charging_stat_temp">Temperatuur</string>
     <string name="charging_stat_balance">Disbalans</string>
     <string name="charging_stat_power">Vermogen</string>
     <string name="charging_stat_current">Stroom</string>
     <string name="charging_stat_energy">Energie</string>
     <string name="charging_chart_empty">Gegevens verzamelen</string>
-    <string name="charging_no_current_note">Snelheid gemeten uit de laadcurve</string>
     <string name="battery_history">Accugeschiedenis</string>
     <string name="setting_charging_auto_open">Openen bij opladen</string>
-    <string name="setting_charging_dashboard_icon">Accumonitor-pictogram in dashboard</string>
-    <string name="setting_charging_auto_open_desc">Opent de Accumonitor zodra het wiel begint te laden</string>
-    <string name="setting_charging_dashboard_icon_desc">Tik erop om de Accumonitor te openen</string>
     <!-- ==== Overlay Studio ==== -->
     <string name="studio_open">Overlay Studio openen</string>
     <string name="studio_not_connected">Niet verbonden</string>
@@ -1166,7 +1095,6 @@
     <string name="studio_recording_failed">De opname kon niet opgeslagen worden</string>
     <string name="studio_image_failed">Die afbeelding kon niet geladen worden</string>
     <string name="studio_preset_saved">Preset opgeslagen</string>
-    <string name="studio_preset_loaded">Preset geladen</string>
     <string name="studio_preset_failed">De preset kon niet opgeslagen worden</string>
     <string name="studio_no_folder">Stel eerst een back-upmap in om presets op te slaan</string>
     <string name="studio_your_presets_empty">Nog geen opgeslagen presets. Sla je huidige lay-out op om er een toe te voegen.</string>
@@ -1384,14 +1312,11 @@
     <string name="studio_cfg_dial_semi">Half</string>
     <string name="studio_cfg_dial_color_band">Kleurband</string>
     <string name="studio_cfg_g_scale">Schaal</string>
-    <string name="studio_cfg_g_smoothing">Demping</string>
     <string name="studio_cfg_border_colour">Randkleur</string>
     <string name="studio_cfg_border_width">Randdikte</string>
 
     <!-- Studio: manage elements sheet -->
     <string name="studio_manage_title">Elementen beheren</string>
-    <string name="studio_manage_empty">Nog geen elementen, gebruik Element toevoegen om er een te plaatsen.</string>
-    <string name="studio_manage_hint">Sleep om te ordenen, tik op een rij om die te selecteren</string>
     <string name="studio_cd_drag_reorder">Sleep om te ordenen</string>
     <string name="studio_cd_delete_element">Element verwijderen</string>
 
@@ -1454,13 +1379,11 @@
     <string name="studio_group_media">Camera &amp; afbeeldingen</string>
 
     <!-- Navigator -->
-    <string name="tab_navigator">Navigator</string>
     <string name="nav_open">Navigator openen</string>
     <string name="nav_title">Routebouwer</string>
     <string name="nav_search_hint">Zoek adres of plaats</string>
     <string name="nav_searching">Zoeken…</string>
     <string name="nav_locating">Je locatie zoeken…</string>
-    <string name="nav_skip_locating">Overslaan</string>
     <string name="nav_no_results">Geen resultaten gevonden</string>
     <string name="nav_mode_cycling">Fiets</string>
     <string name="nav_mode_driving">Auto</string>
@@ -1474,13 +1397,8 @@
     <string name="nav_clear_work">Werk vergeten</string>
     <string name="nav_menu_exit">Terug naar dashboard</string>
     <string name="nav_waypoints">Stops</string>
-    <string name="nav_waypoint_default">Pin %1$d</string>
-    <string name="nav_role_start">Start</string>
-    <string name="nav_role_current_location">Huidige locatie</string>
     <string name="nav_role_destination">Bestemming</string>
     <string name="nav_max_stops">Tot een bestemming en 24 stops</string>
-    <string name="nav_pin_set_my_location">Op mijn locatie zetten</string>
-    <string name="nav_pin_remove">Verwijderen</string>
     <string name="nav_pin_center">Centreren op kaart</string>
     <string name="nav_save_home">Opslaan als Thuis</string>
     <string name="nav_customize_marker">Mijn marker aanpassen</string>
@@ -1488,7 +1406,6 @@
     <string name="nav_remove_marker_photo">Mijn marker resetten</string>
     <string name="nav_remove_marker_photo_short">Resetten</string>
     <string name="nav_save_work">Opslaan als Werk</string>
-    <string name="nav_self_title">Jouw locatie</string>
     <string name="nav_self_add_stop">Toevoegen als stop</string>
     <string name="nav_clear_confirm">Een nieuwe route starten?</string>
     <string name="nav_clear_confirm_body">Je huidige stops worden gewist.</string>
@@ -1498,13 +1415,9 @@
     <string name="nav_start_short">Navigatie starten</string>
     <string name="nav_stop_short">Navigatie stoppen</string>
     <string name="nav_stops_left">Nog %1$d stops</string>
-    <string name="nav_next_distance">Volgende: %1$s</string>
     <string name="nav_last_stop">Laatste stop</string>
     <string name="nav_need_destination">Voeg eerst een bestemming toe</string>
     <string name="nav_map_style">Kaartstijl</string>
-    <string name="nav_map_dark">Donkere kaart</string>
-    <string name="nav_map_light">Lichte kaart</string>
-    <string name="nav_map_satellite">Satellietkaart</string>
     <string-array name="nav_stop_ordinals">
         <item>Eerste stop</item>
         <item>Tweede stop</item>
@@ -1517,10 +1430,7 @@
     </string-array>
     <string name="nav_my_location">Mijn locatie</string>
     <string name="nav_no_location">Wachten op een GPS-fix…</string>
-    <string name="nav_route_distance">Routeafstand: %1$s</string>
     <string name="nav_empty_hint">Tik op de kaart, zoek, of laad een GPX-bestand</string>
-    <string name="nav_need_two">Voeg minstens twee stops toe om te navigeren.</string>
-    <string name="nav_routing">De route zoeken…</string>
     <string name="nav_route_failed">Routeringsservice niet beschikbaar, rechte lijnen gebruikt</string>
     <string name="nav_cant_add_while_running">Kan geen stop toevoegen terwijl navigatie loopt</string>
     <string name="nav_search_no_results">Geen resultaten voor dat adres</string>
@@ -1552,8 +1462,6 @@
     <string name="nav_continue">Rechtdoor gaan</string>
     <string name="nav_uturn">Keer om</string>
     <string name="nav_depart">Vertrekken</string>
-    <string name="nav_goal_label">Doel %1$d van %2$d</string>
-
     <!-- Treasure Hunt directions -->
     <string name="nav_dir_ahead">recht voor je</string>
     <string name="nav_dir_left">aan je linkerkant</string>
@@ -1563,7 +1471,6 @@
     <string name="nav_dir_behind">achter je</string>
     <string name="nav_dir_behind_left">achter je, links</string>
     <string name="nav_dir_behind_right">achter je, rechts</string>
-    <string name="nav_hunt_primary">%1$s %2$s</string>
     <string name="nav_label_next_stop">Volgende stop</string>
     <string name="nav_label_destination">Bestemming</string>
     <string name="nav_prox_hot">Gloeiend heet</string>
@@ -1598,13 +1505,11 @@
 
     <!-- Navigation settings -->
     <string name="nav_setting_voice">Gesproken begeleiding</string>
-    <string name="nav_setting_voice_desc">Spreek afslag- en schatzoekingsinstructies uit</string>
     <string name="nav_setting_arrival_radius">Aankomstradius</string>
     <string name="nav_setting_arrival_radius_desc">Hoe dichtbij telt als het bereiken van een stop</string>
     <string name="nav_setting_offroute">Tolerantie buiten route</string>
     <string name="nav_setting_offroute_desc">Hoe ver van de route voordat de melding "buiten route" verschijnt</string>
     <string name="nav_setting_default_mode">Standaard reismodus</string>
-    <string name="nav_setting_open_builder">Routebouwer openen</string>
     <string name="nav_setting_params">Navigatie-instellingen</string>
     <string name="nav_setting_full_path">Altijd de hele route berekenen</string>
     <string name="nav_setting_full_path_desc">Uit berekent alleen de volgende stop en toont de rest als gestippelde preview</string>
@@ -1657,19 +1562,6 @@
     <string name="charging_tab_cells">Cellen</string>
     <string name="hud_auto_discover">Linkadres automatisch detecteren</string>
     <string name="hud_auto_discover_desc"></string>
-    <string name="hud_diag_bind_err">Listener-bindfout: %1$s</string>
-    <string name="hud_diag_bind_ok">Listener gebonden aan :28079</string>
-    <string name="hud_diag_hint">Als ontvangen beacons &gt; 10 s op 0 blijven op hetzelfde WiFi-netwerk als de HUD, filtert de router de broadcast. Probeer een andere hotspot of stel handmatige IP in via de HUD-banner.</string>
-    <string name="hud_diag_never">nooit</string>
-    <string name="hud_diag_rx">Ontvangen UDP-beacons: %1$d · laatst %2$s</string>
-    <string name="hud_diag_secs_ago">%1$ds geleden</string>
-    <string name="hud_status_debug_override">Debug-override</string>
-    <string name="hud_status_label">Verbonden via: %1$s</string>
-    <string name="hud_status_manual">Handmatig IP</string>
-    <string name="hud_status_mdns">mDNS</string>
-    <string name="hud_status_searching">Zoeken…</string>
-    <string name="hud_status_subnet_probe">Subnetscan</string>
-    <string name="hud_status_udp_beacon">UDP-beacon</string>
     <string name="scan_bluetooth_off_body">Schakel Bluetooth in om naar wielen te zoeken.</string>
     <string name="scan_bluetooth_off_title">Bluetooth is uit</string>
     <string name="scan_enable_bluetooth">Bluetooth inschakelen</string>
@@ -1697,7 +1589,6 @@
     <string name="dropbox_share_failed">Delen via Dropbox mislukt</string>
     <string name="dropbox_email_unverified">Verifieer je Dropbox-e-mailadres en probeer opnieuw te delen</string>
     <string name="dropbox_preparing">Link wordt voorbereid…</string>
-    <string name="dropbox_link_copied">eucviewer-link gekopieerd</string>
     <string name="trip_action_share_dropbox">Delen via Dropbox</string>
     <string name="trip_action_share_dropbox_desc">Upload naar je Dropbox-map en deel de openbare link</string>
     <string name="trip_action_inspect_online">Online inspecteren</string>
@@ -1712,7 +1603,6 @@
     <string name="nav_ocm_cost">Kosten</string>
     <string name="nav_ocm_loading">Communitygegevens laden…</string>
     <string name="nav_ocm_open">Openen op OCM</string>
-    <string name="nav_ocm_photos">Foto\'s (%1$d)</string>
     <string name="nav_ocm_points">Laadpunten</string>
     <string name="nav_ocm_usage">Gebruik</string>
     <string name="nav_ocm_address">Adres</string>
@@ -1728,8 +1618,6 @@
     <string name="nav_poi_distance">Vanaf route</string>
     <string name="nav_poi_fee">Tarief</string>
     <string name="nav_poi_food">Eten &amp; drinken</string>
-    <string name="nav_poi_from_route">%1$s vanaf route</string>
-    <string name="nav_poi_fuels">Brandstoffen</string>
     <string name="nav_poi_hours">Openingstijden</string>
     <string name="nav_poi_network">Netwerk</string>
     <string name="nav_poi_operator">Beheerder</string>
@@ -1743,8 +1631,6 @@
     <string name="nav_poi_type">Type</string>
     <string name="nav_poi_website">Website</string>
     <string name="nav_pois_failed">Plaatsen konden niet geladen worden. Controleer je verbinding</string>
-    <string name="nav_pois_loading">Plaatsen laden…</string>
-    <string name="nav_pois_need_route">Voeg eerst een stop toe om plaatsen onderweg te vinden</string>
     <string name="nav_pois_none">Niets gevonden in de buurt van deze route</string>
     <string name="nav_pois_places_hint">Tip: houd deze knop ingedrukt om te kiezen welke plaatsen je wilt tonen</string>
     <string name="nav_setting_advanced_map">Geavanceerde kaartfuncties</string>

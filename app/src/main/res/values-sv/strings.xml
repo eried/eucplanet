@@ -314,7 +314,6 @@
 
     <!-- Watch companion settings: shared across Wear OS + Garmin -->
     <string name="section_watch_device">Enheter</string>
-    <string name="section_watch_paired">Parade enheter</string>
     <string name="watch_paired_none">Inga klockor parade</string>
     <string name="watch_paired_none_desc">Installera EUC Planet-följeappen på en Wear OS- eller Garmin-klocka för att börja ta emot urtavlan här</string>
     <string name="watch_paired_kind_wear">Wear OS</string>
@@ -322,37 +321,24 @@
     <string name="watch_paired_active">Live</string>
     <string name="watch_paired_idle">Inaktiv</string>
     <string name="watch_paired_rate_hz">%1$.1f Hz</string>
-    <string name="watch_paired_garmin_limits_title">Garmin-begränsningar</string>
-    <string name="watch_paired_garmin_limit_launch">Garmin startar inte klockappen automatiskt</string>
-    <string name="watch_paired_garmin_limit_rate">Garmin uppdaterar långsammare än Wear OS</string>
-    <string name="watch_paired_garmin_limit_rotation">Rotation av urtavlan är inte tillgänglig. Connect IQ saknar inbyggd transformationsmatris för att rotera den renderade urtavlan.</string>
-
     <!-- HUD companion settings -->
     <string name="section_hud_companion">Motoeye HUD</string>
     <string name="hud_server_enabled">Aktivera datalänk</string>
     <string name="hud_ip_label">Enhets-IP</string>
     <string name="hud_ip_label_autodetect">Enhets-IP (automatisk)</string>
-    <string name="hud_ip_desc">Ange IP-adressen som HUD:en visar på skärmen.</string>
     <string name="hud_server_port">Port</string>
-    <string name="hud_server_port_desc">Standard 28080.</string>
     <string name="hud_hotspot_off_hint">Telefonens hotspot är av. Se till att HUD:en och telefonen är på samma WiFi-nätverk.</string>
     <string name="hud_hotspot_on_hint">Telefonens hotspot sänder. Anslut HUD:en till telefonens WiFi för att aktivera länken.</string>
     <string name="hud_overlay_subsection">Eget överlägg</string>
     <string name="hud_overlay_subsection_desc">Importera en Overlay Studio-mall till HUD:ens Custom-skärm, utan bakgrund. Mallen kopieras hit, så senare ändringar i studion påverkar inte HUD:en förrän du importerar igen</string>
     <string name="hud_overlay_select_preset">Importera mall</string>
     <string name="hud_overlay_current_preset">Aktuell: %1$s</string>
-    <string name="hud_custom_overlay_label">Eget HUD-överlägg</string>
-    <string name="hud_custom_overlay_placeholder">Välj en Overlay Studio-mall</string>
-    <string name="hud_custom_overlay_no_folder">Backupmapp inte konfigurerad</string>
-    <string name="hud_custom_overlay_bundled_only">Välj en startmall (backupmapp inte inställd)</string>
     <string name="hud_custom_overlay_none">Rensa</string>
     <string name="hud_search_corpus">HUD heads-up display kompanjon server stream telemetri hotspot motoeye svängpil</string>
 
     <!-- HUD Personalize collapsible card -->
-    <string name="hud_personalize_title">Anpassa</string>
     <string name="hud_screens_title">HUD-skärmar</string>
     <string name="hud_map_options_title">Kartalternativ</string>
-    <string name="hud_personalize_desc">Välj vilka skärmar HUD:en visar och i vilken ordning de växlas. Minst en skärm måste vara aktiv.</string>
     <string name="hud_screen_name_dashboard">Instrumentpanel</string>
     <string name="hud_screen_name_camera">Bakåtkamera</string>
     <string name="hud_screen_name_telemetry">Telemetri</string>
@@ -386,11 +372,6 @@
     -->
     <string name="hud_install_hint">Behöver du HUD-appen? Hämta den på <b>eucplanet.ried.no/hud</b></string>
     <string name="hud_update_url">eucplanet.ried.no/hud</string>
-    <string name="hud_version_hint_hud_behind">HUD-uppdatering tillgänglig. Nya telefonfunktioner visas inte förrän du uppdaterar HUD:en från <b>eucplanet.ried.no/hud</b></string>
-    <string name="hud_version_hint_phone_behind">Telefonuppdatering tillgänglig. Vissa HUD-funktioner visas inte förrän du uppdaterar telefonappen från <b>eucplanet.ried.no/hud</b></string>
-    <string name="hud_version_block_hud_behind">HUD-uppdatering krävs. HUD-appen är för gammal för att prata med den här telefonen. Uppdatera den från <b>eucplanet.ried.no/hud</b> för att fortsätta.</string>
-    <string name="hud_version_block_phone_behind">Telefonuppdatering krävs. Den här telefonappen är för gammal för att prata med HUD:en. Uppdatera den från <b>eucplanet.ried.no/hud</b> för att fortsätta.</string>
-
     <!-- Wear OS companion settings -->
     <string name="section_watch_general">Allmänt</string>
     <string name="section_watch_display">Skärm</string>
@@ -423,7 +404,6 @@
     <!-- Watch hardware buttons -->
     <string name="watch_button_click_label">Klick</string>
     <string name="watch_button_hold_label">Långt tryck</string>
-    <string name="section_watch_hardware_buttons">Fysiska knappar</string>
     <string name="watch_buttons_hardware_info">Håll kan fångas av systemet på vissa klockor</string>
     <string name="watch_buttons_touch_info">Beror på vad din klocka stödjer</string>
     <string name="watch_buttons_hardware_label">Fysiska</string>
@@ -437,9 +417,6 @@
     <!-- Watch on-screen buttons (shown on the dial), separate from the
          hardware stem buttons because most Galaxy Wear OS watches do not
          deliver KEYCODE_STEM_* to third-party apps. -->
-    <string name="section_watch_screen_buttons">Tryckknappar</string>
-    <string name="section_watch_screen_buttons_desc">Tryckytor ritade på urtavlan</string>
-    <string name="section_watch_hardware_buttons_desc">Sidoknappar på klockan</string>
     <string name="watch_screen_button_1">Knapp 1</string>
     <string name="watch_screen_button_2">Knapp 2</string>
     <string name="watch_haptic_on_action">Vibrera vid åtgärd</string>
@@ -488,7 +465,6 @@
     <string name="action_overwrite">Skriv över</string>
     <string name="cloud_backup_long_press_hint">Långtryck för fler alternativ</string>
     <string name="cloud_backup_name_label">Kopians namn</string>
-    <string name="cloud_backup_name_preview">Sparas som %1$s</string>
     <string name="cloud_backup_overwrite_title">Skriv över \"%1$s\"?</string>
     <string name="cloud_backup_overwrite_body">En kopia med det här namnet finns redan i mappen.</string>
     <string name="cloud_restore_picker_default">(standard)</string>
@@ -543,11 +519,6 @@
     <string name="phone_keep_screen_on">Håll skärmen på</string>
     <string name="language">Språk</string>
     <string name="theme">Tema</string>
-    <string name="theme_black">Helsvart</string>
-    <string name="theme_dark">Mörkt</string>
-    <string name="theme_light">Ljust</string>
-    <string name="theme_system">Följ systemet</string>
-    <string name="accent_color">Accentfärg</string>
     <string name="tts_switch_title">Byta röst till %1$s?</string>
     <string name="tts_switch_body">Den nuvarande rösten matchar inte valt språk. Byta till en %1$s-röst för meddelanden?</string>
     <string name="tts_switch_yes">Byt röst</string>
@@ -575,7 +546,6 @@
     <string name="section_speech">Tal</string>
     <string name="section_report_status">Statusrapport</string>
     <string name="voice_enabled">Rapportera status löpande</string>
-    <string name="voice_only_when_connected">Endast när hjulet är anslutet</string>
     <string name="voice_interval">Intervall</string>
     <string name="unit_sec">sek</string>
     <string name="announce_wheel_lock">Lås / lås upp hjul</string>
@@ -817,20 +787,6 @@
 
     <!-- Flic actions -->
     <string name="flic_action_none">Ingen</string>
-    <string name="flic_action_horn">Tuta</string>
-    <string name="flic_action_light">Växla ljus</string>
-    <string name="flic_action_lock">Lås hjul</string>
-    <string name="flic_action_legal_toggle">Växla lagligt läge</string>
-    <string name="flic_action_legal_on">Lagligt läge PÅ</string>
-    <string name="flic_action_legal_off">Lagligt läge AV</string>
-    <string name="flic_action_voice">Röstrapport</string>
-    <string name="flic_action_record">Växla inspelning</string>
-    <string name="flic_action_record_start">Starta turinspelning</string>
-    <string name="flic_action_record_stop">Stoppa turinspelning</string>
-    <string name="flic_action_media_play">Spela / pausa musik</string>
-    <string name="flic_action_media_next">Nästa låt</string>
-    <string name="flic_action_media_prev">Föregående låt</string>
-
     <!-- Alarm editor misc -->
     <string name="alarm_preview_fmt">Förhandsgranska %1$s</string>
 
@@ -866,7 +822,6 @@
     <string name="metric_min">MIN</string>
     <string name="metric_avg">SNITT</string>
     <string name="metric_max">MAX</string>
-    <string name="metric_time">TID</string>
     <string name="metric_battery">Batteri</string>
     <string name="metric_temperature">Temperatur</string>
     <string name="metric_voltage">Spänning</string>
@@ -907,7 +862,6 @@
     <string name="recording_summary_points">Punkter</string>
     <string name="recording_summary_top_speed">Topphastighet</string>
     <string name="recording_summary_avg_speed">Genomsnittsfart</string>
-    <string name="recording_summary_min_battery">Lägsta batteri</string>
     <string name="recording_summary_max_temp">Högsta temp</string>
     <string name="recording_summary_battery">Batteri (-%1$d%%)</string>
     <string name="recording_summary_voltage">Spänning</string>
@@ -1046,14 +1000,6 @@
     <string name="online_upload_profile_country_select">Välj ditt land</string>
     <string name="online_upload_country_search">Sök länder</string>
     <string name="online_upload_profile_avatar_hint">Tryck för att lägga till ett foto</string>
-    <string name="online_upload_profile_flag_label">Landskod (ISO 3166-1 alpha-2)</string>
-    <string name="online_upload_profile_flag_placeholder">t.ex. NO, US, DE</string>
-    <string name="online_upload_profile_flag_error">Ange en tvåbokstavskod (t.ex. NO)</string>
-    <string name="online_upload_profile_avatar_pick">Välj foto…</string>
-    <string name="online_upload_profile_avatar_change">Byt foto…</string>
-    <string name="online_upload_profile_avatar_required">Tryck för att välja och beskära</string>
-    <string name="online_upload_profile_avatar_placeholder">Foto</string>
-
     <!-- Registration outcome -->
     <string name="online_upload_register_action">Registrera</string>
     <string name="online_upload_register_error">Registreringen misslyckades. Kontrollera anslutningen och försök igen.</string>
@@ -1062,7 +1008,6 @@
 
     <!-- Online stats toggle + rider card (Task E3) -->
     <string name="section_online_stats">Online-topplistor</string>
-    <string name="online_upload_toggle">Gå med i online-topplistorna</string>
     <string name="online_upload_card_loading">Laddar…</string>
     <string name="online_upload_card_unavailable">Kunde inte ladda</string>
     <string name="online_profile_retry">Försök igen</string>
@@ -1074,8 +1019,6 @@
     <string name="online_upload_sync_checking">Söker efter turer att ladda upp…</string>
     <string name="online_upload_sync_progress">Laddar upp %1$d av %2$d</string>
     <string name="online_rider_id_conflict">En annan förares återställnings-ID är redan sparat i den här mappen. Det behölls och skrevs inte över.</string>
-    <string name="online_upload_view_on_eucstats">Visa på EUC Stats</string>
-    <string name="online_upload_retry">Försök ladda upp igen</string>
     <string name="online_upload_mileage_rank">#%d körsträcka</string>
     <string name="online_upload_top_speed">topp %1$s %2$s</string>
     <string name="online_upload_trips">%d turer</string>
@@ -1098,7 +1041,6 @@
     <string name="online_profile_manage">Hantera profil</string>
     <string name="online_profile_title">Min profil</string>
     <string name="online_profile_changeable_on">Du kan ändra detta igen den %1$s</string>
-    <string name="online_profile_avatar_has">Angiven</string>
     <string name="online_profile_export_data">Exportera mina data</string>
     <string name="online_profile_delete_account">Ta bort konto</string>
     <string name="online_profile_delete_confirm_title">Ta bort konto?</string>
@@ -1126,7 +1068,6 @@
     <string name="studio_recording_failed">Kunde inte spara inspelningen</string>
     <string name="studio_image_failed">Kunde inte läsa in den bilden</string>
     <string name="studio_preset_saved">Förinställning sparad</string>
-    <string name="studio_preset_loaded">Förinställning inläst</string>
     <string name="studio_preset_failed">Kunde inte spara förinställningen</string>
     <string name="studio_no_folder">Ange en backupmapp för att spara förinställningar</string>
     <string name="studio_your_presets_empty">Inga sparade förinställningar ännu. Spara din nuvarande layout för att lägga till en.</string>
@@ -1334,8 +1275,6 @@
 
     <!-- Studio: manage elements sheet -->
     <string name="studio_manage_title">Hantera element</string>
-    <string name="studio_manage_empty">Inga element ännu, använd Lägg till element för att placera ett.</string>
-    <string name="studio_manage_hint">Dra för att ändra ordning, tryck på en rad för att markera den</string>
     <string name="studio_cd_drag_reorder">Dra för att ändra ordning</string>
     <string name="studio_cd_delete_element">Ta bort element</string>
 
@@ -1387,13 +1326,11 @@
     <string name="studio_metric_g_force">G-Force</string>
 
     <!-- Navigator -->
-    <string name="tab_navigator">Navigator</string>
     <string name="nav_open">Öppna navigatorn</string>
     <string name="nav_title">Ruttbyggaren</string>
     <string name="nav_search_hint">Sök adress eller plats</string>
     <string name="nav_searching">Söker…</string>
     <string name="nav_locating">Hittar din plats…</string>
-    <string name="nav_skip_locating">Hoppa över</string>
     <string name="nav_no_results">Inga träffar hittades</string>
     <string name="nav_mode_cycling">Cykel</string>
     <string name="nav_mode_driving">Bil</string>
@@ -1407,13 +1344,8 @@
     <string name="nav_clear_work">Glöm Jobb</string>
     <string name="nav_menu_exit">Tillbaka till instrumentpanelen</string>
     <string name="nav_waypoints">Stopp</string>
-    <string name="nav_waypoint_default">Nål %1$d</string>
-    <string name="nav_role_start">Start</string>
-    <string name="nav_role_current_location">Nuvarande plats</string>
     <string name="nav_role_destination">Destination</string>
     <string name="nav_max_stops">Upp till en destination och 24 stopp</string>
-    <string name="nav_pin_set_my_location">Sätt till min plats</string>
-    <string name="nav_pin_remove">Ta bort</string>
     <string name="nav_pin_center">Centrera på kartan</string>
     <string name="nav_save_home">Spara som Hem</string>
     <string name="nav_customize_marker">Anpassa min markör</string>
@@ -1421,7 +1353,6 @@
     <string name="nav_remove_marker_photo">Nollställ min markör</string>
     <string name="nav_remove_marker_photo_short">Nollställ</string>
     <string name="nav_save_work">Spara som Jobb</string>
-    <string name="nav_self_title">Din plats</string>
     <string name="nav_self_add_stop">Lägg till som stopp</string>
     <string name="nav_clear_confirm">Starta en ny rutt?</string>
     <string name="nav_clear_confirm_body">Dina nuvarande stopp rensas.</string>
@@ -1431,13 +1362,9 @@
     <string name="nav_start_short">Starta navigering</string>
     <string name="nav_stop_short">Stoppa navigering</string>
     <string name="nav_stops_left">%1$d stopp kvar</string>
-    <string name="nav_next_distance">Nästa: %1$s</string>
     <string name="nav_last_stop">Sista stoppet</string>
     <string name="nav_need_destination">Lägg till en destination först</string>
     <string name="nav_map_style">Kartstil</string>
-    <string name="nav_map_dark">Mörk karta</string>
-    <string name="nav_map_light">Ljus karta</string>
-    <string name="nav_map_satellite">Satellitkarta</string>
     <string-array name="nav_stop_ordinals">
         <item>Första stoppet</item>
         <item>Andra stoppet</item>
@@ -1450,10 +1377,7 @@
     </string-array>
     <string name="nav_my_location">Min plats</string>
     <string name="nav_no_location">Väntar på GPS-fix…</string>
-    <string name="nav_route_distance">Ruttavstånd: %1$s</string>
     <string name="nav_empty_hint">Tryck på kartan, sök, eller läs in en GPX-fil</string>
-    <string name="nav_need_two">Lägg till minst två stopp för att navigera.</string>
-    <string name="nav_routing">Hittar rutten…</string>
     <string name="nav_route_failed">Ruttjänst otillgänglig, använder raka linjer</string>
     <string name="nav_cant_add_while_running">Kan inte lägga till stopp medan navigation körs</string>
     <string name="nav_search_no_results">Inga resultat för den adressen</string>
@@ -1485,8 +1409,6 @@
     <string name="nav_continue">Fortsätt rakt fram</string>
     <string name="nav_uturn">Gör en U-sväng</string>
     <string name="nav_depart">Kör iväg</string>
-    <string name="nav_goal_label">Mål %1$d av %2$d</string>
-
     <!-- Treasure Hunt directions -->
     <string name="nav_dir_ahead">framför dig</string>
     <string name="nav_dir_left">till vänster om dig</string>
@@ -1496,7 +1418,6 @@
     <string name="nav_dir_behind">bakom dig</string>
     <string name="nav_dir_behind_left">bakom dig, till vänster</string>
     <string name="nav_dir_behind_right">bakom dig, till höger</string>
-    <string name="nav_hunt_primary">%1$s %2$s</string>
     <string name="nav_label_next_stop">Nästa stopp</string>
     <string name="nav_label_destination">Destination</string>
     <string name="nav_prox_hot">Glödhet</string>
@@ -1531,13 +1452,11 @@
 
     <!-- Navigation settings -->
     <string name="nav_setting_voice">Röstvägledning</string>
-    <string name="nav_setting_voice_desc">Läs upp sväng- och skattjaktsinstruktioner</string>
     <string name="nav_setting_arrival_radius">Ankomstradie</string>
     <string name="nav_setting_arrival_radius_desc">Hur nära som räknas som att ett stopp nåtts</string>
     <string name="nav_setting_offroute">Tolerans utanför rutt</string>
     <string name="nav_setting_offroute_desc">Hur långt från rutten innan varningen om avvikelse utlöses</string>
     <string name="nav_setting_default_mode">Standardfärdsätt</string>
-    <string name="nav_setting_open_builder">Öppna ruttbyggaren</string>
     <string name="nav_setting_params">Navigeringsinställningar</string>
     <string name="nav_setting_full_path">Beräkna alltid hela rutten</string>
     <string name="nav_setting_full_path_desc">Av: beräknar bara nästa stopp och visar resten som streckad förhandsvisning</string>
@@ -1565,7 +1484,6 @@
     <string name="studio_cfg_border_width">Kanttjocklek</string>
     <string name="studio_rendering_keep_open">Håll telefonen på och den här skärmen öppen tills renderingen är klar</string>
     <string name="studio_cfg_g_scale">Skala</string>
-    <string name="studio_cfg_g_smoothing">Utjämning</string>
     <string name="studio_export_force_opaque_hint">Format utan transparens använder chromakey-färgen. Kan se konstigt ut på halvtransparenta lager</string>
     <string name="studio_cfg_filter_vivid">Livfull</string>
     <string name="studio_cfg_filter_noir">Noir</string>
@@ -1596,19 +1514,12 @@
     <!-- Battery / Charging screen -->
     <string name="charging_monitor">Batterimonitor</string>
     <string name="charging_back">Tillbaka</string>
-    <string name="charging_added">+%1$.1f%% denna session</string>
-    <string name="charging_disconnected">Inget hjul anslutet</string>
-    <string name="charging_full">Fulladdad</string>
     <string name="charging_charging">Laddar</string>
-    <string name="charging_idle">Laddar inte</string>
-    <string name="charging_estimating">Beräknar…</string>
     <string name="charging_eta_to_target">%1$s till %2$d%%</string>
     <string name="charging_eta_to_full">%1$s till 100%%</string>
     <string name="charging_eta_at">kl. %1$s</string>
     <string name="charging_details">Detaljer</string>
-    <string name="charging_rate">%1$.1f %%/min</string>
     <string name="charging_tab_charge">Laddning</string>
-    <string name="charging_tab_voltage">Spänning</string>
     <string name="charging_tab_packs">Paket</string>
     <string name="charging_estimate_to_full">Beräkna alltid till 100%</string>
     <string name="charging_options">Alternativ</string>
@@ -1616,20 +1527,14 @@
     <string name="charging_stat_added">Tillagt</string>
     <string name="charging_stat_rate">Takt</string>
     <string name="charging_stat_voltage">Spänning</string>
-    <string name="charging_stat_pack1">Paket 1</string>
-    <string name="charging_stat_pack2">Paket 2</string>
     <string name="charging_stat_temp">Temperatur</string>
     <string name="charging_stat_balance">Obalans</string>
     <string name="charging_stat_power">Effekt</string>
     <string name="charging_stat_current">Ström</string>
     <string name="charging_stat_energy">Energi</string>
     <string name="charging_chart_empty">Samlar in data</string>
-    <string name="charging_no_current_note">Takt mätt från laddkurvan</string>
     <string name="battery_history">Batterihistorik</string>
     <string name="setting_charging_auto_open">Öppna vid laddning</string>
-    <string name="setting_charging_dashboard_icon">Batterimonitor-ikon på instrumentpanelen</string>
-    <string name="setting_charging_auto_open_desc">Öppnar Batterimonitor när hjulet börjar laddas</string>
-    <string name="setting_charging_dashboard_icon_desc">Tryck för att öppna Batterimonitor</string>
     <string name="hud_joystick_title">Knappåtgärder</string>
     <string name="hud_joystick_desc">Tryck två gånger på en HUD-knapp för att köra en åtgärd. Ett enkelt tryck byter fortfarande skärm</string>
     <string name="hud_joystick_up">Upp (dubbeltryck)</string>
@@ -1657,19 +1562,6 @@
     <string name="charging_tab_cells">Celler</string>
     <string name="hud_auto_discover">Identifiera länkadressen automatiskt</string>
     <string name="hud_auto_discover_desc"></string>
-    <string name="hud_diag_bind_err">Lyssnar-bindningsfel: %1$s</string>
-    <string name="hud_diag_bind_ok">Lyssnar på :28079 OK</string>
-    <string name="hud_diag_hint">Om mottagna beacons står på 0 i &gt; 10 s på samma WiFi som HUD:en, blockerar routern broadcast. Prova en annan hotspot eller ange manuell IP från HUD-bannern.</string>
-    <string name="hud_diag_never">aldrig</string>
-    <string name="hud_diag_rx">Mottagna UDP-beacons: %1$d · senast %2$s</string>
-    <string name="hud_diag_secs_ago">för %1$d s sedan</string>
-    <string name="hud_status_debug_override">Debug-överskridning</string>
-    <string name="hud_status_label">Ansluten via: %1$s</string>
-    <string name="hud_status_manual">Manuell IP</string>
-    <string name="hud_status_mdns">mDNS</string>
-    <string name="hud_status_searching">Söker…</string>
-    <string name="hud_status_subnet_probe">Subnätsskanning</string>
-    <string name="hud_status_udp_beacon">UDP-beacon</string>
     <string name="scan_bluetooth_off_body">Slå på Bluetooth för att söka efter hjul.</string>
     <string name="scan_bluetooth_off_title">Bluetooth är av</string>
     <string name="scan_enable_bluetooth">Slå på Bluetooth</string>
@@ -1699,7 +1591,6 @@
     <string name="dropbox_share_failed">Delning via Dropbox misslyckades</string>
     <string name="dropbox_email_unverified">Verifiera din Dropbox-e-postadress och försök dela igen</string>
     <string name="dropbox_preparing">Förbereder länken…</string>
-    <string name="dropbox_link_copied">eucviewer-länk kopierad</string>
     <string name="trip_action_share_dropbox">Dela via Dropbox</string>
     <string name="trip_action_share_dropbox_desc">Ladda upp till din Dropbox-mapp och dela den offentliga länken</string>
     <string name="trip_action_inspect_online">Inspektera online</string>
@@ -1714,7 +1605,6 @@
     <string name="nav_ocm_cost">Kostnad</string>
     <string name="nav_ocm_loading">Laddar community-data…</string>
     <string name="nav_ocm_open">Öppna på OCM</string>
-    <string name="nav_ocm_photos">Foton (%1$d)</string>
     <string name="nav_ocm_points">Laddpunkter</string>
     <string name="nav_ocm_usage">Användning</string>
     <string name="nav_ocm_address">Adress</string>
@@ -1730,8 +1620,6 @@
     <string name="nav_poi_distance">Från rutten</string>
     <string name="nav_poi_fee">Avgift</string>
     <string name="nav_poi_food">Mat &amp; dryck</string>
-    <string name="nav_poi_from_route">%1$s från rutten</string>
-    <string name="nav_poi_fuels">Bränslen</string>
     <string name="nav_poi_hours">Öppettider</string>
     <string name="nav_poi_network">Nätverk</string>
     <string name="nav_poi_operator">Operatör</string>
@@ -1745,8 +1633,6 @@
     <string name="nav_poi_type">Typ</string>
     <string name="nav_poi_website">Webbplats</string>
     <string name="nav_pois_failed">Kunde inte ladda platser. Kontrollera din anslutning</string>
-    <string name="nav_pois_loading">Laddar platser…</string>
-    <string name="nav_pois_need_route">Lägg till ett stopp först för att hitta platser längs vägen</string>
     <string name="nav_pois_none">Inget hittades nära den här rutten</string>
     <string name="nav_pois_places_hint">Tips: håll inne den här knappen för att välja vilka platser som visas</string>
     <string name="nav_setting_advanced_map">Avancerade kartfunktioner</string>

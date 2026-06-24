@@ -110,15 +110,9 @@
     <string name="hud_server_enabled">Abilita collegamento dati</string>
     <string name="hud_ip_label">IP del dispositivo</string>
     <string name="hud_ip_label_autodetect">IP del dispositivo (automatico)</string>
-    <string name="hud_ip_desc">Inserisci l\'IP che il HUD mostra sul suo schermo.</string>
     <string name="hud_server_port">Porta</string>
-    <string name="hud_server_port_desc">Predefinito 28080.</string>
     <string name="hud_hotspot_off_hint">L\'hotspot del telefono è disattivato. Assicurati che il HUD e il telefono siano sulla stessa rete WiFi.</string>
     <string name="hud_hotspot_on_hint">L\'hotspot del telefono sta trasmettendo. Collega il HUD al WiFi di questo telefono per abilitare il collegamento.</string>
-    <string name="hud_custom_overlay_label">Overlay HUD personalizzato</string>
-    <string name="hud_custom_overlay_placeholder">Scegli un preset di Overlay Studio</string>
-    <string name="hud_custom_overlay_no_folder">Cartella di backup non configurata</string>
-    <string name="hud_custom_overlay_bundled_only">Scegli un preset (cartella di backup non impostata)</string>
     <string name="hud_custom_overlay_none">Nessuno</string>
 
     <!-- Wear OS companion settings -->
@@ -197,7 +191,6 @@
     <string name="action_overwrite">Sovrascrivi</string>
     <string name="cloud_backup_long_press_hint">Tieni premuto per altre opzioni</string>
     <string name="cloud_backup_name_label">Nome del backup</string>
-    <string name="cloud_backup_name_preview">Sarà salvato come %1$s</string>
     <string name="cloud_backup_overwrite_title">Sovrascrivere "%1$s"?</string>
     <string name="cloud_backup_overwrite_body">Esiste già un backup con questo nome.</string>
     <string name="cloud_restore_picker_default">(predefinito)</string>
@@ -252,11 +245,6 @@
     <string name="phone_keep_screen_on">Mantieni schermo acceso</string>
     <string name="language">Lingua</string>
     <string name="theme">Tema</string>
-    <string name="theme_black">Nero puro</string>
-    <string name="theme_dark">Scuro</string>
-    <string name="theme_light">Chiaro</string>
-    <string name="theme_system">Segui il sistema</string>
-    <string name="accent_color">Colore d\'accento</string>
     <string name="tts_switch_title">Cambiare voce in %1$s?</string>
     <string name="tts_switch_body">La voce di sintesi attuale non corrisponde alla lingua selezionata. Passare a una voce in %1$s per gli annunci?</string>
     <string name="tts_switch_yes">Cambia voce</string>
@@ -281,7 +269,6 @@
     <string name="section_speech">Sintesi vocale</string>
     <string name="section_report_status">Rapporto di stato</string>
     <string name="voice_enabled">Rapporto periodico dello stato</string>
-    <string name="voice_only_when_connected">Solo quando la ruota è connessa</string>
     <string name="voice_announce_when_label">Annuncia</string>
     <string name="voice_announce_always">Sempre</string>
     <string name="voice_announce_connected">Connessa</string>
@@ -395,18 +382,6 @@
 
     <!-- Flic actions -->
     <string name="flic_action_none">Nessuna</string>
-    <string name="flic_action_horn">Clacson</string>
-    <string name="flic_action_light">Accendi/spegni luce</string>
-    <string name="flic_action_lock">Blocca ruota</string>
-    <string name="flic_action_legal_toggle">Attiva/disattiva modalità legale</string>
-    <string name="flic_action_legal_on">Modalità legale ON</string>
-    <string name="flic_action_legal_off">Modalità legale OFF</string>
-    <string name="flic_action_voice">Rapporto vocale</string>
-    <string name="flic_action_record">Avvia/ferma registrazione</string>
-    <string name="flic_action_media_play">Riproduci / Pausa musica</string>
-    <string name="flic_action_media_next">Brano successivo</string>
-    <string name="flic_action_media_prev">Brano precedente</string>
-
     <!-- Alarm editor misc -->
     <string name="alarm_preview_fmt">Anteprima %1$s</string>
 
@@ -442,7 +417,6 @@
     <string name="metric_min">MIN</string>
     <string name="metric_avg">MEDIA</string>
     <string name="metric_max">MAX</string>
-    <string name="metric_time">TEMPO</string>
     <string name="metric_battery">Batteria</string>
     <string name="metric_temperature">Temperatura</string>
     <string name="metric_voltage">Tensione</string>
@@ -483,7 +457,6 @@
     <string name="recording_summary_points">Punti</string>
     <string name="recording_summary_top_speed">Velocità massima</string>
     <string name="recording_summary_avg_speed">Velocità media</string>
-    <string name="recording_summary_min_battery">Batteria minima</string>
     <string name="recording_summary_battery">Batteria (-%1$d%%)</string>
     <string name="recording_summary_voltage">Tensione</string>
     <string name="recording_summary_avg_moving">Media in marcia</string>
@@ -591,9 +564,6 @@
     <string name="about_thanks">Crediti</string>
     <string name="about_thanks_body">Mi sono stancato delle app per EUC che evolvono troppo lentamente, sembrano datate, hanno regole draconiane sulle nuove funzioni, trattano le proprie comunità come clienti e dimenticano che i rider EUC danno il meglio quando si aiutano a vicenda. Questa cerca di essere l\'opposto.</string>
     <string name="toast_external_speed_change">Velocità aggiornata dalla ruota: tiltback %1$d km/h, allarme %2$d km/h</string>
-    <string name="flic_action_record_start">Avvia registrazione del viaggio</string>
-    <string name="flic_action_record_stop">Ferma registrazione del viaggio</string>
-    <string name="section_watch_screen_buttons">Pulsanti</string>
     <string name="watch_screen_button_1">Pulsante 1</string>
     <string name="watch_screen_button_2">Pulsante 2</string>
     <string name="watch_haptic_on_action">Vibra all\'azione</string>
@@ -705,16 +675,11 @@
     <string name="nav_end_confirm">Termina</string>
     <string name="nav_end_title">Terminare la navigazione?</string>
     <string name="nav_expand">Espandi</string>
-    <string name="nav_goal_label">Tappa %1$d di %2$d</string>
-    <string name="nav_hunt_primary">%1$s %2$s</string>
     <string name="nav_label_destination">Destinazione</string>
     <string name="nav_label_next_stop">Prossima fermata</string>
     <string name="nav_last_stop">Ultima fermata</string>
     <string name="nav_load_failed">Impossibile leggere quel file GPX</string>
     <string name="nav_locating">Individuazione della tua posizione…</string>
-    <string name="nav_map_dark">Mappa scura</string>
-    <string name="nav_map_light">Mappa chiara</string>
-    <string name="nav_map_satellite">Mappa satellitare</string>
     <string name="nav_map_style">Stile mappa</string>
     <string name="nav_max_stops">Fino a una destinazione e 24 fermate</string>
     <string name="nav_menu">Menu</string>
@@ -729,25 +694,18 @@
     <string name="nav_mode_walking">A piedi</string>
     <string name="nav_my_location">La mia posizione</string>
     <string name="nav_need_destination">Aggiungi prima una destinazione</string>
-    <string name="nav_need_two">Aggiungi almeno due fermate per navigare.</string>
     <string name="nav_no_location">In attesa del segnale GPS…</string>
     <string name="nav_no_results">Nessun risultato trovato</string>
     <string name="nav_off_route">Fuori percorso</string>
     <string name="nav_open">Apri il navigatore</string>
     <string name="nav_pin_center">Centra sulla mappa</string>
-    <string name="nav_pin_remove">Rimuovi</string>
-    <string name="nav_pin_set_my_location">Imposta sulla mia posizione</string>
     <string name="nav_prox_cold">Più freddo</string>
     <string name="nav_prox_hot">Caldissimo</string>
     <string name="nav_prox_warm">Più caldo</string>
     <string name="nav_recalculating">Ricalcolo in corso…</string>
     <string name="nav_remove_stop">Rimuovi fermata</string>
-    <string name="nav_role_current_location">Posizione attuale</string>
     <string name="nav_role_destination">Destinazione</string>
-    <string name="nav_role_start">Partenza</string>
-    <string name="nav_route_distance">Distanza percorso: %1$s</string>
     <string name="nav_route_failed">Servizio di routing non disponibile, uso linee dritte</string>
-    <string name="nav_routing">Calcolo del percorso…</string>
     <string name="nav_save_failed">Impossibile salvare il percorso</string>
     <string name="nav_route_saved">Percorso salvato</string>
     <string name="nav_save_home">Salva come Casa</string>
@@ -755,7 +713,6 @@
     <string name="nav_search_hint">Cerca indirizzo o luogo</string>
     <string name="nav_searching">Ricerca…</string>
     <string name="nav_self_add_stop">Aggiungi come fermata</string>
-    <string name="nav_self_title">La tua posizione</string>
     <string name="nav_setting_arrival_radius">Raggio di arrivo</string>
     <string name="nav_setting_arrival_radius_desc">Quanto vicino conta come fermata raggiunta</string>
     <string name="nav_setting_default_mode">Modalità di viaggio predefinita</string>
@@ -764,17 +721,13 @@
     <string name="nav_setting_geocoder_url">URL ricerca indirizzi</string>
     <string name="nav_setting_offroute">Tolleranza fuori percorso</string>
     <string name="nav_setting_offroute_desc">Quanto distante dal percorso prima che scatti l\'avviso fuori rotta</string>
-    <string name="nav_setting_open_builder">Apri il creatore di percorsi</string>
     <string name="nav_setting_params">Parametri di navigazione</string>
     <string name="nav_setting_router_url">URL di routing</string>
     <string name="nav_setting_voice">Guida vocale</string>
-    <string name="nav_setting_voice_desc">Annuncia le svolte e le istruzioni della Caccia al tesoro</string>
-    <string name="nav_skip_locating">Salta</string>
     <string name="nav_start_riding">Inizia a guidare</string>
     <string name="nav_start_short">Avvia navigazione</string>
     <string name="nav_stop_short">Ferma navigazione</string>
     <string name="nav_stops_left">%1$d fermate rimaste</string>
-    <string name="nav_next_distance">Prossima: %1$s</string>
     <string name="nav_tap_on_self">Nell\'elenco Fermate, tieni premuta una fermata per impostarla sulla tua posizione</string>
     <string name="nav_title">Creatore di percorsi</string>
     <string name="nav_turn_left">Gira a sinistra</string>
@@ -784,7 +737,6 @@
     <string name="nav_turn_slight_left">Tieni la sinistra</string>
     <string name="nav_turn_slight_right">Tieni la destra</string>
     <string name="nav_uturn">Fai inversione a U</string>
-    <string name="nav_waypoint_default">Punto %1$d</string>
     <string name="nav_waypoints">Fermate</string>
     <string name="studio_camera_permission">L\'accesso alla fotocamera è necessario per le inquadrature</string>
     <string name="studio_grant">Concedi accesso</string>
@@ -796,12 +748,10 @@
     <string name="studio_photo_failed">Impossibile salvare la foto</string>
     <string name="studio_photo_saved">Foto salvata nella galleria</string>
     <string name="studio_preset_failed">Impossibile salvare il preset</string>
-    <string name="studio_preset_loaded">Preset caricato</string>
     <string name="studio_preset_saved">Preset salvato</string>
     <string name="studio_recording_failed">Impossibile salvare la registrazione</string>
     <string name="studio_recording_saved">Registrazione salvata nella galleria</string>
     <string name="studio_stop">Ferma</string>
-    <string name="tab_navigator">Navigatore</string>
     <string name="voice_dist_ft">%1$d piedi</string>
     <string name="voice_dist_km">%1$s chilometri</string>
     <string name="voice_dist_m">%1$d metri</string>
@@ -934,8 +884,6 @@
     <string name="studio_layout_grid_4">Griglia 2 × 2</string>
     <string name="studio_layout_title">Inquadrature della fotocamera</string>
     <string name="studio_load_preset_title">Carica preset</string>
-    <string name="studio_manage_empty">Ancora nessun elemento,usa Aggiungi elemento per inserirne uno.</string>
-    <string name="studio_manage_hint">Trascina per riordinare, tocca una riga per selezionarla</string>
     <string name="studio_manage_title">Gestisci elementi</string>
     <string name="studio_metric_battery">Batteria</string>
     <string name="studio_metric_current">Corrente</string>
@@ -1050,7 +998,6 @@
     <string name="studio_chroma_cyan">Ciano</string>
     <string name="studio_export_force_opaque">Forza opacità totale</string>
     <string name="studio_cfg_g_scale">Scala</string>
-    <string name="studio_cfg_g_smoothing">Smussatura</string>
     <string name="studio_cfg_geometry">Geometria</string>
     <string name="studio_export_force_opaque_hint">I formati senza trasparenza usano il colore chroma key; può non rendere bene su layer semitrasparenti</string>
     <string name="studio_cfg_filter_vivid">Vivido</string>
@@ -1314,7 +1261,6 @@
     <string name="metric_chip_lateral_g_tile">Side g</string>
     <string name="metric_chip_bt_rssi_tile">BT</string>
     <string name="section_watch_device">Dispositivi</string>
-    <string name="section_watch_paired">Dispositivi accoppiati</string>
     <string name="watch_paired_none">Nessun orologio accoppiato</string>
     <string name="watch_paired_none_desc">Installa l\'app companion EUC Planet su un orologio Wear OS o Garmin per iniziare a ricevere il quadrante qui</string>
     <string name="watch_paired_kind_wear">Wear OS</string>
@@ -1322,11 +1268,6 @@
     <string name="watch_paired_active">Live</string>
     <string name="watch_paired_idle">Inattivo</string>
     <string name="watch_paired_rate_hz">%1$.1f Hz</string>
-    <string name="watch_paired_garmin_limits_title">Limitazioni Garmin</string>
-    <string name="watch_paired_garmin_limit_launch">Garmin non avvia automaticamente l\'app dell\'orologio</string>
-    <string name="watch_paired_garmin_limit_rate">Garmin si aggiorna più lentamente di Wear OS</string>
-    <string name="watch_paired_garmin_limit_rotation">La rotazione del quadrante non è disponibile. Connect IQ non ha una matrice di trasformazione nativa per ruotare il quadrante renderizzato.</string>
-    <string name="section_watch_hardware_buttons">Pulsanti hardware</string>
     <string name="watch_buttons_hardware_info">I gesti di pressione prolungata possono essere intercettati dal sistema su alcuni orologi</string>
     <string name="watch_buttons_touch_info">Dipende dal tuo orologio</string>
     <string name="watch_buttons_hardware_label">Fisici</string>
@@ -1336,8 +1277,6 @@
     <string name="watch_hardware_button_2">Pulsante 2</string>
     <string name="watch_hardware_button_1_subtitle">Garmin: Start · Galaxy Watch Ultra: pulsante Action arancione</string>
     <string name="watch_hardware_button_2_subtitle">Garmin: Su (pressione lunga) · Galaxy Watch Ultra: pulsante laterale inferiore</string>
-    <string name="section_watch_screen_buttons_desc">Aree tattili disegnate sul quadrante dell\'orologio</string>
-    <string name="section_watch_hardware_buttons_desc">Pulsanti laterali dell\'orologio</string>
     <!-- Radar posteriore (Garmin Varia oggi) -->
     <string name="section_radar">Radar posteriore</string>
     <string name="radar_caption">Tieni premuto il pulsante del Varia per 2 secondi finché non lampeggia in viola, poi avvia una scansione.</string>
@@ -1374,10 +1313,8 @@
     <string name="hud_overlay_select_preset">Importa preset</string>
     <string name="hud_overlay_current_preset">Attuale: %1$s</string>
     <string name="hud_search_corpus">HUD heads-up display compagno server stream telemetria hotspot motoeye freccia di svolta</string>
-    <string name="hud_personalize_title">Personalizza</string>
     <string name="hud_screens_title">Schermate HUD</string>
     <string name="hud_map_options_title">Opzioni mappa</string>
-    <string name="hud_personalize_desc">Scegli quali schermate l\'HUD mostra e l\'ordine con cui le alterna. Almeno una schermata deve restare attiva.</string>
     <string name="hud_screen_name_dashboard">Cruscotto</string>
     <string name="hud_screen_name_camera">Telecamera posteriore</string>
     <string name="hud_screen_name_telemetry">Telemetria</string>
@@ -1395,10 +1332,6 @@
     <string name="hud_map_brightness_label">Luminosità</string>
     <string name="hud_install_hint">Ti serve l\'app HUD? Scaricala da <b>eucplanet.ried.no/hud</b></string>
     <string name="hud_update_url">eucplanet.ried.no/hud</string>
-    <string name="hud_version_hint_hud_behind">Aggiornamento HUD disponibile. Le nuove funzioni del telefono non compariranno finché non aggiorni l\'HUD da <b>eucplanet.ried.no/hud</b></string>
-    <string name="hud_version_hint_phone_behind">Aggiornamento del telefono disponibile. Alcune funzioni dell\'HUD non compariranno finché non aggiorni questa app da <b>eucplanet.ried.no/hud</b></string>
-    <string name="hud_version_block_hud_behind">Aggiornamento HUD richiesto. L\'app HUD è troppo vecchia per comunicare con questo telefono. Aggiornala da <b>eucplanet.ried.no/hud</b> per continuare.</string>
-    <string name="hud_version_block_phone_behind">Aggiornamento del telefono richiesto. Questa app è troppo vecchia per comunicare con l\'HUD. Aggiornala da <b>eucplanet.ried.no/hud</b> per continuare.</string>
     <string name="nav_setting_full_path">Calcola sempre l\'intero percorso</string>
     <string name="nav_setting_full_path_desc">Disattivato calcola solo la prossima tappa e mostra il resto come anteprima tratteggiata</string>
     <string name="studio_cfg_clock_24h">Formato 24 ore</string>
@@ -1424,27 +1357,16 @@
     <string name="online_upload_profile_country_select">Seleziona il tuo paese</string>
     <string name="online_upload_country_search">Cerca paesi</string>
     <string name="online_upload_profile_avatar_hint">Tocca per aggiungere una foto</string>
-    <string name="online_upload_profile_flag_label">Codice paese (ISO 3166-1 alpha-2)</string>
-    <string name="online_upload_profile_flag_placeholder">es. NO, US, DE</string>
-    <string name="online_upload_profile_flag_error">Inserisci un codice paese di 2 lettere (es. NO)</string>
-    <string name="online_upload_profile_avatar_pick">Scegli foto…</string>
-    <string name="online_upload_profile_avatar_change">Cambia foto…</string>
-    <string name="online_upload_profile_avatar_required">Tocca per scegliere e ritagliare</string>
-    <string name="online_upload_profile_avatar_placeholder">Foto</string>
-
     <!-- Registration outcome -->
     <string name="online_upload_register_action">Registrati</string>
     <string name="online_upload_register_error">Registrazione non riuscita. Controlla la connessione e riprova.</string>
 
     <!-- Online stats toggle + rider card -->
     <string name="section_online_stats">Classifiche online</string>
-    <string name="online_upload_toggle">Partecipa alle classifiche online</string>
     <string name="online_upload_card_loading">Caricamento…</string>
     <string name="online_upload_card_unavailable">Impossibile caricare</string>
     <string name="online_profile_retry">Riprova</string>
     <string name="online_upload_actions_caption">Upload statistiche viaggi</string>
-    <string name="online_upload_view_on_eucstats">Vedi su EUC Stats</string>
-    <string name="online_upload_retry">Riprova upload</string>
     <string name="online_upload_mileage_rank">#%d chilometraggio</string>
     <string name="online_upload_top_speed">max %1$s %2$s</string>
     <string name="online_upload_trips">%d viaggi</string>
@@ -1466,7 +1388,6 @@
     <string name="online_profile_manage">Gestisci profilo</string>
     <string name="online_profile_title">Il mio profilo</string>
     <string name="online_profile_changeable_on">Potrai modificarlo di nuovo il %1$s</string>
-    <string name="online_profile_avatar_has">Impostata</string>
     <string name="online_profile_export_data">Esporta i miei dati</string>
     <string name="online_profile_delete_account">Elimina account</string>
     <string name="online_profile_delete_confirm_title">Eliminare l\'account?</string>
@@ -1489,19 +1410,12 @@
     <!-- Battery / Charging screen -->
     <string name="charging_monitor">Monitor batteria</string>
     <string name="charging_back">Indietro</string>
-    <string name="charging_added">+%1$.1f%% questa sessione</string>
-    <string name="charging_disconnected">Nessuna ruota connessa</string>
-    <string name="charging_full">Carica completa</string>
     <string name="charging_charging">In carica</string>
-    <string name="charging_idle">Non in carica</string>
-    <string name="charging_estimating">Stima…</string>
     <string name="charging_eta_to_target">%1$s al %2$d%%</string>
     <string name="charging_eta_to_full">%1$s al 100%%</string>
     <string name="charging_eta_at">alle %1$s</string>
     <string name="charging_details">Dettagli</string>
-    <string name="charging_rate">%1$.1f %%/min</string>
     <string name="charging_tab_charge">Carica</string>
-    <string name="charging_tab_voltage">Tensione</string>
     <string name="charging_tab_packs">Pacchi</string>
     <string name="charging_estimate_to_full">Stima sempre al 100%</string>
     <string name="charging_options">Opzioni</string>
@@ -1509,20 +1423,14 @@
     <string name="charging_stat_added">Aggiunto</string>
     <string name="charging_stat_rate">Tasso</string>
     <string name="charging_stat_voltage">Tensione</string>
-    <string name="charging_stat_pack1">Pacco 1</string>
-    <string name="charging_stat_pack2">Pacco 2</string>
     <string name="charging_stat_temp">Temperatura</string>
     <string name="charging_stat_balance">Squilibrio</string>
     <string name="charging_stat_power">Potenza</string>
     <string name="charging_stat_current">Corrente</string>
     <string name="charging_stat_energy">Energia</string>
     <string name="charging_chart_empty">Raccolta dati</string>
-    <string name="charging_no_current_note">Tasso misurato dalla curva di carica</string>
     <string name="battery_history">Cronologia batteria</string>
     <string name="setting_charging_auto_open">Apri in carica</string>
-    <string name="setting_charging_dashboard_icon">Icona del monitor batteria nella dashboard</string>
-    <string name="setting_charging_auto_open_desc">Apre il Monitor batteria quando la ruota inizia a caricare</string>
-    <string name="setting_charging_dashboard_icon_desc">Toccalo per aprire il Monitor batteria</string>
     <string name="dashboard_custom_ble_default_name">BLE personalizzato</string>
     <string name="dashboard_custom_ble_family">Filtro famiglia di ruote</string>
     <string name="dashboard_custom_ble_frames">Frame (hex)</string>
@@ -1561,19 +1469,6 @@
     <string name="charging_tab_cells">Celle</string>
     <string name="hud_auto_discover">Rileva automaticamente l\'indirizzo del link</string>
     <string name="hud_auto_discover_desc"></string>
-    <string name="hud_diag_bind_err">Errore di binding del listener: %1$s</string>
-    <string name="hud_diag_bind_ok">Listener su :28079 OK</string>
-    <string name="hud_diag_hint">Se i beacon ricevuti restano a 0 per &gt; 10 s sulla stessa WiFi dell\'HUD, il router filtra il broadcast. Prova un altro hotspot o imposta un IP manuale dal banner dell\'HUD.</string>
-    <string name="hud_diag_never">mai</string>
-    <string name="hud_diag_rx">Beacon UDP ricevuti: %1$d · ultimo %2$s</string>
-    <string name="hud_diag_secs_ago">%1$ds fa</string>
-    <string name="hud_status_debug_override">Override debug</string>
-    <string name="hud_status_label">Connesso tramite: %1$s</string>
-    <string name="hud_status_manual">IP manuale</string>
-    <string name="hud_status_mdns">mDNS</string>
-    <string name="hud_status_searching">Ricerca in corso…</string>
-    <string name="hud_status_subnet_probe">Scansione subnet</string>
-    <string name="hud_status_udp_beacon">Beacon UDP</string>
     <string name="scan_bluetooth_off_body">Attiva il Bluetooth per cercare le ruote.</string>
     <string name="scan_bluetooth_off_title">Bluetooth disattivato</string>
     <string name="scan_enable_bluetooth">Attiva Bluetooth</string>
@@ -1601,7 +1496,6 @@
     <string name="dropbox_share_failed">Condivisione Dropbox non riuscita</string>
     <string name="dropbox_email_unverified">Verifica l\'indirizzo email del tuo account Dropbox, poi riprova a condividere</string>
     <string name="dropbox_preparing">Preparazione del link…</string>
-    <string name="dropbox_link_copied">Link eucviewer copiato</string>
     <string name="trip_action_share_dropbox">Condividi su Dropbox</string>
     <string name="trip_action_share_dropbox_desc">Carica nella tua cartella Dropbox e condividi il link pubblico</string>
     <string name="trip_action_inspect_online">Ispeziona online</string>
@@ -1616,7 +1510,6 @@
     <string name="nav_ocm_cost">Costo</string>
     <string name="nav_ocm_loading">Caricamento dati della community…</string>
     <string name="nav_ocm_open">Apri su OCM</string>
-    <string name="nav_ocm_photos">Foto (%1$d)</string>
     <string name="nav_ocm_points">Punti di ricarica</string>
     <string name="nav_ocm_usage">Utilizzo</string>
     <string name="nav_ocm_address">Indirizzo</string>
@@ -1632,8 +1525,6 @@
     <string name="nav_poi_distance">Dal percorso</string>
     <string name="nav_poi_fee">Tariffa</string>
     <string name="nav_poi_food">Cibo e bevande</string>
-    <string name="nav_poi_from_route">%1$s dal percorso</string>
-    <string name="nav_poi_fuels">Carburanti</string>
     <string name="nav_poi_hours">Orari</string>
     <string name="nav_poi_network">Rete</string>
     <string name="nav_poi_operator">Gestore</string>
@@ -1647,8 +1538,6 @@
     <string name="nav_poi_type">Tipo</string>
     <string name="nav_poi_website">Sito web</string>
     <string name="nav_pois_failed">Impossibile caricare i luoghi. Controlla la connessione</string>
-    <string name="nav_pois_loading">Caricamento luoghi…</string>
-    <string name="nav_pois_need_route">Aggiungi prima una fermata per trovare luoghi lungo il percorso</string>
     <string name="nav_pois_none">Niente trovato vicino a questo percorso</string>
     <string name="nav_pois_places_hint">Suggerimento: tieni premuto questo pulsante per scegliere quali luoghi mostrare</string>
     <string name="nav_setting_advanced_map">Funzioni avanzate della mappa</string>
