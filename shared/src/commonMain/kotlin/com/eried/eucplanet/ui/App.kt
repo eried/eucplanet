@@ -219,6 +219,7 @@ fun App() {
         // Which Settings sections are expanded — hoisted to App so it survives
         // leaving + re-entering the Settings screen (sub-screen navigation).
         var expandedSettings by remember { mutableStateOf(emptySet<String>()) }
+        var showCalibration by remember { mutableStateOf(false) }
 
         // Shared battery-charging estimator — fed each telemetry frame below.
         val chargeEstimator = remember { ChargeEstimator() }
@@ -941,6 +942,7 @@ fun App() {
                     gpsManager = gpsManager,
                     radarManager = radarManager,
                     dropboxMsg = dropboxMsg,
+                    onCalibrateSpeed = { showCalibration = true },
                     onLinkDropbox = {
                         val verifier = dropbox.newVerifier()
                         val challenge = dropbox.challengeFor(verifier)
@@ -1199,6 +1201,18 @@ fun App() {
                 onCueVisible = { navigationEngine.setCueVisible(it) },
                 suppressOnPhone = route == Route.Map,
             )
+            if (showCalibration) {
+                SpeedCalibrationDialog(
+                    wheelKmh = current.speed,
+                    phoneGpsKmh = (LocationService.location.value?.speedKmh ?: 0f).coerceAtLeast(0f),
+                    externalGpsKmh = gpsManager.sample.value?.speedKmh ?: 0f,
+                    gForce = current.gForce,
+                    unitSpeed = settings.unitSpeed,
+                    currentPct = settings.speedCalibrationPct,
+                    onApply = { pct -> settingsStore.update { it.copy(speedCalibrationPct = pct) } },
+                    onDismiss = { showCalibration = false },
+                )
+            }
             }
         }
     }

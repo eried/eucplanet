@@ -106,6 +106,7 @@ internal fun SettingsScreen(
     onLinkDropbox: () -> Unit = {},
     onUnlinkDropbox: () -> Unit = {},
     onBackupDropbox: () -> Unit = {},
+    onCalibrateSpeed: () -> Unit = {},
     dropboxMsg: String? = null,
     onEditAlarm: (AlarmRule) -> Unit,
     onVoicePicker: () -> Unit,
@@ -253,6 +254,10 @@ internal fun SettingsScreen(
                         }
                         SliderRow(c, "Legal Alarm", "${settings.legalAlarmKmh.roundToInt()} km/h", settings.legalAlarmKmh, 5f..40f, enabled = connected) {
                             onUpdate { s -> s.copy(legalAlarmKmh = it) }
+                        }
+                        if (connected) {
+                            Spacer(Modifier.height(8.dp))
+                            CloudButton(c, "Calibrate with GPS", true) { onCalibrateSpeed() }
                         }
                     }
 
