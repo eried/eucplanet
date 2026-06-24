@@ -140,8 +140,8 @@ data class AppSettings(
     val navArrivalRadiusM: Int = 25,
     val navOffRouteToleranceM: Int = 40,
     val navSolveFullPath: Boolean = true,
-    val navRouterUrl: String = "",
-    val navGeocoderUrl: String = "",
+    val navRouterUrl: String = "https://routing.openstreetmap.de",
+    val navGeocoderUrl: String = "https://nominatim.openstreetmap.org/search",
     val navDefaultTravelMode: String = "CYCLING", // CYCLING | DRIVING | WALKING | STRAIGHT
     val navMapType: String = "DARK",              // DARK | LIGHT | SATELLITE
     val navHomeJson: String = "",

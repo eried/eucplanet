@@ -284,7 +284,9 @@ fun RouteBuilderScreen(vm: RouteBuilderViewModel, onBack: () -> Unit) {
                         .background(if (navRunning) c.statusDanger else if (canStart) c.primary else c.surface)
                         .clickable(enabled = navRunning || canStart) {
                             if (navRunning) vm.stopNavigation()
-                            else vm.startNavigation(NavMode.TURN_BY_TURN) {}
+                            // Android pops back to the dashboard on start, where the
+                            // turn-by-turn overlay takes over (return here via the map button).
+                            else vm.startNavigation(NavMode.TURN_BY_TURN) { onBack() }
                         }.padding(vertical = 13.dp),
                     contentAlignment = Alignment.Center,
                 ) {
