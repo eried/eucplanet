@@ -474,13 +474,28 @@ class GarminBridge @Inject constructor(
         if (!started || !sdkReady) return
         try {
             val s = runBlocking { settingsRepository.get() }
-            publish(
-                data = com.eried.eucplanet.data.model.WheelData(),
-                state = ConnectionState.DISCONNECTED,
-                name = wheelRepository.modelName.value,
-                maxSpeed = 30f,
-                settings = s
-            )
+            // Run the actual send OFF the caller's thread. WheelService.onDestroy
+            // calls this on the main thread, and in TETHERED mode
+            // connectIQ.sendMessage does a synchronous socket write -- which
+            // throws NetworkOnMainThreadException there, so the farewell never
+            // went out. (WIRELESS sends are async, so this only bit the
+            // emulator/simulator path.) A bounded join keeps the farewell
+            // ordered before onDestroy's process kill.
+            val t = Thread {
+                try {
+                    publish(
+                        data = com.eried.eucplanet.data.model.WheelData(),
+                        state = ConnectionState.DISCONNECTED,
+                        name = wheelRepository.modelName.value,
+                        maxSpeed = 30f,
+                        settings = s
+                    )
+                } catch (e: Exception) {
+                    Log.d(TAG, "farewell publish skipped: ${e.message}")
+                }
+            }
+            t.start()
+            t.join(800)
         } catch (e: Exception) {
             Log.d(TAG, "farewell publish skipped: ${e.message}")
         }
@@ -582,6 +597,7 @@ class GarminBridge @Inject constructor(
             put(GarminKeys.OPT_GAUGE_BAND, settings.showGaugeColorBand)
             put(GarminKeys.OPT_GAUGE_ORANGE, settings.gaugeOrangeThresholdPct)
             put(GarminKeys.OPT_GAUGE_RED, settings.gaugeRedThresholdPct)
+            put(GarminKeys.OPT_CLOSE_ON_EXIT, settings.watchCloseOnExit)
             put(GarminKeys.STEM1_CLICK, settings.watchStem1Click)
             put(GarminKeys.STEM1_HOLD, settings.watchStem1Hold)
             put(GarminKeys.STEM2_CLICK, settings.watchStem2Click)

@@ -517,35 +517,49 @@ class DashboardViewModel @Inject constructor(
         }
     }
 
+    @OptIn(kotlinx.coroutines.DelicateCoroutinesApi::class)
     fun stopEverything() {
-        // If the user opted in, ask the paired watch to close its app too so
-        // its dial doesn't sit on a stale frame after we tear the session
-        // down. Fire-and-forget on a background dispatcher so the activity
-        // finish() that follows isn't blocked on the message round-trip.
-        viewModelScope.launch(Dispatchers.IO) {
+        // Ask the paired watch(es) to close, THEN tear ourselves down.
+        //
+        // This runs on a process-lifetime scope, NOT viewModelScope: the
+        // performStopAllAndExit caller finishes the activity right after this
+        // returns (which cancels viewModelScope), and the service SIGKILLs the
+        // process a moment later. The Garmin QUIT used to be fire-and-forget on
+        // viewModelScope and so lost that race every time -- the watch was left
+        // sitting on a stale dial. We now send it on a scope that survives the
+        // finish, block until the CIQ hand-off completes, and only THEN fire
+        // the kill.
+        kotlinx.coroutines.GlobalScope.launch(Dispatchers.IO) {
             try {
                 val settings = settingsRepository.get()
                 if (settings.watchCloseOnExit) {
-                    wearBridge.sendCloseToWatchBlocking()
+                    // Wear hands the QUIT to Google Play Services, which delivers
+                    // it even after our process dies, so fire-and-forget is fine
+                    // and we don't want to block the kill waiting on it.
+                    launch { try { wearBridge.sendCloseToWatchBlocking() } catch (_: Exception) {} }
+                    // Garmin's hand-off (Connect Mobile, or the tethered
+                    // simulator socket) does NOT survive our death, so this MUST
+                    // finish before we SIGKILL. sendCloseToWatchBlocking now
+                    // actually blocks until the SDK reports the send.
                     garminBridge.sendCloseToWatchBlocking()
                 }
             } catch (_: Exception) { /* best effort */ }
-        }
-        // Send ACTION_STOP_ALL_AND_KILL via startService so the service's
-        // onStartCommand can flip the kill-on-destroy flag before stopSelf
-        // triggers onDestroy. A plain stopService(intent) would skip
-        // onStartCommand entirely and leave the flag unset, so the kill
-        // path wouldn't fire and the OS would keep the process cached
-        // (the original "Stop All didn't take" bug).
-        val intent = Intent(context, WheelService::class.java).apply {
-            action = WheelService.ACTION_STOP_ALL_AND_KILL
-        }
-        try { context.startService(intent) } catch (_: Exception) {
-            // startService can throw if the app is already in the background
-            // (Android O+ restrictions). Fall back to plain stopService so
-            // the service at least tears down, even if the SIGKILL doesn't
-            // fire and the OS keeps the process briefly cached.
-            context.stopService(Intent(context, WheelService::class.java))
+            // Send ACTION_STOP_ALL_AND_KILL via startService so the service's
+            // onStartCommand can flip the kill-on-destroy flag before stopSelf
+            // triggers onDestroy. A plain stopService(intent) would skip
+            // onStartCommand entirely and leave the flag unset, so the kill
+            // path wouldn't fire and the OS would keep the process cached
+            // (the original "Stop All didn't take" bug).
+            val intent = Intent(context, WheelService::class.java).apply {
+                action = WheelService.ACTION_STOP_ALL_AND_KILL
+            }
+            try { context.startService(intent) } catch (_: Exception) {
+                // startService can throw if the app is already in the background
+                // (Android O+ restrictions). Fall back to plain stopService so
+                // the service at least tears down, even if the SIGKILL doesn't
+                // fire and the OS keeps the process briefly cached.
+                context.stopService(Intent(context, WheelService::class.java))
+            }
         }
     }
 
