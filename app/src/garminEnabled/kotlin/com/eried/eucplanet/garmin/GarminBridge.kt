@@ -442,7 +442,29 @@ class GarminBridge @Inject constructor(
     fun sendCloseToWatchBlocking() {
         try {
             if (!sdkReady) return
-            sendKindToAll(GarminKeys.KIND_QUIT)
+            val devices = registeredDevices.values.toList()
+            if (devices.isEmpty()) return
+            val payload = HashMap<String, Any>(1).apply { put(GarminKeys.KIND, GarminKeys.KIND_QUIT) }
+            // Actually BLOCK until the SDK confirms the QUIT left the phone (or a
+            // short cap elapses). stopEverything() kills our process right after
+            // calling this, so the old fire-and-forget sendMessage was torn down
+            // before Connect Mobile transmitted it — the watch app never received
+            // the quit and stayed open. Mirrors WearBridge.sendCloseToWatchBlocking's
+            // Tasks.await(); runs on a background dispatcher so it never blocks UI.
+            val latch = java.util.concurrent.CountDownLatch(devices.size)
+            for (device in devices) {
+                try {
+                    connectIQ.sendMessage(device, app, payload) { _, _, status ->
+                        Log.d(TAG, "Garmin close to ${device.friendlyName}: $status")
+                        latch.countDown()
+                    }
+                } catch (e: Exception) {
+                    Log.d(TAG, "Garmin close to ${device.friendlyName} failed: ${e.message}")
+                    latch.countDown()
+                }
+            }
+            latch.await(1500, java.util.concurrent.TimeUnit.MILLISECONDS)
+            Log.i(TAG, "Garmin close sent to ${devices.size} device(s)")
         } catch (e: Exception) {
             Log.d(TAG, "Garmin close skipped: ${e.message}")
         }

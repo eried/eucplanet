@@ -24,6 +24,11 @@ calling it.)
   Auto-start now appears for Garmin-only setups too (it used to be hidden unless
   a Wear OS watch was also paired). The genuine Garmin limits (telemetry rate
   cap, no dial rotation) keep their badge.
+- **Close-on-exit now works on Garmin too.** With **Watch -> Close on exit**
+  enabled, "Stop all" actually closes the watch app instead of leaving its dial
+  up on a frozen frame. (The phone now waits for the quit message to be sent
+  before it shuts itself down; it used to fire it off and get killed first, so
+  the watch never received it.)
 
 ## How to test
 
@@ -39,6 +44,8 @@ calling it.)
    **"Launch EUC Planet?"** -> tap **Always**.
 5. Do it again: now the watch app should open **automatically with no prompt**,
    and the dial should start showing live telemetry.
+6. Turn on **Watch -> Close on exit** too, then hit **Stop all** on the phone:
+   the watch app should close itself (it used to stay open on a stale dial).
 
 ## Reporting back
 
