@@ -218,7 +218,7 @@ fun App() {
 
         // Which Settings sections are expanded — hoisted to App so it survives
         // leaving + re-entering the Settings screen (sub-screen navigation).
-        var expandedSettings by remember { mutableStateOf(setOf("General")) }
+        var expandedSettings by remember { mutableStateOf(emptySet<String>()) }
 
         // Shared battery-charging estimator — fed each telemetry frame below.
         val chargeEstimator = remember { ChargeEstimator() }

@@ -82,6 +82,10 @@ fun RouteBuilderScreen(vm: RouteBuilderViewModel, onBack: () -> Unit) {
     val work by vm.work.collectAsState()
 
     var mapReady by remember { mutableStateOf(false) }
+    // Safety net: the map gates all marker/route drawing on the tile-load event, but in
+    // WKWebView (CDN tiles) that event can miss — unblock rendering after a few seconds so
+    // tapping a stop still draws it. No-op once onTilesLoaded has already fired.
+    LaunchedEffect(Unit) { delay(3500); mapReady = true }
     var query by remember { mutableStateOf("") }
     var menuOpen by remember { mutableStateOf(false) }
     val fileStore = remember { createFileStore() }
@@ -206,9 +210,9 @@ fun RouteBuilderScreen(vm: RouteBuilderViewModel, onBack: () -> Unit) {
             Column(
                 Modifier.fillMaxWidth().padding(10.dp).clip(RoundedCornerShape(18.dp)).background(c.dialog).padding(14.dp),
             ) {
-                // Travel modes.
+                // Travel modes — Android order: Direct, Bike, Walk, Car.
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                    TravelMode.entries.forEach { m ->
+                    listOf(TravelMode.STRAIGHT, TravelMode.CYCLING, TravelMode.WALKING, TravelMode.DRIVING).forEach { m ->
                         val sel = m == travelMode
                         Box(
                             Modifier.weight(1f).clip(RoundedCornerShape(10.dp))
