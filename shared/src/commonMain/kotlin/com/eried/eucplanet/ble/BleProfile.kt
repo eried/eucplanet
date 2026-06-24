@@ -29,6 +29,15 @@ data class BleProfile(
             notifyCharacteristic = "6e400003-b5a3-f393-e0a9-e50e24dcca9e"
         )
 
+        /** Garmin Varia rear-view radar (notify-only `…3203`). The transport
+         *  requires a write char, so we point it at the notify char too — radar
+         *  is read-only and we never write to it. */
+        val VARIA_RADAR = BleProfile(
+            serviceUuid = "6a4e3200-667b-11e3-949a-0800200c9a66",
+            writeCharacteristic = "6a4e3203-667b-11e3-949a-0800200c9a66",
+            notifyCharacteristic = "6a4e3203-667b-11e3-949a-0800200c9a66"
+        )
+
         /**
          * HM-10 / JNHuaMao profile shared by KingSong, Begode/Gotway and
          * Veteran wheels. Same service+characteristic UUIDs across all three

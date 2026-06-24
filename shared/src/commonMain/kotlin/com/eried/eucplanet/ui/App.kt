@@ -11,6 +11,7 @@ import androidx.compose.animation.Crossfade
 import androidx.compose.animation.core.tween
 import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -57,6 +58,7 @@ import com.eried.eucplanet.ui.studio.StudioRecorder
 import com.eried.eucplanet.ble.WheelSession
 import com.eried.eucplanet.ble.extgps.ExternalGpsManager
 import com.eried.eucplanet.ble.isLikelyWheel
+import com.eried.eucplanet.radar.RadarManager
 import com.eried.eucplanet.ble.transport.BleConnState
 import com.eried.eucplanet.ble.transport.BleDevice
 import com.eried.eucplanet.cloud.EditResult
@@ -226,6 +228,17 @@ fun App() {
                 gpsManager.connect(settings.externalGpsAddress)
             } else if (!settings.externalGpsEnabled && gpsManager.connected.value) {
                 gpsManager.disconnect()
+            }
+        }
+        // Rear-view radar (Garmin Varia) on its OWN BLE central too.
+        val radarManager = remember { RadarManager(scope) }
+        val radarThreats by radarManager.threats.collectAsState()
+        val radarConnected by radarManager.connected.collectAsState()
+        LaunchedEffect(settings.radarEnabled, settings.radarAddress) {
+            if (settings.radarEnabled && settings.radarAddress.isNotBlank() && !radarManager.connected.value) {
+                radarManager.connect(settings.radarAddress)
+            } else if (!settings.radarEnabled && radarManager.connected.value) {
+                radarManager.disconnect()
             }
         }
         // Latest HUD frame, streamed to an external HUD by HudClient at 5 Hz.
@@ -902,6 +915,7 @@ fun App() {
                     onServiceMode = { route = Route.ServiceMode },
                     onThemeEditor = { route = Route.ThemeEditor },
                     gpsManager = gpsManager,
+                    radarManager = radarManager,
                     onEditAlarm = { editingAlarm = it; route = Route.AlarmEditor },
                     onVoicePicker = { route = Route.VoicePicker },
                     riderCard = riderCard,
@@ -1002,7 +1016,8 @@ fun App() {
                     },
                     onBack = { route = Route.Settings },
                 )
-                else -> DashboardRoute(
+                else -> Box(Modifier.fillMaxSize()) {
+                DashboardRoute(
                     session = session,
                     demoTitle = demoWheel?.name ?: "EUC Planet",
                     demoBrand = demoWheel?.brand ?: "demo",
@@ -1050,6 +1065,16 @@ fun App() {
                     onMap = { route = Route.Map },
                     disconnected = !inRide,
                 )
+                // Rear-view radar lane overlay, pinned to the chosen edge.
+                if (settings.radarEnabled && radarConnected && settings.radarShowOverlay && radarThreats.isNotEmpty()) {
+                    RadarOverlay(
+                        radarThreats,
+                        MaterialTheme.appColors,
+                        Modifier.align(if (settings.radarOverlayLeft) Alignment.CenterStart else Alignment.CenterEnd)
+                            .fillMaxHeight(0.62f).padding(horizontal = 6.dp, vertical = 64.dp),
+                    )
+                }
+                }
             }
             } // end SaveableStateProvider
             } // end Crossfade

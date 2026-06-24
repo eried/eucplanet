@@ -100,6 +100,7 @@ internal fun SettingsScreen(
     onServiceMode: () -> Unit,
     onThemeEditor: () -> Unit,
     gpsManager: com.eried.eucplanet.ble.extgps.ExternalGpsManager? = null,
+    radarManager: com.eried.eucplanet.radar.RadarManager? = null,
     onEditAlarm: (AlarmRule) -> Unit,
     onVoicePicker: () -> Unit,
     riderCard: RiderCard?,
@@ -432,6 +433,11 @@ internal fun SettingsScreen(
                             Text("Design overlay layout", color = c.textPrimary, fontSize = 14.sp, fontWeight = FontWeight.SemiBold, modifier = Modifier.weight(1f))
                             Text("›", color = c.primary, fontSize = 16.sp)
                         }
+                        Spacer(Modifier.height(10.dp))
+                        LabelRow(c, "Rear-view radar (Garmin Varia)")
+                        SwitchRow(c, "Use a rear radar", settings.radarEnabled) { onUpdate { s -> s.copy(radarEnabled = it) } }
+                        if (settings.radarEnabled && radarManager != null) RadarControls(c, settings, radarManager, onUpdate)
+                        else if (settings.radarEnabled) HintText(c, "A Garmin Varia (RTL5xx / RVR / RCT) shows approaching vehicles on a dashboard lane overlay.")
                     }
 
                     SettingsSectionId.Watch -> {}
@@ -664,6 +670,50 @@ private fun ExternalGpsControls(
             Spacer(Modifier.height(4.dp))
         }
         if (scanning && devices.isEmpty()) HintText(c, "Searching… make sure the RaceBox is powered on and nearby.")
+    }
+}
+
+/** Rear-radar (Varia) scan / connect / overlay controls in the Integration section. */
+@Composable
+private fun RadarControls(
+    c: AppThemeColors,
+    settings: AppSettings,
+    mgr: com.eried.eucplanet.radar.RadarManager,
+    onUpdate: ((AppSettings) -> AppSettings) -> Unit,
+) {
+    val connected by mgr.connected.collectAsState()
+    val scanning by mgr.scanning.collectAsState()
+    val devices by mgr.devices.collectAsState()
+    val threats by mgr.threats.collectAsState()
+    if (connected) {
+        Text("Connected: ${settings.radarName.ifBlank { "Varia" }}", color = c.statusGood, fontSize = 13.sp, fontWeight = FontWeight.Medium, modifier = Modifier.padding(top = 4.dp))
+        HintText(c, "${threats.size} vehicle(s) in view")
+        SwitchRow(c, "Show lane overlay on dashboard", settings.radarShowOverlay) { onUpdate { s -> s.copy(radarShowOverlay = it) } }
+        if (settings.radarShowOverlay) {
+            LabelRow(c, "Overlay edge")
+            Segmented(c, listOf("Right", "Left"), if (settings.radarOverlayLeft) 1 else 0) { onUpdate { s -> s.copy(radarOverlayLeft = it == 1) } }
+        }
+        Spacer(Modifier.height(6.dp))
+        CloudButton(c, "Disconnect", true) { mgr.disconnect(); onUpdate { s -> s.copy(radarAddress = "", radarName = "") } }
+    } else {
+        Spacer(Modifier.height(4.dp))
+        CloudButton(c, if (scanning) "Scanning…" else "Scan for Varia", true) { mgr.startScan() }
+        Spacer(Modifier.height(6.dp))
+        devices.forEach { d ->
+            Row(
+                Modifier.fillMaxWidth().clip(RoundedCornerShape(8.dp)).background(c.surface)
+                    .clickable {
+                        mgr.connect(d.address)
+                        onUpdate { s -> s.copy(radarAddress = d.address, radarName = d.name ?: "Varia") }
+                    }.padding(horizontal = 12.dp, vertical = 10.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text(d.name ?: d.address, color = c.textPrimary, fontSize = 13.sp, modifier = Modifier.weight(1f))
+                Text("Connect", color = c.primary, fontSize = 12.sp, fontWeight = FontWeight.Medium)
+            }
+            Spacer(Modifier.height(4.dp))
+        }
+        if (scanning && devices.isEmpty()) HintText(c, "Searching… make sure the Varia radar is powered on.")
     }
 }
 

@@ -102,6 +102,13 @@ data class AppSettings(
     val gpsPrioritizeExternal: Boolean = true,   // use the box's speed over the wheel's
     val gpsShowOnDashboard: Boolean = true,
 
+    // Rear-view radar (Garmin Varia, on its own BLE central)
+    val radarEnabled: Boolean = false,
+    val radarAddress: String = "",
+    val radarName: String = "",
+    val radarShowOverlay: Boolean = true,
+    val radarOverlayLeft: Boolean = false,       // overlay edge: false = right, true = left
+
     // Cloud / backup
     val cloudSyncSettings: Boolean = false,
     val autoBackupTrips: Boolean = false,
@@ -142,7 +149,6 @@ data class AppSettings(
     // Integration
     val flicEnabled: Boolean = false,
     val volumeKeyControls: Boolean = false,
-    val radarEnabled: Boolean = false,
 
     // Watch
     val watchKeepOn: Boolean = true,
