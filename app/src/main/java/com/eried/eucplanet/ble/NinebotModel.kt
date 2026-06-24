@@ -1,5 +1,7 @@
 package com.eried.eucplanet.ble
 
+private val RX_NINEBOT_ZN_NAME = Regex("^zn\\d")
+
 /**
  * Models in the Ninebot / Segway-Ninebot BLE protocol families. Two distinct
  * wire formats live under the same brand, so the model registry doubles as the
@@ -75,7 +77,7 @@ enum class NinebotModel(
                 "z10" in n -> Z10
                 "z6" in n  -> Z6
                 // Bare "ZN<serial>" form used by some Z6 firmwares.
-                Regex("^zn\\d").containsMatchIn(n) -> Z6
+                RX_NINEBOT_ZN_NAME.containsMatchIn(n) -> Z6
                 "miniplus" in n || "mini plus" in n -> Z6 // Mini Plus speaks Z; treat as Z generically
                 "mini pro" in n -> MINI_PRO
                 "mini" in n -> MINI

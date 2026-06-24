@@ -20,6 +20,14 @@ data class BleDevice(
     val rssi: Int
 )
 
+// Hoisted regex constants. Compiled once and reused across every scan
+// callback; the inline `Regex("...")` form re-compiled the pattern on
+// every advertisement frame, which during a dense scan adds up.
+private val RX_KS_S_NUMERIC = Regex("^S(?:1[6-9]|2[02])(?:\\b|[-_ ])")
+private val RX_VETERAN_LYNX = Regex("\\blynx\\b")
+private val RX_VETERAN_LK = Regex("^lk\\d")
+private val RX_NINEBOT_ZN = Regex("^ZN\\d", RegexOption.IGNORE_CASE)
+
 @Singleton
 class BleScanner @Inject constructor(
     @ApplicationContext private val context: Context
@@ -110,7 +118,7 @@ class BleScanner @Inject constructor(
         // KingSong
         if (name.startsWith("KS-") || name.startsWith("KS ") ||
             name.startsWith("KingSong", ignoreCase = true)) return true
-        if (Regex("^S(?:1[6-9]|2[02])(?:\\b|[-_ ])").containsMatchIn(name)) return true
+        if (RX_KS_S_NUMERIC.containsMatchIn(name)) return true
         if (name.startsWith("F18P", ignoreCase = true) ||
             name.startsWith("F22P", ignoreCase = true)) return true
         // Begode/Gotway
@@ -134,15 +142,15 @@ class BleScanner @Inject constructor(
         val nl = name.lowercase()
         if ("sherman" in nl || "patton" in nl || "abrams" in nl ||
             "oryx" in nl || "nosfet" in nl || "leaperkim" in nl ||
-            Regex("\\blynx\\b").containsMatchIn(nl) ||
-            Regex("^lk\\d").containsMatchIn(nl)) return true
+            RX_VETERAN_LYNX.containsMatchIn(nl) ||
+            RX_VETERAN_LK.containsMatchIn(nl)) return true
         // Ninebot / Segway-Ninebot. Both protocol families (Z and legacy)
         // start with the brand prefix; "ZN<serial>" is the bare-firmware
         // form on some Z6 wheels; "MiniPlus<serial>" advertises Z protocol
         // despite the legacy-style name.
         if (name.startsWith("Ninebot", ignoreCase = true) ||
             name.startsWith("Segway", ignoreCase = true)) return true
-        if (Regex("^ZN\\d", RegexOption.IGNORE_CASE).containsMatchIn(name)) return true
+        if (RX_NINEBOT_ZN.containsMatchIn(name)) return true
         if (name.startsWith("MiniPLUS", ignoreCase = true) ||
             name.startsWith("Mini Plus", ignoreCase = true)) return true
         return false

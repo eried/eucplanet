@@ -4,6 +4,13 @@ import java.util.UUID
 import javax.inject.Inject
 import javax.inject.Singleton
 
+// Hoisted regex constants. Picking the adapter from a wheel name happens
+// once per connect, but the same patterns get re-evaluated each time a
+// scan result lands too -- compiling them once at class load is free.
+private val RX_KS_S_LOWER = Regex("^s(?:1[6-9]|2[02])(?:\\b|[-_ ])")
+private val RX_VETERAN_LK_LOWER = Regex("^lk\\d")
+private val RX_NINEBOT_ZN_LOWER = Regex("^zn\\d")
+
 /**
  * Adapter dispatcher. Holds the six per-family adapters (InMotion V2, InMotion
  * V1, KingSong, Begode/Gotway, Veteran, Ninebot) and routes every WheelAdapter
@@ -179,7 +186,7 @@ class CompositeWheelAdapter @Inject constructor(
             // KingSong: "KS-…", "S22 …", "S20 …", etc.
             n.startsWith("ks-") || n.startsWith("ks ") ||
                     n.startsWith("kingsong") ||
-                    Regex("^s(?:1[6-9]|2[02])(?:\\b|[-_ ])").containsMatchIn(n) ||
+                    RX_KS_S_LOWER.containsMatchIn(n) ||
                     n.startsWith("f18") || n.startsWith("f22") -> kingsong
 
             // LeaperKim ("Veteran" family on the wire): match on model
@@ -194,7 +201,7 @@ class CompositeWheelAdapter @Inject constructor(
             "sherman" in n || "patton" in n || "abrams" in n ||
                     "lynx" in n || "oryx" in n ||
                     "nosfet" in n || "leaperkim" in n ||
-                    Regex("^lk\\d").containsMatchIn(n) -> veteran
+                    RX_VETERAN_LK_LOWER.containsMatchIn(n) -> veteran
 
             // Ninebot / Segway-Ninebot. Two protocol families live behind
             // the same brand prefix; the Ninebot adapter resolves Z vs
@@ -204,7 +211,7 @@ class CompositeWheelAdapter @Inject constructor(
             // above already wins (it's more specific), so this branch
             // only sees real Ninebot names.
             n.startsWith("ninebot") || n.startsWith("segway") ||
-                    Regex("^zn\\d").containsMatchIn(n) ||
+                    RX_NINEBOT_ZN_LOWER.containsMatchIn(n) ||
                     n.startsWith("miniplus") || n.startsWith("mini plus") -> ninebot
 
             // Begode/Gotway. "GotWay_*" / "Begode_*" / model-specific
