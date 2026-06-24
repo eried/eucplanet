@@ -47,6 +47,11 @@ class WheelSession(
     private val _firmware = MutableStateFlow<String?>(null)
     val firmware: StateFlow<String?> = _firmware.asStateFlow()
 
+    /** Stitched smart-BMS state (cells / temps / pack current); empty until a
+     *  smart-BMS wheel reports sub-frames. Drives the Battery screen's Cells view. */
+    private val _bmsState = MutableStateFlow(com.eried.eucplanet.data.BmsState())
+    val bmsState: StateFlow<com.eried.eucplanet.data.BmsState> = _bmsState.asStateFlow()
+
     /** The wheel family routing landed on (e.g. "KingSong"); null until known. */
     val brand: String get() = adapter.brand
 
@@ -163,6 +168,7 @@ class WheelSession(
                     )
                 }
             }
+            is DecodeResult.Bms -> _bmsState.value = com.eried.eucplanet.data.mergeBmsSlice(_bmsState.value, result)
             is DecodeResult.AuthKey,
             is DecodeResult.AuthConfirm,
             DecodeResult.Unknown -> Unit

@@ -448,6 +448,24 @@ fun App() {
         }
         val current = history.lastOrNull() ?: WheelData()
         val alarms = activeAlarms(current, settings.alarmRules)
+        // Stitched smart-BMS state from the live wheel (empty when none; seeded with
+        // a demo pack on the Simulator so the Cells view is visible without a wheel).
+        val emptyBms = remember {
+            kotlinx.coroutines.flow.MutableStateFlow(
+                if (isSimulator()) com.eried.eucplanet.data.BmsState(
+                    packs = listOf(
+                        com.eried.eucplanet.data.BmsState.PackState(
+                            packIndex = 0,
+                            cellVoltages = List(30) { 4.05f + (if (it == 7) 0.06f else if (it == 19) -0.04f else 0f) },
+                            temperaturesC = listOf(28f, 29f, 30f, 28f, 27f, 29f),
+                            currentA = -2.5f,
+                        ),
+                    ),
+                    updatedAt = 1L,
+                ) else com.eried.eucplanet.data.BmsState(),
+            )
+        }
+        val bmsState by (session?.bmsState ?: emptyBms).collectAsState()
 
         // Route the Apple Watch's horn / light buttons back to the wheel. Registered
         // once; reads the latest session + reported light state through refs so the
@@ -950,6 +968,7 @@ fun App() {
                     unitTemp = settings.unitTemp,
                     connected = session != null,
                     onBack = { route = Route.Dashboard },
+                    bms = bmsState,
                 )
                 r == Route.Map -> RouteBuilderScreen(routeBuilderVm, onBack = { route = Route.Dashboard })
                 r == Route.OverlayStudio -> OverlayStudioScreen(

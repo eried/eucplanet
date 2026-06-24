@@ -48,6 +48,7 @@ internal fun BatteryScreen(
     unitTemp: String,
     connected: Boolean,
     onBack: () -> Unit,
+    bms: com.eried.eucplanet.data.BmsState = com.eried.eucplanet.data.BmsState(),
 ) {
     val c = MaterialTheme.appColors
     val pct = state.percent.coerceIn(0f, 100f)
@@ -131,6 +132,13 @@ internal fun BatteryScreen(
                 }
             }
 
+            // Smart-BMS per-cell view (Veteran/Leaperkim families) — Android's Cells tab.
+            if (bms.hasCells) {
+                Spacer(Modifier.height(16.dp))
+                Text("CELLS", color = c.sectionHeader, fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                bms.packs.forEach { pack -> CellsPack(c, pack, unitTemp) }
+            }
+
             if (!connected) {
                 Spacer(Modifier.height(12.dp))
                 Text("Connect a wheel to see live charging.", color = c.textDisabled, fontSize = 11.sp)
@@ -154,6 +162,52 @@ private fun etaText(minutes: Float?): String {
     if (minutes == null || minutes <= 0f || minutes > 6000f) return "—"
     val m = minutes.roundToInt()
     return if (m >= 60) "${m / 60}h ${m % 60}m" else "$m min"
+}
+
+private fun twoDp(v: Float): String {
+    val r = (v * 100).roundToInt()
+    return "${r / 100}.${(r % 100).toString().padStart(2, '0')}"
+}
+
+/** One smart-BMS pack: balance summary + per-cell voltage grid (deviation-colored) + temps. */
+@Composable
+private fun CellsPack(c: AppThemeColors, pack: com.eried.eucplanet.data.BmsState.PackState, unitTemp: String) {
+    val cells = pack.knownCells
+    if (cells.isEmpty()) return
+    val mean = cells.map { it.second }.sum() / cells.size
+    Spacer(Modifier.height(8.dp))
+    Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+        Text("Pack ${pack.packIndex + 1}", color = c.textPrimary, fontSize = 13.sp, fontWeight = FontWeight.SemiBold, modifier = Modifier.weight(1f))
+        pack.cellDeltaMv?.let { d -> Text("Δ $d mV", color = if (d > 50) c.gaugeWarn else c.statusGood, fontSize = 12.sp, fontWeight = FontWeight.Medium) }
+    }
+    Text(
+        "${pack.cellCount} cells · ${twoDp(pack.minCellV ?: 0f)}–${twoDp(pack.maxCellV ?: 0f)} V" + (pack.currentA?.let { " · ${oneDp(it)} A" } ?: ""),
+        color = c.textSecondary, fontSize = 11.sp,
+    )
+    Spacer(Modifier.height(6.dp))
+    cells.chunked(6).forEach { row ->
+        Row(Modifier.fillMaxWidth().padding(vertical = 2.dp), horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+            row.forEach { (idx, v) ->
+                val dev = kotlin.math.abs(v - mean)
+                val col = when { dev > 0.05f -> c.statusDanger; dev > 0.02f -> c.gaugeWarn; else -> c.statusGood }
+                Column(
+                    Modifier.weight(1f).clip(RoundedCornerShape(6.dp)).background(c.tileBackground).padding(vertical = 4.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                ) {
+                    Text("#${idx + 1}", color = c.textDisabled, fontSize = 8.sp)
+                    Text(twoDp(v), color = col, fontSize = 11.sp, fontWeight = FontWeight.Medium)
+                }
+            }
+            repeat(6 - row.size) { Spacer(Modifier.weight(1f)) }
+        }
+    }
+    if (pack.temperaturesC.isNotEmpty()) {
+        Spacer(Modifier.height(4.dp))
+        Text(
+            "BMS temps: " + pack.temperaturesC.joinToString(" ") { "${UnitFormat.temperature(it, unitTemp).roundToInt()}°" },
+            color = c.textSecondary, fontSize = 11.sp,
+        )
+    }
 }
 
 @Composable

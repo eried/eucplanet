@@ -243,8 +243,17 @@ class VeteranAdapter : WheelAdapter {
             }
             if (f.isLong) {
                 // Best-effort BMS parse so a malformed slice can't crash the
-                // pipeline; result is discarded until the UI is ready for it.
-                VeteranParser.parseLongFrame(f.bytes)
+                // pipeline; surfaced as DecodeResult.Bms for the Cells view.
+                VeteranParser.parseLongFrame(f.bytes)?.let { s ->
+                    out += DecodeResult.Bms(
+                        packIndex = s.packIndex,
+                        cellVoltages = s.cellVoltages,
+                        cellRangeStart = s.cellRangeStart,
+                        bmsTempsC = s.bmsTempsC,
+                        packCurrent1A = s.packCurrent1A,
+                        packCurrent2A = s.packCurrent2A,
+                    )
+                }
             }
         }
         return out

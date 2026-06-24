@@ -32,5 +32,15 @@ sealed class DecodeResult {
         val motorC: Float?,
         val driverBoardC: Float?
     ) : DecodeResult()
+    /** A smart-BMS sub-frame slice (cells / temps / pack current) — stitched into
+     *  the running BmsState by [com.eried.eucplanet.data.mergeBmsSlice]. */
+    data class Bms(
+        val packIndex: Int,
+        val cellVoltages: List<Float>? = null,
+        val cellRangeStart: Int? = null,
+        val bmsTempsC: List<Float>? = null,
+        val packCurrent1A: Float? = null,
+        val packCurrent2A: Float? = null,
+    ) : DecodeResult()
     data object Unknown : DecodeResult()
 }
