@@ -141,22 +141,22 @@ internal fun SettingsScreen(
             SettingsSectionId.entries.forEach { id ->
                 when (id) {
                     SettingsSectionId.General -> Section(c, "General", Icons.Filled.Tune, expandedDefault = true, keywords = "auto connect keep screen record recording motion idle backup") {
-                        SwitchRow(c, "Auto-connect last wheel", settings.autoConnectLastWheel) { onUpdate { s -> s.copy(autoConnectLastWheel = it) } }
-                        LabelRow(c, "Wheel name on dashboard")
-                        Segmented(c, listOf("Model", "Brand", "Hidden"), listOf("MODEL", "BRAND", "NONE").indexOf(settings.wheelNameDisplay).coerceAtLeast(0)) { onUpdate { s -> s.copy(wheelNameDisplay = listOf("MODEL", "BRAND", "NONE")[it]) } }
-                        SwitchRow(c, "Keep screen on while riding", settings.keepScreenOn) { onUpdate { s -> s.copy(keepScreenOn = it) } }
-                        SwitchRow(c, "Auto-record trips", settings.autoStartRecording) { onUpdate { s -> s.copy(autoStartRecording = it) } }
+                        SwitchRow(c, "Auto-connect on start", settings.autoConnectLastWheel) { onUpdate { s -> s.copy(autoConnectLastWheel = it) } }
+                        LabelRow(c, "Wheel name")
+                        Segmented(c, listOf("Name", "Brand", "None"), listOf("MODEL", "BRAND", "NONE").indexOf(settings.wheelNameDisplay).coerceAtLeast(0)) { onUpdate { s -> s.copy(wheelNameDisplay = listOf("MODEL", "BRAND", "NONE")[it]) } }
+                        SwitchRow(c, "Keep screen on", settings.keepScreenOn) { onUpdate { s -> s.copy(keepScreenOn = it) } }
+                        SwitchRow(c, "Auto-record on start", settings.autoStartRecording) { onUpdate { s -> s.copy(autoStartRecording = it) } }
                         if (settings.autoStartRecording) {
-                            SwitchRow(c, "Start when moving", settings.autoRecordStartInMotion) { onUpdate { s -> s.copy(autoRecordStartInMotion = it) } }
+                            SwitchRow(c, "Start recording when in motion", settings.autoRecordStartInMotion) { onUpdate { s -> s.copy(autoRecordStartInMotion = it) } }
                             if (settings.autoRecordStartInMotion) {
-                                SliderRow(c, "Stop after idle", "${settings.autoRecordStopIdleSeconds}s", settings.autoRecordStopIdleSeconds.toFloat(), 30f..600f) { onUpdate { s -> s.copy(autoRecordStopIdleSeconds = it.roundToInt()) } }
+                                SliderRow(c, "Stop after idle for", "${settings.autoRecordStopIdleSeconds}s", settings.autoRecordStopIdleSeconds.toFloat(), 30f..600f) { onUpdate { s -> s.copy(autoRecordStopIdleSeconds = it.roundToInt()) } }
                             }
                         }
-                        SwitchRow(c, "Open battery monitor when charging", settings.chargingAutoOpen) { onUpdate { s -> s.copy(chargingAutoOpen = it) } }
+                        SwitchRow(c, "Auto-open when charging", settings.chargingAutoOpen) { onUpdate { s -> s.copy(chargingAutoOpen = it) } }
                     }
 
                     SettingsSectionId.Dashboard -> Section(c, "Dashboard layout", Icons.Filled.Dashboard, keywords = "columns tiles min max corner stats grid reorder hide") {
-                        LabelRow(c, "Metric tile columns")
+                        LabelRow(c, "Columns")
                         Segmented(c, listOf("2", "3"), (settings.dashboardColumns - 2).coerceIn(0, 1)) { onUpdate { s -> s.copy(dashboardColumns = it + 2) } }
                         Spacer(Modifier.height(8.dp))
                         SwitchRow(c, "Show MIN / MAX corner stats", settings.statCorners) { onUpdate { s -> s.copy(statCorners = it) } }
@@ -231,32 +231,32 @@ internal fun SettingsScreen(
                     }
 
                     SettingsSectionId.Speed -> Section(c, "Wheel parameters", Icons.Filled.Speed, keywords = "calibration tiltback max alarm legal limit km/h apply wheel speed") {
-                        SliderRow(c, "Speed calibration", "${if (settings.speedCalibrationPct >= 0f) "+" else ""}${(settings.speedCalibrationPct * 10).roundToInt() / 10f}%", settings.speedCalibrationPct, -15f..15f) {
+                        SliderRow(c, "Speed offset", "${if (settings.speedCalibrationPct >= 0f) "+" else ""}${(settings.speedCalibrationPct * 10).roundToInt() / 10f}%", settings.speedCalibrationPct, -15f..15f) {
                             onUpdate { s -> s.copy(speedCalibrationPct = it) }
                         }
                         // Tiltback + alarm write to the wheel LIVE on change, exactly
                         // like Android (updateTiltbackSpeed/updateAlarmSpeed call
                         // wheelRepository.setSpeed immediately) — no manual "Apply".
                         // onApplyMaxSpeed is a no-op without a connected wheel.
-                        SliderRow(c, "Tiltback (max) speed", "${settings.tiltbackKmh.roundToInt()} km/h", settings.tiltbackKmh, 10f..70f) {
+                        SliderRow(c, "Tiltback Speed", "${settings.tiltbackKmh.roundToInt()} km/h", settings.tiltbackKmh, 10f..70f) {
                             val tb = it; val al = settings.alarmKmh.coerceAtMost(tb)
                             onUpdate { s -> s.copy(tiltbackKmh = tb, alarmKmh = s.alarmKmh.coerceAtMost(tb)) }
                             onApplyMaxSpeed(tb, al)
                         }
-                        SliderRow(c, "Alarm speed", "${settings.alarmKmh.roundToInt()} km/h", settings.alarmKmh, 5f..70f) {
+                        SliderRow(c, "Alarm Speed", "${settings.alarmKmh.roundToInt()} km/h", settings.alarmKmh, 5f..70f) {
                             val al = it; val tb = settings.tiltbackKmh.coerceAtLeast(al)
                             onUpdate { s -> s.copy(alarmKmh = al, tiltbackKmh = s.tiltbackKmh.coerceAtLeast(al)) }
                             onApplyMaxSpeed(tb, al)
                         }
                         // Legal-mode limits apply when Legal mode is toggled on (matches
                         // Android updateSafetyTiltback, which only persists the setting).
-                        SliderRow(c, "Legal-mode tiltback", "${settings.legalTiltbackKmh.roundToInt()} km/h", settings.legalTiltbackKmh, 10f..40f) {
+                        SliderRow(c, "Legal Tiltback", "${settings.legalTiltbackKmh.roundToInt()} km/h", settings.legalTiltbackKmh, 10f..40f) {
                             onUpdate { s -> s.copy(legalTiltbackKmh = it) }
                         }
-                        SliderRow(c, "Legal-mode alarm", "${settings.legalAlarmKmh.roundToInt()} km/h", settings.legalAlarmKmh, 5f..40f) {
+                        SliderRow(c, "Legal Alarm", "${settings.legalAlarmKmh.roundToInt()} km/h", settings.legalAlarmKmh, 5f..40f) {
                             onUpdate { s -> s.copy(legalAlarmKmh = it) }
                         }
-                        if (!connected) HintText(c, "Connect a wheel to write speed limits live.")
+                        if (!connected) HintText(c, "Connect your wheel to edit speed limits")
                     }
 
                     SettingsSectionId.Voice -> Section(c, "Voice & announcements", Icons.Filled.RecordVoiceOver, keywords = "tts text to speech announce report rate interval lights lock legal recording spoken voice periodic") {
@@ -276,27 +276,27 @@ internal fun SettingsScreen(
                             // Legacy 0–100 values from before this rework fall back to 1.2×.
                             val mult = settings.speechRate.takeIf { it in 0.3f..2.5f } ?: 1.1f
                             val rl = (mult * 10).roundToInt()
-                            SliderRow(c, "Speech rate", "${rl / 10}.${rl % 10}×", mult, 0.5f..2.5f) { onUpdate { s -> s.copy(speechRate = (it * 10).roundToInt() / 10f) } }
+                            SliderRow(c, "Speech Speed", "${rl / 10}.${rl % 10}×", mult, 0.5f..2.5f) { onUpdate { s -> s.copy(speechRate = (it * 10).roundToInt() / 10f) } }
                         }
-                        SwitchRow(c, "Periodic status announcements", settings.voicePeriodicEnabled) { onUpdate { s -> s.copy(voicePeriodicEnabled = it) } }
+                        SwitchRow(c, "Report status periodically", settings.voicePeriodicEnabled) { onUpdate { s -> s.copy(voicePeriodicEnabled = it) } }
                         if (settings.voicePeriodicEnabled) {
-                            LabelRow(c, "Announce when")
-                            Segmented(c, listOf("Always", "Connected", "Riding"), listOf("ALWAYS", "CONNECTED", "RIDING").indexOf(settings.voiceAnnounceWhen).coerceAtLeast(0)) { onUpdate { s -> s.copy(voiceAnnounceWhen = listOf("ALWAYS", "CONNECTED", "RIDING")[it]) } }
-                            SliderRow(c, "Announce interval", "${settings.announceIntervalSec}s", settings.announceIntervalSec.toFloat(), 10f..300f) { onUpdate { s -> s.copy(announceIntervalSec = it.roundToInt()) } }
+                            LabelRow(c, "Announce")
+                            Segmented(c, listOf("Always", "Connected", "When riding"), listOf("ALWAYS", "CONNECTED", "RIDING").indexOf(settings.voiceAnnounceWhen).coerceAtLeast(0)) { onUpdate { s -> s.copy(voiceAnnounceWhen = listOf("ALWAYS", "CONNECTED", "RIDING")[it]) } }
+                            SliderRow(c, "Interval", "${settings.announceIntervalSec}s", settings.announceIntervalSec.toFloat(), 10f..300f) { onUpdate { s -> s.copy(announceIntervalSec = it.roundToInt()) } }
                         }
                         Spacer(Modifier.height(6.dp))
-                        LabelRow(c, "Periodic report")
-                        SwitchRow(c, "Report speed", settings.announceSpeed) { onUpdate { s -> s.copy(announceSpeed = it) } }
-                        SwitchRow(c, "Report battery", settings.announceBattery) { onUpdate { s -> s.copy(announceBattery = it) } }
-                        SwitchRow(c, "Report temperature", settings.announceTemp) { onUpdate { s -> s.copy(announceTemp = it) } }
+                        LabelRow(c, "Report status")
+                        SwitchRow(c, "Speed", settings.announceSpeed) { onUpdate { s -> s.copy(announceSpeed = it) } }
+                        SwitchRow(c, "Battery", settings.announceBattery) { onUpdate { s -> s.copy(announceBattery = it) } }
+                        SwitchRow(c, "Temp", settings.announceTemp) { onUpdate { s -> s.copy(announceTemp = it) } }
                         Spacer(Modifier.height(6.dp))
                         LabelRow(c, "Spoken events")
                         SwitchRow(c, "Lights on / off", settings.announceLights) { onUpdate { s -> s.copy(announceLights = it) } }
                         SwitchRow(c, "Wheel lock / unlock", settings.announceWheelLock) { onUpdate { s -> s.copy(announceWheelLock = it) } }
                         SwitchRow(c, "Legal mode on / off", settings.announceLegalMode) { onUpdate { s -> s.copy(announceLegalMode = it) } }
-                        SwitchRow(c, "Recording start / stop", settings.announceRecording) { onUpdate { s -> s.copy(announceRecording = it) } }
+                        SwitchRow(c, "Trip recording", settings.announceRecording) { onUpdate { s -> s.copy(announceRecording = it) } }
                         SwitchRow(c, "Wheel connected / disconnected", settings.announceConnection) { onUpdate { s -> s.copy(announceConnection = it) } }
-                        SwitchRow(c, "Welcome on launch", settings.announceWelcome) { onUpdate { s -> s.copy(announceWelcome = it) } }
+                        SwitchRow(c, "Welcome message on app launch", settings.announceWelcome) { onUpdate { s -> s.copy(announceWelcome = it) } }
                     }
 
                     // Hidden on iOS — not supported on the v1 ride slice, so omitted
@@ -320,11 +320,10 @@ internal fun SettingsScreen(
                             SliderRow(c, "Volume", "${(settings.engineVolume * 100).roundToInt()}%", settings.engineVolume, 0f..1f) { onUpdate { s -> s.copy(engineVolume = it) } }
                             Note(c, "Muffler"); Segmented(c, listOf("Open", "Half", "Muffled"), listOf("OPEN", "HALF", "MUFFLED").indexOf(settings.engineMuffler).coerceAtLeast(0)) { i -> onUpdate { s -> s.copy(engineMuffler = listOf("OPEN", "HALF", "MUFFLED")[i]) } }
                             Note(c, "Gearbox"); Segmented(c, listOf("Off", "4-speed", "6-speed"), listOf("OFF", "FOUR", "SIX").indexOf(settings.engineGearbox).coerceAtLeast(0)) { i -> onUpdate { s -> s.copy(engineGearbox = listOf("OFF", "FOUR", "SIX")[i]) } }
-                            Note(c, "Idle"); Segmented(c, listOf("Always", "Fade", "Moving"), listOf("ALWAYS", "FADE", "MOVING").indexOf(settings.engineIdleBehavior).coerceAtLeast(0)) { i -> onUpdate { s -> s.copy(engineIdleBehavior = listOf("ALWAYS", "FADE", "MOVING")[i]) } }
-                            Note(c, "Deceleration"); Segmented(c, listOf("Smooth", "Standard", "Backfire"), listOf("SMOOTH", "STANDARD", "BACKFIRE").indexOf(settings.engineDecelChar).coerceAtLeast(0)) { i -> onUpdate { s -> s.copy(engineDecelChar = listOf("SMOOTH", "STANDARD", "BACKFIRE")[i]) } }
+                            Note(c, "When parked"); Segmented(c, listOf("Always idling", "Fade out", "Only when moving"), listOf("ALWAYS", "FADE", "MOVING").indexOf(settings.engineIdleBehavior).coerceAtLeast(0)) { i -> onUpdate { s -> s.copy(engineIdleBehavior = listOf("ALWAYS", "FADE", "MOVING")[i]) } }
+                            Note(c, "Decel character"); Segmented(c, listOf("Smooth", "Standard", "Backfire"), listOf("SMOOTH", "STANDARD", "BACKFIRE").indexOf(settings.engineDecelChar).coerceAtLeast(0)) { i -> onUpdate { s -> s.copy(engineDecelChar = listOf("SMOOTH", "STANDARD", "BACKFIRE")[i]) } }
                             Note(c, "Engine brake"); Segmented(c, listOf("Off", "Light", "Strong"), listOf("OFF", "LIGHT", "STRONG").indexOf(settings.engineBrake).coerceAtLeast(0)) { i -> onUpdate { s -> s.copy(engineBrake = listOf("OFF", "LIGHT", "STRONG")[i]) } }
-                            Note(c, "Duck on voice"); Segmented(c, listOf("Duck", "Pause", "Mix"), listOf("DUCK", "PAUSE", "MIX").indexOf(settings.engineDuckOnVoice).coerceAtLeast(0)) { i -> onUpdate { s -> s.copy(engineDuckOnVoice = listOf("DUCK", "PAUSE", "MIX")[i]) } }
-                            Note(c, "Synthesizes a virtual engine from your live speed + PWM, through the phone speaker. iOS renders the synth engines; sampled engines fall back to synthesis.")
+                            Note(c, "While voice speaks"); Segmented(c, listOf("Duck", "Pause", "Mix"), listOf("DUCK", "PAUSE", "MIX").indexOf(settings.engineDuckOnVoice).coerceAtLeast(0)) { i -> onUpdate { s -> s.copy(engineDuckOnVoice = listOf("DUCK", "PAUSE", "MIX")[i]) } }
                         }
                     }
 
@@ -340,7 +339,7 @@ internal fun SettingsScreen(
                                 LabelRow(c, "Your stats")
                                 StatLine(c, "Total distance", "${card.totalKm.roundToInt()} km")
                                 StatLine(c, "Trips", card.trips.toString())
-                                StatLine(c, "Top speed", "${card.topSpeedKmh.roundToInt()} km/h")
+                                StatLine(c, "Top Speed", "${card.topSpeedKmh.roundToInt()} km/h")
                                 if (card.mileageRank != null) StatLine(c, "Distance rank", "#${card.mileageRank}")
                                 Spacer(Modifier.height(10.dp))
                             }
@@ -382,7 +381,7 @@ internal fun SettingsScreen(
                     SettingsSectionId.Alarms -> Section(c, "Alarm rules", Icons.Filled.NotificationsActive, keywords = "alarm speed temperature pwm voltage current battery warn rule mute") {
                         SwitchRow(c, "Mute all alarms (this + future sessions)", settings.alarmsMuted) { onUpdate { s -> s.copy(alarmsMuted = it) } }
                         if (settings.alarmRules.isEmpty()) {
-                            Note(c, "No alarms. Add one to be warned on speed, temperature, PWM, voltage, current or battery.")
+                            Note(c, "No alarm rules yet")
                         }
                         settings.alarmRules.forEach { rule ->
                             AlarmRuleRow(c, rule, onEdit = { onEditAlarm(rule) }) { en ->
@@ -398,47 +397,45 @@ internal fun SettingsScreen(
                                 }.padding(vertical = 11.dp),
                             horizontalArrangement = Arrangement.Center, verticalAlignment = Alignment.CenterVertically,
                         ) {
-                            Text("+ Add alarm", color = c.primary, fontSize = 14.sp, fontWeight = FontWeight.Medium)
+                            Text("New alarm", color = c.primary, fontSize = 14.sp, fontWeight = FontWeight.Medium)
                         }
                     }
 
                     SettingsSectionId.Automations -> Section(c, "Automations", Icons.Filled.FlashlightOn, keywords = "auto lights sunset sunrise sun gps automatic headlight") {
-                        SwitchRow(c, "Auto-lights (sunset / sunrise)", settings.autoLightsEnabled) { onUpdate { s -> s.copy(autoLightsEnabled = it) } }
+                        SwitchRow(c, "Lights", settings.autoLightsEnabled) { onUpdate { s -> s.copy(autoLightsEnabled = it) } }
+                        Note(c, "Turn on or off the headlights based on sunset and sunrise")
                         if (settings.autoLightsEnabled) {
-                            SliderRow(c, "On before sunset", "${settings.autoLightsOnMinutesBefore} min", settings.autoLightsOnMinutesBefore.toFloat(), 0f..120f) { onUpdate { s -> s.copy(autoLightsOnMinutesBefore = it.roundToInt()) } }
-                            SliderRow(c, "Off after sunrise", "${settings.autoLightsOffMinutesAfter} min", settings.autoLightsOffMinutesAfter.toFloat(), 0f..120f) { onUpdate { s -> s.copy(autoLightsOffMinutesAfter = it.roundToInt()) } }
-                            Note(c, "Uses your GPS location to compute sunset/sunrise. Tap the light button to override for the rest of the ride.")
+                            SliderRow(c, "Lights ON before sunset", "${settings.autoLightsOnMinutesBefore} min", settings.autoLightsOnMinutesBefore.toFloat(), 0f..120f) { onUpdate { s -> s.copy(autoLightsOnMinutesBefore = it.roundToInt()) } }
+                            SliderRow(c, "Lights OFF after sunrise", "${settings.autoLightsOffMinutesAfter} min", settings.autoLightsOffMinutesAfter.toFloat(), 0f..120f) { onUpdate { s -> s.copy(autoLightsOffMinutesAfter = it.roundToInt()) } }
                         }
                     }
 
                     SettingsSectionId.Navigator -> Section(c, "Navigation settings", Icons.Filled.Navigation, keywords = "route navigation map gps turn directions waypoint arrival off route router geocoder osrm nominatim guidance full path") {
                         val imp = settings.unitDistance == "mi" || settings.unitDistance == "ft"
                         fun distLabel(m: Int) = if (imp) "${(m * 3.28084).roundToInt()} ft" else "$m m"
-                        SwitchRow(c, "Solve the full route", settings.navSolveFullPath) { onUpdate { s -> s.copy(navSolveFullPath = it) } }
-                        Note(c, "On: route through every stop at once. Off: route only the next leg and dash the rest.")
+                        SwitchRow(c, "Always solve the full path", settings.navSolveFullPath) { onUpdate { s -> s.copy(navSolveFullPath = it) } }
+                        Note(c, "Off solves only the next stop and shows the rest as a dashed preview")
                         SwitchRow(c, "Voice guidance", settings.navVoiceGuidance) { onUpdate { s -> s.copy(navVoiceGuidance = it) } }
                         SliderRow(c, "Arrival radius", distLabel(settings.navArrivalRadiusM), settings.navArrivalRadiusM.toFloat(), 5f..100f) { onUpdate { s -> s.copy(navArrivalRadiusM = (it / 5f).roundToInt() * 5) } }
                         SliderRow(c, "Off-route tolerance", distLabel(settings.navOffRouteToleranceM), settings.navOffRouteToleranceM.toFloat(), 15f..150f) { onUpdate { s -> s.copy(navOffRouteToleranceM = (it / 5f).roundToInt() * 5) } }
-                        Note(c, "Routing endpoints (advanced) — leave blank for the default OpenStreetMap services.")
-                        CloudTextField(c, settings.navGeocoderUrl, "Geocoder URL (Nominatim)") { onUpdate { s -> s.copy(navGeocoderUrl = it.trim()) } }
-                        CloudTextField(c, settings.navRouterUrl, "Router URL (OSRM)") { onUpdate { s -> s.copy(navRouterUrl = it.trim()) } }
+                        Note(c, "Free public OpenStreetMap by default; change to use your own server")
+                        CloudTextField(c, settings.navGeocoderUrl, "Address search URL") { onUpdate { s -> s.copy(navGeocoderUrl = it.trim()) } }
+                        CloudTextField(c, settings.navRouterUrl, "Routing URL") { onUpdate { s -> s.copy(navRouterUrl = it.trim()) } }
                     }
 
                     SettingsSectionId.Location -> Section(c, "GPS & sensors", Icons.Filled.Tune, keywords = "gps location speed permission satellite announce racebox external box draggy sensors") {
-                        Note(c, "EUC Planet uses your phone GPS for speed, trip tracking and sunset-based auto-lights. Allow location access when prompted (or in iOS Settings ▸ EUC Planet ▸ Location).")
-                        SwitchRow(c, "Announce GPS acquired / lost", settings.announceGps) { onUpdate { s -> s.copy(announceGps = it) } }
+                        SwitchRow(c, "GPS signal lost / regained", settings.announceGps) { onUpdate { s -> s.copy(announceGps = it) } }
                         Spacer(Modifier.height(10.dp))
-                        LabelRow(c, "External GPS (RaceBox)")
+                        LabelRow(c, "External GPS")
                         SwitchRow(c, "Use an external GPS box", settings.externalGpsEnabled) { onUpdate { s -> s.copy(externalGpsEnabled = it) } }
                         if (settings.externalGpsEnabled && gpsManager != null) ExternalGpsControls(c, settings, gpsManager, onUpdate)
-                        else if (settings.externalGpsEnabled) HintText(c, "A RaceBox Mini / S / Pro streams high-rate GPS speed over its own Bluetooth, independent of the wheel.")
                     }
 
                     SettingsSectionId.Integration -> Section(c, "Integration", Icons.Filled.Settings, keywords = "hud heads up display external screen handlebar motoeye websocket ip port stream") {
-                        SwitchRow(c, "Stream to HUD", settings.hudEnabled) { onUpdate { s -> s.copy(hudEnabled = it) } }
+                        SwitchRow(c, "Enable data link", settings.hudEnabled) { onUpdate { s -> s.copy(hudEnabled = it) } }
                         if (settings.hudEnabled) {
-                            CloudTextField(c, settings.hudIp, "HUD IP — leave blank to auto-discover") { onUpdate { s -> s.copy(hudIp = it.trim()) } }
-                            CloudTextField(c, if (settings.hudPort > 0) settings.hudPort.toString() else "", "Port (default 28080)") { v ->
+                            CloudTextField(c, settings.hudIp, "Device IP (automatic)") { onUpdate { s -> s.copy(hudIp = it.trim()) } }
+                            CloudTextField(c, if (settings.hudPort > 0) settings.hudPort.toString() else "", "Port") { v ->
                                 val p = v.trim().toIntOrNull()?.coerceIn(1, 65535) ?: 28080
                                 onUpdate { s -> s.copy(hudPort = p) }
                             }
@@ -452,7 +449,7 @@ internal fun SettingsScreen(
                                 },
                                 fontSize = 13.sp, fontWeight = FontWeight.Medium,
                             )
-                            Note(c, "Leave the IP blank to auto-discover the HUD on your Wi-Fi (Bonjour / _eucplanet._tcp), or type the IP shown on the HUD's screen. The phone streams to ws://<ip>:<port>/state at 5 Hz — same protocol as the Android HUD. iOS prompts once for Local Network access; tap Allow.")
+                            Note(c, "Type the IP the HUD shows on its on-screen banner.")
                         }
                         Spacer(Modifier.height(6.dp))
                         Row(
@@ -460,36 +457,28 @@ internal fun SettingsScreen(
                                 .clickable { onOverlayStudio() }.padding(14.dp),
                             verticalAlignment = Alignment.CenterVertically,
                         ) {
-                            Text("Design overlay layout", color = c.textPrimary, fontSize = 14.sp, fontWeight = FontWeight.SemiBold, modifier = Modifier.weight(1f))
+                            Text("Open Overlay Studio", color = c.textPrimary, fontSize = 14.sp, fontWeight = FontWeight.SemiBold, modifier = Modifier.weight(1f))
                             Text("›", color = c.primary, fontSize = 16.sp)
                         }
                         Spacer(Modifier.height(10.dp))
-                        LabelRow(c, "Rear-view radar (Garmin Varia)")
+                        LabelRow(c, "Rear-view radar")
                         SwitchRow(c, "Use a rear radar", settings.radarEnabled) { onUpdate { s -> s.copy(radarEnabled = it) } }
                         if (settings.radarEnabled && radarManager != null) RadarControls(c, settings, radarManager, onUpdate)
-                        else if (settings.radarEnabled) HintText(c, "A Garmin Varia (RTL5xx / RVR / RCT) shows approaching vehicles on a dashboard lane overlay.")
                     }
 
                     SettingsSectionId.Watch -> Section(c, "Apple Watch", Icons.Filled.Watch, keywords = "watch apple dial wrist battery pwm rotate haptic glance companion") {
-                        Note(c, "The EUC Planet watch app mirrors your speed on a glanceable dial with horn / light buttons. Install it from the Watch app on your iPhone.")
-                        SwitchRow(c, "Keep screen on while riding", settings.watchKeepOn) { onUpdate { s -> s.copy(watchKeepOn = it) } }
-                        SwitchRow(c, "Auto-start with the ride", settings.watchAutoStart) { onUpdate { s -> s.copy(watchAutoStart = it) } }
-                        SwitchRow(c, "Show wheel battery on dial", settings.watchShowWheelBattery) { onUpdate { s -> s.copy(watchShowWheelBattery = it) } }
-                        SwitchRow(c, "Show PWM under speed", settings.watchShowPwm) { onUpdate { s -> s.copy(watchShowPwm = it) } }
-                        SwitchRow(c, "Show speed unit", settings.watchShowSpeedUnit) { onUpdate { s -> s.copy(watchShowSpeedUnit = it) } }
-                        SwitchRow(c, "Haptic feedback on buttons", settings.watchHapticOnAction) { onUpdate { s -> s.copy(watchHapticOnAction = it) } }
-                        LabelRow(c, "Dial rotation: ${settings.watchDialRotationDeg}°")
-                        SliderRow(c, "Rotate dial (wrist mount)", "${settings.watchDialRotationDeg}°", settings.watchDialRotationDeg.toFloat(), -180f..180f) { onUpdate { s -> s.copy(watchDialRotationDeg = it.roundToInt()) } }
+                        SwitchRow(c, "Keep display on", settings.watchKeepOn) { onUpdate { s -> s.copy(watchKeepOn = it) } }
+                        SwitchRow(c, "Auto-start on watch", settings.watchAutoStart) { onUpdate { s -> s.copy(watchAutoStart = it) } }
+                        SwitchRow(c, "Show wheel battery", settings.watchShowWheelBattery) { onUpdate { s -> s.copy(watchShowWheelBattery = it) } }
+                        SwitchRow(c, "Show PWM", settings.watchShowPwm) { onUpdate { s -> s.copy(watchShowPwm = it) } }
+                        SwitchRow(c, "Speed unit label", settings.watchShowSpeedUnit) { onUpdate { s -> s.copy(watchShowSpeedUnit = it) } }
+                        SwitchRow(c, "Vibrate on action", settings.watchHapticOnAction) { onUpdate { s -> s.copy(watchHapticOnAction = it) } }
+                        SliderRow(c, "Dial rotation", "${settings.watchDialRotationDeg}°", settings.watchDialRotationDeg.toFloat(), -180f..180f) { onUpdate { s -> s.copy(watchDialRotationDeg = it.roundToInt()) } }
                     }
                 }.let { /* exhaustive: a new SettingsSectionId without a branch fails to compile here */ }
             }
             } // end CompositionLocalProvider(LocalSettingsQuery)
 
-            Spacer(Modifier.height(16.dp))
-            Text(
-                "Settings persist to device storage (NSUserDefaults on iOS). Speed limits apply to the wheel live.",
-                color = c.textDisabled, fontSize = 10.sp,
-            )
             Spacer(Modifier.height(24.dp))
         }
     }
@@ -688,12 +677,12 @@ private fun ExternalGpsControls(
     if (connected) {
         Text("Connected: ${settings.externalGpsName.ifBlank { "RaceBox" }}", color = c.statusGood, fontSize = 13.sp, fontWeight = FontWeight.Medium, modifier = Modifier.padding(top = 4.dp))
         sample?.let { s -> HintText(c, "GPS speed ${s.speedKmh.toInt()} km/h · ${s.numSatellites ?: 0} sats · ±${s.accuracyMeters.toInt()} m") }
-        SwitchRow(c, "Use box speed instead of wheel", settings.gpsPrioritizeExternal) { onUpdate { s -> s.copy(gpsPrioritizeExternal = it) } }
+        SwitchRow(c, "Prioritize external GPS", settings.gpsPrioritizeExternal) { onUpdate { s -> s.copy(gpsPrioritizeExternal = it) } }
         Spacer(Modifier.height(6.dp))
         CloudButton(c, "Disconnect", true) { mgr.disconnect(); onUpdate { s -> s.copy(externalGpsAddress = "", externalGpsName = "") } }
     } else {
         Spacer(Modifier.height(4.dp))
-        CloudButton(c, if (scanning) "Scanning…" else "Scan for RaceBox", true) { mgr.startScan() }
+        CloudButton(c, if (scanning) "Scanning…" else "Start scan", true) { mgr.startScan() }
         Spacer(Modifier.height(6.dp))
         devices.forEach { d ->
             Row(
@@ -728,16 +717,16 @@ private fun RadarControls(
     if (connected) {
         Text("Connected: ${settings.radarName.ifBlank { "Varia" }}", color = c.statusGood, fontSize = 13.sp, fontWeight = FontWeight.Medium, modifier = Modifier.padding(top = 4.dp))
         HintText(c, "${threats.size} vehicle(s) in view")
-        SwitchRow(c, "Show lane overlay on dashboard", settings.radarShowOverlay) { onUpdate { s -> s.copy(radarShowOverlay = it) } }
+        SwitchRow(c, "Show threat overlay", settings.radarShowOverlay) { onUpdate { s -> s.copy(radarShowOverlay = it) } }
         if (settings.radarShowOverlay) {
             LabelRow(c, "Overlay edge")
-            Segmented(c, listOf("Right", "Left"), if (settings.radarOverlayLeft) 1 else 0) { onUpdate { s -> s.copy(radarOverlayLeft = it == 1) } }
+            Segmented(c, listOf("Right edge", "Left edge"), if (settings.radarOverlayLeft) 1 else 0) { onUpdate { s -> s.copy(radarOverlayLeft = it == 1) } }
         }
         Spacer(Modifier.height(6.dp))
         CloudButton(c, "Disconnect", true) { mgr.disconnect(); onUpdate { s -> s.copy(radarAddress = "", radarName = "") } }
     } else {
         Spacer(Modifier.height(4.dp))
-        CloudButton(c, if (scanning) "Scanning…" else "Scan for Varia", true) { mgr.startScan() }
+        CloudButton(c, if (scanning) "Scanning…" else "Start scan", true) { mgr.startScan() }
         Spacer(Modifier.height(6.dp))
         devices.forEach { d ->
             Row(
