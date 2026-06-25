@@ -59,7 +59,12 @@ class GarminBridge @Inject constructor(
 ) {
     companion object {
         private const val TAG = "GarminBridge"
-        private const val PUBLISH_INTERVAL_MS = 200L
+        // The CIQ phone->watch channel is rate-capped near 1 Hz. Publishing at
+        // 5 Hz (200 ms) just floods the SDK's outbound queue with frames it
+        // can't drain, which backs up delivery and contributes to the watch's
+        // frozen/stale dial. Publish at ~1 Hz to match what actually gets
+        // through. (Wear OS keeps 5 Hz; its Data Layer isn't rate-capped.)
+        private const val PUBLISH_INTERVAL_MS = 1000L
     }
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
@@ -235,8 +240,17 @@ class GarminBridge @Inject constructor(
                 val lastAck = _lastSuccessAtMs.value
                 if (lastAck == 0L) continue // never connected yet
                 val sinceAck = System.currentTimeMillis() - lastAck
-                if (sinceAck > 30_000L && sdkReady && registeredDevices.isNotEmpty()) {
-                    Log.w(TAG, "no watch ack for ${sinceAck}ms — resetting CIQ transport")
+                // Only rebuild the transport on the TETHERED dev path, where a
+                // half-dead local socket genuinely needs a fresh one. On real
+                // devices (WIRELESS) the watch's ALIVE ack is unreliable by
+                // nature, and shutting down + re-initializing the whole CIQ SDK
+                // every 30 s tears down a perfectly good phone->watch link —
+                // which is itself a cause of the frozen/stale dial. Connect
+                // Mobile manages WIRELESS reconnection on its own.
+                if (sinceAck > 30_000L && sdkReady && registeredDevices.isNotEmpty() &&
+                    connectType == ConnectIQ.IQConnectType.TETHERED
+                ) {
+                    Log.w(TAG, "no watch ack for ${sinceAck}ms — resetting CIQ transport (tethered)")
                     resetTransport()
                 }
             }
