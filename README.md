@@ -6,7 +6,7 @@
 [![Garmin Connect IQ](https://img.shields.io/badge/Connect_IQ-EUC_Planet-007CC3?logo=garmin&logoColor=white)](https://apps.garmin.com/apps/630e5d32-637d-4612-84e3-35e6d0bbee10)
 [![Telegram](https://img.shields.io/badge/Telegram-EUCPlanetApp-26A5E4?logo=telegram&logoColor=white)](https://t.me/EUCPlanetApp)
 [![Leaderboard](https://img.shields.io/badge/Leaderboard-eucstats.ried.no-FF8F00)](https://eucstats.ried.no/)
-[![Trip Viewer](https://img.shields.io/badge/Trip_Viewer-eucview.ried.no-2b6fd6)](https://eucview.ried.no/)
+[![Trip Viewer](https://img.shields.io/badge/Trip_Viewer-eucviewer.ried.no-2b6fd6)](https://eucviewer.ried.no/)
 [![Donate](https://img.shields.io/badge/Donate-PayPal-00457C?logo=paypal&logoColor=white)](https://www.paypal.com/donate/?hosted_button_id=AEB2RPZHNRTKG)
 [![Downloads](https://img.shields.io/github/downloads/eried/eucplanet/total)](https://github.com/eried/eucplanet/releases)
 
@@ -25,7 +25,7 @@ riders who have the wheel.
 |---|---|
 | **Verified** | InMotion V14 (50GB / 50S) |
 | **Verified** | InMotion P6 |
-| **Rider-tested** | LeaperKim Lynx S, Oryx · Begode/Gotway Mten3, EX30, E20 · KingSong S16X |
+| **Rider-tested** | LeaperKim Lynx S, Oryx · Begode/Gotway Mten3, EX30, E20 · KingSong KS-16X |
 | **In test** | Begode/Gotway Master, Master Pro, T3, T4, RS, RS-HT, EX, EX.N, EX2, MSP, MSX, Hero, XWay, Mten4, Mten5, MCM5 |
 | **In test** | LeaperKim Sherman, Sherman S, Sherman Max, Patton, Lynx, Abrams |
 | **In test** | KingSong S22, S20, S19, S18, S16, KS-14/16/18, F18P, F22P |
@@ -64,14 +64,24 @@ runtime clock. Tap any tile for its history graph. Metric or imperial.
 
 **Turn-by-turn navigator.** Multi-stop routes on a map (walk, bike, car,
 straight-line), voice cues, off-route reroute, sticky GPS, and a Treasure Hunt
-proximity mode for unmarked spots. Full Path mode lets you tap any point along
-the route to add a detour (skip sand, gravel, the wrong side of a one-way).
-The next-turn arrow can mirror to your watch, HUD, or Garmin Edge.
+proximity mode for unmarked spots. Charging stations (connectors, power, cost,
+ratings and photos) and other points of interest along the way (food, shops,
+rest stops) sit right on the map and refresh as you pan and zoom. Full Path
+mode lets you tap any point along the route to add a detour (skip sand, gravel,
+the wrong side of a one-way). The next-turn arrow can mirror to your watch,
+HUD, or Garmin Edge.
 
 **Overlay Studio.** Record video and stills with a customisable telemetry overlay:
 dials, gauges, rolling graphs, `{speed}`-style text, mini-map, layered cameras. Save
 layouts as JSON. Export a finished MP4, or a transparent overlay to composite over
-footage from another camera.
+footage from another camera. It's not only for recording and replay: the same
+editor designs your **MotoEye / Android HUD** layout, so the visor shows exactly
+the tiles and gauges you arranged.
+
+**Charging monitor.** A live charge curve with time-to-80% and time-to-100%
+predictions while you charge, and a per-cell BMS view (Cells tab) for smart-BMS
+wheels (Veteran, KingSong and others) showing individual cell voltages, pack
+imbalance and temperatures so you can spot a weak cell early.
 
 **Wheel control.** Horn, lights, lock, voice announcements, all one tap away. Legal
 Mode temporarily reprograms the wheel's tiltback and alarm speeds to a cap you set,
@@ -90,6 +100,12 @@ live track preview, and a trip list with quick export and share. View them later
 the [web Trip Viewer](https://github.com/eried/eucviewer), or opt in to share them on
 the [EUC Stats leaderboard](https://eucstats.ried.no/) and rank your distance against
 riders worldwide, by country.
+
+**Backup & sharing, on your terms.** Every ride is a plain CSV file on your own
+device, nothing is uploaded by default. Optional Dropbox sync mirrors your trips,
+settings, themes and overlays into your own private folder so you can restore them
+on another phone, and you can hand a single ride out as a link when you want to.
+You decide what leaves the phone, where it goes, and who sees it.
 
 **Automations.** Auto Lights on before sunset, off after sunrise, from live GPS.
 Handles midnight sun and polar night (I live in the arctic circle 🧐). Auto Volume
