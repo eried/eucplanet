@@ -903,11 +903,16 @@
     <string name="alarm_new">Nytt larm</string>
     <string name="alarm_edit">Redigera larm</string>
     <string name="alarm_delete_title">Radera det här larmet?</string>
-    <string name="alarm_delete_body">%1$s tas bort. Det går inte att ångra.</string>
+    <string name="alarm_delete_body">Det går inte att ångra.</string>
+    <string name="alarm_delete_action">Radera larm</string>
     <string name="alarm_metric_label">Mätvärde</string>
     <string name="alarm_comparator_label">Villkor</string>
     <string name="alarm_threshold_fmt">Tröskel: %1$s %2$s</string>
     <string name="alarm_threshold_label">Tröskel</string>
+    <string name="alarm_label_frequency">Frekvens</string>
+    <string name="alarm_label_duration">Varaktighet</string>
+    <string name="alarm_label_repeats">Upprepningar</string>
+    <string name="alarm_label_vibrate_on">Vibrera på</string>
     <string name="alarm_threshold_decrease">Sänk tröskel</string>
     <string name="alarm_threshold_increase">Höj tröskel</string>
 

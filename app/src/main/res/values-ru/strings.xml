@@ -907,11 +907,16 @@
     <string name="alarm_new">Новый сигнал</string>
     <string name="alarm_edit">Изменить сигнал</string>
     <string name="alarm_delete_title">Удалить это правило?</string>
-    <string name="alarm_delete_body">%1$s будет удалено. Это действие нельзя отменить.</string>
+    <string name="alarm_delete_body">Это действие нельзя отменить.</string>
+    <string name="alarm_delete_action">Удалить сигнал</string>
     <string name="alarm_metric_label">Метрика</string>
     <string name="alarm_comparator_label">Условие</string>
     <string name="alarm_threshold_fmt">Порог: %1$s %2$s</string>
     <string name="alarm_threshold_label">Порог</string>
+    <string name="alarm_label_frequency">Частота</string>
+    <string name="alarm_label_duration">Длительность</string>
+    <string name="alarm_label_repeats">Повторы</string>
+    <string name="alarm_label_vibrate_on">Вибрация на</string>
     <string name="alarm_threshold_decrease">Уменьшить порог</string>
     <string name="alarm_threshold_increase">Увеличить порог</string>
 

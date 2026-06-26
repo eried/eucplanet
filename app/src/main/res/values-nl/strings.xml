@@ -907,11 +907,16 @@
     <string name="alarm_new">Nieuw alarm</string>
     <string name="alarm_edit">Alarm bewerken</string>
     <string name="alarm_delete_title">Dit alarm verwijderen?</string>
-    <string name="alarm_delete_body">%1$s wordt verwijderd. Dit kan niet ongedaan gemaakt worden.</string>
+    <string name="alarm_delete_body">Dit kan niet ongedaan worden gemaakt.</string>
+    <string name="alarm_delete_action">Alarm verwijderen</string>
     <string name="alarm_metric_label">Metriek</string>
     <string name="alarm_comparator_label">Voorwaarde</string>
     <string name="alarm_threshold_fmt">Drempel: %1$s %2$s</string>
     <string name="alarm_threshold_label">Drempel</string>
+    <string name="alarm_label_frequency">Frequentie</string>
+    <string name="alarm_label_duration">Duur</string>
+    <string name="alarm_label_repeats">Herhalingen</string>
+    <string name="alarm_label_vibrate_on">Trillen op</string>
 
     <!-- Live data sources bottom sheet -->
     <string name="sources_title">Live databronnen</string>

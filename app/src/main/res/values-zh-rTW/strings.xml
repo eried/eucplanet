@@ -904,11 +904,16 @@
     <string name="alarm_new">新增警報</string>
     <string name="alarm_edit">編輯警報</string>
     <string name="alarm_delete_title">刪除此警報？</string>
-    <string name="alarm_delete_body">%1$s 將被移除。此操作無法復原。</string>
+    <string name="alarm_delete_body">此操作無法復原。</string>
+    <string name="alarm_delete_action">刪除警報</string>
     <string name="alarm_metric_label">指標</string>
     <string name="alarm_comparator_label">條件</string>
     <string name="alarm_threshold_fmt">閾值：%1$s %2$s</string>
     <string name="alarm_threshold_label">閾值</string>
+    <string name="alarm_label_frequency">頻率</string>
+    <string name="alarm_label_duration">時長</string>
+    <string name="alarm_label_repeats">重複次數</string>
+    <string name="alarm_label_vibrate_on">震動裝置</string>
     <string name="alarm_threshold_decrease">降低閾值</string>
     <string name="alarm_threshold_increase">提高閾值</string>
 

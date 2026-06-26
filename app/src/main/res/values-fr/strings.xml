@@ -907,11 +907,16 @@
     <string name="alarm_new">Nouvelle alarme</string>
     <string name="alarm_edit">Modifier l\'alarme</string>
     <string name="alarm_delete_title">Supprimer cette alarme ?</string>
-    <string name="alarm_delete_body">%1$s sera supprimée. Action irréversible.</string>
+    <string name="alarm_delete_body">Action irréversible.</string>
+    <string name="alarm_delete_action">Supprimer l\'alarme</string>
     <string name="alarm_metric_label">Métrique</string>
     <string name="alarm_comparator_label">Condition</string>
     <string name="alarm_threshold_fmt">Seuil : %1$s %2$s</string>
     <string name="alarm_threshold_label">Seuil</string>
+    <string name="alarm_label_frequency">Fréquence</string>
+    <string name="alarm_label_duration">Durée</string>
+    <string name="alarm_label_repeats">Répétitions</string>
+    <string name="alarm_label_vibrate_on">Vibrer sur</string>
     <string name="alarm_threshold_decrease">Diminuer le seuil</string>
     <string name="alarm_threshold_increase">Augmenter le seuil</string>
 

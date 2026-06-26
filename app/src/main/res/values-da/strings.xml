@@ -907,11 +907,16 @@
     <string name="alarm_new">Ny alarm</string>
     <string name="alarm_edit">Rediger alarm</string>
     <string name="alarm_delete_title">Slet denne alarm?</string>
-    <string name="alarm_delete_body">%1$s fjernes. Dette kan ikke fortrydes.</string>
+    <string name="alarm_delete_body">Dette kan ikke fortrydes.</string>
+    <string name="alarm_delete_action">Slet alarm</string>
     <string name="alarm_metric_label">Måling</string>
     <string name="alarm_comparator_label">Betingelse</string>
     <string name="alarm_threshold_fmt">Tærskel: %1$s %2$s</string>
     <string name="alarm_threshold_label">Tærskel</string>
+    <string name="alarm_label_frequency">Frekvens</string>
+    <string name="alarm_label_duration">Varighed</string>
+    <string name="alarm_label_repeats">Gentagelser</string>
+    <string name="alarm_label_vibrate_on">Vibrér på</string>
     <string name="alarm_threshold_decrease">Sænk tærskel</string>
     <string name="alarm_threshold_increase">Hæv tærskel</string>
 

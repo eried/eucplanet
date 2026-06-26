@@ -907,11 +907,16 @@
     <string name="alarm_new">Nueva alarma</string>
     <string name="alarm_edit">Editar alarma</string>
     <string name="alarm_delete_title">¿Eliminar esta alarma?</string>
-    <string name="alarm_delete_body">%1$s será eliminada. Esta acción no se puede deshacer.</string>
+    <string name="alarm_delete_body">Esta acción no se puede deshacer.</string>
+    <string name="alarm_delete_action">Eliminar alarma</string>
     <string name="alarm_metric_label">Métrica</string>
     <string name="alarm_comparator_label">Condición</string>
     <string name="alarm_threshold_fmt">Umbral: %1$s %2$s</string>
     <string name="alarm_threshold_label">Umbral</string>
+    <string name="alarm_label_frequency">Frecuencia</string>
+    <string name="alarm_label_duration">Duración</string>
+    <string name="alarm_label_repeats">Repeticiones</string>
+    <string name="alarm_label_vibrate_on">Vibrar en</string>
     <string name="alarm_threshold_decrease">Bajar umbral</string>
     <string name="alarm_threshold_increase">Subir umbral</string>
 

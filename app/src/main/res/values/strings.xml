@@ -926,11 +926,16 @@
     <string name="alarm_new">New Alarm</string>
     <string name="alarm_edit">Edit Alarm</string>
     <string name="alarm_delete_title">Delete this alarm?</string>
-    <string name="alarm_delete_body">%1$s will be removed. This cannot be undone.</string>
+    <string name="alarm_delete_body">This cannot be undone.</string>
+    <string name="alarm_delete_action">Delete alarm</string>
     <string name="alarm_metric_label">Metric</string>
     <string name="alarm_comparator_label">Condition</string>
     <string name="alarm_threshold_fmt">Threshold: %1$s %2$s</string>
     <string name="alarm_threshold_label">Threshold</string>
+    <string name="alarm_label_frequency">Frequency</string>
+    <string name="alarm_label_duration">Duration</string>
+    <string name="alarm_label_repeats">Repeats</string>
+    <string name="alarm_label_vibrate_on">Vibrate on</string>
     <string name="alarm_threshold_decrease">Decrease threshold</string>
     <string name="alarm_threshold_increase">Increase threshold</string>
 

@@ -26,6 +26,7 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowDownward
 import androidx.compose.material.icons.filled.ArrowUpward
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.DragHandle
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
@@ -56,6 +57,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.key
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
@@ -64,6 +66,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.res.stringResource
@@ -88,6 +91,7 @@ import com.eried.eucplanet.ui.theme.themedSegmentedColors
 import com.eried.eucplanet.ui.theme.themedSwitchColors
 import com.eried.eucplanet.ui.theme.themedSliderColors
 import kotlin.math.roundToInt
+import sh.calvin.reorderable.ReorderableColumn
 
 /** Human seconds for a lead time in ms: "0.5", "1", "2" (drops a trailing .0). */
 private fun leadSeconds(ms: Int): String =
@@ -120,6 +124,8 @@ fun AlarmSettingsContent(
     viewModel: AlarmViewModel = hiltViewModel()
 ) {
     val rules by viewModel.rules.collectAsState()
+    val rulesSorted by viewModel.rulesSorted.collectAsState()
+    val haptic = androidx.compose.ui.platform.LocalHapticFeedback.current
     // Alarm thresholds only span speed and temperature; distance has no alarm metric.
     val speedUnit by viewModel.speedUnit.collectAsState()
     val tempUnit by viewModel.tempUnit.collectAsState()
@@ -157,43 +163,53 @@ fun AlarmSettingsContent(
             )
         }
 
-        rules.forEachIndexed { index, rule ->
-            AlarmRuleCard(
-                rule = rule,
-                speedUnit = speedUnit,
-                tempUnit = tempUnit,
-                isFirst = index == 0,
-                isLast = index == rules.lastIndex,
-                onToggle = { viewModel.updateRule(rule.copy(enabled = it)) },
-                onEdit = { editingRule = rule; showEditor = true },
-                onDelete = { deleteCandidate = rule },
-                onMoveUp = { viewModel.moveUp(rule) },
-                onMoveDown = { viewModel.moveDown(rule) }
-            )
-            Spacer(Modifier.height(8.dp))
+        // Drag the handle to reorder (same component the settings voice list
+        // uses). Tapping a card's text opens the editor.
+        ReorderableColumn(
+            list = rules,
+            onSettle = { from, to -> viewModel.moveRule(from, to) },
+            onMove = { haptic.performHapticFeedback(androidx.compose.ui.hapticfeedback.HapticFeedbackType.LongPress) },
+            modifier = Modifier.fillMaxWidth(),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+        ) { _, rule, _ ->
+            key(rule.id) {
+                AlarmRuleCard(
+                    rule = rule,
+                    speedUnit = speedUnit,
+                    tempUnit = tempUnit,
+                    onToggle = { viewModel.updateRule(rule.copy(enabled = it)) },
+                    onEdit = { editingRule = rule; showEditor = true },
+                    dragHandleModifier = Modifier.draggableHandle(),
+                )
+            }
         }
 
-        // New rule on the left; Auto-sort sits to its right once there's more
-        // than one rule. Order no longer affects which alarm fires (the engine
-        // picks the most relevant per metric), so Auto-sort is a tidy-up, not a
-        // correctness knob.
+        Spacer(Modifier.height(8.dp))
+
+        // New alarm + Auto-sort are always both shown at half width each, so the
+        // layout doesn't jump as rules are added. Auto-sort stays disabled until
+        // there are at least two rules AND they're out of order.
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(8.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            LeftAlignedScanButton(
-                label = stringResource(R.string.alarm_add),
+            Button(
                 onClick = { editingRule = null; showEditor = true },
-                leadingIcon = Icons.Default.Add,
                 modifier = Modifier.weight(1f)
-            )
-            if (rules.size > 1) {
-                Button(onClick = { viewModel.autoSmartSort() }) {
-                    Icon(Icons.Default.SwapVert, contentDescription = null, modifier = Modifier.size(18.dp))
-                    Spacer(Modifier.width(6.dp))
-                    Text(stringResource(R.string.alarm_smart_sort))
-                }
+            ) {
+                Icon(Icons.Default.Add, contentDescription = null, modifier = Modifier.size(18.dp))
+                Spacer(Modifier.width(6.dp))
+                Text(stringResource(R.string.alarm_add))
+            }
+            Button(
+                onClick = { viewModel.autoSmartSort() },
+                enabled = !rulesSorted,
+                modifier = Modifier.weight(1f)
+            ) {
+                Icon(Icons.Default.SwapVert, contentDescription = null, modifier = Modifier.size(18.dp))
+                Spacer(Modifier.width(6.dp))
+                Text(stringResource(R.string.alarm_smart_sort))
             }
         }
 
@@ -213,6 +229,7 @@ fun AlarmSettingsContent(
                 showEditor = false
             },
             onDismiss = { showEditor = false },
+            onDelete = editingRule?.let { r -> { showEditor = false; deleteCandidate = r } },
             onPreviewBeep = { freq, dur, cnt -> viewModel.previewBeep(freq, dur, cnt) },
             onPreviewVoice = { text, metric, thr -> viewModel.previewVoice(text, metric, thr) },
             onPreviewVibrate = { dur -> viewModel.previewVibrate(dur) }
@@ -220,16 +237,10 @@ fun AlarmSettingsContent(
     }
 
     deleteCandidate?.let { rule ->
-        val metric = try { AlarmMetric.valueOf(rule.metric) } catch (_: Exception) { AlarmMetric.SPEED }
-        val comp = AlarmComparator.parse(rule.comparator)
-        val shownThresh = displayThreshold(metric, rule.threshold, speedUnit, tempUnit).toInt()
-        val shownUnit = displayUnit(metric, speedUnit, tempUnit)
-        val metricLabel = stringResource(metric.labelRes)
-        val label = rule.name.ifBlank { "$metricLabel ${comp.symbol} ${shownThresh}${shownUnit}" }
         AlertDialog(
             onDismissRequest = { deleteCandidate = null },
             title = { Text(stringResource(R.string.alarm_delete_title)) },
-            text = { Text(stringResource(R.string.alarm_delete_body, label)) },
+            text = { Text(stringResource(R.string.alarm_delete_body)) },
             confirmButton = {
                 TextButton(onClick = {
                     viewModel.deleteRule(rule)
@@ -248,13 +259,9 @@ private fun AlarmRuleCard(
     rule: AlarmRule,
     speedUnit: String,
     tempUnit: String,
-    isFirst: Boolean,
-    isLast: Boolean,
     onToggle: (Boolean) -> Unit,
     onEdit: () -> Unit,
-    onDelete: () -> Unit,
-    onMoveUp: () -> Unit,
-    onMoveDown: () -> Unit
+    dragHandleModifier: Modifier = Modifier,
 ) {
     val metric = try { AlarmMetric.valueOf(rule.metric) } catch (_: Exception) { AlarmMetric.SPEED }
     val comp = AlarmComparator.parse(rule.comparator)
@@ -270,10 +277,6 @@ private fun AlarmRuleCard(
             AlarmMetric.PWM -> MaterialTheme.appColors.gaugeWarn
             AlarmMetric.VOLTAGE -> MaterialTheme.appColors.metricVoltage
             AlarmMetric.CURRENT -> MaterialTheme.appColors.metricPosition
-            // Radar shares the red/orange palette with TEMPERATURE / SPEED
-            // since these are all "hazard" metrics that fire on a threshold
-            // breach. Same tint for both radar metrics so a rider's "car
-            // closing" rule group reads as one block in the list.
             AlarmMetric.RADAR_DISTANCE -> MaterialTheme.appColors.statusDanger
             AlarmMetric.RADAR_APPROACH_SPEED -> MaterialTheme.appColors.statusDanger
         }
@@ -286,71 +289,59 @@ private fun AlarmRuleCard(
         ),
         shape = RoundedCornerShape(10.dp)
     ) {
-        Column(modifier = Modifier.padding(12.dp)) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically
+        // Drag handle | tap-to-edit text | enable switch.
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 8.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                Icons.Default.DragHandle,
+                contentDescription = stringResource(R.string.action_reorder),
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = dragHandleModifier.size(28.dp)
+            )
+            Spacer(Modifier.width(4.dp))
+            Column(
+                modifier = Modifier
+                    .weight(1f)
+                    .clickable { onEdit() }
+                    .padding(vertical = 12.dp)
             ) {
-                Column(modifier = Modifier.weight(1f)) {
-                    val shownThresh = displayThreshold(metric, rule.threshold, speedUnit, tempUnit).toInt()
-                    val shownUnit = displayUnit(metric, speedUnit, tempUnit)
-                    val metricLabel = stringResource(metric.labelRes)
+                val shownThresh = displayThreshold(metric, rule.threshold, speedUnit, tempUnit).roundToInt()
+                val shownUnit = displayUnit(metric, speedUnit, tempUnit)
+                val metricLabel = stringResource(metric.labelRes)
+                Text(
+                    rule.name.ifBlank { "$metricLabel ${comp.symbol} ${shownThresh}${shownUnit}" },
+                    fontWeight = FontWeight.Medium,
+                    fontSize = 14.sp,
+                    color = color
+                )
+                val beepSummary = stringResource(R.string.alarm_summary_beep_fmt, rule.beepFrequency, rule.beepCount)
+                val voiceSummary = stringResource(R.string.alarm_summary_voice)
+                val vibrateSummary = stringResource(R.string.alarm_summary_vibrate)
+                val actions = buildList {
+                    if (rule.beepEnabled) add(beepSummary)
+                    if (rule.voiceEnabled) add(voiceSummary)
+                    if (rule.vibrateEnabled) add(vibrateSummary)
+                }
+                if (actions.isNotEmpty()) {
                     Text(
-                        rule.name.ifBlank { "$metricLabel ${comp.symbol} ${shownThresh}${shownUnit}" },
-                        fontWeight = FontWeight.Medium,
-                        fontSize = 14.sp,
+                        actions.joinToString(" + "),
+                        fontSize = 11.sp,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+                if (rule.leadTimeMs > 0) {
+                    Text(
+                        stringResource(R.string.alarm_summary_predict_fmt, leadSeconds(rule.leadTimeMs)),
+                        fontSize = 11.sp,
                         color = color
                     )
-                    // Action summary
-                    val beepSummary = stringResource(R.string.alarm_summary_beep_fmt, rule.beepFrequency, rule.beepCount)
-                    val voiceSummary = stringResource(R.string.alarm_summary_voice)
-                    val vibrateSummary = stringResource(R.string.alarm_summary_vibrate)
-                    val actions = buildList {
-                        if (rule.beepEnabled) add(beepSummary)
-                        if (rule.voiceEnabled) add(voiceSummary)
-                        if (rule.vibrateEnabled) add(vibrateSummary)
-                    }
-                    if (actions.isNotEmpty()) {
-                        Text(
-                            actions.joinToString(" + "),
-                            fontSize = 11.sp,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
-                    if (rule.leadTimeMs > 0) {
-                        Text(
-                            stringResource(R.string.alarm_summary_predict_fmt, leadSeconds(rule.leadTimeMs)),
-                            fontSize = 11.sp,
-                            color = color
-                        )
-                    }
-                }
-                Switch(checked = rule.enabled, onCheckedChange = onToggle,
-                    colors = themedSwitchColors(),)
-            }
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.End
-            ) {
-                if (!isFirst) {
-                    IconButton(onClick = onMoveUp, modifier = Modifier.size(32.dp)) {
-                        Icon(Icons.Default.ArrowUpward, stringResource(R.string.action_move_up), modifier = Modifier.size(16.dp))
-                    }
-                }
-                if (!isLast) {
-                    IconButton(onClick = onMoveDown, modifier = Modifier.size(32.dp)) {
-                        Icon(Icons.Default.ArrowDownward, stringResource(R.string.action_move_down), modifier = Modifier.size(16.dp))
-                    }
-                }
-                IconButton(onClick = onEdit, modifier = Modifier.size(32.dp)) {
-                    Icon(Icons.Default.Edit, stringResource(R.string.action_edit), modifier = Modifier.size(16.dp))
-                }
-                IconButton(onClick = onDelete, modifier = Modifier.size(32.dp)) {
-                    Icon(Icons.Default.Delete, stringResource(R.string.action_delete), modifier = Modifier.size(16.dp),
-                        tint = MaterialTheme.appColors.statusDanger)
                 }
             }
+            Switch(checked = rule.enabled, onCheckedChange = onToggle, colors = themedSwitchColors())
         }
     }
 }
@@ -365,6 +356,7 @@ private fun AlarmRuleEditorDialog(
     showRadarMetrics: Boolean,
     onSave: (AlarmRule) -> Unit,
     onDismiss: () -> Unit,
+    onDelete: (() -> Unit)? = null,
     onPreviewBeep: (Int, Int, Int) -> Unit,
     onPreviewVoice: (String, AlarmMetric, Float) -> Unit,
     onPreviewVibrate: (Int) -> Unit
@@ -460,8 +452,8 @@ private fun AlarmRuleEditorDialog(
                 modifier = Modifier
                     .padding(20.dp)
                     .imePadding()
-                    .verticalScroll(rememberScrollState())
             ) {
+                // Pinned title (stays put while the fields scroll).
                 Text(
                     if (rule != null) stringResource(R.string.alarm_edit) else stringResource(R.string.alarm_new),
                     style = MaterialTheme.typography.titleMedium
@@ -469,6 +461,14 @@ private fun AlarmRuleEditorDialog(
 
                 Spacer(Modifier.height(12.dp))
 
+                // Scrollable middle: only the fields scroll; title above and the
+                // action row below stay pinned. fill = false lets a short form
+                // wrap instead of always stretching to the max dialog height.
+                Column(
+                    modifier = Modifier
+                        .weight(1f, fill = false)
+                        .verticalScroll(rememberScrollState())
+                ) {
                 // Metric (60%) + comparator (40%) share a row so the editor
                 // stays compact vertically. Comparator field shows just the
                 // glyph (≥ or <) when collapsed but opens to full-word labels
@@ -489,11 +489,14 @@ private fun AlarmRuleEditorDialog(
                 val comparatorOptions = AlarmComparator.entries.map { entry ->
                     entry.name to stringResource(entry.labelRes)
                 }
+                // Metric, Condition and Threshold are all the same (half) width
+                // as the Cooldown field for a consistent grid.
                 Row(
                     modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    Box(modifier = Modifier.weight(0.6f)) {
+                    Box(modifier = Modifier.weight(1f)) {
                         DropdownSelect(
                             label = stringResource(R.string.alarm_metric_label),
                             selected = stringResource(selectedMetric.labelRes),
@@ -501,8 +504,7 @@ private fun AlarmRuleEditorDialog(
                             onSelect = { metric = it }
                         )
                     }
-                    Spacer(Modifier.width(8.dp))
-                    Box(modifier = Modifier.weight(0.4f)) {
+                    Box(modifier = Modifier.weight(1f)) {
                         DropdownSelect(
                             label = stringResource(R.string.alarm_comparator_label),
                             selected = selectedComp.symbol,
@@ -514,20 +516,24 @@ private fun AlarmRuleEditorDialog(
 
                 Spacer(Modifier.height(6.dp))
 
-                // Threshold: numeric up/down. Type a value or step it in clean
-                // display units (1 km/h, 1 mph, 1 % ...), converting back to the
-                // internal metric value on every change.
-                NumberUpDown(
-                    value = displayedThreshold.roundToInt(),
-                    onValueChange = { newDisp ->
-                        threshold = internalThreshold(selectedMetric, newDisp.toFloat(), speedUnit, tempUnit)
-                            .coerceIn(thresholdRangeInternal)
-                    },
-                    range = displayedRange.start.roundToInt()..displayedRange.endInclusive.roundToInt(),
-                    suffix = displayedUnit,
-                    label = stringResource(R.string.alarm_threshold_label),
+                // Threshold: numeric up/down, half width to match the fields above.
+                Row(
                     modifier = Modifier.fillMaxWidth(),
-                )
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    NumberUpDown(
+                        value = displayedThreshold.roundToInt(),
+                        onValueChange = { newDisp ->
+                            threshold = internalThreshold(selectedMetric, newDisp.toFloat(), speedUnit, tempUnit)
+                                .coerceIn(thresholdRangeInternal)
+                        },
+                        range = displayedRange.start.roundToInt()..displayedRange.endInclusive.roundToInt(),
+                        suffix = displayedUnit,
+                        label = stringResource(R.string.alarm_threshold_label),
+                        modifier = Modifier.weight(1f),
+                    )
+                    Spacer(Modifier.weight(1f))
+                }
 
                 Spacer(Modifier.height(12.dp))
 
@@ -559,12 +565,14 @@ private fun AlarmRuleEditorDialog(
                             value = beepFrequency,
                             onValueChange = { beepFrequency = it },
                             range = 200..3000, step = 100, suffix = "Hz",
+                            label = stringResource(R.string.alarm_label_frequency),
                             modifier = Modifier.weight(1f),
                         )
                         NumberUpDown(
                             value = beepDurationMs,
                             onValueChange = { beepDurationMs = it },
                             range = 100..1000, step = 50, suffix = "ms",
+                            label = stringResource(R.string.alarm_label_duration),
                             modifier = Modifier.weight(1f),
                         )
                     }
@@ -579,6 +587,7 @@ private fun AlarmRuleEditorDialog(
                             value = beepCount,
                             onValueChange = { beepCount = it },
                             range = 1..5, step = 1, suffix = "x",
+                            label = stringResource(R.string.alarm_label_repeats),
                             modifier = Modifier.weight(1f),
                         )
                         Spacer(Modifier.weight(1f))
@@ -636,40 +645,45 @@ private fun AlarmRuleEditorDialog(
                 }
 
                 if (vibrateEnabled) {
-                    // Duration (ms) on the left, target picker on the right, on one
-                    // row so a lone duration field doesn't stretch across the dialog.
-                    // "BOTH" stays first + default; the storage key stays "BOTH" for
-                    // backup/sync compatibility while the visible label is "All".
-                    // The target sits under the "Vibrate" section title, so the
-                    // All/Phone/Watch segments read clearly without a caption.
-                    val targetEntries = listOf(
-                        "BOTH" to stringResource(R.string.alarm_vibrate_target_both),
-                        "PHONE" to stringResource(R.string.alarm_vibrate_target_phone),
-                        "WATCH" to stringResource(R.string.alarm_vibrate_target_watch)
-                    )
+                    // Duration on its own row (half width, matching the other
+                    // fields), then the All/Phone/Watch target on a second line.
+                    // "BOTH" stays first + default; the storage key stays "BOTH"
+                    // for backup/sync compatibility while the visible label is "All".
                     Row(
                         modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(12.dp),
-                        verticalAlignment = Alignment.CenterVertically
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
                         NumberUpDown(
                             value = vibrateDurationMs,
                             onValueChange = { vibrateDurationMs = it },
                             range = 100..2000, step = 100, suffix = "ms",
+                            label = stringResource(R.string.alarm_label_duration),
                             modifier = Modifier.weight(1f),
                         )
-                        SingleChoiceSegmentedButtonRow(
-                            modifier = Modifier.weight(1f).height(48.dp)
-                        ) {
-                            targetEntries.forEachIndexed { index, (key, label) ->
-                                SegmentedButton(
-                                    modifier = Modifier.fillMaxHeight(),
-                                    selected = key == vibrateTarget,
-                                    onClick = { vibrateTarget = key },
-                                    shape = SegmentedButtonDefaults.itemShape(index, targetEntries.size),
-                                    colors = themedSegmentedColors(),
-                                ) { Text(label) }
-                            }
+                        Spacer(Modifier.weight(1f))
+                    }
+                    Spacer(Modifier.height(8.dp))
+                    Text(
+                        stringResource(R.string.alarm_label_vibrate_on),
+                        fontSize = 12.sp,
+                        color = MaterialTheme.appColors.fieldLabel
+                    )
+                    val targetEntries = listOf(
+                        "BOTH" to stringResource(R.string.alarm_vibrate_target_both),
+                        "PHONE" to stringResource(R.string.alarm_vibrate_target_phone),
+                        "WATCH" to stringResource(R.string.alarm_vibrate_target_watch)
+                    )
+                    SingleChoiceSegmentedButtonRow(
+                        modifier = Modifier.fillMaxWidth().height(48.dp)
+                    ) {
+                        targetEntries.forEachIndexed { index, (key, label) ->
+                            SegmentedButton(
+                                modifier = Modifier.fillMaxHeight(),
+                                selected = key == vibrateTarget,
+                                onClick = { vibrateTarget = key },
+                                shape = SegmentedButtonDefaults.itemShape(index, targetEntries.size),
+                                colors = themedSegmentedColors(),
+                            ) { Text(label) }
                         }
                     }
                 }
@@ -802,43 +816,59 @@ private fun AlarmRuleEditorDialog(
                         small = true
                     )
                 }
+                } // end scrollable middle
 
                 Spacer(Modifier.height(16.dp))
 
-                // --- Actions ---
+                // --- Actions --- (pinned to the bottom)
+                // Delete sits bottom-left (only when editing an existing rule);
+                // Cancel / Save stay bottom-right.
                 Row(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.End
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    TextButton(onClick = onDismiss) { Text(stringResource(R.string.action_cancel)) }
-                    Spacer(Modifier.width(8.dp))
-                    val hasOutput = beepEnabled || voiceEnabled || vibrateEnabled
-                    Button(
-                        enabled = hasOutput,
-                        onClick = {
-                            onSave(
-                                (rule ?: AlarmRule()).copy(
-                                    name = name,
-                                    metric = metric,
-                                    comparator = comparator,
-                                    threshold = threshold,
-                                    beepEnabled = beepEnabled,
-                                    beepFrequency = beepFrequency,
-                                    beepDurationMs = beepDurationMs,
-                                    beepCount = beepCount,
-                                    voiceEnabled = voiceEnabled,
-                                    voiceText = voiceText,
-                                    vibrateEnabled = vibrateEnabled,
-                                    vibrateDurationMs = vibrateDurationMs,
-                                    vibrateTarget = vibrateTarget,
-                                    cooldownSeconds = cooldownSeconds,
-                                    repeatWhileActive = repeatWhileActive,
-                                    leadTimeMs = leadTimeMs
-                                )
+                    if (rule != null && onDelete != null) {
+                        TextButton(onClick = onDelete) {
+                            Text(
+                                stringResource(R.string.alarm_delete_action),
+                                color = MaterialTheme.appColors.statusDanger
                             )
                         }
-                    ) {
-                        Text(stringResource(R.string.action_save))
+                    } else {
+                        Spacer(Modifier.width(1.dp))
+                    }
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        TextButton(onClick = onDismiss) { Text(stringResource(R.string.action_cancel)) }
+                        Spacer(Modifier.width(8.dp))
+                        val hasOutput = beepEnabled || voiceEnabled || vibrateEnabled
+                        Button(
+                            enabled = hasOutput,
+                            onClick = {
+                                onSave(
+                                    (rule ?: AlarmRule()).copy(
+                                        name = name,
+                                        metric = metric,
+                                        comparator = comparator,
+                                        threshold = threshold,
+                                        beepEnabled = beepEnabled,
+                                        beepFrequency = beepFrequency,
+                                        beepDurationMs = beepDurationMs,
+                                        beepCount = beepCount,
+                                        voiceEnabled = voiceEnabled,
+                                        voiceText = voiceText,
+                                        vibrateEnabled = vibrateEnabled,
+                                        vibrateDurationMs = vibrateDurationMs,
+                                        vibrateTarget = vibrateTarget,
+                                        cooldownSeconds = cooldownSeconds,
+                                        repeatWhileActive = repeatWhileActive,
+                                        leadTimeMs = leadTimeMs
+                                    )
+                                )
+                            }
+                        ) {
+                            Text(stringResource(R.string.action_save))
+                        }
                     }
                 }
 
@@ -885,7 +915,7 @@ private fun SectionTitleWithPreview(
  * (reconciling to the clamped value on blur).
  */
 @Composable
-private fun NumberUpDown(
+internal fun NumberUpDown(
     value: Int,
     onValueChange: (Int) -> Unit,
     range: IntRange,
@@ -893,6 +923,7 @@ private fun NumberUpDown(
     step: Int = 1,
     suffix: String = "",
     label: String? = null,
+    enabled: Boolean = true,
 ) {
     val fieldText = MaterialTheme.appColors.fieldText
     val fieldLabelColor = MaterialTheme.appColors.fieldLabel
@@ -900,9 +931,9 @@ private fun NumberUpDown(
     var focused by remember { mutableStateOf(false) }
     // Width the typed number to the widest value in range so the unit stays put
     // and the digits + unit read as one centred group.
-    val numWidth = (maxOf(2, range.last.toString().length) * 12).dp
+    val numWidth = (maxOf(2, range.first.toString().length, range.last.toString().length) * 12).dp
 
-    Column(modifier = modifier) {
+    Column(modifier = modifier.alpha(if (enabled) 1f else 0.5f)) {
         if (label != null) {
             Text(
                 label,
@@ -926,7 +957,7 @@ private fun NumberUpDown(
                         val nv = (value - step).coerceIn(range)
                         text = nv.toString(); onValueChange(nv)
                     },
-                    enabled = value > range.first,
+                    enabled = enabled && value > range.first,
                     modifier = Modifier.size(48.dp)
                 ) {
                     Icon(
@@ -949,6 +980,7 @@ private fun NumberUpDown(
                             digits.toIntOrNull()?.let { if (it in range) onValueChange(it) }
                         },
                         singleLine = true,
+                        enabled = enabled,
                         textStyle = TextStyle(
                             color = fieldText,
                             fontSize = 16.sp,
@@ -974,7 +1006,7 @@ private fun NumberUpDown(
                         val nv = (value + step).coerceIn(range)
                         text = nv.toString(); onValueChange(nv)
                     },
-                    enabled = value < range.last,
+                    enabled = enabled && value < range.last,
                     modifier = Modifier.size(48.dp)
                 ) {
                     Icon(

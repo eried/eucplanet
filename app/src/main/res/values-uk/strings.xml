@@ -907,11 +907,16 @@
     <string name="alarm_new">Нова тривога</string>
     <string name="alarm_edit">Редагувати тривогу</string>
     <string name="alarm_delete_title">Видалити цю тривогу?</string>
-    <string name="alarm_delete_body">%1$s буде видалено. Цю дію не можна скасувати.</string>
+    <string name="alarm_delete_body">Цю дію не можна скасувати.</string>
+    <string name="alarm_delete_action">Видалити тривогу</string>
     <string name="alarm_metric_label">Метрика</string>
     <string name="alarm_comparator_label">Умова</string>
     <string name="alarm_threshold_fmt">Поріг: %1$s %2$s</string>
     <string name="alarm_threshold_label">Поріг</string>
+    <string name="alarm_label_frequency">Частота</string>
+    <string name="alarm_label_duration">Тривалість</string>
+    <string name="alarm_label_repeats">Повторення</string>
+    <string name="alarm_label_vibrate_on">Вібрація на</string>
     <string name="alarm_threshold_decrease">Зменшити поріг</string>
     <string name="alarm_threshold_increase">Збільшити поріг</string>
 

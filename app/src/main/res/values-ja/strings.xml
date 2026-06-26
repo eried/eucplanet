@@ -904,11 +904,16 @@
     <string name="alarm_new">新規アラーム</string>
     <string name="alarm_edit">アラームを編集</string>
     <string name="alarm_delete_title">このアラームを削除しますか？</string>
-    <string name="alarm_delete_body">%1$s が削除されます。この操作は取り消せません。</string>
+    <string name="alarm_delete_body">この操作は取り消せません。</string>
+    <string name="alarm_delete_action">アラームを削除</string>
     <string name="alarm_metric_label">メトリクス</string>
     <string name="alarm_comparator_label">条件</string>
     <string name="alarm_threshold_fmt">しきい値: %1$s %2$s</string>
     <string name="alarm_threshold_label">しきい値</string>
+    <string name="alarm_label_frequency">周波数</string>
+    <string name="alarm_label_duration">長さ</string>
+    <string name="alarm_label_repeats">繰り返し</string>
+    <string name="alarm_label_vibrate_on">振動するデバイス</string>
     <string name="alarm_threshold_decrease">しきい値を下げる</string>
     <string name="alarm_threshold_increase">しきい値を上げる</string>
 

@@ -498,11 +498,16 @@
     <string name="alarm_new">Nuovo allarme</string>
     <string name="alarm_edit">Modifica allarme</string>
     <string name="alarm_delete_title">Eliminare questo allarme?</string>
-    <string name="alarm_delete_body">%1$s sarà rimosso. L\'azione non può essere annullata.</string>
+    <string name="alarm_delete_body">Questa operazione non può essere annullata.</string>
+    <string name="alarm_delete_action">Elimina allarme</string>
     <string name="alarm_metric_label">Metrica</string>
     <string name="alarm_comparator_label">Condizione</string>
     <string name="alarm_threshold_fmt">Soglia: %1$s %2$s</string>
     <string name="alarm_threshold_label">Soglia</string>
+    <string name="alarm_label_frequency">Frequenza</string>
+    <string name="alarm_label_duration">Durata</string>
+    <string name="alarm_label_repeats">Ripetizioni</string>
+    <string name="alarm_label_vibrate_on">Vibra su</string>
 
     <!-- Live data sources bottom sheet -->
     <string name="sources_title">Sorgenti dati in tempo reale</string>

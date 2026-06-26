@@ -903,11 +903,16 @@
     <string name="alarm_new">Neuer Alarm</string>
     <string name="alarm_edit">Alarm bearbeiten</string>
     <string name="alarm_delete_title">Diesen Alarm löschen?</string>
-    <string name="alarm_delete_body">%1$s wird entfernt. Das lässt sich nicht rückgängig machen.</string>
+    <string name="alarm_delete_body">Das lässt sich nicht rückgängig machen.</string>
+    <string name="alarm_delete_action">Alarm löschen</string>
     <string name="alarm_metric_label">Messgröße</string>
     <string name="alarm_comparator_label">Bedingung</string>
     <string name="alarm_threshold_fmt">Schwelle: %1$s %2$s</string>
     <string name="alarm_threshold_label">Schwelle</string>
+    <string name="alarm_label_frequency">Frequenz</string>
+    <string name="alarm_label_duration">Dauer</string>
+    <string name="alarm_label_repeats">Wiederholungen</string>
+    <string name="alarm_label_vibrate_on">Vibrieren auf</string>
     <string name="alarm_threshold_decrease">Schwelle senken</string>
     <string name="alarm_threshold_increase">Schwelle erhöhen</string>
 

@@ -944,19 +944,25 @@ private fun GeneralTab(
             }
             if (recordMode == "RIDING") {
                 val idleSec = settings.autoRecordStopIdleSeconds
-                SliderSetting(
-                    label = stringResource(R.string.auto_record_stop_idle_seconds),
-                    value = idleSec.toFloat(),
-                    range = 30f..600f,
-                    unit = "",
-                    steps = 18,
-                    valueText = "%d:%02d".format(idleSec / 60, idleSec % 60),
-                    onValueChange = {
-                        viewModel.updateAutoRecordStopIdleSeconds(
-                            (Math.round(it / 30f) * 30).coerceIn(30, 600)
-                        )
-                    }
-                )
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    NumberUpDown(
+                        value = idleSec,
+                        onValueChange = {
+                            viewModel.updateAutoRecordStopIdleSeconds(
+                                (Math.round(it / 30f) * 30).coerceIn(30, 600)
+                            )
+                        },
+                        range = 30..600,
+                        step = 30,
+                        suffix = "s",
+                        label = stringResource(R.string.auto_record_stop_idle_seconds),
+                        modifier = Modifier.weight(1f),
+                    )
+                    Spacer(Modifier.weight(1f))
+                }
             }
         }   // end recording BringIntoViewSection
 
@@ -5315,57 +5321,82 @@ private fun SpeedTab(
         SectionHeader(stringResource(R.string.section_speed_calibration))
         HintText(stringResource(R.string.speed_calibration_caption), small = true)
         val calPct = settings.speedCalibrationOffsetPct
-        SliderSetting(
-            label = stringResource(R.string.speed_calibration_label),
-            value = calPct,
-            range = -15f..15f,
-            unit = "%",
-            steps = 299,
-            valueText = "%+.1f %%".format(calPct),
-            enabled = isConnected,
-            onValueChange = { viewModel.updateSpeedCalibrationOffsetPct(it) }
-        )
+        // Half width, left side, to match the other compact numeric pills.
+        // Whole-percent steps (the pill is integer-only); the stored value
+        // still scales the reported speed exactly as before.
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            NumberUpDown(
+                value = calPct.roundToInt(),
+                onValueChange = { viewModel.updateSpeedCalibrationOffsetPct(it.toFloat()) },
+                range = -15..15,
+                step = 1,
+                suffix = "%",
+                label = stringResource(R.string.speed_calibration_label),
+                enabled = isConnected,
+                modifier = Modifier.weight(1f),
+            )
+            Spacer(Modifier.weight(1f))
+        }
 
         SectionHeader(stringResource(R.string.section_speed_limits))
         // Lower bound is 0 km/h: some Begode / Veteran wheels report
         // tiltback at 0 (= disabled) or a very low value the rider set
         // on the wheel itself, and clamping the slider's floor at 10
         // used to produce inverted ranges (10..0) that crashed the screen.
-        SpeedSliderSetting(
-            label = stringResource(R.string.speed_tiltback),
-            valueKmh = settings.tiltbackSpeedKmh,
-            rangeKmh = 0f..maxSpeedCap,
-            speedUnit = speedUnit,
-            enabled = isConnected,
-            onValueChangeKmh = { viewModel.updateTiltbackSpeed(it) }
-        )
-        SpeedSliderSetting(
-            label = stringResource(R.string.speed_alarm),
-            valueKmh = settings.alarmSpeedKmh,
-            rangeKmh = 0f..settings.tiltbackSpeedKmh,
-            speedUnit = speedUnit,
-            enabled = isConnected,
-            onValueChangeKmh = { viewModel.updateAlarmSpeed(it) }
-        )
+        // Tiltback + Alarm share a row, half width each.
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            SpeedNumberSetting(
+                label = stringResource(R.string.speed_tiltback),
+                valueKmh = settings.tiltbackSpeedKmh,
+                rangeKmh = 0f..maxSpeedCap,
+                speedUnit = speedUnit,
+                enabled = isConnected,
+                modifier = Modifier.weight(1f),
+                onValueChangeKmh = { viewModel.updateTiltbackSpeed(it) }
+            )
+            SpeedNumberSetting(
+                label = stringResource(R.string.speed_alarm),
+                valueKmh = settings.alarmSpeedKmh,
+                rangeKmh = 0f..settings.tiltbackSpeedKmh,
+                speedUnit = speedUnit,
+                enabled = isConnected,
+                modifier = Modifier.weight(1f),
+                onValueChangeKmh = { viewModel.updateAlarmSpeed(it) }
+            )
+        }
 
         SectionHeader(stringResource(R.string.section_legal_mode_speed))
         HintText(stringResource(R.string.legal_mode_caption))
-        SpeedSliderSetting(
-            label = stringResource(R.string.speed_legal_tiltback),
-            valueKmh = settings.safetyTiltbackKmh,
-            rangeKmh = 0f..(settings.tiltbackSpeedKmh - 1f).coerceAtLeast(0f),
-            speedUnit = speedUnit,
-            enabled = isConnected,
-            onValueChangeKmh = { viewModel.updateSafetyTiltback(it) }
-        )
-        SpeedSliderSetting(
-            label = stringResource(R.string.speed_legal_alarm),
-            valueKmh = settings.safetyAlarmKmh,
-            rangeKmh = 0f..settings.safetyTiltbackKmh,
-            speedUnit = speedUnit,
-            enabled = isConnected,
-            onValueChangeKmh = { viewModel.updateSafetyAlarm(it) }
-        )
+        // Legal Tiltback + Legal Alarm share a row too, half width each.
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            SpeedNumberSetting(
+                label = stringResource(R.string.speed_legal_tiltback),
+                valueKmh = settings.safetyTiltbackKmh,
+                rangeKmh = 0f..(settings.tiltbackSpeedKmh - 1f).coerceAtLeast(0f),
+                speedUnit = speedUnit,
+                enabled = isConnected,
+                modifier = Modifier.weight(1f),
+                onValueChangeKmh = { viewModel.updateSafetyTiltback(it) }
+            )
+            SpeedNumberSetting(
+                label = stringResource(R.string.speed_legal_alarm),
+                valueKmh = settings.safetyAlarmKmh,
+                rangeKmh = 0f..settings.safetyTiltbackKmh,
+                speedUnit = speedUnit,
+                enabled = isConnected,
+                modifier = Modifier.weight(1f),
+                onValueChangeKmh = { viewModel.updateSafetyAlarm(it) }
+            )
+        }
 
     }
 }
@@ -5401,15 +5432,26 @@ private fun VoiceTab(
             title = stringResource(R.string.section_voice_advanced),
             stateKey = "voice-advanced"
         ) {
-            SliderSetting(
-                label = stringResource(R.string.voice_speech_speed),
-                value = settings.voiceSpeechRate,
-                range = 0.5f..2.5f,
-                unit = stringResource(R.string.unit_x),
-                steps = 19,
-                format = "%.1f",
-                onValueChange = { viewModel.updateVoiceSpeechRate(it) }
-            )
+            // Speech rate is stored as a Float multiplier (0.5..2.5x); the
+            // integer-only pill shows it as a percent (50..250%) and writes
+            // back the divided-by-100 float, preserving the 0.1x granularity.
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                NumberUpDown(
+                    value = (settings.voiceSpeechRate * 100).roundToInt(),
+                    onValueChange = {
+                        viewModel.updateVoiceSpeechRate((Math.round(it / 10f) * 10).coerceIn(50, 250) / 100f)
+                    },
+                    range = 50..250,
+                    step = 10,
+                    suffix = "%",
+                    label = stringResource(R.string.voice_speech_speed),
+                    modifier = Modifier.weight(1f),
+                )
+                Spacer(Modifier.weight(1f))
+            }
 
             AudioFocusSelector(
                 current = settings.voiceAudioFocus,
@@ -5434,14 +5476,23 @@ private fun VoiceTab(
                 current = settings.voiceAnnounceWhen,
                 onChange = { viewModel.updateVoiceAnnounceWhen(it) }
             )
-            SliderSetting(
-                label = stringResource(R.string.voice_interval),
-                value = settings.voiceIntervalSeconds.toFloat(),
-                range = 10f..300f,
-                unit = stringResource(R.string.unit_sec),
-                steps = 28,
-                onValueChange = { viewModel.updateVoiceInterval((Math.round(it / 10f) * 10).coerceIn(10, 300)) }
-            )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                NumberUpDown(
+                    value = settings.voiceIntervalSeconds,
+                    onValueChange = {
+                        viewModel.updateVoiceInterval((Math.round(it / 10f) * 10).coerceIn(10, 300))
+                    },
+                    range = 10..300,
+                    step = 10,
+                    suffix = "s",
+                    label = stringResource(R.string.voice_interval),
+                    modifier = Modifier.weight(1f),
+                )
+                Spacer(Modifier.weight(1f))
+            }
         }
         }   // end voiceEnabled BringIntoViewSection
 
@@ -5785,8 +5836,10 @@ private fun FlicTab(
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     Text(stringResource(R.string.volume_up), style = MaterialTheme.typography.titleMedium, color = MaterialTheme.appColors.primary)
-                    ActionDropdown(stringResource(R.string.flic_click), settings.volumeUpClick) { settingsViewModel.updateVolumeUpClick(it) }
-                    ActionDropdown(stringResource(R.string.flic_hold), settings.volumeUpHold) { settingsViewModel.updateVolumeUpHold(it) }
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        ActionDropdown(stringResource(R.string.flic_click), settings.volumeUpClick, onValueChange = { settingsViewModel.updateVolumeUpClick(it) }, modifier = Modifier.weight(1f))
+                        ActionDropdown(stringResource(R.string.flic_hold), settings.volumeUpHold, onValueChange = { settingsViewModel.updateVolumeUpHold(it) }, modifier = Modifier.weight(1f))
+                    }
                 }
             }
             Card(
@@ -5798,8 +5851,10 @@ private fun FlicTab(
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     Text(stringResource(R.string.volume_down), style = MaterialTheme.typography.titleMedium, color = MaterialTheme.appColors.primary)
-                    ActionDropdown(stringResource(R.string.flic_click), settings.volumeDownClick) { settingsViewModel.updateVolumeDownClick(it) }
-                    ActionDropdown(stringResource(R.string.flic_hold), settings.volumeDownHold) { settingsViewModel.updateVolumeDownHold(it) }
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        ActionDropdown(stringResource(R.string.flic_click), settings.volumeDownClick, onValueChange = { settingsViewModel.updateVolumeDownClick(it) }, modifier = Modifier.weight(1f))
+                        ActionDropdown(stringResource(R.string.flic_hold), settings.volumeDownHold, onValueChange = { settingsViewModel.updateVolumeDownHold(it) }, modifier = Modifier.weight(1f))
+                    }
                 }
             }
         }
@@ -6054,26 +6109,35 @@ private fun WatchTab(
             title = stringResource(R.string.watch_buttons_touch_label),
             info = stringResource(R.string.watch_buttons_touch_info)
         ) {
-            WatchActionPicker(
-                label = "${stringResource(R.string.watch_screen_button_1)} – ${stringResource(R.string.watch_button_click_label)}",
-                currentKey = settings.watchScreen1Click,
-                onSelect = { viewModel.updateWatchScreen1Click(it) }
-            )
-            WatchActionPicker(
-                label = "${stringResource(R.string.watch_screen_button_1)} – ${stringResource(R.string.watch_button_hold_label)}",
-                currentKey = settings.watchScreen1Hold,
-                onSelect = { viewModel.updateWatchScreen1Hold(it) }
-            )
-            WatchActionPicker(
-                label = "${stringResource(R.string.watch_screen_button_2)} – ${stringResource(R.string.watch_button_click_label)}",
-                currentKey = settings.watchScreen2Click,
-                onSelect = { viewModel.updateWatchScreen2Click(it) }
-            )
-            WatchActionPicker(
-                label = "${stringResource(R.string.watch_screen_button_2)} – ${stringResource(R.string.watch_button_hold_label)}",
-                currentKey = settings.watchScreen2Hold,
-                onSelect = { viewModel.updateWatchScreen2Hold(it) }
-            )
+            // Button 1 click | hold on one row; Button 2 click | hold on the next.
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                WatchActionPicker(
+                    label = "${stringResource(R.string.watch_screen_button_1)} – ${stringResource(R.string.watch_button_click_label)}",
+                    currentKey = settings.watchScreen1Click,
+                    onSelect = { viewModel.updateWatchScreen1Click(it) },
+                    modifier = Modifier.weight(1f),
+                )
+                WatchActionPicker(
+                    label = "${stringResource(R.string.watch_screen_button_1)} – ${stringResource(R.string.watch_button_hold_label)}",
+                    currentKey = settings.watchScreen1Hold,
+                    onSelect = { viewModel.updateWatchScreen1Hold(it) },
+                    modifier = Modifier.weight(1f),
+                )
+            }
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                WatchActionPicker(
+                    label = "${stringResource(R.string.watch_screen_button_2)} – ${stringResource(R.string.watch_button_click_label)}",
+                    currentKey = settings.watchScreen2Click,
+                    onSelect = { viewModel.updateWatchScreen2Click(it) },
+                    modifier = Modifier.weight(1f),
+                )
+                WatchActionPicker(
+                    label = "${stringResource(R.string.watch_screen_button_2)} – ${stringResource(R.string.watch_button_hold_label)}",
+                    currentKey = settings.watchScreen2Hold,
+                    onSelect = { viewModel.updateWatchScreen2Hold(it) },
+                    modifier = Modifier.weight(1f),
+                )
+            }
         }
 
         if (hasHardwareButtons) {
@@ -6113,7 +6177,8 @@ private fun WatchTab(
 private fun WatchActionPicker(
     label: String,
     currentKey: String,
-    onSelect: (String) -> Unit
+    onSelect: (String) -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     // Watch can bind eyes-free actions only. A synthetic "None" first
     // option lets the rider clear the binding.
@@ -6134,7 +6199,8 @@ private fun WatchActionPicker(
         label = label,
         currentKey = currentKey,
         options = options,
-        onSelect = onSelect
+        onSelect = onSelect,
+        modifier = modifier,
     )
 }
 
@@ -6161,16 +6227,20 @@ private fun HardwareButtonGroup(
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
-        WatchActionPicker(
-            label = stringResource(R.string.watch_button_click_label),
-            currentKey = clickKey,
-            onSelect = onClick
-        )
-        WatchActionPicker(
-            label = stringResource(R.string.watch_button_hold_label),
-            currentKey = holdKey,
-            onSelect = onHold
-        )
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            WatchActionPicker(
+                label = stringResource(R.string.watch_button_click_label),
+                currentKey = clickKey,
+                onSelect = onClick,
+                modifier = Modifier.weight(1f),
+            )
+            WatchActionPicker(
+                label = stringResource(R.string.watch_button_hold_label),
+                currentKey = holdKey,
+                onSelect = onHold,
+                modifier = Modifier.weight(1f),
+            )
+        }
     }
 }
 
@@ -7230,27 +7300,35 @@ internal fun SectionHeader(title: String) {
 }
 
 @Composable
-private fun SpeedSliderSetting(
+private fun SpeedNumberSetting(
     label: String,
     valueKmh: Float,
     rangeKmh: ClosedFloatingPointRange<Float>,
     speedUnit: String,
     enabled: Boolean = true,
+    modifier: Modifier = Modifier,
     onValueChangeKmh: (Float) -> Unit
 ) {
-    val displayValue = Units.speed(valueKmh, speedUnit)
-    val displayStart = Units.speed(rangeKmh.start, speedUnit)
-    val displayEnd = Units.speed(rangeKmh.endInclusive, speedUnit)
-    SliderSetting(
-        label = label,
+    // Convert km/h <-> the rider's display unit, mirroring the old slider so
+    // the stored value stays in km/h with identical clamping. NumberUpDown is
+    // integer-only, so steps are whole display units (1 km/h or 1 mph).
+    val displayStart = Units.speed(rangeKmh.start, speedUnit).roundToInt()
+    val displayEndRaw = Units.speed(rangeKmh.endInclusive, speedUnit).roundToInt()
+    // Guard an inverted range (stale value below the floor) like SliderSetting.
+    val displayEnd = if (displayEndRaw < displayStart) displayStart else displayEndRaw
+    val displayValue = Units.speed(valueKmh, speedUnit).roundToInt()
+        .coerceIn(displayStart, displayEnd)
+    NumberUpDown(
         value = displayValue,
-        range = displayStart..displayEnd,
-        unit = Units.speedUnit(LocalContext.current, speedUnit),
-        enabled = enabled,
         onValueChange = { displayed ->
-            val kmh = Units.speedToKmh(displayed, speedUnit)
+            val kmh = Units.speedToKmh(displayed.toFloat(), speedUnit)
             onValueChangeKmh(kmh.coerceIn(rangeKmh))
-        }
+        },
+        range = displayStart..displayEnd,
+        suffix = Units.speedUnit(LocalContext.current, speedUnit),
+        label = label,
+        enabled = enabled,
+        modifier = modifier,
     )
 }
 
@@ -7504,11 +7582,13 @@ private fun SimpleDropdown(
     label: String,
     currentKey: String,
     options: List<Pair<String, String>>,
-    onSelect: (String) -> Unit
+    onSelect: (String) -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     var expanded by remember { mutableStateOf(false) }
     val currentLabel = options.firstOrNull { it.first == currentKey }?.second ?: currentKey
     ExposedDropdownMenuBox(
+        modifier = modifier,
         expanded = expanded,
         onExpandedChange = { expanded = !expanded }
     ) {
@@ -7610,9 +7690,14 @@ private fun ButtonConfig(
                 }
             }
             Spacer(Modifier.height(12.dp))
-            ActionDropdown(stringResource(R.string.flic_click), clickAction, onClickChange)
-            Spacer(Modifier.height(8.dp))
-            ActionDropdown(stringResource(R.string.flic_double_click), doubleClickAction, onDoubleClickChange)
+            // Click + Double click share a row (half each); Hold spans below.
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                ActionDropdown(stringResource(R.string.flic_click), clickAction, onClickChange, modifier = Modifier.weight(1f))
+                ActionDropdown(stringResource(R.string.flic_double_click), doubleClickAction, onDoubleClickChange, modifier = Modifier.weight(1f))
+            }
             Spacer(Modifier.height(8.dp))
             ActionDropdown(stringResource(R.string.flic_hold), holdAction, onHoldChange)
         }
@@ -8085,7 +8170,8 @@ private fun SegmentedChoice(
 private fun ActionDropdown(
     label: String,
     currentValue: String,
-    onValueChange: (String) -> Unit
+    onValueChange: (String) -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     var expanded by remember { mutableStateOf(false) }
     val volumeKeys = remember {
@@ -8101,6 +8187,7 @@ private fun ActionDropdown(
     }
 
     ExposedDropdownMenuBox(
+        modifier = modifier,
         expanded = expanded,
         onExpandedChange = { expanded = !expanded }
     ) {
@@ -9196,17 +9283,14 @@ private fun HudJoystickCard(
     ) {
         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
             HintText(stringResource(R.string.hud_joystick_desc), small = true)
-            ActionDropdown(stringResource(R.string.hud_joystick_up), settings.hudActionUp) {
-                viewModel.updateHudActionUp(it)
+            // Up | Down on one row, Left | Right on the next (half each).
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                ActionDropdown(stringResource(R.string.hud_joystick_up), settings.hudActionUp, onValueChange = { viewModel.updateHudActionUp(it) }, modifier = Modifier.weight(1f))
+                ActionDropdown(stringResource(R.string.hud_joystick_down), settings.hudActionDown, onValueChange = { viewModel.updateHudActionDown(it) }, modifier = Modifier.weight(1f))
             }
-            ActionDropdown(stringResource(R.string.hud_joystick_down), settings.hudActionDown) {
-                viewModel.updateHudActionDown(it)
-            }
-            ActionDropdown(stringResource(R.string.hud_joystick_left), settings.hudActionLeft) {
-                viewModel.updateHudActionLeft(it)
-            }
-            ActionDropdown(stringResource(R.string.hud_joystick_right), settings.hudActionRight) {
-                viewModel.updateHudActionRight(it)
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                ActionDropdown(stringResource(R.string.hud_joystick_left), settings.hudActionLeft, onValueChange = { viewModel.updateHudActionLeft(it) }, modifier = Modifier.weight(1f))
+                ActionDropdown(stringResource(R.string.hud_joystick_right), settings.hudActionRight, onValueChange = { viewModel.updateHudActionRight(it) }, modifier = Modifier.weight(1f))
             }
         }
     }

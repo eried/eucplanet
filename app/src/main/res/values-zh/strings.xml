@@ -407,6 +407,10 @@
     <string name="alarm_comparator_label">条件</string>
     <string name="alarm_threshold_fmt">阈值:%1$s %2$s</string>
     <string name="alarm_threshold_label">阈值</string>
+    <string name="alarm_label_frequency">频率</string>
+    <string name="alarm_label_duration">时长</string>
+    <string name="alarm_label_repeats">重复次数</string>
+    <string name="alarm_label_vibrate_on">振动设备</string>
 
     <!-- Live data sources bottom sheet -->
     <string name="sources_title">实时数据源</string>
@@ -481,7 +485,8 @@
     <string name="about_thanks">致谢</string>
     <string name="about_thanks_body">我厌倦了那些更新缓慢、界面陈旧、对新功能管控严苛、把社区当客户、忘记了 EUC 骑友互相帮助才最棒的应用。这一款想做相反的事。</string>
     <string name="action_reorder">拖动以重新排序</string>
-    <string name="alarm_delete_body">%1$s 将被移除,此操作无法撤销。</string>
+    <string name="alarm_delete_body">此操作无法撤销。</string>
+    <string name="alarm_delete_action">删除报警</string>
     <string name="alarm_delete_title">删除此报警?</string>
     <string name="alarm_vibrate_target_both">全部</string>
     <string name="alarm_vibrate_target_label">振动设备</string>

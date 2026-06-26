@@ -67,6 +67,28 @@ class AlarmViewModel @Inject constructor(
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
     /**
+     * Order rules read top-to-bottom the way [autoSmartSort] would: grouped by
+     * metric (enum order), most severe first (higher threshold for `>=`, lower
+     * for `<`). Shared by the sort action and the "already sorted?" check so the
+     * Auto-sort button can disable itself when there's nothing to do.
+     */
+    private fun sortComparator(): Comparator<AlarmRule> {
+        val metricOrder = AlarmMetric.entries.withIndex().associate { (i, m) -> m.name to i }
+        fun severity(r: AlarmRule): Float =
+            if (com.eried.eucplanet.data.model.AlarmComparator.parse(r.comparator) ==
+                com.eried.eucplanet.data.model.AlarmComparator.LESS_THAN
+            ) -r.threshold else r.threshold
+        return compareBy<AlarmRule> { metricOrder[it.metric] ?: Int.MAX_VALUE }
+            .thenByDescending { severity(it) }
+    }
+
+    /** True when the list is already in auto-sort order (so Auto-sort is a no-op
+     *  and its button should be disabled). Recomputed on every add/remove/swap. */
+    val rulesSorted: StateFlow<Boolean> = rules
+        .map { list -> list.size < 2 || list == list.sortedWith(sortComparator()) }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), true)
+
+    /**
      * The radar alarm metrics (RADAR_DISTANCE, RADAR_APPROACH_SPEED) only
      * show up in the New-alarm metric dropdown when this is true. The flag
      * stays sticky for users who restored a backup with radar rules or who
@@ -125,18 +147,20 @@ class AlarmViewModel @Inject constructor(
      * fires the most-relevant rule per metric regardless of order; it just makes
      * the list read the way riders think about it.
      */
+    /** Drag-to-reorder: move the rule at [from] to [to] and renumber sortOrder
+     *  so the new order persists. Indices are into the currently displayed list. */
+    fun moveRule(from: Int, to: Int) {
+        viewModelScope.launch {
+            val list = rules.value.toMutableList()
+            if (from !in list.indices || to !in list.indices || from == to) return@launch
+            list.add(to, list.removeAt(from))
+            list.forEachIndexed { i, r -> if (r.sortOrder != i) alarmDao.update(r.copy(sortOrder = i)) }
+        }
+    }
+
     fun autoSmartSort() {
         viewModelScope.launch {
-            val metricOrder = AlarmMetric.entries.withIndex()
-                .associate { (i, m) -> m.name to i }
-            fun severity(r: AlarmRule): Float =
-                if (com.eried.eucplanet.data.model.AlarmComparator.parse(r.comparator) ==
-                    com.eried.eucplanet.data.model.AlarmComparator.LESS_THAN
-                ) -r.threshold else r.threshold
-            val sorted = alarmDao.getAll().sortedWith(
-                compareBy<AlarmRule> { metricOrder[it.metric] ?: Int.MAX_VALUE }
-                    .thenByDescending { severity(it) }
-            )
+            val sorted = alarmDao.getAll().sortedWith(sortComparator())
             sorted.forEachIndexed { i, r ->
                 if (r.sortOrder != i) alarmDao.update(r.copy(sortOrder = i))
             }
