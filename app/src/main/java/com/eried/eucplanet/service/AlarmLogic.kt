@@ -124,4 +124,35 @@ object AlarmLogic {
         if (denom == 0.0) return null
         return ((n * sxy - sx * sy) / denom).toFloat()
     }
+
+    /** "Rise" modulation: the value is this fraction of the threshold past it
+     *  when the pitch reaches its cap (50% past = full pitch). */
+    const val BEEP_MOD_REF_FRACTION = 0.5f
+    /** Hard ceiling so modulation never climbs into a thin/inaudible squeal. */
+    const val BEEP_MOD_MAX_HZ = 4000
+
+    /**
+     * Modulated beep pitch in Hz for "Rise" mode. Returns [baseHz] when [value]
+     * is exactly at (or on the safe side of) [threshold]; climbs linearly toward
+     * min(2x base, [BEEP_MOD_MAX_HZ]) as the value pushes [BEEP_MOD_REF_FRACTION]
+     * of the threshold past it. Works for both comparator directions (overspeed
+     * climbs as value rises; low-battery climbs as value falls). Computed once
+     * per fire, so each beep in a single fire is one pitch.
+     */
+    fun modulatedBeepHz(
+        baseHz: Int,
+        value: Float,
+        comparator: String,
+        threshold: Float,
+    ): Int {
+        val over = when (AlarmComparator.parse(comparator)) {
+            AlarmComparator.GREATER_EQUAL -> value - threshold
+            AlarmComparator.LESS_THAN -> threshold - value
+        }
+        if (over <= 0f) return baseHz
+        val span = (kotlin.math.abs(threshold) * BEEP_MOD_REF_FRACTION).coerceAtLeast(1f)
+        val frac = (over / span).coerceIn(0f, 1f)
+        val cap = (baseHz * 2).coerceAtMost(BEEP_MOD_MAX_HZ)
+        return (baseHz + (cap - baseHz) * frac).toInt()
+    }
 }

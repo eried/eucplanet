@@ -233,4 +233,44 @@ class AlarmLogicTest {
         assertTrue(AlarmLogic.shouldFire(matched = true, wasActive = true, msSinceLastFire = cd, cooldownMs = cd, repeatWhileActive = true))
         assertFalse(AlarmLogic.shouldFire(matched = true, wasActive = true, msSinceLastFire = cd - 1, cooldownMs = cd, repeatWhileActive = true))
     }
+
+    // --- beep pitch modulation ("Rise" mode) ---
+
+    @Test
+    fun modulationBaseAtThreshold() {
+        // At (or before) the threshold the pitch is exactly the base.
+        assertEquals(1000, AlarmLogic.modulatedBeepHz(1000, value = 30f, comparator = GE, threshold = 30f))
+        assertEquals(1000, AlarmLogic.modulatedBeepHz(1000, value = 20f, comparator = GE, threshold = 30f))
+    }
+
+    @Test
+    fun modulationReachesCapAtHalfThresholdPast() {
+        // 50% past the threshold => cap = min(2x base, 4000).
+        assertEquals(2000, AlarmLogic.modulatedBeepHz(1000, value = 45f, comparator = GE, threshold = 30f))
+    }
+
+    @Test
+    fun modulationIsLinearMidway() {
+        // Quarter of the span past (37.5 = +25% of 30) => halfway to the cap.
+        assertEquals(1500, AlarmLogic.modulatedBeepHz(1000, value = 37.5f, comparator = GE, threshold = 30f))
+    }
+
+    @Test
+    fun modulationClampsAtCap() {
+        assertEquals(2000, AlarmLogic.modulatedBeepHz(1000, value = 90f, comparator = GE, threshold = 30f))
+    }
+
+    @Test
+    fun modulationRespectsHardCeiling() {
+        // base 3000 would double to 6000; ceiling clamps to 4000.
+        assertEquals(4000, AlarmLogic.modulatedBeepHz(3000, value = 45f, comparator = GE, threshold = 30f))
+    }
+
+    @Test
+    fun modulationRisesForLessThanAsValueFalls() {
+        // battery threshold 20, base 1000: at 10 (50% below) => cap; at 15 => midway.
+        assertEquals(1000, AlarmLogic.modulatedBeepHz(1000, value = 20f, comparator = LT, threshold = 20f))
+        assertEquals(1500, AlarmLogic.modulatedBeepHz(1000, value = 15f, comparator = LT, threshold = 20f))
+        assertEquals(2000, AlarmLogic.modulatedBeepHz(1000, value = 10f, comparator = LT, threshold = 20f))
+    }
 }

@@ -1006,6 +1006,7 @@ class SyncManager @Inject constructor(
                 put("beepFrequency", r.beepFrequency)
                 put("beepDurationMs", r.beepDurationMs)
                 put("beepCount", r.beepCount)
+                put("beepModulation", r.beepModulation)
                 put("voiceEnabled", r.voiceEnabled)
                 put("voiceText", r.voiceText)
                 put("vibrateEnabled", r.vibrateEnabled)
@@ -1035,6 +1036,7 @@ class SyncManager @Inject constructor(
                 beepFrequency = o.optInt("beepFrequency", default.beepFrequency),
                 beepDurationMs = o.optInt("beepDurationMs", default.beepDurationMs),
                 beepCount = o.optInt("beepCount", default.beepCount),
+                beepModulation = o.optInt("beepModulation", default.beepModulation),
                 voiceEnabled = o.optBoolean("voiceEnabled", default.voiceEnabled),
                 voiceText = o.optString("voiceText", default.voiceText),
                 vibrateEnabled = o.optBoolean("vibrateEnabled", default.vibrateEnabled),

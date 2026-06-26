@@ -26,6 +26,24 @@ class TonePlayer @Inject constructor() {
         }
     }
 
+    /**
+     * Preview for "Rise" pitch modulation: a short ramp of beeps from [baseHz]
+     * up to its cap, so the rider can hear how the pitch climbs as the metric
+     * pushes past the threshold -- without needing a live wheel. Mirrors the
+     * cap math in [com.eried.eucplanet.service.AlarmLogic.modulatedBeepHz].
+     */
+    suspend fun playRiseDemo(baseHz: Int, durationMs: Int) {
+        withContext(Dispatchers.IO) {
+            val cap = (baseHz * 2).coerceAtMost(4000)
+            val steps = 4
+            for (i in 0 until steps) {
+                val f = baseHz + (cap - baseHz) * i / (steps - 1)
+                playTone(f, durationMs)
+                if (i < steps - 1) Thread.sleep(90L)
+            }
+        }
+    }
+
     private fun playTone(frequencyHz: Int, durationMs: Int) {
         val numSamples = sampleRate * durationMs / 1000
         val samples = ShortArray(numSamples)

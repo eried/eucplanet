@@ -235,7 +235,7 @@ fun AlarmSettingsContent(
             },
             onDismiss = { showEditor = false },
             onDelete = editingRule?.let { r -> { showEditor = false; deleteCandidate = r } },
-            onPreviewBeep = { freq, dur, cnt -> viewModel.previewBeep(freq, dur, cnt) },
+            onPreviewBeep = { freq, dur, cnt, mod -> viewModel.previewBeep(freq, dur, cnt, mod) },
             onPreviewVoice = { text, metric, thr -> viewModel.previewVoice(text, metric, thr) },
             onPreviewVibrate = { dur -> viewModel.previewVibrate(dur) }
         )
@@ -362,7 +362,7 @@ private fun AlarmRuleEditorDialog(
     onSave: (AlarmRule) -> Unit,
     onDismiss: () -> Unit,
     onDelete: (() -> Unit)? = null,
-    onPreviewBeep: (Int, Int, Int) -> Unit,
+    onPreviewBeep: (Int, Int, Int, Int) -> Unit,
     onPreviewVoice: (String, AlarmMetric, Float) -> Unit,
     onPreviewVibrate: (Int) -> Unit
 ) {
@@ -377,6 +377,7 @@ private fun AlarmRuleEditorDialog(
     var beepFrequency by remember { mutableIntStateOf(initial.beepFrequency) }
     var beepDurationMs by remember { mutableIntStateOf(initial.beepDurationMs) }
     var beepCount by remember { mutableIntStateOf(initial.beepCount) }
+    var beepModulation by remember { mutableIntStateOf(initial.beepModulation) }
 
     var voiceEnabled by remember { mutableStateOf(initial.voiceEnabled) }
     // For a brand-new alarm, seed with the voice-locale-resolved default
@@ -547,7 +548,7 @@ private fun AlarmRuleEditorDialog(
                     title = stringResource(R.string.alarm_section_beep),
                     color = MaterialTheme.appColors.statusWarn,
                     enabled = beepEnabled,
-                    onPreview = { onPreviewBeep(beepFrequency, beepDurationMs, beepCount) }
+                    onPreview = { onPreviewBeep(beepFrequency, beepDurationMs, beepCount, beepModulation) }
                 )
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -597,6 +598,44 @@ private fun AlarmRuleEditorDialog(
                         )
                         Spacer(Modifier.weight(1f))
                     }
+                    Spacer(Modifier.height(8.dp))
+                    // Pitch: Fixed (always beepFrequency) or Rises with severity.
+                    Text(
+                        stringResource(R.string.alarm_beep_pitch_label),
+                        fontSize = 12.sp,
+                        color = MaterialTheme.appColors.fieldLabel,
+                        modifier = Modifier.padding(bottom = 4.dp)
+                    )
+                    val pitchEntries = listOf(
+                        0 to stringResource(R.string.alarm_beep_pitch_fixed),
+                        1 to stringResource(R.string.alarm_beep_pitch_rise),
+                    )
+                    SingleChoiceSegmentedButtonRow(
+                        modifier = Modifier.fillMaxWidth().height(48.dp)
+                    ) {
+                        pitchEntries.forEachIndexed { index, (value, lbl) ->
+                            SegmentedButton(
+                                modifier = Modifier.fillMaxHeight(),
+                                selected = value == beepModulation,
+                                onClick = { beepModulation = value },
+                                shape = SegmentedButtonDefaults.itemShape(index, pitchEntries.size),
+                                colors = themedSegmentedColors(),
+                            ) { Text(lbl) }
+                        }
+                    }
+                    val metricName = stringResource(selectedMetric.labelRes)
+                    val beepCap = (beepFrequency * 2).coerceAtMost(4000)
+                    HintText(
+                        when {
+                            beepModulation == 1 ->
+                                stringResource(R.string.alarm_beep_help_rise, beepFrequency, metricName, beepCap)
+                            beepCount > 1 ->
+                                stringResource(R.string.alarm_beep_help_fixed_multi, beepFrequency, beepDurationMs, beepCount)
+                            else ->
+                                stringResource(R.string.alarm_beep_help_fixed_single, beepFrequency, beepDurationMs)
+                        },
+                        small = true
+                    )
                 }
 
                 Spacer(Modifier.height(8.dp))
@@ -869,6 +908,7 @@ private fun AlarmRuleEditorDialog(
                                         beepFrequency = beepFrequency,
                                         beepDurationMs = beepDurationMs,
                                         beepCount = beepCount,
+                                        beepModulation = beepModulation,
                                         voiceEnabled = voiceEnabled,
                                         voiceText = voiceText,
                                         vibrateEnabled = vibrateEnabled,

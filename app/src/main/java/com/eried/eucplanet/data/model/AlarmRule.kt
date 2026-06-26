@@ -18,9 +18,18 @@ data class AlarmRule(
 
     // Beep action
     val beepEnabled: Boolean = false,
-    val beepFrequency: Int = 1000,   // Hz: 400-3000
+    val beepFrequency: Int = 1000,   // Hz: 400-3000 (the pitch AT the threshold)
     val beepDurationMs: Int = 300,   // per beep
     val beepCount: Int = 1,          // 1=single, 2=double, 3=triple
+    /**
+     * Beep pitch modulation. 0 = Fixed (always [beepFrequency]). 1 = Rise: the
+     * pitch starts at [beepFrequency] when the metric reaches the threshold and
+     * climbs as the metric pushes further past it, so a worse condition sounds
+     * more urgent. Computed once per fire (each beep in one fire is a single
+     * pitch); pair with Many trigger so it re-beeps higher as the value worsens.
+     * See [com.eried.eucplanet.service.AlarmLogic.modulatedBeepHz].
+     */
+    val beepModulation: Int = 0,
 
     // Voice action
     val voiceEnabled: Boolean = false,

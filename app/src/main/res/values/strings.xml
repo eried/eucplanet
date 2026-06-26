@@ -933,6 +933,12 @@
     <string name="alarm_threshold_fmt">Threshold: %1$s %2$s</string>
     <string name="alarm_threshold_label">Threshold</string>
     <string name="alarm_label_frequency">Frequency</string>
+    <string name="alarm_beep_pitch_label">Pitch</string>
+    <string name="alarm_beep_pitch_fixed">Fixed</string>
+    <string name="alarm_beep_pitch_rise">Rises</string>
+    <string name="alarm_beep_help_fixed_single">Plays one %1$d Hz tone for %2$d ms.</string>
+    <string name="alarm_beep_help_fixed_multi">Plays %3$d beeps of %1$d Hz for %2$d ms each, 120 ms apart.</string>
+    <string name="alarm_beep_help_rise">Starts at %1$d Hz when %2$s reaches the threshold and climbs toward %3$d Hz the further past it the value goes. Each beep is a single pitch; with Trigger: Many it re-beeps higher as the value worsens.</string>
     <string name="alarm_label_duration">Duration</string>
     <string name="alarm_label_repeats">Repeats</string>
     <string name="alarm_label_vibrate_on">Vibrate on</string>

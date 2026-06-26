@@ -199,7 +199,10 @@ class AlarmEngine @Inject constructor(
         }
         scope.launch {
             if (rule.beepEnabled) {
-                tonePlayer.playBeep(rule.beepFrequency, rule.beepDurationMs, rule.beepCount)
+                val freq = if (rule.beepModulation == 1)
+                    AlarmLogic.modulatedBeepHz(rule.beepFrequency, triggerValue, rule.comparator, rule.threshold)
+                else rule.beepFrequency
+                tonePlayer.playBeep(freq, rule.beepDurationMs, rule.beepCount)
                 if (rule.voiceEnabled && rule.voiceText.isNotBlank()) {
                     delay(200)
                 }
@@ -232,7 +235,10 @@ class AlarmEngine @Inject constructor(
 
         scope.launch {
             if (rule.beepEnabled) {
-                tonePlayer.playBeep(rule.beepFrequency, rule.beepDurationMs, rule.beepCount)
+                val freq = if (rule.beepModulation == 1)
+                    AlarmLogic.modulatedBeepHz(rule.beepFrequency, triggerValue, rule.comparator, rule.threshold)
+                else rule.beepFrequency
+                tonePlayer.playBeep(freq, rule.beepDurationMs, rule.beepCount)
                 if (rule.voiceEnabled && rule.voiceText.isNotBlank()) {
                     delay(200)
                 }
