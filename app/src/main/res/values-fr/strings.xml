@@ -899,9 +899,11 @@
     <string name="auto_lights_suspended">Suspendu : tu as basculé le phare manuellement pendant cette session. Reconnecte la roue ou relance l\'appli pour reprendre</string>
 
     <!-- Alarms tab -->
-    <string name="alarm_help">Les règles sont vérifiées de haut en bas par métrique. La première qui correspond se déclenche</string>
+    <string name="alarm_help">Pour chaque métrique, l\'alarme la plus pertinente se déclenche automatiquement. L\'ordre dans la liste ne change pas laquelle ; le tri sert juste à garder de l\'ordre.</string>
     <string name="alarm_empty">Aucune règle d\'alarme</string>
     <string name="alarm_add">Nouvelle alarme</string>
+    <string name="alarm_smart_sort">Tri automatique</string>
+    <string name="alarm_summary_predict_fmt">prévoit %1$s s à l\'avance</string>
     <string name="alarm_new">Nouvelle alarme</string>
     <string name="alarm_edit">Modifier l\'alarme</string>
     <string name="alarm_delete_title">Supprimer cette alarme ?</string>
@@ -909,6 +911,7 @@
     <string name="alarm_metric_label">Métrique</string>
     <string name="alarm_comparator_label">Condition</string>
     <string name="alarm_threshold_fmt">Seuil : %1$s %2$s</string>
+    <string name="alarm_threshold_label">Seuil</string>
     <string name="alarm_threshold_decrease">Diminuer le seuil</string>
     <string name="alarm_threshold_increase">Augmenter le seuil</string>
 
@@ -964,10 +967,25 @@
     <string name="alarm_vibrate_target_watch">Montre</string>
     <string name="alarm_vibrate_target_both">Tous</string>
     <string name="alarm_section_timing">Temporisation</string>
+    <string name="alarm_cooldown_label">Pause</string>
     <string name="alarm_cooldown_fmt">Pause : %1$ds</string>
     <string name="alarm_cooldown_help">Temps minimum entre deux déclenchements, même si la condition reste vraie</string>
     <string name="alarm_repeat">Répéter tant que c\'est actif</string>
-    <string name="alarm_repeat_help">ON : redéclenche après chaque pause tant que la condition est vraie.\nOFF : déclenche une fois et reste silencieux jusqu\'à ce que la condition cesse</string>
+    <string name="alarm_repeat_label">Déclenchement</string>
+    <string name="alarm_repeat_single">Unique</string>
+    <string name="alarm_repeat_multi">Répété</string>
+    <string name="alarm_repeat_help">Une fois : une seule alerte, puis se réarme une fois que la mesure revient du côté sûr.\nPlusieurs : réalerte à chaque pause tant qu\'elle reste déclenchée.</string>
+    <string name="alarm_section_advanced">Avancé</string>
+    <string name="alarm_predict_label">Déclenchement prédictif</string>
+    <string name="alarm_predict_realtime">Direct</string>
+    <string name="alarm_predict_value_fmt">%1$s s à l\'avance</string>
+    <string name="alarm_predict_help">Maintenant : alerte dès que le seuil est signalé.\nAutres : alertent ce nombre de secondes avant que la tendance ne l\'atteigne.</string>
+    <string name="alarm_state_atleast">%1$s est %2$s ou plus</string>
+    <string name="alarm_state_below">%1$s est sous %2$s</string>
+    <string name="alarm_repeat_help_once">Une alerte quand %1$s. Se réarme quand %2$s, après la pause de %3$d s.</string>
+    <string name="alarm_repeat_help_many">Réalerte toutes les %1$d s tant que %2$s.</string>
+    <string name="alarm_predict_help_now">Alerte dès que %1$s.</string>
+    <string name="alarm_predict_help_lead">Alerte environ %1$s s avant %2$s, d\'après la tendance récente.</string>
 
     <!-- About / crash logs -->
     <string name="about_crash_logs">Journaux de plantage</string>

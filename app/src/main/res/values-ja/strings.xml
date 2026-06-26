@@ -896,9 +896,11 @@
     <string name="auto_lights_suspended">このセッションでユーザーがライトを手動操作したため一時停止中。ホイールを再接続またはアプリを再起動すると再開します</string>
 
     <!-- Alarms tab -->
-    <string name="alarm_help">ルールはメトリクスごとに上から下に確認されます。各メトリクスで最初に一致したルールが発動します</string>
+    <string name="alarm_help">メトリクスごとに最も適切なアラームが自動で発動します。リストの順序で発動するルールが変わることはなく、並び替えは見やすさのためだけです</string>
     <string name="alarm_empty">アラームルールがありません</string>
     <string name="alarm_add">新しいアラーム</string>
+    <string name="alarm_smart_sort">自動並び替え</string>
+    <string name="alarm_summary_predict_fmt">%1$s 秒先を予測</string>
     <string name="alarm_new">新規アラーム</string>
     <string name="alarm_edit">アラームを編集</string>
     <string name="alarm_delete_title">このアラームを削除しますか？</string>
@@ -906,6 +908,7 @@
     <string name="alarm_metric_label">メトリクス</string>
     <string name="alarm_comparator_label">条件</string>
     <string name="alarm_threshold_fmt">しきい値: %1$s %2$s</string>
+    <string name="alarm_threshold_label">しきい値</string>
     <string name="alarm_threshold_decrease">しきい値を下げる</string>
     <string name="alarm_threshold_increase">しきい値を上げる</string>
 
@@ -961,10 +964,25 @@
     <string name="alarm_vibrate_target_watch">ウォッチ</string>
     <string name="alarm_vibrate_target_both">すべて</string>
     <string name="alarm_section_timing">タイミング</string>
+    <string name="alarm_cooldown_label">クールダウン</string>
     <string name="alarm_cooldown_fmt">クールダウン: %1$d 秒</string>
     <string name="alarm_cooldown_help">条件が一致し続けていても、このルールの発動間に必要な最短時間</string>
     <string name="alarm_repeat">アクティブ中に繰り返す</string>
-    <string name="alarm_repeat_help">ON: 条件が続く間クールダウンごとに再発動。\nOFF: 一度発動し、条件がクリアされるまで無音</string>
+    <string name="alarm_section_advanced">詳細設定</string>
+    <string name="alarm_repeat_label">発動</string>
+    <string name="alarm_repeat_single">1回</string>
+    <string name="alarm_repeat_multi">複数回</string>
+    <string name="alarm_repeat_help">1回: 一度だけ通知し、値が安全側に戻ると再び発動できるようになります。\n複数回: 発動している間、クールダウンごとに繰り返し通知します。</string>
+    <string name="alarm_predict_label">予測発動</string>
+    <string name="alarm_predict_realtime">今すぐ</string>
+    <string name="alarm_predict_value_fmt">%1$s 秒早く</string>
+    <string name="alarm_predict_help">今すぐ: しきい値が報告された瞬間に通知します。\nその他: 傾向がしきい値に達する、その秒数だけ前に通知します。</string>
+    <string name="alarm_state_atleast">%1$s が %2$s 以上</string>
+    <string name="alarm_state_below">%1$s が %2$s 未満</string>
+    <string name="alarm_repeat_help_once">%1$s のとき1回通知します。%3$d 秒のクールダウン後、%2$s になると再び発動できるようになります。</string>
+    <string name="alarm_repeat_help_many">%2$s の間、%1$d 秒ごとに再通知します。</string>
+    <string name="alarm_predict_help_now">%1$s になった瞬間に通知します。</string>
+    <string name="alarm_predict_help_lead">最近の傾向から、%2$s になる約 %1$s 秒前に通知します。</string>
 
     <!-- About / crash logs -->
     <string name="about_crash_logs">クラッシュログ</string>

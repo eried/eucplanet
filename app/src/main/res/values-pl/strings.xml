@@ -899,9 +899,11 @@
     <string name="auto_lights_suspended">Wstrzymane z powodu ręcznego przełączenia świateł w tej sesji. Połącz koło ponownie lub uruchom aplikację ponownie, aby wznowić</string>
 
     <!-- Alarms tab -->
-    <string name="alarm_help">Reguły są sprawdzane od góry do dołu dla każdej metryki. Pierwsza pasująca reguła wyzwala alarm</string>
+    <string name="alarm_help">Dla każdej metryki automatycznie wyzwalany jest najbardziej odpowiedni alarm. Kolejność na liście tego nie zmienia; sortowanie służy tylko zachowaniu porządku.</string>
     <string name="alarm_empty">Brak reguł alarmów</string>
     <string name="alarm_add">Nowy alarm</string>
+    <string name="alarm_smart_sort">Sortuj automatycznie</string>
+    <string name="alarm_summary_predict_fmt">przewiduje %1$s s wcześniej</string>
     <string name="alarm_new">Nowy alarm</string>
     <string name="alarm_edit">Edytuj alarm</string>
     <string name="alarm_delete_title">Usunąć ten alarm?</string>
@@ -909,6 +911,7 @@
     <string name="alarm_metric_label">Metryka</string>
     <string name="alarm_comparator_label">Warunek</string>
     <string name="alarm_threshold_fmt">Próg: %1$s %2$s</string>
+    <string name="alarm_threshold_label">Próg</string>
 
     <!-- Live data sources bottom sheet -->
     <string name="sources_title">Źródła danych na żywo</string>
@@ -962,10 +965,25 @@
     <string name="alarm_vibrate_target_watch">Zegarku</string>
     <string name="alarm_vibrate_target_both">Wszystkich</string>
     <string name="alarm_section_timing">Czasy</string>
+    <string name="alarm_cooldown_label">Odstęp</string>
     <string name="alarm_cooldown_fmt">Odstęp: %1$ds</string>
     <string name="alarm_cooldown_help">Minimalny czas między uruchomieniami tej reguły, nawet jeśli warunek wciąż jest spełniony</string>
     <string name="alarm_repeat">Powtarzaj, gdy aktywny</string>
-    <string name="alarm_repeat_help">WŁ.: uruchamia się ponownie co odstęp, dopóki warunek jest spełniony.\nWYŁ.: uruchamia się raz i milczy, dopóki warunek nie ustąpi</string>
+    <string name="alarm_repeat_label">Wyzwalanie</string>
+    <string name="alarm_repeat_single">Raz</string>
+    <string name="alarm_repeat_multi">Wiele</string>
+    <string name="alarm_repeat_help">Raz: jeden alarm, potem ponowne uzbrojenie, gdy odczyt wróci na bezpieczną stronę.\nWiele: ponawia alarm co odstęp, dopóki warunek jest spełniony.</string>
+    <string name="alarm_section_advanced">Zaawansowane</string>
+    <string name="alarm_predict_label">Wyzwalanie predykcyjne</string>
+    <string name="alarm_predict_realtime">Teraz</string>
+    <string name="alarm_predict_value_fmt">%1$s s wcześniej</string>
+    <string name="alarm_predict_help">Teraz: alarmuje w chwili zgłoszenia progu.\nPozostałe: alarmują tyle sekund przed tym, jak trend ma go osiągnąć.</string>
+    <string name="alarm_state_atleast">%1$s wynosi %2$s lub więcej</string>
+    <string name="alarm_state_below">%1$s jest poniżej %2$s</string>
+    <string name="alarm_repeat_help_once">Jeden alarm, gdy %1$s. Ponowne uzbrojenie, gdy %2$s, po odstępie %3$d s.</string>
+    <string name="alarm_repeat_help_many">Ponawia alarm co %1$d s, dopóki %2$s.</string>
+    <string name="alarm_predict_help_now">Alarmuje w chwili, gdy %1$s.</string>
+    <string name="alarm_predict_help_lead">Alarmuje około %1$s s przed tym, gdy %2$s, na podstawie ostatniego trendu.</string>
 
     <!-- About / crash logs -->
     <string name="about_crash_logs">Logi awarii</string>

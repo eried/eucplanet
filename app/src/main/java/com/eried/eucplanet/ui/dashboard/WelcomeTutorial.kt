@@ -249,6 +249,11 @@ private fun LoopingClip(assetName: String, modifier: Modifier) {
 fun WelcomeTutorialOverlay(
     state: CoachmarkState,
     onVoiceToggle: (Boolean) -> Unit = {},
+    // The voice switch must reflect the *actual* persisted state, not a hardcoded
+    // off. Otherwise the wizard can show the switch off while voice announcements
+    // are really on (e.g. the rider flipped it on earlier), so they "see it
+    // disabled but still hear GPS / wheel connected".
+    voiceCurrentlyOn: Boolean = false,
     onFinish: () -> Unit,
 ) {
     val steps = tutorialSteps()
@@ -266,7 +271,7 @@ fun WelcomeTutorialOverlay(
     // rider gets a spoken welcome as live confirmation) and persists, so
     // closing the wizard with the switch on leaves voice enabled and the
     // switch off leaves it silent -- nothing else to apply on Next/Skip.
-    var voicesOptIn by rememberSaveable { mutableStateOf(false) }
+    var voicesOptIn by rememberSaveable { mutableStateOf(voiceCurrentlyOn) }
     fun advance() { if (isLast) onFinish() else state.stepIndex = idx + 1 }
     fun back() { if (idx > 0) state.stepIndex = idx - 1 }
 

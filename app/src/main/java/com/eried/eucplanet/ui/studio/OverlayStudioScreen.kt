@@ -598,9 +598,21 @@ fun OverlayStudioScreen(
         // renders that much faster. Slow speeds add frames for smoother slow-mo.
         // Frames only ever sample inside the trimmed [start, end] range.
         val outputMs = (span / replaySpeed.coerceAtLeast(0.05f)).toLong()
-        val maxFrames = 240
+        // Raised from 240 so a longer clip stays smooth; the clip's *duration*
+        // is fixed by the per-frame PTS below, not by the frame count, so the
+        // cap only trades smoothness (fps) for render time on very long clips.
+        val maxFrames = 900
         val frameCount = ((outputMs / frameMs).toInt() + 1).coerceIn(2, maxFrames)
         val stepMs: Long = span / (frameCount - 1)
+        // Total clip length the encoder must produce regardless of how fast the
+        // offline render runs (it spreads the encoded frames evenly across this
+        // on finish; see StudioVideoEncoder). outputMs already folds in the
+        // replay speed, so a 4x clip is a quarter as long.
+        val targetDurationUs: Long = outputMs * 1000L
+        // GIF / APNG carry their own per-frame delay, so spreading the (capped)
+        // frame count across outputMs keeps them the right length too -- a long
+        // clip just plays at a lower fps rather than being sped up.
+        val perFrameDelayMs: Int = (outputMs / frameCount).toInt().coerceAtLeast(1)
 
         // Frame 0: also tells us the capture dimensions.
         replayPosMs = replayStartMs
@@ -625,7 +637,7 @@ fun OverlayStudioScreen(
                     val mp4 = StudioVideoEncoder(context, withAudio = false)
                     var encoderUri: Uri? = null
                     try {
-                        if (!mp4.start(ew, eh)) {
+                        if (!mp4.start(ew, eh, targetDurationUs = targetDurationUs)) {
                             false
                         } else {
                             val canvasW = mp4.encodeWidth
@@ -691,9 +703,9 @@ fun OverlayStudioScreen(
                         try {
                             // GIF (1-bit alpha) vs APNG (full RGBA alpha).
                             val gif = if (videoFormat == ReplayVideoFormat.GIF)
-                                StudioGifEncoder(stream, ew, eh, frameMs) else null
+                                StudioGifEncoder(stream, ew, eh, perFrameDelayMs) else null
                             val apng = if (videoFormat == ReplayVideoFormat.APNG)
-                                StudioApngEncoder(stream, ew, eh, frameMs, frameCount) else null
+                                StudioApngEncoder(stream, ew, eh, perFrameDelayMs, frameCount) else null
                             withContext(Dispatchers.IO) {
                                 gif?.addFrame(first)
                                 apng?.addFrame(first)

@@ -91,7 +91,11 @@ fun TripDetailScreen(
     var dataPoints by remember { mutableStateOf<List<TripDataPoint>>(emptyList()) }
     var showShareDialog by remember { mutableStateOf(false) }
     // The in-progress trip can't be shared, its CSV isn't finalised yet.
-    val isLiveTrip by viewModel.isTripLiveRecording(trip).collectAsState(initial = false)
+    // null = not yet known; only once it resolves to a definite false do we let
+    // the self-heal touch the stored row (so a live trip is never finalised
+    // early by the detail screen).
+    val liveState by viewModel.isTripLiveRecording(trip).collectAsState(initial = null)
+    val isLiveTrip = liveState == true
 
     // Render the ViewModel's messages (e.g. "Preparing the link…", share
     // failures) here too — sharing is launched straight from this screen, which
@@ -165,8 +169,24 @@ fun TripDetailScreen(
             ) {
                 Spacer(Modifier.height(8.dp))
 
-                // Trip summary
-                val duration = ((trip.endTime ?: trip.startTime) - trip.startTime) / 1000
+                // Trip summary. Duration + distance come from the CSV (the same
+                // data the chart reads), not the stored summary fields, so a
+                // finished trip can't show 0:00 / 0.0 when the file has data.
+                // Stored values are the fallback only, and a stale finished row
+                // is healed in the background so the trip list catches up too.
+                val metrics = remember(dataPoints) { viewModel.tripMetrics(dataPoints) }
+                LaunchedEffect(metrics, liveState) {
+                    if (liveState == false) viewModel.healTripMetrics(trip, metrics)
+                }
+                val startMs = if (metrics.valid) metrics.startMs else trip.startTime
+                val duration = if (metrics.valid)
+                    metrics.durationMs / 1000
+                else
+                    ((trip.endTime ?: trip.startTime) - trip.startTime) / 1000
+                // Distance: trust the stored value (the wheel odometer captured
+                // at finalize) when present; recompute from the CSV only for
+                // trips that never got one (imports, crashed-before-finalize).
+                val distanceKm = if (trip.distanceKm > 0f) trip.distanceKm else metrics.distanceKm
                 val minutes = duration / 60
                 val seconds = duration % 60
                 val maxSpeedRaw = dataPoints.maxOfOrNull { it.speed } ?: 0f
@@ -176,7 +196,12 @@ fun TripDetailScreen(
                 val movingSpeeds = dataPoints.map { it.speed }.filter { it > 1f }
                 val avgMovingRaw = if (movingSpeeds.isNotEmpty())
                     movingSpeeds.average().toFloat() else 0f
-                val maxTempRaw = dataPoints.maxOfOrNull { it.temperature } ?: 0f
+                // Max temp over plausible readings only: a recorded -176 C from
+                // an empty sensor slot (or any impossible value) must not surface
+                // in the summary. The CSV still holds the raw values.
+                val maxTempRaw = dataPoints.map { it.temperature }
+                    .filter { com.eried.eucplanet.util.MetricSanity.isPlausibleTempC(it) }
+                    .maxOrNull() ?: 0f
                 // Smart battery/voltage stats over a validity mask that drops
                 // wheel-off / disconnect garbage (see computeBatteryStats).
                 val batteryStats = remember(dataPoints) { computeBatteryStats(dataPoints) }
@@ -193,11 +218,11 @@ fun TripDetailScreen(
                 val maxSpeed = com.eried.eucplanet.util.Units.speed(maxSpeedRaw, speedUnit)
                 val avgSpeed = com.eried.eucplanet.util.Units.speed(avgSpeedRaw, speedUnit)
                 val avgMoving = com.eried.eucplanet.util.Units.speed(avgMovingRaw, speedUnit)
-                val tripDistance = com.eried.eucplanet.util.Units.distance(trip.distanceKm, distanceUnit)
+                val tripDistance = com.eried.eucplanet.util.Units.distance(distanceKm, distanceUnit)
                 val maxTemp = com.eried.eucplanet.util.Units.temperature(maxTempRaw, tempUnit)
 
                 Text(
-                    dateFormat.format(Date(trip.startTime)),
+                    dateFormat.format(Date(startMs)),
                     style = MaterialTheme.typography.titleMedium,
                     color = MaterialTheme.colorScheme.onSurface
                 )
@@ -351,10 +376,14 @@ fun TripDetailScreen(
 
                 Spacer(Modifier.height(12.dp))
 
-                // Temperature chart \u2014 convert each data point to \u00B0F when imperial.
+                // Temperature chart \u2014 convert each data point to \u00B0F when imperial,
+                // and use the matching minimum y-span so a small swing doesn't look
+                // alarming (20 \u00B0C \u2248 36 \u00B0F, not a literal 20 \u00B0F window).
+                val tempMinSpan = if (tempUnit == "F") GraphScale.SPAN_TEMPERATURE_F
+                    else GraphScale.SPAN_TEMPERATURE_C
                 ChartCard(stringResource(R.string.recording_chart_temp, tempUnitLabel),
                     dataPoints.map { com.eried.eucplanet.util.Units.temperature(it.temperature, tempUnit) },
-                    MaterialTheme.appColors.metricTemp, unitLabel = tempUnitLabel, minSpan = GraphScale.SPAN_TEMPERATURE_C)
+                    MaterialTheme.appColors.metricTemp, unitLabel = tempUnitLabel, minSpan = tempMinSpan)
 
                 Spacer(Modifier.height(12.dp))
 

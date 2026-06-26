@@ -396,14 +396,17 @@
     <string name="auto_polar_night_body">当前纬度今日无日出,大灯将保持开启</string>
     <string name="auto_lights_suspended">已暂停:本次会话中你手动切换过大灯。请重新连接独轮车或重启应用以恢复</string>
 
-    <string name="alarm_help">同一项指标的规则按从上到下顺序匹配,首条命中的规则触发</string>
+    <string name="alarm_help">每项指标都会自动触发最相关的报警。列表顺序不会改变触发哪一条,排序只是为了让列表更整洁</string>
     <string name="alarm_empty">暂无报警规则</string>
     <string name="alarm_add">新建报警</string>
+    <string name="alarm_smart_sort">自动排序</string>
+    <string name="alarm_summary_predict_fmt">提前 %1$s 秒预测</string>
     <string name="alarm_new">新建报警</string>
     <string name="alarm_edit">编辑报警</string>
     <string name="alarm_metric_label">指标</string>
     <string name="alarm_comparator_label">条件</string>
     <string name="alarm_threshold_fmt">阈值:%1$s %2$s</string>
+    <string name="alarm_threshold_label">阈值</string>
 
     <!-- Live data sources bottom sheet -->
     <string name="sources_title">实时数据源</string>
@@ -452,10 +455,25 @@
     <string name="alarm_enable_vibrate">启用振动</string>
     <string name="alarm_vibrate_duration_fmt">时长:%1$dms</string>
     <string name="alarm_section_timing">触发时机</string>
+    <string name="alarm_cooldown_label">冷却</string>
     <string name="alarm_cooldown_fmt">冷却:%1$d 秒</string>
     <string name="alarm_cooldown_help">两次触发之间的最短间隔,即便条件仍然满足</string>
     <string name="alarm_repeat">持续触发</string>
-    <string name="alarm_repeat_help">开:条件成立期间,每个冷却时间都会重新触发。\n关:触发一次后保持安静,直到条件解除</string>
+    <string name="alarm_section_advanced">高级</string>
+    <string name="alarm_repeat_label">触发</string>
+    <string name="alarm_repeat_single">一次</string>
+    <string name="alarm_repeat_multi">多次</string>
+    <string name="alarm_repeat_help">一次:仅报警一次,待读数回到安全侧后重新待命。\n多次:持续触发期间,每个冷却时间都会重新报警。</string>
+    <string name="alarm_predict_label">预测触发</string>
+    <string name="alarm_predict_realtime">立即</string>
+    <string name="alarm_predict_value_fmt">提前 %1$s 秒</string>
+    <string name="alarm_predict_help">立即:在阈值上报的瞬间立即报警。\n其他:在趋势即将达到阈值前提前相应秒数报警。</string>
+    <string name="alarm_state_atleast">%1$s 达到 %2$s 或更高</string>
+    <string name="alarm_state_below">%1$s 低于 %2$s</string>
+    <string name="alarm_repeat_help_once">当 %1$s 时报警一次。冷却 %3$d 秒后,当 %2$s 时重新待命。</string>
+    <string name="alarm_repeat_help_many">在 %2$s 期间,每 %1$d 秒重新报警一次。</string>
+    <string name="alarm_predict_help_now">在 %1$s 的瞬间立即报警。</string>
+    <string name="alarm_predict_help_lead">根据近期趋势,在 %2$s 前约 %1$s 秒报警。</string>
 
     <string name="about_crash_logs">崩溃日志</string>
     <string name="about_crash_logs_empty">没有崩溃记录</string>

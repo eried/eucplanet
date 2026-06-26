@@ -899,9 +899,11 @@
     <string name="auto_lights_suspended">Sat på pause: du har selv tændt/slukket lyset i denne session. Tilslut hjulet igen eller genstart appen for at fortsætte</string>
 
     <!-- Alarms tab -->
-    <string name="alarm_help">Reglerne tjekkes oppefra og ned pr. måling. Den første matchende regel pr. måling udløses</string>
+    <string name="alarm_help">For hver måling udløses den mest relevante alarm automatisk. Rækkefølgen i listen ændrer ikke hvilken; sorteringen holder den bare ryddelig</string>
     <string name="alarm_empty">Ingen alarmregler endnu</string>
     <string name="alarm_add">Ny alarm</string>
+    <string name="alarm_smart_sort">Sortér automatisk</string>
+    <string name="alarm_summary_predict_fmt">forudser %1$s s i forvejen</string>
     <string name="alarm_new">Ny alarm</string>
     <string name="alarm_edit">Rediger alarm</string>
     <string name="alarm_delete_title">Slet denne alarm?</string>
@@ -909,6 +911,7 @@
     <string name="alarm_metric_label">Måling</string>
     <string name="alarm_comparator_label">Betingelse</string>
     <string name="alarm_threshold_fmt">Tærskel: %1$s %2$s</string>
+    <string name="alarm_threshold_label">Tærskel</string>
     <string name="alarm_threshold_decrease">Sænk tærskel</string>
     <string name="alarm_threshold_increase">Hæv tærskel</string>
 
@@ -964,10 +967,25 @@
     <string name="alarm_vibrate_target_watch">Ur</string>
     <string name="alarm_vibrate_target_both">Alle</string>
     <string name="alarm_section_timing">Timing</string>
+    <string name="alarm_cooldown_label">Pause</string>
     <string name="alarm_cooldown_fmt">Pause: %1$ds</string>
     <string name="alarm_cooldown_help">Mindste tid mellem udløsninger for denne regel, selv hvis betingelsen forbliver opfyldt</string>
     <string name="alarm_repeat">Gentag mens aktiv</string>
-    <string name="alarm_repeat_help">TIL: udløses igen efter hver pause, så længe betingelsen er opfyldt.\nFRA: udløses én gang og er stille, indtil betingelsen ophører</string>
+    <string name="alarm_section_advanced">Avanceret</string>
+    <string name="alarm_repeat_label">Udløser</string>
+    <string name="alarm_repeat_single">Engang</string>
+    <string name="alarm_repeat_multi">Mange</string>
+    <string name="alarm_repeat_help">Én gang: én advarsel, og klargøres igen, når aflæsningen vender tilbage til den sikre side.\nMange: advarer igen efter hver pause, så længe den er udløst</string>
+    <string name="alarm_repeat_help_once">Én advarsel når %1$s. Klargøres igen når %2$s, efter pausen på %3$d s.</string>
+    <string name="alarm_repeat_help_many">Advarer igen hver %1$d s mens %2$s.</string>
+    <string name="alarm_predict_label">Forudsigende udløser</string>
+    <string name="alarm_predict_realtime">Nu</string>
+    <string name="alarm_predict_value_fmt">%1$s s tidligere</string>
+    <string name="alarm_predict_help">Nu: advarer i samme øjeblik tærsklen rapporteres.\nAndre: advarer så mange sekunder før tendensen er ved at nå den</string>
+    <string name="alarm_predict_help_now">Advarer i samme øjeblik %1$s.</string>
+    <string name="alarm_predict_help_lead">Advarer ca. %1$s s før %2$s, ud fra den seneste tendens.</string>
+    <string name="alarm_state_atleast">%1$s er %2$s eller mere</string>
+    <string name="alarm_state_below">%1$s er under %2$s</string>
 
     <!-- About / crash logs -->
     <string name="about_crash_logs">Fejllogfiler</string>

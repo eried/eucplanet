@@ -1359,27 +1359,40 @@ fun DashboardScreen(
                         "%.0f".format(wheelData.dynamicSpeedLimit) else placeholder
                     "DYN_CURRENT_LIMIT" -> if (wheelData.dynamicCurrentLimit > 0f)
                         "%.1fA".format(wheelData.dynamicCurrentLimit) else placeholder
-                    "MOTOR_TEMP" -> wheelData.temperatures.getOrNull(0)?.let { "%.0f%s".format(
-                        com.eried.eucplanet.util.Units.temperature(it, tempUnit), tempUnitLabel
-                    ) } ?: placeholder
-                    "CONTROLLER_TEMP" -> wheelData.temperatures.getOrNull(1)?.let { "%.0f%s".format(
-                        com.eried.eucplanet.util.Units.temperature(it, tempUnit), tempUnitLabel
-                    ) } ?: placeholder
-                    "BATTERY_TEMP" -> wheelData.temperatures.getOrNull(2)?.let { "%.0f%s".format(
-                        com.eried.eucplanet.util.Units.temperature(it, tempUnit), tempUnitLabel
-                    ) } ?: placeholder
+                    "MOTOR_TEMP" -> wheelData.temperatures.getOrNull(0)
+                        ?.takeIf { com.eried.eucplanet.util.MetricSanity.isPlausibleTempC(it) }
+                        ?.let { "%.0f%s".format(com.eried.eucplanet.util.Units.temperature(it, tempUnit), tempUnitLabel) }
+                        ?: placeholder
+                    "CONTROLLER_TEMP" -> wheelData.temperatures.getOrNull(1)
+                        ?.takeIf { com.eried.eucplanet.util.MetricSanity.isPlausibleTempC(it) }
+                        ?.let { "%.0f%s".format(com.eried.eucplanet.util.Units.temperature(it, tempUnit), tempUnitLabel) }
+                        ?: placeholder
+                    "BATTERY_TEMP" -> wheelData.temperatures.getOrNull(2)
+                        ?.takeIf { com.eried.eucplanet.util.MetricSanity.isPlausibleTempC(it) }
+                        ?.let { "%.0f%s".format(com.eried.eucplanet.util.Units.temperature(it, tempUnit), tempUnitLabel) }
+                        ?: placeholder
                     "PHONE_BATTERY" -> if (phoneBatteryPct in 0..100) "$phoneBatteryPct%" else placeholder
                     "GPS_ALTITUDE" -> gpsLocation?.altitude?.let { alt ->
-                        "%.0fm".format(alt.toFloat())
+                        // Imperial users see feet; everyone else meters.
+                        if (distanceUnit == "mi") "%.0fft".format(alt.toFloat() * 3.28084f)
+                        else "%.0fm".format(alt.toFloat())
                     } ?: placeholder
                     "GPS_SPEED" -> gpsLocation?.let { loc ->
-                        if (loc.hasSpeed()) "%.1f".format(loc.speed * 3.6f) else placeholder
+                        // Same conversion path as every other speed tile: store
+                        // km/h, convert to the rider's unit at render time.
+                        if (loc.hasSpeed()) "%.1f %s".format(
+                            com.eried.eucplanet.util.Units.speed(loc.speed * 3.6f, speedUnit),
+                            speedUnitLabel
+                        ) else placeholder
                     } ?: placeholder
                     "GPS_HEADING" -> gpsLocation?.let { loc ->
                         if (loc.hasBearing()) "%.0f°".format(loc.bearing) else placeholder
                     } ?: placeholder
                     "GPS_ACCURACY" -> gpsLocation?.let { loc ->
-                        if (loc.hasAccuracy()) "%.0fm".format(loc.accuracy) else placeholder
+                        if (loc.hasAccuracy()) {
+                            if (distanceUnit == "mi") "%.0fft".format(loc.accuracy * 3.28084f)
+                            else "%.0fm".format(loc.accuracy)
+                        } else placeholder
                     } ?: placeholder
                     // SLOPE / ASCENT / DESCENT need integrated altitude
                     // history (not yet wired). MOTOR_RPM / REGEN_WH /
@@ -2914,10 +2927,14 @@ fun DashboardScreen(
 
         // Welcome tour overlay -- drawn last so it sits above the dashboard
         // (and the top bar) and can spotlight any element by its bounds.
+        val wizardVoiceOn by viewModel.voicePeriodicEnabled.collectAsState()
         if (showWelcomeTour) {
             WelcomeTutorialOverlay(
                 state = coachmark,
                 onVoiceToggle = { on -> viewModel.setAllVoiceAnnouncements(on) },
+                // Reflect the real voice state so the switch can't show "off"
+                // while announcements are actually on.
+                voiceCurrentlyOn = wizardVoiceOn,
             ) {
                 viewModel.markWelcomeTutorialSeen()
                 tourDismissed = true

@@ -896,9 +896,11 @@
     <string name="auto_lights_suspended">이번 세션에서 사용자가 라이트를 수동으로 조작하여 자동화가 일시 중지됨. 휠을 재연결하거나 앱을 재시작하면 재개됩니다</string>
 
     <!-- Alarms tab -->
-    <string name="alarm_help">규칙은 지표별로 위에서 아래 순서로 검사됩니다. 각 지표에서 첫 번째로 일치하는 규칙이 발동됩니다</string>
+    <string name="alarm_help">각 지표마다 가장 적합한 알람이 자동으로 발동됩니다. 목록 순서는 어느 알람이 발동될지 바꾸지 않으며, 정렬은 보기 좋게 정리할 뿐입니다</string>
     <string name="alarm_empty">알람 규칙 없음</string>
     <string name="alarm_add">새 알람</string>
+    <string name="alarm_smart_sort">자동 정렬</string>
+    <string name="alarm_summary_predict_fmt">%1$s초 앞서 예측</string>
     <string name="alarm_new">새 알람</string>
     <string name="alarm_edit">알람 편집</string>
     <string name="alarm_delete_title">이 알람을 삭제하시겠습니까?</string>
@@ -906,6 +908,7 @@
     <string name="alarm_metric_label">지표</string>
     <string name="alarm_comparator_label">조건</string>
     <string name="alarm_threshold_fmt">임계값: %1$s %2$s</string>
+    <string name="alarm_threshold_label">임계값</string>
     <string name="alarm_threshold_decrease">임계값 낮추기</string>
     <string name="alarm_threshold_increase">임계값 높이기</string>
 
@@ -961,10 +964,25 @@
     <string name="alarm_vibrate_target_watch">워치</string>
     <string name="alarm_vibrate_target_both">모두</string>
     <string name="alarm_section_timing">타이밍</string>
+    <string name="alarm_cooldown_label">쿨다운</string>
     <string name="alarm_cooldown_fmt">쿨다운: %1$d초</string>
     <string name="alarm_cooldown_help">조건이 계속 일치하더라도 이 규칙이 발동하는 최소 간격입니다</string>
     <string name="alarm_repeat">활성 중 반복</string>
-    <string name="alarm_repeat_help">켜기: 조건이 유지되는 동안 매 쿨다운마다 재발동합니다.\n끄기: 한 번 발동 후 조건이 해제될 때까지 조용히 유지됩니다</string>
+    <string name="alarm_repeat_help">한 번: 한 번만 알린 뒤, 측정값이 안전한 쪽으로 돌아오면 다시 준비됩니다.\n여러 번: 발동 상태가 유지되는 동안 매 쿨다운마다 다시 알립니다.</string>
+    <string name="alarm_repeat_label">발동</string>
+    <string name="alarm_repeat_single">1회</string>
+    <string name="alarm_repeat_multi">반복</string>
+    <string name="alarm_section_advanced">고급</string>
+    <string name="alarm_predict_label">예측 발동</string>
+    <string name="alarm_predict_realtime">지금</string>
+    <string name="alarm_predict_value_fmt">%1$s초 일찍</string>
+    <string name="alarm_predict_help">지금: 임계값이 보고되는 즉시 알립니다.\n그 외: 추세가 임계값에 도달하기 해당 초 전에 미리 알립니다.</string>
+    <string name="alarm_state_atleast">%1$s이(가) %2$s 이상</string>
+    <string name="alarm_state_below">%1$s이(가) %2$s 미만</string>
+    <string name="alarm_repeat_help_once">%1$s일 때 한 번 알립니다. %3$d초 쿨다운 후 %2$s일 때 다시 준비됩니다.</string>
+    <string name="alarm_repeat_help_many">%2$s인 동안 %1$d초마다 다시 알립니다.</string>
+    <string name="alarm_predict_help_now">%1$s이 되는 즉시 알립니다.</string>
+    <string name="alarm_predict_help_lead">최근 추세를 바탕으로 %2$s이 되기 약 %1$s초 전에 알립니다.</string>
 
     <!-- About / crash logs -->
     <string name="about_crash_logs">충돌 로그</string>

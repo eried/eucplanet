@@ -899,9 +899,11 @@
     <string name="auto_lights_suspended">Onderbroken omdat je het licht zelf hebt aan- of uitgezet voor deze sessie. Verbind het wiel opnieuw of herstart de app om door te gaan</string>
 
     <!-- Alarms tab -->
-    <string name="alarm_help">Regels worden per metriek van boven naar beneden gecontroleerd. De eerste passende regel per metriek vuurt</string>
+    <string name="alarm_help">Per metriek vuurt automatisch het meest relevante alarm. De volgorde in de lijst bepaalt niet welke; sorteren houdt het alleen overzichtelijk.</string>
     <string name="alarm_empty">Nog geen alarmregels</string>
     <string name="alarm_add">Nieuw alarm</string>
+    <string name="alarm_smart_sort">Automatisch sorteren</string>
+    <string name="alarm_summary_predict_fmt">voorspelt %1$s s vooruit</string>
     <string name="alarm_new">Nieuw alarm</string>
     <string name="alarm_edit">Alarm bewerken</string>
     <string name="alarm_delete_title">Dit alarm verwijderen?</string>
@@ -909,6 +911,7 @@
     <string name="alarm_metric_label">Metriek</string>
     <string name="alarm_comparator_label">Voorwaarde</string>
     <string name="alarm_threshold_fmt">Drempel: %1$s %2$s</string>
+    <string name="alarm_threshold_label">Drempel</string>
 
     <!-- Live data sources bottom sheet -->
     <string name="sources_title">Live databronnen</string>
@@ -962,10 +965,25 @@
     <string name="alarm_vibrate_target_watch">Horloge</string>
     <string name="alarm_vibrate_target_both">Alle</string>
     <string name="alarm_section_timing">Timing</string>
+    <string name="alarm_cooldown_label">Cooldown</string>
     <string name="alarm_cooldown_fmt">Cooldown: %1$ds</string>
     <string name="alarm_cooldown_help">Minimale tijd tussen vuringen voor deze regel, ook als de voorwaarde blijft passen</string>
     <string name="alarm_repeat">Herhalen zolang actief</string>
-    <string name="alarm_repeat_help">AAN: vuurt elke cooldown opnieuw zolang de voorwaarde geldt.\nUIT: vuurt één keer en blijft stil tot de voorwaarde verdwijnt</string>
+    <string name="alarm_section_advanced">Geavanceerd</string>
+    <string name="alarm_repeat_label">Trigger</string>
+    <string name="alarm_repeat_single">1×</string>
+    <string name="alarm_repeat_multi">Steeds</string>
+    <string name="alarm_repeat_help">Eén keer: één waarschuwing, daarna weer scherp zodra de waarde terug naar de veilige kant gaat.\nMeerdere: waarschuwt elke cooldown opnieuw zolang hij actief blijft.</string>
+    <string name="alarm_predict_label">Voorspellende trigger</string>
+    <string name="alarm_predict_realtime">Nu</string>
+    <string name="alarm_predict_value_fmt">%1$s s eerder</string>
+    <string name="alarm_predict_help">Nu: waarschuwt op het moment dat de drempel gemeld wordt.\nAndere: waarschuwen zoveel seconden voordat de trend hem bereikt.</string>
+    <string name="alarm_state_atleast">%1$s is %2$s of meer</string>
+    <string name="alarm_state_below">%1$s is onder %2$s</string>
+    <string name="alarm_repeat_help_once">Eén waarschuwing wanneer %1$s. Weer scherp wanneer %2$s, na de cooldown van %3$d s.</string>
+    <string name="alarm_repeat_help_many">Waarschuwt opnieuw elke %1$d s zolang %2$s.</string>
+    <string name="alarm_predict_help_now">Waarschuwt zodra %1$s.</string>
+    <string name="alarm_predict_help_lead">Waarschuwt ongeveer %1$s s voordat %2$s, op basis van de recente trend.</string>
 
     <!-- About / crash logs -->
     <string name="about_crash_logs">Crashlogs</string>

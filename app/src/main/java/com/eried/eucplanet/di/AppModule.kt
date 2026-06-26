@@ -130,6 +130,16 @@ object AppModule {
     }
 
     /**
+     * v47 -> v48: add the per-alarm predictive lead time (ms). 0 keeps the
+     * historic "fire on threshold crossing" behaviour for every existing rule.
+     */
+    private val MIGRATION_47_48 = object : Migration(47, 48) {
+        override fun migrate(db: SupportSQLiteDatabase) {
+            db.execSQL("ALTER TABLE alarm_rules ADD COLUMN leadTimeMs INTEGER NOT NULL DEFAULT 0")
+        }
+    }
+
+    /**
      * Build the Room database with the v44->v45 migration. If the open still
      * fails (e.g. a future identity-hash mismatch from a forgotten migration),
      * wipe the DB file and rebuild, trip / alarm / profile loss is regrettable
@@ -153,7 +163,7 @@ object AppModule {
 
     private fun buildDb(context: Context): AppDatabase =
         Room.databaseBuilder(context, AppDatabase::class.java, DB_NAME)
-            .addMigrations(MIGRATION_44_45, MIGRATION_45_46, MIGRATION_46_47)
+            .addMigrations(MIGRATION_44_45, MIGRATION_45_46, MIGRATION_46_47, MIGRATION_47_48)
             .build()
 
     @Provides

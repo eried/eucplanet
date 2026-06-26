@@ -895,9 +895,11 @@
     <string name="auto_lights_suspended">Pausad: du växlade ljuset manuellt den här sessionen. Anslut hjulet igen eller starta om appen för att återuppta</string>
 
     <!-- Alarms tab -->
-    <string name="alarm_help">Reglerna kollas uppifrån och ned per mätvärde. Den första som matchar utlöses</string>
+    <string name="alarm_help">För varje mätvärde utlöses det mest relevanta larmet automatiskt. Ordningen i listan ändrar inte vilket; sorteringen håller bara ordning</string>
     <string name="alarm_empty">Inga larmregler ännu</string>
     <string name="alarm_add">Nytt larm</string>
+    <string name="alarm_smart_sort">Sortera automatiskt</string>
+    <string name="alarm_summary_predict_fmt">förutser %1$s s i förväg</string>
     <string name="alarm_new">Nytt larm</string>
     <string name="alarm_edit">Redigera larm</string>
     <string name="alarm_delete_title">Radera det här larmet?</string>
@@ -905,6 +907,7 @@
     <string name="alarm_metric_label">Mätvärde</string>
     <string name="alarm_comparator_label">Villkor</string>
     <string name="alarm_threshold_fmt">Tröskel: %1$s %2$s</string>
+    <string name="alarm_threshold_label">Tröskel</string>
     <string name="alarm_threshold_decrease">Sänk tröskel</string>
     <string name="alarm_threshold_increase">Höj tröskel</string>
 
@@ -960,10 +963,25 @@
     <string name="alarm_vibrate_target_watch">Klocka</string>
     <string name="alarm_vibrate_target_both">Alla</string>
     <string name="alarm_section_timing">Timing</string>
+    <string name="alarm_cooldown_label">Paus</string>
     <string name="alarm_cooldown_fmt">Paus: %1$ds</string>
     <string name="alarm_cooldown_help">Minsta tid mellan utlösningar för den här regeln, även om villkoret fortsätter gälla</string>
     <string name="alarm_repeat">Upprepa medan aktivt</string>
-    <string name="alarm_repeat_help">PÅ: utlöser igen efter varje paus så länge villkoret gäller.\nAV: utlöser en gång och är tyst tills villkoret upphör</string>
+    <string name="alarm_section_advanced">Avancerat</string>
+    <string name="alarm_repeat_label">Utlösning</string>
+    <string name="alarm_repeat_single">En gång</string>
+    <string name="alarm_repeat_multi">Flera</string>
+    <string name="alarm_repeat_help">En gång: ett larm, sedan återaktiveras det när värdet återgår till den säkra sidan.\nFlera: larmar igen vid varje paus så länge det är utlöst.</string>
+    <string name="alarm_predict_label">Förutseende larm</string>
+    <string name="alarm_predict_realtime">Nu</string>
+    <string name="alarm_predict_value_fmt">%1$s s tidigare</string>
+    <string name="alarm_predict_help">Nu: larmar i samma stund som tröskeln rapporteras.\nÖvriga: larmar så många sekunder innan trenden är på väg att nå den.</string>
+    <string name="alarm_state_atleast">%1$s är %2$s eller mer</string>
+    <string name="alarm_state_below">%1$s är under %2$s</string>
+    <string name="alarm_repeat_help_once">Ett larm när %1$s. Återaktiveras när %2$s, efter %3$d s paus.</string>
+    <string name="alarm_repeat_help_many">Larmar igen var %1$d s medan %2$s.</string>
+    <string name="alarm_predict_help_now">Larmar i samma stund som %1$s.</string>
+    <string name="alarm_predict_help_lead">Larmar cirka %1$s s innan %2$s, utifrån den senaste trenden.</string>
 
     <!-- About / crash logs -->
     <string name="about_crash_logs">Kraschloggar</string>

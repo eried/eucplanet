@@ -3,7 +3,6 @@ package com.eried.eucplanet.service
 import android.content.Context
 import android.util.Log
 import com.eried.eucplanet.data.db.AlarmDao
-import com.eried.eucplanet.data.model.AlarmComparator
 import com.eried.eucplanet.data.model.AlarmMetric
 import com.eried.eucplanet.data.model.AlarmRule
 import com.eried.eucplanet.data.model.RadarFrame
@@ -40,22 +39,36 @@ class AlarmEngine @Inject constructor(
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     private val vibratorHelper = VibratorHelper(context)
 
-    // Serializes evaluate() bodies so the read-check-write on RuleState.lastFireTimeMs
-    // is atomic. Without this, telemetry updates ~250ms apart can both pass the cooldown
-    // check before either writes the timestamp, producing duplicate alarm fires.
+    // Serializes evaluate() bodies so the read-check-write on the evaluator's
+    // per-rule state is atomic. Without this, telemetry updates ~250ms apart
+    // could both pass the cooldown check before either records the fire,
+    // producing duplicate alarm fires.
     private val evalMutex = Mutex()
 
-    // Track per-rule state: whether condition was true last check, and last fire time
-    private val ruleState = mutableMapOf<Long, RuleState>()
+    // The pure, Android-free firing core. Holds all per-rule edge / cooldown
+    // state and per-metric trend history; unit-tested in AlarmEvaluatorTest.
+    private val evaluator = AlarmEvaluator()
 
-    private data class RuleState(
-        var wasActive: Boolean = false,
-        var lastFireTimeMs: Long = 0
+    private fun AlarmRule.toEvaluatorRule() = AlarmEvaluator.Rule(
+        id = id,
+        metric = metric,
+        comparator = comparator,
+        threshold = threshold,
+        cooldownSeconds = cooldownSeconds,
+        repeatWhileActive = repeatWhileActive,
+        leadTimeMs = leadTimeMs,
     )
 
     /**
      * Called on each telemetry update. Evaluates alarm rules against current data.
-     * First-match-per-metric: for each metric type, only the first matching rule fires.
+     *
+     * Per metric, the *most severe* matching rule fires -- not the first one in
+     * the list. So two speed alarms at 30 and 35 both work: crossing 35 fires
+     * the 35 rule even though the 30 rule is also (still) matched and may be
+     * mid-cooldown. Order in the list no longer changes which alarm you get,
+     * which kills the old "the lower alarm ate the higher one" bug. Each rule
+     * keeps its own cooldown / edge state, so escalating through tiers fires
+     * each tier once as you reach it.
      */
     fun evaluate(data: WheelData) {
         // Quake-console godmode: silences all alarms for the session. The user types
@@ -67,44 +80,37 @@ class AlarmEngine @Inject constructor(
             // Read inside the launch so we always see the latest store value.
             if (settingsRepository.get().alarmsMuted) return@withLock
             val rules = alarmDao.getEnabled()
-            val firedMetrics = mutableSetOf<String>()
+            val now = System.currentTimeMillis()
 
-            for (rule in rules) {
-                // Skip if we already fired a rule for this metric
-                if (rule.metric in firedMetrics) continue
-
-                val value = getMetricValue(rule.metric, data) ?: continue
-                val matches = checkCondition(value, rule.comparator, rule.threshold)
-                val state = ruleState.getOrPut(rule.id) { RuleState() }
-                val now = System.currentTimeMillis()
-                val cooldownMs = rule.cooldownSeconds * 1000L
-
-                if (matches) {
-                    firedMetrics.add(rule.metric)
-
-                    val isNewTrigger = !state.wasActive
-                    val cooldownExpired = (now - state.lastFireTimeMs) >= cooldownMs
-
-                    // Cooldown is strict: re-crossing the threshold does not bypass it.
-                    val shouldFire = cooldownExpired && (isNewTrigger || rule.repeatWhileActive)
-
-                    if (shouldFire) {
-                        Log.i(TAG, "Alarm fired: '${rule.name}' ${rule.metric} ${rule.comparator} ${rule.threshold} (value=$value)")
-                        state.lastFireTimeMs = now
-                        val s = settingsRepository.get()
-                        executeActions(rule, data, value,
-                            com.eried.eucplanet.util.Units.effectiveSpeedUnit(s),
-                            com.eried.eucplanet.util.Units.effectiveDistanceUnit(s),
-                            com.eried.eucplanet.util.Units.effectiveTempUnit(s))
-                    }
-                }
-
-                state.wasActive = matches
+            val fired = evaluator.evaluate(
+                rules.map { it.toEvaluatorRule() },
+                now,
+                AlarmEvaluator.NoReading.SKIP,
+            ) { metric ->
+                // Radar metrics report null here -- they're driven by
+                // [evaluateRadar] off the radar frame, not wheel telemetry.
+                getMetricValue(metric, data)
             }
 
-            // Clean up state for deleted rules
-            val activeIds = rules.map { it.id }.toSet()
-            ruleState.keys.removeAll { it !in activeIds }
+            if (fired.isNotEmpty()) {
+                val s = settingsRepository.get()
+                val su = com.eried.eucplanet.util.Units.effectiveSpeedUnit(s)
+                val du = com.eried.eucplanet.util.Units.effectiveDistanceUnit(s)
+                val tu = com.eried.eucplanet.util.Units.effectiveTempUnit(s)
+                val byId = rules.associateBy { it.id }
+                for (f in fired) {
+                    val rule = byId[f.ruleId] ?: continue
+                    Log.i(TAG, "Alarm fired: '${rule.name}' ${rule.metric} ${rule.comparator} ${rule.threshold} (value=${f.value}, lead=${rule.leadTimeMs}ms)")
+                    executeActions(rule, data, f.value, su, du, tu)
+                }
+            }
+
+            // Clean up state + sample history for rules / metrics no longer
+            // present. Driven from the wheel path, which sees all enabled rules.
+            evaluator.prune(
+                rules.mapTo(mutableSetOf()) { it.id },
+                rules.mapTo(mutableSetOf()) { it.metric },
+            )
             }
         }
     }
@@ -147,35 +153,24 @@ class AlarmEngine @Inject constructor(
                     it.metric == AlarmMetric.RADAR_DISTANCE.name ||
                         it.metric == AlarmMetric.RADAR_APPROACH_SPEED.name
                 }
-                val firedMetrics = mutableSetOf<String>()
+                if (rules.isEmpty()) return@withLock
+                val now = System.currentTimeMillis()
 
-                for (rule in rules) {
-                    if (rule.metric in firedMetrics) continue
-                    val value = getRadarMetricValue(rule.metric, frame)
-                    val state = ruleState.getOrPut(rule.id) { RuleState() }
-                    val now = System.currentTimeMillis()
-                    val cooldownMs = rule.cooldownSeconds * 1000L
+                // RESET: an empty frame (lane clear) disarms the radar rules and
+                // drops their trend, so the next car counts as a fresh crossing.
+                val fired = evaluator.evaluate(
+                    rules.map { it.toEvaluatorRule() },
+                    now,
+                    AlarmEvaluator.NoReading.RESET,
+                ) { metric -> getRadarMetricValue(metric, frame) }
 
-                    if (value == null) {
-                        // Frame is empty for this metric (lane clear).
-                        // Reset wasActive so the rule re-fires next time
-                        // a target shows up.
-                        state.wasActive = false
-                        continue
+                if (fired.isNotEmpty()) {
+                    val byId = rules.associateBy { it.id }
+                    for (f in fired) {
+                        val rule = byId[f.ruleId] ?: continue
+                        Log.i(TAG, "Radar alarm fired: '${rule.name}' ${rule.metric} ${rule.comparator} ${rule.threshold} (value=${f.value})")
+                        executeRadarActions(rule, frame, f.value)
                     }
-                    val matches = checkCondition(value, rule.comparator, rule.threshold)
-                    if (matches) {
-                        firedMetrics.add(rule.metric)
-                        val isNewTrigger = !state.wasActive
-                        val cooldownExpired = (now - state.lastFireTimeMs) >= cooldownMs
-                        val shouldFire = cooldownExpired && (isNewTrigger || rule.repeatWhileActive)
-                        if (shouldFire) {
-                            Log.i(TAG, "Radar alarm fired: '${rule.name}' ${rule.metric} ${rule.comparator} ${rule.threshold} (value=$value)")
-                            state.lastFireTimeMs = now
-                            executeRadarActions(rule, frame, value)
-                        }
-                    }
-                    state.wasActive = matches
                 }
             }
         }
@@ -224,12 +219,6 @@ class AlarmEngine @Inject constructor(
             .replace("{approachSpeed}", "$approach")
             .replace("{threatCount}", "${frame.threats.size}")
     }
-
-    private fun checkCondition(value: Float, comparator: String, threshold: Float): Boolean =
-        when (AlarmComparator.parse(comparator)) {
-            AlarmComparator.GREATER_EQUAL -> value >= threshold
-            AlarmComparator.LESS_THAN -> value < threshold
-        }
 
     private fun executeActions(rule: AlarmRule, data: WheelData, triggerValue: Float, speedUnit: String, distanceUnit: String, tempUnit: String) {
         // Vibrate fires immediately; beep and voice are sequenced so the beep

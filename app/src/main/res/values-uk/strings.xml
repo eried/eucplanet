@@ -899,9 +899,11 @@
     <string name="auto_lights_suspended">Призупинено через ручне перемикання світла в цій сесії. Перепідключи моноколесо або перезапусти додаток, щоб відновити</string>
 
     <!-- Alarms tab -->
-    <string name="alarm_help">Правила перевіряються згори донизу для кожної метрики. Спрацьовує перше відповідне правило для метрики</string>
+    <string name="alarm_help">Для кожної метрики автоматично спрацьовує найдоречніша тривога. Порядок у списку не змінює, яка саме; сортування лише підтримує лад</string>
     <string name="alarm_empty">Правил тривог поки немає</string>
     <string name="alarm_add">Нова тривога</string>
+    <string name="alarm_smart_sort">Автосортування</string>
+    <string name="alarm_summary_predict_fmt">передбачає за %1$s с наперед</string>
     <string name="alarm_new">Нова тривога</string>
     <string name="alarm_edit">Редагувати тривогу</string>
     <string name="alarm_delete_title">Видалити цю тривогу?</string>
@@ -909,6 +911,7 @@
     <string name="alarm_metric_label">Метрика</string>
     <string name="alarm_comparator_label">Умова</string>
     <string name="alarm_threshold_fmt">Поріг: %1$s %2$s</string>
+    <string name="alarm_threshold_label">Поріг</string>
     <string name="alarm_threshold_decrease">Зменшити поріг</string>
     <string name="alarm_threshold_increase">Збільшити поріг</string>
 
@@ -964,10 +967,25 @@
     <string name="alarm_vibrate_target_watch">Годиннику</string>
     <string name="alarm_vibrate_target_both">Усіх</string>
     <string name="alarm_section_timing">Тайминг</string>
+    <string name="alarm_cooldown_label">Пауза</string>
     <string name="alarm_cooldown_fmt">Пауза: %1$dс</string>
     <string name="alarm_cooldown_help">Мінімальна пауза між спрацюваннями цього правила, навіть якщо умова продовжує виконуватись</string>
+    <string name="alarm_section_advanced">Додатково</string>
+    <string name="alarm_repeat_label">Спрацювання</string>
+    <string name="alarm_repeat_single">Раз</string>
+    <string name="alarm_repeat_multi">Багато</string>
     <string name="alarm_repeat">Повторювати, поки активна</string>
-    <string name="alarm_repeat_help">УВІМК: повторно спрацьовує після кожної паузи, поки виконується умова.\nВИМК: спрацьовує один раз і мовчить, поки умова не зникне</string>
+    <string name="alarm_repeat_help">Один раз: одне сповіщення, після чого знову активується, коли показник повернеться в безпечну зону.\nБагато разів: повторює сповіщення через кожну паузу, поки триває спрацювання.</string>
+    <string name="alarm_predict_label">Передбачуване спрацювання</string>
+    <string name="alarm_predict_realtime">Зараз</string>
+    <string name="alarm_predict_value_fmt">на %1$s с раніше</string>
+    <string name="alarm_predict_help">Зараз: сповіщає в ту мить, коли поріг зафіксовано.\nІнші: сповіщають за стільки секунд до того, як тенденція ось-ось його досягне.</string>
+    <string name="alarm_state_atleast">%1$s становить %2$s або більше</string>
+    <string name="alarm_state_below">%1$s нижче %2$s</string>
+    <string name="alarm_repeat_help_once">Одне сповіщення, коли %1$s. Повторно активується, коли %2$s, після паузи %3$d s.</string>
+    <string name="alarm_repeat_help_many">Повторює сповіщення кожні %1$d s, поки %2$s.</string>
+    <string name="alarm_predict_help_now">Сповіщає в мить, коли %1$s.</string>
+    <string name="alarm_predict_help_lead">Сповіщає приблизно за %1$s s до того, як %2$s, на основі останньої тенденції.</string>
 
     <!-- About / crash logs -->
     <string name="about_crash_logs">Журнали збоїв</string>

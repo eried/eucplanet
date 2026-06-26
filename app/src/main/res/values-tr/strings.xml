@@ -896,9 +896,11 @@
     <string name="auto_lights_suspended">Bu oturum için kullanıcı ışık geçişi nedeniyle askıya alındı. Devam ettirmek için tekeri yeniden bağlayın veya uygulamayı yeniden başlatın</string>
 
     <!-- Alarms tab -->
-    <string name="alarm_help">Kurallar her metrik için yukarıdan aşağıya kontrol edilir. Her metrik için ilk eşleşen kural tetiklenir</string>
+    <string name="alarm_help">Her metrik için en uygun alarm otomatik olarak tetiklenir. Listedeki sıra hangisinin tetikleneceğini değiştirmez; sıralama yalnızca düzeni korur</string>
     <string name="alarm_empty">Henüz alarm kuralı yok</string>
     <string name="alarm_add">Yeni alarm</string>
+    <string name="alarm_smart_sort">Otomatik sırala</string>
+    <string name="alarm_summary_predict_fmt">%1$s sn önceden tahmin eder</string>
     <string name="alarm_new">Yeni Alarm</string>
     <string name="alarm_edit">Alarmı Düzenle</string>
     <string name="alarm_delete_title">Bu alarm silinsin mi?</string>
@@ -906,6 +908,7 @@
     <string name="alarm_metric_label">Metrik</string>
     <string name="alarm_comparator_label">Koşul</string>
     <string name="alarm_threshold_fmt">Eşik: %1$s %2$s</string>
+    <string name="alarm_threshold_label">Eşik</string>
     <string name="alarm_threshold_decrease">Eşiği azalt</string>
     <string name="alarm_threshold_increase">Eşiği artır</string>
 
@@ -961,10 +964,25 @@
     <string name="alarm_vibrate_target_watch">Saat</string>
     <string name="alarm_vibrate_target_both">Tümü</string>
     <string name="alarm_section_timing">Zamanlama</string>
+    <string name="alarm_cooldown_label">Bekleme</string>
     <string name="alarm_cooldown_fmt">Bekleme: %1$ds</string>
     <string name="alarm_cooldown_help">Koşul eşleşmeye devam etse bile bu kural için tetiklemeler arasındaki minimum süre</string>
     <string name="alarm_repeat">Aktifken tekrarla</string>
-    <string name="alarm_repeat_help">AÇIK: koşul geçerliyken her bekleme süresinde yeniden tetiklenir.\nKAPALI: bir kez tetiklenir ve koşul düzelene kadar sessiz kalır</string>
+    <string name="alarm_section_advanced">Gelişmiş</string>
+    <string name="alarm_repeat_label">Tetikleme</string>
+    <string name="alarm_repeat_single">Tek</string>
+    <string name="alarm_repeat_multi">Çok</string>
+    <string name="alarm_repeat_help">Bir kez: tek uyarı verir, ardından değer güvenli tarafa döndüğünde yeniden kurulur.\nSürekli: tetiklenmiş kaldığı sürece her bekleme süresinde yeniden uyarır.</string>
+    <string name="alarm_predict_label">Tahminli tetikleme</string>
+    <string name="alarm_predict_realtime">Şimdi</string>
+    <string name="alarm_predict_value_fmt">%1$s sn önce</string>
+    <string name="alarm_predict_help">Şimdi: eşiğe ulaşıldığı an uyarır.\nDiğerleri: eğilim eşiğe ulaşmadan o kadar saniye önce uyarır.</string>
+    <string name="alarm_state_atleast">%1$s, %2$s veya üzeri</string>
+    <string name="alarm_state_below">%1$s, %2$s altında</string>
+    <string name="alarm_repeat_help_once">%1$s olduğunda tek uyarı. %2$s olunca, %3$d s beklemenin ardından yeniden kurulur.</string>
+    <string name="alarm_repeat_help_many">%2$s iken her %1$d s\'de bir yeniden uyarır.</string>
+    <string name="alarm_predict_help_now">%1$s olduğu an uyarır.</string>
+    <string name="alarm_predict_help_lead">Son eğilime göre, %2$s olmadan yaklaşık %1$s s önce uyarır.</string>
 
     <!-- About / crash logs -->
     <string name="about_crash_logs">Çökme günlükleri</string>

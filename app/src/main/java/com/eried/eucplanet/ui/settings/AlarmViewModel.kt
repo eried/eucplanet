@@ -118,6 +118,31 @@ class AlarmViewModel @Inject constructor(
         }
     }
 
+    /**
+     * Tidy the list: group rules by metric (in the metric enum's order) and,
+     * within each group, put the most severe first -- higher threshold for "≥"
+     * rules, lower threshold for "<" rules. Purely cosmetic now that the engine
+     * fires the most-relevant rule per metric regardless of order; it just makes
+     * the list read the way riders think about it.
+     */
+    fun autoSmartSort() {
+        viewModelScope.launch {
+            val metricOrder = AlarmMetric.entries.withIndex()
+                .associate { (i, m) -> m.name to i }
+            fun severity(r: AlarmRule): Float =
+                if (com.eried.eucplanet.data.model.AlarmComparator.parse(r.comparator) ==
+                    com.eried.eucplanet.data.model.AlarmComparator.LESS_THAN
+                ) -r.threshold else r.threshold
+            val sorted = alarmDao.getAll().sortedWith(
+                compareBy<AlarmRule> { metricOrder[it.metric] ?: Int.MAX_VALUE }
+                    .thenByDescending { severity(it) }
+            )
+            sorted.forEachIndexed { i, r ->
+                if (r.sortOrder != i) alarmDao.update(r.copy(sortOrder = i))
+            }
+        }
+    }
+
     fun previewBeep(frequencyHz: Int, durationMs: Int, count: Int) {
         viewModelScope.launch {
             tonePlayer.playBeep(frequencyHz, durationMs, count)

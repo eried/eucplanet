@@ -308,7 +308,21 @@ class TripRepository @Inject constructor(
         tripHadMockFix = false
 
         val trip = TripRecord(fileName = fileName, tripUuid = java.util.UUID.randomUUID().toString())
-        val id = tripDao.insert(trip)
+        // Persisting the row can fail (disk full, DB locked/corrupt). If it does,
+        // unwind everything we just claimed: otherwise _recording stays true for
+        // the rest of the session (no future auto-record can start) and the CSV
+        // is orphaned with no DB row. Mirrors the file-open failure path above.
+        val id = try {
+            tripDao.insert(trip)
+        } catch (e: Exception) {
+            Log.e(TAG, "Could not persist trip row; recording aborted", e)
+            lastStartFailureMs = System.currentTimeMillis()
+            runCatching { writer.close() }
+            runCatching { file.delete() }
+            csvWriter = null
+            _recording.value = false
+            return
+        }
         currentTrip = trip.copy(id = id)
         _currentTripId.value = id
 
@@ -389,9 +403,11 @@ class TripRepository @Inject constructor(
         }
 
         val data = wheelRepository.wheelData.value
-        // GPS-derived distance is preferred; fall back to wheel session counter only if
-        // we never accumulated any GPS movement (e.g. recording without location permission).
-        val distance = if (gpsDistanceKm > 0.0) gpsDistanceKm.toFloat() else data.tripDistance
+        // Wheel odometer (session trip counter) is the source of truth for
+        // distance; fall back to GPS-derived distance only when the wheel never
+        // reported one (GPS-only ride, wheel disconnected before any reading, or
+        // a wheel family that doesn't expose trip distance).
+        val distance = if (data.tripDistance > 0f) data.tripDistance else gpsDistanceKm.toFloat()
         val capturedMock = tripHadMockFix
         val wheelMeta = buildWheelMetaJson(
             brand = wheelRepository.connectedBrand.value,

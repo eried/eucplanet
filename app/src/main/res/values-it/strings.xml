@@ -490,9 +490,11 @@
     <string name="auto_lights_suspended">Sospeso perché hai cambiato manualmente le luci in questa sessione. Riconnetti la ruota o riavvia l\'app per riprendere</string>
 
     <!-- Alarms tab -->
-    <string name="alarm_help">Le regole vengono controllate dall\'alto in basso per ogni metrica. La prima regola corrispondente per ciascuna metrica si attiva</string>
+    <string name="alarm_help">Per ogni metrica si attiva automaticamente l\'allarme più rilevante. L\'ordine nell\'elenco non cambia quale; l\'ordinamento serve solo a tenere tutto in ordine.</string>
     <string name="alarm_empty">Nessuna regola d\'allarme</string>
     <string name="alarm_add">Nuovo allarme</string>
+    <string name="alarm_smart_sort">Ordina automaticamente</string>
+    <string name="alarm_summary_predict_fmt">prevede %1$s s in anticipo</string>
     <string name="alarm_new">Nuovo allarme</string>
     <string name="alarm_edit">Modifica allarme</string>
     <string name="alarm_delete_title">Eliminare questo allarme?</string>
@@ -500,6 +502,7 @@
     <string name="alarm_metric_label">Metrica</string>
     <string name="alarm_comparator_label">Condizione</string>
     <string name="alarm_threshold_fmt">Soglia: %1$s %2$s</string>
+    <string name="alarm_threshold_label">Soglia</string>
 
     <!-- Live data sources bottom sheet -->
     <string name="sources_title">Sorgenti dati in tempo reale</string>
@@ -552,10 +555,25 @@
     <string name="alarm_vibrate_target_watch">Orologio</string>
     <string name="alarm_vibrate_target_both">Tutti</string>
     <string name="alarm_section_timing">Tempistiche</string>
+    <string name="alarm_cooldown_label">Pausa</string>
     <string name="alarm_cooldown_fmt">Pausa: %1$ds</string>
     <string name="alarm_cooldown_help">Tempo minimo tra due attivazioni di questa regola, anche se la condizione resta vera</string>
     <string name="alarm_repeat">Ripeti finché attivo</string>
-    <string name="alarm_repeat_help">ON: si riattiva ad ogni pausa finché la condizione è vera.\nOFF: si attiva una volta e resta in silenzio finché la condizione non sparisce</string>
+    <string name="alarm_section_advanced">Avanzate</string>
+    <string name="alarm_repeat_label">Attivazione</string>
+    <string name="alarm_repeat_single">Una</string>
+    <string name="alarm_repeat_multi">Più</string>
+    <string name="alarm_repeat_help">Una volta: un solo avviso, poi si riarma quando il valore torna sul lato sicuro.\nPiù volte: riavvisa a ogni pausa finché resta attivo.</string>
+    <string name="alarm_predict_label">Attivazione predittiva</string>
+    <string name="alarm_predict_realtime">Ora</string>
+    <string name="alarm_predict_value_fmt">%1$s s in anticipo</string>
+    <string name="alarm_predict_help">Adesso: avvisa nell\'istante in cui la soglia viene rilevata.\nAltri: avvisano quei secondi prima che la tendenza stia per raggiungerla.</string>
+    <string name="alarm_state_atleast">%1$s è %2$s o più</string>
+    <string name="alarm_state_below">%1$s è sotto %2$s</string>
+    <string name="alarm_repeat_help_once">Un solo avviso quando %1$s. Si riarma quando %2$s, dopo la pausa di %3$d s.</string>
+    <string name="alarm_repeat_help_many">Riavvisa ogni %1$d s finché %2$s.</string>
+    <string name="alarm_predict_help_now">Avvisa nell\'istante in cui %1$s.</string>
+    <string name="alarm_predict_help_lead">Avvisa circa %1$s s in anticipo, quando %2$s, in base alla tendenza recente.</string>
 
     <!-- About / crash logs -->
     <string name="about_crash_logs">Log dei crash</string>

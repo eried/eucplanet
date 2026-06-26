@@ -370,14 +370,17 @@
     <string name="auto_lights_suspended">Satt på pause: du slo lyset av/på manuelt denne økten. Koble hjulet til på nytt eller start appen på nytt for å gjenoppta</string>
 
     <!-- Alarms tab -->
-    <string name="alarm_help">Regler sjekkes ovenfra og ned per målepunkt. Første treff utløser</string>
+    <string name="alarm_help">For hvert målepunkt utløses den mest relevante alarmen automatisk. Rekkefølgen i listen endrer ikke hvilken; sortering holder det bare ryddig.</string>
     <string name="alarm_empty">Ingen alarmregler ennå</string>
     <string name="alarm_add">Ny alarm</string>
+    <string name="alarm_smart_sort">Autosorter</string>
+    <string name="alarm_summary_predict_fmt">forutser %1$s s frem</string>
     <string name="alarm_new">Ny alarm</string>
     <string name="alarm_edit">Rediger alarm</string>
     <string name="alarm_metric_label">Målepunkt</string>
     <string name="alarm_comparator_label">Betingelse</string>
     <string name="alarm_threshold_fmt">Terskel: %1$s %2$s</string>
+    <string name="alarm_threshold_label">Terskel</string>
 
     <!-- Live data sources bottom sheet -->
     <string name="sources_title">Live datakilder</string>
@@ -426,10 +429,25 @@
     <string name="alarm_enable_vibrate">Aktiver vibrasjon</string>
     <string name="alarm_vibrate_duration_fmt">Varighet: %1$d ms</string>
     <string name="alarm_section_timing">Tidsstyring</string>
+    <string name="alarm_cooldown_label">Pause</string>
     <string name="alarm_cooldown_fmt">Pause: %1$d s</string>
     <string name="alarm_cooldown_help">Minimum tid mellom utløsninger selv om betingelsen fortsatt er sann</string>
     <string name="alarm_repeat">Gjenta mens aktiv</string>
-    <string name="alarm_repeat_help">PÅ: utløses på nytt etter hver pause så lenge betingelsen er sann.\nAV: utløses én gang og er stille til betingelsen opphører</string>
+    <string name="alarm_section_advanced">Avansert</string>
+    <string name="alarm_repeat_label">Utløsning</string>
+    <string name="alarm_repeat_single">Én</string>
+    <string name="alarm_repeat_multi">Flere</string>
+    <string name="alarm_repeat_help">Én gang: ett varsel, så aktiveres den på nytt når avlesningen er tilbake på trygg side.\nFlere: varsler på nytt etter hver pause så lenge den er utløst.</string>
+    <string name="alarm_predict_label">Forvarsling</string>
+    <string name="alarm_predict_realtime">Nå</string>
+    <string name="alarm_predict_value_fmt">%1$s s tidligere</string>
+    <string name="alarm_predict_help">Nå: varsler i det øyeblikket terskelen rapporteres.\nAndre: varsler så mange sekunder før trenden er i ferd med å nå den.</string>
+    <string name="alarm_state_atleast">%1$s er %2$s eller mer</string>
+    <string name="alarm_state_below">%1$s er under %2$s</string>
+    <string name="alarm_repeat_help_once">Ett varsel når %1$s. Aktiveres på nytt når %2$s, etter pausen på %3$d s.</string>
+    <string name="alarm_repeat_help_many">Varsler på nytt hvert %1$d s mens %2$s.</string>
+    <string name="alarm_predict_help_now">Varsler i det øyeblikket %1$s.</string>
+    <string name="alarm_predict_help_lead">Varsler omtrent %1$s s før %2$s, basert på den siste trenden.</string>
 
     <!-- Alarm metrics -->
     <string name="alarm_metric_speed">Fart</string>

@@ -41,7 +41,25 @@ data class AlarmRule(
 
     // Timing
     val cooldownSeconds: Int = 5,
-    val repeatWhileActive: Boolean = false
+    /**
+     * "Many" (true, the default) re-alerts every [cooldownSeconds] for as long
+     * as the value stays past the threshold; "Once" (false) alerts a single
+     * time per crossing. Default is Many so a sustained danger (held overspeed,
+     * high PWM) keeps reminding the rider rather than beeping once and going
+     * quiet. Only affects newly created rules; existing rules keep their saved
+     * value. See [com.eried.eucplanet.service.AlarmLogic.shouldFire].
+     */
+    val repeatWhileActive: Boolean = true,
+
+    /**
+     * Predictive lead time in milliseconds. 0 (default) = fire the instant the
+     * threshold is crossed, exactly as before. When > 0, the engine also fires
+     * early if the recent trend projects the value across the threshold within
+     * this window (e.g. 1000 = "warn me ~1 s before PWM is about to hit 95%").
+     * Only triggers while moving toward the threshold; a flat or retreating
+     * value never fires predictively. See [com.eried.eucplanet.service.AlarmEngine].
+     */
+    val leadTimeMs: Int = 0
 )
 
 enum class AlarmMetric(

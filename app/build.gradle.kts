@@ -29,8 +29,10 @@ android {
         applicationId = "com.eried.eucplanet"
         minSdk = 29
         targetSdk = 35
-        versionCode = 249
-        versionName = "0.11.2"
+        versionCode = 250
+        versionName = "0.11.3"
+
+        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
         val buildStamp = SimpleDateFormat("yyMMdd.HHmm")
             .apply { timeZone = TimeZone.getTimeZone("UTC") }
@@ -285,6 +287,12 @@ dependencies {
     testImplementation("org.json:json:20240303")
     // MockWebServer for EucStatsApi JVM tests — version must match libs.okhttp (4.12.0)
     testImplementation("com.squareup.okhttp3:mockwebserver:4.12.0")
+
+    // Instrumented tests: the Studio MP4 encoder needs real MediaCodec / MediaMuxer,
+    // so its duration is verified on-device rather than on the JVM.
+    androidTestImplementation("androidx.test.ext:junit:1.1.5")
+    androidTestImplementation("androidx.test:runner:1.5.2")
+    androidTestImplementation("androidx.test:rules:1.5.0")
 }
 
 // Gradle Play Publisher -- LOCAL publishing only (no browser, NOT wired into CI):

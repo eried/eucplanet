@@ -918,9 +918,11 @@
     <string name="auto_lights_suspended">Suspended due to user light toggle for this session. Reconnect the wheel or restart the app to resume</string>
 
     <!-- Alarms tab -->
-    <string name="alarm_help">Rules are checked top-to-bottom per metric. First matching rule for each metric fires</string>
+    <string name="alarm_help">For each metric the most relevant alarm fires automatically. The order in the list doesn\'t change which one; sorting just keeps it tidy.</string>
     <string name="alarm_empty">No alarm rules yet</string>
     <string name="alarm_add">New alarm</string>
+    <string name="alarm_smart_sort">Auto-sort</string>
+    <string name="alarm_summary_predict_fmt">predicts %1$s s ahead</string>
     <string name="alarm_new">New Alarm</string>
     <string name="alarm_edit">Edit Alarm</string>
     <string name="alarm_delete_title">Delete this alarm?</string>
@@ -928,6 +930,7 @@
     <string name="alarm_metric_label">Metric</string>
     <string name="alarm_comparator_label">Condition</string>
     <string name="alarm_threshold_fmt">Threshold: %1$s %2$s</string>
+    <string name="alarm_threshold_label">Threshold</string>
     <string name="alarm_threshold_decrease">Decrease threshold</string>
     <string name="alarm_threshold_increase">Increase threshold</string>
 
@@ -983,10 +986,28 @@
     <string name="alarm_vibrate_target_watch">Watch</string>
     <string name="alarm_vibrate_target_both">All</string>
     <string name="alarm_section_timing">Timing</string>
+    <string name="alarm_section_advanced">Advanced</string>
+    <string name="alarm_cooldown_label">Cooldown</string>
     <string name="alarm_cooldown_fmt">Cooldown: %1$ds</string>
     <string name="alarm_cooldown_help">Minimum time between fires for this rule, even if the condition keeps matching</string>
     <string name="alarm_repeat">Repeat while active</string>
-    <string name="alarm_repeat_help">ON: re-fires every cooldown while the condition holds.\nOFF: fires once and stays silent until the condition clears</string>
+    <string name="alarm_repeat_label">Trigger</string>
+    <string name="alarm_repeat_single">Once</string>
+    <string name="alarm_repeat_multi">Many</string>
+    <string name="alarm_repeat_help">Once: one alert, then re-arms after the reading returns to the safe side.\nMany: re-alerts every cooldown while it stays triggered.</string>
+    <!-- Dynamic alarm help. The condition sub-phrases get the metric name + the
+         threshold-with-unit plugged in, then the help sentences embed that
+         phrase, so the text reads back the rule the rider actually set. -->
+    <string name="alarm_state_atleast">%1$s is %2$s or more</string>
+    <string name="alarm_state_below">%1$s is below %2$s</string>
+    <string name="alarm_repeat_help_once">One alert when %1$s. Re-arms when %2$s, after the %3$d s cooldown.</string>
+    <string name="alarm_repeat_help_many">Re-alerts every %1$d s while %2$s.</string>
+    <string name="alarm_predict_help_now">Alerts the moment %1$s.</string>
+    <string name="alarm_predict_help_lead">Alerts about %1$s s before %2$s, from the recent trend.</string>
+    <string name="alarm_predict_label">Predictive trigger</string>
+    <string name="alarm_predict_realtime">Now</string>
+    <string name="alarm_predict_value_fmt">%1$s s early</string>
+    <string name="alarm_predict_help">Now: alerts the instant the threshold is reported.\nOthers: alert that many seconds before the trend is about to reach it.</string>
 
     <!-- About / crash logs -->
     <string name="about_crash_logs">Crash logs</string>

@@ -1,5 +1,7 @@
 package com.eried.eucplanet.ui.settings
 
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -16,6 +18,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -23,8 +27,11 @@ import androidx.compose.material.icons.filled.ArrowDownward
 import androidx.compose.material.icons.filled.ArrowUpward
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.ExpandLess
+import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Remove
+import androidx.compose.material.icons.filled.SwapVert
 import androidx.compose.material.icons.filled.VolumeUp
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
@@ -43,6 +50,7 @@ import androidx.compose.material3.SegmentedButton
 import androidx.compose.material3.SegmentedButtonDefaults
 import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Slider
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -56,7 +64,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -75,6 +87,11 @@ import com.eried.eucplanet.ui.theme.themedFieldColors
 import com.eried.eucplanet.ui.theme.themedSegmentedColors
 import com.eried.eucplanet.ui.theme.themedSwitchColors
 import com.eried.eucplanet.ui.theme.themedSliderColors
+import kotlin.math.roundToInt
+
+/** Human seconds for a lead time in ms: "0.5", "1", "2" (drops a trailing .0). */
+private fun leadSeconds(ms: Int): String =
+    String.format(java.util.Locale.US, "%.1f", ms / 1000f).removeSuffix(".0")
 
 private fun displayThreshold(metric: AlarmMetric, valueInternal: Float, speedUnit: String, tempUnit: String): Float =
     when (metric) {
@@ -156,11 +173,29 @@ fun AlarmSettingsContent(
             Spacer(Modifier.height(8.dp))
         }
 
-        LeftAlignedScanButton(
-            label = stringResource(R.string.alarm_add),
-            onClick = { editingRule = null; showEditor = true },
-            leadingIcon = Icons.Default.Add
-        )
+        // New rule on the left; Auto-sort sits to its right once there's more
+        // than one rule. Order no longer affects which alarm fires (the engine
+        // picks the most relevant per metric), so Auto-sort is a tidy-up, not a
+        // correctness knob.
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            LeftAlignedScanButton(
+                label = stringResource(R.string.alarm_add),
+                onClick = { editingRule = null; showEditor = true },
+                leadingIcon = Icons.Default.Add,
+                modifier = Modifier.weight(1f)
+            )
+            if (rules.size > 1) {
+                Button(onClick = { viewModel.autoSmartSort() }) {
+                    Icon(Icons.Default.SwapVert, contentDescription = null, modifier = Modifier.size(18.dp))
+                    Spacer(Modifier.width(6.dp))
+                    Text(stringResource(R.string.alarm_smart_sort))
+                }
+            }
+        }
 
         Spacer(Modifier.height(16.dp))
     }
@@ -282,6 +317,13 @@ private fun AlarmRuleCard(
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
+                    if (rule.leadTimeMs > 0) {
+                        Text(
+                            stringResource(R.string.alarm_summary_predict_fmt, leadSeconds(rule.leadTimeMs)),
+                            fontSize = 11.sp,
+                            color = color
+                        )
+                    }
                 }
                 Switch(checked = rule.enabled, onCheckedChange = onToggle,
                     colors = themedSwitchColors(),)
@@ -355,6 +397,18 @@ private fun AlarmRuleEditorDialog(
 
     var cooldownSeconds by remember { mutableIntStateOf(initial.cooldownSeconds) }
     var repeatWhileActive by remember { mutableStateOf(initial.repeatWhileActive) }
+    var leadTimeMs by remember { mutableIntStateOf(initial.leadTimeMs) }
+    // Advanced (cooldown / repeat / anticipation) starts collapsed for a new
+    // rule -- the defaults are fine -- and opens automatically when editing a
+    // rule that already departs from them.
+    val defaults = remember { AlarmRule() }
+    var advancedOpen by remember {
+        mutableStateOf(
+            initial.cooldownSeconds != defaults.cooldownSeconds ||
+                initial.repeatWhileActive != defaults.repeatWhileActive ||
+                initial.leadTimeMs != defaults.leadTimeMs
+        )
+    }
 
     val selectedMetric = try { AlarmMetric.valueOf(metric) } catch (_: Exception) { AlarmMetric.SPEED }
     val thresholdRangeInternal = when (selectedMetric) {
@@ -460,62 +514,19 @@ private fun AlarmRuleEditorDialog(
 
                 Spacer(Modifier.height(6.dp))
 
-                // Threshold: slider for fast sweep, +/- buttons for fine
-                // single-unit nudges. Tapping the value re-centres focus on the
-                // step buttons (the slider is hard to drop on an exact number).
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    IconButton(
-                        onClick = {
-                            // Step in display units so users get a clean 1 mph
-                            // or 1 km/h nudge regardless of unit system.
-                            val newDisp = (displayedThreshold - 1f).coerceIn(displayedRange)
-                            threshold = internalThreshold(selectedMetric, newDisp, speedUnit, tempUnit)
-                                .coerceIn(thresholdRangeInternal)
-                        },
-                        enabled = displayedThreshold > displayedRange.start + 0.001f,
-                        modifier = Modifier.size(36.dp)
-                    ) {
-                        Icon(
-                            Icons.Default.Remove,
-                            contentDescription = stringResource(R.string.alarm_threshold_decrease),
-                            modifier = Modifier.size(20.dp)
-                        )
-                    }
-                    Text(
-                        stringResource(R.string.alarm_threshold_fmt, "%.0f".format(displayedThreshold), displayedUnit),
-                        fontSize = 14.sp,
-                        fontWeight = FontWeight.Medium,
-                        textAlign = TextAlign.Center,
-                        modifier = Modifier.weight(1f)
-                    )
-                    IconButton(
-                        onClick = {
-                            val newDisp = (displayedThreshold + 1f).coerceIn(displayedRange)
-                            threshold = internalThreshold(selectedMetric, newDisp, speedUnit, tempUnit)
-                                .coerceIn(thresholdRangeInternal)
-                        },
-                        enabled = displayedThreshold < displayedRange.endInclusive - 0.001f,
-                        modifier = Modifier.size(36.dp)
-                    ) {
-                        Icon(
-                            Icons.Default.Add,
-                            contentDescription = stringResource(R.string.alarm_threshold_increase),
-                            modifier = Modifier.size(20.dp)
-                        )
-                    }
-                }
-                Slider(
-                    value = displayedThreshold.coerceIn(displayedRange),
-                    onValueChange = {
-                        threshold = internalThreshold(selectedMetric, it, speedUnit, tempUnit)
+                // Threshold: numeric up/down. Type a value or step it in clean
+                // display units (1 km/h, 1 mph, 1 % ...), converting back to the
+                // internal metric value on every change.
+                NumberUpDown(
+                    value = displayedThreshold.roundToInt(),
+                    onValueChange = { newDisp ->
+                        threshold = internalThreshold(selectedMetric, newDisp.toFloat(), speedUnit, tempUnit)
                             .coerceIn(thresholdRangeInternal)
                     },
-                    valueRange = displayedRange,
-                    steps = ((displayedRange.endInclusive - displayedRange.start) - 1).toInt().coerceAtLeast(0),
-                    colors = themedSliderColors(),
+                    range = displayedRange.start.roundToInt()..displayedRange.endInclusive.roundToInt(),
+                    suffix = displayedUnit,
+                    label = stringResource(R.string.alarm_threshold_label),
+                    modifier = Modifier.fillMaxWidth(),
                 )
 
                 Spacer(Modifier.height(12.dp))
@@ -538,35 +549,40 @@ private fun AlarmRuleEditorDialog(
                 }
 
                 if (beepEnabled) {
-                    Text(stringResource(R.string.alarm_beep_freq_fmt, beepFrequency), fontSize = 12.sp)
-                    Slider(
-                        value = beepFrequency.toFloat(),
-                        onValueChange = { beepFrequency = it.toInt() },
-                        // 200 Hz floor gives a softer "thunk" useful for low-
-                        // urgency reminders (e.g. battery dip). Top stays at
-                        // 3 kHz where the piezo gets piercing.
-                        valueRange = 200f..3000f,
-                        steps = 27,
-                        colors = themedSliderColors(),
-                    )
-
-                    Text(stringResource(R.string.alarm_beep_duration_fmt, beepDurationMs), fontSize = 12.sp)
-                    Slider(
-                        value = beepDurationMs.toFloat(),
-                        onValueChange = { beepDurationMs = it.toInt() },
-                        valueRange = 100f..1000f,
-                        steps = 8,
-                        colors = themedSliderColors(),
-                    )
-
-                    Text(stringResource(R.string.alarm_beep_repeats_fmt, beepCount), fontSize = 12.sp)
-                    Slider(
-                        value = beepCount.toFloat(),
-                        onValueChange = { beepCount = it.toInt() },
-                        valueRange = 1f..5f,
-                        steps = 3,
-                        colors = themedSliderColors(),
-                    )
+                    // Frequency + Duration share a row; the unit (Hz / ms) tells
+                    // them apart. 200 Hz floor = soft "thunk", 3 kHz = piercing.
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        NumberUpDown(
+                            value = beepFrequency,
+                            onValueChange = { beepFrequency = it },
+                            range = 200..3000, step = 100, suffix = "Hz",
+                            modifier = Modifier.weight(1f),
+                        )
+                        NumberUpDown(
+                            value = beepDurationMs,
+                            onValueChange = { beepDurationMs = it },
+                            range = 100..1000, step = 50, suffix = "ms",
+                            modifier = Modifier.weight(1f),
+                        )
+                    }
+                    Spacer(Modifier.height(8.dp))
+                    // Repeat count is a small value, so it stays half-width rather
+                    // than stretching across the dialog.
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        NumberUpDown(
+                            value = beepCount,
+                            onValueChange = { beepCount = it },
+                            range = 1..5, step = 1, suffix = "x",
+                            modifier = Modifier.weight(1f),
+                        )
+                        Spacer(Modifier.weight(1f))
+                    }
                 }
 
                 Spacer(Modifier.height(8.dp))
@@ -620,80 +636,172 @@ private fun AlarmRuleEditorDialog(
                 }
 
                 if (vibrateEnabled) {
-                    Text(stringResource(R.string.alarm_vibrate_duration_fmt, vibrateDurationMs), fontSize = 12.sp)
-                    Slider(
-                        value = vibrateDurationMs.toFloat(),
-                        onValueChange = { vibrateDurationMs = it.toInt() },
-                        valueRange = 100f..2000f,
-                        steps = 18,
-                        colors = themedSliderColors(),
-                    )
-
-                    Spacer(Modifier.height(4.dp))
-                    Text(
-                        stringResource(R.string.alarm_vibrate_target_label),
-                        fontSize = 12.sp,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                    // "BOTH" is first + the default for new alarms, the rider doesn't
-                    // need to think about whether a watch is paired or not (no watch
-                    // connected → that branch silently no-ops, see WatchVibrator). The
-                    // storage key stays "BOTH" for compatibility; the user-visible label
-                    // is "All" since "Both" reads as "phone + watch only" while "All"
-                    // covers any future channels (e.g., paired earbud haptics).
+                    // Duration (ms) on the left, target picker on the right, on one
+                    // row so a lone duration field doesn't stretch across the dialog.
+                    // "BOTH" stays first + default; the storage key stays "BOTH" for
+                    // backup/sync compatibility while the visible label is "All".
+                    // The target sits under the "Vibrate" section title, so the
+                    // All/Phone/Watch segments read clearly without a caption.
                     val targetEntries = listOf(
                         "BOTH" to stringResource(R.string.alarm_vibrate_target_both),
                         "PHONE" to stringResource(R.string.alarm_vibrate_target_phone),
                         "WATCH" to stringResource(R.string.alarm_vibrate_target_watch)
                     )
-                    SingleChoiceSegmentedButtonRow(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(IntrinsicSize.Max)
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(12.dp),
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
-                        targetEntries.forEachIndexed { index, (key, label) ->
-                            SegmentedButton(
-                                modifier = Modifier.fillMaxHeight(),
-                                selected = key == vibrateTarget,
-                                onClick = { vibrateTarget = key },
-                                shape = SegmentedButtonDefaults.itemShape(index, targetEntries.size),
-                                colors = themedSegmentedColors(),
-                            ) { Text(label) }
+                        NumberUpDown(
+                            value = vibrateDurationMs,
+                            onValueChange = { vibrateDurationMs = it },
+                            range = 100..2000, step = 100, suffix = "ms",
+                            modifier = Modifier.weight(1f),
+                        )
+                        SingleChoiceSegmentedButtonRow(
+                            modifier = Modifier.weight(1f).height(48.dp)
+                        ) {
+                            targetEntries.forEachIndexed { index, (key, label) ->
+                                SegmentedButton(
+                                    modifier = Modifier.fillMaxHeight(),
+                                    selected = key == vibrateTarget,
+                                    onClick = { vibrateTarget = key },
+                                    shape = SegmentedButtonDefaults.itemShape(index, targetEntries.size),
+                                    colors = themedSegmentedColors(),
+                                ) { Text(label) }
+                            }
                         }
                     }
                 }
 
                 Spacer(Modifier.height(8.dp))
 
-                // --- Timing ---
-                Text(stringResource(R.string.alarm_section_timing), fontWeight = FontWeight.Medium, fontSize = 13.sp,
-                    color = MaterialTheme.appColors.metricVoltage)
-
-                Text(stringResource(R.string.alarm_cooldown_fmt, cooldownSeconds), fontSize = 12.sp)
-                Slider(
-                    value = cooldownSeconds.toFloat(),
-                    onValueChange = {
-                        // Snap to 5 s steps so the slider stops on a clean
-                        // round number rather than landing on 17 s etc.
-                        cooldownSeconds = (kotlin.math.round(it / 5f) * 5f)
-                            .toInt().coerceIn(5, 60)
-                    },
-                    valueRange = 5f..60f,
-                    steps = 10,
-                    colors = themedSliderColors(),
-                )
-                HintText(stringResource(R.string.alarm_cooldown_help), small = true)
-
+                // --- Advanced (collapsed) ---
+                // Cooldown, repeat mode and anticipation live here. Their
+                // defaults (5 s, Single, Realtime) suit most alarms, so a new
+                // rule never needs to open this. It auto-opens when editing a
+                // rule that already uses non-default values.
                 Row(
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable { advancedOpen = !advancedOpen },
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    Text(stringResource(R.string.alarm_repeat), fontSize = 13.sp)
-                    Switch(checked = repeatWhileActive, onCheckedChange = { repeatWhileActive = it },
-                        colors = themedSwitchColors(),)
+                    Text(stringResource(R.string.alarm_section_advanced),
+                        fontWeight = FontWeight.Medium, fontSize = 13.sp,
+                        color = MaterialTheme.appColors.metricVoltage)
+                    Icon(
+                        if (advancedOpen) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
+                        contentDescription = null,
+                        tint = MaterialTheme.appColors.metricVoltage
+                    )
                 }
-                HintText(stringResource(R.string.alarm_repeat_help), small = true)
+
+                if (advancedOpen) {
+                    Spacer(Modifier.height(8.dp))
+
+                    // Build the live "condition" phrases once so every help line
+                    // reads back the rule the rider actually set (metric name,
+                    // threshold + unit, and the comparator direction). "triggered"
+                    // is the alarm side; "safe" is its inverse (for the re-arm).
+                    val metricName = stringResource(selectedMetric.labelRes)
+                    val thrText = "${displayedThreshold.roundToInt()} $displayedUnit"
+                    val isGe = AlarmComparator.parse(comparator) == AlarmComparator.GREATER_EQUAL
+                    val triggeredPhrase = stringResource(
+                        if (isGe) R.string.alarm_state_atleast else R.string.alarm_state_below,
+                        metricName, thrText
+                    )
+                    val safePhrase = stringResource(
+                        if (isGe) R.string.alarm_state_below else R.string.alarm_state_atleast,
+                        metricName, thrText
+                    )
+
+                    // Cooldown (half width) + Single/Multi repeat selector beside it.
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(12.dp),
+                        verticalAlignment = Alignment.Top
+                    ) {
+                        NumberUpDown(
+                            value = cooldownSeconds,
+                            onValueChange = { cooldownSeconds = it },
+                            range = 1..120,
+                            suffix = "s",
+                            label = stringResource(R.string.alarm_cooldown_label),
+                            modifier = Modifier.weight(1f),
+                        )
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(
+                                stringResource(R.string.alarm_repeat_label),
+                                fontSize = 12.sp,
+                                color = MaterialTheme.appColors.fieldLabel,
+                                modifier = Modifier.padding(bottom = 4.dp)
+                            )
+                            val repeatEntries = listOf(
+                                false to stringResource(R.string.alarm_repeat_single),
+                                true to stringResource(R.string.alarm_repeat_multi),
+                            )
+                            SingleChoiceSegmentedButtonRow(
+                                modifier = Modifier.fillMaxWidth().height(48.dp)
+                            ) {
+                                repeatEntries.forEachIndexed { index, (value, lbl) ->
+                                    SegmentedButton(
+                                        modifier = Modifier.fillMaxHeight(),
+                                        selected = value == repeatWhileActive,
+                                        onClick = { repeatWhileActive = value },
+                                        shape = SegmentedButtonDefaults.itemShape(index, repeatEntries.size),
+                                        colors = themedSegmentedColors(),
+                                    ) { Text(lbl) }
+                                }
+                            }
+                        }
+                    }
+                    HintText(
+                        if (repeatWhileActive)
+                            stringResource(R.string.alarm_repeat_help_many, cooldownSeconds, triggeredPhrase)
+                        else
+                            stringResource(R.string.alarm_repeat_help_once, triggeredPhrase, safePhrase, cooldownSeconds),
+                        small = true
+                    )
+
+                    Spacer(Modifier.height(8.dp))
+
+                    // Anticipation as a compact segmented row: Realtime (0) keeps
+                    // the classic fire-on-threshold behaviour; the others fire
+                    // early when the recent trend is about to cross the threshold.
+                    Text(stringResource(R.string.alarm_predict_label),
+                        fontSize = 12.sp, color = MaterialTheme.appColors.fieldLabel)
+                    val realtimeLabel = stringResource(R.string.alarm_predict_realtime)
+                    val leadValues = listOf(0, 500, 1000, 2000, 3000)
+                    SingleChoiceSegmentedButtonRow(
+                        modifier = Modifier.fillMaxWidth().height(44.dp)
+                    ) {
+                        leadValues.forEachIndexed { index, ms ->
+                            SegmentedButton(
+                                modifier = Modifier.fillMaxHeight(),
+                                selected = leadTimeMs == ms,
+                                onClick = { leadTimeMs = ms },
+                                shape = SegmentedButtonDefaults.itemShape(index, leadValues.size),
+                                colors = themedSegmentedColors(),
+                                icon = {},
+                            ) {
+                                Text(
+                                    if (ms == 0) realtimeLabel else "${leadSeconds(ms)}s",
+                                    fontSize = 12.sp,
+                                    maxLines = 1
+                                )
+                            }
+                        }
+                    }
+                    HintText(
+                        if (leadTimeMs <= 0)
+                            stringResource(R.string.alarm_predict_help_now, triggeredPhrase)
+                        else
+                            stringResource(R.string.alarm_predict_help_lead, leadSeconds(leadTimeMs), triggeredPhrase),
+                        small = true
+                    )
+                }
 
                 Spacer(Modifier.height(16.dp))
 
@@ -724,7 +832,8 @@ private fun AlarmRuleEditorDialog(
                                     vibrateDurationMs = vibrateDurationMs,
                                     vibrateTarget = vibrateTarget,
                                     cooldownSeconds = cooldownSeconds,
-                                    repeatWhileActive = repeatWhileActive
+                                    repeatWhileActive = repeatWhileActive,
+                                    leadTimeMs = leadTimeMs
                                 )
                             )
                         }
@@ -764,6 +873,118 @@ private fun SectionTitleWithPreview(
                 tint = if (enabled) MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
                 else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.2f)
             )
+        }
+    }
+}
+
+/**
+ * Numeric up/down as one cohesive pill: a borderless centered number with its
+ * unit, flanked by - / + steppers inside a single rounded field-coloured
+ * surface. Optional caption above. Values clamp to [range]; the number reflects
+ * the live value when unfocused and lets the user type freely while focused
+ * (reconciling to the clamped value on blur).
+ */
+@Composable
+private fun NumberUpDown(
+    value: Int,
+    onValueChange: (Int) -> Unit,
+    range: IntRange,
+    modifier: Modifier = Modifier,
+    step: Int = 1,
+    suffix: String = "",
+    label: String? = null,
+) {
+    val fieldText = MaterialTheme.appColors.fieldText
+    val fieldLabelColor = MaterialTheme.appColors.fieldLabel
+    var text by remember { mutableStateOf(value.toString()) }
+    var focused by remember { mutableStateOf(false) }
+    // Width the typed number to the widest value in range so the unit stays put
+    // and the digits + unit read as one centred group.
+    val numWidth = (maxOf(2, range.last.toString().length) * 12).dp
+
+    Column(modifier = modifier) {
+        if (label != null) {
+            Text(
+                label,
+                fontSize = 12.sp,
+                color = fieldLabelColor,
+                modifier = Modifier.padding(bottom = 4.dp)
+            )
+        }
+        Surface(
+            shape = RoundedCornerShape(12.dp),
+            color = MaterialTheme.appColors.fieldBackground,
+            border = BorderStroke(1.dp, MaterialTheme.appColors.fieldBorder),
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Row(
+                modifier = Modifier.height(48.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                IconButton(
+                    onClick = {
+                        val nv = (value - step).coerceIn(range)
+                        text = nv.toString(); onValueChange(nv)
+                    },
+                    enabled = value > range.first,
+                    modifier = Modifier.size(48.dp)
+                ) {
+                    Icon(
+                        Icons.Default.Remove,
+                        contentDescription = stringResource(R.string.alarm_threshold_decrease),
+                        tint = fieldText,
+                        modifier = Modifier.size(20.dp)
+                    )
+                }
+                Row(
+                    modifier = Modifier.weight(1f),
+                    horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    BasicTextField(
+                        value = if (focused) text else value.toString(),
+                        onValueChange = { raw ->
+                            val digits = raw.filter { it.isDigit() }.take(6)
+                            text = digits
+                            digits.toIntOrNull()?.let { if (it in range) onValueChange(it) }
+                        },
+                        singleLine = true,
+                        textStyle = TextStyle(
+                            color = fieldText,
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.Medium,
+                            textAlign = TextAlign.Center
+                        ),
+                        cursorBrush = SolidColor(fieldText),
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                        modifier = Modifier
+                            .width(numWidth)
+                            .onFocusChanged { f ->
+                                if (f.isFocused) text = value.toString()
+                                focused = f.isFocused
+                            }
+                    )
+                    if (suffix.isNotEmpty()) {
+                        Spacer(Modifier.width(4.dp))
+                        Text(suffix, fontSize = 14.sp, color = fieldLabelColor)
+                    }
+                }
+                IconButton(
+                    onClick = {
+                        val nv = (value + step).coerceIn(range)
+                        text = nv.toString(); onValueChange(nv)
+                    },
+                    enabled = value < range.last,
+                    modifier = Modifier.size(48.dp)
+                ) {
+                    Icon(
+                        Icons.Default.Add,
+                        contentDescription = stringResource(R.string.alarm_threshold_increase),
+                        tint = fieldText,
+                        modifier = Modifier.size(20.dp)
+                    )
+                }
+            }
         }
     }
 }

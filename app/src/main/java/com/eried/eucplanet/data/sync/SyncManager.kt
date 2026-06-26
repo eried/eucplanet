@@ -32,11 +32,10 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+import com.eried.eucplanet.util.TripCsv
 import org.json.JSONArray
 import org.json.JSONObject
 import java.io.File
-import java.text.SimpleDateFormat
-import java.util.Locale
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -295,39 +294,29 @@ class SyncManager @Inject constructor(
             file.bufferedReader().use { reader ->
                 val headerLine = reader.readLine() ?: return CsvMeta(startTime, endTime, 0f)
                 val header = headerLine.lowercase().split(",").map { it.trim() }
+                val dateIdx = header.indexOfFirst { it == "date" }.takeIf { it >= 0 } ?: 0
                 val latIdx = header.indexOfFirst { it == "latitude" }.takeIf { it >= 0 } ?: 6
                 val lonIdx = header.indexOfFirst { it == "longitude" }.takeIf { it >= 0 } ?: 7
                 val mileageIdx = header.indexOfFirst { it.contains("mileage") }
                     .takeIf { it >= 0 } ?: 8
-                val darkness = SimpleDateFormat("dd.MM.yyyy HH:mm:ss", Locale.US)
-                val iso = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.US)
                 var first = true
+                // Stay streaming (one big CSV never fully resident), but share
+                // the timestamp + great-circle logic with the import/detail
+                // paths via TripCsv so every surface agrees on duration/distance.
                 reader.forEachLine { raw ->
                     val line = raw.trim()
                     if (line.isEmpty()) return@forEachLine
                     val parts = line.split(",")
                     if (parts.size < 2) return@forEachLine
-                    val dateStr = parts[0].trim()
-                    val trimmed = if (dateStr.contains("T")) {
-                        val t = dateStr.substringAfter("T")
-                        dateStr.substringBefore("T") + "T" +
-                                if (t.contains(".")) t.substringBefore(".") else t
-                    } else {
-                        if (dateStr.count { it == '.' } > 2) dateStr.substringBeforeLast(".")
-                        else dateStr
-                    }
-                    val parsed = try {
-                        if (dateStr.contains("T")) iso.parse(trimmed) else darkness.parse(trimmed)
-                    } catch (_: Exception) { null }
-                    if (parsed != null) {
-                        if (first) { startTime = parsed.time; first = false }
-                        endTime = parsed.time
+                    TripCsv.parseDate(parts.getOrNull(dateIdx)?.trim())?.let { t ->
+                        if (first) { startTime = t; first = false }
+                        endTime = t
                     }
                     val lat = parts.getOrNull(latIdx)?.toDoubleOrNull()
                     val lon = parts.getOrNull(lonIdx)?.toDoubleOrNull()
                     if (lat != null && lon != null && lat != 0.0 && lon != 0.0) {
                         if (!lastLat.isNaN() && !lastLon.isNaN()) {
-                            val d = haversineMeters(lastLat, lastLon, lat, lon)
+                            val d = TripCsv.haversineMeters(lastLat, lastLon, lat, lon)
                             if (d in 0.5..200.0) gpsDistanceKm += d / 1000.0
                         }
                         lastLat = lat
@@ -347,16 +336,6 @@ class SyncManager @Inject constructor(
             else -> 0f
         }
         return CsvMeta(startTime, endTime, distance)
-    }
-
-    private fun haversineMeters(lat1: Double, lon1: Double, lat2: Double, lon2: Double): Double {
-        val r = 6_371_000.0
-        val dLat = Math.toRadians(lat2 - lat1)
-        val dLon = Math.toRadians(lon2 - lon1)
-        val a = Math.sin(dLat / 2).let { it * it } +
-                Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2)) *
-                Math.sin(dLon / 2).let { it * it }
-        return r * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
     }
 
     /**
@@ -1034,6 +1013,7 @@ class SyncManager @Inject constructor(
                 put("vibrateTarget", r.vibrateTarget)
                 put("cooldownSeconds", r.cooldownSeconds)
                 put("repeatWhileActive", r.repeatWhileActive)
+                put("leadTimeMs", r.leadTimeMs)
             })
         }
     }
@@ -1061,7 +1041,8 @@ class SyncManager @Inject constructor(
                 vibrateDurationMs = o.optInt("vibrateDurationMs", default.vibrateDurationMs),
                 vibrateTarget = o.optString("vibrateTarget", default.vibrateTarget),
                 cooldownSeconds = o.optInt("cooldownSeconds", default.cooldownSeconds),
-                repeatWhileActive = o.optBoolean("repeatWhileActive", default.repeatWhileActive)
+                repeatWhileActive = o.optBoolean("repeatWhileActive", default.repeatWhileActive),
+                leadTimeMs = o.optInt("leadTimeMs", default.leadTimeMs)
             )
         }
         return out

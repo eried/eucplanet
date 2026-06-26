@@ -899,9 +899,11 @@
     <string name="auto_lights_suspended">Suspenso porque você alternou a luz manualmente nesta sessão. Reconecte a roda ou reinicie o app para retomar</string>
 
     <!-- Alarms tab -->
-    <string name="alarm_help">As regras são verificadas de cima para baixo por métrica. A primeira regra que combinar para cada métrica é disparada</string>
+    <string name="alarm_help">Para cada métrica, o alarme mais relevante dispara automaticamente. A ordem na lista não muda qual deles; ordenar serve só para organizar</string>
     <string name="alarm_empty">Ainda sem regras de alarme</string>
     <string name="alarm_add">Novo alarme</string>
+    <string name="alarm_smart_sort">Ordenar automaticamente</string>
+    <string name="alarm_summary_predict_fmt">prevê %1$s s à frente</string>
     <string name="alarm_new">Novo alarme</string>
     <string name="alarm_edit">Editar alarme</string>
     <string name="alarm_delete_title">Excluir este alarme?</string>
@@ -909,6 +911,7 @@
     <string name="alarm_metric_label">Métrica</string>
     <string name="alarm_comparator_label">Condição</string>
     <string name="alarm_threshold_fmt">Limite: %1$s %2$s</string>
+    <string name="alarm_threshold_label">Limite</string>
     <string name="alarm_threshold_decrease">Diminuir limite</string>
     <string name="alarm_threshold_increase">Aumentar limite</string>
 
@@ -964,10 +967,25 @@
     <string name="alarm_vibrate_target_watch">Relógio</string>
     <string name="alarm_vibrate_target_both">Todos</string>
     <string name="alarm_section_timing">Temporização</string>
+    <string name="alarm_cooldown_label">Pausa</string>
     <string name="alarm_cooldown_fmt">Pausa: %1$ds</string>
     <string name="alarm_cooldown_help">Tempo mínimo entre disparos desta regra, mesmo que a condição continue</string>
     <string name="alarm_repeat">Repetir enquanto ativo</string>
-    <string name="alarm_repeat_help">ON: dispara novamente a cada pausa enquanto a condição se mantiver.\nOFF: dispara uma vez e fica em silêncio até a condição ser desfeita</string>
+    <string name="alarm_section_advanced">Avançado</string>
+    <string name="alarm_repeat_label">Disparo</string>
+    <string name="alarm_repeat_single">Única</string>
+    <string name="alarm_repeat_multi">Várias</string>
+    <string name="alarm_repeat_help">Uma vez: um alerta e rearma quando a leitura volta ao lado seguro.\nVárias: realerta a cada pausa enquanto continuar disparado.</string>
+    <string name="alarm_predict_label">Disparo preditivo</string>
+    <string name="alarm_predict_realtime">Agora</string>
+    <string name="alarm_predict_value_fmt">%1$s s antes</string>
+    <string name="alarm_predict_help">Agora: alerta no instante em que o limite é informado.\nOutros: alertam essa quantidade de segundos antes de a tendência atingir o limite.</string>
+    <string name="alarm_state_atleast">%1$s está em %2$s ou mais</string>
+    <string name="alarm_state_below">%1$s está abaixo de %2$s</string>
+    <string name="alarm_repeat_help_once">Um alerta quando %1$s. Rearma quando %2$s, após a pausa de %3$d s.</string>
+    <string name="alarm_repeat_help_many">Realerta a cada %1$d s enquanto %2$s.</string>
+    <string name="alarm_predict_help_now">Alerta no instante em que %1$s.</string>
+    <string name="alarm_predict_help_lead">Alerta cerca de %1$s s antes de %2$s, pela tendência recente.</string>
 
     <!-- About / crash logs -->
     <string name="about_crash_logs">Logs de falha</string>
