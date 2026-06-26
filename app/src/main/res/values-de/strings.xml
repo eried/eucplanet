@@ -982,6 +982,8 @@
     <string name="alarm_state_below">%1$s ist unter %2$s</string>
     <string name="alarm_repeat_help_once">Eine Warnung, sobald dies gilt: %1$s. Erneut scharf nach %3$d s Abklingzeit, sobald dies gilt: %2$s.</string>
     <string name="alarm_repeat_help_many">Warnt alle %1$d s erneut, solange dies gilt: %2$s.</string>
+    <string name="alarm_repeat_help_once_instant">Eine Warnung, sobald dies gilt: %1$s. Sofort erneut scharf, sobald dies gilt: %2$s.</string>
+    <string name="alarm_repeat_help_many_instant">Warnt bei jeder Messung erneut, solange dies gilt: %1$s.</string>
     <string name="alarm_predict_help_now">Warnt sofort, sobald dies gilt: %1$s.</string>
     <string name="alarm_predict_help_lead">Warnt anhand des aktuellen Trends rund %1$s s, bevor dies gilt: %2$s.</string>
     <string name="alarm_predict_label">Vorausschauende Auslösung</string>

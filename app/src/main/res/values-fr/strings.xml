@@ -989,6 +989,8 @@
     <string name="alarm_state_below">%1$s est sous %2$s</string>
     <string name="alarm_repeat_help_once">Une alerte quand %1$s. Se réarme quand %2$s, après la pause de %3$d s.</string>
     <string name="alarm_repeat_help_many">Réalerte toutes les %1$d s tant que %2$s.</string>
+    <string name="alarm_repeat_help_once_instant">Une alerte quand %1$s. Se réarme dès que %2$s.</string>
+    <string name="alarm_repeat_help_many_instant">Réalerte à chaque relevé tant que %1$s.</string>
     <string name="alarm_predict_help_now">Alerte dès que %1$s.</string>
     <string name="alarm_predict_help_lead">Alerte environ %1$s s avant %2$s, d\'après la tendance récente.</string>
 

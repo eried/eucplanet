@@ -983,6 +983,8 @@
     <string name="alarm_repeat_help">Én gang: én advarsel, og klargøres igen, når aflæsningen vender tilbage til den sikre side.\nMange: advarer igen efter hver pause, så længe den er udløst</string>
     <string name="alarm_repeat_help_once">Én advarsel når %1$s. Klargøres igen når %2$s, efter pausen på %3$d s.</string>
     <string name="alarm_repeat_help_many">Advarer igen hver %1$d s mens %2$s.</string>
+    <string name="alarm_repeat_help_once_instant">Én advarsel når %1$s. Klargøres igen så snart %2$s.</string>
+    <string name="alarm_repeat_help_many_instant">Advarer igen ved hver måling mens %1$s.</string>
     <string name="alarm_predict_label">Forudsigende udløser</string>
     <string name="alarm_predict_realtime">Nu</string>
     <string name="alarm_predict_value_fmt">%1$s s tidligere</string>

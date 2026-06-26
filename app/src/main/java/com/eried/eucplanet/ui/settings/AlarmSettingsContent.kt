@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
@@ -63,12 +64,16 @@ import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.input.pointer.pointerInput
+import kotlinx.coroutines.launch
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.KeyboardType
@@ -740,7 +745,7 @@ private fun AlarmRuleEditorDialog(
                         NumberUpDown(
                             value = cooldownSeconds,
                             onValueChange = { cooldownSeconds = it },
-                            range = 1..120,
+                            range = 0..120,
                             suffix = "s",
                             label = stringResource(R.string.alarm_cooldown_label),
                             modifier = Modifier.weight(1f),
@@ -772,10 +777,19 @@ private fun AlarmRuleEditorDialog(
                         }
                     }
                     HintText(
-                        if (repeatWhileActive)
-                            stringResource(R.string.alarm_repeat_help_many, cooldownSeconds, triggeredPhrase)
-                        else
-                            stringResource(R.string.alarm_repeat_help_once, triggeredPhrase, safePhrase, cooldownSeconds),
+                        when {
+                            // Cooldown 0 = no rate limit. In Many mode that means a
+                            // fresh alert on every telemetry reading while held; in
+                            // Once mode it re-arms the instant the value goes safe.
+                            repeatWhileActive && cooldownSeconds == 0 ->
+                                stringResource(R.string.alarm_repeat_help_many_instant, triggeredPhrase)
+                            repeatWhileActive ->
+                                stringResource(R.string.alarm_repeat_help_many, cooldownSeconds, triggeredPhrase)
+                            cooldownSeconds == 0 ->
+                                stringResource(R.string.alarm_repeat_help_once_instant, triggeredPhrase, safePhrase)
+                            else ->
+                                stringResource(R.string.alarm_repeat_help_once, triggeredPhrase, safePhrase, cooldownSeconds)
+                        },
                         small = true
                     )
 
@@ -924,14 +938,28 @@ internal fun NumberUpDown(
     suffix: String = "",
     label: String? = null,
     enabled: Boolean = true,
+    // Decimal / signed support: the value stays an Int (the caller scales it,
+    // e.g. tenths of a percent), [format] renders it for display and [parse]
+    // turns typed text back into that Int. Defaults keep plain integer behaviour.
+    format: (Int) -> String = { it.toString() },
+    parse: (String) -> Int? = { it.toIntOrNull() },
+    allowSign: Boolean = false,
 ) {
     val fieldText = MaterialTheme.appColors.fieldText
     val fieldLabelColor = MaterialTheme.appColors.fieldLabel
-    var text by remember { mutableStateOf(value.toString()) }
+    var text by remember { mutableStateOf(format(value)) }
     var focused by remember { mutableStateOf(false) }
     // Width the typed number to the widest value in range so the unit stays put
     // and the digits + unit read as one centred group.
-    val numWidth = (maxOf(2, range.first.toString().length, range.last.toString().length) * 12).dp
+    val numWidth = (maxOf(2, format(range.first).length, format(range.last).length) * 12).dp
+
+    // rememberUpdatedState so the hold-to-repeat loop below always steps from the
+    // freshly committed value, not the value captured when the press started.
+    val latestValue by rememberUpdatedState(value)
+    fun stepBy(delta: Int) {
+        val nv = (latestValue + delta).coerceIn(range)
+        if (nv != latestValue) { text = format(nv); onValueChange(nv) }
+    }
 
     Column(modifier = modifier.alpha(if (enabled) 1f else 0.5f)) {
         if (label != null) {
@@ -952,32 +980,26 @@ internal fun NumberUpDown(
                 modifier = Modifier.height(48.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                IconButton(
-                    onClick = {
-                        val nv = (value - step).coerceIn(range)
-                        text = nv.toString(); onValueChange(nv)
-                    },
+                RepeatingStepper(
+                    icon = Icons.Default.Remove,
+                    contentDescription = stringResource(R.string.alarm_threshold_decrease),
                     enabled = enabled && value > range.first,
-                    modifier = Modifier.size(48.dp)
-                ) {
-                    Icon(
-                        Icons.Default.Remove,
-                        contentDescription = stringResource(R.string.alarm_threshold_decrease),
-                        tint = fieldText,
-                        modifier = Modifier.size(20.dp)
-                    )
-                }
+                    tint = fieldText,
+                    onStep = { stepBy(-step) },
+                )
                 Row(
                     modifier = Modifier.weight(1f),
                     horizontalArrangement = Arrangement.Center,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     BasicTextField(
-                        value = if (focused) text else value.toString(),
+                        value = if (focused) text else format(value),
                         onValueChange = { raw ->
-                            val digits = raw.filter { it.isDigit() }.take(6)
-                            text = digits
-                            digits.toIntOrNull()?.let { if (it in range) onValueChange(it) }
+                            val filtered = if (allowSign)
+                                raw.filter { it.isDigit() || it == '-' || it == '.' }.take(7)
+                            else raw.filter { it.isDigit() }.take(6)
+                            text = filtered
+                            parse(filtered)?.let { if (it in range) onValueChange(it) }
                         },
                         singleLine = true,
                         enabled = enabled,
@@ -988,11 +1010,13 @@ internal fun NumberUpDown(
                             textAlign = TextAlign.Center
                         ),
                         cursorBrush = SolidColor(fieldText),
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                        keyboardOptions = KeyboardOptions(
+                            keyboardType = if (allowSign) KeyboardType.Decimal else KeyboardType.Number
+                        ),
                         modifier = Modifier
                             .width(numWidth)
                             .onFocusChanged { f ->
-                                if (f.isFocused) text = value.toString()
+                                if (f.isFocused) text = format(value)
                                 focused = f.isFocused
                             }
                     )
@@ -1001,23 +1025,60 @@ internal fun NumberUpDown(
                         Text(suffix, fontSize = 14.sp, color = fieldLabelColor)
                     }
                 }
-                IconButton(
-                    onClick = {
-                        val nv = (value + step).coerceIn(range)
-                        text = nv.toString(); onValueChange(nv)
-                    },
+                RepeatingStepper(
+                    icon = Icons.Default.Add,
+                    contentDescription = stringResource(R.string.alarm_threshold_increase),
                     enabled = enabled && value < range.last,
-                    modifier = Modifier.size(48.dp)
-                ) {
-                    Icon(
-                        Icons.Default.Add,
-                        contentDescription = stringResource(R.string.alarm_threshold_increase),
-                        tint = fieldText,
-                        modifier = Modifier.size(20.dp)
-                    )
-                }
+                    tint = fieldText,
+                    onStep = { stepBy(step) },
+                )
             }
         }
+    }
+}
+
+/**
+ * 48dp icon button for the NumberUpDown steppers: fires [onStep] once on press,
+ * then auto-repeats with acceleration while held so the rider can sweep a value
+ * fast (handy for fine 0.1-step fields like speed calibration).
+ */
+@Composable
+private fun RepeatingStepper(
+    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    contentDescription: String,
+    enabled: Boolean,
+    tint: androidx.compose.ui.graphics.Color,
+    onStep: () -> Unit,
+) {
+    val step by rememberUpdatedState(onStep)
+    val scope = rememberCoroutineScope()
+    Box(
+        modifier = Modifier
+            .size(48.dp)
+            .pointerInput(enabled) {
+                if (!enabled) return@pointerInput
+                detectTapGestures(onPress = {
+                    step()                                   // immediate first tick
+                    val job = scope.launch {
+                        kotlinx.coroutines.delay(400)        // hold before auto-repeat
+                        var d = 260L
+                        while (true) {
+                            step()
+                            kotlinx.coroutines.delay(d)
+                            d = (d * 80 / 100).coerceAtLeast(40L)   // accelerate, floor 40ms
+                        }
+                    }
+                    try { awaitRelease() } finally { job.cancel() }
+                })
+            },
+        contentAlignment = Alignment.Center
+    ) {
+        Icon(
+            icon,
+            contentDescription = contentDescription,
+            tint = if (enabled) tint else tint.copy(alpha = 0.3f),
+            modifier = Modifier.size(20.dp)
+        )
     }
 }
 

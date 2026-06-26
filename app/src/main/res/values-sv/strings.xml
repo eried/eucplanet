@@ -985,6 +985,8 @@
     <string name="alarm_state_below">%1$s är under %2$s</string>
     <string name="alarm_repeat_help_once">Ett larm när %1$s. Återaktiveras när %2$s, efter %3$d s paus.</string>
     <string name="alarm_repeat_help_many">Larmar igen var %1$d s medan %2$s.</string>
+    <string name="alarm_repeat_help_once_instant">Ett larm när %1$s. Återaktiveras så snart %2$s.</string>
+    <string name="alarm_repeat_help_many_instant">Larmar igen vid varje avläsning medan %1$s.</string>
     <string name="alarm_predict_help_now">Larmar i samma stund som %1$s.</string>
     <string name="alarm_predict_help_lead">Larmar cirka %1$s s innan %2$s, utifrån den senaste trenden.</string>
 

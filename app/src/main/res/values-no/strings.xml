@@ -450,6 +450,8 @@
     <string name="alarm_state_below">%1$s er under %2$s</string>
     <string name="alarm_repeat_help_once">Ett varsel når %1$s. Aktiveres på nytt når %2$s, etter pausen på %3$d s.</string>
     <string name="alarm_repeat_help_many">Varsler på nytt hvert %1$d s mens %2$s.</string>
+    <string name="alarm_repeat_help_once_instant">Ett varsel når %1$s. Aktiveres på nytt så snart %2$s.</string>
+    <string name="alarm_repeat_help_many_instant">Varsler på nytt ved hver avlesning mens %1$s.</string>
     <string name="alarm_predict_help_now">Varsler i det øyeblikket %1$s.</string>
     <string name="alarm_predict_help_lead">Varsler omtrent %1$s s før %2$s, basert på den siste trenden.</string>
 

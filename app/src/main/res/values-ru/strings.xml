@@ -989,6 +989,8 @@
     <string name="alarm_state_below">%1$s ниже %2$s</string>
     <string name="alarm_repeat_help_once">Один сигнал, когда %1$s. Снова готов, когда %2$s, после паузы %3$d s.</string>
     <string name="alarm_repeat_help_many">Повторный сигнал каждые %1$d s, пока %2$s.</string>
+    <string name="alarm_repeat_help_once_instant">Один сигнал, когда %1$s. Снова готов, как только %2$s.</string>
+    <string name="alarm_repeat_help_many_instant">Повторный сигнал при каждом показании, пока %1$s.</string>
     <string name="alarm_predict_help_now">Сигнал, как только %1$s.</string>
     <string name="alarm_predict_help_lead">Сигнал примерно за %1$s s до того, как %2$s, по недавней динамике.</string>
 

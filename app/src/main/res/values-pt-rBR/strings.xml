@@ -989,6 +989,8 @@
     <string name="alarm_state_below">%1$s está abaixo de %2$s</string>
     <string name="alarm_repeat_help_once">Um alerta quando %1$s. Rearma quando %2$s, após a pausa de %3$d s.</string>
     <string name="alarm_repeat_help_many">Realerta a cada %1$d s enquanto %2$s.</string>
+    <string name="alarm_repeat_help_once_instant">Um alerta quando %1$s. Rearma assim que %2$s.</string>
+    <string name="alarm_repeat_help_many_instant">Realerta a cada leitura enquanto %1$s.</string>
     <string name="alarm_predict_help_now">Alerta no instante em que %1$s.</string>
     <string name="alarm_predict_help_lead">Alerta cerca de %1$s s antes de %2$s, pela tendência recente.</string>
 

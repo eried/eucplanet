@@ -1007,6 +1007,8 @@
     <string name="alarm_state_below">%1$s is below %2$s</string>
     <string name="alarm_repeat_help_once">One alert when %1$s. Re-arms when %2$s, after the %3$d s cooldown.</string>
     <string name="alarm_repeat_help_many">Re-alerts every %1$d s while %2$s.</string>
+    <string name="alarm_repeat_help_once_instant">One alert when %1$s. Re-arms as soon as %2$s.</string>
+    <string name="alarm_repeat_help_many_instant">Re-alerts on every reading while %1$s.</string>
     <string name="alarm_predict_help_now">Alerts the moment %1$s.</string>
     <string name="alarm_predict_help_lead">Alerts about %1$s s before %2$s, from the recent trend.</string>
     <string name="alarm_predict_label">Predictive trigger</string>

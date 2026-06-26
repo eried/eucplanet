@@ -577,6 +577,8 @@
     <string name="alarm_state_below">%1$s è sotto %2$s</string>
     <string name="alarm_repeat_help_once">Un solo avviso quando %1$s. Si riarma quando %2$s, dopo la pausa di %3$d s.</string>
     <string name="alarm_repeat_help_many">Riavvisa ogni %1$d s finché %2$s.</string>
+    <string name="alarm_repeat_help_once_instant">Un solo avviso quando %1$s. Si riarma appena %2$s.</string>
+    <string name="alarm_repeat_help_many_instant">Riavvisa a ogni lettura finché %1$s.</string>
     <string name="alarm_predict_help_now">Avvisa nell\'istante in cui %1$s.</string>
     <string name="alarm_predict_help_lead">Avvisa circa %1$s s in anticipo, quando %2$s, in base alla tendenza recente.</string>
 

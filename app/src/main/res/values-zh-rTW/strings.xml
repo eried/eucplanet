@@ -986,6 +986,8 @@
     <string name="alarm_state_below">%1$s 低於 %2$s</string>
     <string name="alarm_repeat_help_once">當 %1$s 時發出一次警報。待 %2$s 且經過 %3$d 秒冷卻時間後重新啟用。</string>
     <string name="alarm_repeat_help_many">在 %2$s 期間，每隔 %1$d 秒重新發出警報。</string>
+    <string name="alarm_repeat_help_once_instant">當 %1$s 時發出一次警報。一旦 %2$s 隨即重新啟用。</string>
+    <string name="alarm_repeat_help_many_instant">在 %1$s 期間，每次讀數都重新發出警報。</string>
     <string name="alarm_predict_help_now">在 %1$s 的瞬間發出警報。</string>
     <string name="alarm_predict_help_lead">根據近期趨勢，在 %2$s 前約 %1$s 秒發出警報。</string>
 

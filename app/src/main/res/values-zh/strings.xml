@@ -476,6 +476,8 @@
     <string name="alarm_state_below">%1$s 低于 %2$s</string>
     <string name="alarm_repeat_help_once">当 %1$s 时报警一次。冷却 %3$d 秒后,当 %2$s 时重新待命。</string>
     <string name="alarm_repeat_help_many">在 %2$s 期间,每 %1$d 秒重新报警一次。</string>
+    <string name="alarm_repeat_help_once_instant">当 %1$s 时报警一次。一旦 %2$s 立即重新待命。</string>
+    <string name="alarm_repeat_help_many_instant">在 %1$s 期间,每次读数都重新报警。</string>
     <string name="alarm_predict_help_now">在 %1$s 的瞬间立即报警。</string>
     <string name="alarm_predict_help_lead">根据近期趋势,在 %2$s 前约 %1$s 秒报警。</string>
 

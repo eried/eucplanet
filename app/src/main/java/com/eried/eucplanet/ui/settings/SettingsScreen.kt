@@ -5328,15 +5328,21 @@ private fun SpeedTab(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
+            // Tenths-of-a-percent domain so the pill keeps the slider's 0.1%
+            // precision: the Int value is tenths, displayed as a signed 1-decimal
+            // percent, stepped 0.1% per tap (hold to sweep).
             NumberUpDown(
-                value = calPct.roundToInt(),
-                onValueChange = { viewModel.updateSpeedCalibrationOffsetPct(it.toFloat()) },
-                range = -15..15,
+                value = (calPct * 10).roundToInt(),
+                onValueChange = { viewModel.updateSpeedCalibrationOffsetPct(it / 10f) },
+                range = -150..150,
                 step = 1,
                 suffix = "%",
                 label = stringResource(R.string.speed_calibration_label),
                 enabled = isConnected,
                 modifier = Modifier.weight(1f),
+                format = { String.format(java.util.Locale.US, "%+.1f", it / 10f) },
+                parse = { it.toFloatOrNull()?.let { f -> (f * 10).roundToInt() } },
+                allowSign = true,
             )
             Spacer(Modifier.weight(1f))
         }
@@ -5439,16 +5445,19 @@ private fun VoiceTab(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
+                // Tenths-of-x domain so it reads as the original "1.2x" with 0.1
+                // steps, not a percentage.
                 NumberUpDown(
-                    value = (settings.voiceSpeechRate * 100).roundToInt(),
-                    onValueChange = {
-                        viewModel.updateVoiceSpeechRate((Math.round(it / 10f) * 10).coerceIn(50, 250) / 100f)
-                    },
-                    range = 50..250,
-                    step = 10,
-                    suffix = "%",
+                    value = (settings.voiceSpeechRate * 10).roundToInt(),
+                    onValueChange = { viewModel.updateVoiceSpeechRate(it / 10f) },
+                    range = 5..25,
+                    step = 1,
+                    suffix = stringResource(R.string.unit_x),
                     label = stringResource(R.string.voice_speech_speed),
                     modifier = Modifier.weight(1f),
+                    format = { String.format(java.util.Locale.US, "%.1f", it / 10f) },
+                    parse = { it.toFloatOrNull()?.let { f -> (f * 10).roundToInt() } },
+                    allowSign = true,
                 )
                 Spacer(Modifier.weight(1f))
             }

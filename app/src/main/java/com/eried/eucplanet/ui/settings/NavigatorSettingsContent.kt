@@ -71,6 +71,11 @@ fun NavigatorSettingsContent(
     fun distLabel(meters: Int): String =
         if (settings.imperialUnits) "${(meters * 3.28084).roundToInt()} ft"
         else "$meters m"
+    // Typed text back to stored metres (ft -> m for imperial), snapped to 5 m.
+    fun distParse(s: String): Int? = s.toIntOrNull()?.let { typed ->
+        val meters = if (settings.imperialUnits) typed / 3.28084 else typed.toDouble()
+        (meters / 5.0).roundToInt() * 5
+    }
 
     Column(
         modifier = Modifier.fillMaxWidth(),
@@ -104,18 +109,20 @@ fun NavigatorSettingsContent(
                 onValueChange = { viewModel.updateNavArrivalRadius(it) },
                 range = 5..100,
                 step = 5,
-                suffix = "m",
                 label = stringResource(R.string.nav_setting_arrival_radius),
                 modifier = Modifier.weight(1f),
+                format = { distLabel(it) },
+                parse = { distParse(it) },
             )
             NumberUpDown(
                 value = settings.navOffRouteToleranceM,
                 onValueChange = { viewModel.updateNavOffRouteTolerance(it) },
                 range = 15..150,
                 step = 5,
-                suffix = "m",
                 label = stringResource(R.string.nav_setting_offroute),
                 modifier = Modifier.weight(1f),
+                format = { distLabel(it) },
+                parse = { distParse(it) },
             )
         }
         // Both field hints combined on one line.

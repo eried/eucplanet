@@ -987,6 +987,8 @@
     <string name="alarm_state_below">%1$s is onder %2$s</string>
     <string name="alarm_repeat_help_once">Eén waarschuwing wanneer %1$s. Weer scherp wanneer %2$s, na de cooldown van %3$d s.</string>
     <string name="alarm_repeat_help_many">Waarschuwt opnieuw elke %1$d s zolang %2$s.</string>
+    <string name="alarm_repeat_help_once_instant">Eén waarschuwing wanneer %1$s. Direct weer scherp zodra %2$s.</string>
+    <string name="alarm_repeat_help_many_instant">Waarschuwt opnieuw bij elke meting zolang %1$s.</string>
     <string name="alarm_predict_help_now">Waarschuwt zodra %1$s.</string>
     <string name="alarm_predict_help_lead">Waarschuwt ongeveer %1$s s voordat %2$s, op basis van de recente trend.</string>
 

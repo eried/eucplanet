@@ -986,6 +986,8 @@
     <string name="alarm_state_below">%1$s が %2$s 未満</string>
     <string name="alarm_repeat_help_once">%1$s のとき1回通知します。%3$d 秒のクールダウン後、%2$s になると再び発動できるようになります。</string>
     <string name="alarm_repeat_help_many">%2$s の間、%1$d 秒ごとに再通知します。</string>
+    <string name="alarm_repeat_help_once_instant">%1$s のとき1回通知します。%2$s になるとすぐに再び発動できるようになります。</string>
+    <string name="alarm_repeat_help_many_instant">%1$s の間、測定値ごとに再通知します。</string>
     <string name="alarm_predict_help_now">%1$s になった瞬間に通知します。</string>
     <string name="alarm_predict_help_lead">最近の傾向から、%2$s になる約 %1$s 秒前に通知します。</string>
 

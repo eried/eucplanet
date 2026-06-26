@@ -986,6 +986,8 @@
     <string name="alarm_state_below">%1$s, %2$s altında</string>
     <string name="alarm_repeat_help_once">%1$s olduğunda tek uyarı. %2$s olunca, %3$d s beklemenin ardından yeniden kurulur.</string>
     <string name="alarm_repeat_help_many">%2$s iken her %1$d s\'de bir yeniden uyarır.</string>
+    <string name="alarm_repeat_help_once_instant">%1$s olduğunda tek uyarı. %2$s olur olmaz yeniden kurulur.</string>
+    <string name="alarm_repeat_help_many_instant">%1$s iken her okumada yeniden uyarır.</string>
     <string name="alarm_predict_help_now">%1$s olduğu an uyarır.</string>
     <string name="alarm_predict_help_lead">Son eğilime göre, %2$s olmadan yaklaşık %1$s s önce uyarır.</string>
 

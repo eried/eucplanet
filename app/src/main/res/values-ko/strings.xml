@@ -986,6 +986,8 @@
     <string name="alarm_state_below">%1$s이(가) %2$s 미만</string>
     <string name="alarm_repeat_help_once">%1$s일 때 한 번 알립니다. %3$d초 쿨다운 후 %2$s일 때 다시 준비됩니다.</string>
     <string name="alarm_repeat_help_many">%2$s인 동안 %1$d초마다 다시 알립니다.</string>
+    <string name="alarm_repeat_help_once_instant">%1$s일 때 한 번 알립니다. %2$s되는 즉시 다시 준비됩니다.</string>
+    <string name="alarm_repeat_help_many_instant">%1$s인 동안 측정값마다 다시 알립니다.</string>
     <string name="alarm_predict_help_now">%1$s이 되는 즉시 알립니다.</string>
     <string name="alarm_predict_help_lead">최근 추세를 바탕으로 %2$s이 되기 약 %1$s초 전에 알립니다.</string>
 

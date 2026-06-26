@@ -989,6 +989,8 @@
     <string name="alarm_state_below">%1$s нижче %2$s</string>
     <string name="alarm_repeat_help_once">Одне сповіщення, коли %1$s. Повторно активується, коли %2$s, після паузи %3$d s.</string>
     <string name="alarm_repeat_help_many">Повторює сповіщення кожні %1$d s, поки %2$s.</string>
+    <string name="alarm_repeat_help_once_instant">Одне сповіщення, коли %1$s. Повторно активується, щойно %2$s.</string>
+    <string name="alarm_repeat_help_many_instant">Повторює сповіщення при кожному показнику, поки %1$s.</string>
     <string name="alarm_predict_help_now">Сповіщає в мить, коли %1$s.</string>
     <string name="alarm_predict_help_lead">Сповіщає приблизно за %1$s s до того, як %2$s, на основі останньої тенденції.</string>
 

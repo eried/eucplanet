@@ -987,6 +987,8 @@
     <string name="alarm_state_below">%1$s jest poniżej %2$s</string>
     <string name="alarm_repeat_help_once">Jeden alarm, gdy %1$s. Ponowne uzbrojenie, gdy %2$s, po odstępie %3$d s.</string>
     <string name="alarm_repeat_help_many">Ponawia alarm co %1$d s, dopóki %2$s.</string>
+    <string name="alarm_repeat_help_once_instant">Jeden alarm, gdy %1$s. Ponowne uzbrojenie, gdy tylko %2$s.</string>
+    <string name="alarm_repeat_help_many_instant">Ponawia alarm przy każdym odczycie, dopóki %1$s.</string>
     <string name="alarm_predict_help_now">Alarmuje w chwili, gdy %1$s.</string>
     <string name="alarm_predict_help_lead">Alarmuje około %1$s s przed tym, gdy %2$s, na podstawie ostatniego trendu.</string>
 
