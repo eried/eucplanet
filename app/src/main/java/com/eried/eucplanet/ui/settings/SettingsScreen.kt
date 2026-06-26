@@ -7699,7 +7699,14 @@ private fun ButtonConfig(
                 ActionDropdown(stringResource(R.string.flic_double_click), doubleClickAction, onDoubleClickChange, modifier = Modifier.weight(1f))
             }
             Spacer(Modifier.height(8.dp))
-            ActionDropdown(stringResource(R.string.flic_hold), holdAction, onHoldChange)
+            // Hold is half width, aligned left, to match the Click row above.
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                ActionDropdown(stringResource(R.string.flic_hold), holdAction, onHoldChange, modifier = Modifier.weight(1f))
+                Spacer(Modifier.weight(1f))
+            }
         }
     }
 }
