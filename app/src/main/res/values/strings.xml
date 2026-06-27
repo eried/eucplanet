@@ -918,7 +918,7 @@
     <string name="auto_lights_suspended">Suspended due to user light toggle for this session. Reconnect the wheel or restart the app to resume</string>
 
     <!-- Alarms tab -->
-    <string name="alarm_help">For each metric the most relevant alarm fires automatically. The order in the list doesn\'t change which one; sorting just keeps it tidy.</string>
+    <string name="alarm_help">Alarms group by metric. Drag a group up to make it more important: its alarm sounds first and quiets the groups below while it\'s active, which only fill its cooldown gaps. Within a group the most severe rule fires.</string>
     <string name="alarm_empty">No alarm rules yet</string>
     <string name="alarm_add">New alarm</string>
     <string name="alarm_smart_sort">Auto-sort</string>
@@ -933,12 +933,18 @@
     <string name="alarm_threshold_fmt">Threshold: %1$s %2$s</string>
     <string name="alarm_threshold_label">Threshold</string>
     <string name="alarm_label_frequency">Frequency</string>
-    <string name="alarm_beep_pitch_label">Pitch</string>
-    <string name="alarm_beep_pitch_fixed">Fixed</string>
-    <string name="alarm_beep_pitch_rise">Rises</string>
-    <string name="alarm_beep_help_fixed_single">Plays one %1$d Hz tone for %2$d ms.</string>
-    <string name="alarm_beep_help_fixed_multi">Plays %3$d beeps of %1$d Hz for %2$d ms each, 120 ms apart.</string>
-    <string name="alarm_beep_help_rise">Starts at %1$d Hz when %2$s reaches the threshold and climbs toward %3$d Hz the further past it the value goes. Each beep is a single pitch; with Trigger: Many it re-beeps higher as the value worsens.</string>
+    <string name="alarm_beep_advanced">Advanced</string>
+    <string name="alarm_beep_gap_label">Gap</string>
+    <string name="alarm_beep_pitch_rise_label">Pitch rise</string>
+    <string name="alarm_beep_volume_label">Volume</string>
+    <string name="alarm_beep_volume_rise_label">Volume rise</string>
+    <string name="alarm_beep_sum_core">Beeps at %1$d Hz for %2$d ms</string>
+    <string name="alarm_beep_sum_reps">, ×%1$d %2$d ms apart</string>
+    <string name="alarm_beep_sum_reps0">, ×%1$d back-to-back</string>
+    <string name="alarm_beep_sum_voice">, then speaks</string>
+    <string name="alarm_beep_sum_pitch"> Pitch rises toward %1$d Hz as %2$s reaches %3$s %4$s.</string>
+    <string name="alarm_beep_sum_pitch_vol"> Pitch rises toward %1$d Hz and volume from %2$d%% to %3$d%% as %4$s reaches %5$s %6$s.</string>
+    <string name="alarm_beep_sum_vol"> Volume rises from %1$d%% to %2$d%% as %3$s reaches %4$s %5$s.</string>
     <string name="alarm_label_duration">Duration</string>
     <string name="alarm_label_repeats">Repeats</string>
     <string name="alarm_label_vibrate_on">Vibrate on</string>

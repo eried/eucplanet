@@ -86,6 +86,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.eried.eucplanet.R
 import com.eried.eucplanet.data.model.AlarmComparator
 import com.eried.eucplanet.data.model.AlarmMetric
+import com.eried.eucplanet.service.AlarmLogic
 import com.eried.eucplanet.data.model.AlarmRule
 import com.eried.eucplanet.ui.common.HintText
 import com.eried.eucplanet.ui.common.InfoHint
@@ -129,7 +130,7 @@ fun AlarmSettingsContent(
     viewModel: AlarmViewModel = hiltViewModel()
 ) {
     val rules by viewModel.rules.collectAsState()
-    val rulesSorted by viewModel.rulesSorted.collectAsState()
+    val groups by viewModel.groupedRules.collectAsState()
     val haptic = androidx.compose.ui.platform.LocalHapticFeedback.current
     // Alarm thresholds only span speed and temperature; distance has no alarm metric.
     val speedUnit by viewModel.speedUnit.collectAsState()
@@ -161,61 +162,71 @@ fun AlarmSettingsContent(
 
         Spacer(Modifier.height(12.dp))
 
-        if (rules.isEmpty()) {
+        if (groups.isEmpty()) {
             InfoHint(
                 text = stringResource(R.string.alarm_empty),
                 modifier = Modifier.padding(vertical = 12.dp)
             )
         }
 
-        // Drag the handle to reorder (same component the settings voice list
-        // uses). Tapping a card's text opens the editor.
+        // Alarms group by metric. Drag a group's handle to set its PRIORITY:
+        // the top group's alarm wins; lower groups only sound in its cooldown
+        // gaps. Within a group, rules auto-sort by severity. Tap a rule to edit.
         ReorderableColumn(
-            list = rules,
-            onSettle = { from, to -> viewModel.moveRule(from, to) },
+            list = groups,
+            onSettle = { from, to -> viewModel.moveGroup(from, to) },
             onMove = { haptic.performHapticFeedback(androidx.compose.ui.hapticfeedback.HapticFeedbackType.LongPress) },
             modifier = Modifier.fillMaxWidth(),
-            verticalArrangement = Arrangement.spacedBy(8.dp),
-        ) { _, rule, _ ->
-            key(rule.id) {
-                AlarmRuleCard(
-                    rule = rule,
-                    speedUnit = speedUnit,
-                    tempUnit = tempUnit,
-                    onToggle = { viewModel.updateRule(rule.copy(enabled = it)) },
-                    onEdit = { editingRule = rule; showEditor = true },
-                    dragHandleModifier = Modifier.draggableHandle(),
-                )
+            verticalArrangement = Arrangement.spacedBy(14.dp),
+        ) { _, group, _ ->
+            key(group.metric) {
+                val groupMetric = try { AlarmMetric.valueOf(group.metric) } catch (_: Exception) { AlarmMetric.SPEED }
+                Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(
+                            Icons.Default.DragHandle,
+                            contentDescription = stringResource(R.string.action_reorder),
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.draggableHandle().size(28.dp)
+                        )
+                        Spacer(Modifier.width(4.dp))
+                        Text(
+                            stringResource(groupMetric.labelRes),
+                            fontWeight = FontWeight.SemiBold,
+                            fontSize = 13.sp,
+                            color = metricAccent(groupMetric)
+                        )
+                    }
+                    group.rules.forEach { rule ->
+                        key(rule.id) {
+                            AlarmRuleCard(
+                                rule = rule,
+                                speedUnit = speedUnit,
+                                tempUnit = tempUnit,
+                                onToggle = { viewModel.updateRule(rule.copy(enabled = it)) },
+                                onEdit = { editingRule = rule; showEditor = true },
+                                showHandle = false,
+                            )
+                        }
+                    }
+                }
             }
         }
 
         Spacer(Modifier.height(8.dp))
 
-        // New alarm + Auto-sort are always both shown at half width each, so the
-        // layout doesn't jump as rules are added. Auto-sort stays disabled until
-        // there are at least two rules AND they're out of order.
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-            verticalAlignment = Alignment.CenterVertically
+        // New alarm spans the row. Auto-sort was removed: group order is now
+        // priority, so an automatic re-sort would fight the rider's intent.
+        Button(
+            onClick = { editingRule = null; showEditor = true },
+            modifier = Modifier.fillMaxWidth()
         ) {
-            Button(
-                onClick = { editingRule = null; showEditor = true },
-                modifier = Modifier.weight(1f)
-            ) {
-                Icon(Icons.Default.Add, contentDescription = null, modifier = Modifier.size(18.dp))
-                Spacer(Modifier.width(6.dp))
-                Text(stringResource(R.string.alarm_add))
-            }
-            Button(
-                onClick = { viewModel.autoSmartSort() },
-                enabled = !rulesSorted,
-                modifier = Modifier.weight(1f)
-            ) {
-                Icon(Icons.Default.SwapVert, contentDescription = null, modifier = Modifier.size(18.dp))
-                Spacer(Modifier.width(6.dp))
-                Text(stringResource(R.string.alarm_smart_sort))
-            }
+            Icon(Icons.Default.Add, contentDescription = null, modifier = Modifier.size(18.dp))
+            Spacer(Modifier.width(6.dp))
+            Text(stringResource(R.string.alarm_add))
         }
 
         Spacer(Modifier.height(16.dp))
@@ -259,6 +270,19 @@ fun AlarmSettingsContent(
     }
 }
 
+/** One accent colour per metric, so each group reads as a unit. */
+@Composable
+private fun metricAccent(metric: AlarmMetric): androidx.compose.ui.graphics.Color = when (metric) {
+    AlarmMetric.SPEED -> MaterialTheme.appColors.statusWarn
+    AlarmMetric.BATTERY -> MaterialTheme.appColors.statusGood
+    AlarmMetric.TEMPERATURE -> MaterialTheme.appColors.statusDanger
+    AlarmMetric.PWM -> MaterialTheme.appColors.gaugeWarn
+    AlarmMetric.VOLTAGE -> MaterialTheme.appColors.metricVoltage
+    AlarmMetric.CURRENT -> MaterialTheme.appColors.metricPosition
+    AlarmMetric.RADAR_DISTANCE -> MaterialTheme.appColors.statusDanger
+    AlarmMetric.RADAR_APPROACH_SPEED -> MaterialTheme.appColors.statusDanger
+}
+
 @Composable
 private fun AlarmRuleCard(
     rule: AlarmRule,
@@ -266,26 +290,15 @@ private fun AlarmRuleCard(
     tempUnit: String,
     onToggle: (Boolean) -> Unit,
     onEdit: () -> Unit,
+    showHandle: Boolean = true,
     dragHandleModifier: Modifier = Modifier,
 ) {
     val metric = try { AlarmMetric.valueOf(rule.metric) } catch (_: Exception) { AlarmMetric.SPEED }
     val comp = AlarmComparator.parse(rule.comparator)
 
-    val color = when {
-        !rule.enabled -> MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)
-        // One distinct colour per metric, so rules that share a metric read as
-        // a visual group in the list.
-        else -> when (metric) {
-            AlarmMetric.SPEED -> MaterialTheme.appColors.statusWarn
-            AlarmMetric.BATTERY -> MaterialTheme.appColors.statusGood
-            AlarmMetric.TEMPERATURE -> MaterialTheme.appColors.statusDanger
-            AlarmMetric.PWM -> MaterialTheme.appColors.gaugeWarn
-            AlarmMetric.VOLTAGE -> MaterialTheme.appColors.metricVoltage
-            AlarmMetric.CURRENT -> MaterialTheme.appColors.metricPosition
-            AlarmMetric.RADAR_DISTANCE -> MaterialTheme.appColors.statusDanger
-            AlarmMetric.RADAR_APPROACH_SPEED -> MaterialTheme.appColors.statusDanger
-        }
-    }
+    val color = if (!rule.enabled)
+        MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)
+    else metricAccent(metric)
 
     Card(
         colors = CardDefaults.cardColors(
@@ -301,13 +314,18 @@ private fun AlarmRuleCard(
                 .padding(horizontal = 8.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Icon(
-                Icons.Default.DragHandle,
-                contentDescription = stringResource(R.string.action_reorder),
-                tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = dragHandleModifier.size(28.dp)
-            )
-            Spacer(Modifier.width(4.dp))
+            if (showHandle) {
+                Icon(
+                    Icons.Default.DragHandle,
+                    contentDescription = stringResource(R.string.action_reorder),
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = dragHandleModifier.size(28.dp)
+                )
+                Spacer(Modifier.width(4.dp))
+            } else {
+                // Indent group rules under the group's drag handle.
+                Spacer(Modifier.width(12.dp))
+            }
             Column(
                 modifier = Modifier
                     .weight(1f)
@@ -378,6 +396,9 @@ private fun AlarmRuleEditorDialog(
     var beepDurationMs by remember { mutableIntStateOf(initial.beepDurationMs) }
     var beepCount by remember { mutableIntStateOf(initial.beepCount) }
     var beepModulation by remember { mutableIntStateOf(initial.beepModulation) }
+    var beepGapMs by remember { mutableIntStateOf(initial.beepGapMs) }
+    var beepVolume by remember { mutableIntStateOf(initial.beepVolume) }
+    var beepVolumeModulation by remember { mutableIntStateOf(initial.beepVolumeModulation) }
 
     var voiceEnabled by remember { mutableStateOf(initial.voiceEnabled) }
     // For a brand-new alarm, seed with the voice-locale-resolved default
@@ -599,42 +620,78 @@ private fun AlarmRuleEditorDialog(
                         Spacer(Modifier.weight(1f))
                     }
                     Spacer(Modifier.height(8.dp))
-                    // Pitch: Fixed (always beepFrequency) or Rises with severity.
+                    // Advanced: gap, pitch modulation, volume + volume modulation,
+                    // behind a disclosure so the common case stays uncluttered.
+                    var beepAdvanced by remember {
+                        mutableStateOf(beepModulation > 0 || beepGapMs != 100 || beepVolume != 100 || beepVolumeModulation > 0)
+                    }
                     Text(
-                        stringResource(R.string.alarm_beep_pitch_label),
-                        fontSize = 12.sp,
+                        text = (if (beepAdvanced) "▴ " else "▾ ") + stringResource(R.string.alarm_beep_advanced),
+                        fontSize = 13.sp,
                         color = MaterialTheme.appColors.fieldLabel,
-                        modifier = Modifier.padding(bottom = 4.dp)
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable { beepAdvanced = !beepAdvanced }
+                            .padding(vertical = 6.dp),
                     )
-                    val pitchEntries = listOf(
-                        0 to stringResource(R.string.alarm_beep_pitch_fixed),
-                        1 to stringResource(R.string.alarm_beep_pitch_rise),
-                    )
-                    SingleChoiceSegmentedButtonRow(
-                        modifier = Modifier.fillMaxWidth().height(48.dp)
-                    ) {
-                        pitchEntries.forEachIndexed { index, (value, lbl) ->
-                            SegmentedButton(
-                                modifier = Modifier.fillMaxHeight(),
-                                selected = value == beepModulation,
-                                onClick = { beepModulation = value },
-                                shape = SegmentedButtonDefaults.itemShape(index, pitchEntries.size),
-                                colors = themedSegmentedColors(),
-                            ) { Text(lbl) }
+                    if (beepAdvanced) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(12.dp)
+                        ) {
+                            NumberUpDown(
+                                value = beepGapMs,
+                                onValueChange = { beepGapMs = it },
+                                range = 0..2000, step = 20, suffix = "ms",
+                                label = stringResource(R.string.alarm_beep_gap_label),
+                                modifier = Modifier.weight(1f),
+                            )
+                            NumberUpDown(
+                                value = beepModulation,
+                                onValueChange = { beepModulation = it },
+                                range = 0..300, step = 10, suffix = "%",
+                                label = stringResource(R.string.alarm_beep_pitch_rise_label),
+                                modifier = Modifier.weight(1f),
+                            )
+                        }
+                        Spacer(Modifier.height(8.dp))
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(12.dp)
+                        ) {
+                            NumberUpDown(
+                                value = beepVolume,
+                                onValueChange = { beepVolume = it },
+                                range = 0..100, step = 5, suffix = "%",
+                                label = stringResource(R.string.alarm_beep_volume_label),
+                                modifier = Modifier.weight(1f),
+                            )
+                            NumberUpDown(
+                                value = beepVolumeModulation,
+                                onValueChange = { beepVolumeModulation = it },
+                                range = 0..100, step = 10, suffix = "%",
+                                label = stringResource(R.string.alarm_beep_volume_rise_label),
+                                enabled = beepVolume < 100,
+                                modifier = Modifier.weight(1f),
+                            )
                         }
                     }
-                    val metricName = stringResource(selectedMetric.labelRes)
-                    val beepCap = (beepFrequency * 2).coerceAtMost(4000)
                     HintText(
-                        when {
-                            beepModulation == 1 ->
-                                stringResource(R.string.alarm_beep_help_rise, beepFrequency, metricName, beepCap)
-                            beepCount > 1 ->
-                                stringResource(R.string.alarm_beep_help_fixed_multi, beepFrequency, beepDurationMs, beepCount)
-                            else ->
-                                stringResource(R.string.alarm_beep_help_fixed_single, beepFrequency, beepDurationMs)
-                        },
-                        small = true
+                        beepBehaviorSummary(
+                            metricName = stringResource(selectedMetric.labelRes),
+                            unit = selectedMetric.unit,
+                            freq = beepFrequency,
+                            durationMs = beepDurationMs,
+                            count = beepCount,
+                            gapMs = beepGapMs,
+                            pitchPct = beepModulation,
+                            volume = beepVolume,
+                            volPct = beepVolumeModulation,
+                            threshold = threshold,
+                            comparator = comparator,
+                            voiceOn = voiceEnabled && voiceText.isNotBlank(),
+                        ),
+                        small = true,
                     )
                 }
 
@@ -909,6 +966,9 @@ private fun AlarmRuleEditorDialog(
                                         beepDurationMs = beepDurationMs,
                                         beepCount = beepCount,
                                         beepModulation = beepModulation,
+                                        beepGapMs = beepGapMs,
+                                        beepVolume = beepVolume,
+                                        beepVolumeModulation = beepVolumeModulation,
                                         voiceEnabled = voiceEnabled,
                                         voiceText = voiceText,
                                         vibrateEnabled = vibrateEnabled,
@@ -933,6 +993,53 @@ private fun AlarmRuleEditorDialog(
             }
         }
     }
+}
+
+/** One-line plain-language summary of the configured beep, mirroring the
+ *  cooldown/trigger hints. Assembled from the live editor fields so the rider
+ *  sees exactly what the advanced settings will do. */
+@Composable
+private fun beepBehaviorSummary(
+    metricName: String,
+    unit: String,
+    freq: Int,
+    durationMs: Int,
+    count: Int,
+    gapMs: Int,
+    pitchPct: Int,
+    volume: Int,
+    volPct: Int,
+    threshold: Float,
+    comparator: String,
+    voiceOn: Boolean,
+): String {
+    val sb = StringBuilder(stringResource(R.string.alarm_beep_sum_core, freq, durationMs))
+    if (count > 1) {
+        sb.append(
+            if (gapMs > 0) stringResource(R.string.alarm_beep_sum_reps, count, gapMs)
+            else stringResource(R.string.alarm_beep_sum_reps0, count)
+        )
+    }
+    if (voiceOn) sb.append(stringResource(R.string.alarm_beep_sum_voice))
+    sb.append(".")
+
+    val pitchOn = pitchPct > 0
+    val volOn = volPct > 0 && volume < 100
+    if (pitchOn || volOn) {
+        val span = (kotlin.math.abs(threshold) * AlarmLogic.BEEP_MOD_REF_FRACTION).coerceAtLeast(1f)
+        val full = if (AlarmComparator.parse(comparator) == AlarmComparator.LESS_THAN) threshold - span else threshold + span
+        val fullStr = if (full % 1f == 0f) full.toInt().toString() else String.format("%.1f", full)
+        val cap = AlarmLogic.modulatedBeepHz(freq, full, comparator, threshold, pitchPct)
+        val volCap = AlarmLogic.modulatedVolumePct(volume, volPct, full, comparator, threshold)
+        sb.append(
+            when {
+                pitchOn && volOn -> stringResource(R.string.alarm_beep_sum_pitch_vol, cap, volume, volCap, metricName, fullStr, unit)
+                pitchOn -> stringResource(R.string.alarm_beep_sum_pitch, cap, metricName, fullStr, unit)
+                else -> stringResource(R.string.alarm_beep_sum_vol, volume, volCap, metricName, fullStr, unit)
+            }
+        )
+    }
+    return sb.toString()
 }
 
 @Composable

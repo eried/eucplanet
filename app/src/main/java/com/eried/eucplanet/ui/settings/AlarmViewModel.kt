@@ -66,6 +66,31 @@ class AlarmViewModel @Inject constructor(
     val rules: StateFlow<List<AlarmRule>> = alarmDao.observeAll()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
+    /** A metric and its rules (most-severe first) -- the unit of priority. */
+    data class MetricGroup(val metric: String, val rules: List<AlarmRule>)
+
+    /** Within a group, most severe first: higher threshold for ">=", lower for "<". */
+    private fun severityComparator(): Comparator<AlarmRule> {
+        fun severity(r: AlarmRule): Float =
+            if (com.eried.eucplanet.data.model.AlarmComparator.parse(r.comparator) ==
+                com.eried.eucplanet.data.model.AlarmComparator.LESS_THAN
+            ) -r.threshold else r.threshold
+        return compareByDescending { severity(it) }
+    }
+
+    /** Group rules by metric (most-severe first inside each); order the groups by
+     *  priority = the lowest sortOrder in each group (what the rider dragged).
+     *  This is both the display order and the engine's group-priority order. */
+    private fun buildGroups(list: List<AlarmRule>): List<MetricGroup> =
+        list.groupBy { it.metric }
+            .map { (metric, rs) -> metric to rs.sortedWith(severityComparator()) }
+            .sortedBy { (_, rs) -> rs.minOf { it.sortOrder } }
+            .map { (metric, rs) -> MetricGroup(metric, rs) }
+
+    val groupedRules: StateFlow<List<MetricGroup>> = rules
+        .map { buildGroups(it) }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+
     /**
      * Order rules read top-to-bottom the way [autoSmartSort] would: grouped by
      * metric (enum order), most severe first (higher threshold for `>=`, lower
@@ -155,6 +180,23 @@ class AlarmViewModel @Inject constructor(
             if (from !in list.indices || to !in list.indices || from == to) return@launch
             list.add(to, list.removeAt(from))
             list.forEachIndexed { i, r -> if (r.sortOrder != i) alarmDao.update(r.copy(sortOrder = i)) }
+        }
+    }
+
+    /** Drag-to-reorder GROUPS (metric priority). Renumbers every rule's sortOrder
+     *  so the new group order -- and most-severe-first within each group -- sticks. */
+    fun moveGroup(from: Int, to: Int) {
+        viewModelScope.launch {
+            val groups = buildGroups(rules.value).toMutableList()
+            if (from !in groups.indices || to !in groups.indices || from == to) return@launch
+            groups.add(to, groups.removeAt(from))
+            var order = 0
+            groups.forEach { g ->
+                g.rules.forEach { r ->
+                    if (r.sortOrder != order) alarmDao.update(r.copy(sortOrder = order))
+                    order++
+                }
+            }
         }
     }
 
