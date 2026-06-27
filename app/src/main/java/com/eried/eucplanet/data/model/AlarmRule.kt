@@ -46,6 +46,12 @@ data class AlarmRule(
      * worsens. See [com.eried.eucplanet.service.AlarmLogic.modulatedVolumePct].
      */
     val beepVolumeModulation: Int = 0,
+    /**
+     * How far past the threshold (as a percent of the threshold) pitch + volume
+     * modulation reach full strength. 50 = peaks at 50% past the threshold. This
+     * is the X position of the modulation knee in the graph editor. Default 50.
+     */
+    val beepModulationReachPct: Int = 50,
 
     // Voice action
     val voiceEnabled: Boolean = false,

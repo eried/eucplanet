@@ -218,6 +218,11 @@ class AlarmViewModel @Inject constructor(
         }
     }
 
+    /** Short tone at a given pitch + volume, for scrubbing the modulation graph. */
+    fun previewToneAt(frequencyHz: Int, volumePct: Int) {
+        viewModelScope.launch { tonePlayer.playBeep(frequencyHz, 90, 1, 0, volumePct) }
+    }
+
     fun previewVoice(text: String, metric: AlarmMetric, threshold: Float) {
         val metricLabel = context.getString(metric.voiceLabelRes)
         // {value} and {threshold} both read back the rider's chosen threshold,

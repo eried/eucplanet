@@ -137,13 +137,13 @@ object AlarmLogic {
      * (overspeed grows as value rises; low-battery grows as value falls) and 0
      * on the safe side of the threshold. Shared by pitch and volume modulation.
      */
-    fun overshootFraction(value: Float, comparator: String, threshold: Float): Float {
+    fun overshootFraction(value: Float, comparator: String, threshold: Float, reachPct: Int = 50): Float {
         val over = when (AlarmComparator.parse(comparator)) {
             AlarmComparator.GREATER_EQUAL -> value - threshold
             AlarmComparator.LESS_THAN -> threshold - value
         }
         if (over <= 0f) return 0f
-        val span = (kotlin.math.abs(threshold) * BEEP_MOD_REF_FRACTION).coerceAtLeast(1f)
+        val span = (kotlin.math.abs(threshold) * (reachPct.coerceAtLeast(1) / 100f)).coerceAtLeast(1f)
         return (over / span).coerceIn(0f, 1f)
     }
 
@@ -159,9 +159,10 @@ object AlarmLogic {
         comparator: String,
         threshold: Float,
         factorPct: Int,
+        reachPct: Int = 50,
     ): Int {
         if (factorPct <= 0) return baseHz
-        val rise = baseHz * (factorPct / 100f) * overshootFraction(value, comparator, threshold)
+        val rise = baseHz * (factorPct / 100f) * overshootFraction(value, comparator, threshold, reachPct)
         return (baseHz + rise).toInt().coerceIn(baseHz, BEEP_MOD_MAX_HZ)
     }
 
@@ -177,10 +178,11 @@ object AlarmLogic {
         value: Float,
         comparator: String,
         threshold: Float,
+        reachPct: Int = 50,
     ): Int {
         val base = baseVolPct.coerceIn(0, 100)
         if (modPct <= 0) return base
-        val rise = (100 - base) * (modPct / 100f) * overshootFraction(value, comparator, threshold)
+        val rise = (100 - base) * (modPct / 100f) * overshootFraction(value, comparator, threshold, reachPct)
         return (base + rise).toInt().coerceIn(0, 100)
     }
 }
