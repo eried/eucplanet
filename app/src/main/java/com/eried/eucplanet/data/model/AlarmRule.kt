@@ -47,11 +47,17 @@ data class AlarmRule(
      */
     val beepVolumeModulation: Int = 0,
     /**
-     * How far past the threshold (as a percent of the threshold) pitch + volume
-     * modulation reach full strength. 50 = peaks at 50% past the threshold. This
-     * is the X position of the modulation knee in the graph editor. Default 50.
+     * How far past the threshold (as a percent of the threshold) the PITCH
+     * modulation reaches full strength. 50 = peaks at 50% past the threshold.
+     * X position of the pitch knee in the graph editor. Default 50.
      */
     val beepModulationReachPct: Int = 50,
+    /**
+     * How far past the threshold (as a percent of the threshold) the VOLUME
+     * modulation reaches full strength -- the X of the volume knee, independent
+     * of the pitch knee so the two curves can peak at different points. Default 50.
+     */
+    val beepVolumeReachPct: Int = 50,
 
     // Voice action
     val voiceEnabled: Boolean = false,

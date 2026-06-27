@@ -209,7 +209,7 @@ class AlarmEngine @Inject constructor(
                     rule.beepModulation, rule.beepModulationReachPct)
                 val vol = AlarmLogic.modulatedVolumePct(
                     rule.beepVolume, rule.beepVolumeModulation, triggerValue, rule.comparator, rule.threshold,
-                    rule.beepModulationReachPct)
+                    rule.beepVolumeReachPct)
                 tonePlayer.playBeep(freq, rule.beepDurationMs, rule.beepCount, rule.beepGapMs, vol)
                 if (rule.voiceEnabled && rule.voiceText.isNotBlank()) {
                     delay(rule.beepGapMs.toLong())
@@ -248,7 +248,7 @@ class AlarmEngine @Inject constructor(
                     rule.beepModulation, rule.beepModulationReachPct)
                 val vol = AlarmLogic.modulatedVolumePct(
                     rule.beepVolume, rule.beepVolumeModulation, triggerValue, rule.comparator, rule.threshold,
-                    rule.beepModulationReachPct)
+                    rule.beepVolumeReachPct)
                 tonePlayer.playBeep(freq, rule.beepDurationMs, rule.beepCount, rule.beepGapMs, vol)
                 if (rule.voiceEnabled && rule.voiceText.isNotBlank()) {
                     delay(rule.beepGapMs.toLong())

@@ -128,8 +128,9 @@ object AlarmLogic {
     /** The value is this fraction of the threshold past it when modulation
      *  reaches full strength (50% past = full). */
     const val BEEP_MOD_REF_FRACTION = 0.5f
-    /** Hard pitch ceiling so modulation never climbs into a thin/inaudible squeal. */
-    const val BEEP_MOD_MAX_HZ = 4000
+    /** Hard pitch ceiling (Hz). High enough to allow a piercing alarm; below the
+     *  44.1 kHz Nyquist limit. Phone speakers roll off well before this. */
+    const val BEEP_MOD_MAX_HZ = 20000
 
     /**
      * How far [value] has pushed past [threshold], as a 0..1 fraction that hits

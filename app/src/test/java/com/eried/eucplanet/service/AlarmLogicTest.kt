@@ -277,8 +277,10 @@ class AlarmLogicTest {
 
     @Test
     fun pitchRespectsHardCeiling() {
-        // 2500 base, +200% would be 7500; ceiling clamps to 4000.
-        assertEquals(4000, AlarmLogic.modulatedBeepHz(2500, value = 45f, comparator = GE, threshold = 30f, factorPct = 200))
+        // 8000 base, +200% would be 24000; ceiling clamps to 20000.
+        assertEquals(20000, AlarmLogic.modulatedBeepHz(8000, value = 45f, comparator = GE, threshold = 30f, factorPct = 200))
+        // Mid-range no longer clamps at the old 4 kHz: 2500 +200% = 7500.
+        assertEquals(7500, AlarmLogic.modulatedBeepHz(2500, value = 45f, comparator = GE, threshold = 30f, factorPct = 200))
     }
 
     @Test
