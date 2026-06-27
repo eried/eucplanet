@@ -171,7 +171,7 @@ class AlarmViewModel @Inject constructor(
         viewModelScope.launch {
             // Fixed: play exactly what fires. Rise: play a short rising ramp so
             // the rider hears the modulation range without a live wheel.
-            if (modulation == 1) tonePlayer.playRiseDemo(frequencyHz, durationMs)
+            if (modulation > 0) tonePlayer.playRiseDemo(frequencyHz, durationMs)
             else tonePlayer.playBeep(frequencyHz, durationMs, count)
         }
     }

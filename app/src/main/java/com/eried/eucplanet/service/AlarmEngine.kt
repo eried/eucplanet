@@ -199,12 +199,13 @@ class AlarmEngine @Inject constructor(
         }
         scope.launch {
             if (rule.beepEnabled) {
-                val freq = if (rule.beepModulation == 1)
-                    AlarmLogic.modulatedBeepHz(rule.beepFrequency, triggerValue, rule.comparator, rule.threshold)
-                else rule.beepFrequency
-                tonePlayer.playBeep(freq, rule.beepDurationMs, rule.beepCount)
+                val freq = AlarmLogic.modulatedBeepHz(
+                    rule.beepFrequency, triggerValue, rule.comparator, rule.threshold, rule.beepModulation)
+                val vol = AlarmLogic.modulatedVolumePct(
+                    rule.beepVolume, rule.beepVolumeModulation, triggerValue, rule.comparator, rule.threshold)
+                tonePlayer.playBeep(freq, rule.beepDurationMs, rule.beepCount, rule.beepGapMs, vol)
                 if (rule.voiceEnabled && rule.voiceText.isNotBlank()) {
-                    delay(200)
+                    delay(rule.beepGapMs.toLong())
                 }
             }
             if (rule.voiceEnabled && rule.voiceText.isNotBlank()) {
@@ -235,12 +236,13 @@ class AlarmEngine @Inject constructor(
 
         scope.launch {
             if (rule.beepEnabled) {
-                val freq = if (rule.beepModulation == 1)
-                    AlarmLogic.modulatedBeepHz(rule.beepFrequency, triggerValue, rule.comparator, rule.threshold)
-                else rule.beepFrequency
-                tonePlayer.playBeep(freq, rule.beepDurationMs, rule.beepCount)
+                val freq = AlarmLogic.modulatedBeepHz(
+                    rule.beepFrequency, triggerValue, rule.comparator, rule.threshold, rule.beepModulation)
+                val vol = AlarmLogic.modulatedVolumePct(
+                    rule.beepVolume, rule.beepVolumeModulation, triggerValue, rule.comparator, rule.threshold)
+                tonePlayer.playBeep(freq, rule.beepDurationMs, rule.beepCount, rule.beepGapMs, vol)
                 if (rule.voiceEnabled && rule.voiceText.isNotBlank()) {
-                    delay(200)
+                    delay(rule.beepGapMs.toLong())
                 }
             }
             if (rule.voiceEnabled && rule.voiceText.isNotBlank()) {

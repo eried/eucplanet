@@ -125,34 +125,62 @@ object AlarmLogic {
         return ((n * sxy - sx * sy) / denom).toFloat()
     }
 
-    /** "Rise" modulation: the value is this fraction of the threshold past it
-     *  when the pitch reaches its cap (50% past = full pitch). */
+    /** The value is this fraction of the threshold past it when modulation
+     *  reaches full strength (50% past = full). */
     const val BEEP_MOD_REF_FRACTION = 0.5f
-    /** Hard ceiling so modulation never climbs into a thin/inaudible squeal. */
+    /** Hard pitch ceiling so modulation never climbs into a thin/inaudible squeal. */
     const val BEEP_MOD_MAX_HZ = 4000
 
     /**
-     * Modulated beep pitch in Hz for "Rise" mode. Returns [baseHz] when [value]
-     * is exactly at (or on the safe side of) [threshold]; climbs linearly toward
-     * min(2x base, [BEEP_MOD_MAX_HZ]) as the value pushes [BEEP_MOD_REF_FRACTION]
-     * of the threshold past it. Works for both comparator directions (overspeed
-     * climbs as value rises; low-battery climbs as value falls). Computed once
-     * per fire, so each beep in a single fire is one pitch.
+     * How far [value] has pushed past [threshold], as a 0..1 fraction that hits
+     * 1.0 at [BEEP_MOD_REF_FRACTION] of the threshold past it. Direction-aware
+     * (overspeed grows as value rises; low-battery grows as value falls) and 0
+     * on the safe side of the threshold. Shared by pitch and volume modulation.
+     */
+    fun overshootFraction(value: Float, comparator: String, threshold: Float): Float {
+        val over = when (AlarmComparator.parse(comparator)) {
+            AlarmComparator.GREATER_EQUAL -> value - threshold
+            AlarmComparator.LESS_THAN -> threshold - value
+        }
+        if (over <= 0f) return 0f
+        val span = (kotlin.math.abs(threshold) * BEEP_MOD_REF_FRACTION).coerceAtLeast(1f)
+        return (over / span).coerceIn(0f, 1f)
+    }
+
+    /**
+     * Modulated beep pitch in Hz. [factorPct] is the rise strength: 0 = fixed
+     * (always [baseHz]); at full overshoot the pitch has risen by factorPct% of
+     * the base (100% = doubles), clamped to [BEEP_MOD_MAX_HZ] and never below
+     * the base. Computed once per fire, so each beep in a single fire is one pitch.
      */
     fun modulatedBeepHz(
         baseHz: Int,
         value: Float,
         comparator: String,
         threshold: Float,
+        factorPct: Int,
     ): Int {
-        val over = when (AlarmComparator.parse(comparator)) {
-            AlarmComparator.GREATER_EQUAL -> value - threshold
-            AlarmComparator.LESS_THAN -> threshold - value
-        }
-        if (over <= 0f) return baseHz
-        val span = (kotlin.math.abs(threshold) * BEEP_MOD_REF_FRACTION).coerceAtLeast(1f)
-        val frac = (over / span).coerceIn(0f, 1f)
-        val cap = (baseHz * 2).coerceAtMost(BEEP_MOD_MAX_HZ)
-        return (baseHz + (cap - baseHz) * frac).toInt()
+        if (factorPct <= 0) return baseHz
+        val rise = baseHz * (factorPct / 100f) * overshootFraction(value, comparator, threshold)
+        return (baseHz + rise).toInt().coerceIn(baseHz, BEEP_MOD_MAX_HZ)
+    }
+
+    /**
+     * Modulated beep volume as a 0..100 percent of system volume. [baseVolPct]
+     * is the loudness at the threshold; [modPct] is the rise strength: 0 = constant
+     * base; at full overshoot the volume has risen modPct% of the way from the
+     * base up to 100 (system). Always clamped to 0..100 (can't exceed system).
+     */
+    fun modulatedVolumePct(
+        baseVolPct: Int,
+        modPct: Int,
+        value: Float,
+        comparator: String,
+        threshold: Float,
+    ): Int {
+        val base = baseVolPct.coerceIn(0, 100)
+        if (modPct <= 0) return base
+        val rise = (100 - base) * (modPct / 100f) * overshootFraction(value, comparator, threshold)
+        return (base + rise).toInt().coerceIn(0, 100)
     }
 }

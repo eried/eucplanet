@@ -14,12 +14,17 @@ class TonePlayer @Inject constructor() {
 
     private val sampleRate = 44100
 
-    suspend fun playBeep(frequencyHz: Int, durationMs: Int, count: Int = 1) {
+    suspend fun playBeep(
+        frequencyHz: Int,
+        durationMs: Int,
+        count: Int = 1,
+        gapMs: Int = 120,
+        volumePct: Int = 100,
+    ) {
         withContext(Dispatchers.IO) {
-            val gapMs = 120
             for (i in 0 until count) {
-                playTone(frequencyHz, durationMs)
-                if (i < count - 1) {
+                playTone(frequencyHz, durationMs, volumePct)
+                if (i < count - 1 && gapMs > 0) {
                     Thread.sleep(gapMs.toLong())
                 }
             }
@@ -44,11 +49,14 @@ class TonePlayer @Inject constructor() {
         }
     }
 
-    private fun playTone(frequencyHz: Int, durationMs: Int) {
+    private fun playTone(frequencyHz: Int, durationMs: Int, volumePct: Int = 100) {
         val numSamples = sampleRate * durationMs / 1000
         val samples = ShortArray(numSamples)
         val twoPiF = 2.0 * Math.PI * frequencyHz / sampleRate
 
+        // 0.8 = app-side headroom; volumePct scales under the system media volume
+        // ceiling (Android applies that on top, so we can't exceed it).
+        val gain = 0.8 * (volumePct.coerceIn(0, 100) / 100.0)
         // Generate sine wave with fade-in/fade-out to avoid clicks
         val fadeLen = (numSamples * 0.05).toInt().coerceAtLeast(100)
         for (i in 0 until numSamples) {
@@ -56,7 +64,7 @@ class TonePlayer @Inject constructor() {
             // Fade envelope
             if (i < fadeLen) amplitude *= i.toDouble() / fadeLen
             else if (i > numSamples - fadeLen) amplitude *= (numSamples - i).toDouble() / fadeLen
-            samples[i] = (amplitude * Short.MAX_VALUE * 0.8).toInt().toShort()
+            samples[i] = (amplitude * Short.MAX_VALUE * gain).toInt().toShort()
         }
 
         val bufferSize = samples.size * 2

@@ -22,14 +22,30 @@ data class AlarmRule(
     val beepDurationMs: Int = 300,   // per beep
     val beepCount: Int = 1,          // 1=single, 2=double, 3=triple
     /**
-     * Beep pitch modulation. 0 = Fixed (always [beepFrequency]). 1 = Rise: the
-     * pitch starts at [beepFrequency] when the metric reaches the threshold and
-     * climbs as the metric pushes further past it, so a worse condition sounds
-     * more urgent. Computed once per fire (each beep in one fire is a single
-     * pitch); pair with Many trigger so it re-beeps higher as the value worsens.
-     * See [com.eried.eucplanet.service.AlarmLogic.modulatedBeepHz].
+     * Pitch modulation strength, as a percent. 0 = Fixed (always
+     * [beepFrequency]). >0 = the pitch starts at [beepFrequency] when the value
+     * is at the threshold and climbs as the value pushes past it; at 50% of the
+     * threshold past it the pitch has risen by this percent of the base (100% =
+     * doubles), clamped to a 4 kHz ceiling. Computed once per fire (each beep in
+     * one fire is a single pitch). See [com.eried.eucplanet.service.AlarmLogic.modulatedBeepHz].
      */
     val beepModulation: Int = 0,
+    /**
+     * Silence in ms between repeated beeps AND between the beep and the voice.
+     * 0 = back-to-back (lets a Many + cooldown-0 alarm sound near-continuous).
+     */
+    val beepGapMs: Int = 100,
+    /**
+     * Base beep loudness as a percent of the phone's system media volume (the
+     * hard ceiling). 100 = as loud as the app plays it today; lower = quieter.
+     */
+    val beepVolume: Int = 100,
+    /**
+     * Volume modulation strength, as a percent. 0 = constant [beepVolume]. >0 =
+     * the volume ramps from [beepVolume] up toward 100% (system) as the value
+     * worsens. See [com.eried.eucplanet.service.AlarmLogic.modulatedVolumePct].
+     */
+    val beepVolumeModulation: Int = 0,
 
     // Voice action
     val voiceEnabled: Boolean = false,
