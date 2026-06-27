@@ -245,15 +245,15 @@ class AlarmViewModel @Inject constructor(
         sFreq = frequencyHz; sDur = durationMs; sCount = count; sGap = gapMs; sVol = volumePct
     }
 
-    fun toggleStudioPlay() {
-        if (_studioPlaying.value) stopStudio() else {
-            _studioPlaying.value = true
-            studioJob = viewModelScope.launch {
-                while (isActive && _studioPlaying.value) {
-                    tonePlayer.playBeep(sFreq, sDur, sCount, sGap, sVol)
-                    delay(sGap.toLong().coerceAtLeast(0L))
-                }
-            }
+    fun toggleStudioPlay(repeat: Boolean = true) {
+        if (_studioPlaying.value) { stopStudio(); return }
+        _studioPlaying.value = true
+        studioJob = viewModelScope.launch {
+            do {
+                tonePlayer.playBeep(sFreq, sDur, sCount, sGap, sVol)
+                if (repeat) delay(sGap.toLong().coerceAtLeast(0L))
+            } while (isActive && repeat && _studioPlaying.value)
+            _studioPlaying.value = false   // one-shot: clear when the single cycle ends
         }
     }
 

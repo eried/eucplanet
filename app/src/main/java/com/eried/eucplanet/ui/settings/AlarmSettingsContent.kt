@@ -35,6 +35,7 @@ import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Remove
+import androidx.compose.material.icons.filled.Repeat
 import androidx.compose.material.icons.filled.Stop
 import androidx.compose.material.icons.filled.SwapVert
 import androidx.compose.material.icons.filled.Tune
@@ -49,6 +50,7 @@ import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconToggleButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MenuAnchorType
 import androidx.compose.material3.OutlinedTextField
@@ -79,6 +81,12 @@ import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.foundation.Canvas
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.ui.draw.clip
@@ -284,7 +292,7 @@ fun AlarmSettingsContent(
             onPreviewVibrate = { dur -> viewModel.previewVibrate(dur) },
             studioPlaying = studioPlaying,
             onStudioTone = { f, d, c, g, v -> viewModel.setStudioTone(f, d, c, g, v) },
-            onStudioToggle = { viewModel.toggleStudioPlay() },
+            onStudioToggle = { repeat -> viewModel.toggleStudioPlay(repeat) },
             onStudioStop = { viewModel.stopStudio() },
         )
     }
@@ -424,7 +432,7 @@ private fun AlarmRuleEditorDialog(
     onPreviewVibrate: (Int) -> Unit,
     studioPlaying: Boolean = false,
     onStudioTone: (Int, Int, Int, Int, Int) -> Unit = { _, _, _, _, _ -> },
-    onStudioToggle: () -> Unit = {},
+    onStudioToggle: (Boolean) -> Unit = {},
     onStudioStop: () -> Unit = {},
 ) {
     val initial = rule ?: AlarmRule()
@@ -517,10 +525,9 @@ private fun AlarmRuleEditorDialog(
             pitchReachPct = beepModulation,
             volReachPct = beepVolumeModulation,
             playing = studioPlaying,
-            onPitchReachChange = { beepModulation = it },
-            onVolumeReachChange = { beepVolumeModulation = it },
             onLiveTone = { f, v -> onStudioTone(f, beepDurationMs, beepCount, beepGapMs, v) },
             onTogglePlay = onStudioToggle,
+            onCommit = { p, v -> beepModulation = p; beepVolumeModulation = v },
             onDismiss = { onStudioStop(); showStudio = false },
         )
     }
@@ -1066,10 +1073,9 @@ private fun BeepStudioDialog(
     pitchReachPct: Int,
     volReachPct: Int,
     playing: Boolean,
-    onPitchReachChange: (Int) -> Unit,
-    onVolumeReachChange: (Int) -> Unit,
     onLiveTone: (freq: Int, volume: Int) -> Unit,
-    onTogglePlay: () -> Unit,
+    onTogglePlay: (repeat: Boolean) -> Unit,
+    onCommit: (pitch: Int, volume: Int) -> Unit,
     onDismiss: () -> Unit,
 ) {
     val ge = AlarmComparator.parse(comparator) == AlarmComparator.GREATER_EQUAL
@@ -1079,18 +1085,33 @@ private fun BeepStudioDialog(
     val maxOvershoot = if (ge) absThr * 1.5f else threshold.coerceAtLeast(1f)
     val sliderMin = if (ge) threshold else 0f
     val sliderMax = if (ge) threshold + maxOvershoot else threshold
-    fun overshootOf(v: Float) = (if (ge) v - threshold else threshold - v).coerceIn(0f, maxOvershoot)
-    fun freqAtV(v: Float) = AlarmLogic.modulatedBeepHz(baseFreq, v, comparator, threshold, pitchReachPct)
-    fun volAtV(v: Float) = AlarmLogic.modulatedVolumePct(baseVolume, volReachPct, v, comparator, threshold)
-    fun fmt(v: Float) = if (v % 1f == 0f) v.toInt().toString() else String.format("%.1f", v)
 
+    // Local edits -- committed only on Save, so Cancel discards them. The live
+    // preview uses these locals so you hear the in-progress edit.
+    var pitchFactor by remember { mutableIntStateOf(pitchReachPct) }
+    var volFactor by remember { mutableIntStateOf(volReachPct) }
     var simValue by remember {
         mutableFloatStateOf(if (ge) threshold + maxOvershoot * 0.5f else threshold * 0.5f)
     }
+    var repeat by remember { mutableStateOf(true) }
 
-    LaunchedEffect(simValue, pitchReachPct, volReachPct, baseFreq, baseVolume) {
+    fun overshootOf(v: Float) = (if (ge) v - threshold else threshold - v).coerceIn(0f, maxOvershoot)
+    fun freqAtV(v: Float) = AlarmLogic.modulatedBeepHz(baseFreq, v, comparator, threshold, pitchFactor)
+    fun volAtV(v: Float) = AlarmLogic.modulatedVolumePct(baseVolume, volFactor, v, comparator, threshold)
+    fun fmt(v: Float) = if (v % 1f == 0f) v.toInt().toString() else String.format("%.1f", v)
+
+    LaunchedEffect(simValue, pitchFactor, volFactor, baseFreq, baseVolume) {
         onLiveTone(freqAtV(simValue), volAtV(simValue))
     }
+
+    // Approximate playhead for the timeline while playing (one beep cycle).
+    val cycleMs = (count * (durationMs + 50) + count * gapMs.coerceAtLeast(1)).coerceAtLeast(250)
+    val transition = rememberInfiniteTransition(label = "playhead")
+    val phase by transition.animateFloat(
+        initialValue = 0f, targetValue = 1f,
+        animationSpec = infiniteRepeatable(tween(cycleMs, easing = LinearEasing), RepeatMode.Restart),
+        label = "phase",
+    )
 
     Dialog(
         onDismissRequest = onDismiss,
@@ -1102,21 +1123,35 @@ private fun BeepStudioDialog(
             color = MaterialTheme.colorScheme.surface,
         ) {
             Column(Modifier.fillMaxWidth().padding(16.dp)) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text(
-                        stringResource(R.string.alarm_beep_studio),
-                        fontSize = 20.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onSurface,
+                Text(
+                    stringResource(R.string.alarm_beep_studio),
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onSurface,
+                )
+
+                // Pitch + volume FACTOR (numeric) -- just below the title.
+                Spacer(Modifier.height(10.dp))
+                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                    NumberUpDown(
+                        value = pitchFactor,
+                        onValueChange = { pitchFactor = it },
+                        range = 0..150, step = 5, suffix = "%",
+                        label = stringResource(R.string.alarm_studio_pitch_factor),
+                        modifier = Modifier.weight(1f),
                     )
-                    Spacer(Modifier.weight(1f))
-                    IconButton(onClick = onDismiss) {
-                        Icon(Icons.Default.Close, contentDescription = stringResource(R.string.action_cancel),
-                            tint = MaterialTheme.colorScheme.onSurface)
-                    }
+                    NumberUpDown(
+                        value = volFactor,
+                        onValueChange = { volFactor = it },
+                        range = 0..150, step = 5, suffix = "%",
+                        label = stringResource(R.string.alarm_studio_volume_factor),
+                        enabled = baseVolume < 100,
+                        modifier = Modifier.weight(1f),
+                    )
                 }
 
-                // 1) Metric slider on top (the handle) + live readout.
+                // Metric tracker + live readout, with Play + Repeat next to it.
+                Spacer(Modifier.height(12.dp))
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text("${stringResource(metric.labelRes)}: ${fmt(simValue)} $unit",
                         color = MaterialTheme.colorScheme.onSurface, fontWeight = FontWeight.Medium)
@@ -1124,63 +1159,55 @@ private fun BeepStudioDialog(
                     Text(stringResource(R.string.alarm_studio_now, freqAtV(simValue), volAtV(simValue)),
                         color = MaterialTheme.appColors.fieldLabel, fontSize = 12.sp)
                 }
-                Slider(value = simValue, onValueChange = { simValue = it }, valueRange = sliderMin..sliderMax)
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Slider(value = simValue, onValueChange = { simValue = it },
+                        valueRange = sliderMin..sliderMax, modifier = Modifier.weight(1f))
+                    Spacer(Modifier.width(4.dp))
+                    IconButton(onClick = { onTogglePlay(repeat) }) {
+                        Icon(if (playing) Icons.Default.Stop else Icons.Default.PlayArrow,
+                            contentDescription = stringResource(if (playing) R.string.alarm_studio_stop else R.string.alarm_studio_play),
+                            tint = MaterialTheme.appColors.statusGood)
+                    }
+                    IconToggleButton(checked = repeat, onCheckedChange = { repeat = it }) {
+                        Icon(Icons.Default.Repeat, contentDescription = "Repeat",
+                            tint = if (repeat) MaterialTheme.appColors.statusWarn else MaterialTheme.colorScheme.onSurfaceVariant)
+                    }
+                }
 
-                // 2) Response curve (display only).
+                // Response curve (display only).
                 BeepCurveDisplay(
                     comparator = comparator,
                     threshold = threshold,
                     baseFreq = baseFreq,
                     baseVolume = baseVolume,
-                    pitchReachPct = pitchReachPct,
-                    volReachPct = volReachPct,
+                    pitchReachPct = pitchFactor,
+                    volReachPct = volFactor,
                     markerO = overshootOf(simValue),
                     maxOvershoot = maxOvershoot,
-                    modifier = Modifier.fillMaxWidth().height(132.dp).padding(top = 4.dp),
+                    modifier = Modifier.fillMaxWidth().height(128.dp).padding(top = 6.dp),
                 )
 
-                // 3) Play (half width, near the graph).
-                Spacer(Modifier.height(6.dp))
-                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Button(onClick = onTogglePlay, modifier = Modifier.weight(1f)) {
-                        Icon(if (playing) Icons.Default.Stop else Icons.Default.PlayArrow, contentDescription = null,
-                            modifier = Modifier.size(18.dp))
-                        Spacer(Modifier.width(6.dp))
-                        Text(stringResource(if (playing) R.string.alarm_studio_stop else R.string.alarm_studio_play))
-                    }
-                    Spacer(Modifier.weight(1f))
-                }
-
-                // 4) Beep timeline (repeats + gaps as they play, trigger at the start).
+                // Beep timeline (repeats + gaps + trailing gap), playhead while playing.
                 Spacer(Modifier.height(10.dp))
                 BeepTimeline(
                     conditionText = "${AlarmComparator.parse(comparator).symbol} ${fmt(threshold)} $unit",
                     durationMs = durationMs,
                     count = count,
                     gapMs = gapMs,
-                    modifier = Modifier.fillMaxWidth().height(72.dp),
+                    playheadFrac = if (playing) phase else null,
+                    modifier = Modifier.fillMaxWidth().height(70.dp),
                 )
 
-                // 5) Pitch + volume FACTOR (numeric).
+                // Cancel / Save.
                 Spacer(Modifier.height(12.dp))
-                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                    NumberUpDown(
-                        value = pitchReachPct,
-                        onValueChange = onPitchReachChange,
-                        range = 0..150, step = 5, suffix = "%",
-                        label = stringResource(R.string.alarm_studio_pitch_factor),
-                        modifier = Modifier.weight(1f),
-                    )
-                    NumberUpDown(
-                        value = volReachPct,
-                        onValueChange = onVolumeReachChange,
-                        range = 0..150, step = 5, suffix = "%",
-                        label = stringResource(R.string.alarm_studio_volume_factor),
-                        enabled = baseVolume < 100,
-                        modifier = Modifier.weight(1f),
-                    )
+                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End,
+                    verticalAlignment = Alignment.CenterVertically) {
+                    TextButton(onClick = onDismiss) { Text(stringResource(R.string.action_cancel)) }
+                    Spacer(Modifier.width(8.dp))
+                    Button(onClick = { onCommit(pitchFactor, volFactor); onDismiss() }) {
+                        Text(stringResource(R.string.action_save))
+                    }
                 }
-                Spacer(Modifier.height(8.dp))
             }
         }
     }
@@ -1197,6 +1224,7 @@ private fun BeepTimeline(
     durationMs: Int,
     count: Int,
     gapMs: Int,
+    playheadFrac: Float? = null,
     modifier: Modifier = Modifier,
 ) {
     val accent = MaterialTheme.appColors.statusWarn
@@ -1215,9 +1243,10 @@ private fun BeepTimeline(
         val ty0 = h * 0.40f; val ty1 = h * 0.82f
         val dur = durationMs.toFloat().coerceAtLeast(1f)
         val gap = gapMs.toFloat()
-        val total = (count * dur + (count - 1).coerceAtLeast(0) * gap).coerceAtLeast(1f)
+        val total = (count * dur + count * gap).coerceAtLeast(1f)   // include the trailing gap
         val triggerX = 6f
-        val sx = (w - triggerX - 6f) / total
+        val avail = w - triggerX - 6f
+        val sx = avail / total
 
         // trigger marker (vertical line) at the start
         drawLine(markerCol, Offset(triggerX, ty0 - 6f), Offset(triggerX, ty1 + 6f), 3f)
@@ -1226,10 +1255,14 @@ private fun BeepTimeline(
             val x0 = triggerX + t * sx
             drawRect(accent.copy(alpha = 0.75f), topLeft = Offset(x0, ty0), size = Size((dur * sx).coerceAtLeast(3f), ty1 - ty0))
             t += dur
-            if (i < count - 1) {
-                val gx0 = triggerX + t * sx; t += gap
-                drawLine(grid, Offset(gx0, (ty0 + ty1) / 2f), Offset(triggerX + t * sx, (ty0 + ty1) / 2f), 2f)  // gap = silence
-            }
+            // A gap after every beep -- the last one is the trailing gap before the loop repeats.
+            val gx0 = triggerX + t * sx; t += gap
+            if (gap > 0f) drawLine(grid, Offset(gx0, (ty0 + ty1) / 2f), Offset(triggerX + t * sx, (ty0 + ty1) / 2f), 2f)
+        }
+        // playhead sweeping across while playing
+        playheadFrac?.let { f ->
+            val px = triggerX + f.coerceIn(0f, 1f) * avail
+            drawLine(markerCol, Offset(px, ty0 - 8f), Offset(px, ty1 + 8f), 3f)
         }
         nv.drawText("${count}× · gap ${gapMs} ms", 4f, h - 3f, pLbl)
     }
