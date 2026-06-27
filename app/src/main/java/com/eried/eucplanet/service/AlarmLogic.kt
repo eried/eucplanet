@@ -125,20 +125,23 @@ object AlarmLogic {
         return ((n * sxy - sx * sy) / denom).toFloat()
     }
 
-    /** The value is this fraction of the threshold past it when modulation
-     *  reaches full strength (50% past = full). */
-    const val BEEP_MOD_REF_FRACTION = 0.5f
-    /** Hard pitch ceiling (Hz). High enough to allow a piercing alarm; below the
-     *  44.1 kHz Nyquist limit. Phone speakers roll off well before this. */
+    /** Modulation reaches its target this far past the threshold: 100% of the
+     *  threshold past it (i.e. at 2x the threshold value for ">=", at 0 for "<"). */
+    const val BEEP_MOD_REACH_PCT = 100
+    /** Hard pitch ceiling (Hz), below the 44.1 kHz Nyquist limit. */
     const val BEEP_MOD_MAX_HZ = 20000
+    /** Pitch floor for big reductions (a low thud, still audible). */
+    const val BEEP_MOD_MIN_HZ = 80
+    /** Factor stored x100: 100 = 1.0x (unchanged). */
+    const val BEEP_FACTOR_UNITY = 100
 
     /**
      * How far [value] has pushed past [threshold], as a 0..1 fraction that hits
-     * 1.0 at [BEEP_MOD_REF_FRACTION] of the threshold past it. Direction-aware
-     * (overspeed grows as value rises; low-battery grows as value falls) and 0
-     * on the safe side of the threshold. Shared by pitch and volume modulation.
+     * 1.0 at [reachPct]% of the threshold past it. Direction-aware (overspeed
+     * grows as value rises; low-battery grows as value falls) and 0 on the safe
+     * side of the threshold. Shared by pitch and volume modulation.
      */
-    fun overshootFraction(value: Float, comparator: String, threshold: Float, reachPct: Int = 50): Float {
+    fun overshootFraction(value: Float, comparator: String, threshold: Float, reachPct: Int = BEEP_MOD_REACH_PCT): Float {
         val over = when (AlarmComparator.parse(comparator)) {
             AlarmComparator.GREATER_EQUAL -> value - threshold
             AlarmComparator.LESS_THAN -> threshold - value
@@ -149,40 +152,42 @@ object AlarmLogic {
     }
 
     /**
-     * Modulated beep pitch in Hz. The pitch ramps from [baseHz] (at the threshold)
-     * up to [BEEP_MOD_MAX_HZ] and then plateaus there -- the ceiling is the engine
-     * max, not a user limit. [reachPct] is the rise SPEED: how far past the
-     * threshold (as a percent of the threshold) the pitch reaches the ceiling.
-     * 0 = off (always [baseHz]); smaller = faster rise. Computed once per fire.
+     * Modulated beep pitch in Hz. [factorX100] is a multiplier x100: 100 = 1.0x
+     * (unchanged -- always [baseHz]); the pitch ramps from [baseHz] toward
+     * baseHz * factor as the value pushes past the threshold (reaching it at
+     * [BEEP_MOD_REACH_PCT]% past, then plateauing). Factors above 1.0x ramp the
+     * pitch up; below 1.0x (down to 0.1x) ramp it down. Clamped to the engine range.
      */
     fun modulatedBeepHz(
         baseHz: Int,
         value: Float,
         comparator: String,
         threshold: Float,
-        reachPct: Int,
+        factorX100: Int,
     ): Int {
-        if (reachPct <= 0) return baseHz
-        val rise = (BEEP_MOD_MAX_HZ - baseHz) * overshootFraction(value, comparator, threshold, reachPct)
-        return (baseHz + rise).toInt().coerceIn(baseHz, BEEP_MOD_MAX_HZ)
+        if (factorX100 == BEEP_FACTOR_UNITY) return baseHz
+        val target = baseHz * (factorX100 / 100f)
+        val v = baseHz + (target - baseHz) * overshootFraction(value, comparator, threshold)
+        return v.toInt().coerceIn(BEEP_MOD_MIN_HZ, BEEP_MOD_MAX_HZ)
     }
 
     /**
-     * Modulated beep volume, 0..100 percent of system volume. Ramps from
-     * [baseVolPct] up to 100 (system, the ceiling) and plateaus. [reachPct] is
-     * the rise SPEED: how far past the threshold the volume reaches 100. 0 = off
-     * (constant base); smaller = faster rise. Always clamped to base..100.
+     * Modulated beep volume (0..100 % of system). [factorX100] is a multiplier
+     * x100: 100 = 1.0x (constant [baseVolPct]); the volume ramps toward
+     * baseVol * factor as the value pushes past the threshold. Above 1.0x ramps
+     * louder (capped at 100); below 1.0x ramps quieter. Clamped to 0..100.
      */
     fun modulatedVolumePct(
         baseVolPct: Int,
-        reachPct: Int,
+        factorX100: Int,
         value: Float,
         comparator: String,
         threshold: Float,
     ): Int {
         val base = baseVolPct.coerceIn(0, 100)
-        if (reachPct <= 0) return base
-        val rise = (100 - base) * overshootFraction(value, comparator, threshold, reachPct)
-        return (base + rise).toInt().coerceIn(base, 100)
+        if (factorX100 == BEEP_FACTOR_UNITY) return base
+        val target = base * (factorX100 / 100f)
+        val v = base + (target - base) * overshootFraction(value, comparator, threshold)
+        return v.toInt().coerceIn(0, 100)
     }
 }

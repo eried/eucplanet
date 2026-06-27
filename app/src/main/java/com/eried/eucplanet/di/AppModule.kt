@@ -165,6 +165,14 @@ object AppModule {
         }
     }
 
+    // beepModulation / beepVolumeModulation became a base*factor multiplier (x100,
+    // 100 = 1.0x = unchanged). Reset any old-semantics values to 1.0x.
+    private val MIGRATION_52_53 = object : Migration(52, 53) {
+        override fun migrate(db: SupportSQLiteDatabase) {
+            db.execSQL("UPDATE alarm_rules SET beepModulation = 100, beepVolumeModulation = 100")
+        }
+    }
+
     /**
      * Build the Room database with the v44->v45 migration. If the open still
      * fails (e.g. a future identity-hash mismatch from a forgotten migration),
@@ -189,7 +197,7 @@ object AppModule {
 
     private fun buildDb(context: Context): AppDatabase =
         Room.databaseBuilder(context, AppDatabase::class.java, DB_NAME)
-            .addMigrations(MIGRATION_44_45, MIGRATION_45_46, MIGRATION_46_47, MIGRATION_47_48, MIGRATION_48_49, MIGRATION_49_50, MIGRATION_50_51, MIGRATION_51_52)
+            .addMigrations(MIGRATION_44_45, MIGRATION_45_46, MIGRATION_46_47, MIGRATION_47_48, MIGRATION_48_49, MIGRATION_49_50, MIGRATION_50_51, MIGRATION_51_52, MIGRATION_52_53)
             .build()
 
     @Provides

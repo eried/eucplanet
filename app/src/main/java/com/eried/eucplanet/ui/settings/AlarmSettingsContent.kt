@@ -81,6 +81,7 @@ import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.foundation.Canvas
+import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
@@ -1080,11 +1081,12 @@ private fun BeepStudioDialog(
 ) {
     val ge = AlarmComparator.parse(comparator) == AlarmComparator.GREATER_EQUAL
     val absThr = kotlin.math.abs(threshold).coerceAtLeast(1f)
-    // Slider spans the realistic range for the comparator: >= goes up from the
-    // threshold; < goes from 0 up to the threshold. More severe = further from it.
-    val maxOvershoot = if (ge) absThr * 1.5f else threshold.coerceAtLeast(1f)
+    // Slider spans the realistic range for the comparator: >= goes from the
+    // threshold up to 2x it; < goes from 0 up to the threshold. The factor is
+    // reached at the severe end (+100% past the threshold).
+    val maxOvershoot = absThr
     val sliderMin = if (ge) threshold else 0f
-    val sliderMax = if (ge) threshold + maxOvershoot else threshold
+    val sliderMax = if (ge) threshold + absThr else threshold
 
     // Local edits -- committed only on Save, so Cancel discards them. The live
     // preview uses these locals so you hear the in-progress edit.
@@ -1104,14 +1106,18 @@ private fun BeepStudioDialog(
         onLiveTone(freqAtV(simValue), volAtV(simValue))
     }
 
-    // Approximate playhead for the timeline while playing (one beep cycle).
+    // Playhead for the timeline: restarts from the beginning each time playback
+    // starts (so Play always begins at the first beep), approx. one beep cycle.
     val cycleMs = (count * (durationMs + 50) + count * gapMs.coerceAtLeast(1)).coerceAtLeast(250)
-    val transition = rememberInfiniteTransition(label = "playhead")
-    val phase by transition.animateFloat(
-        initialValue = 0f, targetValue = 1f,
-        animationSpec = infiniteRepeatable(tween(cycleMs, easing = LinearEasing), RepeatMode.Restart),
-        label = "phase",
-    )
+    val playhead = remember { Animatable(0f) }
+    LaunchedEffect(playing, cycleMs) {
+        if (playing) {
+            playhead.snapTo(0f)
+            playhead.animateTo(1f, infiniteRepeatable(tween(cycleMs, easing = LinearEasing), RepeatMode.Restart))
+        } else {
+            playhead.snapTo(0f)
+        }
+    }
 
     Dialog(
         onDismissRequest = onDismiss,
@@ -1136,16 +1142,19 @@ private fun BeepStudioDialog(
                     NumberUpDown(
                         value = pitchFactor,
                         onValueChange = { pitchFactor = it },
-                        range = 0..150, step = 5, suffix = "%",
+                        range = 10..1000, step = 10,
+                        format = { "%.1fx".format(it / 100f) },
+                        parse = { s -> s.removeSuffix("x").trim().toFloatOrNull()?.let { (it * 100).roundToInt() } },
                         label = stringResource(R.string.alarm_studio_pitch_factor),
                         modifier = Modifier.weight(1f),
                     )
                     NumberUpDown(
                         value = volFactor,
                         onValueChange = { volFactor = it },
-                        range = 0..150, step = 5, suffix = "%",
+                        range = 10..1000, step = 10,
+                        format = { "%.1fx".format(it / 100f) },
+                        parse = { s -> s.removeSuffix("x").trim().toFloatOrNull()?.let { (it * 100).roundToInt() } },
                         label = stringResource(R.string.alarm_studio_volume_factor),
-                        enabled = baseVolume < 100,
                         modifier = Modifier.weight(1f),
                     )
                 }
@@ -1160,9 +1169,6 @@ private fun BeepStudioDialog(
                         color = MaterialTheme.appColors.fieldLabel, fontSize = 12.sp)
                 }
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Slider(value = simValue, onValueChange = { simValue = it },
-                        valueRange = sliderMin..sliderMax, modifier = Modifier.weight(1f))
-                    Spacer(Modifier.width(4.dp))
                     IconButton(onClick = { onTogglePlay(repeat) }) {
                         Icon(if (playing) Icons.Default.Stop else Icons.Default.PlayArrow,
                             contentDescription = stringResource(if (playing) R.string.alarm_studio_stop else R.string.alarm_studio_play),
@@ -1172,6 +1178,9 @@ private fun BeepStudioDialog(
                         Icon(Icons.Default.Repeat, contentDescription = "Repeat",
                             tint = if (repeat) MaterialTheme.appColors.statusWarn else MaterialTheme.colorScheme.onSurfaceVariant)
                     }
+                    Spacer(Modifier.width(4.dp))
+                    Slider(value = simValue, onValueChange = { simValue = it },
+                        valueRange = sliderMin..sliderMax, modifier = Modifier.weight(1f))
                 }
 
                 // Response curve (display only).
@@ -1194,7 +1203,7 @@ private fun BeepStudioDialog(
                     durationMs = durationMs,
                     count = count,
                     gapMs = gapMs,
-                    playheadFrac = if (playing) phase else null,
+                    playheadFrac = if (playing) playhead.value else null,
                     modifier = Modifier.fillMaxWidth().height(70.dp),
                 )
 
@@ -1313,12 +1322,11 @@ private fun BeepCurveDisplay(
 
         drawLine(grid, Offset(pl, top), Offset(pl, bot), 2f)
         drawLine(grid, Offset(pl, bot), Offset(pr, bot), 2f)
-        for (f in listOf(1000f, 5000f)) {
+        for (f in listOf(1000f, 5000f, 10000f)) {
             val y = yFreq(f)
             drawLine(accent.copy(alpha = 0.16f), Offset(pl, y), Offset(pr, y), 1.5f, pathEffect = dash)
             nv.drawText("${(f / 1000).toInt()}k", 2f, y + txt / 3f, pHz)
         }
-        nv.drawText("max", 2f, top + txt / 3f, pHz)
         for (v in listOf(0f, 50f, 100f)) {
             val y = yVol(v)
             drawLine(volColor.copy(alpha = 0.20f), Offset(pl, y), Offset(pr, y), 1.5f, pathEffect = dash)

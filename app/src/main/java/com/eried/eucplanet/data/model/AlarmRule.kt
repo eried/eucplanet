@@ -22,14 +22,12 @@ data class AlarmRule(
     val beepDurationMs: Int = 300,   // per beep
     val beepCount: Int = 1,          // 1=single, 2=double, 3=triple
     /**
-     * Pitch modulation strength, as a percent. 0 = Fixed (always
-     * [beepFrequency]). >0 = the pitch starts at [beepFrequency] when the value
-     * is at the threshold and climbs as the value pushes past it; at 50% of the
-     * threshold past it the pitch has risen by this percent of the base (100% =
-     * doubles), clamped to a 4 kHz ceiling. Computed once per fire (each beep in
-     * one fire is a single pitch). See [com.eried.eucplanet.service.AlarmLogic.modulatedBeepHz].
+     * Pitch modulation FACTOR, stored x100 (100 = 1.0x = unchanged, the default).
+     * The pitch ramps toward [beepFrequency] * factor as the value pushes past the
+     * threshold. Above 1.0x ramps the pitch up; below 1.0x (down to 0.1x) reduces
+     * it. See [com.eried.eucplanet.service.AlarmLogic.modulatedBeepHz].
      */
-    val beepModulation: Int = 0,
+    val beepModulation: Int = 100,
     /**
      * Silence in ms between repeated beeps AND between the beep and the voice.
      * 0 = back-to-back (lets a Many + cooldown-0 alarm sound near-continuous).
@@ -41,22 +39,14 @@ data class AlarmRule(
      */
     val beepVolume: Int = 100,
     /**
-     * Volume modulation strength, as a percent. 0 = constant [beepVolume]. >0 =
-     * the volume ramps from [beepVolume] up toward 100% (system) as the value
-     * worsens. See [com.eried.eucplanet.service.AlarmLogic.modulatedVolumePct].
+     * Volume modulation FACTOR, stored x100 (100 = 1.0x = constant, the default).
+     * The volume ramps toward [beepVolume] * factor as the value pushes past the
+     * threshold. Above 1.0x ramps it louder (capped at 100); below 1.0x reduces it.
      */
-    val beepVolumeModulation: Int = 0,
-    /**
-     * How far past the threshold (as a percent of the threshold) the PITCH
-     * modulation reaches full strength. 50 = peaks at 50% past the threshold.
-     * X position of the pitch knee in the graph editor. Default 50.
-     */
+    val beepVolumeModulation: Int = 100,
+    /** Legacy (unused since modulation became a base*factor multiplier). */
     val beepModulationReachPct: Int = 50,
-    /**
-     * How far past the threshold (as a percent of the threshold) the VOLUME
-     * modulation reaches full strength -- the X of the volume knee, independent
-     * of the pitch knee so the two curves can peak at different points. Default 50.
-     */
+    /** Legacy (unused since modulation became a base*factor multiplier). */
     val beepVolumeReachPct: Int = 50,
 
     // Voice action
