@@ -918,7 +918,7 @@
     <string name="auto_lights_suspended">Suspended due to user light toggle for this session. Reconnect the wheel or restart the app to resume</string>
 
     <!-- Alarms tab -->
-    <string name="alarm_help">Alarms group by metric. Drag a group up to make it more important: its alarm sounds first and quiets the groups below while it\'s active, which only fill its cooldown gaps. Within a group the most severe rule fires.</string>
+    <string name="alarm_help">Drag a group up to make it more important. The top active alarm sounds; lower ones fill its gaps.</string>
     <string name="alarm_empty">No alarm rules yet</string>
     <string name="alarm_add">New alarm</string>
     <string name="alarm_smart_sort">Auto-sort</string>
