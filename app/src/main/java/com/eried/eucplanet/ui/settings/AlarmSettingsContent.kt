@@ -209,7 +209,7 @@ fun AlarmSettingsContent(
                         Icon(
                             Icons.Default.DragHandle,
                             contentDescription = stringResource(R.string.action_reorder),
-                            tint = accent,
+                            tint = MaterialTheme.colorScheme.onSurface,
                             modifier = Modifier.draggableHandle().size(26.dp)
                         )
                         Spacer(Modifier.width(6.dp))
@@ -217,7 +217,7 @@ fun AlarmSettingsContent(
                             stringResource(groupMetric.labelRes),
                             fontWeight = FontWeight.Bold,
                             fontSize = 17.sp,
-                            color = accent
+                            color = MaterialTheme.colorScheme.onSurface
                         )
                     }
                     group.rules.forEach { rule ->
@@ -1074,11 +1074,10 @@ private fun BeepModulationGraph(
     val fMax = AlarmLogic.BEEP_MOD_MAX_HZ.toFloat()
     val lnMin = kotlin.math.ln(fMin)
     val lnMax = kotlin.math.ln(fMax)
-    val hitPx = with(LocalDensity.current) { 30.dp.toPx() }
-    val txt = with(LocalDensity.current) { 9.sp.toPx() }
-    val leftPad = 38f
-    val rightPad = 36f
-    val plotTopPx = 46f
+    val hitPx = with(LocalDensity.current) { 40.dp.toPx() }
+    val txt = with(LocalDensity.current) { 10.sp.toPx() }
+    val leftPad = 44f
+    val rightPad = 44f
 
     fun valueAt(o: Float) = if (ge) threshold + o else threshold - o
     fun freqAt(o: Float) = AlarmLogic.modulatedBeepHz(baseFreq, valueAt(o), comparator, threshold, pitchPct, pitchReachPct)
@@ -1095,17 +1094,18 @@ private fun BeepModulationGraph(
         Canvas(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(210.dp)
+                .height(280.dp)
                 .pointerInput(threshold, comparator, baseFreq, pitchPct, pitchReachPct, baseVolume, volPct, volReachPct) {
                     val w = size.width.toFloat(); val h = size.height.toFloat()
                     val pl = leftPad; val pr = w - rightPad
-                    val top = plotTopPx; val bot = h - 12f
+                    val top = h * 0.20f; val bot = h * 0.93f
+                    val volTop = top + (bot - top) * 0.45f   // volume 100% line (plateaus here); pitch goes above
                     fun xOf(o: Float) = pl + (o / maxOvershoot) * (pr - pl)
                     fun oOfX(x: Float) = (((x - pl) / (pr - pl)) * maxOvershoot).coerceIn(0f, maxOvershoot)
                     fun yFreq(f: Float) = bot - (kotlin.math.ln(f.coerceIn(fMin, fMax)) - lnMin) / (lnMax - lnMin) * (bot - top)
-                    fun yVol(v: Float) = bot - (v / 100f) * (bot - top)
+                    fun yVol(v: Float) = bot - (v / 100f) * (bot - volTop)
                     fun freqForY(y: Float) = kotlin.math.exp(lnMin + ((bot - y) / (bot - top)).coerceIn(0f, 1f) * (lnMax - lnMin))
-                    fun volForY(y: Float) = ((bot - y) / (bot - top) * 100f).coerceIn(0f, 100f)
+                    fun volForY(y: Float) = ((bot - y) / (bot - volTop) * 100f).coerceIn(0f, 100f)
                     val pitchFinal = Offset(xOf(pitchReachO), yFreq(capFreq))
                     val volBase = Offset(pl, yVol(baseVolume.toFloat()))
                     val volFinal = Offset(xOf(volReachO), yVol(capVol))
@@ -1150,10 +1150,11 @@ private fun BeepModulationGraph(
         ) {
             val w = size.width; val h = size.height
             val pl = leftPad; val pr = w - rightPad
-            val top = plotTopPx; val bot = h - 12f
+            val top = h * 0.20f; val bot = h * 0.93f
+            val volTop = top + (bot - top) * 0.45f   // volume 100% line (plateaus here); pitch goes above
             fun xOf(o: Float) = pl + (o / maxOvershoot) * (pr - pl)
             fun yFreq(f: Float) = bot - (kotlin.math.ln(f.coerceIn(fMin, fMax)) - lnMin) / (lnMax - lnMin) * (bot - top)
-            fun yVol(v: Float) = bot - (v / 100f) * (bot - top)
+            fun yVol(v: Float) = bot - (v / 100f) * (bot - volTop)
             val dash = PathEffect.dashPathEffect(floatArrayOf(8f, 10f))
             val nv = drawContext.canvas.nativeCanvas
             val pHz = android.graphics.Paint().apply { color = accent.copy(alpha = 0.85f).toArgb(); textSize = txt; isAntiAlias = true }
@@ -1177,8 +1178,8 @@ private fun BeepModulationGraph(
                 nv.drawText("${v.toInt()}%", w - 2f, y + txt / 3f, pVol)
             }
 
-            // beep-pattern strip (time): beeps, gaps, then voice
-            val sY0 = 8f; val sY1 = 30f
+            // beep-pattern strip (time): beep blocks joined by gap lines, then voice
+            val sY0 = h * 0.04f; val sYc = h * 0.085f; val sY1 = h * 0.13f
             val durF = durationMs.toFloat().coerceAtLeast(1f)
             val gapF = gapMs.toFloat()
             val voiceW = if (voiceOn) durF * 2f else 0f
@@ -1186,35 +1187,39 @@ private fun BeepModulationGraph(
             val sx = if (totalT > 0f) (pr - pl) / totalT else 0f
             var tcur = 0f
             for (i in 0 until count) {
-                val x0 = pl + tcur * sx
-                drawRect(accent.copy(alpha = 0.65f), topLeft = Offset(x0, sY0), size = Size((durF * sx).coerceAtLeast(2f), sY1 - sY0))
-                tcur += durF; if (i < count - 1) tcur += gapF
+                drawRect(accent.copy(alpha = 0.7f), topLeft = Offset(pl + tcur * sx, sY0), size = Size((durF * sx).coerceAtLeast(3f), sY1 - sY0))
+                tcur += durF
+                if (i < count - 1) {
+                    val gx0 = pl + tcur * sx; tcur += gapF
+                    drawLine(grid, Offset(gx0, sYc), Offset(pl + tcur * sx, sYc), 3f)  // gap = horizontal line
+                }
             }
             if (voiceOn) {
-                tcur += gapF
-                drawRect(markerColor.copy(alpha = 0.4f), topLeft = Offset(pl + tcur * sx, sY0), size = Size((voiceW * sx).coerceAtLeast(2f), sY1 - sY0))
+                val gx0 = pl + tcur * sx; tcur += gapF
+                drawLine(grid, Offset(gx0, sYc), Offset(pl + tcur * sx, sYc), 3f)      // gap before voice
+                drawRect(markerColor.copy(alpha = 0.4f), topLeft = Offset(pl + tcur * sx, sY0), size = Size((voiceW * sx).coerceAtLeast(3f), sY1 - sY0))
             }
-            nv.drawText("beep · gap" + (if (voiceOn) " · voice" else ""), 2f, sY0 + txt, pLbl)
+            nv.drawText("beep · gap" + (if (voiceOn) " · voice" else ""), 2f, sY1 + txt, pLbl)
 
             // curves: pitch (orange) then flat, volume (purple) then flat
             val pf = Offset(xOf(pitchReachO), yFreq(capFreq))
-            drawLine(accent, Offset(pl, yFreq(baseFreq.toFloat())), pf, 5f)
-            drawLine(accent, pf, Offset(pr, pf.y), 5f)
+            drawLine(accent, Offset(pl, yFreq(baseFreq.toFloat())), pf, 6f)
+            drawLine(accent, pf, Offset(pr, pf.y), 6f)
             val vb = Offset(pl, yVol(baseVolume.toFloat()))
             val vf = Offset(xOf(volReachO), yVol(capVol))
-            drawLine(volColor, vb, vf, 5f)
-            drawLine(volColor, vf, Offset(pr, vf.y), 5f)
+            drawLine(volColor, vb, vf, 6f)
+            drawLine(volColor, vf, Offset(pr, vf.y), 6f)
 
-            drawCircle(accent, 7f, Offset(pl, yFreq(baseFreq.toFloat())))   // pitch base (fixed)
-            drawCircle(accent, 14f, pf)                                     // pitch final
-            drawCircle(volColor, 14f, vb)                                   // volume base
-            drawCircle(volColor, 14f, vf)                                   // volume final
+            drawCircle(accent, 8f, Offset(pl, yFreq(baseFreq.toFloat())))   // pitch base (fixed)
+            drawCircle(accent, 17f, pf)                                     // pitch final
+            drawCircle(volColor, 17f, vb)                                   // volume base
+            drawCircle(volColor, 17f, vf)                                   // volume final
 
             scrub?.let { o ->
                 val x = xOf(o)
                 drawLine(markerColor, Offset(x, top), Offset(x, bot), 2f)
-                drawCircle(accent, 7f, Offset(x, yFreq(freqAt(o).toFloat())))
-                drawCircle(volColor, 7f, Offset(x, yVol(volAt(o).toFloat())))
+                drawCircle(accent, 8f, Offset(x, yFreq(freqAt(o).toFloat())))
+                drawCircle(volColor, 8f, Offset(x, yVol(volAt(o).toFloat())))
             }
         }
         val o = scrub
