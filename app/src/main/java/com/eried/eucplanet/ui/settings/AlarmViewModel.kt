@@ -13,11 +13,15 @@ import com.eried.eucplanet.service.VoiceService
 import com.eried.eucplanet.util.VibratorHelper
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -221,6 +225,46 @@ class AlarmViewModel @Inject constructor(
     /** Short tone at a given pitch + volume, for scrubbing the modulation graph. */
     fun previewToneAt(frequencyHz: Int, volumePct: Int) {
         viewModelScope.launch { tonePlayer.playBeep(frequencyHz, 90, 1, 0, volumePct) }
+    }
+
+    // --- Beep Studio live preview loop ---
+    // The studio dialog pushes the live (freq, volume, ...) here; while playing,
+    // the loop replays the beep so the rider hears modulation changes in real time
+    // as they move the metric / factor sliders.
+    private var studioJob: Job? = null
+    private val _studioPlaying = MutableStateFlow(false)
+    val studioPlaying: StateFlow<Boolean> = _studioPlaying
+
+    @Volatile private var sFreq = 1000
+    @Volatile private var sDur = 300
+    @Volatile private var sCount = 1
+    @Volatile private var sGap = 100
+    @Volatile private var sVol = 100
+
+    fun setStudioTone(frequencyHz: Int, durationMs: Int, count: Int, gapMs: Int, volumePct: Int) {
+        sFreq = frequencyHz; sDur = durationMs; sCount = count; sGap = gapMs; sVol = volumePct
+    }
+
+    fun toggleStudioPlay() {
+        if (_studioPlaying.value) stopStudio() else {
+            _studioPlaying.value = true
+            studioJob = viewModelScope.launch {
+                while (isActive && _studioPlaying.value) {
+                    tonePlayer.playBeep(sFreq, sDur, sCount, sGap, sVol)
+                    delay(sGap.toLong().coerceAtLeast(0L))
+                }
+            }
+        }
+    }
+
+    fun stopStudio() {
+        _studioPlaying.value = false
+        studioJob?.cancel(); studioJob = null
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        stopStudio()
     }
 
     fun previewVoice(text: String, metric: AlarmMetric, threshold: Float) {

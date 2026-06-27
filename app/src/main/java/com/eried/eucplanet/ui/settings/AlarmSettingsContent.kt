@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
@@ -31,9 +32,12 @@ import androidx.compose.material.icons.filled.DragHandle
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Remove
+import androidx.compose.material.icons.filled.Stop
 import androidx.compose.material.icons.filled.SwapVert
+import androidx.compose.material.icons.filled.Tune
 import androidx.compose.material.icons.filled.VolumeUp
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
@@ -60,6 +64,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.key
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -143,6 +148,7 @@ fun AlarmSettingsContent(
 ) {
     val rules by viewModel.rules.collectAsState()
     val groups by viewModel.groupedRules.collectAsState()
+    val studioPlaying by viewModel.studioPlaying.collectAsState()
     val haptic = androidx.compose.ui.platform.LocalHapticFeedback.current
     // Alarm thresholds only span speed and temperature; distance has no alarm metric.
     val speedUnit by viewModel.speedUnit.collectAsState()
@@ -237,15 +243,22 @@ fun AlarmSettingsContent(
 
         Spacer(Modifier.height(8.dp))
 
-        // New alarm spans the row. Auto-sort was removed: group order is now
-        // priority, so an automatic re-sort would fight the rider's intent.
-        Button(
-            onClick = { editingRule = null; showEditor = true },
-            modifier = Modifier.fillMaxWidth()
+        // New alarm sits on the left half of the row (auto-sort removed; group
+        // order is the priority, so an automatic re-sort would fight the rider).
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Icon(Icons.Default.Add, contentDescription = null, modifier = Modifier.size(18.dp))
-            Spacer(Modifier.width(6.dp))
-            Text(stringResource(R.string.alarm_add))
+            Button(
+                onClick = { editingRule = null; showEditor = true },
+                modifier = Modifier.weight(1f)
+            ) {
+                Icon(Icons.Default.Add, contentDescription = null, modifier = Modifier.size(18.dp))
+                Spacer(Modifier.width(6.dp))
+                Text(stringResource(R.string.alarm_add))
+            }
+            Spacer(Modifier.weight(1f))
         }
 
         Spacer(Modifier.height(16.dp))
@@ -268,7 +281,11 @@ fun AlarmSettingsContent(
             onPreviewBeep = { freq, dur, cnt, mod -> viewModel.previewBeep(freq, dur, cnt, mod) },
             onPreviewTone = { freq, vol -> viewModel.previewToneAt(freq, vol) },
             onPreviewVoice = { text, metric, thr -> viewModel.previewVoice(text, metric, thr) },
-            onPreviewVibrate = { dur -> viewModel.previewVibrate(dur) }
+            onPreviewVibrate = { dur -> viewModel.previewVibrate(dur) },
+            studioPlaying = studioPlaying,
+            onStudioTone = { f, d, c, g, v -> viewModel.setStudioTone(f, d, c, g, v) },
+            onStudioToggle = { viewModel.toggleStudioPlay() },
+            onStudioStop = { viewModel.stopStudio() },
         )
     }
 
@@ -404,7 +421,11 @@ private fun AlarmRuleEditorDialog(
     onPreviewBeep: (Int, Int, Int, Int) -> Unit,
     onPreviewTone: (Int, Int) -> Unit,
     onPreviewVoice: (String, AlarmMetric, Float) -> Unit,
-    onPreviewVibrate: (Int) -> Unit
+    onPreviewVibrate: (Int) -> Unit,
+    studioPlaying: Boolean = false,
+    onStudioTone: (Int, Int, Int, Int, Int) -> Unit = { _, _, _, _, _ -> },
+    onStudioToggle: () -> Unit = {},
+    onStudioStop: () -> Unit = {},
 ) {
     val initial = rule ?: AlarmRule()
 
@@ -423,6 +444,7 @@ private fun AlarmRuleEditorDialog(
     var beepVolumeModulation by remember { mutableIntStateOf(initial.beepVolumeModulation) }
     var beepModulationReachPct by remember { mutableIntStateOf(initial.beepModulationReachPct) }
     var beepVolumeReachPct by remember { mutableIntStateOf(initial.beepVolumeReachPct) }
+    var showStudio by remember { mutableStateOf(false) }
 
     var voiceEnabled by remember { mutableStateOf(initial.voiceEnabled) }
     // For a brand-new alarm, seed with the voice-locale-resolved default
@@ -480,6 +502,28 @@ private fun AlarmRuleEditorDialog(
     val displayedRange = displayThreshold(selectedMetric, thresholdRangeInternal.start, speedUnit, tempUnit)..
         displayThreshold(selectedMetric, thresholdRangeInternal.endInclusive, speedUnit, tempUnit)
     val displayedUnit = displayUnit(selectedMetric, speedUnit, tempUnit)
+
+    if (showStudio) {
+        BeepStudioDialog(
+            metric = selectedMetric,
+            unit = selectedMetric.unit,
+            comparator = comparator,
+            threshold = threshold,
+            baseFreq = beepFrequency,
+            durationMs = beepDurationMs,
+            count = beepCount,
+            gapMs = beepGapMs,
+            baseVolume = beepVolume,
+            pitchReachPct = beepModulation,
+            volReachPct = beepVolumeModulation,
+            playing = studioPlaying,
+            onPitchReachChange = { beepModulation = it },
+            onVolumeReachChange = { beepVolumeModulation = it },
+            onLiveTone = { f, v -> onStudioTone(f, beepDurationMs, beepCount, beepGapMs, v) },
+            onTogglePlay = onStudioToggle,
+            onDismiss = { onStudioStop(); showStudio = false },
+        )
+    }
 
     Dialog(
         onDismissRequest = onDismiss,
@@ -671,56 +715,24 @@ private fun AlarmRuleEditorDialog(
                                 modifier = Modifier.weight(1f),
                             )
                             NumberUpDown(
-                                value = beepModulation,
-                                onValueChange = { beepModulation = it },
-                                range = 0..150, step = 5, suffix = "%",
-                                label = stringResource(R.string.alarm_beep_pitch_rise_label),
-                                modifier = Modifier.weight(1f),
-                            )
-                        }
-                        Spacer(Modifier.height(8.dp))
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.spacedBy(12.dp)
-                        ) {
-                            NumberUpDown(
                                 value = beepVolume,
                                 onValueChange = { beepVolume = it },
                                 range = 0..100, step = 5, suffix = "%",
                                 label = stringResource(R.string.alarm_beep_volume_label),
                                 modifier = Modifier.weight(1f),
                             )
-                            NumberUpDown(
-                                value = beepVolumeModulation,
-                                onValueChange = { beepVolumeModulation = it },
-                                range = 0..150, step = 5, suffix = "%",
-                                label = stringResource(R.string.alarm_beep_volume_rise_label),
-                                enabled = beepVolume < 100,
-                                modifier = Modifier.weight(1f),
-                            )
                         }
-                        Spacer(Modifier.height(10.dp))
-                        // One interactive curve for pitch + volume vs the metric.
-                        // Grab a dot to drag; long-press empty space to scrub.
-                        BeepModulationGraph(
-                            metricName = stringResource(selectedMetric.labelRes),
-                            unit = selectedMetric.unit,
-                            threshold = threshold,
-                            comparator = comparator,
-                            baseFreq = beepFrequency,
-                            pitchReachPct = beepModulation,
-                            baseVolume = beepVolume,
-                            volReachPct = beepVolumeModulation,
-                            durationMs = beepDurationMs,
-                            count = beepCount,
-                            gapMs = beepGapMs,
-                            voiceOn = voiceEnabled && voiceText.isNotBlank(),
-                            onPitchReachChange = { beepModulation = it },
-                            onBaseVolumeChange = { beepVolume = it },
-                            onVolumeReachChange = { beepVolumeModulation = it },
-                            onScrubTone = { f, v -> onPreviewTone(f, v) },
+                        Spacer(Modifier.height(8.dp))
+                        // Pitch + volume modulation is set in a dedicated full-screen
+                        // studio (roomy sliders + live audio), not crammed inline.
+                        Button(
+                            onClick = { showStudio = true },
                             modifier = Modifier.fillMaxWidth(),
-                        )
+                        ) {
+                            Icon(Icons.Default.Tune, contentDescription = null, modifier = Modifier.size(18.dp))
+                            Spacer(Modifier.width(6.dp))
+                            Text(stringResource(R.string.alarm_beep_studio))
+                        }
                     }
                 }
 
@@ -1027,191 +1039,188 @@ private fun AlarmRuleEditorDialog(
 }
 
 /**
- * Interactive pitch + volume modulation on one chart. X = the metric value from
- * the threshold rightward (more severe). Pitch (orange, log Hz, left axis) ramps
- * from the base up to the engine max and plateaus; volume (purple, %, right axis)
- * ramps from its base up to 100% and plateaus. Each "final" dot sets the rise
- * SPEED -- drag it sideways to set how soon the curve reaches its ceiling. The
- * volume BASE dot sets loudness at the threshold; pitch's base is the Frequency.
- * The top strip shows the beep timing: blocks = beeps, vertical ticks = gaps.
- *
- * Grab a dot to drag it directly (consumes the touch, so the page won't scroll).
- * Long-press empty space to scrub + hear; a plain swipe scrolls the dialog.
+ * Full-screen "Beep Studio": roomy controls for pitch + volume modulation with a
+ * live, hearable preview. The graph is display-only -- drag the METRIC slider to
+ * see how pitch/volume respond; press Play (and leave it running) to hear the
+ * change as you move the sliders. Pitch + volume rise SPEED are set here; gap +
+ * base volume stay in the editor's Advanced section.
  */
 @Composable
-private fun BeepModulationGraph(
-    metricName: String,
+private fun BeepStudioDialog(
+    metric: AlarmMetric,
     unit: String,
-    threshold: Float,
     comparator: String,
+    threshold: Float,
     baseFreq: Int,
-    pitchReachPct: Int,        // 0 = off
-    baseVolume: Int,
-    volReachPct: Int,          // 0 = off
     durationMs: Int,
     count: Int,
     gapMs: Int,
-    voiceOn: Boolean,
-    onPitchReachChange: (reachPct: Int) -> Unit,
-    onBaseVolumeChange: (volume: Int) -> Unit,
-    onVolumeReachChange: (reachPct: Int) -> Unit,
-    onScrubTone: (freq: Int, volume: Int) -> Unit,
+    baseVolume: Int,
+    pitchReachPct: Int,
+    volReachPct: Int,
+    playing: Boolean,
+    onPitchReachChange: (Int) -> Unit,
+    onVolumeReachChange: (Int) -> Unit,
+    onLiveTone: (freq: Int, volume: Int) -> Unit,
+    onTogglePlay: () -> Unit,
+    onDismiss: () -> Unit,
+) {
+    val ge = AlarmComparator.parse(comparator) == AlarmComparator.GREATER_EQUAL
+    val absThr = kotlin.math.abs(threshold).coerceAtLeast(1f)
+    val maxOvershoot = absThr * 1.5f
+    fun valueAt(o: Float) = if (ge) threshold + o else threshold - o
+    fun freqAt(o: Float) = AlarmLogic.modulatedBeepHz(baseFreq, valueAt(o), comparator, threshold, pitchReachPct)
+    fun volAt(o: Float) = AlarmLogic.modulatedVolumePct(baseVolume, volReachPct, valueAt(o), comparator, threshold)
+
+    var simO by remember { mutableFloatStateOf(maxOvershoot * 0.6f) }
+
+    // Push the live tone to the play loop whenever the sim / factors change.
+    LaunchedEffect(simO, pitchReachPct, volReachPct, baseFreq, baseVolume, durationMs, count, gapMs) {
+        onLiveTone(freqAt(simO), volAt(simO))
+    }
+
+    Dialog(
+        onDismissRequest = onDismiss,
+        properties = androidx.compose.ui.window.DialogProperties(usePlatformDefaultWidth = false),
+    ) {
+        Surface(
+            modifier = Modifier.fillMaxWidth(0.96f).fillMaxHeight(0.92f),
+            shape = RoundedCornerShape(16.dp),
+            color = MaterialTheme.colorScheme.surface,
+        ) {
+            Column(Modifier.fillMaxSize().padding(16.dp)) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        stringResource(R.string.alarm_beep_studio),
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onSurface,
+                    )
+                    Spacer(Modifier.weight(1f))
+                    IconButton(onClick = onDismiss) {
+                        Icon(Icons.Default.Close, contentDescription = stringResource(R.string.action_cancel),
+                            tint = MaterialTheme.colorScheme.onSurface)
+                    }
+                }
+
+                BeepCurveDisplay(
+                    comparator = comparator,
+                    threshold = threshold,
+                    baseFreq = baseFreq,
+                    baseVolume = baseVolume,
+                    pitchReachPct = pitchReachPct,
+                    volReachPct = volReachPct,
+                    markerO = simO,
+                    maxOvershoot = maxOvershoot,
+                    modifier = Modifier.fillMaxWidth().weight(1f).padding(vertical = 8.dp),
+                )
+
+                // Metric slider (the handle) + live readout.
+                val mv = valueAt(simO)
+                val mvStr = if (mv % 1f == 0f) mv.toInt().toString() else String.format("%.1f", mv)
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text("${stringResource(metric.labelRes)}: $mvStr $unit",
+                        color = MaterialTheme.colorScheme.onSurface, fontWeight = FontWeight.Medium)
+                    Spacer(Modifier.weight(1f))
+                    Text(stringResource(R.string.alarm_studio_now, freqAt(simO), volAt(simO)),
+                        color = MaterialTheme.appColors.fieldLabel, fontSize = 12.sp)
+                }
+                Slider(value = simO, onValueChange = { simO = it }, valueRange = 0f..maxOvershoot)
+
+                // Pitch + volume rise SPEED.
+                Text("${stringResource(R.string.alarm_studio_pitch_speed)}: $pitchReachPct%",
+                    color = MaterialTheme.appColors.statusWarn, fontSize = 13.sp)
+                Slider(value = pitchReachPct.toFloat(), onValueChange = { onPitchReachChange(it.roundToInt()) },
+                    valueRange = 0f..150f)
+                Text("${stringResource(R.string.alarm_studio_volume_speed)}: $volReachPct%",
+                    color = MaterialTheme.appColors.metricPosition, fontSize = 13.sp)
+                Slider(value = volReachPct.toFloat(), onValueChange = { onVolumeReachChange(it.roundToInt()) },
+                    valueRange = 0f..150f, enabled = baseVolume < 100)
+
+                HintText(stringResource(R.string.alarm_studio_hint), small = true)
+                Spacer(Modifier.height(8.dp))
+                Button(onClick = onTogglePlay, modifier = Modifier.fillMaxWidth()) {
+                    Icon(if (playing) Icons.Default.Stop else Icons.Default.PlayArrow, contentDescription = null)
+                    Spacer(Modifier.width(6.dp))
+                    Text(stringResource(if (playing) R.string.alarm_studio_stop else R.string.alarm_studio_play))
+                }
+            }
+        }
+    }
+}
+
+/**
+ * Display-only modulation curve for the studio: pitch (orange, log Hz) + volume
+ * (purple, % in the lower band) vs the metric value, with a marker at [markerO].
+ */
+@Composable
+private fun BeepCurveDisplay(
+    comparator: String,
+    threshold: Float,
+    baseFreq: Int,
+    baseVolume: Int,
+    pitchReachPct: Int,
+    volReachPct: Int,
+    markerO: Float,
+    maxOvershoot: Float,
     modifier: Modifier = Modifier,
 ) {
     val accent = MaterialTheme.appColors.statusWarn
     val volColor = MaterialTheme.appColors.metricPosition
     val grid = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.25f)
     val markerColor = MaterialTheme.colorScheme.onSurface
-    val labelColor = MaterialTheme.appColors.fieldLabel
-
     val ge = AlarmComparator.parse(comparator) == AlarmComparator.GREATER_EQUAL
-    val absThr = kotlin.math.abs(threshold).coerceAtLeast(1f)
-    val maxOvershoot = absThr * 1.5f
     val fMin = 150f
     val fMax = AlarmLogic.BEEP_MOD_MAX_HZ.toFloat()
     val lnMin = kotlin.math.ln(fMin)
     val lnMax = kotlin.math.ln(fMax)
-    val hitPx = with(LocalDensity.current) { 44.dp.toPx() }
     val txt = with(LocalDensity.current) { 10.sp.toPx() }
-    val leftPad = 46f
-    val rightPad = 46f
-
     fun valueAt(o: Float) = if (ge) threshold + o else threshold - o
-    fun freqAt(o: Float) = AlarmLogic.modulatedBeepHz(baseFreq, valueAt(o), comparator, threshold, pitchReachPct)
-    fun volAt(o: Float) = AlarmLogic.modulatedVolumePct(baseVolume, volReachPct, valueAt(o), comparator, threshold)
-    // X of each final dot = where it hits the ceiling. When off, park it far right.
-    val pitchKneeO = if (pitchReachPct > 0) absThr * (pitchReachPct / 100f) else maxOvershoot
-    val volKneeO = if (volReachPct > 0) absThr * (volReachPct / 100f) else maxOvershoot
+    fun freqAt(o: Float) = AlarmLogic.modulatedBeepHz(baseFreq, valueAt(o), comparator, threshold, pitchReachPct).toFloat()
+    fun volAt(o: Float) = AlarmLogic.modulatedVolumePct(baseVolume, volReachPct, valueAt(o), comparator, threshold).toFloat()
 
-    var scrub by remember { mutableStateOf<Float?>(null) }
-    var lastBucket by remember { mutableIntStateOf(-1) }
+    Canvas(modifier) {
+        val w = size.width; val h = size.height
+        val pl = 48f; val pr = w - 48f
+        val top = h * 0.08f; val bot = h * 0.92f
+        val volTop = top + (bot - top) * 0.45f
+        fun xOf(o: Float) = pl + (o / maxOvershoot) * (pr - pl)
+        fun yFreq(f: Float) = bot - (kotlin.math.ln(f.coerceIn(fMin, fMax)) - lnMin) / (lnMax - lnMin) * (bot - top)
+        fun yVol(v: Float) = bot - (v / 100f) * (bot - volTop)
+        val dash = PathEffect.dashPathEffect(floatArrayOf(8f, 10f))
+        val nv = drawContext.canvas.nativeCanvas
+        val pHz = android.graphics.Paint().apply { color = accent.copy(alpha = 0.85f).toArgb(); textSize = txt; isAntiAlias = true }
+        val pVol = android.graphics.Paint().apply { color = volColor.copy(alpha = 0.85f).toArgb(); textSize = txt; isAntiAlias = true; textAlign = android.graphics.Paint.Align.RIGHT }
 
-    Column(modifier) {
-        Canvas(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(280.dp)
-                .pointerInput(threshold, comparator, baseFreq, pitchReachPct, baseVolume, volReachPct) {
-                    val w = size.width.toFloat(); val h = size.height.toFloat()
-                    val pl = leftPad; val pr = w - rightPad
-                    val top = h * 0.08f; val bot = h * 0.93f
-                    val volTop = top + (bot - top) * 0.45f
-                    fun xOf(o: Float) = pl + (o / maxOvershoot) * (pr - pl)
-                    fun oOfX(x: Float) = (((x - pl) / (pr - pl)) * maxOvershoot).coerceIn(0f, maxOvershoot)
-                    fun yVol(v: Float) = bot - (v / 100f) * (bot - volTop)
-                    fun volForY(y: Float) = ((bot - y) / (bot - volTop) * 100f).coerceIn(0f, 100f)
-                    fun reachFromX(x: Float) = (oOfX(x) / absThr * 100f).roundToInt().coerceIn(5, 150)
-                    val pitchFinal = Offset(xOf(pitchKneeO), top)
-                    val volFinal = Offset(xOf(volKneeO), volTop)
-                    val volBase = Offset(pl, yVol(baseVolume.toFloat()))
-
-                    // The graph claims drags (consumes them), so dragging a dot never
-                    // scrolls the dialog. Drag near a dot to move it; drag elsewhere
-                    // to scrub. Scroll the dialog by dragging ABOVE/BELOW the graph.
-                    var mode = 0
-                    detectDragGestures(
-                        onDragStart = { pos ->
-                            mode = when {
-                                (pos - pitchFinal).getDistance() < hitPx -> 1
-                                (pos - volFinal).getDistance() < hitPx -> 3
-                                (pos - volBase).getDistance() < hitPx -> 2
-                                else -> 0
-                            }
-                            if (mode == 0) scrub = oOfX(pos.x)
-                        },
-                        onDragEnd = { scrub = null; lastBucket = -1 },
-                        onDrag = { ch, _ ->
-                            ch.consume()
-                            val p = ch.position
-                            when (mode) {
-                                1 -> onPitchReachChange(reachFromX(p.x))
-                                2 -> onBaseVolumeChange(volForY(p.y).roundToInt())
-                                3 -> onVolumeReachChange(reachFromX(p.x))
-                                else -> {
-                                    val o = oOfX(p.x); scrub = o
-                                    val b = (((p.x - pl) / (pr - pl)) * 36f).toInt()
-                                    if (b != lastBucket) { lastBucket = b; onScrubTone(freqAt(o), volAt(o)) }
-                                }
-                            }
-                        }
-                    )
-                }
-        ) {
-            val w = size.width; val h = size.height
-            val pl = leftPad; val pr = w - rightPad
-            val top = h * 0.08f; val bot = h * 0.93f
-            val volTop = top + (bot - top) * 0.45f
-            fun xOf(o: Float) = pl + (o / maxOvershoot) * (pr - pl)
-            fun yFreq(f: Float) = bot - (kotlin.math.ln(f.coerceIn(fMin, fMax)) - lnMin) / (lnMax - lnMin) * (bot - top)
-            fun yVol(v: Float) = bot - (v / 100f) * (bot - volTop)
-            val dash = PathEffect.dashPathEffect(floatArrayOf(8f, 10f))
-            val nv = drawContext.canvas.nativeCanvas
-            val pHz = android.graphics.Paint().apply { color = accent.copy(alpha = 0.85f).toArgb(); textSize = txt; isAntiAlias = true }
-            val pVol = android.graphics.Paint().apply { color = volColor.copy(alpha = 0.85f).toArgb(); textSize = txt; isAntiAlias = true; textAlign = android.graphics.Paint.Align.RIGHT }
-            val pLbl = android.graphics.Paint().apply { color = labelColor.toArgb(); textSize = txt * 0.95f; isAntiAlias = true }
-
-            // axes
-            drawLine(grid, Offset(pl, top), Offset(pl, bot), 2f)
-            drawLine(grid, Offset(pl, bot), Offset(pr, bot), 2f)
-
-            // pitch guides + Hz legend (no 20k label; the top of the axis is the engine max)
-            for (f in listOf(1000f, 5000f)) {
-                val y = yFreq(f)
-                drawLine(accent.copy(alpha = 0.16f), Offset(pl, y), Offset(pr, y), 1.5f, pathEffect = dash)
-                nv.drawText("${(f / 1000).toInt()}k", 2f, y + txt / 3f, pHz)
-            }
-            nv.drawText("max", 2f, top + txt / 3f, pHz)
-            // volume guides + % legend (lower band; the 100% line is the plateau)
-            for (v in listOf(0f, 50f, 100f)) {
-                val y = yVol(v)
-                drawLine(volColor.copy(alpha = 0.20f), Offset(pl, y), Offset(pr, y), 1.5f, pathEffect = dash)
-                nv.drawText("${v.toInt()}%", w - 2f, y + txt / 3f, pVol)
-            }
-
-            // pitch curve: base -> ceiling, plateau. Off => flat at base.
-            val pBaseY = yFreq(baseFreq.toFloat())
-            drawCircle(accent, 8f, Offset(pl, pBaseY))   // pitch base (= Frequency)
-            if (pitchReachPct > 0) {
-                val pk = Offset(xOf(pitchKneeO), top)
-                drawLine(accent, Offset(pl, pBaseY), pk, 6f)
-                drawLine(accent, pk, Offset(pr, top), 6f)
-                drawCircle(accent, 18f, pk)              // pitch final (drag sideways = speed)
-            } else {
-                drawLine(accent, Offset(pl, pBaseY), Offset(pr, pBaseY), 6f)
-                drawCircle(accent.copy(alpha = 0.45f), 16f, Offset(xOf(maxOvershoot), top))   // grab to enable
-            }
-            // volume curve
-            val vBaseY = yVol(baseVolume.toFloat())
-            drawCircle(volColor, 18f, Offset(pl, vBaseY))   // volume base (draggable)
-            if (volReachPct > 0) {
-                val vk = Offset(xOf(volKneeO), volTop)
-                drawLine(volColor, Offset(pl, vBaseY), vk, 6f)
-                drawLine(volColor, vk, Offset(pr, volTop), 6f)
-                drawCircle(volColor, 18f, vk)               // volume final (drag sideways = speed)
-            } else {
-                drawLine(volColor, Offset(pl, vBaseY), Offset(pr, vBaseY), 6f)
-                drawCircle(volColor.copy(alpha = 0.45f), 16f, Offset(xOf(maxOvershoot), volTop))   // grab to enable
-            }
-
-            scrub?.let { o ->
-                val x = xOf(o)
-                drawLine(markerColor, Offset(x, top), Offset(x, bot), 2f)
-                drawCircle(accent, 8f, Offset(x, yFreq(freqAt(o).toFloat())))
-                drawCircle(volColor, 8f, Offset(x, yVol(volAt(o).toFloat())))
-            }
+        drawLine(grid, Offset(pl, top), Offset(pl, bot), 2f)
+        drawLine(grid, Offset(pl, bot), Offset(pr, bot), 2f)
+        for (f in listOf(1000f, 5000f)) {
+            val y = yFreq(f)
+            drawLine(accent.copy(alpha = 0.16f), Offset(pl, y), Offset(pr, y), 1.5f, pathEffect = dash)
+            nv.drawText("${(f / 1000).toInt()}k", 2f, y + txt / 3f, pHz)
         }
-        val o = scrub
-        val ref = maxOf(pitchKneeO, volKneeO)
-        val readVal = if (o != null) valueAt(o) else valueAt(ref)
-        val rv = if (readVal % 1f == 0f) readVal.toInt().toString() else String.format("%.1f", readVal)
-        val rf = if (o != null) freqAt(o) else freqAt(ref)
-        val rvol = if (o != null) volAt(o) else volAt(ref)
-        Text(
-            "$metricName $rv $unit  →  $rf Hz, $rvol%   ·   grab a dot to drag, long-press to scrub",
-            fontSize = 10.sp,
-            color = labelColor,
-            modifier = Modifier.padding(top = 4.dp),
-        )
+        nv.drawText("max", 2f, top + txt / 3f, pHz)
+        for (v in listOf(0f, 50f, 100f)) {
+            val y = yVol(v)
+            drawLine(volColor.copy(alpha = 0.20f), Offset(pl, y), Offset(pr, y), 1.5f, pathEffect = dash)
+            nv.drawText("${v.toInt()}%", w - 2f, y + txt / 3f, pVol)
+        }
+
+        val pPath = Path(); val vPath = Path()
+        val steps = 64
+        for (i in 0..steps) {
+            val o = maxOvershoot * i / steps
+            val x = xOf(o)
+            if (i == 0) { pPath.moveTo(x, yFreq(freqAt(o))); vPath.moveTo(x, yVol(volAt(o))) }
+            else { pPath.lineTo(x, yFreq(freqAt(o))); vPath.lineTo(x, yVol(volAt(o))) }
+        }
+        drawPath(pPath, accent, style = Stroke(width = 6f))
+        drawPath(vPath, volColor, style = Stroke(width = 6f))
+
+        val mx = xOf(markerO)
+        drawLine(markerColor, Offset(mx, top), Offset(mx, bot), 2.5f)
+        drawCircle(accent, 13f, Offset(mx, yFreq(freqAt(markerO))))
+        drawCircle(volColor, 13f, Offset(mx, yVol(volAt(markerO))))
     }
 }
 
