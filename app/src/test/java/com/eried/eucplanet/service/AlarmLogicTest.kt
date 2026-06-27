@@ -234,107 +234,98 @@ class AlarmLogicTest {
         assertFalse(AlarmLogic.shouldFire(matched = true, wasActive = true, msSinceLastFire = cd - 1, cooldownMs = cd, repeatWhileActive = true))
     }
 
-    // --- beep PITCH modulation (factorPct) ---
-    // factorPct = 100 means "the pitch has risen by 100% of base (doubled) once
-    // the value is 50% of the threshold past it"; frac scales linearly in between.
+    // --- beep PITCH modulation: ramps base -> 20 kHz ceiling, plateaus there.
+    // reachPct = rise SPEED (where past the threshold it hits the ceiling); 0 = off.
 
     @Test
-    fun pitchFactorZeroIsAlwaysFixed() {
-        assertEquals(1000, AlarmLogic.modulatedBeepHz(1000, value = 90f, comparator = GE, threshold = 30f, factorPct = 0))
-        assertEquals(1000, AlarmLogic.modulatedBeepHz(1000, value = 30f, comparator = GE, threshold = 30f, factorPct = 0))
+    fun pitchReachZeroIsOff() {
+        assertEquals(1000, AlarmLogic.modulatedBeepHz(1000, value = 90f, comparator = GE, threshold = 30f, reachPct = 0))
+        assertEquals(1000, AlarmLogic.modulatedBeepHz(1000, value = 30f, comparator = GE, threshold = 30f, reachPct = 0))
     }
 
     @Test
     fun pitchBaseAtOrBeforeThreshold() {
-        assertEquals(1000, AlarmLogic.modulatedBeepHz(1000, value = 30f, comparator = GE, threshold = 30f, factorPct = 100))
-        assertEquals(1000, AlarmLogic.modulatedBeepHz(1000, value = 20f, comparator = GE, threshold = 30f, factorPct = 100))
+        assertEquals(1000, AlarmLogic.modulatedBeepHz(1000, value = 30f, comparator = GE, threshold = 30f, reachPct = 50))
+        assertEquals(1000, AlarmLogic.modulatedBeepHz(1000, value = 20f, comparator = GE, threshold = 30f, reachPct = 50))
     }
 
     @Test
-    fun pitchFactor100DoublesAtHalfThresholdPast() {
-        // 45 = +50% of 30 => frac 1 => base + 100%*base = 2000.
-        assertEquals(2000, AlarmLogic.modulatedBeepHz(1000, value = 45f, comparator = GE, threshold = 30f, factorPct = 100))
+    fun pitchHitsCeilingAtTheReachPoint() {
+        // reach 50% of 30 = +15 -> at value 45 the pitch is at the ceiling.
+        assertEquals(20000, AlarmLogic.modulatedBeepHz(1000, value = 45f, comparator = GE, threshold = 30f, reachPct = 50))
     }
 
     @Test
-    fun pitchIsLinearMidway() {
-        // 37.5 = +25% => frac 0.5 => base + 100%*base*0.5 = 1500.
-        assertEquals(1500, AlarmLogic.modulatedBeepHz(1000, value = 37.5f, comparator = GE, threshold = 30f, factorPct = 100))
+    fun pitchHalfwayToCeiling() {
+        // reach 50 (span 15); +7.5 (value 37.5) is half the span -> halfway base..20000.
+        assertEquals(10500, AlarmLogic.modulatedBeepHz(1000, value = 37.5f, comparator = GE, threshold = 30f, reachPct = 50))
     }
 
     @Test
-    fun pitchFactorScalesTheClimb() {
-        // Same overshoot, different strength: 50% -> +500, 200% -> +2000.
-        assertEquals(1500, AlarmLogic.modulatedBeepHz(1000, value = 45f, comparator = GE, threshold = 30f, factorPct = 50))
-        assertEquals(3000, AlarmLogic.modulatedBeepHz(1000, value = 45f, comparator = GE, threshold = 30f, factorPct = 200))
+    fun pitchSmallerReachRisesFaster() {
+        // Same value, faster (reach 50) is higher than slower (reach 100).
+        val fast = AlarmLogic.modulatedBeepHz(1000, value = 45f, comparator = GE, threshold = 30f, reachPct = 50)
+        val slow = AlarmLogic.modulatedBeepHz(1000, value = 45f, comparator = GE, threshold = 30f, reachPct = 100)
+        assertEquals(20000, fast)
+        assertEquals(10500, slow)   // reach 100 (span 30): +15 is half -> halfway
+        assertTrue(fast > slow)
     }
 
     @Test
-    fun pitchOvershootClampsToFullStrength() {
-        // Far past the threshold still caps at the factor's full rise (frac=1).
-        assertEquals(2000, AlarmLogic.modulatedBeepHz(1000, value = 200f, comparator = GE, threshold = 30f, factorPct = 100))
-    }
-
-    @Test
-    fun pitchRespectsHardCeiling() {
-        // 8000 base, +200% would be 24000; ceiling clamps to 20000.
-        assertEquals(20000, AlarmLogic.modulatedBeepHz(8000, value = 45f, comparator = GE, threshold = 30f, factorPct = 200))
-        // Mid-range no longer clamps at the old 4 kHz: 2500 +200% = 7500.
-        assertEquals(7500, AlarmLogic.modulatedBeepHz(2500, value = 45f, comparator = GE, threshold = 30f, factorPct = 200))
+    fun pitchPlateausAtCeilingBeyondReach() {
+        assertEquals(20000, AlarmLogic.modulatedBeepHz(1000, value = 200f, comparator = GE, threshold = 30f, reachPct = 50))
     }
 
     @Test
     fun pitchRisesForLessThanAsValueFalls() {
-        // battery threshold 20, base 1000, factor 100: 10 (50% below) doubles, 15 midway.
-        assertEquals(1000, AlarmLogic.modulatedBeepHz(1000, value = 20f, comparator = LT, threshold = 20f, factorPct = 100))
-        assertEquals(1500, AlarmLogic.modulatedBeepHz(1000, value = 15f, comparator = LT, threshold = 20f, factorPct = 100))
-        assertEquals(2000, AlarmLogic.modulatedBeepHz(1000, value = 10f, comparator = LT, threshold = 20f, factorPct = 100))
+        // battery threshold 20, reach 50 (span 10): 10 (=-10) hits ceiling, 15 (=-5) halfway.
+        assertEquals(1000, AlarmLogic.modulatedBeepHz(1000, value = 20f, comparator = LT, threshold = 20f, reachPct = 50))
+        assertEquals(10500, AlarmLogic.modulatedBeepHz(1000, value = 15f, comparator = LT, threshold = 20f, reachPct = 50))
+        assertEquals(20000, AlarmLogic.modulatedBeepHz(1000, value = 10f, comparator = LT, threshold = 20f, reachPct = 50))
     }
 
-    // --- beep VOLUME modulation (base% + modPct, capped at system 100%) ---
+    // --- beep VOLUME modulation: ramps base -> 100% ceiling, plateaus.
+    // reachPct = rise SPEED; 0 = off.
 
     @Test
-    fun volumeModZeroIsConstantBase() {
+    fun volumeReachZeroIsConstantBase() {
         assertEquals(90, AlarmLogic.modulatedVolumePct(90, 0, value = 45f, comparator = GE, threshold = 30f))
         assertEquals(60, AlarmLogic.modulatedVolumePct(60, 0, value = 90f, comparator = GE, threshold = 30f))
     }
 
     @Test
     fun volumeBaseAtThreshold() {
-        assertEquals(90, AlarmLogic.modulatedVolumePct(90, 100, value = 30f, comparator = GE, threshold = 30f))
+        assertEquals(90, AlarmLogic.modulatedVolumePct(90, 50, value = 30f, comparator = GE, threshold = 30f))
     }
 
     @Test
-    fun volumeReachesSystemAtFullOvershoot() {
-        // base 90 climbs the remaining 10 to 100 at +50% past.
-        assertEquals(100, AlarmLogic.modulatedVolumePct(90, 100, value = 45f, comparator = GE, threshold = 30f))
+    fun volumeHitsSystemAtTheReachPoint() {
+        assertEquals(100, AlarmLogic.modulatedVolumePct(80, 50, value = 45f, comparator = GE, threshold = 30f))
     }
 
     @Test
-    fun volumeIsLinearMidway() {
-        // base 80, +25% (frac 0.5) => 80 + (100-80)*0.5 = 90.
-        assertEquals(90, AlarmLogic.modulatedVolumePct(80, 100, value = 37.5f, comparator = GE, threshold = 30f))
-    }
-
-    @Test
-    fun volumeModFactorScalesTheClimb() {
-        // base 80, full overshoot, half strength => 80 + (100-80)*0.5 = 90.
-        assertEquals(90, AlarmLogic.modulatedVolumePct(80, 50, value = 45f, comparator = GE, threshold = 30f))
+    fun volumeHalfwayToSystem() {
+        // base 80, reach 50 (span 15), +7.5 is half -> 80 + (100-80)*0.5 = 90.
+        assertEquals(90, AlarmLogic.modulatedVolumePct(80, 50, value = 37.5f, comparator = GE, threshold = 30f))
     }
 
     @Test
     fun volumeBase100HasNothingToClimb() {
-        // The "disable mod at 100%" case: already at system, modulation is a no-op.
-        assertEquals(100, AlarmLogic.modulatedVolumePct(100, 100, value = 45f, comparator = GE, threshold = 30f))
+        assertEquals(100, AlarmLogic.modulatedVolumePct(100, 50, value = 45f, comparator = GE, threshold = 30f))
     }
 
     @Test
     fun volumeNeverExceedsSystem() {
-        assertEquals(100, AlarmLogic.modulatedVolumePct(90, 300, value = 90f, comparator = GE, threshold = 30f))
+        assertEquals(100, AlarmLogic.modulatedVolumePct(90, 5, value = 90f, comparator = GE, threshold = 30f))
+    }
+
+    @Test
+    fun volumePlateausAtSystemBeyondReach() {
+        assertEquals(100, AlarmLogic.modulatedVolumePct(80, 50, value = 200f, comparator = GE, threshold = 30f))
     }
 
     @Test
     fun volumeRisesForLessThanAsValueFalls() {
-        assertEquals(100, AlarmLogic.modulatedVolumePct(80, 100, value = 10f, comparator = LT, threshold = 20f))
+        assertEquals(100, AlarmLogic.modulatedVolumePct(80, 50, value = 10f, comparator = LT, threshold = 20f))
     }
 }

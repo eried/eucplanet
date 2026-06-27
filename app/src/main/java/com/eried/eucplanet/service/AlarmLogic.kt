@@ -149,41 +149,40 @@ object AlarmLogic {
     }
 
     /**
-     * Modulated beep pitch in Hz. [factorPct] is the rise strength: 0 = fixed
-     * (always [baseHz]); at full overshoot the pitch has risen by factorPct% of
-     * the base (100% = doubles), clamped to [BEEP_MOD_MAX_HZ] and never below
-     * the base. Computed once per fire, so each beep in a single fire is one pitch.
+     * Modulated beep pitch in Hz. The pitch ramps from [baseHz] (at the threshold)
+     * up to [BEEP_MOD_MAX_HZ] and then plateaus there -- the ceiling is the engine
+     * max, not a user limit. [reachPct] is the rise SPEED: how far past the
+     * threshold (as a percent of the threshold) the pitch reaches the ceiling.
+     * 0 = off (always [baseHz]); smaller = faster rise. Computed once per fire.
      */
     fun modulatedBeepHz(
         baseHz: Int,
         value: Float,
         comparator: String,
         threshold: Float,
-        factorPct: Int,
-        reachPct: Int = 50,
+        reachPct: Int,
     ): Int {
-        if (factorPct <= 0) return baseHz
-        val rise = baseHz * (factorPct / 100f) * overshootFraction(value, comparator, threshold, reachPct)
+        if (reachPct <= 0) return baseHz
+        val rise = (BEEP_MOD_MAX_HZ - baseHz) * overshootFraction(value, comparator, threshold, reachPct)
         return (baseHz + rise).toInt().coerceIn(baseHz, BEEP_MOD_MAX_HZ)
     }
 
     /**
-     * Modulated beep volume as a 0..100 percent of system volume. [baseVolPct]
-     * is the loudness at the threshold; [modPct] is the rise strength: 0 = constant
-     * base; at full overshoot the volume has risen modPct% of the way from the
-     * base up to 100 (system). Always clamped to 0..100 (can't exceed system).
+     * Modulated beep volume, 0..100 percent of system volume. Ramps from
+     * [baseVolPct] up to 100 (system, the ceiling) and plateaus. [reachPct] is
+     * the rise SPEED: how far past the threshold the volume reaches 100. 0 = off
+     * (constant base); smaller = faster rise. Always clamped to base..100.
      */
     fun modulatedVolumePct(
         baseVolPct: Int,
-        modPct: Int,
+        reachPct: Int,
         value: Float,
         comparator: String,
         threshold: Float,
-        reachPct: Int = 50,
     ): Int {
         val base = baseVolPct.coerceIn(0, 100)
-        if (modPct <= 0) return base
-        val rise = (100 - base) * (modPct / 100f) * overshootFraction(value, comparator, threshold, reachPct)
-        return (base + rise).toInt().coerceIn(0, 100)
+        if (reachPct <= 0) return base
+        val rise = (100 - base) * overshootFraction(value, comparator, threshold, reachPct)
+        return (base + rise).toInt().coerceIn(base, 100)
     }
 }

@@ -205,11 +205,9 @@ class AlarmEngine @Inject constructor(
         scope.launch {
             if (rule.beepEnabled) {
                 val freq = AlarmLogic.modulatedBeepHz(
-                    rule.beepFrequency, triggerValue, rule.comparator, rule.threshold,
-                    rule.beepModulation, rule.beepModulationReachPct)
+                    rule.beepFrequency, triggerValue, rule.comparator, rule.threshold, rule.beepModulation)
                 val vol = AlarmLogic.modulatedVolumePct(
-                    rule.beepVolume, rule.beepVolumeModulation, triggerValue, rule.comparator, rule.threshold,
-                    rule.beepVolumeReachPct)
+                    rule.beepVolume, rule.beepVolumeModulation, triggerValue, rule.comparator, rule.threshold)
                 tonePlayer.playBeep(freq, rule.beepDurationMs, rule.beepCount, rule.beepGapMs, vol)
                 if (rule.voiceEnabled && rule.voiceText.isNotBlank()) {
                     delay(rule.beepGapMs.toLong())
@@ -244,11 +242,9 @@ class AlarmEngine @Inject constructor(
         scope.launch {
             if (rule.beepEnabled) {
                 val freq = AlarmLogic.modulatedBeepHz(
-                    rule.beepFrequency, triggerValue, rule.comparator, rule.threshold,
-                    rule.beepModulation, rule.beepModulationReachPct)
+                    rule.beepFrequency, triggerValue, rule.comparator, rule.threshold, rule.beepModulation)
                 val vol = AlarmLogic.modulatedVolumePct(
-                    rule.beepVolume, rule.beepVolumeModulation, triggerValue, rule.comparator, rule.threshold,
-                    rule.beepVolumeReachPct)
+                    rule.beepVolume, rule.beepVolumeModulation, triggerValue, rule.comparator, rule.threshold)
                 tonePlayer.playBeep(freq, rule.beepDurationMs, rule.beepCount, rule.beepGapMs, vol)
                 if (rule.voiceEnabled && rule.voiceText.isNotBlank()) {
                     delay(rule.beepGapMs.toLong())
