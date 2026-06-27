@@ -724,14 +724,21 @@ private fun AlarmRuleEditorDialog(
                         }
                         Spacer(Modifier.height(8.dp))
                         // Pitch + volume modulation is set in a dedicated full-screen
-                        // studio (roomy sliders + live audio), not crammed inline.
-                        Button(
-                            onClick = { showStudio = true },
+                        // preview (roomy controls + live audio), not crammed inline.
+                        Row(
                             modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Icon(Icons.Default.Tune, contentDescription = null, modifier = Modifier.size(18.dp))
-                            Spacer(Modifier.width(6.dp))
-                            Text(stringResource(R.string.alarm_beep_studio))
+                            Button(
+                                onClick = { showStudio = true },
+                                modifier = Modifier.weight(1f),
+                            ) {
+                                Icon(Icons.Default.Tune, contentDescription = null, modifier = Modifier.size(18.dp))
+                                Spacer(Modifier.width(6.dp))
+                                Text(stringResource(R.string.alarm_beep_studio))
+                            }
+                            Spacer(Modifier.weight(1f))
                         }
                     }
                 }
@@ -1039,11 +1046,11 @@ private fun AlarmRuleEditorDialog(
 }
 
 /**
- * Full-screen "Beep Studio": roomy controls for pitch + volume modulation with a
- * live, hearable preview. The graph is display-only -- drag the METRIC slider to
- * see how pitch/volume respond; press Play (and leave it running) to hear the
- * change as you move the sliders. Pitch + volume rise SPEED are set here; gap +
- * base volume stay in the editor's Advanced section.
+ * Full-screen "Beep preview": roomy controls for pitch + volume modulation with a
+ * live, hearable preview. The metric slider (top) drives a display-only response
+ * curve (Hz/volume vs the metric) and a beep timeline (the repeats + gaps as they
+ * play). Press Play and leave it running to hear the change as you move things.
+ * Pitch + volume FACTOR are set here; gap + base volume stay in the Advanced tab.
  */
 @Composable
 private fun BeepStudioDialog(
@@ -1067,16 +1074,22 @@ private fun BeepStudioDialog(
 ) {
     val ge = AlarmComparator.parse(comparator) == AlarmComparator.GREATER_EQUAL
     val absThr = kotlin.math.abs(threshold).coerceAtLeast(1f)
-    val maxOvershoot = absThr * 1.5f
-    fun valueAt(o: Float) = if (ge) threshold + o else threshold - o
-    fun freqAt(o: Float) = AlarmLogic.modulatedBeepHz(baseFreq, valueAt(o), comparator, threshold, pitchReachPct)
-    fun volAt(o: Float) = AlarmLogic.modulatedVolumePct(baseVolume, volReachPct, valueAt(o), comparator, threshold)
+    // Slider spans the realistic range for the comparator: >= goes up from the
+    // threshold; < goes from 0 up to the threshold. More severe = further from it.
+    val maxOvershoot = if (ge) absThr * 1.5f else threshold.coerceAtLeast(1f)
+    val sliderMin = if (ge) threshold else 0f
+    val sliderMax = if (ge) threshold + maxOvershoot else threshold
+    fun overshootOf(v: Float) = (if (ge) v - threshold else threshold - v).coerceIn(0f, maxOvershoot)
+    fun freqAtV(v: Float) = AlarmLogic.modulatedBeepHz(baseFreq, v, comparator, threshold, pitchReachPct)
+    fun volAtV(v: Float) = AlarmLogic.modulatedVolumePct(baseVolume, volReachPct, v, comparator, threshold)
+    fun fmt(v: Float) = if (v % 1f == 0f) v.toInt().toString() else String.format("%.1f", v)
 
-    var simO by remember { mutableFloatStateOf(maxOvershoot * 0.6f) }
+    var simValue by remember {
+        mutableFloatStateOf(if (ge) threshold + maxOvershoot * 0.5f else threshold * 0.5f)
+    }
 
-    // Push the live tone to the play loop whenever the sim / factors change.
-    LaunchedEffect(simO, pitchReachPct, volReachPct, baseFreq, baseVolume, durationMs, count, gapMs) {
-        onLiveTone(freqAt(simO), volAt(simO))
+    LaunchedEffect(simValue, pitchReachPct, volReachPct, baseFreq, baseVolume) {
+        onLiveTone(freqAtV(simValue), volAtV(simValue))
     }
 
     Dialog(
@@ -1084,11 +1097,11 @@ private fun BeepStudioDialog(
         properties = androidx.compose.ui.window.DialogProperties(usePlatformDefaultWidth = false),
     ) {
         Surface(
-            modifier = Modifier.fillMaxWidth(0.96f).fillMaxHeight(0.92f),
+            modifier = Modifier.fillMaxWidth(0.96f),
             shape = RoundedCornerShape(16.dp),
             color = MaterialTheme.colorScheme.surface,
         ) {
-            Column(Modifier.fillMaxSize().padding(16.dp)) {
+            Column(Modifier.fillMaxWidth().padding(16.dp)) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(
                         stringResource(R.string.alarm_beep_studio),
@@ -1103,6 +1116,17 @@ private fun BeepStudioDialog(
                     }
                 }
 
+                // 1) Metric slider on top (the handle) + live readout.
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text("${stringResource(metric.labelRes)}: ${fmt(simValue)} $unit",
+                        color = MaterialTheme.colorScheme.onSurface, fontWeight = FontWeight.Medium)
+                    Spacer(Modifier.weight(1f))
+                    Text(stringResource(R.string.alarm_studio_now, freqAtV(simValue), volAtV(simValue)),
+                        color = MaterialTheme.appColors.fieldLabel, fontSize = 12.sp)
+                }
+                Slider(value = simValue, onValueChange = { simValue = it }, valueRange = sliderMin..sliderMax)
+
+                // 2) Response curve (display only).
                 BeepCurveDisplay(
                     comparator = comparator,
                     threshold = threshold,
@@ -1110,42 +1134,104 @@ private fun BeepStudioDialog(
                     baseVolume = baseVolume,
                     pitchReachPct = pitchReachPct,
                     volReachPct = volReachPct,
-                    markerO = simO,
+                    markerO = overshootOf(simValue),
                     maxOvershoot = maxOvershoot,
-                    modifier = Modifier.fillMaxWidth().weight(1f).padding(vertical = 8.dp),
+                    modifier = Modifier.fillMaxWidth().height(132.dp).padding(top = 4.dp),
                 )
 
-                // Metric slider (the handle) + live readout.
-                val mv = valueAt(simO)
-                val mvStr = if (mv % 1f == 0f) mv.toInt().toString() else String.format("%.1f", mv)
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text("${stringResource(metric.labelRes)}: $mvStr $unit",
-                        color = MaterialTheme.colorScheme.onSurface, fontWeight = FontWeight.Medium)
+                // 3) Play (half width, near the graph).
+                Spacer(Modifier.height(6.dp))
+                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Button(onClick = onTogglePlay, modifier = Modifier.weight(1f)) {
+                        Icon(if (playing) Icons.Default.Stop else Icons.Default.PlayArrow, contentDescription = null,
+                            modifier = Modifier.size(18.dp))
+                        Spacer(Modifier.width(6.dp))
+                        Text(stringResource(if (playing) R.string.alarm_studio_stop else R.string.alarm_studio_play))
+                    }
                     Spacer(Modifier.weight(1f))
-                    Text(stringResource(R.string.alarm_studio_now, freqAt(simO), volAt(simO)),
-                        color = MaterialTheme.appColors.fieldLabel, fontSize = 12.sp)
                 }
-                Slider(value = simO, onValueChange = { simO = it }, valueRange = 0f..maxOvershoot)
 
-                // Pitch + volume rise SPEED.
-                Text("${stringResource(R.string.alarm_studio_pitch_speed)}: $pitchReachPct%",
-                    color = MaterialTheme.appColors.statusWarn, fontSize = 13.sp)
-                Slider(value = pitchReachPct.toFloat(), onValueChange = { onPitchReachChange(it.roundToInt()) },
-                    valueRange = 0f..150f)
-                Text("${stringResource(R.string.alarm_studio_volume_speed)}: $volReachPct%",
-                    color = MaterialTheme.appColors.metricPosition, fontSize = 13.sp)
-                Slider(value = volReachPct.toFloat(), onValueChange = { onVolumeReachChange(it.roundToInt()) },
-                    valueRange = 0f..150f, enabled = baseVolume < 100)
+                // 4) Beep timeline (repeats + gaps as they play, trigger at the start).
+                Spacer(Modifier.height(10.dp))
+                BeepTimeline(
+                    conditionText = "${AlarmComparator.parse(comparator).symbol} ${fmt(threshold)} $unit",
+                    durationMs = durationMs,
+                    count = count,
+                    gapMs = gapMs,
+                    modifier = Modifier.fillMaxWidth().height(72.dp),
+                )
 
-                HintText(stringResource(R.string.alarm_studio_hint), small = true)
+                // 5) Pitch + volume FACTOR (numeric).
+                Spacer(Modifier.height(12.dp))
+                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                    NumberUpDown(
+                        value = pitchReachPct,
+                        onValueChange = onPitchReachChange,
+                        range = 0..150, step = 5, suffix = "%",
+                        label = stringResource(R.string.alarm_studio_pitch_factor),
+                        modifier = Modifier.weight(1f),
+                    )
+                    NumberUpDown(
+                        value = volReachPct,
+                        onValueChange = onVolumeReachChange,
+                        range = 0..150, step = 5, suffix = "%",
+                        label = stringResource(R.string.alarm_studio_volume_factor),
+                        enabled = baseVolume < 100,
+                        modifier = Modifier.weight(1f),
+                    )
+                }
                 Spacer(Modifier.height(8.dp))
-                Button(onClick = onTogglePlay, modifier = Modifier.fillMaxWidth()) {
-                    Icon(if (playing) Icons.Default.Stop else Icons.Default.PlayArrow, contentDescription = null)
-                    Spacer(Modifier.width(6.dp))
-                    Text(stringResource(if (playing) R.string.alarm_studio_stop else R.string.alarm_studio_play))
-                }
             }
         }
+    }
+}
+
+/**
+ * Time-domain view of the beep: a trigger marker + condition at the start, then
+ * the [count] beep blocks (width ~ duration) separated by gap spaces, as they
+ * play. Gap 0 makes the blocks touch (a continuous tone).
+ */
+@Composable
+private fun BeepTimeline(
+    conditionText: String,
+    durationMs: Int,
+    count: Int,
+    gapMs: Int,
+    modifier: Modifier = Modifier,
+) {
+    val accent = MaterialTheme.appColors.statusWarn
+    val markerCol = MaterialTheme.colorScheme.onSurface
+    val grid = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.35f)
+    val labelColor = MaterialTheme.appColors.fieldLabel
+    val txt = with(LocalDensity.current) { 10.sp.toPx() }
+    Canvas(modifier) {
+        val w = size.width; val h = size.height
+        val nv = drawContext.canvas.nativeCanvas
+        val pCond = android.graphics.Paint().apply { color = markerCol.toArgb(); textSize = txt; isAntiAlias = true }
+        val pLbl = android.graphics.Paint().apply { color = labelColor.toArgb(); textSize = txt * 0.85f; isAntiAlias = true }
+
+        nv.drawText(conditionText, 4f, txt + 2f, pCond)
+
+        val ty0 = h * 0.40f; val ty1 = h * 0.82f
+        val dur = durationMs.toFloat().coerceAtLeast(1f)
+        val gap = gapMs.toFloat()
+        val total = (count * dur + (count - 1).coerceAtLeast(0) * gap).coerceAtLeast(1f)
+        val triggerX = 6f
+        val sx = (w - triggerX - 6f) / total
+
+        // trigger marker (vertical line) at the start
+        drawLine(markerCol, Offset(triggerX, ty0 - 6f), Offset(triggerX, ty1 + 6f), 3f)
+        var t = 0f
+        for (i in 0 until count) {
+            val x0 = triggerX + t * sx
+            drawRect(accent.copy(alpha = 0.75f), topLeft = Offset(x0, ty0), size = Size((dur * sx).coerceAtLeast(3f), ty1 - ty0))
+            t += dur
+            if (i < count - 1) {
+                val gx0 = triggerX + t * sx; t += gap
+                drawLine(grid, Offset(gx0, (ty0 + ty1) / 2f), Offset(triggerX + t * sx, (ty0 + ty1) / 2f), 2f)  // gap = silence
+            }
+        }
+        nv.drawText("${count}× · gap ${gapMs} ms", 4f, h - 3f, pLbl)
     }
 }
 

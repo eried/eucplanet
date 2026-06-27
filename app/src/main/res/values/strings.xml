@@ -938,11 +938,10 @@
     <string name="alarm_beep_pitch_rise_label">Pitch rise</string>
     <string name="alarm_beep_volume_label">Volume</string>
     <string name="alarm_beep_volume_rise_label">Volume rise</string>
-    <string name="alarm_beep_studio">Beep Studio</string>
-    <string name="alarm_studio_pitch_speed">Pitch rise speed</string>
-    <string name="alarm_studio_volume_speed">Volume rise speed</string>
+    <string name="alarm_beep_studio">Beep preview</string>
+    <string name="alarm_studio_pitch_factor">Pitch factor</string>
+    <string name="alarm_studio_volume_factor">Volume factor</string>
     <string name="alarm_studio_now">%1$d Hz · %2$d%%</string>
-    <string name="alarm_studio_hint">Drag the metric to preview the response. Press Play and keep it running to hear changes live.</string>
     <string name="alarm_studio_play">Play</string>
     <string name="alarm_studio_stop">Stop</string>
     <string name="alarm_beep_sum_core">Beeps at %1$d Hz for %2$d ms</string>
