@@ -82,10 +82,15 @@ class AlarmEngine @Inject constructor(
             val rules = alarmDao.getEnabled()
             val now = System.currentTimeMillis()
 
+            // Group priority = the order metrics first appear when rules are sorted
+            // by sortOrder (the list order the rider drags). Highest-priority group
+            // first; only its ready alarm sounds, lower ones fill its cooldown gaps.
+            val metricPriority = rules.sortedBy { it.sortOrder }.map { it.metric }.distinct()
             val fired = evaluator.evaluate(
                 rules.map { it.toEvaluatorRule() },
                 now,
                 AlarmEvaluator.NoReading.SKIP,
+                metricPriority,
             ) { metric ->
                 // Radar metrics report null here -- they're driven by
                 // [evaluateRadar] off the radar frame, not wheel telemetry.
