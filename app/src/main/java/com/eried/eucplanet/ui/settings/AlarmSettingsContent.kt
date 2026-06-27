@@ -75,10 +75,7 @@ import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
-import androidx.compose.foundation.gestures.awaitEachGesture
-import androidx.compose.foundation.gestures.awaitFirstDown
-import androidx.compose.foundation.gestures.awaitLongPressOrCancellation
-import androidx.compose.foundation.gestures.drag
+import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Path
@@ -1097,7 +1094,7 @@ private fun BeepModulationGraph(
                 .pointerInput(threshold, comparator, baseFreq, pitchReachPct, baseVolume, volReachPct) {
                     val w = size.width.toFloat(); val h = size.height.toFloat()
                     val pl = leftPad; val pr = w - rightPad
-                    val top = h * 0.20f; val bot = h * 0.93f
+                    val top = h * 0.08f; val bot = h * 0.93f
                     val volTop = top + (bot - top) * 0.45f
                     fun xOf(o: Float) = pl + (o / maxOvershoot) * (pr - pl)
                     fun oOfX(x: Float) = (((x - pl) / (pr - pl)) * maxOvershoot).coerceIn(0f, maxOvershoot)
@@ -1108,46 +1105,41 @@ private fun BeepModulationGraph(
                     val volFinal = Offset(xOf(volKneeO), volTop)
                     val volBase = Offset(pl, yVol(baseVolume.toFloat()))
 
-                    awaitEachGesture {
-                        val down = awaitFirstDown(requireUnconsumed = false)
-                        val m = when {
-                            (down.position - pitchFinal).getDistance() < hitPx -> 1
-                            (down.position - volFinal).getDistance() < hitPx -> 3
-                            (down.position - volBase).getDistance() < hitPx -> 2
-                            else -> 0
-                        }
-                        if (m != 0) {
-                            down.consume()   // claim immediately so the scroll parent can't steal it
-                            fun applyAt(p: Offset) {
-                                when (m) {
-                                    1 -> onPitchReachChange(reachFromX(p.x))
-                                    2 -> onBaseVolumeChange(volForY(p.y).roundToInt())
-                                    else -> onVolumeReachChange(reachFromX(p.x))
-                                }
+                    // The graph claims drags (consumes them), so dragging a dot never
+                    // scrolls the dialog. Drag near a dot to move it; drag elsewhere
+                    // to scrub. Scroll the dialog by dragging ABOVE/BELOW the graph.
+                    var mode = 0
+                    detectDragGestures(
+                        onDragStart = { pos ->
+                            mode = when {
+                                (pos - pitchFinal).getDistance() < hitPx -> 1
+                                (pos - volFinal).getDistance() < hitPx -> 3
+                                (pos - volBase).getDistance() < hitPx -> 2
+                                else -> 0
                             }
-                            applyAt(down.position)
-                            drag(down.id) { ch -> ch.consume(); applyAt(ch.position) }
-                        } else {
-                            // empty space: long-press to scrub; a plain swipe falls through to scroll
-                            val lp = awaitLongPressOrCancellation(down.id)
-                            if (lp != null) {
-                                lp.consume()
-                                fun doScrub(x: Float) {
-                                    val o = oOfX(x); scrub = o
-                                    val b = (((x - pl) / (pr - pl)) * 36f).toInt()
+                            if (mode == 0) scrub = oOfX(pos.x)
+                        },
+                        onDragEnd = { scrub = null; lastBucket = -1 },
+                        onDrag = { ch, _ ->
+                            ch.consume()
+                            val p = ch.position
+                            when (mode) {
+                                1 -> onPitchReachChange(reachFromX(p.x))
+                                2 -> onBaseVolumeChange(volForY(p.y).roundToInt())
+                                3 -> onVolumeReachChange(reachFromX(p.x))
+                                else -> {
+                                    val o = oOfX(p.x); scrub = o
+                                    val b = (((p.x - pl) / (pr - pl)) * 36f).toInt()
                                     if (b != lastBucket) { lastBucket = b; onScrubTone(freqAt(o), volAt(o)) }
                                 }
-                                doScrub(lp.position.x)
-                                drag(down.id) { ch -> ch.consume(); doScrub(ch.position.x) }
-                                scrub = null; lastBucket = -1
                             }
                         }
-                    }
+                    )
                 }
         ) {
             val w = size.width; val h = size.height
             val pl = leftPad; val pr = w - rightPad
-            val top = h * 0.20f; val bot = h * 0.93f
+            val top = h * 0.08f; val bot = h * 0.93f
             val volTop = top + (bot - top) * 0.45f
             fun xOf(o: Float) = pl + (o / maxOvershoot) * (pr - pl)
             fun yFreq(f: Float) = bot - (kotlin.math.ln(f.coerceIn(fMin, fMax)) - lnMin) / (lnMax - lnMin) * (bot - top)
@@ -1175,29 +1167,6 @@ private fun BeepModulationGraph(
                 drawLine(volColor.copy(alpha = 0.20f), Offset(pl, y), Offset(pr, y), 1.5f, pathEffect = dash)
                 nv.drawText("${v.toInt()}%", w - 2f, y + txt / 3f, pVol)
             }
-
-            // beep-pattern strip: blocks = beeps, vertical ticks = gaps, then voice
-            val sY0 = h * 0.03f; val sY1 = h * 0.12f
-            val durF = durationMs.toFloat().coerceAtLeast(1f)
-            val gapF = gapMs.toFloat()
-            val voiceW = if (voiceOn) durF * 2f else 0f
-            val totalT = count * durF + (count - 1).coerceAtLeast(0) * gapF + (if (voiceOn) gapF + voiceW else 0f)
-            val sx = if (totalT > 0f) (pr - pl) / totalT else 0f
-            var tcur = 0f
-            for (i in 0 until count) {
-                drawRect(accent.copy(alpha = 0.7f), topLeft = Offset(pl + tcur * sx, sY0), size = Size((durF * sx).coerceAtLeast(3f), sY1 - sY0))
-                tcur += durF
-                if (i < count - 1) {
-                    drawLine(markerColor.copy(alpha = 0.55f), Offset(pl + tcur * sx, sY0), Offset(pl + tcur * sx, sY1), 2.5f)  // gap = vertical tick
-                    tcur += gapF
-                }
-            }
-            if (voiceOn) {
-                drawLine(markerColor.copy(alpha = 0.55f), Offset(pl + tcur * sx, sY0), Offset(pl + tcur * sx, sY1), 2.5f)
-                tcur += gapF
-                drawRect(markerColor.copy(alpha = 0.35f), topLeft = Offset(pl + tcur * sx, sY0), size = Size((voiceW * sx).coerceAtLeast(3f), sY1 - sY0))
-            }
-            nv.drawText("beep | gap" + (if (voiceOn) " | voice" else ""), 2f, sY1 + txt, pLbl)
 
             // pitch curve: base -> ceiling, plateau. Off => flat at base.
             val pBaseY = yFreq(baseFreq.toFloat())
