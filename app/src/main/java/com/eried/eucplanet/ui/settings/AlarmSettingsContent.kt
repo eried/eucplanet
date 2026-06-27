@@ -95,6 +95,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.drawscope.clipPath
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.geometry.Size
@@ -1203,6 +1204,7 @@ private fun BeepStudioDialog(
                     durationMs = durationMs,
                     count = count,
                     gapMs = gapMs,
+                    freqHz = freqAtV(simValue),
                     playheadFrac = if (playing) playhead.value else null,
                     modifier = Modifier.fillMaxWidth().height(70.dp),
                 )
@@ -1233,6 +1235,7 @@ private fun BeepTimeline(
     durationMs: Int,
     count: Int,
     gapMs: Int,
+    freqHz: Int,
     playheadFrac: Float? = null,
     modifier: Modifier = Modifier,
 ) {
@@ -1246,6 +1249,8 @@ private fun BeepTimeline(
         val nv = drawContext.canvas.nativeCanvas
         val pCond = android.graphics.Paint().apply { color = markerCol.toArgb(); textSize = txt; isAntiAlias = true }
         val pLbl = android.graphics.Paint().apply { color = labelColor.toArgb(); textSize = txt * 0.85f; isAntiAlias = true }
+        val pBlk = android.graphics.Paint().apply { color = markerCol.toArgb(); textSize = txt * 0.85f; isAntiAlias = true; textAlign = android.graphics.Paint.Align.CENTER }
+        val hzStr = "$freqHz"
 
         nv.drawText(conditionText, 4f, txt + 2f, pCond)
 
@@ -1262,7 +1267,12 @@ private fun BeepTimeline(
         var t = 0f
         for (i in 0 until count) {
             val x0 = triggerX + t * sx
-            drawRect(accent.copy(alpha = 0.75f), topLeft = Offset(x0, ty0), size = Size((dur * sx).coerceAtLeast(3f), ty1 - ty0))
+            val bw = (dur * sx).coerceAtLeast(3f)
+            drawRect(accent.copy(alpha = 0.75f), topLeft = Offset(x0, ty0), size = Size(bw, ty1 - ty0))
+            // The Hz this block plays at, centred on it if it fits.
+            if (bw > pBlk.measureText(hzStr) + 6f) {
+                nv.drawText(hzStr, x0 + bw / 2f, (ty0 + ty1) / 2f + txt / 3f, pBlk)
+            }
             t += dur
             // A gap after every beep -- the last one is the trailing gap before the loop repeats.
             val gx0 = triggerX + t * sx; t += gap
@@ -1333,13 +1343,23 @@ private fun BeepCurveDisplay(
             nv.drawText("${v.toInt()}%", w - 2f, y + txt / 3f, pVol)
         }
 
-        val pPath = Path(); val vPath = Path()
+        val pPath = Path(); val vPath = Path(); val pArea = Path()
         val steps = 64
         for (i in 0..steps) {
             val o = maxOvershoot * i / steps
-            val x = xOf(o)
-            if (i == 0) { pPath.moveTo(x, yFreq(freqAt(o))); vPath.moveTo(x, yVol(volAt(o))) }
-            else { pPath.lineTo(x, yFreq(freqAt(o))); vPath.lineTo(x, yVol(volAt(o))) }
+            val x = xOf(o); val yf = yFreq(freqAt(o))
+            if (i == 0) { pPath.moveTo(x, yf); vPath.moveTo(x, yVol(volAt(o))); pArea.moveTo(x, yf) }
+            else { pPath.lineTo(x, yf); vPath.lineTo(x, yVol(volAt(o))); pArea.lineTo(x, yf) }
+        }
+        pArea.lineTo(pr, bot); pArea.lineTo(pl, bot); pArea.close()
+        // diagonal hatched fill under the pitch curve
+        clipPath(pArea) {
+            val diag = bot - top
+            var hx = pl - diag
+            while (hx < pr) {
+                drawLine(accent.copy(alpha = 0.20f), Offset(hx, bot), Offset(hx + diag, top), 1.5f)
+                hx += 14f
+            }
         }
         drawPath(pPath, accent, style = Stroke(width = 6f))
         drawPath(vPath, volColor, style = Stroke(width = 6f))

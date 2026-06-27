@@ -938,7 +938,7 @@
     <string name="alarm_beep_pitch_rise_label">Pitch rise</string>
     <string name="alarm_beep_volume_label">Volume</string>
     <string name="alarm_beep_volume_rise_label">Volume rise</string>
-    <string name="alarm_beep_studio">Pitch &amp; volume</string>
+    <string name="alarm_beep_studio">Adaptive beep</string>
     <string name="alarm_studio_pitch_factor">Pitch factor</string>
     <string name="alarm_studio_volume_factor">Volume factor</string>
     <string name="alarm_studio_now">%1$d Hz · %2$d%%</string>
