@@ -182,52 +182,8 @@ object SettingsJson {
         put("watchScreen2Hold", s.watchScreen2Hold)
         put("watchHapticOnAction", s.watchHapticOnAction)
         put("watchUpdateRate", s.watchUpdateRate)
-        put("wheelPollIntervalMs", s.wheelPollIntervalMs)
-        put("graphSampleIntervalMs", s.graphSampleIntervalMs)
-        put("tripRecordIntervalMs", s.tripRecordIntervalMs)
-        put("phoneGpsIntervalMs", s.phoneGpsIntervalMs)
-        put("hudReportIntervalMs", s.hudReportIntervalMs)
-        put("garminReportIntervalMs", s.garminReportIntervalMs)
-        put("navOffRouteGraceMs", s.navOffRouteGraceMs)
-        put("navOffRouteVoiceAfterMs", s.navOffRouteVoiceAfterMs)
-        put("navOffRouteVoiceCooldownMs", s.navOffRouteVoiceCooldownMs)
-        put("navRerouteAfterMs", s.navRerouteAfterMs)
-        put("navArrivalDismissMs", s.navArrivalDismissMs)
-        put("navHuntVoiceIntervalMs", s.navHuntVoiceIntervalMs)
-        put("navHeadingWindowMs", s.navHeadingWindowMs)
-        put("navFixBufferMs", s.navFixBufferMs)
-        put("navIntermediateFlashMs", s.navIntermediateFlashMs)
-        put("navPopupTimeoutMs", s.navPopupTimeoutMs)
-        put("alarmSlopeWindowMs", s.alarmSlopeWindowMs)
-        put("alarmBufferMaxMs", s.alarmBufferMaxMs)
-        put("alarmSlopeMinSamples", s.alarmSlopeMinSamples)
-        put("alarmSlopeMinSpanMs", s.alarmSlopeMinSpanMs)
-        put("radarClearDecayMs", s.radarClearDecayMs)
-        put("automationLightCheckIntervalMs", s.automationLightCheckIntervalMs)
-        put("hudBackoffMinMs", s.hudBackoffMinMs)
-        put("hudBackoffMaxMs", s.hudBackoffMaxMs)
-        put("hudMdnsTimeoutMs", s.hudMdnsTimeoutMs)
-        put("hudDiscoverySprintMs", s.hudDiscoverySprintMs)
-        put("autoLightNoGpsRetryMs", s.autoLightNoGpsRetryMs)
-        put("autoToggleGraceMs", s.autoToggleGraceMs)
-        put("navMovingKmh", s.navMovingKmh)
-        put("navPrepareDistM", s.navPrepareDistM)
-        put("navExecuteDistM", s.navExecuteDistM)
-        put("navProxBandM", s.navProxBandM)
-        put("navMinInterStopMoveM", s.navMinInterStopMoveM)
-        put("radarFastApproachDistM", s.radarFastApproachDistM)
-        put("radarFastApproachSpeedKmh", s.radarFastApproachSpeedKmh)
-        put("radarStaticTargetKmh", s.radarStaticTargetKmh)
-        put("radarFallbackClosingMps", s.radarFallbackClosingMps)
-        put("radarMinFrameRateMs", s.radarMinFrameRateMs)
-        put("chargingTargetPercent", s.chargingTargetPercent)
-        put("chargingTargetTaperX100", s.chargingTargetTaperX100)
-        put("chargingCvTaperX100", s.chargingCvTaperX100)
-        put("chargingWarmupMinPercentGain", s.chargingWarmupMinPercentGain)
-        put("chargingWarmupMinDurationMs", s.chargingWarmupMinDurationMs)
-        put("chargingWindowMs", s.chargingWindowMs)
-        put("chargingSanityCapMinutes", s.chargingSanityCapMinutes)
-        put("chargingMedianFilterSize", s.chargingMedianFilterSize)
+        // Advanced knobs — flat keys (kept stable for back-compat), registry-driven.
+        com.eried.eucplanet.data.model.ADVANCED_SPECS.forEach { put(it.id, it.get(s.advanced)) }
         put("watchCloseOnExit", s.watchCloseOnExit)
         put("watchPrioritizePwm", s.watchPrioritizePwm)
         put("watchDialRotationDeg", s.watchDialRotationDeg)
@@ -453,54 +409,10 @@ object SettingsJson {
             j.has("fasterRefresh") -> if (j.optBoolean("fasterRefresh", false)) "FAST" else "NORMAL"
             else -> base.watchUpdateRate
         },
-        advanced = com.eried.eucplanet.data.model.AdvancedSettings(
-            wheelPollIntervalMs = j.optInt("wheelPollIntervalMs", base.wheelPollIntervalMs),
-            graphSampleIntervalMs = j.optInt("graphSampleIntervalMs", base.graphSampleIntervalMs),
-            tripRecordIntervalMs = j.optInt("tripRecordIntervalMs", base.tripRecordIntervalMs),
-            phoneGpsIntervalMs = j.optInt("phoneGpsIntervalMs", base.phoneGpsIntervalMs),
-            hudReportIntervalMs = j.optInt("hudReportIntervalMs", base.hudReportIntervalMs),
-            garminReportIntervalMs = j.optInt("garminReportIntervalMs", base.garminReportIntervalMs),
-            navOffRouteGraceMs = j.optInt("navOffRouteGraceMs", base.navOffRouteGraceMs),
-            navOffRouteVoiceAfterMs = j.optInt("navOffRouteVoiceAfterMs", base.navOffRouteVoiceAfterMs),
-            navOffRouteVoiceCooldownMs = j.optInt("navOffRouteVoiceCooldownMs", base.navOffRouteVoiceCooldownMs),
-            navRerouteAfterMs = j.optInt("navRerouteAfterMs", base.navRerouteAfterMs),
-            navArrivalDismissMs = j.optInt("navArrivalDismissMs", base.navArrivalDismissMs),
-            navHuntVoiceIntervalMs = j.optInt("navHuntVoiceIntervalMs", base.navHuntVoiceIntervalMs),
-            navHeadingWindowMs = j.optInt("navHeadingWindowMs", base.navHeadingWindowMs),
-            navFixBufferMs = j.optInt("navFixBufferMs", base.navFixBufferMs),
-            navIntermediateFlashMs = j.optInt("navIntermediateFlashMs", base.navIntermediateFlashMs),
-            navPopupTimeoutMs = j.optInt("navPopupTimeoutMs", base.navPopupTimeoutMs),
-            alarmSlopeWindowMs = j.optInt("alarmSlopeWindowMs", base.alarmSlopeWindowMs),
-            alarmBufferMaxMs = j.optInt("alarmBufferMaxMs", base.alarmBufferMaxMs),
-            alarmSlopeMinSamples = j.optInt("alarmSlopeMinSamples", base.alarmSlopeMinSamples),
-            alarmSlopeMinSpanMs = j.optInt("alarmSlopeMinSpanMs", base.alarmSlopeMinSpanMs),
-            radarClearDecayMs = j.optInt("radarClearDecayMs", base.radarClearDecayMs),
-            automationLightCheckIntervalMs = j.optInt("automationLightCheckIntervalMs", base.automationLightCheckIntervalMs),
-            hudBackoffMinMs = j.optInt("hudBackoffMinMs", base.hudBackoffMinMs),
-            hudBackoffMaxMs = j.optInt("hudBackoffMaxMs", base.hudBackoffMaxMs),
-            hudMdnsTimeoutMs = j.optInt("hudMdnsTimeoutMs", base.hudMdnsTimeoutMs),
-            hudDiscoverySprintMs = j.optInt("hudDiscoverySprintMs", base.hudDiscoverySprintMs),
-            autoLightNoGpsRetryMs = j.optInt("autoLightNoGpsRetryMs", base.autoLightNoGpsRetryMs),
-            autoToggleGraceMs = j.optInt("autoToggleGraceMs", base.autoToggleGraceMs),
-            navMovingKmh = j.optInt("navMovingKmh", base.navMovingKmh),
-            navPrepareDistM = j.optInt("navPrepareDistM", base.navPrepareDistM),
-            navExecuteDistM = j.optInt("navExecuteDistM", base.navExecuteDistM),
-            navProxBandM = j.optInt("navProxBandM", base.navProxBandM),
-            navMinInterStopMoveM = j.optInt("navMinInterStopMoveM", base.navMinInterStopMoveM),
-            radarFastApproachDistM = j.optInt("radarFastApproachDistM", base.radarFastApproachDistM),
-            radarFastApproachSpeedKmh = j.optInt("radarFastApproachSpeedKmh", base.radarFastApproachSpeedKmh),
-            radarStaticTargetKmh = j.optInt("radarStaticTargetKmh", base.radarStaticTargetKmh),
-            radarFallbackClosingMps = j.optInt("radarFallbackClosingMps", base.radarFallbackClosingMps),
-            radarMinFrameRateMs = j.optInt("radarMinFrameRateMs", base.radarMinFrameRateMs),
-            chargingTargetPercent = j.optInt("chargingTargetPercent", base.chargingTargetPercent),
-            chargingTargetTaperX100 = j.optInt("chargingTargetTaperX100", base.chargingTargetTaperX100),
-            chargingCvTaperX100 = j.optInt("chargingCvTaperX100", base.chargingCvTaperX100),
-            chargingWarmupMinPercentGain = j.optInt("chargingWarmupMinPercentGain", base.chargingWarmupMinPercentGain),
-            chargingWarmupMinDurationMs = j.optInt("chargingWarmupMinDurationMs", base.chargingWarmupMinDurationMs),
-            chargingWindowMs = j.optInt("chargingWindowMs", base.chargingWindowMs),
-            chargingSanityCapMinutes = j.optInt("chargingSanityCapMinutes", base.chargingSanityCapMinutes),
-            chargingMedianFilterSize = j.optInt("chargingMedianFilterSize", base.chargingMedianFilterSize),
-        ),
+        // Advanced knobs — fold each spec's flat key over the defaults (registry-driven).
+        advanced = com.eried.eucplanet.data.model.ADVANCED_SPECS.fold(base.advanced) { a, sp ->
+            sp.set(a, j.optInt(sp.id, sp.get(a)))
+        },
         watchCloseOnExit = j.optBoolean("watchCloseOnExit", base.watchCloseOnExit),
         watchPrioritizePwm = j.optBoolean("watchPrioritizePwm", base.watchPrioritizePwm),
         watchDialRotationDeg = j.optInt("watchDialRotationDeg", base.watchDialRotationDeg),

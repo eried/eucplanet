@@ -234,6 +234,11 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.compose.ui.graphics.vector.ImageVector
 import com.eried.eucplanet.BuildConfig
 import com.eried.eucplanet.R
+import com.eried.eucplanet.data.model.ADVANCED_DEFAULTS
+import com.eried.eucplanet.data.model.ADVANCED_SPECS
+import com.eried.eucplanet.data.model.AdvGroup
+import com.eried.eucplanet.data.model.AdvancedSettings
+import com.eried.eucplanet.data.model.AdvancedSpec
 import com.eried.eucplanet.data.sync.SyncChoice
 import com.eried.eucplanet.ui.settings.eucstats.OnlineUploadOnboardingDialog
 import com.eried.eucplanet.ui.settings.eucstats.flagEmoji
@@ -1087,46 +1092,61 @@ private fun GeneralTab(
 // SettingsRepository.sanitized(), so the steppers can never feed an unsafe
 // number into a delay() or a divide.
 
-/** Compact numeric stepper on the left with its description filling the space on
- *  the right, so there's no wasted margin. The control gets a little extra weight
- *  so wide values (e.g. 600000 ms) keep the unit on one line. */
+/** One Advanced row: compact stepper on the left, description filling the right.
+ *  Shows a "restore default" chip under the stepper when the value differs from
+ *  the spec's default. Range, step, unit, label, format all come from [spec]. */
 @Composable
-private fun AdvHalfStepper(
-    value: Int,
-    onValueChange: (Int) -> Unit,
-    range: IntRange,
-    step: Int,
-    label: String,
-    desc: String,
-    suffix: String = "ms",
-    format: (Int) -> String = { it.toString() },
-    parse: (String) -> Int? = { it.toIntOrNull() },
-    allowSign: Boolean = false,
-) {
+private fun AdvRow(spec: AdvancedSpec, advanced: AdvancedSettings, onChange: (Int) -> Unit) {
+    val value = spec.get(advanced)
+    val default = spec.get(ADVANCED_DEFAULTS)
     Row(
         modifier = Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        NumberUpDown(
-            value = value,
-            onValueChange = onValueChange,
-            range = range,
-            modifier = Modifier.weight(1.4f),
-            step = step,
-            suffix = suffix,
-            label = label,
-            format = format,
-            parse = parse,
-            allowSign = allowSign,
-        )
+        Column(modifier = Modifier.weight(1.4f)) {
+            NumberUpDown(
+                value = value,
+                onValueChange = onChange,
+                range = spec.range,
+                modifier = Modifier.fillMaxWidth(),
+                step = spec.step,
+                suffix = spec.unit,
+                label = stringResource(spec.label),
+                format = spec.format,
+                parse = spec.parse,
+                allowSign = spec.allowSign,
+            )
+            if (value != default) {
+                val unit = if (spec.unit.isEmpty()) "" else " ${spec.unit}"
+                RestoreChip(text = "${spec.format(default)}$unit") { onChange(default) }
+            }
+        }
         Spacer(Modifier.width(10.dp))
-        HintText(desc, modifier = Modifier.weight(1f), small = true)
+        HintText(stringResource(spec.desc), modifier = Modifier.weight(1f), small = true)
     }
 }
 
-/** Decimal "x" factor helper for the charging taper steppers (value stored x100). */
-private val taperFormat: (Int) -> String = { String.format(java.util.Locale.US, "%.2f", it / 100f) }
-private val taperParse: (String) -> Int? = { it.toFloatOrNull()?.let { f -> Math.round(f * 100f) } }
+/** Small "undo -> <default>" affordance, shown only when a value is off default. */
+@Composable
+private fun RestoreChip(text: String, onClick: () -> Unit) {
+    Row(
+        modifier = Modifier
+            .padding(top = 4.dp)
+            .clip(RoundedCornerShape(8.dp))
+            .clickable(onClick = onClick)
+            .padding(horizontal = 6.dp, vertical = 2.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Icon(
+            Icons.Default.Restore,
+            contentDescription = stringResource(R.string.adv_restore_default),
+            modifier = Modifier.size(15.dp),
+            tint = MaterialTheme.appColors.primary,
+        )
+        Spacer(Modifier.width(4.dp))
+        Text(text, fontSize = 12.sp, color = MaterialTheme.appColors.primary)
+    }
+}
 
 @Composable
 private fun AdvancedTab(
@@ -1135,135 +1155,28 @@ private fun AdvancedTab(
 ) {
     Column(
         modifier = Modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(12.dp)
+        verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         MetricInfoBox(stringResource(R.string.adv_rates_warning))
-
-        // --- Data and reporting rates ---
-        SectionHeader(stringResource(R.string.adv_group_rates))
-        AdvHalfStepper(settings.wheelPollIntervalMs, { viewModel.updateWheelPollIntervalMs(it) },
-            50..2000, 25, stringResource(R.string.adv_wheel_poll_rate), stringResource(R.string.adv_wheel_poll_rate_desc))
-        AdvHalfStepper(settings.graphSampleIntervalMs, { viewModel.updateGraphSampleIntervalMs(it) },
-            250..10000, 250, stringResource(R.string.adv_graph_sample_interval), stringResource(R.string.adv_graph_sample_interval_desc))
-        AdvHalfStepper(settings.tripRecordIntervalMs, { viewModel.updateTripRecordIntervalMs(it) },
-            250..10000, 250, stringResource(R.string.adv_trip_record_interval), stringResource(R.string.adv_trip_record_interval_desc))
-        AdvHalfStepper(settings.phoneGpsIntervalMs, { viewModel.updatePhoneGpsIntervalMs(it) },
-            250..10000, 250, stringResource(R.string.adv_phone_gps_interval), stringResource(R.string.adv_phone_gps_interval_desc))
-        AdvHalfStepper(settings.hudReportIntervalMs, { viewModel.updateHudReportIntervalMs(it) },
-            50..2000, 25, stringResource(R.string.adv_hud_report_interval), stringResource(R.string.adv_hud_report_interval_desc))
-        AdvHalfStepper(settings.garminReportIntervalMs, { viewModel.updateGarminReportIntervalMs(it) },
-            100..2000, 25, stringResource(R.string.adv_garmin_report_interval), stringResource(R.string.adv_garmin_report_interval_desc))
-        HintText(stringResource(R.string.adv_pushonly_note), small = true)
-
-        // --- Navigation timing ---
-        SectionHeader(stringResource(R.string.adv_group_nav))
-        MetricInfoBox(stringResource(R.string.adv_nav_warning))
-        AdvHalfStepper(settings.navOffRouteGraceMs, { viewModel.updateNavOffRouteGraceMs(it) },
-            500..60000, 500, stringResource(R.string.adv_nav_offroute_grace), stringResource(R.string.adv_nav_offroute_grace_desc))
-        AdvHalfStepper(settings.navRerouteAfterMs, { viewModel.updateNavRerouteAfterMs(it) },
-            1000..120000, 1000, stringResource(R.string.adv_nav_reroute_after), stringResource(R.string.adv_nav_reroute_after_desc))
-        AdvHalfStepper(settings.navOffRouteVoiceAfterMs, { viewModel.updateNavOffRouteVoiceAfterMs(it) },
-            500..60000, 500, stringResource(R.string.adv_nav_offroute_voice_after), stringResource(R.string.adv_nav_offroute_voice_after_desc))
-        AdvHalfStepper(settings.navOffRouteVoiceCooldownMs, { viewModel.updateNavOffRouteVoiceCooldownMs(it) },
-            1000..120000, 1000, stringResource(R.string.adv_nav_offroute_voice_cooldown), stringResource(R.string.adv_nav_offroute_voice_cooldown_desc))
-        AdvHalfStepper(settings.navArrivalDismissMs, { viewModel.updateNavArrivalDismissMs(it) },
-            1000..60000, 1000, stringResource(R.string.adv_nav_arrival_dismiss), stringResource(R.string.adv_nav_arrival_dismiss_desc))
-        AdvHalfStepper(settings.navHuntVoiceIntervalMs, { viewModel.updateNavHuntVoiceIntervalMs(it) },
-            2000..120000, 1000, stringResource(R.string.adv_nav_hunt_voice_interval), stringResource(R.string.adv_nav_hunt_voice_interval_desc))
-        AdvHalfStepper(settings.navHeadingWindowMs, { viewModel.updateNavHeadingWindowMs(it) },
-            1000..60000, 500, stringResource(R.string.adv_nav_heading_window), stringResource(R.string.adv_nav_heading_window_desc))
-        AdvHalfStepper(settings.navFixBufferMs, { viewModel.updateNavFixBufferMs(it) },
-            1000..60000, 1000, stringResource(R.string.adv_nav_fix_buffer), stringResource(R.string.adv_nav_fix_buffer_desc))
-        AdvHalfStepper(settings.navIntermediateFlashMs, { viewModel.updateNavIntermediateFlashMs(it) },
-            250..10000, 250, stringResource(R.string.adv_nav_intermediate_flash), stringResource(R.string.adv_nav_intermediate_flash_desc))
-        AdvHalfStepper(settings.navPopupTimeoutMs, { viewModel.updateNavPopupTimeoutMs(it) },
-            1000..30000, 500, stringResource(R.string.adv_nav_popup_timeout), stringResource(R.string.adv_nav_popup_timeout_desc))
-
-        // --- Predictive alarms ---
-        SectionHeader(stringResource(R.string.adv_group_alarm))
-        MetricInfoBox(stringResource(R.string.adv_alarm_warning))
-        AdvHalfStepper(settings.alarmSlopeWindowMs, { viewModel.updateAlarmSlopeWindowMs(it) },
-            300..10000, 100, stringResource(R.string.adv_alarm_slope_window), stringResource(R.string.adv_alarm_slope_window_desc))
-        AdvHalfStepper(settings.alarmBufferMaxMs, { viewModel.updateAlarmBufferMaxMs(it) },
-            500..20000, 100, stringResource(R.string.adv_alarm_buffer_max), stringResource(R.string.adv_alarm_buffer_max_desc))
-        AdvHalfStepper(settings.alarmSlopeMinSamples, { viewModel.updateAlarmSlopeMinSamples(it) },
-            2..20, 1, stringResource(R.string.adv_alarm_min_samples), stringResource(R.string.adv_alarm_min_samples_desc), suffix = "")
-        AdvHalfStepper(settings.alarmSlopeMinSpanMs, { viewModel.updateAlarmSlopeMinSpanMs(it) },
-            50..5000, 50, stringResource(R.string.adv_alarm_min_span), stringResource(R.string.adv_alarm_min_span_desc))
-
-        // --- Radar and automation ---
-        SectionHeader(stringResource(R.string.adv_group_radar_auto))
-        AdvHalfStepper(settings.radarClearDecayMs, { viewModel.updateRadarClearDecayMs(it) },
-            250..30000, 250, stringResource(R.string.adv_radar_clear_decay), stringResource(R.string.adv_radar_clear_decay_desc))
-        AdvHalfStepper(settings.automationLightCheckIntervalMs, { viewModel.updateAutomationLightCheckIntervalMs(it) },
-            5000..600000, 5000, stringResource(R.string.adv_automation_light_check), stringResource(R.string.adv_automation_light_check_desc))
-
-        // --- HUD link ---
-        SectionHeader(stringResource(R.string.adv_group_hud))
-        AdvHalfStepper(settings.hudBackoffMinMs, { viewModel.updateHudBackoffMinMs(it) },
-            100..30000, 100, stringResource(R.string.adv_hud_backoff_min), stringResource(R.string.adv_hud_backoff_min_desc))
-        AdvHalfStepper(settings.hudBackoffMaxMs, { viewModel.updateHudBackoffMaxMs(it) },
-            500..60000, 500, stringResource(R.string.adv_hud_backoff_max), stringResource(R.string.adv_hud_backoff_max_desc))
-        AdvHalfStepper(settings.hudMdnsTimeoutMs, { viewModel.updateHudMdnsTimeoutMs(it) },
-            500..30000, 500, stringResource(R.string.adv_hud_mdns_timeout), stringResource(R.string.adv_hud_mdns_timeout_desc))
-        AdvHalfStepper(settings.hudDiscoverySprintMs, { viewModel.updateHudDiscoverySprintMs(it) },
-            1000..120000, 1000, stringResource(R.string.adv_hud_discovery_sprint), stringResource(R.string.adv_hud_discovery_sprint_desc))
-
-        // --- Auto-lights ---
-        SectionHeader(stringResource(R.string.adv_group_autolights))
-        AdvHalfStepper(settings.autoLightNoGpsRetryMs, { viewModel.updateAutoLightNoGpsRetryMs(it) },
-            250..30000, 250, stringResource(R.string.adv_autolight_no_gps_retry), stringResource(R.string.adv_autolight_no_gps_retry_desc))
-        AdvHalfStepper(settings.autoToggleGraceMs, { viewModel.updateAutoToggleGraceMs(it) },
-            250..30000, 250, stringResource(R.string.adv_autolight_toggle_grace), stringResource(R.string.adv_autolight_toggle_grace_desc))
-
-        // --- Navigation behaviour ---
-        SectionHeader(stringResource(R.string.adv_group_nav_behaviour))
-        AdvHalfStepper(settings.navMovingKmh, { viewModel.updateNavMovingKmh(it) },
-            1..50, 1, stringResource(R.string.adv_nav_moving), stringResource(R.string.adv_nav_moving_desc), suffix = "km/h")
-        AdvHalfStepper(settings.navPrepareDistM, { viewModel.updateNavPrepareDistM(it) },
-            20..2000, 10, stringResource(R.string.adv_nav_prepare_dist), stringResource(R.string.adv_nav_prepare_dist_desc), suffix = "m")
-        AdvHalfStepper(settings.navExecuteDistM, { viewModel.updateNavExecuteDistM(it) },
-            5..500, 5, stringResource(R.string.adv_nav_execute_dist), stringResource(R.string.adv_nav_execute_dist_desc), suffix = "m")
-        AdvHalfStepper(settings.navProxBandM, { viewModel.updateNavProxBandM(it) },
-            1..100, 1, stringResource(R.string.adv_nav_prox_band), stringResource(R.string.adv_nav_prox_band_desc), suffix = "m")
-        AdvHalfStepper(settings.navMinInterStopMoveM, { viewModel.updateNavMinInterStopMoveM(it) },
-            5..500, 5, stringResource(R.string.adv_nav_inter_stop), stringResource(R.string.adv_nav_inter_stop_desc), suffix = "m")
-
-        // --- Radar classification ---
-        SectionHeader(stringResource(R.string.adv_group_radar_class))
-        MetricInfoBox(stringResource(R.string.adv_radar_warning))
-        AdvHalfStepper(settings.radarFastApproachDistM, { viewModel.updateRadarFastApproachDistM(it) },
-            5..500, 5, stringResource(R.string.adv_radar_fast_dist), stringResource(R.string.adv_radar_fast_dist_desc), suffix = "m")
-        AdvHalfStepper(settings.radarFastApproachSpeedKmh, { viewModel.updateRadarFastApproachSpeedKmh(it) },
-            5..200, 5, stringResource(R.string.adv_radar_fast_speed), stringResource(R.string.adv_radar_fast_speed_desc), suffix = "km/h")
-        AdvHalfStepper(settings.radarStaticTargetKmh, { viewModel.updateRadarStaticTargetKmh(it) },
-            1..50, 1, stringResource(R.string.adv_radar_static), stringResource(R.string.adv_radar_static_desc), suffix = "km/h")
-        AdvHalfStepper(settings.radarFallbackClosingMps, { viewModel.updateRadarFallbackClosingMps(it) },
-            1..100, 1, stringResource(R.string.adv_radar_fallback), stringResource(R.string.adv_radar_fallback_desc), suffix = "m/s")
-        AdvHalfStepper(settings.radarMinFrameRateMs, { viewModel.updateRadarMinFrameRateMs(it) },
-            20..5000, 10, stringResource(R.string.adv_radar_min_frame), stringResource(R.string.adv_radar_min_frame_desc))
-
-        // --- Charging ETA ---
-        SectionHeader(stringResource(R.string.adv_group_charging))
-        MetricInfoBox(stringResource(R.string.adv_charging_warning))
-        AdvHalfStepper(settings.chargingTargetPercent, { viewModel.updateChargingTargetPercent(it) },
-            50..99, 1, stringResource(R.string.adv_charging_target_pct), stringResource(R.string.adv_charging_target_pct_desc), suffix = "%")
-        AdvHalfStepper(settings.chargingTargetTaperX100, { viewModel.updateChargingTargetTaperX100(it) },
-            100..300, 5, stringResource(R.string.adv_charging_target_taper), stringResource(R.string.adv_charging_target_taper_desc),
-            suffix = "x", format = taperFormat, parse = taperParse, allowSign = true)
-        AdvHalfStepper(settings.chargingCvTaperX100, { viewModel.updateChargingCvTaperX100(it) },
-            100..500, 5, stringResource(R.string.adv_charging_cv_taper), stringResource(R.string.adv_charging_cv_taper_desc),
-            suffix = "x", format = taperFormat, parse = taperParse, allowSign = true)
-        AdvHalfStepper(settings.chargingWarmupMinPercentGain, { viewModel.updateChargingWarmupMinPercentGain(it) },
-            1..50, 1, stringResource(R.string.adv_charging_warmup_gain), stringResource(R.string.adv_charging_warmup_gain_desc), suffix = "%")
-        AdvHalfStepper(settings.chargingWarmupMinDurationMs, { viewModel.updateChargingWarmupMinDurationMs(it) },
-            5000..600000, 5000, stringResource(R.string.adv_charging_warmup_dur), stringResource(R.string.adv_charging_warmup_dur_desc))
-        AdvHalfStepper(settings.chargingWindowMs, { viewModel.updateChargingWindowMs(it) },
-            30000..1200000, 30000, stringResource(R.string.adv_charging_window), stringResource(R.string.adv_charging_window_desc))
-        AdvHalfStepper(settings.chargingSanityCapMinutes, { viewModel.updateChargingSanityCapMinutes(it) },
-            60..1440, 30, stringResource(R.string.adv_charging_sanity_cap), stringResource(R.string.adv_charging_sanity_cap_desc), suffix = "min")
-        AdvHalfStepper(settings.chargingMedianFilterSize, { viewModel.updateChargingMedianFilterSize(it) },
-            1..21, 2, stringResource(R.string.adv_charging_median), stringResource(R.string.adv_charging_median_desc), suffix = "")
+        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
+            TextButton(onClick = { viewModel.resetAdvancedDefaults() }) {
+                Icon(Icons.Default.Restore, contentDescription = null, modifier = Modifier.size(18.dp))
+                Spacer(Modifier.width(6.dp))
+                Text(stringResource(R.string.adv_reset_all))
+            }
+        }
+        // One collapsible card per group, fully driven by the AdvancedSpec registry.
+        AdvGroup.values().forEach { group ->
+            val specs = ADVANCED_SPECS.filter { it.group == group }
+            if (specs.isEmpty()) return@forEach
+            AdvancedCollapsable(title = stringResource(group.titleRes), stateKey = "adv-${group.name}") {
+                group.warningRes?.let { MetricInfoBox(stringResource(it)) }
+                specs.forEach { spec ->
+                    AdvRow(spec, settings.advanced) { viewModel.updateAdvanced(spec, it) }
+                }
+                group.noteRes?.let { HintText(stringResource(it), small = true) }
+            }
+        }
     }
 }
 
