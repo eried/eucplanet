@@ -288,7 +288,7 @@ fun AlarmSettingsContent(
             },
             onDismiss = { showEditor = false },
             onDelete = editingRule?.let { r -> { showEditor = false; deleteCandidate = r } },
-            onPreviewBeep = { freq, dur, cnt, mod -> viewModel.previewBeep(freq, dur, cnt, mod) },
+            onPreviewBeep = { freq, dur, cnt, gap, vol -> viewModel.previewBeep(freq, dur, cnt, gap, vol) },
             onPreviewTone = { freq, vol -> viewModel.previewToneAt(freq, vol) },
             onPreviewVoice = { text, metric, thr -> viewModel.previewVoice(text, metric, thr) },
             onPreviewVibrate = { dur -> viewModel.previewVibrate(dur) },
@@ -431,7 +431,7 @@ private fun AlarmRuleEditorDialog(
     onSave: (AlarmRule) -> Unit,
     onDismiss: () -> Unit,
     onDelete: (() -> Unit)? = null,
-    onPreviewBeep: (Int, Int, Int, Int) -> Unit,
+    onPreviewBeep: (Int, Int, Int, Int, Int) -> Unit,
     onPreviewTone: (Int, Int) -> Unit,
     onPreviewVoice: (String, AlarmMetric, Float) -> Unit,
     onPreviewVibrate: (Int) -> Unit,
@@ -637,7 +637,7 @@ private fun AlarmRuleEditorDialog(
                     title = stringResource(R.string.alarm_section_beep),
                     color = MaterialTheme.appColors.statusWarn,
                     enabled = beepEnabled,
-                    onPreview = { onPreviewBeep(beepFrequency, beepDurationMs, beepCount, beepModulation) }
+                    onPreview = { onPreviewBeep(beepFrequency, beepDurationMs, beepCount, beepGapMs, beepVolume) }
                 )
                 Row(
                     modifier = Modifier.fillMaxWidth(),

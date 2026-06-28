@@ -213,12 +213,13 @@ class AlarmViewModel @Inject constructor(
         }
     }
 
-    fun previewBeep(frequencyHz: Int, durationMs: Int, count: Int, modulation: Int = 0) {
+    fun previewBeep(frequencyHz: Int, durationMs: Int, count: Int, gapMs: Int, volumePct: Int) {
         viewModelScope.launch {
-            // Fixed: play exactly what fires. Rise: play a short rising ramp so
-            // the rider hears the modulation range without a live wheel.
-            if (modulation > 0) tonePlayer.playRiseDemo(frequencyHz, durationMs)
-            else tonePlayer.playBeep(frequencyHz, durationMs, count)
+            // Play exactly what fires: `count` beeps at the configured pitch and
+            // volume, separated by the configured gap. The modulation ("rises with
+            // severity") is auditioned live in the Beep Studio, not here — this
+            // button answers "what does my alarm actually sound like".
+            tonePlayer.playBeep(frequencyHz, durationMs, count, gapMs, volumePct)
         }
     }
 
