@@ -88,7 +88,7 @@ class TonePlayer @Inject constructor() {
 
         track.write(samples, 0, samples.size)
         track.play()
-        Thread.sleep(durationMs.toLong() + 50)
+        Thread.sleep(durationMs.toLong() + 20)   // small tail so the tone finishes before stop()
         track.stop()
         track.release()
     }

@@ -473,17 +473,9 @@ private fun AlarmRuleEditorDialog(
     var cooldownSeconds by remember { mutableIntStateOf(initial.cooldownSeconds) }
     var repeatWhileActive by remember { mutableStateOf(initial.repeatWhileActive) }
     var leadTimeMs by remember { mutableIntStateOf(initial.leadTimeMs) }
-    // Advanced (cooldown / repeat / anticipation) starts collapsed for a new
-    // rule -- the defaults are fine -- and opens automatically when editing a
-    // rule that already departs from them.
-    val defaults = remember { AlarmRule() }
-    var advancedOpen by remember {
-        mutableStateOf(
-            initial.cooldownSeconds != defaults.cooldownSeconds ||
-                initial.repeatWhileActive != defaults.repeatWhileActive ||
-                initial.leadTimeMs != defaults.leadTimeMs
-        )
-    }
+    // Advanced (cooldown / repeat / anticipation) -- collapsed by default; the
+    // rider expands it when they want those.
+    var advancedOpen by remember { mutableStateOf(false) }
 
     val selectedMetric = try { AlarmMetric.valueOf(metric) } catch (_: Exception) { AlarmMetric.SPEED }
     val thresholdRangeInternal = when (selectedMetric) {
@@ -697,11 +689,8 @@ private fun AlarmRuleEditorDialog(
                         Spacer(Modifier.weight(1f))
                     }
                     Spacer(Modifier.height(8.dp))
-                    // Advanced: gap, pitch modulation, volume + volume modulation,
-                    // behind a disclosure so the common case stays uncluttered.
-                    var beepAdvanced by remember {
-                        mutableStateOf(beepModulation > 0 || beepGapMs != 100 || beepVolume != 100 || beepVolumeModulation > 0)
-                    }
+                    // Advanced (gap, volume, Adaptive beep) -- collapsed by default.
+                    var beepAdvanced by remember { mutableStateOf(false) }
                     Text(
                         text = (if (beepAdvanced) "▴ " else "▾ ") + stringResource(R.string.alarm_beep_advanced),
                         fontSize = 13.sp,
@@ -1163,7 +1152,7 @@ private fun BeepStudioDialog(
                 // Metric tracker + live readout, with Play + Repeat next to it.
                 Spacer(Modifier.height(12.dp))
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text("${stringResource(metric.labelRes)}: ${fmt(simValue)} $unit",
+                    Text(stringResource(R.string.alarm_studio_test_input, stringResource(metric.labelRes), fmt(simValue), unit),
                         color = MaterialTheme.colorScheme.onSurface, fontWeight = FontWeight.Medium)
                     Spacer(Modifier.weight(1f))
                     Text(stringResource(R.string.alarm_studio_now, freqAtV(simValue), volAtV(simValue)),
