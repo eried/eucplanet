@@ -251,7 +251,10 @@ class AlarmViewModel @Inject constructor(
         studioJob = viewModelScope.launch {
             do {
                 tonePlayer.playBeep(sFreq, sDur, sCount, sGap, sVol)
-                if (repeat) delay(sGap.toLong().coerceAtLeast(0L))
+                // Short, fixed pause between preview repeats so auditioning stays
+                // snappy even when the configured gap is long (the real alarm fires
+                // once per trigger, so this loop cadence is only a preview aid).
+                if (repeat) delay(80L)
             } while (isActive && repeat && _studioPlaying.value)
             _studioPlaying.value = false   // one-shot: clear when the single cycle ends
         }

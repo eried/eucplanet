@@ -1,6 +1,7 @@
 package com.eried.eucplanet.service
 
 import com.eried.eucplanet.data.model.AlarmComparator
+import com.eried.eucplanet.data.model.AlarmMetric
 
 /**
  * Pure, Android-free decision math for the alarm engine, split out so the
@@ -125,9 +126,6 @@ object AlarmLogic {
         return ((n * sxy - sx * sy) / denom).toFloat()
     }
 
-    /** Modulation reaches its target this far past the threshold: 100% of the
-     *  threshold past it (i.e. at 2x the threshold value for ">=", at 0 for "<"). */
-    const val BEEP_MOD_REACH_PCT = 100
     /** Hard pitch ceiling (Hz), below the 44.1 kHz Nyquist limit. */
     const val BEEP_MOD_MAX_HZ = 20000
     /** Pitch floor for big reductions (a low thud, still audible). */
@@ -135,28 +133,50 @@ object AlarmLogic {
     /** Factor stored x100: 100 = 1.0x (unchanged). */
     const val BEEP_FACTOR_UNITY = 100
 
+    /** Internal max reading for a metric (km/h, %, C, V, A, m); min is 0 (no
+     *  negatives). Bounds the modulation reach + the studio test slider so a
+     *  metric never simulates an impossible value (e.g. PWM > 100). */
+    fun metricReadMax(metric: String): Float = when (metric) {
+        AlarmMetric.SPEED.name -> 150f
+        AlarmMetric.BATTERY.name -> 100f
+        AlarmMetric.PWM.name -> 100f
+        AlarmMetric.TEMPERATURE.name -> 100f
+        AlarmMetric.VOLTAGE.name -> 300f
+        AlarmMetric.CURRENT.name -> 50f
+        AlarmMetric.RADAR_DISTANCE.name -> 140f
+        AlarmMetric.RADAR_APPROACH_SPEED.name -> 150f
+        else -> 100f
+    }
+
+    /** Overshoot (value units past the threshold) at which modulation reaches its
+     *  factor: the distance from the threshold to the metric's far limit in the
+     *  severe direction. ">=" reaches at the metric max, "<" reaches at 0. */
+    fun metricReachSpan(metric: String, comparator: String, threshold: Float): Float =
+        when (AlarmComparator.parse(comparator)) {
+            AlarmComparator.GREATER_EQUAL -> (metricReadMax(metric) - threshold).coerceAtLeast(1f)
+            AlarmComparator.LESS_THAN -> threshold.coerceAtLeast(1f)
+        }
+
     /**
      * How far [value] has pushed past [threshold], as a 0..1 fraction that hits
-     * 1.0 at [reachPct]% of the threshold past it. Direction-aware (overspeed
-     * grows as value rises; low-battery grows as value falls) and 0 on the safe
-     * side of the threshold. Shared by pitch and volume modulation.
+     * 1.0 at [reachSpan] value-units past it. Direction-aware (overspeed grows as
+     * value rises; low-battery grows as value falls) and 0 on the safe side.
      */
-    fun overshootFraction(value: Float, comparator: String, threshold: Float, reachPct: Int = BEEP_MOD_REACH_PCT): Float {
+    fun overshootFraction(value: Float, comparator: String, threshold: Float, reachSpan: Float): Float {
         val over = when (AlarmComparator.parse(comparator)) {
             AlarmComparator.GREATER_EQUAL -> value - threshold
             AlarmComparator.LESS_THAN -> threshold - value
         }
         if (over <= 0f) return 0f
-        val span = (kotlin.math.abs(threshold) * (reachPct.coerceAtLeast(1) / 100f)).coerceAtLeast(1f)
-        return (over / span).coerceIn(0f, 1f)
+        return (over / reachSpan.coerceAtLeast(1f)).coerceIn(0f, 1f)
     }
 
     /**
      * Modulated beep pitch in Hz. [factorX100] is a multiplier x100: 100 = 1.0x
      * (unchanged -- always [baseHz]); the pitch ramps from [baseHz] toward
-     * baseHz * factor as the value pushes past the threshold (reaching it at
-     * [BEEP_MOD_REACH_PCT]% past, then plateauing). Factors above 1.0x ramp the
-     * pitch up; below 1.0x (down to 0.1x) ramp it down. Clamped to the engine range.
+     * baseHz * factor as the value pushes past the threshold, reaching the factor
+     * at the metric's far limit (so it stays within the metric's real range), then
+     * plateauing. Above 1.0x ramps up; below 1.0x (down to 0.1x) ramps down.
      */
     fun modulatedBeepHz(
         baseHz: Int,
@@ -164,18 +184,20 @@ object AlarmLogic {
         comparator: String,
         threshold: Float,
         factorX100: Int,
+        metric: String,
     ): Int {
         if (factorX100 == BEEP_FACTOR_UNITY) return baseHz
+        val frac = overshootFraction(value, comparator, threshold, metricReachSpan(metric, comparator, threshold))
         val target = baseHz * (factorX100 / 100f)
-        val v = baseHz + (target - baseHz) * overshootFraction(value, comparator, threshold)
+        val v = baseHz + (target - baseHz) * frac
         return v.toInt().coerceIn(BEEP_MOD_MIN_HZ, BEEP_MOD_MAX_HZ)
     }
 
     /**
      * Modulated beep volume (0..100 % of system). [factorX100] is a multiplier
      * x100: 100 = 1.0x (constant [baseVolPct]); the volume ramps toward
-     * baseVol * factor as the value pushes past the threshold. Above 1.0x ramps
-     * louder (capped at 100); below 1.0x ramps quieter. Clamped to 0..100.
+     * baseVol * factor, reaching the factor at the metric's far limit. Above 1.0x
+     * ramps louder (capped at 100); below 1.0x ramps quieter. Clamped to 0..100.
      */
     fun modulatedVolumePct(
         baseVolPct: Int,
@@ -183,11 +205,13 @@ object AlarmLogic {
         value: Float,
         comparator: String,
         threshold: Float,
+        metric: String,
     ): Int {
         val base = baseVolPct.coerceIn(0, 100)
         if (factorX100 == BEEP_FACTOR_UNITY) return base
+        val frac = overshootFraction(value, comparator, threshold, metricReachSpan(metric, comparator, threshold))
         val target = base * (factorX100 / 100f)
-        val v = base + (target - base) * overshootFraction(value, comparator, threshold)
+        val v = base + (target - base) * frac
         return v.toInt().coerceIn(0, 100)
     }
 }

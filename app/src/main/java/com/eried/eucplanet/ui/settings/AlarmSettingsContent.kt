@@ -343,9 +343,12 @@ private fun AlarmRuleCard(
     val metric = try { AlarmMetric.valueOf(rule.metric) } catch (_: Exception) { AlarmMetric.SPEED }
     val comp = AlarmComparator.parse(rule.comparator)
 
+    // Readable on-colour for the condition text -- the coloured group band above
+    // already carries the metric's accent, and some accents (e.g. PWM's gauge-warn
+    // yellow) are fill colours that read poorly as text on the card surface.
     val color = if (!rule.enabled)
         MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)
-    else metricAccent(metric)
+    else MaterialTheme.colorScheme.onSurface
 
     Card(
         colors = CardDefaults.cardColors(
@@ -508,7 +511,8 @@ private fun AlarmRuleEditorDialog(
     if (showStudio) {
         BeepStudioDialog(
             metric = selectedMetric,
-            unit = selectedMetric.unit,
+            unit = displayedUnit,
+            toDisplay = { displayThreshold(selectedMetric, it, speedUnit, tempUnit) },
             comparator = comparator,
             threshold = threshold,
             baseFreq = beepFrequency,
@@ -1054,6 +1058,7 @@ private fun AlarmRuleEditorDialog(
 private fun BeepStudioDialog(
     metric: AlarmMetric,
     unit: String,
+    toDisplay: (Float) -> Float,   // internal value -> the rider's display unit (mph / F / ...)
     comparator: String,
     threshold: Float,
     baseFreq: Int,
@@ -1070,26 +1075,24 @@ private fun BeepStudioDialog(
     onDismiss: () -> Unit,
 ) {
     val ge = AlarmComparator.parse(comparator) == AlarmComparator.GREATER_EQUAL
-    val absThr = kotlin.math.abs(threshold).coerceAtLeast(1f)
-    // Slider spans the realistic range for the comparator: >= goes from the
-    // threshold up to 2x it; < goes from 0 up to the threshold. The factor is
-    // reached at the severe end (+100% past the threshold).
-    val maxOvershoot = absThr
-    val sliderMin = if (ge) threshold else 0f
-    val sliderMax = if (ge) threshold + absThr else threshold
+    // The test slider stays inside the metric's real range: >= goes from the
+    // threshold up to the metric max (e.g. PWM 100), < goes from 0 (no negatives)
+    // up to the threshold. The factor is reached at that far limit.
+    val maxOvershoot = AlarmLogic.metricReachSpan(metric.name, comparator, threshold)
+    val sliderMin = if (ge) threshold else (threshold - maxOvershoot).coerceAtLeast(0f)
+    val sliderMax = if (ge) threshold + maxOvershoot else threshold
 
     // Local edits -- committed only on Save, so Cancel discards them. The live
     // preview uses these locals so you hear the in-progress edit.
     var pitchFactor by remember { mutableIntStateOf(pitchReachPct) }
     var volFactor by remember { mutableIntStateOf(volReachPct) }
-    var simValue by remember {
-        mutableFloatStateOf(if (ge) threshold + maxOvershoot * 0.5f else threshold * 0.5f)
-    }
+    // Always start the test input exactly at the threshold (no modulation yet).
+    var simValue by remember { mutableFloatStateOf(threshold) }
     var repeat by remember { mutableStateOf(true) }
 
     fun overshootOf(v: Float) = (if (ge) v - threshold else threshold - v).coerceIn(0f, maxOvershoot)
-    fun freqAtV(v: Float) = AlarmLogic.modulatedBeepHz(baseFreq, v, comparator, threshold, pitchFactor)
-    fun volAtV(v: Float) = AlarmLogic.modulatedVolumePct(baseVolume, volFactor, v, comparator, threshold)
+    fun freqAtV(v: Float) = AlarmLogic.modulatedBeepHz(baseFreq, v, comparator, threshold, pitchFactor, metric.name)
+    fun volAtV(v: Float) = AlarmLogic.modulatedVolumePct(baseVolume, volFactor, v, comparator, threshold, metric.name)
     fun fmt(v: Float) = if (v % 1f == 0f) v.toInt().toString() else String.format("%.1f", v)
 
     LaunchedEffect(simValue, pitchFactor, volFactor, baseFreq, baseVolume) {
@@ -1152,7 +1155,7 @@ private fun BeepStudioDialog(
                 // Metric tracker + live readout, with Play + Repeat next to it.
                 Spacer(Modifier.height(12.dp))
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text(stringResource(R.string.alarm_studio_test_input, stringResource(metric.labelRes), fmt(simValue), unit),
+                    Text(stringResource(R.string.alarm_studio_test_input, stringResource(metric.labelRes), fmt(toDisplay(simValue)), unit),
                         color = MaterialTheme.colorScheme.onSurface, fontWeight = FontWeight.Medium)
                     Spacer(Modifier.weight(1f))
                     Text(stringResource(R.string.alarm_studio_now, freqAtV(simValue), volAtV(simValue)),
@@ -1176,6 +1179,7 @@ private fun BeepStudioDialog(
                 // Response curve (display only).
                 BeepCurveDisplay(
                     comparator = comparator,
+                    metric = metric.name,
                     threshold = threshold,
                     baseFreq = baseFreq,
                     baseVolume = baseVolume,
@@ -1189,7 +1193,7 @@ private fun BeepStudioDialog(
                 // Beep timeline (repeats + gaps + trailing gap), playhead while playing.
                 Spacer(Modifier.height(10.dp))
                 BeepTimeline(
-                    conditionText = "${AlarmComparator.parse(comparator).symbol} ${fmt(threshold)} $unit",
+                    conditionText = "${AlarmComparator.parse(comparator).symbol} ${fmt(toDisplay(threshold))} $unit",
                     durationMs = durationMs,
                     count = count,
                     gapMs = gapMs,
@@ -1283,6 +1287,7 @@ private fun BeepTimeline(
 @Composable
 private fun BeepCurveDisplay(
     comparator: String,
+    metric: String,
     threshold: Float,
     baseFreq: Int,
     baseVolume: Int,
@@ -1303,8 +1308,8 @@ private fun BeepCurveDisplay(
     val lnMax = kotlin.math.ln(fMax)
     val txt = with(LocalDensity.current) { 10.sp.toPx() }
     fun valueAt(o: Float) = if (ge) threshold + o else threshold - o
-    fun freqAt(o: Float) = AlarmLogic.modulatedBeepHz(baseFreq, valueAt(o), comparator, threshold, pitchReachPct).toFloat()
-    fun volAt(o: Float) = AlarmLogic.modulatedVolumePct(baseVolume, volReachPct, valueAt(o), comparator, threshold).toFloat()
+    fun freqAt(o: Float) = AlarmLogic.modulatedBeepHz(baseFreq, valueAt(o), comparator, threshold, pitchReachPct, metric).toFloat()
+    fun volAt(o: Float) = AlarmLogic.modulatedVolumePct(baseVolume, volReachPct, valueAt(o), comparator, threshold, metric).toFloat()
 
     Canvas(modifier) {
         val w = size.width; val h = size.height
