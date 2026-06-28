@@ -23,14 +23,14 @@ import javax.inject.Inject
  *  - the connection is CONNECTED OR INITIALIZING (so connect/handshake
  *    flicker doesn't hide the lane), and
  *  - at least one threat is present in the current frame, OR the last
- *    non-empty frame is younger than [CLEAR_DECAY_MS].
+ *    non-empty frame is younger than the clear-decay window
+ *    (AppSettings.radarClearDecayMs).
  *
- * The CLEAR_DECAY rule prevents the bar from blinking in and out as cars
+ * The clear-decay rule prevents the bar from blinking in and out as cars
  * appear and disappear at the edge of the radar's range ,  once the rider
  * has seen "a car is back there", the bar stays for a beat after the
  * radar declares the lane clear.
  */
-private const val CLEAR_DECAY_MS = 3_000L
 
 @HiltViewModel
 class RadarOverlayViewModel @Inject constructor(
@@ -45,12 +45,17 @@ class RadarOverlayViewModel @Inject constructor(
         .map { it.radarOverlaySide }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), "RIGHT")
 
+    // Advanced: how long the lane bar lingers after the road clears. Refreshed in
+    // the combine below (which already collects settings); sanitized() floors it.
+    @Volatile private var clearDecayMs: Long = 3000L
+
     @OptIn(ExperimentalCoroutinesApi::class)
     val shouldShow: StateFlow<Boolean> = combine(
         settingsRepository.settings,
         radarRepository.connectionState,
         radarRepository.currentFrame
     ) { s, cs, f ->
+        clearDecayMs = s.radarClearDecayMs.toLong()
         Triple(
             s.radarAddress != null && s.radarShowOverlay,
             cs == ConnectionState.CONNECTED || cs == ConnectionState.INITIALIZING,
@@ -67,7 +72,7 @@ class RadarOverlayViewModel @Inject constructor(
         } else {
             // Lane just cleared ,  stay up for the decay window, then hide.
             emit(true)
-            delay(CLEAR_DECAY_MS)
+            delay(clearDecayMs)
             emit(false)
         }
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)

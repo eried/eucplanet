@@ -455,6 +455,7 @@ fun SettingsScreen(
     val titleAuto = stringResource(R.string.tab_auto)
     val titleIntegration = stringResource(R.string.tab_integration)
     val titleWatch = stringResource(R.string.tab_watch)
+    val titleAdvanced = stringResource(R.string.tab_advanced)
     val titleNavigator = stringResource(R.string.nav_setting_params)
     val titleGpsSensors = stringResource(R.string.section_external_gps)
     val titleDashboard = stringResource(R.string.tab_dashboard)
@@ -608,6 +609,18 @@ fun SettingsScreen(
         stringResource(R.string.watch_show_speed_unit)
     ).joinToString(" ")
 
+    val corpusAdvanced = listOf(
+        titleAdvanced,
+        stringResource(R.string.adv_group_rates),
+        stringResource(R.string.adv_group_nav),
+        stringResource(R.string.adv_group_alarm),
+        stringResource(R.string.adv_group_radar_auto),
+        stringResource(R.string.adv_wheel_poll_rate),
+        stringResource(R.string.adv_phone_gps_interval),
+        stringResource(R.string.adv_hud_report_interval),
+        stringResource(R.string.adv_garmin_report_interval),
+    ).joinToString(" ")
+
     val sections: List<SectionDef> = listOf(
         SectionDef("general", titleGeneral, Icons.Default.Tune, corpusGeneral) {
             GeneralTab(settings, viewModel, scrollToBattery) { y ->
@@ -649,6 +662,9 @@ fun SettingsScreen(
         },
         SectionDef("watch", titleWatch, Icons.Default.Watch, corpusWatch) {
             WatchTab(settings, viewModel)
+        },
+        SectionDef("advanced", titleAdvanced, Icons.Default.Build, corpusAdvanced) {
+            AdvancedTab(settings, viewModel)
         }
     )
 
@@ -1060,6 +1076,117 @@ private fun GeneralTab(
             stringResource(R.string.flic_show_on_dashboard),
             settings.chargingDashboardIcon,
         ) { viewModel.updateChargingDashboardIcon(it) }
+    }
+}
+
+// --- Advanced Tab ---
+//
+// Its own section at the very bottom of Settings. Power-user timing controls,
+// grouped, each with a half-width stepper and a one-line note on what it
+// affects and the danger of extreme values. Every value is clamped in
+// SettingsRepository.sanitized(), so the steppers can never feed an unsafe
+// number into a delay() or a divide.
+
+/** Compact numeric stepper on the left with its description filling the space on
+ *  the right, so there's no wasted margin. The control gets a little extra weight
+ *  so wide values (e.g. 600000 ms) keep the unit on one line. */
+@Composable
+private fun AdvHalfStepper(
+    value: Int,
+    onValueChange: (Int) -> Unit,
+    range: IntRange,
+    step: Int,
+    label: String,
+    desc: String,
+    suffix: String = "ms",
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        NumberUpDown(
+            value = value,
+            onValueChange = onValueChange,
+            range = range,
+            modifier = Modifier.weight(1.4f),
+            step = step,
+            suffix = suffix,
+            label = label,
+        )
+        Spacer(Modifier.width(10.dp))
+        HintText(desc, modifier = Modifier.weight(1f), small = true)
+    }
+}
+
+@Composable
+private fun AdvancedTab(
+    settings: com.eried.eucplanet.data.model.AppSettings,
+    viewModel: SettingsViewModel,
+) {
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+        MetricInfoBox(stringResource(R.string.adv_rates_warning))
+
+        // --- Data and reporting rates ---
+        SectionHeader(stringResource(R.string.adv_group_rates))
+        AdvHalfStepper(settings.wheelPollIntervalMs, { viewModel.updateWheelPollIntervalMs(it) },
+            50..2000, 25, stringResource(R.string.adv_wheel_poll_rate), stringResource(R.string.adv_wheel_poll_rate_desc))
+        AdvHalfStepper(settings.graphSampleIntervalMs, { viewModel.updateGraphSampleIntervalMs(it) },
+            250..10000, 250, stringResource(R.string.adv_graph_sample_interval), stringResource(R.string.adv_graph_sample_interval_desc))
+        AdvHalfStepper(settings.tripRecordIntervalMs, { viewModel.updateTripRecordIntervalMs(it) },
+            250..10000, 250, stringResource(R.string.adv_trip_record_interval), stringResource(R.string.adv_trip_record_interval_desc))
+        AdvHalfStepper(settings.phoneGpsIntervalMs, { viewModel.updatePhoneGpsIntervalMs(it) },
+            250..10000, 250, stringResource(R.string.adv_phone_gps_interval), stringResource(R.string.adv_phone_gps_interval_desc))
+        AdvHalfStepper(settings.hudReportIntervalMs, { viewModel.updateHudReportIntervalMs(it) },
+            50..2000, 25, stringResource(R.string.adv_hud_report_interval), stringResource(R.string.adv_hud_report_interval_desc))
+        AdvHalfStepper(settings.garminReportIntervalMs, { viewModel.updateGarminReportIntervalMs(it) },
+            100..2000, 25, stringResource(R.string.adv_garmin_report_interval), stringResource(R.string.adv_garmin_report_interval_desc))
+        HintText(stringResource(R.string.adv_pushonly_note), small = true)
+
+        // --- Navigation timing ---
+        SectionHeader(stringResource(R.string.adv_group_nav))
+        MetricInfoBox(stringResource(R.string.adv_nav_warning))
+        AdvHalfStepper(settings.navOffRouteGraceMs, { viewModel.updateNavOffRouteGraceMs(it) },
+            500..60000, 500, stringResource(R.string.adv_nav_offroute_grace), stringResource(R.string.adv_nav_offroute_grace_desc))
+        AdvHalfStepper(settings.navRerouteAfterMs, { viewModel.updateNavRerouteAfterMs(it) },
+            1000..120000, 1000, stringResource(R.string.adv_nav_reroute_after), stringResource(R.string.adv_nav_reroute_after_desc))
+        AdvHalfStepper(settings.navOffRouteVoiceAfterMs, { viewModel.updateNavOffRouteVoiceAfterMs(it) },
+            500..60000, 500, stringResource(R.string.adv_nav_offroute_voice_after), stringResource(R.string.adv_nav_offroute_voice_after_desc))
+        AdvHalfStepper(settings.navOffRouteVoiceCooldownMs, { viewModel.updateNavOffRouteVoiceCooldownMs(it) },
+            1000..120000, 1000, stringResource(R.string.adv_nav_offroute_voice_cooldown), stringResource(R.string.adv_nav_offroute_voice_cooldown_desc))
+        AdvHalfStepper(settings.navArrivalDismissMs, { viewModel.updateNavArrivalDismissMs(it) },
+            1000..60000, 1000, stringResource(R.string.adv_nav_arrival_dismiss), stringResource(R.string.adv_nav_arrival_dismiss_desc))
+        AdvHalfStepper(settings.navHuntVoiceIntervalMs, { viewModel.updateNavHuntVoiceIntervalMs(it) },
+            2000..120000, 1000, stringResource(R.string.adv_nav_hunt_voice_interval), stringResource(R.string.adv_nav_hunt_voice_interval_desc))
+        AdvHalfStepper(settings.navHeadingWindowMs, { viewModel.updateNavHeadingWindowMs(it) },
+            1000..60000, 500, stringResource(R.string.adv_nav_heading_window), stringResource(R.string.adv_nav_heading_window_desc))
+        AdvHalfStepper(settings.navFixBufferMs, { viewModel.updateNavFixBufferMs(it) },
+            1000..60000, 1000, stringResource(R.string.adv_nav_fix_buffer), stringResource(R.string.adv_nav_fix_buffer_desc))
+        AdvHalfStepper(settings.navIntermediateFlashMs, { viewModel.updateNavIntermediateFlashMs(it) },
+            250..10000, 250, stringResource(R.string.adv_nav_intermediate_flash), stringResource(R.string.adv_nav_intermediate_flash_desc))
+        AdvHalfStepper(settings.navPopupTimeoutMs, { viewModel.updateNavPopupTimeoutMs(it) },
+            1000..30000, 500, stringResource(R.string.adv_nav_popup_timeout), stringResource(R.string.adv_nav_popup_timeout_desc))
+
+        // --- Predictive alarms ---
+        SectionHeader(stringResource(R.string.adv_group_alarm))
+        MetricInfoBox(stringResource(R.string.adv_alarm_warning))
+        AdvHalfStepper(settings.alarmSlopeWindowMs, { viewModel.updateAlarmSlopeWindowMs(it) },
+            300..10000, 100, stringResource(R.string.adv_alarm_slope_window), stringResource(R.string.adv_alarm_slope_window_desc))
+        AdvHalfStepper(settings.alarmBufferMaxMs, { viewModel.updateAlarmBufferMaxMs(it) },
+            500..20000, 100, stringResource(R.string.adv_alarm_buffer_max), stringResource(R.string.adv_alarm_buffer_max_desc))
+        AdvHalfStepper(settings.alarmSlopeMinSamples, { viewModel.updateAlarmSlopeMinSamples(it) },
+            2..20, 1, stringResource(R.string.adv_alarm_min_samples), stringResource(R.string.adv_alarm_min_samples_desc), suffix = "")
+        AdvHalfStepper(settings.alarmSlopeMinSpanMs, { viewModel.updateAlarmSlopeMinSpanMs(it) },
+            50..5000, 50, stringResource(R.string.adv_alarm_min_span), stringResource(R.string.adv_alarm_min_span_desc))
+
+        // --- Radar and automation ---
+        SectionHeader(stringResource(R.string.adv_group_radar_auto))
+        AdvHalfStepper(settings.radarClearDecayMs, { viewModel.updateRadarClearDecayMs(it) },
+            250..30000, 250, stringResource(R.string.adv_radar_clear_decay), stringResource(R.string.adv_radar_clear_decay_desc))
+        AdvHalfStepper(settings.automationLightCheckIntervalMs, { viewModel.updateAutomationLightCheckIntervalMs(it) },
+            5000..600000, 5000, stringResource(R.string.adv_automation_light_check), stringResource(R.string.adv_automation_light_check_desc))
     }
 }
 

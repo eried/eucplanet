@@ -487,6 +487,28 @@ class SettingsViewModel @Inject constructor(
     fun updateWatchScreen2Hold(action: String) = update { copy(watchScreen2Hold = action) }
     fun updateWatchHapticOnAction(v: Boolean) = update { copy(watchHapticOnAction = v) }
     fun updateWatchUpdateRate(v: String) = update { copy(watchUpdateRate = v) }
+    fun updateWheelPollIntervalMs(v: Int) = update { copy(wheelPollIntervalMs = v) }
+    fun updateGraphSampleIntervalMs(v: Int) = update { copy(graphSampleIntervalMs = v) }
+    fun updateTripRecordIntervalMs(v: Int) = update { copy(tripRecordIntervalMs = v) }
+    fun updatePhoneGpsIntervalMs(v: Int) = update { copy(phoneGpsIntervalMs = v) }
+    fun updateHudReportIntervalMs(v: Int) = update { copy(hudReportIntervalMs = v) }
+    fun updateGarminReportIntervalMs(v: Int) = update { copy(garminReportIntervalMs = v) }
+    fun updateNavOffRouteGraceMs(v: Int) = update { copy(navOffRouteGraceMs = v) }
+    fun updateNavOffRouteVoiceAfterMs(v: Int) = update { copy(navOffRouteVoiceAfterMs = v) }
+    fun updateNavOffRouteVoiceCooldownMs(v: Int) = update { copy(navOffRouteVoiceCooldownMs = v) }
+    fun updateNavRerouteAfterMs(v: Int) = update { copy(navRerouteAfterMs = v) }
+    fun updateNavArrivalDismissMs(v: Int) = update { copy(navArrivalDismissMs = v) }
+    fun updateNavHuntVoiceIntervalMs(v: Int) = update { copy(navHuntVoiceIntervalMs = v) }
+    fun updateNavHeadingWindowMs(v: Int) = update { copy(navHeadingWindowMs = v) }
+    fun updateNavFixBufferMs(v: Int) = update { copy(navFixBufferMs = v) }
+    fun updateNavIntermediateFlashMs(v: Int) = update { copy(navIntermediateFlashMs = v) }
+    fun updateNavPopupTimeoutMs(v: Int) = update { copy(navPopupTimeoutMs = v) }
+    fun updateAlarmSlopeWindowMs(v: Int) = update { copy(alarmSlopeWindowMs = v) }
+    fun updateAlarmBufferMaxMs(v: Int) = update { copy(alarmBufferMaxMs = v) }
+    fun updateAlarmSlopeMinSamples(v: Int) = update { copy(alarmSlopeMinSamples = v) }
+    fun updateAlarmSlopeMinSpanMs(v: Int) = update { copy(alarmSlopeMinSpanMs = v) }
+    fun updateRadarClearDecayMs(v: Int) = update { copy(radarClearDecayMs = v) }
+    fun updateAutomationLightCheckIntervalMs(v: Int) = update { copy(automationLightCheckIntervalMs = v) }
     fun updateWheelNameDisplay(v: String) = update { copy(wheelNameDisplay = v) }
     fun updateWatchShowNavigation(v: Boolean) = update { copy(watchShowNavigation = v) }
 

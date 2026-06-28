@@ -47,7 +47,6 @@ class TripRepository @Inject constructor(
 ) {
     companion object {
         private const val TAG = "TripRepo"
-        private const val RECORD_INTERVAL_MS = 1000L
         // After stopRecording with sync configured, we hold the trip in a "pending"
         // state for this long so the user has a chance to discard it (e.g., a stray
         // short trip from moving the wheel by hand) before it's enqueued for upload.
@@ -94,6 +93,19 @@ class TripRepository @Inject constructor(
 
     // Tracks whether any location fix during the active recording was from a mock provider.
     @Volatile private var tripHadMockFix = false
+
+    // Advanced: phone GPS (fused-location) update interval, mirrored from settings
+    // so the non-suspend location-request builder can read it synchronously. A
+    // change takes effect the next time location updates (re)start.
+    @Volatile private var phoneGpsIntervalMs: Long = 1000L
+
+    init {
+        scope.launch {
+            settingsRepository.settings.collect {
+                phoneGpsIntervalMs = it.phoneGpsIntervalMs.toLong().coerceAtLeast(100L)
+            }
+        }
+    }
 
     // The just-stopped trip waiting for grace-period finalization, plus the job
     // running the timer. cancelPendingTrip() cancels the job and deletes the trip.
@@ -174,8 +186,8 @@ class TripRepository @Inject constructor(
             Log.d(TAG, "Location updates already active, skipping")
             return
         }
-        val request = LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 1000L)
-            .setMinUpdateIntervalMillis(500L)
+        val request = LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, phoneGpsIntervalMs)
+            .setMinUpdateIntervalMillis(phoneGpsIntervalMs / 2)
             .build()
         try {
             fusedLocationClient.requestLocationUpdates(request, locationCallback, Looper.getMainLooper())
@@ -332,8 +344,11 @@ class TripRepository @Inject constructor(
             if (s.announceRecording) voiceService.announceEvent(context.getString(R.string.voice_recording_started))
         }
 
-        // Periodic write loop
+        // Periodic write loop. Cadence is the rider's Advanced "trip recording
+        // interval" (independent of the dashboard graph rate and the wheel poll),
+        // read once at start; a mid-recording change takes effect next recording.
         recordJob = scope.launch {
+            val recordIntervalMs = settingsRepository.get().tripRecordIntervalMs.toLong()
             var rowsWritten = 0
             var rowsWithGps = 0
             while (_recording.value) {
@@ -347,7 +362,7 @@ class TripRepository @Inject constructor(
                 val extSpeed = extSample
                     ?.takeIf {
                         settingsRepository.get().gpsPrioritizeExternal &&
-                            System.currentTimeMillis() - it.timestamp < RECORD_INTERVAL_MS * 3
+                            System.currentTimeMillis() - it.timestamp < recordIntervalMs * 3
                     }
                     ?.speedKmh
                 val wheelConnected = wheelRepository.connectionState.value ==
@@ -372,7 +387,7 @@ class TripRepository @Inject constructor(
                 if (rowsWritten % 30 == 0) {
                     Log.i(TAG, "Recording: $rowsWritten rows ($rowsWithGps with GPS, ${"%.2f".format(gpsDistanceKm)} km)")
                 }
-                kotlinx.coroutines.delay(RECORD_INTERVAL_MS)
+                kotlinx.coroutines.delay(recordIntervalMs)
             }
             Log.i(TAG, "Recorder loop ending: $rowsWritten rows, $rowsWithGps with GPS")
         }

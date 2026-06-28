@@ -443,6 +443,65 @@ data class AppSettings(
      */
     val watchUpdateRate: String = "NORMAL",
     /**
+     * Advanced: how often the app polls the wheel for a telemetry frame, in ms.
+     * Decoupled from [watchUpdateRate] (which now only paces the watch feed).
+     * Only request/response wheels (InMotion, Ninebot) honour this; push-only
+     * wheels (Begode/Gotway, Veteran/Leaperkim, KingSong) stream at their own
+     * firmware rate and ignore it. Default 250 ms (~4 Hz), the long-standing value.
+     */
+    val wheelPollIntervalMs: Int = 250,
+    /**
+     * Advanced: sampling interval (ms) for the in-memory dashboard charts (the
+     * 5-min rolling graphs). Affects chart detail only — not alarms (which run
+     * at the full telemetry rate) or trip recording. Default 1000 ms (1 Hz).
+     */
+    val graphSampleIntervalMs: Int = 1000,
+    /**
+     * Advanced: how often a row is written to the live trip .csv / DB while
+     * recording, in ms. Independent of the dashboard graph rate. Default
+     * 1000 ms (1 Hz).
+     */
+    val tripRecordIntervalMs: Int = 1000,
+    /**
+     * Advanced: phone GPS (fused-location) update interval in ms. The min update
+     * interval is derived as half this. Lower = smoother track / faster nav
+     * reaction, more battery. Default 1000 ms (1 Hz). Note: a paired external GPS
+     * (RaceBox) streams at its own device-set rate and ignores this.
+     */
+    val phoneGpsIntervalMs: Int = 1000,
+    /**
+     * Advanced: how often a frame is pushed to a connected HUD, in ms. Default
+     * 200 ms (5 Hz).
+     */
+    val hudReportIntervalMs: Int = 200,
+    /**
+     * Advanced: how often a frame is pushed to a paired Garmin device, in ms.
+     * Note: the Connect IQ transport enforces its own cap, so very low values may
+     * not be honoured end-to-end. Default 200 ms (5 Hz).
+     */
+    val garminReportIntervalMs: Int = 200,
+    // --- Advanced: navigation timing (all ms). Defaults match the long-standing
+    //     hardcoded values; clamped in SettingsRepository.sanitized(). ---
+    val navOffRouteGraceMs: Int = 8000,
+    val navOffRouteVoiceAfterMs: Int = 14000,
+    val navOffRouteVoiceCooldownMs: Int = 35000,
+    val navRerouteAfterMs: Int = 22000,
+    val navArrivalDismissMs: Int = 9000,
+    val navHuntVoiceIntervalMs: Int = 45000,
+    val navHeadingWindowMs: Int = 8000,
+    val navFixBufferMs: Int = 14000,
+    val navIntermediateFlashMs: Int = 1500,
+    val navPopupTimeoutMs: Int = 5000,
+    // --- Advanced: predictive-alarm trend window. Changing these alters how
+    //     early (or whether) speed/PWM alarms fire ahead of a threshold. ---
+    val alarmSlopeWindowMs: Int = 1500,
+    val alarmBufferMaxMs: Int = 2500,
+    val alarmSlopeMinSamples: Int = 3,
+    val alarmSlopeMinSpanMs: Int = 300,
+    // --- Advanced: radar + automation timing (ms). ---
+    val radarClearDecayMs: Int = 3000,
+    val automationLightCheckIntervalMs: Int = 60000,
+    /**
      * Mirror the live navigation popup (turn arrow + distance) on the paired
      * watch. On by default; the rider can turn it off to keep the watch dial
      * as the only glance surface.

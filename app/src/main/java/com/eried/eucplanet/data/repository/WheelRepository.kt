@@ -135,10 +135,14 @@ class WheelRepository @Inject constructor(
 ) {
     companion object {
         private const val TAG = "WheelRepo"
-        // Realtime poll-and-push intervals for the three watchUpdateRate tiers.
-        private const val POLL_INTERVAL_MS = 250L              // "NORMAL" (default)
-        private const val FAST_POLL_INTERVAL_MS = 150L         // "FAST"
-        private const val CONSERVATIVE_POLL_INTERVAL_MS = 750L // "CONSERVATIVE"
+        // Default wheel-poll interval (ms). Overridden per-rider by
+        // AppSettings.wheelPollIntervalMs; this is only the fallback / initial
+        // value. Fully decoupled from the watch feed — watchUpdateRate now paces
+        // WearBridge alone. Only request/response wheels (InMotion, Ninebot)
+        // honour this; push-only families ignore it (they free-run).
+        private const val POLL_INTERVAL_MS = 250L
+        // Default dashboard-chart sampling interval (ms); overridden by
+        // AppSettings.graphSampleIntervalMs. Charts only — not alarms/recording.
         private const val HISTORY_SAMPLE_INTERVAL_MS = 1000L
         // Hard 5-minute window on the metric history buffers. Without this,
         // each list grows unbounded at 1 Hz (memory leak) and the chart's
@@ -395,12 +399,20 @@ class WheelRepository @Inject constructor(
     @Volatile private var speedCalibrationMultiplier: Float = 1f
 
     /**
-     * Realtime poll interval in milliseconds, resolved from
-     * AppSettings.watchUpdateRate and mirrored into the hot poll path so the
-     * loop never re-collects the settings flow per cycle. Unknown values fall
-     * back to [POLL_INTERVAL_MS].
+     * Wheel poll interval in milliseconds, resolved from
+     * AppSettings.wheelPollIntervalMs and mirrored into the hot poll path so the
+     * loop never re-collects the settings flow per cycle. Independent of the
+     * watch feed. Falls back to [POLL_INTERVAL_MS].
      */
     @Volatile private var pollIntervalMs: Long = POLL_INTERVAL_MS
+
+    /**
+     * Dashboard-chart sampling interval in milliseconds, resolved from
+     * AppSettings.graphSampleIntervalMs. Drives only the rolling-history buffers;
+     * alarms run at the full telemetry rate and trip recording has its own
+     * interval. Falls back to [HISTORY_SAMPLE_INTERVAL_MS].
+     */
+    @Volatile private var graphSampleIntervalMs: Long = HISTORY_SAMPLE_INTERVAL_MS
 
     /**
      * Riders have lock-toggle bindings on Flic buttons, the watch buttons, the
@@ -506,11 +518,12 @@ class WheelRepository @Inject constructor(
             settingsRepository.settings.collect { s ->
                 val clamped = s.speedCalibrationOffsetPct.coerceIn(-15f, 15f)
                 speedCalibrationMultiplier = 1f + clamped / 100f
-                pollIntervalMs = when (s.watchUpdateRate) {
-                    "CONSERVATIVE" -> CONSERVATIVE_POLL_INTERVAL_MS
-                    "FAST" -> FAST_POLL_INTERVAL_MS
-                    else -> POLL_INTERVAL_MS
-                }
+                // Wheel poll + chart sampling are independent rider settings now,
+                // both decoupled from the watch feed (watchUpdateRate paces only
+                // WearBridge). Mirror into volatiles so the hot loops never
+                // re-collect the flow per cycle.
+                pollIntervalMs = s.wheelPollIntervalMs.toLong()
+                graphSampleIntervalMs = s.graphSampleIntervalMs.toLong()
                 val wheelName = s.lastDeviceName
                 if (wheelName != null && bleManager.connectionState.value == ConnectionState.CONNECTED) {
                     persistWheelProfile(wheelName, s)
@@ -1387,9 +1400,9 @@ class WheelRepository @Inject constructor(
                     result.data.wheelMaxSpeedKmh,
                     result.data.wheelAlarmSpeedKmh
                 )
-                // Sample history at 1 Hz
+                // Sample history at the rider-configured graph interval
                 val now = System.currentTimeMillis()
-                if (now - lastHistorySampleMs >= HISTORY_SAMPLE_INTERVAL_MS) {
+                if (now - lastHistorySampleMs >= graphSampleIntervalMs) {
                     lastHistorySampleMs = now
                     val d = _wheelData.value
                     battHist.add(MetricSample(now, d.batteryPercent.toFloat()))
