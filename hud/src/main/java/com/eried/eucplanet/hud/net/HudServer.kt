@@ -139,6 +139,14 @@ class HudServer(private val context: Context) {
      *  coroutines keep ticking so the link can't silently freeze the way a
      *  tester saw it die after ~2 min. */
     private var wakeLock: android.os.PowerManager.WakeLock? = null
+    /** WiFi performance lock. The CPU wake lock above keeps our coroutines
+     *  ticking, but on many devices the WiFi RADIO still drops into DTIM
+     *  power-save (or loses the association) once traffic goes idle -- so the
+     *  phone's pings get no pong and a fresh dial can't even connect, while our
+     *  localhost watchdog still passes (the Ktor server is up, just unreachable
+     *  over the air). That is the "link died after ~2 min, only a reboot fixed
+     *  it" failure. A high-perf / low-latency WiFi lock keeps the radio awake. */
+    private var wifiLock: WifiManager.WifiLock? = null
 
     // --- Diagnostics (surfaced on the HUD stats card + logcat) so the next
     // "link died, had to reboot" report carries the cause, not just the
@@ -188,6 +196,7 @@ class HudServer(private val context: Context) {
     private suspend fun doStart() {
         if (server != null) return
         acquireWakeLock()
+        acquireWifiLock()
         _localIp.value = pickLocalIp()
         val s = embeddedServer(CIO, port = PORT, host = "0.0.0.0") {
             install(WebSockets) {
@@ -346,6 +355,7 @@ class HudServer(private val context: Context) {
         _peer.value = null
         _status.value = Status.LISTENING
         releaseWakeLock()
+        releaseWifiLock()
     }
 
     /** Acquire a partial CPU wake lock so the link can't be frozen by a
@@ -371,6 +381,33 @@ class HudServer(private val context: Context) {
         wakeLock = null
     }
 
+    /** Acquire a high-performance / low-latency WiFi lock so the radio stays out
+     *  of DTIM power-save while the link is up. Idempotent and best-effort: if it
+     *  can't be acquired we still run, the link just risks the power-save drops.
+     *  Re-checked each watchdog tick so a lost lock is re-taken without a reboot. */
+    private fun acquireWifiLock() {
+        if (wifiLock?.isHeld == true) return
+        try {
+            val wifi = context.applicationContext
+                .getSystemService(Context.WIFI_SERVICE) as? WifiManager ?: return
+            val mode = if (android.os.Build.VERSION.SDK_INT >= 29)
+                WifiManager.WIFI_MODE_FULL_LOW_LATENCY
+            else
+                @Suppress("DEPRECATION") WifiManager.WIFI_MODE_FULL_HIGH_PERF
+            wifiLock = wifi.createWifiLock(mode, "eucplanet-hud-wifi").apply {
+                setReferenceCounted(false)
+                acquire()
+            }
+        } catch (t: Throwable) {
+            Log.w(TAG, "wifi lock acquire failed: ${t.message}")
+        }
+    }
+
+    private fun releaseWifiLock() {
+        try { if (wifiLock?.isHeld == true) wifiLock?.release() } catch (_: Throwable) {}
+        wifiLock = null
+    }
+
     /** Watchdog loop. Two jobs per tick:
      *
      *   1. Re-resolve the local IPv4. If it changed (hotspot DHCP renew,
@@ -389,6 +426,11 @@ class HudServer(private val context: Context) {
         // unwinds the loop without an explicit isActive check.
         while (true) {
             delay(WATCHDOG_INTERVAL_MS)
+            // 0. Re-assert the power locks (idempotent) in case the OS reclaimed
+            //    the WiFi lock -- the radio dropping to power-save is the silent
+            //    "unreachable but localhost-alive" killer this watchdog can't see.
+            acquireWakeLock()
+            acquireWifiLock()
             // 1. IP-change handling.
             val current = pickLocalIp()
             val prior = _localIp.value
