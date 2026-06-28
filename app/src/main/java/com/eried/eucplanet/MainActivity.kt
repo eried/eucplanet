@@ -3,10 +3,6 @@ package com.eried.eucplanet
 import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.media.AudioManager
-import android.media.VolumeProvider
-import android.media.session.MediaSession
-import android.media.session.PlaybackState
 import android.os.Build
 import android.os.Bundle
 import android.view.KeyEvent
@@ -79,14 +75,6 @@ class MainActivity : AppCompatActivity() {
     private var volumeUpHoldFired = false
     private var volumeDownHoldFired = false
     private val holdThresholdMs = 600L
-
-    // Samsung / One UI route volume keys away from the Activity (onKeyDown AND
-    // dispatchKeyEvent can be bypassed), so the Service Mode overlay never opened
-    // on those phones. A MediaSession with a remote VolumeProvider intercepts
-    // volume keys at the media-routing layer instead -- the same path media apps
-    // use -- which is reliable across OEMs. Active only while Service Mode is on
-    // and the app is foregrounded (see onResume/onPause).
-    private var volumeCaptureSession: MediaSession? = null
 
     private val requiredPermissions = buildList {
         add(Manifest.permission.BLUETOOTH_SCAN)
@@ -165,69 +153,6 @@ class MainActivity : AppCompatActivity() {
         // background — the warning indicator auto-clears when the rider
         // returns having granted what was missing.
         appHealthRepository.refreshPermissionWarnings()
-        // While Service Mode is on, capture volume keys via the media-routing
-        // layer so volume-UP reliably opens the debug overlay even on phones
-        // (Samsung) that don't deliver the key to the Activity.
-        if (DiagnosticsLogger.enabled.value) startVolumeCapture()
-    }
-
-    override fun onPause() {
-        super.onPause()
-        // Release the volume-key capture so we don't hijack the buttons while
-        // the app is in the background.
-        stopVolumeCapture()
-    }
-
-    /**
-     * Start intercepting hardware volume keys via a MediaSession with a remote
-     * [VolumeProvider]. While this session is the active media target, the system
-     * routes volume presses to [VolumeProvider.onAdjustVolume] instead of the
-     * Activity -- the reliable cross-OEM path. Volume-UP opens the Service Mode
-     * overlay; volume-DOWN still lowers media volume so the buttons aren't dead.
-     */
-    private fun startVolumeCapture() {
-        if (volumeCaptureSession != null) return
-        val audio = getSystemService(AUDIO_SERVICE) as AudioManager
-        val provider = object : VolumeProvider(VolumeProvider.VOLUME_CONTROL_RELATIVE, 100, 50) {
-            override fun onAdjustVolume(direction: Int) {
-                when (direction) {
-                    AudioManager.ADJUST_RAISE -> runOnUiThread {
-                        if (DiagnosticsLogger.enabled.value) {
-                            ServiceOverlayState.show(buildServiceOverlaySnapshot())
-                        }
-                    }
-                    AudioManager.ADJUST_LOWER ->
-                        audio.adjustStreamVolume(
-                            AudioManager.STREAM_MUSIC, AudioManager.ADJUST_LOWER, AudioManager.FLAG_SHOW_UI
-                        )
-                }
-                // Re-centre so neither end saturates and both directions keep
-                // delivering onAdjustVolume callbacks.
-                currentVolume = 50
-            }
-        }
-        val session = MediaSession(this, "EucPlanetVolumeKeys").apply {
-            setPlaybackToRemote(provider)
-            // A "playing" state makes this the active session the system routes
-            // volume keys to. We never request audio focus, so the rider's music
-            // keeps playing untouched.
-            setPlaybackState(
-                PlaybackState.Builder()
-                    .setState(PlaybackState.STATE_PLAYING, 0, 1f)
-                    .build()
-            )
-            isActive = true
-        }
-        volumeCaptureSession = session
-        DiagnosticsLogger.note("volume-key capture via MediaSession started")
-    }
-
-    private fun stopVolumeCapture() {
-        volumeCaptureSession?.let {
-            it.isActive = false
-            it.release()
-        }
-        volumeCaptureSession = null
     }
 
     /**
@@ -582,34 +507,19 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    // Volume keys are intercepted in dispatchKeyEvent -- the Activity's earliest
-    // key hook -- rather than onKeyDown/onKeyUp. Several Samsung / One UI builds
-    // route or consume VOLUME_UP/DOWN before onKeyDown is ever invoked, so the
-    // Service Mode overlay + bound actions silently never fired there. This still
-    // only runs while the app is the focused foreground window (screen on, app on
-    // top, no dialog stealing focus) -- that's a platform limit, not changeable here.
-    override fun dispatchKeyEvent(event: KeyEvent): Boolean {
-        val keyCode = event.keyCode
-        if (keyCode == KeyEvent.KEYCODE_VOLUME_UP || keyCode == KeyEvent.KEYCODE_VOLUME_DOWN) {
-            when (event.action) {
-                KeyEvent.ACTION_DOWN -> if (handleVolumeDown(keyCode, event)) return true
-                KeyEvent.ACTION_UP -> if (handleVolumeUp(keyCode, event)) return true
-            }
-        }
-        return super.dispatchKeyEvent(event)
-    }
-
-    /** Volume key-down. @return true if consumed (overlay opened or a hold fired). */
-    private fun handleVolumeDown(keyCode: Int, event: KeyEvent): Boolean {
-        // Service-mode override: while diagnostics is enabled, volume-UP opens the
-        // debug overlay instead of firing its bound action. Volume-DOWN deliberately
-        // falls through to the normal handling below, so the rider can still bind an
-        // action to it (or just change phone volume) while the overlay is up. The
-        // overlay snapshots wheel state + history so the rider can inspect raw values
-        // and fire any catalog action without needing a Flic button.
+    override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
+        // Service-mode override: while diagnostics is enabled, volume-UP
+        // opens the debug overlay instead of firing its bound action.
+        // Volume-DOWN deliberately falls through to the normal volume-key
+        // handling below, so the rider can still bind an action to it (or
+        // just change phone volume) while the overlay is up. The overlay
+        // snapshots wheel state + history so the rider can inspect raw
+        // values and fire any catalog action without needing a Flic button.
+        // Service mode is a developer-only state behind the "Enter"
+        // confirmation in the Service Mode dialog.
         if (DiagnosticsLogger.enabled.value &&
             keyCode == KeyEvent.KEYCODE_VOLUME_UP &&
-            event.repeatCount == 0
+            event?.repeatCount == 0
         ) {
             ServiceOverlayState.show(buildServiceOverlaySnapshot())
             return true
@@ -619,7 +529,7 @@ class MainActivity : AppCompatActivity() {
             (keyCode == KeyEvent.KEYCODE_VOLUME_UP || keyCode == KeyEvent.KEYCODE_VOLUME_DOWN)
         ) {
             val now = System.currentTimeMillis()
-            if (event.repeatCount == 0) {
+            if (event?.repeatCount == 0) {
                 when (keyCode) {
                     KeyEvent.KEYCODE_VOLUME_UP -> { volumeUpDownTime = now; volumeUpHoldFired = false }
                     KeyEvent.KEYCODE_VOLUME_DOWN -> { volumeDownDownTime = now; volumeDownHoldFired = false }
@@ -640,16 +550,14 @@ class MainActivity : AppCompatActivity() {
             }
             return true
         }
-        return false
+        return super.onKeyDown(keyCode, event)
     }
 
-    /** Volume key-up. @return true if consumed (swallowed for service mode, or a
-     *  bound click fired). */
-    private fun handleVolumeUp(keyCode: Int, event: KeyEvent): Boolean {
-        // Service mode swallows the volume-UP key-up too, otherwise opening the
-        // overlay on the down event would still fire the bound click-action on up
-        // and the rider would get both the dialog and a HORN beep. Volume-DOWN is
-        // left alone so its normal binding still works.
+    override fun onKeyUp(keyCode: Int, event: KeyEvent?): Boolean {
+        // Service mode swallows the volume-UP key-up too, otherwise opening
+        // the overlay on KeyDown would still fire the bound click-action on
+        // KeyUp and the rider would get both the dialog and a HORN beep.
+        // Volume-DOWN is left alone so its normal binding still works.
         if (DiagnosticsLogger.enabled.value &&
             keyCode == KeyEvent.KEYCODE_VOLUME_UP
         ) {
@@ -667,7 +575,7 @@ class MainActivity : AppCompatActivity() {
             }
             return true
         }
-        return false
+        return super.onKeyUp(keyCode, event)
     }
 
     /** Builds a fresh snapshot for the service-mode debug overlay. Called when the overlay opens and after every Fire so the action-status readout updates. */
