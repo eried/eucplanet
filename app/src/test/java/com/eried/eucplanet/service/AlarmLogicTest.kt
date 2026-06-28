@@ -239,11 +239,21 @@ class AlarmLogicTest {
 
     @Test
     fun reachSpanRespectsMetricLimits() {
-        assertEquals(20f, AlarmLogic.metricReachSpan("PWM", GE, 80f))       // 100 - 80
-        assertEquals(120f, AlarmLogic.metricReachSpan("SPEED", GE, 30f))    // 150 - 30
-        assertEquals(20f, AlarmLogic.metricReachSpan("BATTERY", LT, 20f))   // down to 0
-        assertEquals(100f, AlarmLogic.metricReadMax("PWM"))
-        assertEquals(150f, AlarmLogic.metricReadMax("SPEED"))
+        assertEquals(20f, AlarmLogic.metricReachSpan("PWM", GE, 80f))         // 100 - 80
+        assertEquals(120f, AlarmLogic.metricReachSpan("SPEED", GE, 30f))      // 150 - 30
+        assertEquals(20f, AlarmLogic.metricReachSpan("BATTERY", LT, 20f))     // 20 - 0
+        assertEquals(50f, AlarmLogic.metricReachSpan("VOLTAGE", LT, 60f))     // 60 - 10 (min)
+        assertEquals(70f, AlarmLogic.metricReachSpan("TEMPERATURE", GE, 20f)) // 90 - 20
+    }
+
+    @Test
+    fun metricRangesMatchSpec() {
+        assertEquals(0f, AlarmLogic.metricReadMin("PWM"));          assertEquals(100f, AlarmLogic.metricReadMax("PWM"))
+        assertEquals(0f, AlarmLogic.metricReadMin("SPEED"));        assertEquals(150f, AlarmLogic.metricReadMax("SPEED"))
+        assertEquals(-10f, AlarmLogic.metricReadMin("TEMPERATURE")); assertEquals(90f, AlarmLogic.metricReadMax("TEMPERATURE"))
+        assertEquals(10f, AlarmLogic.metricReadMin("VOLTAGE"));     assertEquals(480f, AlarmLogic.metricReadMax("VOLTAGE"))
+        assertEquals(0f, AlarmLogic.metricReadMin("CURRENT"));      assertEquals(200f, AlarmLogic.metricReadMax("CURRENT"))
+        assertEquals(0f, AlarmLogic.metricReadMin("BATTERY"));      assertEquals(100f, AlarmLogic.metricReadMax("BATTERY"))
     }
 
     // --- beep PITCH modulation: factor x100 (100 = 1.0x = unchanged). Ramps the

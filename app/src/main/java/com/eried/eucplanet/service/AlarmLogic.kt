@@ -133,16 +133,24 @@ object AlarmLogic {
     /** Factor stored x100: 100 = 1.0x (unchanged). */
     const val BEEP_FACTOR_UNITY = 100
 
-    /** Internal max reading for a metric (km/h, %, C, V, A, m); min is 0 (no
-     *  negatives). Bounds the modulation reach + the studio test slider so a
-     *  metric never simulates an impossible value (e.g. PWM > 100). */
+    /** Internal valid range for a metric (km/h, %, C, V, A, m). Single source of
+     *  truth: the alarm editor clamps the threshold to this, and the studio test
+     *  slider + modulation reach stay inside it (so a metric never simulates an
+     *  impossible value, e.g. PWM > 100 or a negative speed). */
+    fun metricReadMin(metric: String): Float = when (metric) {
+        AlarmMetric.TEMPERATURE.name -> -10f
+        AlarmMetric.VOLTAGE.name -> 10f
+        AlarmMetric.RADAR_DISTANCE.name -> 5f
+        else -> 0f   // speed, battery, pwm, current, approach-speed
+    }
+
     fun metricReadMax(metric: String): Float = when (metric) {
         AlarmMetric.SPEED.name -> 150f
         AlarmMetric.BATTERY.name -> 100f
         AlarmMetric.PWM.name -> 100f
-        AlarmMetric.TEMPERATURE.name -> 100f
-        AlarmMetric.VOLTAGE.name -> 300f
-        AlarmMetric.CURRENT.name -> 50f
+        AlarmMetric.TEMPERATURE.name -> 90f
+        AlarmMetric.VOLTAGE.name -> 480f
+        AlarmMetric.CURRENT.name -> 200f
         AlarmMetric.RADAR_DISTANCE.name -> 140f
         AlarmMetric.RADAR_APPROACH_SPEED.name -> 150f
         else -> 100f
@@ -150,11 +158,11 @@ object AlarmLogic {
 
     /** Overshoot (value units past the threshold) at which modulation reaches its
      *  factor: the distance from the threshold to the metric's far limit in the
-     *  severe direction. ">=" reaches at the metric max, "<" reaches at 0. */
+     *  severe direction. ">=" reaches at the metric max, "<" reaches at the min. */
     fun metricReachSpan(metric: String, comparator: String, threshold: Float): Float =
         when (AlarmComparator.parse(comparator)) {
             AlarmComparator.GREATER_EQUAL -> (metricReadMax(metric) - threshold).coerceAtLeast(1f)
-            AlarmComparator.LESS_THAN -> threshold.coerceAtLeast(1f)
+            AlarmComparator.LESS_THAN -> (threshold - metricReadMin(metric)).coerceAtLeast(1f)
         }
 
     /**

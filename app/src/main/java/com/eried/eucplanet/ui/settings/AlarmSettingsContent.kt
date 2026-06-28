@@ -481,27 +481,17 @@ private fun AlarmRuleEditorDialog(
     var advancedOpen by remember { mutableStateOf(false) }
 
     val selectedMetric = try { AlarmMetric.valueOf(metric) } catch (_: Exception) { AlarmMetric.SPEED }
-    val thresholdRangeInternal = when (selectedMetric) {
-        // Speed cap depends on the user's unit: high-performance wheels run
-        // way past 100 km/h, so the range reads 5..150 km/h, 5..100 mph or
-        // 1..40 m/s (each ceiling expressed back in km/h for the internal range).
-        AlarmMetric.SPEED -> when (speedUnit) {
-            "mph" -> Units.speedToKmh(5f, "mph")..Units.speedToKmh(100f, "mph")
-            "ms" -> Units.speedToKmh(1f, "ms")..Units.speedToKmh(40f, "ms")
-            else -> 5f..150f
-        }
-        AlarmMetric.BATTERY -> 0f..100f
-        AlarmMetric.TEMPERATURE -> 20f..80f
-        AlarmMetric.PWM -> 10f..100f
-        AlarmMetric.VOLTAGE -> 20f..300f
-        AlarmMetric.CURRENT -> 1f..50f
-        // Varia's range is ~140 m. Below 5 m the radar is effectively in
-        // the dead-zone behind the rider; below 10 m is "imminent" on an
-        // EUC at typical road speed.
-        AlarmMetric.RADAR_DISTANCE -> 5f..140f
-        // Approach speeds typically run 10-120 km/h depending on road
-        // type. 5..150 keeps the slider usable on both ends.
-        AlarmMetric.RADAR_APPROACH_SPEED -> 5f..150f
+    // The metric's valid internal range comes from AlarmLogic (single source shared
+    // with the engine + studio). The threshold is edited in display units;
+    // displayedRange converts the ends.
+    val thresholdRangeInternal =
+        AlarmLogic.metricReadMin(selectedMetric.name)..AlarmLogic.metricReadMax(selectedMetric.name)
+    // When the rider switches metric, pull the threshold into the new metric's
+    // range so it never holds an impossible value (e.g. a 150 km/h speed becoming
+    // a 150% PWM).
+    LaunchedEffect(selectedMetric) {
+        val clamped = threshold.coerceIn(thresholdRangeInternal)
+        if (clamped != threshold) threshold = clamped
     }
     val displayedThreshold = displayThreshold(selectedMetric, threshold, speedUnit, tempUnit)
     val displayedRange = displayThreshold(selectedMetric, thresholdRangeInternal.start, speedUnit, tempUnit)..
