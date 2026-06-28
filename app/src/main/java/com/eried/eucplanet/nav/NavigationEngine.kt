@@ -153,9 +153,31 @@ class NavigationEngine @Inject constructor(
                 voiceEnabled = s.navVoiceEnabled
                 arrivalRadiusM = s.navArrivalRadiusM.toDouble()
                 offRouteToleranceM = s.navOffRouteToleranceM.toDouble()
+                // Advanced timing (sanitized() guarantees safe, non-zero values).
+                offRouteGraceMs = s.navOffRouteGraceMs.toLong()
+                offRouteVoiceAfterMs = s.navOffRouteVoiceAfterMs.toLong()
+                offRouteVoiceCooldownMs = s.navOffRouteVoiceCooldownMs.toLong()
+                rerouteAfterMs = s.navRerouteAfterMs.toLong()
+                arrivalDismissMs = s.navArrivalDismissMs.toLong()
+                huntVoiceIntervalMs = s.navHuntVoiceIntervalMs.toLong()
+                headingWindowMs = s.navHeadingWindowMs.toLong()
+                fixBufferMs = s.navFixBufferMs.toLong()
+                intermediateFlashMs = s.navIntermediateFlashMs.toLong()
             }
         }
     }
+
+    // Advanced nav timing, mirrored from settings so the per-fix evaluation reads
+    // cached values without re-collecting the flow. Defaults are the constants.
+    @Volatile private var offRouteGraceMs: Long = OFF_ROUTE_GRACE_MS
+    @Volatile private var offRouteVoiceAfterMs: Long = OFF_ROUTE_VOICE_AFTER_MS
+    @Volatile private var offRouteVoiceCooldownMs: Long = OFF_ROUTE_VOICE_COOLDOWN_MS
+    @Volatile private var rerouteAfterMs: Long = REROUTE_AFTER_MS
+    @Volatile private var arrivalDismissMs: Long = ARRIVAL_DISMISS_MS
+    @Volatile private var huntVoiceIntervalMs: Long = HUNT_VOICE_INTERVAL_MS
+    @Volatile private var headingWindowMs: Long = HEADING_WINDOW_MS
+    @Volatile private var fixBufferMs: Long = FIX_BUFFER_MS
+    @Volatile private var intermediateFlashMs: Long = INTERMEDIATE_FLASH_MS
 
     @Volatile private var initJob: Job? = null
     @Volatile private var collectJob: Job? = null
@@ -432,7 +454,7 @@ class NavigationEngine @Inject constructor(
         val moving = gpsSpeed > MOVING_MS || wheelKmh > MOVING_KMH
 
         recentFixes.addLast(Fix(point, now, moving))
-        while (recentFixes.isNotEmpty() && now - recentFixes.first().timeMs > FIX_BUFFER_MS) {
+        while (recentFixes.isNotEmpty() && now - recentFixes.first().timeMs > fixBufferMs) {
             recentFixes.removeFirst()
         }
         updateHeading(now)
@@ -533,7 +555,7 @@ class NavigationEngine @Inject constructor(
 
     /** Travel heading = bearing of the net displacement over the recent moving trace. */
     private fun updateHeading(now: Long) {
-        val window = recentFixes.filter { now - it.timeMs <= HEADING_WINDOW_MS && it.moving }
+        val window = recentFixes.filter { now - it.timeMs <= headingWindowMs && it.moving }
         if (window.size >= 2) {
             val first = window.first().point
             val last = window.last().point
@@ -667,7 +689,7 @@ class NavigationEngine @Inject constructor(
             // before declaring the rider back on track.
             if (offRouteSinceMs == 0L) return
             if (backOnRouteSinceMs == 0L) backOnRouteSinceMs = now
-            if (now - backOnRouteSinceMs >= OFF_ROUTE_GRACE_MS) {
+            if (now - backOnRouteSinceMs >= offRouteGraceMs) {
                 offRouteSinceMs = 0L
                 backOnRouteSinceMs = 0L
                 if (_navState.value.offRoute) {
@@ -679,7 +701,7 @@ class NavigationEngine @Inject constructor(
         backOnRouteSinceMs = 0L
         if (offRouteSinceMs == 0L) offRouteSinceMs = now
         val offFor = now - offRouteSinceMs
-        if (offFor < OFF_ROUTE_GRACE_MS) return
+        if (offFor < offRouteGraceMs) return
 
         if (!_navState.value.offRoute) {
             _navState.value = _navState.value.copy(offRoute = true)
@@ -687,13 +709,13 @@ class NavigationEngine @Inject constructor(
         }
         // The spoken off-route cue waits well past the visual flag, so a
         // short detour clears itself before the rider is ever told off.
-        if (voiceEnabled && offFor > OFF_ROUTE_VOICE_AFTER_MS &&
-            now - lastOffRouteVoiceMs > OFF_ROUTE_VOICE_COOLDOWN_MS
+        if (voiceEnabled && offFor > offRouteVoiceAfterMs &&
+            now - lastOffRouteVoiceMs > offRouteVoiceCooldownMs
         ) {
             lastOffRouteVoiceMs = now
             voiceService.announceEvent(context.getString(R.string.nav_off_route))
         }
-        if (offFor > REROUTE_AFTER_MS && !rerouteInFlight &&
+        if (offFor > rerouteAfterMs && !rerouteInFlight &&
             route.travelMode != TravelMode.STRAIGHT
         ) {
             Log.i(TAG, "triggering reroute (offFor=${offFor}ms)")
@@ -844,7 +866,7 @@ class NavigationEngine @Inject constructor(
         // never less than 20 m so a generous goal doesn't drown out genuinely
         // small but meaningful progress. Once-per-fresh-goal cues bypass the
         // filter (lastVoicedGoalDistM = NaN after the goal advance).
-        if (voiceEnabled && now - lastHuntVoiceMs > HUNT_VOICE_INTERVAL_MS) {
+        if (voiceEnabled && now - lastHuntVoiceMs > huntVoiceIntervalMs) {
             val effectiveRadius = (target.radiusM ?: arrivalRadiusM)
             val noiseThresholdM = maxOf(20.0, effectiveRadius / 2.0)
             val moved = if (lastVoicedGoalDistM.isNaN()) Double.POSITIVE_INFINITY
@@ -988,7 +1010,7 @@ class NavigationEngine @Inject constructor(
                         context.getString(R.string.voice_nav_goal_reached)
                     )
                 }
-                delay(INTERMEDIATE_FLASH_MS)
+                delay(intermediateFlashMs)
                 if (nextLeg != null) {
                     advanceLeg(nextLeg)
                 } else {
@@ -1018,7 +1040,7 @@ class NavigationEngine @Inject constructor(
                 voiceService.announceEvent(context.getString(R.string.voice_nav_arrived))
             }
             arrivalJob = scope.launch {
-                delay(ARRIVAL_DISMISS_MS)
+                delay(arrivalDismissMs)
                 if (!arrivalHandled) return@launch
                 stop()
             }

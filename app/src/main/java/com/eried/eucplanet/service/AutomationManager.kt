@@ -28,7 +28,6 @@ class AutomationManager @Inject constructor(
 ) {
     companion object {
         private const val TAG = "AutomationManager"
-        private const val LIGHT_CHECK_INTERVAL_MS = 60_000L
         private const val LIGHT_NO_GPS_RETRY_MS = 2_000L
         // If light state changes within this window after our command, it's us, not the user
         private const val AUTO_TOGGLE_GRACE_MS = 4_000L
@@ -97,7 +96,8 @@ class AutomationManager @Inject constructor(
     private fun evaluateLights(settings: AppSettings) {
         val now = System.currentTimeMillis()
         val location = tripRepository.currentLocation.value
-        val interval = if (location == null) LIGHT_NO_GPS_RETRY_MS else LIGHT_CHECK_INTERVAL_MS
+        val interval = if (location == null) LIGHT_NO_GPS_RETRY_MS
+                       else settings.automationLightCheckIntervalMs.toLong()
         if (now - lastLightCheckMs < interval) return
         lastLightCheckMs = now
 

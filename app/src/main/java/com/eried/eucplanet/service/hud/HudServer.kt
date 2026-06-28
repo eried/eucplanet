@@ -87,9 +87,6 @@ class HudServer @Inject constructor(
 
     companion object {
         private const val TAG = "HudServer"
-        // 5 Hz: same rate WearBridge uses. Smooth speed needle without
-        // saturating the hotspot.
-        private const val PUBLISH_INTERVAL_MS = 200L
         // Reconnect backoff: 1s, 2s, 4s, capped at 5s. Below the cap the
         // rider gets a fresh try every time they walk back into range;
         // above it the HUD feels stuck.
@@ -270,7 +267,9 @@ class HudServer @Inject constructor(
                     // to why.
                     Log.w(TAG, "snapshot failed", t)
                 }
-                delay(PUBLISH_INTERVAL_MS)
+                // Rider-configured HUD report interval; sanitized() guarantees a
+                // safe floor so this delay can never spin at 0.
+                delay(settingsRepository.get().hudReportIntervalMs.toLong())
             }
         }
 
@@ -663,8 +662,8 @@ class HudServer @Inject constructor(
                 Log.i(TAG, "HUD link open: $peer")
                 log("Connected to $peer ✓")
                 ws = webSocket
-                // Push a frame every PUBLISH_INTERVAL_MS off the snapshot
-                // buffer. We don't dedupe: even when no field changed, the
+                // Push a frame on the rider's HUD report interval off the
+                // snapshot buffer. We don't dedupe: even when no field changed, the
                 // timestamp bump in [snapshot] keeps the HUD's last-frame
                 // freshness signal live.
                 sendJob = scope.launch {
@@ -691,7 +690,9 @@ class HudServer @Inject constructor(
                             try { webSocket.close(1011, "send-failed") } catch (_: Throwable) {}
                             break
                         }
-                        delay(PUBLISH_INTERVAL_MS)
+                        // Rider-configured HUD report interval; sanitized() guarantees a
+                // safe floor so this delay can never spin at 0.
+                delay(settingsRepository.get().hudReportIntervalMs.toLong())
                     }
                 }
             }

@@ -14,6 +14,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -48,6 +49,20 @@ class AlarmEngine @Inject constructor(
     // The pure, Android-free firing core. Holds all per-rule edge / cooldown
     // state and per-metric trend history; unit-tested in AlarmEvaluatorTest.
     private val evaluator = AlarmEvaluator()
+
+    init {
+        // Push the rider's predictive-alarm tuning into the evaluator whenever
+        // settings change. sanitized() guarantees safe values, so the evaluator
+        // never sees a zero window or sample count.
+        scope.launch {
+            settingsRepository.settings.collect { s ->
+                evaluator.slopeWindowMs = s.alarmSlopeWindowMs.toLong()
+                evaluator.bufferMaxMs = s.alarmBufferMaxMs.toLong()
+                evaluator.slopeMinSamples = s.alarmSlopeMinSamples
+                evaluator.slopeMinSpanMs = s.alarmSlopeMinSpanMs.toLong()
+            }
+        }
+    }
 
     private fun AlarmRule.toEvaluatorRule() = AlarmEvaluator.Rule(
         id = id,

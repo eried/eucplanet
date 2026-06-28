@@ -58,6 +58,14 @@ class AlarmEvaluator {
     private val ruleState = HashMap<Long, RuleState>()
     private val sampleBuffers = HashMap<String, ArrayDeque<Sample>>()
 
+    // Predictive-trend tuning, overridable from settings (AlarmEngine pushes the
+    // rider's values in). Defaults equal the AlarmLogic constants so the unit
+    // tests and out-of-box behaviour are unchanged.
+    @Volatile var slopeWindowMs: Long = AlarmLogic.SLOPE_WINDOW_MS
+    @Volatile var bufferMaxMs: Long = AlarmLogic.BUFFER_MAX_MS
+    @Volatile var slopeMinSamples: Int = AlarmLogic.SLOPE_MIN_SAMPLES
+    @Volatile var slopeMinSpanMs: Long = AlarmLogic.SLOPE_MIN_SPAN_MS
+
     /**
      * Evaluate [rules] against the readings from [value] at [nowMs] and return the
      * rules to fire this tick. [onNoReading] controls what a null reading does.
@@ -104,7 +112,8 @@ class AlarmEvaluator {
             }
             recordSample(metric, v, nowMs)
             val slope = AlarmLogic.slopePerSec(
-                sampleBuffers[metric]?.map { it.t to it.v } ?: emptyList(), nowMs
+                sampleBuffers[metric]?.map { it.t to it.v } ?: emptyList(), nowMs,
+                slopeWindowMs, slopeMinSamples, slopeMinSpanMs
             )
             var best: Rule? = null
             var bestRank = Float.NEGATIVE_INFINITY
@@ -179,7 +188,7 @@ class AlarmEvaluator {
     private fun recordSample(metric: String, value: Float, now: Long) {
         val buf = sampleBuffers.getOrPut(metric) { ArrayDeque() }
         buf.addLast(Sample(now, value))
-        val cutoff = now - AlarmLogic.BUFFER_MAX_MS
+        val cutoff = now - bufferMaxMs
         while (buf.isNotEmpty() && buf.first().t < cutoff) buf.removeFirst()
     }
 

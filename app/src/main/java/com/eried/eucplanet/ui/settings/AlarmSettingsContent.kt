@@ -1482,7 +1482,13 @@ internal fun NumberUpDown(
                     )
                     if (suffix.isNotEmpty()) {
                         Spacer(Modifier.width(4.dp))
-                        Text(suffix, fontSize = 14.sp, color = fieldLabelColor)
+                        Text(
+                            suffix,
+                            fontSize = 14.sp,
+                            color = fieldLabelColor,
+                            maxLines = 1,
+                            softWrap = false,
+                        )
                     }
                 }
                 RepeatingStepper(

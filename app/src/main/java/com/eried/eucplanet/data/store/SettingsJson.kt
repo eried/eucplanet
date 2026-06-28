@@ -182,6 +182,28 @@ object SettingsJson {
         put("watchScreen2Hold", s.watchScreen2Hold)
         put("watchHapticOnAction", s.watchHapticOnAction)
         put("watchUpdateRate", s.watchUpdateRate)
+        put("wheelPollIntervalMs", s.wheelPollIntervalMs)
+        put("graphSampleIntervalMs", s.graphSampleIntervalMs)
+        put("tripRecordIntervalMs", s.tripRecordIntervalMs)
+        put("phoneGpsIntervalMs", s.phoneGpsIntervalMs)
+        put("hudReportIntervalMs", s.hudReportIntervalMs)
+        put("garminReportIntervalMs", s.garminReportIntervalMs)
+        put("navOffRouteGraceMs", s.navOffRouteGraceMs)
+        put("navOffRouteVoiceAfterMs", s.navOffRouteVoiceAfterMs)
+        put("navOffRouteVoiceCooldownMs", s.navOffRouteVoiceCooldownMs)
+        put("navRerouteAfterMs", s.navRerouteAfterMs)
+        put("navArrivalDismissMs", s.navArrivalDismissMs)
+        put("navHuntVoiceIntervalMs", s.navHuntVoiceIntervalMs)
+        put("navHeadingWindowMs", s.navHeadingWindowMs)
+        put("navFixBufferMs", s.navFixBufferMs)
+        put("navIntermediateFlashMs", s.navIntermediateFlashMs)
+        put("navPopupTimeoutMs", s.navPopupTimeoutMs)
+        put("alarmSlopeWindowMs", s.alarmSlopeWindowMs)
+        put("alarmBufferMaxMs", s.alarmBufferMaxMs)
+        put("alarmSlopeMinSamples", s.alarmSlopeMinSamples)
+        put("alarmSlopeMinSpanMs", s.alarmSlopeMinSpanMs)
+        put("radarClearDecayMs", s.radarClearDecayMs)
+        put("automationLightCheckIntervalMs", s.automationLightCheckIntervalMs)
         put("watchCloseOnExit", s.watchCloseOnExit)
         put("watchPrioritizePwm", s.watchPrioritizePwm)
         put("watchDialRotationDeg", s.watchDialRotationDeg)
@@ -407,6 +429,28 @@ object SettingsJson {
             j.has("fasterRefresh") -> if (j.optBoolean("fasterRefresh", false)) "FAST" else "NORMAL"
             else -> base.watchUpdateRate
         },
+        wheelPollIntervalMs = j.optInt("wheelPollIntervalMs", base.wheelPollIntervalMs),
+        graphSampleIntervalMs = j.optInt("graphSampleIntervalMs", base.graphSampleIntervalMs),
+        tripRecordIntervalMs = j.optInt("tripRecordIntervalMs", base.tripRecordIntervalMs),
+        phoneGpsIntervalMs = j.optInt("phoneGpsIntervalMs", base.phoneGpsIntervalMs),
+        hudReportIntervalMs = j.optInt("hudReportIntervalMs", base.hudReportIntervalMs),
+        garminReportIntervalMs = j.optInt("garminReportIntervalMs", base.garminReportIntervalMs),
+        navOffRouteGraceMs = j.optInt("navOffRouteGraceMs", base.navOffRouteGraceMs),
+        navOffRouteVoiceAfterMs = j.optInt("navOffRouteVoiceAfterMs", base.navOffRouteVoiceAfterMs),
+        navOffRouteVoiceCooldownMs = j.optInt("navOffRouteVoiceCooldownMs", base.navOffRouteVoiceCooldownMs),
+        navRerouteAfterMs = j.optInt("navRerouteAfterMs", base.navRerouteAfterMs),
+        navArrivalDismissMs = j.optInt("navArrivalDismissMs", base.navArrivalDismissMs),
+        navHuntVoiceIntervalMs = j.optInt("navHuntVoiceIntervalMs", base.navHuntVoiceIntervalMs),
+        navHeadingWindowMs = j.optInt("navHeadingWindowMs", base.navHeadingWindowMs),
+        navFixBufferMs = j.optInt("navFixBufferMs", base.navFixBufferMs),
+        navIntermediateFlashMs = j.optInt("navIntermediateFlashMs", base.navIntermediateFlashMs),
+        navPopupTimeoutMs = j.optInt("navPopupTimeoutMs", base.navPopupTimeoutMs),
+        alarmSlopeWindowMs = j.optInt("alarmSlopeWindowMs", base.alarmSlopeWindowMs),
+        alarmBufferMaxMs = j.optInt("alarmBufferMaxMs", base.alarmBufferMaxMs),
+        alarmSlopeMinSamples = j.optInt("alarmSlopeMinSamples", base.alarmSlopeMinSamples),
+        alarmSlopeMinSpanMs = j.optInt("alarmSlopeMinSpanMs", base.alarmSlopeMinSpanMs),
+        radarClearDecayMs = j.optInt("radarClearDecayMs", base.radarClearDecayMs),
+        automationLightCheckIntervalMs = j.optInt("automationLightCheckIntervalMs", base.automationLightCheckIntervalMs),
         watchCloseOnExit = j.optBoolean("watchCloseOnExit", base.watchCloseOnExit),
         watchPrioritizePwm = j.optBoolean("watchPrioritizePwm", base.watchPrioritizePwm),
         watchDialRotationDeg = j.optInt("watchDialRotationDeg", base.watchDialRotationDeg),

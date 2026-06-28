@@ -59,7 +59,6 @@ class GarminBridge @Inject constructor(
 ) {
     companion object {
         private const val TAG = "GarminBridge"
-        private const val PUBLISH_INTERVAL_MS = 200L
     }
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
@@ -151,7 +150,7 @@ class GarminBridge @Inject constructor(
     fun start() {
         if (started) return
         started = true
-        Log.i(TAG, "Garmin bridge starting (publish=${PUBLISH_INTERVAL_MS} ms)")
+        Log.i(TAG, "Garmin bridge starting (publish follows garminReportIntervalMs)")
 
         // Async init. autoUI=false: we never want the SDK to pop its own
         // dialogs (install Connect, switch app, etc.) at host-app launch; if
@@ -219,7 +218,9 @@ class GarminBridge @Inject constructor(
                 } catch (e: Exception) {
                     Log.w(TAG, "publish loop error", e)
                 }
-                delay(PUBLISH_INTERVAL_MS)
+                // Rider-configured Garmin report interval; sanitized() guarantees
+                // a safe floor so this delay can never spin at 0.
+                delay(settingsRepository.get().garminReportIntervalMs.toLong())
             }
         }
 
