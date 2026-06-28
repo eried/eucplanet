@@ -522,7 +522,12 @@ private fun AlarmRuleEditorDialog(
 
     Dialog(
         onDismissRequest = onDismiss,
-        properties = androidx.compose.ui.window.DialogProperties(usePlatformDefaultWidth = false)
+        // Don't dismiss the alarm editor on an outside tap — that silently drops
+        // the whole edit. Close only via the explicit buttons / back.
+        properties = androidx.compose.ui.window.DialogProperties(
+            usePlatformDefaultWidth = false,
+            dismissOnClickOutside = false,
+        )
     ) {
         // Cap the dialog's height so the inner verticalScroll has a bounded
         // parent, without this the Column grows past the viewport and the
@@ -1104,7 +1109,13 @@ private fun BeepStudioDialog(
 
     Dialog(
         onDismissRequest = onDismiss,
-        properties = androidx.compose.ui.window.DialogProperties(usePlatformDefaultWidth = false),
+        // dismissOnClickOutside defaulted to true, so a stray touch in the card's
+        // side margins / empty area (easy to hit while dragging the modulation
+        // graph) closed the studio mid-edit. Only Cancel/Save/back close it now.
+        properties = androidx.compose.ui.window.DialogProperties(
+            usePlatformDefaultWidth = false,
+            dismissOnClickOutside = false,
+        ),
     ) {
         Surface(
             modifier = Modifier.fillMaxWidth(0.96f),
@@ -1404,6 +1415,10 @@ internal fun NumberUpDown(
     format: (Int) -> String = { it.toString() },
     parse: (String) -> Int? = { it.toIntOrNull() },
     allowSign: Boolean = false,
+    // How the number sits in its fixed-width box. Center (default) keeps the
+    // classic look; End hugs the number against the unit (less gap) while the
+    // box width still pins the unit so it doesn't jump as you step.
+    numberAlign: TextAlign = TextAlign.Center,
 ) {
     val fieldText = MaterialTheme.appColors.fieldText
     val fieldLabelColor = MaterialTheme.appColors.fieldLabel
@@ -1467,7 +1482,7 @@ internal fun NumberUpDown(
                             color = fieldText,
                             fontSize = 16.sp,
                             fontWeight = FontWeight.Medium,
-                            textAlign = TextAlign.Center
+                            textAlign = numberAlign
                         ),
                         cursorBrush = SolidColor(fieldText),
                         keyboardOptions = KeyboardOptions(

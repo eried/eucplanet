@@ -395,6 +395,7 @@
     <string name="tab_advanced">Advanced</string>
     <string name="adv_restore_default">Restore default</string>
     <string name="adv_reset_all">Reset all to defaults</string>
+    <string name="adv_reset_confirm_msg">These settings will return to their defaults:</string>
     <string name="adv_rates_warning">These controls change timing across the app. Lower values give fresher data and faster reactions but use more battery, CPU or data. The defaults suit most riders. Change them only if you understand the effect.</string>
     <string name="adv_pushonly_note">Some devices stream at their own fixed rate and ignore these settings: push-only wheels (Begode, Gotway, Veteran, KingSong), external GPS (RaceBox), radar and Flic buttons.</string>
     <string name="adv_group_rates">Data and reporting rates</string>

@@ -1115,36 +1115,38 @@ private fun AdvRow(spec: AdvancedSpec, advanced: AdvancedSettings, onChange: (In
                 format = spec.format,
                 parse = spec.parse,
                 allowSign = spec.allowSign,
+                numberAlign = TextAlign.End,
             )
-            if (value != default) {
-                val unit = if (spec.unit.isEmpty()) "" else " ${spec.unit}"
-                RestoreChip(text = "${spec.format(default)}$unit") { onChange(default) }
-            }
+            // Always show the default; greyed + non-clickable once already at it.
+            val unit = if (spec.unit.isEmpty()) "" else " ${spec.unit}"
+            RestoreChip(text = "${spec.format(default)}$unit", enabled = value != default) { onChange(default) }
         }
         Spacer(Modifier.width(10.dp))
         HintText(stringResource(spec.desc), modifier = Modifier.weight(1f), small = true)
     }
 }
 
-/** Small "undo -> <default>" affordance, shown only when a value is off default. */
+/** Always-visible "undo -> <default>" affordance. Active (accent, clickable) when
+ *  the value is off its default; greyed and inert once it matches. */
 @Composable
-private fun RestoreChip(text: String, onClick: () -> Unit) {
+private fun RestoreChip(text: String, enabled: Boolean, onClick: () -> Unit) {
+    val color = if (enabled) MaterialTheme.appColors.primary else MaterialTheme.appColors.textDisabled
     Row(
         modifier = Modifier
             .padding(top = 4.dp)
             .clip(RoundedCornerShape(8.dp))
-            .clickable(onClick = onClick)
+            .then(if (enabled) Modifier.clickable(onClick = onClick) else Modifier)
             .padding(horizontal = 6.dp, vertical = 2.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Icon(
             Icons.Default.Restore,
-            contentDescription = stringResource(R.string.adv_restore_default),
+            contentDescription = if (enabled) stringResource(R.string.adv_restore_default) else null,
             modifier = Modifier.size(15.dp),
-            tint = MaterialTheme.appColors.primary,
+            tint = color,
         )
         Spacer(Modifier.width(4.dp))
-        Text(text, fontSize = 12.sp, color = MaterialTheme.appColors.primary)
+        Text(text, fontSize = 12.sp, color = color)
     }
 }
 
@@ -1153,13 +1155,19 @@ private fun AdvancedTab(
     settings: com.eried.eucplanet.data.model.AppSettings,
     viewModel: SettingsViewModel,
 ) {
+    // Every knob currently off its default — drives both the "Reset all" enabled
+    // state and the confirmation list.
+    val changed = ADVANCED_SPECS.filter { it.get(settings.advanced) != it.get(ADVANCED_DEFAULTS) }
+    var showResetConfirm by remember { mutableStateOf(false) }
+
     Column(
         modifier = Modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         MetricInfoBox(stringResource(R.string.adv_rates_warning))
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
-            TextButton(onClick = { viewModel.resetAdvancedDefaults() }) {
+            // Disabled (greyed) when nothing is off default; otherwise confirm first.
+            TextButton(onClick = { showResetConfirm = true }, enabled = changed.isNotEmpty()) {
                 Icon(Icons.Default.Restore, contentDescription = null, modifier = Modifier.size(18.dp))
                 Spacer(Modifier.width(6.dp))
                 Text(stringResource(R.string.adv_reset_all))
@@ -1177,6 +1185,44 @@ private fun AdvancedTab(
                 group.noteRes?.let { HintText(stringResource(it), small = true) }
             }
         }
+    }
+
+    if (showResetConfirm && changed.isNotEmpty()) {
+        AlertDialog(
+            onDismissRequest = { showResetConfirm = false },
+            title = { Text(stringResource(R.string.adv_reset_all)) },
+            text = {
+                Column(
+                    modifier = Modifier
+                        .heightIn(max = 360.dp)
+                        .verticalScroll(rememberScrollState())
+                ) {
+                    Text(stringResource(R.string.adv_reset_confirm_msg))
+                    Spacer(Modifier.height(8.dp))
+                    changed.forEach { spec ->
+                        val u = if (spec.unit.isEmpty()) "" else " ${spec.unit}"
+                        Text(
+                            "•  ${stringResource(spec.label)}:  " +
+                                "${spec.format(spec.get(settings.advanced))}$u  →  " +
+                                "${spec.format(spec.get(ADVANCED_DEFAULTS))}$u",
+                            fontSize = 13.sp,
+                            modifier = Modifier.padding(vertical = 1.dp),
+                        )
+                    }
+                }
+            },
+            confirmButton = {
+                TextButton(onClick = {
+                    viewModel.resetAdvancedDefaults()
+                    showResetConfirm = false
+                }) { Text(stringResource(R.string.adv_reset_all)) }
+            },
+            dismissButton = {
+                TextButton(onClick = { showResetConfirm = false }) {
+                    Text(stringResource(android.R.string.cancel))
+                }
+            },
+        )
     }
 }
 
