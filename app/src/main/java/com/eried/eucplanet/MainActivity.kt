@@ -3,6 +3,10 @@ package com.eried.eucplanet
 import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.media.AudioManager
+import android.media.VolumeProvider
+import android.media.session.MediaSession
+import android.media.session.PlaybackState
 import android.os.Build
 import android.os.Bundle
 import android.view.KeyEvent
@@ -75,6 +79,14 @@ class MainActivity : AppCompatActivity() {
     private var volumeUpHoldFired = false
     private var volumeDownHoldFired = false
     private val holdThresholdMs = 600L
+
+    // Samsung / One UI route volume keys away from the Activity (onKeyDown AND
+    // dispatchKeyEvent can be bypassed), so the Service Mode overlay never opened
+    // on those phones. A MediaSession with a remote VolumeProvider intercepts
+    // volume keys at the media-routing layer instead -- the same path media apps
+    // use -- which is reliable across OEMs. Active only while Service Mode is on
+    // and the app is foregrounded (see onResume/onPause).
+    private var volumeCaptureSession: MediaSession? = null
 
     private val requiredPermissions = buildList {
         add(Manifest.permission.BLUETOOTH_SCAN)
@@ -153,6 +165,69 @@ class MainActivity : AppCompatActivity() {
         // background — the warning indicator auto-clears when the rider
         // returns having granted what was missing.
         appHealthRepository.refreshPermissionWarnings()
+        // While Service Mode is on, capture volume keys via the media-routing
+        // layer so volume-UP reliably opens the debug overlay even on phones
+        // (Samsung) that don't deliver the key to the Activity.
+        if (DiagnosticsLogger.enabled.value) startVolumeCapture()
+    }
+
+    override fun onPause() {
+        super.onPause()
+        // Release the volume-key capture so we don't hijack the buttons while
+        // the app is in the background.
+        stopVolumeCapture()
+    }
+
+    /**
+     * Start intercepting hardware volume keys via a MediaSession with a remote
+     * [VolumeProvider]. While this session is the active media target, the system
+     * routes volume presses to [VolumeProvider.onAdjustVolume] instead of the
+     * Activity -- the reliable cross-OEM path. Volume-UP opens the Service Mode
+     * overlay; volume-DOWN still lowers media volume so the buttons aren't dead.
+     */
+    private fun startVolumeCapture() {
+        if (volumeCaptureSession != null) return
+        val audio = getSystemService(AUDIO_SERVICE) as AudioManager
+        val provider = object : VolumeProvider(VolumeProvider.VOLUME_CONTROL_RELATIVE, 100, 50) {
+            override fun onAdjustVolume(direction: Int) {
+                when (direction) {
+                    AudioManager.ADJUST_RAISE -> runOnUiThread {
+                        if (DiagnosticsLogger.enabled.value) {
+                            ServiceOverlayState.show(buildServiceOverlaySnapshot())
+                        }
+                    }
+                    AudioManager.ADJUST_LOWER ->
+                        audio.adjustStreamVolume(
+                            AudioManager.STREAM_MUSIC, AudioManager.ADJUST_LOWER, AudioManager.FLAG_SHOW_UI
+                        )
+                }
+                // Re-centre so neither end saturates and both directions keep
+                // delivering onAdjustVolume callbacks.
+                currentVolume = 50
+            }
+        }
+        val session = MediaSession(this, "EucPlanetVolumeKeys").apply {
+            setPlaybackToRemote(provider)
+            // A "playing" state makes this the active session the system routes
+            // volume keys to. We never request audio focus, so the rider's music
+            // keeps playing untouched.
+            setPlaybackState(
+                PlaybackState.Builder()
+                    .setState(PlaybackState.STATE_PLAYING, 0, 1f)
+                    .build()
+            )
+            isActive = true
+        }
+        volumeCaptureSession = session
+        DiagnosticsLogger.note("volume-key capture via MediaSession started")
+    }
+
+    private fun stopVolumeCapture() {
+        volumeCaptureSession?.let {
+            it.isActive = false
+            it.release()
+        }
+        volumeCaptureSession = null
     }
 
     /**
