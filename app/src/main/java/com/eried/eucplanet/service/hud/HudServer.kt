@@ -423,6 +423,11 @@ class HudServer @Inject constructor(
         var attempt = 0
         val sprintStartedAtMs = System.currentTimeMillis()
         while (true) {
+            // Re-assert the WiFi lock every tick: it's only acquired once at
+            // enable, but the OS can reclaim it (or it can lapse on a network
+            // hop). Idempotent -- keeps the radio out of power-save for the
+            // whole session, not just the instant the link came up.
+            acquireWifiPerfLock()
             val s = runCatching { settingsRepository.get() }.getOrNull()
             val override = HudDebug.read("debug.eucplanet.hud.peer")?.takeIf { it.isNotBlank() }
             val autoDiscover = s?.hudAutoDiscover ?: true
