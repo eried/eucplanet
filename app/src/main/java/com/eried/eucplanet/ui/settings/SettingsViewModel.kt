@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import android.location.Location
 import com.eried.eucplanet.ble.ConnectionState
+import com.eried.eucplanet.data.model.AdvancedSettings
 import com.eried.eucplanet.data.model.AppSettings
 import com.eried.eucplanet.data.model.CustomBleCommand
 import com.eried.eucplanet.data.model.PairedSurface
@@ -487,52 +488,54 @@ class SettingsViewModel @Inject constructor(
     fun updateWatchScreen2Hold(action: String) = update { copy(watchScreen2Hold = action) }
     fun updateWatchHapticOnAction(v: Boolean) = update { copy(watchHapticOnAction = v) }
     fun updateWatchUpdateRate(v: String) = update { copy(watchUpdateRate = v) }
-    fun updateWheelPollIntervalMs(v: Int) = update { copy(wheelPollIntervalMs = v) }
-    fun updateGraphSampleIntervalMs(v: Int) = update { copy(graphSampleIntervalMs = v) }
-    fun updateTripRecordIntervalMs(v: Int) = update { copy(tripRecordIntervalMs = v) }
-    fun updatePhoneGpsIntervalMs(v: Int) = update { copy(phoneGpsIntervalMs = v) }
-    fun updateHudReportIntervalMs(v: Int) = update { copy(hudReportIntervalMs = v) }
-    fun updateGarminReportIntervalMs(v: Int) = update { copy(garminReportIntervalMs = v) }
-    fun updateNavOffRouteGraceMs(v: Int) = update { copy(navOffRouteGraceMs = v) }
-    fun updateNavOffRouteVoiceAfterMs(v: Int) = update { copy(navOffRouteVoiceAfterMs = v) }
-    fun updateNavOffRouteVoiceCooldownMs(v: Int) = update { copy(navOffRouteVoiceCooldownMs = v) }
-    fun updateNavRerouteAfterMs(v: Int) = update { copy(navRerouteAfterMs = v) }
-    fun updateNavArrivalDismissMs(v: Int) = update { copy(navArrivalDismissMs = v) }
-    fun updateNavHuntVoiceIntervalMs(v: Int) = update { copy(navHuntVoiceIntervalMs = v) }
-    fun updateNavHeadingWindowMs(v: Int) = update { copy(navHeadingWindowMs = v) }
-    fun updateNavFixBufferMs(v: Int) = update { copy(navFixBufferMs = v) }
-    fun updateNavIntermediateFlashMs(v: Int) = update { copy(navIntermediateFlashMs = v) }
-    fun updateNavPopupTimeoutMs(v: Int) = update { copy(navPopupTimeoutMs = v) }
-    fun updateAlarmSlopeWindowMs(v: Int) = update { copy(alarmSlopeWindowMs = v) }
-    fun updateAlarmBufferMaxMs(v: Int) = update { copy(alarmBufferMaxMs = v) }
-    fun updateAlarmSlopeMinSamples(v: Int) = update { copy(alarmSlopeMinSamples = v) }
-    fun updateAlarmSlopeMinSpanMs(v: Int) = update { copy(alarmSlopeMinSpanMs = v) }
-    fun updateRadarClearDecayMs(v: Int) = update { copy(radarClearDecayMs = v) }
-    fun updateAutomationLightCheckIntervalMs(v: Int) = update { copy(automationLightCheckIntervalMs = v) }
-    fun updateHudBackoffMinMs(v: Int) = update { copy(hudBackoffMinMs = v) }
-    fun updateHudBackoffMaxMs(v: Int) = update { copy(hudBackoffMaxMs = v) }
-    fun updateHudMdnsTimeoutMs(v: Int) = update { copy(hudMdnsTimeoutMs = v) }
-    fun updateHudDiscoverySprintMs(v: Int) = update { copy(hudDiscoverySprintMs = v) }
-    fun updateAutoLightNoGpsRetryMs(v: Int) = update { copy(autoLightNoGpsRetryMs = v) }
-    fun updateAutoToggleGraceMs(v: Int) = update { copy(autoToggleGraceMs = v) }
-    fun updateNavMovingKmh(v: Int) = update { copy(navMovingKmh = v) }
-    fun updateNavPrepareDistM(v: Int) = update { copy(navPrepareDistM = v) }
-    fun updateNavExecuteDistM(v: Int) = update { copy(navExecuteDistM = v) }
-    fun updateNavProxBandM(v: Int) = update { copy(navProxBandM = v) }
-    fun updateNavMinInterStopMoveM(v: Int) = update { copy(navMinInterStopMoveM = v) }
-    fun updateRadarFastApproachDistM(v: Int) = update { copy(radarFastApproachDistM = v) }
-    fun updateRadarFastApproachSpeedKmh(v: Int) = update { copy(radarFastApproachSpeedKmh = v) }
-    fun updateRadarStaticTargetKmh(v: Int) = update { copy(radarStaticTargetKmh = v) }
-    fun updateRadarFallbackClosingMps(v: Int) = update { copy(radarFallbackClosingMps = v) }
-    fun updateRadarMinFrameRateMs(v: Int) = update { copy(radarMinFrameRateMs = v) }
-    fun updateChargingTargetPercent(v: Int) = update { copy(chargingTargetPercent = v) }
-    fun updateChargingTargetTaperX100(v: Int) = update { copy(chargingTargetTaperX100 = v) }
-    fun updateChargingCvTaperX100(v: Int) = update { copy(chargingCvTaperX100 = v) }
-    fun updateChargingWarmupMinPercentGain(v: Int) = update { copy(chargingWarmupMinPercentGain = v) }
-    fun updateChargingWarmupMinDurationMs(v: Int) = update { copy(chargingWarmupMinDurationMs = v) }
-    fun updateChargingWindowMs(v: Int) = update { copy(chargingWindowMs = v) }
-    fun updateChargingSanityCapMinutes(v: Int) = update { copy(chargingSanityCapMinutes = v) }
-    fun updateChargingMedianFilterSize(v: Int) = update { copy(chargingMedianFilterSize = v) }
+    private fun updateAdvanced(block: AdvancedSettings.() -> AdvancedSettings) =
+        update { copy(advanced = advanced.block()) }
+    fun updateWheelPollIntervalMs(v: Int) = updateAdvanced { copy(wheelPollIntervalMs = v) }
+    fun updateGraphSampleIntervalMs(v: Int) = updateAdvanced { copy(graphSampleIntervalMs = v) }
+    fun updateTripRecordIntervalMs(v: Int) = updateAdvanced { copy(tripRecordIntervalMs = v) }
+    fun updatePhoneGpsIntervalMs(v: Int) = updateAdvanced { copy(phoneGpsIntervalMs = v) }
+    fun updateHudReportIntervalMs(v: Int) = updateAdvanced { copy(hudReportIntervalMs = v) }
+    fun updateGarminReportIntervalMs(v: Int) = updateAdvanced { copy(garminReportIntervalMs = v) }
+    fun updateNavOffRouteGraceMs(v: Int) = updateAdvanced { copy(navOffRouteGraceMs = v) }
+    fun updateNavOffRouteVoiceAfterMs(v: Int) = updateAdvanced { copy(navOffRouteVoiceAfterMs = v) }
+    fun updateNavOffRouteVoiceCooldownMs(v: Int) = updateAdvanced { copy(navOffRouteVoiceCooldownMs = v) }
+    fun updateNavRerouteAfterMs(v: Int) = updateAdvanced { copy(navRerouteAfterMs = v) }
+    fun updateNavArrivalDismissMs(v: Int) = updateAdvanced { copy(navArrivalDismissMs = v) }
+    fun updateNavHuntVoiceIntervalMs(v: Int) = updateAdvanced { copy(navHuntVoiceIntervalMs = v) }
+    fun updateNavHeadingWindowMs(v: Int) = updateAdvanced { copy(navHeadingWindowMs = v) }
+    fun updateNavFixBufferMs(v: Int) = updateAdvanced { copy(navFixBufferMs = v) }
+    fun updateNavIntermediateFlashMs(v: Int) = updateAdvanced { copy(navIntermediateFlashMs = v) }
+    fun updateNavPopupTimeoutMs(v: Int) = updateAdvanced { copy(navPopupTimeoutMs = v) }
+    fun updateAlarmSlopeWindowMs(v: Int) = updateAdvanced { copy(alarmSlopeWindowMs = v) }
+    fun updateAlarmBufferMaxMs(v: Int) = updateAdvanced { copy(alarmBufferMaxMs = v) }
+    fun updateAlarmSlopeMinSamples(v: Int) = updateAdvanced { copy(alarmSlopeMinSamples = v) }
+    fun updateAlarmSlopeMinSpanMs(v: Int) = updateAdvanced { copy(alarmSlopeMinSpanMs = v) }
+    fun updateRadarClearDecayMs(v: Int) = updateAdvanced { copy(radarClearDecayMs = v) }
+    fun updateAutomationLightCheckIntervalMs(v: Int) = updateAdvanced { copy(automationLightCheckIntervalMs = v) }
+    fun updateHudBackoffMinMs(v: Int) = updateAdvanced { copy(hudBackoffMinMs = v) }
+    fun updateHudBackoffMaxMs(v: Int) = updateAdvanced { copy(hudBackoffMaxMs = v) }
+    fun updateHudMdnsTimeoutMs(v: Int) = updateAdvanced { copy(hudMdnsTimeoutMs = v) }
+    fun updateHudDiscoverySprintMs(v: Int) = updateAdvanced { copy(hudDiscoverySprintMs = v) }
+    fun updateAutoLightNoGpsRetryMs(v: Int) = updateAdvanced { copy(autoLightNoGpsRetryMs = v) }
+    fun updateAutoToggleGraceMs(v: Int) = updateAdvanced { copy(autoToggleGraceMs = v) }
+    fun updateNavMovingKmh(v: Int) = updateAdvanced { copy(navMovingKmh = v) }
+    fun updateNavPrepareDistM(v: Int) = updateAdvanced { copy(navPrepareDistM = v) }
+    fun updateNavExecuteDistM(v: Int) = updateAdvanced { copy(navExecuteDistM = v) }
+    fun updateNavProxBandM(v: Int) = updateAdvanced { copy(navProxBandM = v) }
+    fun updateNavMinInterStopMoveM(v: Int) = updateAdvanced { copy(navMinInterStopMoveM = v) }
+    fun updateRadarFastApproachDistM(v: Int) = updateAdvanced { copy(radarFastApproachDistM = v) }
+    fun updateRadarFastApproachSpeedKmh(v: Int) = updateAdvanced { copy(radarFastApproachSpeedKmh = v) }
+    fun updateRadarStaticTargetKmh(v: Int) = updateAdvanced { copy(radarStaticTargetKmh = v) }
+    fun updateRadarFallbackClosingMps(v: Int) = updateAdvanced { copy(radarFallbackClosingMps = v) }
+    fun updateRadarMinFrameRateMs(v: Int) = updateAdvanced { copy(radarMinFrameRateMs = v) }
+    fun updateChargingTargetPercent(v: Int) = updateAdvanced { copy(chargingTargetPercent = v) }
+    fun updateChargingTargetTaperX100(v: Int) = updateAdvanced { copy(chargingTargetTaperX100 = v) }
+    fun updateChargingCvTaperX100(v: Int) = updateAdvanced { copy(chargingCvTaperX100 = v) }
+    fun updateChargingWarmupMinPercentGain(v: Int) = updateAdvanced { copy(chargingWarmupMinPercentGain = v) }
+    fun updateChargingWarmupMinDurationMs(v: Int) = updateAdvanced { copy(chargingWarmupMinDurationMs = v) }
+    fun updateChargingWindowMs(v: Int) = updateAdvanced { copy(chargingWindowMs = v) }
+    fun updateChargingSanityCapMinutes(v: Int) = updateAdvanced { copy(chargingSanityCapMinutes = v) }
+    fun updateChargingMedianFilterSize(v: Int) = updateAdvanced { copy(chargingMedianFilterSize = v) }
     fun updateWheelNameDisplay(v: String) = update { copy(wheelNameDisplay = v) }
     fun updateWatchShowNavigation(v: Boolean) = update { copy(watchShowNavigation = v) }
 

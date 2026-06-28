@@ -443,94 +443,14 @@ data class AppSettings(
      */
     val watchUpdateRate: String = "NORMAL",
     /**
-     * Advanced: how often the app polls the wheel for a telemetry frame, in ms.
-     * Decoupled from [watchUpdateRate] (which now only paces the watch feed).
-     * Only request/response wheels (InMotion, Ninebot) honour this; push-only
-     * wheels (Begode/Gotway, Veteran/Leaperkim, KingSong) stream at their own
-     * firmware rate and ignore it. Default 250 ms (~4 Hz), the long-standing value.
+     * Advanced power-user timing / threshold settings, grouped into a nested
+     * object on purpose. As 46 more top-level fields, AppSettings' generated
+     * copy()/copy$default blew past the JVM/dex 255-argument limit, so the app
+     * crashed at class verification (VerifyError on any .copy() caller, e.g.
+     * FlicManager). The delegating getters in the class body keep
+     * `settings.wheelPollIntervalMs` etc. working unchanged everywhere.
      */
-    val wheelPollIntervalMs: Int = 250,
-    /**
-     * Advanced: sampling interval (ms) for the in-memory dashboard charts (the
-     * 5-min rolling graphs). Affects chart detail only — not alarms (which run
-     * at the full telemetry rate) or trip recording. Default 1000 ms (1 Hz).
-     */
-    val graphSampleIntervalMs: Int = 1000,
-    /**
-     * Advanced: how often a row is written to the live trip .csv / DB while
-     * recording, in ms. Independent of the dashboard graph rate. Default
-     * 1000 ms (1 Hz).
-     */
-    val tripRecordIntervalMs: Int = 1000,
-    /**
-     * Advanced: phone GPS (fused-location) update interval in ms. The min update
-     * interval is derived as half this. Lower = smoother track / faster nav
-     * reaction, more battery. Default 1000 ms (1 Hz). Note: a paired external GPS
-     * (RaceBox) streams at its own device-set rate and ignores this.
-     */
-    val phoneGpsIntervalMs: Int = 1000,
-    /**
-     * Advanced: how often a frame is pushed to a connected HUD, in ms. Default
-     * 200 ms (5 Hz).
-     */
-    val hudReportIntervalMs: Int = 200,
-    /**
-     * Advanced: how often a frame is pushed to a paired Garmin device, in ms.
-     * Note: the Connect IQ transport enforces its own cap, so very low values may
-     * not be honoured end-to-end. Default 200 ms (5 Hz).
-     */
-    val garminReportIntervalMs: Int = 200,
-    // --- Advanced: navigation timing (all ms). Defaults match the long-standing
-    //     hardcoded values; clamped in SettingsRepository.sanitized(). ---
-    val navOffRouteGraceMs: Int = 8000,
-    val navOffRouteVoiceAfterMs: Int = 14000,
-    val navOffRouteVoiceCooldownMs: Int = 35000,
-    val navRerouteAfterMs: Int = 22000,
-    val navArrivalDismissMs: Int = 9000,
-    val navHuntVoiceIntervalMs: Int = 45000,
-    val navHeadingWindowMs: Int = 8000,
-    val navFixBufferMs: Int = 14000,
-    val navIntermediateFlashMs: Int = 1500,
-    val navPopupTimeoutMs: Int = 5000,
-    // --- Advanced: predictive-alarm trend window. Changing these alters how
-    //     early (or whether) speed/PWM alarms fire ahead of a threshold. ---
-    val alarmSlopeWindowMs: Int = 1500,
-    val alarmBufferMaxMs: Int = 2500,
-    val alarmSlopeMinSamples: Int = 3,
-    val alarmSlopeMinSpanMs: Int = 300,
-    // --- Advanced: radar + automation timing (ms). ---
-    val radarClearDecayMs: Int = 3000,
-    val automationLightCheckIntervalMs: Int = 60000,
-    // --- Advanced: HUD discovery / reconnection (ms). ---
-    val hudBackoffMinMs: Int = 1000,
-    val hudBackoffMaxMs: Int = 5000,
-    val hudMdnsTimeoutMs: Int = 5000,
-    val hudDiscoverySprintMs: Int = 30000,
-    // --- Advanced: auto-lights timing (ms). ---
-    val autoLightNoGpsRetryMs: Int = 2000,
-    val autoToggleGraceMs: Int = 4000,
-    // --- Advanced: navigation thresholds (distances in m, speed in km/h). ---
-    val navMovingKmh: Int = 4,
-    val navPrepareDistM: Int = 200,
-    val navExecuteDistM: Int = 30,
-    val navProxBandM: Int = 4,
-    val navMinInterStopMoveM: Int = 30,
-    // --- Advanced: radar threat classification (m, km/h, m/s, ms). ---
-    val radarFastApproachDistM: Int = 50,
-    val radarFastApproachSpeedKmh: Int = 60,
-    val radarStaticTargetKmh: Int = 3,
-    val radarFallbackClosingMps: Int = 10,
-    val radarMinFrameRateMs: Int = 100,
-    // --- Advanced: charging-ETA estimator. Taper factors are stored x100
-    //     (105 = 1.05x) so the decimal steppers can edit them as Ints. ---
-    val chargingTargetPercent: Int = 80,
-    val chargingTargetTaperX100: Int = 105,
-    val chargingCvTaperX100: Int = 200,
-    val chargingWarmupMinPercentGain: Int = 1,
-    val chargingWarmupMinDurationMs: Int = 40000,
-    val chargingWindowMs: Int = 300000,
-    val chargingSanityCapMinutes: Int = 480,
-    val chargingMedianFilterSize: Int = 7,
+    val advanced: AdvancedSettings = AdvancedSettings(),
     /**
      * Mirror the live navigation popup (turn arrow + distance) on the paired
      * watch. On by default; the rider can turn it off to keep the watch dial
@@ -823,6 +743,111 @@ data class AppSettings(
      *  Sync all UI to label "Last synced 5 min ago" and by the worker to
      *  decide whether the settings.json on Dropbox is current. */
     val dropboxLastSyncAt: Long = 0L
+) {
+    // Delegating getters so reads like `settings.wheelPollIntervalMs` keep working
+    // after the 46 advanced fields moved into the nested [AdvancedSettings] (which
+    // keeps AppSettings' copy() under the JVM/dex 255-argument limit). Writes use
+    // copy(advanced = advanced.copy(...)).
+    val wheelPollIntervalMs: Int get() = advanced.wheelPollIntervalMs
+    val graphSampleIntervalMs: Int get() = advanced.graphSampleIntervalMs
+    val tripRecordIntervalMs: Int get() = advanced.tripRecordIntervalMs
+    val phoneGpsIntervalMs: Int get() = advanced.phoneGpsIntervalMs
+    val hudReportIntervalMs: Int get() = advanced.hudReportIntervalMs
+    val garminReportIntervalMs: Int get() = advanced.garminReportIntervalMs
+    val navOffRouteGraceMs: Int get() = advanced.navOffRouteGraceMs
+    val navOffRouteVoiceAfterMs: Int get() = advanced.navOffRouteVoiceAfterMs
+    val navOffRouteVoiceCooldownMs: Int get() = advanced.navOffRouteVoiceCooldownMs
+    val navRerouteAfterMs: Int get() = advanced.navRerouteAfterMs
+    val navArrivalDismissMs: Int get() = advanced.navArrivalDismissMs
+    val navHuntVoiceIntervalMs: Int get() = advanced.navHuntVoiceIntervalMs
+    val navHeadingWindowMs: Int get() = advanced.navHeadingWindowMs
+    val navFixBufferMs: Int get() = advanced.navFixBufferMs
+    val navIntermediateFlashMs: Int get() = advanced.navIntermediateFlashMs
+    val navPopupTimeoutMs: Int get() = advanced.navPopupTimeoutMs
+    val alarmSlopeWindowMs: Int get() = advanced.alarmSlopeWindowMs
+    val alarmBufferMaxMs: Int get() = advanced.alarmBufferMaxMs
+    val alarmSlopeMinSamples: Int get() = advanced.alarmSlopeMinSamples
+    val alarmSlopeMinSpanMs: Int get() = advanced.alarmSlopeMinSpanMs
+    val radarClearDecayMs: Int get() = advanced.radarClearDecayMs
+    val automationLightCheckIntervalMs: Int get() = advanced.automationLightCheckIntervalMs
+    val hudBackoffMinMs: Int get() = advanced.hudBackoffMinMs
+    val hudBackoffMaxMs: Int get() = advanced.hudBackoffMaxMs
+    val hudMdnsTimeoutMs: Int get() = advanced.hudMdnsTimeoutMs
+    val hudDiscoverySprintMs: Int get() = advanced.hudDiscoverySprintMs
+    val autoLightNoGpsRetryMs: Int get() = advanced.autoLightNoGpsRetryMs
+    val autoToggleGraceMs: Int get() = advanced.autoToggleGraceMs
+    val navMovingKmh: Int get() = advanced.navMovingKmh
+    val navPrepareDistM: Int get() = advanced.navPrepareDistM
+    val navExecuteDistM: Int get() = advanced.navExecuteDistM
+    val navProxBandM: Int get() = advanced.navProxBandM
+    val navMinInterStopMoveM: Int get() = advanced.navMinInterStopMoveM
+    val radarFastApproachDistM: Int get() = advanced.radarFastApproachDistM
+    val radarFastApproachSpeedKmh: Int get() = advanced.radarFastApproachSpeedKmh
+    val radarStaticTargetKmh: Int get() = advanced.radarStaticTargetKmh
+    val radarFallbackClosingMps: Int get() = advanced.radarFallbackClosingMps
+    val radarMinFrameRateMs: Int get() = advanced.radarMinFrameRateMs
+    val chargingTargetPercent: Int get() = advanced.chargingTargetPercent
+    val chargingTargetTaperX100: Int get() = advanced.chargingTargetTaperX100
+    val chargingCvTaperX100: Int get() = advanced.chargingCvTaperX100
+    val chargingWarmupMinPercentGain: Int get() = advanced.chargingWarmupMinPercentGain
+    val chargingWarmupMinDurationMs: Int get() = advanced.chargingWarmupMinDurationMs
+    val chargingWindowMs: Int get() = advanced.chargingWindowMs
+    val chargingSanityCapMinutes: Int get() = advanced.chargingSanityCapMinutes
+    val chargingMedianFilterSize: Int get() = advanced.chargingMedianFilterSize
+}
+
+/**
+ * Power-user "Advanced" timing / threshold settings. Nested under
+ * [AppSettings.advanced] so AppSettings' generated copy() stays under the
+ * JVM/dex 255-argument limit. All clamped in SettingsRepository.sanitized().
+ */
+data class AdvancedSettings(
+    val wheelPollIntervalMs: Int = 250,
+    val graphSampleIntervalMs: Int = 1000,
+    val tripRecordIntervalMs: Int = 1000,
+    val phoneGpsIntervalMs: Int = 1000,
+    val hudReportIntervalMs: Int = 200,
+    val garminReportIntervalMs: Int = 200,
+    val navOffRouteGraceMs: Int = 8000,
+    val navOffRouteVoiceAfterMs: Int = 14000,
+    val navOffRouteVoiceCooldownMs: Int = 35000,
+    val navRerouteAfterMs: Int = 22000,
+    val navArrivalDismissMs: Int = 9000,
+    val navHuntVoiceIntervalMs: Int = 45000,
+    val navHeadingWindowMs: Int = 8000,
+    val navFixBufferMs: Int = 14000,
+    val navIntermediateFlashMs: Int = 1500,
+    val navPopupTimeoutMs: Int = 5000,
+    val alarmSlopeWindowMs: Int = 1500,
+    val alarmBufferMaxMs: Int = 2500,
+    val alarmSlopeMinSamples: Int = 3,
+    val alarmSlopeMinSpanMs: Int = 300,
+    val radarClearDecayMs: Int = 3000,
+    val automationLightCheckIntervalMs: Int = 60000,
+    val hudBackoffMinMs: Int = 1000,
+    val hudBackoffMaxMs: Int = 5000,
+    val hudMdnsTimeoutMs: Int = 5000,
+    val hudDiscoverySprintMs: Int = 30000,
+    val autoLightNoGpsRetryMs: Int = 2000,
+    val autoToggleGraceMs: Int = 4000,
+    val navMovingKmh: Int = 4,
+    val navPrepareDistM: Int = 200,
+    val navExecuteDistM: Int = 30,
+    val navProxBandM: Int = 4,
+    val navMinInterStopMoveM: Int = 30,
+    val radarFastApproachDistM: Int = 50,
+    val radarFastApproachSpeedKmh: Int = 60,
+    val radarStaticTargetKmh: Int = 3,
+    val radarFallbackClosingMps: Int = 10,
+    val radarMinFrameRateMs: Int = 100,
+    val chargingTargetPercent: Int = 80,
+    val chargingTargetTaperX100: Int = 105,
+    val chargingCvTaperX100: Int = 200,
+    val chargingWarmupMinPercentGain: Int = 1,
+    val chargingWarmupMinDurationMs: Int = 40000,
+    val chargingWindowMs: Int = 300000,
+    val chargingSanityCapMinutes: Int = 480,
+    val chargingMedianFilterSize: Int = 7,
 )
 
 // FlicAction enum removed (2026-05). Replaced by
