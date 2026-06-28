@@ -501,6 +501,36 @@ data class AppSettings(
     // --- Advanced: radar + automation timing (ms). ---
     val radarClearDecayMs: Int = 3000,
     val automationLightCheckIntervalMs: Int = 60000,
+    // --- Advanced: HUD discovery / reconnection (ms). ---
+    val hudBackoffMinMs: Int = 1000,
+    val hudBackoffMaxMs: Int = 5000,
+    val hudMdnsTimeoutMs: Int = 5000,
+    val hudDiscoverySprintMs: Int = 30000,
+    // --- Advanced: auto-lights timing (ms). ---
+    val autoLightNoGpsRetryMs: Int = 2000,
+    val autoToggleGraceMs: Int = 4000,
+    // --- Advanced: navigation thresholds (distances in m, speed in km/h). ---
+    val navMovingKmh: Int = 4,
+    val navPrepareDistM: Int = 200,
+    val navExecuteDistM: Int = 30,
+    val navProxBandM: Int = 4,
+    val navMinInterStopMoveM: Int = 30,
+    // --- Advanced: radar threat classification (m, km/h, m/s, ms). ---
+    val radarFastApproachDistM: Int = 50,
+    val radarFastApproachSpeedKmh: Int = 60,
+    val radarStaticTargetKmh: Int = 3,
+    val radarFallbackClosingMps: Int = 10,
+    val radarMinFrameRateMs: Int = 100,
+    // --- Advanced: charging-ETA estimator. Taper factors are stored x100
+    //     (105 = 1.05x) so the decimal steppers can edit them as Ints. ---
+    val chargingTargetPercent: Int = 80,
+    val chargingTargetTaperX100: Int = 105,
+    val chargingCvTaperX100: Int = 200,
+    val chargingWarmupMinPercentGain: Int = 1,
+    val chargingWarmupMinDurationMs: Int = 40000,
+    val chargingWindowMs: Int = 300000,
+    val chargingSanityCapMinutes: Int = 480,
+    val chargingMedianFilterSize: Int = 7,
     /**
      * Mirror the live navigation popup (turn arrow + distance) on the paired
      * watch. On by default; the rider can turn it off to keep the watch dial

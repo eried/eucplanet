@@ -509,6 +509,30 @@ class SettingsViewModel @Inject constructor(
     fun updateAlarmSlopeMinSpanMs(v: Int) = update { copy(alarmSlopeMinSpanMs = v) }
     fun updateRadarClearDecayMs(v: Int) = update { copy(radarClearDecayMs = v) }
     fun updateAutomationLightCheckIntervalMs(v: Int) = update { copy(automationLightCheckIntervalMs = v) }
+    fun updateHudBackoffMinMs(v: Int) = update { copy(hudBackoffMinMs = v) }
+    fun updateHudBackoffMaxMs(v: Int) = update { copy(hudBackoffMaxMs = v) }
+    fun updateHudMdnsTimeoutMs(v: Int) = update { copy(hudMdnsTimeoutMs = v) }
+    fun updateHudDiscoverySprintMs(v: Int) = update { copy(hudDiscoverySprintMs = v) }
+    fun updateAutoLightNoGpsRetryMs(v: Int) = update { copy(autoLightNoGpsRetryMs = v) }
+    fun updateAutoToggleGraceMs(v: Int) = update { copy(autoToggleGraceMs = v) }
+    fun updateNavMovingKmh(v: Int) = update { copy(navMovingKmh = v) }
+    fun updateNavPrepareDistM(v: Int) = update { copy(navPrepareDistM = v) }
+    fun updateNavExecuteDistM(v: Int) = update { copy(navExecuteDistM = v) }
+    fun updateNavProxBandM(v: Int) = update { copy(navProxBandM = v) }
+    fun updateNavMinInterStopMoveM(v: Int) = update { copy(navMinInterStopMoveM = v) }
+    fun updateRadarFastApproachDistM(v: Int) = update { copy(radarFastApproachDistM = v) }
+    fun updateRadarFastApproachSpeedKmh(v: Int) = update { copy(radarFastApproachSpeedKmh = v) }
+    fun updateRadarStaticTargetKmh(v: Int) = update { copy(radarStaticTargetKmh = v) }
+    fun updateRadarFallbackClosingMps(v: Int) = update { copy(radarFallbackClosingMps = v) }
+    fun updateRadarMinFrameRateMs(v: Int) = update { copy(radarMinFrameRateMs = v) }
+    fun updateChargingTargetPercent(v: Int) = update { copy(chargingTargetPercent = v) }
+    fun updateChargingTargetTaperX100(v: Int) = update { copy(chargingTargetTaperX100 = v) }
+    fun updateChargingCvTaperX100(v: Int) = update { copy(chargingCvTaperX100 = v) }
+    fun updateChargingWarmupMinPercentGain(v: Int) = update { copy(chargingWarmupMinPercentGain = v) }
+    fun updateChargingWarmupMinDurationMs(v: Int) = update { copy(chargingWarmupMinDurationMs = v) }
+    fun updateChargingWindowMs(v: Int) = update { copy(chargingWindowMs = v) }
+    fun updateChargingSanityCapMinutes(v: Int) = update { copy(chargingSanityCapMinutes = v) }
+    fun updateChargingMedianFilterSize(v: Int) = update { copy(chargingMedianFilterSize = v) }
     fun updateWheelNameDisplay(v: String) = update { copy(wheelNameDisplay = v) }
     fun updateWatchShowNavigation(v: Boolean) = update { copy(watchShowNavigation = v) }
 

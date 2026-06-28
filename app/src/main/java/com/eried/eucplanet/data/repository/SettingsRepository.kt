@@ -65,5 +65,34 @@ class SettingsRepository @Inject constructor(
         // Radar + automation.
         radarClearDecayMs = radarClearDecayMs.coerceIn(250, 30_000),
         automationLightCheckIntervalMs = automationLightCheckIntervalMs.coerceIn(5_000, 600_000),
+        // HUD discovery / reconnection.
+        hudBackoffMinMs = hudBackoffMinMs.coerceIn(100, 60_000),
+        hudBackoffMaxMs = hudBackoffMaxMs.coerceIn(500, 120_000),
+        hudMdnsTimeoutMs = hudMdnsTimeoutMs.coerceIn(500, 60_000),
+        hudDiscoverySprintMs = hudDiscoverySprintMs.coerceIn(1_000, 300_000),
+        // Auto-lights.
+        autoLightNoGpsRetryMs = autoLightNoGpsRetryMs.coerceIn(250, 60_000),
+        autoToggleGraceMs = autoToggleGraceMs.coerceIn(250, 60_000),
+        // Navigation thresholds.
+        navMovingKmh = navMovingKmh.coerceIn(1, 50),
+        navPrepareDistM = navPrepareDistM.coerceIn(20, 2_000),
+        navExecuteDistM = navExecuteDistM.coerceIn(5, 500),
+        navProxBandM = navProxBandM.coerceIn(1, 100),
+        navMinInterStopMoveM = navMinInterStopMoveM.coerceIn(5, 500),
+        // Radar threat classification.
+        radarFastApproachDistM = radarFastApproachDistM.coerceIn(5, 500),
+        radarFastApproachSpeedKmh = radarFastApproachSpeedKmh.coerceIn(5, 200),
+        radarStaticTargetKmh = radarStaticTargetKmh.coerceIn(1, 50),
+        radarFallbackClosingMps = radarFallbackClosingMps.coerceIn(1, 100),
+        radarMinFrameRateMs = radarMinFrameRateMs.coerceIn(20, 5_000),
+        // Charging-ETA estimator (taper factors x100).
+        chargingTargetPercent = chargingTargetPercent.coerceIn(50, 99),
+        chargingTargetTaperX100 = chargingTargetTaperX100.coerceIn(100, 300),
+        chargingCvTaperX100 = chargingCvTaperX100.coerceIn(100, 500),
+        chargingWarmupMinPercentGain = chargingWarmupMinPercentGain.coerceIn(1, 50),
+        chargingWarmupMinDurationMs = chargingWarmupMinDurationMs.coerceIn(5_000, 600_000),
+        chargingWindowMs = chargingWindowMs.coerceIn(30_000, 1_200_000),
+        chargingSanityCapMinutes = chargingSanityCapMinutes.coerceIn(60, 1_440),
+        chargingMedianFilterSize = chargingMedianFilterSize.coerceIn(1, 21),
     )
 }

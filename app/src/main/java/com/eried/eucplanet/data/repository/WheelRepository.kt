@@ -524,6 +524,17 @@ class WheelRepository @Inject constructor(
                 // re-collect the flow per cycle.
                 pollIntervalMs = s.wheelPollIntervalMs.toLong()
                 graphSampleIntervalMs = s.graphSampleIntervalMs.toLong()
+                // Push the rider's charging-ETA tuning into the live estimator; it
+                // reads these each estimate() so a change applies without losing the
+                // running session. Taper factors are stored x100.
+                chargingEstimator.targetPercent = s.chargingTargetPercent.toFloat()
+                chargingEstimator.targetTaperFactor = s.chargingTargetTaperX100 / 100f
+                chargingEstimator.cvTaperFactor = s.chargingCvTaperX100 / 100f
+                chargingEstimator.warmupMinPercentGain = s.chargingWarmupMinPercentGain.toFloat()
+                chargingEstimator.warmupMinDurationMs = s.chargingWarmupMinDurationMs.toLong()
+                chargingEstimator.windowMs = s.chargingWindowMs.toLong()
+                chargingEstimator.sanityCapMinutes = s.chargingSanityCapMinutes.toFloat()
+                chargingEstimator.medianFilterSize = s.chargingMedianFilterSize
                 val wheelName = s.lastDeviceName
                 if (wheelName != null && bleManager.connectionState.value == ConnectionState.CONNECTED) {
                     persistWheelProfile(wheelName, s)

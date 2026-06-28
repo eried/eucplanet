@@ -204,6 +204,30 @@ object SettingsJson {
         put("alarmSlopeMinSpanMs", s.alarmSlopeMinSpanMs)
         put("radarClearDecayMs", s.radarClearDecayMs)
         put("automationLightCheckIntervalMs", s.automationLightCheckIntervalMs)
+        put("hudBackoffMinMs", s.hudBackoffMinMs)
+        put("hudBackoffMaxMs", s.hudBackoffMaxMs)
+        put("hudMdnsTimeoutMs", s.hudMdnsTimeoutMs)
+        put("hudDiscoverySprintMs", s.hudDiscoverySprintMs)
+        put("autoLightNoGpsRetryMs", s.autoLightNoGpsRetryMs)
+        put("autoToggleGraceMs", s.autoToggleGraceMs)
+        put("navMovingKmh", s.navMovingKmh)
+        put("navPrepareDistM", s.navPrepareDistM)
+        put("navExecuteDistM", s.navExecuteDistM)
+        put("navProxBandM", s.navProxBandM)
+        put("navMinInterStopMoveM", s.navMinInterStopMoveM)
+        put("radarFastApproachDistM", s.radarFastApproachDistM)
+        put("radarFastApproachSpeedKmh", s.radarFastApproachSpeedKmh)
+        put("radarStaticTargetKmh", s.radarStaticTargetKmh)
+        put("radarFallbackClosingMps", s.radarFallbackClosingMps)
+        put("radarMinFrameRateMs", s.radarMinFrameRateMs)
+        put("chargingTargetPercent", s.chargingTargetPercent)
+        put("chargingTargetTaperX100", s.chargingTargetTaperX100)
+        put("chargingCvTaperX100", s.chargingCvTaperX100)
+        put("chargingWarmupMinPercentGain", s.chargingWarmupMinPercentGain)
+        put("chargingWarmupMinDurationMs", s.chargingWarmupMinDurationMs)
+        put("chargingWindowMs", s.chargingWindowMs)
+        put("chargingSanityCapMinutes", s.chargingSanityCapMinutes)
+        put("chargingMedianFilterSize", s.chargingMedianFilterSize)
         put("watchCloseOnExit", s.watchCloseOnExit)
         put("watchPrioritizePwm", s.watchPrioritizePwm)
         put("watchDialRotationDeg", s.watchDialRotationDeg)
@@ -451,6 +475,30 @@ object SettingsJson {
         alarmSlopeMinSpanMs = j.optInt("alarmSlopeMinSpanMs", base.alarmSlopeMinSpanMs),
         radarClearDecayMs = j.optInt("radarClearDecayMs", base.radarClearDecayMs),
         automationLightCheckIntervalMs = j.optInt("automationLightCheckIntervalMs", base.automationLightCheckIntervalMs),
+        hudBackoffMinMs = j.optInt("hudBackoffMinMs", base.hudBackoffMinMs),
+        hudBackoffMaxMs = j.optInt("hudBackoffMaxMs", base.hudBackoffMaxMs),
+        hudMdnsTimeoutMs = j.optInt("hudMdnsTimeoutMs", base.hudMdnsTimeoutMs),
+        hudDiscoverySprintMs = j.optInt("hudDiscoverySprintMs", base.hudDiscoverySprintMs),
+        autoLightNoGpsRetryMs = j.optInt("autoLightNoGpsRetryMs", base.autoLightNoGpsRetryMs),
+        autoToggleGraceMs = j.optInt("autoToggleGraceMs", base.autoToggleGraceMs),
+        navMovingKmh = j.optInt("navMovingKmh", base.navMovingKmh),
+        navPrepareDistM = j.optInt("navPrepareDistM", base.navPrepareDistM),
+        navExecuteDistM = j.optInt("navExecuteDistM", base.navExecuteDistM),
+        navProxBandM = j.optInt("navProxBandM", base.navProxBandM),
+        navMinInterStopMoveM = j.optInt("navMinInterStopMoveM", base.navMinInterStopMoveM),
+        radarFastApproachDistM = j.optInt("radarFastApproachDistM", base.radarFastApproachDistM),
+        radarFastApproachSpeedKmh = j.optInt("radarFastApproachSpeedKmh", base.radarFastApproachSpeedKmh),
+        radarStaticTargetKmh = j.optInt("radarStaticTargetKmh", base.radarStaticTargetKmh),
+        radarFallbackClosingMps = j.optInt("radarFallbackClosingMps", base.radarFallbackClosingMps),
+        radarMinFrameRateMs = j.optInt("radarMinFrameRateMs", base.radarMinFrameRateMs),
+        chargingTargetPercent = j.optInt("chargingTargetPercent", base.chargingTargetPercent),
+        chargingTargetTaperX100 = j.optInt("chargingTargetTaperX100", base.chargingTargetTaperX100),
+        chargingCvTaperX100 = j.optInt("chargingCvTaperX100", base.chargingCvTaperX100),
+        chargingWarmupMinPercentGain = j.optInt("chargingWarmupMinPercentGain", base.chargingWarmupMinPercentGain),
+        chargingWarmupMinDurationMs = j.optInt("chargingWarmupMinDurationMs", base.chargingWarmupMinDurationMs),
+        chargingWindowMs = j.optInt("chargingWindowMs", base.chargingWindowMs),
+        chargingSanityCapMinutes = j.optInt("chargingSanityCapMinutes", base.chargingSanityCapMinutes),
+        chargingMedianFilterSize = j.optInt("chargingMedianFilterSize", base.chargingMedianFilterSize),
         watchCloseOnExit = j.optBoolean("watchCloseOnExit", base.watchCloseOnExit),
         watchPrioritizePwm = j.optBoolean("watchPrioritizePwm", base.watchPrioritizePwm),
         watchDialRotationDeg = j.optInt("watchDialRotationDeg", base.watchDialRotationDeg),

@@ -163,9 +163,21 @@ class NavigationEngine @Inject constructor(
                 headingWindowMs = s.navHeadingWindowMs.toLong()
                 fixBufferMs = s.navFixBufferMs.toLong()
                 intermediateFlashMs = s.navIntermediateFlashMs.toLong()
+                movingKmh = s.navMovingKmh.toDouble()
+                prepareDistM = s.navPrepareDistM.toDouble()
+                executeDistM = s.navExecuteDistM.toDouble()
+                proxBandM = s.navProxBandM.toDouble()
+                minInterStopMoveM = s.navMinInterStopMoveM.toDouble()
             }
         }
     }
+
+    // Advanced nav thresholds (distances m / speed km/h), mirrored from settings.
+    @Volatile private var movingKmh: Double = MOVING_KMH
+    @Volatile private var prepareDistM: Double = PREPARE_DIST_M
+    @Volatile private var executeDistM: Double = EXECUTE_DIST_M
+    @Volatile private var proxBandM: Double = PROX_BAND_M
+    @Volatile private var minInterStopMoveM: Double = MIN_INTER_STOP_MOVE_M
 
     // Advanced nav timing, mirrored from settings so the per-fix evaluation reads
     // cached values without re-collecting the flow. Defaults are the constants.
@@ -451,7 +463,7 @@ class NavigationEngine @Inject constructor(
 
         val gpsSpeed = if (loc.hasSpeed()) loc.speed.toDouble() else 0.0
         val wheelKmh = abs(wheelRepository.wheelData.value.speed).toDouble()
-        val moving = gpsSpeed > MOVING_MS || wheelKmh > MOVING_KMH
+        val moving = gpsSpeed > MOVING_MS || wheelKmh > movingKmh
 
         recentFixes.addLast(Fix(point, now, moving))
         while (recentFixes.isNotEmpty() && now - recentFixes.first().timeMs > fixBufferMs) {
@@ -492,7 +504,7 @@ class NavigationEngine @Inject constructor(
             // the next stop via the heading-null path when they have
             // actually reached it.
             val armed = lastArrivalPoint?.let { last ->
-                GeoMath.distanceM(point, last) > MIN_INTER_STOP_MOVE_M
+                GeoMath.distanceM(point, last) > minInterStopMoveM
             } ?: true
             if (armed && currentGoal == 1 && route.waypoints.size > 1) {
                 val g = route.waypoints[1]
@@ -664,7 +676,7 @@ class NavigationEngine @Inject constructor(
         // final maneuver here too made arrival speak two or three times over.
         if (maneuver.type == TurnType.DEPART || maneuver.type == TurnType.ARRIVE) return
         if (!voiceEnabled) return
-        if (distToTurn <= PREPARE_DIST_M && preparedManeuver != index) {
+        if (distToTurn <= prepareDistM && preparedManeuver != index) {
             preparedManeuver = index
             voiceService.announceEvent(
                 context.getString(
@@ -674,7 +686,7 @@ class NavigationEngine @Inject constructor(
                 )
             )
         }
-        if (distToTurn <= EXECUTE_DIST_M && executedManeuver != index) {
+        if (distToTurn <= executeDistM && executedManeuver != index) {
             executedManeuver = index
             voiceService.announceEvent(
                 context.getString(R.string.voice_nav_now, turnText(maneuver.type))
@@ -833,8 +845,8 @@ class NavigationEngine @Inject constructor(
         val rel = GeoMath.relativeBearing(heading, GeoMath.bearingDeg(point, target.point()))
         val proximity = when {
             dist < arrivalRadiusM * 2.5 -> Proximity.HOT
-            !lastGoalDistM.isNaN() && dist < lastGoalDistM - PROX_BAND_M -> Proximity.WARM
-            !lastGoalDistM.isNaN() && dist > lastGoalDistM + PROX_BAND_M -> Proximity.COLD
+            !lastGoalDistM.isNaN() && dist < lastGoalDistM - proxBandM -> Proximity.WARM
+            !lastGoalDistM.isNaN() && dist > lastGoalDistM + proxBandM -> Proximity.COLD
             else -> lastProximity ?: Proximity.WARM
         }
 

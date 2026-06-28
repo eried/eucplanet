@@ -175,6 +175,10 @@ class HudServer @Inject constructor(
         scope.launch {
             var on = false
             settingsRepository.settings.collect { s ->
+                backoffMinMs = s.hudBackoffMinMs.toLong()
+                backoffMaxMs = s.hudBackoffMaxMs.toLong()
+                mdnsTimeoutMs = s.hudMdnsTimeoutMs.toLong()
+                discoverySprintMs = s.hudDiscoverySprintMs.toLong()
                 val want = s.hudServerEnabled ||
                     com.eried.eucplanet.hud.protocol.HudDebug.read("debug.eucplanet.hud.force") == "true"
                 if (want != on) {
@@ -184,6 +188,11 @@ class HudServer @Inject constructor(
             }
         }
     }
+    // Advanced HUD discovery / reconnection timing, mirrored from settings.
+    @Volatile private var backoffMinMs: Long = BACKOFF_MIN_MS
+    @Volatile private var backoffMaxMs: Long = BACKOFF_MAX_MS
+    @Volatile private var mdnsTimeoutMs: Long = MDNS_RESOLVE_TIMEOUT_MS
+    @Volatile private var discoverySprintMs: Long = DISCOVERY_SPRINT_MS
     @Volatile private var multicastLock: WifiManager.MulticastLock? = null
     /** High-performance WiFi lock acquired while the HUD link is enabled.
      *  Without this, the radio enters DTIM power-save once the screen is off
@@ -446,7 +455,7 @@ class HudServer @Inject constructor(
                 // airplane mode) cancels whichever delay is pending so we
                 // retry immediately instead of waiting out the tick.
                 val sinceStart = System.currentTimeMillis() - sprintStartedAtMs
-                delayOrKick(if (sinceStart < DISCOVERY_SPRINT_MS) 2_000L else 5_000L)
+                delayOrKick(if (sinceStart < discoverySprintMs) 2_000L else 5_000L)
                 continue
             }
             _connectionSource.value = source
@@ -555,7 +564,7 @@ class HudServer @Inject constructor(
                 log("mDNS: found $v")
                 results.send(v to ConnectionSource.MDNS)
             } else {
-                log("mDNS: no answer in ${MDNS_RESOLVE_TIMEOUT_MS / 1000}s")
+                log("mDNS: no answer in ${mdnsTimeoutMs / 1000}s")
             }
         }
 
@@ -620,7 +629,7 @@ class HudServer @Inject constructor(
                 }
             }
             md.addServiceListener(HudDiscovery.SERVICE_TYPE, listener)
-            val winner = kotlinx.coroutines.withTimeoutOrNull(MDNS_RESOLVE_TIMEOUT_MS) {
+            val winner = kotlinx.coroutines.withTimeoutOrNull(mdnsTimeoutMs) {
                 resolved.await()
             }
             try { md.removeServiceListener(HudDiscovery.SERVICE_TYPE, listener) } catch (_: Throwable) {}
@@ -728,8 +737,8 @@ class HudServer @Inject constructor(
     }
 
     private fun backoff(attempt: Int): Long {
-        val expanded = BACKOFF_MIN_MS shl attempt.coerceAtMost(3)
-        return expanded.coerceAtMost(BACKOFF_MAX_MS)
+        val expanded = backoffMinMs shl attempt.coerceAtMost(3)
+        return expanded.coerceAtMost(backoffMaxMs)
     }
 
     private suspend fun snapshot(): HudState {
