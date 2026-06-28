@@ -34,6 +34,13 @@ class EucPlanetApp : Application(), Configuration.Provider {
     override fun onCreate() {
         super.onCreate()
         CrashHandler.install(this)
+        // motoeye-fix-again DIAGNOSTIC build: auto-start Service Mode at process
+        // launch so the log captures the wheel/HUD connection from the very first
+        // byte, even if the tester forgets to enable it via the seven-tap gesture.
+        // The buffer is in-memory and cleared on process exit (see DiagnosticsLogger).
+        // NOT for the public release branch.
+        com.eried.eucplanet.diagnostics.DiagnosticsLogger.enable()
+        com.eried.eucplanet.diagnostics.DiagnosticsLogger.note("service mode auto-started at app launch (diagnostic build)")
         flicManager.initialize()
         wearBridge.start()
         garminBridge.start()
