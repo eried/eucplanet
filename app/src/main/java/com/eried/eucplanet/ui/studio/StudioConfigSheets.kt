@@ -2138,7 +2138,7 @@ private fun ColorSwatch(
 }
 
 @Composable
-private fun CustomColorSwatch(current: Long, isActive: Boolean, onClick: () -> Unit) {
+internal fun CustomColorSwatch(current: Long, isActive: Boolean, onClick: () -> Unit) {
     val rainbow = Brush.sweepGradient(
         listOf(
             Color(0xFFE53935), Color(0xFFFDD835), Color(0xFF43A047),
@@ -2173,7 +2173,7 @@ private fun CustomColorSwatch(current: Long, isActive: Boolean, onClick: () -> U
 }
 
 @Composable
-private fun ColorPickerDialog(
+internal fun ColorPickerDialog(
     initial: Long,
     allowAlpha: Boolean,
     onPick: (Long) -> Unit,

@@ -4,6 +4,7 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.gestures.detectDragGestures
@@ -387,10 +388,17 @@ private fun ExportFormatChooser(
     onForceOpaque: (Boolean) -> Unit,
     onScale: (Int) -> Unit
 ) {
+    // In portrait (panel upright, rotation 0/180) there's far more vertical room
+    // than in landscape, so let the chooser grow instead of cramming everything
+    // into a 360dp scroller. Landscape keeps the compact cap.
+    val cfg = androidx.compose.ui.platform.LocalConfiguration.current
+    val portrait = LocalStudioRotation.current.let { it == 0 || it == 180 }
+    val maxChooserHeight =
+        if (portrait) (cfg.screenHeightDp * 0.58f).dp.coerceAtMost(620.dp) else 360.dp
     Column(
         Modifier
             .fillMaxWidth()
-            .heightIn(max = 360.dp)
+            .heightIn(max = maxChooserHeight)
             .verticalScroll(rememberScrollState())
     ) {
         // Photo.
@@ -489,8 +497,11 @@ private fun ExportFormatChooser(
                 color = MaterialTheme.appColors.textSecondary.copy(alpha = ctrlAlpha),
                 modifier = Modifier.padding(bottom = 6.dp)
             )
+            var showChromaPicker by remember { mutableStateOf(false) }
             Row(
-                Modifier.alpha(ctrlAlpha),
+                Modifier
+                    .alpha(ctrlAlpha)
+                    .horizontalScroll(rememberScrollState()),
                 horizontalArrangement = Arrangement.spacedBy(10.dp)
             ) {
                 chromaPresets.forEach { (labelRes, argb) ->
@@ -526,6 +537,21 @@ private fun ExportFormatChooser(
                         }
                     }
                 }
+                // Any colour: opens the shared HSV picker (same control + icon as
+                // the overlay element colours). Active when the chroma isn't a preset.
+                CustomColorSwatch(
+                    current = prefs.chromaColor,
+                    isActive = chromaPresets.none { it.second == prefs.chromaColor },
+                    onClick = { if (opaqueAffects) showChromaPicker = true }
+                )
+            }
+            if (showChromaPicker) {
+                ColorPickerDialog(
+                    initial = prefs.chromaColor,
+                    allowAlpha = false,   // a chroma fill is always opaque
+                    onPick = { showChromaPicker = false; onChromaColor(it or 0xFF000000L) },
+                    onDismiss = { showChromaPicker = false }
+                )
             }
 
             // Force-opaque: a partly-transparent element would blend with
