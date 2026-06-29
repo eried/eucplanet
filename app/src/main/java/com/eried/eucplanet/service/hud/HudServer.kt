@@ -342,9 +342,21 @@ class HudServer @Inject constructor(
                 reconnectKick.trySend(Unit)
             }
             override fun onLosing(network: Network, maxMsToLive: Int) {
-                Log.i(TAG, "network onLosing (${maxMsToLive}ms): closing WS preemptively")
-                log("Network dropping in ${maxMsToLive}ms, closing WS")
-                try { ws?.close(1000, "network-losing") } catch (_: Throwable) {}
+                // DO NOT close the WS here. This callback filters for
+                // TRANSPORT_WIFI + NET_CAPABILITY_INTERNET, so the only network
+                // it ever tracks is the rider's HOME WiFi (STA) -- the HUD link
+                // rides the phone's hotspot, which has no INTERNET capability and
+                // is never surfaced as a Network. The home WiFi going away (rider
+                // leaves range) does NOT affect the hotspot route, so closing the
+                // WS here is pure collateral damage: it tore down a perfectly good
+                // hotspot link the instant the rider walked out of home range.
+                // Just note it and let the dial loop / heartbeat handle any real
+                // drop. (Verified against the 2026-06-29 tester log: the link
+                // died via ping-timeout, NOT this path -- but this close was a
+                // latent amplifier waiting to fire.)
+                Log.i(TAG, "network onLosing (${maxMsToLive}ms): home WiFi leaving; " +
+                    "leaving hotspot WS intact")
+                log("Home WiFi dropping in ${maxMsToLive}ms (hotspot link unaffected)")
             }
         }
         try {

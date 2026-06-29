@@ -1,12 +1,17 @@
 package com.eried.eucplanet.hud.net
 
 import android.content.Context
+import android.net.wifi.SupplicantState
 import android.net.wifi.WifiManager
 import android.util.Log
 import com.eried.eucplanet.hud.protocol.HudCommand
 import com.eried.eucplanet.hud.protocol.HudDebug
 import com.eried.eucplanet.hud.protocol.HudDiscovery
 import com.eried.eucplanet.hud.protocol.HudState
+import com.eried.eucplanet.hud.protocol.LinkHealth
+import com.eried.eucplanet.hud.protocol.LinkVerdict
+import com.eried.eucplanet.hud.protocol.LinkWatchdog
+import com.eried.eucplanet.hud.protocol.RecoveryStep
 import io.ktor.server.application.install
 import io.ktor.server.cio.CIO
 import io.ktor.server.engine.embeddedServer
@@ -34,6 +39,7 @@ import kotlinx.coroutines.sync.withLock
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import java.net.Inet4Address
+import java.net.InetAddress
 import java.net.InetSocketAddress
 import java.net.NetworkInterface
 import java.net.Socket
@@ -81,6 +87,17 @@ class HudServer(private val context: Context) {
         private const val TCP_PROBE_TIMEOUT_MS: Int = 1_500
         /** Wake-lock tag; shows up in `dumpsys power` for debugging. */
         private const val WAKE_LOCK_TAG = "eucplanet-hud:server"
+        /** Faster watchdog cadence once the link looks unhealthy, so an
+         *  off-air radio is detected and the recovery ladder escalates within
+         *  seconds instead of the lazy 10 s healthy interval. */
+        private const val RECOVERY_INTERVAL_MS: Long = 3_000L
+        /** Timeout for the "can I still reach the phone I was talking to"
+         *  reachability probe. Short: the hotspot link is sub-10 ms when up. */
+        private const val PEER_PROBE_TIMEOUT_MS: Int = 1_200
+        /** Consecutive off-air ticks tolerated before the recovery ladder
+         *  starts. One grace tick rides out a single transient peer-probe miss
+         *  without kicking the radio. */
+        private const val OFF_AIR_GRACE_TICKS: Int = 1
     }
 
     /** Connection state surfaced to the UI status banner. */
@@ -165,6 +182,24 @@ class HudServer(private val context: Context) {
      *  We require [WATCHDOG_FAIL_THRESHOLD] in a row before a full restart so
      *  a transient localhost blip doesn't churn the server. */
     @Volatile private var watchdogFailStreak: Int = 0
+    /** Consecutive watchdog ticks classified [LinkVerdict.OFF_AIR]. Drives the
+     *  recovery ladder. SEPARATE from [watchdogFailStreak] on purpose: the old
+     *  loopback probe stays green when the radio is off-air, so if both shared
+     *  one counter the green loopback result would keep zeroing out the real
+     *  off-air signal and nothing would ever recover. */
+    @Volatile private var offAirStreak: Int = 0
+    /** Wall-clock when the current off-air episode began (0 = on the air). Used
+     *  to report the air-gap duration in the recovery note. */
+    @Volatile private var offAirSinceMs: Long = 0L
+    /** How many recovery actions of each kind we've taken this episode, for the
+     *  recovery note the HUD reports back to the phone. */
+    @Volatile private var rcRestart: Int = 0
+    @Volatile private var rcReassoc: Int = 0
+    @Volatile private var rcToggle: Int = 0
+    /** Number of off-air episodes we've auto-recovered from this run -- surfaced
+     *  on the stats card so a "had to reboot" report can instead read "recovered
+     *  N times on its own". */
+    @Volatile var offAirRecoveries: Int = 0; private set
     /** Monotonic connection counter so a stale, slowly-timing-out WebSocket
      *  handler doesn't clobber the status/peer of a newer connection that
      *  arrived during a fast reconnect. */
@@ -241,13 +276,21 @@ class HudServer(private val context: Context) {
                         ?.toIntOrNull() ?: HudState.PROTOCOL_MAJOR
                     val sendMinor = HudDebug.read("debug.eucplanet.proto.minor")
                         ?.toIntOrNull() ?: HudState.PROTOCOL_MINOR
+                    // If we just self-healed a WiFi drop, ride the summary back
+                    // on the Pair so it lands in the rider's shareable phone
+                    // diagnostics (the phone logs Pair as a NOTE). Consume-once.
+                    val recoveryNote = HudDiag.consumeRecoveryNote()
+                    if (recoveryNote.isNotBlank()) {
+                        HudDiag.log("pair", "reporting recovery to phone: $recoveryNote")
+                    }
                     try {
                         send(json.encodeToString<HudCommand>(
                             HudCommand.Pair(
                                 hudId = "motoeye-hud",
                                 hudVersion = com.eried.eucplanet.hud.BuildConfig.VERSION_NAME,
                                 hudProtocolMajor = sendMajor,
-                                hudProtocolMinor = sendMinor
+                                hudProtocolMinor = sendMinor,
+                                recoveryNote = recoveryNote
                             )
                         ))
                     } catch (t: Throwable) {
@@ -408,70 +451,249 @@ class HudServer(private val context: Context) {
         wifiLock = null
     }
 
-    /** Watchdog loop. Two jobs per tick:
+    /**
+     * Self-heal watchdog, reworked to be REACHABILITY-driven rather than
+     * loopback-driven.
      *
-     *   1. Re-resolve the local IPv4. If it changed (hotspot DHCP renew,
-     *      WiFi reconnect on a new subnet), push the new value into
-     *      [_localIp] so the on-screen banner refreshes, and rebuild the
-     *      mDNS advertise so phones looking us up via mDNS resolve to the
-     *      new address.
-     *   2. TCP-probe `127.0.0.1:PORT` to confirm the Ktor server is still
-     *      accepting connections. If the probe fails [WATCHDOG_FAIL_THRESHOLD]
-     *      ticks in a row, tear everything down and restart the server.
-     *      A single probe miss is tolerated because localhost can blip
-     *      during Android suspend windows; consecutive misses is the
-     *      signal that something's actually wrong. */
+     * The old loop's only liveness check was a TCP probe to `127.0.0.1`, which
+     * succeeds whenever the in-process Ktor server is alive -- completely
+     * independent of whether `wlan0` is still on the rider's hotspot. So when
+     * the phone left home-WiFi range and the HUD's radio dropped off the
+     * softAP, the probe stayed green, the watchdog did nothing, and the rider
+     * had to reboot the Motoeye (diagnosed from the 2026-06-29 tester log: the
+     * HUD's UDP beacon vanished at 07:18:52 and never returned).
+     *
+     * Now each tick gathers real radio signals (WiFi association + a probe to
+     * the phone we last talked to) and feeds them to [LinkWatchdog.assess]:
+     *   - HEALTHY        -> reset streaks, refresh IP/mDNS, relax cadence.
+     *   - SERVER_WEDGED  -> radio fine but listener dead: restart the server
+     *                       (the old behaviour, now correctly scoped to the
+     *                       one case it actually fixes).
+     *   - OFF_AIR        -> climb the recovery ladder (restart sockets ->
+     *                       reassociate -> toggle WiFi) until the link is back,
+     *                       logging every step and reporting a one-line summary
+     *                       to the phone on the next pair.
+     *
+     * While a phone is actively CONNECTED the link is healthy by definition
+     * (the live WebSocket rides wlan0), so we short-circuit to HEALTHY and
+     * never let a transient association read trigger recovery on a good link.
+     */
     private suspend fun runWatchdog() {
         // delay() is a cancellation point, so the parent watchdogJob cancel
         // unwinds the loop without an explicit isActive check.
         while (true) {
-            delay(WATCHDOG_INTERVAL_MS)
-            // 0. Re-assert the power locks (idempotent) in case the OS reclaimed
-            //    the WiFi lock -- the radio dropping to power-save is the silent
-            //    "unreachable but localhost-alive" killer this watchdog can't see.
+            // Cadence: lazy when healthy, brisk while we suspect or repair an
+            // off-air radio so the ladder escalates in seconds, not tens of them.
+            val interval = if (offAirStreak > 0 || watchdogFailStreak > 0)
+                RECOVERY_INTERVAL_MS else WATCHDOG_INTERVAL_MS
+            delay(interval)
+            // Re-assert the power locks (idempotent) each tick.
             acquireWakeLock()
             acquireWifiLock()
-            // 1. IP-change handling.
-            val current = pickLocalIp()
-            val prior = _localIp.value
-            if (!current.isNullOrBlank() && current != prior) {
-                Log.i(TAG, "watchdog: local IP changed $prior -> $current; refreshing mDNS")
-                _localIp.value = current
+
+            val health = gatherHealth()
+            val verdict = if (_status.value == Status.CONNECTED)
+                LinkVerdict.HEALTHY else LinkWatchdog.assess(health)
+            HudDiag.log("watchdog",
+                "verdict=$verdict ip=${health.localIp ?: "-"} assoc=${health.associated} " +
+                    "peerKnown=${health.peerKnown} peerReach=${health.peerReachable} " +
+                    "server=${health.serverAlive} offAirStreak=$offAirStreak " +
+                    "status=${_status.value}")
+
+            when (verdict) {
+                LinkVerdict.HEALTHY -> {
+                    watchdogFailStreak = 0
+                    if (offAirSinceMs != 0L) finishOffAirEpisode()
+                    offAirStreak = 0
+                    refreshIpAndMdns()
+                }
+
+                LinkVerdict.SERVER_WEDGED -> {
+                    // Radio is fine; only the Ktor listener looks dead. Keep the
+                    // old consecutive-miss guard so a one-tick blip doesn't churn.
+                    offAirStreak = 0
+                    if (offAirSinceMs != 0L) finishOffAirEpisode()
+                    refreshIpAndMdns()
+                    watchdogFailStreak++
+                    HudDiag.log("watchdog",
+                        "server wedged (streak=$watchdogFailStreak) but radio OK")
+                    if (watchdogFailStreak >= WATCHDOG_FAIL_THRESHOLD) {
+                        watchdogFailStreak = 0
+                        watchdogRestarts++
+                        HudDiag.log("watchdog", "restarting Ktor server (#$watchdogRestarts)")
+                        // Restart in its own coroutine so the watchdog loop
+                        // doesn't suspend on the lifecycle lock doStart() takes
+                        // (a concurrent activity-onDestroy stop() would deadlock).
+                        scope.launch { lifecycleLock.withLock { doStop(); doStart() } }
+                        return
+                    }
+                }
+
+                LinkVerdict.OFF_AIR -> {
+                    watchdogFailStreak = 0
+                    if (offAirSinceMs == 0L) beginOffAirEpisode(health)
+                    offAirStreak++
+                    if (offAirStreak <= OFF_AIR_GRACE_TICKS) {
+                        HudDiag.log("watchdog",
+                            "off-air suspected (streak=$offAirStreak); one grace tick before acting")
+                    } else {
+                        val attempt = offAirStreak - OFF_AIR_GRACE_TICKS - 1
+                        val step = LinkWatchdog.recoveryStepFor(attempt)
+                        HudDiag.log("recovery",
+                            "off-air ${airGapSeconds()}s, attempt #$attempt -> $step")
+                        executeRecovery(step)
+                    }
+                }
+            }
+        }
+    }
+
+    /** Gather one tick of link-health signals for [LinkWatchdog.assess]. While
+     *  a phone is actively connected the live WebSocket is proof of a good
+     *  radio, so we skip the (blocking) reachability probe entirely. */
+    private fun gatherHealth(): LinkHealth {
+        val connectedNow = _status.value == Status.CONNECTED
+        val serverAlive = tcpProbe("127.0.0.1", PORT)
+        val localIp = pickLocalIp()
+        val associated = if (connectedNow) true else readAssociated()
+        val phoneIp = phoneFinder.lastSeenPhoneIp
+        val peerKnown = connectedNow || phoneIp.isNotBlank()
+        val peerReachable = when {
+            connectedNow -> true                                   // live WS = proof
+            phoneIp.isBlank() -> false                             // never paired yet
+            !associated || localIp.isNullOrBlank() -> false        // no radio to probe over
+            else -> isPeerReachable(phoneIp)
+        }
+        return LinkHealth(
+            serverAlive = serverAlive,
+            associated = associated,
+            localIp = localIp,
+            peerKnown = peerKnown,
+            peerReachable = peerReachable,
+        )
+    }
+
+    /** True when `wlan0` reports a completed association with a real DHCP
+     *  address. We deliberately do NOT check the BSSID: without location
+     *  permission Android redacts it to 02:00:00:00:00:00, which would
+     *  false-negative. SupplicantState COMPLETED + a non-zero IP is the
+     *  location-free "we're joined" signal. */
+    @Suppress("DEPRECATION")
+    private fun readAssociated(): Boolean = runCatching {
+        val wifi = wifiManager() ?: return false
+        val info = wifi.connectionInfo ?: return false
+        info.supplicantState == SupplicantState.COMPLETED && info.ipAddress != 0
+    }.getOrDefault(false)
+
+    /** On-network reachability probe to the last-seen phone. Blocks up to
+     *  [PEER_PROBE_TIMEOUT_MS]; only called from the IO-dispatched watchdog. */
+    private fun isPeerReachable(ip: String): Boolean = runCatching {
+        InetAddress.getByName(ip).isReachable(PEER_PROBE_TIMEOUT_MS)
+    }.getOrDefault(false)
+
+    private fun wifiManager(): WifiManager? =
+        context.applicationContext.getSystemService(Context.WIFI_SERVICE) as? WifiManager
+
+    /** Keep the on-screen IP + mDNS advertise fresh. Lifted out of the old
+     *  watchdog loop so both the healthy and server-wedged paths share it. */
+    private fun refreshIpAndMdns() {
+        val current = pickLocalIp()
+        val prior = _localIp.value
+        if (!current.isNullOrBlank() && current != prior) {
+            HudDiag.log("watchdog", "local IP changed $prior -> $current; refreshing mDNS")
+            _localIp.value = current
+            try { jmdns?.close() } catch (_: Throwable) {}
+            jmdns = null
+            try { multicastLock?.release() } catch (_: Throwable) {}
+            multicastLock = null
+            startMdnsAdvertise()
+        } else if (jmdns == null && !current.isNullOrBlank()) {
+            HudDiag.log("watchdog", "mDNS advertise was down; reviving")
+            startMdnsAdvertise()
+        }
+    }
+
+    private fun beginOffAirEpisode(h: LinkHealth) {
+        offAirSinceMs = System.currentTimeMillis()
+        rcRestart = 0; rcReassoc = 0; rcToggle = 0
+        HudDiag.log("recovery",
+            "OFF-AIR detected (ip=${h.localIp ?: "-"} assoc=${h.associated} " +
+                "peerKnown=${h.peerKnown} peerReach=${h.peerReachable}); beginning self-heal")
+    }
+
+    private fun airGapSeconds(): String {
+        if (offAirSinceMs == 0L) return "0"
+        val ms = System.currentTimeMillis() - offAirSinceMs
+        return String.format(java.util.Locale.US, "%.1f", ms / 1000.0)
+    }
+
+    private fun finishOffAirEpisode() {
+        val gap = airGapSeconds()
+        offAirRecoveries++
+        val actions = buildString {
+            if (rcRestart > 0) append("restart x$rcRestart ")
+            if (rcReassoc > 0) append("reassoc x$rcReassoc ")
+            if (rcToggle > 0) append("toggle x$rcToggle ")
+        }.trim().ifEmpty { "no action" }
+        val note = "recovered after ${gap}s off-air ($actions) [#$offAirRecoveries]"
+        HudDiag.log("recovery", "BACK ON AIR: $note")
+        HudDiag.setRecoveryNote(note)
+        offAirSinceMs = 0L
+    }
+
+    /** Climb one rung of the off-air recovery ladder. Best-effort; every step
+     *  is logged so the rider's diagnostics show exactly what was tried. The
+     *  WiFi lock is released around the radio-touching steps so a held
+     *  low-latency lock can't get in the way of the supplicant's rescan. */
+    private suspend fun executeRecovery(step: RecoveryStep) {
+        val wifi = wifiManager()
+        when (step) {
+            RecoveryStep.RESTART_SOCKETS -> {
+                rcRestart++
+                HudDiag.log("recovery",
+                    "step RESTART_SOCKETS: bounce lock + restart beacon/mDNS/finder")
+                releaseWifiLock(); acquireWifiLock()
+                val ip = pickLocalIp()
+                _localIp.value = ip
                 try { jmdns?.close() } catch (_: Throwable) {}
                 jmdns = null
                 try { multicastLock?.release() } catch (_: Throwable) {}
                 multicastLock = null
-                startMdnsAdvertise()
-            } else if (jmdns == null && !current.isNullOrBlank()) {
-                // mDNS advertise failed at startup (or got torn down) but the
-                // IP is fine -- revive it so phones browsing _eucplanet._tcp
-                // can still resolve us without a server restart.
-                Log.i(TAG, "watchdog: mDNS advertise was down; reviving")
-                startMdnsAdvertise()
+                if (!ip.isNullOrBlank()) startMdnsAdvertise()
+                udpBeacon.stop(); udpBeacon.start(hudPort = PORT)
+                phoneFinder.stop(); phoneFinder.start()
             }
-            // 2. Server-liveness probe.
-            val alive = tcpProbe("127.0.0.1", PORT)
-            if (alive) {
-                watchdogFailStreak = 0
-            } else {
-                watchdogFailStreak++
-                Log.w(TAG, "watchdog: localhost:$PORT probe miss (streak=$watchdogFailStreak)")
-                if (watchdogFailStreak >= WATCHDOG_FAIL_THRESHOLD) {
-                    Log.w(TAG, "watchdog: server appears wedged after $watchdogFailStreak " +
-                        "consecutive misses; forcing restart")
-                    watchdogFailStreak = 0
-                    watchdogRestarts++
-                    // Restart in its own coroutine so the watchdog loop itself
-                    // doesn't suspend on the start/stop lock that doStart()
-                    // takes. If the watchdog held its own lifecycle-lock here
-                    // we'd deadlock with a concurrent stop() coming from the
-                    // activity onDestroy.
-                    scope.launch { lifecycleLock.withLock {
-                        doStop()
-                        doStart()
-                    } }
-                    // Exit this iteration; doStart() will spawn a fresh watchdog.
-                    return
+
+            RecoveryStep.REASSOCIATE -> {
+                rcReassoc++
+                HudDiag.log("recovery", "step REASSOCIATE: WifiManager.reconnect()+reassociate()")
+                releaseWifiLock()
+                @Suppress("DEPRECATION")
+                val rc = runCatching { wifi?.reconnect() }.getOrNull()
+                @Suppress("DEPRECATION")
+                val ra = runCatching { wifi?.reassociate() }.getOrNull()
+                HudDiag.log("recovery", "reconnect()=$rc reassociate()=$ra")
+                acquireWifiLock()
+            }
+
+            RecoveryStep.TOGGLE_WIFI -> {
+                if (android.os.Build.VERSION.SDK_INT < 29) {
+                    rcToggle++
+                    HudDiag.log("recovery", "step TOGGLE_WIFI: setWifiEnabled(false/true) (API<29)")
+                    releaseWifiLock()
+                    @Suppress("DEPRECATION")
+                    runCatching { wifi?.isWifiEnabled = false }
+                    delay(1_500L)
+                    @Suppress("DEPRECATION")
+                    runCatching { wifi?.isWifiEnabled = true }
+                    acquireWifiLock()
+                } else {
+                    // setWifiEnabled is a no-op for apps on API 29+; don't waste
+                    // a rung pretending. Fall back to another reassociate.
+                    HudDiag.log("recovery",
+                        "step TOGGLE_WIFI not permitted on API" +
+                            "${android.os.Build.VERSION.SDK_INT}; falling back to REASSOCIATE")
+                    executeRecovery(RecoveryStep.REASSOCIATE)
                 }
             }
         }

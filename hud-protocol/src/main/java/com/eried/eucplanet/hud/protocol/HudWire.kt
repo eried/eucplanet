@@ -214,8 +214,11 @@ data class HudState(
          * 8: added rear-view radar fields ([radarConnected],
          *    [radarBatteryPercent], [radarTargets]) and the RADAR overlay
          *    element type. Older HUDs ignore them and skip the radar widget.
+         * 9: added [HudCommand.Pair.recoveryNote] so the HUD can report its
+         *    WiFi self-heal story back into the phone's shareable diagnostics.
+         *    Older phones ignore the field; nothing else on the wire changed.
          */
-        const val PROTOCOL_MINOR: Int = 8
+        const val PROTOCOL_MINOR: Int = 9
 
         /** Legacy alias. New code should read [PROTOCOL_MAJOR] / [PROTOCOL_MINOR]. */
         @Deprecated(
@@ -320,7 +323,13 @@ sealed class HudCommand {
         val hudId: String,
         val hudVersion: String,
         val hudProtocolMajor: Int = 0,
-        val hudProtocolMinor: Int = 0
+        val hudProtocolMinor: Int = 0,
+        /** Compact human-readable summary of the HUD's most recent WiFi
+         *  self-heal, threaded back so it lands in the rider's shareable
+         *  diagnostics .txt (the phone logs the Pair greeting as a NOTE).
+         *  Empty when nothing notable happened since the last pair. Added at
+         *  PROTOCOL_MINOR 9; older phones ignore it (ignoreUnknownKeys). */
+        val recoveryNote: String = ""
     ) : HudCommand()
 
     /** Toggle the wheel's headlight if it has one. */
