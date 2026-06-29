@@ -34,8 +34,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Switch
 import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Button
+import com.eried.eucplanet.ui.settings.LeftAlignedScanButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -496,37 +496,37 @@ fun WelcomeTutorialOverlay(
                                         color = MaterialTheme.colorScheme.primary,
                                         fontWeight = FontWeight.SemiBold,
                                     )
+                                    // Same button style as the Cloud settings actions
+                                    // (LeftAlignedScanButton: a filled button on the left
+                                    // half of the row).
                                     Spacer(Modifier.height(8.dp))
-                                    OutlinedButton(
+                                    LeftAlignedScanButton(
+                                        label = stringResource(R.string.welcome_tut_dev_set_folder),
                                         onClick = onSetBackupFolder,
-                                        modifier = Modifier.fillMaxWidth(),
-                                    ) { Text(stringResource(R.string.welcome_tut_dev_set_folder)) }
+                                    )
+                                    // The rest are invisible until a backup folder is set.
                                     if (backupFolderSet) {
-                                        // Restore only when the folder holds a settings backup.
+                                        // Restore appears only when a settings backup exists.
                                         if (hasSettingsBackup) {
                                             Spacer(Modifier.height(8.dp))
-                                            OutlinedButton(
+                                            LeftAlignedScanButton(
+                                                label = stringResource(R.string.welcome_tut_dev_restore),
                                                 onClick = onRestoreSettings,
-                                                modifier = Modifier.fillMaxWidth(),
-                                            ) { Text(stringResource(R.string.welcome_tut_dev_restore)) }
+                                            )
                                         }
+                                        // Join and Sync just trigger the Cloud-settings
+                                        // action and return; the work runs in the
+                                        // background, so the wizard shows no progress.
                                         Spacer(Modifier.height(8.dp))
-                                        Row(
-                                            modifier = Modifier.fillMaxWidth(),
-                                            horizontalArrangement = Arrangement.spacedBy(8.dp),
-                                        ) {
-                                            // Both just trigger the Cloud-settings action
-                                            // and return; the work runs in the background,
-                                            // so the wizard shows no progress here.
-                                            OutlinedButton(
-                                                onClick = onJoinLeaderboards,
-                                                modifier = Modifier.weight(1f),
-                                            ) { Text(stringResource(R.string.welcome_tut_dev_join)) }
-                                            OutlinedButton(
-                                                onClick = onSyncTrips,
-                                                modifier = Modifier.weight(1f),
-                                            ) { Text(stringResource(R.string.welcome_tut_dev_sync_trips)) }
-                                        }
+                                        LeftAlignedScanButton(
+                                            label = stringResource(R.string.welcome_tut_dev_join),
+                                            onClick = onJoinLeaderboards,
+                                        )
+                                        Spacer(Modifier.height(8.dp))
+                                        LeftAlignedScanButton(
+                                            label = stringResource(R.string.welcome_tut_dev_sync_trips),
+                                            onClick = onSyncTrips,
+                                        )
                                     }
                                 }
                             }

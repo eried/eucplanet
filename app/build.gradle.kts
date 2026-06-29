@@ -55,7 +55,10 @@ android {
         // not "main" (a tagged release is detached HEAD -> "HEAD", and the Play
         // production build is cut from main, so neither is dev). Gates dev-only
         // helpers like the welcome wizard's backup/restore tools.
-        val isDev = gitBranch.isNotEmpty() && gitBranch != "main" && gitBranch != "HEAD"
+        // -Pprod forces a non-dev build, for testing the production wizard or
+        // cutting a local production APK off a branch.
+        val isDev = gitBranch.isNotEmpty() && gitBranch != "main" && gitBranch != "HEAD" &&
+            !project.hasProperty("prod")
         buildConfigField("boolean", "IS_DEV", "$isDev")
 
         buildConfigField("String", "EUCSTATS_API_BASE_URL", "\"https://eucstats.ried.no/api/v1\"")
