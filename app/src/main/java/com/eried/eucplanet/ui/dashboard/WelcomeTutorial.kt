@@ -256,13 +256,13 @@ fun WelcomeTutorialOverlay(
     // are really on (e.g. the rider flipped it on earlier), so they "see it
     // disabled but still hear GPS / wheel connected".
     voiceCurrentlyOn: Boolean = false,
-    // Dev-only quick tools, surfaced on step 0 of branch builds (BuildConfig.IS_DEV):
-    // mute alarms, set a backup folder, restore settings (off until a folder is set).
+    // Dev-only quick tools, surfaced on step 0 of branch builds (BuildConfig.IS_DEV).
+    // "Set backup folder" shows first; once a folder is set, Join and Sync appear,
+    // and Restore appears only when the folder actually holds a settings backup.
     isDev: Boolean = false,
-    alarmsMuted: Boolean = false,
-    onMuteAlarms: (Boolean) -> Unit = {},
     onSetBackupFolder: () -> Unit = {},
     backupFolderSet: Boolean = false,
+    hasSettingsBackup: Boolean = false,
     onRestoreSettings: () -> Unit = {},
     onJoinLeaderboards: () -> Unit = {},
     onSyncTrips: () -> Unit = {},
@@ -483,7 +483,9 @@ fun WelcomeTutorialOverlay(
                                 }
                                 HintText(stringResource(R.string.welcome_tut_voice_desc))
 
-                                // Dev-only quick tools (branch builds only).
+                                // Dev-only quick tools (branch builds only). Set the
+                                // backup folder first; the rest depend on it and appear
+                                // once it is set.
                                 if (isDev) {
                                     Spacer(Modifier.height(16.dp))
                                     HorizontalDivider()
@@ -495,54 +497,36 @@ fun WelcomeTutorialOverlay(
                                         fontWeight = FontWeight.SemiBold,
                                     )
                                     Spacer(Modifier.height(8.dp))
-                                    Row(
+                                    OutlinedButton(
+                                        onClick = onSetBackupFolder,
                                         modifier = Modifier.fillMaxWidth(),
-                                        horizontalArrangement = Arrangement.SpaceBetween,
-                                        verticalAlignment = Alignment.CenterVertically,
-                                    ) {
-                                        Text(
-                                            stringResource(R.string.welcome_tut_dev_mute),
-                                            style = MaterialTheme.typography.bodyLarge,
-                                        )
-                                        Switch(
-                                            checked = alarmsMuted,
-                                            onCheckedChange = onMuteAlarms,
-                                            colors = themedSwitchColors(),
-                                        )
-                                    }
-                                    Spacer(Modifier.height(8.dp))
-                                    Row(
-                                        modifier = Modifier.fillMaxWidth(),
-                                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                                    ) {
-                                        OutlinedButton(
-                                            onClick = onSetBackupFolder,
-                                            modifier = Modifier.weight(1f),
-                                        ) { Text(stringResource(R.string.welcome_tut_dev_set_folder)) }
-                                        OutlinedButton(
-                                            onClick = onRestoreSettings,
-                                            enabled = backupFolderSet,
-                                            modifier = Modifier.weight(1f),
-                                        ) { Text(stringResource(R.string.welcome_tut_dev_restore)) }
-                                    }
-                                    Spacer(Modifier.height(8.dp))
-                                    Row(
-                                        modifier = Modifier.fillMaxWidth(),
-                                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                                    ) {
-                                        // Both just trigger the Cloud-settings action and
-                                        // return; the work runs in the background, so the
-                                        // wizard shows no progress here.
-                                        OutlinedButton(
-                                            onClick = onJoinLeaderboards,
-                                            enabled = backupFolderSet,
-                                            modifier = Modifier.weight(1f),
-                                        ) { Text(stringResource(R.string.welcome_tut_dev_join)) }
-                                        OutlinedButton(
-                                            onClick = onSyncTrips,
-                                            enabled = backupFolderSet,
-                                            modifier = Modifier.weight(1f),
-                                        ) { Text(stringResource(R.string.welcome_tut_dev_sync_trips)) }
+                                    ) { Text(stringResource(R.string.welcome_tut_dev_set_folder)) }
+                                    if (backupFolderSet) {
+                                        // Restore only when the folder holds a settings backup.
+                                        if (hasSettingsBackup) {
+                                            Spacer(Modifier.height(8.dp))
+                                            OutlinedButton(
+                                                onClick = onRestoreSettings,
+                                                modifier = Modifier.fillMaxWidth(),
+                                            ) { Text(stringResource(R.string.welcome_tut_dev_restore)) }
+                                        }
+                                        Spacer(Modifier.height(8.dp))
+                                        Row(
+                                            modifier = Modifier.fillMaxWidth(),
+                                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                        ) {
+                                            // Both just trigger the Cloud-settings action
+                                            // and return; the work runs in the background,
+                                            // so the wizard shows no progress here.
+                                            OutlinedButton(
+                                                onClick = onJoinLeaderboards,
+                                                modifier = Modifier.weight(1f),
+                                            ) { Text(stringResource(R.string.welcome_tut_dev_join)) }
+                                            OutlinedButton(
+                                                onClick = onSyncTrips,
+                                                modifier = Modifier.weight(1f),
+                                            ) { Text(stringResource(R.string.welcome_tut_dev_sync_trips)) }
+                                        }
                                     }
                                 }
                             }

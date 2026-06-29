@@ -27,6 +27,7 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
@@ -458,14 +459,19 @@ class DashboardViewModel @Inject constructor(
         }
     }
 
-    /** Persisted alarm-mute state, for surfaces that show the toggle (dev wizard). */
-    val alarmsMuted: StateFlow<Boolean> = settingsRepository.settings
-        .map { it.alarmsMuted }
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
-
-    /** Whether a backup folder is configured (gates the dev wizard's Restore button). */
+    /** Whether a backup folder is configured. Once set, the dev wizard reveals the
+     *  Join and Sync buttons. */
     val backupFolderSet: StateFlow<Boolean> = settingsRepository.settings
         .map { !it.syncFolderUri.isNullOrBlank() }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
+
+    /** Whether the configured folder actually holds a settings backup. Gates the
+     *  dev wizard's Restore button so it appears only when there is something to
+     *  restore. Re-checked whenever the folder changes. */
+    val hasSettingsBackup: StateFlow<Boolean> = settingsRepository.settings
+        .map { it.syncFolderUri }
+        .distinctUntilChanged()
+        .map { uri -> !uri.isNullOrBlank() && syncManager.listSettingsBackups().isNotEmpty() }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
 
     // --- Dev welcome-wizard backup/restore: thin wrappers over SyncManager,

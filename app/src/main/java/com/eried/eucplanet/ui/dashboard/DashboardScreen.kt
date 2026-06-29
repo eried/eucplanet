@@ -2932,8 +2932,8 @@ fun DashboardScreen(
         val wizardVoiceOn by viewModel.voicePeriodicEnabled.collectAsState()
         // Dev-only wizard tools (branch builds): reuse the Cloud-settings folder
         // picker + restore dialog so there is one implementation.
-        val wizardAlarmsMuted by viewModel.alarmsMuted.collectAsState()
         val wizardBackupFolderSet by viewModel.backupFolderSet.collectAsState()
+        val wizardHasSettingsBackup by viewModel.hasSettingsBackup.collectAsState()
         var showWizardRestore by remember { mutableStateOf(false) }
         val wizardPickFolder = rememberLauncherForActivityResult(
             contract = ActivityResultContracts.OpenDocumentTree()
@@ -2946,10 +2946,9 @@ fun DashboardScreen(
                 // while announcements are actually on.
                 voiceCurrentlyOn = wizardVoiceOn,
                 isDev = com.eried.eucplanet.BuildConfig.IS_DEV,
-                alarmsMuted = wizardAlarmsMuted,
-                onMuteAlarms = { viewModel.toggleAlarmsMuted() },
                 onSetBackupFolder = { wizardPickFolder.launch(null) },
                 backupFolderSet = wizardBackupFolderSet,
+                hasSettingsBackup = wizardHasSettingsBackup,
                 onRestoreSettings = { showWizardRestore = true },
                 onJoinLeaderboards = { viewModel.joinLeaderboards() },
                 onSyncTrips = { viewModel.syncAllTrips() },
