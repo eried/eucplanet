@@ -261,6 +261,8 @@ fun WelcomeTutorialOverlay(
     // and Restore appears only when the folder actually holds a settings backup.
     isDev: Boolean = false,
     onSetBackupFolder: () -> Unit = {},
+    dropboxLinked: Boolean = false,
+    onLinkDropbox: () -> Unit = {},
     backupFolderSet: Boolean = false,
     hasSettingsBackup: Boolean = false,
     onRestoreSettings: () -> Unit = {},
@@ -499,12 +501,25 @@ fun WelcomeTutorialOverlay(
                                     // Same button style as the Cloud settings actions
                                     // (LeftAlignedScanButton: a filled button on the left
                                     // half of the row).
-                                    Spacer(Modifier.height(8.dp))
-                                    LeftAlignedScanButton(
-                                        label = stringResource(R.string.welcome_tut_dev_set_folder),
-                                        onClick = onSetBackupFolder,
-                                    )
-                                    // The rest are invisible until a backup folder is set.
+                                    // Same actions and order as the Cloud settings:
+                                    // backup folder, Dropbox, restore, sync trips, join.
+                                    // Set backup folder shows only until a folder is set.
+                                    if (!backupFolderSet) {
+                                        Spacer(Modifier.height(8.dp))
+                                        LeftAlignedScanButton(
+                                            label = stringResource(R.string.welcome_tut_dev_set_folder),
+                                            onClick = onSetBackupFolder,
+                                        )
+                                    }
+                                    // Link Dropbox shows until Dropbox is linked.
+                                    if (!dropboxLinked) {
+                                        Spacer(Modifier.height(8.dp))
+                                        LeftAlignedScanButton(
+                                            label = stringResource(R.string.dropbox_link),
+                                            onClick = onLinkDropbox,
+                                        )
+                                    }
+                                    // Folder-backed actions appear once a folder is set.
                                     if (backupFolderSet) {
                                         // Restore appears only when a settings backup exists.
                                         if (hasSettingsBackup) {
@@ -514,18 +529,18 @@ fun WelcomeTutorialOverlay(
                                                 onClick = onRestoreSettings,
                                             )
                                         }
-                                        // Join and Sync just trigger the Cloud-settings
+                                        // Sync and Join just trigger the Cloud-settings
                                         // action and return; the work runs in the
                                         // background, so the wizard shows no progress.
                                         Spacer(Modifier.height(8.dp))
                                         LeftAlignedScanButton(
-                                            label = stringResource(R.string.welcome_tut_dev_join),
-                                            onClick = onJoinLeaderboards,
+                                            label = stringResource(R.string.welcome_tut_dev_sync_trips),
+                                            onClick = onSyncTrips,
                                         )
                                         Spacer(Modifier.height(8.dp))
                                         LeftAlignedScanButton(
-                                            label = stringResource(R.string.welcome_tut_dev_sync_trips),
-                                            onClick = onSyncTrips,
+                                            label = stringResource(R.string.welcome_tut_dev_join),
+                                            onClick = onJoinLeaderboards,
                                         )
                                     }
                                 }

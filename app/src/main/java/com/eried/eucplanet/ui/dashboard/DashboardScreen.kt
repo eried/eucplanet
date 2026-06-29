@@ -2934,6 +2934,8 @@ fun DashboardScreen(
         // picker + restore dialog so there is one implementation.
         val wizardBackupFolderSet by viewModel.backupFolderSet.collectAsState()
         val wizardHasSettingsBackup by viewModel.hasSettingsBackup.collectAsState()
+        val wizardDropboxLinked by viewModel.dropboxLinked.collectAsState()
+        val wizardActivityContext = androidx.compose.ui.platform.LocalContext.current
         var showWizardRestore by remember { mutableStateOf(false) }
         val wizardPickFolder = rememberLauncherForActivityResult(
             contract = ActivityResultContracts.OpenDocumentTree()
@@ -2947,6 +2949,8 @@ fun DashboardScreen(
                 voiceCurrentlyOn = wizardVoiceOn,
                 isDev = com.eried.eucplanet.BuildConfig.IS_DEV,
                 onSetBackupFolder = { wizardPickFolder.launch(null) },
+                dropboxLinked = wizardDropboxLinked,
+                onLinkDropbox = { viewModel.linkDropbox(wizardActivityContext) },
                 backupFolderSet = wizardBackupFolderSet,
                 hasSettingsBackup = wizardHasSettingsBackup,
                 onRestoreSettings = { showWizardRestore = true },

@@ -59,6 +59,7 @@ class DashboardViewModel @Inject constructor(
     private val wearBridge: com.eried.eucplanet.wear.WearBridge,
     private val garminBridge: com.eried.eucplanet.garmin.GarminBridge,
     private val appHealthRepository: com.eried.eucplanet.data.repository.AppHealthRepository,
+    private val dropboxRepository: com.eried.eucplanet.data.repository.DropboxRepository,
     @ApplicationContext private val context: Context
 ) : ViewModel() {
 
@@ -493,6 +494,15 @@ class DashboardViewModel @Inject constructor(
 
     /** Fire-and-forget dev "sync trips": the same folder sync the Cloud screen runs. */
     fun syncAllTrips() = syncManager.startSync()
+
+    /** Whether Dropbox is linked (gates the dev wizard's Link Dropbox button). */
+    val dropboxLinked: StateFlow<Boolean> = dropboxRepository.linked
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
+
+    /** Start the Dropbox OAuth link flow. Needs an Activity context for the Custom
+     *  Tab, so the caller passes it down from Compose. */
+    fun linkDropbox(activityContext: android.content.Context) =
+        dropboxRepository.startLinkFlow(activityContext)
 
     /** Fire-and-forget dev "join leaderboards": recover the rider from the linked
      *  backup folder if one is there, then enable online upload. The full
