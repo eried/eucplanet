@@ -80,6 +80,8 @@ import androidx.compose.ui.graphics.layer.drawLayer
 import androidx.compose.ui.graphics.rememberGraphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.LocalView
@@ -993,6 +995,7 @@ fun OverlayStudioScreen(
                 // Exit the studio, top-left corner (X since it is full-screen).
                 StudioRoundButton(
                     icon = Icons.Default.Close,
+                    contentDescription = stringResource(R.string.studio_cd_close),
                     background = MaterialTheme.appColors.surfaceVariant,
                     size = 48.dp,
                     iconRotation = iconRot,
@@ -1003,6 +1006,7 @@ fun OverlayStudioScreen(
                 // Gallery: pinned to the bottom-left corner, like a camera app.
                 StudioRoundButton(
                     icon = Icons.Default.PhotoLibrary,
+                    contentDescription = stringResource(R.string.studio_cd_gallery),
                     background = MaterialTheme.appColors.surfaceVariant,
                     size = 48.dp,
                     iconRotation = iconRot,
@@ -1020,6 +1024,7 @@ fun OverlayStudioScreen(
                 ) {
                     StudioRoundButton(
                         icon = Icons.Default.PhotoCamera,
+                        contentDescription = stringResource(R.string.studio_cd_photo),
                         background = MaterialTheme.appColors.surfaceVariant,
                         size = 52.dp,
                         iconRotation = iconRot
@@ -1027,7 +1032,10 @@ fun OverlayStudioScreen(
                     RecordButton(
                         // In replay a render needs a trip; disable it until
                         // one is picked, instead of a no-op tap.
-                        enabled = !(replayMode && replayTrip == null)
+                        enabled = !(replayMode && replayTrip == null),
+                        contentDescription = stringResource(
+                            if (replayMode) R.string.studio_cd_render else R.string.studio_cd_record
+                        )
                     ) {
                         if (replayMode) {
                             // Replay renders an offline clip in the chosen
@@ -1046,6 +1054,7 @@ fun OverlayStudioScreen(
                     StudioRoundButton(
                         icon = if (micEnabled && !replayMode) Icons.Default.Mic
                         else Icons.Default.MicOff,
+                        contentDescription = stringResource(R.string.studio_cd_mic),
                         background = MaterialTheme.appColors.surfaceVariant,
                         size = 52.dp,
                         iconTint = when {
@@ -1074,6 +1083,7 @@ fun OverlayStudioScreen(
                 ) {
                     StudioRoundButton(
                         icon = Icons.Default.MoreHoriz,
+                        contentDescription = stringResource(R.string.studio_cd_tools),
                         background = MaterialTheme.appColors.surfaceVariant,
                         size = 48.dp,
                         iconRotation = iconRot,
@@ -1650,6 +1660,7 @@ private fun StudioRoundButton(
     icon: androidx.compose.ui.graphics.vector.ImageVector,
     background: Color,
     modifier: Modifier = Modifier,
+    contentDescription: String? = null,
     size: androidx.compose.ui.unit.Dp = 48.dp,
     iconTint: Color = MaterialTheme.appColors.textPrimary,
     iconRotation: Float = 0f,
@@ -1673,7 +1684,7 @@ private fun StudioRoundButton(
     ) {
         Icon(
             icon,
-            contentDescription = null,
+            contentDescription = contentDescription,
             tint = iconTint,
             modifier = Modifier.size(size * 0.45f).rotate(iconRotation)
         )
@@ -1681,7 +1692,11 @@ private fun StudioRoundButton(
 }
 
 @Composable
-private fun RecordButton(enabled: Boolean = true, onClick: () -> Unit) {
+private fun RecordButton(
+    enabled: Boolean = true,
+    contentDescription: String,
+    onClick: () -> Unit
+) {
     val currentOnClick by rememberUpdatedState(onClick)
     Box(
         Modifier
@@ -1689,6 +1704,9 @@ private fun RecordButton(enabled: Boolean = true, onClick: () -> Unit) {
             .clip(CircleShape)
             .background(Color(0x55FFFFFF))
             .border(3.dp, if (enabled) Color.White else Color(0x55FFFFFF), CircleShape)
+            // Screen-reader label (also makes the control findable for UI tests);
+            // the inner circle is purely decorative.
+            .semantics { this.contentDescription = contentDescription }
             .then(
                 if (enabled) Modifier.pointerInput(Unit) {
                     detectTapGestures(onTap = { currentOnClick() })

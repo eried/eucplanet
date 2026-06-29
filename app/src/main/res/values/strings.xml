@@ -1354,6 +1354,13 @@
     <string name="studio_pane_choose_image">Tap the wrench to choose an image</string>
     <string name="studio_cd_resize_section">Resize section</string>
     <string name="studio_cd_divider_options">Divider options</string>
+    <string name="studio_cd_close">Close studio</string>
+    <string name="studio_cd_gallery">Open gallery</string>
+    <string name="studio_cd_photo">Take photo</string>
+    <string name="studio_cd_record">Record video</string>
+    <string name="studio_cd_render">Render clip</string>
+    <string name="studio_cd_mic">Microphone</string>
+    <string name="studio_cd_tools">Camera tools</string>
 
     <!-- Studio: element chrome content descriptions -->
     <string name="studio_cd_resize">Resize</string>
