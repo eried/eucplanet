@@ -95,7 +95,6 @@ import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material.icons.filled.Widgets
 import androidx.compose.material.icons.filled.Wifi
 import androidx.compose.material.icons.filled.DisplaySettings
-import androidx.compose.material.icons.filled.DragIndicator
 import androidx.compose.material.icons.filled.DragHandle
 import androidx.compose.material.icons.filled.FiberManualRecord
 import androidx.compose.material.icons.filled.Build
@@ -1237,6 +1236,17 @@ private fun ReorganizeSectionsEditor(
         handles.sortedBy { val i = layout.order.indexOf(it.key); if (i < 0) Int.MAX_VALUE else i }
     }
     val hidden = layout.hidden.toSet()
+    val modified = layout.order.isNotEmpty() || layout.hidden.isNotEmpty()
+    // Restore default, shown only once the rider has changed the arrangement.
+    if (modified) {
+        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
+            TextButton(onClick = onReset) {
+                Icon(Icons.Default.Restore, contentDescription = null, modifier = Modifier.size(18.dp))
+                Spacer(Modifier.width(6.dp))
+                Text(stringResource(R.string.adv_restore_default))
+            }
+        }
+    }
     HintText(stringResource(R.string.reorg_hint), small = true)
     Spacer(Modifier.height(4.dp))
     ReorderableColumn(
@@ -1254,7 +1264,7 @@ private fun ReorganizeSectionsEditor(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Icon(
-                    Icons.Default.DragIndicator,
+                    Icons.Default.DragHandle,
                     contentDescription = stringResource(R.string.reorg_drag_cd),
                     tint = MaterialTheme.appColors.textSecondary,
                     modifier = Modifier.draggableHandle(),
@@ -1280,13 +1290,18 @@ private fun ReorganizeSectionsEditor(
             }
         }
     }
-    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
-        TextButton(onClick = onReset) {
-            Icon(Icons.Default.Restore, contentDescription = null, modifier = Modifier.size(18.dp))
-            Spacer(Modifier.width(6.dp))
-            Text(stringResource(R.string.reorg_reset))
-        }
-    }
+}
+
+/** Section title inside Advanced, bigger than the collapsible group titles. */
+@Composable
+private fun AdvSectionTitle(text: String) {
+    Text(
+        text,
+        style = MaterialTheme.typography.titleLarge,
+        fontWeight = FontWeight.Bold,
+        color = MaterialTheme.appColors.textPrimary,
+        modifier = Modifier.padding(top = 4.dp, bottom = 2.dp),
+    )
 }
 
 @Composable
@@ -1304,22 +1319,22 @@ private fun AdvancedTab(
         modifier = Modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        // Reorganize the Settings screen: drag to reorder, switch off to tuck a
-        // section into "More". Advanced is pinned last and is not listed here.
+        // Reorganize the Settings screen. Big title, always shown (not
+        // collapsible); switch a section off to move it into "More". Advanced is
+        // pinned last and is not listed here.
         if (reorgHandles.isNotEmpty()) {
-            AdvancedCollapsable(
-                title = stringResource(R.string.reorg_title),
-                stateKey = "adv-reorganize",
-            ) {
-                ReorganizeSectionsEditor(
-                    handles = reorgHandles,
-                    layout = settings.settingsLayout,
-                    onReorder = viewModel::reorderSettingsSections,
-                    onSetVisible = viewModel::setSectionVisible,
-                    onReset = viewModel::resetSettingsLayout,
-                )
-            }
+            AdvSectionTitle(stringResource(R.string.reorg_title))
+            ReorganizeSectionsEditor(
+                handles = reorgHandles,
+                layout = settings.settingsLayout,
+                onReorder = viewModel::reorderSettingsSections,
+                onSetVisible = viewModel::setSectionVisible,
+                onReset = viewModel::resetSettingsLayout,
+            )
         }
+
+        // Timing knobs, under their own big title.
+        AdvSectionTitle(stringResource(R.string.adv_timings_title))
         MetricInfoBox(stringResource(R.string.adv_rates_warning))
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
             // Disabled (greyed) when nothing is off default; otherwise confirm first.
