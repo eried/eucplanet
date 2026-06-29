@@ -49,10 +49,13 @@ repositories, intent handlers) call `AppNotifier.post(...)`; a single root host 
 
 ## 5. Drag-to-reorder uses the standard pattern
 
-Reorderable lists use `sh.calvin.reorderable.ReorderableColumn` with a
-`Icons.Default.DragIndicator` handle wired through `Modifier.draggableHandle()`.
-See `ManageElementRow` in `StudioConfigSheets.kt` for the reference. Do not write
-a new custom drag gesture.
+Reorderable lists use `sh.calvin.reorderable.ReorderableColumn` with an
+`Icons.Default.DragHandle` handle (the horizontal-lines glyph, not the 6-dot
+`DragIndicator`) wired through `Modifier.draggableHandle()` and tinted from a
+muted `appColors` token such as `textSecondary`. This is the list-reorder
+affordance the alarm-rules, route-stop, and data-source lists use. The studio
+canvas element manager still uses `DragIndicator` for historical reasons; new
+lists should use `DragHandle`. Do not write a new custom drag gesture.
 
 ## 6. Colors come from the theme
 

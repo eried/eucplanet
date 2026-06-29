@@ -18,9 +18,12 @@ These rules are binding. The terse list below is the contract; `CONVENTIONS.md`
    rows put the control in a `weight(1.4f)` column, description in `weight(1f)`,
    number right-aligned to the unit). Paired choices use half/half segmented
    rows. Always set explicit on-colors.
-5. **Drag-to-reorder uses the standard pattern:** `ReorderableColumn` with a
-   `DragIndicator` handle (see `StudioConfigSheets.kt`). Do not invent a new
-   reorder gesture.
+5. **Drag-to-reorder uses the standard pattern:** `ReorderableColumn` with an
+   `Icons.Default.DragHandle` handle (the horizontal-lines glyph, not the 6-dot
+   `DragIndicator`) wired through `Modifier.draggableHandle()` and tinted from a
+   muted `appColors` token. This matches the alarm-rules, route-stop, and
+   data-source lists. Do not invent a new reorder gesture or pick a different
+   drag glyph.
 6. **Colors come from the theme.** Read via `MaterialTheme.appColors.*`; reuse an
    existing token before adding one; never hardcode `Color(...)` or use
    `MaterialTheme.colorScheme.*` in feature UI. See the theming section below.
