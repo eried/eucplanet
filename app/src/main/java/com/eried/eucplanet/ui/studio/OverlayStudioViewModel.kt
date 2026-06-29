@@ -46,7 +46,8 @@ enum class ReplayPhotoFormat(
 ) {
     PNG(true),
     JPG(false),
-    WEBP(true);
+    WEBP(true),
+    GIF(true);   // 256-colour, 1-bit alpha
 
     companion object {
         fun fromKey(key: String): ReplayPhotoFormat =

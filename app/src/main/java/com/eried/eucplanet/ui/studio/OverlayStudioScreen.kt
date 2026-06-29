@@ -528,6 +528,7 @@ fun OverlayStudioScreen(
                 when (photoFormat) {
                     ReplayPhotoFormat.PNG -> StudioCapture.savePng(context, src)
                     ReplayPhotoFormat.WEBP -> StudioCapture.saveWebp(context, src)
+                    ReplayPhotoFormat.GIF -> StudioCapture.saveGif(context, src)
                     ReplayPhotoFormat.JPG ->
                         // JPEG has no alpha; flatten onto the chroma colour first.
                         StudioCapture.saveJpeg(
@@ -538,6 +539,7 @@ fun OverlayStudioScreen(
             val photoMime = when (photoFormat) {
                 ReplayPhotoFormat.PNG -> "image/png"
                 ReplayPhotoFormat.WEBP -> "image/webp"
+                ReplayPhotoFormat.GIF -> "image/gif"
                 ReplayPhotoFormat.JPG -> "image/jpeg"
             }
             // Restore the chrome the instant the save is done; showSnackbar
