@@ -557,7 +557,11 @@ fun WelcomeTutorialOverlay(
                 ) {
                     // The last step is the sign-off: no Skip there.
                     if (!isLast) {
-                        TextButton(onClick = { showSkipConfirm = true }) {
+                        TextButton(onClick = {
+                            // Dev builds skip straight out: a developer already knows the
+                            // tour, so don't make them confirm. Normal builds still ask.
+                            if (isDev) onFinish() else showSkipConfirm = true
+                        }) {
                             Text(stringResource(R.string.welcome_tut_skip))
                         }
                     } else {
