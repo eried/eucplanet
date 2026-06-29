@@ -105,6 +105,8 @@ import com.eried.eucplanet.ui.studio.camera.rememberStudioCameraHub
 import com.eried.eucplanet.ui.studio.recording.StudioApngEncoder
 import com.eried.eucplanet.ui.studio.recording.StudioGifEncoder
 import com.eried.eucplanet.ui.studio.recording.StudioCapture
+import com.eried.eucplanet.ui.studio.recording.StudioOffscreenSession
+import com.eried.eucplanet.ui.studio.recording.OverlayFrameSpec
 import com.eried.eucplanet.ui.studio.recording.StudioVideoEncoder
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.NonCancellable
@@ -573,6 +575,23 @@ fun OverlayStudioScreen(
     // GIF / APNG / MP4 all share the same offline frame-stepping loop; only the
     // encoder differs: GIF and APNG stream into a pending gallery image, MP4
     // drives StudioVideoEncoder which publishes its own MP4.
+    // Captured here in composition scope for the offscreen renderer, which runs
+    // inside the LaunchedEffect where @Composable reads aren't allowed.
+    val offscreenThemeColors = MaterialTheme.appColors
+    val offscreenActivity = context as? androidx.activity.ComponentActivity
+    // The offscreen renderer hosts a Compose view in the window to draw frames
+    // off the vsync clock. On the Android emulator this trips a GPU-emulation EGL
+    // crash (libEGL_emulation eglDestroySurface) at render end, so emulators fall
+    // back to the on-screen capture path; real-device GPU drivers handle it.
+    val offscreenSupported = offscreenActivity != null && !run {
+        val b = android.os.Build.FINGERPRINT
+        b.contains("generic", true) || b.contains("emulator", true) ||
+            android.os.Build.MODEL.contains("Emulator", true) ||
+            android.os.Build.MODEL.contains("Android SDK", true) ||
+            android.os.Build.HARDWARE.contains("goldfish") ||
+            android.os.Build.HARDWARE.contains("ranchu") ||
+            android.os.Build.PRODUCT.contains("sdk", true)
+    }
     LaunchedEffect(rendering) {
         if (!rendering) return@LaunchedEffect
         renderCancelRequested = false
@@ -632,9 +651,85 @@ fun OverlayStudioScreen(
         val ew = (first.width * pct).toInt().coerceAtLeast(2)
         val eh = (first.height * pct).toInt().coerceAtLeast(2)
 
+        // Offscreen renderer: re-hosts the element layer in a detached, manually
+        // clocked composition so frames don't wait on the display vsync. Sized to
+        // the native capture (frame 0, captured on-screen above, fixes the dims).
+        // Falls back to the on-screen capture path if it can't be created.
+        val offscreen: StudioOffscreenSession? =
+            if (offscreenSupported && offscreenActivity != null) {
+                runCatching {
+                    StudioOffscreenSession.create(
+                        activity = offscreenActivity,
+                        widthPx = first.width,
+                        heightPx = first.height,
+                        rotation = deviceRotation,
+                        themeColors = offscreenThemeColors,
+                    ) { i ->
+                        val pos = (replayStartMs + i.toLong() * stepMs).coerceAtMost(replayEndMs)
+                        val frameElements = if (opaqueExport) {
+                            fun bumpAlpha(c: Long): Long =
+                                if ((c ushr 24) and 0xFFL == 0L) c else c or 0xFF000000L
+                            preset.elements.map {
+                                it.copy(
+                                    opacity = 1f,
+                                    background = bumpAlpha(it.background),
+                                    foreground = bumpAlpha(it.foreground)
+                                )
+                            }
+                        } else preset.elements
+                        OverlayFrameSpec(
+                            elements = frameElements,
+                            data = StudioElementData(
+                                wheelData = trip.dataAt(pos),
+                                wheelName = displayWheelName,
+                                connected = connected,
+                                history = trip.samples
+                                    .filter { it.offsetMs <= pos }
+                                    .map { StudioSample(it.offsetMs, it.data) },
+                                cameraHub = hub,
+                                speedUnit = viewModel.speedUnit,
+                                distanceUnit = viewModel.distanceUnit,
+                                tempUnit = viewModel.tempUnit,
+                                clockTimeMs = trip.startEpochMs + pos,
+                                stopwatchMs = pos,
+                                liveGForceTrail = emptyList(),
+                                riderMarkerPhotoDataUrl = riderMarkerPhoto,
+                                radarConnected = false,
+                                radarBatteryPercent = -1,
+                                radarTargets = emptyList()
+                            )
+                        )
+                    }
+                }.getOrNull()
+            } else null
+        android.util.Log.i(
+            "OverlayStudio",
+            "Replay render path: ${if (offscreen != null) "offscreen" else "on-screen"} " +
+                "(${first.width}x${first.height}, $frameCount frames)"
+        )
+
+        // Frame source: offscreen if available, else advance the live layer and
+        // read it back (the original 2-vsync path). Frame 0 is the on-screen
+        // `first` either way, so a divergence shows up as a jump at frame 1.
+        suspend fun captureReplayFrame(i: Int): android.graphics.Bitmap? =
+            offscreen?.let { s -> runCatching { s.frame(i) }.getOrNull() }
+                ?: run {
+                    replayPosMs = replayStartMs + i * stepMs
+                    repeat(2) { withFrameNanos {} }
+                    runCatching { graphicsLayer.toImageBitmap().asAndroidBitmap() }.getOrNull()
+                }
+
         var cancelled = false
+        // ProRes .mov export needs the ffmpeg module, which isn't bundled yet.
+        // Until it is, MOV is selectable (and the default) but renders a clear
+        // notice instead of the wrong format.
+        var proResPending = false
         val ok: Boolean = try {
             when (videoFormat) {
+                ReplayVideoFormat.MOV -> {
+                    proResPending = true
+                    false
+                }
                 ReplayVideoFormat.MP4 -> {
                     // MP4 has no alpha; every frame is composited onto the
                     // chroma colour before it is drawn into the encoder.
@@ -671,10 +766,9 @@ fun OverlayStudioScreen(
                                     cancelled = true
                                     break
                                 }
-                                replayPosMs = replayStartMs + i * stepMs
-                                repeat(2) { withFrameNanos {} }
-                                val frame = graphicsLayer.toImageBitmap().asAndroidBitmap()
-                                encOk = withContext(Dispatchers.Default) { submit(frame) }
+                                val frame = captureReplayFrame(i)
+                                encOk = frame != null &&
+                                    withContext(Dispatchers.Default) { submit(frame) }
                                 renderProgress = (i + 1f) / frameCount
                                 i++
                             }
@@ -720,9 +814,7 @@ fun OverlayStudioScreen(
                                     cancelled = true
                                     break
                                 }
-                                replayPosMs = replayStartMs + i * stepMs
-                                repeat(2) { withFrameNanos {} }
-                                val frame = graphicsLayer.toImageBitmap().asAndroidBitmap()
+                                val frame = captureReplayFrame(i) ?: break
                                 withContext(Dispatchers.IO) {
                                     gif?.addFrame(frame)
                                     apng?.addFrame(frame)
@@ -752,6 +844,7 @@ fun OverlayStudioScreen(
             android.util.Log.e("OverlayStudio", "Replay clip render failed", e)
             false
         }
+        offscreen?.close()
         replayPosMs = savedPos
         rendering = false
         renderCancelRequested = false
@@ -765,6 +858,7 @@ fun OverlayStudioScreen(
                 message = when {
                     ok -> context.getString(R.string.studio_replay_clip_saved)
                     cancelled -> context.getString(R.string.studio_replay_render_cancelled)
+                    proResPending -> context.getString(R.string.studio_replay_prores_pending)
                     else -> context.getString(R.string.studio_replay_export_failed)
                 },
                 actionLabel =
@@ -777,6 +871,7 @@ fun OverlayStudioScreen(
                     ReplayVideoFormat.GIF -> "image/gif"
                     ReplayVideoFormat.APNG -> "image/png"
                     ReplayVideoFormat.MP4 -> "video/mp4"
+                    ReplayVideoFormat.MOV -> "video/quicktime"
                 }
                 openInGallery(context, savedUri, mime)
             }

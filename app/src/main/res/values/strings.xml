@@ -1133,6 +1133,7 @@
     <string name="studio_replay_clip_saved">Replay clip saved</string>
     <string name="studio_replay_render_cancelled">Render cancelled</string>
     <string name="studio_replay_export_failed">Replay export failed</string>
+    <string name="studio_replay_prores_pending">ProRes .mov is coming soon — pick MP4 or APNG for now</string>
 
     <!-- Studio: replay output-format chooser -->
     <string name="studio_export_format">Output format</string>

@@ -62,18 +62,19 @@ enum class ReplayVideoFormat(
 ) {
     GIF(true),   // 1-bit transparency
     APNG(true),  // full RGBA alpha
-    MP4(false);  // opaque, needs a chroma fill
+    MP4(false),  // opaque, needs a chroma fill
+    MOV(true);   // ProRes 4444, full alpha (needs the ffmpeg module)
 
     companion object {
         fun fromKey(key: String): ReplayVideoFormat =
-            entries.firstOrNull { it.name == key } ?: MP4
+            entries.firstOrNull { it.name == key } ?: MOV
     }
 }
 
 /** The rider's Replay-mode output-format choices. */
 data class ReplayExportPrefs(
-    val photoFormat: ReplayPhotoFormat = ReplayPhotoFormat.WEBP,
-    val videoFormat: ReplayVideoFormat = ReplayVideoFormat.MP4,
+    val photoFormat: ReplayPhotoFormat = ReplayPhotoFormat.PNG,
+    val videoFormat: ReplayVideoFormat = ReplayVideoFormat.MOV,
     /** ARGB chroma fill for alpha-less formats (JPG, MP4). */
     val chromaColor: Long = 0xFF00FF00L,
     /**
