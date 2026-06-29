@@ -666,7 +666,10 @@ private fun AlarmRuleEditorDialog(
                         NumberUpDown(
                             value = beepDurationMs,
                             onValueChange = { beepDurationMs = it },
-                            range = 100..1000, step = 50, suffix = "ms",
+                            // 50 ms minimum: the one-buffer TonePlayer renders short
+                            // tones cleanly, so a near-constant beep is gap 0 + a short
+                            // duration + a high count.
+                            range = 50..1000, step = 50, suffix = "ms",
                             label = stringResource(R.string.alarm_label_duration),
                             modifier = Modifier.weight(1f),
                         )
