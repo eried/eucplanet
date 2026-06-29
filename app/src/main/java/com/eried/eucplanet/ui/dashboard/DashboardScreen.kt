@@ -6,6 +6,8 @@ import android.content.Intent
 import android.provider.MediaStore
 import android.util.Log
 import androidx.activity.compose.BackHandler
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.material3.SnackbarHost
@@ -2928,6 +2930,14 @@ fun DashboardScreen(
         // Welcome tour overlay -- drawn last so it sits above the dashboard
         // (and the top bar) and can spotlight any element by its bounds.
         val wizardVoiceOn by viewModel.voicePeriodicEnabled.collectAsState()
+        // Dev-only wizard tools (branch builds): reuse the Cloud-settings folder
+        // picker + restore dialog so there is one implementation.
+        val wizardAlarmsMuted by viewModel.alarmsMuted.collectAsState()
+        val wizardBackupFolderSet by viewModel.backupFolderSet.collectAsState()
+        var showWizardRestore by remember { mutableStateOf(false) }
+        val wizardPickFolder = rememberLauncherForActivityResult(
+            contract = ActivityResultContracts.OpenDocumentTree()
+        ) { uri -> if (uri != null) viewModel.setBackupFolder(uri) }
         if (showWelcomeTour) {
             WelcomeTutorialOverlay(
                 state = coachmark,
@@ -2935,10 +2945,29 @@ fun DashboardScreen(
                 // Reflect the real voice state so the switch can't show "off"
                 // while announcements are actually on.
                 voiceCurrentlyOn = wizardVoiceOn,
+                isDev = com.eried.eucplanet.BuildConfig.IS_DEV,
+                alarmsMuted = wizardAlarmsMuted,
+                onMuteAlarms = { viewModel.toggleAlarmsMuted() },
+                onSetBackupFolder = { wizardPickFolder.launch(null) },
+                backupFolderSet = wizardBackupFolderSet,
+                onRestoreSettings = { showWizardRestore = true },
+                onJoinLeaderboards = { viewModel.joinLeaderboards() },
+                onSyncTrips = { viewModel.syncAllTrips() },
             ) {
                 viewModel.markWelcomeTutorialSeen()
                 tourDismissed = true
             }
+        }
+        if (showWizardRestore) {
+            com.eried.eucplanet.ui.settings.RestorePickerDialog(
+                onDismiss = { showWizardRestore = false },
+                loadEntries = { viewModel.listSettingsBackups() },
+                onPicked = { entry ->
+                    showWizardRestore = false
+                    if (entry.isFactory) viewModel.restoreFactoryDefaults()
+                    else viewModel.restoreSettingsFrom(entry.fileName)
+                },
+            )
         }
         }  // close CompositionLocalProvider
     }

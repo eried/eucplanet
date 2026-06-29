@@ -8887,7 +8887,7 @@ private fun NamedBackupDialog(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun RestorePickerDialog(
+internal fun RestorePickerDialog(
     onDismiss: () -> Unit,
     loadEntries: suspend () -> List<com.eried.eucplanet.data.sync.BackupEntry>,
     onPicked: (com.eried.eucplanet.data.sync.BackupEntry) -> Unit

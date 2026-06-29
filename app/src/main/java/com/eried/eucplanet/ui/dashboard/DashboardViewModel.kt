@@ -458,6 +458,49 @@ class DashboardViewModel @Inject constructor(
         }
     }
 
+    /** Persisted alarm-mute state, for surfaces that show the toggle (dev wizard). */
+    val alarmsMuted: StateFlow<Boolean> = settingsRepository.settings
+        .map { it.alarmsMuted }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
+
+    /** Whether a backup folder is configured (gates the dev wizard's Restore button). */
+    val backupFolderSet: StateFlow<Boolean> = settingsRepository.settings
+        .map { !it.syncFolderUri.isNullOrBlank() }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
+
+    // --- Dev welcome-wizard backup/restore: thin wrappers over SyncManager,
+    // the same calls the Cloud settings screen uses. ---
+    fun setBackupFolder(uri: android.net.Uri) {
+        viewModelScope.launch { syncManager.setSyncFolder(uri) }
+    }
+
+    suspend fun listSettingsBackups(): List<com.eried.eucplanet.data.sync.BackupEntry> =
+        syncManager.listSettingsBackups()
+
+    fun restoreSettingsFrom(fileName: String) {
+        viewModelScope.launch { syncManager.restoreSettingsFrom(fileName) }
+    }
+
+    fun restoreFactoryDefaults() {
+        viewModelScope.launch { syncManager.restoreFactoryDefaults() }
+    }
+
+    /** Fire-and-forget dev "sync trips": the same folder sync the Cloud screen runs. */
+    fun syncAllTrips() = syncManager.startSync()
+
+    /** Fire-and-forget dev "join leaderboards": recover the rider from the linked
+     *  backup folder if one is there, then enable online upload. The full
+     *  onboarding for a brand-new rider stays in Cloud settings; this is the quick
+     *  path for a dev whose folder already holds their rider. */
+    fun joinLeaderboards() {
+        viewModelScope.launch {
+            if (syncManager.riderStoreId.value == null) {
+                syncManager.findRestorableRider()?.let { syncManager.writeRiderId(it.storeId) }
+            }
+            settingsRepository.update(settingsRepository.get().copy(onlineUploadEnabled = true))
+        }
+    }
+
     /**
      * Send the family-specific "reset onboard trip meter" command to the
      * wheel. Returns true on Veteran (CLEARMETER); false on every other

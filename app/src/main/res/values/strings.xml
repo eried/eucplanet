@@ -704,6 +704,12 @@
     <string name="welcome_tut_welcome">Welcome to EUC Planet, a no-nonsense, open-source app for electric unicycles</string>
     <string name="welcome_tut_voice_title">Enable voice alerts</string>
     <string name="welcome_tut_voice_desc">You can enable or disable individual voice messages later in Settings → Voice and announcements.</string>
+    <string name="welcome_tut_dev_title">Developer tools</string>
+    <string name="welcome_tut_dev_mute">Mute alarms</string>
+    <string name="welcome_tut_dev_set_folder">Set backup folder</string>
+    <string name="welcome_tut_dev_restore">Restore settings</string>
+    <string name="welcome_tut_dev_join">Join leaderboards</string>
+    <string name="welcome_tut_dev_sync_trips">Sync trips</string>
     <string name="welcome_tut_bt">Connect and disconnect your wheel here</string>
     <string name="welcome_tut_version">Many wheels just need testers to be fully supported, usually an easy fix. Tap the version to open About and help out</string>
     <string name="welcome_tut_outro_title">That is the tour!</string>

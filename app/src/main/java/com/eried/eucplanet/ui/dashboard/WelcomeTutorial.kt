@@ -33,6 +33,8 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Switch
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -254,6 +256,16 @@ fun WelcomeTutorialOverlay(
     // are really on (e.g. the rider flipped it on earlier), so they "see it
     // disabled but still hear GPS / wheel connected".
     voiceCurrentlyOn: Boolean = false,
+    // Dev-only quick tools, surfaced on step 0 of branch builds (BuildConfig.IS_DEV):
+    // mute alarms, set a backup folder, restore settings (off until a folder is set).
+    isDev: Boolean = false,
+    alarmsMuted: Boolean = false,
+    onMuteAlarms: (Boolean) -> Unit = {},
+    onSetBackupFolder: () -> Unit = {},
+    backupFolderSet: Boolean = false,
+    onRestoreSettings: () -> Unit = {},
+    onJoinLeaderboards: () -> Unit = {},
+    onSyncTrips: () -> Unit = {},
     onFinish: () -> Unit,
 ) {
     val steps = tutorialSteps()
@@ -470,6 +482,69 @@ fun WelcomeTutorialOverlay(
                                     )
                                 }
                                 HintText(stringResource(R.string.welcome_tut_voice_desc))
+
+                                // Dev-only quick tools (branch builds only).
+                                if (isDev) {
+                                    Spacer(Modifier.height(16.dp))
+                                    HorizontalDivider()
+                                    Spacer(Modifier.height(8.dp))
+                                    Text(
+                                        stringResource(R.string.welcome_tut_dev_title),
+                                        style = MaterialTheme.typography.labelMedium,
+                                        color = MaterialTheme.colorScheme.primary,
+                                        fontWeight = FontWeight.SemiBold,
+                                    )
+                                    Spacer(Modifier.height(8.dp))
+                                    Row(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        horizontalArrangement = Arrangement.SpaceBetween,
+                                        verticalAlignment = Alignment.CenterVertically,
+                                    ) {
+                                        Text(
+                                            stringResource(R.string.welcome_tut_dev_mute),
+                                            style = MaterialTheme.typography.bodyLarge,
+                                        )
+                                        Switch(
+                                            checked = alarmsMuted,
+                                            onCheckedChange = onMuteAlarms,
+                                            colors = themedSwitchColors(),
+                                        )
+                                    }
+                                    Spacer(Modifier.height(8.dp))
+                                    Row(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                    ) {
+                                        OutlinedButton(
+                                            onClick = onSetBackupFolder,
+                                            modifier = Modifier.weight(1f),
+                                        ) { Text(stringResource(R.string.welcome_tut_dev_set_folder)) }
+                                        OutlinedButton(
+                                            onClick = onRestoreSettings,
+                                            enabled = backupFolderSet,
+                                            modifier = Modifier.weight(1f),
+                                        ) { Text(stringResource(R.string.welcome_tut_dev_restore)) }
+                                    }
+                                    Spacer(Modifier.height(8.dp))
+                                    Row(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                    ) {
+                                        // Both just trigger the Cloud-settings action and
+                                        // return; the work runs in the background, so the
+                                        // wizard shows no progress here.
+                                        OutlinedButton(
+                                            onClick = onJoinLeaderboards,
+                                            enabled = backupFolderSet,
+                                            modifier = Modifier.weight(1f),
+                                        ) { Text(stringResource(R.string.welcome_tut_dev_join)) }
+                                        OutlinedButton(
+                                            onClick = onSyncTrips,
+                                            enabled = backupFolderSet,
+                                            modifier = Modifier.weight(1f),
+                                        ) { Text(stringResource(R.string.welcome_tut_dev_sync_trips)) }
+                                    }
+                                }
                             }
                         }
                     }

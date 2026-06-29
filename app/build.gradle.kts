@@ -50,6 +50,14 @@ android {
         } catch (e: Exception) { "" }
         buildConfigField("String", "GIT_BRANCH", "\"$gitBranch\"")
 
+        // A "dev" build is any branch build other than main. Same signal the
+        // About dialog uses to show the branch tag: a real branch name that is
+        // not "main" (a tagged release is detached HEAD -> "HEAD", and the Play
+        // production build is cut from main, so neither is dev). Gates dev-only
+        // helpers like the welcome wizard's backup/restore tools.
+        val isDev = gitBranch.isNotEmpty() && gitBranch != "main" && gitBranch != "HEAD"
+        buildConfigField("boolean", "IS_DEV", "$isDev")
+
         buildConfigField("String", "EUCSTATS_API_BASE_URL", "\"https://eucstats.ried.no/api/v1\"")
         buildConfigField("long", "EUCSTATS_GCP_PROJECT_NUMBER", "0L")
     }
