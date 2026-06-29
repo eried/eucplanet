@@ -451,6 +451,9 @@ data class AppSettings(
      * `settings.wheelPollIntervalMs` etc. working unchanged everywhere.
      */
     val advanced: AdvancedSettings = AdvancedSettings(),
+    /** Settings-screen layout the rider arranged: section display order and which
+     *  sections are tucked into the "More" bucket. See [SettingsLayout]. */
+    val settingsLayout: SettingsLayout = SettingsLayout(),
     /**
      * Mirror the live navigation popup (turn arrow + distance) on the paired
      * watch. On by default; the rider can turn it off to keep the watch dial
@@ -795,6 +798,19 @@ data class AppSettings(
     val chargingSanityCapMinutes: Int get() = advanced.chargingSanityCapMinutes
     val chargingMedianFilterSize: Int get() = advanced.chargingMedianFilterSize
 }
+
+/**
+ * The rider's Settings-screen arrangement.
+ *
+ * [order] lists the movable section keys in display order (an empty list means
+ * the built-in default order; unknown / newly added keys fall to the end).
+ * [hidden] lists the section keys tucked into the "More" bucket. The Advanced
+ * section is always pinned last and is never moved or hidden.
+ */
+data class SettingsLayout(
+    val order: List<String> = emptyList(),
+    val hidden: List<String> = emptyList(),
+)
 
 /**
  * Power-user "Advanced" timing / threshold settings. Nested under

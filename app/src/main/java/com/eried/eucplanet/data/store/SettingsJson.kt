@@ -255,6 +255,8 @@ object SettingsJson {
         put("dashboardActionGroups", s.dashboardActionGroups)
         put("dashboardCustomTiles", s.dashboardCustomTiles)
         put("dashboardCustomBle", s.dashboardCustomBle)
+        put("settingsSectionOrder", s.settingsLayout.order.joinToString(","))
+        put("settingsSectionHidden", s.settingsLayout.hidden.joinToString(","))
         put("chargingEstimateToFull", s.chargingEstimateToFull)
         put("chargingAutoOpen", s.chargingAutoOpen)
         put("chargingDashboardIcon", s.chargingDashboardIcon)
@@ -489,6 +491,12 @@ object SettingsJson {
         dashboardActionGroups = j.optString("dashboardActionGroups", base.dashboardActionGroups),
         dashboardCustomTiles = j.optString("dashboardCustomTiles", base.dashboardCustomTiles),
         dashboardCustomBle = j.optString("dashboardCustomBle", base.dashboardCustomBle),
+        settingsLayout = com.eried.eucplanet.data.model.SettingsLayout(
+            order = j.optString("settingsSectionOrder", base.settingsLayout.order.joinToString(","))
+                .split(",").filter { it.isNotBlank() },
+            hidden = j.optString("settingsSectionHidden", base.settingsLayout.hidden.joinToString(","))
+                .split(",").filter { it.isNotBlank() },
+        ),
         chargingEstimateToFull = j.optBoolean("chargingEstimateToFull", base.chargingEstimateToFull),
         chargingAutoOpen = j.optBoolean("chargingAutoOpen", base.chargingAutoOpen),
         chargingDashboardIcon = j.optBoolean("chargingDashboardIcon", base.chargingDashboardIcon),
