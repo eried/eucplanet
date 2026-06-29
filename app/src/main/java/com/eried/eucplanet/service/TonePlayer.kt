@@ -14,6 +14,19 @@ class TonePlayer @Inject constructor() {
 
     private val sampleRate = 44100
 
+    /**
+     * Play [count] beeps of [durationMs] at [frequencyHz], separated by [gapMs]
+     * of silence, at [volumePct] of the media volume.
+     *
+     * The whole pattern (tones plus gaps) is rendered into ONE AudioTrack buffer.
+     * The sine phase runs continuously across contiguous tones and a short
+     * click-guard fade is applied only where a tone meets silence (the very
+     * start, the very end, and each gap). So gap = 0 is a single seamless tone
+     * (an "almost constant" beep) instead of a string of separate beeps, and
+     * short durations stay clean. A prior version built, played, and released a
+     * fresh AudioTrack per beep, so the teardown plus a fade-out into every beep
+     * left an audible gap even at gap = 0.
+     */
     suspend fun playBeep(
         frequencyHz: Int,
         durationMs: Int,
@@ -21,57 +34,64 @@ class TonePlayer @Inject constructor() {
         gapMs: Int = 120,
         volumePct: Int = 100,
     ) {
+        if (count <= 0 || durationMs <= 0) return
         withContext(Dispatchers.IO) {
-            for (i in 0 until count) {
-                playTone(frequencyHz, durationMs, volumePct)
-                if (i < count - 1 && gapMs > 0) {
-                    Thread.sleep(gapMs.toLong())
+            val toneN = (sampleRate.toLong() * durationMs / 1000).toInt()
+            if (toneN <= 0) return@withContext
+            val gapN = (sampleRate.toLong() * gapMs.coerceAtLeast(0) / 1000).toInt()
+            val totalN = toneN * count + gapN * (count - 1).coerceAtLeast(0)
+            val samples = ShortArray(totalN)
+            val twoPiF = 2.0 * Math.PI * frequencyHz / sampleRate
+            // 0.8 = app-side headroom; volumePct scales under the system media
+            // volume ceiling (Android applies that on top, so we can't exceed it).
+            val gain = 0.8 * (volumePct.coerceIn(0, 100) / 100.0)
+            // Click-guard fade length, applied only at a silence boundary.
+            val edge = (toneN * 0.05).toInt().coerceIn(1, (toneN / 2).coerceAtLeast(1))
+
+            var w = 0       // write cursor into samples
+            var phase = 0   // sine phase; stays continuous across contiguous tones
+            for (b in 0 until count) {
+                val silenceBefore = b == 0 || gapN > 0
+                val silenceAfter = b == count - 1 || gapN > 0
+                for (i in 0 until toneN) {
+                    var amp = sin(twoPiF * phase)
+                    if (silenceBefore && i < edge) amp *= i.toDouble() / edge
+                    else if (silenceAfter && i >= toneN - edge) amp *= (toneN - i).toDouble() / edge
+                    samples[w++] = (amp * Short.MAX_VALUE * gain).toInt().toShort()
+                    phase++
                 }
+                if (b < count - 1 && gapN > 0) {
+                    w += gapN   // leave zeros (silence); restart phase after the gap
+                    phase = 0
+                }
+                // gapN == 0: tones stay contiguous and the phase keeps running, so
+                // the seam between them is a single uninterrupted sine.
             }
+
+            val track = AudioTrack.Builder()
+                .setAudioAttributes(
+                    AudioAttributes.Builder()
+                        .setUsage(AudioAttributes.USAGE_MEDIA)
+                        .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+                        .build()
+                )
+                .setAudioFormat(
+                    AudioFormat.Builder()
+                        .setSampleRate(sampleRate)
+                        .setEncoding(AudioFormat.ENCODING_PCM_16BIT)
+                        .setChannelMask(AudioFormat.CHANNEL_OUT_MONO)
+                        .build()
+                )
+                .setBufferSizeInBytes(samples.size * 2)
+                .setTransferMode(AudioTrack.MODE_STATIC)
+                .build()
+
+            track.write(samples, 0, samples.size)
+            track.play()
+            val playMs = totalN.toLong() * 1000 / sampleRate
+            Thread.sleep(playMs + 20)   // let the buffer finish before stop()
+            track.stop()
+            track.release()
         }
-    }
-
-    private fun playTone(frequencyHz: Int, durationMs: Int, volumePct: Int = 100) {
-        val numSamples = sampleRate * durationMs / 1000
-        val samples = ShortArray(numSamples)
-        val twoPiF = 2.0 * Math.PI * frequencyHz / sampleRate
-
-        // 0.8 = app-side headroom; volumePct scales under the system media volume
-        // ceiling (Android applies that on top, so we can't exceed it).
-        val gain = 0.8 * (volumePct.coerceIn(0, 100) / 100.0)
-        // Generate sine wave with fade-in/fade-out to avoid clicks
-        val fadeLen = (numSamples * 0.05).toInt().coerceAtLeast(100)
-        for (i in 0 until numSamples) {
-            var amplitude = sin(twoPiF * i)
-            // Fade envelope
-            if (i < fadeLen) amplitude *= i.toDouble() / fadeLen
-            else if (i > numSamples - fadeLen) amplitude *= (numSamples - i).toDouble() / fadeLen
-            samples[i] = (amplitude * Short.MAX_VALUE * gain).toInt().toShort()
-        }
-
-        val bufferSize = samples.size * 2
-        val track = AudioTrack.Builder()
-            .setAudioAttributes(
-                AudioAttributes.Builder()
-                    .setUsage(AudioAttributes.USAGE_MEDIA)
-                    .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
-                    .build()
-            )
-            .setAudioFormat(
-                AudioFormat.Builder()
-                    .setSampleRate(sampleRate)
-                    .setEncoding(AudioFormat.ENCODING_PCM_16BIT)
-                    .setChannelMask(AudioFormat.CHANNEL_OUT_MONO)
-                    .build()
-            )
-            .setBufferSizeInBytes(bufferSize)
-            .setTransferMode(AudioTrack.MODE_STATIC)
-            .build()
-
-        track.write(samples, 0, samples.size)
-        track.play()
-        Thread.sleep(durationMs.toLong() + 20)   // small tail so the tone finishes before stop()
-        track.stop()
-        track.release()
     }
 }
