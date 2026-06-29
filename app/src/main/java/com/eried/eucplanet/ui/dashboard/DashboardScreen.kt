@@ -2935,6 +2935,7 @@ fun DashboardScreen(
         val wizardBackupFolderSet by viewModel.backupFolderSet.collectAsState()
         val wizardHasSettingsBackup by viewModel.hasSettingsBackup.collectAsState()
         val wizardDropboxLinked by viewModel.dropboxLinked.collectAsState()
+        val wizardSyncRunning by viewModel.syncRunning.collectAsState()
         val wizardActivityContext = androidx.compose.ui.platform.LocalContext.current
         var showWizardRestore by remember { mutableStateOf(false) }
         val wizardPickFolder = rememberLauncherForActivityResult(
@@ -2956,6 +2957,7 @@ fun DashboardScreen(
                 onRestoreSettings = { showWizardRestore = true },
                 onJoinLeaderboards = { viewModel.joinLeaderboards() },
                 onSyncTrips = { viewModel.syncAllTrips() },
+                syncRunning = wizardSyncRunning,
             ) {
                 viewModel.markWelcomeTutorialSeen()
                 tourDismissed = true

@@ -60,6 +60,7 @@ class DashboardViewModel @Inject constructor(
     private val garminBridge: com.eried.eucplanet.garmin.GarminBridge,
     private val appHealthRepository: com.eried.eucplanet.data.repository.AppHealthRepository,
     private val dropboxRepository: com.eried.eucplanet.data.repository.DropboxRepository,
+    private val appNotifier: com.eried.eucplanet.util.AppNotifier,
     @ApplicationContext private val context: Context
 ) : ViewModel() {
 
@@ -492,8 +493,16 @@ class DashboardViewModel @Inject constructor(
         viewModelScope.launch { syncManager.restoreFactoryDefaults() }
     }
 
-    /** Fire-and-forget dev "sync trips": the same folder sync the Cloud screen runs. */
-    fun syncAllTrips() = syncManager.startSync()
+    /** Whether a trip sync is running (disables the dev wizard's Sync button while
+     *  it works). */
+    val syncRunning: StateFlow<Boolean> = syncManager.syncRunning
+
+    /** Fire-and-forget dev "sync trips": the same folder sync the Cloud screen runs.
+     *  Posts a toast so the trigger is visible even when there is nothing to sync. */
+    fun syncAllTrips() {
+        appNotifier.post(context.getString(R.string.welcome_tut_dev_syncing))
+        syncManager.startSync()
+    }
 
     /** Whether Dropbox is linked (gates the dev wizard's Link Dropbox button). */
     val dropboxLinked: StateFlow<Boolean> = dropboxRepository.linked
@@ -510,10 +519,13 @@ class DashboardViewModel @Inject constructor(
      *  path for a dev whose folder already holds their rider. */
     fun joinLeaderboards() {
         viewModelScope.launch {
-            if (syncManager.riderStoreId.value == null) {
-                syncManager.findRestorableRider()?.let { syncManager.writeRiderId(it.storeId) }
-            }
+            val hasRider = syncManager.riderStoreId.value != null ||
+                syncManager.findRestorableRider()?.also { syncManager.writeRiderId(it.storeId) } != null
             settingsRepository.update(settingsRepository.get().copy(onlineUploadEnabled = true))
+            appNotifier.post(context.getString(
+                if (hasRider) R.string.welcome_tut_dev_joined
+                else R.string.welcome_tut_dev_joined_norider
+            ))
         }
     }
 

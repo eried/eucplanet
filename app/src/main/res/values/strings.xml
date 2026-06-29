@@ -709,6 +709,9 @@
     <string name="welcome_tut_dev_restore">Restore settings</string>
     <string name="welcome_tut_dev_join">Join leaderboards</string>
     <string name="welcome_tut_dev_sync_trips">Sync trips</string>
+    <string name="welcome_tut_dev_syncing">Syncing trips</string>
+    <string name="welcome_tut_dev_joined">Joined leaderboards</string>
+    <string name="welcome_tut_dev_joined_norider">Online upload on. No rider found in the folder.</string>
     <string name="welcome_tut_bt">Connect and disconnect your wheel here</string>
     <string name="welcome_tut_version">Many wheels just need testers to be fully supported, usually an easy fix. Tap the version to open About and help out</string>
     <string name="welcome_tut_outro_title">That is the tour!</string>

@@ -268,6 +268,7 @@ fun WelcomeTutorialOverlay(
     onRestoreSettings: () -> Unit = {},
     onJoinLeaderboards: () -> Unit = {},
     onSyncTrips: () -> Unit = {},
+    syncRunning: Boolean = false,
     onFinish: () -> Unit,
 ) {
     val steps = tutorialSteps()
@@ -535,6 +536,7 @@ fun WelcomeTutorialOverlay(
                                         LeftAlignedScanButton(
                                             label = stringResource(R.string.welcome_tut_dev_sync_trips),
                                             onClick = onSyncTrips,
+                                            enabled = !syncRunning,
                                         )
                                         Spacer(Modifier.height(8.dp))
                                         LeftAlignedScanButton(
