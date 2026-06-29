@@ -501,27 +501,26 @@ fun WelcomeTutorialOverlay(
                                     // Same button style as the Cloud settings actions
                                     // (LeftAlignedScanButton: a filled button on the left
                                     // half of the row).
-                                    // Same actions and order as the Cloud settings:
-                                    // backup folder, Dropbox, restore, sync trips, join.
-                                    // Set backup folder shows only until a folder is set.
+                                    // Same actions and order as the Cloud settings. Set
+                                    // backup folder shows only until a folder is set; every
+                                    // other action (Dropbox included) needs a folder, so they
+                                    // appear only once one is set.
                                     if (!backupFolderSet) {
                                         Spacer(Modifier.height(8.dp))
                                         LeftAlignedScanButton(
                                             label = stringResource(R.string.welcome_tut_dev_set_folder),
                                             onClick = onSetBackupFolder,
                                         )
-                                    }
-                                    // Link Dropbox shows until Dropbox is linked.
-                                    if (!dropboxLinked) {
-                                        Spacer(Modifier.height(8.dp))
-                                        LeftAlignedScanButton(
-                                            label = stringResource(R.string.dropbox_link),
-                                            onClick = onLinkDropbox,
-                                        )
-                                    }
-                                    // Folder-backed actions appear once a folder is set.
-                                    if (backupFolderSet) {
-                                        // Restore appears only when a settings backup exists.
+                                    } else {
+                                        // Link Dropbox, until Dropbox is linked.
+                                        if (!dropboxLinked) {
+                                            Spacer(Modifier.height(8.dp))
+                                            LeftAlignedScanButton(
+                                                label = stringResource(R.string.dropbox_link),
+                                                onClick = onLinkDropbox,
+                                            )
+                                        }
+                                        // Restore, only when a settings backup exists.
                                         if (hasSettingsBackup) {
                                             Spacer(Modifier.height(8.dp))
                                             LeftAlignedScanButton(
