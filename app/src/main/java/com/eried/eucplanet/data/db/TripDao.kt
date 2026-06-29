@@ -42,6 +42,11 @@ interface TripDao {
     @Query("SELECT * FROM trips WHERE fileName = :name LIMIT 1")
     suspend fun findByFileName(name: String): TripRecord?
 
+    /** All trip CSV file names on record. Used to find orphan CSVs in the trips
+     *  directory whose DB row went missing (e.g. after a DB rebuild). */
+    @Query("SELECT fileName FROM trips")
+    suspend fun allFileNames(): List<String>
+
     /**
      * Trips eligible for an eucstats upload, newest first. Three buckets:
      *   1 = previously enqueued, never finished (could be a worker that got

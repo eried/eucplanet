@@ -28,6 +28,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import com.eried.eucplanet.util.TripCsv
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -101,6 +102,10 @@ class TripRepository @Inject constructor(
     private var pendingFinalizeJob: kotlinx.coroutines.Job? = null
 
     init {
+        // Recover trip CSVs in the trips dir that have no DB row (e.g. after a
+        // DB rebuild, or a CSV dropped in manually). Runs before the upload sweep
+        // so recovered trips are eligible for it too.
+        scope.launch { runCatching { adoptOrphanCsvs() } }
         // App-start recovery sweep. Both workers also pick up orphaned/failed
         // trips (folder: uploadStatus=3; eucstats: status 0 with UUID, 1, or 3),
         // so this catches anything left behind by a previous session that
@@ -250,6 +255,60 @@ class TripRepository @Inject constructor(
         val dir = File(context.getExternalFilesDir(null), "trips")
         if (!dir.exists()) dir.mkdirs()
         return dir
+    }
+
+    /**
+     * Adopt any `*.csv` in the trips directory that has no matching [TripRecord].
+     * This recovers trip history after a DB rebuild (the CSVs survive on disk),
+     * and lets a CSV dropped into the folder appear as a replayable trip. Metadata
+     * (start/end/distance/sample count) is recomputed from the CSV header-driven,
+     * so it works for native + imported (DarknessBot etc.) layouts.
+     */
+    suspend fun adoptOrphanCsvs() {
+        val dir = getTripsDir()
+        val csvs = dir.listFiles { f ->
+            f.isFile && f.name.endsWith(".csv", ignoreCase = true)
+        } ?: emptyArray()
+        Log.i(TAG, "adoptOrphanCsvs: dir=${dir.absolutePath} csv=${csvs.size}")
+        if (csvs.isEmpty()) return
+        val known = tripDao.allFileNames().toHashSet()
+        for (f in csvs) {
+            if (f.name in known) continue
+            val text = runCatching { f.readText() }.getOrNull() ?: continue
+            val quads = parseQuadsForMetrics(text)
+            val m = TripCsv.metricsFrom(quads)
+            val rows = (text.count { it == '\n' } - 1).coerceAtLeast(0)  // minus header
+            tripDao.insert(
+                TripRecord(
+                    fileName = f.name,
+                    startTime = if (m.valid) m.startMs else f.lastModified(),
+                    endTime = if (m.valid) m.endMs else null,
+                    distanceKm = m.distanceKm,
+                    sampleCount = rows,
+                    tripUuid = java.util.UUID.randomUUID().toString()
+                )
+            )
+            Log.i(TAG, "Adopted orphan trip CSV ${f.name} ($rows rows, ${m.distanceKm} km)")
+        }
+    }
+
+    /** Header-driven extraction of (date, lat, lon, mileage) rows for metrics. */
+    private fun parseQuadsForMetrics(text: String): List<TripCsv.Quad> {
+        val lines = text.split('\n')
+        if (lines.size < 2) return emptyList()
+        val h = lines[0].split(',').map { it.trim().lowercase(Locale.US) }
+        fun idx(vararg names: String) =
+            names.firstNotNullOfOrNull { h.indexOf(it).takeIf { i -> i >= 0 } } ?: -1
+        val iDate = idx("date"); if (iDate < 0) return emptyList()
+        val iLat = idx("latitude"); val iLon = idx("longitude")
+        val iMile = idx("total mileage", "mileage", "distance")
+        return lines.asSequence().drop(1).mapNotNull { ln ->
+            val c = ln.split(',')
+            if (iDate >= c.size || c[iDate].isBlank()) return@mapNotNull null
+            fun d(i: Int) = if (i in 0 until c.size) c[i].trim().toDoubleOrNull() ?: 0.0 else 0.0
+            fun fl(i: Int) = if (i in 0 until c.size) c[i].trim().toFloatOrNull() ?: 0f else 0f
+            TripCsv.Quad(c[iDate].trim(), d(iLat), d(iLon), fl(iMile))
+        }.toList()
     }
 
     // Wall-clock of the last failed recording start (e.g. an unwritable trips
