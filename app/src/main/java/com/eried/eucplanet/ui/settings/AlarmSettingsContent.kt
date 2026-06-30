@@ -186,9 +186,11 @@ fun AlarmSettingsContent(
     Column(
         modifier = Modifier.fillMaxWidth()
     ) {
-        HintText(stringResource(R.string.alarm_help), small = true)
-
-        Spacer(Modifier.height(12.dp))
+        // The priority hint only makes sense once there are alarms to prioritise.
+        if (groups.isNotEmpty()) {
+            HintText(stringResource(R.string.alarm_help), small = true)
+            Spacer(Modifier.height(12.dp))
+        }
 
         if (groups.isEmpty()) {
             InfoHint(
@@ -392,7 +394,13 @@ private fun AlarmRuleCard(
                     fontSize = 14.sp,
                     color = color
                 )
-                val beepSummary = stringResource(R.string.alarm_summary_beep_fmt, rule.beepFrequency, rule.beepCount)
+                // Show "Adaptive beep" when pitch or volume modulation is set (1x = 100 = none).
+                val beepAdaptive = rule.beepModulation != 100 || rule.beepVolumeModulation != 100
+                val beepSummary = stringResource(
+                    if (beepAdaptive) R.string.alarm_summary_adaptive_beep_fmt
+                    else R.string.alarm_summary_beep_fmt,
+                    rule.beepFrequency, rule.beepCount
+                )
                 val voiceSummary = stringResource(R.string.alarm_summary_voice)
                 val vibrateSummary = stringResource(R.string.alarm_summary_vibrate)
                 val actions = buildList {
@@ -1171,7 +1179,12 @@ private fun BeepStudioDialog(
                             contentDescription = stringResource(if (playing) R.string.alarm_studio_stop else R.string.alarm_studio_play),
                             tint = MaterialTheme.appColors.statusGood)
                     }
-                    IconToggleButton(checked = repeat, onCheckedChange = { repeat = it }) {
+                    IconToggleButton(checked = repeat, onCheckedChange = {
+                        repeat = it
+                        // Turning repeat off mid-play stops the loop instead of letting
+                        // it run forever (onTogglePlay stops when already playing).
+                        if (!it && playing) onTogglePlay(false)
+                    }) {
                         Icon(Icons.Default.Repeat, contentDescription = "Repeat",
                             tint = if (repeat) MaterialTheme.appColors.statusWarn else MaterialTheme.colorScheme.onSurfaceVariant)
                     }
@@ -1206,10 +1219,15 @@ private fun BeepStudioDialog(
                     modifier = Modifier.fillMaxWidth().height(70.dp),
                 )
 
-                // Cancel / Save.
+                // Reset / Cancel / Save.
                 Spacer(Modifier.height(12.dp))
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End,
                     verticalAlignment = Alignment.CenterVertically) {
+                    // Reset commits no modulation (1x pitch and volume) and closes.
+                    TextButton(onClick = { onCommit(100, 100); onDismiss() }) {
+                        Text(stringResource(R.string.alarm_studio_reset))
+                    }
+                    Spacer(Modifier.width(8.dp))
                     TextButton(onClick = onDismiss) { Text(stringResource(R.string.action_cancel)) }
                     Spacer(Modifier.width(8.dp))
                     Button(onClick = { onCommit(pitchFactor, volFactor); onDismiss() }) {

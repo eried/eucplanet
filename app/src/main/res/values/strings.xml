@@ -937,6 +937,7 @@
 
     <!-- Alarm rule card action summary -->
     <string name="alarm_summary_beep_fmt">Beep %1$dHz×%2$d</string>
+    <string name="alarm_summary_adaptive_beep_fmt">Adaptive beep %1$dHz×%2$d</string>
     <string name="alarm_summary_voice">Voice</string>
     <string name="alarm_summary_vibrate">Vibrate</string>
 
@@ -1067,6 +1068,7 @@
     <string name="alarm_studio_test_input">Test input %1$s: %2$s %3$s</string>
     <string name="alarm_studio_pitch_factor">Pitch factor</string>
     <string name="alarm_studio_volume_factor">Volume factor</string>
+    <string name="alarm_studio_reset">Reset</string>
     <string name="alarm_studio_now">%1$d Hz · %2$d%%</string>
     <string name="alarm_studio_play">Play</string>
     <string name="alarm_studio_stop">Stop</string>
