@@ -106,6 +106,7 @@ import com.eried.eucplanet.ui.studio.recording.StudioApngEncoder
 import com.eried.eucplanet.ui.studio.recording.StudioGifEncoder
 import com.eried.eucplanet.ui.studio.recording.StudioCapture
 import com.eried.eucplanet.ui.studio.recording.StudioOffscreenSession
+import com.eried.eucplanet.ui.studio.recording.StudioProResEncoder
 import com.eried.eucplanet.ui.studio.recording.OverlayFrameSpec
 import com.eried.eucplanet.ui.studio.recording.StudioVideoEncoder
 import kotlinx.coroutines.Dispatchers
@@ -720,15 +721,47 @@ fun OverlayStudioScreen(
                 }
 
         var cancelled = false
-        // ProRes .mov export needs the ffmpeg module, which isn't bundled yet.
-        // Until it is, MOV is selectable (and the default) but renders a clear
-        // notice instead of the wrong format.
-        var proResPending = false
         val ok: Boolean = try {
             when (videoFormat) {
                 ReplayVideoFormat.MOV -> {
-                    proResPending = true
-                    false
+                    // ProRes 4444 (alpha) via ffmpeg: render the frames to a
+                    // lossless PNG sequence, then ffmpeg-kit encodes the .mov.
+                    // MediaCodec/MediaMuxer can't do ProRes or the .mov container.
+                    val tmp = java.io.File(context.cacheDir, "prores_render")
+                    tmp.deleteRecursively()
+                    tmp.mkdirs()
+                    fun writePng(i: Int, bmp: android.graphics.Bitmap) {
+                        val sw = if (bmp.config == android.graphics.Bitmap.Config.HARDWARE)
+                            bmp.copy(android.graphics.Bitmap.Config.ARGB_8888, false) else bmp
+                        java.io.File(tmp, StudioProResEncoder.frameName(i)).outputStream().use {
+                            sw?.compress(android.graphics.Bitmap.CompressFormat.PNG, 100, it)
+                        }
+                        if (sw != null && sw !== bmp) sw.recycle()
+                    }
+                    try {
+                        withContext(Dispatchers.IO) { writePng(0, first) }
+                        renderProgress = 1f / frameCount
+                        var framesOk = true
+                        for (i in 1 until frameCount) {
+                            if (renderCancelRequested) { cancelled = true; break }
+                            val frame = captureReplayFrame(i)
+                            if (frame == null) { framesOk = false; break }
+                            withContext(Dispatchers.IO) { writePng(i, frame) }
+                            renderProgress = (i + 1f) / frameCount
+                        }
+                        if (!cancelled && framesOk) {
+                            val fps = (frameCount * 1000.0 / outputMs).coerceIn(1.0, 60.0)
+                            val uri = withContext(Dispatchers.IO) {
+                                StudioProResEncoder.encodeAndPublish(context, tmp, frameCount, fps)
+                            }
+                            if (uri != null) { resultUri = uri; true } else false
+                        } else false
+                    } catch (e: Exception) {
+                        android.util.Log.e("OverlayStudio", "Replay ProRes render failed", e)
+                        false
+                    } finally {
+                        withContext(Dispatchers.IO) { tmp.deleteRecursively() }
+                    }
                 }
                 ReplayVideoFormat.MP4 -> {
                     // MP4 has no alpha; every frame is composited onto the
@@ -858,7 +891,6 @@ fun OverlayStudioScreen(
                 message = when {
                     ok -> context.getString(R.string.studio_replay_clip_saved)
                     cancelled -> context.getString(R.string.studio_replay_render_cancelled)
-                    proResPending -> context.getString(R.string.studio_replay_prores_pending)
                     else -> context.getString(R.string.studio_replay_export_failed)
                 },
                 actionLabel =

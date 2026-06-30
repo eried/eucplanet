@@ -38,8 +38,11 @@ import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
@@ -173,6 +176,7 @@ fun StudioReplayDialog(
             // 0 = transport, 1 = trip list, 2 = speed list. Inline pickers so
             // they rotate with the panel instead of escaping as popups.
             var picker by remember { mutableStateOf(0) }
+            var showTrimDialog by remember { mutableStateOf(false) }
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Icon(Icons.Default.History, contentDescription = null, tint = MaterialTheme.appColors.primary)
                 Spacer(Modifier.width(8.dp))
@@ -315,12 +319,21 @@ fun StudioReplayDialog(
                 }
                 Spacer(Modifier.width(10.dp))
                 Spacer(Modifier.weight(1f))
-                if (trimmed) {
+                // Tap to type an exact trim range (MM:SS / H:MM:SS) instead of
+                // fiddling the handles. Shows "Trim" until a range is set, then
+                // the range itself -- both open the editor.
+                if (active) {
                     Text(
-                        "( ${formatReplayClock(rangeStartMs)}  -  " +
-                            "${formatReplayClock(rangeEndMs)} )",
+                        if (trimmed)
+                            "( ${formatReplayClock(rangeStartMs)}  -  " +
+                                "${formatReplayClock(rangeEndMs)} )"
+                        else stringResource(R.string.studio_replay_trim),
                         style = MaterialTheme.typography.bodySmall,
-                        color = clockColor
+                        color = MaterialTheme.appColors.primary,
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(6.dp))
+                            .clickable { showTrimDialog = true }
+                            .padding(horizontal = 8.dp, vertical = 2.dp)
                     )
                     Spacer(Modifier.weight(1f))
                 }
@@ -356,10 +369,76 @@ fun StudioReplayDialog(
                     tint = MaterialTheme.appColors.textPrimary
                 )
             }
+
+            if (showTrimDialog) {
+                TrimTimeDialog(
+                    startMs = rangeStartMs,
+                    endMs = rangeEndMs,
+                    durationMs = dur,
+                    onConfirm = { s, e -> onRange(s, e); showTrimDialog = false },
+                    onDismiss = { showTrimDialog = false }
+                )
+            }
             }
           }
         }
     }
+}
+
+/**
+ * Type an exact trim range (MM:SS / H:MM:SS) instead of dragging the handles --
+ * the handles are fiddly for precise cuts. Confirm is disabled until both fields
+ * parse, sit inside [0, durationMs], and start < end.
+ */
+@Composable
+private fun TrimTimeDialog(
+    startMs: Long,
+    endMs: Long,
+    durationMs: Long,
+    onConfirm: (Long, Long) -> Unit,
+    onDismiss: () -> Unit
+) {
+    var startText by remember { mutableStateOf(formatReplayClock(startMs)) }
+    var endText by remember { mutableStateOf(formatReplayClock(endMs)) }
+    val startParsed = parseReplayClock(startText)
+    val endParsed = parseReplayClock(endText)
+    val startOk = startParsed != null && startParsed in 0..durationMs
+    val endOk = endParsed != null && endParsed in 0..durationMs
+    val valid = startOk && endOk && startParsed!! < endParsed!!
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(stringResource(R.string.studio_replay_trim_title)) },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                OutlinedTextField(
+                    value = startText,
+                    onValueChange = { startText = it },
+                    label = { Text(stringResource(R.string.studio_replay_trim_start)) },
+                    singleLine = true,
+                    isError = !startOk
+                )
+                OutlinedTextField(
+                    value = endText,
+                    onValueChange = { endText = it },
+                    label = { Text(stringResource(R.string.studio_replay_trim_end)) },
+                    singleLine = true,
+                    isError = !endOk,
+                    supportingText = {
+                        Text("MM:SS  ·  0:00 – ${formatReplayClock(durationMs)}")
+                    }
+                )
+            }
+        },
+        confirmButton = {
+            TextButton(
+                onClick = { if (valid) onConfirm(startParsed!!, endParsed!!) },
+                enabled = valid
+            ) { Text(stringResource(R.string.action_apply)) }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) { Text(stringResource(R.string.action_cancel)) }
+        }
+    )
 }
 
 /** Chroma-key fill presets: label resource paired with the ARGB colour. */

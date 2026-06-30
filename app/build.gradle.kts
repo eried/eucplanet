@@ -52,6 +52,15 @@ android {
 
         buildConfigField("String", "EUCSTATS_API_BASE_URL", "\"https://eucstats.ried.no/api/v1\"")
         buildConfigField("long", "EUCSTATS_GCP_PROJECT_NUMBER", "0L")
+
+        ndk {
+            // ffmpeg-kit ships a native .so set per ABI (~33 MB arm64). Limit the
+            // build to the two ABIs every real phone uses so the APK doesn't
+            // balloon with x86 emulator libs. The debug build type adds x86_64
+            // back for the emulator. The Play AAB still splits per-device, so a
+            // phone only downloads its own ABI.
+            abiFilters += listOf("arm64-v8a", "armeabi-v7a")
+        }
     }
 
     signingConfigs {
@@ -67,6 +76,8 @@ android {
 
     buildTypes {
         debug {
+            // Also build the x86_64 ffmpeg-kit libs so the emulator can run.
+            ndk { abiFilters += "x86_64" }
             // Debug builds target the PRODUCTION eucstats API by default, so
             // branch/sideload debug APKs work on real phones (10.0.2.2 is the
             // emulator-to-host alias and is unreachable on physical devices).
@@ -188,6 +199,12 @@ dependencies {
     // advertisement on whatever subnet the phone has. Same library on
     // both ends so behaviour is consistent.
     implementation(libs.jmdns)
+
+    // ffmpeg-kit (community 16KB-page fork on Maven Central; ffmpeg 6.1.1,
+    // --enable-gpl full build with the prores_ks encoder). Used only to encode
+    // Overlay Studio replay clips to ProRes 4444 .mov, the one format Android's
+    // MediaCodec/MediaMuxer can't produce (no ProRes, no .mov container).
+    implementation("com.moizhassan.ffmpeg:ffmpeg-kit-16kb:6.1.1")
 
     // Compose
     val composeBom = platform(libs.compose.bom)
