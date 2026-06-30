@@ -1275,10 +1275,16 @@ fun DashboardScreen(
                 ) ?: return placeholder
                 return when (key) {
                     "BATTERY", "LOAD" -> "${raw.toInt()}%"
-                    "TEMPERATURE" -> "${raw.toInt()}°"
+                    // Buffers store raw °C / km/h, so the corner stat must run
+                    // the same unit conversion as the tile value or imperial
+                    // riders see metric numbers under an imperial label.
+                    "TEMPERATURE" -> "${com.eried.eucplanet.util.Units.temperature(raw, tempUnit).toInt()}°"
                     "VOLTAGE" -> "%.1fV".format(raw)
                     "CURRENT" -> "%.1fA".format(raw)
-                    "SPEED" -> "%.0f".format(raw)
+                    "SPEED" -> "%.0f %s".format(
+                        com.eried.eucplanet.util.Units.speed(raw, speedUnit),
+                        speedUnitLabel
+                    )
                     else -> "%.1f".format(raw)
                 }
             }
@@ -1318,7 +1324,10 @@ fun DashboardScreen(
                     "CURRENT" -> currentText
                     "LOAD" -> "%.0f%%".format(pwm)
                     "TRIP" -> "%.1f %s".format(tripValue, distUnit)
-                    "SPEED" -> "%.0f".format(wheelData.speed)
+                    "SPEED" -> "%.0f %s".format(
+                        com.eried.eucplanet.util.Units.speed(wheelData.speed, speedUnit),
+                        speedUnitLabel
+                    )
                     "BATTERY_POWER", "POWER" -> "${wheelData.batteryPower}W"
                     "MOTOR_POWER" -> "${wheelData.motorPower}W"
                     // Composite-friendly extras (also work as standalone
@@ -1356,7 +1365,10 @@ fun DashboardScreen(
                     "FORWARD_G" -> "%.2fg".format(wheelData.forwardGFromSpeed)
                     "TORQUE" -> "%.1fNm".format(wheelData.torque)
                     "DYN_SPEED_LIMIT" -> if (wheelData.dynamicSpeedLimit > 0f)
-                        "%.0f".format(wheelData.dynamicSpeedLimit) else placeholder
+                        "%.0f %s".format(
+                            com.eried.eucplanet.util.Units.speed(wheelData.dynamicSpeedLimit, speedUnit),
+                            speedUnitLabel
+                        ) else placeholder
                     "DYN_CURRENT_LIMIT" -> if (wheelData.dynamicCurrentLimit > 0f)
                         "%.1fA".format(wheelData.dynamicCurrentLimit) else placeholder
                     "MOTOR_TEMP" -> wheelData.temperatures.getOrNull(0)

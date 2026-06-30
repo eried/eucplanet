@@ -46,8 +46,10 @@ enum class ReplayPhotoFormat(
 ) {
     PNG(true),
     JPG(false),
-    WEBP(true),
-    GIF(true);   // 256-colour, 1-bit alpha
+    WEBP(true);
+    // GIF removed as a photo option (kept only as a video output). To restore,
+    // re-add GIF(true) here plus the ReplayPhotoFormat.GIF when-branches in
+    // OverlayStudioScreen and the chip in ExportFormatChooser.
 
     companion object {
         fun fromKey(key: String): ReplayPhotoFormat =
@@ -61,20 +63,24 @@ enum class ReplayVideoFormat(
     val hasAlpha: Boolean
 ) {
     GIF(true),   // 1-bit transparency
-    APNG(true),  // full RGBA alpha
     MP4(false),  // opaque, needs a chroma fill
-    MOV(true);   // ProRes 4444, full alpha (needs the ffmpeg module)
+    APNG(true);  // full RGBA alpha
+    // MOV(true) -- ProRes 4444 alpha via ffmpeg. Disabled app-wide: the ffmpeg
+    // path works but the alpha .mov files it produces are handled inconsistently
+    // by editors, so the whole path is commented out (StudioProResEncoder, the
+    // ffmpeg dependency, the codec chooser). To restore, re-add MOV(true) here
+    // and uncomment those.
 
     companion object {
         fun fromKey(key: String): ReplayVideoFormat =
-            entries.firstOrNull { it.name == key } ?: MOV
+            entries.firstOrNull { it.name == key } ?: MP4
     }
 }
 
 /** The rider's Replay-mode output-format choices. */
 data class ReplayExportPrefs(
     val photoFormat: ReplayPhotoFormat = ReplayPhotoFormat.PNG,
-    val videoFormat: ReplayVideoFormat = ReplayVideoFormat.MOV,
+    val videoFormat: ReplayVideoFormat = ReplayVideoFormat.MP4,
     /** ARGB chroma fill for alpha-less formats (JPG, MP4). */
     val chromaColor: Long = 0xFF00FF00L,
     /**
@@ -84,10 +90,8 @@ data class ReplayExportPrefs(
      */
     val forceOpaque: Boolean = true,
     /** Output size as a percentage of the studio's native resolution (50/75/100). */
-    val scale: Int = 100,
-    /** MOV codec: false = ProRes 4444, true = QuickTime Animation (qtrle). qtrle
-     *  is bigger but its ARGB alpha is read by editors that reject ProRes alpha. */
-    val movQtrle: Boolean = false
+    val scale: Int = 100
+    // movQtrle (ProRes 4444 vs QuickTime RLE) removed with the disabled MOV path.
 )
 
 /** Outcome of a "save preset" attempt, surfaced to the UI as a snackbar. */
@@ -250,8 +254,7 @@ class OverlayStudioViewModel @Inject constructor(
             photoFormat = ReplayPhotoFormat.fromKey(initialSettings.studioReplayPhotoFormat),
             videoFormat = ReplayVideoFormat.fromKey(initialSettings.studioReplayVideoFormat),
             chromaColor = initialSettings.studioReplayChromaColor,
-            forceOpaque = initialSettings.studioReplayForceOpaque,
-            movQtrle = initialSettings.studioReplayMovQtrle
+            forceOpaque = initialSettings.studioReplayForceOpaque
         )
     )
     val replayExportPrefs: StateFlow<ReplayExportPrefs> = _replayExportPrefs.asStateFlow()
@@ -280,10 +283,7 @@ class OverlayStudioViewModel @Inject constructor(
         _replayExportPrefs.value = _replayExportPrefs.value.copy(scale = scale)
     }
 
-    fun setReplayMovQtrle(useQtrle: Boolean) {
-        _replayExportPrefs.value = _replayExportPrefs.value.copy(movQtrle = useQtrle)
-        persistReplayExportPrefs()
-    }
+    // setReplayMovQtrle removed with the disabled MOV (ProRes/.mov) export path.
 
     private fun persistReplayExportPrefs() {
         val prefs = _replayExportPrefs.value
@@ -294,8 +294,7 @@ class OverlayStudioViewModel @Inject constructor(
                     studioReplayPhotoFormat = prefs.photoFormat.name,
                     studioReplayVideoFormat = prefs.videoFormat.name,
                     studioReplayChromaColor = prefs.chromaColor,
-                    studioReplayForceOpaque = prefs.forceOpaque,
-                    studioReplayMovQtrle = prefs.movQtrle
+                    studioReplayForceOpaque = prefs.forceOpaque
                 )
             )
         }

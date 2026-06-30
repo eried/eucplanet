@@ -114,7 +114,7 @@ import com.eried.eucplanet.ui.studio.recording.StudioApngEncoder
 import com.eried.eucplanet.ui.studio.recording.StudioGifEncoder
 import com.eried.eucplanet.ui.studio.recording.StudioCapture
 import com.eried.eucplanet.ui.studio.recording.StudioOffscreenSession
-import com.eried.eucplanet.ui.studio.recording.StudioProResEncoder
+// StudioProResEncoder import removed with the disabled MOV (ProRes/.mov) export.
 import com.eried.eucplanet.ui.studio.recording.OverlayFrameSpec
 import com.eried.eucplanet.ui.studio.recording.StudioVideoEncoder
 import kotlinx.coroutines.Dispatchers
@@ -545,7 +545,6 @@ fun OverlayStudioScreen(
                 when (photoFormat) {
                     ReplayPhotoFormat.PNG -> StudioCapture.savePng(context, src)
                     ReplayPhotoFormat.WEBP -> StudioCapture.saveWebp(context, src)
-                    ReplayPhotoFormat.GIF -> StudioCapture.saveGif(context, src)
                     ReplayPhotoFormat.JPG ->
                         // JPEG has no alpha; flatten onto the chroma colour first.
                         StudioCapture.saveJpeg(
@@ -556,7 +555,6 @@ fun OverlayStudioScreen(
             val photoMime = when (photoFormat) {
                 ReplayPhotoFormat.PNG -> "image/png"
                 ReplayPhotoFormat.WEBP -> "image/webp"
-                ReplayPhotoFormat.GIF -> "image/gif"
                 ReplayPhotoFormat.JPG -> "image/jpeg"
             }
             // Restore the chrome the instant the save is done; showSnackbar
@@ -760,63 +758,10 @@ fun OverlayStudioScreen(
         var cancelled = false
         val ok: Boolean = try {
             when (videoFormat) {
-                ReplayVideoFormat.MOV -> {
-                    // ProRes 4444 (alpha) via ffmpeg: render the frames to a
-                    // lossless PNG sequence, then ffmpeg-kit encodes the .mov.
-                    // MediaCodec/MediaMuxer can't do ProRes or the .mov container.
-                    val tmp = java.io.File(context.cacheDir, "prores_render")
-                    tmp.deleteRecursively()
-                    tmp.mkdirs()
-                    fun writePng(i: Int, bmp: android.graphics.Bitmap) {
-                        val sw = if (bmp.config == android.graphics.Bitmap.Config.HARDWARE)
-                            bmp.copy(android.graphics.Bitmap.Config.ARGB_8888, false) else bmp
-                        java.io.File(tmp, StudioProResEncoder.frameName(i)).outputStream().use {
-                            sw?.compress(android.graphics.Bitmap.CompressFormat.PNG, 100, it)
-                        }
-                        if (sw != null && sw !== bmp) sw.recycle()
-                    }
-                    var framesOk = true
-                    try {
-                        // Pipeline: write each frame's PNG on IO while the NEXT
-                        // frame renders on Main, so the encode-to-disk cost overlaps
-                        // the render instead of stacking after it. One write in
-                        // flight bounds memory to ~2 frames.
-                        kotlinx.coroutines.coroutineScope {
-                            val cs = this
-                            var pending: kotlinx.coroutines.Deferred<Unit>? = null
-                            suspend fun submit(i: Int, bmp: android.graphics.Bitmap) {
-                                pending?.await()
-                                pending = cs.async(Dispatchers.IO) { writePng(i, bmp) }
-                            }
-                            submit(0, first)
-                            renderProgress = 1f / frameCount
-                            var i = 1
-                            while (i < frameCount) {
-                                if (renderCancelRequested) { cancelled = true; break }
-                                val frame = captureReplayFrame(i)
-                                if (frame == null) { framesOk = false; break }
-                                submit(i, frame)
-                                renderProgress = (i + 1f) / frameCount
-                                i++
-                            }
-                            pending?.await()
-                        }
-                        if (!cancelled && framesOk) {
-                            val fps = (frameCount * 1000.0 / outputMs).coerceIn(1.0, 60.0)
-                            val uri = withContext(Dispatchers.IO) {
-                                StudioProResEncoder.encodeAndPublish(
-                                    context, tmp, frameCount, fps, useQtrle = exportPrefs.movQtrle
-                                )
-                            }
-                            if (uri != null) { resultUri = uri; true } else false
-                        } else false
-                    } catch (e: Exception) {
-                        android.util.Log.e("OverlayStudio", "Replay ProRes render failed", e)
-                        false
-                    } finally {
-                        withContext(Dispatchers.IO) { tmp.deleteRecursively() }
-                    }
-                }
+                // ReplayVideoFormat.MOV (ProRes 4444 / QuickTime RLE alpha via
+                // ffmpeg) removed: the alpha .mov output is handled inconsistently
+                // by editors, so the whole path is disabled. See StudioProResEncoder
+                // for the commented-out implementation to revive it.
                 ReplayVideoFormat.MP4 -> {
                     // MP4 has no alpha; every frame is composited onto the
                     // chroma colour before it is drawn into the encoder.
@@ -957,7 +902,6 @@ fun OverlayStudioScreen(
                     ReplayVideoFormat.GIF -> "image/gif"
                     ReplayVideoFormat.APNG -> "image/png"
                     ReplayVideoFormat.MP4 -> "video/mp4"
-                    ReplayVideoFormat.MOV -> "video/quicktime"
                 }
                 openInGallery(context, savedUri, mime)
             }
@@ -1360,7 +1304,6 @@ fun OverlayStudioScreen(
                     onChromaColor = { viewModel.setReplayChromaColor(it) },
                     onForceOpaque = { viewModel.setReplayForceOpaque(it) },
                     onScale = { viewModel.setReplayScale(it) },
-                    onMovQtrle = { viewModel.setReplayMovQtrle(it) },
                     onClose = {
                         studioMode = StudioMode.LIVE
                         replayPlaying = false
@@ -1971,6 +1914,11 @@ private fun ExportThumbnail(bmp: android.graphics.Bitmap?, progress: Float) {
                         .height(280.dp)
                         .aspectRatio(frame.width.toFloat() / frame.height.coerceAtLeast(1))
                         .clip(RoundedCornerShape(14.dp))
+                        // Photoshop-style checkerboard behind the frame so alpha
+                        // exports (PNG/WEBP/GIF/APNG) show their transparency.
+                        // Opaque frames cover it completely, so it costs nothing
+                        // for MP4/JPG.
+                        .drawBehind { replayCheckerboard() }
                         .border(2.dp, Color.White, RoundedCornerShape(14.dp))
                 ) {
                     Image(

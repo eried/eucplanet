@@ -1,5 +1,17 @@
 package com.eried.eucplanet.ui.studio.recording
 
+/*
+ * DISABLED app-wide. This is the ffmpeg-based ProRes 4444 / QuickTime RLE `.mov`
+ * (alpha) export path for Overlay Studio replay clips. It works, but the alpha
+ * `.mov` files it produces are handled inconsistently across NLEs, so the entire
+ * MOV path is commented out: the ffmpeg-kit dependency (app/build.gradle.kts),
+ * the MOV video format (ReplayVideoFormat.MOV), the codec chooser, and the
+ * render branch in OverlayStudioScreen. To bring it back: uncomment this file,
+ * re-add the ffmpeg-kit dependency, re-add ReplayVideoFormat.MOV + the codec
+ * chips, and the MOV render branch.
+ *
+ * Kept verbatim below (inside this block comment) so it can be revived as-is.
+ *
 import android.content.ContentValues
 import android.content.Context
 import android.net.Uri
@@ -9,25 +21,11 @@ import com.arthenica.ffmpegkit.FFmpegKit
 import com.arthenica.ffmpegkit.ReturnCode
 import java.io.File
 
-/**
- * Encodes a rendered PNG frame sequence to a ProRes 4444 `.mov` (alpha-preserving)
- * via ffmpeg-kit, then publishes it to the gallery.
- *
- * Android's MediaCodec can't encode ProRes and MediaMuxer can't write the `.mov`
- * container, so ffmpeg is the only path for an alpha video the rider can drop
- * straight onto an editing timeline. The frames are written as PNG (lossless,
- * with alpha) by the caller into [dir]; this turns them into the clip.
- */
 object StudioProResEncoder {
     private const val TAG = "StudioProRes"
 
-    /** PNG frame name for index [i] (matches the ffmpeg `frame_%05d.png` glob). */
     fun frameName(i: Int): String = "frame_%05d.png".format(i)
 
-    /**
-     * Encode `dir/frame_%05d.png` (0 until [frameCount]) at [fps] to ProRes 4444
-     * and publish the result. Returns the gallery Uri, or null on failure.
-     */
     fun encodeAndPublish(
         context: Context,
         dir: File,
@@ -39,16 +37,9 @@ object StudioProResEncoder {
         val mov = File(dir, "out.mov")
         val pattern = File(dir, "frame_%05d.png").absolutePath
         val cmd = if (useQtrle) {
-            // QuickTime Animation (qtrle): lossless RLE, packed ARGB straight alpha.
-            // Universally recognised by NLEs (the reliable fallback when an editor
-            // won't read ffmpeg's ProRes 4444 alpha). Bigger files.
             "-y -framerate $fps -i \"$pattern\" " +
                 "-c:v qtrle -pix_fmt argb -r $fps \"${mov.absolutePath}\""
         } else {
-            // ProRes 4444 with alpha NLEs recognise: yuva444p10le carries alpha,
-            // premultiply (NLEs expect premultiplied for ProRes 4444), full-depth
-            // -alpha_bits 16, and the Apple -vendor apl0 tag so the alpha track is
-            // enabled.
             "-y -framerate $fps -i \"$pattern\" " +
                 "-vf premultiply=inplace=1 " +
                 "-c:v prores_ks -profile:v 4444 -pix_fmt yuva444p10le " +
@@ -89,3 +80,4 @@ object StudioProResEncoder {
         }
     }
 }
+ */

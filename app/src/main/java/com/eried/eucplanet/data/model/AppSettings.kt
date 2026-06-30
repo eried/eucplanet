@@ -631,9 +631,10 @@ data class AppSettings(
     /** Replay photo export format: "PNG" (alpha, default), "WEBP" (alpha, fast),
      *  "JPG" (chroma-filled) or "GIF" (1-bit alpha). */
     val studioReplayPhotoFormat: String = "PNG",
-    /** Replay video export format: "MOV" (ProRes 4444 alpha, default), "APNG"
-     *  (alpha), "GIF" (1-bit alpha) or "MP4" (chroma-filled). */
-    val studioReplayVideoFormat: String = "MOV",
+    /** Replay video export format: "MP4" (chroma-filled, default), "APNG"
+     *  (alpha) or "GIF" (1-bit alpha). The ffmpeg "MOV" (ProRes 4444) path is
+     *  disabled app-wide, so it is no longer a valid value. */
+    val studioReplayVideoFormat: String = "MP4",
     /**
      * ARGB chroma-key fill colour used when an alpha-less export format (JPG,
      * MP4) is chosen. Default bright green (0xFF00FF00).
@@ -645,9 +646,9 @@ data class AppSettings(
      * the chroma fill and look wrong. Default on.
      */
     val studioReplayForceOpaque: Boolean = true,
-    /** MOV alpha codec: false = ProRes 4444, true = QuickTime Animation (qtrle,
-     *  bigger but maximally editor-compatible alpha). */
-    val studioReplayMovQtrle: Boolean = false,
+    // MOV alpha codec (studioReplayMovQtrle) removed: the ffmpeg ProRes/.mov
+    // export path is disabled app-wide. Any leftover value in a persisted JSON
+    // blob is simply ignored by Gson.
 
     // Dashboard layout (customizable home screen).
     //
