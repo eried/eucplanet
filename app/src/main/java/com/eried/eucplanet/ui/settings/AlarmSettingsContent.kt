@@ -394,13 +394,18 @@ private fun AlarmRuleCard(
                     fontSize = 14.sp,
                     color = color
                 )
-                // Show "Adaptive beep" when pitch or volume modulation is set (1x = 100 = none).
-                val beepAdaptive = rule.beepModulation != 100 || rule.beepVolumeModulation != 100
-                val beepSummary = stringResource(
-                    if (beepAdaptive) R.string.alarm_summary_adaptive_beep_fmt
-                    else R.string.alarm_summary_beep_fmt,
-                    rule.beepFrequency, rule.beepCount
-                )
+                // Append a "(pitch and vol)" note for whichever modulation is set
+                // (1x = 100 = none), kept short so the rule row still fits.
+                val pitchAdaptive = rule.beepModulation != 100
+                val volAdaptive = rule.beepVolumeModulation != 100
+                val adaptiveNote = when {
+                    pitchAdaptive && volAdaptive -> stringResource(R.string.alarm_summary_adaptive_pitch_vol)
+                    pitchAdaptive -> stringResource(R.string.alarm_summary_adaptive_pitch)
+                    volAdaptive -> stringResource(R.string.alarm_summary_adaptive_vol)
+                    else -> ""
+                }
+                val beepSummary = stringResource(R.string.alarm_summary_beep_fmt, rule.beepFrequency, rule.beepCount) +
+                    (if (adaptiveNote.isNotEmpty()) " ($adaptiveNote)" else "")
                 val voiceSummary = stringResource(R.string.alarm_summary_voice)
                 val vibrateSummary = stringResource(R.string.alarm_summary_vibrate)
                 val actions = buildList {
@@ -1219,15 +1224,15 @@ private fun BeepStudioDialog(
                     modifier = Modifier.fillMaxWidth().height(70.dp),
                 )
 
-                // Reset / Cancel / Save.
+                // Reset on the left; Cancel / Save on the right (like the rule editor).
                 Spacer(Modifier.height(12.dp))
-                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End,
+                Row(modifier = Modifier.fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically) {
                     // Reset commits no modulation (1x pitch and volume) and closes.
                     TextButton(onClick = { onCommit(100, 100); onDismiss() }) {
                         Text(stringResource(R.string.alarm_studio_reset))
                     }
-                    Spacer(Modifier.width(8.dp))
+                    Spacer(Modifier.weight(1f))
                     TextButton(onClick = onDismiss) { Text(stringResource(R.string.action_cancel)) }
                     Spacer(Modifier.width(8.dp))
                     Button(onClick = { onCommit(pitchFactor, volFactor); onDismiss() }) {

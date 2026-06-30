@@ -937,7 +937,9 @@
 
     <!-- Alarm rule card action summary -->
     <string name="alarm_summary_beep_fmt">Beep %1$dHz×%2$d</string>
-    <string name="alarm_summary_adaptive_beep_fmt">Adaptive beep %1$dHz×%2$d</string>
+    <string name="alarm_summary_adaptive_pitch_vol">pitch and vol</string>
+    <string name="alarm_summary_adaptive_pitch">pitch</string>
+    <string name="alarm_summary_adaptive_vol">vol</string>
     <string name="alarm_summary_voice">Voice</string>
     <string name="alarm_summary_vibrate">Vibrate</string>
 
