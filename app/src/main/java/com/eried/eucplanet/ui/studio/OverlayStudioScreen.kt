@@ -12,6 +12,7 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
@@ -39,6 +40,8 @@ import androidx.compose.material.icons.filled.PhotoCamera
 import androidx.compose.material.icons.filled.PhotoLibrary
 import androidx.compose.material.icons.filled.Stop
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
@@ -73,6 +76,9 @@ import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.layout.ContentScale
+import kotlin.math.roundToInt
 import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.graphics.drawscope.CanvasDrawScope
 import androidx.compose.ui.graphics.drawscope.scale
@@ -310,6 +316,9 @@ fun OverlayStudioScreen(
     // Replay APNG export: offline frame-by-frame render with a progress bar.
     var rendering by remember { mutableStateOf(false) }
     var renderProgress by remember { mutableStateOf(0f) }
+    // A small, slowly-updated preview of the frame being rendered, shown on the
+    // File Export screen with a left-to-right reveal tied to progress.
+    var renderThumbnail by remember { mutableStateOf<android.graphics.Bitmap?>(null) }
     var renderCancelRequested by remember { mutableStateOf(false) }
     var showCancelConfirm by remember { mutableStateOf(false) }
     // True while an alpha-less export (JPG / MP4) is rendering and the rider has
@@ -615,6 +624,19 @@ fun OverlayStudioScreen(
         // pending gallery image.
         var resultUri: Uri? = null
         renderProgress = 0f
+        renderThumbnail = null
+        // Small software copy of a frame for the File Export preview; refreshed at
+        // most every 5s to keep it cheap.
+        var lastThumbMs = 0L
+        fun makeThumb(src: android.graphics.Bitmap): android.graphics.Bitmap? = runCatching {
+            val sw = if (src.config == android.graphics.Bitmap.Config.HARDWARE)
+                src.copy(android.graphics.Bitmap.Config.ARGB_8888, false) else src
+            val tw = 240
+            val th = (tw.toLong() * (sw?.height ?: 1) / (sw?.width ?: 1)).toInt().coerceAtLeast(1)
+            val out = android.graphics.Bitmap.createScaledBitmap(sw!!, tw, th, true)
+            if (sw !== src) sw.recycle()
+            out
+        }.getOrNull()
         val fps = 10
         val frameMs = 1000 / fps
         val span = replayEndMs - replayStartMs
@@ -647,6 +669,8 @@ fun OverlayStudioScreen(
             rendering = false
             return@LaunchedEffect
         }
+        renderThumbnail = makeThumb(first)
+        lastThumbMs = System.currentTimeMillis()
         // Output size: the chosen Scale percentage of the studio's native
         // resolution (smaller = quicker render, smaller file).
         val pct = exportPrefs.scale.coerceIn(25, 100) / 100f
@@ -713,13 +737,23 @@ fun OverlayStudioScreen(
         // Frame source: offscreen if available, else advance the live layer and
         // read it back (the original 2-vsync path). Frame 0 is the on-screen
         // `first` either way, so a divergence shows up as a jump at frame 1.
-        suspend fun captureReplayFrame(i: Int): android.graphics.Bitmap? =
-            offscreen?.let { s -> runCatching { s.frame(i) }.getOrNull() }
+        suspend fun captureReplayFrame(i: Int): android.graphics.Bitmap? {
+            val bmp = offscreen?.let { s -> runCatching { s.frame(i) }.getOrNull() }
                 ?: run {
                     replayPosMs = replayStartMs + i * stepMs
                     repeat(2) { withFrameNanos {} }
                     runCatching { graphicsLayer.toImageBitmap().asAndroidBitmap() }.getOrNull()
                 }
+            // Refresh the export preview at most every 5s.
+            if (bmp != null) {
+                val now = System.currentTimeMillis()
+                if (now - lastThumbMs >= 5000L) {
+                    lastThumbMs = now
+                    makeThumb(bmp)?.let { renderThumbnail = it }
+                }
+            }
+            return bmp
+        }
 
         var cancelled = false
         val ok: Boolean = try {
@@ -1351,50 +1385,57 @@ fun OverlayStudioScreen(
           // No crossfade on the render overlay; fading its scrim mid-render
           // would blink the whole screen when the phone is rotated.
           RotatedFullScreen(deviceRotation, withFade = false) {
-            Box(
-                Modifier
-                    .fillMaxSize()
-                    .background(MaterialTheme.appColors.scrim.copy(alpha = 0.9f)),
-                contentAlignment = Alignment.Center
-            ) {
+            // Full-screen black export view (a deliberate always-dark surface, so
+            // fixed black/white here rather than theme tokens).
+            val pct = (renderProgress.coerceIn(0f, 1f) * 100).roundToInt()
+            Box(Modifier.fillMaxSize().background(Color.Black)) {
+                IconButton(
+                    onClick = { showCancelConfirm = true },
+                    modifier = Modifier
+                        .align(Alignment.TopStart)
+                        .safeDrawingPadding()
+                        .padding(8.dp)
+                ) {
+                    Icon(
+                        Icons.Default.Close,
+                        contentDescription = stringResource(R.string.studio_rendering_cancel),
+                        tint = Color.White
+                    )
+                }
+                Text(
+                    stringResource(R.string.studio_export_title),
+                    color = Color.White,
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier
+                        .align(Alignment.TopCenter)
+                        .safeDrawingPadding()
+                        .padding(top = 16.dp)
+                )
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
-                    modifier = Modifier.padding(36.dp)
+                    modifier = Modifier.align(Alignment.Center)
                 ) {
                     Text(
-                        stringResource(R.string.studio_rendering),
-                        color = MaterialTheme.appColors.textPrimary,
-                        fontSize = 22.sp,
+                        "$pct%",
+                        color = Color.White,
+                        fontSize = 34.sp,
                         fontWeight = FontWeight.Bold
                     )
-                    Spacer(Modifier.height(18.dp))
-                    val barWidth = 240.dp
-                    Box(
-                        Modifier
-                            .width(barWidth)
-                            .height(8.dp)
-                            .clip(RoundedCornerShape(4.dp))
-                            .background(MaterialTheme.appColors.gaugeTrack)
-                    ) {
-                        Box(
-                            Modifier
-                                .width(barWidth * renderProgress.coerceIn(0f, 1f))
-                                .height(8.dp)
-                                .clip(RoundedCornerShape(4.dp))
-                                .background(MaterialTheme.appColors.primary)
-                        )
-                    }
-                    Spacer(Modifier.height(22.dp))
+                    Spacer(Modifier.height(8.dp))
                     Text(
-                        stringResource(R.string.studio_rendering_keep_open),
-                        color = MaterialTheme.appColors.textPrimary.copy(alpha = 0.55f),
-                        textAlign = TextAlign.Center,
-                        modifier = Modifier.width(280.dp)
+                        stringResource(R.string.studio_export_status),
+                        color = Color.White,
+                        fontSize = 16.sp
                     )
-                    Spacer(Modifier.height(18.dp))
-                    TextButton(onClick = { showCancelConfirm = true }) {
-                        Text(stringResource(R.string.studio_rendering_cancel))
-                    }
+                    Spacer(Modifier.height(28.dp))
+                    ExportThumbnail(renderThumbnail, renderProgress.coerceIn(0f, 1f))
+                    Spacer(Modifier.height(24.dp))
+                    Text(
+                        stringResource(R.string.studio_export_stay),
+                        color = Color.White.copy(alpha = 0.6f),
+                        fontSize = 14.sp
+                    )
                 }
             }
           }
@@ -1903,6 +1944,50 @@ private fun RecordingPill(
             contentDescription = stringResource(R.string.studio_stop),
             tint = Color.White,
             modifier = Modifier.size(20.dp)
+        )
+    }
+}
+
+/**
+ * Export-progress preview: the latest rendered frame with a left-to-right reveal.
+ * The finished portion (`progress`) shows bright; the rest is veiled, so the
+ * thumbnail itself doubles as a progress bar. A null frame just shows the veil.
+ */
+@Composable
+private fun ExportThumbnail(bmp: android.graphics.Bitmap?, progress: Float) {
+    val aspect = if (bmp != null && bmp.height > 0) {
+        bmp.width.toFloat() / bmp.height
+    } else 9f / 16f
+    Box(
+        Modifier
+            .height(280.dp)
+            .aspectRatio(aspect)
+            .clip(RoundedCornerShape(14.dp))
+            .background(Color(0xFF1A1A1A))
+            .border(2.dp, Color.White, RoundedCornerShape(14.dp))
+    ) {
+        if (bmp != null) {
+            Image(
+                bitmap = bmp.asImageBitmap(),
+                contentDescription = null,
+                contentScale = ContentScale.Crop,
+                modifier = Modifier.fillMaxSize()
+            )
+        }
+        Box(
+            Modifier
+                .fillMaxSize()
+                .drawWithContent {
+                    drawContent()
+                    val revealX = size.width * progress
+                    if (revealX < size.width) {
+                        drawRect(
+                            color = Color.Black.copy(alpha = 0.5f),
+                            topLeft = Offset(revealX, 0f),
+                            size = Size(size.width - revealX, size.height)
+                        )
+                    }
+                }
         )
     }
 }

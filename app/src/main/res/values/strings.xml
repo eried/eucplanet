@@ -1126,6 +1126,9 @@
     <!-- Studio: render progress overlay -->
     <string name="studio_rendering">Rendering</string>
     <string name="studio_rendering_cancel">Cancel</string>
+    <string name="studio_export_title">File Export</string>
+    <string name="studio_export_status">Exporting file…</string>
+    <string name="studio_export_stay">Stay on current screen</string>
     <string name="studio_dlg_cancel_render_title">Cancel rendering?</string>
     <string name="studio_dlg_cancel_render_body">The replay clip will not be saved.</string>
     <string name="studio_dlg_cancel_render_confirm">Cancel render</string>
