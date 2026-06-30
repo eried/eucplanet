@@ -20,22 +20,26 @@ package com.eried.eucplanet.hud.protocol
 object LinkWatchdog {
 
     /**
-     * Classify the link from one tick's worth of signals.
+     * Classify the link from one tick's worth of signals, judged ONLY from the
+     * HUD's own radio state.
      *
-     * Precedence is the whole point: [LinkVerdict.OFF_AIR] dominates
-     * [LinkVerdict.SERVER_WEDGED], because restarting the loopback-bound Ktor
-     * server is useless when the radio can't be reached over the air -- we must
-     * reassociate first.
+     * We deliberately do NOT probe the phone. The phone DIALS INTO the HUD (the
+     * HUD is the server), so the HUD never needs to reach the phone; and a phone
+     * in a pocket (screen off, power-save) routinely fails a reachability probe
+     * while still able to dial in. An earlier "phone unreachable -> off-air"
+     * rule made the HUD reboot its Wi-Fi driver in a loop during the first
+     * connection. So if the HUD is associated and holds an IP, it is reachable:
+     * sit quietly and let the phone connect.
+     *
+     * Precedence: [LinkVerdict.OFF_AIR] dominates [LinkVerdict.SERVER_WEDGED] --
+     * restarting the loopback-bound Ktor server is useless when the radio itself
+     * is off the air; reassociate first.
      */
     fun assess(h: LinkHealth): LinkVerdict {
         val hasIp = !h.localIp.isNullOrBlank()
-        // No IP (lost DHCP lease) or no association == we cannot be reached over
-        // the radio. A server restart would not help; reassociate.
+        // No IP (lost DHCP lease) or no association == we are off the hotspot.
+        // A server restart would not help; reassociate.
         if (!hasIp || !h.associated) return LinkVerdict.OFF_AIR
-        // We had a real link to this phone and can no longer reach it: off-air
-        // in practice even if the association flag still reads connected. Only
-        // consulted once we actually know a peer (avoids a first-boot storm).
-        if (h.peerKnown && !h.peerReachable) return LinkVerdict.OFF_AIR
         // Radio is fine. NOW the loopback server-liveness matters: a wedged
         // listener with a healthy radio is the one case a server restart fixes.
         if (!h.serverAlive) return LinkVerdict.SERVER_WEDGED
@@ -68,24 +72,21 @@ object LinkWatchdog {
 /**
  * One tick's worth of HUD link-health signals, gathered by the HUD before
  * calling [LinkWatchdog.assess]. Plain values only so the verdict is testable.
+ *
+ * Intentionally minimal: only the HUD's OWN radio state. No phone-reachability
+ * probe (the phone dials in; probing it false-positives when the phone is
+ * asleep -- see [LinkWatchdog.assess]).
  */
 data class LinkHealth(
     /** The in-process Ktor server answered a loopback TCP probe. True whenever
      *  the server object is alive regardless of the radio, so it is a WEAK
      *  signal on its own -- only meaningful once the radio is confirmed up. */
     val serverAlive: Boolean,
-    /** `wlan0` reports a completed association: SupplicantState COMPLETED, a
-     *  non-null BSSID, and a non-zero DHCP address. */
+    /** `wlan0` reports a completed association: SupplicantState COMPLETED plus a
+     *  non-zero DHCP address. */
     val associated: Boolean,
     /** Current non-loopback IPv4, or null/blank when the DHCP lease is gone. */
     val localIp: String?,
-    /** We have paired with a phone this session, so [peerReachable] is
-     *  meaningful. Before the first pair it is false and the peer probe is
-     *  ignored. */
-    val peerKnown: Boolean,
-    /** An on-network reachability probe to the last-seen phone succeeded. Only
-     *  consulted when [peerKnown]. */
-    val peerReachable: Boolean,
 )
 
 /** What [LinkWatchdog.assess] decided about the link this tick. */

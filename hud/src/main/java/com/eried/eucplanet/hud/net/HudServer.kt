@@ -39,7 +39,6 @@ import kotlinx.coroutines.sync.withLock
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import java.net.Inet4Address
-import java.net.InetAddress
 import java.net.InetSocketAddress
 import java.net.NetworkInterface
 import java.net.Socket
@@ -94,9 +93,6 @@ class HudServer(private val context: Context) {
          *  combined with the front-loaded toggle this brings a severe drop back
          *  in ~8-12 s. */
         private const val RECOVERY_INTERVAL_MS: Long = 1_500L
-        /** Timeout for the "can I still reach the phone I was talking to"
-         *  reachability probe. Short: the hotspot link is sub-10 ms when up. */
-        private const val PEER_PROBE_TIMEOUT_MS: Int = 1_200
         /** Consecutive off-air ticks tolerated before the recovery ladder
          *  starts. 0 = act on the first confirmed off-air tick: the first rung
          *  ([RecoveryStep.RESTART_SOCKETS]) is harmless and the radio-touching
@@ -205,6 +201,12 @@ class HudServer(private val context: Context) {
      *  on the stats card so a "had to reboot" report can instead read "recovered
      *  N times on its own". */
     @Volatile var offAirRecoveries: Int = 0; private set
+    /** Set once the HUD has been HEALTHY with a usable IP at least once this
+     *  power cycle. The recovery ladder is gated on this so we never toggle /
+     *  reassociate during the very first boot association (which would churn the
+     *  radio and block the first connection); we only recover from a LATER drop
+     *  out of a working state. */
+    @Volatile private var everHealthyWithIp: Boolean = false
     /** Monotonic connection counter so a stale, slowly-timing-out WebSocket
      *  handler doesn't clobber the status/peer of a newer connection that
      *  arrived during a fast reconnect. */
@@ -501,15 +503,19 @@ class HudServer(private val context: Context) {
                 LinkVerdict.HEALTHY else LinkWatchdog.assess(health)
             HudDiag.log("watchdog",
                 "verdict=$verdict ip=${health.localIp ?: "-"} assoc=${health.associated} " +
-                    "peerKnown=${health.peerKnown} peerReach=${health.peerReachable} " +
                     "server=${health.serverAlive} offAirStreak=$offAirStreak " +
-                    "status=${_status.value}")
+                    "everHealthy=$everHealthyWithIp status=${_status.value}")
 
             when (verdict) {
                 LinkVerdict.HEALTHY -> {
                     watchdogFailStreak = 0
                     if (offAirSinceMs != 0L) finishOffAirEpisode()
                     offAirStreak = 0
+                    // We've been on the air with a usable IP at least once this
+                    // power cycle -> a LATER off-air is a real drop worth
+                    // recovering. Until this is set we leave initial association
+                    // to the OS (see the OFF_AIR branch).
+                    everHealthyWithIp = true
                     refreshIpAndMdns()
                 }
 
@@ -536,45 +542,50 @@ class HudServer(private val context: Context) {
 
                 LinkVerdict.OFF_AIR -> {
                     watchdogFailStreak = 0
-                    if (offAirSinceMs == 0L) beginOffAirEpisode(health)
-                    offAirStreak++
-                    if (offAirStreak <= OFF_AIR_GRACE_TICKS) {
+                    if (!everHealthyWithIp) {
+                        // First-connection / boot association: the OS supplicant
+                        // is still doing the initial join (or the rider hasn't
+                        // enabled the hotspot yet). Do NOT toggle/reassociate here
+                        // -- that churns the radio and BLOCKS the first connection
+                        // (a tester saw the HUD reboot its WiFi over and over on
+                        // boot until the phone woke). Just wait for the OS.
+                        offAirStreak = 0
                         HudDiag.log("watchdog",
-                            "off-air suspected (streak=$offAirStreak); one grace tick before acting")
+                            "off-air before first healthy link; leaving initial " +
+                                "association to the OS (no recovery yet)")
                     } else {
-                        val attempt = offAirStreak - OFF_AIR_GRACE_TICKS - 1
-                        val step = LinkWatchdog.recoveryStepFor(attempt)
-                        HudDiag.log("recovery",
-                            "off-air ${airGapSeconds()}s, attempt #$attempt -> $step")
-                        executeRecovery(step)
+                        if (offAirSinceMs == 0L) beginOffAirEpisode(health)
+                        offAirStreak++
+                        if (offAirStreak <= OFF_AIR_GRACE_TICKS) {
+                            HudDiag.log("watchdog",
+                                "off-air suspected (streak=$offAirStreak); grace before acting")
+                        } else {
+                            val attempt = offAirStreak - OFF_AIR_GRACE_TICKS - 1
+                            val step = LinkWatchdog.recoveryStepFor(attempt)
+                            HudDiag.log("recovery",
+                                "off-air ${airGapSeconds()}s, attempt #$attempt -> $step")
+                            executeRecovery(step)
+                        }
                     }
                 }
             }
         }
     }
 
-    /** Gather one tick of link-health signals for [LinkWatchdog.assess]. While
-     *  a phone is actively connected the live WebSocket is proof of a good
-     *  radio, so we skip the (blocking) reachability probe entirely. */
+    /** Gather one tick of link-health signals for [LinkWatchdog.assess] -- only
+     *  the HUD's OWN radio state. While a phone is actively connected the live
+     *  WebSocket is proof of a good radio. We never probe the phone: it dials
+     *  IN, so we don't need to reach it, and a sleeping phone fails a probe
+     *  while still able to connect (which used to trigger a recovery loop). */
     private fun gatherHealth(): LinkHealth {
         val connectedNow = _status.value == Status.CONNECTED
         val serverAlive = tcpProbe("127.0.0.1", PORT)
         val localIp = pickLocalIp()
         val associated = if (connectedNow) true else readAssociated()
-        val phoneIp = phoneFinder.lastSeenPhoneIp
-        val peerKnown = connectedNow || phoneIp.isNotBlank()
-        val peerReachable = when {
-            connectedNow -> true                                   // live WS = proof
-            phoneIp.isBlank() -> false                             // never paired yet
-            !associated || localIp.isNullOrBlank() -> false        // no radio to probe over
-            else -> isPeerReachable(phoneIp)
-        }
         return LinkHealth(
             serverAlive = serverAlive,
             associated = associated,
             localIp = localIp,
-            peerKnown = peerKnown,
-            peerReachable = peerReachable,
         )
     }
 
@@ -588,12 +599,6 @@ class HudServer(private val context: Context) {
         val wifi = wifiManager() ?: return false
         val info = wifi.connectionInfo ?: return false
         info.supplicantState == SupplicantState.COMPLETED && info.ipAddress != 0
-    }.getOrDefault(false)
-
-    /** On-network reachability probe to the last-seen phone. Blocks up to
-     *  [PEER_PROBE_TIMEOUT_MS]; only called from the IO-dispatched watchdog. */
-    private fun isPeerReachable(ip: String): Boolean = runCatching {
-        InetAddress.getByName(ip).isReachable(PEER_PROBE_TIMEOUT_MS)
     }.getOrDefault(false)
 
     private fun wifiManager(): WifiManager? =
@@ -623,7 +628,7 @@ class HudServer(private val context: Context) {
         rcRestart = 0; rcReassoc = 0; rcToggle = 0
         HudDiag.log("recovery",
             "OFF-AIR detected (ip=${h.localIp ?: "-"} assoc=${h.associated} " +
-                "peerKnown=${h.peerKnown} peerReach=${h.peerReachable}); beginning self-heal")
+                "server=${h.serverAlive}); beginning self-heal")
     }
 
     private fun airGapSeconds(): String {

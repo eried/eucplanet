@@ -8,11 +8,19 @@ import org.junit.Test
  * TCP-probed 127.0.0.1, which stays green even when wlan0 has dropped off the
  * phone's hotspot -- so it never noticed an off-air radio and the rider had to
  * reboot the Motoeye. [LinkWatchdog.assess] is the pure replacement: given the
- * radio/association/peer signals it says whether we are HEALTHY, merely
- * SERVER_WEDGED (radio fine, listener dead), or OFF_AIR (must reassociate).
+ * radio signals it says whether we are HEALTHY, merely SERVER_WEDGED (radio
+ * fine, listener dead), or OFF_AIR (must reassociate).
  *
- * Kept pure (plain values, no Android radio) so the verdict logic is provable
- * here; the HUD only has to gather the signals and act on the verdict.
+ * The verdict is judged ONLY from the HUD's OWN radio state (association + IP).
+ * We deliberately do NOT probe the phone: the phone DIALS INTO the HUD (the HUD
+ * is the server), so the HUD never needs to reach the phone -- and a phone in a
+ * pocket (screen off, power-save) routinely fails to answer a probe while still
+ * perfectly able to dial in. Treating "phone unreachable" as off-air made the
+ * HUD reboot its Wi-Fi driver in a loop during the first connection. So: if the
+ * HUD is associated and has an IP, it is reachable -- sit quietly and let the
+ * phone connect.
+ *
+ * Kept pure (plain values, no Android radio) so the verdict logic is provable.
  */
 class LinkWatchdogTest {
 
@@ -20,39 +28,28 @@ class LinkWatchdogTest {
         serverAlive: Boolean = true,
         associated: Boolean = true,
         localIp: String? = "10.15.125.125",
-        peerKnown: Boolean = true,
-        peerReachable: Boolean = true,
-    ) = LinkHealth(serverAlive, associated, localIp, peerKnown, peerReachable)
+    ) = LinkHealth(serverAlive, associated, localIp)
 
-    @Test fun all_signals_good_is_HEALTHY() {
+    @Test fun associated_with_ip_is_HEALTHY() {
         assertEquals(LinkVerdict.HEALTHY, LinkWatchdog.assess(health()))
     }
 
-    @Test fun lost_dhcp_lease_is_OFF_AIR_even_if_associated_flag_true() {
+    @Test fun associated_with_ip_is_HEALTHY_even_if_phone_is_asleep() {
+        // The whole point of the regression fix: an associated HUD with a valid
+        // IP is reachable. Whether the phone (which dials IN) currently answers
+        // is irrelevant and must NEVER drive recovery. No "peer" concept exists.
+        assertEquals(LinkVerdict.HEALTHY, LinkWatchdog.assess(health()))
+    }
+
+    @Test fun lost_dhcp_lease_is_OFF_AIR() {
         // The 07:18:52 "beacon: no broadcast received" was the HUD losing its
-        // lease: pickLocalIp() goes valid -> null. The old code dropped this
-        // transition on the floor; here a blank IP is unambiguously off-air.
+        // lease: pickLocalIp() goes valid -> null. A blank IP is off-air.
         assertEquals(LinkVerdict.OFF_AIR, LinkWatchdog.assess(health(localIp = null)))
         assertEquals(LinkVerdict.OFF_AIR, LinkWatchdog.assess(health(localIp = "   ")))
     }
 
     @Test fun not_associated_is_OFF_AIR() {
         assertEquals(LinkVerdict.OFF_AIR, LinkWatchdog.assess(health(associated = false)))
-    }
-
-    @Test fun known_peer_unreachable_is_OFF_AIR() {
-        // We had a healthy link to this phone; if we can no longer reach it,
-        // we are effectively off-air regardless of what loopback says.
-        assertEquals(LinkVerdict.OFF_AIR, LinkWatchdog.assess(health(peerReachable = false)))
-    }
-
-    @Test fun unknown_peer_is_not_treated_as_off_air() {
-        // Before we have ever paired, an unreachable probe is meaningless and
-        // must not false-positive into a reassociate storm.
-        assertEquals(
-            LinkVerdict.HEALTHY,
-            LinkWatchdog.assess(health(peerKnown = false, peerReachable = false))
-        )
     }
 
     @Test fun radio_fine_but_server_dead_is_SERVER_WEDGED() {
