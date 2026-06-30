@@ -811,7 +811,12 @@ private fun IpPortMatrix(
     val cornerR = (side * 0.014f).dp
     val borderW = (side * 0.0045f).coerceAtLeast(1f).dp
     val innerHPad = (side * 0.035f).dp
-    val labelColW = (side * 0.18f).dp
+    // Fixed label column shared by both rows so the value cells line up. It
+    // MUST fit the WIDEST label ("PORT", 4 chars) at [labelFont] -- the old
+    // 0.18×side fit "IP" but clipped the "T" off "PORT". 0.26×side (~2.7
+    // label-font-widths) fits "PORT" with headroom; "IP" just gets more
+    // trailing space, which is fine since the cells still align.
+    val labelColW = (side * 0.26f).dp
     // Cells sized for a typical IPv4 address ("192.168.111.111", 15 chars
     // monospace + horizontal padding). Scaled in proportion to cellFont:
     // bumping the font above without widening the cell would clip the
