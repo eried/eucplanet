@@ -84,7 +84,10 @@ data class ReplayExportPrefs(
      */
     val forceOpaque: Boolean = true,
     /** Output size as a percentage of the studio's native resolution (50/75/100). */
-    val scale: Int = 100
+    val scale: Int = 100,
+    /** MOV codec: false = ProRes 4444, true = QuickTime Animation (qtrle). qtrle
+     *  is bigger but its ARGB alpha is read by editors that reject ProRes alpha. */
+    val movQtrle: Boolean = false
 )
 
 /** Outcome of a "save preset" attempt, surfaced to the UI as a snackbar. */
@@ -247,7 +250,8 @@ class OverlayStudioViewModel @Inject constructor(
             photoFormat = ReplayPhotoFormat.fromKey(initialSettings.studioReplayPhotoFormat),
             videoFormat = ReplayVideoFormat.fromKey(initialSettings.studioReplayVideoFormat),
             chromaColor = initialSettings.studioReplayChromaColor,
-            forceOpaque = initialSettings.studioReplayForceOpaque
+            forceOpaque = initialSettings.studioReplayForceOpaque,
+            movQtrle = initialSettings.studioReplayMovQtrle
         )
     )
     val replayExportPrefs: StateFlow<ReplayExportPrefs> = _replayExportPrefs.asStateFlow()
@@ -276,6 +280,11 @@ class OverlayStudioViewModel @Inject constructor(
         _replayExportPrefs.value = _replayExportPrefs.value.copy(scale = scale)
     }
 
+    fun setReplayMovQtrle(useQtrle: Boolean) {
+        _replayExportPrefs.value = _replayExportPrefs.value.copy(movQtrle = useQtrle)
+        persistReplayExportPrefs()
+    }
+
     private fun persistReplayExportPrefs() {
         val prefs = _replayExportPrefs.value
         viewModelScope.launch {
@@ -285,7 +294,8 @@ class OverlayStudioViewModel @Inject constructor(
                     studioReplayPhotoFormat = prefs.photoFormat.name,
                     studioReplayVideoFormat = prefs.videoFormat.name,
                     studioReplayChromaColor = prefs.chromaColor,
-                    studioReplayForceOpaque = prefs.forceOpaque
+                    studioReplayForceOpaque = prefs.forceOpaque,
+                    studioReplayMovQtrle = prefs.movQtrle
                 )
             )
         }

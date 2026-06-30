@@ -165,6 +165,7 @@ fun StudioReplayDialog(
     onChromaColor: (Long) -> Unit,
     onForceOpaque: (Boolean) -> Unit,
     onScale: (Int) -> Unit,
+    onMovQtrle: (Boolean) -> Unit,
     onClose: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -253,7 +254,8 @@ fun StudioReplayDialog(
                 onVideoFormat = onVideoFormat,
                 onChromaColor = onChromaColor,
                 onForceOpaque = onForceOpaque,
-                onScale = onScale
+                onScale = onScale,
+                onMovQtrle = onMovQtrle
             )
             else -> {
             // A trip is replayable once it parsed to a non-zero timeline.
@@ -471,17 +473,21 @@ private fun TrimTimeDialog(
             }
         },
         confirmButton = {
-            TextButton(
-                onClick = { if (valid) onConfirm(startParsed!!, endParsed!!) },
-                enabled = valid
-            ) { Text(stringResource(R.string.action_apply)) }
-        },
-        dismissButton = {
-            Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-                TextButton(onClick = {
-                    start.value = tfv("0:00"); end.value = tfv(fmt(durationMs)); dur.value = tfv(fmt(durationMs))
-                }) { Text(stringResource(R.string.studio_replay_trim_reset)) }
+            // Reset on the left (clears the trim to the full clip AND commits),
+            // Cancel + Apply on the right.
+            Row(
+                Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                TextButton(onClick = { onConfirm(0L, durationMs) }) {
+                    Text(stringResource(R.string.studio_replay_trim_reset))
+                }
+                Spacer(Modifier.weight(1f))
                 TextButton(onClick = onDismiss) { Text(stringResource(R.string.action_cancel)) }
+                TextButton(
+                    onClick = { if (valid) onConfirm(startParsed!!, endParsed!!) },
+                    enabled = valid
+                ) { Text(stringResource(R.string.action_apply)) }
             }
         }
     )
@@ -543,7 +549,8 @@ private fun ExportFormatChooser(
     onVideoFormat: (ReplayVideoFormat) -> Unit,
     onChromaColor: (Long) -> Unit,
     onForceOpaque: (Boolean) -> Unit,
-    onScale: (Int) -> Unit
+    onScale: (Int) -> Unit,
+    onMovQtrle: (Boolean) -> Unit
 ) {
     // In portrait (panel upright, rotation 0/180) there's far more vertical room
     // than in landscape, so let the chooser grow instead of cramming everything
@@ -608,6 +615,27 @@ private fun ExportFormatChooser(
                     chromaDot = if (fmt.hasAlpha) null else prefs.chromaColor,
                     modifier = Modifier.weight(1f),
                     onClick = { onVideoFormat(fmt) }
+                )
+            }
+        }
+
+        // MOV alpha codec: ProRes 4444 (compact, pro) vs QuickTime Animation
+        // (bigger, but its plain ARGB alpha is read by editors that reject
+        // ProRes alpha). Only relevant when MOV is the chosen video format.
+        if (prefs.videoFormat == ReplayVideoFormat.MOV) {
+            Spacer(Modifier.height(8.dp))
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                FormatChip(
+                    label = "ProRes 4444",
+                    selected = !prefs.movQtrle,
+                    modifier = Modifier.weight(1f),
+                    onClick = { onMovQtrle(false) }
+                )
+                FormatChip(
+                    label = "QuickTime RLE",
+                    selected = prefs.movQtrle,
+                    modifier = Modifier.weight(1f),
+                    onClick = { onMovQtrle(true) }
                 )
             }
         }

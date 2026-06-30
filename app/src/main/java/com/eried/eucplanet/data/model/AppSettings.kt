@@ -645,6 +645,9 @@ data class AppSettings(
      * the chroma fill and look wrong. Default on.
      */
     val studioReplayForceOpaque: Boolean = true,
+    /** MOV alpha codec: false = ProRes 4444, true = QuickTime Animation (qtrle,
+     *  bigger but maximally editor-compatible alpha). */
+    val studioReplayMovQtrle: Boolean = false,
 
     // Dashboard layout (customizable home screen).
     //

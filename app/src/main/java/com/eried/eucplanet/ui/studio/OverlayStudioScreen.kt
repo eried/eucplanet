@@ -12,6 +12,8 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
+import androidx.compose.animation.Crossfade
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.detectTapGestures
@@ -802,7 +804,9 @@ fun OverlayStudioScreen(
                         if (!cancelled && framesOk) {
                             val fps = (frameCount * 1000.0 / outputMs).coerceIn(1.0, 60.0)
                             val uri = withContext(Dispatchers.IO) {
-                                StudioProResEncoder.encodeAndPublish(context, tmp, frameCount, fps)
+                                StudioProResEncoder.encodeAndPublish(
+                                    context, tmp, frameCount, fps, useQtrle = exportPrefs.movQtrle
+                                )
                             }
                             if (uri != null) { resultUri = uri; true } else false
                         } else false
@@ -1356,6 +1360,7 @@ fun OverlayStudioScreen(
                     onChromaColor = { viewModel.setReplayChromaColor(it) },
                     onForceOpaque = { viewModel.setReplayForceOpaque(it) },
                     onScale = { viewModel.setReplayScale(it) },
+                    onMovQtrle = { viewModel.setReplayMovQtrle(it) },
                     onClose = {
                         studioMode = StudioMode.LIVE
                         replayPlaying = false
@@ -1955,40 +1960,43 @@ private fun RecordingPill(
  */
 @Composable
 private fun ExportThumbnail(bmp: android.graphics.Bitmap?, progress: Float) {
-    val aspect = if (bmp != null && bmp.height > 0) {
-        bmp.width.toFloat() / bmp.height
-    } else 9f / 16f
-    Box(
-        Modifier
-            .height(280.dp)
-            .aspectRatio(aspect)
-            .clip(RoundedCornerShape(14.dp))
-            .background(Color(0xFF1A1A1A))
-            .border(2.dp, Color.White, RoundedCornerShape(14.dp))
-    ) {
-        if (bmp != null) {
-            Image(
-                bitmap = bmp.asImageBitmap(),
-                contentDescription = null,
-                contentScale = ContentScale.Crop,
-                modifier = Modifier.fillMaxSize()
-            )
-        }
-        Box(
-            Modifier
-                .fillMaxSize()
-                .drawWithContent {
-                    drawContent()
-                    val revealX = size.width * progress
-                    if (revealX < size.width) {
-                        drawRect(
-                            color = Color.Black.copy(alpha = 0.5f),
-                            topLeft = Offset(revealX, 0f),
-                            size = Size(size.width - revealX, size.height)
-                        )
-                    }
+    // Fixed height reserves the layout slot so nothing jumps when the thumbnail
+    // first appears. Nothing is drawn until a real frame exists (no empty box,
+    // no resize), and frames swap via crossfade so it never flashes to black.
+    Box(Modifier.height(280.dp), contentAlignment = Alignment.Center) {
+        Crossfade(targetState = bmp, animationSpec = tween(180), label = "exportThumb") { frame ->
+            if (frame != null) {
+                Box(
+                    Modifier
+                        .height(280.dp)
+                        .aspectRatio(frame.width.toFloat() / frame.height.coerceAtLeast(1))
+                        .clip(RoundedCornerShape(14.dp))
+                        .border(2.dp, Color.White, RoundedCornerShape(14.dp))
+                ) {
+                    Image(
+                        bitmap = frame.asImageBitmap(),
+                        contentDescription = null,
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier.fillMaxSize()
+                    )
+                    Box(
+                        Modifier
+                            .fillMaxSize()
+                            .drawWithContent {
+                                drawContent()
+                                val revealX = size.width * progress
+                                if (revealX < size.width) {
+                                    drawRect(
+                                        color = Color.Black.copy(alpha = 0.5f),
+                                        topLeft = Offset(revealX, 0f),
+                                        size = Size(size.width - revealX, size.height)
+                                    )
+                                }
+                            }
+                    )
                 }
-        )
+            }
+        }
     }
 }
 
