@@ -139,6 +139,40 @@ object AppModule {
         }
     }
 
+    private val MIGRATION_48_49 = object : Migration(48, 49) {
+        override fun migrate(db: SupportSQLiteDatabase) {
+            db.execSQL("ALTER TABLE alarm_rules ADD COLUMN beepModulation INTEGER NOT NULL DEFAULT 0")
+        }
+    }
+
+    private val MIGRATION_49_50 = object : Migration(49, 50) {
+        override fun migrate(db: SupportSQLiteDatabase) {
+            db.execSQL("ALTER TABLE alarm_rules ADD COLUMN beepGapMs INTEGER NOT NULL DEFAULT 100")
+            db.execSQL("ALTER TABLE alarm_rules ADD COLUMN beepVolume INTEGER NOT NULL DEFAULT 100")
+            db.execSQL("ALTER TABLE alarm_rules ADD COLUMN beepVolumeModulation INTEGER NOT NULL DEFAULT 0")
+        }
+    }
+
+    private val MIGRATION_50_51 = object : Migration(50, 51) {
+        override fun migrate(db: SupportSQLiteDatabase) {
+            db.execSQL("ALTER TABLE alarm_rules ADD COLUMN beepModulationReachPct INTEGER NOT NULL DEFAULT 50")
+        }
+    }
+
+    private val MIGRATION_51_52 = object : Migration(51, 52) {
+        override fun migrate(db: SupportSQLiteDatabase) {
+            db.execSQL("ALTER TABLE alarm_rules ADD COLUMN beepVolumeReachPct INTEGER NOT NULL DEFAULT 50")
+        }
+    }
+
+    // beepModulation / beepVolumeModulation became a base*factor multiplier (x100,
+    // 100 = 1.0x = unchanged). Reset any old-semantics values to 1.0x.
+    private val MIGRATION_52_53 = object : Migration(52, 53) {
+        override fun migrate(db: SupportSQLiteDatabase) {
+            db.execSQL("UPDATE alarm_rules SET beepModulation = 100, beepVolumeModulation = 100")
+        }
+    }
+
     /**
      * Build the Room database with the v44->v45 migration. If the open still
      * fails (e.g. a future identity-hash mismatch from a forgotten migration),
@@ -163,7 +197,7 @@ object AppModule {
 
     private fun buildDb(context: Context): AppDatabase =
         Room.databaseBuilder(context, AppDatabase::class.java, DB_NAME)
-            .addMigrations(MIGRATION_44_45, MIGRATION_45_46, MIGRATION_46_47, MIGRATION_47_48)
+            .addMigrations(MIGRATION_44_45, MIGRATION_45_46, MIGRATION_46_47, MIGRATION_47_48, MIGRATION_48_49, MIGRATION_49_50, MIGRATION_50_51, MIGRATION_51_52, MIGRATION_52_53)
             .build()
 
     @Provides

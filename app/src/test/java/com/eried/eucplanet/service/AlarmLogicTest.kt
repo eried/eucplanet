@@ -233,4 +233,108 @@ class AlarmLogicTest {
         assertTrue(AlarmLogic.shouldFire(matched = true, wasActive = true, msSinceLastFire = cd, cooldownMs = cd, repeatWhileActive = true))
         assertFalse(AlarmLogic.shouldFire(matched = true, wasActive = true, msSinceLastFire = cd - 1, cooldownMs = cd, repeatWhileActive = true))
     }
+
+    // --- metric reach span: modulation reaches its factor at the metric's far
+    // limit (so it never simulates an impossible value like PWM > 100).
+
+    @Test
+    fun reachSpanRespectsMetricLimits() {
+        assertEquals(20f, AlarmLogic.metricReachSpan("PWM", GE, 80f))         // 100 - 80
+        assertEquals(120f, AlarmLogic.metricReachSpan("SPEED", GE, 30f))      // 150 - 30
+        assertEquals(20f, AlarmLogic.metricReachSpan("BATTERY", LT, 20f))     // 20 - 0
+        assertEquals(50f, AlarmLogic.metricReachSpan("VOLTAGE", LT, 60f))     // 60 - 10 (min)
+        assertEquals(70f, AlarmLogic.metricReachSpan("TEMPERATURE", GE, 20f)) // 90 - 20
+    }
+
+    @Test
+    fun metricRangesMatchSpec() {
+        assertEquals(0f, AlarmLogic.metricReadMin("PWM"));          assertEquals(100f, AlarmLogic.metricReadMax("PWM"))
+        assertEquals(0f, AlarmLogic.metricReadMin("SPEED"));        assertEquals(150f, AlarmLogic.metricReadMax("SPEED"))
+        assertEquals(-10f, AlarmLogic.metricReadMin("TEMPERATURE")); assertEquals(90f, AlarmLogic.metricReadMax("TEMPERATURE"))
+        assertEquals(10f, AlarmLogic.metricReadMin("VOLTAGE"));     assertEquals(480f, AlarmLogic.metricReadMax("VOLTAGE"))
+        assertEquals(0f, AlarmLogic.metricReadMin("CURRENT"));      assertEquals(200f, AlarmLogic.metricReadMax("CURRENT"))
+        assertEquals(0f, AlarmLogic.metricReadMin("BATTERY"));      assertEquals(100f, AlarmLogic.metricReadMax("BATTERY"))
+    }
+
+    // --- beep PITCH modulation: factor x100 (100 = 1.0x = unchanged). Ramps the
+    // pitch toward base*factor, reaching the factor at the metric's far limit.
+    // >1.0x ramps up, <1.0x reduces. Clamped to [80, 20000] Hz.
+
+    @Test
+    fun pitchUnityIsFlat() {
+        assertEquals(1000, AlarmLogic.modulatedBeepHz(1000, value = 90f, comparator = GE, threshold = 30f, factorX100 = 100, metric = "SPEED"))
+        assertEquals(1000, AlarmLogic.modulatedBeepHz(1000, value = 30f, comparator = GE, threshold = 30f, factorX100 = 100, metric = "SPEED"))
+    }
+
+    @Test
+    fun pitchBaseAtThreshold() {
+        // 2x factor but at the threshold (frac 0) -> still base.
+        assertEquals(1000, AlarmLogic.modulatedBeepHz(1000, value = 80f, comparator = GE, threshold = 80f, factorX100 = 200, metric = "PWM"))
+    }
+
+    @Test
+    fun pitchReachesFactorAtMetricMax() {
+        // PWM threshold 80, max 100 -> span 20; the 2x factor is hit at PWM 100, half at 90.
+        assertEquals(2000, AlarmLogic.modulatedBeepHz(1000, value = 100f, comparator = GE, threshold = 80f, factorX100 = 200, metric = "PWM"))
+        assertEquals(1500, AlarmLogic.modulatedBeepHz(1000, value = 90f, comparator = GE, threshold = 80f, factorX100 = 200, metric = "PWM"))
+    }
+
+    @Test
+    fun pitchSpeedSpansToMax() {
+        // SPEED threshold 30, max 150 -> span 120; value 90 is halfway, 150 is full.
+        assertEquals(1500, AlarmLogic.modulatedBeepHz(1000, value = 90f, comparator = GE, threshold = 30f, factorX100 = 200, metric = "SPEED"))
+        assertEquals(2000, AlarmLogic.modulatedBeepHz(1000, value = 150f, comparator = GE, threshold = 30f, factorX100 = 200, metric = "SPEED"))
+    }
+
+    @Test
+    fun pitchBelowUnityReduces() {
+        // PWM 80, 0.5x ramps DOWN: at PWM 100 -> 500, halfway -> 750.
+        assertEquals(500, AlarmLogic.modulatedBeepHz(1000, value = 100f, comparator = GE, threshold = 80f, factorX100 = 50, metric = "PWM"))
+        assertEquals(750, AlarmLogic.modulatedBeepHz(1000, value = 90f, comparator = GE, threshold = 80f, factorX100 = 50, metric = "PWM"))
+    }
+
+    @Test
+    fun pitchPlateausAndClamps() {
+        assertEquals(2000, AlarmLogic.modulatedBeepHz(1000, value = 200f, comparator = GE, threshold = 30f, factorX100 = 200, metric = "SPEED")) // plateau past max
+        assertEquals(20000, AlarmLogic.modulatedBeepHz(8000, value = 100f, comparator = GE, threshold = 80f, factorX100 = 1000, metric = "PWM")) // 10x clamps to ceiling
+        assertEquals(80, AlarmLogic.modulatedBeepHz(500, value = 100f, comparator = GE, threshold = 80f, factorX100 = 10, metric = "PWM"))       // 0.1x clamps to floor
+    }
+
+    @Test
+    fun pitchReducesForLessThanAsValueFalls() {
+        // battery threshold 20, span 20 (down to 0); 2x at battery 0, midway at 10.
+        assertEquals(1000, AlarmLogic.modulatedBeepHz(1000, value = 20f, comparator = LT, threshold = 20f, factorX100 = 200, metric = "BATTERY"))
+        assertEquals(1500, AlarmLogic.modulatedBeepHz(1000, value = 10f, comparator = LT, threshold = 20f, factorX100 = 200, metric = "BATTERY"))
+        assertEquals(2000, AlarmLogic.modulatedBeepHz(1000, value = 0f, comparator = LT, threshold = 20f, factorX100 = 200, metric = "BATTERY"))
+    }
+
+    // --- beep VOLUME modulation: factor x100 (100 = 1.0x = unchanged).
+
+    @Test
+    fun volumeUnityIsConstant() {
+        assertEquals(90, AlarmLogic.modulatedVolumePct(90, 100, value = 100f, comparator = GE, threshold = 80f, metric = "PWM"))
+    }
+
+    @Test
+    fun volumeBaseAtThreshold() {
+        assertEquals(80, AlarmLogic.modulatedVolumePct(80, 150, value = 80f, comparator = GE, threshold = 80f, metric = "PWM"))
+    }
+
+    @Test
+    fun volumeRampsUpCapped() {
+        // base 80, 1.5x -> 120 at PWM 100, clamped to 100.
+        assertEquals(100, AlarmLogic.modulatedVolumePct(80, 150, value = 100f, comparator = GE, threshold = 80f, metric = "PWM"))
+    }
+
+    @Test
+    fun volumeBelowUnityReduces() {
+        // base 80, 0.5x -> 40 at PWM 100, 60 halfway (PWM 90).
+        assertEquals(40, AlarmLogic.modulatedVolumePct(80, 50, value = 100f, comparator = GE, threshold = 80f, metric = "PWM"))
+        assertEquals(60, AlarmLogic.modulatedVolumePct(80, 50, value = 90f, comparator = GE, threshold = 80f, metric = "PWM"))
+    }
+
+    @Test
+    fun volumeReducesForLessThanAsValueFalls() {
+        assertEquals(40, AlarmLogic.modulatedVolumePct(80, 50, value = 0f, comparator = LT, threshold = 20f, metric = "BATTERY"))
+    }
 }

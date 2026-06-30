@@ -110,6 +110,7 @@ import androidx.compose.material.icons.filled.SkipPrevious
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Extension
 import androidx.compose.material.icons.filled.GraphicEq
+import androidx.compose.material.icons.filled.MoreHoriz
 import androidx.compose.material.icons.filled.Motorcycle
 import androidx.compose.material.icons.filled.Watch
 import androidx.compose.material.icons.outlined.Watch as WatchOutlined
@@ -234,6 +235,11 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.compose.ui.graphics.vector.ImageVector
 import com.eried.eucplanet.BuildConfig
 import com.eried.eucplanet.R
+import com.eried.eucplanet.data.model.ADVANCED_DEFAULTS
+import com.eried.eucplanet.data.model.ADVANCED_SPECS
+import com.eried.eucplanet.data.model.AdvGroup
+import com.eried.eucplanet.data.model.AdvancedSettings
+import com.eried.eucplanet.data.model.AdvancedSpec
 import com.eried.eucplanet.data.sync.SyncChoice
 import com.eried.eucplanet.ui.settings.eucstats.OnlineUploadOnboardingDialog
 import com.eried.eucplanet.ui.settings.eucstats.flagEmoji
@@ -406,6 +412,16 @@ fun SettingsScreen(
 
     val settings = settingsState ?: return
 
+    // A deep-link can target a section the rider tucked into "More". Open More and
+    // the section so the scroll-to-section logic above can bring it into view.
+    androidx.compose.runtime.LaunchedEffect(targetSectionKey, settings.settingsLayout.hidden) {
+        val key = targetSectionKey
+        if (key != null && key in settings.settingsLayout.hidden) {
+            if (!expandedSections.contains(MORE_KEY)) expandedSections.add(MORE_KEY)
+            if (!expandedSections.contains(key)) expandedSections.add(key)
+        }
+    }
+
     ttsSwitchPrompt?.let { lang ->
         // Single source of truth: the same `languageOptions` list the
         // dropdown uses. No parallel strings.xml entries to drift from it.
@@ -455,6 +471,7 @@ fun SettingsScreen(
     val titleAuto = stringResource(R.string.tab_auto)
     val titleIntegration = stringResource(R.string.tab_integration)
     val titleWatch = stringResource(R.string.tab_watch)
+    val titleAdvanced = stringResource(R.string.tab_advanced)
     val titleNavigator = stringResource(R.string.nav_setting_params)
     val titleGpsSensors = stringResource(R.string.section_external_gps)
     val titleDashboard = stringResource(R.string.tab_dashboard)
@@ -608,6 +625,37 @@ fun SettingsScreen(
         stringResource(R.string.watch_show_speed_unit)
     ).joinToString(" ")
 
+    val corpusAdvanced = listOf(
+        titleAdvanced,
+        stringResource(R.string.adv_group_rates),
+        stringResource(R.string.adv_group_nav),
+        stringResource(R.string.adv_group_alarm),
+        stringResource(R.string.adv_group_radar_auto),
+        stringResource(R.string.adv_wheel_poll_rate),
+        stringResource(R.string.adv_phone_gps_interval),
+        stringResource(R.string.adv_hud_report_interval),
+        stringResource(R.string.adv_garmin_report_interval),
+    ).joinToString(" ")
+
+    // Section handles for the reorganize editor (key, title, icon). Advanced is
+    // excluded since it is pinned last and not reorderable. Default order here;
+    // the editor lays the rider's saved order on top.
+    val movableHandles = listOf(
+        SectionHandle("general", titleGeneral, Icons.Default.Tune),
+        SectionHandle("dashboard", titleDashboard, Icons.Default.Dashboard),
+        SectionHandle("display", titleDisplay, Icons.Default.DisplaySettings),
+        SectionHandle("speed", titleSpeed, Icons.Default.Speed),
+        SectionHandle("voice", titleVoice, Icons.Default.RecordVoiceOver),
+        SectionHandle("motor", titleMotor, Icons.Default.Motorcycle),
+        SectionHandle("cloud", titleCloud, Icons.Default.Archive),
+        SectionHandle("alarms", titleAlarms, Icons.Default.NotificationsActive),
+        SectionHandle("auto", titleAuto, Icons.Default.AutoAwesome),
+        SectionHandle("navigator", titleNavigator, Icons.Default.Navigation),
+        SectionHandle("location", titleGpsSensors, Icons.Default.Sensors),
+        SectionHandle("integration", titleIntegration, Icons.Default.Extension),
+        SectionHandle("watch", titleWatch, Icons.Default.Watch),
+    )
+
     val sections: List<SectionDef> = listOf(
         SectionDef("general", titleGeneral, Icons.Default.Tune, corpusGeneral) {
             GeneralTab(settings, viewModel, scrollToBattery) { y ->
@@ -649,6 +697,9 @@ fun SettingsScreen(
         },
         SectionDef("watch", titleWatch, Icons.Default.Watch, corpusWatch) {
             WatchTab(settings, viewModel)
+        },
+        SectionDef("advanced", titleAdvanced, Icons.Default.Build, corpusAdvanced) {
+            AdvancedTab(settings, viewModel, movableHandles)
         }
     )
 
@@ -775,41 +826,76 @@ fun SettingsScreen(
             Spacer(Modifier.height(8.dp))
 
             val query = searchQuery.trim()
-            val visibleSections = sections.filter { sec ->
-                query.isEmpty() || sec.searchCorpus.contains(query, ignoreCase = true)
+            val searching = query.isNotEmpty()
+
+            // Effective arrangement: movable sections in the rider's saved order
+            // (unknown or newly added keys fall to the end), hidden ones bucketed
+            // into "More". Advanced is always pinned last and is never hidden.
+            val advancedSec = sections.first { it.key == "advanced" }
+            val movable = sections.filter { it.key != "advanced" }
+            val savedOrder = settings.settingsLayout.order
+            val orderedMovable = movable.sortedBy {
+                val i = savedOrder.indexOf(it.key); if (i < 0) Int.MAX_VALUE else i
             }
+            val hiddenKeys = settings.settingsLayout.hidden.toSet() - "advanced"
+            val topLevel = orderedMovable.filter { it.key !in hiddenKeys }
+            val moreSecs = orderedMovable.filter { it.key in hiddenKeys }
 
             androidx.compose.runtime.CompositionLocalProvider(LocalSettingsSearchQuery provides query) {
+                @Composable
+                fun SectionCard(sec: SectionDef, indent: Boolean = false) {
+                    // While searching, only render sections whose corpus matches.
+                    if (searching && !sec.searchCorpus.contains(query, ignoreCase = true)) return
+                    val explicitlyExpanded = expandedSections.contains(sec.key)
+                    val isExpanded = explicitlyExpanded || searching
+                    var sectionModifier = if (sec.key == targetSectionKey && !scrollToBattery) {
+                        Modifier.onGloballyPositioned {
+                            if (targetSectionTop == null) targetSectionTop = it.positionInWindow().y
+                        }
+                    } else Modifier
+                    if (indent) sectionModifier = sectionModifier.padding(start = 12.dp)
+                    CollapsibleSection(
+                        modifier = sectionModifier,
+                        title = sec.title,
+                        icon = sec.icon,
+                        expanded = isExpanded,
+                        query = query,
+                        autoExpandedByQuery = !explicitlyExpanded && searching,
+                        onToggle = {
+                            if (explicitlyExpanded) expandedSections.remove(sec.key)
+                            else expandedSections.add(sec.key)
+                        }
+                    ) {
+                        sec.content()
+                    }
+                }
+
                 Column(
                     modifier = Modifier.fillMaxWidth(),
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    visibleSections.forEach { sec ->
-                        val explicitlyExpanded = expandedSections.contains(sec.key)
-                        val isExpanded = explicitlyExpanded || query.isNotEmpty()
-                        val sectionModifier = if (sec.key == targetSectionKey && !scrollToBattery) {
-                            Modifier.onGloballyPositioned {
-                                if (targetSectionTop == null) {
-                                    targetSectionTop = it.positionInWindow().y
+                    if (searching) {
+                        // Flatten so a query finds a section wherever it sits.
+                        (orderedMovable + advancedSec).forEach { SectionCard(it) }
+                    } else {
+                        topLevel.forEach { SectionCard(it) }
+                        if (moreSecs.isNotEmpty()) {
+                            val moreExpanded = expandedSections.contains(MORE_KEY)
+                            CollapsibleSection(
+                                title = stringResource(R.string.tab_more),
+                                icon = Icons.Default.MoreHoriz,
+                                expanded = moreExpanded,
+                                onToggle = {
+                                    if (moreExpanded) expandedSections.remove(MORE_KEY)
+                                    else expandedSections.add(MORE_KEY)
+                                }
+                            ) {
+                                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                                    moreSecs.forEach { SectionCard(it, indent = true) }
                                 }
                             }
-                        } else {
-                            Modifier
                         }
-                        CollapsibleSection(
-                            modifier = sectionModifier,
-                            title = sec.title,
-                            icon = sec.icon,
-                            expanded = isExpanded,
-                            query = query,
-                            autoExpandedByQuery = !explicitlyExpanded && query.isNotEmpty(),
-                            onToggle = {
-                                if (explicitlyExpanded) expandedSections.remove(sec.key)
-                                else expandedSections.add(sec.key)
-                            }
-                        ) {
-                            sec.content()
-                        }
+                        SectionCard(advancedSec)
                     }
                     Spacer(Modifier.height(32.dp))
                 }
@@ -1060,6 +1146,254 @@ private fun GeneralTab(
             stringResource(R.string.flic_show_on_dashboard),
             settings.chargingDashboardIcon,
         ) { viewModel.updateChargingDashboardIcon(it) }
+    }
+}
+
+// --- Advanced Tab ---
+//
+// Its own section at the very bottom of Settings. Power-user timing controls,
+// grouped, each with a half-width stepper and a one-line note on what it
+// affects and the danger of extreme values. Every value is clamped in
+// SettingsRepository.sanitized(), so the steppers can never feed an unsafe
+// number into a delay() or a divide.
+
+/** One Advanced row: compact stepper on the left, description filling the right.
+ *  Shows a "restore default" chip under the stepper when the value differs from
+ *  the spec's default. Range, step, unit, label, format all come from [spec]. */
+@Composable
+private fun AdvRow(spec: AdvancedSpec, advanced: AdvancedSettings, onChange: (Int) -> Unit) {
+    val value = spec.get(advanced)
+    val default = spec.get(ADVANCED_DEFAULTS)
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Column(modifier = Modifier.weight(1.4f)) {
+            NumberUpDown(
+                value = value,
+                onValueChange = onChange,
+                range = spec.range,
+                modifier = Modifier.fillMaxWidth(),
+                step = spec.step,
+                suffix = spec.unit,
+                label = stringResource(spec.label),
+                format = spec.format,
+                parse = spec.parse,
+                allowSign = spec.allowSign,
+                numberAlign = TextAlign.End,
+            )
+            // Always show the default; greyed + non-clickable once already at it.
+            val unit = if (spec.unit.isEmpty()) "" else " ${spec.unit}"
+            RestoreChip(text = "${spec.format(default)}$unit", enabled = value != default) { onChange(default) }
+        }
+        Spacer(Modifier.width(10.dp))
+        HintText(stringResource(spec.desc), modifier = Modifier.weight(1f), small = true)
+    }
+}
+
+/** Always-visible "undo -> <default>" affordance. Active (accent, clickable) when
+ *  the value is off its default; greyed and inert once it matches. */
+@Composable
+private fun RestoreChip(text: String, enabled: Boolean, onClick: () -> Unit) {
+    val color = if (enabled) MaterialTheme.appColors.primary else MaterialTheme.appColors.textDisabled
+    Row(
+        modifier = Modifier
+            .padding(top = 4.dp)
+            .clip(RoundedCornerShape(8.dp))
+            .then(if (enabled) Modifier.clickable(onClick = onClick) else Modifier)
+            .padding(horizontal = 6.dp, vertical = 2.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Icon(
+            Icons.Default.Restore,
+            contentDescription = if (enabled) stringResource(R.string.adv_restore_default) else null,
+            modifier = Modifier.size(15.dp),
+            tint = color,
+        )
+        Spacer(Modifier.width(4.dp))
+        Text(text, fontSize = 12.sp, color = color)
+    }
+}
+
+/** Lightweight handle for the reorganize editor: a section's key, title, icon. */
+private data class SectionHandle(val key: String, val title: String, val icon: ImageVector)
+
+/** Pseudo-key for the synthetic "More" bucket's expand state. */
+private const val MORE_KEY = "__more__"
+
+/** Drag-to-reorder plus show/hide editor for the Settings sections. Drag the
+ *  handle to reorder; switch a section off to tuck it into "More". Advanced is
+ *  pinned last and never appears here. */
+@Composable
+private fun ReorganizeSectionsEditor(
+    handles: List<SectionHandle>,
+    layout: com.eried.eucplanet.data.model.SettingsLayout,
+    onReorder: (List<String>) -> Unit,
+    onSetVisible: (String, Boolean) -> Unit,
+    onReset: () -> Unit,
+) {
+    val ordered = remember(handles, layout.order) {
+        handles.sortedBy { val i = layout.order.indexOf(it.key); if (i < 0) Int.MAX_VALUE else i }
+    }
+    val hidden = layout.hidden.toSet()
+    val modified = layout.order.isNotEmpty() || layout.hidden.isNotEmpty()
+    // Restore default, shown only once the rider has changed the arrangement.
+    if (modified) {
+        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
+            TextButton(onClick = onReset) {
+                Icon(Icons.Default.Restore, contentDescription = null, modifier = Modifier.size(18.dp))
+                Spacer(Modifier.width(6.dp))
+                Text(stringResource(R.string.adv_restore_default))
+            }
+        }
+    }
+    HintText(stringResource(R.string.reorg_hint), small = true)
+    Spacer(Modifier.height(4.dp))
+    ReorderableColumn(
+        list = ordered,
+        onSettle = { from, to ->
+            val keys = ordered.map { it.key }.toMutableList()
+            keys.add(to, keys.removeAt(from))
+            onReorder(keys)
+        },
+        modifier = Modifier.fillMaxWidth(),
+    ) { _, handle, _ ->
+        key(handle.key) {
+            Row(
+                modifier = Modifier.fillMaxWidth().padding(vertical = 2.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Icon(
+                    Icons.Default.DragHandle,
+                    contentDescription = stringResource(R.string.reorg_drag_cd),
+                    tint = MaterialTheme.appColors.textSecondary,
+                    modifier = Modifier.draggableHandle(),
+                )
+                Spacer(Modifier.width(8.dp))
+                Icon(
+                    handle.icon,
+                    contentDescription = null,
+                    tint = MaterialTheme.appColors.primary,
+                    modifier = Modifier.size(20.dp),
+                )
+                Spacer(Modifier.width(10.dp))
+                Text(
+                    handle.title,
+                    modifier = Modifier.weight(1f),
+                    color = MaterialTheme.appColors.textPrimary,
+                )
+                Switch(
+                    checked = handle.key !in hidden,
+                    onCheckedChange = { onSetVisible(handle.key, it) },
+                    colors = themedSwitchColors(),
+                )
+            }
+        }
+    }
+}
+
+/** Section title inside Advanced, bigger than the collapsible group titles. */
+@Composable
+private fun AdvSectionTitle(text: String) {
+    Text(
+        text,
+        style = MaterialTheme.typography.titleLarge,
+        fontWeight = FontWeight.Bold,
+        color = MaterialTheme.appColors.textPrimary,
+        modifier = Modifier.padding(top = 4.dp, bottom = 2.dp),
+    )
+}
+
+@Composable
+private fun AdvancedTab(
+    settings: com.eried.eucplanet.data.model.AppSettings,
+    viewModel: SettingsViewModel,
+    reorgHandles: List<SectionHandle> = emptyList(),
+) {
+    // Every knob currently off its default, drives both the "Reset all" enabled
+    // state and the confirmation list.
+    val changed = ADVANCED_SPECS.filter { it.get(settings.advanced) != it.get(ADVANCED_DEFAULTS) }
+    var showResetConfirm by remember { mutableStateOf(false) }
+
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        // Reorganize the Settings screen. Big title, always shown (not
+        // collapsible); switch a section off to move it into "More". Advanced is
+        // pinned last and is not listed here.
+        if (reorgHandles.isNotEmpty()) {
+            AdvSectionTitle(stringResource(R.string.reorg_title))
+            ReorganizeSectionsEditor(
+                handles = reorgHandles,
+                layout = settings.settingsLayout,
+                onReorder = viewModel::reorderSettingsSections,
+                onSetVisible = viewModel::setSectionVisible,
+                onReset = viewModel::resetSettingsLayout,
+            )
+        }
+
+        // Timing knobs, under their own big title.
+        AdvSectionTitle(stringResource(R.string.adv_timings_title))
+        MetricInfoBox(stringResource(R.string.adv_rates_warning))
+        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
+            // Disabled (greyed) when nothing is off default; otherwise confirm first.
+            TextButton(onClick = { showResetConfirm = true }, enabled = changed.isNotEmpty()) {
+                Icon(Icons.Default.Restore, contentDescription = null, modifier = Modifier.size(18.dp))
+                Spacer(Modifier.width(6.dp))
+                Text(stringResource(R.string.adv_reset_all))
+            }
+        }
+        // One collapsible card per group, fully driven by the AdvancedSpec registry.
+        AdvGroup.values().forEach { group ->
+            val specs = ADVANCED_SPECS.filter { it.group == group }
+            if (specs.isEmpty()) return@forEach
+            AdvancedCollapsable(title = stringResource(group.titleRes), stateKey = "adv-${group.name}") {
+                group.warningRes?.let { MetricInfoBox(stringResource(it)) }
+                specs.forEach { spec ->
+                    AdvRow(spec, settings.advanced) { viewModel.updateAdvanced(spec, it) }
+                }
+                group.noteRes?.let { HintText(stringResource(it), small = true) }
+            }
+        }
+    }
+
+    if (showResetConfirm && changed.isNotEmpty()) {
+        AlertDialog(
+            onDismissRequest = { showResetConfirm = false },
+            title = { Text(stringResource(R.string.adv_reset_all)) },
+            text = {
+                Column(
+                    modifier = Modifier
+                        .heightIn(max = 360.dp)
+                        .verticalScroll(rememberScrollState())
+                ) {
+                    Text(stringResource(R.string.adv_reset_confirm_msg))
+                    Spacer(Modifier.height(8.dp))
+                    changed.forEach { spec ->
+                        val u = if (spec.unit.isEmpty()) "" else " ${spec.unit}"
+                        Text(
+                            "•  ${stringResource(spec.label)}:  " +
+                                "${spec.format(spec.get(settings.advanced))}$u  →  " +
+                                "${spec.format(spec.get(ADVANCED_DEFAULTS))}$u",
+                            fontSize = 13.sp,
+                            modifier = Modifier.padding(vertical = 1.dp),
+                        )
+                    }
+                }
+            },
+            confirmButton = {
+                TextButton(onClick = {
+                    viewModel.resetAdvancedDefaults()
+                    showResetConfirm = false
+                }) { Text(stringResource(R.string.adv_reset_all)) }
+            },
+            dismissButton = {
+                TextButton(onClick = { showResetConfirm = false }) {
+                    Text(stringResource(android.R.string.cancel))
+                }
+            },
+        )
     }
 }
 
@@ -8553,7 +8887,7 @@ private fun NamedBackupDialog(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun RestorePickerDialog(
+internal fun RestorePickerDialog(
     onDismiss: () -> Unit,
     loadEntries: suspend () -> List<com.eried.eucplanet.data.sync.BackupEntry>,
     onPicked: (com.eried.eucplanet.data.sync.BackupEntry) -> Unit

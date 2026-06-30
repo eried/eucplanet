@@ -4,9 +4,12 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import android.location.Location
 import com.eried.eucplanet.ble.ConnectionState
+import com.eried.eucplanet.data.model.AdvancedSettings
+import com.eried.eucplanet.data.model.AdvancedSpec
 import com.eried.eucplanet.data.model.AppSettings
 import com.eried.eucplanet.data.model.CustomBleCommand
 import com.eried.eucplanet.data.model.PairedSurface
+import com.eried.eucplanet.data.model.SettingsLayout
 import com.eried.eucplanet.data.repository.SettingsRepository
 import com.eried.eucplanet.data.repository.TripRepository
 import com.eried.eucplanet.data.repository.WheelRepository
@@ -487,6 +490,29 @@ class SettingsViewModel @Inject constructor(
     fun updateWatchScreen2Hold(action: String) = update { copy(watchScreen2Hold = action) }
     fun updateWatchHapticOnAction(v: Boolean) = update { copy(watchHapticOnAction = v) }
     fun updateWatchUpdateRate(v: String) = update { copy(watchUpdateRate = v) }
+    /** Single generic setter for every Advanced knob, driven by its [AdvancedSpec].
+     *  Clamps to the spec's range (so a stepper / restore can't escape it). */
+    fun updateAdvanced(spec: AdvancedSpec, v: Int) =
+        update { copy(advanced = spec.set(advanced, v.coerceIn(spec.range))) }
+
+    /** Reset the whole Advanced section to defaults (AdvancedSettings() is them). */
+    fun resetAdvancedDefaults() = update { copy(advanced = AdvancedSettings()) }
+
+    /** Persist the rider's new section order (keys top to bottom, Advanced excluded). */
+    fun reorderSettingsSections(newOrder: List<String>) =
+        update { copy(settingsLayout = settingsLayout.copy(order = newOrder)) }
+
+    /** Show a section at top level (visible) or tuck it into "More" (hidden).
+     *  Advanced can never be hidden. */
+    fun setSectionVisible(key: String, visible: Boolean) = update {
+        if (key == "advanced") return@update this
+        val hidden = settingsLayout.hidden.toMutableList()
+        if (visible) hidden.remove(key) else if (key !in hidden) hidden.add(key)
+        copy(settingsLayout = settingsLayout.copy(hidden = hidden))
+    }
+
+    /** Restore the default Settings arrangement (default order, nothing hidden). */
+    fun resetSettingsLayout() = update { copy(settingsLayout = SettingsLayout()) }
     fun updateWheelNameDisplay(v: String) = update { copy(wheelNameDisplay = v) }
     fun updateWatchShowNavigation(v: Boolean) = update { copy(watchShowNavigation = v) }
 

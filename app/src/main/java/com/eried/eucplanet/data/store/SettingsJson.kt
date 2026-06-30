@@ -182,6 +182,8 @@ object SettingsJson {
         put("watchScreen2Hold", s.watchScreen2Hold)
         put("watchHapticOnAction", s.watchHapticOnAction)
         put("watchUpdateRate", s.watchUpdateRate)
+        // Advanced knobs — flat keys (kept stable for back-compat), registry-driven.
+        com.eried.eucplanet.data.model.ADVANCED_SPECS.forEach { put(it.id, it.get(s.advanced)) }
         put("watchCloseOnExit", s.watchCloseOnExit)
         put("watchPrioritizePwm", s.watchPrioritizePwm)
         put("watchDialRotationDeg", s.watchDialRotationDeg)
@@ -253,6 +255,8 @@ object SettingsJson {
         put("dashboardActionGroups", s.dashboardActionGroups)
         put("dashboardCustomTiles", s.dashboardCustomTiles)
         put("dashboardCustomBle", s.dashboardCustomBle)
+        put("settingsSectionOrder", s.settingsLayout.order.joinToString(","))
+        put("settingsSectionHidden", s.settingsLayout.hidden.joinToString(","))
         put("chargingEstimateToFull", s.chargingEstimateToFull)
         put("chargingAutoOpen", s.chargingAutoOpen)
         put("chargingDashboardIcon", s.chargingDashboardIcon)
@@ -407,6 +411,10 @@ object SettingsJson {
             j.has("fasterRefresh") -> if (j.optBoolean("fasterRefresh", false)) "FAST" else "NORMAL"
             else -> base.watchUpdateRate
         },
+        // Advanced knobs — fold each spec's flat key over the defaults (registry-driven).
+        advanced = com.eried.eucplanet.data.model.ADVANCED_SPECS.fold(base.advanced) { a, sp ->
+            sp.set(a, j.optInt(sp.id, sp.get(a)))
+        },
         watchCloseOnExit = j.optBoolean("watchCloseOnExit", base.watchCloseOnExit),
         watchPrioritizePwm = j.optBoolean("watchPrioritizePwm", base.watchPrioritizePwm),
         watchDialRotationDeg = j.optInt("watchDialRotationDeg", base.watchDialRotationDeg),
@@ -483,6 +491,12 @@ object SettingsJson {
         dashboardActionGroups = j.optString("dashboardActionGroups", base.dashboardActionGroups),
         dashboardCustomTiles = j.optString("dashboardCustomTiles", base.dashboardCustomTiles),
         dashboardCustomBle = j.optString("dashboardCustomBle", base.dashboardCustomBle),
+        settingsLayout = com.eried.eucplanet.data.model.SettingsLayout(
+            order = j.optString("settingsSectionOrder", base.settingsLayout.order.joinToString(","))
+                .split(",").filter { it.isNotBlank() },
+            hidden = j.optString("settingsSectionHidden", base.settingsLayout.hidden.joinToString(","))
+                .split(",").filter { it.isNotBlank() },
+        ),
         chargingEstimateToFull = j.optBoolean("chargingEstimateToFull", base.chargingEstimateToFull),
         chargingAutoOpen = j.optBoolean("chargingAutoOpen", base.chargingAutoOpen),
         chargingDashboardIcon = j.optBoolean("chargingDashboardIcon", base.chargingDashboardIcon),

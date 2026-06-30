@@ -87,9 +87,6 @@ class HudServer @Inject constructor(
 
     companion object {
         private const val TAG = "HudServer"
-        // 5 Hz: same rate WearBridge uses. Smooth speed needle without
-        // saturating the hotspot.
-        private const val PUBLISH_INTERVAL_MS = 200L
         // Reconnect backoff: 1s, 2s, 4s, capped at 5s. Below the cap the
         // rider gets a fresh try every time they walk back into range;
         // above it the HUD feels stuck.
@@ -178,6 +175,10 @@ class HudServer @Inject constructor(
         scope.launch {
             var on = false
             settingsRepository.settings.collect { s ->
+                backoffMinMs = s.hudBackoffMinMs.toLong()
+                backoffMaxMs = s.hudBackoffMaxMs.toLong()
+                mdnsTimeoutMs = s.hudMdnsTimeoutMs.toLong()
+                discoverySprintMs = s.hudDiscoverySprintMs.toLong()
                 val want = s.hudServerEnabled ||
                     com.eried.eucplanet.hud.protocol.HudDebug.read("debug.eucplanet.hud.force") == "true"
                 if (want != on) {
@@ -187,6 +188,11 @@ class HudServer @Inject constructor(
             }
         }
     }
+    // Advanced HUD discovery / reconnection timing, mirrored from settings.
+    @Volatile private var backoffMinMs: Long = BACKOFF_MIN_MS
+    @Volatile private var backoffMaxMs: Long = BACKOFF_MAX_MS
+    @Volatile private var mdnsTimeoutMs: Long = MDNS_RESOLVE_TIMEOUT_MS
+    @Volatile private var discoverySprintMs: Long = DISCOVERY_SPRINT_MS
     @Volatile private var multicastLock: WifiManager.MulticastLock? = null
     /** High-performance WiFi lock acquired while the HUD link is enabled.
      *  Without this, the radio enters DTIM power-save once the screen is off
@@ -270,7 +276,9 @@ class HudServer @Inject constructor(
                     // to why.
                     Log.w(TAG, "snapshot failed", t)
                 }
-                delay(PUBLISH_INTERVAL_MS)
+                // Rider-configured HUD report interval; sanitized() guarantees a
+                // safe floor so this delay can never spin at 0.
+                delay(settingsRepository.get().hudReportIntervalMs.toLong())
             }
         }
 
@@ -447,7 +455,7 @@ class HudServer @Inject constructor(
                 // airplane mode) cancels whichever delay is pending so we
                 // retry immediately instead of waiting out the tick.
                 val sinceStart = System.currentTimeMillis() - sprintStartedAtMs
-                delayOrKick(if (sinceStart < DISCOVERY_SPRINT_MS) 2_000L else 5_000L)
+                delayOrKick(if (sinceStart < discoverySprintMs) 2_000L else 5_000L)
                 continue
             }
             _connectionSource.value = source
@@ -556,7 +564,7 @@ class HudServer @Inject constructor(
                 log("mDNS: found $v")
                 results.send(v to ConnectionSource.MDNS)
             } else {
-                log("mDNS: no answer in ${MDNS_RESOLVE_TIMEOUT_MS / 1000}s")
+                log("mDNS: no answer in ${mdnsTimeoutMs / 1000}s")
             }
         }
 
@@ -621,7 +629,7 @@ class HudServer @Inject constructor(
                 }
             }
             md.addServiceListener(HudDiscovery.SERVICE_TYPE, listener)
-            val winner = kotlinx.coroutines.withTimeoutOrNull(MDNS_RESOLVE_TIMEOUT_MS) {
+            val winner = kotlinx.coroutines.withTimeoutOrNull(mdnsTimeoutMs) {
                 resolved.await()
             }
             try { md.removeServiceListener(HudDiscovery.SERVICE_TYPE, listener) } catch (_: Throwable) {}
@@ -663,8 +671,8 @@ class HudServer @Inject constructor(
                 Log.i(TAG, "HUD link open: $peer")
                 log("Connected to $peer ✓")
                 ws = webSocket
-                // Push a frame every PUBLISH_INTERVAL_MS off the snapshot
-                // buffer. We don't dedupe: even when no field changed, the
+                // Push a frame on the rider's HUD report interval off the
+                // snapshot buffer. We don't dedupe: even when no field changed, the
                 // timestamp bump in [snapshot] keeps the HUD's last-frame
                 // freshness signal live.
                 sendJob = scope.launch {
@@ -691,7 +699,9 @@ class HudServer @Inject constructor(
                             try { webSocket.close(1011, "send-failed") } catch (_: Throwable) {}
                             break
                         }
-                        delay(PUBLISH_INTERVAL_MS)
+                        // Rider-configured HUD report interval; sanitized() guarantees a
+                // safe floor so this delay can never spin at 0.
+                delay(settingsRepository.get().hudReportIntervalMs.toLong())
                     }
                 }
             }
@@ -727,8 +737,8 @@ class HudServer @Inject constructor(
     }
 
     private fun backoff(attempt: Int): Long {
-        val expanded = BACKOFF_MIN_MS shl attempt.coerceAtMost(3)
-        return expanded.coerceAtMost(BACKOFF_MAX_MS)
+        val expanded = backoffMinMs shl attempt.coerceAtMost(3)
+        return expanded.coerceAtMost(backoffMaxMs)
     }
 
     private suspend fun snapshot(): HudState {

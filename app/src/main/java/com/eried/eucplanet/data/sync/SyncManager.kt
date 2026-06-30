@@ -1006,6 +1006,12 @@ class SyncManager @Inject constructor(
                 put("beepFrequency", r.beepFrequency)
                 put("beepDurationMs", r.beepDurationMs)
                 put("beepCount", r.beepCount)
+                put("beepModulation", r.beepModulation)
+                put("beepGapMs", r.beepGapMs)
+                put("beepVolume", r.beepVolume)
+                put("beepVolumeModulation", r.beepVolumeModulation)
+                put("beepModulationReachPct", r.beepModulationReachPct)
+                put("beepVolumeReachPct", r.beepVolumeReachPct)
                 put("voiceEnabled", r.voiceEnabled)
                 put("voiceText", r.voiceText)
                 put("vibrateEnabled", r.vibrateEnabled)
@@ -1035,6 +1041,12 @@ class SyncManager @Inject constructor(
                 beepFrequency = o.optInt("beepFrequency", default.beepFrequency),
                 beepDurationMs = o.optInt("beepDurationMs", default.beepDurationMs),
                 beepCount = o.optInt("beepCount", default.beepCount),
+                beepModulation = o.optInt("beepModulation", default.beepModulation),
+                beepGapMs = o.optInt("beepGapMs", default.beepGapMs),
+                beepVolume = o.optInt("beepVolume", default.beepVolume),
+                beepVolumeModulation = o.optInt("beepVolumeModulation", default.beepVolumeModulation),
+                beepModulationReachPct = o.optInt("beepModulationReachPct", default.beepModulationReachPct),
+                beepVolumeReachPct = o.optInt("beepVolumeReachPct", default.beepVolumeReachPct),
                 voiceEnabled = o.optBoolean("voiceEnabled", default.voiceEnabled),
                 voiceText = o.optString("voiceText", default.voiceText),
                 vibrateEnabled = o.optBoolean("vibrateEnabled", default.vibrateEnabled),

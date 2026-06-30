@@ -27,6 +27,7 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
@@ -58,6 +59,8 @@ class DashboardViewModel @Inject constructor(
     private val wearBridge: com.eried.eucplanet.wear.WearBridge,
     private val garminBridge: com.eried.eucplanet.garmin.GarminBridge,
     private val appHealthRepository: com.eried.eucplanet.data.repository.AppHealthRepository,
+    private val dropboxRepository: com.eried.eucplanet.data.repository.DropboxRepository,
+    private val appNotifier: com.eried.eucplanet.util.AppNotifier,
     @ApplicationContext private val context: Context
 ) : ViewModel() {
 
@@ -455,6 +458,74 @@ class DashboardViewModel @Inject constructor(
         viewModelScope.launch {
             val current = settingsRepository.get()
             settingsRepository.update(current.copy(alarmsMuted = !current.alarmsMuted))
+        }
+    }
+
+    /** Whether a backup folder is configured. Once set, the dev wizard reveals the
+     *  Join and Sync buttons. */
+    val backupFolderSet: StateFlow<Boolean> = settingsRepository.settings
+        .map { !it.syncFolderUri.isNullOrBlank() }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
+
+    /** Whether the configured folder actually holds a settings backup. Gates the
+     *  dev wizard's Restore button so it appears only when there is something to
+     *  restore. Re-checked whenever the folder changes. */
+    val hasSettingsBackup: StateFlow<Boolean> = settingsRepository.settings
+        .map { it.syncFolderUri }
+        .distinctUntilChanged()
+        .map { uri -> !uri.isNullOrBlank() && syncManager.listSettingsBackups().isNotEmpty() }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
+
+    // --- Dev welcome-wizard backup/restore: thin wrappers over SyncManager,
+    // the same calls the Cloud settings screen uses. ---
+    fun setBackupFolder(uri: android.net.Uri) {
+        viewModelScope.launch { syncManager.setSyncFolder(uri) }
+    }
+
+    suspend fun listSettingsBackups(): List<com.eried.eucplanet.data.sync.BackupEntry> =
+        syncManager.listSettingsBackups()
+
+    fun restoreSettingsFrom(fileName: String) {
+        viewModelScope.launch { syncManager.restoreSettingsFrom(fileName) }
+    }
+
+    fun restoreFactoryDefaults() {
+        viewModelScope.launch { syncManager.restoreFactoryDefaults() }
+    }
+
+    /** Whether a trip sync is running (disables the dev wizard's Sync button while
+     *  it works). */
+    val syncRunning: StateFlow<Boolean> = syncManager.syncRunning
+
+    /** Fire-and-forget dev "sync trips": the same folder sync the Cloud screen runs.
+     *  Posts a toast so the trigger is visible even when there is nothing to sync. */
+    fun syncAllTrips() {
+        appNotifier.post(context.getString(R.string.welcome_tut_dev_syncing))
+        syncManager.startSync()
+    }
+
+    /** Whether Dropbox is linked (gates the dev wizard's Link Dropbox button). */
+    val dropboxLinked: StateFlow<Boolean> = dropboxRepository.linked
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
+
+    /** Start the Dropbox OAuth link flow. Needs an Activity context for the Custom
+     *  Tab, so the caller passes it down from Compose. */
+    fun linkDropbox(activityContext: android.content.Context) =
+        dropboxRepository.startLinkFlow(activityContext)
+
+    /** Fire-and-forget dev "join leaderboards": recover the rider from the linked
+     *  backup folder if one is there, then enable online upload. The full
+     *  onboarding for a brand-new rider stays in Cloud settings; this is the quick
+     *  path for a dev whose folder already holds their rider. */
+    fun joinLeaderboards() {
+        viewModelScope.launch {
+            val hasRider = syncManager.riderStoreId.value != null ||
+                syncManager.findRestorableRider()?.also { syncManager.writeRiderId(it.storeId) } != null
+            settingsRepository.update(settingsRepository.get().copy(onlineUploadEnabled = true))
+            appNotifier.post(context.getString(
+                if (hasRider) R.string.welcome_tut_dev_joined
+                else R.string.welcome_tut_dev_joined_norider
+            ))
         }
     }
 

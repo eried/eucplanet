@@ -33,7 +33,9 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Switch
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Button
+import com.eried.eucplanet.ui.settings.LeftAlignedScanButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -254,6 +256,19 @@ fun WelcomeTutorialOverlay(
     // are really on (e.g. the rider flipped it on earlier), so they "see it
     // disabled but still hear GPS / wheel connected".
     voiceCurrentlyOn: Boolean = false,
+    // Dev-only quick tools, surfaced on step 0 of branch builds (BuildConfig.IS_DEV).
+    // "Set backup folder" shows first; once a folder is set, Join and Sync appear,
+    // and Restore appears only when the folder actually holds a settings backup.
+    isDev: Boolean = false,
+    onSetBackupFolder: () -> Unit = {},
+    dropboxLinked: Boolean = false,
+    onLinkDropbox: () -> Unit = {},
+    backupFolderSet: Boolean = false,
+    hasSettingsBackup: Boolean = false,
+    onRestoreSettings: () -> Unit = {},
+    onJoinLeaderboards: () -> Unit = {},
+    onSyncTrips: () -> Unit = {},
+    syncRunning: Boolean = false,
     onFinish: () -> Unit,
 ) {
     val steps = tutorialSteps()
@@ -470,6 +485,66 @@ fun WelcomeTutorialOverlay(
                                     )
                                 }
                                 HintText(stringResource(R.string.welcome_tut_voice_desc))
+
+                                // Dev-only quick tools (branch builds only). Set the
+                                // backup folder first; the rest depend on it and appear
+                                // once it is set.
+                                if (isDev) {
+                                    Spacer(Modifier.height(16.dp))
+                                    HorizontalDivider()
+                                    Spacer(Modifier.height(8.dp))
+                                    Text(
+                                        stringResource(R.string.welcome_tut_dev_title),
+                                        style = MaterialTheme.typography.labelMedium,
+                                        color = MaterialTheme.colorScheme.primary,
+                                        fontWeight = FontWeight.SemiBold,
+                                    )
+                                    // Same button style as the Cloud settings actions
+                                    // (LeftAlignedScanButton: a filled button on the left
+                                    // half of the row).
+                                    // Same actions and order as the Cloud settings. Set
+                                    // backup folder shows only until a folder is set; every
+                                    // other action (Dropbox included) needs a folder, so they
+                                    // appear only once one is set.
+                                    if (!backupFolderSet) {
+                                        Spacer(Modifier.height(8.dp))
+                                        LeftAlignedScanButton(
+                                            label = stringResource(R.string.welcome_tut_dev_set_folder),
+                                            onClick = onSetBackupFolder,
+                                        )
+                                    } else {
+                                        // Link Dropbox, until Dropbox is linked.
+                                        if (!dropboxLinked) {
+                                            Spacer(Modifier.height(8.dp))
+                                            LeftAlignedScanButton(
+                                                label = stringResource(R.string.dropbox_link),
+                                                onClick = onLinkDropbox,
+                                            )
+                                        }
+                                        // Restore, only when a settings backup exists.
+                                        if (hasSettingsBackup) {
+                                            Spacer(Modifier.height(8.dp))
+                                            LeftAlignedScanButton(
+                                                label = stringResource(R.string.welcome_tut_dev_restore),
+                                                onClick = onRestoreSettings,
+                                            )
+                                        }
+                                        // Sync and Join just trigger the Cloud-settings
+                                        // action and return; the work runs in the
+                                        // background, so the wizard shows no progress.
+                                        Spacer(Modifier.height(8.dp))
+                                        LeftAlignedScanButton(
+                                            label = stringResource(R.string.welcome_tut_dev_sync_trips),
+                                            onClick = onSyncTrips,
+                                            enabled = !syncRunning,
+                                        )
+                                        Spacer(Modifier.height(8.dp))
+                                        LeftAlignedScanButton(
+                                            label = stringResource(R.string.welcome_tut_dev_join),
+                                            onClick = onJoinLeaderboards,
+                                        )
+                                    }
+                                }
                             }
                         }
                     }
@@ -482,7 +557,11 @@ fun WelcomeTutorialOverlay(
                 ) {
                     // The last step is the sign-off: no Skip there.
                     if (!isLast) {
-                        TextButton(onClick = { showSkipConfirm = true }) {
+                        TextButton(onClick = {
+                            // Dev builds skip straight out: a developer already knows the
+                            // tour, so don't make them confirm. Normal builds still ask.
+                            if (isDev) onFinish() else showSkipConfirm = true
+                        }) {
                             Text(stringResource(R.string.welcome_tut_skip))
                         }
                     } else {

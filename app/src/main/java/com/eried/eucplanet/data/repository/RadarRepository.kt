@@ -130,7 +130,23 @@ class RadarRepository @Inject constructor(
     private data class TrackState(val distanceM: Int, val firstSeenMs: Long, val lastSeenMs: Long)
     private val tracks = HashMap<Int, TrackState>()
 
+    // Advanced threat-classification thresholds, mirrored from settings.
+    @Volatile private var fastApproachDistM: Int = FAST_APPROACH_DISTANCE_M
+    @Volatile private var fastApproachSpeedKmh: Int = FAST_APPROACH_SPEED_KMH
+    @Volatile private var staticTargetKmh: Int = STATIC_TARGET_KMH
+    @Volatile private var fallbackClosingMps: Double = FALLBACK_CLOSING_MPS
+    @Volatile private var minElapsedMsForRate: Long = MIN_ELAPSED_MS_FOR_RATE
+
     init {
+        scope.launch {
+            settingsRepository.settings.collect { s ->
+                fastApproachDistM = s.radarFastApproachDistM
+                fastApproachSpeedKmh = s.radarFastApproachSpeedKmh
+                staticTargetKmh = s.radarStaticTargetKmh
+                fallbackClosingMps = s.radarFallbackClosingMps.toDouble()
+                minElapsedMsForRate = s.radarMinFrameRateMs.toLong()
+            }
+        }
         if (DEMO_MODE) {
             // Hardware-free preview: write a fake pairing, hold the
             // connection state at CONNECTED, and push synthetic frames so
@@ -239,14 +255,14 @@ class RadarRepository @Inject constructor(
     private fun classify(prev: TrackState?, d: DecodedThreat, now: Long): ThreatLevel {
         // A clearly static target (parked car the rider is approaching, or a
         // tracker that just appeared at constant distance) gets NONE.
-        if (d.approachSpeedKmh < STATIC_TARGET_KMH && prev == null) return ThreatLevel.NONE
+        if (d.approachSpeedKmh < staticTargetKmh && prev == null) return ThreatLevel.NONE
 
         // Fast closing: either speed is high, or the target is already inside
         // the safety bubble. The OR is intentional ,  a parked car 10 m behind
         // the rider with approach_speed=0 is still a hazard to flag amber, but
         // a 30 km/h car 30 m back is the textbook "behind you, watch out".
-        if (d.approachSpeedKmh >= FAST_APPROACH_SPEED_KMH) return ThreatLevel.FAST_APPROACH
-        if (d.distanceM <= FAST_APPROACH_DISTANCE_M && d.approachSpeedKmh >= STATIC_TARGET_KMH) {
+        if (d.approachSpeedKmh >= fastApproachSpeedKmh) return ThreatLevel.FAST_APPROACH
+        if (d.distanceM <= fastApproachDistM && d.approachSpeedKmh >= staticTargetKmh) {
             return ThreatLevel.FAST_APPROACH
         }
 
@@ -261,12 +277,12 @@ class RadarRepository @Inject constructor(
         // mirror).
         if (prev != null) {
             val closingMeters = (prev.distanceM - d.distanceM).toDouble()
-            val elapsedMs = (now - prev.lastSeenMs).coerceAtLeast(MIN_ELAPSED_MS_FOR_RATE)
+            val elapsedMs = (now - prev.lastSeenMs).coerceAtLeast(minElapsedMsForRate)
             val closingMps = closingMeters * 1000.0 / elapsedMs
-            if (closingMps >= FALLBACK_CLOSING_MPS) return ThreatLevel.APPROACHING
+            if (closingMps >= fallbackClosingMps) return ThreatLevel.APPROACHING
         }
 
-        return if (d.approachSpeedKmh >= STATIC_TARGET_KMH) ThreatLevel.APPROACHING else ThreatLevel.NONE
+        return if (d.approachSpeedKmh >= staticTargetKmh) ThreatLevel.APPROACHING else ThreatLevel.NONE
     }
 
     suspend fun setPairing(address: String, name: String, vendor: RadarVendor) {

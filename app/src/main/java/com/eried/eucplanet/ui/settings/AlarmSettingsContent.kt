@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
@@ -31,9 +32,13 @@ import androidx.compose.material.icons.filled.DragHandle
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Remove
+import androidx.compose.material.icons.filled.Repeat
+import androidx.compose.material.icons.filled.Stop
 import androidx.compose.material.icons.filled.SwapVert
+import androidx.compose.material.icons.filled.Tune
 import androidx.compose.material.icons.filled.VolumeUp
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
@@ -45,6 +50,7 @@ import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconToggleButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MenuAnchorType
 import androidx.compose.material3.OutlinedTextField
@@ -60,6 +66,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.key
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -73,6 +80,26 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.foundation.Canvas
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.detectDragGestures
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.PathEffect
+import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.drawscope.clipPath
+import androidx.compose.ui.graphics.nativeCanvas
+import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.platform.LocalDensity
 import kotlinx.coroutines.launch
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
@@ -86,6 +113,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.eried.eucplanet.R
 import com.eried.eucplanet.data.model.AlarmComparator
 import com.eried.eucplanet.data.model.AlarmMetric
+import com.eried.eucplanet.service.AlarmLogic
 import com.eried.eucplanet.data.model.AlarmRule
 import com.eried.eucplanet.ui.common.HintText
 import com.eried.eucplanet.ui.common.InfoHint
@@ -129,7 +157,8 @@ fun AlarmSettingsContent(
     viewModel: AlarmViewModel = hiltViewModel()
 ) {
     val rules by viewModel.rules.collectAsState()
-    val rulesSorted by viewModel.rulesSorted.collectAsState()
+    val groups by viewModel.groupedRules.collectAsState()
+    val studioPlaying by viewModel.studioPlaying.collectAsState()
     val haptic = androidx.compose.ui.platform.LocalHapticFeedback.current
     // Alarm thresholds only span speed and temperature; distance has no alarm metric.
     val speedUnit by viewModel.speedUnit.collectAsState()
@@ -157,43 +186,77 @@ fun AlarmSettingsContent(
     Column(
         modifier = Modifier.fillMaxWidth()
     ) {
-        HintText(stringResource(R.string.alarm_help), small = true)
+        // The priority hint only makes sense once there are alarms to prioritise.
+        if (groups.isNotEmpty()) {
+            HintText(stringResource(R.string.alarm_help), small = true)
+            Spacer(Modifier.height(12.dp))
+        }
 
-        Spacer(Modifier.height(12.dp))
-
-        if (rules.isEmpty()) {
+        if (groups.isEmpty()) {
             InfoHint(
                 text = stringResource(R.string.alarm_empty),
                 modifier = Modifier.padding(vertical = 12.dp)
             )
         }
 
-        // Drag the handle to reorder (same component the settings voice list
-        // uses). Tapping a card's text opens the editor.
+        // Alarms group by metric. Drag a group's handle to set its PRIORITY:
+        // the top group's alarm wins; lower groups only sound in its cooldown
+        // gaps. Within a group, rules auto-sort by severity. Tap a rule to edit.
         ReorderableColumn(
-            list = rules,
-            onSettle = { from, to -> viewModel.moveRule(from, to) },
+            list = groups,
+            onSettle = { from, to -> viewModel.moveGroup(from, to) },
             onMove = { haptic.performHapticFeedback(androidx.compose.ui.hapticfeedback.HapticFeedbackType.LongPress) },
             modifier = Modifier.fillMaxWidth(),
-            verticalArrangement = Arrangement.spacedBy(8.dp),
-        ) { _, rule, _ ->
-            key(rule.id) {
-                AlarmRuleCard(
-                    rule = rule,
-                    speedUnit = speedUnit,
-                    tempUnit = tempUnit,
-                    onToggle = { viewModel.updateRule(rule.copy(enabled = it)) },
-                    onEdit = { editingRule = rule; showEditor = true },
-                    dragHandleModifier = Modifier.draggableHandle(),
-                )
+            verticalArrangement = Arrangement.spacedBy(14.dp),
+        ) { _, group, _ ->
+            key(group.metric) {
+                val groupMetric = try { AlarmMetric.valueOf(group.metric) } catch (_: Exception) { AlarmMetric.SPEED }
+                val accent = metricAccent(groupMetric)
+                Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                    // Coloured band names the metric once (big); the rules below
+                    // drop it and read just "condition threshold unit".
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(8.dp))
+                            .background(accent.copy(alpha = 0.16f))
+                            .padding(start = 6.dp, end = 12.dp, top = 7.dp, bottom = 7.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(
+                            Icons.Default.DragHandle,
+                            contentDescription = stringResource(R.string.action_reorder),
+                            tint = MaterialTheme.colorScheme.onSurface,
+                            modifier = Modifier.draggableHandle().size(26.dp)
+                        )
+                        Spacer(Modifier.width(6.dp))
+                        Text(
+                            stringResource(groupMetric.labelRes),
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 17.sp,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                    }
+                    group.rules.forEach { rule ->
+                        key(rule.id) {
+                            AlarmRuleCard(
+                                rule = rule,
+                                speedUnit = speedUnit,
+                                tempUnit = tempUnit,
+                                onToggle = { viewModel.updateRule(rule.copy(enabled = it)) },
+                                onEdit = { editingRule = rule; showEditor = true },
+                                showHandle = false,
+                            )
+                        }
+                    }
+                }
             }
         }
 
         Spacer(Modifier.height(8.dp))
 
-        // New alarm + Auto-sort are always both shown at half width each, so the
-        // layout doesn't jump as rules are added. Auto-sort stays disabled until
-        // there are at least two rules AND they're out of order.
+        // New alarm sits on the left half of the row (auto-sort removed; group
+        // order is the priority, so an automatic re-sort would fight the rider).
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -207,15 +270,7 @@ fun AlarmSettingsContent(
                 Spacer(Modifier.width(6.dp))
                 Text(stringResource(R.string.alarm_add))
             }
-            Button(
-                onClick = { viewModel.autoSmartSort() },
-                enabled = !rulesSorted,
-                modifier = Modifier.weight(1f)
-            ) {
-                Icon(Icons.Default.SwapVert, contentDescription = null, modifier = Modifier.size(18.dp))
-                Spacer(Modifier.width(6.dp))
-                Text(stringResource(R.string.alarm_smart_sort))
-            }
+            Spacer(Modifier.weight(1f))
         }
 
         Spacer(Modifier.height(16.dp))
@@ -235,9 +290,14 @@ fun AlarmSettingsContent(
             },
             onDismiss = { showEditor = false },
             onDelete = editingRule?.let { r -> { showEditor = false; deleteCandidate = r } },
-            onPreviewBeep = { freq, dur, cnt -> viewModel.previewBeep(freq, dur, cnt) },
+            onPreviewBeep = { freq, dur, cnt, gap, vol -> viewModel.previewBeep(freq, dur, cnt, gap, vol) },
+            onPreviewTone = { freq, vol -> viewModel.previewToneAt(freq, vol) },
             onPreviewVoice = { text, metric, thr -> viewModel.previewVoice(text, metric, thr) },
-            onPreviewVibrate = { dur -> viewModel.previewVibrate(dur) }
+            onPreviewVibrate = { dur -> viewModel.previewVibrate(dur) },
+            studioPlaying = studioPlaying,
+            onStudioTone = { f, d, c, g, v -> viewModel.setStudioTone(f, d, c, g, v) },
+            onStudioToggle = { repeat -> viewModel.toggleStudioPlay(repeat) },
+            onStudioStop = { viewModel.stopStudio() },
         )
     }
 
@@ -259,6 +319,19 @@ fun AlarmSettingsContent(
     }
 }
 
+/** One accent colour per metric, so each group reads as a unit. */
+@Composable
+private fun metricAccent(metric: AlarmMetric): androidx.compose.ui.graphics.Color = when (metric) {
+    AlarmMetric.SPEED -> MaterialTheme.appColors.statusWarn
+    AlarmMetric.BATTERY -> MaterialTheme.appColors.statusGood
+    AlarmMetric.TEMPERATURE -> MaterialTheme.appColors.statusDanger
+    AlarmMetric.PWM -> MaterialTheme.appColors.gaugeWarn
+    AlarmMetric.VOLTAGE -> MaterialTheme.appColors.metricVoltage
+    AlarmMetric.CURRENT -> MaterialTheme.appColors.metricPosition
+    AlarmMetric.RADAR_DISTANCE -> MaterialTheme.appColors.statusDanger
+    AlarmMetric.RADAR_APPROACH_SPEED -> MaterialTheme.appColors.statusDanger
+}
+
 @Composable
 private fun AlarmRuleCard(
     rule: AlarmRule,
@@ -266,26 +339,18 @@ private fun AlarmRuleCard(
     tempUnit: String,
     onToggle: (Boolean) -> Unit,
     onEdit: () -> Unit,
+    showHandle: Boolean = true,
     dragHandleModifier: Modifier = Modifier,
 ) {
     val metric = try { AlarmMetric.valueOf(rule.metric) } catch (_: Exception) { AlarmMetric.SPEED }
     val comp = AlarmComparator.parse(rule.comparator)
 
-    val color = when {
-        !rule.enabled -> MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)
-        // One distinct colour per metric, so rules that share a metric read as
-        // a visual group in the list.
-        else -> when (metric) {
-            AlarmMetric.SPEED -> MaterialTheme.appColors.statusWarn
-            AlarmMetric.BATTERY -> MaterialTheme.appColors.statusGood
-            AlarmMetric.TEMPERATURE -> MaterialTheme.appColors.statusDanger
-            AlarmMetric.PWM -> MaterialTheme.appColors.gaugeWarn
-            AlarmMetric.VOLTAGE -> MaterialTheme.appColors.metricVoltage
-            AlarmMetric.CURRENT -> MaterialTheme.appColors.metricPosition
-            AlarmMetric.RADAR_DISTANCE -> MaterialTheme.appColors.statusDanger
-            AlarmMetric.RADAR_APPROACH_SPEED -> MaterialTheme.appColors.statusDanger
-        }
-    }
+    // Readable on-colour for the condition text -- the coloured group band above
+    // already carries the metric's accent, and some accents (e.g. PWM's gauge-warn
+    // yellow) are fill colours that read poorly as text on the card surface.
+    val color = if (!rule.enabled)
+        MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)
+    else MaterialTheme.colorScheme.onSurface
 
     Card(
         colors = CardDefaults.cardColors(
@@ -301,13 +366,18 @@ private fun AlarmRuleCard(
                 .padding(horizontal = 8.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Icon(
-                Icons.Default.DragHandle,
-                contentDescription = stringResource(R.string.action_reorder),
-                tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = dragHandleModifier.size(28.dp)
-            )
-            Spacer(Modifier.width(4.dp))
+            if (showHandle) {
+                Icon(
+                    Icons.Default.DragHandle,
+                    contentDescription = stringResource(R.string.action_reorder),
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = dragHandleModifier.size(28.dp)
+                )
+                Spacer(Modifier.width(4.dp))
+            } else {
+                // Indent group rules under the group's drag handle.
+                Spacer(Modifier.width(12.dp))
+            }
             Column(
                 modifier = Modifier
                     .weight(1f)
@@ -316,14 +386,26 @@ private fun AlarmRuleCard(
             ) {
                 val shownThresh = displayThreshold(metric, rule.threshold, speedUnit, tempUnit).roundToInt()
                 val shownUnit = displayUnit(metric, speedUnit, tempUnit)
-                val metricLabel = stringResource(metric.labelRes)
+                // The coloured group band already names the metric, so a rule
+                // reads just "condition threshold unit" (e.g. "≥ 32 km/h").
                 Text(
-                    rule.name.ifBlank { "$metricLabel ${comp.symbol} ${shownThresh}${shownUnit}" },
+                    rule.name.ifBlank { "${comp.symbol} ${shownThresh}${shownUnit}" },
                     fontWeight = FontWeight.Medium,
                     fontSize = 14.sp,
                     color = color
                 )
-                val beepSummary = stringResource(R.string.alarm_summary_beep_fmt, rule.beepFrequency, rule.beepCount)
+                // Append a "(pitch and vol)" note for whichever modulation is set
+                // (1x = 100 = none), kept short so the rule row still fits.
+                val pitchAdaptive = rule.beepModulation != 100
+                val volAdaptive = rule.beepVolumeModulation != 100
+                val adaptiveNote = when {
+                    pitchAdaptive && volAdaptive -> stringResource(R.string.alarm_summary_adaptive_pitch_vol)
+                    pitchAdaptive -> stringResource(R.string.alarm_summary_adaptive_pitch)
+                    volAdaptive -> stringResource(R.string.alarm_summary_adaptive_vol)
+                    else -> ""
+                }
+                val beepSummary = stringResource(R.string.alarm_summary_beep_fmt, rule.beepFrequency, rule.beepCount) +
+                    (if (adaptiveNote.isNotEmpty()) " ($adaptiveNote)" else "")
                 val voiceSummary = stringResource(R.string.alarm_summary_voice)
                 val vibrateSummary = stringResource(R.string.alarm_summary_vibrate)
                 val actions = buildList {
@@ -362,9 +444,14 @@ private fun AlarmRuleEditorDialog(
     onSave: (AlarmRule) -> Unit,
     onDismiss: () -> Unit,
     onDelete: (() -> Unit)? = null,
-    onPreviewBeep: (Int, Int, Int) -> Unit,
+    onPreviewBeep: (Int, Int, Int, Int, Int) -> Unit,
+    onPreviewTone: (Int, Int) -> Unit,
     onPreviewVoice: (String, AlarmMetric, Float) -> Unit,
-    onPreviewVibrate: (Int) -> Unit
+    onPreviewVibrate: (Int) -> Unit,
+    studioPlaying: Boolean = false,
+    onStudioTone: (Int, Int, Int, Int, Int) -> Unit = { _, _, _, _, _ -> },
+    onStudioToggle: (Boolean) -> Unit = {},
+    onStudioStop: () -> Unit = {},
 ) {
     val initial = rule ?: AlarmRule()
 
@@ -377,6 +464,13 @@ private fun AlarmRuleEditorDialog(
     var beepFrequency by remember { mutableIntStateOf(initial.beepFrequency) }
     var beepDurationMs by remember { mutableIntStateOf(initial.beepDurationMs) }
     var beepCount by remember { mutableIntStateOf(initial.beepCount) }
+    var beepModulation by remember { mutableIntStateOf(initial.beepModulation) }
+    var beepGapMs by remember { mutableIntStateOf(initial.beepGapMs) }
+    var beepVolume by remember { mutableIntStateOf(initial.beepVolume) }
+    var beepVolumeModulation by remember { mutableIntStateOf(initial.beepVolumeModulation) }
+    var beepModulationReachPct by remember { mutableIntStateOf(initial.beepModulationReachPct) }
+    var beepVolumeReachPct by remember { mutableIntStateOf(initial.beepVolumeReachPct) }
+    var showStudio by remember { mutableStateOf(false) }
 
     var voiceEnabled by remember { mutableStateOf(initial.voiceEnabled) }
     // For a brand-new alarm, seed with the voice-locale-resolved default
@@ -395,49 +489,58 @@ private fun AlarmRuleEditorDialog(
     var cooldownSeconds by remember { mutableIntStateOf(initial.cooldownSeconds) }
     var repeatWhileActive by remember { mutableStateOf(initial.repeatWhileActive) }
     var leadTimeMs by remember { mutableIntStateOf(initial.leadTimeMs) }
-    // Advanced (cooldown / repeat / anticipation) starts collapsed for a new
-    // rule -- the defaults are fine -- and opens automatically when editing a
-    // rule that already departs from them.
-    val defaults = remember { AlarmRule() }
-    var advancedOpen by remember {
-        mutableStateOf(
-            initial.cooldownSeconds != defaults.cooldownSeconds ||
-                initial.repeatWhileActive != defaults.repeatWhileActive ||
-                initial.leadTimeMs != defaults.leadTimeMs
-        )
-    }
+    // Advanced (cooldown / repeat / anticipation) -- collapsed by default; the
+    // rider expands it when they want those.
+    var advancedOpen by remember { mutableStateOf(false) }
 
     val selectedMetric = try { AlarmMetric.valueOf(metric) } catch (_: Exception) { AlarmMetric.SPEED }
-    val thresholdRangeInternal = when (selectedMetric) {
-        // Speed cap depends on the user's unit: high-performance wheels run
-        // way past 100 km/h, so the range reads 5..150 km/h, 5..100 mph or
-        // 1..40 m/s (each ceiling expressed back in km/h for the internal range).
-        AlarmMetric.SPEED -> when (speedUnit) {
-            "mph" -> Units.speedToKmh(5f, "mph")..Units.speedToKmh(100f, "mph")
-            "ms" -> Units.speedToKmh(1f, "ms")..Units.speedToKmh(40f, "ms")
-            else -> 5f..150f
-        }
-        AlarmMetric.BATTERY -> 0f..100f
-        AlarmMetric.TEMPERATURE -> 20f..80f
-        AlarmMetric.PWM -> 10f..100f
-        AlarmMetric.VOLTAGE -> 20f..300f
-        AlarmMetric.CURRENT -> 1f..50f
-        // Varia's range is ~140 m. Below 5 m the radar is effectively in
-        // the dead-zone behind the rider; below 10 m is "imminent" on an
-        // EUC at typical road speed.
-        AlarmMetric.RADAR_DISTANCE -> 5f..140f
-        // Approach speeds typically run 10-120 km/h depending on road
-        // type. 5..150 keeps the slider usable on both ends.
-        AlarmMetric.RADAR_APPROACH_SPEED -> 5f..150f
+    // The metric's valid internal range comes from AlarmLogic (single source shared
+    // with the engine + studio). The threshold is edited in display units;
+    // displayedRange converts the ends.
+    val thresholdRangeInternal =
+        AlarmLogic.metricReadMin(selectedMetric.name)..AlarmLogic.metricReadMax(selectedMetric.name)
+    // When the rider switches metric, pull the threshold into the new metric's
+    // range so it never holds an impossible value (e.g. a 150 km/h speed becoming
+    // a 150% PWM).
+    LaunchedEffect(selectedMetric) {
+        val clamped = threshold.coerceIn(thresholdRangeInternal)
+        if (clamped != threshold) threshold = clamped
     }
     val displayedThreshold = displayThreshold(selectedMetric, threshold, speedUnit, tempUnit)
     val displayedRange = displayThreshold(selectedMetric, thresholdRangeInternal.start, speedUnit, tempUnit)..
         displayThreshold(selectedMetric, thresholdRangeInternal.endInclusive, speedUnit, tempUnit)
     val displayedUnit = displayUnit(selectedMetric, speedUnit, tempUnit)
 
+    if (showStudio) {
+        BeepStudioDialog(
+            metric = selectedMetric,
+            unit = displayedUnit,
+            toDisplay = { displayThreshold(selectedMetric, it, speedUnit, tempUnit) },
+            comparator = comparator,
+            threshold = threshold,
+            baseFreq = beepFrequency,
+            durationMs = beepDurationMs,
+            count = beepCount,
+            gapMs = beepGapMs,
+            baseVolume = beepVolume,
+            pitchReachPct = beepModulation,
+            volReachPct = beepVolumeModulation,
+            playing = studioPlaying,
+            onLiveTone = { f, v -> onStudioTone(f, beepDurationMs, beepCount, beepGapMs, v) },
+            onTogglePlay = onStudioToggle,
+            onCommit = { p, v -> beepModulation = p; beepVolumeModulation = v },
+            onDismiss = { onStudioStop(); showStudio = false },
+        )
+    }
+
     Dialog(
         onDismissRequest = onDismiss,
-        properties = androidx.compose.ui.window.DialogProperties(usePlatformDefaultWidth = false)
+        // Don't dismiss the alarm editor on an outside tap — that silently drops
+        // the whole edit. Close only via the explicit buttons / back.
+        properties = androidx.compose.ui.window.DialogProperties(
+            usePlatformDefaultWidth = false,
+            dismissOnClickOutside = false,
+        )
     ) {
         // Cap the dialog's height so the inner verticalScroll has a bounded
         // parent, without this the Column grows past the viewport and the
@@ -547,7 +650,7 @@ private fun AlarmRuleEditorDialog(
                     title = stringResource(R.string.alarm_section_beep),
                     color = MaterialTheme.appColors.statusWarn,
                     enabled = beepEnabled,
-                    onPreview = { onPreviewBeep(beepFrequency, beepDurationMs, beepCount) }
+                    onPreview = { onPreviewBeep(beepFrequency, beepDurationMs, beepCount, beepGapMs, beepVolume) }
                 )
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -576,7 +679,10 @@ private fun AlarmRuleEditorDialog(
                         NumberUpDown(
                             value = beepDurationMs,
                             onValueChange = { beepDurationMs = it },
-                            range = 100..1000, step = 50, suffix = "ms",
+                            // 50 ms minimum: the one-buffer TonePlayer renders short
+                            // tones cleanly, so a near-constant beep is gap 0 + a short
+                            // duration + a high count.
+                            range = 50..1000, step = 50, suffix = "ms",
                             label = stringResource(R.string.alarm_label_duration),
                             modifier = Modifier.weight(1f),
                         )
@@ -596,6 +702,57 @@ private fun AlarmRuleEditorDialog(
                             modifier = Modifier.weight(1f),
                         )
                         Spacer(Modifier.weight(1f))
+                    }
+                    Spacer(Modifier.height(8.dp))
+                    // Advanced (gap, volume, Adaptive beep) -- collapsed by default.
+                    var beepAdvanced by remember { mutableStateOf(false) }
+                    Text(
+                        text = (if (beepAdvanced) "▴ " else "▾ ") + stringResource(R.string.alarm_beep_advanced),
+                        fontSize = 13.sp,
+                        color = MaterialTheme.appColors.fieldLabel,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable { beepAdvanced = !beepAdvanced }
+                            .padding(vertical = 6.dp),
+                    )
+                    if (beepAdvanced) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(12.dp)
+                        ) {
+                            NumberUpDown(
+                                value = beepGapMs,
+                                onValueChange = { beepGapMs = it },
+                                range = 0..2000, step = 20, suffix = "ms",
+                                label = stringResource(R.string.alarm_beep_gap_label),
+                                modifier = Modifier.weight(1f),
+                            )
+                            NumberUpDown(
+                                value = beepVolume,
+                                onValueChange = { beepVolume = it },
+                                range = 0..100, step = 5, suffix = "%",
+                                label = stringResource(R.string.alarm_beep_volume_label),
+                                modifier = Modifier.weight(1f),
+                            )
+                        }
+                        Spacer(Modifier.height(8.dp))
+                        // Pitch + volume modulation is set in a dedicated full-screen
+                        // preview (roomy controls + live audio), not crammed inline.
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Button(
+                                onClick = { showStudio = true },
+                                modifier = Modifier.weight(1f),
+                            ) {
+                                Icon(Icons.Default.Tune, contentDescription = null, modifier = Modifier.size(18.dp))
+                                Spacer(Modifier.width(6.dp))
+                                Text(stringResource(R.string.alarm_beep_studio))
+                            }
+                            Spacer(Modifier.weight(1f))
+                        }
                     }
                 }
 
@@ -869,6 +1026,12 @@ private fun AlarmRuleEditorDialog(
                                         beepFrequency = beepFrequency,
                                         beepDurationMs = beepDurationMs,
                                         beepCount = beepCount,
+                                        beepModulation = beepModulation,
+                                        beepGapMs = beepGapMs,
+                                        beepVolume = beepVolume,
+                                        beepVolumeModulation = beepVolumeModulation,
+                                        beepModulationReachPct = beepModulationReachPct,
+                                        beepVolumeReachPct = beepVolumeReachPct,
                                         voiceEnabled = voiceEnabled,
                                         voiceText = voiceText,
                                         vibrateEnabled = vibrateEnabled,
@@ -892,6 +1055,340 @@ private fun AlarmRuleEditorDialog(
                 Spacer(Modifier.height(12.dp))
             }
         }
+    }
+}
+
+/**
+ * Full-screen "Beep preview": roomy controls for pitch + volume modulation with a
+ * live, hearable preview. The metric slider (top) drives a display-only response
+ * curve (Hz/volume vs the metric) and a beep timeline (the repeats + gaps as they
+ * play). Press Play and leave it running to hear the change as you move things.
+ * Pitch + volume FACTOR are set here; gap + base volume stay in the Advanced tab.
+ */
+@Composable
+private fun BeepStudioDialog(
+    metric: AlarmMetric,
+    unit: String,
+    toDisplay: (Float) -> Float,   // internal value -> the rider's display unit (mph / F / ...)
+    comparator: String,
+    threshold: Float,
+    baseFreq: Int,
+    durationMs: Int,
+    count: Int,
+    gapMs: Int,
+    baseVolume: Int,
+    pitchReachPct: Int,
+    volReachPct: Int,
+    playing: Boolean,
+    onLiveTone: (freq: Int, volume: Int) -> Unit,
+    onTogglePlay: (repeat: Boolean) -> Unit,
+    onCommit: (pitch: Int, volume: Int) -> Unit,
+    onDismiss: () -> Unit,
+) {
+    val ge = AlarmComparator.parse(comparator) == AlarmComparator.GREATER_EQUAL
+    // The test slider stays inside the metric's real range: >= goes from the
+    // threshold up to the metric max (e.g. PWM 100), < goes from 0 (no negatives)
+    // up to the threshold. The factor is reached at that far limit.
+    val maxOvershoot = AlarmLogic.metricReachSpan(metric.name, comparator, threshold)
+    val sliderMin = if (ge) threshold else (threshold - maxOvershoot).coerceAtLeast(0f)
+    val sliderMax = if (ge) threshold + maxOvershoot else threshold
+
+    // Local edits -- committed only on Save, so Cancel discards them. The live
+    // preview uses these locals so you hear the in-progress edit.
+    var pitchFactor by remember { mutableIntStateOf(pitchReachPct) }
+    var volFactor by remember { mutableIntStateOf(volReachPct) }
+    // Always start the test input exactly at the threshold (no modulation yet).
+    var simValue by remember { mutableFloatStateOf(threshold) }
+    var repeat by remember { mutableStateOf(true) }
+
+    fun overshootOf(v: Float) = (if (ge) v - threshold else threshold - v).coerceIn(0f, maxOvershoot)
+    fun freqAtV(v: Float) = AlarmLogic.modulatedBeepHz(baseFreq, v, comparator, threshold, pitchFactor, metric.name)
+    fun volAtV(v: Float) = AlarmLogic.modulatedVolumePct(baseVolume, volFactor, v, comparator, threshold, metric.name)
+    fun fmt(v: Float) = if (v % 1f == 0f) v.toInt().toString() else String.format("%.1f", v)
+
+    LaunchedEffect(simValue, pitchFactor, volFactor, baseFreq, baseVolume) {
+        onLiveTone(freqAtV(simValue), volAtV(simValue))
+    }
+
+    // Playhead for the timeline: restarts from the beginning each time playback
+    // starts (so Play always begins at the first beep), approx. one beep cycle.
+    val cycleMs = (count * (durationMs + 50) + count * gapMs.coerceAtLeast(1)).coerceAtLeast(250)
+    val playhead = remember { Animatable(0f) }
+    LaunchedEffect(playing, cycleMs) {
+        if (playing) {
+            playhead.snapTo(0f)
+            playhead.animateTo(1f, infiniteRepeatable(tween(cycleMs, easing = LinearEasing), RepeatMode.Restart))
+        } else {
+            playhead.snapTo(0f)
+        }
+    }
+
+    Dialog(
+        onDismissRequest = onDismiss,
+        // dismissOnClickOutside defaulted to true, so a stray touch in the card's
+        // side margins / empty area (easy to hit while dragging the modulation
+        // graph) closed the studio mid-edit. Only Cancel/Save/back close it now.
+        properties = androidx.compose.ui.window.DialogProperties(
+            usePlatformDefaultWidth = false,
+            dismissOnClickOutside = false,
+        ),
+    ) {
+        Surface(
+            modifier = Modifier.fillMaxWidth(0.96f),
+            shape = RoundedCornerShape(16.dp),
+            color = MaterialTheme.colorScheme.surface,
+        ) {
+            Column(Modifier.fillMaxWidth().padding(16.dp)) {
+                Text(
+                    stringResource(R.string.alarm_beep_studio),
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onSurface,
+                )
+
+                // Pitch + volume FACTOR (numeric) -- just below the title.
+                Spacer(Modifier.height(10.dp))
+                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                    NumberUpDown(
+                        value = pitchFactor,
+                        onValueChange = { pitchFactor = it },
+                        range = 10..1000, step = 10,
+                        format = { "%.1fx".format(it / 100f) },
+                        parse = { s -> s.removeSuffix("x").trim().toFloatOrNull()?.let { (it * 100).roundToInt() } },
+                        label = stringResource(R.string.alarm_studio_pitch_factor),
+                        modifier = Modifier.weight(1f),
+                    )
+                    NumberUpDown(
+                        value = volFactor,
+                        onValueChange = { volFactor = it },
+                        range = 10..1000, step = 10,
+                        format = { "%.1fx".format(it / 100f) },
+                        parse = { s -> s.removeSuffix("x").trim().toFloatOrNull()?.let { (it * 100).roundToInt() } },
+                        label = stringResource(R.string.alarm_studio_volume_factor),
+                        modifier = Modifier.weight(1f),
+                    )
+                }
+
+                // Metric tracker + live readout, with Play + Repeat next to it.
+                Spacer(Modifier.height(12.dp))
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(stringResource(R.string.alarm_studio_test_input, stringResource(metric.labelRes), fmt(toDisplay(simValue)), unit),
+                        color = MaterialTheme.colorScheme.onSurface, fontWeight = FontWeight.Medium)
+                    Spacer(Modifier.weight(1f))
+                    Text(stringResource(R.string.alarm_studio_now, freqAtV(simValue), volAtV(simValue)),
+                        color = MaterialTheme.appColors.fieldLabel, fontSize = 12.sp)
+                }
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    IconButton(onClick = { onTogglePlay(repeat) }) {
+                        Icon(if (playing) Icons.Default.Stop else Icons.Default.PlayArrow,
+                            contentDescription = stringResource(if (playing) R.string.alarm_studio_stop else R.string.alarm_studio_play),
+                            tint = MaterialTheme.appColors.statusGood)
+                    }
+                    IconToggleButton(checked = repeat, onCheckedChange = {
+                        repeat = it
+                        // Turning repeat off mid-play stops the loop instead of letting
+                        // it run forever (onTogglePlay stops when already playing).
+                        if (!it && playing) onTogglePlay(false)
+                    }) {
+                        Icon(Icons.Default.Repeat, contentDescription = "Repeat",
+                            tint = if (repeat) MaterialTheme.appColors.statusWarn else MaterialTheme.colorScheme.onSurfaceVariant)
+                    }
+                    Spacer(Modifier.width(4.dp))
+                    Slider(value = simValue, onValueChange = { simValue = it },
+                        valueRange = sliderMin..sliderMax, modifier = Modifier.weight(1f))
+                }
+
+                // Response curve (display only).
+                BeepCurveDisplay(
+                    comparator = comparator,
+                    metric = metric.name,
+                    threshold = threshold,
+                    baseFreq = baseFreq,
+                    baseVolume = baseVolume,
+                    pitchReachPct = pitchFactor,
+                    volReachPct = volFactor,
+                    markerO = overshootOf(simValue),
+                    maxOvershoot = maxOvershoot,
+                    modifier = Modifier.fillMaxWidth().height(128.dp).padding(top = 6.dp),
+                )
+
+                // Beep timeline (repeats + gaps + trailing gap), playhead while playing.
+                Spacer(Modifier.height(10.dp))
+                BeepTimeline(
+                    conditionText = "${AlarmComparator.parse(comparator).symbol} ${fmt(toDisplay(threshold))} $unit",
+                    durationMs = durationMs,
+                    count = count,
+                    gapMs = gapMs,
+                    freqHz = freqAtV(simValue),
+                    playheadFrac = if (playing) playhead.value else null,
+                    modifier = Modifier.fillMaxWidth().height(70.dp),
+                )
+
+                // Reset on the left; Cancel / Save on the right (like the rule editor).
+                Spacer(Modifier.height(12.dp))
+                Row(modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically) {
+                    // Reset commits no modulation (1x pitch and volume) and closes.
+                    TextButton(onClick = { onCommit(100, 100); onDismiss() }) {
+                        Text(stringResource(R.string.alarm_studio_reset))
+                    }
+                    Spacer(Modifier.weight(1f))
+                    TextButton(onClick = onDismiss) { Text(stringResource(R.string.action_cancel)) }
+                    Spacer(Modifier.width(8.dp))
+                    Button(onClick = { onCommit(pitchFactor, volFactor); onDismiss() }) {
+                        Text(stringResource(R.string.action_save))
+                    }
+                }
+            }
+        }
+    }
+}
+
+/**
+ * Time-domain view of the beep: a trigger marker + condition at the start, then
+ * the [count] beep blocks (width ~ duration) separated by gap spaces, as they
+ * play. Gap 0 makes the blocks touch (a continuous tone).
+ */
+@Composable
+private fun BeepTimeline(
+    conditionText: String,
+    durationMs: Int,
+    count: Int,
+    gapMs: Int,
+    freqHz: Int,
+    playheadFrac: Float? = null,
+    modifier: Modifier = Modifier,
+) {
+    val accent = MaterialTheme.appColors.statusWarn
+    val markerCol = MaterialTheme.colorScheme.onSurface
+    val grid = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.35f)
+    val labelColor = MaterialTheme.appColors.fieldLabel
+    val txt = with(LocalDensity.current) { 10.sp.toPx() }
+    Canvas(modifier) {
+        val w = size.width; val h = size.height
+        val nv = drawContext.canvas.nativeCanvas
+        val pCond = android.graphics.Paint().apply { color = markerCol.toArgb(); textSize = txt; isAntiAlias = true }
+        val pLbl = android.graphics.Paint().apply { color = labelColor.toArgb(); textSize = txt * 0.85f; isAntiAlias = true }
+        val pBlk = android.graphics.Paint().apply { color = markerCol.toArgb(); textSize = txt * 0.85f; isAntiAlias = true; textAlign = android.graphics.Paint.Align.CENTER }
+        val hzStr = "$freqHz"
+
+        nv.drawText(conditionText, 4f, txt + 2f, pCond)
+
+        val ty0 = h * 0.40f; val ty1 = h * 0.82f
+        val dur = durationMs.toFloat().coerceAtLeast(1f)
+        val gap = gapMs.toFloat()
+        val total = (count * dur + count * gap).coerceAtLeast(1f)   // include the trailing gap
+        val triggerX = 6f
+        val avail = w - triggerX - 6f
+        val sx = avail / total
+
+        // trigger marker (vertical line) at the start
+        drawLine(markerCol, Offset(triggerX, ty0 - 6f), Offset(triggerX, ty1 + 6f), 3f)
+        var t = 0f
+        for (i in 0 until count) {
+            val x0 = triggerX + t * sx
+            val bw = (dur * sx).coerceAtLeast(3f)
+            drawRect(accent.copy(alpha = 0.75f), topLeft = Offset(x0, ty0), size = Size(bw, ty1 - ty0))
+            // The Hz this block plays at, centred on it if it fits.
+            if (bw > pBlk.measureText(hzStr) + 6f) {
+                nv.drawText(hzStr, x0 + bw / 2f, (ty0 + ty1) / 2f + txt / 3f, pBlk)
+            }
+            t += dur
+            // A gap after every beep -- the last one is the trailing gap before the loop repeats.
+            val gx0 = triggerX + t * sx; t += gap
+            if (gap > 0f) drawLine(grid, Offset(gx0, (ty0 + ty1) / 2f), Offset(triggerX + t * sx, (ty0 + ty1) / 2f), 2f)
+        }
+        // playhead sweeping across while playing
+        playheadFrac?.let { f ->
+            val px = triggerX + f.coerceIn(0f, 1f) * avail
+            drawLine(markerCol, Offset(px, ty0 - 8f), Offset(px, ty1 + 8f), 3f)
+        }
+        nv.drawText("${count}× · gap ${gapMs} ms", 4f, h - 3f, pLbl)
+    }
+}
+
+/**
+ * Display-only modulation curve for the studio: pitch (orange, log Hz) + volume
+ * (purple, % in the lower band) vs the metric value, with a marker at [markerO].
+ */
+@Composable
+private fun BeepCurveDisplay(
+    comparator: String,
+    metric: String,
+    threshold: Float,
+    baseFreq: Int,
+    baseVolume: Int,
+    pitchReachPct: Int,
+    volReachPct: Int,
+    markerO: Float,
+    maxOvershoot: Float,
+    modifier: Modifier = Modifier,
+) {
+    val accent = MaterialTheme.appColors.statusWarn
+    val volColor = MaterialTheme.appColors.metricPosition
+    val grid = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.25f)
+    val markerColor = MaterialTheme.colorScheme.onSurface
+    val ge = AlarmComparator.parse(comparator) == AlarmComparator.GREATER_EQUAL
+    val fMin = 150f
+    val fMax = AlarmLogic.BEEP_MOD_MAX_HZ.toFloat()
+    val lnMin = kotlin.math.ln(fMin)
+    val lnMax = kotlin.math.ln(fMax)
+    val txt = with(LocalDensity.current) { 10.sp.toPx() }
+    fun valueAt(o: Float) = if (ge) threshold + o else threshold - o
+    fun freqAt(o: Float) = AlarmLogic.modulatedBeepHz(baseFreq, valueAt(o), comparator, threshold, pitchReachPct, metric).toFloat()
+    fun volAt(o: Float) = AlarmLogic.modulatedVolumePct(baseVolume, volReachPct, valueAt(o), comparator, threshold, metric).toFloat()
+
+    Canvas(modifier) {
+        val w = size.width; val h = size.height
+        val pl = 48f; val pr = w - 48f
+        val top = h * 0.08f; val bot = h * 0.92f
+        val volTop = top + (bot - top) * 0.45f
+        fun xOf(o: Float) = pl + (o / maxOvershoot) * (pr - pl)
+        fun yFreq(f: Float) = bot - (kotlin.math.ln(f.coerceIn(fMin, fMax)) - lnMin) / (lnMax - lnMin) * (bot - top)
+        fun yVol(v: Float) = bot - (v / 100f) * (bot - volTop)
+        val dash = PathEffect.dashPathEffect(floatArrayOf(8f, 10f))
+        val nv = drawContext.canvas.nativeCanvas
+        val pHz = android.graphics.Paint().apply { color = accent.copy(alpha = 0.85f).toArgb(); textSize = txt; isAntiAlias = true }
+        val pVol = android.graphics.Paint().apply { color = volColor.copy(alpha = 0.85f).toArgb(); textSize = txt; isAntiAlias = true; textAlign = android.graphics.Paint.Align.RIGHT }
+
+        drawLine(grid, Offset(pl, top), Offset(pl, bot), 2f)
+        drawLine(grid, Offset(pl, bot), Offset(pr, bot), 2f)
+        for (f in listOf(1000f, 5000f, 10000f)) {
+            val y = yFreq(f)
+            drawLine(accent.copy(alpha = 0.16f), Offset(pl, y), Offset(pr, y), 1.5f, pathEffect = dash)
+            nv.drawText("${(f / 1000).toInt()}k", 2f, y + txt / 3f, pHz)
+        }
+        for (v in listOf(0f, 50f, 100f)) {
+            val y = yVol(v)
+            drawLine(volColor.copy(alpha = 0.20f), Offset(pl, y), Offset(pr, y), 1.5f, pathEffect = dash)
+            nv.drawText("${v.toInt()}%", w - 2f, y + txt / 3f, pVol)
+        }
+
+        val pPath = Path(); val vPath = Path(); val pArea = Path()
+        val steps = 64
+        for (i in 0..steps) {
+            val o = maxOvershoot * i / steps
+            val x = xOf(o); val yf = yFreq(freqAt(o))
+            if (i == 0) { pPath.moveTo(x, yf); vPath.moveTo(x, yVol(volAt(o))); pArea.moveTo(x, yf) }
+            else { pPath.lineTo(x, yf); vPath.lineTo(x, yVol(volAt(o))); pArea.lineTo(x, yf) }
+        }
+        pArea.lineTo(pr, bot); pArea.lineTo(pl, bot); pArea.close()
+        // diagonal hatched fill under the pitch curve
+        clipPath(pArea) {
+            val diag = bot - top
+            var hx = pl - diag
+            while (hx < pr) {
+                drawLine(accent.copy(alpha = 0.20f), Offset(hx, bot), Offset(hx + diag, top), 1.5f)
+                hx += 14f
+            }
+        }
+        drawPath(pPath, accent, style = Stroke(width = 6f))
+        drawPath(vPath, volColor, style = Stroke(width = 6f))
+
+        val mx = xOf(markerO)
+        drawLine(markerColor, Offset(mx, top), Offset(mx, bot), 2.5f)
+        drawCircle(accent, 13f, Offset(mx, yFreq(freqAt(markerO))))
+        drawCircle(volColor, 13f, Offset(mx, yVol(volAt(markerO))))
     }
 }
 
@@ -944,6 +1441,10 @@ internal fun NumberUpDown(
     format: (Int) -> String = { it.toString() },
     parse: (String) -> Int? = { it.toIntOrNull() },
     allowSign: Boolean = false,
+    // How the number sits in its fixed-width box. Center (default) keeps the
+    // classic look; End hugs the number against the unit (less gap) while the
+    // box width still pins the unit so it doesn't jump as you step.
+    numberAlign: TextAlign = TextAlign.Center,
 ) {
     val fieldText = MaterialTheme.appColors.fieldText
     val fieldLabelColor = MaterialTheme.appColors.fieldLabel
@@ -1007,7 +1508,7 @@ internal fun NumberUpDown(
                             color = fieldText,
                             fontSize = 16.sp,
                             fontWeight = FontWeight.Medium,
-                            textAlign = TextAlign.Center
+                            textAlign = numberAlign
                         ),
                         cursorBrush = SolidColor(fieldText),
                         keyboardOptions = KeyboardOptions(
@@ -1022,7 +1523,13 @@ internal fun NumberUpDown(
                     )
                     if (suffix.isNotEmpty()) {
                         Spacer(Modifier.width(4.dp))
-                        Text(suffix, fontSize = 14.sp, color = fieldLabelColor)
+                        Text(
+                            suffix,
+                            fontSize = 14.sp,
+                            color = fieldLabelColor,
+                            maxLines = 1,
+                            softWrap = false,
+                        )
                     }
                 }
                 RepeatingStepper(
