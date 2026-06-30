@@ -40,9 +40,17 @@ class HudSubnetProbe @Inject constructor(
 ) {
 
     suspend fun probe(port: Int = HudDiscovery.DEFAULT_PORT): String? = withContext(Dispatchers.IO) {
-        val cidr = currentIpv4Cidr() ?: return@withContext null
-        val candidates = expandSubnetIpv4(cidr) ?: return@withContext null
-        Log.i(TAG, "probing ${candidates.size} hosts on $cidr:$port")
+        // Scan EVERY local IPv4 subnet we can see, not just the "active
+        // network" one. Critical for the phone-hotspot case: when the phone
+        // shares its connection, `activeNetwork` is the CELLULAR route, so the
+        // old single-subnet probe scanned a carrier subnet and never saw the
+        // HUD sitting on the 192.168.x AP interface. Enumerating interfaces
+        // catches the AP (and any real WiFi) subnet too.
+        val cidrs = candidateIpv4Cidrs()
+        if (cidrs.isEmpty()) return@withContext null
+        val candidates = cidrs.flatMap { expandSubnetIpv4(it) ?: emptyList() }.distinct()
+        if (candidates.isEmpty()) return@withContext null
+        Log.i(TAG, "probing ${candidates.size} hosts across ${cidrs.size} subnet(s) $cidrs:$port")
         coroutineScope {
             val results = candidates.map { ip ->
                 async {
@@ -54,20 +62,53 @@ class HudSubnetProbe @Inject constructor(
     }
 
     /**
-     * Pick the phone's own IPv4 + prefix length from the active network's
-     * `LinkProperties`. Falls back to null when there is no IPv4 (rare; some
-     * IPv6-only carrier setups) or when the active network is a cellular
-     * route rather than WiFi / hotspot.
+     * Every local IPv4 /prefix the phone has, as `ip/prefix` strings.
+     *
+     * Two sources, deduped:
+     *  1. The active network's LinkProperties (fast path for a phone that's a
+     *     normal WiFi client).
+     *  2. A full NetworkInterface enumeration, filtered to up, non-loopback,
+     *     non-cellular interfaces with a site-local (private) IPv4. This is the
+     *     ONLY way to see the softAP interface when the phone is the hotspot,
+     *     because that interface is never the `activeNetwork`.
+     *
+     * Cellular / virtual interfaces are skipped by name so we don't waste a
+     * 254-host sweep on a carrier subnet the HUD can't be on.
      */
-    private fun currentIpv4Cidr(): String? {
-        val cm = appContext.getSystemService(Context.CONNECTIVITY_SERVICE) as? ConnectivityManager
-            ?: return null
-        val active = cm.activeNetwork ?: return null
-        val props = cm.getLinkProperties(active) ?: return null
-        val v4: LinkAddress = props.linkAddresses
-            .firstOrNull { it.address is Inet4Address && !it.address.isLoopbackAddress }
-            ?: return null
-        return "${v4.address.hostAddress}/${v4.prefixLength}"
+    private fun candidateIpv4Cidrs(): List<String> {
+        val out = LinkedHashSet<String>()
+
+        runCatching {
+            val cm = appContext.getSystemService(Context.CONNECTIVITY_SERVICE) as? ConnectivityManager
+            val active = cm?.activeNetwork
+            val props = active?.let { cm.getLinkProperties(it) }
+            props?.linkAddresses
+                ?.firstOrNull {
+                    val a = it.address
+                    a is Inet4Address && !a.isLoopbackAddress && a.isSiteLocalAddress
+                }
+                ?.let { out.add("${it.address.hostAddress}/${it.prefixLength}") }
+        }
+
+        runCatching {
+            java.net.NetworkInterface.getNetworkInterfaces()?.toList()?.forEach { nif ->
+                if (!nif.isUp || nif.isLoopback) return@forEach
+                val name = nif.name.lowercase()
+                // Mobile-data and virtual interfaces never host the HUD.
+                if (name.startsWith("rmnet") || name.startsWith("ccmni") ||
+                    name.startsWith("pdp") || name.startsWith("clat") ||
+                    name.startsWith("tun") || name.startsWith("dummy")
+                ) return@forEach
+                nif.interfaceAddresses.forEach { ia ->
+                    val a = ia.address
+                    if (a is Inet4Address && !a.isLoopbackAddress && a.isSiteLocalAddress) {
+                        out.add("${a.hostAddress}/${ia.networkPrefixLength}")
+                    }
+                }
+            }
+        }.onFailure { Log.w(TAG, "interface enumeration failed: ${it.message}") }
+
+        return out.toList()
     }
 
     /**

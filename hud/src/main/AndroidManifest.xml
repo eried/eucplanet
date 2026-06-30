@@ -11,6 +11,14 @@
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.CHANGE_WIFI_MULTICAST_STATE" />
+    <!-- CHANGE_WIFI_STATE lets the self-heal watchdog actively reassociate
+         wlan0 (WifiManager.reconnect/reassociate, and a setWifiEnabled toggle
+         on pre-API29 ROMs) when it detects the HUD has fallen off the rider's
+         hotspot. Without it the HUD could only DETECT the off-air drop, not
+         recover from it (the whole "had to reboot the Motoeye" bug).
+         On API29+ reconnect/reassociate/setWifiEnabled are no-ops for non-system
+         apps, so the recovery degrades gracefully; the detection still helps. -->
+    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
     <!-- Partial CPU wake lock so the Ktor server, UDP beacon and self-heal
          watchdog keep running if the device tries to suspend. A tester saw
          the link freeze after ~2 min and need a HUD reboot to recover. -->

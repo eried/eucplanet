@@ -278,6 +278,11 @@ fun HudApp(
                 // down (a rider who sees both should see "update HUD"
                 // first because that's the actionable problem).
                 VersionMismatchSurface(compat = compat)
+
+                // Phone-Wi-Fi interference advisory. BOTTOM-START -- the one
+                // corner the other persistent overlays leave free (disconnect /
+                // clock = TopEnd, version = BottomEnd, screen toast = TopStart).
+                PhoneWifiAdvisorySurface(show = hud.phoneWifiInterfering)
             }
         }
     }
@@ -361,6 +366,56 @@ private fun BoxScope.VersionMismatchSurface(
             Text(
                 text = url,
                 color = strokeColor,
+                fontSize = 11.sp,
+                fontWeight = FontWeight.SemiBold,
+                maxLines = 1
+            )
+        }
+    }
+}
+
+/**
+ * Advisory badge shown when the phone reports its OWN Wi-Fi keeps interrupting
+ * the HUD link (single-radio channel-follow: the phone's home/other Wi-Fi
+ * re-tunes the shared radio and drops the hotspot link). BOTTOM-START -- the
+ * one corner the other persistent overlays leave free. Same chrome family as
+ * [VersionMismatchSurface] / [DisconnectedBadge] (0xE6111111 fill, 1.dp colored
+ * stroke, icon + stacked title/detail), in the info-yellow tone because it is
+ * actionable advice, not an error.
+ */
+@Composable
+private fun BoxScope.PhoneWifiAdvisorySurface(show: Boolean) {
+    if (!show) return
+    val ctx = LocalContext.current
+    val tone = Color(0xFFD0A23A)
+    Row(
+        modifier = Modifier
+            .align(Alignment.BottomStart)
+            .padding(12.dp)
+            .clip(RectangleShape)
+            .background(Color(0xE6111111))
+            .border(1.dp, tone, RectangleShape)
+            .padding(horizontal = 10.dp, vertical = 6.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Icon(
+            imageVector = Icons.Outlined.Info,
+            contentDescription = null,
+            tint = tone,
+            modifier = Modifier.size(18.dp)
+        )
+        Spacer(Modifier.width(8.dp))
+        Column(verticalArrangement = Arrangement.spacedBy(1.dp)) {
+            Text(
+                text = ctx.getString(R.string.hud_wifi_advisory_title),
+                color = Color.White,
+                fontSize = 13.sp,
+                fontWeight = FontWeight.SemiBold,
+                maxLines = 1
+            )
+            Text(
+                text = ctx.getString(R.string.hud_wifi_advisory_detail),
+                color = tone,
                 fontSize = 11.sp,
                 fontWeight = FontWeight.SemiBold,
                 maxLines = 1
@@ -756,7 +811,12 @@ private fun IpPortMatrix(
     val cornerR = (side * 0.014f).dp
     val borderW = (side * 0.0045f).coerceAtLeast(1f).dp
     val innerHPad = (side * 0.035f).dp
-    val labelColW = (side * 0.18f).dp
+    // Fixed label column shared by both rows so the value cells line up. It
+    // MUST fit the WIDEST label ("PORT", 4 chars) at [labelFont] -- the old
+    // 0.18×side fit "IP" but clipped the "T" off "PORT". 0.26×side (~2.7
+    // label-font-widths) fits "PORT" with headroom; "IP" just gets more
+    // trailing space, which is fine since the cells still align.
+    val labelColW = (side * 0.26f).dp
     // Cells sized for a typical IPv4 address ("192.168.111.111", 15 chars
     // monospace + horizontal padding). Scaled in proportion to cellFont:
     // bumping the font above without widening the cell would clip the
