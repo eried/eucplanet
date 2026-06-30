@@ -32,11 +32,18 @@ object StudioProResEncoder {
         if (frameCount < 1) return null
         val mov = File(dir, "out.mov")
         val pattern = File(dir, "frame_%05d.png").absolutePath
-        // prores_ks profile 4444 + yuva444p10le keeps the alpha channel (ffmpeg
-        // promotes to 12-bit internally). -vendor apl0 tags it as Apple ProRes
-        // so editors recognise it.
+        // ProRes 4444 with alpha that editors (Premiere / Resolve / FCP) actually
+        // recognise:
+        //   profile 4444 + yuva444p10le -> the alpha channel (ffmpeg stores 12-bit).
+        //   premultiply -> NLEs expect premultiplied alpha for ProRes 4444; the
+        //     PNG frames are straight, so multiply RGB by alpha first.
+        //   -alpha_bits 16 -> full-depth alpha so it isn't dropped.
+        //   -vendor apl0 -> Apple ProRes vendor tag; some NLEs only enable the
+        //     alpha track when the file claims to be Apple-authored.
         val cmd = "-y -framerate $fps -i \"$pattern\" " +
-            "-c:v prores_ks -profile:v 4444 -pix_fmt yuva444p10le -vendor apl0 " +
+            "-vf premultiply=inplace=1 " +
+            "-c:v prores_ks -profile:v 4444 -pix_fmt yuva444p10le " +
+            "-alpha_bits 16 -vendor apl0 -qscale:v 9 " +
             "-r $fps \"${mov.absolutePath}\""
         val session = FFmpegKit.execute(cmd)
         if (!ReturnCode.isSuccess(session.returnCode) || !mov.exists() || mov.length() == 0L) {

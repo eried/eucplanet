@@ -111,6 +111,7 @@ import com.eried.eucplanet.ui.studio.recording.OverlayFrameSpec
 import com.eried.eucplanet.ui.studio.recording.StudioVideoEncoder
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.NonCancellable
+import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -738,16 +739,31 @@ fun OverlayStudioScreen(
                         }
                         if (sw != null && sw !== bmp) sw.recycle()
                     }
+                    var framesOk = true
                     try {
-                        withContext(Dispatchers.IO) { writePng(0, first) }
-                        renderProgress = 1f / frameCount
-                        var framesOk = true
-                        for (i in 1 until frameCount) {
-                            if (renderCancelRequested) { cancelled = true; break }
-                            val frame = captureReplayFrame(i)
-                            if (frame == null) { framesOk = false; break }
-                            withContext(Dispatchers.IO) { writePng(i, frame) }
-                            renderProgress = (i + 1f) / frameCount
+                        // Pipeline: write each frame's PNG on IO while the NEXT
+                        // frame renders on Main, so the encode-to-disk cost overlaps
+                        // the render instead of stacking after it. One write in
+                        // flight bounds memory to ~2 frames.
+                        kotlinx.coroutines.coroutineScope {
+                            val cs = this
+                            var pending: kotlinx.coroutines.Deferred<Unit>? = null
+                            suspend fun submit(i: Int, bmp: android.graphics.Bitmap) {
+                                pending?.await()
+                                pending = cs.async(Dispatchers.IO) { writePng(i, bmp) }
+                            }
+                            submit(0, first)
+                            renderProgress = 1f / frameCount
+                            var i = 1
+                            while (i < frameCount) {
+                                if (renderCancelRequested) { cancelled = true; break }
+                                val frame = captureReplayFrame(i)
+                                if (frame == null) { framesOk = false; break }
+                                submit(i, frame)
+                                renderProgress = (i + 1f) / frameCount
+                                i++
+                            }
+                            pending?.await()
                         }
                         if (!cancelled && framesOk) {
                             val fps = (frameCount * 1000.0 / outputMs).coerceIn(1.0, 60.0)
