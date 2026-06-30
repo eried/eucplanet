@@ -129,6 +129,7 @@ class FakeTripDao : TripDao {
     override suspend fun getById(id: Long): TripRecord? = trips.firstOrNull { it.id == id }
     override suspend fun findByFileName(name: String): TripRecord? =
         trips.firstOrNull { it.fileName == name }
+    override suspend fun allFileNames(): List<String> = trips.map { it.fileName }
     override suspend fun getPendingEucstatsUploads(): List<TripRecord> =
         trips.filter { it.endTime != null && it.tripUuid != null && it.eucstatsStatus in listOf(1, 3) }
     override suspend fun resetUnfinishedEucstatsStatuses() {
