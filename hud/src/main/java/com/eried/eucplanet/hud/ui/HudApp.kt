@@ -757,18 +757,23 @@ private fun DisconnectedDialog(localIp: String?) {
             )
             // Instruction goes ABOVE the values so the rider reads the
             // sentence first, then the things to type appear right below
-            // it -- natural top-down flow.
-            Text(
-                text = ctx.getString(R.string.hud_disconnected_instructions),
-                color = Color(0xFFB0B0B0),
-                fontSize = captionSize,
-                textAlign = TextAlign.Center
-            )
+            // it -- natural top-down flow. Hidden on low-resolution panels
+            // (small [side], e.g. a tiny Motoeye unit) where the space is
+            // better spent on the billboard IP/PORT; the title already says
+            // "Phone disconnected", so the hint is the most droppable line.
+            if (side >= LOW_RES_HINT_CUTOFF) {
+                Text(
+                    text = ctx.getString(R.string.hud_disconnected_instructions),
+                    color = Color(0xFFB0B0B0),
+                    fontSize = captionSize,
+                    textAlign = TextAlign.Center
+                )
+            }
             // 2×2 grid: column 1 = labels, column 2 = cells. Both columns
             // share fixed widths so corners line up cleanly. The inner pad
             // (side * 0.05f) gives the block visual margin against the
             // dialog edge so it doesn't feel crammed against the border.
-            Box(modifier = Modifier.padding(horizontal = (side * 0.05f).dp)) {
+            Box(modifier = Modifier.padding(horizontal = (side * 0.03f).dp)) {
                 IpPortMatrix(
                     ipText = ipText,
                     port = port,
@@ -799,9 +804,11 @@ private fun IpPortMatrix(
 ) {
     val cellHMin = (side * 0.22f).dp
     // Big, billboard-style IP so the rider can read it from the saddle
-    // without leaning into the panel. The cell width below scales with the
-    // font so a typical IPv4 ("192.168.111.111") still fits with headroom.
-    val cellFont = (side * 0.105f).sp
+    // without leaning into the panel. Sized to fit the widest IPv4
+    // ("255.255.255.255", 15 monospace chars) inside [cellW] on ONE line --
+    // the value Text below sets softWrap=false so it can never wrap the last
+    // octet onto a second line (the bug this replaced).
+    val cellFont = (side * 0.095f).sp
     val labelFont = (side * 0.095f).sp
     // Visible gap between IP and PORT so they read as two distinct fields
     // instead of one stacked block. Earlier 0.006×side made them visually
@@ -810,18 +817,34 @@ private fun IpPortMatrix(
     val labelGap = (side * 0.025f).dp
     val cornerR = (side * 0.014f).dp
     val borderW = (side * 0.0045f).coerceAtLeast(1f).dp
-    val innerHPad = (side * 0.035f).dp
+    val innerHPad = (side * 0.03f).dp
     // Fixed label column shared by both rows so the value cells line up. It
     // MUST fit the WIDEST label ("PORT", 4 chars) at [labelFont] -- the old
     // 0.18×side fit "IP" but clipped the "T" off "PORT". 0.26×side (~2.7
     // label-font-widths) fits "PORT" with headroom; "IP" just gets more
     // trailing space, which is fine since the cells still align.
     val labelColW = (side * 0.26f).dp
-    // Cells sized for a typical IPv4 address ("192.168.111.111", 15 chars
-    // monospace + horizontal padding). Scaled in proportion to cellFont:
-    // bumping the font above without widening the cell would clip the
-    // last octet on the real-device panel again.
-    val cellW = (side * 0.72f).dp
+    // One shared style for BOTH measuring and rendering the value, so the cell
+    // can't end up narrower than the glyph run. letterSpacing is pinned to 0 so
+    // an inherited theme value can't widen the rendered text past the measured
+    // cell and clip the last digit.
+    val valueStyle = androidx.compose.ui.text.TextStyle(
+        fontSize = cellFont,
+        fontFamily = FontFamily.Monospace,
+        fontWeight = FontWeight.SemiBold,
+        letterSpacing = 0.sp
+    )
+    // Cell sized to EXACTLY the widest IPv4 ("888.888.888.888" -- the fattest
+    // 15-char string at this monospace font) plus the inner padding: no more,
+    // no less. A guessed side-multiplier was wrong both ways (too narrow ->
+    // ".155" wrapped; too wide -> a sea of empty space). Measuring the glyph run
+    // is exact and font-metric-proof; +2dp guards px->dp rounding so the last
+    // digit never clips. Both IP and PORT cells share this width so they align.
+    val widestIpPx = androidx.compose.ui.text.rememberTextMeasurer()
+        .measure(text = "888.888.888.888", style = valueStyle).size.width
+    val cellW = with(androidx.compose.ui.platform.LocalDensity.current) {
+        widestIpPx.toDp()
+    } + innerHPad * 2 + 2.dp
 
     // wrapContentWidth so the column sizes to its widest row instead of
     // stretching to fill the parent. The parent dialog Column is itself
@@ -838,7 +861,7 @@ private fun IpPortMatrix(
             cellW = cellW,
             cellHMin = cellHMin,
             innerHPad = innerHPad,
-            valueFont = cellFont,
+            valueStyle = valueStyle,
             labelFont = labelFont,
             cornerR = cornerR,
             borderW = borderW,
@@ -852,7 +875,7 @@ private fun IpPortMatrix(
             cellW = cellW,
             cellHMin = cellHMin,
             innerHPad = innerHPad,
-            valueFont = cellFont,
+            valueStyle = valueStyle,
             labelFont = labelFont,
             cornerR = cornerR,
             borderW = borderW,
@@ -873,7 +896,7 @@ private fun AddressRow(
     cellW: androidx.compose.ui.unit.Dp,
     cellHMin: androidx.compose.ui.unit.Dp,
     innerHPad: androidx.compose.ui.unit.Dp,
-    valueFont: androidx.compose.ui.unit.TextUnit,
+    valueStyle: androidx.compose.ui.text.TextStyle,
     labelFont: androidx.compose.ui.unit.TextUnit,
     cornerR: androidx.compose.ui.unit.Dp,
     borderW: androidx.compose.ui.unit.Dp,
@@ -914,10 +937,12 @@ private fun AddressRow(
             Text(
                 text = value,
                 color = Color.White,
-                fontSize = valueFont,
-                fontFamily = FontFamily.Monospace,
-                fontWeight = FontWeight.SemiBold,
-                maxLines = 1
+                style = valueStyle,
+                maxLines = 1,
+                // Hard single-line: never break the last octet onto a second
+                // line. The cell is sized to fit the widest IPv4, so this never
+                // needs to clip in practice.
+                softWrap = false
             )
         }
     }
@@ -1042,6 +1067,11 @@ private fun WaitingForPhoneSplash(modifier: Modifier = Modifier) {
 /** Blink half-period: a sharp on/off swap every this many millis. 900 ms
  *  reads as "slow, deliberate" rather than urgent. */
 private const val BLINK_INTERVAL_MS: Long = 900L
+
+/** Below this min-side (dp), the disconnected dialog drops the "type the IP
+ *  into EUC Planet..." hint so a small Motoeye panel keeps the IP/PORT
+ *  billboard legible. Phone-sized panels (~390 dp short side) keep the hint. */
+private const val LOW_RES_HINT_CUTOFF: Float = 320f
 
 /** Parse `#AARRGGBB` (or `#RRGGBB`) into a Compose [Color], falling back to
  *  the accent default if the wire payload is malformed. */
