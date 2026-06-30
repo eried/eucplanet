@@ -628,11 +628,12 @@ data class AppSettings(
     // --- Overlay Studio replay export ---
     // Output format for the Replay-mode photo / video export. Stored as stable
     // keys so the format set can change without a settings migration.
-    /** Replay photo export format: "WEBP" (alpha, fast), "PNG" (alpha,
-     *  larger / slower) or "JPG" (chroma-filled). */
-    val studioReplayPhotoFormat: String = "WEBP",
-    /** Replay video export format: "GIF" (1-bit alpha), "APNG" (alpha) or "MP4" (chroma-filled). */
-    val studioReplayVideoFormat: String = "MP4",
+    /** Replay photo export format: "PNG" (alpha, default), "WEBP" (alpha, fast),
+     *  "JPG" (chroma-filled) or "GIF" (1-bit alpha). */
+    val studioReplayPhotoFormat: String = "PNG",
+    /** Replay video export format: "MOV" (ProRes 4444 alpha, default), "APNG"
+     *  (alpha), "GIF" (1-bit alpha) or "MP4" (chroma-filled). */
+    val studioReplayVideoFormat: String = "MOV",
     /**
      * ARGB chroma-key fill colour used when an alpha-less export format (JPG,
      * MP4) is chosen. Default bright green (0xFF00FF00).

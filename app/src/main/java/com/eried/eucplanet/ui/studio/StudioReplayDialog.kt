@@ -487,8 +487,15 @@ private fun ExportFormatChooser(
             color = MaterialTheme.appColors.textSecondary,
             modifier = Modifier.padding(top = 4.dp, bottom = 6.dp)
         )
+        // Ordered so each column lines up with its video counterpart below:
+        // PNG↔APNG, GIF↔GIF, JPG↔MP4 (lossy, no alpha), WEBP↔MOV (alpha).
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            ReplayPhotoFormat.entries.forEach { fmt ->
+            listOf(
+                ReplayPhotoFormat.PNG,
+                ReplayPhotoFormat.GIF,
+                ReplayPhotoFormat.JPG,
+                ReplayPhotoFormat.WEBP
+            ).forEach { fmt ->
                 FormatChip(
                     label = fmt.name,
                     selected = fmt == prefs.photoFormat,
@@ -508,8 +515,15 @@ private fun ExportFormatChooser(
             color = MaterialTheme.appColors.textSecondary,
             modifier = Modifier.padding(bottom = 6.dp)
         )
+        // Same column order as the photo row above (APNG under PNG, GIF under
+        // GIF, MP4 under JPG, MOV under WEBP).
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            ReplayVideoFormat.entries.forEach { fmt ->
+            listOf(
+                ReplayVideoFormat.APNG,
+                ReplayVideoFormat.GIF,
+                ReplayVideoFormat.MP4,
+                ReplayVideoFormat.MOV
+            ).forEach { fmt ->
                 FormatChip(
                     label = fmt.name,
                     selected = fmt == prefs.videoFormat,
