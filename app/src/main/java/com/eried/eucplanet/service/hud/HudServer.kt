@@ -20,6 +20,7 @@ import com.eried.eucplanet.hud.protocol.HudDebug
 import com.eried.eucplanet.hud.protocol.HudDiscovery
 import com.eried.eucplanet.hud.protocol.HudState
 import com.eried.eucplanet.hud.protocol.RadarTargetWire
+import com.eried.eucplanet.hud.protocol.WifiInterferenceDetector
 import com.eried.eucplanet.nav.NavigationEngine
 import com.eried.eucplanet.ui.theme.AccentOptions
 import com.eried.eucplanet.ui.theme.AccentTeal
@@ -168,6 +169,13 @@ class HudServer @Inject constructor(
 
     /** Currently-registered ConnectivityManager callback; cleared on doStop. */
     @Volatile private var netCallback: ConnectivityManager.NetworkCallback? = null
+
+    /** Detects when the phone's OWN home/other Wi-Fi keeps interrupting the HUD
+     *  link (single-radio channel-follow): correlates established-link drops
+     *  with the phone's Wi-Fi STA transitions. When it fires we set
+     *  [HudState.phoneWifiInterfering] so the HUD advises the rider to turn the
+     *  phone's Wi-Fi off. */
+    private val wifiInterference = WifiInterferenceDetector()
 
     init {
         // Watch the toggle ourselves so the link starts the moment the
@@ -339,7 +347,16 @@ class HudServer @Inject constructor(
             override fun onAvailable(network: Network) {
                 Log.i(TAG, "network onAvailable: kicking dial loop")
                 log("Network came up, retrying immediately")
+                // The phone's own home/other Wi-Fi just (re)joined: on a single
+                // radio this re-tunes the hotspot and tends to drop the HUD a
+                // few seconds later. Feed the detector so a correlated drop is
+                // recognised as channel-follow, not a plain out-of-range loss.
+                wifiInterference.onStaTransition(System.currentTimeMillis())
                 reconnectKick.trySend(Unit)
+            }
+            override fun onLost(network: Network) {
+                Log.i(TAG, "network onLost: home WiFi gone")
+                wifiInterference.onStaTransition(System.currentTimeMillis())
             }
             override fun onLosing(network: Network, maxMsToLive: Int) {
                 // DO NOT close the WS here. This callback filters for
@@ -357,6 +374,7 @@ class HudServer @Inject constructor(
                 Log.i(TAG, "network onLosing (${maxMsToLive}ms): home WiFi leaving; " +
                     "leaving hotspot WS intact")
                 log("Home WiFi dropping in ${maxMsToLive}ms (hotspot link unaffected)")
+                wifiInterference.onStaTransition(System.currentTimeMillis())
             }
         }
         try {
@@ -676,9 +694,14 @@ class HudServer @Inject constructor(
             .build()
         val listener = object : WebSocketListener() {
             private var sendJob: Job? = null
+            /** True once this socket actually opened, so onFailure can tell an
+             *  ESTABLISHED-link drop (a real interruption worth correlating with
+             *  Wi-Fi) from a plain "couldn't find/connect to the HUD" dial miss. */
+            @Volatile private var wasOpen = false
             override fun onOpen(webSocket: WebSocket, response: Response) {
                 Log.i(TAG, "HUD link open: $peer")
                 log("Connected to $peer ✓")
+                wasOpen = true
                 ws = webSocket
                 // Push a frame every PUBLISH_INTERVAL_MS off the snapshot
                 // buffer. We don't dedupe: even when no field changed, the
@@ -733,6 +756,12 @@ class HudServer @Inject constructor(
             override fun onFailure(webSocket: WebSocket, t: Throwable, response: Response?) {
                 Log.w(TAG, "HUD link failure: ${t.message} (${response?.code})")
                 log("Not found: ${t.message ?: t::class.simpleName}")
+                // Only an ESTABLISHED link dropping is a candidate channel-follow
+                // event; a failed dial (never opened) is just discovery missing.
+                if (wasOpen) {
+                    val correlated = wifiInterference.onHudDrop(System.currentTimeMillis())
+                    if (correlated) log("Drop correlated with a phone Wi-Fi change")
+                }
                 sendJob?.cancel()
                 ws = null
                 commandSink.onHudDisconnected()
@@ -749,6 +778,9 @@ class HudServer @Inject constructor(
     }
 
     private suspend fun snapshot(): HudState {
+        // Let the Wi-Fi-interference advisory decay once the link has been
+        // stable for a while (this runs every publish tick, ~5 Hz).
+        wifiInterference.onStableTick(System.currentTimeMillis())
         val s = settingsRepository.get()
         val wd = wheelRepository.wheelData.value
         val state = wheelRepository.connectionState.value
@@ -885,7 +917,8 @@ class HudServer @Inject constructor(
                         level = it.threatLevel.ordinal
                     )
                 }.orEmpty(),
-            timestampMs = System.currentTimeMillis()
+            timestampMs = System.currentTimeMillis(),
+            phoneWifiInterfering = wifiInterference.advisoryActive
         )
     }
 

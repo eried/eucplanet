@@ -89,15 +89,20 @@ class HudServer(private val context: Context) {
         private const val WAKE_LOCK_TAG = "eucplanet-hud:server"
         /** Faster watchdog cadence once the link looks unhealthy, so an
          *  off-air radio is detected and the recovery ladder escalates within
-         *  seconds instead of the lazy 10 s healthy interval. */
-        private const val RECOVERY_INTERVAL_MS: Long = 3_000L
+         *  seconds instead of the lazy 10 s healthy interval. Tightened from 3 s
+         *  to 1.5 s after a field log showed a real off-air recovery take ~34 s;
+         *  combined with the front-loaded toggle this brings a severe drop back
+         *  in ~8-12 s. */
+        private const val RECOVERY_INTERVAL_MS: Long = 1_500L
         /** Timeout for the "can I still reach the phone I was talking to"
          *  reachability probe. Short: the hotspot link is sub-10 ms when up. */
         private const val PEER_PROBE_TIMEOUT_MS: Int = 1_200
         /** Consecutive off-air ticks tolerated before the recovery ladder
-         *  starts. One grace tick rides out a single transient peer-probe miss
-         *  without kicking the radio. */
-        private const val OFF_AIR_GRACE_TICKS: Int = 1
+         *  starts. 0 = act on the first confirmed off-air tick: the first rung
+         *  ([RecoveryStep.RESTART_SOCKETS]) is harmless and the radio-touching
+         *  rungs still need the off-air state to persist across ticks, so there
+         *  is no churn risk -- but recovery starts a tick sooner. */
+        private const val OFF_AIR_GRACE_TICKS: Int = 0
     }
 
     /** Connection state surfaced to the UI status banner. */
@@ -683,7 +688,7 @@ class HudServer(private val context: Context) {
                     releaseWifiLock()
                     @Suppress("DEPRECATION")
                     runCatching { wifi?.isWifiEnabled = false }
-                    delay(1_500L)
+                    delay(1_000L)
                     @Suppress("DEPRECATION")
                     runCatching { wifi?.isWifiEnabled = true }
                     acquireWifiLock()

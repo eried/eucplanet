@@ -70,14 +70,19 @@ class LinkWatchdogTest {
 
     // ---- recovery ladder ------------------------------------------------
 
-    @Test fun ladder_starts_cheap_then_escalates_and_never_gives_up() {
+    @Test fun ladder_tries_cheap_then_front_loads_the_decisive_toggle() {
+        // One cheap socket restart first, then the WiFi toggle -- field logs
+        // (Motoeye E6, Android 7/8) showed reassociate alone did NOT clear the
+        // off-air state; the toggle is what recovered it, so it is reached on
+        // the very next rung instead of third. Reassociate fills the gaps
+        // (cheaper, and the effective path on API29+ where toggle is a no-op).
         assertEquals(RecoveryStep.RESTART_SOCKETS, LinkWatchdog.recoveryStepFor(0))
-        assertEquals(RecoveryStep.REASSOCIATE, LinkWatchdog.recoveryStepFor(1))
-        assertEquals(RecoveryStep.TOGGLE_WIFI, LinkWatchdog.recoveryStepFor(2))
-        // Past the toggle we keep alternating reassociate/toggle forever rather
-        // than surrendering -- the alternative is the rider rebooting anyway.
-        assertEquals(RecoveryStep.REASSOCIATE, LinkWatchdog.recoveryStepFor(3))
-        assertEquals(RecoveryStep.TOGGLE_WIFI, LinkWatchdog.recoveryStepFor(4))
+        assertEquals(RecoveryStep.TOGGLE_WIFI, LinkWatchdog.recoveryStepFor(1))
+        assertEquals(RecoveryStep.REASSOCIATE, LinkWatchdog.recoveryStepFor(2))
+        // Keep alternating toggle/reassociate forever rather than surrendering
+        // -- the alternative is the rider rebooting anyway.
+        assertEquals(RecoveryStep.TOGGLE_WIFI, LinkWatchdog.recoveryStepFor(3))
+        assertEquals(RecoveryStep.REASSOCIATE, LinkWatchdog.recoveryStepFor(4))
     }
 
     @Test fun ladder_clamps_negative_to_first_step() {

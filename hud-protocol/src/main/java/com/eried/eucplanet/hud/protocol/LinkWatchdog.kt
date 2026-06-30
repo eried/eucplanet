@@ -44,20 +44,24 @@ object LinkWatchdog {
 
     /**
      * The recovery action to take for the Nth consecutive off-air recovery
-     * attempt. Escalates cheap -> aggressive and then alternates forever rather
+     * attempt. Escalates cheap -> decisive and then alternates forever rather
      * than ever surrendering -- the only alternative to "keep trying" is the
      * rider rebooting the HUD, which is the failure we are removing.
      *
      *   0      -> [RecoveryStep.RESTART_SOCKETS]  (re-resolve IP, restart
      *             beacon/mDNS/finder, bounce the WiFi lock; no radio state change)
-     *   odd    -> [RecoveryStep.REASSOCIATE]      (WifiManager.reconnect/reassociate)
-     *   even>0 -> [RecoveryStep.TOGGLE_WIFI]      (off/on; only effective pre-API29,
-     *             the caller falls back to REASSOCIATE where it is a no-op)
+     *   odd    -> [RecoveryStep.TOGGLE_WIFI]      (off/on; the DECISIVE rung,
+     *             front-loaded because a Motoeye E6 field log showed reassociate
+     *             alone did not clear the off-air state -- the toggle did. Only
+     *             effective pre-API29; the caller falls back to REASSOCIATE where
+     *             it is a no-op)
+     *   even>0 -> [RecoveryStep.REASSOCIATE]      (WifiManager.reconnect/reassociate;
+     *             cheap, fills the gaps, and the only effective path on API29+)
      */
     fun recoveryStepFor(attempt: Int): RecoveryStep = when {
         attempt <= 0 -> RecoveryStep.RESTART_SOCKETS
-        attempt % 2 == 1 -> RecoveryStep.REASSOCIATE
-        else -> RecoveryStep.TOGGLE_WIFI
+        attempt % 2 == 1 -> RecoveryStep.TOGGLE_WIFI
+        else -> RecoveryStep.REASSOCIATE
     }
 }
 
