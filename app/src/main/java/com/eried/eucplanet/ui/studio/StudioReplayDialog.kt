@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -58,6 +59,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.text.TextRange
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
@@ -385,10 +390,23 @@ fun StudioReplayDialog(
     }
 }
 
+/** Digits-only -> MM:SS, timer style (the last two digits are the seconds, the
+ *  rest the minutes). Lets the fields use a pure number keyboard. */
+private fun digitsToClock(raw: String): String {
+    val digits = raw.filter { it.isDigit() }.takeLast(5)
+    if (digits.isEmpty()) return ""
+    val secs = digits.takeLast(2).padStart(2, '0')
+    val mins = digits.dropLast(2).ifEmpty { "0" }.toInt()
+    return "$mins:$secs"
+}
+
 /**
- * Type an exact trim range (MM:SS / H:MM:SS) instead of dragging the handles --
- * the handles are fiddly for precise cuts. Confirm is disabled until both fields
- * parse, sit inside [0, durationMs], and start < end.
+ * Type an exact trim range instead of dragging the fiddly handles. Start / End /
+ * Duration are number-keyboard fields (digits auto-format to MM:SS) and stay
+ * linked: editing Start or End updates Duration; editing Duration moves End when
+ * a Start is set (the common case), moves Start when only an End is set, or fills
+ * 0:00 -> Duration when neither is. Reset restores the full clip. Apply is enabled
+ * only when both ends parse, sit in [0, duration] and start < end.
  */
 @Composable
 private fun TrimTimeDialog(
@@ -398,33 +416,56 @@ private fun TrimTimeDialog(
     onConfirm: (Long, Long) -> Unit,
     onDismiss: () -> Unit
 ) {
-    var startText by remember { mutableStateOf(formatReplayClock(startMs)) }
-    var endText by remember { mutableStateOf(formatReplayClock(endMs)) }
-    val startParsed = parseReplayClock(startText)
-    val endParsed = parseReplayClock(endText)
+    fun fmt(ms: Long) = formatReplayClock(ms.coerceAtLeast(0))
+    fun tfv(t: String) = TextFieldValue(t, selection = TextRange(t.length))
+    val start = remember { mutableStateOf(tfv(fmt(startMs))) }
+    val end = remember { mutableStateOf(tfv(fmt(endMs))) }
+    val dur = remember { mutableStateOf(tfv(fmt(endMs - startMs))) }
+
+    val startParsed = parseReplayClock(start.value.text)
+    val endParsed = parseReplayClock(end.value.text)
     val startOk = startParsed != null && startParsed in 0..durationMs
     val endOk = endParsed != null && endParsed in 0..durationMs
     val valid = startOk && endOk && startParsed!! < endParsed!!
+
+    // Editing Start or End re-derives Duration.
+    val syncDuration = {
+        val s = parseReplayClock(start.value.text)
+        val e = parseReplayClock(end.value.text)
+        if (s != null && e != null) dur.value = tfv(fmt(e - s))
+    }
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text(stringResource(R.string.studio_replay_trim_title)) },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                OutlinedTextField(
-                    value = startText,
-                    onValueChange = { startText = it },
-                    label = { Text(stringResource(R.string.studio_replay_trim_start)) },
-                    singleLine = true,
-                    isError = !startOk
+                TrimTimeField(
+                    label = stringResource(R.string.studio_replay_trim_start),
+                    state = start,
+                    isError = !startOk,
+                    afterChange = syncDuration
                 )
-                OutlinedTextField(
-                    value = endText,
-                    onValueChange = { endText = it },
-                    label = { Text(stringResource(R.string.studio_replay_trim_end)) },
-                    singleLine = true,
+                TrimTimeField(
+                    label = stringResource(R.string.studio_replay_trim_end),
+                    state = end,
                     isError = !endOk,
-                    supportingText = {
-                        Text("MM:SS  ·  0:00 – ${formatReplayClock(durationMs)}")
+                    afterChange = syncDuration
+                )
+                TrimTimeField(
+                    label = stringResource(R.string.studio_replay_trim_duration),
+                    state = dur,
+                    supporting = "MM:SS  ·  max ${fmt(durationMs)}",
+                    afterChange = {
+                        val d = parseReplayClock(dur.value.text)
+                        if (d != null) {
+                            val s = parseReplayClock(start.value.text)
+                            val e = parseReplayClock(end.value.text)
+                            when {
+                                s != null -> end.value = tfv(fmt((s + d).coerceAtMost(durationMs)))
+                                e != null -> start.value = tfv(fmt((e - d).coerceAtLeast(0)))
+                                else -> { start.value = tfv("0:00"); end.value = tfv(fmt(d.coerceAtMost(durationMs))) }
+                            }
+                        }
                     }
                 )
             }
@@ -436,8 +477,45 @@ private fun TrimTimeDialog(
             ) { Text(stringResource(R.string.action_apply)) }
         },
         dismissButton = {
-            TextButton(onClick = onDismiss) { Text(stringResource(R.string.action_cancel)) }
+            Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                TextButton(onClick = {
+                    start.value = tfv("0:00"); end.value = tfv(fmt(durationMs)); dur.value = tfv(fmt(durationMs))
+                }) { Text(stringResource(R.string.studio_replay_trim_reset)) }
+                TextButton(onClick = onDismiss) { Text(stringResource(R.string.action_cancel)) }
+            }
         }
+    )
+}
+
+/** A number-keyboard MM:SS field for the trim dialog: digits auto-format to
+ *  MM:SS (timer style), and focusing it selects all so the next keystroke
+ *  replaces the value -- clean editing of a pre-filled time without fighting
+ *  backspace. [afterChange] re-syncs the linked fields. */
+@Composable
+private fun TrimTimeField(
+    label: String,
+    state: androidx.compose.runtime.MutableState<TextFieldValue>,
+    isError: Boolean = false,
+    supporting: String? = null,
+    afterChange: () -> Unit
+) {
+    OutlinedTextField(
+        value = state.value,
+        onValueChange = { v ->
+            val f = digitsToClock(v.text)
+            state.value = TextFieldValue(f, selection = TextRange(f.length))
+            afterChange()
+        },
+        modifier = Modifier.onFocusChanged {
+            if (it.isFocused) {
+                state.value = state.value.copy(selection = TextRange(0, state.value.text.length))
+            }
+        },
+        label = { Text(label) },
+        singleLine = true,
+        isError = isError,
+        supportingText = supporting?.let { s -> { Text(s) } },
+        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
     )
 }
 
@@ -559,14 +637,11 @@ private fun ExportFormatChooser(
             )
         }
         if (optionsOpen) {
-            // Chroma + force-opaque only apply to alpha-less formats (JPG /
-            // MP4). When BOTH the chosen photo and video formats carry
-            // alpha, those controls are inert -- dim them so the rider
-            // sees they have no effect rather than wondering why their
-            // PNG / GIF still shows transparency.
-            val opaqueAffects =
-                !prefs.photoFormat.hasAlpha || !prefs.videoFormat.hasAlpha
-            val ctrlAlpha = if (opaqueAffects) 1f else 0.4f
+            // Chroma + force-opaque only actually affect alpha-less formats (JPG /
+            // MP4), but the rider already knows that -- keep the controls fully
+            // enabled rather than greying them out.
+            val opaqueAffects = true
+            val ctrlAlpha = 1f
             Text(
                 stringResource(R.string.studio_export_scale),
                 style = MaterialTheme.typography.labelMedium,
