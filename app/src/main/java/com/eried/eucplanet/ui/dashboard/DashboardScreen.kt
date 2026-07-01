@@ -1197,7 +1197,7 @@ fun DashboardScreen(
             // Landscape: all metrics in a single row (1 tall). Tablets force 3
             // columns to honour wideStats. Phones use whatever the rider set in
             // the editor (2 or 3).
-            val metricColumns = if (landscape) activeMetricKeys.size.coerceIn(1, 6)
+            val metricColumns = if (landscape) 1
                 else if (wideStats) 3
                 else dashboardMetricsColumnsSetting.coerceIn(2, 3)
             val metricRows = (activeMetricKeys.size + metricColumns - 1) / metricColumns
@@ -1485,14 +1485,19 @@ fun DashboardScreen(
                     context.packageManager.getPackageInfo(context.packageName, 0).versionCode
                 } catch (_: Exception) { 0 }
             }
-            // Everything below the speedo (metric grid + action buttons + odo
-            // footer) as one reusable block so portrait stacks it under the dial
-            // and landscape puts it in the scrollable right panel.
-            val restBlock: @Composable () -> Unit = {
+            // Metric grid as its own block. Portrait: 2-3 columns stacked under
+            // the dial. Landscape: a single column (metricColumns == 1) forming
+            // the middle "1 x N" panel between the dial and the buttons -- full
+            // tiles keep their value + min/max/avg corner stats.
+            val metricsBlock: @Composable (androidx.compose.ui.unit.Dp?) -> Unit = { tileHeight ->
             for (rowIdx in 0 until metricRows) {
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
+                        // Landscape passes a fixed per-row height so all N metrics
+                        // fill the middle column without scrolling; portrait passes
+                        // null and rows keep their natural height.
+                        .then(if (tileHeight != null) Modifier.height(tileHeight) else Modifier)
                         // Spotlight the WHOLE metrics grid: each row unions into
                         // one rect for the welcome tour.
                         .coachmarkTargetUnion(coachmark, TutorialTarget.METRICS),
@@ -1908,11 +1913,12 @@ fun DashboardScreen(
                 }
                 if (rowIdx < metricRows - 1) Spacer(Modifier.height(10.dp))
             }
+            }  // end metricsBlock
 
-            Spacer(Modifier.height(14.dp))
-
-            // Action buttons, fixed height on both phone and wide layouts so the
-            // bottom rows always fit even with the taller speedometer and stat cards.
+            // Action buttons as their own block. Portrait: 2 rows of 3 under the
+            // metrics. Landscape: a 2 x 3 grid forming the right-hand column.
+            val buttonsBlock: @Composable () -> Unit = {
+            // Fixed height on both phone and wide layouts so the rows always fit.
             val actionAspect: Float? = null
             val actionHeight: Int? = if (wideStats) 88 else 104
 
@@ -1935,8 +1941,8 @@ fun DashboardScreen(
 
             // Portrait: two rows of 3 (today's layout). Landscape: a single row
             // so the buttons sit in one line under the one-row metrics.
-            val buttonCols = if (landscape) activeActionKeys.size.coerceIn(1, 6) else 3
-            val buttonRows = if (landscape) 1 else 2
+            val buttonCols = if (landscape) 2 else 3
+            val buttonRows = if (landscape) 3 else 2
             for (rowIdx in 0 until buttonRows) {
                 Row(
                     modifier = Modifier
@@ -2289,15 +2295,15 @@ fun DashboardScreen(
                         }
                     }
                 }
-                if (rowIdx == 0) Spacer(Modifier.height(8.dp))
+                if (rowIdx < buttonRows - 1) Spacer(Modifier.height(8.dp))
             }
-
-            Spacer(Modifier.height(12.dp))
+            }  // end buttonsBlock
 
             // Bottom info row: ODO + wheel model + firmware + version (tap for About)
             // (showAboutDialog / showDiagnosticsDialog hoisted to the top of
             // the screen so OPEN_ABOUT action bindings can trigger them.
-            // context / versionName / versionRevision are hoisted above restBlock.)
+            // context / versionName / versionRevision are hoisted above.)
+            val infoBlock: @Composable () -> Unit = {
             val diagEnabled by com.eried.eucplanet.diagnostics.DiagnosticsLogger.enabled.collectAsState()
             WheelInfoBox(
                 odoKm = wheelData.totalDistance,
@@ -2312,27 +2318,48 @@ fun DashboardScreen(
                 // Spotlight only the version (right side), not the whole ODO row.
                 versionModifier = Modifier.coachmarkTarget(coachmark, TutorialTarget.VERSION)
             )
-            }  // end restBlock
+            }  // end infoBlock
 
-            // Portrait: dial on top (absorbs slack), rest stacked below. Landscape:
-            // dial on the left, rest in a scrollable panel on the right.
+            // Portrait: dial on top (absorbs slack), then metrics, buttons, odo
+            // stacked. Landscape: three side-by-side columns -- dial | metric
+            // column (1 x N) | buttons (2 x 3), with the odo tucked under them.
             if (landscape) {
                 Row(modifier = Modifier.fillMaxSize()) {
-                    speedoBlock(Modifier.weight(0.45f).fillMaxHeight())
+                    speedoBlock(Modifier.weight(0.40f).fillMaxHeight())
+                    // Middle column: the metric tiles as a vertical "1 x N" stack.
+                    // Tiles keep their full height (value + min/max/avg + spark),
+                    // so the column scrolls when they don't all fit the short
+                    // landscape height rather than squashing them.
                     Column(
                         modifier = Modifier
-                            .weight(0.55f)
+                            .weight(0.26f)
                             .fillMaxHeight()
                             .verticalScroll(rememberScrollState()),
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        restBlock()
+                        metricsBlock(null)
+                    }
+                    Spacer(Modifier.width(10.dp))
+                    Column(
+                        modifier = Modifier
+                            .weight(0.36f)
+                            .fillMaxHeight()
+                            .verticalScroll(rememberScrollState()),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        buttonsBlock()
+                        Spacer(Modifier.height(8.dp))
+                        infoBlock()
                     }
                 }
             } else {
                 speedoBlock(Modifier.fillMaxWidth().weight(1f, fill = true))
                 Spacer(Modifier.height(16.dp))
-                restBlock()
+                metricsBlock(null)
+                Spacer(Modifier.height(14.dp))
+                buttonsBlock()
+                Spacer(Modifier.height(12.dp))
+                infoBlock()
             }
 
             if (showDiagnosticsDialog) {
