@@ -1933,9 +1933,11 @@ fun DashboardScreen(
             val lockBlockedBySpeed = !locked && kotlin.math.abs(wheelData.speed) >= 5f && !lockAtAnySpeed
             val wheelHasLock by viewModel.wheelHasLock.collectAsState()
 
-            // Two rows of 3 — match today's layout. Tablets (wideStats)
-            // and phones both render 3 columns; only the height changes.
-            for (rowIdx in 0 until 2) {
+            // Portrait: two rows of 3 (today's layout). Landscape: a single row
+            // so the buttons sit in one line under the one-row metrics.
+            val buttonCols = if (landscape) activeActionKeys.size.coerceIn(1, 6) else 3
+            val buttonRows = if (landscape) 1 else 2
+            for (rowIdx in 0 until buttonRows) {
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -1944,8 +1946,8 @@ fun DashboardScreen(
                         .coachmarkTargetUnion(coachmark, TutorialTarget.ACTIONS),
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    for (colIdx in 0 until 3) {
-                        val slotIdx = rowIdx * 3 + colIdx
+                    for (colIdx in 0 until buttonCols) {
+                        val slotIdx = rowIdx * buttonCols + colIdx
                         val rawKey = activeActionKeys.getOrNull(slotIdx)
                         // Same EMPTY_SLOT_KEY handling as the metric grid.
                         val key = if (rawKey == com.eried.eucplanet.ui.settings.EMPTY_SLOT_KEY) null else rawKey
