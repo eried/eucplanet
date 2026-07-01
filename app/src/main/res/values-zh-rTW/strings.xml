@@ -1812,7 +1812,6 @@
     <string name="alarm_summary_adaptive_vol">音量</string>
     <string name="reorg_drag_cd">拖曳以重新排序</string>
     <string name="reorg_hint">關閉的區段會移至「更多」。</string>
-    <string name="reorg_title">重新整理設定</string>
     <string name="studio_cd_close">關閉工作室</string>
     <string name="studio_cd_gallery">開啟圖庫</string>
     <string name="studio_cd_mic">麥克風</string>

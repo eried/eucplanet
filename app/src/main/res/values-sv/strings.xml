@@ -1813,7 +1813,6 @@
     <string name="alarm_summary_adaptive_vol">volym</string>
     <string name="reorg_drag_cd">Dra för att ändra ordning</string>
     <string name="reorg_hint">Avsnitt du stänger av flyttas till Mer.</string>
-    <string name="reorg_title">Organisera om inställningar</string>
     <string name="studio_cd_close">Stäng studion</string>
     <string name="studio_cd_gallery">Öppna galleri</string>
     <string name="studio_cd_mic">Mikrofon</string>

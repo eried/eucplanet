@@ -1222,72 +1222,131 @@ private data class SectionHandle(val key: String, val title: String, val icon: I
 /** Pseudo-key for the synthetic "More" bucket's expand state. */
 private const val MORE_KEY = "__more__"
 
-/** Drag-to-reorder plus show/hide editor for the Settings sections. Drag the
+/** Dialog to reorder the Settings sections and switch some into "More". Drag the
  *  handle to reorder; switch a section off to tuck it into "More". Advanced is
- *  pinned last and never appears here. */
+ *  pinned last and never appears here. Edits are staged on a local draft so the
+ *  Settings screen behind the dialog does not shuffle while the rider toggles;
+ *  nothing is applied until Save. */
 @Composable
-private fun ReorganizeSectionsEditor(
+private fun SettingsVisibilityDialog(
     handles: List<SectionHandle>,
-    layout: com.eried.eucplanet.data.model.SettingsLayout,
-    onReorder: (List<String>) -> Unit,
-    onSetVisible: (String, Boolean) -> Unit,
-    onReset: () -> Unit,
+    initial: com.eried.eucplanet.data.model.SettingsLayout,
+    onApply: (com.eried.eucplanet.data.model.SettingsLayout) -> Unit,
+    onDismiss: () -> Unit,
 ) {
-    val ordered = remember(handles, layout.order) {
-        handles.sortedBy { val i = layout.order.indexOf(it.key); if (i < 0) Int.MAX_VALUE else i }
+    val naturalKeys = remember(handles) { handles.map { it.key } }
+    // Staged draft: reorder + hidden set held locally, committed only on Save.
+    var draftOrder by remember {
+        mutableStateOf(
+            handles.sortedBy { val i = initial.order.indexOf(it.key); if (i < 0) Int.MAX_VALUE else i }
+                .map { it.key }
+        )
     }
-    val hidden = layout.hidden.toSet()
-    val modified = layout.order.isNotEmpty() || layout.hidden.isNotEmpty()
-    // Restore default, shown only once the rider has changed the arrangement.
-    if (modified) {
-        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
-            TextButton(onClick = onReset) {
-                Icon(Icons.Default.Restore, contentDescription = null, modifier = Modifier.size(18.dp))
-                Spacer(Modifier.width(6.dp))
-                Text(stringResource(R.string.adv_restore_default))
-            }
-        }
+    var draftHidden by remember { mutableStateOf(initial.hidden.toSet()) }
+    val orderedHandles = remember(handles, draftOrder) {
+        handles.sortedBy { val i = draftOrder.indexOf(it.key); if (i < 0) Int.MAX_VALUE else i }
     }
-    HintText(stringResource(R.string.reorg_hint), small = true)
-    Spacer(Modifier.height(4.dp))
-    ReorderableColumn(
-        list = ordered,
-        onSettle = { from, to ->
-            val keys = ordered.map { it.key }.toMutableList()
-            keys.add(to, keys.removeAt(from))
-            onReorder(keys)
-        },
-        modifier = Modifier.fillMaxWidth(),
-    ) { _, handle, _ ->
-        key(handle.key) {
-            Row(
-                modifier = Modifier.fillMaxWidth().padding(vertical = 2.dp),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Icon(
-                    Icons.Default.DragHandle,
-                    contentDescription = stringResource(R.string.reorg_drag_cd),
-                    tint = MaterialTheme.appColors.textSecondary,
-                    modifier = Modifier.draggableHandle(),
-                )
-                Spacer(Modifier.width(8.dp))
-                Icon(
-                    handle.icon,
-                    contentDescription = null,
-                    tint = MaterialTheme.appColors.primary,
-                    modifier = Modifier.size(20.dp),
-                )
-                Spacer(Modifier.width(10.dp))
+    val isDefault = draftOrder == naturalKeys && draftHidden.isEmpty()
+
+    androidx.compose.ui.window.Dialog(
+        onDismissRequest = onDismiss,
+        // A stray tap outside must not drop staged edits; only Reset/Cancel/Save act.
+        properties = androidx.compose.ui.window.DialogProperties(
+            usePlatformDefaultWidth = false,
+            dismissOnClickOutside = false,
+        ),
+    ) {
+        Surface(
+            modifier = Modifier.fillMaxWidth(0.96f),
+            shape = RoundedCornerShape(16.dp),
+            color = MaterialTheme.appColors.surface,
+        ) {
+            Column(Modifier.fillMaxWidth().padding(16.dp)) {
                 Text(
-                    handle.title,
-                    modifier = Modifier.weight(1f),
+                    stringResource(R.string.settings_visibility),
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.Bold,
                     color = MaterialTheme.appColors.textPrimary,
                 )
-                Switch(
-                    checked = handle.key !in hidden,
-                    onCheckedChange = { onSetVisible(handle.key, it) },
-                    colors = themedSwitchColors(),
-                )
+                Spacer(Modifier.height(8.dp))
+                HintText(stringResource(R.string.reorg_hint), small = true)
+                Spacer(Modifier.height(8.dp))
+                Column(
+                    modifier = Modifier
+                        .heightIn(max = 420.dp)
+                        .verticalScroll(rememberScrollState())
+                ) {
+                    ReorderableColumn(
+                        list = orderedHandles,
+                        onSettle = { from, to ->
+                            val keys = orderedHandles.map { it.key }.toMutableList()
+                            keys.add(to, keys.removeAt(from))
+                            draftOrder = keys
+                        },
+                        modifier = Modifier.fillMaxWidth(),
+                    ) { _, handle, _ ->
+                        key(handle.key) {
+                            Row(
+                                modifier = Modifier.fillMaxWidth().padding(vertical = 2.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                            ) {
+                                Icon(
+                                    Icons.Default.DragHandle,
+                                    contentDescription = stringResource(R.string.reorg_drag_cd),
+                                    tint = MaterialTheme.appColors.textSecondary,
+                                    modifier = Modifier.draggableHandle(),
+                                )
+                                Spacer(Modifier.width(8.dp))
+                                Icon(
+                                    handle.icon,
+                                    contentDescription = null,
+                                    tint = MaterialTheme.appColors.primary,
+                                    modifier = Modifier.size(20.dp),
+                                )
+                                Spacer(Modifier.width(10.dp))
+                                Text(
+                                    handle.title,
+                                    modifier = Modifier.weight(1f),
+                                    color = MaterialTheme.appColors.textPrimary,
+                                )
+                                Switch(
+                                    checked = handle.key !in draftHidden,
+                                    onCheckedChange = { on ->
+                                        draftHidden = if (on) draftHidden - handle.key else draftHidden + handle.key
+                                    },
+                                    colors = themedSwitchColors(),
+                                )
+                            }
+                        }
+                    }
+                }
+                Spacer(Modifier.height(12.dp))
+                // Reset on the left; Cancel / Save on the right (like the beep studio).
+                Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                    // Resets the working arrangement to default; applied only on Save.
+                    TextButton(
+                        onClick = { draftOrder = naturalKeys; draftHidden = emptySet() },
+                        enabled = !isDefault,
+                    ) {
+                        Text(stringResource(R.string.action_reset))
+                    }
+                    Spacer(Modifier.weight(1f))
+                    TextButton(onClick = onDismiss) { Text(stringResource(R.string.action_cancel)) }
+                    Spacer(Modifier.width(8.dp))
+                    Button(onClick = {
+                        // Store an empty order when it matches natural order, so the
+                        // "arrangement changed" checks elsewhere stay meaningful.
+                        val orderToSave = if (draftOrder == naturalKeys) emptyList() else draftOrder
+                        onApply(
+                            com.eried.eucplanet.data.model.SettingsLayout(
+                                order = orderToSave, hidden = draftHidden.toList()
+                            )
+                        )
+                        onDismiss()
+                    }) {
+                        Text(stringResource(R.string.action_save))
+                    }
+                }
             }
         }
     }
@@ -1320,18 +1379,25 @@ private fun AdvancedTab(
         modifier = Modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        // Reorganize the Settings screen. Big title, always shown (not
-        // collapsible); switch a section off to move it into "More". Advanced is
-        // pinned last and is not listed here.
+        // Reorganize the Settings screen from a dialog (half-width button), so
+        // toggling a section off does not shuffle the screen underneath while
+        // you edit. Switch a section off to move it into "More"; Advanced is
+        // pinned last and is not listed.
         if (reorgHandles.isNotEmpty()) {
-            AdvSectionTitle(stringResource(R.string.reorg_title))
-            ReorganizeSectionsEditor(
-                handles = reorgHandles,
-                layout = settings.settingsLayout,
-                onReorder = viewModel::reorderSettingsSections,
-                onSetVisible = viewModel::setSectionVisible,
-                onReset = viewModel::resetSettingsLayout,
+            var showVisibilityDialog by remember { mutableStateOf(false) }
+            LeftAlignedScanButton(
+                label = stringResource(R.string.settings_visibility),
+                leadingIcon = Icons.Default.Tune,
+                onClick = { showVisibilityDialog = true },
             )
+            if (showVisibilityDialog) {
+                SettingsVisibilityDialog(
+                    handles = reorgHandles,
+                    initial = settings.settingsLayout,
+                    onApply = viewModel::applySettingsLayout,
+                    onDismiss = { showVisibilityDialog = false },
+                )
+            }
         }
 
         // Timing knobs, under their own big title.

@@ -1810,7 +1810,6 @@
     <string name="alarm_summary_adaptive_vol">ses</string>
     <string name="reorg_drag_cd">Sıralamak için sürükle</string>
     <string name="reorg_hint">Kapattığınız bölümler Diğer\'e taşınır.</string>
-    <string name="reorg_title">Ayarları yeniden düzenle</string>
     <string name="studio_cd_close">Stüdyoyu kapat</string>
     <string name="studio_cd_gallery">Galeriyi aç</string>
     <string name="studio_cd_mic">Mikrofon</string>

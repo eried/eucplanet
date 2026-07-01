@@ -1817,7 +1817,6 @@
     <string name="alarm_summary_adaptive_vol">vol</string>
     <string name="reorg_drag_cd">Glisser pour réordonner</string>
     <string name="reorg_hint">Les sections désactivées passent dans Plus.</string>
-    <string name="reorg_title">Réorganiser les réglages</string>
     <string name="studio_cd_close">Fermer le studio</string>
     <string name="studio_cd_gallery">Ouvrir la galerie</string>
     <string name="studio_cd_mic">Microphone</string>

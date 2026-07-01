@@ -532,21 +532,11 @@ class SettingsViewModel @Inject constructor(
     /** Reset the whole Advanced section to defaults (AdvancedSettings() is them). */
     fun resetAdvancedDefaults() = update { copy(advanced = AdvancedSettings()) }
 
-    /** Persist the rider's new section order (keys top to bottom, Advanced excluded). */
-    fun reorderSettingsSections(newOrder: List<String>) =
-        update { copy(settingsLayout = settingsLayout.copy(order = newOrder)) }
-
-    /** Show a section at top level (visible) or tuck it into "More" (hidden).
-     *  Advanced can never be hidden. */
-    fun setSectionVisible(key: String, visible: Boolean) = update {
-        if (key == "advanced") return@update this
-        val hidden = settingsLayout.hidden.toMutableList()
-        if (visible) hidden.remove(key) else if (key !in hidden) hidden.add(key)
-        copy(settingsLayout = settingsLayout.copy(hidden = hidden))
-    }
-
-    /** Restore the default Settings arrangement (default order, nothing hidden). */
-    fun resetSettingsLayout() = update { copy(settingsLayout = SettingsLayout()) }
+    /** Commit a reorganized layout (order + hidden) from the Settings visibility
+     *  dialog in one write. Edits are staged in the dialog and only land here on
+     *  Save, so the Settings screen does not shuffle while the rider toggles. */
+    fun applySettingsLayout(layout: SettingsLayout) =
+        update { copy(settingsLayout = layout) }
     fun updateWheelNameDisplay(v: String) = update { copy(wheelNameDisplay = v) }
     fun updateWatchShowNavigation(v: Boolean) = update { copy(watchShowNavigation = v) }
 

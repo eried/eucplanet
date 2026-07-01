@@ -1812,7 +1812,6 @@
     <string name="alarm_summary_adaptive_vol">音量</string>
     <string name="reorg_drag_cd">ドラッグして並べ替え</string>
     <string name="reorg_hint">オフにしたセクションは「その他」に移動します。</string>
-    <string name="reorg_title">設定を整理</string>
     <string name="studio_cd_close">スタジオを閉じる</string>
     <string name="studio_cd_gallery">ギャラリーを開く</string>
     <string name="studio_cd_mic">マイク</string>

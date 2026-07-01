@@ -1810,7 +1810,6 @@
     <string name="alarm_summary_adaptive_vol">볼륨</string>
     <string name="reorg_drag_cd">드래그하여 순서 변경</string>
     <string name="reorg_hint">끈 섹션은 더보기로 이동합니다.</string>
-    <string name="reorg_title">설정 재구성</string>
     <string name="studio_cd_close">스튜디오 닫기</string>
     <string name="studio_cd_gallery">갤러리 열기</string>
     <string name="studio_cd_mic">마이크</string>

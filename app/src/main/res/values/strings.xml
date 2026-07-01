@@ -16,6 +16,7 @@
     <string name="crash_log_delete_all_warning">Delete every saved crash log? This cannot be undone.</string>
     <string name="action_save">Save</string>
     <string name="action_apply">Apply</string>
+    <string name="action_reset">Reset</string>
     <string name="action_delete">Delete</string>
     <string name="action_edit">Edit</string>
     <string name="action_test">Test</string>
@@ -397,7 +398,7 @@
     <string name="adv_reset_all">Reset all to defaults</string>
     <string name="adv_reset_confirm_msg">These settings will return to their defaults:</string>
     <string name="tab_more">More</string>
-    <string name="reorg_title">Reorganize settings</string>
+    <string name="settings_visibility">Settings visibility</string>
     <string name="adv_timings_title">Timings</string>
     <string name="reorg_hint">Sections you turn off move to More.</string>
     <string name="reorg_drag_cd">Drag to reorder</string>

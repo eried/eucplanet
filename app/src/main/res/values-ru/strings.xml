@@ -1813,7 +1813,6 @@
     <string name="alarm_summary_adaptive_vol">громк.</string>
     <string name="reorg_drag_cd">Перетащите для изменения порядка</string>
     <string name="reorg_hint">Отключённые разделы перемещаются в «Ещё».</string>
-    <string name="reorg_title">Изменить порядок настроек</string>
     <string name="studio_cd_close">Закрыть студию</string>
     <string name="studio_cd_gallery">Открыть галерею</string>
     <string name="studio_cd_mic">Микрофон</string>

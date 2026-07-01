@@ -1831,7 +1831,6 @@
     <string name="alarm_summary_adaptive_vol">vol</string>
     <string name="reorg_drag_cd">Arrastra para reordenar</string>
     <string name="reorg_hint">Las secciones que desactivas se mueven a Más.</string>
-    <string name="reorg_title">Reorganizar configuración</string>
     <string name="studio_cd_close">Cerrar studio</string>
     <string name="studio_cd_gallery">Abrir galería</string>
     <string name="studio_cd_mic">Micrófono</string>

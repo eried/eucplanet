@@ -1811,7 +1811,6 @@
     <string name="alarm_summary_adaptive_vol">głośność</string>
     <string name="reorg_drag_cd">Przeciągnij, aby zmienić kolejność</string>
     <string name="reorg_hint">Wyłączone sekcje przenoszą się do Więcej.</string>
-    <string name="reorg_title">Zmień układ ustawień</string>
     <string name="studio_cd_close">Zamknij studio</string>
     <string name="studio_cd_gallery">Otwórz galerię</string>
     <string name="studio_cd_mic">Mikrofon</string>
