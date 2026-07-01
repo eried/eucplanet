@@ -1726,4 +1726,8 @@
     <string name="welcome_tut_dev_sync_trips">Synk turer</string>
     <string name="welcome_tut_dev_syncing">Synkroniserer turer</string>
     <string name="welcome_tut_dev_title">Utviklerverktøy</string>
+    <string name="voice_variant_label">Stemmevalg</string>
+    <string name="voice_variant_fmt">Stemme %1$d</string>
+    <string name="voice_variant_online">online</string>
+    <string name="voice_variant_default">Standard</string>
 </resources>

@@ -1839,6 +1839,10 @@
     <string name="welcome_tut_dev_sync_trips">トリップを同期</string>
     <string name="welcome_tut_dev_syncing">トリップを同期中</string>
     <string name="welcome_tut_dev_title">開発者ツール</string>
+    <string name="voice_variant_label">音声オプション</string>
+    <string name="voice_variant_fmt">音声 %1$d</string>
+    <string name="voice_variant_online">オンライン</string>
+    <string name="voice_variant_default">デフォルト</string>
 </resources>
 
 

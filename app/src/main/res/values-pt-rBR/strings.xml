@@ -1840,5 +1840,9 @@
     <string name="welcome_tut_dev_sync_trips">Sincronizar viagens</string>
     <string name="welcome_tut_dev_syncing">Sincronizando viagens</string>
     <string name="welcome_tut_dev_title">Ferramentas de desenvolvedor</string>
+    <string name="voice_variant_label">Opção de voz</string>
+    <string name="voice_variant_fmt">Voz %1$d</string>
+    <string name="voice_variant_online">on-line</string>
+    <string name="voice_variant_default">Padrão</string>
 </resources>
 

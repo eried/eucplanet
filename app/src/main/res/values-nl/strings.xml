@@ -1840,5 +1840,9 @@
     <string name="welcome_tut_dev_sync_trips">Ritten synchroniseren</string>
     <string name="welcome_tut_dev_syncing">Ritten synchroniseren…</string>
     <string name="welcome_tut_dev_title">Ontwikkelaarstools</string>
+    <string name="voice_variant_label">Stemoptie</string>
+    <string name="voice_variant_fmt">Stem %1$d</string>
+    <string name="voice_variant_online">online</string>
+    <string name="voice_variant_default">Standaard</string>
 </resources>
 

@@ -1860,4 +1860,8 @@
     <string name="welcome_tut_dev_sync_trips">Fahrten synchronisieren</string>
     <string name="welcome_tut_dev_syncing">Fahrten werden synchronisiert</string>
     <string name="welcome_tut_dev_title">Entwicklerwerkzeuge</string>
+    <string name="voice_variant_label">Stimmoption</string>
+    <string name="voice_variant_fmt">Stimme %1$d</string>
+    <string name="voice_variant_online">online</string>
+    <string name="voice_variant_default">Standard</string>
 </resources>

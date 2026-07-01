@@ -1838,4 +1838,8 @@
     <string name="welcome_tut_dev_sync_trips">Synchronizuj trasy</string>
     <string name="welcome_tut_dev_syncing">Synchronizowanie tras</string>
     <string name="welcome_tut_dev_title">Narzędzia dewelopera</string>
+    <string name="voice_variant_label">Opcja głosu</string>
+    <string name="voice_variant_fmt">Głos %1$d</string>
+    <string name="voice_variant_online">online</string>
+    <string name="voice_variant_default">Domyślny</string>
 </resources>

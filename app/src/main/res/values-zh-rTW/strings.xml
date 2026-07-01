@@ -1839,6 +1839,10 @@
     <string name="welcome_tut_dev_sync_trips">同步行程</string>
     <string name="welcome_tut_dev_syncing">正在同步行程</string>
     <string name="welcome_tut_dev_title">開發者工具</string>
+    <string name="voice_variant_label">語音選項</string>
+    <string name="voice_variant_fmt">語音 %1$d</string>
+    <string name="voice_variant_online">線上</string>
+    <string name="voice_variant_default">預設</string>
 </resources>
 
 

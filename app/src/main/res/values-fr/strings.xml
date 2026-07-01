@@ -1844,4 +1844,8 @@
     <string name="welcome_tut_dev_sync_trips">Synchroniser les trajets</string>
     <string name="welcome_tut_dev_syncing">Synchronisation des trajets</string>
     <string name="welcome_tut_dev_title">Outils développeur</string>
+    <string name="voice_variant_label">Option de voix</string>
+    <string name="voice_variant_fmt">Voix %1$d</string>
+    <string name="voice_variant_online">en ligne</string>
+    <string name="voice_variant_default">Par défaut</string>
 </resources>

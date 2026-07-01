@@ -1840,4 +1840,8 @@
     <string name="welcome_tut_dev_sync_trips">Synka turer</string>
     <string name="welcome_tut_dev_syncing">Synkar turer</string>
     <string name="welcome_tut_dev_title">Utvecklarverktyg</string>
+    <string name="voice_variant_label">Röstalternativ</string>
+    <string name="voice_variant_fmt">Röst %1$d</string>
+    <string name="voice_variant_online">online</string>
+    <string name="voice_variant_default">Standard</string>
 </resources>

@@ -1837,5 +1837,9 @@
     <string name="welcome_tut_dev_sync_trips">Sincronizar viajes</string>
     <string name="welcome_tut_dev_syncing">Sincronizando viajes</string>
     <string name="welcome_tut_dev_title">Herramientas de desarrollador</string>
+    <string name="voice_variant_label">Opción de voz</string>
+    <string name="voice_variant_fmt">Voz %1$d</string>
+    <string name="voice_variant_online">en línea</string>
+    <string name="voice_variant_default">Predeterminada</string>
 </resources>
 

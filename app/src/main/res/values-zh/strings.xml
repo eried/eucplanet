@@ -1707,4 +1707,8 @@
     <string name="welcome_tut_dev_sync_trips">同步行程</string>
     <string name="welcome_tut_dev_syncing">正在同步行程</string>
     <string name="welcome_tut_dev_title">开发者工具</string>
+    <string name="voice_variant_label">语音选项</string>
+    <string name="voice_variant_fmt">语音 %1$d</string>
+    <string name="voice_variant_online">在线</string>
+    <string name="voice_variant_default">默认</string>
 </resources>

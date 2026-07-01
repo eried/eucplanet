@@ -1837,4 +1837,8 @@
     <string name="welcome_tut_dev_sync_trips">트립 동기화</string>
     <string name="welcome_tut_dev_syncing">트립 동기화 중</string>
     <string name="welcome_tut_dev_title">개발자 도구</string>
+    <string name="voice_variant_label">음성 옵션</string>
+    <string name="voice_variant_fmt">음성 %1$d</string>
+    <string name="voice_variant_online">온라인</string>
+    <string name="voice_variant_default">기본값</string>
 </resources>

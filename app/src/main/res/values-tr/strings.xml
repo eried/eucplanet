@@ -1837,6 +1837,10 @@
     <string name="welcome_tut_dev_sync_trips">Seferleri eşitle</string>
     <string name="welcome_tut_dev_syncing">Seferler eşitleniyor</string>
     <string name="welcome_tut_dev_title">Geliştirici araçları</string>
+    <string name="voice_variant_label">Ses seçeneği</string>
+    <string name="voice_variant_fmt">Ses %1$d</string>
+    <string name="voice_variant_online">çevrimiçi</string>
+    <string name="voice_variant_default">Varsayılan</string>
 </resources>
 
 

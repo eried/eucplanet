@@ -1840,5 +1840,9 @@
     <string name="welcome_tut_dev_sync_trips">Синхр. поездки</string>
     <string name="welcome_tut_dev_syncing">Синхронизация поездок</string>
     <string name="welcome_tut_dev_title">Инструменты разработчика</string>
+    <string name="voice_variant_label">Вариант голоса</string>
+    <string name="voice_variant_fmt">Голос %1$d</string>
+    <string name="voice_variant_online">онлайн</string>
+    <string name="voice_variant_default">По умолчанию</string>
 </resources>
 
