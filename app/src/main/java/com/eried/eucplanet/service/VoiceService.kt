@@ -27,6 +27,20 @@ import javax.inject.Singleton
 
 data class VoiceOption(val locale: Locale, val displayName: String)
 
+/**
+ * One selectable TTS voice within a locale. A language often exposes several
+ * (different speakers, plus higher-quality "network" voices). [name] is the
+ * stable engine id we persist and apply with `tts.setVoice`; [index] is a
+ * 1-based position for a friendly "Voice N" label; [networkRequired] flags the
+ * online voices so the UI can tag them.
+ */
+data class VoiceChoice(
+    val name: String,
+    val localeTag: String,
+    val index: Int,
+    val networkRequired: Boolean
+)
+
 @Singleton
 class VoiceService @Inject constructor(
     @ApplicationContext private val context: Context,
@@ -42,6 +56,7 @@ class VoiceService @Inject constructor(
     @Volatile private var isReady = false
     private var currentRate: Float = 1.0f
     private var currentLocaleTag: String = "en-US"
+    @Volatile private var currentVoiceName: String = ""
     @Volatile private var currentAudioFocus: String = "DUCK"
     @Volatile private var currentOutputChannel: String = "MEDIA"
 
@@ -79,6 +94,9 @@ class VoiceService @Inject constructor(
     private val _availableVoices = MutableStateFlow<List<VoiceOption>>(emptyList())
     val availableVoices: StateFlow<List<VoiceOption>> = _availableVoices.asStateFlow()
 
+    private val _availableVoiceChoices = MutableStateFlow<List<VoiceChoice>>(emptyList())
+    val availableVoiceChoices: StateFlow<List<VoiceChoice>> = _availableVoiceChoices.asStateFlow()
+
     @Volatile private var welcomedThisProcess = false
     @Volatile private var welcomePending = false
 
@@ -88,7 +106,8 @@ class VoiceService @Inject constructor(
 
     // Buffer for speak calls that arrive before TTS async init completes.
     private data class DeferredUtterance(
-        val text: String, val isTrigger: Boolean, val rate: Float, val localeTag: String
+        val text: String, val isTrigger: Boolean, val rate: Float,
+        val localeTag: String, val voiceName: String
     )
     private val pendingBeforeReady = mutableListOf<DeferredUtterance>()
 
@@ -127,7 +146,7 @@ class VoiceService @Inject constructor(
         }
         // Flag was set when trigger was deferred; clear so speakInternal re-sets it for real.
         if (items.any { it.isTrigger }) triggerInFlight = false
-        items.forEach { speakInternal(it.text, it.isTrigger, it.rate, it.localeTag) }
+        items.forEach { speakInternal(it.text, it.isTrigger, it.rate, it.localeTag, it.voiceName) }
     }
 
     private val utteranceListener = object : UtteranceProgressListener() {
@@ -211,7 +230,7 @@ class VoiceService @Inject constructor(
             val s = settingsRepository.get()
             val welcome = context.getString(R.string.voice_welcome)
             speakInternal(welcome, isTrigger = false,
-                rate = s.voiceSpeechRate, localeTag = s.voiceLocale)
+                rate = s.voiceSpeechRate, localeTag = s.voiceLocale, voiceName = s.voiceName)
         }
     }
 
@@ -222,6 +241,7 @@ class VoiceService @Inject constructor(
             // Seed the current values so the locale and rate are applied on this first speak.
             currentRate = s.voiceSpeechRate
             currentLocaleTag = s.voiceLocale
+            currentVoiceName = s.voiceName
             currentAudioFocus = s.voiceAudioFocus
             if (s.voiceOutputChannel != currentOutputChannel) {
                 currentOutputChannel = s.voiceOutputChannel
@@ -238,6 +258,7 @@ class VoiceService @Inject constructor(
             settingsRepository.settings.collect { s ->
                 currentRate = s.voiceSpeechRate
                 currentLocaleTag = s.voiceLocale
+                currentVoiceName = s.voiceName
                 currentAudioFocus = s.voiceAudioFocus
                 if (s.voiceOutputChannel != currentOutputChannel) {
                     currentOutputChannel = s.voiceOutputChannel
@@ -277,13 +298,62 @@ class VoiceService @Inject constructor(
             emptyList()
         }
         _availableVoices.value = voices
-        Log.i(TAG, "Available TTS voices: ${voices.size}")
+        Log.i(TAG, "Available TTS languages: ${voices.size}")
+
+        // Voice-level list: the individual voices behind each language. Grouped
+        // by locale and numbered so the UI can offer "Voice 1 / Voice 2 / ..."
+        // for languages that expose more than one.
+        val choices = try {
+            val usable = engine.voices?.filter { v ->
+                // Skip voices whose data is not on the device (can't be used
+                // without a download) and any the engine marks unsupported.
+                val notInstalled = v.features?.contains(
+                    TextToSpeech.Engine.KEY_FEATURE_NOT_INSTALLED
+                ) ?: false
+                // Keep online voices (just flagged); only drop ones needing a download.
+                !notInstalled
+            } ?: emptyList()
+            usable.groupBy { it.locale.toString() }
+                .flatMap { (localeTag, group) ->
+                    // Stable order: offline before online, higher quality first,
+                    // then name, so "Voice N" numbering does not jump around.
+                    val ordered = group.sortedWith(
+                        compareBy({ it.isNetworkConnectionRequired }, { -it.quality }, { it.name })
+                    )
+                    ordered.mapIndexed { i, v ->
+                        VoiceChoice(
+                            name = v.name,
+                            localeTag = localeTag,
+                            index = i + 1,
+                            networkRequired = v.isNetworkConnectionRequired
+                        )
+                    }
+                }
+        } catch (e: Exception) {
+            Log.w(TAG, "Failed to load voice choices", e)
+            emptyList()
+        }
+        _availableVoiceChoices.value = choices
+        Log.i(TAG, "Available TTS voice choices: ${choices.size}")
     }
 
     fun setVoiceLocale(localeTag: String) {
         val locale = Locale.forLanguageTag(localeTag.replace("_", "-"))
         tts?.language = locale
         Log.i(TAG, "TTS voice set to: $locale")
+    }
+
+    /**
+     * Apply a specific voice within the current language (empty = engine
+     * default for the locale). Also remembers it so ambient [speak] calls use
+     * it. The per-utterance [applyLocale] re-applies it anyway, guarding against
+     * a stale name after a language switch.
+     */
+    fun setVoiceName(name: String) {
+        currentVoiceName = name
+        if (name.isBlank()) return
+        val v = try { tts?.voices?.firstOrNull { it.name == name } } catch (_: Exception) { null }
+        if (v != null) try { tts?.voice = v } catch (_: Exception) {}
     }
 
     /**
@@ -367,7 +437,7 @@ class VoiceService @Inject constructor(
         val parts = buildReportParts(data, settings, isRecording, periodic = true)
         if (parts.isEmpty()) return
         speakInternal(parts.joinToString(", "), isTrigger = false,
-            rate = settings.voiceSpeechRate, localeTag = settings.voiceLocale)
+            rate = settings.voiceSpeechRate, localeTag = settings.voiceLocale, voiceName = settings.voiceName)
     }
 
     fun announceTrigger(data: WheelData, settings: AppSettings, isRecording: Boolean = false) {
@@ -377,7 +447,7 @@ class VoiceService @Inject constructor(
         val parts = buildReportParts(data, settings, isRecording, periodic = false)
         if (parts.isEmpty()) return
         speakInternal(parts.joinToString(", "), isTrigger = true,
-            rate = settings.voiceSpeechRate, localeTag = settings.voiceLocale)
+            rate = settings.voiceSpeechRate, localeTag = settings.voiceLocale, voiceName = settings.voiceName)
     }
 
     private fun streamTypeFor(channel: String): Int = when (channel) {
@@ -469,10 +539,13 @@ class VoiceService @Inject constructor(
     }
 
     fun speak(text: String) {
-        speakInternal(text, isTrigger = false, rate = currentRate, localeTag = currentLocaleTag)
+        speakInternal(text, isTrigger = false, rate = currentRate,
+            localeTag = currentLocaleTag, voiceName = currentVoiceName)
     }
 
-    private fun speakInternal(text: String, isTrigger: Boolean, rate: Float, localeTag: String) {
+    private fun speakInternal(
+        text: String, isTrigger: Boolean, rate: Float, localeTag: String, voiceName: String
+    ) {
         // Session "silence" toggle: swallow every spoken utterance without
         // touching audio focus or TTS state.
         if (cheatState.silence.value) return
@@ -483,7 +556,7 @@ class VoiceService @Inject constructor(
                     if (triggerInFlight) return
                     triggerInFlight = true
                 }
-                pendingBeforeReady.add(DeferredUtterance(text, isTrigger, rate, localeTag))
+                pendingBeforeReady.add(DeferredUtterance(text, isTrigger, rate, localeTag, voiceName))
             }
             return
         }
@@ -495,7 +568,7 @@ class VoiceService @Inject constructor(
             }
         }
         tts?.setSpeechRate(rate)
-        applyLocale(localeTag)
+        applyLocale(localeTag, voiceName)
         val prefix = if (isTrigger) "trig_" else "alert_"
         val utteranceId = "$prefix${System.currentTimeMillis()}"
         synchronized(this) { pendingUtterances++ }
@@ -510,13 +583,22 @@ class VoiceService @Inject constructor(
         }
     }
 
-    fun testSpeak(text: String, speechRate: Float, localeTag: String) {
+    fun testSpeak(text: String, speechRate: Float, localeTag: String, voiceName: String = "") {
         warnIfLowVolume(currentOutputChannel)
-        speakInternal(text, isTrigger = false, rate = speechRate, localeTag = localeTag)
+        speakInternal(text, isTrigger = false, rate = speechRate,
+            localeTag = localeTag, voiceName = voiceName)
     }
 
-    private fun applyLocale(localeTag: String) {
+    private fun applyLocale(localeTag: String, voiceName: String) {
         val locale = Locale.forLanguageTag(localeTag.replace("_", "-"))
         tts?.language = locale
+        if (voiceName.isNotBlank()) {
+            val v = try { tts?.voices?.firstOrNull { it.name == voiceName } } catch (_: Exception) { null }
+            // Only apply when it matches the target language, so a stale name from
+            // a previous language does not override the freshly set locale.
+            if (v != null && v.locale.language == locale.language) {
+                try { tts?.voice = v } catch (_: Exception) {}
+            }
+        }
     }
 }

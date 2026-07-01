@@ -728,6 +728,10 @@
     <string name="welcome_tut_camera">Record video with a live telemetry overlay. Create custom fancy overlays and export them to make your own videos with data from past trips</string>
     <string name="welcome_tut_pd">Shows Park or Drive. Tap it to set your %1$s</string>
     <string name="voice_selector_label">Voice</string>
+    <string name="voice_variant_label">Voice option</string>
+    <string name="voice_variant_fmt">Voice %1$d</string>
+    <string name="voice_variant_online">online</string>
+    <string name="voice_variant_default">Default</string>
     <string name="voice_speech_speed">Speech Speed</string>
     <string name="unit_x">x</string>
     <string name="voice_audio_focus_label">While speaking</string>

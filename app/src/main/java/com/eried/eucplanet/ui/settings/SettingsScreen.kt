@@ -243,6 +243,7 @@ import com.eried.eucplanet.data.model.AdvancedSpec
 import com.eried.eucplanet.data.sync.SyncChoice
 import com.eried.eucplanet.ui.settings.eucstats.OnlineUploadOnboardingDialog
 import com.eried.eucplanet.ui.settings.eucstats.flagEmoji
+import com.eried.eucplanet.service.VoiceChoice
 import com.eried.eucplanet.service.VoiceOption
 import com.eried.eucplanet.ui.common.HintText
 import com.eried.eucplanet.ui.common.InfoHint
@@ -5756,14 +5757,29 @@ private fun VoiceTab(
 
         // Voice type selector
         val voices by viewModel.availableVoices.collectAsState()
+        val voiceChoices by viewModel.availableVoiceChoices.collectAsState()
         // Played as an audible preview whenever the rider changes the voice
-        // language or speech speed below, so they hear the new setting at once.
+        // language, voice option, or speech speed below, so they hear it at once.
         val voiceWelcome = stringResource(R.string.voice_welcome)
         if (voices.isNotEmpty()) {
             VoiceSelector(
                 currentLocale = settings.voiceLocale,
                 voices = voices,
                 onVoiceSelected = { viewModel.updateVoiceLocale(it, voiceWelcome) }
+            )
+        }
+        // Within the chosen language, offer the individual voices the engine
+        // exposes (many languages have several). Only shown when there is a
+        // real choice to make.
+        val localeVoiceChoices = remember(voiceChoices, settings.voiceLocale) {
+            val norm = settings.voiceLocale.replace('-', '_')
+            voiceChoices.filter { it.localeTag.replace('-', '_') == norm }
+        }
+        if (localeVoiceChoices.size > 1) {
+            VoiceVariantSelector(
+                currentName = settings.voiceName,
+                choices = localeVoiceChoices,
+                onSelected = { viewModel.updateVoiceName(it, voiceWelcome) }
             )
         }
 
@@ -8392,6 +8408,67 @@ private fun VoiceSelector(
                     text = { Text(voice.displayName) },
                     onClick = {
                         onVoiceSelected(voice.locale.toString())
+                        expanded = false
+                    }
+                )
+            }
+        }
+    }
+}
+
+/**
+ * Picks a specific voice within the already-chosen language. Shown only when
+ * the language exposes more than one voice. "Default" maps to an empty
+ * voiceName (the engine default for the locale); the rest are the concrete
+ * voices, labeled "Voice N" with an "(online)" tag for network voices.
+ */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun VoiceVariantSelector(
+    currentName: String,
+    choices: List<VoiceChoice>,
+    onSelected: (String) -> Unit
+) {
+    var expanded by remember { mutableStateOf(false) }
+    val defaultLabel = stringResource(R.string.voice_variant_default)
+    val fmt = stringResource(R.string.voice_variant_fmt)
+    val onlineTag = stringResource(R.string.voice_variant_online)
+    fun labelFor(c: VoiceChoice): String {
+        val base = String.format(java.util.Locale.US, fmt, c.index)
+        return if (c.networkRequired) "$base ($onlineTag)" else base
+    }
+    // "Default" (engine default for the locale) then each concrete voice.
+    val items = buildList {
+        add("" to defaultLabel)
+        choices.forEach { add(it.name to labelFor(it)) }
+    }
+    val displayText = items.firstOrNull { it.first == currentName }?.second ?: defaultLabel
+
+    ExposedDropdownMenuBox(
+        expanded = expanded,
+        onExpandedChange = { expanded = !expanded }
+    ) {
+        OutlinedTextField(
+            value = displayText,
+            onValueChange = {},
+            readOnly = true,
+            label = { Text(stringResource(R.string.voice_variant_label)) },
+            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+            modifier = Modifier
+                .fillMaxWidth()
+                .menuAnchor(MenuAnchorType.PrimaryNotEditable),
+            colors = themedFieldColors(),
+        )
+        ExposedDropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false },
+            containerColor = MaterialTheme.appColors.menuBackground
+        ) {
+            items.forEach { (name, label) ->
+                DropdownMenuItem(
+                    text = { Text(label) },
+                    onClick = {
+                        onSelected(name)
                         expanded = false
                     }
                 )

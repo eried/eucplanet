@@ -64,6 +64,9 @@ data class AppSettings(
     val voiceIntervalSeconds: Int = 60,
     val voiceSpeechRate: Float = 1.2f,
     val voiceLocale: String = "en_US",  // locale tag for TTS voice
+    // Specific TTS Voice.name within the locale (a language can expose several
+    // voices). Empty = let the engine use its default voice for the locale.
+    val voiceName: String = "",
     /**
      * True once the rider has explicitly picked a voice (either from the
      * voice picker, or by saying "no, keep my voice" to the language-change

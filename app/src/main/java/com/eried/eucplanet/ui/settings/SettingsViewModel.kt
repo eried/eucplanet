@@ -22,6 +22,7 @@ import com.eried.eucplanet.data.sync.SyncChoice
 import com.eried.eucplanet.data.sync.SyncManager
 import com.eried.eucplanet.data.sync.SyncResult
 import com.eried.eucplanet.service.AutomationManager
+import com.eried.eucplanet.service.VoiceChoice
 import com.eried.eucplanet.service.VoiceOption
 import com.eried.eucplanet.service.VoiceService
 import android.net.Uri
@@ -255,6 +256,7 @@ class SettingsViewModel @Inject constructor(
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), true)
 
     val availableVoices: StateFlow<List<VoiceOption>> = voiceService.availableVoices
+    val availableVoiceChoices: StateFlow<List<VoiceChoice>> = voiceService.availableVoiceChoices
 
     val currentLocation: StateFlow<Location?> = tripRepository.currentLocation
 
@@ -322,9 +324,18 @@ class SettingsViewModel @Inject constructor(
     fun updateVoiceLocale(tag: String, previewText: String? = null) {
         // Explicit voice pick sets the override flag so a later UI-language
         // change re-prompts ("switch voice too?") instead of silently
-        // clobbering the rider's chosen voice.
-        update { copy(voiceLocale = tag, voiceLocaleOverridden = true) }
+        // clobbering the rider's chosen voice. Reset the specific-voice pick:
+        // a Voice.name from the old language won't exist under the new one.
+        update { copy(voiceLocale = tag, voiceLocaleOverridden = true, voiceName = "") }
         voiceService.setVoiceLocale(tag)
+        voiceService.setVoiceName("")
+        previewText?.let { previewVoiceChange(it) }
+    }
+
+    /** Pick a specific voice within the current language (empty = engine default). */
+    fun updateVoiceName(name: String, previewText: String? = null) {
+        update { copy(voiceName = name) }
+        voiceService.setVoiceName(name)
         previewText?.let { previewVoiceChange(it) }
     }
     fun updateVoiceAudioFocus(v: String) = update { copy(voiceAudioFocus = v) }
@@ -343,7 +354,7 @@ class SettingsViewModel @Inject constructor(
         voicePreviewJob = viewModelScope.launch {
             delay(450)
             val s = settingsRepository.get()
-            voiceService.testSpeak(welcomeText, s.voiceSpeechRate, s.voiceLocale)
+            voiceService.testSpeak(welcomeText, s.voiceSpeechRate, s.voiceLocale, s.voiceName)
         }
     }
 
@@ -450,7 +461,7 @@ class SettingsViewModel @Inject constructor(
     fun testSpeak(text: String) {
         viewModelScope.launch {
             val s = settingsRepository.get()
-            voiceService.testSpeak(text, s.voiceSpeechRate, s.voiceLocale)
+            voiceService.testSpeak(text, s.voiceSpeechRate, s.voiceLocale, s.voiceName)
         }
     }
 
