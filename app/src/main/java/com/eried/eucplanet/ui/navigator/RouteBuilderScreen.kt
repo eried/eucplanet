@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -105,6 +106,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.stringArrayResource
@@ -718,6 +720,11 @@ fun RouteBuilderScreen(
         // top bar -- the bar is now 80 % translucent so the map shows
         // through it. We still apply the BOTTOM padding so the bottom
         // panel and the FABs don't clash with the system nav bar.
+        // Landscape: the control stack (mode + waypoints + start + FABs) docks
+        // as a fixed-width sidebar on the left, leaving the map visible to its
+        // right, instead of a full-width panel across the bottom.
+        val landscape = LocalConfiguration.current.orientation ==
+            android.content.res.Configuration.ORIENTATION_LANDSCAPE
         Box(
             modifier = Modifier
                 .fillMaxSize()
@@ -996,11 +1003,20 @@ fun RouteBuilderScreen(
                 }
             }
 
-            // --- Bottom controls: the locate-me FAB sits just above the panel ---
+            // --- Controls: the locate-me FAB sits just above the panel ---
+            // Portrait: full-width dock across the bottom. Landscape: a fixed-
+            // width sidebar down the left, leaving the map to its right.
             Column(
-                modifier = Modifier
-                    .align(Alignment.BottomCenter)
-                    .fillMaxWidth()
+                modifier = if (landscape) Modifier
+                        .align(Alignment.CenterStart)
+                        .fillMaxHeight()
+                        .width(340.dp)
+                        .background(MaterialTheme.appColors.menuBackground)
+                        .padding(top = padding.calculateTopPadding())
+                        .verticalScroll(rememberScrollState())
+                    else Modifier
+                        .align(Alignment.BottomCenter)
+                        .fillMaxWidth()
             ) {
                 // The charger + places overlay toggles only exist when advanced
                 // map features are on. The icon stays visible while loading (a
