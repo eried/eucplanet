@@ -45,6 +45,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -785,6 +786,12 @@ fun DashboardScreen(
             // Foldables / tablets: cap the speedo and use a 3-column stat grid so
             // the whole dashboard fits without the footer falling off-screen.
             val wideStats = LocalConfiguration.current.screenWidthDp >= 600
+            // Landscape (phones): lay the dashboard out as a Row -- speedo on the
+            // left, a scrollable panel (metrics in one row + buttons + odo) on the
+            // right -- instead of the tall portrait Column. Driven off orientation
+            // so it kicks in on any short-and-wide screen, tablets included.
+            val landscape = LocalConfiguration.current.orientation ==
+                android.content.res.Configuration.ORIENTATION_LANDSCAPE
 
             // Speed gauge, wide arc dial (tap opens history)
             val useAccent = !com.eried.eucplanet.ui.theme.isDefaultAccent(accentKey)
@@ -796,11 +803,14 @@ fun DashboardScreen(
             // car-dash style speedo (ratio 2.0) so the extra horizontal real
             // estate is actually used. Width is capped on phones at 0.85 of
             // screen, on tablets at 0.95 to leave a small margin.
+            val speedoBlock: @Composable (androidx.compose.ui.Modifier) -> Unit = { speedoModifier ->
             BoxWithConstraints(
-                modifier = Modifier.fillMaxWidth().weight(1f, fill = true)
+                modifier = speedoModifier
             ) {
-                val widthFraction = if (wideStats) 0.95f else 0.85f
-                val ratio = if (wideStats) 2.0f else 1.05f
+                // Landscape: near-square dial that fills the left panel. Portrait
+                // phone keeps the ~square dial; wide tablets get the car-dash arc.
+                val widthFraction = if (landscape) 0.98f else if (wideStats) 0.95f else 0.85f
+                val ratio = if (landscape) 1.15f else if (wideStats) 2.0f else 1.05f
                 val candidateW = maxWidth * widthFraction
                 val maxByHeight = maxHeight * ratio
                 val dialW = minOf(candidateW, maxByHeight)
@@ -1101,8 +1111,7 @@ fun DashboardScreen(
                     onOpenSettings = { onNavigateToSettings(7) }
                 )
             }
-
-            Spacer(Modifier.height(16.dp))
+            }
 
             // Stats grid, 3 rows of 2. Alert tiers only apply when connected (disconnected values are 0).
             val live = connectionState == ConnectionState.CONNECTED
@@ -1185,9 +1194,11 @@ fun DashboardScreen(
                 val defaults = listOf("BATTERY", "TEMPERATURE", "VOLTAGE", "CURRENT", "LOAD", "TRIP")
                 (parsed + defaults).distinct().take(6)
             }
-            // Tablets force 3 columns to honour wideStats. Phones use
-            // whatever the rider set in the editor (2 or 3).
-            val metricColumns = if (wideStats) 3
+            // Landscape: all metrics in a single row (1 tall). Tablets force 3
+            // columns to honour wideStats. Phones use whatever the rider set in
+            // the editor (2 or 3).
+            val metricColumns = if (landscape) activeMetricKeys.size.coerceIn(1, 6)
+                else if (wideStats) 3
                 else dashboardMetricsColumnsSetting.coerceIn(2, 3)
             val metricRows = (activeMetricKeys.size + metricColumns - 1) / metricColumns
 
@@ -1459,6 +1470,25 @@ fun DashboardScreen(
                 com.eried.eucplanet.ui.settings.CustomTile(text, icon, action, url)
             } catch (_: Exception) { null }
 
+            // Hoisted above restBlock so both the odo footer (inside restBlock)
+            // and the About / diagnostics dialogs (below the layout branch) can
+            // read them.
+            val context = LocalContext.current
+            val versionName = remember {
+                try {
+                    context.packageManager.getPackageInfo(context.packageName, 0).versionName ?: "?"
+                } catch (_: Exception) { "?" }
+            }
+            val versionRevision = remember {
+                try {
+                    @Suppress("DEPRECATION")
+                    context.packageManager.getPackageInfo(context.packageName, 0).versionCode
+                } catch (_: Exception) { 0 }
+            }
+            // Everything below the speedo (metric grid + action buttons + odo
+            // footer) as one reusable block so portrait stacks it under the dial
+            // and landscape puts it in the scrollable right panel.
+            val restBlock: @Composable () -> Unit = {
             for (rowIdx in 0 until metricRows) {
                 Row(
                     modifier = Modifier
@@ -2264,19 +2294,8 @@ fun DashboardScreen(
 
             // Bottom info row: ODO + wheel model + firmware + version (tap for About)
             // (showAboutDialog / showDiagnosticsDialog hoisted to the top of
-            // the screen so OPEN_ABOUT action bindings can trigger them.)
-            val context = LocalContext.current
-            val versionName = remember {
-                try {
-                    context.packageManager.getPackageInfo(context.packageName, 0).versionName ?: "?"
-                } catch (_: Exception) { "?" }
-            }
-            val versionRevision = remember {
-                try {
-                    @Suppress("DEPRECATION")
-                    context.packageManager.getPackageInfo(context.packageName, 0).versionCode
-                } catch (_: Exception) { 0 }
-            }
+            // the screen so OPEN_ABOUT action bindings can trigger them.
+            // context / versionName / versionRevision are hoisted above restBlock.)
             val diagEnabled by com.eried.eucplanet.diagnostics.DiagnosticsLogger.enabled.collectAsState()
             WheelInfoBox(
                 odoKm = wheelData.totalDistance,
@@ -2291,6 +2310,28 @@ fun DashboardScreen(
                 // Spotlight only the version (right side), not the whole ODO row.
                 versionModifier = Modifier.coachmarkTarget(coachmark, TutorialTarget.VERSION)
             )
+            }  // end restBlock
+
+            // Portrait: dial on top (absorbs slack), rest stacked below. Landscape:
+            // dial on the left, rest in a scrollable panel on the right.
+            if (landscape) {
+                Row(modifier = Modifier.fillMaxSize()) {
+                    speedoBlock(Modifier.weight(0.45f).fillMaxHeight())
+                    Column(
+                        modifier = Modifier
+                            .weight(0.55f)
+                            .fillMaxHeight()
+                            .verticalScroll(rememberScrollState()),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        restBlock()
+                    }
+                }
+            } else {
+                speedoBlock(Modifier.fillMaxWidth().weight(1f, fill = true))
+                Spacer(Modifier.height(16.dp))
+                restBlock()
+            }
 
             if (showDiagnosticsDialog) {
                 com.eried.eucplanet.diagnostics.WheelDiagnosticsDialog(
