@@ -5845,7 +5845,8 @@ private fun VoiceTab(
             VoiceVariantSelector(
                 currentName = settings.voiceName,
                 choices = localeVoiceChoices,
-                onSelected = { viewModel.updateVoiceName(it, voiceWelcome) }
+                defaultSample = voiceWelcome,
+                onSelected = { name, sample -> viewModel.updateVoiceName(name, sample) }
             )
         }
 
@@ -8486,27 +8487,47 @@ private fun VoiceSelector(
  * Picks a specific voice within the already-chosen language. Shown only when
  * the language exposes more than one voice. "Default" maps to an empty
  * voiceName (the engine default for the locale); the rest are the concrete
- * voices, labeled "Voice N" with an "(online)" tag for network voices.
+ * voices, labeled "Voice N" with the engine's real quality/online attributes.
+ * Picking one speaks a "This is voice N" sample in that voice.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun VoiceVariantSelector(
     currentName: String,
     choices: List<VoiceChoice>,
-    onSelected: (String) -> Unit
+    defaultSample: String,
+    onSelected: (String, String) -> Unit
 ) {
     var expanded by remember { mutableStateOf(false) }
     val defaultLabel = stringResource(R.string.voice_variant_default)
     val fmt = stringResource(R.string.voice_variant_fmt)
-    val onlineTag = stringResource(R.string.voice_variant_online)
+    val sampleFmt = stringResource(R.string.voice_sample_fmt)
+    val onlineWord = stringResource(R.string.voice_variant_online)
+    val highWord = stringResource(R.string.voice_quality_high)
+    val lowWord = stringResource(R.string.voice_quality_low)
+    // Only what the engine actually reports, no invented names: quality tier and
+    // online (network). Android Voice.QUALITY_HIGH is 400, QUALITY_LOW is 200.
+    fun descriptors(c: VoiceChoice): List<String> = buildList {
+        if (c.quality >= 400) add(highWord) else if (c.quality in 1..200) add(lowWord)
+        if (c.networkRequired) add(onlineWord)
+    }
     fun labelFor(c: VoiceChoice): String {
         val base = String.format(java.util.Locale.US, fmt, c.index)
-        return if (c.networkRequired) "$base ($onlineTag)" else base
+        val d = descriptors(c)
+        return if (d.isEmpty()) base else "$base · ${d.joinToString(" · ")}"
     }
-    // "Default" (engine default for the locale) then each concrete voice.
+    // Spoken in the voice itself when it is picked, so the rider hears which one
+    // it is: "This is voice 2, high quality, online".
+    fun sampleFor(c: VoiceChoice): String {
+        val base = String.format(java.util.Locale.US, sampleFmt, c.index)
+        val d = descriptors(c)
+        return if (d.isEmpty()) base else "$base, ${d.joinToString(", ")}"
+    }
+    // "Default" (plays the welcome sample) then each concrete voice, as
+    // (name, label, spoken-sample).
     val items = buildList {
-        add("" to defaultLabel)
-        choices.forEach { add(it.name to labelFor(it)) }
+        add(Triple("", defaultLabel, defaultSample))
+        choices.forEach { add(Triple(it.name, labelFor(it), sampleFor(it))) }
     }
     val displayText = items.firstOrNull { it.first == currentName }?.second ?: defaultLabel
 
@@ -8530,11 +8551,11 @@ private fun VoiceVariantSelector(
             onDismissRequest = { expanded = false },
             containerColor = MaterialTheme.appColors.menuBackground
         ) {
-            items.forEach { (name, label) ->
+            items.forEach { (name, label, sample) ->
                 DropdownMenuItem(
                     text = { Text(label) },
                     onClick = {
-                        onSelected(name)
+                        onSelected(name, sample)
                         expanded = false
                     }
                 )

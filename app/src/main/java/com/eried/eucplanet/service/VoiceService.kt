@@ -38,7 +38,10 @@ data class VoiceChoice(
     val name: String,
     val localeTag: String,
     val index: Int,
-    val networkRequired: Boolean
+    val networkRequired: Boolean,
+    // Android Voice.getQuality(): QUALITY_VERY_LOW(100)..QUALITY_VERY_HIGH(500).
+    // The UI turns >=HIGH into "high quality" and <=LOW into "basic".
+    val quality: Int
 )
 
 @Singleton
@@ -325,7 +328,8 @@ class VoiceService @Inject constructor(
                             name = v.name,
                             localeTag = localeTag,
                             index = i + 1,
-                            networkRequired = v.isNetworkConnectionRequired
+                            networkRequired = v.isNetworkConnectionRequired,
+                            quality = v.quality
                         )
                     }
                 }
