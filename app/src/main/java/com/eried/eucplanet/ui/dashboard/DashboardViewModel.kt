@@ -492,6 +492,13 @@ class DashboardViewModel @Inject constructor(
      *  it works). */
     val syncRunning: StateFlow<Boolean> = syncManager.syncRunning
 
+    /** Whether the rider has already joined leaderboards (online upload enabled).
+     *  Gates the dev wizard's Join button so it greys out and stays greyed once
+     *  joined, the same disabled-after-action treatment Sync trips gets. */
+    val leaderboardsJoined: StateFlow<Boolean> = settingsRepository.settings
+        .map { it.onlineUploadEnabled }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
+
     /** Fire-and-forget dev "sync trips": the same folder sync the Cloud screen runs.
      *  Posts a toast so the trigger is visible even when there is nothing to sync. */
     fun syncAllTrips() {

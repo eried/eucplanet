@@ -265,6 +265,9 @@ fun WelcomeTutorialOverlay(
     hasSettingsBackup: Boolean = false,
     onRestoreSettings: () -> Unit = {},
     onJoinLeaderboards: () -> Unit = {},
+    // Once joined (online upload enabled), the button greys out and stays that
+    // way, the same disabled-after-action treatment Sync trips gets.
+    leaderboardsJoined: Boolean = false,
     onSyncTrips: () -> Unit = {},
     syncRunning: Boolean = false,
     onFinish: () -> Unit,
@@ -540,6 +543,7 @@ fun WelcomeTutorialOverlay(
                                         LeftAlignedScanButton(
                                             label = stringResource(R.string.welcome_tut_dev_join),
                                             onClick = onJoinLeaderboards,
+                                            enabled = !leaderboardsJoined,
                                         )
                                     }
                                 }
