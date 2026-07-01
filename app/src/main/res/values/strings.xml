@@ -17,6 +17,7 @@
     <string name="action_save">Save</string>
     <string name="action_apply">Apply</string>
     <string name="action_reset">Reset</string>
+    <string name="action_reorganize">Reorganize</string>
     <string name="action_delete">Delete</string>
     <string name="action_edit">Edit</string>
     <string name="action_test">Test</string>
@@ -400,7 +401,7 @@
     <string name="tab_more">More</string>
     <string name="settings_visibility">Settings visibility</string>
     <string name="adv_timings_title">Timings</string>
-    <string name="reorg_hint">Sections you turn off move to More.</string>
+    <string name="reorg_hint">Reorganize the settings screen and hide sections you rarely use. Hidden sections move to More.</string>
     <string name="reorg_drag_cd">Drag to reorder</string>
     <string name="adv_rates_warning">These controls change timing across the app. Lower values give fresher data and faster reactions but use more battery, CPU or data. The defaults suit most riders. Change them only if you understand the effect.</string>
     <string name="adv_pushonly_note">Some devices stream at their own fixed rate and ignore these settings: push-only wheels (Begode, Gotway, Veteran, KingSong), external GPS (RaceBox), radar and Flic buttons.</string>
@@ -737,6 +738,7 @@
     <string name="voice_quality_low">basic</string>
     <!-- Spoken sample when the rider switches voice, in that voice. %1$d = the voice number. -->
     <string name="voice_sample_fmt">This is voice %1$d</string>
+    <string name="voice_sample_default">This is the default voice for this language</string>
     <string name="voice_speech_speed">Speech Speed</string>
     <string name="unit_x">x</string>
     <string name="voice_audio_focus_label">While speaking</string>

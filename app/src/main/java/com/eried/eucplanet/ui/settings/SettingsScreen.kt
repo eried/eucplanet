@@ -1269,11 +1269,11 @@ private fun SettingsVisibilityDialog(
                     color = MaterialTheme.appColors.textPrimary,
                 )
                 Spacer(Modifier.height(8.dp))
-                HintText(stringResource(R.string.reorg_hint), small = true)
-                Spacer(Modifier.height(8.dp))
                 Column(
                     modifier = Modifier
-                        .heightIn(max = 420.dp)
+                        // Slightly taller than a whole number of rows so a partial
+                        // row peeks at the bottom, hinting the list scrolls.
+                        .heightIn(max = 474.dp)
                         .verticalScroll(rememberScrollState())
                 ) {
                     ReorderableColumn(
@@ -1379,14 +1379,17 @@ private fun AdvancedTab(
         modifier = Modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        // Reorganize the Settings screen from a dialog (half-width button), so
-        // toggling a section off does not shuffle the screen underneath while
-        // you edit. Switch a section off to move it into "More"; Advanced is
-        // pinned last and is not listed.
+        // "Settings visibility" section: a titled explanation plus a Reorganize
+        // button that opens the staged dialog, so toggling a section off does not
+        // shuffle the screen underneath while you edit. Hidden sections move into
+        // "More"; Advanced is pinned last and is not listed.
         if (reorgHandles.isNotEmpty()) {
             var showVisibilityDialog by remember { mutableStateOf(false) }
+            AdvSectionTitle(stringResource(R.string.settings_visibility))
+            HintText(stringResource(R.string.reorg_hint), small = true)
+            Spacer(Modifier.height(4.dp))
             LeftAlignedScanButton(
-                label = stringResource(R.string.settings_visibility),
+                label = stringResource(R.string.action_reorganize),
                 leadingIcon = Icons.Default.Tune,
                 onClick = { showVisibilityDialog = true },
             )
@@ -5827,6 +5830,8 @@ private fun VoiceTab(
         // Played as an audible preview whenever the rider changes the voice
         // language, voice option, or speech speed below, so they hear it at once.
         val voiceWelcome = stringResource(R.string.voice_welcome)
+        // Spoken when the rider picks "Default" in the voice list, in that voice.
+        val voiceDefaultSample = stringResource(R.string.voice_sample_default)
         if (voices.isNotEmpty()) {
             VoiceSelector(
                 currentLocale = settings.voiceLocale,
@@ -5845,7 +5850,7 @@ private fun VoiceTab(
             VoiceVariantSelector(
                 currentName = settings.voiceName,
                 choices = localeVoiceChoices,
-                defaultSample = voiceWelcome,
+                defaultSample = voiceDefaultSample,
                 onSelected = { name, sample -> viewModel.updateVoiceName(name, sample) }
             )
         }
@@ -8505,23 +8510,25 @@ private fun VoiceVariantSelector(
     val onlineWord = stringResource(R.string.voice_variant_online)
     val highWord = stringResource(R.string.voice_quality_high)
     val lowWord = stringResource(R.string.voice_quality_low)
-    // Only what the engine actually reports, no invented names: quality tier and
-    // online (network). Android Voice.QUALITY_HIGH is 400, QUALITY_LOW is 200.
-    fun descriptors(c: VoiceChoice): List<String> = buildList {
-        if (c.quality >= 400) add(highWord) else if (c.quality in 1..200) add(lowWord)
-        if (c.networkRequired) add(onlineWord)
+    // Only what the engine actually reports, no invented names: the quality tier
+    // (Android Voice.QUALITY_HIGH is 400, QUALITY_LOW is 200) and online, shown
+    // in parentheses since it is a capability (needs a network), not a quality.
+    fun quality(c: VoiceChoice): String? = when {
+        c.quality >= 400 -> highWord
+        c.quality in 1..200 -> lowWord
+        else -> null
     }
     fun labelFor(c: VoiceChoice): String {
         val base = String.format(java.util.Locale.US, fmt, c.index)
-        val d = descriptors(c)
-        return if (d.isEmpty()) base else "$base · ${d.joinToString(" · ")}"
+        val withQuality = quality(c)?.let { "$base · $it" } ?: base
+        return if (c.networkRequired) "$withQuality ($onlineWord)" else withQuality
     }
     // Spoken in the voice itself when it is picked, so the rider hears which one
     // it is: "This is voice 2, high quality, online".
     fun sampleFor(c: VoiceChoice): String {
         val base = String.format(java.util.Locale.US, sampleFmt, c.index)
-        val d = descriptors(c)
-        return if (d.isEmpty()) base else "$base, ${d.joinToString(", ")}"
+        val parts = listOfNotNull(quality(c), if (c.networkRequired) onlineWord else null)
+        return if (parts.isEmpty()) base else "$base, ${parts.joinToString(", ")}"
     }
     // "Default" (plays the welcome sample) then each concrete voice, as
     // (name, label, spoken-sample).
