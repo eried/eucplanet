@@ -5756,11 +5756,14 @@ private fun VoiceTab(
 
         // Voice type selector
         val voices by viewModel.availableVoices.collectAsState()
+        // Played as an audible preview whenever the rider changes the voice
+        // language or speech speed below, so they hear the new setting at once.
+        val voiceWelcome = stringResource(R.string.voice_welcome)
         if (voices.isNotEmpty()) {
             VoiceSelector(
                 currentLocale = settings.voiceLocale,
                 voices = voices,
-                onVoiceSelected = { viewModel.updateVoiceLocale(it) }
+                onVoiceSelected = { viewModel.updateVoiceLocale(it, voiceWelcome) }
             )
         }
 
@@ -5783,7 +5786,7 @@ private fun VoiceTab(
                 // steps, not a percentage.
                 NumberUpDown(
                     value = (settings.voiceSpeechRate * 10).roundToInt(),
-                    onValueChange = { viewModel.updateVoiceSpeechRate(it / 10f) },
+                    onValueChange = { viewModel.updateVoiceSpeechRate(it / 10f, voiceWelcome) },
                     range = 5..25,
                     step = 1,
                     suffix = stringResource(R.string.unit_x),

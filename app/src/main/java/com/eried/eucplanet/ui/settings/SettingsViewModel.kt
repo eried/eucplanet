@@ -33,6 +33,8 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -299,7 +301,10 @@ class SettingsViewModel @Inject constructor(
     fun updateVoiceEnabled(enabled: Boolean) = update { copy(voiceEnabled = enabled) }
     fun updateVoiceAnnounceWhen(value: String) = update { copy(voiceAnnounceWhen = value) }
     fun updateVoiceInterval(seconds: Int) = update { copy(voiceIntervalSeconds = seconds) }
-    fun updateVoiceSpeechRate(v: Float) = update { copy(voiceSpeechRate = v) }
+    fun updateVoiceSpeechRate(v: Float, previewText: String? = null) {
+        update { copy(voiceSpeechRate = v) }
+        previewText?.let { previewVoiceChange(it) }
+    }
     fun updateVoiceReportSpeed(v: Boolean) = update { copy(voiceReportSpeed = v) }
     fun updateVoiceReportBattery(v: Boolean) = update { copy(voiceReportBattery = v) }
     fun updateVoiceReportTemp(v: Boolean) = update { copy(voiceReportTemp = v) }
@@ -314,15 +319,33 @@ class SettingsViewModel @Inject constructor(
     fun updateTriggerReportDistance(v: Boolean) = update { copy(triggerReportDistance = v) }
     fun updateTriggerReportTime(v: Boolean) = update { copy(triggerReportTime = v) }
     fun updateTriggerReportNavigation(v: Boolean) = update { copy(triggerReportNavigation = v) }
-    fun updateVoiceLocale(tag: String) {
+    fun updateVoiceLocale(tag: String, previewText: String? = null) {
         // Explicit voice pick sets the override flag so a later UI-language
         // change re-prompts ("switch voice too?") instead of silently
         // clobbering the rider's chosen voice.
         update { copy(voiceLocale = tag, voiceLocaleOverridden = true) }
         voiceService.setVoiceLocale(tag)
+        previewText?.let { previewVoiceChange(it) }
     }
     fun updateVoiceAudioFocus(v: String) = update { copy(voiceAudioFocus = v) }
     fun updateVoiceOutputChannel(v: String) = update { copy(voiceOutputChannel = v) }
+
+    private var voicePreviewJob: Job? = null
+
+    /**
+     * Speak the welcome line so the rider immediately hears a just-changed
+     * voice setting (speech speed or language). Debounced so holding the speed
+     * stepper does not stack a dozen previews; the last change wins after a
+     * short pause and plays at the values actually saved (new speed, new voice).
+     */
+    private fun previewVoiceChange(welcomeText: String) {
+        voicePreviewJob?.cancel()
+        voicePreviewJob = viewModelScope.launch {
+            delay(450)
+            val s = settingsRepository.get()
+            voiceService.testSpeak(welcomeText, s.voiceSpeechRate, s.voiceLocale)
+        }
+    }
 
     // Motor sound
     fun updateEngineSoundEnabled(v: Boolean) = update { copy(engineSoundEnabled = v) }
