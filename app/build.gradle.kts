@@ -212,10 +212,13 @@ dependencies {
     implementation(libs.jmdns)
 
     // ffmpeg-kit (community 16KB-page fork on Maven Central; ffmpeg 6.1.1,
-    // --enable-gpl full build with the prores_ks encoder). Used only to encode
-    // Overlay Studio replay clips to ProRes 4444 .mov, the one format Android's
-    // MediaCodec/MediaMuxer can't produce (no ProRes, no .mov container).
-    implementation("com.moizhassan.ffmpeg:ffmpeg-kit-16kb:6.1.1")
+    // --enable-gpl full build with the prores_ks encoder). Was used only to
+    // encode Overlay Studio replay clips to ProRes 4444 .mov. DISABLED: the
+    // alpha .mov output is handled inconsistently by editors, so the whole MOV
+    // export path is commented out (see StudioProResEncoder). Re-enable this
+    // line to bring it back. The abiFilters above were added for this native
+    // module; they're harmless without it.
+    // implementation("com.moizhassan.ffmpeg:ffmpeg-kit-16kb:6.1.1")
 
     // Compose
     val composeBom = platform(libs.compose.bom)

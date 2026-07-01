@@ -165,7 +165,6 @@ fun StudioReplayDialog(
     onChromaColor: (Long) -> Unit,
     onForceOpaque: (Boolean) -> Unit,
     onScale: (Int) -> Unit,
-    onMovQtrle: (Boolean) -> Unit,
     onClose: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -254,8 +253,7 @@ fun StudioReplayDialog(
                 onVideoFormat = onVideoFormat,
                 onChromaColor = onChromaColor,
                 onForceOpaque = onForceOpaque,
-                onScale = onScale,
-                onMovQtrle = onMovQtrle
+                onScale = onScale
             )
             else -> {
             // A trip is replayable once it parsed to a non-zero timeline.
@@ -327,8 +325,8 @@ fun StudioReplayDialog(
                 Spacer(Modifier.width(10.dp))
                 Spacer(Modifier.weight(1f))
                 // Tap to type an exact trim range (MM:SS / H:MM:SS) instead of
-                // fiddling the handles. Shows "Trim" until a range is set, then
-                // the range itself -- both open the editor.
+                // fiddling the handles. Shows "(full clip)" until a range is set,
+                // then the range itself -- both open the editor.
                 if (active) {
                     Text(
                         if (trimmed)
@@ -549,8 +547,7 @@ private fun ExportFormatChooser(
     onVideoFormat: (ReplayVideoFormat) -> Unit,
     onChromaColor: (Long) -> Unit,
     onForceOpaque: (Boolean) -> Unit,
-    onScale: (Int) -> Unit,
-    onMovQtrle: (Boolean) -> Unit
+    onScale: (Int) -> Unit
 ) {
     // In portrait (panel upright, rotation 0/180) there's far more vertical room
     // than in landscape, so let the chooser grow instead of cramming everything
@@ -572,12 +569,10 @@ private fun ExportFormatChooser(
             color = MaterialTheme.appColors.textSecondary,
             modifier = Modifier.padding(top = 4.dp, bottom = 6.dp)
         )
-        // Ordered so each column lines up with its video counterpart below:
-        // PNG↔APNG, GIF↔GIF, JPG↔MP4 (lossy, no alpha), WEBP↔MOV (alpha).
+        // PNG / WEBP carry alpha; JPG is flattened onto the chroma fill.
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             listOf(
                 ReplayPhotoFormat.PNG,
-                ReplayPhotoFormat.GIF,
                 ReplayPhotoFormat.JPG,
                 ReplayPhotoFormat.WEBP
             ).forEach { fmt ->
@@ -600,14 +595,13 @@ private fun ExportFormatChooser(
             color = MaterialTheme.appColors.textSecondary,
             modifier = Modifier.padding(bottom = 6.dp)
         )
-        // Same column order as the photo row above (APNG under PNG, GIF under
-        // GIF, MP4 under JPG, MOV under WEBP).
+        // GIF (1-bit) and APNG (full RGBA) carry alpha; MP4 is flattened onto the
+        // chroma fill. (MOV / ProRes is disabled app-wide.)
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             listOf(
-                ReplayVideoFormat.APNG,
                 ReplayVideoFormat.GIF,
                 ReplayVideoFormat.MP4,
-                ReplayVideoFormat.MOV
+                ReplayVideoFormat.APNG
             ).forEach { fmt ->
                 FormatChip(
                     label = fmt.name,
@@ -619,26 +613,8 @@ private fun ExportFormatChooser(
             }
         }
 
-        // MOV alpha codec: ProRes 4444 (compact, pro) vs QuickTime Animation
-        // (bigger, but its plain ARGB alpha is read by editors that reject
-        // ProRes alpha). Only relevant when MOV is the chosen video format.
-        if (prefs.videoFormat == ReplayVideoFormat.MOV) {
-            Spacer(Modifier.height(8.dp))
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                FormatChip(
-                    label = "ProRes 4444",
-                    selected = !prefs.movQtrle,
-                    modifier = Modifier.weight(1f),
-                    onClick = { onMovQtrle(false) }
-                )
-                FormatChip(
-                    label = "QuickTime RLE",
-                    selected = prefs.movQtrle,
-                    modifier = Modifier.weight(1f),
-                    onClick = { onMovQtrle(true) }
-                )
-            }
-        }
+        // (MOV alpha-codec chooser removed: the ProRes / QuickTime .mov export
+        // path is disabled app-wide.)
 
         // Output options (Scale, chroma key and force-opaque) collapsed by
         // default so the common case (just picking a format) stays compact.

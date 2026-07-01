@@ -61,4 +61,8 @@
     <string name="hud_map_offline">Map tiles not reachable (phone has no internet?)</string>
     <string name="hud_nav_idle">No active route</string>
     <string name="hud_nav_arrived">You have arrived</string>
+    <!-- Advisory shown when the phone detects its own Wi-Fi is interrupting the
+         HUD link (single-radio channel-follow). -->
+    <string name="hud_wifi_advisory_title">Phone Wi-Fi interrupting HUD</string>
+    <string name="hud_wifi_advisory_detail">Turn off phone Wi-Fi for a stable link</string>
 </resources>

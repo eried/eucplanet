@@ -1289,7 +1289,7 @@
     <string name="studio_replay_clip_saved">Replay clip saved</string>
     <string name="studio_replay_render_cancelled">Render cancelled</string>
     <string name="studio_replay_export_failed">Replay export failed</string>
-    <string name="studio_replay_trim">(Trim)</string>
+    <string name="studio_replay_trim">(full clip)</string>
     <string name="studio_replay_trim_title">Trim clip</string>
     <string name="studio_replay_trim_start">Start</string>
     <string name="studio_replay_trim_end">End</string>

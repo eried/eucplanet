@@ -189,7 +189,16 @@ data class HudState(
      * and lets the dedup-by-content snapshot pipeline force a re-emit by
      * just bumping the timestamp when no other field changed.
      */
-    val timestampMs: Long = 0L
+    val timestampMs: Long = 0L,
+
+    /**
+     * True when the phone has detected that its OWN home/other Wi-Fi keeps
+     * interrupting the HUD link (single-radio STA+AP channel-follow): repeated
+     * HUD drops each landing right after one of the phone's Wi-Fi transitions.
+     * The HUD shows a rider-facing advisory ("turn phone Wi-Fi off for a stable
+     * link") when set. Added at PROTOCOL_MINOR 10; older HUDs ignore it.
+     */
+    val phoneWifiInterfering: Boolean = false
 ) {
     companion object {
         /**
@@ -214,8 +223,14 @@ data class HudState(
          * 8: added rear-view radar fields ([radarConnected],
          *    [radarBatteryPercent], [radarTargets]) and the RADAR overlay
          *    element type. Older HUDs ignore them and skip the radar widget.
+         * 9: added [HudCommand.Pair.recoveryNote] so the HUD can report its
+         *    WiFi self-heal story back into the phone's shareable diagnostics.
+         *    Older phones ignore the field; nothing else on the wire changed.
+         * 10: added [HudState.phoneWifiInterfering] so the phone can tell the
+         *    HUD to advise the rider that the phone's own Wi-Fi is interrupting
+         *    the link. Older HUDs ignore it.
          */
-        const val PROTOCOL_MINOR: Int = 8
+        const val PROTOCOL_MINOR: Int = 10
 
         /** Legacy alias. New code should read [PROTOCOL_MAJOR] / [PROTOCOL_MINOR]. */
         @Deprecated(
@@ -320,7 +335,13 @@ sealed class HudCommand {
         val hudId: String,
         val hudVersion: String,
         val hudProtocolMajor: Int = 0,
-        val hudProtocolMinor: Int = 0
+        val hudProtocolMinor: Int = 0,
+        /** Compact human-readable summary of the HUD's most recent WiFi
+         *  self-heal, threaded back so it lands in the rider's shareable
+         *  diagnostics .txt (the phone logs the Pair greeting as a NOTE).
+         *  Empty when nothing notable happened since the last pair. Added at
+         *  PROTOCOL_MINOR 9; older phones ignore it (ignoreUnknownKeys). */
+        val recoveryNote: String = ""
     ) : HudCommand()
 
     /** Toggle the wheel's headlight if it has one. */

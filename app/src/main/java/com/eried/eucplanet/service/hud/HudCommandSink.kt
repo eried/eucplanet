@@ -81,6 +81,24 @@ class HudCommandSink @Inject constructor(
                 _hudVersionCompat.value = VersionCompat.classify(major, cmd.hudProtocolMinor)
                 _hudVersion.value = cmd.hudVersion.ifBlank { null }
                 _hudEverConnected.value = true
+                // Also record the HUD's reported version in the shareable Service
+                // Mode log (not just logcat) so a tester's .txt shows which HUD
+                // build was connected -- the protocol version alone won't reveal a
+                // behaviour-only HUD change (e.g. the WiFi-lock fix).
+                com.eried.eucplanet.diagnostics.DiagnosticsLogger.note(
+                    "HUD paired: v=${cmd.hudVersion.ifBlank { "?" }} " +
+                        "proto=$major.${cmd.hudProtocolMinor} (${_hudVersionCompat.value})"
+                )
+                // The HUD threads its most recent WiFi self-heal summary back on
+                // the Pair (protocol minor 9+). Surface it in the shareable log
+                // so an out-of-range drop+recovery shows WHAT the HUD did, not
+                // just that it reconnected. Empty for a clean first pair.
+                if (cmd.recoveryNote.isNotBlank()) {
+                    Log.i(TAG, "HUD recovery: ${cmd.recoveryNote}")
+                    com.eried.eucplanet.diagnostics.DiagnosticsLogger.note(
+                        "HUD self-heal: ${cmd.recoveryNote}"
+                    )
+                }
             }
             HudCommand.ToggleLight -> {
                 Log.i(TAG, "HUD command: ToggleLight")
