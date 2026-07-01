@@ -93,6 +93,16 @@ class HudServer @Inject constructor(
         // above it the HUD feels stuck.
         private const val BACKOFF_MIN_MS = 1_000L
         private const val BACKOFF_MAX_MS = 5_000L
+        // Adaptive HUD ping window. Foreground: keep the snappy 5s so a dead HUD is
+        // caught in ~5s and the dial loop rediscovers fast. Background (only the
+        // ride foreground service up): Samsung / Android background throttling
+        // defers the app's socket I/O, so a 5s pong window is easily missed and
+        // OkHttp tears down a reconnect before it stabilises (the "0 successful
+        // ping/pongs, killed in 5s, rediscover, repeat" loop seen on a Galaxy Z
+        // Flip on Android 16). A lenient 15s window lets a briefly-throttled
+        // background reconnect survive long enough to pair.
+        private const val PING_FOREGROUND_MS = 5_000L
+        private const val PING_BACKGROUND_MS = 15_000L
         // mDNS resolve timeout. Generous so a flaky multicast path on the
         // hotspot gets a fair chance, but bounded so the rider sees the
         // "no IP / not autodetected" state within a reasonable wait.
@@ -134,18 +144,28 @@ class HudServer @Inject constructor(
 
     private val lifecycleLock = Mutex()
 
+    // No fixed pingInterval here: it is chosen per-connection in
+    // [streamUntilClosed] from the app's foreground/background state (see
+    // PING_FOREGROUND_MS / PING_BACKGROUND_MS). newBuilder() reuses this
+    // client's connection pool + dispatcher, so a per-dial ping override is cheap.
     private val http: OkHttpClient = OkHttpClient.Builder()
-        // 5s, not 15s: a frozen/half-open HUD keeps the TCP socket open, so
-        // outbound frame sends succeed into the OS buffer and never error --
-        // only a missed pong reveals the dead peer. On the local hotspot link
-        // (sub-10ms RTT) a 5s ping detects a dead HUD in ~5s and triggers the
-        // dial-loop's rediscover+reconnect, instead of the rider staring at a
-        // frozen HUD for 15s+. Cheap on a LAN.
-        .pingInterval(5, TimeUnit.SECONDS)
         .connectTimeout(4, TimeUnit.SECONDS)
         .readTimeout(0, TimeUnit.MILLISECONDS)
         .retryOnConnectionFailure(true)
         .build()
+
+    /** True when the app UI is actually on-screen (process importance
+     *  FOREGROUND), not merely the ride foreground service running
+     *  (FOREGROUND_SERVICE). Once the UI is gone, Samsung / Android 16 throttle
+     *  the app's socket I/O, so the tight 5s ping window is only safe with the UI
+     *  up. Fails open to foreground so a detection miss keeps today's behaviour. */
+    private fun isUiForeground(): Boolean = try {
+        val info = android.app.ActivityManager.RunningAppProcessInfo()
+        android.app.ActivityManager.getMyMemoryState(info)
+        info.importance <= android.app.ActivityManager.RunningAppProcessInfo.IMPORTANCE_FOREGROUND
+    } catch (_: Exception) {
+        true
+    }
 
     @Volatile private var loopJob: Job? = null
     @Volatile private var publishJob: Job? = null
@@ -695,7 +715,9 @@ class HudServer @Inject constructor(
     /** Open one WebSocket and pump frames until it closes. Returns true on
      *  clean close, false on transport error (which gates backoff). */
     private suspend fun streamUntilClosed(peer: String): Boolean {
-        log("Dial ws://$peer/state")
+        val foreground = isUiForeground()
+        val pingMs = if (foreground) PING_FOREGROUND_MS else PING_BACKGROUND_MS
+        log("Dial ws://$peer/state (ping ${pingMs / 1000}s, ${if (foreground) "foreground" else "background"})")
         val done = kotlinx.coroutines.CompletableDeferred<Boolean>()
         val req = Request.Builder()
             .url("ws://$peer${HudDiscovery.PATH_STATE}")
@@ -778,7 +800,12 @@ class HudServer @Inject constructor(
                 done.complete(false)
             }
         }
-        http.newWebSocket(req, listener)
+        // Per-connection ping tolerance from the foreground/background state above;
+        // newBuilder() shares this client's pool + dispatcher so this is cheap.
+        http.newBuilder()
+            .pingInterval(pingMs, TimeUnit.MILLISECONDS)
+            .build()
+            .newWebSocket(req, listener)
         return done.await()
     }
 
