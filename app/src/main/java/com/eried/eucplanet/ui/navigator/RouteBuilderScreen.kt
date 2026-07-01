@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -1003,21 +1004,10 @@ fun RouteBuilderScreen(
                 }
             }
 
-            // --- Controls: the locate-me FAB sits just above the panel ---
-            // Portrait: full-width dock across the bottom. Landscape: a fixed-
-            // width sidebar down the left, leaving the map to its right.
-            Column(
-                modifier = if (landscape) Modifier
-                        .align(Alignment.CenterStart)
-                        .fillMaxHeight()
-                        .width(340.dp)
-                        .background(MaterialTheme.appColors.menuBackground)
-                        .padding(top = padding.calculateTopPadding())
-                        .verticalScroll(rememberScrollState())
-                    else Modifier
-                        .align(Alignment.BottomCenter)
-                        .fillMaxWidth()
-            ) {
+            // Overlay FABs (charger / places / layers / my-location) as a
+            // reusable block: they float on the map (landscape) or sit above
+            // the bottom dock (portrait).
+            val overlayFabs: @Composable ColumnScope.() -> Unit = {
                 // The charger + places overlay toggles only exist when advanced
                 // map features are on. The icon stays visible while loading (a
                 // ring overlays it) so the button is always tappable, and the
@@ -1106,10 +1096,13 @@ fun RouteBuilderScreen(
                 ) {
                     Icon(Icons.Default.MyLocation, stringResource(R.string.nav_my_location))
                 }
-
+            }
+            // The route/stops panel. Always expanded in landscape (the sidebar
+            // has room for the full stops list), collapsible in portrait.
+            val bottomPanelContent: @Composable (Modifier) -> Unit = { panelMod ->
                 BottomPanel(
-                    expanded = panelExpanded,
-                    onToggle = { panelExpanded = !panelExpanded },
+                    expanded = landscape || panelExpanded,
+                    onToggle = { if (!landscape) panelExpanded = !panelExpanded },
                     travelMode = travelMode,
                     onModeChange = viewModel::setTravelMode,
                     solveFullPath = solveFullPath,
@@ -1137,8 +1130,35 @@ fun RouteBuilderScreen(
                     onClearRoute = viewModel::clear,
                     canStartNavigation = userLocation != null && waypoints.isNotEmpty(),
                     navRunning = navRunning && !navStarting,
-                    modifier = Modifier.onSizeChanged { sz -> panelHeightPx = sz.height }
+                    modifier = panelMod.onSizeChanged { sz -> panelHeightPx = sz.height }
                 )
+            }
+
+            // Portrait: FABs stacked above a full-width bottom dock. Landscape:
+            // FABs float bottom-right on the map, the panel is a left sidebar
+            // (always expanded) so the stops list is always visible.
+            if (landscape) {
+                Column(modifier = Modifier.align(Alignment.BottomEnd)) { overlayFabs() }
+                Column(
+                    modifier = Modifier
+                        .align(Alignment.CenterStart)
+                        .fillMaxHeight()
+                        .width(340.dp)
+                        .background(MaterialTheme.appColors.menuBackground)
+                        .padding(top = padding.calculateTopPadding())
+                        .verticalScroll(rememberScrollState())
+                ) {
+                    bottomPanelContent(Modifier.fillMaxWidth())
+                }
+            } else {
+                Column(
+                    modifier = Modifier
+                        .align(Alignment.BottomCenter)
+                        .fillMaxWidth()
+                ) {
+                    overlayFabs()
+                    bottomPanelContent(Modifier.fillMaxWidth())
+                }
             }
 
             // Charger / station details, opened by tapping a faint POI marker.
