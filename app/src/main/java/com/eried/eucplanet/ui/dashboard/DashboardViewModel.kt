@@ -9,7 +9,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.eried.eucplanet.ble.ConnectionState
 import com.eried.eucplanet.data.repository.FullMetricHistory
-import com.eried.eucplanet.data.repository.MetricSample
 import com.eried.eucplanet.R
 import com.eried.eucplanet.data.repository.SettingsRepository
 import com.eried.eucplanet.data.repository.TripRepository
@@ -86,7 +85,7 @@ class DashboardViewModel @Inject constructor(
     /** Hardware top-speed cap from the detected wheel model (BegodeModel /
      *  VeteranModel / InMotionV2Model / KingsongModel). Stays at the
      *  WheelRepository DEFAULT_MAX_SPEED_KMH (90) when no wheel is connected
-     *  or the model isn't recognised — the dashboard treats that sentinel
+     *  or the model isn't recognised - the dashboard treats that sentinel
      *  as "don't cap" so unknown wheels keep the rider-tilt-back-driven
      *  scale they have today. */
     val wheelMaxSpeedCap: StateFlow<Float> = wheelRepository.maxSpeedCap
@@ -118,21 +117,6 @@ class DashboardViewModel @Inject constructor(
 
     val currentTripId: StateFlow<Long?> = tripRepository.currentTripId
 
-    /**
-     * Live external-GPS speed in km/h, or null when no device is paired or no
-     * sample has arrived recently. The dashboard's speedometer renders a small
-     * accent-coloured marker on the dial and a numeric readout under the main
-     * speed when this is non-null.
-     */
-    /**
-     * Extra speed indicator on the dial. Honors the GPS settings:
-     *  - [AppSettings.gpsShowOnDashboard] off → no indicator
-     *  - [AppSettings.gpsPrioritizeExternal] on AND external sample fresh → external
-     *  - else → phone GPS (when fix available)
-     *
-     * Emits a `Pair<speedKmh, sourceKey>` where sourceKey is "EXTERNAL" or
-     * "PHONE" so the dashboard can pick the colour. Null when nothing to show.
-     */
     /** True when the rider has an external GPS paired in settings, regardless
      *  of whether it's currently connected or sending samples. Drives the
      *  visibility of the "E" indicator on the dashboard so users without an
@@ -141,6 +125,17 @@ class DashboardViewModel @Inject constructor(
         .map { it.externalGpsAddress != null }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
 
+    /**
+     * Extra speed indicator on the dial. Honors the GPS settings:
+     *  - [AppSettings.gpsShowOnDashboard] off → no indicator
+     *  - [AppSettings.gpsPrioritizeExternal] on AND external sample fresh → external
+     *  - else → phone GPS (when fix available)
+     *
+     * Emits a `Pair<speedKmh, sourceKey>` where sourceKey is "EXTERNAL" or
+     * "PHONE" so the dashboard can pick the colour. Null when nothing to show.
+     * The speedometer renders a small accent-coloured marker on the dial and a
+     * numeric readout under the main speed when this is non-null.
+     */
     val gpsExtraSpeed: StateFlow<Pair<Float, String>?> = kotlinx.coroutines.flow.combine(
         settingsRepository.settings,
         externalGpsRepository.currentSample,
@@ -173,7 +168,7 @@ class DashboardViewModel @Inject constructor(
     val currentLocation = tripRepository.currentLocation
 
     /**
-     * Phone battery percentage (0–100). Polled from the system service
+     * Phone battery percentage (0-100). Polled from the system service
      * via a 30-second tick, since it doesn't change fast enough to
      * justify a registered receiver here. Returns -1 when unavailable.
      */
@@ -316,7 +311,7 @@ class DashboardViewModel @Inject constructor(
      *
      *  Seeded from initialSettings (synchronous DataStore read at the top of
      *  this VM) instead of a hardcoded `true`. A `true` seed reads as "tour
-     *  already done, hide it" — so on a first-launch cold start the rider
+     *  already done, hide it" - so on a first-launch cold start the rider
      *  saw an interactive dashboard for ~50-200ms before the upstream Flow
      *  emitted the real `false` and the tour finally appeared. That window
      *  was long enough to tap a destructive action (the "reset" report
@@ -436,7 +431,7 @@ class DashboardViewModel @Inject constructor(
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000),
             initialSettings.dashboardCustomBle)
 
-    /** Fires an action by its catalog key via FlicManager — shared dispatch with Flic / volume / watch. */
+    /** Fires an action by its catalog key via FlicManager - shared dispatch with Flic / volume / watch. */
     fun dispatchActionByName(key: String) = flicManager.dispatchActionByName(key)
 
     /**
@@ -540,7 +535,7 @@ class DashboardViewModel @Inject constructor(
 
     val fullHistory: StateFlow<FullMetricHistory> = wheelRepository.fullHistory
 
-    // Sparklines: last 60 samples from full history
+    // Sparklines: last SPARKLINE_SIZE samples from full history
     val history: StateFlow<MetricHistory> = wheelRepository.fullHistory
         .map { full ->
             MetricHistory(

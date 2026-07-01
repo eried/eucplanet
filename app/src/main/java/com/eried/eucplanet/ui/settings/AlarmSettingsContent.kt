@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
@@ -25,21 +24,14 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.ArrowDownward
-import androidx.compose.material.icons.filled.ArrowUpward
-import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.DragHandle
-import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
-import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Remove
 import androidx.compose.material.icons.filled.Repeat
 import androidx.compose.material.icons.filled.Stop
-import androidx.compose.material.icons.filled.SwapVert
 import androidx.compose.material.icons.filled.Tune
-import androidx.compose.material.icons.filled.VolumeUp
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
@@ -138,9 +130,9 @@ private fun displayThreshold(metric: AlarmMetric, valueInternal: Float, speedUni
     }
 
 private fun internalThreshold(metric: AlarmMetric, valueDisplayed: Float, speedUnit: String, tempUnit: String): Float =
-    when {
-        metric == AlarmMetric.SPEED -> Units.speedToKmh(valueDisplayed, speedUnit)
-        metric == AlarmMetric.TEMPERATURE -> Units.temperatureToCelsius(valueDisplayed, tempUnit)
+    when (metric) {
+        AlarmMetric.SPEED -> Units.speedToKmh(valueDisplayed, speedUnit)
+        AlarmMetric.TEMPERATURE -> Units.temperatureToCelsius(valueDisplayed, tempUnit)
         else -> valueDisplayed
     }
 
@@ -245,7 +237,6 @@ fun AlarmSettingsContent(
                                 tempUnit = tempUnit,
                                 onToggle = { viewModel.updateRule(rule.copy(enabled = it)) },
                                 onEdit = { editingRule = rule; showEditor = true },
-                                showHandle = false,
                             )
                         }
                     }
@@ -328,8 +319,7 @@ private fun metricAccent(metric: AlarmMetric): androidx.compose.ui.graphics.Colo
     AlarmMetric.PWM -> MaterialTheme.appColors.gaugeWarn
     AlarmMetric.VOLTAGE -> MaterialTheme.appColors.metricVoltage
     AlarmMetric.CURRENT -> MaterialTheme.appColors.metricPosition
-    AlarmMetric.RADAR_DISTANCE -> MaterialTheme.appColors.statusDanger
-    AlarmMetric.RADAR_APPROACH_SPEED -> MaterialTheme.appColors.statusDanger
+    AlarmMetric.RADAR_DISTANCE, AlarmMetric.RADAR_APPROACH_SPEED -> MaterialTheme.appColors.statusDanger
 }
 
 @Composable
@@ -339,8 +329,6 @@ private fun AlarmRuleCard(
     tempUnit: String,
     onToggle: (Boolean) -> Unit,
     onEdit: () -> Unit,
-    showHandle: Boolean = true,
-    dragHandleModifier: Modifier = Modifier,
 ) {
     val metric = try { AlarmMetric.valueOf(rule.metric) } catch (_: Exception) { AlarmMetric.SPEED }
     val comp = AlarmComparator.parse(rule.comparator)
@@ -366,18 +354,8 @@ private fun AlarmRuleCard(
                 .padding(horizontal = 8.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            if (showHandle) {
-                Icon(
-                    Icons.Default.DragHandle,
-                    contentDescription = stringResource(R.string.action_reorder),
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = dragHandleModifier.size(28.dp)
-                )
-                Spacer(Modifier.width(4.dp))
-            } else {
-                // Indent group rules under the group's drag handle.
-                Spacer(Modifier.width(12.dp))
-            }
+            // Indent group rules under the group's drag handle.
+            Spacer(Modifier.width(12.dp))
             Column(
                 modifier = Modifier
                     .weight(1f)
@@ -535,7 +513,7 @@ private fun AlarmRuleEditorDialog(
 
     Dialog(
         onDismissRequest = onDismiss,
-        // Don't dismiss the alarm editor on an outside tap — that silently drops
+        // Don't dismiss the alarm editor on an outside tap - that silently drops
         // the whole edit. Close only via the explicit buttons / back.
         properties = androidx.compose.ui.window.DialogProperties(
             usePlatformDefaultWidth = false,

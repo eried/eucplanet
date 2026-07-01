@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.eried.eucplanet.R
 import com.eried.eucplanet.data.db.AlarmDao
+import com.eried.eucplanet.data.model.AlarmComparator
 import com.eried.eucplanet.data.model.AlarmMetric
 import com.eried.eucplanet.data.model.AlarmRule
 import com.eried.eucplanet.data.repository.SettingsRepository
@@ -73,14 +74,15 @@ class AlarmViewModel @Inject constructor(
     /** A metric and its rules (most-severe first) -- the unit of priority. */
     data class MetricGroup(val metric: String, val rules: List<AlarmRule>)
 
+    /** Severity score for ordering: higher threshold is more severe for ">=",
+     *  lower threshold (negated) is more severe for "<". */
+    private fun severityOf(rule: AlarmRule): Float =
+        if (AlarmComparator.parse(rule.comparator) == AlarmComparator.LESS_THAN) -rule.threshold
+        else rule.threshold
+
     /** Within a group, most severe first: higher threshold for ">=", lower for "<". */
-    private fun severityComparator(): Comparator<AlarmRule> {
-        fun severity(r: AlarmRule): Float =
-            if (com.eried.eucplanet.data.model.AlarmComparator.parse(r.comparator) ==
-                com.eried.eucplanet.data.model.AlarmComparator.LESS_THAN
-            ) -r.threshold else r.threshold
-        return compareByDescending { severity(it) }
-    }
+    private fun severityComparator(): Comparator<AlarmRule> =
+        compareByDescending { severityOf(it) }
 
     /** Group rules by metric (most-severe first inside each); order the groups by
      *  priority = the lowest sortOrder in each group (what the rider dragged).
@@ -103,12 +105,8 @@ class AlarmViewModel @Inject constructor(
      */
     private fun sortComparator(): Comparator<AlarmRule> {
         val metricOrder = AlarmMetric.entries.withIndex().associate { (i, m) -> m.name to i }
-        fun severity(r: AlarmRule): Float =
-            if (com.eried.eucplanet.data.model.AlarmComparator.parse(r.comparator) ==
-                com.eried.eucplanet.data.model.AlarmComparator.LESS_THAN
-            ) -r.threshold else r.threshold
         return compareBy<AlarmRule> { metricOrder[it.metric] ?: Int.MAX_VALUE }
-            .thenByDescending { severity(it) }
+            .thenByDescending { severityOf(it) }
     }
 
     /** True when the list is already in auto-sort order (so Auto-sort is a no-op
@@ -169,13 +167,6 @@ class AlarmViewModel @Inject constructor(
         }
     }
 
-    /**
-     * Tidy the list: group rules by metric (in the metric enum's order) and,
-     * within each group, put the most severe first -- higher threshold for "≥"
-     * rules, lower threshold for "<" rules. Purely cosmetic now that the engine
-     * fires the most-relevant rule per metric regardless of order; it just makes
-     * the list read the way riders think about it.
-     */
     /** Drag-to-reorder: move the rule at [from] to [to] and renumber sortOrder
      *  so the new order persists. Indices are into the currently displayed list. */
     fun moveRule(from: Int, to: Int) {
@@ -204,6 +195,13 @@ class AlarmViewModel @Inject constructor(
         }
     }
 
+    /**
+     * Tidy the list: group rules by metric (in the metric enum's order) and,
+     * within each group, put the most severe first -- higher threshold for "≥"
+     * rules, lower threshold for "<" rules. Purely cosmetic now that the engine
+     * fires the most-relevant rule per metric regardless of order; it just makes
+     * the list read the way riders think about it.
+     */
     fun autoSmartSort() {
         viewModelScope.launch {
             val sorted = alarmDao.getAll().sortedWith(sortComparator())
@@ -217,7 +215,7 @@ class AlarmViewModel @Inject constructor(
         viewModelScope.launch {
             // Play exactly what fires: `count` beeps at the configured pitch and
             // volume, separated by the configured gap. The modulation ("rises with
-            // severity") is auditioned live in the Beep Studio, not here — this
+            // severity") is auditioned live in the Beep Studio, not here - this
             // button answers "what does my alarm actually sound like".
             tonePlayer.playBeep(frequencyHz, durationMs, count, gapMs, volumePct)
         }
