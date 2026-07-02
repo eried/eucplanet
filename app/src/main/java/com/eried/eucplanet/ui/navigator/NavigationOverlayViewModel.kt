@@ -53,6 +53,11 @@ class NavigationOverlayViewModel @Inject constructor(
         .map { r -> r?.takeIf { it.waypoints.isNotEmpty() } }
         .stateIn(viewModelScope, SharingStarted.Eagerly, null)
 
+    /** Advanced: how long the expanded turn cue stays before minimizing (ms). */
+    val popupTimeoutMs: StateFlow<Long> = settingsRepository.settings
+        .map { it.navPopupTimeoutMs.toLong() }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 5000L)
+
     fun setMinimized(minimized: Boolean) = navigationEngine.setMinimized(minimized)
 
     fun setCueVisible(visible: Boolean) = navigationEngine.setCueVisible(visible)

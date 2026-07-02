@@ -11,6 +11,55 @@ private val RX_KS_S_LOWER = Regex("^s(?:1[6-9]|2[02])(?:\\b|[-_ ])")
 private val RX_VETERAN_LK_LOWER = Regex("^lk\\d")
 private val RX_NINEBOT_ZN_LOWER = Regex("^zn\\d")
 
+/** Wheel protocol families, decided purely from the advertised BLE name. Kept
+ *  top-level and pure so the connect-time routing can be unit-tested
+ *  (CompositeWheelAdapterRoutingTest) without instantiating any adapter. */
+internal enum class WheelFamily { INMOTION_V2, INMOTION_V1, KINGSONG, VETERAN, NINEBOT, BEGODE }
+
+/** Which protocol family a connected device's name belongs to. Null / blank
+ *  defaults to InMotion V2 (the cold-connect default). Mirrors the scan filter. */
+internal fun wheelFamilyForName(deviceName: String?): WheelFamily {
+    if (deviceName.isNullOrBlank()) return WheelFamily.INMOTION_V2
+    val n = deviceName.lowercase()
+    return when {
+        isV1WheelName(n) -> WheelFamily.INMOTION_V1
+        n.startsWith("ks-") || n.startsWith("ks ") || n.startsWith("kingsong") ||
+            RX_KS_S_LOWER.containsMatchIn(n) ||
+            n.startsWith("f18") || n.startsWith("f22") -> WheelFamily.KINGSONG
+        "sherman" in n || "patton" in n || "abrams" in n ||
+            "lynx" in n || "oryx" in n || "nosfet" in n || "leaperkim" in n ||
+            RX_VETERAN_LK_LOWER.containsMatchIn(n) -> WheelFamily.VETERAN
+        n.startsWith("ninebot") || n.startsWith("segway") ||
+            RX_NINEBOT_ZN_LOWER.containsMatchIn(n) ||
+            n.startsWith("miniplus") || n.startsWith("mini plus") -> WheelFamily.NINEBOT
+        n.startsWith("gotway") || n.startsWith("begode") ||
+            n.startsWith("master") || n.startsWith("rs_") || n.startsWith("rs-") ||
+            n.startsWith("ex_") || n.startsWith("ex.") || n.startsWith("ex2") ||
+            n.startsWith("msp") || n.startsWith("msx") ||
+            n.startsWith("mten") || n.startsWith("mcm5") ||
+            n.startsWith("hero") || n.startsWith("t3") || n.startsWith("t4") -> WheelFamily.BEGODE
+        else -> WheelFamily.INMOTION_V2
+    }
+}
+
+/** V1 protocol family detector: V3/V5/V8/V10, L6, Glide, Lively, IM<digits>.
+ *  V11+ stay on V2. Pure; takes a lowercased name. */
+internal fun isV1WheelName(n: String): Boolean {
+    if (n.startsWith("l6") || n.startsWith("lively") || n.startsWith("glide") ||
+        n.startsWith("solowheel")) return true
+    if (n.startsWith("im")) {
+        return n.length > 2 && n[2].isDigit()
+    }
+    val stripped = if (n.startsWith("inmotion-")) n.substring("inmotion-".length) else n
+    if (stripped.length >= 2 && stripped[0] == 'v' && stripped[1].isDigit()) {
+        var i = 1
+        while (i < stripped.length && stripped[i].isDigit()) i++
+        val digits = stripped.substring(1, i).toIntOrNull() ?: return false
+        return digits == 3 || digits == 5 || digits == 8 || digits == 10
+    }
+    return false
+}
+
 /**
  * Adapter dispatcher. Holds the six per-family adapters (InMotion V2, InMotion
  * V1, KingSong, Begode/Gotway, Veteran, Ninebot) and routes every WheelAdapter
@@ -173,84 +222,16 @@ class CompositeWheelAdapter @Inject constructor(
         active = inmotion
     }
 
-    private fun pickAdapter(deviceName: String?): WheelAdapter {
-        if (deviceName.isNullOrBlank()) return inmotion
-        val n = deviceName.lowercase()
-        return when {
-            // InMotion V1: V5 / V8 / V10 / L6 / Glide / Lively / IM<digits>.
-            // V11/V12/V13/V14 are V2 family, route those to `inmotion`. The
-            // disambiguation is by the *digit value* after the leading V:
-            // 5/8/10 → V1, 11/12/13/14 → V2.
-            isV1WheelName(n) -> inmotionV1
-
-            // KingSong: "KS-…", "S22 …", "S20 …", etc.
-            n.startsWith("ks-") || n.startsWith("ks ") ||
-                    n.startsWith("kingsong") ||
-                    RX_KS_S_LOWER.containsMatchIn(n) ||
-                    n.startsWith("f18") || n.startsWith("f22") -> kingsong
-
-            // LeaperKim ("Veteran" family on the wire): match on model
-            // tokens and on the wheel's own BLE prefixes -- the Oryx
-            // advertises as `LK19957` (LK = LeaperKim initials), Nosfet
-            // rebrands use `nosfet *`. Without these the HM-10 fallback
-            // in pickAdapterByDiscoveredServices would briefly label
-            // the wheel as KingSong until the first DC 5A 5C frame
-            // arrives and onRawNotification swaps the active adapter.
-            // We still keep that magic-byte rescue for any LeaperKim
-            // BLE name we don't recognise yet (e.g. future rebrands).
-            "sherman" in n || "patton" in n || "abrams" in n ||
-                    "lynx" in n || "oryx" in n ||
-                    "nosfet" in n || "leaperkim" in n ||
-                    RX_VETERAN_LK_LOWER.containsMatchIn(n) -> veteran
-
-            // Ninebot / Segway-Ninebot. Two protocol families live behind
-            // the same brand prefix; the Ninebot adapter resolves Z vs
-            // legacy from the same name string in its own
-            // `notifyConnectingTo`. Route generously; if a name shape
-            // overlaps with a KingSong "S2" prefix the KingSong branch
-            // above already wins (it's more specific), so this branch
-            // only sees real Ninebot names.
-            n.startsWith("ninebot") || n.startsWith("segway") ||
-                    RX_NINEBOT_ZN_LOWER.containsMatchIn(n) ||
-                    n.startsWith("miniplus") || n.startsWith("mini plus") -> ninebot
-
-            // Begode/Gotway. "GotWay_*" / "Begode_*" / model-specific
-            // prefixes ("RS_*", "Master_*", "EX_*", "MSP_*", etc.).
-            n.startsWith("gotway") || n.startsWith("begode") ||
-                    n.startsWith("master") || n.startsWith("rs_") || n.startsWith("rs-") ||
-                    n.startsWith("ex_") || n.startsWith("ex.") || n.startsWith("ex2") ||
-                    n.startsWith("msp") || n.startsWith("msx") ||
-                    n.startsWith("mten") || n.startsWith("mcm5") ||
-                    n.startsWith("hero") || n.startsWith("t3") || n.startsWith("t4") -> begode
-
-            // InMotion V2 default (V14 "Adventure-*", P6 "P6-*", and
-            // every "InMotion*" / "V*" name handled inside that adapter).
-            else -> inmotion
+    // Connect-time protocol routing. The name -> family decision is the pure,
+    // unit-tested [wheelFamilyForName]; here we only map the family to the
+    // injected adapter instance.
+    private fun pickAdapter(deviceName: String?): WheelAdapter =
+        when (wheelFamilyForName(deviceName)) {
+            WheelFamily.INMOTION_V1 -> inmotionV1
+            WheelFamily.KINGSONG -> kingsong
+            WheelFamily.VETERAN -> veteran
+            WheelFamily.NINEBOT -> ninebot
+            WheelFamily.BEGODE -> begode
+            WheelFamily.INMOTION_V2 -> inmotion
         }
-    }
-
-    /**
-     * Decide whether a name belongs to the V1 protocol family. V1 wheels are
-     * V3 / V5 / V8 / V10 / L6 / Glide / Lively / R-series / "IM<digits>"; V2
-     * wheels (V11 / V12 / V13 / V14) share the same `V<digits>` shape. We
-     * disambiguate by parsing the digit run after the leading `V` and routing
-     * V3 / V5 / V8 / V10 (with any letter suffix) to V1, leaving V11+ on V2.
-     */
-    private fun isV1WheelName(n: String): Boolean {
-        if (n.startsWith("l6") || n.startsWith("lively") || n.startsWith("glide") ||
-            n.startsWith("solowheel")) return true
-        if (n.startsWith("im")) {
-            // IM<digits> naming used by R-series + rebrands, V1 family.
-            return n.length > 2 && n[2].isDigit()
-        }
-        // "inmotion-v8", "inmotion-v10f", etc.
-        val stripped = if (n.startsWith("inmotion-")) n.substring("inmotion-".length) else n
-        if (stripped.length >= 2 && stripped[0] == 'v' && stripped[1].isDigit()) {
-            var i = 1
-            while (i < stripped.length && stripped[i].isDigit()) i++
-            val digits = stripped.substring(1, i).toIntOrNull() ?: return false
-            return digits == 3 || digits == 5 || digits == 8 || digits == 10
-        }
-        return false
-    }
 }

@@ -14,6 +14,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -49,6 +50,20 @@ class AlarmEngine @Inject constructor(
     // state and per-metric trend history; unit-tested in AlarmEvaluatorTest.
     private val evaluator = AlarmEvaluator()
 
+    init {
+        // Push the rider's predictive-alarm tuning into the evaluator whenever
+        // settings change. sanitized() guarantees safe values, so the evaluator
+        // never sees a zero window or sample count.
+        scope.launch {
+            settingsRepository.settings.collect { s ->
+                evaluator.slopeWindowMs = s.alarmSlopeWindowMs.toLong()
+                evaluator.bufferMaxMs = s.alarmBufferMaxMs.toLong()
+                evaluator.slopeMinSamples = s.alarmSlopeMinSamples
+                evaluator.slopeMinSpanMs = s.alarmSlopeMinSpanMs.toLong()
+            }
+        }
+    }
+
     private fun AlarmRule.toEvaluatorRule() = AlarmEvaluator.Rule(
         id = id,
         metric = metric,
@@ -82,10 +97,15 @@ class AlarmEngine @Inject constructor(
             val rules = alarmDao.getEnabled()
             val now = System.currentTimeMillis()
 
+            // Group priority = the order metrics first appear when rules are sorted
+            // by sortOrder (the list order the rider drags). Highest-priority group
+            // first; only its ready alarm sounds, lower ones fill its cooldown gaps.
+            val metricPriority = rules.sortedBy { it.sortOrder }.map { it.metric }.distinct()
             val fired = evaluator.evaluate(
                 rules.map { it.toEvaluatorRule() },
                 now,
                 AlarmEvaluator.NoReading.SKIP,
+                metricPriority,
             ) { metric ->
                 // Radar metrics report null here -- they're driven by
                 // [evaluateRadar] off the radar frame, not wheel telemetry.
@@ -199,9 +219,13 @@ class AlarmEngine @Inject constructor(
         }
         scope.launch {
             if (rule.beepEnabled) {
-                tonePlayer.playBeep(rule.beepFrequency, rule.beepDurationMs, rule.beepCount)
+                val freq = AlarmLogic.modulatedBeepHz(
+                    rule.beepFrequency, triggerValue, rule.comparator, rule.threshold, rule.beepModulation, rule.metric)
+                val vol = AlarmLogic.modulatedVolumePct(
+                    rule.beepVolume, rule.beepVolumeModulation, triggerValue, rule.comparator, rule.threshold, rule.metric)
+                tonePlayer.playBeep(freq, rule.beepDurationMs, rule.beepCount, rule.beepGapMs, vol)
                 if (rule.voiceEnabled && rule.voiceText.isNotBlank()) {
-                    delay(200)
+                    delay(rule.beepGapMs.toLong())
                 }
             }
             if (rule.voiceEnabled && rule.voiceText.isNotBlank()) {
@@ -232,9 +256,13 @@ class AlarmEngine @Inject constructor(
 
         scope.launch {
             if (rule.beepEnabled) {
-                tonePlayer.playBeep(rule.beepFrequency, rule.beepDurationMs, rule.beepCount)
+                val freq = AlarmLogic.modulatedBeepHz(
+                    rule.beepFrequency, triggerValue, rule.comparator, rule.threshold, rule.beepModulation, rule.metric)
+                val vol = AlarmLogic.modulatedVolumePct(
+                    rule.beepVolume, rule.beepVolumeModulation, triggerValue, rule.comparator, rule.threshold, rule.metric)
+                tonePlayer.playBeep(freq, rule.beepDurationMs, rule.beepCount, rule.beepGapMs, vol)
                 if (rule.voiceEnabled && rule.voiceText.isNotBlank()) {
-                    delay(200)
+                    delay(rule.beepGapMs.toLong())
                 }
             }
             if (rule.voiceEnabled && rule.voiceText.isNotBlank()) {

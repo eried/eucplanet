@@ -64,17 +64,14 @@ import com.eried.eucplanet.data.model.arrowAngleDeg
 import com.eried.eucplanet.ui.theme.appColors
 import kotlinx.coroutines.delay
 
-/** How long the centred cue popup stays up before it times out to the pill. */
-private const val POPUP_TIMEOUT_MS = 5_000L
-
 /**
  * The floating navigation popup. Rendered above the nav graph in
  * [com.eried.eucplanet.MainActivity], so it hovers over every screen of the
  * app while guidance is running.
  *
  * Each new cue pops a big arrow card in the centre of the screen on a rounded
- * translucent background; it times out after [POPUP_TIMEOUT_MS] to a small
- * corner pill. Tapping the pill re-opens it. The X ends navigation after a
+ * translucent background; it times out (AppSettings.navPopupTimeoutMs) to a
+ * small corner pill. Tapping the pill re-opens it. The X ends navigation after a
  * confirmation. The empty area around the card does not intercept touches.
  */
 @Composable
@@ -89,6 +86,7 @@ fun NavigationOverlay(
     viewModel: NavigationOverlayViewModel = hiltViewModel()
 ) {
     val state by viewModel.navState.collectAsState()
+    val popupTimeoutMs by viewModel.popupTimeoutMs.collectAsState()
     var showEndConfirm by remember { mutableStateOf(false) }
 
     // The centred popup is transient: it appears on each new cue, then times
@@ -108,7 +106,7 @@ fun NavigationOverlay(
         popupShown = true
         // The arrival banner stays up; the engine clears the whole popup itself.
         if (!state.arrived) {
-            delay(POPUP_TIMEOUT_MS)
+            delay(popupTimeoutMs)
             popupShown = false
         }
     }

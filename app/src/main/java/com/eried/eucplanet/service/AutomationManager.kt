@@ -28,10 +28,6 @@ class AutomationManager @Inject constructor(
 ) {
     companion object {
         private const val TAG = "AutomationManager"
-        private const val LIGHT_CHECK_INTERVAL_MS = 60_000L
-        private const val LIGHT_NO_GPS_RETRY_MS = 2_000L
-        // If light state changes within this window after our command, it's us, not the user
-        private const val AUTO_TOGGLE_GRACE_MS = 4_000L
         // Below this multiplier we treat manual volume changes as direct baseline edits
         // (avoids divide-by-near-zero amplification when standing still).
         private const val MIN_REBASE_MULTIPLIER = 0.05f
@@ -76,20 +72,20 @@ class AutomationManager @Inject constructor(
      * Called every telemetry tick (~250ms). Evaluates automation rules.
      */
     suspend fun evaluate(settings: AppSettings) {
-        detectManualLightChange()
+        detectManualLightChange(settings)
         if (settings.autoLightsEnabled && !_autoLightsSuspended.value) evaluateLights(settings)
         if (settings.autoVolumeEnabled) evaluateVolume(settings)
     }
 
     /** Watch telemetry: if the wheel's light state flips without a recent auto-toggle, it's a manual change. */
-    private fun detectManualLightChange() {
+    private fun detectManualLightChange(settings: AppSettings) {
         val current = wheelRepository.wheelData.value.lightOn
         val previous = lastKnownLightOn
         lastKnownLightOn = current
         if (previous == null || previous == current) return
         if (lastAutoToggleMs == 0L) return
         val sinceAutoToggle = System.currentTimeMillis() - lastAutoToggleMs
-        if (sinceAutoToggle > AUTO_TOGGLE_GRACE_MS) {
+        if (sinceAutoToggle > settings.autoToggleGraceMs.toLong()) {
             notifyManualLightChange()
         }
     }
@@ -97,7 +93,8 @@ class AutomationManager @Inject constructor(
     private fun evaluateLights(settings: AppSettings) {
         val now = System.currentTimeMillis()
         val location = tripRepository.currentLocation.value
-        val interval = if (location == null) LIGHT_NO_GPS_RETRY_MS else LIGHT_CHECK_INTERVAL_MS
+        val interval = if (location == null) settings.autoLightNoGpsRetryMs.toLong()
+                       else settings.automationLightCheckIntervalMs.toLong()
         if (now - lastLightCheckMs < interval) return
         lastLightCheckMs = now
 

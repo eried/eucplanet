@@ -51,9 +51,12 @@ data class ChargingEstimate(
  *    real CV taper without the wild 1 h overshoot that pushed us off 2.2.
  */
 class ChargingEstimator(
-    private val targetPercent: Float = 80f,
-    private val targetTaperFactor: Float = 1.05f,
-    private val cvTaperFactor: Float = 2.0f,
+    // Params are `var` so the app can push the rider's Advanced-settings values
+    // in live (WheelRepository mirrors them); estimate() reads them each call so
+    // a change applies without losing the running charge session.
+    var targetPercent: Float = 80f,
+    var targetTaperFactor: Float = 1.05f,
+    var cvTaperFactor: Float = 2.0f,
     // Warm-up: 5 % gained over 5 min (was 3 % / 3 min). Bumped after testers
     // reported predictions wobbling for the first ~10 min on Lynx / Oryx; the
     // post-fix Veteran voltage stream is cleaner but the % gate dominates on
@@ -61,23 +64,23 @@ class ChargingEstimator(
     // slope-quality at the cost of a longer "warming up" splash. The rider
     // still sees the live 0.001 % battery readout during warm-up — only the
     // "X min to full" line waits for these gates to clear.
-    private val warmupMinPercentGain: Float = 5f,
-    private val warmupMinDurationMs: Long = 300_000L,
+    var warmupMinPercentGain: Float = 5f,
+    var warmupMinDurationMs: Long = 300_000L,
     // 5 min window: enough integer SoC transitions in the window that the
     // slope estimate stays within a few % of the truth even on a BMS that
     // ticks at 1 % resolution.
-    private val windowMs: Long = 300_000L,
+    var windowMs: Long = 300_000L,
     // Hard cap on a sensible ETA. Any computed minutesToFull above this
     // means the slope just got transiently tiny (a sample sequence where
     // no integer step has yet landed in the window); return null instead
     // and let the commitEta layer hold the previous value. 8 h covers
     // even worst-case real charge cycles (0 % -> 100 % on a slow brick).
-    private val sanityCapMinutes: Float = 480f,
+    var sanityCapMinutes: Float = 480f,
     // Median-filter window (must be odd, ≥ 1; 1 disables filtering). 7 covers
     // ~0.8 s of telemetry at the 9 Hz Veteran cadence — small enough that the
     // smoothed series tracks real % transitions with sub-second lag, big
     // enough that a single rogue voltage dip is dropped completely.
-    private val medianFilterSize: Int = 7,
+    var medianFilterSize: Int = 7,
 ) {
     private data class Sample(val t: Long, val p: Float)
 

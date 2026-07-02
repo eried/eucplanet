@@ -9,7 +9,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.eried.eucplanet.ble.ConnectionState
 import com.eried.eucplanet.data.repository.FullMetricHistory
-import com.eried.eucplanet.data.repository.MetricSample
 import com.eried.eucplanet.R
 import com.eried.eucplanet.data.repository.SettingsRepository
 import com.eried.eucplanet.data.repository.TripRepository
@@ -27,6 +26,7 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
@@ -58,6 +58,8 @@ class DashboardViewModel @Inject constructor(
     private val wearBridge: com.eried.eucplanet.wear.WearBridge,
     private val garminBridge: com.eried.eucplanet.garmin.GarminBridge,
     private val appHealthRepository: com.eried.eucplanet.data.repository.AppHealthRepository,
+    private val dropboxRepository: com.eried.eucplanet.data.repository.DropboxRepository,
+    private val appNotifier: com.eried.eucplanet.util.AppNotifier,
     @ApplicationContext private val context: Context
 ) : ViewModel() {
 
@@ -83,7 +85,7 @@ class DashboardViewModel @Inject constructor(
     /** Hardware top-speed cap from the detected wheel model (BegodeModel /
      *  VeteranModel / InMotionV2Model / KingsongModel). Stays at the
      *  WheelRepository DEFAULT_MAX_SPEED_KMH (90) when no wheel is connected
-     *  or the model isn't recognised — the dashboard treats that sentinel
+     *  or the model isn't recognised - the dashboard treats that sentinel
      *  as "don't cap" so unknown wheels keep the rider-tilt-back-driven
      *  scale they have today. */
     val wheelMaxSpeedCap: StateFlow<Float> = wheelRepository.maxSpeedCap
@@ -115,21 +117,6 @@ class DashboardViewModel @Inject constructor(
 
     val currentTripId: StateFlow<Long?> = tripRepository.currentTripId
 
-    /**
-     * Live external-GPS speed in km/h, or null when no device is paired or no
-     * sample has arrived recently. The dashboard's speedometer renders a small
-     * accent-coloured marker on the dial and a numeric readout under the main
-     * speed when this is non-null.
-     */
-    /**
-     * Extra speed indicator on the dial. Honors the GPS settings:
-     *  - [AppSettings.gpsShowOnDashboard] off → no indicator
-     *  - [AppSettings.gpsPrioritizeExternal] on AND external sample fresh → external
-     *  - else → phone GPS (when fix available)
-     *
-     * Emits a `Pair<speedKmh, sourceKey>` where sourceKey is "EXTERNAL" or
-     * "PHONE" so the dashboard can pick the colour. Null when nothing to show.
-     */
     /** True when the rider has an external GPS paired in settings, regardless
      *  of whether it's currently connected or sending samples. Drives the
      *  visibility of the "E" indicator on the dashboard so users without an
@@ -138,6 +125,17 @@ class DashboardViewModel @Inject constructor(
         .map { it.externalGpsAddress != null }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
 
+    /**
+     * Extra speed indicator on the dial. Honors the GPS settings:
+     *  - [AppSettings.gpsShowOnDashboard] off → no indicator
+     *  - [AppSettings.gpsPrioritizeExternal] on AND external sample fresh → external
+     *  - else → phone GPS (when fix available)
+     *
+     * Emits a `Pair<speedKmh, sourceKey>` where sourceKey is "EXTERNAL" or
+     * "PHONE" so the dashboard can pick the colour. Null when nothing to show.
+     * The speedometer renders a small accent-coloured marker on the dial and a
+     * numeric readout under the main speed when this is non-null.
+     */
     val gpsExtraSpeed: StateFlow<Pair<Float, String>?> = kotlinx.coroutines.flow.combine(
         settingsRepository.settings,
         externalGpsRepository.currentSample,
@@ -170,7 +168,7 @@ class DashboardViewModel @Inject constructor(
     val currentLocation = tripRepository.currentLocation
 
     /**
-     * Phone battery percentage (0–100). Polled from the system service
+     * Phone battery percentage (0-100). Polled from the system service
      * via a 30-second tick, since it doesn't change fast enough to
      * justify a registered receiver here. Returns -1 when unavailable.
      */
@@ -313,7 +311,7 @@ class DashboardViewModel @Inject constructor(
      *
      *  Seeded from initialSettings (synchronous DataStore read at the top of
      *  this VM) instead of a hardcoded `true`. A `true` seed reads as "tour
-     *  already done, hide it" — so on a first-launch cold start the rider
+     *  already done, hide it" - so on a first-launch cold start the rider
      *  saw an interactive dashboard for ~50-200ms before the upstream Flow
      *  emitted the real `false` and the tour finally appeared. That window
      *  was long enough to tap a destructive action (the "reset" report
@@ -433,7 +431,7 @@ class DashboardViewModel @Inject constructor(
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000),
             initialSettings.dashboardCustomBle)
 
-    /** Fires an action by its catalog key via FlicManager — shared dispatch with Flic / volume / watch. */
+    /** Fires an action by its catalog key via FlicManager - shared dispatch with Flic / volume / watch. */
     fun dispatchActionByName(key: String) = flicManager.dispatchActionByName(key)
 
     /**
@@ -458,6 +456,81 @@ class DashboardViewModel @Inject constructor(
         }
     }
 
+    /** Whether a backup folder is configured. Once set, the dev wizard reveals the
+     *  Join and Sync buttons. */
+    val backupFolderSet: StateFlow<Boolean> = settingsRepository.settings
+        .map { !it.syncFolderUri.isNullOrBlank() }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
+
+    /** Whether the configured folder actually holds a settings backup. Gates the
+     *  dev wizard's Restore button so it appears only when there is something to
+     *  restore. Re-checked whenever the folder changes. */
+    val hasSettingsBackup: StateFlow<Boolean> = settingsRepository.settings
+        .map { it.syncFolderUri }
+        .distinctUntilChanged()
+        .map { uri -> !uri.isNullOrBlank() && syncManager.listSettingsBackups().isNotEmpty() }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
+
+    // --- Dev welcome-wizard backup/restore: thin wrappers over SyncManager,
+    // the same calls the Cloud settings screen uses. ---
+    fun setBackupFolder(uri: android.net.Uri) {
+        viewModelScope.launch { syncManager.setSyncFolder(uri) }
+    }
+
+    suspend fun listSettingsBackups(): List<com.eried.eucplanet.data.sync.BackupEntry> =
+        syncManager.listSettingsBackups()
+
+    fun restoreSettingsFrom(fileName: String) {
+        viewModelScope.launch { syncManager.restoreSettingsFrom(fileName) }
+    }
+
+    fun restoreFactoryDefaults() {
+        viewModelScope.launch { syncManager.restoreFactoryDefaults() }
+    }
+
+    /** Whether a trip sync is running (disables the dev wizard's Sync button while
+     *  it works). */
+    val syncRunning: StateFlow<Boolean> = syncManager.syncRunning
+
+    /** Whether the rider has already joined leaderboards (online upload enabled).
+     *  Gates the dev wizard's Join button so it greys out and stays greyed once
+     *  joined, the same disabled-after-action treatment Sync trips gets. */
+    val leaderboardsJoined: StateFlow<Boolean> = settingsRepository.settings
+        .map { it.onlineUploadEnabled }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
+
+    /** Fire-and-forget dev "sync trips": the same folder sync the Cloud screen runs.
+     *  Posts a toast so the trigger is visible even when there is nothing to sync. */
+    fun syncAllTrips() {
+        appNotifier.post(context.getString(R.string.welcome_tut_dev_syncing))
+        syncManager.startSync()
+    }
+
+    /** Whether Dropbox is linked (gates the dev wizard's Link Dropbox button). */
+    val dropboxLinked: StateFlow<Boolean> = dropboxRepository.linked
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
+
+    /** Start the Dropbox OAuth link flow. Needs an Activity context for the Custom
+     *  Tab, so the caller passes it down from Compose. */
+    fun linkDropbox(activityContext: android.content.Context) =
+        dropboxRepository.startLinkFlow(activityContext)
+
+    /** Fire-and-forget dev "join leaderboards": recover the rider from the linked
+     *  backup folder if one is there, then enable online upload. The full
+     *  onboarding for a brand-new rider stays in Cloud settings; this is the quick
+     *  path for a dev whose folder already holds their rider. */
+    fun joinLeaderboards() {
+        viewModelScope.launch {
+            val hasRider = syncManager.riderStoreId.value != null ||
+                syncManager.findRestorableRider()?.also { syncManager.writeRiderId(it.storeId) } != null
+            settingsRepository.update(settingsRepository.get().copy(onlineUploadEnabled = true))
+            appNotifier.post(context.getString(
+                if (hasRider) R.string.welcome_tut_dev_joined
+                else R.string.welcome_tut_dev_joined_norider
+            ))
+        }
+    }
+
     /**
      * Send the family-specific "reset onboard trip meter" command to the
      * wheel. Returns true on Veteran (CLEARMETER); false on every other
@@ -469,7 +542,7 @@ class DashboardViewModel @Inject constructor(
 
     val fullHistory: StateFlow<FullMetricHistory> = wheelRepository.fullHistory
 
-    // Sparklines: last 60 samples from full history
+    // Sparklines: last SPARKLINE_SIZE samples from full history
     val history: StateFlow<MetricHistory> = wheelRepository.fullHistory
         .map { full ->
             MetricHistory(
