@@ -896,26 +896,38 @@ private fun InfoTabs(state: ChargingUiState) {
                         // level up (in InfoTabs) so the value also survives
                         // Cells <-> Packs tab switches.
                         val bmsPacks = state.bms.packs.filter { it.knownCells.isNotEmpty() }
-                        val packs = if (stableBmsCount > 0 && bmsPacks.size >= stableBmsCount) {
-                            bmsPacks.take(stableBmsCount).map { pack ->
-                                val avgCellV = pack.knownCells.map { it.second }.average().toFloat()
-                                // Linear interp 3.0V (empty) -> 4.20V (full)
-                                ((avgCellV - 3.0f) / 1.2f * 100f).coerceIn(0f, 100f)
+                        if (stableBmsCount > 0 && bmsPacks.size >= stableBmsCount) {
+                            // Per-cell data available: show the measured truth, the
+                            // pack's average cell voltage. A voltage->percent
+                            // estimate here reads far too high mid-charge (the
+                            // Li-ion plateau is flat and charging elevates cell
+                            // voltage), contradicting the wheel's own BMS SoC.
+                            val packVolts = bmsPacks.take(stableBmsCount).map { pack ->
+                                pack.knownCells.map { it.second }.average().toFloat()
+                            }
+                            PacksGrid(packVolts, isVoltage = true)
+                            Spacer(Modifier.height(8.dp))
+                            if (packVolts.size >= 2) {
+                                // Imbalance as a mV spread -- the real pack-health
+                                // signal, and the number balance chargers read.
+                                StatRow(stringResource(R.string.charging_stat_balance),
+                                    "%+.0f mV".format((packVolts.max() - packVolts.min()) * 1000f))
                             }
                         } else {
-                            buildList {
+                            // No per-cell data: fall back to the wheel's own BMS
+                            // SoC (accurate) with a percent imbalance.
+                            val packs = buildList {
                                 if (state.battery1 > 0f) add(state.battery1)
                                 if (state.battery2 > 0f) add(state.battery2)
                             }
-                        }
-                        PacksGrid(packs)
-                        Spacer(Modifier.height(8.dp))
-                        if (packs.size >= 2) {
-                            // 2 decimals + explicit sign so a fully balanced
-                            // pack reads "+0.00%" rather than dropping to an
-                            // empty-looking line. Imbalance is max-min so it's
-                            // never negative; the + keeps the row stable.
-                            StatRow(stringResource(R.string.charging_stat_balance), "%+.2f%%".format(packs.max() - packs.min()))
+                            PacksGrid(packs, isVoltage = false)
+                            Spacer(Modifier.height(8.dp))
+                            if (packs.size >= 2) {
+                                // 2 decimals + explicit sign so a fully balanced
+                                // pack reads "+0.00%" rather than an empty line.
+                                StatRow(stringResource(R.string.charging_stat_balance),
+                                    "%+.2f%%".format(packs.max() - packs.min()))
+                            }
                         }
                         StatRow(stringResource(R.string.charging_stat_temp), "%.0f°C".format(state.maxTemp))
                     }
@@ -1105,7 +1117,7 @@ private fun CellChip(cellNumber: Int, voltage: Float, min: Float, max: Float, mo
  * 3 → 3, 6 → 3×2, …). Each tile is a mini fill with "#N" and its %.
  */
 @Composable
-private fun PacksGrid(packs: List<Float>) {
+private fun PacksGrid(packs: List<Float>, isVoltage: Boolean) {
     if (packs.isEmpty()) return
     val n = packs.size
     val avg = packs.average().toFloat()
@@ -1133,8 +1145,9 @@ private fun PacksGrid(packs: List<Float>) {
             }
             PackTile(
                 index = idx + 1,
-                percent = pct,
+                value = pct,
                 avg = avg,
+                isVoltage = isVoltage,
                 fillColor = tileColor,
                 modifier = Modifier.weight(1f),
             )
@@ -1149,13 +1162,16 @@ private fun PacksGrid(packs: List<Float>) {
 @Composable
 private fun PackTile(
     index: Int,
-    percent: Float,
+    value: Float,
     avg: Float,
+    isVoltage: Boolean,
     fillColor: Color = MaterialTheme.appColors.metricVoltage,
     modifier: Modifier = Modifier,
 ) {
-    val frac = (percent / 100f).coerceIn(0f, 1f)
-    val delta = percent - avg
+    // Fill fraction: SoC maps 0-100 %; voltage maps the 3.0-4.2 V cell range to
+    // the same bar height (visual only, never shown as a percent).
+    val frac = (if (isVoltage) (value - 3.0f) / 1.2f else value / 100f).coerceIn(0f, 1f)
+    val delta = value - avg
     val hatchColor = MaterialTheme.appColors.hint
     Box(
         modifier = modifier
@@ -1195,7 +1211,7 @@ private fun PackTile(
         ) {
             Text("#$index", fontSize = 12.sp, color = MaterialTheme.appColors.textSecondary)
             Text(
-                "%.1f%%".format(percent),
+                if (isVoltage) "%.2f V".format(value) else "%.1f%%".format(value),
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.appColors.textPrimary,
@@ -1206,7 +1222,7 @@ private fun PackTile(
             // for sub-tenth values (a -0.04 % delta shows as "-0.04%" instead
             // of getting rounded down to a confusing "-0.0%").
             Text(
-                "%+.2f%%".format(delta),
+                if (isVoltage) "%+.0f mV".format(delta * 1000f) else "%+.2f%%".format(delta),
                 fontSize = 11.sp,
                 fontWeight = FontWeight.Medium,
                 color = when {
