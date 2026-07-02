@@ -628,7 +628,6 @@
     <string name="back_button_action">Back action</string>
     <string name="back_button_action_desc">What happens when you swipe or press back from the dashboard</string>
     <string name="section_screen_rotation">Screen rotation</string>
-    <string name="setting_rotation_desc">Choose which screens may rotate to landscape. The main dashboard stays portrait-only by default.</string>
     <string name="setting_rotate_dashboard">Rotate dashboard</string>
     <string name="setting_rotate_navigator">Rotate navigator</string>
     <string name="setting_rotate_other">Rotate other screens</string>

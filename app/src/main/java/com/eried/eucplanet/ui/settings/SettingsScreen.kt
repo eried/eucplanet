@@ -1132,28 +1132,6 @@ private fun GeneralTab(
         }
         HintText(stringResource(R.string.back_button_action_desc), small = true)
 
-        // Per-screen rotation (advanced). The app can rotate to landscape; these
-        // toggles pick which screens actually do. The main dashboard is locked to
-        // portrait by default.
-        AdvancedCollapsable(
-            title = stringResource(R.string.section_screen_rotation),
-            stateKey = "screen-rotation"
-        ) {
-            HintText(stringResource(R.string.setting_rotation_desc), small = true)
-            SwitchSetting(
-                stringResource(R.string.setting_rotate_dashboard),
-                settings.rotateDashboard
-            ) { viewModel.updateRotateDashboard(it) }
-            SwitchSetting(
-                stringResource(R.string.setting_rotate_navigator),
-                settings.rotateNavigator
-            ) { viewModel.updateRotateNavigator(it) }
-            SwitchSetting(
-                stringResource(R.string.setting_rotate_other),
-                settings.rotateOtherScreens
-            ) { viewModel.updateRotateOtherScreens(it) }
-        }
-
         Box(
             modifier = if (scrollToBattery) {
                 Modifier.onGloballyPositioned { onBatteryTop(it.positionInWindow().y) }
@@ -1424,6 +1402,22 @@ private fun AdvancedTab(
                 )
             }
         }
+
+        // Screen rotation: pick which screens may rotate to landscape. The main
+        // dashboard defaults to portrait; navigator and the rest default to on.
+        AdvSectionTitle(stringResource(R.string.section_screen_rotation))
+        SwitchSetting(
+            stringResource(R.string.setting_rotate_dashboard),
+            settings.rotateDashboard
+        ) { viewModel.updateRotateDashboard(it) }
+        SwitchSetting(
+            stringResource(R.string.setting_rotate_navigator),
+            settings.rotateNavigator
+        ) { viewModel.updateRotateNavigator(it) }
+        SwitchSetting(
+            stringResource(R.string.setting_rotate_other),
+            settings.rotateOtherScreens
+        ) { viewModel.updateRotateOtherScreens(it) }
 
         // Timing knobs, under their own big title.
         AdvSectionTitle(stringResource(R.string.adv_timings_title))
