@@ -191,6 +191,13 @@ data class AppSettings(
 
     val phoneKeepScreenOn: Boolean = false,
 
+    // Per-screen rotation (landscape). The app allows rotation at the manifest
+    // level; these gate which screens actually rotate. The main dashboard
+    // defaults to portrait-locked; the others default to allowing rotation.
+    val rotateDashboard: Boolean = false,
+    val rotateNavigator: Boolean = true,
+    val rotateOtherScreens: Boolean = true,
+
     // Volume keys (work while app is in foreground)
     val volumeKeysEnabled: Boolean = false,
     val volumeUpClick: String = "HORN",

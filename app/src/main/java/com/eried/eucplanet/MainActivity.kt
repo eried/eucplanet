@@ -384,6 +384,23 @@ class MainActivity : AppCompatActivity() {
                     // / updates when the rider's on the map screen.
                     val currentRoute by navController.currentBackStackEntryAsState()
                     val onMapScreen = currentRoute?.destination?.route == "route_builder"
+                    // Per-screen rotation. The manifest allows rotation (fullUser);
+                    // here we lock/unlock the activity per screen from settings.
+                    // The main dashboard is portrait-locked by default; the
+                    // navigator and other screens default to allowing rotation.
+                    val routeNow = currentRoute?.destination?.route
+                    androidx.compose.runtime.LaunchedEffect(
+                        routeNow, s?.rotateDashboard, s?.rotateNavigator, s?.rotateOtherScreens
+                    ) {
+                        val allow = when (routeNow) {
+                            Screen.Dashboard.route, null -> s?.rotateDashboard ?: false
+                            Screen.RouteBuilder.route -> s?.rotateNavigator ?: true
+                            else -> s?.rotateOtherScreens ?: true
+                        }
+                        this@MainActivity.requestedOrientation = if (allow)
+                            android.content.pm.ActivityInfo.SCREEN_ORIENTATION_FULL_USER
+                        else android.content.pm.ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+                    }
                     Box(modifier = Modifier.fillMaxSize()) {
                         NavGraph(navController = navController)
                         com.eried.eucplanet.ui.navigator.NavigationOverlay(
