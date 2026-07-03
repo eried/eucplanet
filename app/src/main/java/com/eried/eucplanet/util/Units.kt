@@ -137,4 +137,22 @@ object Units {
             else -> UnitSystem.CUSTOM
         }
     }
+
+    /**
+     * Human-readable elapsed time for trip summaries: "1h 23m" once past an
+     * hour, "23m 45s" under an hour, "45s" under a minute. Seconds are dropped
+     * once hours appear (they are noise on a long ride).
+     * TODO(i18n): localise the h/m/s suffixes in the global strings pass.
+     */
+    fun humanDuration(totalSeconds: Long): String {
+        val s = totalSeconds.coerceAtLeast(0)
+        val h = s / 3600
+        val m = (s % 3600) / 60
+        val sec = s % 60
+        return when {
+            h > 0 -> "%dh %02dm".format(h, m)
+            m > 0 -> "%dm %02ds".format(m, sec)
+            else -> "%ds".format(sec)
+        }
+    }
 }

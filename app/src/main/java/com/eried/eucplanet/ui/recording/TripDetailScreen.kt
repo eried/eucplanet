@@ -187,9 +187,16 @@ fun TripDetailScreen(
                 // at finalize) when present; recompute from the CSV only for
                 // trips that never got one (imports, crashed-before-finalize).
                 val distanceKm = if (trip.distanceKm > 0f) trip.distanceKm else metrics.distanceKm
-                val minutes = duration / 60
-                val seconds = duration % 60
-                val maxSpeedRaw = dataPoints.maxOfOrNull { it.speed } ?: 0f
+                // Top speed as a SUSTAINED value, not a lone GPS/sensor spike:
+                // the fastest the wheel actually held for ~2 s (see sustainedTopSpeed).
+                val maxSpeedRaw = remember(dataPoints, duration) {
+                    val n = dataPoints.size
+                    val window = if (n >= 2 && duration > 0)
+                        Math.round(SUSTAINED_TOP_SPEED_MS / (duration * 1000.0 / (n - 1)))
+                            .toInt().coerceIn(1, n)
+                    else 1
+                    sustainedTopSpeed(dataPoints.map { it.speed }, window)
+                }
                 val avgSpeedRaw = dataPoints.map { it.speed }.average().toFloat()
                 // Avg moving speed: mean over genuinely-moving samples (> 1 km/h),
                 // so idling/waiting time doesn't drag the average down.
@@ -235,7 +242,7 @@ fun TripDetailScreen(
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     SummaryCard(stringResource(R.string.recording_summary_distance), "%.1f %s".format(tripDistance, distanceUnitLabel), MaterialTheme.appColors.metricVoltage, Modifier.weight(1f))
-                    SummaryCard(stringResource(R.string.recording_summary_duration), "%d:%02d".format(minutes, seconds), MaterialTheme.appColors.metricVoltage, Modifier.weight(1f))
+                    SummaryCard(stringResource(R.string.recording_summary_duration), com.eried.eucplanet.util.Units.humanDuration(duration), MaterialTheme.appColors.metricVoltage, Modifier.weight(1f))
                     SummaryCard(stringResource(R.string.recording_summary_points), "${dataPoints.size}", MaterialTheme.colorScheme.onSurface, Modifier.weight(1f))
                 }
 
@@ -1030,3 +1037,30 @@ private fun trimEndIndex(points: List<TripDataPoint>): Int {
 private const val TRIM_MIN_TRIP_SAMPLES: Int = 30
 private const val TRIM_CLIFF_DROP_FRAC: Float = 0.05f
 private const val TRIM_LIGHT_CURRENT_A: Float = 5f
+
+/** How long a speed must be held to count as the trip's top speed. */
+private const val SUSTAINED_TOP_SPEED_MS: Double = 2000.0
+
+/**
+ * Top speed the wheel actually *held* for ~[SUSTAINED_TOP_SPEED_MS], not a lone
+ * GPS/sensor spike. Slides a window of [windowSamples] across the speed series
+ * and takes the window MINIMUM (every sample in the window must be at least this
+ * fast to qualify), then returns the max over all windows. A one- or two-sample
+ * spike can't survive, because any window covering it also covers its slower
+ * neighbours. Falls back to the plain peak for trips too short to fill a window.
+ * O(n) via a monotonic deque of window-minimum candidates.
+ */
+internal fun sustainedTopSpeed(speeds: List<Float>, windowSamples: Int): Float {
+    if (speeds.isEmpty()) return 0f
+    val w = windowSamples.coerceIn(1, speeds.size)
+    if (w <= 1) return speeds.maxOrNull() ?: 0f
+    var best = 0f
+    val dq = ArrayDeque<Int>()  // indices; the speeds at them strictly increasing from front
+    for (i in speeds.indices) {
+        while (dq.isNotEmpty() && speeds[dq.last()] >= speeds[i]) dq.removeLast()
+        dq.addLast(i)
+        if (dq.first() <= i - w) dq.removeFirst()
+        if (i >= w - 1) best = maxOf(best, speeds[dq.first()])
+    }
+    return best
+}
