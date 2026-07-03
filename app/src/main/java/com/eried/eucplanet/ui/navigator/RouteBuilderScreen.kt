@@ -596,7 +596,15 @@ fun RouteBuilderScreen(
                             searchText = it
                             viewModel.search(it)
                         },
-                        placeholder = { Text(stringResource(R.string.nav_search_hint)) },
+                        placeholder = {
+                            // Single line: on narrow cover screens the hint
+                            // otherwise wraps and clips inside the pill.
+                            Text(
+                                stringResource(R.string.nav_search_hint),
+                                maxLines = 1,
+                                overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
+                            )
+                        },
                         enabled = !navRunning,
                         leadingIcon = { Icon(Icons.Default.Search, null) },
                         trailingIcon = {
@@ -694,9 +702,13 @@ fun RouteBuilderScreen(
         // always reads the latest value.
         // Landscape: the control stack (mode + waypoints + start + FABs) docks
         // as a fixed-width sidebar on the left, leaving the map visible to its
-        // right, instead of a full-width panel across the bottom.
+        // right, instead of a full-width panel across the bottom. Requires real
+        // width: on tiny flip-cover screens (~374 dp wide) the 340 dp sidebar
+        // would swallow the map, so those keep the bottom-panel layout even
+        // when rotated.
         val landscape = LocalConfiguration.current.orientation ==
-            android.content.res.Configuration.ORIENTATION_LANDSCAPE
+            android.content.res.Configuration.ORIENTATION_LANDSCAPE &&
+            LocalConfiguration.current.screenWidthDp >= 600
         val effectivePanelPx =
             if (panelHeightPx > 0) panelHeightPx
             else with(density) { 300.dp.toPx().toInt() }

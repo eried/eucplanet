@@ -794,6 +794,13 @@ fun DashboardScreen(
             // so it kicks in on any short-and-wide screen, tablets included.
             val landscape = LocalConfiguration.current.orientation ==
                 android.content.res.Configuration.ORIENTATION_LANDSCAPE
+            // Flip-phone cover screens: BOTH dimensions are tiny (~360 x 374 dp),
+            // so neither the portrait stack nor the landscape three-column split
+            // fits. The dashboard reduces to the speedo plus one compact icon-only
+            // button row; metric tiles and the info footer are hidden (the inner
+            // screen still shows the full dashboard).
+            val tinyScreen = LocalConfiguration.current.screenWidthDp < 500 &&
+                LocalConfiguration.current.screenHeightDp < 500
 
             // Speed gauge, wide arc dial (tap opens history)
             val useAccent = !com.eried.eucplanet.ui.theme.isDefaultAccent(accentKey)
@@ -811,8 +818,16 @@ fun DashboardScreen(
             ) {
                 // Landscape: near-square dial that fills the left panel. Portrait
                 // phone keeps the ~square dial; wide tablets get the car-dash arc.
-                val widthFraction = if (landscape) 0.98f else if (wideStats) 0.95f else 0.85f
-                val ratio = if (landscape) 1.15f else if (wideStats) 2.0f else 1.05f
+                val widthFraction =
+                    if (tinyScreen) 0.92f
+                    else if (landscape) 0.98f
+                    else if (wideStats) 0.95f
+                    else 0.85f
+                val ratio =
+                    if (tinyScreen) 1.05f
+                    else if (landscape) 1.15f
+                    else if (wideStats) 2.0f
+                    else 1.05f
                 val candidateW = maxWidth * widthFraction
                 val maxByHeight = maxHeight * ratio
                 val dialW = minOf(candidateW, maxByHeight)
@@ -1922,7 +1937,9 @@ fun DashboardScreen(
             val buttonsBlock: @Composable () -> Unit = {
             // Fixed height on both phone and wide layouts so the rows always fit.
             val actionAspect: Float? = null
-            val actionHeight: Int? = if (wideStats) 88 else 104
+            // Tiny cover screens get short icon-only buttons (ActionButton hides
+            // the label below 64 dp) so all six fit in a single row.
+            val actionHeight: Int? = if (tinyScreen) 52 else if (wideStats) 88 else 104
 
             // Read the rider's customized action order. Falls back to the
             // catalog defaults (HORN / LIGHT / VOICE / SAFETY / LOCK /
@@ -1943,8 +1960,8 @@ fun DashboardScreen(
 
             // Portrait: two rows of 3 (today's layout). Landscape: a single row
             // so the buttons sit in one line under the one-row metrics.
-            val buttonCols = if (landscape) 2 else 3
-            val buttonRows = if (landscape) 3 else 2
+            val buttonCols = if (tinyScreen) 6 else if (landscape) 2 else 3
+            val buttonRows = if (tinyScreen) 1 else if (landscape) 3 else 2
             for (rowIdx in 0 until buttonRows) {
                 Row(
                     modifier = Modifier
@@ -2325,7 +2342,14 @@ fun DashboardScreen(
             // Portrait: dial on top (absorbs slack), then metrics, buttons, odo
             // stacked. Landscape: three side-by-side columns -- dial | metric
             // column (1 x N) | buttons (2 x 3), with the odo tucked under them.
-            if (landscape) {
+            if (tinyScreen) {
+                // Cover screen: speedo takes all slack, one compact button row
+                // below, nothing else. Same layout in both orientations because
+                // the panel is near-square.
+                speedoBlock(Modifier.fillMaxWidth().weight(1f, fill = true))
+                Spacer(Modifier.height(6.dp))
+                buttonsBlock()
+            } else if (landscape) {
                 Row(modifier = Modifier.fillMaxSize()) {
                     speedoBlock(Modifier.weight(0.40f).fillMaxHeight())
                     // Middle column: the metric tiles as a vertical "1 x N" stack.
@@ -3738,10 +3762,14 @@ private fun ActionButton(
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Icon(icon, contentDescription = label, tint = content, modifier = Modifier.size(26.dp))
-            Spacer(Modifier.height(4.dp))
-            Text(label, fontSize = 11.sp, fontWeight = FontWeight.Medium,
-                color = content,
-                maxLines = 2, textAlign = TextAlign.Center, lineHeight = 13.sp)
+            // Short buttons (tiny cover screens) have no room for a caption:
+            // icon only, the label stays as the content description.
+            if (heightDp == null || heightDp >= 64) {
+                Spacer(Modifier.height(4.dp))
+                Text(label, fontSize = 11.sp, fontWeight = FontWeight.Medium,
+                    color = content,
+                    maxLines = 2, textAlign = TextAlign.Center, lineHeight = 13.sp)
+            }
         }
     }
 }
