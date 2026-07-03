@@ -1419,19 +1419,15 @@ internal fun NumberUpDown(
     format: (Int) -> String = { it.toString() },
     parse: (String) -> Int? = { it.toIntOrNull() },
     allowSign: Boolean = false,
-    // How the number sits in its fixed-width box. Center (default) keeps the
-    // classic look; End hugs the number against the unit (less gap) while the
-    // box width still pins the unit so it doesn't jump as you step.
-    numberAlign: TextAlign = TextAlign.Center,
+    // How the number sits next to the unit. End (default) right-aligns it so it
+    // hugs the unit, and because the unit is a fixed trailing element it is
+    // always fully visible even in a narrow row. Center keeps the older look.
+    numberAlign: TextAlign = TextAlign.End,
 ) {
     val fieldText = MaterialTheme.appColors.fieldText
     val fieldLabelColor = MaterialTheme.appColors.fieldLabel
     var text by remember { mutableStateOf(format(value)) }
     var focused by remember { mutableStateOf(false) }
-    // Width the typed number to the widest value in range so the unit stays put
-    // and the digits + unit read as one centred group.
-    val numWidth = (maxOf(2, format(range.first).length, format(range.last).length) * 12).dp
-
     // rememberUpdatedState so the hold-to-repeat loop below always steps from the
     // freshly committed value, not the value captured when the press started.
     val latestValue by rememberUpdatedState(value)
@@ -1468,7 +1464,6 @@ internal fun NumberUpDown(
                 )
                 Row(
                     modifier = Modifier.weight(1f),
-                    horizontalArrangement = Arrangement.Center,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     BasicTextField(
@@ -1493,7 +1488,7 @@ internal fun NumberUpDown(
                             keyboardType = if (allowSign) KeyboardType.Decimal else KeyboardType.Number
                         ),
                         modifier = Modifier
-                            .width(numWidth)
+                            .weight(1f)
                             .onFocusChanged { f ->
                                 if (f.isFocused) text = format(value)
                                 focused = f.isFocused
@@ -1508,6 +1503,7 @@ internal fun NumberUpDown(
                             maxLines = 1,
                             softWrap = false,
                         )
+                        Spacer(Modifier.width(6.dp))
                     }
                 }
                 RepeatingStepper(
