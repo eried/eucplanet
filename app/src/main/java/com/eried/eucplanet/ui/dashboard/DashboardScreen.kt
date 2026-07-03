@@ -570,7 +570,12 @@ fun DashboardScreen(
     val coachmark = rememberCoachmarkState()
     val welcomeTutorialSeen by viewModel.welcomeTutorialSeen.collectAsState()
     var tourDismissed by remember { mutableStateOf(false) }
-    val showWelcomeTour = !welcomeTutorialSeen && !tourDismissed
+    // Latch the show decision at first composition. Restoring a settings backup
+    // from the wizard's own dev tools can flip welcomeTutorialSeen to true
+    // mid-flow, which must not yank the wizard away; only the wizard's own
+    // Finish / Skip (tourDismissed) closes it.
+    val tourOpenAtStart = remember { !welcomeTutorialSeen }
+    val showWelcomeTour = tourOpenAtStart && !tourDismissed
 
     Box(modifier = Modifier.fillMaxSize()) {
     androidx.compose.runtime.CompositionLocalProvider(
