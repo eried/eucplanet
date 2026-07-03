@@ -191,9 +191,13 @@ fun TripDetailScreen(
                 // the fastest the wheel actually held for ~2 s (see sustainedTopSpeed).
                 val maxSpeedRaw = remember(dataPoints, duration) {
                     val n = dataPoints.size
+                    // Window is at least 2 samples so a lone single-sample spike (a
+                    // GPS / sensor glitch, e.g. a bogus 244 km/h reading) is always
+                    // rejected regardless of the trip's sample rate; more samples
+                    // when the rate is fine enough to cover the full ~2 s.
                     val window = if (n >= 2 && duration > 0)
-                        Math.round(SUSTAINED_TOP_SPEED_MS / (duration * 1000.0 / (n - 1)))
-                            .toInt().coerceIn(1, n)
+                        kotlin.math.ceil(SUSTAINED_TOP_SPEED_MS / (duration * 1000.0 / (n - 1)))
+                            .toInt().coerceIn(2, n)
                     else 1
                     sustainedTopSpeed(dataPoints.map { it.speed }, window)
                 }
