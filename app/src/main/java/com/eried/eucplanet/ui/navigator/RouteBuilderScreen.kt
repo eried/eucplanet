@@ -34,7 +34,6 @@ import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Close
@@ -693,6 +692,11 @@ fun RouteBuilderScreen(
         // by the real measurements automatically. Recomputed on every
         // recomposition because both sources are State, so the click handler
         // always reads the latest value.
+        // Landscape: the control stack (mode + waypoints + start + FABs) docks
+        // as a fixed-width sidebar on the left, leaving the map visible to its
+        // right, instead of a full-width panel across the bottom.
+        val landscape = LocalConfiguration.current.orientation ==
+            android.content.res.Configuration.ORIENTATION_LANDSCAPE
         val effectivePanelPx =
             if (panelHeightPx > 0) panelHeightPx
             else with(density) { 300.dp.toPx().toInt() }
@@ -706,8 +710,13 @@ fun RouteBuilderScreen(
         // otherwise the rider ends up DPR-x shifted (typical phones have
         // DPR=2.6..3.5, hence the "rider parks against the top bar"
         // symptom: a 66 dp shift becomes 198 device-px on screen).
+        // In landscape the stops panel sits in a left sidebar, so nothing
+        // occludes the map vertically. The Y offset formula would misread the
+        // sidebar's content height as a bottom occlusion and shift the rider
+        // toward the sidebar edge, so it is zeroed instead.
         val recenterOffsetPx =
-            (effectivePanelPx - effectiveTopBarPx) / 2f / density.density
+            if (landscape) 0f
+            else (effectivePanelPx - effectiveTopBarPx) / 2f / density.density
         // Push the recenter offset to JS whenever it changes -- the
         // auto-follow pan tween (only active during navigation) uses it
         // to keep the rider centred in the visible map area as the map
@@ -721,11 +730,6 @@ fun RouteBuilderScreen(
         // top bar -- the bar is now 80 % translucent so the map shows
         // through it. We still apply the BOTTOM padding so the bottom
         // panel and the FABs don't clash with the system nav bar.
-        // Landscape: the control stack (mode + waypoints + start + FABs) docks
-        // as a fixed-width sidebar on the left, leaving the map visible to its
-        // right, instead of a full-width panel across the bottom.
-        val landscape = LocalConfiguration.current.orientation ==
-            android.content.res.Configuration.ORIENTATION_LANDSCAPE
         Box(
             modifier = Modifier
                 .fillMaxSize()
