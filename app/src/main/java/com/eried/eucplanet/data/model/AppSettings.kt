@@ -850,7 +850,7 @@ data class AdvancedSettings(
     val automationLightCheckIntervalMs: Int = 60000,
     val hudBackoffMinMs: Int = 1000,
     val hudBackoffMaxMs: Int = 5000,
-    val hudMdnsTimeoutMs: Int = 5000,
+    val hudMdnsTimeoutMs: Int = 6000,
     val hudDiscoverySprintMs: Int = 30000,
     val autoLightNoGpsRetryMs: Int = 2000,
     val autoToggleGraceMs: Int = 4000,
