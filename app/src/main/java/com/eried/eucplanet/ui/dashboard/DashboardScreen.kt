@@ -1984,15 +1984,10 @@ fun DashboardScreen(
 
             // Portrait: two rows of 3 (today's layout). Landscape: a single row
             // so the buttons sit in one line under the one-row metrics.
-            // Tiny + camera avoidance: 3 x 2 so the block can sit bottom-left
-            // with the lower-right corner (cover lenses) left empty. Plain
-            // tiny: all six in one row.
-            val buttonCols = if (tinyScreen && coverAvoidCamera) 3
-                else if (tinyScreen) 6
-                else if (landscape) 2 else 3
-            val buttonRows = if (tinyScreen && coverAvoidCamera) 2
-                else if (tinyScreen) 1
-                else if (landscape) 3 else 2
+            // Tiny cover screens always render 3 x 2: the grid lives in the
+            // swipeable pager page next to the micro metrics.
+            val buttonCols = if (tinyScreen) 3 else if (landscape) 2 else 3
+            val buttonRows = if (tinyScreen) 2 else if (landscape) 3 else 2
             for (rowIdx in 0 until buttonRows) {
                 Row(
                     modifier = Modifier
@@ -2374,13 +2369,15 @@ fun DashboardScreen(
             // stacked. Landscape: three side-by-side columns -- dial | metric
             // column (1 x N) | buttons (2 x 3), with the odo tucked under them.
             if (tinyScreen) {
-                // Cover screen: speedo absorbs the slack, then a 2 x 3 micro
-                // metric grid (label + value only, no corner stats) and the six
-                // buttons. Same layout in both orientations because the panel
-                // is near-square. Composite / custom tile IDs are skipped: a
-                // micro cell can only render a plain catalog value.
+                // Cover screen: speedo absorbs the slack; below it ONE swipe
+                // area the rider pages sideways: page 0 = the six buttons
+                // (default), page 1 = all six metrics as 3 x 2 micro tiles
+                // (label + value only, no corner stats). Stacking both blocks
+                // squeezed the dial to a coin on the near-square panel.
+                // Composite / custom tile IDs are skipped: a micro cell can
+                // only render a plain catalog value.
                 speedoBlock(Modifier.fillMaxWidth().weight(1f, fill = true))
-                Spacer(Modifier.height(6.dp))
+                Spacer(Modifier.height(4.dp))
                 val coverMetricKeys = remember(coverMetricOrderRaw, dashboardMetricOrderRaw) {
                     val effective =
                         if (coverMetricOrderRaw.isNotBlank())
@@ -2392,53 +2389,85 @@ fun DashboardScreen(
                         .filter { !it.contains(":") && it != com.eried.eucplanet.ui.settings.EMPTY_SLOT_KEY }
                         .take(6)
                 }
-                for (microRow in 0 until 2) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(6.dp)
-                    ) {
-                        for (microCol in 0 until 3) {
-                            val key = coverMetricKeys.getOrNull(microRow * 3 + microCol)
-                            if (key == null) {
-                                Box(modifier = Modifier.weight(1f))
-                                continue
-                            }
-                            val microAccent = when (key) {
-                                "BATTERY" -> battColor
-                                "TEMPERATURE" -> tempColor
-                                "VOLTAGE" -> metricVoltageColor
-                                "CURRENT" ->
-                                    if (live && wheelData.current < -0.2f) MaterialTheme.appColors.chargingAccent
-                                    else metricVoltageColor
-                                "LOAD" -> loadColor
-                                "TRIP" -> MaterialTheme.appColors.statusGood
-                                else -> MaterialTheme.appColors.tileLabel
-                            }
-                            MicroMetricTile(
-                                label = com.eried.eucplanet.ui.settings.metricChipLabel(key, short = true),
-                                value = displayValueFor(key),
-                                accent = microAccent,
-                                modifier = Modifier.weight(1f),
-                                onClick = {
-                                    if (key == "BATTERY") onNavigateToCharging()
-                                    else onNavigateToMetric(key)
+                val coverPager = androidx.compose.foundation.pager.rememberPagerState(
+                    initialPage = 0, pageCount = { 2 }
+                )
+                androidx.compose.foundation.pager.HorizontalPager(
+                    state = coverPager,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(118.dp)
+                        // Avoid cover cameras: keep the lower-right corner
+                        // empty, the cover lenses sit over the panel there
+                        // and no API reports their area.
+                        .padding(end = if (coverAvoidCamera) 96.dp else 0.dp)
+                ) { page ->
+                    if (page == 0) {
+                        Column(
+                            modifier = Modifier.fillMaxSize(),
+                            verticalArrangement = Arrangement.Center
+                        ) { buttonsBlock() }
+                    } else {
+                        Column(
+                            modifier = Modifier.fillMaxSize(),
+                            verticalArrangement = Arrangement.Center
+                        ) {
+                            for (microRow in 0 until 2) {
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.spacedBy(6.dp)
+                                ) {
+                                    for (microCol in 0 until 3) {
+                                        val key = coverMetricKeys.getOrNull(microRow * 3 + microCol)
+                                        if (key == null) {
+                                            Box(modifier = Modifier.weight(1f))
+                                            continue
+                                        }
+                                        val microAccent = when (key) {
+                                            "BATTERY" -> battColor
+                                            "TEMPERATURE" -> tempColor
+                                            "VOLTAGE" -> metricVoltageColor
+                                            "CURRENT" ->
+                                                if (live && wheelData.current < -0.2f) MaterialTheme.appColors.chargingAccent
+                                                else metricVoltageColor
+                                            "LOAD" -> loadColor
+                                            "TRIP" -> MaterialTheme.appColors.statusGood
+                                            else -> MaterialTheme.appColors.tileLabel
+                                        }
+                                        MicroMetricTile(
+                                            label = com.eried.eucplanet.ui.settings.metricChipLabel(key, short = true),
+                                            value = displayValueFor(key),
+                                            accent = microAccent,
+                                            modifier = Modifier.weight(1f),
+                                            onClick = {
+                                                if (key == "BATTERY") onNavigateToCharging()
+                                                else onNavigateToMetric(key)
+                                            }
+                                        )
+                                    }
                                 }
-                            )
+                                if (microRow == 0) Spacer(Modifier.height(6.dp))
+                            }
                         }
                     }
-                    if (microRow == 0) Spacer(Modifier.height(6.dp))
                 }
-                Spacer(Modifier.height(6.dp))
-                if (coverAvoidCamera) {
-                    // Buttons pack bottom-left as 3 x 2; the lower-right corner
-                    // stays empty because the cover lenses sit over the panel
-                    // there (no API reports their area).
-                    Row(modifier = Modifier.fillMaxWidth()) {
-                        Column(modifier = Modifier.width(180.dp)) { buttonsBlock() }
-                        Spacer(Modifier.weight(1f))
+                // Two-dot indicator so the metrics page is discoverable.
+                Row(
+                    modifier = Modifier.fillMaxWidth().padding(top = 3.dp),
+                    horizontalArrangement = Arrangement.Center
+                ) {
+                    repeat(2) { i ->
+                        Box(
+                            Modifier
+                                .padding(horizontal = 3.dp)
+                                .size(5.dp)
+                                .clip(CircleShape)
+                                .background(
+                                    if (coverPager.currentPage == i) MaterialTheme.appColors.textSecondary
+                                    else MaterialTheme.appColors.tileLabel.copy(alpha = 0.35f)
+                                )
+                        )
                     }
-                } else {
-                    buttonsBlock()
                 }
             } else if (landscape) {
                 Row(modifier = Modifier.fillMaxSize()) {
