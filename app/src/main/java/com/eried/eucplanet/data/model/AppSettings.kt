@@ -223,6 +223,10 @@ data class AppSettings(
     // App-wide: block reverse portrait when rotation is allowed. One flag for
     // the whole app because the orientation policy is per activity window.
     val blockUpsideDown: Boolean = false,
+    // App-wide: rotate from the sensor even when the system auto-rotate
+    // toggle is off (riders often lock system rotation for pocket carry but
+    // want the mounted app to follow the wheel mount anyway).
+    val ignoreSystemRotateLock: Boolean = false,
     // Landscape navigator stops panel: DEFAULT keeps the bottom panel exactly
     // like portrait; LEFT / RIGHT dock it as an always-open sidebar.
     val navStopsSide: String = "RIGHT",

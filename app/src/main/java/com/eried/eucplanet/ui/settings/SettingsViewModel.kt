@@ -436,6 +436,7 @@ class SettingsViewModel @Inject constructor(
     fun updateLandscapeSpeedoStyle(v: String) = update { copy(landscapeSpeedoStyle = v) }
     fun updateLandscapeMirrored(v: Boolean) = update { copy(landscapeMirrored = v) }
     fun updateBlockUpsideDown(v: Boolean) = update { copy(blockUpsideDown = v) }
+    fun updateIgnoreSystemRotateLock(v: Boolean) = update { copy(ignoreSystemRotateLock = v) }
     fun updateNavStopsSide(v: String) = update { copy(navStopsSide = v) }
     fun updateSpeedCalibrationOffsetPct(v: Float) = update {
         // Round to 0.1 % granularity so the value reads cleanly across UI,

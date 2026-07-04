@@ -159,6 +159,7 @@ object SettingsJson {
         put("landscapeSpeedoStyle", s.landscapeSpeedoStyle)
         put("landscapeMirrored", s.landscapeMirrored)
         put("blockUpsideDown", s.blockUpsideDown)
+        put("ignoreSystemRotateLock", s.ignoreSystemRotateLock)
         put("navStopsSide", s.navStopsSide)
         put("volumeKeysEnabled", s.volumeKeysEnabled)
         put("volumeUpClick", s.volumeUpClick)
@@ -393,6 +394,7 @@ object SettingsJson {
         landscapeSpeedoStyle = j.optString("landscapeSpeedoStyle", base.landscapeSpeedoStyle),
         landscapeMirrored = j.optBoolean("landscapeMirrored", base.landscapeMirrored),
         blockUpsideDown = j.optBoolean("blockUpsideDown", base.blockUpsideDown),
+        ignoreSystemRotateLock = j.optBoolean("ignoreSystemRotateLock", base.ignoreSystemRotateLock),
         navStopsSide = j.optString("navStopsSide", base.navStopsSide),
         volumeKeysEnabled = j.optBoolean("volumeKeysEnabled", base.volumeKeysEnabled),
         volumeUpClick = j.optString("volumeUpClick", base.volumeUpClick),

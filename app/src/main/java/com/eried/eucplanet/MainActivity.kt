@@ -391,7 +391,7 @@ class MainActivity : AppCompatActivity() {
                     val routeNow = currentRoute?.destination?.route
                     androidx.compose.runtime.LaunchedEffect(
                         routeNow, s?.rotateDashboard, s?.rotateNavigator,
-                        s?.rotateOtherScreens, s?.blockUpsideDown
+                        s?.rotateOtherScreens, s?.blockUpsideDown, s?.ignoreSystemRotateLock
                     ) {
                         val allow = when (routeNow) {
                             Screen.Dashboard.route, null -> s?.rotateDashboard ?: false
@@ -403,13 +403,21 @@ class MainActivity : AppCompatActivity() {
                             Screen.OverlayStudio.route -> false
                             else -> s?.rotateOtherScreens ?: true
                         }
+                        // SENSOR variants follow the accelerometer even when the
+                        // system auto-rotate toggle is off (mounted-phone case);
+                        // USER variants respect the system toggle. The non-FULL
+                        // forms exclude reverse portrait, the upside-down lockout.
+                        val ignoreLock = s?.ignoreSystemRotateLock == true
+                        val noUpsideDown = s?.blockUpsideDown == true
                         this@MainActivity.requestedOrientation = when {
-                            // USER (vs FULL_USER) excludes reverse portrait on
-                            // phones, the app-wide upside-down lockout.
-                            allow && s?.blockUpsideDown == true ->
+                            !allow -> android.content.pm.ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+                            ignoreLock && noUpsideDown ->
+                                android.content.pm.ActivityInfo.SCREEN_ORIENTATION_SENSOR
+                            ignoreLock ->
+                                android.content.pm.ActivityInfo.SCREEN_ORIENTATION_FULL_SENSOR
+                            noUpsideDown ->
                                 android.content.pm.ActivityInfo.SCREEN_ORIENTATION_USER
-                            allow -> android.content.pm.ActivityInfo.SCREEN_ORIENTATION_FULL_USER
-                            else -> android.content.pm.ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+                            else -> android.content.pm.ActivityInfo.SCREEN_ORIENTATION_FULL_USER
                         }
                     }
                     Box(modifier = Modifier.fillMaxSize()) {

@@ -645,7 +645,8 @@
     <string name="speedo_style_dial">Dial</string>
     <string name="speedo_style_number">Number</string>
     <string name="setting_mirror_landscape">Buttons on the left (landscape)</string>
-    <string name="setting_block_upside_down">Never upside down</string>
+    <string name="setting_block_upside_down">Prevent upside down rotation</string>
+    <string name="setting_ignore_system_rotate_lock">Ignore system rotation lock</string>
     <string name="setting_nav_stops_side">Stops panel side (landscape)</string>
     <string name="side_default">Default</string>
     <string name="side_left">Left</string>

@@ -1410,6 +1410,10 @@ private fun AdvancedTab(
             stringResource(R.string.setting_block_upside_down),
             settings.blockUpsideDown
         ) { viewModel.updateBlockUpsideDown(it) }
+        SwitchSetting(
+            stringResource(R.string.setting_ignore_system_rotate_lock),
+            settings.ignoreSystemRotateLock
+        ) { viewModel.updateIgnoreSystemRotateLock(it) }
 
         val geoChoiceRow: @Composable (Int, List<Pair<String, String>>, String, (String) -> Unit) -> Unit =
             { labelRes, options, selected, onPick ->
