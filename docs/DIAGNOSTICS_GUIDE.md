@@ -21,7 +21,7 @@ One `.txt` log, shared straight from the app. That's the whole thing.
 
 ## Before you start
 
-- Charge the wheel, and have somewhere safe to do a short, slow ride if the
+- Have somewhere safe to do a short, slow ride if the
   problem is about speed, distance, or battery.
 - Make sure only EUC Planet is connected to the wheel (close the
   manufacturer's app).
