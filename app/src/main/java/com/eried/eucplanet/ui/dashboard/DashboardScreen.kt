@@ -877,10 +877,14 @@ fun DashboardScreen(
                             com.eried.eucplanet.util.Units.speed(animatedSpeed, speedUnit)
                         ),
                         color = numberColor,
-                        fontSize = (dialW.value * 0.5f).sp,
+                        // Bigger than the dial's centre number and nudged up:
+                        // with no ring the number owns the whole box, only the
+                        // unit label below needs clearance.
+                        fontSize = (dialW.value * 0.62f).sp,
                         fontWeight = FontWeight.Bold,
                         modifier = Modifier
                             .align(Alignment.Center)
+                            .offset(y = (-(dialW.value * 0.06f)).dp)
                             .coachmarkTarget(coachmark, TutorialTarget.SPEED_DIAL)
                     )
                 } else SpeedGauge(
@@ -1997,7 +2001,7 @@ fun DashboardScreen(
             // Tiny cover screens get short icon-only buttons (ActionButton hides
             // the label below 64 dp) so all six fit in a single row.
             val actionHeight: Int? = actionHeightOverride
-                ?: if (tinyScreen) 52 else if (wideStats) 88 else 104
+                ?: if (tinyScreen) 55 else if (wideStats) 88 else 104
 
             // Read the rider's customized action order. Falls back to the
             // catalog defaults (HORN / LIGHT / VOICE / SAFETY / LOCK /
@@ -2480,10 +2484,12 @@ fun DashboardScreen(
                             modifier = Modifier.fillMaxSize(),
                             verticalArrangement = Arrangement.Center
                         ) {
+                            // Same cell size as the buttons page so the two
+                            // pager pages mirror each other.
                             for (microRow in 0 until 2) {
                                 Row(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    horizontalArrangement = Arrangement.spacedBy(6.dp)
+                                    modifier = Modifier.fillMaxWidth().height(55.dp),
+                                    horizontalArrangement = Arrangement.spacedBy(8.dp)
                                 ) {
                                     for (microCol in 0 until 3) {
                                         val key = plainMetricKeys.getOrNull(microRow * 3 + microCol)
@@ -2491,10 +2497,10 @@ fun DashboardScreen(
                                             Box(modifier = Modifier.weight(1f))
                                             continue
                                         }
-                                        microTileFor(key, Modifier.weight(1f), false)
+                                        microTileFor(key, Modifier.weight(1f), true)
                                     }
                                 }
-                                if (microRow == 0) Spacer(Modifier.height(6.dp))
+                                if (microRow == 0) Spacer(Modifier.height(8.dp))
                             }
                         }
                     }
@@ -3998,7 +4004,7 @@ private fun MicroMetricTile(
             .clip(RoundedCornerShape(12.dp))
             .background(MaterialTheme.appColors.tileBackground)
             .combinedClickable(onClick = onClick)
-            .padding(vertical = if (tall) 8.dp else 5.dp, horizontal = 4.dp),
+            .padding(vertical = if (tall) 6.dp else 5.dp, horizontal = 4.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = if (tall) Arrangement.Center else Arrangement.Top
     ) {
@@ -4008,7 +4014,7 @@ private fun MicroMetricTile(
             color = MaterialTheme.appColors.tileLabel,
             maxLines = 1, textAlign = TextAlign.Center
         )
-        if (tall) Spacer(Modifier.height(4.dp))
+        if (tall) Spacer(Modifier.height(2.dp))
         Text(
             value, fontSize = if (tall) 19.sp else 14.sp, fontWeight = FontWeight.SemiBold,
             color = accent, maxLines = 1
