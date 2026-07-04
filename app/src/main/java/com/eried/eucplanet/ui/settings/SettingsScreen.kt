@@ -1489,6 +1489,7 @@ private fun AdvancedTab(
                 settings.landscapeSpeedoStyle == "NUMBER",
                 badge = landscapeBadge
             ) { viewModel.updateLandscapeSpeedoStyle(if (it) "NUMBER" else "DIAL") }
+            HintText(stringResource(R.string.setting_simple_speedo_desc), small = true)
             SwitchSetting(
                 stringResource(R.string.setting_simple_speedo),
                 settings.compactSpeedoStyle == "NUMBER",
