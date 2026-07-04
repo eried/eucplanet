@@ -590,6 +590,8 @@
     <string name="cloud_restore_confirm_body_p1">Your current settings will be replaced by the settings in the backup.</string>
     <string name="cloud_restore_confirm_body_p2">Flic gestures are restored, but the buttons and wheel have to be paired again on this phone. Their Bluetooth bonds live in Android, not in the app.</string>
     <string name="sync_checking">Checking backup folder…</string>
+    <string name="sync_cancel">Cancel</string>
+    <string name="sync_stopping">Stopping…</string>
     <string name="action_restore">Restore</string>
     <string name="action_overwrite">Overwrite</string>
     <string name="cloud_backup_long_press_hint">Long press for more options</string>

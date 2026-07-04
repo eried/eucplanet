@@ -6731,6 +6731,58 @@ private fun SwitchSettingWithDesc(
 
 // --- Cloud Tab ---
 
+/**
+ * Progress row for a running foreground sync (folder or Dropbox) plus a Cancel
+ * button. Cancel is cooperative: the current file finishes, the caption and
+ * button switch to "Stopping..." and the button disables so it can't fire
+ * twice. Determinate when done/total is known, else an indeterminate bar with
+ * the checking/stopping caption.
+ */
+@Composable
+private fun SyncProgressWithCancel(
+    progress: Pair<Int, Int>?,
+    cancelling: Boolean,
+    onCancel: () -> Unit,
+) {
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        Column(
+            modifier = Modifier.weight(1f),
+            verticalArrangement = Arrangement.spacedBy(4.dp),
+        ) {
+            if (progress != null) {
+                val (done, total) = progress
+                val fraction = if (total > 0) done.toFloat() / total else 0f
+                LinearProgressIndicator(
+                    progress = { fraction },
+                    modifier = Modifier.fillMaxWidth(),
+                )
+                Text(
+                    stringResource(R.string.sync_progress, done, total),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            } else {
+                LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
+                Text(
+                    stringResource(if (cancelling) R.string.sync_stopping else R.string.sync_checking),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+        }
+        Spacer(Modifier.width(12.dp))
+        androidx.compose.material3.OutlinedButton(onClick = onCancel, enabled = !cancelling) {
+            androidx.compose.material3.Icon(
+                androidx.compose.material.icons.Icons.Default.Close,
+                contentDescription = null,
+                modifier = Modifier.size(18.dp),
+            )
+            Spacer(Modifier.width(4.dp))
+            Text(stringResource(if (cancelling) R.string.sync_stopping else R.string.sync_cancel))
+        }
+    }
+}
+
 @Composable
 private fun CloudTab(
     settings: com.eried.eucplanet.data.model.AppSettings,
@@ -7100,25 +7152,12 @@ private fun CloudTab(
                     activeDbxKind == com.eried.eucplanet.data.sync.SyncConflictKind.DROPBOX
                 if (showDbxProgress) {
                     val dbxProgress by viewModel.syncProgress.collectAsState()
-                    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                        if (dbxProgress != null) {
-                            val (done, total) = dbxProgress!!
-                            val fraction = if (total > 0) done.toFloat() / total else 0f
-                            LinearProgressIndicator(
-                                progress = { fraction },
-                                modifier = Modifier.fillMaxWidth()
-                            )
-                            Text(
-                                stringResource(R.string.sync_progress, done, total),
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                        } else {
-                            LinearProgressIndicator(
-                                modifier = Modifier.fillMaxWidth()
-                            )
-                        }
-                    }
+                    val dbxCancelling by viewModel.syncCancelling.collectAsState()
+                    SyncProgressWithCancel(
+                        progress = dbxProgress,
+                        cancelling = dbxCancelling,
+                        onCancel = { viewModel.cancelActiveSync() },
+                    )
                 }
             } else {
                 // Half-width to match the Sync/Unlink row that replaces this
@@ -7200,30 +7239,12 @@ private fun CloudTab(
             val showFolderProgress = syncRunning &&
                 activeSyncKind == com.eried.eucplanet.data.sync.SyncConflictKind.FOLDER
             if (showFolderProgress) {
-                Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                    if (syncProgress != null) {
-                        val (done, total) = syncProgress!!
-                        val fraction = if (total > 0) done.toFloat() / total else 0f
-                        LinearProgressIndicator(
-                            progress = { fraction },
-                            modifier = Modifier.fillMaxWidth()
-                        )
-                        Text(
-                            stringResource(R.string.sync_progress, done, total),
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    } else {
-                        LinearProgressIndicator(
-                            modifier = Modifier.fillMaxWidth()
-                        )
-                        Text(
-                            stringResource(R.string.sync_checking),
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
-                }
+                val folderCancelling by viewModel.syncCancelling.collectAsState()
+                SyncProgressWithCancel(
+                    progress = syncProgress,
+                    cancelling = folderCancelling,
+                    onCancel = { viewModel.cancelActiveSync() },
+                )
             }
         }
 

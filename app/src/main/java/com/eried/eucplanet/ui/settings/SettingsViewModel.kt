@@ -976,6 +976,7 @@ class SettingsViewModel @Inject constructor(
         syncManager.syncConflictKind
     val activeSyncKind: StateFlow<com.eried.eucplanet.data.sync.SyncConflictKind?> =
         syncManager.activeSyncKind
+    val syncCancelling: StateFlow<Boolean> = syncManager.syncCancelling
 
     init {
         viewModelScope.launch {
@@ -993,6 +994,7 @@ class SettingsViewModel @Inject constructor(
     fun syncAllTrips() = syncManager.startSync()
     fun resolveSyncConflict(choice: SyncChoice) = syncManager.resolveSyncConflict(choice)
     fun cancelSyncConflict() = syncManager.cancelSyncConflict()
+    fun cancelActiveSync() = syncManager.cancelActiveSync()
 
     fun moveReportItem(fromIndex: Int, toIndex: Int) {
         viewModelScope.launch {

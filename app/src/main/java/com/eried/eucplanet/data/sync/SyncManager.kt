@@ -25,6 +25,8 @@ import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -130,6 +132,16 @@ class SyncManager @Inject constructor(
     private val _syncRunning = MutableStateFlow(false)
     val syncRunning: StateFlow<Boolean> = _syncRunning.asStateFlow()
 
+    /** True while a running sync is winding down after the rider tapped Cancel:
+     *  the current file finishes, then the loop stops. Drives the "Stopping..."
+     *  label and disables the Cancel button so it can't be tapped twice. */
+    private val _syncCancelling = MutableStateFlow(false)
+    val syncCancelling: StateFlow<Boolean> = _syncCancelling.asStateFlow()
+
+    /** The in-flight foreground sync (folder or Dropbox). Retained so Cancel can
+     *  reach it; both share _syncRunning, so at most one runs at a time. */
+    private var activeSyncJob: kotlinx.coroutines.Job? = null
+
     private val _syncProgress = MutableStateFlow<Pair<Int, Int>?>(null)
     val syncProgress: StateFlow<Pair<Int, Int>?> = _syncProgress.asStateFlow()
 
@@ -157,10 +169,24 @@ class SyncManager @Inject constructor(
     fun resolveSyncConflict(choice: SyncChoice) { conflictChoice?.complete(choice) }
     fun cancelSyncConflict() { conflictChoice?.complete(SyncChoice.CANCEL) }
 
+    /**
+     * Cancel the in-flight foreground sync (folder or Dropbox). Cooperative:
+     * the current file finishes so no half-written upload is left behind, then
+     * the loop stops at its next ensureActive() check and the launch's finally
+     * resets state. Also releases a sync parked on the conflict dialog. Trips
+     * not yet processed simply stay pending and re-sync next time. No-op if idle.
+     */
+    fun cancelActiveSync() {
+        if (!_syncRunning.value) return
+        _syncCancelling.value = true
+        conflictChoice?.complete(SyncChoice.CANCEL)
+        activeSyncJob?.cancel()
+    }
+
     fun startSync() {
         if (!_syncRunning.compareAndSet(false, true)) return
         _activeSyncKind.value = SyncConflictKind.FOLDER
-        scope.launch {
+        activeSyncJob = scope.launch {
             try {
                 runSync()
             } finally {
@@ -168,6 +194,7 @@ class SyncManager @Inject constructor(
                 _syncConflictPrompt.value = null
                 conflictChoice = null
                 _activeSyncKind.value = null
+                _syncCancelling.value = false
                 _syncRunning.value = false
             }
         }
@@ -225,6 +252,7 @@ class SyncManager @Inject constructor(
         _syncProgress.value = done to total
 
         for (trip in toUpload) {
+            currentCoroutineContext().ensureActive() // stop cleanly if cancelled
             val file = File(getTripsDir(), trip.fileName)
             if (file.exists()) {
                 val ok = uploadCsv(settings, file)
@@ -242,6 +270,7 @@ class SyncManager @Inject constructor(
         }
 
         for (fileName in toDownload) {
+            currentCoroutineContext().ensureActive() // stop cleanly if cancelled
             val destFile = File(getTripsDir(), fileName)
             if (downloadCsv(settings, fileName, destFile)) {
                 val meta = parseCsvMeta(destFile)
@@ -746,7 +775,7 @@ class SyncManager @Inject constructor(
     fun startDropboxSync() {
         if (!_syncRunning.compareAndSet(false, true)) return
         _activeSyncKind.value = SyncConflictKind.DROPBOX
-        scope.launch {
+        activeSyncJob = scope.launch {
             try {
                 runDropboxSync()
             } finally {
@@ -754,6 +783,7 @@ class SyncManager @Inject constructor(
                 _syncConflictPrompt.value = null
                 conflictChoice = null
                 _activeSyncKind.value = null
+                _syncCancelling.value = false
                 _syncRunning.value = false
             }
         }
@@ -810,12 +840,14 @@ class SyncManager @Inject constructor(
         _syncProgress.value = done to total
 
         for (file in toUpload) {
+            currentCoroutineContext().ensureActive() // stop cleanly if cancelled
             dropboxRepository.uploadFile("/trips/${file.name}", file.readBytes())
             done++
             _syncProgress.value = done to total
         }
 
         for (name in toDownload) {
+            currentCoroutineContext().ensureActive() // stop cleanly if cancelled
             val bytes = dropboxRepository.downloadFile("/trips/$name")
             if (bytes != null) {
                 val dest = File(tripsDir, name)
