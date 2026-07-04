@@ -95,7 +95,9 @@ import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material.icons.filled.Widgets
 import androidx.compose.material.icons.filled.Wifi
 import androidx.compose.material.icons.filled.DisplaySettings
+import androidx.compose.material.icons.filled.DevicesFold
 import androidx.compose.material.icons.filled.DragHandle
+import androidx.compose.material.icons.filled.StayCurrentLandscape
 import androidx.compose.material.icons.filled.FiberManualRecord
 import androidx.compose.material.icons.filled.Build
 import androidx.compose.material.icons.filled.FlashlightOn
@@ -1415,12 +1417,34 @@ private fun AdvancedTab(
             settings.ignoreSystemRotateLock
         ) { viewModel.updateIgnoreSystemRotateLock(it) }
 
-        val geoChoiceRow: @Composable (Int, List<Pair<String, String>>, String, (String) -> Unit) -> Unit =
-            { labelRes, options, selected, onPick ->
-                Text(
-                    stringResource(labelRes),
-                    style = MaterialTheme.typography.bodyLarge
-                )
+        // Small muted surface badges shown after row labels, instead of noisy
+        // "(landscape)" / "(compact)" text suffixes.
+        val landscapeBadge: @Composable () -> Unit = {
+            Icon(
+                Icons.Default.StayCurrentLandscape, contentDescription = null,
+                tint = MaterialTheme.appColors.textSecondary,
+                modifier = Modifier.size(16.dp)
+            )
+        }
+        val compactBadge: @Composable () -> Unit = {
+            Icon(
+                Icons.Default.DevicesFold, contentDescription = null,
+                tint = MaterialTheme.appColors.textSecondary,
+                modifier = Modifier.size(16.dp)
+            )
+        }
+        val geoChoiceRow: @Composable (Int, (@Composable () -> Unit)?, List<Pair<String, String>>, String, (String) -> Unit) -> Unit =
+            { labelRes, badge, options, selected, onPick ->
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        stringResource(labelRes),
+                        style = MaterialTheme.typography.bodyLarge
+                    )
+                    if (badge != null) {
+                        Spacer(Modifier.width(6.dp))
+                        badge()
+                    }
+                }
                 SingleChoiceSegmentedButtonRow(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -1442,10 +1466,6 @@ private fun AdvancedTab(
                     }
                 }
             }
-        val speedoStyleOptions = listOf(
-            "DIAL" to stringResource(R.string.speedo_style_dial),
-            "NUMBER" to stringResource(R.string.speedo_style_number)
-        )
 
         AdvancedCollapsable(
             title = stringResource(R.string.geo_section_dashboard),
@@ -1457,22 +1477,25 @@ private fun AdvancedTab(
             ) { viewModel.updateRotateDashboard(it) }
             SwitchSetting(
                 stringResource(R.string.setting_mirror_landscape),
-                settings.landscapeMirrored
+                settings.landscapeMirrored,
+                badge = landscapeBadge
             ) { viewModel.updateLandscapeMirrored(it) }
-            // Both speedometer style rows together, then the compact-only
-            // options (activation + camera avoidance).
+            // Both simplified-speedo rows together. The switches map onto the
+            // per-surface style KEYS (checked = NUMBER): when a third gauge
+            // style lands (PWM-primary etc.) these become choosers, the
+            // storage already supports it.
+            SwitchSetting(
+                stringResource(R.string.setting_simple_speedo),
+                settings.landscapeSpeedoStyle == "NUMBER",
+                badge = landscapeBadge
+            ) { viewModel.updateLandscapeSpeedoStyle(if (it) "NUMBER" else "DIAL") }
+            SwitchSetting(
+                stringResource(R.string.setting_simple_speedo),
+                settings.compactSpeedoStyle == "NUMBER",
+                badge = compactBadge
+            ) { viewModel.updateCompactSpeedoStyle(if (it) "NUMBER" else "DIAL") }
             geoChoiceRow(
-                R.string.setting_speedo_landscape,
-                speedoStyleOptions,
-                settings.landscapeSpeedoStyle
-            ) { viewModel.updateLandscapeSpeedoStyle(it) }
-            geoChoiceRow(
-                R.string.setting_speedo_compact,
-                speedoStyleOptions,
-                settings.compactSpeedoStyle
-            ) { viewModel.updateCompactSpeedoStyle(it) }
-            geoChoiceRow(
-                R.string.setting_compact_dashboard,
+                R.string.setting_compact_dashboard, null,
                 listOf(
                     "AUTO" to stringResource(R.string.compact_mode_auto),
                     "ALWAYS" to stringResource(R.string.compact_mode_always),
@@ -1481,7 +1504,7 @@ private fun AdvancedTab(
                 settings.compactModeWhen
             ) { viewModel.updateCompactModeWhen(it) }
             geoChoiceRow(
-                R.string.setting_cover_cutout,
+                R.string.setting_cover_cutout, compactBadge,
                 listOf(
                     "OFF" to stringResource(R.string.cover_cutout_off),
                     "LEFT" to stringResource(R.string.cover_cutout_left),
@@ -1500,7 +1523,7 @@ private fun AdvancedTab(
                 settings.rotateNavigator
             ) { viewModel.updateRotateNavigator(it) }
             geoChoiceRow(
-                R.string.setting_nav_stops_side,
+                R.string.setting_nav_stops_side, landscapeBadge,
                 listOf(
                     "DEFAULT" to stringResource(R.string.side_default),
                     "LEFT" to stringResource(R.string.side_left),
