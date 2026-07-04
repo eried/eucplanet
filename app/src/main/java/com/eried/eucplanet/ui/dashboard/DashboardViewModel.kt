@@ -413,10 +413,18 @@ class DashboardViewModel @Inject constructor(
         .map { it.coverCameraCutout }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000),
             initialSettings.coverCameraCutout)
-    val compactSimpleSpeedo: StateFlow<Boolean> = settingsRepository.settings
-        .map { it.compactSimpleSpeedo }
+    val compactSpeedoStyle: StateFlow<String> = settingsRepository.settings
+        .map { it.compactSpeedoStyle }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000),
-            initialSettings.compactSimpleSpeedo)
+            initialSettings.compactSpeedoStyle)
+    val landscapeSpeedoStyle: StateFlow<String> = settingsRepository.settings
+        .map { it.landscapeSpeedoStyle }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000),
+            initialSettings.landscapeSpeedoStyle)
+    val landscapeMirrored: StateFlow<Boolean> = settingsRepository.settings
+        .map { it.landscapeMirrored }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000),
+            initialSettings.landscapeMirrored)
     val dashboardMetricStats: StateFlow<String> = settingsRepository.settings
         .map { it.dashboardMetricStats }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000),

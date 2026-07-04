@@ -155,7 +155,10 @@ object SettingsJson {
         put("rotateOtherScreens", s.rotateOtherScreens)
         put("compactModeWhen", s.compactModeWhen)
         put("coverCameraCutout", s.coverCameraCutout)
-        put("compactSimpleSpeedo", s.compactSimpleSpeedo)
+        put("compactSpeedoStyle", s.compactSpeedoStyle)
+        put("landscapeSpeedoStyle", s.landscapeSpeedoStyle)
+        put("landscapeMirrored", s.landscapeMirrored)
+        put("blockUpsideDown", s.blockUpsideDown)
         put("navStopsSide", s.navStopsSide)
         put("volumeKeysEnabled", s.volumeKeysEnabled)
         put("volumeUpClick", s.volumeUpClick)
@@ -386,7 +389,10 @@ object SettingsJson {
         rotateOtherScreens = j.optBoolean("rotateOtherScreens", base.rotateOtherScreens),
         compactModeWhen = j.optString("compactModeWhen", base.compactModeWhen),
         coverCameraCutout = j.optString("coverCameraCutout", base.coverCameraCutout),
-        compactSimpleSpeedo = j.optBoolean("compactSimpleSpeedo", base.compactSimpleSpeedo),
+        compactSpeedoStyle = j.optString("compactSpeedoStyle", base.compactSpeedoStyle),
+        landscapeSpeedoStyle = j.optString("landscapeSpeedoStyle", base.landscapeSpeedoStyle),
+        landscapeMirrored = j.optBoolean("landscapeMirrored", base.landscapeMirrored),
+        blockUpsideDown = j.optBoolean("blockUpsideDown", base.blockUpsideDown),
         navStopsSide = j.optString("navStopsSide", base.navStopsSide),
         volumeKeysEnabled = j.optBoolean("volumeKeysEnabled", base.volumeKeysEnabled),
         volumeUpClick = j.optString("volumeUpClick", base.volumeUpClick),

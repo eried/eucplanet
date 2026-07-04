@@ -287,7 +287,9 @@ fun DashboardScreen(
     // the optional gauge ring in compact.
     val compactModeWhen by viewModel.compactModeWhen.collectAsState()
     val coverCameraCutout by viewModel.coverCameraCutout.collectAsState()
-    val compactSimpleSpeedo by viewModel.compactSimpleSpeedo.collectAsState()
+    val compactSpeedoStyle by viewModel.compactSpeedoStyle.collectAsState()
+    val landscapeSpeedoStyle by viewModel.landscapeSpeedoStyle.collectAsState()
+    val landscapeMirrored by viewModel.landscapeMirrored.collectAsState()
     val dashboardCustomBleJson by viewModel.dashboardCustomBle.collectAsState()
     // Phone-battery and GPS feeds for the catalog metrics that aren't
     // sourced from WheelData. Both update lazily; the value pipeline
@@ -850,10 +852,18 @@ fun DashboardScreen(
                     animationSpec = tween(durationMillis = 250, easing = LinearEasing),
                     label = "dashSpeed"
                 )
-                if (tinyScreen && compactSimpleSpeedo) {
-                    // Compact default: the plain speed number, no gauge ring,
-                    // for glance clarity on cover screens. Same colour rule as
-                    // the dial: band tiers win when the colour band is on.
+                // Gauge style key for this surface. Unknown keys fall back to
+                // the dial so future styles (PWM-primary etc.) degrade safely
+                // on older builds.
+                val speedoStyle = when {
+                    tinyScreen -> compactSpeedoStyle
+                    landscape -> landscapeSpeedoStyle
+                    else -> "DIAL"
+                }
+                if (speedoStyle == "NUMBER") {
+                    // NUMBER: the plain speed value, no gauge ring. Compact
+                    // default; opt-in for landscape. Same colour rule as the
+                    // dial: band tiers win when the band is on.
                     val speedFrac = (animatedSpeed / gaugeMax).coerceIn(0f, 1f)
                     val numberColor = when {
                         showGaugeColorBand && speedFrac >= gaugeRedPct / 100f ->
@@ -2516,9 +2526,10 @@ fun DashboardScreen(
                     val rowGap = 8.dp
                     val infoReserve = 34.dp
                     val rowH = (maxHeight - infoReserve - rowGap * 2) / 3
-                    Row(modifier = Modifier.fillMaxSize()) {
-                        // Left: the six metrics as a 2 x 3 grid of
-                        // button-shaped cells, odo line tucked under.
+                    // The two side columns, ordered by the Mirror landscape
+                    // setting: metrics lead by default, buttons lead mirrored
+                    // (left-hand mounts).
+                    val metricsColumn: @Composable RowScope.() -> Unit = {
                         Column(
                             modifier = Modifier.weight(0.28f).fillMaxHeight(),
                             verticalArrangement = Arrangement.Center
@@ -2542,6 +2553,18 @@ fun DashboardScreen(
                             Spacer(Modifier.height(6.dp))
                             infoBlock()
                         }
+                    }
+                    val buttonsColumn: @Composable RowScope.() -> Unit = {
+                        Column(
+                            modifier = Modifier.weight(0.28f).fillMaxHeight(),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.Center
+                        ) {
+                            buttonsBlock(rowH.value.toInt())
+                        }
+                    }
+                    Row(modifier = Modifier.fillMaxSize()) {
+                        if (landscapeMirrored) buttonsColumn() else metricsColumn()
                         // Identical gaps on both sides of the dial; the small
                         // inner padding keeps the dial's corner glyphs off the
                         // neighbouring columns.
@@ -2553,14 +2576,7 @@ fun DashboardScreen(
                                 .padding(horizontal = 6.dp)
                         )
                         Spacer(Modifier.width(12.dp))
-                        // Right: the six buttons (2 x 3) at the same row height.
-                        Column(
-                            modifier = Modifier.weight(0.28f).fillMaxHeight(),
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                            verticalArrangement = Arrangement.Center
-                        ) {
-                            buttonsBlock(rowH.value.toInt())
-                        }
+                        if (landscapeMirrored) metricsColumn() else buttonsColumn()
                     }
                 }
             } else {

@@ -700,15 +700,17 @@ fun RouteBuilderScreen(
         // by the real measurements automatically. Recomputed on every
         // recomposition because both sources are State, so the click handler
         // always reads the latest value.
-        // Landscape: the control stack (mode + waypoints + start + FABs) docks
-        // as a fixed-width sidebar on the left, leaving the map visible to its
-        // right, instead of a full-width panel across the bottom. Requires real
-        // width: on tiny flip-cover screens (~374 dp wide) the 340 dp sidebar
-        // would swallow the map, so those keep the bottom-panel layout even
-        // when rotated.
+        // Landscape: the stops panel docks as a fixed-width, always-open
+        // sidebar on the rider's chosen side (Screen geometry setting).
+        // DEFAULT keeps the bottom panel exactly like portrait. The sidebar
+        // also needs real width: on tiny flip-cover screens (~374 dp wide)
+        // the 340 dp sidebar would swallow the map, so those keep the
+        // bottom-panel layout even when rotated.
+        val stopsSide by viewModel.navStopsSide.collectAsState()
         val landscape = LocalConfiguration.current.orientation ==
             android.content.res.Configuration.ORIENTATION_LANDSCAPE &&
-            LocalConfiguration.current.screenWidthDp >= 600
+            LocalConfiguration.current.screenWidthDp >= 600 &&
+            stopsSide != "DEFAULT"
         val effectivePanelPx =
             if (panelHeightPx > 0) panelHeightPx
             else with(density) { 300.dp.toPx().toInt() }
@@ -1156,7 +1158,6 @@ fun RouteBuilderScreen(
             // is always visible; the FABs float on the opposite bottom corner
             // of the map.
             if (landscape) {
-                val stopsSide by viewModel.navStopsSide.collectAsState()
                 val sidebarRight = stopsSide != "LEFT"
                 Column(
                     modifier = Modifier.align(

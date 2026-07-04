@@ -390,7 +390,8 @@ class MainActivity : AppCompatActivity() {
                     // navigator and other screens default to allowing rotation.
                     val routeNow = currentRoute?.destination?.route
                     androidx.compose.runtime.LaunchedEffect(
-                        routeNow, s?.rotateDashboard, s?.rotateNavigator, s?.rotateOtherScreens
+                        routeNow, s?.rotateDashboard, s?.rotateNavigator,
+                        s?.rotateOtherScreens, s?.blockUpsideDown
                     ) {
                         val allow = when (routeNow) {
                             Screen.Dashboard.route, null -> s?.rotateDashboard ?: false
@@ -402,9 +403,14 @@ class MainActivity : AppCompatActivity() {
                             Screen.OverlayStudio.route -> false
                             else -> s?.rotateOtherScreens ?: true
                         }
-                        this@MainActivity.requestedOrientation = if (allow)
-                            android.content.pm.ActivityInfo.SCREEN_ORIENTATION_FULL_USER
-                        else android.content.pm.ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+                        this@MainActivity.requestedOrientation = when {
+                            // USER (vs FULL_USER) excludes reverse portrait on
+                            // phones, the app-wide upside-down lockout.
+                            allow && s?.blockUpsideDown == true ->
+                                android.content.pm.ActivityInfo.SCREEN_ORIENTATION_USER
+                            allow -> android.content.pm.ActivityInfo.SCREEN_ORIENTATION_FULL_USER
+                            else -> android.content.pm.ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+                        }
                     }
                     Box(modifier = Modifier.fillMaxSize()) {
                         NavGraph(navController = navController)

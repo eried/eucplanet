@@ -207,12 +207,24 @@ data class AppSettings(
     // screen dimensions are small; ALWAYS / NEVER override the detection.
     // coverCameraCutout keeps a corner of the compact layout empty where the
     // cover lenses sit over the panel (no API reports their area): OFF, LEFT
-    // or RIGHT. compactSimpleSpeedo shows the plain speed number instead of
-    // the gauge ring in compact mode, the readable default on tiny panels.
+    // or RIGHT.
     val compactModeWhen: String = "AUTO",
     val coverCameraCutout: String = "OFF",
-    val compactSimpleSpeedo: Boolean = true,
-    // Landscape navigator: which side the stops sidebar docks on.
+    // Main gauge style per surface, an open key so future styles (a
+    // PWM-primary gauge, combined readouts) are one new key + renderer, not a
+    // schema change: DIAL (classic ring) or NUMBER (plain value). Unknown
+    // keys render as DIAL. Compact defaults to NUMBER for tiny-panel
+    // readability; landscape keeps the dial.
+    val compactSpeedoStyle: String = "NUMBER",
+    val landscapeSpeedoStyle: String = "DIAL",
+    // Landscape dashboard: swap the metric and button columns (left-hand
+    // mounts).
+    val landscapeMirrored: Boolean = false,
+    // App-wide: block reverse portrait when rotation is allowed. One flag for
+    // the whole app because the orientation policy is per activity window.
+    val blockUpsideDown: Boolean = false,
+    // Landscape navigator stops panel: DEFAULT keeps the bottom panel exactly
+    // like portrait; LEFT / RIGHT dock it as an always-open sidebar.
     val navStopsSide: String = "RIGHT",
 
     // Volume keys (work while app is in foreground)

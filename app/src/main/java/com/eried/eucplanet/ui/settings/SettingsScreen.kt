@@ -1403,18 +1403,14 @@ private fun AdvancedTab(
             }
         }
 
-        // Screen geometry, grouped per screen: what each surface may do when
-        // the phone rotates or the display is a tiny flip cover.
+        // Screen geometry: one collapsible card per screen (same pattern as
+        // the Timings groups below), plus the app-wide upside-down lockout.
         AdvSectionTitle(stringResource(R.string.section_screen_geometry))
+        SwitchSetting(
+            stringResource(R.string.setting_block_upside_down),
+            settings.blockUpsideDown
+        ) { viewModel.updateBlockUpsideDown(it) }
 
-        // Reusable pieces so each screen's group reads the same way.
-        val geoSubtitle: @Composable (Int) -> Unit = { res ->
-            Text(
-                stringResource(res),
-                style = MaterialTheme.typography.titleSmall,
-                color = MaterialTheme.appColors.textSecondary
-            )
-        }
         val geoChoiceRow: @Composable (Int, List<Pair<String, String>>, String, (String) -> Unit) -> Unit =
             { labelRes, options, selected, onPick ->
                 Text(
@@ -1442,60 +1438,84 @@ private fun AdvancedTab(
                     }
                 }
             }
+        val speedoStyleOptions = listOf(
+            "DIAL" to stringResource(R.string.speedo_style_dial),
+            "NUMBER" to stringResource(R.string.speedo_style_number)
+        )
 
-        // --- Dashboard ---
-        geoSubtitle(R.string.geo_section_dashboard)
-        SwitchSetting(
-            stringResource(R.string.setting_allow_rotation),
-            settings.rotateDashboard
-        ) { viewModel.updateRotateDashboard(it) }
-        geoChoiceRow(
-            R.string.setting_compact_dashboard,
-            listOf(
-                "AUTO" to stringResource(R.string.compact_mode_auto),
-                "ALWAYS" to stringResource(R.string.compact_mode_always),
-                "NEVER" to stringResource(R.string.compact_mode_never)
-            ),
-            settings.compactModeWhen
-        ) { viewModel.updateCompactModeWhen(it) }
-        SwitchSetting(
-            stringResource(R.string.setting_simple_speedo),
-            settings.compactSimpleSpeedo
-        ) { viewModel.updateCompactSimpleSpeedo(it) }
-        geoChoiceRow(
-            R.string.setting_cover_cutout,
-            listOf(
-                "OFF" to stringResource(R.string.cover_cutout_off),
-                "LEFT" to stringResource(R.string.cover_cutout_left),
-                "RIGHT" to stringResource(R.string.cover_cutout_right)
-            ),
-            settings.coverCameraCutout
-        ) { viewModel.updateCoverCameraCutout(it) }
+        AdvancedCollapsable(
+            title = stringResource(R.string.geo_section_dashboard),
+            stateKey = "geo-dashboard"
+        ) {
+            SwitchSetting(
+                stringResource(R.string.setting_allow_rotation),
+                settings.rotateDashboard
+            ) { viewModel.updateRotateDashboard(it) }
+            SwitchSetting(
+                stringResource(R.string.setting_mirror_landscape),
+                settings.landscapeMirrored
+            ) { viewModel.updateLandscapeMirrored(it) }
+            // Both speedometer style rows together, then the compact-only
+            // options (activation + camera avoidance).
+            geoChoiceRow(
+                R.string.setting_speedo_landscape,
+                speedoStyleOptions,
+                settings.landscapeSpeedoStyle
+            ) { viewModel.updateLandscapeSpeedoStyle(it) }
+            geoChoiceRow(
+                R.string.setting_speedo_compact,
+                speedoStyleOptions,
+                settings.compactSpeedoStyle
+            ) { viewModel.updateCompactSpeedoStyle(it) }
+            geoChoiceRow(
+                R.string.setting_compact_dashboard,
+                listOf(
+                    "AUTO" to stringResource(R.string.compact_mode_auto),
+                    "ALWAYS" to stringResource(R.string.compact_mode_always),
+                    "NEVER" to stringResource(R.string.compact_mode_never)
+                ),
+                settings.compactModeWhen
+            ) { viewModel.updateCompactModeWhen(it) }
+            geoChoiceRow(
+                R.string.setting_cover_cutout,
+                listOf(
+                    "OFF" to stringResource(R.string.cover_cutout_off),
+                    "LEFT" to stringResource(R.string.cover_cutout_left),
+                    "RIGHT" to stringResource(R.string.cover_cutout_right)
+                ),
+                settings.coverCameraCutout
+            ) { viewModel.updateCoverCameraCutout(it) }
+        }
 
-        // --- Navigator ---
-        Spacer(Modifier.height(10.dp))
-        geoSubtitle(R.string.geo_section_navigator)
-        SwitchSetting(
-            stringResource(R.string.setting_allow_rotation),
-            settings.rotateNavigator
-        ) { viewModel.updateRotateNavigator(it) }
-        geoChoiceRow(
-            R.string.setting_nav_stops_side,
-            listOf(
-                "LEFT" to stringResource(R.string.side_left),
-                "RIGHT" to stringResource(R.string.side_right)
-            ),
-            settings.navStopsSide
-        ) { viewModel.updateNavStopsSide(it) }
+        AdvancedCollapsable(
+            title = stringResource(R.string.geo_section_navigator),
+            stateKey = "geo-navigator"
+        ) {
+            SwitchSetting(
+                stringResource(R.string.setting_allow_rotation),
+                settings.rotateNavigator
+            ) { viewModel.updateRotateNavigator(it) }
+            geoChoiceRow(
+                R.string.setting_nav_stops_side,
+                listOf(
+                    "DEFAULT" to stringResource(R.string.side_default),
+                    "LEFT" to stringResource(R.string.side_left),
+                    "RIGHT" to stringResource(R.string.side_right)
+                ),
+                settings.navStopsSide
+            ) { viewModel.updateNavStopsSide(it) }
+        }
 
-        // --- Other screens ---
-        Spacer(Modifier.height(10.dp))
-        geoSubtitle(R.string.geo_section_other)
-        SwitchSetting(
-            stringResource(R.string.setting_allow_rotation),
-            settings.rotateOtherScreens
-        ) { viewModel.updateRotateOtherScreens(it) }
-        HintText(stringResource(R.string.geo_other_hint), small = true)
+        AdvancedCollapsable(
+            title = stringResource(R.string.geo_section_other),
+            stateKey = "geo-other"
+        ) {
+            SwitchSetting(
+                stringResource(R.string.setting_allow_rotation),
+                settings.rotateOtherScreens
+            ) { viewModel.updateRotateOtherScreens(it) }
+            HintText(stringResource(R.string.geo_other_hint), small = true)
+        }
 
         // Timing knobs, under their own big title.
         AdvSectionTitle(stringResource(R.string.adv_timings_title))
