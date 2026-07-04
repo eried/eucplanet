@@ -433,6 +433,7 @@ class SettingsViewModel @Inject constructor(
     fun updateCompactModeWhen(v: String) = update { copy(compactModeWhen = v) }
     fun updateCoverCameraCutout(v: String) = update { copy(coverCameraCutout = v) }
     fun updateCompactShowDial(v: Boolean) = update { copy(compactShowDial = v) }
+    fun updateNavStopsSide(v: String) = update { copy(navStopsSide = v) }
     fun updateSpeedCalibrationOffsetPct(v: Float) = update {
         // Round to 0.1 % granularity so the value reads cleanly across UI,
         // backup JSON, and per-wheel profile storage.

@@ -395,6 +395,11 @@ class MainActivity : AppCompatActivity() {
                         val allow = when (routeNow) {
                             Screen.Dashboard.route, null -> s?.rotateDashboard ?: false
                             Screen.RouteBuilder.route -> s?.rotateNavigator ?: true
+                            // The Studio is a fixed-portrait surface by design:
+                            // its round buttons rotate their icons in place,
+                            // camera-app style, and reflowing the layout breaks
+                            // the recording canvas. Never rotate it.
+                            Screen.OverlayStudio.route -> false
                             else -> s?.rotateOtherScreens ?: true
                         }
                         this@MainActivity.requestedOrientation = if (allow)

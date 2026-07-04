@@ -2386,9 +2386,50 @@ fun DashboardScreen(
             )
             }  // end infoBlock
 
+            // Plain catalog keys from the rider's metric order, minus the
+            // composite / custom IDs a micro cell cannot render. Shared by the
+            // compact pager and the landscape side grid, which both draw the
+            // metrics as thin micro tiles (label + value only).
+            val plainMetricKeys = remember(dashboardMetricOrderRaw) {
+                val parsed = dashboardMetricOrderRaw.split(",").map { it.trim() }.filter { it.isNotEmpty() }
+                val defaults = listOf("BATTERY", "TEMPERATURE", "VOLTAGE", "CURRENT", "LOAD", "TRIP")
+                (parsed + defaults).distinct()
+                    .filter { !it.contains(":") && it != com.eried.eucplanet.ui.settings.EMPTY_SLOT_KEY }
+                    .take(6)
+            }
+            val microChargingAccent = MaterialTheme.appColors.chargingAccent
+            val microTripAccent = MaterialTheme.appColors.statusGood
+            val microDefaultAccent = MaterialTheme.appColors.tileLabel
+            val microAccentFor: (String) -> Color = { key ->
+                when (key) {
+                    "BATTERY" -> battColor
+                    "TEMPERATURE" -> tempColor
+                    "VOLTAGE" -> metricVoltageColor
+                    "CURRENT" ->
+                        if (live && wheelData.current < -0.2f) microChargingAccent
+                        else metricVoltageColor
+                    "LOAD" -> loadColor
+                    "TRIP" -> microTripAccent
+                    else -> microDefaultAccent
+                }
+            }
+            val microTileFor: @Composable (String, Modifier) -> Unit = { key, mod ->
+                MicroMetricTile(
+                    label = com.eried.eucplanet.ui.settings.metricChipLabel(key, short = true),
+                    value = displayValueFor(key),
+                    accent = microAccentFor(key),
+                    modifier = mod,
+                    onClick = {
+                        if (key == "BATTERY") onNavigateToCharging()
+                        else onNavigateToMetric(key)
+                    }
+                )
+            }
+
             // Portrait: dial on top (absorbs slack), then metrics, buttons, odo
-            // stacked. Landscape: three side-by-side columns -- dial | metric
-            // column (1 x N) | buttons (2 x 3), with the odo tucked under them.
+            // stacked. Landscape: thin metric grid (2 x 3) on the left, dial in
+            // the middle, compact buttons (2 x 3) on the right. Compact (cover):
+            // dial plus the swipeable buttons / metrics pager.
             if (tinyScreen) {
                 // Cover screen: speedo absorbs the slack; below it ONE swipe
                 // area the rider pages sideways: page 0 = the six buttons
@@ -2399,16 +2440,6 @@ fun DashboardScreen(
                 // only render a plain catalog value.
                 speedoBlock(Modifier.fillMaxWidth().weight(1f, fill = true))
                 Spacer(Modifier.height(4.dp))
-                // Same configuration as the main dashboard: the rider's own
-                // metric order, minus composite / custom IDs a micro cell
-                // cannot render.
-                val coverMetricKeys = remember(dashboardMetricOrderRaw) {
-                    val parsed = dashboardMetricOrderRaw.split(",").map { it.trim() }.filter { it.isNotEmpty() }
-                    val defaults = listOf("BATTERY", "TEMPERATURE", "VOLTAGE", "CURRENT", "LOAD", "TRIP")
-                    (parsed + defaults).distinct()
-                        .filter { !it.contains(":") && it != com.eried.eucplanet.ui.settings.EMPTY_SLOT_KEY }
-                        .take(6)
-                }
                 val coverPager = androidx.compose.foundation.pager.rememberPagerState(
                     initialPage = 0, pageCount = { 2 }
                 )
@@ -2441,32 +2472,12 @@ fun DashboardScreen(
                                     horizontalArrangement = Arrangement.spacedBy(6.dp)
                                 ) {
                                     for (microCol in 0 until 3) {
-                                        val key = coverMetricKeys.getOrNull(microRow * 3 + microCol)
+                                        val key = plainMetricKeys.getOrNull(microRow * 3 + microCol)
                                         if (key == null) {
                                             Box(modifier = Modifier.weight(1f))
                                             continue
                                         }
-                                        val microAccent = when (key) {
-                                            "BATTERY" -> battColor
-                                            "TEMPERATURE" -> tempColor
-                                            "VOLTAGE" -> metricVoltageColor
-                                            "CURRENT" ->
-                                                if (live && wheelData.current < -0.2f) MaterialTheme.appColors.chargingAccent
-                                                else metricVoltageColor
-                                            "LOAD" -> loadColor
-                                            "TRIP" -> MaterialTheme.appColors.statusGood
-                                            else -> MaterialTheme.appColors.tileLabel
-                                        }
-                                        MicroMetricTile(
-                                            label = com.eried.eucplanet.ui.settings.metricChipLabel(key, short = true),
-                                            value = displayValueFor(key),
-                                            accent = microAccent,
-                                            modifier = Modifier.weight(1f),
-                                            onClick = {
-                                                if (key == "BATTERY") onNavigateToCharging()
-                                                else onNavigateToMetric(key)
-                                            }
-                                        )
+                                        microTileFor(key, Modifier.weight(1f))
                                     }
                                 }
                                 if (microRow == 0) Spacer(Modifier.height(6.dp))
@@ -2494,27 +2505,44 @@ fun DashboardScreen(
                 }
             } else if (landscape) {
                 Row(modifier = Modifier.fillMaxSize()) {
-                    speedoBlock(Modifier.weight(0.40f).fillMaxHeight())
-                    // Middle column: the metric tiles as a vertical "1 x N" stack.
-                    // Tiles keep their full height (value + min/max/avg + spark),
-                    // so the column scrolls when they don't all fit the short
-                    // landscape height rather than squashing them.
+                    // Left: the six metrics as a thin 2 x 3 grid of micro
+                    // tiles (label + value only), vertically centred.
                     Column(
                         modifier = Modifier
-                            .weight(0.26f)
+                            .weight(0.28f)
                             .fillMaxHeight()
                             .verticalScroll(rememberScrollState()),
-                        horizontalAlignment = Alignment.CenterHorizontally
+                        verticalArrangement = Arrangement.Center
                     ) {
-                        metricsBlock(null)
+                        for (microRow in 0 until 3) {
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.spacedBy(6.dp)
+                            ) {
+                                for (microCol in 0 until 2) {
+                                    val key = plainMetricKeys.getOrNull(microRow * 2 + microCol)
+                                    if (key == null) {
+                                        Box(modifier = Modifier.weight(1f))
+                                        continue
+                                    }
+                                    microTileFor(key, Modifier.weight(1f))
+                                }
+                            }
+                            if (microRow < 2) Spacer(Modifier.height(6.dp))
+                        }
                     }
-                    Spacer(Modifier.width(10.dp))
+                    Spacer(Modifier.width(8.dp))
+                    // Middle: the dial.
+                    speedoBlock(Modifier.weight(0.44f).fillMaxHeight())
+                    Spacer(Modifier.width(8.dp))
+                    // Right: the six buttons (2 x 3) kept narrow, odo under.
                     Column(
                         modifier = Modifier
-                            .weight(0.36f)
+                            .weight(0.28f)
                             .fillMaxHeight()
                             .verticalScroll(rememberScrollState()),
-                        horizontalAlignment = Alignment.CenterHorizontally
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center
                     ) {
                         buttonsBlock()
                         Spacer(Modifier.height(8.dp))

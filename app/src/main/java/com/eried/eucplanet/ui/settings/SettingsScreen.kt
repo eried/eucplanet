@@ -1414,6 +1414,31 @@ private fun AdvancedTab(
             stringResource(R.string.setting_rotate_navigator),
             settings.rotateNavigator
         ) { viewModel.updateRotateNavigator(it) }
+        Text(
+            stringResource(R.string.setting_nav_stops_side),
+            style = MaterialTheme.typography.bodyLarge
+        )
+        val stopsSideOptions = listOf(
+            "LEFT" to stringResource(R.string.side_left),
+            "RIGHT" to stringResource(R.string.side_right)
+        )
+        SingleChoiceSegmentedButtonRow(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(IntrinsicSize.Max)
+        ) {
+            stopsSideOptions.forEachIndexed { index, (key, label) ->
+                SegmentedButton(
+                    modifier = Modifier.fillMaxHeight(),
+                    selected = key == settings.navStopsSide,
+                    onClick = { viewModel.updateNavStopsSide(key) },
+                    shape = SegmentedButtonDefaults.itemShape(index, stopsSideOptions.size),
+                    colors = themedSegmentedColors(),
+                ) {
+                    Text(label, textAlign = TextAlign.Center, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                }
+            }
+        }
         SwitchSetting(
             stringResource(R.string.setting_rotate_other),
             settings.rotateOtherScreens

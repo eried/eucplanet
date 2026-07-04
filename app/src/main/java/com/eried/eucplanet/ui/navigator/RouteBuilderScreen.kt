@@ -1151,13 +1151,21 @@ fun RouteBuilderScreen(
             }
 
             // Portrait: FABs stacked above a full-width bottom dock. Landscape:
-            // FABs float bottom-right on the map, the panel is a left sidebar
-            // (always expanded) so the stops list is always visible.
+            // the panel is an always-expanded sidebar on the rider's chosen
+            // side (Screen geometry setting, default right) so the stops list
+            // is always visible; the FABs float on the opposite bottom corner
+            // of the map.
             if (landscape) {
-                Column(modifier = Modifier.align(Alignment.BottomEnd)) { overlayFabs() }
+                val stopsSide by viewModel.navStopsSide.collectAsState()
+                val sidebarRight = stopsSide != "LEFT"
+                Column(
+                    modifier = Modifier.align(
+                        if (sidebarRight) Alignment.BottomStart else Alignment.BottomEnd
+                    )
+                ) { overlayFabs() }
                 Column(
                     modifier = Modifier
-                        .align(Alignment.CenterStart)
+                        .align(if (sidebarRight) Alignment.CenterEnd else Alignment.CenterStart)
                         .fillMaxHeight()
                         .width(340.dp)
                         .background(MaterialTheme.appColors.menuBackground)

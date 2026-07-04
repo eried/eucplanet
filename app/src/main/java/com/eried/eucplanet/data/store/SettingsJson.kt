@@ -156,6 +156,7 @@ object SettingsJson {
         put("compactModeWhen", s.compactModeWhen)
         put("coverCameraCutout", s.coverCameraCutout)
         put("compactShowDial", s.compactShowDial)
+        put("navStopsSide", s.navStopsSide)
         put("volumeKeysEnabled", s.volumeKeysEnabled)
         put("volumeUpClick", s.volumeUpClick)
         put("volumeUpHold", s.volumeUpHold)
@@ -386,6 +387,7 @@ object SettingsJson {
         compactModeWhen = j.optString("compactModeWhen", base.compactModeWhen),
         coverCameraCutout = j.optString("coverCameraCutout", base.coverCameraCutout),
         compactShowDial = j.optBoolean("compactShowDial", base.compactShowDial),
+        navStopsSide = j.optString("navStopsSide", base.navStopsSide),
         volumeKeysEnabled = j.optBoolean("volumeKeysEnabled", base.volumeKeysEnabled),
         volumeUpClick = j.optString("volumeUpClick", base.volumeUpClick),
         volumeUpHold = j.optString("volumeUpHold", base.volumeUpHold),

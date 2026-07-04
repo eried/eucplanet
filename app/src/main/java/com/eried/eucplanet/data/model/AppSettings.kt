@@ -212,6 +212,8 @@ data class AppSettings(
     val compactModeWhen: String = "AUTO",
     val coverCameraCutout: String = "OFF",
     val compactShowDial: Boolean = false,
+    // Landscape navigator: which side the stops sidebar docks on.
+    val navStopsSide: String = "RIGHT",
 
     // Volume keys (work while app is in foreground)
     val volumeKeysEnabled: Boolean = false,

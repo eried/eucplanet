@@ -640,6 +640,9 @@
     <string name="cover_cutout_left">Lower left</string>
     <string name="cover_cutout_right">Lower right</string>
     <string name="setting_compact_dial">Speedo ring in compact</string>
+    <string name="setting_nav_stops_side">Stops position (landscape)</string>
+    <string name="side_left">Left</string>
+    <string name="side_right">Right</string>
     <string name="back_button_action_ask">Ask</string>
     <string name="back_button_action_background">Background</string>
     <string name="back_button_action_stop">Stop all</string>

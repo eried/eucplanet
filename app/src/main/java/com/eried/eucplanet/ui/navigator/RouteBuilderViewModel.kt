@@ -254,6 +254,11 @@ class RouteBuilderViewModel @Inject constructor(
         .map { it.imperialUnits }
         .stateIn(viewModelScope, SharingStarted.Eagerly, false)
 
+    /** Landscape sidebar side for the stops panel: "LEFT" or "RIGHT". */
+    val navStopsSide: StateFlow<String> = settingsRepository.settings
+        .map { it.navStopsSide }
+        .stateIn(viewModelScope, SharingStarted.Eagerly, "RIGHT")
+
     private var routeJob: Job? = null
     private var searchJob: Job? = null
     private var enrichJob: Job? = null
