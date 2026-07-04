@@ -523,11 +523,16 @@ fun WelcomeTutorialOverlay(
                                             )
                                         }
                                         // Restore, only when a settings backup exists.
+                                        // Disabled while a trip sync is running: restore
+                                        // rewrites the whole settings blob and both touch
+                                        // the same backup folder, so letting them overlap
+                                        // can lose settings or read a half-written file.
                                         if (hasSettingsBackup) {
                                             Spacer(Modifier.height(8.dp))
                                             LeftAlignedScanButton(
                                                 label = stringResource(R.string.welcome_tut_dev_restore),
                                                 onClick = onRestoreSettings,
+                                                enabled = !syncRunning,
                                             )
                                         }
                                         // Sync and Join just trigger the Cloud-settings
