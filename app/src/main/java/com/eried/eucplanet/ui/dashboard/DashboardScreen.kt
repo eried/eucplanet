@@ -287,7 +287,7 @@ fun DashboardScreen(
     // the optional gauge ring in compact.
     val compactModeWhen by viewModel.compactModeWhen.collectAsState()
     val coverCameraCutout by viewModel.coverCameraCutout.collectAsState()
-    val compactShowDial by viewModel.compactShowDial.collectAsState()
+    val compactSimpleSpeedo by viewModel.compactSimpleSpeedo.collectAsState()
     val dashboardCustomBleJson by viewModel.dashboardCustomBle.collectAsState()
     // Phone-battery and GPS feeds for the catalog metrics that aren't
     // sourced from WheelData. Both update lazily; the value pipeline
@@ -850,7 +850,7 @@ fun DashboardScreen(
                     animationSpec = tween(durationMillis = 250, easing = LinearEasing),
                     label = "dashSpeed"
                 )
-                if (tinyScreen && !compactShowDial) {
+                if (tinyScreen && compactSimpleSpeedo) {
                     // Compact default: the plain speed number, no gauge ring,
                     // for glance clarity on cover screens. Same colour rule as
                     // the dial: band tiers win when the colour band is on.
@@ -2518,7 +2518,7 @@ fun DashboardScreen(
                     val rowH = (maxHeight - infoReserve - rowGap * 2) / 3
                     Row(modifier = Modifier.fillMaxSize()) {
                         // Left: the six metrics as a 2 x 3 grid of
-                        // button-shaped cells.
+                        // button-shaped cells, odo line tucked under.
                         Column(
                             modifier = Modifier.weight(0.28f).fillMaxHeight(),
                             verticalArrangement = Arrangement.Center
@@ -2539,6 +2539,8 @@ fun DashboardScreen(
                                 }
                                 if (microRow < 2) Spacer(Modifier.height(rowGap))
                             }
+                            Spacer(Modifier.height(6.dp))
+                            infoBlock()
                         }
                         // Identical gaps on both sides of the dial; the small
                         // inner padding keeps the dial's corner glyphs off the
@@ -2551,16 +2553,13 @@ fun DashboardScreen(
                                 .padding(horizontal = 6.dp)
                         )
                         Spacer(Modifier.width(12.dp))
-                        // Right: the six buttons (2 x 3) at the same row
-                        // height, odo tucked under.
+                        // Right: the six buttons (2 x 3) at the same row height.
                         Column(
                             modifier = Modifier.weight(0.28f).fillMaxHeight(),
                             horizontalAlignment = Alignment.CenterHorizontally,
                             verticalArrangement = Arrangement.Center
                         ) {
                             buttonsBlock(rowH.value.toInt())
-                            Spacer(Modifier.height(6.dp))
-                            infoBlock()
                         }
                     }
                 }

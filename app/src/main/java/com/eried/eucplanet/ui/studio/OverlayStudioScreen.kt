@@ -141,6 +141,15 @@ fun OverlayStudioScreen(
 ) {
     val context = LocalContext.current
     val activity = context as? Activity
+    // The Studio owns its orientation: fixed portrait, camera-app style (the
+    // round buttons counter-rotate their icons instead). Applied here as well
+    // as in the MainActivity route policy because a task restored straight
+    // into the Studio can race the route-based lock into landscape.
+    DisposableEffect(Unit) {
+        activity?.requestedOrientation =
+            android.content.pm.ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+        onDispose { }
+    }
     val scope = rememberCoroutineScope()
     val snackbar = remember { SnackbarHostState() }
     val graphicsLayer = rememberGraphicsLayer()

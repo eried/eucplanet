@@ -413,10 +413,10 @@ class DashboardViewModel @Inject constructor(
         .map { it.coverCameraCutout }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000),
             initialSettings.coverCameraCutout)
-    val compactShowDial: StateFlow<Boolean> = settingsRepository.settings
-        .map { it.compactShowDial }
+    val compactSimpleSpeedo: StateFlow<Boolean> = settingsRepository.settings
+        .map { it.compactSimpleSpeedo }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000),
-            initialSettings.compactShowDial)
+            initialSettings.compactSimpleSpeedo)
     val dashboardMetricStats: StateFlow<String> = settingsRepository.settings
         .map { it.dashboardMetricStats }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000),

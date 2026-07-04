@@ -207,11 +207,11 @@ data class AppSettings(
     // screen dimensions are small; ALWAYS / NEVER override the detection.
     // coverCameraCutout keeps a corner of the compact layout empty where the
     // cover lenses sit over the panel (no API reports their area): OFF, LEFT
-    // or RIGHT. compactShowDial restores the gauge ring around the speed
-    // number; the compact default is the plain number for readability.
+    // or RIGHT. compactSimpleSpeedo shows the plain speed number instead of
+    // the gauge ring in compact mode, the readable default on tiny panels.
     val compactModeWhen: String = "AUTO",
     val coverCameraCutout: String = "OFF",
-    val compactShowDial: Boolean = false,
+    val compactSimpleSpeedo: Boolean = true,
     // Landscape navigator: which side the stops sidebar docks on.
     val navStopsSide: String = "RIGHT",
 

@@ -1403,104 +1403,99 @@ private fun AdvancedTab(
             }
         }
 
-        // Screen geometry: which screens may rotate, when the compact (flip
-        // cover) dashboard kicks in, and how it dodges cover camera lenses.
+        // Screen geometry, grouped per screen: what each surface may do when
+        // the phone rotates or the display is a tiny flip cover.
         AdvSectionTitle(stringResource(R.string.section_screen_geometry))
+
+        // Reusable pieces so each screen's group reads the same way.
+        val geoSubtitle: @Composable (Int) -> Unit = { res ->
+            Text(
+                stringResource(res),
+                style = MaterialTheme.typography.titleSmall,
+                color = MaterialTheme.appColors.textSecondary
+            )
+        }
+        val geoChoiceRow: @Composable (Int, List<Pair<String, String>>, String, (String) -> Unit) -> Unit =
+            { labelRes, options, selected, onPick ->
+                Text(
+                    stringResource(labelRes),
+                    style = MaterialTheme.typography.bodyLarge
+                )
+                SingleChoiceSegmentedButtonRow(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(IntrinsicSize.Max)
+                ) {
+                    options.forEachIndexed { index, (key, label) ->
+                        SegmentedButton(
+                            modifier = Modifier.fillMaxHeight(),
+                            selected = key == selected,
+                            onClick = { onPick(key) },
+                            shape = SegmentedButtonDefaults.itemShape(index, options.size),
+                            colors = themedSegmentedColors(),
+                        ) {
+                            Text(
+                                label, textAlign = TextAlign.Center,
+                                maxLines = 2, overflow = TextOverflow.Ellipsis
+                            )
+                        }
+                    }
+                }
+            }
+
+        // --- Dashboard ---
+        geoSubtitle(R.string.geo_section_dashboard)
         SwitchSetting(
-            stringResource(R.string.setting_rotate_dashboard),
+            stringResource(R.string.setting_allow_rotation),
             settings.rotateDashboard
         ) { viewModel.updateRotateDashboard(it) }
+        geoChoiceRow(
+            R.string.setting_compact_dashboard,
+            listOf(
+                "AUTO" to stringResource(R.string.compact_mode_auto),
+                "ALWAYS" to stringResource(R.string.compact_mode_always),
+                "NEVER" to stringResource(R.string.compact_mode_never)
+            ),
+            settings.compactModeWhen
+        ) { viewModel.updateCompactModeWhen(it) }
         SwitchSetting(
-            stringResource(R.string.setting_rotate_navigator),
+            stringResource(R.string.setting_simple_speedo),
+            settings.compactSimpleSpeedo
+        ) { viewModel.updateCompactSimpleSpeedo(it) }
+        geoChoiceRow(
+            R.string.setting_cover_cutout,
+            listOf(
+                "OFF" to stringResource(R.string.cover_cutout_off),
+                "LEFT" to stringResource(R.string.cover_cutout_left),
+                "RIGHT" to stringResource(R.string.cover_cutout_right)
+            ),
+            settings.coverCameraCutout
+        ) { viewModel.updateCoverCameraCutout(it) }
+
+        // --- Navigator ---
+        Spacer(Modifier.height(10.dp))
+        geoSubtitle(R.string.geo_section_navigator)
+        SwitchSetting(
+            stringResource(R.string.setting_allow_rotation),
             settings.rotateNavigator
         ) { viewModel.updateRotateNavigator(it) }
-        Text(
-            stringResource(R.string.setting_nav_stops_side),
-            style = MaterialTheme.typography.bodyLarge
-        )
-        val stopsSideOptions = listOf(
-            "LEFT" to stringResource(R.string.side_left),
-            "RIGHT" to stringResource(R.string.side_right)
-        )
-        SingleChoiceSegmentedButtonRow(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(IntrinsicSize.Max)
-        ) {
-            stopsSideOptions.forEachIndexed { index, (key, label) ->
-                SegmentedButton(
-                    modifier = Modifier.fillMaxHeight(),
-                    selected = key == settings.navStopsSide,
-                    onClick = { viewModel.updateNavStopsSide(key) },
-                    shape = SegmentedButtonDefaults.itemShape(index, stopsSideOptions.size),
-                    colors = themedSegmentedColors(),
-                ) {
-                    Text(label, textAlign = TextAlign.Center, maxLines = 1, overflow = TextOverflow.Ellipsis)
-                }
-            }
-        }
+        geoChoiceRow(
+            R.string.setting_nav_stops_side,
+            listOf(
+                "LEFT" to stringResource(R.string.side_left),
+                "RIGHT" to stringResource(R.string.side_right)
+            ),
+            settings.navStopsSide
+        ) { viewModel.updateNavStopsSide(it) }
+
+        // --- Other screens ---
+        Spacer(Modifier.height(10.dp))
+        geoSubtitle(R.string.geo_section_other)
         SwitchSetting(
-            stringResource(R.string.setting_rotate_other),
+            stringResource(R.string.setting_allow_rotation),
             settings.rotateOtherScreens
         ) { viewModel.updateRotateOtherScreens(it) }
-        Spacer(Modifier.height(8.dp))
-        Text(
-            stringResource(R.string.setting_compact_mode),
-            style = MaterialTheme.typography.bodyLarge
-        )
-        val compactOptions = listOf(
-            "AUTO" to stringResource(R.string.compact_mode_auto),
-            "ALWAYS" to stringResource(R.string.compact_mode_always),
-            "NEVER" to stringResource(R.string.compact_mode_never)
-        )
-        SingleChoiceSegmentedButtonRow(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(IntrinsicSize.Max)
-        ) {
-            compactOptions.forEachIndexed { index, (key, label) ->
-                SegmentedButton(
-                    modifier = Modifier.fillMaxHeight(),
-                    selected = key == settings.compactModeWhen,
-                    onClick = { viewModel.updateCompactModeWhen(key) },
-                    shape = SegmentedButtonDefaults.itemShape(index, compactOptions.size),
-                    colors = themedSegmentedColors(),
-                ) {
-                    Text(label, textAlign = TextAlign.Center, maxLines = 2, overflow = TextOverflow.Ellipsis)
-                }
-            }
-        }
-        Spacer(Modifier.height(8.dp))
-        Text(
-            stringResource(R.string.setting_cover_cutout),
-            style = MaterialTheme.typography.bodyLarge
-        )
-        val cutoutOptions = listOf(
-            "OFF" to stringResource(R.string.cover_cutout_off),
-            "LEFT" to stringResource(R.string.cover_cutout_left),
-            "RIGHT" to stringResource(R.string.cover_cutout_right)
-        )
-        SingleChoiceSegmentedButtonRow(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(IntrinsicSize.Max)
-        ) {
-            cutoutOptions.forEachIndexed { index, (key, label) ->
-                SegmentedButton(
-                    modifier = Modifier.fillMaxHeight(),
-                    selected = key == settings.coverCameraCutout,
-                    onClick = { viewModel.updateCoverCameraCutout(key) },
-                    shape = SegmentedButtonDefaults.itemShape(index, cutoutOptions.size),
-                    colors = themedSegmentedColors(),
-                ) {
-                    Text(label, textAlign = TextAlign.Center, maxLines = 2, overflow = TextOverflow.Ellipsis)
-                }
-            }
-        }
-        SwitchSetting(
-            stringResource(R.string.setting_compact_dial),
-            settings.compactShowDial
-        ) { viewModel.updateCompactShowDial(it) }
+        HintText(stringResource(R.string.geo_other_hint), small = true)
 
         // Timing knobs, under their own big title.
         AdvSectionTitle(stringResource(R.string.adv_timings_title))

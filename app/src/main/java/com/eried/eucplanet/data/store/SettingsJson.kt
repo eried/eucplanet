@@ -155,7 +155,7 @@ object SettingsJson {
         put("rotateOtherScreens", s.rotateOtherScreens)
         put("compactModeWhen", s.compactModeWhen)
         put("coverCameraCutout", s.coverCameraCutout)
-        put("compactShowDial", s.compactShowDial)
+        put("compactSimpleSpeedo", s.compactSimpleSpeedo)
         put("navStopsSide", s.navStopsSide)
         put("volumeKeysEnabled", s.volumeKeysEnabled)
         put("volumeUpClick", s.volumeUpClick)
@@ -386,7 +386,7 @@ object SettingsJson {
         rotateOtherScreens = j.optBoolean("rotateOtherScreens", base.rotateOtherScreens),
         compactModeWhen = j.optString("compactModeWhen", base.compactModeWhen),
         coverCameraCutout = j.optString("coverCameraCutout", base.coverCameraCutout),
-        compactShowDial = j.optBoolean("compactShowDial", base.compactShowDial),
+        compactSimpleSpeedo = j.optBoolean("compactSimpleSpeedo", base.compactSimpleSpeedo),
         navStopsSide = j.optString("navStopsSide", base.navStopsSide),
         volumeKeysEnabled = j.optBoolean("volumeKeysEnabled", base.volumeKeysEnabled),
         volumeUpClick = j.optString("volumeUpClick", base.volumeUpClick),
