@@ -1403,9 +1403,9 @@ private fun AdvancedTab(
             }
         }
 
-        // Screen rotation: pick which screens may rotate to landscape. The main
-        // dashboard defaults to portrait; navigator and the rest default to on.
-        AdvSectionTitle(stringResource(R.string.section_screen_rotation))
+        // Screen geometry: which screens may rotate, when the compact (flip
+        // cover) dashboard kicks in, and how it dodges cover camera lenses.
+        AdvSectionTitle(stringResource(R.string.section_screen_geometry))
         SwitchSetting(
             stringResource(R.string.setting_rotate_dashboard),
             settings.rotateDashboard
@@ -1418,6 +1418,64 @@ private fun AdvancedTab(
             stringResource(R.string.setting_rotate_other),
             settings.rotateOtherScreens
         ) { viewModel.updateRotateOtherScreens(it) }
+        Spacer(Modifier.height(8.dp))
+        Text(
+            stringResource(R.string.setting_compact_mode),
+            style = MaterialTheme.typography.bodyLarge
+        )
+        val compactOptions = listOf(
+            "AUTO" to stringResource(R.string.compact_mode_auto),
+            "ALWAYS" to stringResource(R.string.compact_mode_always),
+            "NEVER" to stringResource(R.string.compact_mode_never)
+        )
+        SingleChoiceSegmentedButtonRow(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(IntrinsicSize.Max)
+        ) {
+            compactOptions.forEachIndexed { index, (key, label) ->
+                SegmentedButton(
+                    modifier = Modifier.fillMaxHeight(),
+                    selected = key == settings.compactModeWhen,
+                    onClick = { viewModel.updateCompactModeWhen(key) },
+                    shape = SegmentedButtonDefaults.itemShape(index, compactOptions.size),
+                    colors = themedSegmentedColors(),
+                ) {
+                    Text(label, textAlign = TextAlign.Center, maxLines = 2, overflow = TextOverflow.Ellipsis)
+                }
+            }
+        }
+        Spacer(Modifier.height(8.dp))
+        Text(
+            stringResource(R.string.setting_cover_cutout),
+            style = MaterialTheme.typography.bodyLarge
+        )
+        val cutoutOptions = listOf(
+            "OFF" to stringResource(R.string.cover_cutout_off),
+            "LEFT" to stringResource(R.string.cover_cutout_left),
+            "RIGHT" to stringResource(R.string.cover_cutout_right)
+        )
+        SingleChoiceSegmentedButtonRow(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(IntrinsicSize.Max)
+        ) {
+            cutoutOptions.forEachIndexed { index, (key, label) ->
+                SegmentedButton(
+                    modifier = Modifier.fillMaxHeight(),
+                    selected = key == settings.coverCameraCutout,
+                    onClick = { viewModel.updateCoverCameraCutout(key) },
+                    shape = SegmentedButtonDefaults.itemShape(index, cutoutOptions.size),
+                    colors = themedSegmentedColors(),
+                ) {
+                    Text(label, textAlign = TextAlign.Center, maxLines = 2, overflow = TextOverflow.Ellipsis)
+                }
+            }
+        }
+        SwitchSetting(
+            stringResource(R.string.setting_compact_dial),
+            settings.compactShowDial
+        ) { viewModel.updateCompactShowDial(it) }
 
         // Timing knobs, under their own big title.
         AdvSectionTitle(stringResource(R.string.adv_timings_title))
@@ -1694,104 +1752,6 @@ private fun DashboardLayoutTab(
             )
         }
 
-        // --- Cover screen (flip phones) -----------------------------------
-        // The tiny cover dashboard shows 6 micro metric tiles + 6 buttons.
-        // These lists reorder independently from the main grids above; until
-        // the rider drags something they simply inherit the main order.
-        SectionHeader(stringResource(R.string.dashboard_section_cover))
-        HintText(stringResource(R.string.dashboard_cover_hint), small = true)
-        SwitchSetting(
-            stringResource(R.string.setting_cover_avoid_camera),
-            settings.coverAvoidCamera
-        ) { viewModel.updateCoverAvoidCamera(it) }
-        // Micro cells can only render plain catalog values, so composite /
-        // custom IDs (they contain ':') are filtered from the inherited list.
-        val coverMetricKeys = remember(settings.coverMetricOrder, metricOrder) {
-            val saved = settings.coverMetricOrder.split(",").map { it.trim() }.filter { it.isNotEmpty() }
-            (saved + metricOrder).distinct()
-                .filter { !it.contains(":") && it != EMPTY_SLOT_KEY }
-                .take(6)
-        }
-        val coverActionKeys = remember(settings.coverActionOrder, actionOrder) {
-            val saved = settings.coverActionOrder.split(",").map { it.trim() }.filter { it.isNotEmpty() }
-            (saved + actionOrder).distinct().filter { it != EMPTY_SLOT_KEY }.take(6)
-        }
-        Text(
-            stringResource(R.string.dashboard_cover_metrics),
-            style = MaterialTheme.typography.titleSmall,
-            color = MaterialTheme.appColors.textSecondary
-        )
-        ReorderableColumn(
-            list = coverMetricKeys,
-            onSettle = { from, to ->
-                val items = coverMetricKeys.toMutableList()
-                items.add(to, items.removeAt(from))
-                viewModel.updateCoverMetricOrder(items.joinToString(","))
-            },
-            modifier = Modifier.fillMaxWidth(),
-            verticalArrangement = Arrangement.spacedBy(6.dp),
-        ) { _, k, _ ->
-            key(k) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clip(RoundedCornerShape(10.dp))
-                        .background(MaterialTheme.appColors.tileBackground)
-                        .padding(horizontal = 10.dp, vertical = 8.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Icon(
-                        Icons.Default.DragHandle,
-                        contentDescription = stringResource(R.string.action_reorder),
-                        tint = MaterialTheme.appColors.tileLabel,
-                        modifier = Modifier.draggableHandle().size(22.dp)
-                    )
-                    Spacer(Modifier.width(10.dp))
-                    Text(metricChipLabel(k), color = MaterialTheme.appColors.textPrimary)
-                }
-            }
-        }
-        Text(
-            stringResource(R.string.dashboard_cover_actions),
-            style = MaterialTheme.typography.titleSmall,
-            color = MaterialTheme.appColors.textSecondary
-        )
-        ReorderableColumn(
-            list = coverActionKeys,
-            onSettle = { from, to ->
-                val items = coverActionKeys.toMutableList()
-                items.add(to, items.removeAt(from))
-                viewModel.updateCoverActionOrder(items.joinToString(","))
-            },
-            modifier = Modifier.fillMaxWidth(),
-            verticalArrangement = Arrangement.spacedBy(6.dp),
-        ) { _, k, _ ->
-            key(k) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clip(RoundedCornerShape(10.dp))
-                        .background(MaterialTheme.appColors.tileBackground)
-                        .padding(horizontal = 10.dp, vertical = 8.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Icon(
-                        Icons.Default.DragHandle,
-                        contentDescription = stringResource(R.string.action_reorder),
-                        tint = MaterialTheme.appColors.tileLabel,
-                        modifier = Modifier.draggableHandle().size(22.dp)
-                    )
-                    Spacer(Modifier.width(10.dp))
-                    Text(actionChipLabel(k), color = MaterialTheme.appColors.textPrimary)
-                }
-            }
-        }
-        if (settings.coverMetricOrder.isNotBlank() || settings.coverActionOrder.isNotBlank()) {
-            TextButton(onClick = {
-                viewModel.updateCoverMetricOrder("")
-                viewModel.updateCoverActionOrder("")
-            }) { Text(stringResource(R.string.dashboard_cover_reset)) }
-        }
     }
         // Floating drag preview rendered as a sibling of the Column inside
         // the editor's root Box. Stays in the same Compose hit-test tree as

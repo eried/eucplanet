@@ -430,9 +430,9 @@ class SettingsViewModel @Inject constructor(
     fun updateRotateDashboard(v: Boolean) = update { copy(rotateDashboard = v) }
     fun updateRotateNavigator(v: Boolean) = update { copy(rotateNavigator = v) }
     fun updateRotateOtherScreens(v: Boolean) = update { copy(rotateOtherScreens = v) }
-    fun updateCoverMetricOrder(v: String) = update { copy(coverMetricOrder = v) }
-    fun updateCoverActionOrder(v: String) = update { copy(coverActionOrder = v) }
-    fun updateCoverAvoidCamera(v: Boolean) = update { copy(coverAvoidCamera = v) }
+    fun updateCompactModeWhen(v: String) = update { copy(compactModeWhen = v) }
+    fun updateCoverCameraCutout(v: String) = update { copy(coverCameraCutout = v) }
+    fun updateCompactShowDial(v: Boolean) = update { copy(compactShowDial = v) }
     fun updateSpeedCalibrationOffsetPct(v: Float) = update {
         // Round to 0.1 % granularity so the value reads cleanly across UI,
         // backup JSON, and per-wheel profile storage.

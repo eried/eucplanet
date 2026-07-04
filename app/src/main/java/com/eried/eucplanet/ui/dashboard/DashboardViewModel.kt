@@ -402,19 +402,21 @@ class DashboardViewModel @Inject constructor(
         .map { it.dashboardMetricOrder }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000),
             initialSettings.dashboardMetricOrder)
-    // Flip-cover layout overrides. Blank = inherit the main lists above.
-    val coverMetricOrder: StateFlow<String> = settingsRepository.settings
-        .map { it.coverMetricOrder }
+    // Screen geometry: compact-mode activation, cover lens cutout side and
+    // the optional gauge ring in compact. The compact layout itself reuses
+    // the dashboardMetricOrder / dashboardActionOrder lists above.
+    val compactModeWhen: StateFlow<String> = settingsRepository.settings
+        .map { it.compactModeWhen }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000),
-            initialSettings.coverMetricOrder)
-    val coverActionOrder: StateFlow<String> = settingsRepository.settings
-        .map { it.coverActionOrder }
+            initialSettings.compactModeWhen)
+    val coverCameraCutout: StateFlow<String> = settingsRepository.settings
+        .map { it.coverCameraCutout }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000),
-            initialSettings.coverActionOrder)
-    val coverAvoidCamera: StateFlow<Boolean> = settingsRepository.settings
-        .map { it.coverAvoidCamera }
+            initialSettings.coverCameraCutout)
+    val compactShowDial: StateFlow<Boolean> = settingsRepository.settings
+        .map { it.compactShowDial }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000),
-            initialSettings.coverAvoidCamera)
+            initialSettings.compactShowDial)
     val dashboardMetricStats: StateFlow<String> = settingsRepository.settings
         .map { it.dashboardMetricStats }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000),

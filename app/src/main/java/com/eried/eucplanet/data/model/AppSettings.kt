@@ -201,13 +201,17 @@ data class AppSettings(
     val rotateNavigator: Boolean = true,
     val rotateOtherScreens: Boolean = true,
 
-    // Flip-cover (tiny) dashboard. Blank order strings inherit the main
-    // dashboard lists; a saved value makes the cover layout independent.
-    // coverAvoidCamera keeps the lower-right corner empty because the cover
-    // lenses sit over the panel there and no API reports their area.
-    val coverMetricOrder: String = "",
-    val coverActionOrder: String = "",
-    val coverAvoidCamera: Boolean = false,
+    // Screen geometry. Compact mode is the tiny dashboard (speedo + one
+    // swipeable buttons/metrics area) used on flip cover screens; it reuses
+    // the rider's normal dashboard configuration. AUTO activates it when both
+    // screen dimensions are small; ALWAYS / NEVER override the detection.
+    // coverCameraCutout keeps a corner of the compact layout empty where the
+    // cover lenses sit over the panel (no API reports their area): OFF, LEFT
+    // or RIGHT. compactShowDial restores the gauge ring around the speed
+    // number; the compact default is the plain number for readability.
+    val compactModeWhen: String = "AUTO",
+    val coverCameraCutout: String = "OFF",
+    val compactShowDial: Boolean = false,
 
     // Volume keys (work while app is in foreground)
     val volumeKeysEnabled: Boolean = false,

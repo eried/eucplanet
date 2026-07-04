@@ -283,10 +283,11 @@ fun DashboardScreen(
     val dashboardCustomTilesJson by viewModel.dashboardCustomTiles.collectAsState()
     val dashboardActionOrderRaw by viewModel.dashboardActionOrder.collectAsState()
     val dashboardActionGroupsJson by viewModel.dashboardActionGroups.collectAsState()
-    // Flip-cover layout overrides (blank = inherit the main lists).
-    val coverMetricOrderRaw by viewModel.coverMetricOrder.collectAsState()
-    val coverActionOrderRaw by viewModel.coverActionOrder.collectAsState()
-    val coverAvoidCamera by viewModel.coverAvoidCamera.collectAsState()
+    // Screen geometry: compact-mode activation, cover lens cutout side and
+    // the optional gauge ring in compact.
+    val compactModeWhen by viewModel.compactModeWhen.collectAsState()
+    val coverCameraCutout by viewModel.coverCameraCutout.collectAsState()
+    val compactShowDial by viewModel.compactShowDial.collectAsState()
     val dashboardCustomBleJson by viewModel.dashboardCustomBle.collectAsState()
     // Phone-battery and GPS feeds for the catalog metrics that aren't
     // sourced from WheelData. Both update lazily; the value pipeline
@@ -798,13 +799,17 @@ fun DashboardScreen(
             // so it kicks in on any short-and-wide screen, tablets included.
             val landscape = LocalConfiguration.current.orientation ==
                 android.content.res.Configuration.ORIENTATION_LANDSCAPE
-            // Flip-phone cover screens: BOTH dimensions are tiny (~360 x 374 dp),
-            // so neither the portrait stack nor the landscape three-column split
-            // fits. The dashboard reduces to the speedo plus one compact icon-only
-            // button row; metric tiles and the info footer are hidden (the inner
-            // screen still shows the full dashboard).
-            val tinyScreen = LocalConfiguration.current.screenWidthDp < 500 &&
-                LocalConfiguration.current.screenHeightDp < 500
+            // Compact mode, the flip-cover layout: speedo plus one swipeable
+            // buttons / micro-metrics area, info footer hidden. AUTO detects
+            // cover-class panels (both dimensions tiny, ~360 x 374 dp, where
+            // neither the portrait stack nor the landscape split fits); the
+            // Advanced Screen geometry setting can force it on or off.
+            val tinyScreen = when (compactModeWhen) {
+                "ALWAYS" -> true
+                "NEVER" -> false
+                else -> LocalConfiguration.current.screenWidthDp < 500 &&
+                    LocalConfiguration.current.screenHeightDp < 500
+            }
 
             // Speed gauge, wide arc dial (tap opens history)
             val useAccent = !com.eried.eucplanet.ui.theme.isDefaultAccent(accentKey)
@@ -845,7 +850,30 @@ fun DashboardScreen(
                     animationSpec = tween(durationMillis = 250, easing = LinearEasing),
                     label = "dashSpeed"
                 )
-                SpeedGauge(
+                if (tinyScreen && !compactShowDial) {
+                    // Compact default: the plain speed number, no gauge ring,
+                    // for glance clarity on cover screens. Same colour rule as
+                    // the dial: band tiers win when the colour band is on.
+                    val speedFrac = (animatedSpeed / gaugeMax).coerceIn(0f, 1f)
+                    val numberColor = when {
+                        showGaugeColorBand && speedFrac >= gaugeRedPct / 100f ->
+                            MaterialTheme.appColors.gaugeDanger
+                        showGaugeColorBand && speedFrac >= gaugeOrangePct / 100f ->
+                            MaterialTheme.appColors.statusWarn
+                        else -> MaterialTheme.appColors.gaugeFill
+                    }
+                    Text(
+                        text = "%.0f".format(
+                            com.eried.eucplanet.util.Units.speed(animatedSpeed, speedUnit)
+                        ),
+                        color = numberColor,
+                        fontSize = (dialW.value * 0.5f).sp,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier
+                            .align(Alignment.Center)
+                            .coachmarkTarget(coachmark, TutorialTarget.SPEED_DIAL)
+                    )
+                } else SpeedGauge(
                     speed = animatedSpeed,
                     maxSpeed = gaugeMax,
                     speedUnit = speedUnit,
@@ -1962,15 +1990,8 @@ fun DashboardScreen(
             // catalog defaults (HORN / LIGHT / VOICE / SAFETY / LOCK /
             // RECORD) when blank — out-of-box layout stays byte-identical
             // to the old hardcoded 6-button arrangement.
-            val activeActionKeys = remember(dashboardActionOrderRaw, coverActionOrderRaw, tinyScreen) {
-                // Cover screens use their own order when one is saved; blank
-                // inherits the main dashboard. Main-list keys pad the tail so
-                // a short cover list still fills all six slots.
-                val effectiveOrder =
-                    if (tinyScreen && coverActionOrderRaw.isNotBlank())
-                        coverActionOrderRaw + "," + dashboardActionOrderRaw
-                    else dashboardActionOrderRaw
-                val parsed = effectiveOrder.split(",").map { it.trim() }.filter { it.isNotEmpty() }
+            val activeActionKeys = remember(dashboardActionOrderRaw) {
+                val parsed = dashboardActionOrderRaw.split(",").map { it.trim() }.filter { it.isNotEmpty() }
                 val defaults = listOf(
                     "HORN", "LIGHT_TOGGLE", "VOICE_ANNOUNCE",
                     "SAFETY_TOGGLE", "LOCK_TOGGLE", "RECORD_TOGGLE"
@@ -2378,12 +2399,11 @@ fun DashboardScreen(
                 // only render a plain catalog value.
                 speedoBlock(Modifier.fillMaxWidth().weight(1f, fill = true))
                 Spacer(Modifier.height(4.dp))
-                val coverMetricKeys = remember(coverMetricOrderRaw, dashboardMetricOrderRaw) {
-                    val effective =
-                        if (coverMetricOrderRaw.isNotBlank())
-                            coverMetricOrderRaw + "," + dashboardMetricOrderRaw
-                        else dashboardMetricOrderRaw
-                    val parsed = effective.split(",").map { it.trim() }.filter { it.isNotEmpty() }
+                // Same configuration as the main dashboard: the rider's own
+                // metric order, minus composite / custom IDs a micro cell
+                // cannot render.
+                val coverMetricKeys = remember(dashboardMetricOrderRaw) {
+                    val parsed = dashboardMetricOrderRaw.split(",").map { it.trim() }.filter { it.isNotEmpty() }
                     val defaults = listOf("BATTERY", "TEMPERATURE", "VOLTAGE", "CURRENT", "LOAD", "TRIP")
                     (parsed + defaults).distinct()
                         .filter { !it.contains(":") && it != com.eried.eucplanet.ui.settings.EMPTY_SLOT_KEY }
@@ -2397,10 +2417,13 @@ fun DashboardScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(118.dp)
-                        // Avoid cover cameras: keep the lower-right corner
-                        // empty, the cover lenses sit over the panel there
-                        // and no API reports their area.
-                        .padding(end = if (coverAvoidCamera) 96.dp else 0.dp)
+                        // Cover lens cutout: keep the chosen lower corner
+                        // empty, the lenses sit over the panel there and no
+                        // API reports their area.
+                        .padding(
+                            start = if (coverCameraCutout == "LEFT") 96.dp else 0.dp,
+                            end = if (coverCameraCutout == "RIGHT") 96.dp else 0.dp
+                        )
                 ) { page ->
                     if (page == 0) {
                         Column(
