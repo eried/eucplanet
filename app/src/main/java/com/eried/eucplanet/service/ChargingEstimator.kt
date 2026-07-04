@@ -92,9 +92,19 @@ class ChargingEstimator(
     /** Add a battery-percent reading. Call once per telemetry tick while charging. */
     fun addSample(timestampMs: Long, percent: Float) {
         val smoothed = medianFilter(percent)
-        if (startPercent == null) {
+        // Anchor the charge at the LOWEST point seen, i.e. the moment the battery
+        // stops falling and starts rising. The session runs the whole connection,
+        // so if the rider is still discharging when it opens, the anchor slides
+        // down with the pack; once the climb begins it freezes. That way "added"
+        // and the warm-up gate count from the charge start, not from a higher
+        // pre-ride level -- which used to hold the ETA back until the pack had
+        // merely clawed its way back up past where the ride began.
+        val anchor = startPercent
+        if (anchor == null || smoothed < anchor) {
             startPercent = smoothed
             startTimeMs = timestampMs
+            // Pre-anchor (discharging) samples must not skew the charge slope.
+            samples.clear()
         }
         samples.addLast(Sample(timestampMs, smoothed))
         // Drop samples older than the rolling window (keep at least one).

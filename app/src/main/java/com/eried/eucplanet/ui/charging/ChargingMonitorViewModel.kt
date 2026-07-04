@@ -147,7 +147,9 @@ class ChargingMonitorViewModel @Inject constructor(
             // Disconnected → 0 so the fill clears instead of showing the last level.
             percent = if (!connected) 0f else if (charging) est.percent else batteryPercentOf(data),
             startPercent = est.startPercent,
-            // Signed: goes negative while discharging (the session runs whole connection).
+            // Percent added since the charge low point. The estimator anchors on
+            // the running minimum, so this reads ~0 while riding and climbs once
+            // charging starts (it no longer goes negative on a pre-charge ride).
             addedPercent = est.percent - est.startPercent,
             voltage = data.voltage,
             current = data.current,
