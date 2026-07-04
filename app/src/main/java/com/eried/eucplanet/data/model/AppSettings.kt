@@ -909,6 +909,13 @@ data class AdvancedSettings(
     val chargingWindowMs: Int = 300000,
     val chargingSanityCapMinutes: Int = 480,
     val chargingMedianFilterSize: Int = 7,
+    // Screen geometry variables (AdvGroup.GEOMETRY): the thresholds and sizes
+    // behind compact mode, the cover lens cutout and the navigator sidebar.
+    val compactMaxScreenDp: Int = 500,
+    val coverCutoutInsetDp: Int = 96,
+    val simpleSpeedoScalePct: Int = 62,
+    val navSidebarWidthDp: Int = 340,
+    val navSidebarMinScreenDp: Int = 600,
 )
 
 // FlicAction enum removed (2026-05). Replaced by

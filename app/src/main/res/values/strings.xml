@@ -400,7 +400,7 @@
     <string name="adv_reset_confirm_msg">These settings will return to their defaults:</string>
     <string name="tab_more">More</string>
     <string name="settings_visibility">Settings visibility</string>
-    <string name="adv_timings_title">Timings</string>
+    <string name="adv_timings_title">Timings and variables</string>
     <string name="reorg_hint">Reorganize the settings screen and hide sections you rarely use. Hidden sections move to More.</string>
     <string name="reorg_drag_cd">Drag to reorder</string>
     <string name="adv_rates_warning">These controls change timing across the app. Lower values give fresher data and faster reactions but use more battery, CPU or data. The defaults suit most riders. Change them only if you understand the effect.</string>
@@ -493,6 +493,17 @@
     <string name="adv_radar_min_frame">Min frame gap</string>
     <string name="adv_radar_min_frame_desc">Affects the smallest time between frames used for the closing-rate math. Danger: too low can over-react to jitter.</string>
     <string name="adv_group_charging">Charging ETA</string>
+    <string name="adv_group_geometry">Screen geometry variables</string>
+    <string name="adv_compact_max_screen">Compact screen limit</string>
+    <string name="adv_compact_max_screen_desc">Screens with both sides under this switch to the compact dashboard when Compact dashboard is on Small screens.</string>
+    <string name="adv_cover_cutout_inset">Camera cutout size</string>
+    <string name="adv_cover_cutout_inset_desc">Space kept clear for the cover lenses when Avoid cover cameras is on. Too small and the lenses hide buttons.</string>
+    <string name="adv_simple_speedo_scale">Simple speedo size</string>
+    <string name="adv_simple_speedo_scale_desc">Size of the plain speed number relative to the gauge area. Too large can clip the unit label.</string>
+    <string name="adv_nav_sidebar_width">Stops panel width</string>
+    <string name="adv_nav_sidebar_width_desc">Width of the landscape stops sidebar. Too wide leaves little map.</string>
+    <string name="adv_nav_sidebar_min">Sidebar screen minimum</string>
+    <string name="adv_nav_sidebar_min_desc">Screens narrower than this keep the bottom stops panel even in landscape. Too low buries the map on small screens.</string>
     <string name="adv_charging_warning">These tune the time-to-full estimate. Wrong values give a misleading ETA but never affect charging itself.</string>
     <string name="adv_charging_target_pct">Target percent</string>
     <string name="adv_charging_target_pct_desc">Affects the charge level where the estimate switches to the slower final phase.</string>

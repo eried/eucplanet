@@ -1428,9 +1428,12 @@ internal fun NumberUpDown(
     val fieldLabelColor = MaterialTheme.appColors.fieldLabel
     var text by remember { mutableStateOf(format(value)) }
     var focused by remember { mutableStateOf(false) }
-    // Width the typed number to the widest value in range so the unit stays put
-    // and the digits + unit read as one centred group.
-    val numWidth = (maxOf(2, format(range.first).length, format(range.last).length) * 12).dp
+    // Width the number box to the DISPLAYED value, not the widest value in
+    // range: sizing for the range maximum left short values (30000 in a
+    // 120000-wide box) floating off-centre with the unit squeezed. The unit
+    // only shifts on the rare digit-count boundary while stepping.
+    val shownLen = (if (focused) text else format(value)).length
+    val numWidth = (maxOf(2, shownLen) * 10).dp
 
     // rememberUpdatedState so the hold-to-repeat loop below always steps from the
     // freshly committed value, not the value captured when the press started.

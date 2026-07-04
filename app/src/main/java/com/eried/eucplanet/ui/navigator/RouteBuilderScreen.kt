@@ -707,9 +707,10 @@ fun RouteBuilderScreen(
         // the 340 dp sidebar would swallow the map, so those keep the
         // bottom-panel layout even when rotated.
         val stopsSide by viewModel.navStopsSide.collectAsState()
+        val advancedVars by viewModel.advanced.collectAsState()
         val landscape = LocalConfiguration.current.orientation ==
             android.content.res.Configuration.ORIENTATION_LANDSCAPE &&
-            LocalConfiguration.current.screenWidthDp >= 600 &&
+            LocalConfiguration.current.screenWidthDp >= advancedVars.navSidebarMinScreenDp &&
             stopsSide != "DEFAULT"
         val effectivePanelPx =
             if (panelHeightPx > 0) panelHeightPx
@@ -1168,7 +1169,7 @@ fun RouteBuilderScreen(
                     modifier = Modifier
                         .align(if (sidebarRight) Alignment.CenterEnd else Alignment.CenterStart)
                         .fillMaxHeight()
-                        .width(340.dp)
+                        .width(advancedVars.navSidebarWidthDp.dp)
                         .background(MaterialTheme.appColors.menuBackground)
                         .padding(top = padding.calculateTopPadding())
                         .verticalScroll(rememberScrollState())

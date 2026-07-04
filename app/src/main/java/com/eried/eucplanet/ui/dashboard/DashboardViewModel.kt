@@ -405,6 +405,13 @@ class DashboardViewModel @Inject constructor(
     // Screen geometry: compact-mode activation, cover lens cutout side and
     // the optional gauge ring in compact. The compact layout itself reuses
     // the dashboardMetricOrder / dashboardActionOrder lists above.
+    // The numeric knobs (compact threshold, cutout inset, speedo scale) come
+    // from the Advanced registry via [advanced].
+    val advanced: StateFlow<com.eried.eucplanet.data.model.AdvancedSettings> =
+        settingsRepository.settings
+            .map { it.advanced }
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000),
+                initialSettings.advanced)
     val compactModeWhen: StateFlow<String> = settingsRepository.settings
         .map { it.compactModeWhen }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000),

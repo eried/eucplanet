@@ -1481,21 +1481,15 @@ private fun AdvancedTab(
                 settings.landscapeMirrored,
                 badge = landscapeBadge
             ) { viewModel.updateLandscapeMirrored(it) }
-            // Both simplified-speedo rows together. The switches map onto the
-            // per-surface style KEYS (checked = NUMBER): when a third gauge
-            // style lands (PWM-primary etc.) these become choosers, the
-            // storage already supports it.
+            // The speedo switches map onto the per-surface style KEYS
+            // (checked = NUMBER): when a third gauge style lands (PWM-primary
+            // etc.) these become choosers, the storage already supports it.
             SwitchSetting(
                 stringResource(R.string.setting_simple_speedo),
                 settings.landscapeSpeedoStyle == "NUMBER",
                 badge = landscapeBadge
             ) { viewModel.updateLandscapeSpeedoStyle(if (it) "NUMBER" else "DIAL") }
             HintText(stringResource(R.string.setting_simple_speedo_desc), small = true)
-            SwitchSetting(
-                stringResource(R.string.setting_simple_speedo),
-                settings.compactSpeedoStyle == "NUMBER",
-                badge = compactBadge
-            ) { viewModel.updateCompactSpeedoStyle(if (it) "NUMBER" else "DIAL") }
             geoChoiceRow(
                 R.string.setting_compact_dashboard, null,
                 listOf(
@@ -1505,15 +1499,24 @@ private fun AdvancedTab(
                 ),
                 settings.compactModeWhen
             ) { viewModel.updateCompactModeWhen(it) }
-            geoChoiceRow(
-                R.string.setting_cover_cutout, compactBadge,
-                listOf(
-                    "OFF" to stringResource(R.string.cover_cutout_off),
-                    "LEFT" to stringResource(R.string.cover_cutout_left),
-                    "RIGHT" to stringResource(R.string.cover_cutout_right)
-                ),
-                settings.coverCameraCutout
-            ) { viewModel.updateCoverCameraCutout(it) }
+            // These two only exist inside compact mode, so they hide when the
+            // rider turns compact off entirely.
+            if (settings.compactModeWhen != "NEVER") {
+                SwitchSetting(
+                    stringResource(R.string.setting_simple_speedo),
+                    settings.compactSpeedoStyle == "NUMBER",
+                    badge = compactBadge
+                ) { viewModel.updateCompactSpeedoStyle(if (it) "NUMBER" else "DIAL") }
+                geoChoiceRow(
+                    R.string.setting_cover_cutout, compactBadge,
+                    listOf(
+                        "OFF" to stringResource(R.string.cover_cutout_off),
+                        "LEFT" to stringResource(R.string.cover_cutout_left),
+                        "RIGHT" to stringResource(R.string.cover_cutout_right)
+                    ),
+                    settings.coverCameraCutout
+                ) { viewModel.updateCoverCameraCutout(it) }
+            }
         }
 
         AdvancedCollapsable(

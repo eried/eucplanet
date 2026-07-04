@@ -290,6 +290,7 @@ fun DashboardScreen(
     val compactSpeedoStyle by viewModel.compactSpeedoStyle.collectAsState()
     val landscapeSpeedoStyle by viewModel.landscapeSpeedoStyle.collectAsState()
     val landscapeMirrored by viewModel.landscapeMirrored.collectAsState()
+    val advancedVars by viewModel.advanced.collectAsState()
     val dashboardCustomBleJson by viewModel.dashboardCustomBle.collectAsState()
     // Phone-battery and GPS feeds for the catalog metrics that aren't
     // sourced from WheelData. Both update lazily; the value pipeline
@@ -809,8 +810,8 @@ fun DashboardScreen(
             val tinyScreen = when (compactModeWhen) {
                 "ALWAYS" -> true
                 "NEVER" -> false
-                else -> LocalConfiguration.current.screenWidthDp < 500 &&
-                    LocalConfiguration.current.screenHeightDp < 500
+                else -> LocalConfiguration.current.screenWidthDp < advancedVars.compactMaxScreenDp &&
+                    LocalConfiguration.current.screenHeightDp < advancedVars.compactMaxScreenDp
             }
 
             // Speed gauge, wide arc dial (tap opens history)
@@ -879,8 +880,9 @@ fun DashboardScreen(
                         color = numberColor,
                         // Bigger than the dial's centre number and nudged up:
                         // with no ring the number owns the whole box, only the
-                        // unit label below needs clearance.
-                        fontSize = (dialW.value * 0.62f).sp,
+                        // unit label below needs clearance. Scale is an
+                        // Advanced registry knob.
+                        fontSize = (dialW.value * advancedVars.simpleSpeedoScalePct / 100f).sp,
                         fontWeight = FontWeight.Bold,
                         modifier = Modifier
                             .align(Alignment.Center)
@@ -2470,8 +2472,8 @@ fun DashboardScreen(
                         // empty, the lenses sit over the panel there and no
                         // API reports their area.
                         .padding(
-                            start = if (coverCameraCutout == "LEFT") 96.dp else 0.dp,
-                            end = if (coverCameraCutout == "RIGHT") 96.dp else 0.dp
+                            start = if (coverCameraCutout == "LEFT") advancedVars.coverCutoutInsetDp.dp else 0.dp,
+                            end = if (coverCameraCutout == "RIGHT") advancedVars.coverCutoutInsetDp.dp else 0.dp
                         )
                 ) { page ->
                     if (page == 0) {

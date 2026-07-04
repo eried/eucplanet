@@ -254,10 +254,17 @@ class RouteBuilderViewModel @Inject constructor(
         .map { it.imperialUnits }
         .stateIn(viewModelScope, SharingStarted.Eagerly, false)
 
-    /** Landscape sidebar side for the stops panel: "LEFT" or "RIGHT". */
+    /** Landscape sidebar side for the stops panel: "DEFAULT", "LEFT" or "RIGHT". */
     val navStopsSide: StateFlow<String> = settingsRepository.settings
         .map { it.navStopsSide }
         .stateIn(viewModelScope, SharingStarted.Eagerly, "RIGHT")
+
+    /** Advanced registry knobs (sidebar width and minimum screen width). */
+    val advanced: StateFlow<com.eried.eucplanet.data.model.AdvancedSettings> =
+        settingsRepository.settings
+            .map { it.advanced }
+            .stateIn(viewModelScope, SharingStarted.Eagerly,
+                com.eried.eucplanet.data.model.AdvancedSettings())
 
     private var routeJob: Job? = null
     private var searchJob: Job? = null
