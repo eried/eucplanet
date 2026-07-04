@@ -876,15 +876,19 @@ private fun InfoTabs(state: ChargingUiState) {
                             append("%+.2f %%/min".format(state.ratePctPerMin))
                         }
                         StatRow(stringResource(R.string.charging_stat_rate), rateText)
-                        // Energy integrated this session, sign matches V*I (charging +,
-                        // discharging −). Only shown when the wheel reports a real
-                        // current -- on V14-class wheels (~0 A while charging) we'd
-                        // accumulate ~0 Wh which would be misleading.
-                        if (state.hasRealCurrent) {
-                            val wh = state.energyWh
-                            val energyText = if (kotlin.math.abs(wh) >= 1000f) "%+.2f kWh".format(wh / 1000f)
-                                              else "%+.0f Wh".format(wh)
-                            StatRow(stringResource(R.string.charging_stat_energy), energyText)
+                        // Energy split by direction: what the ride Used (real
+                        // current on the discharge, so it shows even on a V14 whose
+                        // charge current reads ~0 A) and what the charge has put
+                        // back. Each appears only once a meaningful amount has been
+                        // integrated, so a plug-in with no prior ride shows neither.
+                        val fmtWh = { v: Float ->
+                            if (v >= 1000f) "%.2f kWh".format(v / 1000f) else "%.0f Wh".format(v)
+                        }
+                        if (state.energyUsedWh >= 1f) {
+                            StatRow(stringResource(R.string.charging_stat_used), fmtWh(state.energyUsedWh))
+                        }
+                        if (state.energyChargedWh >= 1f) {
+                            StatRow(stringResource(R.string.charging_stat_charged), fmtWh(state.energyChargedWh))
                         }
                         StatRow(stringResource(R.string.charging_stat_voltage), "%.1f V".format(state.voltage))
                     }

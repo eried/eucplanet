@@ -1854,5 +1854,7 @@
     <string name="charging_stat_power">Power</string>
     <string name="charging_stat_current">Current</string>
     <string name="charging_stat_energy">Energy</string>
+    <string name="charging_stat_used">Used</string>
+    <string name="charging_stat_charged">Charged</string>
     <string name="charging_chart_empty">Collecting data</string>
 </resources>

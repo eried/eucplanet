@@ -43,6 +43,10 @@ data class ChargingUiState(
     val ratePctPerMin: Float = 0f,
     /** Signed Wh integrated this session (+ charging, − discharging). */
     val energyWh: Float = 0f,
+    /** Wh used while discharging this session (the ride loss). */
+    val energyUsedWh: Float = 0f,
+    /** Wh added while charging this session. */
+    val energyChargedWh: Float = 0f,
     val warmedUp: Boolean = false,
     val minutesToTarget: Float? = null,
     val minutesToFull: Float? = null,
@@ -163,6 +167,8 @@ class ChargingMonitorViewModel @Inject constructor(
             // balances cells, so any residual slope is noise, not charging).
             ratePctPerMin = if (status == ChargeStatus.Full) 0f else est.ratePctPerMin,
             energyWh = snap.sessionEnergyWh,
+            energyUsedWh = snap.sessionEnergyOutWh,
+            energyChargedWh = snap.sessionEnergyInWh,
             warmedUp = est.warmedUp,
             minutesToTarget = est.minutesToTarget,
             minutesToFull = est.minutesToFull,

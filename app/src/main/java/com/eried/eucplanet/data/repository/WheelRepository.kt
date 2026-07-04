@@ -69,6 +69,10 @@ data class ChargingSnapshot(
     val predictionHistory: List<PredictionSample> = emptyList(),
     /** Signed Wh integrated since session start (+ charging, − discharging). */
     val sessionEnergyWh: Float = 0f,
+    /** Wh added while charging this session (positive-power integration). */
+    val sessionEnergyInWh: Float = 0f,
+    /** Wh used while discharging this session (magnitude of the negative-power part). */
+    val sessionEnergyOutWh: Float = 0f,
 )
 
 data class FullMetricHistory(
@@ -245,6 +249,12 @@ class WheelRepository @Inject constructor(
     private var lastPredictionLogMs = 0L
     // Trapezoidal energy integral for the session (sign matches V*I).
     private var sessionEnergyWh = 0f
+    // Session energy split by direction so the Battery screen can show the ride
+    // loss and the charge gain separately (net = in - out). Sign-based on the
+    // instantaneous power, so a V14 (~0 A while charging) still accumulates a
+    // real "out" over the ride while its "in" stays ~0.
+    private var sessionEnergyInWh = 0f
+    private var sessionEnergyOutWh = 0f
     private var sessionLastEnergyMs = 0L
     private var sessionLastPowerW = 0f
     private val _chargingSnapshot = MutableStateFlow(ChargingSnapshot())
@@ -650,6 +660,8 @@ class WheelRepository @Inject constructor(
                 predictionHistory.clear()
                 lastPredictionLogMs = 0L
                 sessionEnergyWh = 0f
+                sessionEnergyInWh = 0f
+                sessionEnergyOutWh = 0f
                 sessionLastEnergyMs = data.timestamp
                 sessionLastPowerW = data.voltage * data.current
             }
@@ -660,7 +672,9 @@ class WheelRepository @Inject constructor(
             val nowPowerW = data.voltage * data.current
             val dtMs = (data.timestamp - sessionLastEnergyMs).coerceIn(0L, 5_000L)
             if (dtMs > 0L) {
-                sessionEnergyWh += ((sessionLastPowerW + nowPowerW) * 0.5f) * (dtMs / 3_600_000f)
+                val incWh = ((sessionLastPowerW + nowPowerW) * 0.5f) * (dtMs / 3_600_000f)
+                sessionEnergyWh += incWh
+                if (incWh >= 0f) sessionEnergyInWh += incWh else sessionEnergyOutWh -= incWh
             }
             sessionLastEnergyMs = data.timestamp
             sessionLastPowerW = nowPowerW
@@ -684,6 +698,8 @@ class WheelRepository @Inject constructor(
             predictionHistory.clear()
             lastPredictionLogMs = 0L
             sessionEnergyWh = 0f
+            sessionEnergyInWh = 0f
+            sessionEnergyOutWh = 0f
             sessionLastEnergyMs = 0L
             sessionLastPowerW = 0f
         }
@@ -719,6 +735,8 @@ class WheelRepository @Inject constructor(
             fullEtaMs = committedFullEtaMs,
             predictionHistory = predictionHistory.toList(),
             sessionEnergyWh = sessionEnergyWh,
+            sessionEnergyInWh = sessionEnergyInWh,
+            sessionEnergyOutWh = sessionEnergyOutWh,
         )
     }
 
