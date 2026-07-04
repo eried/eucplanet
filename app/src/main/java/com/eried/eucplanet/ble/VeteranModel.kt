@@ -45,6 +45,16 @@ enum class VeteranModel(
     // mVer 8: Oryx, 42-cell ~175 V pack
     ORYX(          "Veteran Oryx",         175, 130);
 
+    /**
+     * Series cell count per pack, derived from the pack's full voltage
+     * (~4.2 V/cell): Sherman/Abrams 100 V = 24S, the 134 V models = 32S,
+     * Lynx / Sherman L / NOSFET Apex+Aeon 151 V = 36S, Oryx 175 V = 42S.
+     * The BMS long-frame always carries 42 cell slots (0..41); only the Oryx
+     * fills them all, so shorter packs must cap the displayed cells to this or
+     * the empty tail renders as phantom red cells (the NOSFET Aeon 41-cell bug).
+     */
+    val seriesCells: Int get() = Math.round(nominalVoltage / 4.2f)
+
     companion object {
         fun fromReportedName(name: String): VeteranModel? {
             val n = name.lowercase()

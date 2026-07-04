@@ -300,9 +300,19 @@ class VeteranAdapter @Inject constructor() : WheelAdapter {
                 // reads.
                 val slice = VeteranParser.parseLongFrame(f.bytes)
                 if (slice != null) {
+                    // Cap cells to the model's real series count. The long-frame
+                    // always carries 42 slots (0..41); only the 42S Oryx fills
+                    // them, so a shorter pack (e.g. a 36S NOSFET Aeon / Lynx)
+                    // would otherwise render its empty tail as phantom red cells.
+                    val model = VeteranModel.fromMVer(VeteranParser.mVerOf(f.bytes)) ?: detectedModel
+                    val cells = slice.cellVoltages
+                    val start = slice.cellRangeStart
+                    val cappedCells = if (cells != null && start != null && model != null) {
+                        cells.take((model.seriesCells - start).coerceIn(0, cells.size))
+                    } else cells
                     out += DecodeResult.Bms(
                         packIndex = slice.packIndex,
-                        cellVoltages = slice.cellVoltages,
+                        cellVoltages = cappedCells,
                         cellRangeStart = slice.cellRangeStart,
                         bmsTempsC = slice.bmsTempsC,
                         packCurrent1A = slice.packCurrent1A,
