@@ -283,6 +283,10 @@ fun DashboardScreen(
     val dashboardCustomTilesJson by viewModel.dashboardCustomTiles.collectAsState()
     val dashboardActionOrderRaw by viewModel.dashboardActionOrder.collectAsState()
     val dashboardActionGroupsJson by viewModel.dashboardActionGroups.collectAsState()
+    // Flip-cover layout overrides (blank = inherit the main lists).
+    val coverMetricOrderRaw by viewModel.coverMetricOrder.collectAsState()
+    val coverActionOrderRaw by viewModel.coverActionOrder.collectAsState()
+    val coverAvoidCamera by viewModel.coverAvoidCamera.collectAsState()
     val dashboardCustomBleJson by viewModel.dashboardCustomBle.collectAsState()
     // Phone-battery and GPS feeds for the catalog metrics that aren't
     // sourced from WheelData. Both update lazily; the value pipeline
@@ -824,7 +828,7 @@ fun DashboardScreen(
                     else if (wideStats) 0.95f
                     else 0.85f
                 val ratio =
-                    if (tinyScreen) 1.05f
+                    if (tinyScreen) 1.2f
                     else if (landscape) 1.15f
                     else if (wideStats) 2.0f
                     else 1.05f
@@ -895,8 +899,10 @@ fun DashboardScreen(
                         .clickable { onNavigateToMetric("SPEED") }
                 )
                 // Car-dashboard status cluster, top-left: P (park) / D (drive).
+                // Hidden on tiny cover screens: next to the shrunken dial the
+                // fixed-size letters dominate, and the cover is glance-only.
                 val live = connectionState == ConnectionState.CONNECTED
-                Column(
+                if (!tinyScreen) Column(
                     modifier = Modifier
                         .align(Alignment.TopStart)
                         .coachmarkTarget(coachmark, TutorialTarget.PARK_DRIVE)
@@ -931,7 +937,10 @@ fun DashboardScreen(
                     else -> Icons.Default.GpsNotFixed
                 }
                 val externalLive = gpsExtra?.second == "EXTERNAL"
-                Column(
+                // Hidden on tiny cover screens: the short speedo box makes the
+                // GPS glyph collide with the camera glyph below it, and the
+                // cover is glance-only anyway.
+                if (!tinyScreen) Column(
                     modifier = Modifier
                         .align(Alignment.TopEnd)
                         .coachmarkTarget(coachmark, TutorialTarget.GPS_BUTTON)
@@ -1634,7 +1643,15 @@ fun DashboardScreen(
                             "CURRENT" -> LiveMetricTile(
                                 label = if (showWatts) wattsLabel else ampsLabel,
                                 value = centerOverride ?: currentText,
-                                accent = if (live && wheelData.current > 20) MaterialTheme.appColors.statusWarn else metricVoltageColor,
+                                // Negative current = charge or regen flowing in:
+                                // tint with the charging token so the direction
+                                // is readable at a glance. The value already
+                                // prints its sign; parsers report signed amps.
+                                accent = when {
+                                    live && wheelData.current < -0.2f -> MaterialTheme.appColors.chargingAccent
+                                    live && wheelData.current > 20 -> MaterialTheme.appColors.statusWarn
+                                    else -> metricVoltageColor
+                                },
                                 sparkData = history.current,
                                 sparkStyle = spec?.sparkline ?: SparklineStyle.AREA_BIPOLAR,
                                 sparklineEnabled = sparklineEnabled,
@@ -1945,8 +1962,15 @@ fun DashboardScreen(
             // catalog defaults (HORN / LIGHT / VOICE / SAFETY / LOCK /
             // RECORD) when blank — out-of-box layout stays byte-identical
             // to the old hardcoded 6-button arrangement.
-            val activeActionKeys = remember(dashboardActionOrderRaw) {
-                val parsed = dashboardActionOrderRaw.split(",").map { it.trim() }.filter { it.isNotEmpty() }
+            val activeActionKeys = remember(dashboardActionOrderRaw, coverActionOrderRaw, tinyScreen) {
+                // Cover screens use their own order when one is saved; blank
+                // inherits the main dashboard. Main-list keys pad the tail so
+                // a short cover list still fills all six slots.
+                val effectiveOrder =
+                    if (tinyScreen && coverActionOrderRaw.isNotBlank())
+                        coverActionOrderRaw + "," + dashboardActionOrderRaw
+                    else dashboardActionOrderRaw
+                val parsed = effectiveOrder.split(",").map { it.trim() }.filter { it.isNotEmpty() }
                 val defaults = listOf(
                     "HORN", "LIGHT_TOGGLE", "VOICE_ANNOUNCE",
                     "SAFETY_TOGGLE", "LOCK_TOGGLE", "RECORD_TOGGLE"
@@ -1960,8 +1984,15 @@ fun DashboardScreen(
 
             // Portrait: two rows of 3 (today's layout). Landscape: a single row
             // so the buttons sit in one line under the one-row metrics.
-            val buttonCols = if (tinyScreen) 6 else if (landscape) 2 else 3
-            val buttonRows = if (tinyScreen) 1 else if (landscape) 3 else 2
+            // Tiny + camera avoidance: 3 x 2 so the block can sit bottom-left
+            // with the lower-right corner (cover lenses) left empty. Plain
+            // tiny: all six in one row.
+            val buttonCols = if (tinyScreen && coverAvoidCamera) 3
+                else if (tinyScreen) 6
+                else if (landscape) 2 else 3
+            val buttonRows = if (tinyScreen && coverAvoidCamera) 2
+                else if (tinyScreen) 1
+                else if (landscape) 3 else 2
             for (rowIdx in 0 until buttonRows) {
                 Row(
                     modifier = Modifier
@@ -2343,12 +2374,72 @@ fun DashboardScreen(
             // stacked. Landscape: three side-by-side columns -- dial | metric
             // column (1 x N) | buttons (2 x 3), with the odo tucked under them.
             if (tinyScreen) {
-                // Cover screen: speedo takes all slack, one compact button row
-                // below, nothing else. Same layout in both orientations because
-                // the panel is near-square.
+                // Cover screen: speedo absorbs the slack, then a 2 x 3 micro
+                // metric grid (label + value only, no corner stats) and the six
+                // buttons. Same layout in both orientations because the panel
+                // is near-square. Composite / custom tile IDs are skipped: a
+                // micro cell can only render a plain catalog value.
                 speedoBlock(Modifier.fillMaxWidth().weight(1f, fill = true))
                 Spacer(Modifier.height(6.dp))
-                buttonsBlock()
+                val coverMetricKeys = remember(coverMetricOrderRaw, dashboardMetricOrderRaw) {
+                    val effective =
+                        if (coverMetricOrderRaw.isNotBlank())
+                            coverMetricOrderRaw + "," + dashboardMetricOrderRaw
+                        else dashboardMetricOrderRaw
+                    val parsed = effective.split(",").map { it.trim() }.filter { it.isNotEmpty() }
+                    val defaults = listOf("BATTERY", "TEMPERATURE", "VOLTAGE", "CURRENT", "LOAD", "TRIP")
+                    (parsed + defaults).distinct()
+                        .filter { !it.contains(":") && it != com.eried.eucplanet.ui.settings.EMPTY_SLOT_KEY }
+                        .take(6)
+                }
+                for (microRow in 0 until 2) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(6.dp)
+                    ) {
+                        for (microCol in 0 until 3) {
+                            val key = coverMetricKeys.getOrNull(microRow * 3 + microCol)
+                            if (key == null) {
+                                Box(modifier = Modifier.weight(1f))
+                                continue
+                            }
+                            val microAccent = when (key) {
+                                "BATTERY" -> battColor
+                                "TEMPERATURE" -> tempColor
+                                "VOLTAGE" -> metricVoltageColor
+                                "CURRENT" ->
+                                    if (live && wheelData.current < -0.2f) MaterialTheme.appColors.chargingAccent
+                                    else metricVoltageColor
+                                "LOAD" -> loadColor
+                                "TRIP" -> MaterialTheme.appColors.statusGood
+                                else -> MaterialTheme.appColors.tileLabel
+                            }
+                            MicroMetricTile(
+                                label = com.eried.eucplanet.ui.settings.metricChipLabel(key, short = true),
+                                value = displayValueFor(key),
+                                accent = microAccent,
+                                modifier = Modifier.weight(1f),
+                                onClick = {
+                                    if (key == "BATTERY") onNavigateToCharging()
+                                    else onNavigateToMetric(key)
+                                }
+                            )
+                        }
+                    }
+                    if (microRow == 0) Spacer(Modifier.height(6.dp))
+                }
+                Spacer(Modifier.height(6.dp))
+                if (coverAvoidCamera) {
+                    // Buttons pack bottom-left as 3 x 2; the lower-right corner
+                    // stays empty because the cover lenses sit over the panel
+                    // there (no API reports their area).
+                    Row(modifier = Modifier.fillMaxWidth()) {
+                        Column(modifier = Modifier.width(180.dp)) { buttonsBlock() }
+                        Spacer(Modifier.weight(1f))
+                    }
+                } else {
+                    buttonsBlock()
+                }
             } else if (landscape) {
                 Row(modifier = Modifier.fillMaxSize()) {
                     speedoBlock(Modifier.weight(0.40f).fillMaxHeight())
@@ -3771,6 +3862,39 @@ private fun ActionButton(
                     maxLines = 2, textAlign = TextAlign.Center, lineHeight = 13.sp)
             }
         }
+    }
+}
+
+/**
+ * Tiny label + value cell for the flip-cover dashboard: no corner stats, no
+ * sparkline, just the live value in the metric's accent. Tap opens the same
+ * destination as the full tile (Battery monitor / metric history).
+ */
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+private fun MicroMetricTile(
+    label: String,
+    value: String,
+    accent: Color,
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit = {}
+) {
+    Column(
+        modifier = modifier
+            .clip(RoundedCornerShape(10.dp))
+            .background(MaterialTheme.appColors.tileBackground)
+            .combinedClickable(onClick = onClick)
+            .padding(vertical = 5.dp, horizontal = 4.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(
+            label, fontSize = 9.sp, color = MaterialTheme.appColors.tileLabel,
+            maxLines = 1, textAlign = TextAlign.Center
+        )
+        Text(
+            value, fontSize = 14.sp, fontWeight = FontWeight.SemiBold,
+            color = accent, maxLines = 1
+        )
     }
 }
 

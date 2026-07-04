@@ -631,6 +631,12 @@
     <string name="setting_rotate_dashboard">Rotate dashboard</string>
     <string name="setting_rotate_navigator">Rotate navigator</string>
     <string name="setting_rotate_other">Rotate other screens</string>
+    <string name="dashboard_section_cover">Cover screen</string>
+    <string name="dashboard_cover_hint">Tiny outer screen on flip phones: 6 mini metrics and 6 buttons. Drag to reorder, separate from the main dashboard.</string>
+    <string name="setting_cover_avoid_camera">Avoid cover cameras</string>
+    <string name="dashboard_cover_metrics">Mini metrics</string>
+    <string name="dashboard_cover_actions">Buttons</string>
+    <string name="dashboard_cover_reset">Match main dashboard</string>
     <string name="back_button_action_ask">Ask</string>
     <string name="back_button_action_background">Background</string>
     <string name="back_button_action_stop">Stop all</string>

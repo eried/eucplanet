@@ -153,6 +153,9 @@ object SettingsJson {
         put("rotateDashboard", s.rotateDashboard)
         put("rotateNavigator", s.rotateNavigator)
         put("rotateOtherScreens", s.rotateOtherScreens)
+        put("coverMetricOrder", s.coverMetricOrder)
+        put("coverActionOrder", s.coverActionOrder)
+        put("coverAvoidCamera", s.coverAvoidCamera)
         put("volumeKeysEnabled", s.volumeKeysEnabled)
         put("volumeUpClick", s.volumeUpClick)
         put("volumeUpHold", s.volumeUpHold)
@@ -380,6 +383,9 @@ object SettingsJson {
         rotateDashboard = j.optBoolean("rotateDashboard", base.rotateDashboard),
         rotateNavigator = j.optBoolean("rotateNavigator", base.rotateNavigator),
         rotateOtherScreens = j.optBoolean("rotateOtherScreens", base.rotateOtherScreens),
+        coverMetricOrder = j.optString("coverMetricOrder", base.coverMetricOrder),
+        coverActionOrder = j.optString("coverActionOrder", base.coverActionOrder),
+        coverAvoidCamera = j.optBoolean("coverAvoidCamera", base.coverAvoidCamera),
         volumeKeysEnabled = j.optBoolean("volumeKeysEnabled", base.volumeKeysEnabled),
         volumeUpClick = j.optString("volumeUpClick", base.volumeUpClick),
         volumeUpHold = j.optString("volumeUpHold", base.volumeUpHold),

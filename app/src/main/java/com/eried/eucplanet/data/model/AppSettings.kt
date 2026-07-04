@@ -201,6 +201,14 @@ data class AppSettings(
     val rotateNavigator: Boolean = true,
     val rotateOtherScreens: Boolean = true,
 
+    // Flip-cover (tiny) dashboard. Blank order strings inherit the main
+    // dashboard lists; a saved value makes the cover layout independent.
+    // coverAvoidCamera keeps the lower-right corner empty because the cover
+    // lenses sit over the panel there and no API reports their area.
+    val coverMetricOrder: String = "",
+    val coverActionOrder: String = "",
+    val coverAvoidCamera: Boolean = false,
+
     // Volume keys (work while app is in foreground)
     val volumeKeysEnabled: Boolean = false,
     val volumeUpClick: String = "HORN",

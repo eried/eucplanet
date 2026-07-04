@@ -402,6 +402,19 @@ class DashboardViewModel @Inject constructor(
         .map { it.dashboardMetricOrder }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000),
             initialSettings.dashboardMetricOrder)
+    // Flip-cover layout overrides. Blank = inherit the main lists above.
+    val coverMetricOrder: StateFlow<String> = settingsRepository.settings
+        .map { it.coverMetricOrder }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000),
+            initialSettings.coverMetricOrder)
+    val coverActionOrder: StateFlow<String> = settingsRepository.settings
+        .map { it.coverActionOrder }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000),
+            initialSettings.coverActionOrder)
+    val coverAvoidCamera: StateFlow<Boolean> = settingsRepository.settings
+        .map { it.coverAvoidCamera }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000),
+            initialSettings.coverAvoidCamera)
     val dashboardMetricStats: StateFlow<String> = settingsRepository.settings
         .map { it.dashboardMetricStats }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000),
