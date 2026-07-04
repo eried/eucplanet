@@ -1979,12 +1979,15 @@ fun DashboardScreen(
 
             // Action buttons as their own block. Portrait: 2 rows of 3 under the
             // metrics. Landscape: a 2 x 3 grid forming the right-hand column.
-            val buttonsBlock: @Composable () -> Unit = {
-            // Fixed height on both phone and wide layouts so the rows always fit.
+            // heightOverride: landscape passes the shared row height so the
+            // three button rows fill the whole column; null keeps the fixed
+            // per-form-factor heights.
+            val buttonsBlock: @Composable (Int?) -> Unit = { actionHeightOverride ->
             val actionAspect: Float? = null
             // Tiny cover screens get short icon-only buttons (ActionButton hides
             // the label below 64 dp) so all six fit in a single row.
-            val actionHeight: Int? = if (tinyScreen) 52 else if (wideStats) 88 else 104
+            val actionHeight: Int? = actionHeightOverride
+                ?: if (tinyScreen) 52 else if (wideStats) 88 else 104
 
             // Read the rider's customized action order. Falls back to the
             // catalog defaults (HORN / LIGHT / VOICE / SAFETY / LOCK /
@@ -2413,12 +2416,13 @@ fun DashboardScreen(
                     else -> microDefaultAccent
                 }
             }
-            val microTileFor: @Composable (String, Modifier) -> Unit = { key, mod ->
+            val microTileFor: @Composable (String, Modifier, Boolean) -> Unit = { key, mod, tall ->
                 MicroMetricTile(
                     label = com.eried.eucplanet.ui.settings.metricChipLabel(key, short = true),
                     value = displayValueFor(key),
                     accent = microAccentFor(key),
                     modifier = mod,
+                    tall = tall,
                     onClick = {
                         if (key == "BATTERY") onNavigateToCharging()
                         else onNavigateToMetric(key)
@@ -2460,7 +2464,7 @@ fun DashboardScreen(
                         Column(
                             modifier = Modifier.fillMaxSize(),
                             verticalArrangement = Arrangement.Center
-                        ) { buttonsBlock() }
+                        ) { buttonsBlock(null) }
                     } else {
                         Column(
                             modifier = Modifier.fillMaxSize(),
@@ -2477,7 +2481,7 @@ fun DashboardScreen(
                                             Box(modifier = Modifier.weight(1f))
                                             continue
                                         }
-                                        microTileFor(key, Modifier.weight(1f))
+                                        microTileFor(key, Modifier.weight(1f), false)
                                     }
                                 }
                                 if (microRow == 0) Spacer(Modifier.height(6.dp))
@@ -2504,49 +2508,60 @@ fun DashboardScreen(
                     }
                 }
             } else if (landscape) {
-                Row(modifier = Modifier.fillMaxSize()) {
-                    // Left: the six metrics as a thin 2 x 3 grid of micro
-                    // tiles (label + value only), vertically centred.
-                    Column(
-                        modifier = Modifier
-                            .weight(0.28f)
-                            .fillMaxHeight()
-                            .verticalScroll(rememberScrollState()),
-                        verticalArrangement = Arrangement.Center
-                    ) {
-                        for (microRow in 0 until 3) {
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.spacedBy(6.dp)
-                            ) {
-                                for (microCol in 0 until 2) {
-                                    val key = plainMetricKeys.getOrNull(microRow * 2 + microCol)
-                                    if (key == null) {
-                                        Box(modifier = Modifier.weight(1f))
-                                        continue
+                // One shared row height so the metric cells and the buttons
+                // are the exact same size, all three rows fill the column
+                // height with no scrolling, and the odo line still fits under
+                // the buttons.
+                BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
+                    val rowGap = 8.dp
+                    val infoReserve = 34.dp
+                    val rowH = (maxHeight - infoReserve - rowGap * 2) / 3
+                    Row(modifier = Modifier.fillMaxSize()) {
+                        // Left: the six metrics as a 2 x 3 grid of
+                        // button-shaped cells.
+                        Column(
+                            modifier = Modifier.weight(0.28f).fillMaxHeight(),
+                            verticalArrangement = Arrangement.Center
+                        ) {
+                            for (microRow in 0 until 3) {
+                                Row(
+                                    modifier = Modifier.fillMaxWidth().height(rowH),
+                                    horizontalArrangement = Arrangement.spacedBy(rowGap)
+                                ) {
+                                    for (microCol in 0 until 2) {
+                                        val key = plainMetricKeys.getOrNull(microRow * 2 + microCol)
+                                        if (key == null) {
+                                            Box(modifier = Modifier.weight(1f))
+                                            continue
+                                        }
+                                        microTileFor(key, Modifier.weight(1f), true)
                                     }
-                                    microTileFor(key, Modifier.weight(1f))
                                 }
+                                if (microRow < 2) Spacer(Modifier.height(rowGap))
                             }
-                            if (microRow < 2) Spacer(Modifier.height(6.dp))
                         }
-                    }
-                    Spacer(Modifier.width(8.dp))
-                    // Middle: the dial.
-                    speedoBlock(Modifier.weight(0.44f).fillMaxHeight())
-                    Spacer(Modifier.width(8.dp))
-                    // Right: the six buttons (2 x 3) kept narrow, odo under.
-                    Column(
-                        modifier = Modifier
-                            .weight(0.28f)
-                            .fillMaxHeight()
-                            .verticalScroll(rememberScrollState()),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.Center
-                    ) {
-                        buttonsBlock()
-                        Spacer(Modifier.height(8.dp))
-                        infoBlock()
+                        // Identical gaps on both sides of the dial; the small
+                        // inner padding keeps the dial's corner glyphs off the
+                        // neighbouring columns.
+                        Spacer(Modifier.width(12.dp))
+                        speedoBlock(
+                            Modifier
+                                .weight(0.42f)
+                                .fillMaxHeight()
+                                .padding(horizontal = 6.dp)
+                        )
+                        Spacer(Modifier.width(12.dp))
+                        // Right: the six buttons (2 x 3) at the same row
+                        // height, odo tucked under.
+                        Column(
+                            modifier = Modifier.weight(0.28f).fillMaxHeight(),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.Center
+                        ) {
+                            buttonsBlock(rowH.value.toInt())
+                            Spacer(Modifier.height(6.dp))
+                            infoBlock()
+                        }
                     }
                 }
             } else {
@@ -2554,7 +2569,7 @@ fun DashboardScreen(
                 Spacer(Modifier.height(16.dp))
                 metricsBlock(null)
                 Spacer(Modifier.height(14.dp))
-                buttonsBlock()
+                buttonsBlock(null)
                 Spacer(Modifier.height(12.dp))
                 infoBlock()
             }
@@ -3946,9 +3961,11 @@ private fun ActionButton(
 }
 
 /**
- * Tiny label + value cell for the flip-cover dashboard: no corner stats, no
- * sparkline, just the live value in the metric's accent. Tap opens the same
- * destination as the full tile (Battery monitor / metric history).
+ * Label + value cell without corner stats or sparkline, the live value in the
+ * metric's accent. Tap opens the same destination as the full tile (Battery
+ * monitor / metric history). Two sizes: the flat compact-pager cell, and
+ * [tall], which copies the ActionButton silhouette (same corner radius and
+ * 104 dp height) so the landscape metric grid mirrors the button grid.
  */
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -3957,22 +3974,28 @@ private fun MicroMetricTile(
     value: String,
     accent: Color,
     modifier: Modifier = Modifier,
+    tall: Boolean = false,
     onClick: () -> Unit = {}
 ) {
     Column(
         modifier = modifier
-            .clip(RoundedCornerShape(10.dp))
+            .let { if (tall) it.fillMaxHeight() else it }
+            .clip(RoundedCornerShape(12.dp))
             .background(MaterialTheme.appColors.tileBackground)
             .combinedClickable(onClick = onClick)
-            .padding(vertical = 5.dp, horizontal = 4.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
+            .padding(vertical = if (tall) 8.dp else 5.dp, horizontal = 4.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = if (tall) Arrangement.Center else Arrangement.Top
     ) {
         Text(
-            label, fontSize = 9.sp, color = MaterialTheme.appColors.tileLabel,
+            label, fontSize = if (tall) 11.sp else 9.sp,
+            fontWeight = if (tall) FontWeight.Medium else FontWeight.Normal,
+            color = MaterialTheme.appColors.tileLabel,
             maxLines = 1, textAlign = TextAlign.Center
         )
+        if (tall) Spacer(Modifier.height(4.dp))
         Text(
-            value, fontSize = 14.sp, fontWeight = FontWeight.SemiBold,
+            value, fontSize = if (tall) 19.sp else 14.sp, fontWeight = FontWeight.SemiBold,
             color = accent, maxLines = 1
         )
     }
