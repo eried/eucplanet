@@ -641,7 +641,7 @@
     <string name="cover_cutout_left">Lower left</string>
     <string name="cover_cutout_right">Lower right</string>
     <string name="setting_simple_speedo">Simplified speedometer</string>
-    <string name="setting_simple_speedo_desc">Just the big speed number, no dial ring. Same warning colors.</string>
+    <string name="setting_simple_speedo_desc">Just the big speed number, no dial ring when in landscape.</string>
     <string name="setting_mirror_landscape">Buttons on the left</string>
     <string name="setting_block_upside_down">Prevent upside down rotation</string>
     <string name="setting_ignore_system_rotate_lock">Ignore system rotation lock</string>

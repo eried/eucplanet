@@ -462,7 +462,11 @@ internal fun CountryPickerDialog(onPick: (String) -> Unit, onDismiss: () -> Unit
                     colors = themedFieldColors(),
                 )
                 Spacer(Modifier.height(8.dp))
-                LazyColumn(modifier = Modifier.fillMaxWidth().heightIn(max = 340.dp)) {
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .heightIn(max = com.eried.eucplanet.ui.common.dialogContentMaxHeight(340))
+                ) {
                     items(filtered) { (code, name) ->
                         Row(
                             modifier = Modifier

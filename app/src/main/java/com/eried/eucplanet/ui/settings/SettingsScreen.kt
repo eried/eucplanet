@@ -1074,7 +1074,7 @@ private fun GeneralTab(
                 .height(IntrinsicSize.Max)
         ) {
             wheelNameOptions.forEachIndexed { index, (key, label) ->
-                SegmentedButton(
+                CompactSegmentedButton(
                     modifier = Modifier.fillMaxHeight(),
                     selected = key == settings.wheelNameDisplay,
                     onClick = { viewModel.updateWheelNameDisplay(key) },
@@ -1116,7 +1116,7 @@ private fun GeneralTab(
                 .height(IntrinsicSize.Max)
         ) {
             backOptions.forEachIndexed { index, (key, label) ->
-                SegmentedButton(
+                CompactSegmentedButton(
                     modifier = Modifier.fillMaxHeight(),
                     selected = key == settings.backButtonAction,
                     onClick = { viewModel.updateBackButtonAction(key) },
@@ -1274,8 +1274,9 @@ private fun SettingsVisibilityDialog(
                 Column(
                     modifier = Modifier
                         // Slightly taller than a whole number of rows so a partial
-                        // row peeks at the bottom, hinting the list scrolls.
-                        .heightIn(max = 474.dp)
+                        // row peeks at the bottom, hinting the list scrolls. Capped
+                        // to the screen so Save / Cancel stay visible on flip covers.
+                        .heightIn(max = com.eried.eucplanet.ui.common.dialogContentMaxHeight(474))
                         .verticalScroll(rememberScrollState())
                 ) {
                     ReorderableColumn(
@@ -1451,7 +1452,7 @@ private fun AdvancedTab(
                         .height(IntrinsicSize.Max)
                 ) {
                     options.forEachIndexed { index, (key, label) ->
-                        SegmentedButton(
+                        CompactSegmentedButton(
                             modifier = Modifier.fillMaxHeight(),
                             selected = key == selected,
                             onClick = { onPick(key) },
@@ -1577,7 +1578,7 @@ private fun AdvancedTab(
             text = {
                 Column(
                     modifier = Modifier
-                        .heightIn(max = 360.dp)
+                        .heightIn(max = com.eried.eucplanet.ui.common.dialogContentMaxHeight(360))
                         .verticalScroll(rememberScrollState())
                 ) {
                     Text(stringResource(R.string.adv_reset_confirm_msg))
@@ -3900,7 +3901,7 @@ private fun CompositeMetricSheet(
             SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
                 val options = CompositeLayout.values()
                 options.forEachIndexed { index, lay ->
-                    SegmentedButton(
+                    CompactSegmentedButton(
                         selected = layout == lay,
                         onClick = {
                             layout = lay
@@ -4649,7 +4650,7 @@ private fun CustomTileSheet(
             // text field above.
             SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
                 CustomTileAction.values().forEachIndexed { index, opt ->
-                    SegmentedButton(
+                    CompactSegmentedButton(
                         selected = action == opt,
                         onClick = {
                             action = opt
@@ -5773,7 +5774,7 @@ private fun UnitsSetting(
         )
         SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
             systemOptions.forEachIndexed { index, (value, label) ->
-                SegmentedButton(
+                CompactSegmentedButton(
                     selected = value == currentSystem,
                     onClick = {
                         when (value) {
@@ -6561,7 +6562,7 @@ private fun WatchTab(
                         .height(IntrinsicSize.Max)
                 ) {
                     updateRateOptions.forEachIndexed { index, (key, label) ->
-                        SegmentedButton(
+                        CompactSegmentedButton(
                             modifier = Modifier.fillMaxHeight(),
                             selected = key == settings.watchUpdateRate,
                             onClick = { viewModel.updateWatchUpdateRate(key) },
@@ -6612,7 +6613,7 @@ private fun WatchTab(
                     .height(IntrinsicSize.Max)
             ) {
                 loadOptions.forEachIndexed { index, (key, label) ->
-                    SegmentedButton(
+                    CompactSegmentedButton(
                         modifier = Modifier.fillMaxHeight(),
                         selected = key == settings.watchPwmDisplay,
                         onClick = { viewModel.updateWatchPwmDisplay(key) },
@@ -7978,6 +7979,34 @@ private fun SliderSetting(
     }
 }
 
+/**
+ * SegmentedButton with compact content: no leading checkmark, so selection
+ * reads from the themed fill alone and the label centres without the check
+ * hugging the chip border or padding ballooning around the text.
+ */
+@Composable
+private fun androidx.compose.material3.SingleChoiceSegmentedButtonRowScope.CompactSegmentedButton(
+    selected: Boolean,
+    onClick: () -> Unit,
+    shape: androidx.compose.ui.graphics.Shape,
+    colors: androidx.compose.material3.SegmentedButtonColors,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+    icon: @Composable () -> Unit = {},
+    label: @Composable () -> Unit
+) {
+    SegmentedButton(
+        selected = selected,
+        onClick = onClick,
+        shape = shape,
+        modifier = modifier,
+        enabled = enabled,
+        colors = colors,
+        icon = icon,
+        label = label
+    )
+}
+
 @Composable
 private fun SwitchSetting(
     label: String,
@@ -8813,7 +8842,7 @@ private fun SegmentedChoice(
                 .height(IntrinsicSize.Max)
         ) {
             options.forEachIndexed { index, (key, optLabel) ->
-                SegmentedButton(
+                CompactSegmentedButton(
                     modifier = Modifier.fillMaxHeight(),
                     selected = current == key,
                     onClick = { onChange(key) },
