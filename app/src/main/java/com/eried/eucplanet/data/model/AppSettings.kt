@@ -822,6 +822,12 @@ data class AppSettings(
     val hudBackoffMaxMs: Int get() = advanced.hudBackoffMaxMs
     val hudMdnsTimeoutMs: Int get() = advanced.hudMdnsTimeoutMs
     val hudDiscoverySprintMs: Int get() = advanced.hudDiscoverySprintMs
+    val hudUdpProbeTimeoutMs: Int get() = advanced.hudUdpProbeTimeoutMs
+    val hudUdpBeaconFreshnessMs: Int get() = advanced.hudUdpBeaconFreshnessMs
+    val hudUdpPollIntervalMs: Int get() = advanced.hudUdpPollIntervalMs
+    val hudManualHintDelayMs: Int get() = advanced.hudManualHintDelayMs
+    val hudDiscoveryTotalTimeoutMs: Int get() = advanced.hudDiscoveryTotalTimeoutMs
+    val hudMdnsServiceInfoTimeoutMs: Int get() = advanced.hudMdnsServiceInfoTimeoutMs
     val autoLightNoGpsRetryMs: Int get() = advanced.autoLightNoGpsRetryMs
     val autoToggleGraceMs: Int get() = advanced.autoToggleGraceMs
     val navMovingKmh: Int get() = advanced.navMovingKmh
@@ -889,6 +895,12 @@ data class AdvancedSettings(
     val hudBackoffMaxMs: Int = 5000,
     val hudMdnsTimeoutMs: Int = 6000,
     val hudDiscoverySprintMs: Int = 30000,
+    val hudUdpProbeTimeoutMs: Int = 8000,
+    val hudUdpBeaconFreshnessMs: Int = 10000,
+    val hudUdpPollIntervalMs: Int = 200,
+    val hudManualHintDelayMs: Int = 1500,
+    val hudDiscoveryTotalTimeoutMs: Int = 15000,
+    val hudMdnsServiceInfoTimeoutMs: Int = 1000,
     val autoLightNoGpsRetryMs: Int = 2000,
     val autoToggleGraceMs: Int = 4000,
     val navMovingKmh: Int = 4,

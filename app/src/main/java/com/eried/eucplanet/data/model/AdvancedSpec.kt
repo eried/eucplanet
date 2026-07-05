@@ -123,6 +123,18 @@ val ADVANCED_SPECS: List<AdvancedSpec> = listOf(
         500..30000, 500, get = { it.hudMdnsTimeoutMs }, set = { s, v -> s.copy(hudMdnsTimeoutMs = v) }),
     AdvancedSpec("hudDiscoverySprintMs", AdvGroup.HUD, R.string.adv_hud_discovery_sprint, R.string.adv_hud_discovery_sprint_desc,
         1000..120000, 1000, get = { it.hudDiscoverySprintMs }, set = { s, v -> s.copy(hudDiscoverySprintMs = v) }),
+    AdvancedSpec("hudDiscoveryTotalTimeoutMs", AdvGroup.HUD, R.string.adv_hud_discovery_total, R.string.adv_hud_discovery_total_desc,
+        5000..60000, 1000, get = { it.hudDiscoveryTotalTimeoutMs }, set = { s, v -> s.copy(hudDiscoveryTotalTimeoutMs = v) }),
+    AdvancedSpec("hudUdpProbeTimeoutMs", AdvGroup.HUD, R.string.adv_hud_udp_probe, R.string.adv_hud_udp_probe_desc,
+        3000..30000, 500, get = { it.hudUdpProbeTimeoutMs }, set = { s, v -> s.copy(hudUdpProbeTimeoutMs = v) }),
+    AdvancedSpec("hudUdpBeaconFreshnessMs", AdvGroup.HUD, R.string.adv_hud_udp_freshness, R.string.adv_hud_udp_freshness_desc,
+        3000..30000, 500, get = { it.hudUdpBeaconFreshnessMs }, set = { s, v -> s.copy(hudUdpBeaconFreshnessMs = v) }),
+    AdvancedSpec("hudUdpPollIntervalMs", AdvGroup.HUD, R.string.adv_hud_udp_poll, R.string.adv_hud_udp_poll_desc,
+        50..1000, 50, get = { it.hudUdpPollIntervalMs }, set = { s, v -> s.copy(hudUdpPollIntervalMs = v) }),
+    AdvancedSpec("hudManualHintDelayMs", AdvGroup.HUD, R.string.adv_hud_manual_grace, R.string.adv_hud_manual_grace_desc,
+        0..5000, 100, get = { it.hudManualHintDelayMs }, set = { s, v -> s.copy(hudManualHintDelayMs = v) }),
+    AdvancedSpec("hudMdnsServiceInfoTimeoutMs", AdvGroup.HUD, R.string.adv_hud_mdns_resolve, R.string.adv_hud_mdns_resolve_desc,
+        200..5000, 100, get = { it.hudMdnsServiceInfoTimeoutMs }, set = { s, v -> s.copy(hudMdnsServiceInfoTimeoutMs = v) }),
 
     // --- Auto-lights ---
     AdvancedSpec("autoLightNoGpsRetryMs", AdvGroup.AUTOLIGHTS, R.string.adv_autolight_no_gps_retry, R.string.adv_autolight_no_gps_retry_desc,

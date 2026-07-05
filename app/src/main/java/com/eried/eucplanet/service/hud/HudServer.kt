@@ -207,6 +207,12 @@ class HudServer @Inject constructor(
                 backoffMaxMs = s.hudBackoffMaxMs.toLong()
                 mdnsTimeoutMs = s.hudMdnsTimeoutMs.toLong()
                 discoverySprintMs = s.hudDiscoverySprintMs.toLong()
+                udpProbeTimeoutMs = s.hudUdpProbeTimeoutMs.toLong()
+                udpBeaconFreshnessMs = s.hudUdpBeaconFreshnessMs.toLong()
+                udpPollIntervalMs = s.hudUdpPollIntervalMs.toLong()
+                manualHintDelayMs = s.hudManualHintDelayMs.toLong()
+                discoveryTotalTimeoutMs = s.hudDiscoveryTotalTimeoutMs.toLong()
+                mdnsServiceInfoTimeoutMs = s.hudMdnsServiceInfoTimeoutMs.toLong()
                 val want = s.hudServerEnabled ||
                     com.eried.eucplanet.hud.protocol.HudDebug.read("debug.eucplanet.hud.force") == "true"
                 if (want != on) {
@@ -221,6 +227,12 @@ class HudServer @Inject constructor(
     @Volatile private var backoffMaxMs: Long = BACKOFF_MAX_MS
     @Volatile private var mdnsTimeoutMs: Long = MDNS_RESOLVE_TIMEOUT_MS
     @Volatile private var discoverySprintMs: Long = DISCOVERY_SPRINT_MS
+    @Volatile private var udpProbeTimeoutMs: Long = 8_000L
+    @Volatile private var udpBeaconFreshnessMs: Long = 10_000L
+    @Volatile private var udpPollIntervalMs: Long = 200L
+    @Volatile private var manualHintDelayMs: Long = 1_500L
+    @Volatile private var discoveryTotalTimeoutMs: Long = 15_000L
+    @Volatile private var mdnsServiceInfoTimeoutMs: Long = 1_000L
     @Volatile private var multicastLock: WifiManager.MulticastLock? = null
     /** High-performance WiFi lock acquired while the HUD link is enabled.
      *  Without this, the radio enters DTIM power-save once the screen is off
@@ -599,15 +611,15 @@ class HudServer @Inject constructor(
             // beacon shows up within ~200 ms instead of waiting for the
             // dial loop's next iteration. Bounded so we eventually give
             // up if the other channels are also losing.
-            val until = System.currentTimeMillis() + 8_000L
+            val until = System.currentTimeMillis() + udpProbeTimeoutMs
             while (System.currentTimeMillis() < until) {
                 val s = udpListener.latest.value
-                if (s != null && System.currentTimeMillis() - s.receivedAtMs < 10_000L) {
+                if (s != null && System.currentTimeMillis() - s.receivedAtMs < udpBeaconFreshnessMs) {
                     log("UDP beacon: ${s.ip}:${s.port}")
                     results.send("${s.ip}:${s.port}" to ConnectionSource.UDP_BEACON)
                     return@launch
                 }
-                kotlinx.coroutines.delay(200L)
+                kotlinx.coroutines.delay(udpPollIntervalMs)
             }
             log("UDP beacon: no broadcast received")
         }
@@ -638,14 +650,14 @@ class HudServer @Inject constructor(
             launch {
                 // Small grace period so a healthy UDP / mDNS hit wins the
                 // race before we fall back to a possibly-stale manual IP.
-                kotlinx.coroutines.delay(1_500L)
+                kotlinx.coroutines.delay(manualHintDelayMs)
                 log("Manual hint: $manualIp:$manualPort")
                 results.send("$manualIp:$manualPort" to ConnectionSource.MANUAL)
             }
         } else null
 
         val allJobs = listOfNotNull(udpJob, mdnsJob, probeJob, manualJob)
-        val winner = kotlinx.coroutines.withTimeoutOrNull(15_000L) {
+        val winner = kotlinx.coroutines.withTimeoutOrNull(discoveryTotalTimeoutMs) {
             results.receive()
         }
         allJobs.forEach { it.cancel() }
@@ -668,7 +680,7 @@ class HudServer @Inject constructor(
             val resolved = kotlinx.coroutines.CompletableDeferred<String?>()
             val listener = object : ServiceListener {
                 override fun serviceAdded(event: ServiceEvent) {
-                    md.requestServiceInfo(event.type, event.name, 1_000L)
+                    md.requestServiceInfo(event.type, event.name, mdnsServiceInfoTimeoutMs)
                 }
                 override fun serviceRemoved(event: ServiceEvent) {}
                 override fun serviceResolved(event: ServiceEvent) {
