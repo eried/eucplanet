@@ -414,6 +414,8 @@
     <string name="adv_trip_record_interval_desc">Affects how often a row is saved to the trip file while recording. Lower gives more detail. Danger: very low values make large files.</string>
     <string name="adv_pending_upload_interval">Trip upload retry</string>
     <string name="adv_pending_upload_interval_desc">Affects how often the app retries uploading trips left pending, e.g. after closing during a sync. 15 min is the Android minimum. Danger: too long delays a stranded upload.</string>
+    <string name="adv_trip_finalize_grace">Trip finalize grace</string>
+    <string name="adv_trip_finalize_grace_desc">Affects how long after you stop before a trip is finalized and synced. Danger: too low may cut a trip that only briefly paused.</string>
     <string name="adv_phone_gps_interval">Phone GPS update interval</string>
     <string name="adv_phone_gps_interval_desc">Affects how smooth the GPS track is and how fast navigation reacts. Lower updates more often. Danger: low values drain the battery faster.</string>
     <string name="adv_hud_report_interval">HUD report rate</string>
@@ -508,6 +510,9 @@
     <string name="adv_radar_min_frame_desc">Affects the smallest time between frames used for the closing-rate math. Danger: too low can over-react to jitter.</string>
     <string name="adv_group_charging">Charging ETA</string>
     <string name="adv_group_geometry">Screen geometry variables</string>
+    <string name="adv_group_controls">Wheel controls</string>
+    <string name="adv_lock_max_speed">Lock max speed</string>
+    <string name="adv_lock_max_speed_desc">Affects the speed above which locking the wheel is refused. Danger: too high lets a lock fire while still rolling.</string>
     <string name="adv_compact_max_screen">Compact screen limit</string>
     <string name="adv_compact_max_screen_desc">Screens with both sides under this switch to the compact dashboard when Compact dashboard is on Small screens.</string>
     <string name="adv_cover_cutout_inset">Camera cutout size</string>

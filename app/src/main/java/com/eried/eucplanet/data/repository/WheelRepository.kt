@@ -425,6 +425,14 @@ class WheelRepository @Inject constructor(
     @Volatile private var graphSampleIntervalMs: Long = HISTORY_SAMPLE_INTERVAL_MS
 
     /**
+     * How much rolling history to retain in the metric buffers, in ms. Follows
+     * the rider's dashboard rolling-window setting (up to 15 min) but never drops
+     * below [HISTORY_WINDOW_MS], so the detail charts keep a sane minimum. Fixes
+     * the buffer silently capping a 10 / 15-min window at 5 min.
+     */
+    @Volatile private var historyWindowMs: Long = HISTORY_WINDOW_MS
+
+    /**
      * Riders have lock-toggle bindings on Flic buttons, the watch buttons, the
      * volume keys, and the dashboard. A misfire while moving locks the wheel
      * mid-ride and causes an instant motor cutout, so every lock-direction
@@ -432,7 +440,7 @@ class WheelRepository @Inject constructor(
      * has speed = 0 by definition). 5 km/h covers the standstill / push-assist
      * range without false rejecting at IMU noise around zero.
      */
-    private val LOCK_MAX_SPEED_KMH = 5f
+    @Volatile private var lockMaxSpeedKmh = 5f
 
     private fun startCooldown(busyFlag: MutableStateFlow<Boolean>, durationMs: Long, setUntil: (Long) -> Unit) {
         val now = System.currentTimeMillis()
@@ -534,6 +542,11 @@ class WheelRepository @Inject constructor(
                 // re-collect the flow per cycle.
                 pollIntervalMs = s.wheelPollIntervalMs.toLong()
                 graphSampleIntervalMs = s.graphSampleIntervalMs.toLong()
+                // Retain at least the rider's dashboard rolling window (up to
+                // 15 min), floored at the 5-min default so detail charts don't
+                // shrink below it when the window is set small.
+                historyWindowMs = maxOf(s.dashboardRollingWindowSeconds * 1000L, HISTORY_WINDOW_MS)
+                lockMaxSpeedKmh = s.lockMaxSpeedKmh.toFloat()
                 // Push the rider's charging-ETA tuning into the live estimator; it
                 // reads these each estimate() so a change applies without losing the
                 // running session. Taper factors are stored x100.
@@ -1017,9 +1030,9 @@ class WheelRepository @Inject constructor(
         // Hard block the lock direction when the wheel is moving, any entry
         // path (Flic, watch, volume keys, dashboard) lands here. Unlock is
         // always allowed; if the wheel is already locked, speed is 0 anyway.
-        if (targetState && kotlin.math.abs(_wheelData.value.speed) >= LOCK_MAX_SPEED_KMH &&
+        if (targetState && kotlin.math.abs(_wheelData.value.speed) >= lockMaxSpeedKmh &&
             !cheatState.lockAtAnySpeed.value) {
-            Log.d(TAG, "lock blocked: speed=${_wheelData.value.speed} >= ${LOCK_MAX_SPEED_KMH}")
+            Log.d(TAG, "lock blocked: speed=${_wheelData.value.speed} >= $lockMaxSpeedKmh")
             return
         }
         _locked.value = targetState
@@ -1451,7 +1464,7 @@ class WheelRepository @Inject constructor(
                     // Drop anything older than the 5-min window from every
                     // buffer in one pass. List.removeAll touches each list
                     // once so this stays linear in buffer size.
-                    val cutoff = now - HISTORY_WINDOW_MS
+                    val cutoff = now - historyWindowMs
                     listOf(battHist, tempHist, voltHist, ampsHist, loadHist, speedHist)
                         .forEach { it.removeAll { s -> s.timestampMs < cutoff } }
                     extrasHist.values.forEach { it.removeAll { s -> s.timestampMs < cutoff } }

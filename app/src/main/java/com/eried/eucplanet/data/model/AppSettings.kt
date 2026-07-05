@@ -800,6 +800,8 @@ data class AppSettings(
     val graphSampleIntervalMs: Int get() = advanced.graphSampleIntervalMs
     val tripRecordIntervalMs: Int get() = advanced.tripRecordIntervalMs
     val pendingUploadIntervalMin: Int get() = advanced.pendingUploadIntervalMin
+    val tripFinalizeGraceMs: Int get() = advanced.tripFinalizeGraceMs
+    val lockMaxSpeedKmh: Int get() = advanced.lockMaxSpeedKmh
     val phoneGpsIntervalMs: Int get() = advanced.phoneGpsIntervalMs
     val hudReportIntervalMs: Int get() = advanced.hudReportIntervalMs
     val garminReportIntervalMs: Int get() = advanced.garminReportIntervalMs
@@ -876,6 +878,10 @@ data class AdvancedSettings(
     // Background safety-net interval for retrying trips left pending (e.g. app
     // closed mid-sync). Minutes -- 15 is Android's WorkManager periodic floor.
     val pendingUploadIntervalMin: Int = 15,
+    // Grace after a recording stops before the trip is finalized and synced.
+    val tripFinalizeGraceMs: Int = 15000,
+    // Speed (km/h) above which a lock command is refused, for safety.
+    val lockMaxSpeedKmh: Int = 5,
     val phoneGpsIntervalMs: Int = 1000,
     val hudReportIntervalMs: Int = 200,
     val garminReportIntervalMs: Int = 200,

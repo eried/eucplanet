@@ -532,10 +532,12 @@ class TripRepository @Inject constructor(
             // folder. Eucstats (if also enabled) gets enqueued at the end
             // of the same grace, so a discarded trip never reaches the
             // online profile either.
-            Log.i(TAG, "Recording stopped, ${FINALIZE_GRACE_MS / 1000}s grace before sync")
+            val graceMs = runCatching { settingsRepository.get().tripFinalizeGraceMs.toLong() }
+                .getOrDefault(FINALIZE_GRACE_MS)
+            Log.i(TAG, "Recording stopped, ${graceMs / 1000}s grace before sync")
             pendingFinalizeJob = scope.launch {
                 try {
-                    kotlinx.coroutines.delay(FINALIZE_GRACE_MS)
+                    kotlinx.coroutines.delay(graceMs)
                     finalizePendingTrip()
                 } catch (_: kotlinx.coroutines.CancellationException) {
                     // Cancelled by deleteTrip on the pending trip, user discarded it.

@@ -34,6 +34,7 @@ enum class AdvGroup(
     RADAR_CLASS(R.string.adv_group_radar_class, warningRes = R.string.adv_radar_warning),
     CHARGING(R.string.adv_group_charging, warningRes = R.string.adv_charging_warning),
     GEOMETRY(R.string.adv_group_geometry),
+    CONTROLS(R.string.adv_group_controls),
 }
 
 data class AdvancedSpec(
@@ -71,6 +72,10 @@ val ADVANCED_SPECS: List<AdvancedSpec> = listOf(
         250..10000, 250, get = { it.tripRecordIntervalMs }, set = { s, v -> s.copy(tripRecordIntervalMs = v) }),
     AdvancedSpec("pendingUploadIntervalMin", AdvGroup.RATES, R.string.adv_pending_upload_interval, R.string.adv_pending_upload_interval_desc,
         15..360, 15, unit = "min", get = { it.pendingUploadIntervalMin }, set = { s, v -> s.copy(pendingUploadIntervalMin = v) }),
+    AdvancedSpec("tripFinalizeGraceMs", AdvGroup.RATES, R.string.adv_trip_finalize_grace, R.string.adv_trip_finalize_grace_desc,
+        5000..60000, 1000, get = { it.tripFinalizeGraceMs }, set = { s, v -> s.copy(tripFinalizeGraceMs = v) }),
+    AdvancedSpec("lockMaxSpeedKmh", AdvGroup.CONTROLS, R.string.adv_lock_max_speed, R.string.adv_lock_max_speed_desc,
+        0..20, 1, unit = "km/h", get = { it.lockMaxSpeedKmh }, set = { s, v -> s.copy(lockMaxSpeedKmh = v) }),
     AdvancedSpec("phoneGpsIntervalMs", AdvGroup.RATES, R.string.adv_phone_gps_interval, R.string.adv_phone_gps_interval_desc,
         250..10000, 250, get = { it.phoneGpsIntervalMs }, set = { s, v -> s.copy(phoneGpsIntervalMs = v) }),
     AdvancedSpec("hudReportIntervalMs", AdvGroup.RATES, R.string.adv_hud_report_interval, R.string.adv_hud_report_interval_desc,
