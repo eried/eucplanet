@@ -855,6 +855,13 @@ private fun InfoTabs(state: ChargingUiState) {
                                 }
                             }
                         }
+                        // The dashed prediction line runs to the current 100% ETA
+                        // (matching the 100% dot); scrubbing along it reads the
+                        // projected % at that future minute, until 100% then stops.
+                        val predictionTarget = remember(state.predictionHistory) {
+                            state.predictionHistory.lastOrNull()?.fullEtaMs
+                                ?.let { com.eried.eucplanet.ui.dashboard.PredictionMarker(it, 100f) }
+                        }
                         ChargingChart(
                             state.chargeHistory,
                             MaterialTheme.appColors.metricVoltage,
@@ -865,6 +872,7 @@ private fun InfoTabs(state: ChargingUiState) {
                             color2 = MaterialTheme.appColors.metricBattery,
                             unit2 = "V",
                             predictionMarkers = predictionMarkers.takeIf { it.isNotEmpty() },
+                            predictionTarget = predictionTarget,
                         ) { _, _ -> GraphScale.fixed(0f, 100f) }
                         Spacer(Modifier.height(8.dp))
                         StatRow(stringResource(R.string.charging_stat_added), "%+.1f%%".format(state.addedPercent))
@@ -960,6 +968,7 @@ private fun ChargingChart(
     color2: Color = color,
     unit2: String = "",
     predictionMarkers: List<com.eried.eucplanet.ui.dashboard.PredictionMarker>? = null,
+    predictionTarget: com.eried.eucplanet.ui.dashboard.PredictionMarker? = null,
     boundsFor: (Float, Float) -> GraphBounds,
 ) {
     if (samples.size >= 2) {
@@ -980,6 +989,7 @@ private fun ChargingChart(
             unit2 = unit2,
             timeAxisFormat = com.eried.eucplanet.ui.dashboard.TimeAxisFormat.Clock,
             predictionMarkers = predictionMarkers,
+            predictionTarget = predictionTarget,
             modifier = Modifier.fillMaxWidth().height(200.dp),
         )
     } else {
