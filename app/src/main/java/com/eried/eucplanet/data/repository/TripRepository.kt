@@ -114,10 +114,14 @@ class TripRepository @Inject constructor(
     private var pendingFinalizeJob: kotlinx.coroutines.Job? = null
 
     init {
-        // Recover trip CSVs in the trips dir that have no DB row (e.g. after a
-        // DB rebuild, or a CSV dropped in manually). Runs before the upload sweep
-        // so recovered trips are eligible for it too.
-        scope.launch { runCatching { adoptOrphanCsvs() } }
+        // First finalize any recording a previous session was killed mid-flight
+        // (an endTime=null row plus a CSV full of flushed rows); then adopt CSVs
+        // that have no DB row at all. Order matters: finalize drops empty killed
+        // rows AND their files, so adopt can't re-add them as duplicates.
+        scope.launch {
+            runCatching { finalizeUnfinishedTrips() }
+            runCatching { adoptOrphanCsvs() }
+        }
         // App-start recovery sweep. Both workers also pick up orphaned/failed
         // trips (folder: uploadStatus=3; eucstats: status 0 with UUID, 1, or 3),
         // so this catches anything left behind by a previous session that
@@ -305,22 +309,37 @@ class TripRepository @Inject constructor(
     }
 
     /** Header-driven extraction of (date, lat, lon, mileage) rows for metrics. */
-    private fun parseQuadsForMetrics(text: String): List<TripCsv.Quad> {
-        val lines = text.split('\n')
-        if (lines.size < 2) return emptyList()
-        val h = lines[0].split(',').map { it.trim().lowercase(Locale.US) }
-        fun idx(vararg names: String) =
-            names.firstNotNullOfOrNull { h.indexOf(it).takeIf { i -> i >= 0 } } ?: -1
-        val iDate = idx("date"); if (iDate < 0) return emptyList()
-        val iLat = idx("latitude"); val iLon = idx("longitude")
-        val iMile = idx("total mileage", "mileage", "distance")
-        return lines.asSequence().drop(1).mapNotNull { ln ->
-            val c = ln.split(',')
-            if (iDate >= c.size || c[iDate].isBlank()) return@mapNotNull null
-            fun d(i: Int) = if (i in 0 until c.size) c[i].trim().toDoubleOrNull() ?: 0.0 else 0.0
-            fun fl(i: Int) = if (i in 0 until c.size) c[i].trim().toFloatOrNull() ?: 0f else 0f
-            TripCsv.Quad(c[iDate].trim(), d(iLat), d(iLon), fl(iMile))
-        }.toList()
+    private fun parseQuadsForMetrics(text: String): List<TripCsv.Quad> = parseTripQuads(text)
+
+    /**
+     * Finalize any trip left with no end time by a previous session that was
+     * killed mid-recording (force-close / crash). The CSV on disk holds every
+     * flushed row, so we reconstruct end time / distance / sample count from it
+     * and UPDATE the existing row in place -- never insert, so a recovered trip
+     * can never duplicate. Runs before [adoptOrphanCsvs] so an empty one is
+     * dropped (row + file) and can't then be re-adopted. Idempotent: once an
+     * end time is set the row no longer matches [TripDao.getUnfinished].
+     */
+    suspend fun finalizeUnfinishedTrips() {
+        for (trip in tripDao.getUnfinished()) {
+            // Never touch the live recording (none at cold start, but guard).
+            if (trip.id == _currentTripId.value) continue
+            val file = getTripFile(trip)
+            val text = if (file.exists()) runCatching { file.readText() }.getOrNull() else null
+            val rows = text?.let { (it.count { c -> c == '\n' } - 1).coerceAtLeast(0) } ?: 0
+            val metrics = text?.let { TripCsv.metricsFrom(parseTripQuads(it)) }
+            val finalized = finalizedTripOrNull(trip, metrics, rows)
+            if (finalized != null) {
+                tripDao.update(finalized)
+                Log.i(TAG, "Finalized killed recording ${trip.fileName} ($rows rows, ${finalized.distanceKm} km)")
+            } else {
+                // Nothing usable was captured before the kill: drop the zombie row
+                // and its empty file so it doesn't linger as a 0 km trip.
+                tripDao.delete(trip)
+                runCatching { if (file.exists()) file.delete() }
+                Log.i(TAG, "Dropped empty killed recording ${trip.fileName}")
+            }
+        }
     }
 
     // Wall-clock of the last failed recording start (e.g. an unwritable trips
@@ -688,3 +707,43 @@ fun mergeFinalizeStatuses(trip: TripRecord, willSync: Boolean, willEucstats: Boo
         uploadStatus = if (willSync) 1 else trip.uploadStatus,
         eucstatsStatus = if (willEucstats) 1 else trip.eucstatsStatus,
     )
+
+/**
+ * Header-driven extraction of (date, lat, lon, mileage) rows from a trip CSV.
+ * Top-level so the orphan-adopt and killed-recording finalize share it and it is
+ * unit-testable without Room / files.
+ */
+internal fun parseTripQuads(text: String): List<TripCsv.Quad> {
+    val lines = text.split('\n')
+    if (lines.size < 2) return emptyList()
+    val h = lines[0].split(',').map { it.trim().lowercase(Locale.US) }
+    fun idx(vararg names: String) =
+        names.firstNotNullOfOrNull { h.indexOf(it).takeIf { i -> i >= 0 } } ?: -1
+    val iDate = idx("date"); if (iDate < 0) return emptyList()
+    val iLat = idx("latitude"); val iLon = idx("longitude")
+    val iMile = idx("total mileage", "mileage", "distance")
+    return lines.asSequence().drop(1).mapNotNull { ln ->
+        val c = ln.split(',')
+        if (iDate >= c.size || c[iDate].isBlank()) return@mapNotNull null
+        fun d(i: Int) = if (i in 0 until c.size) c[i].trim().toDoubleOrNull() ?: 0.0 else 0.0
+        fun fl(i: Int) = if (i in 0 until c.size) c[i].trim().toFloatOrNull() ?: 0f else 0f
+        TripCsv.Quad(c[iDate].trim(), d(iLat), d(iLon), fl(iMile))
+    }.toList()
+}
+
+/**
+ * The finalized copy of a killed recording, reconstructed from its CSV metrics,
+ * or null when nothing usable was captured (empty / header-only / no valid rows)
+ * so the caller drops the zombie row. Always a copy of the SAME row (id /
+ * fileName / uuid preserved) -- the finalize path UPDATEs, never inserts, so
+ * recovery can never produce a duplicate. Pure, for unit tests.
+ */
+internal fun finalizedTripOrNull(trip: TripRecord, metrics: TripCsv.Metrics?, rows: Int): TripRecord? {
+    if (metrics == null || !metrics.valid || rows <= 0) return null
+    return trip.copy(
+        startTime = metrics.startMs,
+        endTime = metrics.endMs,
+        distanceKm = metrics.distanceKm,
+        sampleCount = rows,
+    )
+}

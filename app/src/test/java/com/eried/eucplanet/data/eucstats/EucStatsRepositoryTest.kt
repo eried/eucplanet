@@ -127,6 +127,7 @@ class FakeTripDao : TripDao {
     override suspend fun getPendingUploads(): List<TripRecord> =
         trips.filter { it.endTime != null && it.uploadStatus in listOf(1, 3) }
     override suspend fun getById(id: Long): TripRecord? = trips.firstOrNull { it.id == id }
+    override suspend fun getUnfinished(): List<TripRecord> = trips.filter { it.endTime == null }
     override suspend fun findByFileName(name: String): TripRecord? =
         trips.firstOrNull { it.fileName == name }
     override suspend fun allFileNames(): List<String> = trips.map { it.fileName }
