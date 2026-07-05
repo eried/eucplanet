@@ -1742,6 +1742,9 @@
     <string name="adv_group_radar_auto">Radar und Automatisierung</string>
     <string name="adv_group_radar_class">Radar-Klassifizierung</string>
     <string name="adv_group_rates">Daten- und Melderaten</string>
+    <string name="adv_group_controls">Wheel-Steuerung</string>
+    <string name="adv_lock_max_speed">Max. Sperrgeschwindigkeit</string>
+    <string name="adv_lock_max_speed_desc">Beeinflusst die Geschwindigkeit, oberhalb der das Sperren des Wheels verweigert wird. Achtung: zu hoch lässt eine Sperre auslösen, während du noch rollst.</string>
     <string name="adv_hud_backoff_max">Reconnect-Wartezeit (max.)</string>
     <string name="adv_hud_backoff_max_desc">Beeinflusst die längste Wartezeit zwischen HUD-Reconnect-Versuchen. Achtung: zu hoch erholt sich langsam.</string>
     <string name="adv_hud_backoff_min">Reconnect-Wartezeit (min.)</string>
@@ -1818,6 +1821,10 @@
     <string name="adv_timings_title">Timings</string>
     <string name="adv_trip_record_interval">Fahrt-Aufnahmeintervall</string>
     <string name="adv_trip_record_interval_desc">Beeinflusst, wie oft beim Aufnehmen eine Zeile in die Fahrtdatei gespeichert wird. Niedriger ergibt mehr Detail. Achtung: sehr niedrige Werte erzeugen große Dateien.</string>
+    <string name="adv_pending_upload_interval">Erneuter Fahrten-Upload</string>
+    <string name="adv_pending_upload_interval_desc">Beeinflusst, wie oft die App das Hochladen ausstehender Fahrten erneut versucht, z. B. nach dem Schließen während einer Synchronisierung. 15 min ist das Android-Minimum. Achtung: zu lang verzögert einen hängenden Upload.</string>
+    <string name="adv_trip_finalize_grace">Frist zum Abschließen der Fahrt</string>
+    <string name="adv_trip_finalize_grace_desc">Beeinflusst, wie lange nach dem Anhalten, bevor eine Fahrt abgeschlossen und synchronisiert wird. Achtung: zu niedrig kann eine Fahrt abschneiden, die nur kurz pausiert hat.</string>
     <string name="adv_wheel_poll_rate">Wheel-Abfragerate</string>
     <string name="adv_wheel_poll_rate_desc">Beeinflusst, wie frisch die Live-Daten sind und wie schnell Alarme reagieren. Niedriger fragt das Wheel öfter nach Daten. Achtung: sehr niedrige Werte können die Bluetooth-Verbindung überfluten und auf manchen Wheels die Daten blockieren.</string>
     <string name="alarm_beep_advanced">Erweitert</string>

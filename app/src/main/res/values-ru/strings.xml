@@ -1722,6 +1722,9 @@
     <string name="adv_group_radar_auto">Радар и автоматизация</string>
     <string name="adv_group_radar_class">Классификация радара</string>
     <string name="adv_group_rates">Частота данных и отчётов</string>
+    <string name="adv_group_controls">Управление колесом</string>
+    <string name="adv_lock_max_speed">Макс. скорость блокировки</string>
+    <string name="adv_lock_max_speed_desc">Влияет на скорость, выше которой блокировка колеса запрещается. Опасно: слишком большое позволяет блокировке сработать на ходу.</string>
     <string name="adv_hud_backoff_max">Задержка переподключения (макс.)</string>
     <string name="adv_hud_backoff_max_desc">Влияет на наибольшую паузу между попытками переподключения к HUD. Опасно: слишком большое медленно восстанавливается.</string>
     <string name="adv_hud_backoff_min">Задержка переподключения (мин.)</string>
@@ -1798,6 +1801,10 @@
     <string name="adv_timings_title">Тайминги</string>
     <string name="adv_trip_record_interval">Интервал записи поездки</string>
     <string name="adv_trip_record_interval_desc">Влияет на то, как часто строка сохраняется в файл поездки при записи. Меньше даёт больше деталей. Опасно: очень малые значения создают большие файлы.</string>
+    <string name="adv_pending_upload_interval">Повтор загрузки поездок</string>
+    <string name="adv_pending_upload_interval_desc">Влияет на то, как часто приложение повторяет отправку поездок, оставшихся в ожидании, например после закрытия во время синхронизации. 15 мин, это минимум Android. Опасно: слишком долго задерживает застрявшую отправку.</string>
+    <string name="adv_trip_finalize_grace">Отсрочка завершения поездки</string>
+    <string name="adv_trip_finalize_grace_desc">Влияет на то, как долго после остановки, прежде чем поездка будет завершена и синхронизирована. Опасно: слишком малое может обрезать поездку, которая лишь ненадолго остановилась.</string>
     <string name="adv_wheel_poll_rate">Частота опроса моноколеса</string>
     <string name="adv_wheel_poll_rate_desc">Влияет на свежесть живых данных и скорость реакции сигналов. Меньше запрашивает данные у моноколеса чаще. Опасно: очень малые значения могут перегрузить Bluetooth-канал и застопорить данные на некоторых моноколёсах.</string>
     <string name="alarm_beep_advanced">Дополнительно</string>

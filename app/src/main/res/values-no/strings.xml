@@ -1608,6 +1608,9 @@
     <string name="adv_group_radar_auto">Radar og automatisering</string>
     <string name="adv_group_radar_class">Radarklassifisering</string>
     <string name="adv_group_rates">Data- og rapporteringsrater</string>
+    <string name="adv_group_controls">Hjulstyring</string>
+    <string name="adv_lock_max_speed">Maks. låsehastighet</string>
+    <string name="adv_lock_max_speed_desc">Påvirker hastigheten som låsing av hjulet nektes over. Fare: for høyt lar en lås utløses mens du fortsatt ruller.</string>
     <string name="adv_hud_backoff_max">Gjenkoblingspause (maks)</string>
     <string name="adv_hud_backoff_max_desc">Påvirker den lengste ventetiden mellom HUD-gjenkoblingsforsøk. Fare: for høyt gjenoppretter tregt.</string>
     <string name="adv_hud_backoff_min">Gjenkoblingspause (min)</string>
@@ -1684,6 +1687,10 @@
     <string name="adv_timings_title">Tidsstyring</string>
     <string name="adv_trip_record_interval">Turopptaksintervall</string>
     <string name="adv_trip_record_interval_desc">Påvirker hvor ofte en rad lagres til turfilen under opptak. Lavere gir mer detalj. Fare: svært lave verdier lager store filer.</string>
+    <string name="adv_pending_upload_interval">Nytt forsøk på tur-opplasting</string>
+    <string name="adv_pending_upload_interval_desc">Påvirker hvor ofte appen prøver på nytt å laste opp turer som er igjen som ventende, f.eks. etter lukking under en synkronisering. 15 min er Android-minimumet. Fare: for lang tid forsinker en fastlåst opplasting.</string>
+    <string name="adv_trip_finalize_grace">Frist for å fullføre tur</string>
+    <string name="adv_trip_finalize_grace_desc">Påvirker hvor lenge etter at du stopper før en tur fullføres og synkroniseres. Fare: for lavt kan kutte en tur som bare tok en kort pause.</string>
     <string name="adv_wheel_poll_rate">Hjulets pollerate</string>
     <string name="adv_wheel_poll_rate_desc">Påvirker hvor ferske live-dataene er og hvor raskt alarmer reagerer. Lavere ber hjulet om data oftere. Fare: svært lave verdier kan oversvømme Bluetooth-linken og stoppe data på noen hjul.</string>
     <string name="alarm_beep_advanced">Avansert</string>

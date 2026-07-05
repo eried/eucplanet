@@ -1719,6 +1719,9 @@
     <string name="adv_group_radar_auto">레이더 및 자동화</string>
     <string name="adv_group_radar_class">레이더 분류</string>
     <string name="adv_group_rates">데이터 및 보고 속도</string>
+    <string name="adv_group_controls">휠 조작</string>
+    <string name="adv_lock_max_speed">잠금 최고 속도</string>
+    <string name="adv_lock_max_speed_desc">휠 잠금이 거부되는 속도에 영향을 줍니다. 주의: 너무 높으면 아직 주행 중에 잠금이 작동할 수 있습니다.</string>
     <string name="adv_hud_backoff_max">재연결 백오프 (최대)</string>
     <string name="adv_hud_backoff_max_desc">HUD 재연결 시도 사이의 최대 대기 시간을 결정합니다. 주의: 너무 높으면 복구가 느립니다.</string>
     <string name="adv_hud_backoff_min">재연결 백오프 (최소)</string>
@@ -1795,6 +1798,10 @@
     <string name="adv_timings_title">타이밍</string>
     <string name="adv_trip_record_interval">트립 녹화 간격</string>
     <string name="adv_trip_record_interval_desc">녹화 중 트립 파일에 행이 저장되는 빈도를 결정합니다. 낮을수록 더 상세합니다. 주의: 매우 낮은 값은 큰 파일을 만듭니다.</string>
+    <string name="adv_pending_upload_interval">트립 업로드 재시도</string>
+    <string name="adv_pending_upload_interval_desc">동기화 중 종료된 후 등으로 대기 상태로 남은 트립의 업로드를 앱이 얼마나 자주 다시 시도하는지에 영향을 줍니다. 15 min은 Android 최소값입니다. 주의: 너무 길면 멈춘 업로드가 지연됩니다.</string>
+    <string name="adv_trip_finalize_grace">트립 확정 유예</string>
+    <string name="adv_trip_finalize_grace_desc">정지한 후 트립이 확정되고 동기화되기까지의 시간에 영향을 줍니다. 주의: 너무 낮으면 잠시만 멈춘 트립을 끊을 수 있습니다.</string>
     <string name="adv_wheel_poll_rate">휠 폴링 속도</string>
     <string name="adv_wheel_poll_rate_desc">실시간 데이터의 신선도와 알람 반응 속도를 결정합니다. 낮을수록 휠에 더 자주 데이터를 요청합니다. 주의: 매우 낮은 값은 블루투스 링크에 과부하를 주고 일부 휠에서 데이터를 멈추게 할 수 있습니다.</string>
     <string name="alarm_beep_advanced">고급</string>

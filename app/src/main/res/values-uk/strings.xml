@@ -1719,6 +1719,9 @@
     <string name="adv_group_radar_auto">Радар і автоматизація</string>
     <string name="adv_group_radar_class">Класифікація радара</string>
     <string name="adv_group_rates">Частоти даних і звітів</string>
+    <string name="adv_group_controls">Керування колесом</string>
+    <string name="adv_lock_max_speed">Макс. швидкість блокування</string>
+    <string name="adv_lock_max_speed_desc">Впливає на швидкість, вище якої блокування колеса відхиляється. Небезпека: зависоке значення дозволяє блокуванню спрацювати на ходу.</string>
     <string name="adv_hud_backoff_max">Затримка перепідключення (макс)</string>
     <string name="adv_hud_backoff_max_desc">Впливає на найдовше очікування між спробами перепідключення HUD. Небезпека: забагато — повільне відновлення.</string>
     <string name="adv_hud_backoff_min">Затримка перепідключення (мін)</string>
@@ -1795,6 +1798,10 @@
     <string name="adv_timings_title">Тайминги</string>
     <string name="adv_trip_record_interval">Інтервал запису поїздки</string>
     <string name="adv_trip_record_interval_desc">Впливає на те, як часто рядок зберігається у файл поїздки під час запису. Менше — більше деталей. Небезпека: дуже малі значення створюють великі файли.</string>
+    <string name="adv_pending_upload_interval">Повтор вивантаження поїздок</string>
+    <string name="adv_pending_upload_interval_desc">Впливає на те, як часто застосунок повторює вивантаження поїздок, що залишилися в очікуванні, наприклад після закриття під час синхронізації. 15 хв, це мінімум Android. Небезпека: задовго затримує застрягле вивантаження.</string>
+    <string name="adv_trip_finalize_grace">Відстрочка завершення поїздки</string>
+    <string name="adv_trip_finalize_grace_desc">Впливає на те, як довго після зупинки, перш ніж поїздка буде завершена та синхронізована. Небезпека: замале значення може обрізати поїздку, яка лише ненадовго зупинилася.</string>
     <string name="adv_wheel_poll_rate">Частота опитування моноколеса</string>
     <string name="adv_wheel_poll_rate_desc">Впливає на свіжість живих даних і швидкість реакції сигналів. Менше — частіше запитує дані в моноколеса. Небезпека: дуже малі значення можуть перевантажити зв\'язок Bluetooth і застопорити дані на деяких моноколесах.</string>
     <string name="alarm_beep_advanced">Розширені</string>

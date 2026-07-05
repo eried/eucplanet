@@ -1720,6 +1720,9 @@
     <string name="adv_group_radar_auto">Radar i automatyzacja</string>
     <string name="adv_group_radar_class">Klasyfikacja radaru</string>
     <string name="adv_group_rates">Częstotliwości danych i raportów</string>
+    <string name="adv_group_controls">Sterowanie kołem</string>
+    <string name="adv_lock_max_speed">Maks. prędkość blokady</string>
+    <string name="adv_lock_max_speed_desc">Wpływa na prędkość, powyżej której blokada koła jest odrzucana. Uwaga: zbyt duża wartość pozwala blokadzie zadziałać, gdy wciąż jedziesz.</string>
     <string name="adv_hud_backoff_max">Odczekanie ponownego łączenia (maks.)</string>
     <string name="adv_hud_backoff_max_desc">Wpływa na najdłuższe oczekiwanie między próbami ponownego połączenia z HUD. Uwaga: zbyt duża wartość wolno przywraca połączenie.</string>
     <string name="adv_hud_backoff_min">Odczekanie ponownego łączenia (min.)</string>
@@ -1796,6 +1799,10 @@
     <string name="adv_timings_title">Czasy</string>
     <string name="adv_trip_record_interval">Interwał nagrywania trasy</string>
     <string name="adv_trip_record_interval_desc">Wpływa na to, jak często wiersz jest zapisywany do pliku trasy podczas nagrywania. Niższa daje więcej szczegółów. Uwaga: bardzo niskie wartości tworzą duże pliki.</string>
+    <string name="adv_pending_upload_interval">Ponowne wysyłanie tras</string>
+    <string name="adv_pending_upload_interval_desc">Wpływa na to, jak często aplikacja ponawia wysyłanie tras pozostawionych w toku, np. po zamknięciu podczas synchronizacji. 15 min to minimum Androida. Uwaga: zbyt długo opóźnia zablokowane wysyłanie.</string>
+    <string name="adv_trip_finalize_grace">Zwłoka finalizacji trasy</string>
+    <string name="adv_trip_finalize_grace_desc">Wpływa na to, jak długo po zatrzymaniu, zanim trasa zostanie sfinalizowana i zsynchronizowana. Uwaga: zbyt mała wartość może uciąć trasę, która tylko na chwilę się zatrzymała.</string>
     <string name="adv_wheel_poll_rate">Częstotliwość odpytywania koła</string>
     <string name="adv_wheel_poll_rate_desc">Wpływa na to, jak świeże są dane na żywo i jak szybko reagują alarmy. Niższa częściej odpytuje koło o dane. Uwaga: bardzo niskie wartości mogą zalać łącze Bluetooth i zablokować dane w niektórych kołach.</string>
     <string name="alarm_beep_advanced">Zaawansowane</string>

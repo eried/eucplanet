@@ -1627,6 +1627,9 @@
     <string name="adv_group_radar_auto">Radar e automazione</string>
     <string name="adv_group_radar_class">Classificazione radar</string>
     <string name="adv_group_rates">Frequenze di dati e report</string>
+    <string name="adv_group_controls">Comandi della ruota</string>
+    <string name="adv_lock_max_speed">Velocità max di blocco</string>
+    <string name="adv_lock_max_speed_desc">Influisce sulla velocità oltre la quale bloccare la ruota viene rifiutato. Pericolo: troppo alto lascia scattare un blocco mentre sei ancora in movimento.</string>
     <string name="adv_hud_backoff_max">Attesa riconnessione (max)</string>
     <string name="adv_hud_backoff_max_desc">Influisce sull\'attesa massima tra i tentativi di riconnessione del HUD. Pericolo: troppo alta è lenta a recuperare.</string>
     <string name="adv_hud_backoff_min">Attesa riconnessione (min)</string>
@@ -1703,6 +1706,10 @@
     <string name="adv_timings_title">Tempistiche</string>
     <string name="adv_trip_record_interval">Intervallo registrazione viaggio</string>
     <string name="adv_trip_record_interval_desc">Influisce su quanto spesso una riga viene salvata nel file del viaggio durante la registrazione. Più basso dà più dettaglio. Pericolo: valori molto bassi creano file grandi.</string>
+    <string name="adv_pending_upload_interval">Nuovo tentativo di caricamento tragitti</string>
+    <string name="adv_pending_upload_interval_desc">Influisce sulla frequenza con cui l\'app ritenta di caricare i tragitti rimasti in sospeso, ad es. dopo una chiusura durante una sincronizzazione. 15 min è il minimo di Android. Pericolo: troppo lungo ritarda un caricamento bloccato.</string>
+    <string name="adv_trip_finalize_grace">Margine di finalizzazione viaggio</string>
+    <string name="adv_trip_finalize_grace_desc">Influisce su quanto tempo dopo l\'arresto prima che un viaggio venga finalizzato e sincronizzato. Pericolo: troppo basso può tagliare un viaggio che si è solo fermato un attimo.</string>
     <string name="adv_wheel_poll_rate">Frequenza interrogazione ruota</string>
     <string name="adv_wheel_poll_rate_desc">Influisce su quanto sono freschi i dati in tempo reale e quanto velocemente reagiscono gli allarmi. Più basso chiede i dati alla ruota più spesso. Pericolo: valori molto bassi possono intasare il collegamento Bluetooth e bloccare i dati su alcune ruote.</string>
     <string name="alarm_beep_advanced">Avanzate</string>

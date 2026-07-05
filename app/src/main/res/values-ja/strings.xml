@@ -1721,6 +1721,9 @@
     <string name="adv_group_radar_auto">レーダーとオートメーション</string>
     <string name="adv_group_radar_class">レーダー分類</string>
     <string name="adv_group_rates">データと報告レート</string>
+    <string name="adv_group_controls">ホイール操作</string>
+    <string name="adv_lock_max_speed">ロック最高速度</string>
+    <string name="adv_lock_max_speed_desc">ホイールのロックを拒否する速度に影響します。危険: 高すぎると走行中でもロックが作動します。</string>
     <string name="adv_hud_backoff_max">再接続バックオフ（最大）</string>
     <string name="adv_hud_backoff_max_desc">HUD 再接続の試行間隔の最大待機時間に影響します。危険: 高すぎると復帰が遅くなります。</string>
     <string name="adv_hud_backoff_min">再接続バックオフ（最小）</string>
@@ -1797,6 +1800,10 @@
     <string name="adv_timings_title">タイミング</string>
     <string name="adv_trip_record_interval">トリップ記録間隔</string>
     <string name="adv_trip_record_interval_desc">記録中にトリップファイルへ行が保存される頻度に影響します。低いほど詳細になります。危険: 非常に低い値はファイルが大きくなります。</string>
+    <string name="adv_pending_upload_interval">トリップ再アップロード</string>
+    <string name="adv_pending_upload_interval_desc">同期中に閉じた後などで保留のままになったトリップの再アップロードを、アプリがどのくらいの頻度で試みるかに影響します。15 min は Android の最小値です。危険: 長すぎると滞ったアップロードが遅れます。</string>
+    <string name="adv_trip_finalize_grace">トリップ確定の猶予</string>
+    <string name="adv_trip_finalize_grace_desc">停止してからトリップが確定して同期されるまでの時間に影響します。危険: 低すぎると短時間停止しただけのトリップを途中で切ることがあります。</string>
     <string name="adv_wheel_poll_rate">ホイールポーリングレート</string>
     <string name="adv_wheel_poll_rate_desc">ライブデータの新しさとアラームの反応速度に影響します。低いほどホイールに頻繁にデータを要求します。危険: 非常に低い値は Bluetooth リンクをあふれさせ、一部のホイールでデータが滞る場合があります。</string>
     <string name="alarm_beep_advanced">詳細</string>

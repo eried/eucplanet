@@ -1726,6 +1726,9 @@
     <string name="adv_group_radar_auto">Radar et automatisation</string>
     <string name="adv_group_radar_class">Classification radar</string>
     <string name="adv_group_rates">Cadences de données et de rapport</string>
+    <string name="adv_group_controls">Commandes de la roue</string>
+    <string name="adv_lock_max_speed">Vitesse max de verrouillage</string>
+    <string name="adv_lock_max_speed_desc">Détermine la vitesse au-dessus de laquelle le verrouillage de la roue est refusé. Danger : trop haut laisse un verrouillage se déclencher en roulant encore.</string>
     <string name="adv_hud_backoff_max">Délai de reconnexion (max)</string>
     <string name="adv_hud_backoff_max_desc">Détermine l\'attente maximale entre les tentatives de reconnexion HUD. Danger : trop élevé est lent à récupérer.</string>
     <string name="adv_hud_backoff_min">Délai de reconnexion (min)</string>
@@ -1802,6 +1805,10 @@
     <string name="adv_timings_title">Minutages</string>
     <string name="adv_trip_record_interval">Intervalle d\'enregistrement du trajet</string>
     <string name="adv_trip_record_interval_desc">Détermine la fréquence d\'enregistrement d\'une ligne dans le fichier de trajet pendant l\'enregistrement. Plus bas donne plus de détail. Danger : des valeurs très basses créent de gros fichiers.</string>
+    <string name="adv_pending_upload_interval">Nouvel essai d\'envoi des trajets</string>
+    <string name="adv_pending_upload_interval_desc">Détermine la fréquence à laquelle l\'app réessaie d\'envoyer les trajets restés en attente, par ex. après une fermeture pendant une synchronisation. 15 min est le minimum d\'Android. Danger : trop long retarde un envoi bloqué.</string>
+    <string name="adv_trip_finalize_grace">Délai de finalisation du trajet</string>
+    <string name="adv_trip_finalize_grace_desc">Détermine combien de temps après l\'arrêt avant qu\'un trajet soit finalisé et synchronisé. Danger : trop bas peut couper un trajet qui n\'a fait qu\'une brève pause.</string>
     <string name="adv_wheel_poll_rate">Cadence d\'interrogation de la roue</string>
     <string name="adv_wheel_poll_rate_desc">Détermine la fraîcheur des données en direct et la rapidité de réaction des alarmes. Plus bas interroge la roue plus souvent. Danger : des valeurs très basses peuvent saturer le lien Bluetooth et bloquer les données sur certaines roues.</string>
     <string name="alarm_beep_advanced">Avancé</string>

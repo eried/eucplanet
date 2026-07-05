@@ -1721,6 +1721,9 @@
     <string name="adv_group_radar_auto">雷達與自動化</string>
     <string name="adv_group_radar_class">雷達分類</string>
     <string name="adv_group_rates">資料與回報頻率</string>
+    <string name="adv_group_controls">車輪控制</string>
+    <string name="adv_lock_max_speed">鎖定最高速度</string>
+    <string name="adv_lock_max_speed_desc">影響高於該速度時拒絕鎖定車輪。危險：太高會讓鎖定在仍行駛時觸發。</string>
     <string name="adv_hud_backoff_max">重連退避（最大）</string>
     <string name="adv_hud_backoff_max_desc">影響 HUD 重連嘗試之間的最長等待時間。危險：太高會使恢復緩慢。</string>
     <string name="adv_hud_backoff_min">重連退避（最小）</string>
@@ -1797,6 +1800,10 @@
     <string name="adv_timings_title">時序</string>
     <string name="adv_trip_record_interval">行程錄製間隔</string>
     <string name="adv_trip_record_interval_desc">影響錄製時多久儲存一列到行程檔案。越低細節越多。危險：極低的數值會產生大檔案。</string>
+    <string name="adv_pending_upload_interval">行程上傳重試</string>
+    <string name="adv_pending_upload_interval_desc">影響應用程式重試上傳遺留待處理行程的頻率,例如在同步期間關閉之後。15 min 是 Android 的最小值。危險:太長會延遲卡住的上傳。</string>
+    <string name="adv_trip_finalize_grace">行程結束寬限</string>
+    <string name="adv_trip_finalize_grace_desc">影響你停車後到行程結束並同步之間的時間。危險：太低可能會切斷只是短暫暫停的行程。</string>
     <string name="adv_wheel_poll_rate">車輪輪詢頻率</string>
     <string name="adv_wheel_poll_rate_desc">影響即時資料的新鮮度與警報的反應速度。越低向車輪索取資料越頻繁。危險：極低的數值可能淹沒藍牙連結，並使某些車輪資料停滯。</string>
     <string name="alarm_beep_advanced">進階</string>

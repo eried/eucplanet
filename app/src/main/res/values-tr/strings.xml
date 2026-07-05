@@ -1719,6 +1719,9 @@
     <string name="adv_group_radar_auto">Radar ve otomasyon</string>
     <string name="adv_group_radar_class">Radar sınıflandırması</string>
     <string name="adv_group_rates">Veri ve bildirim hızları</string>
+    <string name="adv_group_controls">Teker denetimleri</string>
+    <string name="adv_lock_max_speed">Maks. kilitleme hızı</string>
+    <string name="adv_lock_max_speed_desc">Üzerinde tekeri kilitlemenin reddedildiği hızı etkiler. Dikkat: çok yüksek olursa hâlâ hareket hâlindeyken bir kilidin devreye girmesine izin verir.</string>
     <string name="adv_hud_backoff_max">Yeniden bağlanma beklemesi (maks)</string>
     <string name="adv_hud_backoff_max_desc">HUD yeniden bağlanma denemeleri arasındaki en uzun beklemeyi etkiler. Dikkat: çok yüksek olursa toparlanma yavaşlar.</string>
     <string name="adv_hud_backoff_min">Yeniden bağlanma beklemesi (min)</string>
@@ -1795,6 +1798,10 @@
     <string name="adv_timings_title">Zamanlamalar</string>
     <string name="adv_trip_record_interval">Sefer kayıt aralığı</string>
     <string name="adv_trip_record_interval_desc">Kayıt sırasında sefer dosyasına ne sıklıkta bir satır kaydedildiğini etkiler. Düşük değer daha fazla ayrıntı verir. Dikkat: çok düşük değerler büyük dosyalar oluşturur.</string>
+    <string name="adv_pending_upload_interval">Sefer yükleme yeniden denemesi</string>
+    <string name="adv_pending_upload_interval_desc">Uygulamanın beklemede kalan seferleri yüklemeyi ne sıklıkta yeniden denediğini etkiler, örn. bir eşitleme sırasında kapanmadan sonra. 15 dk, Android\'in alt sınırıdır. Dikkat: çok uzun olursa takılı bir yüklemeyi geciktirir.</string>
+    <string name="adv_trip_finalize_grace">Sefer tamamlama payı</string>
+    <string name="adv_trip_finalize_grace_desc">Durduktan sonra bir seferin tamamlanıp eşitlenmesinden önce ne kadar beklendiğini etkiler. Dikkat: çok düşük olursa yalnızca kısa süre duraklayan bir seferi kesebilir.</string>
     <string name="adv_wheel_poll_rate">Teker sorgu hızı</string>
     <string name="adv_wheel_poll_rate_desc">Canlı verinin ne kadar taze olduğunu ve alarmların ne kadar hızlı tepki verdiğini etkiler. Düşük değer tekerden daha sık veri ister. Dikkat: çok düşük değerler Bluetooth bağlantısını boğabilir ve bazı tekerlerde veriyi durdurabilir.</string>
     <string name="alarm_beep_advanced">Gelişmiş</string>

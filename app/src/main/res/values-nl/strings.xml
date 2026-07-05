@@ -1722,6 +1722,9 @@
     <string name="adv_group_radar_auto">Radar en automatisering</string>
     <string name="adv_group_radar_class">Radarclassificatie</string>
     <string name="adv_group_rates">Data- en rapportagesnelheden</string>
+    <string name="adv_group_controls">Wielbediening</string>
+    <string name="adv_lock_max_speed">Max. vergrendelsnelheid</string>
+    <string name="adv_lock_max_speed_desc">Bepaalt de snelheid waarboven het vergrendelen van het wiel wordt geweigerd. Let op: te hoog laat een vergrendeling activeren terwijl je nog rijdt.</string>
     <string name="adv_hud_backoff_max">Herverbind-backoff (max)</string>
     <string name="adv_hud_backoff_max_desc">Bepaalt de langste wachttijd tussen HUD-herverbindpogingen. Let op: te hoog herstelt traag.</string>
     <string name="adv_hud_backoff_min">Herverbind-backoff (min)</string>
@@ -1798,6 +1801,10 @@
     <string name="adv_timings_title">Timings</string>
     <string name="adv_trip_record_interval">Ritopname-interval</string>
     <string name="adv_trip_record_interval_desc">Bepaalt hoe vaak een rij naar het ritbestand wordt opgeslagen tijdens opnemen. Lager geeft meer detail. Let op: zeer lage waarden maken grote bestanden.</string>
+    <string name="adv_pending_upload_interval">Nieuwe poging rituploaden</string>
+    <string name="adv_pending_upload_interval_desc">Bepaalt hoe vaak de app opnieuw probeert openstaande ritten te uploaden, bijv. na afsluiten tijdens een synchronisatie. 15 min is het Android-minimum. Let op: te lang vertraagt een vastgelopen upload.</string>
+    <string name="adv_trip_finalize_grace">Respijt voor afronden rit</string>
+    <string name="adv_trip_finalize_grace_desc">Bepaalt hoe lang na het stoppen voordat een rit wordt afgerond en gesynchroniseerd. Let op: te laag kan een rit afkappen die alleen even pauzeerde.</string>
     <string name="adv_wheel_poll_rate">Pollsnelheid wiel</string>
     <string name="adv_wheel_poll_rate_desc">Bepaalt hoe vers de live data is en hoe snel alarmen reageren. Lager vraagt het wiel vaker om data. Let op: zeer lage waarden kunnen de Bluetooth-link overspoelen en data op sommige wielen blokkeren.</string>
     <string name="alarm_beep_advanced">Geavanceerd</string>

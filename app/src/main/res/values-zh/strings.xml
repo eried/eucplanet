@@ -1589,6 +1589,9 @@
     <string name="adv_group_radar_auto">雷达与自动化</string>
     <string name="adv_group_radar_class">雷达分类</string>
     <string name="adv_group_rates">数据与上报频率</string>
+    <string name="adv_group_controls">独轮车控制</string>
+    <string name="adv_lock_max_speed">锁定最高速度</string>
+    <string name="adv_lock_max_speed_desc">影响高于该速度时拒绝锁定独轮车。危险:过高会让锁定在仍在行驶时触发。</string>
     <string name="adv_hud_backoff_max">重连退避(最大)</string>
     <string name="adv_hud_backoff_max_desc">影响 HUD 重连尝试之间的最长等待时间。危险:过高会恢复缓慢。</string>
     <string name="adv_hud_backoff_min">重连退避(最小)</string>
@@ -1665,6 +1668,10 @@
     <string name="adv_timings_title">时序</string>
     <string name="adv_trip_record_interval">行程记录间隔</string>
     <string name="adv_trip_record_interval_desc">影响记录时保存一行到行程文件的频率。越低越详细。危险:过低会生成很大的文件。</string>
+    <string name="adv_pending_upload_interval">行程上传重试</string>
+    <string name="adv_pending_upload_interval_desc">影响应用重试上传遗留待处理行程的频率,例如在同步期间关闭之后。15 min 是 Android 的最小值。危险:过长会延迟卡住的上传。</string>
+    <string name="adv_trip_finalize_grace">行程结束宽限</string>
+    <string name="adv_trip_finalize_grace_desc">影响你停车后到行程结束并同步之间的时长。危险:过低可能会切断只是短暂暂停的行程。</string>
     <string name="adv_wheel_poll_rate">独轮车轮询频率</string>
     <string name="adv_wheel_poll_rate_desc">影响实时数据的新鲜度和报警的反应速度。越低越频繁地向独轮车请求数据。危险:过低可能使蓝牙连接拥塞,并导致某些独轮车数据停滞。</string>
     <string name="alarm_beep_advanced">高级</string>

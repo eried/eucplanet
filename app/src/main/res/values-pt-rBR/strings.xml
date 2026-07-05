@@ -1722,6 +1722,9 @@
     <string name="adv_group_radar_auto">Radar e automação</string>
     <string name="adv_group_radar_class">Classificação do radar</string>
     <string name="adv_group_rates">Taxas de dados e relatório</string>
+    <string name="adv_group_controls">Controles da roda</string>
+    <string name="adv_lock_max_speed">Velocidade máx. de travamento</string>
+    <string name="adv_lock_max_speed_desc">Afeta a velocidade acima da qual travar a roda é recusado. Perigo: alto demais deixa um travamento disparar ainda em movimento.</string>
     <string name="adv_hud_backoff_max">Espera de reconexão (máx)</string>
     <string name="adv_hud_backoff_max_desc">Afeta a maior espera entre tentativas de reconexão do HUD. Perigo: alta demais demora a recuperar.</string>
     <string name="adv_hud_backoff_min">Espera de reconexão (mín)</string>
@@ -1798,6 +1801,10 @@
     <string name="adv_timings_title">Tempos</string>
     <string name="adv_trip_record_interval">Intervalo de gravação de viagem</string>
     <string name="adv_trip_record_interval_desc">Afeta com que frequência uma linha é salva no arquivo de viagem durante a gravação. Menor dá mais detalhe. Perigo: valores muito baixos geram arquivos grandes.</string>
+    <string name="adv_pending_upload_interval">Nova tentativa de envio de viagens</string>
+    <string name="adv_pending_upload_interval_desc">Afeta com que frequência o app tenta de novo enviar as viagens que ficaram pendentes, p. ex. após fechar durante uma sincronização. 15 min é o mínimo do Android. Perigo: longo demais atrasa um envio travado.</string>
+    <string name="adv_trip_finalize_grace">Margem para finalizar viagem</string>
+    <string name="adv_trip_finalize_grace_desc">Afeta quanto tempo depois de você parar antes de uma viagem ser finalizada e sincronizada. Perigo: baixo demais pode cortar uma viagem que só pausou brevemente.</string>
     <string name="adv_wheel_poll_rate">Taxa de consulta da roda</string>
     <string name="adv_wheel_poll_rate_desc">Afeta o quão recentes são os dados ao vivo e a rapidez com que os alarmes reagem. Menor pede dados à roda com mais frequência. Perigo: valores muito baixos podem sobrecarregar o link Bluetooth e travar os dados em algumas rodas.</string>
     <string name="alarm_beep_advanced">Avançado</string>

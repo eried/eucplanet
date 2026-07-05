@@ -1722,6 +1722,9 @@
     <string name="adv_group_radar_auto">Radar och automatisering</string>
     <string name="adv_group_radar_class">Radarklassificering</string>
     <string name="adv_group_rates">Data- och rapportfrekvenser</string>
+    <string name="adv_group_controls">Hjulkontroller</string>
+    <string name="adv_lock_max_speed">Max låshastighet</string>
+    <string name="adv_lock_max_speed_desc">Påverkar hastigheten över vilken låsning av hjulet nekas. Fara: för högt låter ett lås utlösas medan du fortfarande rullar.</string>
     <string name="adv_hud_backoff_max">Återanslutningsfördröjning (max)</string>
     <string name="adv_hud_backoff_max_desc">Påverkar längsta väntetiden mellan HUD-återanslutningsförsök. Fara: för högt återhämtar sig långsamt.</string>
     <string name="adv_hud_backoff_min">Återanslutningsfördröjning (min)</string>
@@ -1798,6 +1801,10 @@
     <string name="adv_timings_title">Tidsstyrning</string>
     <string name="adv_trip_record_interval">Turinspelningsintervall</string>
     <string name="adv_trip_record_interval_desc">Påverkar hur ofta en rad sparas i turfilen under inspelning. Lägre ger mer detaljer. Fara: mycket låga värden skapar stora filer.</string>
+    <string name="adv_pending_upload_interval">Nytt försök att ladda upp turer</string>
+    <string name="adv_pending_upload_interval_desc">Påverkar hur ofta appen försöker igen att ladda upp turer som lämnats väntande, t.ex. efter stängning under en synkronisering. 15 min är Android-minimumet. Fara: för lång tid fördröjer en fastnad uppladdning.</string>
+    <string name="adv_trip_finalize_grace">Frist för att slutföra tur</string>
+    <string name="adv_trip_finalize_grace_desc">Påverkar hur länge efter att du stannar innan en tur slutförs och synkroniseras. Fara: för lågt kan kapa en tur som bara pausade kort.</string>
     <string name="adv_wheel_poll_rate">Hjulets avläsningsfrekvens</string>
     <string name="adv_wheel_poll_rate_desc">Påverkar hur färsk livedatan är och hur snabbt larm reagerar. Lägre frågar hjulet efter data oftare. Fara: mycket låga värden kan överbelasta Bluetooth-länken och stoppa data på vissa hjul.</string>
     <string name="alarm_beep_advanced">Avancerat</string>

@@ -1740,6 +1740,9 @@
     <string name="adv_group_radar_auto">Radar y automatización</string>
     <string name="adv_group_radar_class">Clasificación del radar</string>
     <string name="adv_group_rates">Tasas de datos y reporte</string>
+    <string name="adv_group_controls">Controles de la rueda</string>
+    <string name="adv_lock_max_speed">Velocidad máx. de bloqueo</string>
+    <string name="adv_lock_max_speed_desc">Afecta la velocidad por encima de la cual se rechaza bloquear la rueda. Peligro: muy alto deja que un bloqueo se active aún en movimiento.</string>
     <string name="adv_hud_backoff_max">Espera de reconexión (máx)</string>
     <string name="adv_hud_backoff_max_desc">Afecta la espera máxima entre intentos de reconexión del HUD. Peligro: muy alta tarda en recuperarse.</string>
     <string name="adv_hud_backoff_min">Espera de reconexión (mín)</string>
@@ -1816,6 +1819,10 @@
     <string name="adv_timings_title">Tiempos</string>
     <string name="adv_trip_record_interval">Intervalo de grabación de viaje</string>
     <string name="adv_trip_record_interval_desc">Afecta con qué frecuencia se guarda una fila en el archivo de viaje durante la grabación. Más bajo da más detalle. Peligro: valores muy bajos generan archivos grandes.</string>
+    <string name="adv_pending_upload_interval">Reintento de subida de trayectos</string>
+    <string name="adv_pending_upload_interval_desc">Afecta con qué frecuencia la app reintenta subir los trayectos que quedaron pendientes, p. ej. tras cerrarse durante una sincronización. 15 min es el mínimo de Android. Peligro: demasiado largo retrasa una subida atascada.</string>
+    <string name="adv_trip_finalize_grace">Margen para finalizar viaje</string>
+    <string name="adv_trip_finalize_grace_desc">Afecta cuánto tiempo tras detenerte antes de que un viaje se finalice y sincronice. Peligro: muy bajo puede cortar un viaje que solo se detuvo un momento.</string>
     <string name="adv_wheel_poll_rate">Frecuencia de sondeo de la rueda</string>
     <string name="adv_wheel_poll_rate_desc">Afecta qué tan frescos son los datos en vivo y qué tan rápido reaccionan las alarmas. Más bajo pide datos a la rueda más seguido. Peligro: valores muy bajos pueden saturar el enlace Bluetooth y detener los datos en algunas ruedas.</string>
     <string name="alarm_beep_advanced">Avanzado</string>
