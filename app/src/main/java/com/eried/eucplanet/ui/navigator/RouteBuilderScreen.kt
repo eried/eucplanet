@@ -19,6 +19,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -1122,6 +1123,9 @@ fun RouteBuilderScreen(
                 BottomPanel(
                     expanded = landscape || panelExpanded,
                     onToggle = { if (!landscape) panelExpanded = !panelExpanded },
+                    // Landscape sidebar is always open, so there's nothing to
+                    // collapse -- hide the chevron there.
+                    collapsible = !landscape,
                     travelMode = travelMode,
                     onModeChange = viewModel::setTravelMode,
                     solveFullPath = solveFullPath,
@@ -1161,17 +1165,24 @@ fun RouteBuilderScreen(
             if (landscape) {
                 val sidebarRight = stopsSide != "LEFT"
                 Column(
-                    modifier = Modifier.align(
-                        if (sidebarRight) Alignment.BottomStart else Alignment.BottomEnd
-                    )
+                    modifier = Modifier
+                        .align(if (sidebarRight) Alignment.BottomStart else Alignment.BottomEnd)
+                        // Clear the gesture bar, and give the screen-edge side a
+                        // margin so the FABs don't hug the border (their own end
+                        // padding only covers the opposite, map-facing side).
+                        .navigationBarsPadding()
+                        .padding(start = if (sidebarRight) 16.dp else 0.dp)
                 ) { overlayFabs() }
                 Column(
                     modifier = Modifier
                         .align(if (sidebarRight) Alignment.CenterEnd else Alignment.CenterStart)
                         .fillMaxHeight()
                         .width(advancedVars.navSidebarWidthDp.dp)
-                        .background(MaterialTheme.appColors.menuBackground)
+                        // Inset below the translucent top bar FIRST so the panel's
+                        // solid background starts under the search header, instead
+                        // of running up behind it to the very top of the screen.
                         .padding(top = padding.calculateTopPadding())
+                        .background(MaterialTheme.appColors.menuBackground)
                         .verticalScroll(rememberScrollState())
                 ) {
                     bottomPanelContent(Modifier.fillMaxWidth())
@@ -1524,6 +1535,7 @@ private fun waypointLabel(
 private fun BottomPanel(
     expanded: Boolean,
     onToggle: () -> Unit,
+    collapsible: Boolean = true,
     travelMode: TravelMode,
     onModeChange: (TravelMode) -> Unit,
     solveFullPath: Boolean,
@@ -1662,14 +1674,16 @@ private fun BottomPanel(
                         modifier = Modifier.widthIn(min = 150.dp)
                     ) { Text(label) }
                 }
-                IconButton(onClick = onToggle) {
-                    Icon(
-                        if (expanded) Icons.Default.KeyboardArrowDown
-                        else Icons.Default.KeyboardArrowUp,
-                        contentDescription = stringResource(
-                            if (expanded) R.string.nav_minimize else R.string.nav_expand
+                if (collapsible) {
+                    IconButton(onClick = onToggle) {
+                        Icon(
+                            if (expanded) Icons.Default.KeyboardArrowDown
+                            else Icons.Default.KeyboardArrowUp,
+                            contentDescription = stringResource(
+                                if (expanded) R.string.nav_minimize else R.string.nav_expand
+                            )
                         )
-                    )
+                    }
                 }
             }
 
