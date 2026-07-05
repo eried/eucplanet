@@ -48,9 +48,11 @@ class EucPlanetApp : Application(), Configuration.Provider {
         // The reference assignment alone is enough; HudServer's settings
         // collector takes over from there.
         hudServer.hashCode()
-        // Catch any trip left pending by a too-early close: the worker no-ops
-        // if there's no folder or nothing pending. Touching syncManager also
-        // runs its init{}, registering the periodic upload safety-net.
+        // Catch any trip left pending by a too-early close, and register the
+        // periodic upload safety-net. Both touch WorkManager, so they run here
+        // (after Hilt has injected workerFactory) rather than in SyncManager's
+        // init{}, which runs mid-injection and raced the lateinit.
         syncManager.reconcilePendingTripUploads()
+        syncManager.startPendingUploadWatcher()
     }
 }

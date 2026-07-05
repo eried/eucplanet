@@ -130,10 +130,17 @@ class SyncManager @Inject constructor(
                 .distinctUntilChanged()
                 .collect { _riderStoreId.value = readRiderIdFile() }
         }
-        // Register (and keep in sync with the setting) the periodic safety-net
-        // that retries trips left pending after an early close. WorkManager
-        // survives app death / reboot, so a stranded upload eventually lands
-        // even if the rider never reopens the app.
+    }
+
+    /**
+     * Start watching the pending-upload interval and (re)registering the periodic
+     * safety-net worker. Called from EucPlanetApp.onCreate -- NOT from init{} --
+     * because it touches WorkManager.getInstance, which pulls the app's
+     * workerFactory; during Hilt field injection (when init{} runs) that lateinit
+     * may not be set yet, which crashed cold starts. onCreate runs after all
+     * fields are injected, so it is safe there.
+     */
+    fun startPendingUploadWatcher() {
         scope.launch {
             settingsRepository.settings
                 .map { it.pendingUploadIntervalMin }
