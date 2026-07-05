@@ -33,6 +33,7 @@ enum class AdvGroup(
     NAV_BEHAVIOUR(R.string.adv_group_nav_behaviour),
     RADAR_CLASS(R.string.adv_group_radar_class, warningRes = R.string.adv_radar_warning),
     CHARGING(R.string.adv_group_charging, warningRes = R.string.adv_charging_warning),
+    GEOMETRY(R.string.adv_group_geometry),
 }
 
 data class AdvancedSpec(
@@ -172,4 +173,16 @@ val ADVANCED_SPECS: List<AdvancedSpec> = listOf(
         60..1440, 30, unit = "min", get = { it.chargingSanityCapMinutes }, set = { s, v -> s.copy(chargingSanityCapMinutes = v) }),
     AdvancedSpec("chargingMedianFilterSize", AdvGroup.CHARGING, R.string.adv_charging_median, R.string.adv_charging_median_desc,
         1..21, 2, unit = "", get = { it.chargingMedianFilterSize }, set = { s, v -> s.copy(chargingMedianFilterSize = v) }),
+
+    // --- Screen geometry variables ---
+    AdvancedSpec("compactMaxScreenDp", AdvGroup.GEOMETRY, R.string.adv_compact_max_screen, R.string.adv_compact_max_screen_desc,
+        300..800, 10, unit = "dp", get = { it.compactMaxScreenDp }, set = { s, v -> s.copy(compactMaxScreenDp = v) }),
+    AdvancedSpec("coverCutoutInsetDp", AdvGroup.GEOMETRY, R.string.adv_cover_cutout_inset, R.string.adv_cover_cutout_inset_desc,
+        48..200, 4, unit = "dp", get = { it.coverCutoutInsetDp }, set = { s, v -> s.copy(coverCutoutInsetDp = v) }),
+    AdvancedSpec("simpleSpeedoScalePct", AdvGroup.GEOMETRY, R.string.adv_simple_speedo_scale, R.string.adv_simple_speedo_scale_desc,
+        40..90, 2, unit = "%", get = { it.simpleSpeedoScalePct }, set = { s, v -> s.copy(simpleSpeedoScalePct = v) }),
+    AdvancedSpec("navSidebarWidthDp", AdvGroup.GEOMETRY, R.string.adv_nav_sidebar_width, R.string.adv_nav_sidebar_width_desc,
+        240..480, 10, unit = "dp", get = { it.navSidebarWidthDp }, set = { s, v -> s.copy(navSidebarWidthDp = v) }),
+    AdvancedSpec("navSidebarMinScreenDp", AdvGroup.GEOMETRY, R.string.adv_nav_sidebar_min, R.string.adv_nav_sidebar_min_desc,
+        400..900, 20, unit = "dp", get = { it.navSidebarMinScreenDp }, set = { s, v -> s.copy(navSidebarMinScreenDp = v) }),
 )

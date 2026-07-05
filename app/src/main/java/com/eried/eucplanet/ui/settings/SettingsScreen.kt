@@ -95,7 +95,9 @@ import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material.icons.filled.Widgets
 import androidx.compose.material.icons.filled.Wifi
 import androidx.compose.material.icons.filled.DisplaySettings
+import androidx.compose.material.icons.filled.DevicesFold
 import androidx.compose.material.icons.filled.DragHandle
+import androidx.compose.material.icons.filled.StayCurrentLandscape
 import androidx.compose.material.icons.filled.FiberManualRecord
 import androidx.compose.material.icons.filled.Build
 import androidx.compose.material.icons.filled.FlashlightOn
@@ -1072,7 +1074,7 @@ private fun GeneralTab(
                 .height(IntrinsicSize.Max)
         ) {
             wheelNameOptions.forEachIndexed { index, (key, label) ->
-                SegmentedButton(
+                CompactSegmentedButton(
                     modifier = Modifier.fillMaxHeight(),
                     selected = key == settings.wheelNameDisplay,
                     onClick = { viewModel.updateWheelNameDisplay(key) },
@@ -1114,7 +1116,7 @@ private fun GeneralTab(
                 .height(IntrinsicSize.Max)
         ) {
             backOptions.forEachIndexed { index, (key, label) ->
-                SegmentedButton(
+                CompactSegmentedButton(
                     modifier = Modifier.fillMaxHeight(),
                     selected = key == settings.backButtonAction,
                     onClick = { viewModel.updateBackButtonAction(key) },
@@ -1272,8 +1274,9 @@ private fun SettingsVisibilityDialog(
                 Column(
                     modifier = Modifier
                         // Slightly taller than a whole number of rows so a partial
-                        // row peeks at the bottom, hinting the list scrolls.
-                        .heightIn(max = 474.dp)
+                        // row peeks at the bottom, hinting the list scrolls. Capped
+                        // to the screen so Save / Cancel stay visible on flip covers.
+                        .heightIn(max = com.eried.eucplanet.ui.common.dialogContentMaxHeight(474))
                         .verticalScroll(rememberScrollState())
                 ) {
                     ReorderableColumn(
@@ -1403,6 +1406,149 @@ private fun AdvancedTab(
             }
         }
 
+        // Screen geometry: one collapsible card per screen (same pattern as
+        // the Timings groups below), plus the app-wide upside-down lockout.
+        AdvSectionTitle(stringResource(R.string.section_screen_geometry))
+        SwitchSetting(
+            stringResource(R.string.setting_block_upside_down),
+            settings.blockUpsideDown
+        ) { viewModel.updateBlockUpsideDown(it) }
+        SwitchSetting(
+            stringResource(R.string.setting_ignore_system_rotate_lock),
+            settings.ignoreSystemRotateLock
+        ) { viewModel.updateIgnoreSystemRotateLock(it) }
+
+        // Small muted surface badges shown after row labels, instead of noisy
+        // "(landscape)" / "(compact)" text suffixes.
+        val landscapeBadge: @Composable () -> Unit = {
+            Icon(
+                Icons.Default.StayCurrentLandscape, contentDescription = null,
+                tint = MaterialTheme.appColors.textSecondary,
+                modifier = Modifier.size(16.dp)
+            )
+        }
+        val compactBadge: @Composable () -> Unit = {
+            Icon(
+                Icons.Default.DevicesFold, contentDescription = null,
+                tint = MaterialTheme.appColors.textSecondary,
+                modifier = Modifier.size(16.dp)
+            )
+        }
+        val geoChoiceRow: @Composable (Int, (@Composable () -> Unit)?, List<Pair<String, String>>, String, (String) -> Unit) -> Unit =
+            { labelRes, badge, options, selected, onPick ->
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        stringResource(labelRes),
+                        style = MaterialTheme.typography.bodyLarge
+                    )
+                    if (badge != null) {
+                        Spacer(Modifier.width(6.dp))
+                        badge()
+                    }
+                }
+                SingleChoiceSegmentedButtonRow(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(IntrinsicSize.Max)
+                ) {
+                    options.forEachIndexed { index, (key, label) ->
+                        CompactSegmentedButton(
+                            modifier = Modifier.fillMaxHeight(),
+                            selected = key == selected,
+                            onClick = { onPick(key) },
+                            shape = SegmentedButtonDefaults.itemShape(index, options.size),
+                            colors = themedSegmentedColors(),
+                        ) {
+                            Text(
+                                label, textAlign = TextAlign.Center,
+                                maxLines = 2, overflow = TextOverflow.Ellipsis
+                            )
+                        }
+                    }
+                }
+            }
+
+        AdvancedCollapsable(
+            title = stringResource(R.string.geo_section_dashboard),
+            stateKey = "geo-dashboard"
+        ) {
+            SwitchSetting(
+                stringResource(R.string.setting_allow_rotation),
+                settings.rotateDashboard
+            ) { viewModel.updateRotateDashboard(it) }
+            SwitchSetting(
+                stringResource(R.string.setting_mirror_landscape),
+                settings.landscapeMirrored,
+                badge = landscapeBadge
+            ) { viewModel.updateLandscapeMirrored(it) }
+            // The speedo switches map onto the per-surface style KEYS
+            // (checked = NUMBER): when a third gauge style lands (PWM-primary
+            // etc.) these become choosers, the storage already supports it.
+            SwitchSetting(
+                stringResource(R.string.setting_simple_speedo),
+                settings.landscapeSpeedoStyle == "NUMBER",
+                badge = landscapeBadge
+            ) { viewModel.updateLandscapeSpeedoStyle(if (it) "NUMBER" else "DIAL") }
+            HintText(stringResource(R.string.setting_simple_speedo_desc), small = true)
+            geoChoiceRow(
+                R.string.setting_compact_dashboard, null,
+                listOf(
+                    "AUTO" to stringResource(R.string.compact_mode_auto),
+                    "ALWAYS" to stringResource(R.string.compact_mode_always),
+                    "NEVER" to stringResource(R.string.compact_mode_never)
+                ),
+                settings.compactModeWhen
+            ) { viewModel.updateCompactModeWhen(it) }
+            // These two only exist inside compact mode, so they hide when the
+            // rider turns compact off entirely.
+            if (settings.compactModeWhen != "NEVER") {
+                SwitchSetting(
+                    stringResource(R.string.setting_simple_speedo),
+                    settings.compactSpeedoStyle == "NUMBER",
+                    badge = compactBadge
+                ) { viewModel.updateCompactSpeedoStyle(if (it) "NUMBER" else "DIAL") }
+                geoChoiceRow(
+                    R.string.setting_cover_cutout, compactBadge,
+                    listOf(
+                        "OFF" to stringResource(R.string.cover_cutout_off),
+                        "LEFT" to stringResource(R.string.cover_cutout_left),
+                        "RIGHT" to stringResource(R.string.cover_cutout_right)
+                    ),
+                    settings.coverCameraCutout
+                ) { viewModel.updateCoverCameraCutout(it) }
+            }
+        }
+
+        AdvancedCollapsable(
+            title = stringResource(R.string.geo_section_navigator),
+            stateKey = "geo-navigator"
+        ) {
+            SwitchSetting(
+                stringResource(R.string.setting_allow_rotation),
+                settings.rotateNavigator
+            ) { viewModel.updateRotateNavigator(it) }
+            geoChoiceRow(
+                R.string.setting_nav_stops_side, landscapeBadge,
+                listOf(
+                    "DEFAULT" to stringResource(R.string.side_default),
+                    "LEFT" to stringResource(R.string.side_left),
+                    "RIGHT" to stringResource(R.string.side_right)
+                ),
+                settings.navStopsSide
+            ) { viewModel.updateNavStopsSide(it) }
+        }
+
+        AdvancedCollapsable(
+            title = stringResource(R.string.geo_section_other),
+            stateKey = "geo-other"
+        ) {
+            SwitchSetting(
+                stringResource(R.string.setting_allow_rotation),
+                settings.rotateOtherScreens
+            ) { viewModel.updateRotateOtherScreens(it) }
+            HintText(stringResource(R.string.geo_other_hint), small = true)
+        }
+
         // Timing knobs, under their own big title.
         AdvSectionTitle(stringResource(R.string.adv_timings_title))
         MetricInfoBox(stringResource(R.string.adv_rates_warning))
@@ -1435,7 +1581,7 @@ private fun AdvancedTab(
             text = {
                 Column(
                     modifier = Modifier
-                        .heightIn(max = 360.dp)
+                        .heightIn(max = com.eried.eucplanet.ui.common.dialogContentMaxHeight(360))
                         .verticalScroll(rememberScrollState())
                 ) {
                     Text(stringResource(R.string.adv_reset_confirm_msg))
@@ -1677,6 +1823,7 @@ private fun DashboardLayoutTab(
                 controller = dragController
             )
         }
+
     }
         // Floating drag preview rendered as a sibling of the Column inside
         // the editor's root Box. Stays in the same Compose hit-test tree as
@@ -3757,7 +3904,7 @@ private fun CompositeMetricSheet(
             SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
                 val options = CompositeLayout.values()
                 options.forEachIndexed { index, lay ->
-                    SegmentedButton(
+                    CompactSegmentedButton(
                         selected = layout == lay,
                         onClick = {
                             layout = lay
@@ -4506,7 +4653,7 @@ private fun CustomTileSheet(
             // text field above.
             SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
                 CustomTileAction.values().forEachIndexed { index, opt ->
-                    SegmentedButton(
+                    CompactSegmentedButton(
                         selected = action == opt,
                         onClick = {
                             action = opt
@@ -5630,7 +5777,7 @@ private fun UnitsSetting(
         )
         SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
             systemOptions.forEachIndexed { index, (value, label) ->
-                SegmentedButton(
+                CompactSegmentedButton(
                     selected = value == currentSystem,
                     onClick = {
                         when (value) {
@@ -6418,7 +6565,7 @@ private fun WatchTab(
                         .height(IntrinsicSize.Max)
                 ) {
                     updateRateOptions.forEachIndexed { index, (key, label) ->
-                        SegmentedButton(
+                        CompactSegmentedButton(
                             modifier = Modifier.fillMaxHeight(),
                             selected = key == settings.watchUpdateRate,
                             onClick = { viewModel.updateWatchUpdateRate(key) },
@@ -6469,7 +6616,7 @@ private fun WatchTab(
                     .height(IntrinsicSize.Max)
             ) {
                 loadOptions.forEachIndexed { index, (key, label) ->
-                    SegmentedButton(
+                    CompactSegmentedButton(
                         modifier = Modifier.fillMaxHeight(),
                         selected = key == settings.watchPwmDisplay,
                         onClick = { viewModel.updateWatchPwmDisplay(key) },
@@ -7856,6 +8003,34 @@ private fun SliderSetting(
     }
 }
 
+/**
+ * SegmentedButton with compact content: no leading checkmark, so selection
+ * reads from the themed fill alone and the label centres without the check
+ * hugging the chip border or padding ballooning around the text.
+ */
+@Composable
+private fun androidx.compose.material3.SingleChoiceSegmentedButtonRowScope.CompactSegmentedButton(
+    selected: Boolean,
+    onClick: () -> Unit,
+    shape: androidx.compose.ui.graphics.Shape,
+    colors: androidx.compose.material3.SegmentedButtonColors,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+    icon: @Composable () -> Unit = {},
+    label: @Composable () -> Unit
+) {
+    SegmentedButton(
+        selected = selected,
+        onClick = onClick,
+        shape = shape,
+        modifier = modifier,
+        enabled = enabled,
+        colors = colors,
+        icon = icon,
+        label = label
+    )
+}
+
 @Composable
 private fun SwitchSetting(
     label: String,
@@ -8691,7 +8866,7 @@ private fun SegmentedChoice(
                 .height(IntrinsicSize.Max)
         ) {
             options.forEachIndexed { index, (key, optLabel) ->
-                SegmentedButton(
+                CompactSegmentedButton(
                     modifier = Modifier.fillMaxHeight(),
                     selected = current == key,
                     onClick = { onChange(key) },

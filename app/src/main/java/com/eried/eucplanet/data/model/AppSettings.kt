@@ -194,6 +194,43 @@ data class AppSettings(
 
     val phoneKeepScreenOn: Boolean = false,
 
+    // Per-screen rotation (landscape). The app allows rotation at the manifest
+    // level; these gate which screens actually rotate. The main dashboard
+    // defaults to portrait-locked; the others default to allowing rotation.
+    val rotateDashboard: Boolean = false,
+    val rotateNavigator: Boolean = true,
+    val rotateOtherScreens: Boolean = true,
+
+    // Screen geometry. Compact mode is the tiny dashboard (speedo + one
+    // swipeable buttons/metrics area) used on flip cover screens; it reuses
+    // the rider's normal dashboard configuration. AUTO activates it when both
+    // screen dimensions are small; ALWAYS / NEVER override the detection.
+    // coverCameraCutout keeps a corner of the compact layout empty where the
+    // cover lenses sit over the panel (no API reports their area): OFF, LEFT
+    // or RIGHT.
+    val compactModeWhen: String = "AUTO",
+    val coverCameraCutout: String = "OFF",
+    // Main gauge style per surface, an open key so future styles (a
+    // PWM-primary gauge, combined readouts) are one new key + renderer, not a
+    // schema change: DIAL (classic ring) or NUMBER (plain value). Unknown
+    // keys render as DIAL. Compact defaults to NUMBER for tiny-panel
+    // readability; landscape keeps the dial.
+    val compactSpeedoStyle: String = "NUMBER",
+    val landscapeSpeedoStyle: String = "DIAL",
+    // Landscape dashboard: swap the metric and button columns (left-hand
+    // mounts).
+    val landscapeMirrored: Boolean = false,
+    // App-wide: block reverse portrait when rotation is allowed. One flag for
+    // the whole app because the orientation policy is per activity window.
+    val blockUpsideDown: Boolean = false,
+    // App-wide: rotate from the sensor even when the system auto-rotate
+    // toggle is off (riders often lock system rotation for pocket carry but
+    // want the mounted app to follow the wheel mount anyway).
+    val ignoreSystemRotateLock: Boolean = false,
+    // Landscape navigator stops panel: DEFAULT keeps the bottom panel exactly
+    // like portrait; LEFT / RIGHT dock it as an always-open sidebar.
+    val navStopsSide: String = "RIGHT",
+
     // Volume keys (work while app is in foreground)
     val volumeKeysEnabled: Boolean = false,
     val volumeUpClick: String = "HORN",
@@ -872,6 +909,13 @@ data class AdvancedSettings(
     val chargingWindowMs: Int = 300000,
     val chargingSanityCapMinutes: Int = 480,
     val chargingMedianFilterSize: Int = 7,
+    // Screen geometry variables (AdvGroup.GEOMETRY): the thresholds and sizes
+    // behind compact mode, the cover lens cutout and the navigator sidebar.
+    val compactMaxScreenDp: Int = 500,
+    val coverCutoutInsetDp: Int = 96,
+    val simpleSpeedoScalePct: Int = 62,
+    val navSidebarWidthDp: Int = 340,
+    val navSidebarMinScreenDp: Int = 600,
 )
 
 // FlicAction enum removed (2026-05). Replaced by

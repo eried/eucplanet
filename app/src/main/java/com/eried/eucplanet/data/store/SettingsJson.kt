@@ -150,6 +150,17 @@ object SettingsJson {
         put("unitDistance", s.unitDistance)
         put("unitTemp", s.unitTemp)
         put("phoneKeepScreenOn", s.phoneKeepScreenOn)
+        put("rotateDashboard", s.rotateDashboard)
+        put("rotateNavigator", s.rotateNavigator)
+        put("rotateOtherScreens", s.rotateOtherScreens)
+        put("compactModeWhen", s.compactModeWhen)
+        put("coverCameraCutout", s.coverCameraCutout)
+        put("compactSpeedoStyle", s.compactSpeedoStyle)
+        put("landscapeSpeedoStyle", s.landscapeSpeedoStyle)
+        put("landscapeMirrored", s.landscapeMirrored)
+        put("blockUpsideDown", s.blockUpsideDown)
+        put("ignoreSystemRotateLock", s.ignoreSystemRotateLock)
+        put("navStopsSide", s.navStopsSide)
         put("volumeKeysEnabled", s.volumeKeysEnabled)
         put("volumeUpClick", s.volumeUpClick)
         put("volumeUpHold", s.volumeUpHold)
@@ -374,6 +385,17 @@ object SettingsJson {
         unitDistance = j.optString("unitDistance", base.unitDistance),
         unitTemp = j.optString("unitTemp", base.unitTemp),
         phoneKeepScreenOn = j.optBoolean("phoneKeepScreenOn", base.phoneKeepScreenOn),
+        rotateDashboard = j.optBoolean("rotateDashboard", base.rotateDashboard),
+        rotateNavigator = j.optBoolean("rotateNavigator", base.rotateNavigator),
+        rotateOtherScreens = j.optBoolean("rotateOtherScreens", base.rotateOtherScreens),
+        compactModeWhen = j.optString("compactModeWhen", base.compactModeWhen),
+        coverCameraCutout = j.optString("coverCameraCutout", base.coverCameraCutout),
+        compactSpeedoStyle = j.optString("compactSpeedoStyle", base.compactSpeedoStyle),
+        landscapeSpeedoStyle = j.optString("landscapeSpeedoStyle", base.landscapeSpeedoStyle),
+        landscapeMirrored = j.optBoolean("landscapeMirrored", base.landscapeMirrored),
+        blockUpsideDown = j.optBoolean("blockUpsideDown", base.blockUpsideDown),
+        ignoreSystemRotateLock = j.optBoolean("ignoreSystemRotateLock", base.ignoreSystemRotateLock),
+        navStopsSide = j.optString("navStopsSide", base.navStopsSide),
         volumeKeysEnabled = j.optBoolean("volumeKeysEnabled", base.volumeKeysEnabled),
         volumeUpClick = j.optString("volumeUpClick", base.volumeUpClick),
         volumeUpHold = j.optString("volumeUpHold", base.volumeUpHold),

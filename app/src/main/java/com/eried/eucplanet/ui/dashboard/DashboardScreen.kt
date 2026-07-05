@@ -47,6 +47,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -282,6 +283,14 @@ fun DashboardScreen(
     val dashboardCustomTilesJson by viewModel.dashboardCustomTiles.collectAsState()
     val dashboardActionOrderRaw by viewModel.dashboardActionOrder.collectAsState()
     val dashboardActionGroupsJson by viewModel.dashboardActionGroups.collectAsState()
+    // Screen geometry: compact-mode activation, cover lens cutout side and
+    // the optional gauge ring in compact.
+    val compactModeWhen by viewModel.compactModeWhen.collectAsState()
+    val coverCameraCutout by viewModel.coverCameraCutout.collectAsState()
+    val compactSpeedoStyle by viewModel.compactSpeedoStyle.collectAsState()
+    val landscapeSpeedoStyle by viewModel.landscapeSpeedoStyle.collectAsState()
+    val landscapeMirrored by viewModel.landscapeMirrored.collectAsState()
+    val advancedVars by viewModel.advanced.collectAsState()
     val dashboardCustomBleJson by viewModel.dashboardCustomBle.collectAsState()
     // Phone-battery and GPS feeds for the catalog metrics that aren't
     // sourced from WheelData. Both update lazily; the value pipeline
@@ -792,6 +801,23 @@ fun DashboardScreen(
             // Foldables / tablets: cap the speedo and use a 3-column stat grid so
             // the whole dashboard fits without the footer falling off-screen.
             val wideStats = LocalConfiguration.current.screenWidthDp >= 600
+            // Landscape (phones): lay the dashboard out as a Row -- speedo on the
+            // left, a scrollable panel (metrics in one row + buttons + odo) on the
+            // right -- instead of the tall portrait Column. Driven off orientation
+            // so it kicks in on any short-and-wide screen, tablets included.
+            val landscape = LocalConfiguration.current.orientation ==
+                android.content.res.Configuration.ORIENTATION_LANDSCAPE
+            // Compact mode, the flip-cover layout: speedo plus one swipeable
+            // buttons / micro-metrics area, info footer hidden. AUTO detects
+            // cover-class panels (both dimensions tiny, ~360 x 374 dp, where
+            // neither the portrait stack nor the landscape split fits); the
+            // Advanced Screen geometry setting can force it on or off.
+            val tinyScreen = when (compactModeWhen) {
+                "ALWAYS" -> true
+                "NEVER" -> false
+                else -> LocalConfiguration.current.screenWidthDp < advancedVars.compactMaxScreenDp &&
+                    LocalConfiguration.current.screenHeightDp < advancedVars.compactMaxScreenDp
+            }
 
             // Speed gauge, wide arc dial (tap opens history)
             val useAccent = !com.eried.eucplanet.ui.theme.isDefaultAccent(accentKey)
@@ -803,11 +829,22 @@ fun DashboardScreen(
             // car-dash style speedo (ratio 2.0) so the extra horizontal real
             // estate is actually used. Width is capped on phones at 0.85 of
             // screen, on tablets at 0.95 to leave a small margin.
+            val speedoBlock: @Composable (androidx.compose.ui.Modifier) -> Unit = { speedoModifier ->
             BoxWithConstraints(
-                modifier = Modifier.fillMaxWidth().weight(1f, fill = true)
+                modifier = speedoModifier
             ) {
-                val widthFraction = if (wideStats) 0.95f else 0.85f
-                val ratio = if (wideStats) 2.0f else 1.05f
+                // Landscape: near-square dial that fills the left panel. Portrait
+                // phone keeps the ~square dial; wide tablets get the car-dash arc.
+                val widthFraction =
+                    if (tinyScreen) 0.92f
+                    else if (landscape) 0.98f
+                    else if (wideStats) 0.95f
+                    else 0.85f
+                val ratio =
+                    if (tinyScreen) 1.2f
+                    else if (landscape) 1.15f
+                    else if (wideStats) 2.0f
+                    else 1.05f
                 val candidateW = maxWidth * widthFraction
                 val maxByHeight = maxHeight * ratio
                 val dialW = minOf(candidateW, maxByHeight)
@@ -821,7 +858,43 @@ fun DashboardScreen(
                     animationSpec = tween(durationMillis = 250, easing = LinearEasing),
                     label = "dashSpeed"
                 )
-                SpeedGauge(
+                // Gauge style key for this surface. Unknown keys fall back to
+                // the dial so future styles (PWM-primary etc.) degrade safely
+                // on older builds.
+                val speedoStyle = when {
+                    tinyScreen -> compactSpeedoStyle
+                    landscape -> landscapeSpeedoStyle
+                    else -> "DIAL"
+                }
+                if (speedoStyle == "NUMBER") {
+                    // NUMBER: the plain speed value, no gauge ring. Compact
+                    // default; opt-in for landscape. Same colour rule as the
+                    // dial: band tiers win when the band is on.
+                    val speedFrac = (animatedSpeed / gaugeMax).coerceIn(0f, 1f)
+                    val numberColor = when {
+                        showGaugeColorBand && speedFrac >= gaugeRedPct / 100f ->
+                            MaterialTheme.appColors.gaugeDanger
+                        showGaugeColorBand && speedFrac >= gaugeOrangePct / 100f ->
+                            MaterialTheme.appColors.statusWarn
+                        else -> MaterialTheme.appColors.gaugeFill
+                    }
+                    Text(
+                        text = "%.0f".format(
+                            com.eried.eucplanet.util.Units.speed(animatedSpeed, speedUnit)
+                        ),
+                        color = numberColor,
+                        // Bigger than the dial's centre number and nudged up:
+                        // with no ring the number owns the whole box, only the
+                        // unit label below needs clearance. Scale is an
+                        // Advanced registry knob.
+                        fontSize = (dialW.value * advancedVars.simpleSpeedoScalePct / 100f).sp,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier
+                            .align(Alignment.Center)
+                            .offset(y = (-(dialW.value * 0.06f)).dp)
+                            .coachmarkTarget(coachmark, TutorialTarget.SPEED_DIAL)
+                    )
+                } else SpeedGauge(
                     speed = animatedSpeed,
                     maxSpeed = gaugeMax,
                     speedUnit = speedUnit,
@@ -875,8 +948,10 @@ fun DashboardScreen(
                         .clickable { onNavigateToMetric("SPEED") }
                 )
                 // Car-dashboard status cluster, top-left: P (park) / D (drive).
+                // Hidden on tiny cover screens: next to the shrunken dial the
+                // fixed-size letters dominate, and the cover is glance-only.
                 val live = connectionState == ConnectionState.CONNECTED
-                Column(
+                if (!tinyScreen) Column(
                     modifier = Modifier
                         .align(Alignment.TopStart)
                         .coachmarkTarget(coachmark, TutorialTarget.PARK_DRIVE)
@@ -911,7 +986,10 @@ fun DashboardScreen(
                     else -> Icons.Default.GpsNotFixed
                 }
                 val externalLive = gpsExtra?.second == "EXTERNAL"
-                Column(
+                // Hidden on tiny cover screens: the short speedo box makes the
+                // GPS glyph collide with the camera glyph below it, and the
+                // cover is glance-only anyway.
+                if (!tinyScreen) Column(
                     modifier = Modifier
                         .align(Alignment.TopEnd)
                         .coachmarkTarget(coachmark, TutorialTarget.GPS_BUTTON)
@@ -1108,8 +1186,7 @@ fun DashboardScreen(
                     onOpenSettings = { onNavigateToSettings(7) }
                 )
             }
-
-            Spacer(Modifier.height(16.dp))
+            }
 
             // Stats grid, 3 rows of 2. Alert tiers only apply when connected (disconnected values are 0).
             val live = connectionState == ConnectionState.CONNECTED
@@ -1192,9 +1269,11 @@ fun DashboardScreen(
                 val defaults = listOf("BATTERY", "TEMPERATURE", "VOLTAGE", "CURRENT", "LOAD", "TRIP")
                 (parsed + defaults).distinct().take(6)
             }
-            // Tablets force 3 columns to honour wideStats. Phones use
-            // whatever the rider set in the editor (2 or 3).
-            val metricColumns = if (wideStats) 3
+            // Landscape: all metrics in a single row (1 tall). Tablets force 3
+            // columns to honour wideStats. Phones use whatever the rider set in
+            // the editor (2 or 3).
+            val metricColumns = if (landscape) 1
+                else if (wideStats) 3
                 else dashboardMetricsColumnsSetting.coerceIn(2, 3)
             val metricRows = (activeMetricKeys.size + metricColumns - 1) / metricColumns
 
@@ -1466,10 +1545,34 @@ fun DashboardScreen(
                 com.eried.eucplanet.ui.settings.CustomTile(text, icon, action, url)
             } catch (_: Exception) { null }
 
+            // Hoisted above restBlock so both the odo footer (inside restBlock)
+            // and the About / diagnostics dialogs (below the layout branch) can
+            // read them.
+            val context = LocalContext.current
+            val versionName = remember {
+                try {
+                    context.packageManager.getPackageInfo(context.packageName, 0).versionName ?: "?"
+                } catch (_: Exception) { "?" }
+            }
+            val versionRevision = remember {
+                try {
+                    @Suppress("DEPRECATION")
+                    context.packageManager.getPackageInfo(context.packageName, 0).versionCode
+                } catch (_: Exception) { 0 }
+            }
+            // Metric grid as its own block. Portrait: 2-3 columns stacked under
+            // the dial. Landscape: a single column (metricColumns == 1) forming
+            // the middle "1 x N" panel between the dial and the buttons -- full
+            // tiles keep their value + min/max/avg corner stats.
+            val metricsBlock: @Composable (androidx.compose.ui.unit.Dp?) -> Unit = { tileHeight ->
             for (rowIdx in 0 until metricRows) {
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
+                        // Landscape passes a fixed per-row height so all N metrics
+                        // fill the middle column without scrolling; portrait passes
+                        // null and rows keep their natural height.
+                        .then(if (tileHeight != null) Modifier.height(tileHeight) else Modifier)
                         // Spotlight the WHOLE metrics grid: each row unions into
                         // one rect for the welcome tour.
                         .coachmarkTargetUnion(coachmark, TutorialTarget.METRICS),
@@ -1589,7 +1692,15 @@ fun DashboardScreen(
                             "CURRENT" -> LiveMetricTile(
                                 label = if (showWatts) wattsLabel else ampsLabel,
                                 value = centerOverride ?: currentText,
-                                accent = if (live && wheelData.current > 20) MaterialTheme.appColors.statusWarn else metricVoltageColor,
+                                // Negative current = charge or regen flowing in:
+                                // tint with the charging token so the direction
+                                // is readable at a glance. The value already
+                                // prints its sign; parsers report signed amps.
+                                accent = when {
+                                    live && wheelData.current < -0.2f -> MaterialTheme.appColors.chargingAccent
+                                    live && wheelData.current > 20 -> MaterialTheme.appColors.statusWarn
+                                    else -> metricVoltageColor
+                                },
                                 sparkData = history.current,
                                 sparkStyle = spec?.sparkline ?: SparklineStyle.AREA_BIPOLAR,
                                 sparklineEnabled = sparklineEnabled,
@@ -1885,13 +1996,19 @@ fun DashboardScreen(
                 }
                 if (rowIdx < metricRows - 1) Spacer(Modifier.height(10.dp))
             }
+            }  // end metricsBlock
 
-            Spacer(Modifier.height(14.dp))
-
-            // Action buttons, fixed height on both phone and wide layouts so the
-            // bottom rows always fit even with the taller speedometer and stat cards.
+            // Action buttons as their own block. Portrait: 2 rows of 3 under the
+            // metrics. Landscape: a 2 x 3 grid forming the right-hand column.
+            // heightOverride: landscape passes the shared row height so the
+            // three button rows fill the whole column; null keeps the fixed
+            // per-form-factor heights.
+            val buttonsBlock: @Composable (Int?) -> Unit = { actionHeightOverride ->
             val actionAspect: Float? = null
-            val actionHeight: Int? = if (wideStats) 88 else 104
+            // Tiny cover screens get short icon-only buttons (ActionButton hides
+            // the label below 64 dp) so all six fit in a single row.
+            val actionHeight: Int? = actionHeightOverride
+                ?: if (tinyScreen) 55 else if (wideStats) 88 else 104
 
             // Read the rider's customized action order. Falls back to the
             // catalog defaults (HORN / LIGHT / VOICE / SAFETY / LOCK /
@@ -1910,9 +2027,13 @@ fun DashboardScreen(
             val lockBlockedBySpeed = !locked && kotlin.math.abs(wheelData.speed) >= 5f && !lockAtAnySpeed
             val wheelHasLock by viewModel.wheelHasLock.collectAsState()
 
-            // Two rows of 3 — match today's layout. Tablets (wideStats)
-            // and phones both render 3 columns; only the height changes.
-            for (rowIdx in 0 until 2) {
+            // Portrait: two rows of 3 (today's layout). Landscape: a single row
+            // so the buttons sit in one line under the one-row metrics.
+            // Tiny cover screens always render 3 x 2: the grid lives in the
+            // swipeable pager page next to the micro metrics.
+            val buttonCols = if (tinyScreen) 3 else if (landscape) 2 else 3
+            val buttonRows = if (tinyScreen) 2 else if (landscape) 3 else 2
+            for (rowIdx in 0 until buttonRows) {
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -1921,8 +2042,8 @@ fun DashboardScreen(
                         .coachmarkTargetUnion(coachmark, TutorialTarget.ACTIONS),
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    for (colIdx in 0 until 3) {
-                        val slotIdx = rowIdx * 3 + colIdx
+                    for (colIdx in 0 until buttonCols) {
+                        val slotIdx = rowIdx * buttonCols + colIdx
                         val rawKey = activeActionKeys.getOrNull(slotIdx)
                         // Same EMPTY_SLOT_KEY handling as the metric grid.
                         val key = if (rawKey == com.eried.eucplanet.ui.settings.EMPTY_SLOT_KEY) null else rawKey
@@ -2264,26 +2385,15 @@ fun DashboardScreen(
                         }
                     }
                 }
-                if (rowIdx == 0) Spacer(Modifier.height(8.dp))
+                if (rowIdx < buttonRows - 1) Spacer(Modifier.height(8.dp))
             }
-
-            Spacer(Modifier.height(12.dp))
+            }  // end buttonsBlock
 
             // Bottom info row: ODO + wheel model + firmware + version (tap for About)
             // (showAboutDialog / showDiagnosticsDialog hoisted to the top of
-            // the screen so OPEN_ABOUT action bindings can trigger them.)
-            val context = LocalContext.current
-            val versionName = remember {
-                try {
-                    context.packageManager.getPackageInfo(context.packageName, 0).versionName ?: "?"
-                } catch (_: Exception) { "?" }
-            }
-            val versionRevision = remember {
-                try {
-                    @Suppress("DEPRECATION")
-                    context.packageManager.getPackageInfo(context.packageName, 0).versionCode
-                } catch (_: Exception) { 0 }
-            }
+            // the screen so OPEN_ABOUT action bindings can trigger them.
+            // context / versionName / versionRevision are hoisted above.)
+            val infoBlock: @Composable () -> Unit = {
             val diagEnabled by com.eried.eucplanet.diagnostics.DiagnosticsLogger.enabled.collectAsState()
             WheelInfoBox(
                 odoKm = wheelData.totalDistance,
@@ -2298,6 +2408,199 @@ fun DashboardScreen(
                 // Spotlight only the version (right side), not the whole ODO row.
                 versionModifier = Modifier.coachmarkTarget(coachmark, TutorialTarget.VERSION)
             )
+            }  // end infoBlock
+
+            // Plain catalog keys from the rider's metric order, minus the
+            // composite / custom IDs a micro cell cannot render. Shared by the
+            // compact pager and the landscape side grid, which both draw the
+            // metrics as thin micro tiles (label + value only).
+            val plainMetricKeys = remember(dashboardMetricOrderRaw) {
+                val parsed = dashboardMetricOrderRaw.split(",").map { it.trim() }.filter { it.isNotEmpty() }
+                val defaults = listOf("BATTERY", "TEMPERATURE", "VOLTAGE", "CURRENT", "LOAD", "TRIP")
+                (parsed + defaults).distinct()
+                    .filter { !it.contains(":") && it != com.eried.eucplanet.ui.settings.EMPTY_SLOT_KEY }
+                    .take(6)
+            }
+            val microChargingAccent = MaterialTheme.appColors.chargingAccent
+            val microTripAccent = MaterialTheme.appColors.statusGood
+            val microDefaultAccent = MaterialTheme.appColors.tileLabel
+            val microAccentFor: (String) -> Color = { key ->
+                when (key) {
+                    "BATTERY" -> battColor
+                    "TEMPERATURE" -> tempColor
+                    "VOLTAGE" -> metricVoltageColor
+                    "CURRENT" ->
+                        if (live && wheelData.current < -0.2f) microChargingAccent
+                        else metricVoltageColor
+                    "LOAD" -> loadColor
+                    "TRIP" -> microTripAccent
+                    else -> microDefaultAccent
+                }
+            }
+            val microTileFor: @Composable (String, Modifier, Boolean) -> Unit = { key, mod, tall ->
+                MicroMetricTile(
+                    label = com.eried.eucplanet.ui.settings.metricChipLabel(key, short = true),
+                    value = displayValueFor(key),
+                    accent = microAccentFor(key),
+                    modifier = mod,
+                    tall = tall,
+                    onClick = {
+                        if (key == "BATTERY") onNavigateToCharging()
+                        else onNavigateToMetric(key)
+                    }
+                )
+            }
+
+            // Portrait: dial on top (absorbs slack), then metrics, buttons, odo
+            // stacked. Landscape: thin metric grid (2 x 3) on the left, dial in
+            // the middle, compact buttons (2 x 3) on the right. Compact (cover):
+            // dial plus the swipeable buttons / metrics pager.
+            if (tinyScreen) {
+                // Cover screen: speedo absorbs the slack; below it ONE swipe
+                // area the rider pages sideways: page 0 = the six buttons
+                // (default), page 1 = all six metrics as 3 x 2 micro tiles
+                // (label + value only, no corner stats). Stacking both blocks
+                // squeezed the dial to a coin on the near-square panel.
+                // Composite / custom tile IDs are skipped: a micro cell can
+                // only render a plain catalog value.
+                speedoBlock(Modifier.fillMaxWidth().weight(1f, fill = true))
+                Spacer(Modifier.height(4.dp))
+                val coverPager = androidx.compose.foundation.pager.rememberPagerState(
+                    initialPage = 0, pageCount = { 2 }
+                )
+                androidx.compose.foundation.pager.HorizontalPager(
+                    state = coverPager,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(118.dp)
+                        // Cover lens cutout: keep the chosen lower corner
+                        // empty, the lenses sit over the panel there and no
+                        // API reports their area.
+                        .padding(
+                            start = if (coverCameraCutout == "LEFT") advancedVars.coverCutoutInsetDp.dp else 0.dp,
+                            end = if (coverCameraCutout == "RIGHT") advancedVars.coverCutoutInsetDp.dp else 0.dp
+                        )
+                ) { page ->
+                    if (page == 0) {
+                        Column(
+                            modifier = Modifier.fillMaxSize(),
+                            verticalArrangement = Arrangement.Center
+                        ) { buttonsBlock(null) }
+                    } else {
+                        Column(
+                            modifier = Modifier.fillMaxSize(),
+                            verticalArrangement = Arrangement.Center
+                        ) {
+                            // Same cell size as the buttons page so the two
+                            // pager pages mirror each other.
+                            for (microRow in 0 until 2) {
+                                Row(
+                                    modifier = Modifier.fillMaxWidth().height(55.dp),
+                                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                                ) {
+                                    for (microCol in 0 until 3) {
+                                        val key = plainMetricKeys.getOrNull(microRow * 3 + microCol)
+                                        if (key == null) {
+                                            Box(modifier = Modifier.weight(1f))
+                                            continue
+                                        }
+                                        microTileFor(key, Modifier.weight(1f), true)
+                                    }
+                                }
+                                if (microRow == 0) Spacer(Modifier.height(8.dp))
+                            }
+                        }
+                    }
+                }
+                // Two-dot indicator so the metrics page is discoverable.
+                Row(
+                    modifier = Modifier.fillMaxWidth().padding(top = 3.dp),
+                    horizontalArrangement = Arrangement.Center
+                ) {
+                    repeat(2) { i ->
+                        Box(
+                            Modifier
+                                .padding(horizontal = 3.dp)
+                                .size(5.dp)
+                                .clip(CircleShape)
+                                .background(
+                                    if (coverPager.currentPage == i) MaterialTheme.appColors.textSecondary
+                                    else MaterialTheme.appColors.tileLabel.copy(alpha = 0.35f)
+                                )
+                        )
+                    }
+                }
+            } else if (landscape) {
+                // One shared row height so the metric cells and the buttons
+                // are the exact same size, all three rows fill the column
+                // height with no scrolling, and the odo line still fits under
+                // the buttons.
+                BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
+                    val rowGap = 8.dp
+                    val infoReserve = 34.dp
+                    val rowH = (maxHeight - infoReserve - rowGap * 2) / 3
+                    // The two side columns, ordered by the Mirror landscape
+                    // setting: metrics lead by default, buttons lead mirrored
+                    // (left-hand mounts).
+                    val metricsColumn: @Composable RowScope.() -> Unit = {
+                        Column(
+                            modifier = Modifier.weight(0.28f).fillMaxHeight(),
+                            verticalArrangement = Arrangement.Center
+                        ) {
+                            for (microRow in 0 until 3) {
+                                Row(
+                                    modifier = Modifier.fillMaxWidth().height(rowH),
+                                    horizontalArrangement = Arrangement.spacedBy(rowGap)
+                                ) {
+                                    for (microCol in 0 until 2) {
+                                        val key = plainMetricKeys.getOrNull(microRow * 2 + microCol)
+                                        if (key == null) {
+                                            Box(modifier = Modifier.weight(1f))
+                                            continue
+                                        }
+                                        microTileFor(key, Modifier.weight(1f), true)
+                                    }
+                                }
+                                if (microRow < 2) Spacer(Modifier.height(rowGap))
+                            }
+                            Spacer(Modifier.height(6.dp))
+                            infoBlock()
+                        }
+                    }
+                    val buttonsColumn: @Composable RowScope.() -> Unit = {
+                        Column(
+                            modifier = Modifier.weight(0.28f).fillMaxHeight(),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.Center
+                        ) {
+                            buttonsBlock(rowH.value.toInt())
+                        }
+                    }
+                    Row(modifier = Modifier.fillMaxSize()) {
+                        if (landscapeMirrored) buttonsColumn() else metricsColumn()
+                        // Identical gaps on both sides of the dial; the small
+                        // inner padding keeps the dial's corner glyphs off the
+                        // neighbouring columns.
+                        Spacer(Modifier.width(12.dp))
+                        speedoBlock(
+                            Modifier
+                                .weight(0.42f)
+                                .fillMaxHeight()
+                                .padding(horizontal = 6.dp)
+                        )
+                        Spacer(Modifier.width(12.dp))
+                        if (landscapeMirrored) metricsColumn() else buttonsColumn()
+                    }
+                }
+            } else {
+                speedoBlock(Modifier.fillMaxWidth().weight(1f, fill = true))
+                Spacer(Modifier.height(16.dp))
+                metricsBlock(null)
+                Spacer(Modifier.height(14.dp))
+                buttonsBlock(null)
+                Spacer(Modifier.height(12.dp))
+                infoBlock()
+            }
 
             if (showDiagnosticsDialog) {
                 com.eried.eucplanet.diagnostics.WheelDiagnosticsDialog(
@@ -3673,11 +3976,56 @@ private fun ActionButton(
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Icon(icon, contentDescription = label, tint = content, modifier = Modifier.size(26.dp))
-            Spacer(Modifier.height(4.dp))
-            Text(label, fontSize = 11.sp, fontWeight = FontWeight.Medium,
-                color = content,
-                maxLines = 2, textAlign = TextAlign.Center, lineHeight = 13.sp)
+            // Short buttons (tiny cover screens) have no room for a caption:
+            // icon only, the label stays as the content description.
+            if (heightDp == null || heightDp >= 64) {
+                Spacer(Modifier.height(4.dp))
+                Text(label, fontSize = 11.sp, fontWeight = FontWeight.Medium,
+                    color = content,
+                    maxLines = 2, textAlign = TextAlign.Center, lineHeight = 13.sp)
+            }
         }
+    }
+}
+
+/**
+ * Label + value cell without corner stats or sparkline, the live value in the
+ * metric's accent. Tap opens the same destination as the full tile (Battery
+ * monitor / metric history). Two sizes: the flat compact-pager cell, and
+ * [tall], which copies the ActionButton silhouette (same corner radius and
+ * 104 dp height) so the landscape metric grid mirrors the button grid.
+ */
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+private fun MicroMetricTile(
+    label: String,
+    value: String,
+    accent: Color,
+    modifier: Modifier = Modifier,
+    tall: Boolean = false,
+    onClick: () -> Unit = {}
+) {
+    Column(
+        modifier = modifier
+            .let { if (tall) it.fillMaxHeight() else it }
+            .clip(RoundedCornerShape(12.dp))
+            .background(MaterialTheme.appColors.tileBackground)
+            .combinedClickable(onClick = onClick)
+            .padding(vertical = if (tall) 6.dp else 5.dp, horizontal = 4.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = if (tall) Arrangement.Center else Arrangement.Top
+    ) {
+        Text(
+            label, fontSize = if (tall) 11.sp else 9.sp,
+            fontWeight = if (tall) FontWeight.Medium else FontWeight.Normal,
+            color = MaterialTheme.appColors.tileLabel,
+            maxLines = 1, textAlign = TextAlign.Center
+        )
+        if (tall) Spacer(Modifier.height(2.dp))
+        Text(
+            value, fontSize = if (tall) 19.sp else 14.sp, fontWeight = FontWeight.SemiBold,
+            color = accent, maxLines = 1
+        )
     }
 }
 

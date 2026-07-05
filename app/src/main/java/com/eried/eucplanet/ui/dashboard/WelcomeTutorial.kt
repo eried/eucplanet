@@ -29,7 +29,9 @@ import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Switch
 import androidx.compose.material3.HorizontalDivider
@@ -392,6 +394,13 @@ fun WelcomeTutorialOverlay(
             tonalElevation = 8.dp
         ) {
             Column(modifier = Modifier.padding(16.dp)) {
+                // Step content scrolls when it outgrows the card (tiny flip cover
+                // screens); the Skip / Next row below stays pinned and visible.
+                Column(
+                    modifier = Modifier
+                        .weight(1f, fill = false)
+                        .verticalScroll(rememberScrollState())
+                ) {
                 Crossfade(targetState = idx, animationSpec = tween(260), label = "tutorial-card") { i ->
                     val s = steps[i]
                     Column {
@@ -556,6 +565,7 @@ fun WelcomeTutorialOverlay(
                         }
                     }
                 }
+                }  // end scrollable step content
                 Spacer(Modifier.height(16.dp))
                 Row(
                     modifier = Modifier.fillMaxWidth(),
