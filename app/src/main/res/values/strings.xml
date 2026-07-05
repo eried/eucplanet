@@ -412,6 +412,8 @@
     <string name="adv_graph_sample_interval_desc">Affects the detail of the dashboard charts only. Does not affect alarms or trip files. Danger: very low values use more memory.</string>
     <string name="adv_trip_record_interval">Trip recording interval</string>
     <string name="adv_trip_record_interval_desc">Affects how often a row is saved to the trip file while recording. Lower gives more detail. Danger: very low values make large files.</string>
+    <string name="adv_pending_upload_interval">Trip upload retry</string>
+    <string name="adv_pending_upload_interval_desc">Affects how often the app retries uploading trips left pending, e.g. after closing during a sync. 15 min is the Android minimum. Danger: too long delays a stranded upload.</string>
     <string name="adv_phone_gps_interval">Phone GPS update interval</string>
     <string name="adv_phone_gps_interval_desc">Affects how smooth the GPS track is and how fast navigation reacts. Lower updates more often. Danger: low values drain the battery faster.</string>
     <string name="adv_hud_report_interval">HUD report rate</string>

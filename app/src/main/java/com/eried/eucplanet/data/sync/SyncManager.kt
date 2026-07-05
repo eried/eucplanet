@@ -6,9 +6,11 @@ import android.net.Uri
 import android.util.Log
 import androidx.documentfile.provider.DocumentFile
 import androidx.work.Constraints
+import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.ExistingWorkPolicy
 import androidx.work.NetworkType
 import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.workDataOf
 import java.util.concurrent.TimeUnit
@@ -70,6 +72,7 @@ class SyncManager @Inject constructor(
         const val RIDER_BACKUP_NAME = "eucstats_riderid.txt"
         const val TRIPS_SUBFOLDER = "trips"
         const val UPLOAD_WORK_NAME = "trip_upload"
+        const val PERIODIC_UPLOAD_WORK_NAME = "trip_upload_periodic"
         const val EUCSTATS_UPLOAD_WORK_NAME = "eucstats_upload"
         const val DROPBOX_SYNC_WORK_NAME = "dropbox_sync"
         const val KEY_ATTEMPT = "attempt"
@@ -126,6 +129,16 @@ class SyncManager @Inject constructor(
                 .map { it.syncFolderUri }
                 .distinctUntilChanged()
                 .collect { _riderStoreId.value = readRiderIdFile() }
+        }
+        // Register (and keep in sync with the setting) the periodic safety-net
+        // that retries trips left pending after an early close. WorkManager
+        // survives app death / reboot, so a stranded upload eventually lands
+        // even if the rider never reopens the app.
+        scope.launch {
+            settingsRepository.settings
+                .map { it.pendingUploadIntervalMin }
+                .distinctUntilChanged()
+                .collect { schedulePeriodicTripUpload(it) }
         }
     }
 
@@ -737,6 +750,34 @@ class SyncManager @Inject constructor(
         WorkManager.getInstance(context).enqueueUniqueWork(
             UPLOAD_WORK_NAME,
             ExistingWorkPolicy.REPLACE,
+            request
+        )
+    }
+
+    /**
+     * Reconcile trips left pending, e.g. by an app that was closed mid-sync.
+     * Called on cold app start: the worker no-ops when there is no sync folder
+     * or nothing pending, so this is cheap to fire every launch and is what
+     * catches an upload the rider "closed too early" -- next open, it lands.
+     */
+    fun reconcilePendingTripUploads() = scheduleTripUploadAttempt(attempt = 0)
+
+    /**
+     * Background safety-net: a periodic worker that retries pending trip uploads
+     * every [intervalMin] minutes (Android's floor is 15). Unlike the one-time
+     * retry chain, WorkManager reschedules periodic work across app death and
+     * reboots, so a stranded upload lands even if the rider never reopens the
+     * app. The worker itself no-ops when nothing is pending (the rider's "if
+     * there is nothing to sync, sleep"). Re-registered with UPDATE whenever the
+     * interval setting changes.
+     */
+    fun schedulePeriodicTripUpload(intervalMin: Int) {
+        val request = PeriodicWorkRequestBuilder<TripUploadWorker>(
+            intervalMin.coerceAtLeast(15).toLong(), TimeUnit.MINUTES
+        ).build()
+        WorkManager.getInstance(context).enqueueUniquePeriodicWork(
+            PERIODIC_UPLOAD_WORK_NAME,
+            ExistingPeriodicWorkPolicy.UPDATE,
             request
         )
     }

@@ -69,6 +69,8 @@ val ADVANCED_SPECS: List<AdvancedSpec> = listOf(
         250..10000, 250, get = { it.graphSampleIntervalMs }, set = { s, v -> s.copy(graphSampleIntervalMs = v) }),
     AdvancedSpec("tripRecordIntervalMs", AdvGroup.RATES, R.string.adv_trip_record_interval, R.string.adv_trip_record_interval_desc,
         250..10000, 250, get = { it.tripRecordIntervalMs }, set = { s, v -> s.copy(tripRecordIntervalMs = v) }),
+    AdvancedSpec("pendingUploadIntervalMin", AdvGroup.RATES, R.string.adv_pending_upload_interval, R.string.adv_pending_upload_interval_desc,
+        15..360, 15, unit = "min", get = { it.pendingUploadIntervalMin }, set = { s, v -> s.copy(pendingUploadIntervalMin = v) }),
     AdvancedSpec("phoneGpsIntervalMs", AdvGroup.RATES, R.string.adv_phone_gps_interval, R.string.adv_phone_gps_interval_desc,
         250..10000, 250, get = { it.phoneGpsIntervalMs }, set = { s, v -> s.copy(phoneGpsIntervalMs = v) }),
     AdvancedSpec("hudReportIntervalMs", AdvGroup.RATES, R.string.adv_hud_report_interval, R.string.adv_hud_report_interval_desc,

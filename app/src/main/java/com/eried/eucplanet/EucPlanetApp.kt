@@ -26,6 +26,13 @@ class EucPlanetApp : Application(), Configuration.Provider {
      */
     @Inject lateinit var hudServer: com.eried.eucplanet.service.hud.HudServer
 
+    /**
+     * Injected at cold start so its init{} registers the periodic pending-upload
+     * safety-net, and so onCreate can reconcile any trip left pending by an app
+     * that was closed mid-sync -- the "closed too early" case.
+     */
+    @Inject lateinit var syncManager: com.eried.eucplanet.data.sync.SyncManager
+
     override val workManagerConfiguration: Configuration
         get() = Configuration.Builder()
             .setWorkerFactory(workerFactory)
@@ -41,5 +48,9 @@ class EucPlanetApp : Application(), Configuration.Provider {
         // The reference assignment alone is enough; HudServer's settings
         // collector takes over from there.
         hudServer.hashCode()
+        // Catch any trip left pending by a too-early close: the worker no-ops
+        // if there's no folder or nothing pending. Touching syncManager also
+        // runs its init{}, registering the periodic upload safety-net.
+        syncManager.reconcilePendingTripUploads()
     }
 }

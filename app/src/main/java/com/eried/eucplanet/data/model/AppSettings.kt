@@ -799,6 +799,7 @@ data class AppSettings(
     val wheelPollIntervalMs: Int get() = advanced.wheelPollIntervalMs
     val graphSampleIntervalMs: Int get() = advanced.graphSampleIntervalMs
     val tripRecordIntervalMs: Int get() = advanced.tripRecordIntervalMs
+    val pendingUploadIntervalMin: Int get() = advanced.pendingUploadIntervalMin
     val phoneGpsIntervalMs: Int get() = advanced.phoneGpsIntervalMs
     val hudReportIntervalMs: Int get() = advanced.hudReportIntervalMs
     val garminReportIntervalMs: Int get() = advanced.garminReportIntervalMs
@@ -872,6 +873,9 @@ data class AdvancedSettings(
     val wheelPollIntervalMs: Int = 250,
     val graphSampleIntervalMs: Int = 1000,
     val tripRecordIntervalMs: Int = 1000,
+    // Background safety-net interval for retrying trips left pending (e.g. app
+    // closed mid-sync). Minutes -- 15 is Android's WorkManager periodic floor.
+    val pendingUploadIntervalMin: Int = 15,
     val phoneGpsIntervalMs: Int = 1000,
     val hudReportIntervalMs: Int = 200,
     val garminReportIntervalMs: Int = 200,
