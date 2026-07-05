@@ -689,13 +689,14 @@ internal fun MetricGraph(
     predictionMarkers: List<PredictionMarker>? = null,
     predictionColor: Color = Color(0xFFFF4081),
     /**
-     * When set, a dashed straight line is drawn from the last recorded sample to
-     * this point (the predicted 100% finish), and scrubbing past "now" follows
-     * that line -- reporting the projected value at the cursor's future time
-     * instead of pinning the last recorded value all across the future region.
-     * Past this point the scrub reads nothing. A plain linear extrapolation.
+     * Ordered future points (e.g. the predicted 80% then 100% finish) that a
+     * dashed poly-line connects to, starting from the last recorded sample. Each
+     * leg is straight -- the 80% and 100% ETAs come from separate estimators with
+     * different timing, so a single line to 100% would miss the 80% dot. Scrubbing
+     * past "now" follows the legs and reports the projected value at the cursor's
+     * future minute; past the final point the scrub reads nothing.
      */
-    predictionTarget: PredictionMarker? = null,
+    predictionPath: List<PredictionMarker> = emptyList(),
     /**
      * Bipolar split colour: when non-null AND the rendered Y-range crosses
      * zero, the trace above the zero baseline is drawn in [color] and the
@@ -749,7 +750,7 @@ internal fun MetricGraph(
     val futureCapMs = samples.last().timestampMs + MAX_PREDICTION_HORIZON_MS
     val futureMaxMs = maxOf(
         markers?.maxOf { it.timestampMs } ?: Long.MIN_VALUE,
-        predictionTarget?.timestampMs ?: Long.MIN_VALUE,
+        predictionPath.maxOfOrNull { it.timestampMs } ?: Long.MIN_VALUE,
     ).coerceAtMost(futureCapMs)
     val xMaxMs = maxOf(samples.last().timestampMs, futureMaxMs)
     val xSpanMs = (xMaxMs - xMinMs).coerceAtLeast(1L)
@@ -988,19 +989,22 @@ internal fun MetricGraph(
             // point to the predicted 100% target. The rider can scrub along it
             // and read the projected % at any future minute -- a plain linear
             // extrapolation, drawn under the marker dots so they sit on top.
-            if (predictionTarget != null) {
+            if (predictionPath.isNotEmpty()) {
                 val lastS = samples.last()
-                val xEnd = w * (lastS.timestampMs - xMinMs).toFloat() / xSpanMs
-                val yEnd = (h - h * (lastS.value - bounds.min) / padded.coerceAtLeast(0.001f)).coerceIn(0f, h)
-                val xT = w * (predictionTarget.timestampMs - xMinMs).toFloat() / xSpanMs
-                val yT = (h - h * (predictionTarget.value - bounds.min) / padded.coerceAtLeast(0.001f)).coerceIn(0f, h)
+                var prevX = w * (lastS.timestampMs - xMinMs).toFloat() / xSpanMs
+                var prevY = (h - h * (lastS.value - bounds.min) / padded.coerceAtLeast(0.001f)).coerceIn(0f, h)
+                val dash8 = PathEffect.dashPathEffect(floatArrayOf(8f, 8f))
                 clipRect(0f, 0f, w, h) {
-                    drawLine(
-                        predictionColor.copy(alpha = 0.6f),
-                        Offset(xEnd, yEnd), Offset(xT, yT),
-                        strokeWidth = 2f,
-                        pathEffect = PathEffect.dashPathEffect(floatArrayOf(8f, 8f)),
-                    )
+                    for (p in predictionPath) {
+                        val cx = w * (p.timestampMs - xMinMs).toFloat() / xSpanMs
+                        val cy = (h - h * (p.value - bounds.min) / padded.coerceAtLeast(0.001f)).coerceIn(0f, h)
+                        drawLine(
+                            predictionColor.copy(alpha = 0.6f),
+                            Offset(prevX, prevY), Offset(cx, cy),
+                            strokeWidth = 2f, pathEffect = dash8,
+                        )
+                        prevX = cx; prevY = cy
+                    }
                 }
             }
 
@@ -1050,10 +1054,21 @@ internal fun MetricGraph(
                         val ff = ((tTargetExtended - a.timestampMs).toFloat() / sp).coerceIn(0f, 1f)
                         a.value + (b.value - a.value) * ff
                     }
-                    predictionTarget != null && tTargetExtended <= predictionTarget.timestampMs -> {
-                        val span = (predictionTarget.timestampMs - tN).coerceAtLeast(1L)
-                        val ff = ((tTargetExtended - tN).toFloat() / span).coerceIn(0f, 1f)
-                        lastVal + (predictionTarget.value - lastVal) * ff
+                    predictionPath.isNotEmpty() && tTargetExtended <= predictionPath.last().timestampMs -> {
+                        // Walk the poly-line legs (last sample -> each path point)
+                        // and interpolate within the leg the cursor falls in.
+                        var prevT = tN; var prevV = lastVal
+                        var v = predictionPath.last().value
+                        for (p in predictionPath) {
+                            if (tTargetExtended <= p.timestampMs) {
+                                val span = (p.timestampMs - prevT).coerceAtLeast(1L)
+                                val ff = ((tTargetExtended - prevT).toFloat() / span).coerceIn(0f, 1f)
+                                v = prevV + (p.value - prevV) * ff
+                                break
+                            }
+                            prevT = p.timestampMs; prevV = p.value
+                        }
+                        v
                     }
                     else -> null
                 }

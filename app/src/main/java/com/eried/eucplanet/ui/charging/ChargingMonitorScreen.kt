@@ -844,6 +844,11 @@ private fun InfoTabs(state: ChargingUiState) {
                         // chart instead of helping the rider. The single
                         // current-prediction dot is the actionable read: "if
                         // I keep charging at this rate, here's when it lands."
+                        // The predicted 80% and 100% finish dots, ordered in time.
+                        // A dashed two-leg poly-line connects the last charge point
+                        // through both (see predictionPath) -- two legs, because the
+                        // two ETAs come from separate estimators with different
+                        // timing, so a single line to 100% would miss the 80% dot.
                         val predictionMarkers = remember(state.predictionHistory) {
                             val latest = state.predictionHistory.lastOrNull()
                             buildList {
@@ -853,14 +858,7 @@ private fun InfoTabs(state: ChargingUiState) {
                                 latest?.fullEtaMs?.let {
                                     add(com.eried.eucplanet.ui.dashboard.PredictionMarker(it, 100f))
                                 }
-                            }
-                        }
-                        // The dashed prediction line runs to the current 100% ETA
-                        // (matching the 100% dot); scrubbing along it reads the
-                        // projected % at that future minute, until 100% then stops.
-                        val predictionTarget = remember(state.predictionHistory) {
-                            state.predictionHistory.lastOrNull()?.fullEtaMs
-                                ?.let { com.eried.eucplanet.ui.dashboard.PredictionMarker(it, 100f) }
+                            }.sortedBy { it.timestampMs }
                         }
                         ChargingChart(
                             state.chargeHistory,
@@ -872,7 +870,7 @@ private fun InfoTabs(state: ChargingUiState) {
                             color2 = MaterialTheme.appColors.metricBattery,
                             unit2 = "V",
                             predictionMarkers = predictionMarkers.takeIf { it.isNotEmpty() },
-                            predictionTarget = predictionTarget,
+                            predictionPath = predictionMarkers,
                         ) { _, _ -> GraphScale.fixed(0f, 100f) }
                         Spacer(Modifier.height(8.dp))
                         StatRow(stringResource(R.string.charging_stat_added), "%+.1f%%".format(state.addedPercent))
@@ -968,7 +966,7 @@ private fun ChargingChart(
     color2: Color = color,
     unit2: String = "",
     predictionMarkers: List<com.eried.eucplanet.ui.dashboard.PredictionMarker>? = null,
-    predictionTarget: com.eried.eucplanet.ui.dashboard.PredictionMarker? = null,
+    predictionPath: List<com.eried.eucplanet.ui.dashboard.PredictionMarker> = emptyList(),
     boundsFor: (Float, Float) -> GraphBounds,
 ) {
     if (samples.size >= 2) {
@@ -989,7 +987,7 @@ private fun ChargingChart(
             unit2 = unit2,
             timeAxisFormat = com.eried.eucplanet.ui.dashboard.TimeAxisFormat.Clock,
             predictionMarkers = predictionMarkers,
-            predictionTarget = predictionTarget,
+            predictionPath = predictionPath,
             modifier = Modifier.fillMaxWidth().height(200.dp),
         )
     } else {
