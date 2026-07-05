@@ -19,7 +19,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -1126,6 +1125,9 @@ fun RouteBuilderScreen(
                     // Landscape sidebar is always open, so there's nothing to
                     // collapse -- hide the chevron there.
                     collapsible = !landscape,
+                    // Landscape: sidebar Column paints the translucent tone, so
+                    // the panel draws transparent to avoid a near-opaque double.
+                    dockTransparent = landscape,
                     travelMode = travelMode,
                     onModeChange = viewModel::setTravelMode,
                     solveFullPath = solveFullPath,
@@ -1167,10 +1169,11 @@ fun RouteBuilderScreen(
                 Column(
                     modifier = Modifier
                         .align(if (sidebarRight) Alignment.BottomStart else Alignment.BottomEnd)
-                        // Clear the gesture bar, and give the screen-edge side a
-                        // margin so the FABs don't hug the border (their own end
-                        // padding only covers the opposite, map-facing side).
-                        .navigationBarsPadding()
+                        // Margin on the screen-edge side so the FABs don't hug the
+                        // border (their own end padding only covers the opposite,
+                        // map-facing side). No nav-bar inset at the bottom -- the
+                        // FABs' own bottom padding is enough, and the inset pushed
+                        // them too far up.
                         .padding(start = if (sidebarRight) 16.dp else 0.dp)
                 ) { overlayFabs() }
                 Column(
@@ -1179,10 +1182,14 @@ fun RouteBuilderScreen(
                         .fillMaxHeight()
                         .width(advancedVars.navSidebarWidthDp.dp)
                         // Inset below the translucent top bar FIRST so the panel's
-                        // solid background starts under the search header, instead
-                        // of running up behind it to the very top of the screen.
+                        // background starts under the search header, instead of
+                        // running up behind it to the very top of the screen.
                         .padding(top = padding.calculateTopPadding())
-                        .background(MaterialTheme.appColors.menuBackground)
+                        // 80% alpha so the map shows through the sidebar, matching
+                        // the portrait dock and the translucent top bar. The panel
+                        // itself is drawn transparent in landscape (dockTransparent)
+                        // so this single layer sets the tone -- no double-up.
+                        .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.80f))
                         .verticalScroll(rememberScrollState())
                 ) {
                     bottomPanelContent(Modifier.fillMaxWidth())
@@ -1536,6 +1543,7 @@ private fun BottomPanel(
     expanded: Boolean,
     onToggle: () -> Unit,
     collapsible: Boolean = true,
+    dockTransparent: Boolean = false,
     travelMode: TravelMode,
     onModeChange: (TravelMode) -> Unit,
     solveFullPath: Boolean,
@@ -1571,8 +1579,12 @@ private fun BottomPanel(
         // route line that often runs right up against the bottom edge)
         // peek through, so the rider sees more context.
         shape = RoundedCornerShape(0.dp),
-        color = MaterialTheme.colorScheme.surface.copy(alpha = 0.80f),
-        tonalElevation = 6.dp
+        // Landscape: the sidebar Column already paints the translucent tone, so
+        // draw the panel transparent here -- otherwise two 80% layers stack into
+        // a near-opaque block. Portrait keeps the translucent dock.
+        color = if (dockTransparent) androidx.compose.ui.graphics.Color.Transparent
+                else MaterialTheme.colorScheme.surface.copy(alpha = 0.80f),
+        tonalElevation = if (dockTransparent) 0.dp else 6.dp
     ) {
         Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 10.dp)) {
             // Header: title + count/distance + COMPACT start/stop + collapse chevron.
