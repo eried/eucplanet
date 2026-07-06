@@ -68,6 +68,7 @@ fun FlicScreen(
     forgetTarget?.let { (addr, name) ->
         AlertDialog(
             onDismissRequest = { forgetTarget = null },
+            shape = RoundedCornerShape(12.dp),
             title = { Text(stringResource(R.string.flic_forget_title)) },
             text = { Text(stringResource(R.string.flic_forget_body, name)) },
             confirmButton = {

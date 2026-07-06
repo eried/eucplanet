@@ -143,6 +143,7 @@ fun OnlineUploadOnboardingDialog(
     if (step == STEP_CONSENT) {
         AlertDialog(
             onDismissRequest = onDismiss,
+            shape = RoundedCornerShape(12.dp),
             title = {
                 Text(
                     text = stringResource(R.string.online_upload_consent_title),
@@ -205,6 +206,7 @@ fun OnlineUploadOnboardingDialog(
     // =========================================================================
     AlertDialog(
         onDismissRequest = { if (!registering) onDismiss() },
+        shape = RoundedCornerShape(12.dp),
         title = {
             Text(
                 text = stringResource(R.string.online_upload_profile_title),
@@ -450,6 +452,7 @@ internal fun CountryPickerDialog(onPick: (String) -> Unit, onDismiss: () -> Unit
     }
     AlertDialog(
         onDismissRequest = onDismiss,
+        shape = RoundedCornerShape(12.dp),
         title = {
             Text(
                 stringResource(R.string.online_upload_profile_country_label),

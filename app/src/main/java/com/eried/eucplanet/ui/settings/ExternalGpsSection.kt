@@ -364,6 +364,7 @@ private fun AutoDetectDialog(
         onDismissRequest = {
             if (isDone) onDismiss() else if (showCancel) onCancel()
         },
+        shape = RoundedCornerShape(12.dp),
         title = { Text(stringResource(R.string.external_gps_autodetect_title)) },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {

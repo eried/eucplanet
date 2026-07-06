@@ -542,7 +542,7 @@ private fun AlarmRuleEditorDialog(
         val maxDialogHeight = androidx.compose.ui.platform.LocalConfiguration.current
             .screenHeightDp.dp * 0.88f
         Card(
-            shape = RoundedCornerShape(16.dp),
+            shape = RoundedCornerShape(12.dp),
             colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
             modifier = Modifier
                 .fillMaxWidth(0.95f)
@@ -1134,7 +1134,7 @@ private fun BeepStudioDialog(
     ) {
         Surface(
             modifier = Modifier.fillMaxWidth(0.96f),
-            shape = RoundedCornerShape(16.dp),
+            shape = RoundedCornerShape(12.dp),
             color = MaterialTheme.colorScheme.surface,
         ) {
             Column(Modifier.fillMaxWidth().padding(16.dp)) {

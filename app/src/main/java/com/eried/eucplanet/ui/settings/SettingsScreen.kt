@@ -317,6 +317,7 @@ fun SettingsScreen(
     cheatSheet?.let { sheet ->
         androidx.compose.material3.AlertDialog(
             onDismissRequest = { cheatSheet = null },
+            shape = RoundedCornerShape(12.dp),
             title = { Text(sheet.title) },
             text = {
                 Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -439,6 +440,7 @@ fun SettingsScreen(
         //  - Cancel: don't switch at all
         AlertDialog(
             onDismissRequest = { viewModel.cancelLanguageSwitch() },
+            shape = RoundedCornerShape(12.dp),
             title = { Text(stringResource(R.string.tts_switch_title, langName)) },
             text = { Text(stringResource(R.string.tts_switch_body, langName)) },
             confirmButton = {
@@ -1222,7 +1224,7 @@ private fun SettingsVisibilityDialog(
     ) {
         Surface(
             modifier = Modifier.fillMaxWidth(0.96f),
-            shape = RoundedCornerShape(16.dp),
+            shape = RoundedCornerShape(12.dp),
             color = MaterialTheme.appColors.surface,
         ) {
             Column(Modifier.fillMaxWidth().padding(16.dp)) {
@@ -1552,6 +1554,7 @@ private fun AdvancedTab(
     if (showResetConfirm && changed.isNotEmpty()) {
         AlertDialog(
             onDismissRequest = { showResetConfirm = false },
+            shape = RoundedCornerShape(12.dp),
             title = { Text(stringResource(R.string.adv_reset_all)) },
             text = {
                 Column(
@@ -3740,6 +3743,7 @@ private fun DashboardSlotSheet(
     ModalBottomSheet(
         onDismissRequest = onDismiss,
         sheetState = sheetState,
+        shape = RoundedCornerShape(12.dp),
         containerColor = MaterialTheme.appColors.sheetBackground
     ) {
         Column(
@@ -3849,6 +3853,7 @@ private fun CompositeMetricSheet(
     ModalBottomSheet(
         onDismissRequest = onDismiss,
         sheetState = sheetState,
+        shape = RoundedCornerShape(12.dp),
         containerColor = MaterialTheme.appColors.sheetBackground
     ) {
         Column(
@@ -4182,6 +4187,7 @@ private fun ActionGroupSheet(
     ModalBottomSheet(
         onDismissRequest = onDismiss,
         sheetState = sheetState,
+        shape = RoundedCornerShape(12.dp),
         containerColor = MaterialTheme.appColors.sheetBackground
     ) {
         Column(
@@ -4315,7 +4321,7 @@ private fun CustomBleSheet(
         viewModel.updateCustomBle(id, label, icon, family, parsed ?: lastValid.value)
     }
 
-    ModalBottomSheet(onDismissRequest = onDismiss, sheetState = sheetState, containerColor = MaterialTheme.appColors.sheetBackground) {
+    ModalBottomSheet(onDismissRequest = onDismiss, sheetState = sheetState, shape = RoundedCornerShape(12.dp), containerColor = MaterialTheme.appColors.sheetBackground) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
@@ -4559,6 +4565,7 @@ private fun CustomTileSheet(
     ModalBottomSheet(
         onDismissRequest = onDismiss,
         sheetState = sheetState,
+        shape = RoundedCornerShape(12.dp),
         containerColor = MaterialTheme.appColors.sheetBackground
     ) {
         Column(
@@ -7000,6 +7007,7 @@ private fun CloudTab(
                 backupNameDraft = pendingName
                 showBackupNameDialog = true
             },
+            shape = RoundedCornerShape(12.dp),
             title = { Text(stringResource(R.string.cloud_backup_overwrite_title, pendingName)) },
             text = { Text(stringResource(R.string.cloud_backup_overwrite_body)) },
             confirmButton = {
@@ -7036,6 +7044,7 @@ private fun CloudTab(
     if (showFactoryConfirm) {
         AlertDialog(
             onDismissRequest = { showFactoryConfirm = false },
+            shape = RoundedCornerShape(12.dp),
             title = { Text(stringResource(R.string.cloud_factory_confirm_title)) },
             text = {
                 Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
@@ -7065,6 +7074,7 @@ private fun CloudTab(
         val pushRes = if (isDropbox) R.string.sync_conflict_app_dropbox else R.string.sync_conflict_app
         AlertDialog(
             onDismissRequest = { viewModel.cancelSyncConflict() },
+            shape = RoundedCornerShape(12.dp),
             title = { Text(stringResource(R.string.sync_conflict_title)) },
             text = { Text(stringResource(bodyRes, syncConflict!!)) },
             confirmButton = {
@@ -7101,6 +7111,7 @@ private fun CloudTab(
     if (showRestoreDialog) {
         AlertDialog(
             onDismissRequest = { showRestoreDialog = false },
+            shape = RoundedCornerShape(12.dp),
             title = { Text(stringResource(R.string.cloud_restore_confirm_title)) },
             text = {
                 Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
@@ -7418,6 +7429,7 @@ private fun CloudTab(
             val rejoinName = riderStoreId?.let { riderIdShort(it) } ?: ""
             AlertDialog(
                 onDismissRequest = { viewModel.dismissRejoinConfirm() },
+                shape = RoundedCornerShape(12.dp),
                 title = { Text(stringResource(R.string.online_rejoin_title)) },
                 text = { Text(stringResource(R.string.online_rejoin_body, rejoinName)) },
                 confirmButton = {
@@ -7437,6 +7449,7 @@ private fun CloudTab(
             val switching = riderStoreId != null
             AlertDialog(
                 onDismissRequest = { viewModel.dismissRestorableRider() },
+                shape = RoundedCornerShape(12.dp),
                 title = { Text(stringResource(R.string.online_restore_title)) },
                 text = {
                     Text(
@@ -7484,6 +7497,7 @@ private fun CloudTab(
         if (showUnlinkConfirm) {
             AlertDialog(
                 onDismissRequest = { showUnlinkConfirm = false },
+                shape = RoundedCornerShape(12.dp),
                 title = { Text(stringResource(R.string.online_unlink_title)) },
                 text = { Text(stringResource(R.string.online_unlink_body)) },
                 confirmButton = {
@@ -9232,6 +9246,7 @@ private fun NamedBackupDialog(
     }
     AlertDialog(
         onDismissRequest = onDismiss,
+        shape = RoundedCornerShape(12.dp),
         text = {
             OutlinedTextField(
                 value = raw,
@@ -9291,6 +9306,7 @@ internal fun RestorePickerDialog(
         if (e.isFactory) factoryLabel else e.label ?: defaultLabel
     AlertDialog(
         onDismissRequest = onDismiss,
+        shape = RoundedCornerShape(12.dp),
         title = { Text(stringResource(R.string.cloud_restore_confirm_title)) },
         text = {
             val list = entries
