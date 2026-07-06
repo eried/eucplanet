@@ -1453,14 +1453,6 @@ internal fun NumberUpDown(
     }
 
     Column(modifier = modifier.alpha(if (enabled) 1f else 0.5f)) {
-        if (label != null) {
-            Text(
-                label,
-                fontSize = 12.sp,
-                color = fieldLabelColor,
-                modifier = Modifier.padding(bottom = 4.dp)
-            )
-        }
         Box {
             // Resting state is just the value + unit in a bordered field, so it
             // stays compact and never clips no matter how narrow the row or how
@@ -1476,49 +1468,64 @@ internal fun NumberUpDown(
                 ),
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Row(
-                    modifier = Modifier
-                        .height(48.dp)
-                        .padding(horizontal = 14.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    BasicTextField(
-                        value = if (focused) text else format(value),
-                        onValueChange = { raw ->
-                            val filtered = if (allowSign)
-                                raw.filter { it.isDigit() || it == '-' || it == '.' }.take(7)
-                            else raw.filter { it.isDigit() }.take(6)
-                            text = filtered
-                            parse(filtered)?.let { if (it in range) onValueChange(it) }
-                        },
-                        singleLine = true,
-                        enabled = enabled,
-                        textStyle = TextStyle(
-                            color = fieldText,
-                            fontSize = 16.sp,
-                            fontWeight = FontWeight.Medium,
-                            textAlign = numberAlign
-                        ),
-                        cursorBrush = SolidColor(fieldText),
-                        keyboardOptions = KeyboardOptions(
-                            keyboardType = if (allowSign) KeyboardType.Decimal else KeyboardType.Number
-                        ),
-                        modifier = Modifier
-                            .weight(1f)
-                            .onFocusChanged { f ->
-                                if (f.isFocused) text = format(value)
-                                focused = f.isFocused
-                            }
-                    )
-                    if (suffix.isNotEmpty()) {
-                        Spacer(Modifier.width(6.dp))
+                Column {
+                    // The label sits inside the field (like the combo boxes)
+                    // rather than as separate text above it, so numeric rows read
+                    // like the other controls.
+                    if (label != null) {
                         Text(
-                            suffix,
-                            fontSize = 13.sp,
+                            label,
+                            fontSize = 11.sp,
                             color = fieldLabelColor,
-                            maxLines = 1,
-                            softWrap = false,
+                            maxLines = 2,
+                            lineHeight = 13.sp,
+                            modifier = Modifier.padding(start = 14.dp, end = 14.dp, top = 7.dp)
                         )
+                    }
+                    Row(
+                        modifier = Modifier
+                            .height(if (label != null) 38.dp else 48.dp)
+                            .padding(horizontal = 14.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        BasicTextField(
+                            value = if (focused) text else format(value),
+                            onValueChange = { raw ->
+                                val filtered = if (allowSign)
+                                    raw.filter { it.isDigit() || it == '-' || it == '.' }.take(7)
+                                else raw.filter { it.isDigit() }.take(6)
+                                text = filtered
+                                parse(filtered)?.let { if (it in range) onValueChange(it) }
+                            },
+                            singleLine = true,
+                            enabled = enabled,
+                            textStyle = TextStyle(
+                                color = fieldText,
+                                fontSize = 16.sp,
+                                fontWeight = FontWeight.Medium,
+                                textAlign = numberAlign
+                            ),
+                            cursorBrush = SolidColor(fieldText),
+                            keyboardOptions = KeyboardOptions(
+                                keyboardType = if (allowSign) KeyboardType.Decimal else KeyboardType.Number
+                            ),
+                            modifier = Modifier
+                                .weight(1f)
+                                .onFocusChanged { f ->
+                                    if (f.isFocused) text = format(value)
+                                    focused = f.isFocused
+                                }
+                        )
+                        if (suffix.isNotEmpty()) {
+                            Spacer(Modifier.width(6.dp))
+                            Text(
+                                suffix,
+                                fontSize = 13.sp,
+                                color = fieldLabelColor,
+                                maxLines = 1,
+                                softWrap = false,
+                            )
+                        }
                     }
                 }
             }

@@ -9249,7 +9249,7 @@ private fun LongPressActionButton(
                 onLongClick = onLongClick,
                 role = androidx.compose.ui.semantics.Role.Button
             ),
-        shape = androidx.compose.material3.ButtonDefaults.shape,
+        shape = RoundedCornerShape(12.dp),
         color = if (enabled) MaterialTheme.colorScheme.primary
                 else MaterialTheme.colorScheme.primary.copy(alpha = 0.38f),
         contentColor = MaterialTheme.colorScheme.onPrimary

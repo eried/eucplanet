@@ -570,7 +570,7 @@
 
     <!-- Watch hardware buttons -->
     <string name="watch_button_click_label">Click</string>
-    <string name="watch_button_hold_label">Long press</string>
+    <string name="watch_button_hold_label">Hold</string>
     <string name="watch_buttons_hardware_info">Holds may be intercepted by the system on some watches</string>
     <string name="watch_buttons_touch_info">Depends on what your watch supports</string>
     <string name="watch_buttons_hardware_label">Physical</string>
