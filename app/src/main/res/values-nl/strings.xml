@@ -1886,7 +1886,9 @@
     <string name="geo_section_dashboard">Dashboard</string>
     <string name="geo_section_navigator">Navigator</string>
     <string name="geo_section_other">Andere schermen</string>
-    <string name="geo_other_hint">Instellingen, ritten, accumonitor, meetgeschiedenis, scan en Flic. De Overlay Studio wordt niet beïnvloed: de lay-out ligt vast, maar werkt prima in elke stand.</string>
+    <string name="geo_section_settings">Instellingen</string>
+    <string name="geo_other_hint">Ritten, accumonitor, meetgeschiedenis, scan en Flic. De Overlay Studio wordt niet beïnvloed: de lay-out ligt vast, maar werkt prima in elke stand.</string>
+    <string name="geo_settings_hint">Het instellingenscherm. Standaard uit, dus Instellingen blijft staand tenzij je het inschakelt.</string>
     <string name="setting_allow_rotation">Rotatie toestaan</string>
     <string name="setting_block_upside_down">Ondersteboven draaien voorkomen</string>
     <string name="setting_ignore_system_rotate_lock">Systeemrotatievergrendeling negeren</string>

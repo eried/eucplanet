@@ -1886,7 +1886,9 @@
     <string name="geo_section_dashboard">Instrumentpanel</string>
     <string name="geo_section_navigator">Navigator</string>
     <string name="geo_section_other">Andra skärmar</string>
-    <string name="geo_other_hint">Inställningar, turer, batterimonitor, mäthistorik, skanning och Flic. Overlay Studio påverkas inte: dess layout är fast, men det fungerar bra i alla riktningar.</string>
+    <string name="geo_section_settings">Inställningar</string>
+    <string name="geo_other_hint">Turer, batterimonitor, mäthistorik, skanning och Flic. Overlay Studio påverkas inte: dess layout är fast, men det fungerar bra i alla riktningar.</string>
+    <string name="geo_settings_hint">Inställningsskärmen. Av som standard, så Inställningar förblir stående om du inte aktiverar det.</string>
     <string name="setting_allow_rotation">Tillåt rotation</string>
     <string name="setting_block_upside_down">Förhindra upp och ned-rotation</string>
     <string name="setting_ignore_system_rotate_lock">Ignorera systemets rotationslås</string>

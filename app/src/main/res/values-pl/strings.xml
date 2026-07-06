@@ -1884,7 +1884,9 @@
     <string name="geo_section_dashboard">Pulpit</string>
     <string name="geo_section_navigator">Nawigator</string>
     <string name="geo_section_other">Inne ekrany</string>
-    <string name="geo_other_hint">Ustawienia, trasy, monitor baterii, historia metryk, skanowanie i Flic. Overlay Studio nie jest objęte: jego układ jest stały, ale działa dobrze w każdej orientacji.</string>
+    <string name="geo_section_settings">Ustawienia</string>
+    <string name="geo_other_hint">Trasy, monitor baterii, historia metryk, skanowanie i Flic. Overlay Studio nie jest objęte: jego układ jest stały, ale działa dobrze w każdej orientacji.</string>
+    <string name="geo_settings_hint">Ekran ustawień. Domyślnie wyłączone, więc Ustawienia pozostają w orientacji pionowej, dopóki tego nie włączysz.</string>
     <string name="setting_allow_rotation">Zezwól na obracanie</string>
     <string name="setting_block_upside_down">Zablokuj obrót do góry nogami</string>
     <string name="setting_ignore_system_rotate_lock">Ignoruj systemową blokadę obrotu</string>

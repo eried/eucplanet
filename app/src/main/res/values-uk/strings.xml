@@ -1883,7 +1883,9 @@
     <string name="geo_section_dashboard">Панель</string>
     <string name="geo_section_navigator">Навігатор</string>
     <string name="geo_section_other">Інші екрани</string>
-    <string name="geo_other_hint">Налаштування, поїздки, монітор батареї, історія метрик, сканування та Flic. Overlay Studio не зачіпається: його макет фіксований, але він добре працює в будь-якій орієнтації.</string>
+    <string name="geo_section_settings">Налаштування</string>
+    <string name="geo_other_hint">Поїздки, монітор батареї, історія метрик, сканування та Flic. Overlay Studio не зачіпається: його макет фіксований, але він добре працює в будь-якій орієнтації.</string>
+    <string name="geo_settings_hint">Екран налаштувань. Типово вимкнено, тому Налаштування залишаються у книжковій орієнтації, доки ви це не увімкнете.</string>
     <string name="setting_allow_rotation">Дозволити обертання</string>
     <string name="setting_block_upside_down">Заборонити перевертання догори дриґом</string>
     <string name="setting_ignore_system_rotate_lock">Ігнорувати системне блокування обертання</string>

@@ -1904,7 +1904,9 @@
     <string name="geo_section_dashboard">Panel</string>
     <string name="geo_section_navigator">Navegador</string>
     <string name="geo_section_other">Otras pantallas</string>
-    <string name="geo_other_hint">Configuración, viajes, monitor de batería, historial de métricas, escaneo y Flic. El Overlay Studio no se ve afectado: su diseño es fijo, pero funciona bien en cualquier orientación.</string>
+    <string name="geo_section_settings">Configuración</string>
+    <string name="geo_other_hint">Viajes, monitor de batería, historial de métricas, escaneo y Flic. El Overlay Studio no se ve afectado: su diseño es fijo, pero funciona bien en cualquier orientación.</string>
+    <string name="geo_settings_hint">La pantalla de configuración. Desactivado por defecto, así que Configuración permanece en vertical salvo que lo actives.</string>
     <string name="setting_allow_rotation">Permitir rotación</string>
     <string name="setting_block_upside_down">Evitar rotación invertida</string>
     <string name="setting_ignore_system_rotate_lock">Ignorar el bloqueo de rotación del sistema</string>

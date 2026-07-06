@@ -1791,7 +1791,9 @@
     <string name="geo_section_dashboard">Cruscotto</string>
     <string name="geo_section_navigator">Navigatore</string>
     <string name="geo_section_other">Altre schermate</string>
-    <string name="geo_other_hint">Impostazioni, tragitti, monitor batteria, cronologia metriche, scansione e Flic. L\'Overlay Studio non è interessato: il suo layout è fisso, ma funziona bene in qualsiasi orientamento.</string>
+    <string name="geo_section_settings">Impostazioni</string>
+    <string name="geo_other_hint">Tragitti, monitor batteria, cronologia metriche, scansione e Flic. L\'Overlay Studio non è interessato: il suo layout è fisso, ma funziona bene in qualsiasi orientamento.</string>
+    <string name="geo_settings_hint">La schermata delle impostazioni. Disattivato per impostazione predefinita, quindi Impostazioni resta in verticale a meno che tu non lo attivi.</string>
     <string name="setting_allow_rotation">Consenti rotazione</string>
     <string name="setting_block_upside_down">Impedisci rotazione capovolta</string>
     <string name="setting_ignore_system_rotate_lock">Ignora blocco rotazione di sistema</string>

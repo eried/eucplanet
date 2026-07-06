@@ -1772,7 +1772,9 @@
     <string name="geo_section_dashboard">Dashbord</string>
     <string name="geo_section_navigator">Navigator</string>
     <string name="geo_section_other">Andre skjermer</string>
-    <string name="geo_other_hint">Innstillinger, turer, batterimonitor, målehistorikk, skanning og Flic. Overlay Studio påvirkes ikke: oppsettet er fast, men det fungerer fint i enhver retning.</string>
+    <string name="geo_section_settings">Innstillinger</string>
+    <string name="geo_other_hint">Turer, batterimonitor, målehistorikk, skanning og Flic. Overlay Studio påvirkes ikke: oppsettet er fast, men det fungerer fint i enhver retning.</string>
+    <string name="geo_settings_hint">Innstillingsskjermen. Av som standard, så Innstillinger forblir stående med mindre du slår det på.</string>
     <string name="setting_allow_rotation">Tillat rotasjon</string>
     <string name="setting_block_upside_down">Hindre rotasjon opp ned</string>
     <string name="setting_ignore_system_rotate_lock">Ignorer systemets rotasjonslås</string>

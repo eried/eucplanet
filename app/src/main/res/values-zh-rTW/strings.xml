@@ -1885,7 +1885,9 @@
     <string name="geo_section_dashboard">儀表板</string>
     <string name="geo_section_navigator">導航</string>
     <string name="geo_section_other">其他畫面</string>
-    <string name="geo_other_hint">設定、行程、電池監視、指標記錄、掃描和 Flic。疊加工作室不受影響：其版面固定，但以任何方向手持都能正常使用。</string>
+    <string name="geo_section_settings">設定</string>
+    <string name="geo_other_hint">行程、電池監視、指標記錄、掃描和 Flic。疊加工作室不受影響：其版面固定，但以任何方向手持都能正常使用。</string>
+    <string name="geo_settings_hint">設定畫面。預設為關閉，因此除非啟用，否則設定會保持直向。</string>
     <string name="setting_allow_rotation">允許旋轉</string>
     <string name="setting_block_upside_down">禁止上下顛倒旋轉</string>
     <string name="setting_ignore_system_rotate_lock">忽略系統旋轉鎖定</string>

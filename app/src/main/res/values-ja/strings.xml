@@ -1885,7 +1885,9 @@
     <string name="geo_section_dashboard">ダッシュボード</string>
     <string name="geo_section_navigator">ナビゲーター</string>
     <string name="geo_section_other">その他の画面</string>
-    <string name="geo_other_hint">設定、トリップ、バッテリーモニター、メトリクス履歴、スキャン、Flic。オーバーレイスタジオは影響を受けません。レイアウトは固定ですが、どの向きでも問題なく使えます。</string>
+    <string name="geo_section_settings">設定</string>
+    <string name="geo_other_hint">トリップ、バッテリーモニター、メトリクス履歴、スキャン、Flic。オーバーレイスタジオは影響を受けません。レイアウトは固定ですが、どの向きでも問題なく使えます。</string>
+    <string name="geo_settings_hint">設定画面です。デフォルトではオフのため、有効にしない限り設定は縦向きのままです。</string>
     <string name="setting_allow_rotation">回転を許可</string>
     <string name="setting_block_upside_down">上下逆の回転を防ぐ</string>
     <string name="setting_ignore_system_rotate_lock">システムの回転ロックを無視</string>

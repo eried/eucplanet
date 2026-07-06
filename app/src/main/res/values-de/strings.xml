@@ -1906,7 +1906,9 @@
     <string name="geo_section_dashboard">Dashboard</string>
     <string name="geo_section_navigator">Navigator</string>
     <string name="geo_section_other">Andere Bildschirme</string>
-    <string name="geo_other_hint">Einstellungen, Fahrten, Akku-Monitor, Messwertverlauf, Scan und Flic. Das Overlay Studio ist nicht betroffen: Sein Layout ist fest, funktioniert aber in jeder Ausrichtung.</string>
+    <string name="geo_section_settings">Einstellungen</string>
+    <string name="geo_other_hint">Fahrten, Akku-Monitor, Messwertverlauf, Scan und Flic. Das Overlay Studio ist nicht betroffen: Sein Layout ist fest, funktioniert aber in jeder Ausrichtung.</string>
+    <string name="geo_settings_hint">Der Einstellungsbildschirm. Standardmäßig aus, sodass die Einstellungen im Hochformat bleiben, sofern du es nicht aktivierst.</string>
     <string name="setting_allow_rotation">Drehung zulassen</string>
     <string name="setting_block_upside_down">Kopfüberdrehung verhindern</string>
     <string name="setting_ignore_system_rotate_lock">System-Rotationssperre ignorieren</string>

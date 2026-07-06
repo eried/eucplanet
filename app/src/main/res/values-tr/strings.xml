@@ -1883,7 +1883,9 @@
     <string name="geo_section_dashboard">Gösterge paneli</string>
     <string name="geo_section_navigator">Navigatör</string>
     <string name="geo_section_other">Diğer ekranlar</string>
-    <string name="geo_other_hint">Ayarlar, seferler, pil monitörü, metrik geçmişi, tarama ve Flic. Overlay Studio etkilenmez: düzeni sabittir, ancak her yönde iyi çalışır.</string>
+    <string name="geo_section_settings">Ayarlar</string>
+    <string name="geo_other_hint">Seferler, pil monitörü, metrik geçmişi, tarama ve Flic. Overlay Studio etkilenmez: düzeni sabittir, ancak her yönde iyi çalışır.</string>
+    <string name="geo_settings_hint">Ayarlar ekranı. Varsayılan olarak kapalı, bu yüzden etkinleştirmedikçe Ayarlar dikey kalır.</string>
     <string name="setting_allow_rotation">Döndürmeye izin ver</string>
     <string name="setting_block_upside_down">Baş aşağı döndürmeyi engelle</string>
     <string name="setting_ignore_system_rotate_lock">Sistem döndürme kilidini yok say</string>

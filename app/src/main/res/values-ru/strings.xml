@@ -1886,7 +1886,9 @@
     <string name="geo_section_dashboard">Панель</string>
     <string name="geo_section_navigator">Навигатор</string>
     <string name="geo_section_other">Другие экраны</string>
-    <string name="geo_other_hint">Настройки, поездки, монитор батареи, история метрик, сканирование и Flic. Overlay Studio не затрагивается: его макет фиксирован, но он нормально работает в любой ориентации.</string>
+    <string name="geo_section_settings">Настройки</string>
+    <string name="geo_other_hint">Поездки, монитор батареи, история метрик, сканирование и Flic. Overlay Studio не затрагивается: его макет фиксирован, но он нормально работает в любой ориентации.</string>
+    <string name="geo_settings_hint">Экран настроек. По умолчанию выключено, поэтому Настройки остаются в книжной ориентации, пока вы это не включите.</string>
     <string name="setting_allow_rotation">Разрешить поворот</string>
     <string name="setting_block_upside_down">Запретить поворот вверх ногами</string>
     <string name="setting_ignore_system_rotate_lock">Игнорировать системную блокировку поворота</string>
