@@ -1063,37 +1063,16 @@ private fun GeneralTab(
         SwitchSetting(stringResource(R.string.auto_connect_on_start), settings.autoConnect) { viewModel.updateAutoConnect(it) }
         HintText(stringResource(R.string.auto_connect_caption), small = true)
 
-        Text(
-            stringResource(R.string.wheel_name_display),
-            style = MaterialTheme.typography.bodyLarge
+        SegmentedChoice(
+            label = stringResource(R.string.wheel_name_display),
+            options = listOf(
+                "NONE" to stringResource(R.string.wheel_name_none),
+                "MODEL" to stringResource(R.string.wheel_name_model),
+                "BRAND" to stringResource(R.string.wheel_name_brand),
+            ),
+            current = settings.wheelNameDisplay,
+            onChange = { viewModel.updateWheelNameDisplay(it) },
         )
-        val wheelNameOptions = listOf(
-            "NONE" to stringResource(R.string.wheel_name_none),
-            "MODEL" to stringResource(R.string.wheel_name_model),
-            "BRAND" to stringResource(R.string.wheel_name_brand)
-        )
-        SingleChoiceSegmentedButtonRow(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(IntrinsicSize.Max)
-        ) {
-            wheelNameOptions.forEachIndexed { index, (key, label) ->
-                CompactSegmentedButton(
-                    modifier = Modifier.fillMaxHeight(),
-                    selected = key == settings.wheelNameDisplay,
-                    onClick = { viewModel.updateWheelNameDisplay(key) },
-                    shape = SegmentedButtonDefaults.itemShape(index, wheelNameOptions.size, baseShape = RoundedCornerShape(12.dp)),
-                    colors = themedSegmentedColors(),
-                ) {
-                    Text(
-                        label,
-                        textAlign = TextAlign.Center,
-                        maxLines = 2,
-                        overflow = TextOverflow.Ellipsis
-                    )
-                }
-            }
-        }
 
         settings.lastDeviceName?.let {
             Text(
@@ -1105,37 +1084,16 @@ private fun GeneralTab(
 
         SectionHeader(stringResource(R.string.section_application))
 
-        Text(
-            stringResource(R.string.back_button_action),
-            style = MaterialTheme.typography.bodyLarge
+        SegmentedChoice(
+            label = stringResource(R.string.back_button_action),
+            options = listOf(
+                "ASK" to stringResource(R.string.back_button_action_ask),
+                "BACKGROUND" to stringResource(R.string.back_button_action_background),
+                "STOP_ALL" to stringResource(R.string.back_button_action_stop),
+            ),
+            current = settings.backButtonAction,
+            onChange = { viewModel.updateBackButtonAction(it) },
         )
-        val backOptions = listOf(
-            "ASK" to stringResource(R.string.back_button_action_ask),
-            "BACKGROUND" to stringResource(R.string.back_button_action_background),
-            "STOP_ALL" to stringResource(R.string.back_button_action_stop)
-        )
-        SingleChoiceSegmentedButtonRow(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(IntrinsicSize.Max)
-        ) {
-            backOptions.forEachIndexed { index, (key, label) ->
-                CompactSegmentedButton(
-                    modifier = Modifier.fillMaxHeight(),
-                    selected = key == settings.backButtonAction,
-                    onClick = { viewModel.updateBackButtonAction(key) },
-                    shape = SegmentedButtonDefaults.itemShape(index, backOptions.size, baseShape = RoundedCornerShape(12.dp)),
-                    colors = themedSegmentedColors(),
-                ) {
-                    Text(
-                        label,
-                        textAlign = TextAlign.Center,
-                        maxLines = 2,
-                        overflow = TextOverflow.Ellipsis
-                    )
-                }
-            }
-        }
         HintText(stringResource(R.string.back_button_action_desc), small = true)
 
         Box(
@@ -5800,11 +5758,8 @@ private fun UnitsSetting(
     )
 
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        Text(
-            stringResource(R.string.units_label),
-            style = MaterialTheme.typography.labelLarge
-        )
-        SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
+        Box(modifier = Modifier.fillMaxWidth().padding(top = 9.dp, bottom = 4.dp)) {
+            SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
             systemOptions.forEachIndexed { index, (value, label) ->
                 CompactSegmentedButton(
                     selected = value == currentSystem,
@@ -5832,6 +5787,8 @@ private fun UnitsSetting(
                     colors = themedSegmentedColors(),
                 ) { Text(label) }
             }
+            }
+            FieldNotchLabel(stringResource(R.string.units_label))
         }
 
         if (expanded) {
@@ -6573,42 +6530,46 @@ private fun WatchTab(
             // of what we set here, so the choice would be misleading on a
             // Garmin-only setup. Surfaced only when a Wear OS device is paired.
             if (hasWearOs) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text(
-                        stringResource(R.string.watch_update_rate),
-                        style = MaterialTheme.typography.bodyLarge
-                    )
-                    if (garminBadge != null) {
-                        Spacer(Modifier.width(6.dp))
-                        garminBadge()
-                    }
-                }
+                val gb = garminBadge
+                val gbTrailing: (@Composable RowScope.() -> Unit)? =
+                    if (gb != null) {
+                        {
+                            Spacer(Modifier.width(4.dp))
+                            gb()
+                        }
+                    } else null
                 val updateRateOptions = listOf(
                     "CONSERVATIVE" to stringResource(R.string.watch_update_conservative),
                     "NORMAL" to stringResource(R.string.watch_update_normal),
                     "FAST" to stringResource(R.string.watch_update_fast)
                 )
-                SingleChoiceSegmentedButtonRow(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(IntrinsicSize.Max)
-                ) {
-                    updateRateOptions.forEachIndexed { index, (key, label) ->
-                        CompactSegmentedButton(
-                            modifier = Modifier.fillMaxHeight(),
-                            selected = key == settings.watchUpdateRate,
-                            onClick = { viewModel.updateWatchUpdateRate(key) },
-                            shape = SegmentedButtonDefaults.itemShape(index, updateRateOptions.size, baseShape = RoundedCornerShape(12.dp)),
-                            colors = themedSegmentedColors(),
-                        ) {
-                            Text(
-                                label,
-                                textAlign = TextAlign.Center,
-                                maxLines = 2,
-                                overflow = TextOverflow.Ellipsis
-                            )
+                Box(modifier = Modifier.fillMaxWidth().padding(top = 9.dp, bottom = 4.dp)) {
+                    SingleChoiceSegmentedButtonRow(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(IntrinsicSize.Max)
+                    ) {
+                        updateRateOptions.forEachIndexed { index, (key, label) ->
+                            CompactSegmentedButton(
+                                modifier = Modifier.fillMaxHeight(),
+                                selected = key == settings.watchUpdateRate,
+                                onClick = { viewModel.updateWatchUpdateRate(key) },
+                                shape = SegmentedButtonDefaults.itemShape(index, updateRateOptions.size, baseShape = RoundedCornerShape(12.dp)),
+                                colors = themedSegmentedColors(),
+                            ) {
+                                Text(
+                                    label,
+                                    textAlign = TextAlign.Center,
+                                    maxLines = 2,
+                                    overflow = TextOverflow.Ellipsis
+                                )
+                            }
                         }
                     }
+                    FieldNotchLabel(
+                        stringResource(R.string.watch_update_rate),
+                        trailing = gbTrailing,
+                    )
                 }
                 Text(
                     stringResource(R.string.watch_update_rate_desc),
@@ -6630,37 +6591,16 @@ private fun WatchTab(
                 settings.watchShowWatchBattery
             ) { viewModel.updateWatchShowWatchBattery(it) }
 
-            Text(
-                stringResource(R.string.watch_pwm_display),
-                style = MaterialTheme.typography.bodyLarge
+            SegmentedChoice(
+                label = stringResource(R.string.watch_pwm_display),
+                options = listOf(
+                    "BAR" to stringResource(R.string.watch_pwm_bar),
+                    "NUMBERS" to stringResource(R.string.watch_pwm_numbers),
+                    "BOTH" to stringResource(R.string.watch_pwm_both),
+                ),
+                current = settings.watchPwmDisplay,
+                onChange = { viewModel.updateWatchPwmDisplay(it) },
             )
-            val loadOptions = listOf(
-                "BAR" to stringResource(R.string.watch_pwm_bar),
-                "NUMBERS" to stringResource(R.string.watch_pwm_numbers),
-                "BOTH" to stringResource(R.string.watch_pwm_both)
-            )
-            SingleChoiceSegmentedButtonRow(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(IntrinsicSize.Max)
-            ) {
-                loadOptions.forEachIndexed { index, (key, label) ->
-                    CompactSegmentedButton(
-                        modifier = Modifier.fillMaxHeight(),
-                        selected = key == settings.watchPwmDisplay,
-                        onClick = { viewModel.updateWatchPwmDisplay(key) },
-                        shape = SegmentedButtonDefaults.itemShape(index, loadOptions.size, baseShape = RoundedCornerShape(12.dp)),
-                        colors = themedSegmentedColors(),
-                    ) {
-                        Text(
-                            label,
-                            textAlign = TextAlign.Center,
-                            maxLines = 2,
-                            overflow = TextOverflow.Ellipsis
-                        )
-                    }
-                }
-            }
 
             SwitchSettingWithDesc(
                 label = stringResource(R.string.watch_prioritize_pwm),
