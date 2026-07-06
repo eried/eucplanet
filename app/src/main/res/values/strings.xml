@@ -540,6 +540,14 @@
     <string name="adv_charging_sanity_cap_desc">Affects the largest ETA that is shown. Anything above this is treated as not ready yet.</string>
     <string name="adv_charging_median">Smoothing samples</string>
     <string name="adv_charging_median_desc">Affects how many samples are median-filtered to drop voltage spikes. Use an odd number.</string>
+    <string name="adv_cell_low_warn">Cell low warning</string>
+    <string name="adv_cell_low_warn_desc">How far below the pack median a cell may drift before it turns yellow.</string>
+    <string name="adv_cell_low_danger">Cell low danger</string>
+    <string name="adv_cell_low_danger_desc">How far below the pack median a cell may drift before it turns red.</string>
+    <string name="adv_cell_high">Cell high</string>
+    <string name="adv_cell_high_desc">How far above the pack median a cell may rise before it turns blue.</string>
+    <string name="adv_pack_balance_tol">Pack balance tolerance</string>
+    <string name="adv_pack_balance_tol_desc">How far a pack may sit from the median before it leaves the balanced green, for the percent-only pack view.</string>
     <string name="watch_update_conservative">Conservative</string>
     <string name="watch_update_normal">Normal</string>
     <string name="watch_update_fast">Fast</string>

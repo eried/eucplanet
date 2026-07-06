@@ -193,6 +193,16 @@ val ADVANCED_SPECS: List<AdvancedSpec> = listOf(
     AdvancedSpec("chargingMedianFilterSize", AdvGroup.CHARGING, R.string.adv_charging_median, R.string.adv_charging_median_desc,
         1..21, 2, unit = "", get = { it.chargingMedianFilterSize }, set = { s, v -> s.copy(chargingMedianFilterSize = v) }),
 
+    // --- Battery cell / pack balance coloring (deviation from the pack median) ---
+    AdvancedSpec("cellLowWarnMv", AdvGroup.CHARGING, R.string.adv_cell_low_warn, R.string.adv_cell_low_warn_desc,
+        5..150, 5, unit = "mV", get = { it.cellLowWarnMv }, set = { s, v -> s.copy(cellLowWarnMv = v) }),
+    AdvancedSpec("cellLowDangerMv", AdvGroup.CHARGING, R.string.adv_cell_low_danger, R.string.adv_cell_low_danger_desc,
+        10..300, 5, unit = "mV", get = { it.cellLowDangerMv }, set = { s, v -> s.copy(cellLowDangerMv = v) }),
+    AdvancedSpec("cellHighMv", AdvGroup.CHARGING, R.string.adv_cell_high, R.string.adv_cell_high_desc,
+        5..200, 5, unit = "mV", get = { it.cellHighMv }, set = { s, v -> s.copy(cellHighMv = v) }),
+    AdvancedSpec("packBalanceTolerancePct", AdvGroup.CHARGING, R.string.adv_pack_balance_tol, R.string.adv_pack_balance_tol_desc,
+        1..30, 1, unit = "%", get = { it.packBalanceTolerancePct }, set = { s, v -> s.copy(packBalanceTolerancePct = v) }),
+
     // --- Screen geometry variables ---
     AdvancedSpec("compactMaxScreenDp", AdvGroup.GEOMETRY, R.string.adv_compact_max_screen, R.string.adv_compact_max_screen_desc,
         300..800, 10, unit = "dp", get = { it.compactMaxScreenDp }, set = { s, v -> s.copy(compactMaxScreenDp = v) }),

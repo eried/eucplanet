@@ -1695,6 +1695,14 @@
     <string name="adv_charging_cv_taper_desc">影響充滿前最後階段預估時間的保守程度。數值越高，預留越多餘裕。</string>
     <string name="adv_charging_median">平滑取樣數</string>
     <string name="adv_charging_median_desc">影響進行中位數濾波以濾除電壓尖峰的取樣數。請使用奇數。</string>
+    <string name="adv_cell_low_warn">電芯偏低 警告</string>
+    <string name="adv_cell_low_warn_desc">電芯低於電池組中位數多少時變為黃色。</string>
+    <string name="adv_cell_low_danger">電芯偏低 危險</string>
+    <string name="adv_cell_low_danger_desc">電芯低於電池組中位數多少時變為紅色。</string>
+    <string name="adv_cell_high">電芯偏高</string>
+    <string name="adv_cell_high_desc">電芯高於電池組中位數多少時變為藍色。</string>
+    <string name="adv_pack_balance_tol">電池組均衡容差</string>
+    <string name="adv_pack_balance_tol_desc">在僅顯示百分比的電池組檢視中，電池組偏離中位數多少時離開均衡的綠色。</string>
     <string name="adv_charging_sanity_cap">預估時間上限</string>
     <string name="adv_charging_sanity_cap_desc">影響顯示的最大預估時間。超過此值即視為尚未就緒。</string>
     <string name="adv_charging_target_pct">目標百分比</string>

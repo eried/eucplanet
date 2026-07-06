@@ -1693,6 +1693,14 @@
     <string name="adv_charging_cv_taper_desc">Tam doluma kadar son bölümün tahmini süresinin ne kadar kötümser olduğunu etkiler. Yüksek değer pay ekler.</string>
     <string name="adv_charging_median">Yumuşatma örnekleri</string>
     <string name="adv_charging_median_desc">Gerilim sıçramalarını ayıklamak için kaç örneğin medyan filtreden geçtiğini etkiler. Tek sayı kullanın.</string>
+    <string name="adv_cell_low_warn">Hücre düşük, uyarı</string>
+    <string name="adv_cell_low_warn_desc">Bir hücrenin sarıya dönmeden önce pack medyanının ne kadar altına düşebileceği.</string>
+    <string name="adv_cell_low_danger">Hücre düşük, tehlike</string>
+    <string name="adv_cell_low_danger_desc">Bir hücrenin kırmızıya dönmeden önce pack medyanının ne kadar altına düşebileceği.</string>
+    <string name="adv_cell_high">Hücre yüksek</string>
+    <string name="adv_cell_high_desc">Bir hücrenin maviye dönmeden önce pack medyanının ne kadar üstüne çıkabileceği.</string>
+    <string name="adv_pack_balance_tol">Pack denge toleransı</string>
+    <string name="adv_pack_balance_tol_desc">Yalnızca yüzde gösteren pack görünümünde, bir pack\'in dengeli yeşilden çıkmadan önce medyandan ne kadar uzaklaşabileceği.</string>
     <string name="adv_charging_sanity_cap">Tahmin üst sınırı</string>
     <string name="adv_charging_sanity_cap_desc">Gösterilen en büyük tahmini süreyi etkiler. Bunun üzerindeki her şey henüz hazır değil olarak kabul edilir.</string>
     <string name="adv_charging_target_pct">Hedef yüzde</string>

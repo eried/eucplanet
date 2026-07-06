@@ -1693,6 +1693,14 @@
     <string name="adv_charging_cv_taper_desc">Afecta cuán pesimista es la ETA del tramo final hasta completar. Más alto añade margen.</string>
     <string name="adv_charging_median">Muestras de suavizado</string>
     <string name="adv_charging_median_desc">Afecta cuántas muestras se filtran por mediana para descartar picos de voltaje. Usa un número impar.</string>
+    <string name="adv_cell_low_warn">Celda baja, aviso</string>
+    <string name="adv_cell_low_warn_desc">Cuánto puede bajar una celda respecto a la mediana del pack antes de ponerse amarilla.</string>
+    <string name="adv_cell_low_danger">Celda baja, peligro</string>
+    <string name="adv_cell_low_danger_desc">Cuánto puede bajar una celda respecto a la mediana del pack antes de ponerse roja.</string>
+    <string name="adv_cell_high">Celda alta</string>
+    <string name="adv_cell_high_desc">Cuánto puede subir una celda sobre la mediana del pack antes de ponerse azul.</string>
+    <string name="adv_pack_balance_tol">Tolerancia de equilibrio del pack</string>
+    <string name="adv_pack_balance_tol_desc">Cuánto puede alejarse un pack de la mediana antes de dejar el verde equilibrado, para la vista de packs solo con porcentaje.</string>
     <string name="adv_charging_sanity_cap">Tope de cordura de ETA</string>
     <string name="adv_charging_sanity_cap_desc">Afecta la mayor ETA que se muestra. Cualquier valor por encima se trata como aún no listo.</string>
     <string name="adv_charging_target_pct">Porcentaje objetivo</string>

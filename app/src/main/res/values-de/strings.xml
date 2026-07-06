@@ -1716,6 +1716,14 @@
     <string name="adv_charging_cv_taper_desc">Beeinflusst, wie pessimistisch die Restzeit für den letzten Abschnitt bis voll ist. Höher bedeutet mehr Reserve.</string>
     <string name="adv_charging_median">Glättungs-Messwerte</string>
     <string name="adv_charging_median_desc">Beeinflusst, wie viele Messwerte per Median gefiltert werden, um Spannungsspitzen zu entfernen. Ungerade Zahl verwenden.</string>
+    <string name="adv_cell_low_warn">Zelle niedrig, Warnung</string>
+    <string name="adv_cell_low_warn_desc">Wie weit eine Zelle unter den Pack-Median fallen darf, bevor sie gelb wird.</string>
+    <string name="adv_cell_low_danger">Zelle niedrig, Gefahr</string>
+    <string name="adv_cell_low_danger_desc">Wie weit eine Zelle unter den Pack-Median fallen darf, bevor sie rot wird.</string>
+    <string name="adv_cell_high">Zelle hoch</string>
+    <string name="adv_cell_high_desc">Wie weit eine Zelle über den Pack-Median steigen darf, bevor sie blau wird.</string>
+    <string name="adv_pack_balance_tol">Pack-Balancetoleranz</string>
+    <string name="adv_pack_balance_tol_desc">Wie weit ein Pack vom Median abweichen darf, bevor es das ausgeglichene Grün verlässt, für die reine Prozentansicht der Packs.</string>
     <string name="adv_charging_sanity_cap">Restzeit-Obergrenze</string>
     <string name="adv_charging_sanity_cap_desc">Beeinflusst die größte angezeigte Restzeit. Alles darüber gilt als noch nicht bereit.</string>
     <string name="adv_charging_target_pct">Zielprozent</string>

@@ -915,7 +915,7 @@ private fun InfoTabs(state: ChargingUiState) {
                             val packVolts = bmsPacks.take(stableBmsCount).map { pack ->
                                 pack.knownCells.map { it.second }.average().toFloat()
                             }
-                            PacksGrid(packVolts, isVoltage = true)
+                            PacksGrid(packVolts, isVoltage = true, state.cellLowWarnMv, state.cellLowDangerMv, state.cellHighMv, state.packBalanceTolerancePct)
                             Spacer(Modifier.height(8.dp))
                             if (packVolts.size >= 2) {
                                 // Imbalance as a mV spread -- the real pack-health
@@ -930,7 +930,7 @@ private fun InfoTabs(state: ChargingUiState) {
                                 if (state.battery1 > 0f) add(state.battery1)
                                 if (state.battery2 > 0f) add(state.battery2)
                             }
-                            PacksGrid(packs, isVoltage = false)
+                            PacksGrid(packs, isVoltage = false, state.cellLowWarnMv, state.cellLowDangerMv, state.cellHighMv, state.packBalanceTolerancePct)
                             Spacer(Modifier.height(8.dp))
                             if (packs.size >= 2) {
                                 // 2 decimals + explicit sign so a fully balanced
@@ -947,7 +947,7 @@ private fun InfoTabs(state: ChargingUiState) {
                         StatRow(stringResource(R.string.charging_stat_voltage), "%.1f V".format(state.voltage))
                     }
                     "cells" -> {
-                        CellsTabContent(state.bms)
+                        CellsTabContent(state.bms, state.cellLowWarnMv, state.cellLowDangerMv, state.cellHighMv)
                     }
                 }
             }
@@ -1008,13 +1008,18 @@ private fun ChargingChart(
  * Per-cell view for smart-BMS wheels (Lynx / Sherman L / Oryx / NOSFET /
  * smart-BMS Patton). For each pack: top stat row with the cell count, min /
  * max / delta in mV, then a grid of small cell-voltage chips. Each chip is
- * tinted by its deviation from the pack average so cells that have drifted
- * out of balance pop visually (red = lowest, blue = highest). Scrolls when
+ * tinted by its deviation from the pack median, so a balanced pack reads all
+ * green and only real outliers pop (yellow / red low, blue high). Scrolls when
  * a pack has many cells (the Lynx S has 42 cells per pack, so the grid is
  * long).
  */
 @Composable
-private fun CellsTabContent(bms: com.eried.eucplanet.data.model.BmsState) {
+private fun CellsTabContent(
+    bms: com.eried.eucplanet.data.model.BmsState,
+    lowWarnMv: Int,
+    lowDangerMv: Int,
+    highMv: Int,
+) {
     val colors = MaterialTheme.appColors
     val packs = bms.packs.filter { it.knownCells.isNotEmpty() }
     if (packs.isEmpty()) {
@@ -1037,6 +1042,12 @@ private fun CellsTabContent(bms: com.eried.eucplanet.data.model.BmsState) {
     ) {
         packs.forEach { pack ->
             val cells = pack.knownCells
+            // Color reference is the median (robust to a bad cell), with the
+            // thresholds converted from mV to volts.
+            val median = medianOf(cells.map { it.second })
+            val warnLowV = lowWarnMv / 1000f
+            val dangerLowV = lowDangerMv / 1000f
+            val highV = highMv / 1000f
             val mn = pack.minCellV ?: 0f
             val mx = pack.maxCellV ?: 0f
             val deltaMv = pack.cellDeltaMv ?: 0
@@ -1078,8 +1089,11 @@ private fun CellsTabContent(bms: com.eried.eucplanet.data.model.BmsState) {
                             CellChip(
                                 cellNumber = idx + 1,
                                 voltage = v,
-                                min = mn,
-                                max = mx,
+                                chipColor = balanceColor(
+                                    v, median, warnLowV, dangerLowV, highV,
+                                    green = colors.metricBattery, warn = colors.statusWarn,
+                                    danger = colors.statusDanger, highColor = colors.metricVoltage,
+                                ),
                                 modifier = Modifier.weight(1f),
                             )
                         }
@@ -1099,27 +1113,54 @@ private fun CellHeaderStat(label: String, value: String, color: Color = Material
     }
 }
 
-@Composable
-private fun CellChip(cellNumber: Int, voltage: Float, min: Float, max: Float, modifier: Modifier = Modifier) {
-    val colors = MaterialTheme.appColors
-    // Position the voltage on the pack's [min..max] band: lowest cell → red,
-    // highest → blue, middle → neutral hint. Within a single-volt-wide band
-    // even tiny imbalances are visually obvious.
-    val span = (max - min).coerceAtLeast(0.001f)
-    val pos = ((voltage - min) / span).coerceIn(0f, 1f)
-    val chipColor = when {
-        pos < 0.15f -> colors.statusDanger
-        pos < 0.35f -> colors.statusWarn
-        pos > 0.85f -> colors.metricVoltage
-        else -> colors.metricBattery
+/**
+ * Cell / pack tint keyed off deviation from the pack MEDIAN (robust to one bad
+ * cell, unlike a min..max rank which paints even a tight pack in full rainbow).
+ * Inside the healthy band it stays green with a subtle gradient (deepest at the
+ * median, fading a touch lighter toward the nearer edge); only genuine outliers
+ * pick up warm (low) or blue (high). Units are whatever [value], [median] and
+ * the thresholds share: volts for cells, percentage points for SoC packs.
+ */
+private fun balanceColor(
+    value: Float,
+    median: Float,
+    warnLow: Float,
+    dangerLow: Float,
+    high: Float,
+    green: Color,
+    warn: Color,
+    danger: Color,
+    highColor: Color,
+): Color {
+    val dev = value - median
+    return when {
+        dev <= -dangerLow -> danger
+        dev <= -warnLow -> warn
+        dev >= high -> highColor
+        else -> {
+            val edge = (if (dev < 0f) warnLow else high).coerceAtLeast(0.0001f)
+            val t = (abs(dev) / edge).coerceIn(0f, 1f)
+            lerp(green, Color.White, 0.28f * t)
+        }
     }
+}
+
+private fun medianOf(values: List<Float>): Float {
+    if (values.isEmpty()) return 0f
+    val s = values.sorted()
+    val m = s.size / 2
+    return if (s.size % 2 == 1) s[m] else (s[m - 1] + s[m]) / 2f
+}
+
+@Composable
+private fun CellChip(cellNumber: Int, voltage: Float, chipColor: Color, modifier: Modifier = Modifier) {
     Column(
         modifier = modifier
             .background(chipColor.copy(alpha = 0.18f))
             .padding(vertical = 2.dp, horizontal = 2.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        Text("#$cellNumber", fontSize = 8.sp, color = colors.hint)
+        Text("#$cellNumber", fontSize = 8.sp, color = MaterialTheme.appColors.hint)
         Text("%.3f".format(voltage), fontSize = 10.sp, fontWeight = FontWeight.Medium, color = chipColor)
     }
 }
@@ -1129,13 +1170,19 @@ private fun CellChip(cellNumber: Int, voltage: Float, min: Float, max: Float, mo
  * 3 → 3, 6 → 3×2, …). Each tile is a mini fill with "#N" and its %.
  */
 @Composable
-private fun PacksGrid(packs: List<Float>, isVoltage: Boolean) {
+private fun PacksGrid(
+    packs: List<Float>,
+    isVoltage: Boolean,
+    lowWarnMv: Int,
+    lowDangerMv: Int,
+    highMv: Int,
+    tolerancePct: Int,
+) {
     if (packs.isEmpty()) return
     val n = packs.size
-    val avg = packs.average().toFloat()
-    val mn = packs.min()
-    val mx = packs.max()
-    val span = (mx - mn).coerceAtLeast(0.01f)
+    val colors = MaterialTheme.appColors
+    // Deviation is measured from the pack median (robust to one bad pack).
+    val median = medianOf(packs)
     // Always render in a single row. Tile width = 1/max(n, 2), so a single
     // pack takes half the row (instead of stretching to a giant square)
     // and the layout never reflows as new BMS packs arrive: when only one
@@ -1147,18 +1194,20 @@ private fun PacksGrid(packs: List<Float>, isVoltage: Boolean) {
         horizontalArrangement = Arrangement.spacedBy(8.dp),
     ) {
         packs.forEachIndexed { idx, pct ->
-            val pos = ((pct - mn) / span).coerceIn(0f, 1f)
-            // Same red-low / blue-high palette as the cell chips, so a quick
-            // glance lines up the worst pack across both tabs visually.
-            val tileColor = when {
-                pos < 0.25f -> MaterialTheme.appColors.statusDanger
-                pos > 0.75f -> MaterialTheme.appColors.metricVoltage
-                else -> MaterialTheme.appColors.metricBattery
+            // Voltage packs use the mV thresholds; the SoC-only fallback uses the
+            // percent tolerance (yellow past 1x low, red past 2x low, blue past
+            // 1x high). Same green-when-balanced language as the cell chips.
+            val tileColor = if (isVoltage) {
+                balanceColor(pct, median, lowWarnMv / 1000f, lowDangerMv / 1000f, highMv / 1000f,
+                    colors.metricBattery, colors.statusWarn, colors.statusDanger, colors.metricVoltage)
+            } else {
+                balanceColor(pct, median, tolerancePct.toFloat(), 2f * tolerancePct, tolerancePct.toFloat(),
+                    colors.metricBattery, colors.statusWarn, colors.statusDanger, colors.metricVoltage)
             }
             PackTile(
                 index = idx + 1,
                 value = pct,
-                avg = avg,
+                avg = median,
                 isVoltage = isVoltage,
                 fillColor = tileColor,
                 modifier = Modifier.weight(1f),
@@ -1192,8 +1241,8 @@ private fun PackTile(
             .background(MaterialTheme.appColors.tileBackground),
     ) {
         // Pack-level fill from the bottom: backing color tinted by the pack's
-        // imbalance position (red = lowest, blue = highest, green = middle —
-        // matches the cell chips' color language).
+        // deviation from the median (green when balanced, warm when low, blue
+        // when high), matching the cell chips' color language.
         Canvas(
             modifier = Modifier
                 .fillMaxWidth()
@@ -1228,8 +1277,8 @@ private fun PackTile(
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.appColors.textPrimary,
             )
-            // Deviation from the pack average. Always shown so a balanced
-            // pack reads "+0.00%" instead of an empty line — keeps the 4-pack
+            // Deviation from the pack median. Always shown so a balanced
+            // pack reads "+0.00%" instead of an empty line, keeping the 4-pack
             // row visually uniform. 2 decimals preserve the real sign even
             // for sub-tenth values (a -0.04 % delta shows as "-0.04%" instead
             // of getting rounded down to a confusing "-0.0%").

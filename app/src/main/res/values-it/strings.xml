@@ -1601,6 +1601,14 @@
     <string name="adv_charging_cv_taper_desc">Influisce su quanto è pessimistica la stima per il tratto finale alla carica completa. Più alto aggiunge margine.</string>
     <string name="adv_charging_median">Campioni di livellamento</string>
     <string name="adv_charging_median_desc">Influisce su quanti campioni vengono filtrati con la mediana per eliminare i picchi di tensione. Usa un numero dispari.</string>
+    <string name="adv_cell_low_warn">Cella bassa, avviso</string>
+    <string name="adv_cell_low_warn_desc">Di quanto una cella può scendere sotto la mediana del pack prima di diventare gialla.</string>
+    <string name="adv_cell_low_danger">Cella bassa, pericolo</string>
+    <string name="adv_cell_low_danger_desc">Di quanto una cella può scendere sotto la mediana del pack prima di diventare rossa.</string>
+    <string name="adv_cell_high">Cella alta</string>
+    <string name="adv_cell_high_desc">Di quanto una cella può salire sopra la mediana del pack prima di diventare blu.</string>
+    <string name="adv_pack_balance_tol">Tolleranza di bilanciamento del pack</string>
+    <string name="adv_pack_balance_tol_desc">Di quanto un pack può discostarsi dalla mediana prima di lasciare il verde bilanciato, per la vista pack solo in percentuale.</string>
     <string name="adv_charging_sanity_cap">Limite massimo stima</string>
     <string name="adv_charging_sanity_cap_desc">Influisce sulla stima massima mostrata. Tutto ciò che la supera è considerato non ancora pronto.</string>
     <string name="adv_charging_target_pct">Percentuale obiettivo</string>

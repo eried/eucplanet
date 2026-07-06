@@ -1695,6 +1695,14 @@
     <string name="adv_charging_cv_taper_desc">満充電までの最終区間の予想時間をどれだけ余裕を見るかに影響します。高いほどマージンが増えます。</string>
     <string name="adv_charging_median">平滑化サンプル数</string>
     <string name="adv_charging_median_desc">電圧スパイクを除去するために中央値フィルタにかけるサンプル数に影響します。奇数を使用してください。</string>
+    <string name="adv_cell_low_warn">セル低下 警告</string>
+    <string name="adv_cell_low_warn_desc">セルがパック中央値からどれだけ下がると黄色になるか。</string>
+    <string name="adv_cell_low_danger">セル低下 危険</string>
+    <string name="adv_cell_low_danger_desc">セルがパック中央値からどれだけ下がると赤になるか。</string>
+    <string name="adv_cell_high">セル高め</string>
+    <string name="adv_cell_high_desc">セルがパック中央値からどれだけ上がると青になるか。</string>
+    <string name="adv_pack_balance_tol">パックのバランス許容差</string>
+    <string name="adv_pack_balance_tol_desc">パーセントのみのパック表示で、パックが中央値からどれだけ離れるとバランスの取れた緑から外れるか。</string>
     <string name="adv_charging_sanity_cap">予想時間の上限</string>
     <string name="adv_charging_sanity_cap_desc">表示される予想時間の最大値に影響します。これを超える値は「まだ未完了」として扱われます。</string>
     <string name="adv_charging_target_pct">目標パーセント</string>

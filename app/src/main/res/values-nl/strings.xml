@@ -1696,6 +1696,14 @@
     <string name="adv_charging_cv_taper_desc">Bepaalt hoe pessimistisch de ETA voor het laatste stuk tot vol is. Hoger voegt marge toe.</string>
     <string name="adv_charging_median">Afvlaksamples</string>
     <string name="adv_charging_median_desc">Bepaalt hoeveel samples mediaan-gefilterd worden om spanningspieken te verwijderen. Gebruik een oneven getal.</string>
+    <string name="adv_cell_low_warn">Cel laag, waarschuwing</string>
+    <string name="adv_cell_low_warn_desc">Hoever een cel onder de mediaan van het pack mag zakken voordat hij geel wordt.</string>
+    <string name="adv_cell_low_danger">Cel laag, gevaar</string>
+    <string name="adv_cell_low_danger_desc">Hoever een cel onder de mediaan van het pack mag zakken voordat hij rood wordt.</string>
+    <string name="adv_cell_high">Cel hoog</string>
+    <string name="adv_cell_high_desc">Hoever een cel boven de mediaan van het pack mag stijgen voordat hij blauw wordt.</string>
+    <string name="adv_pack_balance_tol">Pack-balanstolerantie</string>
+    <string name="adv_pack_balance_tol_desc">Hoever een pack van de mediaan mag liggen voordat het het gebalanceerde groen verlaat, voor de packweergave met alleen percentages.</string>
     <string name="adv_charging_sanity_cap">ETA-limiet</string>
     <string name="adv_charging_sanity_cap_desc">Bepaalt de grootste ETA die wordt getoond. Alles daarboven wordt behandeld als nog niet klaar.</string>
     <string name="adv_charging_target_pct">Doelpercentage</string>

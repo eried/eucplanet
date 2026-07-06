@@ -1696,6 +1696,14 @@
     <string name="adv_charging_cv_taper_desc">Påverkar hur pessimistisk beräknad tid för sista delen till fullt är. Högre ger mer marginal.</string>
     <string name="adv_charging_median">Utjämningsmätvärden</string>
     <string name="adv_charging_median_desc">Påverkar hur många mätvärden som medianfiltreras för att ta bort spänningstoppar. Använd ett udda tal.</string>
+    <string name="adv_cell_low_warn">Cell låg, varning</string>
+    <string name="adv_cell_low_warn_desc">Hur långt en cell får sjunka under paketets median innan den blir gul.</string>
+    <string name="adv_cell_low_danger">Cell låg, fara</string>
+    <string name="adv_cell_low_danger_desc">Hur långt en cell får sjunka under paketets median innan den blir röd.</string>
+    <string name="adv_cell_high">Cell hög</string>
+    <string name="adv_cell_high_desc">Hur långt en cell får stiga över paketets median innan den blir blå.</string>
+    <string name="adv_pack_balance_tol">Paketets balanstolerans</string>
+    <string name="adv_pack_balance_tol_desc">Hur långt ett paket får ligga från medianen innan det lämnar det balanserade gröna, för paketvyn med bara procent.</string>
     <string name="adv_charging_sanity_cap">Rimlighetstak för ETA</string>
     <string name="adv_charging_sanity_cap_desc">Påverkar den största ETA som visas. Allt över detta behandlas som inte klart än.</string>
     <string name="adv_charging_target_pct">Målprocent</string>

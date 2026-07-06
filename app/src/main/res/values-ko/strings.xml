@@ -1693,6 +1693,14 @@
     <string name="adv_charging_cv_taper_desc">완충까지 마지막 구간의 예상 시간을 얼마나 보수적으로 잡을지 결정합니다. 높을수록 여유를 더합니다.</string>
     <string name="adv_charging_median">평활화 샘플</string>
     <string name="adv_charging_median_desc">전압 스파이크를 제거하기 위해 중앙값 필터링할 샘플 수를 결정합니다. 홀수를 사용하세요.</string>
+    <string name="adv_cell_low_warn">셀 낮음 경고</string>
+    <string name="adv_cell_low_warn_desc">셀이 팩 중앙값보다 얼마나 낮아지면 노란색으로 바뀌는지.</string>
+    <string name="adv_cell_low_danger">셀 낮음 위험</string>
+    <string name="adv_cell_low_danger_desc">셀이 팩 중앙값보다 얼마나 낮아지면 빨간색으로 바뀌는지.</string>
+    <string name="adv_cell_high">셀 높음</string>
+    <string name="adv_cell_high_desc">셀이 팩 중앙값보다 얼마나 높아지면 파란색으로 바뀌는지.</string>
+    <string name="adv_pack_balance_tol">팩 균형 허용치</string>
+    <string name="adv_pack_balance_tol_desc">퍼센트만 표시하는 팩 보기에서, 팩이 중앙값에서 얼마나 벗어나면 균형 잡힌 초록색을 벗어나는지.</string>
     <string name="adv_charging_sanity_cap">예상 시간 상한</string>
     <string name="adv_charging_sanity_cap_desc">표시되는 최대 예상 시간을 결정합니다. 이를 초과하면 아직 준비되지 않은 것으로 처리됩니다.</string>
     <string name="adv_charging_target_pct">목표 퍼센트</string>

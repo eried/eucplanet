@@ -1563,6 +1563,14 @@
     <string name="adv_charging_cv_taper_desc">影响充满前最后一段 ETA 的保守程度。越高余量越大。</string>
     <string name="adv_charging_median">平滑样本数</string>
     <string name="adv_charging_median_desc">影响用于中值滤波以剔除电压尖峰的样本数量。请使用奇数。</string>
+    <string name="adv_cell_low_warn">电芯偏低 警告</string>
+    <string name="adv_cell_low_warn_desc">电芯低于电池组中位数多少时变为黄色。</string>
+    <string name="adv_cell_low_danger">电芯偏低 危险</string>
+    <string name="adv_cell_low_danger_desc">电芯低于电池组中位数多少时变为红色。</string>
+    <string name="adv_cell_high">电芯偏高</string>
+    <string name="adv_cell_high_desc">电芯高于电池组中位数多少时变为蓝色。</string>
+    <string name="adv_pack_balance_tol">电池组均衡容差</string>
+    <string name="adv_pack_balance_tol_desc">在仅显示百分比的电池组视图中，电池组偏离中位数多少时离开均衡的绿色。</string>
     <string name="adv_charging_sanity_cap">ETA 上限</string>
     <string name="adv_charging_sanity_cap_desc">影响显示的最大 ETA。超过此值视为尚未就绪。</string>
     <string name="adv_charging_target_pct">目标百分比</string>
