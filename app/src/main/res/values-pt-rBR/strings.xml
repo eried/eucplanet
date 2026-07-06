@@ -403,7 +403,7 @@
 
     <!-- Watch hardware buttons -->
     <string name="watch_button_click_label">Clique</string>
-    <string name="watch_button_hold_label">Pressionar e segurar</string>
+    <string name="watch_button_hold_label">Manter</string>
     <string name="watch_buttons_hardware_info">Pressionar e segurar pode ser interceptado pelo sistema em alguns relógios</string>
     <string name="watch_buttons_touch_info">Depende do suporte do seu relógio</string>
     <string name="watch_buttons_hardware_label">Físicos</string>

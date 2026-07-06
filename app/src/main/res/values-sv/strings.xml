@@ -403,7 +403,7 @@
 
     <!-- Watch hardware buttons -->
     <string name="watch_button_click_label">Klick</string>
-    <string name="watch_button_hold_label">Långt tryck</string>
+    <string name="watch_button_hold_label">Håll</string>
     <string name="watch_buttons_hardware_info">Håll kan fångas av systemet på vissa klockor</string>
     <string name="watch_buttons_touch_info">Beror på vad din klocka stödjer</string>
     <string name="watch_buttons_hardware_label">Fysiska</string>

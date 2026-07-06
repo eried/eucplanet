@@ -403,7 +403,7 @@
 
     <!-- Watch hardware buttons -->
     <string name="watch_button_click_label">Clic</string>
-    <string name="watch_button_hold_label">Appui long</string>
+    <string name="watch_button_hold_label">Maintenir</string>
     <string name="watch_buttons_hardware_info">Les appuis longs peuvent être interceptés par le système sur certaines montres</string>
     <string name="watch_buttons_touch_info">Dépend de ta montre</string>
     <string name="watch_buttons_hardware_label">Physiques</string>

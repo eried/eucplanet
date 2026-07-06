@@ -403,7 +403,7 @@
 
     <!-- Watch hardware buttons -->
     <string name="watch_button_click_label">Натискання</string>
-    <string name="watch_button_hold_label">Довге натискання</string>
+    <string name="watch_button_hold_label">Утрим.</string>
     <string name="watch_buttons_hardware_info">Утримання можуть перехоплюватись системою на деяких годинниках</string>
     <string name="watch_buttons_touch_info">Залежить від твого годинника</string>
     <string name="watch_buttons_hardware_label">Фізичні</string>

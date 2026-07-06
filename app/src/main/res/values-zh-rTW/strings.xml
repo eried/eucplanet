@@ -403,7 +403,7 @@
 
     <!-- Watch hardware buttons -->
     <string name="watch_button_click_label">點擊</string>
-    <string name="watch_button_hold_label">長按</string>
+    <string name="watch_button_hold_label">按住</string>
     <string name="watch_buttons_hardware_info">某些手錶上的長按可能被系統攔截</string>
     <string name="watch_buttons_touch_info">取決於您的手錶所支援的功能</string>
     <string name="watch_buttons_hardware_label">實體</string>

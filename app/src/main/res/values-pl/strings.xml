@@ -403,7 +403,7 @@
 
     <!-- Watch hardware buttons -->
     <string name="watch_button_click_label">Kliknięcie</string>
-    <string name="watch_button_hold_label">Długie naciśnięcie</string>
+    <string name="watch_button_hold_label">Przytrzymaj</string>
     <string name="watch_buttons_hardware_info">Przytrzymania mogą być przechwytywane przez system na niektórych zegarkach</string>
     <string name="watch_buttons_touch_info">Zależy od możliwości zegarka</string>
     <string name="watch_buttons_hardware_label">Fizyczne</string>

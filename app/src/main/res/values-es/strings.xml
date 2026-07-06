@@ -403,7 +403,7 @@
 
     <!-- Watch hardware buttons -->
     <string name="watch_button_click_label">Clic</string>
-    <string name="watch_button_hold_label">Pulsación larga</string>
+    <string name="watch_button_hold_label">Mantener</string>
     <string name="watch_buttons_hardware_info">Las pulsaciones largas pueden ser interceptadas por el sistema en algunos relojes</string>
     <string name="watch_buttons_touch_info">Depende de lo que soporte tu reloj</string>
     <string name="watch_buttons_hardware_label">Físicos</string>

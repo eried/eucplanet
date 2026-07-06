@@ -403,7 +403,7 @@
 
     <!-- Watch hardware buttons -->
     <string name="watch_button_click_label">클릭</string>
-    <string name="watch_button_hold_label">길게 누르기</string>
+    <string name="watch_button_hold_label">길게</string>
     <string name="watch_buttons_hardware_info">일부 워치에서는 시스템이 길게 누르기를 가로챌 수 있습니다</string>
     <string name="watch_buttons_touch_info">워치 지원 여부에 따라 다릅니다</string>
     <string name="watch_buttons_hardware_label">물리적</string>

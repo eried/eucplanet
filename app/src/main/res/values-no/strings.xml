@@ -550,7 +550,7 @@
     <string name="watch_close_on_exit">Auto-stopp på klokken</string>
     <string name="watch_close_on_exit_desc">Stopp klokke-appen ved Stopp alt</string>
     <string name="watch_button_click_label">Klikk</string>
-    <string name="watch_button_hold_label">Langt trykk</string>
+    <string name="watch_button_hold_label">Hold</string>
     <string name="watch_keep_on">Hold skjermen på</string>
     <string name="watch_keep_on_desc">Hold klokka våken mens appen er åpen</string>
     <string name="watch_update_rate">Oppdateringsfrekvens</string>

@@ -403,7 +403,7 @@
 
     <!-- Watch hardware buttons -->
     <string name="watch_button_click_label">Klick</string>
-    <string name="watch_button_hold_label">Langer Druck</string>
+    <string name="watch_button_hold_label">Halten</string>
     <string name="watch_buttons_hardware_info">Halten kann auf manchen Uhren vom System abgefangen werden</string>
     <string name="watch_buttons_touch_info">Hängt vom Modell der Uhr ab</string>
     <string name="watch_buttons_hardware_label">Physisch</string>

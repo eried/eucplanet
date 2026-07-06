@@ -146,7 +146,7 @@
 
     <!-- Watch hardware buttons -->
     <string name="watch_button_click_label">Clic</string>
-    <string name="watch_button_hold_label">Pressione lunga</string>
+    <string name="watch_button_hold_label">Tieni</string>
 
     <!-- Settings: Backup -->
     <string name="section_cloud_folder">Cartella di backup</string>

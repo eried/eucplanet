@@ -403,7 +403,7 @@
 
     <!-- Watch hardware buttons -->
     <string name="watch_button_click_label">Tıklama</string>
-    <string name="watch_button_hold_label">Uzun basma</string>
+    <string name="watch_button_hold_label">Tut</string>
     <string name="watch_buttons_hardware_info">Bazı saatlerde uzun basışlar sistem tarafından ele geçirilebilir</string>
     <string name="watch_buttons_touch_info">Saatinizin desteklediğine bağlıdır</string>
     <string name="watch_buttons_hardware_label">Fiziksel</string>
