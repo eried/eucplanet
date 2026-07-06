@@ -101,10 +101,14 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.IntRect
+import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.Popup
+import androidx.compose.ui.window.PopupPositionProvider
 import androidx.compose.ui.window.PopupProperties
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.eried.eucplanet.R
@@ -1460,7 +1464,7 @@ internal fun NumberUpDown(
             // clipped the number on dense screens). Tapping the field focuses it
             // (system keyboard) and reveals the up/down bubble above it.
             Surface(
-                shape = RoundedCornerShape(12.dp),
+                shape = RoundedCornerShape(16.dp),
                 color = MaterialTheme.appColors.fieldBackground,
                 border = BorderStroke(
                     if (focused) 2.dp else 1.dp,
@@ -1514,13 +1518,32 @@ internal fun NumberUpDown(
                     }
                 }
             }
-            // Up/down stepper bubble: floats just above the field's trailing edge
-            // only while focused, so it never competes for row width. A
-            // non-focusable popup keeps the keyboard up when a stepper is tapped.
+            // Up/down stepper bubble: a vertical pill (up over down) that appears
+            // only while focused, docked just past the field's trailing edge and
+            // vertically centred on it -- flipping to the leading edge when there
+            // is no room -- so it never competes for row width. Non-focusable so
+            // tapping a stepper keeps the keyboard up.
             if (focused && enabled) {
+                val gapPx = with(density) { 6.dp.roundToPx() }
+                val bubblePosition = remember(gapPx) {
+                    object : PopupPositionProvider {
+                        override fun calculatePosition(
+                            anchorBounds: IntRect,
+                            windowSize: IntSize,
+                            layoutDirection: LayoutDirection,
+                            popupContentSize: IntSize,
+                        ): IntOffset {
+                            val y = (anchorBounds.top + (anchorBounds.height - popupContentSize.height) / 2)
+                                .coerceIn(0, (windowSize.height - popupContentSize.height).coerceAtLeast(0))
+                            val trailing = anchorBounds.right + gapPx
+                            val x = if (trailing + popupContentSize.width <= windowSize.width) trailing
+                            else (anchorBounds.left - popupContentSize.width - gapPx).coerceAtLeast(0)
+                            return IntOffset(x, y)
+                        }
+                    }
+                }
                 Popup(
-                    alignment = Alignment.TopEnd,
-                    offset = IntOffset(0, with(density) { -(56.dp).roundToPx() }),
+                    popupPositionProvider = bubblePosition,
                     properties = PopupProperties(focusable = false, clippingEnabled = false),
                 ) {
                     Surface(
@@ -1529,26 +1552,26 @@ internal fun NumberUpDown(
                         border = BorderStroke(1.dp, fieldBorder),
                         shadowElevation = 6.dp,
                     ) {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            RepeatingStepper(
-                                icon = Icons.Default.KeyboardArrowDown,
-                                contentDescription = stringResource(R.string.alarm_threshold_decrease),
-                                enabled = value > range.first,
-                                tint = fieldText,
-                                onStep = { stepBy(-step) },
-                            )
-                            Box(
-                                Modifier
-                                    .width(1.dp)
-                                    .height(22.dp)
-                                    .background(fieldBorder)
-                            )
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
                             RepeatingStepper(
                                 icon = Icons.Default.KeyboardArrowUp,
                                 contentDescription = stringResource(R.string.alarm_threshold_increase),
                                 enabled = value < range.last,
                                 tint = fieldText,
                                 onStep = { stepBy(step) },
+                            )
+                            Box(
+                                Modifier
+                                    .width(24.dp)
+                                    .height(1.dp)
+                                    .background(fieldBorder)
+                            )
+                            RepeatingStepper(
+                                icon = Icons.Default.KeyboardArrowDown,
+                                contentDescription = stringResource(R.string.alarm_threshold_decrease),
+                                enabled = value > range.first,
+                                tint = fieldText,
+                                onStep = { stepBy(-step) },
                             )
                         }
                     }
