@@ -34,6 +34,7 @@ import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.consumeWindowInsets
@@ -8906,23 +8907,10 @@ private fun SegmentedChoice(
     onPreview: (() -> Unit)? = null,
     previewEnabled: Boolean = true
 ) {
-    Row(
-        modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        // Label in line with the segmented control (leading), not stacked above.
-        Text(
-            label,
-            style = MaterialTheme.typography.bodyLarge,
-            modifier = Modifier.weight(1f)
-        )
-        if (onPreview != null) {
-            PlayButton(onClick = onPreview, enabled = previewEnabled)
-            Spacer(Modifier.width(6.dp))
-        }
+    Box(modifier = Modifier.fillMaxWidth().padding(top = 9.dp, bottom = 4.dp)) {
         SingleChoiceSegmentedButtonRow(
             modifier = Modifier
-                .weight(1.7f)
+                .fillMaxWidth()
                 .height(IntrinsicSize.Max)
         ) {
             options.forEachIndexed { index, (key, optLabel) ->
@@ -8940,6 +8928,27 @@ private fun SegmentedChoice(
                         overflow = TextOverflow.Ellipsis
                     )
                 }
+            }
+        }
+        // Floating label notched into the segmented control's top border, matching
+        // the combo boxes and numeric fields, so the segments keep full width.
+        Row(
+            modifier = Modifier
+                .align(Alignment.TopStart)
+                .offset(x = 12.dp, y = (-9).dp)
+                .background(MaterialTheme.appColors.fieldBackground)
+                .padding(horizontal = 4.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                label,
+                fontSize = 11.sp,
+                color = MaterialTheme.appColors.fieldLabel,
+                maxLines = 1
+            )
+            if (onPreview != null) {
+                Spacer(Modifier.width(2.dp))
+                PlayButton(onClick = onPreview, enabled = previewEnabled)
             }
         }
     }
