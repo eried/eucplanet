@@ -367,8 +367,8 @@ fun StudioConfirmDialog(
         modifier = Modifier.rotateLayout(LocalStudioRotation.current),
         title = { Text(title) },
         text = { Text(body) },
-        confirmButton = { TextButton(onClick = onConfirm) { Text(action) } },
-        dismissButton = { TextButton(onClick = onDismiss) { Text(stringResource(R.string.action_cancel)) } }
+        confirmButton = { TextButton(onClick = onConfirm, shape = RoundedCornerShape(12.dp)) { Text(action) } },
+        dismissButton = { TextButton(onClick = onDismiss, shape = RoundedCornerShape(12.dp)) { Text(stringResource(R.string.action_cancel)) } }
     )
 }
 
@@ -536,7 +536,7 @@ fun StudioSidePanel(
                     .heightIn(max = maxHeight * 0.92f)
                     .alpha(if (dimmed) 0.65f else 1f)
                     .pointerInput(Unit) { detectTapGestures { } },
-                shape = RoundedCornerShape(topStart = 16.dp, bottomStart = 16.dp),
+                shape = RoundedCornerShape(topStart = 12.dp, bottomStart = 12.dp),
                 color = MaterialTheme.colorScheme.surface,
                 tonalElevation = 2.dp
             ) {
@@ -789,6 +789,7 @@ fun SavePresetDialog(
                         onValueChange = { name = it },
                         label = { Text(stringResource(R.string.studio_save_preset_name_label)) },
                         singleLine = true,
+                        shape = RoundedCornerShape(12.dp),
                         colors = themedFieldColors(),
                     )
                 }
@@ -797,10 +798,11 @@ fun SavePresetDialog(
         confirmButton = {
             TextButton(
                 enabled = folderAvailable && name.isNotBlank(),
-                onClick = { onSave(name.trim()) }
+                onClick = { onSave(name.trim()) },
+                shape = RoundedCornerShape(12.dp)
             ) { Text(stringResource(R.string.studio_save_btn)) }
         },
-        dismissButton = { TextButton(onClick = onDismiss) { Text(stringResource(R.string.action_cancel)) } }
+        dismissButton = { TextButton(onClick = onDismiss, shape = RoundedCornerShape(12.dp)) { Text(stringResource(R.string.action_cancel)) } }
     )
 }
 
@@ -884,12 +886,12 @@ fun LoadPresetSheet(
             title = { Text(stringResource(R.string.studio_dlg_delete_preset_title)) },
             text = { Text(stringResource(R.string.studio_dlg_delete_preset_body, name)) },
             confirmButton = {
-                TextButton(onClick = { onDelete(name); confirmDelete = null }) {
+                TextButton(onClick = { onDelete(name); confirmDelete = null }, shape = RoundedCornerShape(12.dp)) {
                     Text(stringResource(R.string.action_delete))
                 }
             },
             dismissButton = {
-                TextButton(onClick = { confirmDelete = null }) { Text(stringResource(R.string.action_cancel)) }
+                TextButton(onClick = { confirmDelete = null }, shape = RoundedCornerShape(12.dp)) { Text(stringResource(R.string.action_cancel)) }
             }
         )
     }
@@ -978,7 +980,7 @@ private fun FolderWarning(onOpenFolderSettings: () -> Unit) {
             style = MaterialTheme.typography.bodySmall
         )
         Spacer(Modifier.height(10.dp))
-        OutlinedButton(onClick = onOpenFolderSettings) {
+        OutlinedButton(onClick = onOpenFolderSettings, shape = RoundedCornerShape(12.dp)) {
             Text(stringResource(R.string.tab_cloud))
         }
     }
@@ -1110,14 +1112,15 @@ fun ViewportConfigSheet(
                         horizontalArrangement = Arrangement.spacedBy(8.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        OutlinedButton(onClick = onPickImage) {
+                        OutlinedButton(onClick = onPickImage, shape = RoundedCornerShape(12.dp)) {
                             Icon(Icons.Default.AddPhotoAlternate, null)
                             Spacer(Modifier.width(8.dp))
                             Text(if (config.imageData == null) stringResource(R.string.studio_viewport_choose_image) else stringResource(R.string.studio_viewport_replace_image))
                         }
                         if (config.imageData != null) {
                             OutlinedButton(
-                                onClick = { onChange(config.copy(imageData = null)) }
+                                onClick = { onChange(config.copy(imageData = null)) },
+                                shape = RoundedCornerShape(12.dp)
                             ) { Text(stringResource(R.string.studio_viewport_clear_image)) }
                         }
                     }
@@ -1442,7 +1445,8 @@ private fun GradientEditor(config: ViewportConfig, onChange: (ViewportConfig) ->
         // Cap at 8 stops; more than that is unwieldy to edit, and no real
         // gradient needs it.
         enabled = config.gradientColors.size < 8,
-        modifier = Modifier.padding(top = 4.dp)
+        modifier = Modifier.padding(top = 4.dp),
+        shape = RoundedCornerShape(12.dp)
     ) {
         Icon(Icons.Default.Add, contentDescription = null)
         Spacer(Modifier.width(8.dp))
@@ -1571,6 +1575,7 @@ fun ElementConfigSheet(
                         }
                     ),
                     modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(12.dp),
                     colors = themedFieldColors(),
                 )
                 Spacer(Modifier.height(4.dp))
@@ -1916,7 +1921,7 @@ fun ElementConfigSheet(
             }
 
             if (element.type == OverlayElementType.IMAGE) {
-                OutlinedButton(onClick = onReplaceImage) {
+                OutlinedButton(onClick = onReplaceImage, shape = RoundedCornerShape(12.dp)) {
                     Icon(Icons.Default.AddPhotoAlternate, null)
                     Spacer(Modifier.width(8.dp))
                     Text(stringResource(R.string.studio_cfg_replace_image))
@@ -1939,7 +1944,7 @@ fun ElementConfigSheet(
             }
 
             Spacer(Modifier.height(10.dp))
-            OutlinedButton(onClick = { onChange(element.copy(x = 0.12f, y = 0.14f)) }) {
+            OutlinedButton(onClick = { onChange(element.copy(x = 0.12f, y = 0.14f)) }, shape = RoundedCornerShape(12.dp)) {
                 Text(stringResource(R.string.studio_cfg_reset_position))
             }
 
@@ -2219,10 +2224,10 @@ internal fun ColorPickerDialog(
             }
         },
         confirmButton = {
-            TextButton(onClick = { onPick(color.toArgbLong()) }) { Text(stringResource(R.string.studio_colour_select)) }
+            TextButton(onClick = { onPick(color.toArgbLong()) }, shape = RoundedCornerShape(12.dp)) { Text(stringResource(R.string.studio_colour_select)) }
         },
         dismissButton = {
-            TextButton(onClick = onDismiss) { Text(stringResource(R.string.action_cancel)) }
+            TextButton(onClick = onDismiss, shape = RoundedCornerShape(12.dp)) { Text(stringResource(R.string.action_cancel)) }
         }
     )
 }
@@ -2441,6 +2446,7 @@ fun ManageElementsSheet(
                 FilledTonalButton(
                     onClick = onAddElement,
                     enabled = canAddElement,
+                    shape = RoundedCornerShape(12.dp),
                     colors = themedTonalButtonColors(),
                 ) {
                     Icon(Icons.Default.Widgets, contentDescription = null)
@@ -2450,6 +2456,7 @@ fun ManageElementsSheet(
                 FilledTonalButton(
                     onClick = onChangePanes,
                     enabled = canChangePanes,
+                    shape = RoundedCornerShape(12.dp),
                     colors = themedTonalButtonColors(),
                 ) {
                     Icon(Icons.Default.Dashboard, contentDescription = null)

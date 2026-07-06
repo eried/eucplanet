@@ -621,6 +621,7 @@ fun RouteBuilderScreen(
                             .padding(end = 8.dp)
                             .onFocusChanged { searchFocused = it.isFocused },
                         colors = themedFieldColors(),
+                        shape = RoundedCornerShape(12.dp),
                     )
                 },
                 actions = {
@@ -1002,7 +1003,8 @@ fun RouteBuilderScreen(
                                     focusManager.clearFocus()
                                     viewModel.pickSearchResult(result)
                                 },
-                                modifier = Modifier.fillMaxWidth()
+                                modifier = Modifier.fillMaxWidth(),
+                                shape = RoundedCornerShape(12.dp)
                             ) {
                                 Icon(
                                     Icons.Default.Place, null,
@@ -1375,10 +1377,10 @@ fun RouteBuilderScreen(
                     confirmButton = {
                         TextButton(onClick = {
                             clearConfirmOpen = false; viewModel.clear()
-                        }) { Text(stringResource(R.string.nav_menu_clear)) }
+                        }, shape = RoundedCornerShape(12.dp)) { Text(stringResource(R.string.nav_menu_clear)) }
                     },
                     dismissButton = {
-                        TextButton(onClick = { clearConfirmOpen = false }) {
+                        TextButton(onClick = { clearConfirmOpen = false }, shape = RoundedCornerShape(12.dp)) {
                             Text(stringResource(R.string.action_cancel))
                         }
                     }
@@ -1397,12 +1399,12 @@ fun RouteBuilderScreen(
                     title = { Text(stringResource(R.string.nav_share_dialog_title)) },
                     text = { Text(stringResource(R.string.nav_share_dialog_body)) },
                     confirmButton = {
-                        TextButton(onClick = { viewModel.acceptPendingShareAppend() }) {
+                        TextButton(onClick = { viewModel.acceptPendingShareAppend() }, shape = RoundedCornerShape(12.dp)) {
                             Text(stringResource(R.string.nav_share_dialog_append))
                         }
                     },
                     dismissButton = {
-                        TextButton(onClick = { viewModel.acceptPendingShareAsNewRoute() }) {
+                        TextButton(onClick = { viewModel.acceptPendingShareAsNewRoute() }, shape = RoundedCornerShape(12.dp)) {
                             Text(stringResource(R.string.nav_share_dialog_new))
                         }
                     }
@@ -1423,10 +1425,10 @@ fun RouteBuilderScreen(
                         TextButton(onClick = {
                             pendingGpxUri = null
                             viewModel.loadGpx(pendingUri)
-                        }) { Text(stringResource(R.string.nav_menu_load_short)) }
+                        }, shape = RoundedCornerShape(12.dp)) { Text(stringResource(R.string.nav_menu_load_short)) }
                     },
                     dismissButton = {
-                        TextButton(onClick = { pendingGpxUri = null }) {
+                        TextButton(onClick = { pendingGpxUri = null }, shape = RoundedCornerShape(12.dp)) {
                             Text(stringResource(R.string.action_cancel))
                         }
                     }
@@ -1683,7 +1685,8 @@ private fun BottomPanel(
                         // Fixed width holds the longest label ('Stop navigation')
                         // so the row doesn't reflow when the state flips between
                         // Start / Stop / New route.
-                        modifier = Modifier.widthIn(min = 150.dp)
+                        modifier = Modifier.widthIn(min = 150.dp),
+                        shape = RoundedCornerShape(12.dp)
                     ) { Text(label) }
                 }
                 if (collapsible) {
@@ -1770,7 +1773,10 @@ private fun BottomPanel(
                                 selected = travelMode == mode,
                                 onClick = { onModeChange(mode) },
                                 enabled = !modesLocked,
-                                shape = SegmentedButtonDefaults.itemShape(index, modes.size),
+                                shape = SegmentedButtonDefaults.itemShape(
+                                    index, modes.size,
+                                    baseShape = RoundedCornerShape(12.dp)
+                                ),
                                 icon = {},
                                 colors = themedSegmentedColors(),
                             ) {
@@ -1823,7 +1829,8 @@ private fun BottomPanel(
                         enabled = allPassed || navRunning || canStartNavigation,
                         // Hold the row's width steady across Start/Stop/New
                         // route (matches the compact button width above).
-                        modifier = Modifier.widthIn(min = 180.dp)
+                        modifier = Modifier.widthIn(min = 180.dp),
+                        shape = RoundedCornerShape(12.dp)
                     ) {
                         Text(
                             stringResource(
@@ -2140,7 +2147,7 @@ private fun PoiDetailsSheet(
             // All the OSM detail gathered into one tidy card, each row shown
             // only when that tag is present.
             Surface(
-                shape = RoundedCornerShape(14.dp),
+                shape = RoundedCornerShape(12.dp),
                 color = MaterialTheme.colorScheme.surfaceVariant,
                 modifier = Modifier.fillMaxWidth()
             ) {
@@ -2215,7 +2222,8 @@ private fun PoiDetailsSheet(
                 Button(
                     onClick = onAddStop,
                     enabled = canAdd,
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier.weight(1f),
+                    shape = RoundedCornerShape(12.dp)
                 ) {
                     Icon(Icons.Default.Add, contentDescription = null)
                     Spacer(Modifier.width(6.dp))
@@ -2223,7 +2231,8 @@ private fun PoiDetailsSheet(
                 }
                 OutlinedButton(
                     onClick = { onOpenUrl(onlineUrl) },
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier.weight(1f),
+                    shape = RoundedCornerShape(12.dp)
                 ) {
                     Icon(Icons.Default.OpenInNew, contentDescription = null)
                     Spacer(Modifier.width(6.dp))
@@ -2247,7 +2256,7 @@ private fun PoiDetailsSheet(
 @Composable
 private fun OcmCommunityCard(ocm: OcmCharger, onOpenUrl: (String) -> Unit) {
     Surface(
-        shape = RoundedCornerShape(14.dp),
+        shape = RoundedCornerShape(12.dp),
         color = MaterialTheme.colorScheme.surfaceVariant,
         modifier = Modifier.fillMaxWidth()
     ) {
@@ -2394,7 +2403,7 @@ private fun OverlayFab(
     val onColor = if (active) MaterialTheme.colorScheme.onPrimary
     else MaterialTheme.colorScheme.onSurface
     Surface(
-        shape = RoundedCornerShape(16.dp),
+        shape = RoundedCornerShape(12.dp),
         color = if (active) MaterialTheme.colorScheme.primary
         else MaterialTheme.colorScheme.surface,
         shadowElevation = 6.dp,
