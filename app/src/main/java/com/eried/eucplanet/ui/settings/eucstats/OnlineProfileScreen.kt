@@ -465,6 +465,7 @@ fun OnlineProfileDialog(
                         }
                         FieldNotchLabel(
                             stringResource(R.string.online_upload_profile_country_label),
+                            aboveColor = MaterialTheme.appColors.surface,
                             belowColor = MaterialTheme.appColors.surfaceVariant,
                         )
                     }

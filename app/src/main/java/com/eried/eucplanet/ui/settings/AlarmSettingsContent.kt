@@ -818,28 +818,29 @@ private fun AlarmRuleEditorDialog(
                         Spacer(Modifier.weight(1f))
                     }
                     Spacer(Modifier.height(8.dp))
-                    Text(
-                        stringResource(R.string.alarm_label_vibrate_on),
-                        fontSize = 12.sp,
-                        color = MaterialTheme.appColors.fieldLabel
-                    )
                     val targetEntries = listOf(
                         "BOTH" to stringResource(R.string.alarm_vibrate_target_both),
                         "PHONE" to stringResource(R.string.alarm_vibrate_target_phone),
                         "WATCH" to stringResource(R.string.alarm_vibrate_target_watch)
                     )
-                    SingleChoiceSegmentedButtonRow(
-                        modifier = Modifier.fillMaxWidth().height(48.dp)
-                    ) {
-                        targetEntries.forEachIndexed { index, (key, label) ->
-                            SegmentedButton(
-                                modifier = Modifier.fillMaxHeight(),
-                                selected = key == vibrateTarget,
-                                onClick = { vibrateTarget = key },
-                                shape = SegmentedButtonDefaults.itemShape(index, targetEntries.size, baseShape = RoundedCornerShape(12.dp)),
-                                colors = themedSegmentedColors(),
-                            ) { Text(label) }
+                    Box(modifier = Modifier.fillMaxWidth().padding(top = 9.dp)) {
+                        SingleChoiceSegmentedButtonRow(
+                            modifier = Modifier.fillMaxWidth().height(48.dp)
+                        ) {
+                            targetEntries.forEachIndexed { index, (key, label) ->
+                                SegmentedButton(
+                                    modifier = Modifier.fillMaxHeight(),
+                                    selected = key == vibrateTarget,
+                                    onClick = { vibrateTarget = key },
+                                    shape = SegmentedButtonDefaults.itemShape(index, targetEntries.size, baseShape = RoundedCornerShape(12.dp)),
+                                    colors = themedSegmentedColors(),
+                                ) { Text(label) }
+                            }
                         }
+                        FieldNotchLabel(
+                            stringResource(R.string.alarm_label_vibrate_on),
+                            aboveColor = MaterialTheme.appColors.surface,
+                        )
                     }
                 }
 
@@ -900,17 +901,11 @@ private fun AlarmRuleEditorDialog(
                             label = stringResource(R.string.alarm_cooldown_label),
                             modifier = Modifier.weight(1f),
                         )
-                        Column(modifier = Modifier.weight(1f)) {
-                            Text(
-                                stringResource(R.string.alarm_repeat_label),
-                                fontSize = 12.sp,
-                                color = MaterialTheme.appColors.fieldLabel,
-                                modifier = Modifier.padding(bottom = 4.dp)
-                            )
-                            val repeatEntries = listOf(
-                                false to stringResource(R.string.alarm_repeat_single),
-                                true to stringResource(R.string.alarm_repeat_multi),
-                            )
+                        val repeatEntries = listOf(
+                            false to stringResource(R.string.alarm_repeat_single),
+                            true to stringResource(R.string.alarm_repeat_multi),
+                        )
+                        Box(modifier = Modifier.weight(1f).padding(top = 9.dp)) {
                             SingleChoiceSegmentedButtonRow(
                                 modifier = Modifier.fillMaxWidth().height(48.dp)
                             ) {
@@ -924,6 +919,10 @@ private fun AlarmRuleEditorDialog(
                                     ) { Text(lbl) }
                                 }
                             }
+                            FieldNotchLabel(
+                                stringResource(R.string.alarm_repeat_label),
+                                aboveColor = MaterialTheme.appColors.surface,
+                            )
                         }
                     }
                     HintText(
@@ -948,29 +947,33 @@ private fun AlarmRuleEditorDialog(
                     // Anticipation as a compact segmented row: Realtime (0) keeps
                     // the classic fire-on-threshold behaviour; the others fire
                     // early when the recent trend is about to cross the threshold.
-                    Text(stringResource(R.string.alarm_predict_label),
-                        fontSize = 12.sp, color = MaterialTheme.appColors.fieldLabel)
                     val realtimeLabel = stringResource(R.string.alarm_predict_realtime)
                     val leadValues = listOf(0, 500, 1000, 2000, 3000)
-                    SingleChoiceSegmentedButtonRow(
-                        modifier = Modifier.fillMaxWidth().height(44.dp)
-                    ) {
-                        leadValues.forEachIndexed { index, ms ->
-                            SegmentedButton(
-                                modifier = Modifier.fillMaxHeight(),
-                                selected = leadTimeMs == ms,
-                                onClick = { leadTimeMs = ms },
-                                shape = SegmentedButtonDefaults.itemShape(index, leadValues.size, baseShape = RoundedCornerShape(12.dp)),
-                                colors = themedSegmentedColors(),
-                                icon = {},
-                            ) {
-                                Text(
-                                    if (ms == 0) realtimeLabel else "${leadSeconds(ms)}s",
-                                    fontSize = 12.sp,
-                                    maxLines = 1
-                                )
+                    Box(modifier = Modifier.fillMaxWidth().padding(top = 9.dp)) {
+                        SingleChoiceSegmentedButtonRow(
+                            modifier = Modifier.fillMaxWidth().height(44.dp)
+                        ) {
+                            leadValues.forEachIndexed { index, ms ->
+                                SegmentedButton(
+                                    modifier = Modifier.fillMaxHeight(),
+                                    selected = leadTimeMs == ms,
+                                    onClick = { leadTimeMs = ms },
+                                    shape = SegmentedButtonDefaults.itemShape(index, leadValues.size, baseShape = RoundedCornerShape(12.dp)),
+                                    colors = themedSegmentedColors(),
+                                    icon = {},
+                                ) {
+                                    Text(
+                                        if (ms == 0) realtimeLabel else "${leadSeconds(ms)}s",
+                                        fontSize = 12.sp,
+                                        maxLines = 1
+                                    )
+                                }
                             }
                         }
+                        FieldNotchLabel(
+                            stringResource(R.string.alarm_predict_label),
+                            aboveColor = MaterialTheme.appColors.surface,
+                        )
                     }
                     HintText(
                         if (leadTimeMs <= 0)
@@ -1525,6 +1528,7 @@ internal fun NumberUpDown(
                 FieldNotchLabel(
                     label,
                     color = if (focused) focusBorder else Color.Unspecified,
+                    belowColor = MaterialTheme.appColors.fieldBackground,
                 )
             }
             // Up/down stepper bubble: a vertical pill (up over down) that appears

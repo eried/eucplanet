@@ -16,6 +16,7 @@ import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.TextFieldColors
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Row
@@ -130,16 +131,30 @@ fun themedFilterChipColors(): SelectableChipColors {
  * Place inside a Box whose other child is the control, and give that control at
  * least 8dp of top padding so the label has room (it straddles the top border).
  */
+/**
+ * Background colour shown ABOVE a field's top border, behind its floating label.
+ * Defaults (Unspecified) to the app/section background; a dialog provides its own
+ * surface so the notch blends there too instead of showing a darker patch.
+ */
+val LocalFieldNotchAbove = compositionLocalOf { Color.Unspecified }
+
 @Composable
 fun BoxScope.FieldNotchLabel(
     text: String,
     color: Color = Color.Unspecified,
+    aboveColor: Color = Color.Unspecified,
     belowColor: Color = Color.Unspecified,
     trailing: (@Composable RowScope.() -> Unit)? = null,
 ) {
     val c = MaterialTheme.appColors
     // The field's top border sits 8dp below the label's top (offset y = -8), so
-    // split the two-stop gradient there: section colour above, field below.
+    // split the two-stop gradient there: parent colour above, field fill below.
+    val above = aboveColor.takeOrElse { LocalFieldNotchAbove.current }.takeOrElse { c.appBackground }
+    // Below the border the label covers the control's own fill. A filled field
+    // (numeric box) passes its fieldBackground; a transparent control (segmented
+    // row) leaves this default, so the whole notch is one parent-coloured patch
+    // that simply interrupts the border - matching how the segments show through.
+    val below = belowColor.takeOrElse { above }
     val borderPx = with(LocalDensity.current) { 8.dp.toPx() }
     Row(
         modifier = Modifier
@@ -147,8 +162,8 @@ fun BoxScope.FieldNotchLabel(
             .offset(x = 12.dp, y = (-8).dp)
             .background(
                 Brush.verticalGradient(
-                    0f to c.appBackground,
-                    1f to belowColor.takeOrElse { c.fieldBackground },
+                    0f to above,
+                    1f to below,
                     startY = borderPx,
                     endY = borderPx + 0.5f,
                 )
