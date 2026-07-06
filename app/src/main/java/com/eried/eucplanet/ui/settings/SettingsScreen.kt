@@ -366,7 +366,7 @@ fun SettingsScreen(
                 }
             },
             confirmButton = {
-                androidx.compose.material3.TextButton(onClick = { cheatSheet = null }) {
+                androidx.compose.material3.TextButton(onClick = { cheatSheet = null }, shape = RoundedCornerShape(12.dp)) {
                     Text(stringResource(R.string.action_ok))
                 }
             }
@@ -439,16 +439,16 @@ fun SettingsScreen(
             title = { Text(stringResource(R.string.tts_switch_title, langName)) },
             text = { Text(stringResource(R.string.tts_switch_body, langName)) },
             confirmButton = {
-                Button(onClick = { viewModel.acceptTtsSwitch() }) {
+                Button(onClick = { viewModel.acceptTtsSwitch() }, shape = RoundedCornerShape(12.dp)) {
                     Text(stringResource(R.string.tts_switch_yes))
                 }
             },
             dismissButton = {
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    androidx.compose.material3.TextButton(onClick = { viewModel.cancelLanguageSwitch() }) {
+                    androidx.compose.material3.TextButton(onClick = { viewModel.cancelLanguageSwitch() }, shape = RoundedCornerShape(12.dp)) {
                         Text(stringResource(R.string.action_cancel))
                     }
-                    Button(onClick = { viewModel.dismissTtsSwitch() }) {
+                    Button(onClick = { viewModel.dismissTtsSwitch() }, shape = RoundedCornerShape(12.dp)) {
                         Text(stringResource(R.string.tts_switch_no))
                     }
                 }
@@ -1079,7 +1079,7 @@ private fun GeneralTab(
                     modifier = Modifier.fillMaxHeight(),
                     selected = key == settings.wheelNameDisplay,
                     onClick = { viewModel.updateWheelNameDisplay(key) },
-                    shape = SegmentedButtonDefaults.itemShape(index, wheelNameOptions.size),
+                    shape = SegmentedButtonDefaults.itemShape(index, wheelNameOptions.size, baseShape = RoundedCornerShape(12.dp)),
                     colors = themedSegmentedColors(),
                 ) {
                     Text(
@@ -1121,7 +1121,7 @@ private fun GeneralTab(
                     modifier = Modifier.fillMaxHeight(),
                     selected = key == settings.backButtonAction,
                     onClick = { viewModel.updateBackButtonAction(key) },
-                    shape = SegmentedButtonDefaults.itemShape(index, backOptions.size),
+                    shape = SegmentedButtonDefaults.itemShape(index, backOptions.size, baseShape = RoundedCornerShape(12.dp)),
                     colors = themedSegmentedColors(),
                 ) {
                     Text(
@@ -1203,7 +1203,7 @@ private fun RestoreChip(text: String, enabled: Boolean, onClick: () -> Unit) {
     Row(
         modifier = Modifier
             .padding(top = 4.dp)
-            .clip(RoundedCornerShape(8.dp))
+            .clip(RoundedCornerShape(12.dp))
             .then(if (enabled) Modifier.clickable(onClick = onClick) else Modifier)
             .padding(horizontal = 6.dp, vertical = 2.dp),
         verticalAlignment = Alignment.CenterVertically,
@@ -1331,11 +1331,12 @@ private fun SettingsVisibilityDialog(
                     TextButton(
                         onClick = { draftOrder = naturalKeys; draftHidden = emptySet() },
                         enabled = !isDefault,
+                        shape = RoundedCornerShape(12.dp),
                     ) {
                         Text(stringResource(R.string.action_reset))
                     }
                     Spacer(Modifier.weight(1f))
-                    TextButton(onClick = onDismiss) { Text(stringResource(R.string.action_cancel)) }
+                    TextButton(onClick = onDismiss, shape = RoundedCornerShape(12.dp)) { Text(stringResource(R.string.action_cancel)) }
                     Spacer(Modifier.width(8.dp))
                     Button(onClick = {
                         // Store an empty order when it matches natural order, so the
@@ -1347,7 +1348,7 @@ private fun SettingsVisibilityDialog(
                             )
                         )
                         onDismiss()
-                    }) {
+                    }, shape = RoundedCornerShape(12.dp)) {
                         Text(stringResource(R.string.action_save))
                     }
                 }
@@ -1457,7 +1458,7 @@ private fun AdvancedTab(
                             modifier = Modifier.fillMaxHeight(),
                             selected = key == selected,
                             onClick = { onPick(key) },
-                            shape = SegmentedButtonDefaults.itemShape(index, options.size),
+                            shape = SegmentedButtonDefaults.itemShape(index, options.size, baseShape = RoundedCornerShape(12.dp)),
                             colors = themedSegmentedColors(),
                         ) {
                             Text(
@@ -1555,7 +1556,7 @@ private fun AdvancedTab(
         MetricInfoBox(stringResource(R.string.adv_rates_warning))
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
             // Disabled (greyed) when nothing is off default; otherwise confirm first.
-            TextButton(onClick = { showResetConfirm = true }, enabled = changed.isNotEmpty()) {
+            TextButton(onClick = { showResetConfirm = true }, enabled = changed.isNotEmpty(), shape = RoundedCornerShape(12.dp)) {
                 Icon(Icons.Default.Restore, contentDescription = null, modifier = Modifier.size(18.dp))
                 Spacer(Modifier.width(6.dp))
                 Text(stringResource(R.string.adv_reset_all))
@@ -1603,10 +1604,10 @@ private fun AdvancedTab(
                 TextButton(onClick = {
                     viewModel.resetAdvancedDefaults()
                     showResetConfirm = false
-                }) { Text(stringResource(R.string.adv_reset_all)) }
+                }, shape = RoundedCornerShape(12.dp)) { Text(stringResource(R.string.adv_reset_all)) }
             },
             dismissButton = {
-                TextButton(onClick = { showResetConfirm = false }) {
+                TextButton(onClick = { showResetConfirm = false }, shape = RoundedCornerShape(12.dp)) {
                     Text(stringResource(android.R.string.cancel))
                 }
             },
@@ -1924,9 +1925,9 @@ private fun MetricDragPreview(
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .clip(RoundedCornerShape(10.dp))
+                .clip(RoundedCornerShape(12.dp))
                 .background(surfaceColor)
-                .border(1.dp, outlineColor, RoundedCornerShape(10.dp))
+                .border(1.dp, outlineColor, RoundedCornerShape(12.dp))
         ) {
             CompositeMetricBody(
                 composite = composite,
@@ -1943,9 +1944,9 @@ private fun MetricDragPreview(
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .clip(RoundedCornerShape(10.dp))
+                .clip(RoundedCornerShape(12.dp))
                 .background(surfaceColor)
-                .border(1.dp, outlineColor, RoundedCornerShape(10.dp))
+                .border(1.dp, outlineColor, RoundedCornerShape(12.dp))
         ) {
             CustomTileBody(tile = tile)
         }
@@ -1959,9 +1960,9 @@ private fun MetricDragPreview(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .clip(RoundedCornerShape(10.dp))
+            .clip(RoundedCornerShape(12.dp))
             .background(surfaceColor)
-            .border(1.dp, outlineColor, RoundedCornerShape(10.dp))
+            .border(1.dp, outlineColor, RoundedCornerShape(12.dp))
     ) {
         if (stats.sparkline) {
             WavePatternBackground(accent = accent)
@@ -2036,9 +2037,9 @@ private fun ActionDragPreview(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .clip(RoundedCornerShape(10.dp))
+            .clip(RoundedCornerShape(12.dp))
             .background(surfaceColor)
-            .border(1.dp, outlineColor, RoundedCornerShape(10.dp))
+            .border(1.dp, outlineColor, RoundedCornerShape(12.dp))
     ) {
         Column(
             modifier = Modifier
@@ -2219,8 +2220,8 @@ private fun EmptyMetricSlot(
     )
     Box(
         modifier = modifier
-            .clip(RoundedCornerShape(10.dp))
-            .border(1.dp, borderColor, RoundedCornerShape(10.dp))
+            .clip(RoundedCornerShape(12.dp))
+            .border(1.dp, borderColor, RoundedCornerShape(12.dp))
             .dashboardDropTarget(
                 key = "metric-slot-$slotIndex",
                 kind = DropKind.METRIC_GRID_SLOT,
@@ -2280,9 +2281,9 @@ private fun CompositeMetricTile(
 
     Box(
         modifier = modifier
-            .clip(RoundedCornerShape(10.dp))
+            .clip(RoundedCornerShape(12.dp))
             .background(surfaceColor)
-            .border(borderWidth, borderColor, RoundedCornerShape(10.dp))
+            .border(borderWidth, borderColor, RoundedCornerShape(12.dp))
             .clickable(onClick = onTap)
             .dashboardDragSource(
                 key = id,
@@ -2591,9 +2592,9 @@ private fun MetricTile(
 
     Box(
         modifier = modifier
-            .clip(RoundedCornerShape(10.dp))
+            .clip(RoundedCornerShape(12.dp))
             .background(surfaceColor)
-            .border(borderWidth, borderColor, RoundedCornerShape(10.dp))
+            .border(borderWidth, borderColor, RoundedCornerShape(12.dp))
             .clickable(onClick = onTap)
             .dashboardDragSource(
                 key = key,
@@ -2685,7 +2686,7 @@ private fun MetricPool(
             // row peeking at the bottom hints that more content scrolls into
             // view. Remaining pool items reveal via vertical scroll.
             .heightIn(max = 210.dp)
-            .clip(RoundedCornerShape(10.dp))
+            .clip(RoundedCornerShape(12.dp))
             .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.4f))
             .dashboardHintRegion(
                 key = "metric-pool",
@@ -2904,9 +2905,9 @@ private fun CustomTileView(
 
     Box(
         modifier = modifier
-            .clip(RoundedCornerShape(10.dp))
+            .clip(RoundedCornerShape(12.dp))
             .background(surfaceColor)
-            .border(borderWidth, borderColor, RoundedCornerShape(10.dp))
+            .border(borderWidth, borderColor, RoundedCornerShape(12.dp))
             .clickable(onClick = onTap)
             .dashboardDragSource(
                 key = id,
@@ -3035,9 +3036,9 @@ private fun MetricPoolPill(
         modifier = Modifier
             .width(102.dp)
             .height(52.dp)
-            .clip(RoundedCornerShape(10.dp))
+            .clip(RoundedCornerShape(12.dp))
             .background(surfaceColor)
-            .border(1.dp, outlineColor, RoundedCornerShape(10.dp))
+            .border(1.dp, outlineColor, RoundedCornerShape(12.dp))
             .clickable { onTap(key) }
             .dashboardDragSource(
                 key = key,
@@ -3196,8 +3197,8 @@ private fun EmptyActionSlot(
     )
     Box(
         modifier = modifier
-            .clip(RoundedCornerShape(10.dp))
-            .border(1.dp, borderColor, RoundedCornerShape(10.dp))
+            .clip(RoundedCornerShape(12.dp))
+            .border(1.dp, borderColor, RoundedCornerShape(12.dp))
             .dashboardDropTarget(
                 key = "action-slot-$slotIndex",
                 kind = DropKind.ACTION_GRID_SLOT,
@@ -3246,9 +3247,9 @@ private fun ActionTile(
 
     Box(
         modifier = modifier
-            .clip(RoundedCornerShape(10.dp))
+            .clip(RoundedCornerShape(12.dp))
             .background(surfaceColor)
-            .border(borderWidth, borderColor, RoundedCornerShape(10.dp))
+            .border(borderWidth, borderColor, RoundedCornerShape(12.dp))
             .clickable(onClick = onTap)
             .dashboardDragSource(
                 key = key,
@@ -3380,9 +3381,9 @@ private fun ActionGroupTile(
 
     Box(
         modifier = modifier
-            .clip(RoundedCornerShape(10.dp))
+            .clip(RoundedCornerShape(12.dp))
             .background(surfaceColor)
-            .border(borderWidth, borderColor, RoundedCornerShape(10.dp))
+            .border(borderWidth, borderColor, RoundedCornerShape(12.dp))
             .clickable(onClick = onTap)
             .dashboardDragSource(
                 key = id,
@@ -3464,9 +3465,9 @@ private fun CustomBleTile(
     )
     Box(
         modifier = modifier
-            .clip(RoundedCornerShape(10.dp))
+            .clip(RoundedCornerShape(12.dp))
             .background(surfaceColor)
-            .border(borderWidth, borderColor, RoundedCornerShape(10.dp))
+            .border(borderWidth, borderColor, RoundedCornerShape(12.dp))
             .clickable(onClick = onTap)
             .dashboardDragSource(
                 key = id,
@@ -3528,7 +3529,7 @@ private fun ActionPool(
         modifier = Modifier
             .fillMaxWidth()
             .heightIn(max = 254.dp)
-            .clip(RoundedCornerShape(10.dp))
+            .clip(RoundedCornerShape(12.dp))
             .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.4f))
             .dashboardHintRegion(
                 key = "action-pool",
@@ -3711,9 +3712,9 @@ private fun ActionPoolPill(
         modifier = Modifier
             .width(102.dp)
             .height(66.dp)
-            .clip(RoundedCornerShape(10.dp))
+            .clip(RoundedCornerShape(12.dp))
             .background(surfaceColor)
-            .border(1.dp, outlineColor, RoundedCornerShape(10.dp))
+            .border(1.dp, outlineColor, RoundedCornerShape(12.dp))
             .clickable { onTap(key) }
             .dashboardDragSource(
                 key = key,
@@ -3911,7 +3912,7 @@ private fun CompositeMetricSheet(
                             layout = lay
                             persist(lay, baseCells, baseStats)
                         },
-                        shape = SegmentedButtonDefaults.itemShape(index, options.size),
+                        shape = SegmentedButtonDefaults.itemShape(index, options.size, baseShape = RoundedCornerShape(12.dp)),
                         colors = themedSegmentedColors(),
                     ) {
                         Text(compositeLayoutLabel(lay))
@@ -3993,7 +3994,7 @@ private fun SlotSheetFooter(
         modifier = Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        TextButton(onClick = onReset, colors = themedTextButtonColors()) {
+        TextButton(onClick = onReset, colors = themedTextButtonColors(), shape = RoundedCornerShape(12.dp)) {
             Icon(
                 Icons.Filled.Restore,
                 contentDescription = null,
@@ -4004,7 +4005,7 @@ private fun SlotSheetFooter(
         }
         Spacer(Modifier.weight(1f))
         FilledTonalButton(onClick = onClose,
-            colors = themedTonalButtonColors(),) {
+            colors = themedTonalButtonColors(), shape = RoundedCornerShape(12.dp),) {
             Text(stringResource(R.string.dashboard_close))
         }
     }
@@ -4061,6 +4062,7 @@ private fun CompositeCellDropdown(
                 .menuAnchor(MenuAnchorType.PrimaryNotEditable, enabled = enabled)
                 .fillMaxWidth(),
             colors = themedFieldColors(),
+            shape = RoundedCornerShape(12.dp),
         )
         ExposedDropdownMenu(
             expanded = expanded && enabled,
@@ -4133,6 +4135,7 @@ private fun CompositeCellStatDropdown(
                 .menuAnchor(MenuAnchorType.PrimaryNotEditable, enabled = enabled)
                 .fillMaxWidth(),
             colors = themedFieldColors(),
+            shape = RoundedCornerShape(12.dp),
         )
         ExposedDropdownMenu(
             expanded = expanded && enabled,
@@ -4255,6 +4258,7 @@ private fun ActionGroupSheet(
                     placeholder = { Text(defaultName) },
                     modifier = Modifier.weight(1f),
                     colors = themedFieldColors(),
+                    shape = RoundedCornerShape(12.dp),
                 )
             }
 
@@ -4360,6 +4364,7 @@ private fun CustomBleSheet(
                     label = { Text(stringResource(R.string.dashboard_custom_ble_label)) },
                     modifier = Modifier.weight(1f),
                     colors = themedFieldColors(),
+                    shape = RoundedCornerShape(12.dp),
                 )
             }
 
@@ -4381,6 +4386,7 @@ private fun CustomBleSheet(
                     },
                     modifier = Modifier.menuAnchor().fillMaxWidth(),
                     colors = themedFieldColors(),
+                    shape = RoundedCornerShape(12.dp),
                 )
                 ExposedDropdownMenu(
                     expanded = familyExpanded,
@@ -4412,6 +4418,7 @@ private fun CustomBleSheet(
                 minLines = 2,
                 modifier = Modifier.fillMaxWidth(),
                 colors = themedFieldColors(),
+                shape = RoundedCornerShape(12.dp),
             )
 
             SlotSheetFooter(onReset, onDismiss)
@@ -4441,9 +4448,9 @@ private fun GroupIconButton(
         Box(
             modifier = Modifier
                 .size(56.dp)
-                .clip(RoundedCornerShape(8.dp))
+                .clip(RoundedCornerShape(12.dp))
                 .background(MaterialTheme.colorScheme.surface)
-                .border(1.dp, outline, RoundedCornerShape(8.dp))
+                .border(1.dp, outline, RoundedCornerShape(12.dp))
                 .clickable { expanded = true },
             contentAlignment = Alignment.Center
         ) {
@@ -4479,7 +4486,7 @@ private fun GroupIconButton(
                     Box(
                         modifier = Modifier
                             .size(40.dp)
-                            .clip(RoundedCornerShape(8.dp))
+                            .clip(RoundedCornerShape(12.dp))
                             .background(bg)
                             .clickable {
                                 onSelect(key)
@@ -4531,6 +4538,7 @@ private fun ActionGroupSlotDropdown(
                 .menuAnchor(MenuAnchorType.PrimaryNotEditable, enabled = true)
                 .fillMaxWidth(),
             colors = themedFieldColors(),
+            shape = RoundedCornerShape(12.dp),
         )
         ExposedDropdownMenu(
             expanded = expanded,
@@ -4645,6 +4653,7 @@ private fun CustomTileSheet(
                     },
                     modifier = Modifier.weight(1f),
                     colors = themedFieldColors(),
+                    shape = RoundedCornerShape(12.dp),
                 )
             }
 
@@ -4660,7 +4669,7 @@ private fun CustomTileSheet(
                             action = opt
                             persist()
                         },
-                        shape = SegmentedButtonDefaults.itemShape(index, CustomTileAction.values().size),
+                        shape = SegmentedButtonDefaults.itemShape(index, CustomTileAction.values().size, baseShape = RoundedCornerShape(12.dp)),
                         icon = {
                             actionBadgeIcon(opt)?.let { v ->
                                 Icon(v, contentDescription = null, modifier = Modifier.size(16.dp))
@@ -4690,6 +4699,7 @@ private fun CustomTileSheet(
                     placeholder = { Text(placeholder) },
                     modifier = Modifier.fillMaxWidth(),
                     colors = themedFieldColors(),
+                    shape = RoundedCornerShape(12.dp),
                 )
             }
 
@@ -5012,7 +5022,7 @@ private fun MetricInfoBox(text: String) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(8.dp))
+            .clip(RoundedCornerShape(12.dp))
             .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
             .padding(horizontal = 12.dp, vertical = 8.dp),
         verticalAlignment = Alignment.Top
@@ -5133,6 +5143,7 @@ private fun RollingWindowDropdown(
                 .menuAnchor(MenuAnchorType.PrimaryNotEditable, enabled = true)
                 .fillMaxWidth(),
             colors = themedFieldColors(),
+            shape = RoundedCornerShape(12.dp),
         )
         ExposedDropdownMenu(
             expanded = expanded,
@@ -5185,6 +5196,7 @@ private fun ViewDropdown(
                 .menuAnchor(MenuAnchorType.PrimaryNotEditable, enabled = !forcedWide)
                 .fillMaxWidth(),
             colors = themedFieldColors(),
+            shape = RoundedCornerShape(12.dp),
         )
         ExposedDropdownMenu(
             expanded = expanded && !forcedWide,
@@ -5261,6 +5273,7 @@ private fun CornerStatDropdown(
                 .menuAnchor(MenuAnchorType.PrimaryNotEditable, enabled = true)
                 .fillMaxWidth(),
             colors = themedFieldColors(),
+            shape = RoundedCornerShape(12.dp),
         )
         ExposedDropdownMenu(
             expanded = expanded,
@@ -5360,12 +5373,12 @@ private fun SlotSheetActionPreview(key: String) {
             modifier = Modifier
                 .height(140.dp)
                 .aspectRatio(120f / 86f)
-                .clip(RoundedCornerShape(10.dp))
+                .clip(RoundedCornerShape(12.dp))
                 .background(MaterialTheme.colorScheme.surfaceVariant)
                 .border(
                     1.dp,
                     MaterialTheme.colorScheme.outlineVariant,
-                    RoundedCornerShape(10.dp)
+                    RoundedCornerShape(12.dp)
                 ),
             contentAlignment = Alignment.Center
         ) {
@@ -5800,7 +5813,7 @@ private fun UnitsSetting(
                             }
                         }
                     },
-                    shape = SegmentedButtonDefaults.itemShape(index, systemOptions.size),
+                    shape = SegmentedButtonDefaults.itemShape(index, systemOptions.size, baseShape = RoundedCornerShape(12.dp)),
                     colors = themedSegmentedColors(),
                 ) { Text(label) }
             }
@@ -6570,7 +6583,7 @@ private fun WatchTab(
                             modifier = Modifier.fillMaxHeight(),
                             selected = key == settings.watchUpdateRate,
                             onClick = { viewModel.updateWatchUpdateRate(key) },
-                            shape = SegmentedButtonDefaults.itemShape(index, updateRateOptions.size),
+                            shape = SegmentedButtonDefaults.itemShape(index, updateRateOptions.size, baseShape = RoundedCornerShape(12.dp)),
                             colors = themedSegmentedColors(),
                         ) {
                             Text(
@@ -6621,7 +6634,7 @@ private fun WatchTab(
                         modifier = Modifier.fillMaxHeight(),
                         selected = key == settings.watchPwmDisplay,
                         onClick = { viewModel.updateWatchPwmDisplay(key) },
-                        shape = SegmentedButtonDefaults.itemShape(index, loadOptions.size),
+                        shape = SegmentedButtonDefaults.itemShape(index, loadOptions.size, baseShape = RoundedCornerShape(12.dp)),
                         colors = themedSegmentedColors(),
                     ) {
                         Text(
@@ -6935,6 +6948,7 @@ private fun SyncProgressWithCancel(
             onClick = onCancel,
             enabled = !cancelling,
             modifier = Modifier.weight(1f),
+            shape = RoundedCornerShape(12.dp),
         ) {
             Text(
                 stringResource(if (cancelling) R.string.sync_stopping else R.string.sync_cancel),
@@ -7038,14 +7052,14 @@ private fun CloudTab(
                     overwritePrompt = null
                     backupNameDraft = ""
                     viewModel.backupSettingsNamed(pendingName, overwrite = true)
-                }) { Text(stringResource(R.string.action_overwrite)) }
+                }, shape = RoundedCornerShape(12.dp)) { Text(stringResource(R.string.action_overwrite)) }
             },
             dismissButton = {
                 Button(onClick = {
                     overwritePrompt = null
                     backupNameDraft = pendingName
                     showBackupNameDialog = true
-                }) {
+                }, shape = RoundedCornerShape(12.dp)) {
                     Text(stringResource(R.string.action_cancel))
                 }
             }
@@ -7078,10 +7092,10 @@ private fun CloudTab(
                 Button(onClick = {
                     showFactoryConfirm = false
                     viewModel.restoreFactoryDefaults()
-                }) { Text(stringResource(R.string.cloud_factory_confirm_action)) }
+                }, shape = RoundedCornerShape(12.dp)) { Text(stringResource(R.string.cloud_factory_confirm_action)) }
             },
             dismissButton = {
-                Button(onClick = { showFactoryConfirm = false }) {
+                Button(onClick = { showFactoryConfirm = false }, shape = RoundedCornerShape(12.dp)) {
                     Text(stringResource(R.string.action_cancel))
                 }
             }
@@ -7106,19 +7120,23 @@ private fun CloudTab(
                 ) {
                     Button(
                         onClick = { viewModel.resolveSyncConflict(SyncChoice.FOLDER) },
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(12.dp)
                     ) { Text(stringResource(pullRes)) }
                     Button(
                         onClick = { viewModel.resolveSyncConflict(SyncChoice.APP) },
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(12.dp)
                     ) { Text(stringResource(pushRes)) }
                     Button(
                         onClick = { viewModel.resolveSyncConflict(SyncChoice.IGNORE) },
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(12.dp)
                     ) { Text(stringResource(R.string.sync_conflict_ignore)) }
                     Button(
                         onClick = { viewModel.cancelSyncConflict() },
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(12.dp)
                     ) { Text(stringResource(R.string.action_cancel)) }
                 }
             }
@@ -7139,10 +7157,10 @@ private fun CloudTab(
                 Button(onClick = {
                     viewModel.restoreSettingsNow()
                     showRestoreDialog = false
-                }) { Text(stringResource(R.string.action_restore)) }
+                }, shape = RoundedCornerShape(12.dp)) { Text(stringResource(R.string.action_restore)) }
             },
             dismissButton = {
-                Button(onClick = { showRestoreDialog = false }) {
+                Button(onClick = { showRestoreDialog = false }, shape = RoundedCornerShape(12.dp)) {
                     Text(stringResource(R.string.action_cancel))
                 }
             }
@@ -7208,13 +7226,15 @@ private fun CloudTab(
                 Button(
                     onClick = { pickFolder.launch(null) },
                     enabled = !syncRunning,
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier.weight(1f),
+                    shape = RoundedCornerShape(12.dp)
                 ) { Text(stringResource(R.string.cloud_change_folder)) }
                 Button(
                     onClick = { viewModel.clearSyncFolder() },
                     enabled = !syncRunning,
                     colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.appColors.statusDanger),
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier.weight(1f),
+                    shape = RoundedCornerShape(12.dp)
                 ) { Text(stringResource(R.string.cloud_remove_folder)) }
             }
         } else {
@@ -7297,6 +7317,7 @@ private fun CloudTab(
                         onClick = { viewModel.syncDropboxNow() },
                         enabled = !syncRunning,
                         modifier = Modifier.weight(1f),
+                        shape = RoundedCornerShape(12.dp),
                     ) { Text(stringResource(R.string.cloud_retry_now)) }
                     Button(
                         onClick = { viewModel.unlinkDropbox() },
@@ -7306,6 +7327,7 @@ private fun CloudTab(
                             contentColor   = MaterialTheme.appColors.onPrimary,
                         ),
                         modifier = Modifier.weight(1f),
+                        shape = RoundedCornerShape(12.dp),
                     ) { Text(stringResource(R.string.dropbox_unlink)) }
                 }
                 val activeDbxKind by viewModel.activeSyncKind.collectAsState()
@@ -7331,6 +7353,7 @@ private fun CloudTab(
                         onClick = { viewModel.linkDropbox(context) },
                         enabled = !syncRunning,
                         modifier = Modifier.weight(1f),
+                        shape = RoundedCornerShape(12.dp),
                     ) { Text(stringResource(R.string.dropbox_link)) }
                     Spacer(Modifier.weight(1f))
                 }
@@ -7390,7 +7413,8 @@ private fun CloudTab(
                 Button(
                     onClick = { viewModel.syncAllTrips() },
                     enabled = !syncRunning,
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier.weight(1f),
+                    shape = RoundedCornerShape(12.dp)
                 ) {
                     Text(stringResource(R.string.cloud_retry_now))
                 }
@@ -7442,12 +7466,12 @@ private fun CloudTab(
                 title = { Text(stringResource(R.string.online_rejoin_title)) },
                 text = { Text(stringResource(R.string.online_rejoin_body, rejoinName)) },
                 confirmButton = {
-                    TextButton(onClick = { viewModel.confirmRejoin() }) {
+                    TextButton(onClick = { viewModel.confirmRejoin() }, shape = RoundedCornerShape(12.dp)) {
                         Text(stringResource(R.string.online_rejoin_confirm))
                     }
                 },
                 dismissButton = {
-                    TextButton(onClick = { viewModel.dismissRejoinConfirm() }) {
+                    TextButton(onClick = { viewModel.dismissRejoinConfirm() }, shape = RoundedCornerShape(12.dp)) {
                         Text(stringResource(R.string.action_cancel))
                     }
                 },
@@ -7469,12 +7493,12 @@ private fun CloudTab(
                     )
                 },
                 confirmButton = {
-                    TextButton(onClick = { viewModel.restoreRider(rider) }) {
+                    TextButton(onClick = { viewModel.restoreRider(rider) }, shape = RoundedCornerShape(12.dp)) {
                         Text(stringResource(R.string.online_restore_confirm, riderName))
                     }
                 },
                 dismissButton = {
-                    TextButton(onClick = { viewModel.dismissRestorableRider() }) {
+                    TextButton(onClick = { viewModel.dismissRestorableRider() }, shape = RoundedCornerShape(12.dp)) {
                         Text(stringResource(R.string.action_cancel))
                     }
                 },
@@ -7511,10 +7535,10 @@ private fun CloudTab(
                     TextButton(onClick = {
                         viewModel.unlinkOnline()
                         showUnlinkConfirm = false
-                    }) { Text(stringResource(R.string.online_unlink_confirm)) }
+                    }, shape = RoundedCornerShape(12.dp)) { Text(stringResource(R.string.online_unlink_confirm)) }
                 },
                 dismissButton = {
-                    TextButton(onClick = { showUnlinkConfirm = false }) {
+                    TextButton(onClick = { showUnlinkConfirm = false }, shape = RoundedCornerShape(12.dp)) {
                         Text(stringResource(R.string.action_cancel))
                     }
                 },
@@ -7753,6 +7777,7 @@ private fun CloudTab(
                 Button(
                     onClick = { showOnlineProfile = true },
                     modifier = Modifier.weight(1f),
+                    shape = RoundedCornerShape(12.dp),
                 ) {
                     Text(stringResource(R.string.online_profile_manage))
                 }
@@ -7782,6 +7807,7 @@ private fun CloudTab(
                     onClick = { viewModel.syncEucstatsNow() },
                     enabled = !eucstatsSyncRunning,
                     modifier = Modifier.weight(1f),
+                    shape = RoundedCornerShape(12.dp),
                 ) {
                     Text(stringResource(R.string.cloud_retry_now))
                 }
@@ -7793,6 +7819,7 @@ private fun CloudTab(
                         contentColor   = MaterialTheme.appColors.onPrimary,
                     ),
                     modifier = Modifier.weight(1f),
+                    shape = RoundedCornerShape(12.dp),
                 ) {
                     Text(stringResource(R.string.online_upload_unlink))
                 }
@@ -8191,6 +8218,7 @@ private fun ThemeDropdown(
                 .fillMaxWidth()
                 .menuAnchor(MenuAnchorType.PrimaryNotEditable),
             colors = themedFieldColors(),
+            shape = RoundedCornerShape(12.dp),
         )
         ExposedDropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }, containerColor = MaterialTheme.appColors.menuBackground) {
             builtIns.forEach { name ->
@@ -8246,6 +8274,7 @@ private fun SimpleDropdown(
                 .fillMaxWidth()
                 .menuAnchor(MenuAnchorType.PrimaryNotEditable),
             colors = themedFieldColors(),
+            shape = RoundedCornerShape(12.dp),
         )
         ExposedDropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }, containerColor = MaterialTheme.appColors.menuBackground) {
             options.forEach { (key, text) ->
@@ -8306,6 +8335,7 @@ private fun ButtonConfig(
                                 }
                             },
                             colors = themedFieldColors(),
+                            shape = RoundedCornerShape(12.dp),
                         )
                     } else {
                         Row(
@@ -8600,6 +8630,7 @@ private fun EngineTypePicker(
                     .fillMaxWidth()
                     .menuAnchor(MenuAnchorType.PrimaryNotEditable, true),
                 colors = themedFieldColors(),
+                shape = RoundedCornerShape(12.dp),
             )
             ExposedDropdownMenu(
                 expanded = expanded,
@@ -8679,6 +8710,7 @@ private fun VoiceSelector(
                 .fillMaxWidth()
                 .menuAnchor(MenuAnchorType.PrimaryNotEditable),
             colors = themedFieldColors(),
+            shape = RoundedCornerShape(12.dp),
         )
         ExposedDropdownMenu(
             expanded = expanded,
@@ -8762,6 +8794,7 @@ private fun VoiceVariantSelector(
                 .fillMaxWidth()
                 .menuAnchor(MenuAnchorType.PrimaryNotEditable),
             colors = themedFieldColors(),
+            shape = RoundedCornerShape(12.dp),
         )
         ExposedDropdownMenu(
             expanded = expanded,
@@ -8884,7 +8917,7 @@ private fun SegmentedChoice(
                     modifier = Modifier.fillMaxHeight(),
                     selected = current == key,
                     onClick = { onChange(key) },
-                    shape = SegmentedButtonDefaults.itemShape(index = index, count = options.size),
+                    shape = SegmentedButtonDefaults.itemShape(index = index, count = options.size, baseShape = RoundedCornerShape(12.dp)),
                     colors = themedSegmentedColors(),
                 ) {
                     Text(
@@ -8935,6 +8968,7 @@ private fun ActionDropdown(
                 .fillMaxWidth()
                 .menuAnchor(MenuAnchorType.PrimaryNotEditable),
             colors = themedFieldColors(),
+            shape = RoundedCornerShape(12.dp),
         )
         ExposedDropdownMenu(
             expanded = expanded,
@@ -9253,16 +9287,18 @@ private fun NamedBackupDialog(
                     .fillMaxWidth()
                     .focusRequester(focusRequester),
                 colors = themedFieldColors(),
+                shape = RoundedCornerShape(12.dp),
             )
         },
         confirmButton = {
             Button(
                 enabled = sanitized != null,
-                onClick = { sanitized?.let(onSave) }
+                onClick = { sanitized?.let(onSave) },
+                shape = RoundedCornerShape(12.dp)
             ) { Text(stringResource(R.string.action_save)) }
         },
         dismissButton = {
-            Button(onClick = onDismiss) {
+            Button(onClick = onDismiss, shape = RoundedCornerShape(12.dp)) {
                 Text(stringResource(R.string.action_cancel))
             }
         }
@@ -9319,6 +9355,7 @@ internal fun RestorePickerDialog(
                             .fillMaxWidth()
                             .menuAnchor(MenuAnchorType.PrimaryNotEditable, true),
                         colors = themedFieldColors(),
+                        shape = RoundedCornerShape(12.dp),
                     )
                     ExposedDropdownMenu(
                         expanded = dropdownOpen,
@@ -9348,11 +9385,12 @@ internal fun RestorePickerDialog(
         confirmButton = {
             Button(
                 enabled = selected != null,
-                onClick = { selected?.let(onPicked) }
+                onClick = { selected?.let(onPicked) },
+                shape = RoundedCornerShape(12.dp)
             ) { Text(stringResource(R.string.action_restore)) }
         },
         dismissButton = {
-            Button(onClick = onDismiss) {
+            Button(onClick = onDismiss, shape = RoundedCornerShape(12.dp)) {
                 Text(stringResource(R.string.action_cancel))
             }
         }
@@ -9726,7 +9764,7 @@ private fun HudInstallHint(pairedHudVersion: String?, hudEverConnected: Boolean)
     androidx.compose.material3.Surface(
         modifier = Modifier.fillMaxWidth(),
         color = MaterialTheme.colorScheme.surfaceVariant,
-        shape = RoundedCornerShape(8.dp)
+        shape = RoundedCornerShape(12.dp)
     ) {
         Row(
             modifier = Modifier.padding(horizontal = 12.dp, vertical = 10.dp),
@@ -9766,7 +9804,7 @@ private fun HudHotspotHint() {
     androidx.compose.material3.Surface(
         modifier = Modifier.fillMaxWidth(),
         color = MaterialTheme.colorScheme.surfaceVariant,
-        shape = RoundedCornerShape(8.dp)
+        shape = RoundedCornerShape(12.dp)
     ) {
         Row(
             modifier = Modifier.padding(horizontal = 12.dp, vertical = 10.dp),
@@ -9941,6 +9979,7 @@ private fun HudIntegrationSection(
                 ),
                 modifier = Modifier.weight(2f),
                 colors = themedFieldColors(),
+                shape = RoundedCornerShape(12.dp),
             )
             OutlinedTextField(
                 value = portText,
@@ -9968,6 +10007,7 @@ private fun HudIntegrationSection(
                 ),
                 modifier = Modifier.weight(1f),
                 colors = themedFieldColors(),
+                shape = RoundedCornerShape(12.dp),
             )
         }
         }  // end AnimatedVisibility for the IP/port row
@@ -10292,6 +10332,7 @@ private fun HudMapStylePicker(
                 .fillMaxWidth()
                 .menuAnchor(MenuAnchorType.PrimaryNotEditable),
             colors = themedFieldColors(),
+            shape = RoundedCornerShape(12.dp),
         )
         ExposedDropdownMenu(
             expanded = expanded,
@@ -10359,13 +10400,15 @@ private fun HudOverlayPicker(
             androidx.compose.material3.FilledTonalButton(
                 onClick = { sheetOpen = true },
                 colors = themedTonalButtonColors(),
+                shape = RoundedCornerShape(12.dp),
             ) {
                 Text(stringResource(R.string.hud_overlay_select_preset))
             }
             if (settings.hudCustomOverlayName.isNotBlank()) {
                 androidx.compose.material3.TextButton(
                     onClick = { viewModel.pickHudOverlay("") },
-                    colors = themedTextButtonColors()
+                    colors = themedTextButtonColors(),
+                    shape = RoundedCornerShape(12.dp)
                 ) {
                     Text(stringResource(R.string.hud_custom_overlay_none))
                 }
