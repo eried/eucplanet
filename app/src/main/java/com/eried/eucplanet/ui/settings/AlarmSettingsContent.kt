@@ -83,6 +83,7 @@ import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
@@ -1468,66 +1469,67 @@ internal fun NumberUpDown(
                 ),
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Column {
-                    // The label sits inside the field (like the combo boxes)
-                    // rather than as separate text above it, so numeric rows read
-                    // like the other controls.
-                    if (label != null) {
-                        Text(
-                            label,
-                            fontSize = 11.sp,
-                            color = fieldLabelColor,
-                            maxLines = 2,
-                            lineHeight = 13.sp,
-                            modifier = Modifier.padding(start = 14.dp, end = 14.dp, top = 7.dp)
-                        )
-                    }
-                    Row(
+                Row(
+                    modifier = Modifier
+                        .height(48.dp)
+                        .padding(horizontal = 14.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    BasicTextField(
+                        value = if (focused) text else format(value),
+                        onValueChange = { raw ->
+                            val filtered = if (allowSign)
+                                raw.filter { it.isDigit() || it == '-' || it == '.' }.take(7)
+                            else raw.filter { it.isDigit() }.take(6)
+                            text = filtered
+                            parse(filtered)?.let { if (it in range) onValueChange(it) }
+                        },
+                        singleLine = true,
+                        enabled = enabled,
+                        textStyle = TextStyle(
+                            color = fieldText,
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.Medium,
+                            textAlign = numberAlign
+                        ),
+                        cursorBrush = SolidColor(fieldText),
+                        keyboardOptions = KeyboardOptions(
+                            keyboardType = if (allowSign) KeyboardType.Decimal else KeyboardType.Number
+                        ),
                         modifier = Modifier
-                            .height(if (label != null) 38.dp else 48.dp)
-                            .padding(horizontal = 14.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        BasicTextField(
-                            value = if (focused) text else format(value),
-                            onValueChange = { raw ->
-                                val filtered = if (allowSign)
-                                    raw.filter { it.isDigit() || it == '-' || it == '.' }.take(7)
-                                else raw.filter { it.isDigit() }.take(6)
-                                text = filtered
-                                parse(filtered)?.let { if (it in range) onValueChange(it) }
-                            },
-                            singleLine = true,
-                            enabled = enabled,
-                            textStyle = TextStyle(
-                                color = fieldText,
-                                fontSize = 16.sp,
-                                fontWeight = FontWeight.Medium,
-                                textAlign = numberAlign
-                            ),
-                            cursorBrush = SolidColor(fieldText),
-                            keyboardOptions = KeyboardOptions(
-                                keyboardType = if (allowSign) KeyboardType.Decimal else KeyboardType.Number
-                            ),
-                            modifier = Modifier
-                                .weight(1f)
-                                .onFocusChanged { f ->
-                                    if (f.isFocused) text = format(value)
-                                    focused = f.isFocused
-                                }
+                            .weight(1f)
+                            .onFocusChanged { f ->
+                                if (f.isFocused) text = format(value)
+                                focused = f.isFocused
+                            }
+                    )
+                    if (suffix.isNotEmpty()) {
+                        Spacer(Modifier.width(6.dp))
+                        Text(
+                            suffix,
+                            fontSize = 13.sp,
+                            color = fieldLabelColor,
+                            maxLines = 1,
+                            softWrap = false,
                         )
-                        if (suffix.isNotEmpty()) {
-                            Spacer(Modifier.width(6.dp))
-                            Text(
-                                suffix,
-                                fontSize = 13.sp,
-                                color = fieldLabelColor,
-                                maxLines = 1,
-                                softWrap = false,
-                            )
-                        }
                     }
                 }
+            }
+            // Floating label notched into the top border (like the combo boxes /
+            // OutlinedTextField), not inside the box. Its field-coloured background
+            // punches the gap in the outline; it takes the focus colour when active.
+            if (label != null) {
+                Text(
+                    label,
+                    fontSize = 11.sp,
+                    color = if (focused) focusBorder else fieldLabelColor,
+                    maxLines = 1,
+                    modifier = Modifier
+                        .align(Alignment.TopStart)
+                        .offset(x = 12.dp, y = (-7).dp)
+                        .background(MaterialTheme.appColors.fieldBackground)
+                        .padding(horizontal = 4.dp)
+                )
             }
             // Up/down stepper bubble: a vertical pill (up over down) that appears
             // only while focused, docked just past the field's trailing edge and
