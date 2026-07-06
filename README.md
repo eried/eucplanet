@@ -62,6 +62,13 @@ Already connects but a reading looks wrong? See the [in-app diagnostics guide](d
 distance. Rearrange the tiles, build composite tiles and action groups, add a live
 runtime clock. Tap any tile for its history graph. Metric or imperial.
 
+**Screen geometry.** Every screen adapts to the device it runs on: a portrait
+glance-view, a landscape three-column layout for bar mounts, roomier spacing on
+tablets, and a tiny cover-screen mode for foldables (the Galaxy Z Flip outer
+display and friends) with a compact speedo and sideways metric and button pages.
+Rotation is per-screen, so the dashboard can stay portrait while the map goes
+full landscape.
+
 **Turn-by-turn navigator.** Multi-stop routes on a map (walk, bike, car,
 straight-line), voice cues, off-route reroute, sticky GPS, and a Treasure Hunt
 proximity mode for unmarked spots. Charging stations (connectors, power, cost,
@@ -78,10 +85,10 @@ footage from another camera. It's not only for recording and replay: the same
 editor designs your **MotoEye / Android HUD** layout, so the visor shows exactly
 the tiles and gauges you arranged.
 
-**Charging monitor.** A live charge curve with time-to-80% and time-to-100%
-predictions while you charge, and a per-cell BMS view (Cells tab) for smart-BMS
-wheels (Veteran, KingSong and others) showing individual cell voltages, pack
-imbalance and temperatures so you can spot a weak cell early.
+**Charging monitor.** A live charge curve with a scrubbable prediction line,
+energy split into used and charged, and a per-cell BMS view (Cells tab) for
+smart-BMS wheels (Veteran, KingSong and others) showing individual cell voltages,
+pack imbalance and temperatures so you can spot a weak cell early.
 
 **Wheel control.** Horn, lights, lock, voice announcements, all one tap away. Legal
 Mode temporarily reprograms the wheel's tiltback and alarm speeds to a cap you set,
@@ -89,14 +96,17 @@ then restores your normal settings when you switch it off.
 
 **Custom alarms.** Your own thresholds on speed, battery, temperature, PWM, voltage
 or current. Each can beep (custom tone and pitch), speak (`"Battery at {value}%"`),
-and/or vibrate, with cooldowns so they don't nag.
+and/or vibrate, with cooldowns so they don't nag. Predictive triggers warn you up
+to 3 seconds ahead, and a most-severe-per-metric engine keeps a louder alarm from
+eating a quieter one.
 
 **Voice announcements.** Periodic reports at your interval, configurable rate and
-locale, plus event callouts: lock/unlock, lights, GPS fix, connection, legal mode,
-recording.
+a per-language voice picker, plus event callouts: lock/unlock, lights, GPS fix,
+connection, legal mode, recording.
 
 **Trip recording.** GPS and telemetry to DarknessBot-compatible CSV, auto-record,
-live track preview, and a trip list with quick export and share. View them later in
+live track preview, and a trip list with quick export and share. Trips are
+recovered even if the app is closed mid-ride. View them later in
 the [web Trip Viewer](https://github.com/eried/eucviewer), or opt in to share them on
 the [EUC Stats leaderboard](https://eucstats.ried.no/) and rank your distance against
 riders worldwide, by country.
@@ -140,6 +150,12 @@ Wear OS 5+ watch).
 key features. A top-bar warning chip surfaces any permissions you've denied
 (BLE, location, notifications) with one-tap Fix actions, so a denial doesn't
 silently break a feature later in the ride.
+
+**Advanced settings.** A dedicated Advanced panel exposes the knobs behind every
+feature: poll and refresh rates, chart history windows, HUD discovery timings,
+screen geometry, alarm and charging tuning, and more. Each has a sensible default,
+a valid range, and a one-tap restore, so you can tune deeply without breaking
+anything.
 
 **Multi-language support.** Full UI localisation, at parity across all of them.
 
