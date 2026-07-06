@@ -105,6 +105,7 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
@@ -630,6 +631,7 @@ private fun AlarmRuleEditorDialog(
                         suffix = displayedUnit,
                         label = stringResource(R.string.alarm_threshold_label),
                         modifier = Modifier.weight(1f),
+                        fieldHeight = 56.dp,
                     )
                     Spacer(Modifier.weight(1f))
                 }
@@ -1442,6 +1444,9 @@ internal fun NumberUpDown(
     // hugs the unit, and because the unit is a fixed trailing element it is
     // always fully visible even in a narrow row. Center keeps the older look.
     numberAlign: TextAlign = TextAlign.End,
+    // Field box height. Compact 48dp by default; the alarm editor's Threshold
+    // passes 56dp so it lines up with the metric/condition dropdowns beside it.
+    fieldHeight: Dp = 48.dp,
 ) {
     val fieldText = MaterialTheme.appColors.fieldText
     val fieldLabelColor = MaterialTheme.appColors.fieldLabel
@@ -1478,7 +1483,7 @@ internal fun NumberUpDown(
             ) {
                 Row(
                     modifier = Modifier
-                        .height(48.dp)
+                        .height(fieldHeight)
                         .padding(horizontal = 14.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {

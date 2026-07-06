@@ -50,6 +50,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
@@ -251,6 +252,7 @@ fun OnlineProfileDialog(
     AlertDialog(
         onDismissRequest = { if (!saving && !deleting) onDismiss() },
         modifier = Modifier.fillMaxWidth(0.92f),
+        shape = RoundedCornerShape(12.dp),
         properties = DialogProperties(usePlatformDefaultWidth = false),
         title = {
             Row(
@@ -427,46 +429,36 @@ fun OnlineProfileDialog(
                     )
 
                     // ---- Country picker (flag list) --------------------------
+                    // A read-only OutlinedTextField so it matches the display-name
+                    // field above exactly (label notch, font, fill). A transparent
+                    // overlay opens the picker dialog instead of focusing the field.
                     val countryEnabled = flagEditable && !saving
-                    Box(modifier = Modifier.fillMaxWidth().padding(top = 8.dp)) {
-                        Surface(
-                            onClick = { if (countryEnabled) showCountryPicker = true },
-                            enabled = countryEnabled,
+                    Box(modifier = Modifier.fillMaxWidth()) {
+                        OutlinedTextField(
+                            value = if (flagValid) "${flagEmoji(flagCode)}  ${countryName(flagCode)}"
+                                    else stringResource(R.string.online_upload_profile_country_select),
+                            onValueChange = {},
+                            readOnly = true,
+                            singleLine = true,
+                            label = { Text(stringResource(R.string.online_upload_profile_country_label)) },
+                            trailingIcon = {
+                                Icon(Icons.Default.ArrowDropDown, contentDescription = null)
+                            },
+                            colors = themedFieldColors(),
                             shape = RoundedCornerShape(12.dp),
-                            // Dim the box when on cooldown so it reads as disabled,
-                            // matching the greyed-out name field above it.
-                            color = if (countryEnabled) MaterialTheme.appColors.surfaceVariant
-                                    else MaterialTheme.appColors.surfaceVariant.copy(alpha = 0.4f),
-                            modifier = Modifier.fillMaxWidth(),
-                        ) {
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(horizontal = 12.dp, vertical = 14.dp),
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                            ) {
-                                Text(
-                                    text = if (flagValid) "${flagEmoji(flagCode)}  ${countryName(flagCode)}"
-                                           else stringResource(R.string.online_upload_profile_country_select),
-                                    color = when {
-                                        !countryEnabled -> MaterialTheme.appColors.textDisabled
-                                        flagValid -> MaterialTheme.appColors.textPrimary
-                                        else -> MaterialTheme.appColors.textSecondary
-                                    },
-                                    modifier = Modifier.weight(1f),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .alpha(if (countryEnabled) 1f else 0.5f),
+                        )
+                        Box(
+                            modifier = Modifier
+                                .matchParentSize()
+                                .clip(RoundedCornerShape(12.dp))
+                                .then(
+                                    if (countryEnabled)
+                                        Modifier.clickable { showCountryPicker = true }
+                                    else Modifier
                                 )
-                                Icon(
-                                    Icons.Default.ArrowDropDown, contentDescription = null,
-                                    tint = if (countryEnabled) MaterialTheme.appColors.textSecondary
-                                           else MaterialTheme.appColors.textDisabled,
-                                )
-                            }
-                        }
-                        FieldNotchLabel(
-                            stringResource(R.string.online_upload_profile_country_label),
-                            aboveColor = MaterialTheme.appColors.surface,
-                            belowColor = MaterialTheme.appColors.surfaceVariant,
                         )
                     }
 
