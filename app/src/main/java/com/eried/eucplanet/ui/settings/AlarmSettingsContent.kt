@@ -219,7 +219,7 @@ fun AlarmSettingsContent(
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .clip(RoundedCornerShape(8.dp))
+                            .clip(RoundedCornerShape(12.dp))
                             .background(accent.copy(alpha = 0.16f))
                             .padding(start = 6.dp, end = 12.dp, top = 7.dp, bottom = 7.dp),
                         verticalAlignment = Alignment.CenterVertically
@@ -227,7 +227,7 @@ fun AlarmSettingsContent(
                         Icon(
                             Icons.Default.DragHandle,
                             contentDescription = stringResource(R.string.action_reorder),
-                            tint = MaterialTheme.colorScheme.onSurface,
+                            tint = accent,
                             modifier = Modifier.draggableHandle().size(26.dp)
                         )
                         Spacer(Modifier.width(6.dp))
@@ -235,7 +235,7 @@ fun AlarmSettingsContent(
                             stringResource(groupMetric.labelRes),
                             fontWeight = FontWeight.Bold,
                             fontSize = 17.sp,
-                            color = MaterialTheme.colorScheme.onSurface
+                            color = accent
                         )
                     }
                     group.rules.forEach { rule ->
@@ -1464,7 +1464,7 @@ internal fun NumberUpDown(
             // clipped the number on dense screens). Tapping the field focuses it
             // (system keyboard) and reveals the up/down bubble above it.
             Surface(
-                shape = RoundedCornerShape(percent = 50),
+                shape = RoundedCornerShape(12.dp),
                 color = MaterialTheme.appColors.fieldBackground,
                 border = BorderStroke(
                     if (focused) 2.dp else 1.dp,

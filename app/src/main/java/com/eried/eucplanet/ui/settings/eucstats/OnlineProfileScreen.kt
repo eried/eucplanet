@@ -419,6 +419,7 @@ fun OnlineProfileDialog(
                         enabled = nameEditable && !saving,
                         modifier = Modifier.fillMaxWidth(),
                         colors = themedFieldColors(),
+                        shape = RoundedCornerShape(12.dp),
                     )
 
                     // ---- Country picker (flag list) --------------------------
@@ -435,7 +436,7 @@ fun OnlineProfileDialog(
                         Surface(
                             onClick = { if (countryEnabled) showCountryPicker = true },
                             enabled = countryEnabled,
-                            shape = RoundedCornerShape(8.dp),
+                            shape = RoundedCornerShape(12.dp),
                             // Dim the box when on cooldown so it reads as disabled,
                             // matching the greyed-out name field above it.
                             color = if (countryEnabled) MaterialTheme.appColors.surfaceVariant

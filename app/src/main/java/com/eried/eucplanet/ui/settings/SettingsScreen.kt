@@ -723,6 +723,7 @@ fun SettingsScreen(
                             }
                         },
                         singleLine = true,
+                        shape = RoundedCornerShape(12.dp),
                         // Quake-style console: typed cheats (daredevilNN, godmode, bug) are
                         // intercepted on IME Enter before they become a search query. No
                         // match → field stays populated and the normal text-search filter
