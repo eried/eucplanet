@@ -157,7 +157,7 @@ private fun RadarOverlaySettings(viewModel: RadarViewModel) {
                     modifier = Modifier.fillMaxHeight(),
                     selected = key == s.radarOverlaySide,
                     onClick = { viewModel.updateOverlaySide(key) },
-                    shape = SegmentedButtonDefaults.itemShape(i, sideOptions.size),
+                    shape = SegmentedButtonDefaults.itemShape(i, sideOptions.size, baseShape = RoundedCornerShape(12.dp)),
                     colors = themedSegmentedColors(),
                 ) { Text(label) }
             }

@@ -210,7 +210,8 @@ fun OnlineProfileDialog(
                         colors = ButtonDefaults.buttonColors(
                             containerColor = MaterialTheme.appColors.statusDanger,
                             contentColor   = MaterialTheme.appColors.onPrimary,
-                        )
+                        ),
+                        shape = RoundedCornerShape(12.dp),
                     ) {
                         Text(stringResource(R.string.online_profile_delete_confirm_action))
                     }
@@ -222,7 +223,8 @@ fun OnlineProfileDialog(
                     enabled = !deleting,
                     colors = ButtonDefaults.textButtonColors(
                         contentColor = MaterialTheme.appColors.textButton,
-                    )
+                    ),
+                    shape = RoundedCornerShape(12.dp),
                 ) {
                     Text(stringResource(R.string.action_cancel))
                 }
@@ -328,6 +330,7 @@ fun OnlineProfileDialog(
                                 loading = false
                             }
                         },
+                        shape = RoundedCornerShape(12.dp),
                     ) { Text(stringResource(R.string.online_profile_retry)) }
                 } else {
                     // ---- Avatar (centered, tappable) -------------------------
@@ -516,7 +519,8 @@ fun OnlineProfileDialog(
                     enabled = !saving && !deleting && profile != null,
                     colors = ButtonDefaults.textButtonColors(
                         contentColor = MaterialTheme.appColors.statusDanger,
-                    )
+                    ),
+                    shape = RoundedCornerShape(12.dp),
                 ) {
                     Text(stringResource(R.string.online_profile_delete_account))
                 }
@@ -536,7 +540,8 @@ fun OnlineProfileDialog(
                         enabled = !saving && !deleting,
                         colors = ButtonDefaults.textButtonColors(
                             contentColor = MaterialTheme.appColors.textButton,
-                        )
+                        ),
+                        shape = RoundedCornerShape(12.dp),
                     ) {
                         Text(stringResource(R.string.action_cancel))
                     }
@@ -571,7 +576,8 @@ fun OnlineProfileDialog(
                             contentColor           = MaterialTheme.appColors.onPrimary,
                             disabledContainerColor = MaterialTheme.appColors.surfaceVariant,
                             disabledContentColor   = MaterialTheme.appColors.textDisabled,
-                        )
+                        ),
+                        shape = RoundedCornerShape(12.dp),
                     ) {
                         Text(stringResource(R.string.action_save))
                     }

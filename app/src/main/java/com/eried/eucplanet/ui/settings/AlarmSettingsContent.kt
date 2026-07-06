@@ -264,7 +264,8 @@ fun AlarmSettingsContent(
         ) {
             Button(
                 onClick = { editingRule = null; showEditor = true },
-                modifier = Modifier.weight(1f)
+                modifier = Modifier.weight(1f),
+                shape = RoundedCornerShape(12.dp)
             ) {
                 Icon(Icons.Default.Add, contentDescription = null, modifier = Modifier.size(18.dp))
                 Spacer(Modifier.width(6.dp))
@@ -310,10 +311,10 @@ fun AlarmSettingsContent(
                 TextButton(onClick = {
                     viewModel.deleteRule(rule)
                     deleteCandidate = null
-                }) { Text(stringResource(R.string.action_delete), color = MaterialTheme.appColors.statusDanger) }
+                }, shape = RoundedCornerShape(12.dp)) { Text(stringResource(R.string.action_delete), color = MaterialTheme.appColors.statusDanger) }
             },
             dismissButton = {
-                TextButton(onClick = { deleteCandidate = null }) { Text(stringResource(R.string.action_cancel)) }
+                TextButton(onClick = { deleteCandidate = null }, shape = RoundedCornerShape(12.dp)) { Text(stringResource(R.string.action_cancel)) }
             }
         )
     }
@@ -354,7 +355,7 @@ private fun AlarmRuleCard(
             containerColor = if (rule.enabled) MaterialTheme.colorScheme.surfaceVariant
             else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
         ),
-        shape = RoundedCornerShape(10.dp)
+        shape = RoundedCornerShape(12.dp)
     ) {
         // Drag handle | tap-to-edit text | enable switch.
         Row(
@@ -733,6 +734,7 @@ private fun AlarmRuleEditorDialog(
                             Button(
                                 onClick = { showStudio = true },
                                 modifier = Modifier.weight(1f),
+                                shape = RoundedCornerShape(12.dp),
                             ) {
                                 Icon(Icons.Default.Tune, contentDescription = null, modifier = Modifier.size(18.dp))
                                 Spacer(Modifier.width(6.dp))
@@ -769,6 +771,7 @@ private fun AlarmRuleEditorDialog(
                         label = { Text(stringResource(R.string.alarm_voice_template)) },
                         modifier = Modifier.fillMaxWidth(),
                         minLines = 2,
+                        shape = RoundedCornerShape(12.dp),
                         colors = themedFieldColors(),
                     )
                     HintText(stringResource(R.string.alarm_voice_template_help), small = true)
@@ -830,7 +833,7 @@ private fun AlarmRuleEditorDialog(
                                 modifier = Modifier.fillMaxHeight(),
                                 selected = key == vibrateTarget,
                                 onClick = { vibrateTarget = key },
-                                shape = SegmentedButtonDefaults.itemShape(index, targetEntries.size),
+                                shape = SegmentedButtonDefaults.itemShape(index, targetEntries.size, baseShape = RoundedCornerShape(12.dp)),
                                 colors = themedSegmentedColors(),
                             ) { Text(label) }
                         }
@@ -913,7 +916,7 @@ private fun AlarmRuleEditorDialog(
                                         modifier = Modifier.fillMaxHeight(),
                                         selected = value == repeatWhileActive,
                                         onClick = { repeatWhileActive = value },
-                                        shape = SegmentedButtonDefaults.itemShape(index, repeatEntries.size),
+                                        shape = SegmentedButtonDefaults.itemShape(index, repeatEntries.size, baseShape = RoundedCornerShape(12.dp)),
                                         colors = themedSegmentedColors(),
                                     ) { Text(lbl) }
                                 }
@@ -954,7 +957,7 @@ private fun AlarmRuleEditorDialog(
                                 modifier = Modifier.fillMaxHeight(),
                                 selected = leadTimeMs == ms,
                                 onClick = { leadTimeMs = ms },
-                                shape = SegmentedButtonDefaults.itemShape(index, leadValues.size),
+                                shape = SegmentedButtonDefaults.itemShape(index, leadValues.size, baseShape = RoundedCornerShape(12.dp)),
                                 colors = themedSegmentedColors(),
                                 icon = {},
                             ) {
@@ -987,7 +990,7 @@ private fun AlarmRuleEditorDialog(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     if (rule != null && onDelete != null) {
-                        TextButton(onClick = onDelete) {
+                        TextButton(onClick = onDelete, shape = RoundedCornerShape(12.dp)) {
                             Text(
                                 stringResource(R.string.alarm_delete_action),
                                 color = MaterialTheme.appColors.statusDanger
@@ -997,11 +1000,12 @@ private fun AlarmRuleEditorDialog(
                         Spacer(Modifier.width(1.dp))
                     }
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        TextButton(onClick = onDismiss) { Text(stringResource(R.string.action_cancel)) }
+                        TextButton(onClick = onDismiss, shape = RoundedCornerShape(12.dp)) { Text(stringResource(R.string.action_cancel)) }
                         Spacer(Modifier.width(8.dp))
                         val hasOutput = beepEnabled || voiceEnabled || vibrateEnabled
                         Button(
                             enabled = hasOutput,
+                            shape = RoundedCornerShape(12.dp),
                             onClick = {
                                 onSave(
                                     (rule ?: AlarmRule()).copy(
@@ -1216,13 +1220,13 @@ private fun BeepStudioDialog(
                 Row(modifier = Modifier.fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically) {
                     // Reset commits no modulation (1x pitch and volume) and closes.
-                    TextButton(onClick = { onCommit(100, 100); onDismiss() }) {
+                    TextButton(onClick = { onCommit(100, 100); onDismiss() }, shape = RoundedCornerShape(12.dp)) {
                         Text(stringResource(R.string.alarm_studio_reset))
                     }
                     Spacer(Modifier.weight(1f))
-                    TextButton(onClick = onDismiss) { Text(stringResource(R.string.action_cancel)) }
+                    TextButton(onClick = onDismiss, shape = RoundedCornerShape(12.dp)) { Text(stringResource(R.string.action_cancel)) }
                     Spacer(Modifier.width(8.dp))
-                    Button(onClick = { onCommit(pitchFactor, volFactor); onDismiss() }) {
+                    Button(onClick = { onCommit(pitchFactor, volFactor); onDismiss() }, shape = RoundedCornerShape(12.dp)) {
                         Text(stringResource(R.string.action_save))
                     }
                 }
@@ -1649,6 +1653,7 @@ private fun DropdownSelect(
             modifier = Modifier
                 .fillMaxWidth()
                 .menuAnchor(MenuAnchorType.PrimaryNotEditable),
+            shape = RoundedCornerShape(12.dp),
             colors = themedFieldColors(),
         )
         ExposedDropdownMenu(

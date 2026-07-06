@@ -176,6 +176,7 @@ fun OnlineUploadOnboardingDialog(
             confirmButton = {
                 Button(
                     onClick = { step = STEP_PROFILE },
+                    shape = RoundedCornerShape(12.dp),
                     colors = ButtonDefaults.buttonColors(
                         containerColor = MaterialTheme.appColors.primary,
                         contentColor   = MaterialTheme.appColors.onPrimary,
@@ -187,6 +188,7 @@ fun OnlineUploadOnboardingDialog(
             dismissButton = {
                 TextButton(
                     onClick = onDismiss,
+                    shape = RoundedCornerShape(12.dp),
                     colors = ButtonDefaults.textButtonColors(
                         contentColor = MaterialTheme.appColors.textButton,
                     )
@@ -290,6 +292,7 @@ fun OnlineUploadOnboardingDialog(
                     singleLine = true,
                     enabled = !registering,
                     modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(12.dp),
                     colors = themedFieldColors(),
                 )
 
@@ -306,7 +309,7 @@ fun OnlineUploadOnboardingDialog(
                     Surface(
                         onClick = { if (!registering) showCountryPicker = true },
                         enabled = !registering,
-                        shape = RoundedCornerShape(8.dp),
+                        shape = RoundedCornerShape(12.dp),
                         color = MaterialTheme.appColors.surfaceVariant,
                         modifier = Modifier.fillMaxWidth(),
                     ) {
@@ -390,6 +393,7 @@ fun OnlineUploadOnboardingDialog(
                         }
                     },
                     enabled = canRegister && !registering,
+                    shape = RoundedCornerShape(12.dp),
                     colors  = ButtonDefaults.buttonColors(
                         containerColor         = MaterialTheme.appColors.primary,
                         contentColor           = MaterialTheme.appColors.onPrimary,
@@ -405,6 +409,7 @@ fun OnlineUploadOnboardingDialog(
             TextButton(
                 onClick = { if (!registering) onDismiss() },
                 enabled = !registering,
+                shape = RoundedCornerShape(12.dp),
                 colors  = ButtonDefaults.textButtonColors(
                     contentColor = MaterialTheme.appColors.textButton,
                 )
@@ -459,6 +464,7 @@ internal fun CountryPickerDialog(onPick: (String) -> Unit, onDismiss: () -> Unit
                     singleLine = true,
                     placeholder = { Text(stringResource(R.string.online_upload_country_search)) },
                     modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(12.dp),
                     colors = themedFieldColors(),
                 )
                 Spacer(Modifier.height(8.dp))
@@ -487,6 +493,7 @@ internal fun CountryPickerDialog(onPick: (String) -> Unit, onDismiss: () -> Unit
         dismissButton = {
             TextButton(
                 onClick = onDismiss,
+                shape = RoundedCornerShape(12.dp),
                 colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.appColors.textButton),
             ) { Text(stringResource(R.string.action_cancel)) }
         }
