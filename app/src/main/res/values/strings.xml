@@ -671,6 +671,7 @@
     <string name="geo_section_dashboard">Dashboard</string>
     <string name="geo_section_navigator">Navigator</string>
     <string name="geo_section_other">Other screens</string>
+    <string name="geo_section_settings">Settings</string>
     <string name="setting_allow_rotation">Allow rotation</string>
     <string name="setting_compact_dashboard">Compact dashboard</string>
     <string name="compact_mode_auto">Small screens</string>
@@ -689,7 +690,8 @@
     <string name="side_default">Default</string>
     <string name="side_left">Left</string>
     <string name="side_right">Right</string>
-    <string name="geo_other_hint">Settings, trips, battery monitor, metric history, scan and Flic. The Overlay Studio is not affected: its layout is fixed, but it works fine held in any orientation.</string>
+    <string name="geo_other_hint">Trips, battery monitor, metric history, scan and Flic. The Overlay Studio is not affected: its layout is fixed, but it works fine held in any orientation.</string>
+    <string name="geo_settings_hint">The settings screen. Off by default, so Settings stays portrait unless you enable it.</string>
     <string name="back_button_action_ask">Ask</string>
     <string name="back_button_action_background">Background</string>
     <string name="back_button_action_stop">Stop all</string>

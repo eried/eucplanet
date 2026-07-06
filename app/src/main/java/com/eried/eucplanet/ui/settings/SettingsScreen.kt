@@ -1541,6 +1541,17 @@ private fun AdvancedTab(
         }
 
         AdvancedCollapsable(
+            title = stringResource(R.string.geo_section_settings),
+            stateKey = "geo-settings"
+        ) {
+            SwitchSetting(
+                stringResource(R.string.setting_allow_rotation),
+                settings.rotateSettings
+            ) { viewModel.updateRotateSettings(it) }
+            HintText(stringResource(R.string.geo_settings_hint), small = true)
+        }
+
+        AdvancedCollapsable(
             title = stringResource(R.string.geo_section_other),
             stateKey = "geo-other"
         ) {

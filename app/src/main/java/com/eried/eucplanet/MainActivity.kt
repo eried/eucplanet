@@ -391,7 +391,7 @@ class MainActivity : AppCompatActivity() {
                     val routeNow = currentRoute?.destination?.route
                     androidx.compose.runtime.LaunchedEffect(
                         routeNow, s?.rotateDashboard, s?.rotateNavigator,
-                        s?.rotateOtherScreens, s?.blockUpsideDown, s?.ignoreSystemRotateLock
+                        s?.rotateOtherScreens, s?.rotateSettings, s?.blockUpsideDown, s?.ignoreSystemRotateLock
                     ) {
                         val allow = when (routeNow) {
                             Screen.Dashboard.route, null -> s?.rotateDashboard ?: false
@@ -401,6 +401,7 @@ class MainActivity : AppCompatActivity() {
                             // camera-app style, and reflowing the layout breaks
                             // the recording canvas. Never rotate it.
                             Screen.OverlayStudio.route -> false
+                            Screen.Settings.route -> s?.rotateSettings ?: false
                             else -> s?.rotateOtherScreens ?: true
                         }
                         // SENSOR variants follow the accelerometer even when the

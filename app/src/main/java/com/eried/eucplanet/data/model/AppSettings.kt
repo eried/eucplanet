@@ -200,6 +200,9 @@ data class AppSettings(
     val rotateDashboard: Boolean = false,
     val rotateNavigator: Boolean = true,
     val rotateOtherScreens: Boolean = true,
+    // The Settings screen has its own rotation entry, split out from "other
+    // screens". Off by default, so Settings stays portrait unless enabled.
+    val rotateSettings: Boolean = false,
 
     // Screen geometry. Compact mode is the tiny dashboard (speedo + one
     // swipeable buttons/metrics area) used on flip cover screens; it reuses
