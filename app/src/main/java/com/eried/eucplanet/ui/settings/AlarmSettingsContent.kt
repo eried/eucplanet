@@ -120,6 +120,8 @@ import com.eried.eucplanet.data.model.AlarmRule
 import com.eried.eucplanet.ui.common.HintText
 import com.eried.eucplanet.ui.common.InfoHint
 import com.eried.eucplanet.ui.theme.appColors
+import com.eried.eucplanet.ui.theme.FieldNotchLabel
+import androidx.compose.ui.graphics.Color
 import com.eried.eucplanet.util.Units
 import com.eried.eucplanet.ui.theme.themedFieldColors
 import com.eried.eucplanet.ui.theme.themedSegmentedColors
@@ -1517,22 +1519,12 @@ internal fun NumberUpDown(
                     }
                 }
             }
-            // Floating label notched into the top border (like the combo boxes /
-            // OutlinedTextField), not inside the box. Its field-coloured background
-            // punches the gap in the outline; it takes the focus colour when active.
+            // Floating label notched into the top border like the combo boxes;
+            // takes the focus colour when active.
             if (label != null) {
-                Text(
+                FieldNotchLabel(
                     label,
-                    fontSize = 11.sp,
-                    color = if (focused) focusBorder else fieldLabelColor,
-                    maxLines = 1,
-                    modifier = Modifier
-                        .align(Alignment.TopStart)
-                        .offset(x = 12.dp, y = (-7).dp)
-                        // Field-coloured background, matching the combo boxes'
-                        // floating label.
-                        .background(MaterialTheme.appColors.fieldBackground)
-                        .padding(horizontal = 4.dp)
+                    color = if (focused) focusBorder else Color.Unspecified,
                 )
             }
             // Up/down stepper bubble: a vertical pill (up over down) that appears

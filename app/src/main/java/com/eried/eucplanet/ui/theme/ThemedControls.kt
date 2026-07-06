@@ -14,7 +14,23 @@ import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.SwitchColors
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.TextFieldColors
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.BoxScope
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.padding
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.takeOrElse
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 
 /**
  * Central, themed Material color objects built from the app's semantic
@@ -102,4 +118,51 @@ fun themedFilterChipColors(): SelectableChipColors {
         selectedLabelColor = c.onPrimary,
         selectedLeadingIconColor = c.onPrimary,
     )
+}
+
+/**
+ * Floating field label that notches the control's top border the way Material's
+ * OutlinedTextField does: the section colour (appBackground) shows above the
+ * border line, the field colour (fieldBackground) below it. A solid background
+ * would leave a visible patch in the dark theme, where the field and section
+ * colours differ; the split keeps the label seamless in every theme.
+ *
+ * Place inside a Box whose other child is the control, and give that control at
+ * least 8dp of top padding so the label has room (it straddles the top border).
+ */
+@Composable
+fun BoxScope.FieldNotchLabel(
+    text: String,
+    color: Color = Color.Unspecified,
+    belowColor: Color = Color.Unspecified,
+    trailing: (@Composable RowScope.() -> Unit)? = null,
+) {
+    val c = MaterialTheme.appColors
+    // The field's top border sits 8dp below the label's top (offset y = -8), so
+    // split the two-stop gradient there: section colour above, field below.
+    val borderPx = with(LocalDensity.current) { 8.dp.toPx() }
+    Row(
+        modifier = Modifier
+            .align(Alignment.TopStart)
+            .offset(x = 12.dp, y = (-8).dp)
+            .background(
+                Brush.verticalGradient(
+                    0f to c.appBackground,
+                    1f to belowColor.takeOrElse { c.fieldBackground },
+                    startY = borderPx,
+                    endY = borderPx + 0.5f,
+                )
+            )
+            .padding(horizontal = 4.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Text(
+            text,
+            fontSize = 11.sp,
+            color = color.takeOrElse { c.fieldLabel },
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+        )
+        trailing?.invoke(this)
+    }
 }

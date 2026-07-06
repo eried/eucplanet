@@ -259,6 +259,8 @@ import com.eried.eucplanet.ui.theme.AccentPurple
 import com.eried.eucplanet.ui.theme.AccentRed
 import com.eried.eucplanet.ui.theme.AccentYellow
 import com.eried.eucplanet.ui.theme.appColors
+import com.eried.eucplanet.ui.theme.FieldNotchLabel
+import androidx.compose.foundation.layout.RowScope
 import com.eried.eucplanet.ui.theme.themedFieldColors
 import com.eried.eucplanet.ui.theme.themedFilterChipColors
 import com.eried.eucplanet.ui.theme.themedSegmentedColors
@@ -1439,35 +1441,36 @@ private fun AdvancedTab(
         }
         val geoChoiceRow: @Composable (Int, (@Composable () -> Unit)?, List<Pair<String, String>>, String, (String) -> Unit) -> Unit =
             { labelRes, badge, options, selected, onPick ->
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text(
-                        stringResource(labelRes),
-                        style = MaterialTheme.typography.bodyLarge
-                    )
-                    if (badge != null) {
-                        Spacer(Modifier.width(6.dp))
-                        badge()
-                    }
-                }
-                SingleChoiceSegmentedButtonRow(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(IntrinsicSize.Max)
-                ) {
-                    options.forEachIndexed { index, (key, label) ->
-                        CompactSegmentedButton(
-                            modifier = Modifier.fillMaxHeight(),
-                            selected = key == selected,
-                            onClick = { onPick(key) },
-                            shape = SegmentedButtonDefaults.itemShape(index, options.size, baseShape = RoundedCornerShape(12.dp)),
-                            colors = themedSegmentedColors(),
-                        ) {
-                            Text(
-                                label, textAlign = TextAlign.Center,
-                                maxLines = 2, overflow = TextOverflow.Ellipsis
-                            )
+                Box(modifier = Modifier.fillMaxWidth().padding(top = 9.dp, bottom = 4.dp)) {
+                    SingleChoiceSegmentedButtonRow(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(IntrinsicSize.Max)
+                    ) {
+                        options.forEachIndexed { index, (key, label) ->
+                            CompactSegmentedButton(
+                                modifier = Modifier.fillMaxHeight(),
+                                selected = key == selected,
+                                onClick = { onPick(key) },
+                                shape = SegmentedButtonDefaults.itemShape(index, options.size, baseShape = RoundedCornerShape(12.dp)),
+                                colors = themedSegmentedColors(),
+                            ) {
+                                Text(
+                                    label, textAlign = TextAlign.Center,
+                                    maxLines = 2, overflow = TextOverflow.Ellipsis
+                                )
+                            }
                         }
                     }
+                    val b = badge
+                    val badgeTrailing: (@Composable RowScope.() -> Unit)? =
+                        if (b != null) {
+                            {
+                                Spacer(Modifier.width(2.dp))
+                                b()
+                            }
+                        } else null
+                    FieldNotchLabel(stringResource(labelRes), trailing = badgeTrailing)
                 }
             }
 
@@ -8932,25 +8935,15 @@ private fun SegmentedChoice(
         }
         // Floating label notched into the segmented control's top border, matching
         // the combo boxes and numeric fields, so the segments keep full width.
-        Row(
-            modifier = Modifier
-                .align(Alignment.TopStart)
-                .offset(x = 12.dp, y = (-9).dp)
-                .background(MaterialTheme.appColors.fieldBackground)
-                .padding(horizontal = 4.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                label,
-                fontSize = 11.sp,
-                color = MaterialTheme.appColors.fieldLabel,
-                maxLines = 1
-            )
-            if (onPreview != null) {
-                Spacer(Modifier.width(2.dp))
-                PlayButton(onClick = onPreview, enabled = previewEnabled)
-            }
-        }
+        val cb = onPreview
+        val previewTrailing: (@Composable RowScope.() -> Unit)? =
+            if (cb != null) {
+                {
+                    Spacer(Modifier.width(2.dp))
+                    PlayButton(onClick = cb, enabled = previewEnabled)
+                }
+            } else null
+        FieldNotchLabel(label, trailing = previewTrailing)
     }
 }
 

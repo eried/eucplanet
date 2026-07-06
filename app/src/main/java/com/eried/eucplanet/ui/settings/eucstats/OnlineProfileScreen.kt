@@ -61,6 +61,7 @@ import com.eried.eucplanet.ui.navigator.UserMarkerCropDialog
 import com.eried.eucplanet.ui.navigator.decodeDownsampledBitmap
 import com.eried.eucplanet.ui.settings.SettingsViewModel
 import com.eried.eucplanet.ui.theme.appColors
+import com.eried.eucplanet.ui.theme.FieldNotchLabel
 import com.eried.eucplanet.ui.theme.themedFieldColors
 import java.io.ByteArrayOutputStream
 import java.time.LocalDate
@@ -426,16 +427,8 @@ fun OnlineProfileDialog(
                     )
 
                     // ---- Country picker (flag list) --------------------------
-                    Column(
-                        modifier = Modifier.fillMaxWidth(),
-                        verticalArrangement = Arrangement.spacedBy(4.dp),
-                    ) {
-                        Text(
-                            text = stringResource(R.string.online_upload_profile_country_label),
-                            style = MaterialTheme.typography.labelMedium,
-                            color = MaterialTheme.appColors.textSecondary,
-                        )
-                        val countryEnabled = flagEditable && !saving
+                    val countryEnabled = flagEditable && !saving
+                    Box(modifier = Modifier.fillMaxWidth().padding(top = 8.dp)) {
                         Surface(
                             onClick = { if (countryEnabled) showCountryPicker = true },
                             enabled = countryEnabled,
@@ -470,6 +463,10 @@ fun OnlineProfileDialog(
                                 )
                             }
                         }
+                        FieldNotchLabel(
+                            stringResource(R.string.online_upload_profile_country_label),
+                            belowColor = MaterialTheme.appColors.surfaceVariant,
+                        )
                     }
 
                     // One consolidated "locked until" line — the server locks the
