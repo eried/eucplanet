@@ -1454,7 +1454,9 @@ internal fun NumberUpDown(
     }
 
     Column(modifier = modifier.alpha(if (enabled) 1f else 0.5f)) {
-        Box {
+        // Reserve room above the field for the floating label so its top is never
+        // clipped by the row/section above (it straddles the top border).
+        Box(modifier = Modifier.padding(top = if (label != null) 8.dp else 0.dp)) {
             // Resting state is just the value + unit in a bordered field, so it
             // stays compact and never clips no matter how narrow the row or how
             // wide the value (the old always-visible steppers ate the width and
@@ -1527,9 +1529,9 @@ internal fun NumberUpDown(
                     modifier = Modifier
                         .align(Alignment.TopStart)
                         .offset(x = 12.dp, y = (-7).dp)
-                        // Match the parent behind the field (the section background)
-                        // so the notch reads like the combo boxes, not a white patch.
-                        .background(MaterialTheme.appColors.appBackground)
+                        // Field-coloured background, matching the combo boxes'
+                        // floating label.
+                        .background(MaterialTheme.appColors.fieldBackground)
                         .padding(horizontal = 4.dp)
                 )
             }
@@ -1562,7 +1564,7 @@ internal fun NumberUpDown(
                     properties = PopupProperties(focusable = false, clippingEnabled = false),
                 ) {
                     Surface(
-                        shape = RoundedCornerShape(24.dp),
+                        shape = RoundedCornerShape(12.dp),
                         color = MaterialTheme.appColors.fieldBackground,
                         border = BorderStroke(1.dp, fieldBorder),
                         shadowElevation = 6.dp,

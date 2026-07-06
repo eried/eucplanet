@@ -25,6 +25,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.ui.draw.clip
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -199,6 +200,7 @@ fun ThemeEditorWidget(
             Box(
                 modifier = Modifier
                     .size(48.dp)
+                    .clip(CircleShape)
                     .background(MaterialTheme.colorScheme.primary, CircleShape)
                     .border(1.5.dp, MaterialTheme.colorScheme.outline, CircleShape)
                     .pointerInput(Unit) {

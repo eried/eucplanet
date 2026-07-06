@@ -8906,21 +8906,23 @@ private fun SegmentedChoice(
     onPreview: (() -> Unit)? = null,
     previewEnabled: Boolean = true
 ) {
-    Column(modifier = Modifier.padding(vertical = 4.dp)) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Text(
-                label,
-                style = MaterialTheme.typography.bodyLarge
-            )
-            if (onPreview != null) {
-                Spacer(Modifier.width(4.dp))
-                PlayButton(onClick = onPreview, enabled = previewEnabled)
-            }
+    Row(
+        modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        // Label in line with the segmented control (leading), not stacked above.
+        Text(
+            label,
+            style = MaterialTheme.typography.bodyLarge,
+            modifier = Modifier.weight(1f)
+        )
+        if (onPreview != null) {
+            PlayButton(onClick = onPreview, enabled = previewEnabled)
+            Spacer(Modifier.width(6.dp))
         }
-        Spacer(Modifier.height(6.dp))
         SingleChoiceSegmentedButtonRow(
             modifier = Modifier
-                .fillMaxWidth()
+                .weight(1.7f)
                 .height(IntrinsicSize.Max)
         ) {
             options.forEachIndexed { index, (key, optLabel) ->

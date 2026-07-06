@@ -233,8 +233,8 @@ fun ThemeTargetOverlay(
             ) {
                 // Cancel on the left, primary (Identify) on the right — matches the
                 // app's dialog button convention (dismiss left, confirm right).
-                TextButton(onClick = onCancel) { Text("Cancel") }
-                FilledTonalButton(onClick = { sample() }) { Text("Identify") }
+                TextButton(onClick = onCancel, shape = RoundedCornerShape(12.dp)) { Text("Cancel") }
+                FilledTonalButton(onClick = { sample() }, shape = RoundedCornerShape(12.dp)) { Text("Identify") }
             }
         } else if (choosing) {
             // Centered chooser: title + tap-to-blink list (scrolls if many) + buttons.
