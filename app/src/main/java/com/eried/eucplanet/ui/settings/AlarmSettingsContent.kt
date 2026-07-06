@@ -1527,7 +1527,9 @@ internal fun NumberUpDown(
                     modifier = Modifier
                         .align(Alignment.TopStart)
                         .offset(x = 12.dp, y = (-7).dp)
-                        .background(MaterialTheme.appColors.fieldBackground)
+                        // Match the parent behind the field (the section background)
+                        // so the notch reads like the combo boxes, not a white patch.
+                        .background(MaterialTheme.appColors.appBackground)
                         .padding(horizontal = 4.dp)
                 )
             }
