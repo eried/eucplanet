@@ -122,7 +122,7 @@
     0%, 100% { opacity: 0.75; transform: translate(-50%, -50%) scale(1); }
     50%      { opacity: 1;    transform: translate(-50%, -50%) scale(1.08); }
   }
-  /* Tiny pill above the title — "open source · self-hosted feel" */
+  /* Tiny pill above the title - "open source · self-hosted feel" */
   .eyebrow {
     display: inline-flex;
     align-items: center;
@@ -155,7 +155,7 @@
   /* "No" matches the colour of the cycling word */
   .eyebrow .eb-no { color: #fff; }
 
-  /* Eyebrow word swap — smooth pill resize, RGB echo-trail glitch */
+  /* Eyebrow word swap - smooth pill resize, RGB echo-trail glitch */
   .eyebrow-swap {
     display: inline-block;
     /* clip-path instead of overflow:hidden so the baseline stays aligned with surrounding text */
@@ -341,7 +341,7 @@
   }
   .toolbar .tool.tool-primary svg { opacity: 1; }
 
-  /* Blue accent — Download. Coloured text + icon + soft halo, NOT a filled
+  /* Blue accent - Download. Coloured text + icon + soft halo, NOT a filled
      button. Lets the toolbar stay a quiet panel and the colour reads as a
      "highlight around the label" rather than a chunky chip. */
   .toolbar .tool.tool-blue {
@@ -361,7 +361,7 @@
     filter: drop-shadow(0 0 10px rgba(99, 162, 255, 0.85));
   }
 
-  /* Gold accent — Leaderboard. Same "highlight only" idea as Download.
+  /* Gold accent - Leaderboard. Same "highlight only" idea as Download.
      The hover lights it up with a slow shimmer so the eye catches the
      "winners" tone without making the rest of the toolbar feel loud. */
   .toolbar .tool.tool-gold {
@@ -555,8 +555,8 @@
     box-shadow: 0 0 8px rgba(45, 212, 191, 0.55);
   }
   .card p { font-size: 14px; color: #9aa4b2; margin: 0; }
-  .card p a { color: var(--accent); text-decoration: underline; text-decoration-color: rgba(88, 166, 255, 0.4); }
-  .card p a:hover { color: #79b8ff; text-decoration-color: currentColor; }
+  .card p a, .lead a { color: var(--accent); text-decoration: underline; text-decoration-color: rgba(88, 166, 255, 0.4); }
+  .card p a:hover, .lead a:hover { color: #79b8ff; text-decoration-color: currentColor; }
 
   /* === GALLERIES === */
   .gallery-featured {
@@ -704,7 +704,7 @@
 
   /* Below ~600 px the four-tool toolbar would naturally wrap as 3+1 (the
      long "Leaderboard" label gets pushed onto its own line by itself).
-     Cap the toolbar width so only two items fit per row — items keep
+     Cap the toolbar width so only two items fit per row - items keep
      their natural compact width (no 50%-flex stretching) and wrap as a
      clean 2+2. The cap is sized to hold the wider of the two rows
      (Leaderboard + Donate ≈ 240 px) plus toolbar padding. */
@@ -784,7 +784,7 @@
     <div class="lead">
       <p>Open source, no ads, no in-app tracking, no upselling, no subscriptions, no telemetry phoned home, no nonsense.</p>
       <p>Live telemetry, turn-by-turn navigation, a video recorder with on-screen telemetry overlay, a Wear OS dial, and a trip recorder. Modern, fast, all in one app.</p>
-      <p>Free to build and sideload from <a href="https://github.com/eried/eucplanet/releases">GitHub</a> — the store listing is just an easy way to get auto-updates and chip in.</p>
+      <p>Free to build and sideload from <a href="https://github.com/eried/eucplanet/releases">GitHub</a>. The store listing is just an easy way to get auto-updates and chip in.</p>
     </div>
     <div class="chip-row" aria-label="Community &amp; ecosystem">
       <a class="chip" href="https://eucviewer.ried.no">
@@ -867,7 +867,7 @@
       </div>
       <div class="card">
         <h3>Private by default</h3>
-        <p>No in-app call-home, no analytics, no beacons. Rides stay on your device as plain CSV files. Optional Dropbox backup that you control — mirror your own trips, settings, themes and overlays to your private folder, and share a single ride only when you choose to.</p>
+        <p>No in-app call-home, no analytics, no beacons. Rides stay on your device as plain CSV files. Optional Dropbox backup that you control: mirror your own trips, settings, themes and overlays to your private folder, and share a single ride only when you choose to.</p>
       </div>
       <div class="card">
         <h3>Flic 2 ready</h3>
@@ -930,7 +930,7 @@
 </div>
 
 <script>
-  // Eyebrow Echo-trail cycle — RGB ghosting + smooth pill resize
+  // Eyebrow Echo-trail cycle - RGB ghosting + smooth pill resize
   (function () {
     var swap = document.getElementById('eyebrowSwap');
     if (!swap) return;
@@ -943,7 +943,7 @@
 
     var sleep = function (ms) { return new Promise(function (r) { setTimeout(r, ms); }); };
 
-    // Measure target width using a hidden clone of the swap inside the SAME parent —
+    // Measure target width using a hidden clone of the swap inside the SAME parent -
     // this picks up the correct inherited font / letter-spacing / text-transform.
     // Wrap it so it's removed from flex layout but still inherits text styles.
     var measureHost = document.createElement('span');
