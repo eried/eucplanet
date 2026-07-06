@@ -6891,7 +6891,10 @@ private fun SyncProgressWithCancel(
     cancelling: Boolean,
     onCancel: () -> Unit,
 ) {
-    Row(verticalAlignment = Alignment.CenterVertically) {
+    Row(
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
         Column(
             modifier = Modifier.weight(1f),
             verticalArrangement = Arrangement.spacedBy(4.dp),
@@ -6902,6 +6905,10 @@ private fun SyncProgressWithCancel(
                 LinearProgressIndicator(
                     progress = { fraction },
                     modifier = Modifier.fillMaxWidth(),
+                    // Drop the Material3 end gap + stop-indicator dot; they read
+                    // as a stray glitched segment/dot at the end of the bar.
+                    gapSize = 0.dp,
+                    drawStopIndicator = {},
                 )
                 Text(
                     stringResource(R.string.sync_progress, done, total),
@@ -6909,7 +6916,10 @@ private fun SyncProgressWithCancel(
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             } else {
-                LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
+                LinearProgressIndicator(
+                    modifier = Modifier.fillMaxWidth(),
+                    gapSize = 0.dp,
+                )
                 Text(
                     stringResource(if (cancelling) R.string.sync_stopping else R.string.sync_checking),
                     style = MaterialTheme.typography.bodySmall,
@@ -6917,15 +6927,18 @@ private fun SyncProgressWithCancel(
                 )
             }
         }
-        Spacer(Modifier.width(12.dp))
-        androidx.compose.material3.OutlinedButton(onClick = onCancel, enabled = !cancelling) {
-            androidx.compose.material3.Icon(
-                androidx.compose.material.icons.Icons.Default.Close,
-                contentDescription = null,
-                modifier = Modifier.size(18.dp),
+        // Static half-width Cancel on the right, matching the other action
+        // buttons. weight(1f) fixes its width so it no longer resizes between
+        // "Cancel" and "Stopping...".
+        androidx.compose.material3.OutlinedButton(
+            onClick = onCancel,
+            enabled = !cancelling,
+            modifier = Modifier.weight(1f),
+        ) {
+            Text(
+                stringResource(if (cancelling) R.string.sync_stopping else R.string.sync_cancel),
+                maxLines = 1,
             )
-            Spacer(Modifier.width(4.dp))
-            Text(stringResource(if (cancelling) R.string.sync_stopping else R.string.sync_cancel))
         }
     }
 }
