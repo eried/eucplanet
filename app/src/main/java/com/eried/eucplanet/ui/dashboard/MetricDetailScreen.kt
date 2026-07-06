@@ -247,18 +247,19 @@ fun MetricDetailScreen(
             if (showResetAllConfirm) {
                 AlertDialog(
                     onDismissRequest = { showResetAllConfirm = false },
+                    shape = RoundedCornerShape(12.dp),
                     title = { Text(stringResource(R.string.metric_detail_reset_all_confirm_title)) },
                     text = { Text(stringResource(R.string.metric_detail_reset_all_confirm_body)) },
                     confirmButton = {
                         androidx.compose.material3.TextButton(onClick = {
                             viewModel.resetAllHistory()
                             showResetAllConfirm = false
-                        }) {
+                        }, shape = RoundedCornerShape(12.dp)) {
                             Text(stringResource(R.string.metric_detail_reset_all))
                         }
                     },
                     dismissButton = {
-                        androidx.compose.material3.TextButton(onClick = { showResetAllConfirm = false }) {
+                        androidx.compose.material3.TextButton(onClick = { showResetAllConfirm = false }, shape = RoundedCornerShape(12.dp)) {
                             Text(stringResource(R.string.action_cancel))
                         }
                     }
@@ -281,7 +282,7 @@ private fun ResetWithLongPressConfirm(
     ) {
         Row(
             modifier = Modifier
-                .clip(RoundedCornerShape(20.dp))
+                .clip(RoundedCornerShape(12.dp))
                 .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.12f))
                 .combinedClickable(
                     onClick = onResetActive,

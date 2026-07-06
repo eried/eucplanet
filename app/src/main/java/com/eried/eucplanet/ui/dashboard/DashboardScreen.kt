@@ -399,10 +399,11 @@ fun DashboardScreen(
     if (showNoTripsDialog) {
         AlertDialog(
             onDismissRequest = { showNoTripsDialog = false },
+            shape = RoundedCornerShape(12.dp),
             title = { Text(stringResource(R.string.no_trips_title)) },
             text = { Text(stringResource(R.string.no_trips_body)) },
             confirmButton = {
-                TextButton(onClick = { showNoTripsDialog = false }) {
+                TextButton(onClick = { showNoTripsDialog = false }, shape = RoundedCornerShape(12.dp)) {
                     Text(stringResource(R.string.action_ok))
                 }
             },
@@ -410,7 +411,7 @@ fun DashboardScreen(
                 TextButton(onClick = {
                     showNoTripsDialog = false
                     onNavigateToRecording()
-                }) {
+                }, shape = RoundedCornerShape(12.dp)) {
                     Text(stringResource(R.string.no_trips_action_recorder))
                 }
             }
@@ -426,6 +427,7 @@ fun DashboardScreen(
         }
         AlertDialog(
             onDismissRequest = { showWarningsDialog = false },
+            shape = RoundedCornerShape(12.dp),
             // usePlatformDefaultWidth = false breaks Material3's default
             // ~280–560 dp cap so the dialog can stretch closer to the screen
             // edges — gives each warning card a useful body-text width and
@@ -476,7 +478,7 @@ fun DashboardScreen(
                                 // TextButton, matching Material guidance
                                 // (one emphasised action per dialog, the
                                 // dismissive button is muted).
-                                Button(onClick = w.fix) {
+                                Button(onClick = w.fix, shape = RoundedCornerShape(12.dp)) {
                                     Text(stringResource(R.string.warnings_fix_button))
                                 }
                             }
@@ -485,7 +487,7 @@ fun DashboardScreen(
                 }
             },
             confirmButton = {
-                TextButton(onClick = { showWarningsDialog = false }) {
+                TextButton(onClick = { showWarningsDialog = false }, shape = RoundedCornerShape(12.dp)) {
                     Text(stringResource(R.string.action_close))
                 }
             }
@@ -495,6 +497,7 @@ fun DashboardScreen(
     if (showRestoreConfirmDialog) {
         AlertDialog(
             onDismissRequest = { showRestoreConfirmDialog = false },
+            shape = RoundedCornerShape(12.dp),
             title = { Text(stringResource(R.string.cloud_restore_confirm_title)) },
             text = {
                 Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
@@ -506,10 +509,10 @@ fun DashboardScreen(
                 Button(onClick = {
                     showRestoreConfirmDialog = false
                     viewModel.restoreSettingsNow()
-                }) { Text(stringResource(R.string.action_restore)) }
+                }, shape = RoundedCornerShape(12.dp)) { Text(stringResource(R.string.action_restore)) }
             },
             dismissButton = {
-                Button(onClick = { showRestoreConfirmDialog = false }) {
+                Button(onClick = { showRestoreConfirmDialog = false }, shape = RoundedCornerShape(12.dp)) {
                     Text(stringResource(R.string.action_cancel))
                 }
             }
@@ -521,18 +524,19 @@ fun DashboardScreen(
             ?: stringResource(R.string.wheel_generic)
         AlertDialog(
             onDismissRequest = { showDisconnectDialog = false },
+            shape = RoundedCornerShape(12.dp),
             title = { Text(stringResource(R.string.disconnect)) },
             text = { Text(stringResource(R.string.disconnect_from, wheelLabel)) },
             confirmButton = {
                 TextButton(onClick = {
                     showDisconnectDialog = false
                     viewModel.disconnect()
-                }) {
+                }, shape = RoundedCornerShape(12.dp)) {
                     Text(stringResource(R.string.disconnect), color = MaterialTheme.appColors.statusDanger)
                 }
             },
             dismissButton = {
-                TextButton(onClick = { showDisconnectDialog = false }) {
+                TextButton(onClick = { showDisconnectDialog = false }, shape = RoundedCornerShape(12.dp)) {
                     Text(stringResource(R.string.action_cancel))
                 }
             }
@@ -542,16 +546,17 @@ fun DashboardScreen(
     if (showQuitDialog) {
         AlertDialog(
             onDismissRequest = { showQuitDialog = false },
+            shape = RoundedCornerShape(12.dp),
             title = { Text(stringResource(R.string.exit_title)) },
             text = { Text(stringResource(R.string.exit_body)) },
             confirmButton = {
-                TextButton(onClick = performStopAllAndExit) {
+                TextButton(onClick = performStopAllAndExit, shape = RoundedCornerShape(12.dp)) {
                     Text(stringResource(R.string.exit_stop_all), color = MaterialTheme.appColors.statusDanger)
                 }
             },
             dismissButton = {
                 Row {
-                    TextButton(onClick = { showQuitDialog = false }) {
+                    TextButton(onClick = { showQuitDialog = false }, shape = RoundedCornerShape(12.dp)) {
                         Text(stringResource(R.string.action_cancel))
                     }
                     TextButton(onClick = {
@@ -564,7 +569,7 @@ fun DashboardScreen(
                         // matches it.
                         showQuitDialog = false
                         activity?.moveTaskToBack(true)
-                    }) {
+                    }, shape = RoundedCornerShape(12.dp)) {
                         Text(stringResource(R.string.exit_background))
                     }
                 }
@@ -719,6 +724,7 @@ fun DashboardScreen(
                         DropdownMenu(
                             expanded = showSettingsMenu,
                             onDismissRequest = { showSettingsMenu = false },
+                            shape = RoundedCornerShape(12.dp),
                             containerColor = MaterialTheme.appColors.menuBackground
                         ) {
                             DropdownMenuItem(
@@ -1022,6 +1028,7 @@ fun DashboardScreen(
                     DropdownMenu(
                         expanded = showGpsMenu,
                         onDismissRequest = { showGpsMenu = false },
+                        shape = RoundedCornerShape(12.dp),
                         containerColor = MaterialTheme.appColors.menuBackground
                     ) {
                         DropdownMenuItem(
@@ -1059,6 +1066,7 @@ fun DashboardScreen(
                     DropdownMenu(
                         expanded = showStudioMenu,
                         onDismissRequest = { showStudioMenu = false },
+                        shape = RoundedCornerShape(12.dp),
                         containerColor = MaterialTheme.appColors.menuBackground
                     ) {
                         DropdownMenuItem(
@@ -1121,6 +1129,7 @@ fun DashboardScreen(
                     DropdownMenu(
                         expanded = showMapMenu,
                         onDismissRequest = { showMapMenu = false },
+                        shape = RoundedCornerShape(12.dp),
                         containerColor = MaterialTheme.appColors.menuBackground
                     ) {
                         // a) Start / Stop, shown only when there is an active
@@ -1639,6 +1648,7 @@ fun DashboardScreen(
                                 DropdownMenu(
                                     expanded = batteryMenuOpen,
                                     onDismissRequest = { batteryMenuOpen = false },
+                                    shape = RoundedCornerShape(12.dp),
                                 ) {
                                     DropdownMenuItem(
                                         text = { Text(stringResource(R.string.charging_monitor)) },
@@ -2616,9 +2626,11 @@ fun DashboardScreen(
             showTextForTile?.let { textTile ->
                 androidx.compose.material3.AlertDialog(
                     onDismissRequest = { showTextForTile = null },
+                    shape = RoundedCornerShape(12.dp),
                     confirmButton = {
                         androidx.compose.material3.TextButton(
-                            onClick = { showTextForTile = null }
+                            onClick = { showTextForTile = null },
+                            shape = RoundedCornerShape(12.dp)
                         ) { Text(stringResource(R.string.action_ok)) }
                     },
                     text = {
@@ -2646,9 +2658,11 @@ fun DashboardScreen(
                 val display = if (raw.contains("://")) raw else "https://$raw"
                 androidx.compose.material3.AlertDialog(
                     onDismissRequest = { showQrForTile = null },
+                    shape = RoundedCornerShape(12.dp),
                     confirmButton = {
                         androidx.compose.material3.TextButton(
-                            onClick = { showQrForTile = null }
+                            onClick = { showQrForTile = null },
+                            shape = RoundedCornerShape(12.dp)
                         ) { Text(stringResource(R.string.action_ok)) }
                     },
                     // Title only renders when the rider gave the tile a label;
@@ -2707,7 +2721,7 @@ fun DashboardScreen(
                         modifier = Modifier
                             .fillMaxWidth(0.95f)
                             .heightIn(max = 820.dp),
-                        shape = RoundedCornerShape(20.dp),
+                        shape = RoundedCornerShape(12.dp),
                         color = MaterialTheme.colorScheme.surface
                     ) {
                       // Debug builds get a big translucent "DEBUG" stamped
@@ -3107,7 +3121,7 @@ fun DashboardScreen(
                                 modifier = Modifier.fillMaxWidth(),
                                 horizontalArrangement = Arrangement.End
                             ) {
-                                TextButton(onClick = { showAboutDialog = false }) {
+                                TextButton(onClick = { showAboutDialog = false }, shape = RoundedCornerShape(12.dp)) {
                                     Text(stringResource(R.string.action_ok))
                                 }
                             }
@@ -3131,6 +3145,7 @@ fun DashboardScreen(
                     crashMenuFor?.let { target ->
                         androidx.compose.material3.AlertDialog(
                             onDismissRequest = { crashMenuFor = null },
+                            shape = RoundedCornerShape(12.dp),
                             title = { Text(stringResource(R.string.about_crash_logs)) },
                             text = {
                                 Text(stringResource(R.string.crash_log_action_prompt, target.name))
@@ -3141,14 +3156,14 @@ fun DashboardScreen(
                                         runCatching { target.delete() }
                                         crashes = com.eried.eucplanet.util.CrashHandler.listCrashes(context)
                                         crashMenuFor = null
-                                    }) { Text(stringResource(R.string.action_delete)) }
-                                    TextButton(onClick = { confirmDeleteAllCrashes = true }) {
+                                    }, shape = RoundedCornerShape(12.dp)) { Text(stringResource(R.string.action_delete)) }
+                                    TextButton(onClick = { confirmDeleteAllCrashes = true }, shape = RoundedCornerShape(12.dp)) {
                                         Text(stringResource(R.string.crash_log_delete_all))
                                     }
                                 }
                             },
                             dismissButton = {
-                                TextButton(onClick = { crashMenuFor = null }) {
+                                TextButton(onClick = { crashMenuFor = null }, shape = RoundedCornerShape(12.dp)) {
                                     Text(stringResource(R.string.action_cancel))
                                 }
                             }
@@ -3157,6 +3172,7 @@ fun DashboardScreen(
                     if (confirmDeleteAllCrashes) {
                         androidx.compose.material3.AlertDialog(
                             onDismissRequest = { confirmDeleteAllCrashes = false },
+                            shape = RoundedCornerShape(12.dp),
                             title = { Text(stringResource(R.string.crash_log_delete_all)) },
                             text = { Text(stringResource(R.string.crash_log_delete_all_warning)) },
                             confirmButton = {
@@ -3165,10 +3181,10 @@ fun DashboardScreen(
                                     crashes = com.eried.eucplanet.util.CrashHandler.listCrashes(context)
                                     confirmDeleteAllCrashes = false
                                     crashMenuFor = null
-                                }) { Text(stringResource(R.string.action_delete)) }
+                                }, shape = RoundedCornerShape(12.dp)) { Text(stringResource(R.string.action_delete)) }
                             },
                             dismissButton = {
-                                TextButton(onClick = { confirmDeleteAllCrashes = false }) {
+                                TextButton(onClick = { confirmDeleteAllCrashes = false }, shape = RoundedCornerShape(12.dp)) {
                                     Text(stringResource(R.string.action_cancel))
                                 }
                             }
@@ -3178,6 +3194,7 @@ fun DashboardScreen(
                 if (showDiagnosticsConfirm) {
                     androidx.compose.material3.AlertDialog(
                         onDismissRequest = { showDiagnosticsConfirm = false },
+                        shape = RoundedCornerShape(12.dp),
                         title = { Text(stringResource(R.string.service_mode_title)) },
                         text = {
                             Column {
@@ -3233,10 +3250,10 @@ fun DashboardScreen(
                                 com.eried.eucplanet.diagnostics.DiagnosticsLogger.enable()
                                 showAboutDialog = false
                                 showDiagnosticsDialog = true
-                            }) { Text(stringResource(R.string.service_mode_enter)) }
+                            }, shape = RoundedCornerShape(12.dp)) { Text(stringResource(R.string.service_mode_enter)) }
                         },
                         dismissButton = {
-                            TextButton(onClick = { showDiagnosticsConfirm = false }) {
+                            TextButton(onClick = { showDiagnosticsConfirm = false }, shape = RoundedCornerShape(12.dp)) {
                                 Text(stringResource(R.string.action_cancel))
                             }
                         }
@@ -4060,6 +4077,7 @@ private fun ActionTile(
         DropdownMenu(
             expanded = menuOpen,
             onDismissRequest = { menuOpen = false },
+            shape = RoundedCornerShape(12.dp),
             containerColor = MaterialTheme.appColors.menuBackground
         ) {
             menu { menuOpen = false }
