@@ -11,7 +11,6 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.background
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
@@ -30,10 +29,14 @@ import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Switch
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Button
+import com.eried.eucplanet.ui.settings.LeftAlignedScanButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -55,7 +58,6 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.geometry.RoundRect
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.PathFillType
 import androidx.compose.ui.graphics.drawscope.Stroke
@@ -249,6 +251,27 @@ private fun LoopingClip(assetName: String, modifier: Modifier) {
 fun WelcomeTutorialOverlay(
     state: CoachmarkState,
     onVoiceToggle: (Boolean) -> Unit = {},
+    // The voice switch must reflect the *actual* persisted state, not a hardcoded
+    // off. Otherwise the wizard can show the switch off while voice announcements
+    // are really on (e.g. the rider flipped it on earlier), so they "see it
+    // disabled but still hear GPS / wheel connected".
+    voiceCurrentlyOn: Boolean = false,
+    // Dev-only quick tools, surfaced on step 0 of branch builds (BuildConfig.IS_DEV).
+    // "Set backup folder" shows first; once a folder is set, Join and Sync appear,
+    // and Restore appears only when the folder actually holds a settings backup.
+    isDev: Boolean = false,
+    onSetBackupFolder: () -> Unit = {},
+    dropboxLinked: Boolean = false,
+    onLinkDropbox: () -> Unit = {},
+    backupFolderSet: Boolean = false,
+    hasSettingsBackup: Boolean = false,
+    onRestoreSettings: () -> Unit = {},
+    onJoinLeaderboards: () -> Unit = {},
+    // Once joined (online upload enabled), the button greys out and stays that
+    // way, the same disabled-after-action treatment Sync trips gets.
+    leaderboardsJoined: Boolean = false,
+    onSyncTrips: () -> Unit = {},
+    syncRunning: Boolean = false,
     onFinish: () -> Unit,
 ) {
     val steps = tutorialSteps()
@@ -266,7 +289,7 @@ fun WelcomeTutorialOverlay(
     // rider gets a spoken welcome as live confirmation) and persists, so
     // closing the wizard with the switch on leaves voice enabled and the
     // switch off leaves it silent -- nothing else to apply on Next/Skip.
-    var voicesOptIn by rememberSaveable { mutableStateOf(false) }
+    var voicesOptIn by rememberSaveable { mutableStateOf(voiceCurrentlyOn) }
     fun advance() { if (isLast) onFinish() else state.stepIndex = idx + 1 }
     fun back() { if (idx > 0) state.stepIndex = idx - 1 }
 
@@ -371,6 +394,13 @@ fun WelcomeTutorialOverlay(
             tonalElevation = 8.dp
         ) {
             Column(modifier = Modifier.padding(16.dp)) {
+                // Step content scrolls when it outgrows the card (tiny flip cover
+                // screens); the Skip / Next row below stays pinned and visible.
+                Column(
+                    modifier = Modifier
+                        .weight(1f, fill = false)
+                        .verticalScroll(rememberScrollState())
+                ) {
                 Crossfade(targetState = idx, animationSpec = tween(260), label = "tutorial-card") { i ->
                     val s = steps[i]
                     Column {
@@ -465,10 +495,77 @@ fun WelcomeTutorialOverlay(
                                     )
                                 }
                                 HintText(stringResource(R.string.welcome_tut_voice_desc))
+
+                                // Dev-only quick tools (branch builds only). Set the
+                                // backup folder first; the rest depend on it and appear
+                                // once it is set.
+                                if (isDev) {
+                                    Spacer(Modifier.height(16.dp))
+                                    HorizontalDivider()
+                                    Spacer(Modifier.height(8.dp))
+                                    Text(
+                                        stringResource(R.string.welcome_tut_dev_title),
+                                        style = MaterialTheme.typography.labelMedium,
+                                        color = MaterialTheme.colorScheme.primary,
+                                        fontWeight = FontWeight.SemiBold,
+                                    )
+                                    // Same button style as the Cloud settings actions
+                                    // (LeftAlignedScanButton: a filled button on the left
+                                    // half of the row).
+                                    // Same actions and order as the Cloud settings. Set
+                                    // backup folder shows only until a folder is set; every
+                                    // other action (Dropbox included) needs a folder, so they
+                                    // appear only once one is set.
+                                    if (!backupFolderSet) {
+                                        Spacer(Modifier.height(8.dp))
+                                        LeftAlignedScanButton(
+                                            label = stringResource(R.string.welcome_tut_dev_set_folder),
+                                            onClick = onSetBackupFolder,
+                                        )
+                                    } else {
+                                        // Link Dropbox, until Dropbox is linked.
+                                        if (!dropboxLinked) {
+                                            Spacer(Modifier.height(8.dp))
+                                            LeftAlignedScanButton(
+                                                label = stringResource(R.string.dropbox_link),
+                                                onClick = onLinkDropbox,
+                                            )
+                                        }
+                                        // Restore, only when a settings backup exists.
+                                        // Disabled while a trip sync is running: restore
+                                        // rewrites the whole settings blob and both touch
+                                        // the same backup folder, so letting them overlap
+                                        // can lose settings or read a half-written file.
+                                        if (hasSettingsBackup) {
+                                            Spacer(Modifier.height(8.dp))
+                                            LeftAlignedScanButton(
+                                                label = stringResource(R.string.welcome_tut_dev_restore),
+                                                onClick = onRestoreSettings,
+                                                enabled = !syncRunning,
+                                            )
+                                        }
+                                        // Sync and Join just trigger the Cloud-settings
+                                        // action and return; the work runs in the
+                                        // background, so the wizard shows no progress.
+                                        Spacer(Modifier.height(8.dp))
+                                        LeftAlignedScanButton(
+                                            label = stringResource(R.string.welcome_tut_dev_sync_trips),
+                                            onClick = onSyncTrips,
+                                            enabled = !syncRunning,
+                                        )
+                                        Spacer(Modifier.height(8.dp))
+                                        LeftAlignedScanButton(
+                                            label = stringResource(R.string.welcome_tut_dev_join),
+                                            onClick = onJoinLeaderboards,
+                                            enabled = !leaderboardsJoined,
+                                        )
+                                    }
+                                }
                             }
                         }
                     }
                 }
+                }  // end scrollable step content
                 Spacer(Modifier.height(16.dp))
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -477,7 +574,11 @@ fun WelcomeTutorialOverlay(
                 ) {
                     // The last step is the sign-off: no Skip there.
                     if (!isLast) {
-                        TextButton(onClick = { showSkipConfirm = true }) {
+                        TextButton(onClick = {
+                            // Dev builds skip straight out: a developer already knows the
+                            // tour, so don't make them confirm. Normal builds still ask.
+                            if (isDev) onFinish() else showSkipConfirm = true
+                        }) {
                             Text(stringResource(R.string.welcome_tut_skip))
                         }
                     } else {

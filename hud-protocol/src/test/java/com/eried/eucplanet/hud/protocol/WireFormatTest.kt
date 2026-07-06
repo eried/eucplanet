@@ -187,6 +187,40 @@ class WireFormatTest {
         assertEquals(original, decoded)
     }
 
+    @Test fun pair_carries_recovery_note_for_diagnostics() {
+        // The HUD threads a compact self-heal summary back to the phone in its
+        // Pair greeting so it lands in the rider's shareable diagnostics .txt
+        // (the phone logs the Pair as a NOTE). Empty by default; round-trips
+        // when set.
+        val original: HudCommand = HudCommand.Pair(
+            hudId = "motoeye-e6-7f3a",
+            hudVersion = "0.1.8",
+            hudProtocolMajor = 1,
+            hudProtocolMinor = HudState.PROTOCOL_MINOR,
+            recoveryNote = "off-air 9.2s; reassociate x2; back via toggle"
+        )
+        val decoded = json.decodeFromString<HudCommand>(json.encodeToString(original))
+        assertEquals(original, decoded)
+        assertEquals(
+            "off-air 9.2s; reassociate x2; back via toggle",
+            (decoded as HudCommand.Pair).recoveryNote
+        )
+    }
+
+    @Test fun pair_without_recovery_note_defaults_blank() {
+        val legacy = """
+            {
+              "type": "com.eried.eucplanet.hud.protocol.HudCommand.Pair",
+              "hudId": "hud",
+              "hudVersion": "0.1.7",
+              "hudProtocolMajor": 1,
+              "hudProtocolMinor": 8
+            }
+        """.trimIndent()
+        val decoded = json.decodeFromString<HudCommand>(legacy) as HudCommand.Pair
+        assertEquals("", decoded.recoveryNote)
+    }
+
     @Test fun pair_command_from_pre_split_HUD_still_decodes() {
         // An older HUD APK built before the MAJOR/MINOR split sent Pair
         // without the version fields. Default 0/0 covers that case.

@@ -95,7 +95,9 @@ import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material.icons.filled.Widgets
 import androidx.compose.material.icons.filled.Wifi
 import androidx.compose.material.icons.filled.DisplaySettings
+import androidx.compose.material.icons.filled.DevicesFold
 import androidx.compose.material.icons.filled.DragHandle
+import androidx.compose.material.icons.filled.StayCurrentLandscape
 import androidx.compose.material.icons.filled.FiberManualRecord
 import androidx.compose.material.icons.filled.Build
 import androidx.compose.material.icons.filled.FlashlightOn
@@ -110,6 +112,7 @@ import androidx.compose.material.icons.filled.SkipPrevious
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Extension
 import androidx.compose.material.icons.filled.GraphicEq
+import androidx.compose.material.icons.filled.MoreHoriz
 import androidx.compose.material.icons.filled.Motorcycle
 import androidx.compose.material.icons.filled.Watch
 import androidx.compose.material.icons.outlined.Watch as WatchOutlined
@@ -234,9 +237,15 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.compose.ui.graphics.vector.ImageVector
 import com.eried.eucplanet.BuildConfig
 import com.eried.eucplanet.R
+import com.eried.eucplanet.data.model.ADVANCED_DEFAULTS
+import com.eried.eucplanet.data.model.ADVANCED_SPECS
+import com.eried.eucplanet.data.model.AdvGroup
+import com.eried.eucplanet.data.model.AdvancedSettings
+import com.eried.eucplanet.data.model.AdvancedSpec
 import com.eried.eucplanet.data.sync.SyncChoice
 import com.eried.eucplanet.ui.settings.eucstats.OnlineUploadOnboardingDialog
 import com.eried.eucplanet.ui.settings.eucstats.flagEmoji
+import com.eried.eucplanet.service.VoiceChoice
 import com.eried.eucplanet.service.VoiceOption
 import com.eried.eucplanet.ui.common.HintText
 import com.eried.eucplanet.ui.common.InfoHint
@@ -406,6 +415,16 @@ fun SettingsScreen(
 
     val settings = settingsState ?: return
 
+    // A deep-link can target a section the rider tucked into "More". Open More and
+    // the section so the scroll-to-section logic above can bring it into view.
+    androidx.compose.runtime.LaunchedEffect(targetSectionKey, settings.settingsLayout.hidden) {
+        val key = targetSectionKey
+        if (key != null && key in settings.settingsLayout.hidden) {
+            if (!expandedSections.contains(MORE_KEY)) expandedSections.add(MORE_KEY)
+            if (!expandedSections.contains(key)) expandedSections.add(key)
+        }
+    }
+
     ttsSwitchPrompt?.let { lang ->
         // Single source of truth: the same `languageOptions` list the
         // dropdown uses. No parallel strings.xml entries to drift from it.
@@ -455,6 +474,7 @@ fun SettingsScreen(
     val titleAuto = stringResource(R.string.tab_auto)
     val titleIntegration = stringResource(R.string.tab_integration)
     val titleWatch = stringResource(R.string.tab_watch)
+    val titleAdvanced = stringResource(R.string.tab_advanced)
     val titleNavigator = stringResource(R.string.nav_setting_params)
     val titleGpsSensors = stringResource(R.string.section_external_gps)
     val titleDashboard = stringResource(R.string.tab_dashboard)
@@ -608,6 +628,37 @@ fun SettingsScreen(
         stringResource(R.string.watch_show_speed_unit)
     ).joinToString(" ")
 
+    val corpusAdvanced = listOf(
+        titleAdvanced,
+        stringResource(R.string.adv_group_rates),
+        stringResource(R.string.adv_group_nav),
+        stringResource(R.string.adv_group_alarm),
+        stringResource(R.string.adv_group_radar_auto),
+        stringResource(R.string.adv_wheel_poll_rate),
+        stringResource(R.string.adv_phone_gps_interval),
+        stringResource(R.string.adv_hud_report_interval),
+        stringResource(R.string.adv_garmin_report_interval),
+    ).joinToString(" ")
+
+    // Section handles for the reorganize editor (key, title, icon). Advanced is
+    // excluded since it is pinned last and not reorderable. Default order here;
+    // the editor lays the rider's saved order on top.
+    val movableHandles = listOf(
+        SectionHandle("general", titleGeneral, Icons.Default.Tune),
+        SectionHandle("dashboard", titleDashboard, Icons.Default.Dashboard),
+        SectionHandle("display", titleDisplay, Icons.Default.DisplaySettings),
+        SectionHandle("speed", titleSpeed, Icons.Default.Speed),
+        SectionHandle("voice", titleVoice, Icons.Default.RecordVoiceOver),
+        SectionHandle("motor", titleMotor, Icons.Default.Motorcycle),
+        SectionHandle("cloud", titleCloud, Icons.Default.Archive),
+        SectionHandle("alarms", titleAlarms, Icons.Default.NotificationsActive),
+        SectionHandle("auto", titleAuto, Icons.Default.AutoAwesome),
+        SectionHandle("navigator", titleNavigator, Icons.Default.Navigation),
+        SectionHandle("location", titleGpsSensors, Icons.Default.Sensors),
+        SectionHandle("integration", titleIntegration, Icons.Default.Extension),
+        SectionHandle("watch", titleWatch, Icons.Default.Watch),
+    )
+
     val sections: List<SectionDef> = listOf(
         SectionDef("general", titleGeneral, Icons.Default.Tune, corpusGeneral) {
             GeneralTab(settings, viewModel, scrollToBattery) { y ->
@@ -649,6 +700,9 @@ fun SettingsScreen(
         },
         SectionDef("watch", titleWatch, Icons.Default.Watch, corpusWatch) {
             WatchTab(settings, viewModel)
+        },
+        SectionDef("advanced", titleAdvanced, Icons.Default.Build, corpusAdvanced) {
+            AdvancedTab(settings, viewModel, movableHandles)
         }
     )
 
@@ -775,41 +829,76 @@ fun SettingsScreen(
             Spacer(Modifier.height(8.dp))
 
             val query = searchQuery.trim()
-            val visibleSections = sections.filter { sec ->
-                query.isEmpty() || sec.searchCorpus.contains(query, ignoreCase = true)
+            val searching = query.isNotEmpty()
+
+            // Effective arrangement: movable sections in the rider's saved order
+            // (unknown or newly added keys fall to the end), hidden ones bucketed
+            // into "More". Advanced is always pinned last and is never hidden.
+            val advancedSec = sections.first { it.key == "advanced" }
+            val movable = sections.filter { it.key != "advanced" }
+            val savedOrder = settings.settingsLayout.order
+            val orderedMovable = movable.sortedBy {
+                val i = savedOrder.indexOf(it.key); if (i < 0) Int.MAX_VALUE else i
             }
+            val hiddenKeys = settings.settingsLayout.hidden.toSet() - "advanced"
+            val topLevel = orderedMovable.filter { it.key !in hiddenKeys }
+            val moreSecs = orderedMovable.filter { it.key in hiddenKeys }
 
             androidx.compose.runtime.CompositionLocalProvider(LocalSettingsSearchQuery provides query) {
+                @Composable
+                fun SectionCard(sec: SectionDef, indent: Boolean = false) {
+                    // While searching, only render sections whose corpus matches.
+                    if (searching && !sec.searchCorpus.contains(query, ignoreCase = true)) return
+                    val explicitlyExpanded = expandedSections.contains(sec.key)
+                    val isExpanded = explicitlyExpanded || searching
+                    var sectionModifier = if (sec.key == targetSectionKey && !scrollToBattery) {
+                        Modifier.onGloballyPositioned {
+                            if (targetSectionTop == null) targetSectionTop = it.positionInWindow().y
+                        }
+                    } else Modifier
+                    if (indent) sectionModifier = sectionModifier.padding(start = 12.dp)
+                    CollapsibleSection(
+                        modifier = sectionModifier,
+                        title = sec.title,
+                        icon = sec.icon,
+                        expanded = isExpanded,
+                        query = query,
+                        autoExpandedByQuery = !explicitlyExpanded && searching,
+                        onToggle = {
+                            if (explicitlyExpanded) expandedSections.remove(sec.key)
+                            else expandedSections.add(sec.key)
+                        }
+                    ) {
+                        sec.content()
+                    }
+                }
+
                 Column(
                     modifier = Modifier.fillMaxWidth(),
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    visibleSections.forEach { sec ->
-                        val explicitlyExpanded = expandedSections.contains(sec.key)
-                        val isExpanded = explicitlyExpanded || query.isNotEmpty()
-                        val sectionModifier = if (sec.key == targetSectionKey && !scrollToBattery) {
-                            Modifier.onGloballyPositioned {
-                                if (targetSectionTop == null) {
-                                    targetSectionTop = it.positionInWindow().y
+                    if (searching) {
+                        // Flatten so a query finds a section wherever it sits.
+                        (orderedMovable + advancedSec).forEach { SectionCard(it) }
+                    } else {
+                        topLevel.forEach { SectionCard(it) }
+                        if (moreSecs.isNotEmpty()) {
+                            val moreExpanded = expandedSections.contains(MORE_KEY)
+                            CollapsibleSection(
+                                title = stringResource(R.string.tab_more),
+                                icon = Icons.Default.MoreHoriz,
+                                expanded = moreExpanded,
+                                onToggle = {
+                                    if (moreExpanded) expandedSections.remove(MORE_KEY)
+                                    else expandedSections.add(MORE_KEY)
+                                }
+                            ) {
+                                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                                    moreSecs.forEach { SectionCard(it, indent = true) }
                                 }
                             }
-                        } else {
-                            Modifier
                         }
-                        CollapsibleSection(
-                            modifier = sectionModifier,
-                            title = sec.title,
-                            icon = sec.icon,
-                            expanded = isExpanded,
-                            query = query,
-                            autoExpandedByQuery = !explicitlyExpanded && query.isNotEmpty(),
-                            onToggle = {
-                                if (explicitlyExpanded) expandedSections.remove(sec.key)
-                                else expandedSections.add(sec.key)
-                            }
-                        ) {
-                            sec.content()
-                        }
+                        SectionCard(advancedSec)
                     }
                     Spacer(Modifier.height(32.dp))
                 }
@@ -944,19 +1033,25 @@ private fun GeneralTab(
             }
             if (recordMode == "RIDING") {
                 val idleSec = settings.autoRecordStopIdleSeconds
-                SliderSetting(
-                    label = stringResource(R.string.auto_record_stop_idle_seconds),
-                    value = idleSec.toFloat(),
-                    range = 30f..600f,
-                    unit = "",
-                    steps = 18,
-                    valueText = "%d:%02d".format(idleSec / 60, idleSec % 60),
-                    onValueChange = {
-                        viewModel.updateAutoRecordStopIdleSeconds(
-                            (Math.round(it / 30f) * 30).coerceIn(30, 600)
-                        )
-                    }
-                )
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    NumberUpDown(
+                        value = idleSec,
+                        onValueChange = {
+                            viewModel.updateAutoRecordStopIdleSeconds(
+                                (Math.round(it / 30f) * 30).coerceIn(30, 600)
+                            )
+                        },
+                        range = 30..600,
+                        step = 30,
+                        suffix = "s",
+                        label = stringResource(R.string.auto_record_stop_idle_seconds),
+                        modifier = Modifier.weight(1f),
+                    )
+                    Spacer(Modifier.weight(1f))
+                }
             }
         }   // end recording BringIntoViewSection
 
@@ -979,7 +1074,7 @@ private fun GeneralTab(
                 .height(IntrinsicSize.Max)
         ) {
             wheelNameOptions.forEachIndexed { index, (key, label) ->
-                SegmentedButton(
+                CompactSegmentedButton(
                     modifier = Modifier.fillMaxHeight(),
                     selected = key == settings.wheelNameDisplay,
                     onClick = { viewModel.updateWheelNameDisplay(key) },
@@ -1021,7 +1116,7 @@ private fun GeneralTab(
                 .height(IntrinsicSize.Max)
         ) {
             backOptions.forEachIndexed { index, (key, label) ->
-                SegmentedButton(
+                CompactSegmentedButton(
                     modifier = Modifier.fillMaxHeight(),
                     selected = key == settings.backButtonAction,
                     onClick = { viewModel.updateBackButtonAction(key) },
@@ -1054,6 +1149,467 @@ private fun GeneralTab(
             stringResource(R.string.flic_show_on_dashboard),
             settings.chargingDashboardIcon,
         ) { viewModel.updateChargingDashboardIcon(it) }
+    }
+}
+
+// --- Advanced Tab ---
+//
+// Its own section at the very bottom of Settings. Power-user timing controls,
+// grouped, each with a half-width stepper and a one-line note on what it
+// affects and the danger of extreme values. Every value is clamped in
+// SettingsRepository.sanitized(), so the steppers can never feed an unsafe
+// number into a delay() or a divide.
+
+/** One Advanced row: compact stepper on the left, description filling the right.
+ *  Shows a "restore default" chip under the stepper when the value differs from
+ *  the spec's default. Range, step, unit, label, format all come from [spec]. */
+@Composable
+private fun AdvRow(spec: AdvancedSpec, advanced: AdvancedSettings, onChange: (Int) -> Unit) {
+    val value = spec.get(advanced)
+    val default = spec.get(ADVANCED_DEFAULTS)
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Column(modifier = Modifier.weight(1.4f)) {
+            NumberUpDown(
+                value = value,
+                onValueChange = onChange,
+                range = spec.range,
+                modifier = Modifier.fillMaxWidth(),
+                step = spec.step,
+                suffix = spec.unit,
+                label = stringResource(spec.label),
+                format = spec.format,
+                parse = spec.parse,
+                allowSign = spec.allowSign,
+                numberAlign = TextAlign.End,
+            )
+            // Always show the default; greyed + non-clickable once already at it.
+            val unit = if (spec.unit.isEmpty()) "" else " ${spec.unit}"
+            RestoreChip(text = "${spec.format(default)}$unit", enabled = value != default) { onChange(default) }
+        }
+        Spacer(Modifier.width(10.dp))
+        HintText(stringResource(spec.desc), modifier = Modifier.weight(1f), small = true)
+    }
+}
+
+/** Always-visible "undo -> <default>" affordance. Active (accent, clickable) when
+ *  the value is off its default; greyed and inert once it matches. */
+@Composable
+private fun RestoreChip(text: String, enabled: Boolean, onClick: () -> Unit) {
+    val color = if (enabled) MaterialTheme.appColors.primary else MaterialTheme.appColors.textDisabled
+    Row(
+        modifier = Modifier
+            .padding(top = 4.dp)
+            .clip(RoundedCornerShape(8.dp))
+            .then(if (enabled) Modifier.clickable(onClick = onClick) else Modifier)
+            .padding(horizontal = 6.dp, vertical = 2.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Icon(
+            Icons.Default.Restore,
+            contentDescription = if (enabled) stringResource(R.string.adv_restore_default) else null,
+            modifier = Modifier.size(15.dp),
+            tint = color,
+        )
+        Spacer(Modifier.width(4.dp))
+        Text(text, fontSize = 12.sp, color = color)
+    }
+}
+
+/** Lightweight handle for the reorganize editor: a section's key, title, icon. */
+private data class SectionHandle(val key: String, val title: String, val icon: ImageVector)
+
+/** Pseudo-key for the synthetic "More" bucket's expand state. */
+private const val MORE_KEY = "__more__"
+
+/** Dialog to reorder the Settings sections and switch some into "More". Drag the
+ *  handle to reorder; switch a section off to tuck it into "More". Advanced is
+ *  pinned last and never appears here. Edits are staged on a local draft so the
+ *  Settings screen behind the dialog does not shuffle while the rider toggles;
+ *  nothing is applied until Save. */
+@Composable
+private fun SettingsVisibilityDialog(
+    handles: List<SectionHandle>,
+    initial: com.eried.eucplanet.data.model.SettingsLayout,
+    onApply: (com.eried.eucplanet.data.model.SettingsLayout) -> Unit,
+    onDismiss: () -> Unit,
+) {
+    val naturalKeys = remember(handles) { handles.map { it.key } }
+    // Staged draft: reorder + hidden set held locally, committed only on Save.
+    var draftOrder by remember {
+        mutableStateOf(
+            handles.sortedBy { val i = initial.order.indexOf(it.key); if (i < 0) Int.MAX_VALUE else i }
+                .map { it.key }
+        )
+    }
+    var draftHidden by remember { mutableStateOf(initial.hidden.toSet()) }
+    val orderedHandles = remember(handles, draftOrder) {
+        handles.sortedBy { val i = draftOrder.indexOf(it.key); if (i < 0) Int.MAX_VALUE else i }
+    }
+    val isDefault = draftOrder == naturalKeys && draftHidden.isEmpty()
+
+    androidx.compose.ui.window.Dialog(
+        onDismissRequest = onDismiss,
+        // A stray tap outside must not drop staged edits; only Reset/Cancel/Save act.
+        properties = androidx.compose.ui.window.DialogProperties(
+            usePlatformDefaultWidth = false,
+            dismissOnClickOutside = false,
+        ),
+    ) {
+        Surface(
+            modifier = Modifier.fillMaxWidth(0.96f),
+            shape = RoundedCornerShape(16.dp),
+            color = MaterialTheme.appColors.surface,
+        ) {
+            Column(Modifier.fillMaxWidth().padding(16.dp)) {
+                Text(
+                    stringResource(R.string.settings_visibility),
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.appColors.textPrimary,
+                )
+                Spacer(Modifier.height(8.dp))
+                Column(
+                    modifier = Modifier
+                        // Slightly taller than a whole number of rows so a partial
+                        // row peeks at the bottom, hinting the list scrolls. Capped
+                        // to the screen so Save / Cancel stay visible on flip covers.
+                        .heightIn(max = com.eried.eucplanet.ui.common.dialogContentMaxHeight(474))
+                        .verticalScroll(rememberScrollState())
+                ) {
+                    ReorderableColumn(
+                        list = orderedHandles,
+                        onSettle = { from, to ->
+                            val keys = orderedHandles.map { it.key }.toMutableList()
+                            keys.add(to, keys.removeAt(from))
+                            draftOrder = keys
+                        },
+                        modifier = Modifier.fillMaxWidth(),
+                    ) { _, handle, _ ->
+                        key(handle.key) {
+                            Row(
+                                modifier = Modifier.fillMaxWidth().padding(vertical = 2.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                            ) {
+                                Icon(
+                                    Icons.Default.DragHandle,
+                                    contentDescription = stringResource(R.string.reorg_drag_cd),
+                                    tint = MaterialTheme.appColors.textSecondary,
+                                    modifier = Modifier.draggableHandle(),
+                                )
+                                Spacer(Modifier.width(8.dp))
+                                Icon(
+                                    handle.icon,
+                                    contentDescription = null,
+                                    tint = MaterialTheme.appColors.primary,
+                                    modifier = Modifier.size(20.dp),
+                                )
+                                Spacer(Modifier.width(10.dp))
+                                Text(
+                                    handle.title,
+                                    modifier = Modifier.weight(1f),
+                                    color = MaterialTheme.appColors.textPrimary,
+                                )
+                                Switch(
+                                    checked = handle.key !in draftHidden,
+                                    onCheckedChange = { on ->
+                                        draftHidden = if (on) draftHidden - handle.key else draftHidden + handle.key
+                                    },
+                                    colors = themedSwitchColors(),
+                                )
+                            }
+                        }
+                    }
+                }
+                Spacer(Modifier.height(12.dp))
+                // Reset on the left; Cancel / Save on the right (like the beep studio).
+                Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                    // Resets the working arrangement to default; applied only on Save.
+                    TextButton(
+                        onClick = { draftOrder = naturalKeys; draftHidden = emptySet() },
+                        enabled = !isDefault,
+                    ) {
+                        Text(stringResource(R.string.action_reset))
+                    }
+                    Spacer(Modifier.weight(1f))
+                    TextButton(onClick = onDismiss) { Text(stringResource(R.string.action_cancel)) }
+                    Spacer(Modifier.width(8.dp))
+                    Button(onClick = {
+                        // Store an empty order when it matches natural order, so the
+                        // "arrangement changed" checks elsewhere stay meaningful.
+                        val orderToSave = if (draftOrder == naturalKeys) emptyList() else draftOrder
+                        onApply(
+                            com.eried.eucplanet.data.model.SettingsLayout(
+                                order = orderToSave, hidden = draftHidden.toList()
+                            )
+                        )
+                        onDismiss()
+                    }) {
+                        Text(stringResource(R.string.action_save))
+                    }
+                }
+            }
+        }
+    }
+}
+
+/** Section title inside Advanced, bigger than the collapsible group titles. */
+@Composable
+private fun AdvSectionTitle(text: String) {
+    Text(
+        text,
+        style = MaterialTheme.typography.titleLarge,
+        fontWeight = FontWeight.Bold,
+        color = MaterialTheme.appColors.textPrimary,
+        modifier = Modifier.padding(top = 4.dp, bottom = 2.dp),
+    )
+}
+
+@Composable
+private fun AdvancedTab(
+    settings: com.eried.eucplanet.data.model.AppSettings,
+    viewModel: SettingsViewModel,
+    reorgHandles: List<SectionHandle> = emptyList(),
+) {
+    // Every knob currently off its default, drives both the "Reset all" enabled
+    // state and the confirmation list.
+    val changed = ADVANCED_SPECS.filter { it.get(settings.advanced) != it.get(ADVANCED_DEFAULTS) }
+    var showResetConfirm by remember { mutableStateOf(false) }
+
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        // "Settings visibility" section: a titled explanation plus a Reorganize
+        // button that opens the staged dialog, so toggling a section off does not
+        // shuffle the screen underneath while you edit. Hidden sections move into
+        // "More"; Advanced is pinned last and is not listed.
+        if (reorgHandles.isNotEmpty()) {
+            var showVisibilityDialog by remember { mutableStateOf(false) }
+            AdvSectionTitle(stringResource(R.string.settings_visibility))
+            HintText(stringResource(R.string.reorg_hint), small = true)
+            Spacer(Modifier.height(4.dp))
+            LeftAlignedScanButton(
+                label = stringResource(R.string.action_reorganize),
+                leadingIcon = Icons.Default.Tune,
+                onClick = { showVisibilityDialog = true },
+            )
+            if (showVisibilityDialog) {
+                SettingsVisibilityDialog(
+                    handles = reorgHandles,
+                    initial = settings.settingsLayout,
+                    onApply = viewModel::applySettingsLayout,
+                    onDismiss = { showVisibilityDialog = false },
+                )
+            }
+        }
+
+        // Screen geometry: one collapsible card per screen (same pattern as
+        // the Timings groups below), plus the app-wide upside-down lockout.
+        AdvSectionTitle(stringResource(R.string.section_screen_geometry))
+        SwitchSetting(
+            stringResource(R.string.setting_block_upside_down),
+            settings.blockUpsideDown
+        ) { viewModel.updateBlockUpsideDown(it) }
+        SwitchSetting(
+            stringResource(R.string.setting_ignore_system_rotate_lock),
+            settings.ignoreSystemRotateLock
+        ) { viewModel.updateIgnoreSystemRotateLock(it) }
+
+        // Small muted surface badges shown after row labels, instead of noisy
+        // "(landscape)" / "(compact)" text suffixes.
+        val landscapeBadge: @Composable () -> Unit = {
+            Icon(
+                Icons.Default.StayCurrentLandscape, contentDescription = null,
+                tint = MaterialTheme.appColors.textSecondary,
+                modifier = Modifier.size(16.dp)
+            )
+        }
+        val compactBadge: @Composable () -> Unit = {
+            Icon(
+                Icons.Default.DevicesFold, contentDescription = null,
+                tint = MaterialTheme.appColors.textSecondary,
+                modifier = Modifier.size(16.dp)
+            )
+        }
+        val geoChoiceRow: @Composable (Int, (@Composable () -> Unit)?, List<Pair<String, String>>, String, (String) -> Unit) -> Unit =
+            { labelRes, badge, options, selected, onPick ->
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        stringResource(labelRes),
+                        style = MaterialTheme.typography.bodyLarge
+                    )
+                    if (badge != null) {
+                        Spacer(Modifier.width(6.dp))
+                        badge()
+                    }
+                }
+                SingleChoiceSegmentedButtonRow(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(IntrinsicSize.Max)
+                ) {
+                    options.forEachIndexed { index, (key, label) ->
+                        CompactSegmentedButton(
+                            modifier = Modifier.fillMaxHeight(),
+                            selected = key == selected,
+                            onClick = { onPick(key) },
+                            shape = SegmentedButtonDefaults.itemShape(index, options.size),
+                            colors = themedSegmentedColors(),
+                        ) {
+                            Text(
+                                label, textAlign = TextAlign.Center,
+                                maxLines = 2, overflow = TextOverflow.Ellipsis
+                            )
+                        }
+                    }
+                }
+            }
+
+        AdvancedCollapsable(
+            title = stringResource(R.string.geo_section_dashboard),
+            stateKey = "geo-dashboard"
+        ) {
+            SwitchSetting(
+                stringResource(R.string.setting_allow_rotation),
+                settings.rotateDashboard
+            ) { viewModel.updateRotateDashboard(it) }
+            SwitchSetting(
+                stringResource(R.string.setting_mirror_landscape),
+                settings.landscapeMirrored,
+                badge = landscapeBadge
+            ) { viewModel.updateLandscapeMirrored(it) }
+            // The speedo switches map onto the per-surface style KEYS
+            // (checked = NUMBER): when a third gauge style lands (PWM-primary
+            // etc.) these become choosers, the storage already supports it.
+            SwitchSetting(
+                stringResource(R.string.setting_simple_speedo),
+                settings.landscapeSpeedoStyle == "NUMBER",
+                badge = landscapeBadge
+            ) { viewModel.updateLandscapeSpeedoStyle(if (it) "NUMBER" else "DIAL") }
+            HintText(stringResource(R.string.setting_simple_speedo_desc), small = true)
+            geoChoiceRow(
+                R.string.setting_compact_dashboard, null,
+                listOf(
+                    "AUTO" to stringResource(R.string.compact_mode_auto),
+                    "ALWAYS" to stringResource(R.string.compact_mode_always),
+                    "NEVER" to stringResource(R.string.compact_mode_never)
+                ),
+                settings.compactModeWhen
+            ) { viewModel.updateCompactModeWhen(it) }
+            // These two only exist inside compact mode, so they hide when the
+            // rider turns compact off entirely.
+            if (settings.compactModeWhen != "NEVER") {
+                SwitchSetting(
+                    stringResource(R.string.setting_simple_speedo),
+                    settings.compactSpeedoStyle == "NUMBER",
+                    badge = compactBadge
+                ) { viewModel.updateCompactSpeedoStyle(if (it) "NUMBER" else "DIAL") }
+                geoChoiceRow(
+                    R.string.setting_cover_cutout, compactBadge,
+                    listOf(
+                        "OFF" to stringResource(R.string.cover_cutout_off),
+                        "LEFT" to stringResource(R.string.cover_cutout_left),
+                        "RIGHT" to stringResource(R.string.cover_cutout_right)
+                    ),
+                    settings.coverCameraCutout
+                ) { viewModel.updateCoverCameraCutout(it) }
+            }
+        }
+
+        AdvancedCollapsable(
+            title = stringResource(R.string.geo_section_navigator),
+            stateKey = "geo-navigator"
+        ) {
+            SwitchSetting(
+                stringResource(R.string.setting_allow_rotation),
+                settings.rotateNavigator
+            ) { viewModel.updateRotateNavigator(it) }
+            geoChoiceRow(
+                R.string.setting_nav_stops_side, landscapeBadge,
+                listOf(
+                    "DEFAULT" to stringResource(R.string.side_default),
+                    "LEFT" to stringResource(R.string.side_left),
+                    "RIGHT" to stringResource(R.string.side_right)
+                ),
+                settings.navStopsSide
+            ) { viewModel.updateNavStopsSide(it) }
+        }
+
+        AdvancedCollapsable(
+            title = stringResource(R.string.geo_section_other),
+            stateKey = "geo-other"
+        ) {
+            SwitchSetting(
+                stringResource(R.string.setting_allow_rotation),
+                settings.rotateOtherScreens
+            ) { viewModel.updateRotateOtherScreens(it) }
+            HintText(stringResource(R.string.geo_other_hint), small = true)
+        }
+
+        // Timing knobs, under their own big title.
+        AdvSectionTitle(stringResource(R.string.adv_timings_title))
+        MetricInfoBox(stringResource(R.string.adv_rates_warning))
+        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
+            // Disabled (greyed) when nothing is off default; otherwise confirm first.
+            TextButton(onClick = { showResetConfirm = true }, enabled = changed.isNotEmpty()) {
+                Icon(Icons.Default.Restore, contentDescription = null, modifier = Modifier.size(18.dp))
+                Spacer(Modifier.width(6.dp))
+                Text(stringResource(R.string.adv_reset_all))
+            }
+        }
+        // One collapsible card per group, fully driven by the AdvancedSpec registry.
+        AdvGroup.values().forEach { group ->
+            val specs = ADVANCED_SPECS.filter { it.group == group }
+            if (specs.isEmpty()) return@forEach
+            AdvancedCollapsable(title = stringResource(group.titleRes), stateKey = "adv-${group.name}") {
+                group.warningRes?.let { MetricInfoBox(stringResource(it)) }
+                specs.forEach { spec ->
+                    AdvRow(spec, settings.advanced) { viewModel.updateAdvanced(spec, it) }
+                }
+                group.noteRes?.let { HintText(stringResource(it), small = true) }
+            }
+        }
+    }
+
+    if (showResetConfirm && changed.isNotEmpty()) {
+        AlertDialog(
+            onDismissRequest = { showResetConfirm = false },
+            title = { Text(stringResource(R.string.adv_reset_all)) },
+            text = {
+                Column(
+                    modifier = Modifier
+                        .heightIn(max = com.eried.eucplanet.ui.common.dialogContentMaxHeight(360))
+                        .verticalScroll(rememberScrollState())
+                ) {
+                    Text(stringResource(R.string.adv_reset_confirm_msg))
+                    Spacer(Modifier.height(8.dp))
+                    changed.forEach { spec ->
+                        val u = if (spec.unit.isEmpty()) "" else " ${spec.unit}"
+                        Text(
+                            "•  ${stringResource(spec.label)}:  " +
+                                "${spec.format(spec.get(settings.advanced))}$u  →  " +
+                                "${spec.format(spec.get(ADVANCED_DEFAULTS))}$u",
+                            fontSize = 13.sp,
+                            modifier = Modifier.padding(vertical = 1.dp),
+                        )
+                    }
+                }
+            },
+            confirmButton = {
+                TextButton(onClick = {
+                    viewModel.resetAdvancedDefaults()
+                    showResetConfirm = false
+                }) { Text(stringResource(R.string.adv_reset_all)) }
+            },
+            dismissButton = {
+                TextButton(onClick = { showResetConfirm = false }) {
+                    Text(stringResource(android.R.string.cancel))
+                }
+            },
+        )
     }
 }
 
@@ -1267,6 +1823,7 @@ private fun DashboardLayoutTab(
                 controller = dragController
             )
         }
+
     }
         // Floating drag preview rendered as a sibling of the Column inside
         // the editor's root Box. Stays in the same Compose hit-test tree as
@@ -3347,7 +3904,7 @@ private fun CompositeMetricSheet(
             SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
                 val options = CompositeLayout.values()
                 options.forEachIndexed { index, lay ->
-                    SegmentedButton(
+                    CompactSegmentedButton(
                         selected = layout == lay,
                         onClick = {
                             layout = lay
@@ -4096,7 +4653,7 @@ private fun CustomTileSheet(
             // text field above.
             SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
                 CustomTileAction.values().forEachIndexed { index, opt ->
-                    SegmentedButton(
+                    CompactSegmentedButton(
                         selected = action == opt,
                         onClick = {
                             action = opt
@@ -5220,7 +5777,7 @@ private fun UnitsSetting(
         )
         SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
             systemOptions.forEachIndexed { index, (value, label) ->
-                SegmentedButton(
+                CompactSegmentedButton(
                     selected = value == currentSystem,
                     onClick = {
                         when (value) {
@@ -5315,57 +5872,88 @@ private fun SpeedTab(
         SectionHeader(stringResource(R.string.section_speed_calibration))
         HintText(stringResource(R.string.speed_calibration_caption), small = true)
         val calPct = settings.speedCalibrationOffsetPct
-        SliderSetting(
-            label = stringResource(R.string.speed_calibration_label),
-            value = calPct,
-            range = -15f..15f,
-            unit = "%",
-            steps = 299,
-            valueText = "%+.1f %%".format(calPct),
-            enabled = isConnected,
-            onValueChange = { viewModel.updateSpeedCalibrationOffsetPct(it) }
-        )
+        // Half width, left side, to match the other compact numeric pills.
+        // Whole-percent steps (the pill is integer-only); the stored value
+        // still scales the reported speed exactly as before.
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            // Tenths-of-a-percent domain so the pill keeps the slider's 0.1%
+            // precision: the Int value is tenths, displayed as a signed 1-decimal
+            // percent, stepped 0.1% per tap (hold to sweep).
+            NumberUpDown(
+                value = (calPct * 10).roundToInt(),
+                onValueChange = { viewModel.updateSpeedCalibrationOffsetPct(it / 10f) },
+                range = -150..150,
+                step = 1,
+                suffix = "%",
+                label = stringResource(R.string.speed_calibration_label),
+                enabled = isConnected,
+                modifier = Modifier.weight(1f),
+                format = { String.format(java.util.Locale.US, "%+.1f", it / 10f) },
+                parse = { it.toFloatOrNull()?.let { f -> (f * 10).roundToInt() } },
+                allowSign = true,
+            )
+            Spacer(Modifier.weight(1f))
+        }
 
         SectionHeader(stringResource(R.string.section_speed_limits))
         // Lower bound is 0 km/h: some Begode / Veteran wheels report
         // tiltback at 0 (= disabled) or a very low value the rider set
         // on the wheel itself, and clamping the slider's floor at 10
         // used to produce inverted ranges (10..0) that crashed the screen.
-        SpeedSliderSetting(
-            label = stringResource(R.string.speed_tiltback),
-            valueKmh = settings.tiltbackSpeedKmh,
-            rangeKmh = 0f..maxSpeedCap,
-            speedUnit = speedUnit,
-            enabled = isConnected,
-            onValueChangeKmh = { viewModel.updateTiltbackSpeed(it) }
-        )
-        SpeedSliderSetting(
-            label = stringResource(R.string.speed_alarm),
-            valueKmh = settings.alarmSpeedKmh,
-            rangeKmh = 0f..settings.tiltbackSpeedKmh,
-            speedUnit = speedUnit,
-            enabled = isConnected,
-            onValueChangeKmh = { viewModel.updateAlarmSpeed(it) }
-        )
+        // Tiltback + Alarm share a row, half width each.
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            SpeedNumberSetting(
+                label = stringResource(R.string.speed_tiltback),
+                valueKmh = settings.tiltbackSpeedKmh,
+                rangeKmh = 0f..maxSpeedCap,
+                speedUnit = speedUnit,
+                enabled = isConnected,
+                modifier = Modifier.weight(1f),
+                onValueChangeKmh = { viewModel.updateTiltbackSpeed(it) }
+            )
+            SpeedNumberSetting(
+                label = stringResource(R.string.speed_alarm),
+                valueKmh = settings.alarmSpeedKmh,
+                rangeKmh = 0f..settings.tiltbackSpeedKmh,
+                speedUnit = speedUnit,
+                enabled = isConnected,
+                modifier = Modifier.weight(1f),
+                onValueChangeKmh = { viewModel.updateAlarmSpeed(it) }
+            )
+        }
 
         SectionHeader(stringResource(R.string.section_legal_mode_speed))
         HintText(stringResource(R.string.legal_mode_caption))
-        SpeedSliderSetting(
-            label = stringResource(R.string.speed_legal_tiltback),
-            valueKmh = settings.safetyTiltbackKmh,
-            rangeKmh = 0f..(settings.tiltbackSpeedKmh - 1f).coerceAtLeast(0f),
-            speedUnit = speedUnit,
-            enabled = isConnected,
-            onValueChangeKmh = { viewModel.updateSafetyTiltback(it) }
-        )
-        SpeedSliderSetting(
-            label = stringResource(R.string.speed_legal_alarm),
-            valueKmh = settings.safetyAlarmKmh,
-            rangeKmh = 0f..settings.safetyTiltbackKmh,
-            speedUnit = speedUnit,
-            enabled = isConnected,
-            onValueChangeKmh = { viewModel.updateSafetyAlarm(it) }
-        )
+        // Legal Tiltback + Legal Alarm share a row too, half width each.
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            SpeedNumberSetting(
+                label = stringResource(R.string.speed_legal_tiltback),
+                valueKmh = settings.safetyTiltbackKmh,
+                rangeKmh = 0f..(settings.tiltbackSpeedKmh - 1f).coerceAtLeast(0f),
+                speedUnit = speedUnit,
+                enabled = isConnected,
+                modifier = Modifier.weight(1f),
+                onValueChangeKmh = { viewModel.updateSafetyTiltback(it) }
+            )
+            SpeedNumberSetting(
+                label = stringResource(R.string.speed_legal_alarm),
+                valueKmh = settings.safetyAlarmKmh,
+                rangeKmh = 0f..settings.safetyTiltbackKmh,
+                speedUnit = speedUnit,
+                enabled = isConnected,
+                modifier = Modifier.weight(1f),
+                onValueChangeKmh = { viewModel.updateSafetyAlarm(it) }
+            )
+        }
 
     }
 }
@@ -5385,11 +5973,32 @@ private fun VoiceTab(
 
         // Voice type selector
         val voices by viewModel.availableVoices.collectAsState()
+        val voiceChoices by viewModel.availableVoiceChoices.collectAsState()
+        // Played as an audible preview whenever the rider changes the voice
+        // language, voice option, or speech speed below, so they hear it at once.
+        val voiceWelcome = stringResource(R.string.voice_welcome)
+        // Spoken when the rider picks "Default" in the voice list, in that voice.
+        val voiceDefaultSample = stringResource(R.string.voice_sample_default)
         if (voices.isNotEmpty()) {
             VoiceSelector(
                 currentLocale = settings.voiceLocale,
                 voices = voices,
-                onVoiceSelected = { viewModel.updateVoiceLocale(it) }
+                onVoiceSelected = { viewModel.updateVoiceLocale(it, voiceWelcome) }
+            )
+        }
+        // Within the chosen language, offer the individual voices the engine
+        // exposes (many languages have several). Only shown when there is a
+        // real choice to make.
+        val localeVoiceChoices = remember(voiceChoices, settings.voiceLocale) {
+            val norm = settings.voiceLocale.replace('-', '_')
+            voiceChoices.filter { it.localeTag.replace('-', '_') == norm }
+        }
+        if (localeVoiceChoices.size > 1) {
+            VoiceVariantSelector(
+                currentName = settings.voiceName,
+                choices = localeVoiceChoices,
+                defaultSample = voiceDefaultSample,
+                onSelected = { name, sample -> viewModel.updateVoiceName(name, sample) }
             )
         }
 
@@ -5401,15 +6010,29 @@ private fun VoiceTab(
             title = stringResource(R.string.section_voice_advanced),
             stateKey = "voice-advanced"
         ) {
-            SliderSetting(
-                label = stringResource(R.string.voice_speech_speed),
-                value = settings.voiceSpeechRate,
-                range = 0.5f..2.5f,
-                unit = stringResource(R.string.unit_x),
-                steps = 19,
-                format = "%.1f",
-                onValueChange = { viewModel.updateVoiceSpeechRate(it) }
-            )
+            // Speech rate is stored as a Float multiplier (0.5..2.5x); the
+            // integer-only pill shows it as a percent (50..250%) and writes
+            // back the divided-by-100 float, preserving the 0.1x granularity.
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                // Tenths-of-x domain so it reads as the original "1.2x" with 0.1
+                // steps, not a percentage.
+                NumberUpDown(
+                    value = (settings.voiceSpeechRate * 10).roundToInt(),
+                    onValueChange = { viewModel.updateVoiceSpeechRate(it / 10f, voiceWelcome) },
+                    range = 5..25,
+                    step = 1,
+                    suffix = stringResource(R.string.unit_x),
+                    label = stringResource(R.string.voice_speech_speed),
+                    modifier = Modifier.weight(1f),
+                    format = { String.format(java.util.Locale.US, "%.1f", it / 10f) },
+                    parse = { it.toFloatOrNull()?.let { f -> (f * 10).roundToInt() } },
+                    allowSign = true,
+                )
+                Spacer(Modifier.weight(1f))
+            }
 
             AudioFocusSelector(
                 current = settings.voiceAudioFocus,
@@ -5434,14 +6057,23 @@ private fun VoiceTab(
                 current = settings.voiceAnnounceWhen,
                 onChange = { viewModel.updateVoiceAnnounceWhen(it) }
             )
-            SliderSetting(
-                label = stringResource(R.string.voice_interval),
-                value = settings.voiceIntervalSeconds.toFloat(),
-                range = 10f..300f,
-                unit = stringResource(R.string.unit_sec),
-                steps = 28,
-                onValueChange = { viewModel.updateVoiceInterval((Math.round(it / 10f) * 10).coerceIn(10, 300)) }
-            )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                NumberUpDown(
+                    value = settings.voiceIntervalSeconds,
+                    onValueChange = {
+                        viewModel.updateVoiceInterval((Math.round(it / 10f) * 10).coerceIn(10, 300))
+                    },
+                    range = 10..300,
+                    step = 10,
+                    suffix = "s",
+                    label = stringResource(R.string.voice_interval),
+                    modifier = Modifier.weight(1f),
+                )
+                Spacer(Modifier.weight(1f))
+            }
         }
         }   // end voiceEnabled BringIntoViewSection
 
@@ -5785,8 +6417,10 @@ private fun FlicTab(
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     Text(stringResource(R.string.volume_up), style = MaterialTheme.typography.titleMedium, color = MaterialTheme.appColors.primary)
-                    ActionDropdown(stringResource(R.string.flic_click), settings.volumeUpClick) { settingsViewModel.updateVolumeUpClick(it) }
-                    ActionDropdown(stringResource(R.string.flic_hold), settings.volumeUpHold) { settingsViewModel.updateVolumeUpHold(it) }
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        ActionDropdown(stringResource(R.string.flic_click), settings.volumeUpClick, onValueChange = { settingsViewModel.updateVolumeUpClick(it) }, modifier = Modifier.weight(1f))
+                        ActionDropdown(stringResource(R.string.flic_hold), settings.volumeUpHold, onValueChange = { settingsViewModel.updateVolumeUpHold(it) }, modifier = Modifier.weight(1f))
+                    }
                 }
             }
             Card(
@@ -5798,8 +6432,10 @@ private fun FlicTab(
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     Text(stringResource(R.string.volume_down), style = MaterialTheme.typography.titleMedium, color = MaterialTheme.appColors.primary)
-                    ActionDropdown(stringResource(R.string.flic_click), settings.volumeDownClick) { settingsViewModel.updateVolumeDownClick(it) }
-                    ActionDropdown(stringResource(R.string.flic_hold), settings.volumeDownHold) { settingsViewModel.updateVolumeDownHold(it) }
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        ActionDropdown(stringResource(R.string.flic_click), settings.volumeDownClick, onValueChange = { settingsViewModel.updateVolumeDownClick(it) }, modifier = Modifier.weight(1f))
+                        ActionDropdown(stringResource(R.string.flic_hold), settings.volumeDownHold, onValueChange = { settingsViewModel.updateVolumeDownHold(it) }, modifier = Modifier.weight(1f))
+                    }
                 }
             }
         }
@@ -5929,7 +6565,7 @@ private fun WatchTab(
                         .height(IntrinsicSize.Max)
                 ) {
                     updateRateOptions.forEachIndexed { index, (key, label) ->
-                        SegmentedButton(
+                        CompactSegmentedButton(
                             modifier = Modifier.fillMaxHeight(),
                             selected = key == settings.watchUpdateRate,
                             onClick = { viewModel.updateWatchUpdateRate(key) },
@@ -5980,7 +6616,7 @@ private fun WatchTab(
                     .height(IntrinsicSize.Max)
             ) {
                 loadOptions.forEachIndexed { index, (key, label) ->
-                    SegmentedButton(
+                    CompactSegmentedButton(
                         modifier = Modifier.fillMaxHeight(),
                         selected = key == settings.watchPwmDisplay,
                         onClick = { viewModel.updateWatchPwmDisplay(key) },
@@ -6054,26 +6690,35 @@ private fun WatchTab(
             title = stringResource(R.string.watch_buttons_touch_label),
             info = stringResource(R.string.watch_buttons_touch_info)
         ) {
-            WatchActionPicker(
-                label = "${stringResource(R.string.watch_screen_button_1)} – ${stringResource(R.string.watch_button_click_label)}",
-                currentKey = settings.watchScreen1Click,
-                onSelect = { viewModel.updateWatchScreen1Click(it) }
-            )
-            WatchActionPicker(
-                label = "${stringResource(R.string.watch_screen_button_1)} – ${stringResource(R.string.watch_button_hold_label)}",
-                currentKey = settings.watchScreen1Hold,
-                onSelect = { viewModel.updateWatchScreen1Hold(it) }
-            )
-            WatchActionPicker(
-                label = "${stringResource(R.string.watch_screen_button_2)} – ${stringResource(R.string.watch_button_click_label)}",
-                currentKey = settings.watchScreen2Click,
-                onSelect = { viewModel.updateWatchScreen2Click(it) }
-            )
-            WatchActionPicker(
-                label = "${stringResource(R.string.watch_screen_button_2)} – ${stringResource(R.string.watch_button_hold_label)}",
-                currentKey = settings.watchScreen2Hold,
-                onSelect = { viewModel.updateWatchScreen2Hold(it) }
-            )
+            // Button 1 click | hold on one row; Button 2 click | hold on the next.
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                WatchActionPicker(
+                    label = "${stringResource(R.string.watch_screen_button_1)} – ${stringResource(R.string.watch_button_click_label)}",
+                    currentKey = settings.watchScreen1Click,
+                    onSelect = { viewModel.updateWatchScreen1Click(it) },
+                    modifier = Modifier.weight(1f),
+                )
+                WatchActionPicker(
+                    label = "${stringResource(R.string.watch_screen_button_1)} – ${stringResource(R.string.watch_button_hold_label)}",
+                    currentKey = settings.watchScreen1Hold,
+                    onSelect = { viewModel.updateWatchScreen1Hold(it) },
+                    modifier = Modifier.weight(1f),
+                )
+            }
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                WatchActionPicker(
+                    label = "${stringResource(R.string.watch_screen_button_2)} – ${stringResource(R.string.watch_button_click_label)}",
+                    currentKey = settings.watchScreen2Click,
+                    onSelect = { viewModel.updateWatchScreen2Click(it) },
+                    modifier = Modifier.weight(1f),
+                )
+                WatchActionPicker(
+                    label = "${stringResource(R.string.watch_screen_button_2)} – ${stringResource(R.string.watch_button_hold_label)}",
+                    currentKey = settings.watchScreen2Hold,
+                    onSelect = { viewModel.updateWatchScreen2Hold(it) },
+                    modifier = Modifier.weight(1f),
+                )
+            }
         }
 
         if (hasHardwareButtons) {
@@ -6113,7 +6758,8 @@ private fun WatchTab(
 private fun WatchActionPicker(
     label: String,
     currentKey: String,
-    onSelect: (String) -> Unit
+    onSelect: (String) -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     // Watch can bind eyes-free actions only. A synthetic "None" first
     // option lets the rider clear the binding.
@@ -6134,7 +6780,8 @@ private fun WatchActionPicker(
         label = label,
         currentKey = currentKey,
         options = options,
-        onSelect = onSelect
+        onSelect = onSelect,
+        modifier = modifier,
     )
 }
 
@@ -6161,16 +6808,20 @@ private fun HardwareButtonGroup(
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
-        WatchActionPicker(
-            label = stringResource(R.string.watch_button_click_label),
-            currentKey = clickKey,
-            onSelect = onClick
-        )
-        WatchActionPicker(
-            label = stringResource(R.string.watch_button_hold_label),
-            currentKey = holdKey,
-            onSelect = onHold
-        )
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            WatchActionPicker(
+                label = stringResource(R.string.watch_button_click_label),
+                currentKey = clickKey,
+                onSelect = onClick,
+                modifier = Modifier.weight(1f),
+            )
+            WatchActionPicker(
+                label = stringResource(R.string.watch_button_hold_label),
+                currentKey = holdKey,
+                onSelect = onHold,
+                modifier = Modifier.weight(1f),
+            )
+        }
     }
 }
 
@@ -6226,6 +6877,58 @@ private fun SwitchSettingWithDesc(
 }
 
 // --- Cloud Tab ---
+
+/**
+ * Progress row for a running foreground sync (folder or Dropbox) plus a Cancel
+ * button. Cancel is cooperative: the current file finishes, the caption and
+ * button switch to "Stopping..." and the button disables so it can't fire
+ * twice. Determinate when done/total is known, else an indeterminate bar with
+ * the checking/stopping caption.
+ */
+@Composable
+private fun SyncProgressWithCancel(
+    progress: Pair<Int, Int>?,
+    cancelling: Boolean,
+    onCancel: () -> Unit,
+) {
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        Column(
+            modifier = Modifier.weight(1f),
+            verticalArrangement = Arrangement.spacedBy(4.dp),
+        ) {
+            if (progress != null) {
+                val (done, total) = progress
+                val fraction = if (total > 0) done.toFloat() / total else 0f
+                LinearProgressIndicator(
+                    progress = { fraction },
+                    modifier = Modifier.fillMaxWidth(),
+                )
+                Text(
+                    stringResource(R.string.sync_progress, done, total),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            } else {
+                LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
+                Text(
+                    stringResource(if (cancelling) R.string.sync_stopping else R.string.sync_checking),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+        }
+        Spacer(Modifier.width(12.dp))
+        androidx.compose.material3.OutlinedButton(onClick = onCancel, enabled = !cancelling) {
+            androidx.compose.material3.Icon(
+                androidx.compose.material.icons.Icons.Default.Close,
+                contentDescription = null,
+                modifier = Modifier.size(18.dp),
+            )
+            Spacer(Modifier.width(4.dp))
+            Text(stringResource(if (cancelling) R.string.sync_stopping else R.string.sync_cancel))
+        }
+    }
+}
 
 @Composable
 private fun CloudTab(
@@ -6596,25 +7299,12 @@ private fun CloudTab(
                     activeDbxKind == com.eried.eucplanet.data.sync.SyncConflictKind.DROPBOX
                 if (showDbxProgress) {
                     val dbxProgress by viewModel.syncProgress.collectAsState()
-                    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                        if (dbxProgress != null) {
-                            val (done, total) = dbxProgress!!
-                            val fraction = if (total > 0) done.toFloat() / total else 0f
-                            LinearProgressIndicator(
-                                progress = { fraction },
-                                modifier = Modifier.fillMaxWidth()
-                            )
-                            Text(
-                                stringResource(R.string.sync_progress, done, total),
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                        } else {
-                            LinearProgressIndicator(
-                                modifier = Modifier.fillMaxWidth()
-                            )
-                        }
-                    }
+                    val dbxCancelling by viewModel.syncCancelling.collectAsState()
+                    SyncProgressWithCancel(
+                        progress = dbxProgress,
+                        cancelling = dbxCancelling,
+                        onCancel = { viewModel.cancelActiveSync() },
+                    )
                 }
             } else {
                 // Half-width to match the Sync/Unlink row that replaces this
@@ -6696,30 +7386,12 @@ private fun CloudTab(
             val showFolderProgress = syncRunning &&
                 activeSyncKind == com.eried.eucplanet.data.sync.SyncConflictKind.FOLDER
             if (showFolderProgress) {
-                Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                    if (syncProgress != null) {
-                        val (done, total) = syncProgress!!
-                        val fraction = if (total > 0) done.toFloat() / total else 0f
-                        LinearProgressIndicator(
-                            progress = { fraction },
-                            modifier = Modifier.fillMaxWidth()
-                        )
-                        Text(
-                            stringResource(R.string.sync_progress, done, total),
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    } else {
-                        LinearProgressIndicator(
-                            modifier = Modifier.fillMaxWidth()
-                        )
-                        Text(
-                            stringResource(R.string.sync_checking),
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
-                }
+                val folderCancelling by viewModel.syncCancelling.collectAsState()
+                SyncProgressWithCancel(
+                    progress = syncProgress,
+                    cancelling = folderCancelling,
+                    onCancel = { viewModel.cancelActiveSync() },
+                )
             }
         }
 
@@ -7230,27 +7902,35 @@ internal fun SectionHeader(title: String) {
 }
 
 @Composable
-private fun SpeedSliderSetting(
+private fun SpeedNumberSetting(
     label: String,
     valueKmh: Float,
     rangeKmh: ClosedFloatingPointRange<Float>,
     speedUnit: String,
     enabled: Boolean = true,
+    modifier: Modifier = Modifier,
     onValueChangeKmh: (Float) -> Unit
 ) {
-    val displayValue = Units.speed(valueKmh, speedUnit)
-    val displayStart = Units.speed(rangeKmh.start, speedUnit)
-    val displayEnd = Units.speed(rangeKmh.endInclusive, speedUnit)
-    SliderSetting(
-        label = label,
+    // Convert km/h <-> the rider's display unit, mirroring the old slider so
+    // the stored value stays in km/h with identical clamping. NumberUpDown is
+    // integer-only, so steps are whole display units (1 km/h or 1 mph).
+    val displayStart = Units.speed(rangeKmh.start, speedUnit).roundToInt()
+    val displayEndRaw = Units.speed(rangeKmh.endInclusive, speedUnit).roundToInt()
+    // Guard an inverted range (stale value below the floor) like SliderSetting.
+    val displayEnd = if (displayEndRaw < displayStart) displayStart else displayEndRaw
+    val displayValue = Units.speed(valueKmh, speedUnit).roundToInt()
+        .coerceIn(displayStart, displayEnd)
+    NumberUpDown(
         value = displayValue,
-        range = displayStart..displayEnd,
-        unit = Units.speedUnit(LocalContext.current, speedUnit),
-        enabled = enabled,
         onValueChange = { displayed ->
-            val kmh = Units.speedToKmh(displayed, speedUnit)
+            val kmh = Units.speedToKmh(displayed.toFloat(), speedUnit)
             onValueChangeKmh(kmh.coerceIn(rangeKmh))
-        }
+        },
+        range = displayStart..displayEnd,
+        suffix = Units.speedUnit(LocalContext.current, speedUnit),
+        label = label,
+        enabled = enabled,
+        modifier = modifier,
     )
 }
 
@@ -7321,6 +8001,34 @@ private fun SliderSetting(
             )
         }
     }
+}
+
+/**
+ * SegmentedButton with compact content: no leading checkmark, so selection
+ * reads from the themed fill alone and the label centres without the check
+ * hugging the chip border or padding ballooning around the text.
+ */
+@Composable
+private fun androidx.compose.material3.SingleChoiceSegmentedButtonRowScope.CompactSegmentedButton(
+    selected: Boolean,
+    onClick: () -> Unit,
+    shape: androidx.compose.ui.graphics.Shape,
+    colors: androidx.compose.material3.SegmentedButtonColors,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+    icon: @Composable () -> Unit = {},
+    label: @Composable () -> Unit
+) {
+    SegmentedButton(
+        selected = selected,
+        onClick = onClick,
+        shape = shape,
+        modifier = modifier,
+        enabled = enabled,
+        colors = colors,
+        icon = icon,
+        label = label
+    )
 }
 
 @Composable
@@ -7504,11 +8212,13 @@ private fun SimpleDropdown(
     label: String,
     currentKey: String,
     options: List<Pair<String, String>>,
-    onSelect: (String) -> Unit
+    onSelect: (String) -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     var expanded by remember { mutableStateOf(false) }
     val currentLabel = options.firstOrNull { it.first == currentKey }?.second ?: currentKey
     ExposedDropdownMenuBox(
+        modifier = modifier,
         expanded = expanded,
         onExpandedChange = { expanded = !expanded }
     ) {
@@ -7610,11 +8320,23 @@ private fun ButtonConfig(
                 }
             }
             Spacer(Modifier.height(12.dp))
-            ActionDropdown(stringResource(R.string.flic_click), clickAction, onClickChange)
+            // Click + Double click share a row (half each); Hold spans below.
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                ActionDropdown(stringResource(R.string.flic_click), clickAction, onClickChange, modifier = Modifier.weight(1f))
+                ActionDropdown(stringResource(R.string.flic_double_click), doubleClickAction, onDoubleClickChange, modifier = Modifier.weight(1f))
+            }
             Spacer(Modifier.height(8.dp))
-            ActionDropdown(stringResource(R.string.flic_double_click), doubleClickAction, onDoubleClickChange)
-            Spacer(Modifier.height(8.dp))
-            ActionDropdown(stringResource(R.string.flic_hold), holdAction, onHoldChange)
+            // Hold is half width, aligned left, to match the Click row above.
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                ActionDropdown(stringResource(R.string.flic_hold), holdAction, onHoldChange, modifier = Modifier.weight(1f))
+                Spacer(Modifier.weight(1f))
+            }
         }
     }
 }
@@ -7962,6 +8684,89 @@ private fun VoiceSelector(
     }
 }
 
+/**
+ * Picks a specific voice within the already-chosen language. Shown only when
+ * the language exposes more than one voice. "Default" maps to an empty
+ * voiceName (the engine default for the locale); the rest are the concrete
+ * voices, labeled "Voice N" with the engine's real quality/online attributes.
+ * Picking one speaks a "This is voice N" sample in that voice.
+ */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun VoiceVariantSelector(
+    currentName: String,
+    choices: List<VoiceChoice>,
+    defaultSample: String,
+    onSelected: (String, String) -> Unit
+) {
+    var expanded by remember { mutableStateOf(false) }
+    val defaultLabel = stringResource(R.string.voice_variant_default)
+    val fmt = stringResource(R.string.voice_variant_fmt)
+    val sampleFmt = stringResource(R.string.voice_sample_fmt)
+    val onlineWord = stringResource(R.string.voice_variant_online)
+    val highWord = stringResource(R.string.voice_quality_high)
+    val lowWord = stringResource(R.string.voice_quality_low)
+    // Only what the engine actually reports, no invented names: the quality tier
+    // (Android Voice.QUALITY_HIGH is 400, QUALITY_LOW is 200) and online, shown
+    // in parentheses since it is a capability (needs a network), not a quality.
+    fun quality(c: VoiceChoice): String? = when {
+        c.quality >= 400 -> highWord
+        c.quality in 1..200 -> lowWord
+        else -> null
+    }
+    fun labelFor(c: VoiceChoice): String {
+        val base = String.format(java.util.Locale.US, fmt, c.index)
+        val withQuality = quality(c)?.let { "$base · $it" } ?: base
+        return if (c.networkRequired) "$withQuality ($onlineWord)" else withQuality
+    }
+    // Spoken in the voice itself when it is picked, so the rider hears which one
+    // it is: "This is voice 2, high quality, online".
+    fun sampleFor(c: VoiceChoice): String {
+        val base = String.format(java.util.Locale.US, sampleFmt, c.index)
+        val parts = listOfNotNull(quality(c), if (c.networkRequired) onlineWord else null)
+        return if (parts.isEmpty()) base else "$base, ${parts.joinToString(", ")}"
+    }
+    // "Default" (plays the welcome sample) then each concrete voice, as
+    // (name, label, spoken-sample).
+    val items = buildList {
+        add(Triple("", defaultLabel, defaultSample))
+        choices.forEach { add(Triple(it.name, labelFor(it), sampleFor(it))) }
+    }
+    val displayText = items.firstOrNull { it.first == currentName }?.second ?: defaultLabel
+
+    ExposedDropdownMenuBox(
+        expanded = expanded,
+        onExpandedChange = { expanded = !expanded }
+    ) {
+        OutlinedTextField(
+            value = displayText,
+            onValueChange = {},
+            readOnly = true,
+            label = { Text(stringResource(R.string.voice_variant_label)) },
+            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+            modifier = Modifier
+                .fillMaxWidth()
+                .menuAnchor(MenuAnchorType.PrimaryNotEditable),
+            colors = themedFieldColors(),
+        )
+        ExposedDropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false },
+            containerColor = MaterialTheme.appColors.menuBackground
+        ) {
+            items.forEach { (name, label, sample) ->
+                DropdownMenuItem(
+                    text = { Text(label) },
+                    onClick = {
+                        onSelected(name, sample)
+                        expanded = false
+                    }
+                )
+            }
+        }
+    }
+}
+
 @Composable
 private fun AudioFocusSelector(
     current: String,
@@ -8061,7 +8866,7 @@ private fun SegmentedChoice(
                 .height(IntrinsicSize.Max)
         ) {
             options.forEachIndexed { index, (key, optLabel) ->
-                SegmentedButton(
+                CompactSegmentedButton(
                     modifier = Modifier.fillMaxHeight(),
                     selected = current == key,
                     onClick = { onChange(key) },
@@ -8085,7 +8890,8 @@ private fun SegmentedChoice(
 private fun ActionDropdown(
     label: String,
     currentValue: String,
-    onValueChange: (String) -> Unit
+    onValueChange: (String) -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     var expanded by remember { mutableStateOf(false) }
     val volumeKeys = remember {
@@ -8101,6 +8907,7 @@ private fun ActionDropdown(
     }
 
     ExposedDropdownMenuBox(
+        modifier = modifier,
         expanded = expanded,
         onExpandedChange = { expanded = !expanded }
     ) {
@@ -8450,7 +9257,7 @@ private fun NamedBackupDialog(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun RestorePickerDialog(
+internal fun RestorePickerDialog(
     onDismiss: () -> Unit,
     loadEntries: suspend () -> List<com.eried.eucplanet.data.sync.BackupEntry>,
     onPicked: (com.eried.eucplanet.data.sync.BackupEntry) -> Unit
@@ -9196,17 +10003,14 @@ private fun HudJoystickCard(
     ) {
         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
             HintText(stringResource(R.string.hud_joystick_desc), small = true)
-            ActionDropdown(stringResource(R.string.hud_joystick_up), settings.hudActionUp) {
-                viewModel.updateHudActionUp(it)
+            // Up | Down on one row, Left | Right on the next (half each).
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                ActionDropdown(stringResource(R.string.hud_joystick_up), settings.hudActionUp, onValueChange = { viewModel.updateHudActionUp(it) }, modifier = Modifier.weight(1f))
+                ActionDropdown(stringResource(R.string.hud_joystick_down), settings.hudActionDown, onValueChange = { viewModel.updateHudActionDown(it) }, modifier = Modifier.weight(1f))
             }
-            ActionDropdown(stringResource(R.string.hud_joystick_down), settings.hudActionDown) {
-                viewModel.updateHudActionDown(it)
-            }
-            ActionDropdown(stringResource(R.string.hud_joystick_left), settings.hudActionLeft) {
-                viewModel.updateHudActionLeft(it)
-            }
-            ActionDropdown(stringResource(R.string.hud_joystick_right), settings.hudActionRight) {
-                viewModel.updateHudActionRight(it)
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                ActionDropdown(stringResource(R.string.hud_joystick_left), settings.hudActionLeft, onValueChange = { viewModel.updateHudActionLeft(it) }, modifier = Modifier.weight(1f))
+                ActionDropdown(stringResource(R.string.hud_joystick_right), settings.hudActionRight, onValueChange = { viewModel.updateHudActionRight(it) }, modifier = Modifier.weight(1f))
             }
         }
     }

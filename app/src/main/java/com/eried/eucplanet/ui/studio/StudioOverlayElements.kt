@@ -671,7 +671,7 @@ private fun RadarLane(element: OverlayElement, data: StudioElementData) {
                 Row(verticalAlignment = Alignment.Bottom) {
                     Text(
                         text = "RADAR",
-                        color = fg.copy(alpha = 0.7f),
+                        color = fg,
                         fontWeight = FontWeight.SemiBold,
                         fontSize = (w * 0.09f).coerceIn(9f, 22f).sp,
                         modifier = Modifier.weight(1f),
@@ -680,7 +680,7 @@ private fun RadarLane(element: OverlayElement, data: StudioElementData) {
                     if (data.radarBatteryPercent >= 0) {
                         Text(
                             text = "${data.radarBatteryPercent}%",
-                            color = fg.copy(alpha = 0.6f),
+                            color = fg,
                             fontSize = (w * 0.08f).coerceIn(8f, 18f).sp,
                             maxLines = 1
                         )
@@ -693,7 +693,7 @@ private fun RadarLane(element: OverlayElement, data: StudioElementData) {
                     Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                         Text(
                             text = "No radar",
-                            color = fg.copy(alpha = 0.5f),
+                            color = fg,
                             fontSize = (w * 0.10f).coerceIn(10f, 22f).sp
                         )
                     }
@@ -800,7 +800,7 @@ private fun RadarMirror(element: OverlayElement, data: StudioElementData) {
                 when {
                     !data.radarConnected -> Text(
                         text = "No radar",
-                        color = fg.copy(alpha = 0.5f),
+                        color = fg,
                         fontSize = (w * 0.07f).coerceIn(10f, 22f).sp,
                         maxLines = 1
                     )
@@ -1156,7 +1156,7 @@ private fun ClockElement(element: OverlayElement, data: StudioElementData) {
                     if (element.clockShowDate) {
                         androidx.compose.material3.Text(
                             text = formatClockTime(data.clockTimeMs, "EEE d MMM yyyy"),
-                            color = fg.copy(alpha = 0.75f),
+                            color = fg,
                             fontSize = (w * 0.07f).coerceIn(8f, 30f).sp,
                             maxLines = 1
                         )
@@ -1307,7 +1307,7 @@ private fun AppBadgeElement(element: OverlayElement) {
                 if (element.badgeShowVersion) {
                     androidx.compose.material3.Text(
                         text = "v${com.eried.eucplanet.BuildConfig.VERSION_NAME}",
-                        color = Color(element.foreground).copy(alpha = 0.75f),
+                        color = Color(element.foreground),
                         fontSize = versionSize,
                         maxLines = 1
                     )
@@ -1358,7 +1358,7 @@ private fun DataValueElement(element: OverlayElement, data: StudioElementData) {
             if (element.showLabel) {
                 androidx.compose.material3.Text(
                     text = metric.displayName().uppercase(),
-                    color = Color(element.foreground).copy(alpha = 0.7f),
+                    color = Color(element.foreground),
                     fontWeight = FontWeight.SemiBold,
                     fontSize = (w * 0.09f).coerceIn(9f, 26f).sp,
                     maxLines = 1
@@ -1375,7 +1375,7 @@ private fun DataValueElement(element: OverlayElement, data: StudioElementData) {
                 if (unit.isNotEmpty() && unitOnLeft) {
                     androidx.compose.material3.Text(
                         text = "$unit ",
-                        color = Color(element.foreground).copy(alpha = 0.75f),
+                        color = Color(element.foreground),
                         fontSize = (w * 0.12f).coerceIn(9f, 40f).sp,
                         modifier = Modifier.padding(bottom = (w * 0.04f).dp),
                         maxLines = 1
@@ -1391,7 +1391,7 @@ private fun DataValueElement(element: OverlayElement, data: StudioElementData) {
                 if (unit.isNotEmpty() && !unitOnLeft) {
                     androidx.compose.material3.Text(
                         text = " $unit",
-                        color = Color(element.foreground).copy(alpha = 0.75f),
+                        color = Color(element.foreground),
                         fontSize = (w * 0.12f).coerceIn(9f, 40f).sp,
                         modifier = Modifier.padding(bottom = (w * 0.04f).dp),
                         maxLines = 1
@@ -1435,7 +1435,7 @@ private fun DataGraphElement(element: OverlayElement, data: StudioElementData) {
         Column {
             androidx.compose.material3.Text(
                 text = "${metric.displayName().uppercase()}  ·  ${element.graphWindowSec}s",
-                color = Color(element.foreground).copy(alpha = 0.7f),
+                color = Color(element.foreground),
                 fontWeight = FontWeight.SemiBold,
                 fontSize = (w * 0.07f).coerceIn(8f, 20f).sp,
                 maxLines = 1
@@ -1751,7 +1751,7 @@ private fun DataDialElement(element: OverlayElement, data: StudioElementData) {
             ).ifEmpty { metric.displayName() }
             androidx.compose.material3.Text(
                 text = unit,
-                color = fill.copy(alpha = 0.7f),
+                color = fill,
                 fontSize = (w * (if (isSemi) 0.07f else 0.085f)).coerceIn(8f, 22f).sp,
                 maxLines = 1
             )
@@ -1780,7 +1780,7 @@ private fun DataBarElement(element: OverlayElement, data: StudioElementData) {
                 if (element.showLabel) {
                     androidx.compose.material3.Text(
                         text = metric.displayName().uppercase(),
-                        color = fill.copy(alpha = 0.7f),
+                        color = fill,
                         fontWeight = FontWeight.SemiBold,
                         fontSize = (w * 0.07f).coerceIn(9f, 22f).sp,
                         modifier = Modifier.weight(1f),

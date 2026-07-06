@@ -4,6 +4,7 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.gestures.detectDragGestures
@@ -13,6 +14,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -37,8 +39,11 @@ import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
@@ -54,6 +59,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.text.TextRange
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
@@ -172,6 +181,7 @@ fun StudioReplayDialog(
             // 0 = transport, 1 = trip list, 2 = speed list. Inline pickers so
             // they rotate with the panel instead of escaping as popups.
             var picker by remember { mutableStateOf(0) }
+            var showTrimDialog by remember { mutableStateOf(false) }
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Icon(Icons.Default.History, contentDescription = null, tint = MaterialTheme.appColors.primary)
                 Spacer(Modifier.width(8.dp))
@@ -314,12 +324,21 @@ fun StudioReplayDialog(
                 }
                 Spacer(Modifier.width(10.dp))
                 Spacer(Modifier.weight(1f))
-                if (trimmed) {
+                // Tap to type an exact trim range (MM:SS / H:MM:SS) instead of
+                // fiddling the handles. Shows "(full clip)" until a range is set,
+                // then the range itself -- both open the editor.
+                if (active) {
                     Text(
-                        "( ${formatReplayClock(rangeStartMs)}  -  " +
-                            "${formatReplayClock(rangeEndMs)} )",
+                        if (trimmed)
+                            "( ${formatReplayClock(rangeStartMs)}  -  " +
+                                "${formatReplayClock(rangeEndMs)} )"
+                        else stringResource(R.string.studio_replay_trim),
                         style = MaterialTheme.typography.bodySmall,
-                        color = clockColor
+                        color = MaterialTheme.appColors.primary,
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(6.dp))
+                            .clickable { showTrimDialog = true }
+                            .padding(horizontal = 8.dp, vertical = 2.dp)
                     )
                     Spacer(Modifier.weight(1f))
                 }
@@ -355,10 +374,153 @@ fun StudioReplayDialog(
                     tint = MaterialTheme.appColors.textPrimary
                 )
             }
+
+            if (showTrimDialog) {
+                TrimTimeDialog(
+                    startMs = rangeStartMs,
+                    endMs = rangeEndMs,
+                    durationMs = dur,
+                    onConfirm = { s, e -> onRange(s, e); showTrimDialog = false },
+                    onDismiss = { showTrimDialog = false }
+                )
+            }
             }
           }
         }
     }
+}
+
+/** Digits-only -> MM:SS, timer style (the last two digits are the seconds, the
+ *  rest the minutes). Lets the fields use a pure number keyboard. */
+private fun digitsToClock(raw: String): String {
+    val digits = raw.filter { it.isDigit() }.takeLast(5)
+    if (digits.isEmpty()) return ""
+    val secs = digits.takeLast(2).padStart(2, '0')
+    val mins = digits.dropLast(2).ifEmpty { "0" }.toInt()
+    return "$mins:$secs"
+}
+
+/**
+ * Type an exact trim range instead of dragging the fiddly handles. Start / End /
+ * Duration are number-keyboard fields (digits auto-format to MM:SS) and stay
+ * linked: editing Start or End updates Duration; editing Duration moves End when
+ * a Start is set (the common case), moves Start when only an End is set, or fills
+ * 0:00 -> Duration when neither is. Reset restores the full clip. Apply is enabled
+ * only when both ends parse, sit in [0, duration] and start < end.
+ */
+@Composable
+private fun TrimTimeDialog(
+    startMs: Long,
+    endMs: Long,
+    durationMs: Long,
+    onConfirm: (Long, Long) -> Unit,
+    onDismiss: () -> Unit
+) {
+    fun fmt(ms: Long) = formatReplayClock(ms.coerceAtLeast(0))
+    fun tfv(t: String) = TextFieldValue(t, selection = TextRange(t.length))
+    val start = remember { mutableStateOf(tfv(fmt(startMs))) }
+    val end = remember { mutableStateOf(tfv(fmt(endMs))) }
+    val dur = remember { mutableStateOf(tfv(fmt(endMs - startMs))) }
+
+    val startParsed = parseReplayClock(start.value.text)
+    val endParsed = parseReplayClock(end.value.text)
+    val startOk = startParsed != null && startParsed in 0..durationMs
+    val endOk = endParsed != null && endParsed in 0..durationMs
+    val valid = startOk && endOk && startParsed!! < endParsed!!
+
+    // Editing Start or End re-derives Duration.
+    val syncDuration = {
+        val s = parseReplayClock(start.value.text)
+        val e = parseReplayClock(end.value.text)
+        if (s != null && e != null) dur.value = tfv(fmt(e - s))
+    }
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(stringResource(R.string.studio_replay_trim_title)) },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                TrimTimeField(
+                    label = stringResource(R.string.studio_replay_trim_start),
+                    state = start,
+                    isError = !startOk,
+                    afterChange = syncDuration
+                )
+                TrimTimeField(
+                    label = stringResource(R.string.studio_replay_trim_end),
+                    state = end,
+                    isError = !endOk,
+                    afterChange = syncDuration
+                )
+                TrimTimeField(
+                    label = stringResource(R.string.studio_replay_trim_duration),
+                    state = dur,
+                    supporting = "MM:SS  ·  max ${fmt(durationMs)}",
+                    afterChange = {
+                        val d = parseReplayClock(dur.value.text)
+                        if (d != null) {
+                            val s = parseReplayClock(start.value.text)
+                            val e = parseReplayClock(end.value.text)
+                            when {
+                                s != null -> end.value = tfv(fmt((s + d).coerceAtMost(durationMs)))
+                                e != null -> start.value = tfv(fmt((e - d).coerceAtLeast(0)))
+                                else -> { start.value = tfv("0:00"); end.value = tfv(fmt(d.coerceAtMost(durationMs))) }
+                            }
+                        }
+                    }
+                )
+            }
+        },
+        confirmButton = {
+            // Reset on the left (clears the trim to the full clip AND commits),
+            // Cancel + Apply on the right.
+            Row(
+                Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                TextButton(onClick = { onConfirm(0L, durationMs) }) {
+                    Text(stringResource(R.string.studio_replay_trim_reset))
+                }
+                Spacer(Modifier.weight(1f))
+                TextButton(onClick = onDismiss) { Text(stringResource(R.string.action_cancel)) }
+                TextButton(
+                    onClick = { if (valid) onConfirm(startParsed!!, endParsed!!) },
+                    enabled = valid
+                ) { Text(stringResource(R.string.action_apply)) }
+            }
+        }
+    )
+}
+
+/** A number-keyboard MM:SS field for the trim dialog: digits auto-format to
+ *  MM:SS (timer style), and focusing it selects all so the next keystroke
+ *  replaces the value -- clean editing of a pre-filled time without fighting
+ *  backspace. [afterChange] re-syncs the linked fields. */
+@Composable
+private fun TrimTimeField(
+    label: String,
+    state: androidx.compose.runtime.MutableState<TextFieldValue>,
+    isError: Boolean = false,
+    supporting: String? = null,
+    afterChange: () -> Unit
+) {
+    OutlinedTextField(
+        value = state.value,
+        onValueChange = { v ->
+            val f = digitsToClock(v.text)
+            state.value = TextFieldValue(f, selection = TextRange(f.length))
+            afterChange()
+        },
+        modifier = Modifier.onFocusChanged {
+            if (it.isFocused) {
+                state.value = state.value.copy(selection = TextRange(0, state.value.text.length))
+            }
+        },
+        label = { Text(label) },
+        singleLine = true,
+        isError = isError,
+        supportingText = supporting?.let { s -> { Text(s) } },
+        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+    )
 }
 
 /** Chroma-key fill presets: label resource paired with the ARGB colour. */
@@ -387,10 +549,17 @@ private fun ExportFormatChooser(
     onForceOpaque: (Boolean) -> Unit,
     onScale: (Int) -> Unit
 ) {
+    // In portrait (panel upright, rotation 0/180) there's far more vertical room
+    // than in landscape, so let the chooser grow instead of cramming everything
+    // into a 360dp scroller. Landscape keeps the compact cap.
+    val cfg = androidx.compose.ui.platform.LocalConfiguration.current
+    val portrait = LocalStudioRotation.current.let { it == 0 || it == 180 }
+    val maxChooserHeight =
+        if (portrait) (cfg.screenHeightDp * 0.58f).dp.coerceAtMost(620.dp) else 360.dp
     Column(
         Modifier
             .fillMaxWidth()
-            .heightIn(max = 360.dp)
+            .heightIn(max = maxChooserHeight)
             .verticalScroll(rememberScrollState())
     ) {
         // Photo.
@@ -400,8 +569,13 @@ private fun ExportFormatChooser(
             color = MaterialTheme.appColors.textSecondary,
             modifier = Modifier.padding(top = 4.dp, bottom = 6.dp)
         )
+        // PNG / WEBP carry alpha; JPG is flattened onto the chroma fill.
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            ReplayPhotoFormat.entries.forEach { fmt ->
+            listOf(
+                ReplayPhotoFormat.PNG,
+                ReplayPhotoFormat.JPG,
+                ReplayPhotoFormat.WEBP
+            ).forEach { fmt ->
                 FormatChip(
                     label = fmt.name,
                     selected = fmt == prefs.photoFormat,
@@ -421,8 +595,14 @@ private fun ExportFormatChooser(
             color = MaterialTheme.appColors.textSecondary,
             modifier = Modifier.padding(bottom = 6.dp)
         )
+        // GIF (1-bit) and APNG (full RGBA) carry alpha; MP4 is flattened onto the
+        // chroma fill. (MOV / ProRes is disabled app-wide.)
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            ReplayVideoFormat.entries.forEach { fmt ->
+            listOf(
+                ReplayVideoFormat.GIF,
+                ReplayVideoFormat.MP4,
+                ReplayVideoFormat.APNG
+            ).forEach { fmt ->
                 FormatChip(
                     label = fmt.name,
                     selected = fmt == prefs.videoFormat,
@@ -432,6 +612,9 @@ private fun ExportFormatChooser(
                 )
             }
         }
+
+        // (MOV alpha-codec chooser removed: the ProRes / QuickTime .mov export
+        // path is disabled app-wide.)
 
         // Output options (Scale, chroma key and force-opaque) collapsed by
         // default so the common case (just picking a format) stays compact.
@@ -458,14 +641,11 @@ private fun ExportFormatChooser(
             )
         }
         if (optionsOpen) {
-            // Chroma + force-opaque only apply to alpha-less formats (JPG /
-            // MP4). When BOTH the chosen photo and video formats carry
-            // alpha, those controls are inert -- dim them so the rider
-            // sees they have no effect rather than wondering why their
-            // PNG / GIF still shows transparency.
-            val opaqueAffects =
-                !prefs.photoFormat.hasAlpha || !prefs.videoFormat.hasAlpha
-            val ctrlAlpha = if (opaqueAffects) 1f else 0.4f
+            // Chroma + force-opaque only actually affect alpha-less formats (JPG /
+            // MP4), but the rider already knows that -- keep the controls fully
+            // enabled rather than greying them out.
+            val opaqueAffects = true
+            val ctrlAlpha = 1f
             Text(
                 stringResource(R.string.studio_export_scale),
                 style = MaterialTheme.typography.labelMedium,
@@ -489,8 +669,11 @@ private fun ExportFormatChooser(
                 color = MaterialTheme.appColors.textSecondary.copy(alpha = ctrlAlpha),
                 modifier = Modifier.padding(bottom = 6.dp)
             )
+            var showChromaPicker by remember { mutableStateOf(false) }
             Row(
-                Modifier.alpha(ctrlAlpha),
+                Modifier
+                    .alpha(ctrlAlpha)
+                    .horizontalScroll(rememberScrollState()),
                 horizontalArrangement = Arrangement.spacedBy(10.dp)
             ) {
                 chromaPresets.forEach { (labelRes, argb) ->
@@ -526,6 +709,21 @@ private fun ExportFormatChooser(
                         }
                     }
                 }
+                // Any colour: opens the shared HSV picker (same control + icon as
+                // the overlay element colours). Active when the chroma isn't a preset.
+                CustomColorSwatch(
+                    current = prefs.chromaColor,
+                    isActive = chromaPresets.none { it.second == prefs.chromaColor },
+                    onClick = { if (opaqueAffects) showChromaPicker = true }
+                )
+            }
+            if (showChromaPicker) {
+                ColorPickerDialog(
+                    initial = prefs.chromaColor,
+                    allowAlpha = false,   // a chroma fill is always opaque
+                    onPick = { showChromaPicker = false; onChromaColor(it or 0xFF000000L) },
+                    onDismiss = { showChromaPicker = false }
+                )
             }
 
             // Force-opaque: a partly-transparent element would blend with

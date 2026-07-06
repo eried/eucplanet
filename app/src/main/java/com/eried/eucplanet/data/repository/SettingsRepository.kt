@@ -1,5 +1,6 @@
 package com.eried.eucplanet.data.repository
 
+import com.eried.eucplanet.data.model.ADVANCED_SPECS
 import com.eried.eucplanet.data.model.AppSettings
 import com.eried.eucplanet.data.store.SettingsStore
 import kotlinx.coroutines.flow.Flow
@@ -32,6 +33,13 @@ class SettingsRepository @Inject constructor(
         update(current.copy(lastDeviceAddress = address, lastDeviceName = name))
     }
 
-    private fun AppSettings.sanitized(): AppSettings =
-        if (autoRecordStopIdleSeconds < 30) copy(autoRecordStopIdleSeconds = 30) else this
+    private fun AppSettings.sanitized(): AppSettings = copy(
+        autoRecordStopIdleSeconds = autoRecordStopIdleSeconds.coerceAtLeast(30),
+        // Clamp every Advanced knob to its spec range so a 0 / negative / absurd
+        // value (from an imported or Dropbox-synced settings file, not just the
+        // steppers) can never busy-loop a delay(), divide by zero, or starve the
+        // BLE/IO loops. Every settings read — get() and the settings Flow —
+        // passes through here, so consumers never see an unsafe value.
+        advanced = ADVANCED_SPECS.fold(advanced) { a, s -> s.set(a, s.get(a).coerceIn(s.range)) },
+    )
 }

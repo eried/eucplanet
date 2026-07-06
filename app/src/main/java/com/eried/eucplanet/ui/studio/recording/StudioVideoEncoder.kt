@@ -57,6 +57,18 @@ class StudioVideoEncoder(
     private var startUs = 0L
     private var submittedFrames = 0
 
+    // Offline replay export only: when > 0, the input frames are rendered as
+    // fast as the device allows (so their wall-clock timestamps are meaningless
+    // for playback), and [finish] re-muxes the encoded samples spreading their
+    // PTS evenly across this total duration. That decouples the clip's *length*
+    // from however long the render took -- the bug where a 1:15 trip exported as
+    // a ~17 s clip because 240 frames encoded in ~17 s of wall clock. Spreading
+    // over the *actual* encoded sample count (not the submitted frame count)
+    // also survives the input surface silently coalescing frames posted faster
+    // than the encoder consumes them. 0 keeps the live-capture behaviour (real
+    // wall-clock PTS).
+    private var targetDurationUs = 0L
+
     // --- Muxer (shared) ---
     private val muxerLock = Any()
     private var videoTrack = -1
@@ -88,8 +100,13 @@ class StudioVideoEncoder(
      * Returns false if the device could not give us a video encoder; if only
      * the microphone fails, recording continues video-only.
      */
-    fun start(captureWidth: Int, captureHeight: Int): Boolean {
+    fun start(
+        captureWidth: Int,
+        captureHeight: Int,
+        targetDurationUs: Long = 0L
+    ): Boolean {
         if (captureWidth <= 0 || captureHeight <= 0) return false
+        this.targetDurationUs = targetDurationUs.coerceAtLeast(0L)
         return try {
             val enc = MediaCodec.createEncoderByType(VIDEO_MIME)
             codec = enc
@@ -402,9 +419,105 @@ class StudioVideoEncoder(
             runCatching { tmp.delete() }
             return null
         }
-        val uri = publishToGallery(tmp)
-        runCatching { tmp.delete() }
+        // Offline export: re-stamp PTS so the clip lasts its intended duration,
+        // not the wall-clock render time. Falls back to the as-encoded file if
+        // the re-mux fails for any reason.
+        val publishFile = if (targetDurationUs > 0L) {
+            val retimed = remuxEvenlyTimed(tmp, targetDurationUs)
+            if (retimed != null) { runCatching { tmp.delete() }; retimed } else tmp
+        } else tmp
+        val uri = publishToGallery(publishFile)
+        runCatching { publishFile.delete() }
         return uri
+    }
+
+    /**
+     * Copy the encoded video samples of [src] into a fresh MP4, spreading their
+     * presentation times evenly across [totalDurationUs]. Used by the offline
+     * replay export so the clip's length matches the trip span instead of the
+     * (much shorter) wall-clock render time, and so it stays correct even when
+     * the input surface coalesced some frames (so the encoded sample count is
+     * below the submitted frame count). Returns the retimed file, or null on any
+     * failure so the caller can fall back to the original. The AVC stream has no
+     * B-frames (none are requested at configure time), so sample order == display
+     * order and a uniform re-stamp is exact.
+     */
+    private fun remuxEvenlyTimed(src: File, totalDurationUs: Long): File? {
+        // Pass 1: count the encoded samples so we know the per-frame step.
+        val count = countSamples(src)
+        if (count <= 0) return null
+        val stepUs = (totalDurationUs / count).coerceAtLeast(1L)
+
+        val dstFile = File(context.cacheDir, "studio_retime_${System.nanoTime()}.mp4")
+        val extractor = android.media.MediaExtractor()
+        var out: MediaMuxer? = null
+        return try {
+            extractor.setDataSource(src.absolutePath)
+            val (track, fmt) = videoTrackOf(extractor) ?: return null
+            extractor.selectTrack(track)
+            out = MediaMuxer(dstFile.absolutePath, MediaMuxer.OutputFormat.MUXER_OUTPUT_MPEG_4)
+            val dstTrack = out.addTrack(fmt)
+            out.start()
+            val maxInput = runCatching { fmt.getInteger(MediaFormat.KEY_MAX_INPUT_SIZE) }
+                .getOrDefault(0).takeIf { it > 0 } ?: (4 * 1024 * 1024)
+            val buffer = java.nio.ByteBuffer.allocate(maxInput)
+            val info = MediaCodec.BufferInfo()
+            var idx = 0L
+            while (true) {
+                val size = extractor.readSampleData(buffer, 0)
+                if (size < 0) break
+                info.offset = 0
+                info.size = size
+                info.presentationTimeUs = idx * stepUs
+                info.flags = if (extractor.sampleFlags and
+                    android.media.MediaExtractor.SAMPLE_FLAG_SYNC != 0
+                ) MediaCodec.BUFFER_FLAG_KEY_FRAME else 0
+                out.writeSampleData(dstTrack, buffer, info)
+                extractor.advance()
+                idx++
+            }
+            dstFile
+        } catch (e: Exception) {
+            Log.e(TAG, "Re-mux retime failed", e)
+            runCatching { dstFile.delete() }
+            null
+        } finally {
+            runCatching { out?.stop() }
+            runCatching { out?.release() }
+            runCatching { extractor.release() }
+        }
+    }
+
+    /** The first video track index + format in [extractor], or null. */
+    private fun videoTrackOf(extractor: android.media.MediaExtractor): Pair<Int, MediaFormat>? {
+        for (i in 0 until extractor.trackCount) {
+            val f = extractor.getTrackFormat(i)
+            if (f.getString(MediaFormat.KEY_MIME)?.startsWith("video/") == true) return i to f
+        }
+        return null
+    }
+
+    /** Number of encoded video samples in [src] (its own extractor pass). */
+    private fun countSamples(src: File): Int {
+        val extractor = android.media.MediaExtractor()
+        return try {
+            extractor.setDataSource(src.absolutePath)
+            val (track, _) = videoTrackOf(extractor) ?: return 0
+            extractor.selectTrack(track)
+            var n = 0
+            // sampleSize is the current sample's size, or -1 once exhausted; it
+            // needs no read buffer, so this is a cheap counting pass.
+            while (extractor.sampleSize >= 0) {
+                n++
+                if (!extractor.advance()) break
+            }
+            n
+        } catch (e: Exception) {
+            Log.e(TAG, "countSamples failed", e)
+            0
+        } finally {
+            runCatching { extractor.release() }
+        }
     }
 
     /** Copy the finished MP4 into the gallery: one sequential write, not 60/s. */

@@ -12,6 +12,9 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
+import androidx.compose.animation.Crossfade
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
@@ -39,6 +42,8 @@ import androidx.compose.material.icons.filled.PhotoCamera
 import androidx.compose.material.icons.filled.PhotoLibrary
 import androidx.compose.material.icons.filled.Stop
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
@@ -73,6 +78,9 @@ import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.layout.ContentScale
+import kotlin.math.roundToInt
 import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.graphics.drawscope.CanvasDrawScope
 import androidx.compose.ui.graphics.drawscope.scale
@@ -80,6 +88,8 @@ import androidx.compose.ui.graphics.layer.drawLayer
 import androidx.compose.ui.graphics.rememberGraphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.LocalView
@@ -103,9 +113,13 @@ import com.eried.eucplanet.ui.studio.camera.rememberStudioCameraHub
 import com.eried.eucplanet.ui.studio.recording.StudioApngEncoder
 import com.eried.eucplanet.ui.studio.recording.StudioGifEncoder
 import com.eried.eucplanet.ui.studio.recording.StudioCapture
+import com.eried.eucplanet.ui.studio.recording.StudioOffscreenSession
+// StudioProResEncoder import removed with the disabled MOV (ProRes/.mov) export.
+import com.eried.eucplanet.ui.studio.recording.OverlayFrameSpec
 import com.eried.eucplanet.ui.studio.recording.StudioVideoEncoder
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.NonCancellable
+import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -127,6 +141,15 @@ fun OverlayStudioScreen(
 ) {
     val context = LocalContext.current
     val activity = context as? Activity
+    // The Studio owns its orientation: fixed portrait, camera-app style (the
+    // round buttons counter-rotate their icons instead). Applied here as well
+    // as in the MainActivity route policy because a task restored straight
+    // into the Studio can race the route-based lock into landscape.
+    DisposableEffect(Unit) {
+        activity?.requestedOrientation =
+            android.content.pm.ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+        onDispose { }
+    }
     val scope = rememberCoroutineScope()
     val snackbar = remember { SnackbarHostState() }
     val graphicsLayer = rememberGraphicsLayer()
@@ -304,6 +327,9 @@ fun OverlayStudioScreen(
     // Replay APNG export: offline frame-by-frame render with a progress bar.
     var rendering by remember { mutableStateOf(false) }
     var renderProgress by remember { mutableStateOf(0f) }
+    // A small, slowly-updated preview of the frame being rendered, shown on the
+    // File Export screen with a left-to-right reveal tied to progress.
+    var renderThumbnail by remember { mutableStateOf<android.graphics.Bitmap?>(null) }
     var renderCancelRequested by remember { mutableStateOf(false) }
     var showCancelConfirm by remember { mutableStateOf(false) }
     // True while an alpha-less export (JPG / MP4) is rendering and the rider has
@@ -569,6 +595,23 @@ fun OverlayStudioScreen(
     // GIF / APNG / MP4 all share the same offline frame-stepping loop; only the
     // encoder differs: GIF and APNG stream into a pending gallery image, MP4
     // drives StudioVideoEncoder which publishes its own MP4.
+    // Captured here in composition scope for the offscreen renderer, which runs
+    // inside the LaunchedEffect where @Composable reads aren't allowed.
+    val offscreenThemeColors = MaterialTheme.appColors
+    val offscreenActivity = context as? androidx.activity.ComponentActivity
+    // The offscreen renderer hosts a Compose view in the window to draw frames
+    // off the vsync clock. On the Android emulator this trips a GPU-emulation EGL
+    // crash (libEGL_emulation eglDestroySurface) at render end, so emulators fall
+    // back to the on-screen capture path; real-device GPU drivers handle it.
+    val offscreenSupported = offscreenActivity != null && !run {
+        val b = android.os.Build.FINGERPRINT
+        b.contains("generic", true) || b.contains("emulator", true) ||
+            android.os.Build.MODEL.contains("Emulator", true) ||
+            android.os.Build.MODEL.contains("Android SDK", true) ||
+            android.os.Build.HARDWARE.contains("goldfish") ||
+            android.os.Build.HARDWARE.contains("ranchu") ||
+            android.os.Build.PRODUCT.contains("sdk", true)
+    }
     LaunchedEffect(rendering) {
         if (!rendering) return@LaunchedEffect
         renderCancelRequested = false
@@ -590,6 +633,19 @@ fun OverlayStudioScreen(
         // pending gallery image.
         var resultUri: Uri? = null
         renderProgress = 0f
+        renderThumbnail = null
+        // Small software copy of a frame for the File Export preview; refreshed at
+        // most every 5s to keep it cheap.
+        var lastThumbMs = 0L
+        fun makeThumb(src: android.graphics.Bitmap): android.graphics.Bitmap? = runCatching {
+            val sw = if (src.config == android.graphics.Bitmap.Config.HARDWARE)
+                src.copy(android.graphics.Bitmap.Config.ARGB_8888, false) else src
+            val tw = 240
+            val th = (tw.toLong() * (sw?.height ?: 1) / (sw?.width ?: 1)).toInt().coerceAtLeast(1)
+            val out = android.graphics.Bitmap.createScaledBitmap(sw!!, tw, th, true)
+            if (sw !== src) sw.recycle()
+            out
+        }.getOrNull()
         val fps = 10
         val frameMs = 1000 / fps
         val span = replayEndMs - replayStartMs
@@ -598,9 +654,21 @@ fun OverlayStudioScreen(
         // renders that much faster. Slow speeds add frames for smoother slow-mo.
         // Frames only ever sample inside the trimmed [start, end] range.
         val outputMs = (span / replaySpeed.coerceAtLeast(0.05f)).toLong()
-        val maxFrames = 240
+        // Raised from 240 so a longer clip stays smooth; the clip's *duration*
+        // is fixed by the per-frame PTS below, not by the frame count, so the
+        // cap only trades smoothness (fps) for render time on very long clips.
+        val maxFrames = 900
         val frameCount = ((outputMs / frameMs).toInt() + 1).coerceIn(2, maxFrames)
         val stepMs: Long = span / (frameCount - 1)
+        // Total clip length the encoder must produce regardless of how fast the
+        // offline render runs (it spreads the encoded frames evenly across this
+        // on finish; see StudioVideoEncoder). outputMs already folds in the
+        // replay speed, so a 4x clip is a quarter as long.
+        val targetDurationUs: Long = outputMs * 1000L
+        // GIF / APNG carry their own per-frame delay, so spreading the (capped)
+        // frame count across outputMs keeps them the right length too -- a long
+        // clip just plays at a lower fps rather than being sped up.
+        val perFrameDelayMs: Int = (outputMs / frameCount).toInt().coerceAtLeast(1)
 
         // Frame 0: also tells us the capture dimensions.
         replayPosMs = replayStartMs
@@ -610,22 +678,106 @@ fun OverlayStudioScreen(
             rendering = false
             return@LaunchedEffect
         }
+        renderThumbnail = makeThumb(first)
+        lastThumbMs = System.currentTimeMillis()
         // Output size: the chosen Scale percentage of the studio's native
         // resolution (smaller = quicker render, smaller file).
         val pct = exportPrefs.scale.coerceIn(25, 100) / 100f
         val ew = (first.width * pct).toInt().coerceAtLeast(2)
         val eh = (first.height * pct).toInt().coerceAtLeast(2)
 
+        // Offscreen renderer: re-hosts the element layer in a detached, manually
+        // clocked composition so frames don't wait on the display vsync. Sized to
+        // the native capture (frame 0, captured on-screen above, fixes the dims).
+        // Falls back to the on-screen capture path if it can't be created.
+        val offscreen: StudioOffscreenSession? =
+            if (offscreenSupported && offscreenActivity != null) {
+                runCatching {
+                    StudioOffscreenSession.create(
+                        activity = offscreenActivity,
+                        widthPx = first.width,
+                        heightPx = first.height,
+                        rotation = deviceRotation,
+                        themeColors = offscreenThemeColors,
+                    ) { i ->
+                        val pos = (replayStartMs + i.toLong() * stepMs).coerceAtMost(replayEndMs)
+                        val frameElements = if (opaqueExport) {
+                            fun bumpAlpha(c: Long): Long =
+                                if ((c ushr 24) and 0xFFL == 0L) c else c or 0xFF000000L
+                            preset.elements.map {
+                                it.copy(
+                                    opacity = 1f,
+                                    background = bumpAlpha(it.background),
+                                    foreground = bumpAlpha(it.foreground)
+                                )
+                            }
+                        } else preset.elements
+                        OverlayFrameSpec(
+                            elements = frameElements,
+                            data = StudioElementData(
+                                wheelData = trip.dataAt(pos),
+                                wheelName = displayWheelName,
+                                connected = connected,
+                                history = trip.samples
+                                    .filter { it.offsetMs <= pos }
+                                    .map { StudioSample(it.offsetMs, it.data) },
+                                cameraHub = hub,
+                                speedUnit = viewModel.speedUnit,
+                                distanceUnit = viewModel.distanceUnit,
+                                tempUnit = viewModel.tempUnit,
+                                clockTimeMs = trip.startEpochMs + pos,
+                                stopwatchMs = pos,
+                                liveGForceTrail = emptyList(),
+                                riderMarkerPhotoDataUrl = riderMarkerPhoto,
+                                radarConnected = false,
+                                radarBatteryPercent = -1,
+                                radarTargets = emptyList()
+                            )
+                        )
+                    }
+                }.getOrNull()
+            } else null
+        android.util.Log.i(
+            "OverlayStudio",
+            "Replay render path: ${if (offscreen != null) "offscreen" else "on-screen"} " +
+                "(${first.width}x${first.height}, $frameCount frames)"
+        )
+
+        // Frame source: offscreen if available, else advance the live layer and
+        // read it back (the original 2-vsync path). Frame 0 is the on-screen
+        // `first` either way, so a divergence shows up as a jump at frame 1.
+        suspend fun captureReplayFrame(i: Int): android.graphics.Bitmap? {
+            val bmp = offscreen?.let { s -> runCatching { s.frame(i) }.getOrNull() }
+                ?: run {
+                    replayPosMs = replayStartMs + i * stepMs
+                    repeat(2) { withFrameNanos {} }
+                    runCatching { graphicsLayer.toImageBitmap().asAndroidBitmap() }.getOrNull()
+                }
+            // Refresh the export preview at most every 5s.
+            if (bmp != null) {
+                val now = System.currentTimeMillis()
+                if (now - lastThumbMs >= 5000L) {
+                    lastThumbMs = now
+                    makeThumb(bmp)?.let { renderThumbnail = it }
+                }
+            }
+            return bmp
+        }
+
         var cancelled = false
         val ok: Boolean = try {
             when (videoFormat) {
+                // ReplayVideoFormat.MOV (ProRes 4444 / QuickTime RLE alpha via
+                // ffmpeg) removed: the alpha .mov output is handled inconsistently
+                // by editors, so the whole path is disabled. See StudioProResEncoder
+                // for the commented-out implementation to revive it.
                 ReplayVideoFormat.MP4 -> {
                     // MP4 has no alpha; every frame is composited onto the
                     // chroma colour before it is drawn into the encoder.
                     val mp4 = StudioVideoEncoder(context, withAudio = false)
                     var encoderUri: Uri? = null
                     try {
-                        if (!mp4.start(ew, eh)) {
+                        if (!mp4.start(ew, eh, targetDurationUs = targetDurationUs)) {
                             false
                         } else {
                             val canvasW = mp4.encodeWidth
@@ -655,10 +807,9 @@ fun OverlayStudioScreen(
                                     cancelled = true
                                     break
                                 }
-                                replayPosMs = replayStartMs + i * stepMs
-                                repeat(2) { withFrameNanos {} }
-                                val frame = graphicsLayer.toImageBitmap().asAndroidBitmap()
-                                encOk = withContext(Dispatchers.Default) { submit(frame) }
+                                val frame = captureReplayFrame(i)
+                                encOk = frame != null &&
+                                    withContext(Dispatchers.Default) { submit(frame) }
                                 renderProgress = (i + 1f) / frameCount
                                 i++
                             }
@@ -691,9 +842,9 @@ fun OverlayStudioScreen(
                         try {
                             // GIF (1-bit alpha) vs APNG (full RGBA alpha).
                             val gif = if (videoFormat == ReplayVideoFormat.GIF)
-                                StudioGifEncoder(stream, ew, eh, frameMs) else null
+                                StudioGifEncoder(stream, ew, eh, perFrameDelayMs) else null
                             val apng = if (videoFormat == ReplayVideoFormat.APNG)
-                                StudioApngEncoder(stream, ew, eh, frameMs, frameCount) else null
+                                StudioApngEncoder(stream, ew, eh, perFrameDelayMs, frameCount) else null
                             withContext(Dispatchers.IO) {
                                 gif?.addFrame(first)
                                 apng?.addFrame(first)
@@ -704,9 +855,7 @@ fun OverlayStudioScreen(
                                     cancelled = true
                                     break
                                 }
-                                replayPosMs = replayStartMs + i * stepMs
-                                repeat(2) { withFrameNanos {} }
-                                val frame = graphicsLayer.toImageBitmap().asAndroidBitmap()
+                                val frame = captureReplayFrame(i) ?: break
                                 withContext(Dispatchers.IO) {
                                     gif?.addFrame(frame)
                                     apng?.addFrame(frame)
@@ -736,6 +885,7 @@ fun OverlayStudioScreen(
             android.util.Log.e("OverlayStudio", "Replay clip render failed", e)
             false
         }
+        offscreen?.close()
         replayPosMs = savedPos
         rendering = false
         renderCancelRequested = false
@@ -979,6 +1129,7 @@ fun OverlayStudioScreen(
                 // Exit the studio, top-left corner (X since it is full-screen).
                 StudioRoundButton(
                     icon = Icons.Default.Close,
+                    contentDescription = stringResource(R.string.studio_cd_close),
                     background = MaterialTheme.appColors.surfaceVariant,
                     size = 48.dp,
                     iconRotation = iconRot,
@@ -989,6 +1140,7 @@ fun OverlayStudioScreen(
                 // Gallery: pinned to the bottom-left corner, like a camera app.
                 StudioRoundButton(
                     icon = Icons.Default.PhotoLibrary,
+                    contentDescription = stringResource(R.string.studio_cd_gallery),
                     background = MaterialTheme.appColors.surfaceVariant,
                     size = 48.dp,
                     iconRotation = iconRot,
@@ -1006,6 +1158,7 @@ fun OverlayStudioScreen(
                 ) {
                     StudioRoundButton(
                         icon = Icons.Default.PhotoCamera,
+                        contentDescription = stringResource(R.string.studio_cd_photo),
                         background = MaterialTheme.appColors.surfaceVariant,
                         size = 52.dp,
                         iconRotation = iconRot
@@ -1013,7 +1166,10 @@ fun OverlayStudioScreen(
                     RecordButton(
                         // In replay a render needs a trip; disable it until
                         // one is picked, instead of a no-op tap.
-                        enabled = !(replayMode && replayTrip == null)
+                        enabled = !(replayMode && replayTrip == null),
+                        contentDescription = stringResource(
+                            if (replayMode) R.string.studio_cd_render else R.string.studio_cd_record
+                        )
                     ) {
                         if (replayMode) {
                             // Replay renders an offline clip in the chosen
@@ -1032,6 +1188,7 @@ fun OverlayStudioScreen(
                     StudioRoundButton(
                         icon = if (micEnabled && !replayMode) Icons.Default.Mic
                         else Icons.Default.MicOff,
+                        contentDescription = stringResource(R.string.studio_cd_mic),
                         background = MaterialTheme.appColors.surfaceVariant,
                         size = 52.dp,
                         iconTint = when {
@@ -1060,6 +1217,7 @@ fun OverlayStudioScreen(
                 ) {
                     StudioRoundButton(
                         icon = Icons.Default.MoreHoriz,
+                        contentDescription = stringResource(R.string.studio_cd_tools),
                         background = MaterialTheme.appColors.surfaceVariant,
                         size = 48.dp,
                         iconRotation = iconRot,
@@ -1184,50 +1342,57 @@ fun OverlayStudioScreen(
           // No crossfade on the render overlay; fading its scrim mid-render
           // would blink the whole screen when the phone is rotated.
           RotatedFullScreen(deviceRotation, withFade = false) {
-            Box(
-                Modifier
-                    .fillMaxSize()
-                    .background(MaterialTheme.appColors.scrim.copy(alpha = 0.9f)),
-                contentAlignment = Alignment.Center
-            ) {
+            // Full-screen black export view (a deliberate always-dark surface, so
+            // fixed black/white here rather than theme tokens).
+            val pct = (renderProgress.coerceIn(0f, 1f) * 100).roundToInt()
+            Box(Modifier.fillMaxSize().background(Color.Black)) {
+                IconButton(
+                    onClick = { showCancelConfirm = true },
+                    modifier = Modifier
+                        .align(Alignment.TopStart)
+                        .safeDrawingPadding()
+                        .padding(8.dp)
+                ) {
+                    Icon(
+                        Icons.Default.Close,
+                        contentDescription = stringResource(R.string.studio_rendering_cancel),
+                        tint = Color.White
+                    )
+                }
+                Text(
+                    stringResource(R.string.studio_export_title),
+                    color = Color.White,
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier
+                        .align(Alignment.TopCenter)
+                        .safeDrawingPadding()
+                        .padding(top = 16.dp)
+                )
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
-                    modifier = Modifier.padding(36.dp)
+                    modifier = Modifier.align(Alignment.Center)
                 ) {
                     Text(
-                        stringResource(R.string.studio_rendering),
-                        color = MaterialTheme.appColors.textPrimary,
-                        fontSize = 22.sp,
+                        "$pct%",
+                        color = Color.White,
+                        fontSize = 34.sp,
                         fontWeight = FontWeight.Bold
                     )
-                    Spacer(Modifier.height(18.dp))
-                    val barWidth = 240.dp
-                    Box(
-                        Modifier
-                            .width(barWidth)
-                            .height(8.dp)
-                            .clip(RoundedCornerShape(4.dp))
-                            .background(MaterialTheme.appColors.gaugeTrack)
-                    ) {
-                        Box(
-                            Modifier
-                                .width(barWidth * renderProgress.coerceIn(0f, 1f))
-                                .height(8.dp)
-                                .clip(RoundedCornerShape(4.dp))
-                                .background(MaterialTheme.appColors.primary)
-                        )
-                    }
-                    Spacer(Modifier.height(22.dp))
+                    Spacer(Modifier.height(8.dp))
                     Text(
-                        stringResource(R.string.studio_rendering_keep_open),
-                        color = MaterialTheme.appColors.textPrimary.copy(alpha = 0.55f),
-                        textAlign = TextAlign.Center,
-                        modifier = Modifier.width(280.dp)
+                        stringResource(R.string.studio_export_status),
+                        color = Color.White,
+                        fontSize = 16.sp
                     )
-                    Spacer(Modifier.height(18.dp))
-                    TextButton(onClick = { showCancelConfirm = true }) {
-                        Text(stringResource(R.string.studio_rendering_cancel))
-                    }
+                    Spacer(Modifier.height(28.dp))
+                    ExportThumbnail(renderThumbnail, renderProgress.coerceIn(0f, 1f))
+                    Spacer(Modifier.height(24.dp))
+                    Text(
+                        stringResource(R.string.studio_export_stay),
+                        color = Color.White.copy(alpha = 0.6f),
+                        fontSize = 14.sp
+                    )
                 }
             }
           }
@@ -1636,6 +1801,7 @@ private fun StudioRoundButton(
     icon: androidx.compose.ui.graphics.vector.ImageVector,
     background: Color,
     modifier: Modifier = Modifier,
+    contentDescription: String? = null,
     size: androidx.compose.ui.unit.Dp = 48.dp,
     iconTint: Color = MaterialTheme.appColors.textPrimary,
     iconRotation: Float = 0f,
@@ -1659,7 +1825,7 @@ private fun StudioRoundButton(
     ) {
         Icon(
             icon,
-            contentDescription = null,
+            contentDescription = contentDescription,
             tint = iconTint,
             modifier = Modifier.size(size * 0.45f).rotate(iconRotation)
         )
@@ -1667,7 +1833,11 @@ private fun StudioRoundButton(
 }
 
 @Composable
-private fun RecordButton(enabled: Boolean = true, onClick: () -> Unit) {
+private fun RecordButton(
+    enabled: Boolean = true,
+    contentDescription: String,
+    onClick: () -> Unit
+) {
     val currentOnClick by rememberUpdatedState(onClick)
     Box(
         Modifier
@@ -1675,6 +1845,9 @@ private fun RecordButton(enabled: Boolean = true, onClick: () -> Unit) {
             .clip(CircleShape)
             .background(Color(0x55FFFFFF))
             .border(3.dp, if (enabled) Color.White else Color(0x55FFFFFF), CircleShape)
+            // Screen-reader label (also makes the control findable for UI tests);
+            // the inner circle is purely decorative.
+            .semantics { this.contentDescription = contentDescription }
             .then(
                 if (enabled) Modifier.pointerInput(Unit) {
                     detectTapGestures(onTap = { currentOnClick() })
@@ -1729,6 +1902,58 @@ private fun RecordingPill(
             tint = Color.White,
             modifier = Modifier.size(20.dp)
         )
+    }
+}
+
+/**
+ * Export-progress preview: the latest rendered frame with a left-to-right reveal.
+ * The finished portion (`progress`) shows bright; the rest is veiled, so the
+ * thumbnail itself doubles as a progress bar. A null frame just shows the veil.
+ */
+@Composable
+private fun ExportThumbnail(bmp: android.graphics.Bitmap?, progress: Float) {
+    // Fixed height reserves the layout slot so nothing jumps when the thumbnail
+    // first appears. Nothing is drawn until a real frame exists (no empty box,
+    // no resize), and frames swap via crossfade so it never flashes to black.
+    Box(Modifier.height(280.dp), contentAlignment = Alignment.Center) {
+        Crossfade(targetState = bmp, animationSpec = tween(180), label = "exportThumb") { frame ->
+            if (frame != null) {
+                Box(
+                    Modifier
+                        .height(280.dp)
+                        .aspectRatio(frame.width.toFloat() / frame.height.coerceAtLeast(1))
+                        .clip(RoundedCornerShape(14.dp))
+                        // Photoshop-style checkerboard behind the frame so alpha
+                        // exports (PNG/WEBP/GIF/APNG) show their transparency.
+                        // Opaque frames cover it completely, so it costs nothing
+                        // for MP4/JPG.
+                        .drawBehind { replayCheckerboard() }
+                        .border(2.dp, Color.White, RoundedCornerShape(14.dp))
+                ) {
+                    Image(
+                        bitmap = frame.asImageBitmap(),
+                        contentDescription = null,
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier.fillMaxSize()
+                    )
+                    Box(
+                        Modifier
+                            .fillMaxSize()
+                            .drawWithContent {
+                                drawContent()
+                                val revealX = size.width * progress
+                                if (revealX < size.width) {
+                                    drawRect(
+                                        color = Color.Black.copy(alpha = 0.5f),
+                                        topLeft = Offset(revealX, 0f),
+                                        size = Size(size.width - revealX, size.height)
+                                    )
+                                }
+                            }
+                    )
+                }
+            }
+        }
     }
 }
 

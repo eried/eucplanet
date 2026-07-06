@@ -71,6 +71,11 @@ fun NavigatorSettingsContent(
     fun distLabel(meters: Int): String =
         if (settings.imperialUnits) "${(meters * 3.28084).roundToInt()} ft"
         else "$meters m"
+    // Typed text back to stored metres (ft -> m for imperial), snapped to 5 m.
+    fun distParse(s: String): Int? = s.toIntOrNull()?.let { typed ->
+        val meters = if (settings.imperialUnits) typed / 3.28084 else typed.toDouble()
+        (meters / 5.0).roundToInt() * 5
+    }
 
     Column(
         modifier = Modifier.fillMaxWidth(),
@@ -94,27 +99,38 @@ fun NavigatorSettingsContent(
         }
         HintText(stringResource(R.string.nav_setting_full_path_desc), small = true)
 
-        // --- Arrival radius ---
-        SliderRow(
-            label = stringResource(R.string.nav_setting_arrival_radius),
-            valueText = distLabel(settings.navArrivalRadiusM),
-            value = settings.navArrivalRadiusM.toFloat(),
-            range = 5f..100f,
-            steps = 18,
-            onChange = { viewModel.updateNavArrivalRadius((it / 5f).roundToInt() * 5) }
+        // --- Arrival radius + off-route tolerance (half-and-half on one row) ---
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            NumberUpDown(
+                value = settings.navArrivalRadiusM,
+                onValueChange = { viewModel.updateNavArrivalRadius(it) },
+                range = 5..100,
+                step = 5,
+                label = stringResource(R.string.nav_setting_arrival_radius),
+                modifier = Modifier.weight(1f),
+                format = { distLabel(it) },
+                parse = { distParse(it) },
+            )
+            NumberUpDown(
+                value = settings.navOffRouteToleranceM,
+                onValueChange = { viewModel.updateNavOffRouteTolerance(it) },
+                range = 15..150,
+                step = 5,
+                label = stringResource(R.string.nav_setting_offroute),
+                modifier = Modifier.weight(1f),
+                format = { distLabel(it) },
+                parse = { distParse(it) },
+            )
+        }
+        // Both field hints combined on one line.
+        HintText(
+            stringResource(R.string.nav_setting_arrival_radius_desc) + "  •  " +
+                stringResource(R.string.nav_setting_offroute_desc),
+            small = true
         )
-        HintText(stringResource(R.string.nav_setting_arrival_radius_desc), small = true)
-
-        // --- Off-route tolerance ---
-        SliderRow(
-            label = stringResource(R.string.nav_setting_offroute),
-            valueText = distLabel(settings.navOffRouteToleranceM),
-            value = settings.navOffRouteToleranceM.toFloat(),
-            range = 15f..150f,
-            steps = 26,
-            onChange = { viewModel.updateNavOffRouteTolerance((it / 5f).roundToInt() * 5) }
-        )
-        HintText(stringResource(R.string.nav_setting_offroute_desc), small = true)
 
         // --- Advanced map features (on-map charger / places overlays + their
         // source endpoints). The basic routing URLs further down are never

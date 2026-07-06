@@ -6,9 +6,11 @@ import android.net.Uri
 import android.util.Log
 import androidx.documentfile.provider.DocumentFile
 import androidx.work.Constraints
+import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.ExistingWorkPolicy
 import androidx.work.NetworkType
 import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.workDataOf
 import java.util.concurrent.TimeUnit
@@ -25,6 +27,8 @@ import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -32,11 +36,10 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+import com.eried.eucplanet.util.TripCsv
 import org.json.JSONArray
 import org.json.JSONObject
 import java.io.File
-import java.text.SimpleDateFormat
-import java.util.Locale
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -69,6 +72,7 @@ class SyncManager @Inject constructor(
         const val RIDER_BACKUP_NAME = "eucstats_riderid.txt"
         const val TRIPS_SUBFOLDER = "trips"
         const val UPLOAD_WORK_NAME = "trip_upload"
+        const val PERIODIC_UPLOAD_WORK_NAME = "trip_upload_periodic"
         const val EUCSTATS_UPLOAD_WORK_NAME = "eucstats_upload"
         const val DROPBOX_SYNC_WORK_NAME = "dropbox_sync"
         const val KEY_ATTEMPT = "attempt"
@@ -128,8 +132,35 @@ class SyncManager @Inject constructor(
         }
     }
 
+    /**
+     * Start watching the pending-upload interval and (re)registering the periodic
+     * safety-net worker. Called from EucPlanetApp.onCreate -- NOT from init{} --
+     * because it touches WorkManager.getInstance, which pulls the app's
+     * workerFactory; during Hilt field injection (when init{} runs) that lateinit
+     * may not be set yet, which crashed cold starts. onCreate runs after all
+     * fields are injected, so it is safe there.
+     */
+    fun startPendingUploadWatcher() {
+        scope.launch {
+            settingsRepository.settings
+                .map { it.pendingUploadIntervalMin }
+                .distinctUntilChanged()
+                .collect { schedulePeriodicTripUpload(it) }
+        }
+    }
+
     private val _syncRunning = MutableStateFlow(false)
     val syncRunning: StateFlow<Boolean> = _syncRunning.asStateFlow()
+
+    /** True while a running sync is winding down after the rider tapped Cancel:
+     *  the current file finishes, then the loop stops. Drives the "Stopping..."
+     *  label and disables the Cancel button so it can't be tapped twice. */
+    private val _syncCancelling = MutableStateFlow(false)
+    val syncCancelling: StateFlow<Boolean> = _syncCancelling.asStateFlow()
+
+    /** The in-flight foreground sync (folder or Dropbox). Retained so Cancel can
+     *  reach it; both share _syncRunning, so at most one runs at a time. */
+    private var activeSyncJob: kotlinx.coroutines.Job? = null
 
     private val _syncProgress = MutableStateFlow<Pair<Int, Int>?>(null)
     val syncProgress: StateFlow<Pair<Int, Int>?> = _syncProgress.asStateFlow()
@@ -158,10 +189,24 @@ class SyncManager @Inject constructor(
     fun resolveSyncConflict(choice: SyncChoice) { conflictChoice?.complete(choice) }
     fun cancelSyncConflict() { conflictChoice?.complete(SyncChoice.CANCEL) }
 
+    /**
+     * Cancel the in-flight foreground sync (folder or Dropbox). Cooperative:
+     * the current file finishes so no half-written upload is left behind, then
+     * the loop stops at its next ensureActive() check and the launch's finally
+     * resets state. Also releases a sync parked on the conflict dialog. Trips
+     * not yet processed simply stay pending and re-sync next time. No-op if idle.
+     */
+    fun cancelActiveSync() {
+        if (!_syncRunning.value) return
+        _syncCancelling.value = true
+        conflictChoice?.complete(SyncChoice.CANCEL)
+        activeSyncJob?.cancel()
+    }
+
     fun startSync() {
         if (!_syncRunning.compareAndSet(false, true)) return
         _activeSyncKind.value = SyncConflictKind.FOLDER
-        scope.launch {
+        activeSyncJob = scope.launch {
             try {
                 runSync()
             } finally {
@@ -169,6 +214,7 @@ class SyncManager @Inject constructor(
                 _syncConflictPrompt.value = null
                 conflictChoice = null
                 _activeSyncKind.value = null
+                _syncCancelling.value = false
                 _syncRunning.value = false
             }
         }
@@ -226,6 +272,7 @@ class SyncManager @Inject constructor(
         _syncProgress.value = done to total
 
         for (trip in toUpload) {
+            currentCoroutineContext().ensureActive() // stop cleanly if cancelled
             val file = File(getTripsDir(), trip.fileName)
             if (file.exists()) {
                 val ok = uploadCsv(settings, file)
@@ -243,6 +290,7 @@ class SyncManager @Inject constructor(
         }
 
         for (fileName in toDownload) {
+            currentCoroutineContext().ensureActive() // stop cleanly if cancelled
             val destFile = File(getTripsDir(), fileName)
             if (downloadCsv(settings, fileName, destFile)) {
                 val meta = parseCsvMeta(destFile)
@@ -295,39 +343,29 @@ class SyncManager @Inject constructor(
             file.bufferedReader().use { reader ->
                 val headerLine = reader.readLine() ?: return CsvMeta(startTime, endTime, 0f)
                 val header = headerLine.lowercase().split(",").map { it.trim() }
+                val dateIdx = header.indexOfFirst { it == "date" }.takeIf { it >= 0 } ?: 0
                 val latIdx = header.indexOfFirst { it == "latitude" }.takeIf { it >= 0 } ?: 6
                 val lonIdx = header.indexOfFirst { it == "longitude" }.takeIf { it >= 0 } ?: 7
                 val mileageIdx = header.indexOfFirst { it.contains("mileage") }
                     .takeIf { it >= 0 } ?: 8
-                val darkness = SimpleDateFormat("dd.MM.yyyy HH:mm:ss", Locale.US)
-                val iso = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.US)
                 var first = true
+                // Stay streaming (one big CSV never fully resident), but share
+                // the timestamp + great-circle logic with the import/detail
+                // paths via TripCsv so every surface agrees on duration/distance.
                 reader.forEachLine { raw ->
                     val line = raw.trim()
                     if (line.isEmpty()) return@forEachLine
                     val parts = line.split(",")
                     if (parts.size < 2) return@forEachLine
-                    val dateStr = parts[0].trim()
-                    val trimmed = if (dateStr.contains("T")) {
-                        val t = dateStr.substringAfter("T")
-                        dateStr.substringBefore("T") + "T" +
-                                if (t.contains(".")) t.substringBefore(".") else t
-                    } else {
-                        if (dateStr.count { it == '.' } > 2) dateStr.substringBeforeLast(".")
-                        else dateStr
-                    }
-                    val parsed = try {
-                        if (dateStr.contains("T")) iso.parse(trimmed) else darkness.parse(trimmed)
-                    } catch (_: Exception) { null }
-                    if (parsed != null) {
-                        if (first) { startTime = parsed.time; first = false }
-                        endTime = parsed.time
+                    TripCsv.parseDate(parts.getOrNull(dateIdx)?.trim())?.let { t ->
+                        if (first) { startTime = t; first = false }
+                        endTime = t
                     }
                     val lat = parts.getOrNull(latIdx)?.toDoubleOrNull()
                     val lon = parts.getOrNull(lonIdx)?.toDoubleOrNull()
                     if (lat != null && lon != null && lat != 0.0 && lon != 0.0) {
                         if (!lastLat.isNaN() && !lastLon.isNaN()) {
-                            val d = haversineMeters(lastLat, lastLon, lat, lon)
+                            val d = TripCsv.haversineMeters(lastLat, lastLon, lat, lon)
                             if (d in 0.5..200.0) gpsDistanceKm += d / 1000.0
                         }
                         lastLat = lat
@@ -347,16 +385,6 @@ class SyncManager @Inject constructor(
             else -> 0f
         }
         return CsvMeta(startTime, endTime, distance)
-    }
-
-    private fun haversineMeters(lat1: Double, lon1: Double, lat2: Double, lon2: Double): Double {
-        val r = 6_371_000.0
-        val dLat = Math.toRadians(lat2 - lat1)
-        val dLon = Math.toRadians(lon2 - lon1)
-        val a = Math.sin(dLat / 2).let { it * it } +
-                Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2)) *
-                Math.sin(dLon / 2).let { it * it }
-        return r * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
     }
 
     /**
@@ -733,6 +761,34 @@ class SyncManager @Inject constructor(
         )
     }
 
+    /**
+     * Reconcile trips left pending, e.g. by an app that was closed mid-sync.
+     * Called on cold app start: the worker no-ops when there is no sync folder
+     * or nothing pending, so this is cheap to fire every launch and is what
+     * catches an upload the rider "closed too early" -- next open, it lands.
+     */
+    fun reconcilePendingTripUploads() = scheduleTripUploadAttempt(attempt = 0)
+
+    /**
+     * Background safety-net: a periodic worker that retries pending trip uploads
+     * every [intervalMin] minutes (Android's floor is 15). Unlike the one-time
+     * retry chain, WorkManager reschedules periodic work across app death and
+     * reboots, so a stranded upload lands even if the rider never reopens the
+     * app. The worker itself no-ops when nothing is pending (the rider's "if
+     * there is nothing to sync, sleep"). Re-registered with UPDATE whenever the
+     * interval setting changes.
+     */
+    fun schedulePeriodicTripUpload(intervalMin: Int) {
+        val request = PeriodicWorkRequestBuilder<TripUploadWorker>(
+            intervalMin.coerceAtLeast(15).toLong(), TimeUnit.MINUTES
+        ).build()
+        WorkManager.getInstance(context).enqueueUniquePeriodicWork(
+            PERIODIC_UPLOAD_WORK_NAME,
+            ExistingPeriodicWorkPolicy.UPDATE,
+            request
+        )
+    }
+
     /** Cancel any queued / in-backoff folder-upload work. Used when the rider
      *  unlinks the sync folder so a long-tail retry doesn't sit waiting for a
      *  destination that no longer exists. */
@@ -767,7 +823,7 @@ class SyncManager @Inject constructor(
     fun startDropboxSync() {
         if (!_syncRunning.compareAndSet(false, true)) return
         _activeSyncKind.value = SyncConflictKind.DROPBOX
-        scope.launch {
+        activeSyncJob = scope.launch {
             try {
                 runDropboxSync()
             } finally {
@@ -775,6 +831,7 @@ class SyncManager @Inject constructor(
                 _syncConflictPrompt.value = null
                 conflictChoice = null
                 _activeSyncKind.value = null
+                _syncCancelling.value = false
                 _syncRunning.value = false
             }
         }
@@ -831,12 +888,14 @@ class SyncManager @Inject constructor(
         _syncProgress.value = done to total
 
         for (file in toUpload) {
+            currentCoroutineContext().ensureActive() // stop cleanly if cancelled
             dropboxRepository.uploadFile("/trips/${file.name}", file.readBytes())
             done++
             _syncProgress.value = done to total
         }
 
         for (name in toDownload) {
+            currentCoroutineContext().ensureActive() // stop cleanly if cancelled
             val bytes = dropboxRepository.downloadFile("/trips/$name")
             if (bytes != null) {
                 val dest = File(tripsDir, name)
@@ -1027,6 +1086,12 @@ class SyncManager @Inject constructor(
                 put("beepFrequency", r.beepFrequency)
                 put("beepDurationMs", r.beepDurationMs)
                 put("beepCount", r.beepCount)
+                put("beepModulation", r.beepModulation)
+                put("beepGapMs", r.beepGapMs)
+                put("beepVolume", r.beepVolume)
+                put("beepVolumeModulation", r.beepVolumeModulation)
+                put("beepModulationReachPct", r.beepModulationReachPct)
+                put("beepVolumeReachPct", r.beepVolumeReachPct)
                 put("voiceEnabled", r.voiceEnabled)
                 put("voiceText", r.voiceText)
                 put("vibrateEnabled", r.vibrateEnabled)
@@ -1034,6 +1099,7 @@ class SyncManager @Inject constructor(
                 put("vibrateTarget", r.vibrateTarget)
                 put("cooldownSeconds", r.cooldownSeconds)
                 put("repeatWhileActive", r.repeatWhileActive)
+                put("leadTimeMs", r.leadTimeMs)
             })
         }
     }
@@ -1055,13 +1121,20 @@ class SyncManager @Inject constructor(
                 beepFrequency = o.optInt("beepFrequency", default.beepFrequency),
                 beepDurationMs = o.optInt("beepDurationMs", default.beepDurationMs),
                 beepCount = o.optInt("beepCount", default.beepCount),
+                beepModulation = o.optInt("beepModulation", default.beepModulation),
+                beepGapMs = o.optInt("beepGapMs", default.beepGapMs),
+                beepVolume = o.optInt("beepVolume", default.beepVolume),
+                beepVolumeModulation = o.optInt("beepVolumeModulation", default.beepVolumeModulation),
+                beepModulationReachPct = o.optInt("beepModulationReachPct", default.beepModulationReachPct),
+                beepVolumeReachPct = o.optInt("beepVolumeReachPct", default.beepVolumeReachPct),
                 voiceEnabled = o.optBoolean("voiceEnabled", default.voiceEnabled),
                 voiceText = o.optString("voiceText", default.voiceText),
                 vibrateEnabled = o.optBoolean("vibrateEnabled", default.vibrateEnabled),
                 vibrateDurationMs = o.optInt("vibrateDurationMs", default.vibrateDurationMs),
                 vibrateTarget = o.optString("vibrateTarget", default.vibrateTarget),
                 cooldownSeconds = o.optInt("cooldownSeconds", default.cooldownSeconds),
-                repeatWhileActive = o.optBoolean("repeatWhileActive", default.repeatWhileActive)
+                repeatWhileActive = o.optBoolean("repeatWhileActive", default.repeatWhileActive),
+                leadTimeMs = o.optInt("leadTimeMs", default.leadTimeMs)
             )
         }
         return out

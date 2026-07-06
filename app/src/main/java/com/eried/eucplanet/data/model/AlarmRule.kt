@@ -18,9 +18,36 @@ data class AlarmRule(
 
     // Beep action
     val beepEnabled: Boolean = false,
-    val beepFrequency: Int = 1000,   // Hz: 400-3000
+    val beepFrequency: Int = 1000,   // Hz: 400-3000 (the pitch AT the threshold)
     val beepDurationMs: Int = 300,   // per beep
     val beepCount: Int = 1,          // 1=single, 2=double, 3=triple
+    /**
+     * Pitch modulation FACTOR, stored x100 (100 = 1.0x = unchanged, the default).
+     * The pitch ramps toward [beepFrequency] * factor as the value pushes past the
+     * threshold. Above 1.0x ramps the pitch up; below 1.0x (down to 0.1x) reduces
+     * it. See [com.eried.eucplanet.service.AlarmLogic.modulatedBeepHz].
+     */
+    val beepModulation: Int = 100,
+    /**
+     * Silence in ms between repeated beeps AND between the beep and the voice.
+     * 0 = back-to-back (lets a Many + cooldown-0 alarm sound near-continuous).
+     */
+    val beepGapMs: Int = 100,
+    /**
+     * Base beep loudness as a percent of the phone's system media volume (the
+     * hard ceiling). 100 = as loud as the app plays it today; lower = quieter.
+     */
+    val beepVolume: Int = 100,
+    /**
+     * Volume modulation FACTOR, stored x100 (100 = 1.0x = constant, the default).
+     * The volume ramps toward [beepVolume] * factor as the value pushes past the
+     * threshold. Above 1.0x ramps it louder (capped at 100); below 1.0x reduces it.
+     */
+    val beepVolumeModulation: Int = 100,
+    /** Legacy (unused since modulation became a base*factor multiplier). */
+    val beepModulationReachPct: Int = 50,
+    /** Legacy (unused since modulation became a base*factor multiplier). */
+    val beepVolumeReachPct: Int = 50,
 
     // Voice action
     val voiceEnabled: Boolean = false,
@@ -41,7 +68,25 @@ data class AlarmRule(
 
     // Timing
     val cooldownSeconds: Int = 5,
-    val repeatWhileActive: Boolean = false
+    /**
+     * "Many" (true, the default) re-alerts every [cooldownSeconds] for as long
+     * as the value stays past the threshold; "Once" (false) alerts a single
+     * time per crossing. Default is Many so a sustained danger (held overspeed,
+     * high PWM) keeps reminding the rider rather than beeping once and going
+     * quiet. Only affects newly created rules; existing rules keep their saved
+     * value. See [com.eried.eucplanet.service.AlarmLogic.shouldFire].
+     */
+    val repeatWhileActive: Boolean = true,
+
+    /**
+     * Predictive lead time in milliseconds. 0 (default) = fire the instant the
+     * threshold is crossed, exactly as before. When > 0, the engine also fires
+     * early if the recent trend projects the value across the threshold within
+     * this window (e.g. 1000 = "warn me ~1 s before PWM is about to hit 95%").
+     * Only triggers while moving toward the threshold; a flat or retreating
+     * value never fires predictively. See [com.eried.eucplanet.service.AlarmEngine].
+     */
+    val leadTimeMs: Int = 0
 )
 
 enum class AlarmMetric(

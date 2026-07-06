@@ -510,6 +510,7 @@ fun LeftAlignedScanButton(
     onClick: () -> Unit,
     containerColor: androidx.compose.ui.graphics.Color? = null,
     leadingIcon: androidx.compose.ui.graphics.vector.ImageVector? = null,
+    enabled: Boolean = true,
     modifier: Modifier = Modifier
 ) {
     val colors = if (containerColor != null)
@@ -521,6 +522,7 @@ fun LeftAlignedScanButton(
     ) {
         Button(
             onClick = onClick,
+            enabled = enabled,
             modifier = Modifier.weight(1f),
             colors = colors
         ) {

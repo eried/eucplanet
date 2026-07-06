@@ -4,9 +4,12 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import android.location.Location
 import com.eried.eucplanet.ble.ConnectionState
+import com.eried.eucplanet.data.model.AdvancedSettings
+import com.eried.eucplanet.data.model.AdvancedSpec
 import com.eried.eucplanet.data.model.AppSettings
 import com.eried.eucplanet.data.model.CustomBleCommand
 import com.eried.eucplanet.data.model.PairedSurface
+import com.eried.eucplanet.data.model.SettingsLayout
 import com.eried.eucplanet.data.repository.SettingsRepository
 import com.eried.eucplanet.data.repository.TripRepository
 import com.eried.eucplanet.data.repository.WheelRepository
@@ -19,6 +22,7 @@ import com.eried.eucplanet.data.sync.SyncChoice
 import com.eried.eucplanet.data.sync.SyncManager
 import com.eried.eucplanet.data.sync.SyncResult
 import com.eried.eucplanet.service.AutomationManager
+import com.eried.eucplanet.service.VoiceChoice
 import com.eried.eucplanet.service.VoiceOption
 import com.eried.eucplanet.service.VoiceService
 import android.net.Uri
@@ -30,6 +34,8 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -250,6 +256,7 @@ class SettingsViewModel @Inject constructor(
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), true)
 
     val availableVoices: StateFlow<List<VoiceOption>> = voiceService.availableVoices
+    val availableVoiceChoices: StateFlow<List<VoiceChoice>> = voiceService.availableVoiceChoices
 
     val currentLocation: StateFlow<Location?> = tripRepository.currentLocation
 
@@ -296,7 +303,10 @@ class SettingsViewModel @Inject constructor(
     fun updateVoiceEnabled(enabled: Boolean) = update { copy(voiceEnabled = enabled) }
     fun updateVoiceAnnounceWhen(value: String) = update { copy(voiceAnnounceWhen = value) }
     fun updateVoiceInterval(seconds: Int) = update { copy(voiceIntervalSeconds = seconds) }
-    fun updateVoiceSpeechRate(v: Float) = update { copy(voiceSpeechRate = v) }
+    fun updateVoiceSpeechRate(v: Float, previewText: String? = null) {
+        update { copy(voiceSpeechRate = v) }
+        previewText?.let { previewVoiceChange(it) }
+    }
     fun updateVoiceReportSpeed(v: Boolean) = update { copy(voiceReportSpeed = v) }
     fun updateVoiceReportBattery(v: Boolean) = update { copy(voiceReportBattery = v) }
     fun updateVoiceReportTemp(v: Boolean) = update { copy(voiceReportTemp = v) }
@@ -311,15 +321,42 @@ class SettingsViewModel @Inject constructor(
     fun updateTriggerReportDistance(v: Boolean) = update { copy(triggerReportDistance = v) }
     fun updateTriggerReportTime(v: Boolean) = update { copy(triggerReportTime = v) }
     fun updateTriggerReportNavigation(v: Boolean) = update { copy(triggerReportNavigation = v) }
-    fun updateVoiceLocale(tag: String) {
+    fun updateVoiceLocale(tag: String, previewText: String? = null) {
         // Explicit voice pick sets the override flag so a later UI-language
         // change re-prompts ("switch voice too?") instead of silently
-        // clobbering the rider's chosen voice.
-        update { copy(voiceLocale = tag, voiceLocaleOverridden = true) }
+        // clobbering the rider's chosen voice. Reset the specific-voice pick:
+        // a Voice.name from the old language won't exist under the new one.
+        update { copy(voiceLocale = tag, voiceLocaleOverridden = true, voiceName = "") }
         voiceService.setVoiceLocale(tag)
+        voiceService.setVoiceName("")
+        previewText?.let { previewVoiceChange(it) }
+    }
+
+    /** Pick a specific voice within the current language (empty = engine default). */
+    fun updateVoiceName(name: String, previewText: String? = null) {
+        update { copy(voiceName = name) }
+        voiceService.setVoiceName(name)
+        previewText?.let { previewVoiceChange(it) }
     }
     fun updateVoiceAudioFocus(v: String) = update { copy(voiceAudioFocus = v) }
     fun updateVoiceOutputChannel(v: String) = update { copy(voiceOutputChannel = v) }
+
+    private var voicePreviewJob: Job? = null
+
+    /**
+     * Speak the welcome line so the rider immediately hears a just-changed
+     * voice setting (speech speed or language). Debounced so holding the speed
+     * stepper does not stack a dozen previews; the last change wins after a
+     * short pause and plays at the values actually saved (new speed, new voice).
+     */
+    private fun previewVoiceChange(welcomeText: String) {
+        voicePreviewJob?.cancel()
+        voicePreviewJob = viewModelScope.launch {
+            delay(450)
+            val s = settingsRepository.get()
+            voiceService.testSpeak(welcomeText, s.voiceSpeechRate, s.voiceLocale, s.voiceName)
+        }
+    }
 
     // Motor sound
     fun updateEngineSoundEnabled(v: Boolean) = update { copy(engineSoundEnabled = v) }
@@ -390,6 +427,17 @@ class SettingsViewModel @Inject constructor(
     fun updateChargingAutoOpen(v: Boolean) = update { copy(chargingAutoOpen = v) }
     fun updateChargingDashboardIcon(v: Boolean) = update { copy(chargingDashboardIcon = v) }
     fun updateBackButtonAction(value: String) = update { copy(backButtonAction = value) }
+    fun updateRotateDashboard(v: Boolean) = update { copy(rotateDashboard = v) }
+    fun updateRotateNavigator(v: Boolean) = update { copy(rotateNavigator = v) }
+    fun updateRotateOtherScreens(v: Boolean) = update { copy(rotateOtherScreens = v) }
+    fun updateCompactModeWhen(v: String) = update { copy(compactModeWhen = v) }
+    fun updateCoverCameraCutout(v: String) = update { copy(coverCameraCutout = v) }
+    fun updateCompactSpeedoStyle(v: String) = update { copy(compactSpeedoStyle = v) }
+    fun updateLandscapeSpeedoStyle(v: String) = update { copy(landscapeSpeedoStyle = v) }
+    fun updateLandscapeMirrored(v: Boolean) = update { copy(landscapeMirrored = v) }
+    fun updateBlockUpsideDown(v: Boolean) = update { copy(blockUpsideDown = v) }
+    fun updateIgnoreSystemRotateLock(v: Boolean) = update { copy(ignoreSystemRotateLock = v) }
+    fun updateNavStopsSide(v: String) = update { copy(navStopsSide = v) }
     fun updateSpeedCalibrationOffsetPct(v: Float) = update {
         // Round to 0.1 % granularity so the value reads cleanly across UI,
         // backup JSON, and per-wheel profile storage.
@@ -424,7 +472,7 @@ class SettingsViewModel @Inject constructor(
     fun testSpeak(text: String) {
         viewModelScope.launch {
             val s = settingsRepository.get()
-            voiceService.testSpeak(text, s.voiceSpeechRate, s.voiceLocale)
+            voiceService.testSpeak(text, s.voiceSpeechRate, s.voiceLocale, s.voiceName)
         }
     }
 
@@ -487,6 +535,19 @@ class SettingsViewModel @Inject constructor(
     fun updateWatchScreen2Hold(action: String) = update { copy(watchScreen2Hold = action) }
     fun updateWatchHapticOnAction(v: Boolean) = update { copy(watchHapticOnAction = v) }
     fun updateWatchUpdateRate(v: String) = update { copy(watchUpdateRate = v) }
+    /** Single generic setter for every Advanced knob, driven by its [AdvancedSpec].
+     *  Clamps to the spec's range (so a stepper / restore can't escape it). */
+    fun updateAdvanced(spec: AdvancedSpec, v: Int) =
+        update { copy(advanced = spec.set(advanced, v.coerceIn(spec.range))) }
+
+    /** Reset the whole Advanced section to defaults (AdvancedSettings() is them). */
+    fun resetAdvancedDefaults() = update { copy(advanced = AdvancedSettings()) }
+
+    /** Commit a reorganized layout (order + hidden) from the Settings visibility
+     *  dialog in one write. Edits are staged in the dialog and only land here on
+     *  Save, so the Settings screen does not shuffle while the rider toggles. */
+    fun applySettingsLayout(layout: SettingsLayout) =
+        update { copy(settingsLayout = layout) }
     fun updateWheelNameDisplay(v: String) = update { copy(wheelNameDisplay = v) }
     fun updateWatchShowNavigation(v: Boolean) = update { copy(watchShowNavigation = v) }
 
@@ -926,6 +987,7 @@ class SettingsViewModel @Inject constructor(
         syncManager.syncConflictKind
     val activeSyncKind: StateFlow<com.eried.eucplanet.data.sync.SyncConflictKind?> =
         syncManager.activeSyncKind
+    val syncCancelling: StateFlow<Boolean> = syncManager.syncCancelling
 
     init {
         viewModelScope.launch {
@@ -943,6 +1005,7 @@ class SettingsViewModel @Inject constructor(
     fun syncAllTrips() = syncManager.startSync()
     fun resolveSyncConflict(choice: SyncChoice) = syncManager.resolveSyncConflict(choice)
     fun cancelSyncConflict() = syncManager.cancelSyncConflict()
+    fun cancelActiveSync() = syncManager.cancelActiveSync()
 
     fun moveReportItem(fromIndex: Int, toIndex: Int) {
         viewModelScope.launch {

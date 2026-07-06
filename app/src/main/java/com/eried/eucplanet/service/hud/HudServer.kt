@@ -20,6 +20,7 @@ import com.eried.eucplanet.hud.protocol.HudDebug
 import com.eried.eucplanet.hud.protocol.HudDiscovery
 import com.eried.eucplanet.hud.protocol.HudState
 import com.eried.eucplanet.hud.protocol.RadarTargetWire
+import com.eried.eucplanet.hud.protocol.WifiInterferenceDetector
 import com.eried.eucplanet.nav.NavigationEngine
 import com.eried.eucplanet.ui.theme.AccentOptions
 import com.eried.eucplanet.ui.theme.AccentTeal
@@ -87,14 +88,21 @@ class HudServer @Inject constructor(
 
     companion object {
         private const val TAG = "HudServer"
-        // 5 Hz: same rate WearBridge uses. Smooth speed needle without
-        // saturating the hotspot.
-        private const val PUBLISH_INTERVAL_MS = 200L
         // Reconnect backoff: 1s, 2s, 4s, capped at 5s. Below the cap the
         // rider gets a fresh try every time they walk back into range;
         // above it the HUD feels stuck.
         private const val BACKOFF_MIN_MS = 1_000L
         private const val BACKOFF_MAX_MS = 5_000L
+        // Adaptive HUD ping window. Foreground: keep the snappy 5s so a dead HUD is
+        // caught in ~5s and the dial loop rediscovers fast. Background (only the
+        // ride foreground service up): Samsung / Android background throttling
+        // defers the app's socket I/O, so a 5s pong window is easily missed and
+        // OkHttp tears down a reconnect before it stabilises (the "0 successful
+        // ping/pongs, killed in 5s, rediscover, repeat" loop seen on a Galaxy Z
+        // Flip on Android 16). A lenient 15s window lets a briefly-throttled
+        // background reconnect survive long enough to pair.
+        private const val PING_FOREGROUND_MS = 5_000L
+        private const val PING_BACKGROUND_MS = 15_000L
         // mDNS resolve timeout. Generous so a flaky multicast path on the
         // hotspot gets a fair chance, but bounded so the rider sees the
         // "no IP / not autodetected" state within a reasonable wait.
@@ -136,18 +144,28 @@ class HudServer @Inject constructor(
 
     private val lifecycleLock = Mutex()
 
+    // No fixed pingInterval here: it is chosen per-connection in
+    // [streamUntilClosed] from the app's foreground/background state (see
+    // PING_FOREGROUND_MS / PING_BACKGROUND_MS). newBuilder() reuses this
+    // client's connection pool + dispatcher, so a per-dial ping override is cheap.
     private val http: OkHttpClient = OkHttpClient.Builder()
-        // 5s, not 15s: a frozen/half-open HUD keeps the TCP socket open, so
-        // outbound frame sends succeed into the OS buffer and never error --
-        // only a missed pong reveals the dead peer. On the local hotspot link
-        // (sub-10ms RTT) a 5s ping detects a dead HUD in ~5s and triggers the
-        // dial-loop's rediscover+reconnect, instead of the rider staring at a
-        // frozen HUD for 15s+. Cheap on a LAN.
-        .pingInterval(5, TimeUnit.SECONDS)
         .connectTimeout(4, TimeUnit.SECONDS)
         .readTimeout(0, TimeUnit.MILLISECONDS)
         .retryOnConnectionFailure(true)
         .build()
+
+    /** True when the app UI is actually on-screen (process importance
+     *  FOREGROUND), not merely the ride foreground service running
+     *  (FOREGROUND_SERVICE). Once the UI is gone, Samsung / Android 16 throttle
+     *  the app's socket I/O, so the tight 5s ping window is only safe with the UI
+     *  up. Fails open to foreground so a detection miss keeps today's behaviour. */
+    private fun isUiForeground(): Boolean = try {
+        val info = android.app.ActivityManager.RunningAppProcessInfo()
+        android.app.ActivityManager.getMyMemoryState(info)
+        info.importance <= android.app.ActivityManager.RunningAppProcessInfo.IMPORTANCE_FOREGROUND
+    } catch (_: Exception) {
+        true
+    }
 
     @Volatile private var loopJob: Job? = null
     @Volatile private var publishJob: Job? = null
@@ -169,6 +187,13 @@ class HudServer @Inject constructor(
     /** Currently-registered ConnectivityManager callback; cleared on doStop. */
     @Volatile private var netCallback: ConnectivityManager.NetworkCallback? = null
 
+    /** Detects when the phone's OWN home/other Wi-Fi keeps interrupting the HUD
+     *  link (single-radio channel-follow): correlates established-link drops
+     *  with the phone's Wi-Fi STA transitions. When it fires we set
+     *  [HudState.phoneWifiInterfering] so the HUD advises the rider to turn the
+     *  phone's Wi-Fi off. */
+    private val wifiInterference = WifiInterferenceDetector()
+
     init {
         // Watch the toggle ourselves so the link starts the moment the
         // rider flips `Enable data link` -- no dependency on WheelService
@@ -178,6 +203,16 @@ class HudServer @Inject constructor(
         scope.launch {
             var on = false
             settingsRepository.settings.collect { s ->
+                backoffMinMs = s.hudBackoffMinMs.toLong()
+                backoffMaxMs = s.hudBackoffMaxMs.toLong()
+                mdnsTimeoutMs = s.hudMdnsTimeoutMs.toLong()
+                discoverySprintMs = s.hudDiscoverySprintMs.toLong()
+                udpProbeTimeoutMs = s.hudUdpProbeTimeoutMs.toLong()
+                udpBeaconFreshnessMs = s.hudUdpBeaconFreshnessMs.toLong()
+                udpPollIntervalMs = s.hudUdpPollIntervalMs.toLong()
+                manualHintDelayMs = s.hudManualHintDelayMs.toLong()
+                discoveryTotalTimeoutMs = s.hudDiscoveryTotalTimeoutMs.toLong()
+                mdnsServiceInfoTimeoutMs = s.hudMdnsServiceInfoTimeoutMs.toLong()
                 val want = s.hudServerEnabled ||
                     com.eried.eucplanet.hud.protocol.HudDebug.read("debug.eucplanet.hud.force") == "true"
                 if (want != on) {
@@ -187,6 +222,17 @@ class HudServer @Inject constructor(
             }
         }
     }
+    // Advanced HUD discovery / reconnection timing, mirrored from settings.
+    @Volatile private var backoffMinMs: Long = BACKOFF_MIN_MS
+    @Volatile private var backoffMaxMs: Long = BACKOFF_MAX_MS
+    @Volatile private var mdnsTimeoutMs: Long = MDNS_RESOLVE_TIMEOUT_MS
+    @Volatile private var discoverySprintMs: Long = DISCOVERY_SPRINT_MS
+    @Volatile private var udpProbeTimeoutMs: Long = 8_000L
+    @Volatile private var udpBeaconFreshnessMs: Long = 10_000L
+    @Volatile private var udpPollIntervalMs: Long = 200L
+    @Volatile private var manualHintDelayMs: Long = 1_500L
+    @Volatile private var discoveryTotalTimeoutMs: Long = 15_000L
+    @Volatile private var mdnsServiceInfoTimeoutMs: Long = 1_000L
     @Volatile private var multicastLock: WifiManager.MulticastLock? = null
     /** High-performance WiFi lock acquired while the HUD link is enabled.
      *  Without this, the radio enters DTIM power-save once the screen is off
@@ -270,7 +316,9 @@ class HudServer @Inject constructor(
                     // to why.
                     Log.w(TAG, "snapshot failed", t)
                 }
-                delay(PUBLISH_INTERVAL_MS)
+                // Rider-configured HUD report interval; sanitized() guarantees a
+                // safe floor so this delay can never spin at 0.
+                delay(settingsRepository.get().hudReportIntervalMs.toLong())
             }
         }
 
@@ -339,12 +387,34 @@ class HudServer @Inject constructor(
             override fun onAvailable(network: Network) {
                 Log.i(TAG, "network onAvailable: kicking dial loop")
                 log("Network came up, retrying immediately")
+                // The phone's own home/other Wi-Fi just (re)joined: on a single
+                // radio this re-tunes the hotspot and tends to drop the HUD a
+                // few seconds later. Feed the detector so a correlated drop is
+                // recognised as channel-follow, not a plain out-of-range loss.
+                wifiInterference.onStaTransition(System.currentTimeMillis())
                 reconnectKick.trySend(Unit)
             }
+            override fun onLost(network: Network) {
+                Log.i(TAG, "network onLost: home WiFi gone")
+                wifiInterference.onStaTransition(System.currentTimeMillis())
+            }
             override fun onLosing(network: Network, maxMsToLive: Int) {
-                Log.i(TAG, "network onLosing (${maxMsToLive}ms): closing WS preemptively")
-                log("Network dropping in ${maxMsToLive}ms, closing WS")
-                try { ws?.close(1000, "network-losing") } catch (_: Throwable) {}
+                // DO NOT close the WS here. This callback filters for
+                // TRANSPORT_WIFI + NET_CAPABILITY_INTERNET, so the only network
+                // it ever tracks is the rider's HOME WiFi (STA) -- the HUD link
+                // rides the phone's hotspot, which has no INTERNET capability and
+                // is never surfaced as a Network. The home WiFi going away (rider
+                // leaves range) does NOT affect the hotspot route, so closing the
+                // WS here is pure collateral damage: it tore down a perfectly good
+                // hotspot link the instant the rider walked out of home range.
+                // Just note it and let the dial loop / heartbeat handle any real
+                // drop. (Verified against the 2026-06-29 tester log: the link
+                // died via ping-timeout, NOT this path -- but this close was a
+                // latent amplifier waiting to fire.)
+                Log.i(TAG, "network onLosing (${maxMsToLive}ms): home WiFi leaving; " +
+                    "leaving hotspot WS intact")
+                log("Home WiFi dropping in ${maxMsToLive}ms (hotspot link unaffected)")
+                wifiInterference.onStaTransition(System.currentTimeMillis())
             }
         }
         try {
@@ -423,6 +493,11 @@ class HudServer @Inject constructor(
         var attempt = 0
         val sprintStartedAtMs = System.currentTimeMillis()
         while (true) {
+            // Re-assert the WiFi lock every tick: it's only acquired once at
+            // enable, but the OS can reclaim it (or it can lapse on a network
+            // hop). Idempotent -- keeps the radio out of power-save for the
+            // whole session, not just the instant the link came up.
+            acquireWifiPerfLock()
             val s = runCatching { settingsRepository.get() }.getOrNull()
             val override = HudDebug.read("debug.eucplanet.hud.peer")?.takeIf { it.isNotBlank() }
             val autoDiscover = s?.hudAutoDiscover ?: true
@@ -447,7 +522,7 @@ class HudServer @Inject constructor(
                 // airplane mode) cancels whichever delay is pending so we
                 // retry immediately instead of waiting out the tick.
                 val sinceStart = System.currentTimeMillis() - sprintStartedAtMs
-                delayOrKick(if (sinceStart < DISCOVERY_SPRINT_MS) 2_000L else 5_000L)
+                delayOrKick(if (sinceStart < discoverySprintMs) 2_000L else 5_000L)
                 continue
             }
             _connectionSource.value = source
@@ -536,15 +611,15 @@ class HudServer @Inject constructor(
             // beacon shows up within ~200 ms instead of waiting for the
             // dial loop's next iteration. Bounded so we eventually give
             // up if the other channels are also losing.
-            val until = System.currentTimeMillis() + 8_000L
+            val until = System.currentTimeMillis() + udpProbeTimeoutMs
             while (System.currentTimeMillis() < until) {
                 val s = udpListener.latest.value
-                if (s != null && System.currentTimeMillis() - s.receivedAtMs < 10_000L) {
+                if (s != null && System.currentTimeMillis() - s.receivedAtMs < udpBeaconFreshnessMs) {
                     log("UDP beacon: ${s.ip}:${s.port}")
                     results.send("${s.ip}:${s.port}" to ConnectionSource.UDP_BEACON)
                     return@launch
                 }
-                kotlinx.coroutines.delay(200L)
+                kotlinx.coroutines.delay(udpPollIntervalMs)
             }
             log("UDP beacon: no broadcast received")
         }
@@ -556,7 +631,7 @@ class HudServer @Inject constructor(
                 log("mDNS: found $v")
                 results.send(v to ConnectionSource.MDNS)
             } else {
-                log("mDNS: no answer in ${MDNS_RESOLVE_TIMEOUT_MS / 1000}s")
+                log("mDNS: no answer in ${mdnsTimeoutMs / 1000}s")
             }
         }
 
@@ -575,14 +650,14 @@ class HudServer @Inject constructor(
             launch {
                 // Small grace period so a healthy UDP / mDNS hit wins the
                 // race before we fall back to a possibly-stale manual IP.
-                kotlinx.coroutines.delay(1_500L)
+                kotlinx.coroutines.delay(manualHintDelayMs)
                 log("Manual hint: $manualIp:$manualPort")
                 results.send("$manualIp:$manualPort" to ConnectionSource.MANUAL)
             }
         } else null
 
         val allJobs = listOfNotNull(udpJob, mdnsJob, probeJob, manualJob)
-        val winner = kotlinx.coroutines.withTimeoutOrNull(15_000L) {
+        val winner = kotlinx.coroutines.withTimeoutOrNull(discoveryTotalTimeoutMs) {
             results.receive()
         }
         allJobs.forEach { it.cancel() }
@@ -605,7 +680,7 @@ class HudServer @Inject constructor(
             val resolved = kotlinx.coroutines.CompletableDeferred<String?>()
             val listener = object : ServiceListener {
                 override fun serviceAdded(event: ServiceEvent) {
-                    md.requestServiceInfo(event.type, event.name, 1_000L)
+                    md.requestServiceInfo(event.type, event.name, mdnsServiceInfoTimeoutMs)
                 }
                 override fun serviceRemoved(event: ServiceEvent) {}
                 override fun serviceResolved(event: ServiceEvent) {
@@ -621,7 +696,7 @@ class HudServer @Inject constructor(
                 }
             }
             md.addServiceListener(HudDiscovery.SERVICE_TYPE, listener)
-            val winner = kotlinx.coroutines.withTimeoutOrNull(MDNS_RESOLVE_TIMEOUT_MS) {
+            val winner = kotlinx.coroutines.withTimeoutOrNull(mdnsTimeoutMs) {
                 resolved.await()
             }
             try { md.removeServiceListener(HudDiscovery.SERVICE_TYPE, listener) } catch (_: Throwable) {}
@@ -652,19 +727,26 @@ class HudServer @Inject constructor(
     /** Open one WebSocket and pump frames until it closes. Returns true on
      *  clean close, false on transport error (which gates backoff). */
     private suspend fun streamUntilClosed(peer: String): Boolean {
-        log("Dial ws://$peer/state")
+        val foreground = isUiForeground()
+        val pingMs = if (foreground) PING_FOREGROUND_MS else PING_BACKGROUND_MS
+        log("Dial ws://$peer/state (ping ${pingMs / 1000}s, ${if (foreground) "foreground" else "background"})")
         val done = kotlinx.coroutines.CompletableDeferred<Boolean>()
         val req = Request.Builder()
             .url("ws://$peer${HudDiscovery.PATH_STATE}")
             .build()
         val listener = object : WebSocketListener() {
             private var sendJob: Job? = null
+            /** True once this socket actually opened, so onFailure can tell an
+             *  ESTABLISHED-link drop (a real interruption worth correlating with
+             *  Wi-Fi) from a plain "couldn't find/connect to the HUD" dial miss. */
+            @Volatile private var wasOpen = false
             override fun onOpen(webSocket: WebSocket, response: Response) {
                 Log.i(TAG, "HUD link open: $peer")
                 log("Connected to $peer ✓")
+                wasOpen = true
                 ws = webSocket
-                // Push a frame every PUBLISH_INTERVAL_MS off the snapshot
-                // buffer. We don't dedupe: even when no field changed, the
+                // Push a frame on the rider's HUD report interval off the
+                // snapshot buffer. We don't dedupe: even when no field changed, the
                 // timestamp bump in [snapshot] keeps the HUD's last-frame
                 // freshness signal live.
                 sendJob = scope.launch {
@@ -691,7 +773,9 @@ class HudServer @Inject constructor(
                             try { webSocket.close(1011, "send-failed") } catch (_: Throwable) {}
                             break
                         }
-                        delay(PUBLISH_INTERVAL_MS)
+                        // Rider-configured HUD report interval; sanitized() guarantees a
+                // safe floor so this delay can never spin at 0.
+                delay(settingsRepository.get().hudReportIntervalMs.toLong())
                     }
                 }
             }
@@ -716,22 +800,36 @@ class HudServer @Inject constructor(
             override fun onFailure(webSocket: WebSocket, t: Throwable, response: Response?) {
                 Log.w(TAG, "HUD link failure: ${t.message} (${response?.code})")
                 log("Not found: ${t.message ?: t::class.simpleName}")
+                // Only an ESTABLISHED link dropping is a candidate channel-follow
+                // event; a failed dial (never opened) is just discovery missing.
+                if (wasOpen) {
+                    val correlated = wifiInterference.onHudDrop(System.currentTimeMillis())
+                    if (correlated) log("Drop correlated with a phone Wi-Fi change")
+                }
                 sendJob?.cancel()
                 ws = null
                 commandSink.onHudDisconnected()
                 done.complete(false)
             }
         }
-        http.newWebSocket(req, listener)
+        // Per-connection ping tolerance from the foreground/background state above;
+        // newBuilder() shares this client's pool + dispatcher so this is cheap.
+        http.newBuilder()
+            .pingInterval(pingMs, TimeUnit.MILLISECONDS)
+            .build()
+            .newWebSocket(req, listener)
         return done.await()
     }
 
     private fun backoff(attempt: Int): Long {
-        val expanded = BACKOFF_MIN_MS shl attempt.coerceAtMost(3)
-        return expanded.coerceAtMost(BACKOFF_MAX_MS)
+        val expanded = backoffMinMs shl attempt.coerceAtMost(3)
+        return expanded.coerceAtMost(backoffMaxMs)
     }
 
     private suspend fun snapshot(): HudState {
+        // Let the Wi-Fi-interference advisory decay once the link has been
+        // stable for a while (this runs every publish tick, ~5 Hz).
+        wifiInterference.onStableTick(System.currentTimeMillis())
         val s = settingsRepository.get()
         val wd = wheelRepository.wheelData.value
         val state = wheelRepository.connectionState.value
@@ -868,7 +966,8 @@ class HudServer @Inject constructor(
                         level = it.threatLevel.ordinal
                     )
                 }.orEmpty(),
-            timestampMs = System.currentTimeMillis()
+            timestampMs = System.currentTimeMillis(),
+            phoneWifiInterfering = wifiInterference.advisoryActive
         )
     }
 

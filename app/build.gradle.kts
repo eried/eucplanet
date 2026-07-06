@@ -29,8 +29,10 @@ android {
         applicationId = "com.eried.eucplanet"
         minSdk = 29
         targetSdk = 35
-        versionCode = 249
-        versionName = "0.11.2"
+        versionCode = 254
+        versionName = "0.12.0"
+
+        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
         val buildStamp = SimpleDateFormat("yyMMdd.HHmm")
             .apply { timeZone = TimeZone.getTimeZone("UTC") }
@@ -48,8 +50,28 @@ android {
         } catch (e: Exception) { "" }
         buildConfigField("String", "GIT_BRANCH", "\"$gitBranch\"")
 
+        // A "dev" build is any branch build other than main. Same signal the
+        // About dialog uses to show the branch tag: a real branch name that is
+        // not "main" (a tagged release is detached HEAD -> "HEAD", and the Play
+        // production build is cut from main, so neither is dev). Gates dev-only
+        // helpers like the welcome wizard's backup/restore tools.
+        // -Pprod forces a non-dev build, for testing the production wizard or
+        // cutting a local production APK off a branch.
+        val isDev = gitBranch.isNotEmpty() && gitBranch != "main" && gitBranch != "HEAD" &&
+            !project.hasProperty("prod")
+        buildConfigField("boolean", "IS_DEV", "$isDev")
+
         buildConfigField("String", "EUCSTATS_API_BASE_URL", "\"https://eucstats.ried.no/api/v1\"")
         buildConfigField("long", "EUCSTATS_GCP_PROJECT_NUMBER", "0L")
+
+        ndk {
+            // ffmpeg-kit ships a native .so set per ABI (~33 MB arm64). Limit the
+            // build to the two ABIs every real phone uses so the APK doesn't
+            // balloon with x86 emulator libs. The debug build type adds x86_64
+            // back for the emulator. The Play AAB still splits per-device, so a
+            // phone only downloads its own ABI.
+            abiFilters += listOf("arm64-v8a", "armeabi-v7a")
+        }
     }
 
     signingConfigs {
@@ -65,6 +87,8 @@ android {
 
     buildTypes {
         debug {
+            // Also build the x86_64 ffmpeg-kit libs so the emulator can run.
+            ndk { abiFilters += "x86_64" }
             // Debug builds target the PRODUCTION eucstats API by default, so
             // branch/sideload debug APKs work on real phones (10.0.2.2 is the
             // emulator-to-host alias and is unreachable on physical devices).
@@ -187,6 +211,15 @@ dependencies {
     // both ends so behaviour is consistent.
     implementation(libs.jmdns)
 
+    // ffmpeg-kit (community 16KB-page fork on Maven Central; ffmpeg 6.1.1,
+    // --enable-gpl full build with the prores_ks encoder). Was used only to
+    // encode Overlay Studio replay clips to ProRes 4444 .mov. DISABLED: the
+    // alpha .mov output is handled inconsistently by editors, so the whole MOV
+    // export path is commented out (see StudioProResEncoder). Re-enable this
+    // line to bring it back. The abiFilters above were added for this native
+    // module; they're harmless without it.
+    // implementation("com.moizhassan.ffmpeg:ffmpeg-kit-16kb:6.1.1")
+
     // Compose
     val composeBom = platform(libs.compose.bom)
     implementation(composeBom)
@@ -285,6 +318,15 @@ dependencies {
     testImplementation("org.json:json:20240303")
     // MockWebServer for EucStatsApi JVM tests — version must match libs.okhttp (4.12.0)
     testImplementation("com.squareup.okhttp3:mockwebserver:4.12.0")
+    // kotlin-reflect for the SettingsJson drift-guard test (walks the AppSettings
+    // primary constructor to catch fields missing from the JSON mapper).
+    testImplementation(kotlin("reflect"))
+
+    // Instrumented tests: the Studio MP4 encoder needs real MediaCodec / MediaMuxer,
+    // so its duration is verified on-device rather than on the JVM.
+    androidTestImplementation("androidx.test.ext:junit:1.1.5")
+    androidTestImplementation("androidx.test:runner:1.5.2")
+    androidTestImplementation("androidx.test:rules:1.5.0")
 }
 
 // Gradle Play Publisher -- LOCAL publishing only (no browser, NOT wired into CI):

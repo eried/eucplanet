@@ -14,6 +14,7 @@ import com.eried.eucplanet.R
 import com.eried.eucplanet.data.model.TripRecord
 import com.eried.eucplanet.data.repository.SettingsRepository
 import com.eried.eucplanet.data.repository.TripRepository
+import com.eried.eucplanet.util.TripCsv
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
@@ -36,9 +37,6 @@ import java.io.FileInputStream
 import java.io.FileOutputStream
 import java.io.FileReader
 import java.io.InputStreamReader
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
 import java.util.zip.ZipEntry
 import java.util.zip.ZipInputStream
 import java.util.zip.ZipOutputStream
@@ -481,49 +479,41 @@ class RecordingViewModel @Inject constructor(
         var distance = 0f
 
         try {
-            // Detect column layout from header
+            // Detect column layout from header so foreign exports (different
+            // column order / names) still line up.
             val header = lines[0].lowercase().split(",").map { it.trim() }
-            val mileageIdx = header.indexOfFirst { it.contains("mileage") || it.contains("total mileage") }
+            val dateIdx = header.indexOfFirst { it == "date" }.takeIf { it >= 0 } ?: 0
+            val latIdx = header.indexOfFirst { it == "latitude" }.takeIf { it >= 0 } ?: 6
+            val lonIdx = header.indexOfFirst { it == "longitude" }.takeIf { it >= 0 } ?: 7
+            val mileageIdx = header.indexOfFirst { it.contains("mileage") }
                 .takeIf { it >= 0 } ?: 8
 
-            // Support multiple date formats
-            val darknessFormat = SimpleDateFormat("dd.MM.yyyy HH:mm:ss", Locale.US)
-            val isoFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.US)
-
+            val rows = ArrayList<TripCsv.Quad>(lines.size)
             for (i in 1 until lines.size) {
                 val line = lines[i].trim()
                 if (line.isEmpty()) continue
                 val parts = line.split(",")
                 if (parts.size < 2) continue
-
-                val dateStr = parts[0].trim()
-                // Try ISO format first (2024-06-16T14:28:45.000000), then DarknessBot (dd.MM.yyyy HH:mm:ss.SSS)
-                val parsed = try {
-                    val trimmed = dateStr.substringBefore("T").let { datePart ->
-                        if (dateStr.contains("T")) {
-                            // ISO: trim microseconds
-                            datePart + "T" + dateStr.substringAfter("T").let { timePart ->
-                                if (timePart.contains(".")) timePart.substringBefore(".") else timePart
-                            }
-                        } else {
-                            // European: trim milliseconds
-                            val dotCount = dateStr.count { it == '.' }
-                            if (dotCount > 2) dateStr.substringBeforeLast(".")
-                            else dateStr
-                        }
-                    }
-                    if (dateStr.contains("T")) isoFormat.parse(trimmed)
-                    else darknessFormat.parse(trimmed)
-                } catch (_: Exception) { null }
-
-                if (parsed != null) {
-                    if (i == 1) startTime = parsed.time
-                    endTime = parsed.time
-                }
-
-                val mileage = parts.getOrNull(mileageIdx)?.toFloatOrNull() ?: 0f
-                if (mileage > distance) distance = mileage
+                rows.add(
+                    TripCsv.Quad(
+                        date = parts.getOrNull(dateIdx)?.trim().orEmpty(),
+                        lat = parts.getOrNull(latIdx)?.trim()?.toDoubleOrNull() ?: 0.0,
+                        lon = parts.getOrNull(lonIdx)?.trim()?.toDoubleOrNull() ?: 0.0,
+                        mileage = parts.getOrNull(mileageIdx)?.trim()?.toFloatOrNull() ?: 0f,
+                    )
+                )
             }
+
+            // One shared definition: duration from first..last timestamp,
+            // distance from GPS great-circle (bounded per step) or the mileage
+            // DELTA -- never the raw odometer reading, which is the lifetime
+            // total (the old import stored that as the trip length).
+            val metrics = TripCsv.metricsFrom(rows)
+            if (metrics.valid) {
+                startTime = metrics.startMs
+                endTime = metrics.endMs
+            }
+            distance = metrics.distanceKm
         } catch (_: Exception) { }
 
         tripRepository.insertTrip(
@@ -612,5 +602,51 @@ class RecordingViewModel @Inject constructor(
             }
         }
         return points
+    }
+
+    /**
+     * Single source of truth for a trip's duration + distance, derived from its
+     * CSV samples rather than the stored summary fields. The trip-detail screen
+     * uses this so a finished trip can never show 0:00 / 0.0 km when the file
+     * plainly has minutes of data and GPS movement -- the historic bug where
+     * the summary row held 0 (poor GPS at record time, or an import that never
+     * computed distance) while the chart read the same CSV and looked fine.
+     */
+    fun tripMetrics(points: List<TripDataPoint>): TripCsv.Metrics =
+        TripCsv.metricsFrom(
+            points.map { TripCsv.Quad(it.date, it.latitude, it.longitude, it.totalMileage) }
+        )
+
+    /**
+     * Persist recomputed metrics back onto a trip whose stored summary is
+     * clearly stale, so the trip list -- which reads the stored fields, not the
+     * CSV -- self-heals the next time it loads. This covers the common case of a
+     * recording that was killed before finalize ran: its CSV holds the full
+     * ride but the row kept endTime == null (0:00) and distanceKm == 0 (0.0 km).
+     *
+     * The caller only invokes this when the trip is NOT the one currently
+     * recording, so a null endTime here means "abandoned", not "in progress" --
+     * safe to fill in. Only broken fields are touched; good values are left as
+     * they are.
+     */
+    fun healTripMetrics(trip: TripRecord, metrics: TripCsv.Metrics) {
+        if (!metrics.valid) return
+        viewModelScope.launch {
+            // Authoritative guard against finalising a live recording: if this
+            // trip is the one actively recording, leave it to the recorder.
+            if (tripRepository.currentTripId.value == trip.id) return@launch
+            val current = tripRepository.getTripById(trip.id) ?: return@launch
+            val startBroken = current.startTime <= 0L
+            val endBroken = current.endTime == null || current.endTime!! <= current.startTime
+            val distanceBroken = current.distanceKm <= 0f
+            if (!startBroken && !endBroken && !distanceBroken) return@launch
+            val newStart = if (startBroken) metrics.startMs else current.startTime
+            val healed = current.copy(
+                startTime = newStart,
+                endTime = if (endBroken) metrics.endMs.coerceAtLeast(newStart) else current.endTime,
+                distanceKm = if (distanceBroken) metrics.distanceKm else current.distanceKm,
+            )
+            if (healed != current) tripRepository.updateTrip(healed)
+        }
     }
 }

@@ -311,7 +311,7 @@ fun ThemeEditorWidget(
             LazyColumn(
                 state = listState,
                 modifier = Modifier
-                    .heightIn(max = 300.dp)
+                    .heightIn(max = com.eried.eucplanet.ui.common.dialogContentMaxHeight(300))
                     .padding(horizontal = 12.dp, vertical = 6.dp)
             ) {
                 items(entries.size) { i ->

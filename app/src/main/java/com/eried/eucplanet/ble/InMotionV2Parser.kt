@@ -60,10 +60,17 @@ object InMotionV2Parser {
             (data[76].toInt() and 0x02) != 0
         } else false
 
-        // The two packs each carry a real percentage; round the average so a
-        // 96.7 reads 97 like the wheel screen, not 96 (truncation was the
-        // source of the occasional 1% disagreement with the wheel).
-        val batteryPercent = ((battery1 + battery2) / 2f).roundToInt().coerceIn(0, 100)
+        // Displayed SoC = the HIGHER of the two banks, matching the InMotion app.
+        // The V14 reports two separately-tracked bank percentages at offsets
+        // 34/36 that do NOT converge (they sit ~2-3% apart and climb together
+        // while charging), so they are not two views of one pack to be averaged.
+        // Averaging (what we and WheelLog did) reads ~2% low versus the
+        // manufacturer app, which shows the higher/primary bank. The frame
+        // carries no separate display-SoC field either (the fields next to the
+        // banks, offsets 38/48, are constant 100.00 / limit references in every
+        // captured frame). So the higher bank is the correct source; the per-
+        // bank values are still exposed below for the detailed battery view.
+        val batteryPercent = maxOf(battery1, battery2).roundToInt().coerceIn(0, 100)
 
         return WheelData(
             speed = speed,

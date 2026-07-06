@@ -28,6 +28,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import com.eried.eucplanet.util.TripCsv
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -47,7 +48,6 @@ class TripRepository @Inject constructor(
 ) {
     companion object {
         private const val TAG = "TripRepo"
-        private const val RECORD_INTERVAL_MS = 1000L
         // After stopRecording with sync configured, we hold the trip in a "pending"
         // state for this long so the user has a chance to discard it (e.g., a stray
         // short trip from moving the wheel by hand) before it's enqueued for upload.
@@ -95,12 +95,33 @@ class TripRepository @Inject constructor(
     // Tracks whether any location fix during the active recording was from a mock provider.
     @Volatile private var tripHadMockFix = false
 
+    // Advanced: phone GPS (fused-location) update interval, mirrored from settings
+    // so the non-suspend location-request builder can read it synchronously. A
+    // change takes effect the next time location updates (re)start.
+    @Volatile private var phoneGpsIntervalMs: Long = 1000L
+
+    init {
+        scope.launch {
+            settingsRepository.settings.collect {
+                phoneGpsIntervalMs = it.phoneGpsIntervalMs.toLong().coerceAtLeast(100L)
+            }
+        }
+    }
+
     // The just-stopped trip waiting for grace-period finalization, plus the job
     // running the timer. cancelPendingTrip() cancels the job and deletes the trip.
     private var pendingTrip: TripRecord? = null
     private var pendingFinalizeJob: kotlinx.coroutines.Job? = null
 
     init {
+        // First finalize any recording a previous session was killed mid-flight
+        // (an endTime=null row plus a CSV full of flushed rows); then adopt CSVs
+        // that have no DB row at all. Order matters: finalize drops empty killed
+        // rows AND their files, so adopt can't re-add them as duplicates.
+        scope.launch {
+            runCatching { finalizeUnfinishedTrips() }
+            runCatching { adoptOrphanCsvs() }
+        }
         // App-start recovery sweep. Both workers also pick up orphaned/failed
         // trips (folder: uploadStatus=3; eucstats: status 0 with UUID, 1, or 3),
         // so this catches anything left behind by a previous session that
@@ -174,8 +195,8 @@ class TripRepository @Inject constructor(
             Log.d(TAG, "Location updates already active, skipping")
             return
         }
-        val request = LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 1000L)
-            .setMinUpdateIntervalMillis(500L)
+        val request = LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, phoneGpsIntervalMs)
+            .setMinUpdateIntervalMillis(phoneGpsIntervalMs / 2)
             .build()
         try {
             fusedLocationClient.requestLocationUpdates(request, locationCallback, Looper.getMainLooper())
@@ -252,6 +273,75 @@ class TripRepository @Inject constructor(
         return dir
     }
 
+    /**
+     * Adopt any `*.csv` in the trips directory that has no matching [TripRecord].
+     * This recovers trip history after a DB rebuild (the CSVs survive on disk),
+     * and lets a CSV dropped into the folder appear as a replayable trip. Metadata
+     * (start/end/distance/sample count) is recomputed from the CSV header-driven,
+     * so it works for native + imported (DarknessBot etc.) layouts.
+     */
+    suspend fun adoptOrphanCsvs() {
+        val dir = getTripsDir()
+        val csvs = dir.listFiles { f ->
+            f.isFile && f.name.endsWith(".csv", ignoreCase = true)
+        } ?: emptyArray()
+        Log.i(TAG, "adoptOrphanCsvs: dir=${dir.absolutePath} csv=${csvs.size}")
+        if (csvs.isEmpty()) return
+        val known = tripDao.allFileNames().toHashSet()
+        for (f in csvs) {
+            if (f.name in known) continue
+            val text = runCatching { f.readText() }.getOrNull() ?: continue
+            val quads = parseQuadsForMetrics(text)
+            val m = TripCsv.metricsFrom(quads)
+            val rows = (text.count { it == '\n' } - 1).coerceAtLeast(0)  // minus header
+            tripDao.insert(
+                TripRecord(
+                    fileName = f.name,
+                    startTime = if (m.valid) m.startMs else f.lastModified(),
+                    endTime = if (m.valid) m.endMs else null,
+                    distanceKm = m.distanceKm,
+                    sampleCount = rows,
+                    tripUuid = java.util.UUID.randomUUID().toString()
+                )
+            )
+            Log.i(TAG, "Adopted orphan trip CSV ${f.name} ($rows rows, ${m.distanceKm} km)")
+        }
+    }
+
+    /** Header-driven extraction of (date, lat, lon, mileage) rows for metrics. */
+    private fun parseQuadsForMetrics(text: String): List<TripCsv.Quad> = parseTripQuads(text)
+
+    /**
+     * Finalize any trip left with no end time by a previous session that was
+     * killed mid-recording (force-close / crash). The CSV on disk holds every
+     * flushed row, so we reconstruct end time / distance / sample count from it
+     * and UPDATE the existing row in place -- never insert, so a recovered trip
+     * can never duplicate. Runs before [adoptOrphanCsvs] so an empty one is
+     * dropped (row + file) and can't then be re-adopted. Idempotent: once an
+     * end time is set the row no longer matches [TripDao.getUnfinished].
+     */
+    suspend fun finalizeUnfinishedTrips() {
+        for (trip in tripDao.getUnfinished()) {
+            // Never touch the live recording (none at cold start, but guard).
+            if (trip.id == _currentTripId.value) continue
+            val file = getTripFile(trip)
+            val text = if (file.exists()) runCatching { file.readText() }.getOrNull() else null
+            val rows = text?.let { (it.count { c -> c == '\n' } - 1).coerceAtLeast(0) } ?: 0
+            val metrics = text?.let { TripCsv.metricsFrom(parseTripQuads(it)) }
+            val finalized = finalizedTripOrNull(trip, metrics, rows)
+            if (finalized != null) {
+                tripDao.update(finalized)
+                Log.i(TAG, "Finalized killed recording ${trip.fileName} ($rows rows, ${finalized.distanceKm} km)")
+            } else {
+                // Nothing usable was captured before the kill: drop the zombie row
+                // and its empty file so it doesn't linger as a 0 km trip.
+                tripDao.delete(trip)
+                runCatching { if (file.exists()) file.delete() }
+                Log.i(TAG, "Dropped empty killed recording ${trip.fileName}")
+            }
+        }
+    }
+
     // Wall-clock of the last failed recording start (e.g. an unwritable trips
     // directory). Used to throttle the motion-gated auto-record path so it
     // doesn't reattempt on every telemetry packet after a failure.
@@ -308,7 +398,21 @@ class TripRepository @Inject constructor(
         tripHadMockFix = false
 
         val trip = TripRecord(fileName = fileName, tripUuid = java.util.UUID.randomUUID().toString())
-        val id = tripDao.insert(trip)
+        // Persisting the row can fail (disk full, DB locked/corrupt). If it does,
+        // unwind everything we just claimed: otherwise _recording stays true for
+        // the rest of the session (no future auto-record can start) and the CSV
+        // is orphaned with no DB row. Mirrors the file-open failure path above.
+        val id = try {
+            tripDao.insert(trip)
+        } catch (e: Exception) {
+            Log.e(TAG, "Could not persist trip row; recording aborted", e)
+            lastStartFailureMs = System.currentTimeMillis()
+            runCatching { writer.close() }
+            runCatching { file.delete() }
+            csvWriter = null
+            _recording.value = false
+            return
+        }
         currentTrip = trip.copy(id = id)
         _currentTripId.value = id
 
@@ -318,8 +422,11 @@ class TripRepository @Inject constructor(
             if (s.announceRecording) voiceService.announceEvent(context.getString(R.string.voice_recording_started))
         }
 
-        // Periodic write loop
+        // Periodic write loop. Cadence is the rider's Advanced "trip recording
+        // interval" (independent of the dashboard graph rate and the wheel poll),
+        // read once at start; a mid-recording change takes effect next recording.
         recordJob = scope.launch {
+            val recordIntervalMs = settingsRepository.get().tripRecordIntervalMs.toLong()
             var rowsWritten = 0
             var rowsWithGps = 0
             while (_recording.value) {
@@ -333,7 +440,7 @@ class TripRepository @Inject constructor(
                 val extSpeed = extSample
                     ?.takeIf {
                         settingsRepository.get().gpsPrioritizeExternal &&
-                            System.currentTimeMillis() - it.timestamp < RECORD_INTERVAL_MS * 3
+                            System.currentTimeMillis() - it.timestamp < recordIntervalMs * 3
                     }
                     ?.speedKmh
                 val wheelConnected = wheelRepository.connectionState.value ==
@@ -358,7 +465,7 @@ class TripRepository @Inject constructor(
                 if (rowsWritten % 30 == 0) {
                     Log.i(TAG, "Recording: $rowsWritten rows ($rowsWithGps with GPS, ${"%.2f".format(gpsDistanceKm)} km)")
                 }
-                kotlinx.coroutines.delay(RECORD_INTERVAL_MS)
+                kotlinx.coroutines.delay(recordIntervalMs)
             }
             Log.i(TAG, "Recorder loop ending: $rowsWritten rows, $rowsWithGps with GPS")
         }
@@ -389,9 +496,11 @@ class TripRepository @Inject constructor(
         }
 
         val data = wheelRepository.wheelData.value
-        // GPS-derived distance is preferred; fall back to wheel session counter only if
-        // we never accumulated any GPS movement (e.g. recording without location permission).
-        val distance = if (gpsDistanceKm > 0.0) gpsDistanceKm.toFloat() else data.tripDistance
+        // Wheel odometer (session trip counter) is the source of truth for
+        // distance; fall back to GPS-derived distance only when the wheel never
+        // reported one (GPS-only ride, wheel disconnected before any reading, or
+        // a wheel family that doesn't expose trip distance).
+        val distance = if (data.tripDistance > 0f) data.tripDistance else gpsDistanceKm.toFloat()
         val capturedMock = tripHadMockFix
         val wheelMeta = buildWheelMetaJson(
             brand = wheelRepository.connectedBrand.value,
@@ -442,10 +551,12 @@ class TripRepository @Inject constructor(
             // folder. Eucstats (if also enabled) gets enqueued at the end
             // of the same grace, so a discarded trip never reaches the
             // online profile either.
-            Log.i(TAG, "Recording stopped, ${FINALIZE_GRACE_MS / 1000}s grace before sync")
+            val graceMs = runCatching { settingsRepository.get().tripFinalizeGraceMs.toLong() }
+                .getOrDefault(FINALIZE_GRACE_MS)
+            Log.i(TAG, "Recording stopped, ${graceMs / 1000}s grace before sync")
             pendingFinalizeJob = scope.launch {
                 try {
-                    kotlinx.coroutines.delay(FINALIZE_GRACE_MS)
+                    kotlinx.coroutines.delay(graceMs)
                     finalizePendingTrip()
                 } catch (_: kotlinx.coroutines.CancellationException) {
                     // Cancelled by deleteTrip on the pending trip, user discarded it.
@@ -596,3 +707,43 @@ fun mergeFinalizeStatuses(trip: TripRecord, willSync: Boolean, willEucstats: Boo
         uploadStatus = if (willSync) 1 else trip.uploadStatus,
         eucstatsStatus = if (willEucstats) 1 else trip.eucstatsStatus,
     )
+
+/**
+ * Header-driven extraction of (date, lat, lon, mileage) rows from a trip CSV.
+ * Top-level so the orphan-adopt and killed-recording finalize share it and it is
+ * unit-testable without Room / files.
+ */
+internal fun parseTripQuads(text: String): List<TripCsv.Quad> {
+    val lines = text.split('\n')
+    if (lines.size < 2) return emptyList()
+    val h = lines[0].split(',').map { it.trim().lowercase(Locale.US) }
+    fun idx(vararg names: String) =
+        names.firstNotNullOfOrNull { h.indexOf(it).takeIf { i -> i >= 0 } } ?: -1
+    val iDate = idx("date"); if (iDate < 0) return emptyList()
+    val iLat = idx("latitude"); val iLon = idx("longitude")
+    val iMile = idx("total mileage", "mileage", "distance")
+    return lines.asSequence().drop(1).mapNotNull { ln ->
+        val c = ln.split(',')
+        if (iDate >= c.size || c[iDate].isBlank()) return@mapNotNull null
+        fun d(i: Int) = if (i in 0 until c.size) c[i].trim().toDoubleOrNull() ?: 0.0 else 0.0
+        fun fl(i: Int) = if (i in 0 until c.size) c[i].trim().toFloatOrNull() ?: 0f else 0f
+        TripCsv.Quad(c[iDate].trim(), d(iLat), d(iLon), fl(iMile))
+    }.toList()
+}
+
+/**
+ * The finalized copy of a killed recording, reconstructed from its CSV metrics,
+ * or null when nothing usable was captured (empty / header-only / no valid rows)
+ * so the caller drops the zombie row. Always a copy of the SAME row (id /
+ * fileName / uuid preserved) -- the finalize path UPDATEs, never inserts, so
+ * recovery can never produce a duplicate. Pure, for unit tests.
+ */
+internal fun finalizedTripOrNull(trip: TripRecord, metrics: TripCsv.Metrics?, rows: Int): TripRecord? {
+    if (metrics == null || !metrics.valid || rows <= 0) return null
+    return trip.copy(
+        startTime = metrics.startMs,
+        endTime = metrics.endMs,
+        distanceKm = metrics.distanceKm,
+        sampleCount = rows,
+    )
+}

@@ -89,6 +89,7 @@ object SettingsJson {
         put("voiceIntervalSeconds", s.voiceIntervalSeconds)
         put("voiceSpeechRate", s.voiceSpeechRate)
         put("voiceLocale", s.voiceLocale)
+        put("voiceName", s.voiceName)
         put("voiceLocaleOverridden", s.voiceLocaleOverridden)
         put("voiceAudioFocus", s.voiceAudioFocus)
         put("voiceOutputChannel", s.voiceOutputChannel)
@@ -149,6 +150,17 @@ object SettingsJson {
         put("unitDistance", s.unitDistance)
         put("unitTemp", s.unitTemp)
         put("phoneKeepScreenOn", s.phoneKeepScreenOn)
+        put("rotateDashboard", s.rotateDashboard)
+        put("rotateNavigator", s.rotateNavigator)
+        put("rotateOtherScreens", s.rotateOtherScreens)
+        put("compactModeWhen", s.compactModeWhen)
+        put("coverCameraCutout", s.coverCameraCutout)
+        put("compactSpeedoStyle", s.compactSpeedoStyle)
+        put("landscapeSpeedoStyle", s.landscapeSpeedoStyle)
+        put("landscapeMirrored", s.landscapeMirrored)
+        put("blockUpsideDown", s.blockUpsideDown)
+        put("ignoreSystemRotateLock", s.ignoreSystemRotateLock)
+        put("navStopsSide", s.navStopsSide)
         put("volumeKeysEnabled", s.volumeKeysEnabled)
         put("volumeUpClick", s.volumeUpClick)
         put("volumeUpHold", s.volumeUpHold)
@@ -182,6 +194,8 @@ object SettingsJson {
         put("watchScreen2Hold", s.watchScreen2Hold)
         put("watchHapticOnAction", s.watchHapticOnAction)
         put("watchUpdateRate", s.watchUpdateRate)
+        // Advanced knobs — flat keys (kept stable for back-compat), registry-driven.
+        com.eried.eucplanet.data.model.ADVANCED_SPECS.forEach { put(it.id, it.get(s.advanced)) }
         put("watchCloseOnExit", s.watchCloseOnExit)
         put("watchPrioritizePwm", s.watchPrioritizePwm)
         put("watchDialRotationDeg", s.watchDialRotationDeg)
@@ -253,6 +267,8 @@ object SettingsJson {
         put("dashboardActionGroups", s.dashboardActionGroups)
         put("dashboardCustomTiles", s.dashboardCustomTiles)
         put("dashboardCustomBle", s.dashboardCustomBle)
+        put("settingsSectionOrder", s.settingsLayout.order.joinToString(","))
+        put("settingsSectionHidden", s.settingsLayout.hidden.joinToString(","))
         put("chargingEstimateToFull", s.chargingEstimateToFull)
         put("chargingAutoOpen", s.chargingAutoOpen)
         put("chargingDashboardIcon", s.chargingDashboardIcon)
@@ -305,6 +321,7 @@ object SettingsJson {
         voiceIntervalSeconds = j.optInt("voiceIntervalSeconds", base.voiceIntervalSeconds),
         voiceSpeechRate = j.optDouble("voiceSpeechRate", base.voiceSpeechRate.toDouble()).toFloat(),
         voiceLocale = j.optString("voiceLocale", base.voiceLocale),
+        voiceName = j.optString("voiceName", base.voiceName),
         voiceLocaleOverridden = j.optBoolean("voiceLocaleOverridden", base.voiceLocaleOverridden),
         voiceAudioFocus = j.optString("voiceAudioFocus", base.voiceAudioFocus),
         voiceOutputChannel = j.optString("voiceOutputChannel", base.voiceOutputChannel),
@@ -368,6 +385,17 @@ object SettingsJson {
         unitDistance = j.optString("unitDistance", base.unitDistance),
         unitTemp = j.optString("unitTemp", base.unitTemp),
         phoneKeepScreenOn = j.optBoolean("phoneKeepScreenOn", base.phoneKeepScreenOn),
+        rotateDashboard = j.optBoolean("rotateDashboard", base.rotateDashboard),
+        rotateNavigator = j.optBoolean("rotateNavigator", base.rotateNavigator),
+        rotateOtherScreens = j.optBoolean("rotateOtherScreens", base.rotateOtherScreens),
+        compactModeWhen = j.optString("compactModeWhen", base.compactModeWhen),
+        coverCameraCutout = j.optString("coverCameraCutout", base.coverCameraCutout),
+        compactSpeedoStyle = j.optString("compactSpeedoStyle", base.compactSpeedoStyle),
+        landscapeSpeedoStyle = j.optString("landscapeSpeedoStyle", base.landscapeSpeedoStyle),
+        landscapeMirrored = j.optBoolean("landscapeMirrored", base.landscapeMirrored),
+        blockUpsideDown = j.optBoolean("blockUpsideDown", base.blockUpsideDown),
+        ignoreSystemRotateLock = j.optBoolean("ignoreSystemRotateLock", base.ignoreSystemRotateLock),
+        navStopsSide = j.optString("navStopsSide", base.navStopsSide),
         volumeKeysEnabled = j.optBoolean("volumeKeysEnabled", base.volumeKeysEnabled),
         volumeUpClick = j.optString("volumeUpClick", base.volumeUpClick),
         volumeUpHold = j.optString("volumeUpHold", base.volumeUpHold),
@@ -406,6 +434,10 @@ object SettingsJson {
             // 250 ms default. The new 500 ms "CONSERVATIVE" tier is opt-in only.
             j.has("fasterRefresh") -> if (j.optBoolean("fasterRefresh", false)) "FAST" else "NORMAL"
             else -> base.watchUpdateRate
+        },
+        // Advanced knobs — fold each spec's flat key over the defaults (registry-driven).
+        advanced = com.eried.eucplanet.data.model.ADVANCED_SPECS.fold(base.advanced) { a, sp ->
+            sp.set(a, j.optInt(sp.id, sp.get(a)))
         },
         watchCloseOnExit = j.optBoolean("watchCloseOnExit", base.watchCloseOnExit),
         watchPrioritizePwm = j.optBoolean("watchPrioritizePwm", base.watchPrioritizePwm),
@@ -483,6 +515,12 @@ object SettingsJson {
         dashboardActionGroups = j.optString("dashboardActionGroups", base.dashboardActionGroups),
         dashboardCustomTiles = j.optString("dashboardCustomTiles", base.dashboardCustomTiles),
         dashboardCustomBle = j.optString("dashboardCustomBle", base.dashboardCustomBle),
+        settingsLayout = com.eried.eucplanet.data.model.SettingsLayout(
+            order = j.optString("settingsSectionOrder", base.settingsLayout.order.joinToString(","))
+                .split(",").filter { it.isNotBlank() },
+            hidden = j.optString("settingsSectionHidden", base.settingsLayout.hidden.joinToString(","))
+                .split(",").filter { it.isNotBlank() },
+        ),
         chargingEstimateToFull = j.optBoolean("chargingEstimateToFull", base.chargingEstimateToFull),
         chargingAutoOpen = j.optBoolean("chargingAutoOpen", base.chargingAutoOpen),
         chargingDashboardIcon = j.optBoolean("chargingDashboardIcon", base.chargingDashboardIcon),

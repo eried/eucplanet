@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.eried.eucplanet.R
 import com.eried.eucplanet.data.db.AlarmDao
+import com.eried.eucplanet.data.model.AlarmComparator
 import com.eried.eucplanet.data.model.AlarmMetric
 import com.eried.eucplanet.data.model.AlarmRule
 import com.eried.eucplanet.data.repository.SettingsRepository
@@ -13,11 +14,15 @@ import com.eried.eucplanet.service.VoiceService
 import com.eried.eucplanet.util.VibratorHelper
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -65,6 +70,50 @@ class AlarmViewModel @Inject constructor(
 
     val rules: StateFlow<List<AlarmRule>> = alarmDao.observeAll()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+
+    /** A metric and its rules (most-severe first) -- the unit of priority. */
+    data class MetricGroup(val metric: String, val rules: List<AlarmRule>)
+
+    /** Severity score for ordering: higher threshold is more severe for ">=",
+     *  lower threshold (negated) is more severe for "<". */
+    private fun severityOf(rule: AlarmRule): Float =
+        if (AlarmComparator.parse(rule.comparator) == AlarmComparator.LESS_THAN) -rule.threshold
+        else rule.threshold
+
+    /** Within a group, most severe first: higher threshold for ">=", lower for "<". */
+    private fun severityComparator(): Comparator<AlarmRule> =
+        compareByDescending { severityOf(it) }
+
+    /** Group rules by metric (most-severe first inside each); order the groups by
+     *  priority = the lowest sortOrder in each group (what the rider dragged).
+     *  This is both the display order and the engine's group-priority order. */
+    private fun buildGroups(list: List<AlarmRule>): List<MetricGroup> =
+        list.groupBy { it.metric }
+            .map { (metric, rs) -> metric to rs.sortedWith(severityComparator()) }
+            .sortedBy { (_, rs) -> rs.minOf { it.sortOrder } }
+            .map { (metric, rs) -> MetricGroup(metric, rs) }
+
+    val groupedRules: StateFlow<List<MetricGroup>> = rules
+        .map { buildGroups(it) }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+
+    /**
+     * Order rules read top-to-bottom the way [autoSmartSort] would: grouped by
+     * metric (enum order), most severe first (higher threshold for `>=`, lower
+     * for `<`). Shared by the sort action and the "already sorted?" check so the
+     * Auto-sort button can disable itself when there's nothing to do.
+     */
+    private fun sortComparator(): Comparator<AlarmRule> {
+        val metricOrder = AlarmMetric.entries.withIndex().associate { (i, m) -> m.name to i }
+        return compareBy<AlarmRule> { metricOrder[it.metric] ?: Int.MAX_VALUE }
+            .thenByDescending { severityOf(it) }
+    }
+
+    /** True when the list is already in auto-sort order (so Auto-sort is a no-op
+     *  and its button should be disabled). Recomputed on every add/remove/swap. */
+    val rulesSorted: StateFlow<Boolean> = rules
+        .map { list -> list.size < 2 || list == list.sortedWith(sortComparator()) }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), true)
 
     /**
      * The radar alarm metrics (RADAR_DISTANCE, RADAR_APPROACH_SPEED) only
@@ -118,10 +167,106 @@ class AlarmViewModel @Inject constructor(
         }
     }
 
-    fun previewBeep(frequencyHz: Int, durationMs: Int, count: Int) {
+    /** Drag-to-reorder: move the rule at [from] to [to] and renumber sortOrder
+     *  so the new order persists. Indices are into the currently displayed list. */
+    fun moveRule(from: Int, to: Int) {
         viewModelScope.launch {
-            tonePlayer.playBeep(frequencyHz, durationMs, count)
+            val list = rules.value.toMutableList()
+            if (from !in list.indices || to !in list.indices || from == to) return@launch
+            list.add(to, list.removeAt(from))
+            list.forEachIndexed { i, r -> if (r.sortOrder != i) alarmDao.update(r.copy(sortOrder = i)) }
         }
+    }
+
+    /** Drag-to-reorder GROUPS (metric priority). Renumbers every rule's sortOrder
+     *  so the new group order -- and most-severe-first within each group -- sticks. */
+    fun moveGroup(from: Int, to: Int) {
+        viewModelScope.launch {
+            val groups = buildGroups(rules.value).toMutableList()
+            if (from !in groups.indices || to !in groups.indices || from == to) return@launch
+            groups.add(to, groups.removeAt(from))
+            var order = 0
+            groups.forEach { g ->
+                g.rules.forEach { r ->
+                    if (r.sortOrder != order) alarmDao.update(r.copy(sortOrder = order))
+                    order++
+                }
+            }
+        }
+    }
+
+    /**
+     * Tidy the list: group rules by metric (in the metric enum's order) and,
+     * within each group, put the most severe first -- higher threshold for "≥"
+     * rules, lower threshold for "<" rules. Purely cosmetic now that the engine
+     * fires the most-relevant rule per metric regardless of order; it just makes
+     * the list read the way riders think about it.
+     */
+    fun autoSmartSort() {
+        viewModelScope.launch {
+            val sorted = alarmDao.getAll().sortedWith(sortComparator())
+            sorted.forEachIndexed { i, r ->
+                if (r.sortOrder != i) alarmDao.update(r.copy(sortOrder = i))
+            }
+        }
+    }
+
+    fun previewBeep(frequencyHz: Int, durationMs: Int, count: Int, gapMs: Int, volumePct: Int) {
+        viewModelScope.launch {
+            // Play exactly what fires: `count` beeps at the configured pitch and
+            // volume, separated by the configured gap. The modulation ("rises with
+            // severity") is auditioned live in the Beep Studio, not here - this
+            // button answers "what does my alarm actually sound like".
+            tonePlayer.playBeep(frequencyHz, durationMs, count, gapMs, volumePct)
+        }
+    }
+
+    /** Short tone at a given pitch + volume, for scrubbing the modulation graph. */
+    fun previewToneAt(frequencyHz: Int, volumePct: Int) {
+        viewModelScope.launch { tonePlayer.playBeep(frequencyHz, 90, 1, 0, volumePct) }
+    }
+
+    // --- Beep Studio live preview loop ---
+    // The studio dialog pushes the live (freq, volume, ...) here; while playing,
+    // the loop replays the beep so the rider hears modulation changes in real time
+    // as they move the metric / factor sliders.
+    private var studioJob: Job? = null
+    private val _studioPlaying = MutableStateFlow(false)
+    val studioPlaying: StateFlow<Boolean> = _studioPlaying
+
+    @Volatile private var sFreq = 1000
+    @Volatile private var sDur = 300
+    @Volatile private var sCount = 1
+    @Volatile private var sGap = 100
+    @Volatile private var sVol = 100
+
+    fun setStudioTone(frequencyHz: Int, durationMs: Int, count: Int, gapMs: Int, volumePct: Int) {
+        sFreq = frequencyHz; sDur = durationMs; sCount = count; sGap = gapMs; sVol = volumePct
+    }
+
+    fun toggleStudioPlay(repeat: Boolean = true) {
+        if (_studioPlaying.value) { stopStudio(); return }
+        _studioPlaying.value = true
+        studioJob = viewModelScope.launch {
+            do {
+                tonePlayer.playBeep(sFreq, sDur, sCount, sGap, sVol)
+                // Short, fixed pause between preview repeats so auditioning stays
+                // snappy even when the configured gap is long (the real alarm fires
+                // once per trigger, so this loop cadence is only a preview aid).
+                if (repeat) delay(80L)
+            } while (isActive && repeat && _studioPlaying.value)
+            _studioPlaying.value = false   // one-shot: clear when the single cycle ends
+        }
+    }
+
+    fun stopStudio() {
+        _studioPlaying.value = false
+        studioJob?.cancel(); studioJob = null
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        stopStudio()
     }
 
     fun previewVoice(text: String, metric: AlarmMetric, threshold: Float) {

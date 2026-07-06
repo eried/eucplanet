@@ -116,40 +116,29 @@ fun AutomationsContent(
                     }
                 }
             }
-            Card(colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)) {
-                Column(modifier = Modifier.padding(16.dp)) {
-                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                        Text(stringResource(R.string.auto_lights_on_before_sunset), style = MaterialTheme.typography.bodyLarge)
-                        Text(stringResource(R.string.auto_minutes_fmt, settings.autoLightsOnMinutesBefore),
-                            style = MaterialTheme.typography.bodyLarge,
-                            color = MaterialTheme.colorScheme.primary)
-                    }
-                    Slider(
-                        value = settings.autoLightsOnMinutesBefore.toFloat(),
-                        onValueChange = { viewModel.updateAutoLightsOnMinutes(it.roundToInt()) },
-                        valueRange = 0f..120f,
-                        steps = 11,
-                        colors = themedSliderColors(),
-                    )
-                }
-            }
-
-            Card(colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)) {
-                Column(modifier = Modifier.padding(16.dp)) {
-                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                        Text(stringResource(R.string.auto_lights_off_after_sunrise), style = MaterialTheme.typography.bodyLarge)
-                        Text(stringResource(R.string.auto_minutes_fmt, settings.autoLightsOffMinutesAfter),
-                            style = MaterialTheme.typography.bodyLarge,
-                            color = MaterialTheme.colorScheme.primary)
-                    }
-                    Slider(
-                        value = settings.autoLightsOffMinutesAfter.toFloat(),
-                        onValueChange = { viewModel.updateAutoLightsOffMinutes(it.roundToInt()) },
-                        valueRange = 0f..120f,
-                        steps = 11,
-                        colors = themedSliderColors(),
-                    )
-                }
+            // Lights on before sunset + lights off after sunrise, half/half.
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                NumberUpDown(
+                    value = settings.autoLightsOnMinutesBefore,
+                    onValueChange = { viewModel.updateAutoLightsOnMinutes(it) },
+                    range = 0..120,
+                    step = 10,
+                    suffix = "min",
+                    label = stringResource(R.string.auto_lights_on_before_sunset),
+                    modifier = Modifier.weight(1f),
+                )
+                NumberUpDown(
+                    value = settings.autoLightsOffMinutesAfter,
+                    onValueChange = { viewModel.updateAutoLightsOffMinutes(it) },
+                    range = 0..120,
+                    step = 10,
+                    suffix = "min",
+                    label = stringResource(R.string.auto_lights_off_after_sunrise),
+                    modifier = Modifier.weight(1f),
+                )
             }
 
             // Show computed sunrise/sunset from live GPS

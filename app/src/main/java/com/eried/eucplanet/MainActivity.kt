@@ -384,6 +384,42 @@ class MainActivity : AppCompatActivity() {
                     // / updates when the rider's on the map screen.
                     val currentRoute by navController.currentBackStackEntryAsState()
                     val onMapScreen = currentRoute?.destination?.route == "route_builder"
+                    // Per-screen rotation. The manifest allows rotation (fullUser);
+                    // here we lock/unlock the activity per screen from settings.
+                    // The main dashboard is portrait-locked by default; the
+                    // navigator and other screens default to allowing rotation.
+                    val routeNow = currentRoute?.destination?.route
+                    androidx.compose.runtime.LaunchedEffect(
+                        routeNow, s?.rotateDashboard, s?.rotateNavigator,
+                        s?.rotateOtherScreens, s?.blockUpsideDown, s?.ignoreSystemRotateLock
+                    ) {
+                        val allow = when (routeNow) {
+                            Screen.Dashboard.route, null -> s?.rotateDashboard ?: false
+                            Screen.RouteBuilder.route -> s?.rotateNavigator ?: true
+                            // The Studio is a fixed-portrait surface by design:
+                            // its round buttons rotate their icons in place,
+                            // camera-app style, and reflowing the layout breaks
+                            // the recording canvas. Never rotate it.
+                            Screen.OverlayStudio.route -> false
+                            else -> s?.rotateOtherScreens ?: true
+                        }
+                        // SENSOR variants follow the accelerometer even when the
+                        // system auto-rotate toggle is off (mounted-phone case);
+                        // USER variants respect the system toggle. The non-FULL
+                        // forms exclude reverse portrait, the upside-down lockout.
+                        val ignoreLock = s?.ignoreSystemRotateLock == true
+                        val noUpsideDown = s?.blockUpsideDown == true
+                        this@MainActivity.requestedOrientation = when {
+                            !allow -> android.content.pm.ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+                            ignoreLock && noUpsideDown ->
+                                android.content.pm.ActivityInfo.SCREEN_ORIENTATION_SENSOR
+                            ignoreLock ->
+                                android.content.pm.ActivityInfo.SCREEN_ORIENTATION_FULL_SENSOR
+                            noUpsideDown ->
+                                android.content.pm.ActivityInfo.SCREEN_ORIENTATION_USER
+                            else -> android.content.pm.ActivityInfo.SCREEN_ORIENTATION_FULL_USER
+                        }
+                    }
                     Box(modifier = Modifier.fillMaxSize()) {
                         NavGraph(navController = navController)
                         com.eried.eucplanet.ui.navigator.NavigationOverlay(

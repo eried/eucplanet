@@ -237,11 +237,23 @@ private fun ButtonConfig(
 
             Spacer(Modifier.height(12.dp))
 
-            ActionDropdown(stringResource(R.string.flic_click), clickAction, onClickChange)
+            // Click + Double click share a row (half each); Hold spans below.
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                ActionDropdown(stringResource(R.string.flic_click), clickAction, onClickChange, modifier = Modifier.weight(1f))
+                ActionDropdown(stringResource(R.string.flic_double_click), doubleClickAction, onDoubleClickChange, modifier = Modifier.weight(1f))
+            }
             Spacer(Modifier.height(8.dp))
-            ActionDropdown(stringResource(R.string.flic_double_click), doubleClickAction, onDoubleClickChange)
-            Spacer(Modifier.height(8.dp))
-            ActionDropdown(stringResource(R.string.flic_hold), holdAction, onHoldChange)
+            // Hold is half width, aligned left, to match the Click row above.
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                ActionDropdown(stringResource(R.string.flic_hold), holdAction, onHoldChange, modifier = Modifier.weight(1f))
+                Spacer(Modifier.weight(1f))
+            }
         }
     }
 }
@@ -251,7 +263,8 @@ private fun ButtonConfig(
 private fun ActionDropdown(
     label: String,
     currentValue: String,
-    onValueChange: (String) -> Unit
+    onValueChange: (String) -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     var expanded by remember { mutableStateOf(false) }
     val flicKeys = remember {
@@ -267,6 +280,7 @@ private fun ActionDropdown(
     }
 
     ExposedDropdownMenuBox(
+        modifier = modifier,
         expanded = expanded,
         onExpandedChange = { expanded = !expanded }
     ) {

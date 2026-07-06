@@ -844,6 +844,11 @@ private fun InfoTabs(state: ChargingUiState) {
                         // chart instead of helping the rider. The single
                         // current-prediction dot is the actionable read: "if
                         // I keep charging at this rate, here's when it lands."
+                        // The predicted 80% and 100% finish dots, ordered in time.
+                        // A dashed two-leg poly-line connects the last charge point
+                        // through both (see predictionPath) -- two legs, because the
+                        // two ETAs come from separate estimators with different
+                        // timing, so a single line to 100% would miss the 80% dot.
                         val predictionMarkers = remember(state.predictionHistory) {
                             val latest = state.predictionHistory.lastOrNull()
                             buildList {
@@ -853,7 +858,7 @@ private fun InfoTabs(state: ChargingUiState) {
                                 latest?.fullEtaMs?.let {
                                     add(com.eried.eucplanet.ui.dashboard.PredictionMarker(it, 100f))
                                 }
-                            }
+                            }.sortedBy { it.timestampMs }
                         }
                         ChargingChart(
                             state.chargeHistory,
@@ -865,6 +870,7 @@ private fun InfoTabs(state: ChargingUiState) {
                             color2 = MaterialTheme.appColors.metricBattery,
                             unit2 = "V",
                             predictionMarkers = predictionMarkers.takeIf { it.isNotEmpty() },
+                            predictionPath = predictionMarkers,
                         ) { _, _ -> GraphScale.fixed(0f, 100f) }
                         Spacer(Modifier.height(8.dp))
                         StatRow(stringResource(R.string.charging_stat_added), "%+.1f%%".format(state.addedPercent))
@@ -876,15 +882,19 @@ private fun InfoTabs(state: ChargingUiState) {
                             append("%+.2f %%/min".format(state.ratePctPerMin))
                         }
                         StatRow(stringResource(R.string.charging_stat_rate), rateText)
-                        // Energy integrated this session, sign matches V*I (charging +,
-                        // discharging −). Only shown when the wheel reports a real
-                        // current -- on V14-class wheels (~0 A while charging) we'd
-                        // accumulate ~0 Wh which would be misleading.
-                        if (state.hasRealCurrent) {
-                            val wh = state.energyWh
-                            val energyText = if (kotlin.math.abs(wh) >= 1000f) "%+.2f kWh".format(wh / 1000f)
-                                              else "%+.0f Wh".format(wh)
-                            StatRow(stringResource(R.string.charging_stat_energy), energyText)
+                        // Energy split by direction: what the ride Used (real
+                        // current on the discharge, so it shows even on a V14 whose
+                        // charge current reads ~0 A) and what the charge has put
+                        // back. Each appears only once a meaningful amount has been
+                        // integrated, so a plug-in with no prior ride shows neither.
+                        val fmtWh = { v: Float ->
+                            if (v >= 1000f) "%.2f kWh".format(v / 1000f) else "%.0f Wh".format(v)
+                        }
+                        if (state.energyUsedWh >= 1f) {
+                            StatRow(stringResource(R.string.charging_stat_used), fmtWh(state.energyUsedWh))
+                        }
+                        if (state.energyChargedWh >= 1f) {
+                            StatRow(stringResource(R.string.charging_stat_charged), fmtWh(state.energyChargedWh))
                         }
                         StatRow(stringResource(R.string.charging_stat_voltage), "%.1f V".format(state.voltage))
                     }
@@ -896,26 +906,38 @@ private fun InfoTabs(state: ChargingUiState) {
                         // level up (in InfoTabs) so the value also survives
                         // Cells <-> Packs tab switches.
                         val bmsPacks = state.bms.packs.filter { it.knownCells.isNotEmpty() }
-                        val packs = if (stableBmsCount > 0 && bmsPacks.size >= stableBmsCount) {
-                            bmsPacks.take(stableBmsCount).map { pack ->
-                                val avgCellV = pack.knownCells.map { it.second }.average().toFloat()
-                                // Linear interp 3.0V (empty) -> 4.20V (full)
-                                ((avgCellV - 3.0f) / 1.2f * 100f).coerceIn(0f, 100f)
+                        if (stableBmsCount > 0 && bmsPacks.size >= stableBmsCount) {
+                            // Per-cell data available: show the measured truth, the
+                            // pack's average cell voltage. A voltage->percent
+                            // estimate here reads far too high mid-charge (the
+                            // Li-ion plateau is flat and charging elevates cell
+                            // voltage), contradicting the wheel's own BMS SoC.
+                            val packVolts = bmsPacks.take(stableBmsCount).map { pack ->
+                                pack.knownCells.map { it.second }.average().toFloat()
+                            }
+                            PacksGrid(packVolts, isVoltage = true)
+                            Spacer(Modifier.height(8.dp))
+                            if (packVolts.size >= 2) {
+                                // Imbalance as a mV spread -- the real pack-health
+                                // signal, and the number balance chargers read.
+                                StatRow(stringResource(R.string.charging_stat_balance),
+                                    "%+.0f mV".format((packVolts.max() - packVolts.min()) * 1000f))
                             }
                         } else {
-                            buildList {
+                            // No per-cell data: fall back to the wheel's own BMS
+                            // SoC (accurate) with a percent imbalance.
+                            val packs = buildList {
                                 if (state.battery1 > 0f) add(state.battery1)
                                 if (state.battery2 > 0f) add(state.battery2)
                             }
-                        }
-                        PacksGrid(packs)
-                        Spacer(Modifier.height(8.dp))
-                        if (packs.size >= 2) {
-                            // 2 decimals + explicit sign so a fully balanced
-                            // pack reads "+0.00%" rather than dropping to an
-                            // empty-looking line. Imbalance is max-min so it's
-                            // never negative; the + keeps the row stable.
-                            StatRow(stringResource(R.string.charging_stat_balance), "%+.2f%%".format(packs.max() - packs.min()))
+                            PacksGrid(packs, isVoltage = false)
+                            Spacer(Modifier.height(8.dp))
+                            if (packs.size >= 2) {
+                                // 2 decimals + explicit sign so a fully balanced
+                                // pack reads "+0.00%" rather than an empty line.
+                                StatRow(stringResource(R.string.charging_stat_balance),
+                                    "%+.2f%%".format(packs.max() - packs.min()))
+                            }
                         }
                         StatRow(stringResource(R.string.charging_stat_temp), "%.0f°C".format(state.maxTemp))
                     }
@@ -944,6 +966,7 @@ private fun ChargingChart(
     color2: Color = color,
     unit2: String = "",
     predictionMarkers: List<com.eried.eucplanet.ui.dashboard.PredictionMarker>? = null,
+    predictionPath: List<com.eried.eucplanet.ui.dashboard.PredictionMarker> = emptyList(),
     boundsFor: (Float, Float) -> GraphBounds,
 ) {
     if (samples.size >= 2) {
@@ -964,6 +987,7 @@ private fun ChargingChart(
             unit2 = unit2,
             timeAxisFormat = com.eried.eucplanet.ui.dashboard.TimeAxisFormat.Clock,
             predictionMarkers = predictionMarkers,
+            predictionPath = predictionPath,
             modifier = Modifier.fillMaxWidth().height(200.dp),
         )
     } else {
@@ -1105,7 +1129,7 @@ private fun CellChip(cellNumber: Int, voltage: Float, min: Float, max: Float, mo
  * 3 → 3, 6 → 3×2, …). Each tile is a mini fill with "#N" and its %.
  */
 @Composable
-private fun PacksGrid(packs: List<Float>) {
+private fun PacksGrid(packs: List<Float>, isVoltage: Boolean) {
     if (packs.isEmpty()) return
     val n = packs.size
     val avg = packs.average().toFloat()
@@ -1133,8 +1157,9 @@ private fun PacksGrid(packs: List<Float>) {
             }
             PackTile(
                 index = idx + 1,
-                percent = pct,
+                value = pct,
                 avg = avg,
+                isVoltage = isVoltage,
                 fillColor = tileColor,
                 modifier = Modifier.weight(1f),
             )
@@ -1149,13 +1174,16 @@ private fun PacksGrid(packs: List<Float>) {
 @Composable
 private fun PackTile(
     index: Int,
-    percent: Float,
+    value: Float,
     avg: Float,
+    isVoltage: Boolean,
     fillColor: Color = MaterialTheme.appColors.metricVoltage,
     modifier: Modifier = Modifier,
 ) {
-    val frac = (percent / 100f).coerceIn(0f, 1f)
-    val delta = percent - avg
+    // Fill fraction: SoC maps 0-100 %; voltage maps the 3.0-4.2 V cell range to
+    // the same bar height (visual only, never shown as a percent).
+    val frac = (if (isVoltage) (value - 3.0f) / 1.2f else value / 100f).coerceIn(0f, 1f)
+    val delta = value - avg
     val hatchColor = MaterialTheme.appColors.hint
     Box(
         modifier = modifier
@@ -1195,7 +1223,7 @@ private fun PackTile(
         ) {
             Text("#$index", fontSize = 12.sp, color = MaterialTheme.appColors.textSecondary)
             Text(
-                "%.1f%%".format(percent),
+                if (isVoltage) "%.2f V".format(value) else "%.1f%%".format(value),
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.appColors.textPrimary,
@@ -1206,7 +1234,7 @@ private fun PackTile(
             // for sub-tenth values (a -0.04 % delta shows as "-0.04%" instead
             // of getting rounded down to a confusing "-0.0%").
             Text(
-                "%+.2f%%".format(delta),
+                if (isVoltage) "%+.0f mV".format(delta * 1000f) else "%+.2f%%".format(delta),
                 fontSize = 11.sp,
                 fontWeight = FontWeight.Medium,
                 color = when {

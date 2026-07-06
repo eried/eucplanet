@@ -261,10 +261,16 @@ class InMotionV2Adapter @Inject constructor() : WheelAdapter {
         for (i in 0 until buffer.size - 1) {
             if (buffer[i] == InMotionV2Protocol.HEADER && buffer[i + 1] == InMotionV2Protocol.HEADER) {
                 if (start >= 0) {
-                    // Found next header, previous packet ends just before it
-                    InMotionV2Protocol.parsePacket(buffer.copyOfRange(start, i))?.let {
-                        results += decode(it.command, it.data)
-                    }
+                    // Previous packet ends just before this header. If it fails to
+                    // parse, retry one byte longer: a checksum byte that happens to
+                    // equal 0xAA gets mistaken for the next frame's header one byte
+                    // early (two coalesced frames in one notification), so the real
+                    // packet is [start..i] inclusive. The XOR check inside
+                    // parsePacket guarantees the retry can't accept a wrong range,
+                    // and the happy path (first parse succeeds) never reaches it.
+                    val parsed = InMotionV2Protocol.parsePacket(buffer.copyOfRange(start, i))
+                        ?: InMotionV2Protocol.parsePacket(buffer.copyOfRange(start, i + 1))
+                    parsed?.let { results += decode(it.command, it.data) }
                 }
                 start = i
             }

@@ -91,7 +91,11 @@ fun TripDetailScreen(
     var dataPoints by remember { mutableStateOf<List<TripDataPoint>>(emptyList()) }
     var showShareDialog by remember { mutableStateOf(false) }
     // The in-progress trip can't be shared, its CSV isn't finalised yet.
-    val isLiveTrip by viewModel.isTripLiveRecording(trip).collectAsState(initial = false)
+    // null = not yet known; only once it resolves to a definite false do we let
+    // the self-heal touch the stored row (so a live trip is never finalised
+    // early by the detail screen).
+    val liveState by viewModel.isTripLiveRecording(trip).collectAsState(initial = null)
+    val isLiveTrip = liveState == true
 
     // Render the ViewModel's messages (e.g. "Preparing the link…", share
     // failures) here too — sharing is launched straight from this screen, which
@@ -165,18 +169,50 @@ fun TripDetailScreen(
             ) {
                 Spacer(Modifier.height(8.dp))
 
-                // Trip summary
-                val duration = ((trip.endTime ?: trip.startTime) - trip.startTime) / 1000
-                val minutes = duration / 60
-                val seconds = duration % 60
-                val maxSpeedRaw = dataPoints.maxOfOrNull { it.speed } ?: 0f
+                // Trip summary. Duration + distance come from the CSV (the same
+                // data the chart reads), not the stored summary fields, so a
+                // finished trip can't show 0:00 / 0.0 when the file has data.
+                // Stored values are the fallback only, and a stale finished row
+                // is healed in the background so the trip list catches up too.
+                val metrics = remember(dataPoints) { viewModel.tripMetrics(dataPoints) }
+                LaunchedEffect(metrics, liveState) {
+                    if (liveState == false) viewModel.healTripMetrics(trip, metrics)
+                }
+                val startMs = if (metrics.valid) metrics.startMs else trip.startTime
+                val duration = if (metrics.valid)
+                    metrics.durationMs / 1000
+                else
+                    ((trip.endTime ?: trip.startTime) - trip.startTime) / 1000
+                // Distance: trust the stored value (the wheel odometer captured
+                // at finalize) when present; recompute from the CSV only for
+                // trips that never got one (imports, crashed-before-finalize).
+                val distanceKm = if (trip.distanceKm > 0f) trip.distanceKm else metrics.distanceKm
+                // Top speed as a SUSTAINED value, not a lone GPS/sensor spike:
+                // the fastest the wheel actually held for ~2 s (see sustainedTopSpeed).
+                val maxSpeedRaw = remember(dataPoints, duration) {
+                    val n = dataPoints.size
+                    // Window is at least 2 samples so a lone single-sample spike (a
+                    // GPS / sensor glitch, e.g. a bogus 244 km/h reading) is always
+                    // rejected regardless of the trip's sample rate; more samples
+                    // when the rate is fine enough to cover the full ~2 s.
+                    val window = if (n >= 2 && duration > 0)
+                        kotlin.math.ceil(SUSTAINED_TOP_SPEED_MS / (duration * 1000.0 / (n - 1)))
+                            .toInt().coerceIn(2, n)
+                    else 1
+                    sustainedTopSpeed(dataPoints.map { it.speed }, window)
+                }
                 val avgSpeedRaw = dataPoints.map { it.speed }.average().toFloat()
                 // Avg moving speed: mean over genuinely-moving samples (> 1 km/h),
                 // so idling/waiting time doesn't drag the average down.
                 val movingSpeeds = dataPoints.map { it.speed }.filter { it > 1f }
                 val avgMovingRaw = if (movingSpeeds.isNotEmpty())
                     movingSpeeds.average().toFloat() else 0f
-                val maxTempRaw = dataPoints.maxOfOrNull { it.temperature } ?: 0f
+                // Max temp over plausible readings only: a recorded -176 C from
+                // an empty sensor slot (or any impossible value) must not surface
+                // in the summary. The CSV still holds the raw values.
+                val maxTempRaw = dataPoints.map { it.temperature }
+                    .filter { com.eried.eucplanet.util.MetricSanity.isPlausibleTempC(it) }
+                    .maxOrNull() ?: 0f
                 // Smart battery/voltage stats over a validity mask that drops
                 // wheel-off / disconnect garbage (see computeBatteryStats).
                 val batteryStats = remember(dataPoints) { computeBatteryStats(dataPoints) }
@@ -193,11 +229,11 @@ fun TripDetailScreen(
                 val maxSpeed = com.eried.eucplanet.util.Units.speed(maxSpeedRaw, speedUnit)
                 val avgSpeed = com.eried.eucplanet.util.Units.speed(avgSpeedRaw, speedUnit)
                 val avgMoving = com.eried.eucplanet.util.Units.speed(avgMovingRaw, speedUnit)
-                val tripDistance = com.eried.eucplanet.util.Units.distance(trip.distanceKm, distanceUnit)
+                val tripDistance = com.eried.eucplanet.util.Units.distance(distanceKm, distanceUnit)
                 val maxTemp = com.eried.eucplanet.util.Units.temperature(maxTempRaw, tempUnit)
 
                 Text(
-                    dateFormat.format(Date(trip.startTime)),
+                    dateFormat.format(Date(startMs)),
                     style = MaterialTheme.typography.titleMedium,
                     color = MaterialTheme.colorScheme.onSurface
                 )
@@ -210,7 +246,7 @@ fun TripDetailScreen(
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     SummaryCard(stringResource(R.string.recording_summary_distance), "%.1f %s".format(tripDistance, distanceUnitLabel), MaterialTheme.appColors.metricVoltage, Modifier.weight(1f))
-                    SummaryCard(stringResource(R.string.recording_summary_duration), "%d:%02d".format(minutes, seconds), MaterialTheme.appColors.metricVoltage, Modifier.weight(1f))
+                    SummaryCard(stringResource(R.string.recording_summary_duration), com.eried.eucplanet.util.Units.humanDuration(duration), MaterialTheme.appColors.metricVoltage, Modifier.weight(1f))
                     SummaryCard(stringResource(R.string.recording_summary_points), "${dataPoints.size}", MaterialTheme.colorScheme.onSurface, Modifier.weight(1f))
                 }
 
@@ -351,10 +387,14 @@ fun TripDetailScreen(
 
                 Spacer(Modifier.height(12.dp))
 
-                // Temperature chart \u2014 convert each data point to \u00B0F when imperial.
+                // Temperature chart \u2014 convert each data point to \u00B0F when imperial,
+                // and use the matching minimum y-span so a small swing doesn't look
+                // alarming (20 \u00B0C \u2248 36 \u00B0F, not a literal 20 \u00B0F window).
+                val tempMinSpan = if (tempUnit == "F") GraphScale.SPAN_TEMPERATURE_F
+                    else GraphScale.SPAN_TEMPERATURE_C
                 ChartCard(stringResource(R.string.recording_chart_temp, tempUnitLabel),
                     dataPoints.map { com.eried.eucplanet.util.Units.temperature(it.temperature, tempUnit) },
-                    MaterialTheme.appColors.metricTemp, unitLabel = tempUnitLabel, minSpan = GraphScale.SPAN_TEMPERATURE_C)
+                    MaterialTheme.appColors.metricTemp, unitLabel = tempUnitLabel, minSpan = tempMinSpan)
 
                 Spacer(Modifier.height(12.dp))
 
@@ -1001,3 +1041,30 @@ private fun trimEndIndex(points: List<TripDataPoint>): Int {
 private const val TRIM_MIN_TRIP_SAMPLES: Int = 30
 private const val TRIM_CLIFF_DROP_FRAC: Float = 0.05f
 private const val TRIM_LIGHT_CURRENT_A: Float = 5f
+
+/** How long a speed must be held to count as the trip's top speed. */
+private const val SUSTAINED_TOP_SPEED_MS: Double = 2000.0
+
+/**
+ * Top speed the wheel actually *held* for ~[SUSTAINED_TOP_SPEED_MS], not a lone
+ * GPS/sensor spike. Slides a window of [windowSamples] across the speed series
+ * and takes the window MINIMUM (every sample in the window must be at least this
+ * fast to qualify), then returns the max over all windows. A one- or two-sample
+ * spike can't survive, because any window covering it also covers its slower
+ * neighbours. Falls back to the plain peak for trips too short to fill a window.
+ * O(n) via a monotonic deque of window-minimum candidates.
+ */
+internal fun sustainedTopSpeed(speeds: List<Float>, windowSamples: Int): Float {
+    if (speeds.isEmpty()) return 0f
+    val w = windowSamples.coerceIn(1, speeds.size)
+    if (w <= 1) return speeds.maxOrNull() ?: 0f
+    var best = 0f
+    val dq = ArrayDeque<Int>()  // indices; the speeds at them strictly increasing from front
+    for (i in speeds.indices) {
+        while (dq.isNotEmpty() && speeds[dq.last()] >= speeds[i]) dq.removeLast()
+        dq.addLast(i)
+        if (dq.first() <= i - w) dq.removeFirst()
+        if (i >= w - 1) best = maxOf(best, speeds[dq.first()])
+    }
+    return best
+}

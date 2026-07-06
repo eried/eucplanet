@@ -53,9 +53,18 @@ class WearBridge @Inject constructor(
 ) {
     companion object {
         private const val TAG = "WearBridge"
-        // Throttle so the watch doesn't get hammered at the 250 ms BLE poll rate.
-        // 200 ms = 5 Hz, smooth on the gauge, fits the ambient screen budget.
-        private const val PUBLISH_INTERVAL_MS = 200L
+        // The watch feed follows the rider's watchUpdateRate tier and is now fully
+        // independent of the wheel BLE poll rate (AppSettings.wheelPollIntervalMs).
+        // The watch can't show data fresher than the poll delivers; when the
+        // publish rate is faster than the poll, the loop just re-sends the latest
+        // frame — keeps the gauge animating and the freshness signal alive.
+        private const val DEFAULT_PUBLISH_INTERVAL_MS = 250L
+        fun publishIntervalMsFor(rate: String): Long = when (rate) {
+            "CONSERVATIVE" -> 750L
+            "FAST" -> 150L
+            "NORMAL" -> 250L
+            else -> DEFAULT_PUBLISH_INTERVAL_MS
+        }
 
         private const val PATH_STATE = "/euc/state"
         private const val K_CONNECTED = "c"
@@ -227,7 +236,7 @@ class WearBridge @Inject constructor(
     fun start() {
         if (started) return
         started = true
-        Log.i(TAG, "Wear bridge starting (publish=${PUBLISH_INTERVAL_MS} ms)")
+        Log.i(TAG, "Wear bridge starting (publish follows watchUpdateRate tier)")
 
         // First wake on bridge startup. Additional wakes fire whenever
         // MainActivity resumes; see pingWatchToWake() below.
@@ -256,8 +265,8 @@ class WearBridge @Inject constructor(
         // wheel is disconnected the upstream flows don't emit, so a sample +
         // distinctUntilChanged pipeline goes silent, and the watch ends up
         // in the "phone not here" placeholder even though the phone app is
-        // running and paired. Polling at PUBLISH_INTERVAL_MS keeps the
-        // watch's freshness signal alive without per-emission complexity.
+        // running and paired. Re-publishing on the watchUpdateRate cadence keeps
+        // the watch's freshness signal alive without per-emission complexity.
         scope.launch {
             while (true) {
                 try {
@@ -282,7 +291,7 @@ class WearBridge @Inject constructor(
                 } catch (e: Exception) {
                     Log.w(TAG, "publish loop error", e)
                 }
-                delay(PUBLISH_INTERVAL_MS)
+                delay(publishIntervalMsFor(settingsRepository.get().watchUpdateRate))
             }
         }
     }

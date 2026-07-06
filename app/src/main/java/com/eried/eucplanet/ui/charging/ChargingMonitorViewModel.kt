@@ -43,6 +43,10 @@ data class ChargingUiState(
     val ratePctPerMin: Float = 0f,
     /** Signed Wh integrated this session (+ charging, − discharging). */
     val energyWh: Float = 0f,
+    /** Wh used while discharging this session (the ride loss). */
+    val energyUsedWh: Float = 0f,
+    /** Wh added while charging this session. */
+    val energyChargedWh: Float = 0f,
     val warmedUp: Boolean = false,
     val minutesToTarget: Float? = null,
     val minutesToFull: Float? = null,
@@ -147,7 +151,9 @@ class ChargingMonitorViewModel @Inject constructor(
             // Disconnected → 0 so the fill clears instead of showing the last level.
             percent = if (!connected) 0f else if (charging) est.percent else batteryPercentOf(data),
             startPercent = est.startPercent,
-            // Signed: goes negative while discharging (the session runs whole connection).
+            // Percent added since the charge low point. The estimator anchors on
+            // the running minimum, so this reads ~0 while riding and climbs once
+            // charging starts (it no longer goes negative on a pre-charge ride).
             addedPercent = est.percent - est.startPercent,
             voltage = data.voltage,
             current = data.current,
@@ -161,6 +167,8 @@ class ChargingMonitorViewModel @Inject constructor(
             // balances cells, so any residual slope is noise, not charging).
             ratePctPerMin = if (status == ChargeStatus.Full) 0f else est.ratePctPerMin,
             energyWh = snap.sessionEnergyWh,
+            energyUsedWh = snap.sessionEnergyOutWh,
+            energyChargedWh = snap.sessionEnergyInWh,
             warmedUp = est.warmedUp,
             minutesToTarget = est.minutesToTarget,
             minutesToFull = est.minutesToFull,

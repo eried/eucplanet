@@ -17,6 +17,8 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -32,7 +34,6 @@ import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Close
@@ -105,6 +106,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.stringArrayResource
@@ -594,7 +596,15 @@ fun RouteBuilderScreen(
                             searchText = it
                             viewModel.search(it)
                         },
-                        placeholder = { Text(stringResource(R.string.nav_search_hint)) },
+                        placeholder = {
+                            // Single line: on narrow cover screens the hint
+                            // otherwise wraps and clips inside the pill.
+                            Text(
+                                stringResource(R.string.nav_search_hint),
+                                maxLines = 1,
+                                overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
+                            )
+                        },
                         enabled = !navRunning,
                         leadingIcon = { Icon(Icons.Default.Search, null) },
                         trailingIcon = {
@@ -690,6 +700,18 @@ fun RouteBuilderScreen(
         // by the real measurements automatically. Recomputed on every
         // recomposition because both sources are State, so the click handler
         // always reads the latest value.
+        // Landscape: the stops panel docks as a fixed-width, always-open
+        // sidebar on the rider's chosen side (Screen geometry setting).
+        // DEFAULT keeps the bottom panel exactly like portrait. The sidebar
+        // also needs real width: on tiny flip-cover screens (~374 dp wide)
+        // the 340 dp sidebar would swallow the map, so those keep the
+        // bottom-panel layout even when rotated.
+        val stopsSide by viewModel.navStopsSide.collectAsState()
+        val advancedVars by viewModel.advanced.collectAsState()
+        val landscape = LocalConfiguration.current.orientation ==
+            android.content.res.Configuration.ORIENTATION_LANDSCAPE &&
+            LocalConfiguration.current.screenWidthDp >= advancedVars.navSidebarMinScreenDp &&
+            stopsSide != "DEFAULT"
         val effectivePanelPx =
             if (panelHeightPx > 0) panelHeightPx
             else with(density) { 300.dp.toPx().toInt() }
@@ -703,8 +725,13 @@ fun RouteBuilderScreen(
         // otherwise the rider ends up DPR-x shifted (typical phones have
         // DPR=2.6..3.5, hence the "rider parks against the top bar"
         // symptom: a 66 dp shift becomes 198 device-px on screen).
+        // In landscape the stops panel sits in a left sidebar, so nothing
+        // occludes the map vertically. The Y offset formula would misread the
+        // sidebar's content height as a bottom occlusion and shift the rider
+        // toward the sidebar edge, so it is zeroed instead.
         val recenterOffsetPx =
-            (effectivePanelPx - effectiveTopBarPx) / 2f / density.density
+            if (landscape) 0f
+            else (effectivePanelPx - effectiveTopBarPx) / 2f / density.density
         // Push the recenter offset to JS whenever it changes -- the
         // auto-follow pan tween (only active during navigation) uses it
         // to keep the rider centred in the visible map area as the map
@@ -996,12 +1023,10 @@ fun RouteBuilderScreen(
                 }
             }
 
-            // --- Bottom controls: the locate-me FAB sits just above the panel ---
-            Column(
-                modifier = Modifier
-                    .align(Alignment.BottomCenter)
-                    .fillMaxWidth()
-            ) {
+            // Overlay FABs (charger / places / layers / my-location) as a
+            // reusable block: they float on the map (landscape) or sit above
+            // the bottom dock (portrait).
+            val overlayFabs: @Composable ColumnScope.() -> Unit = {
                 // The charger + places overlay toggles only exist when advanced
                 // map features are on. The icon stays visible while loading (a
                 // ring overlays it) so the button is always tappable, and the
@@ -1090,10 +1115,19 @@ fun RouteBuilderScreen(
                 ) {
                     Icon(Icons.Default.MyLocation, stringResource(R.string.nav_my_location))
                 }
-
+            }
+            // The route/stops panel. Always expanded in landscape (the sidebar
+            // has room for the full stops list), collapsible in portrait.
+            val bottomPanelContent: @Composable (Modifier) -> Unit = { panelMod ->
                 BottomPanel(
-                    expanded = panelExpanded,
-                    onToggle = { panelExpanded = !panelExpanded },
+                    expanded = landscape || panelExpanded,
+                    onToggle = { if (!landscape) panelExpanded = !panelExpanded },
+                    // Landscape sidebar is always open, so there's nothing to
+                    // collapse -- hide the chevron there.
+                    collapsible = !landscape,
+                    // Landscape: sidebar Column paints the translucent tone, so
+                    // the panel draws transparent to avoid a near-opaque double.
+                    dockTransparent = landscape,
                     travelMode = travelMode,
                     onModeChange = viewModel::setTravelMode,
                     solveFullPath = solveFullPath,
@@ -1121,8 +1155,54 @@ fun RouteBuilderScreen(
                     onClearRoute = viewModel::clear,
                     canStartNavigation = userLocation != null && waypoints.isNotEmpty(),
                     navRunning = navRunning && !navStarting,
-                    modifier = Modifier.onSizeChanged { sz -> panelHeightPx = sz.height }
+                    modifier = panelMod.onSizeChanged { sz -> panelHeightPx = sz.height }
                 )
+            }
+
+            // Portrait: FABs stacked above a full-width bottom dock. Landscape:
+            // the panel is an always-expanded sidebar on the rider's chosen
+            // side (Screen geometry setting, default right) so the stops list
+            // is always visible; the FABs float on the opposite bottom corner
+            // of the map.
+            if (landscape) {
+                val sidebarRight = stopsSide != "LEFT"
+                Column(
+                    modifier = Modifier
+                        .align(if (sidebarRight) Alignment.BottomStart else Alignment.BottomEnd)
+                        // Margin on the screen-edge side so the FABs don't hug the
+                        // border (their own end padding only covers the opposite,
+                        // map-facing side). No nav-bar inset at the bottom -- the
+                        // FABs' own bottom padding is enough, and the inset pushed
+                        // them too far up.
+                        .padding(start = if (sidebarRight) 16.dp else 0.dp)
+                ) { overlayFabs() }
+                Column(
+                    modifier = Modifier
+                        .align(if (sidebarRight) Alignment.CenterEnd else Alignment.CenterStart)
+                        .fillMaxHeight()
+                        .width(advancedVars.navSidebarWidthDp.dp)
+                        // Inset below the translucent top bar FIRST so the panel's
+                        // background starts under the search header, instead of
+                        // running up behind it to the very top of the screen.
+                        .padding(top = padding.calculateTopPadding())
+                        // 80% alpha so the map shows through the sidebar, matching
+                        // the portrait dock and the translucent top bar. The panel
+                        // itself is drawn transparent in landscape (dockTransparent)
+                        // so this single layer sets the tone -- no double-up.
+                        .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.80f))
+                        .verticalScroll(rememberScrollState())
+                ) {
+                    bottomPanelContent(Modifier.fillMaxWidth())
+                }
+            } else {
+                Column(
+                    modifier = Modifier
+                        .align(Alignment.BottomCenter)
+                        .fillMaxWidth()
+                ) {
+                    overlayFabs()
+                    bottomPanelContent(Modifier.fillMaxWidth())
+                }
             }
 
             // Charger / station details, opened by tapping a faint POI marker.
@@ -1462,6 +1542,8 @@ private fun waypointLabel(
 private fun BottomPanel(
     expanded: Boolean,
     onToggle: () -> Unit,
+    collapsible: Boolean = true,
+    dockTransparent: Boolean = false,
     travelMode: TravelMode,
     onModeChange: (TravelMode) -> Unit,
     solveFullPath: Boolean,
@@ -1497,8 +1579,12 @@ private fun BottomPanel(
         // route line that often runs right up against the bottom edge)
         // peek through, so the rider sees more context.
         shape = RoundedCornerShape(0.dp),
-        color = MaterialTheme.colorScheme.surface.copy(alpha = 0.80f),
-        tonalElevation = 6.dp
+        // Landscape: the sidebar Column already paints the translucent tone, so
+        // draw the panel transparent here -- otherwise two 80% layers stack into
+        // a near-opaque block. Portrait keeps the translucent dock.
+        color = if (dockTransparent) androidx.compose.ui.graphics.Color.Transparent
+                else MaterialTheme.colorScheme.surface.copy(alpha = 0.80f),
+        tonalElevation = if (dockTransparent) 0.dp else 6.dp
     ) {
         Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 10.dp)) {
             // Header: title + count/distance + COMPACT start/stop + collapse chevron.
@@ -1600,14 +1686,16 @@ private fun BottomPanel(
                         modifier = Modifier.widthIn(min = 150.dp)
                     ) { Text(label) }
                 }
-                IconButton(onClick = onToggle) {
-                    Icon(
-                        if (expanded) Icons.Default.KeyboardArrowDown
-                        else Icons.Default.KeyboardArrowUp,
-                        contentDescription = stringResource(
-                            if (expanded) R.string.nav_minimize else R.string.nav_expand
+                if (collapsible) {
+                    IconButton(onClick = onToggle) {
+                        Icon(
+                            if (expanded) Icons.Default.KeyboardArrowDown
+                            else Icons.Default.KeyboardArrowUp,
+                            contentDescription = stringResource(
+                                if (expanded) R.string.nav_minimize else R.string.nav_expand
+                            )
                         )
-                    )
+                    }
                 }
             }
 

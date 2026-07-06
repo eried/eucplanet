@@ -10,12 +10,13 @@ import com.eried.eucplanet.data.model.WheelProfile
  * Room v45 dropped the `app_settings` table (settings live in DataStore now,
  * see [com.eried.eucplanet.data.store.SettingsStore]). v46 adds the per-wheel
  * `reverseSpeedDirection` flag for Begode / Veteran wheels with inverted
- * motor wiring. Room is reserved for trips, alarm rules and per-wheel
- * profiles, which change shape rarely and get explicit migrations.
+ * motor wiring. v48 adds the per-alarm `leadTimeMs` for predictive alarms.
+ * Room is reserved for trips, alarm rules and per-wheel profiles, which
+ * change shape rarely and get explicit migrations.
  */
 @Database(
     entities = [TripRecord::class, AlarmRule::class, WheelProfile::class],
-    version = 47,
+    version = 53,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {

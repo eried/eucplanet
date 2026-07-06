@@ -137,6 +137,39 @@ class ChargingEstimatorTest {
     }
 
     @Test
+    fun `anchor slides down while discharging then freezes at the charge low`() {
+        // medianFilterSize = 1 isolates the anchor logic from filter lag.
+        val est = ChargingEstimator(medianFilterSize = 1)
+        est.addSample(0, 60f)
+        est.addSample(1_000, 58f)   // lower  -> anchor follows the pack down
+        est.addSample(2_000, 55f)   // lower  -> anchor now 55 (the low point)
+        est.addSample(3_000, 57f)   // rising -> anchor stays at 55
+        est.addSample(4_000, 59f)
+        val e = est.estimate()
+        assertEquals("anchor is the low point, not the 60% it opened at", 55f, e.startPercent, 0.01f)
+        assertEquals("added counts from the low", 4f, e.addedPercent, 0.01f) // 59 - 55
+    }
+
+    @Test
+    fun `charge after a ride warms up from the low, not the ride-start level`() {
+        // Reproduces the bug: the session opens while riding at 80 %, the pack
+        // drops to 70 %, then charging begins. Before the fix the anchor stuck
+        // at 80 %, so added = max(0, 78-80) = 0 and the ETA never warmed up.
+        val est = ChargingEstimator() // production gates: 5 % / 5 min
+        var t = 0L
+        // Ride connected: 80 % -> 70 % at -1 %/min over 10 min (1 Hz).
+        repeat(600) { est.addSample(t, 80f - 1f * (t / 60_000f)); t += 1_000 }
+        val low = t
+        // Then charge: 70 % -> 78 % at +1 %/min over 8 min.
+        repeat(480) { est.addSample(t, 70f + 1f * ((t - low) / 60_000f)); t += 1_000 }
+        val e = est.estimate()
+        assertTrue("anchor dropped to the charge low, not the 80% ride start", e.startPercent < 75f)
+        assertTrue("added counts from the low (>5%)", e.addedPercent > 5f)
+        assertTrue("warms up from the charge low, not the ride start", e.warmedUp)
+        assertNotNull("gives a full ETA once charging from the low", e.minutesToFull)
+    }
+
+    @Test
     fun `median filter drops a single-frame outlier without skewing the slope`() {
         val est = smallGates()
         // Steady 1 %/min stream over 4 min at 1 Hz, with every 30th sample

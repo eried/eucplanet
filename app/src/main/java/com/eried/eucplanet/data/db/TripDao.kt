@@ -39,8 +39,20 @@ interface TripDao {
     @Query("SELECT * FROM trips WHERE id = :id")
     suspend fun getById(id: Long): TripRecord?
 
+    /** Live-recorded trips with no end time. Normally just the one currently
+     *  recording, but at cold start any left here are recordings a previous
+     *  session was killed mid-flight (force-close / crash). Finalized from their
+     *  CSV by the startup recovery sweep so they stop showing as 0 km / no-end. */
+    @Query("SELECT * FROM trips WHERE endTime IS NULL")
+    suspend fun getUnfinished(): List<TripRecord>
+
     @Query("SELECT * FROM trips WHERE fileName = :name LIMIT 1")
     suspend fun findByFileName(name: String): TripRecord?
+
+    /** All trip CSV file names on record. Used to find orphan CSVs in the trips
+     *  directory whose DB row went missing (e.g. after a DB rebuild). */
+    @Query("SELECT fileName FROM trips")
+    suspend fun allFileNames(): List<String>
 
     /**
      * Trips eligible for an eucstats upload, newest first. Three buckets:

@@ -64,6 +64,9 @@ data class AppSettings(
     val voiceIntervalSeconds: Int = 60,
     val voiceSpeechRate: Float = 1.2f,
     val voiceLocale: String = "en_US",  // locale tag for TTS voice
+    // Specific TTS Voice.name within the locale (a language can expose several
+    // voices). Empty = let the engine use its default voice for the locale.
+    val voiceName: String = "",
     /**
      * True once the rider has explicitly picked a voice (either from the
      * voice picker, or by saying "no, keep my voice" to the language-change
@@ -190,6 +193,43 @@ data class AppSettings(
     val unitTemp: String = "",      // "" | "C"   | "F"   | "K"
 
     val phoneKeepScreenOn: Boolean = false,
+
+    // Per-screen rotation (landscape). The app allows rotation at the manifest
+    // level; these gate which screens actually rotate. The main dashboard
+    // defaults to portrait-locked; the others default to allowing rotation.
+    val rotateDashboard: Boolean = false,
+    val rotateNavigator: Boolean = true,
+    val rotateOtherScreens: Boolean = true,
+
+    // Screen geometry. Compact mode is the tiny dashboard (speedo + one
+    // swipeable buttons/metrics area) used on flip cover screens; it reuses
+    // the rider's normal dashboard configuration. AUTO activates it when both
+    // screen dimensions are small; ALWAYS / NEVER override the detection.
+    // coverCameraCutout keeps a corner of the compact layout empty where the
+    // cover lenses sit over the panel (no API reports their area): OFF, LEFT
+    // or RIGHT.
+    val compactModeWhen: String = "AUTO",
+    val coverCameraCutout: String = "OFF",
+    // Main gauge style per surface, an open key so future styles (a
+    // PWM-primary gauge, combined readouts) are one new key + renderer, not a
+    // schema change: DIAL (classic ring) or NUMBER (plain value). Unknown
+    // keys render as DIAL. Compact defaults to NUMBER for tiny-panel
+    // readability; landscape keeps the dial.
+    val compactSpeedoStyle: String = "NUMBER",
+    val landscapeSpeedoStyle: String = "DIAL",
+    // Landscape dashboard: swap the metric and button columns (left-hand
+    // mounts).
+    val landscapeMirrored: Boolean = false,
+    // App-wide: block reverse portrait when rotation is allowed. One flag for
+    // the whole app because the orientation policy is per activity window.
+    val blockUpsideDown: Boolean = false,
+    // App-wide: rotate from the sensor even when the system auto-rotate
+    // toggle is off (riders often lock system rotation for pocket carry but
+    // want the mounted app to follow the wheel mount anyway).
+    val ignoreSystemRotateLock: Boolean = false,
+    // Landscape navigator stops panel: DEFAULT keeps the bottom panel exactly
+    // like portrait; LEFT / RIGHT dock it as an always-open sidebar.
+    val navStopsSide: String = "RIGHT",
 
     // Volume keys (work while app is in foreground)
     val volumeKeysEnabled: Boolean = false,
@@ -443,6 +483,18 @@ data class AppSettings(
      */
     val watchUpdateRate: String = "NORMAL",
     /**
+     * Advanced power-user timing / threshold settings, grouped into a nested
+     * object on purpose. As 46 more top-level fields, AppSettings' generated
+     * copy()/copy$default blew past the JVM/dex 255-argument limit, so the app
+     * crashed at class verification (VerifyError on any .copy() caller, e.g.
+     * FlicManager). The delegating getters in the class body keep
+     * `settings.wheelPollIntervalMs` etc. working unchanged everywhere.
+     */
+    val advanced: AdvancedSettings = AdvancedSettings(),
+    /** Settings-screen layout the rider arranged: section display order and which
+     *  sections are tucked into the "More" bucket. See [SettingsLayout]. */
+    val settingsLayout: SettingsLayout = SettingsLayout(),
+    /**
      * Mirror the live navigation popup (turn arrow + distance) on the paired
      * watch. On by default; the rider can turn it off to keep the watch dial
      * as the only glance surface.
@@ -628,10 +680,12 @@ data class AppSettings(
     // --- Overlay Studio replay export ---
     // Output format for the Replay-mode photo / video export. Stored as stable
     // keys so the format set can change without a settings migration.
-    /** Replay photo export format: "WEBP" (alpha, fast), "PNG" (alpha,
-     *  larger / slower) or "JPG" (chroma-filled). */
-    val studioReplayPhotoFormat: String = "WEBP",
-    /** Replay video export format: "GIF" (1-bit alpha), "APNG" (alpha) or "MP4" (chroma-filled). */
+    /** Replay photo export format: "PNG" (alpha, default), "WEBP" (alpha, fast),
+     *  "JPG" (chroma-filled) or "GIF" (1-bit alpha). */
+    val studioReplayPhotoFormat: String = "PNG",
+    /** Replay video export format: "MP4" (chroma-filled, default), "APNG"
+     *  (alpha) or "GIF" (1-bit alpha). The ffmpeg "MOV" (ProRes 4444) path is
+     *  disabled app-wide, so it is no longer a valid value. */
     val studioReplayVideoFormat: String = "MP4",
     /**
      * ARGB chroma-key fill colour used when an alpha-less export format (JPG,
@@ -644,6 +698,9 @@ data class AppSettings(
      * the chroma fill and look wrong. Default on.
      */
     val studioReplayForceOpaque: Boolean = true,
+    // MOV alpha codec (studioReplayMovQtrle) removed: the ffmpeg ProRes/.mov
+    // export path is disabled app-wide. Any leftover value in a persisted JSON
+    // blob is simply ignored by Gson.
 
     // Dashboard layout (customizable home screen).
     //
@@ -734,6 +791,153 @@ data class AppSettings(
      *  Sync all UI to label "Last synced 5 min ago" and by the worker to
      *  decide whether the settings.json on Dropbox is current. */
     val dropboxLastSyncAt: Long = 0L
+) {
+    // Delegating getters so reads like `settings.wheelPollIntervalMs` keep working
+    // after the 46 advanced fields moved into the nested [AdvancedSettings] (which
+    // keeps AppSettings' copy() under the JVM/dex 255-argument limit). Writes use
+    // copy(advanced = advanced.copy(...)).
+    val wheelPollIntervalMs: Int get() = advanced.wheelPollIntervalMs
+    val graphSampleIntervalMs: Int get() = advanced.graphSampleIntervalMs
+    val tripRecordIntervalMs: Int get() = advanced.tripRecordIntervalMs
+    val pendingUploadIntervalMin: Int get() = advanced.pendingUploadIntervalMin
+    val tripFinalizeGraceMs: Int get() = advanced.tripFinalizeGraceMs
+    val lockMaxSpeedKmh: Int get() = advanced.lockMaxSpeedKmh
+    val phoneGpsIntervalMs: Int get() = advanced.phoneGpsIntervalMs
+    val hudReportIntervalMs: Int get() = advanced.hudReportIntervalMs
+    val garminReportIntervalMs: Int get() = advanced.garminReportIntervalMs
+    val navOffRouteGraceMs: Int get() = advanced.navOffRouteGraceMs
+    val navOffRouteVoiceAfterMs: Int get() = advanced.navOffRouteVoiceAfterMs
+    val navOffRouteVoiceCooldownMs: Int get() = advanced.navOffRouteVoiceCooldownMs
+    val navRerouteAfterMs: Int get() = advanced.navRerouteAfterMs
+    val navArrivalDismissMs: Int get() = advanced.navArrivalDismissMs
+    val navHuntVoiceIntervalMs: Int get() = advanced.navHuntVoiceIntervalMs
+    val navHeadingWindowMs: Int get() = advanced.navHeadingWindowMs
+    val navFixBufferMs: Int get() = advanced.navFixBufferMs
+    val navIntermediateFlashMs: Int get() = advanced.navIntermediateFlashMs
+    val navPopupTimeoutMs: Int get() = advanced.navPopupTimeoutMs
+    val alarmSlopeWindowMs: Int get() = advanced.alarmSlopeWindowMs
+    val alarmBufferMaxMs: Int get() = advanced.alarmBufferMaxMs
+    val alarmSlopeMinSamples: Int get() = advanced.alarmSlopeMinSamples
+    val alarmSlopeMinSpanMs: Int get() = advanced.alarmSlopeMinSpanMs
+    val radarClearDecayMs: Int get() = advanced.radarClearDecayMs
+    val automationLightCheckIntervalMs: Int get() = advanced.automationLightCheckIntervalMs
+    val hudBackoffMinMs: Int get() = advanced.hudBackoffMinMs
+    val hudBackoffMaxMs: Int get() = advanced.hudBackoffMaxMs
+    val hudMdnsTimeoutMs: Int get() = advanced.hudMdnsTimeoutMs
+    val hudDiscoverySprintMs: Int get() = advanced.hudDiscoverySprintMs
+    val hudUdpProbeTimeoutMs: Int get() = advanced.hudUdpProbeTimeoutMs
+    val hudUdpBeaconFreshnessMs: Int get() = advanced.hudUdpBeaconFreshnessMs
+    val hudUdpPollIntervalMs: Int get() = advanced.hudUdpPollIntervalMs
+    val hudManualHintDelayMs: Int get() = advanced.hudManualHintDelayMs
+    val hudDiscoveryTotalTimeoutMs: Int get() = advanced.hudDiscoveryTotalTimeoutMs
+    val hudMdnsServiceInfoTimeoutMs: Int get() = advanced.hudMdnsServiceInfoTimeoutMs
+    val autoLightNoGpsRetryMs: Int get() = advanced.autoLightNoGpsRetryMs
+    val autoToggleGraceMs: Int get() = advanced.autoToggleGraceMs
+    val navMovingKmh: Int get() = advanced.navMovingKmh
+    val navPrepareDistM: Int get() = advanced.navPrepareDistM
+    val navExecuteDistM: Int get() = advanced.navExecuteDistM
+    val navProxBandM: Int get() = advanced.navProxBandM
+    val navMinInterStopMoveM: Int get() = advanced.navMinInterStopMoveM
+    val radarFastApproachDistM: Int get() = advanced.radarFastApproachDistM
+    val radarFastApproachSpeedKmh: Int get() = advanced.radarFastApproachSpeedKmh
+    val radarStaticTargetKmh: Int get() = advanced.radarStaticTargetKmh
+    val radarFallbackClosingMps: Int get() = advanced.radarFallbackClosingMps
+    val radarMinFrameRateMs: Int get() = advanced.radarMinFrameRateMs
+    val chargingTargetPercent: Int get() = advanced.chargingTargetPercent
+    val chargingTargetTaperX100: Int get() = advanced.chargingTargetTaperX100
+    val chargingCvTaperX100: Int get() = advanced.chargingCvTaperX100
+    val chargingWarmupMinPercentGain: Int get() = advanced.chargingWarmupMinPercentGain
+    val chargingWarmupMinDurationMs: Int get() = advanced.chargingWarmupMinDurationMs
+    val chargingWindowMs: Int get() = advanced.chargingWindowMs
+    val chargingSanityCapMinutes: Int get() = advanced.chargingSanityCapMinutes
+    val chargingMedianFilterSize: Int get() = advanced.chargingMedianFilterSize
+}
+
+/**
+ * The rider's Settings-screen arrangement.
+ *
+ * [order] lists the movable section keys in display order (an empty list means
+ * the built-in default order; unknown / newly added keys fall to the end).
+ * [hidden] lists the section keys tucked into the "More" bucket. The Advanced
+ * section is always pinned last and is never moved or hidden.
+ */
+data class SettingsLayout(
+    val order: List<String> = emptyList(),
+    val hidden: List<String> = emptyList(),
+)
+
+/**
+ * Power-user "Advanced" timing / threshold settings. Nested under
+ * [AppSettings.advanced] so AppSettings' generated copy() stays under the
+ * JVM/dex 255-argument limit. All clamped in SettingsRepository.sanitized().
+ */
+data class AdvancedSettings(
+    val wheelPollIntervalMs: Int = 250,
+    val graphSampleIntervalMs: Int = 1000,
+    val tripRecordIntervalMs: Int = 1000,
+    // Background safety-net interval for retrying trips left pending (e.g. app
+    // closed mid-sync). Minutes -- 15 is Android's WorkManager periodic floor.
+    val pendingUploadIntervalMin: Int = 15,
+    // Grace after a recording stops before the trip is finalized and synced.
+    val tripFinalizeGraceMs: Int = 15000,
+    // Speed (km/h) above which a lock command is refused, for safety.
+    val lockMaxSpeedKmh: Int = 5,
+    val phoneGpsIntervalMs: Int = 1000,
+    val hudReportIntervalMs: Int = 200,
+    val garminReportIntervalMs: Int = 200,
+    val navOffRouteGraceMs: Int = 8000,
+    val navOffRouteVoiceAfterMs: Int = 14000,
+    val navOffRouteVoiceCooldownMs: Int = 35000,
+    val navRerouteAfterMs: Int = 22000,
+    val navArrivalDismissMs: Int = 9000,
+    val navHuntVoiceIntervalMs: Int = 45000,
+    val navHeadingWindowMs: Int = 8000,
+    val navFixBufferMs: Int = 14000,
+    val navIntermediateFlashMs: Int = 1500,
+    val navPopupTimeoutMs: Int = 5000,
+    val alarmSlopeWindowMs: Int = 1500,
+    val alarmBufferMaxMs: Int = 2500,
+    val alarmSlopeMinSamples: Int = 3,
+    val alarmSlopeMinSpanMs: Int = 300,
+    val radarClearDecayMs: Int = 3000,
+    val automationLightCheckIntervalMs: Int = 60000,
+    val hudBackoffMinMs: Int = 1000,
+    val hudBackoffMaxMs: Int = 5000,
+    val hudMdnsTimeoutMs: Int = 6000,
+    val hudDiscoverySprintMs: Int = 30000,
+    val hudUdpProbeTimeoutMs: Int = 8000,
+    val hudUdpBeaconFreshnessMs: Int = 10000,
+    val hudUdpPollIntervalMs: Int = 200,
+    val hudManualHintDelayMs: Int = 1500,
+    val hudDiscoveryTotalTimeoutMs: Int = 15000,
+    val hudMdnsServiceInfoTimeoutMs: Int = 1000,
+    val autoLightNoGpsRetryMs: Int = 2000,
+    val autoToggleGraceMs: Int = 4000,
+    val navMovingKmh: Int = 4,
+    val navPrepareDistM: Int = 200,
+    val navExecuteDistM: Int = 30,
+    val navProxBandM: Int = 4,
+    val navMinInterStopMoveM: Int = 30,
+    val radarFastApproachDistM: Int = 50,
+    val radarFastApproachSpeedKmh: Int = 60,
+    val radarStaticTargetKmh: Int = 3,
+    val radarFallbackClosingMps: Int = 10,
+    val radarMinFrameRateMs: Int = 100,
+    val chargingTargetPercent: Int = 80,
+    val chargingTargetTaperX100: Int = 105,
+    val chargingCvTaperX100: Int = 200,
+    val chargingWarmupMinPercentGain: Int = 1,
+    val chargingWarmupMinDurationMs: Int = 40000,
+    val chargingWindowMs: Int = 300000,
+    val chargingSanityCapMinutes: Int = 480,
+    val chargingMedianFilterSize: Int = 7,
+    // Screen geometry variables (AdvGroup.GEOMETRY): the thresholds and sizes
+    // behind compact mode, the cover lens cutout and the navigator sidebar.
+    val compactMaxScreenDp: Int = 500,
+    val coverCutoutInsetDp: Int = 96,
+    val simpleSpeedoScalePct: Int = 62,
+    val navSidebarWidthDp: Int = 340,
+    val navSidebarMinScreenDp: Int = 600,
 )
 
 // FlicAction enum removed (2026-05). Replaced by

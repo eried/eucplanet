@@ -689,6 +689,15 @@ internal fun MetricGraph(
     predictionMarkers: List<PredictionMarker>? = null,
     predictionColor: Color = Color(0xFFFF4081),
     /**
+     * Ordered future points (e.g. the predicted 80% then 100% finish) that a
+     * dashed poly-line connects to, starting from the last recorded sample. Each
+     * leg is straight -- the 80% and 100% ETAs come from separate estimators with
+     * different timing, so a single line to 100% would miss the 80% dot. Scrubbing
+     * past "now" follows the legs and reports the projected value at the cursor's
+     * future minute; past the final point the scrub reads nothing.
+     */
+    predictionPath: List<PredictionMarker> = emptyList(),
+    /**
      * Bipolar split colour: when non-null AND the rendered Y-range crosses
      * zero, the trace above the zero baseline is drawn in [color] and the
      * trace below in [regenColor]. Mirrors the TripDetailScreen ChartCard
@@ -739,10 +748,11 @@ internal fun MetricGraph(
     // opens. The cap also clips the marker dots themselves so a single
     // outlier prediction doesn't visually compress the rest of the trace.
     val futureCapMs = samples.last().timestampMs + MAX_PREDICTION_HORIZON_MS
-    val xMaxMs = maxOf(
-        samples.last().timestampMs,
-        (markers?.maxOf { it.timestampMs } ?: Long.MIN_VALUE).coerceAtMost(futureCapMs),
-    )
+    val futureMaxMs = maxOf(
+        markers?.maxOf { it.timestampMs } ?: Long.MIN_VALUE,
+        predictionPath.maxOfOrNull { it.timestampMs } ?: Long.MIN_VALUE,
+    ).coerceAtMost(futureCapMs)
+    val xMaxMs = maxOf(samples.last().timestampMs, futureMaxMs)
     val xSpanMs = (xMaxMs - xMinMs).coerceAtLeast(1L)
 
     Box(
@@ -975,6 +985,29 @@ internal fun MetricGraph(
                 }
             }
 
+            // Prediction line: a dashed straight segment from the last recorded
+            // point to the predicted 100% target. The rider can scrub along it
+            // and read the projected % at any future minute -- a plain linear
+            // extrapolation, drawn under the marker dots so they sit on top.
+            if (predictionPath.isNotEmpty()) {
+                val lastS = samples.last()
+                var prevX = w * (lastS.timestampMs - xMinMs).toFloat() / xSpanMs
+                var prevY = (h - h * (lastS.value - bounds.min) / padded.coerceAtLeast(0.001f)).coerceIn(0f, h)
+                val dash8 = PathEffect.dashPathEffect(floatArrayOf(8f, 8f))
+                clipRect(0f, 0f, w, h) {
+                    for (p in predictionPath) {
+                        val cx = w * (p.timestampMs - xMinMs).toFloat() / xSpanMs
+                        val cy = (h - h * (p.value - bounds.min) / padded.coerceAtLeast(0.001f)).coerceIn(0f, h)
+                        drawLine(
+                            predictionColor.copy(alpha = 0.6f),
+                            Offset(prevX, prevY), Offset(cx, cy),
+                            strokeWidth = 2f, pathEffect = dash8,
+                        )
+                        prevX = cx; prevY = cy
+                    }
+                }
+            }
+
             // Prediction-history markers: small faint dots clustered around
             // the running predicted finish time. As the prediction stabilises
             // they cluster tightly; if it drifts they spread along X. Draw
@@ -1004,56 +1037,77 @@ internal fun MetricGraph(
             if (tx != null && samples.size >= 2) {
                 val cursorX = (tx - 44.dp.toPx()).coerceIn(0f, w)
                 val tN = samples.last().timestampMs
+                val lastVal = samples.last().value
                 val frac = (cursorX / w).coerceIn(0f, 1f)
                 val tTargetExtended = xMinMs + (frac * xSpanMs.toDouble()).toLong()
-                // For sample-lookup the cursor is clamped to the data range
-                // (no extrapolation of the value past the last sample).
-                val tTarget = tTargetExtended.coerceAtMost(tN)
-                val li = samples.indexOfLast { it.timestampMs <= tTarget }.coerceIn(0, samples.size - 1)
-                val ri = (li + 1).coerceAtMost(samples.size - 1)
-                val a = samples[li]
-                val b = samples[ri]
-                val sp = (b.timestampMs - a.timestampMs).coerceAtLeast(1L)
-                val ff = ((tTarget - a.timestampMs).toFloat() / sp).coerceIn(0f, 1f)
-                val value = a.value + (b.value - a.value) * ff
-                val cursorY = (h - h * (value - bounds.min) / padded.coerceAtLeast(0.001f)).coerceIn(0f, h)
-
-                drawLine(color.copy(alpha = 0.5f), Offset(cursorX, 0f), Offset(cursorX, h), strokeWidth = 1.5f)
-                drawCircle(color, radius = 4f, center = Offset(cursorX, cursorY))
-                drawCircle(Color.White, radius = 2f, center = Offset(cursorX, cursorY))
-
-                val labelText = buildString {
-                    if (timeAxisFormat == TimeAxisFormat.Clock) {
-                        // Show the wall-clock time the cursor is on so the
-                        // rider can match a reading back to a precise minute
-                        // mid-charge. Uses the extended time so the rider
-                        // can scrub past "now" into the prediction region
-                        // and still see a meaningful future time. Locale
-                        // chooses 12 h / 24 h automatically.
-                        append(clockFmt.format(java.util.Date(tTargetExtended)))
-                        append("  •  ")
+                val inHistory = tTargetExtended <= tN
+                // Value at the cursor time. In the recorded region we interpolate
+                // the samples; past "now" we follow the straight prediction line
+                // to the target (100%); past the target it is null so nothing is
+                // drawn (no more pinning the last recorded % across the future).
+                val value: Float? = when {
+                    inHistory -> {
+                        val li = samples.indexOfLast { it.timestampMs <= tTargetExtended }.coerceIn(0, samples.size - 1)
+                        val ri = (li + 1).coerceAtMost(samples.size - 1)
+                        val a = samples[li]; val b = samples[ri]
+                        val sp = (b.timestampMs - a.timestampMs).coerceAtLeast(1L)
+                        val ff = ((tTargetExtended - a.timestampMs).toFloat() / sp).coerceIn(0f, 1f)
+                        a.value + (b.value - a.value) * ff
                     }
-                    append(if (unitLabel.isBlank()) "%.1f".format(value) else "%.1f %s".format(value, unitLabel))
-                    if (s2 != null) {
-                        val li2 = s2.indexOfLast { it.timestampMs <= tTarget }.coerceIn(0, s2.size - 1)
-                        val ri2 = (li2 + 1).coerceAtMost(s2.size - 1)
-                        val a2 = s2[li2]; val b2 = s2[ri2]
-                        val sp2 = (b2.timestampMs - a2.timestampMs).coerceAtLeast(1L)
-                        val ff2 = ((tTarget - a2.timestampMs).toFloat() / sp2).coerceIn(0f, 1f)
-                        append("  •  %.1f %s".format(a2.value + (b2.value - a2.value) * ff2, unit2))
+                    predictionPath.isNotEmpty() && tTargetExtended <= predictionPath.last().timestampMs -> {
+                        // Walk the poly-line legs (last sample -> each path point)
+                        // and interpolate within the leg the cursor falls in.
+                        var prevT = tN; var prevV = lastVal
+                        var v = predictionPath.last().value
+                        for (p in predictionPath) {
+                            if (tTargetExtended <= p.timestampMs) {
+                                val span = (p.timestampMs - prevT).coerceAtLeast(1L)
+                                val ff = ((tTargetExtended - prevT).toFloat() / span).coerceIn(0f, 1f)
+                                v = prevV + (p.value - prevV) * ff
+                                break
+                            }
+                            prevT = p.timestampMs; prevV = p.value
+                        }
+                        v
                     }
+                    else -> null
                 }
-                val measured = textMeasurer.measure(
-                    labelText, TextStyle(fontSize = 10.sp, color = tooltipFg, fontWeight = FontWeight.Medium)
-                )
-                val padX = 5f
-                val padY = 2f
-                val boxW = measured.size.width + padX * 2
-                val boxH = measured.size.height + padY * 2
-                val boxX = (cursorX - boxW / 2f).coerceIn(0f, w - boxW)
-                val boxY = (cursorY - boxH - 6f).coerceAtLeast(0f)
-                drawRoundRect(tooltipBg, topLeft = Offset(boxX, boxY), size = Size(boxW, boxH), cornerRadius = CornerRadius(5f, 5f))
-                drawText(measured, topLeft = Offset(boxX + padX, boxY + padY))
+                if (value != null) {
+                    val cursorY = (h - h * (value - bounds.min) / padded.coerceAtLeast(0.001f)).coerceIn(0f, h)
+                    drawLine(color.copy(alpha = 0.5f), Offset(cursorX, 0f), Offset(cursorX, h), strokeWidth = 1.5f)
+                    drawCircle(color, radius = 4f, center = Offset(cursorX, cursorY))
+                    drawCircle(Color.White, radius = 2f, center = Offset(cursorX, cursorY))
+
+                    val labelText = buildString {
+                        if (timeAxisFormat == TimeAxisFormat.Clock) {
+                            // Wall-clock time under the cursor (extended, so a
+                            // future minute in the prediction region reads right).
+                            append(clockFmt.format(java.util.Date(tTargetExtended)))
+                            append("  •  ")
+                        }
+                        append(if (unitLabel.isBlank()) "%.1f".format(value) else "%.1f %s".format(value, unitLabel))
+                        // Secondary series only exists over the recorded region.
+                        if (s2 != null && inHistory) {
+                            val li2 = s2.indexOfLast { it.timestampMs <= tTargetExtended }.coerceIn(0, s2.size - 1)
+                            val ri2 = (li2 + 1).coerceAtMost(s2.size - 1)
+                            val a2 = s2[li2]; val b2 = s2[ri2]
+                            val sp2 = (b2.timestampMs - a2.timestampMs).coerceAtLeast(1L)
+                            val ff2 = ((tTargetExtended - a2.timestampMs).toFloat() / sp2).coerceIn(0f, 1f)
+                            append("  •  %.1f %s".format(a2.value + (b2.value - a2.value) * ff2, unit2))
+                        }
+                    }
+                    val measured = textMeasurer.measure(
+                        labelText, TextStyle(fontSize = 10.sp, color = tooltipFg, fontWeight = FontWeight.Medium)
+                    )
+                    val padX = 5f
+                    val padY = 2f
+                    val boxW = measured.size.width + padX * 2
+                    val boxH = measured.size.height + padY * 2
+                    val boxX = (cursorX - boxW / 2f).coerceIn(0f, w - boxW)
+                    val boxY = (cursorY - boxH - 6f).coerceAtLeast(0f)
+                    drawRoundRect(tooltipBg, topLeft = Offset(boxX, boxY), size = Size(boxW, boxH), cornerRadius = CornerRadius(5f, 5f))
+                    drawText(measured, topLeft = Offset(boxX + padX, boxY + padY))
+                }
             }
         }
     }

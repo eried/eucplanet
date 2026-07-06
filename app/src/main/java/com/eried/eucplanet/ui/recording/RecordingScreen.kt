@@ -509,25 +509,21 @@ private fun TripCard(
                 )
                 if (isRecording) {
                     val elapsed = (now - trip.startTime) / 1000
-                    val minutes = elapsed / 60
-                    val seconds = elapsed % 60
                     val km = liveDistanceKm ?: 0f
                     Text(
-                        "%.1f %s | %d:%02d".format(
+                        "%.1f %s | %s".format(
                             com.eried.eucplanet.util.Units.distance(km, distanceUnit),
-                            distanceUnitLabel, minutes, seconds
+                            distanceUnitLabel, com.eried.eucplanet.util.Units.humanDuration(elapsed)
                         ),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.appColors.statusDanger
                     )
                 } else {
                     val duration = ((trip.endTime ?: trip.startTime) - trip.startTime) / 1000
-                    val minutes = duration / 60
-                    val seconds = duration % 60
                     Text(
-                        "%.1f %s | %d:%02d".format(
+                        "%.1f %s | %s".format(
                             com.eried.eucplanet.util.Units.distance(trip.distanceKm, distanceUnit),
-                            distanceUnitLabel, minutes, seconds
+                            distanceUnitLabel, com.eried.eucplanet.util.Units.humanDuration(duration)
                         ),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant

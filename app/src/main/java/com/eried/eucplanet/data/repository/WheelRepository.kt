@@ -69,6 +69,10 @@ data class ChargingSnapshot(
     val predictionHistory: List<PredictionSample> = emptyList(),
     /** Signed Wh integrated since session start (+ charging, − discharging). */
     val sessionEnergyWh: Float = 0f,
+    /** Wh added while charging this session (positive-power integration). */
+    val sessionEnergyInWh: Float = 0f,
+    /** Wh used while discharging this session (magnitude of the negative-power part). */
+    val sessionEnergyOutWh: Float = 0f,
 )
 
 data class FullMetricHistory(
@@ -135,10 +139,14 @@ class WheelRepository @Inject constructor(
 ) {
     companion object {
         private const val TAG = "WheelRepo"
-        // Realtime poll-and-push intervals for the three watchUpdateRate tiers.
-        private const val POLL_INTERVAL_MS = 250L              // "NORMAL" (default)
-        private const val FAST_POLL_INTERVAL_MS = 150L         // "FAST"
-        private const val CONSERVATIVE_POLL_INTERVAL_MS = 750L // "CONSERVATIVE"
+        // Default wheel-poll interval (ms). Overridden per-rider by
+        // AppSettings.wheelPollIntervalMs; this is only the fallback / initial
+        // value. Fully decoupled from the watch feed — watchUpdateRate now paces
+        // WearBridge alone. Only request/response wheels (InMotion, Ninebot)
+        // honour this; push-only families ignore it (they free-run).
+        private const val POLL_INTERVAL_MS = 250L
+        // Default dashboard-chart sampling interval (ms); overridden by
+        // AppSettings.graphSampleIntervalMs. Charts only — not alarms/recording.
         private const val HISTORY_SAMPLE_INTERVAL_MS = 1000L
         // Hard 5-minute window on the metric history buffers. Without this,
         // each list grows unbounded at 1 Hz (memory leak) and the chart's
@@ -241,6 +249,12 @@ class WheelRepository @Inject constructor(
     private var lastPredictionLogMs = 0L
     // Trapezoidal energy integral for the session (sign matches V*I).
     private var sessionEnergyWh = 0f
+    // Session energy split by direction so the Battery screen can show the ride
+    // loss and the charge gain separately (net = in - out). Sign-based on the
+    // instantaneous power, so a V14 (~0 A while charging) still accumulates a
+    // real "out" over the ride while its "in" stays ~0.
+    private var sessionEnergyInWh = 0f
+    private var sessionEnergyOutWh = 0f
     private var sessionLastEnergyMs = 0L
     private var sessionLastPowerW = 0f
     private val _chargingSnapshot = MutableStateFlow(ChargingSnapshot())
@@ -395,12 +409,28 @@ class WheelRepository @Inject constructor(
     @Volatile private var speedCalibrationMultiplier: Float = 1f
 
     /**
-     * Realtime poll interval in milliseconds, resolved from
-     * AppSettings.watchUpdateRate and mirrored into the hot poll path so the
-     * loop never re-collects the settings flow per cycle. Unknown values fall
-     * back to [POLL_INTERVAL_MS].
+     * Wheel poll interval in milliseconds, resolved from
+     * AppSettings.wheelPollIntervalMs and mirrored into the hot poll path so the
+     * loop never re-collects the settings flow per cycle. Independent of the
+     * watch feed. Falls back to [POLL_INTERVAL_MS].
      */
     @Volatile private var pollIntervalMs: Long = POLL_INTERVAL_MS
+
+    /**
+     * Dashboard-chart sampling interval in milliseconds, resolved from
+     * AppSettings.graphSampleIntervalMs. Drives only the rolling-history buffers;
+     * alarms run at the full telemetry rate and trip recording has its own
+     * interval. Falls back to [HISTORY_SAMPLE_INTERVAL_MS].
+     */
+    @Volatile private var graphSampleIntervalMs: Long = HISTORY_SAMPLE_INTERVAL_MS
+
+    /**
+     * How much rolling history to retain in the metric buffers, in ms. Follows
+     * the rider's dashboard rolling-window setting (up to 15 min) but never drops
+     * below [HISTORY_WINDOW_MS], so the detail charts keep a sane minimum. Fixes
+     * the buffer silently capping a 10 / 15-min window at 5 min.
+     */
+    @Volatile private var historyWindowMs: Long = HISTORY_WINDOW_MS
 
     /**
      * Riders have lock-toggle bindings on Flic buttons, the watch buttons, the
@@ -410,7 +440,7 @@ class WheelRepository @Inject constructor(
      * has speed = 0 by definition). 5 km/h covers the standstill / push-assist
      * range without false rejecting at IMU noise around zero.
      */
-    private val LOCK_MAX_SPEED_KMH = 5f
+    @Volatile private var lockMaxSpeedKmh = 5f
 
     private fun startCooldown(busyFlag: MutableStateFlow<Boolean>, durationMs: Long, setUntil: (Long) -> Unit) {
         val now = System.currentTimeMillis()
@@ -506,11 +536,28 @@ class WheelRepository @Inject constructor(
             settingsRepository.settings.collect { s ->
                 val clamped = s.speedCalibrationOffsetPct.coerceIn(-15f, 15f)
                 speedCalibrationMultiplier = 1f + clamped / 100f
-                pollIntervalMs = when (s.watchUpdateRate) {
-                    "CONSERVATIVE" -> CONSERVATIVE_POLL_INTERVAL_MS
-                    "FAST" -> FAST_POLL_INTERVAL_MS
-                    else -> POLL_INTERVAL_MS
-                }
+                // Wheel poll + chart sampling are independent rider settings now,
+                // both decoupled from the watch feed (watchUpdateRate paces only
+                // WearBridge). Mirror into volatiles so the hot loops never
+                // re-collect the flow per cycle.
+                pollIntervalMs = s.wheelPollIntervalMs.toLong()
+                graphSampleIntervalMs = s.graphSampleIntervalMs.toLong()
+                // Retain at least the rider's dashboard rolling window (up to
+                // 15 min), floored at the 5-min default so detail charts don't
+                // shrink below it when the window is set small.
+                historyWindowMs = maxOf(s.dashboardRollingWindowSeconds * 1000L, HISTORY_WINDOW_MS)
+                lockMaxSpeedKmh = s.lockMaxSpeedKmh.toFloat()
+                // Push the rider's charging-ETA tuning into the live estimator; it
+                // reads these each estimate() so a change applies without losing the
+                // running session. Taper factors are stored x100.
+                chargingEstimator.targetPercent = s.chargingTargetPercent.toFloat()
+                chargingEstimator.targetTaperFactor = s.chargingTargetTaperX100 / 100f
+                chargingEstimator.cvTaperFactor = s.chargingCvTaperX100 / 100f
+                chargingEstimator.warmupMinPercentGain = s.chargingWarmupMinPercentGain.toFloat()
+                chargingEstimator.warmupMinDurationMs = s.chargingWarmupMinDurationMs.toLong()
+                chargingEstimator.windowMs = s.chargingWindowMs.toLong()
+                chargingEstimator.sanityCapMinutes = s.chargingSanityCapMinutes.toFloat()
+                chargingEstimator.medianFilterSize = s.chargingMedianFilterSize
                 val wheelName = s.lastDeviceName
                 if (wheelName != null && bleManager.connectionState.value == ConnectionState.CONNECTED) {
                     persistWheelProfile(wheelName, s)
@@ -626,6 +673,8 @@ class WheelRepository @Inject constructor(
                 predictionHistory.clear()
                 lastPredictionLogMs = 0L
                 sessionEnergyWh = 0f
+                sessionEnergyInWh = 0f
+                sessionEnergyOutWh = 0f
                 sessionLastEnergyMs = data.timestamp
                 sessionLastPowerW = data.voltage * data.current
             }
@@ -636,7 +685,9 @@ class WheelRepository @Inject constructor(
             val nowPowerW = data.voltage * data.current
             val dtMs = (data.timestamp - sessionLastEnergyMs).coerceIn(0L, 5_000L)
             if (dtMs > 0L) {
-                sessionEnergyWh += ((sessionLastPowerW + nowPowerW) * 0.5f) * (dtMs / 3_600_000f)
+                val incWh = ((sessionLastPowerW + nowPowerW) * 0.5f) * (dtMs / 3_600_000f)
+                sessionEnergyWh += incWh
+                if (incWh >= 0f) sessionEnergyInWh += incWh else sessionEnergyOutWh -= incWh
             }
             sessionLastEnergyMs = data.timestamp
             sessionLastPowerW = nowPowerW
@@ -660,6 +711,8 @@ class WheelRepository @Inject constructor(
             predictionHistory.clear()
             lastPredictionLogMs = 0L
             sessionEnergyWh = 0f
+            sessionEnergyInWh = 0f
+            sessionEnergyOutWh = 0f
             sessionLastEnergyMs = 0L
             sessionLastPowerW = 0f
         }
@@ -695,6 +748,8 @@ class WheelRepository @Inject constructor(
             fullEtaMs = committedFullEtaMs,
             predictionHistory = predictionHistory.toList(),
             sessionEnergyWh = sessionEnergyWh,
+            sessionEnergyInWh = sessionEnergyInWh,
+            sessionEnergyOutWh = sessionEnergyOutWh,
         )
     }
 
@@ -975,9 +1030,9 @@ class WheelRepository @Inject constructor(
         // Hard block the lock direction when the wheel is moving, any entry
         // path (Flic, watch, volume keys, dashboard) lands here. Unlock is
         // always allowed; if the wheel is already locked, speed is 0 anyway.
-        if (targetState && kotlin.math.abs(_wheelData.value.speed) >= LOCK_MAX_SPEED_KMH &&
+        if (targetState && kotlin.math.abs(_wheelData.value.speed) >= lockMaxSpeedKmh &&
             !cheatState.lockAtAnySpeed.value) {
-            Log.d(TAG, "lock blocked: speed=${_wheelData.value.speed} >= ${LOCK_MAX_SPEED_KMH}")
+            Log.d(TAG, "lock blocked: speed=${_wheelData.value.speed} >= $lockMaxSpeedKmh")
             return
         }
         _locked.value = targetState
@@ -1387,9 +1442,9 @@ class WheelRepository @Inject constructor(
                     result.data.wheelMaxSpeedKmh,
                     result.data.wheelAlarmSpeedKmh
                 )
-                // Sample history at 1 Hz
+                // Sample history at the rider-configured graph interval
                 val now = System.currentTimeMillis()
-                if (now - lastHistorySampleMs >= HISTORY_SAMPLE_INTERVAL_MS) {
+                if (now - lastHistorySampleMs >= graphSampleIntervalMs) {
                     lastHistorySampleMs = now
                     val d = _wheelData.value
                     battHist.add(MetricSample(now, d.batteryPercent.toFloat()))
@@ -1409,7 +1464,7 @@ class WheelRepository @Inject constructor(
                     // Drop anything older than the 5-min window from every
                     // buffer in one pass. List.removeAll touches each list
                     // once so this stays linear in buffer size.
-                    val cutoff = now - HISTORY_WINDOW_MS
+                    val cutoff = now - historyWindowMs
                     listOf(battHist, tempHist, voltHist, ampsHist, loadHist, speedHist)
                         .forEach { it.removeAll { s -> s.timestampMs < cutoff } }
                     extrasHist.values.forEach { it.removeAll { s -> s.timestampMs < cutoff } }
