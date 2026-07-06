@@ -149,12 +149,13 @@ fun BoxScope.FieldNotchLabel(
     val c = MaterialTheme.appColors
     // The field's top border sits 8dp below the label's top (offset y = -8), so
     // split the two-stop gradient there: parent colour above, field fill below.
-    val above = aboveColor.takeOrElse { LocalFieldNotchAbove.current }.takeOrElse { c.appBackground }
-    // Below the border the label covers the control's own fill. A filled field
-    // (numeric box) passes its fieldBackground; a transparent control (segmented
-    // row) leaves this default, so the whole notch is one parent-coloured patch
-    // that simply interrupts the border - matching how the segments show through.
-    val below = belowColor.takeOrElse { above }
+    // The parent behind a settings field is the section card (surfaceVariant), NOT
+    // the app background; a dialog overrides this via LocalFieldNotchAbove/aboveColor
+    // with its own surface. Getting this wrong paints the label as a dark/light
+    // patch instead of blending like the native OutlinedTextField notch.
+    val above = aboveColor.takeOrElse { LocalFieldNotchAbove.current }.takeOrElse { c.surfaceVariant }
+    // Below the border the label covers the field's own fill.
+    val below = belowColor.takeOrElse { c.fieldBackground }
     val borderPx = with(LocalDensity.current) { 8.dp.toPx() }
     Row(
         modifier = Modifier

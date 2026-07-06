@@ -122,6 +122,8 @@ import com.eried.eucplanet.ui.common.HintText
 import com.eried.eucplanet.ui.common.InfoHint
 import com.eried.eucplanet.ui.theme.appColors
 import com.eried.eucplanet.ui.theme.FieldNotchLabel
+import com.eried.eucplanet.ui.theme.LocalFieldNotchAbove
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.graphics.Color
 import com.eried.eucplanet.util.Units
 import com.eried.eucplanet.ui.theme.themedFieldColors
@@ -569,6 +571,9 @@ private fun AlarmRuleEditorDialog(
                         .weight(1f, fill = false)
                         .verticalScroll(rememberScrollState())
                 ) {
+                // Fields sit on the dialog's own surface, so notch labels blend
+                // against it rather than the settings section colour.
+                CompositionLocalProvider(LocalFieldNotchAbove provides MaterialTheme.appColors.surface) {
                 // Metric (60%) + comparator (40%) share a row so the editor
                 // stays compact vertically. Comparator field shows just the
                 // glyph (≥ or <) when collapsed but opens to full-word labels
@@ -985,6 +990,7 @@ private fun AlarmRuleEditorDialog(
                         small = true
                     )
                 }
+                } // end notch-surface provider
                 } // end scrollable middle
 
                 Spacer(Modifier.height(16.dp))
@@ -1138,6 +1144,7 @@ private fun BeepStudioDialog(
             color = MaterialTheme.colorScheme.surface,
         ) {
             Column(Modifier.fillMaxWidth().padding(16.dp)) {
+                CompositionLocalProvider(LocalFieldNotchAbove provides MaterialTheme.appColors.surface) {
                 Text(
                     stringResource(R.string.alarm_beep_studio),
                     fontSize = 20.sp,
@@ -1238,6 +1245,7 @@ private fun BeepStudioDialog(
                         Text(stringResource(R.string.action_save))
                     }
                 }
+                } // end notch-surface provider
             }
         }
     }
