@@ -1464,7 +1464,7 @@ internal fun NumberUpDown(
             // clipped the number on dense screens). Tapping the field focuses it
             // (system keyboard) and reveals the up/down bubble above it.
             Surface(
-                shape = RoundedCornerShape(16.dp),
+                shape = RoundedCornerShape(percent = 50),
                 color = MaterialTheme.appColors.fieldBackground,
                 border = BorderStroke(
                     if (focused) 2.dp else 1.dp,
