@@ -25,6 +25,8 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.DragHandle
+import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.icons.filled.PlayArrow
@@ -98,9 +100,12 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.Popup
+import androidx.compose.ui.window.PopupProperties
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.eried.eucplanet.R
 import com.eried.eucplanet.data.model.AlarmComparator
@@ -1426,6 +1431,9 @@ internal fun NumberUpDown(
 ) {
     val fieldText = MaterialTheme.appColors.fieldText
     val fieldLabelColor = MaterialTheme.appColors.fieldLabel
+    val fieldBorder = MaterialTheme.appColors.fieldBorder
+    val focusBorder = MaterialTheme.appColors.primary
+    val density = LocalDensity.current
     var text by remember { mutableStateOf(format(value)) }
     var focused by remember { mutableStateOf(false) }
     // rememberUpdatedState so the hold-to-repeat loop below always steps from the
@@ -1445,25 +1453,25 @@ internal fun NumberUpDown(
                 modifier = Modifier.padding(bottom = 4.dp)
             )
         }
-        Surface(
-            shape = RoundedCornerShape(12.dp),
-            color = MaterialTheme.appColors.fieldBackground,
-            border = BorderStroke(1.dp, MaterialTheme.appColors.fieldBorder),
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Row(
-                modifier = Modifier.height(48.dp),
-                verticalAlignment = Alignment.CenterVertically
+        Box {
+            // Resting state is just the value + unit in a bordered field, so it
+            // stays compact and never clips no matter how narrow the row or how
+            // wide the value (the old always-visible steppers ate the width and
+            // clipped the number on dense screens). Tapping the field focuses it
+            // (system keyboard) and reveals the up/down bubble above it.
+            Surface(
+                shape = RoundedCornerShape(12.dp),
+                color = MaterialTheme.appColors.fieldBackground,
+                border = BorderStroke(
+                    if (focused) 2.dp else 1.dp,
+                    if (focused) focusBorder else fieldBorder,
+                ),
+                modifier = Modifier.fillMaxWidth()
             ) {
-                RepeatingStepper(
-                    icon = Icons.Default.Remove,
-                    contentDescription = stringResource(R.string.alarm_threshold_decrease),
-                    enabled = enabled && value > range.first,
-                    tint = fieldText,
-                    onStep = { stepBy(-step) },
-                )
                 Row(
-                    modifier = Modifier.weight(1f),
+                    modifier = Modifier
+                        .height(48.dp)
+                        .padding(horizontal = 14.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     BasicTextField(
@@ -1495,33 +1503,65 @@ internal fun NumberUpDown(
                             }
                     )
                     if (suffix.isNotEmpty()) {
-                        Spacer(Modifier.width(4.dp))
+                        Spacer(Modifier.width(6.dp))
                         Text(
                             suffix,
-                            fontSize = 14.sp,
+                            fontSize = 13.sp,
                             color = fieldLabelColor,
                             maxLines = 1,
                             softWrap = false,
                         )
-                        Spacer(Modifier.width(6.dp))
                     }
                 }
-                RepeatingStepper(
-                    icon = Icons.Default.Add,
-                    contentDescription = stringResource(R.string.alarm_threshold_increase),
-                    enabled = enabled && value < range.last,
-                    tint = fieldText,
-                    onStep = { stepBy(step) },
-                )
+            }
+            // Up/down stepper bubble: floats just above the field's trailing edge
+            // only while focused, so it never competes for row width. A
+            // non-focusable popup keeps the keyboard up when a stepper is tapped.
+            if (focused && enabled) {
+                Popup(
+                    alignment = Alignment.TopEnd,
+                    offset = IntOffset(0, with(density) { -(56.dp).roundToPx() }),
+                    properties = PopupProperties(focusable = false, clippingEnabled = false),
+                ) {
+                    Surface(
+                        shape = RoundedCornerShape(24.dp),
+                        color = MaterialTheme.appColors.fieldBackground,
+                        border = BorderStroke(1.dp, fieldBorder),
+                        shadowElevation = 6.dp,
+                    ) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            RepeatingStepper(
+                                icon = Icons.Default.KeyboardArrowDown,
+                                contentDescription = stringResource(R.string.alarm_threshold_decrease),
+                                enabled = value > range.first,
+                                tint = fieldText,
+                                onStep = { stepBy(-step) },
+                            )
+                            Box(
+                                Modifier
+                                    .width(1.dp)
+                                    .height(22.dp)
+                                    .background(fieldBorder)
+                            )
+                            RepeatingStepper(
+                                icon = Icons.Default.KeyboardArrowUp,
+                                contentDescription = stringResource(R.string.alarm_threshold_increase),
+                                enabled = value < range.last,
+                                tint = fieldText,
+                                onStep = { stepBy(step) },
+                            )
+                        }
+                    }
+                }
             }
         }
     }
 }
 
 /**
- * 48dp icon button for the NumberUpDown steppers: fires [onStep] once on press,
- * then auto-repeats with acceleration while held so the rider can sweep a value
- * fast (handy for fine 0.1-step fields like speed calibration).
+ * 48dp icon button for the NumberUpDown up/down bubble: fires [onStep] once on
+ * press, then auto-repeats with acceleration while held so the rider can sweep a
+ * value fast (handy for fine 0.1-step fields like speed calibration).
  */
 @Composable
 private fun RepeatingStepper(
