@@ -94,6 +94,14 @@ class WheelService : LifecycleService() {
     // cleared, the process is going away anyway.
     @Volatile
     private var killProcessOnDestroy: Boolean = false
+    // Flipped true the instant a teardown begins (Stop All, or onDestroy).
+    // Gates every NotificationManager.notify() so a telemetry or nav emission
+    // arriving mid-shutdown can't RE-POST the ongoing notification after we
+    // removed it -- a re-posted notify() is a standalone notification that
+    // outlives the process kill, which is exactly the "Stop All but the
+    // notification stays" bug riders reported.
+    @Volatile
+    private var shuttingDown: Boolean = false
 
     private fun hasPermission(perm: String) =
         ContextCompat.checkSelfPermission(this, perm) == PackageManager.PERMISSION_GRANTED
@@ -269,7 +277,8 @@ class WheelService : LifecycleService() {
             var lastNavNotifyMs = 0L
             navigationEngine.navState.collect { nav ->
                 val now = System.currentTimeMillis()
-                if (nav.active != lastNavActive || now - lastNavNotifyMs >= 1000L) {
+                if (!shuttingDown &&
+                    (nav.active != lastNavActive || now - lastNavNotifyMs >= 1000L)) {
                     lastNavActive = nav.active
                     lastNavNotifyMs = now
                     val manager = getSystemService(NotificationManager::class.java)
@@ -336,12 +345,19 @@ class WheelService : LifecycleService() {
                 // below seals it: even if Android wanted to redeliver,
                 // this intent's stickiness is disabled.
                 killProcessOnDestroy = true
+                // Gate notify() BEFORE removing the notification, so a telemetry /
+                // nav emission racing this teardown can't re-post it afterwards.
+                shuttingDown = true
                 @Suppress("DEPRECATION")
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                     stopForeground(STOP_FOREGROUND_REMOVE)
                 } else {
                     stopForeground(true)
                 }
+                // Belt-and-braces: explicitly cancel by id in case an update
+                // slipped in just before shuttingDown latched.
+                getSystemService(NotificationManager::class.java)
+                    .cancel(NOTIFICATION_ID)
                 stopSelf()
                 return START_NOT_STICKY
             }
@@ -351,6 +367,13 @@ class WheelService : LifecycleService() {
     }
 
     override fun onDestroy() {
+        // Any destroy path (not just Stop All) tears the notification down and
+        // stops further re-posts, so an ordinary stopSelf() can't leave it behind
+        // either.
+        shuttingDown = true
+        try {
+            getSystemService(NotificationManager::class.java).cancel(NOTIFICATION_ID)
+        } catch (_: Exception) {}
         // Send one last DataMap so the watch flips to its disconnected
         // ("--") state instantly. If the process is hard-killed and this
         // line never runs, the watch's 3-s stale timer kicks in as
@@ -542,6 +565,10 @@ class WheelService : LifecycleService() {
     private var lastNotificationUpdate = 0L
 
     private fun updateNotification(data: WheelData) {
+        // Never re-post once teardown has begun: a notify() after
+        // stopForeground(REMOVE) creates a standalone notification that survives
+        // the process kill, leaving the notification stuck after Stop All.
+        if (shuttingDown) return
         // Throttle to 1 Hz
         val now = System.currentTimeMillis()
         if (now - lastNotificationUpdate < 1000) return
