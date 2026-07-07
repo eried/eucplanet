@@ -16,7 +16,6 @@ import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.TextFieldColors
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Row
@@ -25,13 +24,10 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.takeOrElse
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 
 /**
  * Central, themed Material color objects built from the app's semantic
@@ -131,50 +127,29 @@ fun themedFilterChipColors(): SelectableChipColors {
  * Place inside a Box whose other child is the control, and give that control at
  * least 8dp of top padding so the label has room (it straddles the top border).
  */
-/**
- * Background colour shown ABOVE a field's top border, behind its floating label.
- * Defaults (Unspecified) to the app/section background; a dialog provides its own
- * surface so the notch blends there too instead of showing a darker patch.
- */
-val LocalFieldNotchAbove = compositionLocalOf { Color.Unspecified }
-
 @Composable
 fun BoxScope.FieldNotchLabel(
     text: String,
     color: Color = Color.Unspecified,
-    aboveColor: Color = Color.Unspecified,
-    belowColor: Color = Color.Unspecified,
     trailing: (@Composable RowScope.() -> Unit)? = null,
 ) {
     val c = MaterialTheme.appColors
-    // The field's top border sits 8dp below the label's top (offset y = -8), so
-    // split the two-stop gradient there: parent colour above, field fill below.
-    // The parent behind a settings field is the section card (surfaceVariant), NOT
-    // the app background; a dialog overrides this via LocalFieldNotchAbove/aboveColor
-    // with its own surface. Getting this wrong paints the label as a dark/light
-    // patch instead of blending like the native OutlinedTextField notch.
-    val above = aboveColor.takeOrElse { LocalFieldNotchAbove.current }.takeOrElse { c.surfaceVariant }
-    // Below the border the label covers the field's own fill.
-    val below = belowColor.takeOrElse { c.fieldBackground }
-    val borderPx = with(LocalDensity.current) { 8.dp.toPx() }
     Row(
         modifier = Modifier
             .align(Alignment.TopStart)
             .offset(x = 12.dp, y = (-8).dp)
-            .background(
-                Brush.verticalGradient(
-                    0f to above,
-                    1f to below,
-                    startY = borderPx,
-                    endY = borderPx + 0.5f,
-                )
-            )
+            // A solid fill of the field's own container colour, exactly like a
+            // native OutlinedTextField's floating label: Material fills the notch
+            // with the container colour and interrupts the outline around it, so
+            // the label reads darker than the section, not as a gradient patch.
+            .background(c.fieldBackground)
             .padding(horizontal = 4.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Text(
             text,
-            fontSize = 11.sp,
+            // Match the native combo label typography (Material's small label).
+            style = MaterialTheme.typography.bodySmall,
             color = color.takeOrElse { c.fieldLabel },
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
