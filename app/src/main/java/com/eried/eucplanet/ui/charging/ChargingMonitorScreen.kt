@@ -1116,10 +1116,12 @@ private fun CellHeaderStat(label: String, value: String, color: Color = Material
 /**
  * Cell / pack tint keyed off deviation from the pack MEDIAN (robust to one bad
  * cell, unlike a min..max rank which paints even a tight pack in full rainbow).
- * Inside the healthy band it stays green with a subtle gradient (deepest at the
- * median, fading a touch lighter toward the nearer edge); only genuine outliers
- * pick up warm (low) or blue (high). Units are whatever [value], [median] and
- * the thresholds share: volts for cells, percentage points for SoC packs.
+ * Cells at or above the median stay a uniform healthy green; cells BELOW it warm
+ * toward the low-warn colour in proportion to how far down they are, so a
+ * slightly-weak cell stands out from the green field at a glance and flows
+ * smoothly into the warn colour at the threshold. Only genuine outliers hit full
+ * warm (low) or blue (high). Units are whatever [value], [median] and the
+ * thresholds share: volts for cells, percentage points for SoC packs.
  */
 private fun balanceColor(
     value: Float,
@@ -1137,11 +1139,17 @@ private fun balanceColor(
         dev <= -dangerLow -> danger
         dev <= -warnLow -> warn
         dev >= high -> highColor
-        else -> {
-            val edge = (if (dev < 0f) warnLow else high).coerceAtLeast(0.0001f)
-            val t = (abs(dev) / edge).coerceIn(0f, 1f)
-            lerp(green, Color.White, 0.28f * t)
+        dev < 0f -> {
+            // Below the median: shade the green toward the low-warn colour as the
+            // cell weakens (0 at the median, full warn at the threshold), so the
+            // slightly-lower cells are visually distinct instead of a flat green.
+            val t = (abs(dev) / warnLow.coerceAtLeast(0.0001f)).coerceIn(0f, 1f)
+            lerp(green, warn, t)
         }
+        // At or above the median: the healthy / strong cells stay a uniform green
+        // so the low cells are the ones that pop. A real over-voltage outlier past
+        // [high] is already handled above.
+        else -> green
     }
 }
 
