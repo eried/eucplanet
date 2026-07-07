@@ -111,10 +111,15 @@ internal object GarminControl {
 
 /** UUID of the Connect IQ application in `garmin-watch-app/manifest.xml`.
  *  Must match the watch manifest verbatim or `getApplicationInfo` returns
- *  NOT_INSTALLED and the bridge never publishes. */
-internal const val GARMIN_APP_UUID = "ee55b467-1529-4dfc-ac0f-c0d30c7cfdf5"
+ *  NOT_INSTALLED and the bridge never publishes.
+ *  Changed 2026-07-07: the original ee55b467-1529-4dfc-ac0f-c0d30c7cfdf5 is
+ *  burned on the store (bound to a lost signing key), so watch builds moved
+ *  to this id. Riders with a pre-change sideloaded watch app must update it
+ *  before this phone build can find it. */
+internal const val GARMIN_APP_UUID = "67a42836-76c6-4415-a35c-f02edea339f1"
 
 /** Connect IQ "store" application ID used when prompting the user to install
- *  the companion from the Connect IQ store. Filled in after the app is
- *  uploaded to the store; leave blank for sideload-only development. */
-internal const val GARMIN_STORE_APP_ID = ""
+ *  the companion from the Connect IQ store. This is the 2026-07-07 listing;
+ *  the original (630e5d32-637d-4612-84e3-35e6d0bbee10) is frozen on a lost
+ *  signing key and archived. */
+internal const val GARMIN_STORE_APP_ID = "14c2d086-fcb5-4042-bd5b-034519d18a71"

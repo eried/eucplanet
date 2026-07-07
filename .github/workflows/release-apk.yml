@@ -362,7 +362,7 @@ jobs:
           ${url}
 
           ⌚ Garmin on the Connect IQ Store:
-          https://apps.garmin.com/apps/630e5d32-637d-4612-84e3-35e6d0bbee10"
+          https://apps.garmin.com/apps/14c2d086-fcb5-4042-bd5b-034519d18a71"
           curl -sS -X POST "https://api.telegram.org/bot${BOT_TOKEN}/sendMessage" \
             --data-urlencode "chat_id=${CHAT_ID}" \
             -d "message_thread_id=${THREAD_ID}" \
