@@ -137,9 +137,12 @@ fun BoxScope.FieldNotchLabel(
     Row(
         modifier = Modifier
             .align(Alignment.TopStart)
-            // Sit the label ON the control's top border (its lower third crosses the
-            // border) like a native OutlinedTextField label, not floating above it.
-            .offset(x = 12.dp, y = (-4).dp)
+            // Centre the label ON the control's top border like a native
+            // OutlinedTextField label, so the border line runs through the middle of
+            // the text (not its top, which reads as "sunk"). Measured against the
+            // Language/Voice combos: their label centre sits ~2px above the fill top,
+            // i.e. right on the frame line.
+            .offset(x = 12.dp, y = (-8).dp)
             // Fill with the SECTION colour the field sits on (surfaceVariant), like
             // a native OutlinedTextField whose floating label shows the surface
             // behind it through the outline notch - NOT the field's own fill. This
