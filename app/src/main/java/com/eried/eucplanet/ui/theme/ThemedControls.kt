@@ -137,7 +137,9 @@ fun BoxScope.FieldNotchLabel(
     Row(
         modifier = Modifier
             .align(Alignment.TopStart)
-            .offset(x = 12.dp, y = (-8).dp)
+            // Sit the label ON the control's top border (its lower third crosses the
+            // border) like a native OutlinedTextField label, not floating above it.
+            .offset(x = 12.dp, y = (-4).dp)
             // Fill with the SECTION colour the field sits on (surfaceVariant), like
             // a native OutlinedTextField whose floating label shows the surface
             // behind it through the outline notch - NOT the field's own fill. This
