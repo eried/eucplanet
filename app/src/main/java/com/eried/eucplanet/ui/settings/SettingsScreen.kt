@@ -645,9 +645,9 @@ fun SettingsScreen(
         stringResource(R.string.adv_garmin_report_interval),
     ).joinToString(" ")
 
-    // Section handles for the reorganize editor (key, title, icon). Advanced is
-    // excluded since it is pinned last and not reorderable. Default order here;
-    // the editor lays the rider's saved order on top.
+    // Section handles for the reorganize editor (key, title, icon). Every section
+    // is reorderable and hideable now, including Advanced (which defaults to last).
+    // Default order here; the editor lays the rider's saved order on top.
     val movableHandles = listOf(
         SectionHandle("general", titleGeneral, Icons.Default.Tune),
         SectionHandle("dashboard", titleDashboard, Icons.Default.Dashboard),
@@ -662,6 +662,7 @@ fun SettingsScreen(
         SectionHandle("location", titleGpsSensors, Icons.Default.Sensors),
         SectionHandle("integration", titleIntegration, Icons.Default.Extension),
         SectionHandle("watch", titleWatch, Icons.Default.Watch),
+        SectionHandle("advanced", titleAdvanced, Icons.Default.Build),
     )
 
     val sections: List<SectionDef> = listOf(
@@ -837,16 +838,20 @@ fun SettingsScreen(
             val query = searchQuery.trim()
             val searching = query.isNotEmpty()
 
-            // Effective arrangement: movable sections in the rider's saved order
-            // (unknown or newly added keys fall to the end), hidden ones bucketed
-            // into "More". Advanced is always pinned last and is never hidden.
-            val advancedSec = sections.first { it.key == "advanced" }
-            val movable = sections.filter { it.key != "advanced" }
+            // Effective arrangement: every section (including Advanced) is movable
+            // and hideable, in the rider's saved order. Unknown/new keys fall to the
+            // end, with Advanced defaulting last of those. Hidden sections bucket
+            // into "More", which always renders last.
             val savedOrder = settings.settingsLayout.order
-            val orderedMovable = movable.sortedBy {
-                val i = savedOrder.indexOf(it.key); if (i < 0) Int.MAX_VALUE else i
+            val orderedMovable = sections.sortedBy {
+                val i = savedOrder.indexOf(it.key)
+                when {
+                    i >= 0 -> i
+                    it.key == "advanced" -> Int.MAX_VALUE
+                    else -> Int.MAX_VALUE - 1
+                }
             }
-            val hiddenKeys = settings.settingsLayout.hidden.toSet() - "advanced"
+            val hiddenKeys = settings.settingsLayout.hidden.toSet()
             val topLevel = orderedMovable.filter { it.key !in hiddenKeys }
             val moreSecs = orderedMovable.filter { it.key in hiddenKeys }
 
@@ -885,7 +890,7 @@ fun SettingsScreen(
                 ) {
                     if (searching) {
                         // Flatten so a query finds a section wherever it sits.
-                        (orderedMovable + advancedSec).forEach { SectionCard(it) }
+                        orderedMovable.forEach { SectionCard(it) }
                     } else {
                         topLevel.forEach { SectionCard(it) }
                         if (moreSecs.isNotEmpty()) {
@@ -904,7 +909,6 @@ fun SettingsScreen(
                                 }
                             }
                         }
-                        SectionCard(advancedSec)
                     }
                     Spacer(Modifier.height(32.dp))
                 }
@@ -1189,8 +1193,9 @@ private data class SectionHandle(val key: String, val title: String, val icon: I
 private const val MORE_KEY = "__more__"
 
 /** Dialog to reorder the Settings sections and switch some into "More". Drag the
- *  handle to reorder; switch a section off to tuck it into "More". Advanced is
- *  pinned last and never appears here. Edits are staged on a local draft so the
+ *  handle to reorder; switch a section off to tuck it into "More" (which always
+ *  renders last). Advanced is listed like any other section - it defaults to last
+ *  but can be reordered or hidden. Edits are staged on a local draft so the
  *  Settings screen behind the dialog does not shuffle while the rider toggles;
  *  nothing is applied until Save. */
 @Composable
@@ -1350,7 +1355,8 @@ private fun AdvancedTab(
         // "Settings visibility" section: a titled explanation plus a Reorganize
         // button that opens the staged dialog, so toggling a section off does not
         // shuffle the screen underneath while you edit. Hidden sections move into
-        // "More"; Advanced is pinned last and is not listed.
+        // "More", which always renders last. Advanced is listed like any other
+        // section (it defaults to last but can be reordered or hidden into More).
         if (reorgHandles.isNotEmpty()) {
             var showVisibilityDialog by remember { mutableStateOf(false) }
             AdvSectionTitle(stringResource(R.string.settings_visibility))
