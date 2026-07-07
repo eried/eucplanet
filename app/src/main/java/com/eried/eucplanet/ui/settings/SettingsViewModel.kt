@@ -144,10 +144,14 @@ class SettingsViewModel @Inject constructor(
         }
     }
 
-    /** Manual "wake the watch app" trigger, fires the same /euc/wake
-     *  message that MainActivity.onResume() sends. Lets the user verify
-     *  pairing without restarting the phone app. */
-    fun testWatchWake() = wearBridge.pingWatchToWake()
+    /** Manual "wake the watch app" trigger. Drives BOTH transports so it works
+     *  for whichever watch is paired: Wear OS gets the /euc/wake message, Garmin
+     *  fires openApplication() (the first time it shows a "Launch EUC Planet?"
+     *  prompt on the watch). Lets the user verify pairing without restarting. */
+    fun testWatchWake() {
+        wearBridge.pingWatchToWake()
+        garminBridge.pingWatchToWake()
+    }
 
     val autoLightsSuspended: StateFlow<Boolean> = automationManager.autoLightsSuspended
 
@@ -210,15 +214,17 @@ class SettingsViewModel @Inject constructor(
 
     /** True when at least one Wear OS device is paired right now. Settings
      *  uses this to hide toggles that have no effect on Garmin-only setups
-     *  (auto-start, keep-screen-on). */
+     *  (keep-screen-on, update-rate). Auto-start now works on Garmin too
+     *  (openApplication), so it is no longer gated on this. */
     val hasWearOsPaired: StateFlow<Boolean> =
         wearBridge.pairedNodes
             .map { it.isNotEmpty() }
             .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
 
     /** True when at least one Garmin device is paired. The Watch tab uses this to
-     *  badge Wear-only features (auto-start, dial rotation, …) as unsupported on
-     *  Garmin when a Garmin AND a Wear OS watch are both paired. */
+     *  badge genuinely Wear-only features (keep-screen-on, dial rotation, …) as
+     *  unsupported on Garmin when a Garmin AND a Wear OS watch are both paired,
+     *  and to show auto-start (which DOES work on Garmin now) for Garmin-only setups. */
     val hasGarminPaired: StateFlow<Boolean> =
         garminBridge.pairedDevices
             .map { it.isNotEmpty() }

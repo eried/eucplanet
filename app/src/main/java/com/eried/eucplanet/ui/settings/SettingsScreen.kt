@@ -6483,17 +6483,17 @@ private fun WatchTab(
         // under Display since it's part of the visual on/off behaviour.
         SectionHeader(stringResource(R.string.section_watch_general))
 
-        // Auto-start is Wear OS-only (CIQ apps can't be launched
-        // remotely). Hidden when no Wear OS watch is paired so the toggle
-        // doesn't read as universally applicable.
-        if (hasWearOs) {
+        // Auto-start now works on Garmin too: the bridge calls Connect IQ's
+        // openApplication() to launch the watch app (a one-time "Always"
+        // consent on the watch, then automatic). Shown whenever any watch is
+        // paired, and with no Garmin-unsupported badge anymore.
+        if (hasWearOs || hasGarminPaired) {
             SwitchSettingWithDesc(
                 label = stringResource(R.string.watch_auto_start),
                 description = stringResource(R.string.watch_auto_start_desc),
                 checked = settings.watchAutoStart,
                 onCheckedChange = { viewModel.updateWatchAutoStart(it) },
-                onTest = { viewModel.testWatchWake() },
-                badge = garminBadge
+                onTest = { viewModel.testWatchWake() }
             )
         }
         SwitchSettingWithDesc(

@@ -18,7 +18,18 @@ class PhoneBridge {
     //! rather than CIQ sendMessage's misleading local-write success.
     private var _aliveTimer as Timer.Timer? = null;
 
-    function initialize() {}
+    //! True while a Communications.transmit is outstanding. The heartbeat skips
+    //! its tick while this is set, so unacked ALIVE frames can't pile up in the
+    //! SDK's small outbound queue. A full queue throws "Communications transmit
+    //! queue full" — which both crashes the dial (the IQ error icon) AND stalls
+    //! the inbound telemetry channel (the frozen-at-0 dial on real devices).
+    //! Cleared from the shared TransmitListener when each transmit finishes.
+    private var _txBusy as Lang.Boolean = false;
+    private var _txListener as TransmitListener?;
+
+    function initialize() {
+        _txListener = new TransmitListener(self);
+    }
 
     //! Wire the listener up. The View calls this in onShow() so the watch
     //! only consumes incoming frames while the dial is on screen — same
@@ -42,6 +53,9 @@ class PhoneBridge {
     }
 
     function onAliveTick() as Void {
+        // Skip the heartbeat while a prior transmit is still outstanding.
+        // Piling unacked ALIVE frames into the queue is what overflows it.
+        if (_txBusy) { return; }
         transmitControl(Control.ALIVE);
     }
 
@@ -61,10 +75,11 @@ class PhoneBridge {
         if (kind == null || kind.equals(Keys.KIND_STATE)) {
             WatchState.update(data);
         } else if (kind.equals(Keys.KIND_WAKE)) {
-            // The phone fires this whenever its app comes to foreground. We
-            // don't need to launch anything (CIQ apps can't auto-launch
-            // anyway), but we do bump the snapshot's last-update so the
-            // disconnected placeholder gets out of the way if it was up.
+            // The phone fires this whenever its app comes to foreground. The
+            // phone separately calls ConnectIQ.openApplication() to actually
+            // launch this app when it was closed; this message only nudges an
+            // already-open app, so we just bump the snapshot's last-update to
+            // clear the disconnected placeholder if it was up.
             WatchState.snapshot.phoneSynced = true;
         } else if (kind.equals(Keys.KIND_QUIT)) {
             // User picked "Stop all" on the phone with "close watch on exit"
@@ -89,12 +104,20 @@ class PhoneBridge {
     //! stuck phone link doesn't kill the watch app.
     function transmitControl(intent as Lang.String) as Void {
         var payload = { Control.PAYLOAD_KEY => intent };
+        _txBusy = true;
         try {
-            Communications.transmit(payload, null, new TransmitListener());
+            Communications.transmit(payload, null, _txListener);
         } catch (e) {
-            // Likely a full queue from an ack-less peer; the next tick will
-            // try again once the SDK drains. No phone == no recovery action.
+            // Likely a full queue from an ack-less peer; clear the flag so the
+            // next tick can retry once the SDK drains.
+            _txBusy = false;
         }
+    }
+
+    //! Cleared by the shared TransmitListener when a transmit finishes (ok or
+    //! error), freeing the heartbeat to send the next one.
+    function onTransmitDone() as Void {
+        _txBusy = false;
     }
 
     //! Tell the phone about the watch's identity on launch. Mirrors
@@ -116,13 +139,18 @@ class PhoneBridge {
 }
 
 class TransmitListener extends Communications.ConnectionListener {
-    function initialize() {
+    private var _bridge as PhoneBridge;
+    function initialize(bridge as PhoneBridge) {
         Communications.ConnectionListener.initialize();
+        _bridge = bridge;
     }
-    function onComplete() {}
+    function onComplete() {
+        _bridge.onTransmitDone();
+    }
     function onError() {
         // Phone gone, Connect Mobile not running, or BT dropped. The phone
         // is the authoritative side; a dropped horn tap is recoverable so
         // we don't surface this — same trade-off as the Wear OS bridge.
+        _bridge.onTransmitDone();
     }
 }
