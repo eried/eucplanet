@@ -138,12 +138,15 @@ fun BoxScope.FieldNotchLabel(
         modifier = Modifier
             .align(Alignment.TopStart)
             .offset(x = 12.dp, y = (-8).dp)
-            // Fill with the SURFACE colour behind the field, exactly like a native
-            // OutlinedTextField's floating label: Material paints the label's notch
-            // with the surface it sits on, not the field's container colour. (On a
-            // theme where surface == fieldBackground they look identical, but a
-            // custom theme with e.g. a black field on a grey surface reveals it.)
-            .background(c.surface)
+            // Fill with the SECTION colour the field sits on (surfaceVariant), like
+            // a native OutlinedTextField whose floating label shows the surface
+            // behind it through the outline notch - NOT the field's own fill. This
+            // makes the label blend into the section above the border (only the
+            // notch cuts into the field), instead of a dark patch poking up. On
+            // built-in themes surfaceVariant ~= the field colour so it looks the
+            // same; an OLED/custom theme (black field on a #121212 section) reveals
+            // that the native label is the section colour, not the field's black.
+            .background(c.surfaceVariant)
             .padding(horizontal = 4.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
