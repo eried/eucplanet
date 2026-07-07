@@ -30,7 +30,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -1411,7 +1410,7 @@ private fun AdvancedTab(
                     SingleChoiceSegmentedButtonRow(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(IntrinsicSize.Max)
+                            .height(56.dp)
                     ) {
                         options.forEachIndexed { index, (key, label) ->
                             CompactSegmentedButton(
@@ -5772,9 +5771,10 @@ private fun UnitsSetting(
 
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
         Box(modifier = Modifier.fillMaxWidth().padding(top = 9.dp, bottom = 4.dp)) {
-            SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
+            SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth().height(56.dp)) {
             systemOptions.forEachIndexed { index, (value, label) ->
                 CompactSegmentedButton(
+                    modifier = Modifier.fillMaxHeight(),
                     selected = value == currentSystem,
                     onClick = {
                         when (value) {
@@ -6560,7 +6560,7 @@ private fun WatchTab(
                     SingleChoiceSegmentedButtonRow(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(IntrinsicSize.Max)
+                            .height(56.dp)
                     ) {
                         updateRateOptions.forEachIndexed { index, (key, label) ->
                             CompactSegmentedButton(
@@ -8874,7 +8874,7 @@ private fun SegmentedChoice(
         SingleChoiceSegmentedButtonRow(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(IntrinsicSize.Max)
+                .height(56.dp)
         ) {
             options.forEachIndexed { index, (key, optLabel) ->
                 CompactSegmentedButton(

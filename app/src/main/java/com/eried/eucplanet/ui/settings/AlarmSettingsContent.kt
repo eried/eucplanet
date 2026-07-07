@@ -1441,9 +1441,9 @@ internal fun NumberUpDown(
     // hugs the unit, and because the unit is a fixed trailing element it is
     // always fully visible even in a narrow row. Center keeps the older look.
     numberAlign: TextAlign = TextAlign.End,
-    // Field box height. Compact 48dp by default; the alarm editor's Threshold
-    // passes 56dp so it lines up with the metric/condition dropdowns beside it.
-    fieldHeight: Dp = 48.dp,
+    // Field box height. 56dp so numeric fields match the system combo box height
+    // (and the metric/condition dropdowns in the alarm editor).
+    fieldHeight: Dp = 56.dp,
 ) {
     val fieldText = MaterialTheme.appColors.fieldText
     val fieldLabelColor = MaterialTheme.appColors.fieldLabel
