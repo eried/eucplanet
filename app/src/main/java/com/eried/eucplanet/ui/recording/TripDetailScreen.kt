@@ -232,8 +232,19 @@ fun TripDetailScreen(
                 val tripDistance = com.eried.eucplanet.util.Units.distance(distanceKm, distanceUnit)
                 val maxTemp = com.eried.eucplanet.util.Units.temperature(maxTempRaw, tempUnit)
 
+                // Title shows the ride's span: full start timestamp, an arrow, and
+                // the end time. End is start + the duration we already display, so it
+                // always agrees with the Duration card. Same-day rides show just the
+                // end HH:mm; a ride crossing midnight shows the full end date too.
+                val endMs = startMs + duration * 1000
+                val dayFormat = SimpleDateFormat("dd MMM yyyy", Locale.getDefault())
+                val timeFormat = SimpleDateFormat("HH:mm", Locale.getDefault())
+                val endText = if (dayFormat.format(Date(startMs)) == dayFormat.format(Date(endMs)))
+                    timeFormat.format(Date(endMs))
+                else
+                    dateFormat.format(Date(endMs))
                 Text(
-                    dateFormat.format(Date(startMs)),
+                    "${dateFormat.format(Date(startMs))} → $endText",
                     style = MaterialTheme.typography.titleMedium,
                     color = MaterialTheme.colorScheme.onSurface
                 )
@@ -374,10 +385,15 @@ fun TripDetailScreen(
                     "ms" -> GraphScale.SPAN_SPEED_MS
                     else -> GraphScale.SPAN_SPEED_KMH
                 }
+                // Cap the speed axis at the sustained top speed (same spike-rejected
+                // value the Top speed card shows) so a lone GPS/sensor spike doesn't
+                // flatten the ride; the real peak is annotated in the corner label.
+                val speedPeakRaw = dataPoints.map { it.speed }.maxOrNull() ?: 0f
+                val speedPeak = com.eried.eucplanet.util.Units.speed(speedPeakRaw, speedUnit)
                 ChartCard(stringResource(R.string.recording_chart_speed, speedUnitLabel),
                     dataPoints.map { com.eried.eucplanet.util.Units.speed(it.speed, speedUnit) },
                     MaterialTheme.appColors.metricBattery, unitLabel = speedUnitLabel, minSpan = speedMinSpan,
-                    overlays = speedOverlays)
+                    overlays = speedOverlays, axisMax = maxSpeed, peak = speedPeak)
 
                 Spacer(Modifier.height(12.dp))
 
@@ -649,7 +665,13 @@ private fun ChartCard(
     unitLabel: String,
     minSpan: Float,
     overlays: List<ChartOverlay> = emptyList(),
-    regenColor: Color? = null
+    regenColor: Color? = null,
+    // Cap the y-axis at a realistic value (e.g. the speed chart passes the
+    // spike-rejected sustained top speed) so one lone GPS/sensor spike doesn't
+    // squash the whole ride into the floor. The spike then clips at the top and
+    // [peak], the true maximum, is shown in the corner label instead.
+    axisMax: Float? = null,
+    peak: Float? = null,
 ) {
     if (values.isEmpty()) return
 
@@ -659,7 +681,10 @@ private fun ChartCard(
     val finiteValues = values.filter { !it.isNaN() }
     val allFinite = (overlays.flatMap { it.values.filter { v -> !v.isNaN() } }) + finiteValues
     val dataMin = allFinite.minOrNull() ?: 0f
-    val dataMax = allFinite.maxOrNull() ?: 0f
+    val dataMaxRaw = allFinite.maxOrNull() ?: 0f
+    // Axis upper bound: a caller-supplied realistic cap when given (never below
+    // the data floor), otherwise the raw maximum as before.
+    val dataMax = axisMax?.coerceAtLeast(dataMin) ?: dataMaxRaw
     val bounds = GraphScale.pad(dataMin, dataMax, minSpan)
     val textMeasurer = rememberTextMeasurer()
     val tooltipBg = MaterialTheme.colorScheme.surface
@@ -679,7 +704,13 @@ private fun ChartCard(
             ) {
                 Text(title, fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant,
                     fontWeight = FontWeight.Medium)
-                Text("%.1f – %.1f".format(dataMin, dataMax), fontSize = 11.sp,
+                // When a spike was clipped by [axisMax], show the true peak too so
+                // the rider still sees it (e.g. "0.0 – 35.0 (peak 80)").
+                val rangeLabel = if (peak != null && peak > dataMax + 0.5f)
+                    "%.1f – %.1f (peak %.0f)".format(dataMin, dataMax, peak)
+                else
+                    "%.1f – %.1f".format(dataMin, dataMax)
+                Text(rangeLabel, fontSize = 11.sp,
                     color = color, fontWeight = FontWeight.Medium)
             }
 
@@ -730,7 +761,9 @@ private fun ChartCard(
                             return@forEachIndexed
                         }
                         val x = idx * stepX
-                        val y = h - ((value - bounds.min) / range) * h
+                        // Clamp to the chart box so a value above the (capped) axis
+                        // clips at the top edge instead of drawing outside.
+                        val y = (h - ((value - bounds.min) / range) * h).coerceIn(0f, h)
                         if (!penDown) {
                             overlayPath.moveTo(x, y)
                             penDown = true
@@ -755,7 +788,9 @@ private fun ChartCard(
                         return@forEachIndexed
                     }
                     val x = idx * stepX
-                    val y = h - ((value - bounds.min) / range) * h
+                    // Clamp to the chart box so a value above the (capped) axis
+                    // clips at the top edge instead of drawing outside.
+                    val y = (h - ((value - bounds.min) / range) * h).coerceIn(0f, h)
                     val seg = segment
                     if (seg == null) {
                         val p = Path()
@@ -815,7 +850,7 @@ private fun ChartCard(
                         rv.isNaN() -> lv
                         else -> lv + (rv - lv) * frac
                     }
-                    val cursorY = h - ((interpValue - bounds.min) / range) * h
+                    val cursorY = (h - ((interpValue - bounds.min) / range) * h).coerceIn(0f, h)
 
                     drawLine(color.copy(alpha = 0.5f), Offset(cursorX, 0f), Offset(cursorX, h), strokeWidth = 1.5f)
                     drawCircle(color, radius = 4f, center = Offset(cursorX, cursorY))
