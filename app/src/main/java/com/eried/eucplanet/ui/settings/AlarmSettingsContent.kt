@@ -81,6 +81,7 @@ import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.offset
@@ -92,6 +93,7 @@ import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.clipPath
 import androidx.compose.ui.graphics.nativeCanvas
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.platform.LocalDensity
@@ -1538,6 +1540,20 @@ internal fun NumberUpDown(
             // is no room -- so it never competes for row width. Non-focusable so
             // tapping a stepper keeps the keyboard up.
             if (focused && enabled) {
+                // Hold the stepper bubble back until the keyboard's open animation has
+                // settled, then fade it in. Drawing the Popup while the window is still
+                // resizing/scrolling made it flash in and jump as a black rectangle.
+                var bubbleShown by remember { mutableStateOf(false) }
+                val bubbleAlpha by animateFloatAsState(
+                    targetValue = if (bubbleShown) 1f else 0f,
+                    animationSpec = tween(140),
+                    label = "stepperBubbleFade",
+                )
+                LaunchedEffect(Unit) {
+                    kotlinx.coroutines.delay(250)
+                    bubbleShown = true
+                }
+                if (bubbleAlpha > 0.01f) {
                 val gapPx = with(density) { 6.dp.roundToPx() }
                 val bubblePosition = remember(gapPx) {
                     object : PopupPositionProvider {
@@ -1561,6 +1577,7 @@ internal fun NumberUpDown(
                     properties = PopupProperties(focusable = false, clippingEnabled = false),
                 ) {
                     Surface(
+                        modifier = Modifier.graphicsLayer { alpha = bubbleAlpha },
                         shape = RoundedCornerShape(12.dp),
                         color = MaterialTheme.appColors.fieldBackground,
                         border = BorderStroke(1.dp, fieldBorder),
@@ -1589,6 +1606,7 @@ internal fun NumberUpDown(
                             )
                         }
                     }
+                }
                 }
             }
         }
