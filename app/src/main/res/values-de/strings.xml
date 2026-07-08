@@ -403,7 +403,7 @@
 
     <!-- Watch hardware buttons -->
     <string name="watch_button_click_label">Klick</string>
-    <string name="watch_button_hold_label">Langer Druck</string>
+    <string name="watch_button_hold_label">Halten</string>
     <string name="watch_buttons_hardware_info">Halten kann auf manchen Uhren vom System abgefangen werden</string>
     <string name="watch_buttons_touch_info">Hängt vom Modell der Uhr ab</string>
     <string name="watch_buttons_hardware_label">Physisch</string>
@@ -1716,6 +1716,14 @@
     <string name="adv_charging_cv_taper_desc">Beeinflusst, wie pessimistisch die Restzeit für den letzten Abschnitt bis voll ist. Höher bedeutet mehr Reserve.</string>
     <string name="adv_charging_median">Glättungs-Messwerte</string>
     <string name="adv_charging_median_desc">Beeinflusst, wie viele Messwerte per Median gefiltert werden, um Spannungsspitzen zu entfernen. Ungerade Zahl verwenden.</string>
+    <string name="adv_cell_low_warn">Zelle niedrig, Warnung</string>
+    <string name="adv_cell_low_warn_desc">Wie weit eine Zelle unter den Pack-Median fallen darf, bevor sie gelb wird.</string>
+    <string name="adv_cell_low_danger">Zelle niedrig, Gefahr</string>
+    <string name="adv_cell_low_danger_desc">Wie weit eine Zelle unter den Pack-Median fallen darf, bevor sie rot wird.</string>
+    <string name="adv_cell_high">Zelle hoch</string>
+    <string name="adv_cell_high_desc">Wie weit eine Zelle über den Pack-Median steigen darf, bevor sie blau wird.</string>
+    <string name="adv_pack_balance_tol">Pack-Balancetoleranz</string>
+    <string name="adv_pack_balance_tol_desc">Wie weit ein Pack vom Median abweichen darf, bevor es das ausgeglichene Grün verlässt, für die reine Prozentansicht der Packs.</string>
     <string name="adv_charging_sanity_cap">Restzeit-Obergrenze</string>
     <string name="adv_charging_sanity_cap_desc">Beeinflusst die größte angezeigte Restzeit. Alles darüber gilt als noch nicht bereit.</string>
     <string name="adv_charging_target_pct">Zielprozent</string>
@@ -1898,7 +1906,9 @@
     <string name="geo_section_dashboard">Dashboard</string>
     <string name="geo_section_navigator">Navigator</string>
     <string name="geo_section_other">Andere Bildschirme</string>
-    <string name="geo_other_hint">Einstellungen, Fahrten, Akku-Monitor, Messwertverlauf, Scan und Flic. Das Overlay Studio ist nicht betroffen: Sein Layout ist fest, funktioniert aber in jeder Ausrichtung.</string>
+    <string name="geo_section_settings">Einstellungen</string>
+    <string name="geo_other_hint">Fahrten, Akku-Monitor, Messwertverlauf, Scan und Flic. Das Overlay Studio ist nicht betroffen: Sein Layout ist fest, funktioniert aber in jeder Ausrichtung.</string>
+    <string name="geo_settings_hint">Der Einstellungsbildschirm. Standardmäßig aus, sodass die Einstellungen im Hochformat bleiben, sofern du es nicht aktivierst.</string>
     <string name="setting_allow_rotation">Drehung zulassen</string>
     <string name="setting_block_upside_down">Kopfüberdrehung verhindern</string>
     <string name="setting_ignore_system_rotate_lock">System-Rotationssperre ignorieren</string>

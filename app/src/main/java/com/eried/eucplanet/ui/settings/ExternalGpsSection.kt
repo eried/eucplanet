@@ -117,14 +117,16 @@ fun ExternalGpsSection(
                 if (connectionState == ConnectionState.CONNECTED) {
                     Button(
                         onClick = { viewModel.disconnect() },
-                        modifier = Modifier.weight(1f)
+                        modifier = Modifier.weight(1f),
+                        shape = RoundedCornerShape(12.dp)
                     ) {
                         Text(stringResource(R.string.external_gps_disconnect))
                     }
                 } else {
                     Button(
                         onClick = { viewModel.reconnect() },
-                        modifier = Modifier.weight(1f)
+                        modifier = Modifier.weight(1f),
+                        shape = RoundedCornerShape(12.dp)
                     ) {
                         Text(stringResource(R.string.external_gps_reconnect))
                     }
@@ -132,7 +134,8 @@ fun ExternalGpsSection(
                 Button(
                     onClick = { viewModel.unpair() },
                     modifier = Modifier.weight(1f),
-                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.appColors.statusDanger)
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.appColors.statusDanger),
+                    shape = RoundedCornerShape(12.dp)
                 ) {
                     Text(stringResource(R.string.external_gps_unpair))
                 }
@@ -255,6 +258,7 @@ private fun InlineAxisDropdown(
                 .fillMaxWidth()
                 .menuAnchor(MenuAnchorType.PrimaryNotEditable),
             colors = themedFieldColors(),
+            shape = RoundedCornerShape(12.dp),
         )
         ExposedDropdownMenu(
             expanded = expanded,
@@ -360,6 +364,7 @@ private fun AutoDetectDialog(
         onDismissRequest = {
             if (isDone) onDismiss() else if (showCancel) onCancel()
         },
+        shape = RoundedCornerShape(12.dp),
         title = { Text(stringResource(R.string.external_gps_autodetect_title)) },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
@@ -376,10 +381,10 @@ private fun AutoDetectDialog(
         // success-summary screen reads weaker than affirming the completion).
         confirmButton = {
             when {
-                isDone -> TextButton(onClick = onDismiss) {
+                isDone -> TextButton(onClick = onDismiss, shape = RoundedCornerShape(12.dp)) {
                     Text(stringResource(R.string.action_done))
                 }
-                showNext -> TextButton(onClick = onNext) {
+                showNext -> TextButton(onClick = onNext, shape = RoundedCornerShape(12.dp)) {
                     Text(stringResource(R.string.external_gps_autodetect_next))
                 }
                 else -> {}
@@ -389,7 +394,7 @@ private fun AutoDetectDialog(
         // capture and on Done).
         dismissButton = {
             if (showCancel) {
-                TextButton(onClick = onCancel) {
+                TextButton(onClick = onCancel, shape = RoundedCornerShape(12.dp)) {
                     Text(stringResource(R.string.external_gps_autodetect_abort), color = MaterialTheme.appColors.statusDanger)
                 }
             }
@@ -409,7 +414,7 @@ private fun UnpairedExternalGpsCard(
         results.forEach { result ->
             Card(
                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
-                shape = RoundedCornerShape(8.dp),
+                shape = RoundedCornerShape(12.dp),
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Row(
@@ -427,7 +432,7 @@ private fun UnpairedExternalGpsCard(
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
-                    Button(onClick = { onPick(result) }) {
+                    Button(onClick = { onPick(result) }, shape = RoundedCornerShape(12.dp)) {
                         Text(stringResource(R.string.external_gps_pair_action))
                     }
                 }
@@ -524,7 +529,8 @@ fun LeftAlignedScanButton(
             onClick = onClick,
             enabled = enabled,
             modifier = Modifier.weight(1f),
-            colors = colors
+            colors = colors,
+            shape = RoundedCornerShape(12.dp)
         ) {
             if (leadingIcon != null) {
                 androidx.compose.material3.Icon(

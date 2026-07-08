@@ -25,6 +25,8 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.DragHandle
+import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.icons.filled.PlayArrow
@@ -79,8 +81,10 @@ import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
@@ -89,6 +93,7 @@ import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.clipPath
 import androidx.compose.ui.graphics.nativeCanvas
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.platform.LocalDensity
@@ -98,9 +103,17 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.IntRect
+import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.Popup
+import androidx.compose.ui.window.PopupPositionProvider
+import androidx.compose.ui.window.PopupProperties
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.eried.eucplanet.R
 import com.eried.eucplanet.data.model.AlarmComparator
@@ -110,6 +123,8 @@ import com.eried.eucplanet.data.model.AlarmRule
 import com.eried.eucplanet.ui.common.HintText
 import com.eried.eucplanet.ui.common.InfoHint
 import com.eried.eucplanet.ui.theme.appColors
+import com.eried.eucplanet.ui.theme.FieldNotchLabel
+import androidx.compose.ui.graphics.Color
 import com.eried.eucplanet.util.Units
 import com.eried.eucplanet.ui.theme.themedFieldColors
 import com.eried.eucplanet.ui.theme.themedSegmentedColors
@@ -210,7 +225,7 @@ fun AlarmSettingsContent(
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .clip(RoundedCornerShape(8.dp))
+                            .clip(RoundedCornerShape(12.dp))
                             .background(accent.copy(alpha = 0.16f))
                             .padding(start = 6.dp, end = 12.dp, top = 7.dp, bottom = 7.dp),
                         verticalAlignment = Alignment.CenterVertically
@@ -218,7 +233,7 @@ fun AlarmSettingsContent(
                         Icon(
                             Icons.Default.DragHandle,
                             contentDescription = stringResource(R.string.action_reorder),
-                            tint = MaterialTheme.colorScheme.onSurface,
+                            tint = accent,
                             modifier = Modifier.draggableHandle().size(26.dp)
                         )
                         Spacer(Modifier.width(6.dp))
@@ -226,7 +241,7 @@ fun AlarmSettingsContent(
                             stringResource(groupMetric.labelRes),
                             fontWeight = FontWeight.Bold,
                             fontSize = 17.sp,
-                            color = MaterialTheme.colorScheme.onSurface
+                            color = accent
                         )
                     }
                     group.rules.forEach { rule ->
@@ -255,7 +270,8 @@ fun AlarmSettingsContent(
         ) {
             Button(
                 onClick = { editingRule = null; showEditor = true },
-                modifier = Modifier.weight(1f)
+                modifier = Modifier.weight(1f),
+                shape = RoundedCornerShape(12.dp)
             ) {
                 Icon(Icons.Default.Add, contentDescription = null, modifier = Modifier.size(18.dp))
                 Spacer(Modifier.width(6.dp))
@@ -301,10 +317,10 @@ fun AlarmSettingsContent(
                 TextButton(onClick = {
                     viewModel.deleteRule(rule)
                     deleteCandidate = null
-                }) { Text(stringResource(R.string.action_delete), color = MaterialTheme.appColors.statusDanger) }
+                }, shape = RoundedCornerShape(12.dp)) { Text(stringResource(R.string.action_delete), color = MaterialTheme.appColors.statusDanger) }
             },
             dismissButton = {
-                TextButton(onClick = { deleteCandidate = null }) { Text(stringResource(R.string.action_cancel)) }
+                TextButton(onClick = { deleteCandidate = null }, shape = RoundedCornerShape(12.dp)) { Text(stringResource(R.string.action_cancel)) }
             }
         )
     }
@@ -345,7 +361,7 @@ private fun AlarmRuleCard(
             containerColor = if (rule.enabled) MaterialTheme.colorScheme.surfaceVariant
             else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
         ),
-        shape = RoundedCornerShape(10.dp)
+        shape = RoundedCornerShape(12.dp)
     ) {
         // Drag handle | tap-to-edit text | enable switch.
         Row(
@@ -528,7 +544,7 @@ private fun AlarmRuleEditorDialog(
         val maxDialogHeight = androidx.compose.ui.platform.LocalConfiguration.current
             .screenHeightDp.dp * 0.88f
         Card(
-            shape = RoundedCornerShape(16.dp),
+            shape = RoundedCornerShape(12.dp),
             colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
             modifier = Modifier
                 .fillMaxWidth(0.95f)
@@ -617,6 +633,7 @@ private fun AlarmRuleEditorDialog(
                         suffix = displayedUnit,
                         label = stringResource(R.string.alarm_threshold_label),
                         modifier = Modifier.weight(1f),
+                        fieldHeight = 56.dp,
                     )
                     Spacer(Modifier.weight(1f))
                 }
@@ -724,6 +741,7 @@ private fun AlarmRuleEditorDialog(
                             Button(
                                 onClick = { showStudio = true },
                                 modifier = Modifier.weight(1f),
+                                shape = RoundedCornerShape(12.dp),
                             ) {
                                 Icon(Icons.Default.Tune, contentDescription = null, modifier = Modifier.size(18.dp))
                                 Spacer(Modifier.width(6.dp))
@@ -760,6 +778,7 @@ private fun AlarmRuleEditorDialog(
                         label = { Text(stringResource(R.string.alarm_voice_template)) },
                         modifier = Modifier.fillMaxWidth(),
                         minLines = 2,
+                        shape = RoundedCornerShape(12.dp),
                         colors = themedFieldColors(),
                     )
                     HintText(stringResource(R.string.alarm_voice_template_help), small = true)
@@ -803,28 +822,28 @@ private fun AlarmRuleEditorDialog(
                         Spacer(Modifier.weight(1f))
                     }
                     Spacer(Modifier.height(8.dp))
-                    Text(
-                        stringResource(R.string.alarm_label_vibrate_on),
-                        fontSize = 12.sp,
-                        color = MaterialTheme.appColors.fieldLabel
-                    )
                     val targetEntries = listOf(
                         "BOTH" to stringResource(R.string.alarm_vibrate_target_both),
                         "PHONE" to stringResource(R.string.alarm_vibrate_target_phone),
                         "WATCH" to stringResource(R.string.alarm_vibrate_target_watch)
                     )
-                    SingleChoiceSegmentedButtonRow(
-                        modifier = Modifier.fillMaxWidth().height(48.dp)
-                    ) {
-                        targetEntries.forEachIndexed { index, (key, label) ->
-                            SegmentedButton(
-                                modifier = Modifier.fillMaxHeight(),
-                                selected = key == vibrateTarget,
-                                onClick = { vibrateTarget = key },
-                                shape = SegmentedButtonDefaults.itemShape(index, targetEntries.size),
-                                colors = themedSegmentedColors(),
-                            ) { Text(label) }
+                    Box(modifier = Modifier.fillMaxWidth().padding(top = 9.dp)) {
+                        SingleChoiceSegmentedButtonRow(
+                            modifier = Modifier.fillMaxWidth().height(48.dp)
+                        ) {
+                            targetEntries.forEachIndexed { index, (key, label) ->
+                                SegmentedButton(
+                                    modifier = Modifier.fillMaxHeight(),
+                                    selected = key == vibrateTarget,
+                                    onClick = { vibrateTarget = key },
+                                    shape = SegmentedButtonDefaults.itemShape(index, targetEntries.size, baseShape = RoundedCornerShape(12.dp)),
+                                    colors = themedSegmentedColors(),
+                                ) { Text(label) }
+                            }
                         }
+                        FieldNotchLabel(
+                            stringResource(R.string.alarm_label_vibrate_on),
+                        )
                     }
                 }
 
@@ -885,17 +904,11 @@ private fun AlarmRuleEditorDialog(
                             label = stringResource(R.string.alarm_cooldown_label),
                             modifier = Modifier.weight(1f),
                         )
-                        Column(modifier = Modifier.weight(1f)) {
-                            Text(
-                                stringResource(R.string.alarm_repeat_label),
-                                fontSize = 12.sp,
-                                color = MaterialTheme.appColors.fieldLabel,
-                                modifier = Modifier.padding(bottom = 4.dp)
-                            )
-                            val repeatEntries = listOf(
-                                false to stringResource(R.string.alarm_repeat_single),
-                                true to stringResource(R.string.alarm_repeat_multi),
-                            )
+                        val repeatEntries = listOf(
+                            false to stringResource(R.string.alarm_repeat_single),
+                            true to stringResource(R.string.alarm_repeat_multi),
+                        )
+                        Box(modifier = Modifier.weight(1f).padding(top = 9.dp)) {
                             SingleChoiceSegmentedButtonRow(
                                 modifier = Modifier.fillMaxWidth().height(48.dp)
                             ) {
@@ -904,11 +917,14 @@ private fun AlarmRuleEditorDialog(
                                         modifier = Modifier.fillMaxHeight(),
                                         selected = value == repeatWhileActive,
                                         onClick = { repeatWhileActive = value },
-                                        shape = SegmentedButtonDefaults.itemShape(index, repeatEntries.size),
+                                        shape = SegmentedButtonDefaults.itemShape(index, repeatEntries.size, baseShape = RoundedCornerShape(12.dp)),
                                         colors = themedSegmentedColors(),
                                     ) { Text(lbl) }
                                 }
                             }
+                            FieldNotchLabel(
+                                stringResource(R.string.alarm_repeat_label),
+                            )
                         }
                     }
                     HintText(
@@ -933,29 +949,32 @@ private fun AlarmRuleEditorDialog(
                     // Anticipation as a compact segmented row: Realtime (0) keeps
                     // the classic fire-on-threshold behaviour; the others fire
                     // early when the recent trend is about to cross the threshold.
-                    Text(stringResource(R.string.alarm_predict_label),
-                        fontSize = 12.sp, color = MaterialTheme.appColors.fieldLabel)
                     val realtimeLabel = stringResource(R.string.alarm_predict_realtime)
                     val leadValues = listOf(0, 500, 1000, 2000, 3000)
-                    SingleChoiceSegmentedButtonRow(
-                        modifier = Modifier.fillMaxWidth().height(44.dp)
-                    ) {
-                        leadValues.forEachIndexed { index, ms ->
-                            SegmentedButton(
-                                modifier = Modifier.fillMaxHeight(),
-                                selected = leadTimeMs == ms,
-                                onClick = { leadTimeMs = ms },
-                                shape = SegmentedButtonDefaults.itemShape(index, leadValues.size),
-                                colors = themedSegmentedColors(),
-                                icon = {},
-                            ) {
-                                Text(
-                                    if (ms == 0) realtimeLabel else "${leadSeconds(ms)}s",
-                                    fontSize = 12.sp,
-                                    maxLines = 1
-                                )
+                    Box(modifier = Modifier.fillMaxWidth().padding(top = 9.dp)) {
+                        SingleChoiceSegmentedButtonRow(
+                            modifier = Modifier.fillMaxWidth().height(44.dp)
+                        ) {
+                            leadValues.forEachIndexed { index, ms ->
+                                SegmentedButton(
+                                    modifier = Modifier.fillMaxHeight(),
+                                    selected = leadTimeMs == ms,
+                                    onClick = { leadTimeMs = ms },
+                                    shape = SegmentedButtonDefaults.itemShape(index, leadValues.size, baseShape = RoundedCornerShape(12.dp)),
+                                    colors = themedSegmentedColors(),
+                                    icon = {},
+                                ) {
+                                    Text(
+                                        if (ms == 0) realtimeLabel else "${leadSeconds(ms)}s",
+                                        fontSize = 12.sp,
+                                        maxLines = 1
+                                    )
+                                }
                             }
                         }
+                        FieldNotchLabel(
+                            stringResource(R.string.alarm_predict_label),
+                        )
                     }
                     HintText(
                         if (leadTimeMs <= 0)
@@ -978,7 +997,7 @@ private fun AlarmRuleEditorDialog(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     if (rule != null && onDelete != null) {
-                        TextButton(onClick = onDelete) {
+                        TextButton(onClick = onDelete, shape = RoundedCornerShape(12.dp)) {
                             Text(
                                 stringResource(R.string.alarm_delete_action),
                                 color = MaterialTheme.appColors.statusDanger
@@ -988,11 +1007,12 @@ private fun AlarmRuleEditorDialog(
                         Spacer(Modifier.width(1.dp))
                     }
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        TextButton(onClick = onDismiss) { Text(stringResource(R.string.action_cancel)) }
+                        TextButton(onClick = onDismiss, shape = RoundedCornerShape(12.dp)) { Text(stringResource(R.string.action_cancel)) }
                         Spacer(Modifier.width(8.dp))
                         val hasOutput = beepEnabled || voiceEnabled || vibrateEnabled
                         Button(
                             enabled = hasOutput,
+                            shape = RoundedCornerShape(12.dp),
                             onClick = {
                                 onSave(
                                     (rule ?: AlarmRule()).copy(
@@ -1113,7 +1133,7 @@ private fun BeepStudioDialog(
     ) {
         Surface(
             modifier = Modifier.fillMaxWidth(0.96f),
-            shape = RoundedCornerShape(16.dp),
+            shape = RoundedCornerShape(12.dp),
             color = MaterialTheme.colorScheme.surface,
         ) {
             Column(Modifier.fillMaxWidth().padding(16.dp)) {
@@ -1207,13 +1227,13 @@ private fun BeepStudioDialog(
                 Row(modifier = Modifier.fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically) {
                     // Reset commits no modulation (1x pitch and volume) and closes.
-                    TextButton(onClick = { onCommit(100, 100); onDismiss() }) {
+                    TextButton(onClick = { onCommit(100, 100); onDismiss() }, shape = RoundedCornerShape(12.dp)) {
                         Text(stringResource(R.string.alarm_studio_reset))
                     }
                     Spacer(Modifier.weight(1f))
-                    TextButton(onClick = onDismiss) { Text(stringResource(R.string.action_cancel)) }
+                    TextButton(onClick = onDismiss, shape = RoundedCornerShape(12.dp)) { Text(stringResource(R.string.action_cancel)) }
                     Spacer(Modifier.width(8.dp))
-                    Button(onClick = { onCommit(pitchFactor, volFactor); onDismiss() }) {
+                    Button(onClick = { onCommit(pitchFactor, volFactor); onDismiss() }, shape = RoundedCornerShape(12.dp)) {
                         Text(stringResource(R.string.action_save))
                     }
                 }
@@ -1423,9 +1443,15 @@ internal fun NumberUpDown(
     // hugs the unit, and because the unit is a fixed trailing element it is
     // always fully visible even in a narrow row. Center keeps the older look.
     numberAlign: TextAlign = TextAlign.End,
+    // Field box height. 56dp so numeric fields match the system combo box height
+    // (and the metric/condition dropdowns in the alarm editor).
+    fieldHeight: Dp = 56.dp,
 ) {
     val fieldText = MaterialTheme.appColors.fieldText
     val fieldLabelColor = MaterialTheme.appColors.fieldLabel
+    val fieldBorder = MaterialTheme.appColors.fieldBorder
+    val focusBorder = MaterialTheme.appColors.primary
+    val density = LocalDensity.current
     var text by remember { mutableStateOf(format(value)) }
     var focused by remember { mutableStateOf(false) }
     // rememberUpdatedState so the hold-to-repeat loop below always steps from the
@@ -1437,33 +1463,27 @@ internal fun NumberUpDown(
     }
 
     Column(modifier = modifier.alpha(if (enabled) 1f else 0.5f)) {
-        if (label != null) {
-            Text(
-                label,
-                fontSize = 12.sp,
-                color = fieldLabelColor,
-                modifier = Modifier.padding(bottom = 4.dp)
-            )
-        }
-        Surface(
-            shape = RoundedCornerShape(12.dp),
-            color = MaterialTheme.appColors.fieldBackground,
-            border = BorderStroke(1.dp, MaterialTheme.appColors.fieldBorder),
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Row(
-                modifier = Modifier.height(48.dp),
-                verticalAlignment = Alignment.CenterVertically
+        // Reserve room above the field for the floating label so its top is never
+        // clipped by the row/section above (it straddles the top border).
+        Box(modifier = Modifier.padding(top = if (label != null) 8.dp else 0.dp)) {
+            // Resting state is just the value + unit in a bordered field, so it
+            // stays compact and never clips no matter how narrow the row or how
+            // wide the value (the old always-visible steppers ate the width and
+            // clipped the number on dense screens). Tapping the field focuses it
+            // (system keyboard) and reveals the up/down bubble above it.
+            Surface(
+                shape = RoundedCornerShape(12.dp),
+                color = MaterialTheme.appColors.fieldBackground,
+                border = BorderStroke(
+                    if (focused) 2.dp else 1.dp,
+                    if (focused) focusBorder else fieldBorder,
+                ),
+                modifier = Modifier.fillMaxWidth()
             ) {
-                RepeatingStepper(
-                    icon = Icons.Default.Remove,
-                    contentDescription = stringResource(R.string.alarm_threshold_decrease),
-                    enabled = enabled && value > range.first,
-                    tint = fieldText,
-                    onStep = { stepBy(-step) },
-                )
                 Row(
-                    modifier = Modifier.weight(1f),
+                    modifier = Modifier
+                        .height(fieldHeight)
+                        .padding(horizontal = 14.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     BasicTextField(
@@ -1495,33 +1515,108 @@ internal fun NumberUpDown(
                             }
                     )
                     if (suffix.isNotEmpty()) {
-                        Spacer(Modifier.width(4.dp))
+                        Spacer(Modifier.width(6.dp))
                         Text(
                             suffix,
-                            fontSize = 14.sp,
+                            fontSize = 13.sp,
                             color = fieldLabelColor,
                             maxLines = 1,
                             softWrap = false,
                         )
-                        Spacer(Modifier.width(6.dp))
                     }
                 }
-                RepeatingStepper(
-                    icon = Icons.Default.Add,
-                    contentDescription = stringResource(R.string.alarm_threshold_increase),
-                    enabled = enabled && value < range.last,
-                    tint = fieldText,
-                    onStep = { stepBy(step) },
+            }
+            // Floating label notched into the top border like the combo boxes;
+            // takes the focus colour when active.
+            if (label != null) {
+                FieldNotchLabel(
+                    label,
+                    color = if (focused) focusBorder else Color.Unspecified,
                 )
+            }
+            // Up/down stepper bubble: a vertical pill (up over down) that appears
+            // only while focused, docked just past the field's trailing edge and
+            // vertically centred on it -- flipping to the leading edge when there
+            // is no room -- so it never competes for row width. Non-focusable so
+            // tapping a stepper keeps the keyboard up.
+            if (focused && enabled) {
+                // Hold the stepper bubble back until the keyboard's open animation has
+                // settled, then fade it in. Drawing the Popup while the window is still
+                // resizing/scrolling made it flash in and jump as a black rectangle.
+                var bubbleShown by remember { mutableStateOf(false) }
+                val bubbleAlpha by animateFloatAsState(
+                    targetValue = if (bubbleShown) 1f else 0f,
+                    animationSpec = tween(140),
+                    label = "stepperBubbleFade",
+                )
+                LaunchedEffect(Unit) {
+                    kotlinx.coroutines.delay(250)
+                    bubbleShown = true
+                }
+                if (bubbleAlpha > 0.01f) {
+                val gapPx = with(density) { 6.dp.roundToPx() }
+                val bubblePosition = remember(gapPx) {
+                    object : PopupPositionProvider {
+                        override fun calculatePosition(
+                            anchorBounds: IntRect,
+                            windowSize: IntSize,
+                            layoutDirection: LayoutDirection,
+                            popupContentSize: IntSize,
+                        ): IntOffset {
+                            val y = (anchorBounds.top + (anchorBounds.height - popupContentSize.height) / 2)
+                                .coerceIn(0, (windowSize.height - popupContentSize.height).coerceAtLeast(0))
+                            val trailing = anchorBounds.right + gapPx
+                            val x = if (trailing + popupContentSize.width <= windowSize.width) trailing
+                            else (anchorBounds.left - popupContentSize.width - gapPx).coerceAtLeast(0)
+                            return IntOffset(x, y)
+                        }
+                    }
+                }
+                Popup(
+                    popupPositionProvider = bubblePosition,
+                    properties = PopupProperties(focusable = false, clippingEnabled = false),
+                ) {
+                    Surface(
+                        modifier = Modifier.graphicsLayer { alpha = bubbleAlpha },
+                        shape = RoundedCornerShape(12.dp),
+                        color = MaterialTheme.appColors.fieldBackground,
+                        border = BorderStroke(1.dp, fieldBorder),
+                        shadowElevation = 6.dp,
+                    ) {
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            RepeatingStepper(
+                                icon = Icons.Default.KeyboardArrowUp,
+                                contentDescription = stringResource(R.string.alarm_threshold_increase),
+                                enabled = value < range.last,
+                                tint = fieldText,
+                                onStep = { stepBy(step) },
+                            )
+                            Box(
+                                Modifier
+                                    .width(24.dp)
+                                    .height(1.dp)
+                                    .background(fieldBorder)
+                            )
+                            RepeatingStepper(
+                                icon = Icons.Default.KeyboardArrowDown,
+                                contentDescription = stringResource(R.string.alarm_threshold_decrease),
+                                enabled = value > range.first,
+                                tint = fieldText,
+                                onStep = { stepBy(-step) },
+                            )
+                        }
+                    }
+                }
+                }
             }
         }
     }
 }
 
 /**
- * 48dp icon button for the NumberUpDown steppers: fires [onStep] once on press,
- * then auto-repeats with acceleration while held so the rider can sweep a value
- * fast (handy for fine 0.1-step fields like speed calibration).
+ * 48dp icon button for the NumberUpDown up/down bubble: fires [onStep] once on
+ * press, then auto-repeats with acceleration while held so the rider can sweep a
+ * value fast (handy for fine 0.1-step fields like speed calibration).
  */
 @Composable
 private fun RepeatingStepper(
@@ -1586,6 +1681,7 @@ private fun DropdownSelect(
             modifier = Modifier
                 .fillMaxWidth()
                 .menuAnchor(MenuAnchorType.PrimaryNotEditable),
+            shape = RoundedCornerShape(12.dp),
             colors = themedFieldColors(),
         )
         ExposedDropdownMenu(

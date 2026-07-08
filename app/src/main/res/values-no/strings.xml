@@ -550,7 +550,7 @@
     <string name="watch_close_on_exit">Auto-stopp på klokken</string>
     <string name="watch_close_on_exit_desc">Stopp klokke-appen ved Stopp alt</string>
     <string name="watch_button_click_label">Klikk</string>
-    <string name="watch_button_hold_label">Langt trykk</string>
+    <string name="watch_button_hold_label">Hold</string>
     <string name="watch_keep_on">Hold skjermen på</string>
     <string name="watch_keep_on_desc">Hold klokka våken mens appen er åpen</string>
     <string name="watch_update_rate">Oppdateringsfrekvens</string>
@@ -1582,6 +1582,14 @@
     <string name="adv_charging_cv_taper_desc">Påvirker hvor pessimistisk ETA for det siste segmentet til fullt er. Høyere gir mer margin.</string>
     <string name="adv_charging_median">Utjevningsmålinger</string>
     <string name="adv_charging_median_desc">Påvirker hvor mange målinger som median-filtreres for å fjerne spenningstopper. Bruk et oddetall.</string>
+    <string name="adv_cell_low_warn">Celle lav, advarsel</string>
+    <string name="adv_cell_low_warn_desc">Hvor langt en celle kan falle under pakkens median før den blir gul.</string>
+    <string name="adv_cell_low_danger">Celle lav, fare</string>
+    <string name="adv_cell_low_danger_desc">Hvor langt en celle kan falle under pakkens median før den blir rød.</string>
+    <string name="adv_cell_high">Celle høy</string>
+    <string name="adv_cell_high_desc">Hvor langt en celle kan stige over pakkens median før den blir blå.</string>
+    <string name="adv_pack_balance_tol">Pakkebalansetoleranse</string>
+    <string name="adv_pack_balance_tol_desc">Hvor langt en pakke kan ligge fra medianen før den forlater det balanserte grønne, for pakkevisningen med bare prosent.</string>
     <string name="adv_charging_sanity_cap">Fornuftsgrense for ETA</string>
     <string name="adv_charging_sanity_cap_desc">Påvirker den største ETA-en som vises. Alt over dette behandles som ikke klart ennå.</string>
     <string name="adv_charging_target_pct">Målprosent</string>
@@ -1764,7 +1772,9 @@
     <string name="geo_section_dashboard">Dashbord</string>
     <string name="geo_section_navigator">Navigator</string>
     <string name="geo_section_other">Andre skjermer</string>
-    <string name="geo_other_hint">Innstillinger, turer, batterimonitor, målehistorikk, skanning og Flic. Overlay Studio påvirkes ikke: oppsettet er fast, men det fungerer fint i enhver retning.</string>
+    <string name="geo_section_settings">Innstillinger</string>
+    <string name="geo_other_hint">Turer, batterimonitor, målehistorikk, skanning og Flic. Overlay Studio påvirkes ikke: oppsettet er fast, men det fungerer fint i enhver retning.</string>
+    <string name="geo_settings_hint">Innstillingsskjermen. Av som standard, så Innstillinger forblir stående med mindre du slår det på.</string>
     <string name="setting_allow_rotation">Tillat rotasjon</string>
     <string name="setting_block_upside_down">Hindre rotasjon opp ned</string>
     <string name="setting_ignore_system_rotate_lock">Ignorer systemets rotasjonslås</string>

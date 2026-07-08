@@ -153,6 +153,7 @@ object SettingsJson {
         put("rotateDashboard", s.rotateDashboard)
         put("rotateNavigator", s.rotateNavigator)
         put("rotateOtherScreens", s.rotateOtherScreens)
+        put("rotateSettings", s.rotateSettings)
         put("compactModeWhen", s.compactModeWhen)
         put("coverCameraCutout", s.coverCameraCutout)
         put("compactSpeedoStyle", s.compactSpeedoStyle)
@@ -388,6 +389,7 @@ object SettingsJson {
         rotateDashboard = j.optBoolean("rotateDashboard", base.rotateDashboard),
         rotateNavigator = j.optBoolean("rotateNavigator", base.rotateNavigator),
         rotateOtherScreens = j.optBoolean("rotateOtherScreens", base.rotateOtherScreens),
+        rotateSettings = j.optBoolean("rotateSettings", base.rotateSettings),
         compactModeWhen = j.optString("compactModeWhen", base.compactModeWhen),
         coverCameraCutout = j.optString("coverCameraCutout", base.coverCameraCutout),
         compactSpeedoStyle = j.optString("compactSpeedoStyle", base.compactSpeedoStyle),

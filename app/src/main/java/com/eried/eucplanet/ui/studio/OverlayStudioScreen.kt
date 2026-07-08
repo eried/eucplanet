@@ -1409,10 +1409,10 @@ fun OverlayStudioScreen(
                     TextButton(onClick = {
                         showCancelConfirm = false
                         renderCancelRequested = true
-                    }) { Text(stringResource(R.string.studio_dlg_cancel_render_confirm)) }
+                    }, shape = RoundedCornerShape(12.dp)) { Text(stringResource(R.string.studio_dlg_cancel_render_confirm)) }
                 },
                 dismissButton = {
-                    TextButton(onClick = { showCancelConfirm = false }) {
+                    TextButton(onClick = { showCancelConfirm = false }, shape = RoundedCornerShape(12.dp)) {
                         Text(stringResource(R.string.studio_dlg_cancel_render_dismiss))
                     }
                 }
@@ -1547,17 +1547,17 @@ fun OverlayStudioScreen(
                                 val keep = uniqueName(pending)
                                 pendingOverwriteName = null
                                 doSave(keep)
-                            }) { Text(stringResource(R.string.studio_save_keep_both)) }
+                            }, shape = RoundedCornerShape(12.dp)) { Text(stringResource(R.string.studio_save_keep_both)) }
                             androidx.compose.material3.TextButton(onClick = {
                                 pendingOverwriteName = null
                                 doSave(pending)
-                            }) { Text(stringResource(R.string.studio_overwrite_confirm)) }
+                            }, shape = RoundedCornerShape(12.dp)) { Text(stringResource(R.string.studio_overwrite_confirm)) }
                         }
                     },
                     dismissButton = {
                         androidx.compose.material3.TextButton(onClick = {
                             pendingOverwriteName = null
-                        }) { Text(stringResource(R.string.action_cancel)) }
+                        }, shape = RoundedCornerShape(12.dp)) { Text(stringResource(R.string.action_cancel)) }
                     }
                 )
             }
@@ -1979,7 +1979,7 @@ private fun CameraPermissionCard(modifier: Modifier, onGrant: () -> Unit) {
             fontWeight = FontWeight.SemiBold
         )
         Spacer(Modifier.size(12.dp))
-        androidx.compose.material3.Button(onClick = onGrant) {
+        androidx.compose.material3.Button(onClick = onGrant, shape = RoundedCornerShape(12.dp)) {
             Text(stringResource(R.string.studio_grant))
         }
     }

@@ -403,7 +403,7 @@
 
     <!-- Watch hardware buttons -->
     <string name="watch_button_click_label">Klick</string>
-    <string name="watch_button_hold_label">Långt tryck</string>
+    <string name="watch_button_hold_label">Håll</string>
     <string name="watch_buttons_hardware_info">Håll kan fångas av systemet på vissa klockor</string>
     <string name="watch_buttons_touch_info">Beror på vad din klocka stödjer</string>
     <string name="watch_buttons_hardware_label">Fysiska</string>
@@ -1696,6 +1696,14 @@
     <string name="adv_charging_cv_taper_desc">Påverkar hur pessimistisk beräknad tid för sista delen till fullt är. Högre ger mer marginal.</string>
     <string name="adv_charging_median">Utjämningsmätvärden</string>
     <string name="adv_charging_median_desc">Påverkar hur många mätvärden som medianfiltreras för att ta bort spänningstoppar. Använd ett udda tal.</string>
+    <string name="adv_cell_low_warn">Cell låg, varning</string>
+    <string name="adv_cell_low_warn_desc">Hur långt en cell får sjunka under paketets median innan den blir gul.</string>
+    <string name="adv_cell_low_danger">Cell låg, fara</string>
+    <string name="adv_cell_low_danger_desc">Hur långt en cell får sjunka under paketets median innan den blir röd.</string>
+    <string name="adv_cell_high">Cell hög</string>
+    <string name="adv_cell_high_desc">Hur långt en cell får stiga över paketets median innan den blir blå.</string>
+    <string name="adv_pack_balance_tol">Paketets balanstolerans</string>
+    <string name="adv_pack_balance_tol_desc">Hur långt ett paket får ligga från medianen innan det lämnar det balanserade gröna, för paketvyn med bara procent.</string>
     <string name="adv_charging_sanity_cap">Rimlighetstak för ETA</string>
     <string name="adv_charging_sanity_cap_desc">Påverkar den största ETA som visas. Allt över detta behandlas som inte klart än.</string>
     <string name="adv_charging_target_pct">Målprocent</string>
@@ -1878,7 +1886,9 @@
     <string name="geo_section_dashboard">Instrumentpanel</string>
     <string name="geo_section_navigator">Navigator</string>
     <string name="geo_section_other">Andra skärmar</string>
-    <string name="geo_other_hint">Inställningar, turer, batterimonitor, mäthistorik, skanning och Flic. Overlay Studio påverkas inte: dess layout är fast, men det fungerar bra i alla riktningar.</string>
+    <string name="geo_section_settings">Inställningar</string>
+    <string name="geo_other_hint">Turer, batterimonitor, mäthistorik, skanning och Flic. Overlay Studio påverkas inte: dess layout är fast, men det fungerar bra i alla riktningar.</string>
+    <string name="geo_settings_hint">Inställningsskärmen. Av som standard, så Inställningar förblir stående om du inte aktiverar det.</string>
     <string name="setting_allow_rotation">Tillåt rotation</string>
     <string name="setting_block_upside_down">Förhindra upp och ned-rotation</string>
     <string name="setting_ignore_system_rotate_lock">Ignorera systemets rotationslås</string>

@@ -64,6 +64,12 @@ data class ChargingUiState(
      *  reported per-cell data (older Sherman / KingSong / P6); the Cells tab
      *  hides in that case. */
     val bms: com.eried.eucplanet.data.model.BmsState = com.eried.eucplanet.data.model.BmsState(),
+    // Cell / pack balance color thresholds (Advanced -> Charging), deviation
+    // from the pack median.
+    val cellLowWarnMv: Int = 30,
+    val cellLowDangerMv: Int = 80,
+    val cellHighMv: Int = 40,
+    val packBalanceTolerancePct: Int = 5,
 )
 
 /**
@@ -92,7 +98,9 @@ class ChargingMonitorViewModel @Inject constructor(
         settingsRepository.settings,
         wheelRepository.bmsState,
     ) { quad, settings, bms ->
-        buildState(quad.data, quad.status, quad.name, quad.snap, settings.chargingEstimateToFull, bms)
+        buildState(quad.data, quad.status, quad.name, quad.snap, settings.chargingEstimateToFull, bms,
+            settings.advanced.cellLowWarnMv, settings.advanced.cellLowDangerMv,
+            settings.advanced.cellHighMv, settings.advanced.packBalanceTolerancePct)
     }.stateIn(
         viewModelScope,
         SharingStarted.WhileSubscribed(5_000),
@@ -129,6 +137,10 @@ class ChargingMonitorViewModel @Inject constructor(
         snap: ChargingSnapshot,
         estimateToFull: Boolean,
         bms: com.eried.eucplanet.data.model.BmsState = com.eried.eucplanet.data.model.BmsState(),
+        cellLowWarnMv: Int = 30,
+        cellLowDangerMv: Int = 80,
+        cellHighMv: Int = 40,
+        packBalanceTolerancePct: Int = 5,
     ): ChargingUiState {
         val charging = status == ChargeStatus.Charging || status == ChargeStatus.Full
         val connected = status != ChargeStatus.Disconnected
@@ -180,6 +192,10 @@ class ChargingMonitorViewModel @Inject constructor(
             tempHistory = snap.tempHistory,
             predictionHistory = snap.predictionHistory,
             bms = bms,
+            cellLowWarnMv = cellLowWarnMv,
+            cellLowDangerMv = cellLowDangerMv,
+            cellHighMv = cellHighMv,
+            packBalanceTolerancePct = packBalanceTolerancePct,
         )
     }
 

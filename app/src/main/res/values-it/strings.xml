@@ -146,7 +146,7 @@
 
     <!-- Watch hardware buttons -->
     <string name="watch_button_click_label">Clic</string>
-    <string name="watch_button_hold_label">Pressione lunga</string>
+    <string name="watch_button_hold_label">Tieni</string>
 
     <!-- Settings: Backup -->
     <string name="section_cloud_folder">Cartella di backup</string>
@@ -1601,6 +1601,14 @@
     <string name="adv_charging_cv_taper_desc">Influisce su quanto è pessimistica la stima per il tratto finale alla carica completa. Più alto aggiunge margine.</string>
     <string name="adv_charging_median">Campioni di livellamento</string>
     <string name="adv_charging_median_desc">Influisce su quanti campioni vengono filtrati con la mediana per eliminare i picchi di tensione. Usa un numero dispari.</string>
+    <string name="adv_cell_low_warn">Cella bassa, avviso</string>
+    <string name="adv_cell_low_warn_desc">Di quanto una cella può scendere sotto la mediana del pack prima di diventare gialla.</string>
+    <string name="adv_cell_low_danger">Cella bassa, pericolo</string>
+    <string name="adv_cell_low_danger_desc">Di quanto una cella può scendere sotto la mediana del pack prima di diventare rossa.</string>
+    <string name="adv_cell_high">Cella alta</string>
+    <string name="adv_cell_high_desc">Di quanto una cella può salire sopra la mediana del pack prima di diventare blu.</string>
+    <string name="adv_pack_balance_tol">Tolleranza di bilanciamento del pack</string>
+    <string name="adv_pack_balance_tol_desc">Di quanto un pack può discostarsi dalla mediana prima di lasciare il verde bilanciato, per la vista pack solo in percentuale.</string>
     <string name="adv_charging_sanity_cap">Limite massimo stima</string>
     <string name="adv_charging_sanity_cap_desc">Influisce sulla stima massima mostrata. Tutto ciò che la supera è considerato non ancora pronto.</string>
     <string name="adv_charging_target_pct">Percentuale obiettivo</string>
@@ -1783,7 +1791,9 @@
     <string name="geo_section_dashboard">Cruscotto</string>
     <string name="geo_section_navigator">Navigatore</string>
     <string name="geo_section_other">Altre schermate</string>
-    <string name="geo_other_hint">Impostazioni, tragitti, monitor batteria, cronologia metriche, scansione e Flic. L\'Overlay Studio non è interessato: il suo layout è fisso, ma funziona bene in qualsiasi orientamento.</string>
+    <string name="geo_section_settings">Impostazioni</string>
+    <string name="geo_other_hint">Tragitti, monitor batteria, cronologia metriche, scansione e Flic. L\'Overlay Studio non è interessato: il suo layout è fisso, ma funziona bene in qualsiasi orientamento.</string>
+    <string name="geo_settings_hint">La schermata delle impostazioni. Disattivato per impostazione predefinita, quindi Impostazioni resta in verticale a meno che tu non lo attivi.</string>
     <string name="setting_allow_rotation">Consenti rotazione</string>
     <string name="setting_block_upside_down">Impedisci rotazione capovolta</string>
     <string name="setting_ignore_system_rotate_lock">Ignora blocco rotazione di sistema</string>

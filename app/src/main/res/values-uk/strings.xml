@@ -403,7 +403,7 @@
 
     <!-- Watch hardware buttons -->
     <string name="watch_button_click_label">Натискання</string>
-    <string name="watch_button_hold_label">Довге натискання</string>
+    <string name="watch_button_hold_label">Утрим.</string>
     <string name="watch_buttons_hardware_info">Утримання можуть перехоплюватись системою на деяких годинниках</string>
     <string name="watch_buttons_touch_info">Залежить від твого годинника</string>
     <string name="watch_buttons_hardware_label">Фізичні</string>
@@ -1693,6 +1693,14 @@
     <string name="adv_charging_cv_taper_desc">Впливає на те, наскільки песимістичний прогноз часу для кінцевого відрізку до повного заряду. Більше додає запас.</string>
     <string name="adv_charging_median">Вибірки згладжування</string>
     <string name="adv_charging_median_desc">Впливає на те, скільки вибірок фільтрується за медіаною, щоб прибрати стрибки напруги. Використовуй непарне число.</string>
+    <string name="adv_cell_low_warn">Комірка низько, попередження</string>
+    <string name="adv_cell_low_warn_desc">Наскільки комірка може опуститися нижче медіани блока, перш ніж стане жовтою.</string>
+    <string name="adv_cell_low_danger">Комірка низько, небезпека</string>
+    <string name="adv_cell_low_danger_desc">Наскільки комірка може опуститися нижче медіани блока, перш ніж стане червоною.</string>
+    <string name="adv_cell_high">Комірка високо</string>
+    <string name="adv_cell_high_desc">Наскільки комірка може піднятися вище медіани блока, перш ніж стане синьою.</string>
+    <string name="adv_pack_balance_tol">Допуск балансу блока</string>
+    <string name="adv_pack_balance_tol_desc">Наскільки блок може відхилятися від медіани, перш ніж покине збалансований зелений, для вигляду блоків лише з відсотками.</string>
     <string name="adv_charging_sanity_cap">Межа розумності прогнозу</string>
     <string name="adv_charging_sanity_cap_desc">Впливає на найбільший прогноз часу, що показується. Усе вище вважається ще не готовим.</string>
     <string name="adv_charging_target_pct">Цільовий відсоток</string>
@@ -1875,7 +1883,9 @@
     <string name="geo_section_dashboard">Панель</string>
     <string name="geo_section_navigator">Навігатор</string>
     <string name="geo_section_other">Інші екрани</string>
-    <string name="geo_other_hint">Налаштування, поїздки, монітор батареї, історія метрик, сканування та Flic. Overlay Studio не зачіпається: його макет фіксований, але він добре працює в будь-якій орієнтації.</string>
+    <string name="geo_section_settings">Налаштування</string>
+    <string name="geo_other_hint">Поїздки, монітор батареї, історія метрик, сканування та Flic. Overlay Studio не зачіпається: його макет фіксований, але він добре працює в будь-якій орієнтації.</string>
+    <string name="geo_settings_hint">Екран налаштувань. Типово вимкнено, тому Налаштування залишаються у книжковій орієнтації, доки ви це не увімкнете.</string>
     <string name="setting_allow_rotation">Дозволити обертання</string>
     <string name="setting_block_upside_down">Заборонити перевертання догори дриґом</string>
     <string name="setting_ignore_system_rotate_lock">Ігнорувати системне блокування обертання</string>

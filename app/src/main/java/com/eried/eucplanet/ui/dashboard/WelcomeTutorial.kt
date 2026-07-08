@@ -606,15 +606,16 @@ fun WelcomeTutorialOverlay(
         if (showSkipConfirm) {
             AlertDialog(
                 onDismissRequest = { showSkipConfirm = false },
+                shape = RoundedCornerShape(12.dp),
                 title = { Text(stringResource(R.string.welcome_tut_skip_title)) },
                 text = { Text(stringResource(R.string.welcome_tut_skip_body)) },
                 confirmButton = {
-                    TextButton(onClick = { showSkipConfirm = false; onFinish() }) {
+                    TextButton(onClick = { showSkipConfirm = false; onFinish() }, shape = RoundedCornerShape(12.dp)) {
                         Text(stringResource(R.string.welcome_tut_skip_yes))
                     }
                 },
                 dismissButton = {
-                    TextButton(onClick = { showSkipConfirm = false }) {
+                    TextButton(onClick = { showSkipConfirm = false }, shape = RoundedCornerShape(12.dp)) {
                         Text(stringResource(R.string.action_cancel))
                     }
                 }

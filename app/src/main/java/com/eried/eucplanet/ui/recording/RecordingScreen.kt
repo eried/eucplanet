@@ -159,15 +159,16 @@ fun RecordingScreen(
     if (showClearDialog) {
         AlertDialog(
             onDismissRequest = { showClearDialog = false },
+            shape = RoundedCornerShape(12.dp),
             title = { Text(stringResource(R.string.recording_clear_all_title)) },
             text = { Text(stringResource(R.string.recording_clear_all_body)) },
             confirmButton = {
                 TextButton(onClick = {
                     viewModel.clearAllTrips { showClearDialog = false }
-                }) { Text(stringResource(R.string.action_delete_all), color = MaterialTheme.appColors.statusDanger) }
+                }, shape = RoundedCornerShape(12.dp)) { Text(stringResource(R.string.action_delete_all), color = MaterialTheme.appColors.statusDanger) }
             },
             dismissButton = {
-                TextButton(onClick = { showClearDialog = false }) { Text(stringResource(R.string.action_cancel)) }
+                TextButton(onClick = { showClearDialog = false }, shape = RoundedCornerShape(12.dp)) { Text(stringResource(R.string.action_cancel)) }
             }
         )
     }
@@ -188,16 +189,17 @@ fun RecordingScreen(
     if (tripToDelete != null) {
         AlertDialog(
             onDismissRequest = { tripToDelete = null },
+            shape = RoundedCornerShape(12.dp),
             title = { Text(stringResource(R.string.recording_delete_trip_title)) },
             text = { Text(stringResource(R.string.recording_delete_trip_body)) },
             confirmButton = {
                 TextButton(onClick = {
                     viewModel.deleteTrip(tripToDelete!!)
                     tripToDelete = null
-                }) { Text(stringResource(R.string.action_delete), color = MaterialTheme.appColors.statusDanger) }
+                }, shape = RoundedCornerShape(12.dp)) { Text(stringResource(R.string.action_delete), color = MaterialTheme.appColors.statusDanger) }
             },
             dismissButton = {
-                TextButton(onClick = { tripToDelete = null }) { Text(stringResource(R.string.action_cancel)) }
+                TextButton(onClick = { tripToDelete = null }, shape = RoundedCornerShape(12.dp)) { Text(stringResource(R.string.action_cancel)) }
             }
         )
     }
@@ -232,6 +234,7 @@ fun RecordingScreen(
                     DropdownMenu(
                         expanded = showManageMenu,
                         onDismissRequest = { showManageMenu = false },
+                        shape = RoundedCornerShape(12.dp),
                         containerColor = MaterialTheme.appColors.menuBackground
                     ) {
                         if (onOpenBackupSettings != null) {

@@ -403,7 +403,7 @@
 
     <!-- Watch hardware buttons -->
     <string name="watch_button_click_label">Нажатие</string>
-    <string name="watch_button_hold_label">Долгое нажатие</string>
+    <string name="watch_button_hold_label">Удерж.</string>
     <string name="watch_buttons_hardware_info">Удержания могут перехватываться системой на некоторых часах</string>
     <string name="watch_buttons_touch_info">Зависит от ваших часов</string>
     <string name="watch_buttons_hardware_label">Физические</string>
@@ -1696,6 +1696,14 @@
     <string name="adv_charging_cv_taper_desc">Влияет на то, насколько пессимистична оценка времени для финального участка до полной зарядки. Выше добавляет запас.</string>
     <string name="adv_charging_median">Выборки сглаживания</string>
     <string name="adv_charging_median_desc">Влияет на то, сколько выборок фильтруется по медиане, чтобы убрать скачки напряжения. Используйте нечётное число.</string>
+    <string name="adv_cell_low_warn">Ячейка низко, предупреждение</string>
+    <string name="adv_cell_low_warn_desc">Насколько ячейка может опуститься ниже медианы блока, прежде чем станет жёлтой.</string>
+    <string name="adv_cell_low_danger">Ячейка низко, опасность</string>
+    <string name="adv_cell_low_danger_desc">Насколько ячейка может опуститься ниже медианы блока, прежде чем станет красной.</string>
+    <string name="adv_cell_high">Ячейка высоко</string>
+    <string name="adv_cell_high_desc">Насколько ячейка может подняться выше медианы блока, прежде чем станет синей.</string>
+    <string name="adv_pack_balance_tol">Допуск баланса блока</string>
+    <string name="adv_pack_balance_tol_desc">Насколько блок может отклоняться от медианы, прежде чем покинет сбалансированный зелёный, для вида блоков только с процентами.</string>
     <string name="adv_charging_sanity_cap">Предел оценки времени</string>
     <string name="adv_charging_sanity_cap_desc">Влияет на наибольшую отображаемую оценку времени. Всё, что выше, считается «ещё не готово».</string>
     <string name="adv_charging_target_pct">Целевой процент</string>
@@ -1878,7 +1886,9 @@
     <string name="geo_section_dashboard">Панель</string>
     <string name="geo_section_navigator">Навигатор</string>
     <string name="geo_section_other">Другие экраны</string>
-    <string name="geo_other_hint">Настройки, поездки, монитор батареи, история метрик, сканирование и Flic. Overlay Studio не затрагивается: его макет фиксирован, но он нормально работает в любой ориентации.</string>
+    <string name="geo_section_settings">Настройки</string>
+    <string name="geo_other_hint">Поездки, монитор батареи, история метрик, сканирование и Flic. Overlay Studio не затрагивается: его макет фиксирован, но он нормально работает в любой ориентации.</string>
+    <string name="geo_settings_hint">Экран настроек. По умолчанию выключено, поэтому Настройки остаются в книжной ориентации, пока вы это не включите.</string>
     <string name="setting_allow_rotation">Разрешить поворот</string>
     <string name="setting_block_upside_down">Запретить поворот вверх ногами</string>
     <string name="setting_ignore_system_rotate_lock">Игнорировать системную блокировку поворота</string>

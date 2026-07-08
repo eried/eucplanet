@@ -88,14 +88,16 @@ fun RadarSection(
                 if (connectionState == ConnectionState.CONNECTED) {
                     Button(
                         onClick = { viewModel.disconnect() },
-                        modifier = Modifier.weight(1f)
+                        modifier = Modifier.weight(1f),
+                        shape = RoundedCornerShape(12.dp)
                     ) {
                         Text(stringResource(R.string.radar_disconnect))
                     }
                 } else {
                     Button(
                         onClick = { viewModel.reconnect() },
-                        modifier = Modifier.weight(1f)
+                        modifier = Modifier.weight(1f),
+                        shape = RoundedCornerShape(12.dp)
                     ) {
                         Text(stringResource(R.string.radar_reconnect))
                     }
@@ -103,7 +105,8 @@ fun RadarSection(
                 Button(
                     onClick = { viewModel.unpair() },
                     modifier = Modifier.weight(1f),
-                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.appColors.statusDanger)
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.appColors.statusDanger),
+                    shape = RoundedCornerShape(12.dp)
                 ) {
                     Text(stringResource(R.string.radar_unpair))
                 }
@@ -154,7 +157,7 @@ private fun RadarOverlaySettings(viewModel: RadarViewModel) {
                     modifier = Modifier.fillMaxHeight(),
                     selected = key == s.radarOverlaySide,
                     onClick = { viewModel.updateOverlaySide(key) },
-                    shape = SegmentedButtonDefaults.itemShape(i, sideOptions.size),
+                    shape = SegmentedButtonDefaults.itemShape(i, sideOptions.size, baseShape = RoundedCornerShape(12.dp)),
                     colors = themedSegmentedColors(),
                 ) { Text(label) }
             }
@@ -174,7 +177,7 @@ private fun UnpairedRadarCard(
         results.forEach { result ->
             Card(
                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
-                shape = RoundedCornerShape(8.dp),
+                shape = RoundedCornerShape(12.dp),
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Row(
@@ -192,7 +195,7 @@ private fun UnpairedRadarCard(
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
-                    Button(onClick = { onPick(result) }) {
+                    Button(onClick = { onPick(result) }, shape = RoundedCornerShape(12.dp)) {
                         Text(stringResource(R.string.radar_pair_action))
                     }
                 }

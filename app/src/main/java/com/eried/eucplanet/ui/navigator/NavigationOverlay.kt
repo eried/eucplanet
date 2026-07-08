@@ -167,10 +167,10 @@ fun NavigationOverlay(
                 TextButton(onClick = {
                     showEndConfirm = false
                     viewModel.endNavigation()
-                }) { Text(stringResource(R.string.nav_end_confirm), color = MaterialTheme.appColors.statusDanger) }
+                }, shape = RoundedCornerShape(12.dp)) { Text(stringResource(R.string.nav_end_confirm), color = MaterialTheme.appColors.statusDanger) }
             },
             dismissButton = {
-                TextButton(onClick = { showEndConfirm = false }) {
+                TextButton(onClick = { showEndConfirm = false }, shape = RoundedCornerShape(12.dp)) {
                     Text(stringResource(R.string.action_cancel))
                 }
             }
@@ -212,7 +212,7 @@ private fun CenterPopup(
                 },
                 indication = null
             ) {},
-        shape = RoundedCornerShape(28.dp),
+        shape = RoundedCornerShape(12.dp),
         color = panel,
         contentColor = ink,
         tonalElevation = 0.dp,

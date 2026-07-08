@@ -30,10 +30,10 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.consumeWindowInsets
@@ -258,6 +258,8 @@ import com.eried.eucplanet.ui.theme.AccentPurple
 import com.eried.eucplanet.ui.theme.AccentRed
 import com.eried.eucplanet.ui.theme.AccentYellow
 import com.eried.eucplanet.ui.theme.appColors
+import com.eried.eucplanet.ui.theme.FieldNotchLabel
+import androidx.compose.foundation.layout.RowScope
 import com.eried.eucplanet.ui.theme.themedFieldColors
 import com.eried.eucplanet.ui.theme.themedFilterChipColors
 import com.eried.eucplanet.ui.theme.themedSegmentedColors
@@ -314,6 +316,7 @@ fun SettingsScreen(
     cheatSheet?.let { sheet ->
         androidx.compose.material3.AlertDialog(
             onDismissRequest = { cheatSheet = null },
+            shape = RoundedCornerShape(12.dp),
             title = { Text(sheet.title) },
             text = {
                 Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -366,7 +369,7 @@ fun SettingsScreen(
                 }
             },
             confirmButton = {
-                androidx.compose.material3.TextButton(onClick = { cheatSheet = null }) {
+                androidx.compose.material3.TextButton(onClick = { cheatSheet = null }, shape = RoundedCornerShape(12.dp)) {
                     Text(stringResource(R.string.action_ok))
                 }
             }
@@ -436,19 +439,20 @@ fun SettingsScreen(
         //  - Cancel: don't switch at all
         AlertDialog(
             onDismissRequest = { viewModel.cancelLanguageSwitch() },
+            shape = RoundedCornerShape(12.dp),
             title = { Text(stringResource(R.string.tts_switch_title, langName)) },
             text = { Text(stringResource(R.string.tts_switch_body, langName)) },
             confirmButton = {
-                Button(onClick = { viewModel.acceptTtsSwitch() }) {
+                Button(onClick = { viewModel.acceptTtsSwitch() }, shape = RoundedCornerShape(12.dp)) {
                     Text(stringResource(R.string.tts_switch_yes))
                 }
             },
             dismissButton = {
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    androidx.compose.material3.TextButton(onClick = { viewModel.cancelLanguageSwitch() }) {
+                    androidx.compose.material3.TextButton(onClick = { viewModel.cancelLanguageSwitch() }, shape = RoundedCornerShape(12.dp)) {
                         Text(stringResource(R.string.action_cancel))
                     }
-                    Button(onClick = { viewModel.dismissTtsSwitch() }) {
+                    Button(onClick = { viewModel.dismissTtsSwitch() }, shape = RoundedCornerShape(12.dp)) {
                         Text(stringResource(R.string.tts_switch_no))
                     }
                 }
@@ -640,9 +644,9 @@ fun SettingsScreen(
         stringResource(R.string.adv_garmin_report_interval),
     ).joinToString(" ")
 
-    // Section handles for the reorganize editor (key, title, icon). Advanced is
-    // excluded since it is pinned last and not reorderable. Default order here;
-    // the editor lays the rider's saved order on top.
+    // Section handles for the reorganize editor (key, title, icon). Every section
+    // is reorderable and hideable now, including Advanced (which defaults to last).
+    // Default order here; the editor lays the rider's saved order on top.
     val movableHandles = listOf(
         SectionHandle("general", titleGeneral, Icons.Default.Tune),
         SectionHandle("dashboard", titleDashboard, Icons.Default.Dashboard),
@@ -657,6 +661,7 @@ fun SettingsScreen(
         SectionHandle("location", titleGpsSensors, Icons.Default.Sensors),
         SectionHandle("integration", titleIntegration, Icons.Default.Extension),
         SectionHandle("watch", titleWatch, Icons.Default.Watch),
+        SectionHandle("advanced", titleAdvanced, Icons.Default.Build),
     )
 
     val sections: List<SectionDef> = listOf(
@@ -723,6 +728,7 @@ fun SettingsScreen(
                             }
                         },
                         singleLine = true,
+                        shape = RoundedCornerShape(12.dp),
                         // Quake-style console: typed cheats (daredevilNN, godmode, bug) are
                         // intercepted on IME Enter before they become a search query. No
                         // match → field stays populated and the normal text-search filter
@@ -831,16 +837,20 @@ fun SettingsScreen(
             val query = searchQuery.trim()
             val searching = query.isNotEmpty()
 
-            // Effective arrangement: movable sections in the rider's saved order
-            // (unknown or newly added keys fall to the end), hidden ones bucketed
-            // into "More". Advanced is always pinned last and is never hidden.
-            val advancedSec = sections.first { it.key == "advanced" }
-            val movable = sections.filter { it.key != "advanced" }
+            // Effective arrangement: every section (including Advanced) is movable
+            // and hideable, in the rider's saved order. Unknown/new keys fall to the
+            // end, with Advanced defaulting last of those. Hidden sections bucket
+            // into "More", which always renders last.
             val savedOrder = settings.settingsLayout.order
-            val orderedMovable = movable.sortedBy {
-                val i = savedOrder.indexOf(it.key); if (i < 0) Int.MAX_VALUE else i
+            val orderedMovable = sections.sortedBy {
+                val i = savedOrder.indexOf(it.key)
+                when {
+                    i >= 0 -> i
+                    it.key == "advanced" -> Int.MAX_VALUE
+                    else -> Int.MAX_VALUE - 1
+                }
             }
-            val hiddenKeys = settings.settingsLayout.hidden.toSet() - "advanced"
+            val hiddenKeys = settings.settingsLayout.hidden.toSet()
             val topLevel = orderedMovable.filter { it.key !in hiddenKeys }
             val moreSecs = orderedMovable.filter { it.key in hiddenKeys }
 
@@ -879,7 +889,7 @@ fun SettingsScreen(
                 ) {
                     if (searching) {
                         // Flatten so a query finds a section wherever it sits.
-                        (orderedMovable + advancedSec).forEach { SectionCard(it) }
+                        orderedMovable.forEach { SectionCard(it) }
                     } else {
                         topLevel.forEach { SectionCard(it) }
                         if (moreSecs.isNotEmpty()) {
@@ -898,7 +908,6 @@ fun SettingsScreen(
                                 }
                             }
                         }
-                        SectionCard(advancedSec)
                     }
                     Spacer(Modifier.height(32.dp))
                 }
@@ -1059,37 +1068,16 @@ private fun GeneralTab(
         SwitchSetting(stringResource(R.string.auto_connect_on_start), settings.autoConnect) { viewModel.updateAutoConnect(it) }
         HintText(stringResource(R.string.auto_connect_caption), small = true)
 
-        Text(
-            stringResource(R.string.wheel_name_display),
-            style = MaterialTheme.typography.bodyLarge
+        SegmentedChoice(
+            label = stringResource(R.string.wheel_name_display),
+            options = listOf(
+                "NONE" to stringResource(R.string.wheel_name_none),
+                "MODEL" to stringResource(R.string.wheel_name_model),
+                "BRAND" to stringResource(R.string.wheel_name_brand),
+            ),
+            current = settings.wheelNameDisplay,
+            onChange = { viewModel.updateWheelNameDisplay(it) },
         )
-        val wheelNameOptions = listOf(
-            "NONE" to stringResource(R.string.wheel_name_none),
-            "MODEL" to stringResource(R.string.wheel_name_model),
-            "BRAND" to stringResource(R.string.wheel_name_brand)
-        )
-        SingleChoiceSegmentedButtonRow(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(IntrinsicSize.Max)
-        ) {
-            wheelNameOptions.forEachIndexed { index, (key, label) ->
-                CompactSegmentedButton(
-                    modifier = Modifier.fillMaxHeight(),
-                    selected = key == settings.wheelNameDisplay,
-                    onClick = { viewModel.updateWheelNameDisplay(key) },
-                    shape = SegmentedButtonDefaults.itemShape(index, wheelNameOptions.size),
-                    colors = themedSegmentedColors(),
-                ) {
-                    Text(
-                        label,
-                        textAlign = TextAlign.Center,
-                        maxLines = 2,
-                        overflow = TextOverflow.Ellipsis
-                    )
-                }
-            }
-        }
 
         settings.lastDeviceName?.let {
             Text(
@@ -1101,37 +1089,16 @@ private fun GeneralTab(
 
         SectionHeader(stringResource(R.string.section_application))
 
-        Text(
-            stringResource(R.string.back_button_action),
-            style = MaterialTheme.typography.bodyLarge
+        SegmentedChoice(
+            label = stringResource(R.string.back_button_action),
+            options = listOf(
+                "ASK" to stringResource(R.string.back_button_action_ask),
+                "BACKGROUND" to stringResource(R.string.back_button_action_background),
+                "STOP_ALL" to stringResource(R.string.back_button_action_stop),
+            ),
+            current = settings.backButtonAction,
+            onChange = { viewModel.updateBackButtonAction(it) },
         )
-        val backOptions = listOf(
-            "ASK" to stringResource(R.string.back_button_action_ask),
-            "BACKGROUND" to stringResource(R.string.back_button_action_background),
-            "STOP_ALL" to stringResource(R.string.back_button_action_stop)
-        )
-        SingleChoiceSegmentedButtonRow(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(IntrinsicSize.Max)
-        ) {
-            backOptions.forEachIndexed { index, (key, label) ->
-                CompactSegmentedButton(
-                    modifier = Modifier.fillMaxHeight(),
-                    selected = key == settings.backButtonAction,
-                    onClick = { viewModel.updateBackButtonAction(key) },
-                    shape = SegmentedButtonDefaults.itemShape(index, backOptions.size),
-                    colors = themedSegmentedColors(),
-                ) {
-                    Text(
-                        label,
-                        textAlign = TextAlign.Center,
-                        maxLines = 2,
-                        overflow = TextOverflow.Ellipsis
-                    )
-                }
-            }
-        }
         HintText(stringResource(R.string.back_button_action_desc), small = true)
 
         Box(
@@ -1202,7 +1169,7 @@ private fun RestoreChip(text: String, enabled: Boolean, onClick: () -> Unit) {
     Row(
         modifier = Modifier
             .padding(top = 4.dp)
-            .clip(RoundedCornerShape(8.dp))
+            .clip(RoundedCornerShape(12.dp))
             .then(if (enabled) Modifier.clickable(onClick = onClick) else Modifier)
             .padding(horizontal = 6.dp, vertical = 2.dp),
         verticalAlignment = Alignment.CenterVertically,
@@ -1225,8 +1192,9 @@ private data class SectionHandle(val key: String, val title: String, val icon: I
 private const val MORE_KEY = "__more__"
 
 /** Dialog to reorder the Settings sections and switch some into "More". Drag the
- *  handle to reorder; switch a section off to tuck it into "More". Advanced is
- *  pinned last and never appears here. Edits are staged on a local draft so the
+ *  handle to reorder; switch a section off to tuck it into "More" (which always
+ *  renders last). Advanced is listed like any other section - it defaults to last
+ *  but can be reordered or hidden. Edits are staged on a local draft so the
  *  Settings screen behind the dialog does not shuffle while the rider toggles;
  *  nothing is applied until Save. */
 @Composable
@@ -1260,7 +1228,7 @@ private fun SettingsVisibilityDialog(
     ) {
         Surface(
             modifier = Modifier.fillMaxWidth(0.96f),
-            shape = RoundedCornerShape(16.dp),
+            shape = RoundedCornerShape(12.dp),
             color = MaterialTheme.appColors.surface,
         ) {
             Column(Modifier.fillMaxWidth().padding(16.dp)) {
@@ -1330,11 +1298,12 @@ private fun SettingsVisibilityDialog(
                     TextButton(
                         onClick = { draftOrder = naturalKeys; draftHidden = emptySet() },
                         enabled = !isDefault,
+                        shape = RoundedCornerShape(12.dp),
                     ) {
                         Text(stringResource(R.string.action_reset))
                     }
                     Spacer(Modifier.weight(1f))
-                    TextButton(onClick = onDismiss) { Text(stringResource(R.string.action_cancel)) }
+                    TextButton(onClick = onDismiss, shape = RoundedCornerShape(12.dp)) { Text(stringResource(R.string.action_cancel)) }
                     Spacer(Modifier.width(8.dp))
                     Button(onClick = {
                         // Store an empty order when it matches natural order, so the
@@ -1346,7 +1315,7 @@ private fun SettingsVisibilityDialog(
                             )
                         )
                         onDismiss()
-                    }) {
+                    }, shape = RoundedCornerShape(12.dp)) {
                         Text(stringResource(R.string.action_save))
                     }
                 }
@@ -1385,7 +1354,8 @@ private fun AdvancedTab(
         // "Settings visibility" section: a titled explanation plus a Reorganize
         // button that opens the staged dialog, so toggling a section off does not
         // shuffle the screen underneath while you edit. Hidden sections move into
-        // "More"; Advanced is pinned last and is not listed.
+        // "More", which always renders last. Advanced is listed like any other
+        // section (it defaults to last but can be reordered or hidden into More).
         if (reorgHandles.isNotEmpty()) {
             var showVisibilityDialog by remember { mutableStateOf(false) }
             AdvSectionTitle(stringResource(R.string.settings_visibility))
@@ -1436,35 +1406,36 @@ private fun AdvancedTab(
         }
         val geoChoiceRow: @Composable (Int, (@Composable () -> Unit)?, List<Pair<String, String>>, String, (String) -> Unit) -> Unit =
             { labelRes, badge, options, selected, onPick ->
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text(
-                        stringResource(labelRes),
-                        style = MaterialTheme.typography.bodyLarge
-                    )
-                    if (badge != null) {
-                        Spacer(Modifier.width(6.dp))
-                        badge()
-                    }
-                }
-                SingleChoiceSegmentedButtonRow(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(IntrinsicSize.Max)
-                ) {
-                    options.forEachIndexed { index, (key, label) ->
-                        CompactSegmentedButton(
-                            modifier = Modifier.fillMaxHeight(),
-                            selected = key == selected,
-                            onClick = { onPick(key) },
-                            shape = SegmentedButtonDefaults.itemShape(index, options.size),
-                            colors = themedSegmentedColors(),
-                        ) {
-                            Text(
-                                label, textAlign = TextAlign.Center,
-                                maxLines = 2, overflow = TextOverflow.Ellipsis
-                            )
+                Box(modifier = Modifier.fillMaxWidth().padding(top = 9.dp, bottom = 4.dp)) {
+                    SingleChoiceSegmentedButtonRow(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(56.dp)
+                    ) {
+                        options.forEachIndexed { index, (key, label) ->
+                            CompactSegmentedButton(
+                                modifier = Modifier.fillMaxHeight(),
+                                selected = key == selected,
+                                onClick = { onPick(key) },
+                                shape = SegmentedButtonDefaults.itemShape(index, options.size, baseShape = RoundedCornerShape(12.dp)),
+                                colors = themedSegmentedColors(),
+                            ) {
+                                Text(
+                                    label, textAlign = TextAlign.Center,
+                                    maxLines = 2, overflow = TextOverflow.Ellipsis
+                                )
+                            }
                         }
                     }
+                    val b = badge
+                    val badgeTrailing: (@Composable RowScope.() -> Unit)? =
+                        if (b != null) {
+                            {
+                                Spacer(Modifier.width(2.dp))
+                                b()
+                            }
+                        } else null
+                    FieldNotchLabel(stringResource(labelRes), trailing = badgeTrailing)
                 }
             }
 
@@ -1539,6 +1510,17 @@ private fun AdvancedTab(
         }
 
         AdvancedCollapsable(
+            title = stringResource(R.string.geo_section_settings),
+            stateKey = "geo-settings"
+        ) {
+            SwitchSetting(
+                stringResource(R.string.setting_allow_rotation),
+                settings.rotateSettings
+            ) { viewModel.updateRotateSettings(it) }
+            HintText(stringResource(R.string.geo_settings_hint), small = true)
+        }
+
+        AdvancedCollapsable(
             title = stringResource(R.string.geo_section_other),
             stateKey = "geo-other"
         ) {
@@ -1554,7 +1536,7 @@ private fun AdvancedTab(
         MetricInfoBox(stringResource(R.string.adv_rates_warning))
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
             // Disabled (greyed) when nothing is off default; otherwise confirm first.
-            TextButton(onClick = { showResetConfirm = true }, enabled = changed.isNotEmpty()) {
+            TextButton(onClick = { showResetConfirm = true }, enabled = changed.isNotEmpty(), shape = RoundedCornerShape(12.dp)) {
                 Icon(Icons.Default.Restore, contentDescription = null, modifier = Modifier.size(18.dp))
                 Spacer(Modifier.width(6.dp))
                 Text(stringResource(R.string.adv_reset_all))
@@ -1577,6 +1559,7 @@ private fun AdvancedTab(
     if (showResetConfirm && changed.isNotEmpty()) {
         AlertDialog(
             onDismissRequest = { showResetConfirm = false },
+            shape = RoundedCornerShape(12.dp),
             title = { Text(stringResource(R.string.adv_reset_all)) },
             text = {
                 Column(
@@ -1602,10 +1585,10 @@ private fun AdvancedTab(
                 TextButton(onClick = {
                     viewModel.resetAdvancedDefaults()
                     showResetConfirm = false
-                }) { Text(stringResource(R.string.adv_reset_all)) }
+                }, shape = RoundedCornerShape(12.dp)) { Text(stringResource(R.string.adv_reset_all)) }
             },
             dismissButton = {
-                TextButton(onClick = { showResetConfirm = false }) {
+                TextButton(onClick = { showResetConfirm = false }, shape = RoundedCornerShape(12.dp)) {
                     Text(stringResource(android.R.string.cancel))
                 }
             },
@@ -1923,9 +1906,9 @@ private fun MetricDragPreview(
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .clip(RoundedCornerShape(10.dp))
+                .clip(RoundedCornerShape(12.dp))
                 .background(surfaceColor)
-                .border(1.dp, outlineColor, RoundedCornerShape(10.dp))
+                .border(1.dp, outlineColor, RoundedCornerShape(12.dp))
         ) {
             CompositeMetricBody(
                 composite = composite,
@@ -1942,9 +1925,9 @@ private fun MetricDragPreview(
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .clip(RoundedCornerShape(10.dp))
+                .clip(RoundedCornerShape(12.dp))
                 .background(surfaceColor)
-                .border(1.dp, outlineColor, RoundedCornerShape(10.dp))
+                .border(1.dp, outlineColor, RoundedCornerShape(12.dp))
         ) {
             CustomTileBody(tile = tile)
         }
@@ -1958,9 +1941,9 @@ private fun MetricDragPreview(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .clip(RoundedCornerShape(10.dp))
+            .clip(RoundedCornerShape(12.dp))
             .background(surfaceColor)
-            .border(1.dp, outlineColor, RoundedCornerShape(10.dp))
+            .border(1.dp, outlineColor, RoundedCornerShape(12.dp))
     ) {
         if (stats.sparkline) {
             WavePatternBackground(accent = accent)
@@ -2035,9 +2018,9 @@ private fun ActionDragPreview(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .clip(RoundedCornerShape(10.dp))
+            .clip(RoundedCornerShape(12.dp))
             .background(surfaceColor)
-            .border(1.dp, outlineColor, RoundedCornerShape(10.dp))
+            .border(1.dp, outlineColor, RoundedCornerShape(12.dp))
     ) {
         Column(
             modifier = Modifier
@@ -2218,8 +2201,8 @@ private fun EmptyMetricSlot(
     )
     Box(
         modifier = modifier
-            .clip(RoundedCornerShape(10.dp))
-            .border(1.dp, borderColor, RoundedCornerShape(10.dp))
+            .clip(RoundedCornerShape(12.dp))
+            .border(1.dp, borderColor, RoundedCornerShape(12.dp))
             .dashboardDropTarget(
                 key = "metric-slot-$slotIndex",
                 kind = DropKind.METRIC_GRID_SLOT,
@@ -2279,9 +2262,9 @@ private fun CompositeMetricTile(
 
     Box(
         modifier = modifier
-            .clip(RoundedCornerShape(10.dp))
+            .clip(RoundedCornerShape(12.dp))
             .background(surfaceColor)
-            .border(borderWidth, borderColor, RoundedCornerShape(10.dp))
+            .border(borderWidth, borderColor, RoundedCornerShape(12.dp))
             .clickable(onClick = onTap)
             .dashboardDragSource(
                 key = id,
@@ -2590,9 +2573,9 @@ private fun MetricTile(
 
     Box(
         modifier = modifier
-            .clip(RoundedCornerShape(10.dp))
+            .clip(RoundedCornerShape(12.dp))
             .background(surfaceColor)
-            .border(borderWidth, borderColor, RoundedCornerShape(10.dp))
+            .border(borderWidth, borderColor, RoundedCornerShape(12.dp))
             .clickable(onClick = onTap)
             .dashboardDragSource(
                 key = key,
@@ -2684,7 +2667,7 @@ private fun MetricPool(
             // row peeking at the bottom hints that more content scrolls into
             // view. Remaining pool items reveal via vertical scroll.
             .heightIn(max = 210.dp)
-            .clip(RoundedCornerShape(10.dp))
+            .clip(RoundedCornerShape(12.dp))
             .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.4f))
             .dashboardHintRegion(
                 key = "metric-pool",
@@ -2903,9 +2886,9 @@ private fun CustomTileView(
 
     Box(
         modifier = modifier
-            .clip(RoundedCornerShape(10.dp))
+            .clip(RoundedCornerShape(12.dp))
             .background(surfaceColor)
-            .border(borderWidth, borderColor, RoundedCornerShape(10.dp))
+            .border(borderWidth, borderColor, RoundedCornerShape(12.dp))
             .clickable(onClick = onTap)
             .dashboardDragSource(
                 key = id,
@@ -3034,9 +3017,9 @@ private fun MetricPoolPill(
         modifier = Modifier
             .width(102.dp)
             .height(52.dp)
-            .clip(RoundedCornerShape(10.dp))
+            .clip(RoundedCornerShape(12.dp))
             .background(surfaceColor)
-            .border(1.dp, outlineColor, RoundedCornerShape(10.dp))
+            .border(1.dp, outlineColor, RoundedCornerShape(12.dp))
             .clickable { onTap(key) }
             .dashboardDragSource(
                 key = key,
@@ -3195,8 +3178,8 @@ private fun EmptyActionSlot(
     )
     Box(
         modifier = modifier
-            .clip(RoundedCornerShape(10.dp))
-            .border(1.dp, borderColor, RoundedCornerShape(10.dp))
+            .clip(RoundedCornerShape(12.dp))
+            .border(1.dp, borderColor, RoundedCornerShape(12.dp))
             .dashboardDropTarget(
                 key = "action-slot-$slotIndex",
                 kind = DropKind.ACTION_GRID_SLOT,
@@ -3245,9 +3228,9 @@ private fun ActionTile(
 
     Box(
         modifier = modifier
-            .clip(RoundedCornerShape(10.dp))
+            .clip(RoundedCornerShape(12.dp))
             .background(surfaceColor)
-            .border(borderWidth, borderColor, RoundedCornerShape(10.dp))
+            .border(borderWidth, borderColor, RoundedCornerShape(12.dp))
             .clickable(onClick = onTap)
             .dashboardDragSource(
                 key = key,
@@ -3379,9 +3362,9 @@ private fun ActionGroupTile(
 
     Box(
         modifier = modifier
-            .clip(RoundedCornerShape(10.dp))
+            .clip(RoundedCornerShape(12.dp))
             .background(surfaceColor)
-            .border(borderWidth, borderColor, RoundedCornerShape(10.dp))
+            .border(borderWidth, borderColor, RoundedCornerShape(12.dp))
             .clickable(onClick = onTap)
             .dashboardDragSource(
                 key = id,
@@ -3463,9 +3446,9 @@ private fun CustomBleTile(
     )
     Box(
         modifier = modifier
-            .clip(RoundedCornerShape(10.dp))
+            .clip(RoundedCornerShape(12.dp))
             .background(surfaceColor)
-            .border(borderWidth, borderColor, RoundedCornerShape(10.dp))
+            .border(borderWidth, borderColor, RoundedCornerShape(12.dp))
             .clickable(onClick = onTap)
             .dashboardDragSource(
                 key = id,
@@ -3527,7 +3510,7 @@ private fun ActionPool(
         modifier = Modifier
             .fillMaxWidth()
             .heightIn(max = 254.dp)
-            .clip(RoundedCornerShape(10.dp))
+            .clip(RoundedCornerShape(12.dp))
             .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.4f))
             .dashboardHintRegion(
                 key = "action-pool",
@@ -3710,9 +3693,9 @@ private fun ActionPoolPill(
         modifier = Modifier
             .width(102.dp)
             .height(66.dp)
-            .clip(RoundedCornerShape(10.dp))
+            .clip(RoundedCornerShape(12.dp))
             .background(surfaceColor)
-            .border(1.dp, outlineColor, RoundedCornerShape(10.dp))
+            .border(1.dp, outlineColor, RoundedCornerShape(12.dp))
             .clickable { onTap(key) }
             .dashboardDragSource(
                 key = key,
@@ -3765,6 +3748,7 @@ private fun DashboardSlotSheet(
     ModalBottomSheet(
         onDismissRequest = onDismiss,
         sheetState = sheetState,
+        shape = RoundedCornerShape(12.dp),
         containerColor = MaterialTheme.appColors.sheetBackground
     ) {
         Column(
@@ -3874,6 +3858,7 @@ private fun CompositeMetricSheet(
     ModalBottomSheet(
         onDismissRequest = onDismiss,
         sheetState = sheetState,
+        shape = RoundedCornerShape(12.dp),
         containerColor = MaterialTheme.appColors.sheetBackground
     ) {
         Column(
@@ -3910,7 +3895,7 @@ private fun CompositeMetricSheet(
                             layout = lay
                             persist(lay, baseCells, baseStats)
                         },
-                        shape = SegmentedButtonDefaults.itemShape(index, options.size),
+                        shape = SegmentedButtonDefaults.itemShape(index, options.size, baseShape = RoundedCornerShape(12.dp)),
                         colors = themedSegmentedColors(),
                     ) {
                         Text(compositeLayoutLabel(lay))
@@ -3992,7 +3977,7 @@ private fun SlotSheetFooter(
         modifier = Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        TextButton(onClick = onReset, colors = themedTextButtonColors()) {
+        TextButton(onClick = onReset, colors = themedTextButtonColors(), shape = RoundedCornerShape(12.dp)) {
             Icon(
                 Icons.Filled.Restore,
                 contentDescription = null,
@@ -4003,7 +3988,7 @@ private fun SlotSheetFooter(
         }
         Spacer(Modifier.weight(1f))
         FilledTonalButton(onClick = onClose,
-            colors = themedTonalButtonColors(),) {
+            colors = themedTonalButtonColors(), shape = RoundedCornerShape(12.dp),) {
             Text(stringResource(R.string.dashboard_close))
         }
     }
@@ -4060,6 +4045,7 @@ private fun CompositeCellDropdown(
                 .menuAnchor(MenuAnchorType.PrimaryNotEditable, enabled = enabled)
                 .fillMaxWidth(),
             colors = themedFieldColors(),
+            shape = RoundedCornerShape(12.dp),
         )
         ExposedDropdownMenu(
             expanded = expanded && enabled,
@@ -4132,6 +4118,7 @@ private fun CompositeCellStatDropdown(
                 .menuAnchor(MenuAnchorType.PrimaryNotEditable, enabled = enabled)
                 .fillMaxWidth(),
             colors = themedFieldColors(),
+            shape = RoundedCornerShape(12.dp),
         )
         ExposedDropdownMenu(
             expanded = expanded && enabled,
@@ -4205,6 +4192,7 @@ private fun ActionGroupSheet(
     ModalBottomSheet(
         onDismissRequest = onDismiss,
         sheetState = sheetState,
+        shape = RoundedCornerShape(12.dp),
         containerColor = MaterialTheme.appColors.sheetBackground
     ) {
         Column(
@@ -4254,6 +4242,7 @@ private fun ActionGroupSheet(
                     placeholder = { Text(defaultName) },
                     modifier = Modifier.weight(1f),
                     colors = themedFieldColors(),
+                    shape = RoundedCornerShape(12.dp),
                 )
             }
 
@@ -4337,7 +4326,7 @@ private fun CustomBleSheet(
         viewModel.updateCustomBle(id, label, icon, family, parsed ?: lastValid.value)
     }
 
-    ModalBottomSheet(onDismissRequest = onDismiss, sheetState = sheetState, containerColor = MaterialTheme.appColors.sheetBackground) {
+    ModalBottomSheet(onDismissRequest = onDismiss, sheetState = sheetState, shape = RoundedCornerShape(12.dp), containerColor = MaterialTheme.appColors.sheetBackground) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
@@ -4359,6 +4348,7 @@ private fun CustomBleSheet(
                     label = { Text(stringResource(R.string.dashboard_custom_ble_label)) },
                     modifier = Modifier.weight(1f),
                     colors = themedFieldColors(),
+                    shape = RoundedCornerShape(12.dp),
                 )
             }
 
@@ -4380,6 +4370,7 @@ private fun CustomBleSheet(
                     },
                     modifier = Modifier.menuAnchor().fillMaxWidth(),
                     colors = themedFieldColors(),
+                    shape = RoundedCornerShape(12.dp),
                 )
                 ExposedDropdownMenu(
                     expanded = familyExpanded,
@@ -4411,6 +4402,7 @@ private fun CustomBleSheet(
                 minLines = 2,
                 modifier = Modifier.fillMaxWidth(),
                 colors = themedFieldColors(),
+                shape = RoundedCornerShape(12.dp),
             )
 
             SlotSheetFooter(onReset, onDismiss)
@@ -4440,9 +4432,9 @@ private fun GroupIconButton(
         Box(
             modifier = Modifier
                 .size(56.dp)
-                .clip(RoundedCornerShape(8.dp))
+                .clip(RoundedCornerShape(12.dp))
                 .background(MaterialTheme.colorScheme.surface)
-                .border(1.dp, outline, RoundedCornerShape(8.dp))
+                .border(1.dp, outline, RoundedCornerShape(12.dp))
                 .clickable { expanded = true },
             contentAlignment = Alignment.Center
         ) {
@@ -4478,7 +4470,7 @@ private fun GroupIconButton(
                     Box(
                         modifier = Modifier
                             .size(40.dp)
-                            .clip(RoundedCornerShape(8.dp))
+                            .clip(RoundedCornerShape(12.dp))
                             .background(bg)
                             .clickable {
                                 onSelect(key)
@@ -4530,6 +4522,7 @@ private fun ActionGroupSlotDropdown(
                 .menuAnchor(MenuAnchorType.PrimaryNotEditable, enabled = true)
                 .fillMaxWidth(),
             colors = themedFieldColors(),
+            shape = RoundedCornerShape(12.dp),
         )
         ExposedDropdownMenu(
             expanded = expanded,
@@ -4577,6 +4570,7 @@ private fun CustomTileSheet(
     ModalBottomSheet(
         onDismissRequest = onDismiss,
         sheetState = sheetState,
+        shape = RoundedCornerShape(12.dp),
         containerColor = MaterialTheme.appColors.sheetBackground
     ) {
         Column(
@@ -4644,6 +4638,7 @@ private fun CustomTileSheet(
                     },
                     modifier = Modifier.weight(1f),
                     colors = themedFieldColors(),
+                    shape = RoundedCornerShape(12.dp),
                 )
             }
 
@@ -4659,7 +4654,7 @@ private fun CustomTileSheet(
                             action = opt
                             persist()
                         },
-                        shape = SegmentedButtonDefaults.itemShape(index, CustomTileAction.values().size),
+                        shape = SegmentedButtonDefaults.itemShape(index, CustomTileAction.values().size, baseShape = RoundedCornerShape(12.dp)),
                         icon = {
                             actionBadgeIcon(opt)?.let { v ->
                                 Icon(v, contentDescription = null, modifier = Modifier.size(16.dp))
@@ -4689,6 +4684,7 @@ private fun CustomTileSheet(
                     placeholder = { Text(placeholder) },
                     modifier = Modifier.fillMaxWidth(),
                     colors = themedFieldColors(),
+                    shape = RoundedCornerShape(12.dp),
                 )
             }
 
@@ -5011,7 +5007,7 @@ private fun MetricInfoBox(text: String) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(8.dp))
+            .clip(RoundedCornerShape(12.dp))
             .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
             .padding(horizontal = 12.dp, vertical = 8.dp),
         verticalAlignment = Alignment.Top
@@ -5132,6 +5128,7 @@ private fun RollingWindowDropdown(
                 .menuAnchor(MenuAnchorType.PrimaryNotEditable, enabled = true)
                 .fillMaxWidth(),
             colors = themedFieldColors(),
+            shape = RoundedCornerShape(12.dp),
         )
         ExposedDropdownMenu(
             expanded = expanded,
@@ -5184,6 +5181,7 @@ private fun ViewDropdown(
                 .menuAnchor(MenuAnchorType.PrimaryNotEditable, enabled = !forcedWide)
                 .fillMaxWidth(),
             colors = themedFieldColors(),
+            shape = RoundedCornerShape(12.dp),
         )
         ExposedDropdownMenu(
             expanded = expanded && !forcedWide,
@@ -5260,6 +5258,7 @@ private fun CornerStatDropdown(
                 .menuAnchor(MenuAnchorType.PrimaryNotEditable, enabled = true)
                 .fillMaxWidth(),
             colors = themedFieldColors(),
+            shape = RoundedCornerShape(12.dp),
         )
         ExposedDropdownMenu(
             expanded = expanded,
@@ -5359,12 +5358,12 @@ private fun SlotSheetActionPreview(key: String) {
             modifier = Modifier
                 .height(140.dp)
                 .aspectRatio(120f / 86f)
-                .clip(RoundedCornerShape(10.dp))
+                .clip(RoundedCornerShape(12.dp))
                 .background(MaterialTheme.colorScheme.surfaceVariant)
                 .border(
                     1.dp,
                     MaterialTheme.colorScheme.outlineVariant,
-                    RoundedCornerShape(10.dp)
+                    RoundedCornerShape(12.dp)
                 ),
             contentAlignment = Alignment.Center
         ) {
@@ -5771,13 +5770,11 @@ private fun UnitsSetting(
     )
 
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        Text(
-            stringResource(R.string.units_label),
-            style = MaterialTheme.typography.labelLarge
-        )
-        SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
+        Box(modifier = Modifier.fillMaxWidth().padding(top = 9.dp, bottom = 4.dp)) {
+            SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth().height(56.dp)) {
             systemOptions.forEachIndexed { index, (value, label) ->
                 CompactSegmentedButton(
+                    modifier = Modifier.fillMaxHeight(),
                     selected = value == currentSystem,
                     onClick = {
                         when (value) {
@@ -5799,10 +5796,12 @@ private fun UnitsSetting(
                             }
                         }
                     },
-                    shape = SegmentedButtonDefaults.itemShape(index, systemOptions.size),
+                    shape = SegmentedButtonDefaults.itemShape(index, systemOptions.size, baseShape = RoundedCornerShape(12.dp)),
                     colors = themedSegmentedColors(),
                 ) { Text(label) }
             }
+            }
+            FieldNotchLabel(stringResource(R.string.units_label))
         }
 
         if (expanded) {
@@ -6484,17 +6483,17 @@ private fun WatchTab(
         // under Display since it's part of the visual on/off behaviour.
         SectionHeader(stringResource(R.string.section_watch_general))
 
-        // Auto-start is Wear OS-only (CIQ apps can't be launched
-        // remotely). Hidden when no Wear OS watch is paired so the toggle
-        // doesn't read as universally applicable.
-        if (hasWearOs) {
+        // Auto-start now works on Garmin too: the bridge calls Connect IQ's
+        // openApplication() to launch the watch app (a one-time "Always"
+        // consent on the watch, then automatic). Shown whenever any watch is
+        // paired, and with no Garmin-unsupported badge anymore.
+        if (hasWearOs || hasGarminPaired) {
             SwitchSettingWithDesc(
                 label = stringResource(R.string.watch_auto_start),
                 description = stringResource(R.string.watch_auto_start_desc),
                 checked = settings.watchAutoStart,
                 onCheckedChange = { viewModel.updateWatchAutoStart(it) },
-                onTest = { viewModel.testWatchWake() },
-                badge = garminBadge
+                onTest = { viewModel.testWatchWake() }
             )
         }
         SwitchSettingWithDesc(
@@ -6544,42 +6543,46 @@ private fun WatchTab(
             // of what we set here, so the choice would be misleading on a
             // Garmin-only setup. Surfaced only when a Wear OS device is paired.
             if (hasWearOs) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text(
-                        stringResource(R.string.watch_update_rate),
-                        style = MaterialTheme.typography.bodyLarge
-                    )
-                    if (garminBadge != null) {
-                        Spacer(Modifier.width(6.dp))
-                        garminBadge()
-                    }
-                }
+                val gb = garminBadge
+                val gbTrailing: (@Composable RowScope.() -> Unit)? =
+                    if (gb != null) {
+                        {
+                            Spacer(Modifier.width(4.dp))
+                            gb()
+                        }
+                    } else null
                 val updateRateOptions = listOf(
                     "CONSERVATIVE" to stringResource(R.string.watch_update_conservative),
                     "NORMAL" to stringResource(R.string.watch_update_normal),
                     "FAST" to stringResource(R.string.watch_update_fast)
                 )
-                SingleChoiceSegmentedButtonRow(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(IntrinsicSize.Max)
-                ) {
-                    updateRateOptions.forEachIndexed { index, (key, label) ->
-                        CompactSegmentedButton(
-                            modifier = Modifier.fillMaxHeight(),
-                            selected = key == settings.watchUpdateRate,
-                            onClick = { viewModel.updateWatchUpdateRate(key) },
-                            shape = SegmentedButtonDefaults.itemShape(index, updateRateOptions.size),
-                            colors = themedSegmentedColors(),
-                        ) {
-                            Text(
-                                label,
-                                textAlign = TextAlign.Center,
-                                maxLines = 2,
-                                overflow = TextOverflow.Ellipsis
-                            )
+                Box(modifier = Modifier.fillMaxWidth().padding(top = 9.dp, bottom = 4.dp)) {
+                    SingleChoiceSegmentedButtonRow(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(56.dp)
+                    ) {
+                        updateRateOptions.forEachIndexed { index, (key, label) ->
+                            CompactSegmentedButton(
+                                modifier = Modifier.fillMaxHeight(),
+                                selected = key == settings.watchUpdateRate,
+                                onClick = { viewModel.updateWatchUpdateRate(key) },
+                                shape = SegmentedButtonDefaults.itemShape(index, updateRateOptions.size, baseShape = RoundedCornerShape(12.dp)),
+                                colors = themedSegmentedColors(),
+                            ) {
+                                Text(
+                                    label,
+                                    textAlign = TextAlign.Center,
+                                    maxLines = 2,
+                                    overflow = TextOverflow.Ellipsis
+                                )
+                            }
                         }
                     }
+                    FieldNotchLabel(
+                        stringResource(R.string.watch_update_rate),
+                        trailing = gbTrailing,
+                    )
                 }
                 Text(
                     stringResource(R.string.watch_update_rate_desc),
@@ -6601,37 +6604,16 @@ private fun WatchTab(
                 settings.watchShowWatchBattery
             ) { viewModel.updateWatchShowWatchBattery(it) }
 
-            Text(
-                stringResource(R.string.watch_pwm_display),
-                style = MaterialTheme.typography.bodyLarge
+            SegmentedChoice(
+                label = stringResource(R.string.watch_pwm_display),
+                options = listOf(
+                    "BAR" to stringResource(R.string.watch_pwm_bar),
+                    "NUMBERS" to stringResource(R.string.watch_pwm_numbers),
+                    "BOTH" to stringResource(R.string.watch_pwm_both),
+                ),
+                current = settings.watchPwmDisplay,
+                onChange = { viewModel.updateWatchPwmDisplay(it) },
             )
-            val loadOptions = listOf(
-                "BAR" to stringResource(R.string.watch_pwm_bar),
-                "NUMBERS" to stringResource(R.string.watch_pwm_numbers),
-                "BOTH" to stringResource(R.string.watch_pwm_both)
-            )
-            SingleChoiceSegmentedButtonRow(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(IntrinsicSize.Max)
-            ) {
-                loadOptions.forEachIndexed { index, (key, label) ->
-                    CompactSegmentedButton(
-                        modifier = Modifier.fillMaxHeight(),
-                        selected = key == settings.watchPwmDisplay,
-                        onClick = { viewModel.updateWatchPwmDisplay(key) },
-                        shape = SegmentedButtonDefaults.itemShape(index, loadOptions.size),
-                        colors = themedSegmentedColors(),
-                    ) {
-                        Text(
-                            label,
-                            textAlign = TextAlign.Center,
-                            maxLines = 2,
-                            overflow = TextOverflow.Ellipsis
-                        )
-                    }
-                }
-            }
 
             SwitchSettingWithDesc(
                 label = stringResource(R.string.watch_prioritize_pwm),
@@ -6891,7 +6873,10 @@ private fun SyncProgressWithCancel(
     cancelling: Boolean,
     onCancel: () -> Unit,
 ) {
-    Row(verticalAlignment = Alignment.CenterVertically) {
+    Row(
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
         Column(
             modifier = Modifier.weight(1f),
             verticalArrangement = Arrangement.spacedBy(4.dp),
@@ -6902,6 +6887,10 @@ private fun SyncProgressWithCancel(
                 LinearProgressIndicator(
                     progress = { fraction },
                     modifier = Modifier.fillMaxWidth(),
+                    // Drop the Material3 end gap + stop-indicator dot; they read
+                    // as a stray glitched segment/dot at the end of the bar.
+                    gapSize = 0.dp,
+                    drawStopIndicator = {},
                 )
                 Text(
                     stringResource(R.string.sync_progress, done, total),
@@ -6909,7 +6898,10 @@ private fun SyncProgressWithCancel(
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             } else {
-                LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
+                LinearProgressIndicator(
+                    modifier = Modifier.fillMaxWidth(),
+                    gapSize = 0.dp,
+                )
                 Text(
                     stringResource(if (cancelling) R.string.sync_stopping else R.string.sync_checking),
                     style = MaterialTheme.typography.bodySmall,
@@ -6917,15 +6909,19 @@ private fun SyncProgressWithCancel(
                 )
             }
         }
-        Spacer(Modifier.width(12.dp))
-        androidx.compose.material3.OutlinedButton(onClick = onCancel, enabled = !cancelling) {
-            androidx.compose.material3.Icon(
-                androidx.compose.material.icons.Icons.Default.Close,
-                contentDescription = null,
-                modifier = Modifier.size(18.dp),
+        // Static half-width Cancel on the right, matching the other action
+        // buttons. weight(1f) fixes its width so it no longer resizes between
+        // "Cancel" and "Stopping...".
+        androidx.compose.material3.OutlinedButton(
+            onClick = onCancel,
+            enabled = !cancelling,
+            modifier = Modifier.weight(1f),
+            shape = RoundedCornerShape(12.dp),
+        ) {
+            Text(
+                stringResource(if (cancelling) R.string.sync_stopping else R.string.sync_cancel),
+                maxLines = 1,
             )
-            Spacer(Modifier.width(4.dp))
-            Text(stringResource(if (cancelling) R.string.sync_stopping else R.string.sync_cancel))
         }
     }
 }
@@ -7017,6 +7013,7 @@ private fun CloudTab(
                 backupNameDraft = pendingName
                 showBackupNameDialog = true
             },
+            shape = RoundedCornerShape(12.dp),
             title = { Text(stringResource(R.string.cloud_backup_overwrite_title, pendingName)) },
             text = { Text(stringResource(R.string.cloud_backup_overwrite_body)) },
             confirmButton = {
@@ -7024,14 +7021,14 @@ private fun CloudTab(
                     overwritePrompt = null
                     backupNameDraft = ""
                     viewModel.backupSettingsNamed(pendingName, overwrite = true)
-                }) { Text(stringResource(R.string.action_overwrite)) }
+                }, shape = RoundedCornerShape(12.dp)) { Text(stringResource(R.string.action_overwrite)) }
             },
             dismissButton = {
                 Button(onClick = {
                     overwritePrompt = null
                     backupNameDraft = pendingName
                     showBackupNameDialog = true
-                }) {
+                }, shape = RoundedCornerShape(12.dp)) {
                     Text(stringResource(R.string.action_cancel))
                 }
             }
@@ -7053,6 +7050,7 @@ private fun CloudTab(
     if (showFactoryConfirm) {
         AlertDialog(
             onDismissRequest = { showFactoryConfirm = false },
+            shape = RoundedCornerShape(12.dp),
             title = { Text(stringResource(R.string.cloud_factory_confirm_title)) },
             text = {
                 Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
@@ -7064,10 +7062,10 @@ private fun CloudTab(
                 Button(onClick = {
                     showFactoryConfirm = false
                     viewModel.restoreFactoryDefaults()
-                }) { Text(stringResource(R.string.cloud_factory_confirm_action)) }
+                }, shape = RoundedCornerShape(12.dp)) { Text(stringResource(R.string.cloud_factory_confirm_action)) }
             },
             dismissButton = {
-                Button(onClick = { showFactoryConfirm = false }) {
+                Button(onClick = { showFactoryConfirm = false }, shape = RoundedCornerShape(12.dp)) {
                     Text(stringResource(R.string.action_cancel))
                 }
             }
@@ -7082,6 +7080,7 @@ private fun CloudTab(
         val pushRes = if (isDropbox) R.string.sync_conflict_app_dropbox else R.string.sync_conflict_app
         AlertDialog(
             onDismissRequest = { viewModel.cancelSyncConflict() },
+            shape = RoundedCornerShape(12.dp),
             title = { Text(stringResource(R.string.sync_conflict_title)) },
             text = { Text(stringResource(bodyRes, syncConflict!!)) },
             confirmButton = {
@@ -7092,19 +7091,23 @@ private fun CloudTab(
                 ) {
                     Button(
                         onClick = { viewModel.resolveSyncConflict(SyncChoice.FOLDER) },
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(12.dp)
                     ) { Text(stringResource(pullRes)) }
                     Button(
                         onClick = { viewModel.resolveSyncConflict(SyncChoice.APP) },
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(12.dp)
                     ) { Text(stringResource(pushRes)) }
                     Button(
                         onClick = { viewModel.resolveSyncConflict(SyncChoice.IGNORE) },
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(12.dp)
                     ) { Text(stringResource(R.string.sync_conflict_ignore)) }
                     Button(
                         onClick = { viewModel.cancelSyncConflict() },
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(12.dp)
                     ) { Text(stringResource(R.string.action_cancel)) }
                 }
             }
@@ -7114,6 +7117,7 @@ private fun CloudTab(
     if (showRestoreDialog) {
         AlertDialog(
             onDismissRequest = { showRestoreDialog = false },
+            shape = RoundedCornerShape(12.dp),
             title = { Text(stringResource(R.string.cloud_restore_confirm_title)) },
             text = {
                 Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
@@ -7125,10 +7129,10 @@ private fun CloudTab(
                 Button(onClick = {
                     viewModel.restoreSettingsNow()
                     showRestoreDialog = false
-                }) { Text(stringResource(R.string.action_restore)) }
+                }, shape = RoundedCornerShape(12.dp)) { Text(stringResource(R.string.action_restore)) }
             },
             dismissButton = {
-                Button(onClick = { showRestoreDialog = false }) {
+                Button(onClick = { showRestoreDialog = false }, shape = RoundedCornerShape(12.dp)) {
                     Text(stringResource(R.string.action_cancel))
                 }
             }
@@ -7194,13 +7198,15 @@ private fun CloudTab(
                 Button(
                     onClick = { pickFolder.launch(null) },
                     enabled = !syncRunning,
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier.weight(1f),
+                    shape = RoundedCornerShape(12.dp)
                 ) { Text(stringResource(R.string.cloud_change_folder)) }
                 Button(
                     onClick = { viewModel.clearSyncFolder() },
                     enabled = !syncRunning,
                     colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.appColors.statusDanger),
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier.weight(1f),
+                    shape = RoundedCornerShape(12.dp)
                 ) { Text(stringResource(R.string.cloud_remove_folder)) }
             }
         } else {
@@ -7283,6 +7289,7 @@ private fun CloudTab(
                         onClick = { viewModel.syncDropboxNow() },
                         enabled = !syncRunning,
                         modifier = Modifier.weight(1f),
+                        shape = RoundedCornerShape(12.dp),
                     ) { Text(stringResource(R.string.cloud_retry_now)) }
                     Button(
                         onClick = { viewModel.unlinkDropbox() },
@@ -7292,6 +7299,7 @@ private fun CloudTab(
                             contentColor   = MaterialTheme.appColors.onPrimary,
                         ),
                         modifier = Modifier.weight(1f),
+                        shape = RoundedCornerShape(12.dp),
                     ) { Text(stringResource(R.string.dropbox_unlink)) }
                 }
                 val activeDbxKind by viewModel.activeSyncKind.collectAsState()
@@ -7317,6 +7325,7 @@ private fun CloudTab(
                         onClick = { viewModel.linkDropbox(context) },
                         enabled = !syncRunning,
                         modifier = Modifier.weight(1f),
+                        shape = RoundedCornerShape(12.dp),
                     ) { Text(stringResource(R.string.dropbox_link)) }
                     Spacer(Modifier.weight(1f))
                 }
@@ -7376,7 +7385,8 @@ private fun CloudTab(
                 Button(
                     onClick = { viewModel.syncAllTrips() },
                     enabled = !syncRunning,
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier.weight(1f),
+                    shape = RoundedCornerShape(12.dp)
                 ) {
                     Text(stringResource(R.string.cloud_retry_now))
                 }
@@ -7425,15 +7435,16 @@ private fun CloudTab(
             val rejoinName = riderStoreId?.let { riderIdShort(it) } ?: ""
             AlertDialog(
                 onDismissRequest = { viewModel.dismissRejoinConfirm() },
+                shape = RoundedCornerShape(12.dp),
                 title = { Text(stringResource(R.string.online_rejoin_title)) },
                 text = { Text(stringResource(R.string.online_rejoin_body, rejoinName)) },
                 confirmButton = {
-                    TextButton(onClick = { viewModel.confirmRejoin() }) {
+                    TextButton(onClick = { viewModel.confirmRejoin() }, shape = RoundedCornerShape(12.dp)) {
                         Text(stringResource(R.string.online_rejoin_confirm))
                     }
                 },
                 dismissButton = {
-                    TextButton(onClick = { viewModel.dismissRejoinConfirm() }) {
+                    TextButton(onClick = { viewModel.dismissRejoinConfirm() }, shape = RoundedCornerShape(12.dp)) {
                         Text(stringResource(R.string.action_cancel))
                     }
                 },
@@ -7444,6 +7455,7 @@ private fun CloudTab(
             val switching = riderStoreId != null
             AlertDialog(
                 onDismissRequest = { viewModel.dismissRestorableRider() },
+                shape = RoundedCornerShape(12.dp),
                 title = { Text(stringResource(R.string.online_restore_title)) },
                 text = {
                     Text(
@@ -7455,12 +7467,12 @@ private fun CloudTab(
                     )
                 },
                 confirmButton = {
-                    TextButton(onClick = { viewModel.restoreRider(rider) }) {
+                    TextButton(onClick = { viewModel.restoreRider(rider) }, shape = RoundedCornerShape(12.dp)) {
                         Text(stringResource(R.string.online_restore_confirm, riderName))
                     }
                 },
                 dismissButton = {
-                    TextButton(onClick = { viewModel.dismissRestorableRider() }) {
+                    TextButton(onClick = { viewModel.dismissRestorableRider() }, shape = RoundedCornerShape(12.dp)) {
                         Text(stringResource(R.string.action_cancel))
                     }
                 },
@@ -7491,16 +7503,17 @@ private fun CloudTab(
         if (showUnlinkConfirm) {
             AlertDialog(
                 onDismissRequest = { showUnlinkConfirm = false },
+                shape = RoundedCornerShape(12.dp),
                 title = { Text(stringResource(R.string.online_unlink_title)) },
                 text = { Text(stringResource(R.string.online_unlink_body)) },
                 confirmButton = {
                     TextButton(onClick = {
                         viewModel.unlinkOnline()
                         showUnlinkConfirm = false
-                    }) { Text(stringResource(R.string.online_unlink_confirm)) }
+                    }, shape = RoundedCornerShape(12.dp)) { Text(stringResource(R.string.online_unlink_confirm)) }
                 },
                 dismissButton = {
-                    TextButton(onClick = { showUnlinkConfirm = false }) {
+                    TextButton(onClick = { showUnlinkConfirm = false }, shape = RoundedCornerShape(12.dp)) {
                         Text(stringResource(R.string.action_cancel))
                     }
                 },
@@ -7739,6 +7752,7 @@ private fun CloudTab(
                 Button(
                     onClick = { showOnlineProfile = true },
                     modifier = Modifier.weight(1f),
+                    shape = RoundedCornerShape(12.dp),
                 ) {
                     Text(stringResource(R.string.online_profile_manage))
                 }
@@ -7768,6 +7782,7 @@ private fun CloudTab(
                     onClick = { viewModel.syncEucstatsNow() },
                     enabled = !eucstatsSyncRunning,
                     modifier = Modifier.weight(1f),
+                    shape = RoundedCornerShape(12.dp),
                 ) {
                     Text(stringResource(R.string.cloud_retry_now))
                 }
@@ -7779,6 +7794,7 @@ private fun CloudTab(
                         contentColor   = MaterialTheme.appColors.onPrimary,
                     ),
                     modifier = Modifier.weight(1f),
+                    shape = RoundedCornerShape(12.dp),
                 ) {
                     Text(stringResource(R.string.online_upload_unlink))
                 }
@@ -8177,6 +8193,7 @@ private fun ThemeDropdown(
                 .fillMaxWidth()
                 .menuAnchor(MenuAnchorType.PrimaryNotEditable),
             colors = themedFieldColors(),
+            shape = RoundedCornerShape(12.dp),
         )
         ExposedDropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }, containerColor = MaterialTheme.appColors.menuBackground) {
             builtIns.forEach { name ->
@@ -8232,6 +8249,7 @@ private fun SimpleDropdown(
                 .fillMaxWidth()
                 .menuAnchor(MenuAnchorType.PrimaryNotEditable),
             colors = themedFieldColors(),
+            shape = RoundedCornerShape(12.dp),
         )
         ExposedDropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }, containerColor = MaterialTheme.appColors.menuBackground) {
             options.forEach { (key, text) ->
@@ -8292,6 +8310,7 @@ private fun ButtonConfig(
                                 }
                             },
                             colors = themedFieldColors(),
+                            shape = RoundedCornerShape(12.dp),
                         )
                     } else {
                         Row(
@@ -8586,6 +8605,7 @@ private fun EngineTypePicker(
                     .fillMaxWidth()
                     .menuAnchor(MenuAnchorType.PrimaryNotEditable, true),
                 colors = themedFieldColors(),
+                shape = RoundedCornerShape(12.dp),
             )
             ExposedDropdownMenu(
                 expanded = expanded,
@@ -8665,6 +8685,7 @@ private fun VoiceSelector(
                 .fillMaxWidth()
                 .menuAnchor(MenuAnchorType.PrimaryNotEditable),
             colors = themedFieldColors(),
+            shape = RoundedCornerShape(12.dp),
         )
         ExposedDropdownMenu(
             expanded = expanded,
@@ -8748,6 +8769,7 @@ private fun VoiceVariantSelector(
                 .fillMaxWidth()
                 .menuAnchor(MenuAnchorType.PrimaryNotEditable),
             colors = themedFieldColors(),
+            shape = RoundedCornerShape(12.dp),
         )
         ExposedDropdownMenu(
             expanded = expanded,
@@ -8848,29 +8870,18 @@ private fun SegmentedChoice(
     onPreview: (() -> Unit)? = null,
     previewEnabled: Boolean = true
 ) {
-    Column(modifier = Modifier.padding(vertical = 4.dp)) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Text(
-                label,
-                style = MaterialTheme.typography.bodyLarge
-            )
-            if (onPreview != null) {
-                Spacer(Modifier.width(4.dp))
-                PlayButton(onClick = onPreview, enabled = previewEnabled)
-            }
-        }
-        Spacer(Modifier.height(6.dp))
+    Box(modifier = Modifier.fillMaxWidth().padding(top = 9.dp, bottom = 4.dp)) {
         SingleChoiceSegmentedButtonRow(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(IntrinsicSize.Max)
+                .height(56.dp)
         ) {
             options.forEachIndexed { index, (key, optLabel) ->
                 CompactSegmentedButton(
                     modifier = Modifier.fillMaxHeight(),
                     selected = current == key,
                     onClick = { onChange(key) },
-                    shape = SegmentedButtonDefaults.itemShape(index = index, count = options.size),
+                    shape = SegmentedButtonDefaults.itemShape(index = index, count = options.size, baseShape = RoundedCornerShape(12.dp)),
                     colors = themedSegmentedColors(),
                 ) {
                     Text(
@@ -8882,6 +8893,17 @@ private fun SegmentedChoice(
                 }
             }
         }
+        // Floating label notched into the segmented control's top border, matching
+        // the combo boxes and numeric fields, so the segments keep full width.
+        val cb = onPreview
+        val previewTrailing: (@Composable RowScope.() -> Unit)? =
+            if (cb != null) {
+                {
+                    Spacer(Modifier.width(2.dp))
+                    PlayButton(onClick = cb, enabled = previewEnabled)
+                }
+            } else null
+        FieldNotchLabel(label, trailing = previewTrailing)
     }
 }
 
@@ -8921,6 +8943,7 @@ private fun ActionDropdown(
                 .fillMaxWidth()
                 .menuAnchor(MenuAnchorType.PrimaryNotEditable),
             colors = themedFieldColors(),
+            shape = RoundedCornerShape(12.dp),
         )
         ExposedDropdownMenu(
             expanded = expanded,
@@ -9190,7 +9213,7 @@ private fun LongPressActionButton(
                 onLongClick = onLongClick,
                 role = androidx.compose.ui.semantics.Role.Button
             ),
-        shape = androidx.compose.material3.ButtonDefaults.shape,
+        shape = RoundedCornerShape(12.dp),
         color = if (enabled) MaterialTheme.colorScheme.primary
                 else MaterialTheme.colorScheme.primary.copy(alpha = 0.38f),
         contentColor = MaterialTheme.colorScheme.onPrimary
@@ -9229,6 +9252,7 @@ private fun NamedBackupDialog(
     }
     AlertDialog(
         onDismissRequest = onDismiss,
+        shape = RoundedCornerShape(12.dp),
         text = {
             OutlinedTextField(
                 value = raw,
@@ -9239,16 +9263,18 @@ private fun NamedBackupDialog(
                     .fillMaxWidth()
                     .focusRequester(focusRequester),
                 colors = themedFieldColors(),
+                shape = RoundedCornerShape(12.dp),
             )
         },
         confirmButton = {
             Button(
                 enabled = sanitized != null,
-                onClick = { sanitized?.let(onSave) }
+                onClick = { sanitized?.let(onSave) },
+                shape = RoundedCornerShape(12.dp)
             ) { Text(stringResource(R.string.action_save)) }
         },
         dismissButton = {
-            Button(onClick = onDismiss) {
+            Button(onClick = onDismiss, shape = RoundedCornerShape(12.dp)) {
                 Text(stringResource(R.string.action_cancel))
             }
         }
@@ -9286,6 +9312,7 @@ internal fun RestorePickerDialog(
         if (e.isFactory) factoryLabel else e.label ?: defaultLabel
     AlertDialog(
         onDismissRequest = onDismiss,
+        shape = RoundedCornerShape(12.dp),
         title = { Text(stringResource(R.string.cloud_restore_confirm_title)) },
         text = {
             val list = entries
@@ -9305,6 +9332,7 @@ internal fun RestorePickerDialog(
                             .fillMaxWidth()
                             .menuAnchor(MenuAnchorType.PrimaryNotEditable, true),
                         colors = themedFieldColors(),
+                        shape = RoundedCornerShape(12.dp),
                     )
                     ExposedDropdownMenu(
                         expanded = dropdownOpen,
@@ -9334,11 +9362,12 @@ internal fun RestorePickerDialog(
         confirmButton = {
             Button(
                 enabled = selected != null,
-                onClick = { selected?.let(onPicked) }
+                onClick = { selected?.let(onPicked) },
+                shape = RoundedCornerShape(12.dp)
             ) { Text(stringResource(R.string.action_restore)) }
         },
         dismissButton = {
-            Button(onClick = onDismiss) {
+            Button(onClick = onDismiss, shape = RoundedCornerShape(12.dp)) {
                 Text(stringResource(R.string.action_cancel))
             }
         }
@@ -9712,7 +9741,7 @@ private fun HudInstallHint(pairedHudVersion: String?, hudEverConnected: Boolean)
     androidx.compose.material3.Surface(
         modifier = Modifier.fillMaxWidth(),
         color = MaterialTheme.colorScheme.surfaceVariant,
-        shape = RoundedCornerShape(8.dp)
+        shape = RoundedCornerShape(12.dp)
     ) {
         Row(
             modifier = Modifier.padding(horizontal = 12.dp, vertical = 10.dp),
@@ -9752,7 +9781,7 @@ private fun HudHotspotHint() {
     androidx.compose.material3.Surface(
         modifier = Modifier.fillMaxWidth(),
         color = MaterialTheme.colorScheme.surfaceVariant,
-        shape = RoundedCornerShape(8.dp)
+        shape = RoundedCornerShape(12.dp)
     ) {
         Row(
             modifier = Modifier.padding(horizontal = 12.dp, vertical = 10.dp),
@@ -9927,6 +9956,7 @@ private fun HudIntegrationSection(
                 ),
                 modifier = Modifier.weight(2f),
                 colors = themedFieldColors(),
+                shape = RoundedCornerShape(12.dp),
             )
             OutlinedTextField(
                 value = portText,
@@ -9954,6 +9984,7 @@ private fun HudIntegrationSection(
                 ),
                 modifier = Modifier.weight(1f),
                 colors = themedFieldColors(),
+                shape = RoundedCornerShape(12.dp),
             )
         }
         }  // end AnimatedVisibility for the IP/port row
@@ -10278,6 +10309,7 @@ private fun HudMapStylePicker(
                 .fillMaxWidth()
                 .menuAnchor(MenuAnchorType.PrimaryNotEditable),
             colors = themedFieldColors(),
+            shape = RoundedCornerShape(12.dp),
         )
         ExposedDropdownMenu(
             expanded = expanded,
@@ -10345,13 +10377,15 @@ private fun HudOverlayPicker(
             androidx.compose.material3.FilledTonalButton(
                 onClick = { sheetOpen = true },
                 colors = themedTonalButtonColors(),
+                shape = RoundedCornerShape(12.dp),
             ) {
                 Text(stringResource(R.string.hud_overlay_select_preset))
             }
             if (settings.hudCustomOverlayName.isNotBlank()) {
                 androidx.compose.material3.TextButton(
                     onClick = { viewModel.pickHudOverlay("") },
-                    colors = themedTextButtonColors()
+                    colors = themedTextButtonColors(),
+                    shape = RoundedCornerShape(12.dp)
                 ) {
                     Text(stringResource(R.string.hud_custom_overlay_none))
                 }

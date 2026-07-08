@@ -172,7 +172,7 @@ fun StudioReplayDialog(
         // widthIn before fillMaxWidth so the cap actually applies; keeps the
         // panel from stretching edge-to-edge in landscape.
         modifier = modifier.widthIn(max = 500.dp).fillMaxWidth(),
-        shape = RoundedCornerShape(16.dp),
+        shape = RoundedCornerShape(12.dp),
         color = MaterialTheme.appColors.dialog,
         contentColor = MaterialTheme.appColors.textPrimary,
         shadowElevation = 12.dp
@@ -266,7 +266,8 @@ fun StudioReplayDialog(
             ) {
                 OutlinedButton(
                     onClick = { picker = 1 },
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier.weight(1f),
+                    shape = RoundedCornerShape(12.dp)
                 ) {
                     Text(
                         selectedTrip?.let { tripLabel(it, distanceUnit) } ?: stringResource(R.string.studio_replay_choose_trip),
@@ -277,7 +278,8 @@ fun StudioReplayDialog(
                 }
                 OutlinedButton(
                     onClick = { picker = 2 },
-                    enabled = active
+                    enabled = active,
+                    shape = RoundedCornerShape(12.dp)
                 ) {
                     Text(speedLabel(speed))
                     Icon(Icons.Default.ArrowDropDown, contentDescription = stringResource(R.string.studio_replay_cd_speed))
@@ -477,14 +479,15 @@ private fun TrimTimeDialog(
                 Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                TextButton(onClick = { onConfirm(0L, durationMs) }) {
+                TextButton(onClick = { onConfirm(0L, durationMs) }, shape = RoundedCornerShape(12.dp)) {
                     Text(stringResource(R.string.studio_replay_trim_reset))
                 }
                 Spacer(Modifier.weight(1f))
-                TextButton(onClick = onDismiss) { Text(stringResource(R.string.action_cancel)) }
+                TextButton(onClick = onDismiss, shape = RoundedCornerShape(12.dp)) { Text(stringResource(R.string.action_cancel)) }
                 TextButton(
                     onClick = { if (valid) onConfirm(startParsed!!, endParsed!!) },
-                    enabled = valid
+                    enabled = valid,
+                    shape = RoundedCornerShape(12.dp)
                 ) { Text(stringResource(R.string.action_apply)) }
             }
         }
@@ -518,6 +521,7 @@ private fun TrimTimeField(
         label = { Text(label) },
         singleLine = true,
         isError = isError,
+        shape = RoundedCornerShape(12.dp),
         supportingText = supporting?.let { s -> { Text(s) } },
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
     )

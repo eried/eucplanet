@@ -403,7 +403,7 @@
 
     <!-- Watch hardware buttons -->
     <string name="watch_button_click_label">Klik</string>
-    <string name="watch_button_hold_label">Lang indrukken</string>
+    <string name="watch_button_hold_label">Houden</string>
     <string name="watch_buttons_hardware_info">Lang indrukken kan door het systeem worden onderschept op sommige horloges</string>
     <string name="watch_buttons_touch_info">Afhankelijk van wat je horloge ondersteunt</string>
     <string name="watch_buttons_hardware_label">Fysiek</string>
@@ -1696,6 +1696,14 @@
     <string name="adv_charging_cv_taper_desc">Bepaalt hoe pessimistisch de ETA voor het laatste stuk tot vol is. Hoger voegt marge toe.</string>
     <string name="adv_charging_median">Afvlaksamples</string>
     <string name="adv_charging_median_desc">Bepaalt hoeveel samples mediaan-gefilterd worden om spanningspieken te verwijderen. Gebruik een oneven getal.</string>
+    <string name="adv_cell_low_warn">Cel laag, waarschuwing</string>
+    <string name="adv_cell_low_warn_desc">Hoever een cel onder de mediaan van het pack mag zakken voordat hij geel wordt.</string>
+    <string name="adv_cell_low_danger">Cel laag, gevaar</string>
+    <string name="adv_cell_low_danger_desc">Hoever een cel onder de mediaan van het pack mag zakken voordat hij rood wordt.</string>
+    <string name="adv_cell_high">Cel hoog</string>
+    <string name="adv_cell_high_desc">Hoever een cel boven de mediaan van het pack mag stijgen voordat hij blauw wordt.</string>
+    <string name="adv_pack_balance_tol">Pack-balanstolerantie</string>
+    <string name="adv_pack_balance_tol_desc">Hoever een pack van de mediaan mag liggen voordat het het gebalanceerde groen verlaat, voor de packweergave met alleen percentages.</string>
     <string name="adv_charging_sanity_cap">ETA-limiet</string>
     <string name="adv_charging_sanity_cap_desc">Bepaalt de grootste ETA die wordt getoond. Alles daarboven wordt behandeld als nog niet klaar.</string>
     <string name="adv_charging_target_pct">Doelpercentage</string>
@@ -1878,7 +1886,9 @@
     <string name="geo_section_dashboard">Dashboard</string>
     <string name="geo_section_navigator">Navigator</string>
     <string name="geo_section_other">Andere schermen</string>
-    <string name="geo_other_hint">Instellingen, ritten, accumonitor, meetgeschiedenis, scan en Flic. De Overlay Studio wordt niet beïnvloed: de lay-out ligt vast, maar werkt prima in elke stand.</string>
+    <string name="geo_section_settings">Instellingen</string>
+    <string name="geo_other_hint">Ritten, accumonitor, meetgeschiedenis, scan en Flic. De Overlay Studio wordt niet beïnvloed: de lay-out ligt vast, maar werkt prima in elke stand.</string>
+    <string name="geo_settings_hint">Het instellingenscherm. Standaard uit, dus Instellingen blijft staand tenzij je het inschakelt.</string>
     <string name="setting_allow_rotation">Rotatie toestaan</string>
     <string name="setting_block_upside_down">Ondersteboven draaien voorkomen</string>
     <string name="setting_ignore_system_rotate_lock">Systeemrotatievergrendeling negeren</string>

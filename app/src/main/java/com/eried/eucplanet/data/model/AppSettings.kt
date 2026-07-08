@@ -200,6 +200,9 @@ data class AppSettings(
     val rotateDashboard: Boolean = false,
     val rotateNavigator: Boolean = true,
     val rotateOtherScreens: Boolean = true,
+    // The Settings screen has its own rotation entry, split out from "other
+    // screens". Off by default, so Settings stays portrait unless enabled.
+    val rotateSettings: Boolean = false,
 
     // Screen geometry. Compact mode is the tiny dashboard (speedo + one
     // swipeable buttons/metrics area) used on flip cover screens; it reuses
@@ -931,6 +934,15 @@ data class AdvancedSettings(
     val chargingWindowMs: Int = 300000,
     val chargingSanityCapMinutes: Int = 480,
     val chargingMedianFilterSize: Int = 7,
+    // Battery cell / pack balance coloring (AdvGroup.CHARGING). How far a cell
+    // may drift from the pack MEDIAN before it stops reading as balanced green:
+    // below by warn -> yellow, by danger -> red; above by high -> blue. The three
+    // mV values drive the per-cell voltage view; packBalanceTolerancePct drives
+    // the SoC-only pack fallback (no per-cell voltage available).
+    val cellLowWarnMv: Int = 30,
+    val cellLowDangerMv: Int = 80,
+    val cellHighMv: Int = 40,
+    val packBalanceTolerancePct: Int = 5,
     // Screen geometry variables (AdvGroup.GEOMETRY): the thresholds and sizes
     // behind compact mode, the cover lens cutout and the navigator sidebar.
     val compactMaxScreenDp: Int = 500,

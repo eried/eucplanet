@@ -140,10 +140,12 @@ class MainActivity : AppCompatActivity() {
     }
 
     /**
-     * Pinging the wear bridge on every resume rather than only at process
-     * start makes the auto-launch reliable: opening the phone app brings
-     * the watch app to the foreground each time, even if the watch service
-     * was killed for memory after the previous session.
+     * Pinging both watch bridges on every resume rather than only at process
+     * start makes auto-launch reliable: opening the phone app brings the watch
+     * app to the foreground each time, even if the watch service was killed for
+     * memory after the previous session. On Garmin this now fires Connect IQ's
+     * openApplication() (a one-time "Always" consent on the watch, then
+     * automatic), so the Garmin path below is a real launch, not a no-op.
      */
     override fun onResume() {
         super.onResume()
@@ -391,7 +393,7 @@ class MainActivity : AppCompatActivity() {
                     val routeNow = currentRoute?.destination?.route
                     androidx.compose.runtime.LaunchedEffect(
                         routeNow, s?.rotateDashboard, s?.rotateNavigator,
-                        s?.rotateOtherScreens, s?.blockUpsideDown, s?.ignoreSystemRotateLock
+                        s?.rotateOtherScreens, s?.rotateSettings, s?.blockUpsideDown, s?.ignoreSystemRotateLock
                     ) {
                         val allow = when (routeNow) {
                             Screen.Dashboard.route, null -> s?.rotateDashboard ?: false
@@ -401,6 +403,7 @@ class MainActivity : AppCompatActivity() {
                             // camera-app style, and reflowing the layout breaks
                             // the recording canvas. Never rotate it.
                             Screen.OverlayStudio.route -> false
+                            Screen.Settings.route -> s?.rotateSettings ?: false
                             else -> s?.rotateOtherScreens ?: true
                         }
                         // SENSOR variants follow the accelerometer even when the

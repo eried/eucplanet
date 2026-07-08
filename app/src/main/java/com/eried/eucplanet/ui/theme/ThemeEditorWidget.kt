@@ -25,6 +25,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.ui.draw.clip
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -199,6 +200,7 @@ fun ThemeEditorWidget(
             Box(
                 modifier = Modifier
                     .size(48.dp)
+                    .clip(CircleShape)
                     .background(MaterialTheme.colorScheme.primary, CircleShape)
                     .border(1.5.dp, MaterialTheme.colorScheme.outline, CircleShape)
                     .pointerInput(Unit) {
@@ -385,6 +387,7 @@ fun ThemeEditorWidget(
         var name by remember { mutableStateOf(seedName) }
         AlertDialog(
             onDismissRequest = { showSave = false },
+            shape = RoundedCornerShape(12.dp),
             title = { Text("Save theme") },
             text = {
                 OutlinedTextField(
@@ -396,6 +399,7 @@ fun ThemeEditorWidget(
             confirmButton = {
                 TextButton(
                     enabled = name.isNotBlank(),
+                    shape = RoundedCornerShape(12.dp),
                     onClick = {
                         val n = name.trim()
                         // One clean rule: if the typed name matches ANY existing
@@ -413,7 +417,7 @@ fun ThemeEditorWidget(
                     }
                 ) { Text("Save") }
             },
-            dismissButton = { TextButton(onClick = { showSave = false }) { Text("Cancel") } }
+            dismissButton = { TextButton(onClick = { showSave = false }, shape = RoundedCornerShape(12.dp)) { Text("Cancel") } }
         )
     }
 
@@ -421,15 +425,16 @@ fun ThemeEditorWidget(
     pendingReplaceName?.let { n ->
         AlertDialog(
             onDismissRequest = { pendingReplaceName = null },
+            shape = RoundedCornerShape(12.dp),
             title = { Text("Replace theme?") },
             text = { Text("A theme named \"$n\" already exists. Saving will replace it.") },
             confirmButton = {
                 TextButton(onClick = {
                     vm.saveAs(n) { showSave = false; pendingReplaceName = null }
-                }) { Text("Replace") }
+                }, shape = RoundedCornerShape(12.dp)) { Text("Replace") }
             },
             dismissButton = {
-                TextButton(onClick = { pendingReplaceName = null }) { Text("Cancel") }
+                TextButton(onClick = { pendingReplaceName = null }, shape = RoundedCornerShape(12.dp)) { Text("Cancel") }
             }
         )
     }
@@ -439,6 +444,7 @@ fun ThemeEditorWidget(
     if (pendingOverwrite) {
         AlertDialog(
             onDismissRequest = { pendingOverwrite = false; vm.preview(null) },
+            shape = RoundedCornerShape(12.dp),
             title = { Text("Discard the unsaved draft?") },
             text = {
                 Text(
@@ -447,10 +453,10 @@ fun ThemeEditorWidget(
                 )
             },
             confirmButton = {
-                TextButton(onClick = { pendingOverwrite = false; vm.commit() }) { Text("Continue") }
+                TextButton(onClick = { pendingOverwrite = false; vm.commit() }, shape = RoundedCornerShape(12.dp)) { Text("Continue") }
             },
             dismissButton = {
-                TextButton(onClick = { pendingOverwrite = false; vm.preview(null) }) { Text("Cancel") }
+                TextButton(onClick = { pendingOverwrite = false; vm.preview(null) }, shape = RoundedCornerShape(12.dp)) { Text("Cancel") }
             }
         )
     }
@@ -461,6 +467,7 @@ fun ThemeEditorWidget(
     if (showNoFolder) {
         AlertDialog(
             onDismissRequest = { showNoFolder = false },
+            shape = RoundedCornerShape(12.dp),
             title = { Text("No backup folder") },
             text = {
                 Text(
@@ -470,7 +477,7 @@ fun ThemeEditorWidget(
                 )
             },
             confirmButton = {
-                TextButton(onClick = { showNoFolder = false }) { Text("OK") }
+                TextButton(onClick = { showNoFolder = false }, shape = RoundedCornerShape(12.dp)) { Text("OK") }
             }
         )
     }

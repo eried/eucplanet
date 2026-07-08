@@ -403,7 +403,7 @@
 
     <!-- Watch hardware buttons -->
     <string name="watch_button_click_label">Clique</string>
-    <string name="watch_button_hold_label">Pressionar e segurar</string>
+    <string name="watch_button_hold_label">Manter</string>
     <string name="watch_buttons_hardware_info">Pressionar e segurar pode ser interceptado pelo sistema em alguns relógios</string>
     <string name="watch_buttons_touch_info">Depende do suporte do seu relógio</string>
     <string name="watch_buttons_hardware_label">Físicos</string>
@@ -1696,6 +1696,14 @@
     <string name="adv_charging_cv_taper_desc">Afeta o quão pessimista é a previsão para o trecho final até cheio. Maior adiciona margem.</string>
     <string name="adv_charging_median">Amostras de suavização</string>
     <string name="adv_charging_median_desc">Afeta quantas amostras passam pelo filtro de mediana para descartar picos de tensão. Use um número ímpar.</string>
+    <string name="adv_cell_low_warn">Célula baixa, aviso</string>
+    <string name="adv_cell_low_warn_desc">O quanto uma célula pode ficar abaixo da mediana do pack antes de ficar amarela.</string>
+    <string name="adv_cell_low_danger">Célula baixa, perigo</string>
+    <string name="adv_cell_low_danger_desc">O quanto uma célula pode ficar abaixo da mediana do pack antes de ficar vermelha.</string>
+    <string name="adv_cell_high">Célula alta</string>
+    <string name="adv_cell_high_desc">O quanto uma célula pode subir acima da mediana do pack antes de ficar azul.</string>
+    <string name="adv_pack_balance_tol">Tolerância de equilíbrio do pack</string>
+    <string name="adv_pack_balance_tol_desc">O quanto um pack pode ficar longe da mediana antes de sair do verde equilibrado, para a visão de packs só com porcentagem.</string>
     <string name="adv_charging_sanity_cap">Limite de sanidade da previsão</string>
     <string name="adv_charging_sanity_cap_desc">Afeta a maior previsão exibida. Qualquer valor acima disso é tratado como ainda não pronto.</string>
     <string name="adv_charging_target_pct">Percentual alvo</string>
@@ -1878,7 +1886,9 @@
     <string name="geo_section_dashboard">Painel</string>
     <string name="geo_section_navigator">Navegador</string>
     <string name="geo_section_other">Outras telas</string>
-    <string name="geo_other_hint">Configurações, viagens, monitor da bateria, histórico de métricas, varredura e Flic. O Overlay Studio não é afetado: seu layout é fixo, mas funciona bem em qualquer orientação.</string>
+    <string name="geo_section_settings">Configurações</string>
+    <string name="geo_other_hint">Viagens, monitor da bateria, histórico de métricas, varredura e Flic. O Overlay Studio não é afetado: seu layout é fixo, mas funciona bem em qualquer orientação.</string>
+    <string name="geo_settings_hint">A tela de configurações. Desativado por padrão, então Configurações permanece em retrato a menos que você ative.</string>
     <string name="setting_allow_rotation">Permitir rotação</string>
     <string name="setting_block_upside_down">Impedir rotação de cabeça para baixo</string>
     <string name="setting_ignore_system_rotate_lock">Ignorar bloqueio de rotação do sistema</string>

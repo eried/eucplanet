@@ -403,7 +403,7 @@
 
     <!-- Watch hardware buttons -->
     <string name="watch_button_click_label">Kliknięcie</string>
-    <string name="watch_button_hold_label">Długie naciśnięcie</string>
+    <string name="watch_button_hold_label">Przytrzymaj</string>
     <string name="watch_buttons_hardware_info">Przytrzymania mogą być przechwytywane przez system na niektórych zegarkach</string>
     <string name="watch_buttons_touch_info">Zależy od możliwości zegarka</string>
     <string name="watch_buttons_hardware_label">Fizyczne</string>
@@ -1694,6 +1694,14 @@
     <string name="adv_charging_cv_taper_desc">Wpływa na to, jak pesymistyczny jest szacowany czas do pełna na końcowym odcinku. Wyższa wartość dodaje margines.</string>
     <string name="adv_charging_median">Próbki wygładzania</string>
     <string name="adv_charging_median_desc">Wpływa na to, ile próbek jest filtrowanych medianą, aby usunąć skoki napięcia. Użyj liczby nieparzystej.</string>
+    <string name="adv_cell_low_warn">Ogniwo niskie, ostrzeżenie</string>
+    <string name="adv_cell_low_warn_desc">O ile ogniwo może spaść poniżej mediany pakietu, zanim zmieni się na żółte.</string>
+    <string name="adv_cell_low_danger">Ogniwo niskie, niebezpieczeństwo</string>
+    <string name="adv_cell_low_danger_desc">O ile ogniwo może spaść poniżej mediany pakietu, zanim zmieni się na czerwone.</string>
+    <string name="adv_cell_high">Ogniwo wysokie</string>
+    <string name="adv_cell_high_desc">O ile ogniwo może wzrosnąć powyżej mediany pakietu, zanim zmieni się na niebieskie.</string>
+    <string name="adv_pack_balance_tol">Tolerancja zrównoważenia pakietu</string>
+    <string name="adv_pack_balance_tol_desc">O ile pakiet może odbiegać od mediany, zanim opuści zrównoważoną zieleń, dla widoku pakietów tylko z procentami.</string>
     <string name="adv_charging_sanity_cap">Limit sensowności ETA</string>
     <string name="adv_charging_sanity_cap_desc">Wpływa na największy pokazywany czas ETA. Wszystko powyżej jest traktowane jako jeszcze niegotowe.</string>
     <string name="adv_charging_target_pct">Docelowy procent</string>
@@ -1876,7 +1884,9 @@
     <string name="geo_section_dashboard">Pulpit</string>
     <string name="geo_section_navigator">Nawigator</string>
     <string name="geo_section_other">Inne ekrany</string>
-    <string name="geo_other_hint">Ustawienia, trasy, monitor baterii, historia metryk, skanowanie i Flic. Overlay Studio nie jest objęte: jego układ jest stały, ale działa dobrze w każdej orientacji.</string>
+    <string name="geo_section_settings">Ustawienia</string>
+    <string name="geo_other_hint">Trasy, monitor baterii, historia metryk, skanowanie i Flic. Overlay Studio nie jest objęte: jego układ jest stały, ale działa dobrze w każdej orientacji.</string>
+    <string name="geo_settings_hint">Ekran ustawień. Domyślnie wyłączone, więc Ustawienia pozostają w orientacji pionowej, dopóki tego nie włączysz.</string>
     <string name="setting_allow_rotation">Zezwól na obracanie</string>
     <string name="setting_block_upside_down">Zablokuj obrót do góry nogami</string>
     <string name="setting_ignore_system_rotate_lock">Ignoruj systemową blokadę obrotu</string>

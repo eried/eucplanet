@@ -1,6 +1,7 @@
 package com.eried.eucplanet.ui.recording
 
 import android.annotation.SuppressLint
+import android.view.MotionEvent
 import android.view.ViewGroup
 import android.webkit.WebView
 import android.webkit.WebViewClient
@@ -29,7 +30,12 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Layers
+import androidx.compose.material.icons.filled.Fullscreen
+import androidx.compose.material.icons.filled.FullscreenExit
 import androidx.compose.material.icons.filled.Share
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -232,8 +238,19 @@ fun TripDetailScreen(
                 val tripDistance = com.eried.eucplanet.util.Units.distance(distanceKm, distanceUnit)
                 val maxTemp = com.eried.eucplanet.util.Units.temperature(maxTempRaw, tempUnit)
 
+                // Title shows the ride's span: full start timestamp, an arrow, and
+                // the end time. End is start + the duration we already display, so it
+                // always agrees with the Duration card. Same-day rides show just the
+                // end HH:mm; a ride crossing midnight shows the full end date too.
+                val endMs = startMs + duration * 1000
+                val dayFormat = SimpleDateFormat("dd MMM yyyy", Locale.getDefault())
+                val timeFormat = SimpleDateFormat("HH:mm", Locale.getDefault())
+                val endText = if (dayFormat.format(Date(startMs)) == dayFormat.format(Date(endMs)))
+                    timeFormat.format(Date(endMs))
+                else
+                    dateFormat.format(Date(endMs))
                 Text(
-                    dateFormat.format(Date(startMs)),
+                    "${dateFormat.format(Date(startMs))} → $endText",
                     style = MaterialTheme.typography.titleMedium,
                     color = MaterialTheme.colorScheme.onSurface
                 )
@@ -323,6 +340,12 @@ fun TripDetailScreen(
                     )
                 }
 
+                // Sample index highlighted across all charts + the map while the
+                // rider scrubs any chart. Shared here so every chart and the route
+                // map track the same moment.
+                var scrubIndex by remember { mutableStateOf<Int?>(null) }
+                val onScrub: (Int?) -> Unit = { scrubIndex = it }
+
                 // Route map
                 val gpsPoints = remember(dataPoints) {
                     dataPoints.filter { it.latitude != 0.0 && it.longitude != 0.0 }
@@ -334,11 +357,18 @@ fun TripDetailScreen(
                     Text(stringResource(R.string.recording_route), style = MaterialTheme.typography.titleSmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant)
                     Spacer(Modifier.height(4.dp))
+                    // The scrubbed sample's own GPS fix (from the full dataPoints,
+                    // which the chart index maps onto), or null if it had none.
+                    val scrubPoint = scrubIndex?.let { i ->
+                        dataPoints.getOrNull(i)?.takeIf { it.latitude != 0.0 && it.longitude != 0.0 }
+                    }
                     RouteMapView(
                         points = gpsPoints,
                         isLive = isLive,
                         liveLat = liveLocation?.latitude,
                         liveLon = liveLocation?.longitude,
+                        scrubLat = scrubPoint?.latitude,
+                        scrubLon = scrubPoint?.longitude,
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(250.dp)
@@ -374,16 +404,23 @@ fun TripDetailScreen(
                     "ms" -> GraphScale.SPAN_SPEED_MS
                     else -> GraphScale.SPAN_SPEED_KMH
                 }
+                // Cap the speed axis at the sustained top speed (same spike-rejected
+                // value the Top speed card shows) so a lone GPS/sensor spike doesn't
+                // flatten the ride; the real peak is annotated in the corner label.
+                val speedPeakRaw = dataPoints.map { it.speed }.maxOrNull() ?: 0f
+                val speedPeak = com.eried.eucplanet.util.Units.speed(speedPeakRaw, speedUnit)
                 ChartCard(stringResource(R.string.recording_chart_speed, speedUnitLabel),
                     dataPoints.map { com.eried.eucplanet.util.Units.speed(it.speed, speedUnit) },
                     MaterialTheme.appColors.metricBattery, unitLabel = speedUnitLabel, minSpan = speedMinSpan,
-                    overlays = speedOverlays)
+                    overlays = speedOverlays, axisMax = maxSpeed, peak = speedPeak,
+                    scrubIndex = scrubIndex, onScrub = onScrub)
 
                 Spacer(Modifier.height(12.dp))
 
                 // Battery chart
                 ChartCard(stringResource(R.string.recording_chart_battery), dataPoints.map { it.battery.toFloat() },
-                    MaterialTheme.appColors.metricVoltage, unitLabel = "%", minSpan = GraphScale.SPAN_BATTERY)
+                    MaterialTheme.appColors.metricVoltage, unitLabel = "%", minSpan = GraphScale.SPAN_BATTERY,
+                    scrubIndex = scrubIndex, onScrub = onScrub)
 
                 Spacer(Modifier.height(12.dp))
 
@@ -394,13 +431,15 @@ fun TripDetailScreen(
                     else GraphScale.SPAN_TEMPERATURE_C
                 ChartCard(stringResource(R.string.recording_chart_temp, tempUnitLabel),
                     dataPoints.map { com.eried.eucplanet.util.Units.temperature(it.temperature, tempUnit) },
-                    MaterialTheme.appColors.metricTemp, unitLabel = tempUnitLabel, minSpan = tempMinSpan)
+                    MaterialTheme.appColors.metricTemp, unitLabel = tempUnitLabel, minSpan = tempMinSpan,
+                    scrubIndex = scrubIndex, onScrub = onScrub)
 
                 Spacer(Modifier.height(12.dp))
 
                 // Voltage chart
                 ChartCard(stringResource(R.string.recording_chart_voltage), dataPoints.map { it.voltage },
-                    MaterialTheme.appColors.statusDanger, unitLabel = "V", minSpan = GraphScale.SPAN_VOLTAGE)
+                    MaterialTheme.appColors.statusDanger, unitLabel = "V", minSpan = GraphScale.SPAN_VOLTAGE,
+                    scrubIndex = scrubIndex, onScrub = onScrub)
 
                 // Current chart, only when this trip actually recorded current.
                 // Uses the regen two-colour split: above zero in the chart colour,
@@ -410,7 +449,8 @@ fun TripDetailScreen(
                     ChartCard(stringResource(R.string.recording_chart_current),
                         dataPoints.map { it.current },
                         MaterialTheme.appColors.metricVoltage, unitLabel = "A", minSpan = GraphScale.SPAN_CURRENT,
-                        regenColor = MaterialTheme.appColors.metricBattery)
+                        regenColor = MaterialTheme.appColors.metricBattery,
+                        scrubIndex = scrubIndex, onScrub = onScrub)
                 }
 
                 // PWM chart, single-colour, only when this trip recorded PWM.
@@ -418,7 +458,8 @@ fun TripDetailScreen(
                     Spacer(Modifier.height(12.dp))
                     ChartCard(stringResource(R.string.recording_chart_pwm),
                         dataPoints.map { it.pwm },
-                        MaterialTheme.appColors.metricTemp, unitLabel = "%", minSpan = GraphScale.SPAN_LOAD)
+                        MaterialTheme.appColors.metricTemp, unitLabel = "%", minSpan = GraphScale.SPAN_LOAD,
+                        scrubIndex = scrubIndex, onScrub = onScrub)
                 }
 
                 Spacer(Modifier.height(16.dp))
@@ -459,22 +500,63 @@ private fun RouteMapView(
     isLive: Boolean = false,
     liveLat: Double? = null,
     liveLon: Double? = null,
+    // When a chart is being scrubbed, the GPS position of that sample (or null to
+    // hide the marker). Drives a dot on the map synced with the chart cursor.
+    scrubLat: Double? = null,
+    scrubLon: Double? = null,
     modifier: Modifier = Modifier
+) {
+    var fullscreen by remember { mutableStateOf(false) }
+
+    MapSurface(
+        points = points, isLive = isLive, liveLat = liveLat, liveLon = liveLon,
+        scrubLat = scrubLat, scrubLon = scrubLon,
+        fullscreen = false, onToggleFullscreen = { fullscreen = true },
+        modifier = modifier,
+    )
+
+    if (fullscreen) {
+        // Fullscreen map: no parent scroll fights the gestures, so panning and
+        // pinch-zoom are unencumbered. Back button or the exit icon closes it.
+        Dialog(
+            onDismissRequest = { fullscreen = false },
+            properties = DialogProperties(usePlatformDefaultWidth = false),
+        ) {
+            MapSurface(
+                points = points, isLive = isLive, liveLat = liveLat, liveLon = liveLon,
+                scrubLat = scrubLat, scrubLon = scrubLon,
+                fullscreen = true, onToggleFullscreen = { fullscreen = false },
+                modifier = Modifier.fillMaxSize(),
+            )
+        }
+    }
+}
+
+@SuppressLint("ClickableViewAccessibility")
+@Composable
+private fun MapSurface(
+    points: List<TripDataPoint>,
+    isLive: Boolean,
+    liveLat: Double?,
+    liveLon: Double?,
+    scrubLat: Double?,
+    scrubLon: Double?,
+    fullscreen: Boolean,
+    onToggleFullscreen: () -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     val coordsJson = remember(points) {
         points.joinToString(",") { "[${it.latitude},${it.longitude}]" }
     }
     // Rebuild the WebView only when the historical trace changes or when we first
     // enter/leave live mode, live marker updates are applied via JS.
-    val html = remember(coordsJson, isLive) {
-        buildMapHtml(coordsJson, isLive)
-    }
+    val html = remember(coordsJson, isLive) { buildMapHtml(coordsJson, isLive) }
 
     var webView by remember { mutableStateOf<WebView?>(null) }
     val mapTypes = listOf("LIGHT", "DARK", "SAT")
     var mapType by rememberSaveable { mutableStateOf("LIGHT") }
 
-    androidx.compose.foundation.layout.Box(modifier.clip(RoundedCornerShape(12.dp))) {
+    Box(modifier.clip(RoundedCornerShape(if (fullscreen) 0.dp else 12.dp))) {
         AndroidView(
             factory = { ctx ->
                 WebView(ctx).apply {
@@ -486,6 +568,20 @@ private fun RouteMapView(
                     settings.domStorageEnabled = true
                     webViewClient = WebViewClient()
                     setBackgroundColor(android.graphics.Color.parseColor("#0b0f19"))
+                    // Own drag gestures on the map: ask the Compose scroll
+                    // container (which honours requestDisallowInterceptTouchEvent)
+                    // not to steal them, so a one-finger drag pans the map instead
+                    // of scrolling the page. Released on UP/CANCEL so a drag that
+                    // starts off the map still scrolls the page normally.
+                    setOnTouchListener { v, event ->
+                        when (event.actionMasked) {
+                            MotionEvent.ACTION_DOWN, MotionEvent.ACTION_MOVE ->
+                                v.parent?.requestDisallowInterceptTouchEvent(true)
+                            MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL ->
+                                v.parent?.requestDisallowInterceptTouchEvent(false)
+                        }
+                        false
+                    }
                     loadDataWithBaseURL(null, html, "text/html", "UTF-8", null)
                     webView = this
                 }
@@ -493,26 +589,23 @@ private fun RouteMapView(
             update = { wv -> webView = wv },
             modifier = Modifier.fillMaxSize()
         )
-        // Map-layer selector, cycles light / dark / satellite.
-        androidx.compose.foundation.layout.Box(
-            Modifier
-                .align(Alignment.BottomEnd)
-                .padding(8.dp)
-                .size(40.dp)
-                .clip(RoundedCornerShape(10.dp))
-                .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.92f))
-                .clickable {
-                    mapType = mapTypes[(mapTypes.indexOf(mapType) + 1) % mapTypes.size]
-                    webView?.evaluateJavascript(
-                        "if(window.setMapType)setMapType('$mapType');", null
-                    )
-                },
-            contentAlignment = Alignment.Center
+        // Controls: fullscreen toggle over the map-style cycler.
+        Column(
+            Modifier.align(Alignment.BottomEnd).padding(8.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
-            Icon(
-                androidx.compose.material.icons.Icons.Default.Layers,
-                contentDescription = "Map style",
-                tint = MaterialTheme.colorScheme.onSurface
+            MapButton(
+                icon = if (fullscreen) Icons.Default.FullscreenExit else Icons.Default.Fullscreen,
+                desc = "Fullscreen map",
+                onClick = onToggleFullscreen,
+            )
+            MapButton(
+                icon = Icons.Default.Layers,
+                desc = "Map style",
+                onClick = {
+                    mapType = mapTypes[(mapTypes.indexOf(mapType) + 1) % mapTypes.size]
+                    webView?.evaluateJavascript("if(window.setMapType)setMapType('$mapType');", null)
+                },
             )
         }
     }
@@ -523,10 +616,32 @@ private fun RouteMapView(
         if (!isLive) return@LaunchedEffect
         val lat = liveLat ?: return@LaunchedEffect
         val lon = liveLon ?: return@LaunchedEffect
-        wv.evaluateJavascript(
-            "if (window.updateLivePoint) updateLivePoint($lat,$lon);",
-            null
-        )
+        wv.evaluateJavascript("if (window.updateLivePoint) updateLivePoint($lat,$lon);", null)
+    }
+
+    // Chart-scrub marker: move a dot to the scrubbed sample's GPS position, or
+    // hide it when scrubbing stops (or the sample had no fix).
+    LaunchedEffect(scrubLat, scrubLon, webView) {
+        val wv = webView ?: return@LaunchedEffect
+        if (scrubLat != null && scrubLon != null) {
+            wv.evaluateJavascript("if(window.updateScrubPoint)updateScrubPoint($scrubLat,$scrubLon);", null)
+        } else {
+            wv.evaluateJavascript("if(window.clearScrubPoint)clearScrubPoint();", null)
+        }
+    }
+}
+
+@Composable
+private fun MapButton(icon: ImageVector, desc: String, onClick: () -> Unit) {
+    Box(
+        Modifier
+            .size(40.dp)
+            .clip(RoundedCornerShape(10.dp))
+            .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.92f))
+            .clickable(onClick = onClick),
+        contentAlignment = Alignment.Center
+    ) {
+        Icon(icon, contentDescription = desc, tint = MaterialTheme.colorScheme.onSurface)
     }
 }
 
@@ -614,6 +729,22 @@ private fun buildMapHtml(coordsJson: String, isLive: Boolean): String = """
     }
   };
 
+  // Scrub marker API: a dot synced with the chart cursor. Pans into view only
+  // if the point is off-screen, so scrubbing doesn't jerk the map around.
+  var scrub=null;
+  window.updateScrubPoint = function(lat, lon){
+    var p = [lat, lon];
+    if (!scrub){
+      scrub = L.circleMarker(p,{radius:7,color:'#fff',weight:2,fillColor:'#FFC107',fillOpacity:1}).addTo(map);
+    } else {
+      scrub.setLatLng(p);
+    }
+    if (!map.getBounds().contains(p)) map.panTo(p,{animate:true,duration:0.25});
+  };
+  window.clearScrubPoint = function(){
+    if (scrub){ map.removeLayer(scrub); scrub=null; }
+  };
+
   render();
   ${if (isLive) "/* live mode: waiting for updateLivePoint() */" else ""}
 </script></body></html>
@@ -649,7 +780,18 @@ private fun ChartCard(
     unitLabel: String,
     minSpan: Float,
     overlays: List<ChartOverlay> = emptyList(),
-    regenColor: Color? = null
+    regenColor: Color? = null,
+    // Cap the y-axis at a realistic value (e.g. the speed chart passes the
+    // spike-rejected sustained top speed) so one lone GPS/sensor spike doesn't
+    // squash the whole ride into the floor. The spike then clips at the top and
+    // [peak], the true maximum, is shown in the corner label instead.
+    axisMax: Float? = null,
+    peak: Float? = null,
+    // Shared scrub cursor: [scrubIndex] is the sample index highlighted across
+    // every chart and the map; [onScrub] reports this chart's own scrub position
+    // (or null on release) so the other charts and the map marker follow along.
+    scrubIndex: Int? = null,
+    onScrub: ((Int?) -> Unit)? = null,
 ) {
     if (values.isEmpty()) return
 
@@ -659,7 +801,10 @@ private fun ChartCard(
     val finiteValues = values.filter { !it.isNaN() }
     val allFinite = (overlays.flatMap { it.values.filter { v -> !v.isNaN() } }) + finiteValues
     val dataMin = allFinite.minOrNull() ?: 0f
-    val dataMax = allFinite.maxOrNull() ?: 0f
+    val dataMaxRaw = allFinite.maxOrNull() ?: 0f
+    // Axis upper bound: a caller-supplied realistic cap when given (never below
+    // the data floor), otherwise the raw maximum as before.
+    val dataMax = axisMax?.coerceAtLeast(dataMin) ?: dataMaxRaw
     val bounds = GraphScale.pad(dataMin, dataMax, minSpan)
     val textMeasurer = rememberTextMeasurer()
     val tooltipBg = MaterialTheme.colorScheme.surface
@@ -679,7 +824,13 @@ private fun ChartCard(
             ) {
                 Text(title, fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant,
                     fontWeight = FontWeight.Medium)
-                Text("%.1f – %.1f".format(dataMin, dataMax), fontSize = 11.sp,
+                // When a spike was clipped by [axisMax], show the true peak too so
+                // the rider still sees it (e.g. "0.0 – 35.0 (peak 80)").
+                val rangeLabel = if (peak != null && peak > dataMax + 0.5f)
+                    "%.1f – %.1f (peak %.0f)".format(dataMin, dataMax, peak)
+                else
+                    "%.1f – %.1f".format(dataMin, dataMax)
+                Text(rangeLabel, fontSize = 11.sp,
                     color = color, fontWeight = FontWeight.Medium)
             }
 
@@ -703,12 +854,23 @@ private fun ChartCard(
                             // Long-press confirmed, the chart now owns the gesture.
                             haptics.performHapticFeedback(HapticFeedbackType.LongPress)
                             longPress.consume()
-                            touchX = longPress.position.x
+                            // Track locally for this chart's smooth cursor AND
+                            // publish the integer sample index so the other charts
+                            // and the map marker highlight the same moment.
+                            fun report(x: Float) {
+                                touchX = x
+                                if (onScrub != null && values.size > 1) {
+                                    val sx = size.width / (values.size - 1).toFloat()
+                                    onScrub((x / sx + 0.5f).toInt().coerceIn(0, values.size - 1))
+                                }
+                            }
+                            report(longPress.position.x)
                             drag(longPress.id) { change ->
-                                touchX = change.position.x
+                                report(change.position.x)
                                 change.consume()
                             }
                             touchX = null
+                            onScrub?.invoke(null)
                         }
                     }
             ) {
@@ -730,7 +892,9 @@ private fun ChartCard(
                             return@forEachIndexed
                         }
                         val x = idx * stepX
-                        val y = h - ((value - bounds.min) / range) * h
+                        // Clamp to the chart box so a value above the (capped) axis
+                        // clips at the top edge instead of drawing outside.
+                        val y = (h - ((value - bounds.min) / range) * h).coerceIn(0f, h)
                         if (!penDown) {
                             overlayPath.moveTo(x, y)
                             penDown = true
@@ -755,7 +919,9 @@ private fun ChartCard(
                         return@forEachIndexed
                     }
                     val x = idx * stepX
-                    val y = h - ((value - bounds.min) / range) * h
+                    // Clamp to the chart box so a value above the (capped) axis
+                    // clips at the top edge instead of drawing outside.
+                    val y = (h - ((value - bounds.min) / range) * h).coerceIn(0f, h)
                     val seg = segment
                     if (seg == null) {
                         val p = Path()
@@ -798,7 +964,10 @@ private fun ChartCard(
                     }
                 }
 
-                val tx = touchX
+                // Cursor position: this chart's own touch while it is being
+                // scrubbed, otherwise the shared index driven by whichever chart
+                // the rider is touching (so every chart shows the same moment).
+                val tx = touchX ?: scrubIndex?.let { it.toFloat() * stepX }
                 if (tx != null) {
                     val cursorX = tx.coerceIn(0f, w)
                     val floatIdx = (cursorX / stepX).coerceIn(0f, (values.size - 1).toFloat())
@@ -815,7 +984,7 @@ private fun ChartCard(
                         rv.isNaN() -> lv
                         else -> lv + (rv - lv) * frac
                     }
-                    val cursorY = h - ((interpValue - bounds.min) / range) * h
+                    val cursorY = (h - ((interpValue - bounds.min) / range) * h).coerceIn(0f, h)
 
                     drawLine(color.copy(alpha = 0.5f), Offset(cursorX, 0f), Offset(cursorX, h), strokeWidth = 1.5f)
                     drawCircle(color, radius = 4f, center = Offset(cursorX, cursorY))

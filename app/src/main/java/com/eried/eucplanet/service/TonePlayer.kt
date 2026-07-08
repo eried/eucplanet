@@ -89,7 +89,21 @@ class TonePlayer @Inject constructor() {
             track.write(samples, 0, samples.size)
             track.play()
             val playMs = totalN.toLong() * 1000 / sampleRate
-            Thread.sleep(playMs + 20)   // let the buffer finish before stop()
+            // Wait for the frames to actually PLAY OUT, not just for the nominal
+            // buffer duration. play() returns immediately but the audio starts
+            // later - the phone speaker adds a little, Bluetooth adds ~100-200ms -
+            // so a fixed sleep followed by stop() (which halts a STATIC track at
+            // once) chopped the tail into "half a beep" over BT. Poll the playback
+            // head until every frame has been emitted, with a hard cap so a stalled
+            // route can never hang the coroutine.
+            val capNs = System.nanoTime() + (playMs + 2000L) * 1_000_000L
+            while (track.playbackHeadPosition < totalN &&
+                track.playState == AudioTrack.PLAYSTATE_PLAYING &&
+                System.nanoTime() < capNs
+            ) {
+                Thread.sleep(10)
+            }
+            Thread.sleep(30)   // small drain margin after the last frame
             track.stop()
             track.release()
         }

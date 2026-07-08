@@ -56,6 +56,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.drawText
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.rememberTextMeasurer
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.sp
@@ -820,6 +821,7 @@ private fun CompareTab(
         if (showApplyDialog && proposedCalPct != null) {
             androidx.compose.material3.AlertDialog(
                 onDismissRequest = { showApplyDialog = false },
+                shape = RoundedCornerShape(12.dp),
                 title = {
                     Text(stringResource(com.eried.eucplanet.R.string.sources_apply_calibration_title))
                 },
@@ -835,14 +837,14 @@ private fun CompareTab(
                     androidx.compose.material3.TextButton(onClick = {
                         viewModel.applyCalibrationPct(proposedCalPct)
                         showApplyDialog = false
-                    }) {
+                    }, shape = RoundedCornerShape(12.dp)) {
                         Text(stringResource(com.eried.eucplanet.R.string.sources_apply))
                     }
                 },
                 dismissButton = {
                     androidx.compose.material3.TextButton(onClick = {
                         showApplyDialog = false
-                    }) {
+                    }, shape = RoundedCornerShape(12.dp)) {
                         Text(stringResource(com.eried.eucplanet.R.string.sources_cancel))
                     }
                 }
@@ -1490,9 +1492,19 @@ private fun GForceSparkline(
     // automotive dashboard uses for "you are decelerating".
     val accelColor = color
     val brakeColor = MaterialTheme.appColors.statusDanger
-    // Numeric label colour follows the current sign so the digits also tell
-    // the rider whether they are accelerating or braking right now.
-    val labelColor = if (currentG >= 0f) accelColor else brakeColor
+    // A small dead-zone around 0: while stationary the regression jitters either
+    // side of zero, which made the label + trace flicker accel/brake colours. Hold
+    // a neutral colour inside the dead-zone so an idle "+0.00 g" reads calmly.
+    val neutralG = 0.03f
+    val gNeutral = MaterialTheme.appColors.hint
+    fun gColor(g: Float): Color = when {
+        g > neutralG -> accelColor
+        g < -neutralG -> brakeColor
+        else -> gNeutral
+    }
+    // Numeric label colour follows the current sign (outside the dead-zone) so the
+    // digits also tell the rider whether they are accelerating or braking.
+    val labelColor = gColor(currentG)
 
     Row(
         verticalAlignment = Alignment.CenterVertically,
@@ -1534,7 +1546,7 @@ private fun GForceSparkline(
                 val y2 = (zeroY - g2 * yScale).coerceIn(0f, h)
                 if ((g1 >= 0f) == (g2 >= 0f)) {
                     // Whole segment on one side of zero.
-                    val segColor = if (g1 + g2 >= 0f) accelColor else brakeColor
+                    val segColor = gColor((g1 + g2) / 2f)
                     drawLine(
                         color = segColor,
                         start = Offset(x1, y1),
@@ -1547,8 +1559,8 @@ private fun GForceSparkline(
                     // segments in opposite colours.
                     val frac = g1 / (g1 - g2)                          // 0..1
                     val xMid = x1 + (x2 - x1) * frac
-                    val firstColor = if (g1 >= 0f) accelColor else brakeColor
-                    val secondColor = if (g2 >= 0f) accelColor else brakeColor
+                    val firstColor = gColor(g1)
+                    val secondColor = gColor(g2)
                     drawLine(
                         color = firstColor,
                         start = Offset(x1, y1),
@@ -1572,6 +1584,7 @@ private fun GForceSparkline(
             color = labelColor,
             fontSize = 12.sp,
             fontWeight = FontWeight.Medium,
+            textAlign = TextAlign.End,
             modifier = Modifier.widthIn(min = 56.dp),
         )
     }

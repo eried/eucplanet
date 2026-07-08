@@ -533,7 +533,7 @@
     <string name="watch_close_on_exit">手表自动停止</string>
     <string name="watch_close_on_exit_desc">在「停止所有」时停止手表应用。</string>
     <string name="watch_button_click_label">单击</string>
-    <string name="watch_button_hold_label">长按</string>
+    <string name="watch_button_hold_label">按住</string>
     <string name="watch_keep_on">保持屏幕常亮</string>
     <string name="watch_keep_on_desc">应用开启期间让手表保持唤醒。</string>
     <string name="watch_update_rate">更新频率</string>
@@ -1563,6 +1563,14 @@
     <string name="adv_charging_cv_taper_desc">影响充满前最后一段 ETA 的保守程度。越高余量越大。</string>
     <string name="adv_charging_median">平滑样本数</string>
     <string name="adv_charging_median_desc">影响用于中值滤波以剔除电压尖峰的样本数量。请使用奇数。</string>
+    <string name="adv_cell_low_warn">电芯偏低 警告</string>
+    <string name="adv_cell_low_warn_desc">电芯低于电池组中位数多少时变为黄色。</string>
+    <string name="adv_cell_low_danger">电芯偏低 危险</string>
+    <string name="adv_cell_low_danger_desc">电芯低于电池组中位数多少时变为红色。</string>
+    <string name="adv_cell_high">电芯偏高</string>
+    <string name="adv_cell_high_desc">电芯高于电池组中位数多少时变为蓝色。</string>
+    <string name="adv_pack_balance_tol">电池组均衡容差</string>
+    <string name="adv_pack_balance_tol_desc">在仅显示百分比的电池组视图中，电池组偏离中位数多少时离开均衡的绿色。</string>
     <string name="adv_charging_sanity_cap">ETA 上限</string>
     <string name="adv_charging_sanity_cap_desc">影响显示的最大 ETA。超过此值视为尚未就绪。</string>
     <string name="adv_charging_target_pct">目标百分比</string>
@@ -1745,7 +1753,9 @@
     <string name="geo_section_dashboard">仪表盘</string>
     <string name="geo_section_navigator">导航</string>
     <string name="geo_section_other">其他屏幕</string>
-    <string name="geo_other_hint">设置、行程、电池监控、指标历史、扫描和 Flic。Overlay Studio 不受影响：其布局是固定的，但以任何方向手持都能正常使用。</string>
+    <string name="geo_section_settings">设置</string>
+    <string name="geo_other_hint">行程、电池监控、指标历史、扫描和 Flic。Overlay Studio 不受影响：其布局是固定的，但以任何方向手持都能正常使用。</string>
+    <string name="geo_settings_hint">设置屏幕。默认关闭，因此除非启用，否则设置保持纵向。</string>
     <string name="setting_allow_rotation">允许旋转</string>
     <string name="setting_block_upside_down">禁止上下颠倒旋转</string>
     <string name="setting_ignore_system_rotate_lock">忽略系统旋转锁定</string>
