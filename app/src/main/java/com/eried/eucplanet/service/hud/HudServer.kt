@@ -94,6 +94,9 @@ class HudServer @Inject constructor(
         // above it the HUD feels stuck.
         private const val BACKOFF_MIN_MS = 1_000L
         private const val BACKOFF_MAX_MS = 5_000L
+        /** Channel + id for the one-shot "hotspot is off" heads-up alert. */
+        private const val HOTSPOT_CHANNEL_ID = "hud_hotspot_alert"
+        private const val HOTSPOT_NOTIFICATION_ID = 4108
         // Adaptive HUD ping window. Foreground: keep the snappy 5s so a dead HUD is
         // caught in ~5s and the dial loop rediscovers fast. Background (only the
         // ride foreground service up): Samsung / Android background throttling
@@ -556,13 +559,74 @@ class HudServer @Inject constructor(
         if (!autoDiscover || hotspotGoneWarned) return
         val hudIp = lastGoodPeerIp ?: return
         // Fresh only when the probe ran this cycle (auto-discovery path).
+        // No local subnets at all is the same verdict as "HUD's subnet
+        // missing": a running hotspot always puts an addressed AP
+        // interface on this phone, so its absence means it is off.
         val cidrs = subnetProbe.lastScannedCidrs
-        if (cidrs.isEmpty()) return
-        if (com.eried.eucplanet.hud.protocol.SubnetMath.ipInAnyCidr(hudIp, cidrs)) return
+        if (cidrs.isNotEmpty() &&
+            com.eried.eucplanet.hud.protocol.SubnetMath.ipInAnyCidr(hudIp, cidrs)) return
         hotspotGoneWarned = true
         log("HUD's last network is GONE ($hudIp not in ${cidrs.joinToString()}); " +
             "hotspot / Wi-Fi sharing looks off, rider action needed")
+        // In-app transient for a rider looking at the app...
         appNotifier.post(context.getString(com.eried.eucplanet.R.string.hud_hotspot_gone))
+        // ...and a real heads-up notification for the common case: the rider
+        // is in Settings (they just toggled sharing) or riding with the app
+        // backgrounded. Tapping it lands on the tethering screen, one flip
+        // from fixed -- Android forbids apps from re-enabling the hotspot
+        // themselves, so one tap is the best legal outcome.
+        postHotspotGoneNotification()
+    }
+
+    /** Heads-up "hotspot is off" notification whose tap opens the tethering
+     *  settings (Samsung's TetherSettings when present, the generic wireless
+     *  settings otherwise). Cancelled on the next successful HUD link. */
+    private fun postHotspotGoneNotification() {
+        runCatching {
+            val nm = context.getSystemService(Context.NOTIFICATION_SERVICE)
+                as android.app.NotificationManager
+            nm.createNotificationChannel(
+                android.app.NotificationChannel(
+                    HOTSPOT_CHANNEL_ID,
+                    context.getString(com.eried.eucplanet.R.string.hud_hotspot_channel),
+                    android.app.NotificationManager.IMPORTANCE_HIGH,
+                )
+            )
+            val candidates = listOf(
+                // The exact "Mobile Hotspot and Tethering" screen on Samsung
+                // and most OEM Settings apps.
+                android.content.Intent().setClassName("com.android.settings",
+                    "com.android.settings.TetherSettings"),
+                android.content.Intent(android.provider.Settings.ACTION_WIRELESS_SETTINGS),
+            )
+            val target = candidates.firstOrNull {
+                context.packageManager.resolveActivity(it, 0) != null
+            } ?: return
+            target.addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)
+            val pi = android.app.PendingIntent.getActivity(
+                context, HOTSPOT_NOTIFICATION_ID, target,
+                android.app.PendingIntent.FLAG_UPDATE_CURRENT or
+                    android.app.PendingIntent.FLAG_IMMUTABLE,
+            )
+            val n = androidx.core.app.NotificationCompat
+                .Builder(context, HOTSPOT_CHANNEL_ID)
+                .setContentTitle(context.getString(
+                    com.eried.eucplanet.R.string.hud_hotspot_gone_title))
+                .setContentText(context.getString(
+                    com.eried.eucplanet.R.string.hud_hotspot_gone))
+                .setSmallIcon(android.R.drawable.stat_notify_error)
+                .setContentIntent(pi)
+                .setAutoCancel(true)
+                .build()
+            nm.notify(HOTSPOT_NOTIFICATION_ID, n)
+        }.onFailure { Log.w(TAG, "hotspot-gone notification failed: ${it.message}") }
+    }
+
+    private fun cancelHotspotGoneNotification() {
+        runCatching {
+            (context.getSystemService(Context.NOTIFICATION_SERVICE)
+                as android.app.NotificationManager).cancel(HOTSPOT_NOTIFICATION_ID)
+        }
     }
 
     /**
@@ -781,6 +845,7 @@ class HudServer @Inject constructor(
                 wasOpen = true
                 lastGoodPeerIp = peer.substringBefore(':')
                 hotspotGoneWarned = false
+                cancelHotspotGoneNotification()
                 ws = webSocket
                 // Push a frame on the rider's HUD report interval off the
                 // snapshot buffer. We don't dedupe: even when no field changed, the
