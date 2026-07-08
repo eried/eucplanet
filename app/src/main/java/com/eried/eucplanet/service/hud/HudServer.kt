@@ -84,6 +84,7 @@ class HudServer @Inject constructor(
     private val themeController: com.eried.eucplanet.ui.theme.ThemeController,
     val udpListener: HudUdpListener,
     private val subnetProbe: HudSubnetProbe,
+    private val appNotifier: com.eried.eucplanet.util.AppNotifier,
 ) {
 
     companion object {
@@ -513,6 +514,7 @@ class HudServer @Inject constructor(
 
             if (peer == null) {
                 _connectionSource.value = ConnectionSource.NONE
+                maybeWarnHotspotGone(autoDiscover)
                 // Sprint mode: aggressively retry every 2 s for the first
                 // 30 s after the dial loop kicks off so the rider gets a
                 // fast connection on a healthy network. After the sprint
@@ -533,6 +535,34 @@ class HudServer @Inject constructor(
                 attempt = 0
             }
         }
+    }
+
+    /** IP of the last HUD we actually streamed to this run. Feeds the
+     *  hotspot-gone check: only a once-working address is evidence. */
+    @Volatile private var lastGoodPeerIp: String? = null
+    /** One warning per outage; re-armed by the next successful link. */
+    @Volatile private var hotspotGoneWarned = false
+
+    /**
+     * After a failed full-channel search: if we streamed to a HUD this run
+     * and the subnet it lived on no longer exists on ANY local interface,
+     * the hotspot (or Wi-Fi sharing) is off. Searching harder cannot fix
+     * that and the phone cannot re-enable it (Android forbids it) -- only
+     * the rider can, so say it out loud once instead of probing in silence
+     * (the 2026-07-08 log: three minutes of silent searching while the
+     * softAP had never come back after a Wi-Fi sharing toggle).
+     */
+    private fun maybeWarnHotspotGone(autoDiscover: Boolean) {
+        if (!autoDiscover || hotspotGoneWarned) return
+        val hudIp = lastGoodPeerIp ?: return
+        // Fresh only when the probe ran this cycle (auto-discovery path).
+        val cidrs = subnetProbe.lastScannedCidrs
+        if (cidrs.isEmpty()) return
+        if (com.eried.eucplanet.hud.protocol.SubnetMath.ipInAnyCidr(hudIp, cidrs)) return
+        hotspotGoneWarned = true
+        log("HUD's last network is GONE ($hudIp not in ${cidrs.joinToString()}); " +
+            "hotspot / Wi-Fi sharing looks off, rider action needed")
+        appNotifier.post(context.getString(com.eried.eucplanet.R.string.hud_hotspot_gone))
     }
 
     /**
@@ -642,7 +672,12 @@ class HudServer @Inject constructor(
                 log("Subnet probe: $ip:$manualPort answered")
                 results.send("$ip:$manualPort" to ConnectionSource.SUBNET_PROBE)
             } else {
-                log("Subnet probe: nothing answered")
+                // Include the actual subnets swept: the difference between
+                // "scanned the hotspot subnet, HUD absent" and "the hotspot
+                // subnet no longer exists" is the whole diagnosis.
+                val scanned = subnetProbe.lastScannedCidrs
+                    .takeIf { it.isNotEmpty() }?.joinToString() ?: "no subnets"
+                log("Subnet probe: nothing answered (scanned: $scanned)")
             }
         }
 
@@ -744,6 +779,8 @@ class HudServer @Inject constructor(
                 Log.i(TAG, "HUD link open: $peer")
                 log("Connected to $peer ✓")
                 wasOpen = true
+                lastGoodPeerIp = peer.substringBefore(':')
+                hotspotGoneWarned = false
                 ws = webSocket
                 // Push a frame on the rider's HUD report interval off the
                 // snapshot buffer. We don't dedupe: even when no field changed, the

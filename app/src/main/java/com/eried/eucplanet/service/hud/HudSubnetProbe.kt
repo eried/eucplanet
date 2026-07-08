@@ -39,6 +39,13 @@ class HudSubnetProbe @Inject constructor(
     @ApplicationContext private val appContext: Context,
 ) {
 
+    /** The CIDRs the most recent [probe] swept. Lets the dial loop (a) put
+     *  the actual scanned subnets into the diagnostics instead of a bare
+     *  "scanning /24", and (b) tell when the HUD's last-known subnet no
+     *  longer exists on this phone at all (hotspot off). */
+    @Volatile var lastScannedCidrs: List<String> = emptyList()
+        private set
+
     suspend fun probe(port: Int = HudDiscovery.DEFAULT_PORT): String? = withContext(Dispatchers.IO) {
         // Scan EVERY local IPv4 subnet we can see, not just the "active
         // network" one. Critical for the phone-hotspot case: when the phone
@@ -47,6 +54,7 @@ class HudSubnetProbe @Inject constructor(
         // HUD sitting on the 192.168.x AP interface. Enumerating interfaces
         // catches the AP (and any real WiFi) subnet too.
         val cidrs = candidateIpv4Cidrs()
+        lastScannedCidrs = cidrs
         if (cidrs.isEmpty()) return@withContext null
         val candidates = cidrs.flatMap { expandSubnetIpv4(it) ?: emptyList() }.distinct()
         if (candidates.isEmpty()) return@withContext null
