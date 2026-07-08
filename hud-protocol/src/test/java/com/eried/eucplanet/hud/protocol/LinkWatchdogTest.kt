@@ -28,7 +28,13 @@ class LinkWatchdogTest {
         serverAlive: Boolean = true,
         associated: Boolean = true,
         localIp: String? = "10.15.125.125",
-    ) = LinkHealth(serverAlive, associated, localIp)
+        msSinceLastPhoneContact: Long? = null,
+        persistedRecentLink: Boolean = false,
+        msSinceStart: Long = 0L,
+    ) = LinkHealth(
+        serverAlive, associated, localIp,
+        msSinceLastPhoneContact, persistedRecentLink, msSinceStart,
+    )
 
     @Test fun associated_with_ip_is_HEALTHY() {
         assertEquals(LinkVerdict.HEALTHY, LinkWatchdog.assess(health()))
@@ -63,6 +69,100 @@ class LinkWatchdogTest {
             LinkVerdict.OFF_AIR,
             LinkWatchdog.assess(health(serverAlive = false, localIp = null))
         )
+    }
+
+    // ---- phone starvation (wrong-network trap) --------------------------
+
+    @Test fun paired_phone_silent_past_threshold_is_STARVED() {
+        // The 2026-07-08 log: WiFi-sharing bounce, HUD re-associated somewhere,
+        // watchdog read HEALTHY forever while the phone probed a subnet the HUD
+        // was not on. Total silence past the threshold must now demand action.
+        assertEquals(
+            LinkVerdict.STARVED,
+            LinkWatchdog.assess(health(
+                msSinceLastPhoneContact = LinkWatchdog.STARVED_AFTER_MS))
+        )
+    }
+
+    @Test fun paired_phone_recently_silent_is_still_HEALTHY() {
+        // A fresh disconnect (rider behind a wall, phone redialing) must not
+        // trigger recovery: the searching phone re-contacts within ~20 s.
+        assertEquals(
+            LinkVerdict.HEALTHY,
+            LinkWatchdog.assess(health(
+                msSinceLastPhoneContact = LinkWatchdog.STARVED_AFTER_MS - 1))
+        )
+    }
+
+    @Test fun never_paired_and_nothing_persisted_never_starves() {
+        // Fresh install, rider has not connected a phone yet: sit quietly
+        // forever, exactly the old behaviour. First-boot safety intact.
+        assertEquals(
+            LinkVerdict.HEALTHY,
+            LinkWatchdog.assess(health(msSinceStart = Long.MAX_VALUE))
+        )
+    }
+
+    @Test fun app_restart_with_persisted_pairing_starves_after_boot_grace() {
+        // The restart trap from the 2026-07-08 log: rider killed and reopened
+        // the HUD app mid-outage, which reset the recovery gate and parked
+        // self-heal forever. With a persisted recent pairing the watchdog now
+        // arms itself once the boot grace has passed.
+        assertEquals(
+            LinkVerdict.HEALTHY,
+            LinkWatchdog.assess(health(
+                persistedRecentLink = true,
+                msSinceStart = LinkWatchdog.RESTART_BOOT_GRACE_MS - 1))
+        )
+        assertEquals(
+            LinkVerdict.STARVED,
+            LinkWatchdog.assess(health(
+                persistedRecentLink = true,
+                msSinceStart = LinkWatchdog.RESTART_BOOT_GRACE_MS))
+        )
+    }
+
+    @Test fun off_air_dominates_starvation() {
+        // No association at all is OFF_AIR even when starved: the aggressive
+        // off-air ladder (not the paced starved one) is the right response.
+        assertEquals(
+            LinkVerdict.OFF_AIR,
+            LinkWatchdog.assess(health(
+                associated = false,
+                msSinceLastPhoneContact = LinkWatchdog.STARVED_AFTER_MS))
+        )
+    }
+
+    @Test fun wedged_server_dominates_starvation() {
+        // A dead listener explains the silence by itself; restart it first.
+        assertEquals(
+            LinkVerdict.SERVER_WEDGED,
+            LinkWatchdog.assess(health(
+                serverAlive = false,
+                msSinceLastPhoneContact = LinkWatchdog.STARVED_AFTER_MS))
+        )
+    }
+
+    // ---- recovery arming across app restarts -----------------------------
+
+    @Test fun recovery_arms_on_healthy_link_this_run() {
+        assertEquals(true, LinkWatchdog.recoveryArmed(
+            everHealthyThisRun = true, persistedRecentLink = false, msSinceStart = 0L))
+    }
+
+    @Test fun recovery_arms_from_persistence_after_boot_grace() {
+        assertEquals(false, LinkWatchdog.recoveryArmed(
+            everHealthyThisRun = false, persistedRecentLink = true,
+            msSinceStart = LinkWatchdog.RESTART_BOOT_GRACE_MS - 1))
+        assertEquals(true, LinkWatchdog.recoveryArmed(
+            everHealthyThisRun = false, persistedRecentLink = true,
+            msSinceStart = LinkWatchdog.RESTART_BOOT_GRACE_MS))
+    }
+
+    @Test fun recovery_never_arms_on_a_virgin_device() {
+        assertEquals(false, LinkWatchdog.recoveryArmed(
+            everHealthyThisRun = false, persistedRecentLink = false,
+            msSinceStart = Long.MAX_VALUE))
     }
 
     // ---- recovery ladder ------------------------------------------------

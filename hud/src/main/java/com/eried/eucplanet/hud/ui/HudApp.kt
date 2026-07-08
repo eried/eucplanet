@@ -92,6 +92,7 @@ fun HudApp(
     peer: StateFlow<String?>,
     localIp: StateFlow<String?>,
     versionCompat: StateFlow<com.eried.eucplanet.hud.protocol.VersionCompat>,
+    recoveryStatus: StateFlow<String?>,
     controller: HudUiController,
     tileCache: com.eried.eucplanet.hud.net.HudTileCache,
     sessionState: HudSessionState,
@@ -102,6 +103,7 @@ fun HudApp(
     val pr by peer.collectAsStateWithLifecycle()
     val ip by localIp.collectAsStateWithLifecycle()
     val compat by versionCompat.collectAsStateWithLifecycle()
+    val recovery by recoveryStatus.collectAsStateWithLifecycle()
 
     val accent = remember(hud.accentArgb) { parseHexColor(hud.accentArgb) }
 
@@ -267,7 +269,7 @@ fun HudApp(
                                 .padding(12.dp)
                         )
                     } else {
-                        DisconnectedDialog(localIp = ip)
+                        DisconnectedDialog(localIp = ip, recoveryNote = recovery)
                     }
                 }
 
@@ -682,7 +684,7 @@ private const val DISCONNECT_RECONNECT_GRACE_MS: Long = 10_000L
  * emulator without per-device tuning.
  */
 @Composable
-private fun DisconnectedDialog(localIp: String?) {
+private fun DisconnectedDialog(localIp: String?, recoveryNote: String? = null) {
     val ctx = LocalContext.current
     val ipText = localIp ?: ctx.getString(R.string.hud_status_ip_unknown)
     val port = HudDiscovery.DEFAULT_PORT
@@ -779,6 +781,17 @@ private fun DisconnectedDialog(localIp: String?) {
                     port = port,
                     accent = frameColor,
                     side = side
+                )
+            }
+            // Self-heal progress line: while the watchdog is climbing the
+            // recovery ladder (phone-starved / wrong network) the rider sees
+            // that the HUD is actively fixing itself instead of a dead panel.
+            if (!recoveryNote.isNullOrBlank()) {
+                Text(
+                    text = recoveryNote,
+                    color = Color(0xFFFFB74D),
+                    fontSize = captionSize,
+                    textAlign = TextAlign.Center
                 )
             }
         }

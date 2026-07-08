@@ -156,6 +156,7 @@ class HudActivity : ComponentActivity() {
                 peer = server.peer,
                 localIp = server.localIp,
                 versionCompat = server.versionCompat,
+                recoveryStatus = server.recoveryStatus,
                 controller = controller,
                 tileCache = tileCache,
                 sessionState = sessionState,
