@@ -593,7 +593,7 @@ class HudServer(private val context: Context) {
                     val nowWall = System.currentTimeMillis()
                     if (nowWall - lastStarvedActionMs >= LinkWatchdog.STARVED_RETRY_MS) {
                         lastStarvedActionMs = nowWall
-                        val step = LinkWatchdog.recoveryStepFor(starvedAttempt)
+                        val step = LinkWatchdog.starvedStepFor(starvedAttempt)
                         starvedAttempt++
                         _recoveryStatus.value = context.getString(
                             com.eried.eucplanet.hud.R.string.hud_recovery_rejoining,

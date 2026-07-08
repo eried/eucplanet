@@ -21,11 +21,13 @@ object LinkWatchdog {
 
     /** How long an associated HUD may go with ZERO phone contact before the
      *  association itself is suspect ([LinkVerdict.STARVED]). A searching
-     *  phone TCP-probes the whole /24 every ~20 s, so 30 s of total silence
-     *  after a pairing means we are almost certainly associated to the WRONG
-     *  network (the 2026-07-08 tester log: WiFi-sharing bounce left the HUD
-     *  "healthy" on another subnet while the phone probed forever). */
-    const val STARVED_AFTER_MS: Long = 30_000L
+     *  phone runs a full discovery cycle (subnet TCP probe + mDNS + beacon
+     *  listen) every ~20 s, and a reconnect on the right network completes
+     *  within one cycle -- so one whole cycle of silence after a pairing
+     *  means we are almost certainly associated to the WRONG network (the
+     *  2026-07-08 tester log: WiFi-sharing bounce left the HUD "healthy" on
+     *  another subnet while the phone probed forever). */
+    const val STARVED_AFTER_MS: Long = 20_000L
 
     /** Boot / app-restart grace: with no link yet THIS process but a
      *  persisted recent pairing, leave the initial association to the OS for
@@ -83,6 +85,17 @@ object LinkWatchdog {
         }
         return LinkVerdict.HEALTHY
     }
+
+    /**
+     * The recovery action for the Nth starved attempt. Unlike the off-air
+     * ladder there is no RESTART_SOCKETS rung: starved means the radio is
+     * associated and the server answers loopback, so a phone on OUR network
+     * would have found us by direct TCP probe regardless of beacon/mDNS
+     * state. Refreshing sockets fixes nothing; only re-picking the network
+     * can. Front-load the decisive toggle, alternate with reassociate.
+     */
+    fun starvedStepFor(attempt: Int): RecoveryStep =
+        if (attempt % 2 == 0) RecoveryStep.TOGGLE_WIFI else RecoveryStep.REASSOCIATE
 
     /**
      * Whether the off-air recovery ladder may run at all. Armed once the link

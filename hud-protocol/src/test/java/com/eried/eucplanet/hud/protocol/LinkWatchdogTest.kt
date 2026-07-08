@@ -185,4 +185,15 @@ class LinkWatchdogTest {
     @Test fun ladder_clamps_negative_to_first_step() {
         assertEquals(RecoveryStep.RESTART_SOCKETS, LinkWatchdog.recoveryStepFor(-5))
     }
+
+    @Test fun starved_ladder_goes_straight_to_the_toggle() {
+        // Starved = associated AND the loopback server answers, so a phone on
+        // our network would have found us by direct TCP probe; restarting
+        // sockets can't help. Only re-picking the network can: toggle first,
+        // reassociate fills the gaps, alternating forever.
+        assertEquals(RecoveryStep.TOGGLE_WIFI, LinkWatchdog.starvedStepFor(0))
+        assertEquals(RecoveryStep.REASSOCIATE, LinkWatchdog.starvedStepFor(1))
+        assertEquals(RecoveryStep.TOGGLE_WIFI, LinkWatchdog.starvedStepFor(2))
+        assertEquals(RecoveryStep.REASSOCIATE, LinkWatchdog.starvedStepFor(3))
+    }
 }
