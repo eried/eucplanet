@@ -797,7 +797,10 @@ class WheelRepository @Inject constructor(
         val values: List<Float>
         val unit: String
         if (bmsPacks.isNotEmpty()) {
-            values = bmsPacks.map { pack -> pack.knownCells.sumOf { it.second.toDouble() }.toFloat() }
+            // Average cell voltage per pack (NOT the sum): the Packs tiles read
+            // the average, so this keeps the graph's imbalance on the same
+            // per-cell mV scale as the tiles instead of ~cellCount times larger.
+            values = bmsPacks.map { pack -> pack.knownCells.map { it.second }.average().toFloat() }
             unit = "V"
         } else {
             values = buildList {

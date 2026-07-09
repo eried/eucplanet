@@ -1259,9 +1259,15 @@ private fun PacksChart(
         series2 = meanSamples,
         color2 = colors.hint,
         unit2 = unit,
-        series2LabelFormat = { if (toMilli) "%.1f".format(it) else "%.0f".format(it) },
+        // Cell voltage needs 3 decimals (3.958 V); % fallback stays whole.
+        series2LabelFormat = { if (toMilli) "%.3f".format(it) else "%.0f".format(it) },
         timeAxisFormat = com.eried.eucplanet.ui.dashboard.TimeAxisFormat.Clock,
         extraSeries = extraSeries,
+        // Imbalance lines: slightly thicker, dotted, and no shaded area under any
+        // one of them (they are all equal per-pack lines).
+        fillMain = false,
+        lineStroke = 4f,
+        linePathEffect = PathEffect.dashPathEffect(floatArrayOf(3f, 7f)),
         modifier = Modifier.fillMaxWidth().height(200.dp),
     )
     Spacer(Modifier.height(12.dp))

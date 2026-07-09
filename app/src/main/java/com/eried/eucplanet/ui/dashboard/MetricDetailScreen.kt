@@ -731,6 +731,16 @@ internal fun MetricGraph(
      * voltage, which would otherwise read a flat "125") pass their own.
      */
     series2LabelFormat: (Float) -> String = { "%.0f".format(it) },
+    /**
+     * Fill the area under the main [samples] line. Multi-line charts (e.g. the
+     * per-pack imbalance) turn this off so one series doesn't get a shaded band
+     * the others lack. Only affects the plain (no baseline / no regen) branch.
+     */
+    fillMain: Boolean = true,
+    /** Stroke width for the main and [extraSeries] lines. */
+    lineStroke: Float = 3f,
+    /** Optional dash/dot effect for the main and [extraSeries] lines. */
+    linePathEffect: PathEffect? = null,
     modifier: Modifier = Modifier
 ) {
     val gridColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.15f)
@@ -995,8 +1005,8 @@ internal fun MetricGraph(
                         strokeWidth = 1.5f,
                     )
                 } else {
-                    drawPath(fillPath, color = color.copy(alpha = 0.1f))
-                    drawPath(path, color = color, style = Stroke(width = 3f))
+                    if (fillMain) drawPath(fillPath, color = color.copy(alpha = 0.1f))
+                    drawPath(path, color = color, style = Stroke(width = lineStroke, pathEffect = linePathEffect))
                 }
             }
 
@@ -1012,7 +1022,7 @@ internal fun MetricGraph(
                                 val y = h - h * (smp.value - bounds.min) / padded.coerceAtLeast(0.001f)
                                 if (idx == 0) ep.moveTo(x, y) else ep.lineTo(x, y)
                             }
-                            drawPath(ep, color = c, style = Stroke(width = 3f))
+                            drawPath(ep, color = c, style = Stroke(width = lineStroke, pathEffect = linePathEffect))
                         }
                     }
                 }
