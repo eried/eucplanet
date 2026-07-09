@@ -708,19 +708,46 @@ internal fun MetricGraph(
      * carries semantic meaning for that mode).
      */
     regenColor: Color? = null,
+    /**
+     * Additional lines drawn on the SAME left axis / bounds as [samples] (the
+     * left bounds are computed over samples + every extra series so they share
+     * one scale). Each is a (points, color) pair, stroked like the main line.
+     * Used by the Battery screen's Packs chart to draw one line per pack.
+     */
+    extraSeries: List<Pair<List<MetricSample>, Color>> = emptyList(),
+    /**
+     * Force the right-axis ([series2]) minimum to zero so a non-negative series
+     * (e.g. the pack imbalance / spread) sits on a zero baseline.
+     */
+    series2BaselineZero: Boolean = false,
+    /**
+     * Draw [series2] with a thicker stroke than the main / extra lines so it
+     * reads as the emphasized series (the imbalance line on the Packs chart).
+     */
+    series2Emphasized: Boolean = false,
     modifier: Modifier = Modifier
 ) {
     val gridColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.15f)
     val axisLabelColor = MaterialTheme.colorScheme.onSurfaceVariant
     val textMeasurer = rememberTextMeasurer()
     val values = samples.map { it.value }
-    val minRaw = values.min()
-    val maxRaw = values.max()
+    // Left-axis bounds span the main series plus every extra series so all the
+    // left-axis lines (e.g. the per-pack lines) render on one shared scale.
+    val extraLeftValues = extraSeries.flatMap { it.first.map { p -> p.value } }
+    val minRaw = (values + extraLeftValues).min()
+    val maxRaw = (values + extraLeftValues).max()
     val bounds = boundsFor(minRaw, maxRaw)
     val padded = bounds.max - bounds.min
     // Optional secondary series (e.g. voltage) on its own auto-scaled axis.
     val s2 = series2?.takeIf { it.size >= 2 }
-    val bounds2 = s2?.let { GraphScale.pad(it.minOf { p -> p.value }, it.maxOf { p -> p.value }, 1f) }
+    val bounds2 = s2?.let {
+        val lo = it.minOf { p -> p.value }
+        val hi = it.maxOf { p -> p.value }
+        // A zero-baselined series keeps min at 0 and pads only the top so a
+        // small spread is still readable above the axis.
+        if (series2BaselineZero) GraphBounds(0f, GraphScale.pad(0f, hi, 1f).max)
+        else GraphScale.pad(lo, hi, 1f)
+    }
     val padded2 = bounds2?.let { it.max - it.min } ?: 1f
 
     var touchX by remember { mutableStateOf<Float?>(null) }
@@ -967,6 +994,24 @@ internal fun MetricGraph(
                 }
             }
 
+            // Extra left-axis series (e.g. the other packs): share the main
+            // bounds and stroke so every pack line reads consistently.
+            if (extraSeries.isNotEmpty()) {
+                clipRect(0f, 0f, w, h) {
+                    extraSeries.forEach { (pts, c) ->
+                        if (pts.size >= 2) {
+                            val ep = androidx.compose.ui.graphics.Path()
+                            pts.forEachIndexed { idx, smp ->
+                                val x = w * (smp.timestampMs - xMinMs).toFloat() / xSpanMs.toFloat()
+                                val y = h - h * (smp.value - bounds.min) / padded.coerceAtLeast(0.001f)
+                                if (idx == 0) ep.moveTo(x, y) else ep.lineTo(x, y)
+                            }
+                            drawPath(ep, color = c, style = Stroke(width = 3f))
+                        }
+                    }
+                }
+            }
+
             // Secondary series (e.g. voltage) on its own value scale, but
             // sharing the primary X-axis so both lines align on the same
             // wall-clock minute.
@@ -977,7 +1022,9 @@ internal fun MetricGraph(
                     val y = h - h * (smp.value - bounds2.min) / padded2.coerceAtLeast(0.001f)
                     if (idx == 0) p2.moveTo(x, y) else p2.lineTo(x, y)
                 }
-                clipRect(0f, 0f, w, h) { drawPath(p2, color = color2, style = Stroke(width = 2.5f)) }
+                // Emphasized (spread) line is stroked thicker than the pack lines.
+                val s2Stroke = if (series2Emphasized) 4.5f else 2.5f
+                clipRect(0f, 0f, w, h) { drawPath(p2, color = color2, style = Stroke(width = s2Stroke)) }
                 if (unit2.isNotBlank()) {
                     val u2 = textMeasurer.measure(
                         unit2, TextStyle(fontSize = 10.sp, color = color2, fontWeight = FontWeight.Bold)

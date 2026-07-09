@@ -22,6 +22,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -930,7 +931,10 @@ private fun InfoTabs(state: ChargingUiState) {
     val screenH = configuration.screenHeightDp.dp
     val cellsH = (screenH * 0.75f).coerceIn(420.dp, (screenH * 0.9f).coerceAtLeast(500.dp))
     val isCellsTab = tabs.getOrNull(selected)?.second == "cells"
-    val contentH = if (isCellsTab) cellsH else 280.dp
+    // The Packs tab now carries a history chart above the pack tiles, so it gets
+    // the same tall, scrollable treatment as Cells instead of the fixed 280 dp.
+    val isPacksTab = tabs.getOrNull(selected)?.second == "packs"
+    val contentH = if (isCellsTab || isPacksTab) cellsH else 280.dp
 
     // Hoisted so the count survives Cells <-> Packs tab switches. Initialize
     // from the already-cached BmsState so opening the bottom sheet on a wheel
@@ -1026,6 +1030,20 @@ private fun InfoTabs(state: ChargingUiState) {
                         StatRow(stringResource(R.string.charging_stat_voltage), "%.1f V".format(state.voltage))
                     }
                     "packs" -> {
+                      Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .verticalScroll(rememberScrollState()),
+                      ) {
+                        // Per-pack history graph above the tiles: one line per
+                        // pack on the shared left axis, the imbalance spread
+                        // emphasized on the right. Hidden with fewer than 2 packs
+                        // or 2 samples (guarded inside PacksChart).
+                        PacksChart(
+                            packSeries = state.packSeriesHistory,
+                            spread = state.packSpreadHistory,
+                            unit = state.packSeriesUnit,
+                        )
                         // Per-pack BMS data takes a few seconds to arrive (one
                         // pack query per ~4.5 s stats tick), so the tile count
                         // would otherwise tick up 1 → 2 → 3 → 4 and reflow the
@@ -1067,6 +1085,7 @@ private fun InfoTabs(state: ChargingUiState) {
                             }
                         }
                         StatRow(stringResource(R.string.charging_stat_temp), "%.0f°C".format(state.maxTemp))
+                      }
                     }
                     "power" -> {
                         StatRow(stringResource(R.string.charging_stat_power), "${state.powerW ?: 0} W")
@@ -1128,6 +1147,75 @@ private fun ChargingChart(
         ) {
             Text(stringResource(R.string.charging_chart_empty), color = MaterialTheme.appColors.hint, fontSize = 13.sp)
         }
+    }
+}
+
+/**
+ * Per-pack history chart for the Packs tab. One line per pack on the shared
+ * left axis (sum of a pack's known cell voltages in "V" on smart-BMS wheels,
+ * else per-pack SoC in "%") plus a single emphasized imbalance line
+ * (max pack - min pack) on the right axis with a zero baseline. Reuses the
+ * app's interactive MetricGraph so hold-to-scrub works like the other charts.
+ * Renders nothing (with no spacing) unless there are at least two packs and
+ * two samples.
+ */
+@Composable
+private fun PacksChart(
+    packSeries: List<List<MetricSample>>,
+    spread: List<MetricSample>,
+    unit: String,
+) {
+    if (packSeries.size < 2 || packSeries.first().size < 2) return
+    val colors = MaterialTheme.appColors
+    // Distinct pack line colors from the metric palette; the imbalance line is
+    // the prominent danger token so it reads as the important series.
+    val packColors = listOf(
+        colors.metricVoltage, colors.metricBattery, colors.metricTemp,
+        colors.metricPosition, colors.metricAccel, colors.primary,
+    )
+    val spreadColor = colors.statusDanger
+    val extraSeries = packSeries.drop(1).mapIndexed { i, s ->
+        s to packColors[(i + 1) % packColors.size]
+    }
+    MetricGraph(
+        samples = packSeries.first(),
+        color = packColors[0],
+        boundsFor = { mn, mx -> GraphScale.pad(mn, mx, 1f) },
+        unitLabel = unit,
+        series2 = spread,
+        color2 = spreadColor,
+        unit2 = unit,
+        timeAxisFormat = com.eried.eucplanet.ui.dashboard.TimeAxisFormat.Clock,
+        extraSeries = extraSeries,
+        series2BaselineZero = true,
+        series2Emphasized = true,
+        modifier = Modifier.fillMaxWidth().height(200.dp),
+    )
+    Spacer(Modifier.height(6.dp))
+    // Legend so the emphasized right-axis line is identified as the imbalance.
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(16.dp),
+    ) {
+        LegendSwatch(packColors[0], stringResource(R.string.charging_tab_packs))
+        LegendSwatch(spreadColor, stringResource(R.string.charging_stat_balance))
+    }
+    Spacer(Modifier.height(12.dp))
+}
+
+@Composable
+private fun LegendSwatch(color: Color, label: String) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(6.dp),
+    ) {
+        Box(
+            modifier = Modifier
+                .size(width = 14.dp, height = 3.dp)
+                .clip(RoundedCornerShape(2.dp))
+                .background(color),
+        )
+        Text(label, color = MaterialTheme.appColors.textSecondary, fontSize = 12.sp)
     }
 }
 

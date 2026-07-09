@@ -73,6 +73,14 @@ data class ChargingSnapshot(
     val sessionEnergyInWh: Float = 0f,
     /** Wh used while discharging this session (magnitude of the negative-power part). */
     val sessionEnergyOutWh: Float = 0f,
+    /** Per-pack value history, one list per pack, sampled on the SAME cadence as
+     *  [chargeHistory] so the X axes line up. Each value is the sum of a pack's
+     *  known cell voltages on a smart-BMS wheel, else the per-pack SoC. */
+    val packSeriesHistory: List<List<MetricSample>> = emptyList(),
+    /** Imbalance history: (max pack value - min pack value) per sample, always >= 0. */
+    val packSpreadHistory: List<MetricSample> = emptyList(),
+    /** Unit shared by [packSeriesHistory] and [packSpreadHistory]: "V" or "%". */
+    val packSeriesUnit: String = "%",
 )
 
 data class FullMetricHistory(
@@ -234,6 +242,15 @@ class WheelRepository @Inject constructor(
     private val chargePctHist = ArrayDeque<MetricSample>()
     private val chargeVoltHist = ArrayDeque<MetricSample>()
     private val chargeTempHist = ArrayDeque<MetricSample>()
+    // Per-pack charging-session history (one ring per pack) plus the imbalance
+    // spread, both sampled on the SAME cadence as chargePctHist so their X axes
+    // align. packHistUnit is "V" (sum of a pack's known cell voltages on a
+    // smart-BMS wheel) or "%" (per-pack SoC on battery1/battery2 wheels). The
+    // buffers reset when the unit or pack count changes so a "%" -> "V" switch
+    // (BMS data arriving a few seconds after connect) never mixes units on one axis.
+    private val packHist = mutableListOf<ArrayDeque<MetricSample>>()
+    private val packSpreadHist = ArrayDeque<MetricSample>()
+    private var packHistUnit = "%"
     private var chargeLastHistMs = 0L
     // Committed finish times: chosen once (remaining rounded up to the minute),
     // counted down in real time, only gently re-anchored every ~2 min so the UI
@@ -619,6 +636,7 @@ class WheelRepository @Inject constructor(
                         chargePctHist.clear()
                         chargeVoltHist.clear()
                         chargeTempHist.clear()
+                        clearPackHist()
                         _chargingSnapshot.value = ChargingSnapshot()
                         _modelName.value = null
                         _wheelSerial.value = null
@@ -664,7 +682,7 @@ class WheelRepository @Inject constructor(
             if (!chargingSessionActive) {
                 chargingSessionActive = true
                 chargingEstimator.reset()
-                chargePctHist.clear(); chargeVoltHist.clear(); chargeTempHist.clear()
+                chargePctHist.clear(); chargeVoltHist.clear(); chargeTempHist.clear(); clearPackHist()
                 chargeLastHistMs = 0L
                 committedTargetEtaMs = null
                 committedTargetAnchorMs = 0L
@@ -699,11 +717,12 @@ class WheelRepository @Inject constructor(
                 pushHist(chargePctHist, data.timestamp, pct)
                 pushHist(chargeVoltHist, data.timestamp, data.voltage)
                 pushHist(chargeTempHist, data.timestamp, data.maxTemperature)
+                recordPackHist(data)
             }
         } else if (chargingSessionActive) {
             chargingSessionActive = false
             chargingEstimator.reset()
-            chargePctHist.clear(); chargeVoltHist.clear(); chargeTempHist.clear()
+            chargePctHist.clear(); chargeVoltHist.clear(); chargeTempHist.clear(); clearPackHist()
             committedTargetEtaMs = null
             committedTargetAnchorMs = 0L
             committedFullEtaMs = null
@@ -750,7 +769,56 @@ class WheelRepository @Inject constructor(
             sessionEnergyWh = sessionEnergyWh,
             sessionEnergyInWh = sessionEnergyInWh,
             sessionEnergyOutWh = sessionEnergyOutWh,
+            packSeriesHistory = packHist.map { it.toList() },
+            packSpreadHistory = packSpreadHist.toList(),
+            packSeriesUnit = packHistUnit,
         )
+    }
+
+    /** Clears the per-pack session history and resets its unit. */
+    private fun clearPackHist() {
+        packHist.clear()
+        packSpreadHist.clear()
+        packHistUnit = "%"
+    }
+
+    /**
+     * Sample the per-pack values on the charge-history cadence. A smart-BMS wheel
+     * (packs with non-empty cell voltages) records each pack as the SUM of its
+     * known cell voltages, in "V"; otherwise it falls back to the per-pack SoC
+     * (battery1 / battery2) in "%". All packs in one graph share a single unit.
+     * The buffers reset when the unit or the pack count changes so a "%" -> "V"
+     * switch (BMS data lands a few seconds after connect) never mixes units on
+     * one axis. A single-pack source has a degenerate (always-zero) spread and is
+     * simply not recorded, so the Packs graph needs at least two packs to show.
+     */
+    private fun recordPackHist(data: WheelData) {
+        val bmsPacks = _bmsState.value.packs.filter { it.knownCells.isNotEmpty() }
+        val values: List<Float>
+        val unit: String
+        if (bmsPacks.isNotEmpty()) {
+            values = bmsPacks.map { pack -> pack.knownCells.sumOf { it.second.toDouble() }.toFloat() }
+            unit = "V"
+        } else {
+            values = buildList {
+                if (data.battery1Percent > 0f) add(data.battery1Percent)
+                if (data.battery2Percent > 0f) add(data.battery2Percent)
+            }
+            unit = "%"
+        }
+        if (values.size < 2) {
+            clearPackHist()
+            return
+        }
+        if (unit != packHistUnit || packHist.size != values.size) {
+            packHist.clear()
+            packSpreadHist.clear()
+            packHistUnit = unit
+            repeat(values.size) { packHist.add(ArrayDeque()) }
+        }
+        values.forEachIndexed { i, v -> pushHist(packHist[i], data.timestamp, v) }
+        val spread = (values.max() - values.min()).coerceAtLeast(0f)
+        pushHist(packSpreadHist, data.timestamp, spread)
     }
 
     /**
