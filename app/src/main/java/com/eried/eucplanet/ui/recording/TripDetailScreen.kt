@@ -1,8 +1,10 @@
 package com.eried.eucplanet.ui.recording
 
 import android.annotation.SuppressLint
+import android.os.Build
 import android.view.MotionEvent
 import android.view.ViewGroup
+import android.view.WindowManager
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.compose.foundation.Canvas
@@ -36,8 +38,14 @@ import androidx.compose.material.icons.filled.Fullscreen
 import androidx.compose.material.icons.filled.FullscreenExit
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.runtime.SideEffect
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import androidx.compose.ui.window.DialogWindowProvider
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.WindowInsetsControllerCompat
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -531,6 +539,36 @@ private fun RouteMapView(
             onDismissRequest = { fullscreen = false },
             properties = DialogProperties(usePlatformDefaultWidth = false),
         ) {
+            // usePlatformDefaultWidth = false alone still leaves the dialog window
+            // short of the edges (most visible in landscape, where the content
+            // behind shows in the system-bar insets around the map). Fill the
+            // window, drop the scrim, draw edge-to-edge, and hide the system bars
+            // so the map is truly immersive and nothing shows behind it. Swiping
+            // from an edge brings the bars back transiently; closing restores them.
+            val dialogWindow = (LocalView.current.parent as? DialogWindowProvider)?.window
+            SideEffect {
+                dialogWindow?.let { w ->
+                    w.setLayout(
+                        ViewGroup.LayoutParams.MATCH_PARENT,
+                        ViewGroup.LayoutParams.MATCH_PARENT,
+                    )
+                    w.setDimAmount(0f)
+                    // Draw into the display cutout too, otherwise in landscape the
+                    // notch side stays letterboxed and the content behind shows.
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                        w.attributes = w.attributes.apply {
+                            layoutInDisplayCutoutMode =
+                                WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES
+                        }
+                    }
+                    WindowCompat.setDecorFitsSystemWindows(w, false)
+                    WindowInsetsControllerCompat(w, w.decorView).apply {
+                        hide(WindowInsetsCompat.Type.systemBars())
+                        systemBarsBehavior =
+                            WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+                    }
+                }
+            }
             MapSurface(
                 points = points, isLive = isLive, liveLat = liveLat, liveLon = liveLon,
                 scrubLat = scrubLat, scrubLon = scrubLon,
