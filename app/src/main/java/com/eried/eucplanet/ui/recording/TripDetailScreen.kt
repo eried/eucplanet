@@ -532,7 +532,9 @@ private fun RouteMapView(
     scrubLon: Double? = null,
     modifier: Modifier = Modifier
 ) {
-    var fullscreen by remember { mutableStateOf(false) }
+    // rememberSaveable so a rotation (which recreates the composition) keeps the
+    // map fullscreen instead of dropping back to the trip details.
+    var fullscreen by rememberSaveable { mutableStateOf(false) }
     // Map style (light / dark / satellite) is shared between the inline and the
     // fullscreen map so opening fullscreen keeps the style the rider picked,
     // rather than resetting to light.
