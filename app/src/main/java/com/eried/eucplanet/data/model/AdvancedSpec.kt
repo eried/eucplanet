@@ -142,6 +142,8 @@ val ADVANCED_SPECS: List<AdvancedSpec> = listOf(
         0..5000, 100, get = { it.hudManualHintDelayMs }, set = { s, v -> s.copy(hudManualHintDelayMs = v) }),
     AdvancedSpec("hudMdnsServiceInfoTimeoutMs", AdvGroup.HUD, R.string.adv_hud_mdns_resolve, R.string.adv_hud_mdns_resolve_desc,
         200..5000, 100, get = { it.hudMdnsServiceInfoTimeoutMs }, set = { s, v -> s.copy(hudMdnsServiceInfoTimeoutMs = v) }),
+    AdvancedSpec("hudSubnetProbeDelayMs", AdvGroup.HUD, R.string.adv_hud_subnet_delay, R.string.adv_hud_subnet_delay_desc,
+        0..30000, 250, get = { it.hudSubnetProbeDelayMs }, set = { s, v -> s.copy(hudSubnetProbeDelayMs = v) }),
 
     // --- Auto-lights ---
     AdvancedSpec("autoLightNoGpsRetryMs", AdvGroup.AUTOLIGHTS, R.string.adv_autolight_no_gps_retry, R.string.adv_autolight_no_gps_retry_desc,

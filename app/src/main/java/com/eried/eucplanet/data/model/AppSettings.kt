@@ -842,6 +842,7 @@ data class AppSettings(
     val hudManualHintDelayMs: Int get() = advanced.hudManualHintDelayMs
     val hudDiscoveryTotalTimeoutMs: Int get() = advanced.hudDiscoveryTotalTimeoutMs
     val hudMdnsServiceInfoTimeoutMs: Int get() = advanced.hudMdnsServiceInfoTimeoutMs
+    val hudSubnetProbeDelayMs: Int get() = advanced.hudSubnetProbeDelayMs
     val autoLightNoGpsRetryMs: Int get() = advanced.autoLightNoGpsRetryMs
     val autoToggleGraceMs: Int get() = advanced.autoToggleGraceMs
     val navMovingKmh: Int get() = advanced.navMovingKmh
@@ -922,6 +923,10 @@ data class AdvancedSettings(
     val hudManualHintDelayMs: Int = 1500,
     val hudDiscoveryTotalTimeoutMs: Int = 15000,
     val hudMdnsServiceInfoTimeoutMs: Int = 1000,
+    // Delay before the last-resort subnet scan starts, so mDNS and the UDP
+    // beacon can answer first without the scan's connection flood congesting
+    // the Wi-Fi radio (which was slowing mDNS discovery).
+    val hudSubnetProbeDelayMs: Int = 2500,
     val autoLightNoGpsRetryMs: Int = 2000,
     val autoToggleGraceMs: Int = 4000,
     val navMovingKmh: Int = 4,
