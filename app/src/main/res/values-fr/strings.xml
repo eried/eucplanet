@@ -1889,11 +1889,16 @@
     <string name="settings_visibility">Visibilité des paramètres</string>
     <string name="geo_section_dashboard">Tableau de bord</string>
     <string name="geo_section_navigator">Navigateur</string>
+    <string name="geo_section_trip">Trajet</string>
     <string name="geo_section_other">Autres écrans</string>
     <string name="geo_section_settings">Paramètres</string>
-    <string name="geo_other_hint">Trajets, moniteur de batterie, historique des mesures, scan et Flic. L\'Overlay Studio n\'est pas concerné : sa mise en page est fixe, mais il fonctionne bien dans n\'importe quelle orientation.</string>
+    <string name="geo_other_hint">Moniteur de batterie, historique des mesures, scan et Flic. L\'Overlay Studio n\'est pas concerné : sa mise en page est fixe, mais il fonctionne bien dans n\'importe quelle orientation.</string>
     <string name="geo_settings_hint">L\'écran des paramètres. Désactivé par défaut, donc Paramètres reste en portrait sauf si tu l\'actives.</string>
+    <string name="geo_trip_hint">La vue des détails pivote par défaut pour la carte et les graphiques en paysage. La liste des trajets reste en portrait sauf si tu l\'actives.</string>
     <string name="setting_allow_rotation">Autoriser la rotation</string>
+    <string name="setting_rotate_trip_detail">Pivoter les détails du trajet</string>
+    <string name="setting_rotate_trip_list">Pivoter la liste des trajets</string>
+    <string name="setting_trip_map_side">Côté de la carte</string>
     <string name="setting_block_upside_down">Empêcher la rotation à l\'envers</string>
     <string name="setting_ignore_system_rotate_lock">Ignorer le verrouillage de rotation du système</string>
     <string name="setting_compact_dashboard">Tableau de bord compact</string>

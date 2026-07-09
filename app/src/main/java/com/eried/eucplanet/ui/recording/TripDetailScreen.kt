@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -114,6 +115,8 @@ fun TripDetailScreen(
     // early by the detail screen).
     val liveState by viewModel.isTripLiveRecording(trip).collectAsState(initial = null)
     val isLiveTrip = liveState == true
+    // Landscape split: the rider chooses whether the map docks left or right.
+    val tripMapSide by viewModel.tripMapSide.collectAsState()
 
     // Render the ViewModel's messages (e.g. "Preparing the link…", share
     // failures) here too — sharing is launched straight from this screen, which
@@ -427,15 +430,21 @@ fun TripDetailScreen(
             }
 
             if (landscape) {
-                // Landscape: permanent map on the left, everything else scrollable
-                // on the right, so scrubbing a chart updates the always-visible map.
-                Row(Modifier.fillMaxSize().padding(padding)) {
-                    if (hasMap) {
-                        Box(
-                            Modifier.weight(1f).fillMaxHeight()
-                                .padding(start = 16.dp, top = 8.dp, bottom = 16.dp)
-                        ) { routeMap(Modifier.fillMaxSize()) }
-                    }
+                // Landscape: a permanent map docked on one side, everything else
+                // scrollable on the other, so scrubbing a chart updates the
+                // always-visible map. The rider picks which side the map sits on.
+                val mapOnLeft = tripMapSide != "RIGHT"
+                val mapPane: @Composable RowScope.() -> Unit = {
+                    Box(
+                        Modifier.weight(1f).fillMaxHeight()
+                            .padding(
+                                start = if (mapOnLeft) 16.dp else 0.dp,
+                                end = if (mapOnLeft) 0.dp else 16.dp,
+                                top = 8.dp, bottom = 16.dp,
+                            )
+                    ) { routeMap(Modifier.fillMaxSize()) }
+                }
+                val infoPane: @Composable RowScope.() -> Unit = {
                     Column(
                         (if (hasMap) Modifier.weight(1f) else Modifier.fillMaxWidth())
                             .fillMaxHeight()
@@ -448,6 +457,11 @@ fun TripDetailScreen(
                         chartsContent()
                         Spacer(Modifier.height(16.dp))
                     }
+                }
+                Row(Modifier.fillMaxSize().padding(padding)) {
+                    if (hasMap && mapOnLeft) mapPane()
+                    infoPane()
+                    if (hasMap && !mapOnLeft) mapPane()
                 }
             } else {
                 Column(

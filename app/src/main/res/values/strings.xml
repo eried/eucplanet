@@ -670,9 +670,13 @@
     <string name="section_screen_geometry">Screen geometry</string>
     <string name="geo_section_dashboard">Dashboard</string>
     <string name="geo_section_navigator">Navigator</string>
+    <string name="geo_section_trip">Trip</string>
     <string name="geo_section_other">Other screens</string>
     <string name="geo_section_settings">Settings</string>
     <string name="setting_allow_rotation">Allow rotation</string>
+    <string name="setting_rotate_trip_detail">Rotate trip details</string>
+    <string name="setting_rotate_trip_list">Rotate trip list</string>
+    <string name="setting_trip_map_side">Map side</string>
     <string name="setting_compact_dashboard">Compact dashboard</string>
     <string name="compact_mode_auto">Small screens</string>
     <string name="compact_mode_always">Always</string>
@@ -690,8 +694,9 @@
     <string name="side_default">Default</string>
     <string name="side_left">Left</string>
     <string name="side_right">Right</string>
-    <string name="geo_other_hint">Trips, battery monitor, metric history, scan and Flic. The Overlay Studio is not affected: its layout is fixed, but it works fine held in any orientation.</string>
+    <string name="geo_other_hint">Battery monitor, metric history, scan and Flic. The Overlay Studio is not affected: its layout is fixed, but it works fine held in any orientation.</string>
     <string name="geo_settings_hint">The settings screen. Off by default, so Settings stays portrait unless you enable it.</string>
+    <string name="geo_trip_hint">The details view rotates by default for the landscape map and charts. The trip list stays portrait unless you enable it.</string>
     <string name="back_button_action_ask">Ask</string>
     <string name="back_button_action_background">Background</string>
     <string name="back_button_action_stop">Stop all</string>

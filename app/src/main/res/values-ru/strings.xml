@@ -1885,11 +1885,16 @@
     <string name="settings_visibility">Видимость настроек</string>
     <string name="geo_section_dashboard">Панель</string>
     <string name="geo_section_navigator">Навигатор</string>
+    <string name="geo_section_trip">Поездка</string>
     <string name="geo_section_other">Другие экраны</string>
     <string name="geo_section_settings">Настройки</string>
-    <string name="geo_other_hint">Поездки, монитор батареи, история метрик, сканирование и Flic. Overlay Studio не затрагивается: его макет фиксирован, но он нормально работает в любой ориентации.</string>
+    <string name="geo_other_hint">Монитор батареи, история метрик, сканирование и Flic. Overlay Studio не затрагивается: его макет фиксирован, но он нормально работает в любой ориентации.</string>
     <string name="geo_settings_hint">Экран настроек. По умолчанию выключено, поэтому Настройки остаются в книжной ориентации, пока вы это не включите.</string>
+    <string name="geo_trip_hint">Экран деталей по умолчанию поворачивается для карты и графиков в альбомной ориентации. Список поездок остаётся в книжной ориентации, пока вы это не включите.</string>
     <string name="setting_allow_rotation">Разрешить поворот</string>
+    <string name="setting_rotate_trip_detail">Поворот деталей поездки</string>
+    <string name="setting_rotate_trip_list">Поворот списка поездок</string>
+    <string name="setting_trip_map_side">Сторона карты</string>
     <string name="setting_block_upside_down">Запретить поворот вверх ногами</string>
     <string name="setting_ignore_system_rotate_lock">Игнорировать системную блокировку поворота</string>
     <string name="setting_compact_dashboard">Компактная панель</string>

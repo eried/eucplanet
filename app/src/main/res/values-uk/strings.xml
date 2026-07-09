@@ -1882,11 +1882,16 @@
     <string name="settings_visibility">Видимість налаштувань</string>
     <string name="geo_section_dashboard">Панель</string>
     <string name="geo_section_navigator">Навігатор</string>
+    <string name="geo_section_trip">Поїздка</string>
     <string name="geo_section_other">Інші екрани</string>
     <string name="geo_section_settings">Налаштування</string>
-    <string name="geo_other_hint">Поїздки, монітор батареї, історія метрик, сканування та Flic. Overlay Studio не зачіпається: його макет фіксований, але він добре працює в будь-якій орієнтації.</string>
+    <string name="geo_other_hint">Монітор батареї, історія метрик, сканування та Flic. Overlay Studio не зачіпається: його макет фіксований, але він добре працює в будь-якій орієнтації.</string>
     <string name="geo_settings_hint">Екран налаштувань. Типово вимкнено, тому Налаштування залишаються у книжковій орієнтації, доки ви це не увімкнете.</string>
+    <string name="geo_trip_hint">Екран деталей за замовчуванням обертається для карти та графіків у альбомній орієнтації. Список поїздок залишається у книжковій орієнтації, доки ви це не увімкнете.</string>
     <string name="setting_allow_rotation">Дозволити обертання</string>
+    <string name="setting_rotate_trip_detail">Обертати деталі поїздки</string>
+    <string name="setting_rotate_trip_list">Обертати список поїздок</string>
+    <string name="setting_trip_map_side">Сторона карти</string>
     <string name="setting_block_upside_down">Заборонити перевертання догори дриґом</string>
     <string name="setting_ignore_system_rotate_lock">Ігнорувати системне блокування обертання</string>
     <string name="setting_compact_dashboard">Компактна панель</string>

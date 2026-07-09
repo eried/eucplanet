@@ -203,6 +203,14 @@ data class AppSettings(
     // The Settings screen has its own rotation entry, split out from "other
     // screens". Off by default, so Settings stays portrait unless enabled.
     val rotateSettings: Boolean = false,
+    // Trip screens, split out from "other screens" so each rotates on its own.
+    // The trip DETAILS screen rotates by default: its landscape layout is a
+    // split with the map beside the stats and charts. The trip LIST (recorder)
+    // stays portrait-locked by default. tripMapSide docks the details map on the
+    // LEFT (default) or RIGHT of that landscape split.
+    val rotateTripDetail: Boolean = true,
+    val rotateTripList: Boolean = false,
+    val tripMapSide: String = "LEFT",
 
     // Screen geometry. Compact mode is the tiny dashboard (speedo + one
     // swipeable buttons/metrics area) used on flip cover screens; it reuses

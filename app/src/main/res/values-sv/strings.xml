@@ -1885,11 +1885,16 @@
     <string name="settings_visibility">Synlighet för inställningar</string>
     <string name="geo_section_dashboard">Instrumentpanel</string>
     <string name="geo_section_navigator">Navigator</string>
+    <string name="geo_section_trip">Tur</string>
     <string name="geo_section_other">Andra skärmar</string>
     <string name="geo_section_settings">Inställningar</string>
-    <string name="geo_other_hint">Turer, batterimonitor, mäthistorik, skanning och Flic. Overlay Studio påverkas inte: dess layout är fast, men det fungerar bra i alla riktningar.</string>
+    <string name="geo_other_hint">Batterimonitor, mäthistorik, skanning och Flic. Overlay Studio påverkas inte: dess layout är fast, men det fungerar bra i alla riktningar.</string>
     <string name="geo_settings_hint">Inställningsskärmen. Av som standard, så Inställningar förblir stående om du inte aktiverar det.</string>
+    <string name="geo_trip_hint">Detaljvyn roterar som standard för kartan och diagrammen i liggande läge. Turlistan förblir stående om du inte aktiverar det.</string>
     <string name="setting_allow_rotation">Tillåt rotation</string>
+    <string name="setting_rotate_trip_detail">Rotera turdetaljer</string>
+    <string name="setting_rotate_trip_list">Rotera turlista</string>
+    <string name="setting_trip_map_side">Kartsida</string>
     <string name="setting_block_upside_down">Förhindra upp och ned-rotation</string>
     <string name="setting_ignore_system_rotate_lock">Ignorera systemets rotationslås</string>
     <string name="setting_compact_dashboard">Kompakt instrumentpanel</string>

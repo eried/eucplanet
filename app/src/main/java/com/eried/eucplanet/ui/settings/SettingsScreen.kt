@@ -1521,6 +1521,29 @@ private fun AdvancedTab(
         }
 
         AdvancedCollapsable(
+            title = stringResource(R.string.geo_section_trip),
+            stateKey = "geo-trip"
+        ) {
+            SwitchSetting(
+                stringResource(R.string.setting_rotate_trip_detail),
+                settings.rotateTripDetail
+            ) { viewModel.updateRotateTripDetail(it) }
+            SwitchSetting(
+                stringResource(R.string.setting_rotate_trip_list),
+                settings.rotateTripList
+            ) { viewModel.updateRotateTripList(it) }
+            geoChoiceRow(
+                R.string.setting_trip_map_side, landscapeBadge,
+                listOf(
+                    "LEFT" to stringResource(R.string.side_left),
+                    "RIGHT" to stringResource(R.string.side_right)
+                ),
+                settings.tripMapSide
+            ) { viewModel.updateTripMapSide(it) }
+            HintText(stringResource(R.string.geo_trip_hint), small = true)
+        }
+
+        AdvancedCollapsable(
             title = stringResource(R.string.geo_section_other),
             stateKey = "geo-other"
         ) {

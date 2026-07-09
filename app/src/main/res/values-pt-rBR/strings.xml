@@ -1885,11 +1885,16 @@
     <string name="settings_visibility">Visibilidade das configurações</string>
     <string name="geo_section_dashboard">Painel</string>
     <string name="geo_section_navigator">Navegador</string>
+    <string name="geo_section_trip">Viagem</string>
     <string name="geo_section_other">Outras telas</string>
     <string name="geo_section_settings">Configurações</string>
-    <string name="geo_other_hint">Viagens, monitor da bateria, histórico de métricas, varredura e Flic. O Overlay Studio não é afetado: seu layout é fixo, mas funciona bem em qualquer orientação.</string>
+    <string name="geo_other_hint">Monitor da bateria, histórico de métricas, varredura e Flic. O Overlay Studio não é afetado: seu layout é fixo, mas funciona bem em qualquer orientação.</string>
     <string name="geo_settings_hint">A tela de configurações. Desativado por padrão, então Configurações permanece em retrato a menos que você ative.</string>
+    <string name="geo_trip_hint">A tela de detalhes gira por padrão para o mapa e os gráficos na horizontal. A lista de viagens permanece em retrato a menos que você ative.</string>
     <string name="setting_allow_rotation">Permitir rotação</string>
+    <string name="setting_rotate_trip_detail">Girar detalhes da viagem</string>
+    <string name="setting_rotate_trip_list">Girar lista de viagens</string>
+    <string name="setting_trip_map_side">Lado do mapa</string>
     <string name="setting_block_upside_down">Impedir rotação de cabeça para baixo</string>
     <string name="setting_ignore_system_rotate_lock">Ignorar bloqueio de rotação do sistema</string>
     <string name="setting_compact_dashboard">Painel compacto</string>

@@ -1905,11 +1905,16 @@
     <string name="settings_visibility">Sichtbarkeit der Einstellungen</string>
     <string name="geo_section_dashboard">Dashboard</string>
     <string name="geo_section_navigator">Navigator</string>
+    <string name="geo_section_trip">Fahrt</string>
     <string name="geo_section_other">Andere Bildschirme</string>
     <string name="geo_section_settings">Einstellungen</string>
-    <string name="geo_other_hint">Fahrten, Akku-Monitor, Messwertverlauf, Scan und Flic. Das Overlay Studio ist nicht betroffen: Sein Layout ist fest, funktioniert aber in jeder Ausrichtung.</string>
+    <string name="geo_other_hint">Akku-Monitor, Messwertverlauf, Scan und Flic. Das Overlay Studio ist nicht betroffen: Sein Layout ist fest, funktioniert aber in jeder Ausrichtung.</string>
     <string name="geo_settings_hint">Der Einstellungsbildschirm. Standardmäßig aus, sodass die Einstellungen im Hochformat bleiben, sofern du es nicht aktivierst.</string>
+    <string name="geo_trip_hint">Die Detailansicht dreht sich standardmäßig für die Karte und die Diagramme im Querformat. Die Fahrtliste bleibt im Hochformat, sofern du es nicht aktivierst.</string>
     <string name="setting_allow_rotation">Drehung zulassen</string>
+    <string name="setting_rotate_trip_detail">Fahrtdetails drehen</string>
+    <string name="setting_rotate_trip_list">Fahrtliste drehen</string>
+    <string name="setting_trip_map_side">Kartenseite</string>
     <string name="setting_block_upside_down">Kopfüberdrehung verhindern</string>
     <string name="setting_ignore_system_rotate_lock">System-Rotationssperre ignorieren</string>
     <string name="setting_compact_dashboard">Kompaktes Dashboard</string>

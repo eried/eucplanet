@@ -1900,11 +1900,16 @@
     <string name="settings_visibility">Synlighed af indstillinger</string>
     <string name="geo_section_dashboard">Dashboard</string>
     <string name="geo_section_navigator">Navigator</string>
+    <string name="geo_section_trip">Tur</string>
     <string name="geo_section_other">Andre skærme</string>
     <string name="geo_section_settings">Indstillinger</string>
-    <string name="geo_other_hint">Ture, batterimonitor, målehistorik, scanning og Flic. Overlay Studio er ikke berørt: dets layout er fast, men det fungerer fint i enhver retning.</string>
+    <string name="geo_other_hint">Batterimonitor, målehistorik, scanning og Flic. Overlay Studio er ikke berørt: dets layout er fast, men det fungerer fint i enhver retning.</string>
     <string name="geo_settings_hint">Indstillingsskærmen. Fra som standard, så Indstillinger forbliver stående, medmindre du slår det til.</string>
+    <string name="geo_trip_hint">Detaljevisningen roterer som standard for kortet og graferne i liggende retning. Turlisten forbliver stående, medmindre du slår det til.</string>
     <string name="setting_allow_rotation">Tillad rotation</string>
+    <string name="setting_rotate_trip_detail">Roter turdetaljer</string>
+    <string name="setting_rotate_trip_list">Roter turliste</string>
+    <string name="setting_trip_map_side">Kortside</string>
     <string name="setting_block_upside_down">Forhindr rotation på hovedet</string>
     <string name="setting_ignore_system_rotate_lock">Ignorer systemets rotationslås</string>
     <string name="setting_compact_dashboard">Kompakt dashboard</string>

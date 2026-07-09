@@ -1882,11 +1882,16 @@
     <string name="settings_visibility">설정 표시</string>
     <string name="geo_section_dashboard">대시보드</string>
     <string name="geo_section_navigator">내비게이터</string>
+    <string name="geo_section_trip">트립</string>
     <string name="geo_section_other">기타 화면</string>
     <string name="geo_section_settings">설정</string>
-    <string name="geo_other_hint">트립, 배터리 모니터, 지표 기록, 스캔, Flic. 오버레이 스튜디오는 영향을 받지 않습니다. 레이아웃은 고정이지만 어느 방향으로 들어도 잘 작동합니다.</string>
+    <string name="geo_other_hint">배터리 모니터, 지표 기록, 스캔, Flic. 오버레이 스튜디오는 영향을 받지 않습니다. 레이아웃은 고정이지만 어느 방향으로 들어도 잘 작동합니다.</string>
     <string name="geo_settings_hint">설정 화면입니다. 기본적으로 꺼져 있어 켜지 않으면 설정은 세로로 유지됩니다.</string>
+    <string name="geo_trip_hint">상세 화면은 가로 지도와 차트를 위해 기본적으로 회전합니다. 트립 목록은 켜지 않으면 세로로 유지됩니다.</string>
     <string name="setting_allow_rotation">회전 허용</string>
+    <string name="setting_rotate_trip_detail">트립 상세 회전</string>
+    <string name="setting_rotate_trip_list">트립 목록 회전</string>
+    <string name="setting_trip_map_side">지도 위치</string>
     <string name="setting_block_upside_down">상하 반전 회전 방지</string>
     <string name="setting_ignore_system_rotate_lock">시스템 회전 잠금 무시</string>
     <string name="setting_compact_dashboard">간결한 대시보드</string>

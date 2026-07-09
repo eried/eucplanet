@@ -437,6 +437,9 @@ class SettingsViewModel @Inject constructor(
     fun updateRotateNavigator(v: Boolean) = update { copy(rotateNavigator = v) }
     fun updateRotateOtherScreens(v: Boolean) = update { copy(rotateOtherScreens = v) }
     fun updateRotateSettings(v: Boolean) = update { copy(rotateSettings = v) }
+    fun updateRotateTripDetail(v: Boolean) = update { copy(rotateTripDetail = v) }
+    fun updateRotateTripList(v: Boolean) = update { copy(rotateTripList = v) }
+    fun updateTripMapSide(v: String) = update { copy(tripMapSide = v) }
     fun updateCompactModeWhen(v: String) = update { copy(compactModeWhen = v) }
     fun updateCoverCameraCutout(v: String) = update { copy(coverCameraCutout = v) }
     fun updateCompactSpeedoStyle(v: String) = update { copy(compactSpeedoStyle = v) }

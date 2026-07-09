@@ -154,6 +154,9 @@ object SettingsJson {
         put("rotateNavigator", s.rotateNavigator)
         put("rotateOtherScreens", s.rotateOtherScreens)
         put("rotateSettings", s.rotateSettings)
+        put("rotateTripDetail", s.rotateTripDetail)
+        put("rotateTripList", s.rotateTripList)
+        put("tripMapSide", s.tripMapSide)
         put("compactModeWhen", s.compactModeWhen)
         put("coverCameraCutout", s.coverCameraCutout)
         put("compactSpeedoStyle", s.compactSpeedoStyle)
@@ -390,6 +393,9 @@ object SettingsJson {
         rotateNavigator = j.optBoolean("rotateNavigator", base.rotateNavigator),
         rotateOtherScreens = j.optBoolean("rotateOtherScreens", base.rotateOtherScreens),
         rotateSettings = j.optBoolean("rotateSettings", base.rotateSettings),
+        rotateTripDetail = j.optBoolean("rotateTripDetail", base.rotateTripDetail),
+        rotateTripList = j.optBoolean("rotateTripList", base.rotateTripList),
+        tripMapSide = j.optString("tripMapSide", base.tripMapSide),
         compactModeWhen = j.optString("compactModeWhen", base.compactModeWhen),
         coverCameraCutout = j.optString("coverCameraCutout", base.coverCameraCutout),
         compactSpeedoStyle = j.optString("compactSpeedoStyle", base.compactSpeedoStyle),

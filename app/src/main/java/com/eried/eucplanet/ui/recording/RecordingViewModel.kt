@@ -132,6 +132,11 @@ class RecordingViewModel @Inject constructor(
         .map { com.eried.eucplanet.util.Units.effectiveTempUnit(it) }
         .stateIn(viewModelScope, kotlinx.coroutines.flow.SharingStarted.Eagerly, "C")
 
+    // Which side the route map docks on in the landscape trip-detail split.
+    val tripMapSide: StateFlow<String> = settingsRepository.settings
+        .map { it.tripMapSide }
+        .stateIn(viewModelScope, kotlinx.coroutines.flow.SharingStarted.Eagerly, "LEFT")
+
     /**
      * Id of the just-stopped trip waiting in the 10s discard-grace window. The trip
      * row for this id shows an hourglass instead of the upload-success tick. Tapping
