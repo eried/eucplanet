@@ -193,6 +193,24 @@ class CompositeWheelAdapter @Inject constructor(
     override fun requestAuthKey(): ByteArray? = active.requestAuthKey()
     override fun verifyAuth(encryptedKey: ByteArray): ByteArray? = active.verifyAuth(encryptedKey)
 
+    // Multi-characteristic hooks MUST delegate to the active sub-adapter, not
+    // fall back to the interface defaults: every wheel is driven through this
+    // Composite, so without these overrides a per-value wheel (IPS i5) would
+    // report the single-stream defaults and never get its extra notify chars
+    // or timer reads wired. For the single-stream families active's own
+    // defaults reproduce the previous behaviour exactly.
+    override fun notifyCharacteristics(): List<UUID> = active.notifyCharacteristics()
+    override fun readCharacteristics(): List<UUID> = active.readCharacteristics()
+    override fun onCharacteristicData(uuid: UUID, bytes: ByteArray): List<DecodeResult> {
+        // Same first-frame Veteran rescue as onRawNotification (this is the
+        // notification entry point now), then delegate.
+        if (active !is VeteranAdapter && containsVeteranMagic(bytes)) {
+            active = veteran
+            active.notifyConnectingTo(null)
+        }
+        return active.onCharacteristicData(uuid, bytes)
+    }
+
     override fun onRawNotification(rawBytes: ByteArray): List<DecodeResult> {
         // Post-connect family rescue. Veteran wheels (Sherman / Patton /
         // Lynx / Lynx S / Abrams / Oryx) share the HM-10 BLE profile with
