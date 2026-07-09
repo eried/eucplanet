@@ -71,17 +71,25 @@ data class BleProfile(
         )
 
         /**
-         * IPS family (i5 / Zero / Lhotz / XIMA): service 0xFF00 with two
-         * characteristics, notify 0xFF01 (subscribe) and write 0xFF02.
-         * Distinct from every profile above. Derived from a 2015 community
-         * BLE sniff of an IPS XIMA/Lhotz; see docs/protocols/ips_i5.md.
-         * NO_RESPONSE writes to match the cheap early-gen BLE module these
-         * wheels used; revisit if an i5 capture shows write ACKs.
+         * IPS family (i5 and eWheel-service siblings). Decoded from the
+         * official iAmIPS 4.4.2 app (see docs/protocols/ips_i5.md): the wheel
+         * exposes an eWheel service (0xEB00) whose characteristics are ONE
+         * PER VALUE (9002 speed, 9003 current, 9004 trip, 9005 total, 9006
+         * battery, 9007 cell voltages, 9008 temp, 900a max speed, 900d info,
+         * ...). This is a characteristic-per-value design, not the single
+         * write/notify stream the other families use.
+         *
+         * The single service/write/notify triple here only names the control
+         * write char (0x9000) and the speed notify char (0x9002); full i5
+         * support needs the multi-characteristic BLE extension (a set of
+         * notify + periodically-read characteristics routed to the adapter by
+         * UUID). Until that lands this profile is a placeholder so the family
+         * is wired and the UUIDs are recorded in one place.
          */
         val IPS = BleProfile(
-            serviceUuid = UUID.fromString("0000ff00-0000-1000-8000-00805f9b34fb"),
-            writeCharacteristic = UUID.fromString("0000ff02-0000-1000-8000-00805f9b34fb"),
-            notifyCharacteristic = UUID.fromString("0000ff01-0000-1000-8000-00805f9b34fb"),
+            serviceUuid = UUID.fromString("0000eb00-0000-1000-8000-00805f9b34fb"),
+            writeCharacteristic = UUID.fromString("00009000-0000-1000-8000-00805f9b34fb"),
+            notifyCharacteristic = UUID.fromString("00009002-0000-1000-8000-00805f9b34fb"),
             writeType = BluetoothGattCharacteristic.WRITE_TYPE_NO_RESPONSE
         )
     }

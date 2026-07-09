@@ -1,77 +1,110 @@
-# IPS protocol (i5 / Zero / Lhotz / XIMA)
+# IPS protocol (i5 and eWheel-service siblings)
 
-Status: **capture phase, incomplete.** This documents the wire format only, in
-our own words and tables. No third-party source code is reproduced. Byte
-offsets, UUIDs and opcodes are facts, not copyrightable expression.
+Status: **decoded from the official app**, hardware-confirmation pending. This
+documents the wire format only, in our own words and tables. No third-party
+source code is reproduced; UUIDs, byte offsets and scalings are facts.
 
-## Background
+## Source
 
-IPS was one of the earliest electric-unicycle brands (Shenzhen / Singapore),
-now defunct (~2017) with no app updates and no official support. Its companion
-app was **iAmIPS** (iOS + Android). Unlike KingSong / Begode / InMotion /
-Ninebot / Veteran, **IPS was never supported by WheelLog**, so there is no
-open-source decoder to reference. Everything here is derived from a community
-BLE sniff and from our own captures.
+Decompiled from the official **iAmIPS 4.4.2** Android app (package
+`com.iamips.ipsapp`, `iAmIPS-4.4.2.apk`), the last release before IPS went
+defunct. IPS is a Shenzhen/Singapore brand (not French - the APK is mirrored
+by the French shop EspritRoue, which is the likely source of that impression).
+Everything below is read out of the app's own `GattAttributes`, `UUIDDatabase`,
+`Utils`, `VehicleInfo` and the per-value fragments. This supersedes the older
+2015 XIMA/Lhotz `FF00` sniff: the i5 app uses a completely different,
+richer GATT layout.
 
-The user's testers ride an **IPS i5**. The i5 is a smaller, later model than
-the XIMA/Lhotz that was originally sniffed, so the profile and framing below
-are a strong starting point but **must be confirmed against a real i5
-capture** before any value is trusted.
+## GATT layout
 
-## GATT profile (from the 2015 XIMA/Lhotz sniff)
+This is NOT a write-opcode-poll protocol like KingSong/Begode. It is a
+**characteristic-per-value** design: each telemetry field is its own GATT
+characteristic that the app either subscribes to (notify) or reads on a timer.
 
-| Role    | UUID | Notes |
-|---------|------|-------|
-| Service | `0xFF00` | |
-| Notify  | `0xFF01` | subscribe for notifications; not readable |
-| Write   | `0xFF02` | commands written here; not readable |
+- Primary service (`EWHEEL_SERVICE`): `0000eb00-0000-1000-8000-00805f9b34fb`
+  - Confirm against a real i5 with nRF Connect; the app matches this UUID at
+    service discovery, but the eb00-service / 90xx-characteristic split is
+    unusual enough to verify.
+- Firmware bootloader service (DFU, not needed for telemetry):
+  `00060000-f8ce-11e4-abf4-0002a5d5c51b`
 
-Codified as `BleProfile.IPS` in `WheelAdapter.kt`.
+All characteristics are `0000XXXX-0000-1000-8000-00805f9b34fb`:
 
-## Framing (from the same sniff)
+| UUID | Name | App access | Payload / decode |
+|------|------|-----------|------------------|
+| 9000 | CONTROL | write | command channel |
+| 9001 | STATUS | read | `byte[0]` = error/status code (0 = OK; else index into the app's err_message table) |
+| 9002 | SPEED | **notify** + read | **float32 LE @0 = speed in km/h** |
+| 9003 | POWER/CURRENT | **notify** + read | **float32 LE @1 = current (A)**; byte[0] is a leading flag |
+| 9004 | DISTANCE (trip) | read | **float32 LE @0 = km** |
+| 9005 | TOTAL_MILEAGE | read | **float32 LE @0 = km** |
+| 9006 | BATTERY_LEVEL | read | `byte[0]` = battery % |
+| 9007 | BATTERIES_VOLTAGE | read | **16 × float32 LE** = per-cell voltages (cells 1..16) |
+| 9008 | DRIVER_TEMPERATURE | read | float32 LE = temperature |
+| 9009 | LIGHTS_MODE | read/write | `byte[0]` = light-mode index (write to set) |
+| 900a | MAX_SPEED | read/write | `byte[0]` = speed-limit **option code** (not km/h; app maps it through its top_speed table) |
+| 900b | RUN_MODE | read/write | `byte[0]` = ride-mode index |
+| 900c | RESET_BALANCE | write | pedal-balance reset trigger |
+| 900d | VEHICLE_INFO | read | 40-byte struct (below) |
+| 900e | DRIVER_VERSION | read | driver-board firmware version |
+| 900f | UPGRADE | firmware DFU |
+| 902f | FACTORY_CHANNEL | factory / calibration |
+| 903a | DEVICE_NAME | read/write | rename the wheel |
+| 903c | BMS_INFO | read | floats: `@4`=BMS temp, `@0`=id1, short`@4`, `@6`, `@7` |
+| 903d | BLACKBOX | read | event log |
+| 903e | TIME_SYNC | write | set wheel clock |
+| 9500 | DEBUG | read/write | debug channel |
 
-- The app writes a request to `FF02` shaped `90 00 <opcode> [payload]`.
-- The wheel answers on `FF01` with a frame that **begins with the same
-  `90 00 <opcode>`**, followed by that value's payload.
-- Several answers may be **concatenated in a single notification**, so the
-  parser splits on the `90 00` marker (see `IpsAdapter.splitFrames`).
+### VEHICLE_INFO (900d), 40-byte struct
 
-### Known / candidate opcodes
+| Offset | Type | Field |
+|--------|------|-------|
+| 0..20  | ASCII (trimmed) | vehicle type / model string |
+| 20..33 | ASCII | serial number (13 chars) |
+| 33..37 | bytes | BLE firmware version (`b[33].b[34].b[35]`) |
+| 37..39 | uint16 LE | battery watt-hours |
+| 39     | byte | battery cell count |
 
-| Request | Meaning | Confidence |
-|---------|---------|------------|
-| `90 00 01` | Speed poll (app fires ~2 Hz; speedometer cadence) | confirmed on XIMA, i5 TBD |
-| `90 00 10` | Carries one of battery / mileage / firmware | response seen, layout unknown |
-| `90 00 11` | Carries another of the above | response seen, layout unknown |
+### Byte helpers (from the app's `Utils`)
 
-Values the app displayed: firmware version, battery %, speed (km/h), speed
-limit, total mileage. There is **no lock function**. At 0 km/h the speed
-answer looked like `90 00 01 ... 00 00 01 0b` in the sniff; the scaling was
-never pinned publicly.
+- float32: little-endian IEEE-754 -
+  `(b0 & 0xFF) | (b1<<8) | (b2<<16) | (b3<<24)` then `intBitsToFloat`.
+- uint16: little-endian `(b0 & 0xFF) | (b1<<8)`.
 
-## What is needed to finish this
+So speed, trip and total mileage are plain LE float32 already in km/h / km -
+no scaling factor. Current is LE float32 at offset **1**. Battery % and the
+mode/limit fields are single bytes.
 
-A labelled i5 capture (see `../BLE_CAPTURE_GUIDE.md`). Specifically:
+## How the app drives it
 
-1. The i5's **exact advertised BLE name** (an nRF Connect scan screenshot is
-   enough) so the scan filter and family router match it. Current guesses in
-   `isIpsWheelName`: `ips*`, `i5-*`, `i5`, `*lhotz*`, `*xima*`.
-2. Confirm the i5 exposes **service FF00 / notify FF01 / write FF02** (or
-   capture the real UUIDs if it differs).
-3. A labelled ride so each `90 00 xx` answer can be tied to a known
-   speed / battery % / voltage / mileage value and the byte offsets derived.
+- **Subscribes (notify)** to SPEED (9002) and CURRENT (9003).
+- **Reads on a timer** DISTANCE (9004), TOTAL (9005), BATTERY (9006), STATUS
+  (9001), VEHICLE_INFO (900d), LIGHTS (9009), RUN_MODE (900b), MAX_SPEED
+  (900a), and BATTERIES_VOLTAGE (9007).
+- Writes single bytes to LIGHTS (9009), MAX_SPEED (900a), RUN_MODE (900b) to
+  change settings; RESET_BALANCE (900c) and TIME_SYNC (903e) are write
+  triggers. There is no software lock.
 
-Until then, `IpsAdapter` connects, subscribes, polls the read opcodes, and
-logs every framed answer to diagnostics (prefix `ips frame op=...`) but emits
-`DecodeResult.Unknown` rather than inventing dashboard values. Control
-commands (horn / light / lock / speed limit) are intentionally unwired; no
-guessed write opcode is ever sent to a real wheel.
+## What this means for EUC Planet
+
+The current adapter architecture (`BleProfile` = one service + one write char +
+one notify char; the poll loop writes a command frame and parses a single
+notification stream) does **not** fit a characteristic-per-value wheel. Wiring
+the i5 in needs a BLE-layer extension so an adapter can declare a set of
+notify characteristics and a set of periodically-read characteristics, and get
+each result routed to it tagged with its source UUID. See the adapter's TODO
+and the branch notes. Until then `IpsAdapter` carries the decode helpers and
+the full UUID map but emits nothing to the dashboard.
+
+## Still needs a real i5 (quick)
+
+1. nRF Connect scan: the i5's exact **advertised name** (for the scan filter)
+   and confirmation of the **eb00 service + 90xx characteristics**.
+2. One short capture to sanity-check the float scalings against the app's
+   displayed speed / battery / voltage.
 
 ## Attribution
 
-Protocol facts (FF00/FF01/FF02, the `90 00 xx` framing, and the `90 00 01`
-speed poll) are restated in our own words from the community reverse-
-engineering thread "Reverse engineering XIMA bluetooth protocol" on the
-Electric Unicycle Forum (topic 1133, 2015), used as a **reference only**. No
-source code from that thread, from the iAmIPS app, or from any GPL project is
-reproduced here. This app is MIT-licensed.
+Protocol facts are restated in our own words from a static read of the
+official iAmIPS 4.4.2 app for interoperability with defunct IPS hardware. No
+app source code, and no GPL code, is reproduced here. This app is MIT-licensed.

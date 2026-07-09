@@ -1,46 +1,35 @@
 package com.eried.eucplanet.ble
 
-import com.eried.eucplanet.diagnostics.DiagnosticCommand
+import com.eried.eucplanet.data.model.WheelData
 import com.eried.eucplanet.diagnostics.DiagnosticsLogger
+import java.util.UUID
 import javax.inject.Inject
 import javax.inject.Singleton
 
 /**
- * IPS family adapter (IPS i5 / Zero / Lhotz / XIMA, and the S5 / T350 siblings).
+ * IPS family adapter (IPS i5 and eWheel-service siblings).
  *
- * IPS was one of the earliest EUC brands (Shenzhen / Singapore, defunct since
- * ~2017), so there is NO official app to update against and NO open-source
- * decoder for it: WheelLog never supported IPS. Everything here is derived
- * from a community BLE sniff of an IPS XIMA / Lhotz posted in 2015
- * (forum.electricunicycle.org topic 1133) plus our own captures. See
- * docs/protocols/ips_i5.md for the full write-up and attribution.
+ * IPS is a defunct EUC brand (Shenzhen / Singapore, ~2017) with no app updates
+ * and, unlike every other family, no WheelLog decoder. The protocol here is
+ * decoded from a static read of the official iAmIPS 4.4.2 app
+ * (com.iamips.ipsapp); the full write-up is docs/protocols/ips_i5.md.
  *
- * STATUS: capture phase. What is confirmed from the XIMA/Lhotz sniff:
- *  - GATT profile: service 0xFF00, notify 0xFF01 (subscribe), write 0xFF02.
- *  - Command frame: write `90 00 <opcode>` to FF02; the wheel answers on FF01
- *    with a frame that begins with the same `90 00 <opcode>`, and several
- *    answers can be packed into one notification.
- *  - `90 00 01` is the speed poll (the app fires it ~2 Hz).
- *  - `90 00 10` / `90 00 11` carry the other values (battery / mileage /
- *    firmware) but their byte layout and scaling were never nailed down
- *    publicly.
+ * The i5 is a CHARACTERISTIC-PER-VALUE wheel: each field is its own GATT
+ * characteristic under the eWheel service (0xEB00) that the app subscribes to
+ * (speed 9002, current 9003) or reads on a timer (trip 9004, total 9005,
+ * battery 9006, cell voltages 9007, temp 9008, max speed 900a, info 900d, ...).
+ * Speed / trip / total are plain little-endian float32 already in km/h and km.
  *
- * So this adapter's job right now is to CONNECT, subscribe, poll the known
- * read opcodes, and log every framed answer to diagnostics so a tester ride
- * gives us a clean labelled capture to derive the offsets from. It does NOT
- * fabricate telemetry values (that would put invented numbers on the
- * dashboard and waste a tester's time); it emits [DecodeResult.Unknown] until
- * the i5 layout is confirmed, at which point the parse fills in here.
- *
- * The i5 in particular is a smaller / later model than the XIMA that was
- * sniffed, so even the FF00 profile above must be CONFIRMED against a real i5
- * capture before we trust it. The name matcher in [wheelFamilyForName] and
- * [isLikelyWheelName] is a best guess until a tester reports the exact
- * advertised name.
- *
- * No control commands are wired yet (horn / light / lock / speed limit all
- * return null and [capabilities] declares none) because sending guessed write
- * opcodes to a real wheel is unsafe. Reads only until the protocol is mapped.
+ * ARCHITECTURE NOTE: the current [WheelAdapter] / [BleProfile] model assumes
+ * one write char + one notify stream parsed by [onRawNotification]. That does
+ * not fit a per-value wheel. Full i5 support needs a BLE-layer extension so an
+ * adapter can declare a set of notify + periodically-read characteristics and
+ * receive each result tagged with its source UUID (a future
+ * `onCharacteristicData(uuid, bytes)` hook). Until that exists this adapter
+ * connects and logs, keeps the authoritative UUID map + decoders in one place,
+ * and emits nothing invented to the dashboard. When the extension lands,
+ * [decodeCharacteristic] below is the parse - just route real per-UUID data
+ * into it.
  */
 @Singleton
 class IpsAdapter @Inject constructor() : WheelAdapter {
@@ -52,21 +41,15 @@ class IpsAdapter @Inject constructor() : WheelAdapter {
     override fun bleProfile(): BleProfile = BleProfile.IPS
 
     override fun initSequence(): List<ByteArray> = emptyList()
+    // No command-poll: the i5 pushes speed/current via notify and is read
+    // per-characteristic. Nothing to write on the realtime tick.
+    override fun pollRealtime(): ByteArray = ByteArray(0)
+    override fun pollSettings(): ByteArray = ByteArray(0)
 
-    // Speed poll every 250 ms tick. `90 00 01` is the one opcode the 2015
-    // XIMA sniff identified with confidence (fired at the same ~2 Hz cadence
-    // the app's speedometer refreshed).
-    override fun pollRealtime(): ByteArray = readFrame(OP_SPEED)
-
-    // Rotate the two candidate "other value" reads on the slower settings
-    // tick so a capture maps what each answers without spamming the wheel.
-    private var settingsToggle = false
-    override fun pollSettings(): ByteArray {
-        settingsToggle = !settingsToggle
-        return readFrame(if (settingsToggle) OP_INFO_10 else OP_INFO_11)
-    }
-
-    // No decoded control set yet. See class doc: reads only until mapped.
+    // No decoded control set wired yet (needs the multi-char extension + an
+    // i5 capture to confirm the mode/limit code tables). The app supports
+    // light mode (9009), max-speed limit (900a) and run mode (900b) as
+    // single-byte writes; enable them here once routed and confirmed.
     override fun horn(): ByteArray? = null
     override fun setLight(on: Boolean): ByteArray? = null
     override fun setMaxSpeed(tiltbackKmh: Float, alarmKmh: Float): ByteArray? = null
@@ -77,71 +60,68 @@ class IpsAdapter @Inject constructor() : WheelAdapter {
     override fun verifyAuth(encryptedKey: ByteArray): ByteArray? = null
 
     /**
-     * The wheel answers on FF01 with one or more `90 00 <opcode> <payload>`
-     * frames concatenated together. Split them on the `90 00` marker and log
-     * each with its opcode so the capture reads as discrete, labelled frames
-     * (the raw notification is already logged by the connection manager; this
-     * adds the per-opcode framing that makes the byte layout derivable).
-     *
-     * Returns [DecodeResult.Unknown]: the payload scaling for the i5 is not
-     * confirmed, and we do not put invented numbers on the dashboard. Once a
-     * labelled i5 capture pins the offsets, decode them here and emit
-     * [DecodeResult.Telemetry].
+     * Single-stream entry point. The i5 does not use one notification stream,
+     * so under today's architecture this only sees whatever the notify char in
+     * [BleProfile.IPS] (speed, 0x9002) delivers. Log it for capture and emit
+     * Unknown; real decoding happens per-characteristic in [decodeCharacteristic]
+     * once the BLE extension routes each UUID here.
      */
     override fun onRawNotification(rawBytes: ByteArray): List<DecodeResult> {
-        for ((opcode, payload) in splitFrames(rawBytes)) {
-            DiagnosticsLogger.note(
-                "ips frame op=90 00 ${hex1(opcode)} payload=${hexBytes(payload)}"
-            )
-        }
+        DiagnosticsLogger.note("ips notify(9002 speed?) ${hexBytes(rawBytes)}")
         return listOf(DecodeResult.Unknown)
     }
 
     override fun inspectMessageTypes(): List<String> = listOf("ips")
 
     /**
-     * Read probes for Service Mode: a tester taps one, watches the live log,
-     * and reports what the wheel returned. This is how we map opcode -> value
-     * for the i5 without a manufacturer app. All QUERY (read) frames -- no
-     * writes that could change a setting.
+     * Authoritative per-characteristic decode, decoded from iAmIPS 4.4.2.
+     * Merges into [last] and returns the running snapshot. Not yet reachable
+     * (needs the multi-char BLE extension); kept here so wiring it up is a
+     * one-line call site once per-UUID data is delivered.
      */
-    override fun getDiagnosticCommands(): List<DiagnosticCommand> {
-        val q = DiagnosticCommand.Category.QUERY
-        return (0x00..0x20).map { op ->
-            DiagnosticCommand(
-                label = "R${hex1(op.toByte())}",
-                description = "Read 90 00 ${hex1(op.toByte())} (probe response)",
-                bytes = readFrame(op.toByte()),
-                category = q,
-            )
+    fun decodeCharacteristic(uuid: UUID, v: ByteArray): DecodeResult? {
+        last = when (uuid) {
+            SPEED -> if (v.size >= 4) last.copy(speed = floatLE(v, 0)) else return null
+            CURRENT -> if (v.size >= 5) last.copy(current = floatLE(v, 1)) else return null
+            TRIP -> if (v.size >= 4) last.copy(tripDistance = floatLE(v, 0)) else return null
+            TOTAL -> if (v.size >= 4) last.copy(totalDistance = floatLE(v, 0)) else return null
+            BATTERY -> if (v.isNotEmpty()) last.copy(batteryPercent = v[0].toInt() and 0xFF) else return null
+            TEMP -> if (v.size >= 4) last.copy(maxTemperature = floatLE(v, 0),
+                temperatures = listOf(floatLE(v, 0))) else return null
+            VOLTAGE -> if (v.size >= 4) {
+                // 16 per-cell float32s; pack voltage is their sum.
+                val cells = (0 until v.size / 4).map { floatLE(v, it * 4) }
+                last.copy(voltage = cells.sum())
+            } else return null
+            else -> return null
         }
+        return DecodeResult.Telemetry(last.copy(timestamp = System.currentTimeMillis()))
     }
 
-    private fun readFrame(opcode: Byte): ByteArray = byteArrayOf(0x90.toByte(), 0x00, opcode)
+    override fun onDisconnect() { last = WheelData() }
 
-    /** Split a notification into (opcode, payload) pairs on the `90 00` marker. */
-    private fun splitFrames(bytes: ByteArray): List<Pair<Byte, ByteArray>> {
-        val out = mutableListOf<Pair<Byte, ByteArray>>()
-        var i = 0
-        while (i + 2 < bytes.size) {
-            if (bytes[i] == 0x90.toByte() && bytes[i + 1] == 0x00.toByte()) {
-                val opcode = bytes[i + 2]
-                var j = i + 3
-                // Payload runs until the next `90 00` marker or end of buffer.
-                while (j + 1 < bytes.size && !(bytes[j] == 0x90.toByte() && bytes[j + 1] == 0x00.toByte())) j++
-                out += opcode to bytes.copyOfRange(i + 3, minOf(j + 1, bytes.size).coerceAtLeast(i + 3))
-                i = j
-            } else i++
-        }
-        return out
+    @Volatile private var last = WheelData()
+
+    /** Little-endian IEEE-754 float32 at [off], matching the app's Utils.getFloat. */
+    private fun floatLE(b: ByteArray, off: Int): Float {
+        val bits = (b[off].toInt() and 0xFF) or
+            ((b[off + 1].toInt() and 0xFF) shl 8) or
+            ((b[off + 2].toInt() and 0xFF) shl 16) or
+            ((b[off + 3].toInt() and 0xFF) shl 24)
+        return Float.fromBits(bits)
     }
 
-    private fun hex1(b: Byte): String = "%02x".format(b.toInt() and 0xff)
-    private fun hexBytes(b: ByteArray): String = b.joinToString(" ") { hex1(it) }
+    private fun hexBytes(b: ByteArray): String = b.joinToString(" ") { "%02x".format(it.toInt() and 0xFF) }
 
     private companion object {
-        const val OP_SPEED: Byte = 0x01
-        const val OP_INFO_10: Byte = 0x10
-        const val OP_INFO_11: Byte = 0x11
+        // eWheel service (0xEB00) characteristics, from iAmIPS 4.4.2.
+        private fun ch(x: String) = UUID.fromString("0000$x-0000-1000-8000-00805f9b34fb")
+        val SPEED = ch("9002")     // float32 LE km/h
+        val CURRENT = ch("9003")   // float32 LE @1, amps
+        val TRIP = ch("9004")      // float32 LE km
+        val TOTAL = ch("9005")     // float32 LE km
+        val BATTERY = ch("9006")   // byte %,
+        val VOLTAGE = ch("9007")   // 16x float32 LE cell voltages
+        val TEMP = ch("9008")      // float32 LE degC
     }
 }
