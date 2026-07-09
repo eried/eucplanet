@@ -23,7 +23,9 @@ import androidx.core.content.ContextCompat
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -57,6 +59,13 @@ class BleConnectionManager @Inject constructor(
 
         // Client Characteristic Configuration Descriptor: same for every wheel family.
         val CCCD_UUID: UUID = UUID.fromString("00002902-0000-1000-8000-00805f9b34fb")
+
+        // Multi-characteristic wheels (IPS i5): how often to sweep the
+        // read-only value characteristics, and how long to wait for a single
+        // GATT op's callback before moving on so a dropped callback can't wedge
+        // the read loop.
+        private const val MULTI_CHAR_READ_INTERVAL_MS = 750L
+        private const val GATT_OP_TIMEOUT_MS = 1500L
     }
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
@@ -92,6 +101,17 @@ class BleConnectionManager @Inject constructor(
 
     private var gatt: BluetoothGatt? = null
     private var rxCharacteristic: BluetoothGattCharacteristic? = null
+    // --- Multi-characteristic (characteristic-per-value wheels, e.g. IPS i5) ---
+    // Only used when the active adapter declares extra notify chars or read
+    // chars; every existing single-stream wheel leaves these null/idle, so its
+    // code path is unchanged.
+    private var activeService: android.bluetooth.BluetoothGattService? = null
+    private var multiCharJob: Job? = null
+    /** Serializes the multi-char GATT ops (extra CCCD writes + periodic reads):
+     *  Android GATT allows one outstanding op at a time. Completed by the
+     *  matching onDescriptorWrite / onCharacteristicRead callback. */
+    private val gattOpDone =
+        java.util.concurrent.atomic.AtomicReference<kotlinx.coroutines.CompletableDeferred<Unit>?>(null)
     private var currentAddress: String? = null
     /** BLE advertised name from the most recent connect call, kept across reconnects. */
     private var currentName: String? = null
@@ -438,6 +458,10 @@ class BleConnectionManager @Inject constructor(
         currentAddress = null
         currentName = null
         rxCharacteristic = null
+        multiCharJob?.cancel()
+        multiCharJob = null
+        activeService = null
+        signalGattOpDone()
         writeReady = false
 
         // Virtual wheel: just drop the reference; no GATT to tear down.
@@ -651,6 +675,7 @@ class BleConnectionManager @Inject constructor(
                 }
             }
 
+            activeService = service
             rxCharacteristic = service.getCharacteristic(profile.writeCharacteristic)
             val txCharacteristic = service.getCharacteristic(profile.notifyCharacteristic)
 
@@ -744,13 +769,39 @@ class BleConnectionManager @Inject constructor(
             descriptor: BluetoothGattDescriptor,
             status: Int
         ) {
-            // The CCCD write completing means the wheel will now actually push
-            // notifications to us; only now is it safe to go CONNECTED and let
-            // the init sequence start writing.
             if (descriptor.uuid == CCCD_UUID) {
-                Log.i(TAG, "CCCD notification-enable confirmed (status=$status)")
-                markReadyAndConnected()
+                if (_connectionState.value == ConnectionState.INITIALIZING) {
+                    // The PRIMARY notify subscription: only now is it safe to go
+                    // CONNECTED and let the init sequence start writing.
+                    Log.i(TAG, "CCCD notification-enable confirmed (status=$status)")
+                    markReadyAndConnected()
+                } else {
+                    // A queued EXTRA notify subscription (multi-char wheels);
+                    // let the op queue proceed to the next operation.
+                    signalGattOpDone()
+                }
             }
+        }
+
+        override fun onCharacteristicRead(
+            gatt: BluetoothGatt,
+            characteristic: BluetoothGattCharacteristic,
+            value: ByteArray,
+            status: Int
+        ) {
+            processIncomingData(characteristic.uuid, value)
+            signalGattOpDone()
+        }
+
+        @Deprecated("Deprecated in API 33")
+        override fun onCharacteristicRead(
+            gatt: BluetoothGatt,
+            characteristic: BluetoothGattCharacteristic,
+            status: Int
+        ) {
+            @Suppress("DEPRECATION")
+            processIncomingData(characteristic.uuid, characteristic.value ?: ByteArray(0))
+            signalGattOpDone()
         }
 
         override fun onCharacteristicWrite(
@@ -768,7 +819,7 @@ class BleConnectionManager @Inject constructor(
             characteristic: BluetoothGattCharacteristic
         ) {
             @Suppress("DEPRECATION")
-            processIncomingData(characteristic.value)
+            processIncomingData(characteristic.uuid, characteristic.value)
         }
 
         override fun onCharacteristicChanged(
@@ -776,7 +827,7 @@ class BleConnectionManager @Inject constructor(
             characteristic: BluetoothGattCharacteristic,
             value: ByteArray
         ) {
-            processIncomingData(value)
+            processIncomingData(characteristic.uuid, value)
         }
     }
 
@@ -812,9 +863,17 @@ class BleConnectionManager @Inject constructor(
         // contributing to the KS-16X "connects but no telemetry" stall. The
         // gate is familyId so every other family (V14 / P6 / Veteran /
         // Begode / Ninebot) keeps the bump byte-for-byte.
-        if (wheelAdapter.familyId != "kingsong") {
+        // Multi-characteristic wheels (IPS i5) keep the default MTU: their
+        // values are tiny (4-byte floats) and an MTU exchange would race the
+        // extra CCCD subscribes on the single GATT slot.
+        val multiChar = wheelAdapter.readCharacteristics().isNotEmpty() ||
+            wheelAdapter.notifyCharacteristics().size > 1
+        if (!multiChar && wheelAdapter.familyId != "kingsong") {
             try { gatt?.requestMtu(512) } catch (_: Exception) {}
         }
+        // Subscribe the extra notify chars and start the periodic reads.
+        // No-op for every single-stream family.
+        if (multiChar) startMultiCharIfNeeded()
     }
 
     /**
@@ -822,10 +881,80 @@ class BleConnectionManager @Inject constructor(
      * DecodeResults it produces. Framing (reassembly, parsing) lives in the
      * adapter; each protocol family has its own.
      */
-    private fun processIncomingData(data: ByteArray) {
+    private fun processIncomingData(uuid: UUID, data: ByteArray) {
         com.eried.eucplanet.diagnostics.DiagnosticsLogger.rx(data)
-        for (result in wheelAdapter.onRawNotification(data)) {
+        // Default single-stream families ignore the uuid (onCharacteristicData
+        // delegates to onRawNotification), so their behaviour is unchanged.
+        // Per-value wheels (IPS i5) switch on it.
+        for (result in wheelAdapter.onCharacteristicData(uuid, data)) {
             _decodedResults.tryEmit(result)
         }
+    }
+
+    // --- Multi-characteristic support (characteristic-per-value wheels) -------
+    // Entirely inert for single-stream wheels: [startMultiCharIfNeeded] returns
+    // immediately unless the adapter declares extra notify chars or read chars.
+
+    /**
+     * After the primary notify subscription lands (CONNECTED), subscribe any
+     * additional notify characteristics and start the periodic-read loop the
+     * adapter asked for. Serialized through [awaitGattOp] because Android GATT
+     * allows only one outstanding operation. No-op for the existing families.
+     */
+    @SuppressLint("MissingPermission")
+    private fun startMultiCharIfNeeded() {
+        val g = gatt ?: return
+        val service = activeService ?: return
+        val primary = wheelAdapter.bleProfile().notifyCharacteristic
+        val extraNotify = wheelAdapter.notifyCharacteristics().filter { it != primary }
+        val reads = wheelAdapter.readCharacteristics()
+        if (extraNotify.isEmpty() && reads.isEmpty()) return // single-stream wheels
+
+        multiCharJob?.cancel()
+        multiCharJob = scope.launch {
+            for (uuid in extraNotify) {
+                val ch = service.getCharacteristic(uuid) ?: continue
+                g.setCharacteristicNotification(ch, true)
+                val cccd = ch.getDescriptor(CCCD_UUID) ?: continue
+                awaitGattOp { writeEnableNotificationDescriptorSafe(g, cccd) }
+            }
+            while (isActive && _connectionState.value == ConnectionState.CONNECTED) {
+                for (uuid in reads) {
+                    if (_connectionState.value != ConnectionState.CONNECTED) break
+                    val ch = service.getCharacteristic(uuid) ?: continue
+                    awaitGattOp { try { g.readCharacteristic(ch) } catch (_: Exception) {} }
+                }
+                delay(MULTI_CHAR_READ_INTERVAL_MS)
+            }
+        }
+    }
+
+    /** Run one GATT op and wait for its callback (or a timeout so a dropped
+     *  callback can't wedge the loop). */
+    private suspend fun awaitGattOp(op: () -> Unit) {
+        val d = kotlinx.coroutines.CompletableDeferred<Unit>()
+        gattOpDone.set(d)
+        op()
+        kotlinx.coroutines.withTimeoutOrNull(GATT_OP_TIMEOUT_MS) { d.await() }
+        gattOpDone.compareAndSet(d, null)
+    }
+
+    private fun signalGattOpDone() { gattOpDone.getAndSet(null)?.complete(Unit) }
+
+    @SuppressLint("MissingPermission")
+    private fun writeEnableNotificationDescriptorSafe(
+        gatt: BluetoothGatt,
+        descriptor: BluetoothGattDescriptor
+    ) {
+        try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                gatt.writeDescriptor(descriptor, BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE)
+            } else {
+                @Suppress("DEPRECATION")
+                descriptor.value = BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE
+                @Suppress("DEPRECATION")
+                gatt.writeDescriptor(descriptor)
+            }
+        } catch (_: Exception) {}
     }
 }

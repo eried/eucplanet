@@ -263,6 +263,37 @@ interface WheelAdapter {
      */
     fun onRawNotification(rawBytes: ByteArray): List<DecodeResult>
 
+    // --- Multi-characteristic wheels (characteristic-per-value, e.g. IPS i5) ---
+    // The three hooks below default to the single-stream behaviour every
+    // existing family uses, so those adapters are unaffected. A wheel that
+    // spreads its telemetry across many GATT characteristics overrides them.
+
+    /**
+     * Characteristics to subscribe to for notifications. Default: just the one
+     * [bleProfile] notify characteristic (the single-stream families). A
+     * characteristic-per-value wheel returns several (IPS i5: speed + current).
+     * The connection manager enables notifications on each.
+     */
+    fun notifyCharacteristics(): List<java.util.UUID> = listOf(bleProfile().notifyCharacteristic)
+
+    /**
+     * Characteristics the connection manager should GATT-READ on a timer, for
+     * wheels whose slower values are read rather than pushed. Default empty:
+     * the existing families push everything over notify and never need a read.
+     * IPS i5 lists its read-only value characteristics (battery, distance,
+     * cell voltages, ...) here.
+     */
+    fun readCharacteristics(): List<java.util.UUID> = emptyList()
+
+    /**
+     * Route one characteristic's data (a notification OR a read result),
+     * tagged with its source UUID. Default delegates to the single-stream
+     * [onRawNotification] and ignores the UUID, so every existing family is
+     * byte-for-byte unchanged. Per-value wheels override to switch on [uuid].
+     */
+    fun onCharacteristicData(uuid: java.util.UUID, bytes: ByteArray): List<DecodeResult> =
+        onRawNotification(bytes)
+
     /**
      * Called by the connection manager on disconnect so adapters can reset any
      * connection-scoped state (reassembly buffers, detected model, etc.). Default
