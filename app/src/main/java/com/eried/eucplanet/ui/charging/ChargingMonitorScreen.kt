@@ -1,6 +1,7 @@
 package com.eried.eucplanet.ui.charging
 
 import android.content.res.Configuration
+import android.view.Surface
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
@@ -87,6 +88,7 @@ import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -464,11 +466,12 @@ private fun BatteryScrubOverlay(
             val pct = ((1f - y / heightPx) * 100f).coerceIn(0f, 100f)
             Canvas(Modifier.fillMaxSize()) {
                 drawLine(
-                    color = lineColor.copy(alpha = 0.55f),
+                    // Same dash spacing as the chart gridlines, but fainter.
+                    color = lineColor.copy(alpha = 0.30f),
                     start = Offset(0f, y),
                     end = Offset(size.width, y),
                     strokeWidth = 2.dp.toPx(),
-                    pathEffect = PathEffect.dashPathEffect(floatArrayOf(20f, 16f), 0f),
+                    pathEffect = PathEffect.dashPathEffect(floatArrayOf(6f, 6f), 0f),
                 )
             }
             val etaText = if (ratePctPerMin > 0f && pct > currentPercent) {
@@ -607,6 +610,10 @@ private fun BatteryFillGraphic(
     // --- Fluid surface: the top of the liquid sloshes with the phone's tilt
     // (accelerometer gravity) and rotation (gyroscope). ---
     val ctx = LocalContext.current
+    // Accelerometer values are in the device's fixed frame, so we remap them to
+    // the current display rotation, otherwise the liquid tilts the wrong way in
+    // landscape (device X no longer points along the screen's horizontal).
+    val view = LocalView.current
     val surfH = remember { FloatArray(FLUID_COLS + 1) }
     val surfV = remember { FloatArray(FLUID_COLS + 1) }
     val tiltX = remember { mutableFloatStateOf(0f) }
@@ -633,8 +640,18 @@ private fun BatteryFillGraphic(
         val listener = object : android.hardware.SensorEventListener {
             override fun onSensorChanged(e: android.hardware.SensorEvent) {
                 when (e.sensor.type) {
-                    android.hardware.Sensor.TYPE_ACCELEROMETER ->
-                        tiltX.floatValue = (e.values[0] / 9.81f).coerceIn(-1f, 1f)
+                    android.hardware.Sensor.TYPE_ACCELEROMETER -> {
+                        // Gravity component along the SCREEN's horizontal, remapped
+                        // from the device frame by the display rotation so the
+                        // liquid sloshes the right way in every orientation.
+                        val horiz = when (view.display?.rotation) {
+                            Surface.ROTATION_90 -> -e.values[1]
+                            Surface.ROTATION_180 -> -e.values[0]
+                            Surface.ROTATION_270 -> e.values[1]
+                            else -> e.values[0]
+                        }
+                        tiltX.floatValue = (horiz / 9.81f).coerceIn(-1f, 1f)
+                    }
                     android.hardware.Sensor.TYPE_GYROSCOPE ->
                         gyroKick.floatValue = (gyroKick.floatValue - e.values[1]).coerceIn(-12f, 12f)
                 }
@@ -1041,7 +1058,6 @@ private fun InfoTabs(state: ChargingUiState) {
                         // or 2 samples (guarded inside PacksChart).
                         PacksChart(
                             packSeries = state.packSeriesHistory,
-                            spread = state.packSpreadHistory,
                             unit = state.packSeriesUnit,
                         )
                         // Per-pack BMS data takes a few seconds to arrive (one
@@ -1162,18 +1178,33 @@ private fun ChargingChart(
 @Composable
 private fun PacksChart(
     packSeries: List<List<MetricSample>>,
-    spread: List<MetricSample>,
     unit: String,
 ) {
-    if (packSeries.size < 2 || packSeries.first().size < 2) return
     val colors = MaterialTheme.appColors
-    // Distinct pack line colors from the metric palette; the imbalance line is
-    // the prominent danger token so it reads as the important series.
+    // Always visible, like the Charge tab chart: a collecting-data placeholder
+    // until at least two packs each have two samples.
+    val hasData = packSeries.size >= 2 && packSeries.first().size >= 2
+    if (!hasData) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(200.dp)
+                .clip(RoundedCornerShape(12.dp))
+                .background(colors.tileBackground),
+            contentAlignment = Alignment.Center,
+        ) {
+            Text(stringResource(R.string.charging_chart_empty), color = colors.hint, fontSize = 13.sp)
+        }
+        Spacer(Modifier.height(12.dp))
+        return
+    }
+    // Distinct pack line colors from the metric palette. All packs share one
+    // voltage axis, so the imbalance reads as the gap between the lines (the
+    // numeric mV imbalance is in the tile below).
     val packColors = listOf(
         colors.metricVoltage, colors.metricBattery, colors.metricTemp,
         colors.metricPosition, colors.metricAccel, colors.primary,
     )
-    val spreadColor = colors.statusDanger
     val extraSeries = packSeries.drop(1).mapIndexed { i, s ->
         s to packColors[(i + 1) % packColors.size]
     }
@@ -1182,41 +1213,11 @@ private fun PacksChart(
         color = packColors[0],
         boundsFor = { mn, mx -> GraphScale.pad(mn, mx, 1f) },
         unitLabel = unit,
-        series2 = spread,
-        color2 = spreadColor,
-        unit2 = unit,
         timeAxisFormat = com.eried.eucplanet.ui.dashboard.TimeAxisFormat.Clock,
         extraSeries = extraSeries,
-        series2BaselineZero = true,
-        series2Emphasized = true,
         modifier = Modifier.fillMaxWidth().height(200.dp),
     )
-    Spacer(Modifier.height(6.dp))
-    // Legend so the emphasized right-axis line is identified as the imbalance.
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(16.dp),
-    ) {
-        LegendSwatch(packColors[0], stringResource(R.string.charging_tab_packs))
-        LegendSwatch(spreadColor, stringResource(R.string.charging_stat_balance))
-    }
     Spacer(Modifier.height(12.dp))
-}
-
-@Composable
-private fun LegendSwatch(color: Color, label: String) {
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(6.dp),
-    ) {
-        Box(
-            modifier = Modifier
-                .size(width = 14.dp, height = 3.dp)
-                .clip(RoundedCornerShape(2.dp))
-                .background(color),
-        )
-        Text(label, color = MaterialTheme.appColors.textSecondary, fontSize = 12.sp)
-    }
 }
 
 /**
@@ -1380,11 +1381,11 @@ private fun CellChip(cellNumber: Int, voltage: Float, chipColor: Color, modifier
     Column(
         modifier = modifier
             .background(chipColor.copy(alpha = 0.18f))
-            .padding(vertical = 2.dp, horizontal = 2.dp),
+            .padding(vertical = 1.dp, horizontal = 1.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        Text("#$cellNumber", fontSize = 8.sp, color = MaterialTheme.appColors.hint)
-        Text("%.3f".format(voltage), fontSize = 10.sp, fontWeight = FontWeight.Medium, color = chipColor)
+        Text("#$cellNumber", fontSize = 7.sp, color = MaterialTheme.appColors.hint, lineHeight = 8.sp)
+        Text("%.3f".format(voltage), fontSize = 9.sp, fontWeight = FontWeight.Medium, color = chipColor, lineHeight = 10.sp)
     }
 }
 
