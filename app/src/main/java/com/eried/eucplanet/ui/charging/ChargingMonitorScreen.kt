@@ -195,12 +195,16 @@ fun ChargingMonitorScreen(
                 .fillMaxSize()
                 .padding(padding),
         ) {
+            // Level the rider is scrubbing to (0..1), or null. While dragging it
+            // takes over the battery's target line instead of adding a second one.
+            var scrubFrac by remember { mutableStateOf<Float?>(null) }
             BatteryFillGraphic(
                 percentProvider = { pct.value },
                 startPercent = state.startPercent,
                 charging = charging,
                 connected = state.connected,
                 estimateToFull = state.estimateToFull,
+                scrubFrac = scrubFrac,
                 // Deep blue main liquid + a more neon green for the freshly-added band.
                 base = lerp(MaterialTheme.appColors.metricVoltage, Color.Black, 0.28f),
                 added = lerp(MaterialTheme.appColors.metricBattery, Color.Green, 0.4f),
@@ -255,13 +259,15 @@ fun ChargingMonitorScreen(
 
             // Hold and drag anywhere on the battery to read the level at that
             // height, and, for levels above the current charge, the predicted
-            // clock time to reach them. A faint dashed line marks the scrub level.
+            // clock time to reach them. While dragging, the battery's own target
+            // line follows the finger (see scrubFrac), so there's just one line.
             if (state.connected) {
                 BatteryScrubOverlay(
                     currentPercent = state.percent,
                     ratePctPerMin = if (charging) state.ratePctPerMin else 0f,
                     nowMs = nowMs,
                     clockAt = clockAt,
+                    onScrubFrac = { scrubFrac = it },
                     modifier = Modifier.fillMaxSize(),
                 )
             }
@@ -421,11 +427,12 @@ private fun PredictionText(state: ChargingUiState, nowMs: Long, clockAt: (Long) 
 }
 
 /**
- * Full-screen scrub over the battery fill: press and drag to move a faint dashed
- * line to any height. The battery maps linearly (top = 100 %, bottom = 0 %), so
- * the line reads the level under the finger. For levels above the current charge,
- * and while charging with a real rate, it also shows the predicted clock time to
- * reach that level, extrapolated from the same rate that drives the 80/100 % ETAs.
+ * Full-screen scrub over the battery fill: press and drag to read the level under
+ * the finger (top = 100 %, bottom = 0 %). The dashed cursor line itself is drawn
+ * by [BatteryFillGraphic] (it reuses the battery's target-line style and replaces
+ * it while dragging); this overlay just captures the gesture, reports the scrub
+ * fraction, and shows the level plus, for levels above the current charge while
+ * charging, the predicted clock time to reach it.
  */
 @Composable
 private fun BatteryScrubOverlay(
@@ -433,6 +440,7 @@ private fun BatteryScrubOverlay(
     ratePctPerMin: Float,
     nowMs: Long,
     clockAt: (Long) -> String,
+    onScrubFrac: (Float?) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     var heightPx by remember { mutableFloatStateOf(0f) }
@@ -448,32 +456,27 @@ private fun BatteryScrubOverlay(
                 awaitEachGesture {
                     val down = awaitFirstDown(requireUnconsumed = false)
                     val maxY = size.height.toFloat()
-                    scrubY = down.position.y.coerceIn(0f, maxY)
+                    fun report(py: Float) {
+                        scrubY = py.coerceIn(0f, maxY)
+                        onScrubFrac((1f - py / maxY).coerceIn(0f, 1f))
+                    }
+                    report(down.position.y)
                     while (true) {
                         val event = awaitPointerEvent()
                         val change = event.changes.firstOrNull { it.id == down.id }
                             ?: event.changes.firstOrNull()
                         if (change == null || !change.pressed) break
-                        scrubY = change.position.y.coerceIn(0f, maxY)
+                        report(change.position.y)
                         change.consume()
                     }
                     scrubY = null
+                    onScrubFrac(null)
                 }
             },
     ) {
         val y = scrubY
         if (y != null && heightPx > 0f) {
             val pct = ((1f - y / heightPx) * 100f).coerceIn(0f, 100f)
-            Canvas(Modifier.fillMaxSize()) {
-                drawLine(
-                    // Same dash spacing as the chart gridlines, but fainter.
-                    color = lineColor.copy(alpha = 0.30f),
-                    start = Offset(0f, y),
-                    end = Offset(size.width, y),
-                    strokeWidth = 2.dp.toPx(),
-                    pathEffect = PathEffect.dashPathEffect(floatArrayOf(6f, 6f), 0f),
-                )
-            }
             val etaText = if (ratePctPerMin > 0f && pct > currentPercent) {
                 val minutes = (pct - currentPercent) / ratePctPerMin
                 clockAt(nowMs + (minutes * 60_000f).toLong())
@@ -578,6 +581,7 @@ private fun BatteryFillGraphic(
     charging: Boolean,
     connected: Boolean,
     estimateToFull: Boolean,
+    scrubFrac: Float? = null,
     base: Color,
     added: Color,
     outlineColor: Color,
@@ -863,16 +867,23 @@ private fun BatteryFillGraphic(
                 drawRect(color = col, topLeft = Offset(fillLeft, y - lw / 2f), size = Size(len, lw), blendMode = bm)
                 drawRect(color = col, topLeft = Offset(fillRight - len, y - lw / 2f), size = Size(len, lw), blendMode = bm)
             }
-            // Dotted line at the 80 % target (joins the side ticks); hidden when
-            // estimating straight to 100 %.
-            if (connected && !estimateToFull) {
-                val y80 = yFor(0.8f)
+            // One dotted line: the 80 % target (joins the side ticks) when idle,
+            // but while the rider is scrubbing it becomes the cursor and follows
+            // the finger instead - same style, so there's never two lines. Hidden
+            // only when estimating straight to 100 % AND not scrubbing.
+            val lineFrac = when {
+                scrubFrac != null -> scrubFrac
+                connected && !estimateToFull -> 0.8f
+                else -> null
+            }
+            if (lineFrac != null) {
+                val ly = yFor(lineFrac)
                 // Inset past the side ticks so the dashes sit in the middle with a gap.
                 val inset = fillW * 0.14f
                 drawLine(
                     color = outlineColor.copy(alpha = 0.4f),
-                    start = Offset(fillLeft + inset, y80),
-                    end = Offset(fillRight - inset, y80),
+                    start = Offset(fillLeft + inset, ly),
+                    end = Offset(fillRight - inset, ly),
                     strokeWidth = 1.5.dp.toPx(),
                     pathEffect = PathEffect.dashPathEffect(floatArrayOf(12f, 12f)),
                 )
@@ -1198,21 +1209,48 @@ private fun PacksChart(
         Spacer(Modifier.height(12.dp))
         return
     }
-    // Distinct pack line colors from the metric palette. All packs share one
-    // voltage axis, so the imbalance reads as the gap between the lines (the
-    // numeric mV imbalance is in the tile below).
+    // Packs are sampled together, so index i is the same instant across packs.
+    // The packs sit at almost the same voltage, so plotting the absolutes just
+    // overlaps them. Instead plot each pack's deviation from the group mean (the
+    // imbalance) on a centered-zero LEFT axis - so the tiny spread is visible and
+    // reads like the per-pack mV in the tiles - and the absolute voltage on the
+    // RIGHT axis so it stays readable.
+    val n = packSeries.minOf { it.size }
+    val toMilli = unit == "V"
+    val devUnit = if (toMilli) "mV" else unit
+    val devScale = if (toMilli) 1000f else 1f
+    val meanSamples = ArrayList<MetricSample>(n)
+    val devSeries = List(packSeries.size) { mutableListOf<MetricSample>() }
+    for (i in 0 until n) {
+        val t = packSeries[0][i].timestampMs
+        val vals = packSeries.map { it[i].value }
+        val mean = vals.sum() / vals.size
+        meanSamples.add(MetricSample(t, mean))
+        vals.forEachIndexed { p, v -> devSeries[p].add(MetricSample(t, (v - mean) * devScale)) }
+    }
+    // Distinct pack line colors from the metric palette; the voltage reference
+    // sits on the right in a muted tone so the imbalance lines lead.
     val packColors = listOf(
         colors.metricVoltage, colors.metricBattery, colors.metricTemp,
         colors.metricPosition, colors.metricAccel, colors.primary,
     )
-    val extraSeries = packSeries.drop(1).mapIndexed { i, s ->
+    val extraSeries = devSeries.drop(1).mapIndexed { i, s ->
         s to packColors[(i + 1) % packColors.size]
     }
+    // Floor keeps a balanced pack from zooming into flat noise (5 mV or 0.2 %).
+    val floor = if (toMilli) 5f else 0.2f
     MetricGraph(
-        samples = packSeries.first(),
+        samples = devSeries.first(),
         color = packColors[0],
-        boundsFor = { mn, mx -> GraphScale.pad(mn, mx, 1f) },
-        unitLabel = unit,
+        boundsFor = { mn, mx ->
+            val b = maxOf(abs(mn), abs(mx), floor)
+            GraphBounds(-b, b)
+        },
+        unitLabel = devUnit,
+        series2 = meanSamples,
+        color2 = colors.hint,
+        unit2 = unit,
+        series2LabelFormat = { if (toMilli) "%.1f".format(it) else "%.0f".format(it) },
         timeAxisFormat = com.eried.eucplanet.ui.dashboard.TimeAxisFormat.Clock,
         extraSeries = extraSeries,
         modifier = Modifier.fillMaxWidth().height(200.dp),

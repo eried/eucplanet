@@ -725,6 +725,12 @@ internal fun MetricGraph(
      * reads as the emphasized series (the imbalance line on the Packs chart).
      */
     series2Emphasized: Boolean = false,
+    /**
+     * Formats the right-axis ([series2]) gridline labels. Defaults to whole
+     * numbers; callers whose right axis needs decimals (e.g. a ~125.3 V pack
+     * voltage, which would otherwise read a flat "125") pass their own.
+     */
+    series2LabelFormat: (Float) -> String = { "%.0f".format(it) },
     modifier: Modifier = Modifier
 ) {
     val gridColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.15f)
@@ -832,7 +838,7 @@ internal fun MetricGraph(
                 if (bounds2 != null) {
                     val v2 = bounds2.min + padded2 * i / 4f
                     val r = textMeasurer.measure(
-                        "%.0f".format(v2), TextStyle(fontSize = 10.sp, color = color2)
+                        series2LabelFormat(v2), TextStyle(fontSize = 10.sp, color = color2)
                     )
                     drawText(r, topLeft = Offset(w + 6f, y - r.size.height / 2f))
                 }
