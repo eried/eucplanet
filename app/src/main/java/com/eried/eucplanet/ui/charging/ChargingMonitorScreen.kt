@@ -1,11 +1,14 @@
 package com.eried.eucplanet.ui.charging
 
+import android.content.res.Configuration
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.awaitEachGesture
+import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -78,8 +81,11 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.clipPath
 import androidx.compose.ui.graphics.drawscope.clipRect
 import androidx.compose.ui.graphics.lerp
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -202,28 +208,59 @@ fun ChargingMonitorScreen(
 
             // Show the % whenever a wheel is connected; the prediction only while
             // charging (idle = just the % over the battery).
-            // Big % sits on the 80 % line ("-" when no wheel); prediction on the 60 % line.
-            Box(
-                modifier = Modifier
-                    .align(BiasAlignment(0f, -0.5f))
-                    .padding(horizontal = 24.dp),
-            ) {
-                PercentReadout(
-                    pct,
-                    // No decimals at 100 % — it reads a clean "100%".
-                    decimalsVisible = charging && state.warmedUp && state.status != ChargeStatus.Full && state.percent < 99.5f,
-                    connected = state.connected,
-                )
-            }
-            if (state.connected && charging) {
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
+            val landscape =
+                LocalConfiguration.current.orientation == Configuration.ORIENTATION_LANDSCAPE
+            // No decimals at 100 % — it reads a clean "100%".
+            val decimalsVisible = charging && state.warmedUp &&
+                state.status != ChargeStatus.Full && state.percent < 99.5f
+            if (landscape) {
+                // Landscape is short: stacking the big % over the prediction makes
+                // them collide, so sit them side by side and centered instead.
+                Row(
                     modifier = Modifier
-                        .align(BiasAlignment(0f, -0.1f))
+                        .align(BiasAlignment(0f, -0.2f))
+                        .padding(horizontal = 24.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(28.dp),
+                ) {
+                    PercentReadout(pct, decimalsVisible = decimalsVisible, connected = state.connected)
+                    if (state.connected && charging) {
+                        PredictionText(state, nowMs, clockAt)
+                    }
+                }
+            } else {
+                // Portrait: big % on the 80 % line ("-" when no wheel), prediction
+                // on the 60 % line.
+                Box(
+                    modifier = Modifier
+                        .align(BiasAlignment(0f, -0.5f))
                         .padding(horizontal = 24.dp),
                 ) {
-                    PredictionText(state, nowMs, clockAt)
+                    PercentReadout(pct, decimalsVisible = decimalsVisible, connected = state.connected)
                 }
+                if (state.connected && charging) {
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        modifier = Modifier
+                            .align(BiasAlignment(0f, -0.1f))
+                            .padding(horizontal = 24.dp),
+                    ) {
+                        PredictionText(state, nowMs, clockAt)
+                    }
+                }
+            }
+
+            // Hold and drag anywhere on the battery to read the level at that
+            // height, and, for levels above the current charge, the predicted
+            // clock time to reach them. A faint dashed line marks the scrub level.
+            if (state.connected) {
+                BatteryScrubOverlay(
+                    currentPercent = state.percent,
+                    ratePctPerMin = if (charging) state.ratePctPerMin else 0f,
+                    nowMs = nowMs,
+                    clockAt = clockAt,
+                    modifier = Modifier.fillMaxSize(),
+                )
             }
 
             // Single entry to the details flyout.
@@ -376,6 +413,96 @@ private fun PredictionText(state: ChargingUiState, nowMs: Long, clockAt: (Long) 
             // Charging but not warmed up yet, or the countdown already elapsed.
             else ->
                 Text(stringResource(R.string.charging_charging), fontSize = 40.sp, fontWeight = FontWeight.Bold, color = color, style = glow)
+        }
+    }
+}
+
+/**
+ * Full-screen scrub over the battery fill: press and drag to move a faint dashed
+ * line to any height. The battery maps linearly (top = 100 %, bottom = 0 %), so
+ * the line reads the level under the finger. For levels above the current charge,
+ * and while charging with a real rate, it also shows the predicted clock time to
+ * reach that level, extrapolated from the same rate that drives the 80/100 % ETAs.
+ */
+@Composable
+private fun BatteryScrubOverlay(
+    currentPercent: Float,
+    ratePctPerMin: Float,
+    nowMs: Long,
+    clockAt: (Long) -> String,
+    modifier: Modifier = Modifier,
+) {
+    var heightPx by remember { mutableFloatStateOf(0f) }
+    var scrubY by remember { mutableStateOf<Float?>(null) }
+    val lineColor = MaterialTheme.appColors.textPrimary
+    val isLight = MaterialTheme.appColors.isLight
+    val density = LocalDensity.current
+
+    Box(
+        modifier
+            .onSizeChanged { heightPx = it.height.toFloat() }
+            .pointerInput(Unit) {
+                awaitEachGesture {
+                    val down = awaitFirstDown(requireUnconsumed = false)
+                    val maxY = size.height.toFloat()
+                    scrubY = down.position.y.coerceIn(0f, maxY)
+                    while (true) {
+                        val event = awaitPointerEvent()
+                        val change = event.changes.firstOrNull { it.id == down.id }
+                            ?: event.changes.firstOrNull()
+                        if (change == null || !change.pressed) break
+                        scrubY = change.position.y.coerceIn(0f, maxY)
+                        change.consume()
+                    }
+                    scrubY = null
+                }
+            },
+    ) {
+        val y = scrubY
+        if (y != null && heightPx > 0f) {
+            val pct = ((1f - y / heightPx) * 100f).coerceIn(0f, 100f)
+            Canvas(Modifier.fillMaxSize()) {
+                drawLine(
+                    color = lineColor.copy(alpha = 0.55f),
+                    start = Offset(0f, y),
+                    end = Offset(size.width, y),
+                    strokeWidth = 2.dp.toPx(),
+                    pathEffect = PathEffect.dashPathEffect(floatArrayOf(20f, 16f), 0f),
+                )
+            }
+            val etaText = if (ratePctPerMin > 0f && pct > currentPercent) {
+                val minutes = (pct - currentPercent) / ratePctPerMin
+                clockAt(nowMs + (minutes * 60_000f).toLong())
+            } else null
+            val glow = TextStyle(
+                shadow = Shadow(
+                    color = if (isLight) Color.White else Color.Black,
+                    blurRadius = 14f,
+                ),
+            )
+            // Pill just above the line, left-aligned so the big centre % stays clear.
+            val labelY = with(density) { y.toDp() } - 36.dp
+            Row(
+                modifier = Modifier
+                    .align(Alignment.TopStart)
+                    .offset(x = 16.dp, y = labelY.coerceAtLeast(0.dp))
+                    .clip(RoundedCornerShape(8.dp))
+                    .background(lineColor.copy(alpha = 0.14f))
+                    .padding(horizontal = 10.dp, vertical = 4.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                Text(
+                    "${pct.roundToInt()}%",
+                    color = lineColor, fontSize = 22.sp, fontWeight = FontWeight.Bold, style = glow,
+                )
+                if (etaText != null) {
+                    Text(
+                        stringResource(R.string.charging_eta_at, etaText),
+                        color = lineColor, fontSize = 16.sp, style = glow,
+                    )
+                }
+            }
         }
     }
 }
