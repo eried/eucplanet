@@ -28,6 +28,8 @@ class BleScannerDetectionTest {
         "LK19957", "Oryx", "Nosfet",
         // Ninebot / Segway
         "Ninebot Z10", "Segway-Z6", "ZN1234", "MiniPLUS-9", "Mini Plus 1",
+        // IPS (i5 / Zero / Lhotz / XIMA) - best-guess names pending an i5 capture
+        "IPS-1234", "i5-0001", "Lhotz", "Xima-01",
     )
 
     private val nonWheels = listOf(

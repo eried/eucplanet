@@ -14,7 +14,7 @@ private val RX_NINEBOT_ZN_LOWER = Regex("^zn\\d")
 /** Wheel protocol families, decided purely from the advertised BLE name. Kept
  *  top-level and pure so the connect-time routing can be unit-tested
  *  (CompositeWheelAdapterRoutingTest) without instantiating any adapter. */
-internal enum class WheelFamily { INMOTION_V2, INMOTION_V1, KINGSONG, VETERAN, NINEBOT, BEGODE }
+internal enum class WheelFamily { INMOTION_V2, INMOTION_V1, KINGSONG, VETERAN, NINEBOT, BEGODE, IPS }
 
 /** Which protocol family a connected device's name belongs to. Null / blank
  *  defaults to InMotion V2 (the cold-connect default). Mirrors the scan filter. */
@@ -38,9 +38,21 @@ internal fun wheelFamilyForName(deviceName: String?): WheelFamily {
             n.startsWith("msp") || n.startsWith("msx") ||
             n.startsWith("mten") || n.startsWith("mcm5") ||
             n.startsWith("hero") || n.startsWith("t3") || n.startsWith("t4") -> WheelFamily.BEGODE
+        // IPS family (i5 / Zero / Lhotz / XIMA). Best-guess name patterns until
+        // a tester reports the i5's exact advertised name; the XIMA/Lhotz in
+        // the wild paired as "Lhotz". Kept IPS-specific so it can't steal
+        // another brand's device.
+        isIpsWheelName(n) -> WheelFamily.IPS
         else -> WheelFamily.INMOTION_V2
     }
 }
+
+/** IPS family name detector (i5 / Zero / Lhotz / XIMA). Best guess pending an
+ *  i5 capture; takes a lowercased name. Kept narrow so it never collides with
+ *  another brand's advertisement. */
+internal fun isIpsWheelName(n: String): Boolean =
+    n.startsWith("ips") || n.startsWith("i5-") || n == "i5" ||
+        "lhotz" in n || "xima" in n
 
 /** V1 protocol family detector: V3/V5/V8/V10, L6, Glide, Lively, IM<digits>.
  *  V11+ stay on V2. Pure; takes a lowercased name. */
@@ -81,7 +93,8 @@ class CompositeWheelAdapter @Inject constructor(
     private val kingsong: KingsongAdapter,
     private val begode: BegodeAdapter,
     private val veteran: VeteranAdapter,
-    private val ninebot: NinebotAdapter
+    private val ninebot: NinebotAdapter,
+    private val ips: IpsAdapter
 ) : WheelAdapter {
 
     @Volatile private var active: WheelAdapter = inmotion
@@ -93,7 +106,7 @@ class CompositeWheelAdapter @Inject constructor(
      * catalogue / inspect prefixes without owning its own wiring.
      */
     val allFamilies: List<WheelAdapter> = listOf(
-        inmotion, kingsong, veteran, begode, ninebot, inmotionV1
+        inmotion, kingsong, veteran, begode, ninebot, inmotionV1, ips
     )
 
     override val familyId: String get() = active.familyId
@@ -232,6 +245,7 @@ class CompositeWheelAdapter @Inject constructor(
             WheelFamily.VETERAN -> veteran
             WheelFamily.NINEBOT -> ninebot
             WheelFamily.BEGODE -> begode
+            WheelFamily.IPS -> ips
             WheelFamily.INMOTION_V2 -> inmotion
         }
 }

@@ -39,6 +39,11 @@ class CompositeWheelAdapterRoutingTest {
             "Gotway_MSX", "Begode_RS", "Master_V3", "RS_19", "RS-19", "EX_30", "EX.30",
             "EX2", "MSP_C30", "MSX_100", "Mten4", "MCM5", "Hero-1", "T3", "T4",
         ),
+        WheelFamily.IPS to listOf(
+            // Best-guess IPS names pending an i5 capture. XIMA/Lhotz paired as
+            // "Lhotz"; keep these routing to IPS so the family can't regress.
+            "IPS-1234", "i5-0001", "i5", "Lhotz", "IPS Lhotz", "Xima-01",
+        ),
     )
 
     @Test fun `each wheel name routes to its protocol family`() {

@@ -69,6 +69,21 @@ data class BleProfile(
             writeCharacteristic = UUID.fromString("0000ffe9-0000-1000-8000-00805f9b34fb"),
             notifyCharacteristic = UUID.fromString("0000ffe4-0000-1000-8000-00805f9b34fb")
         )
+
+        /**
+         * IPS family (i5 / Zero / Lhotz / XIMA): service 0xFF00 with two
+         * characteristics, notify 0xFF01 (subscribe) and write 0xFF02.
+         * Distinct from every profile above. Derived from a 2015 community
+         * BLE sniff of an IPS XIMA/Lhotz; see docs/protocols/ips_i5.md.
+         * NO_RESPONSE writes to match the cheap early-gen BLE module these
+         * wheels used; revisit if an i5 capture shows write ACKs.
+         */
+        val IPS = BleProfile(
+            serviceUuid = UUID.fromString("0000ff00-0000-1000-8000-00805f9b34fb"),
+            writeCharacteristic = UUID.fromString("0000ff02-0000-1000-8000-00805f9b34fb"),
+            notifyCharacteristic = UUID.fromString("0000ff01-0000-1000-8000-00805f9b34fb"),
+            writeType = BluetoothGattCharacteristic.WRITE_TYPE_NO_RESPONSE
+        )
     }
 }
 
@@ -282,6 +297,7 @@ interface WheelAdapter {
         "veteran" -> "LeaperKim"
         "ninebot" -> "Ninebot"
         "inmotion_v1", "inmotion_v2" -> "InMotion"
+        "ips" -> "IPS"
         else -> familyDisplayName
     }
 
@@ -469,6 +485,25 @@ data class WheelCapabilities(
          * app over a side channel we don't cover.
          */
         val NINEBOT_LEGACY = WheelCapabilities(
+            hasHorn = false,
+            hasLight = false,
+            hasLock = false,
+            hasMaxSpeed = false,
+            hasAlarmSpeed = false,
+            hasVolume = false,
+            hasDRL = false,
+            needsAuthForLock = false
+        )
+
+        /**
+         * IPS (i5 / Zero / Lhotz / XIMA): read-only telemetry for now. The
+         * defunct manufacturer's protocol is only partially reverse-engineered
+         * (docs/protocols/ips_i5.md), so no control action is decoded yet -
+         * the XIMA app exposed a settable speed limit but its write opcode was
+         * never captured, and there is no lock function. Flip flags on here as
+         * each write frame is confirmed from an i5 capture.
+         */
+        val IPS_I5 = WheelCapabilities(
             hasHorn = false,
             hasLight = false,
             hasLock = false,

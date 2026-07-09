@@ -94,6 +94,9 @@ internal fun isLikelyWheelName(name: String): Boolean {
     if (RX_NINEBOT_ZN.containsMatchIn(name)) return true
     if (name.startsWith("MiniPLUS", ignoreCase = true) ||
         name.startsWith("Mini Plus", ignoreCase = true)) return true
+    // IPS (i5 / Zero / Lhotz / XIMA). Mirrors isIpsWheelName in
+    // CompositeWheelAdapter; best-guess prefixes pending an i5 capture.
+    if (isIpsWheelName(nl)) return true
     return false
 }
 
