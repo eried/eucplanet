@@ -262,9 +262,18 @@ fun ChargingMonitorScreen(
             // clock time to reach them. While dragging, the battery's own target
             // line follows the finger (see scrubFrac), so there's just one line.
             if (state.connected) {
+                // Only let the scrub predict a clock time when the prediction
+                // section itself is showing one (a live ETA exists, not warming
+                // up, not near full) - same condition as PredictionText - so the
+                // two never disagree. Otherwise the scrub shows just the level.
+                val hasLiveEta = charging && state.status != ChargeStatus.Full &&
+                    state.percent < 99.5f && (
+                        (!state.estimateToFull && (state.targetEtaMs?.let { it - nowMs > 0L } == true)) ||
+                            (state.fullEtaMs?.let { it - nowMs > 0L } == true)
+                    )
                 BatteryScrubOverlay(
                     currentPercent = state.percent,
-                    ratePctPerMin = if (charging) state.ratePctPerMin else 0f,
+                    ratePctPerMin = if (hasLiveEta) state.ratePctPerMin else 0f,
                     nowMs = nowMs,
                     clockAt = clockAt,
                     onScrubFrac = { scrubFrac = it },
