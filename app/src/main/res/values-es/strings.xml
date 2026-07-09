@@ -1748,6 +1748,8 @@
     <string name="adv_hud_manual_grace_desc">Afecta cuánto tiempo tiene el autodescubrimiento antes de usar la IP manual. Peligro: muy bajo usa la IP manual antes de que el descubrimiento pueda ganar.</string>
     <string name="adv_hud_mdns_resolve">Tiempo de resolución mDNS</string>
     <string name="adv_hud_mdns_resolve_desc">Afecta cuánto tiempo se tarda en resolver los detalles de dirección de un HUD descubierto. Peligro: muy bajo descarta un HUD que se resuelve lentamente.</string>
+    <string name="adv_hud_subnet_delay">Retraso del escaneo de subred</string>
+    <string name="adv_hud_subnet_delay_desc">Afecta cuánto tarda en iniciarse el escaneo de subred de último recurso, para que mDNS y la baliza respondan primero sin congestión de radio. Peligro: muy bajo satura la radio y ralentiza el descubrimiento.</string>
     <string name="adv_hud_mdns_timeout">Tiempo de espera de descubrimiento</string>
     <string name="adv_hud_mdns_timeout_desc">Afecta cuánto esperar a que el HUD responda al autodescubrimiento. Peligro: muy bajo se rinde antes de que responda.</string>
     <string name="adv_hud_report_interval">Frecuencia de informe del HUD</string>

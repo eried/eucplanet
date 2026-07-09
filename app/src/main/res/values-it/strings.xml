@@ -1656,6 +1656,8 @@
     <string name="adv_hud_manual_grace_desc">Influisce su quanto tempo ha la ricerca automatica prima di usare l\'IP manuale. Pericolo: troppo basso usa l\'IP manuale prima che la ricerca possa riuscire.</string>
     <string name="adv_hud_mdns_resolve">Tempo di risoluzione mDNS</string>
     <string name="adv_hud_mdns_resolve_desc">Influisce su quanto tempo per risolvere i dettagli dell\'indirizzo di un HUD trovato. Pericolo: troppo basso scarta un HUD lento a risolversi.</string>
+    <string name="adv_hud_subnet_delay">Ritardo scansione subnet</string>
+    <string name="adv_hud_subnet_delay_desc">Influisce su quanto tempo prima che parta la scansione della subnet come ultima risorsa, così mDNS e il beacon rispondono per primi senza congestione radio. Pericolo: troppo basso intasa la radio e rallenta la ricerca.</string>
     <string name="adv_hud_mdns_timeout">Timeout ricerca</string>
     <string name="adv_hud_mdns_timeout_desc">Influisce su quanto attendere che il HUD risponda alla ricerca automatica. Pericolo: troppo basso rinuncia prima che risponda.</string>
     <string name="adv_hud_report_interval">Frequenza dati HUD</string>

@@ -1748,6 +1748,8 @@
     <string name="adv_hud_manual_grace_desc">수동 IP를 사용하기 전에 자동 검색에 주어지는 시간에 영향을 줍니다. 주의: 너무 낮으면 검색이 성공하기 전에 수동 IP를 사용합니다.</string>
     <string name="adv_hud_mdns_resolve">mDNS 확인 시간</string>
     <string name="adv_hud_mdns_resolve_desc">검색된 HUD의 주소 정보를 확인하는 시간에 영향을 줍니다. 주의: 너무 낮으면 확인이 느린 HUD를 버립니다.</string>
+    <string name="adv_hud_subnet_delay">서브넷 스캔 지연</string>
+    <string name="adv_hud_subnet_delay_desc">최후 수단인 서브넷 스캔이 시작되기까지의 시간에 영향을 줍니다. 이렇게 하면 mDNS와 비콘이 먼저 응답하고 무선이 혼잡해지지 않습니다. 주의: 너무 낮으면 무선을 가득 메우고 검색을 느리게 합니다.</string>
     <string name="adv_hud_mdns_timeout">검색 시간 초과</string>
     <string name="adv_hud_mdns_timeout_desc">HUD가 자동 검색에 응답하기를 기다리는 시간을 결정합니다. 주의: 너무 낮으면 응답 전에 포기합니다.</string>
     <string name="adv_hud_report_interval">HUD 보고 속도</string>
