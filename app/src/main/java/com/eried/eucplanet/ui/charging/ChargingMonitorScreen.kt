@@ -7,7 +7,10 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.layout.Arrangement
@@ -92,6 +95,7 @@ import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -125,7 +129,9 @@ fun ChargingMonitorScreen(
     val charging = state.status == ChargeStatus.Charging || state.status == ChargeStatus.Full
 
     var showSheet by remember { mutableStateOf(false) }
-    val sheetState = rememberModalBottomSheetState()
+    // Open fully expanded so the rider doesn't have to drag the sheet up to see
+    // the tabs' content.
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
     val pct = rememberAnimatedPercent(state.percent, state.ratePctPerMin, charging, full = state.status == ChargeStatus.Full)
     // Live clock so the ETA counts down in real time between telemetry frames.
@@ -960,18 +966,17 @@ private fun InfoTabs(state: ChargingUiState) {
     var selected by remember { mutableIntStateOf(0) }
     if (selected >= tabs.size) selected = 0
 
-    // Cells tab opens taller than the other tabs (128 cells need room on V14
-    // 4-pack rigs and Veteran-family 42-cell packs); content scrolls vertically
-    // inside that height. Other tabs keep the fixed 280 dp so flicking between
-    // them doesn't jiggle the sheet height.
+    // One constant content height for EVERY tab so switching Charge / Packs /
+    // Cells never resizes the sheet. Uses the taller "cells" height (128 cells
+    // need room on V14 4-pack rigs and Veteran-family 42-cell packs; the Packs
+    // chart wants the room too); shorter tabs just have extra space below their
+    // content, and each tab scrolls vertically inside that height.
     val configuration = LocalConfiguration.current
     val screenH = configuration.screenHeightDp.dp
-    val cellsH = (screenH * 0.75f).coerceIn(420.dp, (screenH * 0.9f).coerceAtLeast(500.dp))
-    val isCellsTab = tabs.getOrNull(selected)?.second == "cells"
-    // The Packs tab now carries a history chart above the pack tiles, so it gets
-    // the same tall, scrollable treatment as Cells instead of the fixed 280 dp.
-    val isPacksTab = tabs.getOrNull(selected)?.second == "packs"
-    val contentH = if (isCellsTab || isPacksTab) cellsH else 280.dp
+    // One height for every tab so switching Charge / Packs / Cells never resizes
+    // the sheet. Opens a bit past half so the rider doesn't have to drag it up,
+    // but well short of full screen. Cells / Packs content scrolls inside it.
+    val contentH = (screenH * 0.50f).coerceIn(380.dp, 560.dp)
 
     // Hoisted so the count survives Cells <-> Packs tab switches. Initialize
     // from the already-cached BmsState so opening the bottom sheet on a wheel
@@ -1067,18 +1072,50 @@ private fun InfoTabs(state: ChargingUiState) {
                         StatRow(stringResource(R.string.charging_stat_voltage), "%.1f V".format(state.voltage))
                     }
                     "packs" -> {
+                      // Which pack bands are hidden. Tap a tile to toggle its band
+                      // in the chart; the global imbalance line is never affected.
+                      // Reset when leaving the Packs tab.
+                      var hiddenPacks by remember { mutableStateOf(emptySet<Int>()) }
+                      // Shared pack identity colors: a tile's accent is the same
+                      // color as its band in the chart above.
+                      val packColors = packIdentityColors()
+                      // Cell count per pack, so the graph can report imbalance
+                      // per-cell (matching the tiles) while the axis stays whole-pack.
+                      val cellCounts = state.bms.packs
+                          .filter { it.knownCells.isNotEmpty() }
+                          .map { it.knownCells.size }
+                      val toggle: (Int) -> Unit = { idx ->
+                          hiddenPacks = if (idx in hiddenPacks) hiddenPacks - idx else hiddenPacks + idx
+                      }
+                      // Total packs (BMS packs, else the 2 SoC packs).
+                      val packCount = maxOf(
+                          cellCounts.size,
+                          listOf(state.battery1, state.battery2).count { it > 0f },
+                      )
+                      // Long-press = solo this pack (hide all others). Long-press an
+                      // already-soloed pack inverts it (show all others, hide this).
+                      val solo: (Int) -> Unit = { idx ->
+                          val others = (0 until packCount).toSet() - idx
+                          hiddenPacks = if (hiddenPacks == others) setOf(idx) else others
+                      }
                       Column(
                         modifier = Modifier
                             .fillMaxWidth()
                             .verticalScroll(rememberScrollState()),
                       ) {
-                        // Per-pack history graph above the tiles: one line per
-                        // pack on the shared left axis, the imbalance spread
-                        // emphasized on the right. Hidden with fewer than 2 packs
-                        // or 2 samples (guarded inside PacksChart).
+                        // Per-pack whole-pack-voltage band chart above the tiles:
+                        // one filled band per pack (its cell spread in whole-pack
+                        // volts) plus the global pack-to-pack imbalance as a dashed
+                        // right-axis line. Hidden with fewer than 2 packs or 2
+                        // samples (guarded inside PacksChart).
                         PacksChart(
-                            packSeries = state.packSeriesHistory,
+                            packMin = state.packMinHistory,
+                            packMax = state.packMaxHistory,
+                            packAvg = state.packAvgHistory,
                             unit = state.packSeriesUnit,
+                            hiddenPacks = hiddenPacks,
+                            packColors = packColors,
+                            cellCounts = cellCounts,
                         )
                         // Per-pack BMS data takes a few seconds to arrive (one
                         // pack query per ~4.5 s stats tick), so the tile count
@@ -1088,15 +1125,33 @@ private fun InfoTabs(state: ChargingUiState) {
                         // Cells <-> Packs tab switches.
                         val bmsPacks = state.bms.packs.filter { it.knownCells.isNotEmpty() }
                         if (stableBmsCount > 0 && bmsPacks.size >= stableBmsCount) {
+                            val shown = bmsPacks.take(stableBmsCount)
                             // Per-cell data available: show the measured truth, the
                             // pack's average cell voltage. A voltage->percent
                             // estimate here reads far too high mid-charge (the
                             // Li-ion plateau is flat and charging elevates cell
                             // voltage), contradicting the wheel's own BMS SoC.
-                            val packVolts = bmsPacks.take(stableBmsCount).map { pack ->
+                            val packVolts = shown.map { pack ->
                                 pack.knownCells.map { it.second }.average().toFloat()
                             }
-                            PacksGrid(packVolts, isVoltage = true, state.cellLowWarnMv, state.cellLowDangerMv, state.cellHighMv, state.packBalanceTolerancePct)
+                            // Whole pack voltage (sum of its cells) for the tile's
+                            // big number; the imbalance shown is per-pack internal.
+                            val packTotals = shown.map { pack ->
+                                pack.knownCells.sumOf { it.second.toDouble() }.toFloat()
+                            }
+                            // Internal cell imbalance (max cell - min cell) of each
+                            // pack, in mV -- the per-pack balance the tile reports.
+                            val packDeltas = shown.map { it.cellDeltaMv ?: 0 }
+                            PacksGrid(
+                                packs = packVolts,
+                                isVoltage = true,
+                                packColors = packColors,
+                                hiddenPacks = hiddenPacks,
+                                onToggle = toggle,
+                                onSolo = solo,
+                                internalDeltaMv = packDeltas,
+                                displayValues = packTotals,
+                            )
                             Spacer(Modifier.height(8.dp))
                             if (packVolts.size >= 2) {
                                 // Imbalance as a mV spread -- the real pack-health
@@ -1111,7 +1166,14 @@ private fun InfoTabs(state: ChargingUiState) {
                                 if (state.battery1 > 0f) add(state.battery1)
                                 if (state.battery2 > 0f) add(state.battery2)
                             }
-                            PacksGrid(packs, isVoltage = false, state.cellLowWarnMv, state.cellLowDangerMv, state.cellHighMv, state.packBalanceTolerancePct)
+                            PacksGrid(
+                                packs = packs,
+                                isVoltage = false,
+                                packColors = packColors,
+                                hiddenPacks = hiddenPacks,
+                                onToggle = toggle,
+                                onSolo = solo,
+                            )
                             Spacer(Modifier.height(8.dp))
                             if (packs.size >= 2) {
                                 // 2 decimals + explicit sign so a fully balanced
@@ -1187,23 +1249,48 @@ private fun ChargingChart(
 }
 
 /**
- * Per-pack history chart for the Packs tab. One line per pack on the shared
- * left axis (sum of a pack's known cell voltages in "V" on smart-BMS wheels,
- * else per-pack SoC in "%") plus a single emphasized imbalance line
- * (max pack - min pack) on the right axis with a zero baseline. Reuses the
- * app's interactive MetricGraph so hold-to-scrub works like the other charts.
- * Renders nothing (with no spacing) unless there are at least two packs and
- * two samples.
+ * Ordered pack identity colors, shared by the Packs tab tiles and the graph
+ * bands so each pack's tile matches its band. Indexed by pack, wrapping if a
+ * wheel ever reports more packs than colors.
+ */
+@Composable
+private fun packIdentityColors(): List<Color> {
+    val c = MaterialTheme.appColors
+    return listOf(c.metricVoltage, c.metricBattery, c.metricTemp, c.metricPosition, c.metricAccel, c.primary)
+}
+
+/**
+ * Per-pack whole-pack-voltage band chart for the Packs tab. One filled band per
+ * pack, in that pack's identity color, from its lowest to its highest cell scaled
+ * to whole-pack volts (so the left axis reads ~127 V and a band thickens when the
+ * pack's own cells drift apart). The global pack-to-pack imbalance (max - min of
+ * the pack averages) is drawn as a thicker DASHED line on a right-axis imbalance
+ * scale in mV, not an area. Y auto-zooms to the data. On non-BMS wheels min ==
+ * max == the per-pack SoC, so each band is a zero-thickness line and the right
+ * axis reads percentage points. Reuses the app's interactive MetricGraph so
+ * hold-to-scrub still works, with a multiline tooltip listing each visible pack's
+ * voltage / imbalance plus the global imbalance. Renders a "collecting data"
+ * placeholder until there are at least two packs, each with two samples.
  */
 @Composable
 private fun PacksChart(
-    packSeries: List<List<MetricSample>>,
+    packMin: List<List<MetricSample>>,
+    packMax: List<List<MetricSample>>,
+    packAvg: List<List<MetricSample>>,
     unit: String,
+    hiddenPacks: Set<Int>,
+    packColors: List<Color>,
+    cellCounts: List<Int>,
 ) {
     val colors = MaterialTheme.appColors
+    // Cells-per-pack, so whole-pack volts convert to per-cell mV for the
+    // imbalance readouts (the balance-charger scale the tiles use). 1 = no-op.
+    fun cnt(p: Int) = cellCounts.getOrElse(p) { 1 }.coerceAtLeast(1)
     // Always visible, like the Charge tab chart: a collecting-data placeholder
     // until at least two packs each have two samples.
-    val hasData = packSeries.size >= 2 && packSeries.first().size >= 2
+    val hasData = packAvg.size >= 2 &&
+        packMin.size == packAvg.size && packMax.size == packAvg.size &&
+        packAvg.all { it.size >= 2 }
     if (!hasData) {
         Box(
             modifier = Modifier
@@ -1218,56 +1305,126 @@ private fun PacksChart(
         Spacer(Modifier.height(12.dp))
         return
     }
-    // Packs are sampled together, so index i is the same instant across packs.
-    // The packs sit at almost the same voltage, so plotting the absolutes just
-    // overlaps them. Instead plot each pack's deviation from the group mean (the
-    // imbalance) on a centered-zero LEFT axis - so the tiny spread is visible and
-    // reads like the per-pack mV in the tiles - and the absolute voltage on the
-    // RIGHT axis so it stays readable.
-    val n = packSeries.minOf { it.size }
     val toMilli = unit == "V"
-    val devUnit = if (toMilli) "mV" else unit
-    val devScale = if (toMilli) 1000f else 1f
-    val meanSamples = ArrayList<MetricSample>(n)
-    val devSeries = List(packSeries.size) { mutableListOf<MetricSample>() }
+    // Y bounds: min of every pack min .. max of every pack max, padded, with a
+    // floor so a perfectly balanced set still shows a sensible range.
+    val dataLo = packMin.minOf { s -> s.minOf { it.value } }
+    val dataHi = packMax.maxOf { s -> s.maxOf { it.value } }
+    val minSpan = if (toMilli) 0.5f else 5f
+    // Center the bands in the middle ~50% of the axis so there is empty headroom
+    // above and below rather than the data hugging the edges.
+    val center = (dataLo + dataHi) / 2f
+    val half = ((dataHi - dataLo) / 2f).coerceAtLeast(minSpan / 2f)
+    val bounds = GraphBounds(center - half * 2f, center + half * 2f)
+
+    // Packs are sampled together, so index i is the same instant across packs.
+    // overallAvg is the scrub baseline; imbalance is the pack-to-pack spread
+    // (max - min of the pack averages) per sample, plotted on the right axis in
+    // mV (V) or percentage points (% fallback).
+    val n = packAvg.minOf { it.size }
+    val overallAvg = ArrayList<MetricSample>(n)
+    val imbalance = ArrayList<MetricSample>(n)
     for (i in 0 until n) {
-        val t = packSeries[0][i].timestampMs
-        val vals = packSeries.map { it[i].value }
-        val mean = vals.sum() / vals.size
-        meanSamples.add(MetricSample(t, mean))
-        vals.forEachIndexed { p, v -> devSeries[p].add(MetricSample(t, (v - mean) * devScale)) }
+        val t = packAvg[0][i].timestampMs
+        val vals = packAvg.map { it[i].value }
+        overallAvg.add(MetricSample(t, vals.sum() / vals.size))
+        // Per-cell so the right-axis imbalance matches the tiles (~3 mV), not the
+        // whole-pack figure. % fallback has no cells, so it stays as-is.
+        val perCell = if (toMilli) vals.mapIndexed { p, v -> v / cnt(p) } else vals
+        val spread = perCell.max() - perCell.min()
+        imbalance.add(MetricSample(t, if (toMilli) spread * 1000f else spread))
     }
-    // Distinct pack line colors from the metric palette; the voltage reference
-    // sits on the right in a muted tone so the imbalance lines lead.
-    val packColors = listOf(
-        colors.metricVoltage, colors.metricBattery, colors.metricTemp,
-        colors.metricPosition, colors.metricAccel, colors.primary,
-    )
-    val extraSeries = devSeries.drop(1).mapIndexed { i, s ->
-        s to packColors[(i + 1) % packColors.size]
+
+    // One filled whole-pack-voltage band per visible pack. The pack-to-pack
+    // imbalance is no longer a band here (see series2 below).
+    val bands = buildList {
+        packAvg.indices.forEach { p ->
+            if (p !in hiddenPacks) {
+                val pc = packColors[p % packColors.size]
+                add(
+                    com.eried.eucplanet.ui.dashboard.GraphBandSpec(
+                        lower = packMin[p],
+                        upper = packMax[p],
+                        color = pc.copy(alpha = 0.25f),
+                        dotted = false,
+                        outline = true,
+                    )
+                )
+            }
+        }
     }
-    // Floor keeps a balanced pack from zooming into flat noise (5 mV or 0.2 %).
-    val floor = if (toMilli) 5f else 0.2f
+
+    // Multiline scrub tooltip: one line per visible pack (its whole voltage and
+    // its band thickness as an imbalance in mV), then the global pack-to-pack
+    // imbalance. Strings resolved here; the lambda runs in the draw scope.
+    val ctx = LocalContext.current
+    val deltaGlyph = stringResource(R.string.charging_cells_delta)
+    val imbalanceLabel = stringResource(R.string.charging_stat_balance)
+    val tooltipLines: (Long) -> List<String> = { tMs ->
+        val ref = packAvg[0]
+        val nearest = ref.indexOfLast { it.timestampMs <= tMs }
+        val i = nearest.coerceIn(0, n - 1)
+        buildList {
+            packAvg.indices.forEach { p ->
+                if (p !in hiddenPacks) {
+                    val v = packAvg[p][i].value
+                    // Per-cell imbalance (band thickness / cell count) so it reads
+                    // the same as the tile; the voltage stays whole-pack.
+                    val spread = (packMax[p][i].value - packMin[p][i].value) *
+                        (if (toMilli) 1000f / cnt(p) else 1f)
+                    add(
+                        buildString {
+                            append(ctx.getString(R.string.charging_cells_pack_n, p + 1))
+                            append("  ")
+                            append(if (toMilli) "%.1f V".format(v) else "%.1f%%".format(v))
+                            append("  ")
+                            append(deltaGlyph)
+                            append(' ')
+                            append("%.0f".format(spread))
+                            append(if (toMilli) " mV" else " %")
+                        }
+                    )
+                }
+            }
+            val vals = packAvg.map { it[i].value }
+            val perCell = if (toMilli) vals.mapIndexed { p, v -> v / cnt(p) } else vals
+            val globalSpread = (perCell.max() - perCell.min()) * (if (toMilli) 1000f else 1f)
+            add(
+                buildString {
+                    append(imbalanceLabel)
+                    append("  ")
+                    append(deltaGlyph)
+                    append(' ')
+                    append("%.0f".format(globalSpread))
+                    append(if (toMilli) " mV" else " %")
+                }
+            )
+        }
+    }
+
     MetricGraph(
-        samples = devSeries.first(),
-        color = packColors[0],
-        boundsFor = { mn, mx ->
-            val b = maxOf(abs(mn), abs(mx), floor)
-            GraphBounds(-b, b)
-        },
-        unitLabel = devUnit,
-        series2 = meanSamples,
-        color2 = colors.hint,
-        unit2 = unit,
-        // Cell voltage needs 3 decimals (3.958 V); % fallback stays whole.
-        series2LabelFormat = { if (toMilli) "%.3f".format(it) else "%.0f".format(it) },
+        samples = overallAvg,
+        // Only drives the scrub cursor / tooltip; the main line itself is hidden.
+        color = colors.textPrimary,
+        boundsFor = { _, _ -> bounds },
+        unitLabel = unit,
         timeAxisFormat = com.eried.eucplanet.ui.dashboard.TimeAxisFormat.Clock,
-        extraSeries = extraSeries,
-        // Imbalance lines: slightly thicker, dotted, and no shaded area under any
-        // one of them (they are all equal per-pack lines).
+        showMainLine = false,
         fillMain = false,
-        lineStroke = 4f,
-        linePathEffect = PathEffect.dashPathEffect(floatArrayOf(3f, 7f)),
+        bands = bands,
+        // Global pack-to-pack imbalance: a thicker dashed line on the right axis,
+        // zero-based, in mV (V) or percentage points (% fallback).
+        series2 = imbalance,
+        color2 = colors.textPrimary,
+        unit2 = if (toMilli) "mV" else "%",
+        series2BaselineZero = true,
+        series2Emphasized = true,
+        series2Dashed = true,
+        series2Headroom = 2f,
+        series2LabelFormat = { "%.0f".format(it) },
+        // Whole-pack volts (~127 V) read with 1 decimal; % fallback stays whole.
+        leftLabelFormat = { if (toMilli) "%.1f".format(it) else "%.0f".format(it) },
+        tooltipLines = tooltipLines,
         modifier = Modifier.fillMaxWidth().height(200.dp),
     )
     Spacer(Modifier.height(12.dp))
@@ -1443,23 +1600,34 @@ private fun CellChip(cellNumber: Int, voltage: Float, chipColor: Color, modifier
 }
 
 /**
- * Packs laid out in a grid that adapts to the count (2 → 2 cols, 4 → 2×2,
- * 3 → 3, 6 → 3×2, …). Each tile is a mini fill with "#N" and its %.
+ * Packs laid out in a single adaptive row. Each tile carries its pack's identity
+ * color (the same color as its band in the chart above) as a fill and border
+ * accent, the whole-pack voltage as the big number, and the pack's INTERNAL cell
+ * imbalance (max cell - min cell, in mV) below. Tapping a tile toggles that
+ * pack's band in the chart; a hidden pack reads dimmed.
  */
 @Composable
 private fun PacksGrid(
     packs: List<Float>,
     isVoltage: Boolean,
-    lowWarnMv: Int,
-    lowDangerMv: Int,
-    highMv: Int,
-    tolerancePct: Int,
+    packColors: List<Color>,
+    hiddenPacks: Set<Int>,
+    onToggle: (Int) -> Unit,
+    onSolo: (Int) -> Unit,
+    // Per-pack internal cell imbalance in mV (smart BMS). Null -> SoC fallback,
+    // where the tile shows the pack-vs-pack deviation instead.
+    internalDeltaMv: List<Int>? = null,
+    // Optional big-number override per tile (e.g. whole pack voltage), aligned
+    // with [packs]. The fill fraction and SoC-fallback deviation use [packs].
+    displayValues: List<Float>? = null,
 ) {
     if (packs.isEmpty()) return
     val n = packs.size
-    val colors = MaterialTheme.appColors
-    // Deviation is measured from the pack median (robust to one bad pack).
+    // Deviation reference for the SoC fallback is the pack median.
     val median = medianOf(packs)
+    // 1-2 packs would render as huge half / full-width squares; cap their height
+    // to a compact fixed value. 3+ packs are already small enough as squares.
+    val tileHeight: Dp? = if (n <= 2) 104.dp else null
     // Always render in a single row. Tile width = 1/max(n, 2), so a single
     // pack takes half the row (instead of stretching to a giant square)
     // and the layout never reflows as new BMS packs arrive: when only one
@@ -1470,23 +1638,19 @@ private fun PacksGrid(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.spacedBy(8.dp),
     ) {
-        packs.forEachIndexed { idx, pct ->
-            // Voltage packs use the mV thresholds; the SoC-only fallback uses the
-            // percent tolerance (yellow past 1x low, red past 2x low, blue past
-            // 1x high). Same green-when-balanced language as the cell chips.
-            val tileColor = if (isVoltage) {
-                balanceColor(pct, median, lowWarnMv / 1000f, lowDangerMv / 1000f, highMv / 1000f,
-                    colors.metricBattery, colors.statusWarn, colors.statusDanger, colors.metricVoltage)
-            } else {
-                balanceColor(pct, median, tolerancePct.toFloat(), 2f * tolerancePct, tolerancePct.toFloat(),
-                    colors.metricBattery, colors.statusWarn, colors.statusDanger, colors.metricVoltage)
-            }
+        packs.forEachIndexed { idx, pv ->
             PackTile(
                 index = idx + 1,
-                value = pct,
+                value = pv,
                 avg = median,
                 isVoltage = isVoltage,
-                fillColor = tileColor,
+                identityColor = packColors[idx % packColors.size],
+                hidden = idx in hiddenPacks,
+                onToggle = { onToggle(idx) },
+                onSolo = { onSolo(idx) },
+                internalDeltaMv = internalDeltaMv?.getOrNull(idx),
+                displayValue = displayValues?.getOrNull(idx),
+                tileHeight = tileHeight,
                 modifier = Modifier.weight(1f),
             )
         }
@@ -1497,29 +1661,52 @@ private fun PacksGrid(
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun PackTile(
     index: Int,
     value: Float,
     avg: Float,
     isVoltage: Boolean,
-    fillColor: Color = MaterialTheme.appColors.metricVoltage,
+    // Pack identity accent (matches this pack's band in the chart above).
+    identityColor: Color,
+    hidden: Boolean,
+    onToggle: () -> Unit,
+    onSolo: () -> Unit,
+    // Internal cell imbalance (max cell - min cell) of this pack in mV; null on
+    // the SoC fallback, where the pack-vs-pack deviation is shown instead.
+    internalDeltaMv: Int?,
+    // Big number to show instead of [value] (e.g. the whole pack voltage ~127 V).
+    displayValue: Float? = null,
+    // Fixed tile height for sparse (1-2 pack) layouts; null keeps the square
+    // aspect used when 3+ packs already make the tiles small.
+    tileHeight: Dp? = null,
     modifier: Modifier = Modifier,
 ) {
+    val colors = MaterialTheme.appColors
     // Fill fraction: SoC maps 0-100 %; voltage maps the 3.0-4.2 V cell range to
     // the same bar height (visual only, never shown as a percent).
     val frac = (if (isVoltage) (value - 3.0f) / 1.2f else value / 100f).coerceIn(0f, 1f)
-    val delta = value - avg
-    val hatchColor = MaterialTheme.appColors.hint
+    val hatchColor = colors.hint
     Box(
         modifier = modifier
-            .aspectRatio(1f)
+            .then(if (tileHeight != null) Modifier.height(tileHeight) else Modifier.aspectRatio(1f))
             .clip(RoundedCornerShape(10.dp))
-            .background(MaterialTheme.appColors.tileBackground),
+            // Tap toggles this pack; long-press solos it (see onSolo).
+            .combinedClickable(onClick = { onToggle() }, onLongClick = { onSolo() })
+            // Dim the WHOLE tile (border + fill + text) as one layer when the pack
+            // is hidden, so the border and the area always match. Must come before
+            // border/background so those dim with the content, not separately.
+            .alpha(if (hidden) 0.4f else 1f)
+            .border(
+                width = 1.5.dp,
+                color = identityColor.copy(alpha = 0.85f),
+                shape = RoundedCornerShape(10.dp),
+            )
+            .background(colors.tileBackground),
     ) {
-        // Pack-level fill from the bottom: backing color tinted by the pack's
-        // deviation from the median (green when balanced, warm when low, blue
-        // when high), matching the cell chips' color language.
+        // Pack-level fill from the bottom in the pack's identity color, so the
+        // tile reads as the same pack as its band in the chart.
         Canvas(
             modifier = Modifier
                 .fillMaxWidth()
@@ -1529,7 +1716,7 @@ private fun PackTile(
             val w = size.width
             val h = size.height
             if (h < 1f) return@Canvas
-            drawRect(color = fillColor.copy(alpha = 0.20f))
+            drawRect(color = identityColor.copy(alpha = 0.20f))
             val spacing = 26f
             val stripe = hatchColor.copy(alpha = 0.30f)
             var x = 0f
@@ -1547,28 +1734,47 @@ private fun PackTile(
             modifier = Modifier.align(Alignment.Center),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            Text("#$index", fontSize = 12.sp, color = MaterialTheme.appColors.textSecondary)
+            Text("#$index", fontSize = 12.sp, color = colors.textSecondary)
             Text(
-                if (isVoltage) "%.2f V".format(value) else "%.1f%%".format(value),
+                when {
+                    isVoltage && displayValue != null -> "%.1f V".format(displayValue)
+                    isVoltage -> "%.2f V".format(value)
+                    else -> "%.1f%%".format(value)
+                },
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Bold,
-                color = MaterialTheme.appColors.textPrimary,
+                color = colors.textPrimary,
             )
-            // Deviation from the pack median. Always shown so a balanced
-            // pack reads "+0.00%" instead of an empty line, keeping the 4-pack
-            // row visually uniform. 2 decimals preserve the real sign even
-            // for sub-tenth values (a -0.04 % delta shows as "-0.04%" instead
-            // of getting rounded down to a confusing "-0.0%").
-            Text(
-                if (isVoltage) "%+.0f mV".format(delta * 1000f) else "%+.2f%%".format(delta),
-                fontSize = 11.sp,
-                fontWeight = FontWeight.Medium,
-                color = when {
-                    delta > 0.005f -> MaterialTheme.appColors.metricBattery
-                    delta < -0.005f -> MaterialTheme.appColors.metricVoltage
-                    else -> MaterialTheme.appColors.hint
-                },
-            )
+            if (internalDeltaMv != null) {
+                // Internal cell imbalance (max cell - min cell), prefixed with the
+                // same Δ glyph the Cells tab uses, colored by severity:
+                // >= 100 mV danger, >= 50 mV warn, else good.
+                Text(
+                    "${stringResource(R.string.charging_cells_delta)} $internalDeltaMv mV",
+                    fontSize = 11.sp,
+                    fontWeight = FontWeight.Medium,
+                    color = when {
+                        internalDeltaMv >= 100 -> colors.statusDanger
+                        internalDeltaMv >= 50 -> colors.statusWarn
+                        else -> colors.statusGood
+                    },
+                )
+            } else {
+                // SoC fallback (no cells): show the pack-vs-pack deviation.
+                // Always shown so a balanced pack reads "+0.00%" instead of an
+                // empty line, keeping the row visually uniform.
+                val delta = value - avg
+                Text(
+                    "%+.2f%%".format(delta),
+                    fontSize = 11.sp,
+                    fontWeight = FontWeight.Medium,
+                    color = when {
+                        delta > 0.005f -> colors.metricBattery
+                        delta < -0.005f -> colors.metricVoltage
+                        else -> colors.hint
+                    },
+                )
+            }
         }
     }
 }

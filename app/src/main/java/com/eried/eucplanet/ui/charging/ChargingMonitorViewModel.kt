@@ -58,10 +58,11 @@ data class ChargingUiState(
     val chargeHistory: List<MetricSample> = emptyList(),
     val voltageHistory: List<MetricSample> = emptyList(),
     val tempHistory: List<MetricSample> = emptyList(),
-    /** Per-pack value history (one list per pack), pack imbalance spread, and the
-     *  shared unit ("V" or "%") for the Packs tab graph. */
-    val packSeriesHistory: List<List<MetricSample>> = emptyList(),
-    val packSpreadHistory: List<MetricSample> = emptyList(),
+    /** Per-pack cell-spread history (one list per pack) as min / max / avg cell
+     *  voltage, plus the shared unit ("V" or "%") for the Packs tab band chart. */
+    val packMinHistory: List<List<MetricSample>> = emptyList(),
+    val packMaxHistory: List<List<MetricSample>> = emptyList(),
+    val packAvgHistory: List<List<MetricSample>> = emptyList(),
     val packSeriesUnit: String = "%",
     /** Per-session snapshots of the running 80 % / 100 % predictions. */
     val predictionHistory: List<PredictionSample> = emptyList(),
@@ -195,8 +196,9 @@ class ChargingMonitorViewModel @Inject constructor(
             chargeHistory = snap.chargeHistory,
             voltageHistory = snap.voltageHistory,
             tempHistory = snap.tempHistory,
-            packSeriesHistory = snap.packSeriesHistory,
-            packSpreadHistory = snap.packSpreadHistory,
+            packMinHistory = snap.packMinHistory,
+            packMaxHistory = snap.packMaxHistory,
+            packAvgHistory = snap.packAvgHistory,
             packSeriesUnit = snap.packSeriesUnit,
             predictionHistory = snap.predictionHistory,
             bms = bms,

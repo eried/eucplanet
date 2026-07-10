@@ -73,13 +73,15 @@ data class ChargingSnapshot(
     val sessionEnergyInWh: Float = 0f,
     /** Wh used while discharging this session (magnitude of the negative-power part). */
     val sessionEnergyOutWh: Float = 0f,
-    /** Per-pack value history, one list per pack, sampled on the SAME cadence as
-     *  [chargeHistory] so the X axes line up. Each value is the sum of a pack's
-     *  known cell voltages on a smart-BMS wheel, else the per-pack SoC. */
-    val packSeriesHistory: List<List<MetricSample>> = emptyList(),
-    /** Imbalance history: (max pack value - min pack value) per sample, always >= 0. */
-    val packSpreadHistory: List<MetricSample> = emptyList(),
-    /** Unit shared by [packSeriesHistory] and [packSpreadHistory]: "V" or "%". */
+    /** Per-pack cell-spread history, one list per pack, sampled on the SAME
+     *  cadence as [chargeHistory] so the X axes line up. Three parallel series
+     *  per pack: the min, max and average cell voltage. On a smart-BMS wheel the
+     *  values are per-cell volts ("V"); on a non-BMS wheel min == max == avg ==
+     *  the per-pack SoC ("%"), so its band is zero-thickness. */
+    val packMinHistory: List<List<MetricSample>> = emptyList(),
+    val packMaxHistory: List<List<MetricSample>> = emptyList(),
+    val packAvgHistory: List<List<MetricSample>> = emptyList(),
+    /** Unit shared by the pack histories: "V" (smart BMS) or "%" (per-pack SoC). */
     val packSeriesUnit: String = "%",
 )
 
@@ -242,14 +244,15 @@ class WheelRepository @Inject constructor(
     private val chargePctHist = ArrayDeque<MetricSample>()
     private val chargeVoltHist = ArrayDeque<MetricSample>()
     private val chargeTempHist = ArrayDeque<MetricSample>()
-    // Per-pack charging-session history (one ring per pack) plus the imbalance
-    // spread, both sampled on the SAME cadence as chargePctHist so their X axes
-    // align. packHistUnit is "V" (sum of a pack's known cell voltages on a
-    // smart-BMS wheel) or "%" (per-pack SoC on battery1/battery2 wheels). The
+    // Per-pack charging-session history: three rings per pack (min / max / avg
+    // cell voltage), all sampled on the SAME cadence as chargePctHist so their X
+    // axes align. packHistUnit is "V" (per-cell voltage on a smart-BMS wheel) or
+    // "%" (per-pack SoC on battery1/battery2 wheels, where min == max == avg). The
     // buffers reset when the unit or pack count changes so a "%" -> "V" switch
     // (BMS data arriving a few seconds after connect) never mixes units on one axis.
-    private val packHist = mutableListOf<ArrayDeque<MetricSample>>()
-    private val packSpreadHist = ArrayDeque<MetricSample>()
+    private val packMinHist = mutableListOf<ArrayDeque<MetricSample>>()
+    private val packMaxHist = mutableListOf<ArrayDeque<MetricSample>>()
+    private val packAvgHist = mutableListOf<ArrayDeque<MetricSample>>()
     private var packHistUnit = "%"
     private var chargeLastHistMs = 0L
     // Committed finish times: chosen once (remaining rounded up to the minute),
@@ -769,59 +772,74 @@ class WheelRepository @Inject constructor(
             sessionEnergyWh = sessionEnergyWh,
             sessionEnergyInWh = sessionEnergyInWh,
             sessionEnergyOutWh = sessionEnergyOutWh,
-            packSeriesHistory = packHist.map { it.toList() },
-            packSpreadHistory = packSpreadHist.toList(),
+            packMinHistory = packMinHist.map { it.toList() },
+            packMaxHistory = packMaxHist.map { it.toList() },
+            packAvgHistory = packAvgHist.map { it.toList() },
             packSeriesUnit = packHistUnit,
         )
     }
 
     /** Clears the per-pack session history and resets its unit. */
     private fun clearPackHist() {
-        packHist.clear()
-        packSpreadHist.clear()
+        packMinHist.clear()
+        packMaxHist.clear()
+        packAvgHist.clear()
         packHistUnit = "%"
     }
 
     /**
-     * Sample the per-pack values on the charge-history cadence. A smart-BMS wheel
-     * (packs with non-empty cell voltages) records each pack as the SUM of its
-     * known cell voltages, in "V"; otherwise it falls back to the per-pack SoC
-     * (battery1 / battery2) in "%". All packs in one graph share a single unit.
-     * The buffers reset when the unit or the pack count changes so a "%" -> "V"
-     * switch (BMS data lands a few seconds after connect) never mixes units on
-     * one axis. A single-pack source has a degenerate (always-zero) spread and is
-     * simply not recorded, so the Packs graph needs at least two packs to show.
+     * Sample the per-pack cell spread on the charge-history cadence. A smart-BMS
+     * wheel (packs with non-empty cell voltages) records each pack's whole-pack
+     * voltage in "V" (min / max = the lowest / highest cell scaled by the cell
+     * count, avg = the summed pack voltage), so a band's thickness is the pack's
+     * internal cell spread expressed in whole-pack volts; otherwise it falls back
+     * to the per-pack SoC (battery1 / battery2) in "%", where min == max == avg (a
+     * zero-thickness band). All packs in one graph share a single unit. The buffers reset when
+     * the unit or the pack count changes so a "%" -> "V" switch (BMS data lands a
+     * few seconds after connect) never mixes units on one axis. A single-pack
+     * source is simply not recorded, so the Packs graph needs at least two packs.
      */
     private fun recordPackHist(data: WheelData) {
         val bmsPacks = _bmsState.value.packs.filter { it.knownCells.isNotEmpty() }
-        val values: List<Float>
+        val mins: List<Float>
+        val maxs: List<Float>
+        val avgs: List<Float>
         val unit: String
         if (bmsPacks.isNotEmpty()) {
-            // Average cell voltage per pack (NOT the sum): the Packs tiles read
-            // the average, so this keeps the graph's imbalance on the same
-            // per-cell mV scale as the tiles instead of ~cellCount times larger.
-            values = bmsPacks.map { pack -> pack.knownCells.map { it.second }.average().toFloat() }
+            // Whole-pack voltage, not per-cell: the graph's left axis then reads
+            // the real pack voltage (~127 V) and each band = the pack's cell
+            // spread expressed in whole-pack volts. min / max = the lowest /
+            // highest cell scaled by the cell count; avg = the actual pack
+            // voltage (the sum of its known cells).
+            mins = bmsPacks.map { (it.minCellV ?: 0f) * it.knownCells.size }
+            maxs = bmsPacks.map { (it.maxCellV ?: 0f) * it.knownCells.size }
+            avgs = bmsPacks.map { pack -> pack.knownCells.sumOf { it.second.toDouble() }.toFloat() }
             unit = "V"
         } else {
-            values = buildList {
+            val soc = buildList {
                 if (data.battery1Percent > 0f) add(data.battery1Percent)
                 if (data.battery2Percent > 0f) add(data.battery2Percent)
             }
+            mins = soc; maxs = soc; avgs = soc
             unit = "%"
         }
-        if (values.size < 2) {
+        if (avgs.size < 2) {
             clearPackHist()
             return
         }
-        if (unit != packHistUnit || packHist.size != values.size) {
-            packHist.clear()
-            packSpreadHist.clear()
+        if (unit != packHistUnit || packAvgHist.size != avgs.size) {
+            packMinHist.clear(); packMaxHist.clear(); packAvgHist.clear()
             packHistUnit = unit
-            repeat(values.size) { packHist.add(ArrayDeque()) }
+            repeat(avgs.size) {
+                packMinHist.add(ArrayDeque()); packMaxHist.add(ArrayDeque()); packAvgHist.add(ArrayDeque())
+            }
         }
-        values.forEachIndexed { i, v -> pushHist(packHist[i], data.timestamp, v) }
-        val spread = (values.max() - values.min()).coerceAtLeast(0f)
-        pushHist(packSpreadHist, data.timestamp, spread)
+        val t = data.timestamp
+        for (i in avgs.indices) {
+            pushHist(packMinHist[i], t, mins[i])
+            pushHist(packMaxHist[i], t, maxs[i])
+            pushHist(packAvgHist[i], t, avgs[i])
+        }
     }
 
     /**
