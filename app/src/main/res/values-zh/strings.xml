@@ -1618,6 +1618,8 @@
     <string name="adv_hud_manual_grace_desc">影响使用手动 IP 前留给自动发现的时长。危险:过低会在发现成功前就使用手动 IP。</string>
     <string name="adv_hud_mdns_resolve">mDNS 解析时长</string>
     <string name="adv_hud_mdns_resolve_desc">影响解析已发现 HUD 地址详情的时长。危险:过低会丢弃解析较慢的 HUD。</string>
+    <string name="adv_hud_subnet_delay">子网扫描延迟</string>
+    <string name="adv_hud_subnet_delay_desc">影响最后手段的子网扫描在多久后开始，让 mDNS 和信标先应答，避免无线电拥塞。危险:过低会挤占无线电并拖慢发现。</string>
     <string name="adv_hud_mdns_timeout">发现超时</string>
     <string name="adv_hud_mdns_timeout_desc">影响等待 HUD 响应自动发现的时长。危险:过低会在它回应前放弃。</string>
     <string name="adv_hud_report_interval">HUD 上报频率</string>

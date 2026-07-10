@@ -1751,6 +1751,8 @@
     <string name="adv_hud_manual_grace_desc">Влияет на то, сколько времени есть у автообнаружения до использования ручного IP. Опасно: слишком малое использует ручной IP до того, как обнаружение успеет сработать.</string>
     <string name="adv_hud_mdns_resolve">Время разрешения mDNS</string>
     <string name="adv_hud_mdns_resolve_desc">Влияет на то, как долго разрешаются данные адреса найденного HUD. Опасно: слишком малое отбрасывает HUD, который медленно разрешается.</string>
+    <string name="adv_hud_subnet_delay">Задержка сканирования подсети</string>
+    <string name="adv_hud_subnet_delay_desc">Влияет на то, сколько времени проходит до запуска сканирования подсети как крайней меры, чтобы mDNS и маячок ответили первыми без перегрузки радиоканала. Опасно: слишком малое перегружает радиоканал и замедляет обнаружение.</string>
     <string name="adv_hud_mdns_timeout">Таймаут обнаружения</string>
     <string name="adv_hud_mdns_timeout_desc">Влияет на то, как долго ждать ответа HUD на автообнаружение. Опасно: слишком малое сдаётся до ответа.</string>
     <string name="adv_hud_report_interval">Частота отчётов HUD</string>

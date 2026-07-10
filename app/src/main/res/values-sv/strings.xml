@@ -1751,6 +1751,8 @@
     <string name="adv_hud_manual_grace_desc">Påverkar hur lång tid automatisk upptäckt får innan den manuella IP:n används. Fara: för lågt använder den manuella IP:n innan upptäckten hinner vinna.</string>
     <string name="adv_hud_mdns_resolve">mDNS-uppslagstid</string>
     <string name="adv_hud_mdns_resolve_desc">Påverkar hur länge adressuppgifterna för ett hittat HUD slås upp. Fara: för lågt släpper ett HUD som är långsamt att slå upp.</string>
+    <string name="adv_hud_subnet_delay">Fördröjning för subnätsökning</string>
+    <string name="adv_hud_subnet_delay_desc">Påverkar hur länge det dröjer innan subnätsökningen som sista utväg startar, så att mDNS och beaconen svarar först utan radioträngsel. Fara: för lågt översvämmar radion och gör upptäckten långsammare.</string>
     <string name="adv_hud_mdns_timeout">Tidsgräns för upptäckt</string>
     <string name="adv_hud_mdns_timeout_desc">Påverkar hur länge appen väntar på att HUD:en ska svara på automatisk upptäckt. Fara: för lågt ger upp innan den svarar.</string>
     <string name="adv_hud_report_interval">HUD-rapportfrekvens</string>

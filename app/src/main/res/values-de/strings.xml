@@ -1771,6 +1771,8 @@
     <string name="adv_hud_manual_grace_desc">Beeinflusst, wie lange die automatische Suche Zeit hat, bevor die manuelle IP verwendet wird. Achtung: zu niedrig nutzt die manuelle IP, bevor die Suche gewinnen kann.</string>
     <string name="adv_hud_mdns_resolve">mDNS-Auflösungszeit</string>
     <string name="adv_hud_mdns_resolve_desc">Beeinflusst, wie lange die Adressdetails eines gefundenen HUD aufgelöst werden. Achtung: zu niedrig verwirft ein HUD, das langsam auflöst.</string>
+    <string name="adv_hud_subnet_delay">Subnetz-Scan-Verzögerung</string>
+    <string name="adv_hud_subnet_delay_desc">Beeinflusst, wie lange es dauert, bis der Subnetz-Scan als letztes Mittel startet, damit mDNS und das Beacon zuerst antworten, ohne den Funk zu überlasten. Achtung: zu niedrig überflutet den Funk und verlangsamt die Suche.</string>
     <string name="adv_hud_mdns_timeout">Suche-Zeitlimit</string>
     <string name="adv_hud_mdns_timeout_desc">Beeinflusst, wie lange auf die Antwort des HUD bei der automatischen Suche gewartet wird. Achtung: zu niedrig gibt auf, bevor es antwortet.</string>
     <string name="adv_hud_report_interval">HUD-Melderate</string>

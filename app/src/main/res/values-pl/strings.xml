@@ -1749,6 +1749,8 @@
     <string name="adv_hud_manual_grace_desc">Wpływa na to, ile czasu ma autowykrywanie, zanim użyty zostanie ręczny IP. Uwaga: zbyt mała wartość używa ręcznego IP, zanim wykrywanie zdąży wygrać.</string>
     <string name="adv_hud_mdns_resolve">Czas rozwiązywania mDNS</string>
     <string name="adv_hud_mdns_resolve_desc">Wpływa na to, jak długo rozwiązywane są szczegóły adresu wykrytego HUD. Uwaga: zbyt mała wartość odrzuca HUD, który wolno się rozwiązuje.</string>
+    <string name="adv_hud_subnet_delay">Opóźnienie skanowania podsieci</string>
+    <string name="adv_hud_subnet_delay_desc">Wpływa na to, ile czasu mija, zanim rozpocznie się skanowanie podsieci w ostateczności, aby mDNS i beacon odpowiedziały pierwsze bez przeciążenia radia. Uwaga: zbyt mała wartość zalewa radio i spowalnia wykrywanie.</string>
     <string name="adv_hud_mdns_timeout">Limit czasu wykrywania</string>
     <string name="adv_hud_mdns_timeout_desc">Wpływa na to, jak długo czekać na odpowiedź HUD na autowykrywanie. Uwaga: zbyt mała wartość poddaje się, zanim HUD odpowie.</string>
     <string name="adv_hud_report_interval">Częstotliwość raportów HUD</string>

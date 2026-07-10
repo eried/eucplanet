@@ -1766,6 +1766,8 @@
     <string name="adv_hud_manual_grace_desc">Påvirker, hvor lang tid automatisk registrering får, før den manuelle IP bruges. Fare: for lavt bruger den manuelle IP, før registreringen kan nå at vinde.</string>
     <string name="adv_hud_mdns_resolve">mDNS-opløsningstid</string>
     <string name="adv_hud_mdns_resolve_desc">Påvirker, hvor længe adressedetaljerne for et fundet HUD slås op. Fare: for lavt dropper et HUD, der er langsomt at slå op.</string>
+    <string name="adv_hud_subnet_delay">Forsinkelse af subnetscanning</string>
+    <string name="adv_hud_subnet_delay_desc">Påvirker, hvor længe der går, før subnetscanningen som sidste udvej starter, så mDNS og beaconen svarer først uden radiotrængsel. Fare: for lavt oversvømmer radioen og gør registreringen langsommere.</string>
     <string name="adv_hud_mdns_timeout">Registreringstimeout</string>
     <string name="adv_hud_mdns_timeout_desc">Påvirker hvor længe der ventes på, at HUD svarer på automatisk registrering. Fare: for lavt giver op, før den svarer.</string>
     <string name="adv_hud_report_interval">HUD-rapporthastighed</string>

@@ -1750,6 +1750,8 @@
     <string name="adv_hud_manual_grace_desc">影響使用手動 IP 前留給自動探索的時間。危險：太低會在探索成功前就使用手動 IP。</string>
     <string name="adv_hud_mdns_resolve">mDNS 解析時間</string>
     <string name="adv_hud_mdns_resolve_desc">影響解析已探索 HUD 位址詳情的時間。危險：太低會捨棄解析較慢的 HUD。</string>
+    <string name="adv_hud_subnet_delay">子網掃描延遲</string>
+    <string name="adv_hud_subnet_delay_desc">影響最後手段的子網掃描在多久後開始，讓 mDNS 和信標先回應，避免無線電壅塞。危險：太低會擠占無線電並拖慢探索。</string>
     <string name="adv_hud_mdns_timeout">探索逾時</string>
     <string name="adv_hud_mdns_timeout_desc">影響等待 HUD 回應自動探索的時間。危險：太低會在它回應前就放棄。</string>
     <string name="adv_hud_report_interval">HUD 回報頻率</string>

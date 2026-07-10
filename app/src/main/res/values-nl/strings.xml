@@ -1751,6 +1751,8 @@
     <string name="adv_hud_manual_grace_desc">Bepaalt hoeveel tijd autodetectie krijgt voordat de handmatige IP wordt gebruikt. Let op: te laag gebruikt de handmatige IP voordat detectie kan winnen.</string>
     <string name="adv_hud_mdns_resolve">mDNS-resolutietijd</string>
     <string name="adv_hud_mdns_resolve_desc">Bepaalt hoe lang de adresgegevens van een gevonden HUD worden omgezet. Let op: te laag laat een HUD vallen die traag omzet.</string>
+    <string name="adv_hud_subnet_delay">Vertraging subnetscan</string>
+    <string name="adv_hud_subnet_delay_desc">Bepaalt hoe lang het duurt voordat de subnetscan als laatste redmiddel start, zodat mDNS en de beacon eerst antwoorden zonder radiocongestie. Let op: te laag overspoelt de radio en vertraagt de detectie.</string>
     <string name="adv_hud_mdns_timeout">Detectietime-out</string>
     <string name="adv_hud_mdns_timeout_desc">Bepaalt hoe lang gewacht wordt tot de HUD op autodetectie reageert. Let op: te laag geeft op voordat hij antwoordt.</string>
     <string name="adv_hud_report_interval">HUD-rapportagesnelheid</string>
