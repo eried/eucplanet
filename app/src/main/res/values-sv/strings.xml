@@ -11,16 +11,12 @@
     <string name="action_done">Klar</string>
     <string name="action_close">Stäng</string>
 <string name="crash_log_action_prompt">Du höll inne %1$s. Radera just den här loggen, eller alla. Tryck Avbryt och sedan på filen för att dela den.</string>
-    <string name="crash_log_delete_one">Radera den här loggen</string>
     <string name="crash_log_delete_all">Radera alla</string>
     <string name="crash_log_delete_all_warning">Radera alla sparade kraschloggar? Det går inte att ångra.</string>
     <string name="action_save">Spara</string>
     <string name="action_apply">Använd</string>
     <string name="action_delete">Radera</string>
-    <string name="action_edit">Redigera</string>
     <string name="action_test">Testa</string>
-    <string name="action_move_up">Flytta upp</string>
-    <string name="action_move_down">Flytta ned</string>
     <string name="action_reorder">Dra för att ändra ordning</string>
     <string name="show_gauge_color_band">Färgband på hastighetsmätaren</string>
     <string name="stat_watts">WATT</string>
@@ -202,7 +198,6 @@
     <string name="metric_chip_load">PWM</string>
     <string name="metric_chip_trip">Tur</string>
     <string name="metric_chip_speed">Fart</string>
-    <string name="metric_chip_power">Effekt</string>
     <string name="metric_chip_odometer">Mätarställning</string>
     <string name="metric_chip_motor_power">Motoreffekt</string>
     <string name="metric_chip_battery_power">Batterieffekt</string>
@@ -547,7 +542,6 @@
     <string name="section_report_status">Statusrapport</string>
     <string name="voice_enabled">Rapportera status löpande</string>
     <string name="voice_interval">Intervall</string>
-    <string name="unit_sec">sek</string>
     <string name="announce_wheel_lock">Lås / lås upp hjul</string>
     <string name="announce_lights">Ljus på / av</string>
     <string name="announce_recording">Turinspelning</string>
@@ -883,7 +877,6 @@
     <string name="auto_lights_desc">Tänd och släck strålkastaren efter solens upp- och nedgång</string>
     <string name="auto_lights_on_before_sunset">Tänd ljus före solnedgång</string>
     <string name="auto_lights_off_after_sunrise">Släck ljus efter soluppgång</string>
-    <string name="auto_minutes_fmt">%1$d min</string>
     <string name="auto_waiting_gps">Väntar på GPS-position…</string>
     <string name="auto_volume_title">Volym</string>
     <string name="auto_volume_desc">Höj musikvolymen efter farten</string>
@@ -898,7 +891,6 @@
     <string name="alarm_help">För varje mätvärde utlöses det mest relevanta larmet automatiskt. Ordningen i listan ändrar inte vilket; sorteringen håller bara ordning</string>
     <string name="alarm_empty">Inga larmregler ännu</string>
     <string name="alarm_add">Nytt larm</string>
-    <string name="alarm_smart_sort">Sortera automatiskt</string>
     <string name="alarm_summary_predict_fmt">förutser %1$s s i förväg</string>
     <string name="alarm_new">Nytt larm</string>
     <string name="alarm_edit">Redigera larm</string>
@@ -907,7 +899,6 @@
     <string name="alarm_delete_action">Radera larm</string>
     <string name="alarm_metric_label">Mätvärde</string>
     <string name="alarm_comparator_label">Villkor</string>
-    <string name="alarm_threshold_fmt">Tröskel: %1$s %2$s</string>
     <string name="alarm_threshold_label">Tröskel</string>
     <string name="alarm_label_frequency">Frekvens</string>
     <string name="alarm_label_duration">Varaktighet</string>
@@ -952,9 +943,6 @@
 
     <string name="alarm_section_beep">Pip</string>
     <string name="alarm_enable_beep">Aktivera pip</string>
-    <string name="alarm_beep_freq_fmt">Frekvens: %1$dHz</string>
-    <string name="alarm_beep_duration_fmt">Längd: %1$dms</string>
-    <string name="alarm_beep_repeats_fmt">Upprepningar: %1$d</string>
     <string name="alarm_section_voice">Röst</string>
     <string name="alarm_enable_voice">Aktivera röst</string>
     <string name="alarm_voice_template">Textmall</string>
@@ -962,25 +950,16 @@
     <string name="alarm_voice_default">Varning! {metric} vid {value}</string>
     <string name="alarm_section_vibrate">Vibration</string>
     <string name="alarm_enable_vibrate">Aktivera vibration</string>
-    <string name="alarm_vibrate_duration_fmt">Längd: %1$dms</string>
-    <string name="alarm_vibrate_target_label">Vibrera på</string>
     <string name="alarm_vibrate_target_phone">Telefon</string>
     <string name="alarm_vibrate_target_watch">Klocka</string>
     <string name="alarm_vibrate_target_both">Alla</string>
-    <string name="alarm_section_timing">Timing</string>
     <string name="alarm_cooldown_label">Paus</string>
-    <string name="alarm_cooldown_fmt">Paus: %1$ds</string>
-    <string name="alarm_cooldown_help">Minsta tid mellan utlösningar för den här regeln, även om villkoret fortsätter gälla</string>
-    <string name="alarm_repeat">Upprepa medan aktivt</string>
     <string name="alarm_section_advanced">Avancerat</string>
     <string name="alarm_repeat_label">Utlösning</string>
     <string name="alarm_repeat_single">En gång</string>
     <string name="alarm_repeat_multi">Flera</string>
-    <string name="alarm_repeat_help">En gång: ett larm, sedan återaktiveras det när värdet återgår till den säkra sidan.\nFlera: larmar igen vid varje paus så länge det är utlöst.</string>
     <string name="alarm_predict_label">Förutseende larm</string>
     <string name="alarm_predict_realtime">Nu</string>
-    <string name="alarm_predict_value_fmt">%1$s s tidigare</string>
-    <string name="alarm_predict_help">Nu: larmar i samma stund som tröskeln rapporteras.\nÖvriga: larmar så många sekunder innan trenden är på väg att nå den.</string>
     <string name="alarm_state_atleast">%1$s är %2$s eller mer</string>
     <string name="alarm_state_below">%1$s är under %2$s</string>
     <string name="alarm_repeat_help_once">Ett larm när %1$s. Återaktiveras när %2$s, efter %3$d s paus.</string>
@@ -1098,7 +1077,6 @@
     <string name="studio_your_presets_empty">Inga sparade förinställningar ännu. Spara din nuvarande layout för att lägga till en.</string>
 
     <!-- Studio: render progress overlay -->
-    <string name="studio_rendering">Renderar</string>
     <string name="studio_rendering_cancel">Avbryt</string>
     <string name="studio_dlg_cancel_render_title">Avbryt rendering?</string>
     <string name="studio_dlg_cancel_render_body">Återuppspelningsklippet sparas inte.</string>
@@ -1495,7 +1473,6 @@
     <string name="trip_action_share_file">Dela fil</string>
     <string name="trip_action_share_file_desc">Skicka turens CSV till en annan app</string>
     <string name="trip_action_view_online">Visa online</string>
-    <string name="trip_action_view_online_desc">Öppna den på EUC Viewer-kartan</string>
     <string name="trip_action_replay">Spela upp i Studio</string>
     <string name="trip_action_replay_desc">Skrubba turen med live-datalager</string>
     <!-- ==== Dashboard quick menus ==== -->
@@ -1507,7 +1484,6 @@
     <string name="studio_group_media">Kamera &amp; bilder</string>
     <string name="studio_cfg_border_colour">Kantfärg</string>
     <string name="studio_cfg_border_width">Kanttjocklek</string>
-    <string name="studio_rendering_keep_open">Håll telefonen på och den här skärmen öppen tills renderingen är klar</string>
     <string name="studio_cfg_g_scale">Skala</string>
     <string name="studio_export_force_opaque_hint">Format utan transparens använder chromakey-färgen. Kan se konstigt ut på halvtransparenta lager</string>
     <string name="studio_cfg_filter_vivid">Livfull</string>
@@ -1556,7 +1532,6 @@
     <string name="charging_stat_balance">Obalans</string>
     <string name="charging_stat_power">Effekt</string>
     <string name="charging_stat_current">Ström</string>
-    <string name="charging_stat_energy">Energi</string>
     <string name="charging_chart_empty">Samlar in data</string>
     <string name="battery_history">Batterihistorik</string>
     <string name="setting_charging_auto_open">Öppna vid laddning</string>
@@ -1620,8 +1595,6 @@
     <string name="trip_action_share_dropbox_desc">Ladda upp till din Dropbox-mapp och dela den offentliga länken</string>
     <string name="trip_action_inspect_online">Inspektera online</string>
     <string name="trip_action_inspect_online_desc">Dela en eucviewer.ried.no-länk för att se den här turen online</string>
-    <string name="trip_action_copy_link">Kopiera eucviewer-länk</string>
-    <string name="trip_action_copy_link_desc">Kopiera en delbar eucviewer.ried.no-länk till urklipp</string>
     <string name="trip_action_dropbox_disabled">Länka Dropbox i inställningarna för att aktivera</string>
 
     <!-- Navigator: chargers & places (OpenStreetMap / Open Charge Map) -->
@@ -1819,17 +1792,8 @@
     <string name="adv_wheel_poll_rate_desc">Påverkar hur färsk livedatan är och hur snabbt larm reagerar. Lägre frågar hjulet efter data oftare. Fara: mycket låga värden kan överbelasta Bluetooth-länken och stoppa data på vissa hjul.</string>
     <string name="alarm_beep_advanced">Avancerat</string>
     <string name="alarm_beep_gap_label">Pauslängd</string>
-    <string name="alarm_beep_pitch_rise_label">Tonhöjdsökning</string>
     <string name="alarm_beep_studio">Adaptivt pip</string>
-    <string name="alarm_beep_sum_core">Piper på %1$d Hz i %2$d ms</string>
-    <string name="alarm_beep_sum_pitch"> Tonhöjden stiger mot %1$d Hz när %2$s når %3$s %4$s.</string>
-    <string name="alarm_beep_sum_pitch_vol"> Tonhöjden stiger mot %1$d Hz och volymen från %2$d%% till %3$d%% när %4$s når %5$s %6$s.</string>
-    <string name="alarm_beep_sum_reps">, ×%1$d med %2$d ms mellanrum</string>
-    <string name="alarm_beep_sum_reps0">, ×%1$d i följd</string>
-    <string name="alarm_beep_sum_voice">, talar sedan</string>
-    <string name="alarm_beep_sum_vol"> Volymen stiger från %1$d%% till %2$d%% när %3$s når %4$s %5$s.</string>
     <string name="alarm_beep_volume_label">Volym</string>
-    <string name="alarm_beep_volume_rise_label">Volymökning</string>
     <string name="alarm_studio_now">%1$d Hz · %2$d%%</string>
     <string name="alarm_studio_pitch_factor">Tonhöjdsfaktor</string>
     <string name="alarm_studio_play">Spela</string>

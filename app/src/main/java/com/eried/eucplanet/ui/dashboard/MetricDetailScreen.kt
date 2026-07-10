@@ -674,17 +674,14 @@ data class PredictionMarker(val timestampMs: Long, val value: Float)
  * [upper] envelopes (same timestamps). Used by the Battery screen's Packs chart
  * to draw one cell-spread band per pack plus a pack-to-pack imbalance envelope.
  *
- * [dotted] switches from a solid fill to dashed top / bottom edges with no fill
- * (the always-on pack-average envelope). [outline] adds a thin solid edge around
- * a filled band so overlapping translucent bands still read apart. [color]
- * carries its own alpha: a filled band passes a low-alpha fill and the outline
- * is drawn opaque from the same hue; a dotted band passes the stroke colour.
+ * [outline] adds a thin solid edge around the filled band so overlapping
+ * translucent bands still read apart. [color] carries its own alpha: the fill
+ * is low-alpha and the outline is drawn opaque from the same hue.
  */
 data class GraphBandSpec(
     val lower: List<MetricSample>,
     val upper: List<MetricSample>,
     val color: Color,
-    val dotted: Boolean = false,
     val outline: Boolean = true,
 )
 
@@ -728,13 +725,6 @@ internal fun MetricGraph(
      */
     regenColor: Color? = null,
     /**
-     * Additional lines drawn on the SAME left axis / bounds as [samples] (the
-     * left bounds are computed over samples + every extra series so they share
-     * one scale). Each is a (points, color) pair, stroked like the main line.
-     * Used by the Battery screen's Packs chart to draw one line per pack.
-     */
-    extraSeries: List<Pair<List<MetricSample>, Color>> = emptyList(),
-    /**
      * Force the right-axis ([series2]) minimum to zero so a non-negative series
      * (e.g. the pack imbalance / spread) sits on a zero baseline.
      */
@@ -767,10 +757,6 @@ internal fun MetricGraph(
      * the others lack. Only affects the plain (no baseline / no regen) branch.
      */
     fillMain: Boolean = true,
-    /** Stroke width for the main and [extraSeries] lines. */
-    lineStroke: Float = 3f,
-    /** Optional dash/dot effect for the main and [extraSeries] lines. */
-    linePathEffect: PathEffect? = null,
     /**
      * Draw the main [samples] line. A pure band chart (the Packs cell-spread
      * chart) turns this off and keeps [samples] only for the scrub baseline and
@@ -804,11 +790,8 @@ internal fun MetricGraph(
     val axisLabelColor = MaterialTheme.colorScheme.onSurfaceVariant
     val textMeasurer = rememberTextMeasurer()
     val values = samples.map { it.value }
-    // Left-axis bounds span the main series plus every extra series so all the
-    // left-axis lines (e.g. the per-pack lines) render on one shared scale.
-    val extraLeftValues = extraSeries.flatMap { it.first.map { p -> p.value } }
-    val minRaw = (values + extraLeftValues).min()
-    val maxRaw = (values + extraLeftValues).max()
+    val minRaw = values.min()
+    val maxRaw = values.max()
     val bounds = boundsFor(minRaw, maxRaw)
     val padded = bounds.max - bounds.min
     // Optional secondary series (e.g. voltage) on its own auto-scaled axis.
@@ -989,46 +972,30 @@ internal fun MetricGraph(
                 }
             }
 
-            // Cell-spread bands on the left axis, behind the lines. Filled bands
-            // (one per pack) shade between their lower / upper envelopes so a
-            // widening band reads as a growing internal spread; a dotted band
-            // (the pack-average envelope) outlines the pack-to-pack imbalance
-            // with dashed edges and no fill. All share the left-axis bounds.
+            // Cell-spread bands on the left axis, behind the lines. Each filled
+            // band shades between its lower / upper envelope so a widening band
+            // reads as a growing spread. All share the left-axis bounds.
             if (bands.isNotEmpty()) {
                 fun bx(s: MetricSample) = w * (s.timestampMs - xMinMs).toFloat() / xSpanMs.toFloat()
                 fun by(v: Float) = h - h * (v - bounds.min) / padded.coerceAtLeast(0.001f)
-                val bandDash = PathEffect.dashPathEffect(floatArrayOf(8f, 8f))
                 clipRect(0f, 0f, w, h) {
                     bands.forEach { spec ->
                         val lo = spec.lower
                         val up = spec.upper
                         if (lo.size < 2 || up.size < 2) return@forEach
-                        if (spec.dotted) {
-                            val topEdge = androidx.compose.ui.graphics.Path()
-                            up.forEachIndexed { idx, s ->
-                                if (idx == 0) topEdge.moveTo(bx(s), by(s.value)) else topEdge.lineTo(bx(s), by(s.value))
-                            }
-                            val botEdge = androidx.compose.ui.graphics.Path()
-                            lo.forEachIndexed { idx, s ->
-                                if (idx == 0) botEdge.moveTo(bx(s), by(s.value)) else botEdge.lineTo(bx(s), by(s.value))
-                            }
-                            drawPath(topEdge, color = spec.color, style = Stroke(width = 2.5f, pathEffect = bandDash))
-                            drawPath(botEdge, color = spec.color, style = Stroke(width = 2.5f, pathEffect = bandDash))
-                        } else {
-                            val poly = androidx.compose.ui.graphics.Path()
-                            up.forEachIndexed { idx, s ->
-                                if (idx == 0) poly.moveTo(bx(s), by(s.value)) else poly.lineTo(bx(s), by(s.value))
-                            }
-                            for (idx in lo.indices.reversed()) poly.lineTo(bx(lo[idx]), by(lo[idx].value))
-                            poly.close()
-                            drawPath(poly, color = spec.color)
-                            if (spec.outline) {
-                                drawPath(
-                                    poly,
-                                    color = spec.color.copy(alpha = 0.9f),
-                                    style = Stroke(width = 1.5f),
-                                )
-                            }
+                        val poly = androidx.compose.ui.graphics.Path()
+                        up.forEachIndexed { idx, s ->
+                            if (idx == 0) poly.moveTo(bx(s), by(s.value)) else poly.lineTo(bx(s), by(s.value))
+                        }
+                        for (idx in lo.indices.reversed()) poly.lineTo(bx(lo[idx]), by(lo[idx].value))
+                        poly.close()
+                        drawPath(poly, color = spec.color)
+                        if (spec.outline) {
+                            drawPath(
+                                poly,
+                                color = spec.color.copy(alpha = 0.9f),
+                                style = Stroke(width = 1.5f),
+                            )
                         }
                     }
                 }
@@ -1109,25 +1076,7 @@ internal fun MetricGraph(
                 } else {
                     if (fillMain) drawPath(fillPath, color = color.copy(alpha = 0.1f))
                     if (showMainLine) {
-                        drawPath(path, color = color, style = Stroke(width = lineStroke, pathEffect = linePathEffect))
-                    }
-                }
-            }
-
-            // Extra left-axis series (e.g. the other packs): share the main
-            // bounds and stroke so every pack line reads consistently.
-            if (extraSeries.isNotEmpty()) {
-                clipRect(0f, 0f, w, h) {
-                    extraSeries.forEach { (pts, c) ->
-                        if (pts.size >= 2) {
-                            val ep = androidx.compose.ui.graphics.Path()
-                            pts.forEachIndexed { idx, smp ->
-                                val x = w * (smp.timestampMs - xMinMs).toFloat() / xSpanMs.toFloat()
-                                val y = h - h * (smp.value - bounds.min) / padded.coerceAtLeast(0.001f)
-                                if (idx == 0) ep.moveTo(x, y) else ep.lineTo(x, y)
-                            }
-                            drawPath(ep, color = c, style = Stroke(width = lineStroke, pathEffect = linePathEffect))
-                        }
+                        drawPath(path, color = color, style = Stroke(width = 3f))
                     }
                 }
             }
@@ -1290,20 +1239,6 @@ internal fun MetricGraph(
                             append("  •  ")
                         }
                         append(if (unitLabel.isBlank()) "%.1f".format(value) else "%.1f %s".format(value, unitLabel))
-                        // Extra left-axis series (e.g. the other packs) at the
-                        // cursor, so scrubbing reads every pack, not just the first.
-                        if (inHistory) {
-                            extraSeries.forEach { (pts, _) ->
-                                if (pts.size >= 2) {
-                                    val li = pts.indexOfLast { it.timestampMs <= tTargetExtended }.coerceIn(0, pts.size - 1)
-                                    val ri = (li + 1).coerceAtMost(pts.size - 1)
-                                    val a = pts[li]; val b = pts[ri]
-                                    val sp = (b.timestampMs - a.timestampMs).coerceAtLeast(1L)
-                                    val ff = ((tTargetExtended - a.timestampMs).toFloat() / sp).coerceIn(0f, 1f)
-                                    append("  •  %.1f".format(a.value + (b.value - a.value) * ff))
-                                }
-                            }
-                        }
                         // Secondary series only exists over the recorded region.
                         if (s2 != null && inHistory) {
                             val li2 = s2.indexOfLast { it.timestampMs <= tTargetExtended }.coerceIn(0, s2.size - 1)

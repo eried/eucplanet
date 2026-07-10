@@ -11,7 +11,6 @@
     <string name="action_done">Done</string>
     <string name="action_close">Close</string>
 <string name="crash_log_action_prompt">You long-pressed %1$s. Delete just this log, or delete all. To share it instead, tap Cancel and then tap the file.</string>
-    <string name="crash_log_delete_one">Delete this log</string>
     <string name="crash_log_delete_all">Delete all</string>
     <string name="crash_log_delete_all_warning">Delete every saved crash log? This cannot be undone.</string>
     <string name="action_save">Save</string>
@@ -19,10 +18,7 @@
     <string name="action_reset">Reset</string>
     <string name="action_reorganize">Reorganize</string>
     <string name="action_delete">Delete</string>
-    <string name="action_edit">Edit</string>
     <string name="action_test">Test</string>
-    <string name="action_move_up">Move up</string>
-    <string name="action_move_down">Move down</string>
     <string name="action_reorder">Drag to reorder</string>
     <string name="show_gauge_color_band">Speed-gauge color band</string>
     <string name="stat_watts">WATTS</string>
@@ -204,7 +200,6 @@
     <string name="metric_chip_load">PWM</string>
     <string name="metric_chip_trip">Trip</string>
     <string name="metric_chip_speed">Speed</string>
-    <string name="metric_chip_power">Power</string>
     <string name="metric_chip_odometer">Odometer</string>
     <string name="metric_chip_motor_power">Motor power</string>
     <string name="metric_chip_battery_power">Battery power</string>
@@ -756,7 +751,6 @@
     <string name="voice_announce_connected">Connected</string>
     <string name="voice_announce_riding">When riding</string>
     <string name="voice_interval">Interval</string>
-    <string name="unit_sec">sec</string>
     <string name="announce_wheel_lock">Wheel lock / unlock</string>
     <string name="announce_lights">Lights on / off</string>
     <string name="announce_recording">Trip recording</string>
@@ -1117,7 +1111,6 @@
     <string name="auto_lights_desc">Turn on or off the headlights based on sunset and sunrise</string>
     <string name="auto_lights_on_before_sunset">Lights ON before sunset</string>
     <string name="auto_lights_off_after_sunrise">Lights OFF after sunrise</string>
-    <string name="auto_minutes_fmt">%1$d min</string>
     <string name="auto_waiting_gps">Waiting for GPS location\u2026</string>
     <string name="auto_volume_title">Volume</string>
     <string name="auto_volume_desc">Boost music volume based on speed</string>
@@ -1132,7 +1125,6 @@
     <string name="alarm_help">Trigger priority is based on metric groups order below.</string>
     <string name="alarm_empty">No alarm rules yet</string>
     <string name="alarm_add">New alarm</string>
-    <string name="alarm_smart_sort">Auto-sort</string>
     <string name="alarm_summary_predict_fmt">predicts %1$s s ahead</string>
     <string name="alarm_new">New Alarm</string>
     <string name="alarm_edit">Edit Alarm</string>
@@ -1141,14 +1133,11 @@
     <string name="alarm_delete_action">Delete alarm</string>
     <string name="alarm_metric_label">Metric</string>
     <string name="alarm_comparator_label">Condition</string>
-    <string name="alarm_threshold_fmt">Threshold: %1$s %2$s</string>
     <string name="alarm_threshold_label">Threshold</string>
     <string name="alarm_label_frequency">Frequency</string>
     <string name="alarm_beep_advanced">Advanced</string>
     <string name="alarm_beep_gap_label">Gap duration</string>
-    <string name="alarm_beep_pitch_rise_label">Pitch rise</string>
     <string name="alarm_beep_volume_label">Volume</string>
-    <string name="alarm_beep_volume_rise_label">Volume rise</string>
     <string name="alarm_beep_studio">Adaptive beep</string>
     <string name="alarm_studio_test_input">Test input %1$s: %2$s %3$s</string>
     <string name="alarm_studio_pitch_factor">Pitch factor</string>
@@ -1157,13 +1146,6 @@
     <string name="alarm_studio_now">%1$d Hz · %2$d%%</string>
     <string name="alarm_studio_play">Play</string>
     <string name="alarm_studio_stop">Stop</string>
-    <string name="alarm_beep_sum_core">Beeps at %1$d Hz for %2$d ms</string>
-    <string name="alarm_beep_sum_reps">, ×%1$d %2$d ms apart</string>
-    <string name="alarm_beep_sum_reps0">, ×%1$d back-to-back</string>
-    <string name="alarm_beep_sum_voice">, then speaks</string>
-    <string name="alarm_beep_sum_pitch"> Pitch rises toward %1$d Hz as %2$s reaches %3$s %4$s.</string>
-    <string name="alarm_beep_sum_pitch_vol"> Pitch rises toward %1$d Hz and volume from %2$d%% to %3$d%% as %4$s reaches %5$s %6$s.</string>
-    <string name="alarm_beep_sum_vol"> Volume rises from %1$d%% to %2$d%% as %3$s reaches %4$s %5$s.</string>
     <string name="alarm_label_duration">Duration</string>
     <string name="alarm_label_repeats">Repeats</string>
     <string name="alarm_label_vibrate_on">Vibrate on</string>
@@ -1206,9 +1188,6 @@
 
     <string name="alarm_section_beep">Beep</string>
     <string name="alarm_enable_beep">Enable beep</string>
-    <string name="alarm_beep_freq_fmt">Frequency: %1$dHz</string>
-    <string name="alarm_beep_duration_fmt">Duration: %1$dms</string>
-    <string name="alarm_beep_repeats_fmt">Repeats: %1$d</string>
     <string name="alarm_section_voice">Voice</string>
     <string name="alarm_enable_voice">Enable voice</string>
     <string name="alarm_voice_template">Text template</string>
@@ -1216,21 +1195,14 @@
     <string name="alarm_voice_default">Warning! {metric} at {value}</string>
     <string name="alarm_section_vibrate">Vibrate</string>
     <string name="alarm_enable_vibrate">Enable vibration</string>
-    <string name="alarm_vibrate_duration_fmt">Duration: %1$dms</string>
-    <string name="alarm_vibrate_target_label">Vibrate on</string>
     <string name="alarm_vibrate_target_phone">Phone</string>
     <string name="alarm_vibrate_target_watch">Watch</string>
     <string name="alarm_vibrate_target_both">All</string>
-    <string name="alarm_section_timing">Timing</string>
     <string name="alarm_section_advanced">Advanced</string>
     <string name="alarm_cooldown_label">Cooldown</string>
-    <string name="alarm_cooldown_fmt">Cooldown: %1$ds</string>
-    <string name="alarm_cooldown_help">Minimum time between fires for this rule, even if the condition keeps matching</string>
-    <string name="alarm_repeat">Repeat while active</string>
     <string name="alarm_repeat_label">Trigger</string>
     <string name="alarm_repeat_single">Once</string>
     <string name="alarm_repeat_multi">Many</string>
-    <string name="alarm_repeat_help">Once: one alert, then re-arms after the reading returns to the safe side.\nMany: re-alerts every cooldown while it stays triggered.</string>
     <!-- Dynamic alarm help. The condition sub-phrases get the metric name + the
          threshold-with-unit plugged in, then the help sentences embed that
          phrase, so the text reads back the rule the rider actually set. -->
@@ -1244,8 +1216,6 @@
     <string name="alarm_predict_help_lead">Alerts about %1$s s before %2$s, from the recent trend.</string>
     <string name="alarm_predict_label">Predictive trigger</string>
     <string name="alarm_predict_realtime">Now</string>
-    <string name="alarm_predict_value_fmt">%1$s s early</string>
-    <string name="alarm_predict_help">Now: alerts the instant the threshold is reported.\nOthers: alert that many seconds before the trend is about to reach it.</string>
 
     <!-- About / crash logs -->
     <string name="about_crash_logs">Crash logs</string>
@@ -1355,7 +1325,6 @@
     <string name="studio_your_presets_empty">No saved presets yet. Save your current layout to add one.</string>
 
     <!-- Studio: render progress overlay -->
-    <string name="studio_rendering">Rendering</string>
     <string name="studio_rendering_cancel">Cancel</string>
     <string name="studio_export_title">File Export</string>
     <string name="studio_export_status">Exporting file…</string>
@@ -1687,8 +1656,6 @@
     <string name="trip_action_share_dropbox_desc">Upload to your Dropbox folder and share the public link</string>
     <string name="trip_action_inspect_online">Inspect online</string>
     <string name="trip_action_inspect_online_desc">Share a eucviewer.ried.no link to view this ride online</string>
-    <string name="trip_action_copy_link">Copy eucviewer link</string>
-    <string name="trip_action_copy_link_desc">Copy a shareable eucviewer.ried.no link to the clipboard</string>
     <string name="trip_action_dropbox_disabled">Link Dropbox in settings to enable this</string>
     <string name="nav_tap_on_self">In the Stops list, long-press a stop to set it to your location</string>
     <string name="nav_start_short">Start navigation</string>
@@ -1852,7 +1819,6 @@
     <string name="trip_action_share_file">Share file</string>
     <string name="trip_action_share_file_desc">Send the trip CSV to another app</string>
     <string name="trip_action_view_online">View online</string>
-    <string name="trip_action_view_online_desc">Open it on the EUC Viewer map</string>
     <string name="trip_action_replay">Replay in Studio</string>
     <string name="trip_action_replay_desc">Scrub the ride with live data overlays</string>
     <!-- ==== Dashboard quick menus ==== -->
@@ -1864,7 +1830,6 @@
     <string name="studio_group_media">Camera &amp; images</string>
     <string name="studio_cfg_border_colour">Border colour</string>
     <string name="studio_cfg_border_width">Border thickness</string>
-    <string name="studio_rendering_keep_open">Keep your phone on and this screen open while the render finishes</string>
     <string name="studio_cfg_g_scale">Scale</string>
     <string name="studio_export_force_opaque_hint">Non-transparent formats use the chroma key colour; may look off on semi-transparent layers</string>
     <string name="studio_cfg_filter_vivid">Vivid</string>
@@ -1923,7 +1888,6 @@
     <string name="charging_stat_balance">Imbalance</string>
     <string name="charging_stat_power">Power</string>
     <string name="charging_stat_current">Current</string>
-    <string name="charging_stat_energy">Energy</string>
     <string name="charging_stat_used">Used</string>
     <string name="charging_stat_charged">Charged</string>
     <string name="charging_chart_empty">Collecting data</string>

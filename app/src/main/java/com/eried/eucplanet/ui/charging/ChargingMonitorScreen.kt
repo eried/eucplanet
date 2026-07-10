@@ -903,20 +903,6 @@ private fun BatteryFillGraphic(
                     pathEffect = PathEffect.dashPathEffect(floatArrayOf(12f, 12f)),
                 )
             }
-            /* Previous centred full-width scale (kept for reference):
-            val cxFill = (fillLeft + fillRight) / 2f
-            for (p in 0..100) {
-                if (p == 0 || p == 100) continue
-                val y = yFor(p / 100f)
-                val major = p % 10 == 0
-                val lw = (if (major) 1.5f else 1f).dp.toPx()
-                val ww = fillW * (if (major) 0.7f else 0.5f)
-                val tl = Offset(cxFill - ww / 2f, y - lw / 2f)
-                val sz = Size(ww, lw)
-                if (y < yTop) drawRect(outlineColor.copy(alpha = if (major) 0.18f else 0.07f), tl, sz)
-                else drawRect(Color.White.copy(alpha = if (major) 0.5f else 0.28f), tl, sz, blendMode = BlendMode.Difference)
-            }
-            */
             // Subtle pulsing glow inside the neon (added) segment only — starts at
             // the surface and fades downward; never extends above the SOC line.
             if (glowAmt.value > 0.01f && yStart > yTop) {
@@ -1346,7 +1332,6 @@ private fun PacksChart(
                         lower = packMin[p],
                         upper = packMax[p],
                         color = pc.copy(alpha = 0.25f),
-                        dotted = false,
                         outline = true,
                     )
                 )

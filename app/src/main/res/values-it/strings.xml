@@ -11,15 +11,11 @@
     <string name="action_done">Fatto</string>
     <string name="action_close">Chiudi</string>
 <string name="crash_log_action_prompt">Hai tenuto premuto %1$s. Elimina solo questo log, o tutti. Per condividerlo, tocca Annulla e poi tocca il file.</string>
-    <string name="crash_log_delete_one">Elimina questo log</string>
     <string name="crash_log_delete_all">Elimina tutto</string>
     <string name="crash_log_delete_all_warning">Eliminare tutti i log dei crash salvati? Questa operazione non può essere annullata.</string>
     <string name="action_save">Salva</string>
     <string name="action_delete">Elimina</string>
-    <string name="action_edit">Modifica</string>
     <string name="action_test">Prova</string>
-    <string name="action_move_up">Sposta su</string>
-    <string name="action_move_down">Sposta giù</string>
     <string name="action_reorder">Trascina per riordinare</string>
     <string name="show_gauge_color_band">Banda colorata del tachimetro</string>
     <string name="stat_watts">WATT</string>
@@ -274,7 +270,6 @@
     <string name="voice_announce_connected">Connessa</string>
     <string name="voice_announce_riding">Durante la guida</string>
     <string name="voice_interval">Intervallo</string>
-    <string name="unit_sec">sec</string>
     <string name="announce_wheel_lock">Blocco / sblocco della ruota</string>
     <string name="announce_lights">Luci accese / spente</string>
     <string name="announce_recording">Registrazione viaggio</string>
@@ -478,7 +473,6 @@
     <string name="auto_lights_desc">Accende o spegne il faro in base al tramonto e all\'alba</string>
     <string name="auto_lights_on_before_sunset">Luci ON prima del tramonto</string>
     <string name="auto_lights_off_after_sunrise">Luci OFF dopo l\'alba</string>
-    <string name="auto_minutes_fmt">%1$d min</string>
     <string name="auto_waiting_gps">In attesa della posizione GPS…</string>
     <string name="auto_volume_title">Volume</string>
     <string name="auto_volume_desc">Aumenta il volume della musica in base alla velocità</string>
@@ -493,7 +487,6 @@
     <string name="alarm_help">Per ogni metrica si attiva automaticamente l\'allarme più rilevante. L\'ordine nell\'elenco non cambia quale; l\'ordinamento serve solo a tenere tutto in ordine.</string>
     <string name="alarm_empty">Nessuna regola d\'allarme</string>
     <string name="alarm_add">Nuovo allarme</string>
-    <string name="alarm_smart_sort">Ordina automaticamente</string>
     <string name="alarm_summary_predict_fmt">prevede %1$s s in anticipo</string>
     <string name="alarm_new">Nuovo allarme</string>
     <string name="alarm_edit">Modifica allarme</string>
@@ -502,7 +495,6 @@
     <string name="alarm_delete_action">Elimina allarme</string>
     <string name="alarm_metric_label">Metrica</string>
     <string name="alarm_comparator_label">Condizione</string>
-    <string name="alarm_threshold_fmt">Soglia: %1$s %2$s</string>
     <string name="alarm_threshold_label">Soglia</string>
     <string name="alarm_label_frequency">Frequenza</string>
     <string name="alarm_label_duration">Durata</string>
@@ -544,9 +536,6 @@
     <string name="alarm_threshold_increase">Aumenta soglia</string>
     <string name="alarm_section_beep">Bip</string>
     <string name="alarm_enable_beep">Attiva bip</string>
-    <string name="alarm_beep_freq_fmt">Frequenza: %1$dHz</string>
-    <string name="alarm_beep_duration_fmt">Durata: %1$dms</string>
-    <string name="alarm_beep_repeats_fmt">Ripetizioni: %1$d</string>
     <string name="alarm_section_voice">Voce</string>
     <string name="alarm_enable_voice">Attiva voce</string>
     <string name="alarm_voice_template">Modello di testo</string>
@@ -554,25 +543,16 @@
     <string name="alarm_voice_default">Attenzione! {metric} a {value}</string>
     <string name="alarm_section_vibrate">Vibrazione</string>
     <string name="alarm_enable_vibrate">Attiva vibrazione</string>
-    <string name="alarm_vibrate_duration_fmt">Durata: %1$dms</string>
-    <string name="alarm_vibrate_target_label">Vibra su</string>
     <string name="alarm_vibrate_target_phone">Telefono</string>
     <string name="alarm_vibrate_target_watch">Orologio</string>
     <string name="alarm_vibrate_target_both">Tutti</string>
-    <string name="alarm_section_timing">Tempistiche</string>
     <string name="alarm_cooldown_label">Pausa</string>
-    <string name="alarm_cooldown_fmt">Pausa: %1$ds</string>
-    <string name="alarm_cooldown_help">Tempo minimo tra due attivazioni di questa regola, anche se la condizione resta vera</string>
-    <string name="alarm_repeat">Ripeti finché attivo</string>
     <string name="alarm_section_advanced">Avanzate</string>
     <string name="alarm_repeat_label">Attivazione</string>
     <string name="alarm_repeat_single">Una</string>
     <string name="alarm_repeat_multi">Più</string>
-    <string name="alarm_repeat_help">Una volta: un solo avviso, poi si riarma quando il valore torna sul lato sicuro.\nPiù volte: riavvisa a ogni pausa finché resta attivo.</string>
     <string name="alarm_predict_label">Attivazione predittiva</string>
     <string name="alarm_predict_realtime">Ora</string>
-    <string name="alarm_predict_value_fmt">%1$s s in anticipo</string>
-    <string name="alarm_predict_help">Adesso: avvisa nell\'istante in cui la soglia viene rilevata.\nAltri: avvisano quei secondi prima che la tendenza stia per raggiungerla.</string>
     <string name="alarm_state_atleast">%1$s è %2$s o più</string>
     <string name="alarm_state_below">%1$s è sotto %2$s</string>
     <string name="alarm_repeat_help_once">Un solo avviso quando %1$s. Si riarma quando %2$s, dopo la pausa di %3$d s.</string>
@@ -927,7 +907,6 @@
     <string name="studio_pane_camera_conflict">%1$s non può funzionare insieme a un\'altra fotocamera su questo dispositivo</string>
     <string name="studio_pane_camera_unavailable">Fotocamera non disponibile</string>
     <string name="studio_pane_choose_image">Tocca la chiave inglese per scegliere un\'immagine</string>
-    <string name="studio_rendering">Rendering</string>
     <string name="studio_rendering_cancel">Annulla</string>
     <string name="studio_replay_cd_back">Indietro</string>
     <string name="studio_replay_cd_close">Chiudi replay</string>
@@ -964,7 +943,6 @@
     <string name="trip_action_share_file">Condividi file</string>
     <string name="trip_action_share_file_desc">Invia il CSV del viaggio a un\'altra app</string>
     <string name="trip_action_view_online">Vedi online</string>
-    <string name="trip_action_view_online_desc">Aprilo sulla mappa di EUC Viewer</string>
     <string name="trip_action_replay">Riproduci nello Studio</string>
     <string name="trip_action_replay_desc">Scorri il viaggio con i dati in sovrimpressione dal vivo</string>
     <string name="studio_element_g_force">G-Force</string>
@@ -1018,7 +996,6 @@
     <string name="studio_cd_rotate">Ruota</string>
     <string name="studio_cfg_border_colour">Colore del bordo</string>
     <string name="studio_cfg_border_width">Spessore del bordo</string>
-    <string name="studio_rendering_keep_open">Tieni il telefono acceso e questa schermata aperta finché il rendering non termina</string>
     <string name="studio_chroma_bright_green">Verde brillante</string>
     <string name="studio_chroma_cyan">Ciano</string>
     <string name="studio_export_force_opaque">Forza opacità totale</string>
@@ -1175,7 +1152,6 @@
     <string name="metric_chip_pc_mode">Modo guida</string>
     <string name="metric_chip_phone_battery">Batteria telefono</string>
     <string name="metric_chip_pitch">Beccheggio</string>
-    <string name="metric_chip_power">Potenza</string>
     <string name="metric_chip_range_estimate">Autonomia</string>
     <string name="metric_chip_regen_wh">Rigen.</string>
     <string name="metric_chip_roll">Rollio</string>
@@ -1452,7 +1428,6 @@
     <string name="charging_stat_balance">Squilibrio</string>
     <string name="charging_stat_power">Potenza</string>
     <string name="charging_stat_current">Corrente</string>
-    <string name="charging_stat_energy">Energia</string>
     <string name="charging_chart_empty">Raccolta dati</string>
     <string name="battery_history">Cronologia batteria</string>
     <string name="setting_charging_auto_open">Apri in carica</string>
@@ -1525,8 +1500,6 @@
     <string name="trip_action_share_dropbox_desc">Carica nella tua cartella Dropbox e condividi il link pubblico</string>
     <string name="trip_action_inspect_online">Ispeziona online</string>
     <string name="trip_action_inspect_online_desc">Condividi un link eucviewer.ried.no per vedere questo viaggio online</string>
-    <string name="trip_action_copy_link">Copia link eucviewer</string>
-    <string name="trip_action_copy_link_desc">Copia un link condivisibile di eucviewer.ried.no negli appunti</string>
     <string name="trip_action_dropbox_disabled">Collega Dropbox nelle impostazioni per abilitarlo</string>
 
     <!-- ==== Navigator: Open Charge Map / POIs / map settings (new) ==== -->
@@ -1724,17 +1697,8 @@
     <string name="adv_wheel_poll_rate_desc">Influisce su quanto sono freschi i dati in tempo reale e quanto velocemente reagiscono gli allarmi. Più basso chiede i dati alla ruota più spesso. Pericolo: valori molto bassi possono intasare il collegamento Bluetooth e bloccare i dati su alcune ruote.</string>
     <string name="alarm_beep_advanced">Avanzate</string>
     <string name="alarm_beep_gap_label">Durata pausa</string>
-    <string name="alarm_beep_pitch_rise_label">Aumento tono</string>
     <string name="alarm_beep_studio">Bip adattivo</string>
-    <string name="alarm_beep_sum_core">Bip a %1$d Hz per %2$d ms</string>
-    <string name="alarm_beep_sum_pitch"> Il tono sale verso %1$d Hz mentre %2$s raggiunge %3$s %4$s.</string>
-    <string name="alarm_beep_sum_pitch_vol"> Il tono sale verso %1$d Hz e il volume da %2$d%% a %3$d%% mentre %4$s raggiunge %5$s %6$s.</string>
-    <string name="alarm_beep_sum_reps">, ×%1$d a %2$d ms di distanza</string>
-    <string name="alarm_beep_sum_reps0">, ×%1$d di fila</string>
-    <string name="alarm_beep_sum_voice">, poi parla</string>
-    <string name="alarm_beep_sum_vol"> Il volume sale da %1$d%% a %2$d%% mentre %3$s raggiunge %4$s %5$s.</string>
     <string name="alarm_beep_volume_label">Volume</string>
-    <string name="alarm_beep_volume_rise_label">Aumento volume</string>
     <string name="alarm_studio_now">%1$d Hz · %2$d%%</string>
     <string name="alarm_studio_pitch_factor">Fattore tono</string>
     <string name="alarm_studio_play">Riproduci</string>

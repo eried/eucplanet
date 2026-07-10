@@ -11,16 +11,12 @@
     <string name="action_done">完了</string>
     <string name="action_close">閉じる</string>
 <string name="crash_log_action_prompt">%1$s を長押ししました。このログのみ削除、またはすべて削除できます。共有する場合はキャンセルをタップしてからファイルをタップしてください。</string>
-    <string name="crash_log_delete_one">このログを削除</string>
     <string name="crash_log_delete_all">すべて削除</string>
     <string name="crash_log_delete_all_warning">保存されたクラッシュログをすべて削除しますか？この操作は取り消せません。</string>
     <string name="action_save">保存</string>
     <string name="action_apply">適用</string>
     <string name="action_delete">削除</string>
-    <string name="action_edit">編集</string>
     <string name="action_test">テスト</string>
-    <string name="action_move_up">上へ移動</string>
-    <string name="action_move_down">下へ移動</string>
     <string name="action_reorder">ドラッグして並べ替え</string>
     <string name="show_gauge_color_band">速度ゲージのカラーバンド</string>
     <string name="stat_watts">WATTS</string>
@@ -202,7 +198,6 @@
     <string name="metric_chip_load">PWM</string>
     <string name="metric_chip_trip">トリップ</string>
     <string name="metric_chip_speed">速度</string>
-    <string name="metric_chip_power">電力</string>
     <string name="metric_chip_odometer">オドメーター</string>
     <string name="metric_chip_motor_power">モーター電力</string>
     <string name="metric_chip_battery_power">バッテリー電力</string>
@@ -547,7 +542,6 @@
     <string name="section_report_status">ステータス報告</string>
     <string name="voice_enabled">定期的にステータスを報告</string>
     <string name="voice_interval">間隔</string>
-    <string name="unit_sec">秒</string>
     <string name="announce_wheel_lock">ホイールのロック / アンロック</string>
     <string name="announce_lights">ライトのオン / オフ</string>
     <string name="announce_recording">トリップ記録</string>
@@ -884,7 +878,6 @@
     <string name="auto_lights_desc">日の入りと日の出に基づいてヘッドライトをオン / オフにします</string>
     <string name="auto_lights_on_before_sunset">日没前にライト ON</string>
     <string name="auto_lights_off_after_sunrise">日の出後にライト OFF</string>
-    <string name="auto_minutes_fmt">%1$d 分</string>
     <string name="auto_waiting_gps">GPS 位置情報を待機中…</string>
     <string name="auto_volume_title">音量</string>
     <string name="auto_volume_desc">速度に応じて音楽の音量を上げます</string>
@@ -899,7 +892,6 @@
     <string name="alarm_help">メトリクスごとに最も適切なアラームが自動で発動します。リストの順序で発動するルールが変わることはなく、並び替えは見やすさのためだけです</string>
     <string name="alarm_empty">アラームルールがありません</string>
     <string name="alarm_add">新しいアラーム</string>
-    <string name="alarm_smart_sort">自動並び替え</string>
     <string name="alarm_summary_predict_fmt">%1$s 秒先を予測</string>
     <string name="alarm_new">新規アラーム</string>
     <string name="alarm_edit">アラームを編集</string>
@@ -908,7 +900,6 @@
     <string name="alarm_delete_action">アラームを削除</string>
     <string name="alarm_metric_label">メトリクス</string>
     <string name="alarm_comparator_label">条件</string>
-    <string name="alarm_threshold_fmt">しきい値: %1$s %2$s</string>
     <string name="alarm_threshold_label">しきい値</string>
     <string name="alarm_label_frequency">周波数</string>
     <string name="alarm_label_duration">長さ</string>
@@ -953,9 +944,6 @@
 
     <string name="alarm_section_beep">ビープ音</string>
     <string name="alarm_enable_beep">ビープ音を有効にする</string>
-    <string name="alarm_beep_freq_fmt">周波数: %1$dHz</string>
-    <string name="alarm_beep_duration_fmt">時間: %1$dms</string>
-    <string name="alarm_beep_repeats_fmt">繰り返し: %1$d</string>
     <string name="alarm_section_voice">音声</string>
     <string name="alarm_enable_voice">音声を有効にする</string>
     <string name="alarm_voice_template">テキストテンプレート</string>
@@ -963,25 +951,16 @@
     <string name="alarm_voice_default">警告！{metric} が {value} です</string>
     <string name="alarm_section_vibrate">バイブレーション</string>
     <string name="alarm_enable_vibrate">バイブレーションを有効にする</string>
-    <string name="alarm_vibrate_duration_fmt">時間: %1$dms</string>
-    <string name="alarm_vibrate_target_label">バイブレーション対象</string>
     <string name="alarm_vibrate_target_phone">スマホ</string>
     <string name="alarm_vibrate_target_watch">ウォッチ</string>
     <string name="alarm_vibrate_target_both">すべて</string>
-    <string name="alarm_section_timing">タイミング</string>
     <string name="alarm_cooldown_label">クールダウン</string>
-    <string name="alarm_cooldown_fmt">クールダウン: %1$d 秒</string>
-    <string name="alarm_cooldown_help">条件が一致し続けていても、このルールの発動間に必要な最短時間</string>
-    <string name="alarm_repeat">アクティブ中に繰り返す</string>
     <string name="alarm_section_advanced">詳細設定</string>
     <string name="alarm_repeat_label">発動</string>
     <string name="alarm_repeat_single">1回</string>
     <string name="alarm_repeat_multi">複数回</string>
-    <string name="alarm_repeat_help">1回: 一度だけ通知し、値が安全側に戻ると再び発動できるようになります。\n複数回: 発動している間、クールダウンごとに繰り返し通知します。</string>
     <string name="alarm_predict_label">予測発動</string>
     <string name="alarm_predict_realtime">今すぐ</string>
-    <string name="alarm_predict_value_fmt">%1$s 秒早く</string>
-    <string name="alarm_predict_help">今すぐ: しきい値が報告された瞬間に通知します。\nその他: 傾向がしきい値に達する、その秒数だけ前に通知します。</string>
     <string name="alarm_state_atleast">%1$s が %2$s 以上</string>
     <string name="alarm_state_below">%1$s が %2$s 未満</string>
     <string name="alarm_repeat_help_once">%1$s のとき1回通知します。%3$d 秒のクールダウン後、%2$s になると再び発動できるようになります。</string>
@@ -1099,7 +1078,6 @@
     <string name="studio_your_presets_empty">保存済みプリセットはまだありません。現在のレイアウトを保存して追加してください。</string>
 
     <!-- Studio: render progress overlay -->
-    <string name="studio_rendering">レンダリング中</string>
     <string name="studio_rendering_cancel">キャンセル</string>
     <string name="studio_dlg_cancel_render_title">レンダリングをキャンセルしますか？</string>
     <string name="studio_dlg_cancel_render_body">リプレイクリップは保存されません。</string>
@@ -1496,7 +1474,6 @@
     <string name="trip_action_share_file">ファイルを共有</string>
     <string name="trip_action_share_file_desc">トリップ CSV を別のアプリに送信します</string>
     <string name="trip_action_view_online">オンラインで表示</string>
-    <string name="trip_action_view_online_desc">EUC Viewer マップで開きます</string>
     <string name="trip_action_replay">スタジオでリプレイ</string>
     <string name="trip_action_replay_desc">ライブデータオーバーレイで走行を確認します</string>
     <!-- ==== Dashboard quick menus ==== -->
@@ -1508,7 +1485,6 @@
     <string name="studio_group_media">カメラ &amp; 画像</string>
     <string name="studio_cfg_border_colour">枠線の色</string>
     <string name="studio_cfg_border_width">枠線の太さ</string>
-    <string name="studio_rendering_keep_open">レンダリングが完了するまでスマホをオンにしてこの画面を開いたままにしてください</string>
     <string name="studio_cfg_g_scale">スケール</string>
     <string name="studio_export_force_opaque_hint">非透過フォーマットはクロマキーカラーを使用します。半透明レイヤーでは見た目がおかしくなる場合があります</string>
     <string name="studio_cfg_filter_vivid">ビビッド</string>
@@ -1589,7 +1565,6 @@
     <string name="charging_stat_added">追加</string>
     <string name="charging_stat_balance">不均衡</string>
     <string name="charging_stat_current">電流</string>
-    <string name="charging_stat_energy">エネルギー</string>
     <string name="charging_stat_power">電力</string>
     <string name="charging_stat_rate">速度</string>
     <string name="charging_stat_temp">温度</string>
@@ -1617,8 +1592,6 @@
     <string name="trip_action_share_dropbox_desc">Dropbox フォルダにアップロードして公開リンクを共有します</string>
     <string name="trip_action_inspect_online">オンラインで確認</string>
     <string name="trip_action_inspect_online_desc">eucviewer.ried.no リンクを共有してこの走行をオンラインで表示します</string>
-    <string name="trip_action_copy_link">eucviewer のリンクをコピー</string>
-    <string name="trip_action_copy_link_desc">共有用 eucviewer.ried.no リンクをクリップボードにコピー</string>
     <string name="trip_action_dropbox_disabled">設定で Dropbox を連携すると有効になります</string>
 
     <!-- Navigator: Open Charge Map &amp; POI -->
@@ -1818,17 +1791,8 @@
     <string name="adv_wheel_poll_rate_desc">ライブデータの新しさとアラームの反応速度に影響します。低いほどホイールに頻繁にデータを要求します。危険: 非常に低い値は Bluetooth リンクをあふれさせ、一部のホイールでデータが滞る場合があります。</string>
     <string name="alarm_beep_advanced">詳細</string>
     <string name="alarm_beep_gap_label">間隔の長さ</string>
-    <string name="alarm_beep_pitch_rise_label">ピッチ上昇</string>
     <string name="alarm_beep_studio">アダプティブビープ</string>
-    <string name="alarm_beep_sum_core">%1$d Hz で %2$d ms ビープ</string>
-    <string name="alarm_beep_sum_pitch"> %2$s が %3$s %4$s に達するとピッチが %1$d Hz に向かって上昇します。</string>
-    <string name="alarm_beep_sum_pitch_vol"> %4$s が %5$s %6$s に達するとピッチが %1$d Hz に向かって上昇し、音量が %2$d%% から %3$d%% に上昇します。</string>
-    <string name="alarm_beep_sum_reps">、×%1$d %2$d ms 間隔</string>
-    <string name="alarm_beep_sum_reps0">、×%1$d 連続</string>
-    <string name="alarm_beep_sum_voice">、その後読み上げ</string>
-    <string name="alarm_beep_sum_vol"> %3$s が %4$s %5$s に達すると音量が %1$d%% から %2$d%% に上昇します。</string>
     <string name="alarm_beep_volume_label">音量</string>
-    <string name="alarm_beep_volume_rise_label">音量上昇</string>
     <string name="alarm_studio_now">%1$d Hz · %2$d%%</string>
     <string name="alarm_studio_pitch_factor">ピッチ係数</string>
     <string name="alarm_studio_play">再生</string>

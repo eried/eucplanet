@@ -11,16 +11,12 @@
     <string name="action_done">完成</string>
     <string name="action_close">關閉</string>
 <string name="crash_log_action_prompt">您長按了 %1$s。可刪除此日誌或全部刪除。若要分享，請點「取消」再點選該檔案。</string>
-    <string name="crash_log_delete_one">刪除此日誌</string>
     <string name="crash_log_delete_all">全部刪除</string>
     <string name="crash_log_delete_all_warning">刪除所有已儲存的當機日誌？此操作無法復原。</string>
     <string name="action_save">儲存</string>
     <string name="action_apply">套用</string>
     <string name="action_delete">刪除</string>
-    <string name="action_edit">編輯</string>
     <string name="action_test">測試</string>
-    <string name="action_move_up">上移</string>
-    <string name="action_move_down">下移</string>
     <string name="action_reorder">拖曳以重新排序</string>
     <string name="show_gauge_color_band">速度儀表色帶</string>
     <string name="stat_watts">瓦特</string>
@@ -202,7 +198,6 @@
     <string name="metric_chip_load">PWM</string>
     <string name="metric_chip_trip">行程</string>
     <string name="metric_chip_speed">速度</string>
-    <string name="metric_chip_power">功率</string>
     <string name="metric_chip_odometer">里程錶</string>
     <string name="metric_chip_motor_power">馬達功率</string>
     <string name="metric_chip_battery_power">電池功率</string>
@@ -547,7 +542,6 @@
     <string name="section_report_status">定期播報</string>
     <string name="voice_enabled">定期播報狀態</string>
     <string name="voice_interval">間隔</string>
-    <string name="unit_sec">秒</string>
     <string name="announce_wheel_lock">車輪鎖定／解鎖</string>
     <string name="announce_lights">燈光開啟／關閉</string>
     <string name="announce_recording">行程錄製</string>
@@ -884,7 +878,6 @@
     <string name="auto_lights_desc">依日落日出自動開關車頭燈</string>
     <string name="auto_lights_on_before_sunset">日落前開燈</string>
     <string name="auto_lights_off_after_sunrise">日出後關燈</string>
-    <string name="auto_minutes_fmt">%1$d 分鐘</string>
     <string name="auto_waiting_gps">等待 GPS 定位…</string>
     <string name="auto_volume_title">音量</string>
     <string name="auto_volume_desc">依速度自動提升音樂音量</string>
@@ -899,7 +892,6 @@
     <string name="alarm_help">每個指標會自動觸發最相關的警報。清單中的順序不會改變觸發哪一個，排序只是讓畫面更整齊</string>
     <string name="alarm_empty">尚無警報規則</string>
     <string name="alarm_add">新增警報</string>
-    <string name="alarm_smart_sort">自動排序</string>
     <string name="alarm_summary_predict_fmt">提前 %1$s 秒預測</string>
     <string name="alarm_new">新增警報</string>
     <string name="alarm_edit">編輯警報</string>
@@ -908,7 +900,6 @@
     <string name="alarm_delete_action">刪除警報</string>
     <string name="alarm_metric_label">指標</string>
     <string name="alarm_comparator_label">條件</string>
-    <string name="alarm_threshold_fmt">閾值：%1$s %2$s</string>
     <string name="alarm_threshold_label">閾值</string>
     <string name="alarm_label_frequency">頻率</string>
     <string name="alarm_label_duration">時長</string>
@@ -953,9 +944,6 @@
 
     <string name="alarm_section_beep">嗶聲</string>
     <string name="alarm_enable_beep">啟用嗶聲</string>
-    <string name="alarm_beep_freq_fmt">頻率：%1$dHz</string>
-    <string name="alarm_beep_duration_fmt">持續時間：%1$dms</string>
-    <string name="alarm_beep_repeats_fmt">重複：%1$d 次</string>
     <string name="alarm_section_voice">語音</string>
     <string name="alarm_enable_voice">啟用語音</string>
     <string name="alarm_voice_template">文字範本</string>
@@ -963,25 +951,16 @@
     <string name="alarm_voice_default">警告！{metric} 達到 {value}</string>
     <string name="alarm_section_vibrate">震動</string>
     <string name="alarm_enable_vibrate">啟用震動</string>
-    <string name="alarm_vibrate_duration_fmt">持續時間：%1$dms</string>
-    <string name="alarm_vibrate_target_label">震動裝置</string>
     <string name="alarm_vibrate_target_phone">手機</string>
     <string name="alarm_vibrate_target_watch">手錶</string>
     <string name="alarm_vibrate_target_both">全部</string>
-    <string name="alarm_section_timing">時序</string>
     <string name="alarm_cooldown_label">冷卻時間</string>
-    <string name="alarm_cooldown_fmt">冷卻時間：%1$d 秒</string>
-    <string name="alarm_cooldown_help">此規則兩次觸發之間的最短間隔，即使條件持續符合亦然</string>
-    <string name="alarm_repeat">活躍時重複</string>
     <string name="alarm_section_advanced">進階</string>
     <string name="alarm_repeat_label">觸發</string>
     <string name="alarm_repeat_single">一次</string>
     <string name="alarm_repeat_multi">多次</string>
-    <string name="alarm_repeat_help">一次：只發出一次警報，待讀數回到安全範圍後重新啟用。\n多次：在持續觸發期間，每隔冷卻時間重新發出警報。</string>
     <string name="alarm_predict_label">預測觸發</string>
     <string name="alarm_predict_realtime">立即</string>
-    <string name="alarm_predict_value_fmt">提前 %1$s 秒</string>
-    <string name="alarm_predict_help">立即：在回報達到閾值的瞬間發出警報。\n其他：在趨勢即將達到閾值前的指定秒數發出警報。</string>
     <string name="alarm_state_atleast">%1$s 達到 %2$s 以上</string>
     <string name="alarm_state_below">%1$s 低於 %2$s</string>
     <string name="alarm_repeat_help_once">當 %1$s 時發出一次警報。待 %2$s 且經過 %3$d 秒冷卻時間後重新啟用。</string>
@@ -1099,7 +1078,6 @@
     <string name="studio_your_presets_empty">尚無已儲存的預設。儲存目前佈局以新增一個。</string>
 
     <!-- Studio: render progress overlay -->
-    <string name="studio_rendering">渲染中</string>
     <string name="studio_rendering_cancel">取消</string>
     <string name="studio_dlg_cancel_render_title">取消渲染？</string>
     <string name="studio_dlg_cancel_render_body">重播片段將不會儲存。</string>
@@ -1496,7 +1474,6 @@
     <string name="trip_action_share_file">分享檔案</string>
     <string name="trip_action_share_file_desc">將行程 CSV 傳送至其他應用程式</string>
     <string name="trip_action_view_online">線上查看</string>
-    <string name="trip_action_view_online_desc">在 EUC Viewer 地圖上開啟</string>
     <string name="trip_action_replay">在工作室重播</string>
     <string name="trip_action_replay_desc">使用即時資料疊加層回顧騎乘</string>
     <!-- ==== Dashboard quick menus ==== -->
@@ -1508,7 +1485,6 @@
     <string name="studio_group_media">鏡頭與圖片</string>
     <string name="studio_cfg_border_colour">邊框顏色</string>
     <string name="studio_cfg_border_width">邊框粗細</string>
-    <string name="studio_rendering_keep_open">請保持手機開啟並停留在此畫面，直到渲染完成</string>
     <string name="studio_cfg_g_scale">縮放</string>
     <string name="studio_export_force_opaque_hint">不透明格式使用色鍵顏色，半透明圖層可能顯示異常</string>
     <string name="studio_cfg_filter_vivid">鮮豔</string>
@@ -1589,7 +1565,6 @@
     <string name="charging_stat_added">已增加</string>
     <string name="charging_stat_balance">失衡</string>
     <string name="charging_stat_current">電流</string>
-    <string name="charging_stat_energy">能量</string>
     <string name="charging_stat_power">功率</string>
     <string name="charging_stat_rate">速率</string>
     <string name="charging_stat_temp">溫度</string>
@@ -1617,8 +1592,6 @@
     <string name="trip_action_share_dropbox_desc">上傳至你的 Dropbox 資料夾並分享公開連結</string>
     <string name="trip_action_inspect_online">線上檢視</string>
     <string name="trip_action_inspect_online_desc">分享 eucviewer.ried.no 連結以線上檢視此行程</string>
-    <string name="trip_action_copy_link">複製 eucviewer 連結</string>
-    <string name="trip_action_copy_link_desc">將可分享的 eucviewer.ried.no 連結複製到剪貼簿</string>
     <string name="trip_action_dropbox_disabled">在設定中連結 Dropbox 以啟用</string>
 
     <!-- Map: Open Charge Map (OCM) charger flyout -->
@@ -1818,17 +1791,8 @@
     <string name="adv_wheel_poll_rate_desc">影響即時資料的新鮮度與警報的反應速度。越低向車輪索取資料越頻繁。危險：極低的數值可能淹沒藍牙連結，並使某些車輪資料停滯。</string>
     <string name="alarm_beep_advanced">進階</string>
     <string name="alarm_beep_gap_label">間隔時長</string>
-    <string name="alarm_beep_pitch_rise_label">音高上升</string>
     <string name="alarm_beep_studio">自適應嗶聲</string>
-    <string name="alarm_beep_sum_core">以 %1$d Hz 嗶 %2$d 毫秒</string>
-    <string name="alarm_beep_sum_pitch"> 音高隨 %2$s 達到 %3$s %4$s 而升向 %1$d Hz。</string>
-    <string name="alarm_beep_sum_pitch_vol"> 音高升向 %1$d Hz，音量自 %2$d%% 升至 %3$d%%，隨 %4$s 達到 %5$s %6$s。</string>
-    <string name="alarm_beep_sum_reps">，×%1$d 相隔 %2$d 毫秒</string>
-    <string name="alarm_beep_sum_reps0">，×%1$d 連續</string>
-    <string name="alarm_beep_sum_voice">，接著播報語音</string>
-    <string name="alarm_beep_sum_vol"> 音量自 %1$d%% 升至 %2$d%%，隨 %3$s 達到 %4$s %5$s。</string>
     <string name="alarm_beep_volume_label">音量</string>
-    <string name="alarm_beep_volume_rise_label">音量上升</string>
     <string name="alarm_studio_now">%1$d Hz · %2$d%%</string>
     <string name="alarm_studio_pitch_factor">音高係數</string>
     <string name="alarm_studio_play">播放</string>

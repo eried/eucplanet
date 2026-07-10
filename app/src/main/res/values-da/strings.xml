@@ -11,16 +11,12 @@
     <string name="action_done">Færdig</string>
     <string name="action_close">Luk</string>
 <string name="crash_log_action_prompt">Du holdt %1$s nede. Slet kun denne log eller slet alle. Tryk Annuller og derefter på filen for at dele den.</string>
-    <string name="crash_log_delete_one">Slet denne log</string>
     <string name="crash_log_delete_all">Slet alle</string>
     <string name="crash_log_delete_all_warning">Slet alle gemte fejllogfiler? Dette kan ikke fortrydes.</string>
     <string name="action_save">Gem</string>
     <string name="action_apply">Anvend</string>
     <string name="action_delete">Slet</string>
-    <string name="action_edit">Rediger</string>
     <string name="action_test">Test</string>
-    <string name="action_move_up">Flyt op</string>
-    <string name="action_move_down">Flyt ned</string>
     <string name="action_reorder">Træk for at ændre rækkefølge</string>
     <string name="show_gauge_color_band">Farvebånd på speedometer</string>
     <string name="stat_watts">WATT</string>
@@ -202,7 +198,6 @@
     <string name="metric_chip_load">PWM</string>
     <string name="metric_chip_trip">Trip</string>
     <string name="metric_chip_speed">Fart</string>
-    <string name="metric_chip_power">Effekt</string>
     <string name="metric_chip_odometer">Kilometertæller</string>
     <string name="metric_chip_motor_power">Motoreffekt</string>
     <string name="metric_chip_battery_power">Batterieffekt</string>
@@ -551,7 +546,6 @@
     <string name="voice_announce_connected">Forbundet</string>
     <string name="voice_announce_riding">Under kørsel</string>
     <string name="voice_interval">Interval</string>
-    <string name="unit_sec">sek</string>
     <string name="announce_wheel_lock">Hjul låst / låst op</string>
     <string name="announce_lights">Lys tændt / slukket</string>
     <string name="announce_recording">Turoptagelse</string>
@@ -887,7 +881,6 @@
     <string name="auto_lights_desc">Tænd og sluk forlygten efter solopgang og solnedgang</string>
     <string name="auto_lights_on_before_sunset">Tænd lys før solnedgang</string>
     <string name="auto_lights_off_after_sunrise">Sluk lys efter solopgang</string>
-    <string name="auto_minutes_fmt">%1$d min</string>
     <string name="auto_waiting_gps">Venter på GPS-position…</string>
     <string name="auto_volume_title">Lydstyrke</string>
     <string name="auto_volume_desc">Øg musikkens lydstyrke efter farten</string>
@@ -902,7 +895,6 @@
     <string name="alarm_help">For hver måling udløses den mest relevante alarm automatisk. Rækkefølgen i listen ændrer ikke hvilken; sorteringen holder den bare ryddelig</string>
     <string name="alarm_empty">Ingen alarmregler endnu</string>
     <string name="alarm_add">Ny alarm</string>
-    <string name="alarm_smart_sort">Sortér automatisk</string>
     <string name="alarm_summary_predict_fmt">forudser %1$s s i forvejen</string>
     <string name="alarm_new">Ny alarm</string>
     <string name="alarm_edit">Rediger alarm</string>
@@ -911,7 +903,6 @@
     <string name="alarm_delete_action">Slet alarm</string>
     <string name="alarm_metric_label">Måling</string>
     <string name="alarm_comparator_label">Betingelse</string>
-    <string name="alarm_threshold_fmt">Tærskel: %1$s %2$s</string>
     <string name="alarm_threshold_label">Tærskel</string>
     <string name="alarm_label_frequency">Frekvens</string>
     <string name="alarm_label_duration">Varighed</string>
@@ -956,9 +947,6 @@
 
     <string name="alarm_section_beep">Bip</string>
     <string name="alarm_enable_beep">Aktivér bip</string>
-    <string name="alarm_beep_freq_fmt">Frekvens: %1$dHz</string>
-    <string name="alarm_beep_duration_fmt">Varighed: %1$dms</string>
-    <string name="alarm_beep_repeats_fmt">Gentagelser: %1$d</string>
     <string name="alarm_section_voice">Stemme</string>
     <string name="alarm_enable_voice">Aktivér stemme</string>
     <string name="alarm_voice_template">Tekstskabelon</string>
@@ -966,29 +954,20 @@
     <string name="alarm_voice_default">Advarsel! {metric} ved {value}</string>
     <string name="alarm_section_vibrate">Vibration</string>
     <string name="alarm_enable_vibrate">Aktivér vibration</string>
-    <string name="alarm_vibrate_duration_fmt">Varighed: %1$dms</string>
-    <string name="alarm_vibrate_target_label">Vibrér på</string>
     <string name="alarm_vibrate_target_phone">Telefon</string>
     <string name="alarm_vibrate_target_watch">Ur</string>
     <string name="alarm_vibrate_target_both">Alle</string>
-    <string name="alarm_section_timing">Timing</string>
     <string name="alarm_cooldown_label">Pause</string>
-    <string name="alarm_cooldown_fmt">Pause: %1$ds</string>
-    <string name="alarm_cooldown_help">Mindste tid mellem udløsninger for denne regel, selv hvis betingelsen forbliver opfyldt</string>
-    <string name="alarm_repeat">Gentag mens aktiv</string>
     <string name="alarm_section_advanced">Avanceret</string>
     <string name="alarm_repeat_label">Udløser</string>
     <string name="alarm_repeat_single">Engang</string>
     <string name="alarm_repeat_multi">Mange</string>
-    <string name="alarm_repeat_help">Én gang: én advarsel, og klargøres igen, når aflæsningen vender tilbage til den sikre side.\nMange: advarer igen efter hver pause, så længe den er udløst</string>
     <string name="alarm_repeat_help_once">Én advarsel når %1$s. Klargøres igen når %2$s, efter pausen på %3$d s.</string>
     <string name="alarm_repeat_help_many">Advarer igen hver %1$d s mens %2$s.</string>
     <string name="alarm_repeat_help_once_instant">Én advarsel når %1$s. Klargøres igen så snart %2$s.</string>
     <string name="alarm_repeat_help_many_instant">Advarer igen ved hver måling mens %1$s.</string>
     <string name="alarm_predict_label">Forudsigende udløser</string>
     <string name="alarm_predict_realtime">Nu</string>
-    <string name="alarm_predict_value_fmt">%1$s s tidligere</string>
-    <string name="alarm_predict_help">Nu: advarer i samme øjeblik tærsklen rapporteres.\nAndre: advarer så mange sekunder før tendensen er ved at nå den</string>
     <string name="alarm_predict_help_now">Advarer i samme øjeblik %1$s.</string>
     <string name="alarm_predict_help_lead">Advarer ca. %1$s s før %2$s, ud fra den seneste tendens.</string>
     <string name="alarm_state_atleast">%1$s er %2$s eller mere</string>
@@ -1103,7 +1082,6 @@
     <string name="studio_your_presets_empty">Ingen gemte presets endnu. Gem dit nuværende layout for at tilføje et.</string>
 
     <!-- Studio: render progress overlay -->
-    <string name="studio_rendering">Renderer</string>
     <string name="studio_rendering_cancel">Annuller</string>
     <string name="studio_dlg_cancel_render_title">Annuller rendering?</string>
     <string name="studio_dlg_cancel_render_body">Replay-klippet bliver ikke gemt.</string>
@@ -1500,7 +1478,6 @@
     <string name="trip_action_share_file">Del fil</string>
     <string name="trip_action_share_file_desc">Send turens CSV til en anden app</string>
     <string name="trip_action_view_online">Vis online</string>
-    <string name="trip_action_view_online_desc">Åbn den på EUC Viewer-kortet</string>
     <string name="trip_action_replay">Afspil i Studio</string>
     <string name="trip_action_replay_desc">Scrub turen med live data-overlays</string>
     <!-- ==== Dashboard quick menus ==== -->
@@ -1512,7 +1489,6 @@
     <string name="studio_group_media">Kamera &amp; billeder</string>
     <string name="studio_cfg_border_colour">Kantfarve</string>
     <string name="studio_cfg_border_width">Kanttykkelse</string>
-    <string name="studio_rendering_keep_open">Hold telefonen tændt og denne skærm åben, mens renderingen færdiggøres</string>
     <string name="studio_cfg_g_scale">Skala</string>
     <string name="studio_export_force_opaque_hint">Formater uden gennemsigtighed bruger chroma key-farven; kan se mærkeligt ud på halvgennemsigtige lag</string>
     <string name="studio_cfg_filter_vivid">Levende</string>
@@ -1575,7 +1551,6 @@
     <string name="charging_stat_balance">Ubalance</string>
     <string name="charging_stat_power">Effekt</string>
     <string name="charging_stat_current">Strøm</string>
-    <string name="charging_stat_energy">Energi</string>
     <string name="charging_chart_empty">Indsamler data</string>
     <string name="battery_history">Batterihistorik</string>
     <string name="setting_charging_auto_open">Åbn ved opladning</string>
@@ -1635,8 +1610,6 @@
     <string name="trip_action_share_dropbox_desc">Upload til din Dropbox-mappe og del det offentlige link</string>
     <string name="trip_action_inspect_online">Inspicér online</string>
     <string name="trip_action_inspect_online_desc">Del et eucviewer.ried.no-link for at se denne tur online</string>
-    <string name="trip_action_copy_link">Kopiér eucviewer-link</string>
-    <string name="trip_action_copy_link_desc">Kopiér et delbart eucviewer.ried.no-link til udklipsholderen</string>
     <string name="trip_action_dropbox_disabled">Forbind Dropbox i indstillinger for at aktivere</string>
 
     <!-- Map: chargers (Open Charge Map) and places (OpenStreetMap) -->
@@ -1834,17 +1807,8 @@
     <string name="adv_wheel_poll_rate_desc">Påvirker hvor friske live-data er, og hvor hurtigt alarmer reagerer. Lavere beder hjulet om data oftere. Fare: meget lave værdier kan overbelaste Bluetooth-forbindelsen og få data til at gå i stå på nogle hjul.</string>
     <string name="alarm_beep_advanced">Avanceret</string>
     <string name="alarm_beep_gap_label">Pausevarighed</string>
-    <string name="alarm_beep_pitch_rise_label">Tonestigning</string>
     <string name="alarm_beep_studio">Adaptivt bip</string>
-    <string name="alarm_beep_sum_core">Bipper ved %1$d Hz i %2$d ms</string>
-    <string name="alarm_beep_sum_pitch"> Tonen stiger mod %1$d Hz, når %2$s når %3$s %4$s.</string>
-    <string name="alarm_beep_sum_pitch_vol"> Tonen stiger mod %1$d Hz og lydstyrken fra %2$d%% til %3$d%%, når %4$s når %5$s %6$s.</string>
-    <string name="alarm_beep_sum_reps">, ×%1$d med %2$d ms mellemrum</string>
-    <string name="alarm_beep_sum_reps0">, ×%1$d i træk</string>
-    <string name="alarm_beep_sum_voice">, taler derefter</string>
-    <string name="alarm_beep_sum_vol"> Lydstyrken stiger fra %1$d%% til %2$d%%, når %3$s når %4$s %5$s.</string>
     <string name="alarm_beep_volume_label">Lydstyrke</string>
-    <string name="alarm_beep_volume_rise_label">Lydstyrkestigning</string>
     <string name="alarm_studio_now">%1$d Hz · %2$d%%</string>
     <string name="alarm_studio_pitch_factor">Tonefaktor</string>
     <string name="alarm_studio_play">Afspil</string>

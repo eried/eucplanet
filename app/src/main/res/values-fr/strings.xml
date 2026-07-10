@@ -11,16 +11,12 @@
     <string name="action_done">Terminé</string>
     <string name="action_close">Fermer</string>
 <string name="crash_log_action_prompt">Tu as appuyé longuement sur %1$s. Supprime ce journal ou tous. Pour le partager, touche Annuler puis le fichier.</string>
-    <string name="crash_log_delete_one">Supprimer ce journal</string>
     <string name="crash_log_delete_all">Tout supprimer</string>
     <string name="crash_log_delete_all_warning">Supprimer tous les journaux de plantage ? Action irréversible.</string>
     <string name="action_save">Enregistrer</string>
     <string name="action_apply">Appliquer</string>
     <string name="action_delete">Supprimer</string>
-    <string name="action_edit">Modifier</string>
     <string name="action_test">Tester</string>
-    <string name="action_move_up">Monter</string>
-    <string name="action_move_down">Descendre</string>
     <string name="action_reorder">Glisser pour réorganiser</string>
     <string name="show_gauge_color_band">Bande de couleur du compteur de vitesse</string>
     <string name="stat_watts">WATTS</string>
@@ -202,7 +198,6 @@
     <string name="metric_chip_load">PWM</string>
     <string name="metric_chip_trip">Trajet</string>
     <string name="metric_chip_speed">Vitesse</string>
-    <string name="metric_chip_power">Puissance</string>
     <string name="metric_chip_odometer">Compteur km</string>
     <string name="metric_chip_motor_power">Puiss. moteur</string>
     <string name="metric_chip_battery_power">Puiss. batterie</string>
@@ -551,7 +546,6 @@
     <string name="voice_announce_connected">Connectée</string>
     <string name="voice_announce_riding">En roulant</string>
     <string name="voice_interval">Intervalle</string>
-    <string name="unit_sec">s</string>
     <string name="announce_wheel_lock">Verrouillage / déverrouillage</string>
     <string name="announce_lights">Phare allumé / éteint</string>
     <string name="announce_recording">Enregistrement du trajet</string>
@@ -887,7 +881,6 @@
     <string name="auto_lights_desc">Allume ou éteint le phare selon le lever et le coucher du soleil</string>
     <string name="auto_lights_on_before_sunset">Allumer avant le coucher du soleil</string>
     <string name="auto_lights_off_after_sunrise">Éteindre après le lever du soleil</string>
-    <string name="auto_minutes_fmt">%1$d min</string>
     <string name="auto_waiting_gps">En attente de la position GPS…</string>
     <string name="auto_volume_title">Volume</string>
     <string name="auto_volume_desc">Volume adaptatif selon la vitesse</string>
@@ -902,7 +895,6 @@
     <string name="alarm_help">Pour chaque métrique, l\'alarme la plus pertinente se déclenche automatiquement. L\'ordre dans la liste ne change pas laquelle ; le tri sert juste à garder de l\'ordre.</string>
     <string name="alarm_empty">Aucune règle d\'alarme</string>
     <string name="alarm_add">Nouvelle alarme</string>
-    <string name="alarm_smart_sort">Tri automatique</string>
     <string name="alarm_summary_predict_fmt">prévoit %1$s s à l\'avance</string>
     <string name="alarm_new">Nouvelle alarme</string>
     <string name="alarm_edit">Modifier l\'alarme</string>
@@ -911,7 +903,6 @@
     <string name="alarm_delete_action">Supprimer l\'alarme</string>
     <string name="alarm_metric_label">Métrique</string>
     <string name="alarm_comparator_label">Condition</string>
-    <string name="alarm_threshold_fmt">Seuil : %1$s %2$s</string>
     <string name="alarm_threshold_label">Seuil</string>
     <string name="alarm_label_frequency">Fréquence</string>
     <string name="alarm_label_duration">Durée</string>
@@ -956,9 +947,6 @@
 
     <string name="alarm_section_beep">Bip</string>
     <string name="alarm_enable_beep">Activer le bip</string>
-    <string name="alarm_beep_freq_fmt">Fréquence : %1$dHz</string>
-    <string name="alarm_beep_duration_fmt">Durée : %1$dms</string>
-    <string name="alarm_beep_repeats_fmt">Répétitions : %1$d</string>
     <string name="alarm_section_voice">Voix</string>
     <string name="alarm_enable_voice">Activer la voix</string>
     <string name="alarm_voice_template">Modèle de texte</string>
@@ -966,25 +954,16 @@
     <string name="alarm_voice_default">Attention ! {metric} à {value}</string>
     <string name="alarm_section_vibrate">Vibration</string>
     <string name="alarm_enable_vibrate">Activer la vibration</string>
-    <string name="alarm_vibrate_duration_fmt">Durée : %1$dms</string>
-    <string name="alarm_vibrate_target_label">Vibrer sur</string>
     <string name="alarm_vibrate_target_phone">Téléphone</string>
     <string name="alarm_vibrate_target_watch">Montre</string>
     <string name="alarm_vibrate_target_both">Tous</string>
-    <string name="alarm_section_timing">Temporisation</string>
     <string name="alarm_cooldown_label">Pause</string>
-    <string name="alarm_cooldown_fmt">Pause : %1$ds</string>
-    <string name="alarm_cooldown_help">Temps minimum entre deux déclenchements, même si la condition reste vraie</string>
-    <string name="alarm_repeat">Répéter tant que c\'est actif</string>
     <string name="alarm_repeat_label">Déclenchement</string>
     <string name="alarm_repeat_single">Unique</string>
     <string name="alarm_repeat_multi">Répété</string>
-    <string name="alarm_repeat_help">Une fois : une seule alerte, puis se réarme une fois que la mesure revient du côté sûr.\nPlusieurs : réalerte à chaque pause tant qu\'elle reste déclenchée.</string>
     <string name="alarm_section_advanced">Avancé</string>
     <string name="alarm_predict_label">Déclenchement prédictif</string>
     <string name="alarm_predict_realtime">Direct</string>
-    <string name="alarm_predict_value_fmt">%1$s s à l\'avance</string>
-    <string name="alarm_predict_help">Maintenant : alerte dès que le seuil est signalé.\nAutres : alertent ce nombre de secondes avant que la tendance ne l\'atteigne.</string>
     <string name="alarm_state_atleast">%1$s est %2$s ou plus</string>
     <string name="alarm_state_below">%1$s est sous %2$s</string>
     <string name="alarm_repeat_help_once">Une alerte quand %1$s. Se réarme quand %2$s, après la pause de %3$d s.</string>
@@ -1106,7 +1085,6 @@
     <string name="charging_stat_balance">Déséquilibre</string>
     <string name="charging_stat_power">Puissance</string>
     <string name="charging_stat_current">Courant</string>
-    <string name="charging_stat_energy">Énergie</string>
     <string name="charging_chart_empty">Collecte des données</string>
     <string name="battery_history">Historique de batterie</string>
     <string name="setting_charging_auto_open">Ouvrir en charge</string>
@@ -1127,7 +1105,6 @@
     <string name="studio_your_presets_empty">Aucun préréglage enregistré. Enregistre ta mise en page actuelle pour en ajouter un.</string>
 
     <!-- Studio: render progress overlay -->
-    <string name="studio_rendering">Rendu en cours</string>
     <string name="studio_rendering_cancel">Annuler</string>
     <string name="studio_dlg_cancel_render_title">Annuler le rendu ?</string>
     <string name="studio_dlg_cancel_render_body">Le clip de replay ne sera pas enregistré.</string>
@@ -1399,7 +1376,6 @@
     <string name="studio_overwrite_body">Un préréglage nommé \"%1$s\" existe déjà.</string>
     <string name="studio_overwrite_confirm">Écraser</string>
     <string name="studio_snap_to_grid">Aligner sur la grille</string>
-    <string name="studio_rendering_keep_open">Garde le téléphone allumé et cet écran ouvert pendant le rendu</string>
     <string name="studio_export_force_opaque_hint">Les formats sans transparence utilisent la couleur du chroma key ; peut sembler étrange sur les calques semi-transparents</string>
 
     <!-- Studio: groups -->
@@ -1552,7 +1528,6 @@
     <string name="trip_action_share_file">Partager le fichier</string>
     <string name="trip_action_share_file_desc">Envoyer le CSV du trajet à une autre appli</string>
     <string name="trip_action_view_online">Voir en ligne</string>
-    <string name="trip_action_view_online_desc">L\'ouvrir sur la carte EUC Viewer</string>
     <string name="trip_action_replay">Rejouer dans Studio</string>
     <string name="trip_action_replay_desc">Parcourir le trajet avec les données en surimpression</string>
     <!-- ==== Dashboard quick menus ==== -->
@@ -1624,8 +1599,6 @@
     <string name="trip_action_share_dropbox_desc">Envoie dans ton dossier Dropbox et partage le lien public</string>
     <string name="trip_action_inspect_online">Inspecter en ligne</string>
     <string name="trip_action_inspect_online_desc">Partage un lien eucviewer.ried.no pour voir ce trajet en ligne</string>
-    <string name="trip_action_copy_link">Copier le lien eucviewer</string>
-    <string name="trip_action_copy_link_desc">Copie un lien eucviewer.ried.no partageable dans le presse-papiers</string>
     <string name="trip_action_dropbox_disabled">Lie Dropbox dans les réglages pour activer</string>
 
     <!-- Navigation: chargers & places (Open Charge Map / OpenStreetMap) -->
@@ -1823,17 +1796,8 @@
     <string name="adv_wheel_poll_rate_desc">Détermine la fraîcheur des données en direct et la rapidité de réaction des alarmes. Plus bas interroge la roue plus souvent. Danger : des valeurs très basses peuvent saturer le lien Bluetooth et bloquer les données sur certaines roues.</string>
     <string name="alarm_beep_advanced">Avancé</string>
     <string name="alarm_beep_gap_label">Durée d\'intervalle</string>
-    <string name="alarm_beep_pitch_rise_label">Montée de hauteur</string>
     <string name="alarm_beep_studio">Bip adaptatif</string>
-    <string name="alarm_beep_sum_core">Bipe à %1$d Hz pendant %2$d ms</string>
-    <string name="alarm_beep_sum_pitch"> La hauteur monte vers %1$d Hz à mesure que %2$s atteint %3$s %4$s.</string>
-    <string name="alarm_beep_sum_pitch_vol"> La hauteur monte vers %1$d Hz et le volume de %2$d%% à %3$d%% à mesure que %4$s atteint %5$s %6$s.</string>
-    <string name="alarm_beep_sum_reps">, ×%1$d à %2$d ms d\'intervalle</string>
-    <string name="alarm_beep_sum_reps0">, ×%1$d à la suite</string>
-    <string name="alarm_beep_sum_voice">, puis parle</string>
-    <string name="alarm_beep_sum_vol"> Le volume monte de %1$d%% à %2$d%% à mesure que %3$s atteint %4$s %5$s.</string>
     <string name="alarm_beep_volume_label">Volume</string>
-    <string name="alarm_beep_volume_rise_label">Montée de volume</string>
     <string name="alarm_studio_now">%1$d Hz · %2$d%%</string>
     <string name="alarm_studio_pitch_factor">Facteur de hauteur</string>
     <string name="alarm_studio_play">Lire</string>
