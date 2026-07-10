@@ -74,7 +74,9 @@ class SyncManager @Inject constructor(
         const val UPLOAD_WORK_NAME = "trip_upload"
         const val PERIODIC_UPLOAD_WORK_NAME = "trip_upload_periodic"
         const val EUCSTATS_UPLOAD_WORK_NAME = "eucstats_upload"
+        const val EUCSTATS_PERIODIC_WORK_NAME = "eucstats_upload_periodic"
         const val DROPBOX_SYNC_WORK_NAME = "dropbox_sync"
+        const val DROPBOX_PERIODIC_WORK_NAME = "dropbox_sync_periodic"
         const val KEY_ATTEMPT = "attempt"
 
         // Custom backoff curve, since WorkManager's native MAX_BACKOFF_MILLIS is
@@ -145,7 +147,11 @@ class SyncManager @Inject constructor(
             settingsRepository.settings
                 .map { it.pendingUploadIntervalMin }
                 .distinctUntilChanged()
-                .collect { schedulePeriodicTripUpload(it) }
+                .collect {
+                    schedulePeriodicTripUpload(it)
+                    schedulePeriodicEucStatsUpload(it)
+                    schedulePeriodicDropboxSync(it)
+                }
         }
     }
 
@@ -806,11 +812,101 @@ class SyncManager @Inject constructor(
         WorkManager.getInstance(context).cancelUniqueWork(EUCSTATS_UPLOAD_WORK_NAME)
     }
 
+    /**
+     * Retry stranded online (eucstats) uploads, e.g. a trip queued when the app
+     * was closed too early or whose retry chain ended on a cold-start bail before
+     * the rider id had loaded. Mirrors [reconcilePendingTripUploads] for the
+     * online path. A short initial delay lets the rider id and settings load so
+     * the worker does not immediately no-op. The worker no-ops when nothing is
+     * pending or the prerequisites are gone, so this is cheap every launch.
+     */
+    fun reconcilePendingEucStatsUploads() {
+        val constraints = Constraints.Builder()
+            .setRequiredNetworkType(NetworkType.CONNECTED)
+            .build()
+        val request = OneTimeWorkRequestBuilder<EucStatsUploadWorker>()
+            .setConstraints(constraints)
+            .setInputData(workDataOf(KEY_ATTEMPT to 0))
+            .setInitialDelay(10, TimeUnit.SECONDS)
+            .build()
+        WorkManager.getInstance(context).enqueueUniqueWork(
+            EUCSTATS_UPLOAD_WORK_NAME,
+            ExistingWorkPolicy.REPLACE,
+            request
+        )
+    }
+
+    /**
+     * Background safety-net for online (eucstats) uploads, mirroring
+     * [schedulePeriodicTripUpload]. Retries queued / failed leaderboard uploads
+     * every [intervalMin] minutes (Android floor 15), rescheduled across app
+     * death and reboots, so a stranded trip lands even if the rider never
+     * reopens the app or rides again. No-ops when nothing is pending.
+     */
+    fun schedulePeriodicEucStatsUpload(intervalMin: Int) {
+        val constraints = Constraints.Builder()
+            .setRequiredNetworkType(NetworkType.CONNECTED)
+            .build()
+        val request = PeriodicWorkRequestBuilder<EucStatsUploadWorker>(
+            intervalMin.coerceAtLeast(15).toLong(), TimeUnit.MINUTES
+        ).setConstraints(constraints).build()
+        WorkManager.getInstance(context).enqueueUniquePeriodicWork(
+            EUCSTATS_PERIODIC_WORK_NAME,
+            ExistingPeriodicWorkPolicy.UPDATE,
+            request
+        )
+    }
+
     /** Initial enqueue of the Dropbox sync worker. Retries reschedule
      *  themselves via [scheduleDropboxSyncAttempt]. Caller should check
      *  the linked state before calling — this is unconditional. */
     fun enqueueDropboxSync() {
         scheduleDropboxSyncAttempt(0)
+    }
+
+    /**
+     * Retry a stranded Dropbox mirror on cold start, a few seconds in so the
+     * link token has loaded. Mirrors [reconcilePendingTripUploads] /
+     * [reconcilePendingEucStatsUploads] for the Dropbox path, which otherwise
+     * only ran on trip finish / manual Sync all and left a trip stranded if its
+     * retry chain ended. The worker no-ops when Dropbox is not linked, so this
+     * is cheap every launch.
+     */
+    fun reconcilePendingDropboxSync() {
+        val constraints = Constraints.Builder()
+            .setRequiredNetworkType(NetworkType.CONNECTED)
+            .build()
+        val request = OneTimeWorkRequestBuilder<DropboxSyncWorker>()
+            .setConstraints(constraints)
+            .setInputData(workDataOf(KEY_ATTEMPT to 0))
+            .setInitialDelay(10, TimeUnit.SECONDS)
+            .build()
+        WorkManager.getInstance(context).enqueueUniqueWork(
+            DROPBOX_SYNC_WORK_NAME,
+            ExistingWorkPolicy.REPLACE,
+            request
+        )
+    }
+
+    /**
+     * Background safety-net for the Dropbox mirror, mirroring
+     * [schedulePeriodicTripUpload]. Re-mirrors local trips every [intervalMin]
+     * minutes (Android floor 15), rescheduled across app death, so a stranded
+     * upload lands even if the rider never reopens the app. The worker no-ops
+     * when Dropbox is not linked or everything is already mirrored.
+     */
+    fun schedulePeriodicDropboxSync(intervalMin: Int) {
+        val constraints = Constraints.Builder()
+            .setRequiredNetworkType(NetworkType.CONNECTED)
+            .build()
+        val request = PeriodicWorkRequestBuilder<DropboxSyncWorker>(
+            intervalMin.coerceAtLeast(15).toLong(), TimeUnit.MINUTES
+        ).setConstraints(constraints).build()
+        WorkManager.getInstance(context).enqueueUniquePeriodicWork(
+            DROPBOX_PERIODIC_WORK_NAME,
+            ExistingPeriodicWorkPolicy.UPDATE,
+            request
+        )
     }
 
     /**
