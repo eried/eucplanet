@@ -1794,4 +1794,5 @@
     <string name="adv_nav_sidebar_width_desc">Larghezza della barra laterale delle fermate in orizzontale. Troppo larga lascia poca mappa.</string>
     <string name="adv_simple_speedo_scale">Dimensione tachimetro semplice</string>
     <string name="adv_simple_speedo_scale_desc">Dimensione del numero di velocità rispetto all\'area del quadrante. Troppo grande può tagliare l\'unità.</string>
+    <string name="charging_reset_data">Reimposta dati</string>
 </resources>

@@ -22,6 +22,8 @@ import kotlin.math.abs
 data class ChargingUiState(
     val status: ChargeStatus = ChargeStatus.Disconnected,
     val connected: Boolean = false,
+    /** Disconnected, but the last session's data is still held and shown frozen. */
+    val frozen: Boolean = false,
     val wheelName: String? = null,
     /** Current battery %, fractional when the wheel reports it. */
     val percent: Float = 0f,
@@ -136,6 +138,11 @@ class ChargingMonitorViewModel @Inject constructor(
         }
     }
 
+    /** Wipe the charging session and start capturing fresh (Reset data menu item). */
+    fun resetData() {
+        wheelRepository.resetChargingSession()
+    }
+
     private fun buildState(
         data: WheelData,
         status: ChargeStatus,
@@ -151,6 +158,10 @@ class ChargingMonitorViewModel @Inject constructor(
         val charging = status == ChargeStatus.Charging || status == ChargeStatus.Full
         val connected = status != ChargeStatus.Disconnected
         val est = snap.estimate
+        // Disconnected but the repository still holds the last session (it no longer
+        // wipes on disconnect) -> keep showing it frozen instead of an empty screen.
+        val frozen = !connected &&
+            (snap.chargeHistory.isNotEmpty() || bms.hasCells || snap.packMinHistory.isNotEmpty())
         if (!connected) {
             seenPacks = false
             seenCurrent = false
@@ -165,9 +176,16 @@ class ChargingMonitorViewModel @Inject constructor(
         return ChargingUiState(
             status = status,
             connected = connected,
+            frozen = frozen,
             wheelName = name,
-            // Disconnected → 0 so the fill clears instead of showing the last level.
-            percent = if (!connected) 0f else if (charging) est.percent else batteryPercentOf(data),
+            // Connected: live level. Frozen: hold the last sampled level so the fill
+            // stays put. Truly empty (no session): 0 so the gauge reads empty.
+            percent = when {
+                connected && charging -> est.percent
+                connected -> batteryPercentOf(data)
+                frozen -> est.percent
+                else -> 0f
+            },
             startPercent = est.startPercent,
             // Percent added since the charge low point. The estimator anchors on
             // the running minimum, so this reads ~0 while riding and climbs once
@@ -177,7 +195,9 @@ class ChargingMonitorViewModel @Inject constructor(
             current = data.current,
             powerW = powerW,
             hasRealCurrent = hasRealCurrent,
-            hasPacks = seenPacks,
+            // Keep the Packs tab available while frozen if the session recorded pack
+            // history, so a disconnect doesn't hide the frozen band chart.
+            hasPacks = seenPacks || (frozen && snap.packMinHistory.isNotEmpty()),
             maxTemp = data.maxTemperature,
             battery1 = data.battery1Percent,
             battery2 = data.battery2Percent,

@@ -1886,6 +1886,7 @@
     <string name="adv_nav_sidebar_width_desc">Yatay durak kenar çubuğunun genişliği. Çok geniş olursa harita az kalır.</string>
     <string name="adv_simple_speedo_scale">Basit hız göstergesi boyutu</string>
     <string name="adv_simple_speedo_scale_desc">Hız sayısının gösterge alanına göre boyutu. Çok büyük olursa birim etiketini kırpabilir.</string>
+    <string name="charging_reset_data">Verileri sıfırla</string>
 </resources>
 
 

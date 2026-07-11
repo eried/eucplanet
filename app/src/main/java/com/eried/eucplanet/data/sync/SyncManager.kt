@@ -89,12 +89,17 @@ class SyncManager @Inject constructor(
         // attempt 3  → 1m
         // attempt 4  → 2m
         // attempt 5  → 4m
-        // attempt 6  → 8m
-        // attempt 7  → 16m
-        // attempt 8  → 32m
-        // attempt 9+ → 1h (capped, retries forever)
+        // attempt 6+ → 5m (capped, retries forever)
+        //
+        // Capped at 5m, not 1h: the CONNECTED constraint already holds a retry
+        // until the network is back, but the initial delay is a floor, so a trip
+        // whose attempt counter climbed while connectivity flapped mid-ride would
+        // otherwise sit up to an hour before the next attempt even once wifi is
+        // back home. A 5m ceiling means a stranded trip catches up within minutes.
+        // The workers no-op once nothing is pending, so a tighter cap costs
+        // nothing in the common case.
         private const val BACKOFF_BASE_SECONDS = 15L
-        private const val BACKOFF_MAX_SECONDS = 3600L
+        private const val BACKOFF_MAX_SECONDS = 300L
 
         fun delayForAttempt(attempt: Int): Long {
             if (attempt <= 0) return 0L

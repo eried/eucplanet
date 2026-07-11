@@ -1904,4 +1904,5 @@
     <string name="adv_nav_sidebar_width_desc">Bredden på det liggende stopsidepanel. For bredt efterlader lidt kort.</string>
     <string name="adv_simple_speedo_scale">Størrelse på simpelt speedometer</string>
     <string name="adv_simple_speedo_scale_desc">Størrelsen på hastighedstallet i forhold til måleområdet. For stort kan beskære enhedsmærket.</string>
+    <string name="charging_reset_data">Nulstil data</string>
 </resources>

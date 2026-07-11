@@ -1887,4 +1887,5 @@
     <string name="adv_nav_sidebar_width_desc">Szerokość bocznego panelu przystanków w poziomie. Zbyt szeroki zostawia mało mapy.</string>
     <string name="adv_simple_speedo_scale">Rozmiar prostego prędkościomierza</string>
     <string name="adv_simple_speedo_scale_desc">Rozmiar liczby prędkości względem obszaru wskaźnika. Zbyt duży może przyciąć etykietę jednostki.</string>
+    <string name="charging_reset_data">Resetuj dane</string>
 </resources>

@@ -1886,6 +1886,7 @@
     <string name="adv_nav_sidebar_width_desc">Ширина бічної панелі зупинок в альбомній орієнтації. Заширока лишає мало карти.</string>
     <string name="adv_simple_speedo_scale">Розмір простого спідометра</string>
     <string name="adv_simple_speedo_scale_desc">Розмір числа швидкості відносно області шкали. Завеликий може обрізати підпис одиниць.</string>
+    <string name="charging_reset_data">Скинути дані</string>
 </resources>
 
 

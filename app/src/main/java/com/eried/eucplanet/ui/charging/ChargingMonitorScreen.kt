@@ -131,7 +131,10 @@ fun ChargingMonitorScreen(
     var showSheet by remember { mutableStateOf(false) }
     // Open fully expanded so the rider doesn't have to drag the sheet up to see
     // the tabs' content.
-    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    // skipPartiallyExpanded = false so the details sheet has a partial (~half) and
+    // an expanded state: it opens around half and the rider can drag the handle up
+    // to enlarge it (a full look at the cells / packs). See contentH in InfoTabs.
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = false)
 
     val pct = rememberAnimatedPercent(state.percent, state.ratePctPerMin, charging, full = state.status == ChargeStatus.Full)
     // Live clock so the ETA counts down in real time between telemetry frames.
@@ -188,6 +191,14 @@ fun ChargingMonitorScreen(
                                 onOpenSettings()
                             },
                         )
+                        HorizontalDivider()
+                        DropdownMenuItem(
+                            text = { Text(stringResource(R.string.charging_reset_data)) },
+                            onClick = {
+                                menuOpen = false
+                                viewModel.resetData()
+                            },
+                        )
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -209,6 +220,7 @@ fun ChargingMonitorScreen(
                 startPercent = state.startPercent,
                 charging = charging,
                 connected = state.connected,
+                frozen = state.frozen,
                 estimateToFull = state.estimateToFull,
                 scrubFrac = scrubFrac,
                 // Deep blue main liquid + a more neon green for the freshly-added band.
@@ -236,7 +248,7 @@ fun ChargingMonitorScreen(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(28.dp),
                 ) {
-                    PercentReadout(pct, decimalsVisible = decimalsVisible, connected = state.connected)
+                    PercentReadout(pct, decimalsVisible = decimalsVisible, connected = state.connected || state.frozen)
                     if (state.connected && charging) {
                         PredictionText(state, nowMs, clockAt)
                     }
@@ -249,7 +261,7 @@ fun ChargingMonitorScreen(
                         .align(BiasAlignment(0f, -0.5f))
                         .padding(horizontal = 24.dp),
                 ) {
-                    PercentReadout(pct, decimalsVisible = decimalsVisible, connected = state.connected)
+                    PercentReadout(pct, decimalsVisible = decimalsVisible, connected = state.connected || state.frozen)
                 }
                 if (state.connected && charging) {
                     Column(
@@ -261,6 +273,19 @@ fun ChargingMonitorScreen(
                         PredictionText(state, nowMs, clockAt)
                     }
                 }
+            }
+
+            // Frozen (disconnected) badge, so the rider reads the numbers as the
+            // last-seen values of the preserved session, not a live feed.
+            if (state.frozen) {
+                Text(
+                    stringResource(R.string.connection_disconnected),
+                    style = MaterialTheme.typography.labelLarge,
+                    color = MaterialTheme.appColors.textPrimary.copy(alpha = 0.7f),
+                    modifier = Modifier
+                        .align(BiasAlignment(0f, -0.82f))
+                        .padding(horizontal = 24.dp),
+                )
             }
 
             // Hold and drag anywhere on the battery to read the level at that
@@ -595,6 +620,8 @@ private fun BatteryFillGraphic(
     startPercent: Float,
     charging: Boolean,
     connected: Boolean,
+    /** Disconnected but showing a preserved session: draw the liquid, skip live FX. */
+    frozen: Boolean = false,
     estimateToFull: Boolean,
     scrubFrac: Float? = null,
     base: Color,
@@ -828,8 +855,10 @@ private fun BatteryFillGraphic(
 
         val fillClip = Path().apply { addRect(Rect(0f, 0f, w, h)) }
         clipPath(fillClip) {
-            // Liquid only when a wheel is connected (else just the empty gauge).
-            if (connected) {
+            // Liquid when a wheel is connected, or when showing a frozen session
+            // (else just the empty gauge). The live FX below (glow, splash) stay
+            // gated on `connected` so a frozen fill sits still.
+            if (connected || frozen) {
             // Fill — one gradient (no seam): solid green to the start level, a
             // narrow green→blue band, then solid blue.
             val denom = (fillBottom - yTop).coerceAtLeast(1f)
@@ -960,9 +989,11 @@ private fun InfoTabs(state: ChargingUiState) {
     val configuration = LocalConfiguration.current
     val screenH = configuration.screenHeightDp.dp
     // One height for every tab so switching Charge / Packs / Cells never resizes
-    // the sheet. Opens a bit past half so the rider doesn't have to drag it up,
-    // but well short of full screen. Cells / Packs content scrolls inside it.
-    val contentH = (screenH * 0.50f).coerceIn(380.dp, 560.dp)
+    // the sheet. Tall (near full screen) so the sheet opens at its ~half partial
+    // state and the rider can DRAG THE HANDLE UP to enlarge it to this height for a
+    // full look at the cells / packs; each tab also scrolls inside it. (Paired with
+    // skipPartiallyExpanded = false on the sheet state above.)
+    val contentH = (screenH * 0.88f).coerceIn(420.dp, 820.dp)
 
     // Hoisted so the count survives Cells <-> Packs tab switches. Initialize
     // from the already-cached BmsState so opening the bottom sheet on a wheel

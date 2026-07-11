@@ -1886,4 +1886,5 @@
     <string name="adv_nav_sidebar_width_desc">가로 모드 경유지 사이드바의 너비. 너무 넓으면 지도가 거의 남지 않습니다.</string>
     <string name="adv_simple_speedo_scale">단순 속도계 크기</string>
     <string name="adv_simple_speedo_scale_desc">게이지 영역 대비 속도 숫자의 크기. 너무 크면 단위 라벨이 잘릴 수 있습니다.</string>
+    <string name="charging_reset_data">데이터 초기화</string>
 </resources>

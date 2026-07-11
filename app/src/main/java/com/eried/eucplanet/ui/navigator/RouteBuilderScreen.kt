@@ -1748,100 +1748,102 @@ private fun BottomPanel(
                 // pill" doesn't read as enabled. Functional disable is
                 // also on each SegmentedButton.
                 val modesLocked = navRunning || allPassed
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    SingleChoiceSegmentedButtonRow(
-                        modifier = Modifier
-                            .weight(1f)
-                            .then(if (modesLocked) Modifier.alpha(0.4f) else Modifier)
-                    ) {
-                        modes.forEachIndexed { index, (mode, icon, labelRes) ->
-                            // Icon tint matches the route line colour for that
-                            // mode so the chip visually previews what the line
-                            // on the map will look like. Keep in sync with
-                            // routeColorFor() in MapHtml.kt.
-                            //   Walk     lavender    #7E57C2
-                            //   Bike     teal        #26A69A
-                            //   Drive    soft orange #FB8C00
-                            //   Straight sky blue    #42A5F5
-                            val modeColor = when (mode) {
-                                TravelMode.WALKING  -> Color(0xFF7E57C2)
-                                TravelMode.CYCLING  -> Color(0xFF26A69A)
-                                TravelMode.DRIVING  -> Color(0xFFFB8C00)
-                                TravelMode.STRAIGHT -> Color(0xFF42A5F5)
-                            }
-                            SegmentedButton(
-                                selected = travelMode == mode,
-                                onClick = { onModeChange(mode) },
-                                enabled = !modesLocked,
-                                shape = SegmentedButtonDefaults.itemShape(
-                                    index, modes.size,
-                                    baseShape = RoundedCornerShape(12.dp)
-                                ),
-                                icon = {},
-                                colors = themedSegmentedColors(),
-                            ) {
-                                if (!solveFullPath && mode != TravelMode.STRAIGHT) {
-                                    // Next segment + routed mode: icon with a
-                                    // short segmented dashed underline in the
-                                    // mode's own colour, echoing the dashed
-                                    // remaining legs on the map. ONLY this case
-                                    // adds the underline (and the slight upward
-                                    // nudge it causes). Direct and Full path keep
-                                    // the plain centred icon, unchanged in
-                                    // position.
-                                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                        Icon(
-                                            icon,
-                                            contentDescription = stringResource(labelRes),
-                                            tint = modeColor,
-                                            modifier = Modifier.size(20.dp)
-                                        )
-                                        Spacer(Modifier.height(3.dp))
-                                        Row(horizontalArrangement = Arrangement.spacedBy(2.dp)) {
-                                            repeat(3) {
-                                                Box(
-                                                    modifier = Modifier
-                                                        .width(4.dp)
-                                                        .height(2.dp)
-                                                        .background(modeColor, RoundedCornerShape(1.dp))
-                                                )
-                                            }
-                                        }
-                                    }
-                                } else {
+                // Mode selector on its own full-width row so each icon gets a
+                // quarter of the panel. Sharing a row with the Start button
+                // squeezed the glyphs to a few dp in the narrow portrait /
+                // split-landscape panel, and long localized "Start navigation"
+                // labels only made it worse.
+                SingleChoiceSegmentedButtonRow(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .then(if (modesLocked) Modifier.alpha(0.4f) else Modifier)
+                ) {
+                    modes.forEachIndexed { index, (mode, icon, labelRes) ->
+                        // Icon tint matches the route line colour for that
+                        // mode so the chip visually previews what the line
+                        // on the map will look like. Keep in sync with
+                        // routeColorFor() in MapHtml.kt.
+                        //   Walk     lavender    #7E57C2
+                        //   Bike     teal        #26A69A
+                        //   Drive    soft orange #FB8C00
+                        //   Straight sky blue    #42A5F5
+                        val modeColor = when (mode) {
+                            TravelMode.WALKING  -> Color(0xFF7E57C2)
+                            TravelMode.CYCLING  -> Color(0xFF26A69A)
+                            TravelMode.DRIVING  -> Color(0xFFFB8C00)
+                            TravelMode.STRAIGHT -> Color(0xFF42A5F5)
+                        }
+                        SegmentedButton(
+                            selected = travelMode == mode,
+                            onClick = { onModeChange(mode) },
+                            enabled = !modesLocked,
+                            shape = SegmentedButtonDefaults.itemShape(
+                                index, modes.size,
+                                baseShape = RoundedCornerShape(12.dp)
+                            ),
+                            icon = {},
+                            colors = themedSegmentedColors(),
+                        ) {
+                            if (!solveFullPath && mode != TravelMode.STRAIGHT) {
+                                // Next segment + routed mode: icon with a
+                                // short segmented dashed underline in the
+                                // mode's own colour, echoing the dashed
+                                // remaining legs on the map. ONLY this case
+                                // adds the underline (and the slight upward
+                                // nudge it causes). Direct and Full path keep
+                                // the plain centred icon, unchanged in
+                                // position.
+                                Column(horizontalAlignment = Alignment.CenterHorizontally) {
                                     Icon(
                                         icon,
                                         contentDescription = stringResource(labelRes),
                                         tint = modeColor,
                                         modifier = Modifier.size(20.dp)
                                     )
+                                    Spacer(Modifier.height(3.dp))
+                                    Row(horizontalArrangement = Arrangement.spacedBy(2.dp)) {
+                                        repeat(3) {
+                                            Box(
+                                                modifier = Modifier
+                                                    .width(4.dp)
+                                                    .height(2.dp)
+                                                    .background(modeColor, RoundedCornerShape(1.dp))
+                                            )
+                                        }
+                                    }
                                 }
+                            } else {
+                                Icon(
+                                    icon,
+                                    contentDescription = stringResource(labelRes),
+                                    tint = modeColor,
+                                    modifier = Modifier.size(20.dp)
+                                )
                             }
                         }
                     }
-                    Spacer(Modifier.width(8.dp))
-                    Button(
-                        onClick = when {
-                            allPassed -> onClearRoute
-                            navRunning -> onStopNavigation
-                            else -> onStartNavigation
-                        },
-                        enabled = allPassed || navRunning || canStartNavigation,
-                        // Hold the row's width steady across Start/Stop/New
-                        // route (matches the compact button width above).
-                        modifier = Modifier.widthIn(min = 180.dp),
-                        shape = RoundedCornerShape(12.dp)
-                    ) {
-                        Text(
-                            stringResource(
-                                when {
-                                    allPassed -> R.string.nav_menu_clear
-                                    navRunning -> R.string.nav_stop_short
-                                    else -> R.string.nav_start_short
-                                }
-                            )
+                }
+                Spacer(Modifier.height(8.dp))
+                // Full-width primary action beneath the mode row.
+                Button(
+                    onClick = when {
+                        allPassed -> onClearRoute
+                        navRunning -> onStopNavigation
+                        else -> onStartNavigation
+                    },
+                    enabled = allPassed || navRunning || canStartNavigation,
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(12.dp)
+                ) {
+                    Text(
+                        stringResource(
+                            when {
+                                allPassed -> R.string.nav_menu_clear
+                                navRunning -> R.string.nav_stop_short
+                                else -> R.string.nav_start_short
+                            }
                         )
-                    }
+                    )
                 }
 
                 Spacer(Modifier.height(8.dp))

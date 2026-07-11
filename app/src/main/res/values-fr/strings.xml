@@ -1893,4 +1893,5 @@
     <string name="adv_nav_sidebar_width_desc">Largeur de la barre latérale d\'arrêts en paysage. Trop large laisse peu de carte.</string>
     <string name="adv_simple_speedo_scale">Taille du compteur simple</string>
     <string name="adv_simple_speedo_scale_desc">Taille du chiffre de vitesse par rapport à la zone du cadran. Trop grand peut rogner l\'unité.</string>
+    <string name="charging_reset_data">Réinitialiser les données</string>
 </resources>

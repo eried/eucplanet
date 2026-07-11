@@ -20,7 +20,7 @@ reply. Model-specific. Source: `InMotionV2Model.kt`, `InMotionV2Adapter.kt`.
 
 | Model | modelId | Class | Detect by | Photo |
 |---|---|---|---|---|
-| P6 | 21 | 84V | name `P6-*` |  |
+| P6 | 21 | 235V (56S) | name `P6-*` |  |
 | V9 | 121 | 84V | name `v9` |  |
 | V11 | 61 | 100V | name `v11` |  |
 | V11y | 62 | 100V | name `v11y` |  |

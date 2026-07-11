@@ -1888,6 +1888,7 @@
     <string name="adv_nav_sidebar_width_desc">橫向停靠點側欄的寬度。太寬會讓地圖變小。</string>
     <string name="adv_simple_speedo_scale">簡易速度表尺寸</string>
     <string name="adv_simple_speedo_scale_desc">速度數字相對於錶盤區域的大小。太大可能會截斷單位標籤。</string>
+    <string name="charging_reset_data">重設資料</string>
 </resources>
 
 

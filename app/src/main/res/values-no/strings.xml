@@ -1775,4 +1775,5 @@
     <string name="adv_nav_sidebar_width_desc">Bredden på det liggende stopp-sidepanelet. For bredt gir lite kart.</string>
     <string name="adv_simple_speedo_scale">Størrelse på enkelt speedometer</string>
     <string name="adv_simple_speedo_scale_desc">Størrelsen på fartstallet i forhold til måleområdet. For stort kan beskjære enhetsetiketten.</string>
+    <string name="charging_reset_data">Nullstill data</string>
 </resources>

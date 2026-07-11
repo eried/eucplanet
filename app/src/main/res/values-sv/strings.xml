@@ -1889,4 +1889,5 @@
     <string name="adv_nav_sidebar_width_desc">Bredden på den liggande stopp-sidopanelen. För bred lämnar lite karta.</string>
     <string name="adv_simple_speedo_scale">Storlek på enkel hastighetsmätare</string>
     <string name="adv_simple_speedo_scale_desc">Storleken på hastighetssiffran i förhållande till mätarytan. För stor kan beskära enhetsetiketten.</string>
+    <string name="charging_reset_data">Återställ data</string>
 </resources>

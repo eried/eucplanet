@@ -155,6 +155,17 @@ class WheelRepository @Inject constructor(
         // WearBridge alone. Only request/response wheels (InMotion, Ninebot)
         // honour this; push-only families ignore it (they free-run).
         private const val POLL_INTERVAL_MS = 250L
+        // Percent-climb charge inference, for wheels that report neither a charge
+        // flag nor a charge current (the InMotion P6 sits at ~0 A while charging).
+        // A rise >= ON over the sample horizon starts it, a fall below OFF stops it,
+        // and the band between holds through a CV taper near full. CURRENT_EPS +
+        // CURRENT_MEMORY gate it to genuinely currentless wheels so the flag/current
+        // families are never touched.
+        private const val CHARGE_RISE_SAMPLE_MS = 45_000L
+        private const val CHARGE_RISE_ON_PCT_MIN = 0.2f
+        private const val CHARGE_RISE_OFF_PCT_MIN = 0.02f
+        private const val CHARGE_CURRENT_EPS_A = 0.15f
+        private const val CHARGE_CURRENT_MEMORY_MS = 120_000L
         // Default dashboard-chart sampling interval (ms); overridden by
         // AppSettings.graphSampleIntervalMs. Charts only — not alarms/recording.
         private const val HISTORY_SAMPLE_INTERVAL_MS = 1000L
@@ -229,6 +240,13 @@ class WheelRepository @Inject constructor(
     private var chargeInferred = false
     private var chargeNegSamples = 0
     private var chargePosSamples = 0
+    // Percent-climb charge inference for flagless / currentless wheels (P6): a crisp
+    // short-horizon rise detector plus a "last time we saw real current" guard so it
+    // never engages on wheels that do report a charge current.
+    private var chargeRising = false
+    private var chargeRiseRefPct = 0f
+    private var chargeRiseRefMs = 0L
+    private var chargeCurrentSeenMs = 0L
 
     // Charging session (estimator + per-session history) lives here so the
     // prediction persists across navigation; updated each telemetry frame.
@@ -634,16 +652,19 @@ class WheelRepository @Inject constructor(
                         chargeInferred = false
                         chargeNegSamples = 0
                         chargePosSamples = 0
-                        chargingSessionActive = false
-                        chargingEstimator.reset()
-                        chargePctHist.clear()
-                        chargeVoltHist.clear()
-                        chargeTempHist.clear()
-                        clearPackHist()
-                        _chargingSnapshot.value = ChargingSnapshot()
+                        chargeRising = false
+                        chargeRiseRefMs = 0L
+                        chargeCurrentSeenMs = 0L
+                        // The charging session (charge / voltage / pack / cell
+                        // history, estimator, energy) is NOT cleared here: the
+                        // Battery screen keeps it frozen so a BLE drop or a
+                        // plug/unplug on the SAME wheel doesn't wipe the graph.
+                        // chargingSessionActive stays true so a same-wheel reconnect
+                        // resumes appending; connecting a DIFFERENT wheel resets it
+                        // via resetChargingSession() in connect(), and the rider can
+                        // wipe it on demand from the screen's Reset data.
                         _modelName.value = null
                         _wheelSerial.value = null
-                        _bmsState.value = com.eried.eucplanet.data.model.BmsState()
                         _firmwareVersion.value = null
                         _maxSpeedCap.value = DEFAULT_MAX_SPEED_KMH
                         _wheelData.value =
@@ -722,22 +743,12 @@ class WheelRepository @Inject constructor(
                 pushHist(chargeTempHist, data.timestamp, data.maxTemperature)
                 recordPackHist(data)
             }
-        } else if (chargingSessionActive) {
-            chargingSessionActive = false
-            chargingEstimator.reset()
-            chargePctHist.clear(); chargeVoltHist.clear(); chargeTempHist.clear(); clearPackHist()
-            committedTargetEtaMs = null
-            committedTargetAnchorMs = 0L
-            committedFullEtaMs = null
-            committedFullAnchorMs = 0L
-            predictionHistory.clear()
-            lastPredictionLogMs = 0L
-            sessionEnergyWh = 0f
-            sessionEnergyInWh = 0f
-            sessionEnergyOutWh = 0f
-            sessionLastEnergyMs = 0L
-            sessionLastPowerW = 0f
         }
+        // Disconnected keeps the session FROZEN: the buffers, estimator, energy and
+        // last snapshot are all preserved so the Battery screen still shows the last
+        // charge and its curve. A same-wheel reconnect resumes (chargingSessionActive
+        // stays true); a different wheel or a manual Reset wipes it via
+        // resetChargingSession().
         val est = chargingEstimator.estimate()
         val (te, ta) = commitEta(committedTargetEtaMs, committedTargetAnchorMs, est.minutesToTarget, data.timestamp)
         committedTargetEtaMs = te; committedTargetAnchorMs = ta
@@ -785,6 +796,33 @@ class WheelRepository @Inject constructor(
         packMaxHist.clear()
         packAvgHist.clear()
         packHistUnit = "%"
+    }
+
+    /**
+     * Wipe the charging session and re-seed from live telemetry. Backs the Battery
+     * screen's "Reset data" menu item and the different-wheel branch of [connect].
+     * Mirrors the per-metric [resetHistory]: clears the in-memory buffers and emits
+     * an empty snapshot; the next connected frame starts a fresh session (the
+     * `!chargingSessionActive` init path in updateChargingSession).
+     */
+    fun resetChargingSession() {
+        chargingSessionActive = false
+        chargingEstimator.reset()
+        chargePctHist.clear(); chargeVoltHist.clear(); chargeTempHist.clear(); clearPackHist()
+        committedTargetEtaMs = null
+        committedTargetAnchorMs = 0L
+        committedFullEtaMs = null
+        committedFullAnchorMs = 0L
+        predictionHistory.clear()
+        lastPredictionLogMs = 0L
+        chargeLastHistMs = 0L
+        sessionEnergyWh = 0f
+        sessionEnergyInWh = 0f
+        sessionEnergyOutWh = 0f
+        sessionLastEnergyMs = 0L
+        sessionLastPowerW = 0f
+        _bmsState.value = com.eried.eucplanet.data.model.BmsState()
+        _chargingSnapshot.value = ChargingSnapshot()
     }
 
     /**
@@ -881,6 +919,9 @@ class WheelRepository @Inject constructor(
             chargeInferred = false
             chargeNegSamples = 0
             chargePosSamples = 0
+            chargeRising = false
+            chargeRiseRefMs = 0L
+            chargeCurrentSeenMs = 0L
             return ChargeStatus.Disconnected
         }
         when {
@@ -897,7 +938,36 @@ class WheelRepository @Inject constructor(
             // trickle band (-0.3..-0.05 A): hold the latched state
         }
         val moving = data.speed > 1f
-        val charging = !moving && (data.charging || chargeInferred)
+        // Percent-climb fallback: the InMotion P6 reports neither a charge flag nor
+        // a charge current (it sits at ~0 A while charging), so infer charging from
+        // the battery % rising while parked. Uses a short ~45 s horizon (not the
+        // 5-min estimator window) so it drops within a minute of the charge stopping,
+        // and only engages once the wheel has gone 2 min with no real current, so the
+        // flag/current families (V14, KingSong, Veteran, Begode, Ninebot) are never
+        // affected. A gentle CV-taper creep holds; a flat or falling % drops it.
+        if (kotlin.math.abs(data.current) >= CHARGE_CURRENT_EPS_A) chargeCurrentSeenMs = data.timestamp
+        val flagless = !data.charging &&
+            data.timestamp - chargeCurrentSeenMs > CHARGE_CURRENT_MEMORY_MS
+        if (moving || !flagless) {
+            chargeRising = false
+            chargeRiseRefMs = 0L
+        } else {
+            val pct = batteryPercentOf(data)
+            if (chargeRiseRefMs == 0L) {
+                chargeRiseRefPct = pct
+                chargeRiseRefMs = data.timestamp
+            }
+            val span = data.timestamp - chargeRiseRefMs
+            if (span >= CHARGE_RISE_SAMPLE_MS) {
+                val ratePctPerMin = (pct - chargeRiseRefPct) / (span / 60_000f)
+                chargeRiseRefPct = pct
+                chargeRiseRefMs = data.timestamp
+                if (ratePctPerMin >= CHARGE_RISE_ON_PCT_MIN) chargeRising = true
+                else if (ratePctPerMin < CHARGE_RISE_OFF_PCT_MIN) chargeRising = false
+                // between OFF and ON: hold (CV taper near full)
+            }
+        }
+        val charging = !moving && (data.charging || chargeInferred || chargeRising)
         return when {
             charging && data.batteryPercent >= 100 -> ChargeStatus.Full
             charging -> ChargeStatus.Charging
@@ -950,6 +1020,9 @@ class WheelRepository @Inject constructor(
             ampsHist.clear(); loadHist.clear(); speedHist.clear()
             extrasHist.values.forEach { it.clear() }
             _fullHistory.value = FullMetricHistory()
+            // Same rule for the Battery screen's charging session: a new wheel starts
+            // fresh so its charge curve / packs / cells don't inherit the last wheel's.
+            resetChargingSession()
         }
         lastConnectedAddress = address
         bleManager.connect(address, name, isAuto)

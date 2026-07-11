@@ -1888,6 +1888,7 @@
     <string name="adv_nav_sidebar_width_desc">横向きの経由地サイドバーの幅。広すぎると地図が狭くなります。</string>
     <string name="adv_simple_speedo_scale">シンプル速度計のサイズ</string>
     <string name="adv_simple_speedo_scale_desc">メーター領域に対する速度の数字の大きさ。大きすぎると単位ラベルが切れることがあります。</string>
+    <string name="charging_reset_data">データをリセット</string>
 </resources>
 
 

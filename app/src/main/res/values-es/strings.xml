@@ -1886,5 +1886,6 @@
     <string name="adv_nav_sidebar_width_desc">Ancho de la barra lateral de paradas en horizontal. Muy ancho deja poco mapa.</string>
     <string name="adv_simple_speedo_scale">Tamaño del velocímetro simple</string>
     <string name="adv_simple_speedo_scale_desc">Tamaño del número de velocidad respecto al área del indicador. Muy grande puede recortar la etiqueta de unidad.</string>
+    <string name="charging_reset_data">Restablecer datos</string>
 </resources>
 
