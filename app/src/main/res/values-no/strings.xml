@@ -1679,7 +1679,7 @@
     <string name="alarm_beep_advanced">Avansert</string>
     <string name="alarm_beep_gap_label">Pausevarighet</string>
     <string name="alarm_beep_studio">Adaptivt pip</string>
-    <string name="alarm_beep_volume_label">Volum</string>
+    <string name="alarm_beep_volume_label">Basisvolum</string>
     <string name="alarm_studio_now">%1$d Hz · %2$d%%</string>
     <string name="alarm_studio_pitch_factor">Tonehøydefaktor</string>
     <string name="alarm_studio_play">Spill</string>

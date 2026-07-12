@@ -1793,7 +1793,7 @@
     <string name="alarm_beep_advanced">Дополнительно</string>
     <string name="alarm_beep_gap_label">Длительность паузы</string>
     <string name="alarm_beep_studio">Адаптивный сигнал</string>
-    <string name="alarm_beep_volume_label">Громкость</string>
+    <string name="alarm_beep_volume_label">Базовая громкость</string>
     <string name="alarm_studio_now">%1$d Гц · %2$d%%</string>
     <string name="alarm_studio_pitch_factor">Коэффициент высоты</string>
     <string name="alarm_studio_play">Играть</string>

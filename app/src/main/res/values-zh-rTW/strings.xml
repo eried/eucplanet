@@ -1792,7 +1792,7 @@
     <string name="alarm_beep_advanced">進階</string>
     <string name="alarm_beep_gap_label">間隔時長</string>
     <string name="alarm_beep_studio">自適應嗶聲</string>
-    <string name="alarm_beep_volume_label">音量</string>
+    <string name="alarm_beep_volume_label">基本音量</string>
     <string name="alarm_studio_now">%1$d Hz · %2$d%%</string>
     <string name="alarm_studio_pitch_factor">音高係數</string>
     <string name="alarm_studio_play">播放</string>

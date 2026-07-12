@@ -1790,7 +1790,7 @@
     <string name="alarm_beep_advanced">고급</string>
     <string name="alarm_beep_gap_label">간격 길이</string>
     <string name="alarm_beep_studio">적응형 비프</string>
-    <string name="alarm_beep_volume_label">볼륨</string>
+    <string name="alarm_beep_volume_label">기본 볼륨</string>
     <string name="alarm_studio_now">%1$d Hz · %2$d%%</string>
     <string name="alarm_studio_pitch_factor">음높이 계수</string>
     <string name="alarm_studio_play">재생</string>

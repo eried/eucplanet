@@ -1793,7 +1793,7 @@
     <string name="alarm_beep_advanced">Avancerat</string>
     <string name="alarm_beep_gap_label">Pauslängd</string>
     <string name="alarm_beep_studio">Adaptivt pip</string>
-    <string name="alarm_beep_volume_label">Volym</string>
+    <string name="alarm_beep_volume_label">Basvolym</string>
     <string name="alarm_studio_now">%1$d Hz · %2$d%%</string>
     <string name="alarm_studio_pitch_factor">Tonhöjdsfaktor</string>
     <string name="alarm_studio_play">Spela</string>

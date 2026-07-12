@@ -659,8 +659,8 @@ private fun AlarmRuleEditorDialog(
                 }
 
                 if (beepEnabled) {
-                    // Frequency + Duration share a row; the unit (Hz / ms) tells
-                    // them apart. 200 Hz floor = soft "thunk", 3 kHz = piercing.
+                    // Frequency + Repeats on the top row; Duration lives in Advanced.
+                    // 200 Hz floor = soft "thunk", 3 kHz = piercing.
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.spacedBy(12.dp)
@@ -673,34 +673,15 @@ private fun AlarmRuleEditorDialog(
                             modifier = Modifier.weight(1f),
                         )
                         NumberUpDown(
-                            value = beepDurationMs,
-                            onValueChange = { beepDurationMs = it },
-                            // Down to 10 ms: with gap 0 the `count` beeps merge into one
-                            // run of duration*count, so a short duration + a higher count
-                            // builds a longer continuous tone in fine increments.
-                            range = 10..1000, step = 10, suffix = "ms",
-                            label = stringResource(R.string.alarm_label_duration),
-                            modifier = Modifier.weight(1f),
-                        )
-                    }
-                    Spacer(Modifier.height(8.dp))
-                    // Repeat count is a small value, so it stays half-width rather
-                    // than stretching across the dialog.
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(12.dp)
-                    ) {
-                        NumberUpDown(
                             value = beepCount,
                             onValueChange = { beepCount = it },
                             range = 1..5, step = 1, suffix = "x",
                             label = stringResource(R.string.alarm_label_repeats),
                             modifier = Modifier.weight(1f),
                         )
-                        Spacer(Modifier.weight(1f))
                     }
                     Spacer(Modifier.height(8.dp))
-                    // Advanced (gap, volume, Adaptive beep) -- collapsed by default.
+                    // Advanced (duration, gap, volume, transition, Studio) -- collapsed.
                     var beepAdvanced by remember { mutableStateOf(false) }
                     Text(
                         text = (if (beepAdvanced) "▴ " else "▾ ") + stringResource(R.string.alarm_beep_advanced),
@@ -717,17 +698,20 @@ private fun AlarmRuleEditorDialog(
                             horizontalArrangement = Arrangement.spacedBy(12.dp)
                         ) {
                             NumberUpDown(
+                                value = beepDurationMs,
+                                onValueChange = { beepDurationMs = it },
+                                // Down to 10 ms: with gap 0 the `count` beeps merge into one
+                                // run of duration*count, so a short duration + a higher count
+                                // builds a longer continuous tone in fine increments.
+                                range = 10..1000, step = 10, suffix = "ms",
+                                label = stringResource(R.string.alarm_label_duration),
+                                modifier = Modifier.weight(1f),
+                            )
+                            NumberUpDown(
                                 value = beepGapMs,
                                 onValueChange = { beepGapMs = it },
                                 range = 0..2000, step = 20, suffix = "ms",
                                 label = stringResource(R.string.alarm_beep_gap_label),
-                                modifier = Modifier.weight(1f),
-                            )
-                            NumberUpDown(
-                                value = beepVolume,
-                                onValueChange = { beepVolume = it },
-                                range = 0..100, step = 5, suffix = "%",
-                                label = stringResource(R.string.alarm_beep_volume_label),
                                 modifier = Modifier.weight(1f),
                             )
                         }
@@ -736,9 +720,16 @@ private fun AlarmRuleEditorDialog(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.spacedBy(12.dp)
                         ) {
+                            NumberUpDown(
+                                value = beepVolume,
+                                onValueChange = { beepVolume = it },
+                                range = 0..100, step = 5, suffix = "%",
+                                label = stringResource(R.string.alarm_beep_volume_label),
+                                modifier = Modifier.weight(1f),
+                            )
                             // Attack/release ramp as % of duration: 0 = crisp beep,
                             // 50 = a soft swell. Higher smooths the up/down; gap 0 makes
-                            // it one continuous undulating tone.
+                            // it one continuous tone.
                             NumberUpDown(
                                 value = beepTransitionPct,
                                 onValueChange = { beepTransitionPct = it },
@@ -746,7 +737,6 @@ private fun AlarmRuleEditorDialog(
                                 label = stringResource(R.string.alarm_beep_transition_label),
                                 modifier = Modifier.weight(1f),
                             )
-                            Spacer(Modifier.weight(1f))
                         }
                         Spacer(Modifier.height(8.dp))
                         // Pitch + volume modulation is set in a dedicated full-screen

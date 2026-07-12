@@ -1797,7 +1797,7 @@
     <string name="alarm_beep_advanced">Avancé</string>
     <string name="alarm_beep_gap_label">Durée d\'intervalle</string>
     <string name="alarm_beep_studio">Bip adaptatif</string>
-    <string name="alarm_beep_volume_label">Volume</string>
+    <string name="alarm_beep_volume_label">Volume de base</string>
     <string name="alarm_studio_now">%1$d Hz · %2$d%%</string>
     <string name="alarm_studio_pitch_factor">Facteur de hauteur</string>
     <string name="alarm_studio_play">Lire</string>

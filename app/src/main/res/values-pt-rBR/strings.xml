@@ -1793,7 +1793,7 @@
     <string name="alarm_beep_advanced">Avançado</string>
     <string name="alarm_beep_gap_label">Duração do intervalo</string>
     <string name="alarm_beep_studio">Bipe adaptativo</string>
-    <string name="alarm_beep_volume_label">Volume</string>
+    <string name="alarm_beep_volume_label">Volume base</string>
     <string name="alarm_studio_now">%1$d Hz · %2$d%%</string>
     <string name="alarm_studio_pitch_factor">Fator de tom</string>
     <string name="alarm_studio_play">Tocar</string>

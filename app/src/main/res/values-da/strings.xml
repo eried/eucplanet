@@ -1808,7 +1808,7 @@
     <string name="alarm_beep_advanced">Avanceret</string>
     <string name="alarm_beep_gap_label">Pausevarighed</string>
     <string name="alarm_beep_studio">Adaptivt bip</string>
-    <string name="alarm_beep_volume_label">Lydstyrke</string>
+    <string name="alarm_beep_volume_label">Basisvolumen</string>
     <string name="alarm_studio_now">%1$d Hz · %2$d%%</string>
     <string name="alarm_studio_pitch_factor">Tonefaktor</string>
     <string name="alarm_studio_play">Afspil</string>

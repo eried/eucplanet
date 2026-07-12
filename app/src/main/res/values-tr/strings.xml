@@ -1790,7 +1790,7 @@
     <string name="alarm_beep_advanced">Gelişmiş</string>
     <string name="alarm_beep_gap_label">Boşluk süresi</string>
     <string name="alarm_beep_studio">Uyarlanır bip</string>
-    <string name="alarm_beep_volume_label">Ses seviyesi</string>
+    <string name="alarm_beep_volume_label">Temel ses</string>
     <string name="alarm_studio_now">%1$d Hz · %2$d%%</string>
     <string name="alarm_studio_pitch_factor">Perde faktörü</string>
     <string name="alarm_studio_play">Oynat</string>

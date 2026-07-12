@@ -1791,7 +1791,7 @@
     <string name="alarm_beep_advanced">Zaawansowane</string>
     <string name="alarm_beep_gap_label">Czas przerwy</string>
     <string name="alarm_beep_studio">Adaptacyjny sygnał</string>
-    <string name="alarm_beep_volume_label">Głośność</string>
+    <string name="alarm_beep_volume_label">Głośność bazowa</string>
     <string name="alarm_studio_now">%1$d Hz · %2$d%%</string>
     <string name="alarm_studio_pitch_factor">Współczynnik wysokości</string>
     <string name="alarm_studio_play">Odtwórz</string>

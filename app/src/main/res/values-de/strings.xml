@@ -1813,7 +1813,7 @@
     <string name="alarm_beep_advanced">Erweitert</string>
     <string name="alarm_beep_gap_label">Pausendauer</string>
     <string name="alarm_beep_studio">Adaptiver Piepton</string>
-    <string name="alarm_beep_volume_label">Lautstärke</string>
+    <string name="alarm_beep_volume_label">Basislautstärke</string>
     <string name="alarm_studio_now">%1$d Hz · %2$d%%</string>
     <string name="alarm_studio_pitch_factor">Tonhöhenfaktor</string>
     <string name="alarm_studio_play">Abspielen</string>
