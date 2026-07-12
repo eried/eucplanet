@@ -1890,5 +1890,8 @@
     <string name="adv_simple_speedo_scale">Размер простого спидометра</string>
     <string name="adv_simple_speedo_scale_desc">Размер числа скорости относительно области шкалы. Слишком большой может обрезать подпись единиц.</string>
     <string name="charging_reset_data">Сбросить данные</string>
+    <string name="charging_export">Экспорт</string>
+    <string name="charging_export_saved">Данные батареи экспортированы</string>
+    <string name="charging_export_failed">Не удалось экспортировать</string>
 </resources>
 

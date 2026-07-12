@@ -1887,6 +1887,9 @@
     <string name="adv_simple_speedo_scale">Basit hız göstergesi boyutu</string>
     <string name="adv_simple_speedo_scale_desc">Hız sayısının gösterge alanına göre boyutu. Çok büyük olursa birim etiketini kırpabilir.</string>
     <string name="charging_reset_data">Verileri sıfırla</string>
+    <string name="charging_export">Dışa aktar</string>
+    <string name="charging_export_saved">Pil verileri dışa aktarıldı</string>
+    <string name="charging_export_failed">Dışa aktarma başarısız</string>
 </resources>
 
 

@@ -1908,5 +1908,8 @@
     <string name="adv_simple_speedo_scale">Tamaño del velocímetro simple</string>
     <string name="adv_simple_speedo_scale_desc">Tamaño del número de velocidad respecto al área del indicador. Muy grande puede recortar la etiqueta de unidad.</string>
     <string name="charging_reset_data">Restablecer datos</string>
+    <string name="charging_export">Exportar</string>
+    <string name="charging_export_saved">Datos de batería exportados</string>
+    <string name="charging_export_failed">Error al exportar</string>
 </resources>
 

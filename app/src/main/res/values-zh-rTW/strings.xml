@@ -1889,6 +1889,9 @@
     <string name="adv_simple_speedo_scale">簡易速度表尺寸</string>
     <string name="adv_simple_speedo_scale_desc">速度數字相對於錶盤區域的大小。太大可能會截斷單位標籤。</string>
     <string name="charging_reset_data">重設資料</string>
+    <string name="charging_export">匯出</string>
+    <string name="charging_export_saved">已匯出電池資料</string>
+    <string name="charging_export_failed">匯出失敗</string>
 </resources>
 
 

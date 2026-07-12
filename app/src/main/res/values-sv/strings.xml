@@ -1890,4 +1890,7 @@
     <string name="adv_simple_speedo_scale">Storlek på enkel hastighetsmätare</string>
     <string name="adv_simple_speedo_scale_desc">Storleken på hastighetssiffran i förhållande till mätarytan. För stor kan beskära enhetsetiketten.</string>
     <string name="charging_reset_data">Återställ data</string>
+    <string name="charging_export">Exportera</string>
+    <string name="charging_export_saved">Batteridata exporterad</string>
+    <string name="charging_export_failed">Exporten misslyckades</string>
 </resources>

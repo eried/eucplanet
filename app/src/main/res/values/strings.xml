@@ -1892,4 +1892,7 @@
     <string name="charging_stat_charged">Charged</string>
     <string name="charging_chart_empty">Collecting data</string>
     <string name="charging_reset_data">Reset data</string>
+    <string name="charging_export">Export</string>
+    <string name="charging_export_saved">Battery data exported</string>
+    <string name="charging_export_failed">Export failed</string>
 </resources>

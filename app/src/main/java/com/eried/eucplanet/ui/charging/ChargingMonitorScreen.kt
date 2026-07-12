@@ -99,6 +99,8 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import com.eried.eucplanet.R
 import com.eried.eucplanet.data.model.ChargeStatus
 import com.eried.eucplanet.data.repository.MetricSample
@@ -129,12 +131,18 @@ fun ChargingMonitorScreen(
     val charging = state.status == ChargeStatus.Charging || state.status == ChargeStatus.Full
 
     var showSheet by remember { mutableStateOf(false) }
-    // Open fully expanded so the rider doesn't have to drag the sheet up to see
-    // the tabs' content.
-    // skipPartiallyExpanded = false so the details sheet has a partial (~half) and
-    // an expanded state: it opens around half and the rider can drag the handle up
-    // to enlarge it (a full look at the cells / packs). See contentH in InfoTabs.
+    // skipPartiallyExpanded = false so the details sheet keeps a partial state to
+    // drag down to; it opens EXPANDED by default (see the LaunchedEffect where it's
+    // shown) so the taller charts are fully visible without a drag. contentH (in
+    // InfoTabs) is capped so even expanded the sheet stops short of the top, keeping
+    // the drag handle clear of the status bar.
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = false)
+
+    // Export the session as CSV (three-dots -> Export). The system save dialog
+    // picks the destination; the ViewModel streams the CSV in off the main thread.
+    val exportLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.CreateDocument("text/csv")
+    ) { uri -> uri?.let { viewModel.saveCsv(it) } }
 
     val pct = rememberAnimatedPercent(state.percent, state.ratePctPerMin, charging, full = state.status == ChargeStatus.Full)
     // Live clock so the ETA counts down in real time between telemetry frames.
@@ -182,6 +190,16 @@ fun ChargingMonitorScreen(
                             onClick = {
                                 menuOpen = false
                                 onOpenHistory()
+                            },
+                        )
+                        DropdownMenuItem(
+                            text = { Text(stringResource(R.string.charging_export)) },
+                            onClick = {
+                                menuOpen = false
+                                val name = "eucplanet_battery_" +
+                                    java.text.SimpleDateFormat("yyyyMMdd_HHmmss", java.util.Locale.US)
+                                        .format(java.util.Date()) + ".csv"
+                                exportLauncher.launch(name)
                             },
                         )
                         DropdownMenuItem(
@@ -351,6 +369,9 @@ fun ChargingMonitorScreen(
             sheetState = sheetState,
             containerColor = MaterialTheme.appColors.sheetBackground,
         ) {
+            // Open expanded (capped by contentH so the handle stays clear of the
+            // status bar); the rider can still drag it down to shrink or dismiss.
+            LaunchedEffect(Unit) { sheetState.expand() }
             InfoTabs(state)
             Spacer(Modifier.height(24.dp))
         }
@@ -988,12 +1009,11 @@ private fun InfoTabs(state: ChargingUiState) {
     // content, and each tab scrolls vertically inside that height.
     val configuration = LocalConfiguration.current
     val screenH = configuration.screenHeightDp.dp
-    // One height for every tab so switching Charge / Packs / Cells never resizes
-    // the sheet. Tall (near full screen) so the sheet opens at its ~half partial
-    // state and the rider can DRAG THE HANDLE UP to enlarge it to this height for a
-    // full look at the cells / packs; each tab also scrolls inside it. (Paired with
-    // skipPartiallyExpanded = false on the sheet state above.)
-    val contentH = (screenH * 0.88f).coerceIn(420.dp, 820.dp)
+    // One height for every tab so switching Charge / Packs / Cells never resizes the
+    // sheet. Capped well below the screen height so the fully-expanded sheet leaves a
+    // top margin and the drag handle never slides under the status bar; the taller
+    // Charge / Packs charts still fit, and Packs / Cells scroll inside it.
+    val contentH = (screenH * 0.66f).coerceIn(440.dp, 600.dp)
 
     // Hoisted so the count survives Cells <-> Packs tab switches. Initialize
     // from the already-cached BmsState so opening the bottom sheet on a wheel
@@ -1230,6 +1250,9 @@ private fun ChargingChart(
     predictionPath: List<com.eried.eucplanet.ui.dashboard.PredictionMarker> = emptyList(),
     boundsFor: (Float, Float) -> GraphBounds,
 ) {
+    // 80% taller in portrait; landscape is short, so it keeps the compact height.
+    val chartH = if (LocalConfiguration.current.orientation ==
+        Configuration.ORIENTATION_LANDSCAPE) 200.dp else 360.dp
     if (samples.size >= 2) {
         // Reuse the app's interactive history chart — units, time axis, and
         // hold-to-scrub, same as the metric graphs elsewhere in the app.
@@ -1249,13 +1272,13 @@ private fun ChargingChart(
             timeAxisFormat = com.eried.eucplanet.ui.dashboard.TimeAxisFormat.Clock,
             predictionMarkers = predictionMarkers,
             predictionPath = predictionPath,
-            modifier = Modifier.fillMaxWidth().height(200.dp),
+            modifier = Modifier.fillMaxWidth().height(chartH),
         )
     } else {
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(200.dp)
+                .height(chartH)
                 .clip(RoundedCornerShape(12.dp))
                 .background(MaterialTheme.appColors.tileBackground),
             contentAlignment = Alignment.Center,
@@ -1300,6 +1323,9 @@ private fun PacksChart(
     cellCounts: List<Int>,
 ) {
     val colors = MaterialTheme.appColors
+    // 80% taller in portrait; landscape is short, so it keeps the compact height.
+    val chartH = if (LocalConfiguration.current.orientation ==
+        Configuration.ORIENTATION_LANDSCAPE) 200.dp else 360.dp
     // Cells-per-pack, so whole-pack volts convert to per-cell mV for the
     // imbalance readouts (the balance-charger scale the tiles use). 1 = no-op.
     fun cnt(p: Int) = cellCounts.getOrElse(p) { 1 }.coerceAtLeast(1)
@@ -1312,7 +1338,7 @@ private fun PacksChart(
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(200.dp)
+                .height(chartH)
                 .clip(RoundedCornerShape(12.dp))
                 .background(colors.tileBackground),
             contentAlignment = Alignment.Center,
@@ -1441,7 +1467,7 @@ private fun PacksChart(
         // Whole-pack volts (~127 V) read with 1 decimal; % fallback stays whole.
         leftLabelFormat = { if (toMilli) "%.1f".format(it) else "%.0f".format(it) },
         tooltipLines = tooltipLines,
-        modifier = Modifier.fillMaxWidth().height(200.dp),
+        modifier = Modifier.fillMaxWidth().height(chartH),
     )
     Spacer(Modifier.height(12.dp))
 }

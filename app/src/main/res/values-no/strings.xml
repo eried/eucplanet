@@ -1776,4 +1776,7 @@
     <string name="adv_simple_speedo_scale">Størrelse på enkelt speedometer</string>
     <string name="adv_simple_speedo_scale_desc">Størrelsen på fartstallet i forhold til måleområdet. For stort kan beskjære enhetsetiketten.</string>
     <string name="charging_reset_data">Nullstill data</string>
+    <string name="charging_export">Eksporter</string>
+    <string name="charging_export_saved">Batteridata eksportert</string>
+    <string name="charging_export_failed">Eksport mislyktes</string>
 </resources>

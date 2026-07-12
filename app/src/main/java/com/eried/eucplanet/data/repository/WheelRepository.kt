@@ -155,17 +155,14 @@ class WheelRepository @Inject constructor(
         // WearBridge alone. Only request/response wheels (InMotion, Ninebot)
         // honour this; push-only families ignore it (they free-run).
         private const val POLL_INTERVAL_MS = 250L
-        // Percent-climb charge inference, for wheels that report neither a charge
-        // flag nor a charge current (the InMotion P6 sits at ~0 A while charging).
-        // A rise >= ON over the sample horizon starts it, a fall below OFF stops it,
-        // and the band between holds through a CV taper near full. CURRENT_EPS +
-        // CURRENT_MEMORY gate it to genuinely currentless wheels so the flag/current
-        // families are never touched.
+        // Percent-climb charge inference for the InMotion P6, which reports neither a
+        // charge flag nor a charge current (it sits at ~0 A while charging). A rise
+        // >= ON over the sample horizon starts it, a fall below OFF stops it, and the
+        // band between holds through a CV taper near full. Gated on the P6 model in
+        // deriveChargeStatus so no other family is touched.
         private const val CHARGE_RISE_SAMPLE_MS = 45_000L
         private const val CHARGE_RISE_ON_PCT_MIN = 0.2f
         private const val CHARGE_RISE_OFF_PCT_MIN = 0.02f
-        private const val CHARGE_CURRENT_EPS_A = 0.15f
-        private const val CHARGE_CURRENT_MEMORY_MS = 120_000L
         // Default dashboard-chart sampling interval (ms); overridden by
         // AppSettings.graphSampleIntervalMs. Charts only — not alarms/recording.
         private const val HISTORY_SAMPLE_INTERVAL_MS = 1000L
@@ -240,13 +237,11 @@ class WheelRepository @Inject constructor(
     private var chargeInferred = false
     private var chargeNegSamples = 0
     private var chargePosSamples = 0
-    // Percent-climb charge inference for flagless / currentless wheels (P6): a crisp
-    // short-horizon rise detector plus a "last time we saw real current" guard so it
-    // never engages on wheels that do report a charge current.
+    // Percent-climb charge inference for the P6 (no charge flag or current): a crisp
+    // short-horizon rise detector, gated on the P6 model in deriveChargeStatus.
     private var chargeRising = false
     private var chargeRiseRefPct = 0f
     private var chargeRiseRefMs = 0L
-    private var chargeCurrentSeenMs = 0L
 
     // Charging session (estimator + per-session history) lives here so the
     // prediction persists across navigation; updated each telemetry frame.
@@ -654,7 +649,6 @@ class WheelRepository @Inject constructor(
                         chargePosSamples = 0
                         chargeRising = false
                         chargeRiseRefMs = 0L
-                        chargeCurrentSeenMs = 0L
                         // The charging session (charge / voltage / pack / cell
                         // history, estimator, energy) is NOT cleared here: the
                         // Battery screen keeps it frozen so a BLE drop or a
@@ -921,7 +915,6 @@ class WheelRepository @Inject constructor(
             chargePosSamples = 0
             chargeRising = false
             chargeRiseRefMs = 0L
-            chargeCurrentSeenMs = 0L
             return ChargeStatus.Disconnected
         }
         when {
@@ -938,16 +931,15 @@ class WheelRepository @Inject constructor(
             // trickle band (-0.3..-0.05 A): hold the latched state
         }
         val moving = data.speed > 1f
-        // Percent-climb fallback: the InMotion P6 reports neither a charge flag nor
-        // a charge current (it sits at ~0 A while charging), so infer charging from
-        // the battery % rising while parked. Uses a short ~45 s horizon (not the
-        // 5-min estimator window) so it drops within a minute of the charge stopping,
-        // and only engages once the wheel has gone 2 min with no real current, so the
-        // flag/current families (V14, KingSong, Veteran, Begode, Ninebot) are never
-        // affected. A gentle CV-taper creep holds; a flat or falling % drops it.
-        if (kotlin.math.abs(data.current) >= CHARGE_CURRENT_EPS_A) chargeCurrentSeenMs = data.timestamp
-        val flagless = !data.charging &&
-            data.timestamp - chargeCurrentSeenMs > CHARGE_CURRENT_MEMORY_MS
+        // Percent-climb fallback, P6-only: the InMotion P6 reports neither a charge
+        // flag nor a charge current (it sits at ~0 A while charging), so the pack %
+        // rising while parked is the only evidence it is charging. Uses a short ~45 s
+        // horizon (not the 5-min estimator window) so it drops within a minute of the
+        // charge stopping. Gated on the model, so a ride's motor current can't blank
+        // detection early in a post-ride charge, and no other family is affected. A
+        // gentle CV-taper creep holds; a flat or falling % drops it.
+        val chargelessModel = _modelName.value?.contains("P6") == true
+        val flagless = chargelessModel && !data.charging
         if (moving || !flagless) {
             chargeRising = false
             chargeRiseRefMs = 0L

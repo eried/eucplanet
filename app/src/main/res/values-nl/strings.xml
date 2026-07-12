@@ -1890,5 +1890,8 @@
     <string name="adv_simple_speedo_scale">Grootte eenvoudige snelheidsmeter</string>
     <string name="adv_simple_speedo_scale_desc">Grootte van het snelheidsgetal ten opzichte van het metervlak. Te groot kan het eenheidslabel afknippen.</string>
     <string name="charging_reset_data">Gegevens resetten</string>
+    <string name="charging_export">Exporteren</string>
+    <string name="charging_export_saved">Batterijgegevens geëxporteerd</string>
+    <string name="charging_export_failed">Exporteren mislukt</string>
 </resources>
 
