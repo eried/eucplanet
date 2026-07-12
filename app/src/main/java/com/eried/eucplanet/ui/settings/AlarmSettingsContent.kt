@@ -297,12 +297,12 @@ fun AlarmSettingsContent(
             },
             onDismiss = { showEditor = false },
             onDelete = editingRule?.let { r -> { showEditor = false; deleteCandidate = r } },
-            onPreviewBeep = { freq, dur, cnt, gap, vol -> viewModel.previewBeep(freq, dur, cnt, gap, vol) },
+            onPreviewBeep = { freq, dur, cnt, gap, vol, trans -> viewModel.previewBeep(freq, dur, cnt, gap, vol, trans) },
             onPreviewTone = { freq, vol -> viewModel.previewToneAt(freq, vol) },
             onPreviewVoice = { text, metric, thr -> viewModel.previewVoice(text, metric, thr) },
             onPreviewVibrate = { dur -> viewModel.previewVibrate(dur) },
             studioPlaying = studioPlaying,
-            onStudioTone = { f, d, c, g, v -> viewModel.setStudioTone(f, d, c, g, v) },
+            onStudioTone = { f, d, c, g, v, t -> viewModel.setStudioTone(f, d, c, g, v, t) },
             onStudioToggle = { repeat -> viewModel.toggleStudioPlay(repeat) },
             onStudioStop = { viewModel.stopStudio() },
         )
@@ -438,12 +438,12 @@ private fun AlarmRuleEditorDialog(
     onSave: (AlarmRule) -> Unit,
     onDismiss: () -> Unit,
     onDelete: (() -> Unit)? = null,
-    onPreviewBeep: (Int, Int, Int, Int, Int) -> Unit,
+    onPreviewBeep: (Int, Int, Int, Int, Int, Int) -> Unit,
     onPreviewTone: (Int, Int) -> Unit,
     onPreviewVoice: (String, AlarmMetric, Float) -> Unit,
     onPreviewVibrate: (Int) -> Unit,
     studioPlaying: Boolean = false,
-    onStudioTone: (Int, Int, Int, Int, Int) -> Unit = { _, _, _, _, _ -> },
+    onStudioTone: (Int, Int, Int, Int, Int, Int) -> Unit = { _, _, _, _, _, _ -> },
     onStudioToggle: (Boolean) -> Unit = {},
     onStudioStop: () -> Unit = {},
 ) {
@@ -460,6 +460,7 @@ private fun AlarmRuleEditorDialog(
     var beepCount by remember { mutableIntStateOf(initial.beepCount) }
     var beepModulation by remember { mutableIntStateOf(initial.beepModulation) }
     var beepGapMs by remember { mutableIntStateOf(initial.beepGapMs) }
+    var beepTransitionPct by remember { mutableIntStateOf(initial.beepTransitionPct) }
     var beepVolume by remember { mutableIntStateOf(initial.beepVolume) }
     var beepVolumeModulation by remember { mutableIntStateOf(initial.beepVolumeModulation) }
     var beepModulationReachPct by remember { mutableIntStateOf(initial.beepModulationReachPct) }
@@ -520,7 +521,7 @@ private fun AlarmRuleEditorDialog(
             pitchReachPct = beepModulation,
             volReachPct = beepVolumeModulation,
             playing = studioPlaying,
-            onLiveTone = { f, v -> onStudioTone(f, beepDurationMs, beepCount, beepGapMs, v) },
+            onLiveTone = { f, v -> onStudioTone(f, beepDurationMs, beepCount, beepGapMs, v, beepTransitionPct) },
             onTogglePlay = onStudioToggle,
             onCommit = { p, v -> beepModulation = p; beepVolumeModulation = v },
             onDismiss = { onStudioStop(); showStudio = false },
@@ -645,7 +646,7 @@ private fun AlarmRuleEditorDialog(
                     title = stringResource(R.string.alarm_section_beep),
                     color = MaterialTheme.appColors.statusWarn,
                     enabled = beepEnabled,
-                    onPreview = { onPreviewBeep(beepFrequency, beepDurationMs, beepCount, beepGapMs, beepVolume) }
+                    onPreview = { onPreviewBeep(beepFrequency, beepDurationMs, beepCount, beepGapMs, beepVolume, beepTransitionPct) }
                 )
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -674,10 +675,10 @@ private fun AlarmRuleEditorDialog(
                         NumberUpDown(
                             value = beepDurationMs,
                             onValueChange = { beepDurationMs = it },
-                            // 50 ms minimum: the one-buffer TonePlayer renders short
-                            // tones cleanly, so a near-constant beep is gap 0 + a short
-                            // duration + a high count.
-                            range = 50..1000, step = 50, suffix = "ms",
+                            // Down to 10 ms: with gap 0 the `count` beeps merge into one
+                            // run of duration*count, so a short duration + a higher count
+                            // builds a longer continuous tone in fine increments.
+                            range = 10..1000, step = 10, suffix = "ms",
                             label = stringResource(R.string.alarm_label_duration),
                             modifier = Modifier.weight(1f),
                         )
@@ -729,6 +730,23 @@ private fun AlarmRuleEditorDialog(
                                 label = stringResource(R.string.alarm_beep_volume_label),
                                 modifier = Modifier.weight(1f),
                             )
+                        }
+                        Spacer(Modifier.height(8.dp))
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(12.dp)
+                        ) {
+                            // Attack/release ramp as % of duration: 0 = crisp beep,
+                            // 50 = a soft swell. Higher smooths the up/down; gap 0 makes
+                            // it one continuous undulating tone.
+                            NumberUpDown(
+                                value = beepTransitionPct,
+                                onValueChange = { beepTransitionPct = it },
+                                range = 0..50, step = 4, suffix = "%",
+                                label = stringResource(R.string.alarm_beep_transition_label),
+                                modifier = Modifier.weight(1f),
+                            )
+                            Spacer(Modifier.weight(1f))
                         }
                         Spacer(Modifier.height(8.dp))
                         // Pitch + volume modulation is set in a dedicated full-screen
@@ -1026,6 +1044,7 @@ private fun AlarmRuleEditorDialog(
                                         beepCount = beepCount,
                                         beepModulation = beepModulation,
                                         beepGapMs = beepGapMs,
+                                        beepTransitionPct = beepTransitionPct,
                                         beepVolume = beepVolume,
                                         beepVolumeModulation = beepVolumeModulation,
                                         beepModulationReachPct = beepModulationReachPct,
@@ -1182,14 +1201,20 @@ private fun BeepStudioDialog(
                             contentDescription = stringResource(if (playing) R.string.alarm_studio_stop else R.string.alarm_studio_play),
                             tint = MaterialTheme.appColors.statusGood)
                     }
-                    IconToggleButton(checked = repeat, onCheckedChange = {
+                    // gap 0 plays as one continuous tone, so repeat is meaningless there:
+                    // kept IN PLACE (so nothing shifts) but disabled and clearly dimmed.
+                    IconToggleButton(checked = repeat, enabled = gapMs > 0, onCheckedChange = {
                         repeat = it
                         // Turning repeat off mid-play stops the loop instead of letting
                         // it run forever (onTogglePlay stops when already playing).
                         if (!it && playing) onTogglePlay(false)
                     }) {
                         Icon(Icons.Default.Repeat, contentDescription = "Repeat",
-                            tint = if (repeat) MaterialTheme.appColors.statusWarn else MaterialTheme.colorScheme.onSurfaceVariant)
+                            tint = when {
+                                gapMs <= 0 -> MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.38f)
+                                repeat -> MaterialTheme.appColors.statusWarn
+                                else -> MaterialTheme.colorScheme.onSurfaceVariant
+                            })
                     }
                     Spacer(Modifier.width(4.dp))
                     Slider(value = simValue, onValueChange = { simValue = it },
@@ -1234,7 +1259,7 @@ private fun BeepStudioDialog(
                     TextButton(onClick = onDismiss, shape = RoundedCornerShape(12.dp)) { Text(stringResource(R.string.action_cancel)) }
                     Spacer(Modifier.width(8.dp))
                     Button(onClick = { onCommit(pitchFactor, volFactor); onDismiss() }, shape = RoundedCornerShape(12.dp)) {
-                        Text(stringResource(R.string.action_save))
+                        Text(stringResource(R.string.action_apply))
                     }
                 }
             }

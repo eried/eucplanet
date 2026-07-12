@@ -1890,6 +1890,9 @@
     <string name="charging_export">Експорт</string>
     <string name="charging_export_saved">Дані батареї експортовано</string>
     <string name="charging_export_failed">Помилка експорту</string>
+    <string name="voice_phone_battery_fmt">телефон %1$d</string>
+    <string name="report_phone_battery">Телефон</string>
+    <string name="alarm_beep_transition_label">Перехід</string>
 </resources>
 
 

@@ -1760,4 +1760,7 @@
     <string name="charging_export">导出</string>
     <string name="charging_export_saved">已导出电池数据</string>
     <string name="charging_export_failed">导出失败</string>
+    <string name="voice_phone_battery_fmt">手机 %1$d</string>
+    <string name="report_phone_battery">手机</string>
+    <string name="alarm_beep_transition_label">过渡</string>
 </resources>

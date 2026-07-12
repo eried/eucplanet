@@ -90,6 +90,7 @@ data class AppSettings(
     val voiceReportDistance: Boolean = false,
     val voiceReportTime: Boolean = false,
     val voiceReportNavigation: Boolean = false,
+    val voiceReportPhoneBattery: Boolean = false,
     // On-trigger (manual/flic) voice report toggles
     val triggerReportSpeed: Boolean = true,
     val triggerReportBattery: Boolean = true,
@@ -98,13 +99,14 @@ data class AppSettings(
     val triggerReportDistance: Boolean = true,
     val triggerReportTime: Boolean = true,
     val triggerReportNavigation: Boolean = false,
+    val triggerReportPhoneBattery: Boolean = false,
 
     // Voice report: include recording state
     val voiceReportRecording: Boolean = false,
     val triggerReportRecording: Boolean = true,
 
-    // Voice report item order (comma-separated: Speed,Battery,Time,Temp,PWM,Distance,Recording)
-    val voiceReportOrder: String = "Speed,Battery,Time,Temp,PWM,Distance,Recording",
+    // Voice report item order (comma-separated: Speed,Battery,PhoneBattery,Time,Temp,PWM,Distance,Recording)
+    val voiceReportOrder: String = "Speed,Battery,PhoneBattery,Time,Temp,PWM,Distance,Recording",
 
     // Special announcements (event-driven). All silent by default; the welcome
     // wizard's first step offers a single toggle that flips this whole block on

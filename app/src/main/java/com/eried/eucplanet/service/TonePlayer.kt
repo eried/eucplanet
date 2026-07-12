@@ -7,6 +7,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlin.concurrent.thread
+import kotlin.math.cos
 import kotlin.math.sin
 
 @Singleton
@@ -19,13 +21,14 @@ class TonePlayer @Inject constructor() {
      * of silence, at [volumePct] of the media volume.
      *
      * The whole pattern (tones plus gaps) is rendered into ONE AudioTrack buffer.
-     * The sine phase runs continuously across contiguous tones and a short
-     * click-guard fade is applied only where a tone meets silence (the very
-     * start, the very end, and each gap). So gap = 0 is a single seamless tone
-     * (an "almost constant" beep) instead of a string of separate beeps, and
-     * short durations stay clean. A prior version built, played, and released a
-     * fresh AudioTrack per beep, so the teardown plus a fade-out into every beep
-     * left an audible gap even at gap = 0.
+     * Every beep gets a raised-cosine ATTACK and RELEASE of length [transitionMs]
+     * (a smooth eased swell), applied to all beeps, not just the ones touching
+     * silence. [transitionMs] < 0 means auto = half the beep, i.e. a pure swell
+     * with no flat top; a smaller value leaves a flat sustain in the middle; the
+     * ramp always guards against clicks. With gap = 0 the swells butt together
+     * into one continuously undulating tone (smooth up and downs) with no clicks
+     * and no silent gaps, instead of a flat constant tone or a string of separate
+     * beeps. The sine phase runs continuously across contiguous tones.
      */
     suspend fun playBeep(
         frequencyHz: Int,
@@ -33,39 +36,55 @@ class TonePlayer @Inject constructor() {
         count: Int = 1,
         gapMs: Int = 120,
         volumePct: Int = 100,
+        transitionMs: Int = -1,
     ) {
         if (count <= 0 || durationMs <= 0) return
         withContext(Dispatchers.IO) {
             val toneN = (sampleRate.toLong() * durationMs / 1000).toInt()
             if (toneN <= 0) return@withContext
             val gapN = (sampleRate.toLong() * gapMs.coerceAtLeast(0) / 1000).toInt()
-            val totalN = toneN * count + gapN * (count - 1).coerceAtLeast(0)
+            // gap 0 merges the `count` beeps into ONE continuous run of duration*count
+            // (a single longer tone: "3 beeps at gap 0" = "3x duration"), consistent
+            // across alarms. gap>0 keeps them as `count` separate runs. The raised-cosine
+            // attack/release is applied per RUN, so gap 0 ramps up once and down once
+            // instead of undulating.
+            val gapless = gapN <= 0
+            val runN = if (gapless) toneN * count else toneN
+            val runCount = if (gapless) 1 else count
+            // Silence pad at both ends: masks the AudioTrack start/stop transient (the
+            // audio path powering up/down) so that click doesn't land on the tone onset.
+            val padN = sampleRate * 12 / 1000
+            val totalN = padN + runN * runCount + gapN * (runCount - 1).coerceAtLeast(0) + padN
             val samples = ShortArray(totalN)
             val twoPiF = 2.0 * Math.PI * frequencyHz / sampleRate
             // 0.8 = app-side headroom; volumePct scales under the system media
             // volume ceiling (Android applies that on top, so we can't exceed it).
             val gain = 0.8 * (volumePct.coerceIn(0, 100) / 100.0)
-            // Click-guard fade length, applied only at a silence boundary.
-            val edge = (toneN * 0.05).toInt().coerceIn(1, (toneN / 2).coerceAtLeast(1))
+            // Raised-cosine ramp length (attack/release) from transitionMs; auto (< 0)
+            // = half the base beep. Capped to half the run so it always fits.
+            val edge = (if (transitionMs >= 0)
+                (sampleRate.toLong() * transitionMs / 1000).toInt()
+            else toneN / 2).coerceIn(1, (runN / 2).coerceAtLeast(1))
 
-            var w = 0       // write cursor into samples
-            var phase = 0   // sine phase; stays continuous across contiguous tones
-            for (b in 0 until count) {
-                val silenceBefore = b == 0 || gapN > 0
-                val silenceAfter = b == count - 1 || gapN > 0
-                for (i in 0 until toneN) {
-                    var amp = sin(twoPiF * phase)
-                    if (silenceBefore && i < edge) amp *= i.toDouble() / edge
-                    else if (silenceAfter && i >= toneN - edge) amp *= (toneN - i).toDouble() / edge
+            var w = padN    // write cursor; leading silence pad already skipped
+            var phase = 0   // sine phase; continuous within a run
+            for (b in 0 until runCount) {
+                for (i in 0 until runN) {
+                    // Raised-cosine attack over the first [edge] of the run and release
+                    // over the last [edge]; flat sustain (env = 1) in between.
+                    val ramp = minOf(
+                        if (i < edge) i.toDouble() / edge else 1.0,
+                        if (i >= runN - edge) (runN - i).toDouble() / edge else 1.0
+                    )
+                    val env = 0.5 - 0.5 * cos(Math.PI * ramp)
+                    val amp = sin(twoPiF * phase) * env
                     samples[w++] = (amp * Short.MAX_VALUE * gain).toInt().toShort()
                     phase++
                 }
-                if (b < count - 1 && gapN > 0) {
+                if (b < runCount - 1 && gapN > 0) {
                     w += gapN   // leave zeros (silence); restart phase after the gap
                     phase = 0
                 }
-                // gapN == 0: tones stay contiguous and the phase keeps running, so
-                // the seam between them is a single uninterrupted sine.
             }
 
             val track = AudioTrack.Builder()
@@ -106,6 +125,124 @@ class TonePlayer @Inject constructor() {
             Thread.sleep(30)   // small drain margin after the last frame
             track.stop()
             track.release()
+        }
+    }
+
+    // --- Continuous streaming tone (Beep Studio live preview) ---
+    // A persistent MODE_STREAM track fed by a producer thread, so the studio's
+    // adaptive beep plays GAPLESSLY and glides as the rider drags the sliders,
+    // instead of re-firing a fresh one-shot track (with its teardown gap) every
+    // ~80 ms. Params are read live each buffer; the sine phase accumulates across
+    // buffers so a pitch change is a smooth glide, and the same raised-cosine swell
+    // as playBeep runs on each on-period so gap = 0 is one undulating tone.
+    @Volatile private var streamOn = false
+    @Volatile private var sFreqHz = 1000
+    @Volatile private var sDurMs = 300
+    @Volatile private var sGapMs = 100
+    @Volatile private var sVolPct = 100
+    @Volatile private var sTransMs = -1
+    private var streamThread: Thread? = null
+
+    @Synchronized
+    fun startStream(frequencyHz: Int, durationMs: Int, gapMs: Int, volumePct: Int, transitionMs: Int = -1) {
+        updateStream(frequencyHz, durationMs, gapMs, volumePct, transitionMs)
+        if (streamOn) return
+        streamOn = true
+        streamThread = thread(name = "ToneStream", isDaemon = true) { streamLoop() }
+    }
+
+    fun updateStream(frequencyHz: Int, durationMs: Int, gapMs: Int, volumePct: Int, transitionMs: Int = -1) {
+        sFreqHz = frequencyHz
+        sDurMs = durationMs.coerceAtLeast(1)
+        sGapMs = gapMs.coerceAtLeast(0)
+        sVolPct = volumePct
+        sTransMs = transitionMs
+    }
+
+    @Synchronized
+    fun stopStream() {
+        if (!streamOn) return
+        streamOn = false
+        streamThread?.join(500)
+        streamThread = null
+    }
+
+    private fun streamLoop() {
+        val bufFrames = 512   // ~12 ms at 44.1k: live enough for slider drags
+        val minBuf = AudioTrack.getMinBufferSize(
+            sampleRate, AudioFormat.CHANNEL_OUT_MONO, AudioFormat.ENCODING_PCM_16BIT
+        )
+        val track = AudioTrack.Builder()
+            .setAudioAttributes(
+                AudioAttributes.Builder()
+                    .setUsage(AudioAttributes.USAGE_MEDIA)
+                    .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+                    .build()
+            )
+            .setAudioFormat(
+                AudioFormat.Builder()
+                    .setSampleRate(sampleRate)
+                    .setEncoding(AudioFormat.ENCODING_PCM_16BIT)
+                    .setChannelMask(AudioFormat.CHANNEL_OUT_MONO)
+                    .build()
+            )
+            .setBufferSizeInBytes(maxOf(minBuf, bufFrames * 2 * 4))
+            .setTransferMode(AudioTrack.MODE_STREAM)
+            .build()
+        val buf = ShortArray(bufFrames)
+        var phase = 0.0   // sine phase in cycles; continuous across buffers
+        var pos = 0       // sample index within the current on+gap period
+        var emitted = 0L  // total samples emitted (drives the gap-0 fade-in)
+        try {
+            track.play()
+            while (streamOn) {
+                // Snapshot the live params once per buffer.
+                val inc = sFreqHz.toDouble() / sampleRate
+                val durN = (sampleRate.toLong() * sDurMs / 1000).toInt().coerceAtLeast(1)
+                val gapN = (sampleRate.toLong() * sGapMs / 1000).toInt().coerceAtLeast(0)
+                val periodN = durN + gapN
+                val gain = 0.8 * (sVolPct.coerceIn(0, 100) / 100.0)
+                val edge = (if (sTransMs >= 0)
+                    (sampleRate.toLong() * sTransMs / 1000).toInt()
+                else durN / 2).coerceIn(1, (durN / 2).coerceAtLeast(1))
+                val gapless = gapN <= 0
+                for (k in 0 until bufFrames) {
+                    if (pos >= periodN) pos = 0
+                    val env = if (gapless) {
+                        // gap 0 = one steady continuous tone; fade in once at the start.
+                        if (emitted < edge) 0.5 - 0.5 * cos(Math.PI * emitted.toDouble() / edge) else 1.0
+                    } else if (pos < durN) {
+                        val ramp = minOf(
+                            if (pos < edge) pos.toDouble() / edge else 1.0,
+                            if (pos >= durN - edge) (durN - pos).toDouble() / edge else 1.0
+                        )
+                        0.5 - 0.5 * cos(Math.PI * ramp)
+                    } else 0.0   // in the gap
+                    val s = sin(2.0 * Math.PI * phase) * env * gain
+                    buf[k] = (s * Short.MAX_VALUE).toInt().toShort()
+                    phase += inc
+                    if (phase >= 1.0) phase -= 1.0
+                    pos++
+                    emitted++
+                }
+                track.write(buf, 0, bufFrames)   // blocks, pacing the loop
+            }
+            // Fade out over ~8 ms so stopping the track doesn't click.
+            val fadeN = sampleRate * 8 / 1000
+            val fadeBuf = ShortArray(fadeN)
+            val fadeInc = sFreqHz.toDouble() / sampleRate
+            val fadeGain = 0.8 * (sVolPct.coerceIn(0, 100) / 100.0)
+            for (k in 0 until fadeN) {
+                val env = 0.5 + 0.5 * cos(Math.PI * k.toDouble() / fadeN)   // 1 -> 0
+                fadeBuf[k] = (sin(2.0 * Math.PI * phase) * env * fadeGain * Short.MAX_VALUE).toInt().toShort()
+                phase += fadeInc
+                if (phase >= 1.0) phase -= 1.0
+            }
+            runCatching { track.write(fadeBuf, 0, fadeN) }
+        } catch (_: Exception) {
+        } finally {
+            runCatching { track.stop() }
+            runCatching { track.release() }
         }
     }
 }

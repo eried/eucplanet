@@ -1893,5 +1893,8 @@
     <string name="charging_export">Exporteren</string>
     <string name="charging_export_saved">Batterijgegevens geëxporteerd</string>
     <string name="charging_export_failed">Exporteren mislukt</string>
+    <string name="voice_phone_battery_fmt">telefoon %1$d</string>
+    <string name="report_phone_battery">Telefoon</string>
+    <string name="alarm_beep_transition_label">Overgang</string>
 </resources>
 

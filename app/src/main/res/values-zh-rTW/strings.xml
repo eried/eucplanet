@@ -1892,6 +1892,9 @@
     <string name="charging_export">匯出</string>
     <string name="charging_export_saved">已匯出電池資料</string>
     <string name="charging_export_failed">匯出失敗</string>
+    <string name="voice_phone_battery_fmt">手機 %1$d</string>
+    <string name="report_phone_battery">手機</string>
+    <string name="alarm_beep_transition_label">過渡</string>
 </resources>
 
 

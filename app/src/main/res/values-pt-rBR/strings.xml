@@ -1893,5 +1893,8 @@
     <string name="charging_export">Exportar</string>
     <string name="charging_export_saved">Dados da bateria exportados</string>
     <string name="charging_export_failed">Falha na exportação</string>
+    <string name="voice_phone_battery_fmt">telefone %1$d</string>
+    <string name="report_phone_battery">Telefone</string>
+    <string name="alarm_beep_transition_label">Transição</string>
 </resources>
 

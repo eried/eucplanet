@@ -320,6 +320,7 @@ class SettingsViewModel @Inject constructor(
     fun updateVoiceReportDistance(v: Boolean) = update { copy(voiceReportDistance = v) }
     fun updateVoiceReportTime(v: Boolean) = update { copy(voiceReportTime = v) }
     fun updateVoiceReportNavigation(v: Boolean) = update { copy(voiceReportNavigation = v) }
+    fun updateVoiceReportPhoneBattery(v: Boolean) = update { copy(voiceReportPhoneBattery = v) }
     fun updateTriggerReportSpeed(v: Boolean) = update { copy(triggerReportSpeed = v) }
     fun updateTriggerReportBattery(v: Boolean) = update { copy(triggerReportBattery = v) }
     fun updateTriggerReportTemp(v: Boolean) = update { copy(triggerReportTemp = v) }
@@ -327,6 +328,7 @@ class SettingsViewModel @Inject constructor(
     fun updateTriggerReportDistance(v: Boolean) = update { copy(triggerReportDistance = v) }
     fun updateTriggerReportTime(v: Boolean) = update { copy(triggerReportTime = v) }
     fun updateTriggerReportNavigation(v: Boolean) = update { copy(triggerReportNavigation = v) }
+    fun updateTriggerReportPhoneBattery(v: Boolean) = update { copy(triggerReportPhoneBattery = v) }
     fun updateVoiceLocale(tag: String, previewText: String? = null) {
         // Explicit voice pick sets the override flag so a later UI-language
         // change re-prompts ("switch voice too?") instead of silently
@@ -1020,7 +1022,7 @@ class SettingsViewModel @Inject constructor(
     fun moveReportItem(fromIndex: Int, toIndex: Int) {
         viewModelScope.launch {
             val current = settingsRepository.get()
-            val known = listOf("Speed", "Battery", "Temp", "PWM", "Distance", "Recording", "Time", "Navigation")
+            val known = listOf("Speed", "Battery", "PhoneBattery", "Temp", "PWM", "Distance", "Recording", "Time", "Navigation")
             val saved = current.voiceReportOrder.split(",").map { it.trim() }.filter { it in known }
             val items = (saved + known.filter { it !in saved }).toMutableList()
             if (fromIndex in items.indices && toIndex in items.indices) {

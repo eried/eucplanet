@@ -100,6 +100,7 @@ object SettingsJson {
         put("voiceReportDistance", s.voiceReportDistance)
         put("voiceReportTime", s.voiceReportTime)
         put("voiceReportNavigation", s.voiceReportNavigation)
+        put("voiceReportPhoneBattery", s.voiceReportPhoneBattery)
         put("triggerReportSpeed", s.triggerReportSpeed)
         put("triggerReportBattery", s.triggerReportBattery)
         put("triggerReportTemp", s.triggerReportTemp)
@@ -107,6 +108,7 @@ object SettingsJson {
         put("triggerReportDistance", s.triggerReportDistance)
         put("triggerReportTime", s.triggerReportTime)
         put("triggerReportNavigation", s.triggerReportNavigation)
+        put("triggerReportPhoneBattery", s.triggerReportPhoneBattery)
         put("voiceReportRecording", s.voiceReportRecording)
         put("triggerReportRecording", s.triggerReportRecording)
         put("voiceReportOrder", s.voiceReportOrder)
@@ -336,6 +338,7 @@ object SettingsJson {
         voiceReportDistance = j.optBoolean("voiceReportDistance", base.voiceReportDistance),
         voiceReportTime = j.optBoolean("voiceReportTime", base.voiceReportTime),
         voiceReportNavigation = j.optBoolean("voiceReportNavigation", base.voiceReportNavigation),
+        voiceReportPhoneBattery = j.optBoolean("voiceReportPhoneBattery", base.voiceReportPhoneBattery),
         triggerReportSpeed = j.optBoolean("triggerReportSpeed", base.triggerReportSpeed),
         triggerReportBattery = j.optBoolean("triggerReportBattery", base.triggerReportBattery),
         triggerReportTemp = j.optBoolean("triggerReportTemp", base.triggerReportTemp),
@@ -343,6 +346,7 @@ object SettingsJson {
         triggerReportDistance = j.optBoolean("triggerReportDistance", base.triggerReportDistance),
         triggerReportTime = j.optBoolean("triggerReportTime", base.triggerReportTime),
         triggerReportNavigation = j.optBoolean("triggerReportNavigation", base.triggerReportNavigation),
+        triggerReportPhoneBattery = j.optBoolean("triggerReportPhoneBattery", base.triggerReportPhoneBattery),
         voiceReportRecording = j.optBoolean("voiceReportRecording", base.voiceReportRecording),
         triggerReportRecording = j.optBoolean("triggerReportRecording", base.triggerReportRecording),
         voiceReportOrder = j.optString("voiceReportOrder", base.voiceReportOrder),

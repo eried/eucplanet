@@ -1890,6 +1890,9 @@
     <string name="charging_export">Dışa aktar</string>
     <string name="charging_export_saved">Pil verileri dışa aktarıldı</string>
     <string name="charging_export_failed">Dışa aktarma başarısız</string>
+    <string name="voice_phone_battery_fmt">telefon %1$d</string>
+    <string name="report_phone_battery">Telefon</string>
+    <string name="alarm_beep_transition_label">Geçiş</string>
 </resources>
 
 

@@ -29,6 +29,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -131,12 +132,12 @@ fun ChargingMonitorScreen(
     val charging = state.status == ChargeStatus.Charging || state.status == ChargeStatus.Full
 
     var showSheet by remember { mutableStateOf(false) }
-    // skipPartiallyExpanded = false so the details sheet keeps a partial state to
-    // drag down to; it opens EXPANDED by default (see the LaunchedEffect where it's
-    // shown) so the taller charts are fully visible without a drag. contentH (in
-    // InfoTabs) is capped so even expanded the sheet stops short of the top, keeping
-    // the drag handle clear of the status bar.
-    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = false)
+    // skipPartiallyExpanded = true so the sheet opens straight to its full (expanded)
+    // height instead of a half state, reliably, without racing an expand() animation
+    // that used to settle back at ~half. contentH (in InfoTabs) is capped so even at
+    // full height the sheet stops short of the top, keeping the drag handle clear of
+    // the status bar. Swipe down still dismisses.
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
     // Export the session as CSV (three-dots -> Export). The system save dialog
     // picks the destination; the ViewModel streams the CSV in off the main thread.
@@ -369,9 +370,6 @@ fun ChargingMonitorScreen(
             sheetState = sheetState,
             containerColor = MaterialTheme.appColors.sheetBackground,
         ) {
-            // Open expanded (capped by contentH so the handle stays clear of the
-            // status bar); the rider can still drag it down to shrink or dismiss.
-            LaunchedEffect(Unit) { sheetState.expand() }
             InfoTabs(state)
             Spacer(Modifier.height(24.dp))
         }
@@ -1009,11 +1007,11 @@ private fun InfoTabs(state: ChargingUiState) {
     // content, and each tab scrolls vertically inside that height.
     val configuration = LocalConfiguration.current
     val screenH = configuration.screenHeightDp.dp
-    // One height for every tab so switching Charge / Packs / Cells never resizes the
-    // sheet. Capped well below the screen height so the fully-expanded sheet leaves a
-    // top margin and the drag handle never slides under the status bar; the taller
-    // Charge / Packs charts still fit, and Packs / Cells scroll inside it.
-    val contentH = (screenH * 0.66f).coerceIn(440.dp, 600.dp)
+    // Max height for the tab content: the sheet wraps its content (so a short tab
+    // like Charge shows just the chart + stats with no empty filler) but never grows
+    // past this, so it stays clear of the status bar; tall tabs (Packs / Cells) cap
+    // here and scroll inside.
+    val contentH = (screenH * 0.79f).coerceIn(528.dp, 720.dp)
 
     // Hoisted so the count survives Cells <-> Packs tab switches. Initialize
     // from the already-cached BmsState so opening the bottom sheet on a wheel
@@ -1040,7 +1038,7 @@ private fun InfoTabs(state: ChargingUiState) {
             }
         }
         Spacer(Modifier.height(12.dp))
-        Box(modifier = Modifier.fillMaxWidth().height(contentH)) {
+        Box(modifier = Modifier.fillMaxWidth().heightIn(max = contentH)) {
             Column(modifier = Modifier.fillMaxWidth()) {
                 when (tabs.getOrNull(selected)?.second) {
                     "charge" -> {
@@ -1250,9 +1248,9 @@ private fun ChargingChart(
     predictionPath: List<com.eried.eucplanet.ui.dashboard.PredictionMarker> = emptyList(),
     boundsFor: (Float, Float) -> GraphBounds,
 ) {
-    // 80% taller in portrait; landscape is short, so it keeps the compact height.
+    // Taller in portrait; landscape is short, so it keeps the compact height.
     val chartH = if (LocalConfiguration.current.orientation ==
-        Configuration.ORIENTATION_LANDSCAPE) 200.dp else 360.dp
+        Configuration.ORIENTATION_LANDSCAPE) 200.dp else 288.dp
     if (samples.size >= 2) {
         // Reuse the app's interactive history chart — units, time axis, and
         // hold-to-scrub, same as the metric graphs elsewhere in the app.
@@ -1323,9 +1321,9 @@ private fun PacksChart(
     cellCounts: List<Int>,
 ) {
     val colors = MaterialTheme.appColors
-    // 80% taller in portrait; landscape is short, so it keeps the compact height.
+    // Taller in portrait; landscape is short, so it keeps the compact height.
     val chartH = if (LocalConfiguration.current.orientation ==
-        Configuration.ORIENTATION_LANDSCAPE) 200.dp else 360.dp
+        Configuration.ORIENTATION_LANDSCAPE) 200.dp else 288.dp
     // Cells-per-pack, so whole-pack volts convert to per-cell mV for the
     // imbalance readouts (the balance-charger scale the tiles use). 1 = no-op.
     fun cnt(p: Int) = cellCounts.getOrElse(p) { 1 }.coerceAtLeast(1)
