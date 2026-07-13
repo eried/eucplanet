@@ -127,9 +127,11 @@ class AlarmEngine @Inject constructor(
             }
 
             val byId = rules.associateBy { it.id }
-            // Constant-tone alarms are handled EVERY tick (even when `fired` is empty)
-            // so the streaming tone stops the instant the condition clears.
-            handleConstantTone(fired, byId)
+            // 256 regression fix: the constant-tone streaming path (startStream) went
+            // silent on some devices, killing dynamic gap-0 alarms that 255 played fine
+            // as discrete beeps. Route EVERY alarm back through the reliable discrete
+            // beep path (executeActions below). The streaming engine stays for the Beep
+            // Studio preview only; handleConstantTone is intentionally not called here.
 
             if (fired.isNotEmpty()) {
                 val s = settingsRepository.get()
@@ -138,9 +140,6 @@ class AlarmEngine @Inject constructor(
                 val tu = com.eried.eucplanet.util.Units.effectiveTempUnit(s)
                 for (f in fired) {
                     val rule = byId[f.ruleId] ?: continue
-                    // A constant-tone alarm sounds via the streaming tone above; skip its
-                    // discrete beep/voice so it doesn't machine-gun while the value is held.
-                    if (rule.isConstantTone()) continue
                     Log.i(TAG, "Alarm fired: '${rule.name}' ${rule.metric} ${rule.comparator} ${rule.threshold} (value=${f.value}, lead=${rule.leadTimeMs}ms)")
                     executeActions(rule, data, f.value, su, du, tu)
                 }
