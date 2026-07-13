@@ -296,8 +296,8 @@ class AlarmLogicTest {
     @Test
     fun pitchPlateausAndClamps() {
         assertEquals(2000, AlarmLogic.modulatedBeepHz(1000, value = 200f, comparator = GE, threshold = 30f, factorX100 = 200, metric = "SPEED")) // plateau past max
-        assertEquals(20000, AlarmLogic.modulatedBeepHz(8000, value = 100f, comparator = GE, threshold = 80f, factorX100 = 1000, metric = "PWM")) // 10x clamps to ceiling
-        assertEquals(80, AlarmLogic.modulatedBeepHz(500, value = 100f, comparator = GE, threshold = 80f, factorX100 = 10, metric = "PWM"))       // 0.1x clamps to floor
+        assertEquals(6000, AlarmLogic.modulatedBeepHz(8000, value = 100f, comparator = GE, threshold = 80f, factorX100 = 1000, metric = "PWM")) // 10x clamps to the 6000 Hz ceiling (audible on a phone speaker)
+        assertEquals(200, AlarmLogic.modulatedBeepHz(500, value = 100f, comparator = GE, threshold = 80f, factorX100 = 10, metric = "PWM"))      // 0.1x clamps to the 200 Hz floor (the base-freq minimum)
     }
 
     @Test
