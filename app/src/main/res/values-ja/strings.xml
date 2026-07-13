@@ -1895,6 +1895,10 @@
     <string name="voice_phone_battery_fmt">スマホ %1$d</string>
     <string name="report_phone_battery">スマホ</string>
     <string name="alarm_beep_transition_label">トランジション</string>
+    <string name="alarm_constant_title">連続音にする？</string>
+    <string name="alarm_constant_body">個別のビープ音の代わりに連続音を鳴らしますか？</string>
+    <string name="alarm_constant_change">変更</string>
+    <string name="alarm_constant_never">今後表示しない</string>
 </resources>
 
 

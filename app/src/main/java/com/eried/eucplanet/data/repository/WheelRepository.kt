@@ -140,6 +140,7 @@ class WheelRepository @Inject constructor(
     private val wheelAdapter: WheelAdapter,
     private val settingsRepository: SettingsRepository,
     private val alarmEngine: AlarmEngine,
+    private val tonePlayer: com.eried.eucplanet.service.TonePlayer,
     private val voiceService: VoiceService,
     private val wheelProfileDao: com.eried.eucplanet.data.db.WheelProfileDao,
     private val cheatState: com.eried.eucplanet.cheats.CheatState,
@@ -613,6 +614,11 @@ class WheelRepository @Inject constructor(
                 when (state) {
                     ConnectionState.CONNECTED -> {
                         reconcileNextSettings = true
+                        // Hold the audio route warm for the whole ride so the first
+                        // beep or voice line after a quiet stretch doesn't carry the
+                        // speaker/amp power-up pop. Released a few seconds after
+                        // disconnect (below) so the "wheel disconnected" voice is clean too.
+                        tonePlayer.startRouteKeepAlive()
                         startInitSequence()
                         // Restore the per-wheel saved parameters (tiltback,
                         // alarm, safety, calibration). Profile is keyed by
@@ -629,6 +635,9 @@ class WheelRepository @Inject constructor(
                     }
                     ConnectionState.DISCONNECTED -> {
                         pollingActive = false
+                        // Cut any constant alarm tone immediately (telemetry stops now,
+                        // so the engine won't get another tick to clear it itself).
+                        alarmEngine.stopConstantTone()
                         initState = 0
                         authKey = null
                         pendingAuthKeyDeferred = null
@@ -667,6 +676,16 @@ class WheelRepository @Inject constructor(
                                 accelX = 0f, accelY = 0f
                             )
                         // History is preserved across disconnects (cleared only on new wheel)
+                        // Keep the audio route warm a few seconds longer so the
+                        // "wheel disconnected" announcement fires into a warm route,
+                        // then release it (no cost while idle). A reconnect within the
+                        // grace window keeps it on (the check sees CONNECTED again).
+                        scope.launch {
+                            delay(8000)
+                            if (bleManager.connectionState.value != ConnectionState.CONNECTED) {
+                                tonePlayer.stopRouteKeepAlive()
+                            }
+                        }
                     }
                     else -> {}
                 }

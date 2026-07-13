@@ -1893,4 +1893,8 @@
     <string name="voice_phone_battery_fmt">휴대폰 %1$d</string>
     <string name="report_phone_battery">휴대폰</string>
     <string name="alarm_beep_transition_label">전환</string>
+    <string name="alarm_constant_title">연속음?</string>
+    <string name="alarm_constant_body">개별 비프음 대신 연속음을 재생할까요?</string>
+    <string name="alarm_constant_change">변경</string>
+    <string name="alarm_constant_never">다시 묻지 않음</string>
 </resources>

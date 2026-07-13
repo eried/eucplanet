@@ -226,6 +226,10 @@ class AlarmViewModel @Inject constructor(
         viewModelScope.launch { tonePlayer.playBeep(frequencyHz, 90, 1, 0, volumePct) }
     }
 
+    /** Hold the audio route warm while the alarm editor is open so preview beeps/voice
+     *  don't carry the route power-up pop (there's no connected wheel warming it here). */
+    fun setPreviewWarm(on: Boolean) = tonePlayer.setPreviewKeepAlive(on)
+
     // --- Beep Studio live preview ---
     // The studio dialog pushes the live (freq, volume, ...) here. While playing, a
     // continuous streaming tone (TonePlayer.startStream) renders GAPLESSLY and glides

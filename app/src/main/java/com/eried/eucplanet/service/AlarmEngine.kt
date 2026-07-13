@@ -50,6 +50,20 @@ class AlarmEngine @Inject constructor(
     // state and per-metric trend history; unit-tested in AlarmEvaluatorTest.
     private val evaluator = AlarmEvaluator()
 
+    // The rule id whose CONSTANT tone is currently streaming, or null. A "constant"
+    // beep alarm (beep on + Many + cooldown 0) doesn't re-fire a discrete beep each
+    // tick; it holds ONE continuous streaming tone (via TonePlayer's stream) that
+    // glides in pitch/volume as the value moves, and stops the instant the condition
+    // clears. Tracked here so we start once, update while held, and stop on release.
+    @Volatile private var constantRuleId: Long? = null
+
+    /** A constant-tone alarm: beep on, GAP 0 (a steady tone, not separate beeps),
+     *  repeat-while-active, and no cooldown, so it sounds as ONE continuous tone
+     *  while the condition holds. gap > 0 keeps the classic discrete-beep path even
+     *  at Many + cooldown 0, so only an explicit gap-0 alarm streams. */
+    private fun AlarmRule.isConstantTone() =
+        beepEnabled && beepGapMs == 0 && repeatWhileActive && cooldownSeconds == 0
+
     init {
         // Push the rider's predictive-alarm tuning into the evaluator whenever
         // settings change. sanitized() guarantees safe values, so the evaluator
@@ -88,12 +102,12 @@ class AlarmEngine @Inject constructor(
     fun evaluate(data: WheelData) {
         // Quake-console godmode: silences all alarms for the session. The user types
         // `godmode` in the Settings search bar to flip it; lost on app restart.
-        if (cheatState.godmode.value) return
+        if (cheatState.godmode.value) { stopConstantTone(); return }
         scope.launch {
             evalMutex.withLock {
             // Persisted session mute, set by the dashboard's MUTE_ALARMS action.
             // Read inside the launch so we always see the latest store value.
-            if (settingsRepository.get().alarmsMuted) return@withLock
+            if (settingsRepository.get().alarmsMuted) { stopConstantTone(); return@withLock }
             val rules = alarmDao.getEnabled()
             val now = System.currentTimeMillis()
 
@@ -112,14 +126,21 @@ class AlarmEngine @Inject constructor(
                 getMetricValue(metric, data)
             }
 
+            val byId = rules.associateBy { it.id }
+            // Constant-tone alarms are handled EVERY tick (even when `fired` is empty)
+            // so the streaming tone stops the instant the condition clears.
+            handleConstantTone(fired, byId)
+
             if (fired.isNotEmpty()) {
                 val s = settingsRepository.get()
                 val su = com.eried.eucplanet.util.Units.effectiveSpeedUnit(s)
                 val du = com.eried.eucplanet.util.Units.effectiveDistanceUnit(s)
                 val tu = com.eried.eucplanet.util.Units.effectiveTempUnit(s)
-                val byId = rules.associateBy { it.id }
                 for (f in fired) {
                     val rule = byId[f.ruleId] ?: continue
+                    // A constant-tone alarm sounds via the streaming tone above; skip its
+                    // discrete beep/voice so it doesn't machine-gun while the value is held.
+                    if (rule.isConstantTone()) continue
                     Log.i(TAG, "Alarm fired: '${rule.name}' ${rule.metric} ${rule.comparator} ${rule.threshold} (value=${f.value}, lead=${rule.leadTimeMs}ms)")
                     executeActions(rule, data, f.value, su, du, tu)
                 }
@@ -152,6 +173,45 @@ class AlarmEngine @Inject constructor(
                 AlarmMetric.RADAR_APPROACH_SPEED -> null
             }
         } catch (_: Exception) { null }
+    }
+
+    /**
+     * Drive the single continuous "constant tone" from this tick's fire result.
+     * If a constant-tone rule is the active winner, start its streaming tone (or
+     * update its pitch/volume if already streaming, so it glides with the value);
+     * if none is active, stop the stream. Runs every tick, including empty ones,
+     * so the tone ends the moment the condition clears. Only ONE constant tone
+     * plays at a time (the priority winner), matching the "one alarm sounds" rule.
+     */
+    private fun handleConstantTone(fired: List<AlarmEvaluator.Fired>, byId: Map<Long, AlarmRule>) {
+        val active = fired.firstNotNullOfOrNull { f ->
+            byId[f.ruleId]?.takeIf { it.isConstantTone() }?.let { it to f.value }
+        }
+        if (active == null) {
+            stopConstantTone()
+            return
+        }
+        val (rule, value) = active
+        val freq = AlarmLogic.modulatedBeepHz(
+            rule.beepFrequency, value, rule.comparator, rule.threshold, rule.beepModulation, rule.metric)
+        val vol = AlarmLogic.modulatedVolumePct(
+            rule.beepVolume, rule.beepVolumeModulation, value, rule.comparator, rule.threshold, rule.metric)
+        val trans = rule.beepDurationMs * rule.beepTransitionPct / 100
+        if (constantRuleId != rule.id) {
+            tonePlayer.startStream(freq, rule.beepDurationMs, rule.beepGapMs, vol, trans)
+            constantRuleId = rule.id
+        } else {
+            tonePlayer.updateStream(freq, rule.beepDurationMs, rule.beepGapMs, vol, trans)
+        }
+    }
+
+    /** Stop the constant tone immediately (condition cleared, disconnect, mute, or
+     *  godmode). Idempotent. */
+    fun stopConstantTone() {
+        if (constantRuleId != null) {
+            tonePlayer.stopStream()
+            constantRuleId = null
+        }
     }
 
     /**

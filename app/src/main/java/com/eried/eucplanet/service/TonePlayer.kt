@@ -16,6 +16,22 @@ class TonePlayer @Inject constructor() {
 
     private val sampleRate = 44100
 
+    // Audio-route keep-alive: a persistent SILENT track that holds the phone's audio
+    // output powered, so the first sound after a quiet stretch - a beep OR a TTS voice
+    // line (e.g. "wheel disconnected") - doesn't carry the route power-up pop.
+    // Independent of beep/voice playback, so it can't silence them; it just keeps the
+    // route warm.
+    //
+    // Two independent reasons to hold it: an active ride (started on wheel-connect) and
+    // preview playback in the alarm editor (wheel disconnected, route otherwise cold).
+    // It runs while EITHER wants it, so neither owner pulls the route out from under
+    // the other. Separate booleans, not a counter, so lifecycle events that don't pair
+    // up perfectly can't leak the track on forever.
+    @Volatile private var keepAliveRide = false
+    @Volatile private var keepAlivePreview = false
+    private var keepAliveThread: Thread? = null
+    private val keepAliveWanted get() = keepAliveRide || keepAlivePreview
+
     /**
      * Play [count] beeps of [durationMs] at [frequencyHz], separated by [gapMs]
      * of silence, at [volumePct] of the media volume.
@@ -127,6 +143,76 @@ class TonePlayer @Inject constructor() {
             Thread.sleep(30)   // small drain margin after the last frame
             track.stop()
             track.release()
+        }
+    }
+
+    /**
+     * Warm the route for a connected ride (idempotent). A separate silent MODE_STREAM
+     * track runs on its own thread continuously writing zeros, which keeps
+     * AudioFlinger's output stream open so the speaker/amp never drops to standby.
+     * Called on wheel-connect; the first beep/voice after a quiet stretch then fires
+     * into an already-powered route with no pop. Fully independent of playBeep / the
+     * studio stream, so a failure here never silences an actual alarm.
+     */
+    @Synchronized
+    fun startRouteKeepAlive() { keepAliveRide = true; ensureKeepAlive() }
+
+    /** Release the ride's hold. The route stays warm if a preview still wants it. */
+    @Synchronized
+    fun stopRouteKeepAlive() { keepAliveRide = false }
+
+    /** Warm the route while the alarm editor is open, so preview beeps/voice fired from
+     *  a settings screen (wheel disconnected, route cold) don't pop. */
+    @Synchronized
+    fun setPreviewKeepAlive(on: Boolean) { keepAlivePreview = on; if (on) ensureKeepAlive() }
+
+    private fun ensureKeepAlive() {
+        if (keepAliveThread == null && keepAliveWanted) {
+            keepAliveThread = thread(name = "ToneKeepAlive", isDaemon = true) { keepAliveLoop() }
+        }
+    }
+
+    private fun keepAliveLoop() {
+        val chunk = 512
+        val minBuf = AudioTrack.getMinBufferSize(
+            sampleRate, AudioFormat.CHANNEL_OUT_MONO, AudioFormat.ENCODING_PCM_16BIT
+        )
+        val track = try {
+            AudioTrack.Builder()
+                .setAudioAttributes(
+                    AudioAttributes.Builder()
+                        .setUsage(AudioAttributes.USAGE_MEDIA)
+                        .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+                        .build()
+                )
+                .setAudioFormat(
+                    AudioFormat.Builder()
+                        .setSampleRate(sampleRate)
+                        .setEncoding(AudioFormat.ENCODING_PCM_16BIT)
+                        .setChannelMask(AudioFormat.CHANNEL_OUT_MONO)
+                        .build()
+                )
+                .setBufferSizeInBytes(maxOf(minBuf, chunk * 2 * 4))
+                .setTransferMode(AudioTrack.MODE_STREAM)
+                .build()
+        } catch (_: Exception) {
+            synchronized(this) { keepAliveThread = null }   // no respawn: avoid a build-fail spin
+            return
+        }
+        val silence = ShortArray(chunk)   // zeros: inaudible, just holds the route open
+        try {
+            track.play()
+            while (keepAliveWanted) {
+                track.write(silence, 0, silence.size)   // blocks, pacing the loop
+            }
+        } catch (_: Exception) {
+        } finally {
+            runCatching { track.stop() }
+            runCatching { track.release() }
+            synchronized(this) {
+                keepAliveThread = null
+                ensureKeepAlive()   // a request that arrived during teardown respawns us
+            }
         }
     }
 

@@ -1896,5 +1896,9 @@
     <string name="voice_phone_battery_fmt">телефон %1$d</string>
     <string name="report_phone_battery">Телефон</string>
     <string name="alarm_beep_transition_label">Переход</string>
+    <string name="alarm_constant_title">Непрерывный сигнал?</string>
+    <string name="alarm_constant_body">Воспроизводить один непрерывный сигнал вместо отдельных?</string>
+    <string name="alarm_constant_change">Изменить</string>
+    <string name="alarm_constant_never">Больше не спрашивать</string>
 </resources>
 

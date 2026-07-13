@@ -57,6 +57,7 @@ import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.key
 import androidx.compose.runtime.getValue
@@ -132,6 +133,11 @@ import com.eried.eucplanet.ui.theme.themedSwitchColors
 import com.eried.eucplanet.ui.theme.themedSliderColors
 import kotlin.math.roundToInt
 import sh.calvin.reorderable.ReorderableColumn
+
+// "Don't ask again" for the constant-tone prompt: process-scoped so it lasts the
+// rest of this app run but resets on next launch (per the rider's request, not
+// stored permanently). Not `remember`-ed, which would reset when the editor closes.
+private var suppressConstantTonePrompt = false
 
 /** Human seconds for a lead time in ms: "0.5", "1", "2" (drops a trailing .0). */
 private fun leadSeconds(ms: Int): String =
@@ -284,6 +290,12 @@ fun AlarmSettingsContent(
     }
 
     if (showEditor) {
+        // Hold the audio route warm the whole time the editor is open so preview
+        // beeps/voice don't pop (no connected wheel is warming it in settings).
+        DisposableEffect(Unit) {
+            viewModel.setPreviewWarm(true)
+            onDispose { viewModel.setPreviewWarm(false) }
+        }
         AlarmRuleEditorDialog(
             rule = editingRule,
             speedUnit = speedUnit,
@@ -296,7 +308,9 @@ fun AlarmSettingsContent(
                 showEditor = false
             },
             onDismiss = { showEditor = false },
-            onDelete = editingRule?.let { r -> { showEditor = false; deleteCandidate = r } },
+            // Keep the editor open and show the confirm ON TOP of it; only close
+            // the editor once the delete is actually confirmed (see below).
+            onDelete = editingRule?.let { r -> { deleteCandidate = r } },
             onPreviewBeep = { freq, dur, cnt, gap, vol, trans -> viewModel.previewBeep(freq, dur, cnt, gap, vol, trans) },
             onPreviewTone = { freq, vol -> viewModel.previewToneAt(freq, vol) },
             onPreviewVoice = { text, metric, thr -> viewModel.previewVoice(text, metric, thr) },
@@ -317,6 +331,7 @@ fun AlarmSettingsContent(
                 TextButton(onClick = {
                     viewModel.deleteRule(rule)
                     deleteCandidate = null
+                    showEditor = false   // rule is gone, close the editor now
                 }, shape = RoundedCornerShape(12.dp)) { Text(stringResource(R.string.action_delete), color = MaterialTheme.appColors.statusDanger) }
             },
             dismissButton = {
@@ -484,6 +499,10 @@ private fun AlarmRuleEditorDialog(
     var cooldownSeconds by remember { mutableIntStateOf(initial.cooldownSeconds) }
     var repeatWhileActive by remember { mutableStateOf(initial.repeatWhileActive) }
     var leadTimeMs by remember { mutableIntStateOf(initial.leadTimeMs) }
+    // Set when the rider drops the beep GAP to 0 (the "I want one continuous tone"
+    // signal) on an alarm not already set to sustain -- prompts to finish the
+    // continuous config (Many + cooldown 0). The dialog lives after the title below.
+    var showConstantPrompt by remember { mutableStateOf(false) }
     // Advanced (cooldown / repeat / anticipation) -- collapsed by default; the
     // rider expands it when they want those.
     var advancedOpen by remember { mutableStateOf(false) }
@@ -561,6 +580,62 @@ private fun AlarmRuleEditorDialog(
                     if (rule != null) stringResource(R.string.alarm_edit) else stringResource(R.string.alarm_new),
                     style = MaterialTheme.typography.titleMedium
                 )
+
+                // Constant-tone prompt. Declared here (always composed, not inside a
+                // collapsible section) so it opens on top of the editor even when the
+                // gap control that triggered it lives in a section that's since scrolled
+                // or collapsed. Change -> set the full continuous config (gap 0 + Many +
+                // no cooldown); Cancel -> leave everything as the rider set it; Don't ask
+                // again -> quiet for the rest of this app run (resets next launch).
+                if (showConstantPrompt) {
+                    val cdLabel = stringResource(R.string.alarm_cooldown_label)
+                    val repLabel = stringResource(R.string.alarm_repeat_label)
+                    val onceLabel = stringResource(R.string.alarm_repeat_single)
+                    val manyLabel = stringResource(R.string.alarm_repeat_multi)
+                    // Spell out exactly what Change will do, from the alarm's current values
+                    // (gap is already 0 -- that's what opened this). Only the fields that
+                    // actually change are listed.
+                    val changes = buildList {
+                        if (cooldownSeconds != 0) add("$cdLabel: ${cooldownSeconds}s → 0s")
+                        if (!repeatWhileActive) add("$repLabel: $onceLabel → $manyLabel")
+                    }
+                    AlertDialog(
+                        onDismissRequest = { showConstantPrompt = false },
+                        title = { Text(stringResource(R.string.alarm_constant_title)) },
+                        text = {
+                            Column {
+                                Text(stringResource(R.string.alarm_constant_body))
+                                if (changes.isNotEmpty()) {
+                                    Spacer(Modifier.height(8.dp))
+                                    changes.forEach { Text("• $it", style = MaterialTheme.typography.bodyMedium) }
+                                }
+                            }
+                        },
+                        confirmButton = {
+                            TextButton(onClick = {
+                                beepGapMs = 0
+                                repeatWhileActive = true
+                                cooldownSeconds = 0
+                                showConstantPrompt = false
+                            }, shape = RoundedCornerShape(12.dp)) {
+                                Text(stringResource(R.string.alarm_constant_change), color = MaterialTheme.appColors.statusGood)
+                            }
+                        },
+                        dismissButton = {
+                            Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                                TextButton(onClick = {
+                                    suppressConstantTonePrompt = true
+                                    showConstantPrompt = false
+                                }, shape = RoundedCornerShape(12.dp)) {
+                                    Text(stringResource(R.string.alarm_constant_never))
+                                }
+                                TextButton(onClick = { showConstantPrompt = false }, shape = RoundedCornerShape(12.dp)) {
+                                    Text(stringResource(R.string.action_cancel))
+                                }
+                            }
+                        }
+                    )
+                }
 
                 Spacer(Modifier.height(12.dp))
 
@@ -709,7 +784,14 @@ private fun AlarmRuleEditorDialog(
                             )
                             NumberUpDown(
                                 value = beepGapMs,
-                                onValueChange = { beepGapMs = it },
+                                onValueChange = {
+                                    val wasZero = beepGapMs == 0
+                                    beepGapMs = it
+                                    // Gap 0 = the rider wants ONE continuous tone. If it isn't
+                                    // already set to sustain (Many + no cooldown), offer to finish it.
+                                    if (it == 0 && !wasZero && !(repeatWhileActive && cooldownSeconds == 0) && !suppressConstantTonePrompt)
+                                        showConstantPrompt = true
+                                },
                                 range = 0..2000, step = 20, suffix = "ms",
                                 label = stringResource(R.string.alarm_beep_gap_label),
                                 modifier = Modifier.weight(1f),

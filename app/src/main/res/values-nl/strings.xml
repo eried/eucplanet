@@ -1896,5 +1896,9 @@
     <string name="voice_phone_battery_fmt">telefoon %1$d</string>
     <string name="report_phone_battery">Telefoon</string>
     <string name="alarm_beep_transition_label">Overgang</string>
+    <string name="alarm_constant_title">Constante toon?</string>
+    <string name="alarm_constant_body">Eén doorlopende toon spelen in plaats van losse piepjes?</string>
+    <string name="alarm_constant_change">Wijzigen</string>
+    <string name="alarm_constant_never">Niet meer vragen</string>
 </resources>
 

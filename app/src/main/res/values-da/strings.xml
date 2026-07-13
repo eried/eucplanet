@@ -1911,4 +1911,8 @@
     <string name="voice_phone_battery_fmt">telefon %1$d</string>
     <string name="report_phone_battery">Telefon</string>
     <string name="alarm_beep_transition_label">Overgang</string>
+    <string name="alarm_constant_title">Konstant tone?</string>
+    <string name="alarm_constant_body">Afspil én lang tone i stedet for enkelte bip?</string>
+    <string name="alarm_constant_change">Skift</string>
+    <string name="alarm_constant_never">Spørg ikke igen</string>
 </resources>

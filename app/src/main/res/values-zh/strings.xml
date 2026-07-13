@@ -1763,4 +1763,8 @@
     <string name="voice_phone_battery_fmt">手机 %1$d</string>
     <string name="report_phone_battery">手机</string>
     <string name="alarm_beep_transition_label">过渡</string>
+    <string name="alarm_constant_title">连续音？</string>
+    <string name="alarm_constant_body">播放连续音而非单独的哔声？</string>
+    <string name="alarm_constant_change">更改</string>
+    <string name="alarm_constant_never">不再询问</string>
 </resources>

@@ -1916,4 +1916,8 @@
     <string name="voice_phone_battery_fmt">Telefon %1$d</string>
     <string name="report_phone_battery">Telefon</string>
     <string name="alarm_beep_transition_label">Übergang</string>
+    <string name="alarm_constant_title">Dauerton?</string>
+    <string name="alarm_constant_body">Einen Dauerton statt einzelner Pieptöne abspielen?</string>
+    <string name="alarm_constant_change">Ändern</string>
+    <string name="alarm_constant_never">Nicht mehr fragen</string>
 </resources>

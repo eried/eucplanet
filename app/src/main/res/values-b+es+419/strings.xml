@@ -1914,5 +1914,9 @@
     <string name="voice_phone_battery_fmt">teléfono %1$d</string>
     <string name="report_phone_battery">Teléfono</string>
     <string name="alarm_beep_transition_label">Transición</string>
+    <string name="alarm_constant_title">¿Tono continuo?</string>
+    <string name="alarm_constant_body">¿Reproducir un tono continuo en vez de pitidos separados?</string>
+    <string name="alarm_constant_change">Cambiar</string>
+    <string name="alarm_constant_never">No volver a preguntar</string>
 </resources>
 

@@ -1896,5 +1896,9 @@
     <string name="voice_phone_battery_fmt">telefone %1$d</string>
     <string name="report_phone_battery">Telefone</string>
     <string name="alarm_beep_transition_label">Transição</string>
+    <string name="alarm_constant_title">Tom contínuo?</string>
+    <string name="alarm_constant_body">Tocar um tom contínuo em vez de bipes separados?</string>
+    <string name="alarm_constant_change">Alterar</string>
+    <string name="alarm_constant_never">Não perguntar novamente</string>
 </resources>
 
