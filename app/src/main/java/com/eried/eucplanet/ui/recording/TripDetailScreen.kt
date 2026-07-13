@@ -53,6 +53,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.ui.graphics.luminance
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -519,6 +520,11 @@ private fun SummaryCard(
     }
 }
 
+// The rider's Trip-details map-style pick (LIGHT / DARK / SAT) sticks for the rest of
+// the app session, across trips, then resets on restart (in-memory, not persisted) and
+// re-defaults from the theme. Process-scoped, mirroring the alarm constant-tone prompt.
+private var tripMapTypeSession: String? = null
+
 @SuppressLint("SetJavaScriptEnabled")
 @Composable
 private fun RouteMapView(
@@ -538,13 +544,17 @@ private fun RouteMapView(
     // Map style (light / dark / satellite) is shared between the inline and the
     // fullscreen map so opening fullscreen keeps the style the rider picked,
     // rather than resetting to light.
-    var mapType by rememberSaveable { mutableStateOf("LIGHT") }
+    // Default the style from the active theme's background luminance: a dark theme
+    // (including any custom theme with a dark background) gets the dark map, a light
+    // one gets the white map. A rider's explicit pick overrides this for the session.
+    val themeMapDefault = if (MaterialTheme.appColors.appBackground.luminance() < 0.5f) "DARK" else "LIGHT"
+    var mapType by rememberSaveable { mutableStateOf(tripMapTypeSession ?: themeMapDefault) }
 
     MapSurface(
         points = points, isLive = isLive, liveLat = liveLat, liveLon = liveLon,
         scrubLat = scrubLat, scrubLon = scrubLon,
         fullscreen = false, onToggleFullscreen = { fullscreen = true },
-        mapType = mapType, onMapTypeChange = { mapType = it },
+        mapType = mapType, onMapTypeChange = { mapType = it; tripMapTypeSession = it },
         modifier = modifier,
     )
 
@@ -589,7 +599,7 @@ private fun RouteMapView(
                 points = points, isLive = isLive, liveLat = liveLat, liveLon = liveLon,
                 scrubLat = scrubLat, scrubLon = scrubLon,
                 fullscreen = true, onToggleFullscreen = { fullscreen = false },
-                mapType = mapType, onMapTypeChange = { mapType = it },
+                mapType = mapType, onMapTypeChange = { mapType = it; tripMapTypeSession = it },
                 modifier = Modifier.fillMaxSize(),
             )
         }
