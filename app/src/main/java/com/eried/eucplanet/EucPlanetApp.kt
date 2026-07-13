@@ -53,6 +53,12 @@ class EucPlanetApp : Application(), Configuration.Provider {
         // (after Hilt has injected workerFactory) rather than in SyncManager's
         // init{}, which runs mid-injection and raced the lateinit.
         syncManager.reconcilePendingTripUploads()
+        // Same for the online (eucstats) uploads and the Dropbox mirror: a trip
+        // strands if its retry chain ever ended, and nothing else restarts it.
+        // Both run a few seconds in so the rider id / link token have loaded, and
+        // both no-op when their destination is not configured.
+        syncManager.reconcilePendingEucStatsUploads()
+        syncManager.reconcilePendingDropboxSync()
         syncManager.startPendingUploadWatcher()
     }
 }

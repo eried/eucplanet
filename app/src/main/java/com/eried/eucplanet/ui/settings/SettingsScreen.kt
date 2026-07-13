@@ -1521,6 +1521,29 @@ private fun AdvancedTab(
         }
 
         AdvancedCollapsable(
+            title = stringResource(R.string.geo_section_trip),
+            stateKey = "geo-trip"
+        ) {
+            SwitchSetting(
+                stringResource(R.string.setting_rotate_trip_detail),
+                settings.rotateTripDetail
+            ) { viewModel.updateRotateTripDetail(it) }
+            SwitchSetting(
+                stringResource(R.string.setting_rotate_trip_list),
+                settings.rotateTripList
+            ) { viewModel.updateRotateTripList(it) }
+            geoChoiceRow(
+                R.string.setting_trip_map_side, landscapeBadge,
+                listOf(
+                    "LEFT" to stringResource(R.string.side_left),
+                    "RIGHT" to stringResource(R.string.side_right)
+                ),
+                settings.tripMapSide
+            ) { viewModel.updateTripMapSide(it) }
+            HintText(stringResource(R.string.geo_trip_hint), small = true)
+        }
+
+        AdvancedCollapsable(
             title = stringResource(R.string.geo_section_other),
             stateKey = "geo-other"
         ) {
@@ -6127,6 +6150,7 @@ private fun VoiceTab(
 
         val sSpeedEx = stringResource(R.string.voice_speed_fmt, "35")
         val sBatteryEx = stringResource(R.string.voice_battery_fmt, 80)
+        val sPhoneEx = stringResource(R.string.voice_phone_battery_fmt, 57)
         val sTempEx = stringResource(R.string.voice_temp_fmt, "32")
         val sLoadEx = stringResource(R.string.voice_load_fmt, "45")
         // Preview must match what the voice actually says, imperial users
@@ -6147,11 +6171,16 @@ private fun VoiceTab(
             android.text.format.DateFormat.getTimeFormat(ctx).format(java.util.Date())
         )
 
-        val reportOrder = settings.voiceReportOrder.split(",").map { it.trim() }
+        val reportKeys = listOf("Speed", "Battery", "PhoneBattery", "Temp", "PWM", "Distance", "Recording", "Time", "Navigation")
+        val savedReportOrder = settings.voiceReportOrder.split(",").map { it.trim() }
+        // Append known items missing from the saved order (e.g. PhoneBattery) so they
+        // show in the list and preview even before the rider reorders.
+        val reportOrder = savedReportOrder + reportKeys.filter { it !in savedReportOrder }
 
         fun exampleFor(key: String): String? = when (key) {
             "Speed" -> sSpeedEx
             "Battery" -> sBatteryEx
+            "PhoneBattery" -> sPhoneEx
             "Temp" -> sTempEx
             "PWM" -> sLoadEx
             "Distance" -> sTripEx
@@ -6166,6 +6195,7 @@ private fun VoiceTab(
                 val enabled = if (periodic) when (key) {
                     "Speed" -> settings.voiceReportSpeed
                     "Battery" -> settings.voiceReportBattery
+                    "PhoneBattery" -> settings.voiceReportPhoneBattery
                     "Temp" -> settings.voiceReportTemp
                     "PWM" -> settings.voiceReportPwm
                     "Distance" -> settings.voiceReportDistance
@@ -6176,6 +6206,7 @@ private fun VoiceTab(
                 } else when (key) {
                     "Speed" -> settings.triggerReportSpeed
                     "Battery" -> settings.triggerReportBattery
+                    "PhoneBattery" -> settings.triggerReportPhoneBattery
                     "Temp" -> settings.triggerReportTemp
                     "PWM" -> settings.triggerReportPwm
                     "Distance" -> settings.triggerReportDistance
@@ -6236,6 +6267,10 @@ private fun VoiceTab(
                 settings.voiceReportBattery, { viewModel.updateVoiceReportBattery(it) },
                 settings.triggerReportBattery, { viewModel.updateTriggerReportBattery(it) },
                 sBatteryEx),
+            "PhoneBattery" to ReportItemConfig("PhoneBattery", stringResource(R.string.report_phone_battery),
+                settings.voiceReportPhoneBattery, { viewModel.updateVoiceReportPhoneBattery(it) },
+                settings.triggerReportPhoneBattery, { viewModel.updateTriggerReportPhoneBattery(it) },
+                sPhoneEx),
             "Temp" to ReportItemConfig("Temp", stringResource(R.string.report_temp),
                 settings.voiceReportTemp, { viewModel.updateVoiceReportTemp(it) },
                 settings.triggerReportTemp, { viewModel.updateTriggerReportTemp(it) },
@@ -9009,8 +9044,11 @@ private fun EngineSpeedVolumeCurveEditor(
     val probeColor = MaterialTheme.colorScheme.onSurface
     var dragIndex by remember { mutableStateOf(-1) }
     var probeSpeed by remember { mutableStateOf<Float?>(null) }
-    val pointsRef = remember { mutableStateOf(normalized) }
-    pointsRef.value = normalized
+    // Working copy the drag edits in place. Persisting on every drag frame
+    // round-trips through DataStore (async) and re-keys the caller's remember,
+    // snapping the point back to a stale value mid-drag - the "slow / weird" drag.
+    // We edit this locally and only report on drag END.
+    var working by remember(normalized) { mutableStateOf(normalized) }
 
     Box(
         modifier = Modifier
@@ -9028,7 +9066,7 @@ private fun EngineSpeedVolumeCurveEditor(
                         onDragStart = { offset ->
                             val w = size.width.toFloat()
                             val h = size.height.toFloat()
-                            val pts = pointsRef.value
+                            val pts = working
                             val nearest = pts
                                 .mapIndexed { idx, (s, v) ->
                                     val px = s / maxSpeed * w
@@ -9051,19 +9089,21 @@ private fun EngineSpeedVolumeCurveEditor(
                             change.consume()
                             val w = size.width.toFloat()
                             val h = size.height.toFloat()
-                            if (dragIndex in pointsRef.value.indices) {
+                            if (dragIndex in working.indices) {
                                 val newM = (minMult + (h - change.position.y) / h * (maxMult - minMult))
                                     .coerceIn(minMult, maxMult)
-                                val (oldS, _) = pointsRef.value[dragIndex]
-                                val mutable = pointsRef.value.toMutableList()
-                                mutable[dragIndex] = oldS to newM
-                                onPointsChanged(mutable)
+                                val (oldS, _) = working[dragIndex]
+                                // Local only: no persist mid-drag, so the point tracks the finger.
+                                working = working.toMutableList().also { it[dragIndex] = oldS to newM }
                             } else {
                                 val speed = (change.position.x / w * maxSpeed).coerceIn(0f, maxSpeed)
                                 probeSpeed = speed
                             }
                         },
-                        onDragEnd = { dragIndex = -1; probeSpeed = null },
+                        onDragEnd = {
+                            if (dragIndex >= 0) onPointsChanged(working)   // commit once
+                            dragIndex = -1; probeSpeed = null
+                        },
                         onDragCancel = { dragIndex = -1; probeSpeed = null }
                     )
                 }
@@ -9095,12 +9135,12 @@ private fun EngineSpeedVolumeCurveEditor(
             drawText(unitMeasured, topLeft = Offset((w - unitMeasured.size.width) / 2f, h + 4f))
 
             // PCHIP-smoothed curve through the 4 control points + tinted fill below it.
-            if (normalized.size >= 2) {
+            if (working.size >= 2) {
                 val curvePath = Path()
                 val steps = 100
                 for (i in 0..steps) {
                     val speed = i.toFloat() / steps * maxSpeed
-                    val mult = com.eried.eucplanet.service.pchipInterpolate(normalized, speed)
+                    val mult = com.eried.eucplanet.service.pchipInterpolate(working, speed)
                         .coerceIn(minMult, maxMult)
                     val x = speed / maxSpeed * w
                     val y = h - (mult - minMult) / (maxMult - minMult) * h
@@ -9117,8 +9157,8 @@ private fun EngineSpeedVolumeCurveEditor(
 
             // Finger probe, dashed vertical line + "30 km/h → 45%" readout above the curve.
             val currentProbe = probeSpeed
-            if (currentProbe != null && normalized.size >= 2) {
-                val probeMult = com.eried.eucplanet.service.pchipInterpolate(normalized, currentProbe)
+            if (currentProbe != null && working.size >= 2) {
+                val probeMult = com.eried.eucplanet.service.pchipInterpolate(working, currentProbe)
                     .coerceIn(minMult, maxMult)
                 val px = currentProbe / maxSpeed * w
                 val py = h - (probeMult - minMult) / (maxMult - minMult) * h
@@ -9143,7 +9183,7 @@ private fun EngineSpeedVolumeCurveEditor(
             }
 
             // Control point handles (all 4 are draggable).
-            normalized.forEach { (s, v) ->
+            working.forEach { (s, v) ->
                 val px = s / maxSpeed * w
                 val py = h - (v - minMult) / (maxMult - minMult) * h
                 drawCircle(pointColor, radius = 8f, center = Offset(px, py))

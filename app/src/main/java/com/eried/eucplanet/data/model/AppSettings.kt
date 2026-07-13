@@ -90,6 +90,7 @@ data class AppSettings(
     val voiceReportDistance: Boolean = false,
     val voiceReportTime: Boolean = false,
     val voiceReportNavigation: Boolean = false,
+    val voiceReportPhoneBattery: Boolean = false,
     // On-trigger (manual/flic) voice report toggles
     val triggerReportSpeed: Boolean = true,
     val triggerReportBattery: Boolean = true,
@@ -98,13 +99,14 @@ data class AppSettings(
     val triggerReportDistance: Boolean = true,
     val triggerReportTime: Boolean = true,
     val triggerReportNavigation: Boolean = false,
+    val triggerReportPhoneBattery: Boolean = false,
 
     // Voice report: include recording state
     val voiceReportRecording: Boolean = false,
     val triggerReportRecording: Boolean = true,
 
-    // Voice report item order (comma-separated: Speed,Battery,Time,Temp,PWM,Distance,Recording)
-    val voiceReportOrder: String = "Speed,Battery,Time,Temp,PWM,Distance,Recording",
+    // Voice report item order (comma-separated: Speed,Battery,PhoneBattery,Time,Temp,PWM,Distance,Recording)
+    val voiceReportOrder: String = "Speed,Battery,PhoneBattery,Time,Temp,PWM,Distance,Recording",
 
     // Special announcements (event-driven). All silent by default; the welcome
     // wizard's first step offers a single toggle that flips this whole block on
@@ -203,6 +205,14 @@ data class AppSettings(
     // The Settings screen has its own rotation entry, split out from "other
     // screens". Off by default, so Settings stays portrait unless enabled.
     val rotateSettings: Boolean = false,
+    // Trip screens, split out from "other screens" so each rotates on its own.
+    // The trip DETAILS screen rotates by default: its landscape layout is a
+    // split with the map beside the stats and charts. The trip LIST (recorder)
+    // stays portrait-locked by default. tripMapSide docks the details map on the
+    // LEFT (default) or RIGHT of that landscape split.
+    val rotateTripDetail: Boolean = true,
+    val rotateTripList: Boolean = false,
+    val tripMapSide: String = "LEFT",
 
     // Screen geometry. Compact mode is the tiny dashboard (speedo + one
     // swipeable buttons/metrics area) used on flip cover screens; it reuses
@@ -834,6 +844,7 @@ data class AppSettings(
     val hudManualHintDelayMs: Int get() = advanced.hudManualHintDelayMs
     val hudDiscoveryTotalTimeoutMs: Int get() = advanced.hudDiscoveryTotalTimeoutMs
     val hudMdnsServiceInfoTimeoutMs: Int get() = advanced.hudMdnsServiceInfoTimeoutMs
+    val hudSubnetProbeDelayMs: Int get() = advanced.hudSubnetProbeDelayMs
     val autoLightNoGpsRetryMs: Int get() = advanced.autoLightNoGpsRetryMs
     val autoToggleGraceMs: Int get() = advanced.autoToggleGraceMs
     val navMovingKmh: Int get() = advanced.navMovingKmh
@@ -914,6 +925,10 @@ data class AdvancedSettings(
     val hudManualHintDelayMs: Int = 1500,
     val hudDiscoveryTotalTimeoutMs: Int = 15000,
     val hudMdnsServiceInfoTimeoutMs: Int = 1000,
+    // Delay before the last-resort subnet scan starts, so mDNS and the UDP
+    // beacon can answer first without the scan's connection flood congesting
+    // the Wi-Fi radio (which was slowing mDNS discovery).
+    val hudSubnetProbeDelayMs: Int = 2500,
     val autoLightNoGpsRetryMs: Int = 2000,
     val autoToggleGraceMs: Int = 4000,
     val navMovingKmh: Int = 4,

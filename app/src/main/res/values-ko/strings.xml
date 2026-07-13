@@ -11,16 +11,12 @@
     <string name="action_done">완료</string>
     <string name="action_close">닫기</string>
 <string name="crash_log_action_prompt">%1$s을(를) 길게 눌렀습니다. 이 로그만 삭제하거나 전체 삭제할 수 있습니다. 공유하려면 취소 후 파일을 탭하세요.</string>
-    <string name="crash_log_delete_one">이 로그 삭제</string>
     <string name="crash_log_delete_all">전체 삭제</string>
     <string name="crash_log_delete_all_warning">저장된 충돌 로그를 모두 삭제하시겠습니까? 되돌릴 수 없습니다.</string>
     <string name="action_save">저장</string>
     <string name="action_apply">적용</string>
     <string name="action_delete">삭제</string>
-    <string name="action_edit">편집</string>
     <string name="action_test">테스트</string>
-    <string name="action_move_up">위로</string>
-    <string name="action_move_down">아래로</string>
     <string name="action_reorder">드래그하여 순서 변경</string>
     <string name="show_gauge_color_band">속도 게이지 색상 띠</string>
     <string name="stat_watts">WATTS</string>
@@ -202,7 +198,6 @@
     <string name="metric_chip_load">PWM</string>
     <string name="metric_chip_trip">트립</string>
     <string name="metric_chip_speed">속도</string>
-    <string name="metric_chip_power">파워</string>
     <string name="metric_chip_odometer">주행거리계</string>
     <string name="metric_chip_motor_power">모터 출력</string>
     <string name="metric_chip_battery_power">배터리 출력</string>
@@ -547,7 +542,6 @@
     <string name="section_report_status">상태 보고</string>
     <string name="voice_enabled">주기적으로 상태 보고</string>
     <string name="voice_interval">간격</string>
-    <string name="unit_sec">초</string>
     <string name="announce_wheel_lock">휠 잠금 / 해제</string>
     <string name="announce_lights">라이트 켜기 / 끄기</string>
     <string name="announce_recording">트립 녹화</string>
@@ -884,7 +878,6 @@
     <string name="auto_lights_desc">일몰과 일출에 따라 헤드라이트를 자동으로 켜고 끕니다</string>
     <string name="auto_lights_on_before_sunset">일몰 전 라이트 켜기</string>
     <string name="auto_lights_off_after_sunrise">일출 후 라이트 끄기</string>
-    <string name="auto_minutes_fmt">%1$d분</string>
     <string name="auto_waiting_gps">GPS 위치 대기 중…</string>
     <string name="auto_volume_title">볼륨</string>
     <string name="auto_volume_desc">속도에 따라 음악 볼륨을 높입니다</string>
@@ -899,7 +892,6 @@
     <string name="alarm_help">각 지표마다 가장 적합한 알람이 자동으로 발동됩니다. 목록 순서는 어느 알람이 발동될지 바꾸지 않으며, 정렬은 보기 좋게 정리할 뿐입니다</string>
     <string name="alarm_empty">알람 규칙 없음</string>
     <string name="alarm_add">새 알람</string>
-    <string name="alarm_smart_sort">자동 정렬</string>
     <string name="alarm_summary_predict_fmt">%1$s초 앞서 예측</string>
     <string name="alarm_new">새 알람</string>
     <string name="alarm_edit">알람 편집</string>
@@ -908,7 +900,6 @@
     <string name="alarm_delete_action">알람 삭제</string>
     <string name="alarm_metric_label">지표</string>
     <string name="alarm_comparator_label">조건</string>
-    <string name="alarm_threshold_fmt">임계값: %1$s %2$s</string>
     <string name="alarm_threshold_label">임계값</string>
     <string name="alarm_label_frequency">주파수</string>
     <string name="alarm_label_duration">지속 시간</string>
@@ -953,9 +944,6 @@
 
     <string name="alarm_section_beep">비프</string>
     <string name="alarm_enable_beep">비프 활성화</string>
-    <string name="alarm_beep_freq_fmt">주파수: %1$dHz</string>
-    <string name="alarm_beep_duration_fmt">지속 시간: %1$dms</string>
-    <string name="alarm_beep_repeats_fmt">반복: %1$d</string>
     <string name="alarm_section_voice">음성</string>
     <string name="alarm_enable_voice">음성 활성화</string>
     <string name="alarm_voice_template">텍스트 템플릿</string>
@@ -963,25 +951,16 @@
     <string name="alarm_voice_default">경고! {metric} 값: {value}</string>
     <string name="alarm_section_vibrate">진동</string>
     <string name="alarm_enable_vibrate">진동 활성화</string>
-    <string name="alarm_vibrate_duration_fmt">지속 시간: %1$dms</string>
-    <string name="alarm_vibrate_target_label">진동 위치</string>
     <string name="alarm_vibrate_target_phone">폰</string>
     <string name="alarm_vibrate_target_watch">워치</string>
     <string name="alarm_vibrate_target_both">모두</string>
-    <string name="alarm_section_timing">타이밍</string>
     <string name="alarm_cooldown_label">쿨다운</string>
-    <string name="alarm_cooldown_fmt">쿨다운: %1$d초</string>
-    <string name="alarm_cooldown_help">조건이 계속 일치하더라도 이 규칙이 발동하는 최소 간격입니다</string>
-    <string name="alarm_repeat">활성 중 반복</string>
-    <string name="alarm_repeat_help">한 번: 한 번만 알린 뒤, 측정값이 안전한 쪽으로 돌아오면 다시 준비됩니다.\n여러 번: 발동 상태가 유지되는 동안 매 쿨다운마다 다시 알립니다.</string>
     <string name="alarm_repeat_label">발동</string>
     <string name="alarm_repeat_single">1회</string>
     <string name="alarm_repeat_multi">반복</string>
     <string name="alarm_section_advanced">고급</string>
     <string name="alarm_predict_label">예측 발동</string>
     <string name="alarm_predict_realtime">지금</string>
-    <string name="alarm_predict_value_fmt">%1$s초 일찍</string>
-    <string name="alarm_predict_help">지금: 임계값이 보고되는 즉시 알립니다.\n그 외: 추세가 임계값에 도달하기 해당 초 전에 미리 알립니다.</string>
     <string name="alarm_state_atleast">%1$s이(가) %2$s 이상</string>
     <string name="alarm_state_below">%1$s이(가) %2$s 미만</string>
     <string name="alarm_repeat_help_once">%1$s일 때 한 번 알립니다. %3$d초 쿨다운 후 %2$s일 때 다시 준비됩니다.</string>
@@ -1099,7 +1078,6 @@
     <string name="studio_your_presets_empty">저장된 프리셋이 없습니다. 현재 레이아웃을 저장하여 추가하세요.</string>
 
     <!-- Studio: render progress overlay -->
-    <string name="studio_rendering">렌더링 중</string>
     <string name="studio_rendering_cancel">취소</string>
     <string name="studio_dlg_cancel_render_title">렌더링을 취소하시겠습니까?</string>
     <string name="studio_dlg_cancel_render_body">리플레이 클립이 저장되지 않습니다.</string>
@@ -1496,7 +1474,6 @@
     <string name="trip_action_share_file">파일 공유</string>
     <string name="trip_action_share_file_desc">트립 CSV를 다른 앱으로 보내기</string>
     <string name="trip_action_view_online">온라인에서 보기</string>
-    <string name="trip_action_view_online_desc">EUC Viewer 지도에서 열기</string>
     <string name="trip_action_replay">Studio에서 리플레이</string>
     <string name="trip_action_replay_desc">실시간 데이터 오버레이로 주행 스크럽</string>
     <!-- ==== Dashboard quick menus ==== -->
@@ -1508,7 +1485,6 @@
     <string name="studio_group_media">카메라 &amp; 이미지</string>
     <string name="studio_cfg_border_colour">테두리 색상</string>
     <string name="studio_cfg_border_width">테두리 두께</string>
-    <string name="studio_rendering_keep_open">렌더링이 완료될 때까지 폰을 켜고 이 화면을 유지하세요</string>
     <string name="studio_cfg_g_scale">크기</string>
     <string name="studio_export_force_opaque_hint">불투명하지 않은 형식은 크로마 키 색상을 사용합니다. 반투명 레이어에서 의도와 다르게 보일 수 있습니다</string>
     <string name="studio_cfg_filter_vivid">선명하게</string>
@@ -1589,7 +1565,6 @@
     <string name="charging_stat_added">추가됨</string>
     <string name="charging_stat_balance">불균형</string>
     <string name="charging_stat_current">전류</string>
-    <string name="charging_stat_energy">에너지</string>
     <string name="charging_stat_power">전력</string>
     <string name="charging_stat_rate">속도</string>
     <string name="charging_stat_temp">온도</string>
@@ -1617,8 +1592,6 @@
     <string name="trip_action_share_dropbox_desc">Dropbox 폴더에 업로드하고 공개 링크를 공유합니다</string>
     <string name="trip_action_inspect_online">온라인으로 보기</string>
     <string name="trip_action_inspect_online_desc">이 주행을 온라인으로 보는 eucviewer.ried.no 링크를 공유합니다</string>
-    <string name="trip_action_copy_link">eucviewer 링크 복사</string>
-    <string name="trip_action_copy_link_desc">공유 가능한 eucviewer.ried.no 링크를 클립보드에 복사</string>
     <string name="trip_action_dropbox_disabled">설정에서 Dropbox를 연결하면 사용할 수 있습니다</string>
 
     <!-- Map: chargers (OCM) and places (OSM) along the route -->
@@ -1748,6 +1721,8 @@
     <string name="adv_hud_manual_grace_desc">수동 IP를 사용하기 전에 자동 검색에 주어지는 시간에 영향을 줍니다. 주의: 너무 낮으면 검색이 성공하기 전에 수동 IP를 사용합니다.</string>
     <string name="adv_hud_mdns_resolve">mDNS 확인 시간</string>
     <string name="adv_hud_mdns_resolve_desc">검색된 HUD의 주소 정보를 확인하는 시간에 영향을 줍니다. 주의: 너무 낮으면 확인이 느린 HUD를 버립니다.</string>
+    <string name="adv_hud_subnet_delay">서브넷 스캔 지연</string>
+    <string name="adv_hud_subnet_delay_desc">최후 수단인 서브넷 스캔이 시작되기까지의 시간에 영향을 줍니다. 이렇게 하면 mDNS와 비콘이 먼저 응답하고 무선이 혼잡해지지 않습니다. 주의: 너무 낮으면 무선을 가득 메우고 검색을 느리게 합니다.</string>
     <string name="adv_hud_mdns_timeout">검색 시간 초과</string>
     <string name="adv_hud_mdns_timeout_desc">HUD가 자동 검색에 응답하기를 기다리는 시간을 결정합니다. 주의: 너무 낮으면 응답 전에 포기합니다.</string>
     <string name="adv_hud_report_interval">HUD 보고 속도</string>
@@ -1814,17 +1789,8 @@
     <string name="adv_wheel_poll_rate_desc">실시간 데이터의 신선도와 알람 반응 속도를 결정합니다. 낮을수록 휠에 더 자주 데이터를 요청합니다. 주의: 매우 낮은 값은 블루투스 링크에 과부하를 주고 일부 휠에서 데이터를 멈추게 할 수 있습니다.</string>
     <string name="alarm_beep_advanced">고급</string>
     <string name="alarm_beep_gap_label">간격 길이</string>
-    <string name="alarm_beep_pitch_rise_label">음높이 상승</string>
     <string name="alarm_beep_studio">적응형 비프</string>
-    <string name="alarm_beep_sum_core">%1$d Hz로 %2$d ms 동안 울림</string>
-    <string name="alarm_beep_sum_pitch"> %2$s이(가) %3$s %4$s에 도달하면 음높이가 %1$d Hz까지 상승합니다.</string>
-    <string name="alarm_beep_sum_pitch_vol"> %4$s이(가) %5$s %6$s에 도달하면 음높이가 %1$d Hz까지, 볼륨이 %2$d%%에서 %3$d%%까지 상승합니다.</string>
-    <string name="alarm_beep_sum_reps">, ×%1$d %2$d ms 간격</string>
-    <string name="alarm_beep_sum_reps0">, ×%1$d 연속</string>
-    <string name="alarm_beep_sum_voice">, 그 후 음성 안내</string>
-    <string name="alarm_beep_sum_vol"> %3$s이(가) %4$s %5$s에 도달하면 볼륨이 %1$d%%에서 %2$d%%까지 상승합니다.</string>
-    <string name="alarm_beep_volume_label">볼륨</string>
-    <string name="alarm_beep_volume_rise_label">볼륨 상승</string>
+    <string name="alarm_beep_volume_label">기본 볼륨</string>
     <string name="alarm_studio_now">%1$d Hz · %2$d%%</string>
     <string name="alarm_studio_pitch_factor">음높이 계수</string>
     <string name="alarm_studio_play">재생</string>
@@ -1882,11 +1848,16 @@
     <string name="settings_visibility">설정 표시</string>
     <string name="geo_section_dashboard">대시보드</string>
     <string name="geo_section_navigator">내비게이터</string>
+    <string name="geo_section_trip">트립</string>
     <string name="geo_section_other">기타 화면</string>
     <string name="geo_section_settings">설정</string>
-    <string name="geo_other_hint">트립, 배터리 모니터, 지표 기록, 스캔, Flic. 오버레이 스튜디오는 영향을 받지 않습니다. 레이아웃은 고정이지만 어느 방향으로 들어도 잘 작동합니다.</string>
+    <string name="geo_other_hint">배터리 모니터, 지표 기록, 스캔, Flic. 오버레이 스튜디오는 영향을 받지 않습니다. 레이아웃은 고정이지만 어느 방향으로 들어도 잘 작동합니다.</string>
     <string name="geo_settings_hint">설정 화면입니다. 기본적으로 꺼져 있어 켜지 않으면 설정은 세로로 유지됩니다.</string>
+    <string name="geo_trip_hint">상세 화면은 가로 지도와 차트를 위해 기본적으로 회전합니다. 트립 목록은 켜지 않으면 세로로 유지됩니다.</string>
     <string name="setting_allow_rotation">회전 허용</string>
+    <string name="setting_rotate_trip_detail">트립 상세 회전</string>
+    <string name="setting_rotate_trip_list">트립 목록 회전</string>
+    <string name="setting_trip_map_side">지도 위치</string>
     <string name="setting_block_upside_down">상하 반전 회전 방지</string>
     <string name="setting_ignore_system_rotate_lock">시스템 회전 잠금 무시</string>
     <string name="setting_compact_dashboard">간결한 대시보드</string>
@@ -1915,4 +1886,14 @@
     <string name="adv_nav_sidebar_width_desc">가로 모드 경유지 사이드바의 너비. 너무 넓으면 지도가 거의 남지 않습니다.</string>
     <string name="adv_simple_speedo_scale">단순 속도계 크기</string>
     <string name="adv_simple_speedo_scale_desc">게이지 영역 대비 속도 숫자의 크기. 너무 크면 단위 라벨이 잘릴 수 있습니다.</string>
+    <string name="charging_reset_data">데이터 초기화</string>
+    <string name="charging_export">내보내기</string>
+    <string name="charging_export_saved">배터리 데이터를 내보냈습니다</string>
+    <string name="charging_export_failed">내보내기 실패</string>
+    <string name="voice_phone_battery_fmt">휴대폰 %1$d</string>
+    <string name="report_phone_battery">휴대폰</string>
+    <string name="alarm_beep_transition_label">전환</string>
+    <string name="alarm_constant_title">연속음?</string>
+    <string name="alarm_constant_body">간격 0 ms는 끊김 없는 하나의 음이 됩니다. 계속 울리게 하려면 다음도 설정:</string>
+    <string name="alarm_constant_never">다시 묻지 않음</string>
 </resources>

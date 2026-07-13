@@ -126,10 +126,14 @@ object AlarmLogic {
         return ((n * sxy - sx * sy) / denom).toFloat()
     }
 
-    /** Hard pitch ceiling (Hz), below the 44.1 kHz Nyquist limit. */
-    const val BEEP_MOD_MAX_HZ = 20000
-    /** Pitch floor for big reductions (a low thud, still audible). */
-    const val BEEP_MOD_MIN_HZ = 80
+    /** Pitch ceiling (Hz): kept in the band a phone speaker actually reproduces and
+     *  a rider can hear. 20 kHz (near Nyquist) is inaudible and phone speakers can't
+     *  play it, so an up-modulated alarm went silent. */
+    const val BEEP_MOD_MAX_HZ = 6000
+    /** Pitch floor (Hz) = the base-frequency minimum, so a pitch alarm at its base
+     *  (the moment it triggers, 0 overshoot) plays EXACTLY the Hz you set / preview
+     *  in the studio, never clamped up. Down-modulation just plateaus here. */
+    const val BEEP_MOD_MIN_HZ = 200
     /** Factor stored x100: 100 = 1.0x (unchanged). */
     const val BEEP_FACTOR_UNITY = 100
 

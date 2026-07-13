@@ -1,8 +1,10 @@
 package com.eried.eucplanet.ui.recording
 
 import android.annotation.SuppressLint
+import android.os.Build
 import android.view.MotionEvent
 import android.view.ViewGroup
+import android.view.WindowManager
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.compose.foundation.Canvas
@@ -15,8 +17,11 @@ import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -34,8 +39,14 @@ import androidx.compose.material.icons.filled.Fullscreen
 import androidx.compose.material.icons.filled.FullscreenExit
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.runtime.SideEffect
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import androidx.compose.ui.window.DialogWindowProvider
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.WindowInsetsControllerCompat
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -56,6 +67,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import android.content.res.Configuration
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -102,6 +115,8 @@ fun TripDetailScreen(
     // early by the detail screen).
     val liveState by viewModel.isTripLiveRecording(trip).collectAsState(initial = null)
     val isLiveTrip = liveState == true
+    // Landscape split: the rider chooses whether the map docks left or right.
+    val tripMapSide by viewModel.tripMapSide.collectAsState()
 
     // Render the ViewModel's messages (e.g. "Preparing the link…", share
     // failures) here too — sharing is launched straight from this screen, which
@@ -129,28 +144,89 @@ fun TripDetailScreen(
     }
 
     val dateFormat = SimpleDateFormat("dd MMM yyyy HH:mm", Locale.getDefault())
+    val landscape = LocalConfiguration.current.orientation == Configuration.ORIENTATION_LANDSCAPE
+
+    // Trip metrics and the header date range (start -> end) are hoisted so the
+    // landscape top bar can show the range centred (the landscape body gives its
+    // height to the permanent map + the scrollable charts, with no room for it).
+    val metrics = remember(dataPoints) { viewModel.tripMetrics(dataPoints) }
+    LaunchedEffect(metrics, liveState) {
+        if (liveState == false) viewModel.healTripMetrics(trip, metrics)
+    }
+    val startMs = if (metrics.valid) metrics.startMs else trip.startTime
+    val duration = if (metrics.valid) metrics.durationMs / 1000
+        else ((trip.endTime ?: trip.startTime) - trip.startTime) / 1000
+    val endMs = startMs + duration * 1000
+    val headerDateTime = remember(startMs, endMs) {
+        val dayFormat = SimpleDateFormat("dd MMM yyyy", Locale.getDefault())
+        val timeFormat = SimpleDateFormat("HH:mm", Locale.getDefault())
+        // Same-day rides show just the end HH:mm; a ride crossing midnight shows
+        // the full end date too.
+        val endText = if (dayFormat.format(Date(startMs)) == dayFormat.format(Date(endMs)))
+            timeFormat.format(Date(endMs)) else dateFormat.format(Date(endMs))
+        "${dateFormat.format(Date(startMs))} → $endText"
+    }
 
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = { Text(stringResource(R.string.recording_detail_title)) },
-                navigationIcon = {
-                    IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.action_back))
+            if (landscape) {
+                // Landscape bar: back + title on the left, the date range centred,
+                // share on the right.
+                Box(
+                    Modifier
+                        .fillMaxWidth()
+                        .background(MaterialTheme.colorScheme.background)
+                        .height(56.dp)
+                ) {
+                    Row(
+                        modifier = Modifier.align(Alignment.CenterStart),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        IconButton(onClick = onBack) {
+                            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.action_back))
+                        }
+                        Text(
+                            stringResource(R.string.recording_detail_title),
+                            style = MaterialTheme.typography.titleLarge,
+                        )
                     }
-                },
-                actions = {
+                    if (dataPoints.isNotEmpty()) {
+                        Text(
+                            headerDateTime,
+                            style = MaterialTheme.typography.titleMedium,
+                            color = MaterialTheme.colorScheme.onSurface,
+                            modifier = Modifier.align(Alignment.Center),
+                        )
+                    }
                     IconButton(
                         onClick = { showShareDialog = true },
-                        enabled = !isLiveTrip
+                        enabled = !isLiveTrip,
+                        modifier = Modifier.align(Alignment.CenterEnd),
                     ) {
                         Icon(Icons.Default.Share, contentDescription = stringResource(R.string.action_share))
                     }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.background
+                }
+            } else {
+                TopAppBar(
+                    title = { Text(stringResource(R.string.recording_detail_title)) },
+                    navigationIcon = {
+                        IconButton(onClick = onBack) {
+                            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.action_back))
+                        }
+                    },
+                    actions = {
+                        IconButton(
+                            onClick = { showShareDialog = true },
+                            enabled = !isLiveTrip
+                        ) {
+                            Icon(Icons.Default.Share, contentDescription = stringResource(R.string.action_share))
+                        }
+                    },
+                    colors = TopAppBarDefaults.topAppBarColors(
+                        containerColor = MaterialTheme.colorScheme.background
+                    )
                 )
-            )
+            }
         },
         snackbarHost = { SnackbarHost(snackbar) }
     ) { padding ->
@@ -166,139 +242,125 @@ fun TripDetailScreen(
                 HintText(stringResource(R.string.recording_no_data))
             }
         } else {
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(padding)
-                    .padding(horizontal = 16.dp)
-                    .verticalScroll(rememberScrollState())
-            ) {
-                Spacer(Modifier.height(8.dp))
+            // Content-only derived values (the header metrics are hoisted above so
+            // the landscape top bar can show the date range).
+            // Distance: trust the stored value (wheel odometer at finalize) when
+            // present; recompute from the CSV only for trips that never got one.
+            val distanceKm = if (trip.distanceKm > 0f) trip.distanceKm else metrics.distanceKm
+            // Top speed as a SUSTAINED value, not a lone GPS/sensor spike: the
+            // fastest the wheel actually held for ~2 s (see sustainedTopSpeed).
+            val maxSpeedRaw = remember(dataPoints, duration) {
+                val n = dataPoints.size
+                val window = if (n >= 2 && duration > 0)
+                    kotlin.math.ceil(SUSTAINED_TOP_SPEED_MS / (duration * 1000.0 / (n - 1)))
+                        .toInt().coerceIn(2, n)
+                else 1
+                sustainedTopSpeed(dataPoints.map { it.speed }, window)
+            }
+            val avgSpeedRaw = dataPoints.map { it.speed }.average().toFloat()
+            // Avg moving speed: mean over genuinely-moving samples (> 1 km/h).
+            val movingSpeeds = dataPoints.map { it.speed }.filter { it > 1f }
+            val avgMovingRaw = if (movingSpeeds.isNotEmpty()) movingSpeeds.average().toFloat() else 0f
+            // Max temp over plausible readings only (drop empty-slot junk values).
+            val maxTempRaw = dataPoints.map { it.temperature }
+                .filter { com.eried.eucplanet.util.MetricSanity.isPlausibleTempC(it) }
+                .maxOrNull() ?: 0f
+            // Battery/voltage stats over a validity mask (drops wheel-off garbage).
+            val batteryStats = remember(dataPoints) { computeBatteryStats(dataPoints) }
+            val speedUnit by viewModel.speedUnit.collectAsState()
+            val distanceUnit by viewModel.distanceUnit.collectAsState()
+            val tempUnit by viewModel.tempUnit.collectAsState()
+            val speedUnitLabel = com.eried.eucplanet.util.Units.speedUnit(
+                androidx.compose.ui.platform.LocalContext.current, speedUnit
+            )
+            val distanceUnitLabel = com.eried.eucplanet.util.Units.distanceUnit(distanceUnit)
+            val tempUnitLabel = com.eried.eucplanet.util.Units.tempUnit(tempUnit)
+            val maxSpeed = com.eried.eucplanet.util.Units.speed(maxSpeedRaw, speedUnit)
+            val avgSpeed = com.eried.eucplanet.util.Units.speed(avgSpeedRaw, speedUnit)
+            val avgMoving = com.eried.eucplanet.util.Units.speed(avgMovingRaw, speedUnit)
+            val tripDistance = com.eried.eucplanet.util.Units.distance(distanceKm, distanceUnit)
+            val maxTemp = com.eried.eucplanet.util.Units.temperature(maxTempRaw, tempUnit)
 
-                // Trip summary. Duration + distance come from the CSV (the same
-                // data the chart reads), not the stored summary fields, so a
-                // finished trip can't show 0:00 / 0.0 when the file has data.
-                // Stored values are the fallback only, and a stale finished row
-                // is healed in the background so the trip list catches up too.
-                val metrics = remember(dataPoints) { viewModel.tripMetrics(dataPoints) }
-                LaunchedEffect(metrics, liveState) {
-                    if (liveState == false) viewModel.healTripMetrics(trip, metrics)
-                }
-                val startMs = if (metrics.valid) metrics.startMs else trip.startTime
-                val duration = if (metrics.valid)
-                    metrics.durationMs / 1000
-                else
-                    ((trip.endTime ?: trip.startTime) - trip.startTime) / 1000
-                // Distance: trust the stored value (the wheel odometer captured
-                // at finalize) when present; recompute from the CSV only for
-                // trips that never got one (imports, crashed-before-finalize).
-                val distanceKm = if (trip.distanceKm > 0f) trip.distanceKm else metrics.distanceKm
-                // Top speed as a SUSTAINED value, not a lone GPS/sensor spike:
-                // the fastest the wheel actually held for ~2 s (see sustainedTopSpeed).
-                val maxSpeedRaw = remember(dataPoints, duration) {
-                    val n = dataPoints.size
-                    // Window is at least 2 samples so a lone single-sample spike (a
-                    // GPS / sensor glitch, e.g. a bogus 244 km/h reading) is always
-                    // rejected regardless of the trip's sample rate; more samples
-                    // when the rate is fine enough to cover the full ~2 s.
-                    val window = if (n >= 2 && duration > 0)
-                        kotlin.math.ceil(SUSTAINED_TOP_SPEED_MS / (duration * 1000.0 / (n - 1)))
-                            .toInt().coerceIn(2, n)
-                    else 1
-                    sustainedTopSpeed(dataPoints.map { it.speed }, window)
-                }
-                val avgSpeedRaw = dataPoints.map { it.speed }.average().toFloat()
-                // Avg moving speed: mean over genuinely-moving samples (> 1 km/h),
-                // so idling/waiting time doesn't drag the average down.
-                val movingSpeeds = dataPoints.map { it.speed }.filter { it > 1f }
-                val avgMovingRaw = if (movingSpeeds.isNotEmpty())
-                    movingSpeeds.average().toFloat() else 0f
-                // Max temp over plausible readings only: a recorded -176 C from
-                // an empty sensor slot (or any impossible value) must not surface
-                // in the summary. The CSV still holds the raw values.
-                val maxTempRaw = dataPoints.map { it.temperature }
-                    .filter { com.eried.eucplanet.util.MetricSanity.isPlausibleTempC(it) }
-                    .maxOrNull() ?: 0f
-                // Smart battery/voltage stats over a validity mask that drops
-                // wheel-off / disconnect garbage (see computeBatteryStats).
-                val batteryStats = remember(dataPoints) { computeBatteryStats(dataPoints) }
-                // Convert summary numbers to the user's selected units. The raw stored
-                // values stay metric; only the rendered card text changes.
-                val speedUnit by viewModel.speedUnit.collectAsState()
-                val distanceUnit by viewModel.distanceUnit.collectAsState()
-                val tempUnit by viewModel.tempUnit.collectAsState()
-                val speedUnitLabel = com.eried.eucplanet.util.Units.speedUnit(
-                    androidx.compose.ui.platform.LocalContext.current, speedUnit
+            // Shared scrub index: scrubbing any chart moves the map marker and the
+            // cursor on every other chart to the same sample.
+            var scrubIndex by remember { mutableStateOf<Int?>(null) }
+            val onScrub: (Int?) -> Unit = { scrubIndex = it }
+
+            val gpsPoints = remember(dataPoints) {
+                dataPoints.filter { it.latitude != 0.0 && it.longitude != 0.0 }
+            }
+            val isLive by viewModel.isTripLiveRecording(trip).collectAsState(initial = false)
+            val liveLocation by viewModel.liveLocation.collectAsState()
+            val hasMap = gpsPoints.size >= 2 || (isLive && liveLocation != null)
+            // The scrubbed sample's own GPS fix (from the full dataPoints, which the
+            // chart index maps onto), or null if it had none.
+            val scrubPoint = scrubIndex?.let { i ->
+                dataPoints.getOrNull(i)?.takeIf { it.latitude != 0.0 && it.longitude != 0.0 }
+            }
+
+            // Speed chart overlays: wheel speed (main line) vs GPS / RaceBox speed,
+            // NaN where a series has no reading so the line breaks instead of zeroing.
+            val gpsSpeedSeries = dataPoints.map {
+                if (it.gpsSpeed <= 0f) Float.NaN
+                else com.eried.eucplanet.util.Units.speed(it.gpsSpeed, speedUnit)
+            }
+            val extSpeedSeries = dataPoints.map {
+                if (it.extGpsSpeed.isNaN()) Float.NaN
+                else com.eried.eucplanet.util.Units.speed(it.extGpsSpeed, speedUnit)
+            }
+            val speedOverlays = buildList {
+                if (gpsSpeedSeries.any { !it.isNaN() })
+                    add(ChartOverlay(gpsSpeedSeries, MaterialTheme.appColors.metricPosition, label = "GPS"))
+                if (extSpeedSeries.any { !it.isNaN() })
+                    add(ChartOverlay(extSpeedSeries, MaterialTheme.appColors.metricTemp, label = "Ext"))
+            }
+            val speedMinSpan = when (speedUnit) {
+                "mph" -> GraphScale.SPAN_SPEED_MPH
+                "ms" -> GraphScale.SPAN_SPEED_MS
+                else -> GraphScale.SPAN_SPEED_KMH
+            }
+            val speedPeakRaw = dataPoints.map { it.speed }.maxOrNull() ?: 0f
+            val speedPeak = com.eried.eucplanet.util.Units.speed(speedPeakRaw, speedUnit)
+            val tempMinSpan = if (tempUnit == "F") GraphScale.SPAN_TEMPERATURE_F
+                else GraphScale.SPAN_TEMPERATURE_C
+
+            // Route map, reused inline (portrait) and permanent-left (landscape).
+            val routeMap: @Composable (Modifier) -> Unit = { mod ->
+                RouteMapView(
+                    points = gpsPoints,
+                    isLive = isLive,
+                    liveLat = liveLocation?.latitude,
+                    liveLon = liveLocation?.longitude,
+                    scrubLat = scrubPoint?.latitude,
+                    scrubLon = scrubPoint?.longitude,
+                    modifier = mod,
                 )
-                val distanceUnitLabel = com.eried.eucplanet.util.Units.distanceUnit(distanceUnit)
-                val tempUnitLabel = com.eried.eucplanet.util.Units.tempUnit(tempUnit)
-                val maxSpeed = com.eried.eucplanet.util.Units.speed(maxSpeedRaw, speedUnit)
-                val avgSpeed = com.eried.eucplanet.util.Units.speed(avgSpeedRaw, speedUnit)
-                val avgMoving = com.eried.eucplanet.util.Units.speed(avgMovingRaw, speedUnit)
-                val tripDistance = com.eried.eucplanet.util.Units.distance(distanceKm, distanceUnit)
-                val maxTemp = com.eried.eucplanet.util.Units.temperature(maxTempRaw, tempUnit)
+            }
 
-                // Title shows the ride's span: full start timestamp, an arrow, and
-                // the end time. End is start + the duration we already display, so it
-                // always agrees with the Duration card. Same-day rides show just the
-                // end HH:mm; a ride crossing midnight shows the full end date too.
-                val endMs = startMs + duration * 1000
-                val dayFormat = SimpleDateFormat("dd MMM yyyy", Locale.getDefault())
-                val timeFormat = SimpleDateFormat("HH:mm", Locale.getDefault())
-                val endText = if (dayFormat.format(Date(startMs)) == dayFormat.format(Date(endMs)))
-                    timeFormat.format(Date(endMs))
-                else
-                    dateFormat.format(Date(endMs))
-                Text(
-                    "${dateFormat.format(Date(startMs))} → $endText",
-                    style = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.colorScheme.onSurface
-                )
-
-                Spacer(Modifier.height(12.dp))
-
-                // Summary stats
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
+            // Summary cards.
+            val summaryCards: @Composable ColumnScope.() -> Unit = {
+                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     SummaryCard(stringResource(R.string.recording_summary_distance), "%.1f %s".format(tripDistance, distanceUnitLabel), MaterialTheme.appColors.metricVoltage, Modifier.weight(1f))
                     SummaryCard(stringResource(R.string.recording_summary_duration), com.eried.eucplanet.util.Units.humanDuration(duration), MaterialTheme.appColors.metricVoltage, Modifier.weight(1f))
                     SummaryCard(stringResource(R.string.recording_summary_points), "${dataPoints.size}", MaterialTheme.colorScheme.onSurface, Modifier.weight(1f))
                 }
-
                 Spacer(Modifier.height(8.dp))
-
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
+                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     SummaryCard(stringResource(R.string.recording_summary_top_speed), "%.0f %s".format(maxSpeed, speedUnitLabel), MaterialTheme.appColors.metricTemp, Modifier.weight(1f))
                     SummaryCard(stringResource(R.string.recording_summary_avg_speed), "%.0f %s".format(avgSpeed, speedUnitLabel), MaterialTheme.appColors.metricBattery, Modifier.weight(1f))
                     SummaryCard(stringResource(R.string.recording_summary_avg_moving), "%.0f %s".format(avgMoving, speedUnitLabel), MaterialTheme.appColors.metricBattery, Modifier.weight(1f))
                 }
-
                 Spacer(Modifier.height(8.dp))
-
-                // Battery / Voltage / Max temp. Battery and voltage are computed
-                // over the valid-point mask so disconnect garbage is excluded;
-                // both are compact 1/3-width cards to keep the grid uniform.
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
+                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     SummaryCard(
-                        stringResource(R.string.recording_summary_battery,
-                            batteryStats.batteryConsumption),
-                        stringResource(R.string.recording_summary_battery_fmt,
-                            batteryStats.batteryMax, batteryStats.batteryMin),
+                        stringResource(R.string.recording_summary_battery, batteryStats.batteryConsumption),
+                        stringResource(R.string.recording_summary_battery_fmt, batteryStats.batteryMax, batteryStats.batteryMin),
                         if (batteryStats.batteryMin < 20) MaterialTheme.appColors.statusDanger else MaterialTheme.appColors.statusGood,
                         Modifier.weight(1f)
                     )
                     SummaryCard(
                         stringResource(R.string.recording_summary_voltage),
-                        stringResource(R.string.recording_summary_voltage_fmt,
-                            batteryStats.voltageMax, batteryStats.voltageMin),
+                        stringResource(R.string.recording_summary_voltage_fmt, batteryStats.voltageMax, batteryStats.voltageMin),
                         MaterialTheme.appColors.metricPosition,
                         Modifier.weight(1f)
                     )
@@ -306,144 +368,50 @@ fun TripDetailScreen(
                         "%.0f%s".format(maxTemp, tempUnitLabel),
                         if (maxTempRaw > 60) MaterialTheme.appColors.statusDanger else MaterialTheme.appColors.metricTemp, Modifier.weight(1f))
                 }
-
                 Spacer(Modifier.height(8.dp))
-
-                // Max PWM / current / power, computed over the same valid-point
-                // mask as the battery stats. Old trips have no PWM/current data
-                // (the maxima stay NaN); those cards still render with "--".
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
+                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     SummaryCard(
                         stringResource(R.string.recording_summary_max_pwm),
-                        if (batteryStats.maxPwm.isNaN()) "--"
-                        else "%.0f%%".format(batteryStats.maxPwm),
+                        if (batteryStats.maxPwm.isNaN()) "--" else "%.0f%%".format(batteryStats.maxPwm),
                         if (!batteryStats.maxPwm.isNaN() && batteryStats.maxPwm > 80) MaterialTheme.appColors.statusDanger
                         else MaterialTheme.appColors.metricTemp,
                         Modifier.weight(1f)
                     )
                     SummaryCard(
                         stringResource(R.string.recording_summary_max_current),
-                        if (batteryStats.maxCurrent.isNaN()) "--"
-                        else "%.1f A".format(batteryStats.maxCurrent),
+                        if (batteryStats.maxCurrent.isNaN()) "--" else "%.1f A".format(batteryStats.maxCurrent),
                         MaterialTheme.appColors.metricVoltage,
                         Modifier.weight(1f)
                     )
                     SummaryCard(
                         stringResource(R.string.recording_summary_max_power),
-                        if (batteryStats.maxPower.isNaN()) "--"
-                        else "%.0f W".format(batteryStats.maxPower),
+                        if (batteryStats.maxPower.isNaN()) "--" else "%.0f W".format(batteryStats.maxPower),
                         MaterialTheme.appColors.metricPosition,
                         Modifier.weight(1f)
                     )
                 }
+            }
 
-                // Sample index highlighted across all charts + the map while the
-                // rider scrubs any chart. Shared here so every chart and the route
-                // map track the same moment.
-                var scrubIndex by remember { mutableStateOf<Int?>(null) }
-                val onScrub: (Int?) -> Unit = { scrubIndex = it }
-
-                // Route map
-                val gpsPoints = remember(dataPoints) {
-                    dataPoints.filter { it.latitude != 0.0 && it.longitude != 0.0 }
-                }
-                val isLive by viewModel.isTripLiveRecording(trip).collectAsState(initial = false)
-                val liveLocation by viewModel.liveLocation.collectAsState()
-                if (gpsPoints.size >= 2 || (isLive && liveLocation != null)) {
-                    Spacer(Modifier.height(8.dp))
-                    Text(stringResource(R.string.recording_route), style = MaterialTheme.typography.titleSmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant)
-                    Spacer(Modifier.height(4.dp))
-                    // The scrubbed sample's own GPS fix (from the full dataPoints,
-                    // which the chart index maps onto), or null if it had none.
-                    val scrubPoint = scrubIndex?.let { i ->
-                        dataPoints.getOrNull(i)?.takeIf { it.latitude != 0.0 && it.longitude != 0.0 }
-                    }
-                    RouteMapView(
-                        points = gpsPoints,
-                        isLive = isLive,
-                        liveLat = liveLocation?.latitude,
-                        liveLon = liveLocation?.longitude,
-                        scrubLat = scrubPoint?.latitude,
-                        scrubLon = scrubPoint?.longitude,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(250.dp)
-                    )
-                }
-
-                Spacer(Modifier.height(16.dp))
-
-                // Speed chart, converts each data point to the user's unit.
-                // When the CSV has any non-empty Ext GPS speed cells (i.e. a
-                // RaceBox was paired during this trip) overlay that series in
-                // purple, also unit-converted so the two lines share an axis.
-                // GPS-speed overlay: lets the rider compare wheel speed (the main
-                // line) against GPS speed -- divergence reveals GPS drift or a
-                // free-spin. NaN where there was no GPS reading so the line breaks
-                // instead of dropping to zero.
-                val gpsSpeedSeries = dataPoints.map {
-                    if (it.gpsSpeed <= 0f) Float.NaN
-                    else com.eried.eucplanet.util.Units.speed(it.gpsSpeed, speedUnit)
-                }
-                val extSpeedSeries = dataPoints.map {
-                    if (it.extGpsSpeed.isNaN()) Float.NaN
-                    else com.eried.eucplanet.util.Units.speed(it.extGpsSpeed, speedUnit)
-                }
-                val speedOverlays = buildList {
-                    if (gpsSpeedSeries.any { !it.isNaN() })
-                        add(ChartOverlay(gpsSpeedSeries, MaterialTheme.appColors.metricPosition, label = "GPS"))
-                    if (extSpeedSeries.any { !it.isNaN() })
-                        add(ChartOverlay(extSpeedSeries, MaterialTheme.appColors.metricTemp, label = "Ext"))
-                }
-                val speedMinSpan = when (speedUnit) {
-                    "mph" -> GraphScale.SPAN_SPEED_MPH
-                    "ms" -> GraphScale.SPAN_SPEED_MS
-                    else -> GraphScale.SPAN_SPEED_KMH
-                }
-                // Cap the speed axis at the sustained top speed (same spike-rejected
-                // value the Top speed card shows) so a lone GPS/sensor spike doesn't
-                // flatten the ride; the real peak is annotated in the corner label.
-                val speedPeakRaw = dataPoints.map { it.speed }.maxOrNull() ?: 0f
-                val speedPeak = com.eried.eucplanet.util.Units.speed(speedPeakRaw, speedUnit)
+            // Scrub-synced charts.
+            val chartsContent: @Composable ColumnScope.() -> Unit = {
                 ChartCard(stringResource(R.string.recording_chart_speed, speedUnitLabel),
                     dataPoints.map { com.eried.eucplanet.util.Units.speed(it.speed, speedUnit) },
                     MaterialTheme.appColors.metricBattery, unitLabel = speedUnitLabel, minSpan = speedMinSpan,
                     overlays = speedOverlays, axisMax = maxSpeed, peak = speedPeak,
                     scrubIndex = scrubIndex, onScrub = onScrub)
-
                 Spacer(Modifier.height(12.dp))
-
-                // Battery chart
                 ChartCard(stringResource(R.string.recording_chart_battery), dataPoints.map { it.battery.toFloat() },
                     MaterialTheme.appColors.metricVoltage, unitLabel = "%", minSpan = GraphScale.SPAN_BATTERY,
                     scrubIndex = scrubIndex, onScrub = onScrub)
-
                 Spacer(Modifier.height(12.dp))
-
-                // Temperature chart \u2014 convert each data point to \u00B0F when imperial,
-                // and use the matching minimum y-span so a small swing doesn't look
-                // alarming (20 \u00B0C \u2248 36 \u00B0F, not a literal 20 \u00B0F window).
-                val tempMinSpan = if (tempUnit == "F") GraphScale.SPAN_TEMPERATURE_F
-                    else GraphScale.SPAN_TEMPERATURE_C
                 ChartCard(stringResource(R.string.recording_chart_temp, tempUnitLabel),
                     dataPoints.map { com.eried.eucplanet.util.Units.temperature(it.temperature, tempUnit) },
                     MaterialTheme.appColors.metricTemp, unitLabel = tempUnitLabel, minSpan = tempMinSpan,
                     scrubIndex = scrubIndex, onScrub = onScrub)
-
                 Spacer(Modifier.height(12.dp))
-
-                // Voltage chart
                 ChartCard(stringResource(R.string.recording_chart_voltage), dataPoints.map { it.voltage },
                     MaterialTheme.appColors.statusDanger, unitLabel = "V", minSpan = GraphScale.SPAN_VOLTAGE,
                     scrubIndex = scrubIndex, onScrub = onScrub)
-
-                // Current chart, only when this trip actually recorded current.
-                // Uses the regen two-colour split: above zero in the chart colour,
-                // below zero (regen braking) in green. NaN points break the line.
                 if (dataPoints.any { !it.current.isNaN() }) {
                     Spacer(Modifier.height(12.dp))
                     ChartCard(stringResource(R.string.recording_chart_current),
@@ -452,8 +420,6 @@ fun TripDetailScreen(
                         regenColor = MaterialTheme.appColors.metricBattery,
                         scrubIndex = scrubIndex, onScrub = onScrub)
                 }
-
-                // PWM chart, single-colour, only when this trip recorded PWM.
                 if (dataPoints.any { !it.pwm.isNaN() }) {
                     Spacer(Modifier.height(12.dp))
                     ChartCard(stringResource(R.string.recording_chart_pwm),
@@ -461,8 +427,68 @@ fun TripDetailScreen(
                         MaterialTheme.appColors.metricTemp, unitLabel = "%", minSpan = GraphScale.SPAN_LOAD,
                         scrubIndex = scrubIndex, onScrub = onScrub)
                 }
+            }
 
-                Spacer(Modifier.height(16.dp))
+            if (landscape) {
+                // Landscape: a permanent map docked on one side, everything else
+                // scrollable on the other, so scrubbing a chart updates the
+                // always-visible map. The rider picks which side the map sits on.
+                val mapOnLeft = tripMapSide != "RIGHT"
+                val mapPane: @Composable RowScope.() -> Unit = {
+                    Box(
+                        Modifier.weight(1f).fillMaxHeight()
+                            .padding(
+                                start = if (mapOnLeft) 16.dp else 0.dp,
+                                end = if (mapOnLeft) 0.dp else 16.dp,
+                                top = 8.dp, bottom = 16.dp,
+                            )
+                    ) { routeMap(Modifier.fillMaxSize()) }
+                }
+                val infoPane: @Composable RowScope.() -> Unit = {
+                    Column(
+                        (if (hasMap) Modifier.weight(1f) else Modifier.fillMaxWidth())
+                            .fillMaxHeight()
+                            .verticalScroll(rememberScrollState())
+                            .padding(horizontal = 16.dp)
+                    ) {
+                        Spacer(Modifier.height(8.dp))
+                        summaryCards()
+                        Spacer(Modifier.height(16.dp))
+                        chartsContent()
+                        Spacer(Modifier.height(16.dp))
+                    }
+                }
+                Row(Modifier.fillMaxSize().padding(padding)) {
+                    if (hasMap && mapOnLeft) mapPane()
+                    infoPane()
+                    if (hasMap && !mapOnLeft) mapPane()
+                }
+            } else {
+                Column(
+                    Modifier
+                        .fillMaxSize()
+                        .padding(padding)
+                        .padding(horizontal = 16.dp)
+                        .verticalScroll(rememberScrollState())
+                ) {
+                    Spacer(Modifier.height(8.dp))
+                    Text(
+                        headerDateTime,
+                        style = MaterialTheme.typography.titleMedium,
+                        color = MaterialTheme.colorScheme.onSurface,
+                    )
+                    Spacer(Modifier.height(12.dp))
+                    summaryCards()
+                    if (hasMap) {
+                        Spacer(Modifier.height(8.dp))
+                        Text(stringResource(R.string.recording_route), style = MaterialTheme.typography.titleSmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Spacer(Modifier.height(4.dp))
+                        routeMap(Modifier.fillMaxWidth().height(250.dp))
+                    }
+                    Spacer(Modifier.height(16.dp))
+                    chartsContent()
+                }
             }
         }
     }
@@ -506,12 +532,19 @@ private fun RouteMapView(
     scrubLon: Double? = null,
     modifier: Modifier = Modifier
 ) {
-    var fullscreen by remember { mutableStateOf(false) }
+    // rememberSaveable so a rotation (which recreates the composition) keeps the
+    // map fullscreen instead of dropping back to the trip details.
+    var fullscreen by rememberSaveable { mutableStateOf(false) }
+    // Map style (light / dark / satellite) is shared between the inline and the
+    // fullscreen map so opening fullscreen keeps the style the rider picked,
+    // rather than resetting to light.
+    var mapType by rememberSaveable { mutableStateOf("LIGHT") }
 
     MapSurface(
         points = points, isLive = isLive, liveLat = liveLat, liveLon = liveLon,
         scrubLat = scrubLat, scrubLon = scrubLon,
         fullscreen = false, onToggleFullscreen = { fullscreen = true },
+        mapType = mapType, onMapTypeChange = { mapType = it },
         modifier = modifier,
     )
 
@@ -522,10 +555,41 @@ private fun RouteMapView(
             onDismissRequest = { fullscreen = false },
             properties = DialogProperties(usePlatformDefaultWidth = false),
         ) {
+            // usePlatformDefaultWidth = false alone still leaves the dialog window
+            // short of the edges (most visible in landscape, where the content
+            // behind shows in the system-bar insets around the map). Fill the
+            // window, drop the scrim, draw edge-to-edge, and hide the system bars
+            // so the map is truly immersive and nothing shows behind it. Swiping
+            // from an edge brings the bars back transiently; closing restores them.
+            val dialogWindow = (LocalView.current.parent as? DialogWindowProvider)?.window
+            SideEffect {
+                dialogWindow?.let { w ->
+                    w.setLayout(
+                        ViewGroup.LayoutParams.MATCH_PARENT,
+                        ViewGroup.LayoutParams.MATCH_PARENT,
+                    )
+                    w.setDimAmount(0f)
+                    // Draw into the display cutout too, otherwise in landscape the
+                    // notch side stays letterboxed and the content behind shows.
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                        w.attributes = w.attributes.apply {
+                            layoutInDisplayCutoutMode =
+                                WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES
+                        }
+                    }
+                    WindowCompat.setDecorFitsSystemWindows(w, false)
+                    WindowInsetsControllerCompat(w, w.decorView).apply {
+                        hide(WindowInsetsCompat.Type.systemBars())
+                        systemBarsBehavior =
+                            WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+                    }
+                }
+            }
             MapSurface(
                 points = points, isLive = isLive, liveLat = liveLat, liveLon = liveLon,
                 scrubLat = scrubLat, scrubLon = scrubLon,
                 fullscreen = true, onToggleFullscreen = { fullscreen = false },
+                mapType = mapType, onMapTypeChange = { mapType = it },
                 modifier = Modifier.fillMaxSize(),
             )
         }
@@ -543,18 +607,20 @@ private fun MapSurface(
     scrubLon: Double?,
     fullscreen: Boolean,
     onToggleFullscreen: () -> Unit,
+    mapType: String,
+    onMapTypeChange: (String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val coordsJson = remember(points) {
         points.joinToString(",") { "[${it.latitude},${it.longitude}]" }
     }
-    // Rebuild the WebView only when the historical trace changes or when we first
-    // enter/leave live mode, live marker updates are applied via JS.
-    val html = remember(coordsJson, isLive) { buildMapHtml(coordsJson, isLive) }
-
     var webView by remember { mutableStateOf<WebView?>(null) }
     val mapTypes = listOf("LIGHT", "DARK", "SAT")
-    var mapType by rememberSaveable { mutableStateOf("LIGHT") }
+    // Rebuild the WebView only when the historical trace changes or when we first
+    // enter/leave live mode. Bake the CURRENT style into the initial HTML so a
+    // freshly-opened surface (e.g. fullscreen) starts on the shared style rather
+    // than flashing light first; style cycles afterwards go through JS.
+    val html = remember(coordsJson, isLive) { buildMapHtml(coordsJson, isLive, mapType) }
 
     Box(modifier.clip(RoundedCornerShape(if (fullscreen) 0.dp else 12.dp))) {
         AndroidView(
@@ -603,11 +669,17 @@ private fun MapSurface(
                 icon = Icons.Default.Layers,
                 desc = "Map style",
                 onClick = {
-                    mapType = mapTypes[(mapTypes.indexOf(mapType) + 1) % mapTypes.size]
-                    webView?.evaluateJavascript("if(window.setMapType)setMapType('$mapType');", null)
+                    onMapTypeChange(mapTypes[(mapTypes.indexOf(mapType) + 1) % mapTypes.size])
                 },
             )
         }
+    }
+
+    // Apply the shared style to this WebView whenever it changes (the initial
+    // style is already baked into the HTML; this keeps both the inline and the
+    // fullscreen surface in sync when either cycles it).
+    LaunchedEffect(mapType, webView) {
+        webView?.evaluateJavascript("if(window.setMapType)setMapType('$mapType');", null)
     }
 
     // Push live GPS updates into the map via a JS hook defined in the HTML.
@@ -645,7 +717,7 @@ private fun MapButton(icon: ImageVector, desc: String, onClick: () -> Unit) {
     }
 }
 
-private fun buildMapHtml(coordsJson: String, isLive: Boolean): String = """
+private fun buildMapHtml(coordsJson: String, isLive: Boolean, initialType: String): String = """
 <!DOCTYPE html><html><head>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
@@ -679,7 +751,7 @@ private fun buildMapHtml(coordsJson: String, isLive: Boolean): String = """
     baseLayer=L.tileLayer(tileUrls[t]||tileUrls.LIGHT,{maxZoom:19,subdomains:'abcd'}).addTo(map);
     baseLayer.bringToBack();
   };
-  window.setMapType('LIGHT');
+  window.setMapType('$initialType');
 
   var hasRoute = coords.length >= 2;
   var start=null, end=null, overlap=null, line=null;

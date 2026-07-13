@@ -132,6 +132,11 @@ class RecordingViewModel @Inject constructor(
         .map { com.eried.eucplanet.util.Units.effectiveTempUnit(it) }
         .stateIn(viewModelScope, kotlinx.coroutines.flow.SharingStarted.Eagerly, "C")
 
+    // Which side the route map docks on in the landscape trip-detail split.
+    val tripMapSide: StateFlow<String> = settingsRepository.settings
+        .map { it.tripMapSide }
+        .stateIn(viewModelScope, kotlinx.coroutines.flow.SharingStarted.Eagerly, "LEFT")
+
     /**
      * Id of the just-stopped trip waiting in the 10s discard-grace window. The trip
      * row for this id shows an hourglass instead of the upload-success tick. Tapping
@@ -298,11 +303,14 @@ class RecordingViewModel @Inject constructor(
     }
 
     /**
-     * Build `https://eucviewer.ried.no/?file=<encoded-direct-url>` for
-     * [trip] — uploads to Dropbox if needed, swaps the share host to
-     * `dl.dropboxusercontent.com` and forces `dl=1` so the URL is a raw
-     * CSV download a browser can fetch without CORS pain. Shows a toast
-     * and returns null on failure.
+     * Build the eucviewer share URL for [trip] — uploads to Dropbox if needed,
+     * swaps the share host to `dl.dropboxusercontent.com` and forces `dl=1` so
+     * the URL is a raw CSV download a browser can fetch without CORS pain.
+     *
+     * Emits the compact short link (`…/#d-<fileId>-<ts36>-<rlkey>`) when the
+     * direct URL matches the Dropbox trip template, otherwise the classic
+     * `…/?file=<encoded-direct-url>` form. Shows a toast and returns null on
+     * failure. See [com.eried.eucplanet.util.TripShareLink].
      */
     private suspend fun ensureEucviewerUrl(trip: TripRecord): String? {
         val link = ensureDropboxLink(trip) ?: run {
@@ -310,8 +318,9 @@ class RecordingViewModel @Inject constructor(
             return null
         }
         val direct = toDropboxDirectUrl(link)
-        return "https://eucviewer.ried.no/?file=" +
-            java.net.URLEncoder.encode(direct, "UTF-8")
+        return com.eried.eucplanet.util.TripShareLink.shortViewerUrl(direct)
+            ?: ("https://eucviewer.ried.no/?file=" +
+                java.net.URLEncoder.encode(direct, "UTF-8"))
     }
 
     /** Convert a www.dropbox.com share URL into a dl.dropboxusercontent.com

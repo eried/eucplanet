@@ -10,6 +10,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.sync.Semaphore
+import kotlinx.coroutines.sync.withPermit
 import kotlinx.coroutines.withContext
 import java.net.Inet4Address
 import java.net.InetSocketAddress
@@ -19,20 +21,23 @@ import javax.inject.Singleton
 
 /**
  * Last-resort discovery: when neither the UDP beacon nor mDNS has produced
- * a usable address within a few seconds, probe every host in the phone's
- * own /24 subnet on the HUD WebSocket port and return the first one that
- * accepts a TCP connection.
+ * a usable address within a few seconds, probe every host on each local /24
+ * subnet on the HUD WebSocket port and return the first one that accepts a
+ * TCP connection.
  *
- * Runs all 254 connect attempts concurrently with a per-host timeout of
- * 250 ms. On modern Android this completes in well under 1 s even on a
- * full subnet. We don't speak the WebSocket handshake -- a plain TCP open
- * is enough evidence that *something* is listening on the right port; the
- * dial loop will then attempt a real handshake and either succeed or fail
- * back to the next discovery cycle.
+ * Connect attempts run with a bounded fan-out ([MAX_CONCURRENT] at a time),
+ * each with a 250 ms timeout, so even a multi-subnet sweep finishes in about
+ * a second WITHOUT firing hundreds of simultaneous connections. That cap
+ * matters: an unbounded flood saturates the Wi-Fi radio and starves the mDNS
+ * multicast browse running in parallel. We don't speak the WebSocket
+ * handshake -- a plain TCP open is enough evidence that *something* is
+ * listening on the right port; the dial loop then attempts a real handshake
+ * and either succeeds or falls back to the next discovery cycle.
  *
- * The probe is gated on the rider opting into auto-discovery AND the first
- * two faster paths having failed, so the network noise is only generated
- * when there's no other way to find the HUD.
+ * The probe is gated on the rider opting into auto-discovery, and the caller
+ * (HudServer.resolvePeer) staggers its start by `hudSubnetProbeDelayMs` so the
+ * faster mDNS / UDP paths get an uncontended head start; the scan only runs if
+ * they haven't already found the HUD.
  */
 @Singleton
 class HudSubnetProbe @Inject constructor(
@@ -51,10 +56,13 @@ class HudSubnetProbe @Inject constructor(
         val candidates = cidrs.flatMap { expandSubnetIpv4(it) ?: emptyList() }.distinct()
         if (candidates.isEmpty()) return@withContext null
         Log.i(TAG, "probing ${candidates.size} hosts across ${cidrs.size} subnet(s) $cidrs:$port")
+        // Bound the in-flight connects so the scan doesn't flood the Wi-Fi radio
+        // and starve mDNS discovery running in parallel.
+        val gate = Semaphore(MAX_CONCURRENT)
         coroutineScope {
             val results = candidates.map { ip ->
                 async {
-                    if (tryTcp(ip, port, timeoutMs = 250)) ip else null
+                    gate.withPermit { if (tryTcp(ip, port, timeoutMs = 250)) ip else null }
                 }
             }.awaitAll()
             results.firstOrNull { it != null }
@@ -159,5 +167,10 @@ class HudSubnetProbe @Inject constructor(
         return try { block() } catch (_: Throwable) { null }
     }
 
-    companion object { private const val TAG = "HudSubnetProbe" }
+    companion object {
+        private const val TAG = "HudSubnetProbe"
+        // Max simultaneous TCP connects. High enough to sweep a /24 in ~1 s,
+        // low enough to leave the radio free for the parallel mDNS browse.
+        private const val MAX_CONCURRENT = 64
+    }
 }

@@ -57,6 +57,7 @@ import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.key
 import androidx.compose.runtime.getValue
@@ -132,6 +133,11 @@ import com.eried.eucplanet.ui.theme.themedSwitchColors
 import com.eried.eucplanet.ui.theme.themedSliderColors
 import kotlin.math.roundToInt
 import sh.calvin.reorderable.ReorderableColumn
+
+// "Don't ask again" for the constant-tone prompt: process-scoped so it lasts the
+// rest of this app run but resets on next launch (per the rider's request, not
+// stored permanently). Not `remember`-ed, which would reset when the editor closes.
+private var suppressConstantTonePrompt = false
 
 /** Human seconds for a lead time in ms: "0.5", "1", "2" (drops a trailing .0). */
 private fun leadSeconds(ms: Int): String =
@@ -284,6 +290,12 @@ fun AlarmSettingsContent(
     }
 
     if (showEditor) {
+        // Hold the audio route warm the whole time the editor is open so preview
+        // beeps/voice don't pop (no connected wheel is warming it in settings).
+        DisposableEffect(Unit) {
+            viewModel.setPreviewWarm(true)
+            onDispose { viewModel.setPreviewWarm(false) }
+        }
         AlarmRuleEditorDialog(
             rule = editingRule,
             speedUnit = speedUnit,
@@ -296,13 +308,15 @@ fun AlarmSettingsContent(
                 showEditor = false
             },
             onDismiss = { showEditor = false },
-            onDelete = editingRule?.let { r -> { showEditor = false; deleteCandidate = r } },
-            onPreviewBeep = { freq, dur, cnt, gap, vol -> viewModel.previewBeep(freq, dur, cnt, gap, vol) },
+            // Keep the editor open and show the confirm ON TOP of it; only close
+            // the editor once the delete is actually confirmed (see below).
+            onDelete = editingRule?.let { r -> { deleteCandidate = r } },
+            onPreviewBeep = { freq, dur, cnt, gap, vol, trans -> viewModel.previewBeep(freq, dur, cnt, gap, vol, trans) },
             onPreviewTone = { freq, vol -> viewModel.previewToneAt(freq, vol) },
             onPreviewVoice = { text, metric, thr -> viewModel.previewVoice(text, metric, thr) },
             onPreviewVibrate = { dur -> viewModel.previewVibrate(dur) },
             studioPlaying = studioPlaying,
-            onStudioTone = { f, d, c, g, v -> viewModel.setStudioTone(f, d, c, g, v) },
+            onStudioTone = { f, d, c, g, v, t -> viewModel.setStudioTone(f, d, c, g, v, t) },
             onStudioToggle = { repeat -> viewModel.toggleStudioPlay(repeat) },
             onStudioStop = { viewModel.stopStudio() },
         )
@@ -317,6 +331,7 @@ fun AlarmSettingsContent(
                 TextButton(onClick = {
                     viewModel.deleteRule(rule)
                     deleteCandidate = null
+                    showEditor = false   // rule is gone, close the editor now
                 }, shape = RoundedCornerShape(12.dp)) { Text(stringResource(R.string.action_delete), color = MaterialTheme.appColors.statusDanger) }
             },
             dismissButton = {
@@ -438,12 +453,12 @@ private fun AlarmRuleEditorDialog(
     onSave: (AlarmRule) -> Unit,
     onDismiss: () -> Unit,
     onDelete: (() -> Unit)? = null,
-    onPreviewBeep: (Int, Int, Int, Int, Int) -> Unit,
+    onPreviewBeep: (Int, Int, Int, Int, Int, Int) -> Unit,
     onPreviewTone: (Int, Int) -> Unit,
     onPreviewVoice: (String, AlarmMetric, Float) -> Unit,
     onPreviewVibrate: (Int) -> Unit,
     studioPlaying: Boolean = false,
-    onStudioTone: (Int, Int, Int, Int, Int) -> Unit = { _, _, _, _, _ -> },
+    onStudioTone: (Int, Int, Int, Int, Int, Int) -> Unit = { _, _, _, _, _, _ -> },
     onStudioToggle: (Boolean) -> Unit = {},
     onStudioStop: () -> Unit = {},
 ) {
@@ -460,6 +475,7 @@ private fun AlarmRuleEditorDialog(
     var beepCount by remember { mutableIntStateOf(initial.beepCount) }
     var beepModulation by remember { mutableIntStateOf(initial.beepModulation) }
     var beepGapMs by remember { mutableIntStateOf(initial.beepGapMs) }
+    var beepTransitionPct by remember { mutableIntStateOf(initial.beepTransitionPct) }
     var beepVolume by remember { mutableIntStateOf(initial.beepVolume) }
     var beepVolumeModulation by remember { mutableIntStateOf(initial.beepVolumeModulation) }
     var beepModulationReachPct by remember { mutableIntStateOf(initial.beepModulationReachPct) }
@@ -483,6 +499,10 @@ private fun AlarmRuleEditorDialog(
     var cooldownSeconds by remember { mutableIntStateOf(initial.cooldownSeconds) }
     var repeatWhileActive by remember { mutableStateOf(initial.repeatWhileActive) }
     var leadTimeMs by remember { mutableIntStateOf(initial.leadTimeMs) }
+    // Set when the rider drops the beep GAP to 0 (the "I want one continuous tone"
+    // signal) on an alarm not already set to sustain -- prompts to finish the
+    // continuous config (Many + cooldown 0). The dialog lives after the title below.
+    var showConstantPrompt by remember { mutableStateOf(false) }
     // Advanced (cooldown / repeat / anticipation) -- collapsed by default; the
     // rider expands it when they want those.
     var advancedOpen by remember { mutableStateOf(false) }
@@ -520,7 +540,7 @@ private fun AlarmRuleEditorDialog(
             pitchReachPct = beepModulation,
             volReachPct = beepVolumeModulation,
             playing = studioPlaying,
-            onLiveTone = { f, v -> onStudioTone(f, beepDurationMs, beepCount, beepGapMs, v) },
+            onLiveTone = { f, v -> onStudioTone(f, beepDurationMs, beepCount, beepGapMs, v, beepTransitionPct) },
             onTogglePlay = onStudioToggle,
             onCommit = { p, v -> beepModulation = p; beepVolumeModulation = v },
             onDismiss = { onStudioStop(); showStudio = false },
@@ -560,6 +580,62 @@ private fun AlarmRuleEditorDialog(
                     if (rule != null) stringResource(R.string.alarm_edit) else stringResource(R.string.alarm_new),
                     style = MaterialTheme.typography.titleMedium
                 )
+
+                // Constant-tone prompt. Declared here (always composed, not inside a
+                // collapsible section) so it opens on top of the editor even when the
+                // gap control that triggered it lives in a section that's since scrolled
+                // or collapsed. Change -> set the full continuous config (gap 0 + Many +
+                // no cooldown); Cancel -> leave everything as the rider set it; Don't ask
+                // again -> quiet for the rest of this app run (resets next launch).
+                if (showConstantPrompt) {
+                    val cdLabel = stringResource(R.string.alarm_cooldown_label)
+                    val repLabel = stringResource(R.string.alarm_repeat_label)
+                    val onceLabel = stringResource(R.string.alarm_repeat_single)
+                    val manyLabel = stringResource(R.string.alarm_repeat_multi)
+                    // Spell out exactly what Change will do, from the alarm's current values
+                    // (gap is already 0 -- that's what opened this). Only the fields that
+                    // actually change are listed.
+                    val changes = buildList {
+                        if (cooldownSeconds != 0) add("$cdLabel: ${cooldownSeconds}s → 0s")
+                        if (!repeatWhileActive) add("$repLabel: $onceLabel → $manyLabel")
+                    }
+                    AlertDialog(
+                        onDismissRequest = { showConstantPrompt = false },
+                        title = { Text(stringResource(R.string.alarm_constant_title)) },
+                        text = {
+                            Column {
+                                Text(stringResource(R.string.alarm_constant_body))
+                                if (changes.isNotEmpty()) {
+                                    Spacer(Modifier.height(8.dp))
+                                    changes.forEach { Text("• $it", style = MaterialTheme.typography.bodyMedium) }
+                                }
+                            }
+                        },
+                        confirmButton = {
+                            TextButton(onClick = {
+                                beepGapMs = 0
+                                repeatWhileActive = true
+                                cooldownSeconds = 0
+                                showConstantPrompt = false
+                            }, shape = RoundedCornerShape(12.dp)) {
+                                Text(stringResource(R.string.action_apply), color = MaterialTheme.appColors.statusGood)
+                            }
+                        },
+                        dismissButton = {
+                            Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                                TextButton(onClick = {
+                                    suppressConstantTonePrompt = true
+                                    showConstantPrompt = false
+                                }, shape = RoundedCornerShape(12.dp)) {
+                                    Text(stringResource(R.string.alarm_constant_never))
+                                }
+                                TextButton(onClick = { showConstantPrompt = false }, shape = RoundedCornerShape(12.dp)) {
+                                    Text(stringResource(R.string.action_cancel))
+                                }
+                            }
+                        }
+                    )
+                }
 
                 Spacer(Modifier.height(12.dp))
 
@@ -645,7 +721,7 @@ private fun AlarmRuleEditorDialog(
                     title = stringResource(R.string.alarm_section_beep),
                     color = MaterialTheme.appColors.statusWarn,
                     enabled = beepEnabled,
-                    onPreview = { onPreviewBeep(beepFrequency, beepDurationMs, beepCount, beepGapMs, beepVolume) }
+                    onPreview = { onPreviewBeep(beepFrequency, beepDurationMs, beepCount, beepGapMs, beepVolume, beepTransitionPct) }
                 )
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -658,8 +734,8 @@ private fun AlarmRuleEditorDialog(
                 }
 
                 if (beepEnabled) {
-                    // Frequency + Duration share a row; the unit (Hz / ms) tells
-                    // them apart. 200 Hz floor = soft "thunk", 3 kHz = piercing.
+                    // Frequency + Repeats on the top row; Duration lives in Advanced.
+                    // 200 Hz floor = soft "thunk", 3 kHz = piercing.
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.spacedBy(12.dp)
@@ -672,34 +748,15 @@ private fun AlarmRuleEditorDialog(
                             modifier = Modifier.weight(1f),
                         )
                         NumberUpDown(
-                            value = beepDurationMs,
-                            onValueChange = { beepDurationMs = it },
-                            // 50 ms minimum: the one-buffer TonePlayer renders short
-                            // tones cleanly, so a near-constant beep is gap 0 + a short
-                            // duration + a high count.
-                            range = 50..1000, step = 50, suffix = "ms",
-                            label = stringResource(R.string.alarm_label_duration),
-                            modifier = Modifier.weight(1f),
-                        )
-                    }
-                    Spacer(Modifier.height(8.dp))
-                    // Repeat count is a small value, so it stays half-width rather
-                    // than stretching across the dialog.
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(12.dp)
-                    ) {
-                        NumberUpDown(
                             value = beepCount,
                             onValueChange = { beepCount = it },
                             range = 1..5, step = 1, suffix = "x",
                             label = stringResource(R.string.alarm_label_repeats),
                             modifier = Modifier.weight(1f),
                         )
-                        Spacer(Modifier.weight(1f))
                     }
                     Spacer(Modifier.height(8.dp))
-                    // Advanced (gap, volume, Adaptive beep) -- collapsed by default.
+                    // Advanced (duration, gap, volume, transition, Studio) -- collapsed.
                     var beepAdvanced by remember { mutableStateOf(false) }
                     Text(
                         text = (if (beepAdvanced) "▴ " else "▾ ") + stringResource(R.string.alarm_beep_advanced),
@@ -716,17 +773,50 @@ private fun AlarmRuleEditorDialog(
                             horizontalArrangement = Arrangement.spacedBy(12.dp)
                         ) {
                             NumberUpDown(
+                                value = beepDurationMs,
+                                onValueChange = { beepDurationMs = it },
+                                // Down to 10 ms: with gap 0 the `count` beeps merge into one
+                                // run of duration*count, so a short duration + a higher count
+                                // builds a longer continuous tone in fine increments.
+                                range = 10..1000, step = 10, suffix = "ms",
+                                label = stringResource(R.string.alarm_label_duration),
+                                modifier = Modifier.weight(1f),
+                            )
+                            NumberUpDown(
                                 value = beepGapMs,
-                                onValueChange = { beepGapMs = it },
+                                onValueChange = {
+                                    val wasZero = beepGapMs == 0
+                                    beepGapMs = it
+                                    // Gap 0 = the rider wants ONE continuous tone. If it isn't
+                                    // already set to sustain (Many + no cooldown), offer to finish it.
+                                    if (it == 0 && !wasZero && !(repeatWhileActive && cooldownSeconds == 0) && !suppressConstantTonePrompt)
+                                        showConstantPrompt = true
+                                },
                                 range = 0..2000, step = 20, suffix = "ms",
                                 label = stringResource(R.string.alarm_beep_gap_label),
                                 modifier = Modifier.weight(1f),
                             )
+                        }
+                        Spacer(Modifier.height(8.dp))
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(12.dp)
+                        ) {
                             NumberUpDown(
                                 value = beepVolume,
                                 onValueChange = { beepVolume = it },
                                 range = 0..100, step = 5, suffix = "%",
                                 label = stringResource(R.string.alarm_beep_volume_label),
+                                modifier = Modifier.weight(1f),
+                            )
+                            // Attack/release ramp as % of duration: 0 = crisp beep,
+                            // 50 = a soft swell. Higher smooths the up/down; gap 0 makes
+                            // it one continuous tone.
+                            NumberUpDown(
+                                value = beepTransitionPct,
+                                onValueChange = { beepTransitionPct = it },
+                                range = 0..50, step = 4, suffix = "%",
+                                label = stringResource(R.string.alarm_beep_transition_label),
                                 modifier = Modifier.weight(1f),
                             )
                         }
@@ -1026,6 +1116,7 @@ private fun AlarmRuleEditorDialog(
                                         beepCount = beepCount,
                                         beepModulation = beepModulation,
                                         beepGapMs = beepGapMs,
+                                        beepTransitionPct = beepTransitionPct,
                                         beepVolume = beepVolume,
                                         beepVolumeModulation = beepVolumeModulation,
                                         beepModulationReachPct = beepModulationReachPct,
@@ -1182,14 +1273,20 @@ private fun BeepStudioDialog(
                             contentDescription = stringResource(if (playing) R.string.alarm_studio_stop else R.string.alarm_studio_play),
                             tint = MaterialTheme.appColors.statusGood)
                     }
-                    IconToggleButton(checked = repeat, onCheckedChange = {
+                    // gap 0 plays as one continuous tone, so repeat is meaningless there:
+                    // kept IN PLACE (so nothing shifts) but disabled and clearly dimmed.
+                    IconToggleButton(checked = repeat, enabled = gapMs > 0, onCheckedChange = {
                         repeat = it
                         // Turning repeat off mid-play stops the loop instead of letting
                         // it run forever (onTogglePlay stops when already playing).
                         if (!it && playing) onTogglePlay(false)
                     }) {
                         Icon(Icons.Default.Repeat, contentDescription = "Repeat",
-                            tint = if (repeat) MaterialTheme.appColors.statusWarn else MaterialTheme.colorScheme.onSurfaceVariant)
+                            tint = when {
+                                gapMs <= 0 -> MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.38f)
+                                repeat -> MaterialTheme.appColors.statusWarn
+                                else -> MaterialTheme.colorScheme.onSurfaceVariant
+                            })
                     }
                     Spacer(Modifier.width(4.dp))
                     Slider(value = simValue, onValueChange = { simValue = it },
@@ -1234,7 +1331,7 @@ private fun BeepStudioDialog(
                     TextButton(onClick = onDismiss, shape = RoundedCornerShape(12.dp)) { Text(stringResource(R.string.action_cancel)) }
                     Spacer(Modifier.width(8.dp))
                     Button(onClick = { onCommit(pitchFactor, volFactor); onDismiss() }, shape = RoundedCornerShape(12.dp)) {
-                        Text(stringResource(R.string.action_save))
+                        Text(stringResource(R.string.action_apply))
                     }
                 }
             }

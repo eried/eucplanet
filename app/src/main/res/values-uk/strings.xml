@@ -11,16 +11,12 @@
     <string name="action_done">Готово</string>
     <string name="action_close">Закрити</string>
 <string name="crash_log_action_prompt">Ви утримали %1$s. Видаліть цей журнал або всі. Щоб поділитися, натисніть «Скасувати» і торкніться файлу.</string>
-    <string name="crash_log_delete_one">Видалити цей журнал</string>
     <string name="crash_log_delete_all">Видалити всі</string>
     <string name="crash_log_delete_all_warning">Видалити всі збережені журнали збоїв? Цю дію не можна скасувати.</string>
     <string name="action_save">Зберегти</string>
     <string name="action_apply">Застосувати</string>
     <string name="action_delete">Видалити</string>
-    <string name="action_edit">Редагувати</string>
     <string name="action_test">Тест</string>
-    <string name="action_move_up">Вгору</string>
-    <string name="action_move_down">Вниз</string>
     <string name="action_reorder">Перетягни, щоб змінити порядок</string>
     <string name="show_gauge_color_band">Кольорова смуга шкали швидкості</string>
     <string name="stat_watts">ВАТИ</string>
@@ -202,7 +198,6 @@
     <string name="metric_chip_load">PWM</string>
     <string name="metric_chip_trip">Поїздка</string>
     <string name="metric_chip_speed">Швидкість</string>
-    <string name="metric_chip_power">Потужність</string>
     <string name="metric_chip_odometer">Одометр</string>
     <string name="metric_chip_motor_power">Потуж. мотора</string>
     <string name="metric_chip_battery_power">Потуж. батареї</string>
@@ -551,7 +546,6 @@
     <string name="voice_announce_connected">Підключено</string>
     <string name="voice_announce_riding">Під час руху</string>
     <string name="voice_interval">Інтервал</string>
-    <string name="unit_sec">с</string>
     <string name="announce_wheel_lock">Блокування і розблокування</string>
     <string name="announce_lights">Увімкнення і вимкнення світла</string>
     <string name="announce_recording">Запис поїздки</string>
@@ -887,7 +881,6 @@
     <string name="auto_lights_desc">Вмикати або вимикати фари за заходом і сходом сонця</string>
     <string name="auto_lights_on_before_sunset">Вмикати фари перед заходом</string>
     <string name="auto_lights_off_after_sunrise">Вимикати фари після сходу</string>
-    <string name="auto_minutes_fmt">%1$d хв</string>
     <string name="auto_waiting_gps">Чекаємо на координати GPS…</string>
     <string name="auto_volume_title">Гучність</string>
     <string name="auto_volume_desc">Підвищувати гучність музики залежно від швидкості</string>
@@ -902,7 +895,6 @@
     <string name="alarm_help">Для кожної метрики автоматично спрацьовує найдоречніша тривога. Порядок у списку не змінює, яка саме; сортування лише підтримує лад</string>
     <string name="alarm_empty">Правил тривог поки немає</string>
     <string name="alarm_add">Нова тривога</string>
-    <string name="alarm_smart_sort">Автосортування</string>
     <string name="alarm_summary_predict_fmt">передбачає за %1$s с наперед</string>
     <string name="alarm_new">Нова тривога</string>
     <string name="alarm_edit">Редагувати тривогу</string>
@@ -911,7 +903,6 @@
     <string name="alarm_delete_action">Видалити тривогу</string>
     <string name="alarm_metric_label">Метрика</string>
     <string name="alarm_comparator_label">Умова</string>
-    <string name="alarm_threshold_fmt">Поріг: %1$s %2$s</string>
     <string name="alarm_threshold_label">Поріг</string>
     <string name="alarm_label_frequency">Частота</string>
     <string name="alarm_label_duration">Тривалість</string>
@@ -956,9 +947,6 @@
 
     <string name="alarm_section_beep">Сигнал</string>
     <string name="alarm_enable_beep">Увімкнути сигнал</string>
-    <string name="alarm_beep_freq_fmt">Частота: %1$dГц</string>
-    <string name="alarm_beep_duration_fmt">Тривалість: %1$dмс</string>
-    <string name="alarm_beep_repeats_fmt">Повторів: %1$d</string>
     <string name="alarm_section_voice">Голос</string>
     <string name="alarm_enable_voice">Увімкнути голос</string>
     <string name="alarm_voice_template">Шаблон тексту</string>
@@ -966,25 +954,16 @@
     <string name="alarm_voice_default">Увага! {metric}: {value}</string>
     <string name="alarm_section_vibrate">Вібрація</string>
     <string name="alarm_enable_vibrate">Увімкнути вібрацію</string>
-    <string name="alarm_vibrate_duration_fmt">Тривалість: %1$dмс</string>
-    <string name="alarm_vibrate_target_label">Вібрувати на</string>
     <string name="alarm_vibrate_target_phone">Телефоні</string>
     <string name="alarm_vibrate_target_watch">Годиннику</string>
     <string name="alarm_vibrate_target_both">Усіх</string>
-    <string name="alarm_section_timing">Тайминг</string>
     <string name="alarm_cooldown_label">Пауза</string>
-    <string name="alarm_cooldown_fmt">Пауза: %1$dс</string>
-    <string name="alarm_cooldown_help">Мінімальна пауза між спрацюваннями цього правила, навіть якщо умова продовжує виконуватись</string>
     <string name="alarm_section_advanced">Додатково</string>
     <string name="alarm_repeat_label">Спрацювання</string>
     <string name="alarm_repeat_single">Раз</string>
     <string name="alarm_repeat_multi">Багато</string>
-    <string name="alarm_repeat">Повторювати, поки активна</string>
-    <string name="alarm_repeat_help">Один раз: одне сповіщення, після чого знову активується, коли показник повернеться в безпечну зону.\nБагато разів: повторює сповіщення через кожну паузу, поки триває спрацювання.</string>
     <string name="alarm_predict_label">Передбачуване спрацювання</string>
     <string name="alarm_predict_realtime">Зараз</string>
-    <string name="alarm_predict_value_fmt">на %1$s с раніше</string>
-    <string name="alarm_predict_help">Зараз: сповіщає в ту мить, коли поріг зафіксовано.\nІнші: сповіщають за стільки секунд до того, як тенденція ось-ось його досягне.</string>
     <string name="alarm_state_atleast">%1$s становить %2$s або більше</string>
     <string name="alarm_state_below">%1$s нижче %2$s</string>
     <string name="alarm_repeat_help_once">Одне сповіщення, коли %1$s. Повторно активується, коли %2$s, після паузи %3$d s.</string>
@@ -1106,7 +1085,6 @@
     <string name="charging_stat_balance">Дисбаланс</string>
     <string name="charging_stat_power">Потужність</string>
     <string name="charging_stat_current">Струм</string>
-    <string name="charging_stat_energy">Енергія</string>
     <string name="charging_chart_empty">Збір даних</string>
     <string name="battery_history">Історія батареї</string>
     <string name="setting_charging_auto_open">Відкривати при зарядженні</string>
@@ -1127,7 +1105,6 @@
     <string name="studio_your_presets_empty">Збережених пресетів ще немає. Збережи поточний макет, щоб додати.</string>
 
     <!-- Studio: render progress overlay -->
-    <string name="studio_rendering">Рендеринг</string>
     <string name="studio_rendering_cancel">Скасувати</string>
     <string name="studio_dlg_cancel_render_title">Скасувати рендеринг?</string>
     <string name="studio_dlg_cancel_render_body">Кліп повтору не буде збережено.</string>
@@ -1524,7 +1501,6 @@
     <string name="trip_action_share_file">Поділитися файлом</string>
     <string name="trip_action_share_file_desc">Надіслати CSV поїздки в інший застосунок</string>
     <string name="trip_action_view_online">Переглянути онлайн</string>
-    <string name="trip_action_view_online_desc">Відкрити на карті EUC Viewer</string>
     <string name="trip_action_replay">Відтворити у Studio</string>
     <string name="trip_action_replay_desc">Прокрути поїздку з накладанням даних у реальному часі</string>
     <!-- ==== Dashboard quick menus ==== -->
@@ -1536,7 +1512,6 @@
     <string name="studio_group_media">Камера та зображення</string>
     <string name="studio_cfg_border_colour">Колір рамки</string>
     <string name="studio_cfg_border_width">Товщина рамки</string>
-    <string name="studio_rendering_keep_open">Не вимикай телефон і не закривай цей екран до завершення рендерингу</string>
     <string name="studio_cfg_g_scale">Масштаб</string>
     <string name="studio_export_force_opaque_hint">Формати без прозорості використовують колір хромакея; може виглядати дивно на напівпрозорих шарах</string>
     <string name="studio_cfg_filter_vivid">Яскравий</string>
@@ -1617,8 +1592,6 @@
     <string name="trip_action_share_dropbox_desc">Завантажити в твою папку Dropbox і поділитися публічним посиланням</string>
     <string name="trip_action_inspect_online">Переглянути онлайн</string>
     <string name="trip_action_inspect_online_desc">Поділитися посиланням eucviewer.ried.no для перегляду цієї поїздки онлайн</string>
-    <string name="trip_action_copy_link">Скопіювати посилання eucviewer</string>
-    <string name="trip_action_copy_link_desc">Скопіювати посилання eucviewer.ried.no у буфер обміну</string>
     <string name="trip_action_dropbox_disabled">Під\'єднай Dropbox у налаштуваннях, щоб увімкнути</string>
 
     <!-- ==== Navigation map: chargers & places (OCM / OSM) ==== -->
@@ -1748,6 +1721,8 @@
     <string name="adv_hud_manual_grace_desc">Впливає на те, скільки часу має автопошук до використання ручного IP. Небезпека: замале значення використовує ручний IP, перш ніж пошук устигне спрацювати.</string>
     <string name="adv_hud_mdns_resolve">Час визначення mDNS</string>
     <string name="adv_hud_mdns_resolve_desc">Впливає на те, як довго визначаються дані адреси знайденого HUD. Небезпека: замале значення відкидає HUD, який повільно визначається.</string>
+    <string name="adv_hud_subnet_delay">Затримка сканування підмережі</string>
+    <string name="adv_hud_subnet_delay_desc">Впливає на те, скільки часу минає до запуску сканування підмережі як крайнього заходу, щоб mDNS і маячок відповіли першими без перевантаження радіоканалу. Небезпека: замале значення перевантажує радіоканал і сповільнює пошук.</string>
     <string name="adv_hud_mdns_timeout">Час очікування пошуку</string>
     <string name="adv_hud_mdns_timeout_desc">Впливає на те, як довго чекати на відповідь HUD під час автопошуку. Небезпека: замало — здається до відповіді.</string>
     <string name="adv_hud_report_interval">Частота звітів HUD</string>
@@ -1814,17 +1789,8 @@
     <string name="adv_wheel_poll_rate_desc">Впливає на свіжість живих даних і швидкість реакції сигналів. Менше — частіше запитує дані в моноколеса. Небезпека: дуже малі значення можуть перевантажити зв\'язок Bluetooth і застопорити дані на деяких моноколесах.</string>
     <string name="alarm_beep_advanced">Розширені</string>
     <string name="alarm_beep_gap_label">Тривалість паузи</string>
-    <string name="alarm_beep_pitch_rise_label">Зростання тону</string>
     <string name="alarm_beep_studio">Адаптивний сигнал</string>
-    <string name="alarm_beep_sum_core">Сигнали на %1$d Гц протягом %2$d мс</string>
-    <string name="alarm_beep_sum_pitch"> Тон зростає до %1$d Гц, коли %2$s досягає %3$s %4$s.</string>
-    <string name="alarm_beep_sum_pitch_vol"> Тон зростає до %1$d Гц, а гучність від %2$d%% до %3$d%%, коли %4$s досягає %5$s %6$s.</string>
-    <string name="alarm_beep_sum_reps">, ×%1$d з проміжком %2$d мс</string>
-    <string name="alarm_beep_sum_reps0">, ×%1$d поспіль</string>
-    <string name="alarm_beep_sum_voice">, потім говорить</string>
-    <string name="alarm_beep_sum_vol"> Гучність зростає від %1$d%% до %2$d%%, коли %3$s досягає %4$s %5$s.</string>
-    <string name="alarm_beep_volume_label">Гучність</string>
-    <string name="alarm_beep_volume_rise_label">Зростання гучності</string>
+    <string name="alarm_beep_volume_label">Базова гучність</string>
     <string name="alarm_studio_now">%1$d Гц · %2$d%%</string>
     <string name="alarm_studio_pitch_factor">Коефіцієнт тону</string>
     <string name="alarm_studio_play">Відтворити</string>
@@ -1882,11 +1848,16 @@
     <string name="settings_visibility">Видимість налаштувань</string>
     <string name="geo_section_dashboard">Панель</string>
     <string name="geo_section_navigator">Навігатор</string>
+    <string name="geo_section_trip">Поїздка</string>
     <string name="geo_section_other">Інші екрани</string>
     <string name="geo_section_settings">Налаштування</string>
-    <string name="geo_other_hint">Поїздки, монітор батареї, історія метрик, сканування та Flic. Overlay Studio не зачіпається: його макет фіксований, але він добре працює в будь-якій орієнтації.</string>
+    <string name="geo_other_hint">Монітор батареї, історія метрик, сканування та Flic. Overlay Studio не зачіпається: його макет фіксований, але він добре працює в будь-якій орієнтації.</string>
     <string name="geo_settings_hint">Екран налаштувань. Типово вимкнено, тому Налаштування залишаються у книжковій орієнтації, доки ви це не увімкнете.</string>
+    <string name="geo_trip_hint">Екран деталей за замовчуванням обертається для карти та графіків у альбомній орієнтації. Список поїздок залишається у книжковій орієнтації, доки ви це не увімкнете.</string>
     <string name="setting_allow_rotation">Дозволити обертання</string>
+    <string name="setting_rotate_trip_detail">Обертати деталі поїздки</string>
+    <string name="setting_rotate_trip_list">Обертати список поїздок</string>
+    <string name="setting_trip_map_side">Сторона карти</string>
     <string name="setting_block_upside_down">Заборонити перевертання догори дриґом</string>
     <string name="setting_ignore_system_rotate_lock">Ігнорувати системне блокування обертання</string>
     <string name="setting_compact_dashboard">Компактна панель</string>
@@ -1915,6 +1886,16 @@
     <string name="adv_nav_sidebar_width_desc">Ширина бічної панелі зупинок в альбомній орієнтації. Заширока лишає мало карти.</string>
     <string name="adv_simple_speedo_scale">Розмір простого спідометра</string>
     <string name="adv_simple_speedo_scale_desc">Розмір числа швидкості відносно області шкали. Завеликий може обрізати підпис одиниць.</string>
+    <string name="charging_reset_data">Скинути дані</string>
+    <string name="charging_export">Експорт</string>
+    <string name="charging_export_saved">Дані батареї експортовано</string>
+    <string name="charging_export_failed">Помилка експорту</string>
+    <string name="voice_phone_battery_fmt">телефон %1$d</string>
+    <string name="report_phone_battery">Телефон</string>
+    <string name="alarm_beep_transition_label">Перехід</string>
+    <string name="alarm_constant_title">Безперервний сигнал?</string>
+    <string name="alarm_constant_body">Пауза 0 мс дає один безперервний сигнал. Щоб він звучав постійно, задайте також:</string>
+    <string name="alarm_constant_never">Більше не запитувати</string>
 </resources>
 
 

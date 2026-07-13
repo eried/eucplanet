@@ -11,16 +11,12 @@
     <string name="action_done">Klaar</string>
     <string name="action_close">Sluiten</string>
 <string name="crash_log_action_prompt">Je hebt %1$s lang ingedrukt. Verwijder alleen dit log, of alles. Tik op Annuleren en dan op het bestand om het te delen.</string>
-    <string name="crash_log_delete_one">Dit log verwijderen</string>
     <string name="crash_log_delete_all">Alles verwijderen</string>
     <string name="crash_log_delete_all_warning">Alle opgeslagen crashlogs verwijderen? Dit kan niet ongedaan worden gemaakt.</string>
     <string name="action_save">Opslaan</string>
     <string name="action_apply">Toepassen</string>
     <string name="action_delete">Verwijderen</string>
-    <string name="action_edit">Bewerken</string>
     <string name="action_test">Testen</string>
-    <string name="action_move_up">Omhoog</string>
-    <string name="action_move_down">Omlaag</string>
     <string name="action_reorder">Sleep om te ordenen</string>
     <string name="show_gauge_color_band">Kleurband snelheidsmeter</string>
     <string name="stat_watts">WATT</string>
@@ -202,7 +198,6 @@
     <string name="metric_chip_load">PWM</string>
     <string name="metric_chip_trip">Trip</string>
     <string name="metric_chip_speed">Snelheid</string>
-    <string name="metric_chip_power">Vermogen</string>
     <string name="metric_chip_odometer">Kilometerstand</string>
     <string name="metric_chip_motor_power">Motorvermogen</string>
     <string name="metric_chip_battery_power">Accuvermogen</string>
@@ -551,7 +546,6 @@
     <string name="voice_announce_connected">Verbonden</string>
     <string name="voice_announce_riding">Tijdens het rijden</string>
     <string name="voice_interval">Interval</string>
-    <string name="unit_sec">sec</string>
     <string name="announce_wheel_lock">Wiel vergrendelen / ontgrendelen</string>
     <string name="announce_lights">Licht aan / uit</string>
     <string name="announce_recording">Ritopname</string>
@@ -887,7 +881,6 @@
     <string name="auto_lights_desc">Schakel de koplampen aan of uit op basis van zonsopkomst en zonsondergang</string>
     <string name="auto_lights_on_before_sunset">Licht AAN voor zonsondergang</string>
     <string name="auto_lights_off_after_sunrise">Licht UIT na zonsopkomst</string>
-    <string name="auto_minutes_fmt">%1$d min</string>
     <string name="auto_waiting_gps">Wachten op GPS-locatie…</string>
     <string name="auto_volume_title">Volume</string>
     <string name="auto_volume_desc">Muziekvolume verhogen op basis van snelheid</string>
@@ -902,7 +895,6 @@
     <string name="alarm_help">Per metriek vuurt automatisch het meest relevante alarm. De volgorde in de lijst bepaalt niet welke; sorteren houdt het alleen overzichtelijk.</string>
     <string name="alarm_empty">Nog geen alarmregels</string>
     <string name="alarm_add">Nieuw alarm</string>
-    <string name="alarm_smart_sort">Automatisch sorteren</string>
     <string name="alarm_summary_predict_fmt">voorspelt %1$s s vooruit</string>
     <string name="alarm_new">Nieuw alarm</string>
     <string name="alarm_edit">Alarm bewerken</string>
@@ -911,7 +903,6 @@
     <string name="alarm_delete_action">Alarm verwijderen</string>
     <string name="alarm_metric_label">Metriek</string>
     <string name="alarm_comparator_label">Voorwaarde</string>
-    <string name="alarm_threshold_fmt">Drempel: %1$s %2$s</string>
     <string name="alarm_threshold_label">Drempel</string>
     <string name="alarm_label_frequency">Frequentie</string>
     <string name="alarm_label_duration">Duur</string>
@@ -954,9 +945,6 @@
     <string name="alarm_threshold_increase">Drempel verhogen</string>
     <string name="alarm_section_beep">Piep</string>
     <string name="alarm_enable_beep">Piep aanzetten</string>
-    <string name="alarm_beep_freq_fmt">Frequentie: %1$dHz</string>
-    <string name="alarm_beep_duration_fmt">Duur: %1$dms</string>
-    <string name="alarm_beep_repeats_fmt">Herhalingen: %1$d</string>
     <string name="alarm_section_voice">Stem</string>
     <string name="alarm_enable_voice">Stem aanzetten</string>
     <string name="alarm_voice_template">Tekstsjabloon</string>
@@ -964,25 +952,16 @@
     <string name="alarm_voice_default">Waarschuwing! {metric} bij {value}</string>
     <string name="alarm_section_vibrate">Trillen</string>
     <string name="alarm_enable_vibrate">Trillen aanzetten</string>
-    <string name="alarm_vibrate_duration_fmt">Duur: %1$dms</string>
-    <string name="alarm_vibrate_target_label">Trillen op</string>
     <string name="alarm_vibrate_target_phone">Telefoon</string>
     <string name="alarm_vibrate_target_watch">Horloge</string>
     <string name="alarm_vibrate_target_both">Alle</string>
-    <string name="alarm_section_timing">Timing</string>
     <string name="alarm_cooldown_label">Cooldown</string>
-    <string name="alarm_cooldown_fmt">Cooldown: %1$ds</string>
-    <string name="alarm_cooldown_help">Minimale tijd tussen vuringen voor deze regel, ook als de voorwaarde blijft passen</string>
-    <string name="alarm_repeat">Herhalen zolang actief</string>
     <string name="alarm_section_advanced">Geavanceerd</string>
     <string name="alarm_repeat_label">Trigger</string>
     <string name="alarm_repeat_single">1×</string>
     <string name="alarm_repeat_multi">Steeds</string>
-    <string name="alarm_repeat_help">Eén keer: één waarschuwing, daarna weer scherp zodra de waarde terug naar de veilige kant gaat.\nMeerdere: waarschuwt elke cooldown opnieuw zolang hij actief blijft.</string>
     <string name="alarm_predict_label">Voorspellende trigger</string>
     <string name="alarm_predict_realtime">Nu</string>
-    <string name="alarm_predict_value_fmt">%1$s s eerder</string>
-    <string name="alarm_predict_help">Nu: waarschuwt op het moment dat de drempel gemeld wordt.\nAndere: waarschuwen zoveel seconden voordat de trend hem bereikt.</string>
     <string name="alarm_state_atleast">%1$s is %2$s of meer</string>
     <string name="alarm_state_below">%1$s is onder %2$s</string>
     <string name="alarm_repeat_help_once">Eén waarschuwing wanneer %1$s. Weer scherp wanneer %2$s, na de cooldown van %3$d s.</string>
@@ -1104,7 +1083,6 @@
     <string name="charging_stat_balance">Disbalans</string>
     <string name="charging_stat_power">Vermogen</string>
     <string name="charging_stat_current">Stroom</string>
-    <string name="charging_stat_energy">Energie</string>
     <string name="charging_chart_empty">Gegevens verzamelen</string>
     <string name="battery_history">Accugeschiedenis</string>
     <string name="setting_charging_auto_open">Openen bij opladen</string>
@@ -1125,7 +1103,6 @@
     <string name="studio_your_presets_empty">Nog geen opgeslagen presets. Sla je huidige lay-out op om er een toe te voegen.</string>
 
     <!-- Studio: render progress overlay -->
-    <string name="studio_rendering">Renderen</string>
     <string name="studio_rendering_cancel">Annuleren</string>
     <string name="studio_dlg_cancel_render_title">Renderen annuleren?</string>
     <string name="studio_dlg_cancel_render_body">De replayclip wordt niet opgeslagen.</string>
@@ -1397,7 +1374,6 @@
     <string name="studio_overwrite_title">Preset overschrijven?</string>
     <string name="studio_overwrite_body">Er bestaat al een preset met de naam \"%1$s\".</string>
     <string name="studio_overwrite_confirm">Overschrijven</string>
-    <string name="studio_rendering_keep_open">Houd je telefoon aan en dit scherm open totdat het renderen klaar is</string>
     <string name="studio_export_force_opaque_hint">Formaten zonder transparantie gebruiken de chromakey-kleur; kan storend zijn op semi-transparante lagen</string>
     <string name="studio_group_data">Gegevens</string>
     <string name="studio_group_text">Tekst &amp; info</string>
@@ -1548,7 +1524,6 @@
     <string name="trip_action_share_file">Bestand delen</string>
     <string name="trip_action_share_file_desc">Stuur de rit-CSV naar een andere app</string>
     <string name="trip_action_view_online">Online bekijken</string>
-    <string name="trip_action_view_online_desc">Open het op de EUC Viewer-kaart</string>
     <string name="trip_action_replay">Afspelen in Studio</string>
     <string name="trip_action_replay_desc">Scrubt de rit met live data-overlays</string>
     <!-- ==== Dashboard quick menus ==== -->
@@ -1618,8 +1593,6 @@
     <string name="trip_action_share_dropbox_desc">Upload naar je Dropbox-map en deel de openbare link</string>
     <string name="trip_action_inspect_online">Online inspecteren</string>
     <string name="trip_action_inspect_online_desc">Deel een eucviewer.ried.no-link om deze rit online te bekijken</string>
-    <string name="trip_action_copy_link">eucviewer-link kopiëren</string>
-    <string name="trip_action_copy_link_desc">Kopieer een deelbare eucviewer.ried.no-link naar het klembord</string>
     <string name="trip_action_dropbox_disabled">Koppel Dropbox in instellingen om dit in te schakelen</string>
 
     <!-- Map: chargers (Open Charge Map) and places (OpenStreetMap) -->
@@ -1751,6 +1724,8 @@
     <string name="adv_hud_manual_grace_desc">Bepaalt hoeveel tijd autodetectie krijgt voordat de handmatige IP wordt gebruikt. Let op: te laag gebruikt de handmatige IP voordat detectie kan winnen.</string>
     <string name="adv_hud_mdns_resolve">mDNS-resolutietijd</string>
     <string name="adv_hud_mdns_resolve_desc">Bepaalt hoe lang de adresgegevens van een gevonden HUD worden omgezet. Let op: te laag laat een HUD vallen die traag omzet.</string>
+    <string name="adv_hud_subnet_delay">Vertraging subnetscan</string>
+    <string name="adv_hud_subnet_delay_desc">Bepaalt hoe lang het duurt voordat de subnetscan als laatste redmiddel start, zodat mDNS en de beacon eerst antwoorden zonder radiocongestie. Let op: te laag overspoelt de radio en vertraagt de detectie.</string>
     <string name="adv_hud_mdns_timeout">Detectietime-out</string>
     <string name="adv_hud_mdns_timeout_desc">Bepaalt hoe lang gewacht wordt tot de HUD op autodetectie reageert. Let op: te laag geeft op voordat hij antwoordt.</string>
     <string name="adv_hud_report_interval">HUD-rapportagesnelheid</string>
@@ -1817,17 +1792,8 @@
     <string name="adv_wheel_poll_rate_desc">Bepaalt hoe vers de live data is en hoe snel alarmen reageren. Lager vraagt het wiel vaker om data. Let op: zeer lage waarden kunnen de Bluetooth-link overspoelen en data op sommige wielen blokkeren.</string>
     <string name="alarm_beep_advanced">Geavanceerd</string>
     <string name="alarm_beep_gap_label">Pauzeduur</string>
-    <string name="alarm_beep_pitch_rise_label">Toonhoogtestijging</string>
     <string name="alarm_beep_studio">Adaptieve piep</string>
-    <string name="alarm_beep_sum_core">Piept op %1$d Hz gedurende %2$d ms</string>
-    <string name="alarm_beep_sum_pitch"> Toonhoogte stijgt naar %1$d Hz terwijl %2$s %3$s %4$s bereikt.</string>
-    <string name="alarm_beep_sum_pitch_vol"> Toonhoogte stijgt naar %1$d Hz en volume van %2$d%% naar %3$d%% terwijl %4$s %5$s %6$s bereikt.</string>
-    <string name="alarm_beep_sum_reps">, ×%1$d %2$d ms uit elkaar</string>
-    <string name="alarm_beep_sum_reps0">, ×%1$d achter elkaar</string>
-    <string name="alarm_beep_sum_voice">, spreekt dan</string>
-    <string name="alarm_beep_sum_vol"> Volume stijgt van %1$d%% naar %2$d%% terwijl %3$s %4$s %5$s bereikt.</string>
-    <string name="alarm_beep_volume_label">Volume</string>
-    <string name="alarm_beep_volume_rise_label">Volumestijging</string>
+    <string name="alarm_beep_volume_label">Basisvolume</string>
     <string name="alarm_studio_now">%1$d Hz · %2$d%%</string>
     <string name="alarm_studio_pitch_factor">Toonhoogtefactor</string>
     <string name="alarm_studio_play">Afspelen</string>
@@ -1885,11 +1851,16 @@
     <string name="settings_visibility">Zichtbaarheid van instellingen</string>
     <string name="geo_section_dashboard">Dashboard</string>
     <string name="geo_section_navigator">Navigator</string>
+    <string name="geo_section_trip">Rit</string>
     <string name="geo_section_other">Andere schermen</string>
     <string name="geo_section_settings">Instellingen</string>
-    <string name="geo_other_hint">Ritten, accumonitor, meetgeschiedenis, scan en Flic. De Overlay Studio wordt niet beïnvloed: de lay-out ligt vast, maar werkt prima in elke stand.</string>
+    <string name="geo_other_hint">Accumonitor, meetgeschiedenis, scan en Flic. De Overlay Studio wordt niet beïnvloed: de lay-out ligt vast, maar werkt prima in elke stand.</string>
     <string name="geo_settings_hint">Het instellingenscherm. Standaard uit, dus Instellingen blijft staand tenzij je het inschakelt.</string>
+    <string name="geo_trip_hint">De detailweergave draait standaard voor de kaart en grafieken in liggende stand. De ritlijst blijft staand tenzij je het inschakelt.</string>
     <string name="setting_allow_rotation">Rotatie toestaan</string>
+    <string name="setting_rotate_trip_detail">Ritdetails draaien</string>
+    <string name="setting_rotate_trip_list">Ritlijst draaien</string>
+    <string name="setting_trip_map_side">Kaartzijde</string>
     <string name="setting_block_upside_down">Ondersteboven draaien voorkomen</string>
     <string name="setting_ignore_system_rotate_lock">Systeemrotatievergrendeling negeren</string>
     <string name="setting_compact_dashboard">Compact dashboard</string>
@@ -1918,5 +1889,15 @@
     <string name="adv_nav_sidebar_width_desc">Breedte van de liggende stopszijbalk. Te breed laat weinig kaart over.</string>
     <string name="adv_simple_speedo_scale">Grootte eenvoudige snelheidsmeter</string>
     <string name="adv_simple_speedo_scale_desc">Grootte van het snelheidsgetal ten opzichte van het metervlak. Te groot kan het eenheidslabel afknippen.</string>
+    <string name="charging_reset_data">Gegevens resetten</string>
+    <string name="charging_export">Exporteren</string>
+    <string name="charging_export_saved">Batterijgegevens geëxporteerd</string>
+    <string name="charging_export_failed">Exporteren mislukt</string>
+    <string name="voice_phone_battery_fmt">telefoon %1$d</string>
+    <string name="report_phone_battery">Telefoon</string>
+    <string name="alarm_beep_transition_label">Overgang</string>
+    <string name="alarm_constant_title">Constante toon?</string>
+    <string name="alarm_constant_body">Een tussenpauze van 0 ms geeft één ononderbroken toon. Voor onafgebroken geluid, stel ook in:</string>
+    <string name="alarm_constant_never">Niet meer vragen</string>
 </resources>
 

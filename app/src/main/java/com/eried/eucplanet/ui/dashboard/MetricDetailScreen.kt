@@ -669,6 +669,22 @@ enum class TimeAxisFormat { Relative, Clock }
  */
 data class PredictionMarker(val timestampMs: Long, val value: Float)
 
+/**
+ * One shaded band drawn on [MetricGraph]'s left axis, between the [lower] and
+ * [upper] envelopes (same timestamps). Used by the Battery screen's Packs chart
+ * to draw one cell-spread band per pack plus a pack-to-pack imbalance envelope.
+ *
+ * [outline] adds a thin solid edge around the filled band so overlapping
+ * translucent bands still read apart. [color] carries its own alpha: the fill
+ * is low-alpha and the outline is drawn opaque from the same hue.
+ */
+data class GraphBandSpec(
+    val lower: List<MetricSample>,
+    val upper: List<MetricSample>,
+    val color: Color,
+    val outline: Boolean = true,
+)
+
 @Composable
 internal fun MetricGraph(
     samples: List<MetricSample>,
@@ -708,6 +724,66 @@ internal fun MetricGraph(
      * carries semantic meaning for that mode).
      */
     regenColor: Color? = null,
+    /**
+     * Force the right-axis ([series2]) minimum to zero so a non-negative series
+     * (e.g. the pack imbalance / spread) sits on a zero baseline.
+     */
+    series2BaselineZero: Boolean = false,
+    /**
+     * Draw [series2] with a thicker stroke than the main / extra lines so it
+     * reads as the emphasized series (the imbalance line on the Packs chart).
+     */
+    series2Emphasized: Boolean = false,
+    /**
+     * Draw [series2] dashed rather than solid (the pack-to-pack imbalance line on
+     * the Packs chart reads as a dashed reference, not a data trace).
+     */
+    series2Dashed: Boolean = false,
+    /**
+     * Extra top headroom for the zero-baselined right axis: the padded axis max
+     * is multiplied by this, so with 2f the [series2] data sits in the lower
+     * ~half of the axis instead of hugging the top.
+     */
+    series2Headroom: Float = 1f,
+    /**
+     * Formats the right-axis ([series2]) gridline labels. Defaults to whole
+     * numbers; callers whose right axis needs decimals (e.g. a ~125.3 V pack
+     * voltage, which would otherwise read a flat "125") pass their own.
+     */
+    series2LabelFormat: (Float) -> String = { "%.0f".format(it) },
+    /**
+     * Fill the area under the main [samples] line. Multi-line charts (e.g. the
+     * per-pack imbalance) turn this off so one series doesn't get a shaded band
+     * the others lack. Only affects the plain (no baseline / no regen) branch.
+     */
+    fillMain: Boolean = true,
+    /**
+     * Draw the main [samples] line. A pure band chart (the Packs cell-spread
+     * chart) turns this off and keeps [samples] only for the scrub baseline and
+     * left-axis bounds, so no stray line sits over the bands.
+     */
+    showMainLine: Boolean = true,
+    /**
+     * Shaded / dotted bands on the left axis, drawn behind the lines on the
+     * shared left-axis bounds. See [GraphBandSpec]. The Packs chart passes one
+     * filled band per pack plus a dotted pack-average envelope.
+     */
+    bands: List<GraphBandSpec> = emptyList(),
+    /**
+     * Formats the LEFT-axis gridline labels. Defaults to whole numbers; callers
+     * whose left axis needs decimals (e.g. a ~3.95 V cell voltage, which would
+     * otherwise read a flat "4") pass their own.
+     */
+    leftLabelFormat: (Float) -> String = { "%.0f".format(it) },
+    /**
+     * Optional multiline scrub tooltip. When set AND the rider is scrubbing, the
+     * chart calls this with the cursor's timestamp and stacks the returned lines
+     * as a multiline tooltip box (sized to the widest line, kept on-screen near
+     * the cursor) INSTEAD of the default single-line label. The Packs chart uses
+     * it to list every visible pack's voltage / imbalance plus the global
+     * imbalance. Null (the default) keeps the single-line tooltip everywhere else.
+     */
+    tooltipLines: ((timestampMs: Long) -> List<String>)? = null,
     modifier: Modifier = Modifier
 ) {
     val gridColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.15f)
@@ -720,7 +796,14 @@ internal fun MetricGraph(
     val padded = bounds.max - bounds.min
     // Optional secondary series (e.g. voltage) on its own auto-scaled axis.
     val s2 = series2?.takeIf { it.size >= 2 }
-    val bounds2 = s2?.let { GraphScale.pad(it.minOf { p -> p.value }, it.maxOf { p -> p.value }, 1f) }
+    val bounds2 = s2?.let {
+        val lo = it.minOf { p -> p.value }
+        val hi = it.maxOf { p -> p.value }
+        // A zero-baselined series keeps min at 0 and pads only the top so a
+        // small spread is still readable above the axis.
+        if (series2BaselineZero) GraphBounds(0f, GraphScale.pad(0f, hi, 1f).max * series2Headroom)
+        else GraphScale.pad(lo, hi, 1f)
+    }
     val padded2 = bounds2?.let { it.max - it.min } ?: 1f
 
     var touchX by remember { mutableStateOf<Float?>(null) }
@@ -798,14 +881,14 @@ internal fun MetricGraph(
                 drawLine(gridColor, Offset(0f, y), Offset(w, y), strokeWidth = 1f, pathEffect = dash)
                 val value = bounds.min + padded * i / 4f
                 val label = textMeasurer.measure(
-                    "%.0f".format(value), TextStyle(fontSize = 10.sp, color = axisLabelColor)
+                    leftLabelFormat(value), TextStyle(fontSize = 10.sp, color = axisLabelColor)
                 )
                 drawText(label, topLeft = Offset(-label.size.width - 6f, y - label.size.height / 2f))
                 // Right axis = secondary series (e.g. voltage) on its own scale.
                 if (bounds2 != null) {
                     val v2 = bounds2.min + padded2 * i / 4f
                     val r = textMeasurer.measure(
-                        "%.0f".format(v2), TextStyle(fontSize = 10.sp, color = color2)
+                        series2LabelFormat(v2), TextStyle(fontSize = 10.sp, color = color2)
                     )
                     drawText(r, topLeft = Offset(w + 6f, y - r.size.height / 2f))
                 }
@@ -889,6 +972,35 @@ internal fun MetricGraph(
                 }
             }
 
+            // Cell-spread bands on the left axis, behind the lines. Each filled
+            // band shades between its lower / upper envelope so a widening band
+            // reads as a growing spread. All share the left-axis bounds.
+            if (bands.isNotEmpty()) {
+                fun bx(s: MetricSample) = w * (s.timestampMs - xMinMs).toFloat() / xSpanMs.toFloat()
+                fun by(v: Float) = h - h * (v - bounds.min) / padded.coerceAtLeast(0.001f)
+                clipRect(0f, 0f, w, h) {
+                    bands.forEach { spec ->
+                        val lo = spec.lower
+                        val up = spec.upper
+                        if (lo.size < 2 || up.size < 2) return@forEach
+                        val poly = androidx.compose.ui.graphics.Path()
+                        up.forEachIndexed { idx, s ->
+                            if (idx == 0) poly.moveTo(bx(s), by(s.value)) else poly.lineTo(bx(s), by(s.value))
+                        }
+                        for (idx in lo.indices.reversed()) poly.lineTo(bx(lo[idx]), by(lo[idx].value))
+                        poly.close()
+                        drawPath(poly, color = spec.color)
+                        if (spec.outline) {
+                            drawPath(
+                                poly,
+                                color = spec.color.copy(alpha = 0.9f),
+                                style = Stroke(width = 1.5f),
+                            )
+                        }
+                    }
+                }
+            }
+
             // Build path. X positions are normalised against the *extended*
             // span so the data line ends at the "now" marker even when the
             // chart extends further right for prediction overlays.
@@ -962,8 +1074,10 @@ internal fun MetricGraph(
                         strokeWidth = 1.5f,
                     )
                 } else {
-                    drawPath(fillPath, color = color.copy(alpha = 0.1f))
-                    drawPath(path, color = color, style = Stroke(width = 3f))
+                    if (fillMain) drawPath(fillPath, color = color.copy(alpha = 0.1f))
+                    if (showMainLine) {
+                        drawPath(path, color = color, style = Stroke(width = 3f))
+                    }
                 }
             }
 
@@ -977,7 +1091,12 @@ internal fun MetricGraph(
                     val y = h - h * (smp.value - bounds2.min) / padded2.coerceAtLeast(0.001f)
                     if (idx == 0) p2.moveTo(x, y) else p2.lineTo(x, y)
                 }
-                clipRect(0f, 0f, w, h) { drawPath(p2, color = color2, style = Stroke(width = 2.5f)) }
+                // Emphasized (spread) line is stroked thicker than the pack lines.
+                val s2Stroke = if (series2Emphasized) 4.5f else 2.5f
+                val s2Dash = if (series2Dashed) PathEffect.dashPathEffect(floatArrayOf(10f, 8f)) else null
+                clipRect(0f, 0f, w, h) {
+                    drawPath(p2, color = color2, style = Stroke(width = s2Stroke, pathEffect = s2Dash))
+                }
                 if (unit2.isNotBlank()) {
                     val u2 = textMeasurer.measure(
                         unit2, TextStyle(fontSize = 10.sp, color = color2, fontWeight = FontWeight.Bold)
@@ -1078,6 +1197,39 @@ internal fun MetricGraph(
                     drawLine(color.copy(alpha = 0.5f), Offset(cursorX, 0f), Offset(cursorX, h), strokeWidth = 1.5f)
                     drawCircle(color, radius = 4f, center = Offset(cursorX, cursorY))
                     drawCircle(Color.White, radius = 2f, center = Offset(cursorX, cursorY))
+
+                    if (tooltipLines != null) {
+                        // Multiline tooltip (the Packs chart): one line per visible
+                        // pack plus the global imbalance, stacked. Sized to the
+                        // widest line and kept on-screen near the cursor.
+                        val lines = tooltipLines(tTargetExtended)
+                        if (lines.isNotEmpty()) {
+                            val measuredLines = lines.map {
+                                textMeasurer.measure(
+                                    it, TextStyle(fontSize = 10.sp, color = tooltipFg, fontWeight = FontWeight.Medium),
+                                )
+                            }
+                            val padX = 6f
+                            val padY = 4f
+                            val lineGap = 2f
+                            val contentW = measuredLines.maxOf { it.size.width }
+                            val contentH = measuredLines.sumOf { it.size.height } + lineGap * (measuredLines.size - 1)
+                            val boxW = contentW + padX * 2
+                            val boxH = contentH + padY * 2
+                            val boxX = (cursorX - boxW / 2f).coerceIn(0f, (w - boxW).coerceAtLeast(0f))
+                            val boxY = (cursorY - boxH - 6f).coerceIn(0f, (h - boxH).coerceAtLeast(0f))
+                            drawRoundRect(
+                                tooltipBg, topLeft = Offset(boxX, boxY), size = Size(boxW, boxH),
+                                cornerRadius = CornerRadius(5f, 5f),
+                            )
+                            var lineY = boxY + padY
+                            measuredLines.forEach { m ->
+                                drawText(m, topLeft = Offset(boxX + padX, lineY))
+                                lineY += m.size.height + lineGap
+                            }
+                        }
+                        return@Canvas
+                    }
 
                     val labelText = buildString {
                         if (timeAxisFormat == TimeAxisFormat.Clock) {

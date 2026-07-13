@@ -34,6 +34,13 @@ data class AlarmRule(
      */
     val beepGapMs: Int = 100,
     /**
+     * Attack/release ramp as a percent of the beep duration (0..50). 0 = crisp
+     * (short click-guard only), 50 = a pure raised-cosine swell with no flat top.
+     * Higher = smoother "up and down"; with gap 0 the swells butt together into a
+     * continuous undulating tone. See [com.eried.eucplanet.service.TonePlayer].
+     */
+    val beepTransitionPct: Int = 12,
+    /**
      * Base beep loudness as a percent of the phone's system media volume (the
      * hard ceiling). 100 = as loud as the app plays it today; lower = quieter.
      */

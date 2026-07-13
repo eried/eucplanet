@@ -11,16 +11,12 @@
     <string name="action_done">Bitti</string>
     <string name="action_close">Kapat</string>
 <string name="crash_log_action_prompt">%1$s\'e uzun bastınız. Yalnızca bu günlüğü silin ya da tümünü silin. Paylaşmak için İptal\'e, ardından dosyaya dokunun.</string>
-    <string name="crash_log_delete_one">Bu günlüğü sil</string>
     <string name="crash_log_delete_all">Tümünü sil</string>
     <string name="crash_log_delete_all_warning">Tüm çökme günlükleri silinsin mi? Bu işlem geri alınamaz.</string>
     <string name="action_save">Kaydet</string>
     <string name="action_apply">Uygula</string>
     <string name="action_delete">Sil</string>
-    <string name="action_edit">Düzenle</string>
     <string name="action_test">Test Et</string>
-    <string name="action_move_up">Yukarı taşı</string>
-    <string name="action_move_down">Aşağı taşı</string>
     <string name="action_reorder">Sıralamak için sürükle</string>
     <string name="show_gauge_color_band">Hız göstergesi renk bandı</string>
     <string name="stat_watts">WATT</string>
@@ -202,7 +198,6 @@
     <string name="metric_chip_load">PWM</string>
     <string name="metric_chip_trip">Sefer</string>
     <string name="metric_chip_speed">Hız</string>
-    <string name="metric_chip_power">Güç</string>
     <string name="metric_chip_odometer">Kilometre sayacı</string>
     <string name="metric_chip_motor_power">Motor gücü</string>
     <string name="metric_chip_battery_power">Akü gücü</string>
@@ -547,7 +542,6 @@
     <string name="section_report_status">Durum bildir</string>
     <string name="voice_enabled">Durumu periyodik olarak bildir</string>
     <string name="voice_interval">Aralık</string>
-    <string name="unit_sec">sn</string>
     <string name="announce_wheel_lock">Teker kilitleme / kilit açma</string>
     <string name="announce_lights">Işıklar açık / kapalı</string>
     <string name="announce_recording">Sefer kaydı</string>
@@ -884,7 +878,6 @@
     <string name="auto_lights_desc">Gün batımı ve doğumuna göre farları açıp kapatır</string>
     <string name="auto_lights_on_before_sunset">Gün batımından önce ışıklar AÇIK</string>
     <string name="auto_lights_off_after_sunrise">Gün doğumundan sonra ışıklar KAPALI</string>
-    <string name="auto_minutes_fmt">%1$d dk</string>
     <string name="auto_waiting_gps">GPS konumu bekleniyor…</string>
     <string name="auto_volume_title">Ses</string>
     <string name="auto_volume_desc">Müzik sesini hıza göre artır</string>
@@ -899,7 +892,6 @@
     <string name="alarm_help">Her metrik için en uygun alarm otomatik olarak tetiklenir. Listedeki sıra hangisinin tetikleneceğini değiştirmez; sıralama yalnızca düzeni korur</string>
     <string name="alarm_empty">Henüz alarm kuralı yok</string>
     <string name="alarm_add">Yeni alarm</string>
-    <string name="alarm_smart_sort">Otomatik sırala</string>
     <string name="alarm_summary_predict_fmt">%1$s sn önceden tahmin eder</string>
     <string name="alarm_new">Yeni Alarm</string>
     <string name="alarm_edit">Alarmı Düzenle</string>
@@ -908,7 +900,6 @@
     <string name="alarm_delete_action">Alarmı sil</string>
     <string name="alarm_metric_label">Metrik</string>
     <string name="alarm_comparator_label">Koşul</string>
-    <string name="alarm_threshold_fmt">Eşik: %1$s %2$s</string>
     <string name="alarm_threshold_label">Eşik</string>
     <string name="alarm_label_frequency">Frekans</string>
     <string name="alarm_label_duration">Süre</string>
@@ -953,9 +944,6 @@
 
     <string name="alarm_section_beep">Bip</string>
     <string name="alarm_enable_beep">Bip sesini etkinleştir</string>
-    <string name="alarm_beep_freq_fmt">Frekans: %1$dHz</string>
-    <string name="alarm_beep_duration_fmt">Süre: %1$dms</string>
-    <string name="alarm_beep_repeats_fmt">Tekrar: %1$d</string>
     <string name="alarm_section_voice">Ses</string>
     <string name="alarm_enable_voice">Sesi etkinleştir</string>
     <string name="alarm_voice_template">Metin şablonu</string>
@@ -963,25 +951,16 @@
     <string name="alarm_voice_default">Uyarı! {metric} değeri {value}</string>
     <string name="alarm_section_vibrate">Titreşim</string>
     <string name="alarm_enable_vibrate">Titreşimi etkinleştir</string>
-    <string name="alarm_vibrate_duration_fmt">Süre: %1$dms</string>
-    <string name="alarm_vibrate_target_label">Titreşim hedefi</string>
     <string name="alarm_vibrate_target_phone">Telefon</string>
     <string name="alarm_vibrate_target_watch">Saat</string>
     <string name="alarm_vibrate_target_both">Tümü</string>
-    <string name="alarm_section_timing">Zamanlama</string>
     <string name="alarm_cooldown_label">Bekleme</string>
-    <string name="alarm_cooldown_fmt">Bekleme: %1$ds</string>
-    <string name="alarm_cooldown_help">Koşul eşleşmeye devam etse bile bu kural için tetiklemeler arasındaki minimum süre</string>
-    <string name="alarm_repeat">Aktifken tekrarla</string>
     <string name="alarm_section_advanced">Gelişmiş</string>
     <string name="alarm_repeat_label">Tetikleme</string>
     <string name="alarm_repeat_single">Tek</string>
     <string name="alarm_repeat_multi">Çok</string>
-    <string name="alarm_repeat_help">Bir kez: tek uyarı verir, ardından değer güvenli tarafa döndüğünde yeniden kurulur.\nSürekli: tetiklenmiş kaldığı sürece her bekleme süresinde yeniden uyarır.</string>
     <string name="alarm_predict_label">Tahminli tetikleme</string>
     <string name="alarm_predict_realtime">Şimdi</string>
-    <string name="alarm_predict_value_fmt">%1$s sn önce</string>
-    <string name="alarm_predict_help">Şimdi: eşiğe ulaşıldığı an uyarır.\nDiğerleri: eğilim eşiğe ulaşmadan o kadar saniye önce uyarır.</string>
     <string name="alarm_state_atleast">%1$s, %2$s veya üzeri</string>
     <string name="alarm_state_below">%1$s, %2$s altında</string>
     <string name="alarm_repeat_help_once">%1$s olduğunda tek uyarı. %2$s olunca, %3$d s beklemenin ardından yeniden kurulur.</string>
@@ -1099,7 +1078,6 @@
     <string name="studio_your_presets_empty">Henüz kayıtlı önayar yok. Eklemek için mevcut düzeni kaydedin.</string>
 
     <!-- Studio: render progress overlay -->
-    <string name="studio_rendering">İşleniyor</string>
     <string name="studio_rendering_cancel">İptal</string>
     <string name="studio_dlg_cancel_render_title">İşleme iptal edilsin mi?</string>
     <string name="studio_dlg_cancel_render_body">Yeniden oynatma klibi kaydedilmeyecek.</string>
@@ -1496,7 +1474,6 @@
     <string name="trip_action_share_file">Dosyayı paylaş</string>
     <string name="trip_action_share_file_desc">Sefer CSV\'sini başka bir uygulamaya gönder</string>
     <string name="trip_action_view_online">Çevrimiçi görüntüle</string>
-    <string name="trip_action_view_online_desc">EUC Viewer haritasında aç</string>
     <string name="trip_action_replay">Stüdyoda Yeniden Oynat</string>
     <string name="trip_action_replay_desc">Canlı veri kaplamalarıyla sürüşü gözden geçirin</string>
     <!-- ==== Dashboard quick menus ==== -->
@@ -1508,7 +1485,6 @@
     <string name="studio_group_media">Kamera ve görüntüler</string>
     <string name="studio_cfg_border_colour">Kenar rengi</string>
     <string name="studio_cfg_border_width">Kenar kalınlığı</string>
-    <string name="studio_rendering_keep_open">İşleme tamamlanana kadar telefonunuzu ve bu ekranı açık tutun</string>
     <string name="studio_cfg_g_scale">Ölçek</string>
     <string name="studio_export_force_opaque_hint">Şeffaf olmayan biçimler chroma key rengini kullanır; yarı şeffaf katmanlarda hatalı görünebilir</string>
     <string name="studio_cfg_filter_vivid">Canlı</string>
@@ -1589,7 +1565,6 @@
     <string name="charging_stat_added">Eklendi</string>
     <string name="charging_stat_balance">Dengesizlik</string>
     <string name="charging_stat_current">Akım</string>
-    <string name="charging_stat_energy">Enerji</string>
     <string name="charging_stat_power">Güç</string>
     <string name="charging_stat_rate">Hız</string>
     <string name="charging_stat_temp">Sıcaklık</string>
@@ -1617,8 +1592,6 @@
     <string name="trip_action_share_dropbox_desc">Dropbox klasörüne yükle ve herkese açık bağlantıyı paylaş</string>
     <string name="trip_action_inspect_online">Çevrimiçi incele</string>
     <string name="trip_action_inspect_online_desc">Bu sürüşü çevrimiçi görüntülemek için bir eucviewer.ried.no bağlantısı paylaş</string>
-    <string name="trip_action_copy_link">eucviewer bağlantısını kopyala</string>
-    <string name="trip_action_copy_link_desc">Paylaşılabilir eucviewer.ried.no bağlantısını panoya kopyalar</string>
     <string name="trip_action_dropbox_disabled">Etkinleştirmek için ayarlardan Dropbox\'ı bağla</string>
 
     <!-- Navigation: OCM (Open Charge Map) and POIs -->
@@ -1748,6 +1721,8 @@
     <string name="adv_hud_manual_grace_desc">Manuel IP kullanılmadan önce otomatik keşfe ne kadar süre tanındığını etkiler. Dikkat: çok düşük olursa keşif kazanamadan manuel IP\'yi kullanır.</string>
     <string name="adv_hud_mdns_resolve">mDNS çözümleme süresi</string>
     <string name="adv_hud_mdns_resolve_desc">Bulunan bir HUD\'ın adres ayrıntılarının ne kadar sürede çözümleneceğini etkiler. Dikkat: çok düşük olursa yavaş çözümlenen bir HUD\'ı bırakır.</string>
+    <string name="adv_hud_subnet_delay">Alt ağ taraması gecikmesi</string>
+    <string name="adv_hud_subnet_delay_desc">Son çare olan alt ağ taramasının ne kadar sonra başlayacağını etkiler; böylece mDNS ve işaret önce yanıt verir ve telsiz tıkanmaz. Dikkat: çok düşük olursa telsizi doldurur ve keşfi yavaşlatır.</string>
     <string name="adv_hud_mdns_timeout">Keşif zaman aşımı</string>
     <string name="adv_hud_mdns_timeout_desc">HUD\'ın otomatik keşfe yanıt vermesi için ne kadar beklenileceğini etkiler. Dikkat: çok düşük olursa yanıt vermeden vazgeçer.</string>
     <string name="adv_hud_report_interval">HUD bildirim hızı</string>
@@ -1814,17 +1789,8 @@
     <string name="adv_wheel_poll_rate_desc">Canlı verinin ne kadar taze olduğunu ve alarmların ne kadar hızlı tepki verdiğini etkiler. Düşük değer tekerden daha sık veri ister. Dikkat: çok düşük değerler Bluetooth bağlantısını boğabilir ve bazı tekerlerde veriyi durdurabilir.</string>
     <string name="alarm_beep_advanced">Gelişmiş</string>
     <string name="alarm_beep_gap_label">Boşluk süresi</string>
-    <string name="alarm_beep_pitch_rise_label">Perde yükselişi</string>
     <string name="alarm_beep_studio">Uyarlanır bip</string>
-    <string name="alarm_beep_sum_core">%1$d Hz\'de %2$d ms bip çalar</string>
-    <string name="alarm_beep_sum_pitch"> %2$s, %3$s %4$s değerine ulaştıkça perde %1$d Hz\'e doğru yükselir.</string>
-    <string name="alarm_beep_sum_pitch_vol"> %4$s, %5$s %6$s değerine ulaştıkça perde %1$d Hz\'e ve ses %2$d%% seviyesinden %3$d%% seviyesine yükselir.</string>
-    <string name="alarm_beep_sum_reps">, ×%1$d %2$d ms arayla</string>
-    <string name="alarm_beep_sum_reps0">, ×%1$d arka arkaya</string>
-    <string name="alarm_beep_sum_voice">, sonra konuşur</string>
-    <string name="alarm_beep_sum_vol"> %3$s, %4$s %5$s değerine ulaştıkça ses %1$d%% seviyesinden %2$d%% seviyesine yükselir.</string>
-    <string name="alarm_beep_volume_label">Ses seviyesi</string>
-    <string name="alarm_beep_volume_rise_label">Ses yükselişi</string>
+    <string name="alarm_beep_volume_label">Temel ses</string>
     <string name="alarm_studio_now">%1$d Hz · %2$d%%</string>
     <string name="alarm_studio_pitch_factor">Perde faktörü</string>
     <string name="alarm_studio_play">Oynat</string>
@@ -1882,11 +1848,16 @@
     <string name="settings_visibility">Ayar görünürlüğü</string>
     <string name="geo_section_dashboard">Gösterge paneli</string>
     <string name="geo_section_navigator">Navigatör</string>
+    <string name="geo_section_trip">Sefer</string>
     <string name="geo_section_other">Diğer ekranlar</string>
     <string name="geo_section_settings">Ayarlar</string>
-    <string name="geo_other_hint">Seferler, pil monitörü, metrik geçmişi, tarama ve Flic. Overlay Studio etkilenmez: düzeni sabittir, ancak her yönde iyi çalışır.</string>
+    <string name="geo_other_hint">Pil monitörü, metrik geçmişi, tarama ve Flic. Overlay Studio etkilenmez: düzeni sabittir, ancak her yönde iyi çalışır.</string>
     <string name="geo_settings_hint">Ayarlar ekranı. Varsayılan olarak kapalı, bu yüzden etkinleştirmedikçe Ayarlar dikey kalır.</string>
+    <string name="geo_trip_hint">Detay görünümü, yatay harita ve grafikler için varsayılan olarak döner. Sefer listesi, etkinleştirmedikçe dikey kalır.</string>
     <string name="setting_allow_rotation">Döndürmeye izin ver</string>
+    <string name="setting_rotate_trip_detail">Sefer detaylarını döndür</string>
+    <string name="setting_rotate_trip_list">Sefer listesini döndür</string>
+    <string name="setting_trip_map_side">Harita tarafı</string>
     <string name="setting_block_upside_down">Baş aşağı döndürmeyi engelle</string>
     <string name="setting_ignore_system_rotate_lock">Sistem döndürme kilidini yok say</string>
     <string name="setting_compact_dashboard">Kompakt gösterge paneli</string>
@@ -1915,6 +1886,16 @@
     <string name="adv_nav_sidebar_width_desc">Yatay durak kenar çubuğunun genişliği. Çok geniş olursa harita az kalır.</string>
     <string name="adv_simple_speedo_scale">Basit hız göstergesi boyutu</string>
     <string name="adv_simple_speedo_scale_desc">Hız sayısının gösterge alanına göre boyutu. Çok büyük olursa birim etiketini kırpabilir.</string>
+    <string name="charging_reset_data">Verileri sıfırla</string>
+    <string name="charging_export">Dışa aktar</string>
+    <string name="charging_export_saved">Pil verileri dışa aktarıldı</string>
+    <string name="charging_export_failed">Dışa aktarma başarısız</string>
+    <string name="voice_phone_battery_fmt">telefon %1$d</string>
+    <string name="report_phone_battery">Telefon</string>
+    <string name="alarm_beep_transition_label">Geçiş</string>
+    <string name="alarm_constant_title">Sürekli ton?</string>
+    <string name="alarm_constant_body">0 ms boşluk kesintisiz tek bir ton verir. Sürekli çalması için şunları da ayarla:</string>
+    <string name="alarm_constant_never">Bir daha sorma</string>
 </resources>
 
 

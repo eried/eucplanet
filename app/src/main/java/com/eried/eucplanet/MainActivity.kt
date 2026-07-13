@@ -393,7 +393,8 @@ class MainActivity : AppCompatActivity() {
                     val routeNow = currentRoute?.destination?.route
                     androidx.compose.runtime.LaunchedEffect(
                         routeNow, s?.rotateDashboard, s?.rotateNavigator,
-                        s?.rotateOtherScreens, s?.rotateSettings, s?.blockUpsideDown, s?.ignoreSystemRotateLock
+                        s?.rotateOtherScreens, s?.rotateSettings, s?.rotateTripDetail,
+                        s?.rotateTripList, s?.blockUpsideDown, s?.ignoreSystemRotateLock
                     ) {
                         val allow = when (routeNow) {
                             Screen.Dashboard.route, null -> s?.rotateDashboard ?: false
@@ -404,6 +405,11 @@ class MainActivity : AppCompatActivity() {
                             // the recording canvas. Never rotate it.
                             Screen.OverlayStudio.route -> false
                             Screen.Settings.route -> s?.rotateSettings ?: false
+                            // Trip screens each carry their own toggle: the detail
+                            // view rotates by default (landscape split layout), the
+                            // recorder list stays portrait unless the rider opts in.
+                            Screen.TripDetail.route -> s?.rotateTripDetail ?: true
+                            Screen.Recording.route -> s?.rotateTripList ?: false
                             else -> s?.rotateOtherScreens ?: true
                         }
                         // SENSOR variants follow the accelerometer even when the

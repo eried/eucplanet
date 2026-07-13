@@ -11,16 +11,12 @@
     <string name="action_done">Fertig</string>
     <string name="action_close">Schließen</string>
 <string name="crash_log_action_prompt">Du hast %1$s lang gedrückt. Nur diesen Log löschen oder alle. Zum Teilen auf Abbrechen tippen, dann auf die Datei.</string>
-    <string name="crash_log_delete_one">Diesen Log löschen</string>
     <string name="crash_log_delete_all">Alle löschen</string>
     <string name="crash_log_delete_all_warning">Alle gespeicherten Absturzlogs löschen? Das lässt sich nicht rückgängig machen.</string>
     <string name="action_save">Speichern</string>
     <string name="action_apply">Anwenden</string>
     <string name="action_delete">Löschen</string>
-    <string name="action_edit">Bearbeiten</string>
     <string name="action_test">Testen</string>
-    <string name="action_move_up">Nach oben</string>
-    <string name="action_move_down">Nach unten</string>
     <string name="action_reorder">Zum Umsortieren ziehen</string>
     <string name="show_gauge_color_band">Farbband der Tachoanzeige</string>
     <string name="stat_watts">WATT</string>
@@ -202,7 +198,6 @@
     <string name="metric_chip_load">PWM</string>
     <string name="metric_chip_trip">Trip</string>
     <string name="metric_chip_speed">Geschw.</string>
-    <string name="metric_chip_power">Leistung</string>
     <string name="metric_chip_odometer">Kilometerstand</string>
     <string name="metric_chip_motor_power">Motorleistung</string>
     <string name="metric_chip_battery_power">Akku-Leistung</string>
@@ -547,7 +542,6 @@
     <string name="section_report_status">Statusbericht</string>
     <string name="voice_enabled">Status regelmäßig melden</string>
     <string name="voice_interval">Intervall</string>
-    <string name="unit_sec">Sek</string>
     <string name="announce_wheel_lock">Wheel sperren / entsperren</string>
     <string name="announce_lights">Licht ein / aus</string>
     <string name="announce_recording">Fahrtaufnahme</string>
@@ -883,7 +877,6 @@
     <string name="auto_lights_desc">Licht automatisch bei Sonnenuntergang und -aufgang schalten</string>
     <string name="auto_lights_on_before_sunset">Licht AN vor Sonnenuntergang</string>
     <string name="auto_lights_off_after_sunrise">Licht AUS nach Sonnenaufgang</string>
-    <string name="auto_minutes_fmt">%1$d Min.</string>
     <string name="auto_waiting_gps">Warte auf GPS-Position…</string>
     <string name="auto_volume_title">Lautstärke</string>
     <string name="auto_volume_desc">Systemlautstärke adaptiv zur Geschwindigkeit anpassen</string>
@@ -898,7 +891,6 @@
     <string name="alarm_help">Pro Messgröße wird automatisch der passendste Alarm ausgelöst. Die Reihenfolge in der Liste ändert das nicht; das Sortieren sorgt nur für Übersicht.</string>
     <string name="alarm_empty">Noch keine Alarmregeln</string>
     <string name="alarm_add">Neuer Alarm</string>
-    <string name="alarm_smart_sort">Automatisch sortieren</string>
     <string name="alarm_summary_predict_fmt">Prognose %1$s s im Voraus</string>
     <string name="alarm_new">Neuer Alarm</string>
     <string name="alarm_edit">Alarm bearbeiten</string>
@@ -907,7 +899,6 @@
     <string name="alarm_delete_action">Alarm löschen</string>
     <string name="alarm_metric_label">Messgröße</string>
     <string name="alarm_comparator_label">Bedingung</string>
-    <string name="alarm_threshold_fmt">Schwelle: %1$s %2$s</string>
     <string name="alarm_threshold_label">Schwelle</string>
     <string name="alarm_label_frequency">Frequenz</string>
     <string name="alarm_label_duration">Dauer</string>
@@ -950,9 +941,6 @@
 
     <string name="alarm_section_beep">Piepton</string>
     <string name="alarm_enable_beep">Piepton aktivieren</string>
-    <string name="alarm_beep_freq_fmt">Frequenz: %1$d Hz</string>
-    <string name="alarm_beep_duration_fmt">Dauer: %1$d ms</string>
-    <string name="alarm_beep_repeats_fmt">Wiederholungen: %1$d</string>
     <string name="alarm_section_voice">Stimme</string>
     <string name="alarm_enable_voice">Stimme aktivieren</string>
     <string name="alarm_voice_template">Textvorlage</string>
@@ -960,21 +948,14 @@
     <string name="alarm_voice_default">Achtung! {metric} bei {value}</string>
     <string name="alarm_section_vibrate">Vibration</string>
     <string name="alarm_enable_vibrate">Vibration aktivieren</string>
-    <string name="alarm_vibrate_duration_fmt">Dauer: %1$d ms</string>
-    <string name="alarm_vibrate_target_label">Vibrieren auf</string>
     <string name="alarm_vibrate_target_phone">Handy</string>
     <string name="alarm_vibrate_target_watch">Uhr</string>
     <string name="alarm_vibrate_target_both">Alle</string>
-    <string name="alarm_section_timing">Zeitsteuerung</string>
     <string name="alarm_cooldown_label">Abklingzeit</string>
-    <string name="alarm_cooldown_fmt">Abklingzeit: %1$d s</string>
-    <string name="alarm_cooldown_help">Mindestzeit zwischen Auslösungen, auch wenn die Bedingung weiterhin erfüllt ist</string>
-    <string name="alarm_repeat">Wiederholen solange aktiv</string>
     <string name="alarm_section_advanced">Erweitert</string>
     <string name="alarm_repeat_label">Auslösung</string>
     <string name="alarm_repeat_single">Einmal</string>
     <string name="alarm_repeat_multi">Mehrfach</string>
-    <string name="alarm_repeat_help">Einmal: eine Warnung, dann erneut scharf, sobald der Messwert wieder im sicheren Bereich liegt.\nMehrfach: warnt nach jeder Abklingzeit erneut, solange die Bedingung erfüllt bleibt.</string>
     <!-- Dynamische Alarm-Hilfe. In die Zustands-Teilsätze werden der Metrikname
          und die Schwelle-mit-Einheit eingesetzt, danach betten die Hilfssätze
          diesen Satz ein, damit der Text die tatsächlich gesetzte Regel widerspiegelt. -->
@@ -988,8 +969,6 @@
     <string name="alarm_predict_help_lead">Warnt anhand des aktuellen Trends rund %1$s s, bevor dies gilt: %2$s.</string>
     <string name="alarm_predict_label">Vorausschauende Auslösung</string>
     <string name="alarm_predict_realtime">Jetzt</string>
-    <string name="alarm_predict_value_fmt">%1$s s früher</string>
-    <string name="alarm_predict_help">Jetzt: warnt genau in dem Moment, in dem die Schwelle gemeldet wird.\nAndere: warnen so viele Sekunden, bevor der Trend sie erreichen wird.</string>
 
     <!-- About / crash logs -->
     <string name="about_crash_logs">Absturzlogs</string>
@@ -1100,7 +1079,6 @@
     <string name="studio_your_presets_empty">Noch keine gespeicherten Presets. Aktuelles Layout speichern, um eines hinzuzufügen.</string>
 
     <!-- Studio: render progress overlay -->
-    <string name="studio_rendering">Rendern</string>
     <string name="studio_rendering_cancel">Abbrechen</string>
     <string name="studio_dlg_cancel_render_title">Rendern abbrechen?</string>
     <string name="studio_dlg_cancel_render_body">Der Replay-Clip wird nicht gespeichert.</string>
@@ -1371,7 +1349,6 @@
     <string name="studio_overwrite_title">Preset überschreiben?</string>
     <string name="studio_overwrite_body">Ein Preset namens \"%1$s\" existiert bereits.</string>
     <string name="studio_overwrite_confirm">Überschreiben</string>
-    <string name="studio_rendering_keep_open">Handy anlassen und diesen Bildschirm offen lassen, bis das Rendern fertig ist</string>
     <string name="studio_export_force_opaque_hint">Formate ohne Transparenz verwenden die Chroma-Key-Farbe; halbtransparente Ebenen können dadurch unsauber wirken</string>
     <string name="studio_group_data">Daten</string>
     <string name="studio_group_text">Text &amp; Info</string>
@@ -1523,7 +1500,6 @@
     <string name="trip_action_share_file">Datei teilen</string>
     <string name="trip_action_share_file_desc">Fahrt-CSV an eine andere App senden</string>
     <string name="trip_action_view_online">Online ansehen</string>
-    <string name="trip_action_view_online_desc">Auf der EUC Viewer-Karte öffnen</string>
     <string name="trip_action_replay">Im Studio abspielen</string>
     <string name="trip_action_replay_desc">Fahrt mit Live-Datenoverlays durchscrubben</string>
 
@@ -1576,7 +1552,6 @@
     <string name="charging_stat_balance">Ungleichgewicht</string>
     <string name="charging_stat_power">Leistung</string>
     <string name="charging_stat_current">Strom</string>
-    <string name="charging_stat_energy">Energie</string>
     <string name="charging_chart_empty">Daten werden erfasst</string>
     <string name="battery_history">Akku-Verlauf</string>
     <string name="setting_charging_auto_open">Beim Laden öffnen</string>
@@ -1640,8 +1615,6 @@
     <string name="trip_action_share_dropbox_desc">In deinen Dropbox-Ordner hochladen und den öffentlichen Link teilen</string>
     <string name="trip_action_inspect_online">Online prüfen</string>
     <string name="trip_action_inspect_online_desc">Einen eucviewer.ried.no-Link teilen, um diese Fahrt online anzusehen</string>
-    <string name="trip_action_copy_link">eucviewer-Link kopieren</string>
-    <string name="trip_action_copy_link_desc">Teilbaren eucviewer.ried.no-Link in die Zwischenablage kopieren</string>
     <string name="trip_action_dropbox_disabled">Dropbox in den Einstellungen verknüpfen, um das zu nutzen</string>
 
     <!-- Map: chargers (Open Charge Map) & places (OpenStreetMap) -->
@@ -1771,6 +1744,8 @@
     <string name="adv_hud_manual_grace_desc">Beeinflusst, wie lange die automatische Suche Zeit hat, bevor die manuelle IP verwendet wird. Achtung: zu niedrig nutzt die manuelle IP, bevor die Suche gewinnen kann.</string>
     <string name="adv_hud_mdns_resolve">mDNS-Auflösungszeit</string>
     <string name="adv_hud_mdns_resolve_desc">Beeinflusst, wie lange die Adressdetails eines gefundenen HUD aufgelöst werden. Achtung: zu niedrig verwirft ein HUD, das langsam auflöst.</string>
+    <string name="adv_hud_subnet_delay">Subnetz-Scan-Verzögerung</string>
+    <string name="adv_hud_subnet_delay_desc">Beeinflusst, wie lange es dauert, bis der Subnetz-Scan als letztes Mittel startet, damit mDNS und das Beacon zuerst antworten, ohne den Funk zu überlasten. Achtung: zu niedrig überflutet den Funk und verlangsamt die Suche.</string>
     <string name="adv_hud_mdns_timeout">Suche-Zeitlimit</string>
     <string name="adv_hud_mdns_timeout_desc">Beeinflusst, wie lange auf die Antwort des HUD bei der automatischen Suche gewartet wird. Achtung: zu niedrig gibt auf, bevor es antwortet.</string>
     <string name="adv_hud_report_interval">HUD-Melderate</string>
@@ -1837,17 +1812,8 @@
     <string name="adv_wheel_poll_rate_desc">Beeinflusst, wie frisch die Live-Daten sind und wie schnell Alarme reagieren. Niedriger fragt das Wheel öfter nach Daten. Achtung: sehr niedrige Werte können die Bluetooth-Verbindung überfluten und auf manchen Wheels die Daten blockieren.</string>
     <string name="alarm_beep_advanced">Erweitert</string>
     <string name="alarm_beep_gap_label">Pausendauer</string>
-    <string name="alarm_beep_pitch_rise_label">Tonhöhenanstieg</string>
     <string name="alarm_beep_studio">Adaptiver Piepton</string>
-    <string name="alarm_beep_sum_core">Piept mit %1$d Hz für %2$d ms</string>
-    <string name="alarm_beep_sum_pitch"> Tonhöhe steigt Richtung %1$d Hz, während %2$s %3$s %4$s erreicht.</string>
-    <string name="alarm_beep_sum_pitch_vol"> Tonhöhe steigt Richtung %1$d Hz und Lautstärke von %2$d%% auf %3$d%%, während %4$s %5$s %6$s erreicht.</string>
-    <string name="alarm_beep_sum_reps">, ×%1$d im Abstand von %2$d ms</string>
-    <string name="alarm_beep_sum_reps0">, ×%1$d ohne Pause</string>
-    <string name="alarm_beep_sum_voice">, dann Sprache</string>
-    <string name="alarm_beep_sum_vol"> Lautstärke steigt von %1$d%% auf %2$d%%, während %3$s %4$s %5$s erreicht.</string>
-    <string name="alarm_beep_volume_label">Lautstärke</string>
-    <string name="alarm_beep_volume_rise_label">Lautstärkeanstieg</string>
+    <string name="alarm_beep_volume_label">Basislautstärke</string>
     <string name="alarm_studio_now">%1$d Hz · %2$d%%</string>
     <string name="alarm_studio_pitch_factor">Tonhöhenfaktor</string>
     <string name="alarm_studio_play">Abspielen</string>
@@ -1905,11 +1871,16 @@
     <string name="settings_visibility">Sichtbarkeit der Einstellungen</string>
     <string name="geo_section_dashboard">Dashboard</string>
     <string name="geo_section_navigator">Navigator</string>
+    <string name="geo_section_trip">Fahrt</string>
     <string name="geo_section_other">Andere Bildschirme</string>
     <string name="geo_section_settings">Einstellungen</string>
-    <string name="geo_other_hint">Fahrten, Akku-Monitor, Messwertverlauf, Scan und Flic. Das Overlay Studio ist nicht betroffen: Sein Layout ist fest, funktioniert aber in jeder Ausrichtung.</string>
+    <string name="geo_other_hint">Akku-Monitor, Messwertverlauf, Scan und Flic. Das Overlay Studio ist nicht betroffen: Sein Layout ist fest, funktioniert aber in jeder Ausrichtung.</string>
     <string name="geo_settings_hint">Der Einstellungsbildschirm. Standardmäßig aus, sodass die Einstellungen im Hochformat bleiben, sofern du es nicht aktivierst.</string>
+    <string name="geo_trip_hint">Die Detailansicht dreht sich standardmäßig für die Karte und die Diagramme im Querformat. Die Fahrtliste bleibt im Hochformat, sofern du es nicht aktivierst.</string>
     <string name="setting_allow_rotation">Drehung zulassen</string>
+    <string name="setting_rotate_trip_detail">Fahrtdetails drehen</string>
+    <string name="setting_rotate_trip_list">Fahrtliste drehen</string>
+    <string name="setting_trip_map_side">Kartenseite</string>
     <string name="setting_block_upside_down">Kopfüberdrehung verhindern</string>
     <string name="setting_ignore_system_rotate_lock">System-Rotationssperre ignorieren</string>
     <string name="setting_compact_dashboard">Kompaktes Dashboard</string>
@@ -1938,4 +1909,14 @@
     <string name="adv_nav_sidebar_width_desc">Breite der Halte-Seitenleiste im Querformat. Zu breit lässt wenig Karte.</string>
     <string name="adv_simple_speedo_scale">Größe des einfachen Tachos</string>
     <string name="adv_simple_speedo_scale_desc">Größe der reinen Geschwindigkeitszahl relativ zur Anzeigefläche. Zu groß kann die Einheit abschneiden.</string>
+    <string name="charging_reset_data">Daten zurücksetzen</string>
+    <string name="charging_export">Exportieren</string>
+    <string name="charging_export_saved">Batteriedaten exportiert</string>
+    <string name="charging_export_failed">Export fehlgeschlagen</string>
+    <string name="voice_phone_battery_fmt">Telefon %1$d</string>
+    <string name="report_phone_battery">Telefon</string>
+    <string name="alarm_beep_transition_label">Übergang</string>
+    <string name="alarm_constant_title">Dauerton?</string>
+    <string name="alarm_constant_body">Eine Pause von 0 ms ergibt einen ununterbrochenen Ton. Damit er durchgehend klingt, außerdem:</string>
+    <string name="alarm_constant_never">Nicht mehr fragen</string>
 </resources>
