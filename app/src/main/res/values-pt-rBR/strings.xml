@@ -1897,8 +1897,7 @@
     <string name="report_phone_battery">Telefone</string>
     <string name="alarm_beep_transition_label">Transição</string>
     <string name="alarm_constant_title">Tom contínuo?</string>
-    <string name="alarm_constant_body">Tocar um tom contínuo em vez de bipes separados?</string>
-    <string name="alarm_constant_change">Alterar</string>
+    <string name="alarm_constant_body">Um intervalo de 0 ms toca como um tom ininterrupto. Para soar continuamente, defina também:</string>
     <string name="alarm_constant_never">Não perguntar novamente</string>
 </resources>
 

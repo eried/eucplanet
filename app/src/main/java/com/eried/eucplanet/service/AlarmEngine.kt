@@ -198,6 +198,7 @@ class AlarmEngine @Inject constructor(
             rule.beepVolume, rule.beepVolumeModulation, value, rule.comparator, rule.threshold, rule.metric)
         val trans = rule.beepDurationMs * rule.beepTransitionPct / 100
         if (constantRuleId != rule.id) {
+            Log.i(TAG, "Constant tone START '${rule.name}' freq=$freq vol=$vol gap=${rule.beepGapMs}")
             tonePlayer.startStream(freq, rule.beepDurationMs, rule.beepGapMs, vol, trans)
             constantRuleId = rule.id
         } else {
@@ -209,6 +210,7 @@ class AlarmEngine @Inject constructor(
      *  godmode). Idempotent. */
     fun stopConstantTone() {
         if (constantRuleId != null) {
+            Log.i(TAG, "Constant tone STOP")
             tonePlayer.stopStream()
             constantRuleId = null
         }

@@ -1894,8 +1894,7 @@
     <string name="report_phone_battery">Telefon</string>
     <string name="alarm_beep_transition_label">Geçiş</string>
     <string name="alarm_constant_title">Sürekli ton?</string>
-    <string name="alarm_constant_body">Ayrı bip sesleri yerine tek sürekli ton çalınsın mı?</string>
-    <string name="alarm_constant_change">Değiştir</string>
+    <string name="alarm_constant_body">0 ms boşluk kesintisiz tek bir ton verir. Sürekli çalması için şunları da ayarla:</string>
     <string name="alarm_constant_never">Bir daha sorma</string>
 </resources>
 

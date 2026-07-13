@@ -618,7 +618,7 @@ private fun AlarmRuleEditorDialog(
                                 cooldownSeconds = 0
                                 showConstantPrompt = false
                             }, shape = RoundedCornerShape(12.dp)) {
-                                Text(stringResource(R.string.alarm_constant_change), color = MaterialTheme.appColors.statusGood)
+                                Text(stringResource(R.string.action_apply), color = MaterialTheme.appColors.statusGood)
                             }
                         },
                         dismissButton = {

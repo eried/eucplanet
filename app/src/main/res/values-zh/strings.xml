@@ -1764,7 +1764,6 @@
     <string name="report_phone_battery">手机</string>
     <string name="alarm_beep_transition_label">过渡</string>
     <string name="alarm_constant_title">连续音？</string>
-    <string name="alarm_constant_body">播放连续音而非单独的哔声？</string>
-    <string name="alarm_constant_change">更改</string>
+    <string name="alarm_constant_body">0 毫秒间隔会成为一个不间断的音。若要持续发声，也请设置：</string>
     <string name="alarm_constant_never">不再询问</string>
 </resources>

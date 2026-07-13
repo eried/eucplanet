@@ -3,6 +3,7 @@ package com.eried.eucplanet.service
 import android.media.AudioAttributes
 import android.media.AudioFormat
 import android.media.AudioTrack
+import android.util.Log
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -13,6 +14,8 @@ import kotlin.math.sin
 
 @Singleton
 class TonePlayer @Inject constructor() {
+
+    private companion object { const val TAG = "TonePlayer" }
 
     private val sampleRate = 44100
 
@@ -55,6 +58,7 @@ class TonePlayer @Inject constructor() {
         transitionMs: Int = -1,
     ) {
         if (count <= 0 || durationMs <= 0) return
+        Log.d(TAG, "playBeep freq=$frequencyHz dur=$durationMs count=$count gap=$gapMs vol=$volumePct")
         withContext(Dispatchers.IO) {
             val toneN = (sampleRate.toLong() * durationMs / 1000).toInt()
             if (toneN <= 0) return@withContext
@@ -108,41 +112,56 @@ class TonePlayer @Inject constructor() {
             val minBuf = AudioTrack.getMinBufferSize(
                 sampleRate, AudioFormat.CHANNEL_OUT_MONO, AudioFormat.ENCODING_PCM_16BIT
             )
-            val track = AudioTrack.Builder()
-                .setAudioAttributes(
-                    AudioAttributes.Builder()
-                        .setUsage(AudioAttributes.USAGE_MEDIA)
-                        .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
-                        .build()
-                )
-                .setAudioFormat(
-                    AudioFormat.Builder()
-                        .setSampleRate(sampleRate)
-                        .setEncoding(AudioFormat.ENCODING_PCM_16BIT)
-                        .setChannelMask(AudioFormat.CHANNEL_OUT_MONO)
-                        .build()
-                )
-                // Whole buffer fits, so write() queues it once; MODE_STREAM drains
-                // gracefully on stop() (unlike MODE_STATIC which halts the track dead).
-                .setBufferSizeInBytes(maxOf(minBuf, samples.size * 2))
-                .setTransferMode(AudioTrack.MODE_STREAM)
-                .build()
-
-            track.write(samples, 0, samples.size)
-            track.play()
-            val playMs = totalN.toLong() * 1000 / sampleRate
-            // Wait for the frames to actually PLAY OUT (BT adds ~100-200ms), with a
-            // hard cap so a stalled route can't hang the coroutine.
-            val capNs = System.nanoTime() + (playMs + 2000L) * 1_000_000L
-            while (track.playbackHeadPosition < totalN &&
-                track.playState == AudioTrack.PLAYSTATE_PLAYING &&
-                System.nanoTime() < capNs
-            ) {
-                Thread.sleep(10)
+            val track = try {
+                AudioTrack.Builder()
+                    .setAudioAttributes(
+                        AudioAttributes.Builder()
+                            .setUsage(AudioAttributes.USAGE_MEDIA)
+                            .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+                            .build()
+                    )
+                    .setAudioFormat(
+                        AudioFormat.Builder()
+                            .setSampleRate(sampleRate)
+                            .setEncoding(AudioFormat.ENCODING_PCM_16BIT)
+                            .setChannelMask(AudioFormat.CHANNEL_OUT_MONO)
+                            .build()
+                    )
+                    // Whole buffer fits, so write() queues it once; MODE_STREAM drains
+                    // gracefully on stop() (unlike MODE_STATIC which halts the track dead).
+                    .setBufferSizeInBytes(maxOf(minBuf, samples.size * 2))
+                    .setTransferMode(AudioTrack.MODE_STREAM)
+                    .build()
+            } catch (e: Exception) {
+                // Build can fail under audio-resource pressure. Log and bail rather than
+                // crash the coroutine silently.
+                Log.e(TAG, "playBeep: AudioTrack build failed (freq=$frequencyHz dur=$durationMs)", e)
+                return@withContext
             }
-            Thread.sleep(30)   // small drain margin after the last frame
-            track.stop()
-            track.release()
+
+            // ALWAYS stop+release, even if write/play/poll throws, so a failed beep can
+            // never leak a system AudioTrack. Leaks accumulate until every later build()
+            // fails -- i.e. alarms silently go dead. This is the safety-critical bit.
+            try {
+                track.write(samples, 0, samples.size)
+                track.play()
+                val playMs = totalN.toLong() * 1000 / sampleRate
+                // Wait for the frames to actually PLAY OUT (BT adds ~100-200ms), with a
+                // hard cap so a stalled route can't hang the coroutine.
+                val capNs = System.nanoTime() + (playMs + 2000L) * 1_000_000L
+                while (track.playbackHeadPosition < totalN &&
+                    track.playState == AudioTrack.PLAYSTATE_PLAYING &&
+                    System.nanoTime() < capNs
+                ) {
+                    Thread.sleep(10)
+                }
+                Thread.sleep(30)   // small drain margin after the last frame
+            } catch (e: Exception) {
+                Log.e(TAG, "playBeep: playback failed (freq=$frequencyHz)", e)
+            } finally {
+                runCatching { track.stop() }
+                runCatching { track.release() }
+            }
         }
     }
 

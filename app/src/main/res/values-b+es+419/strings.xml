@@ -1915,8 +1915,7 @@
     <string name="report_phone_battery">Teléfono</string>
     <string name="alarm_beep_transition_label">Transición</string>
     <string name="alarm_constant_title">¿Tono continuo?</string>
-    <string name="alarm_constant_body">¿Reproducir un tono continuo en vez de pitidos separados?</string>
-    <string name="alarm_constant_change">Cambiar</string>
+    <string name="alarm_constant_body">Un intervalo de 0 ms suena como un tono ininterrumpido. Para que suene de forma continua, también:</string>
     <string name="alarm_constant_never">No volver a preguntar</string>
 </resources>
 

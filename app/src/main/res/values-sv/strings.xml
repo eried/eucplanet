@@ -1897,7 +1897,6 @@
     <string name="report_phone_battery">Telefon</string>
     <string name="alarm_beep_transition_label">Övergång</string>
     <string name="alarm_constant_title">Konstant ton?</string>
-    <string name="alarm_constant_body">Spela en sammanhängande ton i stället för enskilda pip?</string>
-    <string name="alarm_constant_change">Ändra</string>
+    <string name="alarm_constant_body">Ett mellanrum på 0 ms ger en obruten ton. För att den ska låta oavbrutet, ställ även in:</string>
     <string name="alarm_constant_never">Fråga inte igen</string>
 </resources>

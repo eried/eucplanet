@@ -1894,8 +1894,7 @@
     <string name="report_phone_battery">Телефон</string>
     <string name="alarm_beep_transition_label">Перехід</string>
     <string name="alarm_constant_title">Безперервний сигнал?</string>
-    <string name="alarm_constant_body">Відтворювати один безперервний сигнал замість окремих?</string>
-    <string name="alarm_constant_change">Змінити</string>
+    <string name="alarm_constant_body">Пауза 0 мс дає один безперервний сигнал. Щоб він звучав постійно, задайте також:</string>
     <string name="alarm_constant_never">Більше не запитувати</string>
 </resources>
 

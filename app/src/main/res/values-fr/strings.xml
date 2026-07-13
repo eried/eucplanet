@@ -1901,7 +1901,6 @@
     <string name="report_phone_battery">Téléphone</string>
     <string name="alarm_beep_transition_label">Transition</string>
     <string name="alarm_constant_title">Tonalité continue ?</string>
-    <string name="alarm_constant_body">Jouer une tonalité continue au lieu de bips séparés ?</string>
-    <string name="alarm_constant_change">Modifier</string>
+    <string name="alarm_constant_body">Un intervalle de 0 ms donne une tonalité ininterrompue. Pour qu\'elle sonne en continu, réglez aussi :</string>
     <string name="alarm_constant_never">Ne plus demander</string>
 </resources>

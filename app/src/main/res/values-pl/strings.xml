@@ -1895,7 +1895,6 @@
     <string name="report_phone_battery">Telefon</string>
     <string name="alarm_beep_transition_label">Przejście</string>
     <string name="alarm_constant_title">Ciągły dźwięk?</string>
-    <string name="alarm_constant_body">Odtwarzać jeden ciągły dźwięk zamiast osobnych sygnałów?</string>
-    <string name="alarm_constant_change">Zmień</string>
+    <string name="alarm_constant_body">Przerwa 0 ms daje jeden nieprzerwany dźwięk. Aby brzmiał ciągle, ustaw też:</string>
     <string name="alarm_constant_never">Nie pytaj ponownie</string>
 </resources>
