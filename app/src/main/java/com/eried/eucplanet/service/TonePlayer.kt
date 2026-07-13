@@ -16,14 +16,6 @@ class TonePlayer @Inject constructor() {
 
     private val sampleRate = 44100
 
-    // Persistent "warm" track for one-shot beeps: kept playing silence between beeps
-    // so the audio route doesn't power up/down each time (that power transition is the
-    // start-of-beep pop). Releases after a few seconds idle to save power.
-    private val beepQueue = java.util.concurrent.ConcurrentLinkedQueue<ShortArray>()
-    @Volatile private var oneShotAlive = false
-    @Volatile private var oneShotThread: Thread? = null
-    @Volatile private var lastOneShotMs = 0L
-
     /**
      * Play [count] beeps of [durationMs] at [frequencyHz], separated by [gapMs]
      * of silence, at [volumePct] of the media volume.
@@ -97,85 +89,44 @@ class TonePlayer @Inject constructor() {
                 }
             }
 
-            // Hand the pattern to the persistent one-shot track (kept warm with silence
-            // between beeps, so the audio route doesn't power-cycle each time - that
-            // power transition is the start-of-beep pop). Wait for it to play out so
-            // callers can still sequence beep -> voice.
-            enqueueOneShot(samples)
-            val playMs = totalN.toLong() * 1000 / sampleRate
-            kotlinx.coroutines.delay(playMs + 120L)
-        }
-    }
-
-    private fun enqueueOneShot(pattern: ShortArray) {
-        lastOneShotMs = System.currentTimeMillis()
-        beepQueue.add(pattern)
-        ensureOneShotThread()
-    }
-
-    @Synchronized
-    private fun ensureOneShotThread() {
-        if (oneShotAlive) return
-        oneShotAlive = true
-        oneShotThread = thread(name = "ToneOneShot", isDaemon = true) { oneShotLoop() }
-    }
-
-    private fun oneShotLoop() {
-        val chunk = 512
-        val minBuf = AudioTrack.getMinBufferSize(
-            sampleRate, AudioFormat.CHANNEL_OUT_MONO, AudioFormat.ENCODING_PCM_16BIT
-        )
-        val track = AudioTrack.Builder()
-            .setAudioAttributes(
-                AudioAttributes.Builder()
-                    .setUsage(AudioAttributes.USAGE_MEDIA)
-                    .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
-                    .build()
+            val minBuf = AudioTrack.getMinBufferSize(
+                sampleRate, AudioFormat.CHANNEL_OUT_MONO, AudioFormat.ENCODING_PCM_16BIT
             )
-            .setAudioFormat(
-                AudioFormat.Builder()
-                    .setSampleRate(sampleRate)
-                    .setEncoding(AudioFormat.ENCODING_PCM_16BIT)
-                    .setChannelMask(AudioFormat.CHANNEL_OUT_MONO)
-                    .build()
-            )
-            .setBufferSizeInBytes(maxOf(minBuf, chunk * 2 * 4))
-            .setTransferMode(AudioTrack.MODE_STREAM)
-            .build()
-        val silence = ShortArray(chunk)
-        try {
+            val track = AudioTrack.Builder()
+                .setAudioAttributes(
+                    AudioAttributes.Builder()
+                        .setUsage(AudioAttributes.USAGE_MEDIA)
+                        .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+                        .build()
+                )
+                .setAudioFormat(
+                    AudioFormat.Builder()
+                        .setSampleRate(sampleRate)
+                        .setEncoding(AudioFormat.ENCODING_PCM_16BIT)
+                        .setChannelMask(AudioFormat.CHANNEL_OUT_MONO)
+                        .build()
+                )
+                // Whole buffer fits, so write() queues it once; MODE_STREAM drains
+                // gracefully on stop() (unlike MODE_STATIC which halts the track dead).
+                .setBufferSizeInBytes(maxOf(minBuf, samples.size * 2))
+                .setTransferMode(AudioTrack.MODE_STREAM)
+                .build()
+
+            track.write(samples, 0, samples.size)
             track.play()
-            // Prime with silence (~70 ms) so the route power-up transient settles in
-            // silence before the first tone; stays warm between beeps after that.
-            repeat(6) { track.write(silence, 0, silence.size) }
-            while (oneShotAlive) {
-                val pattern = beepQueue.poll()
-                if (pattern != null) {
-                    lastOneShotMs = System.currentTimeMillis()
-                    var off = 0
-                    while (off < pattern.size) {
-                        val n = minOf(chunk, pattern.size - off)
-                        track.write(pattern, off, n)   // blocks, paces the playout
-                        off += n
-                    }
-                    lastOneShotMs = System.currentTimeMillis()
-                } else {
-                    track.write(silence, 0, silence.size)   // keep the route warm
-                    if (System.currentTimeMillis() - lastOneShotMs > 4000L) {
-                        synchronized(this) { if (beepQueue.isEmpty()) oneShotAlive = false }
-                    }
-                }
+            val playMs = totalN.toLong() * 1000 / sampleRate
+            // Wait for the frames to actually PLAY OUT (BT adds ~100-200ms), with a
+            // hard cap so a stalled route can't hang the coroutine.
+            val capNs = System.nanoTime() + (playMs + 2000L) * 1_000_000L
+            while (track.playbackHeadPosition < totalN &&
+                track.playState == AudioTrack.PLAYSTATE_PLAYING &&
+                System.nanoTime() < capNs
+            ) {
+                Thread.sleep(10)
             }
-        } catch (_: Exception) {
-        } finally {
-            runCatching { track.stop() }
-            runCatching { track.release() }
-            synchronized(this) {
-                if (oneShotThread === Thread.currentThread()) {
-                    oneShotThread = null
-                    oneShotAlive = false
-                }
-            }
+            Thread.sleep(30)   // small drain margin after the last frame
+            track.stop()
+            track.release()
         }
     }
 
