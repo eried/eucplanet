@@ -161,6 +161,25 @@ anything.
 
 ---
 
+## Recent changes
+
+Latest work since **0.12.2** (unreleased, on the `next-version` branch, see the
+[full history](../../commits/next-version)):
+
+- **P6 power** now decodes: battery and motor power show on the dashboard instead
+  of reading 0 W. ([`de099cc`](https://github.com/eried/eucplanet/commit/de099cc9219a62409134078ee8ab306fa2598ba7))
+- **Odometer** history/detail now shows your distance unit (mi or km), matching the
+  dashboard tile. ([`744c322`](https://github.com/eried/eucplanet/commit/744c322dfe48178a4b7f18dd81abc72f7b19e28a))
+- **Navigator** keeps the full "Start navigation" label unless the layout is very
+  narrow. ([`2bd37eb`](https://github.com/eried/eucplanet/commit/2bd37eb96b80a78214162d51b169abe0245d1f92))
+- **Alarm beeps**: short tones under the audio buffer minimum now play, a 30 ms
+  duration floor, and the constant-tone dialog smooths the tone (max transition,
+  30 ms floor). ([`dfa91c4`](https://github.com/eried/eucplanet/commit/dfa91c4d54b091d043529dd0582a31a9c2b5239d), [`68d66ee`](https://github.com/eried/eucplanet/commit/68d66ee4dee5f1715e2d1d457054e0c4f1b9073e))
+- **Trip view** remembers the map style you picked for the current app session.
+  ([`2a06c67`](https://github.com/eried/eucplanet/commit/2a06c67ec7946b912feb2e3ea5123f07f6e3f8d1))
+
+---
+
 ## Where do I get it?
 
 [Google Play](https://play.google.com/store/apps/details?id=com.eried.eucplanet) has
