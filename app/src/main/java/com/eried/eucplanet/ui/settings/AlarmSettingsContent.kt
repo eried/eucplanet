@@ -267,23 +267,15 @@ fun AlarmSettingsContent(
 
         Spacer(Modifier.height(8.dp))
 
-        // New alarm sits on the left half of the row (auto-sort removed; group
-        // order is the priority, so an automatic re-sort would fight the rider).
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-            verticalAlignment = Alignment.CenterVertically
+        // New alarm: natural (content) width, left-aligned - not stretched to a
+        // fixed fraction of the row.
+        Button(
+            onClick = { editingRule = null; showEditor = true },
+            shape = RoundedCornerShape(12.dp)
         ) {
-            Button(
-                onClick = { editingRule = null; showEditor = true },
-                modifier = Modifier.weight(1f),
-                shape = RoundedCornerShape(12.dp)
-            ) {
-                Icon(Icons.Default.Add, contentDescription = null, modifier = Modifier.size(18.dp))
-                Spacer(Modifier.width(6.dp))
-                Text(stringResource(R.string.alarm_add))
-            }
-            Spacer(Modifier.weight(1f))
+            Icon(Icons.Default.Add, contentDescription = null, modifier = Modifier.size(18.dp))
+            Spacer(Modifier.width(6.dp))
+            Text(stringResource(R.string.alarm_add))
         }
 
         Spacer(Modifier.height(16.dp))
@@ -872,21 +864,15 @@ private fun AlarmRuleEditorDialog(
                         Spacer(Modifier.height(8.dp))
                         // Pitch + volume modulation is set in a dedicated full-screen
                         // preview (roomy controls + live audio), not crammed inline.
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.spacedBy(8.dp),
-                            verticalAlignment = Alignment.CenterVertically
+                        // Natural (content) width at the 56dp field height, not stretched.
+                        Button(
+                            onClick = { showStudio = true },
+                            modifier = Modifier.height(56.dp),
+                            shape = RoundedCornerShape(12.dp),
                         ) {
-                            Button(
-                                onClick = { showStudio = true },
-                                modifier = Modifier.weight(1f),
-                                shape = RoundedCornerShape(12.dp),
-                            ) {
-                                Icon(Icons.Default.Tune, contentDescription = null, modifier = Modifier.size(18.dp))
-                                Spacer(Modifier.width(6.dp))
-                                Text(stringResource(R.string.alarm_beep_studio))
-                            }
-                            Spacer(Modifier.weight(1f))
+                            Icon(Icons.Default.Tune, contentDescription = null, modifier = Modifier.size(18.dp))
+                            Spacer(Modifier.width(6.dp))
+                            Text(stringResource(R.string.alarm_beep_studio))
                         }
                     }
                 }
@@ -968,7 +954,7 @@ private fun AlarmRuleEditorDialog(
                     )
                     Box(modifier = Modifier.fillMaxWidth().padding(top = 9.dp)) {
                         SingleChoiceSegmentedButtonRow(
-                            modifier = Modifier.fillMaxWidth().height(48.dp)
+                            modifier = Modifier.fillMaxWidth().height(56.dp)
                         ) {
                             targetEntries.forEachIndexed { index, (key, label) ->
                                 SegmentedButton(
@@ -1049,7 +1035,7 @@ private fun AlarmRuleEditorDialog(
                         )
                         Box(modifier = Modifier.weight(1f).padding(top = 9.dp)) {
                             SingleChoiceSegmentedButtonRow(
-                                modifier = Modifier.fillMaxWidth().height(48.dp)
+                                modifier = Modifier.fillMaxWidth().height(56.dp)
                             ) {
                                 repeatEntries.forEachIndexed { index, (value, lbl) ->
                                     SegmentedButton(
@@ -1092,7 +1078,7 @@ private fun AlarmRuleEditorDialog(
                     val leadValues = listOf(0, 500, 1000, 2000, 3000)
                     Box(modifier = Modifier.fillMaxWidth().padding(top = 9.dp)) {
                         SingleChoiceSegmentedButtonRow(
-                            modifier = Modifier.fillMaxWidth().height(44.dp)
+                            modifier = Modifier.fillMaxWidth().height(56.dp)
                         ) {
                             leadValues.forEachIndexed { index, ms ->
                                 SegmentedButton(
