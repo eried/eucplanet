@@ -1897,6 +1897,17 @@
     <string name="alarm_constant_body">0 ms boşluk kesintisiz tek bir ton verir. Sürekli çalması için şunları da ayarla:</string>
     <string name="alarm_constant_never">Bir daha sorma</string>
     <string name="nav_start_btn">Başlat</string>
+    <string name="alarm_beep_wave_label">Dalga</string>
+    <string name="alarm_beep_effect_label">Efekt</string>
+    <string name="alarm_wave_sine">Sinüs</string>
+    <string name="alarm_wave_triangle">Üçgen</string>
+    <string name="alarm_wave_square">Kare</string>
+    <string name="alarm_wave_saw">Testere</string>
+    <string name="alarm_wave_fm">FM</string>
+    <string name="alarm_fx_none">Temiz</string>
+    <string name="alarm_fx_drive">Overdrive</string>
+    <string name="alarm_fx_sweep">Filtre</string>
+    <string name="alarm_fx_crush">Bitcrush</string>
 </resources>
 
 

@@ -1900,4 +1900,15 @@
     <string name="alarm_constant_body">Ett mellanrum på 0 ms ger en obruten ton. För att den ska låta oavbrutet, ställ även in:</string>
     <string name="alarm_constant_never">Fråga inte igen</string>
     <string name="nav_start_btn">Starta</string>
+    <string name="alarm_beep_wave_label">Våg</string>
+    <string name="alarm_beep_effect_label">Effekt</string>
+    <string name="alarm_wave_sine">Sinus</string>
+    <string name="alarm_wave_triangle">Triangel</string>
+    <string name="alarm_wave_square">Fyrkant</string>
+    <string name="alarm_wave_saw">Sågtand</string>
+    <string name="alarm_wave_fm">FM</string>
+    <string name="alarm_fx_none">Ren</string>
+    <string name="alarm_fx_drive">Overdrive</string>
+    <string name="alarm_fx_sweep">Filter</string>
+    <string name="alarm_fx_crush">Bitcrush</string>
 </resources>

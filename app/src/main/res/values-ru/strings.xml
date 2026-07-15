@@ -1900,5 +1900,16 @@
     <string name="alarm_constant_body">Интервал 0 мс звучит как один непрерывный сигнал. Чтобы он звучал постоянно, задайте также:</string>
     <string name="alarm_constant_never">Больше не спрашивать</string>
     <string name="nav_start_btn">Пуск</string>
+    <string name="alarm_beep_wave_label">Волна</string>
+    <string name="alarm_beep_effect_label">Эффект</string>
+    <string name="alarm_wave_sine">Синус</string>
+    <string name="alarm_wave_triangle">Треугольник</string>
+    <string name="alarm_wave_square">Меандр</string>
+    <string name="alarm_wave_saw">Пила</string>
+    <string name="alarm_wave_fm">FM</string>
+    <string name="alarm_fx_none">Чистый</string>
+    <string name="alarm_fx_drive">Овердрайв</string>
+    <string name="alarm_fx_sweep">Фильтр</string>
+    <string name="alarm_fx_crush">Биткрашер</string>
 </resources>
 

@@ -1899,6 +1899,17 @@
     <string name="alarm_constant_body">間隔 0 ms は途切れない 1 つの音になります。連続して鳴らすには、次も設定:</string>
     <string name="alarm_constant_never">今後表示しない</string>
     <string name="nav_start_btn">開始</string>
+    <string name="alarm_beep_wave_label">波形</string>
+    <string name="alarm_beep_effect_label">エフェクト</string>
+    <string name="alarm_wave_sine">サイン</string>
+    <string name="alarm_wave_triangle">三角</string>
+    <string name="alarm_wave_square">矩形</string>
+    <string name="alarm_wave_saw">ノコギリ</string>
+    <string name="alarm_wave_fm">FM</string>
+    <string name="alarm_fx_none">クリーン</string>
+    <string name="alarm_fx_drive">オーバードライブ</string>
+    <string name="alarm_fx_sweep">フィルター</string>
+    <string name="alarm_fx_crush">ビットクラッシュ</string>
 </resources>
 
 

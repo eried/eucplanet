@@ -1900,5 +1900,16 @@
     <string name="alarm_constant_body">Een tussenpauze van 0 ms geeft één ononderbroken toon. Voor onafgebroken geluid, stel ook in:</string>
     <string name="alarm_constant_never">Niet meer vragen</string>
     <string name="nav_start_btn">Start</string>
+    <string name="alarm_beep_wave_label">Golf</string>
+    <string name="alarm_beep_effect_label">Effect</string>
+    <string name="alarm_wave_sine">Sinus</string>
+    <string name="alarm_wave_triangle">Driehoek</string>
+    <string name="alarm_wave_square">Blok</string>
+    <string name="alarm_wave_saw">Zaagtand</string>
+    <string name="alarm_wave_fm">FM</string>
+    <string name="alarm_fx_none">Clean</string>
+    <string name="alarm_fx_drive">Overdrive</string>
+    <string name="alarm_fx_sweep">Filter</string>
+    <string name="alarm_fx_crush">Bitcrush</string>
 </resources>
 

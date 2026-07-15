@@ -1805,4 +1805,15 @@
     <string name="alarm_constant_body">Un intervallo di 0 ms produce un tono ininterrotto. Perché suoni di continuo, imposta anche:</string>
     <string name="alarm_constant_never">Non chiedere più</string>
     <string name="nav_start_btn">Avvia</string>
+    <string name="alarm_beep_wave_label">Onda</string>
+    <string name="alarm_beep_effect_label">Effetto</string>
+    <string name="alarm_wave_sine">Sinusoide</string>
+    <string name="alarm_wave_triangle">Triangolo</string>
+    <string name="alarm_wave_square">Quadra</string>
+    <string name="alarm_wave_saw">Dente di sega</string>
+    <string name="alarm_wave_fm">FM</string>
+    <string name="alarm_fx_none">Pulito</string>
+    <string name="alarm_fx_drive">Overdrive</string>
+    <string name="alarm_fx_sweep">Filtro</string>
+    <string name="alarm_fx_crush">Bitcrush</string>
 </resources>

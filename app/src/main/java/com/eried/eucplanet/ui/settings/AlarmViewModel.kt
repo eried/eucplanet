@@ -211,19 +211,21 @@ class AlarmViewModel @Inject constructor(
         }
     }
 
-    fun previewBeep(frequencyHz: Int, durationMs: Int, count: Int, gapMs: Int, volumePct: Int, transitionPct: Int) {
+    fun previewBeep(frequencyHz: Int, durationMs: Int, count: Int, gapMs: Int, volumePct: Int, transitionPct: Int, waveform: Int = 0, effect: Int = 0) {
         viewModelScope.launch {
-            // Play exactly what fires: `count` beeps at the configured pitch, volume
-            // and transition shape, separated by the configured gap. The modulation
-            // ("rises with severity") is auditioned live in the Beep Studio, not here -
-            // this button answers "what does my alarm actually sound like".
-            tonePlayer.playBeep(frequencyHz, durationMs, count, gapMs, volumePct, durationMs * transitionPct / 100)
+            // Play exactly what fires: `count` beeps at the configured pitch, volume,
+            // transition shape and timbre (waveform + effect), separated by the
+            // configured gap. The modulation ("rises with severity") is auditioned
+            // live in the Beep Studio, not here - this button answers "what does my
+            // alarm actually sound like".
+            tonePlayer.playBeep(frequencyHz, durationMs, count, gapMs, volumePct, durationMs * transitionPct / 100, waveform, effect)
         }
     }
 
-    /** Short tone at a given pitch + volume, for scrubbing the modulation graph. */
+    /** Short tone at a given pitch + volume, for scrubbing the modulation graph.
+     *  Uses the studio's current waveform/effect so the scrub matches the timbre. */
     fun previewToneAt(frequencyHz: Int, volumePct: Int) {
-        viewModelScope.launch { tonePlayer.playBeep(frequencyHz, 90, 1, 0, volumePct) }
+        viewModelScope.launch { tonePlayer.playBeep(frequencyHz, 90, 1, 0, volumePct, -1, sWave, sEffect) }
     }
 
     /** Hold the audio route warm while the alarm editor is open so preview beeps/voice
@@ -245,14 +247,17 @@ class AlarmViewModel @Inject constructor(
     @Volatile private var sGap = 100
     @Volatile private var sVol = 100
     @Volatile private var sTrans = 12   // transition ramp, percent of duration
+    @Volatile private var sWave = 0     // oscillator shape
+    @Volatile private var sEffect = 0   // post effect
 
     private fun sTransMs() = sDur * sTrans / 100
 
-    fun setStudioTone(frequencyHz: Int, durationMs: Int, count: Int, gapMs: Int, volumePct: Int, transitionPct: Int) {
+    fun setStudioTone(frequencyHz: Int, durationMs: Int, count: Int, gapMs: Int, volumePct: Int, transitionPct: Int, waveform: Int = 0, effect: Int = 0) {
         sFreq = frequencyHz; sDur = durationMs; sCount = count; sGap = gapMs; sVol = volumePct; sTrans = transitionPct
+        sWave = waveform; sEffect = effect
         // Glide the live continuous tone as the rider drags the sliders (no-op if the
         // current session is a one-shot rather than the stream).
-        if (_studioPlaying.value) tonePlayer.updateStream(sFreq, sDur, sGap, sVol, sTransMs())
+        if (_studioPlaying.value) tonePlayer.updateStream(sFreq, sDur, sGap, sVol, sTransMs(), sWave, sEffect)
     }
 
     fun toggleStudioPlay(repeat: Boolean = true) {
@@ -261,11 +266,11 @@ class AlarmViewModel @Inject constructor(
         if (sGap <= 0 || repeat) {
             // gap 0 is a continuous tone (repeat is moot); gap>0 + repeat loops the
             // pattern. Either way the streaming tone is gapless and glides live.
-            tonePlayer.startStream(sFreq, sDur, sGap, sVol, sTransMs())
+            tonePlayer.startStream(sFreq, sDur, sGap, sVol, sTransMs(), sWave, sEffect)
         } else {
             // gap>0 + repeat off: play the pattern once, then clear.
             studioJob = viewModelScope.launch {
-                tonePlayer.playBeep(sFreq, sDur, sCount, sGap, sVol, sTransMs())
+                tonePlayer.playBeep(sFreq, sDur, sCount, sGap, sVol, sTransMs(), sWave, sEffect)
                 _studioPlaying.value = false
                 studioJob = null
             }

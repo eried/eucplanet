@@ -1902,4 +1902,15 @@
     <string name="voice_phone_battery_fmt">phone %1$d</string>
     <string name="report_phone_battery">Phone</string>
     <string name="alarm_beep_transition_label">Transition</string>
+    <string name="alarm_beep_wave_label">Wave</string>
+    <string name="alarm_beep_effect_label">Effect</string>
+    <string name="alarm_wave_sine">Sine</string>
+    <string name="alarm_wave_triangle">Triangle</string>
+    <string name="alarm_wave_square">Square</string>
+    <string name="alarm_wave_saw">Saw</string>
+    <string name="alarm_wave_fm">FM</string>
+    <string name="alarm_fx_none">Clean</string>
+    <string name="alarm_fx_drive">Overdrive</string>
+    <string name="alarm_fx_sweep">Filter</string>
+    <string name="alarm_fx_crush">Bitcrush</string>
 </resources>

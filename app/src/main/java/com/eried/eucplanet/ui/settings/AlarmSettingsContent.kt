@@ -311,12 +311,12 @@ fun AlarmSettingsContent(
             // Keep the editor open and show the confirm ON TOP of it; only close
             // the editor once the delete is actually confirmed (see below).
             onDelete = editingRule?.let { r -> { deleteCandidate = r } },
-            onPreviewBeep = { freq, dur, cnt, gap, vol, trans -> viewModel.previewBeep(freq, dur, cnt, gap, vol, trans) },
+            onPreviewBeep = { freq, dur, cnt, gap, vol, trans, wave, fx -> viewModel.previewBeep(freq, dur, cnt, gap, vol, trans, wave, fx) },
             onPreviewTone = { freq, vol -> viewModel.previewToneAt(freq, vol) },
             onPreviewVoice = { text, metric, thr -> viewModel.previewVoice(text, metric, thr) },
             onPreviewVibrate = { dur -> viewModel.previewVibrate(dur) },
             studioPlaying = studioPlaying,
-            onStudioTone = { f, d, c, g, v, t -> viewModel.setStudioTone(f, d, c, g, v, t) },
+            onStudioTone = { f, d, c, g, v, t, w, e -> viewModel.setStudioTone(f, d, c, g, v, t, w, e) },
             onStudioToggle = { repeat -> viewModel.toggleStudioPlay(repeat) },
             onStudioStop = { viewModel.stopStudio() },
         )
@@ -453,12 +453,12 @@ private fun AlarmRuleEditorDialog(
     onSave: (AlarmRule) -> Unit,
     onDismiss: () -> Unit,
     onDelete: (() -> Unit)? = null,
-    onPreviewBeep: (Int, Int, Int, Int, Int, Int) -> Unit,
+    onPreviewBeep: (Int, Int, Int, Int, Int, Int, Int, Int) -> Unit,
     onPreviewTone: (Int, Int) -> Unit,
     onPreviewVoice: (String, AlarmMetric, Float) -> Unit,
     onPreviewVibrate: (Int) -> Unit,
     studioPlaying: Boolean = false,
-    onStudioTone: (Int, Int, Int, Int, Int, Int) -> Unit = { _, _, _, _, _, _ -> },
+    onStudioTone: (Int, Int, Int, Int, Int, Int, Int, Int) -> Unit = { _, _, _, _, _, _, _, _ -> },
     onStudioToggle: (Boolean) -> Unit = {},
     onStudioStop: () -> Unit = {},
 ) {
@@ -476,6 +476,8 @@ private fun AlarmRuleEditorDialog(
     var beepModulation by remember { mutableIntStateOf(initial.beepModulation) }
     var beepGapMs by remember { mutableIntStateOf(initial.beepGapMs) }
     var beepTransitionPct by remember { mutableIntStateOf(initial.beepTransitionPct) }
+    var beepWaveform by remember { mutableIntStateOf(initial.beepWaveform) }
+    var beepEffect by remember { mutableIntStateOf(initial.beepEffect) }
     var beepVolume by remember { mutableIntStateOf(initial.beepVolume) }
     var beepVolumeModulation by remember { mutableIntStateOf(initial.beepVolumeModulation) }
     var beepModulationReachPct by remember { mutableIntStateOf(initial.beepModulationReachPct) }
@@ -540,7 +542,7 @@ private fun AlarmRuleEditorDialog(
             pitchReachPct = beepModulation,
             volReachPct = beepVolumeModulation,
             playing = studioPlaying,
-            onLiveTone = { f, v -> onStudioTone(f, beepDurationMs, beepCount, beepGapMs, v, beepTransitionPct) },
+            onLiveTone = { f, v -> onStudioTone(f, beepDurationMs, beepCount, beepGapMs, v, beepTransitionPct, beepWaveform, beepEffect) },
             onTogglePlay = onStudioToggle,
             onCommit = { p, v -> beepModulation = p; beepVolumeModulation = v },
             onDismiss = { onStudioStop(); showStudio = false },
@@ -730,7 +732,7 @@ private fun AlarmRuleEditorDialog(
                     title = stringResource(R.string.alarm_section_beep),
                     color = MaterialTheme.appColors.statusWarn,
                     enabled = beepEnabled,
-                    onPreview = { onPreviewBeep(beepFrequency, beepDurationMs, beepCount, beepGapMs, beepVolume, beepTransitionPct) }
+                    onPreview = { onPreviewBeep(beepFrequency, beepDurationMs, beepCount, beepGapMs, beepVolume, beepTransitionPct, beepWaveform, beepEffect) }
                 )
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -829,6 +831,43 @@ private fun AlarmRuleEditorDialog(
                                 label = stringResource(R.string.alarm_beep_transition_label),
                                 modifier = Modifier.weight(1f),
                             )
+                        }
+                        Spacer(Modifier.height(8.dp))
+                        // Timbre: oscillator shape + a post effect, each a dropdown
+                        // (same combobox as Metric / Condition above).
+                        val waveLabels = listOf(
+                            stringResource(R.string.alarm_wave_sine),
+                            stringResource(R.string.alarm_wave_triangle),
+                            stringResource(R.string.alarm_wave_square),
+                            stringResource(R.string.alarm_wave_saw),
+                            stringResource(R.string.alarm_wave_fm),
+                        )
+                        val effectLabels = listOf(
+                            stringResource(R.string.alarm_fx_none),
+                            stringResource(R.string.alarm_fx_drive),
+                            stringResource(R.string.alarm_fx_sweep),
+                            stringResource(R.string.alarm_fx_crush),
+                        )
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            Box(modifier = Modifier.weight(1f)) {
+                                DropdownSelect(
+                                    label = stringResource(R.string.alarm_beep_wave_label),
+                                    selected = waveLabels.getOrElse(beepWaveform) { waveLabels[0] },
+                                    options = waveLabels.mapIndexed { i, l -> i.toString() to l },
+                                    onSelect = { beepWaveform = it.toIntOrNull() ?: 0 }
+                                )
+                            }
+                            Box(modifier = Modifier.weight(1f)) {
+                                DropdownSelect(
+                                    label = stringResource(R.string.alarm_beep_effect_label),
+                                    selected = effectLabels.getOrElse(beepEffect) { effectLabels[0] },
+                                    options = effectLabels.mapIndexed { i, l -> i.toString() to l },
+                                    onSelect = { beepEffect = it.toIntOrNull() ?: 0 }
+                                )
+                            }
                         }
                         Spacer(Modifier.height(8.dp))
                         // Pitch + volume modulation is set in a dedicated full-screen
@@ -1127,6 +1166,8 @@ private fun AlarmRuleEditorDialog(
                                         beepModulation = beepModulation,
                                         beepGapMs = beepGapMs,
                                         beepTransitionPct = beepTransitionPct,
+                                        beepWaveform = beepWaveform,
+                                        beepEffect = beepEffect,
                                         beepVolume = beepVolume,
                                         beepVolumeModulation = beepVolumeModulation,
                                         beepModulationReachPct = beepModulationReachPct,
@@ -1779,18 +1820,26 @@ private fun DropdownSelect(
         expanded = expanded,
         onExpandedChange = { expanded = it }
     ) {
-        OutlinedTextField(
-            value = selected,
-            onValueChange = {},
-            readOnly = true,
-            label = { Text(label) },
-            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded) },
-            modifier = Modifier
-                .fillMaxWidth()
-                .menuAnchor(MenuAnchorType.PrimaryNotEditable),
-            shape = RoundedCornerShape(12.dp),
-            colors = themedFieldColors(),
-        )
+        // Draw the label with FieldNotchLabel (the same notch label NumberUpDown
+        // uses) instead of the OutlinedTextField's built-in floating label, so the
+        // dropdown and stepper labels render identically in every theme. The native
+        // label shows the surface behind the field, while the notch label paints
+        // surfaceVariant - in a theme where those differ (e.g. the light theme:
+        // white surface, #EEE variant) the two looked different side by side.
+        Box(modifier = Modifier.padding(top = 8.dp)) {
+            OutlinedTextField(
+                value = selected,
+                onValueChange = {},
+                readOnly = true,
+                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded) },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .menuAnchor(MenuAnchorType.PrimaryNotEditable),
+                shape = RoundedCornerShape(12.dp),
+                colors = themedFieldColors(),
+            )
+            FieldNotchLabel(label)
+        }
         ExposedDropdownMenu(
             expanded = expanded,
             onDismissRequest = { expanded = false },

@@ -1918,5 +1918,16 @@
     <string name="alarm_constant_body">Un intervalo de 0 ms suena como un tono ininterrumpido. Para que suene de forma continua, también:</string>
     <string name="alarm_constant_never">No volver a preguntar</string>
     <string name="nav_start_btn">Iniciar</string>
+    <string name="alarm_beep_wave_label">Onda</string>
+    <string name="alarm_beep_effect_label">Efecto</string>
+    <string name="alarm_wave_sine">Seno</string>
+    <string name="alarm_wave_triangle">Triángulo</string>
+    <string name="alarm_wave_square">Cuadrada</string>
+    <string name="alarm_wave_saw">Sierra</string>
+    <string name="alarm_wave_fm">FM</string>
+    <string name="alarm_fx_none">Limpio</string>
+    <string name="alarm_fx_drive">Overdrive</string>
+    <string name="alarm_fx_sweep">Filtro</string>
+    <string name="alarm_fx_crush">Bitcrush</string>
 </resources>
 

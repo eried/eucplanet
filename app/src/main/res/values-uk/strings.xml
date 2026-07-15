@@ -1897,6 +1897,17 @@
     <string name="alarm_constant_body">Пауза 0 мс дає один безперервний сигнал. Щоб він звучав постійно, задайте також:</string>
     <string name="alarm_constant_never">Більше не запитувати</string>
     <string name="nav_start_btn">Пуск</string>
+    <string name="alarm_beep_wave_label">Хвиля</string>
+    <string name="alarm_beep_effect_label">Ефект</string>
+    <string name="alarm_wave_sine">Синус</string>
+    <string name="alarm_wave_triangle">Трикутник</string>
+    <string name="alarm_wave_square">Меандр</string>
+    <string name="alarm_wave_saw">Пила</string>
+    <string name="alarm_wave_fm">FM</string>
+    <string name="alarm_fx_none">Чистий</string>
+    <string name="alarm_fx_drive">Овердрайв</string>
+    <string name="alarm_fx_sweep">Фільтр</string>
+    <string name="alarm_fx_crush">Біткрашер</string>
 </resources>
 
 

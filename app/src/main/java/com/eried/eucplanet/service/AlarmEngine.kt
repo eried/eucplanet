@@ -199,10 +199,10 @@ class AlarmEngine @Inject constructor(
         val trans = rule.beepDurationMs * rule.beepTransitionPct / 100
         if (constantRuleId != rule.id) {
             Log.i(TAG, "Constant tone START '${rule.name}' freq=$freq vol=$vol gap=${rule.beepGapMs}")
-            tonePlayer.startStream(freq, rule.beepDurationMs, rule.beepGapMs, vol, trans)
+            tonePlayer.startStream(freq, rule.beepDurationMs, rule.beepGapMs, vol, trans, rule.beepWaveform, rule.beepEffect)
             constantRuleId = rule.id
         } else {
-            tonePlayer.updateStream(freq, rule.beepDurationMs, rule.beepGapMs, vol, trans)
+            tonePlayer.updateStream(freq, rule.beepDurationMs, rule.beepGapMs, vol, trans, rule.beepWaveform, rule.beepEffect)
         }
     }
 
@@ -286,7 +286,7 @@ class AlarmEngine @Inject constructor(
                 val vol = AlarmLogic.modulatedVolumePct(
                     rule.beepVolume, rule.beepVolumeModulation, triggerValue, rule.comparator, rule.threshold, rule.metric)
                 tonePlayer.playBeep(freq, rule.beepDurationMs, rule.beepCount, rule.beepGapMs, vol,
-                    rule.beepDurationMs * rule.beepTransitionPct / 100)
+                    rule.beepDurationMs * rule.beepTransitionPct / 100, rule.beepWaveform, rule.beepEffect)
                 if (rule.voiceEnabled && rule.voiceText.isNotBlank()) {
                     delay(rule.beepGapMs.toLong())
                 }
@@ -324,7 +324,7 @@ class AlarmEngine @Inject constructor(
                 val vol = AlarmLogic.modulatedVolumePct(
                     rule.beepVolume, rule.beepVolumeModulation, triggerValue, rule.comparator, rule.threshold, rule.metric)
                 tonePlayer.playBeep(freq, rule.beepDurationMs, rule.beepCount, rule.beepGapMs, vol,
-                    rule.beepDurationMs * rule.beepTransitionPct / 100)
+                    rule.beepDurationMs * rule.beepTransitionPct / 100, rule.beepWaveform, rule.beepEffect)
                 if (rule.voiceEnabled && rule.voiceText.isNotBlank()) {
                     delay(rule.beepGapMs.toLong())
                 }

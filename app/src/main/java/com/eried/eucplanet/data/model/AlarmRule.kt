@@ -41,6 +41,18 @@ data class AlarmRule(
      */
     val beepTransitionPct: Int = 12,
     /**
+     * Oscillator shape: 0=Sine (pure, default), 1=Triangle, 2=Square, 3=Saw,
+     * 4=FM (metallic). Drives the timbre before [beepEffect] is applied. See
+     * [com.eried.eucplanet.service.TonePlayer].
+     */
+    val beepWaveform: Int = 0,
+    /**
+     * Post effect on the tone: 0=None, 1=Drive (waveshaper grit), 2=Sweep
+     * (resonant low-pass whose cutoff tracks the pitch), 3=Crush (bitcrush
+     * lo-fi). Applied on top of [beepWaveform].
+     */
+    val beepEffect: Int = 0,
+    /**
      * Base beep loudness as a percent of the phone's system media volume (the
      * hard ceiling). 100 = as loud as the app plays it today; lower = quieter.
      */

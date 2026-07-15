@@ -1786,4 +1786,15 @@
     <string name="alarm_constant_body">En pause på 0 ms gir én ubrutt tone. For at den skal lyde uavbrutt, sett også:</string>
     <string name="alarm_constant_never">Ikke spør igjen</string>
     <string name="nav_start_btn">Start</string>
+    <string name="alarm_beep_wave_label">Bølge</string>
+    <string name="alarm_beep_effect_label">Effekt</string>
+    <string name="alarm_wave_sine">Sinus</string>
+    <string name="alarm_wave_triangle">Trekant</string>
+    <string name="alarm_wave_square">Firkant</string>
+    <string name="alarm_wave_saw">Sagtann</string>
+    <string name="alarm_wave_fm">FM</string>
+    <string name="alarm_fx_none">Ren</string>
+    <string name="alarm_fx_drive">Overdrive</string>
+    <string name="alarm_fx_sweep">Filter</string>
+    <string name="alarm_fx_crush">Bitcrush</string>
 </resources>

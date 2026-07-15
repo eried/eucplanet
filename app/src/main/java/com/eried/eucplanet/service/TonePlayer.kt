@@ -15,9 +15,62 @@ import kotlin.math.sin
 @Singleton
 class TonePlayer @Inject constructor() {
 
-    private companion object { const val TAG = "TonePlayer" }
+    private companion object {
+        const val TAG = "TonePlayer"
+        const val TWO_PI = 2.0 * Math.PI
+        const val FM_INDEX = 3.0       // FM modulation index (modulator runs at 2x carrier)
+        const val DRIVE = 3.0          // waveshaper drive for the "Drive" effect
+        const val SWEEP_RATIO = 3.0    // "Sweep" low-pass cutoff = current pitch * this
+        const val SWEEP_Q = 0.4        // filter damping; lower = more resonance
+        const val CRUSH_LEVELS = 8.0   // "Crush" quantization: round(x*L)/L, ~4-bit
+    }
 
     private val sampleRate = 44100
+
+    /**
+     * One oscillator sample for [waveform] at carrier phase [ph] (cycles, 0..1);
+     * [modPh] is the FM modulator phase (used only by waveform 4). Codes match
+     * [com.eried.eucplanet.data.model.AlarmRule.beepWaveform]: 0=sine, 1=triangle,
+     * 2=square, 3=saw, 4=FM.
+     */
+    private fun waveSample(waveform: Int, ph: Double, modPh: Double): Double {
+        val f = ph - kotlin.math.floor(ph)
+        return when (waveform) {
+            1 -> 4.0 * kotlin.math.abs(f - 0.5) - 1.0                 // triangle
+            2 -> if (f < 0.5) 1.0 else -1.0                          // square
+            3 -> 2.0 * f - 1.0                                       // saw
+            4 -> sin(TWO_PI * ph + FM_INDEX * sin(TWO_PI * modPh))   // FM (metallic)
+            else -> sin(TWO_PI * ph)                                 // sine
+        }
+    }
+
+    /** Mutable state for the stateful effects (filter + sample-hold). */
+    private class Fx { var lo = 0.0; var band = 0.0; var held = 0.0; var ctr = 0 }
+
+    /**
+     * Apply [effect] to sample [x] at the current pitch [freq] (Hz), mutating [fx]
+     * for the stateful ones. Codes match
+     * [com.eried.eucplanet.data.model.AlarmRule.beepEffect]: 0=none, 1=drive,
+     * 2=sweep (resonant low-pass tracking pitch), 3=crush (bitcrush).
+     */
+    private fun applyFx(effect: Int, x: Double, freq: Double, fx: Fx): Double = when (effect) {
+        1 -> kotlin.math.tanh(DRIVE * x)
+        2 -> {
+            val fc = (freq * SWEEP_RATIO).coerceIn(300.0, 8000.0)
+            val f = 2.0 * sin(Math.PI * fc / sampleRate)
+            fx.lo += f * fx.band
+            val hi = x - fx.lo - SWEEP_Q * fx.band
+            fx.band += f * hi
+            fx.lo
+        }
+        3 -> {
+            val hold = maxOf(1, sampleRate / 6000)
+            if (fx.ctr <= 0) { fx.held = Math.round(x * CRUSH_LEVELS) / CRUSH_LEVELS; fx.ctr = hold }
+            fx.ctr--
+            fx.held
+        }
+        else -> x
+    }
 
     // Audio-route keep-alive: a persistent SILENT track that holds the phone's audio
     // output powered, so the first sound after a quiet stretch - a beep OR a TTS voice
@@ -56,6 +109,8 @@ class TonePlayer @Inject constructor() {
         gapMs: Int = 120,
         volumePct: Int = 100,
         transitionMs: Int = -1,
+        waveform: Int = 0,
+        effect: Int = 0,
     ) {
         if (count <= 0 || durationMs <= 0) return
         Log.d(TAG, "playBeep freq=$frequencyHz dur=$durationMs count=$count gap=$gapMs vol=$volumePct")
@@ -90,7 +145,6 @@ class TonePlayer @Inject constructor() {
             val minFrames = if (minBuf > 0) minBuf / 2 else 0   // 16-bit mono: 2 bytes/frame
             val totalN = maxOf(bodyN, minFrames)
             val samples = ShortArray(totalN)
-            val twoPiF = 2.0 * Math.PI * frequencyHz / sampleRate
             // 0.8 = app-side headroom; volumePct scales under the system media
             // volume ceiling (Android applies that on top, so we can't exceed it).
             val gain = 0.8 * (volumePct.coerceIn(0, 100) / 100.0)
@@ -101,7 +155,10 @@ class TonePlayer @Inject constructor() {
             else toneN / 2).coerceIn(1, (runN / 2).coerceAtLeast(1))
 
             var w = leadPadN  // write cursor; leading silence pad already skipped
-            var phase = 0   // sine phase; continuous within a run
+            val inc = frequencyHz.toDouble() / sampleRate
+            var phase = 0.0       // carrier phase in cycles; continuous within a run
+            var modPhase = 0.0    // FM modulator phase (runs at 2x carrier)
+            val fx = Fx()
             for (b in 0 until runCount) {
                 for (i in 0 until runN) {
                     // Raised-cosine attack over the first [edge] of the run and release
@@ -111,13 +168,15 @@ class TonePlayer @Inject constructor() {
                         if (i >= runN - edge) (runN - i).toDouble() / edge else 1.0
                     )
                     val env = 0.5 - 0.5 * cos(Math.PI * ramp)
-                    val amp = sin(twoPiF * phase) * env
-                    samples[w++] = (amp * Short.MAX_VALUE * gain).toInt().toShort()
-                    phase++
+                    val osc = applyFx(effect, waveSample(waveform, phase, modPhase), frequencyHz.toDouble(), fx)
+                    samples[w++] = (osc * env * gain * Short.MAX_VALUE).toInt().toShort()
+                    phase += inc; if (phase >= 1.0) phase -= 1.0
+                    modPhase += 2.0 * inc; if (modPhase >= 1.0) modPhase -= 1.0
                 }
                 if (b < runCount - 1 && gapN > 0) {
-                    w += gapN   // leave zeros (silence); restart phase after the gap
-                    phase = 0
+                    w += gapN   // leave zeros (silence); restart phase + effect state after the gap
+                    phase = 0.0; modPhase = 0.0
+                    fx.lo = 0.0; fx.band = 0.0; fx.ctr = 0
                 }
             }
 
@@ -257,22 +316,26 @@ class TonePlayer @Inject constructor() {
     @Volatile private var sGapMs = 100
     @Volatile private var sVolPct = 100
     @Volatile private var sTransMs = -1
+    @Volatile private var sWave = 0
+    @Volatile private var sEffect = 0
     private var streamThread: Thread? = null
 
     @Synchronized
-    fun startStream(frequencyHz: Int, durationMs: Int, gapMs: Int, volumePct: Int, transitionMs: Int = -1) {
-        updateStream(frequencyHz, durationMs, gapMs, volumePct, transitionMs)
+    fun startStream(frequencyHz: Int, durationMs: Int, gapMs: Int, volumePct: Int, transitionMs: Int = -1, waveform: Int = 0, effect: Int = 0) {
+        updateStream(frequencyHz, durationMs, gapMs, volumePct, transitionMs, waveform, effect)
         if (streamOn) return
         streamOn = true
         streamThread = thread(name = "ToneStream", isDaemon = true) { streamLoop() }
     }
 
-    fun updateStream(frequencyHz: Int, durationMs: Int, gapMs: Int, volumePct: Int, transitionMs: Int = -1) {
+    fun updateStream(frequencyHz: Int, durationMs: Int, gapMs: Int, volumePct: Int, transitionMs: Int = -1, waveform: Int = 0, effect: Int = 0) {
         sFreqHz = frequencyHz
         sDurMs = durationMs.coerceAtLeast(1)
         sGapMs = gapMs.coerceAtLeast(0)
         sVolPct = volumePct
         sTransMs = transitionMs
+        sWave = waveform
+        sEffect = effect
     }
 
     @Synchronized
@@ -306,7 +369,9 @@ class TonePlayer @Inject constructor() {
             .setTransferMode(AudioTrack.MODE_STREAM)
             .build()
         val buf = ShortArray(bufFrames)
-        var phase = 0.0   // sine phase in cycles; continuous across buffers
+        var phase = 0.0   // carrier phase in cycles; continuous across buffers
+        var modPhase = 0.0 // FM modulator phase (runs at 2x carrier)
+        val fx = Fx()      // sweep filter + crush sample-hold, persists across buffers
         var pos = 0       // sample index within the current on+gap period
         var emitted = 0L  // total samples emitted (drives the gap-0 fade-in)
         try {
@@ -334,10 +399,13 @@ class TonePlayer @Inject constructor() {
                         )
                         0.5 - 0.5 * cos(Math.PI * ramp)
                     } else 0.0   // in the gap
-                    val s = sin(2.0 * Math.PI * phase) * env * gain
+                    val osc = applyFx(sEffect, waveSample(sWave, phase, modPhase), sFreqHz.toDouble(), fx)
+                    val s = osc * env * gain
                     buf[k] = (s * Short.MAX_VALUE).toInt().toShort()
                     phase += inc
                     if (phase >= 1.0) phase -= 1.0
+                    modPhase += 2.0 * inc
+                    if (modPhase >= 1.0) modPhase -= 1.0
                     pos++
                     emitted++
                 }

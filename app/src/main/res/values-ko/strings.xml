@@ -1897,4 +1897,15 @@
     <string name="alarm_constant_body">간격 0 ms는 끊김 없는 하나의 음이 됩니다. 계속 울리게 하려면 다음도 설정:</string>
     <string name="alarm_constant_never">다시 묻지 않음</string>
     <string name="nav_start_btn">시작</string>
+    <string name="alarm_beep_wave_label">파형</string>
+    <string name="alarm_beep_effect_label">이펙트</string>
+    <string name="alarm_wave_sine">사인</string>
+    <string name="alarm_wave_triangle">삼각</string>
+    <string name="alarm_wave_square">사각</string>
+    <string name="alarm_wave_saw">톱니</string>
+    <string name="alarm_wave_fm">FM</string>
+    <string name="alarm_fx_none">클린</string>
+    <string name="alarm_fx_drive">오버드라이브</string>
+    <string name="alarm_fx_sweep">필터</string>
+    <string name="alarm_fx_crush">비트크러시</string>
 </resources>
