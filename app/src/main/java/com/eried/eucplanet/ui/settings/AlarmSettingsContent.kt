@@ -1834,6 +1834,10 @@ private fun DropdownSelect(
                 trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded) },
                 modifier = Modifier
                     .fillMaxWidth()
+                    // Pin to the same 56dp as NumberUpDown's fieldHeight so combo
+                    // boxes and numeric fields are the same height (dropping the
+                    // built-in label let the field shrink below the standard).
+                    .heightIn(min = 56.dp)
                     .menuAnchor(MenuAnchorType.PrimaryNotEditable),
                 shape = RoundedCornerShape(12.dp),
                 colors = themedFieldColors(),
