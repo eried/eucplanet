@@ -3909,7 +3909,7 @@ private fun CompositeMetricSheet(
             // (2 rows / 2 cols / 3 cols) feel more like a single switch
             // when bound together as a segmented row rather than three
             // independent chips. No title; the labels speak for themselves.
-            SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
+            SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth().height(56.dp)) {
                 val options = CompositeLayout.values()
                 options.forEachIndexed { index, lay ->
                     CompactSegmentedButton(
@@ -4669,7 +4669,7 @@ private fun CustomTileSheet(
             // Show QR. NONE reads as "Text" because a custom tile with no
             // action is just a label — the rider already named it via the
             // text field above.
-            SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
+            SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth().height(56.dp)) {
                 CustomTileAction.values().forEachIndexed { index, opt ->
                     CompactSegmentedButton(
                         selected = action == opt,
