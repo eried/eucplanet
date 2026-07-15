@@ -208,10 +208,13 @@ object InMotionV2Parser {
      * 56s pack curve (3.0–4.2 V per cell → 165–235 V end-to-end), which is
      * rough but lets the dashboard ring fill in.
      *
-     * Everything else (speed, PWM, temperatures, trip distance, etc.) sits at
-     * different offsets than V14 and we don't have labelled riding captures yet.
-     * Those fields stay at defaults; the dashboard reads blank for them, which
-     * is honest about what we can't yet decode.
+     * Speed, PWM, torque, temperatures and trip distance sit at P6-specific
+     * offsets recovered from labelled captures (see the inline notes). Battery
+     * and motor power, by contrast, share the V14 RealTimeInfo layout at offsets
+     * 16 and 18 - verified against a labelled P6 capture where body[16] matched
+     * voltage x current to within 1 W. Fields we still can't place (e.g. dynamic
+     * limits) stay at their WheelData defaults so the dashboard reads blank for
+     * them rather than showing a guess.
      */
     fun parseP6Telemetry(data: ByteArray): WheelData? {
         if (data.size < 4) return null
@@ -241,6 +244,16 @@ object InMotionV2Parser {
         // strongly positive when transitioning out of reverse (v2:16: +12.33).
         // Earlier guess at 18-19 was zero across all idle frames.
         val torque = if (data.size >= 14) ByteUtils.getInt16LE(data, 12) / 100f else 0f
+
+        // Battery and motor power (W, signed) at offsets 16 and 18 - the SAME
+        // layout as the V14 RealTimeInfo packet, which reads batteryPower@16 and
+        // motorPower@18. Confirmed against a labelled P6 capture: body[16] tracks
+        // voltage x current to within 1 W while riding and reads a clean 0 at
+        // standstill (better than deriving V x I, which carries +/-100 W of
+        // standby-current noise). body[18] is mechanical motor power, roughly 80%
+        // of battery power under load and negative on regen, tracking body[16].
+        val batteryPower = if (data.size >= 18) ByteUtils.getInt16LE(data, 16) else 0
+        val motorPower = if (data.size >= 20) ByteUtils.getInt16LE(data, 18) else 0
 
         // Real per-pack battery percent at offsets 20-23 of the data block
         // (98.94 / 96.90 in the real-P6 capture, matched the on-screen 98%).
@@ -329,6 +342,8 @@ object InMotionV2Parser {
             current = current,
             pwm = pwm,
             torque = torque,
+            batteryPower = batteryPower,
+            motorPower = motorPower,
             pcMode = pcMode,
             batteryPercent = batteryPercent,
             battery1Percent = battery1.takeIf { it > 0f } ?: batteryPercent.toFloat(),
