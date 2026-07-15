@@ -162,6 +162,7 @@ fun MetricDetailScreen(
     val wheelData by viewModel.wheelData.collectAsState()
     val speedUnit by viewModel.speedUnit.collectAsState()
     val tempUnit by viewModel.tempUnit.collectAsState()
+    val distanceUnit by viewModel.distanceUnit.collectAsState()
 
     // Long-press Reset → confirmation dialog → wipe ALL history buffers.
     var showResetAllConfirm by remember { mutableStateOf(false) }
@@ -226,7 +227,8 @@ fun MetricDetailScreen(
                     fullHistory = fullHistory,
                     wheelData = wheelData,
                     speedUnit = speedUnit,
-                    tempUnit = tempUnit
+                    tempUnit = tempUnit,
+                    distanceUnit = distanceUnit
                 )
 
                 Spacer(Modifier.height(16.dp))
@@ -314,7 +316,8 @@ private fun MetricDetailBody(
     fullHistory: com.eried.eucplanet.data.repository.FullMetricHistory,
     wheelData: WheelData,
     speedUnit: String,
-    tempUnit: String
+    tempUnit: String,
+    distanceUnit: String
 ) {
     val legacyType: MetricType? = runCatching { MetricType.valueOf(key) }.getOrNull()
     val catalogSpec = com.eried.eucplanet.data.model.MetricCatalog.byKey(key)
@@ -332,23 +335,31 @@ private fun MetricDetailBody(
         null -> fullHistory.extras[key].orEmpty()
     }
 
-    fun convert(v: Float): Float = when (legacyType) {
-        MetricType.TEMPERATURE -> com.eried.eucplanet.util.Units.temperature(v, tempUnit)
-        MetricType.SPEED -> com.eried.eucplanet.util.Units.speed(v, speedUnit)
+    // Odometer (and any future distance-based catalog metric) is stored in km.
+    // Convert to the rider's distance unit so the detail matches the dashboard
+    // pill - the odometer tile was skipping this, so imperial riders saw km
+    // here while the pill showed mi.
+    val isDistanceMetric = key == "ODOMETER"
+
+    fun convert(v: Float): Float = when {
+        legacyType == MetricType.TEMPERATURE -> com.eried.eucplanet.util.Units.temperature(v, tempUnit)
+        legacyType == MetricType.SPEED -> com.eried.eucplanet.util.Units.speed(v, speedUnit)
+        isDistanceMetric -> com.eried.eucplanet.util.Units.distance(v, distanceUnit)
         else -> v
     }
 
     val samples: List<MetricSample> =
-        if (legacyType == MetricType.TEMPERATURE || legacyType == MetricType.SPEED) {
+        if (legacyType == MetricType.TEMPERATURE || legacyType == MetricType.SPEED || isDistanceMetric) {
             rawSamples.map { MetricSample(it.timestampMs, convert(it.value)) }
         } else rawSamples
 
-    val unitLabel = when (legacyType) {
-        MetricType.TEMPERATURE -> com.eried.eucplanet.util.Units.tempUnit(tempUnit)
-        MetricType.SPEED -> com.eried.eucplanet.util.Units.speedUnit(
+    val unitLabel = when {
+        legacyType == MetricType.TEMPERATURE -> com.eried.eucplanet.util.Units.tempUnit(tempUnit)
+        legacyType == MetricType.SPEED -> com.eried.eucplanet.util.Units.speedUnit(
             androidx.compose.ui.platform.LocalContext.current, speedUnit
         )
-        null -> ""
+        isDistanceMetric -> com.eried.eucplanet.util.Units.distanceUnit(distanceUnit)
+        legacyType == null -> ""
         else -> legacyType.unit
     }
 
@@ -359,7 +370,7 @@ private fun MetricDetailBody(
         MetricType.CURRENT -> convert(wheelData.current)
         MetricType.LOAD -> convert(kotlin.math.abs(wheelData.pwm))
         MetricType.SPEED -> convert(kotlin.math.abs(wheelData.speed))
-        null -> rawCurrentValueFor(key, wheelData)
+        null -> convert(rawCurrentValueFor(key, wheelData))
     }
 
     // Both legacyType.color (a baked MetricType palette Color) and catalogSpec.accent
