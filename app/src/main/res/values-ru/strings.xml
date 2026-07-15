@@ -1899,5 +1899,6 @@
     <string name="alarm_constant_title">Непрерывный сигнал?</string>
     <string name="alarm_constant_body">Интервал 0 мс звучит как один непрерывный сигнал. Чтобы он звучал постоянно, задайте также:</string>
     <string name="alarm_constant_never">Больше не спрашивать</string>
+    <string name="nav_start_btn">Пуск</string>
 </resources>
 

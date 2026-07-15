@@ -1899,5 +1899,6 @@
     <string name="alarm_constant_title">Constante toon?</string>
     <string name="alarm_constant_body">Een tussenpauze van 0 ms geeft één ononderbroken toon. Voor onafgebroken geluid, stel ook in:</string>
     <string name="alarm_constant_never">Niet meer vragen</string>
+    <string name="nav_start_btn">Start</string>
 </resources>
 

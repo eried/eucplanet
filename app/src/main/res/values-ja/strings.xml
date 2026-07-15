@@ -1898,6 +1898,7 @@
     <string name="alarm_constant_title">連続音にする？</string>
     <string name="alarm_constant_body">間隔 0 ms は途切れない 1 つの音になります。連続して鳴らすには、次も設定:</string>
     <string name="alarm_constant_never">今後表示しない</string>
+    <string name="nav_start_btn">開始</string>
 </resources>
 
 

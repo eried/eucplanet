@@ -1897,4 +1897,5 @@
     <string name="alarm_constant_title">Ciągły dźwięk?</string>
     <string name="alarm_constant_body">Przerwa 0 ms daje jeden nieprzerwany dźwięk. Aby brzmiał ciągle, ustaw też:</string>
     <string name="alarm_constant_never">Nie pytaj ponownie</string>
+    <string name="nav_start_btn">Start</string>
 </resources>

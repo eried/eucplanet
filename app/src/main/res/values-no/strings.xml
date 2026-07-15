@@ -1785,4 +1785,5 @@
     <string name="alarm_constant_title">Konstant tone?</string>
     <string name="alarm_constant_body">En pause på 0 ms gir én ubrutt tone. For at den skal lyde uavbrutt, sett også:</string>
     <string name="alarm_constant_never">Ikke spør igjen</string>
+    <string name="nav_start_btn">Start</string>
 </resources>

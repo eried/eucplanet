@@ -1917,5 +1917,6 @@
     <string name="alarm_constant_title">¿Tono continuo?</string>
     <string name="alarm_constant_body">Un intervalo de 0 ms suena como un tono ininterrumpido. Para que suene de forma continua, también:</string>
     <string name="alarm_constant_never">No volver a preguntar</string>
+    <string name="nav_start_btn">Iniciar</string>
 </resources>
 

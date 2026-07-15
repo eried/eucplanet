@@ -1896,4 +1896,5 @@
     <string name="alarm_constant_title">연속음?</string>
     <string name="alarm_constant_body">간격 0 ms는 끊김 없는 하나의 음이 됩니다. 계속 울리게 하려면 다음도 설정:</string>
     <string name="alarm_constant_never">다시 묻지 않음</string>
+    <string name="nav_start_btn">시작</string>
 </resources>

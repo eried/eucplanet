@@ -1899,4 +1899,5 @@
     <string name="alarm_constant_title">Konstant ton?</string>
     <string name="alarm_constant_body">Ett mellanrum på 0 ms ger en obruten ton. För att den ska låta oavbrutet, ställ även in:</string>
     <string name="alarm_constant_never">Fråga inte igen</string>
+    <string name="nav_start_btn">Starta</string>
 </resources>

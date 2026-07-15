@@ -1899,5 +1899,6 @@
     <string name="alarm_constant_title">Tom contínuo?</string>
     <string name="alarm_constant_body">Um intervalo de 0 ms toca como um tom ininterrupto. Para soar continuamente, defina também:</string>
     <string name="alarm_constant_never">Não perguntar novamente</string>
+    <string name="nav_start_btn">Iniciar</string>
 </resources>
 

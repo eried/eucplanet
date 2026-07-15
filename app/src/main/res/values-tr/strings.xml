@@ -1896,6 +1896,7 @@
     <string name="alarm_constant_title">Sürekli ton?</string>
     <string name="alarm_constant_body">0 ms boşluk kesintisiz tek bir ton verir. Sürekli çalması için şunları da ayarla:</string>
     <string name="alarm_constant_never">Bir daha sorma</string>
+    <string name="nav_start_btn">Başlat</string>
 </resources>
 
 

@@ -963,7 +963,7 @@ data class AdvancedSettings(
     val compactMaxScreenDp: Int = 500,
     val coverCutoutInsetDp: Int = 96,
     val simpleSpeedoScalePct: Int = 62,
-    val navSidebarWidthDp: Int = 340,
+    val navSidebarWidthDp: Int = 400,
     val navSidebarMinScreenDp: Int = 600,
 )
 

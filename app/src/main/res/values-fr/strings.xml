@@ -1903,4 +1903,5 @@
     <string name="alarm_constant_title">Tonalité continue ?</string>
     <string name="alarm_constant_body">Un intervalle de 0 ms donne une tonalité ininterrompue. Pour qu\'elle sonne en continu, réglez aussi :</string>
     <string name="alarm_constant_never">Ne plus demander</string>
+    <string name="nav_start_btn">Démarrer</string>
 </resources>

@@ -1898,6 +1898,7 @@
     <string name="alarm_constant_title">連續音？</string>
     <string name="alarm_constant_body">0 毫秒間隔會成為一個不間斷的音。若要持續發聲，也請設定：</string>
     <string name="alarm_constant_never">不再詢問</string>
+    <string name="nav_start_btn">開始</string>
 </resources>
 
 

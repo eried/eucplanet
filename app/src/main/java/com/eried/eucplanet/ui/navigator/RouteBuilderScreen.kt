@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
@@ -141,6 +142,15 @@ import com.eried.eucplanet.ui.theme.appColors
  * a hamburger menu (save / load / clear / start / exit) and a bottom panel for
  * the travel mode and the draggable list of stops. Tapping the map drops a pin.
  */
+
+// Min inner-row width (BoxWithConstraints.maxWidth) at which the full "Start
+// navigation" label still fits next to the 4 mode icons. Measured empirically on the
+// emulator (411/384dp screens keep the full label at maxWidth ~336/309dp; a 360dp
+// screen flips at maxWidth ~290dp), so 260dp keeps the full label on every normal
+// phone (360dp+) and the landscape sidebar, and only a genuinely tiny width -- a
+// split-screen half or a sub-~330dp screen -- falls back to the short "Start".
+private val START_NAV_MIN_WIDTH = 260.dp
+
 @SuppressLint("SetJavaScriptEnabled")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -1748,14 +1758,17 @@ private fun BottomPanel(
                 // pill" doesn't read as enabled. Functional disable is
                 // also on each SegmentedButton.
                 val modesLocked = navRunning || allPassed
-                // Mode selector on its own full-width row so each icon gets a
-                // quarter of the panel. Sharing a row with the Start button
-                // squeezed the glyphs to a few dp in the narrow portrait /
-                // split-landscape panel, and long localized "Start navigation"
-                // labels only made it worse.
+                // Mode icons + the Start button share ONE row. Prefer the full
+                // "Start navigation" label; only fall back to the short "Start" when
+                // the row is genuinely cramped (small phone / split-screen), measured
+                // from the row's own width so it adapts to any resolution. Stop / New
+                // route only appear while the modes are locked, so their length is moot.
+                BoxWithConstraints {
+                val roomy = maxWidth >= START_NAV_MIN_WIDTH
+                Row(verticalAlignment = Alignment.CenterVertically) {
                 SingleChoiceSegmentedButtonRow(
                     modifier = Modifier
-                        .fillMaxWidth()
+                        .weight(1f)
                         .then(if (modesLocked) Modifier.alpha(0.4f) else Modifier)
                 ) {
                     modes.forEachIndexed { index, (mode, icon, labelRes) ->
@@ -1823,8 +1836,9 @@ private fun BottomPanel(
                         }
                     }
                 }
-                Spacer(Modifier.height(8.dp))
-                // Full-width primary action beneath the mode row.
+                Spacer(Modifier.width(8.dp))
+                // Start button beside the mode icons. Small min width so at rest
+                // ("Start") it stays compact and the icons keep their size.
                 Button(
                     onClick = when {
                         allPassed -> onClearRoute
@@ -1832,7 +1846,7 @@ private fun BottomPanel(
                         else -> onStartNavigation
                     },
                     enabled = allPassed || navRunning || canStartNavigation,
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier.widthIn(min = 84.dp),
                     shape = RoundedCornerShape(12.dp)
                 ) {
                     Text(
@@ -1840,10 +1854,15 @@ private fun BottomPanel(
                             when {
                                 allPassed -> R.string.nav_menu_clear
                                 navRunning -> R.string.nav_stop_short
-                                else -> R.string.nav_start_short
+                                // Full label by default; short "Start" only when the
+                                // row is too tight for it (see START_NAV_MIN_WIDTH).
+                                else -> if (roomy) R.string.nav_start_short
+                                        else R.string.nav_start_btn
                             }
                         )
                     )
+                }
+                }
                 }
 
                 Spacer(Modifier.height(8.dp))
