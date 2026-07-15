@@ -592,12 +592,19 @@ private fun AlarmRuleEditorDialog(
                     val repLabel = stringResource(R.string.alarm_repeat_label)
                     val onceLabel = stringResource(R.string.alarm_repeat_single)
                     val manyLabel = stringResource(R.string.alarm_repeat_multi)
+                    val transLabel = stringResource(R.string.alarm_beep_transition_label)
+                    val durLabel = stringResource(R.string.alarm_label_duration)
                     // Spell out exactly what Change will do, from the alarm's current values
                     // (gap is already 0 -- that's what opened this). Only the fields that
-                    // actually change are listed.
+                    // actually change are listed. Transition goes to its 50% max so the
+                    // swells butt together into a smooth, gapless tone instead of clicking,
+                    // and a sub-30ms duration is raised to the 30ms floor so the tone sounds
+                    // rather than clicks.
                     val changes = buildList {
+                        if (beepDurationMs < 30) add("$durLabel: ${beepDurationMs}ms → 30ms")
                         if (cooldownSeconds != 0) add("$cdLabel: ${cooldownSeconds}s → 0s")
                         if (!repeatWhileActive) add("$repLabel: $onceLabel → $manyLabel")
+                        if (beepTransitionPct != 50) add("$transLabel: ${beepTransitionPct}% → 50%")
                     }
                     AlertDialog(
                         onDismissRequest = { showConstantPrompt = false },
@@ -616,6 +623,8 @@ private fun AlarmRuleEditorDialog(
                                 beepGapMs = 0
                                 repeatWhileActive = true
                                 cooldownSeconds = 0
+                                beepTransitionPct = 50
+                                beepDurationMs = beepDurationMs.coerceAtLeast(30)
                                 showConstantPrompt = false
                             }, shape = RoundedCornerShape(12.dp)) {
                                 Text(stringResource(R.string.action_apply), color = MaterialTheme.appColors.statusGood)
@@ -775,10 +784,11 @@ private fun AlarmRuleEditorDialog(
                             NumberUpDown(
                                 value = beepDurationMs,
                                 onValueChange = { beepDurationMs = it },
-                                // Down to 10 ms: with gap 0 the `count` beeps merge into one
-                                // run of duration*count, so a short duration + a higher count
-                                // builds a longer continuous tone in fine increments.
-                                range = 10..1000, step = 10, suffix = "ms",
+                                // Floor 30 ms: shorter tones read as a click rather than a
+                                // pitched beep and can fall under the audio route's start
+                                // latency. With gap 0 the `count` beeps still merge into one
+                                // run of duration*count, so a higher count builds a longer tone.
+                                range = 30..1000, step = 10, suffix = "ms",
                                 label = stringResource(R.string.alarm_label_duration),
                                 modifier = Modifier.weight(1f),
                             )
