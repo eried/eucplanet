@@ -76,7 +76,19 @@ class TonePlayer @Inject constructor() {
             // pad drains cleanly before stop().
             val leadPadN = sampleRate * 30 / 1000
             val tailPadN = sampleRate * 12 / 1000
-            val totalN = leadPadN + runN * runCount + gapN * (runCount - 1).coerceAtLeast(0) + tailPadN
+            val bodyN = leadPadN + runN * runCount + gapN * (runCount - 1).coerceAtLeast(0) + tailPadN
+            // MODE_STREAM only begins playing once the written frames reach its start
+            // threshold, which defaults to the buffer size and can't drop below the
+            // device minimum. A short tone whose whole buffer is under that minimum
+            // never crosses the threshold, so playback never starts and the beep is
+            // silent (reported as "no beep under ~90 ms"; the exact cutoff is the
+            // device min buffer). Pad the tail with extra silence so we always write
+            // at least a full min-buffer of frames.
+            val minBuf = AudioTrack.getMinBufferSize(
+                sampleRate, AudioFormat.CHANNEL_OUT_MONO, AudioFormat.ENCODING_PCM_16BIT
+            )
+            val minFrames = if (minBuf > 0) minBuf / 2 else 0   // 16-bit mono: 2 bytes/frame
+            val totalN = maxOf(bodyN, minFrames)
             val samples = ShortArray(totalN)
             val twoPiF = 2.0 * Math.PI * frequencyHz / sampleRate
             // 0.8 = app-side headroom; volumePct scales under the system media
@@ -109,9 +121,6 @@ class TonePlayer @Inject constructor() {
                 }
             }
 
-            val minBuf = AudioTrack.getMinBufferSize(
-                sampleRate, AudioFormat.CHANNEL_OUT_MONO, AudioFormat.ENCODING_PCM_16BIT
-            )
             val track = try {
                 AudioTrack.Builder()
                     .setAudioAttributes(
