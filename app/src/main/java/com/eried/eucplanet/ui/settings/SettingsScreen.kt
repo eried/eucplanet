@@ -3913,6 +3913,7 @@ private fun CompositeMetricSheet(
                 val options = CompositeLayout.values()
                 options.forEachIndexed { index, lay ->
                     CompactSegmentedButton(
+                        modifier = Modifier.fillMaxHeight(),
                         selected = layout == lay,
                         onClick = {
                             layout = lay
@@ -4672,6 +4673,7 @@ private fun CustomTileSheet(
             SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth().height(56.dp)) {
                 CustomTileAction.values().forEachIndexed { index, opt ->
                     CompactSegmentedButton(
+                        modifier = Modifier.fillMaxHeight(),
                         selected = action == opt,
                         onClick = {
                             action = opt
