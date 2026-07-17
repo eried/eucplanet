@@ -751,6 +751,22 @@
     <string name="voice_announce_connected">Connected</string>
     <string name="voice_announce_riding">When riding</string>
     <string name="voice_interval">Interval</string>
+    <!-- Acceleration splits (RaceBox-style). %1$d / %2$d are the speed band edges,
+         %3$s is the elapsed seconds (e.g. "1.21"); the word "seconds" stays inside
+         the string so it localizes. Keep the spoken phrasing natural for TTS. -->
+    <string name="section_accel_splits">Acceleration splits</string>
+    <string name="accel_splits_enabled">Announce split times</string>
+    <string name="accel_splits_desc">As you accelerate, speak the time to cross each speed step. Handy for launch-feel training.</string>
+    <string name="accel_splits_from">From</string>
+    <string name="accel_splits_step">Step</string>
+    <string name="accel_splits_compare_previous">Compare to previous run</string>
+    <string name="accel_splits_compare_best">Compare to session best</string>
+    <string name="accel_split_time_fmt">%1$d to %2$d, %3$s seconds</string>
+    <string name="accel_split_faster_prev">, %1$s seconds faster than previous</string>
+    <string name="accel_split_slower_prev">, %1$s seconds slower than previous</string>
+    <string name="accel_split_faster_best">, %1$s faster than best</string>
+    <string name="accel_split_slower_best">, %1$s slower than best</string>
+    <string name="accel_split_best_yet">, best yet</string>
     <string name="announce_wheel_lock">Wheel lock / unlock</string>
     <string name="announce_lights">Lights on / off</string>
     <string name="announce_recording">Trip recording</string>

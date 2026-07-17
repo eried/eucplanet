@@ -112,6 +112,13 @@ object SettingsJson {
         put("voiceReportRecording", s.voiceReportRecording)
         put("triggerReportRecording", s.triggerReportRecording)
         put("voiceReportOrder", s.voiceReportOrder)
+        put("accelSplit", JSONObject().apply {
+            put("enabled", s.accelSplit.enabled)
+            put("increment", s.accelSplit.increment)
+            put("minSpeed", s.accelSplit.minSpeed)
+            put("compareToPrevious", s.accelSplit.compareToPrevious)
+            put("compareToBest", s.accelSplit.compareToBest)
+        })
         put("announceWheelLock", s.announceWheelLock)
         put("announceLights", s.announceLights)
         put("announceRecording", s.announceRecording)
@@ -350,6 +357,15 @@ object SettingsJson {
         voiceReportRecording = j.optBoolean("voiceReportRecording", base.voiceReportRecording),
         triggerReportRecording = j.optBoolean("triggerReportRecording", base.triggerReportRecording),
         voiceReportOrder = j.optString("voiceReportOrder", base.voiceReportOrder),
+        accelSplit = j.optJSONObject("accelSplit")?.let { a ->
+            base.accelSplit.copy(
+                enabled = a.optBoolean("enabled", base.accelSplit.enabled),
+                increment = a.optInt("increment", base.accelSplit.increment),
+                minSpeed = a.optInt("minSpeed", base.accelSplit.minSpeed),
+                compareToPrevious = a.optBoolean("compareToPrevious", base.accelSplit.compareToPrevious),
+                compareToBest = a.optBoolean("compareToBest", base.accelSplit.compareToBest),
+            )
+        } ?: base.accelSplit,
         announceWheelLock = j.optBoolean("announceWheelLock", base.announceWheelLock),
         announceLights = j.optBoolean("announceLights", base.announceLights),
         announceRecording = j.optBoolean("announceRecording", base.announceRecording),

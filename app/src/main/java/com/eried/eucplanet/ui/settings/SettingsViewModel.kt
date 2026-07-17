@@ -329,6 +329,17 @@ class SettingsViewModel @Inject constructor(
     fun updateTriggerReportTime(v: Boolean) = update { copy(triggerReportTime = v) }
     fun updateTriggerReportNavigation(v: Boolean) = update { copy(triggerReportNavigation = v) }
     fun updateTriggerReportPhoneBattery(v: Boolean) = update { copy(triggerReportPhoneBattery = v) }
+    // Acceleration splits (RaceBox-style). Feature-local nested group.
+    fun updateAccelSplitEnabled(v: Boolean) = update { copy(accelSplit = accelSplit.copy(enabled = v)) }
+    fun updateAccelSplitIncrement(v: Int) =
+        update { copy(accelSplit = accelSplit.copy(increment = v.coerceIn(1, 50))) }
+    fun updateAccelSplitMinSpeed(v: Int) =
+        update { copy(accelSplit = accelSplit.copy(minSpeed = v.coerceIn(0, 200))) }
+    fun updateAccelSplitComparePrevious(v: Boolean) =
+        update { copy(accelSplit = accelSplit.copy(compareToPrevious = v)) }
+    fun updateAccelSplitCompareBest(v: Boolean) =
+        update { copy(accelSplit = accelSplit.copy(compareToBest = v)) }
+
     fun updateVoiceLocale(tag: String, previewText: String? = null) {
         // Explicit voice pick sets the override flag so a later UI-language
         // change re-prompts ("switch voice too?") instead of silently

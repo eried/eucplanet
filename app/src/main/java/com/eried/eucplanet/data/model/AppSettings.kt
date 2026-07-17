@@ -108,6 +108,10 @@ data class AppSettings(
     // Voice report item order (comma-separated: Speed,Battery,PhoneBattery,Time,Temp,PWM,Distance,Recording)
     val voiceReportOrder: String = "Speed,Battery,PhoneBattery,Time,Temp,PWM,Distance,Recording",
 
+    // RaceBox-style acceleration split announcements. Feature-local group (not a
+    // global), nested so AppSettings.copy() stays under the 255-arg dex limit.
+    val accelSplit: AccelSplitSettings = AccelSplitSettings(),
+
     // Special announcements (event-driven). All silent by default; the welcome
     // wizard's first step offers a single toggle that flips this whole block on
     // for riders who want spoken alerts.
@@ -878,6 +882,27 @@ data class AppSettings(
 data class SettingsLayout(
     val order: List<String> = emptyList(),
     val hidden: List<String> = emptyList(),
+)
+
+/**
+ * RaceBox-style acceleration split announcements. As the rider accelerates, the
+ * voice speaks the time to cross each speed step (e.g. "20 to 30, 1.21 seconds"),
+ * optionally comparing to the same step in the previous run or to the session
+ * best. A feature-local group (not a global), nested so AppSettings.copy() stays
+ * under the JVM/dex 255-argument limit. Increment and minSpeed are held in the
+ * rider's display speed unit so the announced band numbers stay round.
+ */
+data class AccelSplitSettings(
+    val enabled: Boolean = false,
+    // Speed step between announced bands, in the rider's display speed unit.
+    val increment: Int = 10,
+    // First band's lower edge, in the rider's display speed unit. Accelerations
+    // that never reach this speed are ignored.
+    val minSpeed: Int = 20,
+    // Append a comparison to the same step in the previous acceleration run.
+    val compareToPrevious: Boolean = true,
+    // Append a comparison to the session's best time for the step.
+    val compareToBest: Boolean = false,
 )
 
 /**

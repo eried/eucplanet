@@ -6324,6 +6324,67 @@ private fun VoiceTab(
             }
         }
 
+        // --- Acceleration splits (RaceBox-style) ---
+        SectionHeader(stringResource(R.string.section_accel_splits))
+        val accel = settings.accelSplit
+        val ctxAccel = androidx.compose.ui.platform.LocalContext.current
+        val accelUnit = Units.speedUnit(ctxAccel, Units.effectiveSpeedUnit(settings))
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(stringResource(R.string.accel_splits_enabled), style = MaterialTheme.typography.bodyLarge)
+                Spacer(Modifier.width(6.dp))
+                PlayButton(onClick = {
+                    viewModel.testSpeak(
+                        com.eried.eucplanet.service.AccelSplitVoice.previewText(ctxAccel, accel)
+                    )
+                })
+            }
+            Switch(
+                checked = accel.enabled,
+                onCheckedChange = { viewModel.updateAccelSplitEnabled(it) },
+                colors = themedSwitchColors()
+            )
+        }
+        HintText(stringResource(R.string.accel_splits_desc), small = true)
+
+        if (accel.enabled) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                NumberUpDown(
+                    value = accel.minSpeed,
+                    onValueChange = { viewModel.updateAccelSplitMinSpeed(it) },
+                    range = 0..200,
+                    step = 5,
+                    suffix = accelUnit,
+                    label = stringResource(R.string.accel_splits_from),
+                    modifier = Modifier.weight(1f),
+                )
+                NumberUpDown(
+                    value = accel.increment,
+                    onValueChange = { viewModel.updateAccelSplitIncrement(it) },
+                    range = 1..50,
+                    step = 1,
+                    suffix = accelUnit,
+                    label = stringResource(R.string.accel_splits_step),
+                    modifier = Modifier.weight(1f),
+                )
+            }
+
+            SwitchSetting(stringResource(R.string.accel_splits_compare_previous), accel.compareToPrevious) {
+                viewModel.updateAccelSplitComparePrevious(it)
+            }
+            SwitchSetting(stringResource(R.string.accel_splits_compare_best), accel.compareToBest) {
+                viewModel.updateAccelSplitCompareBest(it)
+            }
+        }
+
     }
 }
 

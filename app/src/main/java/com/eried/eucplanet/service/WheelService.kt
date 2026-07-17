@@ -18,6 +18,7 @@ import com.eried.eucplanet.MainActivity
 import com.eried.eucplanet.R
 import com.eried.eucplanet.audio.EngineSoundEngine
 import com.eried.eucplanet.ble.ConnectionState
+import com.eried.eucplanet.data.model.AppSettings
 import com.eried.eucplanet.data.model.WheelData
 import com.eried.eucplanet.data.repository.SettingsRepository
 import com.eried.eucplanet.data.repository.TripRepository
@@ -86,6 +87,10 @@ class WheelService : LifecycleService() {
 
     // Voice announcement
     private var voiceJob: Job? = null
+    // RaceBox-style acceleration splits. Pure tracker fed the telemetry stream in
+    // the rider's display speed unit; config re-read each sample so a settings
+    // change takes effect without a reconnect. Reset on disconnect.
+    private val accelSplitTracker = AccelSplitTracker(increment = 10, minSpeed = 20)
     private var lastConnectionState: ConnectionState? = null
     private var hadGpsFix = false
     private var lastLightOn: Boolean? = null
@@ -146,6 +151,7 @@ class WheelService : LifecycleService() {
                 if (settings.engineSoundEnabled) {
                     engineSoundEngine.pushTelemetry(data.speed, data.pwm)
                 }
+                handleAccelSplits(data, settings)
             }
         }
 
@@ -237,6 +243,10 @@ class WheelService : LifecycleService() {
                             }
                             lastLightOn = null
                             engineSoundEngine.setConnected(false, settings)
+                            // Drop any in-flight run + session history so a fresh
+                            // ride starts clean and a stale timestamp gap can't
+                            // fabricate a summary on reconnect.
+                            accelSplitTracker.hardReset()
                         }
                         else -> {}
                     }
@@ -490,6 +500,24 @@ class WheelService : LifecycleService() {
                     voiceService.announceStatus(data, settings, isRecording = tripRepository.recording.value)
                 }
             }
+        }
+    }
+
+    // --- Acceleration splits (RaceBox-style) ---
+
+    private fun handleAccelSplits(data: WheelData, settings: AppSettings) {
+        val cfg = settings.accelSplit
+        if (!cfg.enabled || !settings.voiceEnabled) {
+            accelSplitTracker.hardReset()
+            return
+        }
+        val unit = com.eried.eucplanet.util.Units.effectiveSpeedUnit(settings)
+        val speed = com.eried.eucplanet.util.Units.speed(data.speed, unit).toDouble()
+        accelSplitTracker.configure(cfg.increment, cfg.minSpeed)
+        // announceEvent queues (QUEUE_ADD) and never drops, so a step crossed
+        // while the previous line is still speaking is voiced right after.
+        for (s in accelSplitTracker.onSample(data.timestamp, speed)) {
+            voiceService.announceEvent(AccelSplitVoice.splitText(this, s, cfg))
         }
     }
 
