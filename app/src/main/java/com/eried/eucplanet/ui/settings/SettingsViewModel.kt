@@ -73,12 +73,14 @@ class SettingsViewModel @Inject constructor(
         listenerReceived = hudListenerRef.totalReceived,
         listenerLastRxMs = hudListenerRef.lastReceiveAtMs,
         listenerBindError = hudListenerRef.lastBindError,
+        listenerRebinds = hudListenerRef.rebinds,
     )
 
     data class HudDiagSnapshot(
         val listenerReceived: Long,
         val listenerLastRxMs: Long,
         val listenerBindError: String,
+        val listenerRebinds: Long = 0L,
     )
 
     /** Live HUD protocol compatibility for the Settings/Integration card.
