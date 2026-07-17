@@ -95,6 +95,11 @@ class TripRepository @Inject constructor(
     // Tracks whether any location fix during the active recording was from a mock provider.
     @Volatile private var tripHadMockFix = false
 
+    // The wheel's identity for the active recording, accumulated while it is still
+    // connected. Snapshotting only at stop loses it whenever the rider powers the wheel
+    // off to end the ride — see [WheelIdentity].
+    private val wheelIdentity = WheelIdentity()
+
     // Advanced: phone GPS (fused-location) update interval, mirrored from settings
     // so the non-suspend location-request builder can read it synchronously. A
     // change takes effect the next time location updates (re)start.
@@ -347,6 +352,18 @@ class TripRepository @Inject constructor(
     // doesn't reattempt on every telemetry packet after a failure.
     @Volatile private var lastStartFailureMs = 0L
 
+    /** Fold whatever the wheel currently reports into [wheelIdentity]; blanks are ignored. */
+    private suspend fun captureWheelIdentity() {
+        wheelIdentity.merge(
+            brand = wheelRepository.connectedBrand.value,
+            model = wheelRepository.modelName.value,
+            serial = wheelRepository.wheelSerial.value,
+            bleMac = settingsRepository.get().lastDeviceAddress,
+            bleName = wheelRepository.connectedDeviceName.value,
+            firmware = wheelRepository.firmwareVersion.value,
+        )
+    }
+
     suspend fun startRecording() {
         // Back off briefly after a failed start. evaluateAutoRecordOnTelemetry
         // calls this on every moving packet (~10/s); without this it would spin
@@ -396,6 +413,8 @@ class TripRepository @Inject constructor(
         _liveGpsDistanceKm.value = 0f
         lastGpsPoint = null
         tripHadMockFix = false
+        wheelIdentity.clear()          // never inherit the previous ride's wheel
+        captureWheelIdentity()
 
         val trip = TripRecord(fileName = fileName, tripUuid = java.util.UUID.randomUUID().toString())
         // Persisting the row can fail (disk full, DB locked/corrupt). If it does,
@@ -446,6 +465,9 @@ class TripRepository @Inject constructor(
                 val wheelConnected = wheelRepository.connectionState.value ==
                     com.eried.eucplanet.ble.ConnectionState.CONNECTED
                 csvWriter?.writeRow(data, location, extSpeed, wheelConnected)
+                // Keep the wheel's identity current while it is still talking to us; the
+                // serial/model often only arrive some seconds into the connection.
+                if (wheelConnected) captureWheelIdentity()
                 rowsWritten++
                 if (location != null) {
                     rowsWithGps++
@@ -502,14 +524,11 @@ class TripRepository @Inject constructor(
         // a wheel family that doesn't expose trip distance).
         val distance = if (data.tripDistance > 0f) data.tripDistance else gpsDistanceKm.toFloat()
         val capturedMock = tripHadMockFix
-        val wheelMeta = buildWheelMetaJson(
-            brand = wheelRepository.connectedBrand.value,
-            model = wheelRepository.modelName.value,
-            serial = wheelRepository.wheelSerial.value,
-            bleMac = settingsRepository.get().lastDeviceAddress,
-            bleName = wheelRepository.connectedDeviceName.value,
-            firmware = wheelRepository.firmwareVersion.value,
-        )
+        // A last look in case the wheel is still connected, then use what the ride
+        // accumulated — by now a powered-off wheel reads back as all-nulls, which merge
+        // ignores rather than letting it erase what we already know.
+        captureWheelIdentity()
+        val wheelMeta = wheelIdentity.toJson()
         val finishedTrip = trip.copy(
             endTime = System.currentTimeMillis(),
             distanceKm = distance,
@@ -672,6 +691,51 @@ class TripRepository @Inject constructor(
 internal fun isMockLocation(loc: Location): Boolean =
     if (Build.VERSION.SDK_INT >= 31) loc.isMock
     else @Suppress("DEPRECATION") loc.isFromMockProvider
+
+/**
+ * Accumulates the connected wheel's identity over the course of a ride.
+ *
+ * Model, serial and firmware live in [WheelRepository] StateFlows that are nulled the
+ * moment BLE drops, and the normal way to end a ride is to power the wheel off — so
+ * reading them once at stop hands back nulls, the upload carries no serial or MAC, and
+ * eucstats has nothing to key the wheel on. Such a trip still counts for the rider but
+ * reaches no wheel or brand board at all.
+ *
+ * Merging as the ride runs fixes that: once a field is known it stays known, because a
+ * later blank is ignored. A real value still replaces an earlier real value (identity
+ * trickles in — the MAC at connect, the serial only once the wheel answers).
+ */
+class WheelIdentity {
+    private val fields = java.util.concurrent.ConcurrentHashMap<String, String>()
+
+    fun merge(
+        brand: String? = null,
+        model: String? = null,
+        serial: String? = null,
+        bleMac: String? = null,
+        bleName: String? = null,
+        firmware: String? = null,
+    ) {
+        put("brand", brand); put("model", model); put("serial", serial)
+        put("ble_mac", bleMac); put("ble_name", bleName); put("firmware", firmware)
+    }
+
+    private fun put(key: String, value: String?) {
+        if (!value.isNullOrBlank()) fields[key] = value
+    }
+
+    fun clear() = fields.clear()
+
+    /** Same shape and blank-handling as [buildWheelMetaJson] — it delegates to it. */
+    fun toJson(): String? = buildWheelMetaJson(
+        brand = fields["brand"],
+        model = fields["model"],
+        serial = fields["serial"],
+        bleMac = fields["ble_mac"],
+        bleName = fields["ble_name"],
+        firmware = fields["firmware"],
+    )
+}
 
 /**
  * Builds a JSON object string with the connected wheel's metadata.
