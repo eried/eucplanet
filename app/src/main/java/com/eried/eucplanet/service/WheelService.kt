@@ -507,7 +507,12 @@ class WheelService : LifecycleService() {
 
     private fun handleAccelSplits(data: WheelData, settings: AppSettings) {
         val cfg = settings.accelSplit
-        if (!cfg.enabled || !settings.voiceEnabled) {
+        // Fire on the feature's own toggle only, like the other event
+        // announcements (connection, GPS, lights). Do NOT also gate on
+        // settings.voiceEnabled: that field is the "Report status periodically"
+        // switch, so gating here silenced split announcements for any rider who
+        // turned periodic reports off while wanting acceleration splits on.
+        if (!cfg.enabled) {
             accelSplitTracker.hardReset()
             return
         }
@@ -517,7 +522,10 @@ class WheelService : LifecycleService() {
         // announceEvent queues (QUEUE_ADD) and never drops, so a step crossed
         // while the previous line is still speaking is voiced right after.
         for (s in accelSplitTracker.onSample(data.timestamp, speed)) {
-            voiceService.announceEvent(AccelSplitVoice.splitText(this, s, cfg))
+            val text = AccelSplitVoice.splitText(this, s, cfg)
+            Log.i(TAG, "accel split: $text")
+            com.eried.eucplanet.diagnostics.DiagnosticsLogger.note("accel_split: $text")
+            voiceService.announceEvent(text)
         }
     }
 
