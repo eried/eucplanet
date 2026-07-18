@@ -95,9 +95,21 @@ class AccelSplitTrackerTest {
 
     @Test
     fun `deceleration is not tracked unless enabled`() {
-        val t = AccelSplitTracker(increment = 10, minSpeed = 20) // trackDecel defaults false
+        val t = AccelSplitTracker(increment = 10, minSpeed = 20) // decel defaults off
         val ev = feed(t, 0L to 45.0, 1000L to 35.0, 2000L to 25.0, 3000L to 15.0)
         assertTrue("decel must stay silent when the toggle is off", ev.isEmpty())
+    }
+
+    @Test
+    fun `brake-only mode ignores acceleration`() {
+        val t = AccelSplitTracker(increment = 10, minSpeed = 20, trackAccel = false, trackDecel = true)
+        // Accelerate through two steps: must stay silent in brake-only mode.
+        val up = feed(t, 0L to 15.0, 1000L to 45.0)
+        assertTrue("accel must be silent in brake-only mode", up.isEmpty())
+        // Now brake back down: should announce descending splits.
+        val down = feed(t, 2000L to 45.0, 3000L to 25.0, 4000L to 15.0)
+        assertTrue("braking should announce in brake-only mode", down.isNotEmpty())
+        assertTrue(down.all { it.toSpeed < it.fromSpeed })
     }
 
     @Test

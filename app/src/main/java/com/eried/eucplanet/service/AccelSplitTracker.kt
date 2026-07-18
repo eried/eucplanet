@@ -35,8 +35,9 @@ class AccelSplitTracker(
     // A run that neither advances a step nor reverses for this long is
     // considered finished (the rider settled into a cruise between two lines).
     private val plateauMs: Long = 3000L,
-    // When false, only acceleration (up) runs are tracked, byte-for-byte the
-    // original behaviour. When true, deceleration (down) runs are tracked too.
+    // Which directions to track. Acceleration (up) on / deceleration (down) on,
+    // independently, so the rider can pick accel-only, brake-only, or both.
+    private var trackAccel: Boolean = true,
     private var trackDecel: Boolean = false,
 ) {
     /** One completed step, e.g. 20 -> 30 (accel) or 40 -> 30 (decel) in 1.21 s. */
@@ -70,11 +71,12 @@ class AccelSplitTracker(
     /** Re-reads config; a change wipes in-flight timing so old and new step
      *  grids (or a direction-mode switch) never mix within one run. Session
      *  history is preserved. */
-    fun configure(increment: Int, minSpeed: Int, trackDecel: Boolean) {
+    fun configure(increment: Int, minSpeed: Int, trackAccel: Boolean, trackDecel: Boolean) {
         if (increment == this.increment && minSpeed == this.minSpeed &&
-            trackDecel == this.trackDecel) return
+            trackAccel == this.trackAccel && trackDecel == this.trackDecel) return
         this.increment = increment
         this.minSpeed = minSpeed
+        this.trackAccel = trackAccel
         this.trackDecel = trackDecel
         running = false
         direction = 0
@@ -128,7 +130,7 @@ class AccelSplitTracker(
 
         // Arm a run the moment speed crosses a grid line at/above minSpeed.
         if (!running) {
-            val up = firstGridLineCrossedUp(v0, v1)
+            val up = if (trackAccel) firstGridLineCrossedUp(v0, v1) else null
             val down = if (trackDecel) firstGridLineCrossedDown(v0, v1) else null
             when {
                 up != null -> startRun(+1, up, interp(t0.toDouble(), v0, t1.toDouble(), v1, up.toDouble()))

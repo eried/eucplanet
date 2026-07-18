@@ -903,9 +903,9 @@ data class AccelSplitSettings(
     val compareToPrevious: Boolean = true,
     // Append a comparison to the session's best time for the step (per direction).
     val compareToBest: Boolean = false,
-    // Also announce deceleration steps, e.g. "40 to 30, 1.3 seconds", down to
-    // minSpeed. Acceleration is always announced while the feature is enabled.
-    val announceDecel: Boolean = false,
+    // Which crossings to announce: "ACCEL" (speeding up only), "BRAKE" (slowing
+    // down only, e.g. "40 to 30"), or "BOTH". Braking splits run down to minSpeed.
+    val direction: String = "ACCEL",
 )
 
 /**

@@ -118,7 +118,7 @@ object SettingsJson {
             put("minSpeed", s.accelSplit.minSpeed)
             put("compareToPrevious", s.accelSplit.compareToPrevious)
             put("compareToBest", s.accelSplit.compareToBest)
-            put("announceDecel", s.accelSplit.announceDecel)
+            put("direction", s.accelSplit.direction)
         })
         put("announceWheelLock", s.announceWheelLock)
         put("announceLights", s.announceLights)
@@ -365,7 +365,12 @@ object SettingsJson {
                 minSpeed = a.optInt("minSpeed", base.accelSplit.minSpeed),
                 compareToPrevious = a.optBoolean("compareToPrevious", base.accelSplit.compareToPrevious),
                 compareToBest = a.optBoolean("compareToBest", base.accelSplit.compareToBest),
-                announceDecel = a.optBoolean("announceDecel", base.accelSplit.announceDecel),
+                // Migrate the pre-selector boolean: announceDecel=true meant
+                // acceleration + braking, i.e. BOTH.
+                direction = a.optString(
+                    "direction",
+                    if (a.optBoolean("announceDecel", false)) "BOTH" else base.accelSplit.direction
+                ),
             )
         } ?: base.accelSplit,
         announceWheelLock = j.optBoolean("announceWheelLock", base.announceWheelLock),

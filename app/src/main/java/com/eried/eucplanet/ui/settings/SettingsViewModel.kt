@@ -339,8 +339,8 @@ class SettingsViewModel @Inject constructor(
         update { copy(accelSplit = accelSplit.copy(compareToPrevious = v)) }
     fun updateAccelSplitCompareBest(v: Boolean) =
         update { copy(accelSplit = accelSplit.copy(compareToBest = v)) }
-    fun updateAccelSplitDecel(v: Boolean) =
-        update { copy(accelSplit = accelSplit.copy(announceDecel = v)) }
+    fun updateAccelSplitDirection(v: String) =
+        update { copy(accelSplit = accelSplit.copy(direction = v)) }
 
     fun updateVoiceLocale(tag: String, previewText: String? = null) {
         // Explicit voice pick sets the override flag so a later UI-language

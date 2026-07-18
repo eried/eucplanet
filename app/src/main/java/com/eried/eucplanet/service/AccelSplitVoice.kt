@@ -46,17 +46,28 @@ object AccelSplitVoice {
         return sb.toString()
     }
 
-    /** Representative sentence for the settings preview button, honoring the
-     *  rider's comparison toggles against a canned example. */
+    /** Representative sentence(s) for the settings preview button, honoring the
+     *  rider's comparison toggles and the chosen direction: an acceleration
+     *  example ("20 to 30"), a braking example ("30 to 20"), or both back to
+     *  back so the rider hears exactly what that mode will announce. */
     fun previewText(context: Context, cfg: AccelSplitSettings): String {
-        val demo = AccelSplitTracker.Split(
-            fromSpeed = cfg.minSpeed,
-            toSpeed = cfg.minSpeed + cfg.increment,
-            seconds = 1.21,
-            deltaVsPrevious = -0.2,
-            deltaVsBest = -0.2,
-            isNewBest = true,
-        )
-        return splitText(context, demo, cfg)
+        val lo = cfg.minSpeed
+        val hi = cfg.minSpeed + cfg.increment
+        val accel = splitText(context, demo(lo, hi, 1.21), cfg)
+        val brake = splitText(context, demo(hi, lo, 1.30), cfg)
+        return when (cfg.direction) {
+            "BRAKE" -> brake
+            "BOTH" -> "$accel. $brake"
+            else -> accel
+        }
     }
+
+    private fun demo(from: Int, to: Int, seconds: Double) = AccelSplitTracker.Split(
+        fromSpeed = from,
+        toSpeed = to,
+        seconds = seconds,
+        deltaVsPrevious = -0.2,
+        deltaVsBest = -0.2,
+        isNewBest = true,
+    )
 }

@@ -6377,9 +6377,27 @@ private fun VoiceTab(
                 )
             }
 
-            SwitchSetting(stringResource(R.string.accel_splits_decel), accel.announceDecel) {
-                viewModel.updateAccelSplitDecel(it)
+            val dirOptions = listOf(
+                "ACCEL" to stringResource(R.string.accel_splits_dir_accel),
+                "BRAKE" to stringResource(R.string.accel_splits_dir_brake),
+                "BOTH" to stringResource(R.string.accel_splits_dir_both),
+            )
+            SingleChoiceSegmentedButtonRow(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(56.dp)
+            ) {
+                dirOptions.forEachIndexed { i, (key, label) ->
+                    SegmentedButton(
+                        modifier = Modifier.fillMaxHeight(),
+                        selected = key == accel.direction,
+                        onClick = { viewModel.updateAccelSplitDirection(key) },
+                        shape = SegmentedButtonDefaults.itemShape(i, dirOptions.size, baseShape = RoundedCornerShape(12.dp)),
+                        colors = themedSegmentedColors(),
+                    ) { Text(label) }
+                }
             }
+
             SwitchSetting(stringResource(R.string.accel_splits_compare_previous), accel.compareToPrevious) {
                 viewModel.updateAccelSplitComparePrevious(it)
             }
