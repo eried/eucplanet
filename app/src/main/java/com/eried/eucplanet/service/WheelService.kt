@@ -518,7 +518,7 @@ class WheelService : LifecycleService() {
         }
         val unit = com.eried.eucplanet.util.Units.effectiveSpeedUnit(settings)
         val speed = com.eried.eucplanet.util.Units.speed(data.speed, unit).toDouble()
-        accelSplitTracker.configure(cfg.increment, cfg.minSpeed)
+        accelSplitTracker.configure(cfg.increment, cfg.minSpeed, trackDecel = cfg.announceDecel)
         // announceEvent queues (QUEUE_ADD) and never drops, so a step crossed
         // while the previous line is still speaking is voiced right after.
         for (s in accelSplitTracker.onSample(data.timestamp, speed)) {

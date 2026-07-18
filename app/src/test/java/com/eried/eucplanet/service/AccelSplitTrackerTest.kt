@@ -82,6 +82,25 @@ class AccelSplitTrackerTest {
     }
 
     @Test
+    fun `deceleration emits downward splits when enabled`() {
+        val t = AccelSplitTracker(increment = 10, minSpeed = 20, trackDecel = true)
+        // Slow smoothly 45 -> 15: cross 40 (arm), 30, 20; stop at minSpeed (no 20->10).
+        val s = splits(feed(t, 0L to 45.0, 1000L to 35.0, 2000L to 25.0, 3000L to 15.0))
+        assertEquals(listOf(40 to 30, 30 to 20), s.map { it.fromSpeed to it.toSpeed })
+        // Descending: each is "from higher to lower".
+        assertTrue(s.all { it.toSpeed < it.fromSpeed })
+        assertEquals(1.0, s[0].seconds, 0.01)
+        assertEquals(1.0, s[1].seconds, 0.01)
+    }
+
+    @Test
+    fun `deceleration is not tracked unless enabled`() {
+        val t = AccelSplitTracker(increment = 10, minSpeed = 20) // trackDecel defaults false
+        val ev = feed(t, 0L to 45.0, 1000L to 35.0, 2000L to 25.0, 3000L to 15.0)
+        assertTrue("decel must stay silent when the toggle is off", ev.isEmpty())
+    }
+
+    @Test
     fun `slower repeat is not a new best`() {
         val t = AccelSplitTracker(increment = 10, minSpeed = 20)
         // Fast run: 20->30 in ~0.5s.

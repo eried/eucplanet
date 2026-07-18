@@ -759,6 +759,7 @@
     <string name="accel_splits_desc">As you accelerate, speak the time to cross each speed step. Handy for launch-feel training.</string>
     <string name="accel_splits_from">From</string>
     <string name="accel_splits_step">Step</string>
+    <string name="accel_splits_decel">Announce braking splits</string>
     <string name="accel_splits_compare_previous">Compare to previous run</string>
     <string name="accel_splits_compare_best">Compare to session best</string>
     <string name="accel_split_time_fmt">%1$d to %2$d, %3$s seconds</string>

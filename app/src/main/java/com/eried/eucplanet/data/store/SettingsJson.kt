@@ -118,6 +118,7 @@ object SettingsJson {
             put("minSpeed", s.accelSplit.minSpeed)
             put("compareToPrevious", s.accelSplit.compareToPrevious)
             put("compareToBest", s.accelSplit.compareToBest)
+            put("announceDecel", s.accelSplit.announceDecel)
         })
         put("announceWheelLock", s.announceWheelLock)
         put("announceLights", s.announceLights)
@@ -364,6 +365,7 @@ object SettingsJson {
                 minSpeed = a.optInt("minSpeed", base.accelSplit.minSpeed),
                 compareToPrevious = a.optBoolean("compareToPrevious", base.accelSplit.compareToPrevious),
                 compareToBest = a.optBoolean("compareToBest", base.accelSplit.compareToBest),
+                announceDecel = a.optBoolean("announceDecel", base.accelSplit.announceDecel),
             )
         } ?: base.accelSplit,
         announceWheelLock = j.optBoolean("announceWheelLock", base.announceWheelLock),

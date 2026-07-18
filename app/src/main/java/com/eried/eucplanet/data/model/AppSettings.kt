@@ -899,10 +899,13 @@ data class AccelSplitSettings(
     // First band's lower edge, in the rider's display speed unit. Accelerations
     // that never reach this speed are ignored.
     val minSpeed: Int = 20,
-    // Append a comparison to the same step in the previous acceleration run.
+    // Append a comparison to the same step in the previous run (per direction).
     val compareToPrevious: Boolean = true,
-    // Append a comparison to the session's best time for the step.
+    // Append a comparison to the session's best time for the step (per direction).
     val compareToBest: Boolean = false,
+    // Also announce deceleration steps, e.g. "40 to 30, 1.3 seconds", down to
+    // minSpeed. Acceleration is always announced while the feature is enabled.
+    val announceDecel: Boolean = false,
 )
 
 /**

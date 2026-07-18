@@ -6377,6 +6377,9 @@ private fun VoiceTab(
                 )
             }
 
+            SwitchSetting(stringResource(R.string.accel_splits_decel), accel.announceDecel) {
+                viewModel.updateAccelSplitDecel(it)
+            }
             SwitchSetting(stringResource(R.string.accel_splits_compare_previous), accel.compareToPrevious) {
                 viewModel.updateAccelSplitComparePrevious(it)
             }
