@@ -1910,6 +1910,23 @@
     <string name="alarm_fx_drive">過載</string>
     <string name="alarm_fx_sweep">濾波</string>
     <string name="alarm_fx_crush">位元粉碎</string>
+    <string name="section_accel_splits">速度分段</string>
+    <string name="accel_splits_enabled">播報用時</string>
+    <string name="accel_splits_desc">在加速或減速時，播報越過每個速度檔的用時。適合練習起步和煞車。</string>
+    <string name="accel_split_decel_prefix">煞車，</string>
+    <string name="accel_splits_from">起始</string>
+    <string name="accel_splits_step">步進</string>
+    <string name="accel_splits_dir_accel">加速</string>
+    <string name="accel_splits_dir_brake">煞車</string>
+    <string name="accel_splits_dir_both">雙向</string>
+    <string name="accel_splits_compare_previous">與上次比較</string>
+    <string name="accel_splits_compare_best">與本次最佳比較</string>
+    <string name="accel_split_time_fmt">%1$d 到 %2$d，%3$s 秒</string>
+    <string name="accel_split_faster_prev">，比上次快 %1$s 秒</string>
+    <string name="accel_split_slower_prev">，比上次慢 %1$s 秒</string>
+    <string name="accel_split_faster_best">，比最佳快 %1$s</string>
+    <string name="accel_split_slower_best">，比最佳慢 %1$s</string>
+    <string name="accel_split_best_yet">，最佳成績</string>
 </resources>
 
 

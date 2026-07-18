@@ -1911,4 +1911,21 @@
     <string name="alarm_fx_drive">Overdrive</string>
     <string name="alarm_fx_sweep">Filter</string>
     <string name="alarm_fx_crush">Bitcrush</string>
+    <string name="section_accel_splits">Fartsplittar</string>
+    <string name="accel_splits_enabled">Meddela tider</string>
+    <string name="accel_splits_desc">Säger tiden för att passera varje fartsteg vid acceleration eller inbromsning. Bra för start- och bromsträning.</string>
+    <string name="accel_split_decel_prefix">inbromsning, </string>
+    <string name="accel_splits_from">Från</string>
+    <string name="accel_splits_step">Steg</string>
+    <string name="accel_splits_dir_accel">Accel</string>
+    <string name="accel_splits_dir_brake">Broms</string>
+    <string name="accel_splits_dir_both">Båda</string>
+    <string name="accel_splits_compare_previous">Jämför med förra åket</string>
+    <string name="accel_splits_compare_best">Jämför med sessionens bästa</string>
+    <string name="accel_split_time_fmt">%1$d till %2$d, %3$s sekunder</string>
+    <string name="accel_split_faster_prev">, %1$s sekunder snabbare än föregående</string>
+    <string name="accel_split_slower_prev">, %1$s sekunder långsammare än föregående</string>
+    <string name="accel_split_faster_best">, %1$s snabbare än bästa</string>
+    <string name="accel_split_slower_best">, %1$s långsammare än bästa</string>
+    <string name="accel_split_best_yet">, bästa hittills</string>
 </resources>

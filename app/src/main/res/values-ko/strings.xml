@@ -1908,4 +1908,23 @@
     <string name="alarm_fx_drive">오버드라이브</string>
     <string name="alarm_fx_sweep">필터</string>
     <string name="alarm_fx_crush">비트크러시</string>
+
+    <!-- Speed splits (spoken accel/brake step timing) -->
+    <string name="section_accel_splits">속도 구간</string>
+    <string name="accel_splits_enabled">시간 안내</string>
+    <string name="accel_splits_desc">가속 또는 감속하며 각 속도 단계를 통과하는 시간을 읽어 줍니다. 출발과 브레이크 연습에 유용합니다.</string>
+    <string name="accel_split_decel_prefix">브레이크, </string>
+    <string name="accel_splits_from">시작</string>
+    <string name="accel_splits_step">단계</string>
+    <string name="accel_splits_dir_accel">가속</string>
+    <string name="accel_splits_dir_brake">제동</string>
+    <string name="accel_splits_dir_both">모두</string>
+    <string name="accel_splits_compare_previous">이전 주행과 비교</string>
+    <string name="accel_splits_compare_best">세션 최고와 비교</string>
+    <string name="accel_split_time_fmt">%1$d에서 %2$d까지, %3$s초</string>
+    <string name="accel_split_faster_prev">, 이전보다 %1$s초 빠름</string>
+    <string name="accel_split_slower_prev">, 이전보다 %1$s초 느림</string>
+    <string name="accel_split_faster_best">, 최고보다 %1$s 빠름</string>
+    <string name="accel_split_slower_best">, 최고보다 %1$s 느림</string>
+    <string name="accel_split_best_yet">, 신기록</string>
 </resources>

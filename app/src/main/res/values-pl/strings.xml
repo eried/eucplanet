@@ -1909,4 +1909,23 @@
     <string name="alarm_fx_drive">Overdrive</string>
     <string name="alarm_fx_sweep">Filtr</string>
     <string name="alarm_fx_crush">Bitcrush</string>
+
+    <!-- Speed splits (spoken accel/brake step timing) -->
+    <string name="section_accel_splits">Międzyczasy prędkości</string>
+    <string name="accel_splits_enabled">Ogłaszaj czasy</string>
+    <string name="accel_splits_desc">Odczytuje czas przekroczenia każdego progu prędkości podczas przyspieszania lub hamowania. Przydatne do ćwiczenia startów i hamowania.</string>
+    <string name="accel_split_decel_prefix">hamowanie, </string>
+    <string name="accel_splits_from">Od</string>
+    <string name="accel_splits_step">Krok</string>
+    <string name="accel_splits_dir_accel">Przysp.</string>
+    <string name="accel_splits_dir_brake">Hamow.</string>
+    <string name="accel_splits_dir_both">Oba</string>
+    <string name="accel_splits_compare_previous">Porównaj z poprzednim przejazdem</string>
+    <string name="accel_splits_compare_best">Porównaj z rekordem sesji</string>
+    <string name="accel_split_time_fmt">z %1$d na %2$d, %3$s sekundy</string>
+    <string name="accel_split_faster_prev">, %1$s sekundy szybciej niż poprzednio</string>
+    <string name="accel_split_slower_prev">, %1$s sekundy wolniej niż poprzednio</string>
+    <string name="accel_split_faster_best">, %1$s szybciej niż rekord</string>
+    <string name="accel_split_slower_best">, %1$s wolniej niż rekord</string>
+    <string name="accel_split_best_yet">, nowy rekord</string>
 </resources>

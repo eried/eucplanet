@@ -1908,6 +1908,23 @@
     <string name="alarm_fx_drive">Overdrive</string>
     <string name="alarm_fx_sweep">Filtre</string>
     <string name="alarm_fx_crush">Bitcrush</string>
+    <string name="section_accel_splits">Hız dilimleri</string>
+    <string name="accel_splits_enabled">Süreleri seslendir</string>
+    <string name="accel_splits_desc">Hızlanırken veya yavaşlarken her hız adımını geçme süresini seslendirir. Kalkış ve fren çalışması için kullanışlıdır.</string>
+    <string name="accel_split_decel_prefix">frenleme, </string>
+    <string name="accel_splits_from">Başlangıç</string>
+    <string name="accel_splits_step">Adım</string>
+    <string name="accel_splits_dir_accel">Hızlan</string>
+    <string name="accel_splits_dir_brake">Fren</string>
+    <string name="accel_splits_dir_both">İkisi</string>
+    <string name="accel_splits_compare_previous">Önceki turla karşılaştır</string>
+    <string name="accel_splits_compare_best">Oturumun en iyisiyle karşılaştır</string>
+    <string name="accel_split_time_fmt">%1$d ile %2$d arası, %3$s saniye</string>
+    <string name="accel_split_faster_prev">, öncekinden %1$s saniye daha hızlı</string>
+    <string name="accel_split_slower_prev">, öncekinden %1$s saniye daha yavaş</string>
+    <string name="accel_split_faster_best">, en iyiden %1$s daha hızlı</string>
+    <string name="accel_split_slower_best">, en iyiden %1$s daha yavaş</string>
+    <string name="accel_split_best_yet">, şimdiye kadarki en iyi</string>
 </resources>
 
 

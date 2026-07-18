@@ -1910,6 +1910,25 @@
     <string name="alarm_fx_drive">オーバードライブ</string>
     <string name="alarm_fx_sweep">フィルター</string>
     <string name="alarm_fx_crush">ビットクラッシュ</string>
+
+    <!-- Speed splits (spoken accel/brake step timing) -->
+    <string name="section_accel_splits">速度スプリット</string>
+    <string name="accel_splits_enabled">タイムをアナウンス</string>
+    <string name="accel_splits_desc">加速・減速しながら各速度ステップを通過するタイムを読み上げます。発進やブレーキの練習に便利です。</string>
+    <string name="accel_split_decel_prefix">ブレーキ、</string>
+    <string name="accel_splits_from">開始</string>
+    <string name="accel_splits_step">ステップ</string>
+    <string name="accel_splits_dir_accel">加速</string>
+    <string name="accel_splits_dir_brake">ブレーキ</string>
+    <string name="accel_splits_dir_both">両方</string>
+    <string name="accel_splits_compare_previous">前回の走行と比較</string>
+    <string name="accel_splits_compare_best">セッションベストと比較</string>
+    <string name="accel_split_time_fmt">%1$dから%2$d、%3$s秒</string>
+    <string name="accel_split_faster_prev">、前回より%1$s秒速い</string>
+    <string name="accel_split_slower_prev">、前回より%1$s秒遅い</string>
+    <string name="accel_split_faster_best">、ベストより%1$s速い</string>
+    <string name="accel_split_slower_best">、ベストより%1$s遅い</string>
+    <string name="accel_split_best_yet">、ベスト更新</string>
 </resources>
 
 

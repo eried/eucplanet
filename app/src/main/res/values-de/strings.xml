@@ -1931,4 +1931,21 @@
     <string name="alarm_fx_drive">Overdrive</string>
     <string name="alarm_fx_sweep">Filter</string>
     <string name="alarm_fx_crush">Bitcrush</string>
+    <string name="section_accel_splits">Geschwindigkeits-Splits</string>
+    <string name="accel_splits_enabled">Zeiten ansagen</string>
+    <string name="accel_splits_desc">Sagt die Zeit für jede Geschwindigkeitsstufe an, beim Beschleunigen oder Bremsen. Praktisch zum Üben von Start und Bremsung.</string>
+    <string name="accel_split_decel_prefix">bremsen, </string>
+    <string name="accel_splits_from">Von</string>
+    <string name="accel_splits_step">Schritt</string>
+    <string name="accel_splits_dir_accel">Beschl.</string>
+    <string name="accel_splits_dir_brake">Bremse</string>
+    <string name="accel_splits_dir_both">Beide</string>
+    <string name="accel_splits_compare_previous">Mit vorherigem Lauf vergleichen</string>
+    <string name="accel_splits_compare_best">Mit Bestwert der Session vergleichen</string>
+    <string name="accel_split_time_fmt">von %1$d bis %2$d, %3$s Sekunden</string>
+    <string name="accel_split_faster_prev">, %1$s Sekunden schneller als zuvor</string>
+    <string name="accel_split_slower_prev">, %1$s Sekunden langsamer als zuvor</string>
+    <string name="accel_split_faster_best">, %1$s schneller als Bestwert</string>
+    <string name="accel_split_slower_best">, %1$s langsamer als Bestwert</string>
+    <string name="accel_split_best_yet">, neuer Bestwert</string>
 </resources>

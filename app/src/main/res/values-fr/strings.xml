@@ -1915,4 +1915,21 @@
     <string name="alarm_fx_drive">Overdrive</string>
     <string name="alarm_fx_sweep">Filtre</string>
     <string name="alarm_fx_crush">Bitcrush</string>
+    <string name="section_accel_splits">Chronos de vitesse</string>
+    <string name="accel_splits_enabled">Annoncer les temps</string>
+    <string name="accel_splits_desc">Annonce le temps pour franchir chaque palier de vitesse, en accélérant ou en freinant. Pratique pour s\'entraîner au démarrage et au freinage.</string>
+    <string name="accel_split_decel_prefix">freinage, </string>
+    <string name="accel_splits_from">De</string>
+    <string name="accel_splits_step">Pas</string>
+    <string name="accel_splits_dir_accel">Accél.</string>
+    <string name="accel_splits_dir_brake">Frein</string>
+    <string name="accel_splits_dir_both">Les deux</string>
+    <string name="accel_splits_compare_previous">Comparer au passage précédent</string>
+    <string name="accel_splits_compare_best">Comparer au meilleur de la session</string>
+    <string name="accel_split_time_fmt">de %1$d à %2$d, %3$s secondes</string>
+    <string name="accel_split_faster_prev">, %1$s secondes plus rapide que le précédent</string>
+    <string name="accel_split_slower_prev">, %1$s secondes plus lent que le précédent</string>
+    <string name="accel_split_faster_best">, %1$s plus rapide que le meilleur</string>
+    <string name="accel_split_slower_best">, %1$s plus lent que le meilleur</string>
+    <string name="accel_split_best_yet">, nouveau record</string>
 </resources>

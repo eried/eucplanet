@@ -1911,5 +1911,22 @@
     <string name="alarm_fx_drive">Овердрайв</string>
     <string name="alarm_fx_sweep">Фильтр</string>
     <string name="alarm_fx_crush">Биткрашер</string>
+    <string name="section_accel_splits">Интервалы скорости</string>
+    <string name="accel_splits_enabled">Озвучивать время</string>
+    <string name="accel_splits_desc">Озвучивает время прохождения каждого шага скорости при разгоне или торможении. Удобно для отработки старта и торможения.</string>
+    <string name="accel_split_decel_prefix">торможение, </string>
+    <string name="accel_splits_from">От</string>
+    <string name="accel_splits_step">Шаг</string>
+    <string name="accel_splits_dir_accel">Разгон</string>
+    <string name="accel_splits_dir_brake">Тормоз</string>
+    <string name="accel_splits_dir_both">Оба</string>
+    <string name="accel_splits_compare_previous">Сравнивать с прошлым заездом</string>
+    <string name="accel_splits_compare_best">Сравнивать с лучшим за сессию</string>
+    <string name="accel_split_time_fmt">от %1$d до %2$d, %3$s секунды</string>
+    <string name="accel_split_faster_prev">, на %1$s секунды быстрее предыдущего</string>
+    <string name="accel_split_slower_prev">, на %1$s секунды медленнее предыдущего</string>
+    <string name="accel_split_faster_best">, на %1$s быстрее лучшего</string>
+    <string name="accel_split_slower_best">, на %1$s медленнее лучшего</string>
+    <string name="accel_split_best_yet">, лучший результат</string>
 </resources>
 

@@ -1911,5 +1911,24 @@
     <string name="alarm_fx_drive">Overdrive</string>
     <string name="alarm_fx_sweep">Filtro</string>
     <string name="alarm_fx_crush">Bitcrush</string>
+
+    <!-- Speed splits (spoken accel/brake step timing) -->
+    <string name="section_accel_splits">Parciais de velocidade</string>
+    <string name="accel_splits_enabled">Anunciar tempos</string>
+    <string name="accel_splits_desc">Fala o tempo para atravessar cada degrau de velocidade, ao acelerar ou frear. Útil para treinar arrancadas e frenagens.</string>
+    <string name="accel_split_decel_prefix">freando, </string>
+    <string name="accel_splits_from">De</string>
+    <string name="accel_splits_step">Passo</string>
+    <string name="accel_splits_dir_accel">Acel.</string>
+    <string name="accel_splits_dir_brake">Freio</string>
+    <string name="accel_splits_dir_both">Ambos</string>
+    <string name="accel_splits_compare_previous">Comparar com a corrida anterior</string>
+    <string name="accel_splits_compare_best">Comparar com o melhor da sessão</string>
+    <string name="accel_split_time_fmt">de %1$d a %2$d, %3$s segundos</string>
+    <string name="accel_split_faster_prev">, %1$s segundos mais rápido que o anterior</string>
+    <string name="accel_split_slower_prev">, %1$s segundos mais lento que o anterior</string>
+    <string name="accel_split_faster_best">, %1$s mais rápido que o melhor</string>
+    <string name="accel_split_slower_best">, %1$s mais lento que o melhor</string>
+    <string name="accel_split_best_yet">, novo recorde</string>
 </resources>
 

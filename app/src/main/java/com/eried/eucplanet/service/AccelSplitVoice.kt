@@ -22,7 +22,14 @@ object AccelSplitVoice {
     private fun fmtDelta(sec: Double): String = String.format(Locale.US, "%.1f", abs(sec))
 
     fun splitText(context: Context, s: AccelSplitTracker.Split, cfg: AccelSplitSettings): String {
-        val sb = StringBuilder(
+        val sb = StringBuilder()
+        // Braking (descending) splits get a spoken lead-in so the rider can tell
+        // them apart from acceleration splits by ear, since the numbers alone
+        // sound alike (e.g. "braking, 40 to 30" vs "20 to 30").
+        if (s.toSpeed < s.fromSpeed) {
+            sb.append(context.getString(R.string.accel_split_decel_prefix))
+        }
+        sb.append(
             context.getString(R.string.accel_split_time_fmt, s.fromSpeed, s.toSpeed, fmtSeconds(s.seconds))
         )
         // Prefer the previous-run comparison; the best comparison only speaks

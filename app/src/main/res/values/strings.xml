@@ -754,9 +754,10 @@
     <!-- Acceleration splits (RaceBox-style). %1$d / %2$d are the speed band edges,
          %3$s is the elapsed seconds (e.g. "1.21"); the word "seconds" stays inside
          the string so it localizes. Keep the spoken phrasing natural for TTS. -->
-    <string name="section_accel_splits">Acceleration splits</string>
-    <string name="accel_splits_enabled">Announce split times</string>
-    <string name="accel_splits_desc">As you accelerate, speak the time to cross each speed step. Handy for launch-feel training.</string>
+    <string name="section_accel_splits">Speed splits</string>
+    <string name="accel_splits_enabled">Announce times</string>
+    <string name="accel_splits_desc">Speak the time to cross each speed step, speeding up or slowing down. Handy for launch and braking practice.</string>
+    <string name="accel_split_decel_prefix">braking, </string>
     <string name="accel_splits_from">From</string>
     <string name="accel_splits_step">Step</string>
     <string name="accel_splits_dir_accel">Accel</string>
