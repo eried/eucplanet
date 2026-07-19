@@ -6193,12 +6193,10 @@ private fun VoiceTab(
             return parts.joinToString(", ")
         }
 
-        AdvancedCollapsable(
-            title = stringResource(R.string.section_report_status),
-            stateKey = "voice-report-status"
-        ) {
-        // Periodic-report master toggle + when / how-often, moved here from the
-        // Announcements section so all periodic-report controls live together.
+        SectionHeader(stringResource(R.string.section_report_status))
+        // Master enable + when / how-often stay visible under the header; the
+        // per-metric Periodic/Trigger matrix is tucked into the "Report contents"
+        // expandable below so the long list doesn't dominate the tab.
         SwitchSetting(stringResource(R.string.voice_enabled), settings.voiceEnabled) {
             viewModel.updateVoiceEnabled(it)
         }
@@ -6226,6 +6224,10 @@ private fun VoiceTab(
             }
         }
 
+        AdvancedCollapsable(
+            title = stringResource(R.string.report_contents),
+            stateKey = "voice-report-contents"
+        ) {
         // Header: Label | Periodic | arrows | Trigger
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -6327,7 +6329,7 @@ private fun VoiceTab(
                 )
             }
         }
-        }   // end Report status AdvancedCollapsable
+        }   // end Report contents AdvancedCollapsable
 
         // --- Acceleration splits (RaceBox-style) ---
         SectionHeader(stringResource(R.string.section_accel_splits))
