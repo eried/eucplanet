@@ -745,7 +745,7 @@
     <string name="section_announcements">Announcements</string>
     <string name="section_speech">Speech</string>
     <string name="section_report_status">Report status</string>
-    <string name="voice_enabled">Report status periodically</string>
+    <string name="voice_enabled">Report periodically</string>
     <string name="voice_announce_when_label">Announce</string>
     <string name="voice_announce_always">Always</string>
     <string name="voice_announce_connected">Connected</string>

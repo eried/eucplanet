@@ -6071,36 +6071,6 @@ private fun VoiceTab(
 
         SectionHeader(stringResource(R.string.section_announcements))
 
-        BringIntoViewSection(expanded = settings.voiceEnabled) {
-        SwitchSetting(stringResource(R.string.voice_enabled), settings.voiceEnabled) {
-            viewModel.updateVoiceEnabled(it)
-        }
-
-        if (settings.voiceEnabled) {
-            AnnounceWhenSelector(
-                current = settings.voiceAnnounceWhen,
-                onChange = { viewModel.updateVoiceAnnounceWhen(it) }
-            )
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                NumberUpDown(
-                    value = settings.voiceIntervalSeconds,
-                    onValueChange = {
-                        viewModel.updateVoiceInterval((Math.round(it / 10f) * 10).coerceIn(10, 300))
-                    },
-                    range = 10..300,
-                    step = 10,
-                    suffix = "s",
-                    label = stringResource(R.string.voice_interval),
-                    modifier = Modifier.weight(1f),
-                )
-                Spacer(Modifier.weight(1f))
-            }
-        }
-        }   // end voiceEnabled BringIntoViewSection
-
         // Navigation turn-by-turn voice guidance, uses the same row as the
         // announcement toggles below, so its preview button lines up with them.
         val navSample = stringResource(R.string.nav_arrived)
@@ -6148,8 +6118,9 @@ private fun VoiceTab(
             onCheckedChange = { viewModel.updateAnnounceWelcome(it) },
             onTest = { viewModel.testSpeak(sWelcome) })
 
-        SectionHeader(stringResource(R.string.section_report_status))
-
+        // Report status: the periodic-report enable + when/interval, then the
+        // draggable per-metric Periodic/Trigger matrix, all tucked into a
+        // collapsible so the long list no longer dominates the tab.
         val sSpeedEx = stringResource(R.string.voice_speed_fmt, "35")
         val sBatteryEx = stringResource(R.string.voice_battery_fmt, 80)
         val sPhoneEx = stringResource(R.string.voice_phone_battery_fmt, 57)
@@ -6220,6 +6191,39 @@ private fun VoiceTab(
                 if (enabled) exampleFor(key) else null
             }
             return parts.joinToString(", ")
+        }
+
+        AdvancedCollapsable(
+            title = stringResource(R.string.section_report_status),
+            stateKey = "voice-report-status"
+        ) {
+        // Periodic-report master toggle + when / how-often, moved here from the
+        // Announcements section so all periodic-report controls live together.
+        SwitchSetting(stringResource(R.string.voice_enabled), settings.voiceEnabled) {
+            viewModel.updateVoiceEnabled(it)
+        }
+        if (settings.voiceEnabled) {
+            AnnounceWhenSelector(
+                current = settings.voiceAnnounceWhen,
+                onChange = { viewModel.updateVoiceAnnounceWhen(it) }
+            )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                NumberUpDown(
+                    value = settings.voiceIntervalSeconds,
+                    onValueChange = {
+                        viewModel.updateVoiceInterval((Math.round(it / 10f) * 10).coerceIn(10, 300))
+                    },
+                    range = 10..300,
+                    step = 10,
+                    suffix = "s",
+                    label = stringResource(R.string.voice_interval),
+                    modifier = Modifier.weight(1f),
+                )
+                Spacer(Modifier.weight(1f))
+            }
         }
 
         // Header: Label | Periodic | arrows | Trigger
@@ -6323,6 +6327,7 @@ private fun VoiceTab(
                 )
             }
         }
+        }   // end Report status AdvancedCollapsable
 
         // --- Acceleration splits (RaceBox-style) ---
         SectionHeader(stringResource(R.string.section_accel_splits))
@@ -6353,6 +6358,29 @@ private fun VoiceTab(
         HintText(stringResource(R.string.accel_splits_desc), small = true)
 
         if (accel.enabled) {
+            // Direction selector sits directly under the toggle so it's the
+            // first thing the rider sets.
+            val dirOptions = listOf(
+                "ACCEL" to stringResource(R.string.accel_splits_dir_accel),
+                "BRAKE" to stringResource(R.string.accel_splits_dir_brake),
+                "BOTH" to stringResource(R.string.accel_splits_dir_both),
+            )
+            SingleChoiceSegmentedButtonRow(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(56.dp)
+            ) {
+                dirOptions.forEachIndexed { i, (key, label) ->
+                    SegmentedButton(
+                        modifier = Modifier.fillMaxHeight(),
+                        selected = key == accel.direction,
+                        onClick = { viewModel.updateAccelSplitDirection(key) },
+                        shape = SegmentedButtonDefaults.itemShape(i, dirOptions.size, baseShape = RoundedCornerShape(12.dp)),
+                        colors = themedSegmentedColors(),
+                    ) { Text(label) }
+                }
+            }
+
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
@@ -6375,27 +6403,6 @@ private fun VoiceTab(
                     label = stringResource(R.string.accel_splits_step),
                     modifier = Modifier.weight(1f),
                 )
-            }
-
-            val dirOptions = listOf(
-                "ACCEL" to stringResource(R.string.accel_splits_dir_accel),
-                "BRAKE" to stringResource(R.string.accel_splits_dir_brake),
-                "BOTH" to stringResource(R.string.accel_splits_dir_both),
-            )
-            SingleChoiceSegmentedButtonRow(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(56.dp)
-            ) {
-                dirOptions.forEachIndexed { i, (key, label) ->
-                    SegmentedButton(
-                        modifier = Modifier.fillMaxHeight(),
-                        selected = key == accel.direction,
-                        onClick = { viewModel.updateAccelSplitDirection(key) },
-                        shape = SegmentedButtonDefaults.itemShape(i, dirOptions.size, baseShape = RoundedCornerShape(12.dp)),
-                        colors = themedSegmentedColors(),
-                    ) { Text(label) }
-                }
             }
 
             SwitchSetting(stringResource(R.string.accel_splits_compare_previous), accel.compareToPrevious) {
