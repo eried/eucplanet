@@ -757,7 +757,7 @@
          the string so it localizes. Keep the spoken phrasing natural for TTS. -->
     <string name="section_accel_splits">Speed splits</string>
     <string name="accel_splits_enabled">Announce times</string>
-    <string name="accel_splits_desc">Speak the time to cross each speed step, speeding up or slowing down. Handy for launch and braking practice.</string>
+    <string name="accel_splits_desc">Speak the time to cross each speed step, speeding up or slowing down. Starts from the speed below, in steps you set.</string>
     <string name="accel_split_decel_prefix">braking, </string>
     <string name="accel_splits_from">From</string>
     <string name="accel_splits_step">Step</string>

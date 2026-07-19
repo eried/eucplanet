@@ -6357,7 +6357,6 @@ private fun VoiceTab(
                 colors = themedSwitchColors()
             )
         }
-        HintText(stringResource(R.string.accel_splits_desc), small = true)
 
         if (accel.enabled) {
             // Direction selector sits directly under the toggle so it's the
@@ -6382,6 +6381,8 @@ private fun VoiceTab(
                     ) { Text(label) }
                 }
             }
+
+            HintText(stringResource(R.string.accel_splits_desc), small = true)
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
