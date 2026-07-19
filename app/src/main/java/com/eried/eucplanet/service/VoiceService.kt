@@ -570,7 +570,8 @@ class VoiceService @Inject constructor(
     }
 
     private fun speakInternal(
-        text: String, isTrigger: Boolean, rate: Float, localeTag: String, voiceName: String
+        text: String, isTrigger: Boolean, rate: Float, localeTag: String, voiceName: String,
+        flush: Boolean = false,
     ) {
         // Session "silence" toggle: swallow every spoken utterance without
         // touching audio focus or TTS state.
@@ -602,7 +603,10 @@ class VoiceService @Inject constructor(
         val params = android.os.Bundle().apply {
             putFloat(TextToSpeech.Engine.KEY_PARAM_VOLUME, 1.0f)
         }
-        val result = tts?.speak(text, TextToSpeech.QUEUE_ADD, params, utteranceId) ?: TextToSpeech.ERROR
+        // Previews flush (stop whatever is speaking and play this one now);
+        // live announcements queue so they never talk over each other.
+        val queueMode = if (flush) TextToSpeech.QUEUE_FLUSH else TextToSpeech.QUEUE_ADD
+        val result = tts?.speak(text, queueMode, params, utteranceId) ?: TextToSpeech.ERROR
         if (result == TextToSpeech.ERROR) {
             Log.w(TAG, "TTS speak returned ERROR; releasing focus")
             onUtteranceFinished(utteranceId)
@@ -612,7 +616,7 @@ class VoiceService @Inject constructor(
     fun testSpeak(text: String, speechRate: Float, localeTag: String, voiceName: String = "") {
         warnIfLowVolume(currentOutputChannel)
         speakInternal(text, isTrigger = false, rate = speechRate,
-            localeTag = localeTag, voiceName = voiceName)
+            localeTag = localeTag, voiceName = voiceName, flush = true)
     }
 
     private fun applyLocale(localeTag: String, voiceName: String) {

@@ -6222,8 +6222,9 @@ private fun VoiceTab(
                 )
                 Spacer(Modifier.weight(1f))
             }
-        }
 
+        // Customize lives inside the enabled block so it hides when periodic
+        // reporting is off, together with the when/interval controls.
         AdvancedCollapsable(
             title = stringResource(R.string.report_contents),
             stateKey = "voice-report-contents"
@@ -6329,7 +6330,8 @@ private fun VoiceTab(
                 )
             }
         }
-        }   // end Report contents AdvancedCollapsable
+        }   // end Customize AdvancedCollapsable
+        }   // end Report-periodically enabled block
 
         // --- Acceleration splits (RaceBox-style) ---
         SectionHeader(stringResource(R.string.section_accel_splits))
