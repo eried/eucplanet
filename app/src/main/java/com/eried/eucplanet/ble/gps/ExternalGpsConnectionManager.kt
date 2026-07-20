@@ -212,6 +212,14 @@ class ExternalGpsConnectionManager @Inject constructor(
             val rx = service?.getCharacteristic(NUS_RX_UUID)
             if (tx == null) {
                 Log.e(TAG, "NUS TX characteristic not found")
+                // Self-diagnosing: the expected Nordic UART service isn't on
+                // this device, so it uses a different GATT profile than we
+                // assumed (e.g. a real Dragy vs the OpenDragy DIY clone). Dump
+                // what it DOES expose to the shareable diagnostics so the real
+                // service / characteristic UUIDs can be read off without a
+                // btsnoop capture. Logged once per device so the auto-reconnect
+                // loop can't flood the log.
+                logDiscoveredGatt(g)
                 disconnect()
                 return
             }
@@ -306,5 +314,38 @@ class ExternalGpsConnectionManager @Inject constructor(
         if (uuid != NUS_TX_UUID || value.isEmpty()) return
         val sample = activeAdapter?.decode(value) ?: return
         _samples.tryEmit(sample)
+    }
+
+    /** Address we last dumped the GATT for, so the reconnect loop logs once. */
+    @Volatile private var loggedGattForAddress: String? = null
+
+    /**
+     * Write the device's full discovered GATT (every service + characteristic
+     * and its properties) to the shareable diagnostics. Used when the expected
+     * Nordic UART service is absent, so an unknown box's real profile can be
+     * read off the .txt a tester shares. Once per device address.
+     */
+    @SuppressLint("MissingPermission")
+    private fun logDiscoveredGatt(g: BluetoothGatt) {
+        val addr = currentAddress
+        if (addr != null && addr == loggedGattForAddress) return
+        loggedGattForAddress = addr
+        val src = activeAdapter?.source?.displayName ?: "GPS"
+        val log = com.eried.eucplanet.diagnostics.DiagnosticsLogger
+        log.note("extgps: $src ($addr) has no Nordic UART service; its GATT profile:")
+        for (svc in g.services) {
+            log.note("  service ${svc.uuid}")
+            for (ch in svc.characteristics) {
+                val p = ch.properties
+                val flags = buildString {
+                    if (p and BluetoothGattCharacteristic.PROPERTY_NOTIFY != 0) append('N')
+                    if (p and BluetoothGattCharacteristic.PROPERTY_INDICATE != 0) append('I')
+                    if (p and BluetoothGattCharacteristic.PROPERTY_READ != 0) append('R')
+                    if (p and BluetoothGattCharacteristic.PROPERTY_WRITE != 0) append('W')
+                    if (p and BluetoothGattCharacteristic.PROPERTY_WRITE_NO_RESPONSE != 0) append('w')
+                }
+                log.note("    char ${ch.uuid} [$flags]")
+            }
+        }
     }
 }
