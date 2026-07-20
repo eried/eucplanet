@@ -43,6 +43,21 @@ class DragyAdapterTest {
     private fun set(payload: ByteArray, off: Int, bytes: ByteArray) =
         System.arraycopy(bytes, 0, payload, off, bytes.size)
 
+    @Test fun `uses Dragy custom GATT profile FD00 FD02 FD01`() {
+        val p = DragyAdapter().gattProfile()
+        assertEquals("0000fd00-0000-1000-8000-00805f9b34fb", p.serviceUuid.toString())
+        assertEquals("0000fd02-0000-1000-8000-00805f9b34fb", p.notifyUuid.toString())
+        assertEquals("0000fd01-0000-1000-8000-00805f9b34fb", p.writeUuid.toString())
+    }
+
+    @Test fun `initCommands sends the 10Hz UBX config`() {
+        val cmds = DragyAdapter().initCommands(0L, null, null, null)
+        assertEquals(1, cmds.size)
+        // Verbatim Send10HzData, must start with the UBX sync B5 62.
+        assertEquals(0xB5.toByte(), cmds[0][0])
+        assertEquals(0x62.toByte(), cmds[0][1])
+    }
+
     @Test fun `matches Dragy and DRG names, not others`() {
         val a = DragyAdapter()
         assertTrue(a.matches("Dragy"))

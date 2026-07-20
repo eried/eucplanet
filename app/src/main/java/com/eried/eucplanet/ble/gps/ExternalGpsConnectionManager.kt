@@ -44,9 +44,6 @@ class ExternalGpsConnectionManager @Inject constructor(
 ) {
     companion object {
         private const val TAG = "ExtGpsConn"
-        private val NUS_SERVICE_UUID: UUID = UUID.fromString("6e400001-b5a3-f393-e0a9-e50e24dcca9e")
-        private val NUS_RX_UUID: UUID = UUID.fromString("6e400002-b5a3-f393-e0a9-e50e24dcca9e")
-        private val NUS_TX_UUID: UUID = UUID.fromString("6e400003-b5a3-f393-e0a9-e50e24dcca9e")
         private val CCCD_UUID: UUID = UUID.fromString("00002902-0000-1000-8000-00805f9b34fb")
         /** Matches the official RaceBox app capture (btsnoop 2026-05-13). */
         private const val DESIRED_MTU = 247
@@ -63,6 +60,9 @@ class ExternalGpsConnectionManager @Inject constructor(
 
     @Volatile private var gatt: BluetoothGatt? = null
     @Volatile private var activeAdapter: ExternalGpsAdapter? = null
+    /** GATT profile of the active adapter (Nordic UART for RaceBox, custom
+     *  FD00/FD02/FD01 for Dragy). Set on connect, read in the callbacks. */
+    @Volatile private var profile: ExternalGpsGattProfile = ExternalGpsGattProfile.NORDIC_UART
     @Volatile private var currentAddress: String? = null
     @Volatile private var currentInitWrites: List<ByteArray> = emptyList()
 
@@ -90,6 +90,7 @@ class ExternalGpsConnectionManager @Inject constructor(
     @SuppressLint("MissingPermission")
     fun connect(address: String, adapter: ExternalGpsAdapter, initWrites: List<ByteArray>) {
         activeAdapter = adapter
+        profile = adapter.gattProfile()
         currentAddress = address
         currentInitWrites = initWrites
         reconnector.arm(address)
@@ -207,11 +208,11 @@ class ExternalGpsConnectionManager @Inject constructor(
                 disconnect()
                 return
             }
-            val service = g.getService(NUS_SERVICE_UUID)
-            val tx = service?.getCharacteristic(NUS_TX_UUID)
-            val rx = service?.getCharacteristic(NUS_RX_UUID)
+            val service = g.getService(profile.serviceUuid)
+            val tx = service?.getCharacteristic(profile.notifyUuid)
+            val rx = service?.getCharacteristic(profile.writeUuid)
             if (tx == null) {
-                Log.e(TAG, "NUS TX characteristic not found")
+                Log.e(TAG, "Notify characteristic ${profile.notifyUuid} not found on ${profile.serviceUuid}")
                 // Self-diagnosing: the expected Nordic UART service isn't on
                 // this device, so it uses a different GATT profile than we
                 // assumed (e.g. a real Dragy vs the OpenDragy DIY clone). Dump
@@ -264,7 +265,7 @@ class ExternalGpsConnectionManager @Inject constructor(
             ch: BluetoothGattCharacteristic,
             status: Int
         ) {
-            if (ch.uuid == NUS_RX_UUID) {
+            if (ch.uuid == profile.writeUuid) {
                 if (status != BluetoothGatt.GATT_SUCCESS) {
                     Log.w(TAG, "Init write failed (status=$status); skipping remaining ${pendingInitWrites.size}")
                     pendingInitWrites.clear()
@@ -311,7 +312,7 @@ class ExternalGpsConnectionManager @Inject constructor(
     }
 
     private fun handleNotification(uuid: UUID, value: ByteArray) {
-        if (uuid != NUS_TX_UUID || value.isEmpty()) return
+        if (uuid != profile.notifyUuid || value.isEmpty()) return
         val sample = activeAdapter?.decode(value) ?: return
         _samples.tryEmit(sample)
     }
@@ -332,7 +333,7 @@ class ExternalGpsConnectionManager @Inject constructor(
         loggedGattForAddress = addr
         val src = activeAdapter?.source?.displayName ?: "GPS"
         val log = com.eried.eucplanet.diagnostics.DiagnosticsLogger
-        log.note("extgps: $src ($addr) has no Nordic UART service; its GATT profile:")
+        log.note("extgps: $src ($addr) missing expected service ${profile.serviceUuid}; its GATT profile:")
         for (svc in g.services) {
             log.note("  service ${svc.uuid}")
             for (ch in svc.characteristics) {

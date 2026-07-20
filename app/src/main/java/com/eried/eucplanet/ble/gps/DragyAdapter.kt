@@ -9,34 +9,21 @@ import javax.inject.Singleton
 /**
  * Dragy / Dragy Lite GPS performance-meter adapter.
  *
- * BLE: Nordic UART (same service triple as RaceBox / InMotion V14), so the
- * shared [ExternalGpsConnectionManager] drives it unchanged; matching is
- * name-based.
+ * Protocol decoded from the official Dragy Android app (com.dragy 2.30):
+ * Dragy uses a CUSTOM GATT profile (NOT Nordic UART) - service 0xFD00, GPS
+ * data on notify char 0xFD02, command-write on 0xFD01 (see
+ * [ExternalGpsGattProfile.DRAGY]). Over 0xFD02 it streams raw u-blox UBX
+ * messages (the app's DragyBleOrigin decodes NAV-PVT 0x01/0x07 for
+ * position+speed, NAV-SAT 0x01/0x35, NAV-DOP 0x01/0x04). The firmware auto-
+ * streams once 0xFD02 is subscribed; [initCommands] writes the app's
+ * `Send10HzData` UBX config to 0xFD01 to pin the rate at 10 Hz.
  *
- * Protocol: Dragy is a closed product with no public spec, but it is built on
- * a u-blox GNSS module (the DRG70 uses a u-blox 10th-gen chip) and the
- * community "OpenDragy" DIY clone streams raw u-blox UBX messages over Nordic
- * UART: NAV-POSLLH (position) + NAV-VELNED (speed/heading) + NAV-SAT
- * (satellites) at 10 Hz, and modern u-blox setups also emit the all-in-one
- * NAV-PVT. So this adapter parses the standard UBX frame envelope (identical
- * to RaceBox) and decodes whichever of those messages arrives:
- *
- *   NAV-PVT     (0x01/0x07)  full position + ground speed + heading + sats
- *   NAV-POSLLH  (0x01/0x02)  lon / lat / height / accuracy
- *   NAV-VELNED  (0x01/0x12)  ground speed + heading + vertical velocity
- *   NAV-SAT     (0x01/0x35)  satellite count
- *
- * POSLLH/VELNED/SAT carry no fix-status field, so the merge path gates on a
- * NAV-SAT satellite count (>= MIN_FIX_SATS) as a fix proxy; NAV-PVT gates on
- * its own fixType. Every UBX message type we DON'T decode, and any non-UBX
- * (NMEA-looking) data, is logged once to diagnostics so a tester capture
- * confirms exactly what the real Dragy streams. This is XIMA-style capture
- * insurance: the decode above is our best read of the format from the u-blox
- * + OpenDragy evidence, to be confirmed against a real Dragy Lite.
- *
- * UNCONFIRMED until a tester capture: (1) the device's exact advertised name
- * ([matches] is a best guess), (2) that it really speaks Nordic UART + UBX
- * rather than NMEA or a wrapped format, (3) the exact message set.
+ * This parses the standard UBX envelope (identical framing to RaceBox) -
+ * NAV-PVT is the confirmed message and the primary path; NAV-POSLLH/VELNED
+ * are kept as a harmless fallback for any firmware that splits them. The
+ * ground-speed conversion matches the app exactly (gSpeed mm/s x 3.6 / 1000
+ * = km/h). A tester GATT dump (Z Flip 7, 2026-07-20) confirmed the profile;
+ * unhandled UBX / non-UBX bytes are still logged once for safety.
  */
 @Singleton
 class DragyAdapter @Inject constructor() : ExternalGpsAdapter {
@@ -44,16 +31,32 @@ class DragyAdapter @Inject constructor() : ExternalGpsAdapter {
     override val source: ExternalGpsSource = ExternalGpsSource.DRAGY
 
     /**
-     * Best-guess advertised-name match pending a real Dragy Lite scan. Covers
-     * "Dragy", "DRAGY", "Dragy Lite", the DIY "DIYDragy", and the DRG-series
-     * model codes (DRG70 / DRG69 / DRG80). Kept Dragy-specific so it can't
-     * claim another vendor's box.
+     * Advertised-name match. Covers "Dragy", "DRAGY", "Dragy Lite" and the
+     * DRG-series model codes (DRG70 / DRG69 / DRG80). Kept Dragy-specific so
+     * it can't claim another vendor's box. (A tester's box paired via this.)
      */
     override fun matches(deviceName: String): Boolean {
         val n = deviceName.trim()
         return n.startsWith("Dragy", ignoreCase = true) ||
             n.startsWith("DRG", ignoreCase = true)
     }
+
+    /** Dragy's custom GATT profile (service FD00, notify FD02, write FD01). */
+    override fun gattProfile(): ExternalGpsGattProfile = ExternalGpsGattProfile.DRAGY
+
+    /**
+     * Post-subscribe writes to 0xFD01. The Dragy firmware auto-streams UBX on
+     * subscribe, so we only pin the output rate to 10 Hz with the app's own
+     * `Send10HzData` UBX-CFG frame (verbatim from com.dragy DragyBleOrigin).
+     * 10 Hz is plenty for a wheel and lighter on BLE than 20/25 Hz. Dragy
+     * doesn't use time/position assistance, so the parameters are ignored.
+     */
+    override fun initCommands(
+        timeUtcMillis: Long,
+        lastKnownLat: Double?,
+        lastKnownLon: Double?,
+        lastKnownAccM: Float?
+    ): List<ByteArray> = listOf(hex(SEND_10HZ))
 
     /** Rolling buffer of raw notification bytes; UBX frames straddle chunks. */
     private val buffer = ArrayDeque<Byte>()
@@ -213,10 +216,18 @@ class DragyAdapter @Inject constructor() : ExternalGpsAdapter {
 
     private fun wrap360(h: Float): Float = ((h % 360f) + 360f) % 360f
 
+    /** Hex string -> bytes (for the verbatim UBX command from the Dragy app). */
+    private fun hex(s: String): ByteArray = ByteArray(s.length / 2) {
+        ((Character.digit(s[it * 2], 16) shl 4) or Character.digit(s[it * 2 + 1], 16)).toByte()
+    }
+
     private companion object {
         const val UBX_SYNC1 = 0xB5.toByte()
         const val UBX_SYNC2 = 0x62.toByte()
         const val MAX_FRAME = 1024          // sanity cap for a bad length field
         const val MIN_FIX_SATS = 4          // fix proxy when only POSLLH/VELNED stream
+        // UBX-CFG "Send10HzData" verbatim from the official Dragy app
+        // (DragyBleOrigin.CmdFeature.Send10HzData): sets 10 Hz output.
+        const val SEND_10HZ = "B562068A0A000003000001002130640053CB"
     }
 }

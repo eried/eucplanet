@@ -2962,7 +2962,6 @@ fun DashboardScreen(
                                                     "Jonathan Wiesner" to "LeaperKim Lynx S testing.",
                                                     "Felix K" to "LeaperKim Oryx testing.",
                                                     "Ilya Shkolnik" to "Advice and help, and maintains DarknessBot.",
-                                                    "OpenDragy" to "Open-source reference for the Dragy GPS protocol.",
                                                     "InMotion" to "For making my awesome V14."
                                                 )
                                                 val dividerColor = MaterialTheme.appColors.divider.copy(alpha = 0.2f)

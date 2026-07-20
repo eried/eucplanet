@@ -249,7 +249,6 @@ Thanks to the people and projects that helped, kept in sync with the app (tap ve
 | Felix K | LeaperKim Oryx testing |
 | Bearkat713 | Motoeye E6 testing |
 | Ilya Shkolnik | Advice and help. Maintains DarknessBot. |
-| [OpenDragy](https://github.com/ConnorHowell/OpenDragy) | Open-source reference for the Dragy GPS protocol |
 | InMotion | For making a great V14 |
 
 ## License
