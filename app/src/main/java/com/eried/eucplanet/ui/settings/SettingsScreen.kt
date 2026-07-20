@@ -6194,9 +6194,10 @@ private fun VoiceTab(
         }
 
         SectionHeader(stringResource(R.string.section_report_status))
-        // Master enable + when / how-often stay visible under the header; the
-        // per-metric Periodic/Trigger matrix is tucked into the "Report contents"
-        // expandable below so the long list doesn't dominate the tab.
+        // The toggle enables only the periodic loop, so the when/interval
+        // controls hide with it. The Customize matrix below stays visible
+        // regardless, since its Trigger column configures the manual/Flic
+        // triggered report too.
         SwitchSetting(stringResource(R.string.voice_enabled), settings.voiceEnabled) {
             viewModel.updateVoiceEnabled(it)
         }
@@ -6222,9 +6223,11 @@ private fun VoiceTab(
                 )
                 Spacer(Modifier.weight(1f))
             }
+        }
 
-        // Customize lives inside the enabled block so it hides when periodic
-        // reporting is off, together with the when/interval controls.
+        // Customize stays visible even when periodic reports are off: its
+        // Periodic/Trigger matrix also configures the manual / Flic triggered
+        // report, which works independently of the periodic loop.
         AdvancedCollapsable(
             title = stringResource(R.string.report_contents),
             stateKey = "voice-report-contents"
@@ -6331,7 +6334,6 @@ private fun VoiceTab(
             }
         }
         }   // end Customize AdvancedCollapsable
-        }   // end Report-periodically enabled block
 
         // --- Acceleration splits (RaceBox-style) ---
         SectionHeader(stringResource(R.string.section_accel_splits))
