@@ -35,8 +35,9 @@ data class ExternalGpsSample(
 )
 
 enum class ExternalGpsSource(val displayName: String) {
-    RACEBOX("RaceBox")
-    // Future entries (Draggy, VBox, Garmin Catalyst, ...) plug in here as
-    // their protocols become public. Adapter implementations live alongside
+    RACEBOX("RaceBox"),
+    DRAGY("Dragy")
+    // Future entries (VBox, Garmin Catalyst, ...) plug in here as their
+    // protocols become public. Adapter implementations live alongside
     // RaceBoxAdapter under ble/gps/.
 }
