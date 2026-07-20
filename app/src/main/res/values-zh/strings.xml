@@ -198,8 +198,8 @@
 
     <string name="section_announcements">播报</string>
     <string name="section_speech">语音</string>
-    <string name="section_report_status">状态播报</string>
-    <string name="voice_enabled">定时播报状态</string>
+    <string name="section_report_status">定时与手动播报</string>
+    <string name="voice_enabled">启用定时播报</string>
     <string name="voice_announce_when_label">播报</string>
     <string name="voice_announce_always">始终</string>
     <string name="voice_announce_connected">已连接</string>
@@ -1780,7 +1780,7 @@
     <string name="alarm_fx_crush">比特粉碎</string>
     <string name="section_accel_splits">速度分段</string>
     <string name="accel_splits_enabled">播报用时</string>
-    <string name="accel_splits_desc">在加速或减速时，播报越过每个速度档的用时。适合练习起步和刹车。</string>
+    <string name="accel_splits_desc">在加速或减速时，播报越过每个速度档的用时。从下方速度开始，按你设置的步长递增。</string>
     <string name="accel_split_decel_prefix">刹车，</string>
     <string name="accel_splits_from">起始</string>
     <string name="accel_splits_step">步进</string>
@@ -1795,4 +1795,5 @@
     <string name="accel_split_faster_best">，比最佳快 %1$s</string>
     <string name="accel_split_slower_best">，比最佳慢 %1$s</string>
     <string name="accel_split_best_yet">，最佳成绩</string>
+    <string name="report_contents">自定义语音播报</string>
 </resources>

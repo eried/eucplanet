@@ -539,8 +539,8 @@
     <!-- Settings: Voice -->
     <string name="section_announcements">알림</string>
     <string name="section_speech">음성</string>
-    <string name="section_report_status">상태 보고</string>
-    <string name="voice_enabled">주기적으로 상태 보고</string>
+    <string name="section_report_status">주기적·트리거 음성 보고</string>
+    <string name="voice_enabled">주기적 보고 켜기</string>
     <string name="voice_interval">간격</string>
     <string name="announce_wheel_lock">휠 잠금 / 해제</string>
     <string name="announce_lights">라이트 켜기 / 끄기</string>
@@ -1912,7 +1912,7 @@
     <!-- Speed splits (spoken accel/brake step timing) -->
     <string name="section_accel_splits">속도 구간</string>
     <string name="accel_splits_enabled">시간 안내</string>
-    <string name="accel_splits_desc">가속 또는 감속하며 각 속도 단계를 통과하는 시간을 읽어 줍니다. 출발과 브레이크 연습에 유용합니다.</string>
+    <string name="accel_splits_desc">가속 또는 감속하며 각 속도 단계를 통과하는 시간을 읽어 줍니다. 아래 시작 속도부터 설정한 단계 간격으로 시작합니다.</string>
     <string name="accel_split_decel_prefix">브레이크, </string>
     <string name="accel_splits_from">시작</string>
     <string name="accel_splits_step">단계</string>
@@ -1927,4 +1927,5 @@
     <string name="accel_split_faster_best">, 최고보다 %1$s 빠름</string>
     <string name="accel_split_slower_best">, 최고보다 %1$s 느림</string>
     <string name="accel_split_best_yet">, 신기록</string>
+    <string name="report_contents">음성 보고 맞춤 설정</string>
 </resources>

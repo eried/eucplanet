@@ -539,8 +539,8 @@
     <!-- Settings: Voice -->
     <string name="section_announcements">Komunikaty</string>
     <string name="section_speech">Mowa</string>
-    <string name="section_report_status">Raport statusu</string>
-    <string name="voice_enabled">Cyklicznie raportuj status</string>
+    <string name="section_report_status">Głos cykliczny i wyzwalany</string>
+    <string name="voice_enabled">Włącz raporty cykliczne</string>
     <string name="voice_announce_when_label">Ogłaszaj</string>
     <string name="voice_announce_always">Zawsze</string>
     <string name="voice_announce_connected">Połączono</string>
@@ -1913,7 +1913,7 @@
     <!-- Speed splits (spoken accel/brake step timing) -->
     <string name="section_accel_splits">Międzyczasy prędkości</string>
     <string name="accel_splits_enabled">Ogłaszaj czasy</string>
-    <string name="accel_splits_desc">Odczytuje czas przekroczenia każdego progu prędkości podczas przyspieszania lub hamowania. Przydatne do ćwiczenia startów i hamowania.</string>
+    <string name="accel_splits_desc">Odczytuje czas przekroczenia każdego progu prędkości podczas przyspieszania lub hamowania. Zaczyna od prędkości poniżej, w krokach, które ustawisz.</string>
     <string name="accel_split_decel_prefix">hamowanie, </string>
     <string name="accel_splits_from">Od</string>
     <string name="accel_splits_step">Krok</string>
@@ -1928,4 +1928,5 @@
     <string name="accel_split_faster_best">, %1$s szybciej niż rekord</string>
     <string name="accel_split_slower_best">, %1$s wolniej niż rekord</string>
     <string name="accel_split_best_yet">, nowy rekord</string>
+    <string name="report_contents">Dostosuj raport głosowy</string>
 </resources>

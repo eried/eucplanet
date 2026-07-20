@@ -539,8 +539,8 @@
     <!-- Settings: Voice -->
     <string name="section_announcements">アナウンス</string>
     <string name="section_speech">音声</string>
-    <string name="section_report_status">ステータス報告</string>
-    <string name="voice_enabled">定期的にステータスを報告</string>
+    <string name="section_report_status">定期・トリガーの音声報告</string>
+    <string name="voice_enabled">定期報告を有効化</string>
     <string name="voice_interval">間隔</string>
     <string name="announce_wheel_lock">ホイールのロック / アンロック</string>
     <string name="announce_lights">ライトのオン / オフ</string>
@@ -1914,7 +1914,7 @@
     <!-- Speed splits (spoken accel/brake step timing) -->
     <string name="section_accel_splits">速度スプリット</string>
     <string name="accel_splits_enabled">タイムをアナウンス</string>
-    <string name="accel_splits_desc">加速・減速しながら各速度ステップを通過するタイムを読み上げます。発進やブレーキの練習に便利です。</string>
+    <string name="accel_splits_desc">加速・減速しながら各速度ステップを通過するタイムを読み上げます。下の開始速度から、設定したステップ刻みで始まります。</string>
     <string name="accel_split_decel_prefix">ブレーキ、</string>
     <string name="accel_splits_from">開始</string>
     <string name="accel_splits_step">ステップ</string>
@@ -1929,6 +1929,7 @@
     <string name="accel_split_faster_best">、ベストより%1$s速い</string>
     <string name="accel_split_slower_best">、ベストより%1$s遅い</string>
     <string name="accel_split_best_yet">、ベスト更新</string>
+    <string name="report_contents">音声報告をカスタマイズ</string>
 </resources>
 
 

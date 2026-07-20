@@ -539,8 +539,8 @@
     <!-- Settings: Voice -->
     <string name="section_announcements">Ansagen</string>
     <string name="section_speech">Sprache</string>
-    <string name="section_report_status">Statusbericht</string>
-    <string name="voice_enabled">Status regelmäßig melden</string>
+    <string name="section_report_status">Regelmäßige und ereignisbasierte Sprachausgabe</string>
+    <string name="voice_enabled">Regelmäßige Berichte aktivieren</string>
     <string name="voice_interval">Intervall</string>
     <string name="announce_wheel_lock">Wheel sperren / entsperren</string>
     <string name="announce_lights">Licht ein / aus</string>
@@ -1933,7 +1933,7 @@
     <string name="alarm_fx_crush">Bitcrush</string>
     <string name="section_accel_splits">Geschwindigkeits-Splits</string>
     <string name="accel_splits_enabled">Zeiten ansagen</string>
-    <string name="accel_splits_desc">Sagt die Zeit für jede Geschwindigkeitsstufe an, beim Beschleunigen oder Bremsen. Praktisch zum Üben von Start und Bremsung.</string>
+    <string name="accel_splits_desc">Sagt die Zeit für jede Geschwindigkeitsstufe an, beim Beschleunigen oder Bremsen. Beginnt bei der Geschwindigkeit unten, in den von dir festgelegten Schritten.</string>
     <string name="accel_split_decel_prefix">bremsen, </string>
     <string name="accel_splits_from">Von</string>
     <string name="accel_splits_step">Schritt</string>
@@ -1948,4 +1948,5 @@
     <string name="accel_split_faster_best">, %1$s schneller als Bestwert</string>
     <string name="accel_split_slower_best">, %1$s langsamer als Bestwert</string>
     <string name="accel_split_best_yet">, neuer Bestwert</string>
+    <string name="report_contents">Sprachbericht anpassen</string>
 </resources>

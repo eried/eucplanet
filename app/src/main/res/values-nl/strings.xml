@@ -539,8 +539,8 @@
     <!-- Settings: Voice -->
     <string name="section_announcements">Meldingen</string>
     <string name="section_speech">Spraak</string>
-    <string name="section_report_status">Statusrapport</string>
-    <string name="voice_enabled">Periodiek status melden</string>
+    <string name="section_report_status">Periodieke en getriggerde stem</string>
+    <string name="voice_enabled">Periodieke rapporten inschakelen</string>
     <string name="voice_announce_when_label">Aankondigen</string>
     <string name="voice_announce_always">Altijd</string>
     <string name="voice_announce_connected">Verbonden</string>
@@ -1915,7 +1915,7 @@
     <!-- Speed splits (spoken accel/brake step timing) -->
     <string name="section_accel_splits">Snelheidssplits</string>
     <string name="accel_splits_enabled">Tijden omroepen</string>
-    <string name="accel_splits_desc">Spreekt de tijd uit om elke snelheidsstap te passeren, bij versnellen of vertragen. Handig voor start- en remoefeningen.</string>
+    <string name="accel_splits_desc">Spreekt de tijd uit om elke snelheidsstap te passeren, bij versnellen of vertragen. Begint bij de snelheid hieronder, in stappen die je instelt.</string>
     <string name="accel_split_decel_prefix">remmen, </string>
     <string name="accel_splits_from">Vanaf</string>
     <string name="accel_splits_step">Stap</string>
@@ -1930,5 +1930,6 @@
     <string name="accel_split_faster_best">, %1$s sneller dan record</string>
     <string name="accel_split_slower_best">, %1$s langzamer dan record</string>
     <string name="accel_split_best_yet">, nieuw record</string>
+    <string name="report_contents">Stemrapport aanpassen</string>
 </resources>
 

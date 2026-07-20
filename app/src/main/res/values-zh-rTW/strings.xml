@@ -539,8 +539,8 @@
     <!-- Settings: Voice -->
     <string name="section_announcements">播報</string>
     <string name="section_speech">語音</string>
-    <string name="section_report_status">定期播報</string>
-    <string name="voice_enabled">定期播報狀態</string>
+    <string name="section_report_status">定期與手動播報</string>
+    <string name="voice_enabled">啟用定期播報</string>
     <string name="voice_interval">間隔</string>
     <string name="announce_wheel_lock">車輪鎖定／解鎖</string>
     <string name="announce_lights">燈光開啟／關閉</string>
@@ -1912,7 +1912,7 @@
     <string name="alarm_fx_crush">位元粉碎</string>
     <string name="section_accel_splits">速度分段</string>
     <string name="accel_splits_enabled">播報用時</string>
-    <string name="accel_splits_desc">在加速或減速時，播報越過每個速度檔的用時。適合練習起步和煞車。</string>
+    <string name="accel_splits_desc">在加速或減速時，播報越過每個速度檔的用時。從下方速度開始，依你設定的間隔遞增。</string>
     <string name="accel_split_decel_prefix">煞車，</string>
     <string name="accel_splits_from">起始</string>
     <string name="accel_splits_step">步進</string>
@@ -1927,6 +1927,7 @@
     <string name="accel_split_faster_best">，比最佳快 %1$s</string>
     <string name="accel_split_slower_best">，比最佳慢 %1$s</string>
     <string name="accel_split_best_yet">，最佳成績</string>
+    <string name="report_contents">自訂語音播報</string>
 </resources>
 
 

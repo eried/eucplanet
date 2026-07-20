@@ -263,8 +263,8 @@
     <!-- Settings: Voice -->
     <string name="section_announcements">Annunci</string>
     <string name="section_speech">Sintesi vocale</string>
-    <string name="section_report_status">Rapporto di stato</string>
-    <string name="voice_enabled">Rapporto periodico dello stato</string>
+    <string name="section_report_status">Voce periodica e a comando</string>
+    <string name="voice_enabled">Attiva rapporti periodici</string>
     <string name="voice_announce_when_label">Annuncia</string>
     <string name="voice_announce_always">Sempre</string>
     <string name="voice_announce_connected">Connessa</string>
@@ -1818,7 +1818,7 @@
     <string name="alarm_fx_crush">Bitcrush</string>
     <string name="section_accel_splits">Tempi di velocità</string>
     <string name="accel_splits_enabled">Annuncia i tempi</string>
-    <string name="accel_splits_desc">Annuncia il tempo per superare ogni fascia di velocità, in accelerazione o in frenata. Utile per allenare partenza e frenata.</string>
+    <string name="accel_splits_desc">Annuncia il tempo per superare ogni fascia di velocità, in accelerazione o in frenata. Parte dalla velocità sottostante, con i passi che imposti.</string>
     <string name="accel_split_decel_prefix">frenata, </string>
     <string name="accel_splits_from">Da</string>
     <string name="accel_splits_step">Passo</string>
@@ -1833,4 +1833,5 @@
     <string name="accel_split_faster_best">, %1$s più veloce del migliore</string>
     <string name="accel_split_slower_best">, %1$s più lento del migliore</string>
     <string name="accel_split_best_yet">, nuovo record</string>
+    <string name="report_contents">Personalizza rapporto vocale</string>
 </resources>

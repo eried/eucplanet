@@ -539,8 +539,8 @@
     <!-- Settings: Voice -->
     <string name="section_announcements">Озвучка событий</string>
     <string name="section_speech">Голос</string>
-    <string name="section_report_status">Отчёт о состоянии</string>
-    <string name="voice_enabled">Регулярный отчёт</string>
+    <string name="section_report_status">Периодическая и ручная озвучка</string>
+    <string name="voice_enabled">Включить периодические отчёты</string>
     <string name="voice_announce_when_label">Объявлять</string>
     <string name="voice_announce_always">Всегда</string>
     <string name="voice_announce_connected">Подключено</string>
@@ -1913,7 +1913,7 @@
     <string name="alarm_fx_crush">Биткрашер</string>
     <string name="section_accel_splits">Интервалы скорости</string>
     <string name="accel_splits_enabled">Озвучивать время</string>
-    <string name="accel_splits_desc">Озвучивает время прохождения каждого шага скорости при разгоне или торможении. Удобно для отработки старта и торможения.</string>
+    <string name="accel_splits_desc">Озвучивает время прохождения каждого шага скорости при разгоне или торможении. Отсчёт начинается от указанной ниже скорости, с заданным вами шагом.</string>
     <string name="accel_split_decel_prefix">торможение, </string>
     <string name="accel_splits_from">От</string>
     <string name="accel_splits_step">Шаг</string>
@@ -1928,5 +1928,6 @@
     <string name="accel_split_faster_best">, на %1$s быстрее лучшего</string>
     <string name="accel_split_slower_best">, на %1$s медленнее лучшего</string>
     <string name="accel_split_best_yet">, лучший результат</string>
+    <string name="report_contents">Настроить голосовой отчёт</string>
 </resources>
 

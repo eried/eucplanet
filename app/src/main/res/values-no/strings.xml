@@ -194,8 +194,8 @@
 
     <string name="section_announcements">Varsler</string>
     <string name="section_speech">Tale</string>
-    <string name="section_report_status">Statusrapport</string>
-    <string name="voice_enabled">Rapporter status jevnlig</string>
+    <string name="section_report_status">Periodisk og utløst stemme</string>
+    <string name="voice_enabled">Slå på periodiske rapporter</string>
     <string name="voice_announce_when_label">Annonser</string>
     <string name="voice_announce_always">Alltid</string>
     <string name="voice_announce_connected">Tilkoblet</string>
@@ -1801,7 +1801,7 @@
     <!-- Speed splits (spoken accel/brake step timing) -->
     <string name="section_accel_splits">Fartssplitter</string>
     <string name="accel_splits_enabled">Annonser tider</string>
-    <string name="accel_splits_desc">Leser opp tiden det tar å krysse hvert fartstrinn, ved akselerasjon eller nedbremsing. Nyttig for start- og bremsetrening.</string>
+    <string name="accel_splits_desc">Leser opp tiden det tar å krysse hvert fartstrinn, ved akselerasjon eller nedbremsing. Starter fra farten under, i trinn du angir.</string>
     <string name="accel_split_decel_prefix">bremser, </string>
     <string name="accel_splits_from">Fra</string>
     <string name="accel_splits_step">Trinn</string>
@@ -1816,4 +1816,5 @@
     <string name="accel_split_faster_best">, %1$s raskere enn rekord</string>
     <string name="accel_split_slower_best">, %1$s saktere enn rekord</string>
     <string name="accel_split_best_yet">, ny rekord</string>
+    <string name="report_contents">Tilpass stemmerapport</string>
 </resources>

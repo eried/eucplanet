@@ -539,8 +539,8 @@
     <!-- Settings: Voice -->
     <string name="section_announcements">Annonceringer</string>
     <string name="section_speech">Tale</string>
-    <string name="section_report_status">Statusrapport</string>
-    <string name="voice_enabled">Rapportér status løbende</string>
+    <string name="section_report_status">Løbende og udløst tale</string>
+    <string name="voice_enabled">Aktivér løbende rapporter</string>
     <string name="voice_announce_when_label">Annoncér</string>
     <string name="voice_announce_always">Altid</string>
     <string name="voice_announce_connected">Forbundet</string>
@@ -1928,7 +1928,7 @@
     <string name="alarm_fx_crush">Bitcrush</string>
     <string name="section_accel_splits">Hastigheds-splits</string>
     <string name="accel_splits_enabled">Annoncér tider</string>
-    <string name="accel_splits_desc">Siger tiden for at krydse hvert hastighedstrin, ved acceleration eller opbremsning. Nyttig til at øve start og opbremsning.</string>
+    <string name="accel_splits_desc">Siger tiden for at krydse hvert hastighedstrin, ved acceleration eller opbremsning. Starter fra hastigheden nedenfor, i de trin du angiver.</string>
     <string name="accel_split_decel_prefix">bremsning, </string>
     <string name="accel_splits_from">Fra</string>
     <string name="accel_splits_step">Trin</string>
@@ -1943,4 +1943,5 @@
     <string name="accel_split_faster_best">, %1$s hurtigere end bedste</string>
     <string name="accel_split_slower_best">, %1$s langsommere end bedste</string>
     <string name="accel_split_best_yet">, ny rekord</string>
+    <string name="report_contents">Tilpas talerapport</string>
 </resources>

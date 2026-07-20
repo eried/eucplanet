@@ -539,8 +539,8 @@
     <!-- Settings: Voice -->
     <string name="section_announcements">Annonces</string>
     <string name="section_speech">Parole</string>
-    <string name="section_report_status">Rapport d\'état</string>
-    <string name="voice_enabled">Rapport d\'état périodique</string>
+    <string name="section_report_status">Voix périodique et déclenchée</string>
+    <string name="voice_enabled">Activer les rapports périodiques</string>
     <string name="voice_announce_when_label">Annoncer</string>
     <string name="voice_announce_always">Toujours</string>
     <string name="voice_announce_connected">Connectée</string>
@@ -1917,7 +1917,7 @@
     <string name="alarm_fx_crush">Bitcrush</string>
     <string name="section_accel_splits">Chronos de vitesse</string>
     <string name="accel_splits_enabled">Annoncer les temps</string>
-    <string name="accel_splits_desc">Annonce le temps pour franchir chaque palier de vitesse, en accélérant ou en freinant. Pratique pour s\'entraîner au démarrage et au freinage.</string>
+    <string name="accel_splits_desc">Annonce le temps pour franchir chaque palier de vitesse, en accélérant ou en freinant. Démarre à la vitesse ci-dessous, par pas que tu définis.</string>
     <string name="accel_split_decel_prefix">freinage, </string>
     <string name="accel_splits_from">De</string>
     <string name="accel_splits_step">Pas</string>
@@ -1932,4 +1932,5 @@
     <string name="accel_split_faster_best">, %1$s plus rapide que le meilleur</string>
     <string name="accel_split_slower_best">, %1$s plus lent que le meilleur</string>
     <string name="accel_split_best_yet">, nouveau record</string>
+    <string name="report_contents">Personnaliser le rapport vocal</string>
 </resources>

@@ -539,8 +539,8 @@
     <!-- Settings: Voice -->
     <string name="section_announcements">Оголошення</string>
     <string name="section_speech">Мовлення</string>
-    <string name="section_report_status">Звіт про стан</string>
-    <string name="voice_enabled">Періодично озвучувати стан</string>
+    <string name="section_report_status">Періодична та ручна озвучка</string>
+    <string name="voice_enabled">Увімкнути періодичні звіти</string>
     <string name="voice_announce_when_label">Озвучувати</string>
     <string name="voice_announce_always">Завжди</string>
     <string name="voice_announce_connected">Підключено</string>
@@ -1910,7 +1910,7 @@
     <string name="alarm_fx_crush">Біткрашер</string>
     <string name="section_accel_splits">Інтервали швидкості</string>
     <string name="accel_splits_enabled">Озвучувати час</string>
-    <string name="accel_splits_desc">Озвучує час проходження кожного кроку швидкості під час розгону чи гальмування. Зручно для відпрацювання старту й гальмування.</string>
+    <string name="accel_splits_desc">Озвучує час проходження кожного кроку швидкості під час розгону чи гальмування. Відлік починається від вказаної нижче швидкості, із заданим вами кроком.</string>
     <string name="accel_split_decel_prefix">гальмування, </string>
     <string name="accel_splits_from">Від</string>
     <string name="accel_splits_step">Крок</string>
@@ -1925,6 +1925,7 @@
     <string name="accel_split_faster_best">, на %1$s швидше за найкращий</string>
     <string name="accel_split_slower_best">, на %1$s повільніше за найкращий</string>
     <string name="accel_split_best_yet">, найкращий результат</string>
+    <string name="report_contents">Налаштувати голосовий звіт</string>
 </resources>
 
 

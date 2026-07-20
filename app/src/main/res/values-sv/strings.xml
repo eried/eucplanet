@@ -539,8 +539,8 @@
     <!-- Settings: Voice -->
     <string name="section_announcements">Meddelanden</string>
     <string name="section_speech">Tal</string>
-    <string name="section_report_status">Statusrapport</string>
-    <string name="voice_enabled">Rapportera status löpande</string>
+    <string name="section_report_status">Periodisk och manuell röst</string>
+    <string name="voice_enabled">Aktivera periodiska rapporter</string>
     <string name="voice_interval">Intervall</string>
     <string name="announce_wheel_lock">Lås / lås upp hjul</string>
     <string name="announce_lights">Ljus på / av</string>
@@ -1913,7 +1913,7 @@
     <string name="alarm_fx_crush">Bitcrush</string>
     <string name="section_accel_splits">Fartsplittar</string>
     <string name="accel_splits_enabled">Meddela tider</string>
-    <string name="accel_splits_desc">Säger tiden för att passera varje fartsteg vid acceleration eller inbromsning. Bra för start- och bromsträning.</string>
+    <string name="accel_splits_desc">Säger tiden för att passera varje fartsteg vid acceleration eller inbromsning. Börjar från farten nedan, med steg du väljer.</string>
     <string name="accel_split_decel_prefix">inbromsning, </string>
     <string name="accel_splits_from">Från</string>
     <string name="accel_splits_step">Steg</string>
@@ -1928,4 +1928,5 @@
     <string name="accel_split_faster_best">, %1$s snabbare än bästa</string>
     <string name="accel_split_slower_best">, %1$s långsammare än bästa</string>
     <string name="accel_split_best_yet">, bästa hittills</string>
+    <string name="report_contents">Anpassa röstrapport</string>
 </resources>

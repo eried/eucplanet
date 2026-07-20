@@ -539,8 +539,8 @@
     <!-- Settings: Voice -->
     <string name="section_announcements">Bildirimler</string>
     <string name="section_speech">Konuşma</string>
-    <string name="section_report_status">Durum bildir</string>
-    <string name="voice_enabled">Durumu periyodik olarak bildir</string>
+    <string name="section_report_status">Periyodik ve tetiklenen sesli bildirim</string>
+    <string name="voice_enabled">Periyodik bildirimleri aç</string>
     <string name="voice_interval">Aralık</string>
     <string name="announce_wheel_lock">Teker kilitleme / kilit açma</string>
     <string name="announce_lights">Işıklar açık / kapalı</string>
@@ -1910,7 +1910,7 @@
     <string name="alarm_fx_crush">Bitcrush</string>
     <string name="section_accel_splits">Hız dilimleri</string>
     <string name="accel_splits_enabled">Süreleri seslendir</string>
-    <string name="accel_splits_desc">Hızlanırken veya yavaşlarken her hız adımını geçme süresini seslendirir. Kalkış ve fren çalışması için kullanışlıdır.</string>
+    <string name="accel_splits_desc">Hızlanırken veya yavaşlarken her hız adımını geçme süresini seslendirir. Aşağıdaki hızdan başlar, belirlediğiniz adımlarla.</string>
     <string name="accel_split_decel_prefix">frenleme, </string>
     <string name="accel_splits_from">Başlangıç</string>
     <string name="accel_splits_step">Adım</string>
@@ -1925,6 +1925,7 @@
     <string name="accel_split_faster_best">, en iyiden %1$s daha hızlı</string>
     <string name="accel_split_slower_best">, en iyiden %1$s daha yavaş</string>
     <string name="accel_split_best_yet">, şimdiye kadarki en iyi</string>
+    <string name="report_contents">Sesli bildirimi özelleştir</string>
 </resources>
 
 

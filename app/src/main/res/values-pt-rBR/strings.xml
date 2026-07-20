@@ -539,8 +539,8 @@
     <!-- Settings: Voice -->
     <string name="section_announcements">Anúncios</string>
     <string name="section_speech">Fala</string>
-    <string name="section_report_status">Relatar status</string>
-    <string name="voice_enabled">Relatar status periodicamente</string>
+    <string name="section_report_status">Voz periódica e acionada</string>
+    <string name="voice_enabled">Ativar relatórios periódicos</string>
     <string name="voice_announce_when_label">Anunciar</string>
     <string name="voice_announce_always">Sempre</string>
     <string name="voice_announce_connected">Conectada</string>
@@ -1915,7 +1915,7 @@
     <!-- Speed splits (spoken accel/brake step timing) -->
     <string name="section_accel_splits">Parciais de velocidade</string>
     <string name="accel_splits_enabled">Anunciar tempos</string>
-    <string name="accel_splits_desc">Fala o tempo para atravessar cada degrau de velocidade, ao acelerar ou frear. Útil para treinar arrancadas e frenagens.</string>
+    <string name="accel_splits_desc">Fala o tempo para atravessar cada degrau de velocidade, ao acelerar ou frear. Começa na velocidade abaixo, em passos que você define.</string>
     <string name="accel_split_decel_prefix">freando, </string>
     <string name="accel_splits_from">De</string>
     <string name="accel_splits_step">Passo</string>
@@ -1930,5 +1930,6 @@
     <string name="accel_split_faster_best">, %1$s mais rápido que o melhor</string>
     <string name="accel_split_slower_best">, %1$s mais lento que o melhor</string>
     <string name="accel_split_best_yet">, novo recorde</string>
+    <string name="report_contents">Personalizar relatório de voz</string>
 </resources>
 
