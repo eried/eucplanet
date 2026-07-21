@@ -7,12 +7,20 @@ package com.eried.eucplanet.audio
  * shutdown, pops) the player stops at endMs.
  */
 data class SampleSection(
-    /** res/raw filename without extension (any decoder-supported format works, ogg/mp3/wav/flac). */
+    /** res/raw filename without extension. Empty when [uri] is set. */
     val rawAsset: String,
     val startMs: Int,
     val endMs: Int,
+    /**
+     * When non-null, the section is loaded from this content:// / file:// URI
+     * (a rider's custom file) instead of a res/raw resource. The whole file is
+     * used; [startMs]/[endMs] are ignored.
+     */
+    val uri: String? = null,
 ) {
     val durationMs: Int get() = (endMs - startMs).coerceAtLeast(0)
+    /** True when this section plays a rider-supplied URI, not a baked asset. */
+    val isCustom: Boolean get() = uri != null
 }
 
 /**
@@ -111,6 +119,12 @@ data class EngineProfile(
      * "Tron whine" as the current value, but the dropdown won't offer it to others).
      */
     val preview: Boolean = false,
+    /**
+     * When true, a single looped section is pitch-shifted by speed (the custom
+     * single-file mode). Built-in profiles leave this false and use the
+     * idle/rev crossfade instead.
+     */
+    val pitchModulated: Boolean = false,
 ) {
     enum class Kind { ICE, SYNTH }
 
@@ -616,6 +630,9 @@ data class EngineProfile(
                 )
             )
         )
+
+        /** Reserved key for the rider's custom engine (built at runtime, not in PROFILES). */
+        const val CUSTOM_KEY = "CUSTOM"
 
         /** Returns the profile for [key] or the default 4-stroke single if unknown. */
         fun byKey(key: String): EngineProfile =
