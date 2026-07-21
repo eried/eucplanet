@@ -35,7 +35,9 @@ class ExternalGpsRepository @Inject constructor(
     private val connectionManager: ExternalGpsConnectionManager,
     private val adapters: Set<@JvmSuppressWildcards ExternalGpsAdapter>,
     // Lazy provider to break the dependency cycle: TripRepository injects us.
-    private val tripRepositoryProvider: Provider<TripRepository>
+    private val tripRepositoryProvider: Provider<TripRepository>,
+    // Lazy so a future AlarmEngine dependency on us can't form a Hilt cycle.
+    private val alarmEngineProvider: Provider<com.eried.eucplanet.service.AlarmEngine>
 ) {
     companion object {
         private const val TAG = "ExtGpsRepo"
@@ -83,7 +85,10 @@ class ExternalGpsRepository @Inject constructor(
         // same orientation-corrected values.
         scope.launch {
             connectionManager.samples.collect { raw ->
-                _currentSample.value = raw?.let(::applyAxisRemap)
+                val sample = raw?.let(::applyAxisRemap)
+                _currentSample.value = sample
+                // Feed the low-battery (and any future external-GPS) alarm rules.
+                if (sample != null) alarmEngineProvider.get().evaluateExternalGps(sample)
             }
         }
         scope.launch {

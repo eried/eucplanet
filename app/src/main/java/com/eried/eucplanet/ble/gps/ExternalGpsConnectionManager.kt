@@ -47,6 +47,9 @@ class ExternalGpsConnectionManager @Inject constructor(
         private val CCCD_UUID: UUID = UUID.fromString("00002902-0000-1000-8000-00805f9b34fb")
         /** Matches the official RaceBox app capture (btsnoop 2026-05-13). */
         private const val DESIRED_MTU = 247
+        /** Delay before the first periodic read, so it clears the last init
+         *  write's ACK and doesn't contend with the connection settling. */
+        private const val POLL_INITIAL_DELAY_MS = 2_000L
     }
 
     private val bluetoothManager =
@@ -87,10 +90,27 @@ class ExternalGpsConnectionManager @Inject constructor(
     private val pendingInitWrites = ArrayDeque<ByteArray>()
     @Volatile private var rxCharacteristic: BluetoothGattCharacteristic? = null
 
+    // Optional periodic characteristic READ (e.g. Dragy's battery / device-
+    // status char, which isn't part of the notify stream). Driven off a
+    // Handler so it lives outside the GATT callback chain; started only once
+    // the init writes have drained so a read never races an in-flight write.
+    private val pollHandler = Handler(Looper.getMainLooper())
+    @Volatile private var pollUuid: UUID? = null
+    @Volatile private var pollIntervalMs: Long = 30_000L
+    @Volatile private var pollingStarted = false
+    private val pollRunnable = object : Runnable {
+        override fun run() {
+            doPollRead()
+            pollHandler.postDelayed(this, pollIntervalMs)
+        }
+    }
+
     @SuppressLint("MissingPermission")
     fun connect(address: String, adapter: ExternalGpsAdapter, initWrites: List<ByteArray>) {
         activeAdapter = adapter
         profile = adapter.gattProfile()
+        pollUuid = adapter.pollCharacteristic()
+        pollIntervalMs = adapter.pollIntervalMs()
         currentAddress = address
         currentInitWrites = initWrites
         reconnector.arm(address)
@@ -144,6 +164,7 @@ class ExternalGpsConnectionManager @Inject constructor(
 
     @SuppressLint("MissingPermission")
     private fun teardownGatt() {
+        stopPolling()
         gatt?.let {
             try { it.disconnect() } catch (_: Exception) {}
             try { it.close() } catch (_: Exception) {}
@@ -182,6 +203,7 @@ class ExternalGpsConnectionManager @Inject constructor(
                 BluetoothProfile.STATE_DISCONNECTED -> {
                     Log.i(TAG, "GATT disconnected (status $status)")
                     _connectionState.value = ConnectionState.DISCONNECTED
+                    stopPolling()
                     try { g.close() } catch (_: Exception) {}
                     if (gatt === g) {
                         gatt = null
@@ -244,6 +266,7 @@ class ExternalGpsConnectionManager @Inject constructor(
             } else {
                 // No CCCD on this device, proceed straight to init writes.
                 kickInitWrite()
+                if (pendingInitWrites.isEmpty()) startPolling()
             }
         }
 
@@ -256,6 +279,8 @@ class ExternalGpsConnectionManager @Inject constructor(
                 // data flowing in case the writes fail.
                 _connectionState.value = ConnectionState.CONNECTED
                 kickInitWrite()
+                // No init writes queued: the poll (if any) can start now.
+                if (pendingInitWrites.isEmpty()) startPolling()
             }
         }
 
@@ -269,9 +294,14 @@ class ExternalGpsConnectionManager @Inject constructor(
                 if (status != BluetoothGatt.GATT_SUCCESS) {
                     Log.w(TAG, "Init write failed (status=$status); skipping remaining ${pendingInitWrites.size}")
                     pendingInitWrites.clear()
+                    // Init failed but the box may still stream + expose battery;
+                    // start the poll rather than leaving it stranded.
+                    startPolling()
                     return
                 }
                 kickInitWrite()
+                // Last write just ACKed: kick off the periodic read (if any).
+                if (pendingInitWrites.isEmpty()) startPolling()
             }
         }
 
@@ -286,6 +316,24 @@ class ExternalGpsConnectionManager @Inject constructor(
             value: ByteArray
         ) {
             handleNotification(ch.uuid, value)
+        }
+
+        @Suppress("DEPRECATION")
+        override fun onCharacteristicRead(g: BluetoothGatt, ch: BluetoothGattCharacteristic, status: Int) {
+            if (status == BluetoothGatt.GATT_SUCCESS) {
+                handlePollResult(ch.uuid, ch.value ?: ByteArray(0))
+            }
+        }
+
+        override fun onCharacteristicRead(
+            g: BluetoothGatt,
+            ch: BluetoothGattCharacteristic,
+            value: ByteArray,
+            status: Int
+        ) {
+            if (status == BluetoothGatt.GATT_SUCCESS) {
+                handlePollResult(ch.uuid, value)
+            }
         }
     }
 
@@ -315,6 +363,49 @@ class ExternalGpsConnectionManager @Inject constructor(
         if (uuid != profile.notifyUuid || value.isEmpty()) return
         val sample = activeAdapter?.decode(value) ?: return
         _samples.tryEmit(sample)
+    }
+
+    /** Route a periodic-read result to the adapter (it folds it into its next
+     *  decoded sample). Guarded on the poll UUID so an unrelated read can't
+     *  feed the adapter garbage. */
+    private fun handlePollResult(uuid: UUID, value: ByteArray) {
+        if (uuid != pollUuid || value.isEmpty()) return
+        activeAdapter?.onPollResult(value)
+    }
+
+    /** Begin the periodic characteristic read, if the adapter asked for one.
+     *  Idempotent - safe to call from every init-drain path. First read is
+     *  delayed briefly so it lands clearly after the last init write's ACK. */
+    private fun startPolling() {
+        if (pollingStarted || pollUuid == null) return
+        pollingStarted = true
+        pollHandler.postDelayed(pollRunnable, POLL_INITIAL_DELAY_MS)
+    }
+
+    private fun stopPolling() {
+        pollingStarted = false
+        pollHandler.removeCallbacks(pollRunnable)
+    }
+
+    @SuppressLint("MissingPermission")
+    private fun doPollRead() {
+        val g = gatt ?: return
+        val uuid = pollUuid ?: return
+        val ch = findCharacteristic(g, uuid) ?: return
+        try {
+            g.readCharacteristic(ch)
+        } catch (e: Exception) {
+            Log.w(TAG, "Periodic read of $uuid failed (non-fatal)", e)
+        }
+    }
+
+    /** Look up a characteristic by UUID, preferring the active profile's
+     *  service but falling back to a full scan (some boxes expose the status
+     *  char on a different service than the telemetry stream). */
+    private fun findCharacteristic(g: BluetoothGatt, uuid: UUID): BluetoothGattCharacteristic? {
+        g.getService(profile.serviceUuid)?.getCharacteristic(uuid)?.let { return it }
+        for (svc in g.services) svc.getCharacteristic(uuid)?.let { return it }
+        return null
     }
 
     /** Address we last dumped the GATT for, so the reconnect loop logs once. */

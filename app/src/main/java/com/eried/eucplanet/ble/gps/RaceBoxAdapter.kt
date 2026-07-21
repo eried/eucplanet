@@ -219,6 +219,13 @@ class RaceBoxAdapter @Inject constructor() : ExternalGpsAdapter {
         val rawZ = readInt16LE(frame, payloadStart + 72) / 1000f
         val (ax, ay, az) = stripGravity(rawX, rawY, rawZ)
 
+        // batteryStatus (offset 67): bit 7 = charging flag, bits 0-6 = battery
+        // level in %. (RaceBox Micro repurposes this byte as input voltage x10;
+        // we decode the Mini/Mini S meaning, which is what a wheel rider uses.)
+        val batteryRaw = frame[payloadStart + 67].toInt() and 0xFF
+        val charging = (batteryRaw and 0x80) != 0
+        val batteryPct = (batteryRaw and 0x7F).coerceIn(0, 100)
+
         val speedMmS = gSpeedRaw.coerceAtLeast(0)
         return ExternalGpsSample(
             source = ExternalGpsSource.RACEBOX,
@@ -234,7 +241,9 @@ class RaceBoxAdapter @Inject constructor() : ExternalGpsAdapter {
                 ((h % 360f) + 360f) % 360f
             },
             verticalSpeedMps = 0f,
-            numSatellites = numSV
+            numSatellites = numSV,
+            batteryPercent = batteryPct,
+            charging = charging
         )
     }
 

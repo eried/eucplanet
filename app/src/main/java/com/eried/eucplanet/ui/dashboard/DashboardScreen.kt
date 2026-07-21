@@ -211,6 +211,7 @@ fun DashboardScreen(
     val recording by viewModel.recording.collectAsState()
     val gpsExtra by viewModel.gpsExtraSpeed.collectAsState()
     val externalGpsSpeed = gpsExtra?.first
+    val externalGpsBattery by viewModel.externalGpsBatteryPercent.collectAsState()
     val externalGpsAccent = when (gpsExtra?.second) {
         "EXTERNAL" -> MaterialTheme.appColors.metricPosition
         "PHONE" -> MaterialTheme.appColors.metricVoltage
@@ -1479,6 +1480,7 @@ fun DashboardScreen(
                         ?.let { "%.0f%s".format(com.eried.eucplanet.util.Units.temperature(it, tempUnit), tempUnitLabel) }
                         ?: placeholder
                     "PHONE_BATTERY" -> if (phoneBatteryPct in 0..100) "$phoneBatteryPct%" else placeholder
+                    "EXTERNAL_GPS_BATTERY" -> externalGpsBattery?.let { "$it%" } ?: placeholder
                     "GPS_ALTITUDE" -> gpsLocation?.altitude?.let { alt ->
                         // Imperial users see feet; everyone else meters.
                         if (distanceUnit == "mi") "%.0fft".format(alt.toFloat() * 3.28084f)

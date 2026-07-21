@@ -3,6 +3,7 @@ package com.eried.eucplanet.ble.gps
 import com.eried.eucplanet.data.model.ExternalGpsSample
 import com.eried.eucplanet.data.model.ExternalGpsSource
 import com.eried.eucplanet.diagnostics.DiagnosticsLogger
+import java.util.UUID
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -45,6 +46,32 @@ class DragyAdapter @Inject constructor() : ExternalGpsAdapter {
     override fun gattProfile(): ExternalGpsGattProfile = ExternalGpsGattProfile.DRAGY
 
     /**
+     * Battery isn't in the FD02 telemetry stream - the official app READs the
+     * device-status characteristic FD04 for it (DragyBleManager.readBattery).
+     * So we have the connection manager poll FD04; [onPollResult] decodes it.
+     */
+    override fun pollCharacteristic(): UUID? = CHARACTER_DEVICE_STATUS
+
+    /** Battery drifts slowly; 30 s is plenty and keeps the radio quiet. */
+    override fun pollIntervalMs(): Long = 30_000L
+
+    /**
+     * FD04 device-status read. The official app takes the SECOND byte of the
+     * response as the battery percent (bytesToHex(...).substring(2,4) parsed as
+     * hex, i.e. byte[1]). We stash it and fold it into the next decoded sample.
+     * Dragy's byte is percent-only, so [ExternalGpsSample.charging] stays null.
+     */
+    override fun onPollResult(value: ByteArray) {
+        if (value.size < 2) return
+        val pct = (value[1].toInt() and 0xFF).coerceIn(0, 100)
+        lastBatteryPct = pct
+        if (!loggedFirstBattery) {
+            loggedFirstBattery = true
+            DiagnosticsLogger.note("dragy: battery read FD04 -> $pct%")
+        }
+    }
+
+    /**
      * Post-subscribe writes to 0xFD01. The Dragy firmware auto-streams UBX on
      * subscribe, so we only pin the output rate to 10 Hz with the app's own
      * `Send10HzData` UBX-CFG frame (verbatim from com.dragy DragyBleOrigin).
@@ -71,6 +98,11 @@ class DragyAdapter @Inject constructor() : ExternalGpsAdapter {
     private var lastHeadingDeg: Float? = null
     private var lastVertMps: Float? = null
     private var lastSats: Int? = null
+
+    // Battery percent from the most recent FD04 read (see [onPollResult]),
+    // folded into every emitted sample. Null until the first read lands.
+    @Volatile private var lastBatteryPct: Int? = null
+    @Volatile private var loggedFirstBattery = false
 
     /** UBX (cls,id) combos already logged, so the capture note fires once each. */
     private val seenTypes = HashSet<Int>()
@@ -167,7 +199,8 @@ class DragyAdapter @Inject constructor() : ExternalGpsAdapter {
             accuracyMeters = hAcc,
             headingDeg = wrap360(head),
             verticalSpeedMps = -velD / 1000f,   // mm/s down -> m/s up
-            numSatellites = numSV
+            numSatellites = numSV,
+            batteryPercent = lastBatteryPct
         )
     }
 
@@ -203,7 +236,8 @@ class DragyAdapter @Inject constructor() : ExternalGpsAdapter {
             accuracyMeters = lastAccM,
             headingDeg = lastHeadingDeg,
             verticalSpeedMps = lastVertMps,
-            numSatellites = sats
+            numSatellites = sats,
+            batteryPercent = lastBatteryPct
         )
     }
 
@@ -239,5 +273,9 @@ class DragyAdapter @Inject constructor() : ExternalGpsAdapter {
         // UBX-CFG "Send10HzData" verbatim from the official Dragy app
         // (DragyBleOrigin.CmdFeature.Send10HzData): sets 10 Hz output.
         const val SEND_10HZ = "B562068A0A000003000001002130640053CB"
+        // FD04 device-status characteristic (DragyUUID.CHARACTER_DEVICE_STATUS);
+        // the official app READs it for battery. Same 16-bit base as FD00-FD05.
+        val CHARACTER_DEVICE_STATUS: UUID =
+            UUID.fromString("0000fd04-0000-1000-8000-00805f9b34fb")
     }
 }

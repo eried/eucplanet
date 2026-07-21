@@ -160,6 +160,17 @@ class DashboardViewModel @Inject constructor(
         .map { it?.first }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
 
+    /** External GPS box battery percent [0..100] for the optional dashboard
+     *  tile, freshness-gated to 5 s so a dropped box doesn't leave a stale
+     *  number on screen. Null when unpaired, stale, or the box (or its current
+     *  frame) reports no battery. */
+    val externalGpsBatteryPercent: StateFlow<Int?> = externalGpsRepository.currentSample
+        .map { s ->
+            val pct = s?.batteryPercent ?: return@map null
+            if (System.currentTimeMillis() - s.timestamp < 5_000L) pct else null
+        }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
+
     val gpsFix: StateFlow<Boolean> = tripRepository.currentLocation
         .map { it != null }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)

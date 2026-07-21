@@ -122,6 +122,15 @@ enum class AlarmMetric(
     CURRENT(R.string.alarm_metric_current, "A"),
 
     /**
+     * Battery percent of the paired external GPS box (RaceBox / Dragy). Pair
+     * with LESS_THAN: "warn when the GPS box drops below 15%". Evaluated off
+     * [com.eried.eucplanet.data.repository.ExternalGpsRepository] via
+     * [com.eried.eucplanet.service.AlarmEngine.evaluateExternalGps], not the
+     * wheel loop, so it fires even with no wheel connected.
+     */
+    EXTERNAL_GPS_BATTERY(R.string.alarm_metric_external_gps_battery, "%"),
+
+    /**
      * Distance in metres to the closest tracked vehicle from the rear-view
      * radar. Pair with the LESS_THAN comparator: "trigger when the closest
      * car is closer than 40 m". Only fires when at least one threat is

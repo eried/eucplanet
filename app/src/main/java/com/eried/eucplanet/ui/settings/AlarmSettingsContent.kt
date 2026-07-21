@@ -342,6 +342,7 @@ private fun metricAccent(metric: AlarmMetric): androidx.compose.ui.graphics.Colo
     AlarmMetric.PWM -> MaterialTheme.appColors.gaugeWarn
     AlarmMetric.VOLTAGE -> MaterialTheme.appColors.metricVoltage
     AlarmMetric.CURRENT -> MaterialTheme.appColors.metricPosition
+    AlarmMetric.EXTERNAL_GPS_BATTERY -> MaterialTheme.appColors.statusGood
     AlarmMetric.RADAR_DISTANCE, AlarmMetric.RADAR_APPROACH_SPEED -> MaterialTheme.appColors.statusDanger
 }
 

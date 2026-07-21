@@ -91,4 +91,27 @@ interface ExternalGpsAdapter {
         lastKnownLon: Double?,
         lastKnownAccM: Float?
     ): List<ByteArray> = emptyList()
+
+    /**
+     * A characteristic the connection manager should READ on a fixed interval,
+     * or null (the default) when the box streams everything it needs to on the
+     * notify channel. Used for values that live off the telemetry stream - e.g.
+     * Dragy exposes its battery on a device-status characteristic that has to
+     * be read, not subscribed. The read runs only after the post-connect init
+     * writes drain, so it never overlaps another GATT op. Results arrive at
+     * [onPollResult]; RaceBox leaves this null because its battery byte rides
+     * inside the streamed frame.
+     */
+    fun pollCharacteristic(): UUID? = null
+
+    /** How often to re-read [pollCharacteristic]. Ignored when it is null. */
+    fun pollIntervalMs(): Long = 30_000L
+
+    /**
+     * Result bytes of a [pollCharacteristic] read. The adapter folds the value
+     * into its own state so the next [decode] sample carries it (battery is
+     * slow-moving, so riding along with the position samples is fine). Default:
+     * ignore.
+     */
+    fun onPollResult(value: ByteArray) {}
 }

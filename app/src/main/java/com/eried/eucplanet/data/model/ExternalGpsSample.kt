@@ -31,6 +31,15 @@ data class ExternalGpsSample(
     /** Number of satellites used in the fix, or null if unknown. Useful as
      *  a per-source quality indicator. */
     val numSatellites: Int? = null,
+    /** Internal battery of the GPS box in percent [0..100], or null if the
+     *  device doesn't report it. RaceBox carries it in the extended frame's
+     *  batteryStatus byte; Dragy exposes it on a separate device-status
+     *  characteristic the connection manager polls. Lets the rider see the box
+     *  draining before it dies mid-ride. */
+    val batteryPercent: Int? = null,
+    /** True when the box reports it is charging, false when on battery, null
+     *  when unknown or not reported (Dragy's status byte is percent-only). */
+    val charging: Boolean? = null,
     val timestamp: Long = System.currentTimeMillis()
 )
 
