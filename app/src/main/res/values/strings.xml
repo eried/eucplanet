@@ -848,8 +848,11 @@
     <string name="engine_preset_custom">Custom</string>
     <string name="engine_custom_pick">Pick file</string>
     <string name="engine_custom_clear">Clear</string>
-    <string name="engine_custom_modulate_pitch">Single file, modulate pitch with speed</string>
-    <string name="engine_custom_modulate_pitch_hint">One clip, looped. Its pitch rises as you speed up.</string>
+    <string name="engine_custom_mode_label">Sound</string>
+    <string name="engine_custom_mode_single">Single file</string>
+    <string name="engine_custom_mode_sections">Sections</string>
+    <string name="engine_custom_mode_single_hint">One clip, looped. Its pitch rises as you speed up.</string>
+    <string name="engine_custom_mode_sections_hint">Separate clips per phase, crossfaded by speed.</string>
     <string name="engine_custom_section_header">Section sounds</string>
     <string name="engine_custom_slot_idle">Main sound</string>
     <string name="engine_custom_slot_idle_multi">Main sound (idle)</string>

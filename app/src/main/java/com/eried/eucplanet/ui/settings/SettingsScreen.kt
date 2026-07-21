@@ -165,7 +165,6 @@ import androidx.compose.ui.unit.sp
 import kotlin.math.roundToInt
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Checkbox
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.AssistChipDefaults
@@ -8525,7 +8524,7 @@ private fun EngineSoundSection(
         )
 
         if (settings.engineType == com.eried.eucplanet.audio.EngineProfile.CUSTOM_KEY) {
-            CustomEngineEditor(settings = settings, viewModel = viewModel, previewEnabled = parked)
+            CustomEngineEditor(settings = settings, viewModel = viewModel)
         }
 
         // Resolve the active profile so unsupported rows (e.g. decel pops on a diesel
@@ -8665,7 +8664,6 @@ private fun EngineSoundSection(
 private fun CustomEngineEditor(
     settings: com.eried.eucplanet.data.model.AppSettings,
     viewModel: SettingsViewModel,
-    previewEnabled: Boolean,
 ) {
     val ctx = androidx.compose.ui.platform.LocalContext.current
     val slots = remember(settings.engineCustomSounds) {
@@ -8708,25 +8706,28 @@ private fun CustomEngineEditor(
             onClear = { viewModel.updateEngineCustomSlot(com.eried.eucplanet.audio.CustomSlot.IDLE, null) },
         )
 
-        // Pitch toggle
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .clickable { viewModel.updateEngineCustomModulatePitch(!modulate) }
-                .padding(horizontal = 14.dp, vertical = 10.dp),
-            verticalAlignment = Alignment.Top
-        ) {
-            Checkbox(checked = modulate, onCheckedChange = { viewModel.updateEngineCustomModulatePitch(it) })
-            Spacer(Modifier.width(8.dp))
-            Column {
-                Text(stringResource(R.string.engine_custom_modulate_pitch), style = MaterialTheme.typography.bodyMedium)
-                Text(
-                    stringResource(R.string.engine_custom_modulate_pitch_hint),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
+        // Single file vs multi-section, using the app's segmented-choice row so
+        // it matches Muffler / Gearbox / When-parked above.
+        Box(modifier = Modifier.padding(horizontal = 14.dp)) {
+            SegmentedChoice(
+                label = stringResource(R.string.engine_custom_mode_label),
+                options = listOf(
+                    "SINGLE" to stringResource(R.string.engine_custom_mode_single),
+                    "SECTIONS" to stringResource(R.string.engine_custom_mode_sections),
+                ),
+                current = if (modulate) "SINGLE" else "SECTIONS",
+                onChange = { viewModel.updateEngineCustomModulatePitch(it == "SINGLE") },
+            )
         }
+        Text(
+            stringResource(
+                if (modulate) R.string.engine_custom_mode_single_hint
+                else R.string.engine_custom_mode_sections_hint
+            ),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.padding(start = 14.dp, end = 14.dp, top = 2.dp, bottom = 4.dp)
+        )
 
         // Section slots (only in multi mode)
         if (!modulate) {
@@ -8753,15 +8754,8 @@ private fun CustomEngineEditor(
             }
         }
 
-        // Preview real config
-        Row(modifier = Modifier.padding(horizontal = 14.dp, vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
-            PlayButton(
-                onClick = { viewModel.previewEngine(com.eried.eucplanet.audio.EngineProfile.CUSTOM_KEY) },
-                enabled = previewEnabled && slots.containsKey(com.eried.eucplanet.audio.CustomSlot.IDLE)
-            )
-            Spacer(Modifier.width(8.dp))
-            Text(stringResource(R.string.engine_type_label), style = MaterialTheme.typography.bodyMedium)
-        }
+        // Preview lives with the engine picker above (the play button next to
+        // "Engine"), same as every other engine, so no separate preview here.
     }
 }
 
