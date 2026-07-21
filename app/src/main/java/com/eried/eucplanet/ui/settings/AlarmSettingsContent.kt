@@ -145,14 +145,14 @@ private fun leadSeconds(ms: Int): String =
 
 private fun displayThreshold(metric: AlarmMetric, valueInternal: Float, speedUnit: String, tempUnit: String): Float =
     when (metric) {
-        AlarmMetric.SPEED -> Units.speed(valueInternal, speedUnit)
+        AlarmMetric.SPEED, AlarmMetric.GPS_SPEED, AlarmMetric.EXTERNAL_GPS_SPEED -> Units.speed(valueInternal, speedUnit)
         AlarmMetric.TEMPERATURE -> Units.temperature(valueInternal, tempUnit)
         else -> valueInternal
     }
 
 private fun internalThreshold(metric: AlarmMetric, valueDisplayed: Float, speedUnit: String, tempUnit: String): Float =
     when (metric) {
-        AlarmMetric.SPEED -> Units.speedToKmh(valueDisplayed, speedUnit)
+        AlarmMetric.SPEED, AlarmMetric.GPS_SPEED, AlarmMetric.EXTERNAL_GPS_SPEED -> Units.speedToKmh(valueDisplayed, speedUnit)
         AlarmMetric.TEMPERATURE -> Units.temperatureToCelsius(valueDisplayed, tempUnit)
         else -> valueDisplayed
     }
@@ -160,7 +160,8 @@ private fun internalThreshold(metric: AlarmMetric, valueDisplayed: Float, speedU
 @androidx.compose.runtime.Composable
 private fun displayUnit(metric: AlarmMetric, speedUnit: String, tempUnit: String): String =
     when (metric) {
-        AlarmMetric.SPEED -> Units.speedUnit(androidx.compose.ui.platform.LocalContext.current, speedUnit)
+        AlarmMetric.SPEED, AlarmMetric.GPS_SPEED, AlarmMetric.EXTERNAL_GPS_SPEED ->
+            Units.speedUnit(androidx.compose.ui.platform.LocalContext.current, speedUnit)
         AlarmMetric.TEMPERATURE -> Units.tempUnit(tempUnit)
         else -> metric.unit
     }
@@ -342,6 +343,7 @@ private fun metricAccent(metric: AlarmMetric): androidx.compose.ui.graphics.Colo
     AlarmMetric.PWM -> MaterialTheme.appColors.gaugeWarn
     AlarmMetric.VOLTAGE -> MaterialTheme.appColors.metricVoltage
     AlarmMetric.CURRENT -> MaterialTheme.appColors.metricPosition
+    AlarmMetric.GPS_SPEED, AlarmMetric.EXTERNAL_GPS_SPEED -> MaterialTheme.appColors.statusWarn
     AlarmMetric.EXTERNAL_GPS_BATTERY -> MaterialTheme.appColors.statusGood
     AlarmMetric.RADAR_DISTANCE, AlarmMetric.RADAR_APPROACH_SPEED -> MaterialTheme.appColors.statusDanger
 }

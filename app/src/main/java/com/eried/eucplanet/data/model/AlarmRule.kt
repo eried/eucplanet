@@ -122,6 +122,20 @@ enum class AlarmMetric(
     CURRENT(R.string.alarm_metric_current, "A"),
 
     /**
+     * Speed from the phone's own GPS in km/h. Evaluated off the phone location
+     * stream via [com.eried.eucplanet.service.AlarmEngine.evaluateGpsSpeed], so
+     * it works with no wheel connected. Only checked on a fresh location fix.
+     */
+    GPS_SPEED(R.string.alarm_metric_gps_speed, "km/h"),
+
+    /**
+     * Speed from the paired external GPS box (RaceBox / Dragy) in km/h.
+     * Evaluated off [com.eried.eucplanet.data.repository.ExternalGpsRepository]
+     * via [com.eried.eucplanet.service.AlarmEngine.evaluateExternalGps].
+     */
+    EXTERNAL_GPS_SPEED(R.string.alarm_metric_external_gps_speed, "km/h"),
+
+    /**
      * Battery percent of the paired external GPS box (RaceBox / Dragy). Pair
      * with LESS_THAN: "warn when the GPS box drops below 15%". Evaluated off
      * [com.eried.eucplanet.data.repository.ExternalGpsRepository] via

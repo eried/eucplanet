@@ -779,7 +779,9 @@
     <string name="alarm_metric_pwm_voice" translatable="false">PWM</string>
     <string name="alarm_metric_voltage">Напруга</string>
     <string name="alarm_metric_current">Струм</string>
-    <string name="alarm_metric_external_gps_battery">Заряд GPS</string>
+    <string name="alarm_metric_gps_speed">Швидкість GPS</string>
+    <string name="alarm_metric_external_gps_speed">Швидкість зовнішнього GPS</string>
+    <string name="alarm_metric_external_gps_battery">Батарея зовнішнього GPS</string>
     <string name="alarm_metric_radar_distance">Відстань до авто</string>
     <string name="alarm_metric_radar_approach">Авто наближається</string>
 

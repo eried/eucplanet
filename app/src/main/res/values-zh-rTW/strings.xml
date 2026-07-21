@@ -776,7 +776,9 @@
     <string name="alarm_metric_pwm_voice" translatable="false">PWM</string>
     <string name="alarm_metric_voltage">電壓</string>
     <string name="alarm_metric_current">電流</string>
-    <string name="alarm_metric_external_gps_battery">GPS 電池</string>
+    <string name="alarm_metric_gps_speed">GPS 速度</string>
+    <string name="alarm_metric_external_gps_speed">外部 GPS 速度</string>
+    <string name="alarm_metric_external_gps_battery">外部 GPS 電池</string>
     <string name="alarm_metric_radar_distance">車距</string>
     <string name="alarm_metric_radar_approach">車輛接近</string>
 

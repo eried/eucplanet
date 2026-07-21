@@ -775,7 +775,9 @@
     <string name="alarm_metric_pwm_voice" translatable="false">PWM</string>
     <string name="alarm_metric_voltage">Spänning</string>
     <string name="alarm_metric_current">Ström</string>
-    <string name="alarm_metric_external_gps_battery">GPS-batteri</string>
+    <string name="alarm_metric_gps_speed">GPS-hastighet</string>
+    <string name="alarm_metric_external_gps_speed">Extern GPS-hastighet</string>
+    <string name="alarm_metric_external_gps_battery">Externt GPS-batteri</string>
     <string name="alarm_metric_radar_distance">Bilavstånd</string>
     <string name="alarm_metric_radar_approach">Bil närmar sig</string>
 

@@ -1003,7 +1003,9 @@
     <string name="alarm_metric_pwm_voice" translatable="false">PWM</string>
     <string name="alarm_metric_voltage">Voltage</string>
     <string name="alarm_metric_current">Current</string>
-    <string name="alarm_metric_external_gps_battery">GPS box battery</string>
+    <string name="alarm_metric_gps_speed">GPS speed</string>
+    <string name="alarm_metric_external_gps_speed">External GPS speed</string>
+    <string name="alarm_metric_external_gps_battery">External GPS battery</string>
     <string name="alarm_metric_radar_distance">Car distance</string>
     <string name="alarm_metric_radar_approach">Car approach</string>
 

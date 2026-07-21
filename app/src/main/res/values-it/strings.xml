@@ -370,7 +370,9 @@
     <string name="alarm_metric_pwm">Carico (PWM)</string>
     <string name="alarm_metric_voltage">Tensione</string>
     <string name="alarm_metric_current">Corrente</string>
-    <string name="alarm_metric_external_gps_battery">Batteria GPS</string>
+    <string name="alarm_metric_gps_speed">Velocità GPS</string>
+    <string name="alarm_metric_external_gps_speed">Velocità GPS esterno</string>
+    <string name="alarm_metric_external_gps_battery">Batteria GPS esterno</string>
 
     <!-- Alarm comparators -->
     <string name="alarm_cmp_lt">Minore di</string>
