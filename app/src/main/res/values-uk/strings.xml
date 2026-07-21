@@ -226,6 +226,7 @@
     <string name="metric_chip_gps_speed">Шв. GPS</string>
     <string name="metric_chip_gps_heading">Курс</string>
     <string name="metric_chip_gps_accuracy">Точність GPS</string>
+    <string name="metric_chip_external_gps_battery">Батарея зовнішнього GPS</string>
     <string name="metric_chip_slope">Ухил</string>
     <string name="metric_chip_ascent">Підйом</string>
     <string name="metric_chip_descent">Спуск</string>
@@ -253,6 +254,7 @@
     <string name="metric_chip_dyn_current_limit_tile">A limit</string>
     <string name="metric_chip_phone_battery_tile">Тел</string>
     <string name="metric_chip_gps_accuracy_tile">GPS ±</string>
+    <string name="metric_chip_external_gps_battery_tile">GPS бат</string>
     <string name="metric_chip_odometer_tile">Odo</string>
     <string name="metric_chip_trip_max_speed_tile">Max sp</string>
     <string name="metric_chip_avg_trip_speed_tile">Avg sp</string>
@@ -282,6 +284,7 @@
     <string name="metric_desc_regen_wh">Загальні ват-години, повернуті в батарею при гальмуванні за цю поїздку.</string>
     <string name="metric_desc_bt_rssi">Сила сигналу Bluetooth до колеса, ближче до 0 dBm означає сильніше.</string>
     <string name="metric_desc_gps_accuracy">Радіус похибки GPS-позиціонування, менше означає точніше.</string>
+    <string name="metric_desc_external_gps_battery">Заряд спареного зовнішнього GPS (RaceBox, Dragy), щоб бачити, як він падає, перш ніж сяде посеред поїздки.</string>
 
     <!-- Action labels for the dashboard layout chips -->
     <string name="action_chip_horn">Сигнал</string>
@@ -776,6 +779,7 @@
     <string name="alarm_metric_pwm_voice" translatable="false">PWM</string>
     <string name="alarm_metric_voltage">Напруга</string>
     <string name="alarm_metric_current">Струм</string>
+    <string name="alarm_metric_external_gps_battery">Заряд GPS</string>
     <string name="alarm_metric_radar_distance">Відстань до авто</string>
     <string name="alarm_metric_radar_approach">Авто наближається</string>
 
@@ -1355,6 +1359,7 @@
     <string name="studio_metric_pitch">Нахил</string>
     <string name="studio_metric_roll">Крен</string>
     <string name="studio_metric_g_force">G-Force</string>
+    <string name="studio_metric_external_gps_battery">Заряд GPS</string>
 
     <!-- Navigator -->
     <string name="nav_open">Відкрити навігатор</string>

@@ -443,6 +443,7 @@
     <string name="alarm_metric_pwm">Last (PWM)</string>
     <string name="alarm_metric_voltage">Spenning</string>
     <string name="alarm_metric_current">Strøm</string>
+    <string name="alarm_metric_external_gps_battery">GPS-batteri</string>
 
     <!-- Alarm comparators -->
     <string name="alarm_cmp_lt">Mindre enn</string>
@@ -874,6 +875,7 @@
     <string name="studio_metric_battery">Batteri</string>
     <string name="studio_metric_current">Strøm</string>
     <string name="studio_metric_g_force">G-Force</string>
+    <string name="studio_metric_external_gps_battery">GPS-batteri</string>
     <string name="studio_metric_odometer">Kilometerteller</string>
     <string name="studio_metric_pitch">Stigning</string>
     <string name="studio_metric_power">Effekt</string>
@@ -1118,6 +1120,7 @@
     <string name="metric_chip_forward_g">Frem-g</string>
     <string name="metric_chip_g_force">G-kraft</string>
     <string name="metric_chip_gps_accuracy">GPS-presisjon</string>
+    <string name="metric_chip_external_gps_battery">Ekstern GPS-batteri</string>
     <string name="metric_chip_gps_altitude">Høyde</string>
     <string name="metric_chip_gps_heading">Retning</string>
     <string name="metric_chip_gps_speed">GPS-fart</string>
@@ -1151,6 +1154,7 @@
     <string name="metric_desc_avg_trip_speed">Turdistanse delt på kjøretid så langt.</string>
     <string name="metric_desc_bt_rssi">Bluetooth-signalstyrke til hjulet, nærmere 0 dBm er sterkere.</string>
     <string name="metric_desc_gps_accuracy">GPS-posisjonsfeilradius, lavere er mer nøyaktig.</string>
+    <string name="metric_desc_external_gps_battery">Batteri i den sammenkoblede eksterne GPS-en (RaceBox, Dragy), så du ser det synke før det dør midt i turen.</string>
     <string name="metric_desc_headroom">Gjenværende fartsmargin før tilt-back slår inn. Høyt tall = mer sikkerhetsbuffer.</string>
     <string name="metric_desc_range_estimate">Gjenværende distanse med dagens forbruk.</string>
     <string name="metric_desc_regen_wh">Totalt antall wattimer matet tilbake til batteriet under bremsing på denne turen.</string>
@@ -1228,6 +1232,7 @@
     <string name="metric_chip_dyn_current_limit_tile">A limit</string>
     <string name="metric_chip_phone_battery_tile">Tel</string>
     <string name="metric_chip_gps_accuracy_tile">GPS ±</string>
+    <string name="metric_chip_external_gps_battery_tile">GPS-bat</string>
     <string name="metric_chip_odometer_tile">Odo</string>
     <string name="metric_chip_trip_max_speed_tile">Max sp</string>
     <string name="metric_chip_avg_trip_speed_tile">Avg sp</string>

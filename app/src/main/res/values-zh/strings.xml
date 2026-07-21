@@ -291,6 +291,7 @@
     <string name="alarm_metric_pwm">负载 (PWM)</string>
     <string name="alarm_metric_voltage">电压</string>
     <string name="alarm_metric_current">电流</string>
+    <string name="alarm_metric_external_gps_battery">GPS 电量</string>
 
     <string name="alarm_cmp_lt">小于</string>
     <string name="alarm_cmp_ge">大于或等于</string>
@@ -857,6 +858,7 @@
     <string name="studio_metric_battery">电量</string>
     <string name="studio_metric_current">电流</string>
     <string name="studio_metric_g_force">G-Force</string>
+    <string name="studio_metric_external_gps_battery">GPS 电量</string>
     <string name="studio_metric_odometer">总里程</string>
     <string name="studio_metric_pitch">俯仰角</string>
     <string name="studio_metric_power">功率</string>
@@ -1101,6 +1103,7 @@
     <string name="metric_chip_forward_g">前向 g</string>
     <string name="metric_chip_g_force">G 力</string>
     <string name="metric_chip_gps_accuracy">GPS 精度</string>
+    <string name="metric_chip_external_gps_battery">外置 GPS 电量</string>
     <string name="metric_chip_gps_altitude">海拔</string>
     <string name="metric_chip_gps_heading">航向</string>
     <string name="metric_chip_gps_speed">GPS 速度</string>
@@ -1134,6 +1137,7 @@
     <string name="metric_desc_avg_trip_speed">行程距离除以已骑行时间。</string>
     <string name="metric_desc_bt_rssi">到独轮车的蓝牙信号强度，，越接近 0 dBm 越强。</string>
     <string name="metric_desc_gps_accuracy">GPS 定位误差半径，，越低越准确。</string>
+    <string name="metric_desc_external_gps_battery">已配对的外置 GPS (RaceBox, Dragy) 电量，让你在骑行途中没电前看到它下降。</string>
     <string name="metric_desc_headroom">回倾启动前剩余的速度余量。数字大 = 安全缓冲更多。</string>
     <string name="metric_desc_range_estimate">按当前消耗率剩余的距离。</string>
     <string name="metric_desc_regen_wh">本次行程刹车时回馈到电池的总瓦时。</string>
@@ -1211,6 +1215,7 @@
     <string name="metric_chip_dyn_current_limit_tile">A limit</string>
     <string name="metric_chip_phone_battery_tile">手机</string>
     <string name="metric_chip_gps_accuracy_tile">GPS ±</string>
+    <string name="metric_chip_external_gps_battery_tile">GPS电量</string>
     <string name="metric_chip_odometer_tile">Odo</string>
     <string name="metric_chip_trip_max_speed_tile">Max sp</string>
     <string name="metric_chip_avg_trip_speed_tile">Avg sp</string>

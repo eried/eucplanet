@@ -226,6 +226,7 @@
     <string name="metric_chip_gps_speed">GPS 速度</string>
     <string name="metric_chip_gps_heading">方位</string>
     <string name="metric_chip_gps_accuracy">GPS 精度</string>
+    <string name="metric_chip_external_gps_battery">外部 GPS 電池</string>
     <string name="metric_chip_slope">坡度</string>
     <string name="metric_chip_ascent">爬升</string>
     <string name="metric_chip_descent">下降</string>
@@ -253,6 +254,7 @@
     <string name="metric_chip_dyn_current_limit_tile">電流限</string>
     <string name="metric_chip_phone_battery_tile">手機</string>
     <string name="metric_chip_gps_accuracy_tile">GPS±</string>
+    <string name="metric_chip_external_gps_battery_tile">GPS電池</string>
     <string name="metric_chip_odometer_tile">里程</string>
     <string name="metric_chip_trip_max_speed_tile">最高速</string>
     <string name="metric_chip_avg_trip_speed_tile">均速</string>
@@ -282,6 +284,7 @@
     <string name="metric_desc_regen_wh">本次行程煞車時回充至電池的總瓦時數。</string>
     <string name="metric_desc_bt_rssi">至車輪的藍牙訊號強度，越接近 0 dBm 訊號越強。</string>
     <string name="metric_desc_gps_accuracy">GPS 定位誤差半徑，數值越低越精確。</string>
+    <string name="metric_desc_external_gps_battery">已配對的外部 GPS (RaceBox, Dragy) 電池，讓你在騎行途中沒電前看到電量下降。</string>
 
     <!-- Action labels for the dashboard layout chips -->
     <string name="action_chip_horn">喇叭</string>
@@ -773,6 +776,7 @@
     <string name="alarm_metric_pwm_voice" translatable="false">PWM</string>
     <string name="alarm_metric_voltage">電壓</string>
     <string name="alarm_metric_current">電流</string>
+    <string name="alarm_metric_external_gps_battery">GPS 電池</string>
     <string name="alarm_metric_radar_distance">車距</string>
     <string name="alarm_metric_radar_approach">車輛接近</string>
 
@@ -1328,6 +1332,7 @@
     <string name="studio_metric_pitch">俯仰角</string>
     <string name="studio_metric_roll">滾轉角</string>
     <string name="studio_metric_g_force">G 力</string>
+    <string name="studio_metric_external_gps_battery">GPS 電池</string>
 
     <!-- Navigator -->
     <string name="nav_open">開啟導航</string>

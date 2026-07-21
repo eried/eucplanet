@@ -226,6 +226,7 @@
     <string name="metric_chip_gps_speed">GPS 속도</string>
     <string name="metric_chip_gps_heading">방위</string>
     <string name="metric_chip_gps_accuracy">GPS 정확도</string>
+    <string name="metric_chip_external_gps_battery">외부 GPS 배터리</string>
     <string name="metric_chip_slope">경사</string>
     <string name="metric_chip_ascent">오르막</string>
     <string name="metric_chip_descent">내리막</string>
@@ -253,6 +254,7 @@
     <string name="metric_chip_dyn_current_limit_tile">전류제한</string>
     <string name="metric_chip_phone_battery_tile">폰</string>
     <string name="metric_chip_gps_accuracy_tile">GPS ±</string>
+    <string name="metric_chip_external_gps_battery_tile">GPS 배터리</string>
     <string name="metric_chip_odometer_tile">주행계</string>
     <string name="metric_chip_trip_max_speed_tile">최고속</string>
     <string name="metric_chip_avg_trip_speed_tile">평균속</string>
@@ -282,6 +284,7 @@
     <string name="metric_desc_regen_wh">이번 트립에서 제동 중 배터리로 회생된 총 Wh.</string>
     <string name="metric_desc_bt_rssi">휠까지의 블루투스 신호 강도. 0 dBm에 가까울수록 강합니다.</string>
     <string name="metric_desc_gps_accuracy">GPS 위치 오차 반경. 낮을수록 정확합니다.</string>
+    <string name="metric_desc_external_gps_battery">페어링된 외부 GPS (RaceBox, Dragy)의 배터리. 주행 중 방전되기 전에 줄어드는 것을 볼 수 있습니다.</string>
 
     <!-- Action labels for the dashboard layout chips -->
     <string name="action_chip_horn">경적</string>
@@ -773,6 +776,7 @@
     <string name="alarm_metric_pwm_voice" translatable="false">PWM</string>
     <string name="alarm_metric_voltage">전압</string>
     <string name="alarm_metric_current">전류</string>
+    <string name="alarm_metric_external_gps_battery">GPS 배터리</string>
     <string name="alarm_metric_radar_distance">차량 거리</string>
     <string name="alarm_metric_radar_approach">차량 접근</string>
 
@@ -1328,6 +1332,7 @@
     <string name="studio_metric_pitch">피치</string>
     <string name="studio_metric_roll">롤</string>
     <string name="studio_metric_g_force">G-force</string>
+    <string name="studio_metric_external_gps_battery">GPS 배터리</string>
 
     <!-- Navigator -->
     <string name="nav_open">내비게이터 열기</string>
