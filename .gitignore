@@ -86,3 +86,7 @@ test-out/
 
 # Ad-hoc UI Automator dumps used while debugging
 /ui-emu.xml
+.tmp-p6/
+.playwright-mcp/
+play-*.png
+open-testing-state.md

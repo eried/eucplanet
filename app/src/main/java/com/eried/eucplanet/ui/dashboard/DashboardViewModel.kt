@@ -409,10 +409,22 @@ class DashboardViewModel @Inject constructor(
     // layout before the upstream Flow emits their saved layout. With
     // these seeded correctly the cold-start render is the rider's own
     // layout from frame zero.
+    // "POWER" was retired from the metric catalog as a duplicate of
+    // BATTERY_POWER (both read wheelData.batteryPower). Dashboards saved before
+    // that still carry the "POWER" token, which now has no catalog spec and
+    // renders as a dead placeholder tile -- the value only appears when the
+    // rider taps in (the detail screen still maps "POWER"). Rewrite the token
+    // to BATTERY_POWER so those tiles come back to life; duplicates collapse via
+    // the distinct() in the grid builder.
+    private fun migrateLegacyMetricKeys(order: String): String =
+        order.split(",").joinToString(",") { tok ->
+            if (tok.trim() == "POWER") "BATTERY_POWER" else tok
+        }
+
     val dashboardMetricOrder: StateFlow<String> = settingsRepository.settings
-        .map { it.dashboardMetricOrder }
+        .map { migrateLegacyMetricKeys(it.dashboardMetricOrder) }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000),
-            initialSettings.dashboardMetricOrder)
+            migrateLegacyMetricKeys(initialSettings.dashboardMetricOrder))
     // Screen geometry: compact-mode activation, cover lens cutout side and
     // the optional gauge ring in compact. The compact layout itself reuses
     // the dashboardMetricOrder / dashboardActionOrder lists above.

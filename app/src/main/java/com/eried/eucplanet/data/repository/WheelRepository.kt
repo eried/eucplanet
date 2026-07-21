@@ -1596,10 +1596,21 @@ class WheelRepository @Inject constructor(
                 // can't recover lightOn from telemetry at all.
                 val lightOn = if (isP6 || _lightBusy.value) previous.lightOn
                               else result.data.lightOn
+                // Motor temperature never legitimately drops to 0 mid-ride, but
+                // the P6 emits the odd frame whose temp byte reads
+                // "uninitialized" (parsed as 0), which would blank the dashboard
+                // pill -> the tester's "temp shows at startup then disappears".
+                // Hold the last valid reading instead of collapsing to 0.
+                val maxTemp = if (result.data.maxTemperature > 0f) result.data.maxTemperature
+                              else previous.maxTemperature
+                val temps = if (result.data.temperatures.any { it > 0f }) result.data.temperatures
+                            else previous.temperatures
                 _wheelData.value = result.data.copy(
                     speed = kotlin.math.abs(result.data.speed * cal),
                     totalDistance = totalKm,
-                    lightOn = lightOn
+                    lightOn = lightOn,
+                    maxTemperature = maxTemp,
+                    temperatures = temps
                 )
                 _chargeStatus.value = deriveChargeStatus(_wheelData.value)
                 // Never let the charging-session bookkeeping throw out of the

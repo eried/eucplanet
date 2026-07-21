@@ -278,15 +278,19 @@ object InMotionV2Parser {
             ByteUtils.getUint32LE(data, 58) / 100f
         } else 0f
 
-        // Temperatures: confirmed encodings from a labelled capture where the
-        // rider read MOS / IMU / Motor off the wheel UI at five moments
-        // while the wheel cooled from a 63 -> 61 °C motor reading.
+        // Temperatures: confirmed encodings from labelled captures where the
+        // rider read MOS / IMU / Motor off the wheel UI.
         //
-        //   Motor  = (body[31] − 145) / 1.5  °C
-        //     Within 0.3 °C of every labelled value across 9 samples in two
-        //     separate logs. Range 0..73 °C maps to bytes 145..255 (saturates
-        //     at 73 °C: fine for normal use; pwm-event spikes that briefly
-        //     exceed that just clip).
+        //   Motor  = body[31] − 176  °C  (slope 1, byte 176 = 0 °C)
+        //     Re-derived after a second labelled point far from the first:
+        //     InMotion "Motor Temp" 104 °F = 40 °C at body[31] = 216 (frame
+        //     alignment cross-checked: same frame's body[20..21] = 0x1518 =
+        //     54.00% battery, matching the on-screen 54%). The earlier
+        //     `(byte − 145) / 1.5` fit had only a 61-63 °C band to work with,
+        //     where it happens to intersect this line (both give ~62 °C at
+        //     byte 238), so the wrong slope went unnoticed until a 40 °C label
+        //     showed it over-reading by ~7 °C (would have shown 117 °F).
+        //     `byte − 176` matches both the 40 °C and the old 61-63 °C labels.
         //
         //   MOS    = body[28] (direct °C)
         //     Exact match every time: three labels at 36 °C, byte = 36.
@@ -294,17 +298,13 @@ object InMotionV2Parser {
         //   IMU    = 62 − body[78]  °C  (lower confidence; 3 data points,
         //     inverted-scale fit is unusual but matches: 42/42/43 °C ↔ bytes
         //     20/20/19.)
-        //
-        // The earlier `°F = byte − 126` fit on body[32] was tracking the
-        // controller-MOS sensor, NOT the motor; that's why the rider's
-        // wheel UI motor reading (29-34 °C) only loosely lined up.
         fun byteOrNull(off: Int): Int? =
             if (off < data.size) data[off].toInt() and 0xFF else null
 
         val motorByte = byteOrNull(31)
         val motorC: Float? = motorByte
-            ?.takeIf { it >= 145 }  // below 145 means uninitialized / pre-boot
-            ?.let { (it - 145).toFloat() / 1.5f }
+            ?.takeIf { it >= 176 }  // below 176 (0 °C) means uninitialized / pre-boot
+            ?.let { (it - 176).toFloat() }
 
         val mosByte = byteOrNull(28)
         val mosC: Float? = mosByte
