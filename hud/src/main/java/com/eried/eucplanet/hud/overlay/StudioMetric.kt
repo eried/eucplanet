@@ -34,7 +34,8 @@ enum class StudioMetric(
     ODOMETER("ODOMETER", "Odometer", StudioMetricKind.DISTANCE, "", 1, 5000f, { it.totalDistance }),
     PITCH("PITCH", "Pitch", StudioMetricKind.PLAIN, "°", 1, 30f, { it.pitchAngle }),
     ROLL("ROLL", "Roll", StudioMetricKind.PLAIN, "°", 1, 30f, { it.rollAngle }),
-    G_FORCE("G-FORCE", "G-Force", StudioMetricKind.PLAIN, "g", 2, 2f, { it.gForce });
+    G_FORCE("G-FORCE", "G-Force", StudioMetricKind.PLAIN, "g", 2, 2f, { it.gForce }),
+    EXTERNAL_GPS_BATTERY("EXT_GPS_BATTERY", "GPS box battery", StudioMetricKind.PLAIN, "%", 0, 100f, { it.externalGpsBatteryPercent.toFloat() });
 
     fun displayValue(data: WheelData, speedUnit: String, distUnit: String, tempUnit: String): Float {
         val raw = extract(data)
@@ -79,4 +80,5 @@ fun StudioMetric.displayName(): String = when (this) {
     StudioMetric.PITCH -> "Pitch"
     StudioMetric.ROLL -> "Roll"
     StudioMetric.G_FORCE -> "G-Force"
+    StudioMetric.EXTERNAL_GPS_BATTERY -> "GPS bat"
 }

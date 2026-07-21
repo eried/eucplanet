@@ -28,6 +28,9 @@ data class WheelData(
     val latitude: Double = 0.0,
     /** Rider GPS longitude in degrees. 0 when there is no fix / not recorded. */
     val longitude: Double = 0.0,
+    /** Battery percent of the paired external GPS box, -1 when none / unknown.
+     *  Mirrors the phone class; fed from HudState.externalGpsBatteryPercent. */
+    val externalGpsBatteryPercent: Int = -1,
     /** Phone IMU acceleration magnitude in g, 0 for trips recorded before this. */
     val gForce: Float = 0f,
     /** Phone IMU lateral acceleration in g (+right). 0 for trips recorded before this. */

@@ -19,6 +19,11 @@ data class WheelData(
     val latitude: Double = 0.0,
     /** Rider GPS longitude in degrees. 0 when there is no fix / not recorded. */
     val longitude: Double = 0.0,
+    /** Battery percent of the paired external GPS box (RaceBox / Dragy), or -1
+     *  when none is paired / it doesn't report it. Merged in by the Overlay
+     *  Studio (like latitude/longitude) so an overlay number can show it; not
+     *  wheel telemetry, so it stays -1 on the plain wheel stream. */
+    val externalGpsBatteryPercent: Int = -1,
     /** Phone IMU acceleration magnitude in g, 0 for trips recorded before this. */
     val gForce: Float = 0f,
     /** Phone IMU lateral acceleration in g (+right). 0 for trips recorded before this. */
