@@ -226,6 +226,8 @@ object SettingsJson {
         put("engineBrake", s.engineBrake)
         put("engineDuckOnVoice", s.engineDuckOnVoice)
         put("engineHeadphonesOnly", s.engineHeadphonesOnly)
+        put("engineCustomModulatePitch", s.engineCustomModulatePitch)
+        put("engineCustomSounds", s.engineCustomSounds)
         put("raceboxMapX", s.raceboxMapX)
         put("raceboxMapY", s.raceboxMapY)
         put("raceboxMapZ", s.raceboxMapZ)
@@ -490,6 +492,8 @@ object SettingsJson {
         engineBrake = j.optString("engineBrake", base.engineBrake),
         engineDuckOnVoice = j.optString("engineDuckOnVoice", base.engineDuckOnVoice),
         engineHeadphonesOnly = j.optBoolean("engineHeadphonesOnly", base.engineHeadphonesOnly),
+        engineCustomModulatePitch = j.optBoolean("engineCustomModulatePitch", base.engineCustomModulatePitch),
+        engineCustomSounds = j.optString("engineCustomSounds", base.engineCustomSounds),
         raceboxMapX = j.optString("raceboxMapX", base.raceboxMapX),
         raceboxMapY = j.optString("raceboxMapY", base.raceboxMapY),
         raceboxMapZ = j.optString("raceboxMapZ", base.raceboxMapZ),

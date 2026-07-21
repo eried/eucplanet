@@ -693,6 +693,10 @@ data class AppSettings(
     val engineDuckOnVoice: String = "DUCK",
     /** If true, engine only plays when wired/BT audio is routed to headphones (safety). */
     val engineHeadphonesOnly: Boolean = false,
+    /** Custom engine: when true, the single main clip is looped and pitch-shifted by speed. */
+    val engineCustomModulatePitch: Boolean = true,
+    /** Custom engine: JSON object mapping slot keys (idle_loop, rev_loop, startup, decel, shutdown) to content URI strings. Empty = nothing picked. */
+    val engineCustomSounds: String = "",
 
     // --- Overlay Studio replay export ---
     // Output format for the Replay-mode photo / video export. Stored as stable
