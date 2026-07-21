@@ -12,6 +12,7 @@ import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.datasource.DataSource
+import androidx.media3.datasource.DefaultDataSource
 import androidx.media3.datasource.RawResourceDataSource
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.exoplayer.source.ClippingMediaSource
@@ -148,14 +149,19 @@ class CompositionEnginePlayer(private val context: Context) {
 
     private fun fireOneShot(section: SampleSection, gain: Float) {
         val sp = SectionPlayer(context, section, looping = false)
+        val cleanup = Runnable {
+            synchronized(oneShots) { oneShots.remove(sp) }
+            sp.release()
+        }
+        // Custom URIs have unknown length: release on natural end (STATE_ENDED),
+        // with a 15s backstop if a decode error means it never fires. Raw one-shots
+        // keep the duration timer (their length is known from startMs/endMs).
+        if (section.isCustom) sp.setOnEnded { mainHandler.post(cleanup) }
         if (!sp.prepare()) { sp.release(); return }
         sp.setVolume(gain.coerceIn(0f, 1f))
         sp.play()
         synchronized(oneShots) { oneShots.add(sp) }
-        mainHandler.postDelayed({
-            synchronized(oneShots) { oneShots.remove(sp) }
-            sp.release()
-        }, section.durationMs + 200L)   // grace beyond the natural duration
+        mainHandler.postDelayed(cleanup, if (section.isCustom) 15_000L else section.durationMs + 200L)
     }
 
     companion object {
@@ -189,6 +195,8 @@ private class SectionPlayer(
         )
         .build()
     @Volatile private var released = false
+    @Volatile private var onEnded: (() -> Unit)? = null
+    fun setOnEnded(cb: () -> Unit) { onEnded = cb }
 
     private inline fun postToMain(crossinline block: () -> Unit) {
         if (Looper.myLooper() == Looper.getMainLooper()) block()
@@ -196,34 +204,41 @@ private class SectionPlayer(
     }
 
     fun prepare(): Boolean {
-        val resId = context.resources.getIdentifier(section.rawAsset, "raw", context.packageName)
-        if (resId == 0) {
-            Log.w("SectionPlayer", "raw/${section.rawAsset} not found")
-            return false
+        val mediaSource = if (section.isCustom) {
+            val factory = DataSource.Factory { DefaultDataSource.Factory(context).createDataSource() }
+            ProgressiveMediaSource.Factory(factory)
+                .createMediaSource(MediaItem.fromUri(Uri.parse(section.uri)))
+        } else {
+            val resId = context.resources.getIdentifier(section.rawAsset, "raw", context.packageName)
+            if (resId == 0) {
+                Log.w("SectionPlayer", "raw/${section.rawAsset} not found")
+                return false
+            }
+            val uri = RawResourceDataSource.buildRawResourceUri(resId)
+            val factory = DataSource.Factory { RawResourceDataSource(context) }
+            ProgressiveMediaSource.Factory(factory).createMediaSource(MediaItem.fromUri(uri))
         }
         return try {
             postToMain {
                 if (released) return@postToMain
-                val uri = RawResourceDataSource.buildRawResourceUri(resId)
-                val dataSourceFactory = DataSource.Factory { RawResourceDataSource(context) }
-                val mediaItem = MediaItem.fromUri(uri)
-                val source = ProgressiveMediaSource.Factory(dataSourceFactory)
-                    .createMediaSource(mediaItem)
-                // ClippingMediaSource takes microseconds, and REPEAT_MODE_ONE then
-                // gaplessly stitches the [startMs..endMs] window into a continuous loop.
-                val clipped = ClippingMediaSource(
-                    source,
-                    section.startMs * 1000L,
-                    section.endMs * 1000L
-                )
-                player.setMediaSource(clipped)
+                // Raw sections clip to [startMs..endMs]; custom URIs play the whole file.
+                val source = if (section.isCustom) mediaSource
+                    else ClippingMediaSource(mediaSource, section.startMs * 1000L, section.endMs * 1000L)
+                player.setMediaSource(source)
                 player.repeatMode = if (looping) Player.REPEAT_MODE_ONE else Player.REPEAT_MODE_OFF
+                if (!looping) {
+                    player.addListener(object : Player.Listener {
+                        override fun onPlaybackStateChanged(state: Int) {
+                            if (state == Player.STATE_ENDED) onEnded?.invoke()
+                        }
+                    })
+                }
                 player.volume = 0f
                 player.prepare()
             }
             true
         } catch (e: Throwable) {
-            Log.e("SectionPlayer", "prepare failed for ${section.rawAsset}", e)
+            Log.e("SectionPlayer", "prepare failed for ${if (section.isCustom) section.uri else section.rawAsset}", e)
             false
         }
     }
