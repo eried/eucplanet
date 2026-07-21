@@ -393,6 +393,15 @@ class SettingsViewModel @Inject constructor(
     fun updateEngineDuckOnVoice(v: String) = update { copy(engineDuckOnVoice = v) }
     fun updateEngineHeadphonesOnly(v: Boolean) = update { copy(engineHeadphonesOnly = v) }
 
+    fun updateEngineCustomModulatePitch(v: Boolean) = update { copy(engineCustomModulatePitch = v) }
+
+    /** Set or clear (uri == null/blank) the file for one custom slot. */
+    fun updateEngineCustomSlot(slot: String, uri: String?) = update {
+        val slots = com.eried.eucplanet.audio.CustomEngineSounds.parseSlots(engineCustomSounds).toMutableMap()
+        if (uri.isNullOrBlank()) slots.remove(slot) else slots[slot] = uri
+        copy(engineCustomSounds = com.eried.eucplanet.audio.CustomEngineSounds.encodeSlots(slots))
+    }
+
     fun previewEngine(key: String) {
         viewModelScope.launch {
             val s = settingsRepository.get()
