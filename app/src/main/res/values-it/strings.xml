@@ -373,6 +373,8 @@
     <string name="alarm_metric_gps_speed">Velocità GPS</string>
     <string name="alarm_metric_external_gps_speed">Velocità GPS esterno</string>
     <string name="alarm_metric_external_gps_battery">Batteria GPS esterno</string>
+    <string name="alarm_metric_external_gps_speed_short">Vel. GPS est.</string>
+    <string name="alarm_metric_external_gps_battery_short">Batt. GPS est.</string>
 
     <!-- Alarm comparators -->
     <string name="alarm_cmp_lt">Minore di</string>

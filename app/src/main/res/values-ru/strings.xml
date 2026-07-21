@@ -782,6 +782,8 @@
     <string name="alarm_metric_gps_speed">Скорость GPS</string>
     <string name="alarm_metric_external_gps_speed">Скорость внешнего GPS</string>
     <string name="alarm_metric_external_gps_battery">Батарея внешнего GPS</string>
+    <string name="alarm_metric_external_gps_speed_short">Скор. внеш. GPS</string>
+    <string name="alarm_metric_external_gps_battery_short">Бат. внеш. GPS</string>
     <string name="alarm_metric_radar_distance">Расстояние до машины</string>
     <string name="alarm_metric_radar_approach">Машина приближается</string>
 

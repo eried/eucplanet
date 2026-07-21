@@ -294,6 +294,8 @@
     <string name="alarm_metric_gps_speed">GPS 速度</string>
     <string name="alarm_metric_external_gps_speed">外置 GPS 速度</string>
     <string name="alarm_metric_external_gps_battery">外置 GPS 电量</string>
+    <string name="alarm_metric_external_gps_speed_short">外置GPS速度</string>
+    <string name="alarm_metric_external_gps_battery_short">外置GPS电量</string>
 
     <string name="alarm_cmp_lt">小于</string>
     <string name="alarm_cmp_ge">大于或等于</string>

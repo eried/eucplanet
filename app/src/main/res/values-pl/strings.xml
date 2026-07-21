@@ -782,6 +782,8 @@
     <string name="alarm_metric_gps_speed">Prędkość GPS</string>
     <string name="alarm_metric_external_gps_speed">Prędkość zewnętrznego GPS</string>
     <string name="alarm_metric_external_gps_battery">Bateria zewnętrznego GPS</string>
+    <string name="alarm_metric_external_gps_speed_short">Pręd. zew. GPS</string>
+    <string name="alarm_metric_external_gps_battery_short">Bat. zew. GPS</string>
     <string name="alarm_metric_radar_distance">Odległość pojazdu</string>
     <string name="alarm_metric_radar_approach">Zbliżający się pojazd</string>
 

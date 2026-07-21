@@ -131,18 +131,26 @@ enum class AlarmMetric(
     /**
      * Speed from the paired external GPS box (RaceBox / Dragy) in km/h.
      * Evaluated off [com.eried.eucplanet.data.repository.ExternalGpsRepository]
-     * via [com.eried.eucplanet.service.AlarmEngine.evaluateExternalGps].
+     * via [com.eried.eucplanet.service.AlarmEngine.evaluateExternalGps]. Short
+     * label for the narrow selector; full name spoken by voice.
      */
-    EXTERNAL_GPS_SPEED(R.string.alarm_metric_external_gps_speed, "km/h"),
+    EXTERNAL_GPS_SPEED(
+        R.string.alarm_metric_external_gps_speed_short, "km/h",
+        R.string.alarm_metric_external_gps_speed
+    ),
 
     /**
      * Battery percent of the paired external GPS box (RaceBox / Dragy). Pair
      * with LESS_THAN: "warn when the GPS box drops below 15%". Evaluated off
      * [com.eried.eucplanet.data.repository.ExternalGpsRepository] via
      * [com.eried.eucplanet.service.AlarmEngine.evaluateExternalGps], not the
-     * wheel loop, so it fires even with no wheel connected.
+     * wheel loop, so it fires even with no wheel connected. Short label for
+     * the narrow selector; full name spoken by voice.
      */
-    EXTERNAL_GPS_BATTERY(R.string.alarm_metric_external_gps_battery, "%"),
+    EXTERNAL_GPS_BATTERY(
+        R.string.alarm_metric_external_gps_battery_short, "%",
+        R.string.alarm_metric_external_gps_battery
+    ),
 
     /**
      * Distance in metres to the closest tracked vehicle from the rear-view

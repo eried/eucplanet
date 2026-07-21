@@ -782,6 +782,8 @@
     <string name="alarm_metric_gps_speed">GPS-hastighed</string>
     <string name="alarm_metric_external_gps_speed">Ekstern GPS-hastighed</string>
     <string name="alarm_metric_external_gps_battery">Ekstern GPS-batteri</string>
+    <string name="alarm_metric_external_gps_speed_short">Ext GPS-hast.</string>
+    <string name="alarm_metric_external_gps_battery_short">Ext GPS-bat.</string>
     <string name="alarm_metric_radar_distance">Bilafstand</string>
     <string name="alarm_metric_radar_approach">Bil nærmer sig</string>
 

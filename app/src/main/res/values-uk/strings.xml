@@ -782,6 +782,8 @@
     <string name="alarm_metric_gps_speed">Швидкість GPS</string>
     <string name="alarm_metric_external_gps_speed">Швидкість зовнішнього GPS</string>
     <string name="alarm_metric_external_gps_battery">Батарея зовнішнього GPS</string>
+    <string name="alarm_metric_external_gps_speed_short">Швидк. зовн. GPS</string>
+    <string name="alarm_metric_external_gps_battery_short">Бат. зовн. GPS</string>
     <string name="alarm_metric_radar_distance">Відстань до авто</string>
     <string name="alarm_metric_radar_approach">Авто наближається</string>
 

@@ -782,6 +782,8 @@
     <string name="alarm_metric_gps_speed">GPS-snelheid</string>
     <string name="alarm_metric_external_gps_speed">Externe GPS-snelheid</string>
     <string name="alarm_metric_external_gps_battery">Externe GPS-accu</string>
+    <string name="alarm_metric_external_gps_speed_short">Ext GPS-snelh.</string>
+    <string name="alarm_metric_external_gps_battery_short">Ext GPS-accu</string>
     <string name="alarm_metric_radar_distance">Afstand auto</string>
     <string name="alarm_metric_radar_approach">Auto nadert</string>
 

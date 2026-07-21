@@ -446,6 +446,8 @@
     <string name="alarm_metric_gps_speed">GPS-fart</string>
     <string name="alarm_metric_external_gps_speed">Ekstern GPS-fart</string>
     <string name="alarm_metric_external_gps_battery">Ekstern GPS-batteri</string>
+    <string name="alarm_metric_external_gps_speed_short">Ext GPS-fart</string>
+    <string name="alarm_metric_external_gps_battery_short">Ext GPS-bat.</string>
 
     <!-- Alarm comparators -->
     <string name="alarm_cmp_lt">Mindre enn</string>

@@ -779,6 +779,8 @@
     <string name="alarm_metric_gps_speed">GPS hızı</string>
     <string name="alarm_metric_external_gps_speed">Harici GPS hızı</string>
     <string name="alarm_metric_external_gps_battery">Harici GPS aküsü</string>
+    <string name="alarm_metric_external_gps_speed_short">Harici GPS hız</string>
+    <string name="alarm_metric_external_gps_battery_short">Harici GPS akü</string>
     <string name="alarm_metric_radar_distance">Araç mesafesi</string>
     <string name="alarm_metric_radar_approach">Araç yaklaşımı</string>
 
