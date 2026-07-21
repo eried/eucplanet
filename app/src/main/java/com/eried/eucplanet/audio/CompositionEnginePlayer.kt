@@ -141,6 +141,17 @@ class CompositionEnginePlayer(private val context: Context) {
         // (above) handles the perceived "going faster" without touching pitch.
         // Variable speed left for a future profile-level opt-in only if a clip really
         // demands it.
+
+        // Single-file custom mode: no rev loop, so convey speed by pitching idle.
+        // Built-in sampled profiles set pitchModulated=false and skip this.
+        if (profile?.pitchModulated == true && rev == null) {
+            val curved = lastRpmNorm.let { it * (0.4f + 0.6f * it) }
+            val targetSpeed = 0.6f + 1.2f * curved   // 0.6x..1.8x, matches SampledEnginePlayer
+            if (kotlin.math.abs(targetSpeed - lastSpeed) > 0.01f) {
+                idle?.setSpeed(targetSpeed)
+                lastSpeed = targetSpeed
+            }
+        }
     }
 
     fun fireDecel() {
