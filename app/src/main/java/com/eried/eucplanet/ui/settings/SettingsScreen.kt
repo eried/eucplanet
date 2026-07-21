@@ -8674,7 +8674,7 @@ private fun CustomEngineEditor(
     val modulate = settings.engineCustomModulatePitch
 
     // Which slot a launched picker should fill. Set right before launch().
-    var pendingSlot by remember { mutableStateOf(com.eried.eucplanet.audio.CustomSlot.IDLE) }
+    var pendingSlot by rememberSaveable { mutableStateOf(com.eried.eucplanet.audio.CustomSlot.IDLE) }
     val picker = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.OpenDocument()
     ) { uri: android.net.Uri? ->
@@ -8709,9 +8709,11 @@ private fun CustomEngineEditor(
             ),
             required = true,
             uri = slots[com.eried.eucplanet.audio.CustomSlot.IDLE],
-            status = com.eried.eucplanet.audio.CustomEngineSounds.statusFor(
-                com.eried.eucplanet.audio.CustomSlot.IDLE, slots[com.eried.eucplanet.audio.CustomSlot.IDLE], ::canOpen
-            ),
+            status = remember(slots[com.eried.eucplanet.audio.CustomSlot.IDLE]) {
+                com.eried.eucplanet.audio.CustomEngineSounds.statusFor(
+                    com.eried.eucplanet.audio.CustomSlot.IDLE, slots[com.eried.eucplanet.audio.CustomSlot.IDLE], ::canOpen
+                )
+            },
             onPick = { launchPick(com.eried.eucplanet.audio.CustomSlot.IDLE) },
             onClear = { viewModel.updateEngineCustomSlot(com.eried.eucplanet.audio.CustomSlot.IDLE, null) },
         )
@@ -8755,7 +8757,9 @@ private fun CustomEngineEditor(
                     label = stringResource(labelRes),
                     required = false,
                     uri = slots[slot],
-                    status = com.eried.eucplanet.audio.CustomEngineSounds.statusFor(slot, slots[slot], ::canOpen),
+                    status = remember(slots[slot]) {
+                        com.eried.eucplanet.audio.CustomEngineSounds.statusFor(slot, slots[slot], ::canOpen)
+                    },
                     onPick = { launchPick(slot) },
                     onClear = { viewModel.updateEngineCustomSlot(slot, null) },
                 )
