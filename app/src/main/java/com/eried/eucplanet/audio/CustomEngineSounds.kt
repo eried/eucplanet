@@ -76,6 +76,7 @@ object CustomEngineSounds {
             maxRpm = 6000,
             sampleSections = sections,
             pitchModulated = modulatePitch,
+            decelPopProbability = 0f,
             supportsMuffler = false,
             supportsBrakeWhine = false,
             supportsPops = false,

@@ -8689,11 +8689,6 @@ private fun CustomEngineEditor(
     }
     fun launchPick(slot: String) { pendingSlot = slot; picker.launch(arrayOf("audio/*")) }
 
-    // Probe each URI once per change to decide OK vs MISSING.
-    fun canOpen(uri: String): Boolean = try {
-        ctx.contentResolver.openInputStream(android.net.Uri.parse(uri))?.use { true } ?: false
-    } catch (_: Throwable) { false }
-
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -8707,13 +8702,8 @@ private fun CustomEngineEditor(
             label = stringResource(
                 if (modulate) R.string.engine_custom_slot_idle else R.string.engine_custom_slot_idle_multi
             ),
-            required = true,
+            slot = com.eried.eucplanet.audio.CustomSlot.IDLE,
             uri = slots[com.eried.eucplanet.audio.CustomSlot.IDLE],
-            status = remember(slots[com.eried.eucplanet.audio.CustomSlot.IDLE]) {
-                com.eried.eucplanet.audio.CustomEngineSounds.statusFor(
-                    com.eried.eucplanet.audio.CustomSlot.IDLE, slots[com.eried.eucplanet.audio.CustomSlot.IDLE], ::canOpen
-                )
-            },
             onPick = { launchPick(com.eried.eucplanet.audio.CustomSlot.IDLE) },
             onClear = { viewModel.updateEngineCustomSlot(com.eried.eucplanet.audio.CustomSlot.IDLE, null) },
         )
@@ -8755,11 +8745,8 @@ private fun CustomEngineEditor(
             optional.forEach { (slot, labelRes) ->
                 CustomSlotRow(
                     label = stringResource(labelRes),
-                    required = false,
+                    slot = slot,
                     uri = slots[slot],
-                    status = remember(slots[slot]) {
-                        com.eried.eucplanet.audio.CustomEngineSounds.statusFor(slot, slots[slot], ::canOpen)
-                    },
                     onPick = { launchPick(slot) },
                     onClear = { viewModel.updateEngineCustomSlot(slot, null) },
                 )
@@ -8781,13 +8768,48 @@ private fun CustomEngineEditor(
 @Composable
 private fun CustomSlotRow(
     label: String,
-    required: Boolean,
+    slot: String,
     uri: String?,
-    status: com.eried.eucplanet.audio.SlotStatus,
     onPick: () -> Unit,
     onClear: () -> Unit,
 ) {
-    val fileName = remember(uri) { uri?.substringAfterLast('/')?.substringBefore('?') }
+    val ctx = androidx.compose.ui.platform.LocalContext.current
+    val required = slot == com.eried.eucplanet.audio.CustomSlot.IDLE
+
+    // Friendly display name, resolved off the main thread; falls back to the URI's last segment.
+    val fileName by androidx.compose.runtime.produceState<String?>(initialValue = null, key1 = uri) {
+        value = uri?.let { u ->
+            kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
+                runCatching {
+                    ctx.contentResolver.query(
+                        android.net.Uri.parse(u),
+                        arrayOf(android.provider.OpenableColumns.DISPLAY_NAME),
+                        null, null, null
+                    )?.use { c -> if (c.moveToFirst() && !c.isNull(0)) c.getString(0) else null }
+                }.getOrNull() ?: u.substringAfterLast('/').substringBefore('?')
+            }
+        }
+    }
+
+    // Per-slot status. The blocking open-probe runs on IO; the empty/required
+    // states resolve synchronously so the UI never waits to show "Required".
+    val status by androidx.compose.runtime.produceState(
+        initialValue = if (uri.isNullOrBlank())
+            (if (required) com.eried.eucplanet.audio.SlotStatus.REQUIRED else com.eried.eucplanet.audio.SlotStatus.EMPTY_OPTIONAL)
+        else com.eried.eucplanet.audio.SlotStatus.OK,
+        key1 = uri
+    ) {
+        value = if (uri.isNullOrBlank())
+            (if (required) com.eried.eucplanet.audio.SlotStatus.REQUIRED else com.eried.eucplanet.audio.SlotStatus.EMPTY_OPTIONAL)
+        else kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
+            com.eried.eucplanet.audio.CustomEngineSounds.statusFor(slot, uri) { u ->
+                runCatching {
+                    ctx.contentResolver.openInputStream(android.net.Uri.parse(u))?.use { true } ?: false
+                }.getOrNull() ?: false
+            }
+        }
+    }
+
     Column(modifier = Modifier.fillMaxWidth().padding(horizontal = 14.dp, vertical = 10.dp)) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Column(modifier = Modifier.weight(1f)) {

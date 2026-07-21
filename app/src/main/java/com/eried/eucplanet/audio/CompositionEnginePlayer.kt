@@ -136,11 +136,10 @@ class CompositionEnginePlayer(private val context: Context) {
             rev?.setVolume(smoothedRevVol); lastRevVol = smoothedRevVol
         }
 
-        // Playback speed stays at 1.0×, ExoPlayer's Sonic time-stretch was painting
-        // audible artifacts over every loop iteration. The natural idle ↔ rev crossfade
-        // (above) handles the perceived "going faster" without touching pitch.
-        // Variable speed left for a future profile-level opt-in only if a clip really
-        // demands it.
+        // Built-in sampled profiles keep playback speed at 1.0x (the idle/rev
+        // crossfade conveys speed; ExoPlayer's time-stretch painted artifacts).
+        // Single-file custom profiles (pitchModulated, no rev_loop) are the one
+        // exception and pitch the idle clip by RPM, handled just below.
 
         // Single-file custom mode: no rev loop, so convey speed by pitching idle.
         // Built-in sampled profiles set pitchModulated=false and skip this.

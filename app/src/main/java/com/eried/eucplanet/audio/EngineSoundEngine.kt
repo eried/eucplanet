@@ -99,6 +99,9 @@ class EngineSoundEngine @Inject constructor(
     private var customProfile: EngineProfile =
         com.eried.eucplanet.audio.CustomEngineSounds.buildProfile(emptyMap(), modulatePitch = true)
 
+    /** Signature of the last-applied custom config, to detect live edits while running. */
+    private var lastCustomSig: String = ""
+
     private fun resolveProfile(key: String): EngineProfile =
         if (key == EngineProfile.CUSTOM_KEY) customProfile else EngineProfile.byKey(key)
 
@@ -144,8 +147,14 @@ class EngineSoundEngine @Inject constructor(
             stop()
             return
         }
-        // Engine type swap while running: restart the correct path.
-        if (running && previousProfileKey != profile.key) {
+        // A live edit to the custom sound (files or the pitch toggle) keeps the
+        // same "CUSTOM" key, so a key comparison alone would miss it. Track a
+        // signature of the custom config and restart when it changes too.
+        val customSig = s.engineCustomModulatePitch.toString() + "|" + s.engineCustomSounds
+        val customChanged = profile.key == EngineProfile.CUSTOM_KEY && customSig != lastCustomSig
+        lastCustomSig = customSig
+        // Engine type swap, or a live custom edit, while running: restart the correct path.
+        if (running && (previousProfileKey != profile.key || customChanged)) {
             stop()
             start()
         }
