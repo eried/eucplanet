@@ -165,6 +165,7 @@ import androidx.compose.ui.unit.sp
 import kotlin.math.roundToInt
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.AssistChipDefaults
@@ -8523,6 +8524,10 @@ private fun EngineSoundSection(
             previewEnabled = parked
         )
 
+        if (settings.engineType == com.eried.eucplanet.audio.EngineProfile.CUSTOM_KEY) {
+            CustomEngineEditor(settings = settings, viewModel = viewModel, previewEnabled = parked)
+        }
+
         // Resolve the active profile so unsupported rows (e.g. decel pops on a diesel
         // or muffler LPF on any sampled engine, since MediaPlayer has no filter point)
         // are hidden from the UI. EngineProfile carries the per-engine support booleans.
@@ -8653,6 +8658,174 @@ private fun EngineSoundSection(
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
     }
+    }
+}
+
+@Composable
+private fun CustomEngineEditor(
+    settings: com.eried.eucplanet.data.model.AppSettings,
+    viewModel: SettingsViewModel,
+    previewEnabled: Boolean,
+) {
+    val ctx = androidx.compose.ui.platform.LocalContext.current
+    val slots = remember(settings.engineCustomSounds) {
+        com.eried.eucplanet.audio.CustomEngineSounds.parseSlots(settings.engineCustomSounds)
+    }
+    val modulate = settings.engineCustomModulatePitch
+
+    // Which slot a launched picker should fill. Set right before launch().
+    var pendingSlot by remember { mutableStateOf(com.eried.eucplanet.audio.CustomSlot.IDLE) }
+    val picker = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.OpenDocument()
+    ) { uri: android.net.Uri? ->
+        if (uri != null) {
+            try {
+                ctx.contentResolver.takePersistableUriPermission(
+                    uri, android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION
+                )
+            } catch (_: SecurityException) { /* some providers don't grant persistable access */ }
+            viewModel.updateEngineCustomSlot(pendingSlot, uri.toString())
+        }
+    }
+    fun launchPick(slot: String) { pendingSlot = slot; picker.launch(arrayOf("audio/*")) }
+
+    // Probe each URI once per change to decide OK vs MISSING.
+    fun canOpen(uri: String): Boolean = try {
+        ctx.contentResolver.openInputStream(android.net.Uri.parse(uri))?.use { true } ?: false
+    } catch (_: Throwable) { false }
+
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(top = 4.dp)
+            .clip(RoundedCornerShape(16.dp))
+            .background(MaterialTheme.appColors.menuBackground)
+            .padding(vertical = 4.dp)
+    ) {
+        // Main sound (idle)
+        CustomSlotRow(
+            label = stringResource(
+                if (modulate) R.string.engine_custom_slot_idle else R.string.engine_custom_slot_idle_multi
+            ),
+            required = true,
+            uri = slots[com.eried.eucplanet.audio.CustomSlot.IDLE],
+            status = com.eried.eucplanet.audio.CustomEngineSounds.statusFor(
+                com.eried.eucplanet.audio.CustomSlot.IDLE, slots[com.eried.eucplanet.audio.CustomSlot.IDLE], ::canOpen
+            ),
+            onPick = { launchPick(com.eried.eucplanet.audio.CustomSlot.IDLE) },
+            onClear = { viewModel.updateEngineCustomSlot(com.eried.eucplanet.audio.CustomSlot.IDLE, null) },
+        )
+
+        // Pitch toggle
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable { viewModel.updateEngineCustomModulatePitch(!modulate) }
+                .padding(horizontal = 14.dp, vertical = 10.dp),
+            verticalAlignment = Alignment.Top
+        ) {
+            Checkbox(checked = modulate, onCheckedChange = { viewModel.updateEngineCustomModulatePitch(it) })
+            Spacer(Modifier.width(8.dp))
+            Column {
+                Text(stringResource(R.string.engine_custom_modulate_pitch), style = MaterialTheme.typography.bodyMedium)
+                Text(
+                    stringResource(R.string.engine_custom_modulate_pitch_hint),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+        }
+
+        // Section slots (only in multi mode)
+        if (!modulate) {
+            Text(
+                stringResource(R.string.engine_custom_section_header),
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(start = 16.dp, top = 8.dp, bottom = 2.dp)
+            )
+            val optional = listOf(
+                com.eried.eucplanet.audio.CustomSlot.REV to R.string.engine_custom_slot_rev,
+                com.eried.eucplanet.audio.CustomSlot.STARTUP to R.string.engine_custom_slot_startup,
+                com.eried.eucplanet.audio.CustomSlot.DECEL to R.string.engine_custom_slot_decel,
+                com.eried.eucplanet.audio.CustomSlot.SHUTDOWN to R.string.engine_custom_slot_shutdown,
+            )
+            optional.forEach { (slot, labelRes) ->
+                CustomSlotRow(
+                    label = stringResource(labelRes),
+                    required = false,
+                    uri = slots[slot],
+                    status = com.eried.eucplanet.audio.CustomEngineSounds.statusFor(slot, slots[slot], ::canOpen),
+                    onPick = { launchPick(slot) },
+                    onClear = { viewModel.updateEngineCustomSlot(slot, null) },
+                )
+            }
+        }
+
+        // Preview real config
+        Row(modifier = Modifier.padding(horizontal = 14.dp, vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
+            PlayButton(
+                onClick = { viewModel.previewEngine(com.eried.eucplanet.audio.EngineProfile.CUSTOM_KEY) },
+                enabled = previewEnabled && slots.containsKey(com.eried.eucplanet.audio.CustomSlot.IDLE)
+            )
+            Spacer(Modifier.width(8.dp))
+            Text(stringResource(R.string.engine_type_label), style = MaterialTheme.typography.bodyMedium)
+        }
+    }
+}
+
+@Composable
+private fun CustomSlotRow(
+    label: String,
+    required: Boolean,
+    uri: String?,
+    status: com.eried.eucplanet.audio.SlotStatus,
+    onPick: () -> Unit,
+    onClear: () -> Unit,
+) {
+    val fileName = remember(uri) { uri?.substringAfterLast('/')?.substringBefore('?') }
+    Column(modifier = Modifier.fillMaxWidth().padding(horizontal = 14.dp, vertical = 10.dp)) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Column(modifier = Modifier.weight(1f)) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(label, style = MaterialTheme.typography.bodyMedium)
+                    if (required) {
+                        Spacer(Modifier.width(6.dp))
+                        Text(
+                            stringResource(R.string.engine_custom_required_tag),
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.tertiary
+                        )
+                    }
+                }
+                Text(
+                    fileName ?: stringResource(
+                        if (required) R.string.engine_custom_no_file else R.string.engine_custom_no_file_optional
+                    ),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 1
+                )
+            }
+            if (uri == null) {
+                OutlinedButton(onClick = onPick, shape = RoundedCornerShape(50)) {
+                    Text(stringResource(R.string.engine_custom_pick))
+                }
+            } else {
+                IconButton(onClick = onClear) {
+                    Icon(Icons.Filled.Close, contentDescription = stringResource(R.string.engine_custom_clear))
+                }
+            }
+        }
+        val chip = when (status) {
+            com.eried.eucplanet.audio.SlotStatus.OK -> stringResource(R.string.engine_custom_status_ok) to MaterialTheme.colorScheme.primary
+            com.eried.eucplanet.audio.SlotStatus.REQUIRED -> stringResource(R.string.engine_custom_status_required) to MaterialTheme.colorScheme.tertiary
+            com.eried.eucplanet.audio.SlotStatus.MISSING -> stringResource(R.string.engine_custom_status_missing) to MaterialTheme.colorScheme.error
+            com.eried.eucplanet.audio.SlotStatus.EMPTY_OPTIONAL -> null to MaterialTheme.colorScheme.onSurfaceVariant
+        }
+        chip.first?.let { text ->
+            Text(text, style = MaterialTheme.typography.labelSmall, color = chip.second, modifier = Modifier.padding(top = 4.dp))
+        }
     }
 }
 
