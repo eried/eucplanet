@@ -95,6 +95,13 @@ class EngineSoundEngine @Inject constructor(
     private val revDetector = RevDetector()
     private var connected: Boolean = false
 
+    /** Last-built synthetic custom profile, refreshed on every applySettings. */
+    private var customProfile: EngineProfile =
+        com.eried.eucplanet.audio.CustomEngineSounds.buildProfile(emptyMap(), modulatePitch = true)
+
+    private fun resolveProfile(key: String): EngineProfile =
+        if (key == EngineProfile.CUSTOM_KEY) customProfile else EngineProfile.byKey(key)
+
     // Audio focus
     private var focusRequest: AudioFocusRequest? = null
 
@@ -102,7 +109,11 @@ class EngineSoundEngine @Inject constructor(
     fun applySettings(s: AppSettings) {
         val previousProfileKey = profile.key
         val previousEnabled = lastAppliedEnabled
-        profile = EngineProfile.byKey(s.engineType)
+        customProfile = com.eried.eucplanet.audio.CustomEngineSounds.buildProfile(
+            slots = com.eried.eucplanet.audio.CustomEngineSounds.parseSlots(s.engineCustomSounds),
+            modulatePitch = s.engineCustomModulatePitch,
+        )
+        profile = resolveProfile(s.engineType)
         masterVolume = s.engineVolume.coerceIn(0f, 1f)
         volumeAutoEnabled = s.engineVolumeAutoEnabled
         volumeAutoCurve = com.eried.eucplanet.service.parseVolumeCurve(s.engineVolumeAutoCurve)
@@ -202,7 +213,7 @@ class EngineSoundEngine @Inject constructor(
         val savedMuffler = mufflerKey
         val savedGearbox = gearboxKey
         val savedPwmEverNonZero = pwmEverNonZero
-        profile = EngineProfile.byKey(key)
+        profile = resolveProfile(key)
         if (volume != null) masterVolume = volume.coerceIn(0f, 1f)
         if (muffler != null) mufflerKey = muffler
         if (gearbox != null) gearboxKey = gearbox
