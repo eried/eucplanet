@@ -685,7 +685,17 @@ private fun AlarmRuleEditorDialog(
                             label = stringResource(R.string.alarm_metric_label),
                             selected = stringResource(selectedMetric.labelRes),
                             options = metricOptions,
-                            onSelect = { metric = it }
+                            onSelect = { newMetric ->
+                                metric = newMetric
+                                // Picking a metric sets the condition to its
+                                // natural direction (battery/voltage/car
+                                // distance -> "<", everything else -> ">="), so
+                                // a low-battery alarm isn't born as ">= 30%".
+                                // The rider can still flip it after.
+                                comparator = runCatching {
+                                    AlarmMetric.valueOf(newMetric).defaultComparator.name
+                                }.getOrDefault(comparator)
+                            }
                         )
                     }
                     Box(modifier = Modifier.weight(1f)) {

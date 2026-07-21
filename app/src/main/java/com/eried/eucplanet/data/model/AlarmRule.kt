@@ -112,13 +112,22 @@ enum class AlarmMetric(
     val labelRes: Int,
     val unit: String,
     /** Name spoken by voice alarms, defaults to the on-screen label. */
-    val voiceLabelRes: Int = labelRes
+    val voiceLabelRes: Int = labelRes,
+    /**
+     * The natural direction to watch this metric in. Applied as the condition
+     * when the rider first picks the metric in the editor, so a low-battery
+     * alarm is born as "< " and an overspeed alarm as ">=", instead of every
+     * metric defaulting to ">=". The rider can still flip it.
+     *  - >= (too high): speed, PWM, temperature, current, approach speed
+     *  - <  (too low / too close): battery, voltage, car distance
+     */
+    val defaultComparator: AlarmComparator = AlarmComparator.GREATER_EQUAL
 ) {
     SPEED(R.string.alarm_metric_speed, "km/h"),
-    BATTERY(R.string.alarm_metric_battery, "%"),
+    BATTERY(R.string.alarm_metric_battery, "%", defaultComparator = AlarmComparator.LESS_THAN),
     TEMPERATURE(R.string.alarm_metric_temperature, "°C"),
     PWM(R.string.alarm_metric_pwm, "%", R.string.alarm_metric_pwm_voice),
-    VOLTAGE(R.string.alarm_metric_voltage, "V"),
+    VOLTAGE(R.string.alarm_metric_voltage, "V", defaultComparator = AlarmComparator.LESS_THAN),
     CURRENT(R.string.alarm_metric_current, "A"),
 
     /**
@@ -149,7 +158,8 @@ enum class AlarmMetric(
      */
     EXTERNAL_GPS_BATTERY(
         R.string.alarm_metric_external_gps_battery_short, "%",
-        R.string.alarm_metric_external_gps_battery
+        R.string.alarm_metric_external_gps_battery,
+        defaultComparator = AlarmComparator.LESS_THAN
     ),
 
     /**
@@ -159,7 +169,7 @@ enum class AlarmMetric(
      * present in the latest frame, an empty frame is treated as "no value"
      * rather than "0 metres" so a clear lane doesn't keep tripping the rule.
      */
-    RADAR_DISTANCE(R.string.alarm_metric_radar_distance, "m"),
+    RADAR_DISTANCE(R.string.alarm_metric_radar_distance, "m", defaultComparator = AlarmComparator.LESS_THAN),
 
     /**
      * Approach speed in km/h of the fastest closing vehicle. Pair with
