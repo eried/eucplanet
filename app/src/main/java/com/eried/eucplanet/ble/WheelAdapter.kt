@@ -27,8 +27,20 @@ data class BleProfile(
     /** Characteristic the wheel sends notifications on. */
     val notifyCharacteristic: UUID,
     /** GATT write type for outbound commands on this profile. */
-    val writeType: Int = BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT
+    val writeType: Int = BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT,
+    /**
+     * Service that holds [writeCharacteristic] when it is NOT the same as
+     * [serviceUuid]. Null (the common case) means notify and write share one
+     * service, like Nordic UART and HM-10. InMotion V1 is the exception: it
+     * splits the profile across two services (notify 0xFFE4 under 0xFFE0,
+     * write 0xFFE9 under 0xFFE5), so it sets this. Resolve via
+     * [effectiveWriteServiceUuid] rather than reading this directly.
+     */
+    val writeServiceUuid: UUID? = null
 ) {
+    /** Service that holds [writeCharacteristic]; falls back to [serviceUuid]. */
+    val effectiveWriteServiceUuid: UUID get() = writeServiceUuid ?: serviceUuid
+
     companion object {
         /** Nordic UART used by the InMotion V2 family (V11/V12/V13/V14). */
         val NORDIC_UART = BleProfile(
@@ -67,7 +79,12 @@ data class BleProfile(
         val INMOTION_V1 = BleProfile(
             serviceUuid = UUID.fromString("0000ffe0-0000-1000-8000-00805f9b34fb"),
             writeCharacteristic = UUID.fromString("0000ffe9-0000-1000-8000-00805f9b34fb"),
-            notifyCharacteristic = UUID.fromString("0000ffe4-0000-1000-8000-00805f9b34fb")
+            notifyCharacteristic = UUID.fromString("0000ffe4-0000-1000-8000-00805f9b34fb"),
+            // Write characteristic 0xFFE9 lives under its own service 0xFFE5,
+            // NOT the 0xFFE0 notify service. Without this the write char lookup
+            // returns null on service discovery and the connect is torn down,
+            // so no InMotion V1 wheel (V5 / V8 / V10 / V10F / L6) could connect.
+            writeServiceUuid = UUID.fromString("0000ffe5-0000-1000-8000-00805f9b34fb")
         )
     }
 }

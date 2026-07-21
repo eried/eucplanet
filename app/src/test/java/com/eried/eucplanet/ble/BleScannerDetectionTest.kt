@@ -18,6 +18,10 @@ class BleScannerDetectionTest {
         "Adventure-1234", "P6-5678", "InMotionV12", "V11-ABC", "V13Pro-9", "V12HS-1",
         // InMotion V1 legacy
         "IM8123", "L6-22", "Lively-1", "Glide3", "Solowheel-X",
+        // InMotion V10 family, including the lowercase-m "Inmotion-" branding
+        // and the bare "V10F-…" advert form (regression: case-sensitive prefix
+        // used to drop "Inmotion-V10F" so the wheel never appeared in scan).
+        "V10F-1234", "V10-5678", "Inmotion-V10F", "InMotion V10F", "inmotion-v10",
         // KingSong
         "KS-S22", "KS S18", "KingSong18XL", "S22-001", "S20", "S18", "F22P", "F18P-3",
         // Begode / Gotway
