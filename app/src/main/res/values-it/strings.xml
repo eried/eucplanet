@@ -370,6 +370,11 @@
     <string name="alarm_metric_pwm">Carico (PWM)</string>
     <string name="alarm_metric_voltage">Tensione</string>
     <string name="alarm_metric_current">Corrente</string>
+    <string name="alarm_metric_gps_speed">Velocità GPS</string>
+    <string name="alarm_metric_external_gps_speed">Velocità GPS esterno</string>
+    <string name="alarm_metric_external_gps_battery">Batteria GPS esterno</string>
+    <string name="alarm_metric_external_gps_speed_short">Vel. GPS est.</string>
+    <string name="alarm_metric_external_gps_battery_short">Batt. GPS est.</string>
 
     <!-- Alarm comparators -->
     <string name="alarm_cmp_lt">Minore di</string>
@@ -893,6 +898,7 @@
     <string name="studio_metric_battery">Batteria</string>
     <string name="studio_metric_current">Corrente</string>
     <string name="studio_metric_g_force">G-Force</string>
+    <string name="studio_metric_external_gps_battery">Batteria GPS</string>
     <string name="studio_metric_odometer">Contachilometri</string>
     <string name="studio_metric_pitch">Beccheggio</string>
     <string name="studio_metric_power">Potenza</string>
@@ -1137,6 +1143,7 @@
     <string name="metric_chip_forward_g">G avanti</string>
     <string name="metric_chip_g_force">Forza G</string>
     <string name="metric_chip_gps_accuracy">Precisione GPS</string>
+    <string name="metric_chip_external_gps_battery">Batteria GPS esterno</string>
     <string name="metric_chip_gps_altitude">Altitudine</string>
     <string name="metric_chip_gps_heading">Direzione</string>
     <string name="metric_chip_gps_speed">Vel. GPS</string>
@@ -1170,6 +1177,7 @@
     <string name="metric_desc_avg_trip_speed">Distanza del tragitto divisa per il tempo di guida finora.</string>
     <string name="metric_desc_bt_rssi">Intensità del segnale Bluetooth verso la ruota, più vicino a 0 dBm è più forte.</string>
     <string name="metric_desc_gps_accuracy">Raggio di errore di posizionamento GPS, minore è più preciso.</string>
+    <string name="metric_desc_external_gps_battery">Batteria del GPS esterno abbinato (RaceBox, Dragy), così la vedi scendere prima che si scarichi durante la corsa.</string>
     <string name="metric_desc_headroom">Margine di velocità rimanente prima del tilt-back. Numero grande = più sicurezza.</string>
     <string name="metric_desc_range_estimate">Distanza rimanente al ritmo di consumo attuale.</string>
     <string name="metric_desc_regen_wh">Wattora totali restituiti alla batteria frenando in questo tragitto.</string>
@@ -1247,6 +1255,7 @@
     <string name="metric_chip_dyn_current_limit_tile">A limit</string>
     <string name="metric_chip_phone_battery_tile">Tel</string>
     <string name="metric_chip_gps_accuracy_tile">GPS ±</string>
+    <string name="metric_chip_external_gps_battery_tile">GPS bat</string>
     <string name="metric_chip_odometer_tile">Odo</string>
     <string name="metric_chip_trip_max_speed_tile">Max sp</string>
     <string name="metric_chip_avg_trip_speed_tile">Avg sp</string>

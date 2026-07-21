@@ -920,6 +920,7 @@ class HudServer @Inject constructor(
                 else Float.NaN,
             gpsAltitudeM = if (location?.hasAltitude() == true) location.altitude.toFloat()
                 else Float.NaN,
+            externalGpsBatteryPercent = if (externalFresh) (external!!.batteryPercent ?: -1) else -1,
             wheelRollDeg = wd.rollAngle,
             wheelPitchDeg = wd.pitchAngle,
             customOverlayJson = s.hudCustomOverlayJson,

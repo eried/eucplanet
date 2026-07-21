@@ -226,6 +226,7 @@
     <string name="metric_chip_gps_speed">Vel. GPS</string>
     <string name="metric_chip_gps_heading">Rumbo</string>
     <string name="metric_chip_gps_accuracy">Precisión del GPS</string>
+    <string name="metric_chip_external_gps_battery">Batería del GPS externo</string>
     <string name="metric_chip_slope">Pendiente</string>
     <string name="metric_chip_ascent">Ascenso</string>
     <string name="metric_chip_descent">Descenso</string>
@@ -253,6 +254,7 @@
     <string name="metric_chip_dyn_current_limit_tile">A limit</string>
     <string name="metric_chip_phone_battery_tile">Tel</string>
     <string name="metric_chip_gps_accuracy_tile">GPS ±</string>
+    <string name="metric_chip_external_gps_battery_tile">GPS bat</string>
     <string name="metric_chip_odometer_tile">Odo</string>
     <string name="metric_chip_trip_max_speed_tile">Max sp</string>
     <string name="metric_chip_avg_trip_speed_tile">Avg sp</string>
@@ -282,6 +284,7 @@
     <string name="metric_desc_regen_wh">Vatios-hora totales devueltos a la batería al frenar en este viaje.</string>
     <string name="metric_desc_bt_rssi">Intensidad de señal Bluetooth hacia la rueda; cuanto más cerca de 0 dBm, más fuerte.</string>
     <string name="metric_desc_gps_accuracy">Radio de error de posicionamiento GPS; menor es más preciso.</string>
+    <string name="metric_desc_external_gps_battery">Batería del GPS externo emparejado (RaceBox, Dragy), para verla bajar antes de que se agote a mitad del trayecto.</string>
 
     <!-- Action labels for the dashboard layout chips -->
     <string name="action_chip_horn">Bocina</string>
@@ -776,6 +779,11 @@
     <string name="alarm_metric_pwm_voice" translatable="false">PWM</string>
     <string name="alarm_metric_voltage">Voltaje</string>
     <string name="alarm_metric_current">Corriente</string>
+    <string name="alarm_metric_gps_speed">Velocidad GPS</string>
+    <string name="alarm_metric_external_gps_speed">Velocidad del GPS externo</string>
+    <string name="alarm_metric_external_gps_battery">Batería del GPS externo</string>
+    <string name="alarm_metric_external_gps_speed_short">Vel. GPS ext.</string>
+    <string name="alarm_metric_external_gps_battery_short">Bat. GPS ext.</string>
     <string name="alarm_metric_radar_distance">Distancia al coche</string>
     <string name="alarm_metric_radar_approach">Coche acercándose</string>
 
@@ -1331,6 +1339,7 @@
     <string name="studio_metric_pitch">Cabeceo</string>
     <string name="studio_metric_roll">Alabeo</string>
     <string name="studio_metric_g_force">G-Force</string>
+    <string name="studio_metric_external_gps_battery">Batería del GPS</string>
 
     <!-- Navigator -->
     <string name="nav_open">Abrir navegador</string>

@@ -342,6 +342,13 @@ object MetricCatalog {
             accent = AccentPurple,
             sparkline = SparklineStyle.LINE
         ),
+        MetricSpec(
+            key = "EXTERNAL_GPS_BATTERY",
+            labelRes = R.string.metric_chip_external_gps_battery,
+            descriptionRes = R.string.metric_desc_external_gps_battery,
+            accent = AccentGreen,
+            sparkline = SparklineStyle.AREA
+        ),
 
         // ---- Derived motion + pack health ----
         MetricSpec(

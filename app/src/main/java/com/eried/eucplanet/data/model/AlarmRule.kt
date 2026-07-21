@@ -112,14 +112,55 @@ enum class AlarmMetric(
     val labelRes: Int,
     val unit: String,
     /** Name spoken by voice alarms, defaults to the on-screen label. */
-    val voiceLabelRes: Int = labelRes
+    val voiceLabelRes: Int = labelRes,
+    /**
+     * The natural direction to watch this metric in. Applied as the condition
+     * when the rider first picks the metric in the editor, so a low-battery
+     * alarm is born as "< " and an overspeed alarm as ">=", instead of every
+     * metric defaulting to ">=". The rider can still flip it.
+     *  - >= (too high): speed, PWM, temperature, current, approach speed
+     *  - <  (too low / too close): battery, voltage, car distance
+     */
+    val defaultComparator: AlarmComparator = AlarmComparator.GREATER_EQUAL
 ) {
     SPEED(R.string.alarm_metric_speed, "km/h"),
-    BATTERY(R.string.alarm_metric_battery, "%"),
+    BATTERY(R.string.alarm_metric_battery, "%", defaultComparator = AlarmComparator.LESS_THAN),
     TEMPERATURE(R.string.alarm_metric_temperature, "°C"),
     PWM(R.string.alarm_metric_pwm, "%", R.string.alarm_metric_pwm_voice),
-    VOLTAGE(R.string.alarm_metric_voltage, "V"),
+    VOLTAGE(R.string.alarm_metric_voltage, "V", defaultComparator = AlarmComparator.LESS_THAN),
     CURRENT(R.string.alarm_metric_current, "A"),
+
+    /**
+     * Speed from the phone's own GPS in km/h. Evaluated off the phone location
+     * stream via [com.eried.eucplanet.service.AlarmEngine.evaluateGpsSpeed], so
+     * it works with no wheel connected. Only checked on a fresh location fix.
+     */
+    GPS_SPEED(R.string.alarm_metric_gps_speed, "km/h"),
+
+    /**
+     * Speed from the paired external GPS box (RaceBox / Dragy) in km/h.
+     * Evaluated off [com.eried.eucplanet.data.repository.ExternalGpsRepository]
+     * via [com.eried.eucplanet.service.AlarmEngine.evaluateExternalGps]. Short
+     * label for the narrow selector; full name spoken by voice.
+     */
+    EXTERNAL_GPS_SPEED(
+        R.string.alarm_metric_external_gps_speed_short, "km/h",
+        R.string.alarm_metric_external_gps_speed
+    ),
+
+    /**
+     * Battery percent of the paired external GPS box (RaceBox / Dragy). Pair
+     * with LESS_THAN: "warn when the GPS box drops below 15%". Evaluated off
+     * [com.eried.eucplanet.data.repository.ExternalGpsRepository] via
+     * [com.eried.eucplanet.service.AlarmEngine.evaluateExternalGps], not the
+     * wheel loop, so it fires even with no wheel connected. Short label for
+     * the narrow selector; full name spoken by voice.
+     */
+    EXTERNAL_GPS_BATTERY(
+        R.string.alarm_metric_external_gps_battery_short, "%",
+        R.string.alarm_metric_external_gps_battery,
+        defaultComparator = AlarmComparator.LESS_THAN
+    ),
 
     /**
      * Distance in metres to the closest tracked vehicle from the rear-view
@@ -128,7 +169,7 @@ enum class AlarmMetric(
      * present in the latest frame, an empty frame is treated as "no value"
      * rather than "0 metres" so a clear lane doesn't keep tripping the rule.
      */
-    RADAR_DISTANCE(R.string.alarm_metric_radar_distance, "m"),
+    RADAR_DISTANCE(R.string.alarm_metric_radar_distance, "m", defaultComparator = AlarmComparator.LESS_THAN),
 
     /**
      * Approach speed in km/h of the fastest closing vehicle. Pair with

@@ -226,6 +226,7 @@
     <string name="metric_chip_gps_speed">GPS hızı</string>
     <string name="metric_chip_gps_heading">Yön</string>
     <string name="metric_chip_gps_accuracy">GPS hassasiyeti</string>
+    <string name="metric_chip_external_gps_battery">Harici GPS aküsü</string>
     <string name="metric_chip_slope">Eğim</string>
     <string name="metric_chip_ascent">Tırmanış</string>
     <string name="metric_chip_descent">İniş</string>
@@ -253,6 +254,7 @@
     <string name="metric_chip_dyn_current_limit_tile">A sınır</string>
     <string name="metric_chip_phone_battery_tile">Telefon</string>
     <string name="metric_chip_gps_accuracy_tile">GPS ±</string>
+    <string name="metric_chip_external_gps_battery_tile">GPS akü</string>
     <string name="metric_chip_odometer_tile">Odo</string>
     <string name="metric_chip_trip_max_speed_tile">Maks hz</string>
     <string name="metric_chip_avg_trip_speed_tile">Ort hz</string>
@@ -282,6 +284,7 @@
     <string name="metric_desc_regen_wh">Bu seferde frenleme sırasında aküye geri beslenen toplam watt-saat.</string>
     <string name="metric_desc_bt_rssi">Tekere olan Bluetooth sinyal gücü, 0 dBm\'ye yakın değer daha güçlü demektir.</string>
     <string name="metric_desc_gps_accuracy">GPS konumlama hata yarıçapı, düşük değer daha doğru demektir.</string>
+    <string name="metric_desc_external_gps_battery">Eşleştirilmiş harici GPS (RaceBox, Dragy) aküsü, böylece sürüşün ortasında bitmeden önce azaldığını görürsünüz.</string>
 
     <!-- Action labels for the dashboard layout chips -->
     <string name="action_chip_horn">Korna</string>
@@ -773,6 +776,11 @@
     <string name="alarm_metric_pwm_voice" translatable="false">PWM</string>
     <string name="alarm_metric_voltage">Gerilim</string>
     <string name="alarm_metric_current">Akım</string>
+    <string name="alarm_metric_gps_speed">GPS hızı</string>
+    <string name="alarm_metric_external_gps_speed">Harici GPS hızı</string>
+    <string name="alarm_metric_external_gps_battery">Harici GPS aküsü</string>
+    <string name="alarm_metric_external_gps_speed_short">Harici GPS hız</string>
+    <string name="alarm_metric_external_gps_battery_short">Harici GPS akü</string>
     <string name="alarm_metric_radar_distance">Araç mesafesi</string>
     <string name="alarm_metric_radar_approach">Araç yaklaşımı</string>
 
@@ -1328,6 +1336,7 @@
     <string name="studio_metric_pitch">Yunuslama</string>
     <string name="studio_metric_roll">Yalpa</string>
     <string name="studio_metric_g_force">G-Kuvveti</string>
+    <string name="studio_metric_external_gps_battery">GPS aküsü</string>
 
     <!-- Navigator -->
     <string name="nav_open">Navigatörü aç</string>

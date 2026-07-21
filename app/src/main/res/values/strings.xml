@@ -228,6 +228,7 @@
     <string name="metric_chip_gps_speed">GPS speed</string>
     <string name="metric_chip_gps_heading">Heading</string>
     <string name="metric_chip_gps_accuracy">GPS accuracy</string>
+    <string name="metric_chip_external_gps_battery">External GPS battery</string>
     <string name="metric_chip_slope">Slope</string>
     <string name="metric_chip_ascent">Ascent</string>
     <string name="metric_chip_descent">Descent</string>
@@ -255,6 +256,7 @@
     <string name="metric_chip_dyn_current_limit_tile">A limit</string>
     <string name="metric_chip_phone_battery_tile">Phone</string>
     <string name="metric_chip_gps_accuracy_tile">GPS ±</string>
+    <string name="metric_chip_external_gps_battery_tile">GPS bat</string>
     <string name="metric_chip_odometer_tile">Odo</string>
     <string name="metric_chip_trip_max_speed_tile">Max sp</string>
     <string name="metric_chip_avg_trip_speed_tile">Avg sp</string>
@@ -284,6 +286,7 @@
     <string name="metric_desc_regen_wh">Total watt-hours fed back to the battery while braking this trip.</string>
     <string name="metric_desc_bt_rssi">Bluetooth signal strength to the wheel, closer to 0 dBm is stronger.</string>
     <string name="metric_desc_gps_accuracy">GPS positioning error radius, lower is more accurate.</string>
+    <string name="metric_desc_external_gps_battery">Battery of the paired external GPS box (RaceBox, Dragy), so you see it draining before it dies mid ride.</string>
 
     <!-- Action labels for the dashboard layout chips -->
     <string name="action_chip_horn">Horn</string>
@@ -399,7 +402,7 @@
     <string name="reorg_hint">Reorganize the settings screen and hide sections you rarely use. Hidden sections move to More.</string>
     <string name="reorg_drag_cd">Drag to reorder</string>
     <string name="adv_rates_warning">These controls change timing across the app. Lower values give fresher data and faster reactions but use more battery, CPU or data. The defaults suit most riders. Change them only if you understand the effect.</string>
-    <string name="adv_pushonly_note">Some devices stream at their own fixed rate and ignore these settings: push-only wheels (Begode, Gotway, Veteran, KingSong), external GPS (RaceBox), radar and Flic buttons.</string>
+    <string name="adv_pushonly_note">Some devices stream at their own fixed rate and ignore these settings: push-only wheels (Begode, Gotway, Veteran, KingSong), external GPS (RaceBox, Dragy), radar and Flic buttons.</string>
     <string name="adv_group_rates">Data and reporting rates</string>
     <string name="adv_wheel_poll_rate">Wheel poll rate</string>
     <string name="adv_wheel_poll_rate_desc">Affects how fresh the live data is and how fast alarms react. Lower asks the wheel for data more often. Danger: very low values can flood the Bluetooth link and stall data on some wheels.</string>
@@ -1021,6 +1024,14 @@
     <string name="alarm_metric_pwm_voice" translatable="false">PWM</string>
     <string name="alarm_metric_voltage">Voltage</string>
     <string name="alarm_metric_current">Current</string>
+    <string name="alarm_metric_gps_speed">GPS speed</string>
+    <!-- Full names: used for the spoken voice message ({metric}). The short
+         *_short variants below are the dropdown/list labels so they fit the
+         narrow selected-metric box on one line. -->
+    <string name="alarm_metric_external_gps_speed">External GPS speed</string>
+    <string name="alarm_metric_external_gps_battery">External GPS battery</string>
+    <string name="alarm_metric_external_gps_speed_short">Ext GPS speed</string>
+    <string name="alarm_metric_external_gps_battery_short">Ext GPS batt</string>
     <string name="alarm_metric_radar_distance">Car distance</string>
     <string name="alarm_metric_radar_approach">Car approach</string>
 
@@ -1625,6 +1636,7 @@
     <string name="studio_metric_pitch">Pitch</string>
     <string name="studio_metric_roll">Roll</string>
     <string name="studio_metric_g_force">G-Force</string>
+    <string name="studio_metric_external_gps_battery">GPS box battery</string>
 
     <!-- Navigator -->
     <string name="nav_open">Open navigator</string>

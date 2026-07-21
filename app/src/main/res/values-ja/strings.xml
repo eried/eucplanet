@@ -226,6 +226,7 @@
     <string name="metric_chip_gps_speed">GPS 速度</string>
     <string name="metric_chip_gps_heading">方位</string>
     <string name="metric_chip_gps_accuracy">GPS 精度</string>
+    <string name="metric_chip_external_gps_battery">外部 GPS バッテリー</string>
     <string name="metric_chip_slope">勾配</string>
     <string name="metric_chip_ascent">上昇</string>
     <string name="metric_chip_descent">下降</string>
@@ -253,6 +254,7 @@
     <string name="metric_chip_dyn_current_limit_tile">電流制限</string>
     <string name="metric_chip_phone_battery_tile">スマホ</string>
     <string name="metric_chip_gps_accuracy_tile">GPS ±</string>
+    <string name="metric_chip_external_gps_battery_tile">GPS電池</string>
     <string name="metric_chip_odometer_tile">走行計</string>
     <string name="metric_chip_trip_max_speed_tile">最高速</string>
     <string name="metric_chip_avg_trip_speed_tile">平均速</string>
@@ -282,6 +284,7 @@
     <string name="metric_desc_regen_wh">このトリップのブレーキ中にバッテリーへ回生した総ワット時。</string>
     <string name="metric_desc_bt_rssi">ホイールへの Bluetooth 信号強度, 0 dBm に近いほど強い。</string>
     <string name="metric_desc_gps_accuracy">GPS 測位誤差半径, 低いほど正確。</string>
+    <string name="metric_desc_external_gps_battery">ペアリングした外部 GPS (RaceBox, Dragy) のバッテリー。走行中に切れる前に減りを確認できます。</string>
 
     <!-- Action labels for the dashboard layout chips -->
     <string name="action_chip_horn">ホーン</string>
@@ -773,6 +776,11 @@
     <string name="alarm_metric_pwm_voice" translatable="false">PWM</string>
     <string name="alarm_metric_voltage">電圧</string>
     <string name="alarm_metric_current">電流</string>
+    <string name="alarm_metric_gps_speed">GPS 速度</string>
+    <string name="alarm_metric_external_gps_speed">外部 GPS 速度</string>
+    <string name="alarm_metric_external_gps_battery">外部 GPS バッテリー</string>
+    <string name="alarm_metric_external_gps_speed_short">外部GPS速度</string>
+    <string name="alarm_metric_external_gps_battery_short">外部GPS電池</string>
     <string name="alarm_metric_radar_distance">車両距離</string>
     <string name="alarm_metric_radar_approach">車両接近</string>
 
@@ -1328,6 +1336,7 @@
     <string name="studio_metric_pitch">ピッチ</string>
     <string name="studio_metric_roll">ロール</string>
     <string name="studio_metric_g_force">G フォース</string>
+    <string name="studio_metric_external_gps_battery">GPS バッテリー</string>
 
     <!-- Navigator -->
     <string name="nav_open">ナビゲーターを開く</string>

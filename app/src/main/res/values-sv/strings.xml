@@ -226,6 +226,7 @@
     <string name="metric_chip_gps_speed">GPS-fart</string>
     <string name="metric_chip_gps_heading">Kurs</string>
     <string name="metric_chip_gps_accuracy">GPS-precision</string>
+    <string name="metric_chip_external_gps_battery">Externt GPS-batteri</string>
     <string name="metric_chip_slope">Lutning</string>
     <string name="metric_chip_ascent">Stigning</string>
     <string name="metric_chip_descent">Nedförsbacke</string>
@@ -253,6 +254,7 @@
     <string name="metric_chip_dyn_current_limit_tile">A limit</string>
     <string name="metric_chip_phone_battery_tile">Tel</string>
     <string name="metric_chip_gps_accuracy_tile">GPS ±</string>
+    <string name="metric_chip_external_gps_battery_tile">GPS-bat</string>
     <string name="metric_chip_odometer_tile">Odo</string>
     <string name="metric_chip_trip_max_speed_tile">Max sp</string>
     <string name="metric_chip_avg_trip_speed_tile">Avg sp</string>
@@ -282,6 +284,7 @@
     <string name="metric_desc_regen_wh">Totalt antal wattimmar tillbaka till batteriet vid bromsning under turen.</string>
     <string name="metric_desc_bt_rssi">Bluetooth-signalstyrka mot hjulet, närmare 0 dBm är starkare.</string>
     <string name="metric_desc_gps_accuracy">GPS-positionsfelsradie, lägre är mer exakt.</string>
+    <string name="metric_desc_external_gps_battery">Batteri i den parkopplade externa GPS:en (RaceBox, Dragy), så att du ser det sjunka innan det dör mitt i turen.</string>
 
     <!-- Action labels for the dashboard layout chips -->
     <string name="action_chip_horn">Tuta</string>
@@ -772,6 +775,11 @@
     <string name="alarm_metric_pwm_voice" translatable="false">PWM</string>
     <string name="alarm_metric_voltage">Spänning</string>
     <string name="alarm_metric_current">Ström</string>
+    <string name="alarm_metric_gps_speed">GPS-hastighet</string>
+    <string name="alarm_metric_external_gps_speed">Extern GPS-hastighet</string>
+    <string name="alarm_metric_external_gps_battery">Externt GPS-batteri</string>
+    <string name="alarm_metric_external_gps_speed_short">Ext GPS-hast.</string>
+    <string name="alarm_metric_external_gps_battery_short">Ext GPS-bat.</string>
     <string name="alarm_metric_radar_distance">Bilavstånd</string>
     <string name="alarm_metric_radar_approach">Bil närmar sig</string>
 
@@ -1327,6 +1335,7 @@
     <string name="studio_metric_pitch">Pitch</string>
     <string name="studio_metric_roll">Roll</string>
     <string name="studio_metric_g_force">G-Force</string>
+    <string name="studio_metric_external_gps_battery">GPS-batteri</string>
 
     <!-- Navigator -->
     <string name="nav_open">Öppna navigatorn</string>

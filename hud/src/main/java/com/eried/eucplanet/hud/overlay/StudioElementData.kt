@@ -58,6 +58,7 @@ data class StudioElementData(
                 rollAngle = hud.wheelRollDeg,
                 latitude = hud.latitude,
                 longitude = hud.longitude,
+                externalGpsBatteryPercent = hud.externalGpsBatteryPercent,
                 lightOn = hud.lightOn,
                 timestamp = hud.timestampMs.takeIf { it > 0L } ?: System.currentTimeMillis()
             )
