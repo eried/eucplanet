@@ -651,12 +651,19 @@ class BleConnectionManager @Inject constructor(
                 }
             }
 
-            rxCharacteristic = service.getCharacteristic(profile.writeCharacteristic)
+            // The write characteristic may live under a different service than
+            // the notify one. InMotion V1 splits them (notify 0xFFE4 under
+            // 0xFFE0, write 0xFFE9 under 0xFFE5); every other family keeps both
+            // on one service, so effectiveWriteServiceUuid == serviceUuid there.
+            val writeService = gatt.getService(profile.effectiveWriteServiceUuid)
+            rxCharacteristic = writeService?.getCharacteristic(profile.writeCharacteristic)
             val txCharacteristic = service.getCharacteristic(profile.notifyCharacteristic)
 
             if (rxCharacteristic == null || txCharacteristic == null) {
                 failConnectAndTeardown(gatt,
-                    "Adapter characteristics not found on service ${profile.serviceUuid}")
+                    "Adapter characteristics not found (write ${profile.writeCharacteristic} on " +
+                        "service ${profile.effectiveWriteServiceUuid}, notify ${profile.notifyCharacteristic} " +
+                        "on service ${profile.serviceUuid})")
                 return
             }
 
