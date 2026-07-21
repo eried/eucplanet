@@ -112,6 +112,7 @@ import androidx.compose.material.icons.filled.SkipPrevious
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Extension
 import androidx.compose.material.icons.filled.GraphicEq
+import androidx.compose.material.icons.filled.FolderOpen
 import androidx.compose.material.icons.filled.MoreHoriz
 import androidx.compose.material.icons.filled.Motorcycle
 import androidx.compose.material.icons.filled.Watch
@@ -8525,8 +8526,13 @@ private fun EngineSoundSection(
         // Resolve the active profile so unsupported rows (e.g. decel pops on a diesel
         // or muffler LPF on any sampled engine, since MediaPlayer has no filter point)
         // are hidden from the UI. EngineProfile carries the per-engine support booleans.
-        val currentProfile = remember(settings.engineType) {
-            com.eried.eucplanet.audio.EngineProfile.byKey(settings.engineType)
+        val currentProfile = remember(settings.engineType, settings.engineCustomSounds, settings.engineCustomModulatePitch) {
+            if (settings.engineType == com.eried.eucplanet.audio.EngineProfile.CUSTOM_KEY)
+                com.eried.eucplanet.audio.CustomEngineSounds.buildProfile(
+                    com.eried.eucplanet.audio.CustomEngineSounds.parseSlots(settings.engineCustomSounds),
+                    settings.engineCustomModulatePitch
+                )
+            else com.eried.eucplanet.audio.EngineProfile.byKey(settings.engineType)
         }
 
         // Engine volume is now a 4-point speed curve, no fixed slider. Drag a finger on
@@ -8678,10 +8684,12 @@ private fun EngineTypePicker(
     var expanded by remember { mutableStateOf(false) }
 
     val currentProfile = profiles.firstOrNull { it.key == currentKey }
-    val sourceLabel = if (currentProfile?.sampleAssetBase != null)
-        stringResource(R.string.engine_source_sampled)
-    else
-        stringResource(R.string.engine_source_synth)
+    val isCustomKey = currentKey == com.eried.eucplanet.audio.EngineProfile.CUSTOM_KEY
+    val sourceLabel = when {
+        isCustomKey -> stringResource(R.string.engine_source_custom)
+        currentProfile?.sampleAssetBase != null -> stringResource(R.string.engine_source_sampled)
+        else -> stringResource(R.string.engine_source_synth)
+    }
 
     Column(modifier = Modifier.padding(vertical = 4.dp)) {
         Row(verticalAlignment = Alignment.CenterVertically) {
@@ -8704,7 +8712,7 @@ private fun EngineTypePicker(
             // Source icon: Album (vinyl) = sampled / analog. Equalizer (bars) = synth / digital.
             // Sits on the LEFT of the engine name so two presets that share a name
             // (e.g. "Tractor" Synth vs "Tractor" Sampled) are visually distinct at a glance.
-            val isSampled = currentProfile?.sampleAssetBase != null
+            val isSampled = currentProfile?.sampleAssetBase != null || isCustomKey
             OutlinedTextField(
                 value = displayFor(currentKey),
                 onValueChange = {},
@@ -8785,6 +8793,35 @@ private fun EngineTypePicker(
                         }
                     )
                 }
+                DropdownMenuItem(
+                    leadingIcon = {
+                        Icon(
+                            imageVector = Icons.Filled.FolderOpen,
+                            contentDescription = null,
+                            modifier = Modifier.size(18.dp),
+                            tint = MaterialTheme.colorScheme.primary
+                        )
+                    },
+                    text = {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Text(
+                                stringResource(R.string.engine_preset_custom),
+                                modifier = Modifier.weight(1f),
+                                color = MaterialTheme.colorScheme.primary
+                            )
+                            Spacer(Modifier.width(8.dp))
+                            Text(
+                                stringResource(R.string.engine_source_custom),
+                                style = MaterialTheme.typography.labelSmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                    },
+                    onClick = {
+                        onSelect(com.eried.eucplanet.audio.EngineProfile.CUSTOM_KEY)
+                        expanded = false
+                    }
+                )
             }
         }
     }
