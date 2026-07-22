@@ -15,6 +15,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -22,7 +23,10 @@ import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import java.net.DatagramPacket
 import java.net.DatagramSocket
+import java.net.Inet4Address
 import java.net.InetSocketAddress
+import java.net.NetworkInterface
+import java.net.SocketTimeoutException
 
 /**
  * Listens for the HUD's UDP discovery beacon on [HudDiscovery.BEACON_UDP_PORT]
@@ -41,6 +45,16 @@ import java.net.InetSocketAddress
  * triggered from settings) don't collide. SO_BROADCAST is also set so
  * directed-broadcast packets aren't filtered out before they reach our
  * recv buffer.
+ *
+ * Late-interface robustness: a socket bound to 0.0.0.0 BEFORE an interface
+ * exists can stay deaf to broadcasts that later arrive on it, and the phone's
+ * OWN softAP hotspot is never surfaced as an INTERNET+WIFI network, so the
+ * connectivity callback below never fires when the rider enables the hotspot.
+ * That was the "hotspot turned on late -> HUD never discovered, times out"
+ * report. To cover it, the receive loop wakes every [REBIND_POLL_MS] and
+ * rebinds (re-taking the multicast lock) whenever the phone's set of IPv4
+ * interfaces changes, so a hotspot enabled after start is picked up within a
+ * couple of seconds.
  *
  * Lifecycle: start() launches the receive loop; stop() cancels it. The
  * loop self-recovers from any unexpected socket exception by closing and
@@ -62,15 +76,22 @@ class HudUdpListener @Inject constructor(
     private var multicastLock: WifiManager.MulticastLock? = null
     private var networkCallback: ConnectivityManager.NetworkCallback? = null
 
+    /** Set by the connectivity callback (home Wi-Fi (re)joined) so the receive
+     *  loop rebinds promptly instead of waiting for the interface-set poll. */
+    @Volatile private var forceRebind = false
+
     /** Diagnostic counters surfaced on the HUD-settings status panel so the
      *  rider can see whether broadcasts are arriving at all. */
     @Volatile var totalReceived: Long = 0L; private set
     @Volatile var lastReceiveAtMs: Long = 0L; private set
     @Volatile var lastBindError: String = ""; private set
+    /** How many times the listener has rebound after an interface-set change.
+     *  A non-zero value on the "hotspot turned on late" flow is the signal
+     *  that the late-interface recovery actually kicked in. */
+    @Volatile var rebinds: Long = 0L; private set
 
     fun start() {
         if (job != null) return
-        acquireMulticastLock()
         watchNetworkChanges()
         job = scope.launch {
             while (isActive) {
@@ -97,8 +118,9 @@ class HudUdpListener @Inject constructor(
     /**
      * Many Android WiFi drivers silently drop inbound *broadcast* (yes,
      * broadcast, not just multicast) unless a `MulticastLock` is held.
-     * The lock is reference-counted and cheap; we acquire it for the
-     * lifetime of the listener and release on stop.
+     * The lock is cheap; we hold it for the lifetime of each socket bind
+     * and re-take it on every rebind (see [refreshMulticastLock]) so a
+     * softAP / interface transition re-applies the driver flag.
      */
     private fun acquireMulticastLock() {
         if (multicastLock != null) return
@@ -119,11 +141,19 @@ class HudUdpListener @Inject constructor(
         multicastLock = null
     }
 
+    /** Release + re-acquire so the driver's "pass broadcast to userspace" flag
+     *  is re-applied for the interface set we're about to bind against. */
+    private fun refreshMulticastLock() {
+        releaseMulticastLock()
+        acquireMulticastLock()
+    }
+
     /**
      * Watch for WiFi connection state changes so a rider's mid-session
-     * reconnect (hotspot toggle, AP switch) kicks the listener cleanly.
-     * Without this the bound socket can survive a network change in a
-     * silently-broken state.
+     * reconnect (AP switch, home Wi-Fi rejoin) rebinds the listener cleanly.
+     * Note this only ever fires for INTERNET-capable Wi-Fi (the phone's STA);
+     * the phone's own softAP hotspot is NOT such a network, which is exactly
+     * why the receive loop ALSO polls the interface set (see [runListenLoop]).
      */
     private fun watchNetworkChanges() {
         runCatching {
@@ -135,15 +165,8 @@ class HudUdpListener @Inject constructor(
                 .build()
             val cb = object : ConnectivityManager.NetworkCallback() {
                 override fun onAvailable(network: Network) {
-                    Log.i(TAG, "wifi available; recycling listener")
-                    job?.cancel()
-                    job = scope.launch {
-                        kotlinx.coroutines.delay(250L) // let socket fully release
-                        while (isActive) {
-                            runCatching { runListenLoop() }
-                            kotlinx.coroutines.delay(1_000L)
-                        }
-                    }
+                    Log.i(TAG, "wifi available; requesting listener rebind")
+                    forceRebind = true
                 }
                 override fun onLost(network: Network) {
                     Log.i(TAG, "wifi lost")
@@ -164,18 +187,42 @@ class HudUdpListener @Inject constructor(
         networkCallback = null
     }
 
-    private fun runListenLoop() {
+    private suspend fun runListenLoop() {
+        refreshMulticastLock()
+        val boundSig = localIfaceSignature()
+        forceRebind = false
         DatagramSocket(null).use { socket ->
             socket.reuseAddress = true
             socket.broadcast = true
-            socket.soTimeout = 0
+            // Non-zero timeout so receive() wakes periodically. That lets us
+            // (a) rebind when the interface set changes -- the rider enabling
+            // the hotspot adds the softAP interface a 0.0.0.0 socket bound
+            // earlier can't hear -- and (b) exit promptly on cancellation
+            // instead of parking forever in a blocking receive().
+            socket.soTimeout = REBIND_POLL_MS
             socket.bind(InetSocketAddress(port))
             lastBindError = ""
-            Log.i(TAG, "listening on 0.0.0.0:$port")
+            Log.i(TAG, "listening on 0.0.0.0:$port (ifaces=[$boundSig])")
             val buf = ByteArray(512)
-            while (job?.isCancelled == false) {
+            while (currentCoroutineContext().isActive) {
                 val packet = DatagramPacket(buf, buf.size)
-                socket.receive(packet) // blocks
+                try {
+                    socket.receive(packet) // blocks up to REBIND_POLL_MS
+                } catch (_: SocketTimeoutException) {
+                    val nowSig = localIfaceSignature()
+                    if (forceRebind || nowSig != boundSig) {
+                        Log.i(TAG, "rebinding listener (ifaces [$boundSig] -> [$nowSig], forced=$forceRebind)")
+                        // Route through the shareable diagnostics so a rider's
+                        // Service Mode capture shows the late-interface recovery
+                        // firing (e.g. after enabling the hotspot).
+                        com.eried.eucplanet.diagnostics.DiagnosticsLogger.note(
+                            "hud_udp: interface change, rebinding listener ([$boundSig] -> [$nowSig])"
+                        )
+                        rebinds++
+                        return
+                    }
+                    continue
+                }
                 val text = String(packet.data, 0, packet.length, Charsets.US_ASCII).trim()
                 val srcIp = packet.address.hostAddress.orEmpty()
                 parse(text, srcIp)?.let {
@@ -187,6 +234,20 @@ class HudUdpListener @Inject constructor(
             }
         }
     }
+
+    /** Stable fingerprint of the phone's current up, non-loopback IPv4
+     *  interface addresses. A change means an interface came up or went away
+     *  (e.g. the rider toggled the hotspot) so the listener should rebind. */
+    private fun localIfaceSignature(): String = runCatching {
+        NetworkInterface.getNetworkInterfaces().asSequence()
+            .filter { it.isUp && !it.isLoopback }
+            .flatMap { it.inetAddresses.asSequence() }
+            .filterIsInstance<Inet4Address>()
+            .filter { !it.isLoopbackAddress && !it.isAnyLocalAddress }
+            .mapNotNull { it.hostAddress }
+            .sorted()
+            .joinToString(",")
+    }.getOrDefault("")
 
     /**
      * Beacon text: `EUCPLANET-HUD v1 ip=10.80.67.125 port=28080 [...]`.
@@ -213,5 +274,9 @@ class HudUdpListener @Inject constructor(
     companion object {
         private const val TAG = "HudUdpListener"
         private const val LOCK_TAG = "eucplanet-hud-udp-listener"
+        // How often receive() wakes to check for an interface-set change and to
+        // honour cancellation. 2 s keeps a late hotspot's discovery latency low
+        // without waking the CPU often enough to matter for battery.
+        private const val REBIND_POLL_MS = 2_000
     }
 }
