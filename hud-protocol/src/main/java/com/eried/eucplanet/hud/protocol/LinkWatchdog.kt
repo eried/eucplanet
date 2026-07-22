@@ -20,27 +20,33 @@ package com.eried.eucplanet.hud.protocol
 object LinkWatchdog {
 
     /** How long an associated HUD may go with ZERO phone contact before the
-     *  association itself is suspect ([LinkVerdict.STARVED]). A searching
-     *  phone runs a full discovery cycle (subnet TCP probe + mDNS + beacon
-     *  listen) every ~20 s, and a reconnect on the right network completes
-     *  within one cycle -- so one whole cycle of silence after a pairing
-     *  means we are almost certainly associated to the WRONG network (the
-     *  2026-07-08 tester log: WiFi-sharing bounce left the HUD "healthy" on
-     *  another subnet while the phone probed forever). */
-    const val STARVED_AFTER_MS: Long = 20_000L
+     *  association itself is suspect ([LinkVerdict.STARVED]). A phone on the
+     *  RIGHT network reconnects fast -- it dials the last-known HUD IP directly
+     *  at t=0 and its subnet probe returns on first hit -- so it re-attaches
+     *  within a few seconds. 12 s of total silence after a pairing therefore
+     *  reliably means we are on the WRONG network (the 2026-07-08 tester log:
+     *  WiFi-sharing bounce left the HUD "healthy" on another subnet while the
+     *  phone probed forever). Tightened 20 s -> 12 s to detect the bounce
+     *  sooner; the fast-reconnect changes keep this clear of false positives
+     *  (a live phone re-attaches well inside the window and resets the clock). */
+    const val STARVED_AFTER_MS: Long = 12_000L
 
     /** Boot / app-restart grace: with no link yet THIS process but a
      *  persisted recent pairing, leave the initial association to the OS for
      *  this long before arming recovery. Protects the first-boot join (the
      *  old churn bug) while still un-parking a HUD whose app was restarted
-     *  mid-outage -- previously that parked recovery forever. */
-    const val RESTART_BOOT_GRACE_MS: Long = 60_000L
+     *  mid-outage -- previously that parked recovery forever. 60 s -> 30 s so a
+     *  restart during an outage self-heals twice as fast; 30 s is still ample
+     *  for a normal cold join to complete on its own. */
+    const val RESTART_BOOT_GRACE_MS: Long = 30_000L
 
     /** Minimum gap between starved-recovery rungs. Starved means the radio is
-     *  nominally associated, so recovery must pace itself: each rung needs
-     *  time to take effect, and a rider who simply quit the phone app should
-     *  see a gentle retry, not a WiFi toggle every watchdog tick. */
-    const val STARVED_RETRY_MS: Long = 20_000L
+     *  nominally associated, so recovery still paces itself: each rung (a WiFi
+     *  toggle or reassociate) needs time to complete before the next. 10 s is
+     *  about one toggle+DHCP cycle -- tightened 20 s -> 10 s so the wrong-
+     *  network case re-picks the hotspot roughly twice as fast, without firing
+     *  a fresh toggle before the last one has taken effect. */
+    const val STARVED_RETRY_MS: Long = 10_000L
 
     /**
      * Classify the link from one tick's worth of signals, judged ONLY from the

@@ -540,9 +540,11 @@ class HudServer(private val context: Context) {
         // delay() is a cancellation point, so the parent watchdogJob cancel
         // unwinds the loop without an explicit isActive check.
         while (true) {
-            // Cadence: lazy when healthy, brisk while we suspect or repair an
-            // off-air radio so the ladder escalates in seconds, not tens of them.
-            val interval = if (offAirStreak > 0 || watchdogFailStreak > 0)
+            // Cadence: lazy when healthy, brisk while we suspect or repair a
+            // link problem so the ladder escalates in seconds, not tens of them.
+            // offAirSinceMs != 0L covers the STARVED (wrong-network) episode too,
+            // which previously ticked at the lazy interval and recovered slowly.
+            val interval = if (offAirStreak > 0 || watchdogFailStreak > 0 || offAirSinceMs != 0L)
                 RECOVERY_INTERVAL_MS else WATCHDOG_INTERVAL_MS
             delay(interval)
             // Re-assert the power locks (idempotent) each tick.
