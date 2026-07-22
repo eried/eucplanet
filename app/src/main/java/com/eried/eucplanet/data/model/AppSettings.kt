@@ -956,7 +956,7 @@ data class AdvancedSettings(
     // Delay before the last-resort subnet scan starts, so mDNS and the UDP
     // beacon can answer first without the scan's connection flood congesting
     // the Wi-Fi radio (which was slowing mDNS discovery).
-    val hudSubnetProbeDelayMs: Int = 2500,
+    val hudSubnetProbeDelayMs: Int = 1200,
     val autoLightNoGpsRetryMs: Int = 2000,
     val autoToggleGraceMs: Int = 4000,
     val navMovingKmh: Int = 4,

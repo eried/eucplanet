@@ -704,6 +704,20 @@ class HudServer @Inject constructor(
             kotlinx.coroutines.channels.Channel.UNLIMITED
         )
 
+        // Fast path: dial the HUD we last connected to, at t=0, no delay. On a
+        // warm reconnect it's almost always still at the same IP, so a single
+        // quick TCP check wins the race in well under a second - before the
+        // beacon, mDNS or subnet scan even start. Validated (not blindly sent)
+        // so a stale cached IP costs ~250 ms instead of a failed WS handshake.
+        val directJob = lastGoodPeerIp?.takeIf { it.isNotBlank() }?.let { cachedIp ->
+            launch {
+                if (subnetProbe.reachable(cachedIp, manualPort)) {
+                    log("Last known HUD: $cachedIp:$manualPort")
+                    results.send("$cachedIp:$manualPort" to ConnectionSource.SUBNET_PROBE)
+                }
+            }
+        }
+
         val udpJob = launch {
             // Check the listener's cache repeatedly so a freshly-arrived
             // beacon shows up within ~200 ms instead of waiting for the
@@ -766,7 +780,7 @@ class HudServer @Inject constructor(
             }
         } else null
 
-        val allJobs = listOfNotNull(udpJob, mdnsJob, probeJob, manualJob)
+        val allJobs = listOfNotNull(directJob, udpJob, mdnsJob, probeJob, manualJob)
         val winner = kotlinx.coroutines.withTimeoutOrNull(discoveryTotalTimeoutMs) {
             results.receive()
         }

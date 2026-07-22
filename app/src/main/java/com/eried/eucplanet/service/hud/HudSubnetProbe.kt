@@ -6,10 +6,11 @@ import android.net.LinkAddress
 import android.util.Log
 import com.eried.eucplanet.hud.protocol.HudDiscovery
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.joinAll
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Semaphore
 import kotlinx.coroutines.sync.withPermit
 import kotlinx.coroutines.withContext
@@ -64,17 +65,10 @@ class HudSubnetProbe @Inject constructor(
         val candidates = cidrs.flatMap { expandSubnetIpv4(it) ?: emptyList() }.distinct()
         if (candidates.isEmpty()) return@withContext null
         Log.i(TAG, "probing ${candidates.size} hosts across ${cidrs.size} subnet(s) $cidrs:$port")
-        // Bound the in-flight connects so the scan doesn't flood the Wi-Fi radio
-        // and starve mDNS discovery running in parallel.
-        val gate = Semaphore(MAX_CONCURRENT)
-        coroutineScope {
-            val results = candidates.map { ip ->
-                async {
-                    gate.withPermit { if (tryTcp(ip, port, timeoutMs = 250)) ip else null }
-                }
-            }.awaitAll()
-            results.firstOrNull { it != null }
-        }
+        // Bounded fan-out, but return on the FIRST responder and cancel the rest
+        // instead of waiting for all ~500 connects to finish (that cost ~1-2 s
+        // after the HUD had already answered).
+        raceToFirstHit(candidates, MAX_CONCURRENT) { ip -> tryTcp(ip, port, timeoutMs = 250) }
     }
 
     /**
@@ -151,6 +145,12 @@ class HudSubnetProbe @Inject constructor(
             .map { "$a.$b.$c.$it" }
     }
 
+    /** One quick TCP check of a single host:port. Used to validate a cached
+     *  last-known HUD IP before dialing it, so a stale cache costs ~250 ms
+     *  (one connect), not a failed WebSocket handshake. */
+    suspend fun reachable(host: String, port: Int, timeoutMs: Int = 250): Boolean =
+        withContext(Dispatchers.IO) { tryTcp(host, port, timeoutMs) }
+
     private fun tryTcp(host: String, port: Int, timeoutMs: Int): Boolean {
         return runCatching {
             Socket().use { sock ->
@@ -180,5 +180,36 @@ class HudSubnetProbe @Inject constructor(
         // Max simultaneous TCP connects. High enough to sweep a /24 in ~1 s,
         // low enough to leave the radio free for the parallel mDNS browse.
         private const val MAX_CONCURRENT = 64
+
+        /**
+         * Run [probe] over [candidates] with at most [concurrency] connects in
+         * flight and return the FIRST that answers true, cancelling the rest
+         * immediately. Returns null only once every candidate has been tried
+         * with no hit. Independent of the socket code (via the [probe] lambda)
+         * so the first-hit / cancellation behaviour is unit-testable with a fake.
+         */
+        internal suspend fun raceToFirstHit(
+            candidates: List<String>,
+            concurrency: Int,
+            probe: suspend (String) -> Boolean,
+        ): String? = coroutineScope {
+            val gate = Semaphore(concurrency)
+            val found = CompletableDeferred<String?>()
+            val jobs = candidates.map { ip ->
+                launch {
+                    gate.withPermit {
+                        // Skip the connect entirely once someone has already won.
+                        if (found.isActive && probe(ip)) found.complete(ip)
+                    }
+                }
+            }
+            // Resolve null if every probe finishes without a hit (no-op if a hit
+            // already completed it).
+            val sentinel = launch { jobs.joinAll(); found.complete(null) }
+            val result = found.await()
+            jobs.forEach { it.cancel() }
+            sentinel.cancel()
+            result
+        }
     }
 }
