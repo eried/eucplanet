@@ -99,6 +99,16 @@ class HudServer(private val context: Context) {
          *  rungs still need the off-air state to persist across ticks, so there
          *  is no churn risk -- but recovery starts a tick sooner. */
         private const val OFF_AIR_GRACE_TICKS: Int = 0
+        /** SharedPreferences file/key persisting the wall clock of the last
+         *  phone link. Survives app restarts so recovery can still arm when
+         *  the rider kills and reopens the HUD app mid-outage (previously that
+         *  reset the gate and parked self-heal forever). */
+        private const val LINK_PREFS = "hud_link_watchdog"
+        private const val PREF_LAST_LINK_WALL_MS = "last_link_wall_ms"
+        /** How recent the persisted pairing must be to arm recovery after a
+         *  restart. A day covers "riding today"; a HUD unused for longer
+         *  behaves like a fresh install (quiet while the OS joins). */
+        private const val PERSISTED_LINK_FRESH_MS = 24L * 60 * 60 * 1000
     }
 
     /** Connection state surfaced to the UI status banner. */
@@ -207,6 +217,25 @@ class HudServer(private val context: Context) {
      *  radio and block the first connection); we only recover from a LATER drop
      *  out of a working state. */
     @Volatile private var everHealthyWithIp: Boolean = false
+    /** Monotonic timestamp of the last phone contact this process: a WebSocket
+     *  attach/detach or ANY inbound HTTP call (a dial is a WS upgrade, so even
+     *  a failed handshake counts). 0 = no phone yet this process. Feeds the
+     *  starvation clock in [LinkHealth.msSinceLastPhoneContact]. */
+    @Volatile private var lastPhoneContactElapsedMs: Long = 0L
+    /** Monotonic timestamp of this server instance's [doStart]. */
+    @Volatile private var serverStartElapsedMs: Long = 0L
+    /** A phone was paired within [PERSISTED_LINK_FRESH_MS], per prefs. Read at
+     *  start, set true on every link. Arms recovery across app restarts. */
+    @Volatile private var persistedRecentLink: Boolean = false
+    /** Wall clock of the last starved-recovery rung; paces the starved ladder
+     *  to one rung per [LinkWatchdog.STARVED_RETRY_MS]. */
+    @Volatile private var lastStarvedActionMs: Long = 0L
+    /** Consecutive starved-recovery rungs this episode (ladder index). */
+    @Volatile private var starvedAttempt: Int = 0
+    /** Rider-facing one-liner shown by the disconnect chrome while self-heal
+     *  is working (null = nothing to report). */
+    private val _recoveryStatus = MutableStateFlow<String?>(null)
+    val recoveryStatus: StateFlow<String?> = _recoveryStatus.asStateFlow()
     /** Monotonic connection counter so a stale, slowly-timing-out WebSocket
      *  handler doesn't clobber the status/peer of a newer connection that
      *  arrived during a fast reconnect. */
@@ -240,7 +269,20 @@ class HudServer(private val context: Context) {
         acquireWakeLock()
         acquireWifiLock()
         _localIp.value = pickLocalIp()
+        serverStartElapsedMs = android.os.SystemClock.elapsedRealtime()
+        persistedRecentLink = runCatching {
+            val last = context.getSharedPreferences(LINK_PREFS, Context.MODE_PRIVATE)
+                .getLong(PREF_LAST_LINK_WALL_MS, 0L)
+            last != 0L && System.currentTimeMillis() - last <= PERSISTED_LINK_FRESH_MS
+        }.getOrDefault(false)
         val s = embeddedServer(CIO, port = PORT, host = "0.0.0.0") {
+            // Any inbound HTTP call is phone contact (the dial is a WebSocket
+            // upgrade, i.e. an HTTP request), so even a handshake that fails
+            // resets the starvation clock -- a reachable phone must never
+            // look "starved" and trigger the WiFi ladder.
+            intercept(io.ktor.server.application.ApplicationCallPipeline.Setup) {
+                notePhoneContact()
+            }
             install(WebSockets) {
                 // Heartbeat: phone or HUD network can go away silently. On the
                 // local hotspot link (sub-10ms RTT) we can afford an aggressive
@@ -265,6 +307,11 @@ class HudServer(private val context: Context) {
                     Log.i(TAG, "phone connected: $remote (#$myConn)")
                     _peer.value = remote
                     _status.value = Status.CONNECTED
+                    notePhoneContact()
+                    starvedAttempt = 0
+                    lastStarvedActionMs = 0L
+                    _recoveryStatus.value = null
+                    persistLinkSeen()
                     // Diagnostic: remember the phone IP across reconnects
                     // so the HUD-side stats card can show "last phone: X"
                     // even after the link drops.
@@ -355,6 +402,10 @@ class HudServer(private val context: Context) {
                         Log.i(TAG, "phone disconnected: $remote (#$myConn, $endReason)")
                         lastEndReason = endReason
                         lastDisconnectMs = System.currentTimeMillis()
+                        // The disconnect itself is contact: the starvation
+                        // clock starts HERE, not at the last frame.
+                        notePhoneContact()
+                        persistLinkSeen()
                         // Only surrender the connection state if no newer
                         // connection has taken over since we opened. Otherwise
                         // a slow-timing-out stale handler would wrongly flip the
@@ -504,7 +555,8 @@ class HudServer(private val context: Context) {
             HudDiag.log("watchdog",
                 "verdict=$verdict ip=${health.localIp ?: "-"} assoc=${health.associated} " +
                     "server=${health.serverAlive} offAirStreak=$offAirStreak " +
-                    "everHealthy=$everHealthyWithIp status=${_status.value}")
+                    "everHealthy=$everHealthyWithIp status=${_status.value} " +
+                    "sinceContact=${health.msSinceLastPhoneContact ?: "-"}ms")
 
             when (verdict) {
                 LinkVerdict.HEALTHY -> {
@@ -516,7 +568,41 @@ class HudServer(private val context: Context) {
                     // recovering. Until this is set we leave initial association
                     // to the OS (see the OFF_AIR branch).
                     everHealthyWithIp = true
+                    _recoveryStatus.value = null
                     refreshIpAndMdns()
+                }
+
+                LinkVerdict.STARVED -> {
+                    // Associated with an IP, but a paired phone has been
+                    // totally silent past the starvation window: almost
+                    // certainly on the WRONG network (hotspot bounce latched
+                    // another SSID -- the 2026-07-08 tester log). Climb the
+                    // same ladder as off-air, but paced: the radio is
+                    // nominally fine, so each rung gets time to act and a
+                    // rider who simply quit the phone app sees a gentle
+                    // retry, not a toggle per tick.
+                    watchdogFailStreak = 0
+                    offAirStreak = 0
+                    // Radio was associated with an IP here, so the off-air
+                    // that follows our own toggle must be allowed to climb
+                    // the aggressive ladder even if this process never had a
+                    // healthy link (app-restart-mid-outage case).
+                    everHealthyWithIp = true
+                    if (offAirSinceMs == 0L) beginOffAirEpisode(health)
+                    refreshIpAndMdns()
+                    val nowWall = System.currentTimeMillis()
+                    if (nowWall - lastStarvedActionMs >= LinkWatchdog.STARVED_RETRY_MS) {
+                        lastStarvedActionMs = nowWall
+                        val step = LinkWatchdog.starvedStepFor(starvedAttempt)
+                        starvedAttempt++
+                        _recoveryStatus.value = context.getString(
+                            com.eried.eucplanet.hud.R.string.hud_recovery_rejoining,
+                            starvedAttempt)
+                        HudDiag.log("recovery",
+                            "phone-starved ${airGapSeconds()}s (associated but zero " +
+                                "phone contact); attempt #$starvedAttempt -> $step")
+                        executeRecovery(step)
+                    }
                 }
 
                 LinkVerdict.SERVER_WEDGED -> {
@@ -542,17 +628,23 @@ class HudServer(private val context: Context) {
 
                 LinkVerdict.OFF_AIR -> {
                     watchdogFailStreak = 0
-                    if (!everHealthyWithIp) {
+                    if (!LinkWatchdog.recoveryArmed(
+                            everHealthyWithIp, persistedRecentLink, health.msSinceStart)) {
                         // First-connection / boot association: the OS supplicant
                         // is still doing the initial join (or the rider hasn't
                         // enabled the hotspot yet). Do NOT toggle/reassociate here
                         // -- that churns the radio and BLOCKS the first connection
                         // (a tester saw the HUD reboot its WiFi over and over on
                         // boot until the phone woke). Just wait for the OS.
+                        // Arming: a healthy link this process, OR a persisted
+                        // recent pairing once the boot grace passes -- so an app
+                        // restart mid-outage no longer parks recovery forever.
                         offAirStreak = 0
                         HudDiag.log("watchdog",
                             "off-air before first healthy link; leaving initial " +
-                                "association to the OS (no recovery yet)")
+                                "association to the OS (recovery arms in " +
+                                "${(LinkWatchdog.RESTART_BOOT_GRACE_MS - health.msSinceStart) / 1000}s " +
+                                "if a recent pairing is on record: $persistedRecentLink)")
                     } else {
                         if (offAirSinceMs == 0L) beginOffAirEpisode(health)
                         offAirStreak++
@@ -582,11 +674,31 @@ class HudServer(private val context: Context) {
         val serverAlive = tcpProbe("127.0.0.1", PORT)
         val localIp = pickLocalIp()
         val associated = if (connectedNow) true else readAssociated()
+        val nowEl = android.os.SystemClock.elapsedRealtime()
         return LinkHealth(
             serverAlive = serverAlive,
             associated = associated,
             localIp = localIp,
+            msSinceLastPhoneContact =
+                if (lastPhoneContactElapsedMs == 0L) null
+                else nowEl - lastPhoneContactElapsedMs,
+            persistedRecentLink = persistedRecentLink,
+            msSinceStart = nowEl - serverStartElapsedMs,
         )
+    }
+
+    /** Bump the starvation clock: a phone touched us somehow just now. */
+    private fun notePhoneContact() {
+        lastPhoneContactElapsedMs = android.os.SystemClock.elapsedRealtime()
+    }
+
+    /** Persist "a phone linked just now" so recovery arms across restarts. */
+    private fun persistLinkSeen() {
+        persistedRecentLink = true
+        runCatching {
+            context.getSharedPreferences(LINK_PREFS, Context.MODE_PRIVATE).edit()
+                .putLong(PREF_LAST_LINK_WALL_MS, System.currentTimeMillis()).apply()
+        }
     }
 
     /** True when `wlan0` reports a completed association with a real DHCP
@@ -649,6 +761,9 @@ class HudServer(private val context: Context) {
         HudDiag.log("recovery", "BACK ON AIR: $note")
         HudDiag.setRecoveryNote(note)
         offAirSinceMs = 0L
+        starvedAttempt = 0
+        lastStarvedActionMs = 0L
+        _recoveryStatus.value = null
     }
 
     /** Climb one rung of the off-air recovery ladder. Best-effort; every step

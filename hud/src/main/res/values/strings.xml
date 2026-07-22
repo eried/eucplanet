@@ -36,6 +36,7 @@
     <string name="hud_status_ip_unknown">no wifi</string>
     <string name="hud_disconnected_title">Phone disconnected</string>
     <string name="hud_disconnected_instructions">Type the IP and Port into EUC Planet → Settings / Integration / Motoeye HUD</string>
+    <string name="hud_recovery_rejoining">Phone unreachable. Rejoining Wi-Fi (attempt %1$d)</string>
     <string name="hud_dash_battery">Battery</string>
     <string name="hud_dash_voltage">Volts</string>
     <string name="hud_dash_pwm">PWM</string>

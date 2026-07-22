@@ -480,6 +480,9 @@
     <string name="adv_hud_mdns_resolve_desc">Affects how long to resolve a discovered HUD\'s address details. Danger: too low drops a HUD that resolves slowly.</string>
     <string name="adv_hud_subnet_delay">Subnet scan delay</string>
     <string name="adv_hud_subnet_delay_desc">Affects how long before the last-resort subnet scan starts, so mDNS and the beacon answer first without radio congestion. Danger: too low floods the radio and slows discovery.</string>
+    <string name="hud_hotspot_gone">HUD network is gone. Turn the hotspot or Wi-Fi sharing back on.</string>
+    <string name="hud_hotspot_gone_title">HUD disconnected</string>
+    <string name="hud_hotspot_channel">HUD connection alerts</string>
     <string name="adv_group_autolights">Auto-lights</string>
     <string name="adv_autolight_no_gps_retry">No-GPS retry</string>
     <string name="adv_autolight_no_gps_retry_desc">Affects how often auto-lights retry while waiting for a GPS fix.</string>
