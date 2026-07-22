@@ -8687,18 +8687,17 @@ private fun CustomEngineEditor(
     }
     fun launchPick(slot: String) { pendingSlot = slot; picker.launch(arrayOf("audio/*")) }
 
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(top = 4.dp)
-            .clip(RoundedCornerShape(16.dp))
-            .background(MaterialTheme.appColors.menuBackground)
-            .padding(vertical = 4.dp)
-    ) {
-        // Main sound (idle)
-        CustomSlotRow(
+    // Advanced mode off = one pitched clip (simple default); on = separate
+    // per-phase section clips. modulate == !advanced.
+    val advanced = !modulate
+    // Fields flow directly in the section like the Engine picker and Muffler
+    // rows, using the app's OutlinedTextField fields and a SwitchSetting.
+    Column(modifier = Modifier.fillMaxWidth().padding(top = 4.dp)) {
+        // Main sound is the idle loop (the default used for everything). In
+        // Advanced mode the "(idle)" tag clarifies where it sits among the phases.
+        CustomSlotField(
             label = stringResource(
-                if (modulate) R.string.engine_custom_slot_idle else R.string.engine_custom_slot_idle_multi
+                if (advanced) R.string.engine_custom_slot_idle_multi else R.string.engine_custom_slot_idle
             ),
             slot = com.eried.eucplanet.audio.CustomSlot.IDLE,
             uri = slots[com.eried.eucplanet.audio.CustomSlot.IDLE],
@@ -8706,37 +8705,23 @@ private fun CustomEngineEditor(
             onClear = { viewModel.updateEngineCustomSlot(com.eried.eucplanet.audio.CustomSlot.IDLE, null) },
         )
 
-        // Single file vs multi-section, using the app's segmented-choice row so
-        // it matches Muffler / Gearbox / When-parked above.
-        Box(modifier = Modifier.padding(horizontal = 14.dp)) {
-            SegmentedChoice(
-                label = stringResource(R.string.engine_custom_mode_label),
-                options = listOf(
-                    "SINGLE" to stringResource(R.string.engine_custom_mode_single),
-                    "SECTIONS" to stringResource(R.string.engine_custom_mode_sections),
-                ),
-                current = if (modulate) "SINGLE" else "SECTIONS",
-                onChange = { viewModel.updateEngineCustomModulatePitch(it == "SINGLE") },
-            )
-        }
+        Spacer(Modifier.height(10.dp))
+        SwitchSetting(
+            label = stringResource(R.string.engine_custom_advanced_mode),
+            checked = advanced,
+            onCheckedChange = { viewModel.updateEngineCustomModulatePitch(!it) },
+        )
         Text(
             stringResource(
-                if (modulate) R.string.engine_custom_mode_single_hint
-                else R.string.engine_custom_mode_sections_hint
+                if (advanced) R.string.engine_custom_mode_sections_hint
+                else R.string.engine_custom_mode_single_hint
             ),
             style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.padding(start = 14.dp, end = 14.dp, top = 2.dp, bottom = 4.dp)
+            color = MaterialTheme.colorScheme.onSurfaceVariant
         )
 
-        // Section slots (only in multi mode)
-        if (!modulate) {
-            Text(
-                stringResource(R.string.engine_custom_section_header),
-                style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.padding(start = 16.dp, top = 8.dp, bottom = 2.dp)
-            )
+        if (advanced) {
+            Spacer(Modifier.height(4.dp))
             val optional = listOf(
                 com.eried.eucplanet.audio.CustomSlot.REV to R.string.engine_custom_slot_rev,
                 com.eried.eucplanet.audio.CustomSlot.STARTUP to R.string.engine_custom_slot_startup,
@@ -8744,7 +8729,7 @@ private fun CustomEngineEditor(
                 com.eried.eucplanet.audio.CustomSlot.SHUTDOWN to R.string.engine_custom_slot_shutdown,
             )
             optional.forEach { (slot, labelRes) ->
-                CustomSlotRow(
+                CustomSlotField(
                     label = stringResource(labelRes),
                     slot = slot,
                     uri = slots[slot],
@@ -8759,8 +8744,9 @@ private fun CustomEngineEditor(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun CustomSlotRow(
+private fun CustomSlotField(
     label: String,
     slot: String,
     uri: String?,
@@ -8804,47 +8790,42 @@ private fun CustomSlotRow(
         }
     }
 
-    Column(modifier = Modifier.fillMaxWidth().padding(horizontal = 14.dp, vertical = 10.dp)) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Column(modifier = Modifier.weight(1f)) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text(label, style = MaterialTheme.typography.bodyMedium)
-                    if (required) {
-                        Spacer(Modifier.width(6.dp))
-                        Text(
-                            stringResource(R.string.engine_custom_required_tag),
-                            style = MaterialTheme.typography.labelSmall,
-                            color = MaterialTheme.colorScheme.tertiary
-                        )
+    val isMissing = status == com.eried.eucplanet.audio.SlotStatus.MISSING
+    val isRequired = status == com.eried.eucplanet.audio.SlotStatus.REQUIRED
+
+    Column(modifier = Modifier.fillMaxWidth().padding(top = 8.dp)) {
+        OutlinedTextField(
+            value = fileName ?: "",
+            onValueChange = {},
+            readOnly = true,
+            label = { Text(label) },
+            placeholder = {
+                Text(stringResource(if (required) R.string.engine_custom_no_file else R.string.engine_custom_no_file_optional))
+            },
+            trailingIcon = {
+                if (uri == null) {
+                    IconButton(onClick = onPick) {
+                        Icon(Icons.Filled.FolderOpen, contentDescription = stringResource(R.string.engine_custom_pick))
+                    }
+                } else {
+                    IconButton(onClick = onClear) {
+                        Icon(Icons.Filled.Close, contentDescription = stringResource(R.string.engine_custom_clear))
                     }
                 }
-                Text(
-                    fileName ?: stringResource(
-                        if (required) R.string.engine_custom_no_file else R.string.engine_custom_no_file_optional
-                    ),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    maxLines = 1
-                )
-            }
-            if (uri == null) {
-                OutlinedButton(onClick = onPick, shape = RoundedCornerShape(50)) {
-                    Text(stringResource(R.string.engine_custom_pick))
-                }
-            } else {
-                IconButton(onClick = onClear) {
-                    Icon(Icons.Filled.Close, contentDescription = stringResource(R.string.engine_custom_clear))
-                }
-            }
-        }
-        val chip = when (status) {
-            com.eried.eucplanet.audio.SlotStatus.OK -> stringResource(R.string.engine_custom_status_ok) to MaterialTheme.colorScheme.primary
-            com.eried.eucplanet.audio.SlotStatus.REQUIRED -> stringResource(R.string.engine_custom_status_required) to MaterialTheme.colorScheme.tertiary
-            com.eried.eucplanet.audio.SlotStatus.MISSING -> stringResource(R.string.engine_custom_status_missing) to MaterialTheme.colorScheme.error
-            com.eried.eucplanet.audio.SlotStatus.EMPTY_OPTIONAL -> null to MaterialTheme.colorScheme.onSurfaceVariant
-        }
-        chip.first?.let { text ->
-            Text(text, style = MaterialTheme.typography.labelSmall, color = chip.second, modifier = Modifier.padding(top = 4.dp))
+            },
+            // Only a broken reference is a field error; the "required" prompt is a
+            // plain info hint below (see InfoHint). A loaded file needs no message.
+            supportingText = if (isMissing) {
+                { Text(stringResource(R.string.engine_custom_status_missing), color = MaterialTheme.colorScheme.error) }
+            } else null,
+            isError = isMissing,
+            singleLine = true,
+            colors = themedFieldColors(),
+            shape = RoundedCornerShape(12.dp),
+            modifier = Modifier.fillMaxWidth()
+        )
+        if (isRequired) {
+            InfoHint(stringResource(R.string.engine_custom_status_required))
         }
     }
 }
@@ -8879,8 +8860,8 @@ private fun EngineTypePicker(
     val currentProfile = profiles.firstOrNull { it.key == currentKey }
     val isCustomKey = currentKey == com.eried.eucplanet.audio.EngineProfile.CUSTOM_KEY
     val sourceLabel = when {
-        isCustomKey -> stringResource(R.string.engine_source_custom)
-        currentProfile?.sampleAssetBase != null -> stringResource(R.string.engine_source_sampled)
+        // Custom plays the rider's sample files, so it is a sampled source.
+        isCustomKey || currentProfile?.sampleAssetBase != null -> stringResource(R.string.engine_source_sampled)
         else -> stringResource(R.string.engine_source_synth)
     }
 
@@ -9004,7 +8985,7 @@ private fun EngineTypePicker(
                             )
                             Spacer(Modifier.width(8.dp))
                             Text(
-                                stringResource(R.string.engine_source_custom),
+                                stringResource(R.string.engine_source_sampled),
                                 style = MaterialTheme.typography.labelSmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
