@@ -853,7 +853,9 @@ private const val ROUTE_BUILDER_HTML_2: String = """
         pts = [[u.lat, u.lng]].concat(pts);
       }
     }
-    if (pts.length < 2){ clearConnector(); return; }
+    // Nothing to connect (e.g. a lone stop that is too far to link to the
+    // rider). Drop the line AND its chevrons, or the arrows orphan-float.
+    if (pts.length < 2){ clearConnector(); clearRouteArrows(); return; }
     if (connector){
       connector.setLatLngs(pts);
       connector.setStyle({color: c});

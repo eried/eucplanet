@@ -1729,7 +1729,7 @@ class RouteBuilderViewModel @Inject constructor(
      * start pin isn't already the live location, the rider's current position
      * is prepended as the origin, so navigating to a single dropped pin works.
      */
-    fun startNavigation(mode: NavMode, onStarted: () -> Unit) {
+    fun startNavigation(mode: NavMode, force: Boolean = false, onStarted: () -> Unit) {
         val dests = _waypoints.value
         if (dests.isEmpty()) {
             _messages.tryEmit(R.string.nav_need_destination)
@@ -1740,13 +1740,16 @@ class RouteBuilderViewModel @Inject constructor(
             _messages.tryEmit(R.string.nav_no_location)
             return
         }
-        // Block starting when the first stop is too far to ride to now; the
-        // rider can still plan. A plain "too far away" toast, no distance.
-        val originPt = GeoPoint(loc.latitude, loc.longitude)
-        val firstStop = (dests.firstOrNull { !it.passed } ?: dests.first()).point()
-        if (!NavStartGuard.originWithinStart(originPt, firstStop, advanced.value.navMaxStartDistanceKm)) {
-            _toasts.tryEmit(context.getString(R.string.nav_too_far_to_start))
-            return
+        // Block starting when the first stop is too far to ride to now, unless
+        // the rider held Start to override. A plain "too far away" toast tells
+        // them how; planning still works either way.
+        if (!force) {
+            val originPt = GeoPoint(loc.latitude, loc.longitude)
+            val firstStop = (dests.firstOrNull { !it.passed } ?: dests.first()).point()
+            if (!NavStartGuard.originWithinStart(originPt, firstStop, advanced.value.navMaxStartDistanceKm)) {
+                _toasts.tryEmit(context.getString(R.string.nav_too_far_to_start))
+                return
+            }
         }
         // Close the builder immediately, before guidance flips on, so the
         // rider never sees the button flash to "Stop navigation".
