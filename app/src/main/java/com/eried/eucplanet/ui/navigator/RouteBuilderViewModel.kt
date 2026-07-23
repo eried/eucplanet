@@ -28,6 +28,7 @@ import com.eried.eucplanet.nav.PoiKind
 import com.eried.eucplanet.nav.PoiService
 import com.eried.eucplanet.nav.PointOfInterest
 import com.eried.eucplanet.nav.RouteAvoidances
+import com.eried.eucplanet.nav.RouteFileName
 import com.eried.eucplanet.nav.RoutingService
 import com.eried.eucplanet.util.GpxIO
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -1250,11 +1251,28 @@ class RouteBuilderViewModel @Inject constructor(
         }
     }
 
+    /** Suggested save filename from the stop names, e.g. "A to B.gpx". Falls
+     *  back to the route name when stops are not geocoded yet. */
+    fun suggestedFileName(): String =
+        RouteFileName.suggest(_waypoints.value.map { it.name }, routeName) + ".gpx"
+
     fun saveGpx(uri: Uri) {
         viewModelScope.launch {
             try {
-                val route = _route.value
-                    ?: RoutingService.straightLineRoute(routeName, _waypoints.value)
+                // Save a stops-only route so the <trk> never starts at the
+                // rider's current position (only the planned stops + the
+                // geometry between them). Reload re-routes from the rtept list,
+                // so nothing is lost. Re-derive between-stop geometry from the
+                // stops alone; straight-line if the router is unavailable.
+                val stops = _waypoints.value
+                val saveMode = _travelMode.value
+                val route = when {
+                    stops.size < 2 || saveMode == TravelMode.STRAIGHT ->
+                        RoutingService.straightLineRoute(routeName, stops)
+                    else ->
+                        routingService.route(routeName, stops, saveMode, routerUrl, avoidances)
+                            ?: RoutingService.straightLineRoute(routeName, stops)
+                }
                 // Keep the .gpx extension even if the rider cleared it in the
                 // system save dialog; otherwise the file is hard to spot and
                 // won't filter back into the open dialog later.
