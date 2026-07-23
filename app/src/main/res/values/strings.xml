@@ -493,6 +493,8 @@
     <string name="adv_nav_prox_band_desc">Affects the distance change needed before warmer or colder is announced in hunt mode.</string>
     <string name="adv_nav_inter_stop">Multi-stop move gate</string>
     <string name="adv_nav_inter_stop_desc">Affects how far you must move past one stop before the next can count as arrived. Danger: too low may skip a stop.</string>
+    <string name="adv_nav_max_start">Max start distance</string>
+    <string name="adv_nav_max_start_desc">Farthest a first stop can be to start navigating. Past this, the line from your position is hidden and start is blocked. Planning still works.</string>
     <string name="adv_group_radar_class">Radar classification</string>
     <string name="adv_radar_warning">These change how the radar labels threats. Wrong values can hide a real car or flag a harmless one.</string>
     <string name="adv_radar_fast_dist">Fast-approach distance</string>
