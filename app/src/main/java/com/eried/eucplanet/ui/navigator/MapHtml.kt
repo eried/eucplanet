@@ -1095,7 +1095,7 @@ private const val ROUTE_BUILDER_HTML_2: String = """
     if (previewLine) previewLine.setLatLngs(previewLine.getLatLngs());
   });
 
-  window.nativeRender = function(wpJson, geomJson, fit, pendingJson){
+  window.nativeRender = function(wpJson, geomJson, fit, pendingJson, routing){
     var wps = JSON.parse(wpJson);
     var geom = JSON.parse(geomJson);
     // The gold dashed "what's changing" edge to overlay while a routed path is
@@ -1284,7 +1284,11 @@ private const val ROUTE_BUILDER_HTML_2: String = """
     // The native LaunchedEffect collects mapRender only after pageReady,
     // so the restore-time fit=true emission gets replaced by later
     // fit=false bumps and the JS would otherwise sit at zoom 2 forever.
-    var wantFit = fit || (!hasInitialFit && (geom.length >= 2 || wps.length >= 1));
+    // Skip fitting while a route is still solving: that render is transient
+    // (one pin, empty geometry) and fitting it would setView to zoom 16 on
+    // the pin, then the solved route's fitBounds would zoom out again -- the
+    // first-stop "double zoom". Fit once, on the settled render.
+    var wantFit = !routing && (fit || (!hasInitialFit && (geom.length >= 2 || wps.length >= 1)));
     if (wantFit){
       var pts = (geom.length >= 2) ? geom : wps.map(function(w){ return [w.lat, w.lng]; });
       if (pts.length >= 2){

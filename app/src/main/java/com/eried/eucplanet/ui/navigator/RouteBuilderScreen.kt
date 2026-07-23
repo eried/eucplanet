@@ -330,10 +330,15 @@ fun RouteBuilderScreen(
         if (!pageReady) return@LaunchedEffect
         viewModel.mapRender.collect { mr ->
             val fit = mr.fit && viewModel.savedView.value == null
+            // While a route is still solving, this render is transient (one pin,
+            // no geometry yet). Tell the map so it defers the fit to the settled
+            // render, avoiding the first-stop "zoom in to the pin, then out to
+            // the route" double-fit.
+            val routing = viewModel.routing.value
             wv.evaluateJavascript(
                 "nativeRender(${jsString(viewModel.waypointsJson())}," +
                     "${jsString(viewModel.geometryJson())},$fit," +
-                    "${jsString(viewModel.pendingPreviewJson())});"
+                    "${jsString(viewModel.pendingPreviewJson())},$routing);"
             ) {
                 if (!firstRenderApplied) firstRenderApplied = true
             }
@@ -1848,8 +1853,11 @@ private fun BottomPanel(
                 val roomy = maxWidth >= START_NAV_MIN_WIDTH
                 Row(verticalAlignment = Alignment.CenterVertically) {
                 SingleChoiceSegmentedButtonRow(
+                    // Pin to the same height as the Start button beside it (the
+                    // Material Button default), so the switch and Start line up.
                     modifier = Modifier
                         .weight(1f)
+                        .height(40.dp)
                         .then(if (modesLocked) Modifier.alpha(0.4f) else Modifier)
                 ) {
                     modes.forEachIndexed { index, (mode, icon, labelRes) ->
@@ -1929,7 +1937,7 @@ private fun BottomPanel(
                     // Hold Start to override the too-far guard and go anyway.
                     onHold = if (!allPassed && !navRunning) onForceStartNavigation else null,
                     enabled = allPassed || navRunning || canStartNavigation,
-                    modifier = Modifier.widthIn(min = 84.dp),
+                    modifier = Modifier.widthIn(min = 84.dp).height(40.dp),
                     shape = RoundedCornerShape(12.dp)
                 ) {
                     Text(
