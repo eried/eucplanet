@@ -287,6 +287,11 @@ fun RouteBuilderScreen(
         }
     }
 
+    // Pre-formatted toast strings (e.g. the too-far-to-start distance).
+    LaunchedEffect(Unit) {
+        viewModel.toasts.collect { msg -> snackbarHost.showSnackbar(msg) }
+    }
+
     // The builder is useless without a fix, ask for location up front so the
     // "my location" button and live guidance work. Harmless if already granted.
     val locationPermission = rememberLauncherForActivityResult(
@@ -643,7 +648,7 @@ fun RouteBuilderScreen(
                             expanded = menuOpen,
                             canStart = userLocation != null && waypoints.isNotEmpty(),
                             onDismiss = { menuOpen = false },
-                            onSave = { saveLauncher.launch("route.gpx") },
+                            onSave = { saveLauncher.launch(viewModel.suggestedFileName()) },
                             onLoad = {
                                 // No "*/*", that wildcard showed every file.
                                 // Android has no registered MIME for ".gpx", so
