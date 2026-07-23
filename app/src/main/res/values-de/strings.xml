@@ -1406,6 +1406,7 @@
     </string-array>
     <string name="nav_my_location">Mein Standort</string>
     <string name="nav_no_location">Warte auf GPS-Signal…</string>
+    <string name="nav_too_far_to_start">Der erste Halt ist %1$s entfernt, das ist zu weit, um die Navigation zu starten.</string>
     <string name="nav_empty_hint">Karte antippen, suchen oder GPX-Datei laden</string>
     <string name="nav_route_failed">Routing-Dienst nicht erreichbar, gerade Linien werden verwendet</string>
     <string name="nav_cant_add_while_running">Während der Navigation kann kein Halt hinzugefügt werden</string>
@@ -1764,6 +1765,8 @@
     <string name="adv_nav_inter_stop_desc">Beeinflusst, wie weit du dich von einem Stopp entfernen musst, bevor der nächste als erreicht zählt. Achtung: zu niedrig kann einen Stopp überspringen.</string>
     <string name="adv_nav_intermediate_flash">Wegpunkt-Aufblitzdauer</string>
     <string name="adv_nav_intermediate_flash_desc">Beeinflusst, wie lange das Aufblitzen bei erreichtem Wegpunkt angezeigt wird.</string>
+    <string name="adv_nav_max_start">Max. Startdistanz</string>
+    <string name="adv_nav_max_start_desc">Wie weit der erste Halt höchstens entfernt sein darf, um die Navigation zu starten. Darüber hinaus wird die Linie von deiner Position ausgeblendet und der Start blockiert. Die Planung funktioniert weiterhin.</string>
     <string name="adv_nav_moving">Bewegungsgeschwindigkeit</string>
     <string name="adv_nav_moving_desc">Beeinflusst die Geschwindigkeit, ab der du für Kurs und Führung als in Bewegung giltst. Achtung: zu hoch ignoriert langsames Fahren.</string>
     <string name="adv_nav_offroute_grace">Abseits-Toleranz</string>

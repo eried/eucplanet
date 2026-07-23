@@ -1397,6 +1397,7 @@
     </string-array>
     <string name="nav_my_location">Moja lokalizacja</string>
     <string name="nav_no_location">Czekam na sygnał GPS…</string>
+    <string name="nav_too_far_to_start">Pierwszy przystanek jest oddalony o %1$s, zbyt daleko, aby rozpocząć nawigację.</string>
     <string name="nav_empty_hint">Stuknij mapę, wyszukaj lub wczytaj plik GPX</string>
     <string name="nav_route_failed">Usługa tras niedostępna, używam linii prostych</string>
     <string name="nav_cant_add_while_running">Nie można dodać przystanku podczas nawigacji</string>
@@ -1742,6 +1743,8 @@
     <string name="adv_nav_inter_stop_desc">Wpływa na to, jak daleko musisz przejechać za jednym przystankiem, zanim następny może zostać uznany za osiągnięty. Uwaga: zbyt mała wartość może pominąć przystanek.</string>
     <string name="adv_nav_intermediate_flash">Czas błysku punktu trasy</string>
     <string name="adv_nav_intermediate_flash_desc">Wpływa na to, jak długo pokazywany jest błysk osiągnięcia punktu trasy.</string>
+    <string name="adv_nav_max_start">Maks. odległość startu</string>
+    <string name="adv_nav_max_start_desc">Jak daleko może być pierwszy przystanek, aby rozpocząć nawigację. Powyżej tej odległości linia od twojej pozycji jest ukryta, a start zablokowany. Planowanie trasy nadal działa.</string>
     <string name="adv_nav_moving">Prędkość ruchu</string>
     <string name="adv_nav_moving_desc">Wpływa na prędkość, powyżej której uznaje się Cię za poruszającego się, na potrzeby kursu i nawigacji. Uwaga: zbyt wysoka wartość ignoruje wolną jazdę.</string>
     <string name="adv_nav_offroute_grace">Tolerancja zejścia z trasy</string>

@@ -716,6 +716,7 @@
     <string name="nav_stops_left">%1$d stopp igjen</string>
     <string name="nav_tap_on_self">Hold inne et stopp i Stopp-listen for å sette det til posisjonen din</string>
     <string name="nav_title">Rutebygger</string>
+    <string name="nav_too_far_to_start">Første stopp er %1$s unna, for langt til å starte navigasjonen.</string>
     <string name="nav_turn_left">Sving til venstre</string>
     <string name="nav_turn_right">Sving til høyre</string>
     <string name="nav_turn_sharp_left">Skarp venstre</string>
@@ -1630,6 +1631,8 @@
     <string name="adv_nav_inter_stop_desc">Påvirker hvor langt du må bevege deg forbi ett stopp før det neste kan telle som ankommet. Fare: for lavt kan hoppe over et stopp.</string>
     <string name="adv_nav_intermediate_flash">Blinketid for veipunkt</string>
     <string name="adv_nav_intermediate_flash_desc">Påvirker hvor lenge blinket for nådd veipunkt vises.</string>
+    <string name="adv_nav_max_start">Maks. startavstand</string>
+    <string name="adv_nav_max_start_desc">Hvor langt unna det første stoppet kan være for å starte navigasjonen. Utover dette skjules linjen fra posisjonen din, og start blokkeres. Planlegging fungerer fortsatt.</string>
     <string name="adv_nav_moving">Bevegelsesfart</string>
     <string name="adv_nav_moving_desc">Påvirker farten du regnes som i bevegelse over, for retning og veiledning. Fare: for høyt ignorerer langsom kjøring.</string>
     <string name="adv_nav_offroute_grace">Frist for avvik fra ruten</string>

@@ -1385,6 +1385,7 @@
     </string-array>
     <string name="nav_my_location">Min position</string>
     <string name="nav_no_location">Venter på GPS-fix…</string>
+    <string name="nav_too_far_to_start">Første stop er %1$s væk, for langt til at starte navigationen.</string>
     <string name="nav_empty_hint">Tryk på kortet, søg, eller indlæs en GPX-fil</string>
     <string name="nav_route_failed">Rutetjeneste utilgængelig, bruger lige linjer</string>
     <string name="nav_cant_add_while_running">Kan ikke tilføje et stop, mens navigation kører</string>
@@ -1759,6 +1760,8 @@
     <string name="adv_nav_inter_stop_desc">Påvirker hvor langt du skal bevæge dig forbi ét stop, før det næste kan tælle som ankommet. Fare: for lavt kan springe et stop over.</string>
     <string name="adv_nav_intermediate_flash">Blinktid for rutepunkt</string>
     <string name="adv_nav_intermediate_flash_desc">Påvirker hvor længe blinket for nået rutepunkt vises.</string>
+    <string name="adv_nav_max_start">Maks. startafstand</string>
+    <string name="adv_nav_max_start_desc">Hvor langt væk det første stop højst må være for at starte navigationen. Ud over dette skjules linjen fra din position, og start blokeres. Planlægning virker stadig.</string>
     <string name="adv_nav_moving">Bevægelsesfart</string>
     <string name="adv_nav_moving_desc">Påvirker den fart, over hvilken du tæller som i bevægelse til kurs og vejledning. Fare: for højt ignorerer langsom kørsel.</string>
     <string name="adv_nav_offroute_grace">Frist uden for rute</string>

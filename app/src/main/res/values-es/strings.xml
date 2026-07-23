@@ -1384,6 +1384,7 @@
     </string-array>
     <string name="nav_my_location">Mi ubicación</string>
     <string name="nav_no_location">Esperando señal GPS…</string>
+    <string name="nav_too_far_to_start">La primera parada está a %1$s, demasiado lejos para iniciar la navegación.</string>
     <string name="nav_empty_hint">Toca el mapa, busca o carga un archivo GPX</string>
     <string name="nav_route_failed">Servicio de rutas no disponible; usando líneas rectas</string>
     <string name="nav_cant_add_while_running">No se puede añadir una parada con la navegación activa</string>
@@ -1741,6 +1742,8 @@
     <string name="adv_nav_inter_stop_desc">Afecta cuánto debes avanzar pasada una parada antes de que la siguiente cuente como alcanzada. Peligro: muy bajo puede saltarse una parada.</string>
     <string name="adv_nav_intermediate_flash">Tiempo de destello de punto</string>
     <string name="adv_nav_intermediate_flash_desc">Afecta cuánto se muestra el destello de punto alcanzado.</string>
+    <string name="adv_nav_max_start">Distancia máx. de inicio</string>
+    <string name="adv_nav_max_start_desc">Lo lejos que puede estar la primera parada para poder iniciar la navegación. Más allá de esto, la línea desde tu posición se oculta y el inicio se bloquea. La planificación sigue funcionando.</string>
     <string name="adv_nav_moving">Velocidad de movimiento</string>
     <string name="adv_nav_moving_desc">Afecta la velocidad por encima de la cual cuentas como en movimiento para el rumbo y la guía. Peligro: muy alta ignora la marcha lenta.</string>
     <string name="adv_nav_offroute_grace">Margen fuera de ruta</string>
