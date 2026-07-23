@@ -724,6 +724,16 @@ fun RouteBuilderScreen(
         // bottom-panel layout even when rotated.
         val stopsSide by viewModel.navStopsSide.collectAsState()
         val advancedVars by viewModel.advanced.collectAsState()
+        // Keep the map's far-stop gate in sync so the live drag connector never
+        // draws a line from the rider to a first stop beyond the max start
+        // distance (mirrors the Kotlin-side gate for the solved and preview lines).
+        LaunchedEffect(pageReady, advancedVars.navMaxStartDistanceKm) {
+            val wv = webView ?: return@LaunchedEffect
+            if (!pageReady) return@LaunchedEffect
+            wv.evaluateJavascript(
+                "nativeSetMaxStartDistance(${advancedVars.navMaxStartDistanceKm});", null
+            )
+        }
         val landscape = LocalConfiguration.current.orientation ==
             android.content.res.Configuration.ORIENTATION_LANDSCAPE &&
             LocalConfiguration.current.screenWidthDp >= advancedVars.navSidebarMinScreenDp &&
