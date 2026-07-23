@@ -1397,7 +1397,7 @@
     </string-array>
     <string name="nav_my_location">Moja lokalizacja</string>
     <string name="nav_no_location">Czekam na sygnał GPS…</string>
-    <string name="nav_too_far_to_start">Pierwszy przystanek jest oddalony o %1$s, zbyt daleko, aby rozpocząć nawigację.</string>
+    <string name="nav_too_far_to_start">Pierwszy przystanek jest zbyt daleko, aby rozpocząć nawigację.</string>
     <string name="nav_empty_hint">Stuknij mapę, wyszukaj lub wczytaj plik GPX</string>
     <string name="nav_route_failed">Usługa tras niedostępna, używam linii prostych</string>
     <string name="nav_cant_add_while_running">Nie można dodać przystanku podczas nawigacji</string>

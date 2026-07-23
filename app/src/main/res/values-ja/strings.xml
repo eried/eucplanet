@@ -1381,7 +1381,7 @@
     </string-array>
     <string name="nav_my_location">現在地</string>
     <string name="nav_no_location">GPS フィックスを待機中…</string>
-    <string name="nav_too_far_to_start">最初の経由地は %1$s 先で、遠すぎるためナビを開始できません。</string>
+    <string name="nav_too_far_to_start">最初の経由地は遠すぎるため、ナビを開始できません。</string>
     <string name="nav_empty_hint">マップをタップ、検索、または GPX ファイルを読み込んでください</string>
     <string name="nav_route_failed">ルーティングサービスが利用できないため、直線を使用します</string>
     <string name="nav_cant_add_while_running">ナビゲーション実行中は経由地を追加できません</string>

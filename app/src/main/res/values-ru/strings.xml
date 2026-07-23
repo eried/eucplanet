@@ -1384,7 +1384,7 @@
     </string-array>
     <string name="nav_my_location">Моё местоположение</string>
     <string name="nav_no_location">Ожидание сигнала GPS…</string>
-    <string name="nav_too_far_to_start">Первая остановка находится в %1$s, это слишком далеко, чтобы начать навигацию.</string>
+    <string name="nav_too_far_to_start">Первая остановка находится слишком далеко, чтобы начать навигацию.</string>
     <string name="nav_empty_hint">Коснитесь карты, выполните поиск или загрузите файл GPX</string>
     <string name="nav_route_failed">Сервис маршрутов недоступен, используются прямые линии</string>
     <string name="nav_cant_add_while_running">Нельзя добавить остановку во время навигации</string>

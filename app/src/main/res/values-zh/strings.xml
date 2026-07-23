@@ -699,7 +699,7 @@
     <string name="nav_stops_left">还剩 %1$d 个途经点</string>
     <string name="nav_tap_on_self">在途经点列表中,长按某个途经点即可将其设为你的位置</string>
     <string name="nav_title">路线编辑器</string>
-    <string name="nav_too_far_to_start">第一站距离 %1$s,太远,无法开始导航。</string>
+    <string name="nav_too_far_to_start">第一站太远,无法开始导航。</string>
     <string name="nav_turn_left">左转</string>
     <string name="nav_turn_right">右转</string>
     <string name="nav_turn_sharp_left">向左急转</string>

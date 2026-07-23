@@ -1431,7 +1431,7 @@
     </string-array>
     <string name="nav_my_location">Mijn locatie</string>
     <string name="nav_no_location">Wachten op een GPS-fix…</string>
-    <string name="nav_too_far_to_start">De eerste stop is %1$s ver weg, te ver om de navigatie te starten.</string>
+    <string name="nav_too_far_to_start">De eerste stop is te ver weg om de navigatie te starten.</string>
     <string name="nav_empty_hint">Tik op de kaart, zoek, of laad een GPX-bestand</string>
     <string name="nav_route_failed">Routeringsservice niet beschikbaar, rechte lijnen gebruikt</string>
     <string name="nav_cant_add_while_running">Kan geen stop toevoegen terwijl navigatie loopt</string>

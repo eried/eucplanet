@@ -1381,7 +1381,7 @@
     </string-array>
     <string name="nav_my_location">Konumum</string>
     <string name="nav_no_location">GPS düzeltmesi bekleniyor…</string>
-    <string name="nav_too_far_to_start">İlk durak %1$s uzaklıkta, navigasyonu başlatmak için çok uzak.</string>
+    <string name="nav_too_far_to_start">İlk durak, navigasyonu başlatmak için çok uzak.</string>
     <string name="nav_empty_hint">Haritaya dokunun, arama yapın veya GPX dosyası yükleyin</string>
     <string name="nav_route_failed">Yönlendirme servisi kullanılamıyor, düz çizgiler kullanılıyor</string>
     <string name="nav_cant_add_while_running">Navigasyon çalışırken durak eklenemez</string>
