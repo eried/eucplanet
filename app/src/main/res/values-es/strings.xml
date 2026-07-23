@@ -1384,7 +1384,7 @@
     </string-array>
     <string name="nav_my_location">Mi ubicación</string>
     <string name="nav_no_location">Esperando señal GPS…</string>
-    <string name="nav_too_far_to_start">La primera parada está demasiado lejos para iniciar la navegación.</string>
+    <string name="nav_too_far_to_start">La primera parada está demasiado lejos. Mantén pulsado Iniciar para navegar de todos modos.</string>
     <string name="nav_empty_hint">Toca el mapa, busca o carga un archivo GPX</string>
     <string name="nav_route_failed">Servicio de rutas no disponible; usando líneas rectas</string>
     <string name="nav_cant_add_while_running">No se puede añadir una parada con la navegación activa</string>

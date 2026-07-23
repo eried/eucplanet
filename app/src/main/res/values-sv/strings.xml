@@ -1380,7 +1380,7 @@
     </string-array>
     <string name="nav_my_location">Min plats</string>
     <string name="nav_no_location">Väntar på GPS-fix…</string>
-    <string name="nav_too_far_to_start">Första stoppet är för långt bort för att starta navigeringen.</string>
+    <string name="nav_too_far_to_start">Första stoppet är för långt bort. Håll inne Starta för att navigera ändå.</string>
     <string name="nav_empty_hint">Tryck på kartan, sök, eller läs in en GPX-fil</string>
     <string name="nav_route_failed">Ruttjänst otillgänglig, använder raka linjer</string>
     <string name="nav_cant_add_while_running">Kan inte lägga till stopp medan navigation körs</string>

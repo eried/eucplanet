@@ -735,7 +735,7 @@
     <string name="nav_stops_left">%1$d fermate rimaste</string>
     <string name="nav_tap_on_self">Nell\'elenco Fermate, tieni premuta una fermata per impostarla sulla tua posizione</string>
     <string name="nav_title">Creatore di percorsi</string>
-    <string name="nav_too_far_to_start">La prima fermata è troppo lontana per avviare la navigazione.</string>
+    <string name="nav_too_far_to_start">La prima fermata è troppo lontana. Tieni premuto Avvia per navigare comunque.</string>
     <string name="nav_turn_left">Gira a sinistra</string>
     <string name="nav_turn_right">Gira a destra</string>
     <string name="nav_turn_sharp_left">Svolta secca a sinistra</string>

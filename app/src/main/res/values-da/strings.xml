@@ -1385,7 +1385,7 @@
     </string-array>
     <string name="nav_my_location">Min position</string>
     <string name="nav_no_location">Venter på GPS-fix…</string>
-    <string name="nav_too_far_to_start">Første stop er for langt væk til at starte navigationen.</string>
+    <string name="nav_too_far_to_start">Første stop er for langt væk. Hold Start nede for at navigere alligevel.</string>
     <string name="nav_empty_hint">Tryk på kortet, søg, eller indlæs en GPX-fil</string>
     <string name="nav_route_failed">Rutetjeneste utilgængelig, bruger lige linjer</string>
     <string name="nav_cant_add_while_running">Kan ikke tilføje et stop, mens navigation kører</string>

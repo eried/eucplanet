@@ -1435,7 +1435,7 @@
     </string-array>
     <string name="nav_my_location">Ma position</string>
     <string name="nav_no_location">En attente d\'un signal GPS…</string>
-    <string name="nav_too_far_to_start">Le premier arrêt est trop loin pour lancer la navigation.</string>
+    <string name="nav_too_far_to_start">Le premier arrêt est trop loin. Maintiens Démarrer pour lancer la navigation quand même.</string>
     <string name="nav_empty_hint">Touche la carte, fais une recherche ou charge un fichier GPX</string>
     <string name="nav_route_failed">Service de routage indisponible, lignes droites utilisées</string>
     <string name="nav_cant_add_while_running">Impossible d\'ajouter un arrêt pendant la navigation</string>

@@ -1381,7 +1381,7 @@
     </string-array>
     <string name="nav_my_location">내 위치</string>
     <string name="nav_no_location">GPS 신호 대기 중…</string>
-    <string name="nav_too_far_to_start">첫 번째 경유지가 너무 멀어 내비게이션을 시작할 수 없습니다.</string>
+    <string name="nav_too_far_to_start">첫 번째 경유지가 너무 멉니다. 시작을 길게 누르면 그래도 내비게이션을 시작합니다.</string>
     <string name="nav_empty_hint">지도를 탭하거나 검색하거나 GPX 파일을 불러오세요</string>
     <string name="nav_route_failed">경로 서비스를 사용할 수 없어 직선으로 표시합니다</string>
     <string name="nav_cant_add_while_running">내비게이션 중에는 경유지를 추가할 수 없습니다</string>
