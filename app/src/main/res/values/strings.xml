@@ -1703,7 +1703,7 @@
     </string-array>
     <string name="nav_my_location">My location</string>
     <string name="nav_no_location">Waiting for a GPS fix…</string>
-    <string name="nav_too_far_to_start">First stop is %1$s away, too far to start navigation.</string>
+    <string name="nav_too_far_to_start">First stop is too far away to start navigation.</string>
     <string name="nav_empty_hint">Tap the map, search, or load a GPX file</string>
     <string name="nav_route_failed">Routing service unavailable, using straight lines</string>
     <string name="nav_cant_add_while_running">Can\'t add a stop while navigation is running</string>
