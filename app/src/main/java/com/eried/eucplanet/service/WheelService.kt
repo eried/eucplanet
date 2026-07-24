@@ -82,6 +82,8 @@ class WheelService : LifecycleService() {
     @Inject lateinit var engineSoundEngine: EngineSoundEngine
     @Inject lateinit var wearBridge: com.eried.eucplanet.wear.WearBridge
     @Inject lateinit var garminBridge: com.eried.eucplanet.garmin.GarminBridge
+    @Inject lateinit var externalGpsRepository:
+        com.eried.eucplanet.data.repository.ExternalGpsRepository
     @Inject lateinit var navigationEngine: com.eried.eucplanet.nav.NavigationEngine
     @Inject lateinit var hudServer: com.eried.eucplanet.service.hud.HudServer
 
@@ -397,6 +399,17 @@ class WheelService : LifecycleService() {
         tripRepository.stopLocationUpdates()
         lifecycleScope.launch { tripRepository.stopRecording() }
         wheelRepository.disconnect()
+        // On a Stop All (process kill), also close the external GPS (Dragy)
+        // GATT first. Without this the Bluetooth stack keeps the connection
+        // open for our killed process: the box never powers down (LED stays on,
+        // battery drains), the vendor app can't connect, and it looks like EUC
+        // Planet "reconnects" because the link was never actually dropped.
+        // disconnect() cancels the auto-reconnect loop too, so it stays down.
+        // Gated on the kill path so an ordinary teardown (process surviving)
+        // leaves the app-scoped GPS connection with the repository that owns it.
+        if (killProcessOnDestroy) {
+            try { externalGpsRepository.disconnect() } catch (_: Exception) {}
+        }
         super.onDestroy()
         // Last thing: if this destroy was driven by Stop All, SIGKILL
         // our own process. Doing it here (instead of from the activity
