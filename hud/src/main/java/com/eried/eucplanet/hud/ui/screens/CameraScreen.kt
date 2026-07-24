@@ -35,6 +35,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
 import com.eried.eucplanet.hud.R
+import com.eried.eucplanet.hud.net.HudDiag
 import com.eried.eucplanet.hud.protocol.HudState
 import com.eried.eucplanet.hud.ui.HudUnits
 import com.eried.eucplanet.hud.ui.parseHexColor
@@ -115,6 +116,10 @@ fun RearCameraPreview(modifier: Modifier = Modifier) {
     // flood of CameraValidator: Camera LensFacing verification failed
     // errors that pegs the main thread and triggers an ANR.
     var bindStarted by remember { mutableStateOf(false) }
+    // True once a FRONT-facing lens is what actually bound. The 270° fix below
+    // is correct for the rear lens; a front lens sits 180° opposite and came
+    // out upside down, so it gets the extra half-turn (see the bind loop).
+    var frontLens by remember { mutableStateOf(false) }
 
     Box(modifier = modifier) {
         if (hasPermission && !cameraFailed) {
@@ -138,7 +143,10 @@ fun RearCameraPreview(modifier: Modifier = Modifier) {
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .graphicsLayer { rotationZ = 270f }
+                    // 270° for the rear lens (rider-confirmed); a front lens is
+                    // 180° opposite, so it gets 90° instead of coming out upside
+                    // down (tester David, MotoEye front cam). Rear path unchanged.
+                    .graphicsLayer { rotationZ = if (frontLens) 90f else 270f }
             ) {
             AndroidView(
                 modifier = Modifier.fillMaxSize(),
@@ -171,7 +179,15 @@ fun RearCameraPreview(modifier: Modifier = Modifier) {
                                 var bound = false
                                 for (sel in selectors) {
                                     try {
-                                        provider.bindToLifecycle(lifecycleOwner, sel, preview)
+                                        val camera = provider.bindToLifecycle(lifecycleOwner, sel, preview)
+                                        // Read the lens that actually bound (works for the
+                                        // DEFAULT selectors and the per-info fallbacks) so a
+                                        // front camera gets the 90° path, not the rear's 270°.
+                                        frontLens = camera.cameraInfo.lensFacing ==
+                                            CameraSelector.LENS_FACING_FRONT
+                                        HudDiag.log("camera",
+                                            "bound lens=${if (frontLens) "front" else "rear"}, " +
+                                                "rotation=${if (frontLens) 90 else 270}deg")
                                         bound = true
                                         break
                                     } catch (_: Throwable) {
