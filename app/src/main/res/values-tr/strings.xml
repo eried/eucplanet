@@ -1390,6 +1390,7 @@
     </string-array>
     <string name="nav_my_location">Konumum</string>
     <string name="nav_no_location">GPS düzeltmesi bekleniyor…</string>
+    <string name="nav_too_far_to_start">İlk durak çok uzak. Navigasyonu yine de başlatmak için Başlat düğmesini basılı tutun.</string>
     <string name="nav_empty_hint">Haritaya dokunun, arama yapın veya GPX dosyası yükleyin</string>
     <string name="nav_route_failed">Yönlendirme servisi kullanılamıyor, düz çizgiler kullanılıyor</string>
     <string name="nav_cant_add_while_running">Navigasyon çalışırken durak eklenemez</string>
@@ -1750,6 +1751,8 @@
     <string name="adv_nav_inter_stop_desc">Bir sonraki durağın varılmış sayılabilmesi için bir durağı ne kadar geçmeniz gerektiğini etkiler. Dikkat: çok düşük olursa bir durağı atlayabilir.</string>
     <string name="adv_nav_intermediate_flash">Ara nokta parlama süresi</string>
     <string name="adv_nav_intermediate_flash_desc">Ara noktaya ulaşıldı parlamasının ne kadar göründüğünü etkiler.</string>
+    <string name="adv_nav_max_start">Maks. başlangıç mesafesi</string>
+    <string name="adv_nav_max_start_desc">Navigasyonu başlatmak için ilk durağın en fazla ne kadar uzakta olabileceği. Bu mesafenin ötesinde, konumundan çizilen çizgi gizlenir ve başlatma engellenir. Rota planlama yine de çalışır.</string>
     <string name="adv_nav_moving">Hareket hızı</string>
     <string name="adv_nav_moving_desc">Yön ve yönlendirme için hangi hızın üzerinde hareket halinde sayıldığınızı etkiler. Dikkat: çok yüksek olursa yavaş sürüşü yok sayar.</string>
     <string name="adv_nav_offroute_grace">Rota dışı toleransı</string>

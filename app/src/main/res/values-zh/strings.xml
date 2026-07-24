@@ -704,6 +704,7 @@
     <string name="nav_stops_left">还剩 %1$d 个途经点</string>
     <string name="nav_tap_on_self">在途经点列表中,长按某个途经点即可将其设为你的位置</string>
     <string name="nav_title">路线编辑器</string>
+    <string name="nav_too_far_to_start">第一站太远。长按「开始」仍可开始导航。</string>
     <string name="nav_turn_left">左转</string>
     <string name="nav_turn_right">右转</string>
     <string name="nav_turn_sharp_left">向左急转</string>
@@ -1620,6 +1621,8 @@
     <string name="adv_nav_inter_stop_desc">影响你须驶过一个途经点多远后,下一个才能算作到达。危险:过低可能跳过某个途经点。</string>
     <string name="adv_nav_intermediate_flash">途经点闪烁时长</string>
     <string name="adv_nav_intermediate_flash_desc">影响到达途经点的闪烁显示多久。</string>
+    <string name="adv_nav_max_start">最大出发距离</string>
+    <string name="adv_nav_max_start_desc">第一站最远可以相距多远才能开始导航。超过此距离后,你当前位置到第一站的连线会被隐藏,且无法开始导航。路线规划仍可照常使用。</string>
     <string name="adv_nav_moving">移动速度</string>
     <string name="adv_nav_moving_desc">影响超过多少速度才算作移动以用于航向和引导。危险:过高会忽略慢速骑行。</string>
     <string name="adv_nav_offroute_grace">偏航宽限</string>

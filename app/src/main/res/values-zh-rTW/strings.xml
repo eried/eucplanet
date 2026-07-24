@@ -1390,6 +1390,7 @@
     </string-array>
     <string name="nav_my_location">我的位置</string>
     <string name="nav_no_location">等待 GPS 定位…</string>
+    <string name="nav_too_far_to_start">第一站太遠。長按「開始」仍可開始導航。</string>
     <string name="nav_empty_hint">點擊地圖、搜尋或載入 GPX 檔案</string>
     <string name="nav_route_failed">路線服務無法使用，改用直線連接</string>
     <string name="nav_cant_add_while_running">導航進行中無法新增停靠點</string>
@@ -1752,6 +1753,8 @@
     <string name="adv_nav_inter_stop_desc">影響你必須通過一個停靠點多遠，下一個才能算抵達。危險：太低可能略過某個停靠點。</string>
     <string name="adv_nav_intermediate_flash">路徑點閃示時間</string>
     <string name="adv_nav_intermediate_flash_desc">影響抵達路徑點的閃示顯示多久。</string>
+    <string name="adv_nav_max_start">最大出發距離</string>
+    <string name="adv_nav_max_start_desc">第一站最遠可以有多遠才能開始導航。超過此距離，從你目前位置延伸的線會被隱藏，且無法開始導航。規劃路線仍可正常使用。</string>
     <string name="adv_nav_moving">移動速度</string>
     <string name="adv_nav_moving_desc">影響判定為移動（用於方位與導引）的速度門檻。危險：太高會忽略慢速騎乘。</string>
     <string name="adv_nav_offroute_grace">偏離路線寬限</string>

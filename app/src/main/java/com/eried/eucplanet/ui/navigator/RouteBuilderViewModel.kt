@@ -20,12 +20,14 @@ import com.eried.eucplanet.nav.BBox
 import com.eried.eucplanet.nav.GeoMath
 import com.eried.eucplanet.nav.GeoResult
 import com.eried.eucplanet.nav.NavigationEngine
+import com.eried.eucplanet.nav.NavStartGuard
 import com.eried.eucplanet.nav.OcmCharger
 import com.eried.eucplanet.nav.OcmService
 import com.eried.eucplanet.nav.PoiKind
 import com.eried.eucplanet.nav.PoiService
 import com.eried.eucplanet.nav.PointOfInterest
 import com.eried.eucplanet.nav.RouteAvoidances
+import com.eried.eucplanet.nav.RouteFileName
 import com.eried.eucplanet.nav.RoutingService
 import com.eried.eucplanet.util.GpxIO
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -247,6 +249,12 @@ class RouteBuilderViewModel @Inject constructor(
     /** One-shot user messages (string resource ids) shown as snackbars. */
     private val _messages = MutableSharedFlow<Int>(extraBufferCapacity = 6)
     val messages: SharedFlow<Int> = _messages.asSharedFlow()
+
+    /** One-shot pre-formatted toast strings (a distance etc. that the
+     *  resource-id [_messages] channel cannot carry). Screen shows them as
+     *  snackbars, same host as [messages]. */
+    private val _toasts = MutableSharedFlow<String>(extraBufferCapacity = 2)
+    val toasts: SharedFlow<String> = _toasts.asSharedFlow()
 
     val currentLocation: StateFlow<Location?> = tripRepository.currentLocation
 
@@ -770,23 +778,36 @@ class RouteBuilderViewModel @Inject constructor(
         }
     }
 
+    /**
+     * The rider's position as a preview-edge endpoint, but only when
+     * [firstStopPt] is within the max start distance. Past it we never draw a
+     * line from the rider (not even a drag preview), so this returns null and
+     * the edge drops the rider end. Drag a stop back within range and the line
+     * returns. Used by every edit that could anchor an edge on the rider.
+     */
+    private fun originIfNear(origin: GeoPoint?, firstStopPt: GeoPoint): GeoPoint? =
+        origin?.takeIf {
+            NavStartGuard.originWithinStart(it, firstStopPt, advanced.value.navMaxStartDistanceKm)
+        }
+
     fun addWaypoint(lat: Double, lng: Double, name: String = "", fit: Boolean = false) {
         if (_waypoints.value.size >= MAX_WAYPOINTS) {
             _messages.tryEmit(R.string.nav_max_stops)
             return
         }
-        // The new stop connects to whatever was the last non-passed stop (or
-        // the rider, if none yet) -- that single edge is what's "about to
-        // change", so preview just it in gold while the route re-solves.
+        // The new stop connects to the last non-passed stop, or to the rider
+        // when there is none yet -- but never to the rider when this first stop
+        // is beyond the max start distance (planning, not riding there now).
         val before = _waypoints.value
+        val newPt = GeoPoint(lat, lng)
         val neighbor = before.lastOrNull { !it.passed }?.point()
-            ?: currentLocation.value?.let { GeoPoint(it.latitude, it.longitude) }
+            ?: originIfNear(currentLocation.value?.let { GeoPoint(it.latitude, it.longitude) }, newPt)
         _waypoints.value = before + Waypoint(lat, lng, name)
         // A plain stop was just added; clear the "last preset" memory so the
         // Home / Work search suggestions both come back. addPreset() re-sets it.
         _lastAddedPresetKind.value = null
         cacheDraft()
-        val edge = if (neighbor != null) listOf(neighbor, GeoPoint(lat, lng)) else emptyList()
+        val edge = if (neighbor != null) listOf(neighbor, newPt) else emptyList()
         scheduleRecompute(fit = fit, previewEdge = edge)
     }
 
@@ -833,7 +854,7 @@ class RouteBuilderViewModel @Inject constructor(
         val insertIndex = (bestSeg + 1 - originOffset).coerceIn(0, dests.size)
         // The two edges the detour introduces: left-neighbour -> new -> right-
         // neighbour. Preview just those in gold while the route re-solves.
-        val left = if (insertIndex == 0) origin else dests[insertIndex - 1].point()
+        val left = if (insertIndex == 0) originIfNear(origin, GeoPoint(lat, lng)) else dests[insertIndex - 1].point()
         val right = dests.getOrNull(insertIndex)?.point()
         val list = dests.toMutableList()
         list.add(insertIndex, Waypoint(lat, lng, name))
@@ -851,7 +872,7 @@ class RouteBuilderViewModel @Inject constructor(
         // The moved pin's two edges (to its previous and next neighbours, or
         // the rider for index 0) are what change -- preview just those in gold.
         val origin = currentLocation.value?.let { GeoPoint(it.latitude, it.longitude) }
-        val left = if (index == 0) origin else list[index - 1].point()
+        val left = if (index == 0) originIfNear(origin, GeoPoint(lat, lng)) else list[index - 1].point()
         val right = list.getOrNull(index + 1)?.point()
         // A moved pin's address is now stale; clear it so the list shows just
         // the role until the next route solves and re-resolves the address.
@@ -1083,7 +1104,28 @@ class RouteBuilderViewModel @Inject constructor(
             return
         }
         val routedTargets = if (_solveFullPath.value) nonPassed else listOf(nonPassed.first())
-        val navWps = listOf(Waypoint(origin.latitude, origin.longitude)) + routedTargets
+        // Prepend the rider as the origin only when the first stop is close
+        // enough (Advanced "max start distance"). Past that we solve stop-to-
+        // stop only, so the line from the rider to a distant first stop is not
+        // drawn. Planning still works; starting is blocked (see startNavigation).
+        val originPt = GeoPoint(origin.latitude, origin.longitude)
+        val includeOrigin = NavStartGuard.originWithinStart(
+            originPt, nonPassed.first().point(), advanced.value.navMaxStartDistanceKm
+        )
+        val navWps = if (includeOrigin) {
+            listOf(Waypoint(origin.latitude, origin.longitude)) + routedTargets
+        } else {
+            routedTargets
+        }
+        // Origin dropped and a single far stop: nothing to draw between points,
+        // show just the pin (pins render from _waypoints).
+        if (navWps.size < 2) {
+            _route.value = null
+            _routing.value = false
+            _pendingPreview.value = emptyList()
+            bumpRender(fit)
+            return
+        }
         val mode = _travelMode.value
         if (mode == TravelMode.STRAIGHT) {
             // Direct/line mode joins the stops with straight segments -- no
@@ -1215,11 +1257,29 @@ class RouteBuilderViewModel @Inject constructor(
         }
     }
 
+    /** Suggested save filename from the stop names, lowercased with "_" for
+     *  spaces and "-" between the first and last stop, e.g.
+     *  "storgata-tromsdalen_center-route.gpx". "route.gpx" when unnamed. */
+    fun suggestedFileName(): String =
+        RouteFileName.suggest(_waypoints.value.map { it.name }) + ".gpx"
+
     fun saveGpx(uri: Uri) {
         viewModelScope.launch {
             try {
-                val route = _route.value
-                    ?: RoutingService.straightLineRoute(routeName, _waypoints.value)
+                // Save a stops-only route so the <trk> never starts at the
+                // rider's current position (only the planned stops + the
+                // geometry between them). Reload re-routes from the rtept list,
+                // so nothing is lost. Re-derive between-stop geometry from the
+                // stops alone; straight-line if the router is unavailable.
+                val stops = _waypoints.value
+                val saveMode = _travelMode.value
+                val route = when {
+                    stops.size < 2 || saveMode == TravelMode.STRAIGHT ->
+                        RoutingService.straightLineRoute(routeName, stops)
+                    else ->
+                        routingService.route(routeName, stops, saveMode, routerUrl, avoidances)
+                            ?: RoutingService.straightLineRoute(routeName, stops)
+                }
                 // Keep the .gpx extension even if the rider cleared it in the
                 // system save dialog; otherwise the file is hard to spot and
                 // won't filter back into the open dialog later.
@@ -1607,7 +1667,7 @@ class RouteBuilderViewModel @Inject constructor(
         val point = GeoPoint(poi.lat, poi.lng)
         val insertIndex = cheapestInsertIndex(point)
         val origin = currentLocation.value?.let { GeoPoint(it.latitude, it.longitude) }
-        val left = if (insertIndex == 0) origin else dests[insertIndex - 1].point()
+        val left = if (insertIndex == 0) originIfNear(origin, point) else dests[insertIndex - 1].point()
         val right = dests.getOrNull(insertIndex)?.point()
         val list = dests.toMutableList()
         list.add(insertIndex, Waypoint(poi.lat, poi.lng, name))
@@ -1669,7 +1729,7 @@ class RouteBuilderViewModel @Inject constructor(
      * start pin isn't already the live location, the rider's current position
      * is prepended as the origin, so navigating to a single dropped pin works.
      */
-    fun startNavigation(mode: NavMode, onStarted: () -> Unit) {
+    fun startNavigation(mode: NavMode, force: Boolean = false, onStarted: () -> Unit) {
         val dests = _waypoints.value
         if (dests.isEmpty()) {
             _messages.tryEmit(R.string.nav_need_destination)
@@ -1679,6 +1739,17 @@ class RouteBuilderViewModel @Inject constructor(
         if (loc == null) {
             _messages.tryEmit(R.string.nav_no_location)
             return
+        }
+        // Block starting when the first stop is too far to ride to now, unless
+        // the rider held Start to override. A plain "too far away" toast tells
+        // them how; planning still works either way.
+        if (!force) {
+            val originPt = GeoPoint(loc.latitude, loc.longitude)
+            val firstStop = (dests.firstOrNull { !it.passed } ?: dests.first()).point()
+            if (!NavStartGuard.originWithinStart(originPt, firstStop, advanced.value.navMaxStartDistanceKm)) {
+                _toasts.tryEmit(context.getString(R.string.nav_too_far_to_start))
+                return
+            }
         }
         // Close the builder immediately, before guidance flips on, so the
         // rider never sees the button flash to "Stop navigation".

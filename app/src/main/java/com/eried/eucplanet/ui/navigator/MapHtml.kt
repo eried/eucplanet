@@ -697,6 +697,10 @@ private const val ROUTE_BUILDER_HTML_1: String = """
   // segment only the first leg is solid and the rest is the dashed preview.
   // Pushed from native via nativeSetFullPath().
   var solveFullPath = true;
+  // Pushed from native via nativeSetMaxStartDistance() (metres). Past it the
+  // drag connector never draws a line from the rider to the first stop. Large
+  // default connects until native syncs on page load.
+  var maxStartDistanceM = 1e12;
   // Arrow decorations are now split into routeArrowLayer + previewArrow-
   // Layer (see further below) so the rider->next-goal chevrons and the
   // orange preview chevrons can coexist. Keep this comment as a marker.
@@ -840,12 +844,18 @@ private const val ROUTE_BUILDER_HTML_2: String = """
     // route-fetch preview passes the gold preview colour instead.
     var c = color || routeColorFor(travelMode);
     var pts = markerPts();
-    // Start the dashed preview at the rider's position when a fix is known.
-    if (userMarker){
+    // Start the dashed preview at the rider's position, but only when the
+    // first stop is within the max start distance -- past it we never draw a
+    // line from the rider (planning a far route, not riding there now).
+    if (userMarker && pts.length){
       var u = userMarker.getLatLng();
-      pts = [[u.lat, u.lng]].concat(pts);
+      if (map.distance(u, L.latLng(pts[0][0], pts[0][1])) <= maxStartDistanceM){
+        pts = [[u.lat, u.lng]].concat(pts);
+      }
     }
-    if (pts.length < 2){ clearConnector(); return; }
+    // Nothing to connect (e.g. a lone stop that is too far to link to the
+    // rider). Drop the line AND its chevrons, or the arrows orphan-float.
+    if (pts.length < 2){ clearConnector(); clearRouteArrows(); return; }
     if (connector){
       connector.setLatLngs(pts);
       connector.setStyle({color: c});
@@ -864,6 +874,10 @@ private const val ROUTE_BUILDER_HTML_2: String = """
   function clearConnector(){
     if (connector){ map.removeLayer(connector); connector = null; }
   }
+
+  // Native pushes the Advanced "max start distance" here (km). Past it the
+  // drag connector drops its rider->first-stop segment (see drawConnector).
+  window.nativeSetMaxStartDistance = function(km){ maxStartDistanceM = km * 1000; };
 
   // Gold dashed "what's about to change" edge, drawn OVER the existing solid
   // route while a routed path is being fetched after an edit (add / insert /
@@ -1081,7 +1095,7 @@ private const val ROUTE_BUILDER_HTML_2: String = """
     if (previewLine) previewLine.setLatLngs(previewLine.getLatLngs());
   });
 
-  window.nativeRender = function(wpJson, geomJson, fit, pendingJson){
+  window.nativeRender = function(wpJson, geomJson, fit, pendingJson, routing){
     var wps = JSON.parse(wpJson);
     var geom = JSON.parse(geomJson);
     // The gold dashed "what's changing" edge to overlay while a routed path is
@@ -1270,7 +1284,11 @@ private const val ROUTE_BUILDER_HTML_2: String = """
     // The native LaunchedEffect collects mapRender only after pageReady,
     // so the restore-time fit=true emission gets replaced by later
     // fit=false bumps and the JS would otherwise sit at zoom 2 forever.
-    var wantFit = fit || (!hasInitialFit && (geom.length >= 2 || wps.length >= 1));
+    // Skip fitting while a route is still solving: that render is transient
+    // (one pin, empty geometry) and fitting it would setView to zoom 16 on
+    // the pin, then the solved route's fitBounds would zoom out again -- the
+    // first-stop "double zoom". Fit once, on the settled render.
+    var wantFit = !routing && (fit || (!hasInitialFit && (geom.length >= 2 || wps.length >= 1)));
     if (wantFit){
       var pts = (geom.length >= 2) ? geom : wps.map(function(w){ return [w.lat, w.lng]; });
       if (pts.length >= 2){

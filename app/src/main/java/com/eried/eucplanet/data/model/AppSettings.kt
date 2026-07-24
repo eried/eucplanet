@@ -856,6 +856,7 @@ data class AppSettings(
     val navExecuteDistM: Int get() = advanced.navExecuteDistM
     val navProxBandM: Int get() = advanced.navProxBandM
     val navMinInterStopMoveM: Int get() = advanced.navMinInterStopMoveM
+    val navMaxStartDistanceKm: Int get() = advanced.navMaxStartDistanceKm
     val radarFastApproachDistM: Int get() = advanced.radarFastApproachDistM
     val radarFastApproachSpeedKmh: Int get() = advanced.radarFastApproachSpeedKmh
     val radarStaticTargetKmh: Int get() = advanced.radarStaticTargetKmh
@@ -964,6 +965,7 @@ data class AdvancedSettings(
     val navExecuteDistM: Int = 30,
     val navProxBandM: Int = 4,
     val navMinInterStopMoveM: Int = 30,
+    val navMaxStartDistanceKm: Int = 50,
     val radarFastApproachDistM: Int = 50,
     val radarFastApproachSpeedKmh: Int = 60,
     val radarStaticTargetKmh: Int = 3,

@@ -1444,6 +1444,7 @@
     </string-array>
     <string name="nav_my_location">Ma position</string>
     <string name="nav_no_location">En attente d\'un signal GPS…</string>
+    <string name="nav_too_far_to_start">Le premier arrêt est trop loin. Maintiens Démarrer pour lancer la navigation quand même.</string>
     <string name="nav_empty_hint">Touche la carte, fais une recherche ou charge un fichier GPX</string>
     <string name="nav_route_failed">Service de routage indisponible, lignes droites utilisées</string>
     <string name="nav_cant_add_while_running">Impossible d\'ajouter un arrêt pendant la navigation</string>
@@ -1757,6 +1758,8 @@
     <string name="adv_nav_inter_stop_desc">Détermine la distance à parcourir au-delà d\'un arrêt avant que le suivant soit compté comme atteint. Danger : trop bas peut sauter un arrêt.</string>
     <string name="adv_nav_intermediate_flash">Durée du flash de point de passage</string>
     <string name="adv_nav_intermediate_flash_desc">Détermine combien de temps le flash de point de passage atteint s\'affiche.</string>
+    <string name="adv_nav_max_start">Distance de départ max</string>
+    <string name="adv_nav_max_start_desc">Distance maximale du premier arrêt pour pouvoir lancer la navigation. Au-delà, la ligne depuis ta position est masquée et le départ est bloqué. La planification fonctionne toujours.</string>
     <string name="adv_nav_moving">Vitesse de mouvement</string>
     <string name="adv_nav_moving_desc">Détermine la vitesse au-dessus de laquelle tu es considéré en mouvement pour le cap et le guidage. Danger : trop élevé ignore la conduite lente.</string>
     <string name="adv_nav_offroute_grace">Délai hors itinéraire</string>

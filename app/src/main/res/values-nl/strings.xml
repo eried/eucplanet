@@ -1440,6 +1440,7 @@
     </string-array>
     <string name="nav_my_location">Mijn locatie</string>
     <string name="nav_no_location">Wachten op een GPS-fix…</string>
+    <string name="nav_too_far_to_start">De eerste stop is te ver weg. Houd Start ingedrukt om toch te navigeren.</string>
     <string name="nav_empty_hint">Tik op de kaart, zoek, of laad een GPX-bestand</string>
     <string name="nav_route_failed">Routeringsservice niet beschikbaar, rechte lijnen gebruikt</string>
     <string name="nav_cant_add_while_running">Kan geen stop toevoegen terwijl navigatie loopt</string>
@@ -1753,6 +1754,8 @@
     <string name="adv_nav_inter_stop_desc">Bepaalt hoe ver je voorbij één stop moet bewegen voordat de volgende als bereikt kan gelden. Let op: te laag kan een stop overslaan.</string>
     <string name="adv_nav_intermediate_flash">Flitstijd waypoint</string>
     <string name="adv_nav_intermediate_flash_desc">Bepaalt hoe lang de flits voor een bereikt waypoint wordt getoond.</string>
+    <string name="adv_nav_max_start">Max. startafstand</string>
+    <string name="adv_nav_max_start_desc">Hoe ver de eerste stop maximaal mag zijn om te kunnen starten met navigeren. Voorbij deze afstand wordt de lijn vanaf je locatie verborgen en is starten geblokkeerd. Plannen blijft mogelijk.</string>
     <string name="adv_nav_moving">Bewegingssnelheid</string>
     <string name="adv_nav_moving_desc">Bepaalt de snelheid waarboven je als bewegend telt voor koers en begeleiding. Let op: te hoog negeert langzaam rijden.</string>
     <string name="adv_nav_offroute_grace">Marge buiten route</string>

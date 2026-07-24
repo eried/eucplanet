@@ -1389,6 +1389,7 @@
     </string-array>
     <string name="nav_my_location">Min plats</string>
     <string name="nav_no_location">Väntar på GPS-fix…</string>
+    <string name="nav_too_far_to_start">Första stoppet är för långt bort. Håll inne Starta för att navigera ändå.</string>
     <string name="nav_empty_hint">Tryck på kartan, sök, eller läs in en GPX-fil</string>
     <string name="nav_route_failed">Ruttjänst otillgänglig, använder raka linjer</string>
     <string name="nav_cant_add_while_running">Kan inte lägga till stopp medan navigation körs</string>
@@ -1753,6 +1754,8 @@
     <string name="adv_nav_inter_stop_desc">Påverkar hur långt du måste röra dig förbi ett stopp innan nästa kan räknas som ankommet. Fara: för lågt kan hoppa över ett stopp.</string>
     <string name="adv_nav_intermediate_flash">Blinktid för vägpunkt</string>
     <string name="adv_nav_intermediate_flash_desc">Påverkar hur länge blinkningen för uppnådd vägpunkt visas.</string>
+    <string name="adv_nav_max_start">Max startavstånd</string>
+    <string name="adv_nav_max_start_desc">Hur långt bort det första stoppet får vara för att starta navigeringen. Bortom detta döljs linjen från din plats och start blockeras. Planering fungerar fortfarande.</string>
     <string name="adv_nav_moving">Rörelsehastighet</string>
     <string name="adv_nav_moving_desc">Påverkar hastigheten över vilken du räknas som i rörelse för kurs och vägledning. Fara: för högt ignorerar långsam körning.</string>
     <string name="adv_nav_offroute_grace">Tidsmarginal utanför rutt</string>

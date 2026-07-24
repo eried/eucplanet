@@ -1390,6 +1390,7 @@
     </string-array>
     <string name="nav_my_location">現在地</string>
     <string name="nav_no_location">GPS フィックスを待機中…</string>
+    <string name="nav_too_far_to_start">最初の経由地は遠すぎます。「開始」を長押しすると、それでもナビを開始します。</string>
     <string name="nav_empty_hint">マップをタップ、検索、または GPX ファイルを読み込んでください</string>
     <string name="nav_route_failed">ルーティングサービスが利用できないため、直線を使用します</string>
     <string name="nav_cant_add_while_running">ナビゲーション実行中は経由地を追加できません</string>
@@ -1752,6 +1753,8 @@
     <string name="adv_nav_inter_stop_desc">次の停車地を到着とみなす前に、ある停車地からどれだけ移動する必要があるかに影響します。危険: 低すぎると停車地をスキップする場合があります。</string>
     <string name="adv_nav_intermediate_flash">経由地フラッシュ時間</string>
     <string name="adv_nav_intermediate_flash_desc">経由地到達フラッシュが表示される時間に影響します。</string>
+    <string name="adv_nav_max_start">最大開始距離</string>
+    <string name="adv_nav_max_start_desc">ナビを開始できる最初の経由地までの最大距離です。これを超えると、現在地からの線が非表示になり、開始がブロックされます。ルート作成はそのまま行えます。</string>
     <string name="adv_nav_moving">移動速度</string>
     <string name="adv_nav_moving_desc">方位とガイダンスで移動中とみなす速度のしきい値に影響します。危険: 高すぎると低速走行を無視します。</string>
     <string name="adv_nav_offroute_grace">ルート外れ猶予</string>

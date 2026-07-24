@@ -740,6 +740,7 @@
     <string name="nav_stops_left">%1$d fermate rimaste</string>
     <string name="nav_tap_on_self">Nell\'elenco Fermate, tieni premuta una fermata per impostarla sulla tua posizione</string>
     <string name="nav_title">Creatore di percorsi</string>
+    <string name="nav_too_far_to_start">La prima fermata è troppo lontana. Tieni premuto Avvia per navigare comunque.</string>
     <string name="nav_turn_left">Gira a sinistra</string>
     <string name="nav_turn_right">Gira a destra</string>
     <string name="nav_turn_sharp_left">Svolta secca a sinistra</string>
@@ -1658,6 +1659,8 @@
     <string name="adv_nav_inter_stop_desc">Influisce su quanto devi spostarti oltre una fermata prima che la successiva possa contare come raggiunta. Pericolo: troppo bassa può saltare una fermata.</string>
     <string name="adv_nav_intermediate_flash">Durata lampeggio waypoint</string>
     <string name="adv_nav_intermediate_flash_desc">Influisce su quanto a lungo compare il lampeggio di waypoint raggiunto.</string>
+    <string name="adv_nav_max_start">Distanza max di avvio</string>
+    <string name="adv_nav_max_start_desc">Quanto può essere lontana la prima fermata per avviare la navigazione. Oltre questo limite, la linea dalla tua posizione viene nascosta e l\'avvio è bloccato. La pianificazione continua a funzionare.</string>
     <string name="adv_nav_moving">Velocità di movimento</string>
     <string name="adv_nav_moving_desc">Influisce sulla velocità oltre la quale conti come in movimento per direzione e guida. Pericolo: troppo alta ignora la marcia lenta.</string>
     <string name="adv_nav_offroute_grace">Tolleranza fuori percorso</string>

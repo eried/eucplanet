@@ -162,6 +162,8 @@ val ADVANCED_SPECS: List<AdvancedSpec> = listOf(
         1..100, 1, unit = "m", get = { it.navProxBandM }, set = { s, v -> s.copy(navProxBandM = v) }),
     AdvancedSpec("navMinInterStopMoveM", AdvGroup.NAV_BEHAVIOUR, R.string.adv_nav_inter_stop, R.string.adv_nav_inter_stop_desc,
         5..500, 5, unit = "m", get = { it.navMinInterStopMoveM }, set = { s, v -> s.copy(navMinInterStopMoveM = v) }),
+    AdvancedSpec("navMaxStartDistanceKm", AdvGroup.NAV_BEHAVIOUR, R.string.adv_nav_max_start, R.string.adv_nav_max_start_desc,
+        5..1000, 5, unit = "km", get = { it.navMaxStartDistanceKm }, set = { s, v -> s.copy(navMaxStartDistanceKm = v) }),
 
     // --- Radar classification ---
     AdvancedSpec("radarFastApproachDistM", AdvGroup.RADAR_CLASS, R.string.adv_radar_fast_dist, R.string.adv_radar_fast_dist_desc,

@@ -1417,6 +1417,7 @@
     </string-array>
     <string name="nav_my_location">Моє місцеперебування</string>
     <string name="nav_no_location">Очікуємо на сигнал GPS…</string>
+    <string name="nav_too_far_to_start">Перша зупинка задалеко. Утримуй «Пуск», щоб все одно почати навігацію.</string>
     <string name="nav_empty_hint">Торкнись карти, скористайся пошуком або завантаж файл GPX</string>
     <string name="nav_route_failed">Сервіс маршрутів недоступний, використовуються прямі лінії</string>
     <string name="nav_cant_add_while_running">Не можна додати зупинку під час навігації</string>
@@ -1750,6 +1751,8 @@
     <string name="adv_nav_inter_stop_desc">Впливає на те, як далеко треба проїхати за одну зупинку, перш ніж наступна зарахується як досягнута. Небезпека: замало — можна пропустити зупинку.</string>
     <string name="adv_nav_intermediate_flash">Час спалаху точки</string>
     <string name="adv_nav_intermediate_flash_desc">Впливає на те, як довго показується спалах досягнення точки.</string>
+    <string name="adv_nav_max_start">Макс. відстань для старту</string>
+    <string name="adv_nav_max_start_desc">Наскільки далеко може бути перша зупинка, щоб почати навігацію. Понад це лінія від твого місцеперебування приховується, а старт блокується. Планування маршруту досі працює.</string>
     <string name="adv_nav_moving">Швидкість руху</string>
     <string name="adv_nav_moving_desc">Впливає на швидкість, вище якої ти вважаєшся рухомим для курсу та підказок. Небезпека: забагато — ігнорує повільну їзду.</string>
     <string name="adv_nav_offroute_grace">Пільга сходу з маршруту</string>
