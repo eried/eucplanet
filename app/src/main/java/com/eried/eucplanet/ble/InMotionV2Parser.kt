@@ -301,11 +301,13 @@ object InMotionV2Parser {
         fun byteOrNull(off: Int): Int? =
             if (off < data.size) data[off].toInt() and 0xFF else null
 
-        val motorByte = byteOrNull(31)
-        val motorC: Float? = motorByte
-            ?.takeIf { it >= 176 }  // below 176 (0 °C) means uninitialized / pre-boot
-            ?.let { (it - 176).toFloat() }
-
+        // Motor temp is NOT in this realtime frame. body[31] / body[38] look
+        // like temperatures but are fixed constants (216 / 101) that only
+        // coincidentally matched a single labelled point: across a full ride
+        // capture body[31] read 34 while the same wheel ran at 102 C, and
+        // body[38] was 101 in 10 000+ consecutive frames regardless of load.
+        // The real motor temp lives in the 0x84 detailed frame; the adapter
+        // caches it and injects it into slot 0 here (see InMotionV2Adapter).
         val mosByte = byteOrNull(28)
         val mosC: Float? = mosByte
             ?.takeIf { it in 5..120 }  // plausible ambient..hot range
@@ -316,7 +318,9 @@ object InMotionV2Parser {
             ?.takeIf { it in 5..62 }  // the formula's valid input window
             ?.let { (62 - it).toFloat() }
 
-        val temps = listOfNotNull(motorC, mosC, imuC)
+        // Positional [motor, controller (MOS), battery (IMU)]. Slot 0 is a
+        // placeholder the adapter overwrites with the cached 0x84 motor temp.
+        val temps = listOf(0f, mosC ?: 0f, imuC ?: 0f)
 
         // Headlight state isn't reliably reported in the realtime stream on
         // user-facing firmware. preview4's "byte[84] bit 1" rule worked in
@@ -351,10 +355,10 @@ object InMotionV2Parser {
             tripDistance = 0f,
             totalDistance = totalDistanceKm,
             temperatures = temps,
-            // Motor specifically (not max of all sensors): the user wants
-            // the dashboard pill to read the same number the wheel and the
-            // InMotion app show as the motor temperature.
-            maxTemperature = motorC ?: 0f,
+            // Slot 0 is a placeholder here; the adapter sets both this list's
+            // motor slot and maxTemperature from the cached 0x84 motor temp so
+            // the pill reads the same number the InMotion app shows.
+            maxTemperature = 0f,
             lightOn = lightOn,
             timestamp = System.currentTimeMillis()
         )
@@ -403,23 +407,18 @@ object InMotionV2Parser {
      * don't match, leave them null and the dashboard shows MOS only.
      */
     fun parseP6DetailedData(body: ByteArray): InMotionV2DetailedTemps? {
-        if (body.size < 67) return null
-        fun decode(off: Int): Float? {
-            if (off >= body.size) return null
-            val v = body[off].toInt() and 0xFF
-            // °F = byte − 126 (labelled-capture calibration)
-            val f = v - 126
-            if (f !in 32..248) return null  // 0..120 °C plausible band
-            return (f - 32) * 5f / 9f
-        }
-        val mos = decode(58)
-        // Walk the temp block looking for the next two plausible thermistor
-        // readings. Offsets 60 / 64 read 0 in the labelled capture (padding);
-        // 59, 61, 63, 65 hold the live values.
-        val others = listOf(59, 61, 63, 65, 62, 66).mapNotNull { decode(it) }
-        val motor = others.getOrNull(0)
-        val driverBoard = others.getOrNull(1)
-        return InMotionV2DetailedTemps(mosC = mos, motorC = motor, driverBoardC = driverBoard)
+        if (body.size < 65) return null
+        // Motor temp: the 0x84 detailed frame reports it in FAHRENHEIT at
+        // body[64]. Matched to the InMotion app's "Motor Temp 216 F" tile
+        // against a full labelled ride capture - body[64] read exactly 216 at
+        // the screenshot moment and rose 202..221 F as the motor heated (far
+        // too high to be Celsius). Convert to C for storage.
+        // MOS and driver-board are deliberately left null: the realtime 0x87
+        // frame already carries a live MOS (body[28], controller slot), and no
+        // other sensor in this frame is confidently identified yet.
+        val motorF = body[64].toInt() and 0xFF
+        val motorC = ((motorF - 32) * 5f / 9f).takeIf { motorF in 50..255 }
+        return InMotionV2DetailedTemps(mosC = null, motorC = motorC, driverBoardC = null)
     }
 
     /**
