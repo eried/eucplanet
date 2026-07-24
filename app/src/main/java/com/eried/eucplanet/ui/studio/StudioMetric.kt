@@ -24,7 +24,10 @@ enum class StudioMetric(
     val decimals: Int,
     /** Sensible full-scale value for a new dial / bar gauge of this metric. */
     val defaultMax: Float,
-    val extract: (WheelData) -> Float
+    val extract: (WheelData) -> Float,
+    /** True for metrics that are text, not a scalar (GPS coordinates), so they
+     *  are offered only on a text value element, never a dial / bar / graph. */
+    val textOnly: Boolean = false
 ) {
     SPEED("SPEED", "Speed", StudioMetricKind.SPEED, "", 1, 60f, { it.speed.absoluteValue }),
     BATTERY("BATTERY", "Battery", StudioMetricKind.PLAIN, "%", 0, 100f, { it.batteryPercent.toFloat() }),
@@ -41,7 +44,7 @@ enum class StudioMetric(
     EXTERNAL_GPS_BATTERY("EXT_GPS_BATTERY", "GPS box battery", StudioMetricKind.PLAIN, "%", 0, 100f, { it.externalGpsBatteryPercent.toFloat() }),
     // A lat/lng pair shown as text (not a scalar), so it only makes sense on a
     // text value element. extract is a placeholder; formatted() renders the pair.
-    GPS("GPS", "GPS coordinates", StudioMetricKind.PLAIN, "", 0, 1f, { 0f });
+    GPS("GPS", "GPS coordinates", StudioMetricKind.PLAIN, "", 0, 1f, { 0f }, textOnly = true);
 
     /** The raw value converted into the rider's chosen display unit. */
     fun displayValue(data: WheelData, speedUnit: String, distUnit: String, tempUnit: String): Float {

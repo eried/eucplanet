@@ -1549,7 +1549,12 @@ fun ElementConfigSheet(
                     stringResource(R.string.studio_cfg_metric_label),
                     fontWeight = FontWeight.SemiBold
                 )
-                MetricPicker(element.metric) { key ->
+                MetricPicker(
+                    element.metric,
+                    // Text-only metrics (GPS coordinates) belong on a text value
+                    // element, not a dial / bar / graph.
+                    textElement = element.type == OverlayElementType.DATA_VALUE
+                ) { key ->
                     onChange(
                         if (isGauge) element.copy(
                             metric = key,
@@ -2053,10 +2058,13 @@ fun ElementConfigSheet(
 }
 
 @Composable
-private fun MetricPicker(selected: String, onPick: (String) -> Unit) {
+private fun MetricPicker(selected: String, textElement: Boolean, onPick: (String) -> Unit) {
+    val metrics = remember(textElement) {
+        StudioMetric.entries.filter { textElement || !it.textOnly }
+    }
     LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-        items(StudioMetric.entries.size) { i ->
-            val metric = StudioMetric.entries[i]
+        items(metrics.size) { i ->
+            val metric = metrics[i]
             FilterChip(
                 selected = metric.key == selected,
                 onClick = { onPick(metric.key) },
