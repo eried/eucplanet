@@ -34,6 +34,14 @@ class WheelService : LifecycleService() {
 
     companion object {
         private const val TAG = "WheelService"
+        /** True while the service is alive - i.e. the rider is actively using
+         *  the app (a ride, or a background feature that needs the service).
+         *  External-GPS auto-connect reads this (together with AppForeground) so
+         *  a background worker wake that re-creates the process never connects
+         *  the box. */
+        @Volatile
+        var isRunning: Boolean = false
+            private set
         // Minimum |speed| (km/h) that counts as "in motion" — shared by the
         // auto-record start/stop loop and the "When riding" announcement gate
         // so the two never drift. Small enough to catch a real roll, large
@@ -115,6 +123,7 @@ class WheelService : LifecycleService() {
 
     override fun onCreate() {
         super.onCreate()
+        isRunning = true
         createNotificationChannel()
 
         val canUseLocation = hasPermission(Manifest.permission.ACCESS_FINE_LOCATION) ||
@@ -379,6 +388,7 @@ class WheelService : LifecycleService() {
     }
 
     override fun onDestroy() {
+        isRunning = false
         // Any destroy path (not just Stop All) tears the notification down and
         // stops further re-posts, so an ordinary stopSelf() can't leave it behind
         // either.
