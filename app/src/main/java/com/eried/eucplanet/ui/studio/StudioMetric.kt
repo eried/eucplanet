@@ -38,7 +38,10 @@ enum class StudioMetric(
     PITCH("PITCH", "Pitch", StudioMetricKind.PLAIN, "°", 1, 30f, { it.pitchAngle }),
     ROLL("ROLL", "Roll", StudioMetricKind.PLAIN, "°", 1, 30f, { it.rollAngle }),
     G_FORCE("G-FORCE", "G-Force", StudioMetricKind.PLAIN, "g", 2, 2f, { it.gForce }),
-    EXTERNAL_GPS_BATTERY("EXT_GPS_BATTERY", "GPS box battery", StudioMetricKind.PLAIN, "%", 0, 100f, { it.externalGpsBatteryPercent.toFloat() });
+    EXTERNAL_GPS_BATTERY("EXT_GPS_BATTERY", "GPS box battery", StudioMetricKind.PLAIN, "%", 0, 100f, { it.externalGpsBatteryPercent.toFloat() }),
+    // A lat/lng pair shown as text (not a scalar), so it only makes sense on a
+    // text value element. extract is a placeholder; formatted() renders the pair.
+    GPS("GPS", "GPS coordinates", StudioMetricKind.PLAIN, "", 0, 1f, { 0f });
 
     /** The raw value converted into the rider's chosen display unit. */
     fun displayValue(data: WheelData, speedUnit: String, distUnit: String, tempUnit: String): Float {
@@ -62,6 +65,11 @@ enum class StudioMetric(
 
     /** The value formatted to [decimals] decimal places. */
     fun formatted(data: WheelData, speedUnit: String, distUnit: String, tempUnit: String): String {
+        if (this == GPS) {
+            // A lat/lng pair rendered as text; 5 dp is ~1 m. Both 0 means no fix.
+            return if (data.latitude == 0.0 && data.longitude == 0.0) "--"
+            else String.format(java.util.Locale.US, "%.5f, %.5f", data.latitude, data.longitude)
+        }
         val v = displayValue(data, speedUnit, distUnit, tempUnit)
         return if (decimals == 0) v.toInt().toString()
         else String.format(java.util.Locale.US, "%.${decimals}f", v)
@@ -88,4 +96,5 @@ fun StudioMetric.displayName(): String = when (this) {
     StudioMetric.ROLL -> stringResource(R.string.studio_metric_roll)
     StudioMetric.G_FORCE -> stringResource(R.string.studio_metric_g_force)
     StudioMetric.EXTERNAL_GPS_BATTERY -> stringResource(R.string.studio_metric_external_gps_battery)
+    StudioMetric.GPS -> stringResource(R.string.studio_metric_gps)
 }
