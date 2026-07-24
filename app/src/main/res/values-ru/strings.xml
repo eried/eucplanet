@@ -1340,6 +1340,7 @@
     <string name="studio_metric_roll">Крен</string>
     <string name="studio_metric_g_force">G-Force</string>
     <string name="studio_metric_external_gps_battery">Заряд GPS</string>
+    <string name="studio_metric_gps">Координаты GPS</string>
 
     <!-- Navigator -->
     <string name="nav_open">Открыть навигатор</string>

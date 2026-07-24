@@ -1377,6 +1377,7 @@
     <string name="studio_metric_roll">Roll</string>
     <string name="studio_metric_g_force">G-Force</string>
     <string name="studio_metric_external_gps_battery">GPS-accu</string>
+    <string name="studio_metric_gps">GPS-coördinaten</string>
 
     <!-- Studio: misc -->
     <string name="studio_snap_to_grid">Op raster uitlijnen</string>

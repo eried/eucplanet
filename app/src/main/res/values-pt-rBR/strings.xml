@@ -1340,6 +1340,7 @@
     <string name="studio_metric_roll">Rolagem</string>
     <string name="studio_metric_g_force">G-Force</string>
     <string name="studio_metric_external_gps_battery">Bateria do GPS</string>
+    <string name="studio_metric_gps">Coordenadas GPS</string>
 
     <!-- Navigator -->
     <string name="nav_open">Abrir navegador</string>

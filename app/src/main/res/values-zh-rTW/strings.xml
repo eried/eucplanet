@@ -1337,6 +1337,7 @@
     <string name="studio_metric_roll">滾轉角</string>
     <string name="studio_metric_g_force">G 力</string>
     <string name="studio_metric_external_gps_battery">GPS 電池</string>
+    <string name="studio_metric_gps">GPS 座標</string>
 
     <!-- Navigator -->
     <string name="nav_open">開啟導航</string>

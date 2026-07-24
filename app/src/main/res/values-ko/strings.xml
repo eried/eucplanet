@@ -1337,6 +1337,7 @@
     <string name="studio_metric_roll">롤</string>
     <string name="studio_metric_g_force">G-force</string>
     <string name="studio_metric_external_gps_battery">GPS 배터리</string>
+    <string name="studio_metric_gps">GPS 좌표</string>
 
     <!-- Navigator -->
     <string name="nav_open">내비게이터 열기</string>

@@ -1337,6 +1337,7 @@
     <string name="studio_metric_roll">ロール</string>
     <string name="studio_metric_g_force">G フォース</string>
     <string name="studio_metric_external_gps_battery">GPS バッテリー</string>
+    <string name="studio_metric_gps">GPS 座標</string>
 
     <!-- Navigator -->
     <string name="nav_open">ナビゲーターを開く</string>
