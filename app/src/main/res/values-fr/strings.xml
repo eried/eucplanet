@@ -1378,7 +1378,7 @@
     <string name="studio_metric_pitch">Tangage</string>
     <string name="studio_metric_roll">Roulis</string>
     <string name="studio_metric_g_force">G-Force</string>
-    <string name="studio_metric_external_gps_battery">Batterie GPS</string>
+    <string name="studio_metric_external_gps_battery">Batterie GPS ext.</string>
     <string name="studio_metric_gps">Coordonnées GPS</string>
 
     <!-- Studio: overwrite preset -->

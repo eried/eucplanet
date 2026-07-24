@@ -1340,7 +1340,7 @@
     <string name="studio_metric_pitch">Hældning</string>
     <string name="studio_metric_roll">Krængning</string>
     <string name="studio_metric_g_force">G-Force</string>
-    <string name="studio_metric_external_gps_battery">GPS-batteri</string>
+    <string name="studio_metric_external_gps_battery">Ekst. GPS-batteri</string>
     <string name="studio_metric_gps">GPS-koordinater</string>
 
     <!-- Navigator -->

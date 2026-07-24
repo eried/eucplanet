@@ -1336,7 +1336,7 @@
     <string name="studio_metric_pitch">俯仰角</string>
     <string name="studio_metric_roll">滾轉角</string>
     <string name="studio_metric_g_force">G 力</string>
-    <string name="studio_metric_external_gps_battery">GPS 電池</string>
+    <string name="studio_metric_external_gps_battery">外接 GPS 電池</string>
     <string name="studio_metric_gps">GPS 座標</string>
 
     <!-- Navigator -->

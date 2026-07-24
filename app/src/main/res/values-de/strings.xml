@@ -1351,7 +1351,7 @@
     <string name="studio_metric_pitch">Neigung</string>
     <string name="studio_metric_roll">Querneigung</string>
     <string name="studio_metric_g_force">G-Force</string>
-    <string name="studio_metric_external_gps_battery">GPS-Akku</string>
+    <string name="studio_metric_external_gps_battery">Ext. GPS-Akku</string>
     <string name="studio_metric_gps">GPS-Koordinaten</string>
 
     <!-- Studio misc -->

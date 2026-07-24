@@ -1352,7 +1352,7 @@
     <string name="studio_metric_pitch">Pochylenie</string>
     <string name="studio_metric_roll">Przechył</string>
     <string name="studio_metric_g_force">G-Force</string>
-    <string name="studio_metric_external_gps_battery">Bateria GPS</string>
+    <string name="studio_metric_external_gps_battery">Bateria GPS zewn.</string>
     <string name="studio_metric_gps">Współrzędne GPS</string>
 
     <!-- Navigator -->

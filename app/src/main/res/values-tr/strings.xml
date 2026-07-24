@@ -1336,7 +1336,7 @@
     <string name="studio_metric_pitch">Yunuslama</string>
     <string name="studio_metric_roll">Yalpa</string>
     <string name="studio_metric_g_force">G-Kuvveti</string>
-    <string name="studio_metric_external_gps_battery">GPS aküsü</string>
+    <string name="studio_metric_external_gps_battery">Harici GPS aküsü</string>
     <string name="studio_metric_gps">GPS koordinatları</string>
 
     <!-- Navigator -->
