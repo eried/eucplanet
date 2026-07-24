@@ -100,6 +100,10 @@ class TripRepository @Inject constructor(
     // off to end the ride — see [WheelIdentity].
     private val wheelIdentity = WheelIdentity()
 
+    // Last identity JSON already flushed to the current row, so the mid-ride persist
+    // writes only when it actually changes (≈once per ride) rather than every tick.
+    private var lastPersistedWheelMeta: String? = null
+
     // Advanced: phone GPS (fused-location) update interval, mirrored from settings
     // so the non-suspend location-request builder can read it synchronously. A
     // change takes effect the next time location updates (re)start.
@@ -364,6 +368,24 @@ class TripRepository @Inject constructor(
         )
     }
 
+    /**
+     * Flush the accumulated wheel identity onto the current row the first time it
+     * becomes known (and again only if it grows) — gated on change, so a whole ride
+     * costs about one extra write, not one per tick. This is what makes the identity
+     * survive an OOM/force-kill: [finalizeUnfinishedTrips] recovers a killed row from
+     * its CSV and [finalizedTripOrNull] copies wheelMetaJson through untouched, so a
+     * row that already carries the wheel keeps it. Best-effort — a DB hiccup here must
+     * never disturb recording. Targets the row by id, and stopRecording() rewrites the
+     * same accumulator value, so the two can never disagree.
+     */
+    private suspend fun persistWheelIdentityIfChanged() {
+        val json = wheelIdentity.toJson() ?: return
+        if (json == lastPersistedWheelMeta) return
+        val id = currentTrip?.id ?: return
+        lastPersistedWheelMeta = json
+        runCatching { tripDao.updateWheelMeta(id, json) }
+    }
+
     suspend fun startRecording() {
         // Back off briefly after a failed start. evaluateAutoRecordOnTelemetry
         // calls this on every moving packet (~10/s); without this it would spin
@@ -414,6 +436,7 @@ class TripRepository @Inject constructor(
         lastGpsPoint = null
         tripHadMockFix = false
         wheelIdentity.clear()          // never inherit the previous ride's wheel
+        lastPersistedWheelMeta = null
         captureWheelIdentity()
 
         val trip = TripRecord(fileName = fileName, tripUuid = java.util.UUID.randomUUID().toString())
@@ -466,8 +489,12 @@ class TripRepository @Inject constructor(
                     com.eried.eucplanet.ble.ConnectionState.CONNECTED
                 csvWriter?.writeRow(data, location, extSpeed, wheelConnected)
                 // Keep the wheel's identity current while it is still talking to us; the
-                // serial/model often only arrive some seconds into the connection.
-                if (wheelConnected) captureWheelIdentity()
+                // serial/model often only arrive some seconds into the connection. Flush it
+                // to the row as soon as it's known so a later kill still recovers the wheel.
+                if (wheelConnected) {
+                    captureWheelIdentity()
+                    persistWheelIdentityIfChanged()
+                }
                 rowsWritten++
                 if (location != null) {
                     rowsWithGps++

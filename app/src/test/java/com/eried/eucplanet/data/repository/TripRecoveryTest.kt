@@ -146,4 +146,43 @@ class TripRecoveryTest {
         assertEquals("finished trips are not in getUnfinished, so no update", 0, dao.updates.size)
         assertEquals(9_000L, dao.trips[0].endTime)
     }
+
+    // ---- wheel identity survives a kill (the 0.13.2 fix) ----
+
+    private val APEX = """{"ble_mac":"88:25:83:F5:8D:BB","brand":"LeaperKim"}"""
+    private val TRIP_CSV = "Date,Latitude,Longitude,Total mileage\n" +
+        "25.06.2026 15:30:00.000,37.400,-122.100,1000.0\n" +
+        "25.06.2026 15:30:02.000,37.401,-122.100,1000.9\n"
+
+    @Test
+    fun `finalize preserves a wheel identity already on the row`() {
+        // The contract the mid-ride persist relies on: recovery must not drop wheelMetaJson.
+        val withWheel = killed.copy(wheelMetaJson = APEX)
+        val m = TripCsv.Metrics(startMs = 1_000L, endMs = 5_000L, distanceKm = 2.5f, valid = true)
+        val out = finalizedTripOrNull(withWheel, m, 10)!!
+        assertEquals("identity carried through the finalize copy", APEX, out.wheelMetaJson)
+    }
+
+    @Test
+    fun `identity flushed mid-ride survives a kill and recovery`() = runBlocking {
+        val dao = FakeTripDao()
+        dao.trips += killed                       // endTime=null, wheelMetaJson=null
+        dao.updateWheelMeta(killed.id, APEX)      // what persistWheelIdentityIfChanged() does mid-ride
+        runSweep(dao, mapOf("trip_killed.csv" to TRIP_CSV))
+        val out = dao.trips.single()
+        assertNotNull("recovered (endTime filled from CSV)", out.endTime)
+        assertEquals("wheel identity kept through the kill+recovery", APEX, out.wheelMetaJson)
+    }
+
+    @Test
+    fun `killed ride with no identity stays orphan, never mis-attributed`() = runBlocking {
+        // Deliberate: no last-wheel fallback. A phone-only ride (or one killed before the
+        // wheel was ever identified) must NOT be guessed onto the last wheel.
+        val dao = FakeTripDao()
+        dao.trips += killed                       // never flushed any identity
+        runSweep(dao, mapOf("trip_killed.csv" to TRIP_CSV))
+        val out = dao.trips.single()
+        assertNotNull("still recovered as a trip", out.endTime)
+        assertNull("no wheel invented for it", out.wheelMetaJson)
+    }
 }
