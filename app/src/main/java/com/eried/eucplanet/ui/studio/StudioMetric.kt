@@ -41,10 +41,14 @@ enum class StudioMetric(
     PITCH("PITCH", "Pitch", StudioMetricKind.PLAIN, "°", 1, 30f, { it.pitchAngle }),
     ROLL("ROLL", "Roll", StudioMetricKind.PLAIN, "°", 1, 30f, { it.rollAngle }),
     G_FORCE("G-FORCE", "G-Force", StudioMetricKind.PLAIN, "g", 2, 2f, { it.gForce }),
-    EXTERNAL_GPS_BATTERY("EXT_GPS_BATTERY", "GPS box battery", StudioMetricKind.PLAIN, "%", 0, 100f, { it.externalGpsBatteryPercent.toFloat() }),
+    EXTERNAL_GPS_BATTERY("EXT_GPS_BATTERY", "Ext GPS battery", StudioMetricKind.PLAIN, "%", 0, 100f, { it.externalGpsBatteryPercent.toFloat() }),
     // A lat/lng pair shown as text (not a scalar), so it only makes sense on a
     // text value element. extract is a placeholder; formatted() renders the pair.
     GPS("GPS", "GPS coordinates", StudioMetricKind.PLAIN, "", 0, 1f, { 0f }, textOnly = true);
+
+    /** True when this metric renders a unit beside its value (so the config
+     *  sheet's unit-position control is only meaningful for these). */
+    val hasUnit: Boolean get() = kind != StudioMetricKind.PLAIN || plainUnit.isNotEmpty()
 
     /** The raw value converted into the rider's chosen display unit. */
     fun displayValue(data: WheelData, speedUnit: String, distUnit: String, tempUnit: String): Float {

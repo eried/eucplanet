@@ -1638,7 +1638,7 @@
     <string name="studio_metric_pitch">Pitch</string>
     <string name="studio_metric_roll">Roll</string>
     <string name="studio_metric_g_force">G-Force</string>
-    <string name="studio_metric_external_gps_battery">GPS box battery</string>
+    <string name="studio_metric_external_gps_battery">Ext GPS battery</string>
     <string name="studio_metric_gps">GPS coordinates</string>
 
     <!-- Navigator -->

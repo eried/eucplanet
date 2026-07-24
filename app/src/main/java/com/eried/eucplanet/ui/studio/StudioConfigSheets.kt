@@ -1683,12 +1683,15 @@ fun ElementConfigSheet(
             if (element.type == OverlayElementType.DATA_VALUE ||
                 element.type == OverlayElementType.DATA_BAR
             ) {
-                if (element.type == OverlayElementType.DATA_VALUE) {
+                if (element.type == OverlayElementType.DATA_VALUE &&
+                    StudioMetric.fromKey(element.metric).hasUnit
+                ) {
                     // Unit-label position: BEFORE the value (LEFT) or AFTER
                     // it (RIGHT). For "km/h 42" / "42 km/h" style overlays.
-                    // Sits above the Show-label toggle so the rider settles
-                    // identity (metric + unit placement) before binary
-                    // visibility toggles.
+                    // Only shown when the metric has a unit (not for GPS
+                    // coordinates, which are unitless). Sits above the
+                    // Show-label toggle so the rider settles identity (metric +
+                    // unit placement) before binary visibility toggles.
                     Text(
                         stringResource(R.string.studio_cfg_unit_position),
                         fontWeight = FontWeight.SemiBold
