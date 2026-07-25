@@ -137,11 +137,14 @@ class InMotionV2Adapter @Inject constructor() : WheelAdapter {
 
     /** Stats-cadence poll. For V14 family, rotates through the 4 BMS pack
      *  cell-voltage queries (one per call), so the 128 cells refresh once
-     *  per ~18s at the default poll cadence. For P6 it's null — the realtime
-     *  0x87 stream already carries motor/MOS/driver-board temps, and P6 has
-     *  no per-pack BMS protocol path. */
+     *  per ~18s at the default poll cadence. For P6 it queries the 0x84
+     *  detailed-data frame - the ONLY place the motor temperature actually
+     *  arrives. The realtime 0x87 stream does not carry it (body[31]/[38]
+     *  there are constants), so without this poll the motor-temp pill stays
+     *  blank. The adapter caches the value from the response and injects it
+     *  into the realtime frames (see decode() sub 0x04 / sub 0x07). */
     override fun pollStats(): ByteArray? {
-        if (useP6Protocol) return null
+        if (useP6Protocol) return InMotionV2Commands.getP6Stats()
         val pack = V14_BMS_PACK_ADDRS[v14PackPollIndex and 0x03]
         v14PackPollIndex = (v14PackPollIndex + 1) and 0x03
         // `aa aa 16 [len=3] 02 [pack=0x24..27] 02 [xor]` — InMotion's per-pack
