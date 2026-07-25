@@ -41,6 +41,20 @@ class EucPlanetApp : Application(), Configuration.Provider {
     override fun onCreate() {
         super.onCreate()
         CrashHandler.install(this)
+        // Track UI foreground so background-only process wakes (a periodic
+        // upload worker re-creating the process) don't auto-connect hardware
+        // like the external GPS box. See com.eried.eucplanet.util.AppForeground.
+        registerActivityLifecycleCallbacks(object : ActivityLifecycleCallbacks {
+            override fun onActivityStarted(activity: android.app.Activity) =
+                com.eried.eucplanet.util.AppForeground.onActivityStarted()
+            override fun onActivityStopped(activity: android.app.Activity) =
+                com.eried.eucplanet.util.AppForeground.onActivityStopped()
+            override fun onActivityCreated(a: android.app.Activity, b: android.os.Bundle?) {}
+            override fun onActivityResumed(activity: android.app.Activity) {}
+            override fun onActivityPaused(activity: android.app.Activity) {}
+            override fun onActivitySaveInstanceState(a: android.app.Activity, o: android.os.Bundle) {}
+            override fun onActivityDestroyed(activity: android.app.Activity) {}
+        })
         flicManager.initialize()
         wearBridge.start()
         garminBridge.start()
