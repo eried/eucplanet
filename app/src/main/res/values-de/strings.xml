@@ -1796,6 +1796,8 @@
     <string name="adv_nav_warning">Diese ändern, wann die Navigation reagiert. Falsche Werte können Sprachhinweise oder Neuberechnungen zu früh oder zu spät auslösen.</string>
     <string name="adv_phone_gps_interval">Handy-GPS-Aktualisierungsintervall</string>
     <string name="adv_phone_gps_interval_desc">Beeinflusst, wie flüssig die GPS-Spur ist und wie schnell die Navigation reagiert. Niedriger aktualisiert öfter. Achtung: niedrige Werte entladen den Akku schneller.</string>
+    <string name="adv_phone_gps_idle_interval">GPS-Intervall im Leerlauf</string>
+    <string name="adv_phone_gps_idle_interval_desc">GPS-Rate im Leerlauf, wenn nicht aufgenommen oder navigiert wird, damit Navigator und eine neue Verbindung bereit sind. Höher spart Akku.</string>
     <string name="adv_pushonly_note">Manche Geräte senden mit ihrer eigenen festen Rate und ignorieren diese Einstellungen: Push-only-Wheels (Begode, Gotway, Veteran, KingSong), externes GPS (RaceBox), Radar und Flic-Tasten.</string>
     <string name="adv_radar_clear_decay">Radar-Spur-Nachlauf</string>
     <string name="adv_radar_clear_decay_desc">Beeinflusst, wie lange der Spurbalken bleibt, nachdem die Straße frei ist. Achtung: zu niedrig lässt ihn blinken, wenn Autos kommen und gehen.</string>

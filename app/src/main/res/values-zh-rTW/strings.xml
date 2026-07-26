@@ -1775,6 +1775,8 @@
     <string name="adv_nav_warning">這些會改變導航的反應時機。數值錯誤可能使語音提示或重新規劃太早或太晚觸發。</string>
     <string name="adv_phone_gps_interval">手機 GPS 更新間隔</string>
     <string name="adv_phone_gps_interval_desc">影響 GPS 軌跡的平滑度與導航的反應速度。越低更新越頻繁。危險：低數值會更快耗盡電池。</string>
+    <string name="adv_phone_gps_idle_interval">GPS 閒置間隔</string>
+    <string name="adv_phone_gps_idle_interval_desc">未記錄或導航時的 GPS 更新間隔，讓導航和重新連線隨時就緒。數值越大越省電。</string>
     <string name="adv_pushonly_note">某些裝置以自身固定頻率串流並忽略這些設定：僅推送的車輪（Begode、Gotway、Veteran、KingSong）、外部 GPS（RaceBox）、雷達與 Flic 按鈕。</string>
     <string name="adv_radar_clear_decay">雷達車道衰減</string>
     <string name="adv_radar_clear_decay_desc">影響道路淨空後車道列停留多久。危險：太低會在車輛來去時閃爍。</string>

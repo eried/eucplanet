@@ -1773,6 +1773,8 @@
     <string name="adv_nav_warning">내비게이션이 반응하는 시점을 바꿉니다. 잘못된 값은 음성 안내나 경로 재탐색이 너무 일찍 또는 너무 늦게 작동하게 할 수 있습니다.</string>
     <string name="adv_phone_gps_interval">폰 GPS 업데이트 간격</string>
     <string name="adv_phone_gps_interval_desc">GPS 경로의 부드러움과 내비게이션 반응 속도를 결정합니다. 낮을수록 자주 업데이트합니다. 주의: 낮은 값은 배터리를 더 빨리 소모합니다.</string>
+    <string name="adv_phone_gps_idle_interval">GPS 대기 간격</string>
+    <string name="adv_phone_gps_idle_interval_desc">기록이나 내비게이션을 하지 않을 때의 GPS 갱신 간격. 내비게이터와 새 연결이 준비 상태를 유지합니다. 값이 클수록 배터리 절약.</string>
     <string name="adv_pushonly_note">일부 기기는 자체 고정 속도로 스트리밍하며 이 설정을 무시합니다: 푸시 전용 휠 (Begode, Gotway, Veteran, KingSong), 외부 GPS (RaceBox), 레이더 및 Flic 버튼.</string>
     <string name="adv_radar_clear_decay">레이더 차선 감쇠</string>
     <string name="adv_radar_clear_decay_desc">도로가 비워진 후 차선 바가 유지되는 시간을 결정합니다. 주의: 너무 낮으면 차량이 오가며 깜빡입니다.</string>

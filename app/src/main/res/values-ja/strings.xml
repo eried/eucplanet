@@ -1775,6 +1775,8 @@
     <string name="adv_nav_warning">これらはナビゲーションが反応するタイミングを変更します。値が誤っていると音声案内や再ルート探索が早すぎたり遅すぎたりします。</string>
     <string name="adv_phone_gps_interval">スマホ GPS 更新間隔</string>
     <string name="adv_phone_gps_interval_desc">GPS トラックの滑らかさとナビゲーションの反応速度に影響します。低いほど頻繁に更新します。危険: 低い値はバッテリーの消耗が速くなります。</string>
+    <string name="adv_phone_gps_idle_interval">GPSアイドル間隔</string>
+    <string name="adv_phone_gps_idle_interval_desc">記録もナビもしていないときのGPS更新間隔。ナビや再接続にすぐ備えます。大きいほど省電力。</string>
     <string name="adv_pushonly_note">一部のデバイスは独自の固定レートでストリーミングし、これらの設定を無視します: プッシュ専用ホイール（Begode、Gotway、Veteran、KingSong）、外部 GPS（RaceBox）、レーダー、Flic ボタン。</string>
     <string name="adv_radar_clear_decay">レーダーレーン減衰</string>
     <string name="adv_radar_clear_decay_desc">道路がクリアになった後にレーンバーが残る時間に影響します。危険: 低すぎると車の往来でちらつきます。</string>

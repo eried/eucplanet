@@ -416,6 +416,8 @@
     <string name="adv_trip_finalize_grace_desc">Affects how long after you stop before a trip is finalized and synced. Danger: too low may cut a trip that only briefly paused.</string>
     <string name="adv_phone_gps_interval">Phone GPS update interval</string>
     <string name="adv_phone_gps_interval_desc">Affects how smooth the GPS track is and how fast navigation reacts. Lower updates more often. Danger: low values drain the battery faster.</string>
+    <string name="adv_phone_gps_idle_interval">Phone GPS idle interval</string>
+    <string name="adv_phone_gps_idle_interval_desc">Keep-warm GPS rate when not recording or navigating, so the Navigator and a fresh wheel connect stay ready. Higher saves battery.</string>
     <string name="adv_hud_report_interval">HUD report rate</string>
     <string name="adv_hud_report_interval_desc">Affects how often a connected HUD screen updates. Danger: very low values send more data over the link.</string>
     <string name="adv_garmin_report_interval">Garmin report rate</string>

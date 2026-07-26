@@ -207,10 +207,9 @@ class RecordingViewModel @Inject constructor(
     }
 
     fun stopGpsPreview() {
-        // Only stop if not actively recording, recording needs GPS too
-        if (!tripRepository.recording.value) {
-            tripRepository.stopLocationUpdates()
-        }
+        // No-op: GPS is now demand-driven (GpsPowerPolicy). Leaving this screen
+        // just lets the tier fall back to idle keep-warm on its own; a full stop
+        // here would kill the stream other consumers / the Navigator rely on.
     }
 
     fun toggleRecording() {

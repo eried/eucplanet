@@ -1662,6 +1662,8 @@
     <string name="adv_nav_warning">Disse endrer når navigasjonen reagerer. Feil verdier kan få stemmevarsler eller omberegning til å utløses for tidlig eller for sent.</string>
     <string name="adv_phone_gps_interval">GPS-oppdateringsintervall for telefon</string>
     <string name="adv_phone_gps_interval_desc">Påvirker hvor jevnt GPS-sporet er og hvor raskt navigasjonen reagerer. Lavere oppdaterer oftere. Fare: lave verdier tapper batteriet raskere.</string>
+    <string name="adv_phone_gps_idle_interval">GPS-intervall i tomgang</string>
+    <string name="adv_phone_gps_idle_interval_desc">GPS-hastighet i tomgang når du ikke tar opp eller navigerer, så Navigator og en ny tilkobling er klare. Høyere sparer batteri.</string>
     <string name="adv_pushonly_note">Noen enheter strømmer med sin egen faste rate og ignorerer disse innstillingene: push-only-hjul (Begode, Gotway, Veteran, KingSong), ekstern GPS (RaceBox), radar og Flic-knapper.</string>
     <string name="adv_radar_clear_decay">Radarfeltavtoning</string>
     <string name="adv_radar_clear_decay_desc">Påvirker hvor lenge feltstolpen blir værende etter at veien er klar. Fare: for lavt får den til å blinke når biler kommer og går.</string>
