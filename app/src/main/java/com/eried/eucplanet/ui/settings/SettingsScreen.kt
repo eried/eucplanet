@@ -1116,21 +1116,18 @@ private fun GeneralTab(
         // Only offer the picker while the feature is on; the toggle above stays
         // visible so it can be turned back on. Default on, so it shows by default.
         if (settings.notificationActionsEnabled) {
-            var actionsExpanded by remember { mutableStateOf(false) }
             val actionSlots = remember(settings.notificationActions) {
                 NotificationActionType.slots(settings.notificationActions)
             }
-            CollapsibleSection(
+            // Same in-tab expandable style as the voice "Customize" section.
+            AdvancedCollapsable(
                 title = stringResource(R.string.notif_actions_section),
-                icon = Icons.Default.Notifications,
-                expanded = actionsExpanded,
-                onToggle = { actionsExpanded = !actionsExpanded },
+                stateKey = "notif-actions-customize",
             ) {
                 HintText(
                     stringResource(R.string.notif_actions_pick_desc, NotificationActionType.SLOTS),
                     small = true,
                 )
-                Spacer(Modifier.height(8.dp))
                 // Half-width combos like the Flic pickers: two per row, the
                 // third half-width below.
                 Row(
@@ -1150,7 +1147,6 @@ private fun GeneralTab(
                         modifier = Modifier.weight(1f),
                     )
                 }
-                Spacer(Modifier.height(8.dp))
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
