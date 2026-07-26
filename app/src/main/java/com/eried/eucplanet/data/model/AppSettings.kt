@@ -545,6 +545,11 @@ data class AppSettings(
      * "should the radio be running?". The two should be independent.
      */
     val hudServerEnabled: Boolean = false,
+    /** Show quick-action buttons on the ongoing notification. */
+    val notificationActionsEnabled: Boolean = true,
+    /** Which actions (comma-separated keys, max 3) appear on the notification.
+     *  See [NotificationActionType]. Default: Stop all, Lock/Unlock, Stop nav. */
+    val notificationActions: String = "STOP_ALL,LOCK,STOP_NAV",
     /**
      * HUD joystick long-press bindings. The HUD's IR remote / joystick fires a
      * long-press in one of four directions; the HUD sends an

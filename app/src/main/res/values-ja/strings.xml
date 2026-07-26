@@ -4,6 +4,30 @@
     <string name="notification_channel_name">ホイール接続</string>
     <string name="notification_channel_description">ホイールの接続状態とテレメトリを表示します</string>
 
+    <!-- Notification quick actions -->
+    <string name="notif_actions_section">カスタマイズ</string>
+    <string name="notif_actions_enable">通知アクションを表示</string>
+    <string name="notif_actions_enable_desc">実行中の通知にクイックアクションボタンを追加します。</string>
+    <string name="notif_actions_pick_desc">最大%1$d個のアクションを選択。同じアクションを繰り返し選べます。</string>
+    <string name="notif_action_slot">アクション %1$d</string>
+    <string name="notif_action_stop_all">すべて停止</string>
+    <string name="notif_action_lock">ロック / 解除</string>
+    <string name="notif_action_light">ライト オン / オフ</string>
+    <string name="notif_action_record">記録 / 停止</string>
+    <string name="notif_action_horn">ホーン</string>
+    <string name="notif_action_disconnect">切断</string>
+    <string name="notif_action_stop_nav">ナビ停止</string>
+    <string name="notif_btn_stop_all">すべて停止</string>
+    <string name="notif_btn_lock">ロック</string>
+    <string name="notif_btn_unlock">解除</string>
+    <string name="notif_btn_light_on">ライトオン</string>
+    <string name="notif_btn_light_off">ライトオフ</string>
+    <string name="notif_btn_record">記録</string>
+    <string name="notif_btn_stop_record">停止</string>
+    <string name="notif_btn_horn">ホーン</string>
+    <string name="notif_btn_disconnect">切断</string>
+    <string name="notif_btn_stop_nav">ナビ停止</string>
+
     <!-- Common -->
     <string name="action_back">戻る</string>
     <string name="action_cancel">キャンセル</string>

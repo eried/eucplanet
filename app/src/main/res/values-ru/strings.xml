@@ -4,6 +4,30 @@
     <string name="notification_channel_name">Подключение к моноколесу</string>
     <string name="notification_channel_description">Показывает статус подключения и телеметрию</string>
 
+    <!-- Notification quick actions -->
+    <string name="notif_actions_section">Настроить</string>
+    <string name="notif_actions_enable">Показывать действия в уведомлении</string>
+    <string name="notif_actions_enable_desc">Добавьте кнопки быстрых действий в активное уведомление.</string>
+    <string name="notif_actions_pick_desc">Выберите до %1$d действий. Одно действие можно повторить.</string>
+    <string name="notif_action_slot">Действие %1$d</string>
+    <string name="notif_action_stop_all">Остановить всё</string>
+    <string name="notif_action_lock">Заблокировать / Разблокировать</string>
+    <string name="notif_action_light">Свет вкл. / выкл.</string>
+    <string name="notif_action_record">Запись / Стоп</string>
+    <string name="notif_action_horn">Сигнал</string>
+    <string name="notif_action_disconnect">Отключить</string>
+    <string name="notif_action_stop_nav">Остановить навигацию</string>
+    <string name="notif_btn_stop_all">Стоп всё</string>
+    <string name="notif_btn_lock">Заблок.</string>
+    <string name="notif_btn_unlock">Разблок.</string>
+    <string name="notif_btn_light_on">Свет вкл.</string>
+    <string name="notif_btn_light_off">Свет выкл.</string>
+    <string name="notif_btn_record">Запись</string>
+    <string name="notif_btn_stop_record">Стоп</string>
+    <string name="notif_btn_horn">Сигнал</string>
+    <string name="notif_btn_disconnect">Отключить</string>
+    <string name="notif_btn_stop_nav">Стоп нав.</string>
+
     <!-- Common -->
     <string name="action_back">Назад</string>
     <string name="action_cancel">Отмена</string>

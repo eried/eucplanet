@@ -4,6 +4,30 @@
     <string name="notification_channel_name">車輪連線</string>
     <string name="notification_channel_description">顯示車輪連線狀態與遙測資料</string>
 
+    <!-- Notification quick actions -->
+    <string name="notif_actions_section">自訂</string>
+    <string name="notif_actions_enable">顯示通知操作</string>
+    <string name="notif_actions_enable_desc">在進行中的通知上加入快速操作按鈕。</string>
+    <string name="notif_actions_pick_desc">最多選擇 %1$d 個操作。同一操作可重複。</string>
+    <string name="notif_action_slot">操作 %1$d</string>
+    <string name="notif_action_stop_all">全部停止</string>
+    <string name="notif_action_lock">鎖定 / 解鎖</string>
+    <string name="notif_action_light">燈光 開 / 關</string>
+    <string name="notif_action_record">記錄 / 停止</string>
+    <string name="notif_action_horn">喇叭</string>
+    <string name="notif_action_disconnect">中斷連線</string>
+    <string name="notif_action_stop_nav">停止導航</string>
+    <string name="notif_btn_stop_all">全部停止</string>
+    <string name="notif_btn_lock">鎖定</string>
+    <string name="notif_btn_unlock">解鎖</string>
+    <string name="notif_btn_light_on">開燈</string>
+    <string name="notif_btn_light_off">關燈</string>
+    <string name="notif_btn_record">記錄</string>
+    <string name="notif_btn_stop_record">停止</string>
+    <string name="notif_btn_horn">喇叭</string>
+    <string name="notif_btn_disconnect">中斷</string>
+    <string name="notif_btn_stop_nav">停止導航</string>
+
     <!-- Common -->
     <string name="action_back">返回</string>
     <string name="action_cancel">取消</string>

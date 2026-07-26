@@ -4,6 +4,30 @@
     <string name="notification_channel_name">独轮车连接</string>
     <string name="notification_channel_description">显示独轮车的连接状态和实时数据</string>
 
+    <!-- Notification quick actions -->
+    <string name="notif_actions_section">自定义</string>
+    <string name="notif_actions_enable">显示通知操作</string>
+    <string name="notif_actions_enable_desc">在进行中的通知上添加快捷操作按钮。</string>
+    <string name="notif_actions_pick_desc">最多选择 %1$d 个操作。同一操作可重复。</string>
+    <string name="notif_action_slot">操作 %1$d</string>
+    <string name="notif_action_stop_all">全部停止</string>
+    <string name="notif_action_lock">锁定 / 解锁</string>
+    <string name="notif_action_light">灯光 开 / 关</string>
+    <string name="notif_action_record">记录 / 停止</string>
+    <string name="notif_action_horn">喇叭</string>
+    <string name="notif_action_disconnect">断开连接</string>
+    <string name="notif_action_stop_nav">停止导航</string>
+    <string name="notif_btn_stop_all">全部停止</string>
+    <string name="notif_btn_lock">锁定</string>
+    <string name="notif_btn_unlock">解锁</string>
+    <string name="notif_btn_light_on">开灯</string>
+    <string name="notif_btn_light_off">关灯</string>
+    <string name="notif_btn_record">记录</string>
+    <string name="notif_btn_stop_record">停止</string>
+    <string name="notif_btn_horn">喇叭</string>
+    <string name="notif_btn_disconnect">断开</string>
+    <string name="notif_btn_stop_nav">停止导航</string>
+
     <string name="action_back">返回</string>
     <string name="action_cancel">取消</string>
     <string name="action_ok">确定</string>

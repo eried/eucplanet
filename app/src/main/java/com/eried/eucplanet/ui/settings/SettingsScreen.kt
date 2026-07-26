@@ -265,6 +265,7 @@ import com.eried.eucplanet.ui.theme.themedFilterChipColors
 import com.eried.eucplanet.ui.theme.themedSegmentedColors
 import com.eried.eucplanet.ui.theme.themedSliderColors
 import com.eried.eucplanet.ui.theme.themedSwitchColors
+import com.eried.eucplanet.data.model.NotificationActionType
 import com.eried.eucplanet.ui.theme.themedTextButtonColors
 import com.eried.eucplanet.ui.theme.themedTonalButtonColors
 import com.eried.eucplanet.util.Units
@@ -1100,6 +1101,70 @@ private fun GeneralTab(
             onChange = { viewModel.updateBackButtonAction(it) },
         )
         HintText(stringResource(R.string.back_button_action_desc), small = true)
+
+        // Rider-chosen quick actions on the ongoing notification (Tesla-style).
+        // The enable toggle stays outside the collapsible so it is always
+        // visible; the collapsible holds the per-slot pickers. A not-applicable
+        // pick (Stop navigation while not navigating) is hidden at build time
+        // since Android cannot grey out a notification action.
+        SwitchSetting(
+            stringResource(R.string.notif_actions_enable),
+            settings.notificationActionsEnabled,
+        ) { viewModel.updateNotificationActionsEnabled(it) }
+        HintText(stringResource(R.string.notif_actions_enable_desc), small = true)
+
+        // Only offer the picker while the feature is on; the toggle above stays
+        // visible so it can be turned back on. Default on, so it shows by default.
+        if (settings.notificationActionsEnabled) {
+            var actionsExpanded by remember { mutableStateOf(false) }
+            val actionSlots = remember(settings.notificationActions) {
+                NotificationActionType.slots(settings.notificationActions)
+            }
+            CollapsibleSection(
+                title = stringResource(R.string.notif_actions_section),
+                icon = Icons.Default.Notifications,
+                expanded = actionsExpanded,
+                onToggle = { actionsExpanded = !actionsExpanded },
+            ) {
+                HintText(
+                    stringResource(R.string.notif_actions_pick_desc, NotificationActionType.SLOTS),
+                    small = true,
+                )
+                Spacer(Modifier.height(8.dp))
+                // Half-width combos like the Flic pickers: two per row, the
+                // third half-width below.
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                ) {
+                    NotificationActionSlotDropdown(
+                        label = stringResource(R.string.notif_action_slot, 1),
+                        currentKey = actionSlots[0],
+                        onSelect = { viewModel.updateNotificationActionSlot(0, it) },
+                        modifier = Modifier.weight(1f),
+                    )
+                    NotificationActionSlotDropdown(
+                        label = stringResource(R.string.notif_action_slot, 2),
+                        currentKey = actionSlots[1],
+                        onSelect = { viewModel.updateNotificationActionSlot(1, it) },
+                        modifier = Modifier.weight(1f),
+                    )
+                }
+                Spacer(Modifier.height(8.dp))
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                ) {
+                    NotificationActionSlotDropdown(
+                        label = stringResource(R.string.notif_action_slot, 3),
+                        currentKey = actionSlots[2],
+                        onSelect = { viewModel.updateNotificationActionSlot(2, it) },
+                        modifier = Modifier.weight(1f),
+                    )
+                    Spacer(Modifier.weight(1f))
+                }
+            }
+        }
 
         Box(
             modifier = if (scrollToBattery) {
@@ -4088,6 +4153,68 @@ private fun CompositeCellDropdown(
                         }
                     )
                 }
+            }
+        }
+    }
+}
+
+/**
+ * One notification-action slot picker (Customize actions, General tab).
+ * Mirrors the Flic button dropdown: a readonly field over "None" + the
+ * [NotificationActionType] entries. Each slot is independent, so the same
+ * action may be picked in more than one slot.
+ */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun NotificationActionSlotDropdown(
+    label: String,
+    currentKey: String,
+    onSelect: (String) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    var expanded by remember { mutableStateOf(false) }
+    val noneLabel = stringResource(R.string.flic_action_none)
+    val currentLabel = NotificationActionType.byKey(currentKey)
+        ?.pickerLabel?.let { stringResource(it) } ?: noneLabel
+    ExposedDropdownMenuBox(
+        expanded = expanded,
+        onExpandedChange = { expanded = !expanded },
+        modifier = modifier,
+    ) {
+        OutlinedTextField(
+            value = currentLabel,
+            onValueChange = {},
+            readOnly = true,
+            singleLine = true,
+            label = { Text(label) },
+            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+            modifier = Modifier
+                .menuAnchor(MenuAnchorType.PrimaryNotEditable)
+                .fillMaxWidth(),
+            colors = themedFieldColors(),
+            shape = RoundedCornerShape(12.dp),
+        )
+        ExposedDropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false },
+            containerColor = MaterialTheme.appColors.menuBackground,
+        ) {
+            // Synthetic "None" first option = clear the slot (mirrors Flic).
+            DropdownMenuItem(
+                text = { Text(noneLabel) },
+                onClick = {
+                    onSelect(NotificationActionType.NONE)
+                    expanded = false
+                },
+            )
+            NotificationActionType.entries.forEach { type ->
+                DropdownMenuItem(
+                    text = { Text(stringResource(type.pickerLabel)) },
+                    onClick = {
+                        onSelect(type.key)
+                        expanded = false
+                    },
+                )
             }
         }
     }

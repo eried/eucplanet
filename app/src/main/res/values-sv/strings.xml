@@ -4,6 +4,30 @@
     <string name="notification_channel_name">Hjulanslutning</string>
     <string name="notification_channel_description">Visar anslutningsstatus och telemetri från hjulet</string>
 
+    <!-- Notification quick actions -->
+    <string name="notif_actions_section">Anpassa</string>
+    <string name="notif_actions_enable">Visa aviseringsåtgärder</string>
+    <string name="notif_actions_enable_desc">Lägg till snabbknappar i den aktiva aviseringen.</string>
+    <string name="notif_actions_pick_desc">Välj upp till %1$d åtgärder. Samma åtgärd kan upprepas.</string>
+    <string name="notif_action_slot">Åtgärd %1$d</string>
+    <string name="notif_action_stop_all">Stoppa allt</string>
+    <string name="notif_action_lock">Lås / Lås upp</string>
+    <string name="notif_action_light">Ljus på / av</string>
+    <string name="notif_action_record">Spela in / Stoppa</string>
+    <string name="notif_action_horn">Signalhorn</string>
+    <string name="notif_action_disconnect">Koppla från</string>
+    <string name="notif_action_stop_nav">Stoppa navigering</string>
+    <string name="notif_btn_stop_all">Stoppa allt</string>
+    <string name="notif_btn_lock">Lås</string>
+    <string name="notif_btn_unlock">Lås upp</string>
+    <string name="notif_btn_light_on">Ljus på</string>
+    <string name="notif_btn_light_off">Ljus av</string>
+    <string name="notif_btn_record">Spela in</string>
+    <string name="notif_btn_stop_record">Stoppa</string>
+    <string name="notif_btn_horn">Horn</string>
+    <string name="notif_btn_disconnect">Koppla från</string>
+    <string name="notif_btn_stop_nav">Stoppa nav.</string>
+
     <!-- Common -->
     <string name="action_back">Tillbaka</string>
     <string name="action_cancel">Avbryt</string>
