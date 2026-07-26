@@ -66,6 +66,10 @@ class WheelService : LifecycleService() {
          *  the service's onDestroy so cleanup completes first, on its own
          *  schedule -- no arbitrary delay timer needed. */
         const val ACTION_STOP_ALL_AND_KILL = "com.eried.eucplanet.STOP_ALL_AND_KILL"
+        // Wheel controls fired from notification action buttons.
+        const val ACTION_TOGGLE_LIGHT = "com.eried.eucplanet.TOGGLE_LIGHT"
+        const val ACTION_TOGGLE_LOCK = "com.eried.eucplanet.TOGGLE_LOCK"
+        const val ACTION_HORN = "com.eried.eucplanet.HORN"
         const val EXTRA_ADDRESS = "device_address"
         const val EXTRA_NAME = "device_name"
         /** Marks an ACTION_CONNECT as auto-initiated (app-start / reconnect)
@@ -84,6 +88,13 @@ class WheelService : LifecycleService() {
     // connected (e.g. while "Connecting" or after a drop).
     @Volatile
     private var lastDeviceNameCached: String? = null
+    // Notification quick-action config, mirrored from settings so the
+    // notification builder can read it without suspending.
+    @Volatile
+    private var notifActionsEnabledCached: Boolean = true
+    @Volatile
+    private var notifActionsCsvCached: String =
+        com.eried.eucplanet.data.model.NotificationActionType.DEFAULT_KEYS
     @Inject lateinit var voiceService: VoiceService
     @Inject lateinit var tripRepository: TripRepository
     @Inject lateinit var automationManager: AutomationManager
@@ -174,6 +185,8 @@ class WheelService : LifecycleService() {
                 // mirror the latest value here every settings update.
                 speedUnitCached = com.eried.eucplanet.util.Units.effectiveSpeedUnit(s)
                 lastDeviceNameCached = s.lastDeviceName
+                notifActionsEnabledCached = s.notificationActionsEnabled
+                notifActionsCsvCached = s.notificationActions
                 engineSoundEngine.applySettings(s)
                 engineSoundEngine.setConnected(
                     wheelRepository.connectionState.value == ConnectionState.CONNECTED,
@@ -340,6 +353,9 @@ class WheelService : LifecycleService() {
             ACTION_DISCONNECT -> {
                 wheelRepository.disconnect()
             }
+            ACTION_TOGGLE_LIGHT -> wheelRepository.toggleLight()
+            ACTION_TOGGLE_LOCK -> wheelRepository.toggleLock()
+            ACTION_HORN -> wheelRepository.sendHorn()
             ACTION_START_RECORDING -> {
                 lifecycleScope.launch { tripRepository.startRecording() }
             }
@@ -611,7 +627,7 @@ class WheelService : LifecycleService() {
             ?: lastDeviceNameCached
             ?: getString(R.string.app_name)
 
-        return NotificationCompat.Builder(this, CHANNEL_ID)
+        val builder = NotificationCompat.Builder(this, CHANNEL_ID)
             .setContentTitle(wheelName)
             .setContentText(text)
             .setSmallIcon(android.R.drawable.stat_sys_data_bluetooth)
@@ -620,10 +636,69 @@ class WheelService : LifecycleService() {
             // Full content on a secure lock screen (pairs with the channel's
             // PUBLIC lockscreenVisibility above).
             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
-            // No setSilent(true): IMPORTANCE_LOW already means no sound/peek, and
-            // tagging it silent made lock screens set to "hide silent
-            // notifications" suppress it entirely.
-            .build()
+        // No setSilent(true): IMPORTANCE_LOW already means no sound/peek, and
+        // tagging it silent made lock screens set to "hide silent
+        // notifications" suppress it entirely.
+        buildNotificationActions(nav.active, data).forEach { builder.addAction(it) }
+        return builder.build()
+    }
+
+    /**
+     * The rider's chosen quick-action buttons (up to 3). Labels are context
+     * aware - Lock/Unlock, Light on/off, Record/Stop - and STOP_NAV is only
+     * shown while navigating (Android can't grey out a notification action).
+     */
+    private fun buildNotificationActions(
+        navActive: Boolean,
+        data: WheelData?
+    ): List<NotificationCompat.Action> {
+        if (!notifActionsEnabledCached) return emptyList()
+        val locked = wheelRepository.locked.value
+        val lightOn = data?.lightOn ?: false
+        val recording = tripRepository.recording.value
+        return com.eried.eucplanet.data.model.NotificationActionType
+            .parse(notifActionsCsvCached).mapNotNull { type ->
+                when (type) {
+                    com.eried.eucplanet.data.model.NotificationActionType.STOP_ALL ->
+                        notifAction(type, android.R.drawable.ic_menu_close_clear_cancel,
+                            getString(R.string.notif_btn_stop_all), ACTION_STOP_ALL_AND_KILL)
+                    com.eried.eucplanet.data.model.NotificationActionType.LOCK ->
+                        notifAction(type, android.R.drawable.ic_lock_lock,
+                            getString(if (locked) R.string.notif_btn_unlock else R.string.notif_btn_lock),
+                            ACTION_TOGGLE_LOCK)
+                    com.eried.eucplanet.data.model.NotificationActionType.LIGHT ->
+                        notifAction(type, android.R.drawable.ic_menu_view,
+                            getString(if (lightOn) R.string.notif_btn_light_off else R.string.notif_btn_light_on),
+                            ACTION_TOGGLE_LIGHT)
+                    com.eried.eucplanet.data.model.NotificationActionType.RECORD ->
+                        notifAction(type, android.R.drawable.ic_menu_save,
+                            getString(if (recording) R.string.notif_btn_stop_record else R.string.notif_btn_record),
+                            if (recording) ACTION_STOP_RECORDING else ACTION_START_RECORDING)
+                    com.eried.eucplanet.data.model.NotificationActionType.HORN ->
+                        notifAction(type, android.R.drawable.ic_lock_silent_mode_off,
+                            getString(R.string.notif_btn_horn), ACTION_HORN)
+                    com.eried.eucplanet.data.model.NotificationActionType.DISCONNECT ->
+                        notifAction(type, android.R.drawable.ic_menu_close_clear_cancel,
+                            getString(R.string.notif_btn_disconnect), ACTION_DISCONNECT)
+                    com.eried.eucplanet.data.model.NotificationActionType.STOP_NAV ->
+                        if (navActive) notifAction(type, android.R.drawable.ic_menu_directions,
+                            getString(R.string.notif_btn_stop_nav), ACTION_STOP_NAVIGATION) else null
+                }
+            }
+    }
+
+    private fun notifAction(
+        type: com.eried.eucplanet.data.model.NotificationActionType,
+        icon: Int,
+        label: String,
+        action: String
+    ): NotificationCompat.Action {
+        val pi = PendingIntent.getService(
+            this, 200 + type.ordinal,
+            Intent(this, WheelService::class.java).setAction(action),
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+        return NotificationCompat.Action.Builder(icon, label, pi).build()
     }
 
     private var lastNotificationUpdate = 0L

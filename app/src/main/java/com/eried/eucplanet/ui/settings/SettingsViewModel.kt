@@ -578,6 +578,18 @@ class SettingsViewModel @Inject constructor(
 
     // HUD companion
     fun updateHudServerEnabled(v: Boolean) = update { copy(hudServerEnabled = v) }
+
+    fun updateNotificationActionsEnabled(v: Boolean) =
+        update { copy(notificationActionsEnabled = v) }
+
+    /** Set notification-action slot [index] to [key] ("NONE" clears it). Slots
+     *  are independent like the Flic pickers, so duplicates are allowed. */
+    fun updateNotificationActionSlot(index: Int, key: String) = update {
+        val slots = com.eried.eucplanet.data.model.NotificationActionType
+            .slots(notificationActions).toMutableList()
+        if (index in slots.indices) slots[index] = key
+        copy(notificationActions = slots.joinToString(","))
+    }
     fun updateHudServerPort(v: Int) = update {
         // Match the dial port range. Below 1024 the HUD's listening socket
         // couldn't bind without root; above 65535 isn't a port.

@@ -4,6 +4,30 @@
     <string name="notification_channel_name">Teker Bağlantısı</string>
     <string name="notification_channel_description">Teker bağlantı durumunu ve telemetriyi gösterir</string>
 
+    <!-- Notification quick actions -->
+    <string name="notif_actions_section">Özelleştir</string>
+    <string name="notif_actions_enable">Bildirim eylemlerini göster</string>
+    <string name="notif_actions_enable_desc">Etkin bildirime hızlı eylem düğmeleri ekleyin.</string>
+    <string name="notif_actions_pick_desc">En fazla %1$d eylem seçin. Aynı eylem tekrarlanabilir.</string>
+    <string name="notif_action_slot">Eylem %1$d</string>
+    <string name="notif_action_stop_all">Tümünü durdur</string>
+    <string name="notif_action_lock">Kilitle / Kilit aç</string>
+    <string name="notif_action_light">Işık açık / kapalı</string>
+    <string name="notif_action_record">Kaydet / Durdur</string>
+    <string name="notif_action_horn">Korna</string>
+    <string name="notif_action_disconnect">Bağlantıyı kes</string>
+    <string name="notif_action_stop_nav">Navigasyonu durdur</string>
+    <string name="notif_btn_stop_all">Tümünü durdur</string>
+    <string name="notif_btn_lock">Kilitle</string>
+    <string name="notif_btn_unlock">Kilit aç</string>
+    <string name="notif_btn_light_on">Işık aç</string>
+    <string name="notif_btn_light_off">Işık kapat</string>
+    <string name="notif_btn_record">Kaydet</string>
+    <string name="notif_btn_stop_record">Durdur</string>
+    <string name="notif_btn_horn">Korna</string>
+    <string name="notif_btn_disconnect">Bağlantıyı kes</string>
+    <string name="notif_btn_stop_nav">Nav durdur</string>
+
     <!-- Common -->
     <string name="action_back">Geri</string>
     <string name="action_cancel">İptal</string>
