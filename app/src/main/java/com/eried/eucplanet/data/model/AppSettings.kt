@@ -820,6 +820,7 @@ data class AppSettings(
     val tripFinalizeGraceMs: Int get() = advanced.tripFinalizeGraceMs
     val lockMaxSpeedKmh: Int get() = advanced.lockMaxSpeedKmh
     val phoneGpsIntervalMs: Int get() = advanced.phoneGpsIntervalMs
+    val phoneGpsIdleIntervalMs: Int get() = advanced.phoneGpsIdleIntervalMs
     val hudReportIntervalMs: Int get() = advanced.hudReportIntervalMs
     val garminReportIntervalMs: Int get() = advanced.garminReportIntervalMs
     val navOffRouteGraceMs: Int get() = advanced.navOffRouteGraceMs
@@ -926,6 +927,9 @@ data class AdvancedSettings(
     // Speed (km/h) above which a lock command is refused, for safety.
     val lockMaxSpeedKmh: Int = 5,
     val phoneGpsIntervalMs: Int = 1000,
+    // Slow "keep-warm" GPS interval used when nothing needs the 1 Hz active
+    // stream (idle balanced / low-power tiers). See GpsPowerPolicy.
+    val phoneGpsIdleIntervalMs: Int = 10000,
     val hudReportIntervalMs: Int = 200,
     val garminReportIntervalMs: Int = 200,
     val navOffRouteGraceMs: Int = 8000,

@@ -1643,6 +1643,8 @@
     <string name="adv_nav_warning">这些会改变导航的反应时机。数值错误可能让语音提示或重新规划过早或过晚触发。</string>
     <string name="adv_phone_gps_interval">手机 GPS 更新间隔</string>
     <string name="adv_phone_gps_interval_desc">影响 GPS 轨迹的平滑度和导航反应速度。越低更新越频繁。危险:过低会更快耗电。</string>
+    <string name="adv_phone_gps_idle_interval">GPS 空闲间隔</string>
+    <string name="adv_phone_gps_idle_interval_desc">未记录或导航时的 GPS 更新间隔，让导航和重新连接随时就绪。数值越大越省电。</string>
     <string name="adv_pushonly_note">部分设备以其自身固定频率推送数据并忽略这些设置:仅推送型独轮车(Begode、Gotway、Veteran、KingSong)、外置 GPS(RaceBox)、雷达和 Flic 按钮。</string>
     <string name="adv_radar_clear_decay">雷达车道衰减</string>
     <string name="adv_radar_clear_decay_desc">影响道路畅通后车道条停留多久。危险:过低会随车辆来去而闪烁。</string>

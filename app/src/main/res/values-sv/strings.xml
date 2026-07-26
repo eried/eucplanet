@@ -1776,6 +1776,8 @@
     <string name="adv_nav_warning">Dessa ändrar när navigeringen reagerar. Fel värden kan göra att röstledtrådar eller omdirigering löser ut för tidigt eller för sent.</string>
     <string name="adv_phone_gps_interval">Telefonens GPS-uppdateringsintervall</string>
     <string name="adv_phone_gps_interval_desc">Påverkar hur jämnt GPS-spåret är och hur snabbt navigeringen reagerar. Lägre uppdaterar oftare. Fara: låga värden tömmer batteriet snabbare.</string>
+    <string name="adv_phone_gps_idle_interval">GPS-intervall i viloläge</string>
+    <string name="adv_phone_gps_idle_interval_desc">GPS-takt i viloläge när du inte spelar in eller navigerar, så att Navigatorn och en ny anslutning är redo. Högre sparar batteri.</string>
     <string name="adv_pushonly_note">Vissa enheter sänder med sin egen fasta frekvens och ignorerar dessa inställningar: push-only-hjul (Begode, Gotway, Veteran, KingSong), extern GPS (RaceBox), radar och Flic-knappar.</string>
     <string name="adv_radar_clear_decay">Radarbanans avklingning</string>
     <string name="adv_radar_clear_decay_desc">Påverkar hur länge banlisten stannar efter att vägen blivit fri. Fara: för lågt får den att blinka när bilar kommer och går.</string>

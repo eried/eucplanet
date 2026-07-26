@@ -1780,6 +1780,8 @@
     <string name="adv_nav_warning">Ceux-ci changent le moment où la navigation réagit. De mauvaises valeurs peuvent faire déclencher les signaux vocaux ou le recalcul trop tôt ou trop tard.</string>
     <string name="adv_phone_gps_interval">Intervalle de mise à jour GPS du téléphone</string>
     <string name="adv_phone_gps_interval_desc">Détermine la fluidité du tracé GPS et la rapidité de réaction de la navigation. Plus bas met à jour plus souvent. Danger : des valeurs basses vident la batterie plus vite.</string>
+    <string name="adv_phone_gps_idle_interval">Intervalle GPS au repos</string>
+    <string name="adv_phone_gps_idle_interval_desc">Fréquence GPS au repos hors enregistrement ou navigation, pour que le Navigateur et une nouvelle connexion restent prêts. Plus élevé économise la batterie.</string>
     <string name="adv_pushonly_note">Certains appareils diffusent à leur propre cadence fixe et ignorent ces réglages : roues en diffusion seule (Begode, Gotway, Veteran, KingSong), GPS externe (RaceBox), radar et boutons Flic.</string>
     <string name="adv_radar_clear_decay">Atténuation de voie radar</string>
     <string name="adv_radar_clear_decay_desc">Détermine combien de temps la barre de voie reste après que la route se dégage. Danger : trop bas la fait clignoter au passage des voitures.</string>

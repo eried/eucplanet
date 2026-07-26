@@ -1776,6 +1776,8 @@
     <string name="adv_nav_warning">Estes mudam quando a navegação reage. Valores errados podem fazer os avisos de voz ou o recálculo dispararem cedo ou tarde demais.</string>
     <string name="adv_phone_gps_interval">Intervalo de atualização do GPS do celular</string>
     <string name="adv_phone_gps_interval_desc">Afeta o quão suave é o traçado do GPS e a rapidez com que a navegação reage. Menor atualiza com mais frequência. Perigo: valores baixos descarregam a bateria mais rápido.</string>
+    <string name="adv_phone_gps_idle_interval">Intervalo de GPS ocioso</string>
+    <string name="adv_phone_gps_idle_interval_desc">Taxa do GPS ocioso quando não está gravando ou navegando, para o Navegador e uma nova conexão ficarem prontos. Maior economiza bateria.</string>
     <string name="adv_pushonly_note">Alguns dispositivos transmitem na própria taxa fixa e ignoram estas configurações: rodas push-only (Begode, Gotway, Veteran, KingSong), GPS externo (RaceBox), radar e botões Flic.</string>
     <string name="adv_radar_clear_decay">Decaimento da faixa do radar</string>
     <string name="adv_radar_clear_decay_desc">Afeta por quanto tempo a barra da faixa fica após a via liberar. Perigo: baixo demais faz piscar conforme os carros vêm e vão.</string>
