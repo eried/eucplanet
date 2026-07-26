@@ -78,6 +78,8 @@ val ADVANCED_SPECS: List<AdvancedSpec> = listOf(
         0..20, 1, unit = "km/h", get = { it.lockMaxSpeedKmh }, set = { s, v -> s.copy(lockMaxSpeedKmh = v) }),
     AdvancedSpec("phoneGpsIntervalMs", AdvGroup.RATES, R.string.adv_phone_gps_interval, R.string.adv_phone_gps_interval_desc,
         250..10000, 250, get = { it.phoneGpsIntervalMs }, set = { s, v -> s.copy(phoneGpsIntervalMs = v) }),
+    AdvancedSpec("phoneGpsIdleIntervalMs", AdvGroup.RATES, R.string.adv_phone_gps_idle_interval, R.string.adv_phone_gps_idle_interval_desc,
+        2000..120000, 1000, get = { it.phoneGpsIdleIntervalMs }, set = { s, v -> s.copy(phoneGpsIdleIntervalMs = v) }),
     AdvancedSpec("hudReportIntervalMs", AdvGroup.RATES, R.string.adv_hud_report_interval, R.string.adv_hud_report_interval_desc,
         50..2000, 25, get = { it.hudReportIntervalMs }, set = { s, v -> s.copy(hudReportIntervalMs = v) }),
     AdvancedSpec("garminReportIntervalMs", AdvGroup.RATES, R.string.adv_garmin_report_interval, R.string.adv_garmin_report_interval_desc,

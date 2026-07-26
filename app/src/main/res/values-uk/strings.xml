@@ -1773,6 +1773,8 @@
     <string name="adv_nav_warning">Це змінює, коли реагує навігація. Неправильні значення можуть змусити голосові підказки чи перепрокладання спрацьовувати зарано або запізно.</string>
     <string name="adv_phone_gps_interval">Інтервал оновлення GPS телефону</string>
     <string name="adv_phone_gps_interval_desc">Впливає на плавність GPS-треку та швидкість реакції навігації. Менше — оновлює частіше. Небезпека: малі значення швидше розряджають акумулятор.</string>
+    <string name="adv_phone_gps_idle_interval">Інтервал GPS у спокої</string>
+    <string name="adv_phone_gps_idle_interval_desc">Частота GPS у спокої, коли немає запису чи навігації, щоб Навігатор і нове підключення були готові. Більше - економить батарею.</string>
     <string name="adv_pushonly_note">Деякі пристрої передають дані зі своєю фіксованою частотою й ігнорують ці налаштування: моноколеса лише з передачею (Begode, Gotway, Veteran, KingSong), зовнішній GPS (RaceBox), радар і кнопки Flic.</string>
     <string name="adv_radar_clear_decay">Згасання смуги радара</string>
     <string name="adv_radar_clear_decay_desc">Впливає на те, як довго смуга залишається після того, як дорога звільниться. Небезпека: замало — блимає, коли машини з\'являються та зникають.</string>

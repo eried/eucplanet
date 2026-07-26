@@ -282,6 +282,8 @@ class NavigationEngine @Inject constructor(
             )
         }
         stop()
+        // Guidance is starting: hold GPS at 1 Hz even with no wheel connected.
+        tripRepository.setNavigating(true)
         initJob = scope.launch {
             val s = settingsRepository.get()
             imperial = s.imperialUnits
@@ -401,6 +403,9 @@ class NavigationEngine @Inject constructor(
         // gating; the rest naturally resets on the next start().
         _navState.value = _navState.value.copy(active = false)
         scope.launch { _navState.value = _navState.value.copy(active = false) }
+        // Guidance ended: drop the navigation GPS hold (tier falls back to idle
+        // unless recording / connected still need it).
+        tripRepository.setNavigating(false)
         Log.i(TAG, "Navigation stopped")
     }
 

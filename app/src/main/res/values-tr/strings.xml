@@ -1773,6 +1773,8 @@
     <string name="adv_nav_warning">Bunlar navigasyonun ne zaman tepki vereceğini değiştirir. Yanlış değerler sesli uyarıların veya yeniden rotalamanın çok erken veya çok geç çalışmasına yol açabilir.</string>
     <string name="adv_phone_gps_interval">Telefon GPS güncelleme aralığı</string>
     <string name="adv_phone_gps_interval_desc">GPS izinin ne kadar pürüzsüz olduğunu ve navigasyonun ne kadar hızlı tepki verdiğini etkiler. Düşük değer daha sık günceller. Dikkat: düşük değerler pili daha hızlı tüketir.</string>
+    <string name="adv_phone_gps_idle_interval">Boşta GPS aralığı</string>
+    <string name="adv_phone_gps_idle_interval_desc">Kayıt veya navigasyon yokken GPS güncelleme aralığı; Navigatör ve yeni bağlantı hazır kalır. Yüksek değer pili korur.</string>
     <string name="adv_pushonly_note">Bazı cihazlar kendi sabit hızlarında veri akıtır ve bu ayarları yok sayar: yalnızca-itme tekerleri (Begode, Gotway, Veteran, KingSong), harici GPS (RaceBox), radar ve Flic düğmeleri.</string>
     <string name="adv_radar_clear_decay">Radar şerit sönümü</string>
     <string name="adv_radar_clear_decay_desc">Yol boşaldıktan sonra şerit çubuğunun ne kadar kaldığını etkiler. Dikkat: çok düşük olursa araçlar gelip gittikçe yanıp söner.</string>
