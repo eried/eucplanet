@@ -4,6 +4,30 @@
     <string name="notification_channel_name">Wheel Connection</string>
     <string name="notification_channel_description">Shows wheel connection status and telemetry</string>
 
+    <!-- Notification quick actions -->
+    <string name="notif_actions_section">Customize</string>
+    <string name="notif_actions_enable">Show notification actions</string>
+    <string name="notif_actions_enable_desc">Add quick action buttons to the ongoing notification.</string>
+    <string name="notif_actions_pick_desc">Pick up to %1$d actions. The same action can repeat.</string>
+    <string name="notif_action_slot">Action %1$d</string>
+    <string name="notif_action_stop_all">Stop all</string>
+    <string name="notif_action_lock">Lock / Unlock</string>
+    <string name="notif_action_light">Light on / off</string>
+    <string name="notif_action_record">Record / Stop</string>
+    <string name="notif_action_horn">Horn</string>
+    <string name="notif_action_disconnect">Disconnect</string>
+    <string name="notif_action_stop_nav">Stop navigation</string>
+    <string name="notif_btn_stop_all">Stop all</string>
+    <string name="notif_btn_lock">Lock</string>
+    <string name="notif_btn_unlock">Unlock</string>
+    <string name="notif_btn_light_on">Light on</string>
+    <string name="notif_btn_light_off">Light off</string>
+    <string name="notif_btn_record">Record</string>
+    <string name="notif_btn_stop_record">Stop</string>
+    <string name="notif_btn_horn">Horn</string>
+    <string name="notif_btn_disconnect">Disconnect</string>
+    <string name="notif_btn_stop_nav">Stop nav</string>
+
     <!-- Common -->
     <string name="action_back">Back</string>
     <string name="action_cancel">Cancel</string>

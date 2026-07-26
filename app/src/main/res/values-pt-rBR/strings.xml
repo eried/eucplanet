@@ -4,6 +4,30 @@
     <string name="notification_channel_name">Conexão da roda</string>
     <string name="notification_channel_description">Mostra o status da conexão e a telemetria da roda</string>
 
+    <!-- Notification quick actions -->
+    <string name="notif_actions_section">Personalizar</string>
+    <string name="notif_actions_enable">Mostrar ações da notificação</string>
+    <string name="notif_actions_enable_desc">Adicione botões de ação rápida à notificação ativa.</string>
+    <string name="notif_actions_pick_desc">Escolha até %1$d ações. A mesma ação pode se repetir.</string>
+    <string name="notif_action_slot">Ação %1$d</string>
+    <string name="notif_action_stop_all">Parar tudo</string>
+    <string name="notif_action_lock">Bloquear / Desbloquear</string>
+    <string name="notif_action_light">Luz ligada / desligada</string>
+    <string name="notif_action_record">Gravar / Parar</string>
+    <string name="notif_action_horn">Buzina</string>
+    <string name="notif_action_disconnect">Desconectar</string>
+    <string name="notif_action_stop_nav">Parar navegação</string>
+    <string name="notif_btn_stop_all">Parar tudo</string>
+    <string name="notif_btn_lock">Bloquear</string>
+    <string name="notif_btn_unlock">Desbloquear</string>
+    <string name="notif_btn_light_on">Ligar luz</string>
+    <string name="notif_btn_light_off">Desligar luz</string>
+    <string name="notif_btn_record">Gravar</string>
+    <string name="notif_btn_stop_record">Parar</string>
+    <string name="notif_btn_horn">Buzina</string>
+    <string name="notif_btn_disconnect">Desconectar</string>
+    <string name="notif_btn_stop_nav">Parar nav.</string>
+
     <!-- Common -->
     <string name="action_back">Voltar</string>
     <string name="action_cancel">Cancelar</string>

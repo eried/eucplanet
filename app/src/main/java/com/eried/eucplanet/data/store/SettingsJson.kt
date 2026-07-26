@@ -253,6 +253,8 @@ object SettingsJson {
         put("navAvoidUnpaved", s.navAvoidUnpaved)
         put("watchShowNavigation", s.watchShowNavigation)
         put("hudServerEnabled", s.hudServerEnabled)
+        put("notificationActionsEnabled", s.notificationActionsEnabled)
+        put("notificationActions", s.notificationActions)
         put("hudActionUp", s.hudActionUp)
         put("hudActionDown", s.hudActionDown)
         put("hudActionLeft", s.hudActionLeft)
@@ -517,6 +519,8 @@ object SettingsJson {
         navAvoidUnpaved = j.optBoolean("navAvoidUnpaved", base.navAvoidUnpaved),
         watchShowNavigation = j.optBoolean("watchShowNavigation", base.watchShowNavigation),
         hudServerEnabled = j.optBoolean("hudServerEnabled", base.hudServerEnabled),
+        notificationActionsEnabled = j.optBoolean("notificationActionsEnabled", base.notificationActionsEnabled),
+        notificationActions = j.optString("notificationActions", base.notificationActions),
         hudActionUp = j.optString("hudActionUp", base.hudActionUp),
         hudActionDown = j.optString("hudActionDown", base.hudActionDown),
         hudActionLeft = j.optString("hudActionLeft", base.hudActionLeft),

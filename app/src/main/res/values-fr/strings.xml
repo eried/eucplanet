@@ -4,6 +4,30 @@
     <string name="notification_channel_name">Connexion à la roue</string>
     <string name="notification_channel_description">Affiche l\'état de la connexion et la télémétrie de la roue</string>
 
+    <!-- Notification quick actions -->
+    <string name="notif_actions_section">Personnaliser</string>
+    <string name="notif_actions_enable">Afficher les actions de notification</string>
+    <string name="notif_actions_enable_desc">Ajoutez des boutons d\'action rapide à la notification active.</string>
+    <string name="notif_actions_pick_desc">Choisissez jusqu\'à %1$d actions. La même action peut se répéter.</string>
+    <string name="notif_action_slot">Action %1$d</string>
+    <string name="notif_action_stop_all">Tout arrêter</string>
+    <string name="notif_action_lock">Verrouiller / Déverrouiller</string>
+    <string name="notif_action_light">Lumière allumée / éteinte</string>
+    <string name="notif_action_record">Enregistrer / Arrêter</string>
+    <string name="notif_action_horn">Klaxon</string>
+    <string name="notif_action_disconnect">Déconnecter</string>
+    <string name="notif_action_stop_nav">Arrêter la navigation</string>
+    <string name="notif_btn_stop_all">Tout arrêter</string>
+    <string name="notif_btn_lock">Verrouiller</string>
+    <string name="notif_btn_unlock">Déverrouiller</string>
+    <string name="notif_btn_light_on">Allumer</string>
+    <string name="notif_btn_light_off">Éteindre</string>
+    <string name="notif_btn_record">Enregistrer</string>
+    <string name="notif_btn_stop_record">Arrêter</string>
+    <string name="notif_btn_horn">Klaxon</string>
+    <string name="notif_btn_disconnect">Déconnecter</string>
+    <string name="notif_btn_stop_nav">Arrêter nav</string>
+
     <!-- Common -->
     <string name="action_back">Retour</string>
     <string name="action_cancel">Annuler</string>

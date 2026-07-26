@@ -4,6 +4,30 @@
     <string name="notification_channel_name">Wielverbinding</string>
     <string name="notification_channel_description">Toont verbindingsstatus en telemetrie van het wiel</string>
 
+    <!-- Notification quick actions -->
+    <string name="notif_actions_section">Aanpassen</string>
+    <string name="notif_actions_enable">Meldingsacties tonen</string>
+    <string name="notif_actions_enable_desc">Voeg snelactieknoppen toe aan de actieve melding.</string>
+    <string name="notif_actions_pick_desc">Kies maximaal %1$d acties. Dezelfde actie mag herhaald worden.</string>
+    <string name="notif_action_slot">Actie %1$d</string>
+    <string name="notif_action_stop_all">Alles stoppen</string>
+    <string name="notif_action_lock">Vergrendelen / Ontgrendelen</string>
+    <string name="notif_action_light">Licht aan / uit</string>
+    <string name="notif_action_record">Opnemen / Stoppen</string>
+    <string name="notif_action_horn">Claxon</string>
+    <string name="notif_action_disconnect">Verbreken</string>
+    <string name="notif_action_stop_nav">Navigatie stoppen</string>
+    <string name="notif_btn_stop_all">Alles stoppen</string>
+    <string name="notif_btn_lock">Vergrendel</string>
+    <string name="notif_btn_unlock">Ontgrendel</string>
+    <string name="notif_btn_light_on">Licht aan</string>
+    <string name="notif_btn_light_off">Licht uit</string>
+    <string name="notif_btn_record">Opnemen</string>
+    <string name="notif_btn_stop_record">Stoppen</string>
+    <string name="notif_btn_horn">Claxon</string>
+    <string name="notif_btn_disconnect">Verbreken</string>
+    <string name="notif_btn_stop_nav">Stop nav.</string>
+
     <!-- Common -->
     <string name="action_back">Terug</string>
     <string name="action_cancel">Annuleren</string>

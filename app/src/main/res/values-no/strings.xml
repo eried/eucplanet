@@ -4,6 +4,30 @@
     <string name="notification_channel_name">Hjul-tilkobling</string>
     <string name="notification_channel_description">Viser tilkoblingsstatus og telemetri for hjulet</string>
 
+    <!-- Notification quick actions -->
+    <string name="notif_actions_section">Tilpass</string>
+    <string name="notif_actions_enable">Vis varselhandlinger</string>
+    <string name="notif_actions_enable_desc">Legg til hurtighandlingsknapper i det aktive varselet.</string>
+    <string name="notif_actions_pick_desc">Velg opptil %1$d handlinger. Samme handling kan gjentas.</string>
+    <string name="notif_action_slot">Handling %1$d</string>
+    <string name="notif_action_stop_all">Stopp alt</string>
+    <string name="notif_action_lock">Lås / Lås opp</string>
+    <string name="notif_action_light">Lys på / av</string>
+    <string name="notif_action_record">Ta opp / Stopp</string>
+    <string name="notif_action_horn">Horn</string>
+    <string name="notif_action_disconnect">Koble fra</string>
+    <string name="notif_action_stop_nav">Stopp navigasjon</string>
+    <string name="notif_btn_stop_all">Stopp alt</string>
+    <string name="notif_btn_lock">Lås</string>
+    <string name="notif_btn_unlock">Lås opp</string>
+    <string name="notif_btn_light_on">Lys på</string>
+    <string name="notif_btn_light_off">Lys av</string>
+    <string name="notif_btn_record">Ta opp</string>
+    <string name="notif_btn_stop_record">Stopp</string>
+    <string name="notif_btn_horn">Horn</string>
+    <string name="notif_btn_disconnect">Koble fra</string>
+    <string name="notif_btn_stop_nav">Stopp nav.</string>
+
     <string name="action_back">Tilbake</string>
     <string name="action_cancel">Avbryt</string>
     <string name="action_ok">OK</string>

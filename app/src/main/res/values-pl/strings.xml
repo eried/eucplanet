@@ -4,6 +4,30 @@
     <string name="notification_channel_name">Połączenie z kołem</string>
     <string name="notification_channel_description">Pokazuje stan połączenia z kołem i telemetrię</string>
 
+    <!-- Notification quick actions -->
+    <string name="notif_actions_section">Dostosuj</string>
+    <string name="notif_actions_enable">Pokaż akcje powiadomienia</string>
+    <string name="notif_actions_enable_desc">Dodaj przyciski szybkich akcji do aktywnego powiadomienia.</string>
+    <string name="notif_actions_pick_desc">Wybierz maksymalnie %1$d akcje. Ta sama akcja może się powtórzyć.</string>
+    <string name="notif_action_slot">Akcja %1$d</string>
+    <string name="notif_action_stop_all">Zatrzymaj wszystko</string>
+    <string name="notif_action_lock">Zablokuj / Odblokuj</string>
+    <string name="notif_action_light">Światło wł. / wył.</string>
+    <string name="notif_action_record">Nagrywaj / Zatrzymaj</string>
+    <string name="notif_action_horn">Klakson</string>
+    <string name="notif_action_disconnect">Rozłącz</string>
+    <string name="notif_action_stop_nav">Zatrzymaj nawigację</string>
+    <string name="notif_btn_stop_all">Zatrzymaj</string>
+    <string name="notif_btn_lock">Zablokuj</string>
+    <string name="notif_btn_unlock">Odblokuj</string>
+    <string name="notif_btn_light_on">Światło wł.</string>
+    <string name="notif_btn_light_off">Światło wył.</string>
+    <string name="notif_btn_record">Nagrywaj</string>
+    <string name="notif_btn_stop_record">Zatrzymaj</string>
+    <string name="notif_btn_horn">Klakson</string>
+    <string name="notif_btn_disconnect">Rozłącz</string>
+    <string name="notif_btn_stop_nav">Stop nawig.</string>
+
     <!-- Common -->
     <string name="action_back">Wstecz</string>
     <string name="action_cancel">Anuluj</string>
