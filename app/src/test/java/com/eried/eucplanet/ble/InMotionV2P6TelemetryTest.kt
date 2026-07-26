@@ -56,8 +56,10 @@ class InMotionV2P6TelemetryTest {
     }
 
     // Real 0x84 detailed bodies (bytes after `21 02 84`) from a labelled ride
-    // capture. Motor temp is Fahrenheit at body[64]; the InMotion app's "Motor
-    // Temp" tile read 216 F at the hot frame. NOT in the realtime frame.
+    // capture. Motor temp is at body[64], Fahrenheit encoded as  byte − 126
+    // (same as MOS body[58]) - confirmed against the InMotion app's OWN BLE
+    // capture (btsnoop), where a cold wheel read body[64]=0xC7 (199) = 73 F,
+    // not 199 F. Reading body[64] raw is what showed a cold wheel ~200 F.
     private val detailedHot = hex(
         "af5492ff000000007202000045f6920112ff53ff1bff7bfef4ff96ff9709dc" +
         "00b2f700199018983a204e2e34581b581be02ee02e74bd00000000d52e00e8" +
@@ -69,11 +71,11 @@ class InMotionV2P6TelemetryTest {
         "b0cbcacab01800030000000049000200000000000000000037"
     )
 
-    @Test fun `P6 detailed frame decodes motor temp from Fahrenheit at offset 64`() {
-        // body[64] = 216 F -> 102.2 C (the app's "Motor Temp 216 F").
-        assertEquals(102.2f, InMotionV2Parser.parseP6DetailedData(detailedHot)!!.motorC!!, 0.2f)
-        // A cooler frame: body[64] = 202 F -> 94.4 C.
-        assertEquals(94.4f, InMotionV2Parser.parseP6DetailedData(detailedCool)!!.motorC!!, 0.2f)
+    @Test fun `P6 detailed frame decodes motor temp as Fahrenheit byte minus 126 at offset 64`() {
+        // body[64] = 0xD8 (216) -> 216 − 126 = 90 F -> 32.2 C.
+        assertEquals(32.2f, InMotionV2Parser.parseP6DetailedData(detailedHot)!!.motorC!!, 0.2f)
+        // Cooler frame: body[64] = 0xCA (202) -> 202 − 126 = 76 F -> 24.4 C.
+        assertEquals(24.4f, InMotionV2Parser.parseP6DetailedData(detailedCool)!!.motorC!!, 0.2f)
         // MOS / driver-board are not read from this frame (realtime owns MOS).
         assertEquals(null, InMotionV2Parser.parseP6DetailedData(detailedHot)!!.mosC)
     }

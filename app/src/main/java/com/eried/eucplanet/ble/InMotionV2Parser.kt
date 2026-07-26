@@ -408,16 +408,18 @@ object InMotionV2Parser {
      */
     fun parseP6DetailedData(body: ByteArray): InMotionV2DetailedTemps? {
         if (body.size < 65) return null
-        // Motor temp: the 0x84 detailed frame reports it in FAHRENHEIT at
-        // body[64]. Matched to the InMotion app's "Motor Temp 216 F" tile
-        // against a full labelled ride capture - body[64] read exactly 216 at
-        // the screenshot moment and rose 202..221 F as the motor heated (far
-        // too high to be Celsius). Convert to C for storage.
-        // MOS and driver-board are deliberately left null: the realtime 0x87
-        // frame already carries a live MOS (body[28], controller slot), and no
-        // other sensor in this frame is confidently identified yet.
-        val motorF = body[64].toInt() and 0xFF
-        val motorC = ((motorF - 32) * 5f / 9f).takeIf { motorF in 50..255 }
+        // Motor temp lives at body[64] of the 0x84 detailed frame, Fahrenheit
+        // encoded as  °F = byte − 126  - the SAME formula the frame uses for
+        // MOS (body[58]). Confirmed against the InMotion app's OWN Bluetooth
+        // capture (btsnoop): with the wheel cold, body[64] = 0xC7 (199) while
+        // the app displayed a cool temperature -> 199 − 126 = 73 °F, NOT 199 °F.
+        // The previous code read body[64] as RAW Fahrenheit, so a cold wheel
+        // showed ~200 °F (the tester's report). The old "body[64] rose 202..221"
+        // note was this same byte heating 76..95 °F under this formula, misread
+        // as raw °F. MOS/driver-board stay null here (the realtime 0x87 frame
+        // carries MOS); only the motor slot is injected downstream.
+        val motorF = (body[64].toInt() and 0xFF) - 126
+        val motorC = ((motorF - 32) * 5f / 9f).takeIf { motorF in 30..260 }
         return InMotionV2DetailedTemps(mosC = null, motorC = motorC, driverBoardC = null)
     }
 
