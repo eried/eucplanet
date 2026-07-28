@@ -79,4 +79,29 @@ class InMotionV2P6TelemetryTest {
         // MOS / driver-board are not read from this frame (realtime owns MOS).
         assertEquals(null, InMotionV2Parser.parseP6DetailedData(detailedHot)!!.mosC)
     }
+
+    // Real 96-byte P6 realtime (0x87) bodies from the tester's 2026-07-27 ride,
+    // cross-checked frame-by-frame against the on-screen Motor Temp in that same
+    // ride's screen recording (analysis in tools/p6-temp-analysis, rmse 0.4 C
+    // over 18 frames). Motor temp is body[31] as an 8-bit value that overflows:
+    // motor C = (body[31] + 80) & 0xFF.
+    private val realtimeCold = hex(
+        "3b59c6ff00000000660500008a00a2037cff15001c250c25983a204e2e34d5eb" +
+        "df02b21fce3e222f8b0145ac0000d8220000ac010000790200004ea206009a4b" +
+        "af03c8308800604c06000ed71200dc0049000000000000000000000076002715"
+    )
+    private val realtimeHot = hex(
+        "c350881a000000008d2000008f2b2e16da367428e21d991d983a204e2e34dc32" +
+        "f0022e27ce3e1a331707aeb404002dc000006e0500003c060000daa706000354" +
+        "b3031dce880022500600d1da1200e2004900000000000000000000002c250819"
+    )
+
+    @Test fun `P6 realtime motor temp is body 31 with 8-bit overflow`() {
+        // body[31] = 235 -> (235 + 80) & 0xFF = 59 C (cold end of the ride).
+        assertEquals(59f, InMotionV2Parser.parseP6Telemetry(realtimeCold)!!.temperatures[0], 0.5f)
+        // body[31] = 50, already wrapped past 255 -> (50 + 80) & 0xFF = 130 C.
+        // The old `body[31] - 176` would read -126 C here and blank the tile;
+        // this is the overflow the previous code mistook for a dead constant.
+        assertEquals(130f, InMotionV2Parser.parseP6Telemetry(realtimeHot)!!.temperatures[0], 0.5f)
+    }
 }

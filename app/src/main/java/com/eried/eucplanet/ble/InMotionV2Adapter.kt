@@ -497,17 +497,23 @@ class InMotionV2Adapter @Inject constructor() : WheelAdapter {
                     "P6 realtime len=${body.size} body=${body.joinToString(" ") { "%02x".format(it) }}"
                 )
                 val telem = InMotionV2Parser.parseP6Telemetry(body) ?: return DecodeResult.Unknown
-                // Inject the motor temp cached from the last 0x84 detailed frame
-                // into slot 0 (this realtime frame has no motor temp), and set
-                // the pill's maxTemperature to it. Held between the infrequent
-                // 0x84 updates so the reading never blanks out mid-ride.
-                val motor = lastP6MotorC
-                val merged = if (motor != null && telem.temperatures.isNotEmpty())
-                    telem.copy(
-                        temperatures = listOf(motor) + telem.temperatures.drop(1),
-                        maxTemperature = motor
-                    )
-                else telem
+                // Motor temp now comes straight from realtime body[31]
+                // (parseP6Telemetry, slot 0), refreshed every frame. Keep it
+                // when present; only fall back to the cached 0x84 detailed-frame
+                // motor temp on a firmware where body[31] read implausible and
+                // parseP6Telemetry left slot 0 at 0.
+                val realtimeMotor = telem.temperatures.firstOrNull() ?: 0f
+                val merged = if (realtimeMotor > 0f) {
+                    telem
+                } else {
+                    val motor = lastP6MotorC
+                    if (motor != null && telem.temperatures.isNotEmpty())
+                        telem.copy(
+                            temperatures = listOf(motor) + telem.temperatures.drop(1),
+                            maxTemperature = maxOf(motor, telem.maxTemperature)
+                        )
+                    else telem
+                }
                 DecodeResult.Telemetry(merged)
             }
             0x04 -> {

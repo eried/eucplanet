@@ -278,36 +278,33 @@ object InMotionV2Parser {
             ByteUtils.getUint32LE(data, 58) / 100f
         } else 0f
 
-        // Temperatures: confirmed encodings from labelled captures where the
-        // rider read MOS / IMU / Motor off the wheel UI.
+        // Temperatures live in this realtime frame.
         //
-        //   Motor  = body[31] − 176  °C  (slope 1, byte 176 = 0 °C)
-        //     Re-derived after a second labelled point far from the first:
-        //     InMotion "Motor Temp" 104 °F = 40 °C at body[31] = 216 (frame
-        //     alignment cross-checked: same frame's body[20..21] = 0x1518 =
-        //     54.00% battery, matching the on-screen 54%). The earlier
-        //     `(byte − 145) / 1.5` fit had only a 61-63 °C band to work with,
-        //     where it happens to intersect this line (both give ~62 °C at
-        //     byte 238), so the wrong slope went unnoticed until a 40 °C label
-        //     showed it over-reading by ~7 °C (would have shown 117 °F).
-        //     `byte − 176` matches both the 40 °C and the old 61-63 °C labels.
+        //   Motor  = (body[31] + 80) & 0xFF  °C   (== body[31] − 176 mod 256)
+        //     body[31] is an 8-bit value that OVERFLOWS: byte 176 = 0 °C, so it
+        //     rises 176..255 for 0..79 °C, then rolls to 0 at 80 °C and climbs
+        //     again. The old `body[31] − 176` (no wrap) went negative above
+        //     79 °C, so the previous code mistook the wrapped low byte for a
+        //     "constant" (it read 34 = 114 °C during one hot capture) and gave
+        //     up on it, falling back to the rarely-polled 0x84 detailed frame -
+        //     which is why the motor tile froze / read garbage under load.
+        //     Recovered by correlating a tester's 18-frame screen capture
+        //     against that same ride's btsnoop: (body[31]+80)&0xFF reproduces
+        //     every point to +/-1 °C (rmse 0.4), including a mid-ride dip and a
+        //     130 °C plateau. Analysis in tools/p6-temp-analysis.
         //
         //   MOS    = body[28] (direct °C)
-        //     Exact match every time: three labels at 36 °C, byte = 36.
-        //
-        //   IMU    = 62 − body[78]  °C  (lower confidence; 3 data points,
-        //     inverted-scale fit is unusual but matches: 42/42/43 °C ↔ bytes
-        //     20/20/19.)
+        //   IMU    = 62 − body[78]  °C  (lower confidence; inverted-scale fit)
         fun byteOrNull(off: Int): Int? =
             if (off < data.size) data[off].toInt() and 0xFF else null
 
-        // Motor temp is NOT in this realtime frame. body[31] / body[38] look
-        // like temperatures but are fixed constants (216 / 101) that only
-        // coincidentally matched a single labelled point: across a full ride
-        // capture body[31] read 34 while the same wheel ran at 102 C, and
-        // body[38] was 101 in 10 000+ consecutive frames regardless of load.
-        // The real motor temp lives in the 0x84 detailed frame; the adapter
-        // caches it and injects it into slot 0 here (see InMotionV2Adapter).
+        // Guard to a plausible 0..160 °C so the unused 81..175 byte band (which
+        // realistic temps never produce) reads null instead of a bogus >160 °C.
+        val motorC: Float? = byteOrNull(31)
+            ?.let { (it + 80) and 0xFF }
+            ?.takeIf { it in 0..160 }
+            ?.toFloat()
+
         val mosByte = byteOrNull(28)
         val mosC: Float? = mosByte
             ?.takeIf { it in 5..120 }  // plausible ambient..hot range
@@ -318,9 +315,8 @@ object InMotionV2Parser {
             ?.takeIf { it in 5..62 }  // the formula's valid input window
             ?.let { (62 - it).toFloat() }
 
-        // Positional [motor, controller (MOS), battery (IMU)]. Slot 0 is a
-        // placeholder the adapter overwrites with the cached 0x84 motor temp.
-        val temps = listOf(0f, mosC ?: 0f, imuC ?: 0f)
+        // Positional [motor, controller (MOS), battery (IMU)].
+        val temps = listOf(motorC ?: 0f, mosC ?: 0f, imuC ?: 0f)
 
         // Headlight state isn't reliably reported in the realtime stream on
         // user-facing firmware. preview4's "byte[84] bit 1" rule worked in
@@ -355,10 +351,10 @@ object InMotionV2Parser {
             tripDistance = 0f,
             totalDistance = totalDistanceKm,
             temperatures = temps,
-            // Slot 0 is a placeholder here; the adapter sets both this list's
-            // motor slot and maxTemperature from the cached 0x84 motor temp so
-            // the pill reads the same number the InMotion app shows.
-            maxTemperature = 0f,
+            // Hottest component drives the Temperature pill. Motor (body[31]) is
+            // normally the max; the adapter still falls back to the cached 0x84
+            // motor temp only when body[31] is absent (slot 0 == 0).
+            maxTemperature = listOfNotNull(motorC, mosC, imuC).maxOrNull() ?: 0f,
             lightOn = lightOn,
             timestamp = System.currentTimeMillis()
         )
