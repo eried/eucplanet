@@ -129,6 +129,11 @@ class TripRepository @Inject constructor(
     // Pending fully-off after the idle grace (gpsIdleOffDelaySec); cancelled the
     // moment any input changes, since recompute re-decides.
     private var idleOffJob: kotlinx.coroutines.Job? = null
+    private val _gpsPoweredOff = MutableStateFlow(false)
+    /** True while GPS is deliberately off for battery saving (idle). WheelService
+     *  reads this to skip voicing "GPS lost" on that power-down; a genuine signal
+     *  loss (flag false) still speaks. */
+    val gpsPoweredOff: StateFlow<Boolean> = _gpsPoweredOff.asStateFlow()
 
     // Ultra battery saving: freshness gates so a cold GPS-off -> record start
     // never logs the stale last-known position (a fake jump at the track start).
@@ -303,14 +308,15 @@ class TripRepository @Inject constructor(
                 locationUpdatesActive = false
                 Log.i(TAG, "GPS tier=OFF - released (background, disconnected, idle)")
             }
-            // Drop the last position so the fix indicator honestly reads "no
-            // fix" while GPS is off. The lost/acquired announcement is gated to
-            // recording (WheelService), so this deliberate power-down stays
-            // silent even though the position goes null here.
+            // Flag the deliberate power-down BEFORE nulling the position, so
+            // WheelService can skip voicing "GPS lost" for it. The indicator
+            // still honestly reads "no fix" from the null.
+            _gpsPoweredOff.value = true
             _currentLocation.value = null
             currentGpsTier = GpsTier.OFF
             return
         }
+        _gpsPoweredOff.value = false
         if (tier == currentGpsTier && locationUpdatesActive) return
         val (priority, interval) = when (tier) {
             GpsTier.HIGH -> Priority.PRIORITY_HIGH_ACCURACY to phoneGpsIntervalMs
