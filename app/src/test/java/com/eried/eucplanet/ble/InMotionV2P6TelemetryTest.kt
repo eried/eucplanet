@@ -55,29 +55,23 @@ class InMotionV2P6TelemetryTest {
         assertEquals(0, wd.motorPower)
     }
 
-    // Real 0x84 detailed bodies (bytes after `21 02 84`) from a labelled ride
-    // capture. Motor temp is at body[64], Fahrenheit encoded as  byte − 126
-    // (same as MOS body[58]) - confirmed against the InMotion app's OWN BLE
-    // capture (btsnoop), where a cold wheel read body[64]=0xC7 (199) = 73 F,
-    // not 199 F. Reading body[64] raw is what showed a cold wheel ~200 F.
-    private val detailedHot = hex(
-        "af5492ff000000007202000045f6920112ff53ff1bff7bfef4ff96ff9709dc" +
-        "00b2f700199018983a204e2e34581b581be02ee02e74bd00000000d52e00e8" +
-        "b0e8d8dcb03a0004000000004900020000000000000000006f"
-    )
-    private val detailedCool = hex(
-        "865aeaff0000000000000000d9ff4a0000000000ffffc000000000000000d2" +
-        "00deff0c274126983a204e262f581b581be02ee02e50c300000000cace00cc" +
-        "b0cbcacab01800030000000049000200000000000000000037"
+    // Real 86-byte P6 0x84 detailed body from the 2026-07-27 ride. The temp
+    // block is a signed byte + 80 C at bytes 59/61/62/63/64/65 (motor, board,
+    // cpu, imu, battery, mosfet) - community-documented, cross-checked here.
+    private val detailed = hex(
+        "8e5676fa000000006611000070e5f504baf3d1f297fd8b0c0000c6fea605e200" +
+        "55e9bc1b621b983a204e2e344c1d4c1de02ee02e8cb900000000df3200f2b0ee" +
+        "d5dcb065000400000000490000000000000000000000"
     )
 
-    @Test fun `P6 detailed frame decodes motor temp as Fahrenheit byte minus 126 at offset 64`() {
-        // body[64] = 0xD8 (216) -> 216 − 126 = 90 F -> 32.2 C.
-        assertEquals(32.2f, InMotionV2Parser.parseP6DetailedData(detailedHot)!!.motorC!!, 0.2f)
-        // Cooler frame: body[64] = 0xCA (202) -> 202 − 126 = 76 F -> 24.4 C.
-        assertEquals(24.4f, InMotionV2Parser.parseP6DetailedData(detailedCool)!!.motorC!!, 0.2f)
-        // MOS / driver-board are not read from this frame (realtime owns MOS).
-        assertEquals(null, InMotionV2Parser.parseP6DetailedData(detailedHot)!!.mosC)
+    @Test fun `P6 detailed frame decodes the temp block as signed byte plus 80`() {
+        val t = InMotionV2Parser.parseP6DetailedData(detailed)!!
+        assertEquals(130f, t.motorC!!, 0.5f)       // body[59] = 0x32 (50)
+        assertEquals(66f, t.controllerC!!, 0.5f)   // body[61] = 0xf2 (242 -> -14 +80)
+        assertEquals(37f, t.batteryC!!, 0.5f)      // body[64] = 0xd5 (213 -> -43 +80)
+        assertEquals(62f, t.imuC!!, 0.5f)          // body[63] = 0xee (238 -> -18 +80)
+        assertEquals(44f, t.mosfetC!!, 0.5f)       // body[65] = 0xdc (220 -> -36 +80)
+        assertEquals(null, t.cpuC)                 // body[62] = 0xb0 (176 -> 0 C = absent)
     }
 
     // Real 96-byte P6 realtime (0x87) bodies from the tester's 2026-07-27 ride,

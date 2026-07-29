@@ -51,10 +51,13 @@ class InMotionV2Adapter @Inject constructor() : WheelAdapter {
      *  refresh on the stats cadence without spamming BLE traffic. */
     @Volatile private var v14PackPollIndex: Int = 0
 
-    /** Last motor temp (C) from a P6 0x84 detailed frame. The realtime 0x87
-     *  frame carries no motor temp, so we inject this cached value into slot 0
-     *  of every realtime frame, held between the infrequent 0x84 updates. */
+    /** Last controller and battery temps (C) from a P6 0x84 detailed frame,
+     *  injected into slots 1/2 of every (frequent) realtime frame and held
+     *  between the infrequent 0x84 updates. Motor comes live from the realtime
+     *  frame itself; lastP6MotorC is only a fallback when its byte reads odd. */
     @Volatile private var lastP6MotorC: Float? = null
+    @Volatile private var lastP6ControllerC: Float? = null
+    @Volatile private var lastP6BatteryC: Float? = null
 
     /** V14 internal-bus addresses for the 4 BMS packs. The list of subdevices
      *  on the V14 bus also includes 0x21 (main MCU) and 0x23 (unknown), but
@@ -502,33 +505,38 @@ class InMotionV2Adapter @Inject constructor() : WheelAdapter {
                 // when present; only fall back to the cached 0x84 detailed-frame
                 // motor temp on a firmware where body[31] read implausible and
                 // parseP6Telemetry left slot 0 at 0.
+                // Live motor from this realtime frame (slot 0); controller and
+                // battery from the cached 0x84 detailed block (slots 1/2). Fall
+                // back to the cached 0x84 motor only if the realtime byte read
+                // as the 0 placeholder.
                 val realtimeMotor = telem.temperatures.firstOrNull() ?: 0f
-                val merged = if (realtimeMotor > 0f) {
-                    telem
-                } else {
-                    val motor = lastP6MotorC
-                    if (motor != null && telem.temperatures.isNotEmpty())
-                        telem.copy(
-                            temperatures = listOf(motor) + telem.temperatures.drop(1),
-                            maxTemperature = maxOf(motor, telem.maxTemperature)
-                        )
-                    else telem
-                }
+                val motor = if (realtimeMotor != 0f) realtimeMotor else (lastP6MotorC ?: 0f)
+                val controller = lastP6ControllerC ?: 0f
+                val battery = lastP6BatteryC ?: 0f
+                val merged = telem.copy(
+                    temperatures = listOf(motor, controller, battery),
+                    maxTemperature = maxOf(motor, controller, battery),
+                )
                 DecodeResult.Telemetry(merged)
             }
             0x04 -> {
                 // detailed-data: response to `02 21 04`. Its body carries the
-                // motor temperature (Fahrenheit at body[64]). Skip the `02 84`
-                // routing pair so offset 0 matches the labelled-capture analysis.
+                // full temperature block (motor/controller/battery/...). Skip the
+                // `02 84` routing pair so offset 0 matches the block analysis.
                 if (data.size < 2) return DecodeResult.Unknown
                 val body = data.copyOfRange(2, data.size)
                 com.eried.eucplanet.diagnostics.DiagnosticsLogger.note(
                     "P6 detailed len=${body.size} body=${body.joinToString(" ") { "%02x".format(it) }}"
                 )
-                // Cache the motor temp; it is injected into the frequent realtime
+                // Cache the detailed block's controller / battery (and motor as
+                // a fallback); they are injected into the frequent realtime
                 // frames (sub 0x07 above) rather than emitted here, so the two
                 // frames no longer clobber each other's temperature list.
-                InMotionV2Parser.parseP6DetailedData(body)?.motorC?.let { lastP6MotorC = it }
+                InMotionV2Parser.parseP6DetailedData(body)?.let {
+                    it.motorC?.let { v -> lastP6MotorC = v }
+                    it.controllerC?.let { v -> lastP6ControllerC = v }
+                    it.batteryC?.let { v -> lastP6BatteryC = v }
+                }
                 DecodeResult.Unknown
             }
             0x06 -> {
