@@ -284,12 +284,20 @@ class WheelService : LifecycleService() {
             tripRepository.currentLocation.collect { location ->
                 val settings = settingsRepository.get()
                 if (settings.announceGps) {
+                    // Track the fix state on every transition, but only SPEAK
+                    // while recording: a deliberate idle power-down of the GPS
+                    // nulls the position too, and that is not a signal loss worth
+                    // voicing. The dashboard indicator still reflects the null.
                     if (location != null && !hadGpsFix) {
                         hadGpsFix = true
-                        voiceService.announceEvent(getString(R.string.voice_gps_acquired))
+                        if (tripRepository.recording.value) {
+                            voiceService.announceEvent(getString(R.string.voice_gps_acquired))
+                        }
                     } else if (location == null && hadGpsFix) {
                         hadGpsFix = false
-                        voiceService.announceEvent(getString(R.string.voice_gps_lost))
+                        if (tripRepository.recording.value) {
+                            voiceService.announceEvent(getString(R.string.voice_gps_lost))
+                        }
                     }
                 }
             }

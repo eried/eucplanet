@@ -303,10 +303,11 @@ class TripRepository @Inject constructor(
                 locationUpdatesActive = false
                 Log.i(TAG, "GPS tier=OFF - released (background, disconnected, idle)")
             }
-            // Keep the last position (do NOT null it): the GPS-signal
-            // announcement fires on a null transition, and a deliberate
-            // power-down is not a signal loss. The recording freshness gate
-            // still rejects the stale fix, so a cold record start stays clean.
+            // Drop the last position so the fix indicator honestly reads "no
+            // fix" while GPS is off. The lost/acquired announcement is gated to
+            // recording (WheelService), so this deliberate power-down stays
+            // silent even though the position goes null here.
+            _currentLocation.value = null
             currentGpsTier = GpsTier.OFF
             return
         }
