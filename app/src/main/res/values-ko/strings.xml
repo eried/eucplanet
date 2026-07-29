@@ -1799,6 +1799,10 @@
     <string name="adv_phone_gps_interval_desc">GPS 경로의 부드러움과 내비게이션 반응 속도를 결정합니다. 낮을수록 자주 업데이트합니다. 주의: 낮은 값은 배터리를 더 빨리 소모합니다.</string>
     <string name="adv_phone_gps_idle_interval">GPS 대기 간격</string>
     <string name="adv_phone_gps_idle_interval_desc">기록이나 내비게이션을 하지 않을 때의 GPS 갱신 간격. 내비게이터와 새 연결이 준비 상태를 유지합니다. 값이 클수록 배터리 절약.</string>
+    <string name="adv_gps_idle_off_delay">유휴 시 GPS 끄기 지연</string>
+    <string name="adv_gps_idle_off_delay_desc">앱이 백그라운드에 있고 휠이 연결되지 않았으며 기록도 없을 때, GPS를 꺼 배터리를 아낍니다. 0은 즉시 끄고, 값이 클수록 그 시간만큼 먼저 저전력 측위를 유지하므로 빠르게 앱을 전환해도 GPS가 끊기지 않습니다.</string>
+    <string name="adv_gps_fix_max_age">이보다 오래된 GPS 측위 무시</string>
+    <string name="adv_gps_fix_max_age_desc">이보다 오래된 위치는 측위 없음으로 처리하므로, GPS가 준비되기 전에 시작한 기록이 오래된 지점에서 시작되지 않습니다.</string>
     <string name="adv_pushonly_note">일부 기기는 자체 고정 속도로 스트리밍하며 이 설정을 무시합니다: 푸시 전용 휠 (Begode, Gotway, Veteran, KingSong), 외부 GPS (RaceBox), 레이더 및 Flic 버튼.</string>
     <string name="adv_radar_clear_decay">레이더 차선 감쇠</string>
     <string name="adv_radar_clear_decay_desc">도로가 비워진 후 차선 바가 유지되는 시간을 결정합니다. 주의: 너무 낮으면 차량이 오가며 깜빡입니다.</string>

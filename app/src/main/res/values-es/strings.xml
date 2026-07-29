@@ -1799,6 +1799,10 @@
     <string name="adv_phone_gps_interval_desc">Afecta cuán suave es el rastro GPS y cuán rápido reacciona la navegación. Más bajo actualiza más a menudo. Peligro: valores bajos agotan la batería más rápido.</string>
     <string name="adv_phone_gps_idle_interval">Intervalo de GPS en reposo</string>
     <string name="adv_phone_gps_idle_interval_desc">Frecuencia del GPS en reposo cuando no se graba ni navega, para que el Navegador y una nueva conexión estén listos. Más alto ahorra batería.</string>
+    <string name="adv_gps_idle_off_delay">Apagar el GPS en reposo tras</string>
+    <string name="adv_gps_idle_off_delay_desc">Cuando la app está en segundo plano sin rueda conectada y sin grabar, el GPS se apaga para ahorrar batería. 0 lo apaga de inmediato; un valor mayor mantiene primero una posición de bajo consumo activa ese tiempo, para que cambiar de app rápido no corte el GPS.</string>
+    <string name="adv_gps_fix_max_age">Ignorar posiciones GPS más antiguas de</string>
+    <string name="adv_gps_fix_max_age_desc">Una posición más antigua que esto cuenta como sin señal, para que una grabación iniciada antes de que el GPS esté listo no empiece con un punto obsoleto.</string>
     <string name="adv_pushonly_note">Algunos dispositivos transmiten a su propio ritmo fijo e ignoran estos ajustes: ruedas push-only (Begode, Gotway, Veteran, KingSong), GPS externo (RaceBox), radar y botones Flic.</string>
     <string name="adv_radar_clear_decay">Atenuación de carril del radar</string>
     <string name="adv_radar_clear_decay_desc">Afecta cuánto permanece la barra de carril tras despejarse la vía. Peligro: muy baja la hace parpadear según los coches van y vienen.</string>

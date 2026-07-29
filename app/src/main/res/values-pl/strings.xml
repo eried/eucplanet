@@ -1800,6 +1800,10 @@
     <string name="adv_phone_gps_interval_desc">Wpływa na to, jak płynny jest ślad GPS i jak szybko reaguje nawigacja. Niższa aktualizuje częściej. Uwaga: niskie wartości szybciej rozładowują baterię.</string>
     <string name="adv_phone_gps_idle_interval">Interwał GPS w spoczynku</string>
     <string name="adv_phone_gps_idle_interval_desc">Częstotliwość GPS w spoczynku, gdy nie nagrywasz ani nie nawigujesz, aby Nawigator i nowe połączenie były gotowe. Wyższy oszczędza baterię.</string>
+    <string name="adv_gps_idle_off_delay">Wyłącz GPS w spoczynku po</string>
+    <string name="adv_gps_idle_off_delay_desc">Gdy aplikacja działa w tle bez podłączonego koła i bez nagrywania, GPS się wyłącza, aby oszczędzać baterię. 0 wyłącza go od razu; wyższa wartość najpierw utrzymuje przez ten czas pozycję o niskim poborze mocy, aby szybkie przełączenie aplikacji nie przerywało GPS.</string>
+    <string name="adv_gps_fix_max_age">Ignoruj pozycje GPS starsze niż</string>
+    <string name="adv_gps_fix_max_age_desc">Pozycja starsza niż to liczy się jako brak pozycji, aby nagranie rozpoczęte przed gotowością GPS nie zaczynało się od nieaktualnego punktu.</string>
     <string name="adv_pushonly_note">Niektóre urządzenia przesyłają dane z własną, stałą częstotliwością i ignorują te ustawienia: koła push-only (Begode, Gotway, Veteran, KingSong), zewnętrzny GPS (RaceBox), radar i przyciski Flic.</string>
     <string name="adv_radar_clear_decay">Zanik pasa radaru</string>
     <string name="adv_radar_clear_decay_desc">Wpływa na to, jak długo pasek pasa pozostaje po opróżnieniu drogi. Uwaga: zbyt mała wartość powoduje miganie, gdy samochody pojawiają się i znikają.</string>

@@ -1822,6 +1822,10 @@
     <string name="adv_phone_gps_interval_desc">Beeinflusst, wie flüssig die GPS-Spur ist und wie schnell die Navigation reagiert. Niedriger aktualisiert öfter. Achtung: niedrige Werte entladen den Akku schneller.</string>
     <string name="adv_phone_gps_idle_interval">GPS-Intervall im Leerlauf</string>
     <string name="adv_phone_gps_idle_interval_desc">GPS-Rate im Leerlauf, wenn nicht aufgenommen oder navigiert wird, damit Navigator und eine neue Verbindung bereit sind. Höher spart Akku.</string>
+    <string name="adv_gps_idle_off_delay">GPS im Leerlauf ausschalten nach</string>
+    <string name="adv_gps_idle_off_delay_desc">Wenn die App im Hintergrund ist, kein Wheel verbunden ist und nichts aufgenommen wird, schaltet sich das GPS aus, um Akku zu sparen. 0 schaltet es sofort aus; höher hält zuerst so lange eine stromsparende Position warm, damit ein schneller App-Wechsel das GPS nicht abbricht.</string>
+    <string name="adv_gps_fix_max_age">GPS-Position ignorieren, älter als</string>
+    <string name="adv_gps_fix_max_age_desc">Eine ältere Position gilt als keine Position, damit eine vor GPS-Bereitschaft gestartete Aufnahme nicht mit einem veralteten Punkt beginnt.</string>
     <string name="adv_pushonly_note">Manche Geräte senden mit ihrer eigenen festen Rate und ignorieren diese Einstellungen: Push-only-Wheels (Begode, Gotway, Veteran, KingSong), externes GPS (RaceBox), Radar und Flic-Tasten.</string>
     <string name="adv_radar_clear_decay">Radar-Spur-Nachlauf</string>
     <string name="adv_radar_clear_decay_desc">Beeinflusst, wie lange der Spurbalken bleibt, nachdem die Straße frei ist. Achtung: zu niedrig lässt ihn blinken, wenn Autos kommen und gehen.</string>

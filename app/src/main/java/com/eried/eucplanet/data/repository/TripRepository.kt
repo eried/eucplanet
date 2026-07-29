@@ -26,6 +26,7 @@ import com.google.android.gms.tasks.CancellationTokenSource
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -114,6 +115,9 @@ class TripRepository @Inject constructor(
     @Volatile private var phoneGpsIntervalMs: Long = 1000L
     // Slow keep-warm interval for the idle (balanced / low-power) GPS tiers.
     @Volatile private var phoneGpsIdleIntervalMs: Long = 10000L
+    // Cached so the non-suspend recomputeGpsTier can read it. Seconds of idle
+    // before GPS is fully released; 0 = immediately. See GpsPowerPolicy / OFF.
+    @Volatile private var gpsIdleOffDelaySec: Int = 30
 
     // Demand-driven GPS power (GpsPowerPolicy). The stream only runs after a real
     // consumer calls startLocationUpdates(); once running it self-adjusts its tier
@@ -122,18 +126,23 @@ class TripRepository @Inject constructor(
     @Volatile private var gpsStreamRequested = false
     @Volatile private var gpsNavigating = false
     @Volatile private var currentGpsTier: GpsTier? = null
+    // Pending fully-off after the idle grace (gpsIdleOffDelaySec); cancelled the
+    // moment any input changes, since recompute re-decides.
+    private var idleOffJob: kotlinx.coroutines.Job? = null
 
     // Ultra battery saving: freshness gates so a cold GPS-off -> record start
     // never logs the stale last-known position (a fake jump at the track start).
+    // The recorded-track age gate is the gpsFixMaxAgeSec setting; these stay
+    // internal.
     private val FRESH_SEED_MS = 15_000L    // seed _currentLocation from cache only if newer than this
-    private val FRESH_FIX_MS = 10_000L     // a recorded track point must be at least this fresh
-    private val MAX_PLOT_ACCURACY_M = 50f  // ...and at least this accurate
+    private val MAX_PLOT_ACCURACY_M = 50f  // reject fixes worse than this for the recorded track
 
     init {
         scope.launch {
             settingsRepository.settings.collect {
                 phoneGpsIntervalMs = it.phoneGpsIntervalMs.toLong().coerceAtLeast(100L)
                 phoneGpsIdleIntervalMs = it.phoneGpsIdleIntervalMs.toLong().coerceAtLeast(1000L)
+                gpsIdleOffDelaySec = it.gpsIdleOffDelaySec.coerceAtLeast(0)
                 // An interval change re-issues the request at the current tier.
                 currentGpsTier = null
                 recomputeGpsTier()
@@ -258,7 +267,24 @@ class TripRepository @Inject constructor(
             connected = connected,
             appVisible = AppForeground.isForeground.value,
         )
-        applyTier(tier)
+        // Any input change cancels a pending idle-off; we re-decide right here.
+        idleOffJob?.cancel(); idleOffJob = null
+        if (tier == GpsTier.OFF) {
+            val delaySec = gpsIdleOffDelaySec
+            if (delaySec <= 0) {
+                applyTier(GpsTier.OFF)
+            } else {
+                // Hold a cheap low-power fix through the grace, then fully off if
+                // still idle - so a quick app switch doesn't drop the GPS.
+                applyTier(GpsTier.LOW)
+                idleOffJob = scope.launch {
+                    delay(delaySec * 1000L)
+                    applyTier(GpsTier.OFF)
+                }
+            }
+        } else {
+            applyTier(tier)
+        }
     }
 
     @SuppressLint("MissingPermission")
@@ -552,6 +578,7 @@ class TripRepository @Inject constructor(
         // read once at start; a mid-recording change takes effect next recording.
         recordJob = scope.launch {
             val recordIntervalMs = settingsRepository.get().tripRecordIntervalMs.toLong()
+            val fixMaxAgeMs = settingsRepository.get().gpsFixMaxAgeSec * 1000L
             var rowsWritten = 0
             var rowsWithGps = 0
             while (_recording.value) {
@@ -562,7 +589,7 @@ class TripRepository @Inject constructor(
                 // and anything over 25 m; this keeps the plotted track from
                 // opening with a fake jump.
                 val location = _currentLocation.value?.takeIf {
-                    System.currentTimeMillis() - it.time < FRESH_FIX_MS &&
+                    System.currentTimeMillis() - it.time < fixMaxAgeMs &&
                         it.accuracy <= MAX_PLOT_ACCURACY_M
                 }
                 // The merged GPS-speed column uses the external box's speed only
