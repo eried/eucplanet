@@ -267,22 +267,27 @@ class TripRepository @Inject constructor(
             connected = connected,
             appVisible = AppForeground.isForeground.value,
         )
-        // Any input change cancels a pending idle-off; we re-decide right here.
-        idleOffJob?.cancel(); idleOffJob = null
         if (tier == GpsTier.OFF) {
-            val delaySec = gpsIdleOffDelaySec
-            if (delaySec <= 0) {
+            // Already off, or an off-grace already pending: stay put. Do NOT
+            // re-bridge or reschedule on every recompute - the wheel's connection
+            // state flips during reconnect scans, and re-entering here would
+            // thrash GPS on and off (spurious acquired/lost, wasted battery).
+            if (currentGpsTier == GpsTier.OFF || idleOffJob != null) return
+            if (gpsIdleOffDelaySec <= 0) {
                 applyTier(GpsTier.OFF)
             } else {
                 // Hold a cheap low-power fix through the grace, then fully off if
                 // still idle - so a quick app switch doesn't drop the GPS.
                 applyTier(GpsTier.LOW)
                 idleOffJob = scope.launch {
-                    delay(delaySec * 1000L)
+                    delay(gpsIdleOffDelaySec * 1000L)
                     applyTier(GpsTier.OFF)
+                    idleOffJob = null
                 }
             }
         } else {
+            // Leaving idle: cancel any pending off and apply the live tier.
+            idleOffJob?.cancel(); idleOffJob = null
             applyTier(tier)
         }
     }
@@ -298,13 +303,13 @@ class TripRepository @Inject constructor(
                 locationUpdatesActive = false
                 Log.i(TAG, "GPS tier=OFF - released (background, disconnected, idle)")
             }
-            _currentLocation.value = null
+            // Keep the last position (do NOT null it): the GPS-signal
+            // announcement fires on a null transition, and a deliberate
+            // power-down is not a signal loss. The recording freshness gate
+            // still rejects the stale fix, so a cold record start stays clean.
             currentGpsTier = GpsTier.OFF
             return
         }
-        // Coming back from OFF: actively pull a fresh fix so re-engage is snappy
-        // and the first position isn't a stale cache read.
-        if (currentGpsTier == GpsTier.OFF) warmUpFirstFix()
         if (tier == currentGpsTier && locationUpdatesActive) return
         val (priority, interval) = when (tier) {
             GpsTier.HIGH -> Priority.PRIORITY_HIGH_ACCURACY to phoneGpsIntervalMs
