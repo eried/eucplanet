@@ -123,6 +123,12 @@ class TripRepository @Inject constructor(
     @Volatile private var gpsNavigating = false
     @Volatile private var currentGpsTier: GpsTier? = null
 
+    // Ultra battery saving: freshness gates so a cold GPS-off -> record start
+    // never logs the stale last-known position (a fake jump at the track start).
+    private val FRESH_SEED_MS = 15_000L    // seed _currentLocation from cache only if newer than this
+    private val FRESH_FIX_MS = 10_000L     // a recorded track point must be at least this fresh
+    private val MAX_PLOT_ACCURACY_M = 50f  // ...and at least this accurate
+
     init {
         scope.launch {
             settingsRepository.settings.collect {
@@ -257,11 +263,28 @@ class TripRepository @Inject constructor(
 
     @SuppressLint("MissingPermission")
     private fun applyTier(tier: GpsTier) {
+        // OFF: release the GPS entirely (ultra battery saving idle state) and
+        // drop the last position so the fix indicator reads honestly. The stream
+        // re-arms on the next recomputeGpsTier when a higher tier is due.
+        if (tier == GpsTier.OFF) {
+            if (locationUpdatesActive) {
+                fusedLocationClient.removeLocationUpdates(locationCallback)
+                locationUpdatesActive = false
+                Log.i(TAG, "GPS tier=OFF - released (background, disconnected, idle)")
+            }
+            _currentLocation.value = null
+            currentGpsTier = GpsTier.OFF
+            return
+        }
+        // Coming back from OFF: actively pull a fresh fix so re-engage is snappy
+        // and the first position isn't a stale cache read.
+        if (currentGpsTier == GpsTier.OFF) warmUpFirstFix()
         if (tier == currentGpsTier && locationUpdatesActive) return
         val (priority, interval) = when (tier) {
             GpsTier.HIGH -> Priority.PRIORITY_HIGH_ACCURACY to phoneGpsIntervalMs
             GpsTier.BALANCED -> Priority.PRIORITY_BALANCED_POWER_ACCURACY to phoneGpsIdleIntervalMs
             GpsTier.LOW -> Priority.PRIORITY_LOW_POWER to phoneGpsIdleIntervalMs
+            GpsTier.OFF -> return
         }
         val request = LocationRequest.Builder(priority, interval)
             .setMinUpdateIntervalMillis(interval / 2)
@@ -292,7 +315,8 @@ class TripRepository @Inject constructor(
     private fun warmUpFirstFix() {
         try {
             fusedLocationClient.lastLocation.addOnSuccessListener { cached ->
-                if (cached != null && _currentLocation.value == null) {
+                if (cached != null && _currentLocation.value == null &&
+                    System.currentTimeMillis() - cached.time < FRESH_SEED_MS) {
                     Log.i(
                         TAG,
                         "Seeded from cached last-known fix " +
@@ -532,7 +556,15 @@ class TripRepository @Inject constructor(
             var rowsWithGps = 0
             while (_recording.value) {
                 val data = wheelRepository.wheelData.value
-                val location = _currentLocation.value
+                // Gate the recorded point on freshness + accuracy so a cold start
+                // (GPS just came back from OFF) logs "no GPS yet" instead of the
+                // stale last-known position. Distance already skips the first fix
+                // and anything over 25 m; this keeps the plotted track from
+                // opening with a fake jump.
+                val location = _currentLocation.value?.takeIf {
+                    System.currentTimeMillis() - it.time < FRESH_FIX_MS &&
+                        it.accuracy <= MAX_PLOT_ACCURACY_M
+                }
                 // The merged GPS-speed column uses the external box's speed only
                 // when the rider prioritises external GPS and the sample is
                 // recent (a staler reading would freeze the column); otherwise

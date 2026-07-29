@@ -4,7 +4,7 @@ package com.eried.eucplanet.data.model
  * GPS power tiers, from most to least battery-hungry. Mapped to a fused
  * LocationRequest priority + interval by [com.eried.eucplanet.data.repository.TripRepository].
  */
-enum class GpsTier { HIGH, BALANCED, LOW }
+enum class GpsTier { HIGH, BALANCED, LOW, OFF }
 
 /**
  * Decides how hard the phone GPS should work right now, so we never burn the
@@ -13,14 +13,15 @@ enum class GpsTier { HIGH, BALANCED, LOW }
  * The rule (rider-specified):
  *  - Recording or navigating always needs precise 1 Hz.
  *  - App not visible (screen off / backgrounded): high accuracy only while a
- *    wheel is connected (riding with the phone pocketed); otherwise a low-power
- *    keep-warm fix so the Navigator / a fresh connect are still ready.
+ *    wheel is connected (riding with the phone pocketed); otherwise fully OFF.
+ *    Background + disconnected + not recording/navigating is the pure-idle state
+ *    that should cost nothing (ultra battery saving).
  *  - App visible but idle: balanced is enough to show a position and keep a fix
  *    warm without spinning the GPS chip at full rate.
  *
- * GPS is never turned fully off here - the coarsest state is [GpsTier.LOW], so
- * a position is always a beat away when the rider opens the Navigator or a wheel
- * comes back. Full stop is a separate, explicit action (Stop all).
+ * Re-engaging from OFF re-warms the stream (a fresh fix in ~1-3 s), and recording
+ * gates its first plotted point on a fresh, accurate fix, so a cold start never
+ * logs the stale last-known position. Full stop (Stop all) is still separate.
  */
 object GpsPowerPolicy {
     fun tierFor(
@@ -30,7 +31,7 @@ object GpsPowerPolicy {
         appVisible: Boolean,
     ): GpsTier = when {
         recording || navigating -> GpsTier.HIGH
-        !appVisible -> if (connected) GpsTier.HIGH else GpsTier.LOW
+        !appVisible -> if (connected) GpsTier.HIGH else GpsTier.OFF
         else -> GpsTier.BALANCED
     }
 }
