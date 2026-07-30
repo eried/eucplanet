@@ -7,6 +7,14 @@ package com.eried.eucplanet.data.model
 enum class GpsTier { HIGH, BALANCED, LOW, OFF }
 
 /**
+ * A GENUINE GPS signal transition (satellites actually lost / regained while GPS
+ * is on and needed), as opposed to the app's own power management. Only these
+ * are voiced; turning GPS off to save power, or back on when you open the app /
+ * connect a wheel, is never one of these.
+ */
+enum class GpsSignalEvent { ACQUIRED, LOST }
+
+/**
  * Decides how hard the phone GPS should work right now, so we never burn the
  * 1 Hz high-accuracy stream when nothing needs it.
  *
