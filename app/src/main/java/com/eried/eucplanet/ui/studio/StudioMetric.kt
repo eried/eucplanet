@@ -46,6 +46,7 @@ enum class StudioMetric(
     ROLL("ROLL", "Roll", StudioMetricKind.PLAIN, "°", 1, 30f, { it.rollAngle }),
     G_FORCE("G-FORCE", "G-Force", StudioMetricKind.PLAIN, "g", 2, 2f, { it.gForce }),
     EXTERNAL_GPS_BATTERY("EXT_GPS_BATTERY", "Ext GPS battery", StudioMetricKind.PLAIN, "%", 0, 100f, { it.externalGpsBatteryPercent.toFloat() }),
+    EXTERNAL_GPS_SPEED("EXT_GPS_SPEED", "Ext GPS speed", StudioMetricKind.SPEED, "", 1, 60f, { it.externalGpsSpeedKmh.coerceAtLeast(0f) }),
     TIRE_PRESSURE("TIRE_PRESSURE", "Tire pressure", StudioMetricKind.PRESSURE, "", 1, 50f, { it.tirePressureKpa }),
     // A lat/lng pair shown as text (not a scalar), so it only makes sense on a
     // text value element. extract is a placeholder; formatted() renders the pair.
@@ -110,6 +111,7 @@ fun StudioMetric.displayName(): String = when (this) {
     StudioMetric.ROLL -> stringResource(R.string.studio_metric_roll)
     StudioMetric.G_FORCE -> stringResource(R.string.studio_metric_g_force)
     StudioMetric.EXTERNAL_GPS_BATTERY -> stringResource(R.string.studio_metric_external_gps_battery)
+    StudioMetric.EXTERNAL_GPS_SPEED -> stringResource(R.string.studio_metric_external_gps_speed)
     StudioMetric.TIRE_PRESSURE -> stringResource(R.string.studio_metric_tire_pressure)
     StudioMetric.GPS -> stringResource(R.string.studio_metric_gps)
 }

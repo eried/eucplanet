@@ -161,10 +161,11 @@ class OverlayStudioViewModel @Inject constructor(
         tripRepository.currentLocation,
         externalGpsRepository.currentSample
     ) { data, loc, ext ->
-        val extBattery = ext?.batteryPercent
-            ?.takeIf { System.currentTimeMillis() - ext.timestamp < 5_000L } ?: -1
+        val extFresh = ext != null && System.currentTimeMillis() - ext.timestamp < 5_000L
+        val extBattery = if (extFresh) (ext!!.batteryPercent ?: -1) else -1
+        val extSpeed = if (extFresh) ext!!.speedKmh else -1f
         val withGps = if (loc != null) data.copy(latitude = loc.latitude, longitude = loc.longitude) else data
-        withGps.copy(externalGpsBatteryPercent = extBattery)
+        withGps.copy(externalGpsBatteryPercent = extBattery, externalGpsSpeedKmh = extSpeed)
     }.stateIn(viewModelScope, SharingStarted.Eagerly, WheelData())
 
     // Live (un-throttled) lateral / forward G in g. The G-Force overlay's dot

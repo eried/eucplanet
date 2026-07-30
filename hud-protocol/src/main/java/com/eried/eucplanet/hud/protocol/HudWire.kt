@@ -101,6 +101,11 @@ data class HudState(
      *  overlay show the box draining. Wired in protocol minor 11; older HUDs
      *  default it to -1 and just don't show the element. */
     val externalGpsBatteryPercent: Int = -1,
+    /** Tire pressure in kPa from a bound TPMS sensor the wheel relays (InMotion
+     *  P6). 0 when no sensor / not reported. Older HUDs default it to 0 and just
+     *  don't draw the element. (Ext-GPS speed rides the existing [gpsSpeedKmh] +
+     *  [gpsSource]=="EXTERNAL"; no new field needed for that.) */
+    val tirePressureKpa: Float = 0f,
 
     /** Wheel roll (lean) in degrees, +right. From wheel BLE telemetry
      *  (InMotion / Begode / KingSong all report it). 0 when the wheel

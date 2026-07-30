@@ -24,6 +24,10 @@ data class WheelData(
      *  Studio (like latitude/longitude) so an overlay number can show it; not
      *  wheel telemetry, so it stays -1 on the plain wheel stream. */
     val externalGpsBatteryPercent: Int = -1,
+    /** Ground speed in km/h from the paired external GPS box (RaceBox / Dragy),
+     *  or -1 when none is paired / no fresh sample. Merged in like the battery /
+     *  lat / long above so an overlay or HUD element can show it. */
+    val externalGpsSpeedKmh: Float = -1f,
     /** Phone IMU acceleration magnitude in g, 0 for trips recorded before this. */
     val gForce: Float = 0f,
     /** Phone IMU lateral acceleration in g (+right). 0 for trips recorded before this. */
