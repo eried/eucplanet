@@ -713,6 +713,14 @@
     <string name="flic_double_click">더블 클릭</string>
     <string name="flic_hold">길게 누르기</string>
     <string name="section_external_gps">GPS &amp; 센서</string>
+    <!-- TPMS sensors -->
+    <string name="section_tpms">TPMS 센서</string>
+    <string name="tpms_caption">휠에 장착된 센서의 타이어 공기압. 센서가 데이터를 보내면 여기에 실시간으로 표시됩니다.</string>
+    <string name="tpms_wheel_sensor">휠 타이어 공기압</string>
+    <string name="tpms_wheel_sensor_desc">연결된 센서에서 휠을 통해 전달됨</string>
+    <string name="tpms_no_data">아직 타이어 공기압 데이터가 없습니다. 연결된 TPMS 센서를 중계하는 휠(예: InMotion P6)에 연결하세요.</string>
+    <string name="tpms_pair_title">다른 센서 페어링</string>
+    <string name="tpms_pair_coming">직접 BLE 센서 페어링은 곧 지원됩니다 - 먼저 해당 센서의 프로필을 캡처해야 합니다.</string>
     <string name="external_gps_device_title">외부 GPS</string>
     <string name="external_gps_pair_button">스캔 시작</string>
     <string name="external_gps_pair_action">페어링</string>

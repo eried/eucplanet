@@ -482,6 +482,7 @@ fun SettingsScreen(
     val titleAdvanced = stringResource(R.string.tab_advanced)
     val titleNavigator = stringResource(R.string.nav_setting_params)
     val titleGpsSensors = stringResource(R.string.section_external_gps)
+    val titleTpms = stringResource(R.string.section_tpms)
     val titleDashboard = stringResource(R.string.tab_dashboard)
 
     val corpusGeneral = listOf(
@@ -619,6 +620,12 @@ fun SettingsScreen(
         stringResource(R.string.external_gps_caption)
     ).joinToString(" ")
 
+    val corpusTpms = listOf(
+        titleTpms,
+        stringResource(R.string.tpms_caption),
+        stringResource(R.string.tpms_wheel_sensor),
+    ).joinToString(" ")
+
     val corpusWatch = listOf(
         titleWatch,
         stringResource(R.string.section_watch_general),
@@ -660,6 +667,7 @@ fun SettingsScreen(
         SectionHandle("auto", titleAuto, Icons.Default.AutoAwesome),
         SectionHandle("navigator", titleNavigator, Icons.Default.Navigation),
         SectionHandle("location", titleGpsSensors, Icons.Default.Sensors),
+        SectionHandle("tpms", titleTpms, Icons.Default.Speed),
         SectionHandle("integration", titleIntegration, Icons.Default.Extension),
         SectionHandle("watch", titleWatch, Icons.Default.Watch),
         SectionHandle("advanced", titleAdvanced, Icons.Default.Build),
@@ -700,6 +708,9 @@ fun SettingsScreen(
         },
         SectionDef("location", titleGpsSensors, Icons.Default.Sensors, corpusGpsSensors) {
             ExternalGpsSection()
+        },
+        SectionDef("tpms", titleTpms, Icons.Default.Speed, corpusTpms) {
+            TpmsSection()
         },
         SectionDef("integration", titleIntegration, Icons.Default.Extension, corpusIntegration) {
             FlicTab()

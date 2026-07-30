@@ -717,6 +717,14 @@
     <string name="flic_double_click">Подвійне натискання</string>
     <string name="flic_hold">Утримання</string>
     <string name="section_external_gps">GPS і датчики</string>
+    <!-- TPMS sensors -->
+    <string name="section_tpms">Датчики TPMS</string>
+    <string name="tpms_caption">Тиск у шині від датчика на вашому моноколесі. Дані в реальному часі показуються тут, коли датчик передає.</string>
+    <string name="tpms_wheel_sensor">Тиск у шині моноколеса</string>
+    <string name="tpms_wheel_sensor_desc">Передається моноколесом від прив\'язаного датчика</string>
+    <string name="tpms_no_data">Поки немає даних про тиск. Підключіть моноколесо, яке передає прив\'язаний датчик TPMS (наприклад, InMotion P6).</string>
+    <string name="tpms_pair_title">Прив\'язати інший датчик</string>
+    <string name="tpms_pair_coming">Прив\'язка прямого BLE-датчика скоро з\'явиться - спочатку потрібно захопити профіль цього датчика.</string>
     <string name="external_gps_device_title">Зовнішній GPS</string>
     <string name="external_gps_pair_button">Почати пошук</string>
     <string name="external_gps_pair_action">Спарувати</string>

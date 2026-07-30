@@ -717,6 +717,14 @@
     <string name="flic_double_click">Clique duplo</string>
     <string name="flic_hold">Segurar</string>
     <string name="section_external_gps">GPS e sensores</string>
+    <!-- TPMS sensors -->
+    <string name="section_tpms">Sensores TPMS</string>
+    <string name="tpms_caption">Pressão do pneu de um sensor na sua roda. Os dados ao vivo aparecem aqui quando um sensor está transmitindo.</string>
+    <string name="tpms_wheel_sensor">Pressão do pneu da roda</string>
+    <string name="tpms_wheel_sensor_desc">Retransmitida pela roda a partir de um sensor vinculado</string>
+    <string name="tpms_no_data">Ainda sem dados de pressão. Conecte uma roda que retransmita um sensor TPMS vinculado (por exemplo InMotion P6).</string>
+    <string name="tpms_pair_title">Parear outro sensor</string>
+    <string name="tpms_pair_coming">O pareamento de um sensor BLE direto está chegando - primeiro é preciso capturar o perfil desse sensor.</string>
     <string name="external_gps_device_title">GPS externo</string>
     <string name="external_gps_pair_button">Iniciar busca</string>
     <string name="external_gps_pair_action">Parear</string>

@@ -656,6 +656,14 @@
     <string name="external_gps_state_disconnected">Frakoblet</string>
     <string name="external_gps_unpair">Glem enhet</string>
     <string name="section_external_gps">GPS og sensorer</string>
+    <!-- TPMS sensors -->
+    <string name="section_tpms">TPMS-sensorer</string>
+    <string name="tpms_caption">Dekktrykk fra en sensor på hjulet ditt. Sanntidsdata vises her når en sensor sender.</string>
+    <string name="tpms_wheel_sensor">Hjulets dekktrykk</string>
+    <string name="tpms_wheel_sensor_desc">Videresendt av hjulet fra en tilknyttet sensor</string>
+    <string name="tpms_no_data">Ingen dekktrykksdata ennå. Koble til et hjul som videresender en tilknyttet TPMS-sensor (for eksempel InMotion P6).</string>
+    <string name="tpms_pair_title">Par en annen sensor</string>
+    <string name="tpms_pair_coming">Paring av en direkte BLE-sensor kommer snart - sensorens profil må fanges først.</string>
     <string name="external_gps_device_title">Ekstern GPS</string>
     <string name="section_speed_calibration">Hastighetskalibrering</string>
     <string name="speed_calibration_caption">Justerer hjulets rapporterte fart; påvirker alarmer, tale og loggen</string>
