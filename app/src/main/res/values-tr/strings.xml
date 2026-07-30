@@ -1799,9 +1799,9 @@
     <string name="adv_phone_gps_interval_desc">GPS izinin ne kadar pürüzsüz olduğunu ve navigasyonun ne kadar hızlı tepki verdiğini etkiler. Düşük değer daha sık günceller. Dikkat: düşük değerler pili daha hızlı tüketir.</string>
     <string name="adv_phone_gps_idle_interval">Boşta GPS aralığı</string>
     <string name="adv_phone_gps_idle_interval_desc">Kayıt veya navigasyon yokken GPS güncelleme aralığı; Navigatör ve yeni bağlantı hazır kalır. Yüksek değer pili korur.</string>
-    <string name="adv_gps_idle_off_delay">Boşta GPS kapanma gecikmesi</string>
+    <string name="adv_gps_idle_off_delay">Boşta GPS kapatma</string>
     <string name="adv_gps_idle_off_delay_desc">Uygulama arka plandayken, teker bağlı değilken ve kayıt yokken pili korumak için GPS kapanır. 0 hemen kapatır; daha yüksek değer önce o süre boyunca düşük güçlü bir konumu sıcak tutar, böylece hızlı uygulama geçişi GPS\'i düşürmez.</string>
-    <string name="adv_gps_fix_max_age">Şundan eski GPS konumlarını yok say</string>
+    <string name="adv_gps_fix_max_age">Maks. GPS konum yaşı</string>
     <string name="adv_gps_fix_max_age_desc">Bundan eski bir konum, konum yok sayılır; böylece GPS hazır olmadan başlayan bir kayıt eski bir noktayla başlamaz.</string>
     <string name="adv_pushonly_note">Bazı cihazlar kendi sabit hızlarında veri akıtır ve bu ayarları yok sayar: yalnızca-itme tekerleri (Begode, Gotway, Veteran, KingSong), harici GPS (RaceBox), radar ve Flic düğmeleri.</string>
     <string name="adv_radar_clear_decay">Radar şerit sönümü</string>

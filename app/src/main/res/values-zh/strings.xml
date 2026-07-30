@@ -1669,9 +1669,9 @@
     <string name="adv_phone_gps_interval_desc">影响 GPS 轨迹的平滑度和导航反应速度。越低更新越频繁。危险:过低会更快耗电。</string>
     <string name="adv_phone_gps_idle_interval">GPS 空闲间隔</string>
     <string name="adv_phone_gps_idle_interval_desc">未记录或导航时的 GPS 更新间隔，让导航和重新连接随时就绪。数值越大越省电。</string>
-    <string name="adv_gps_idle_off_delay">闲置后关闭 GPS 的延迟</string>
+    <string name="adv_gps_idle_off_delay">闲置后关闭 GPS</string>
     <string name="adv_gps_idle_off_delay_desc">当应用在后台运行、未连接独轮车且未录制时，GPS 会关闭以省电。0 会立即关闭；数值越大，会先让低功耗定位维持这段时间，让快速切换应用时不会中断 GPS。</string>
-    <string name="adv_gps_fix_max_age">忽略早于此时间的 GPS 定位</string>
+    <string name="adv_gps_fix_max_age">GPS 定位最长时效</string>
     <string name="adv_gps_fix_max_age_desc">早于此时间的位置视为未定位，让在 GPS 就绪前开始的录制不会以过期的点开头。</string>
     <string name="adv_pushonly_note">部分设备以其自身固定频率推送数据并忽略这些设置:仅推送型独轮车(Begode、Gotway、Veteran、KingSong)、外置 GPS(RaceBox)、雷达和 Flic 按钮。</string>
     <string name="adv_radar_clear_decay">雷达车道衰减</string>

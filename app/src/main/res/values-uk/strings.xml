@@ -1799,9 +1799,9 @@
     <string name="adv_phone_gps_interval_desc">Впливає на плавність GPS-треку та швидкість реакції навігації. Менше — оновлює частіше. Небезпека: малі значення швидше розряджають акумулятор.</string>
     <string name="adv_phone_gps_idle_interval">Інтервал GPS у спокої</string>
     <string name="adv_phone_gps_idle_interval_desc">Частота GPS у спокої, коли немає запису чи навігації, щоб Навігатор і нове підключення були готові. Більше - економить батарею.</string>
-    <string name="adv_gps_idle_off_delay">Вимикати GPS у спокої через</string>
+    <string name="adv_gps_idle_off_delay">Вимикати GPS у спокої</string>
     <string name="adv_gps_idle_off_delay_desc">Коли застосунок у фоні, моноколесо не підключене й нічого не записується, GPS вимикається задля економії батареї. 0 вимикає одразу; більше значення спершу тримає енергоощадну позицію активною цей час, щоб швидке перемикання застосунків не скидало GPS.</string>
-    <string name="adv_gps_fix_max_age">Ігнорувати позиції GPS, старіші за</string>
+    <string name="adv_gps_fix_max_age">Макс. вік позиції GPS</string>
     <string name="adv_gps_fix_max_age_desc">Позиція, старіша за це, вважається відсутністю сигналу, щоб запис, розпочатий до готовності GPS, не починався із застарілої точки.</string>
     <string name="adv_pushonly_note">Деякі пристрої передають дані зі своєю фіксованою частотою й ігнорують ці налаштування: моноколеса лише з передачею (Begode, Gotway, Veteran, KingSong), зовнішній GPS (RaceBox), радар і кнопки Flic.</string>
     <string name="adv_radar_clear_decay">Згасання смуги радара</string>

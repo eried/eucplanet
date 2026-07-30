@@ -1817,9 +1817,9 @@
     <string name="adv_phone_gps_interval_desc">Påvirker hvor jævnt GPS-sporet er, og hvor hurtigt navigationen reagerer. Lavere opdaterer oftere. Fare: lave værdier dræner batteriet hurtigere.</string>
     <string name="adv_phone_gps_idle_interval">GPS-interval i tomgang</string>
     <string name="adv_phone_gps_idle_interval_desc">GPS-hastighed i tomgang, når der ikke optages eller navigeres, så Navigatoren og en ny hjulforbindelse er klar. Højere sparer batteri.</string>
-    <string name="adv_gps_idle_off_delay">Sluk GPS i tomgang efter</string>
+    <string name="adv_gps_idle_off_delay">GPS fra i tomgang</string>
     <string name="adv_gps_idle_off_delay_desc">Når appen er i baggrunden uden tilsluttet hjul og uden optagelse, slukkes GPS for at spare batteri. 0 slukker den med det samme; højere holder først en strømbesparende position varm så længe, så et hurtigt appskift ikke afbryder GPS.</string>
-    <string name="adv_gps_fix_max_age">Ignorér GPS-positioner ældre end</string>
+    <string name="adv_gps_fix_max_age">Maks. GPS-fix-alder</string>
     <string name="adv_gps_fix_max_age_desc">En position ældre end dette tæller som ingen position, så en optagelse startet før GPS er klar, ikke begynder med et forældet punkt.</string>
     <string name="adv_pushonly_note">Nogle enheder streamer med deres egen faste hastighed og ignorerer disse indstillinger: push-only-hjul (Begode, Gotway, Veteran, KingSong), ekstern GPS (RaceBox), radar og Flic-knapper.</string>
     <string name="adv_radar_clear_decay">Henfald for radarbane</string>
