@@ -203,16 +203,26 @@ class ScanViewModel @Inject constructor(
         // flagged auto, so the chokepoint allows it).
         deviceSelected = true
         stopScan()
-        viewModelScope.launch {
-            settingsRepository.updateLastDevice(device.address, device.name)
 
-            val intent = Intent(context, WheelService::class.java).apply {
-                action = WheelService.ACTION_CONNECT
-                putExtra(WheelService.EXTRA_ADDRESS, device.address)
-                putExtra(WheelService.EXTRA_NAME, device.name)
-            }
-            context.startForegroundService(intent)
+        // Fire the connect SYNCHRONOUSLY. The tap handler dismisses the scan
+        // sheet the instant it calls this, which clears the ViewModel and
+        // cancels viewModelScope. The old code launched the connect inside that
+        // scope AFTER the suspending updateLastDevice(), so if the DataStore
+        // write hadn't returned before the dismissal, the coroutine was
+        // cancelled and startForegroundService never ran - the rider tapped the
+        // wheel, the list closed, and nothing connected. Starting the service
+        // here (a non-suspending call, on the foreground main thread) can't be
+        // dropped by that cancellation.
+        val intent = Intent(context, WheelService::class.java).apply {
+            action = WheelService.ACTION_CONNECT
+            putExtra(WheelService.EXTRA_ADDRESS, device.address)
+            putExtra(WheelService.EXTRA_NAME, device.name)
         }
+        context.startForegroundService(intent)
+
+        // Persist the last device best-effort (not required for this connect;
+        // the service already has the address/name from the intent).
+        settingsRepository.updateLastDeviceAsync(device.address, device.name)
     }
 
     override fun onCleared() {
