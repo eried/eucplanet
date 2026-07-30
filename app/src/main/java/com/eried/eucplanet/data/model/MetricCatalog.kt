@@ -258,10 +258,10 @@ object MetricCatalog {
             labelRes = R.string.metric_chip_tire_pressure,
             descriptionRes = R.string.metric_desc_tire_pressure,
             accent = AccentBlue,
-            // Value-only for now (no history buffer wired); a sparkline can be
-            // added later. Pressure drifts slowly so stats aren't meaningful yet.
-            sparkline = SparklineStyle.NONE,
-            supportsStats = false
+            // Tracked like the other "extra" metrics (EXTRA_HISTORY_METRICS):
+            // slow-drifting line with min/max/avg in the tap-to-graph detail.
+            sparkline = SparklineStyle.SMOOTH_LINE,
+            supportsStats = true
         ),
 
         // ---- Derived trip aggregates ----

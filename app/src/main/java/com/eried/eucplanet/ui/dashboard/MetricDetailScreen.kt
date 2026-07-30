@@ -124,6 +124,7 @@ private fun rawCurrentValueFor(key: String, w: WheelData): Float = when (key) {
     "MOTOR_TEMP" -> w.temperatures.getOrNull(0) ?: 0f
     "CONTROLLER_TEMP" -> w.temperatures.getOrNull(1) ?: 0f
     "BATTERY_TEMP" -> w.temperatures.getOrNull(2) ?: 0f
+    "TIRE_PRESSURE" -> w.tirePressureKpa
     else -> 0f
 }
 
@@ -340,16 +341,22 @@ private fun MetricDetailBody(
     // pill - the odometer tile was skipping this, so imperial riders saw km
     // here while the pill showed mi.
     val isDistanceMetric = key == "ODOMETER"
+    // Tire pressure is stored raw in kPa; convert to the rider's pressure unit
+    // (psi for imperial-distance riders, bar otherwise - see Units).
+    val isPressureMetric = key == "TIRE_PRESSURE"
+    val pressureUnit = if (distanceUnit == "mi") "psi" else "bar"
 
     fun convert(v: Float): Float = when {
         legacyType == MetricType.TEMPERATURE -> com.eried.eucplanet.util.Units.temperature(v, tempUnit)
         legacyType == MetricType.SPEED -> com.eried.eucplanet.util.Units.speed(v, speedUnit)
         isDistanceMetric -> com.eried.eucplanet.util.Units.distance(v, distanceUnit)
+        isPressureMetric -> com.eried.eucplanet.util.Units.pressure(v, pressureUnit)
         else -> v
     }
 
     val samples: List<MetricSample> =
-        if (legacyType == MetricType.TEMPERATURE || legacyType == MetricType.SPEED || isDistanceMetric) {
+        if (legacyType == MetricType.TEMPERATURE || legacyType == MetricType.SPEED ||
+            isDistanceMetric || isPressureMetric) {
             rawSamples.map { MetricSample(it.timestampMs, convert(it.value)) }
         } else rawSamples
 
@@ -359,6 +366,7 @@ private fun MetricDetailBody(
             androidx.compose.ui.platform.LocalContext.current, speedUnit
         )
         isDistanceMetric -> com.eried.eucplanet.util.Units.distanceUnit(distanceUnit)
+        isPressureMetric -> com.eried.eucplanet.util.Units.pressureUnit(pressureUnit)
         legacyType == null -> ""
         else -> legacyType.unit
     }

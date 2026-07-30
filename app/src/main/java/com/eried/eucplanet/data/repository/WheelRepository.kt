@@ -130,7 +130,9 @@ internal val EXTRA_HISTORY_METRICS: List<Pair<String, (com.eried.eucplanet.data.
     "DYN_CURRENT_LIMIT" to { it.dynamicCurrentLimit },
     "MOTOR_TEMP" to { it.temperatures.getOrNull(0) ?: 0f },
     "CONTROLLER_TEMP" to { it.temperatures.getOrNull(1) ?: 0f },
-    "BATTERY_TEMP" to { it.temperatures.getOrNull(2) ?: 0f }
+    "BATTERY_TEMP" to { it.temperatures.getOrNull(2) ?: 0f },
+    // TPMS tire pressure, stored raw in kPa; the detail screen converts to psi/bar.
+    "TIRE_PRESSURE" to { it.tirePressureKpa }
 )
 
 @Singleton
