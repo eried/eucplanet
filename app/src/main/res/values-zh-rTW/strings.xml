@@ -238,6 +238,10 @@
     <string name="metric_chip_motor_temp">馬達溫度</string>
     <string name="metric_chip_controller_temp">控制器溫度</string>
     <string name="metric_chip_battery_temp">電池溫度</string>
+    <string name="metric_chip_tire_pressure">胎壓</string>
+    <string name="metric_chip_tire_pressure_tile">胎壓</string>
+    <string name="metric_desc_tire_pressure">來自已綁定 TPMS 感測器（InMotion P6）的胎壓。以 psi 或 bar 顯示。</string>
+    <string name="studio_metric_tire_pressure">胎壓</string>
     <string name="metric_chip_headroom">速度餘量</string>
     <string name="metric_chip_trip_time">行程時間</string>
     <string name="metric_chip_trip_max_speed">行程最高速</string>

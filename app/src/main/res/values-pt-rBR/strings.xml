@@ -238,6 +238,10 @@
     <string name="metric_chip_motor_temp">Temperatura do motor</string>
     <string name="metric_chip_controller_temp">Temperatura do controlador</string>
     <string name="metric_chip_battery_temp">Temperatura da bateria</string>
+    <string name="metric_chip_tire_pressure">Pressão do pneu</string>
+    <string name="metric_chip_tire_pressure_tile">Pneu</string>
+    <string name="metric_desc_tire_pressure">Pressão do pneu de um sensor TPMS vinculado (InMotion P6). Mostrada em psi ou bar.</string>
+    <string name="studio_metric_tire_pressure">Pressão do pneu</string>
     <string name="metric_chip_headroom">Margem</string>
     <string name="metric_chip_trip_time">Tempo de trip</string>
     <string name="metric_chip_trip_max_speed">Pico da trip</string>

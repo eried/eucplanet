@@ -238,6 +238,10 @@
     <string name="metric_chip_motor_temp">Motortemperatuur</string>
     <string name="metric_chip_controller_temp">Controllertemperatuur</string>
     <string name="metric_chip_battery_temp">Accutemperatuur</string>
+    <string name="metric_chip_tire_pressure">Bandenspanning</string>
+    <string name="metric_chip_tire_pressure_tile">Band</string>
+    <string name="metric_desc_tire_pressure">Bandenspanning van een gekoppelde TPMS-sensor (InMotion P6). Getoond in psi of bar.</string>
+    <string name="studio_metric_tire_pressure">Bandenspanning</string>
     <string name="metric_chip_headroom">Marge</string>
     <string name="metric_chip_trip_time">Triptime</string>
     <string name="metric_chip_trip_max_speed">Trip max</string>

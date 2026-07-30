@@ -43,6 +43,10 @@ data class WheelData(
      *  families (Begode/Veteran/Ninebot/InMotion V1) leave this false; charging
      *  for them is derived from sustained negative current in WheelRepository. */
     val charging: Boolean = false,
+    /** Tire pressure in kPa from a bound TPMS sensor the wheel relays (InMotion
+     *  P6: realtime 0x87 frame, u16le at body[78]). 0 = no sensor / not reported.
+     *  Display converts: psi = kPa x 0.145038, bar = kPa / 100. */
+    val tirePressureKpa: Float = 0f,
     val pcMode: Int = -1,  // 0=lock, 1=drive, 2=shutdown, 3=idle (-1=unknown/no telemetry yet)
     /** Tiltback / max-speed threshold the wheel firmware reports in its telemetry,
      *  in km/h. -1 = the active adapter doesn't surface this. Used so the

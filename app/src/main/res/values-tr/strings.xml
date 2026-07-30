@@ -238,6 +238,10 @@
     <string name="metric_chip_motor_temp">Motor sıcaklığı</string>
     <string name="metric_chip_controller_temp">Kontrolör sıcaklığı</string>
     <string name="metric_chip_battery_temp">Akü sıcaklığı</string>
+    <string name="metric_chip_tire_pressure">Lastik basıncı</string>
+    <string name="metric_chip_tire_pressure_tile">Lastik</string>
+    <string name="metric_desc_tire_pressure">Bağlı bir TPMS sensöründen (InMotion P6) lastik basıncı. psi veya bar olarak gösterilir.</string>
+    <string name="studio_metric_tire_pressure">Lastik basıncı</string>
     <string name="metric_chip_headroom">Güvenlik payı</string>
     <string name="metric_chip_trip_time">Sefer süresi</string>
     <string name="metric_chip_trip_max_speed">Sefer maks hızı</string>

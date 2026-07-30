@@ -1124,7 +1124,10 @@ class SettingsViewModel @Inject constructor(
         "BT_RSSI",
         // Extras targeted at composite-tile cells (small text, no
         // sparkline) -- they also render fine as standalone tiles.
-        "LAT_LONG", "WHEEL_MAX_SPEED", "WHEEL_ALARM_SPEED", "PC_MODE", "LIGHT_ON"
+        "LAT_LONG", "WHEEL_MAX_SPEED", "WHEEL_ALARM_SPEED", "PC_MODE", "LIGHT_ON",
+        // TPMS tire pressure (InMotion P6). Appended (not inserted) so existing
+        // per-slot restore indices don't shift.
+        "TIRE_PRESSURE"
     )
     /**
      * Dashboard-eligible actions, derived from [ActionCatalog]. Adding a

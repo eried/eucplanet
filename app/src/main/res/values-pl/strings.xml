@@ -238,6 +238,10 @@
     <string name="metric_chip_motor_temp">Temperatura silnika</string>
     <string name="metric_chip_controller_temp">Temperatura sterownika</string>
     <string name="metric_chip_battery_temp">Temperatura baterii</string>
+    <string name="metric_chip_tire_pressure">Ciśnienie w oponie</string>
+    <string name="metric_chip_tire_pressure_tile">Opona</string>
+    <string name="metric_desc_tire_pressure">Ciśnienie w oponie z powiązanego czujnika TPMS (InMotion P6). Pokazywane w psi lub bar.</string>
+    <string name="studio_metric_tire_pressure">Ciśnienie w oponie</string>
     <string name="metric_chip_headroom">Zapas</string>
     <string name="metric_chip_trip_time">Czas trasy</string>
     <string name="metric_chip_trip_max_speed">Szczyt trasy</string>

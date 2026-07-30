@@ -290,6 +290,15 @@ object InMotionV2Parser {
             ?.takeIf { it in -40..200 }
             ?.toFloat()
 
+        // body[78..79] is the TPMS tire pressure (u16le kPa, high byte 0), not a
+        // temperature - the old "62 - body[78]" IMU fit was bogus (value 134..216
+        // never enters the 5..62 window). Decoded from the InMotion app's own
+        // btsnoop, cross-checked against the app UI showing 29.1 psi while
+        // body[78] read 201 kPa (201 x 0.145038 = 29.2 psi).
+        val tirePressureKpa: Float = if (data.size >= 80) {
+            ByteUtils.getUint16LE(data, 78).toFloat()
+        } else 0f
+
         // Positional [motor, controller, battery]. Motor is live from this
         // realtime frame; controller and battery are filled by the adapter from
         // the 0x84 detailed frame (they change slowly, an ~18 s refresh is fine).
@@ -332,6 +341,7 @@ object InMotionV2Parser {
             // after it folds in the 0x84 controller and battery temps.
             maxTemperature = motorC ?: 0f,
             lightOn = lightOn,
+            tirePressureKpa = tirePressureKpa,
             timestamp = System.currentTimeMillis()
         )
     }

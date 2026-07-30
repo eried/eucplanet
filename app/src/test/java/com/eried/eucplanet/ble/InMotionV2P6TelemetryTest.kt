@@ -47,6 +47,16 @@ class InMotionV2P6TelemetryTest {
         assertEquals(-214, wd.motorPower)
     }
 
+    @Test fun `P6 decodes TPMS tire pressure from offsets 78-79 (u16le kPa)`() {
+        // body[78..79] = f9 00 = 249 kPa (high byte 0). Cross-checked against the
+        // InMotion app btsnoop where body[78]=201 kPa showed as 29.1 psi.
+        val wd = InMotionV2Parser.parseP6Telemetry(ridingFrame)!!
+        assertEquals(249f, wd.tirePressureKpa, 0.01f)
+        // 249 kPa -> 36.1 psi / 2.49 bar via Units.
+        assertEquals(36.1f, com.eried.eucplanet.util.Units.pressure(wd.tirePressureKpa, "psi"), 0.1f)
+        assertEquals(2.49f, com.eried.eucplanet.util.Units.pressure(wd.tirePressureKpa, "bar"), 0.01f)
+    }
+
     @Test fun `P6 truncated frame keeps power at zero default`() {
         // A short body (before offsets 16/18 arrive) must not crash and leaves
         // power at the WheelData default so the dashboard reads blank, not garbage.

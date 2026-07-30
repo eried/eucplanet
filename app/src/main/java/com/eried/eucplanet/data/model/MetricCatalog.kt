@@ -253,6 +253,16 @@ object MetricCatalog {
             accent = AccentOrange,
             sparkline = SparklineStyle.AREA
         ),
+        MetricSpec(
+            key = "TIRE_PRESSURE",
+            labelRes = R.string.metric_chip_tire_pressure,
+            descriptionRes = R.string.metric_desc_tire_pressure,
+            accent = AccentBlue,
+            // Value-only for now (no history buffer wired); a sparkline can be
+            // added later. Pressure drifts slowly so stats aren't meaningful yet.
+            sparkline = SparklineStyle.NONE,
+            supportsStats = false
+        ),
 
         // ---- Derived trip aggregates ----
         MetricSpec(

@@ -238,6 +238,10 @@
     <string name="metric_chip_motor_temp">Motortemperatur</string>
     <string name="metric_chip_controller_temp">Controllertemperatur</string>
     <string name="metric_chip_battery_temp">Batteritemperatur</string>
+    <string name="metric_chip_tire_pressure">Dæktryk</string>
+    <string name="metric_chip_tire_pressure_tile">Dæk</string>
+    <string name="metric_desc_tire_pressure">Dæktryk fra en tilknyttet TPMS-sensor (InMotion P6). Vises i psi eller bar.</string>
+    <string name="studio_metric_tire_pressure">Dæktryk</string>
     <string name="metric_chip_headroom">Margen</string>
     <string name="metric_chip_trip_time">Trip-tid</string>
     <string name="metric_chip_trip_max_speed">Trip-spids</string>

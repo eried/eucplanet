@@ -9,7 +9,11 @@ import com.eried.eucplanet.util.Units
 import kotlin.math.absoluteValue
 
 /** Whether a metric needs unit conversion, and against which unit setting. */
-enum class StudioMetricKind { SPEED, DISTANCE, TEMPERATURE, PLAIN }
+enum class StudioMetricKind { SPEED, DISTANCE, TEMPERATURE, PRESSURE, PLAIN }
+
+/** Tire-pressure display unit follows the distance unit (mi -> psi, else bar),
+ *  matching Units.effectivePressureUnit; no dedicated pressure-unit setting yet. */
+private fun pressureUnitFor(distUnit: String): String = if (distUnit == "mi") "psi" else "bar"
 
 /**
  * The live telemetry values a DATA_VALUE / DATA_GRAPH overlay element can show.
@@ -42,6 +46,7 @@ enum class StudioMetric(
     ROLL("ROLL", "Roll", StudioMetricKind.PLAIN, "°", 1, 30f, { it.rollAngle }),
     G_FORCE("G-FORCE", "G-Force", StudioMetricKind.PLAIN, "g", 2, 2f, { it.gForce }),
     EXTERNAL_GPS_BATTERY("EXT_GPS_BATTERY", "Ext GPS battery", StudioMetricKind.PLAIN, "%", 0, 100f, { it.externalGpsBatteryPercent.toFloat() }),
+    TIRE_PRESSURE("TIRE_PRESSURE", "Tire pressure", StudioMetricKind.PRESSURE, "", 1, 50f, { it.tirePressureKpa }),
     // A lat/lng pair shown as text (not a scalar), so it only makes sense on a
     // text value element. extract is a placeholder; formatted() renders the pair.
     GPS("GPS", "GPS coordinates", StudioMetricKind.PLAIN, "", 0, 1f, { 0f }, textOnly = true);
@@ -57,6 +62,7 @@ enum class StudioMetric(
             StudioMetricKind.SPEED -> Units.speed(raw, speedUnit)
             StudioMetricKind.DISTANCE -> Units.distance(raw, distUnit)
             StudioMetricKind.TEMPERATURE -> Units.temperature(raw, tempUnit)
+            StudioMetricKind.PRESSURE -> Units.pressure(raw, pressureUnitFor(distUnit))
             StudioMetricKind.PLAIN -> raw
         }
     }
@@ -67,6 +73,7 @@ enum class StudioMetric(
             StudioMetricKind.SPEED -> Units.speedUnit(context, speedUnit)
             StudioMetricKind.DISTANCE -> Units.distanceUnit(distUnit)
             StudioMetricKind.TEMPERATURE -> Units.tempUnit(tempUnit)
+            StudioMetricKind.PRESSURE -> Units.pressureUnit(pressureUnitFor(distUnit))
             StudioMetricKind.PLAIN -> plainUnit
         }
 
@@ -103,5 +110,6 @@ fun StudioMetric.displayName(): String = when (this) {
     StudioMetric.ROLL -> stringResource(R.string.studio_metric_roll)
     StudioMetric.G_FORCE -> stringResource(R.string.studio_metric_g_force)
     StudioMetric.EXTERNAL_GPS_BATTERY -> stringResource(R.string.studio_metric_external_gps_battery)
+    StudioMetric.TIRE_PRESSURE -> stringResource(R.string.studio_metric_tire_pressure)
     StudioMetric.GPS -> stringResource(R.string.studio_metric_gps)
 }

@@ -240,6 +240,9 @@
     <string name="metric_chip_motor_temp">Motor temperature</string>
     <string name="metric_chip_controller_temp">Controller temperature</string>
     <string name="metric_chip_battery_temp">Battery temperature</string>
+    <string name="metric_chip_tire_pressure">Tire pressure</string>
+    <string name="metric_chip_tire_pressure_tile">Tire</string>
+    <string name="metric_desc_tire_pressure">Tire pressure from a bound TPMS sensor (InMotion P6). Shown in psi or bar.</string>
     <string name="metric_chip_headroom">Headroom</string>
     <string name="metric_chip_trip_time">Trip time</string>
     <string name="metric_chip_trip_max_speed">Trip max</string>
@@ -1665,6 +1668,7 @@
     <string name="studio_metric_roll">Roll</string>
     <string name="studio_metric_g_force">G-Force</string>
     <string name="studio_metric_external_gps_battery">Ext GPS battery</string>
+    <string name="studio_metric_tire_pressure">Tire pressure</string>
     <string name="studio_metric_gps">GPS coordinates</string>
 
     <!-- Navigator -->

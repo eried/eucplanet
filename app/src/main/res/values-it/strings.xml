@@ -1160,6 +1160,10 @@
     <string name="metric_chip_battery_2">Pack 2</string>
     <string name="metric_chip_battery_power">Pot. batteria</string>
     <string name="metric_chip_battery_temp">Temperatura batteria</string>
+    <string name="metric_chip_tire_pressure">Pressione pneumatici</string>
+    <string name="metric_chip_tire_pressure_tile">Gomma</string>
+    <string name="metric_desc_tire_pressure">Pressione del pneumatico da un sensore TPMS associato (InMotion P6). Mostrata in psi o bar.</string>
+    <string name="studio_metric_tire_pressure">Pressione pneumatici</string>
     <string name="metric_chip_bt_rssi">Segnale BT</string>
     <string name="metric_chip_controller_temp">Temperatura centralina</string>
     <string name="metric_chip_current">Ampere</string>

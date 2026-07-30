@@ -238,6 +238,10 @@
     <string name="metric_chip_motor_temp">Температура мотора</string>
     <string name="metric_chip_controller_temp">Температура контроллера</string>
     <string name="metric_chip_battery_temp">Температура батареи</string>
+    <string name="metric_chip_tire_pressure">Давление в шине</string>
+    <string name="metric_chip_tire_pressure_tile">Шина</string>
+    <string name="metric_desc_tire_pressure">Давление в шине от привязанного датчика TPMS (InMotion P6). Показывается в psi или bar.</string>
+    <string name="studio_metric_tire_pressure">Давление в шине</string>
     <string name="metric_chip_headroom">Запас</string>
     <string name="metric_chip_trip_time">Время поездки</string>
     <string name="metric_chip_trip_max_speed">Пик поездки</string>

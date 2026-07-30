@@ -1479,6 +1479,13 @@ fun DashboardScreen(
                         ?.takeIf { com.eried.eucplanet.util.MetricSanity.isPlausibleTempC(it) }
                         ?.let { "%.0f%s".format(com.eried.eucplanet.util.Units.temperature(it, tempUnit), tempUnitLabel) }
                         ?: placeholder
+                    "TIRE_PRESSURE" -> if (wheelData.tirePressureKpa > 0f) {
+                        // psi for imperial-distance riders, bar otherwise (see Units).
+                        if (distanceUnit == "mi")
+                            "%.1f psi".format(com.eried.eucplanet.util.Units.pressure(wheelData.tirePressureKpa, "psi"))
+                        else
+                            "%.2f bar".format(com.eried.eucplanet.util.Units.pressure(wheelData.tirePressureKpa, "bar"))
+                    } else placeholder
                     "PHONE_BATTERY" -> if (phoneBatteryPct in 0..100) "$phoneBatteryPct%" else placeholder
                     "EXTERNAL_GPS_BATTERY" -> externalGpsBattery?.let { "$it%" } ?: placeholder
                     "GPS_ALTITUDE" -> gpsLocation?.altitude?.let { alt ->

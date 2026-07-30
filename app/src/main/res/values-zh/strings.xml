@@ -1124,6 +1124,10 @@
     <string name="metric_chip_battery_2">电池组 2</string>
     <string name="metric_chip_battery_power">电池功率</string>
     <string name="metric_chip_battery_temp">电池温度</string>
+    <string name="metric_chip_tire_pressure">胎压</string>
+    <string name="metric_chip_tire_pressure_tile">胎压</string>
+    <string name="metric_desc_tire_pressure">来自已绑定 TPMS 传感器（InMotion P6）的胎压。以 psi 或 bar 显示。</string>
+    <string name="studio_metric_tire_pressure">胎压</string>
     <string name="metric_chip_bt_rssi">BT 信号</string>
     <string name="metric_chip_controller_temp">控制器温度</string>
     <string name="metric_chip_current">电流</string>

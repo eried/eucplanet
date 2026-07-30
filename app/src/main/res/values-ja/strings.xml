@@ -238,6 +238,10 @@
     <string name="metric_chip_motor_temp">モーター温度</string>
     <string name="metric_chip_controller_temp">コントローラー温度</string>
     <string name="metric_chip_battery_temp">バッテリー温度</string>
+    <string name="metric_chip_tire_pressure">タイヤ空気圧</string>
+    <string name="metric_chip_tire_pressure_tile">タイヤ</string>
+    <string name="metric_desc_tire_pressure">連携したTPMSセンサー（InMotion P6）からのタイヤ空気圧。psiまたはbarで表示。</string>
+    <string name="studio_metric_tire_pressure">タイヤ空気圧</string>
     <string name="metric_chip_headroom">ヘッドルーム</string>
     <string name="metric_chip_trip_time">トリップ時間</string>
     <string name="metric_chip_trip_max_speed">トリップ最高速</string>
