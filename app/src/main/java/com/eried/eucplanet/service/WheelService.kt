@@ -267,6 +267,10 @@ class WheelService : LifecycleService() {
                             }
                             lastLightOn = null
                             engineSoundEngine.setConnected(false, settings)
+                            // Speed-based auto-volume drives STREAM_MUSIC down at
+                            // standstill; put the rider's baseline back on
+                            // disconnect so it isn't left turned down.
+                            automationManager.restoreBaselineVolume()
                             // Drop any in-flight run + session history so a fresh
                             // ride starts clean and a stale timestamp gap can't
                             // fabricate a summary on reconnect.
@@ -421,6 +425,10 @@ class WheelService : LifecycleService() {
         try { hudServer.stop() } catch (_: Exception) {}
         voiceJob?.cancel()
         engineSoundEngine.stop()
+        // Restore the rider's media volume if speed-based auto-volume scaled it
+        // down. onDestroy cancels the connection-state collector above, so the
+        // disconnect restore may not run on Stop All - do it explicitly here.
+        automationManager.restoreBaselineVolume()
         voiceService.shutdown()
         tripRepository.stopLocationUpdates()
         lifecycleScope.launch { tripRepository.stopRecording() }

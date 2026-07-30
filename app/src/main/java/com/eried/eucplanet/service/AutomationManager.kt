@@ -43,6 +43,29 @@ class AutomationManager @Inject constructor(
     // from a user moving the slider. -1 = we have not written anything yet this session.
     private var lastWrittenSystemVol: Int = -1
 
+    // The rider's baseline volume % (the level before speed-scaling), cached from
+    // evaluateVolume so restoreBaselineVolume() can put it back without suspending.
+    @Volatile private var cachedBaselinePercent: Int = -1
+
+    /**
+     * Put the media volume back to the rider's baseline - the level it was at
+     * before speed-based auto-volume started scaling it down. Called on
+     * disconnect / Stop All / when the feature is disabled, so the app never
+     * leaves STREAM_MUSIC turned down after the rider stops (they were having to
+     * manually raise it every time). No-op if we never touched the volume.
+     */
+    fun restoreBaselineVolume() {
+        if (lastWrittenSystemVol == -1) return
+        lastWrittenSystemVol = -1            // stop tracking; next enable re-initialises
+        val baseline = cachedBaselinePercent
+        if (baseline < 0) return
+        val maxVol = audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC)
+        if (maxVol <= 0) return
+        val target = (maxVol * baseline / 100f).roundToInt().coerceIn(0, maxVol)
+        runCatching { audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, target, 0) }
+        Log.i(TAG, "Restored media volume to baseline $baseline% ($target/$maxVol)")
+    }
+
     private val _autoLightsSuspended = MutableStateFlow(false)
     val autoLightsSuspended: StateFlow<Boolean> = _autoLightsSuspended.asStateFlow()
 
@@ -164,6 +187,10 @@ class AutomationManager @Inject constructor(
                 settingsRepository.update(settings.copy(autoVolumeBaselinePercent = baseline))
             }
         }
+
+        // Remember the baseline so restoreBaselineVolume() can put it back on
+        // disconnect / Stop All / disable (see that method).
+        cachedBaselinePercent = baseline
 
         val targetPercent = (baseline * multiplier).coerceIn(0f, 100f)
         val targetVol = (maxVol * targetPercent / 100f).roundToInt().coerceIn(0, maxVol)

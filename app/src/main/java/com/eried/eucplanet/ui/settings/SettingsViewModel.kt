@@ -488,6 +488,7 @@ class SettingsViewModel @Inject constructor(
     fun updateAutoLightsOnMinutes(v: Int) = update { copy(autoLightsOnMinutesBefore = v) }
     fun updateAutoLightsOffMinutes(v: Int) = update { copy(autoLightsOffMinutesAfter = v) }
     fun updateAutoVolumeEnabled(v: Boolean) = update { copy(autoVolumeEnabled = v) }
+        .also { if (!v) automationManager.restoreBaselineVolume() }
     fun updateAutoVolumeCurve(curve: String) = update { copy(autoVolumeCurve = curve) }
 
     // Voice report: recording
