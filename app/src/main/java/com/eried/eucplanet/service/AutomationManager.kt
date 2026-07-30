@@ -145,10 +145,12 @@ class AutomationManager @Inject constructor(
     }
 
     /**
-     * Speed-based volume control. Multiplier curve maps speed → 0×–2×, applied to a remembered
-     * "baseline" volume the user picks naturally. Manual slider movements rebase the baseline
-     * so the user-visible volume is always exactly what they set, while the curve continues to
-     * track speed from there.
+     * Speed-based volume control. BOOST-ONLY: the multiplier is clamped to >= 1×
+     * so it can raise the media volume as speed climbs but never pull it BELOW
+     * the rider's own baseline (a curve dipping under 1× used to drag the volume
+     * toward zero at standstill and leave it there - not what auto-volume is for).
+     * Applied to a remembered baseline the rider picks naturally; manual slider
+     * movements rebase the baseline so what they set is always the floor.
      */
     private suspend fun evaluateVolume(settings: AppSettings) {
         val maxVol = audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC)
@@ -159,7 +161,9 @@ class AutomationManager @Inject constructor(
 
         val curve = parseVolumeCurve(settings.autoVolumeCurve)
         val speed = wheelRepository.wheelData.value.speed.absoluteValue
-        val multiplier = pchipInterpolate(curve, speed)
+        // Boost-only: never below 1x, so auto-volume can only raise the rider's
+        // baseline with speed, never lower it (that was the volume-sinking bug).
+        val multiplier = pchipInterpolate(curve, speed).coerceAtLeast(1f)
 
         // Initialize baseline from the user's current volume on first tick after enable.
         var baseline = settings.autoVolumeBaselinePercent
