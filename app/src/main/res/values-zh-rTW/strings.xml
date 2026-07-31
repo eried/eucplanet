@@ -715,12 +715,13 @@
     <string name="section_external_gps">GPS 與感測器</string>
     <!-- TPMS sensors -->
     <string name="section_tpms">TPMS 感測器</string>
-    <string name="tpms_caption">來自車輪上感測器的胎壓。當感測器回報時，即時資料會顯示在這裡。</string>
+    <string name="tpms_caption">來自車輪上感測器的胎壓，如 InMotion P6。</string>
     <string name="tpms_wheel_sensor">車輪胎壓</string>
-    <string name="tpms_wheel_sensor_desc">由車輪從已綁定的感測器轉發</string>
-    <string name="tpms_no_data">尚無胎壓資料。請連接可轉發已綁定 TPMS 感測器的車輪（例如 InMotion P6）。</string>
+    <string name="tpms_wheel_sensor_desc">由已綁定的感測器轉發</string>
+    <string name="tpms_idle">尚無感測器回報</string>
     <string name="tpms_pair_title">配對其他感測器</string>
-    <string name="tpms_pair_coming">直連 BLE 感測器的配對即將推出 - 需先擷取該感測器的設定檔。</string>
+    <string name="tpms_pair_replaces">額外的感測器會取代車輪內建的感測器（如有）。</string>
+    <string name="tpms_scan">掃描感測器</string>
     <string name="external_gps_device_title">外部 GPS</string>
     <string name="external_gps_pair_button">開始掃描</string>
     <string name="external_gps_pair_action">配對</string>

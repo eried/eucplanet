@@ -677,12 +677,13 @@
     <string name="section_external_gps">GPS e sensori</string>
     <!-- TPMS sensors -->
     <string name="section_tpms">Sensori TPMS</string>
-    <string name="tpms_caption">Pressione dei pneumatici da un sensore sulla tua ruota. I dati in tempo reale appaiono qui quando un sensore trasmette.</string>
+    <string name="tpms_caption">Pressione dei pneumatici da un sensore sulla ruota, come l\'InMotion P6.</string>
     <string name="tpms_wheel_sensor">Pressione pneumatico della ruota</string>
-    <string name="tpms_wheel_sensor_desc">Ritrasmessa dalla ruota da un sensore associato</string>
-    <string name="tpms_no_data">Nessun dato di pressione ancora. Collega una ruota che ritrasmette un sensore TPMS associato (per esempio InMotion P6).</string>
+    <string name="tpms_wheel_sensor_desc">Ritrasmessa da un sensore associato</string>
+    <string name="tpms_idle">Nessun sensore trasmette ancora</string>
     <string name="tpms_pair_title">Associa un altro sensore</string>
-    <string name="tpms_pair_coming">L\'associazione di un sensore BLE diretto sta arrivando - prima va acquisito il profilo di quel sensore.</string>
+    <string name="tpms_pair_replaces">Un sensore aggiuntivo sostituisce quello integrato nella ruota, se presente.</string>
+    <string name="tpms_scan">Cerca sensori</string>
     <string name="external_gps_device_title">GPS esterno</string>
     <string name="section_speed_calibration">Calibrazione velocità</string>
     <string name="speed_calibration_caption">Regola la velocità riportata dalla ruota; influenza allarmi, voce e registro</string>

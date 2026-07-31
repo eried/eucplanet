@@ -641,12 +641,13 @@
     <string name="section_external_gps">GPS 与传感器</string>
     <!-- TPMS sensors -->
     <string name="section_tpms">TPMS 传感器</string>
-    <string name="tpms_caption">来自车轮上传感器的胎压。当传感器上报时，实时数据会显示在这里。</string>
+    <string name="tpms_caption">来自车轮上传感器的胎压，如 InMotion P6。</string>
     <string name="tpms_wheel_sensor">车轮胎压</string>
-    <string name="tpms_wheel_sensor_desc">由车轮从已绑定的传感器转发</string>
-    <string name="tpms_no_data">暂无胎压数据。请连接可转发已绑定 TPMS 传感器的车轮（例如 InMotion P6）。</string>
+    <string name="tpms_wheel_sensor_desc">由已绑定的传感器转发</string>
+    <string name="tpms_idle">尚无传感器上报</string>
     <string name="tpms_pair_title">配对其他传感器</string>
-    <string name="tpms_pair_coming">直连 BLE 传感器的配对即将推出 - 需先捕获该传感器的配置文件。</string>
+    <string name="tpms_pair_replaces">额外的传感器会取代车轮内置的传感器（如有）。</string>
+    <string name="tpms_scan">扫描传感器</string>
     <string name="external_gps_device_title">外置 GPS</string>
     <string name="section_speed_calibration">速度校准</string>
     <string name="speed_calibration_caption">调整独轮车上报的速度；影响警报、语音和行程日志</string>
