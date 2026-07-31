@@ -199,6 +199,11 @@ data class AppSettings(
     val unitTemp: String = "",      // "" | "C"   | "F"   | "K"
 
     val phoneKeepScreenOn: Boolean = false,
+    /** Show the dashboard over the lock screen so the rider doesn't have to
+     *  unlock when the screen turns back on. Applied via Activity.setShowWhenLocked;
+     *  the device stays locked underneath (secure content is still protected),
+     *  matching how nav / media / alarm apps behave. */
+    val phoneShowOverLockScreen: Boolean = false,
 
     // Per-screen rotation (landscape). The app allows rotation at the manifest
     // level; these gate which screens actually rotate. The main dashboard

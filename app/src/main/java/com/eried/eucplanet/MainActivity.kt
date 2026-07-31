@@ -245,6 +245,14 @@ class MainActivity : AppCompatActivity() {
                 } else {
                     window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
                 }
+                // Show over the lock screen. When on, the dashboard stays visible
+                // when the screen turns back on, so the rider doesn't have to
+                // unlock to see it again. setShowWhenLocked shows the activity
+                // over the keyguard WITHOUT dismissing it, so the phone stays
+                // secure underneath (this is how nav / media / alarm apps behave).
+                // Idempotent, so no delta check. minSdk 29 >= API 27 (O_MR1) where
+                // setShowWhenLocked landed, so no version guard is needed.
+                setShowWhenLocked(it.phoneShowOverLockScreen)
                 // Detect a default app language as soon as we see a blank
                 // `settings.language`, not only on the very first settings
                 // emission. The synchronous seed above sets _settings.value

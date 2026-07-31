@@ -751,6 +751,8 @@
     <string name="units_temp_f">Fahrenheit</string>
     <string name="units_temp_k">Kelvin</string>
     <string name="phone_keep_screen_on">Keep screen on</string>
+    <string name="phone_show_over_lock">Show over lock screen</string>
+    <string name="phone_show_over_lock_desc">Keep the dashboard visible when the screen turns back on, so you don\'t have to unlock. The phone stays locked underneath.</string>
     <string name="language">Language</string>
     <string name="theme">Theme</string>
     <string name="tts_switch_title">Switch voice to %1$s?</string>

@@ -160,6 +160,7 @@ object SettingsJson {
         put("unitDistance", s.unitDistance)
         put("unitTemp", s.unitTemp)
         put("phoneKeepScreenOn", s.phoneKeepScreenOn)
+        put("phoneShowOverLockScreen", s.phoneShowOverLockScreen)
         put("rotateDashboard", s.rotateDashboard)
         put("rotateNavigator", s.rotateNavigator)
         put("rotateOtherScreens", s.rotateOtherScreens)
@@ -418,6 +419,7 @@ object SettingsJson {
         unitDistance = j.optString("unitDistance", base.unitDistance),
         unitTemp = j.optString("unitTemp", base.unitTemp),
         phoneKeepScreenOn = j.optBoolean("phoneKeepScreenOn", base.phoneKeepScreenOn),
+        phoneShowOverLockScreen = j.optBoolean("phoneShowOverLockScreen", base.phoneShowOverLockScreen),
         rotateDashboard = j.optBoolean("rotateDashboard", base.rotateDashboard),
         rotateNavigator = j.optBoolean("rotateNavigator", base.rotateNavigator),
         rotateOtherScreens = j.optBoolean("rotateOtherScreens", base.rotateOtherScreens),
