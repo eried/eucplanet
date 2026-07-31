@@ -256,7 +256,10 @@ fun TripMeterDetailScreen(
                             tint = accent
                         )
                         Text(
-                            stringResource(R.string.trip_meter_reset),
+                            // Screen is already titled "Trip meter", so the button
+                            // just reads "Reset" (the confirm dialog carries the full
+                            // "Reset trip meter" title + the danger copy).
+                            stringResource(R.string.action_reset),
                             color = accent,
                             fontWeight = FontWeight.Medium,
                             fontSize = 13.sp,
