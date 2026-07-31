@@ -543,6 +543,7 @@
     <string name="units_temp_f">Fahrenheit</string>
     <string name="units_temp_k">Kelvin</string>
     <string name="phone_keep_screen_on">Håll skärmen på</string>
+    <string name="phone_show_over_lock">Visa över låsskärmen</string>
     <string name="language">Språk</string>
     <string name="theme">Tema</string>
     <string name="tts_switch_title">Byta röst till %1$s?</string>

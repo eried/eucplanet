@@ -200,6 +200,7 @@
     <string name="units_temp_f">华氏度</string>
     <string name="units_temp_k">开尔文</string>
     <string name="phone_keep_screen_on">保持屏幕常亮</string>
+    <string name="phone_show_over_lock">在锁屏上方显示</string>
     <string name="language">语言</string>
     <string name="theme">主题</string>
     <string name="tts_switch_title">切换语音到%1$s?</string>

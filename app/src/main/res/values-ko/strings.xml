@@ -543,6 +543,7 @@
     <string name="units_temp_f">화씨</string>
     <string name="units_temp_k">켈빈</string>
     <string name="phone_keep_screen_on">화면 항상 켜기</string>
+    <string name="phone_show_over_lock">잠금 화면 위에 표시</string>
     <string name="language">언어</string>
     <string name="theme">테마</string>
     <string name="tts_switch_title">음성을 %1$s로 전환하시겠습니까?</string>

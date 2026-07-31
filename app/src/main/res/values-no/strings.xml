@@ -196,6 +196,7 @@
     <string name="units_temp_f">Fahrenheit</string>
     <string name="units_temp_k">Kelvin</string>
     <string name="phone_keep_screen_on">Hold skjermen på</string>
+    <string name="phone_show_over_lock">Vis over låseskjermen</string>
     <string name="language">Språk</string>
     <string name="theme">Tema</string>
     <string name="tts_switch_title">Bytte stemme til %1$s?</string>

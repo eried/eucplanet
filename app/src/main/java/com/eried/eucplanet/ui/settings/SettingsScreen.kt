@@ -5852,12 +5852,9 @@ private fun DisplayTab(
             viewModel.updatePhoneKeepScreenOn(it)
         }
 
-        SwitchSettingWithDesc(
-            label = stringResource(R.string.phone_show_over_lock),
-            description = stringResource(R.string.phone_show_over_lock_desc),
-            checked = settings.phoneShowOverLockScreen,
-            onCheckedChange = { viewModel.updatePhoneShowOverLockScreen(it) }
-        )
+        SwitchSetting(stringResource(R.string.phone_show_over_lock), settings.phoneShowOverLockScreen) {
+            viewModel.updatePhoneShowOverLockScreen(it)
+        }
 
         SimpleDropdown(
             label = stringResource(R.string.language),

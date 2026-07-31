@@ -543,6 +543,7 @@
     <string name="units_temp_f">Фаренгейт</string>
     <string name="units_temp_k">Кельвин</string>
     <string name="phone_keep_screen_on">Не выключать экран</string>
+    <string name="phone_show_over_lock">Показывать поверх экрана блокировки</string>
     <string name="language">Язык</string>
     <string name="theme">Тема</string>
     <string name="tts_switch_title">Переключить голос на %1$s?</string>

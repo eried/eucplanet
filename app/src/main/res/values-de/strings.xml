@@ -543,6 +543,7 @@
     <string name="units_temp_f">Fahrenheit</string>
     <string name="units_temp_k">Kelvin</string>
     <string name="phone_keep_screen_on">Bildschirm aktiv lassen</string>
+    <string name="phone_show_over_lock">Über Sperrbildschirm anzeigen</string>
     <string name="language">Sprache</string>
     <string name="theme">Design</string>
     <string name="tts_switch_title">Stimme auf %1$s umstellen?</string>

@@ -543,6 +543,7 @@
     <string name="units_temp_f">華氏</string>
     <string name="units_temp_k">ケルビン</string>
     <string name="phone_keep_screen_on">画面をオンに保つ</string>
+    <string name="phone_show_over_lock">ロック画面の上に表示</string>
     <string name="language">言語</string>
     <string name="theme">テーマ</string>
     <string name="tts_switch_title">音声を %1$s に切り替えますか？</string>
