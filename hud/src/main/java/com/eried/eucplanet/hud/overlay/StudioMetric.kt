@@ -40,6 +40,7 @@ enum class StudioMetric(
     EXTERNAL_GPS_BATTERY("EXT_GPS_BATTERY", "Ext GPS battery", StudioMetricKind.PLAIN, "%", 0, 100f, { it.externalGpsBatteryPercent.toFloat() }),
     EXTERNAL_GPS_SPEED("EXT_GPS_SPEED", "Ext GPS speed", StudioMetricKind.SPEED, "", 1, 60f, { it.externalGpsSpeedKmh.coerceAtLeast(0f) }),
     TIRE_PRESSURE("TIRE_PRESSURE", "Tire pressure", StudioMetricKind.PRESSURE, "", 1, 50f, { it.tirePressureKpa }),
+    GPS_SPEED("GPS_SPEED", "GPS speed", StudioMetricKind.SPEED, "", 1, 60f, { it.gpsSpeedKmh.coerceAtLeast(0f) }),
     GPS("GPS", "GPS coordinates", StudioMetricKind.PLAIN, "", 0, 1f, { 0f }, textOnly = true);
 
     /** True when this metric renders a unit beside its value. */
@@ -97,5 +98,6 @@ fun StudioMetric.displayName(): String = when (this) {
     StudioMetric.EXTERNAL_GPS_BATTERY -> "Ext GPS bat"
     StudioMetric.EXTERNAL_GPS_SPEED -> "Ext GPS spd"
     StudioMetric.TIRE_PRESSURE -> "Tire"
+    StudioMetric.GPS_SPEED -> "GPS spd"
     StudioMetric.GPS -> "GPS coord"
 }

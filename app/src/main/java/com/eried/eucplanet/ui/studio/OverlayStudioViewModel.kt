@@ -164,7 +164,10 @@ class OverlayStudioViewModel @Inject constructor(
         val extFresh = ext != null && System.currentTimeMillis() - ext.timestamp < 5_000L
         val extBattery = if (extFresh) (ext!!.batteryPercent ?: -1) else -1
         val extSpeed = if (extFresh) ext!!.speedKmh else -1f
-        val withGps = if (loc != null) data.copy(latitude = loc.latitude, longitude = loc.longitude) else data
+        val withGps = if (loc != null) data.copy(
+            latitude = loc.latitude, longitude = loc.longitude,
+            gpsSpeedKmh = if (loc.hasSpeed()) loc.speed * 3.6f else -1f
+        ) else data
         withGps.copy(externalGpsBatteryPercent = extBattery, externalGpsSpeedKmh = extSpeed)
     }.stateIn(viewModelScope, SharingStarted.Eagerly, WheelData())
 

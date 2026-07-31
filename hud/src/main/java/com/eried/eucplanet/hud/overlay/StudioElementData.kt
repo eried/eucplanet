@@ -62,6 +62,9 @@ data class StudioElementData(
                 // Ext-GPS speed rides the shared gpsSpeedKmh; expose it as the
                 // external metric only when the box is the source.
                 externalGpsSpeedKmh = if (hud.gpsSource == "EXTERNAL") hud.gpsSpeedKmh else -1f,
+                // Phone GPS speed rides the same wire field; expose it as the
+                // phone metric only when the phone is the source.
+                gpsSpeedKmh = if (hud.gpsSource == "PHONE") hud.gpsSpeedKmh else -1f,
                 tirePressureKpa = hud.tirePressureKpa,
                 lightOn = hud.lightOn,
                 timestamp = hud.timestampMs.takeIf { it > 0L } ?: System.currentTimeMillis()

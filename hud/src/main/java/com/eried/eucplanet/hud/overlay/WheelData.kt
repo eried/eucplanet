@@ -33,6 +33,9 @@ data class WheelData(
     val externalGpsBatteryPercent: Int = -1,
     /** Ground speed in km/h from the paired external GPS box, -1 when none. */
     val externalGpsSpeedKmh: Float = -1f,
+    /** Ground speed in km/h from the PHONE's fused GPS, -1 when no fix.
+     *  Fed from HudState.gpsSpeedKmh when gpsSource == "PHONE". */
+    val gpsSpeedKmh: Float = -1f,
     /** Tire pressure in kPa from a bound TPMS sensor (InMotion P6), 0 when none. */
     val tirePressureKpa: Float = 0f,
     /** Phone IMU acceleration magnitude in g, 0 for trips recorded before this. */
