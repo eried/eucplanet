@@ -102,9 +102,13 @@ data class HudState(
      *  default it to -1 and just don't show the element. */
     val externalGpsBatteryPercent: Int = -1,
     /** Tire pressure in kPa from a bound TPMS sensor the wheel relays (InMotion
-     *  P6). 0 when no sensor / not reported. Older HUDs default it to 0 and just
-     *  don't draw the element. (Ext-GPS speed rides the existing [gpsSpeedKmh] +
-     *  [gpsSource]=="EXTERNAL"; no new field needed for that.) */
+     *  P6). 0 when no sensor / not reported. Wired in protocol minor 12; older
+     *  HUDs default it to 0 and just don't draw the element. (Ext-GPS speed rides
+     *  the existing [gpsSpeedKmh] + [gpsSource]=="EXTERNAL"; no new field needed
+     *  for that, but the TIRE_PRESSURE / EXTERNAL_GPS_SPEED custom-overlay metric
+     *  keys also arrived in minor 12 - an older HUD that doesn't know those keys
+     *  renders such an element as SPEED, so the minor bump is what lets the phone
+     *  flag "update your HUD" instead of silently showing the wrong metric.) */
     val tirePressureKpa: Float = 0f,
 
     /** Wheel roll (lean) in degrees, +right. From wheel BLE telemetry
@@ -241,8 +245,15 @@ data class HudState(
          *    the link. Older HUDs ignore it.
          * 11: added [HudState.externalGpsBatteryPercent] so a HUD custom
          *    overlay can show the paired GPS box's battery. Older HUDs ignore it.
+         * 12: added [HudState.tirePressureKpa] (wheel-relayed TPMS) AND the
+         *    TIRE_PRESSURE + EXTERNAL_GPS_SPEED custom-overlay metric keys. An
+         *    older HUD ignores the field, and - because it doesn't know those
+         *    metric keys - renders a TIRE_PRESSURE / EXTERNAL_GPS_SPEED element
+         *    as SPEED (the fromKey fallback). Bumping the minor is what makes the
+         *    phone show the "update your HUD" hint instead of the skew being
+         *    silent (both were shipped in one commit without this bump).
          */
-        const val PROTOCOL_MINOR: Int = 11
+        const val PROTOCOL_MINOR: Int = 12
 
         /** Legacy alias. New code should read [PROTOCOL_MAJOR] / [PROTOCOL_MINOR]. */
         @Deprecated(
