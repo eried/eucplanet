@@ -47,11 +47,65 @@ class InMotionV2P6TelemetryTest {
         assertEquals(-214, wd.motorPower)
     }
 
+    @Test fun `P6 decodes TPMS tire pressure from offsets 78-79 (u16le kPa)`() {
+        // body[78..79] = f9 00 = 249 kPa (high byte 0). Cross-checked against the
+        // InMotion app btsnoop where body[78]=201 kPa showed as 29.1 psi.
+        val wd = InMotionV2Parser.parseP6Telemetry(ridingFrame)!!
+        assertEquals(249f, wd.tirePressureKpa, 0.01f)
+        // 249 kPa -> 36.1 psi / 2.49 bar via Units.
+        assertEquals(36.1f, com.eried.eucplanet.util.Units.pressure(wd.tirePressureKpa, "psi"), 0.1f)
+        assertEquals(2.49f, com.eried.eucplanet.util.Units.pressure(wd.tirePressureKpa, "bar"), 0.01f)
+    }
+
     @Test fun `P6 truncated frame keeps power at zero default`() {
         // A short body (before offsets 16/18 arrive) must not crash and leaves
         // power at the WheelData default so the dashboard reads blank, not garbage.
         val wd = InMotionV2Parser.parseP6Telemetry(hex("3e51f4010000"))!!
         assertEquals(0, wd.batteryPower)
         assertEquals(0, wd.motorPower)
+    }
+
+    // Real 86-byte P6 0x84 detailed body from the 2026-07-27 ride. The temp
+    // block is a signed byte + 80 C at bytes 59/61/62/63/64/65 (motor, board,
+    // cpu, imu, battery, mosfet) - community-documented, cross-checked here.
+    private val detailed = hex(
+        "8e5676fa000000006611000070e5f504baf3d1f297fd8b0c0000c6fea605e200" +
+        "55e9bc1b621b983a204e2e344c1d4c1de02ee02e8cb900000000df3200f2b0ee" +
+        "d5dcb065000400000000490000000000000000000000"
+    )
+
+    @Test fun `P6 detailed frame decodes the temp block as signed byte plus 80`() {
+        val t = InMotionV2Parser.parseP6DetailedData(detailed)!!
+        assertEquals(130f, t.motorC!!, 0.5f)       // body[59] = 0x32 (50)
+        assertEquals(66f, t.controllerC!!, 0.5f)   // body[61] = 0xf2 (242 -> -14 +80)
+        assertEquals(37f, t.batteryC!!, 0.5f)      // body[64] = 0xd5 (213 -> -43 +80)
+        assertEquals(62f, t.imuC!!, 0.5f)          // body[63] = 0xee (238 -> -18 +80)
+        assertEquals(44f, t.mosfetC!!, 0.5f)       // body[65] = 0xdc (220 -> -36 +80)
+        assertEquals(null, t.cpuC)                 // body[62] = 0xb0 (176 -> 0 C = absent)
+    }
+
+    // Real 96-byte P6 realtime (0x87) bodies from the tester's 2026-07-27 ride,
+    // cross-checked frame-by-frame against the on-screen Motor Temp in that same
+    // ride's screen recording (analysis in tools/p6-temp-analysis, rmse 0.4 C
+    // over 18 frames). Motor temp is body[31] as an 8-bit value that overflows:
+    // motor C = (body[31] + 80) & 0xFF.
+    private val realtimeCold = hex(
+        "3b59c6ff00000000660500008a00a2037cff15001c250c25983a204e2e34d5eb" +
+        "df02b21fce3e222f8b0145ac0000d8220000ac010000790200004ea206009a4b" +
+        "af03c8308800604c06000ed71200dc0049000000000000000000000076002715"
+    )
+    private val realtimeHot = hex(
+        "c350881a000000008d2000008f2b2e16da367428e21d991d983a204e2e34dc32" +
+        "f0022e27ce3e1a331707aeb404002dc000006e0500003c060000daa706000354" +
+        "b3031dce880022500600d1da1200e2004900000000000000000000002c250819"
+    )
+
+    @Test fun `P6 realtime motor temp is body 31 with 8-bit overflow`() {
+        // body[31] = 235 -> (235 + 80) & 0xFF = 59 C (cold end of the ride).
+        assertEquals(59f, InMotionV2Parser.parseP6Telemetry(realtimeCold)!!.temperatures[0], 0.5f)
+        // body[31] = 50, already wrapped past 255 -> (50 + 80) & 0xFF = 130 C.
+        // The old `body[31] - 176` would read -126 C here and blank the tile;
+        // this is the overflow the previous code mistook for a dead constant.
+        assertEquals(130f, InMotionV2Parser.parseP6Telemetry(realtimeHot)!!.temperatures[0], 0.5f)
     }
 }

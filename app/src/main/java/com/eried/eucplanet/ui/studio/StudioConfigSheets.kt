@@ -1549,7 +1549,12 @@ fun ElementConfigSheet(
                     stringResource(R.string.studio_cfg_metric_label),
                     fontWeight = FontWeight.SemiBold
                 )
-                MetricPicker(element.metric) { key ->
+                MetricPicker(
+                    element.metric,
+                    // Text-only metrics (GPS coordinates) belong on a text value
+                    // element, not a dial / bar / graph.
+                    textElement = element.type == OverlayElementType.DATA_VALUE
+                ) { key ->
                     onChange(
                         if (isGauge) element.copy(
                             metric = key,
@@ -1678,12 +1683,15 @@ fun ElementConfigSheet(
             if (element.type == OverlayElementType.DATA_VALUE ||
                 element.type == OverlayElementType.DATA_BAR
             ) {
-                if (element.type == OverlayElementType.DATA_VALUE) {
+                if (element.type == OverlayElementType.DATA_VALUE &&
+                    StudioMetric.fromKey(element.metric).hasUnit
+                ) {
                     // Unit-label position: BEFORE the value (LEFT) or AFTER
                     // it (RIGHT). For "km/h 42" / "42 km/h" style overlays.
-                    // Sits above the Show-label toggle so the rider settles
-                    // identity (metric + unit placement) before binary
-                    // visibility toggles.
+                    // Only shown when the metric has a unit (not for GPS
+                    // coordinates, which are unitless). Sits above the
+                    // Show-label toggle so the rider settles identity (metric +
+                    // unit placement) before binary visibility toggles.
                     Text(
                         stringResource(R.string.studio_cfg_unit_position),
                         fontWeight = FontWeight.SemiBold
@@ -2053,10 +2061,13 @@ fun ElementConfigSheet(
 }
 
 @Composable
-private fun MetricPicker(selected: String, onPick: (String) -> Unit) {
+private fun MetricPicker(selected: String, textElement: Boolean, onPick: (String) -> Unit) {
+    val metrics = remember(textElement) {
+        StudioMetric.entries.filter { textElement || !it.textOnly }
+    }
     LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-        items(StudioMetric.entries.size) { i ->
-            val metric = StudioMetric.entries[i]
+        items(metrics.size) { i ->
+            val metric = metrics[i]
             FilterChip(
                 selected = metric.key == selected,
                 onClick = { onPick(metric.key) },

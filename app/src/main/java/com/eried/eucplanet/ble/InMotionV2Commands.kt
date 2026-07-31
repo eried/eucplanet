@@ -69,10 +69,10 @@ object InMotionV2Commands {
     // The P6 ignores the legacy `02 [cmd]` queries (carType returns all zeros in
     // captures) and only responds to extended-routing queries `02 21 [sub]`.
     // Confirmed sub-commands seen on a real P6 (firmware A14219B): 0x06 info
-    // bundle (serial + version), 0x07 realtime telemetry, 0x04 total stats.
-    // We send only the info + realtime queries; settings (sub 0x20) and ride
-    // history (sub 0x10/0x11) have a TLV-style layout we haven't reverse-
-    // engineered yet, so polling them just produces unparsed bytes.
+    // bundle (serial + version), 0x07 realtime telemetry, 0x04 detailed data
+    // (carries motor temp), 0x20 settings. We poll info + realtime + detailed
+    // (for motor temp) + settings; ride history (sub 0x10/0x11) has a TLV-style
+    // layout we haven't reverse-engineered yet, so we don't poll it.
 
     fun getP6Info(): ByteArray =
         InMotionV2Protocol.buildExtendedPacket(0x06, byteArrayOf())
@@ -88,10 +88,11 @@ object InMotionV2Commands {
         InMotionV2Protocol.buildExtendedPacket(0x20, byteArrayOf(0x20))
 
     /** P6 detailed-data query (`02 21 04`). Response comes back as
-     *  `21 02 84 [86-byte body]`. The InMotion app fires this without an arg
-     *  (earlier preview tried `02 21 04 32` and the wheel ignored it).
-     *  Body offset 58 = MOS temperature with formula `°F = byte − 126`,
-     *  verified at 72 °F = byte 0xC6 in the labelled capture. */
+     *  `21 02 84 [body]`. The InMotion app fires this without an arg (earlier
+     *  preview tried `02 21 04 32` and the wheel ignored it). The response
+     *  carries the motor temperature at body[64] in Fahrenheit (matched to the
+     *  app's "Motor Temp 216 F" against a labelled ride) - see
+     *  parseP6DetailedData. Must be polled (pollStats) or it never arrives. */
     fun getP6Stats(): ByteArray =
         InMotionV2Protocol.buildExtendedPacket(0x04, byteArrayOf())
 

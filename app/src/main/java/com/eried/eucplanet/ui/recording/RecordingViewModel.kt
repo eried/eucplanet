@@ -207,10 +207,9 @@ class RecordingViewModel @Inject constructor(
     }
 
     fun stopGpsPreview() {
-        // Only stop if not actively recording, recording needs GPS too
-        if (!tripRepository.recording.value) {
-            tripRepository.stopLocationUpdates()
-        }
+        // No-op: GPS is now demand-driven (GpsPowerPolicy). Leaving this screen
+        // just lets the tier fall back to idle keep-warm on its own; a full stop
+        // here would kill the stream other consumers / the Navigator rely on.
     }
 
     fun toggleRecording() {
@@ -491,11 +490,10 @@ class RecordingViewModel @Inject constructor(
             // Detect column layout from header so foreign exports (different
             // column order / names) still line up.
             val header = lines[0].lowercase().split(",").map { it.trim() }
-            val dateIdx = header.indexOfFirst { it == "date" }.takeIf { it >= 0 } ?: 0
-            val latIdx = header.indexOfFirst { it == "latitude" }.takeIf { it >= 0 } ?: 6
-            val lonIdx = header.indexOfFirst { it == "longitude" }.takeIf { it >= 0 } ?: 7
-            val mileageIdx = header.indexOfFirst { it.contains("mileage") }
-                .takeIf { it >= 0 } ?: 8
+            val dateIdx = TripCsv.Columns.date(header).takeIf { it >= 0 } ?: 0
+            val latIdx = TripCsv.Columns.latitude(header).takeIf { it >= 0 } ?: 6
+            val lonIdx = TripCsv.Columns.longitude(header).takeIf { it >= 0 } ?: 7
+            val mileageIdx = TripCsv.Columns.mileage(header).takeIf { it >= 0 } ?: 8
 
             val rows = ArrayList<TripCsv.Quad>(lines.size)
             for (i in 1 until lines.size) {
@@ -556,19 +554,22 @@ class RecordingViewModel @Inject constructor(
             val headers = headerLine.lowercase().split(",").map { it.trim() }
 
             // Detect column indices from header to support DarknessBot and similar formats
-            val iSpeed = headers.indexOfFirst { it == "speed" }.takeIf { it >= 0 } ?: 1
-            val iVoltage = headers.indexOfFirst { it == "voltage" }.takeIf { it >= 0 } ?: 2
-            val iTemp = headers.indexOfFirst { it == "temperature" }.takeIf { it >= 0 } ?: 3
-            val iBattery = headers.indexOfFirst { it.contains("battery") }.takeIf { it >= 0 } ?: 4
-            val iAltitude = headers.indexOfFirst { it == "altitude" }.takeIf { it >= 0 } ?: 5
-            val iLat = headers.indexOfFirst { it == "latitude" }.takeIf { it >= 0 } ?: 6
-            val iLon = headers.indexOfFirst { it == "longitude" }.takeIf { it >= 0 } ?: 7
-            val iMileage = headers.indexOfFirst { it.contains("mileage") }.takeIf { it >= 0 } ?: 8
-            // EUC Planet extensions; -1 when the column is absent (older trip files).
-            val iGpsSpeed = headers.indexOfFirst { it == "gps speed" }
+            // Format-tolerant column resolution (canonical EUC Planet /
+            // DarknessBot names first, EUC World aliases after) lives in
+            // TripCsv.Columns so every trip-CSV path resolves identically.
+            val iSpeed = TripCsv.Columns.speed(headers).takeIf { it >= 0 } ?: 1
+            val iVoltage = TripCsv.Columns.voltage(headers).takeIf { it >= 0 } ?: 2
+            val iTemp = TripCsv.Columns.temperature(headers).takeIf { it >= 0 } ?: 3
+            val iBattery = TripCsv.Columns.battery(headers).takeIf { it >= 0 } ?: 4
+            val iAltitude = TripCsv.Columns.altitude(headers).takeIf { it >= 0 } ?: 5
+            val iLat = TripCsv.Columns.latitude(headers).takeIf { it >= 0 } ?: 6
+            val iLon = TripCsv.Columns.longitude(headers).takeIf { it >= 0 } ?: 7
+            val iMileage = TripCsv.Columns.mileage(headers).takeIf { it >= 0 } ?: 8
+            // -1 when the column is absent (older trip files / foreign exports).
+            val iGpsSpeed = TripCsv.Columns.gpsSpeed(headers)
             val iExtGps = headers.indexOfFirst { it.startsWith("ext gps") || it.startsWith("ext_gps") || it == "external gps speed" }
-            val iCurrent = headers.indexOfFirst { it == "current" }
-            val iPwm = headers.indexOfFirst { it == "pwm" }
+            val iCurrent = TripCsv.Columns.current(headers)
+            val iPwm = TripCsv.Columns.pwm(headers)
 
             var line = reader.readLine()
             while (line != null) {

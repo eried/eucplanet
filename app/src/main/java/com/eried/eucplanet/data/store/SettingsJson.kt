@@ -160,6 +160,7 @@ object SettingsJson {
         put("unitDistance", s.unitDistance)
         put("unitTemp", s.unitTemp)
         put("phoneKeepScreenOn", s.phoneKeepScreenOn)
+        put("phoneShowOverLockScreen", s.phoneShowOverLockScreen)
         put("rotateDashboard", s.rotateDashboard)
         put("rotateNavigator", s.rotateNavigator)
         put("rotateOtherScreens", s.rotateOtherScreens)
@@ -255,6 +256,8 @@ object SettingsJson {
         put("navAvoidUnpaved", s.navAvoidUnpaved)
         put("watchShowNavigation", s.watchShowNavigation)
         put("hudServerEnabled", s.hudServerEnabled)
+        put("notificationActionsEnabled", s.notificationActionsEnabled)
+        put("notificationActions", s.notificationActions)
         put("hudActionUp", s.hudActionUp)
         put("hudActionDown", s.hudActionDown)
         put("hudActionLeft", s.hudActionLeft)
@@ -418,6 +421,7 @@ object SettingsJson {
         unitDistance = j.optString("unitDistance", base.unitDistance),
         unitTemp = j.optString("unitTemp", base.unitTemp),
         phoneKeepScreenOn = j.optBoolean("phoneKeepScreenOn", base.phoneKeepScreenOn),
+        phoneShowOverLockScreen = j.optBoolean("phoneShowOverLockScreen", base.phoneShowOverLockScreen),
         rotateDashboard = j.optBoolean("rotateDashboard", base.rotateDashboard),
         rotateNavigator = j.optBoolean("rotateNavigator", base.rotateNavigator),
         rotateOtherScreens = j.optBoolean("rotateOtherScreens", base.rotateOtherScreens),
@@ -521,6 +525,8 @@ object SettingsJson {
         navAvoidUnpaved = j.optBoolean("navAvoidUnpaved", base.navAvoidUnpaved),
         watchShowNavigation = j.optBoolean("watchShowNavigation", base.watchShowNavigation),
         hudServerEnabled = j.optBoolean("hudServerEnabled", base.hudServerEnabled),
+        notificationActionsEnabled = j.optBoolean("notificationActionsEnabled", base.notificationActionsEnabled),
+        notificationActions = j.optString("notificationActions", base.notificationActions),
         hudActionUp = j.optString("hudActionUp", base.hudActionUp),
         hudActionDown = j.optString("hudActionDown", base.hudActionDown),
         hudActionLeft = j.optString("hudActionLeft", base.hudActionLeft),

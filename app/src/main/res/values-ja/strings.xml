@@ -4,6 +4,30 @@
     <string name="notification_channel_name">ホイール接続</string>
     <string name="notification_channel_description">ホイールの接続状態とテレメトリを表示します</string>
 
+    <!-- Notification quick actions -->
+    <string name="notif_actions_section">カスタマイズ</string>
+    <string name="notif_actions_enable">通知アクションを表示</string>
+    <string name="notif_actions_enable_desc">実行中の通知にクイックアクションボタンを追加します。</string>
+    <string name="notif_actions_pick_desc">最大%1$d個のアクションを選択。同じアクションを繰り返し選べます。</string>
+    <string name="notif_action_slot">アクション %1$d</string>
+    <string name="notif_action_stop_all">すべて停止</string>
+    <string name="notif_action_lock">ロック / 解除</string>
+    <string name="notif_action_light">ライト オン / オフ</string>
+    <string name="notif_action_record">記録 / 停止</string>
+    <string name="notif_action_horn">ホーン</string>
+    <string name="notif_action_disconnect">切断</string>
+    <string name="notif_action_stop_nav">ナビ停止</string>
+    <string name="notif_btn_stop_all">すべて停止</string>
+    <string name="notif_btn_lock">ロック</string>
+    <string name="notif_btn_unlock">解除</string>
+    <string name="notif_btn_light_on">ライトオン</string>
+    <string name="notif_btn_light_off">ライトオフ</string>
+    <string name="notif_btn_record">記録</string>
+    <string name="notif_btn_stop_record">停止</string>
+    <string name="notif_btn_horn">ホーン</string>
+    <string name="notif_btn_disconnect">切断</string>
+    <string name="notif_btn_stop_nav">ナビ停止</string>
+
     <!-- Common -->
     <string name="action_back">戻る</string>
     <string name="action_cancel">キャンセル</string>
@@ -214,6 +238,10 @@
     <string name="metric_chip_motor_temp">モーター温度</string>
     <string name="metric_chip_controller_temp">コントローラー温度</string>
     <string name="metric_chip_battery_temp">バッテリー温度</string>
+    <string name="metric_chip_tire_pressure">タイヤ空気圧</string>
+    <string name="metric_chip_tire_pressure_tile">タイヤ</string>
+    <string name="metric_desc_tire_pressure">連携したTPMSセンサー（InMotion P6）からのタイヤ空気圧。psiまたはbarで表示。</string>
+    <string name="studio_metric_tire_pressure">タイヤ空気圧</string>
     <string name="metric_chip_headroom">ヘッドルーム</string>
     <string name="metric_chip_trip_time">トリップ時間</string>
     <string name="metric_chip_trip_max_speed">トリップ最高速</string>
@@ -226,6 +254,7 @@
     <string name="metric_chip_gps_speed">GPS 速度</string>
     <string name="metric_chip_gps_heading">方位</string>
     <string name="metric_chip_gps_accuracy">GPS 精度</string>
+    <string name="metric_chip_external_gps_battery">外部 GPS バッテリー</string>
     <string name="metric_chip_slope">勾配</string>
     <string name="metric_chip_ascent">上昇</string>
     <string name="metric_chip_descent">下降</string>
@@ -253,6 +282,7 @@
     <string name="metric_chip_dyn_current_limit_tile">電流制限</string>
     <string name="metric_chip_phone_battery_tile">スマホ</string>
     <string name="metric_chip_gps_accuracy_tile">GPS ±</string>
+    <string name="metric_chip_external_gps_battery_tile">GPS電池</string>
     <string name="metric_chip_odometer_tile">走行計</string>
     <string name="metric_chip_trip_max_speed_tile">最高速</string>
     <string name="metric_chip_avg_trip_speed_tile">平均速</string>
@@ -282,6 +312,7 @@
     <string name="metric_desc_regen_wh">このトリップのブレーキ中にバッテリーへ回生した総ワット時。</string>
     <string name="metric_desc_bt_rssi">ホイールへの Bluetooth 信号強度, 0 dBm に近いほど強い。</string>
     <string name="metric_desc_gps_accuracy">GPS 測位誤差半径, 低いほど正確。</string>
+    <string name="metric_desc_external_gps_battery">ペアリングした外部 GPS (RaceBox, Dragy) のバッテリー。走行中に切れる前に減りを確認できます。</string>
 
     <!-- Action labels for the dashboard layout chips -->
     <string name="action_chip_horn">ホーン</string>
@@ -512,6 +543,7 @@
     <string name="units_temp_f">華氏</string>
     <string name="units_temp_k">ケルビン</string>
     <string name="phone_keep_screen_on">画面をオンに保つ</string>
+    <string name="phone_show_over_lock">ロック画面の上に表示</string>
     <string name="language">言語</string>
     <string name="theme">テーマ</string>
     <string name="tts_switch_title">音声を %1$s に切り替えますか？</string>
@@ -682,6 +714,15 @@
     <string name="flic_double_click">ダブルクリック</string>
     <string name="flic_hold">長押し</string>
     <string name="section_external_gps">GPS &amp; センサー</string>
+    <!-- TPMS sensors -->
+    <string name="section_tpms">TPMSセンサー</string>
+    <string name="tpms_caption">ホイールのセンサーからのタイヤ空気圧（InMotion P6など）。</string>
+    <string name="tpms_wheel_sensor">ホイールのタイヤ空気圧</string>
+    <string name="tpms_wheel_sensor_desc">連携したセンサーから中継</string>
+    <string name="tpms_idle">センサーはまだ送信していません</string>
+    <string name="tpms_pair_title">別のセンサーをペアリング</string>
+    <string name="tpms_pair_replaces">追加のセンサーはホイール内蔵のセンサー（あれば）を置き換えます。</string>
+    <string name="tpms_scan">センサーを検索</string>
     <string name="external_gps_device_title">外部 GPS</string>
     <string name="external_gps_pair_button">スキャン開始</string>
     <string name="external_gps_pair_action">ペアリング</string>
@@ -773,6 +814,11 @@
     <string name="alarm_metric_pwm_voice" translatable="false">PWM</string>
     <string name="alarm_metric_voltage">電圧</string>
     <string name="alarm_metric_current">電流</string>
+    <string name="alarm_metric_gps_speed">GPS 速度</string>
+    <string name="alarm_metric_external_gps_speed">外部 GPS 速度</string>
+    <string name="alarm_metric_external_gps_battery">外部 GPS バッテリー</string>
+    <string name="alarm_metric_external_gps_speed_short">外部GPS速度</string>
+    <string name="alarm_metric_external_gps_battery_short">外部GPS電池</string>
     <string name="alarm_metric_radar_distance">車両距離</string>
     <string name="alarm_metric_radar_approach">車両接近</string>
 
@@ -1328,6 +1374,9 @@
     <string name="studio_metric_pitch">ピッチ</string>
     <string name="studio_metric_roll">ロール</string>
     <string name="studio_metric_g_force">G フォース</string>
+    <string name="studio_metric_external_gps_battery">外部GPSバッテリー</string>
+    <string name="studio_metric_external_gps_speed">外部GPS速度</string>
+    <string name="studio_metric_gps">GPS 座標</string>
 
     <!-- Navigator -->
     <string name="nav_open">ナビゲーターを開く</string>
@@ -1381,6 +1430,7 @@
     </string-array>
     <string name="nav_my_location">現在地</string>
     <string name="nav_no_location">GPS フィックスを待機中…</string>
+    <string name="nav_too_far_to_start">最初の経由地は遠すぎます。「開始」を長押しすると、それでもナビを開始します。</string>
     <string name="nav_empty_hint">マップをタップ、検索、または GPX ファイルを読み込んでください</string>
     <string name="nav_route_failed">ルーティングサービスが利用できないため、直線を使用します</string>
     <string name="nav_cant_add_while_running">ナビゲーション実行中は経由地を追加できません</string>
@@ -1743,6 +1793,8 @@
     <string name="adv_nav_inter_stop_desc">次の停車地を到着とみなす前に、ある停車地からどれだけ移動する必要があるかに影響します。危険: 低すぎると停車地をスキップする場合があります。</string>
     <string name="adv_nav_intermediate_flash">経由地フラッシュ時間</string>
     <string name="adv_nav_intermediate_flash_desc">経由地到達フラッシュが表示される時間に影響します。</string>
+    <string name="adv_nav_max_start">最大開始距離</string>
+    <string name="adv_nav_max_start_desc">ナビを開始できる最初の経由地までの最大距離です。これを超えると、現在地からの線が非表示になり、開始がブロックされます。ルート作成はそのまま行えます。</string>
     <string name="adv_nav_moving">移動速度</string>
     <string name="adv_nav_moving_desc">方位とガイダンスで移動中とみなす速度のしきい値に影響します。危険: 高すぎると低速走行を無視します。</string>
     <string name="adv_nav_offroute_grace">ルート外れ猶予</string>
@@ -1762,6 +1814,8 @@
     <string name="adv_nav_warning">これらはナビゲーションが反応するタイミングを変更します。値が誤っていると音声案内や再ルート探索が早すぎたり遅すぎたりします。</string>
     <string name="adv_phone_gps_interval">スマホ GPS 更新間隔</string>
     <string name="adv_phone_gps_interval_desc">GPS トラックの滑らかさとナビゲーションの反応速度に影響します。低いほど頻繁に更新します。危険: 低い値はバッテリーの消耗が速くなります。</string>
+    <string name="adv_phone_gps_idle_interval">GPSアイドル間隔</string>
+    <string name="adv_phone_gps_idle_interval_desc">記録もナビもしていないときのGPS更新間隔。ナビや再接続にすぐ備えます。大きいほど省電力。</string>
     <string name="adv_pushonly_note">一部のデバイスは独自の固定レートでストリーミングし、これらの設定を無視します: プッシュ専用ホイール（Begode、Gotway、Veteran、KingSong）、外部 GPS（RaceBox）、レーダー、Flic ボタン。</string>
     <string name="adv_radar_clear_decay">レーダーレーン減衰</string>
     <string name="adv_radar_clear_decay_desc">道路がクリアになった後にレーンバーが残る時間に影響します。危険: 低すぎると車の往来でちらつきます。</string>

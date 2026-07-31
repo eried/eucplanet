@@ -54,6 +54,13 @@ class BleConnectionManager @Inject constructor(
 ) {
     companion object {
         private const val TAG = "BleConnection"
+        /** The first manual connect after a fresh install commonly returns GATT
+         *  status 133; retry the rider's connect up to this many times so a
+         *  single wheel tap connects instead of appearing to do nothing. */
+        private const val MAX_MANUAL_CONNECT_RETRIES = 3
+        /** Delay before a status-133 manual-connect retry: long enough for the
+         *  failed GATT client to close, short enough to still feel like one tap. */
+        private const val MANUAL_RETRY_DELAY_MS = 600L
 
         // Client Characteristic Configuration Descriptor: same for every wheel family.
         val CCCD_UUID: UUID = UUID.fromString("00002902-0000-1000-8000-00805f9b34fb")
@@ -110,6 +117,11 @@ class BleConnectionManager @Inject constructor(
     // than the rider explicitly picking a wheel on the scan screen. Lets the
     // scan screen drop an auto connection without touching a user-chosen one.
     @Volatile private var currentConnectIsAuto = false
+
+    // Consecutive automatic retries of a MANUAL (rider-tapped) connect after a
+    // status-133 failure. Reset on each fresh tap ([connect] with isAuto=false)
+    // so a new attempt gets a full budget; capped so it can't spin forever.
+    @Volatile private var manualRetryCount = 0
 
     // Write serialization - only one BLE write at a time
     private val writeChannel = Channel<ByteArray>(Channel.BUFFERED)
@@ -272,6 +284,9 @@ class BleConnectionManager @Inject constructor(
             return
         }
         currentConnectIsAuto = isAuto
+        // A fresh rider tap starts a new status-133 retry budget (see the
+        // manual-retry branch in onConnectionStateChange).
+        if (!isAuto) manualRetryCount = 0
         // Demo / simulator mode: VIRTUAL:<id> bypasses GATT and connects to a fake wheel.
         val virtualId = VirtualWheelRegistry.parsePseudoAddress(address)
         if (virtualId != null) {
@@ -327,6 +342,30 @@ class BleConnectionManager @Inject constructor(
         // connect (30s status-147 timeout) or autoConnect=true (slow/flaky on
         // some stacks).
         gatt = device.connectGatt(context, false, gattCallback, BluetoothDevice.TRANSPORT_LE)
+    }
+
+    /**
+     * Re-issue a MANUAL connect after a status-133 failure WITHOUT going through
+     * the auto-connect suppression that holds while the scan screen is open.
+     * That suppression is why the rider used to tap a wheel, see Disconnected
+     * (the first attempt 133'd and the auto-retry was held), and have to tap
+     * again. This retries the rider's own connect so one tap is enough. Keeps
+     * [manualRetryCount] intact - only a real tap ([connect] isAuto=false)
+     * resets it, so the retry stays bounded.
+     */
+    private fun reconnectManualNow() {
+        val address = currentAddress ?: return
+        if (bluetoothManager.adapter?.isEnabled != true) {
+            _connectionState.value = ConnectionState.DISCONNECTED
+            return
+        }
+        _connectionState.value = ConnectionState.CONNECTING
+        val device = bluetoothManager.adapter.getRemoteDevice(address)
+        gatt?.let { g -> try { g.close() } catch (_: Exception) {} }
+        gatt = device.connectGatt(context, false, gattCallback, BluetoothDevice.TRANSPORT_LE)
+        com.eried.eucplanet.diagnostics.DiagnosticsLogger.note(
+            "Retry manual connect #$manualRetryCount to $address (status-133 recovery)"
+        )
     }
 
     /**
@@ -590,7 +629,27 @@ class BleConnectionManager @Inject constructor(
                     }
                     _connectionState.value = ConnectionState.DISCONNECTED
 
-                    if (shouldReconnect && status != 0) {
+                    if (shouldReconnect && status != 0 && !currentConnectIsAuto &&
+                        manualRetryCount < MAX_MANUAL_CONNECT_RETRIES) {
+                        // The rider's own connect failed, almost always status 133
+                        // on the first connect after install. The auto-reconnect
+                        // below is held while the scan screen is open, so without
+                        // this the rider taps, sees Disconnected, and taps again.
+                        // Retry the MANUAL connect (not suppressed) so one tap
+                        // connects. Bounded by manualRetryCount (reset on a fresh
+                        // tap).
+                        manualRetryCount++
+                        val addr = currentAddress
+                        scope.launch {
+                            delay(MANUAL_RETRY_DELAY_MS)
+                            if (shouldReconnect && addr != null &&
+                                currentAddress == addr && !currentConnectIsAuto &&
+                                _connectionState.value == ConnectionState.DISCONNECTED
+                            ) {
+                                reconnectManualNow()
+                            }
+                        }
+                    } else if (shouldReconnect && status != 0) {
                         val reconnectAddress = currentAddress
                         scope.launch {
                             delay(2000)

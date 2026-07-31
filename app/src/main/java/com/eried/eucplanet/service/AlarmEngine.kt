@@ -5,6 +5,7 @@ import android.util.Log
 import com.eried.eucplanet.data.db.AlarmDao
 import com.eried.eucplanet.data.model.AlarmMetric
 import com.eried.eucplanet.data.model.AlarmRule
+import com.eried.eucplanet.data.model.ExternalGpsSample
 import com.eried.eucplanet.data.model.RadarFrame
 import com.eried.eucplanet.data.model.WheelData
 import com.eried.eucplanet.util.VibratorHelper
@@ -31,7 +32,10 @@ class AlarmEngine @Inject constructor(
     private val voiceService: VoiceService,
     private val watchVibrator: WatchVibrator,
     private val cheatState: com.eried.eucplanet.cheats.CheatState,
-    private val settingsRepository: com.eried.eucplanet.data.repository.SettingsRepository
+    private val settingsRepository: com.eried.eucplanet.data.repository.SettingsRepository,
+    // Lazy so the Trip <-> ExternalGps <-> Alarm provider chain can't form a
+    // Hilt cycle. Supplies the phone location stream for the GPS_SPEED metric.
+    private val tripRepositoryProvider: javax.inject.Provider<com.eried.eucplanet.data.repository.TripRepository>
 ) {
     companion object {
         private const val TAG = "AlarmEngine"
@@ -74,6 +78,14 @@ class AlarmEngine @Inject constructor(
                 evaluator.bufferMaxMs = s.alarmBufferMaxMs.toLong()
                 evaluator.slopeMinSamples = s.alarmSlopeMinSamples
                 evaluator.slopeMinSpanMs = s.alarmSlopeMinSpanMs.toLong()
+            }
+        }
+        // Phone-GPS speed alarms (GPS_SPEED) are driven off the location stream,
+        // not the wheel loop, so they work with no wheel connected. Only fresh
+        // fixes with a speed reading tick the evaluator.
+        scope.launch {
+            tripRepositoryProvider.get().currentLocation.collect { loc ->
+                if (loc != null && loc.hasSpeed()) evaluateGpsSpeed(loc)
             }
         }
     }
@@ -165,12 +177,16 @@ class AlarmEngine @Inject constructor(
                 AlarmMetric.PWM -> data.pwm.absoluteValue
                 AlarmMetric.VOLTAGE -> data.voltage
                 AlarmMetric.CURRENT -> data.current.absoluteValue
-                // Radar metrics are evaluated via the dedicated [evaluateRadar]
-                // entry point, fed by [RadarRepository.currentFrame], not by
-                // the wheel telemetry loop. Returning null here ensures the
-                // wheel evaluator never fires a radar rule with stale data.
+                // Radar + external-GPS metrics are evaluated via their own
+                // entry points ([evaluateRadar] off RadarRepository,
+                // [evaluateExternalGps] off ExternalGpsRepository), not the
+                // wheel telemetry loop. Returning null here ensures the wheel
+                // evaluator never fires one of them with stale/absent data.
                 AlarmMetric.RADAR_DISTANCE,
-                AlarmMetric.RADAR_APPROACH_SPEED -> null
+                AlarmMetric.RADAR_APPROACH_SPEED,
+                AlarmMetric.GPS_SPEED,
+                AlarmMetric.EXTERNAL_GPS_SPEED,
+                AlarmMetric.EXTERNAL_GPS_BATTERY -> null
             }
         } catch (_: Exception) { null }
     }
@@ -256,6 +272,120 @@ class AlarmEngine @Inject constructor(
                 }
             }
         }
+    }
+
+    /**
+     * External-GPS-side evaluator. Called from
+     * [com.eried.eucplanet.data.repository.ExternalGpsRepository] on each new
+     * sample. Only handles [AlarmMetric.EXTERNAL_GPS_BATTERY]; walks the same
+     * per-rule cooldown state as the wheel path so a low-battery rule fires
+     * once as the box crosses the threshold. A sample whose battery is null
+     * (Dragy before its first FD04 read, or a frame without the field) is a
+     * no-reading SKIP, so the rule state just waits rather than resetting.
+     */
+    fun evaluateExternalGps(sample: ExternalGpsSample) {
+        if (cheatState.godmode.value) return
+        scope.launch {
+            evalMutex.withLock {
+                if (settingsRepository.get().alarmsMuted) return@withLock
+                val rules = alarmDao.getEnabled().filter {
+                    it.metric == AlarmMetric.EXTERNAL_GPS_BATTERY.name ||
+                        it.metric == AlarmMetric.EXTERNAL_GPS_SPEED.name
+                }
+                if (rules.isEmpty()) return@withLock
+                val now = System.currentTimeMillis()
+                val fired = evaluator.evaluate(
+                    rules.map { it.toEvaluatorRule() },
+                    now,
+                    AlarmEvaluator.NoReading.SKIP,
+                ) { metric -> getExternalGpsMetricValue(metric, sample) }
+
+                if (fired.isNotEmpty()) {
+                    val byId = rules.associateBy { it.id }
+                    for (f in fired) {
+                        val rule = byId[f.ruleId] ?: continue
+                        Log.i(TAG, "External-GPS alarm fired: '${rule.name}' ${rule.metric} ${rule.comparator} ${rule.threshold} (value=${f.value})")
+                        executeExternalGpsActions(rule, f.value)
+                    }
+                }
+            }
+        }
+    }
+
+    private fun getExternalGpsMetricValue(metric: String, sample: ExternalGpsSample): Float? {
+        return try {
+            when (AlarmMetric.valueOf(metric)) {
+                AlarmMetric.EXTERNAL_GPS_BATTERY -> sample.batteryPercent?.toFloat()
+                AlarmMetric.EXTERNAL_GPS_SPEED -> sample.speedKmh
+                else -> null
+            }
+        } catch (_: Exception) { null }
+    }
+
+    /**
+     * Phone-GPS-speed evaluator. Driven by the location stream (see init), so a
+     * GPS_SPEED alarm works with no wheel connected. Mirrors [evaluateRadar]:
+     * its own rule filter + value resolver, SKIP on a missing reading.
+     */
+    fun evaluateGpsSpeed(location: android.location.Location) {
+        if (cheatState.godmode.value) return
+        scope.launch {
+            evalMutex.withLock {
+                if (settingsRepository.get().alarmsMuted) return@withLock
+                val rules = alarmDao.getEnabled().filter { it.metric == AlarmMetric.GPS_SPEED.name }
+                if (rules.isEmpty()) return@withLock
+                val now = System.currentTimeMillis()
+                val kmh = location.speed * 3.6f
+                val fired = evaluator.evaluate(
+                    rules.map { it.toEvaluatorRule() },
+                    now,
+                    AlarmEvaluator.NoReading.SKIP,
+                ) { metric -> if (metric == AlarmMetric.GPS_SPEED.name) kmh else null }
+
+                if (fired.isNotEmpty()) {
+                    val byId = rules.associateBy { it.id }
+                    for (f in fired) {
+                        val rule = byId[f.ruleId] ?: continue
+                        Log.i(TAG, "GPS-speed alarm fired: '${rule.name}' ${rule.comparator} ${rule.threshold} (value=${f.value})")
+                        executeExternalGpsActions(rule, f.value)
+                    }
+                }
+            }
+        }
+    }
+
+    private fun executeExternalGpsActions(rule: AlarmRule, triggerValue: Float) {
+        if (rule.vibrateEnabled) {
+            val onPhone = rule.vibrateTarget != "WATCH"
+            val onWatch = rule.vibrateTarget == "WATCH" || rule.vibrateTarget == "BOTH"
+            if (onPhone) vibratorHelper.oneShot(rule.vibrateDurationMs.toLong())
+            if (onWatch) watchVibrator.vibrate(rule.vibrateDurationMs)
+        }
+        scope.launch {
+            if (rule.beepEnabled) {
+                val freq = AlarmLogic.modulatedBeepHz(
+                    rule.beepFrequency, triggerValue, rule.comparator, rule.threshold, rule.beepModulation, rule.metric)
+                val vol = AlarmLogic.modulatedVolumePct(
+                    rule.beepVolume, rule.beepVolumeModulation, triggerValue, rule.comparator, rule.threshold, rule.metric)
+                tonePlayer.playBeep(freq, rule.beepDurationMs, rule.beepCount, rule.beepGapMs, vol,
+                    rule.beepDurationMs * rule.beepTransitionPct / 100, rule.beepWaveform, rule.beepEffect)
+                if (rule.voiceEnabled && rule.voiceText.isNotBlank()) {
+                    delay(rule.beepGapMs.toLong())
+                }
+            }
+            if (rule.voiceEnabled && rule.voiceText.isNotBlank()) {
+                voiceService.speak(expandExternalGpsTemplate(rule.voiceText, rule, triggerValue))
+            }
+        }
+    }
+
+    private fun expandExternalGpsTemplate(template: String, rule: AlarmRule, triggerValue: Float): String {
+        val metricLabel = try { context.getString(AlarmMetric.valueOf(rule.metric).voiceLabelRes) } catch (_: Exception) { rule.metric }
+        return template
+            .replace("{value}", "%.0f".format(triggerValue))
+            .replace("{battery}", "%.0f".format(triggerValue))
+            .replace("{metric}", metricLabel)
+            .replace("{threshold}", "%.0f".format(rule.threshold))
     }
 
     private fun getRadarMetricValue(metric: String, frame: RadarFrame): Float? {

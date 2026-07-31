@@ -4,6 +4,30 @@
     <string name="notification_channel_name">独轮车连接</string>
     <string name="notification_channel_description">显示独轮车的连接状态和实时数据</string>
 
+    <!-- Notification quick actions -->
+    <string name="notif_actions_section">自定义</string>
+    <string name="notif_actions_enable">显示通知操作</string>
+    <string name="notif_actions_enable_desc">在进行中的通知上添加快捷操作按钮。</string>
+    <string name="notif_actions_pick_desc">最多选择 %1$d 个操作。同一操作可重复。</string>
+    <string name="notif_action_slot">操作 %1$d</string>
+    <string name="notif_action_stop_all">全部停止</string>
+    <string name="notif_action_lock">锁定 / 解锁</string>
+    <string name="notif_action_light">灯光 开 / 关</string>
+    <string name="notif_action_record">记录 / 停止</string>
+    <string name="notif_action_horn">喇叭</string>
+    <string name="notif_action_disconnect">断开连接</string>
+    <string name="notif_action_stop_nav">停止导航</string>
+    <string name="notif_btn_stop_all">全部停止</string>
+    <string name="notif_btn_lock">锁定</string>
+    <string name="notif_btn_unlock">解锁</string>
+    <string name="notif_btn_light_on">开灯</string>
+    <string name="notif_btn_light_off">关灯</string>
+    <string name="notif_btn_record">记录</string>
+    <string name="notif_btn_stop_record">停止</string>
+    <string name="notif_btn_horn">喇叭</string>
+    <string name="notif_btn_disconnect">断开</string>
+    <string name="notif_btn_stop_nav">停止导航</string>
+
     <string name="action_back">返回</string>
     <string name="action_cancel">取消</string>
     <string name="action_ok">确定</string>
@@ -176,6 +200,7 @@
     <string name="units_temp_f">华氏度</string>
     <string name="units_temp_k">开尔文</string>
     <string name="phone_keep_screen_on">保持屏幕常亮</string>
+    <string name="phone_show_over_lock">在锁屏上方显示</string>
     <string name="language">语言</string>
     <string name="theme">主题</string>
     <string name="tts_switch_title">切换语音到%1$s?</string>
@@ -291,6 +316,11 @@
     <string name="alarm_metric_pwm">负载 (PWM)</string>
     <string name="alarm_metric_voltage">电压</string>
     <string name="alarm_metric_current">电流</string>
+    <string name="alarm_metric_gps_speed">GPS 速度</string>
+    <string name="alarm_metric_external_gps_speed">外置 GPS 速度</string>
+    <string name="alarm_metric_external_gps_battery">外置 GPS 电量</string>
+    <string name="alarm_metric_external_gps_speed_short">外置GPS速度</string>
+    <string name="alarm_metric_external_gps_battery_short">外置GPS电量</string>
 
     <string name="alarm_cmp_lt">小于</string>
     <string name="alarm_cmp_ge">大于或等于</string>
@@ -610,6 +640,15 @@
     <string name="external_gps_state_disconnected">已断开</string>
     <string name="external_gps_unpair">忘记设备</string>
     <string name="section_external_gps">GPS 与传感器</string>
+    <!-- TPMS sensors -->
+    <string name="section_tpms">TPMS 传感器</string>
+    <string name="tpms_caption">来自车轮上传感器的胎压，如 InMotion P6。</string>
+    <string name="tpms_wheel_sensor">车轮胎压</string>
+    <string name="tpms_wheel_sensor_desc">由已绑定的传感器转发</string>
+    <string name="tpms_idle">尚无传感器上报</string>
+    <string name="tpms_pair_title">配对其他传感器</string>
+    <string name="tpms_pair_replaces">额外的传感器会取代车轮内置的传感器（如有）。</string>
+    <string name="tpms_scan">扫描传感器</string>
     <string name="external_gps_device_title">外置 GPS</string>
     <string name="section_speed_calibration">速度校准</string>
     <string name="speed_calibration_caption">调整独轮车上报的速度；影响警报、语音和行程日志</string>
@@ -699,6 +738,7 @@
     <string name="nav_stops_left">还剩 %1$d 个途经点</string>
     <string name="nav_tap_on_self">在途经点列表中,长按某个途经点即可将其设为你的位置</string>
     <string name="nav_title">路线编辑器</string>
+    <string name="nav_too_far_to_start">第一站太远。长按「开始」仍可开始导航。</string>
     <string name="nav_turn_left">左转</string>
     <string name="nav_turn_right">右转</string>
     <string name="nav_turn_sharp_left">向左急转</string>
@@ -857,6 +897,9 @@
     <string name="studio_metric_battery">电量</string>
     <string name="studio_metric_current">电流</string>
     <string name="studio_metric_g_force">G-Force</string>
+    <string name="studio_metric_external_gps_battery">外接 GPS 电量</string>
+    <string name="studio_metric_external_gps_speed">外部GPS速度</string>
+    <string name="studio_metric_gps">GPS 坐标</string>
     <string name="studio_metric_odometer">总里程</string>
     <string name="studio_metric_pitch">俯仰角</string>
     <string name="studio_metric_power">功率</string>
@@ -1092,6 +1135,10 @@
     <string name="metric_chip_battery_2">电池组 2</string>
     <string name="metric_chip_battery_power">电池功率</string>
     <string name="metric_chip_battery_temp">电池温度</string>
+    <string name="metric_chip_tire_pressure">胎压</string>
+    <string name="metric_chip_tire_pressure_tile">胎压</string>
+    <string name="metric_desc_tire_pressure">来自已绑定 TPMS 传感器（InMotion P6）的胎压。以 psi 或 bar 显示。</string>
+    <string name="studio_metric_tire_pressure">胎压</string>
     <string name="metric_chip_bt_rssi">BT 信号</string>
     <string name="metric_chip_controller_temp">控制器温度</string>
     <string name="metric_chip_current">电流</string>
@@ -1101,6 +1148,7 @@
     <string name="metric_chip_forward_g">前向 g</string>
     <string name="metric_chip_g_force">G 力</string>
     <string name="metric_chip_gps_accuracy">GPS 精度</string>
+    <string name="metric_chip_external_gps_battery">外置 GPS 电量</string>
     <string name="metric_chip_gps_altitude">海拔</string>
     <string name="metric_chip_gps_heading">航向</string>
     <string name="metric_chip_gps_speed">GPS 速度</string>
@@ -1134,6 +1182,7 @@
     <string name="metric_desc_avg_trip_speed">行程距离除以已骑行时间。</string>
     <string name="metric_desc_bt_rssi">到独轮车的蓝牙信号强度，，越接近 0 dBm 越强。</string>
     <string name="metric_desc_gps_accuracy">GPS 定位误差半径，，越低越准确。</string>
+    <string name="metric_desc_external_gps_battery">已配对的外置 GPS (RaceBox, Dragy) 电量，让你在骑行途中没电前看到它下降。</string>
     <string name="metric_desc_headroom">回倾启动前剩余的速度余量。数字大 = 安全缓冲更多。</string>
     <string name="metric_desc_range_estimate">按当前消耗率剩余的距离。</string>
     <string name="metric_desc_regen_wh">本次行程刹车时回馈到电池的总瓦时。</string>
@@ -1211,6 +1260,7 @@
     <string name="metric_chip_dyn_current_limit_tile">A limit</string>
     <string name="metric_chip_phone_battery_tile">手机</string>
     <string name="metric_chip_gps_accuracy_tile">GPS ±</string>
+    <string name="metric_chip_external_gps_battery_tile">GPS电量</string>
     <string name="metric_chip_odometer_tile">Odo</string>
     <string name="metric_chip_trip_max_speed_tile">Max sp</string>
     <string name="metric_chip_avg_trip_speed_tile">Avg sp</string>
@@ -1611,6 +1661,8 @@
     <string name="adv_nav_inter_stop_desc">影响你须驶过一个途经点多远后,下一个才能算作到达。危险:过低可能跳过某个途经点。</string>
     <string name="adv_nav_intermediate_flash">途经点闪烁时长</string>
     <string name="adv_nav_intermediate_flash_desc">影响到达途经点的闪烁显示多久。</string>
+    <string name="adv_nav_max_start">最大出发距离</string>
+    <string name="adv_nav_max_start_desc">第一站最远可以相距多远才能开始导航。超过此距离后,你当前位置到第一站的连线会被隐藏,且无法开始导航。路线规划仍可照常使用。</string>
     <string name="adv_nav_moving">移动速度</string>
     <string name="adv_nav_moving_desc">影响超过多少速度才算作移动以用于航向和引导。危险:过高会忽略慢速骑行。</string>
     <string name="adv_nav_offroute_grace">偏航宽限</string>
@@ -1630,6 +1682,8 @@
     <string name="adv_nav_warning">这些会改变导航的反应时机。数值错误可能让语音提示或重新规划过早或过晚触发。</string>
     <string name="adv_phone_gps_interval">手机 GPS 更新间隔</string>
     <string name="adv_phone_gps_interval_desc">影响 GPS 轨迹的平滑度和导航反应速度。越低更新越频繁。危险:过低会更快耗电。</string>
+    <string name="adv_phone_gps_idle_interval">GPS 空闲间隔</string>
+    <string name="adv_phone_gps_idle_interval_desc">未记录或导航时的 GPS 更新间隔，让导航和重新连接随时就绪。数值越大越省电。</string>
     <string name="adv_pushonly_note">部分设备以其自身固定频率推送数据并忽略这些设置:仅推送型独轮车(Begode、Gotway、Veteran、KingSong)、外置 GPS(RaceBox)、雷达和 Flic 按钮。</string>
     <string name="adv_radar_clear_decay">雷达车道衰减</string>
     <string name="adv_radar_clear_decay_desc">影响道路畅通后车道条停留多久。危险:过低会随车辆来去而闪烁。</string>

@@ -58,6 +58,11 @@ data class StudioElementData(
                 rollAngle = hud.wheelRollDeg,
                 latitude = hud.latitude,
                 longitude = hud.longitude,
+                externalGpsBatteryPercent = hud.externalGpsBatteryPercent,
+                // Ext-GPS speed rides the shared gpsSpeedKmh; expose it as the
+                // external metric only when the box is the source.
+                externalGpsSpeedKmh = if (hud.gpsSource == "EXTERNAL") hud.gpsSpeedKmh else -1f,
+                tirePressureKpa = hud.tirePressureKpa,
                 lightOn = hud.lightOn,
                 timestamp = hud.timestampMs.takeIf { it > 0L } ?: System.currentTimeMillis()
             )

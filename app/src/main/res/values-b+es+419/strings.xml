@@ -4,6 +4,30 @@
     <string name="notification_channel_name">Conexión de rueda</string>
     <string name="notification_channel_description">Muestra el estado de conexión y la telemetría de la rueda</string>
 
+    <!-- Notification quick actions -->
+    <string name="notif_actions_section">Personalizar</string>
+    <string name="notif_actions_enable">Mostrar acciones de notificación</string>
+    <string name="notif_actions_enable_desc">Agrega botones de acción rápida a la notificación activa.</string>
+    <string name="notif_actions_pick_desc">Elige hasta %1$d acciones. La misma acción puede repetirse.</string>
+    <string name="notif_action_slot">Acción %1$d</string>
+    <string name="notif_action_stop_all">Detener todo</string>
+    <string name="notif_action_lock">Bloquear / Desbloquear</string>
+    <string name="notif_action_light">Luz encendida / apagada</string>
+    <string name="notif_action_record">Grabar / Detener</string>
+    <string name="notif_action_horn">Bocina</string>
+    <string name="notif_action_disconnect">Desconectar</string>
+    <string name="notif_action_stop_nav">Detener navegación</string>
+    <string name="notif_btn_stop_all">Detener todo</string>
+    <string name="notif_btn_lock">Bloquear</string>
+    <string name="notif_btn_unlock">Desbloquear</string>
+    <string name="notif_btn_light_on">Encender luz</string>
+    <string name="notif_btn_light_off">Apagar luz</string>
+    <string name="notif_btn_record">Grabar</string>
+    <string name="notif_btn_stop_record">Detener</string>
+    <string name="notif_btn_horn">Bocina</string>
+    <string name="notif_btn_disconnect">Desconectar</string>
+    <string name="notif_btn_stop_nav">Parar nav.</string>
+
     <!-- Common -->
     <string name="action_back">Atrás</string>
     <string name="action_cancel">Cancelar</string>
@@ -214,6 +238,10 @@
     <string name="metric_chip_motor_temp">Temperatura del motor</string>
     <string name="metric_chip_controller_temp">Temperatura del controlador</string>
     <string name="metric_chip_battery_temp">Temperatura de la batería</string>
+    <string name="metric_chip_tire_pressure">Presión de neumático</string>
+    <string name="metric_chip_tire_pressure_tile">Neum.</string>
+    <string name="metric_desc_tire_pressure">Presión del neumático de un sensor TPMS vinculado (InMotion P6). Se muestra en psi o bar.</string>
+    <string name="studio_metric_tire_pressure">Presión de neumático</string>
     <string name="metric_chip_headroom">Margen</string>
     <string name="metric_chip_trip_time">Tiempo viaje</string>
     <string name="metric_chip_trip_max_speed">Pico viaje</string>
@@ -226,6 +254,7 @@
     <string name="metric_chip_gps_speed">Vel. GPS</string>
     <string name="metric_chip_gps_heading">Rumbo</string>
     <string name="metric_chip_gps_accuracy">Precisión GPS</string>
+    <string name="metric_chip_external_gps_battery">Batería del GPS externo</string>
     <string name="metric_chip_slope">Pendiente</string>
     <string name="metric_chip_ascent">Ascenso</string>
     <string name="metric_chip_descent">Descenso</string>
@@ -253,6 +282,7 @@
     <string name="metric_chip_dyn_current_limit_tile">A limit</string>
     <string name="metric_chip_phone_battery_tile">Tel</string>
     <string name="metric_chip_gps_accuracy_tile">GPS ±</string>
+    <string name="metric_chip_external_gps_battery_tile">GPS bat</string>
     <string name="metric_chip_odometer_tile">Odo</string>
     <string name="metric_chip_trip_max_speed_tile">Max sp</string>
     <string name="metric_chip_avg_trip_speed_tile">Avg sp</string>
@@ -282,6 +312,7 @@
     <string name="metric_desc_regen_wh">Vatios-hora totales devueltos a la batería al frenar en este viaje.</string>
     <string name="metric_desc_bt_rssi">Intensidad de señal Bluetooth hacia la rueda: más cerca de 0 dBm es más fuerte.</string>
     <string name="metric_desc_gps_accuracy">Radio de error de posición GPS: menor es más preciso.</string>
+    <string name="metric_desc_external_gps_battery">Batería del GPS externo emparejado (RaceBox, Dragy), para verla bajar antes de que se apague a mitad de viaje.</string>
 
     <!-- Action labels for the dashboard layout chips -->
     <string name="action_chip_horn">Bocina</string>
@@ -512,6 +543,7 @@
     <string name="units_temp_f">Fahrenheit</string>
     <string name="units_temp_k">Kelvin</string>
     <string name="phone_keep_screen_on">Mantener pantalla encendida</string>
+    <string name="phone_show_over_lock">Mostrar sobre la pantalla de bloqueo</string>
     <string name="language">Idioma</string>
     <string name="theme">Tema</string>
     <string name="tts_switch_title">¿Cambiar voz a %1$s?</string>
@@ -686,6 +718,15 @@
     <string name="flic_double_click">Doble clic</string>
     <string name="flic_hold">Mantener</string>
     <string name="section_external_gps">GPS y sensores</string>
+    <!-- TPMS sensors -->
+    <string name="section_tpms">Sensores TPMS</string>
+    <string name="tpms_caption">Presión de neumático de un sensor en la rueda, como el InMotion P6.</string>
+    <string name="tpms_wheel_sensor">Presión de neumático de la rueda</string>
+    <string name="tpms_wheel_sensor_desc">Retransmitida desde un sensor vinculado</string>
+    <string name="tpms_idle">Ningún sensor informa aún</string>
+    <string name="tpms_pair_title">Vincular otro sensor</string>
+    <string name="tpms_pair_replaces">Un sensor extra reemplaza el integrado de la rueda, si lo hay.</string>
+    <string name="tpms_scan">Buscar sensores</string>
     <string name="external_gps_device_title">GPS externo</string>
     <string name="external_gps_pair_button">Iniciar búsqueda</string>
     <string name="external_gps_pair_action">Vincular</string>
@@ -776,6 +817,11 @@
     <string name="alarm_metric_pwm_voice" translatable="false">PWM</string>
     <string name="alarm_metric_voltage">Voltaje</string>
     <string name="alarm_metric_current">Corriente</string>
+    <string name="alarm_metric_gps_speed">Velocidad GPS</string>
+    <string name="alarm_metric_external_gps_speed">Velocidad del GPS externo</string>
+    <string name="alarm_metric_external_gps_battery">Batería del GPS externo</string>
+    <string name="alarm_metric_external_gps_speed_short">Vel. GPS ext.</string>
+    <string name="alarm_metric_external_gps_battery_short">Bat. GPS ext.</string>
     <string name="alarm_metric_radar_distance">Distancia al auto</string>
     <string name="alarm_metric_radar_approach">Auto acercándose</string>
 
@@ -1345,6 +1391,9 @@
     <string name="studio_metric_pitch">Cabeceo</string>
     <string name="studio_metric_roll">Alabeo</string>
     <string name="studio_metric_g_force">G-Force</string>
+    <string name="studio_metric_external_gps_battery">Batería GPS ext.</string>
+    <string name="studio_metric_external_gps_speed">Vel. GPS ext.</string>
+    <string name="studio_metric_gps">Coordenadas GPS</string>
 
     <!-- Studio misc -->
     <string name="studio_snap_to_grid">Ajustar a la cuadrícula</string>
@@ -1408,6 +1457,7 @@
     </string-array>
     <string name="nav_my_location">Mi ubicación</string>
     <string name="nav_no_location">Esperando señal GPS…</string>
+    <string name="nav_too_far_to_start">La primera parada está demasiado lejos. Mantén presionado Iniciar para navegar de todos modos.</string>
     <string name="nav_empty_hint">Toca el mapa, busca o carga un archivo GPX</string>
     <string name="nav_route_failed">Servicio de rutas no disponible, usando líneas rectas</string>
     <string name="nav_cant_add_while_running">No se puede agregar una parada con la navegación activa</string>
@@ -1762,6 +1812,8 @@
     <string name="adv_nav_inter_stop_desc">Afecta cuánto debes avanzar más allá de una parada antes de que la siguiente cuente como alcanzada. Peligro: muy bajo puede saltarse una parada.</string>
     <string name="adv_nav_intermediate_flash">Tiempo de destello de punto</string>
     <string name="adv_nav_intermediate_flash_desc">Afecta cuánto tiempo se muestra el destello de punto alcanzado.</string>
+    <string name="adv_nav_max_start">Distancia máx. de inicio</string>
+    <string name="adv_nav_max_start_desc">Qué tan lejos puede estar la primera parada para poder iniciar la navegación. Más allá de esto, la línea desde tu posición se oculta y no se puede iniciar. La planificación sigue funcionando.</string>
     <string name="adv_nav_moving">Velocidad de movimiento</string>
     <string name="adv_nav_moving_desc">Afecta la velocidad por encima de la cual cuentas como en movimiento para el rumbo y la guía. Peligro: muy alta ignora la marcha lenta.</string>
     <string name="adv_nav_offroute_grace">Margen fuera de ruta</string>
@@ -1781,6 +1833,8 @@
     <string name="adv_nav_warning">Estos cambian cuándo reacciona la navegación. Valores incorrectos pueden hacer que las indicaciones de voz o el recálculo de ruta ocurran demasiado pronto o demasiado tarde.</string>
     <string name="adv_phone_gps_interval">Intervalo de actualización del GPS del teléfono</string>
     <string name="adv_phone_gps_interval_desc">Afecta qué tan fluido es el trazado GPS y qué tan rápido reacciona la navegación. Más bajo actualiza más seguido. Peligro: valores bajos agotan la batería más rápido.</string>
+    <string name="adv_phone_gps_idle_interval">Intervalo de GPS en reposo</string>
+    <string name="adv_phone_gps_idle_interval_desc">Frecuencia del GPS en reposo cuando no se graba ni navega, para que el Navegador y una nueva conexión estén listos. Más alto ahorra batería.</string>
     <string name="adv_pushonly_note">Algunos dispositivos transmiten a su propia tasa fija e ignoran estos ajustes: ruedas de solo envío (Begode, Gotway, Veteran, KingSong), GPS externo (RaceBox), radar y botones Flic.</string>
     <string name="adv_radar_clear_decay">Desvanecimiento de carril del radar</string>
     <string name="adv_radar_clear_decay_desc">Afecta cuánto tiempo permanece la barra de carril tras despejarse la vía. Peligro: muy bajo la hace parpadear cuando los autos van y vienen.</string>

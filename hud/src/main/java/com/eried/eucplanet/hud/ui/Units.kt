@@ -60,6 +60,13 @@ object HudUnits {
         else -> "°C"
     }
 
+    /** Tire pressure: raw kPa -> the chosen unit. Follows the distance unit
+     *  (mi -> psi, else bar), mirroring the phone's Units.effectivePressureUnit. */
+    fun pressure(kpa: Float, distCode: String): Float =
+        if (distCode == "mi") kpa * 0.145038f else kpa / 100f
+
+    fun pressureSuffix(distCode: String): String = if (distCode == "mi") "psi" else "bar"
+
     /** Round to N decimals as a Float (rendering uses %.Nf, this is only for
      *  intermediate comparison / threshold checks). */
     fun round1(v: Float): Float = round(v * 10f) / 10f

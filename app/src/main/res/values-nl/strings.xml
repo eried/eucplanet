@@ -4,6 +4,30 @@
     <string name="notification_channel_name">Wielverbinding</string>
     <string name="notification_channel_description">Toont verbindingsstatus en telemetrie van het wiel</string>
 
+    <!-- Notification quick actions -->
+    <string name="notif_actions_section">Aanpassen</string>
+    <string name="notif_actions_enable">Meldingsacties tonen</string>
+    <string name="notif_actions_enable_desc">Voeg snelactieknoppen toe aan de actieve melding.</string>
+    <string name="notif_actions_pick_desc">Kies maximaal %1$d acties. Dezelfde actie mag herhaald worden.</string>
+    <string name="notif_action_slot">Actie %1$d</string>
+    <string name="notif_action_stop_all">Alles stoppen</string>
+    <string name="notif_action_lock">Vergrendelen / Ontgrendelen</string>
+    <string name="notif_action_light">Licht aan / uit</string>
+    <string name="notif_action_record">Opnemen / Stoppen</string>
+    <string name="notif_action_horn">Claxon</string>
+    <string name="notif_action_disconnect">Verbreken</string>
+    <string name="notif_action_stop_nav">Navigatie stoppen</string>
+    <string name="notif_btn_stop_all">Alles stoppen</string>
+    <string name="notif_btn_lock">Vergrendel</string>
+    <string name="notif_btn_unlock">Ontgrendel</string>
+    <string name="notif_btn_light_on">Licht aan</string>
+    <string name="notif_btn_light_off">Licht uit</string>
+    <string name="notif_btn_record">Opnemen</string>
+    <string name="notif_btn_stop_record">Stoppen</string>
+    <string name="notif_btn_horn">Claxon</string>
+    <string name="notif_btn_disconnect">Verbreken</string>
+    <string name="notif_btn_stop_nav">Stop nav.</string>
+
     <!-- Common -->
     <string name="action_back">Terug</string>
     <string name="action_cancel">Annuleren</string>
@@ -214,6 +238,10 @@
     <string name="metric_chip_motor_temp">Motortemperatuur</string>
     <string name="metric_chip_controller_temp">Controllertemperatuur</string>
     <string name="metric_chip_battery_temp">Accutemperatuur</string>
+    <string name="metric_chip_tire_pressure">Bandenspanning</string>
+    <string name="metric_chip_tire_pressure_tile">Band</string>
+    <string name="metric_desc_tire_pressure">Bandenspanning van een gekoppelde TPMS-sensor (InMotion P6). Getoond in psi of bar.</string>
+    <string name="studio_metric_tire_pressure">Bandenspanning</string>
     <string name="metric_chip_headroom">Marge</string>
     <string name="metric_chip_trip_time">Triptime</string>
     <string name="metric_chip_trip_max_speed">Trip max</string>
@@ -226,6 +254,7 @@
     <string name="metric_chip_gps_speed">GPS-snelheid</string>
     <string name="metric_chip_gps_heading">Koers</string>
     <string name="metric_chip_gps_accuracy">GPS-precisie</string>
+    <string name="metric_chip_external_gps_battery">Externe GPS-accu</string>
     <string name="metric_chip_slope">Helling</string>
     <string name="metric_chip_ascent">Stijging</string>
     <string name="metric_chip_descent">Daling</string>
@@ -253,6 +282,7 @@
     <string name="metric_chip_dyn_current_limit_tile">A limit</string>
     <string name="metric_chip_phone_battery_tile">Tel</string>
     <string name="metric_chip_gps_accuracy_tile">GPS ±</string>
+    <string name="metric_chip_external_gps_battery_tile">GPS-accu</string>
     <string name="metric_chip_odometer_tile">Odo</string>
     <string name="metric_chip_trip_max_speed_tile">Max sp</string>
     <string name="metric_chip_avg_trip_speed_tile">Avg sp</string>
@@ -282,6 +312,7 @@
     <string name="metric_desc_regen_wh">Totaal aantal wattuur teruggevoerd naar de accu tijdens remmen op deze trip.</string>
     <string name="metric_desc_bt_rssi">Bluetooth-signaalsterkte naar het wiel, dichter bij 0 dBm is sterker.</string>
     <string name="metric_desc_gps_accuracy">GPS-foutmarge, lager is nauwkeuriger.</string>
+    <string name="metric_desc_external_gps_battery">Accu van de gekoppelde externe GPS (RaceBox, Dragy), zodat je hem ziet zakken voordat hij midden in de rit leeg is.</string>
 
     <!-- Action labels for the dashboard layout chips -->
     <string name="action_chip_horn">Toeter</string>
@@ -512,6 +543,7 @@
     <string name="units_temp_f">Fahrenheit</string>
     <string name="units_temp_k">Kelvin</string>
     <string name="phone_keep_screen_on">Scherm aan houden</string>
+    <string name="phone_show_over_lock">Boven vergrendelscherm tonen</string>
     <string name="language">Taal</string>
     <string name="theme">Thema</string>
     <string name="tts_switch_title">Stem omschakelen naar %1$s?</string>
@@ -686,6 +718,15 @@
     <string name="flic_double_click">Dubbelklik</string>
     <string name="flic_hold">Vasthouden</string>
     <string name="section_external_gps">GPS en sensoren</string>
+    <!-- TPMS sensors -->
+    <string name="section_tpms">TPMS-sensoren</string>
+    <string name="tpms_caption">Bandenspanning van een sensor op het wiel, zoals de InMotion P6.</string>
+    <string name="tpms_wheel_sensor">Bandenspanning van het wiel</string>
+    <string name="tpms_wheel_sensor_desc">Doorgestuurd vanaf een gekoppelde sensor</string>
+    <string name="tpms_idle">Nog geen sensor meldt gegevens</string>
+    <string name="tpms_pair_title">Andere sensor koppelen</string>
+    <string name="tpms_pair_replaces">Een extra sensor vervangt de ingebouwde van het wiel, indien aanwezig.</string>
+    <string name="tpms_scan">Zoek naar sensoren</string>
     <string name="external_gps_device_title">Externe GPS</string>
     <string name="external_gps_pair_button">Scannen starten</string>
     <string name="external_gps_pair_action">Koppelen</string>
@@ -776,6 +817,11 @@
     <string name="alarm_metric_pwm_voice" translatable="false">PWM</string>
     <string name="alarm_metric_voltage">Spanning</string>
     <string name="alarm_metric_current">Stroom</string>
+    <string name="alarm_metric_gps_speed">GPS-snelheid</string>
+    <string name="alarm_metric_external_gps_speed">Externe GPS-snelheid</string>
+    <string name="alarm_metric_external_gps_battery">Externe GPS-accu</string>
+    <string name="alarm_metric_external_gps_speed_short">Ext GPS-snelh.</string>
+    <string name="alarm_metric_external_gps_battery_short">Ext GPS-accu</string>
     <string name="alarm_metric_radar_distance">Afstand auto</string>
     <string name="alarm_metric_radar_approach">Auto nadert</string>
 
@@ -1368,6 +1414,9 @@
     <string name="studio_metric_pitch">Pitch</string>
     <string name="studio_metric_roll">Roll</string>
     <string name="studio_metric_g_force">G-Force</string>
+    <string name="studio_metric_external_gps_battery">Ext. GPS-accu</string>
+    <string name="studio_metric_external_gps_speed">Ext. GPS-snelheid</string>
+    <string name="studio_metric_gps">GPS-coördinaten</string>
 
     <!-- Studio: misc -->
     <string name="studio_snap_to_grid">Op raster uitlijnen</string>
@@ -1431,6 +1480,7 @@
     </string-array>
     <string name="nav_my_location">Mijn locatie</string>
     <string name="nav_no_location">Wachten op een GPS-fix…</string>
+    <string name="nav_too_far_to_start">De eerste stop is te ver weg. Houd Start ingedrukt om toch te navigeren.</string>
     <string name="nav_empty_hint">Tik op de kaart, zoek, of laad een GPX-bestand</string>
     <string name="nav_route_failed">Routeringsservice niet beschikbaar, rechte lijnen gebruikt</string>
     <string name="nav_cant_add_while_running">Kan geen stop toevoegen terwijl navigatie loopt</string>
@@ -1744,6 +1794,8 @@
     <string name="adv_nav_inter_stop_desc">Bepaalt hoe ver je voorbij één stop moet bewegen voordat de volgende als bereikt kan gelden. Let op: te laag kan een stop overslaan.</string>
     <string name="adv_nav_intermediate_flash">Flitstijd waypoint</string>
     <string name="adv_nav_intermediate_flash_desc">Bepaalt hoe lang de flits voor een bereikt waypoint wordt getoond.</string>
+    <string name="adv_nav_max_start">Max. startafstand</string>
+    <string name="adv_nav_max_start_desc">Hoe ver de eerste stop maximaal mag zijn om te kunnen starten met navigeren. Voorbij deze afstand wordt de lijn vanaf je locatie verborgen en is starten geblokkeerd. Plannen blijft mogelijk.</string>
     <string name="adv_nav_moving">Bewegingssnelheid</string>
     <string name="adv_nav_moving_desc">Bepaalt de snelheid waarboven je als bewegend telt voor koers en begeleiding. Let op: te hoog negeert langzaam rijden.</string>
     <string name="adv_nav_offroute_grace">Marge buiten route</string>
@@ -1763,6 +1815,8 @@
     <string name="adv_nav_warning">Deze bepalen wanneer de navigatie reageert. Verkeerde waarden kunnen stemaanwijzingen of herberekening te vroeg of te laat laten afgaan.</string>
     <string name="adv_phone_gps_interval">GPS-update-interval telefoon</string>
     <string name="adv_phone_gps_interval_desc">Bepaalt hoe vloeiend het GPS-spoor is en hoe snel de navigatie reageert. Lager werkt vaker bij. Let op: lage waarden ledigen de batterij sneller.</string>
+    <string name="adv_phone_gps_idle_interval">GPS-interval bij inactiviteit</string>
+    <string name="adv_phone_gps_idle_interval_desc">GPS-snelheid bij inactiviteit als er niet wordt opgenomen of genavigeerd, zodat de Navigator en een nieuwe verbinding klaar zijn. Hoger spaart accu.</string>
     <string name="adv_pushonly_note">Sommige apparaten streamen op hun eigen vaste snelheid en negeren deze instellingen: push-only wielen (Begode, Gotway, Veteran, KingSong), externe GPS (RaceBox), radar en Flic-knoppen.</string>
     <string name="adv_radar_clear_decay">Rijbaanverval radar</string>
     <string name="adv_radar_clear_decay_desc">Bepaalt hoe lang de rijbaanbalk blijft nadat de weg vrij is. Let op: te laag laat hem knipperen als auto\'s komen en gaan.</string>
