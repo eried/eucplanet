@@ -239,10 +239,16 @@ class InMotionV1Adapter @Inject constructor() : WheelAdapter {
                 )
                 val info = InMotionV1Parser.parseSlowInfo(payload) ?: return emptyList()
                 if (info.model != null) detectedModel = info.model
+                // Prefer the model from the slow-info car-type; when the firmware
+                // doesn't report a car-type we recognise (seen on the V8S, where
+                // fromCarType returns null) fall back to the model detected from
+                // the BLE name at connect (V8S-.. / V10F-..). Without this the
+                // dashboard showed a generic "InMotion V1 (serial)" for a V8S.
+                val resolved = info.model ?: detectedModel
                 val out = mutableListOf<DecodeResult>()
                 out += DecodeResult.ModelName(
-                    info.model?.displayName ?: "InMotion V1 (${info.serial})",
-                    info.model
+                    resolved?.displayName ?: "InMotion V1 (${info.serial})",
+                    resolved
                 )
                 out += DecodeResult.Firmware(
                     display = "FW ${info.firmware}",
