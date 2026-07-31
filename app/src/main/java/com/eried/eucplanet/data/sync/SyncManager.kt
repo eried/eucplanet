@@ -354,11 +354,10 @@ class SyncManager @Inject constructor(
             file.bufferedReader().use { reader ->
                 val headerLine = reader.readLine() ?: return CsvMeta(startTime, endTime, 0f)
                 val header = headerLine.lowercase().split(",").map { it.trim() }
-                val dateIdx = header.indexOfFirst { it == "date" }.takeIf { it >= 0 } ?: 0
-                val latIdx = header.indexOfFirst { it == "latitude" }.takeIf { it >= 0 } ?: 6
-                val lonIdx = header.indexOfFirst { it == "longitude" }.takeIf { it >= 0 } ?: 7
-                val mileageIdx = header.indexOfFirst { it.contains("mileage") }
-                    .takeIf { it >= 0 } ?: 8
+                val dateIdx = TripCsv.Columns.date(header).takeIf { it >= 0 } ?: 0
+                val latIdx = TripCsv.Columns.latitude(header).takeIf { it >= 0 } ?: 6
+                val lonIdx = TripCsv.Columns.longitude(header).takeIf { it >= 0 } ?: 7
+                val mileageIdx = TripCsv.Columns.mileage(header).takeIf { it >= 0 } ?: 8
                 var first = true
                 // Stay streaming (one big CSV never fully resident), but share
                 // the timestamp + great-circle logic with the import/detail

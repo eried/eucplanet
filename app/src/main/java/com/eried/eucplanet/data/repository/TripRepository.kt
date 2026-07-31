@@ -867,11 +867,9 @@ internal fun parseTripQuads(text: String): List<TripCsv.Quad> {
     val lines = text.split('\n')
     if (lines.size < 2) return emptyList()
     val h = lines[0].split(',').map { it.trim().lowercase(Locale.US) }
-    fun idx(vararg names: String) =
-        names.firstNotNullOfOrNull { h.indexOf(it).takeIf { i -> i >= 0 } } ?: -1
-    val iDate = idx("date"); if (iDate < 0) return emptyList()
-    val iLat = idx("latitude"); val iLon = idx("longitude")
-    val iMile = idx("total mileage", "mileage", "distance")
+    val iDate = TripCsv.Columns.date(h); if (iDate < 0) return emptyList()
+    val iLat = TripCsv.Columns.latitude(h); val iLon = TripCsv.Columns.longitude(h)
+    val iMile = TripCsv.Columns.mileage(h)
     return lines.asSequence().drop(1).mapNotNull { ln ->
         val c = ln.split(',')
         if (iDate >= c.size || c[iDate].isBlank()) return@mapNotNull null

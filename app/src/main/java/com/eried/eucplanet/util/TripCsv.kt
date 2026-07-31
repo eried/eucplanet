@@ -147,4 +147,47 @@ object TripCsv {
 
     /** One sample's fields relevant to trip metrics. */
     data class Quad(val date: String, val lat: Double, val lon: Double, val mileage: Float)
+
+    /**
+     * Resolve a trip-CSV column index from a lowercased, trimmed header row by
+     * trying each candidate name in order; -1 when none is present. Canonical
+     * EUC Planet / DarknessBot names MUST come first and foreign aliases after,
+     * so our own files never change which column wins.
+     */
+    fun columnIndex(header: List<String>, vararg names: String): Int =
+        names.firstNotNullOfOrNull { header.indexOf(it).takeIf { i -> i >= 0 } } ?: -1
+
+    /**
+     * Header names we accept for each logical trip column, so every parser reads
+     * foreign exports identically. EUC Planet / DarknessBot use the canonical
+     * (first) name; EUC World (euc.world) backups name several columns
+     * differently - gps_lat / gps_lon / datetime / gps_alt / temp /
+     * distance_total / gps_speed - which is why an EUC World file used to import
+     * with lat/lon 0 ("no GPS"). Add a new source's names HERE (with a case in
+     * TripCsvColumnsTest), never at a call site, so every path stays in sync.
+     */
+    object Columns {
+        fun date(h: List<String>) = columnIndex(h, "date", "datetime")
+        fun speed(h: List<String>) = columnIndex(h, "speed")
+        fun voltage(h: List<String>) = columnIndex(h, "voltage")
+        fun current(h: List<String>) = columnIndex(h, "current")
+        fun pwm(h: List<String>) = columnIndex(h, "pwm")
+        fun temperature(h: List<String>) = columnIndex(h, "temperature", "temp")
+        fun altitude(h: List<String>) = columnIndex(h, "altitude", "gps_alt")
+        fun latitude(h: List<String>) = columnIndex(h, "latitude", "gps_lat")
+        fun longitude(h: List<String>) = columnIndex(h, "longitude", "gps_lon")
+        fun gpsSpeed(h: List<String>) = columnIndex(h, "gps speed", "gps_speed")
+
+        /** First column whose name contains "battery" - EUC Planet
+         *  "Battery level", EUC World "battery" - else -1. */
+        fun battery(h: List<String>) = h.indexOfFirst { it.contains("battery") }
+
+        /** Odometer / total-distance column. EUC Planet "Total mileage" (any
+         *  name containing "mileage"); EUC World has no mileage column, so fall
+         *  back to its lifetime odometer "distance_total", then trip "distance". */
+        fun mileage(h: List<String>): Int {
+            val byMileage = h.indexOfFirst { it.contains("mileage") }
+            return if (byMileage >= 0) byMileage else columnIndex(h, "distance_total", "distance")
+        }
+    }
 }
