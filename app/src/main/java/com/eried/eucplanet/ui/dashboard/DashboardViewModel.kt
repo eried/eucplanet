@@ -40,7 +40,16 @@ data class MetricHistory(
     val voltage: List<Float> = emptyList(),
     val current: List<Float> = emptyList(),
     val load: List<Float> = emptyList(),
-    val speed: List<Float> = emptyList()
+    val speed: List<Float> = emptyList(),
+    /**
+     * Sparkline / stat window for every non-legacy catalog metric, keyed by
+     * metric key (MOTOR_POWER, GPS_SPEED, MOTOR_TEMP, ...). Mirrors the six
+     * typed lists above but data-driven off [FullMetricHistory.extras], so the
+     * dashboard's corner stats and sparklines work for any supportsStats tile,
+     * not just the legacy six. Values are raw (WheelData canonical units); the
+     * tile applies the rider's unit conversion at render time.
+     */
+    val extras: Map<String, List<Float>> = emptyMap()
 )
 
 @HiltViewModel
@@ -604,7 +613,12 @@ class DashboardViewModel @Inject constructor(
                 voltage = full.voltage.takeLast(SPARKLINE_SIZE).map { it.value },
                 current = full.current.takeLast(SPARKLINE_SIZE).map { it.value },
                 load = full.load.takeLast(SPARKLINE_SIZE).map { it.value },
-                speed = full.speed.takeLast(SPARKLINE_SIZE).map { it.value }
+                speed = full.speed.takeLast(SPARKLINE_SIZE).map { it.value },
+                // Same window as the legacy six, applied per extras buffer so
+                // every catalog metric's corner stats / sparkline resolve.
+                extras = full.extras.mapValues { (_, list) ->
+                    list.takeLast(SPARKLINE_SIZE).map { it.value }
+                }
             )
         }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), MetricHistory())

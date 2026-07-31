@@ -179,6 +179,52 @@ private fun openMediaGallery(context: Context, video: Boolean, onNoGalleryApp: (
     runCatching { context.startActivity(intent) }.onFailure { onNoGalleryApp() }
 }
 
+/**
+ * Formats a RAW buffered stat value (WheelData canonical units) into the
+ * compact string a dashboard corner chip or composite cell shows, applying
+ * the rider's unit conversion so a MAX / AVG chip reads in the same units as
+ * the live tile. Mirrors displayValueFor's per-key formatting and the
+ * MetricDetailScreen conversions. Any key without a dedicated unit falls back
+ * to one decimal. Shared by the standalone-tile corner stats and the
+ * composite cell renderer so both agree.
+ */
+private fun formatMetricStatValue(
+    key: String,
+    raw: Float,
+    speedUnit: String,
+    speedUnitLabel: String,
+    tempUnit: String,
+    tempUnitLabel: String,
+    distanceUnit: String
+): String = when (key) {
+    "BATTERY", "LOAD" -> "${raw.toInt()}%"
+    "BATTERY_1", "BATTERY_2", "PHONE_BATTERY", "EXTERNAL_GPS_BATTERY" -> "%.0f%%".format(raw)
+    // Temp buffers store raw °C; convert to the rider's unit like the tile.
+    "TEMPERATURE" -> "${com.eried.eucplanet.util.Units.temperature(raw, tempUnit).toInt()}°"
+    "MOTOR_TEMP", "CONTROLLER_TEMP", "BATTERY_TEMP" ->
+        "%.0f%s".format(com.eried.eucplanet.util.Units.temperature(raw, tempUnit), tempUnitLabel)
+    "VOLTAGE" -> "%.1fV".format(raw)
+    "CURRENT", "DYN_CURRENT_LIMIT" -> "%.1fA".format(raw)
+    // Speed buffers store raw km/h; convert to the rider's speed unit.
+    "SPEED", "DYN_SPEED_LIMIT", "GPS_SPEED" ->
+        "%.0f %s".format(com.eried.eucplanet.util.Units.speed(raw, speedUnit), speedUnitLabel)
+    "MOTOR_POWER", "BATTERY_POWER", "POWER" -> "%.0fW".format(raw)
+    "PITCH", "ROLL" -> "%.1f°".format(raw)
+    "G_FORCE", "LATERAL_G", "FORWARD_G" -> "%.2fg".format(raw)
+    "TORQUE" -> "%.1fNm".format(raw)
+    // Tire pressure stored raw in kPa; psi for imperial-distance, bar otherwise.
+    "TIRE_PRESSURE" -> if (distanceUnit == "mi")
+        "%.1f psi".format(com.eried.eucplanet.util.Units.pressure(raw, "psi"))
+    else
+        "%.2f bar".format(com.eried.eucplanet.util.Units.pressure(raw, "bar"))
+    // Altitude / accuracy stored raw in metres; feet for imperial riders.
+    "GPS_ALTITUDE", "GPS_ACCURACY" -> if (distanceUnit == "mi")
+        "%.0fft".format(raw * 3.28084f)
+    else
+        "%.0fm".format(raw)
+    else -> "%.1f".format(raw)
+}
+
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 fun DashboardScreen(
@@ -1353,6 +1399,10 @@ fun DashboardScreen(
                 if (stat == com.eried.eucplanet.ui.settings.DashboardStat.NONE ||
                     stat == com.eried.eucplanet.ui.settings.DashboardStat.CURRENT ||
                     stat == com.eried.eucplanet.ui.settings.DashboardStat.EMPTY) return null
+                // Legacy six use their typed lists; every other supportsStats
+                // metric rides in the keyed extras map (POWER, GPS_SPEED,
+                // MOTOR_TEMP, ...). A key with no buffer resolves to an empty
+                // list -> placeholder, same as a cold-boot legacy buffer.
                 val buf = when (key) {
                     "BATTERY" -> history.battery
                     "TEMPERATURE" -> history.temperature
@@ -1360,7 +1410,7 @@ fun DashboardScreen(
                     "CURRENT" -> history.current
                     "LOAD" -> history.load
                     "SPEED" -> history.speed
-                    else -> return placeholder
+                    else -> history.extras[key].orEmpty()
                 }
                 if (buf.isEmpty()) return placeholder
                 val samples = buf.mapIndexed { idx, v ->
@@ -1369,20 +1419,9 @@ fun DashboardScreen(
                 val raw = com.eried.eucplanet.ui.settings.computeDashboardStatValue(
                     stat, samples, fallbackCurrent = buf.last()
                 ) ?: return placeholder
-                return when (key) {
-                    "BATTERY", "LOAD" -> "${raw.toInt()}%"
-                    // Buffers store raw °C / km/h, so the corner stat must run
-                    // the same unit conversion as the tile value or imperial
-                    // riders see metric numbers under an imperial label.
-                    "TEMPERATURE" -> "${com.eried.eucplanet.util.Units.temperature(raw, tempUnit).toInt()}°"
-                    "VOLTAGE" -> "%.1fV".format(raw)
-                    "CURRENT" -> "%.1fA".format(raw)
-                    "SPEED" -> "%.0f %s".format(
-                        com.eried.eucplanet.util.Units.speed(raw, speedUnit),
-                        speedUnitLabel
-                    )
-                    else -> "%.1f".format(raw)
-                }
+                return formatMetricStatValue(
+                    key, raw, speedUnit, speedUnitLabel, tempUnit, tempUnitLabel, distanceUnit
+                )
             }
 
             // Short stat label for the corner chip — "MAX", "MIN", "AVG",
@@ -1841,7 +1880,10 @@ fun DashboardScreen(
                                                 "CURRENT" -> historySnapshot.current
                                                 "LOAD" -> historySnapshot.load
                                                 "SPEED" -> historySnapshot.speed
-                                                else -> emptyList()
+                                                // Any other supportsStats cell
+                                                // (POWER, GPS_SPEED, MOTOR_TEMP,
+                                                // ...) reads its extras buffer.
+                                                else -> historySnapshot.extras[metricKey].orEmpty()
                                             }
                                             if (buf.size < 2) return@cellRenderer placeholder
                                             val samples = buf.mapIndexed { idx, v ->
@@ -1850,7 +1892,13 @@ fun DashboardScreen(
                                             val value = com.eried.eucplanet.ui.settings.computeDashboardStatValue(
                                                 stat, samples, fallbackCurrent = buf.last()
                                             ) ?: return@cellRenderer placeholder
-                                            "%.1f".format(value)
+                                            // Same unit-correct formatting the
+                                            // standalone corner chip uses so a
+                                            // composite MAX/AVG cell reads right.
+                                            formatMetricStatValue(
+                                                metricKey, value, speedUnit, speedUnitLabel,
+                                                tempUnit, tempUnitLabel, distanceUnit
+                                            )
                                         }
                                     // A composite always occupies one standard slot
                                     // (61 dp), exactly like every other dashboard tile.
@@ -1995,7 +2043,10 @@ fun DashboardScreen(
                                         },
                                         value = centerOverride ?: displayValueFor(key),
                                         accent = spec?.accent?.let { MaterialTheme.appColors.remap(it) } ?: primary,
-                                        sparkData = emptyList(),
+                                        // Generic tiles now get a sparkline too, from
+                                        // the metric's extras buffer (empty until the
+                                        // first sample or for unsourced metrics).
+                                        sparkData = history.extras[key].orEmpty(),
                                         sparkStyle = spec?.sparkline ?: SparklineStyle.NONE,
                                         sparklineEnabled = sparklineEnabled,
                                         bipolarBaseline = spec?.bipolarBaseline ?: 0f,
