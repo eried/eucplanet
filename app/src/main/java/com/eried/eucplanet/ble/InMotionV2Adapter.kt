@@ -51,6 +51,14 @@ class InMotionV2Adapter @Inject constructor() : WheelAdapter {
      *  refresh on the stats cadence without spamming BLE traffic. */
     @Volatile private var v14PackPollIndex: Int = 0
 
+    /** Last controller and battery temps (C) from a P6 0x84 detailed frame,
+     *  injected into slots 1/2 of every (frequent) realtime frame and held
+     *  between the infrequent 0x84 updates. Motor comes live from the realtime
+     *  frame itself; lastP6MotorC is only a fallback when its byte reads odd. */
+    @Volatile private var lastP6MotorC: Float? = null
+    @Volatile private var lastP6ControllerC: Float? = null
+    @Volatile private var lastP6BatteryC: Float? = null
+
     /** V14 internal-bus addresses for the 4 BMS packs. The list of subdevices
      *  on the V14 bus also includes 0x21 (main MCU) and 0x23 (unknown), but
      *  only these four address the per-pack BMS smart cells. */
@@ -132,11 +140,14 @@ class InMotionV2Adapter @Inject constructor() : WheelAdapter {
 
     /** Stats-cadence poll. For V14 family, rotates through the 4 BMS pack
      *  cell-voltage queries (one per call), so the 128 cells refresh once
-     *  per ~18s at the default poll cadence. For P6 it's null — the realtime
-     *  0x87 stream already carries motor/MOS/driver-board temps, and P6 has
-     *  no per-pack BMS protocol path. */
+     *  per ~18s at the default poll cadence. For P6 it queries the 0x84
+     *  detailed-data frame - the ONLY place the motor temperature actually
+     *  arrives. The realtime 0x87 stream does not carry it (body[31]/[38]
+     *  there are constants), so without this poll the motor-temp pill stays
+     *  blank. The adapter caches the value from the response and injects it
+     *  into the realtime frames (see decode() sub 0x04 / sub 0x07). */
     override fun pollStats(): ByteArray? {
-        if (useP6Protocol) return null
+        if (useP6Protocol) return InMotionV2Commands.getP6Stats()
         val pack = V14_BMS_PACK_ADDRS[v14PackPollIndex and 0x03]
         v14PackPollIndex = (v14PackPollIndex + 1) and 0x03
         // `aa aa 16 [len=3] 02 [pack=0x24..27] 02 [xor]` — InMotion's per-pack
@@ -488,23 +499,45 @@ class InMotionV2Adapter @Inject constructor() : WheelAdapter {
                 com.eried.eucplanet.diagnostics.DiagnosticsLogger.note(
                     "P6 realtime len=${body.size} body=${body.joinToString(" ") { "%02x".format(it) }}"
                 )
-                val telem = InMotionV2Parser.parseP6Telemetry(body)
-                telem?.let { DecodeResult.Telemetry(it) } ?: DecodeResult.Unknown
+                val telem = InMotionV2Parser.parseP6Telemetry(body) ?: return DecodeResult.Unknown
+                // Motor temp now comes straight from realtime body[31]
+                // (parseP6Telemetry, slot 0), refreshed every frame. Keep it
+                // when present; only fall back to the cached 0x84 detailed-frame
+                // motor temp on a firmware where body[31] read implausible and
+                // parseP6Telemetry left slot 0 at 0.
+                // Live motor from this realtime frame (slot 0); controller and
+                // battery from the cached 0x84 detailed block (slots 1/2). Fall
+                // back to the cached 0x84 motor only if the realtime byte read
+                // as the 0 placeholder.
+                val realtimeMotor = telem.temperatures.firstOrNull() ?: 0f
+                val motor = if (realtimeMotor != 0f) realtimeMotor else (lastP6MotorC ?: 0f)
+                val controller = lastP6ControllerC ?: 0f
+                val battery = lastP6BatteryC ?: 0f
+                val merged = telem.copy(
+                    temperatures = listOf(motor, controller, battery),
+                    maxTemperature = maxOf(motor, controller, battery),
+                )
+                DecodeResult.Telemetry(merged)
             }
             0x04 -> {
-                // detailed-data: response to `02 21 04`. 86-byte body carries
-                // motor / MOS / driver-board temperatures. Skip the
-                // `02 84` routing pair so offset 0 lines up with the labelled
-                // capture's analysis.
+                // detailed-data: response to `02 21 04`. Its body carries the
+                // full temperature block (motor/controller/battery/...). Skip the
+                // `02 84` routing pair so offset 0 matches the block analysis.
                 if (data.size < 2) return DecodeResult.Unknown
                 val body = data.copyOfRange(2, data.size)
                 com.eried.eucplanet.diagnostics.DiagnosticsLogger.note(
                     "P6 detailed len=${body.size} body=${body.joinToString(" ") { "%02x".format(it) }}"
                 )
-                val temps = InMotionV2Parser.parseP6DetailedData(body)
-                temps?.let {
-                    DecodeResult.P6Temperatures(it.mosC, it.motorC, it.driverBoardC)
-                } ?: DecodeResult.Unknown
+                // Cache the detailed block's controller / battery (and motor as
+                // a fallback); they are injected into the frequent realtime
+                // frames (sub 0x07 above) rather than emitted here, so the two
+                // frames no longer clobber each other's temperature list.
+                InMotionV2Parser.parseP6DetailedData(body)?.let {
+                    it.motorC?.let { v -> lastP6MotorC = v }
+                    it.controllerC?.let { v -> lastP6ControllerC = v }
+                    it.batteryC?.let { v -> lastP6BatteryC = v }
+                }
+                DecodeResult.Unknown
             }
             0x06 -> {
                 // info bundle: skip `02 86 01 00`, then ASCII serial follows

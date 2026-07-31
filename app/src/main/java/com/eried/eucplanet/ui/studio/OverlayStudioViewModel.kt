@@ -158,10 +158,14 @@ class OverlayStudioViewModel @Inject constructor(
     // available. In replay the lat/lon come from the trip CSV instead.
     val wheelData: StateFlow<WheelData> = combine(
         wheelRepository.wheelData,
-        tripRepository.currentLocation
-    ) { data, loc ->
-        if (loc != null) data.copy(latitude = loc.latitude, longitude = loc.longitude)
-        else data
+        tripRepository.currentLocation,
+        externalGpsRepository.currentSample
+    ) { data, loc, ext ->
+        val extFresh = ext != null && System.currentTimeMillis() - ext.timestamp < 5_000L
+        val extBattery = if (extFresh) (ext!!.batteryPercent ?: -1) else -1
+        val extSpeed = if (extFresh) ext!!.speedKmh else -1f
+        val withGps = if (loc != null) data.copy(latitude = loc.latitude, longitude = loc.longitude) else data
+        withGps.copy(externalGpsBatteryPercent = extBattery, externalGpsSpeedKmh = extSpeed)
     }.stateIn(viewModelScope, SharingStarted.Eagerly, WheelData())
 
     // Live (un-throttled) lateral / forward G in g. The G-Force overlay's dot

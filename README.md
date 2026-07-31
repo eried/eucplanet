@@ -3,7 +3,7 @@
 [![Latest release](https://img.shields.io/github/v/release/eried/eucplanet)](https://github.com/eried/eucplanet/releases)
 [![License: MIT](https://img.shields.io/github/license/eried/eucplanet)](LICENSE)
 [![Google Play](https://img.shields.io/badge/Google_Play-EUC_Planet-3DDC84?logo=googleplay&logoColor=white)](https://play.google.com/store/apps/details?id=com.eried.eucplanet)
-[![Garmin Connect IQ](https://img.shields.io/badge/Connect_IQ-EUC_Planet-007CC3?logo=garmin&logoColor=white)](https://apps.garmin.com/apps/630e5d32-637d-4612-84e3-35e6d0bbee10)
+[![Garmin Connect IQ](https://img.shields.io/badge/Connect_IQ-EUC_Planet-007CC3?logo=garmin&logoColor=white)](https://apps.garmin.com/apps/14c2d086-fcb5-4042-bd5b-034519d18a71)
 [![Telegram](https://img.shields.io/badge/Telegram-EUCPlanetApp-26A5E4?logo=telegram&logoColor=white)](https://t.me/EUCPlanetApp)
 [![Leaderboard](https://img.shields.io/badge/Leaderboard-eucstats.ried.no-FF8F00)](https://eucstats.ried.no/)
 [![Trip Viewer](https://img.shields.io/badge/Trip_Viewer-eucviewer.ried.no-2b6fd6)](https://eucviewer.ried.no/)
@@ -131,7 +131,7 @@ arrow on top of a moving map (Garmin Edge style). See
 battery, PWM, current and motor temperature on your bar-mounted Edge or
 on your wrist. Supports Edge 530/540/830/840/1030/1040/1050 and most modern
 Garmin watches (135+ devices). Get it on the
-[Connect IQ Store](https://apps.garmin.com/apps/630e5d32-637d-4612-84e3-35e6d0bbee10),
+[Connect IQ Store](https://apps.garmin.com/apps/14c2d086-fcb5-4042-bd5b-034519d18a71),
 or build it yourself from [docs/GARMIN_SETUP.md](docs/GARMIN_SETUP.md).
 
 **Varia rear-view radar.** Pair a Garmin Varia RTL515 or RCT715 and see
@@ -161,6 +161,25 @@ anything.
 
 ---
 
+## Recent changes
+
+Latest work since **0.12.2** (unreleased, on the `next-version` branch, see the
+[full history](../../commits/next-version)):
+
+- **P6 power** now decodes: battery and motor power show on the dashboard instead
+  of reading 0 W. ([`de099cc`](https://github.com/eried/eucplanet/commit/de099cc9219a62409134078ee8ab306fa2598ba7))
+- **Odometer** history/detail now shows your distance unit (mi or km), matching the
+  dashboard tile. ([`744c322`](https://github.com/eried/eucplanet/commit/744c322dfe48178a4b7f18dd81abc72f7b19e28a))
+- **Navigator** keeps the full "Start navigation" label unless the layout is very
+  narrow. ([`2bd37eb`](https://github.com/eried/eucplanet/commit/2bd37eb96b80a78214162d51b169abe0245d1f92))
+- **Alarm beeps**: short tones under the audio buffer minimum now play, a 30 ms
+  duration floor, and the constant-tone dialog smooths the tone (max transition,
+  30 ms floor). ([`dfa91c4`](https://github.com/eried/eucplanet/commit/dfa91c4d54b091d043529dd0582a31a9c2b5239d), [`68d66ee`](https://github.com/eried/eucplanet/commit/68d66ee4dee5f1715e2d1d457054e0c4f1b9073e))
+- **Trip view** remembers the map style you picked for the current app session.
+  ([`2a06c67`](https://github.com/eried/eucplanet/commit/2a06c67ec7946b912feb2e3ea5123f07f6e3f8d1))
+
+---
+
 ## Where do I get it?
 
 [Google Play](https://play.google.com/store/apps/details?id=com.eried.eucplanet) has
@@ -169,7 +188,7 @@ get automatic updates. Or grab the latest APK from [releases](../../releases) fo
 free and sideload it. Same app either way.
 
 On a Garmin watch or Edge, install the EUC Planet data field straight from the
-[Connect IQ Store](https://apps.garmin.com/apps/630e5d32-637d-4612-84e3-35e6d0bbee10).
+[Connect IQ Store](https://apps.garmin.com/apps/14c2d086-fcb5-4042-bd5b-034519d18a71).
 
 Build from source:
 

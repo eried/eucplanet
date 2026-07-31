@@ -4,6 +4,30 @@
     <string name="notification_channel_name">Hjulforbindelse</string>
     <string name="notification_channel_description">Viser forbindelsesstatus og telemetri fra hjulet</string>
 
+    <!-- Notification quick actions -->
+    <string name="notif_actions_section">Tilpas</string>
+    <string name="notif_actions_enable">Vis notifikationshandlinger</string>
+    <string name="notif_actions_enable_desc">Tilføj hurtige handlingsknapper til den aktive notifikation.</string>
+    <string name="notif_actions_pick_desc">Vælg op til %1$d handlinger. Samme handling kan gentages.</string>
+    <string name="notif_action_slot">Handling %1$d</string>
+    <string name="notif_action_stop_all">Stop alt</string>
+    <string name="notif_action_lock">Lås / Lås op</string>
+    <string name="notif_action_light">Lys til / fra</string>
+    <string name="notif_action_record">Optag / Stop</string>
+    <string name="notif_action_horn">Horn</string>
+    <string name="notif_action_disconnect">Afbryd</string>
+    <string name="notif_action_stop_nav">Stop navigation</string>
+    <string name="notif_btn_stop_all">Stop alt</string>
+    <string name="notif_btn_lock">Lås</string>
+    <string name="notif_btn_unlock">Lås op</string>
+    <string name="notif_btn_light_on">Lys til</string>
+    <string name="notif_btn_light_off">Lys fra</string>
+    <string name="notif_btn_record">Optag</string>
+    <string name="notif_btn_stop_record">Stop</string>
+    <string name="notif_btn_horn">Horn</string>
+    <string name="notif_btn_disconnect">Afbryd</string>
+    <string name="notif_btn_stop_nav">Stop nav.</string>
+
     <!-- Common -->
     <string name="action_back">Tilbage</string>
     <string name="action_cancel">Annuller</string>
@@ -214,6 +238,10 @@
     <string name="metric_chip_motor_temp">Motortemperatur</string>
     <string name="metric_chip_controller_temp">Controllertemperatur</string>
     <string name="metric_chip_battery_temp">Batteritemperatur</string>
+    <string name="metric_chip_tire_pressure">Dæktryk</string>
+    <string name="metric_chip_tire_pressure_tile">Dæk</string>
+    <string name="metric_desc_tire_pressure">Dæktryk fra en tilknyttet TPMS-sensor (InMotion P6). Vises i psi eller bar.</string>
+    <string name="studio_metric_tire_pressure">Dæktryk</string>
     <string name="metric_chip_headroom">Margen</string>
     <string name="metric_chip_trip_time">Trip-tid</string>
     <string name="metric_chip_trip_max_speed">Trip-spids</string>
@@ -226,6 +254,7 @@
     <string name="metric_chip_gps_speed">GPS-fart</string>
     <string name="metric_chip_gps_heading">Retning</string>
     <string name="metric_chip_gps_accuracy">GPS-præcision</string>
+    <string name="metric_chip_external_gps_battery">Ekstern GPS-batteri</string>
     <string name="metric_chip_slope">Hældning</string>
     <string name="metric_chip_ascent">Stigning</string>
     <string name="metric_chip_descent">Fald</string>
@@ -253,6 +282,7 @@
     <string name="metric_chip_dyn_current_limit_tile">A limit</string>
     <string name="metric_chip_phone_battery_tile">Tel</string>
     <string name="metric_chip_gps_accuracy_tile">GPS ±</string>
+    <string name="metric_chip_external_gps_battery_tile">GPS-bat</string>
     <string name="metric_chip_odometer_tile">Odo</string>
     <string name="metric_chip_trip_max_speed_tile">Max sp</string>
     <string name="metric_chip_avg_trip_speed_tile">Avg sp</string>
@@ -282,6 +312,7 @@
     <string name="metric_desc_regen_wh">Samlede watt-timer ført tilbage til batteriet ved bremsning på denne tur.</string>
     <string name="metric_desc_bt_rssi">Bluetooth-signalstyrke til hjulet, tættere på 0 dBm er stærkere.</string>
     <string name="metric_desc_gps_accuracy">GPS-positionsfejlradius, lavere er mere præcist.</string>
+    <string name="metric_desc_external_gps_battery">Batteri i den parrede eksterne GPS (RaceBox, Dragy), så du ser det falde, før det dør midt i turen.</string>
 
     <!-- Action labels for the dashboard layout chips -->
     <string name="action_chip_horn">Horn</string>
@@ -539,8 +570,8 @@
     <!-- Settings: Voice -->
     <string name="section_announcements">Annonceringer</string>
     <string name="section_speech">Tale</string>
-    <string name="section_report_status">Statusrapport</string>
-    <string name="voice_enabled">Rapportér status løbende</string>
+    <string name="section_report_status">Løbende og udløst tale</string>
+    <string name="voice_enabled">Aktivér løbende rapporter</string>
     <string name="voice_announce_when_label">Annoncér</string>
     <string name="voice_announce_always">Altid</string>
     <string name="voice_announce_connected">Forbundet</string>
@@ -686,6 +717,15 @@
     <string name="flic_double_click">Dobbeltklik</string>
     <string name="flic_hold">Hold</string>
     <string name="section_external_gps">GPS og sensorer</string>
+    <!-- TPMS sensors -->
+    <string name="section_tpms">TPMS-sensorer</string>
+    <string name="tpms_caption">Dæktryk fra en sensor på hjulet, som InMotion P6.</string>
+    <string name="tpms_wheel_sensor">Hjulets dæktryk</string>
+    <string name="tpms_wheel_sensor_desc">Videresendt fra en tilknyttet sensor</string>
+    <string name="tpms_idle">Ingen sensor rapporterer endnu</string>
+    <string name="tpms_pair_title">Tilføj en anden sensor</string>
+    <string name="tpms_pair_replaces">En ekstra sensor erstatter hjulets indbyggede, hvis der er en.</string>
+    <string name="tpms_scan">Søg efter sensorer</string>
     <string name="external_gps_device_title">Ekstern GPS</string>
     <string name="external_gps_pair_button">Start scanning</string>
     <string name="external_gps_pair_action">Par</string>
@@ -776,6 +816,11 @@
     <string name="alarm_metric_pwm_voice" translatable="false">PWM</string>
     <string name="alarm_metric_voltage">Spænding</string>
     <string name="alarm_metric_current">Strøm</string>
+    <string name="alarm_metric_gps_speed">GPS-hastighed</string>
+    <string name="alarm_metric_external_gps_speed">Ekstern GPS-hastighed</string>
+    <string name="alarm_metric_external_gps_battery">Ekstern GPS-batteri</string>
+    <string name="alarm_metric_external_gps_speed_short">Ext GPS-hast.</string>
+    <string name="alarm_metric_external_gps_battery_short">Ext GPS-bat.</string>
     <string name="alarm_metric_radar_distance">Bilafstand</string>
     <string name="alarm_metric_radar_approach">Bil nærmer sig</string>
 
@@ -1332,6 +1377,9 @@
     <string name="studio_metric_pitch">Hældning</string>
     <string name="studio_metric_roll">Krængning</string>
     <string name="studio_metric_g_force">G-Force</string>
+    <string name="studio_metric_external_gps_battery">Ekst. GPS-batteri</string>
+    <string name="studio_metric_external_gps_speed">Ext. GPS-fart</string>
+    <string name="studio_metric_gps">GPS-koordinater</string>
 
     <!-- Navigator -->
     <string name="nav_open">Åbn Navigator</string>
@@ -1385,6 +1433,7 @@
     </string-array>
     <string name="nav_my_location">Min position</string>
     <string name="nav_no_location">Venter på GPS-fix…</string>
+    <string name="nav_too_far_to_start">Første stop er for langt væk. Hold Start nede for at navigere alligevel.</string>
     <string name="nav_empty_hint">Tryk på kortet, søg, eller indlæs en GPX-fil</string>
     <string name="nav_route_failed">Rutetjeneste utilgængelig, bruger lige linjer</string>
     <string name="nav_cant_add_while_running">Kan ikke tilføje et stop, mens navigation kører</string>
@@ -1759,6 +1808,8 @@
     <string name="adv_nav_inter_stop_desc">Påvirker hvor langt du skal bevæge dig forbi ét stop, før det næste kan tælle som ankommet. Fare: for lavt kan springe et stop over.</string>
     <string name="adv_nav_intermediate_flash">Blinktid for rutepunkt</string>
     <string name="adv_nav_intermediate_flash_desc">Påvirker hvor længe blinket for nået rutepunkt vises.</string>
+    <string name="adv_nav_max_start">Maks. startafstand</string>
+    <string name="adv_nav_max_start_desc">Hvor langt væk det første stop højst må være for at starte navigationen. Ud over dette skjules linjen fra din position, og start blokeres. Planlægning virker stadig.</string>
     <string name="adv_nav_moving">Bevægelsesfart</string>
     <string name="adv_nav_moving_desc">Påvirker den fart, over hvilken du tæller som i bevægelse til kurs og vejledning. Fare: for højt ignorerer langsom kørsel.</string>
     <string name="adv_nav_offroute_grace">Frist uden for rute</string>
@@ -1778,6 +1829,8 @@
     <string name="adv_nav_warning">Disse ændrer, hvornår navigationen reagerer. Forkerte værdier kan få stemmesignaler eller omdirigering til at udløses for tidligt eller for sent.</string>
     <string name="adv_phone_gps_interval">Opdateringsinterval for telefonens GPS</string>
     <string name="adv_phone_gps_interval_desc">Påvirker hvor jævnt GPS-sporet er, og hvor hurtigt navigationen reagerer. Lavere opdaterer oftere. Fare: lave værdier dræner batteriet hurtigere.</string>
+    <string name="adv_phone_gps_idle_interval">GPS-interval i tomgang</string>
+    <string name="adv_phone_gps_idle_interval_desc">GPS-hastighed i tomgang, når der ikke optages eller navigeres, så Navigatoren og en ny hjulforbindelse er klar. Højere sparer batteri.</string>
     <string name="adv_pushonly_note">Nogle enheder streamer med deres egen faste hastighed og ignorerer disse indstillinger: push-only-hjul (Begode, Gotway, Veteran, KingSong), ekstern GPS (RaceBox), radar og Flic-knapper.</string>
     <string name="adv_radar_clear_decay">Henfald for radarbane</string>
     <string name="adv_radar_clear_decay_desc">Påvirker hvor længe banebjælken bliver, efter vejen er fri. Fare: for lavt får den til at blinke, når biler kommer og går.</string>
@@ -1914,4 +1967,34 @@
     <string name="alarm_constant_title">Konstant tone?</string>
     <string name="alarm_constant_body">En pause på 0 ms giver én ubrudt tone. For at den lyder uafbrudt, sæt også:</string>
     <string name="alarm_constant_never">Spørg ikke igen</string>
+    <string name="nav_start_btn">Start</string>
+    <string name="alarm_beep_wave_label">Bølge</string>
+    <string name="alarm_beep_effect_label">Effekt</string>
+    <string name="alarm_wave_sine">Sinus</string>
+    <string name="alarm_wave_triangle">Trekant</string>
+    <string name="alarm_wave_square">Firkant</string>
+    <string name="alarm_wave_saw">Savtand</string>
+    <string name="alarm_wave_fm">FM</string>
+    <string name="alarm_fx_none">Ren</string>
+    <string name="alarm_fx_drive">Overdrive</string>
+    <string name="alarm_fx_sweep">Filter</string>
+    <string name="alarm_fx_crush">Bitcrush</string>
+    <string name="section_accel_splits">Hastigheds-splits</string>
+    <string name="accel_splits_enabled">Annoncér tider</string>
+    <string name="accel_splits_desc">Siger tiden for at krydse hvert hastighedstrin, ved acceleration eller opbremsning. Starter fra hastigheden nedenfor, i de trin du angiver.</string>
+    <string name="accel_split_decel_prefix">bremsning, </string>
+    <string name="accel_splits_from">Fra</string>
+    <string name="accel_splits_step">Trin</string>
+    <string name="accel_splits_dir_accel">Accel.</string>
+    <string name="accel_splits_dir_brake">Bremse</string>
+    <string name="accel_splits_dir_both">Begge</string>
+    <string name="accel_splits_compare_previous">Sammenlign med forrige forsøg</string>
+    <string name="accel_splits_compare_best">Sammenlign med sessionens bedste</string>
+    <string name="accel_split_time_fmt">fra %1$d til %2$d, %3$s sekunder</string>
+    <string name="accel_split_faster_prev">, %1$s sekunder hurtigere end forrige</string>
+    <string name="accel_split_slower_prev">, %1$s sekunder langsommere end forrige</string>
+    <string name="accel_split_faster_best">, %1$s hurtigere end bedste</string>
+    <string name="accel_split_slower_best">, %1$s langsommere end bedste</string>
+    <string name="accel_split_best_yet">, ny rekord</string>
+    <string name="report_contents">Tilpas talerapport</string>
 </resources>

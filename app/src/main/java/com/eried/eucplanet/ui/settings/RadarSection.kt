@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -150,7 +149,7 @@ private fun RadarOverlaySettings(viewModel: RadarViewModel) {
         SingleChoiceSegmentedButtonRow(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(IntrinsicSize.Max)
+                .height(56.dp)
         ) {
             sideOptions.forEachIndexed { i, (key, label) ->
                 SegmentedButton(

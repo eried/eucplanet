@@ -19,6 +19,15 @@ data class WheelData(
     val latitude: Double = 0.0,
     /** Rider GPS longitude in degrees. 0 when there is no fix / not recorded. */
     val longitude: Double = 0.0,
+    /** Battery percent of the paired external GPS box (RaceBox / Dragy), or -1
+     *  when none is paired / it doesn't report it. Merged in by the Overlay
+     *  Studio (like latitude/longitude) so an overlay number can show it; not
+     *  wheel telemetry, so it stays -1 on the plain wheel stream. */
+    val externalGpsBatteryPercent: Int = -1,
+    /** Ground speed in km/h from the paired external GPS box (RaceBox / Dragy),
+     *  or -1 when none is paired / no fresh sample. Merged in like the battery /
+     *  lat / long above so an overlay or HUD element can show it. */
+    val externalGpsSpeedKmh: Float = -1f,
     /** Phone IMU acceleration magnitude in g, 0 for trips recorded before this. */
     val gForce: Float = 0f,
     /** Phone IMU lateral acceleration in g (+right). 0 for trips recorded before this. */
@@ -38,6 +47,10 @@ data class WheelData(
      *  families (Begode/Veteran/Ninebot/InMotion V1) leave this false; charging
      *  for them is derived from sustained negative current in WheelRepository. */
     val charging: Boolean = false,
+    /** Tire pressure in kPa from a bound TPMS sensor the wheel relays (InMotion
+     *  P6: realtime 0x87 frame, u16le at body[78]). 0 = no sensor / not reported.
+     *  Display converts: psi = kPa x 0.145038, bar = kPa / 100. */
+    val tirePressureKpa: Float = 0f,
     val pcMode: Int = -1,  // 0=lock, 1=drive, 2=shutdown, 3=idle (-1=unknown/no telemetry yet)
     /** Tiltback / max-speed threshold the wheel firmware reports in its telemetry,
      *  in km/h. -1 = the active adapter doesn't surface this. Used so the

@@ -18,6 +18,7 @@ import com.eried.eucplanet.MainActivity
 import com.eried.eucplanet.R
 import com.eried.eucplanet.audio.EngineSoundEngine
 import com.eried.eucplanet.ble.ConnectionState
+import com.eried.eucplanet.data.model.AppSettings
 import com.eried.eucplanet.data.model.WheelData
 import com.eried.eucplanet.data.repository.SettingsRepository
 import com.eried.eucplanet.data.repository.TripRepository
@@ -33,6 +34,14 @@ class WheelService : LifecycleService() {
 
     companion object {
         private const val TAG = "WheelService"
+        /** True while the service is alive - i.e. the rider is actively using
+         *  the app (a ride, or a background feature that needs the service).
+         *  External-GPS auto-connect reads this (together with AppForeground) so
+         *  a background worker wake that re-creates the process never connects
+         *  the box. */
+        @Volatile
+        var isRunning: Boolean = false
+            private set
         // Minimum |speed| (km/h) that counts as "in motion" — shared by the
         // auto-record start/stop loop and the "When riding" announcement gate
         // so the two never drift. Small enough to catch a real roll, large
@@ -57,6 +66,10 @@ class WheelService : LifecycleService() {
          *  the service's onDestroy so cleanup completes first, on its own
          *  schedule -- no arbitrary delay timer needed. */
         const val ACTION_STOP_ALL_AND_KILL = "com.eried.eucplanet.STOP_ALL_AND_KILL"
+        // Wheel controls fired from notification action buttons.
+        const val ACTION_TOGGLE_LIGHT = "com.eried.eucplanet.TOGGLE_LIGHT"
+        const val ACTION_TOGGLE_LOCK = "com.eried.eucplanet.TOGGLE_LOCK"
+        const val ACTION_HORN = "com.eried.eucplanet.HORN"
         const val EXTRA_ADDRESS = "device_address"
         const val EXTRA_NAME = "device_name"
         /** Marks an ACTION_CONNECT as auto-initiated (app-start / reconnect)
@@ -75,17 +88,30 @@ class WheelService : LifecycleService() {
     // connected (e.g. while "Connecting" or after a drop).
     @Volatile
     private var lastDeviceNameCached: String? = null
+    // Notification quick-action config, mirrored from settings so the
+    // notification builder can read it without suspending.
+    @Volatile
+    private var notifActionsEnabledCached: Boolean = true
+    @Volatile
+    private var notifActionsCsvCached: String =
+        com.eried.eucplanet.data.model.NotificationActionType.DEFAULT_KEYS
     @Inject lateinit var voiceService: VoiceService
     @Inject lateinit var tripRepository: TripRepository
     @Inject lateinit var automationManager: AutomationManager
     @Inject lateinit var engineSoundEngine: EngineSoundEngine
     @Inject lateinit var wearBridge: com.eried.eucplanet.wear.WearBridge
     @Inject lateinit var garminBridge: com.eried.eucplanet.garmin.GarminBridge
+    @Inject lateinit var externalGpsRepository:
+        com.eried.eucplanet.data.repository.ExternalGpsRepository
     @Inject lateinit var navigationEngine: com.eried.eucplanet.nav.NavigationEngine
     @Inject lateinit var hudServer: com.eried.eucplanet.service.hud.HudServer
 
     // Voice announcement
     private var voiceJob: Job? = null
+    // RaceBox-style acceleration splits. Pure tracker fed the telemetry stream in
+    // the rider's display speed unit; config re-read each sample so a settings
+    // change takes effect without a reconnect. Reset on disconnect.
+    private val accelSplitTracker = AccelSplitTracker(increment = 10, minSpeed = 20)
     private var lastConnectionState: ConnectionState? = null
     private var hadGpsFix = false
     private var lastLightOn: Boolean? = null
@@ -108,6 +134,7 @@ class WheelService : LifecycleService() {
 
     override fun onCreate() {
         super.onCreate()
+        isRunning = true
         createNotificationChannel()
 
         val canUseLocation = hasPermission(Manifest.permission.ACCESS_FINE_LOCATION) ||
@@ -146,6 +173,7 @@ class WheelService : LifecycleService() {
                 if (settings.engineSoundEnabled) {
                     engineSoundEngine.pushTelemetry(data.speed, data.pwm)
                 }
+                handleAccelSplits(data, settings)
             }
         }
 
@@ -157,6 +185,8 @@ class WheelService : LifecycleService() {
                 // mirror the latest value here every settings update.
                 speedUnitCached = com.eried.eucplanet.util.Units.effectiveSpeedUnit(s)
                 lastDeviceNameCached = s.lastDeviceName
+                notifActionsEnabledCached = s.notificationActionsEnabled
+                notifActionsCsvCached = s.notificationActions
                 engineSoundEngine.applySettings(s)
                 engineSoundEngine.setConnected(
                     wheelRepository.connectionState.value == ConnectionState.CONNECTED,
@@ -237,6 +267,14 @@ class WheelService : LifecycleService() {
                             }
                             lastLightOn = null
                             engineSoundEngine.setConnected(false, settings)
+                            // Speed-based auto-volume drives STREAM_MUSIC down at
+                            // standstill; put the rider's baseline back on
+                            // disconnect so it isn't left turned down.
+                            automationManager.restoreBaselineVolume()
+                            // Drop any in-flight run + session history so a fresh
+                            // ride starts clean and a stale timestamp gap can't
+                            // fabricate a summary on reconnect.
+                            accelSplitTracker.hardReset()
                         }
                         else -> {}
                     }
@@ -319,6 +357,9 @@ class WheelService : LifecycleService() {
             ACTION_DISCONNECT -> {
                 wheelRepository.disconnect()
             }
+            ACTION_TOGGLE_LIGHT -> wheelRepository.toggleLight()
+            ACTION_TOGGLE_LOCK -> wheelRepository.toggleLock()
+            ACTION_HORN -> wheelRepository.sendHorn()
             ACTION_START_RECORDING -> {
                 lifecycleScope.launch { tripRepository.startRecording() }
             }
@@ -367,6 +408,7 @@ class WheelService : LifecycleService() {
     }
 
     override fun onDestroy() {
+        isRunning = false
         // Any destroy path (not just Stop All) tears the notification down and
         // stops further re-posts, so an ordinary stopSelf() can't leave it behind
         // either.
@@ -383,10 +425,25 @@ class WheelService : LifecycleService() {
         try { hudServer.stop() } catch (_: Exception) {}
         voiceJob?.cancel()
         engineSoundEngine.stop()
+        // Restore the rider's media volume if speed-based auto-volume scaled it
+        // down. onDestroy cancels the connection-state collector above, so the
+        // disconnect restore may not run on Stop All - do it explicitly here.
+        automationManager.restoreBaselineVolume()
         voiceService.shutdown()
         tripRepository.stopLocationUpdates()
         lifecycleScope.launch { tripRepository.stopRecording() }
         wheelRepository.disconnect()
+        // On a Stop All (process kill), also close the external GPS (Dragy)
+        // GATT first. Without this the Bluetooth stack keeps the connection
+        // open for our killed process: the box never powers down (LED stays on,
+        // battery drains), the vendor app can't connect, and it looks like EUC
+        // Planet "reconnects" because the link was never actually dropped.
+        // disconnect() cancels the auto-reconnect loop too, so it stays down.
+        // Gated on the kill path so an ordinary teardown (process surviving)
+        // leaves the app-scoped GPS connection with the repository that owns it.
+        if (killProcessOnDestroy) {
+            try { externalGpsRepository.disconnect() } catch (_: Exception) {}
+        }
         super.onDestroy()
         // Last thing: if this destroy was driven by Stop All, SIGKILL
         // our own process. Doing it here (instead of from the activity
@@ -493,6 +550,37 @@ class WheelService : LifecycleService() {
         }
     }
 
+    // --- Acceleration splits (RaceBox-style) ---
+
+    private fun handleAccelSplits(data: WheelData, settings: AppSettings) {
+        val cfg = settings.accelSplit
+        // Fire on the feature's own toggle only, like the other event
+        // announcements (connection, GPS, lights). Do NOT also gate on
+        // settings.voiceEnabled: that field is the "Report status periodically"
+        // switch, so gating here silenced split announcements for any rider who
+        // turned periodic reports off while wanting acceleration splits on.
+        if (!cfg.enabled) {
+            accelSplitTracker.hardReset()
+            return
+        }
+        val unit = com.eried.eucplanet.util.Units.effectiveSpeedUnit(settings)
+        val speed = com.eried.eucplanet.util.Units.speed(data.speed, unit).toDouble()
+        accelSplitTracker.configure(
+            cfg.increment,
+            cfg.minSpeed,
+            trackAccel = cfg.direction != "BRAKE",
+            trackDecel = cfg.direction != "ACCEL",
+        )
+        // announceEvent queues (QUEUE_ADD) and never drops, so a step crossed
+        // while the previous line is still speaking is voiced right after.
+        for (s in accelSplitTracker.onSample(data.timestamp, speed)) {
+            val text = AccelSplitVoice.splitText(this, s, cfg)
+            Log.i(TAG, "accel split: $text")
+            com.eried.eucplanet.diagnostics.DiagnosticsLogger.note("accel_split: $text")
+            voiceService.announceEvent(text)
+        }
+    }
+
     // --- Notification ---
 
     private fun createNotificationChannel() {
@@ -547,7 +635,7 @@ class WheelService : LifecycleService() {
             ?: lastDeviceNameCached
             ?: getString(R.string.app_name)
 
-        return NotificationCompat.Builder(this, CHANNEL_ID)
+        val builder = NotificationCompat.Builder(this, CHANNEL_ID)
             .setContentTitle(wheelName)
             .setContentText(text)
             .setSmallIcon(android.R.drawable.stat_sys_data_bluetooth)
@@ -556,10 +644,69 @@ class WheelService : LifecycleService() {
             // Full content on a secure lock screen (pairs with the channel's
             // PUBLIC lockscreenVisibility above).
             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
-            // No setSilent(true): IMPORTANCE_LOW already means no sound/peek, and
-            // tagging it silent made lock screens set to "hide silent
-            // notifications" suppress it entirely.
-            .build()
+        // No setSilent(true): IMPORTANCE_LOW already means no sound/peek, and
+        // tagging it silent made lock screens set to "hide silent
+        // notifications" suppress it entirely.
+        buildNotificationActions(nav.active, data).forEach { builder.addAction(it) }
+        return builder.build()
+    }
+
+    /**
+     * The rider's chosen quick-action buttons (up to 3). Labels are context
+     * aware - Lock/Unlock, Light on/off, Record/Stop - and STOP_NAV is only
+     * shown while navigating (Android can't grey out a notification action).
+     */
+    private fun buildNotificationActions(
+        navActive: Boolean,
+        data: WheelData?
+    ): List<NotificationCompat.Action> {
+        if (!notifActionsEnabledCached) return emptyList()
+        val locked = wheelRepository.locked.value
+        val lightOn = data?.lightOn ?: false
+        val recording = tripRepository.recording.value
+        return com.eried.eucplanet.data.model.NotificationActionType
+            .parse(notifActionsCsvCached).mapNotNull { type ->
+                when (type) {
+                    com.eried.eucplanet.data.model.NotificationActionType.STOP_ALL ->
+                        notifAction(type, android.R.drawable.ic_menu_close_clear_cancel,
+                            getString(R.string.notif_btn_stop_all), ACTION_STOP_ALL_AND_KILL)
+                    com.eried.eucplanet.data.model.NotificationActionType.LOCK ->
+                        notifAction(type, android.R.drawable.ic_lock_lock,
+                            getString(if (locked) R.string.notif_btn_unlock else R.string.notif_btn_lock),
+                            ACTION_TOGGLE_LOCK)
+                    com.eried.eucplanet.data.model.NotificationActionType.LIGHT ->
+                        notifAction(type, android.R.drawable.ic_menu_view,
+                            getString(if (lightOn) R.string.notif_btn_light_off else R.string.notif_btn_light_on),
+                            ACTION_TOGGLE_LIGHT)
+                    com.eried.eucplanet.data.model.NotificationActionType.RECORD ->
+                        notifAction(type, android.R.drawable.ic_menu_save,
+                            getString(if (recording) R.string.notif_btn_stop_record else R.string.notif_btn_record),
+                            if (recording) ACTION_STOP_RECORDING else ACTION_START_RECORDING)
+                    com.eried.eucplanet.data.model.NotificationActionType.HORN ->
+                        notifAction(type, android.R.drawable.ic_lock_silent_mode_off,
+                            getString(R.string.notif_btn_horn), ACTION_HORN)
+                    com.eried.eucplanet.data.model.NotificationActionType.DISCONNECT ->
+                        notifAction(type, android.R.drawable.ic_menu_close_clear_cancel,
+                            getString(R.string.notif_btn_disconnect), ACTION_DISCONNECT)
+                    com.eried.eucplanet.data.model.NotificationActionType.STOP_NAV ->
+                        if (navActive) notifAction(type, android.R.drawable.ic_menu_directions,
+                            getString(R.string.notif_btn_stop_nav), ACTION_STOP_NAVIGATION) else null
+                }
+            }
+    }
+
+    private fun notifAction(
+        type: com.eried.eucplanet.data.model.NotificationActionType,
+        icon: Int,
+        label: String,
+        action: String
+    ): NotificationCompat.Action {
+        val pi = PendingIntent.getService(
+            this, 200 + type.ordinal,
+            Intent(this, WheelService::class.java).setAction(action),
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+        return NotificationCompat.Action.Builder(icon, label, pi).build()
     }
 
     private var lastNotificationUpdate = 0L

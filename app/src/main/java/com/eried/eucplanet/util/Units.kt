@@ -98,6 +98,28 @@ object Units {
         else -> "°C"
     }
 
+    /** Converts a stored kPa tire-pressure value to the chosen unit ("psi" or "bar"). */
+    fun pressure(kpa: Float, unit: String): Float = when (unit) {
+        "psi" -> kpa * 0.145038f
+        "bar" -> kpa / 100f
+        else -> kpa
+    }
+
+    /** Tire-pressure unit symbol for "psi" or "bar" (kPa otherwise). */
+    fun pressureUnit(unit: String): String = when (unit) {
+        "psi" -> "psi"
+        "bar" -> "bar"
+        else -> "kPa"
+    }
+
+    /**
+     * Effective tire-pressure unit. No dedicated per-metric setting yet, so it
+     * follows the rider's distance unit: imperial (mi) -> psi, everything else
+     * -> bar. A standalone pressure-unit picker can be added later.
+     */
+    fun effectivePressureUnit(s: AppSettings): String =
+        if (effectiveDistanceUnit(s) == "mi") "psi" else "bar"
+
     /** The three top-level measurement-unit modes. CUSTOM is a derived label. */
     enum class UnitSystem { METRIC, IMPERIAL, CUSTOM }
 

@@ -4,6 +4,30 @@
     <string name="notification_channel_name">Wheel Connection</string>
     <string name="notification_channel_description">Shows wheel connection status and telemetry</string>
 
+    <!-- Notification quick actions -->
+    <string name="notif_actions_section">Customize</string>
+    <string name="notif_actions_enable">Show notification actions</string>
+    <string name="notif_actions_enable_desc">Add quick action buttons to the ongoing notification.</string>
+    <string name="notif_actions_pick_desc">Pick up to %1$d actions. The same action can repeat.</string>
+    <string name="notif_action_slot">Action %1$d</string>
+    <string name="notif_action_stop_all">Stop all</string>
+    <string name="notif_action_lock">Lock / Unlock</string>
+    <string name="notif_action_light">Light on / off</string>
+    <string name="notif_action_record">Record / Stop</string>
+    <string name="notif_action_horn">Horn</string>
+    <string name="notif_action_disconnect">Disconnect</string>
+    <string name="notif_action_stop_nav">Stop navigation</string>
+    <string name="notif_btn_stop_all">Stop all</string>
+    <string name="notif_btn_lock">Lock</string>
+    <string name="notif_btn_unlock">Unlock</string>
+    <string name="notif_btn_light_on">Light on</string>
+    <string name="notif_btn_light_off">Light off</string>
+    <string name="notif_btn_record">Record</string>
+    <string name="notif_btn_stop_record">Stop</string>
+    <string name="notif_btn_horn">Horn</string>
+    <string name="notif_btn_disconnect">Disconnect</string>
+    <string name="notif_btn_stop_nav">Stop nav</string>
+
     <!-- Common -->
     <string name="action_back">Back</string>
     <string name="action_cancel">Cancel</string>
@@ -216,6 +240,9 @@
     <string name="metric_chip_motor_temp">Motor temperature</string>
     <string name="metric_chip_controller_temp">Controller temperature</string>
     <string name="metric_chip_battery_temp">Battery temperature</string>
+    <string name="metric_chip_tire_pressure">Tire pressure</string>
+    <string name="metric_chip_tire_pressure_tile">Tire</string>
+    <string name="metric_desc_tire_pressure">Tire pressure from a bound TPMS sensor (InMotion P6). Shown in psi or bar.</string>
     <string name="metric_chip_headroom">Headroom</string>
     <string name="metric_chip_trip_time">Trip time</string>
     <string name="metric_chip_trip_max_speed">Trip max</string>
@@ -228,6 +255,7 @@
     <string name="metric_chip_gps_speed">GPS speed</string>
     <string name="metric_chip_gps_heading">Heading</string>
     <string name="metric_chip_gps_accuracy">GPS accuracy</string>
+    <string name="metric_chip_external_gps_battery">External GPS battery</string>
     <string name="metric_chip_slope">Slope</string>
     <string name="metric_chip_ascent">Ascent</string>
     <string name="metric_chip_descent">Descent</string>
@@ -255,6 +283,7 @@
     <string name="metric_chip_dyn_current_limit_tile">A limit</string>
     <string name="metric_chip_phone_battery_tile">Phone</string>
     <string name="metric_chip_gps_accuracy_tile">GPS ±</string>
+    <string name="metric_chip_external_gps_battery_tile">GPS bat</string>
     <string name="metric_chip_odometer_tile">Odo</string>
     <string name="metric_chip_trip_max_speed_tile">Max sp</string>
     <string name="metric_chip_avg_trip_speed_tile">Avg sp</string>
@@ -284,6 +313,7 @@
     <string name="metric_desc_regen_wh">Total watt-hours fed back to the battery while braking this trip.</string>
     <string name="metric_desc_bt_rssi">Bluetooth signal strength to the wheel, closer to 0 dBm is stronger.</string>
     <string name="metric_desc_gps_accuracy">GPS positioning error radius, lower is more accurate.</string>
+    <string name="metric_desc_external_gps_battery">Battery of the paired external GPS box (RaceBox, Dragy), so you see it draining before it dies mid ride.</string>
 
     <!-- Action labels for the dashboard layout chips -->
     <string name="action_chip_horn">Horn</string>
@@ -399,7 +429,7 @@
     <string name="reorg_hint">Reorganize the settings screen and hide sections you rarely use. Hidden sections move to More.</string>
     <string name="reorg_drag_cd">Drag to reorder</string>
     <string name="adv_rates_warning">These controls change timing across the app. Lower values give fresher data and faster reactions but use more battery, CPU or data. The defaults suit most riders. Change them only if you understand the effect.</string>
-    <string name="adv_pushonly_note">Some devices stream at their own fixed rate and ignore these settings: push-only wheels (Begode, Gotway, Veteran, KingSong), external GPS (RaceBox), radar and Flic buttons.</string>
+    <string name="adv_pushonly_note">Some devices stream at their own fixed rate and ignore these settings: push-only wheels (Begode, Gotway, Veteran, KingSong), external GPS (RaceBox, Dragy), radar and Flic buttons.</string>
     <string name="adv_group_rates">Data and reporting rates</string>
     <string name="adv_wheel_poll_rate">Wheel poll rate</string>
     <string name="adv_wheel_poll_rate_desc">Affects how fresh the live data is and how fast alarms react. Lower asks the wheel for data more often. Danger: very low values can flood the Bluetooth link and stall data on some wheels.</string>
@@ -413,6 +443,8 @@
     <string name="adv_trip_finalize_grace_desc">Affects how long after you stop before a trip is finalized and synced. Danger: too low may cut a trip that only briefly paused.</string>
     <string name="adv_phone_gps_interval">Phone GPS update interval</string>
     <string name="adv_phone_gps_interval_desc">Affects how smooth the GPS track is and how fast navigation reacts. Lower updates more often. Danger: low values drain the battery faster.</string>
+    <string name="adv_phone_gps_idle_interval">Phone GPS idle interval</string>
+    <string name="adv_phone_gps_idle_interval_desc">Keep-warm GPS rate when not recording or navigating, so the Navigator and a fresh wheel connect stay ready. Higher saves battery.</string>
     <string name="adv_hud_report_interval">HUD report rate</string>
     <string name="adv_hud_report_interval_desc">Affects how often a connected HUD screen updates. Danger: very low values send more data over the link.</string>
     <string name="adv_garmin_report_interval">Garmin report rate</string>
@@ -493,6 +525,8 @@
     <string name="adv_nav_prox_band_desc">Affects the distance change needed before warmer or colder is announced in hunt mode.</string>
     <string name="adv_nav_inter_stop">Multi-stop move gate</string>
     <string name="adv_nav_inter_stop_desc">Affects how far you must move past one stop before the next can count as arrived. Danger: too low may skip a stop.</string>
+    <string name="adv_nav_max_start">Max start distance</string>
+    <string name="adv_nav_max_start_desc">Farthest a first stop can be to start navigating. Past this, the line from your position is hidden and start is blocked. Planning still works.</string>
     <string name="adv_group_radar_class">Radar classification</string>
     <string name="adv_radar_warning">These change how the radar labels threats. Wrong values can hide a real car or flag a harmless one.</string>
     <string name="adv_radar_fast_dist">Fast-approach distance</string>
@@ -744,13 +778,34 @@
     <!-- Settings: Voice -->
     <string name="section_announcements">Announcements</string>
     <string name="section_speech">Speech</string>
-    <string name="section_report_status">Report status</string>
-    <string name="voice_enabled">Report status periodically</string>
+    <string name="section_report_status">Periodic and triggered voice</string>
+    <string name="report_contents">Customize voice report</string>
+    <string name="voice_enabled">Enable periodic reports</string>
     <string name="voice_announce_when_label">Announce</string>
     <string name="voice_announce_always">Always</string>
     <string name="voice_announce_connected">Connected</string>
     <string name="voice_announce_riding">When riding</string>
     <string name="voice_interval">Interval</string>
+    <!-- Acceleration splits (RaceBox-style). %1$d / %2$d are the speed band edges,
+         %3$s is the elapsed seconds (e.g. "1.21"); the word "seconds" stays inside
+         the string so it localizes. Keep the spoken phrasing natural for TTS. -->
+    <string name="section_accel_splits">Speed splits</string>
+    <string name="accel_splits_enabled">Announce times</string>
+    <string name="accel_splits_desc">Speak the time to cross each speed step, speeding up or slowing down. Starts from the speed below, in steps you set.</string>
+    <string name="accel_split_decel_prefix">braking, </string>
+    <string name="accel_splits_from">From</string>
+    <string name="accel_splits_step">Step</string>
+    <string name="accel_splits_dir_accel">Accel</string>
+    <string name="accel_splits_dir_brake">Brake</string>
+    <string name="accel_splits_dir_both">Both</string>
+    <string name="accel_splits_compare_previous">Compare to previous run</string>
+    <string name="accel_splits_compare_best">Compare to session best</string>
+    <string name="accel_split_time_fmt">%1$d to %2$d, %3$s seconds</string>
+    <string name="accel_split_faster_prev">, %1$s seconds faster than previous</string>
+    <string name="accel_split_slower_prev">, %1$s seconds slower than previous</string>
+    <string name="accel_split_faster_best">, %1$s faster than best</string>
+    <string name="accel_split_slower_best">, %1$s slower than best</string>
+    <string name="accel_split_best_yet">, best yet</string>
     <string name="announce_wheel_lock">Wheel lock / unlock</string>
     <string name="announce_lights">Lights on / off</string>
     <string name="announce_recording">Trip recording</string>
@@ -910,6 +965,16 @@
     <string name="flic_double_click">Double Click</string>
     <string name="flic_hold">Hold</string>
     <string name="section_external_gps">GPS &amp; sensors</string>
+
+    <!-- TPMS sensors -->
+    <string name="section_tpms">TPMS sensors</string>
+    <string name="tpms_caption">Tire pressure from a sensor on the wheel, like the InMotion P6.</string>
+    <string name="tpms_wheel_sensor">Wheel tire pressure</string>
+    <string name="tpms_wheel_sensor_desc">Relayed from a bound sensor</string>
+    <string name="tpms_idle">No sensor reporting yet</string>
+    <string name="tpms_pair_title">Pair another sensor</string>
+    <string name="tpms_pair_replaces">An extra sensor replaces the wheel\'s built-in one, if any.</string>
+    <string name="tpms_scan">Scan for sensors</string>
     <string name="external_gps_device_title">External GPS</string>
     <string name="external_gps_pair_button">Start scan</string>
     <string name="external_gps_pair_action">Pair</string>
@@ -1000,6 +1065,14 @@
     <string name="alarm_metric_pwm_voice" translatable="false">PWM</string>
     <string name="alarm_metric_voltage">Voltage</string>
     <string name="alarm_metric_current">Current</string>
+    <string name="alarm_metric_gps_speed">GPS speed</string>
+    <!-- Full names: used for the spoken voice message ({metric}). The short
+         *_short variants below are the dropdown/list labels so they fit the
+         narrow selected-metric box on one line. -->
+    <string name="alarm_metric_external_gps_speed">External GPS speed</string>
+    <string name="alarm_metric_external_gps_battery">External GPS battery</string>
+    <string name="alarm_metric_external_gps_speed_short">Ext GPS speed</string>
+    <string name="alarm_metric_external_gps_battery_short">Ext GPS batt</string>
     <string name="alarm_metric_radar_distance">Car distance</string>
     <string name="alarm_metric_radar_approach">Car approach</string>
 
@@ -1604,6 +1677,10 @@
     <string name="studio_metric_pitch">Pitch</string>
     <string name="studio_metric_roll">Roll</string>
     <string name="studio_metric_g_force">G-Force</string>
+    <string name="studio_metric_external_gps_battery">Ext GPS battery</string>
+    <string name="studio_metric_external_gps_speed">Ext GPS speed</string>
+    <string name="studio_metric_tire_pressure">Tire pressure</string>
+    <string name="studio_metric_gps">GPS coordinates</string>
 
     <!-- Navigator -->
     <string name="nav_open">Open navigator</string>
@@ -1662,6 +1739,7 @@
     <string name="trip_action_dropbox_disabled">Link Dropbox in settings to enable this</string>
     <string name="nav_tap_on_self">In the Stops list, long-press a stop to set it to your location</string>
     <string name="nav_start_short">Start navigation</string>
+    <string name="nav_start_btn">Start</string>
     <string name="nav_stop_short">Stop navigation</string>
     <string name="nav_stops_left">%1$d stops left</string>
     <string name="nav_last_stop">Last stop</string>
@@ -1679,6 +1757,7 @@
     </string-array>
     <string name="nav_my_location">My location</string>
     <string name="nav_no_location">Waiting for a GPS fix…</string>
+    <string name="nav_too_far_to_start">First stop is too far away. Hold Start to navigate anyway.</string>
     <string name="nav_empty_hint">Tap the map, search, or load a GPX file</string>
     <string name="nav_route_failed">Routing service unavailable, using straight lines</string>
     <string name="nav_cant_add_while_running">Can\'t add a stop while navigation is running</string>
@@ -1901,4 +1980,15 @@
     <string name="voice_phone_battery_fmt">phone %1$d</string>
     <string name="report_phone_battery">Phone</string>
     <string name="alarm_beep_transition_label">Transition</string>
+    <string name="alarm_beep_wave_label">Wave</string>
+    <string name="alarm_beep_effect_label">Effect</string>
+    <string name="alarm_wave_sine">Sine</string>
+    <string name="alarm_wave_triangle">Triangle</string>
+    <string name="alarm_wave_square">Square</string>
+    <string name="alarm_wave_saw">Saw</string>
+    <string name="alarm_wave_fm">FM</string>
+    <string name="alarm_fx_none">Clean</string>
+    <string name="alarm_fx_drive">Overdrive</string>
+    <string name="alarm_fx_sweep">Filter</string>
+    <string name="alarm_fx_crush">Bitcrush</string>
 </resources>

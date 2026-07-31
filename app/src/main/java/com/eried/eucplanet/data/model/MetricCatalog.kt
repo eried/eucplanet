@@ -253,6 +253,16 @@ object MetricCatalog {
             accent = AccentOrange,
             sparkline = SparklineStyle.AREA
         ),
+        MetricSpec(
+            key = "TIRE_PRESSURE",
+            labelRes = R.string.metric_chip_tire_pressure,
+            descriptionRes = R.string.metric_desc_tire_pressure,
+            accent = AccentBlue,
+            // Tracked like the other "extra" metrics (EXTRA_HISTORY_METRICS):
+            // slow-drifting line with min/max/avg in the tap-to-graph detail.
+            sparkline = SparklineStyle.SMOOTH_LINE,
+            supportsStats = true
+        ),
 
         // ---- Derived trip aggregates ----
         MetricSpec(
@@ -341,6 +351,13 @@ object MetricCatalog {
             descriptionRes = R.string.metric_desc_gps_accuracy,
             accent = AccentPurple,
             sparkline = SparklineStyle.LINE
+        ),
+        MetricSpec(
+            key = "EXTERNAL_GPS_BATTERY",
+            labelRes = R.string.metric_chip_external_gps_battery,
+            descriptionRes = R.string.metric_desc_external_gps_battery,
+            accent = AccentGreen,
+            sparkline = SparklineStyle.AREA
         ),
 
         // ---- Derived motion + pack health ----

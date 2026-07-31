@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
@@ -141,6 +142,15 @@ import com.eried.eucplanet.ui.theme.appColors
  * a hamburger menu (save / load / clear / start / exit) and a bottom panel for
  * the travel mode and the draggable list of stops. Tapping the map drops a pin.
  */
+
+// Min inner-row width (BoxWithConstraints.maxWidth) at which the full "Start
+// navigation" label still fits next to the 4 mode icons. Measured empirically on the
+// emulator (411/384dp screens keep the full label at maxWidth ~336/309dp; a 360dp
+// screen flips at maxWidth ~290dp), so 260dp keeps the full label on every normal
+// phone (360dp+) and the landscape sidebar, and only a genuinely tiny width -- a
+// split-screen half or a sub-~330dp screen -- falls back to the short "Start".
+private val START_NAV_MIN_WIDTH = 260.dp
+
 @SuppressLint("SetJavaScriptEnabled")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -277,6 +287,11 @@ fun RouteBuilderScreen(
         }
     }
 
+    // Pre-formatted toast strings (e.g. the too-far-to-start distance).
+    LaunchedEffect(Unit) {
+        viewModel.toasts.collect { msg -> snackbarHost.showSnackbar(msg) }
+    }
+
     // The builder is useless without a fix, ask for location up front so the
     // "my location" button and live guidance work. Harmless if already granted.
     val locationPermission = rememberLauncherForActivityResult(
@@ -315,10 +330,15 @@ fun RouteBuilderScreen(
         if (!pageReady) return@LaunchedEffect
         viewModel.mapRender.collect { mr ->
             val fit = mr.fit && viewModel.savedView.value == null
+            // While a route is still solving, this render is transient (one pin,
+            // no geometry yet). Tell the map so it defers the fit to the settled
+            // render, avoiding the first-stop "zoom in to the pin, then out to
+            // the route" double-fit.
+            val routing = viewModel.routing.value
             wv.evaluateJavascript(
                 "nativeRender(${jsString(viewModel.waypointsJson())}," +
                     "${jsString(viewModel.geometryJson())},$fit," +
-                    "${jsString(viewModel.pendingPreviewJson())});"
+                    "${jsString(viewModel.pendingPreviewJson())},$routing);"
             ) {
                 if (!firstRenderApplied) firstRenderApplied = true
             }
@@ -560,6 +580,13 @@ fun RouteBuilderScreen(
             NavMode.TREASURE_HUNT else NavMode.TURN_BY_TURN
         viewModel.startNavigation(mode) { onExit() }
     }
+    // Hold-to-override: skip the too-far guard and start anyway.
+    val startNavForce: () -> Unit = {
+        navStarting = true
+        val mode = if (travelMode == TravelMode.STRAIGHT)
+            NavMode.TREASURE_HUNT else NavMode.TURN_BY_TURN
+        viewModel.startNavigation(mode, force = true) { onExit() }
+    }
 
     Scaffold(
         snackbarHost = {
@@ -633,7 +660,7 @@ fun RouteBuilderScreen(
                             expanded = menuOpen,
                             canStart = userLocation != null && waypoints.isNotEmpty(),
                             onDismiss = { menuOpen = false },
-                            onSave = { saveLauncher.launch("route.gpx") },
+                            onSave = { saveLauncher.launch(viewModel.suggestedFileName()) },
                             onLoad = {
                                 // No "*/*", that wildcard showed every file.
                                 // Android has no registered MIME for ".gpx", so
@@ -709,6 +736,16 @@ fun RouteBuilderScreen(
         // bottom-panel layout even when rotated.
         val stopsSide by viewModel.navStopsSide.collectAsState()
         val advancedVars by viewModel.advanced.collectAsState()
+        // Keep the map's far-stop gate in sync so the live drag connector never
+        // draws a line from the rider to a first stop beyond the max start
+        // distance (mirrors the Kotlin-side gate for the solved and preview lines).
+        LaunchedEffect(pageReady, advancedVars.navMaxStartDistanceKm) {
+            val wv = webView ?: return@LaunchedEffect
+            if (!pageReady) return@LaunchedEffect
+            wv.evaluateJavascript(
+                "nativeSetMaxStartDistance(${advancedVars.navMaxStartDistanceKm});", null
+            )
+        }
         val landscape = LocalConfiguration.current.orientation ==
             android.content.res.Configuration.ORIENTATION_LANDSCAPE &&
             LocalConfiguration.current.screenWidthDp >= advancedVars.navSidebarMinScreenDp &&
@@ -1153,6 +1190,7 @@ fun RouteBuilderScreen(
                     onSaveHome = viewModel::saveWaypointAsHome,
                     onSaveWork = viewModel::saveWaypointAsWork,
                     onStartNavigation = startNav,
+                    onForceStartNavigation = startNavForce,
                     onStopNavigation = viewModel::stopNavigation,
                     onClearRoute = viewModel::clear,
                     canStartNavigation = userLocation != null && waypoints.isNotEmpty(),
@@ -1539,6 +1577,61 @@ private fun waypointLabel(
     return if (name.isBlank()) role else "$role ($name)"
 }
 
+/**
+ * A filled Button that also fires [onHold] after a ~0.5 s press-and-hold, used
+ * for "hold Start to navigate anyway". Detected via the button's own
+ * interactionSource (Material 3 has no long-press), so the normal tap still
+ * fires [onClick] and the visuals stay identical to a plain Button. When a hold
+ * fires, the release that follows is swallowed so the tap action does not also
+ * run. Pass onHold = null to behave as an ordinary Button.
+ */
+@Composable
+private fun HoldableButton(
+    onClick: () -> Unit,
+    onHold: (() -> Unit)?,
+    enabled: Boolean,
+    modifier: Modifier = Modifier,
+    contentPadding: androidx.compose.foundation.layout.PaddingValues =
+        androidx.compose.material3.ButtonDefaults.ContentPadding,
+    shape: androidx.compose.ui.graphics.Shape =
+        androidx.compose.material3.ButtonDefaults.shape,
+    content: @Composable androidx.compose.foundation.layout.RowScope.() -> Unit,
+) {
+    val source = remember { androidx.compose.foundation.interaction.MutableInteractionSource() }
+    val haptic = LocalHapticFeedback.current
+    var held by remember { mutableStateOf(false) }
+    if (onHold != null) {
+        LaunchedEffect(source, enabled) {
+            var holdJob: kotlinx.coroutines.Job? = null
+            source.interactions.collect { i ->
+                when (i) {
+                    is androidx.compose.foundation.interaction.PressInteraction.Press -> {
+                        held = false
+                        holdJob = launch {
+                            delay(500)
+                            held = true
+                            haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                            onHold()
+                        }
+                    }
+                    is androidx.compose.foundation.interaction.PressInteraction.Release,
+                    is androidx.compose.foundation.interaction.PressInteraction.Cancel ->
+                        holdJob?.cancel()
+                }
+            }
+        }
+    }
+    Button(
+        onClick = { if (held) held = false else onClick() },
+        enabled = enabled,
+        interactionSource = source,
+        modifier = modifier,
+        contentPadding = contentPadding,
+        shape = shape,
+        content = content,
+    )
+}
+
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 private fun BottomPanel(
@@ -1563,6 +1656,7 @@ private fun BottomPanel(
     onSaveHome: (Int) -> Unit,
     onSaveWork: (Int) -> Unit,
     onStartNavigation: () -> Unit,
+    onForceStartNavigation: () -> Unit,
     onStopNavigation: () -> Unit,
     onClearRoute: () -> Unit,
     canStartNavigation: Boolean,
@@ -1668,7 +1762,7 @@ private fun BottomPanel(
                             else -> R.string.nav_start_short
                         }
                     )
-                    Button(
+                    HoldableButton(
                         onClick = {
                             when {
                                 allPassed -> onClearRoute()
@@ -1676,6 +1770,8 @@ private fun BottomPanel(
                                 else -> onStartNavigation()
                             }
                         },
+                        // Hold Start to override the too-far guard and go anyway.
+                        onHold = if (!allPassed && !navRunning) onForceStartNavigation else null,
                         // Disabled when there's no work to do (no stops +
                         // no live nav). New route + Stop nav are always
                         // actionable when they apply.
@@ -1748,14 +1844,20 @@ private fun BottomPanel(
                 // pill" doesn't read as enabled. Functional disable is
                 // also on each SegmentedButton.
                 val modesLocked = navRunning || allPassed
-                // Mode selector on its own full-width row so each icon gets a
-                // quarter of the panel. Sharing a row with the Start button
-                // squeezed the glyphs to a few dp in the narrow portrait /
-                // split-landscape panel, and long localized "Start navigation"
-                // labels only made it worse.
+                // Mode icons + the Start button share ONE row. Prefer the full
+                // "Start navigation" label; only fall back to the short "Start" when
+                // the row is genuinely cramped (small phone / split-screen), measured
+                // from the row's own width so it adapts to any resolution. Stop / New
+                // route only appear while the modes are locked, so their length is moot.
+                BoxWithConstraints {
+                val roomy = maxWidth >= START_NAV_MIN_WIDTH
+                Row(verticalAlignment = Alignment.CenterVertically) {
                 SingleChoiceSegmentedButtonRow(
+                    // Pin to the same height as the Start button beside it (the
+                    // Material Button default), so the switch and Start line up.
                     modifier = Modifier
-                        .fillMaxWidth()
+                        .weight(1f)
+                        .height(40.dp)
                         .then(if (modesLocked) Modifier.alpha(0.4f) else Modifier)
                 ) {
                     modes.forEachIndexed { index, (mode, icon, labelRes) ->
@@ -1823,16 +1925,19 @@ private fun BottomPanel(
                         }
                     }
                 }
-                Spacer(Modifier.height(8.dp))
-                // Full-width primary action beneath the mode row.
-                Button(
+                Spacer(Modifier.width(8.dp))
+                // Start button beside the mode icons. Small min width so at rest
+                // ("Start") it stays compact and the icons keep their size.
+                HoldableButton(
                     onClick = when {
                         allPassed -> onClearRoute
                         navRunning -> onStopNavigation
                         else -> onStartNavigation
                     },
+                    // Hold Start to override the too-far guard and go anyway.
+                    onHold = if (!allPassed && !navRunning) onForceStartNavigation else null,
                     enabled = allPassed || navRunning || canStartNavigation,
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier.widthIn(min = 84.dp).height(40.dp),
                     shape = RoundedCornerShape(12.dp)
                 ) {
                     Text(
@@ -1840,10 +1945,15 @@ private fun BottomPanel(
                             when {
                                 allPassed -> R.string.nav_menu_clear
                                 navRunning -> R.string.nav_stop_short
-                                else -> R.string.nav_start_short
+                                // Full label by default; short "Start" only when the
+                                // row is too tight for it (see START_NAV_MIN_WIDTH).
+                                else -> if (roomy) R.string.nav_start_short
+                                        else R.string.nav_start_btn
                             }
                         )
                     )
+                }
+                }
                 }
 
                 Spacer(Modifier.height(8.dp))

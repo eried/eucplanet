@@ -329,6 +329,19 @@ class SettingsViewModel @Inject constructor(
     fun updateTriggerReportTime(v: Boolean) = update { copy(triggerReportTime = v) }
     fun updateTriggerReportNavigation(v: Boolean) = update { copy(triggerReportNavigation = v) }
     fun updateTriggerReportPhoneBattery(v: Boolean) = update { copy(triggerReportPhoneBattery = v) }
+    // Acceleration splits (RaceBox-style). Feature-local nested group.
+    fun updateAccelSplitEnabled(v: Boolean) = update { copy(accelSplit = accelSplit.copy(enabled = v)) }
+    fun updateAccelSplitIncrement(v: Int) =
+        update { copy(accelSplit = accelSplit.copy(increment = v.coerceIn(1, 50))) }
+    fun updateAccelSplitMinSpeed(v: Int) =
+        update { copy(accelSplit = accelSplit.copy(minSpeed = v.coerceIn(0, 200))) }
+    fun updateAccelSplitComparePrevious(v: Boolean) =
+        update { copy(accelSplit = accelSplit.copy(compareToPrevious = v)) }
+    fun updateAccelSplitCompareBest(v: Boolean) =
+        update { copy(accelSplit = accelSplit.copy(compareToBest = v)) }
+    fun updateAccelSplitDirection(v: String) =
+        update { copy(accelSplit = accelSplit.copy(direction = v)) }
+
     fun updateVoiceLocale(tag: String, previewText: String? = null) {
         // Explicit voice pick sets the override flag so a later UI-language
         // change re-prompts ("switch voice too?") instead of silently
@@ -475,6 +488,7 @@ class SettingsViewModel @Inject constructor(
     fun updateAutoLightsOnMinutes(v: Int) = update { copy(autoLightsOnMinutesBefore = v) }
     fun updateAutoLightsOffMinutes(v: Int) = update { copy(autoLightsOffMinutesAfter = v) }
     fun updateAutoVolumeEnabled(v: Boolean) = update { copy(autoVolumeEnabled = v) }
+        .also { if (!v) automationManager.restoreBaselineVolume() }
     fun updateAutoVolumeCurve(curve: String) = update { copy(autoVolumeCurve = curve) }
 
     // Voice report: recording
@@ -565,6 +579,18 @@ class SettingsViewModel @Inject constructor(
 
     // HUD companion
     fun updateHudServerEnabled(v: Boolean) = update { copy(hudServerEnabled = v) }
+
+    fun updateNotificationActionsEnabled(v: Boolean) =
+        update { copy(notificationActionsEnabled = v) }
+
+    /** Set notification-action slot [index] to [key] ("NONE" clears it). Slots
+     *  are independent like the Flic pickers, so duplicates are allowed. */
+    fun updateNotificationActionSlot(index: Int, key: String) = update {
+        val slots = com.eried.eucplanet.data.model.NotificationActionType
+            .slots(notificationActions).toMutableList()
+        if (index in slots.indices) slots[index] = key
+        copy(notificationActions = slots.joinToString(","))
+    }
     fun updateHudServerPort(v: Int) = update {
         // Match the dial port range. Below 1024 the HUD's listening socket
         // couldn't bind without root; above 65535 isn't a port.
@@ -1099,7 +1125,10 @@ class SettingsViewModel @Inject constructor(
         "BT_RSSI",
         // Extras targeted at composite-tile cells (small text, no
         // sparkline) -- they also render fine as standalone tiles.
-        "LAT_LONG", "WHEEL_MAX_SPEED", "WHEEL_ALARM_SPEED", "PC_MODE", "LIGHT_ON"
+        "LAT_LONG", "WHEEL_MAX_SPEED", "WHEEL_ALARM_SPEED", "PC_MODE", "LIGHT_ON",
+        // TPMS tire pressure (InMotion P6). Appended (not inserted) so existing
+        // per-slot restore indices don't shift.
+        "TIRE_PRESSURE"
     )
     /**
      * Dashboard-eligible actions, derived from [ActionCatalog]. Adding a

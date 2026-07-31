@@ -42,6 +42,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateMapOf
@@ -49,6 +50,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.BiasAlignment
 import androidx.compose.ui.Modifier
@@ -290,6 +294,19 @@ fun WelcomeTutorialOverlay(
     // closing the wizard with the switch on leaves voice enabled and the
     // switch off leaves it silent -- nothing else to apply on Next/Skip.
     var voicesOptIn by rememberSaveable { mutableStateOf(voiceCurrentlyOn) }
+    // Dropbox link (dev tools): disable the button while an OAuth attempt is in
+    // flight and once linked, instead of hiding it. On app resume the round-trip
+    // is over -- success flips [dropboxLinked] (which keeps the button disabled);
+    // a failed / cancelled attempt clears the flag so it can be retried.
+    var dropboxLinking by remember { mutableStateOf(false) }
+    val dropboxLifecycleOwner = LocalLifecycleOwner.current
+    DisposableEffect(dropboxLifecycleOwner) {
+        val obs = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_RESUME) dropboxLinking = false
+        }
+        dropboxLifecycleOwner.lifecycle.addObserver(obs)
+        onDispose { dropboxLifecycleOwner.lifecycle.removeObserver(obs) }
+    }
     fun advance() { if (isLast) onFinish() else state.stepIndex = idx + 1 }
     fun back() { if (idx > 0) state.stepIndex = idx - 1 }
 
@@ -523,14 +540,18 @@ fun WelcomeTutorialOverlay(
                                             onClick = onSetBackupFolder,
                                         )
                                     } else {
-                                        // Link Dropbox, until Dropbox is linked.
-                                        if (!dropboxLinked) {
-                                            Spacer(Modifier.height(8.dp))
-                                            LeftAlignedScanButton(
-                                                label = stringResource(R.string.dropbox_link),
-                                                onClick = onLinkDropbox,
-                                            )
-                                        }
+                                        // Link Dropbox: stays visible but goes
+                                        // disabled while linking and once linked
+                                        // (re-enabled if the attempt fails).
+                                        Spacer(Modifier.height(8.dp))
+                                        LeftAlignedScanButton(
+                                            label = stringResource(
+                                                if (dropboxLinked) R.string.dropbox_link_ok
+                                                else R.string.dropbox_link
+                                            ),
+                                            onClick = { dropboxLinking = true; onLinkDropbox() },
+                                            enabled = !dropboxLinked && !dropboxLinking,
+                                        )
                                         // Restore, only when a settings backup exists.
                                         // Disabled while a trip sync is running: restore
                                         // rewrites the whole settings blob and both touch

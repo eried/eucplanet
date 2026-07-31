@@ -108,6 +108,10 @@ data class AppSettings(
     // Voice report item order (comma-separated: Speed,Battery,PhoneBattery,Time,Temp,PWM,Distance,Recording)
     val voiceReportOrder: String = "Speed,Battery,PhoneBattery,Time,Temp,PWM,Distance,Recording",
 
+    // RaceBox-style acceleration split announcements. Feature-local group (not a
+    // global), nested so AppSettings.copy() stays under the 255-arg dex limit.
+    val accelSplit: AccelSplitSettings = AccelSplitSettings(),
+
     // Special announcements (event-driven). All silent by default; the welcome
     // wizard's first step offers a single toggle that flips this whole block on
     // for riders who want spoken alerts.
@@ -541,6 +545,11 @@ data class AppSettings(
      * "should the radio be running?". The two should be independent.
      */
     val hudServerEnabled: Boolean = false,
+    /** Show quick-action buttons on the ongoing notification. */
+    val notificationActionsEnabled: Boolean = true,
+    /** Which actions (comma-separated keys, max 3) appear on the notification.
+     *  See [NotificationActionType]. Default: Stop all, Lock/Unlock, Stop nav. */
+    val notificationActions: String = "STOP_ALL,LOCK,STOP_NAV",
     /**
      * HUD joystick long-press bindings. The HUD's IR remote / joystick fires a
      * long-press in one of four directions; the HUD sends an
@@ -816,6 +825,7 @@ data class AppSettings(
     val tripFinalizeGraceMs: Int get() = advanced.tripFinalizeGraceMs
     val lockMaxSpeedKmh: Int get() = advanced.lockMaxSpeedKmh
     val phoneGpsIntervalMs: Int get() = advanced.phoneGpsIntervalMs
+    val phoneGpsIdleIntervalMs: Int get() = advanced.phoneGpsIdleIntervalMs
     val hudReportIntervalMs: Int get() = advanced.hudReportIntervalMs
     val garminReportIntervalMs: Int get() = advanced.garminReportIntervalMs
     val navOffRouteGraceMs: Int get() = advanced.navOffRouteGraceMs
@@ -852,6 +862,7 @@ data class AppSettings(
     val navExecuteDistM: Int get() = advanced.navExecuteDistM
     val navProxBandM: Int get() = advanced.navProxBandM
     val navMinInterStopMoveM: Int get() = advanced.navMinInterStopMoveM
+    val navMaxStartDistanceKm: Int get() = advanced.navMaxStartDistanceKm
     val radarFastApproachDistM: Int get() = advanced.radarFastApproachDistM
     val radarFastApproachSpeedKmh: Int get() = advanced.radarFastApproachSpeedKmh
     val radarStaticTargetKmh: Int get() = advanced.radarStaticTargetKmh
@@ -881,6 +892,30 @@ data class SettingsLayout(
 )
 
 /**
+ * RaceBox-style acceleration split announcements. As the rider accelerates, the
+ * voice speaks the time to cross each speed step (e.g. "20 to 30, 1.21 seconds"),
+ * optionally comparing to the same step in the previous run or to the session
+ * best. A feature-local group (not a global), nested so AppSettings.copy() stays
+ * under the JVM/dex 255-argument limit. Increment and minSpeed are held in the
+ * rider's display speed unit so the announced band numbers stay round.
+ */
+data class AccelSplitSettings(
+    val enabled: Boolean = false,
+    // Speed step between announced bands, in the rider's display speed unit.
+    val increment: Int = 10,
+    // First band's lower edge, in the rider's display speed unit. Accelerations
+    // that never reach this speed are ignored.
+    val minSpeed: Int = 20,
+    // Append a comparison to the same step in the previous run (per direction).
+    val compareToPrevious: Boolean = true,
+    // Append a comparison to the session's best time for the step (per direction).
+    val compareToBest: Boolean = false,
+    // Which crossings to announce: "ACCEL" (speeding up only), "BRAKE" (slowing
+    // down only, e.g. "40 to 30"), or "BOTH". Braking splits run down to minSpeed.
+    val direction: String = "ACCEL",
+)
+
+/**
  * Power-user "Advanced" timing / threshold settings. Nested under
  * [AppSettings.advanced] so AppSettings' generated copy() stays under the
  * JVM/dex 255-argument limit. All clamped in SettingsRepository.sanitized().
@@ -897,6 +932,9 @@ data class AdvancedSettings(
     // Speed (km/h) above which a lock command is refused, for safety.
     val lockMaxSpeedKmh: Int = 5,
     val phoneGpsIntervalMs: Int = 1000,
+    // Slow "keep-warm" GPS interval used when nothing needs the 1 Hz active
+    // stream (idle balanced / low-power tiers). See GpsPowerPolicy.
+    val phoneGpsIdleIntervalMs: Int = 10000,
     val hudReportIntervalMs: Int = 200,
     val garminReportIntervalMs: Int = 200,
     val navOffRouteGraceMs: Int = 8000,
@@ -936,6 +974,7 @@ data class AdvancedSettings(
     val navExecuteDistM: Int = 30,
     val navProxBandM: Int = 4,
     val navMinInterStopMoveM: Int = 30,
+    val navMaxStartDistanceKm: Int = 50,
     val radarFastApproachDistM: Int = 50,
     val radarFastApproachSpeedKmh: Int = 60,
     val radarStaticTargetKmh: Int = 3,
@@ -963,7 +1002,7 @@ data class AdvancedSettings(
     val compactMaxScreenDp: Int = 500,
     val coverCutoutInsetDp: Int = 96,
     val simpleSpeedoScalePct: Int = 62,
-    val navSidebarWidthDp: Int = 340,
+    val navSidebarWidthDp: Int = 400,
     val navSidebarMinScreenDp: Int = 600,
 )
 

@@ -4,6 +4,30 @@
     <string name="notification_channel_name">Teker Bağlantısı</string>
     <string name="notification_channel_description">Teker bağlantı durumunu ve telemetriyi gösterir</string>
 
+    <!-- Notification quick actions -->
+    <string name="notif_actions_section">Özelleştir</string>
+    <string name="notif_actions_enable">Bildirim eylemlerini göster</string>
+    <string name="notif_actions_enable_desc">Etkin bildirime hızlı eylem düğmeleri ekleyin.</string>
+    <string name="notif_actions_pick_desc">En fazla %1$d eylem seçin. Aynı eylem tekrarlanabilir.</string>
+    <string name="notif_action_slot">Eylem %1$d</string>
+    <string name="notif_action_stop_all">Tümünü durdur</string>
+    <string name="notif_action_lock">Kilitle / Kilit aç</string>
+    <string name="notif_action_light">Işık açık / kapalı</string>
+    <string name="notif_action_record">Kaydet / Durdur</string>
+    <string name="notif_action_horn">Korna</string>
+    <string name="notif_action_disconnect">Bağlantıyı kes</string>
+    <string name="notif_action_stop_nav">Navigasyonu durdur</string>
+    <string name="notif_btn_stop_all">Tümünü durdur</string>
+    <string name="notif_btn_lock">Kilitle</string>
+    <string name="notif_btn_unlock">Kilit aç</string>
+    <string name="notif_btn_light_on">Işık aç</string>
+    <string name="notif_btn_light_off">Işık kapat</string>
+    <string name="notif_btn_record">Kaydet</string>
+    <string name="notif_btn_stop_record">Durdur</string>
+    <string name="notif_btn_horn">Korna</string>
+    <string name="notif_btn_disconnect">Bağlantıyı kes</string>
+    <string name="notif_btn_stop_nav">Nav durdur</string>
+
     <!-- Common -->
     <string name="action_back">Geri</string>
     <string name="action_cancel">İptal</string>
@@ -214,6 +238,10 @@
     <string name="metric_chip_motor_temp">Motor sıcaklığı</string>
     <string name="metric_chip_controller_temp">Kontrolör sıcaklığı</string>
     <string name="metric_chip_battery_temp">Akü sıcaklığı</string>
+    <string name="metric_chip_tire_pressure">Lastik basıncı</string>
+    <string name="metric_chip_tire_pressure_tile">Lastik</string>
+    <string name="metric_desc_tire_pressure">Bağlı bir TPMS sensöründen (InMotion P6) lastik basıncı. psi veya bar olarak gösterilir.</string>
+    <string name="studio_metric_tire_pressure">Lastik basıncı</string>
     <string name="metric_chip_headroom">Güvenlik payı</string>
     <string name="metric_chip_trip_time">Sefer süresi</string>
     <string name="metric_chip_trip_max_speed">Sefer maks hızı</string>
@@ -226,6 +254,7 @@
     <string name="metric_chip_gps_speed">GPS hızı</string>
     <string name="metric_chip_gps_heading">Yön</string>
     <string name="metric_chip_gps_accuracy">GPS hassasiyeti</string>
+    <string name="metric_chip_external_gps_battery">Harici GPS aküsü</string>
     <string name="metric_chip_slope">Eğim</string>
     <string name="metric_chip_ascent">Tırmanış</string>
     <string name="metric_chip_descent">İniş</string>
@@ -253,6 +282,7 @@
     <string name="metric_chip_dyn_current_limit_tile">A sınır</string>
     <string name="metric_chip_phone_battery_tile">Telefon</string>
     <string name="metric_chip_gps_accuracy_tile">GPS ±</string>
+    <string name="metric_chip_external_gps_battery_tile">GPS akü</string>
     <string name="metric_chip_odometer_tile">Odo</string>
     <string name="metric_chip_trip_max_speed_tile">Maks hz</string>
     <string name="metric_chip_avg_trip_speed_tile">Ort hz</string>
@@ -282,6 +312,7 @@
     <string name="metric_desc_regen_wh">Bu seferde frenleme sırasında aküye geri beslenen toplam watt-saat.</string>
     <string name="metric_desc_bt_rssi">Tekere olan Bluetooth sinyal gücü, 0 dBm\'ye yakın değer daha güçlü demektir.</string>
     <string name="metric_desc_gps_accuracy">GPS konumlama hata yarıçapı, düşük değer daha doğru demektir.</string>
+    <string name="metric_desc_external_gps_battery">Eşleştirilmiş harici GPS (RaceBox, Dragy) aküsü, böylece sürüşün ortasında bitmeden önce azaldığını görürsünüz.</string>
 
     <!-- Action labels for the dashboard layout chips -->
     <string name="action_chip_horn">Korna</string>
@@ -539,8 +570,8 @@
     <!-- Settings: Voice -->
     <string name="section_announcements">Bildirimler</string>
     <string name="section_speech">Konuşma</string>
-    <string name="section_report_status">Durum bildir</string>
-    <string name="voice_enabled">Durumu periyodik olarak bildir</string>
+    <string name="section_report_status">Periyodik ve tetiklenen sesli bildirim</string>
+    <string name="voice_enabled">Periyodik bildirimleri aç</string>
     <string name="voice_interval">Aralık</string>
     <string name="announce_wheel_lock">Teker kilitleme / kilit açma</string>
     <string name="announce_lights">Işıklar açık / kapalı</string>
@@ -682,6 +713,15 @@
     <string name="flic_double_click">Çift Tıklama</string>
     <string name="flic_hold">Basılı Tut</string>
     <string name="section_external_gps">GPS ve sensörler</string>
+    <!-- TPMS sensors -->
+    <string name="section_tpms">TPMS sensörleri</string>
+    <string name="tpms_caption">Tekerdeki bir sensörden lastik basıncı, InMotion P6 gibi.</string>
+    <string name="tpms_wheel_sensor">Teker lastik basıncı</string>
+    <string name="tpms_wheel_sensor_desc">Bağlı bir sensörden aktarılır</string>
+    <string name="tpms_idle">Henüz veri gönderen sensör yok</string>
+    <string name="tpms_pair_title">Başka bir sensör eşle</string>
+    <string name="tpms_pair_replaces">Ek bir sensör, varsa tekerin dahili sensörünün yerini alır.</string>
+    <string name="tpms_scan">Sensör ara</string>
     <string name="external_gps_device_title">Harici GPS</string>
     <string name="external_gps_pair_button">Taramayı başlat</string>
     <string name="external_gps_pair_action">Eşleştir</string>
@@ -773,6 +813,11 @@
     <string name="alarm_metric_pwm_voice" translatable="false">PWM</string>
     <string name="alarm_metric_voltage">Gerilim</string>
     <string name="alarm_metric_current">Akım</string>
+    <string name="alarm_metric_gps_speed">GPS hızı</string>
+    <string name="alarm_metric_external_gps_speed">Harici GPS hızı</string>
+    <string name="alarm_metric_external_gps_battery">Harici GPS aküsü</string>
+    <string name="alarm_metric_external_gps_speed_short">Harici GPS hız</string>
+    <string name="alarm_metric_external_gps_battery_short">Harici GPS akü</string>
     <string name="alarm_metric_radar_distance">Araç mesafesi</string>
     <string name="alarm_metric_radar_approach">Araç yaklaşımı</string>
 
@@ -1328,6 +1373,9 @@
     <string name="studio_metric_pitch">Yunuslama</string>
     <string name="studio_metric_roll">Yalpa</string>
     <string name="studio_metric_g_force">G-Kuvveti</string>
+    <string name="studio_metric_external_gps_battery">Harici GPS aküsü</string>
+    <string name="studio_metric_external_gps_speed">Harici GPS hızı</string>
+    <string name="studio_metric_gps">GPS koordinatları</string>
 
     <!-- Navigator -->
     <string name="nav_open">Navigatörü aç</string>
@@ -1381,6 +1429,7 @@
     </string-array>
     <string name="nav_my_location">Konumum</string>
     <string name="nav_no_location">GPS düzeltmesi bekleniyor…</string>
+    <string name="nav_too_far_to_start">İlk durak çok uzak. Navigasyonu yine de başlatmak için Başlat düğmesini basılı tutun.</string>
     <string name="nav_empty_hint">Haritaya dokunun, arama yapın veya GPX dosyası yükleyin</string>
     <string name="nav_route_failed">Yönlendirme servisi kullanılamıyor, düz çizgiler kullanılıyor</string>
     <string name="nav_cant_add_while_running">Navigasyon çalışırken durak eklenemez</string>
@@ -1741,6 +1790,8 @@
     <string name="adv_nav_inter_stop_desc">Bir sonraki durağın varılmış sayılabilmesi için bir durağı ne kadar geçmeniz gerektiğini etkiler. Dikkat: çok düşük olursa bir durağı atlayabilir.</string>
     <string name="adv_nav_intermediate_flash">Ara nokta parlama süresi</string>
     <string name="adv_nav_intermediate_flash_desc">Ara noktaya ulaşıldı parlamasının ne kadar göründüğünü etkiler.</string>
+    <string name="adv_nav_max_start">Maks. başlangıç mesafesi</string>
+    <string name="adv_nav_max_start_desc">Navigasyonu başlatmak için ilk durağın en fazla ne kadar uzakta olabileceği. Bu mesafenin ötesinde, konumundan çizilen çizgi gizlenir ve başlatma engellenir. Rota planlama yine de çalışır.</string>
     <string name="adv_nav_moving">Hareket hızı</string>
     <string name="adv_nav_moving_desc">Yön ve yönlendirme için hangi hızın üzerinde hareket halinde sayıldığınızı etkiler. Dikkat: çok yüksek olursa yavaş sürüşü yok sayar.</string>
     <string name="adv_nav_offroute_grace">Rota dışı toleransı</string>
@@ -1760,6 +1811,8 @@
     <string name="adv_nav_warning">Bunlar navigasyonun ne zaman tepki vereceğini değiştirir. Yanlış değerler sesli uyarıların veya yeniden rotalamanın çok erken veya çok geç çalışmasına yol açabilir.</string>
     <string name="adv_phone_gps_interval">Telefon GPS güncelleme aralığı</string>
     <string name="adv_phone_gps_interval_desc">GPS izinin ne kadar pürüzsüz olduğunu ve navigasyonun ne kadar hızlı tepki verdiğini etkiler. Düşük değer daha sık günceller. Dikkat: düşük değerler pili daha hızlı tüketir.</string>
+    <string name="adv_phone_gps_idle_interval">Boşta GPS aralığı</string>
+    <string name="adv_phone_gps_idle_interval_desc">Kayıt veya navigasyon yokken GPS güncelleme aralığı; Navigatör ve yeni bağlantı hazır kalır. Yüksek değer pili korur.</string>
     <string name="adv_pushonly_note">Bazı cihazlar kendi sabit hızlarında veri akıtır ve bu ayarları yok sayar: yalnızca-itme tekerleri (Begode, Gotway, Veteran, KingSong), harici GPS (RaceBox), radar ve Flic düğmeleri.</string>
     <string name="adv_radar_clear_decay">Radar şerit sönümü</string>
     <string name="adv_radar_clear_decay_desc">Yol boşaldıktan sonra şerit çubuğunun ne kadar kaldığını etkiler. Dikkat: çok düşük olursa araçlar gelip gittikçe yanıp söner.</string>
@@ -1896,6 +1949,36 @@
     <string name="alarm_constant_title">Sürekli ton?</string>
     <string name="alarm_constant_body">0 ms boşluk kesintisiz tek bir ton verir. Sürekli çalması için şunları da ayarla:</string>
     <string name="alarm_constant_never">Bir daha sorma</string>
+    <string name="nav_start_btn">Başlat</string>
+    <string name="alarm_beep_wave_label">Dalga</string>
+    <string name="alarm_beep_effect_label">Efekt</string>
+    <string name="alarm_wave_sine">Sinüs</string>
+    <string name="alarm_wave_triangle">Üçgen</string>
+    <string name="alarm_wave_square">Kare</string>
+    <string name="alarm_wave_saw">Testere</string>
+    <string name="alarm_wave_fm">FM</string>
+    <string name="alarm_fx_none">Temiz</string>
+    <string name="alarm_fx_drive">Overdrive</string>
+    <string name="alarm_fx_sweep">Filtre</string>
+    <string name="alarm_fx_crush">Bitcrush</string>
+    <string name="section_accel_splits">Hız dilimleri</string>
+    <string name="accel_splits_enabled">Süreleri seslendir</string>
+    <string name="accel_splits_desc">Hızlanırken veya yavaşlarken her hız adımını geçme süresini seslendirir. Aşağıdaki hızdan başlar, belirlediğiniz adımlarla.</string>
+    <string name="accel_split_decel_prefix">frenleme, </string>
+    <string name="accel_splits_from">Başlangıç</string>
+    <string name="accel_splits_step">Adım</string>
+    <string name="accel_splits_dir_accel">Hızlan</string>
+    <string name="accel_splits_dir_brake">Fren</string>
+    <string name="accel_splits_dir_both">İkisi</string>
+    <string name="accel_splits_compare_previous">Önceki turla karşılaştır</string>
+    <string name="accel_splits_compare_best">Oturumun en iyisiyle karşılaştır</string>
+    <string name="accel_split_time_fmt">%1$d ile %2$d arası, %3$s saniye</string>
+    <string name="accel_split_faster_prev">, öncekinden %1$s saniye daha hızlı</string>
+    <string name="accel_split_slower_prev">, öncekinden %1$s saniye daha yavaş</string>
+    <string name="accel_split_faster_best">, en iyiden %1$s daha hızlı</string>
+    <string name="accel_split_slower_best">, en iyiden %1$s daha yavaş</string>
+    <string name="accel_split_best_yet">, şimdiye kadarki en iyi</string>
+    <string name="report_contents">Sesli bildirimi özelleştir</string>
 </resources>
 
 

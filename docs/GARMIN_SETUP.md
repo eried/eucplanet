@@ -5,7 +5,7 @@ does on Wear OS. The two surfaces share settings, share the wire vocabulary,
 and can both be paired to the phone at the same time. This file walks through
 the developer setup. If you only want to install and use the app, get it from
 the Connect IQ Store:
-<https://apps.garmin.com/apps/630e5d32-637d-4612-84e3-35e6d0bbee10>
+<https://apps.garmin.com/apps/14c2d086-fcb5-4042-bd5b-034519d18a71>
 
 ## Architecture in 30 seconds
 

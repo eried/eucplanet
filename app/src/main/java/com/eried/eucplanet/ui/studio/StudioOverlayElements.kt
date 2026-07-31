@@ -1385,7 +1385,14 @@ private fun DataValueElement(element: OverlayElement, data: StudioElementData) {
                     text = valueText,
                     color = Color(element.foreground),
                     fontWeight = FontWeight.Bold,
-                    fontSize = (w * 0.34f).coerceIn(18f, 120f).sp,
+                    // Scalar numbers fill the width at 0.34; long text (GPS
+                    // coordinates) would overflow a giant font, so shrink it to
+                    // fit the value's character count instead of clipping.
+                    fontSize = (
+                        if (metric.textOnly)
+                            (w * 1.7f / valueText.length.coerceAtLeast(5)).coerceIn(8f, 120f)
+                        else (w * 0.34f).coerceIn(18f, 120f)
+                    ).sp,
                     maxLines = 1
                 )
                 if (unit.isNotEmpty() && !unitOnLeft) {

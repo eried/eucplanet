@@ -4,6 +4,30 @@
     <string name="notification_channel_name">Wheel-Verbindung</string>
     <string name="notification_channel_description">Zeigt Verbindungsstatus und Telemetrie des Wheels</string>
 
+    <!-- Notification quick actions -->
+    <string name="notif_actions_section">Anpassen</string>
+    <string name="notif_actions_enable">Benachrichtigungsaktionen anzeigen</string>
+    <string name="notif_actions_enable_desc">Schnellaktionen zur laufenden Benachrichtigung hinzufügen.</string>
+    <string name="notif_actions_pick_desc">Bis zu %1$d Aktionen wählen. Dieselbe Aktion kann mehrfach vorkommen.</string>
+    <string name="notif_action_slot">Aktion %1$d</string>
+    <string name="notif_action_stop_all">Alles stoppen</string>
+    <string name="notif_action_lock">Sperren / Entsperren</string>
+    <string name="notif_action_light">Licht an / aus</string>
+    <string name="notif_action_record">Aufnehmen / Stopp</string>
+    <string name="notif_action_horn">Hupe</string>
+    <string name="notif_action_disconnect">Trennen</string>
+    <string name="notif_action_stop_nav">Navigation beenden</string>
+    <string name="notif_btn_stop_all">Alles stoppen</string>
+    <string name="notif_btn_lock">Sperren</string>
+    <string name="notif_btn_unlock">Entsperren</string>
+    <string name="notif_btn_light_on">Licht an</string>
+    <string name="notif_btn_light_off">Licht aus</string>
+    <string name="notif_btn_record">Aufnehmen</string>
+    <string name="notif_btn_stop_record">Stopp</string>
+    <string name="notif_btn_horn">Hupe</string>
+    <string name="notif_btn_disconnect">Trennen</string>
+    <string name="notif_btn_stop_nav">Nav beenden</string>
+
     <!-- Common -->
     <string name="action_back">Zurück</string>
     <string name="action_cancel">Abbrechen</string>
@@ -214,6 +238,10 @@
     <string name="metric_chip_motor_temp">Motortemperatur</string>
     <string name="metric_chip_controller_temp">Reglertemperatur</string>
     <string name="metric_chip_battery_temp">Akkutemperatur</string>
+    <string name="metric_chip_tire_pressure">Reifendruck</string>
+    <string name="metric_chip_tire_pressure_tile">Reifen</string>
+    <string name="metric_desc_tire_pressure">Reifendruck von einem gekoppelten TPMS-Sensor (InMotion P6). Anzeige in psi oder bar.</string>
+    <string name="studio_metric_tire_pressure">Reifendruck</string>
     <string name="metric_chip_headroom">Reserve</string>
     <string name="metric_chip_trip_time">Trip-Zeit</string>
     <string name="metric_chip_trip_max_speed">Trip-Spitze</string>
@@ -226,6 +254,7 @@
     <string name="metric_chip_gps_speed">GPS-Geschw.</string>
     <string name="metric_chip_gps_heading">Kurs</string>
     <string name="metric_chip_gps_accuracy">GPS-Genauigkeit</string>
+    <string name="metric_chip_external_gps_battery">Externer GPS-Akku</string>
     <string name="metric_chip_slope">Steigung</string>
     <string name="metric_chip_ascent">Anstieg</string>
     <string name="metric_chip_descent">Abstieg</string>
@@ -253,6 +282,7 @@
     <string name="metric_chip_dyn_current_limit_tile">A limit</string>
     <string name="metric_chip_phone_battery_tile">Tel</string>
     <string name="metric_chip_gps_accuracy_tile">GPS ±</string>
+    <string name="metric_chip_external_gps_battery_tile">GPS-Akku</string>
     <string name="metric_chip_odometer_tile">Odo</string>
     <string name="metric_chip_trip_max_speed_tile">Max sp</string>
     <string name="metric_chip_avg_trip_speed_tile">Avg sp</string>
@@ -282,6 +312,7 @@
     <string name="metric_desc_regen_wh">Beim Bremsen in dieser Fahrt zurückgespeiste Wattstunden.</string>
     <string name="metric_desc_bt_rssi">Bluetooth-Signalstärke zum Wheel, näher an 0 dBm ist stärker.</string>
     <string name="metric_desc_gps_accuracy">GPS-Positionsfehlerradius, kleiner ist genauer.</string>
+    <string name="metric_desc_external_gps_battery">Akku des gekoppelten externen GPS (RaceBox, Dragy), damit du ihn fallen siehst, bevor er mitten in der Fahrt leer ist.</string>
 
     <!-- Action labels for the dashboard layout chips -->
     <string name="action_chip_horn">Hupe</string>
@@ -539,8 +570,8 @@
     <!-- Settings: Voice -->
     <string name="section_announcements">Ansagen</string>
     <string name="section_speech">Sprache</string>
-    <string name="section_report_status">Statusbericht</string>
-    <string name="voice_enabled">Status regelmäßig melden</string>
+    <string name="section_report_status">Regelmäßige und ereignisbasierte Sprachausgabe</string>
+    <string name="voice_enabled">Regelmäßige Berichte aktivieren</string>
     <string name="voice_interval">Intervall</string>
     <string name="announce_wheel_lock">Wheel sperren / entsperren</string>
     <string name="announce_lights">Licht ein / aus</string>
@@ -682,6 +713,15 @@
     <string name="flic_double_click">Doppelklick</string>
     <string name="flic_hold">Halten</string>
     <string name="section_external_gps">GPS &amp; Sensoren</string>
+    <!-- TPMS sensors -->
+    <string name="section_tpms">TPMS-Sensoren</string>
+    <string name="tpms_caption">Reifendruck von einem Sensor am Wheel, wie dem InMotion P6.</string>
+    <string name="tpms_wheel_sensor">Reifendruck des Wheels</string>
+    <string name="tpms_wheel_sensor_desc">Vom gekoppelten Sensor weitergeleitet</string>
+    <string name="tpms_idle">Noch sendet kein Sensor</string>
+    <string name="tpms_pair_title">Weiteren Sensor koppeln</string>
+    <string name="tpms_pair_replaces">Ein zusätzlicher Sensor ersetzt den eingebauten des Wheels, falls vorhanden.</string>
+    <string name="tpms_scan">Nach Sensoren suchen</string>
     <string name="external_gps_device_title">Externes GPS</string>
     <string name="external_gps_pair_button">Scan starten</string>
     <string name="external_gps_pair_action">Koppeln</string>
@@ -772,6 +812,11 @@
     <string name="alarm_metric_pwm_voice" translatable="false">PWM</string>
     <string name="alarm_metric_voltage">Spannung</string>
     <string name="alarm_metric_current">Strom</string>
+    <string name="alarm_metric_gps_speed">GPS-Geschwindigkeit</string>
+    <string name="alarm_metric_external_gps_speed">Externe GPS-Geschwindigkeit</string>
+    <string name="alarm_metric_external_gps_battery">Externer GPS-Akku</string>
+    <string name="alarm_metric_external_gps_speed_short">Ext GPS-Geschw.</string>
+    <string name="alarm_metric_external_gps_battery_short">Ext GPS-Akku</string>
     <string name="alarm_metric_radar_distance">Fahrzeugabstand</string>
     <string name="alarm_metric_radar_approach">Fahrzeug nähert sich</string>
 
@@ -1343,6 +1388,9 @@
     <string name="studio_metric_pitch">Neigung</string>
     <string name="studio_metric_roll">Querneigung</string>
     <string name="studio_metric_g_force">G-Force</string>
+    <string name="studio_metric_external_gps_battery">Ext. GPS-Akku</string>
+    <string name="studio_metric_external_gps_speed">Ext. GPS-Tempo</string>
+    <string name="studio_metric_gps">GPS-Koordinaten</string>
 
     <!-- Studio misc -->
     <string name="studio_snap_to_grid">Am Raster ausrichten</string>
@@ -1406,6 +1454,7 @@
     </string-array>
     <string name="nav_my_location">Mein Standort</string>
     <string name="nav_no_location">Warte auf GPS-Signal…</string>
+    <string name="nav_too_far_to_start">Der erste Halt ist zu weit entfernt. Start halten, um trotzdem zu navigieren.</string>
     <string name="nav_empty_hint">Karte antippen, suchen oder GPX-Datei laden</string>
     <string name="nav_route_failed">Routing-Dienst nicht erreichbar, gerade Linien werden verwendet</string>
     <string name="nav_cant_add_while_running">Während der Navigation kann kein Halt hinzugefügt werden</string>
@@ -1764,6 +1813,8 @@
     <string name="adv_nav_inter_stop_desc">Beeinflusst, wie weit du dich von einem Stopp entfernen musst, bevor der nächste als erreicht zählt. Achtung: zu niedrig kann einen Stopp überspringen.</string>
     <string name="adv_nav_intermediate_flash">Wegpunkt-Aufblitzdauer</string>
     <string name="adv_nav_intermediate_flash_desc">Beeinflusst, wie lange das Aufblitzen bei erreichtem Wegpunkt angezeigt wird.</string>
+    <string name="adv_nav_max_start">Max. Startdistanz</string>
+    <string name="adv_nav_max_start_desc">Wie weit der erste Halt höchstens entfernt sein darf, um die Navigation zu starten. Darüber hinaus wird die Linie von deiner Position ausgeblendet und der Start blockiert. Die Planung funktioniert weiterhin.</string>
     <string name="adv_nav_moving">Bewegungsgeschwindigkeit</string>
     <string name="adv_nav_moving_desc">Beeinflusst die Geschwindigkeit, ab der du für Kurs und Führung als in Bewegung giltst. Achtung: zu hoch ignoriert langsames Fahren.</string>
     <string name="adv_nav_offroute_grace">Abseits-Toleranz</string>
@@ -1783,6 +1834,8 @@
     <string name="adv_nav_warning">Diese ändern, wann die Navigation reagiert. Falsche Werte können Sprachhinweise oder Neuberechnungen zu früh oder zu spät auslösen.</string>
     <string name="adv_phone_gps_interval">Handy-GPS-Aktualisierungsintervall</string>
     <string name="adv_phone_gps_interval_desc">Beeinflusst, wie flüssig die GPS-Spur ist und wie schnell die Navigation reagiert. Niedriger aktualisiert öfter. Achtung: niedrige Werte entladen den Akku schneller.</string>
+    <string name="adv_phone_gps_idle_interval">GPS-Intervall im Leerlauf</string>
+    <string name="adv_phone_gps_idle_interval_desc">GPS-Rate im Leerlauf, wenn nicht aufgenommen oder navigiert wird, damit Navigator und eine neue Verbindung bereit sind. Höher spart Akku.</string>
     <string name="adv_pushonly_note">Manche Geräte senden mit ihrer eigenen festen Rate und ignorieren diese Einstellungen: Push-only-Wheels (Begode, Gotway, Veteran, KingSong), externes GPS (RaceBox), Radar und Flic-Tasten.</string>
     <string name="adv_radar_clear_decay">Radar-Spur-Nachlauf</string>
     <string name="adv_radar_clear_decay_desc">Beeinflusst, wie lange der Spurbalken bleibt, nachdem die Straße frei ist. Achtung: zu niedrig lässt ihn blinken, wenn Autos kommen und gehen.</string>
@@ -1919,4 +1972,34 @@
     <string name="alarm_constant_title">Dauerton?</string>
     <string name="alarm_constant_body">Eine Pause von 0 ms ergibt einen ununterbrochenen Ton. Damit er durchgehend klingt, außerdem:</string>
     <string name="alarm_constant_never">Nicht mehr fragen</string>
+    <string name="nav_start_btn">Start</string>
+    <string name="alarm_beep_wave_label">Welle</string>
+    <string name="alarm_beep_effect_label">Effekt</string>
+    <string name="alarm_wave_sine">Sinus</string>
+    <string name="alarm_wave_triangle">Dreieck</string>
+    <string name="alarm_wave_square">Rechteck</string>
+    <string name="alarm_wave_saw">Sägezahn</string>
+    <string name="alarm_wave_fm">FM</string>
+    <string name="alarm_fx_none">Clean</string>
+    <string name="alarm_fx_drive">Overdrive</string>
+    <string name="alarm_fx_sweep">Filter</string>
+    <string name="alarm_fx_crush">Bitcrush</string>
+    <string name="section_accel_splits">Geschwindigkeits-Splits</string>
+    <string name="accel_splits_enabled">Zeiten ansagen</string>
+    <string name="accel_splits_desc">Sagt die Zeit für jede Geschwindigkeitsstufe an, beim Beschleunigen oder Bremsen. Beginnt bei der Geschwindigkeit unten, in den von dir festgelegten Schritten.</string>
+    <string name="accel_split_decel_prefix">bremsen, </string>
+    <string name="accel_splits_from">Von</string>
+    <string name="accel_splits_step">Schritt</string>
+    <string name="accel_splits_dir_accel">Beschl.</string>
+    <string name="accel_splits_dir_brake">Bremse</string>
+    <string name="accel_splits_dir_both">Beide</string>
+    <string name="accel_splits_compare_previous">Mit vorherigem Lauf vergleichen</string>
+    <string name="accel_splits_compare_best">Mit Bestwert der Session vergleichen</string>
+    <string name="accel_split_time_fmt">von %1$d bis %2$d, %3$s Sekunden</string>
+    <string name="accel_split_faster_prev">, %1$s Sekunden schneller als zuvor</string>
+    <string name="accel_split_slower_prev">, %1$s Sekunden langsamer als zuvor</string>
+    <string name="accel_split_faster_best">, %1$s schneller als Bestwert</string>
+    <string name="accel_split_slower_best">, %1$s langsamer als Bestwert</string>
+    <string name="accel_split_best_yet">, neuer Bestwert</string>
+    <string name="report_contents">Sprachbericht anpassen</string>
 </resources>

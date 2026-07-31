@@ -28,6 +28,13 @@ data class WheelData(
     val latitude: Double = 0.0,
     /** Rider GPS longitude in degrees. 0 when there is no fix / not recorded. */
     val longitude: Double = 0.0,
+    /** Battery percent of the paired external GPS box, -1 when none / unknown.
+     *  Mirrors the phone class; fed from HudState.externalGpsBatteryPercent. */
+    val externalGpsBatteryPercent: Int = -1,
+    /** Ground speed in km/h from the paired external GPS box, -1 when none. */
+    val externalGpsSpeedKmh: Float = -1f,
+    /** Tire pressure in kPa from a bound TPMS sensor (InMotion P6), 0 when none. */
+    val tirePressureKpa: Float = 0f,
     /** Phone IMU acceleration magnitude in g, 0 for trips recorded before this. */
     val gForce: Float = 0f,
     /** Phone IMU lateral acceleration in g (+right). 0 for trips recorded before this. */

@@ -145,14 +145,14 @@ private fun leadSeconds(ms: Int): String =
 
 private fun displayThreshold(metric: AlarmMetric, valueInternal: Float, speedUnit: String, tempUnit: String): Float =
     when (metric) {
-        AlarmMetric.SPEED -> Units.speed(valueInternal, speedUnit)
+        AlarmMetric.SPEED, AlarmMetric.GPS_SPEED, AlarmMetric.EXTERNAL_GPS_SPEED -> Units.speed(valueInternal, speedUnit)
         AlarmMetric.TEMPERATURE -> Units.temperature(valueInternal, tempUnit)
         else -> valueInternal
     }
 
 private fun internalThreshold(metric: AlarmMetric, valueDisplayed: Float, speedUnit: String, tempUnit: String): Float =
     when (metric) {
-        AlarmMetric.SPEED -> Units.speedToKmh(valueDisplayed, speedUnit)
+        AlarmMetric.SPEED, AlarmMetric.GPS_SPEED, AlarmMetric.EXTERNAL_GPS_SPEED -> Units.speedToKmh(valueDisplayed, speedUnit)
         AlarmMetric.TEMPERATURE -> Units.temperatureToCelsius(valueDisplayed, tempUnit)
         else -> valueDisplayed
     }
@@ -160,7 +160,8 @@ private fun internalThreshold(metric: AlarmMetric, valueDisplayed: Float, speedU
 @androidx.compose.runtime.Composable
 private fun displayUnit(metric: AlarmMetric, speedUnit: String, tempUnit: String): String =
     when (metric) {
-        AlarmMetric.SPEED -> Units.speedUnit(androidx.compose.ui.platform.LocalContext.current, speedUnit)
+        AlarmMetric.SPEED, AlarmMetric.GPS_SPEED, AlarmMetric.EXTERNAL_GPS_SPEED ->
+            Units.speedUnit(androidx.compose.ui.platform.LocalContext.current, speedUnit)
         AlarmMetric.TEMPERATURE -> Units.tempUnit(tempUnit)
         else -> metric.unit
     }
@@ -267,23 +268,15 @@ fun AlarmSettingsContent(
 
         Spacer(Modifier.height(8.dp))
 
-        // New alarm sits on the left half of the row (auto-sort removed; group
-        // order is the priority, so an automatic re-sort would fight the rider).
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-            verticalAlignment = Alignment.CenterVertically
+        // New alarm: natural (content) width, left-aligned - not stretched to a
+        // fixed fraction of the row.
+        Button(
+            onClick = { editingRule = null; showEditor = true },
+            shape = RoundedCornerShape(12.dp)
         ) {
-            Button(
-                onClick = { editingRule = null; showEditor = true },
-                modifier = Modifier.weight(1f),
-                shape = RoundedCornerShape(12.dp)
-            ) {
-                Icon(Icons.Default.Add, contentDescription = null, modifier = Modifier.size(18.dp))
-                Spacer(Modifier.width(6.dp))
-                Text(stringResource(R.string.alarm_add))
-            }
-            Spacer(Modifier.weight(1f))
+            Icon(Icons.Default.Add, contentDescription = null, modifier = Modifier.size(18.dp))
+            Spacer(Modifier.width(6.dp))
+            Text(stringResource(R.string.alarm_add))
         }
 
         Spacer(Modifier.height(16.dp))
@@ -311,12 +304,12 @@ fun AlarmSettingsContent(
             // Keep the editor open and show the confirm ON TOP of it; only close
             // the editor once the delete is actually confirmed (see below).
             onDelete = editingRule?.let { r -> { deleteCandidate = r } },
-            onPreviewBeep = { freq, dur, cnt, gap, vol, trans -> viewModel.previewBeep(freq, dur, cnt, gap, vol, trans) },
+            onPreviewBeep = { freq, dur, cnt, gap, vol, trans, wave, fx -> viewModel.previewBeep(freq, dur, cnt, gap, vol, trans, wave, fx) },
             onPreviewTone = { freq, vol -> viewModel.previewToneAt(freq, vol) },
             onPreviewVoice = { text, metric, thr -> viewModel.previewVoice(text, metric, thr) },
             onPreviewVibrate = { dur -> viewModel.previewVibrate(dur) },
             studioPlaying = studioPlaying,
-            onStudioTone = { f, d, c, g, v, t -> viewModel.setStudioTone(f, d, c, g, v, t) },
+            onStudioTone = { f, d, c, g, v, t, w, e -> viewModel.setStudioTone(f, d, c, g, v, t, w, e) },
             onStudioToggle = { repeat -> viewModel.toggleStudioPlay(repeat) },
             onStudioStop = { viewModel.stopStudio() },
         )
@@ -350,6 +343,8 @@ private fun metricAccent(metric: AlarmMetric): androidx.compose.ui.graphics.Colo
     AlarmMetric.PWM -> MaterialTheme.appColors.gaugeWarn
     AlarmMetric.VOLTAGE -> MaterialTheme.appColors.metricVoltage
     AlarmMetric.CURRENT -> MaterialTheme.appColors.metricPosition
+    AlarmMetric.GPS_SPEED, AlarmMetric.EXTERNAL_GPS_SPEED -> MaterialTheme.appColors.statusWarn
+    AlarmMetric.EXTERNAL_GPS_BATTERY -> MaterialTheme.appColors.statusGood
     AlarmMetric.RADAR_DISTANCE, AlarmMetric.RADAR_APPROACH_SPEED -> MaterialTheme.appColors.statusDanger
 }
 
@@ -453,12 +448,12 @@ private fun AlarmRuleEditorDialog(
     onSave: (AlarmRule) -> Unit,
     onDismiss: () -> Unit,
     onDelete: (() -> Unit)? = null,
-    onPreviewBeep: (Int, Int, Int, Int, Int, Int) -> Unit,
+    onPreviewBeep: (Int, Int, Int, Int, Int, Int, Int, Int) -> Unit,
     onPreviewTone: (Int, Int) -> Unit,
     onPreviewVoice: (String, AlarmMetric, Float) -> Unit,
     onPreviewVibrate: (Int) -> Unit,
     studioPlaying: Boolean = false,
-    onStudioTone: (Int, Int, Int, Int, Int, Int) -> Unit = { _, _, _, _, _, _ -> },
+    onStudioTone: (Int, Int, Int, Int, Int, Int, Int, Int) -> Unit = { _, _, _, _, _, _, _, _ -> },
     onStudioToggle: (Boolean) -> Unit = {},
     onStudioStop: () -> Unit = {},
 ) {
@@ -476,6 +471,8 @@ private fun AlarmRuleEditorDialog(
     var beepModulation by remember { mutableIntStateOf(initial.beepModulation) }
     var beepGapMs by remember { mutableIntStateOf(initial.beepGapMs) }
     var beepTransitionPct by remember { mutableIntStateOf(initial.beepTransitionPct) }
+    var beepWaveform by remember { mutableIntStateOf(initial.beepWaveform) }
+    var beepEffect by remember { mutableIntStateOf(initial.beepEffect) }
     var beepVolume by remember { mutableIntStateOf(initial.beepVolume) }
     var beepVolumeModulation by remember { mutableIntStateOf(initial.beepVolumeModulation) }
     var beepModulationReachPct by remember { mutableIntStateOf(initial.beepModulationReachPct) }
@@ -540,7 +537,7 @@ private fun AlarmRuleEditorDialog(
             pitchReachPct = beepModulation,
             volReachPct = beepVolumeModulation,
             playing = studioPlaying,
-            onLiveTone = { f, v -> onStudioTone(f, beepDurationMs, beepCount, beepGapMs, v, beepTransitionPct) },
+            onLiveTone = { f, v -> onStudioTone(f, beepDurationMs, beepCount, beepGapMs, v, beepTransitionPct, beepWaveform, beepEffect) },
             onTogglePlay = onStudioToggle,
             onCommit = { p, v -> beepModulation = p; beepVolumeModulation = v },
             onDismiss = { onStudioStop(); showStudio = false },
@@ -592,12 +589,19 @@ private fun AlarmRuleEditorDialog(
                     val repLabel = stringResource(R.string.alarm_repeat_label)
                     val onceLabel = stringResource(R.string.alarm_repeat_single)
                     val manyLabel = stringResource(R.string.alarm_repeat_multi)
+                    val transLabel = stringResource(R.string.alarm_beep_transition_label)
+                    val durLabel = stringResource(R.string.alarm_label_duration)
                     // Spell out exactly what Change will do, from the alarm's current values
                     // (gap is already 0 -- that's what opened this). Only the fields that
-                    // actually change are listed.
+                    // actually change are listed. Transition goes to its 50% max so the
+                    // swells butt together into a smooth, gapless tone instead of clicking,
+                    // and a sub-30ms duration is raised to the 30ms floor so the tone sounds
+                    // rather than clicks.
                     val changes = buildList {
+                        if (beepDurationMs < 30) add("$durLabel: ${beepDurationMs}ms → 30ms")
                         if (cooldownSeconds != 0) add("$cdLabel: ${cooldownSeconds}s → 0s")
                         if (!repeatWhileActive) add("$repLabel: $onceLabel → $manyLabel")
+                        if (beepTransitionPct != 50) add("$transLabel: ${beepTransitionPct}% → 50%")
                     }
                     AlertDialog(
                         onDismissRequest = { showConstantPrompt = false },
@@ -616,6 +620,8 @@ private fun AlarmRuleEditorDialog(
                                 beepGapMs = 0
                                 repeatWhileActive = true
                                 cooldownSeconds = 0
+                                beepTransitionPct = 50
+                                beepDurationMs = beepDurationMs.coerceAtLeast(30)
                                 showConstantPrompt = false
                             }, shape = RoundedCornerShape(12.dp)) {
                                 Text(stringResource(R.string.action_apply), color = MaterialTheme.appColors.statusGood)
@@ -679,7 +685,17 @@ private fun AlarmRuleEditorDialog(
                             label = stringResource(R.string.alarm_metric_label),
                             selected = stringResource(selectedMetric.labelRes),
                             options = metricOptions,
-                            onSelect = { metric = it }
+                            onSelect = { newMetric ->
+                                metric = newMetric
+                                // Picking a metric sets the condition to its
+                                // natural direction (battery/voltage/car
+                                // distance -> "<", everything else -> ">="), so
+                                // a low-battery alarm isn't born as ">= 30%".
+                                // The rider can still flip it after.
+                                comparator = runCatching {
+                                    AlarmMetric.valueOf(newMetric).defaultComparator.name
+                                }.getOrDefault(comparator)
+                            }
                         )
                     }
                     Box(modifier = Modifier.weight(1f)) {
@@ -721,7 +737,7 @@ private fun AlarmRuleEditorDialog(
                     title = stringResource(R.string.alarm_section_beep),
                     color = MaterialTheme.appColors.statusWarn,
                     enabled = beepEnabled,
-                    onPreview = { onPreviewBeep(beepFrequency, beepDurationMs, beepCount, beepGapMs, beepVolume, beepTransitionPct) }
+                    onPreview = { onPreviewBeep(beepFrequency, beepDurationMs, beepCount, beepGapMs, beepVolume, beepTransitionPct, beepWaveform, beepEffect) }
                 )
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -775,10 +791,11 @@ private fun AlarmRuleEditorDialog(
                             NumberUpDown(
                                 value = beepDurationMs,
                                 onValueChange = { beepDurationMs = it },
-                                // Down to 10 ms: with gap 0 the `count` beeps merge into one
-                                // run of duration*count, so a short duration + a higher count
-                                // builds a longer continuous tone in fine increments.
-                                range = 10..1000, step = 10, suffix = "ms",
+                                // Floor 30 ms: shorter tones read as a click rather than a
+                                // pitched beep and can fall under the audio route's start
+                                // latency. With gap 0 the `count` beeps still merge into one
+                                // run of duration*count, so a higher count builds a longer tone.
+                                range = 30..1000, step = 10, suffix = "ms",
                                 label = stringResource(R.string.alarm_label_duration),
                                 modifier = Modifier.weight(1f),
                             )
@@ -821,23 +838,54 @@ private fun AlarmRuleEditorDialog(
                             )
                         }
                         Spacer(Modifier.height(8.dp))
-                        // Pitch + volume modulation is set in a dedicated full-screen
-                        // preview (roomy controls + live audio), not crammed inline.
+                        // Timbre: oscillator shape + a post effect, each a dropdown
+                        // (same combobox as Metric / Condition above).
+                        val waveLabels = listOf(
+                            stringResource(R.string.alarm_wave_sine),
+                            stringResource(R.string.alarm_wave_triangle),
+                            stringResource(R.string.alarm_wave_square),
+                            stringResource(R.string.alarm_wave_saw),
+                            stringResource(R.string.alarm_wave_fm),
+                        )
+                        val effectLabels = listOf(
+                            stringResource(R.string.alarm_fx_none),
+                            stringResource(R.string.alarm_fx_drive),
+                            stringResource(R.string.alarm_fx_sweep),
+                            stringResource(R.string.alarm_fx_crush),
+                        )
                         Row(
                             modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.spacedBy(8.dp),
-                            verticalAlignment = Alignment.CenterVertically
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
-                            Button(
-                                onClick = { showStudio = true },
-                                modifier = Modifier.weight(1f),
-                                shape = RoundedCornerShape(12.dp),
-                            ) {
-                                Icon(Icons.Default.Tune, contentDescription = null, modifier = Modifier.size(18.dp))
-                                Spacer(Modifier.width(6.dp))
-                                Text(stringResource(R.string.alarm_beep_studio))
+                            Box(modifier = Modifier.weight(1f)) {
+                                DropdownSelect(
+                                    label = stringResource(R.string.alarm_beep_wave_label),
+                                    selected = waveLabels.getOrElse(beepWaveform) { waveLabels[0] },
+                                    options = waveLabels.mapIndexed { i, l -> i.toString() to l },
+                                    onSelect = { beepWaveform = it.toIntOrNull() ?: 0 }
+                                )
                             }
-                            Spacer(Modifier.weight(1f))
+                            Box(modifier = Modifier.weight(1f)) {
+                                DropdownSelect(
+                                    label = stringResource(R.string.alarm_beep_effect_label),
+                                    selected = effectLabels.getOrElse(beepEffect) { effectLabels[0] },
+                                    options = effectLabels.mapIndexed { i, l -> i.toString() to l },
+                                    onSelect = { beepEffect = it.toIntOrNull() ?: 0 }
+                                )
+                            }
+                        }
+                        Spacer(Modifier.height(8.dp))
+                        // Pitch + volume modulation is set in a dedicated full-screen
+                        // preview (roomy controls + live audio), not crammed inline.
+                        // Natural (content) width at the 56dp field height, not stretched.
+                        Button(
+                            onClick = { showStudio = true },
+                            modifier = Modifier.height(56.dp),
+                            shape = RoundedCornerShape(12.dp),
+                        ) {
+                            Icon(Icons.Default.Tune, contentDescription = null, modifier = Modifier.size(18.dp))
+                            Spacer(Modifier.width(6.dp))
+                            Text(stringResource(R.string.alarm_beep_studio))
                         }
                     }
                 }
@@ -919,7 +967,7 @@ private fun AlarmRuleEditorDialog(
                     )
                     Box(modifier = Modifier.fillMaxWidth().padding(top = 9.dp)) {
                         SingleChoiceSegmentedButtonRow(
-                            modifier = Modifier.fillMaxWidth().height(48.dp)
+                            modifier = Modifier.fillMaxWidth().height(56.dp)
                         ) {
                             targetEntries.forEachIndexed { index, (key, label) ->
                                 SegmentedButton(
@@ -1000,7 +1048,7 @@ private fun AlarmRuleEditorDialog(
                         )
                         Box(modifier = Modifier.weight(1f).padding(top = 9.dp)) {
                             SingleChoiceSegmentedButtonRow(
-                                modifier = Modifier.fillMaxWidth().height(48.dp)
+                                modifier = Modifier.fillMaxWidth().height(56.dp)
                             ) {
                                 repeatEntries.forEachIndexed { index, (value, lbl) ->
                                     SegmentedButton(
@@ -1043,7 +1091,7 @@ private fun AlarmRuleEditorDialog(
                     val leadValues = listOf(0, 500, 1000, 2000, 3000)
                     Box(modifier = Modifier.fillMaxWidth().padding(top = 9.dp)) {
                         SingleChoiceSegmentedButtonRow(
-                            modifier = Modifier.fillMaxWidth().height(44.dp)
+                            modifier = Modifier.fillMaxWidth().height(56.dp)
                         ) {
                             leadValues.forEachIndexed { index, ms ->
                                 SegmentedButton(
@@ -1117,6 +1165,8 @@ private fun AlarmRuleEditorDialog(
                                         beepModulation = beepModulation,
                                         beepGapMs = beepGapMs,
                                         beepTransitionPct = beepTransitionPct,
+                                        beepWaveform = beepWaveform,
+                                        beepEffect = beepEffect,
                                         beepVolume = beepVolume,
                                         beepVolumeModulation = beepVolumeModulation,
                                         beepModulationReachPct = beepModulationReachPct,
@@ -1769,18 +1819,30 @@ private fun DropdownSelect(
         expanded = expanded,
         onExpandedChange = { expanded = it }
     ) {
-        OutlinedTextField(
-            value = selected,
-            onValueChange = {},
-            readOnly = true,
-            label = { Text(label) },
-            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded) },
-            modifier = Modifier
-                .fillMaxWidth()
-                .menuAnchor(MenuAnchorType.PrimaryNotEditable),
-            shape = RoundedCornerShape(12.dp),
-            colors = themedFieldColors(),
-        )
+        // Draw the label with FieldNotchLabel (the same notch label NumberUpDown
+        // uses) instead of the OutlinedTextField's built-in floating label, so the
+        // dropdown and stepper labels render identically in every theme. The native
+        // label shows the surface behind the field, while the notch label paints
+        // surfaceVariant - in a theme where those differ (e.g. the light theme:
+        // white surface, #EEE variant) the two looked different side by side.
+        Box(modifier = Modifier.padding(top = 8.dp)) {
+            OutlinedTextField(
+                value = selected,
+                onValueChange = {},
+                readOnly = true,
+                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded) },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    // Pin to the same 56dp as NumberUpDown's fieldHeight so combo
+                    // boxes and numeric fields are the same height (dropping the
+                    // built-in label let the field shrink below the standard).
+                    .heightIn(min = 56.dp)
+                    .menuAnchor(MenuAnchorType.PrimaryNotEditable),
+                shape = RoundedCornerShape(12.dp),
+                colors = themedFieldColors(),
+            )
+            FieldNotchLabel(label)
+        }
         ExposedDropdownMenu(
             expanded = expanded,
             onDismissRequest = { expanded = false },

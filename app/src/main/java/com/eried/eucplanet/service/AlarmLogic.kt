@@ -150,6 +150,8 @@ object AlarmLogic {
 
     fun metricReadMax(metric: String): Float = when (metric) {
         AlarmMetric.SPEED.name -> 150f
+        AlarmMetric.GPS_SPEED.name -> 150f
+        AlarmMetric.EXTERNAL_GPS_SPEED.name -> 150f
         AlarmMetric.BATTERY.name -> 100f
         AlarmMetric.PWM.name -> 100f
         AlarmMetric.TEMPERATURE.name -> 90f

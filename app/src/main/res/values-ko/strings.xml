@@ -4,6 +4,30 @@
     <string name="notification_channel_name">휠 연결</string>
     <string name="notification_channel_description">휠 연결 상태 및 텔레메트리 표시</string>
 
+    <!-- Notification quick actions -->
+    <string name="notif_actions_section">사용자화</string>
+    <string name="notif_actions_enable">알림 작업 표시</string>
+    <string name="notif_actions_enable_desc">진행 중인 알림에 빠른 작업 버튼을 추가합니다.</string>
+    <string name="notif_actions_pick_desc">최대 %1$d개 작업 선택. 같은 작업을 반복할 수 있습니다.</string>
+    <string name="notif_action_slot">작업 %1$d</string>
+    <string name="notif_action_stop_all">모두 정지</string>
+    <string name="notif_action_lock">잠금 / 잠금 해제</string>
+    <string name="notif_action_light">라이트 켜기 / 끄기</string>
+    <string name="notif_action_record">기록 / 정지</string>
+    <string name="notif_action_horn">경적</string>
+    <string name="notif_action_disconnect">연결 해제</string>
+    <string name="notif_action_stop_nav">내비 정지</string>
+    <string name="notif_btn_stop_all">모두 정지</string>
+    <string name="notif_btn_lock">잠금</string>
+    <string name="notif_btn_unlock">잠금 해제</string>
+    <string name="notif_btn_light_on">라이트 켜기</string>
+    <string name="notif_btn_light_off">라이트 끄기</string>
+    <string name="notif_btn_record">기록</string>
+    <string name="notif_btn_stop_record">정지</string>
+    <string name="notif_btn_horn">경적</string>
+    <string name="notif_btn_disconnect">연결 해제</string>
+    <string name="notif_btn_stop_nav">내비 정지</string>
+
     <!-- Common -->
     <string name="action_back">뒤로</string>
     <string name="action_cancel">취소</string>
@@ -214,6 +238,10 @@
     <string name="metric_chip_motor_temp">모터 온도</string>
     <string name="metric_chip_controller_temp">컨트롤러 온도</string>
     <string name="metric_chip_battery_temp">배터리 온도</string>
+    <string name="metric_chip_tire_pressure">타이어 공기압</string>
+    <string name="metric_chip_tire_pressure_tile">타이어</string>
+    <string name="metric_desc_tire_pressure">연결된 TPMS 센서(InMotion P6)의 타이어 공기압. psi 또는 bar로 표시.</string>
+    <string name="studio_metric_tire_pressure">타이어 공기압</string>
     <string name="metric_chip_headroom">헤드룸</string>
     <string name="metric_chip_trip_time">트립 시간</string>
     <string name="metric_chip_trip_max_speed">트립 최고속</string>
@@ -226,6 +254,7 @@
     <string name="metric_chip_gps_speed">GPS 속도</string>
     <string name="metric_chip_gps_heading">방위</string>
     <string name="metric_chip_gps_accuracy">GPS 정확도</string>
+    <string name="metric_chip_external_gps_battery">외부 GPS 배터리</string>
     <string name="metric_chip_slope">경사</string>
     <string name="metric_chip_ascent">오르막</string>
     <string name="metric_chip_descent">내리막</string>
@@ -253,6 +282,7 @@
     <string name="metric_chip_dyn_current_limit_tile">전류제한</string>
     <string name="metric_chip_phone_battery_tile">폰</string>
     <string name="metric_chip_gps_accuracy_tile">GPS ±</string>
+    <string name="metric_chip_external_gps_battery_tile">GPS 배터리</string>
     <string name="metric_chip_odometer_tile">주행계</string>
     <string name="metric_chip_trip_max_speed_tile">최고속</string>
     <string name="metric_chip_avg_trip_speed_tile">평균속</string>
@@ -282,6 +312,7 @@
     <string name="metric_desc_regen_wh">이번 트립에서 제동 중 배터리로 회생된 총 Wh.</string>
     <string name="metric_desc_bt_rssi">휠까지의 블루투스 신호 강도. 0 dBm에 가까울수록 강합니다.</string>
     <string name="metric_desc_gps_accuracy">GPS 위치 오차 반경. 낮을수록 정확합니다.</string>
+    <string name="metric_desc_external_gps_battery">페어링된 외부 GPS (RaceBox, Dragy)의 배터리. 주행 중 방전되기 전에 줄어드는 것을 볼 수 있습니다.</string>
 
     <!-- Action labels for the dashboard layout chips -->
     <string name="action_chip_horn">경적</string>
@@ -539,8 +570,8 @@
     <!-- Settings: Voice -->
     <string name="section_announcements">알림</string>
     <string name="section_speech">음성</string>
-    <string name="section_report_status">상태 보고</string>
-    <string name="voice_enabled">주기적으로 상태 보고</string>
+    <string name="section_report_status">주기적·트리거 음성 보고</string>
+    <string name="voice_enabled">주기적 보고 켜기</string>
     <string name="voice_interval">간격</string>
     <string name="announce_wheel_lock">휠 잠금 / 해제</string>
     <string name="announce_lights">라이트 켜기 / 끄기</string>
@@ -682,6 +713,15 @@
     <string name="flic_double_click">더블 클릭</string>
     <string name="flic_hold">길게 누르기</string>
     <string name="section_external_gps">GPS &amp; 센서</string>
+    <!-- TPMS sensors -->
+    <string name="section_tpms">TPMS 센서</string>
+    <string name="tpms_caption">휠의 센서에서 오는 타이어 공기압 (InMotion P6 등).</string>
+    <string name="tpms_wheel_sensor">휠 타이어 공기압</string>
+    <string name="tpms_wheel_sensor_desc">연결된 센서에서 전달됨</string>
+    <string name="tpms_idle">아직 보고하는 센서가 없습니다</string>
+    <string name="tpms_pair_title">다른 센서 페어링</string>
+    <string name="tpms_pair_replaces">추가 센서는 휠의 내장 센서(있는 경우)를 대체합니다.</string>
+    <string name="tpms_scan">센서 검색</string>
     <string name="external_gps_device_title">외부 GPS</string>
     <string name="external_gps_pair_button">스캔 시작</string>
     <string name="external_gps_pair_action">페어링</string>
@@ -773,6 +813,11 @@
     <string name="alarm_metric_pwm_voice" translatable="false">PWM</string>
     <string name="alarm_metric_voltage">전압</string>
     <string name="alarm_metric_current">전류</string>
+    <string name="alarm_metric_gps_speed">GPS 속도</string>
+    <string name="alarm_metric_external_gps_speed">외부 GPS 속도</string>
+    <string name="alarm_metric_external_gps_battery">외부 GPS 배터리</string>
+    <string name="alarm_metric_external_gps_speed_short">외부GPS속도</string>
+    <string name="alarm_metric_external_gps_battery_short">외부GPS배터리</string>
     <string name="alarm_metric_radar_distance">차량 거리</string>
     <string name="alarm_metric_radar_approach">차량 접근</string>
 
@@ -1328,6 +1373,9 @@
     <string name="studio_metric_pitch">피치</string>
     <string name="studio_metric_roll">롤</string>
     <string name="studio_metric_g_force">G-force</string>
+    <string name="studio_metric_external_gps_battery">외장 GPS 배터리</string>
+    <string name="studio_metric_external_gps_speed">외부 GPS 속도</string>
+    <string name="studio_metric_gps">GPS 좌표</string>
 
     <!-- Navigator -->
     <string name="nav_open">내비게이터 열기</string>
@@ -1381,6 +1429,7 @@
     </string-array>
     <string name="nav_my_location">내 위치</string>
     <string name="nav_no_location">GPS 신호 대기 중…</string>
+    <string name="nav_too_far_to_start">첫 번째 경유지가 너무 멉니다. 시작을 길게 누르면 그래도 내비게이션을 시작합니다.</string>
     <string name="nav_empty_hint">지도를 탭하거나 검색하거나 GPX 파일을 불러오세요</string>
     <string name="nav_route_failed">경로 서비스를 사용할 수 없어 직선으로 표시합니다</string>
     <string name="nav_cant_add_while_running">내비게이션 중에는 경유지를 추가할 수 없습니다</string>
@@ -1741,6 +1790,8 @@
     <string name="adv_nav_inter_stop_desc">다음 경유지가 도착으로 인정되기 전 한 경유지를 얼마나 지나야 하는지 결정합니다. 주의: 너무 낮으면 경유지를 건너뛸 수 있습니다.</string>
     <string name="adv_nav_intermediate_flash">경유지 플래시 시간</string>
     <string name="adv_nav_intermediate_flash_desc">경유지 도착 플래시가 표시되는 시간을 결정합니다.</string>
+    <string name="adv_nav_max_start">최대 시작 거리</string>
+    <string name="adv_nav_max_start_desc">내비게이션을 시작할 수 있는 첫 번째 경유지까지의 최대 거리입니다. 이를 넘으면 내 위치에서 이어지는 선이 숨겨지고 시작이 차단됩니다. 경로 계획은 계속 가능합니다.</string>
     <string name="adv_nav_moving">이동 속도</string>
     <string name="adv_nav_moving_desc">방위와 안내를 위해 이동 중으로 간주되는 속도 기준을 결정합니다. 주의: 너무 높으면 저속 주행을 무시합니다.</string>
     <string name="adv_nav_offroute_grace">경로 이탈 유예</string>
@@ -1760,6 +1811,8 @@
     <string name="adv_nav_warning">내비게이션이 반응하는 시점을 바꿉니다. 잘못된 값은 음성 안내나 경로 재탐색이 너무 일찍 또는 너무 늦게 작동하게 할 수 있습니다.</string>
     <string name="adv_phone_gps_interval">폰 GPS 업데이트 간격</string>
     <string name="adv_phone_gps_interval_desc">GPS 경로의 부드러움과 내비게이션 반응 속도를 결정합니다. 낮을수록 자주 업데이트합니다. 주의: 낮은 값은 배터리를 더 빨리 소모합니다.</string>
+    <string name="adv_phone_gps_idle_interval">GPS 대기 간격</string>
+    <string name="adv_phone_gps_idle_interval_desc">기록이나 내비게이션을 하지 않을 때의 GPS 갱신 간격. 내비게이터와 새 연결이 준비 상태를 유지합니다. 값이 클수록 배터리 절약.</string>
     <string name="adv_pushonly_note">일부 기기는 자체 고정 속도로 스트리밍하며 이 설정을 무시합니다: 푸시 전용 휠 (Begode, Gotway, Veteran, KingSong), 외부 GPS (RaceBox), 레이더 및 Flic 버튼.</string>
     <string name="adv_radar_clear_decay">레이더 차선 감쇠</string>
     <string name="adv_radar_clear_decay_desc">도로가 비워진 후 차선 바가 유지되는 시간을 결정합니다. 주의: 너무 낮으면 차량이 오가며 깜빡입니다.</string>
@@ -1896,4 +1949,36 @@
     <string name="alarm_constant_title">연속음?</string>
     <string name="alarm_constant_body">간격 0 ms는 끊김 없는 하나의 음이 됩니다. 계속 울리게 하려면 다음도 설정:</string>
     <string name="alarm_constant_never">다시 묻지 않음</string>
+    <string name="nav_start_btn">시작</string>
+    <string name="alarm_beep_wave_label">파형</string>
+    <string name="alarm_beep_effect_label">이펙트</string>
+    <string name="alarm_wave_sine">사인</string>
+    <string name="alarm_wave_triangle">삼각</string>
+    <string name="alarm_wave_square">사각</string>
+    <string name="alarm_wave_saw">톱니</string>
+    <string name="alarm_wave_fm">FM</string>
+    <string name="alarm_fx_none">클린</string>
+    <string name="alarm_fx_drive">오버드라이브</string>
+    <string name="alarm_fx_sweep">필터</string>
+    <string name="alarm_fx_crush">비트크러시</string>
+
+    <!-- Speed splits (spoken accel/brake step timing) -->
+    <string name="section_accel_splits">속도 구간</string>
+    <string name="accel_splits_enabled">시간 안내</string>
+    <string name="accel_splits_desc">가속 또는 감속하며 각 속도 단계를 통과하는 시간을 읽어 줍니다. 아래 시작 속도부터 설정한 단계 간격으로 시작합니다.</string>
+    <string name="accel_split_decel_prefix">브레이크, </string>
+    <string name="accel_splits_from">시작</string>
+    <string name="accel_splits_step">단계</string>
+    <string name="accel_splits_dir_accel">가속</string>
+    <string name="accel_splits_dir_brake">제동</string>
+    <string name="accel_splits_dir_both">모두</string>
+    <string name="accel_splits_compare_previous">이전 주행과 비교</string>
+    <string name="accel_splits_compare_best">세션 최고와 비교</string>
+    <string name="accel_split_time_fmt">%1$d에서 %2$d까지, %3$s초</string>
+    <string name="accel_split_faster_prev">, 이전보다 %1$s초 빠름</string>
+    <string name="accel_split_slower_prev">, 이전보다 %1$s초 느림</string>
+    <string name="accel_split_faster_best">, 최고보다 %1$s 빠름</string>
+    <string name="accel_split_slower_best">, 최고보다 %1$s 느림</string>
+    <string name="accel_split_best_yet">, 신기록</string>
+    <string name="report_contents">음성 보고 맞춤 설정</string>
 </resources>

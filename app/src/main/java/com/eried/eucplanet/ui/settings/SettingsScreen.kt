@@ -265,6 +265,7 @@ import com.eried.eucplanet.ui.theme.themedFilterChipColors
 import com.eried.eucplanet.ui.theme.themedSegmentedColors
 import com.eried.eucplanet.ui.theme.themedSliderColors
 import com.eried.eucplanet.ui.theme.themedSwitchColors
+import com.eried.eucplanet.data.model.NotificationActionType
 import com.eried.eucplanet.ui.theme.themedTextButtonColors
 import com.eried.eucplanet.ui.theme.themedTonalButtonColors
 import com.eried.eucplanet.util.Units
@@ -599,7 +600,10 @@ fun SettingsScreen(
         stringResource(R.string.radar_caption),
         stringResource(R.string.section_hud_companion),
         stringResource(R.string.hud_server_enabled),
-        stringResource(R.string.hud_search_corpus)
+        stringResource(R.string.hud_search_corpus),
+        stringResource(R.string.section_tpms),
+        stringResource(R.string.tpms_caption),
+        stringResource(R.string.tpms_wheel_sensor)
     ).joinToString(" ")
 
     val corpusNavigator = listOf(
@@ -1100,6 +1104,66 @@ private fun GeneralTab(
             onChange = { viewModel.updateBackButtonAction(it) },
         )
         HintText(stringResource(R.string.back_button_action_desc), small = true)
+
+        // Rider-chosen quick actions on the ongoing notification (Tesla-style).
+        // The enable toggle stays outside the collapsible so it is always
+        // visible; the collapsible holds the per-slot pickers. A not-applicable
+        // pick (Stop navigation while not navigating) is hidden at build time
+        // since Android cannot grey out a notification action.
+        SwitchSetting(
+            stringResource(R.string.notif_actions_enable),
+            settings.notificationActionsEnabled,
+        ) { viewModel.updateNotificationActionsEnabled(it) }
+        HintText(stringResource(R.string.notif_actions_enable_desc), small = true)
+
+        // Only offer the picker while the feature is on; the toggle above stays
+        // visible so it can be turned back on. Default on, so it shows by default.
+        if (settings.notificationActionsEnabled) {
+            val actionSlots = remember(settings.notificationActions) {
+                NotificationActionType.slots(settings.notificationActions)
+            }
+            // Same in-tab expandable style as the voice "Customize" section.
+            AdvancedCollapsable(
+                title = stringResource(R.string.notif_actions_section),
+                stateKey = "notif-actions-customize",
+            ) {
+                HintText(
+                    stringResource(R.string.notif_actions_pick_desc, NotificationActionType.SLOTS),
+                    small = true,
+                )
+                // Half-width combos like the Flic pickers: two per row, the
+                // third half-width below.
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                ) {
+                    NotificationActionSlotDropdown(
+                        label = stringResource(R.string.notif_action_slot, 1),
+                        currentKey = actionSlots[0],
+                        onSelect = { viewModel.updateNotificationActionSlot(0, it) },
+                        modifier = Modifier.weight(1f),
+                    )
+                    NotificationActionSlotDropdown(
+                        label = stringResource(R.string.notif_action_slot, 2),
+                        currentKey = actionSlots[1],
+                        onSelect = { viewModel.updateNotificationActionSlot(1, it) },
+                        modifier = Modifier.weight(1f),
+                    )
+                }
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                ) {
+                    NotificationActionSlotDropdown(
+                        label = stringResource(R.string.notif_action_slot, 3),
+                        currentKey = actionSlots[2],
+                        onSelect = { viewModel.updateNotificationActionSlot(2, it) },
+                        modifier = Modifier.weight(1f),
+                    )
+                    Spacer(Modifier.weight(1f))
+                }
+            }
+        }
 
         Box(
             modifier = if (scrollToBattery) {
@@ -3909,10 +3973,11 @@ private fun CompositeMetricSheet(
             // (2 rows / 2 cols / 3 cols) feel more like a single switch
             // when bound together as a segmented row rather than three
             // independent chips. No title; the labels speak for themselves.
-            SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
+            SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth().height(56.dp)) {
                 val options = CompositeLayout.values()
                 options.forEachIndexed { index, lay ->
                     CompactSegmentedButton(
+                        modifier = Modifier.fillMaxHeight(),
                         selected = layout == lay,
                         onClick = {
                             layout = lay
@@ -4087,6 +4152,68 @@ private fun CompositeCellDropdown(
                         }
                     )
                 }
+            }
+        }
+    }
+}
+
+/**
+ * One notification-action slot picker (Customize actions, General tab).
+ * Mirrors the Flic button dropdown: a readonly field over "None" + the
+ * [NotificationActionType] entries. Each slot is independent, so the same
+ * action may be picked in more than one slot.
+ */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun NotificationActionSlotDropdown(
+    label: String,
+    currentKey: String,
+    onSelect: (String) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    var expanded by remember { mutableStateOf(false) }
+    val noneLabel = stringResource(R.string.flic_action_none)
+    val currentLabel = NotificationActionType.byKey(currentKey)
+        ?.pickerLabel?.let { stringResource(it) } ?: noneLabel
+    ExposedDropdownMenuBox(
+        expanded = expanded,
+        onExpandedChange = { expanded = !expanded },
+        modifier = modifier,
+    ) {
+        OutlinedTextField(
+            value = currentLabel,
+            onValueChange = {},
+            readOnly = true,
+            singleLine = true,
+            label = { Text(label) },
+            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+            modifier = Modifier
+                .menuAnchor(MenuAnchorType.PrimaryNotEditable)
+                .fillMaxWidth(),
+            colors = themedFieldColors(),
+            shape = RoundedCornerShape(12.dp),
+        )
+        ExposedDropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false },
+            containerColor = MaterialTheme.appColors.menuBackground,
+        ) {
+            // Synthetic "None" first option = clear the slot (mirrors Flic).
+            DropdownMenuItem(
+                text = { Text(noneLabel) },
+                onClick = {
+                    onSelect(NotificationActionType.NONE)
+                    expanded = false
+                },
+            )
+            NotificationActionType.entries.forEach { type ->
+                DropdownMenuItem(
+                    text = { Text(stringResource(type.pickerLabel)) },
+                    onClick = {
+                        onSelect(type.key)
+                        expanded = false
+                    },
+                )
             }
         }
     }
@@ -4669,9 +4796,10 @@ private fun CustomTileSheet(
             // Show QR. NONE reads as "Text" because a custom tile with no
             // action is just a label — the rider already named it via the
             // text field above.
-            SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
+            SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth().height(56.dp)) {
                 CustomTileAction.values().forEachIndexed { index, opt ->
                     CompactSegmentedButton(
+                        modifier = Modifier.fillMaxHeight(),
                         selected = action == opt,
                         onClick = {
                             action = opt
@@ -6069,36 +6197,6 @@ private fun VoiceTab(
 
         SectionHeader(stringResource(R.string.section_announcements))
 
-        BringIntoViewSection(expanded = settings.voiceEnabled) {
-        SwitchSetting(stringResource(R.string.voice_enabled), settings.voiceEnabled) {
-            viewModel.updateVoiceEnabled(it)
-        }
-
-        if (settings.voiceEnabled) {
-            AnnounceWhenSelector(
-                current = settings.voiceAnnounceWhen,
-                onChange = { viewModel.updateVoiceAnnounceWhen(it) }
-            )
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                NumberUpDown(
-                    value = settings.voiceIntervalSeconds,
-                    onValueChange = {
-                        viewModel.updateVoiceInterval((Math.round(it / 10f) * 10).coerceIn(10, 300))
-                    },
-                    range = 10..300,
-                    step = 10,
-                    suffix = "s",
-                    label = stringResource(R.string.voice_interval),
-                    modifier = Modifier.weight(1f),
-                )
-                Spacer(Modifier.weight(1f))
-            }
-        }
-        }   // end voiceEnabled BringIntoViewSection
-
         // Navigation turn-by-turn voice guidance, uses the same row as the
         // announcement toggles below, so its preview button lines up with them.
         val navSample = stringResource(R.string.nav_arrived)
@@ -6146,8 +6244,9 @@ private fun VoiceTab(
             onCheckedChange = { viewModel.updateAnnounceWelcome(it) },
             onTest = { viewModel.testSpeak(sWelcome) })
 
-        SectionHeader(stringResource(R.string.section_report_status))
-
+        // Report status: the periodic-report enable + when/interval, then the
+        // draggable per-metric Periodic/Trigger matrix, all tucked into a
+        // collapsible so the long list no longer dominates the tab.
         val sSpeedEx = stringResource(R.string.voice_speed_fmt, "35")
         val sBatteryEx = stringResource(R.string.voice_battery_fmt, 80)
         val sPhoneEx = stringResource(R.string.voice_phone_battery_fmt, 57)
@@ -6220,6 +6319,45 @@ private fun VoiceTab(
             return parts.joinToString(", ")
         }
 
+        SectionHeader(stringResource(R.string.section_report_status))
+        // The toggle enables only the periodic loop, so the when/interval
+        // controls hide with it. The Customize matrix below stays visible
+        // regardless, since its Trigger column configures the manual/Flic
+        // triggered report too.
+        SwitchSetting(stringResource(R.string.voice_enabled), settings.voiceEnabled) {
+            viewModel.updateVoiceEnabled(it)
+        }
+        if (settings.voiceEnabled) {
+            AnnounceWhenSelector(
+                current = settings.voiceAnnounceWhen,
+                onChange = { viewModel.updateVoiceAnnounceWhen(it) }
+            )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                NumberUpDown(
+                    value = settings.voiceIntervalSeconds,
+                    onValueChange = {
+                        viewModel.updateVoiceInterval((Math.round(it / 10f) * 10).coerceIn(10, 300))
+                    },
+                    range = 10..300,
+                    step = 10,
+                    suffix = "s",
+                    label = stringResource(R.string.voice_interval),
+                    modifier = Modifier.weight(1f),
+                )
+                Spacer(Modifier.weight(1f))
+            }
+        }
+
+        // Customize stays visible even when periodic reports are off: its
+        // Periodic/Trigger matrix also configures the manual / Flic triggered
+        // report, which works independently of the periodic loop.
+        AdvancedCollapsable(
+            title = stringResource(R.string.report_contents),
+            stateKey = "voice-report-contents"
+        ) {
         // Header: Label | Periodic | arrows | Trigger
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -6319,6 +6457,92 @@ private fun VoiceTab(
                     onTest = { viewModel.testSpeak(item.testText) },
                     dragHandleModifier = Modifier.draggableHandle()
                 )
+            }
+        }
+        }   // end Customize AdvancedCollapsable
+
+        // --- Acceleration splits (RaceBox-style) ---
+        SectionHeader(stringResource(R.string.section_accel_splits))
+        val accel = settings.accelSplit
+        val ctxAccel = androidx.compose.ui.platform.LocalContext.current
+        val accelUnit = Units.speedUnit(ctxAccel, Units.effectiveSpeedUnit(settings))
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(stringResource(R.string.accel_splits_enabled), style = MaterialTheme.typography.bodyLarge)
+                Spacer(Modifier.width(6.dp))
+                PlayButton(onClick = {
+                    viewModel.testSpeak(
+                        com.eried.eucplanet.service.AccelSplitVoice.previewText(ctxAccel, accel)
+                    )
+                })
+            }
+            Switch(
+                checked = accel.enabled,
+                onCheckedChange = { viewModel.updateAccelSplitEnabled(it) },
+                colors = themedSwitchColors()
+            )
+        }
+
+        if (accel.enabled) {
+            // Direction selector sits directly under the toggle so it's the
+            // first thing the rider sets.
+            val dirOptions = listOf(
+                "ACCEL" to stringResource(R.string.accel_splits_dir_accel),
+                "BRAKE" to stringResource(R.string.accel_splits_dir_brake),
+                "BOTH" to stringResource(R.string.accel_splits_dir_both),
+            )
+            SingleChoiceSegmentedButtonRow(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(56.dp)
+            ) {
+                dirOptions.forEachIndexed { i, (key, label) ->
+                    SegmentedButton(
+                        modifier = Modifier.fillMaxHeight(),
+                        selected = key == accel.direction,
+                        onClick = { viewModel.updateAccelSplitDirection(key) },
+                        shape = SegmentedButtonDefaults.itemShape(i, dirOptions.size, baseShape = RoundedCornerShape(12.dp)),
+                        colors = themedSegmentedColors(),
+                    ) { Text(label) }
+                }
+            }
+
+            HintText(stringResource(R.string.accel_splits_desc), small = true)
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                NumberUpDown(
+                    value = accel.minSpeed,
+                    onValueChange = { viewModel.updateAccelSplitMinSpeed(it) },
+                    range = 0..200,
+                    step = 5,
+                    suffix = accelUnit,
+                    label = stringResource(R.string.accel_splits_from),
+                    modifier = Modifier.weight(1f),
+                )
+                NumberUpDown(
+                    value = accel.increment,
+                    onValueChange = { viewModel.updateAccelSplitIncrement(it) },
+                    range = 1..50,
+                    step = 1,
+                    suffix = accelUnit,
+                    label = stringResource(R.string.accel_splits_step),
+                    modifier = Modifier.weight(1f),
+                )
+            }
+
+            SwitchSetting(stringResource(R.string.accel_splits_compare_previous), accel.compareToPrevious) {
+                viewModel.updateAccelSplitComparePrevious(it)
+            }
+            SwitchSetting(stringResource(R.string.accel_splits_compare_best), accel.compareToBest) {
+                viewModel.updateAccelSplitCompareBest(it)
             }
         }
 
@@ -6481,6 +6705,9 @@ private fun FlicTab(
         settingsViewModel.settings.collectAsState().value?.let { s ->
             HudIntegrationSection(settings = s, viewModel = settingsViewModel)
         }
+
+        SectionHeader(stringResource(R.string.section_tpms))
+        TpmsSection()
     }
 }
 

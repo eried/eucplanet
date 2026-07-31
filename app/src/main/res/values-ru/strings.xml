@@ -4,6 +4,30 @@
     <string name="notification_channel_name">Подключение к моноколесу</string>
     <string name="notification_channel_description">Показывает статус подключения и телеметрию</string>
 
+    <!-- Notification quick actions -->
+    <string name="notif_actions_section">Настроить</string>
+    <string name="notif_actions_enable">Показывать действия в уведомлении</string>
+    <string name="notif_actions_enable_desc">Добавьте кнопки быстрых действий в активное уведомление.</string>
+    <string name="notif_actions_pick_desc">Выберите до %1$d действий. Одно действие можно повторить.</string>
+    <string name="notif_action_slot">Действие %1$d</string>
+    <string name="notif_action_stop_all">Остановить всё</string>
+    <string name="notif_action_lock">Заблокировать / Разблокировать</string>
+    <string name="notif_action_light">Свет вкл. / выкл.</string>
+    <string name="notif_action_record">Запись / Стоп</string>
+    <string name="notif_action_horn">Сигнал</string>
+    <string name="notif_action_disconnect">Отключить</string>
+    <string name="notif_action_stop_nav">Остановить навигацию</string>
+    <string name="notif_btn_stop_all">Стоп всё</string>
+    <string name="notif_btn_lock">Заблок.</string>
+    <string name="notif_btn_unlock">Разблок.</string>
+    <string name="notif_btn_light_on">Свет вкл.</string>
+    <string name="notif_btn_light_off">Свет выкл.</string>
+    <string name="notif_btn_record">Запись</string>
+    <string name="notif_btn_stop_record">Стоп</string>
+    <string name="notif_btn_horn">Сигнал</string>
+    <string name="notif_btn_disconnect">Отключить</string>
+    <string name="notif_btn_stop_nav">Стоп нав.</string>
+
     <!-- Common -->
     <string name="action_back">Назад</string>
     <string name="action_cancel">Отмена</string>
@@ -214,6 +238,10 @@
     <string name="metric_chip_motor_temp">Температура мотора</string>
     <string name="metric_chip_controller_temp">Температура контроллера</string>
     <string name="metric_chip_battery_temp">Температура батареи</string>
+    <string name="metric_chip_tire_pressure">Давление в шине</string>
+    <string name="metric_chip_tire_pressure_tile">Шина</string>
+    <string name="metric_desc_tire_pressure">Давление в шине от привязанного датчика TPMS (InMotion P6). Показывается в psi или bar.</string>
+    <string name="studio_metric_tire_pressure">Давление в шине</string>
     <string name="metric_chip_headroom">Запас</string>
     <string name="metric_chip_trip_time">Время поездки</string>
     <string name="metric_chip_trip_max_speed">Пик поездки</string>
@@ -226,6 +254,7 @@
     <string name="metric_chip_gps_speed">Скор. GPS</string>
     <string name="metric_chip_gps_heading">Курс</string>
     <string name="metric_chip_gps_accuracy">Точность GPS</string>
+    <string name="metric_chip_external_gps_battery">Батарея внешнего GPS</string>
     <string name="metric_chip_slope">Уклон</string>
     <string name="metric_chip_ascent">Подъём</string>
     <string name="metric_chip_descent">Спуск</string>
@@ -253,6 +282,7 @@
     <string name="metric_chip_dyn_current_limit_tile">A limit</string>
     <string name="metric_chip_phone_battery_tile">Тел</string>
     <string name="metric_chip_gps_accuracy_tile">GPS ±</string>
+    <string name="metric_chip_external_gps_battery_tile">GPS бат</string>
     <string name="metric_chip_odometer_tile">Odo</string>
     <string name="metric_chip_trip_max_speed_tile">Max sp</string>
     <string name="metric_chip_avg_trip_speed_tile">Avg sp</string>
@@ -282,6 +312,7 @@
     <string name="metric_desc_regen_wh">Суммарно возвращено ватт-часов в батарею при торможении за эту поездку.</string>
     <string name="metric_desc_bt_rssi">Сила сигнала Bluetooth к колесу, ближе к 0 dBm означает сильнее.</string>
     <string name="metric_desc_gps_accuracy">Радиус погрешности позиционирования GPS, ниже означает точнее.</string>
+    <string name="metric_desc_external_gps_battery">Заряд сопряжённого внешнего GPS (RaceBox, Dragy), чтобы видеть, как он падает, прежде чем сядет посреди поездки.</string>
 
     <!-- Action labels for the dashboard layout chips -->
     <string name="action_chip_horn">Сигнал</string>
@@ -539,8 +570,8 @@
     <!-- Settings: Voice -->
     <string name="section_announcements">Озвучка событий</string>
     <string name="section_speech">Голос</string>
-    <string name="section_report_status">Отчёт о состоянии</string>
-    <string name="voice_enabled">Регулярный отчёт</string>
+    <string name="section_report_status">Периодическая и ручная озвучка</string>
+    <string name="voice_enabled">Включить периодические отчёты</string>
     <string name="voice_announce_when_label">Объявлять</string>
     <string name="voice_announce_always">Всегда</string>
     <string name="voice_announce_connected">Подключено</string>
@@ -686,6 +717,15 @@
     <string name="flic_double_click">Двойное нажатие</string>
     <string name="flic_hold">Удержание</string>
     <string name="section_external_gps">GPS и датчики</string>
+    <!-- TPMS sensors -->
+    <string name="section_tpms">Датчики TPMS</string>
+    <string name="tpms_caption">Давление в шине от датчика на моноколесе, как InMotion P6.</string>
+    <string name="tpms_wheel_sensor">Давление в шине моноколеса</string>
+    <string name="tpms_wheel_sensor_desc">Передаётся от привязанного датчика</string>
+    <string name="tpms_idle">Датчик ещё не передаёт данные</string>
+    <string name="tpms_pair_title">Привязать другой датчик</string>
+    <string name="tpms_pair_replaces">Дополнительный датчик заменяет встроенный в моноколесо, если он есть.</string>
+    <string name="tpms_scan">Искать датчики</string>
     <string name="external_gps_device_title">Внешний GPS</string>
     <string name="external_gps_pair_button">Начать поиск</string>
     <string name="external_gps_pair_action">Подключить</string>
@@ -776,6 +816,11 @@
     <string name="alarm_metric_pwm_voice" translatable="false">PWM</string>
     <string name="alarm_metric_voltage">Напряжение</string>
     <string name="alarm_metric_current">Ток</string>
+    <string name="alarm_metric_gps_speed">Скорость GPS</string>
+    <string name="alarm_metric_external_gps_speed">Скорость внешнего GPS</string>
+    <string name="alarm_metric_external_gps_battery">Батарея внешнего GPS</string>
+    <string name="alarm_metric_external_gps_speed_short">Скор. внеш. GPS</string>
+    <string name="alarm_metric_external_gps_battery_short">Бат. внеш. GPS</string>
     <string name="alarm_metric_radar_distance">Расстояние до машины</string>
     <string name="alarm_metric_radar_approach">Машина приближается</string>
 
@@ -1331,6 +1376,9 @@
     <string name="studio_metric_pitch">Тангаж</string>
     <string name="studio_metric_roll">Крен</string>
     <string name="studio_metric_g_force">G-Force</string>
+    <string name="studio_metric_external_gps_battery">Заряд внеш. GPS</string>
+    <string name="studio_metric_external_gps_speed">Скорость внеш. GPS</string>
+    <string name="studio_metric_gps">Координаты GPS</string>
 
     <!-- Navigator -->
     <string name="nav_open">Открыть навигатор</string>
@@ -1384,6 +1432,7 @@
     </string-array>
     <string name="nav_my_location">Моё местоположение</string>
     <string name="nav_no_location">Ожидание сигнала GPS…</string>
+    <string name="nav_too_far_to_start">Первая остановка слишком далеко. Удерживайте «Пуск», чтобы всё равно начать навигацию.</string>
     <string name="nav_empty_hint">Коснитесь карты, выполните поиск или загрузите файл GPX</string>
     <string name="nav_route_failed">Сервис маршрутов недоступен, используются прямые линии</string>
     <string name="nav_cant_add_while_running">Нельзя добавить остановку во время навигации</string>
@@ -1744,6 +1793,8 @@
     <string name="adv_nav_inter_stop_desc">Влияет на то, как далеко нужно проехать после одной остановки, прежде чем следующая засчитается как достигнутая. Опасно: слишком малое может пропустить остановку.</string>
     <string name="adv_nav_intermediate_flash">Время вспышки точки</string>
     <string name="adv_nav_intermediate_flash_desc">Влияет на то, как долго показывается вспышка достижения точки.</string>
+    <string name="adv_nav_max_start">Макс. расстояние для старта</string>
+    <string name="adv_nav_max_start_desc">Насколько далеко может быть первая остановка, чтобы начать навигацию. За этим пределом линия от вашего местоположения скрывается, а запуск блокируется. Планирование маршрута по-прежнему доступно.</string>
     <string name="adv_nav_moving">Скорость движения</string>
     <string name="adv_nav_moving_desc">Влияет на скорость, выше которой вы считаетесь движущимся для курса и подсказок. Опасно: слишком высокое игнорирует медленную езду.</string>
     <string name="adv_nav_offroute_grace">Льгота схода с маршрута</string>
@@ -1763,6 +1814,8 @@
     <string name="adv_nav_warning">Эти параметры меняют то, когда реагирует навигация. Неверные значения могут заставить голосовые подсказки или перестроение срабатывать слишком рано или слишком поздно.</string>
     <string name="adv_phone_gps_interval">Интервал обновления GPS телефона</string>
     <string name="adv_phone_gps_interval_desc">Влияет на плавность GPS-трека и скорость реакции навигации. Меньше обновляет чаще. Опасно: малые значения быстрее разряжают батарею.</string>
+    <string name="adv_phone_gps_idle_interval">Интервал GPS в покое</string>
+    <string name="adv_phone_gps_idle_interval_desc">Частота GPS в покое, когда нет записи или навигации, чтобы Навигатор и новое подключение были готовы. Больше - экономит батарею.</string>
     <string name="adv_pushonly_note">Некоторые устройства передают данные на своей фиксированной частоте и игнорируют эти настройки: моноколёса с односторонней передачей (Begode, Gotway, Veteran, KingSong), внешний GPS (RaceBox), радар и кнопки Flic.</string>
     <string name="adv_radar_clear_decay">Затухание полосы радара</string>
     <string name="adv_radar_clear_decay_desc">Влияет на то, как долго полоса остаётся после освобождения дороги. Опасно: слишком малое заставляет её мигать по мере появления и исчезновения машин.</string>
@@ -1899,5 +1952,35 @@
     <string name="alarm_constant_title">Непрерывный сигнал?</string>
     <string name="alarm_constant_body">Интервал 0 мс звучит как один непрерывный сигнал. Чтобы он звучал постоянно, задайте также:</string>
     <string name="alarm_constant_never">Больше не спрашивать</string>
+    <string name="nav_start_btn">Пуск</string>
+    <string name="alarm_beep_wave_label">Волна</string>
+    <string name="alarm_beep_effect_label">Эффект</string>
+    <string name="alarm_wave_sine">Синус</string>
+    <string name="alarm_wave_triangle">Треугольник</string>
+    <string name="alarm_wave_square">Меандр</string>
+    <string name="alarm_wave_saw">Пила</string>
+    <string name="alarm_wave_fm">FM</string>
+    <string name="alarm_fx_none">Чистый</string>
+    <string name="alarm_fx_drive">Овердрайв</string>
+    <string name="alarm_fx_sweep">Фильтр</string>
+    <string name="alarm_fx_crush">Биткрашер</string>
+    <string name="section_accel_splits">Интервалы скорости</string>
+    <string name="accel_splits_enabled">Озвучивать время</string>
+    <string name="accel_splits_desc">Озвучивает время прохождения каждого шага скорости при разгоне или торможении. Отсчёт начинается от указанной ниже скорости, с заданным вами шагом.</string>
+    <string name="accel_split_decel_prefix">торможение, </string>
+    <string name="accel_splits_from">От</string>
+    <string name="accel_splits_step">Шаг</string>
+    <string name="accel_splits_dir_accel">Разгон</string>
+    <string name="accel_splits_dir_brake">Тормоз</string>
+    <string name="accel_splits_dir_both">Оба</string>
+    <string name="accel_splits_compare_previous">Сравнивать с прошлым заездом</string>
+    <string name="accel_splits_compare_best">Сравнивать с лучшим за сессию</string>
+    <string name="accel_split_time_fmt">от %1$d до %2$d, %3$s секунды</string>
+    <string name="accel_split_faster_prev">, на %1$s секунды быстрее предыдущего</string>
+    <string name="accel_split_slower_prev">, на %1$s секунды медленнее предыдущего</string>
+    <string name="accel_split_faster_best">, на %1$s быстрее лучшего</string>
+    <string name="accel_split_slower_best">, на %1$s медленнее лучшего</string>
+    <string name="accel_split_best_yet">, лучший результат</string>
+    <string name="report_contents">Настроить голосовой отчёт</string>
 </resources>
 

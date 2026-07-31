@@ -5,6 +5,12 @@
   app/src/garminEnabled/kotlin/com/eried/eucplanet/garmin/GarminProtocol.kt)
   or the phone never finds the watch app.
 
+  UUID history: the original id ee55b467-1529-4dfc-ac0f-c0d30c7cfdf5 is
+  burned. Its store listing was first uploaded with a throwaway CI signing
+  key (lost), and the store binds the manifest id to that key pair forever,
+  rejecting every re-upload. Replaced 2026-07-07 together with the phone-side
+  constant. Never reuse the old id.
+
   Permissions:
     Communications   — talk to the phone companion (snapshot in, control out)
     PersistedContent — remember a small bit of state across cold launches
@@ -33,7 +39,7 @@
       type="watch-app"
       name="@Strings.AppName"
       launcherIcon="@Drawables.LauncherIcon"
-      id="ee55b467-1529-4dfc-ac0f-c0d30c7cfdf5"
+      id="67a42836-76c6-4415-a35c-f02edea339f1"
       minApiLevel="3.0.0">
 
     <iq:products>

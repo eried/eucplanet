@@ -53,6 +53,39 @@ class DataSourcesViewModel @Inject constructor(
          *  full ride episode; the chart filters to the visible time range so
          *  redraw stays fast even at this size. */
         private const val SERIES_WINDOW_MS = 300_000L
+        /** Minimum spacing between kept series samples (~10 Hz). The snapshot
+         *  combine is driven by the phone IMU at ~50 Hz, but the Compare line
+         *  charts are a few hundred pixels wide, so 10 Hz is already finer than
+         *  the display can resolve. Without this cap the per-source buffers
+         *  grew to ~15k points and BOTH the append (O(n) dropWhile+concat) and
+         *  the Canvas redraw ran at 50 Hz on the main thread, saturating it
+         *  into an ANR partway through a ride. Decimating here bounds the buffer
+         *  to ~3k points and lets 4 of every 5 appends return unchanged (no
+         *  StateFlow emit, so the chart recomposes at ~10 Hz, not ~50 Hz). */
+        private const val SERIES_MIN_INTERVAL_MS = 100L
+
+        /**
+         * Append `(now, v)` to a rolling time-series, decimated and windowed.
+         * Pure so it can be unit-tested without a ViewModel:
+         *  - returns the SAME list instance (no allocation, no change) when the
+         *    last kept sample is newer than [minIntervalMs] - this is what makes
+         *    the high-rate no-op path cheap and keeps StateFlow from emitting;
+         *  - otherwise drops points older than [windowMs] and appends the new one.
+         */
+        internal fun appendDecimated(
+            points: List<Pair<Long, Float>>,
+            now: Long,
+            v: Float,
+            windowMs: Long,
+            minIntervalMs: Long
+        ): List<Pair<Long, Float>> {
+            val last = points.lastOrNull()
+            if (last != null && now - last.first < minIntervalMs) return points
+            val cutoff = now - windowMs
+            val kept = if (points.isEmpty() || points.first().first >= cutoff) points
+                else points.dropWhile { it.first < cutoff }
+            return kept + (now to v)
+        }
     }
 
     // Phone IMU trail, rolling buffer of (xG, zG) offsets used by the
@@ -125,9 +158,10 @@ class DataSourcesViewModel @Inject constructor(
     private fun appendSeries(flow: MutableStateFlow<TimedSeries>?, now: Long, v: Float?) {
         if (flow == null || v == null) return
         flow.update { current ->
-            val cutoff = now - SERIES_WINDOW_MS
-            val kept = current.points.dropWhile { it.first < cutoff }
-            TimedSeries(kept + (now to v))
+            val next = appendDecimated(current.points, now, v, SERIES_WINDOW_MS, SERIES_MIN_INTERVAL_MS)
+            // Same instance back means "too soon, skipped": return the existing
+            // TimedSeries so StateFlow stays quiet and the chart doesn't redraw.
+            if (next === current.points) current else TimedSeries(next)
         }
     }
 
