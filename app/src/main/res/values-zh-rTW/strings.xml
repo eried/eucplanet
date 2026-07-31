@@ -1377,6 +1377,24 @@
     <string name="studio_metric_external_gps_battery">外接 GPS 電池</string>
     <string name="studio_metric_external_gps_speed">外部GPS速度</string>
     <string name="studio_metric_gps_speed">GPS速度</string>
+    <string name="metric_chip_trip_meter">行程里程錶</string>
+    <string name="trip_meter_detail_title">行程里程錶</string>
+    <string name="trip_meter_tab_speed">速度</string>
+    <string name="trip_meter_tab_battery">電池</string>
+    <string name="trip_meter_tab_time">時間</string>
+    <string name="trip_meter_total">總計</string>
+    <string name="trip_meter_active">行駛</string>
+    <string name="trip_meter_avg">平均</string>
+    <string name="trip_meter_reset">重設行程里程錶</string>
+    <string name="trip_meter_reset_msg">這會將進行中的距離歸零並清除所有區段。此操作無法復原。</string>
+    <string name="trip_meter_empty">尚無距離。連接車輪時計數器會持續計算。</string>
+    <string name="trip_meter_partial">目前</string>
+    <string name="trip_meter_col_split">#</string>
+    <string name="trip_meter_col_dist">距離</string>
+    <string name="trip_meter_col_time">時間</string>
+    <string name="trip_meter_col_max">最高</string>
+    <string name="trip_meter_col_batt">電池</string>
+    <string name="studio_metric_trip_meter">行程里程錶</string>
     <string name="studio_metric_gps">GPS 座標</string>
 
     <!-- Navigator -->

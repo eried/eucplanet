@@ -1392,6 +1392,24 @@
     <string name="studio_metric_external_gps_battery">Ext. GPS-Akku</string>
     <string name="studio_metric_external_gps_speed">Ext. GPS-Tempo</string>
     <string name="studio_metric_gps_speed">GPS-Tempo</string>
+    <string name="metric_chip_trip_meter">Tripzähler</string>
+    <string name="trip_meter_detail_title">Tripzähler</string>
+    <string name="trip_meter_tab_speed">Tempo</string>
+    <string name="trip_meter_tab_battery">Akku</string>
+    <string name="trip_meter_tab_time">Zeit</string>
+    <string name="trip_meter_total">Gesamt</string>
+    <string name="trip_meter_active">Aktiv</string>
+    <string name="trip_meter_avg">Ø</string>
+    <string name="trip_meter_reset">Tripzähler zurücksetzen</string>
+    <string name="trip_meter_reset_msg">Setzt die laufende Strecke auf null und löscht alle Abschnitte. Das lässt sich nicht rückgängig machen.</string>
+    <string name="trip_meter_empty">Noch keine Strecke. Der Zähler läuft, solange ein Wheel verbunden ist.</string>
+    <string name="trip_meter_partial">Jetzt</string>
+    <string name="trip_meter_col_split">#</string>
+    <string name="trip_meter_col_dist">Dist</string>
+    <string name="trip_meter_col_time">Zeit</string>
+    <string name="trip_meter_col_max">Max</string>
+    <string name="trip_meter_col_batt">Akku</string>
+    <string name="studio_metric_trip_meter">Tripzähler</string>
     <string name="studio_metric_gps">GPS-Koordinaten</string>
 
     <!-- Studio misc -->

@@ -41,6 +41,7 @@ enum class StudioMetric(
     POWER("POWER", "Power", StudioMetricKind.PLAIN, "W", 0, 3000f, { it.motorPower.toFloat() }),
     PWM("PWM", "PWM", StudioMetricKind.PLAIN, "%", 0, 100f, { it.pwm.absoluteValue }),
     TRIP("TRIP", "Trip distance", StudioMetricKind.DISTANCE, "", 2, 50f, { it.tripDistance }),
+    TRIP_METER("TRIP_METER", "Trip meter", StudioMetricKind.DISTANCE, "", 1, 50f, { it.tripMeterKm.coerceAtLeast(0f) }),
     ODOMETER("ODOMETER", "Odometer", StudioMetricKind.DISTANCE, "", 1, 5000f, { it.totalDistance }),
     PITCH("PITCH", "Pitch", StudioMetricKind.PLAIN, "°", 1, 30f, { it.pitchAngle }),
     ROLL("ROLL", "Roll", StudioMetricKind.PLAIN, "°", 1, 30f, { it.rollAngle }),
@@ -107,6 +108,7 @@ fun StudioMetric.displayName(): String = when (this) {
     StudioMetric.POWER -> stringResource(R.string.studio_metric_power)
     StudioMetric.PWM -> stringResource(R.string.studio_metric_pwm)
     StudioMetric.TRIP -> stringResource(R.string.studio_metric_trip_distance)
+    StudioMetric.TRIP_METER -> stringResource(R.string.studio_metric_trip_meter)
     StudioMetric.ODOMETER -> stringResource(R.string.studio_metric_odometer)
     StudioMetric.PITCH -> stringResource(R.string.studio_metric_pitch)
     StudioMetric.ROLL -> stringResource(R.string.studio_metric_roll)

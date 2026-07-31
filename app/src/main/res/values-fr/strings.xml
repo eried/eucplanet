@@ -1419,6 +1419,24 @@
     <string name="studio_metric_external_gps_battery">Batterie GPS ext.</string>
     <string name="studio_metric_external_gps_speed">Vitesse GPS ext.</string>
     <string name="studio_metric_gps_speed">Vitesse GPS</string>
+    <string name="metric_chip_trip_meter">Compteur de trajet</string>
+    <string name="trip_meter_detail_title">Compteur de trajet</string>
+    <string name="trip_meter_tab_speed">Vitesse</string>
+    <string name="trip_meter_tab_battery">Batterie</string>
+    <string name="trip_meter_tab_time">Temps</string>
+    <string name="trip_meter_total">Total</string>
+    <string name="trip_meter_active">Actif</string>
+    <string name="trip_meter_avg">Moy.</string>
+    <string name="trip_meter_reset">Réinitialiser le compteur de trajet</string>
+    <string name="trip_meter_reset_msg">Cela remet à zéro la distance en cours et efface tous les tronçons. Action irréversible.</string>
+    <string name="trip_meter_empty">Pas encore de distance. Le compteur avance tant qu\'une roue est connectée.</string>
+    <string name="trip_meter_partial">Actuel</string>
+    <string name="trip_meter_col_split">#</string>
+    <string name="trip_meter_col_dist">Dist</string>
+    <string name="trip_meter_col_time">Temps</string>
+    <string name="trip_meter_col_max">Max</string>
+    <string name="trip_meter_col_batt">Bat</string>
+    <string name="studio_metric_trip_meter">Compteur de trajet</string>
     <string name="studio_metric_gps">Coordonnées GPS</string>
 
     <!-- Studio: overwrite preset -->

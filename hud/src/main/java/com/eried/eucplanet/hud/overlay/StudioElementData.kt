@@ -65,6 +65,7 @@ data class StudioElementData(
                 // Phone GPS speed rides the same wire field; expose it as the
                 // phone metric only when the phone is the source.
                 gpsSpeedKmh = if (hud.gpsSource == "PHONE") hud.gpsSpeedKmh else -1f,
+                tripMeterKm = hud.tripMeterKm,
                 tirePressureKpa = hud.tirePressureKpa,
                 lightOn = hud.lightOn,
                 timestamp = hud.timestampMs.takeIf { it > 0L } ?: System.currentTimeMillis()

@@ -1377,6 +1377,24 @@
     <string name="studio_metric_external_gps_battery">外部GPSバッテリー</string>
     <string name="studio_metric_external_gps_speed">外部GPS速度</string>
     <string name="studio_metric_gps_speed">GPS速度</string>
+    <string name="metric_chip_trip_meter">トリップメーター</string>
+    <string name="trip_meter_detail_title">トリップメーター</string>
+    <string name="trip_meter_tab_speed">速度</string>
+    <string name="trip_meter_tab_battery">バッテリー</string>
+    <string name="trip_meter_tab_time">時間</string>
+    <string name="trip_meter_total">合計</string>
+    <string name="trip_meter_active">走行</string>
+    <string name="trip_meter_avg">平均</string>
+    <string name="trip_meter_reset">トリップメーターをリセット</string>
+    <string name="trip_meter_reset_msg">進行中の距離をゼロにし、すべての区間を消去します。この操作は取り消せません。</string>
+    <string name="trip_meter_empty">距離はまだありません。ホイールが接続されている間、カウントします。</string>
+    <string name="trip_meter_partial">現在</string>
+    <string name="trip_meter_col_split">#</string>
+    <string name="trip_meter_col_dist">距離</string>
+    <string name="trip_meter_col_time">時間</string>
+    <string name="trip_meter_col_max">最高</string>
+    <string name="trip_meter_col_batt">電池</string>
+    <string name="studio_metric_trip_meter">トリップメーター</string>
     <string name="studio_metric_gps">GPS 座標</string>
 
     <!-- Navigator -->

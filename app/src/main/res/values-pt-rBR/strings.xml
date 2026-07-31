@@ -1380,6 +1380,24 @@
     <string name="studio_metric_external_gps_battery">Bateria GPS ext.</string>
     <string name="studio_metric_external_gps_speed">Vel. GPS ext.</string>
     <string name="studio_metric_gps_speed">Velocidade GPS</string>
+    <string name="metric_chip_trip_meter">Hodômetro parcial</string>
+    <string name="trip_meter_detail_title">Hodômetro parcial</string>
+    <string name="trip_meter_tab_speed">Velocidade</string>
+    <string name="trip_meter_tab_battery">Bateria</string>
+    <string name="trip_meter_tab_time">Tempo</string>
+    <string name="trip_meter_total">Total</string>
+    <string name="trip_meter_active">Ativo</string>
+    <string name="trip_meter_avg">Média</string>
+    <string name="trip_meter_reset">Redefinir hodômetro parcial</string>
+    <string name="trip_meter_reset_msg">Isso zera a distância acumulada e apaga todas as parciais. Isso não pode ser desfeito.</string>
+    <string name="trip_meter_empty">Ainda sem distância. O contador avança enquanto uma roda está conectada.</string>
+    <string name="trip_meter_partial">Agora</string>
+    <string name="trip_meter_col_split">#</string>
+    <string name="trip_meter_col_dist">Dist</string>
+    <string name="trip_meter_col_time">Tempo</string>
+    <string name="trip_meter_col_max">Máx</string>
+    <string name="trip_meter_col_batt">Bat</string>
+    <string name="studio_metric_trip_meter">Hodômetro parcial</string>
     <string name="studio_metric_gps">Coordenadas GPS</string>
 
     <!-- Navigator -->

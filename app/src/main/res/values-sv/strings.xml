@@ -1376,6 +1376,24 @@
     <string name="studio_metric_external_gps_battery">Ext. GPS-batteri</string>
     <string name="studio_metric_external_gps_speed">Ext. GPS-fart</string>
     <string name="studio_metric_gps_speed">GPS-fart</string>
+    <string name="metric_chip_trip_meter">Trippmätare</string>
+    <string name="trip_meter_detail_title">Trippmätare</string>
+    <string name="trip_meter_tab_speed">Fart</string>
+    <string name="trip_meter_tab_battery">Batteri</string>
+    <string name="trip_meter_tab_time">Tid</string>
+    <string name="trip_meter_total">Totalt</string>
+    <string name="trip_meter_active">Aktiv</string>
+    <string name="trip_meter_avg">Snitt</string>
+    <string name="trip_meter_reset">Nollställ trippmätare</string>
+    <string name="trip_meter_reset_msg">Detta nollställer den pågående distansen och rensar alla etapper. Det går inte att ångra.</string>
+    <string name="trip_meter_empty">Ingen distans än. Mätaren räknar när ett hjul är anslutet.</string>
+    <string name="trip_meter_partial">Nu</string>
+    <string name="trip_meter_col_split">#</string>
+    <string name="trip_meter_col_dist">Dist</string>
+    <string name="trip_meter_col_time">Tid</string>
+    <string name="trip_meter_col_max">Max</string>
+    <string name="trip_meter_col_batt">Bat</string>
+    <string name="studio_metric_trip_meter">Trippmätare</string>
     <string name="studio_metric_gps">GPS-koordinater</string>
 
     <!-- Navigator -->

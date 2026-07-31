@@ -57,6 +57,7 @@ class DashboardViewModel @Inject constructor(
     private val wheelRepository: WheelRepository,
     private val settingsRepository: SettingsRepository,
     private val tripRepository: TripRepository,
+    private val tripMeterRepository: com.eried.eucplanet.data.repository.TripMeterRepository,
     private val voiceService: VoiceService,
     private val automationManager: AutomationManager,
     private val flicManager: FlicManager,
@@ -125,6 +126,11 @@ class DashboardViewModel @Inject constructor(
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
 
     val currentTripId: StateFlow<Long?> = tripRepository.currentTripId
+
+    /** Live running trip-meter state (the connect-scoped car odometer). Drives the
+     *  TRIP_METER dashboard tile's value and the detail-view header. */
+    val tripMeterState: StateFlow<com.eried.eucplanet.data.model.TripMeterState> =
+        tripMeterRepository.state
 
     /** True when the rider has an external GPS paired in settings, regardless
      *  of whether it's currently connected or sending samples. Drives the

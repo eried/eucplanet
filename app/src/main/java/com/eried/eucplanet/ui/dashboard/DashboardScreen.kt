@@ -237,6 +237,7 @@ fun DashboardScreen(
     onNavigateToTripDetail: (Long) -> Unit = {},
     onNavigateToMetric: (String) -> Unit = {},
     onNavigateToCharging: () -> Unit = {},
+    onNavigateToTripMeter: () -> Unit = {},
     viewModel: DashboardViewModel = hiltViewModel()
 ) {
     DisposableEffect(Unit) {
@@ -355,6 +356,7 @@ fun DashboardScreen(
     val flicFlashAt by viewModel.flicFlashAt.collectAsState()
     val latestTripId by viewModel.latestTripId.collectAsState()
     val currentTripId by viewModel.currentTripId.collectAsState()
+    val tripMeterState by viewModel.tripMeterState.collectAsState()
     val gpsFix by viewModel.gpsFix.collectAsState()
     val locationGranted by viewModel.locationPermissionGranted.collectAsState()
     var showQuitDialog by remember { mutableStateOf(false) }
@@ -1459,6 +1461,10 @@ fun DashboardScreen(
                     "CURRENT" -> currentText
                     "LOAD" -> "%.0f%%".format(pwm)
                     "TRIP" -> "%.1f %s".format(tripValue, distUnit)
+                    "TRIP_METER" -> "%.1f %s".format(
+                        com.eried.eucplanet.util.Units.distance(tripMeterState.distanceKm, distanceUnit),
+                        distUnit
+                    )
                     "SPEED" -> "%.0f %s".format(
                         com.eried.eucplanet.util.Units.speed(wheelData.speed, speedUnit),
                         speedUnitLabel
@@ -2057,7 +2063,12 @@ fun DashboardScreen(
                                         cornerRightValue = cornerRightValue,
                                         centerStatLabel = centerStatLabel,
                                         modifier = Modifier.weight(1f),
-                                        onClick = { onNavigateToMetric(key) }
+                                        // TRIP_METER opens its own distance-split
+                                        // detail view, not the generic min/max/avg one.
+                                        onClick = {
+                                            if (key == "TRIP_METER") onNavigateToTripMeter()
+                                            else onNavigateToMetric(key)
+                                        }
                                     )
                                 }
                             }
@@ -2516,6 +2527,7 @@ fun DashboardScreen(
                     tall = tall,
                     onClick = {
                         if (key == "BATTERY") onNavigateToCharging()
+                        else if (key == "TRIP_METER") onNavigateToTripMeter()
                         else onNavigateToMetric(key)
                     }
                 )

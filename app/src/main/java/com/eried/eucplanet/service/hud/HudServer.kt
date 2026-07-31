@@ -78,6 +78,7 @@ class HudServer @Inject constructor(
     private val settingsRepository: SettingsRepository,
     private val externalGpsRepository: ExternalGpsRepository,
     private val tripRepository: TripRepository,
+    private val tripMeterRepository: com.eried.eucplanet.data.repository.TripMeterRepository,
     private val radarRepository: RadarRepository,
     private val navigationEngine: NavigationEngine,
     private val commandSink: HudCommandSink,
@@ -921,6 +922,7 @@ class HudServer @Inject constructor(
             gpsAltitudeM = if (location?.hasAltitude() == true) location.altitude.toFloat()
                 else Float.NaN,
             externalGpsBatteryPercent = if (externalFresh) (external!!.batteryPercent ?: -1) else -1,
+            tripMeterKm = tripMeterRepository.distanceKm,
             tirePressureKpa = wd.tirePressureKpa,
             wheelRollDeg = wd.rollAngle,
             wheelPitchDeg = wd.pitchAngle,

@@ -1377,6 +1377,24 @@
     <string name="studio_metric_external_gps_battery">Harici GPS aküsü</string>
     <string name="studio_metric_external_gps_speed">Harici GPS hızı</string>
     <string name="studio_metric_gps_speed">GPS hızı</string>
+    <string name="metric_chip_trip_meter">Sefer sayacı</string>
+    <string name="trip_meter_detail_title">Sefer sayacı</string>
+    <string name="trip_meter_tab_speed">Hız</string>
+    <string name="trip_meter_tab_battery">Akü</string>
+    <string name="trip_meter_tab_time">Süre</string>
+    <string name="trip_meter_total">Toplam</string>
+    <string name="trip_meter_active">Aktif</string>
+    <string name="trip_meter_avg">Ort.</string>
+    <string name="trip_meter_reset">Sefer sayacını sıfırla</string>
+    <string name="trip_meter_reset_msg">Bu, süren mesafeyi sıfırlar ve tüm bölümleri siler. Bu işlem geri alınamaz.</string>
+    <string name="trip_meter_empty">Henüz mesafe yok. Sayaç, bir teker bağlıyken sayar.</string>
+    <string name="trip_meter_partial">Şimdi</string>
+    <string name="trip_meter_col_split">#</string>
+    <string name="trip_meter_col_dist">Mes.</string>
+    <string name="trip_meter_col_time">Süre</string>
+    <string name="trip_meter_col_max">Maks</string>
+    <string name="trip_meter_col_batt">Akü</string>
+    <string name="studio_metric_trip_meter">Sefer sayacı</string>
     <string name="studio_metric_gps">GPS koordinatları</string>
 
     <!-- Navigator -->

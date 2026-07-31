@@ -110,6 +110,13 @@ data class HudState(
      *  renders such an element as SPEED, so the minor bump is what lets the phone
      *  flag "update your HUD" instead of silently showing the wrong metric.) */
     val tirePressureKpa: Float = 0f,
+    /** Running trip-meter distance in km: the connect-scoped car odometer that
+     *  counts while a wheel is connected and persists across restarts. -1 when the
+     *  phone isn't sending it. Wired in protocol minor 13; older HUDs default it
+     *  to -1 and render a TRIP_METER overlay element as SPEED (the fromKey
+     *  fallback), so the minor bump is what lets the phone flag "update your HUD"
+     *  instead of the skew being silent. */
+    val tripMeterKm: Float = -1f,
 
     /** Wheel roll (lean) in degrees, +right. From wheel BLE telemetry
      *  (InMotion / Begode / KingSong all report it). 0 when the wheel
@@ -252,8 +259,12 @@ data class HudState(
          *    as SPEED (the fromKey fallback). Bumping the minor is what makes the
          *    phone show the "update your HUD" hint instead of the skew being
          *    silent (both were shipped in one commit without this bump).
+         * 13: added [HudState.tripMeterKm] (the connect-scoped trip meter) AND the
+         *    TRIP_METER custom-overlay metric key. An older HUD ignores the field
+         *    and renders a TRIP_METER element as SPEED, so the minor bump is what
+         *    surfaces the "update your HUD" hint.
          */
-        const val PROTOCOL_MINOR: Int = 12
+        const val PROTOCOL_MINOR: Int = 13
 
         /** Legacy alias. New code should read [PROTOCOL_MAJOR] / [PROTOCOL_MINOR]. */
         @Deprecated(

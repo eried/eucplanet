@@ -5776,7 +5776,7 @@ private fun metricPlaceholderValue(
     "VOLTAGE" -> "0 V"
     "CURRENT", "DYN_CURRENT_LIMIT" -> "0 A"
     "POWER", "MOTOR_POWER", "BATTERY_POWER" -> "0 W"
-    "TRIP", "ODOMETER" -> when (s.unitDistance) {
+    "TRIP", "TRIP_METER", "ODOMETER" -> when (s.unitDistance) {
         "mi" -> "0 mi"
         "mil" -> "0 mil"
         else -> "0 km"

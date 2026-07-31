@@ -116,6 +116,7 @@ class OverlayStudioViewModel @Inject constructor(
     private val settingsRepository: SettingsRepository,
     private val presetStore: OverlayPresetStore,
     private val tripRepository: TripRepository,
+    private val tripMeterRepository: com.eried.eucplanet.data.repository.TripMeterRepository,
     private val phoneSensorRepository: PhoneSensorRepository,
     private val externalGpsRepository: ExternalGpsRepository,
     private val radarRepository: RadarRepository,
@@ -168,7 +169,11 @@ class OverlayStudioViewModel @Inject constructor(
             latitude = loc.latitude, longitude = loc.longitude,
             gpsSpeedKmh = if (loc.hasSpeed()) loc.speed * 3.6f else -1f
         ) else data
-        withGps.copy(externalGpsBatteryPercent = extBattery, externalGpsSpeedKmh = extSpeed)
+        withGps.copy(
+            externalGpsBatteryPercent = extBattery,
+            externalGpsSpeedKmh = extSpeed,
+            tripMeterKm = tripMeterRepository.distanceKm,
+        )
     }.stateIn(viewModelScope, SharingStarted.Eagerly, WheelData())
 
     // Live (un-throttled) lateral / forward G in g. The G-Force overlay's dot

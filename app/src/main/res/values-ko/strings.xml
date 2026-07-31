@@ -1377,6 +1377,24 @@
     <string name="studio_metric_external_gps_battery">외장 GPS 배터리</string>
     <string name="studio_metric_external_gps_speed">외부 GPS 속도</string>
     <string name="studio_metric_gps_speed">GPS 속도</string>
+    <string name="metric_chip_trip_meter">트립 미터</string>
+    <string name="trip_meter_detail_title">트립 미터</string>
+    <string name="trip_meter_tab_speed">속도</string>
+    <string name="trip_meter_tab_battery">배터리</string>
+    <string name="trip_meter_tab_time">시간</string>
+    <string name="trip_meter_total">총계</string>
+    <string name="trip_meter_active">주행</string>
+    <string name="trip_meter_avg">평균</string>
+    <string name="trip_meter_reset">트립 미터 초기화</string>
+    <string name="trip_meter_reset_msg">진행 중인 거리를 0으로 만들고 모든 구간을 지웁니다. 되돌릴 수 없습니다.</string>
+    <string name="trip_meter_empty">아직 거리가 없습니다. 휠이 연결되어 있는 동안 계측합니다.</string>
+    <string name="trip_meter_partial">현재</string>
+    <string name="trip_meter_col_split">#</string>
+    <string name="trip_meter_col_dist">거리</string>
+    <string name="trip_meter_col_time">시간</string>
+    <string name="trip_meter_col_max">최고</string>
+    <string name="trip_meter_col_batt">배터리</string>
+    <string name="studio_metric_trip_meter">트립 미터</string>
     <string name="studio_metric_gps">GPS 좌표</string>
 
     <!-- Navigator -->

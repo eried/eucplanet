@@ -1393,6 +1393,24 @@
     <string name="studio_metric_external_gps_battery">Bateria GPS zewn.</string>
     <string name="studio_metric_external_gps_speed">Prędkość GPS zew.</string>
     <string name="studio_metric_gps_speed">Prędkość GPS</string>
+    <string name="metric_chip_trip_meter">Licznik trasy</string>
+    <string name="trip_meter_detail_title">Licznik trasy</string>
+    <string name="trip_meter_tab_speed">Prędkość</string>
+    <string name="trip_meter_tab_battery">Bateria</string>
+    <string name="trip_meter_tab_time">Czas</string>
+    <string name="trip_meter_total">Razem</string>
+    <string name="trip_meter_active">Aktywny</string>
+    <string name="trip_meter_avg">Śr.</string>
+    <string name="trip_meter_reset">Zeruj licznik trasy</string>
+    <string name="trip_meter_reset_msg">To zeruje bieżący dystans i usuwa wszystkie odcinki. Tej operacji nie można cofnąć.</string>
+    <string name="trip_meter_empty">Brak dystansu. Licznik liczy, gdy koło jest połączone.</string>
+    <string name="trip_meter_partial">Teraz</string>
+    <string name="trip_meter_col_split">#</string>
+    <string name="trip_meter_col_dist">Dyst</string>
+    <string name="trip_meter_col_time">Czas</string>
+    <string name="trip_meter_col_max">Maks</string>
+    <string name="trip_meter_col_batt">Bat</string>
+    <string name="studio_metric_trip_meter">Licznik trasy</string>
     <string name="studio_metric_gps">Współrzędne GPS</string>
 
     <!-- Navigator -->

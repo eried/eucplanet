@@ -1404,6 +1404,24 @@
     <string name="studio_metric_external_gps_battery">Заряд зовн. GPS</string>
     <string name="studio_metric_external_gps_speed">Швидкість зовн. GPS</string>
     <string name="studio_metric_gps_speed">Швидкість GPS</string>
+    <string name="metric_chip_trip_meter">Лічильник поїздки</string>
+    <string name="trip_meter_detail_title">Лічильник поїздки</string>
+    <string name="trip_meter_tab_speed">Швидкість</string>
+    <string name="trip_meter_tab_battery">Заряд</string>
+    <string name="trip_meter_tab_time">Час</string>
+    <string name="trip_meter_total">Усього</string>
+    <string name="trip_meter_active">Активно</string>
+    <string name="trip_meter_avg">Сер.</string>
+    <string name="trip_meter_reset">Скинути лічильник поїздки</string>
+    <string name="trip_meter_reset_msg">Обнуляє поточну відстань і видаляє всі відрізки. Цю дію не можна скасувати.</string>
+    <string name="trip_meter_empty">Ще немає відстані. Лічильник рахує, поки підключено моноколесо.</string>
+    <string name="trip_meter_partial">Зараз</string>
+    <string name="trip_meter_col_split">#</string>
+    <string name="trip_meter_col_dist">Відст.</string>
+    <string name="trip_meter_col_time">Час</string>
+    <string name="trip_meter_col_max">Макс</string>
+    <string name="trip_meter_col_batt">Бат</string>
+    <string name="studio_metric_trip_meter">Лічильник поїздки</string>
     <string name="studio_metric_gps">Координати GPS</string>
 
     <!-- Navigator -->

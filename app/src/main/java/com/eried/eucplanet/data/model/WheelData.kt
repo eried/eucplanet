@@ -32,6 +32,11 @@ data class WheelData(
      *  Distinct from externalGpsSpeedKmh (a paired box); merged in like lat/long
      *  so an overlay / HUD element can show the phone GPS speed. */
     val gpsSpeedKmh: Float = -1f,
+    /** Running trip-meter distance in km (the connect-scoped car odometer), or -1
+     *  when not merged in. Not wheel telemetry, so it stays -1 on the plain wheel
+     *  stream; the Overlay Studio / HUD merge it in like gpsSpeedKmh so an overlay
+     *  number can show it. */
+    val tripMeterKm: Float = -1f,
     /** Phone IMU acceleration magnitude in g, 0 for trips recorded before this. */
     val gForce: Float = 0f,
     /** Phone IMU lateral acceleration in g (+right). 0 for trips recorded before this. */
