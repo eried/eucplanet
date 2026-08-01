@@ -57,6 +57,16 @@ data class HudState(
      *  as 0.0, which is what older HUDs already did anyway. */
     val totalKm: Float = 0f,
     val torque: Float = 0f,
+    /** Motor phase current in A (signed). Wired in protocol minor 14; older HUDs
+     *  default it to 0 and render a PHASE_CURRENT overlay element as SPEED (the
+     *  fromKey fallback), so the minor bump surfaces the "update your HUD" hint. */
+    val phaseCurrent: Float = 0f,
+    /** Mechanical motor power in W (signed). Wired in minor 15; a POWER overlay
+     *  element read 0 before because motorPower was never sent. */
+    val motorPower: Int = 0,
+    /** Total acceleration magnitude in g. Wired in minor 15; a G-FORCE overlay
+     *  element read 0 before because gForce was never sent. */
+    val gForce: Float = 0f,
     val lightOn: Boolean = false,
 
     /** Gauge max in km/h, mirrors the phone dashboard's gauge ceiling. */
@@ -81,10 +91,17 @@ data class HudState(
     val latitude: Double = 0.0,
     /** Longitude in WGS84 degrees, 0.0 when there is no fix. */
     val longitude: Double = 0.0,
-    /** GPS speed in km/h when available, else NaN. */
+    /** GPS speed in km/h when available, else NaN. This is the PRIMARY source
+     *  (per gpsPrioritizeExternal) used by the main HUD readout. */
     val gpsSpeedKmh: Float = Float.NaN,
     /** Source of [gpsSpeedKmh]: "PHONE" / "EXTERNAL" / "" (none). */
     val gpsSource: String = "",
+    /** Phone and external GPS speeds carried INDEPENDENTLY (km/h, NaN if absent),
+     *  wired in minor 15. The custom GPS_SPEED / EXT_GPS_SPEED overlay metrics
+     *  need both at once; the single [gpsSpeedKmh] above only carries the active
+     *  source, so the non-active one used to read 0 on the HUD. */
+    val phoneGpsSpeedKmh: Float = Float.NaN,
+    val externalGpsSpeedKmh: Float = Float.NaN,
     /** True when the phone has any fresh GPS fix at all (any source). */
     val gpsHasFix: Boolean = false,
     /** Current heading in degrees, 0 = north, +clockwise. NaN when the GPS
@@ -110,6 +127,13 @@ data class HudState(
      *  renders such an element as SPEED, so the minor bump is what lets the phone
      *  flag "update your HUD" instead of silently showing the wrong metric.) */
     val tirePressureKpa: Float = 0f,
+    /** Running trip-meter distance in km: the connect-scoped car odometer that
+     *  counts while a wheel is connected and persists across restarts. -1 when the
+     *  phone isn't sending it. Wired in protocol minor 13; older HUDs default it
+     *  to -1 and render a TRIP_METER overlay element as SPEED (the fromKey
+     *  fallback), so the minor bump is what lets the phone flag "update your HUD"
+     *  instead of the skew being silent. */
+    val tripMeterKm: Float = -1f,
 
     /** Wheel roll (lean) in degrees, +right. From wheel BLE telemetry
      *  (InMotion / Begode / KingSong all report it). 0 when the wheel
@@ -252,8 +276,21 @@ data class HudState(
          *    as SPEED (the fromKey fallback). Bumping the minor is what makes the
          *    phone show the "update your HUD" hint instead of the skew being
          *    silent (both were shipped in one commit without this bump).
+         * 13: added [HudState.tripMeterKm] (the connect-scoped trip meter) AND the
+         *    TRIP_METER custom-overlay metric key. An older HUD ignores the field
+         *    and renders a TRIP_METER element as SPEED, so the minor bump is what
+         *    surfaces the "update your HUD" hint.
+         * 14: added [HudState.phaseCurrent] (P6 phase current, derived from torque)
+         *    AND the PHASE_CURRENT custom-overlay metric key. An older HUD ignores
+         *    the field and renders a PHASE_CURRENT element as SPEED, so the minor
+         *    bump surfaces the "update your HUD" hint.
+         * 15: added [HudState.motorPower] and [HudState.gForce] (the POWER and
+         *    G-FORCE overlay metrics read 0 before, never sent), plus independent
+         *    [HudState.phoneGpsSpeedKmh] / [HudState.externalGpsSpeedKmh] so a HUD
+         *    can show phone AND external GPS speed at once. Older HUDs default
+         *    these and fall back to the prior single-source behaviour.
          */
-        const val PROTOCOL_MINOR: Int = 12
+        const val PROTOCOL_MINOR: Int = 15
 
         /** Legacy alias. New code should read [PROTOCOL_MAJOR] / [PROTOCOL_MINOR]. */
         @Deprecated(

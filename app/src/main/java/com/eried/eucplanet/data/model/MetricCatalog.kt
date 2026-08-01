@@ -136,6 +136,16 @@ object MetricCatalog {
             sparkline = SparklineStyle.NONE,       // monotonic counter
             supportsStats = false
         ),
+        MetricSpec(
+            // Car-odometer-style running distance, counts while connected and
+            // persists across restarts. Tapping opens the distance-split detail
+            // view, not the generic min/max/avg one, so it needs no stat buffer.
+            key = "TRIP_METER",
+            labelRes = R.string.metric_chip_trip_meter,
+            accent = AccentPurple,
+            sparkline = SparklineStyle.NONE,       // monotonic counter
+            supportsStats = false
+        ),
 
         // ---- Pool (already-buffered) ----
         MetricSpec(
@@ -217,6 +227,13 @@ object MetricCatalog {
         MetricSpec(
             key = "TORQUE",
             labelRes = R.string.metric_chip_torque,
+            accent = AccentBlue,
+            sparkline = SparklineStyle.AREA_BIPOLAR,
+            bipolarNegativeAccent = AccentGreen
+        ),
+        MetricSpec(
+            key = "PHASE_CURRENT",
+            labelRes = R.string.metric_chip_phase_current,
             accent = AccentBlue,
             sparkline = SparklineStyle.AREA_BIPOLAR,
             bipolarNegativeAccent = AccentGreen

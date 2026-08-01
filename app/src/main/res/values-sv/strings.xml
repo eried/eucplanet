@@ -233,6 +233,7 @@
     <string name="metric_chip_lateral_g">Sido-g</string>
     <string name="metric_chip_forward_g">Fram-g</string>
     <string name="metric_chip_torque">Vridmoment</string>
+    <string name="metric_chip_phase_current">Fas A</string>
     <string name="metric_chip_dyn_speed_limit">Dynamisk fartgräns</string>
     <string name="metric_chip_dyn_current_limit">Dynamisk strömgräns</string>
     <string name="metric_chip_motor_temp">Motortemperatur</string>
@@ -1366,6 +1367,7 @@
     <string name="studio_metric_temperature">Temperatur</string>
     <string name="studio_metric_voltage">Spänning</string>
     <string name="studio_metric_current">Ström</string>
+    <string name="studio_metric_phase_current">Fasström</string>
     <string name="studio_metric_power">Effekt</string>
     <string name="studio_metric_pwm">PWM</string>
     <string name="studio_metric_trip_distance">Turdistans</string>
@@ -1375,6 +1377,25 @@
     <string name="studio_metric_g_force">G-Force</string>
     <string name="studio_metric_external_gps_battery">Ext. GPS-batteri</string>
     <string name="studio_metric_external_gps_speed">Ext. GPS-fart</string>
+    <string name="studio_metric_gps_speed">GPS-fart</string>
+    <string name="metric_chip_trip_meter">Trippmätare</string>
+    <string name="trip_meter_detail_title">Trippmätare</string>
+    <string name="trip_meter_tab_speed">Fart</string>
+    <string name="trip_meter_tab_battery">Batteri</string>
+    <string name="trip_meter_tab_time">Tid</string>
+    <string name="trip_meter_total">Totalt</string>
+    <string name="trip_meter_active">Aktiv</string>
+    <string name="trip_meter_avg">Snitt</string>
+    <string name="trip_meter_reset">Nollställ trippmätare</string>
+    <string name="trip_meter_reset_msg">Detta nollställer den pågående distansen och rensar alla etapper. Det går inte att ångra.</string>
+    <string name="trip_meter_empty">Ingen distans än. Mätaren räknar när ett hjul är anslutet.</string>
+    <string name="trip_meter_partial">Nu</string>
+    <string name="trip_meter_col_split">#</string>
+    <string name="trip_meter_col_dist">Dist</string>
+    <string name="trip_meter_col_time">Tid</string>
+    <string name="trip_meter_col_max">Max</string>
+    <string name="trip_meter_col_batt">Bat</string>
+    <string name="studio_metric_trip_meter">Trippmätare</string>
     <string name="studio_metric_gps">GPS-koordinater</string>
 
     <!-- Navigator -->

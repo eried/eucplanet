@@ -223,6 +223,7 @@
     <string name="metric_chip_current">Amps</string>
     <string name="metric_chip_load">PWM</string>
     <string name="metric_chip_trip">Trip</string>
+    <string name="metric_chip_trip_meter">Trip meter</string>
     <string name="metric_chip_speed">Speed</string>
     <string name="metric_chip_odometer">Odometer</string>
     <string name="metric_chip_motor_power">Motor power</string>
@@ -235,6 +236,7 @@
     <string name="metric_chip_lateral_g">Lateral g</string>
     <string name="metric_chip_forward_g">Forward g</string>
     <string name="metric_chip_torque">Torque</string>
+    <string name="metric_chip_phase_current">Phase A</string>
     <string name="metric_chip_dyn_speed_limit">Dynamic speed limit</string>
     <string name="metric_chip_dyn_current_limit">Dynamic current limit</string>
     <string name="metric_chip_motor_temp">Motor temperature</string>
@@ -1131,6 +1133,24 @@
     <string name="metric_load">Load</string>
     <string name="metric_speed">Speed</string>
 
+    <!-- Trip meter detail -->
+    <string name="trip_meter_detail_title">Trip meter</string>
+    <string name="trip_meter_tab_speed">Speed</string>
+    <string name="trip_meter_tab_battery">Battery</string>
+    <string name="trip_meter_tab_time">Time</string>
+    <string name="trip_meter_total">Total</string>
+    <string name="trip_meter_active">Active</string>
+    <string name="trip_meter_avg">Avg</string>
+    <string name="trip_meter_reset">Reset trip meter</string>
+    <string name="trip_meter_reset_msg">This zeros the running distance and clears every split. This cannot be undone.</string>
+    <string name="trip_meter_empty">No distance yet. The meter counts while a wheel is connected.</string>
+    <string name="trip_meter_partial">Now</string>
+    <string name="trip_meter_col_split">#</string>
+    <string name="trip_meter_col_dist">Dist</string>
+    <string name="trip_meter_col_time">Time</string>
+    <string name="trip_meter_col_max">Max</string>
+    <string name="trip_meter_col_batt">Batt</string>
+
     <!-- Recording screen -->
     <string name="action_delete_all">Delete All</string>
     <string name="action_import">Import</string>
@@ -1159,6 +1179,7 @@
     <string name="recording_detail_title">Trip Details</string>
     <string name="recording_no_data">No data recorded in this trip</string>
     <string name="recording_route">Route</string>
+    <string name="recording_details_section">Extra details</string>
     <string name="recording_summary_distance">Distance</string>
     <string name="recording_summary_duration">Duration</string>
     <string name="recording_summary_points">Points</string>
@@ -1671,15 +1692,18 @@
     <string name="studio_metric_temperature">Temperature</string>
     <string name="studio_metric_voltage">Voltage</string>
     <string name="studio_metric_current">Current</string>
+    <string name="studio_metric_phase_current">Phase current</string>
     <string name="studio_metric_power">Power</string>
     <string name="studio_metric_pwm">PWM</string>
     <string name="studio_metric_trip_distance">Trip distance</string>
+    <string name="studio_metric_trip_meter">Trip meter</string>
     <string name="studio_metric_odometer">Odometer</string>
     <string name="studio_metric_pitch">Pitch</string>
     <string name="studio_metric_roll">Roll</string>
     <string name="studio_metric_g_force">G-Force</string>
     <string name="studio_metric_external_gps_battery">Ext GPS battery</string>
     <string name="studio_metric_external_gps_speed">Ext GPS speed</string>
+    <string name="studio_metric_gps_speed">GPS speed</string>
     <string name="studio_metric_tire_pressure">Tire pressure</string>
     <string name="studio_metric_gps">GPS coordinates</string>
 

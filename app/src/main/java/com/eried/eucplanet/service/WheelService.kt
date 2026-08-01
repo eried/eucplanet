@@ -97,6 +97,7 @@ class WheelService : LifecycleService() {
         com.eried.eucplanet.data.model.NotificationActionType.DEFAULT_KEYS
     @Inject lateinit var voiceService: VoiceService
     @Inject lateinit var tripRepository: TripRepository
+    @Inject lateinit var tripMeterRepository: com.eried.eucplanet.data.repository.TripMeterRepository
     @Inject lateinit var automationManager: AutomationManager
     @Inject lateinit var engineSoundEngine: EngineSoundEngine
     @Inject lateinit var wearBridge: com.eried.eucplanet.wear.WearBridge
@@ -386,6 +387,13 @@ class WheelService : LifecycleService() {
                 // below seals it: even if Android wanted to redeliver,
                 // this intent's stickiness is disabled.
                 killProcessOnDestroy = true
+                // Stop All clears the running trip meter (car-odometer reset):
+                // zero the total and wipe the split log. Block on the write so the
+                // wipe is durable before the SIGKILL at the end of onDestroy - a
+                // fire-and-forget persist would race the kill and could be lost.
+                runCatching {
+                    kotlinx.coroutines.runBlocking { tripMeterRepository.resetAndPersist() }
+                }
                 // Gate notify() BEFORE removing the notification, so a telemetry /
                 // nav emission racing this teardown can't re-post it afterwards.
                 shuttingDown = true

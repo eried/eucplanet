@@ -119,6 +119,7 @@ private fun rawCurrentValueFor(key: String, w: WheelData): Float = when (key) {
     "LATERAL_G" -> w.accelX
     "FORWARD_G" -> w.forwardGFromSpeed
     "TORQUE" -> w.torque
+    "PHASE_CURRENT" -> w.phaseCurrent
     "DYN_SPEED_LIMIT" -> w.dynamicSpeedLimit
     "DYN_CURRENT_LIMIT" -> w.dynamicCurrentLimit
     "MOTOR_TEMP" -> w.temperatures.getOrNull(0) ?: 0f
@@ -345,31 +346,53 @@ private fun MetricDetailBody(
     // (psi for imperial-distance riders, bar otherwise - see Units).
     val isPressureMetric = key == "TIRE_PRESSURE"
     val pressureUnit = if (distanceUnit == "mi") "psi" else "bar"
+    // Non-legacy catalog metrics also carry units the dashboard converts but
+    // this screen used to skip - a °F / mph / imperial rider saw raw °C / km/h /
+    // metres in the header, chart, and stat pills while the tile showed the
+    // converted value. Convert by family, mirroring formatMetricStatValue.
+    val isTempMetric = legacyType == MetricType.TEMPERATURE ||
+        key == "MOTOR_TEMP" || key == "CONTROLLER_TEMP" || key == "BATTERY_TEMP"
+    val isSpeedMetric = legacyType == MetricType.SPEED ||
+        key == "GPS_SPEED" || key == "DYN_SPEED_LIMIT"
+    // Altitude / GPS accuracy are stored in metres; feet for imperial riders.
+    val isAltitudeMetric = key == "GPS_ALTITUDE" || key == "GPS_ACCURACY"
+    // GPS / phone / external-GPS metrics aren't on WheelData, so their live
+    // value comes from the latest history sample, not rawCurrentValueFor.
+    val isSourceDerived = key == "GPS_SPEED" || key == "GPS_ALTITUDE" ||
+        key == "GPS_ACCURACY" || key == "PHONE_BATTERY" || key == "EXTERNAL_GPS_BATTERY"
 
     fun convert(v: Float): Float = when {
-        legacyType == MetricType.TEMPERATURE -> com.eried.eucplanet.util.Units.temperature(v, tempUnit)
-        legacyType == MetricType.SPEED -> com.eried.eucplanet.util.Units.speed(v, speedUnit)
+        isTempMetric -> com.eried.eucplanet.util.Units.temperature(v, tempUnit)
+        isSpeedMetric -> com.eried.eucplanet.util.Units.speed(v, speedUnit)
         isDistanceMetric -> com.eried.eucplanet.util.Units.distance(v, distanceUnit)
-        isPressureMetric -> com.eried.eucplanet.util.Units.pressure(v, pressureUnit)
+        // psi floored to match the wheel's own display (see pressurePsiFloored).
+        isPressureMetric -> if (pressureUnit == "psi")
+            com.eried.eucplanet.util.Units.pressurePsiFloored(v)
+            else com.eried.eucplanet.util.Units.pressure(v, "bar")
+        isAltitudeMetric -> if (distanceUnit == "mi") v * 3.28084f else v
         else -> v
     }
 
+    val needsConvert = isTempMetric || isSpeedMetric || isDistanceMetric ||
+        isPressureMetric || isAltitudeMetric
     val samples: List<MetricSample> =
-        if (legacyType == MetricType.TEMPERATURE || legacyType == MetricType.SPEED ||
-            isDistanceMetric || isPressureMetric) {
-            rawSamples.map { MetricSample(it.timestampMs, convert(it.value)) }
-        } else rawSamples
+        if (needsConvert) rawSamples.map { MetricSample(it.timestampMs, convert(it.value)) }
+        else rawSamples
 
     val unitLabel = when {
-        legacyType == MetricType.TEMPERATURE -> com.eried.eucplanet.util.Units.tempUnit(tempUnit)
-        legacyType == MetricType.SPEED -> com.eried.eucplanet.util.Units.speedUnit(
+        isTempMetric -> com.eried.eucplanet.util.Units.tempUnit(tempUnit)
+        isSpeedMetric -> com.eried.eucplanet.util.Units.speedUnit(
             androidx.compose.ui.platform.LocalContext.current, speedUnit
         )
         isDistanceMetric -> com.eried.eucplanet.util.Units.distanceUnit(distanceUnit)
         isPressureMetric -> com.eried.eucplanet.util.Units.pressureUnit(pressureUnit)
+        isAltitudeMetric -> if (distanceUnit == "mi") "ft" else "m"
         legacyType == null -> ""
         else -> legacyType.unit
     }
+    // Pressure in bar reads with 2 decimals everywhere else; match it here.
+    // (psi stays 1 decimal, already floored above.)
+    val statFmt = if (isPressureMetric && pressureUnit == "bar") "%.2f" else "%.1f"
 
     val currentValue = when (legacyType) {
         MetricType.BATTERY -> convert(wheelData.batteryPercent.toFloat())
@@ -378,7 +401,11 @@ private fun MetricDetailBody(
         MetricType.CURRENT -> convert(wheelData.current)
         MetricType.LOAD -> convert(kotlin.math.abs(wheelData.pwm))
         MetricType.SPEED -> convert(kotlin.math.abs(wheelData.speed))
-        null -> convert(rawCurrentValueFor(key, wheelData))
+        // Source-derived metrics have no WheelData field (rawCurrentValueFor
+        // returns 0), so use the latest already-converted sample as the live
+        // value instead of showing 0.0 in the header.
+        null -> if (isSourceDerived) (samples.lastOrNull()?.value ?: 0f)
+            else convert(rawCurrentValueFor(key, wheelData))
     }
 
     // Both legacyType.color (a baked MetricType palette Color) and catalogSpec.accent
@@ -389,7 +416,7 @@ private fun MetricDetailBody(
         ?: MaterialTheme.appColors.metricVoltage
 
     Text(
-        "${"%.1f".format(currentValue)} $unitLabel",
+        "${statFmt.format(currentValue)} $unitLabel",
         fontSize = 48.sp,
         fontWeight = FontWeight.Bold,
         color = accentColor,
@@ -407,15 +434,15 @@ private fun MetricDetailBody(
     val values = samples.map { it.value }
     val hasBuffer = values.size >= 2
     val placeholderStat = "--"
-    val minStr = if (hasBuffer) "%.1f".format(values.min()) else placeholderStat
-    val maxStr = if (hasBuffer) "%.1f".format(values.max()) else placeholderStat
-    val avgStr = if (hasBuffer) "%.1f".format(values.average()) else placeholderStat
-    val medStr = if (hasBuffer) "%.1f".format(
+    val minStr = if (hasBuffer) statFmt.format(values.min()) else placeholderStat
+    val maxStr = if (hasBuffer) statFmt.format(values.max()) else placeholderStat
+    val avgStr = if (hasBuffer) statFmt.format(values.average()) else placeholderStat
+    val medStr = if (hasBuffer) statFmt.format(
         com.eried.eucplanet.ui.settings.computeDashboardStatValue(
             com.eried.eucplanet.ui.settings.DashboardStat.MEDIAN, samples, currentValue
         ) ?: 0f
     ) else placeholderStat
-    val p95Str = if (hasBuffer) "%.1f".format(
+    val p95Str = if (hasBuffer) statFmt.format(
         com.eried.eucplanet.ui.settings.computeDashboardStatValue(
             com.eried.eucplanet.ui.settings.DashboardStat.P95, samples, currentValue
         ) ?: 0f

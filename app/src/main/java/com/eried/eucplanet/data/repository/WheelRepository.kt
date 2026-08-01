@@ -112,7 +112,7 @@ data class FullMetricHistory(
  * start working -- no separate buffer or sample-tick code, no schema
  * change to FullMetricHistory.
  */
-internal val EXTRA_HISTORY_METRICS: List<Pair<String, (com.eried.eucplanet.data.model.WheelData) -> Float>> = listOf(
+internal val EXTRA_HISTORY_METRICS: List<Pair<String, (com.eried.eucplanet.data.model.WheelData) -> Float?>> = listOf(
     "MOTOR_POWER" to { it.motorPower.toFloat() },
     "BATTERY_POWER" to { it.batteryPower.toFloat() },
     // POWER is an alias of BATTERY_POWER kept for backwards-compat with
@@ -124,16 +124,56 @@ internal val EXTRA_HISTORY_METRICS: List<Pair<String, (com.eried.eucplanet.data.
     "ROLL" to { it.rollAngle },
     "G_FORCE" to { it.gForce },
     "LATERAL_G" to { it.accelX },
-    "FORWARD_G" to { it.accelY },
+    // Must match the FORWARD_G value the tile/detail show (forwardGFromSpeed),
+    // not raw accelY, or the sparkline/stats graph a different quantity.
+    "FORWARD_G" to { it.forwardGFromSpeed },
     "TORQUE" to { it.torque },
+    "PHASE_CURRENT" to { it.phaseCurrent },
     "DYN_SPEED_LIMIT" to { it.dynamicSpeedLimit },
     "DYN_CURRENT_LIMIT" to { it.dynamicCurrentLimit },
-    "MOTOR_TEMP" to { it.temperatures.getOrNull(0) ?: 0f },
-    "CONTROLLER_TEMP" to { it.temperatures.getOrNull(1) ?: 0f },
-    "BATTERY_TEMP" to { it.temperatures.getOrNull(2) ?: 0f },
+    // Only record PLAUSIBLE temps (and skip absent sensors) so the stats match
+    // the tile, which hides implausible / missing readings. null -> skip sample.
+    "MOTOR_TEMP" to { it.temperatures.getOrNull(0)?.takeIf { t -> com.eried.eucplanet.util.MetricSanity.isPlausibleTempC(t) } },
+    "CONTROLLER_TEMP" to { it.temperatures.getOrNull(1)?.takeIf { t -> com.eried.eucplanet.util.MetricSanity.isPlausibleTempC(t) } },
+    "BATTERY_TEMP" to { it.temperatures.getOrNull(2)?.takeIf { t -> com.eried.eucplanet.util.MetricSanity.isPlausibleTempC(t) } },
     // TPMS tire pressure, stored raw in kPa; the detail screen converts to psi/bar.
     "TIRE_PRESSURE" to { it.tirePressureKpa }
 )
+
+/**
+ * The six metrics with their own typed buffer on [FullMetricHistory]. Every
+ * OTHER supportsStats catalog metric rides in the keyed extras map instead.
+ */
+internal val LEGACY_STAT_METRIC_KEYS: List<String> =
+    listOf("BATTERY", "TEMPERATURE", "VOLTAGE", "CURRENT", "LOAD", "SPEED")
+
+/**
+ * Stat metrics that are NOT on WheelData: they come from the phone location,
+ * the phone battery, or the paired external GPS box. Sampled from those
+ * injected sources on the same 1 Hz history tick as the wheel metrics.
+ * Stored raw so [computeDashboardStatValue] and the tile formatter agree:
+ * GPS_SPEED in km/h, altitude / accuracy in metres, batteries in percent.
+ */
+internal val SOURCE_HISTORY_METRIC_KEYS: List<String> =
+    listOf("GPS_SPEED", "GPS_ALTITUDE", "GPS_ACCURACY", "PHONE_BATTERY", "EXTERNAL_GPS_BATTERY")
+
+/**
+ * Every catalog key with supportsStats = true that isn't a legacy typed
+ * buffer gets an extras buffer, so min / max / avg / last resolve for it on
+ * the dashboard. Wheel-sourced keys fill from [EXTRA_HISTORY_METRICS], the
+ * phone / GPS keys from [SOURCE_HISTORY_METRIC_KEYS]. Any remaining stat
+ * metric with no live source yet still gets an (empty) buffer, so its pill
+ * shows a stable placeholder instead of silently having no stat path. Driven
+ * off the catalog so a new supportsStats metric can't regress unnoticed.
+ */
+internal val STAT_BUFFER_EXTRA_KEYS: List<String> =
+    (EXTRA_HISTORY_METRICS.map { it.first } +
+        SOURCE_HISTORY_METRIC_KEYS +
+        com.eried.eucplanet.data.model.MetricCatalog.all
+            .filter { it.supportsStats }
+            .map { it.key })
+        .distinct()
+        .filter { it !in LEGACY_STAT_METRIC_KEYS }
 
 @Singleton
 class WheelRepository @Inject constructor(
@@ -148,6 +188,11 @@ class WheelRepository @Inject constructor(
     private val cheatState: com.eried.eucplanet.cheats.CheatState,
     private val phoneSensorRepository: PhoneSensorRepository,
     private val externalGpsRepository: ExternalGpsRepository,
+    // Lazy breaks the Hilt dependency cycle: TripRepository injects this
+    // repository, so a direct TripRepository here would be circular. Only
+    // read on the history tick to sample GPS_SPEED / GPS_ALTITUDE /
+    // GPS_ACCURACY from the current location fix.
+    private val tripRepositoryLazy: dagger.Lazy<TripRepository>,
     private val appNotifier: com.eried.eucplanet.util.AppNotifier
 ) {
     companion object {
@@ -342,11 +387,12 @@ class WheelRepository @Inject constructor(
     private val ampsHist = mutableListOf<MetricSample>()
     private val loadHist = mutableListOf<MetricSample>()
     private val speedHist = mutableListOf<MetricSample>()
-    // One buffer per entry in EXTRA_HISTORY_METRICS. Keys mirror the
-    // catalog so the metric-detail screen can fish the right list out
-    // by name without a hard-coded switch per metric.
+    // One buffer per non-legacy stat metric (wheel-sourced, phone / GPS
+    // sourced, plus any not-yet-sourced supportsStats key). Keys mirror the
+    // catalog so the metric-detail screen and the dashboard corner stats can
+    // fish the right list out by name without a hard-coded switch per metric.
     private val extrasHist: MutableMap<String, MutableList<MetricSample>> =
-        EXTRA_HISTORY_METRICS.associate { (key, _) -> key to mutableListOf<MetricSample>() }
+        STAT_BUFFER_EXTRA_KEYS.associateWith { mutableListOf<MetricSample>() }
             .toMutableMap()
     private var lastHistorySampleMs = 0L
 
@@ -382,6 +428,35 @@ class WheelRepository @Inject constructor(
     /** Clears every in-memory rolling history buffer. */
     fun resetAllHistory() {
         _fullHistory.value = FullMetricHistory()
+    }
+
+    /**
+     * Appends one sample to each phone- / GPS-derived stat buffer
+     * ([SOURCE_HISTORY_METRIC_KEYS]) from its injected source. Called on the
+     * wheel history tick so these metrics share the legacy buffers' timeline
+     * and retention. A source with no fresh value this tick simply skips its
+     * append (the buffer holds its last window of good samples). Wrapped so a
+     * transient source read can never break the telemetry path.
+     */
+    private fun sampleSourceHistory(now: Long) {
+        runCatching {
+            val loc = tripRepositoryLazy.get().currentLocation.value
+            if (loc != null) {
+                if (loc.hasSpeed()) extrasHist["GPS_SPEED"]?.add(MetricSample(now, loc.speed * 3.6f))
+                if (loc.hasAltitude()) extrasHist["GPS_ALTITUDE"]?.add(MetricSample(now, loc.altitude.toFloat()))
+                if (loc.hasAccuracy()) extrasHist["GPS_ACCURACY"]?.add(MetricSample(now, loc.accuracy))
+            }
+            // Phone battery: cheap in-memory system read, fine at 1 Hz.
+            val phonePct = (context.getSystemService(Context.BATTERY_SERVICE) as? android.os.BatteryManager)
+                ?.getIntProperty(android.os.BatteryManager.BATTERY_PROPERTY_CAPACITY) ?: -1
+            if (phonePct in 0..100) extrasHist["PHONE_BATTERY"]?.add(MetricSample(now, phonePct.toFloat()))
+            // External GPS box battery, freshness-gated to 5 s like the dashboard tile.
+            val ext = externalGpsRepository.currentSample.value
+            val extPct = ext?.batteryPercent
+            if (extPct != null && now - ext.timestamp < 5_000L) {
+                extrasHist["EXTERNAL_GPS_BATTERY"]?.add(MetricSample(now, extPct.toFloat()))
+            }
+        }
     }
 
     // Auth state for lock/unlock (V14 requires password verification)
@@ -1645,8 +1720,17 @@ class WheelRepository @Inject constructor(
                     // WheelData snapshot the legacy 6 use, so all rolling
                     // history is time-aligned.
                     for ((key, extractor) in EXTRA_HISTORY_METRICS) {
-                        extrasHist[key]?.add(MetricSample(now, extractor(d)))
+                        // null = "no sample this tick" (e.g. an implausible or
+                        // absent temperature), so the buffer never records a
+                        // value the tile itself would refuse to show.
+                        extractor(d)?.let { extrasHist[key]?.add(MetricSample(now, it)) }
                     }
+                    // Phone- and GPS-derived stat metrics aren't on WheelData,
+                    // so sample them from their injected sources on this same
+                    // tick. Store raw values (km/h, metres, percent) so the
+                    // stat math and the tile formatter agree, exactly like the
+                    // wheel extras above.
+                    sampleSourceHistory(now)
                     // Drop anything older than the 5-min window from every
                     // buffer in one pass. List.removeAll touches each list
                     // once so this stays linear in buffer size.

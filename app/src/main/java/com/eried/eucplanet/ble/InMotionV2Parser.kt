@@ -14,6 +14,11 @@ import kotlin.math.roundToInt
  */
 object InMotionV2Parser {
 
+    /** P6 motor torque constant (N.m per amp of phase current), recovered by
+     *  correlating the InMotion app's Phase Current vs Motor Torque readings
+     *  across a labelled ride. phase_A = torque_Nm / this. */
+    private const val P6_KT_NM_PER_A = 0.586f
+
     /**
      * Parse RealTimeInfo response (command 0x04) into WheelData.
      * V14 telemetry layout.
@@ -245,6 +250,15 @@ object InMotionV2Parser {
         // Earlier guess at 18-19 was zero across all idle frames.
         val torque = if (data.size >= 14) ByteUtils.getInt16LE(data, 12) / 100f else 0f
 
+        // Phase current is NOT transmitted by the P6; the InMotion app derives it
+        // from torque and so do we. Verified against a same-ride video+btsnoop at
+        // three labelled load points over a 75x range (torque 1.3 / 9.7 / 96.7 N.m
+        // vs app phase 2.2 / 16.6 / 165.1 A): phase = torque / Kt with Kt ~ 0.586
+        // N.m/A (i.e. torque x 1.706) reproduces every point within rounding, and
+        // an exhaustive byte search found no independent phase-current field. Kept
+        // signed (negative on regen) to match how we already show current/torque.
+        val phaseCurrent = torque / P6_KT_NM_PER_A
+
         // Battery and motor power (W, signed) at offsets 16 and 18 - the SAME
         // layout as the V14 RealTimeInfo packet, which reads batteryPower@16 and
         // motorPower@18. Confirmed against a labelled P6 capture: body[16] tracks
@@ -328,6 +342,7 @@ object InMotionV2Parser {
             current = current,
             pwm = pwm,
             torque = torque,
+            phaseCurrent = phaseCurrent,
             batteryPower = batteryPower,
             motorPower = motorPower,
             pcMode = pcMode,

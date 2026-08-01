@@ -233,6 +233,7 @@
     <string name="metric_chip_lateral_g">Zijwaartse g</string>
     <string name="metric_chip_forward_g">Voorwaartse g</string>
     <string name="metric_chip_torque">Koppel</string>
+    <string name="metric_chip_phase_current">Fase A</string>
     <string name="metric_chip_dyn_speed_limit">Dynamische snelheidslimiet</string>
     <string name="metric_chip_dyn_current_limit">Dynamische stroomlimiet</string>
     <string name="metric_chip_motor_temp">Motortemperatuur</string>
@@ -1407,6 +1408,7 @@
     <string name="studio_metric_temperature">Temperatuur</string>
     <string name="studio_metric_voltage">Spanning</string>
     <string name="studio_metric_current">Stroom</string>
+    <string name="studio_metric_phase_current">Fasestroom</string>
     <string name="studio_metric_power">Vermogen</string>
     <string name="studio_metric_pwm">PWM</string>
     <string name="studio_metric_trip_distance">Ritafstand</string>
@@ -1416,6 +1418,25 @@
     <string name="studio_metric_g_force">G-Force</string>
     <string name="studio_metric_external_gps_battery">Ext. GPS-accu</string>
     <string name="studio_metric_external_gps_speed">Ext. GPS-snelheid</string>
+    <string name="studio_metric_gps_speed">GPS-snelheid</string>
+    <string name="metric_chip_trip_meter">Tripteller</string>
+    <string name="trip_meter_detail_title">Tripteller</string>
+    <string name="trip_meter_tab_speed">Snelheid</string>
+    <string name="trip_meter_tab_battery">Accu</string>
+    <string name="trip_meter_tab_time">Tijd</string>
+    <string name="trip_meter_total">Totaal</string>
+    <string name="trip_meter_active">Actief</string>
+    <string name="trip_meter_avg">Gem.</string>
+    <string name="trip_meter_reset">Tripteller resetten</string>
+    <string name="trip_meter_reset_msg">Dit zet de lopende afstand op nul en wist alle segmenten. Dit kan niet ongedaan worden gemaakt.</string>
+    <string name="trip_meter_empty">Nog geen afstand. De teller loopt zolang er een wiel verbonden is.</string>
+    <string name="trip_meter_partial">Nu</string>
+    <string name="trip_meter_col_split">#</string>
+    <string name="trip_meter_col_dist">Afst</string>
+    <string name="trip_meter_col_time">Tijd</string>
+    <string name="trip_meter_col_max">Max</string>
+    <string name="trip_meter_col_batt">Accu</string>
+    <string name="studio_metric_trip_meter">Tripteller</string>
     <string name="studio_metric_gps">GPS-coördinaten</string>
 
     <!-- Studio: misc -->

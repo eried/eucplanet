@@ -233,6 +233,7 @@
     <string name="metric_chip_lateral_g">Боковой g</string>
     <string name="metric_chip_forward_g">g вперёд</string>
     <string name="metric_chip_torque">Крутящий мом.</string>
+    <string name="metric_chip_phase_current">Фаза A</string>
     <string name="metric_chip_dyn_speed_limit">Динамический лимит скорости</string>
     <string name="metric_chip_dyn_current_limit">Динамический лимит тока</string>
     <string name="metric_chip_motor_temp">Температура мотора</string>
@@ -1370,6 +1371,7 @@
     <string name="studio_metric_temperature">Температура</string>
     <string name="studio_metric_voltage">Напряжение</string>
     <string name="studio_metric_current">Ток</string>
+    <string name="studio_metric_phase_current">Фазный ток</string>
     <string name="studio_metric_power">Мощность</string>
     <string name="studio_metric_pwm">PWM</string>
     <string name="studio_metric_trip_distance">Пробег за поездку</string>
@@ -1379,6 +1381,25 @@
     <string name="studio_metric_g_force">G-Force</string>
     <string name="studio_metric_external_gps_battery">Заряд внеш. GPS</string>
     <string name="studio_metric_external_gps_speed">Скорость внеш. GPS</string>
+    <string name="studio_metric_gps_speed">Скорость GPS</string>
+    <string name="metric_chip_trip_meter">Счётчик поездки</string>
+    <string name="trip_meter_detail_title">Счётчик поездки</string>
+    <string name="trip_meter_tab_speed">Скорость</string>
+    <string name="trip_meter_tab_battery">Заряд</string>
+    <string name="trip_meter_tab_time">Время</string>
+    <string name="trip_meter_total">Всего</string>
+    <string name="trip_meter_active">Активно</string>
+    <string name="trip_meter_avg">Сред.</string>
+    <string name="trip_meter_reset">Сбросить счётчик поездки</string>
+    <string name="trip_meter_reset_msg">Обнуляет текущий пробег и удаляет все отрезки. Это действие нельзя отменить.</string>
+    <string name="trip_meter_empty">Пока нет расстояния. Счётчик работает, пока подключено моноколесо.</string>
+    <string name="trip_meter_partial">Сейчас</string>
+    <string name="trip_meter_col_split">#</string>
+    <string name="trip_meter_col_dist">Дист.</string>
+    <string name="trip_meter_col_time">Время</string>
+    <string name="trip_meter_col_max">Макс</string>
+    <string name="trip_meter_col_batt">Бат</string>
+    <string name="studio_metric_trip_meter">Счётчик поездки</string>
     <string name="studio_metric_gps">Координаты GPS</string>
 
     <!-- Navigator -->

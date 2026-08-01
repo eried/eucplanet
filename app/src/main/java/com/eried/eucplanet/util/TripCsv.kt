@@ -92,7 +92,8 @@ object TripCsv {
     /**
      * Derive duration + distance from per-sample (dateString, lat, lon,
      * totalMileage) tuples. Distance prefers the wheel odometer DELTA
-     * (max - min of "Total mileage", never the raw lifetime reading), falling
+     * (summed per-step "Total mileage" deltas, never the raw lifetime reading
+     * and never a delta across a mid-ride wheel swap), falling
      * back to the GPS great-circle (bounded per-step so a jumped fix can't
      * inflate it) only when the wheel never reported a moving odometer, then 0.
      * This is the single definition every surface should use, and it matches
@@ -106,8 +107,8 @@ object TripCsv {
         var gpsMeters = 0.0
         var lastLat = Double.NaN
         var lastLon = Double.NaN
-        var minMileage = Float.MAX_VALUE
-        var maxMileage = -Float.MAX_VALUE
+        var wheelKm = 0f
+        var lastMileage = Float.NaN
 
         for (row in rows) {
             parseDate(row.date)?.let { t ->
@@ -124,16 +125,24 @@ object TripCsv {
                 lastLat = lat
                 lastLon = lon
             }
+            // Sum per-step odometer deltas rather than max - min: a mid-ride
+            // wheel swap jumps the column to the other wheel's lifetime
+            // reading, which max - min would count as ridden distance. A step
+            // only counts when small and forward (same 1 km/row guard as the
+            // recorder); any jump or drop just re-baselines.
             val m = row.mileage
             if (m > 0f) {
-                if (m < minMileage) minMileage = m
-                if (m > maxMileage) maxMileage = m
+                if (!lastMileage.isNaN()) {
+                    val d = m - lastMileage
+                    if (d in 0f..1f) wheelKm += d
+                }
+                lastMileage = m
             }
         }
 
         val hasTime = startMs != Long.MAX_VALUE && endMs != Long.MIN_VALUE
         val distanceKm = when {
-            maxMileage > minMileage && minMileage != Float.MAX_VALUE -> maxMileage - minMileage
+            wheelKm > 0f -> wheelKm
             gpsMeters > 0.0 -> (gpsMeters / 1000.0).toFloat()
             else -> 0f
         }

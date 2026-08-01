@@ -9,6 +9,11 @@ data class WheelData(
     val battery2Percent: Float = 0f,
     val pwm: Float = 0f,
     val torque: Float = 0f,
+    /** Motor phase current in A (signed: negative on regen / braking, like
+     *  [current] and [torque]). Only some wheels report or expose it; on the P6
+     *  it is derived from torque (the wheel sends no phase-current field), so it
+     *  stays 0 on wheels that neither send nor derive it. */
+    val phaseCurrent: Float = 0f,
     val temperatures: List<Float> = emptyList(),
     val maxTemperature: Float = 0f,
     val tripDistance: Float = 0f,        // km
@@ -28,6 +33,15 @@ data class WheelData(
      *  or -1 when none is paired / no fresh sample. Merged in like the battery /
      *  lat / long above so an overlay or HUD element can show it. */
     val externalGpsSpeedKmh: Float = -1f,
+    /** Ground speed in km/h from the PHONE's fused GPS, or -1 when no fix.
+     *  Distinct from externalGpsSpeedKmh (a paired box); merged in like lat/long
+     *  so an overlay / HUD element can show the phone GPS speed. */
+    val gpsSpeedKmh: Float = -1f,
+    /** Running trip-meter distance in km (the connect-scoped car odometer), or -1
+     *  when not merged in. Not wheel telemetry, so it stays -1 on the plain wheel
+     *  stream; the Overlay Studio / HUD merge it in like gpsSpeedKmh so an overlay
+     *  number can show it. */
+    val tripMeterKm: Float = -1f,
     /** Phone IMU acceleration magnitude in g, 0 for trips recorded before this. */
     val gForce: Float = 0f,
     /** Phone IMU lateral acceleration in g (+right). 0 for trips recorded before this. */

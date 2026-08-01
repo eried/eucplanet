@@ -233,6 +233,7 @@
     <string name="metric_chip_lateral_g">G lateral</string>
     <string name="metric_chip_forward_g">G adelante</string>
     <string name="metric_chip_torque">Par</string>
+    <string name="metric_chip_phase_current">Fase A</string>
     <string name="metric_chip_dyn_speed_limit">Límite de velocidad dinámico</string>
     <string name="metric_chip_dyn_current_limit">Límite de corriente dinámico</string>
     <string name="metric_chip_motor_temp">Temperatura del motor</string>
@@ -1370,6 +1371,7 @@
     <string name="studio_metric_temperature">Temperatura</string>
     <string name="studio_metric_voltage">Voltaje</string>
     <string name="studio_metric_current">Corriente</string>
+    <string name="studio_metric_phase_current">Corriente de fase</string>
     <string name="studio_metric_power">Potencia</string>
     <string name="studio_metric_pwm">PWM</string>
     <string name="studio_metric_trip_distance">Distancia del viaje</string>
@@ -1379,6 +1381,25 @@
     <string name="studio_metric_g_force">G-Force</string>
     <string name="studio_metric_external_gps_battery">Batería GPS ext.</string>
     <string name="studio_metric_external_gps_speed">Vel. GPS ext.</string>
+    <string name="studio_metric_gps_speed">Velocidad GPS</string>
+    <string name="metric_chip_trip_meter">Odómetro parcial</string>
+    <string name="trip_meter_detail_title">Odómetro parcial</string>
+    <string name="trip_meter_tab_speed">Velocidad</string>
+    <string name="trip_meter_tab_battery">Batería</string>
+    <string name="trip_meter_tab_time">Tiempo</string>
+    <string name="trip_meter_total">Total</string>
+    <string name="trip_meter_active">Activo</string>
+    <string name="trip_meter_avg">Media</string>
+    <string name="trip_meter_reset">Restablecer odómetro parcial</string>
+    <string name="trip_meter_reset_msg">Esto pone a cero la distancia acumulada y borra todos los tramos. Esta acción no se puede deshacer.</string>
+    <string name="trip_meter_empty">Aún no hay distancia. El contador avanza mientras hay una rueda conectada.</string>
+    <string name="trip_meter_partial">Ahora</string>
+    <string name="trip_meter_col_split">#</string>
+    <string name="trip_meter_col_dist">Dist</string>
+    <string name="trip_meter_col_time">Tiempo</string>
+    <string name="trip_meter_col_max">Máx</string>
+    <string name="trip_meter_col_batt">Bat</string>
+    <string name="studio_metric_trip_meter">Odómetro parcial</string>
     <string name="studio_metric_gps">Coordenadas GPS</string>
 
     <!-- Navigator -->

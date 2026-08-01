@@ -233,6 +233,7 @@
     <string name="metric_chip_lateral_g">Seitliches g</string>
     <string name="metric_chip_forward_g">Vorwärts-g</string>
     <string name="metric_chip_torque">Drehmoment</string>
+    <string name="metric_chip_phase_current">Phase A</string>
     <string name="metric_chip_dyn_speed_limit">Dyn. Speedlimit</string>
     <string name="metric_chip_dyn_current_limit">Dyn. Stromlimit</string>
     <string name="metric_chip_motor_temp">Motortemperatur</string>
@@ -1382,6 +1383,7 @@
     <string name="studio_metric_temperature">Temperatur</string>
     <string name="studio_metric_voltage">Spannung</string>
     <string name="studio_metric_current">Strom</string>
+    <string name="studio_metric_phase_current">Phasenstrom</string>
     <string name="studio_metric_power">Leistung</string>
     <string name="studio_metric_pwm">PWM</string>
     <string name="studio_metric_trip_distance">Fahrtstrecke</string>
@@ -1391,6 +1393,25 @@
     <string name="studio_metric_g_force">G-Force</string>
     <string name="studio_metric_external_gps_battery">Ext. GPS-Akku</string>
     <string name="studio_metric_external_gps_speed">Ext. GPS-Tempo</string>
+    <string name="studio_metric_gps_speed">GPS-Tempo</string>
+    <string name="metric_chip_trip_meter">Tripzähler</string>
+    <string name="trip_meter_detail_title">Tripzähler</string>
+    <string name="trip_meter_tab_speed">Tempo</string>
+    <string name="trip_meter_tab_battery">Akku</string>
+    <string name="trip_meter_tab_time">Zeit</string>
+    <string name="trip_meter_total">Gesamt</string>
+    <string name="trip_meter_active">Aktiv</string>
+    <string name="trip_meter_avg">Ø</string>
+    <string name="trip_meter_reset">Tripzähler zurücksetzen</string>
+    <string name="trip_meter_reset_msg">Setzt die laufende Strecke auf null und löscht alle Abschnitte. Das lässt sich nicht rückgängig machen.</string>
+    <string name="trip_meter_empty">Noch keine Strecke. Der Zähler läuft, solange ein Wheel verbunden ist.</string>
+    <string name="trip_meter_partial">Jetzt</string>
+    <string name="trip_meter_col_split">#</string>
+    <string name="trip_meter_col_dist">Dist</string>
+    <string name="trip_meter_col_time">Zeit</string>
+    <string name="trip_meter_col_max">Max</string>
+    <string name="trip_meter_col_batt">Akku</string>
+    <string name="studio_metric_trip_meter">Tripzähler</string>
     <string name="studio_metric_gps">GPS-Koordinaten</string>
 
     <!-- Studio misc -->

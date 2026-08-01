@@ -61,7 +61,9 @@ data class TripDataPoint(
     /** Wheel current in amps, signed (negative = regen braking). NaN when the trip's CSV predates the column or the cell is blank. */
     val current: Float = Float.NaN,
     /** PWM / motor load in percent. NaN when the trip's CSV predates the column or the cell is blank. */
-    val pwm: Float = Float.NaN
+    val pwm: Float = Float.NaN,
+    /** Raw Extra-column event ("wheel.name=KS-16SZ", "wheel.disconnected=1", ...). Empty on normal rows. */
+    val extra: String = ""
 )
 
 @HiltViewModel
@@ -369,8 +371,12 @@ class RecordingViewModel @Inject constructor(
             val csvFiles = tripsDir.listFiles { f -> f.extension == "csv" } ?: return@launch
             if (csvFiles.isEmpty()) return@launch
 
-            val dbbFile = File(tripsDir, "trips_export.dbb")
-            ZipOutputStream(BufferedOutputStream(FileOutputStream(dbbFile))).use { zos ->
+            // Plain .zip so phones and desktops open it natively; the importer
+            // (ours and the viewer's) accepts .zip and .dbb alike. Drop any
+            // stale archive from the .dbb era.
+            File(tripsDir, "trips_export.dbb").delete()
+            val zipFile = File(tripsDir, "trips_export.zip")
+            ZipOutputStream(BufferedOutputStream(FileOutputStream(zipFile))).use { zos ->
                 for (csv in csvFiles) {
                     zos.putNextEntry(ZipEntry(csv.name))
                     BufferedInputStream(FileInputStream(csv)).use { it.copyTo(zos) }
@@ -378,9 +384,9 @@ class RecordingViewModel @Inject constructor(
                 }
             }
 
-            val uri = FileProvider.getUriForFile(context, "${context.packageName}.fileprovider", dbbFile)
+            val uri = FileProvider.getUriForFile(context, "${context.packageName}.fileprovider", zipFile)
             val intent = Intent(Intent.ACTION_SEND).apply {
-                type = "application/octet-stream"
+                type = "application/zip"
                 putExtra(Intent.EXTRA_STREAM, uri)
                 addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_ACTIVITY_NEW_TASK)
             }
@@ -464,6 +470,86 @@ class RecordingViewModel @Inject constructor(
         return imported
     }
 
+    /**
+     * Returns the CSV converted to the canonical column layout when it is a
+     * euc.world native app export (detected by its `datetime` + `gps_lat`
+     * header), else null. Wheel identity from euc.world's extra column
+     * (both the 2023 `eucModel` and current `euc.model` key spellings)
+     * moves into our Extra column as wheel.* events; phone metadata is
+     * dropped. Timestamps lose their timezone suffix so every parser in
+     * the ecosystem keeps the ride's wall-clock.
+     */
+    private fun convertEucWorldCsvOrNull(csvBytes: ByteArray): ByteArray? {
+        val text = try { csvBytes.decodeToString() } catch (_: Exception) { return null }
+        val nl = text.indexOf('\n')
+        if (nl <= 0) return null
+        val hdr = text.substring(0, nl).trim().split(",").map { it.trim().lowercase() }
+        if (!hdr.contains("datetime") || !hdr.contains("gps_lat")) return null
+        fun col(name: String) = hdr.indexOf(name)
+        val iDate = col("datetime"); val iSpeed = col("speed"); val iVolt = col("voltage")
+        val iTemp = col("temp"); val iBatt = col("battery"); val iAlt = col("gps_alt")
+        val iLat = col("gps_lat"); val iLon = col("gps_lon"); val iMil = col("distance_total")
+        val iGps = col("gps_speed"); val iCur = col("current"); val iExtra = col("extra")
+        val tzTail = Regex("([+-]\\d{2}:?\\d{2})$")
+
+        val lines = text.split('\n')
+        val id = HashMap<String, String>()
+        val keyMap = mapOf(
+            "euc.name" to "name", "eucBluetoothName" to "name",
+            "euc.serial" to "serial", "eucSerial" to "serial",
+            "euc.model" to "model", "eucModel" to "model",
+            "euc.make" to "brand",
+            "euc.firmware" to "firmware", "eucFirmware" to "firmware",
+            "eucBluetoothAddress" to "mac",
+        )
+        if (iExtra >= 0) {
+            for (i in 1 until minOf(lines.size, 400)) {
+                val extra = lines[i].trim('\r').split(",").getOrNull(iExtra)?.trim() ?: continue
+                val eq = extra.indexOf('=')
+                if (eq <= 0) continue
+                val k = keyMap[extra.substring(0, eq).trim()] ?: continue
+                if (!id.containsKey(k)) id[k] = extra.substring(eq + 1).trim()
+            }
+        }
+        val pairs = ArrayList<String>()
+        id["name"]?.let { pairs.add("wheel.name=$it") }
+        id["mac"]?.let { pairs.add("wheel.mac=" + it.replace(":", "").replace("-", "").uppercase()) }
+        id["brand"]?.let { pairs.add("wheel.brand=$it") }
+        id["model"]?.let { pairs.add("wheel.model=$it") }
+        id["serial"]?.let { pairs.add("wheel.serial=$it") }
+        id["firmware"]?.let { pairs.add("wheel.firmware=$it") }
+
+        val sb = StringBuilder(text.length)
+        sb.append("Date,Speed,Voltage,Temperature,Battery level,Altitude,Latitude,Longitude,Total mileage,GPS speed,Current,PWM,G-Force,G-Force X,G-Force Y,Extra\n")
+        var out = 0
+        for (i in 1 until lines.size) {
+            val line = lines[i].trim('\r')
+            if (line.isBlank()) continue
+            val c = line.split(",")
+            fun cell(idx: Int) = if (idx >= 0) (c.getOrNull(idx)?.trim() ?: "") else ""
+            val date = cell(iDate).replace(tzTail, "")
+            if (date.isBlank()) continue
+            sb.append(date).append(',')
+                .append(cell(iSpeed)).append(',')
+                .append(cell(iVolt)).append(',')
+                .append(cell(iTemp)).append(',')
+                .append(cell(iBatt)).append(',')
+                .append(cell(iAlt)).append(',')
+                .append(cell(iLat)).append(',')
+                .append(cell(iLon)).append(',')
+                .append(cell(iMil)).append(',')
+                .append(cell(iGps)).append(',')
+                .append(cell(iCur))
+                .append(",,,,,") // empty PWM, G-Force, G-Force X, G-Force Y, then Extra
+                .append(if (out < pairs.size) pairs[out] else "")
+                .append('\n')
+            out++
+        }
+        if (out == 0) return null
+        Log.i(TAG, "Import: converted euc.world CSV ($out rows, wheel: ${id["model"] ?: id["name"] ?: "unknown"})")
+        return sb.toString().toByteArray()
+    }
+
     private suspend fun importSingleCsv(originalName: String, csvBytes: ByteArray): Boolean {
         val tripsDir = tripRepository.getTripsDir()
         val baseName = originalName.removeSuffix(".csv").removeSuffix(".CSV")
@@ -474,9 +560,17 @@ class RecordingViewModel @Inject constructor(
             counter++
         }
 
-        targetFile.writeBytes(csvBytes)
+        // euc.world's native app export uses its own lowercase header
+        // (datetime, gps_lat, ...). Stored verbatim it mis-parses: the
+        // column fallbacks land on speed averages instead of lat/lon.
+        // Convert to the canonical layout (wheel identity from its extra
+        // column moves into ours) before writing; other formats pass
+        // through untouched.
+        val storedBytes = convertEucWorldCsvOrNull(csvBytes) ?: csvBytes
 
-        val lines = csvBytes.decodeToString().lines()
+        targetFile.writeBytes(storedBytes)
+
+        val lines = storedBytes.decodeToString().lines()
         if (lines.size < 2) {
             targetFile.delete()
             return false
@@ -568,8 +662,11 @@ class RecordingViewModel @Inject constructor(
             // -1 when the column is absent (older trip files / foreign exports).
             val iGpsSpeed = TripCsv.Columns.gpsSpeed(headers)
             val iExtGps = headers.indexOfFirst { it.startsWith("ext gps") || it.startsWith("ext_gps") || it == "external gps speed" }
+            // Format-tolerant current/pwm resolution (from next-version) plus the
+            // recorder's "Extra" wheel-identity column (from multi-wheel-record).
             val iCurrent = TripCsv.Columns.current(headers)
             val iPwm = TripCsv.Columns.pwm(headers)
+            val iExtra = headers.indexOfFirst { it == "extra" }
 
             var line = reader.readLine()
             while (line != null) {
@@ -603,7 +700,8 @@ class RecordingViewModel @Inject constructor(
                                 gpsSpeed = if (iGpsSpeed >= 0) parts.getOrNull(iGpsSpeed)?.toFloatOrNull() ?: 0f else 0f,
                                 extGpsSpeed = extSpeed,
                                 current = current,
-                                pwm = pwm
+                                pwm = pwm,
+                                extra = if (iExtra >= 0) parts.getOrNull(iExtra)?.trim() ?: "" else ""
                             )
                         )
                     }
