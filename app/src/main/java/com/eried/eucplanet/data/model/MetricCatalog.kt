@@ -232,6 +232,13 @@ object MetricCatalog {
             bipolarNegativeAccent = AccentGreen
         ),
         MetricSpec(
+            key = "PHASE_CURRENT",
+            labelRes = R.string.metric_chip_phase_current,
+            accent = AccentBlue,
+            sparkline = SparklineStyle.AREA_BIPOLAR,
+            bipolarNegativeAccent = AccentGreen
+        ),
+        MetricSpec(
             key = "DYN_SPEED_LIMIT",
             labelRes = R.string.metric_chip_dyn_speed_limit,
             accent = AccentBlue,

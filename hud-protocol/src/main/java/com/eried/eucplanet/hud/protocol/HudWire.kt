@@ -57,6 +57,10 @@ data class HudState(
      *  as 0.0, which is what older HUDs already did anyway. */
     val totalKm: Float = 0f,
     val torque: Float = 0f,
+    /** Motor phase current in A (signed). Wired in protocol minor 14; older HUDs
+     *  default it to 0 and render a PHASE_CURRENT overlay element as SPEED (the
+     *  fromKey fallback), so the minor bump surfaces the "update your HUD" hint. */
+    val phaseCurrent: Float = 0f,
     val lightOn: Boolean = false,
 
     /** Gauge max in km/h, mirrors the phone dashboard's gauge ceiling. */
@@ -263,8 +267,12 @@ data class HudState(
          *    TRIP_METER custom-overlay metric key. An older HUD ignores the field
          *    and renders a TRIP_METER element as SPEED, so the minor bump is what
          *    surfaces the "update your HUD" hint.
+         * 14: added [HudState.phaseCurrent] (P6 phase current, derived from torque)
+         *    AND the PHASE_CURRENT custom-overlay metric key. An older HUD ignores
+         *    the field and renders a PHASE_CURRENT element as SPEED, so the minor
+         *    bump surfaces the "update your HUD" hint.
          */
-        const val PROTOCOL_MINOR: Int = 13
+        const val PROTOCOL_MINOR: Int = 14
 
         /** Legacy alias. New code should read [PROTOCOL_MAJOR] / [PROTOCOL_MINOR]. */
         @Deprecated(

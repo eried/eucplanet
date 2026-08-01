@@ -233,6 +233,7 @@
     <string name="metric_chip_lateral_g">Zijwaartse g</string>
     <string name="metric_chip_forward_g">Voorwaartse g</string>
     <string name="metric_chip_torque">Koppel</string>
+    <string name="metric_chip_phase_current">Fase A</string>
     <string name="metric_chip_dyn_speed_limit">Dynamische snelheidslimiet</string>
     <string name="metric_chip_dyn_current_limit">Dynamische stroomlimiet</string>
     <string name="metric_chip_motor_temp">Motortemperatuur</string>
@@ -1407,6 +1408,7 @@
     <string name="studio_metric_temperature">Temperatuur</string>
     <string name="studio_metric_voltage">Spanning</string>
     <string name="studio_metric_current">Stroom</string>
+    <string name="studio_metric_phase_current">Fasestroom</string>
     <string name="studio_metric_power">Vermogen</string>
     <string name="studio_metric_pwm">PWM</string>
     <string name="studio_metric_trip_distance">Ritafstand</string>

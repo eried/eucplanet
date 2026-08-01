@@ -903,6 +903,7 @@ class HudServer @Inject constructor(
             tripKm = d?.tripKm ?: wd.tripDistance,
             totalKm = d?.totalKm ?: wd.totalDistance,
             torque = wd.torque,
+            phaseCurrent = wd.phaseCurrent,
             lightOn = wd.lightOn,
             gaugeMaxKmh = gaugeMax,
             gaugeOrangeThresholdPct = s.gaugeOrangeThresholdPct,

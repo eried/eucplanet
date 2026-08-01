@@ -126,6 +126,7 @@ internal val EXTRA_HISTORY_METRICS: List<Pair<String, (com.eried.eucplanet.data.
     "LATERAL_G" to { it.accelX },
     "FORWARD_G" to { it.accelY },
     "TORQUE" to { it.torque },
+    "PHASE_CURRENT" to { it.phaseCurrent },
     "DYN_SPEED_LIMIT" to { it.dynamicSpeedLimit },
     "DYN_CURRENT_LIMIT" to { it.dynamicCurrentLimit },
     "MOTOR_TEMP" to { it.temperatures.getOrNull(0) ?: 0f },

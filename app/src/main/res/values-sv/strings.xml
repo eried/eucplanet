@@ -233,6 +233,7 @@
     <string name="metric_chip_lateral_g">Sido-g</string>
     <string name="metric_chip_forward_g">Fram-g</string>
     <string name="metric_chip_torque">Vridmoment</string>
+    <string name="metric_chip_phase_current">Fas A</string>
     <string name="metric_chip_dyn_speed_limit">Dynamisk fartgräns</string>
     <string name="metric_chip_dyn_current_limit">Dynamisk strömgräns</string>
     <string name="metric_chip_motor_temp">Motortemperatur</string>
@@ -1366,6 +1367,7 @@
     <string name="studio_metric_temperature">Temperatur</string>
     <string name="studio_metric_voltage">Spänning</string>
     <string name="studio_metric_current">Ström</string>
+    <string name="studio_metric_phase_current">Fasström</string>
     <string name="studio_metric_power">Effekt</string>
     <string name="studio_metric_pwm">PWM</string>
     <string name="studio_metric_trip_distance">Turdistans</string>

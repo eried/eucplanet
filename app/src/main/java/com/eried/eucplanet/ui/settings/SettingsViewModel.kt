@@ -1109,7 +1109,7 @@ class SettingsViewModel @Inject constructor(
         "BATTERY_1", "BATTERY_2",
         "PITCH", "ROLL",
         "G_FORCE", "LATERAL_G", "FORWARD_G",
-        "TORQUE", "DYN_SPEED_LIMIT", "DYN_CURRENT_LIMIT",
+        "TORQUE", "PHASE_CURRENT", "DYN_SPEED_LIMIT", "DYN_CURRENT_LIMIT",
         // Individual temperature sensors (WheelData.temperatures by index).
         "MOTOR_TEMP", "CONTROLLER_TEMP", "BATTERY_TEMP",
         // Derived trip metrics (computed from speed/voltage/current histories

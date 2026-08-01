@@ -233,6 +233,7 @@
     <string name="metric_chip_lateral_g">G lateral</string>
     <string name="metric_chip_forward_g">G adelante</string>
     <string name="metric_chip_torque">Torque</string>
+    <string name="metric_chip_phase_current">Fase A</string>
     <string name="metric_chip_dyn_speed_limit">Límite de velocidad dinámico</string>
     <string name="metric_chip_dyn_current_limit">Límite de corriente dinámico</string>
     <string name="metric_chip_motor_temp">Temperatura del motor</string>
@@ -1384,6 +1385,7 @@
     <string name="studio_metric_temperature">Temperatura</string>
     <string name="studio_metric_voltage">Voltaje</string>
     <string name="studio_metric_current">Corriente</string>
+    <string name="studio_metric_phase_current">Corriente de fase</string>
     <string name="studio_metric_power">Potencia</string>
     <string name="studio_metric_pwm">PWM</string>
     <string name="studio_metric_trip_distance">Distancia del viaje</string>

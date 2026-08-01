@@ -30,6 +30,7 @@ enum class StudioMetric(
     TEMPERATURE("TEMP", "Temperature", StudioMetricKind.TEMPERATURE, "", 0, 100f, { it.maxTemperature }),
     VOLTAGE("VOLTAGE", "Voltage", StudioMetricKind.PLAIN, "V", 1, 100f, { it.voltage }),
     CURRENT("CURRENT", "Current", StudioMetricKind.PLAIN, "A", 1, 80f, { it.current }),
+    PHASE_CURRENT("PHASE_CURRENT", "Phase current", StudioMetricKind.PLAIN, "A", 1, 200f, { it.phaseCurrent }),
     POWER("POWER", "Power", StudioMetricKind.PLAIN, "W", 0, 3000f, { it.motorPower.toFloat() }),
     PWM("PWM", "PWM", StudioMetricKind.PLAIN, "%", 0, 100f, { it.pwm.absoluteValue }),
     TRIP("TRIP", "Trip distance", StudioMetricKind.DISTANCE, "", 2, 50f, { it.tripDistance }),
@@ -89,6 +90,7 @@ fun StudioMetric.displayName(): String = when (this) {
     StudioMetric.TEMPERATURE -> "Temp"
     StudioMetric.VOLTAGE -> "Voltage"
     StudioMetric.CURRENT -> "Current"
+    StudioMetric.PHASE_CURRENT -> "Phase A"
     StudioMetric.POWER -> "Power"
     StudioMetric.PWM -> "PWM"
     StudioMetric.TRIP -> "Trip"

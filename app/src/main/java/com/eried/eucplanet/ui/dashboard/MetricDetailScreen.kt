@@ -119,6 +119,7 @@ private fun rawCurrentValueFor(key: String, w: WheelData): Float = when (key) {
     "LATERAL_G" -> w.accelX
     "FORWARD_G" -> w.forwardGFromSpeed
     "TORQUE" -> w.torque
+    "PHASE_CURRENT" -> w.phaseCurrent
     "DYN_SPEED_LIMIT" -> w.dynamicSpeedLimit
     "DYN_CURRENT_LIMIT" -> w.dynamicCurrentLimit
     "MOTOR_TEMP" -> w.temperatures.getOrNull(0) ?: 0f

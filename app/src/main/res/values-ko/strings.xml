@@ -233,6 +233,7 @@
     <string name="metric_chip_lateral_g">횡방향 G</string>
     <string name="metric_chip_forward_g">전방 G</string>
     <string name="metric_chip_torque">토크</string>
+    <string name="metric_chip_phase_current">상전류</string>
     <string name="metric_chip_dyn_speed_limit">동적 속도 제한</string>
     <string name="metric_chip_dyn_current_limit">동적 전류 제한</string>
     <string name="metric_chip_motor_temp">모터 온도</string>
@@ -1367,6 +1368,7 @@
     <string name="studio_metric_temperature">온도</string>
     <string name="studio_metric_voltage">전압</string>
     <string name="studio_metric_current">전류</string>
+    <string name="studio_metric_phase_current">상전류</string>
     <string name="studio_metric_power">파워</string>
     <string name="studio_metric_pwm">PWM</string>
     <string name="studio_metric_trip_distance">트립 거리</string>

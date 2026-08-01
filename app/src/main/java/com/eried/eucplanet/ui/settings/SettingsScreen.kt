@@ -5789,6 +5789,7 @@ private fun metricPlaceholderValue(
     "PITCH", "ROLL" -> "0°"
     "G_FORCE", "LATERAL_G", "FORWARD_G" -> "0.0 g"
     "TORQUE" -> "0 Nm"
+    "PHASE_CURRENT" -> "0 A"
     "MOTOR_TEMP", "CONTROLLER_TEMP", "BATTERY_TEMP" ->
         if (s.unitTemp == "F") "0°F" else "0°C"
     "HEADROOM", "TRIP_MAX_SPEED", "AVG_TRIP_SPEED", "GPS_SPEED" -> when (s.unitSpeed) {

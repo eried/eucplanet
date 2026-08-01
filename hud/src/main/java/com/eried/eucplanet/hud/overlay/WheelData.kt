@@ -18,6 +18,9 @@ data class WheelData(
     val battery2Percent: Float = 0f,
     val pwm: Float = 0f,
     val torque: Float = 0f,
+    /** Motor phase current in A (signed). Derived on the phone (P6 derives it
+     *  from torque) and sent over the wire; 0 when the wheel doesn't provide it. */
+    val phaseCurrent: Float = 0f,
     val temperatures: List<Float> = emptyList(),
     val maxTemperature: Float = 0f,
     val tripDistance: Float = 0f,        // km

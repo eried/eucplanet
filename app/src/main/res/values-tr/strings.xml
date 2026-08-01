@@ -233,6 +233,7 @@
     <string name="metric_chip_lateral_g">Yanal g</string>
     <string name="metric_chip_forward_g">İleri g</string>
     <string name="metric_chip_torque">Tork</string>
+    <string name="metric_chip_phase_current">Faz A</string>
     <string name="metric_chip_dyn_speed_limit">Dinamik hız sınırı</string>
     <string name="metric_chip_dyn_current_limit">Dinamik akım sınırı</string>
     <string name="metric_chip_motor_temp">Motor sıcaklığı</string>
@@ -1367,6 +1368,7 @@
     <string name="studio_metric_temperature">Sıcaklık</string>
     <string name="studio_metric_voltage">Gerilim</string>
     <string name="studio_metric_current">Akım</string>
+    <string name="studio_metric_phase_current">Faz akımı</string>
     <string name="studio_metric_power">Güç</string>
     <string name="studio_metric_pwm">PWM</string>
     <string name="studio_metric_trip_distance">Sefer mesafesi</string>

@@ -233,6 +233,7 @@
     <string name="metric_chip_lateral_g">側向 G</string>
     <string name="metric_chip_forward_g">前向 G</string>
     <string name="metric_chip_torque">扭矩</string>
+    <string name="metric_chip_phase_current">相電流</string>
     <string name="metric_chip_dyn_speed_limit">動態速度限制</string>
     <string name="metric_chip_dyn_current_limit">動態電流限制</string>
     <string name="metric_chip_motor_temp">馬達溫度</string>
@@ -1367,6 +1368,7 @@
     <string name="studio_metric_temperature">溫度</string>
     <string name="studio_metric_voltage">電壓</string>
     <string name="studio_metric_current">電流</string>
+    <string name="studio_metric_phase_current">相電流</string>
     <string name="studio_metric_power">功率</string>
     <string name="studio_metric_pwm">PWM</string>
     <string name="studio_metric_trip_distance">行程距離</string>

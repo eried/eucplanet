@@ -9,6 +9,11 @@ data class WheelData(
     val battery2Percent: Float = 0f,
     val pwm: Float = 0f,
     val torque: Float = 0f,
+    /** Motor phase current in A (signed: negative on regen / braking, like
+     *  [current] and [torque]). Only some wheels report or expose it; on the P6
+     *  it is derived from torque (the wheel sends no phase-current field), so it
+     *  stays 0 on wheels that neither send nor derive it. */
+    val phaseCurrent: Float = 0f,
     val temperatures: List<Float> = emptyList(),
     val maxTemperature: Float = 0f,
     val tripDistance: Float = 0f,        // km

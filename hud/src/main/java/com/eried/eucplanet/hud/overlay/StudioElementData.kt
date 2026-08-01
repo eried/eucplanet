@@ -51,6 +51,7 @@ data class StudioElementData(
                 batteryPercent = hud.batteryPercent,
                 pwm = hud.pwm,
                 torque = hud.torque,
+                phaseCurrent = hud.phaseCurrent,
                 maxTemperature = hud.temperatureC,
                 tripDistance = hud.tripKm,
                 totalDistance = hud.totalKm,

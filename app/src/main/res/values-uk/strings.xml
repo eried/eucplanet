@@ -233,6 +233,7 @@
     <string name="metric_chip_lateral_g">Боковий g</string>
     <string name="metric_chip_forward_g">g вперед</string>
     <string name="metric_chip_torque">Крутний мом.</string>
+    <string name="metric_chip_phase_current">Фаза A</string>
     <string name="metric_chip_dyn_speed_limit">Динамічний ліміт швидкості</string>
     <string name="metric_chip_dyn_current_limit">Динамічний ліміт струму</string>
     <string name="metric_chip_motor_temp">Температура мотора</string>
@@ -1394,6 +1395,7 @@
     <string name="studio_metric_temperature">Температура</string>
     <string name="studio_metric_voltage">Напруга</string>
     <string name="studio_metric_current">Струм</string>
+    <string name="studio_metric_phase_current">Фазний струм</string>
     <string name="studio_metric_power">Потужність</string>
     <string name="studio_metric_pwm">PWM</string>
     <string name="studio_metric_trip_distance">Відстань поїздки</string>

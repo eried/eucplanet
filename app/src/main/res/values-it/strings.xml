@@ -932,6 +932,7 @@
     <string name="studio_manage_title">Gestisci elementi</string>
     <string name="studio_metric_battery">Batteria</string>
     <string name="studio_metric_current">Corrente</string>
+    <string name="studio_metric_phase_current">Corrente di fase</string>
     <string name="studio_metric_g_force">G-Force</string>
     <string name="studio_metric_external_gps_battery">Batteria GPS est.</string>
     <string name="studio_metric_external_gps_speed">Vel. GPS est.</string>
@@ -1226,6 +1227,7 @@
     <string name="metric_chip_speed">Velocità</string>
     <string name="metric_chip_temperature">Temperatura</string>
     <string name="metric_chip_torque">Coppia</string>
+    <string name="metric_chip_phase_current">Fase A</string>
     <string name="metric_chip_trip">Tragitto</string>
     <string name="metric_chip_trip_max_speed">Picco tragitto</string>
     <string name="metric_chip_trip_time">Tempo tragitto</string>

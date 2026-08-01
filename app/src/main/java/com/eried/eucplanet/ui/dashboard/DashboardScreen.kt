@@ -212,6 +212,7 @@ private fun formatMetricStatValue(
     "PITCH", "ROLL" -> "%.1f°".format(raw)
     "G_FORCE", "LATERAL_G", "FORWARD_G" -> "%.2fg".format(raw)
     "TORQUE" -> "%.1fNm".format(raw)
+    "PHASE_CURRENT" -> "%.1fA".format(raw)
     // Tire pressure stored raw in kPa; psi for imperial-distance, bar otherwise.
     "TIRE_PRESSURE" -> if (distanceUnit == "mi")
         "%.1f psi".format(com.eried.eucplanet.util.Units.pressure(raw, "psi"))
@@ -1505,6 +1506,7 @@ fun DashboardScreen(
                     "LATERAL_G" -> "%.2fg".format(wheelData.accelX)
                     "FORWARD_G" -> "%.2fg".format(wheelData.forwardGFromSpeed)
                     "TORQUE" -> "%.1fNm".format(wheelData.torque)
+                    "PHASE_CURRENT" -> "%.1fA".format(wheelData.phaseCurrent)
                     "DYN_SPEED_LIMIT" -> if (wheelData.dynamicSpeedLimit > 0f)
                         "%.0f %s".format(
                             com.eried.eucplanet.util.Units.speed(wheelData.dynamicSpeedLimit, speedUnit),

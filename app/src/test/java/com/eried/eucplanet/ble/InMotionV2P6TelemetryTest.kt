@@ -108,4 +108,47 @@ class InMotionV2P6TelemetryTest {
         // this is the overflow the previous code mistook for a dead constant.
         assertEquals(130f, InMotionV2Parser.parseP6Telemetry(realtimeHot)!!.temperatures[0], 0.5f)
     }
+
+    // Three real 0x87 realtime bodies from the 2026-07-31 phase/torque ride, each
+    // pinned to the InMotion app's Live Information screen at the matching second
+    // (video clock == btsnoop UTC). The app shows Motor Torque and Phase Current;
+    // the P6 sends torque (body[12], int16/100 Nm) but NOT phase current - the app
+    // derives phase from torque, so we do too (phase = torque / 0.586 N.m/A).
+    // frame -> (torque Nm, app phase A, app current A, app power W)
+    private val phaseFrameLowLoad = hex(  // app 21:59:33.8: trq 1.3, phase 2.2, I 0.42, P 96
+        "a159d6ff00000000ce08000083009205a0ff200040267325983a204ef337d1df" +
+        "da04832400339328f700796b00000e16000062010000bb010000072107003e13" +
+        "0804794f9200cead0600644d1400d20049000200000000000000000070007b1631")
+    private val phaseFrameBraking = hex( // app 21:59:43.8: trq 9.7 (regen), phase 16.6, I 1.82, P 418
+        "bd594aff000000001809000032fce6015efe04ff40267325983a204ef337d1e1" +
+        "db0483247a37932800012a710000211800006c010000c501000010210700ef18" +
+        "08048c519200d8ad06006e4d1400d200490002000000000000000000c1fc7b16a7")
+    private val phaseFrameHighLoad = hex( // app 21:59:23.8: trq 96.7, phase 165.1, I 15.38, P 3471
+        "2e5802060000000098070000c8257c078f0d2f08a626da25983a204ef337d0dc" +
+        "d8038324db329328eb0018610000ba12000058010000b1010000fb200700dd08" +
+        "0804254c9200c4ad06005a4d1400d2004900020000000000000000003e207b16f6")
+
+    @Test fun `P6 phase current is derived from torque and matches the InMotion app`() {
+        // Torque (body[12]) is real; phase current is torque / Kt. Tolerances cover
+        // the app's one-decimal rounding and the Kt fit.
+        val low = InMotionV2Parser.parseP6Telemetry(phaseFrameLowLoad)!!
+        assertEquals(1.31f, low.torque, 0.01f)
+        assertEquals(2.2f, low.phaseCurrent, 0.15f)     // app showed 2.2 A
+
+        val braking = InMotionV2Parser.parseP6Telemetry(phaseFrameBraking)!!
+        assertEquals(-9.74f, braking.torque, 0.01f)     // regen: torque is negative
+        assertEquals(-16.6f, braking.phaseCurrent, 0.2f) // signed; app shows magnitude 16.6
+
+        val high = InMotionV2Parser.parseP6Telemetry(phaseFrameHighLoad)!!
+        assertEquals(96.72f, high.torque, 0.01f)
+        assertEquals(165.1f, high.phaseCurrent, 1.0f)   // app showed 165.1 A
+    }
+
+    @Test fun `P6 phase current holds the exact torque relationship`() {
+        // Locks the Kt constant so a change to it is caught. phase = torque / 0.586.
+        for (frame in listOf(phaseFrameLowLoad, phaseFrameBraking, phaseFrameHighLoad)) {
+            val wd = InMotionV2Parser.parseP6Telemetry(frame)!!
+            assertEquals(wd.torque / 0.586f, wd.phaseCurrent, 0.001f)
+        }
+    }
 }
