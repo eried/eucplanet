@@ -290,16 +290,23 @@ fun TripDetailScreen(
             val gpsPoints = remember(dataPoints) {
                 dataPoints.filter { it.latitude != 0.0 && it.longitude != 0.0 }
             }
-            // Extra-column events: shown in the Details section, and the wheel
-            // identity blocks drive the map markers (start popup + yellow
-            // triangles at mid-ride wheel changes).
+            // Extra-column events: shown in the Extra details section, and the
+            // wheel identity blocks drive the map (start popup + yellow circle
+            // and yellow trace from each mid-ride wheel change onward).
             val extraEvents = remember(dataPoints) { extractExtraEvents(dataPoints) }
             val wheelStarts = remember(extraEvents) { extraEvents.filter { it.isWheelStart } }
             val startMarkerLabel = remember(wheelStarts) {
                 wheelStarts.firstOrNull()?.let { "${it.time}  ${it.text.substringAfter('=')}" } ?: ""
             }
-            val wheelSwitches = remember(wheelStarts) {
-                wheelStarts.drop(1).filter { it.lat != 0.0 && it.lon != 0.0 }
+            val wheelSwitches = remember(wheelStarts, dataPoints) {
+                wheelStarts.drop(1).filter { it.lat != 0.0 && it.lon != 0.0 }.map { e ->
+                    // Position of the change row within the GPS-bearing points:
+                    // the row itself has a fix, so its slot equals the count of
+                    // fixes before it. This is where the trace turns yellow.
+                    val gpsIdx = dataPoints.subList(0, e.index)
+                        .count { it.latitude != 0.0 && it.longitude != 0.0 }
+                    WheelSwitchMarker(gpsIdx, e.lat, e.lon, "${e.time}  ${e.text.substringAfter('=')}")
+                }
             }
             val isLive by viewModel.isTripLiveRecording(trip).collectAsState(initial = false)
             val liveLocation by viewModel.liveLocation.collectAsState()
@@ -603,6 +610,17 @@ data class TripExtraEvent(
     val lat: Double,
     val lon: Double,
     val isWheelStart: Boolean,
+    val index: Int,
+)
+
+// A mid-ride wheel change ready for the map: [gpsIndex] is the position of
+// the change row within the GPS-bearing points (= the coords array the map
+// polyline is built from), so the trace can switch colour exactly there.
+data class WheelSwitchMarker(
+    val gpsIndex: Int,
+    val lat: Double,
+    val lon: Double,
+    val label: String,
 )
 
 // Walks the rows' Extra cells and marks identity-block starts: a block
@@ -612,7 +630,7 @@ data class TripExtraEvent(
 private fun extractExtraEvents(points: List<TripDataPoint>): List<TripExtraEvent> {
     val out = ArrayList<TripExtraEvent>()
     var block: MutableSet<String>? = null
-    for (p in points) {
+    for ((i, p) in points.withIndex()) {
         val text = p.extra.trim()
         if (text.isEmpty()) continue
         val eq = text.indexOf('=')
@@ -631,7 +649,7 @@ private fun extractExtraEvents(points: List<TripDataPoint>): List<TripExtraEvent
         } else if (key.startsWith("wheel.") && block != null) {
             block.add(key.removePrefix("wheel."))
         }
-        out.add(TripExtraEvent(timePartOf(p.date), text, p.latitude, p.longitude, isStart))
+        out.add(TripExtraEvent(timePartOf(p.date), text, p.latitude, p.longitude, isStart, i))
     }
     return out
 }
@@ -660,9 +678,10 @@ private fun RouteMapView(
     // hide the marker). Drives a dot on the map synced with the chart cursor.
     scrubLat: Double? = null,
     scrubLon: Double? = null,
-    // Mid-ride wheel changes (yellow triangles) and the start marker's popup
-    // text (the first wheel identity of the recording, empty = no popup).
-    wheelSwitches: List<TripExtraEvent> = emptyList(),
+    // Mid-ride wheel changes (yellow circle + yellow trace onward) and the
+    // start marker's popup text (the recording's first wheel identity,
+    // empty = no popup).
+    wheelSwitches: List<WheelSwitchMarker> = emptyList(),
     startLabel: String = "",
     modifier: Modifier = Modifier
 ) {
@@ -745,7 +764,7 @@ private fun MapSurface(
     liveLon: Double?,
     scrubLat: Double?,
     scrubLon: Double?,
-    wheelSwitches: List<TripExtraEvent>,
+    wheelSwitches: List<WheelSwitchMarker>,
     startLabel: String,
     fullscreen: Boolean,
     onToggleFullscreen: () -> Unit,
@@ -762,8 +781,9 @@ private fun MapSurface(
         val arr = org.json.JSONArray()
         for (s in wheelSwitches) {
             arr.put(org.json.JSONObject()
+                .put("idx", s.gpsIndex)
                 .put("lat", s.lat).put("lon", s.lon)
-                .put("label", "${s.time}  ${s.text.substringAfter('=')}"))
+                .put("label", s.label))
         }
         arr.toString()
     }
@@ -890,12 +910,6 @@ private fun buildMapHtml(coordsJson: String, switchesJson: String, startLabelJs:
     background:#FFC107;
     box-shadow:0 0 6px rgba(255,193,7,0.9);
   }
-  .switch-marker{
-    width:0;height:0;
-    border-left:8px solid transparent;border-right:8px solid transparent;
-    border-bottom:14px solid #FFC107;
-    filter:drop-shadow(0 1px 1px rgba(0,0,0,0.8));
-  }
 </style>
 </head><body>
 <div id="map"></div>
@@ -916,12 +930,23 @@ private fun buildMapHtml(coordsJson: String, switchesJson: String, startLabelJs:
   window.setMapType('$initialType');
 
   var hasRoute = coords.length >= 2;
-  var start=null, end=null, overlap=null, line=null;
+  var start=null, end=null, overlap=null;
 
   function render(){
     if (hasRoute){
-      line = L.polyline(coords,{color:'#4FC3F7',weight:4}).addTo(map);
-      map.fitBounds(line.getBounds().pad(0.2));
+      // Split the trace at mid-ride wheel changes: the first wheel keeps the
+      // blue trace, every later wheel's stretch is drawn yellow.
+      var cuts = switches.map(function(s){return s.idx;})
+        .filter(function(i){return i>0 && i<coords.length;})
+        .sort(function(a,b){return a-b;});
+      var prev = 0;
+      for (var k=0;k<=cuts.length;k++){
+        var stop = (k<cuts.length)?cuts[k]:coords.length-1;
+        if (stop>prev) L.polyline(coords.slice(prev,stop+1),
+          {color:k===0?'#4FC3F7':'#FFC107',weight:4,interactive:false}).addTo(map);
+        prev = stop;
+      }
+      map.fitBounds(L.latLngBounds(coords).pad(0.2));
       placeEndpoints();
       map.on('zoomend moveend', placeEndpoints);
     } else if (coords.length === 1) {
@@ -956,14 +981,8 @@ private fun buildMapHtml(coordsJson: String, switchesJson: String, startLabelJs:
     }
   }
 
-  // Mid-ride wheel changes: same yellow triangle for every change, each
-  // with its own popup (time + the wheel that took over).
   var switches=$switchesJson;
   var startLabel=$startLabelJs;
-  switches.forEach(function(s){
-    L.marker([s.lat,s.lon],{icon:L.divIcon({className:'switch-marker',iconSize:[16,14],iconAnchor:[8,14]})})
-      .addTo(map).bindPopup(s.label);
-  });
 
   // Live marker API (called from Kotlin via evaluateJavascript).
   var live=null, livePath=null;
@@ -994,6 +1013,13 @@ private fun buildMapHtml(coordsJson: String, switchesJson: String, startLabelJs:
   };
 
   render();
+  // Mid-ride wheel changes: same yellow circle for every change, each with
+  // its own popup (time + the wheel that took over). Added after render()
+  // so the circles stack above the trace and keep their tap target.
+  switches.forEach(function(s){
+    L.circleMarker([s.lat,s.lon],{radius:7,color:'#000',weight:2,fillColor:'#FFC107',fillOpacity:1})
+      .addTo(map).bindPopup(s.label);
+  });
   ${if (isLive) "/* live mode: waiting for updateLivePoint() */" else ""}
 </script></body></html>
 """.trimIndent()
