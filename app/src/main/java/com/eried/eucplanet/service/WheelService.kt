@@ -114,7 +114,6 @@ class WheelService : LifecycleService() {
     // change takes effect without a reconnect. Reset on disconnect.
     private val accelSplitTracker = AccelSplitTracker(increment = 10, minSpeed = 20)
     private var lastConnectionState: ConnectionState? = null
-    private var hadGpsFix = false
     private var lastLightOn: Boolean? = null
     // Flipped true by ACTION_STOP_ALL_AND_KILL so onDestroy knows to
     // SIGKILL the process at the end of cleanup. Set only once -- never
@@ -284,19 +283,18 @@ class WheelService : LifecycleService() {
             }
         }
 
-        // Monitor GPS signal for announcements
+        // GPS voice: speak only GENUINE satellite acquired/lost events. The
+        // TripRepository signal state machine emits these and never the app's own
+        // power management, so opening the app, connecting a wheel, and the idle
+        // power-down all stay silent.
         lifecycleScope.launch {
-            tripRepository.currentLocation.collect { location ->
-                val settings = settingsRepository.get()
-                if (settings.announceGps) {
-                    if (location != null && !hadGpsFix) {
-                        hadGpsFix = true
-                        voiceService.announceEvent(getString(R.string.voice_gps_acquired))
-                    } else if (location == null && hadGpsFix) {
-                        hadGpsFix = false
-                        voiceService.announceEvent(getString(R.string.voice_gps_lost))
-                    }
+            tripRepository.gpsSignalEvents.collect { event ->
+                if (!settingsRepository.get().announceGps) return@collect
+                val res = when (event) {
+                    com.eried.eucplanet.data.model.GpsSignalEvent.ACQUIRED -> R.string.voice_gps_acquired
+                    com.eried.eucplanet.data.model.GpsSignalEvent.LOST -> R.string.voice_gps_lost
                 }
+                voiceService.announceEvent(getString(res))
             }
         }
 

@@ -1838,6 +1838,10 @@
     <string name="adv_phone_gps_interval_desc">Bepaalt hoe vloeiend het GPS-spoor is en hoe snel de navigatie reageert. Lager werkt vaker bij. Let op: lage waarden ledigen de batterij sneller.</string>
     <string name="adv_phone_gps_idle_interval">GPS-interval bij inactiviteit</string>
     <string name="adv_phone_gps_idle_interval_desc">GPS-snelheid bij inactiviteit als er niet wordt opgenomen of genavigeerd, zodat de Navigator en een nieuwe verbinding klaar zijn. Hoger spaart accu.</string>
+    <string name="adv_gps_idle_off_delay">GPS uit bij inactiviteit</string>
+    <string name="adv_gps_idle_off_delay_desc">Als de app op de achtergrond staat zonder verbonden wiel en zonder opname, gaat de GPS uit om accu te sparen. 0 schakelt hem meteen uit; hoger houdt eerst zo lang een zuinige positie warm, zodat snel wisselen van app de GPS niet onderbreekt.</string>
+    <string name="adv_gps_fix_max_age">Max. leeftijd GPS-fix</string>
+    <string name="adv_gps_fix_max_age_desc">Een positie ouder dan dit telt als geen positie, zodat een opname die start voordat de GPS klaar is niet met een verouderd punt begint.</string>
     <string name="adv_pushonly_note">Sommige apparaten streamen op hun eigen vaste snelheid en negeren deze instellingen: push-only wielen (Begode, Gotway, Veteran, KingSong), externe GPS (RaceBox), radar en Flic-knoppen.</string>
     <string name="adv_radar_clear_decay">Rijbaanverval radar</string>
     <string name="adv_radar_clear_decay_desc">Bepaalt hoe lang de rijbaanbalk blijft nadat de weg vrij is. Let op: te laag laat hem knipperen als auto\'s komen en gaan.</string>

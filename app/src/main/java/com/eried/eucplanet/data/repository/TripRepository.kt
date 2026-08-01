@@ -10,6 +10,7 @@ import com.eried.eucplanet.R
 import com.eried.eucplanet.ble.ConnectionState
 import com.eried.eucplanet.data.db.TripDao
 import com.eried.eucplanet.data.model.GpsPowerPolicy
+import com.eried.eucplanet.data.model.GpsSignalEvent
 import com.eried.eucplanet.data.model.GpsTier
 import com.eried.eucplanet.data.model.TripRecord
 import com.eried.eucplanet.util.AppForeground
@@ -26,6 +27,7 @@ import com.google.android.gms.tasks.CancellationTokenSource
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -114,6 +116,9 @@ class TripRepository @Inject constructor(
     @Volatile private var phoneGpsIntervalMs: Long = 1000L
     // Slow keep-warm interval for the idle (balanced / low-power) GPS tiers.
     @Volatile private var phoneGpsIdleIntervalMs: Long = 10000L
+    // Cached so the non-suspend recomputeGpsTier can read it. Seconds of idle
+    // before GPS is fully released; 0 = immediately. See GpsPowerPolicy / OFF.
+    @Volatile private var gpsIdleOffDelaySec: Int = 30
 
     // Demand-driven GPS power (GpsPowerPolicy). The stream only runs after a real
     // consumer calls startLocationUpdates(); once running it self-adjusts its tier
@@ -122,12 +127,39 @@ class TripRepository @Inject constructor(
     @Volatile private var gpsStreamRequested = false
     @Volatile private var gpsNavigating = false
     @Volatile private var currentGpsTier: GpsTier? = null
+    // Pending fully-off after the idle grace (gpsIdleOffDelaySec); cancelled the
+    // moment any input changes, since recompute re-decides.
+    private var idleOffJob: kotlinx.coroutines.Job? = null
+    // GPS signal state machine (drives the "GPS acquired/lost" voice). It runs
+    // ONLY while GPS is at the HIGH tier - i.e. actually needed (recording /
+    // navigating / riding) - so it never voices the app's own power management:
+    // the idle power-down, or the re-engage when you open the app or connect a
+    // wheel. It announces only a GENUINE satellite loss/regain while tracking.
+    @Volatile private var gpsTracking = false        // true while tier == HIGH
+    @Volatile private var gpsHasFix = false          // FIXED (true) vs ACQUIRING (false) while tracking
+    @Volatile private var acquiringFromLoss = false  // this ACQUIRING followed a genuine loss, not a power-on
+    @Volatile private var lastFixMs = 0L
+    private var lossJob: kotlinx.coroutines.Job? = null
+    private val GPS_LOST_MS = 10_000L                 // no fresh fix for this long while tracking = signal lost
+    private val _gpsSignalEvents =
+        kotlinx.coroutines.flow.MutableSharedFlow<GpsSignalEvent>(extraBufferCapacity = 4)
+    /** Genuine GPS acquired/lost events; power management is never emitted here.
+     *  WheelService speaks these directly. */
+    val gpsSignalEvents: kotlinx.coroutines.flow.SharedFlow<GpsSignalEvent> = _gpsSignalEvents
+
+    // Ultra battery saving: freshness gates so a cold GPS-off -> record start
+    // never logs the stale last-known position (a fake jump at the track start).
+    // The recorded-track age gate is the gpsFixMaxAgeSec setting; these stay
+    // internal.
+    private val FRESH_SEED_MS = 15_000L    // seed _currentLocation from cache only if newer than this
+    private val MAX_PLOT_ACCURACY_M = 50f  // reject fixes worse than this for the recorded track
 
     init {
         scope.launch {
             settingsRepository.settings.collect {
                 phoneGpsIntervalMs = it.phoneGpsIntervalMs.toLong().coerceAtLeast(100L)
                 phoneGpsIdleIntervalMs = it.phoneGpsIdleIntervalMs.toLong().coerceAtLeast(1000L)
+                gpsIdleOffDelaySec = it.gpsIdleOffDelaySec.coerceAtLeast(0)
                 // An interval change re-issues the request at the current tier.
                 currentGpsTier = null
                 recomputeGpsTier()
@@ -199,7 +231,57 @@ class TripRepository @Inject constructor(
                 tripHadMockFix = tripHadMockFix || isMockLocation(loc)
             }
             _currentLocation.value = loc
+            onGpsFix()
         }
+    }
+
+    // --- GPS signal state machine: voice for genuine satellite loss/regain only ---
+
+    private fun onGpsFix() {
+        lastFixMs = System.currentTimeMillis()
+        if (gpsTracking && !gpsHasFix) {
+            gpsHasFix = true
+            // Announce "acquired" only if this fix ends a genuine loss - not the
+            // first fix after powering GPS on (that transition is silent).
+            if (acquiringFromLoss) {
+                acquiringFromLoss = false
+                _gpsSignalEvents.tryEmit(GpsSignalEvent.ACQUIRED)
+            }
+        }
+        armLossWatchdog()
+    }
+
+    /** (Re)arm the no-fix watchdog. Fires only while tracking: if no fresh fix
+     *  arrives within GPS_LOST_MS the signal counts as genuinely lost. */
+    private fun armLossWatchdog() {
+        lossJob?.cancel(); lossJob = null
+        if (!gpsTracking) return
+        lossJob = scope.launch {
+            delay(GPS_LOST_MS)
+            if (gpsTracking && gpsHasFix) {
+                gpsHasFix = false
+                acquiringFromLoss = true
+                _gpsSignalEvents.tryEmit(GpsSignalEvent.LOST)
+            }
+        }
+    }
+
+    /** Enter tracking (tier just became HIGH). Silent: a recent fix stays FIXED,
+     *  otherwise we wait for the first fix, which is a power-on and not voiced. */
+    private fun startGpsTracking() {
+        if (gpsTracking) return
+        gpsTracking = true
+        acquiringFromLoss = false
+        gpsHasFix = System.currentTimeMillis() - lastFixMs < GPS_LOST_MS && _currentLocation.value != null
+        if (gpsHasFix) armLossWatchdog()
+    }
+
+    /** Leave tracking (tier dropped below HIGH, or GPS off). Silent. */
+    private fun stopGpsTracking() {
+        gpsTracking = false
+        gpsHasFix = false
+        acquiringFromLoss = false
+        lossJob?.cancel(); lossJob = null
     }
 
     /**
@@ -252,16 +334,58 @@ class TripRepository @Inject constructor(
             connected = connected,
             appVisible = AppForeground.isForeground.value,
         )
-        applyTier(tier)
+        if (tier == GpsTier.OFF) {
+            // Already off, or an off-grace already pending: stay put. Do NOT
+            // re-bridge or reschedule on every recompute - the wheel's connection
+            // state flips during reconnect scans, and re-entering here would
+            // thrash GPS on and off (spurious acquired/lost, wasted battery).
+            if (currentGpsTier == GpsTier.OFF || idleOffJob != null) return
+            if (gpsIdleOffDelaySec <= 0) {
+                applyTier(GpsTier.OFF)
+            } else {
+                // Hold a cheap low-power fix through the grace, then fully off if
+                // still idle - so a quick app switch doesn't drop the GPS.
+                applyTier(GpsTier.LOW)
+                idleOffJob = scope.launch {
+                    delay(gpsIdleOffDelaySec * 1000L)
+                    applyTier(GpsTier.OFF)
+                    idleOffJob = null
+                }
+            }
+        } else {
+            // Leaving idle: cancel any pending off and apply the live tier.
+            idleOffJob?.cancel(); idleOffJob = null
+            applyTier(tier)
+        }
     }
 
     @SuppressLint("MissingPermission")
     private fun applyTier(tier: GpsTier) {
+        // OFF: release the GPS entirely (ultra battery saving idle state) and
+        // drop the last position so the fix indicator reads honestly. The stream
+        // re-arms on the next recomputeGpsTier when a higher tier is due.
+        if (tier == GpsTier.OFF) {
+            if (locationUpdatesActive) {
+                fusedLocationClient.removeLocationUpdates(locationCallback)
+                locationUpdatesActive = false
+                Log.i(TAG, "GPS tier=OFF - released (background, disconnected, idle)")
+            }
+            // Power-down is silent (stop tracking); the indicator still reads
+            // "no fix" honestly from the nulled position.
+            stopGpsTracking()
+            _currentLocation.value = null
+            currentGpsTier = GpsTier.OFF
+            return
+        }
+        // The genuine-signal voice runs only at HIGH - when GPS is actually
+        // needed (recording / navigating / riding). BALANCED / LOW are silent.
+        if (tier == GpsTier.HIGH) startGpsTracking() else stopGpsTracking()
         if (tier == currentGpsTier && locationUpdatesActive) return
         val (priority, interval) = when (tier) {
             GpsTier.HIGH -> Priority.PRIORITY_HIGH_ACCURACY to phoneGpsIntervalMs
             GpsTier.BALANCED -> Priority.PRIORITY_BALANCED_POWER_ACCURACY to phoneGpsIdleIntervalMs
             GpsTier.LOW -> Priority.PRIORITY_LOW_POWER to phoneGpsIdleIntervalMs
+            GpsTier.OFF -> return
         }
         val request = LocationRequest.Builder(priority, interval)
             .setMinUpdateIntervalMillis(interval / 2)
@@ -292,7 +416,8 @@ class TripRepository @Inject constructor(
     private fun warmUpFirstFix() {
         try {
             fusedLocationClient.lastLocation.addOnSuccessListener { cached ->
-                if (cached != null && _currentLocation.value == null) {
+                if (cached != null && _currentLocation.value == null &&
+                    System.currentTimeMillis() - cached.time < FRESH_SEED_MS) {
                     Log.i(
                         TAG,
                         "Seeded from cached last-known fix " +
@@ -559,13 +684,22 @@ class TripRepository @Inject constructor(
         // read once at start; a mid-recording change takes effect next recording.
         recordJob = scope.launch {
             val recordIntervalMs = settingsRepository.get().tripRecordIntervalMs.toLong()
+            val fixMaxAgeMs = settingsRepository.get().gpsFixMaxAgeSec * 1000L
             var rowsWritten = 0
             var rowsWithGps = 0
             var wasConnected = wheelRepository.connectionState.value ==
                 com.eried.eucplanet.ble.ConnectionState.CONNECTED
             while (_recording.value) {
                 val data = wheelRepository.wheelData.value
-                val location = _currentLocation.value
+                // Gate the recorded point on freshness + accuracy so a cold start
+                // (GPS just came back from OFF) logs "no GPS yet" instead of the
+                // stale last-known position. Distance already skips the first fix
+                // and anything over 25 m; this keeps the plotted track from
+                // opening with a fake jump.
+                val location = _currentLocation.value?.takeIf {
+                    System.currentTimeMillis() - it.time < fixMaxAgeMs &&
+                        it.accuracy <= MAX_PLOT_ACCURACY_M
+                }
                 // The merged GPS-speed column uses the external box's speed only
                 // when the rider prioritises external GPS and the sample is
                 // recent (a staler reading would freeze the column); otherwise

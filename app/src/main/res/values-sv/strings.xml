@@ -1838,6 +1838,10 @@
     <string name="adv_phone_gps_interval_desc">Påverkar hur jämnt GPS-spåret är och hur snabbt navigeringen reagerar. Lägre uppdaterar oftare. Fara: låga värden tömmer batteriet snabbare.</string>
     <string name="adv_phone_gps_idle_interval">GPS-intervall i viloläge</string>
     <string name="adv_phone_gps_idle_interval_desc">GPS-takt i viloläge när du inte spelar in eller navigerar, så att Navigatorn och en ny anslutning är redo. Högre sparar batteri.</string>
+    <string name="adv_gps_idle_off_delay">GPS av i viloläge</string>
+    <string name="adv_gps_idle_off_delay_desc">När appen är i bakgrunden utan anslutet hjul och utan inspelning stängs GPS av för att spara batteri. 0 stänger av den direkt; högre håller först en strömsnål position varm så länge, så att ett snabbt appbyte inte bryter GPS.</string>
+    <string name="adv_gps_fix_max_age">Max. ålder på GPS-fix</string>
+    <string name="adv_gps_fix_max_age_desc">En position äldre än detta räknas som ingen position, så att en inspelning som startas innan GPS är redo inte börjar med en föråldrad punkt.</string>
     <string name="adv_pushonly_note">Vissa enheter sänder med sin egen fasta frekvens och ignorerar dessa inställningar: push-only-hjul (Begode, Gotway, Veteran, KingSong), extern GPS (RaceBox), radar och Flic-knappar.</string>
     <string name="adv_radar_clear_decay">Radarbanans avklingning</string>
     <string name="adv_radar_clear_decay_desc">Påverkar hur länge banlisten stannar efter att vägen blivit fri. Fara: för lågt får den att blinka när bilar kommer och går.</string>

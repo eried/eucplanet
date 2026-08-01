@@ -831,6 +831,8 @@ data class AppSettings(
     val lockMaxSpeedKmh: Int get() = advanced.lockMaxSpeedKmh
     val phoneGpsIntervalMs: Int get() = advanced.phoneGpsIntervalMs
     val phoneGpsIdleIntervalMs: Int get() = advanced.phoneGpsIdleIntervalMs
+    val gpsIdleOffDelaySec: Int get() = advanced.gpsIdleOffDelaySec
+    val gpsFixMaxAgeSec: Int get() = advanced.gpsFixMaxAgeSec
     val hudReportIntervalMs: Int get() = advanced.hudReportIntervalMs
     val garminReportIntervalMs: Int get() = advanced.garminReportIntervalMs
     val navOffRouteGraceMs: Int get() = advanced.navOffRouteGraceMs
@@ -940,6 +942,13 @@ data class AdvancedSettings(
     // Slow "keep-warm" GPS interval used when nothing needs the 1 Hz active
     // stream (idle balanced / low-power tiers). See GpsPowerPolicy.
     val phoneGpsIdleIntervalMs: Int = 10000,
+    // Ultra battery saving: seconds of pure-idle (backgrounded, no wheel, not
+    // recording/navigating) before the GPS is fully released. 0 = immediately;
+    // during the grace GPS holds a cheap low-power fix, then goes off.
+    val gpsIdleOffDelaySec: Int = 30,
+    // A GPS fix older than this (seconds) counts as "no fix", so a recording
+    // that starts before GPS is ready never opens with a stale last-known point.
+    val gpsFixMaxAgeSec: Int = 10,
     val hudReportIntervalMs: Int = 200,
     val garminReportIntervalMs: Int = 200,
     val navOffRouteGraceMs: Int = 8000,
