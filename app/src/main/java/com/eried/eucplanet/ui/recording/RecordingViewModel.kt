@@ -371,8 +371,12 @@ class RecordingViewModel @Inject constructor(
             val csvFiles = tripsDir.listFiles { f -> f.extension == "csv" } ?: return@launch
             if (csvFiles.isEmpty()) return@launch
 
-            val dbbFile = File(tripsDir, "trips_export.dbb")
-            ZipOutputStream(BufferedOutputStream(FileOutputStream(dbbFile))).use { zos ->
+            // Plain .zip so phones and desktops open it natively; the importer
+            // (ours and the viewer's) accepts .zip and .dbb alike. Drop any
+            // stale archive from the .dbb era.
+            File(tripsDir, "trips_export.dbb").delete()
+            val zipFile = File(tripsDir, "trips_export.zip")
+            ZipOutputStream(BufferedOutputStream(FileOutputStream(zipFile))).use { zos ->
                 for (csv in csvFiles) {
                     zos.putNextEntry(ZipEntry(csv.name))
                     BufferedInputStream(FileInputStream(csv)).use { it.copyTo(zos) }
@@ -380,9 +384,9 @@ class RecordingViewModel @Inject constructor(
                 }
             }
 
-            val uri = FileProvider.getUriForFile(context, "${context.packageName}.fileprovider", dbbFile)
+            val uri = FileProvider.getUriForFile(context, "${context.packageName}.fileprovider", zipFile)
             val intent = Intent(Intent.ACTION_SEND).apply {
-                type = "application/octet-stream"
+                type = "application/zip"
                 putExtra(Intent.EXTRA_STREAM, uri)
                 addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_ACTIVITY_NEW_TASK)
             }
