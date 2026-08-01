@@ -52,6 +52,8 @@ data class StudioElementData(
                 pwm = hud.pwm,
                 torque = hud.torque,
                 phaseCurrent = hud.phaseCurrent,
+                motorPower = hud.motorPower,
+                gForce = hud.gForce,
                 maxTemperature = hud.temperatureC,
                 tripDistance = hud.tripKm,
                 totalDistance = hud.totalKm,
@@ -60,12 +62,20 @@ data class StudioElementData(
                 latitude = hud.latitude,
                 longitude = hud.longitude,
                 externalGpsBatteryPercent = hud.externalGpsBatteryPercent,
-                // Ext-GPS speed rides the shared gpsSpeedKmh; expose it as the
-                // external metric only when the box is the source.
-                externalGpsSpeedKmh = if (hud.gpsSource == "EXTERNAL") hud.gpsSpeedKmh else -1f,
-                // Phone GPS speed rides the same wire field; expose it as the
-                // phone metric only when the phone is the source.
-                gpsSpeedKmh = if (hud.gpsSource == "PHONE") hud.gpsSpeedKmh else -1f,
+                // Phone and external GPS speeds now ride independent wire fields
+                // (minor 15) so both overlay metrics can show at once. Fall back
+                // to the old single-source split when an older phone leaves the
+                // new fields at NaN.
+                externalGpsSpeedKmh = when {
+                    !hud.externalGpsSpeedKmh.isNaN() -> hud.externalGpsSpeedKmh
+                    hud.gpsSource == "EXTERNAL" -> hud.gpsSpeedKmh
+                    else -> -1f
+                },
+                gpsSpeedKmh = when {
+                    !hud.phoneGpsSpeedKmh.isNaN() -> hud.phoneGpsSpeedKmh
+                    hud.gpsSource == "PHONE" -> hud.gpsSpeedKmh
+                    else -> -1f
+                },
                 tripMeterKm = hud.tripMeterKm,
                 tirePressureKpa = hud.tirePressureKpa,
                 lightOn = hud.lightOn,

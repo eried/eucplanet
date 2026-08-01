@@ -197,25 +197,31 @@ private fun formatMetricStatValue(
     tempUnitLabel: String,
     distanceUnit: String
 ): String = when (key) {
-    "BATTERY", "LOAD" -> "${raw.toInt()}%"
+    "BATTERY" -> "${raw.toInt()}%"
+    // Round to match the live LOAD tile (which uses %.0f), not truncate.
+    "LOAD" -> "%.0f%%".format(raw)
     "BATTERY_1", "BATTERY_2", "PHONE_BATTERY", "EXTERNAL_GPS_BATTERY" -> "%.0f%%".format(raw)
     // Temp buffers store raw °C; convert to the rider's unit like the tile.
-    "TEMPERATURE" -> "${com.eried.eucplanet.util.Units.temperature(raw, tempUnit).toInt()}°"
-    "MOTOR_TEMP", "CONTROLLER_TEMP", "BATTERY_TEMP" ->
+    // Round (not toInt) and carry the °C/°F label so it reads like the tile.
+    "TEMPERATURE", "MOTOR_TEMP", "CONTROLLER_TEMP", "BATTERY_TEMP" ->
         "%.0f%s".format(com.eried.eucplanet.util.Units.temperature(raw, tempUnit), tempUnitLabel)
     "VOLTAGE" -> "%.1fV".format(raw)
     "CURRENT", "DYN_CURRENT_LIMIT" -> "%.1fA".format(raw)
     // Speed buffers store raw km/h; convert to the rider's speed unit.
-    "SPEED", "DYN_SPEED_LIMIT", "GPS_SPEED" ->
+    "SPEED", "DYN_SPEED_LIMIT" ->
         "%.0f %s".format(com.eried.eucplanet.util.Units.speed(raw, speedUnit), speedUnitLabel)
+    // GPS speed keeps 1 decimal to match its live tile (displayValueFor).
+    "GPS_SPEED" ->
+        "%.1f %s".format(com.eried.eucplanet.util.Units.speed(raw, speedUnit), speedUnitLabel)
     "MOTOR_POWER", "BATTERY_POWER", "POWER" -> "%.0fW".format(raw)
     "PITCH", "ROLL" -> "%.1f°".format(raw)
     "G_FORCE", "LATERAL_G", "FORWARD_G" -> "%.2fg".format(raw)
     "TORQUE" -> "%.1fNm".format(raw)
     "PHASE_CURRENT" -> "%.1fA".format(raw)
     // Tire pressure stored raw in kPa; psi for imperial-distance, bar otherwise.
+    // psi floored to match the wheel's own display (see Units.pressurePsiFloored).
     "TIRE_PRESSURE" -> if (distanceUnit == "mi")
-        "%.1f psi".format(com.eried.eucplanet.util.Units.pressure(raw, "psi"))
+        "%.1f psi".format(com.eried.eucplanet.util.Units.pressurePsiFloored(raw))
     else
         "%.2f bar".format(com.eried.eucplanet.util.Units.pressure(raw, "bar"))
     // Altitude / accuracy stored raw in metres; feet for imperial riders.
@@ -274,6 +280,11 @@ fun DashboardScreen(
     // sparklines remain empty until the wheel sends at least 2 frames,
     // matching the per-catalog metric behavior we adopted in Phase 2.
     val history = realHistory
+    // Full (Stats-length window) buffer for corner / composite STAT MATH, so a
+    // tile's Min/Max/Avg matches the metric-detail screen. `history` above is
+    // capped to SPARKLINE_SIZE (5 min) for drawing the wave; using it for stats
+    // made the tile disagree with the detail when Stats length was > 5 min.
+    val statHistory by viewModel.fullHistory.collectAsState()
     val modelName by viewModel.modelName.collectAsState()
     val connectedDeviceName by viewModel.connectedDeviceName.collectAsState()
     val connectedBrand by viewModel.connectedBrand.collectAsState()
@@ -1402,25 +1413,29 @@ fun DashboardScreen(
                 if (stat == com.eried.eucplanet.ui.settings.DashboardStat.NONE ||
                     stat == com.eried.eucplanet.ui.settings.DashboardStat.CURRENT ||
                     stat == com.eried.eucplanet.ui.settings.DashboardStat.EMPTY) return null
+                // CURRENT can be toggled to watts, but its history buffer holds
+                // amps and can't be re-expressed as watts per sample. Suppress the
+                // computed stat in watts mode rather than label amps as watts; the
+                // tile falls back to the live watts value.
+                if (key == "CURRENT" && showWatts) return null
                 // Legacy six use their typed lists; every other supportsStats
                 // metric rides in the keyed extras map (POWER, GPS_SPEED,
                 // MOTOR_TEMP, ...). A key with no buffer resolves to an empty
                 // list -> placeholder, same as a cold-boot legacy buffer.
-                val buf = when (key) {
-                    "BATTERY" -> history.battery
-                    "TEMPERATURE" -> history.temperature
-                    "VOLTAGE" -> history.voltage
-                    "CURRENT" -> history.current
-                    "LOAD" -> history.load
-                    "SPEED" -> history.speed
-                    else -> history.extras[key].orEmpty()
+                // Read the FULL window (statHistory), not the SPARKLINE_SIZE
+                // view, so the corner Min/Max/Avg matches the metric-detail.
+                val samples = when (key) {
+                    "BATTERY" -> statHistory.battery
+                    "TEMPERATURE" -> statHistory.temperature
+                    "VOLTAGE" -> statHistory.voltage
+                    "CURRENT" -> statHistory.current
+                    "LOAD" -> statHistory.load
+                    "SPEED" -> statHistory.speed
+                    else -> statHistory.extras[key].orEmpty()
                 }
-                if (buf.isEmpty()) return placeholder
-                val samples = buf.mapIndexed { idx, v ->
-                    com.eried.eucplanet.data.repository.MetricSample(idx.toLong(), v)
-                }
+                if (samples.isEmpty()) return placeholder
                 val raw = com.eried.eucplanet.ui.settings.computeDashboardStatValue(
-                    stat, samples, fallbackCurrent = buf.last()
+                    stat, samples, fallbackCurrent = samples.last().value
                 ) ?: return placeholder
                 return formatMetricStatValue(
                     key, raw, speedUnit, speedUnitLabel, tempUnit, tempUnitLabel, distanceUnit
@@ -1528,8 +1543,9 @@ fun DashboardScreen(
                         ?: placeholder
                     "TIRE_PRESSURE" -> if (wheelData.tirePressureKpa > 0f) {
                         // psi for imperial-distance riders, bar otherwise (see Units).
+                        // psi is floored to match the wheel's own display.
                         if (distanceUnit == "mi")
-                            "%.1f psi".format(com.eried.eucplanet.util.Units.pressure(wheelData.tirePressureKpa, "psi"))
+                            "%.1f psi".format(com.eried.eucplanet.util.Units.pressurePsiFloored(wheelData.tirePressureKpa))
                         else
                             "%.2f bar".format(com.eried.eucplanet.util.Units.pressure(wheelData.tirePressureKpa, "bar"))
                     } else placeholder
@@ -1833,8 +1849,19 @@ fun DashboardScreen(
                                     // vertically. Tap position is the
                                     // only signal; long-press still goes
                                     // through the drag controller above.
+                                    // Only real-metric cells become History tabs and tap targets.
+                                    // Drop "(none)"/text ("TEXT:...") and reserved "BLANK:" spacers so
+                                    // this list matches what CompositeMetricBody actually renders; the
+                                    // old `isNotBlank()` kept those sentinels and opened a bogus empty
+                                    // tab (or the wrong metric) when the rider tapped a cell.
                                     val allCells = remember(composite) {
-                                        composite?.cells?.filter { it.isNotBlank() }.orEmpty()
+                                        composite?.cells
+                                            ?.take(composite.layout.cellCount)
+                                            ?.filter {
+                                                it.isNotBlank() &&
+                                                    !it.startsWith(com.eried.eucplanet.ui.settings.COMPOSITE_TEXT_PREFIX) &&
+                                                    !it.startsWith(com.eried.eucplanet.ui.settings.COMPOSITE_CELL_BLANK)
+                                            }.orEmpty()
                                     }
                                     val tappedCellIndex = remember { mutableStateOf(0) }
                                     val tileSize = remember { mutableStateOf(androidx.compose.ui.unit.IntSize.Zero) }
@@ -1863,21 +1890,17 @@ fun DashboardScreen(
                                     // no unit suffix because the buffer
                                     // values are already in display
                                     // units (BATTERY %, etc.).
-                                    val historySnapshot = history
-                                    val cellRenderer: (String) -> String =
-                                        cellRenderer@ { metricKey ->
-                                            // Default path = whatever
-                                            // the stat-less renderer
-                                            // would have produced. The
-                                            // body iterates by key so
-                                            // we look up which cell
-                                            // index this key occupies
-                                            // and apply that cell's
-                                            // selected stat.
-                                            if (composite == null) return@cellRenderer displayValueFor(metricKey)
-                                            val cellIdx = composite.cells.indexOf(metricKey)
-                                            val stat = composite.cellStats.getOrNull(cellIdx)
-                                                ?: com.eried.eucplanet.ui.settings.DashboardStat.CURRENT
+                                    // Full window for stat math, matching the corner chips and the
+                                    // metric-detail screen (not the SPARKLINE_SIZE-capped `history`).
+                                    val historySnapshot = statHistory
+                                    // The body passes each cell's OWN stat, so we
+                                    // apply it directly. Deriving the stat from the
+                                    // key (indexOf) was wrong: a composite can hold
+                                    // the same metric twice (AVG SPEED + MAX SPEED),
+                                    // and indexOf always returned the first cell, so
+                                    // MAX SPEED wrongly showed the AVG value.
+                                    val cellRenderer: (String, com.eried.eucplanet.ui.settings.DashboardStat) -> String =
+                                        cellRenderer@ { metricKey, stat ->
                                             if (stat == com.eried.eucplanet.ui.settings.DashboardStat.CURRENT) {
                                                 return@cellRenderer displayValueFor(metricKey)
                                             }
@@ -1893,12 +1916,13 @@ fun DashboardScreen(
                                                 // ...) reads its extras buffer.
                                                 else -> historySnapshot.extras[metricKey].orEmpty()
                                             }
-                                            if (buf.size < 2) return@cellRenderer placeholder
-                                            val samples = buf.mapIndexed { idx, v ->
-                                                com.eried.eucplanet.data.repository.MetricSample(idx.toLong(), v)
-                                            }
+                                            // One sample is enough (matches cornerStatValueFor); a
+                                            // <2 guard here made a composite cell read "--" while the
+                                            // standalone chip showed a value on the same buffer.
+                                            if (buf.isEmpty()) return@cellRenderer placeholder
+                                            // buf is already List<MetricSample> from the full window.
                                             val value = com.eried.eucplanet.ui.settings.computeDashboardStatValue(
-                                                stat, samples, fallbackCurrent = buf.last()
+                                                stat, buf, fallbackCurrent = buf.last().value
                                             ) ?: return@cellRenderer placeholder
                                             // Same unit-correct formatting the
                                             // standalone corner chip uses so a
@@ -1930,18 +1954,17 @@ fun DashboardScreen(
                                                     if (sz.width == 0 || sz.height == 0 || allCells.isEmpty()) {
                                                         openTabsStartingAt(0); return@detectTapGestures
                                                     }
-                                                    val idx = when (composite?.layout) {
-                                                        com.eried.eucplanet.ui.settings.CompositeLayout.COL3 -> {
-                                                            val third = sz.width / 3f
-                                                            (offset.x / third).toInt().coerceIn(0, 2)
-                                                        }
-                                                        com.eried.eucplanet.ui.settings.CompositeLayout.COL2 -> {
-                                                            if (offset.x < sz.width / 2f) 0 else 1
-                                                        }
-                                                        com.eried.eucplanet.ui.settings.CompositeLayout.ROW2 -> {
-                                                            if (offset.y < sz.height / 2f) 0 else 1
-                                                        }
-                                                        else -> 0
+                                                    // Split by the COLLAPSED visible count (allCells),
+                                                    // not the raw layout: CompositeMetricBody drops
+                                                    // empty cells and shares the tile evenly over the
+                                                    // survivors, so mapping by raw thirds/halves opened
+                                                    // the wrong cell's history.
+                                                    val n = allCells.size
+                                                    val idx = if (n <= 1) 0 else when (composite?.layout) {
+                                                        com.eried.eucplanet.ui.settings.CompositeLayout.ROW2 ->
+                                                            (offset.y / (sz.height / n)).toInt().coerceIn(0, n - 1)
+                                                        else ->
+                                                            (offset.x / (sz.width / n)).toInt().coerceIn(0, n - 1)
                                                     }
                                                     tappedCellIndex.value = idx
                                                     openTabsStartingAt(idx)

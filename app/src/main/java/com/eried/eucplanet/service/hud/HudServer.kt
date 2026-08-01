@@ -904,6 +904,8 @@ class HudServer @Inject constructor(
             totalKm = d?.totalKm ?: wd.totalDistance,
             torque = wd.torque,
             phaseCurrent = wd.phaseCurrent,
+            motorPower = wd.motorPower,
+            gForce = wd.gForce,
             lightOn = wd.lightOn,
             gaugeMaxKmh = gaugeMax,
             gaugeOrangeThresholdPct = s.gaugeOrangeThresholdPct,
@@ -917,6 +919,11 @@ class HudServer @Inject constructor(
             longitude = (location?.longitude ?: 0.0) + (d?.dLng ?: 0.0),
             gpsSpeedKmh = gpsSpeedPair?.first ?: Float.NaN,
             gpsSource = gpsSpeedPair?.second ?: "",
+            // Phone and external GPS speeds independently, so the HUD can show
+            // both overlay metrics at once (the primary gpsSpeedKmh above only
+            // carries whichever source won the priority pick).
+            phoneGpsSpeedKmh = if (location?.hasSpeed() == true) location.speed * 3.6f else Float.NaN,
+            externalGpsSpeedKmh = if (externalFresh) external!!.speedKmh else Float.NaN,
             gpsHasFix = location != null,
             gpsHeadingDeg = if (location?.hasBearing() == true) location.bearing
                 else Float.NaN,

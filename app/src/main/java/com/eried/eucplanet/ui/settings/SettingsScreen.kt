@@ -1999,7 +1999,7 @@ private fun MetricDragPreview(
         ) {
             CompositeMetricBody(
                 composite = composite,
-                valueOf = { k -> metricPlaceholderValue(k, settings) }
+                valueOf = { k, _ -> metricPlaceholderValue(k, settings) }
             )
         }
         return
@@ -2369,7 +2369,9 @@ private fun CompositeMetricTile(
             )
     ) {
         Box(modifier = Modifier.fillMaxSize().alpha(if (isBeingDragged) 0f else 1f)) {
-            CompositeMetricBody(composite = composite, valueOf = valueOf)
+            // Editor preview shows placeholders per key and ignores the stat, so
+            // adapt the key-only valueOf to the (key, stat) body signature.
+            CompositeMetricBody(composite = composite) { key, _ -> valueOf(key) }
         }
     }
 }
@@ -2384,7 +2386,11 @@ private fun CompositeMetricTile(
 @Composable
 fun CompositeMetricBody(
     composite: MetricComposite,
-    valueOf: (String) -> String
+    // (cellKey, cellStat) -> formatted value. The stat MUST come from the cell
+    // being rendered, not be re-derived from the key: a composite can hold the
+    // same metric in two cells (e.g. AVG SPEED + MAX SPEED), and keying only by
+    // metric collapses both onto the first cell's stat.
+    valueOf: (String, DashboardStat) -> String
 ) {
     val cells = composite.cells.take(composite.layout.cellCount)
     val rawStats = composite.cellStats.take(composite.layout.cellCount)
@@ -2469,7 +2475,7 @@ fun CompositeMetricBody(
 private fun CompositeCell(
     key: String,
     stat: DashboardStat,
-    valueOf: (String) -> String,
+    valueOf: (String, DashboardStat) -> String,
     modifier: Modifier = Modifier
 ) {
     val isNone = key.isEmpty() || key == COMPOSITE_CELL_EMPTY
@@ -2503,7 +2509,7 @@ private fun CompositeCell(
         return
     }
     val label = metricChipLabel(key, short = true).uppercase()
-    val value = valueOf(key)
+    val value = valueOf(key, stat)
     // Stat indicator on top — only shown when the rider picked a non-
     // default stat (Min / Max / Avg / Median / P75 / etc.). Tinted with
     // the metric's accent so the cell reads as "MAX of SPEED" at a
@@ -2555,7 +2561,7 @@ private fun CompositeCell(
 private fun CompositeCellRow(
     key: String,
     stat: DashboardStat,
-    valueOf: (String) -> String,
+    valueOf: (String, DashboardStat) -> String,
     modifier: Modifier = Modifier
 ) {
     val isNone = key.isEmpty() || key == COMPOSITE_CELL_EMPTY
@@ -2582,7 +2588,7 @@ private fun CompositeCellRow(
     }
     val accent = metricAccentColor(key)
     val label = metricChipLabel(key, short = true).uppercase()
-    val value = valueOf(key)
+    val value = valueOf(key, stat)
     val showStat = stat != DashboardStat.CURRENT && stat != DashboardStat.NONE
     // Label gets the squeezable slot (weight 1f, fill = true) so it expands to
     // hold the leftover space after the value's natural width — that pins the
@@ -3965,7 +3971,7 @@ private fun CompositeMetricSheet(
             ) {
                 CompositeMetricBody(
                     composite = MetricComposite(layout, padded, paddedStats),
-                    valueOf = { k -> metricPlaceholderValue(k, settings) }
+                    valueOf = { k, _ -> metricPlaceholderValue(k, settings) }
                 )
             }
 

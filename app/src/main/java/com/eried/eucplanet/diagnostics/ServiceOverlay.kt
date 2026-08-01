@@ -473,7 +473,7 @@ private fun rawMetricValue(key: String, wheel: WheelData): String = when (key) {
     "ROLL" -> "%.2f".format(wheel.rollAngle)
     "G_FORCE" -> "%.3f".format(wheel.gForce)
     "LATERAL_G" -> "%.3f".format(wheel.accelX)
-    "FORWARD_G" -> "%.3f".format(wheel.accelY)
+    "FORWARD_G" -> "%.3f".format(wheel.forwardGFromSpeed)
     "TORQUE" -> "%.2f".format(wheel.torque)
     "PHASE_CURRENT" -> "%.2f".format(wheel.phaseCurrent)
     "DYN_SPEED_LIMIT" -> "%.2f".format(wheel.dynamicSpeedLimit)

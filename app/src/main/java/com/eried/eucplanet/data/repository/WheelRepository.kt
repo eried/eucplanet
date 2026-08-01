@@ -112,7 +112,7 @@ data class FullMetricHistory(
  * start working -- no separate buffer or sample-tick code, no schema
  * change to FullMetricHistory.
  */
-internal val EXTRA_HISTORY_METRICS: List<Pair<String, (com.eried.eucplanet.data.model.WheelData) -> Float>> = listOf(
+internal val EXTRA_HISTORY_METRICS: List<Pair<String, (com.eried.eucplanet.data.model.WheelData) -> Float?>> = listOf(
     "MOTOR_POWER" to { it.motorPower.toFloat() },
     "BATTERY_POWER" to { it.batteryPower.toFloat() },
     // POWER is an alias of BATTERY_POWER kept for backwards-compat with
@@ -124,14 +124,18 @@ internal val EXTRA_HISTORY_METRICS: List<Pair<String, (com.eried.eucplanet.data.
     "ROLL" to { it.rollAngle },
     "G_FORCE" to { it.gForce },
     "LATERAL_G" to { it.accelX },
-    "FORWARD_G" to { it.accelY },
+    // Must match the FORWARD_G value the tile/detail show (forwardGFromSpeed),
+    // not raw accelY, or the sparkline/stats graph a different quantity.
+    "FORWARD_G" to { it.forwardGFromSpeed },
     "TORQUE" to { it.torque },
     "PHASE_CURRENT" to { it.phaseCurrent },
     "DYN_SPEED_LIMIT" to { it.dynamicSpeedLimit },
     "DYN_CURRENT_LIMIT" to { it.dynamicCurrentLimit },
-    "MOTOR_TEMP" to { it.temperatures.getOrNull(0) ?: 0f },
-    "CONTROLLER_TEMP" to { it.temperatures.getOrNull(1) ?: 0f },
-    "BATTERY_TEMP" to { it.temperatures.getOrNull(2) ?: 0f },
+    // Only record PLAUSIBLE temps (and skip absent sensors) so the stats match
+    // the tile, which hides implausible / missing readings. null -> skip sample.
+    "MOTOR_TEMP" to { it.temperatures.getOrNull(0)?.takeIf { t -> com.eried.eucplanet.util.MetricSanity.isPlausibleTempC(t) } },
+    "CONTROLLER_TEMP" to { it.temperatures.getOrNull(1)?.takeIf { t -> com.eried.eucplanet.util.MetricSanity.isPlausibleTempC(t) } },
+    "BATTERY_TEMP" to { it.temperatures.getOrNull(2)?.takeIf { t -> com.eried.eucplanet.util.MetricSanity.isPlausibleTempC(t) } },
     // TPMS tire pressure, stored raw in kPa; the detail screen converts to psi/bar.
     "TIRE_PRESSURE" to { it.tirePressureKpa }
 )
@@ -1716,7 +1720,10 @@ class WheelRepository @Inject constructor(
                     // WheelData snapshot the legacy 6 use, so all rolling
                     // history is time-aligned.
                     for ((key, extractor) in EXTRA_HISTORY_METRICS) {
-                        extrasHist[key]?.add(MetricSample(now, extractor(d)))
+                        // null = "no sample this tick" (e.g. an implausible or
+                        // absent temperature), so the buffer never records a
+                        // value the tile itself would refuse to show.
+                        extractor(d)?.let { extrasHist[key]?.add(MetricSample(now, it)) }
                     }
                     // Phone- and GPS-derived stat metrics aren't on WheelData,
                     // so sample them from their injected sources on this same

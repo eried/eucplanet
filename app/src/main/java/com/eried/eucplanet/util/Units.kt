@@ -105,6 +105,13 @@ object Units {
         else -> kpa
     }
 
+    /** psi floored to 1 decimal. The wheel transmits whole kPa and its own
+     *  display truncates the psi conversion, so rounding read 0.1 psi high vs
+     *  the wheel. Floor here so EUC Planet matches what the rider sees on the
+     *  wheel (e.g. 210 kPa -> 30.458 -> 30.4, not 30.5). */
+    fun pressurePsiFloored(kpa: Float): Float =
+        kotlin.math.floor(pressure(kpa, "psi") * 10f) / 10f
+
     /** Tire-pressure unit symbol for "psi" or "bar" (kPa otherwise). */
     fun pressureUnit(unit: String): String = when (unit) {
         "psi" -> "psi"
