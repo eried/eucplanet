@@ -427,6 +427,14 @@ class TripRepository @Inject constructor(
         )
     }
 
+    // Multi-wheel distance: the wheel's session trip counter is only
+    // meaningful within one connection. Accumulate its deltas per segment,
+    // resetting the baseline across disconnects, so a mid-ride wheel
+    // switch can't fold two odometers into one bogus number (a P6 -> V14
+    // swap once produced a "914.5 km" trip this way).
+    private var tripWheelKmAccum = 0f
+    private var lastWheelTripKm: Float? = null
+
     // CSV Extra-column event queue: one key=value pair leaves per written
     // row, so a multi-key event (the wheel identity block) spills onto
     // consecutive rows exactly like euc.world's extra column does.
@@ -514,6 +522,8 @@ class TripRepository @Inject constructor(
         lastPersistedWheelMeta = null
         pendingExtras.clear()
         emittedExtras.clear()
+        tripWheelKmAccum = 0f
+        lastWheelTripKm = null
         captureWheelIdentity()
         if (wheelRepository.connectionState.value == com.eried.eucplanet.ble.ConnectionState.CONNECTED) {
             queueWheelIdentityExtras()
@@ -581,8 +591,18 @@ class TripRepository @Inject constructor(
                     captureWheelIdentity()
                     persistWheelIdentityIfChanged()
                     queueWheelIdentityExtras()
+                    // Per-segment wheel distance: only forward, plausible steps
+                    // count; the baseline resets across disconnects so another
+                    // wheel's counter can't inject a jump.
+                    val wtd = data.tripDistance
+                    val lastKm = lastWheelTripKm
+                    if (lastKm != null && wtd >= lastKm && wtd - lastKm < 1f) {
+                        tripWheelKmAccum += wtd - lastKm
+                    }
+                    lastWheelTripKm = wtd
                 } else if (wasConnected) {
                     pendingExtras.addLast("wheel.disconnected=1")
+                    lastWheelTripKm = null
                 }
                 wasConnected = wheelConnected
                 csvWriter?.writeRow(data, location, extSpeed, wheelConnected, pendingExtras.removeFirstOrNull())
@@ -636,11 +656,15 @@ class TripRepository @Inject constructor(
         }
 
         val data = wheelRepository.wheelData.value
-        // Wheel odometer (session trip counter) is the source of truth for
-        // distance; fall back to GPS-derived distance only when the wheel never
-        // reported one (GPS-only ride, wheel disconnected before any reading, or
-        // a wheel family that doesn't expose trip distance).
-        val distance = if (data.tripDistance > 0f) data.tripDistance else gpsDistanceKm.toFloat()
+        // Wheel distance is the per-segment accumulator (immune to mid-ride
+        // wheel switches and to pre-recording session distance); the raw
+        // session counter and GPS distance remain as fallbacks for rides
+        // where the loop never saw a connected tick.
+        val distance = when {
+            tripWheelKmAccum > 0f -> tripWheelKmAccum
+            data.tripDistance > 0f -> data.tripDistance
+            else -> gpsDistanceKm.toFloat()
+        }
         val capturedMock = tripHadMockFix
         // A last look in case the wheel is still connected, then use what the ride
         // accumulated — by now a powered-off wheel reads back as all-nulls, which merge

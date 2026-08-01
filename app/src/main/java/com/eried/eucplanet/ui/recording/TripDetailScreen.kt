@@ -290,6 +290,17 @@ fun TripDetailScreen(
             val gpsPoints = remember(dataPoints) {
                 dataPoints.filter { it.latitude != 0.0 && it.longitude != 0.0 }
             }
+            // Extra-column events: shown in the Details section, and the wheel
+            // identity blocks drive the map markers (start popup + yellow
+            // triangles at mid-ride wheel changes).
+            val extraEvents = remember(dataPoints) { extractExtraEvents(dataPoints) }
+            val wheelStarts = remember(extraEvents) { extraEvents.filter { it.isWheelStart } }
+            val startMarkerLabel = remember(wheelStarts) {
+                wheelStarts.firstOrNull()?.let { "${it.time}  ${it.text.substringAfter('=')}" } ?: ""
+            }
+            val wheelSwitches = remember(wheelStarts) {
+                wheelStarts.drop(1).filter { it.lat != 0.0 && it.lon != 0.0 }
+            }
             val isLive by viewModel.isTripLiveRecording(trip).collectAsState(initial = false)
             val liveLocation by viewModel.liveLocation.collectAsState()
             val hasMap = gpsPoints.size >= 2 || (isLive && liveLocation != null)
@@ -334,6 +345,8 @@ fun TripDetailScreen(
                     liveLon = liveLocation?.longitude,
                     scrubLat = scrubPoint?.latitude,
                     scrubLon = scrubPoint?.longitude,
+                    wheelSwitches = wheelSwitches,
+                    startLabel = startMarkerLabel,
                     modifier = mod,
                 )
             }
@@ -428,6 +441,10 @@ fun TripDetailScreen(
                         MaterialTheme.appColors.metricTemp, unitLabel = "%", minSpan = GraphScale.SPAN_LOAD,
                         scrubIndex = scrubIndex, onScrub = onScrub)
                 }
+                if (extraEvents.isNotEmpty()) {
+                    Spacer(Modifier.height(12.dp))
+                    TripDetailsSection(extraEvents)
+                }
             }
 
             if (landscape) {
@@ -520,6 +537,117 @@ private fun SummaryCard(
     }
 }
 
+/**
+ * Collapsed-by-default "Details" section listing every Extra-column event
+ * of the trip as text: the wheel identity blocks (highlighted on their
+ * first row, which matches a map marker), disconnects, and whatever future
+ * events the recorder adds.
+ */
+@Composable
+private fun TripDetailsSection(events: List<TripExtraEvent>) {
+    var expanded by rememberSaveable { mutableStateOf(false) }
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
+        shape = RoundedCornerShape(10.dp)
+    ) {
+        Column(Modifier.fillMaxWidth()) {
+            Row(
+                Modifier
+                    .fillMaxWidth()
+                    .clickable { expanded = !expanded }
+                    .padding(horizontal = 12.dp, vertical = 10.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    stringResource(R.string.recording_details_section),
+                    fontSize = 13.sp,
+                    fontWeight = FontWeight.Medium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.weight(1f)
+                )
+                Text(
+                    "${events.size}  " + if (expanded) "▾" else "▸",
+                    fontSize = 13.sp,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+            if (expanded) {
+                Column(Modifier.padding(start = 12.dp, end = 12.dp, bottom = 10.dp)) {
+                    events.forEach { e ->
+                        Row {
+                            Text(
+                                e.time,
+                                fontSize = 11.sp,
+                                fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                            Text(
+                                e.text,
+                                fontSize = 11.sp,
+                                fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace,
+                                color = if (e.isWheelStart) MaterialTheme.appColors.statusGood
+                                    else MaterialTheme.colorScheme.onSurface,
+                                modifier = Modifier.padding(start = 8.dp)
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+// One Extra-column event from the trip CSV, with the GPS fix of its row so
+// wheel changes can be pinned on the map. isWheelStart marks the first row
+// of an identity block (recording start or a mid-ride wheel change).
+data class TripExtraEvent(
+    val time: String,
+    val text: String,
+    val lat: Double,
+    val lon: Double,
+    val isWheelStart: Boolean,
+)
+
+// Walks the rows' Extra cells and marks identity-block starts: a block
+// begins when wheel.name / wheel.mac appears with no open block or repeats
+// a field the open block already has (the recorder re-emits the whole
+// block on every reconnect). wheel.disconnected closes the block.
+private fun extractExtraEvents(points: List<TripDataPoint>): List<TripExtraEvent> {
+    val out = ArrayList<TripExtraEvent>()
+    var block: MutableSet<String>? = null
+    for (p in points) {
+        val text = p.extra.trim()
+        if (text.isEmpty()) continue
+        val eq = text.indexOf('=')
+        val key = if (eq > 0) text.substring(0, eq).trim() else text
+        var isStart = false
+        if (key == "wheel.name" || key == "wheel.mac") {
+            val field = key.removePrefix("wheel.")
+            if (block == null || block.contains(field)) {
+                isStart = true
+                block = hashSetOf(field)
+            } else {
+                block.add(field)
+            }
+        } else if (key == "wheel.disconnected") {
+            block = null
+        } else if (key.startsWith("wheel.") && block != null) {
+            block.add(key.removePrefix("wheel."))
+        }
+        out.add(TripExtraEvent(timePartOf(p.date), text, p.latitude, p.longitude, isStart))
+    }
+    return out
+}
+
+/** "dd.MM.yyyy HH:mm:ss.SSS" or ISO "...T HH:mm:ss..." -> "HH:mm:ss". */
+private fun timePartOf(date: String): String {
+    val sep = date.indexOfFirst { it == ' ' || it == 'T' }
+    if (sep < 0) return date
+    val t = date.substring(sep + 1)
+    return if (t.length >= 8) t.substring(0, 8) else t
+}
+
 // The rider's Trip-details map-style pick (LIGHT / DARK / SAT) sticks for the rest of
 // the app session, across trips, then resets on restart (in-memory, not persisted) and
 // re-defaults from the theme. Process-scoped, mirroring the alarm constant-tone prompt.
@@ -536,6 +664,10 @@ private fun RouteMapView(
     // hide the marker). Drives a dot on the map synced with the chart cursor.
     scrubLat: Double? = null,
     scrubLon: Double? = null,
+    // Mid-ride wheel changes (yellow triangles) and the start marker's popup
+    // text (the first wheel identity of the recording, empty = no popup).
+    wheelSwitches: List<TripExtraEvent> = emptyList(),
+    startLabel: String = "",
     modifier: Modifier = Modifier
 ) {
     // rememberSaveable so a rotation (which recreates the composition) keeps the
@@ -553,6 +685,7 @@ private fun RouteMapView(
     MapSurface(
         points = points, isLive = isLive, liveLat = liveLat, liveLon = liveLon,
         scrubLat = scrubLat, scrubLon = scrubLon,
+        wheelSwitches = wheelSwitches, startLabel = startLabel,
         fullscreen = false, onToggleFullscreen = { fullscreen = true },
         mapType = mapType, onMapTypeChange = { mapType = it; tripMapTypeSession = it },
         modifier = modifier,
@@ -598,6 +731,7 @@ private fun RouteMapView(
             MapSurface(
                 points = points, isLive = isLive, liveLat = liveLat, liveLon = liveLon,
                 scrubLat = scrubLat, scrubLon = scrubLon,
+                wheelSwitches = wheelSwitches, startLabel = startLabel,
                 fullscreen = true, onToggleFullscreen = { fullscreen = false },
                 mapType = mapType, onMapTypeChange = { mapType = it; tripMapTypeSession = it },
                 modifier = Modifier.fillMaxSize(),
@@ -615,6 +749,8 @@ private fun MapSurface(
     liveLon: Double?,
     scrubLat: Double?,
     scrubLon: Double?,
+    wheelSwitches: List<TripExtraEvent>,
+    startLabel: String,
     fullscreen: Boolean,
     onToggleFullscreen: () -> Unit,
     mapType: String,
@@ -624,13 +760,27 @@ private fun MapSurface(
     val coordsJson = remember(points) {
         points.joinToString(",") { "[${it.latitude},${it.longitude}]" }
     }
+    // Wheel-change markers + start popup, JSON-encoded so rider-controlled
+    // BLE names can never break out of the script block.
+    val switchesJson = remember(wheelSwitches) {
+        val arr = org.json.JSONArray()
+        for (s in wheelSwitches) {
+            arr.put(org.json.JSONObject()
+                .put("lat", s.lat).put("lon", s.lon)
+                .put("label", "${s.time}  ${s.text.substringAfter('=')}"))
+        }
+        arr.toString()
+    }
+    val startLabelJs = remember(startLabel) { org.json.JSONObject.quote(startLabel) }
     var webView by remember { mutableStateOf<WebView?>(null) }
     val mapTypes = listOf("LIGHT", "DARK", "SAT")
     // Rebuild the WebView only when the historical trace changes or when we first
     // enter/leave live mode. Bake the CURRENT style into the initial HTML so a
     // freshly-opened surface (e.g. fullscreen) starts on the shared style rather
     // than flashing light first; style cycles afterwards go through JS.
-    val html = remember(coordsJson, isLive) { buildMapHtml(coordsJson, isLive, mapType) }
+    val html = remember(coordsJson, isLive, switchesJson, startLabelJs) {
+        buildMapHtml(coordsJson, switchesJson, startLabelJs, isLive, mapType)
+    }
 
     Box(modifier.clip(RoundedCornerShape(if (fullscreen) 0.dp else 12.dp))) {
         AndroidView(
@@ -727,7 +877,7 @@ private fun MapButton(icon: ImageVector, desc: String, onClick: () -> Unit) {
     }
 }
 
-private fun buildMapHtml(coordsJson: String, isLive: Boolean, initialType: String): String = """
+private fun buildMapHtml(coordsJson: String, switchesJson: String, startLabelJs: String, isLive: Boolean, initialType: String): String = """
 <!DOCTYPE html><html><head>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
@@ -743,6 +893,12 @@ private fun buildMapHtml(coordsJson: String, isLive: Boolean, initialType: Strin
     width:14px;height:14px;border-radius:50%;border:2px solid #fff;
     background:#FFC107;
     box-shadow:0 0 6px rgba(255,193,7,0.9);
+  }
+  .switch-marker{
+    width:0;height:0;
+    border-left:8px solid transparent;border-right:8px solid transparent;
+    border-bottom:14px solid #FFC107;
+    filter:drop-shadow(0 1px 1px rgba(0,0,0,0.8));
   }
 </style>
 </head><body>
@@ -797,7 +953,21 @@ private fun buildMapHtml(coordsJson: String, isLive: Boolean, initialType: Strin
       start = L.circleMarker(a,{radius:r,color:'#000',weight:2,fillColor:'#66BB6A',fillOpacity:1}).addTo(map);
       end   = L.circleMarker(b,{radius:r,color:'#000',weight:2,fillColor:'#EF5350',fillOpacity:1}).addTo(map);
     }
+    // The start marker carries the ride's first wheel identity as a popup.
+    if (startLabel){
+      if (start) start.bindPopup(startLabel);
+      if (overlap) overlap.bindPopup(startLabel);
+    }
   }
+
+  // Mid-ride wheel changes: same yellow triangle for every change, each
+  // with its own popup (time + the wheel that took over).
+  var switches=$switchesJson;
+  var startLabel=$startLabelJs;
+  switches.forEach(function(s){
+    L.marker([s.lat,s.lon],{icon:L.divIcon({className:'switch-marker',iconSize:[16,14],iconAnchor:[8,14]})})
+      .addTo(map).bindPopup(s.label);
+  });
 
   // Live marker API (called from Kotlin via evaluateJavascript).
   var live=null, livePath=null;

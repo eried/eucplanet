@@ -61,7 +61,9 @@ data class TripDataPoint(
     /** Wheel current in amps, signed (negative = regen braking). NaN when the trip's CSV predates the column or the cell is blank. */
     val current: Float = Float.NaN,
     /** PWM / motor load in percent. NaN when the trip's CSV predates the column or the cell is blank. */
-    val pwm: Float = Float.NaN
+    val pwm: Float = Float.NaN,
+    /** Raw Extra-column event ("wheel.name=KS-16SZ", "wheel.disconnected=1", ...). Empty on normal rows. */
+    val extra: String = ""
 )
 
 @HiltViewModel
@@ -656,6 +658,7 @@ class RecordingViewModel @Inject constructor(
             val iExtGps = headers.indexOfFirst { it.startsWith("ext gps") || it.startsWith("ext_gps") || it == "external gps speed" }
             val iCurrent = headers.indexOfFirst { it == "current" }
             val iPwm = headers.indexOfFirst { it == "pwm" }
+            val iExtra = headers.indexOfFirst { it == "extra" }
 
             var line = reader.readLine()
             while (line != null) {
@@ -689,7 +692,8 @@ class RecordingViewModel @Inject constructor(
                                 gpsSpeed = if (iGpsSpeed >= 0) parts.getOrNull(iGpsSpeed)?.toFloatOrNull() ?: 0f else 0f,
                                 extGpsSpeed = extSpeed,
                                 current = current,
-                                pwm = pwm
+                                pwm = pwm,
+                                extra = if (iExtra >= 0) parts.getOrNull(iExtra)?.trim() ?: "" else ""
                             )
                         )
                     }
