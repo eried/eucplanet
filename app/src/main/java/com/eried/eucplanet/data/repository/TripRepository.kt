@@ -427,6 +427,22 @@ class TripRepository @Inject constructor(
         )
     }
 
+    // CSV Extra-column event queue: one key=value pair leaves per written
+    // row, so a multi-key event (the wheel identity block) spills onto
+    // consecutive rows exactly like euc.world's extra column does.
+    private val pendingExtras = ArrayDeque<String>()
+    // Pairs already written to the CSV for the CURRENT connection block, so a
+    // late-arriving serial adds one row instead of repeating the whole block,
+    // while a reconnect (cleared set) re-emits everything.
+    private val emittedExtras = HashSet<String>()
+
+    /** Queue any not-yet-written identity pairs of the current connection block. */
+    private fun queueWheelIdentityExtras() {
+        for (pair in wheelIdentity.extraPairs()) {
+            if (emittedExtras.add(pair)) pendingExtras.addLast(pair)
+        }
+    }
+
     /**
      * Flush the accumulated wheel identity onto the current row the first time it
      * becomes known (and again only if it grows) — gated on change, so a whole ride
@@ -496,7 +512,12 @@ class TripRepository @Inject constructor(
         tripHadMockFix = false
         wheelIdentity.clear()          // never inherit the previous ride's wheel
         lastPersistedWheelMeta = null
+        pendingExtras.clear()
+        emittedExtras.clear()
         captureWheelIdentity()
+        if (wheelRepository.connectionState.value == com.eried.eucplanet.ble.ConnectionState.CONNECTED) {
+            queueWheelIdentityExtras()
+        }
 
         val trip = TripRecord(fileName = fileName, tripUuid = java.util.UUID.randomUUID().toString())
         // Persisting the row can fail (disk full, DB locked/corrupt). If it does,
@@ -530,6 +551,8 @@ class TripRepository @Inject constructor(
             val recordIntervalMs = settingsRepository.get().tripRecordIntervalMs.toLong()
             var rowsWritten = 0
             var rowsWithGps = 0
+            var wasConnected = wheelRepository.connectionState.value ==
+                com.eried.eucplanet.ble.ConnectionState.CONNECTED
             while (_recording.value) {
                 val data = wheelRepository.wheelData.value
                 val location = _currentLocation.value
@@ -546,14 +569,23 @@ class TripRepository @Inject constructor(
                     ?.speedKmh
                 val wheelConnected = wheelRepository.connectionState.value ==
                     com.eried.eucplanet.ble.ConnectionState.CONNECTED
-                csvWriter?.writeRow(data, location, extSpeed, wheelConnected)
                 // Keep the wheel's identity current while it is still talking to us; the
                 // serial/model often only arrive some seconds into the connection. Flush it
                 // to the row as soon as it's known so a later kill still recovers the wheel.
+                // Identity also streams into the CSV's Extra column: the full block on
+                // every (re)connect, single pairs as late fields arrive, and a
+                // wheel.disconnected marker on drop, so a trip that switches wheels
+                // mid-ride stays reconstructable from the file alone.
                 if (wheelConnected) {
+                    if (!wasConnected) emittedExtras.clear() // reconnect: re-emit the block
                     captureWheelIdentity()
                     persistWheelIdentityIfChanged()
+                    queueWheelIdentityExtras()
+                } else if (wasConnected) {
+                    pendingExtras.addLast("wheel.disconnected=1")
                 }
+                wasConnected = wheelConnected
+                csvWriter?.writeRow(data, location, extSpeed, wheelConnected, pendingExtras.removeFirstOrNull())
                 rowsWritten++
                 if (location != null) {
                     rowsWithGps++
@@ -811,6 +843,21 @@ class WheelIdentity {
     }
 
     fun clear() = fields.clear()
+
+    /**
+     * The identity as CSV Extra-column pairs, stable order. MAC is upper
+     * case without separators (the ecosystem convention for wheel MACs).
+     */
+    fun extraPairs(): List<String> {
+        val out = ArrayList<String>(6)
+        fields["ble_name"]?.let { out.add("wheel.name=$it") }
+        fields["ble_mac"]?.let { out.add("wheel.mac=" + it.replace(":", "").replace("-", "").uppercase()) }
+        fields["brand"]?.let { out.add("wheel.brand=$it") }
+        fields["model"]?.let { out.add("wheel.model=$it") }
+        fields["serial"]?.let { out.add("wheel.serial=$it") }
+        fields["firmware"]?.let { out.add("wheel.firmware=$it") }
+        return out
+    }
 
     /** Same shape and blank-handling as [buildWheelMetaJson] — it delegates to it. */
     fun toJson(): String? = buildWheelMetaJson(
