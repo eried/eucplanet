@@ -1179,7 +1179,7 @@
     <string name="recording_detail_title">Trip Details</string>
     <string name="recording_no_data">No data recorded in this trip</string>
     <string name="recording_route">Route</string>
-    <string name="recording_details_section">Details</string>
+    <string name="recording_details_section">Extra details</string>
     <string name="recording_summary_distance">Distance</string>
     <string name="recording_summary_duration">Duration</string>
     <string name="recording_summary_points">Points</string>

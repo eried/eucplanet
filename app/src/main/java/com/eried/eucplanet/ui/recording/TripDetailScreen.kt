@@ -538,14 +538,13 @@ private fun SummaryCard(
 }
 
 /**
- * Collapsed-by-default "Details" section listing every Extra-column event
- * of the trip as text: the wheel identity blocks (highlighted on their
- * first row, which matches a map marker), disconnects, and whatever future
- * events the recorder adds.
+ * "Extra details" section listing every Extra-column event of the trip as
+ * text: the wheel identity blocks (highlighted on their first row, which
+ * matches a map marker), disconnects, and whatever future events the
+ * recorder adds.
  */
 @Composable
 private fun TripDetailsSection(events: List<TripExtraEvent>) {
-    var expanded by rememberSaveable { mutableStateOf(false) }
     Card(
         modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
@@ -555,7 +554,6 @@ private fun TripDetailsSection(events: List<TripExtraEvent>) {
             Row(
                 Modifier
                     .fillMaxWidth()
-                    .clickable { expanded = !expanded }
                     .padding(horizontal = 12.dp, vertical = 10.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -567,30 +565,28 @@ private fun TripDetailsSection(events: List<TripExtraEvent>) {
                     modifier = Modifier.weight(1f)
                 )
                 Text(
-                    "${events.size}  " + if (expanded) "▾" else "▸",
+                    "${events.size}",
                     fontSize = 13.sp,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
-            if (expanded) {
-                Column(Modifier.padding(start = 12.dp, end = 12.dp, bottom = 10.dp)) {
-                    events.forEach { e ->
-                        Row {
-                            Text(
-                                e.time,
-                                fontSize = 11.sp,
-                                fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                            Text(
-                                e.text,
-                                fontSize = 11.sp,
-                                fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace,
-                                color = if (e.isWheelStart) MaterialTheme.appColors.statusGood
-                                    else MaterialTheme.colorScheme.onSurface,
-                                modifier = Modifier.padding(start = 8.dp)
-                            )
-                        }
+            Column(Modifier.padding(start = 12.dp, end = 12.dp, bottom = 10.dp)) {
+                events.forEach { e ->
+                    Row {
+                        Text(
+                            e.time,
+                            fontSize = 11.sp,
+                            fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                        Text(
+                            e.text,
+                            fontSize = 11.sp,
+                            fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace,
+                            color = if (e.isWheelStart) MaterialTheme.appColors.statusGood
+                                else MaterialTheme.colorScheme.onSurface,
+                            modifier = Modifier.padding(start = 8.dp)
+                        )
                     }
                 }
             }
