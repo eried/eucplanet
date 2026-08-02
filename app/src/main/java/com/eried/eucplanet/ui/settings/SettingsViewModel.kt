@@ -39,6 +39,61 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+/**
+ * The dashboard metric picker catalog: every metric key a rider can add to the
+ * dashboard, in default order (the first 6 are the fresh-install active layout).
+ * Top-level so [com.eried.eucplanet.data.model.MetricCatalog] and this list can
+ * be drift-guarded by a test - adding a metric to MetricCatalog without adding
+ * it here makes it un-selectable, the exact gap that hid TRIP_METER,
+ * PHASE_CURRENT and EXTERNAL_GPS_BATTERY.
+ *
+ * Entries that are NOT MetricCatalog keys are intentional aliases; keep them in
+ * [DASHBOARD_METRIC_ALIASES] so the drift-guard tolerates them.
+ */
+internal val KNOWN_DASHBOARD_METRICS = listOf(
+    // Currently active by default — keep these 6 first so a fresh install
+    // mirrors the hard-coded layout byte-for-byte.
+    "BATTERY", "TEMPERATURE", "VOLTAGE", "CURRENT", "LOAD", "TRIP",
+    // Pool — already-buffered or simple-to-derive metrics.
+    "SPEED", "POWER", "ODOMETER", "TRIP_METER",
+    "MOTOR_POWER", "BATTERY_POWER",
+    "BATTERY_1", "BATTERY_2",
+    "PITCH", "ROLL",
+    "G_FORCE", "LATERAL_G", "FORWARD_G",
+    "TORQUE", "PHASE_CURRENT", "DYN_SPEED_LIMIT", "DYN_CURRENT_LIMIT",
+    // Individual temperature sensors (WheelData.temperatures by index).
+    "MOTOR_TEMP", "CONTROLLER_TEMP", "BATTERY_TEMP",
+    // Derived trip metrics (computed from speed/voltage/current histories
+    // once Phase 3 aggregation lands).
+    "HEADROOM", "TRIP_TIME", "TRIP_MAX_SPEED", "AVG_TRIP_SPEED",
+    "WH_CONSUMED", "RANGE_ESTIMATE", "WH_PER_KM",
+    // Phone + GPS feeds — sourced outside WheelData.
+    "PHONE_BATTERY", "GPS_ALTITUDE", "GPS_SPEED", "GPS_HEADING",
+    "GPS_ACCURACY", "EXTERNAL_GPS_BATTERY",
+    // Derived motion + pack health — slope/altitude integration and
+    // wheel-firmware fields some boards expose.
+    "SLOPE", "ASCENT", "DESCENT", "MOTOR_RPM", "REGEN_WH",
+    // Connectivity diagnostic — useful when debugging dropouts.
+    "BT_RSSI",
+    // Extras targeted at composite-tile cells (small text, no
+    // sparkline) -- they also render fine as standalone tiles.
+    "LAT_LONG", "WHEEL_MAX_SPEED", "WHEEL_ALARM_SPEED", "PC_MODE", "LIGHT_ON",
+    // TPMS tire pressure (InMotion P6). Appended (not inserted) so existing
+    // per-slot restore indices don't shift.
+    "TIRE_PRESSURE"
+)
+
+/**
+ * Picker keys that are deliberately NOT MetricCatalog keys (back-compat aliases
+ * or synthesized entries). The drift-guard allows these; anything else in
+ * [KNOWN_DASHBOARD_METRICS] that isn't a catalog key is a typo / stale entry.
+ */
+internal val DASHBOARD_METRIC_ALIASES = setOf(
+    // "POWER" is a legacy alias of BATTERY_POWER kept for dashboards saved
+    // before the catalog rename; it shares BATTERY_POWER's buffer.
+    "POWER",
+)
+
 @HiltViewModel
 class SettingsViewModel @Inject constructor(
     private val settingsRepository: SettingsRepository,
@@ -1099,38 +1154,9 @@ class SettingsViewModel @Inject constructor(
     // Saved orders are sanitized against the catalog so unknown tokens
     // (renames, removals) drop silently and newly-added entries appear at
     // the end of the order on first read.
-    val knownDashboardMetrics = listOf(
-        // Currently active by default — keep these 6 first so a fresh install
-        // mirrors the hard-coded layout byte-for-byte.
-        "BATTERY", "TEMPERATURE", "VOLTAGE", "CURRENT", "LOAD", "TRIP",
-        // Pool — already-buffered or simple-to-derive metrics.
-        "SPEED", "POWER", "ODOMETER", "TRIP_METER",
-        "MOTOR_POWER", "BATTERY_POWER",
-        "BATTERY_1", "BATTERY_2",
-        "PITCH", "ROLL",
-        "G_FORCE", "LATERAL_G", "FORWARD_G",
-        "TORQUE", "PHASE_CURRENT", "DYN_SPEED_LIMIT", "DYN_CURRENT_LIMIT",
-        // Individual temperature sensors (WheelData.temperatures by index).
-        "MOTOR_TEMP", "CONTROLLER_TEMP", "BATTERY_TEMP",
-        // Derived trip metrics (computed from speed/voltage/current histories
-        // once Phase 3 aggregation lands).
-        "HEADROOM", "TRIP_TIME", "TRIP_MAX_SPEED", "AVG_TRIP_SPEED",
-        "WH_CONSUMED", "RANGE_ESTIMATE", "WH_PER_KM",
-        // Phone + GPS feeds — sourced outside WheelData.
-        "PHONE_BATTERY", "GPS_ALTITUDE", "GPS_SPEED", "GPS_HEADING",
-        "GPS_ACCURACY", "EXTERNAL_GPS_BATTERY",
-        // Derived motion + pack health — slope/altitude integration and
-        // wheel-firmware fields some boards expose.
-        "SLOPE", "ASCENT", "DESCENT", "MOTOR_RPM", "REGEN_WH",
-        // Connectivity diagnostic — useful when debugging dropouts.
-        "BT_RSSI",
-        // Extras targeted at composite-tile cells (small text, no
-        // sparkline) -- they also render fine as standalone tiles.
-        "LAT_LONG", "WHEEL_MAX_SPEED", "WHEEL_ALARM_SPEED", "PC_MODE", "LIGHT_ON",
-        // TPMS tire pressure (InMotion P6). Appended (not inserted) so existing
-        // per-slot restore indices don't shift.
-        "TIRE_PRESSURE"
-    )
+    // The picker catalog lives top-level as [KNOWN_DASHBOARD_METRICS] so a
+    // drift-guard test can assert it stays in sync with MetricCatalog.
+    val knownDashboardMetrics = KNOWN_DASHBOARD_METRICS
     /**
      * Dashboard-eligible actions, derived from [ActionCatalog]. Adding a
      * new action is a single entry in `ActionCatalog.all` — no edit here.
