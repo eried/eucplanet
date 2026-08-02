@@ -468,7 +468,7 @@
     <string name="cloud_restore_success">設定を復元しました</string>
     <string name="cloud_restore_failed">フォルダー内にバックアップが見つかりません</string>
     <string name="section_cloud_trips">トリップバックアップ</string>
-    <string name="cloud_trips_caption">新しいトリップは自動的にフォルダーに保存されます</string>
+    <string name="cloud_trips_caption">トリップはこの端末に保存され、自動的にバックアップフォルダーにコピーされます。ここで削除しても端末のコピーだけが消え、バックアップは残ります。</string>
     <string name="cloud_retry_now">すべて同期</string>
     <string name="cloud_retry_enqueued">アップロードを予約しました</string>
     <string name="sync_progress">%1$d / %2$d を同期中</string>
@@ -2009,6 +2009,14 @@
     <string name="accel_split_slower_best">、ベストより%1$s遅い</string>
     <string name="accel_split_best_yet">、ベスト更新</string>
     <string name="report_contents">音声報告をカスタマイズ</string>
+    <string name="trip_customize">カスタマイズ</string>
+    <string name="trip_customize_tiles">タイル</string>
+    <string name="trip_customize_graphs">グラフ</string>
+    <string name="recording_details_section">詳細情報</string>
+    <string name="recording_details_none">このライドではホイールが記録されていません。</string>
+    <string name="cloud_reset_local">ローカルのトリップを削除</string>
+    <string name="cloud_reset_local_title">ローカルのトリップを削除しますか？</string>
+    <string name="cloud_reset_local_body">この端末に保存されたすべてのトリップを削除します。バックアップフォルダーはそのまま残るので、同期済みのトリップはそこから復元できます。</string>
 </resources>
 
 

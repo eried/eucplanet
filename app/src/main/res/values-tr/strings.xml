@@ -468,7 +468,7 @@
     <string name="cloud_restore_success">Ayarlar geri yüklendi</string>
     <string name="cloud_restore_failed">Klasörde yedek bulunamadı</string>
     <string name="section_cloud_trips">Sefer yedekleme</string>
-    <string name="cloud_trips_caption">Yeni seferler klasörünüze otomatik kaydedilir</string>
+    <string name="cloud_trips_caption">Seferler bu telefonda tutulur ve otomatik olarak yedek klasörünüze kopyalanır. Bunları burada temizlemek yalnızca telefondaki kopyayı kaldırır; yedeğiniz kalır.</string>
     <string name="cloud_retry_now">Tümünü eşitle</string>
     <string name="cloud_retry_enqueued">Yükleme planlandı</string>
     <string name="sync_progress">%2$d içinden %1$d eşitleniyor</string>
@@ -2005,6 +2005,14 @@
     <string name="accel_split_slower_best">, en iyiden %1$s daha yavaş</string>
     <string name="accel_split_best_yet">, şimdiye kadarki en iyi</string>
     <string name="report_contents">Sesli bildirimi özelleştir</string>
+    <string name="trip_customize">Özelleştir</string>
+    <string name="trip_customize_tiles">Kutucuklar</string>
+    <string name="trip_customize_graphs">Grafikler</string>
+    <string name="recording_details_section">Ek ayrıntılar</string>
+    <string name="recording_details_none">Bu sürüş için teker bildirilmedi.</string>
+    <string name="cloud_reset_local">Yerel seferleri temizle</string>
+    <string name="cloud_reset_local_title">Yerel seferler temizlensin mi?</string>
+    <string name="cloud_reset_local_body">Bu telefonda kayıtlı tüm seferleri kaldırır. Yedek klasörünüze dokunulmaz, böylece eşitlenen seferler oradan geri yüklenebilir.</string>
 </resources>
 
 

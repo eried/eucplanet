@@ -468,7 +468,7 @@
     <string name="cloud_restore_success">設定已還原</string>
     <string name="cloud_restore_failed">資料夾中找不到備份</string>
     <string name="section_cloud_trips">行程備份</string>
-    <string name="cloud_trips_caption">新行程會自動儲存至您的資料夾</string>
+    <string name="cloud_trips_caption">行程儲存在本機上，並會自動複製到您的備份資料夾。在此清除只會刪除本機上的副本，備份仍會保留。</string>
     <string name="cloud_retry_now">全部同步</string>
     <string name="cloud_retry_enqueued">已排程上傳</string>
     <string name="sync_progress">正在同步第 %1$d / %2$d 筆</string>
@@ -2007,6 +2007,14 @@
     <string name="accel_split_slower_best">，比最佳慢 %1$s</string>
     <string name="accel_split_best_yet">，最佳成績</string>
     <string name="report_contents">自訂語音播報</string>
+    <string name="trip_customize">自訂</string>
+    <string name="trip_customize_tiles">卡片</string>
+    <string name="trip_customize_graphs">圖表</string>
+    <string name="recording_details_section">額外詳情</string>
+    <string name="recording_details_none">本次騎乘未記錄車輪。</string>
+    <string name="cloud_reset_local">清除本機行程</string>
+    <string name="cloud_reset_local_title">清除本機行程？</string>
+    <string name="cloud_reset_local_body">移除儲存在本機上的所有行程。您的備份資料夾不受影響，已同步的行程可從該處還原。</string>
 </resources>
 
 

@@ -468,7 +468,7 @@
     <string name="cloud_restore_success">Instellingen teruggezet</string>
     <string name="cloud_restore_failed">Geen back-up gevonden in de map</string>
     <string name="section_cloud_trips">Back-up van ritten</string>
-    <string name="cloud_trips_caption">Nieuwe ritten worden automatisch in je map opgeslagen</string>
+    <string name="cloud_trips_caption">Ritten worden op deze telefoon bewaard en automatisch naar je back-upmap gekopieerd. Ze hier wissen verwijdert alleen de kopie op de telefoon; je back-up blijft.</string>
     <string name="cloud_retry_now">Alles synchr.</string>
     <string name="cloud_retry_enqueued">Upload ingepland</string>
     <string name="sync_progress">Synchroniseren %1$d van %2$d</string>
@@ -2010,5 +2010,13 @@
     <string name="accel_split_slower_best">, %1$s langzamer dan record</string>
     <string name="accel_split_best_yet">, nieuw record</string>
     <string name="report_contents">Stemrapport aanpassen</string>
+    <string name="trip_customize">Aanpassen</string>
+    <string name="trip_customize_tiles">Tegels</string>
+    <string name="trip_customize_graphs">Grafieken</string>
+    <string name="recording_details_section">Extra details</string>
+    <string name="recording_details_none">Geen wiel geregistreerd voor deze rit.</string>
+    <string name="cloud_reset_local">Lokale ritten wissen</string>
+    <string name="cloud_reset_local_title">Lokale ritten wissen?</string>
+    <string name="cloud_reset_local_body">Verwijdert alle ritten die op deze telefoon zijn opgeslagen. Je back-upmap blijft ongemoeid, dus gesynchroniseerde ritten kunnen daaruit worden hersteld.</string>
 </resources>
 

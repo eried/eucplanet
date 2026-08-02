@@ -468,7 +468,7 @@
     <string name="cloud_restore_success">Настройки восстановлены</string>
     <string name="cloud_restore_failed">В папке не найдена резервная копия</string>
     <string name="section_cloud_trips">Резервная копия поездок</string>
-    <string name="cloud_trips_caption">Новые поездки сохраняются в вашу папку автоматически</string>
+    <string name="cloud_trips_caption">Поездки хранятся на этом телефоне и автоматически копируются в папку резервных копий. Удаление здесь убирает только копию на телефоне; резервная копия сохраняется.</string>
     <string name="cloud_retry_now">Синхр. всё</string>
     <string name="cloud_retry_enqueued">Загрузка запланирована</string>
     <string name="sync_progress">Синхронизация %1$d из %2$d</string>
@@ -2008,5 +2008,13 @@
     <string name="accel_split_slower_best">, на %1$s медленнее лучшего</string>
     <string name="accel_split_best_yet">, лучший результат</string>
     <string name="report_contents">Настроить голосовой отчёт</string>
+    <string name="trip_customize">Настроить</string>
+    <string name="trip_customize_tiles">Плитки</string>
+    <string name="trip_customize_graphs">Графики</string>
+    <string name="recording_details_section">Дополнительные сведения</string>
+    <string name="recording_details_none">Для этой поездки моноколесо не указано.</string>
+    <string name="cloud_reset_local">Очистить локальные поездки</string>
+    <string name="cloud_reset_local_title">Очистить локальные поездки?</string>
+    <string name="cloud_reset_local_body">Удаляет все поездки, сохранённые на этом телефоне. Папка резервных копий не затрагивается, поэтому синхронизированные поездки можно восстановить оттуда.</string>
 </resources>
 

@@ -468,7 +468,7 @@
     <string name="cloud_restore_success">Paramètres restaurés</string>
     <string name="cloud_restore_failed">Aucune sauvegarde trouvée dans le dossier</string>
     <string name="section_cloud_trips">Sauvegarde des trajets</string>
-    <string name="cloud_trips_caption">Les nouveaux trajets sont enregistrés automatiquement dans ton dossier</string>
+    <string name="cloud_trips_caption">Les trajets sont conservés sur ce téléphone et copiés automatiquement dans ton dossier de sauvegarde. Les effacer ici supprime seulement la copie du téléphone ; ta sauvegarde reste.</string>
     <string name="cloud_retry_now">Tout sync</string>
     <string name="cloud_retry_enqueued">Envoi programmé</string>
     <string name="sync_progress">Synchronisation %1$d sur %2$d</string>
@@ -2012,4 +2012,12 @@
     <string name="accel_split_slower_best">, %1$s plus lent que le meilleur</string>
     <string name="accel_split_best_yet">, nouveau record</string>
     <string name="report_contents">Personnaliser le rapport vocal</string>
+    <string name="trip_customize">Personnaliser</string>
+    <string name="trip_customize_tiles">Tuiles</string>
+    <string name="trip_customize_graphs">Graphiques</string>
+    <string name="recording_details_section">Détails supplémentaires</string>
+    <string name="recording_details_none">Aucune roue signalée pour ce trajet.</string>
+    <string name="cloud_reset_local">Effacer les trajets locaux</string>
+    <string name="cloud_reset_local_title">Effacer les trajets locaux ?</string>
+    <string name="cloud_reset_local_body">Supprime tous les trajets enregistrés sur ce téléphone. Ton dossier de sauvegarde reste intact, les trajets synchronisés peuvent y être restaurés.</string>
 </resources>

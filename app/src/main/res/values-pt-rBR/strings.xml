@@ -468,7 +468,7 @@
     <string name="cloud_restore_success">Configurações restauradas</string>
     <string name="cloud_restore_failed">Nenhum backup encontrado na pasta</string>
     <string name="section_cloud_trips">Backup de viagens</string>
-    <string name="cloud_trips_caption">Novas viagens são salvas automaticamente na sua pasta</string>
+    <string name="cloud_trips_caption">As viagens ficam neste telefone e são copiadas automaticamente para sua pasta de backup. Limpá-las aqui remove apenas a cópia do telefone; seu backup permanece.</string>
     <string name="cloud_retry_now">Sincronizar tudo</string>
     <string name="cloud_retry_enqueued">Envio agendado</string>
     <string name="sync_progress">Sincronizando %1$d de %2$d</string>
@@ -2010,5 +2010,13 @@
     <string name="accel_split_slower_best">, %1$s mais lento que o melhor</string>
     <string name="accel_split_best_yet">, novo recorde</string>
     <string name="report_contents">Personalizar relatório de voz</string>
+    <string name="trip_customize">Personalizar</string>
+    <string name="trip_customize_tiles">Blocos</string>
+    <string name="trip_customize_graphs">Gráficos</string>
+    <string name="recording_details_section">Detalhes adicionais</string>
+    <string name="recording_details_none">Nenhuma roda registrada para este trajeto.</string>
+    <string name="cloud_reset_local">Limpar viagens locais</string>
+    <string name="cloud_reset_local_title">Limpar viagens locais?</string>
+    <string name="cloud_reset_local_body">Remove todas as viagens salvas neste telefone. Sua pasta de backup não é afetada, então as viagens sincronizadas podem ser restauradas de lá.</string>
 </resources>
 

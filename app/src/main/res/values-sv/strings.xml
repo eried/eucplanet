@@ -468,7 +468,7 @@
     <string name="cloud_restore_success">Inställningarna återställda</string>
     <string name="cloud_restore_failed">Ingen kopia hittades i mappen</string>
     <string name="section_cloud_trips">Turbackup</string>
-    <string name="cloud_trips_caption">Nya turer sparas automatiskt i din mapp</string>
+    <string name="cloud_trips_caption">Turer sparas på den här telefonen och kopieras automatiskt till din backupmapp. Att rensa dem här tar bara bort kopian på telefonen; din backup finns kvar.</string>
     <string name="cloud_retry_now">Synka allt</string>
     <string name="cloud_retry_enqueued">Uppladdning schemalagd</string>
     <string name="sync_progress">Synkroniserar %1$d av %2$d</string>
@@ -2008,4 +2008,12 @@
     <string name="accel_split_slower_best">, %1$s långsammare än bästa</string>
     <string name="accel_split_best_yet">, bästa hittills</string>
     <string name="report_contents">Anpassa röstrapport</string>
+    <string name="trip_customize">Anpassa</string>
+    <string name="trip_customize_tiles">Rutor</string>
+    <string name="trip_customize_graphs">Grafer</string>
+    <string name="recording_details_section">Extra detaljer</string>
+    <string name="recording_details_none">Inget hjul registrerat för den här turen.</string>
+    <string name="cloud_reset_local">Rensa lokala turer</string>
+    <string name="cloud_reset_local_title">Rensa lokala turer?</string>
+    <string name="cloud_reset_local_body">Tar bort alla turer som sparats på den här telefonen. Din backupmapp lämnas orörd, så synkade turer kan återställas därifrån.</string>
 </resources>

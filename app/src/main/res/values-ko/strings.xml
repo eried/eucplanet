@@ -468,7 +468,7 @@
     <string name="cloud_restore_success">설정이 복원되었습니다</string>
     <string name="cloud_restore_failed">폴더에서 백업을 찾을 수 없습니다</string>
     <string name="section_cloud_trips">트립 백업</string>
-    <string name="cloud_trips_caption">새 트립은 자동으로 폴더에 저장됩니다</string>
+    <string name="cloud_trips_caption">트립은 이 휴대폰에 저장되고 백업 폴더에 자동으로 복사됩니다. 여기서 삭제하면 휴대폰 사본만 제거되고 백업은 유지됩니다.</string>
     <string name="cloud_retry_now">전체 동기화</string>
     <string name="cloud_retry_enqueued">업로드 예약됨</string>
     <string name="sync_progress">%1$d / %2$d 동기화 중</string>
@@ -2007,4 +2007,12 @@
     <string name="accel_split_slower_best">, 최고보다 %1$s 느림</string>
     <string name="accel_split_best_yet">, 신기록</string>
     <string name="report_contents">음성 보고 맞춤 설정</string>
+    <string name="trip_customize">사용자 지정</string>
+    <string name="trip_customize_tiles">타일</string>
+    <string name="trip_customize_graphs">그래프</string>
+    <string name="recording_details_section">추가 정보</string>
+    <string name="recording_details_none">이 주행에 대해 보고된 휠이 없습니다.</string>
+    <string name="cloud_reset_local">로컬 트립 삭제</string>
+    <string name="cloud_reset_local_title">로컬 트립을 삭제할까요?</string>
+    <string name="cloud_reset_local_body">이 휴대폰에 저장된 모든 트립을 삭제합니다. 백업 폴더는 그대로 유지되므로 동기화된 트립은 거기서 복원할 수 있습니다.</string>
 </resources>
