@@ -1961,6 +1961,8 @@
     <string name="adv_cover_cutout_inset_desc">전면 카메라 피하기가 켜져 있을 때 전면 렌즈를 위해 비워 두는 공간. 너무 작으면 렌즈가 버튼을 가립니다.</string>
     <string name="adv_nav_sidebar_min">사이드바 최소 화면</string>
     <string name="adv_nav_sidebar_min_desc">이보다 좁은 화면은 가로 모드에서도 하단 경유지 패널을 유지합니다. 너무 낮으면 작은 화면에서 지도가 가려집니다.</string>
+    <string name="adv_inmotion_v1_pin">InMotion V5/V8/V10 PIN</string>
+    <string name="adv_inmotion_v1_pin_desc">InMotion V5/V8/V10 휠의 접속 PIN. 연결 시 전송되어 휠이 데이터 전송을 시작합니다. InMotion 앱에서 직접 PIN을 설정하지 않았다면 000000으로 두세요.</string>
     <string name="adv_nav_sidebar_width">경유지 패널 너비</string>
     <string name="adv_nav_sidebar_width_desc">가로 모드 경유지 사이드바의 너비. 너무 넓으면 지도가 거의 남지 않습니다.</string>
     <string name="adv_simple_speedo_scale">단순 속도계 크기</string>

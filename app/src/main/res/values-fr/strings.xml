@@ -1968,6 +1968,8 @@
     <string name="adv_cover_cutout_inset_desc">Espace réservé aux objectifs frontaux lorsque Éviter les caméras frontales est activé. Trop petit, les objectifs masquent des boutons.</string>
     <string name="adv_nav_sidebar_min">Écran minimum pour la barre latérale</string>
     <string name="adv_nav_sidebar_min_desc">Les écrans plus étroits gardent le panneau d\'arrêts en bas même en paysage. Trop bas enterre la carte sur les petits écrans.</string>
+    <string name="adv_inmotion_v1_pin">PIN InMotion V5/V8/V10</string>
+    <string name="adv_inmotion_v1_pin_desc">PIN d\'accès pour les roues InMotion V5/V8/V10, envoyé à la connexion pour que la roue commence à envoyer des données. Laissez 000000 sauf si vous avez défini votre propre PIN dans l\'application InMotion.</string>
     <string name="adv_nav_sidebar_width">Largeur du panneau d\'arrêts</string>
     <string name="adv_nav_sidebar_width_desc">Largeur de la barre latérale d\'arrêts en paysage. Trop large laisse peu de carte.</string>
     <string name="adv_simple_speedo_scale">Taille du compteur simple</string>

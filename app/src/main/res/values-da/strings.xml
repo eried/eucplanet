@@ -1979,6 +1979,8 @@
     <string name="adv_cover_cutout_inset_desc">Plads holdt fri til frontlinserne, når Undgå frontkameraer er slået til. For lille, og linserne skjuler knapper.</string>
     <string name="adv_nav_sidebar_min">Mindste skærm til sidepanel</string>
     <string name="adv_nav_sidebar_min_desc">Smallere skærme beholder det nederste stoppanel selv i liggende retning. For lavt skjuler kortet på små skærme.</string>
+    <string name="adv_inmotion_v1_pin">InMotion V5/V8/V10 PIN</string>
+    <string name="adv_inmotion_v1_pin_desc">Adgangs-PIN til InMotion V5/V8/V10 hjul, sendes ved tilslutning så hjulet begynder at sende data. Lad 000000 stå, medmindre du har angivet din egen PIN i InMotion-appen.</string>
     <string name="adv_nav_sidebar_width">Bredde på stoppanel</string>
     <string name="adv_nav_sidebar_width_desc">Bredden på det liggende stopsidepanel. For bredt efterlader lidt kort.</string>
     <string name="adv_simple_speedo_scale">Størrelse på simpelt speedometer</string>

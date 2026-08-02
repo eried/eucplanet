@@ -665,6 +665,11 @@ class WheelRepository @Inject constructor(
                 // shrink below it when the window is set small.
                 historyWindowMs = maxOf(s.dashboardRollingWindowSeconds * 1000L, HISTORY_WINDOW_MS)
                 lockMaxSpeedKmh = s.lockMaxSpeedKmh.toFloat()
+                // Push the InMotion V1 access PIN to its adapter so the next
+                // connect's init sequence sends it. Stored as a 6-digit number,
+                // formatted back with leading zeros (0 -> "000000").
+                (wheelAdapter as? com.eried.eucplanet.ble.CompositeWheelAdapter)
+                    ?.setInmotionV1Pin(com.eried.eucplanet.data.model.pinFormat(s.inmotionV1Pin))
                 // Push the rider's charging-ETA tuning into the live estimator; it
                 // reads these each estimate() so a change applies without losing the
                 // running session. Taper factors are stored x100.

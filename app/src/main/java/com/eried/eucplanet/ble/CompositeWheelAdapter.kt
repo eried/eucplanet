@@ -101,6 +101,15 @@ class CompositeWheelAdapter @Inject constructor(
         inmotion, kingsong, veteran, begode, ninebot, inmotionV1
     )
 
+    /**
+     * Set the InMotion V1 (V5 / V8 / V10 / L6) BLE access PIN from Advanced
+     * settings. The V1 adapter sends it in its connect init sequence; a wheel
+     * with no PIN configured ignores it. No-op for every other family.
+     */
+    fun setInmotionV1Pin(pin: String) {
+        inmotionV1.pin = pin
+    }
+
     override val familyId: String get() = active.familyId
     override val familyDisplayName: String get() = active.familyDisplayName
     // Delegate `brand` to the active sub-adapter rather than letting the

@@ -1961,6 +1961,8 @@
     <string name="adv_cover_cutout_inset_desc">Ön kameralardan kaçın açıkken ön lensler için boş bırakılan alan. Çok küçük olursa lensler düğmeleri gizler.</string>
     <string name="adv_nav_sidebar_min">Kenar çubuğu için en küçük ekran</string>
     <string name="adv_nav_sidebar_min_desc">Bundan dar ekranlar, yatayda bile alttaki durak panelini tutar. Çok düşük, küçük ekranlarda haritayı gizler.</string>
+    <string name="adv_inmotion_v1_pin">InMotion V5/V8/V10 PIN</string>
+    <string name="adv_inmotion_v1_pin_desc">InMotion V5/V8/V10 tekerler için erişim PIN\'i, bağlanınca gönderilir ve teker veri göndermeye başlar. InMotion uygulamasında kendi PIN\'inizi ayarlamadıysanız 000000 olarak bırakın.</string>
     <string name="adv_nav_sidebar_width">Durak paneli genişliği</string>
     <string name="adv_nav_sidebar_width_desc">Yatay durak kenar çubuğunun genişliği. Çok geniş olursa harita az kalır.</string>
     <string name="adv_simple_speedo_scale">Basit hız göstergesi boyutu</string>

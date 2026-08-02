@@ -1964,6 +1964,8 @@
     <string name="adv_cover_cutout_inset_desc">Espaço reservado para as lentes frontais quando Evitar câmeras frontais está ativado. Muito pequeno e as lentes cobrem botões.</string>
     <string name="adv_nav_sidebar_min">Tela mínima para barra lateral</string>
     <string name="adv_nav_sidebar_min_desc">Telas mais estreitas que isso mantêm o painel de paradas embaixo mesmo na horizontal. Muito baixo esconde o mapa em telas pequenas.</string>
+    <string name="adv_inmotion_v1_pin">PIN InMotion V5/V8/V10</string>
+    <string name="adv_inmotion_v1_pin_desc">PIN de acesso para rodas InMotion V5/V8/V10, enviado ao conectar para que a roda comece a enviar dados. Deixe 000000, a menos que você tenha definido seu próprio PIN no app da InMotion.</string>
     <string name="adv_nav_sidebar_width">Largura do painel de paradas</string>
     <string name="adv_nav_sidebar_width_desc">Largura da barra lateral de paradas na horizontal. Muito larga deixa pouco mapa.</string>
     <string name="adv_simple_speedo_scale">Tamanho do velocímetro simples</string>

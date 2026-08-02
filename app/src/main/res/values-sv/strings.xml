@@ -1964,6 +1964,8 @@
     <string name="adv_cover_cutout_inset_desc">Utrymme som hålls fritt för frontlinserna när Undvik frontkameror är på. För litet och linserna döljer knappar.</string>
     <string name="adv_nav_sidebar_min">Minsta skärm för sidopanel</string>
     <string name="adv_nav_sidebar_min_desc">Smalare skärmar behåller den nedre stopp-panelen även i liggande läge. För lågt döljer kartan på små skärmar.</string>
+    <string name="adv_inmotion_v1_pin">InMotion V5/V8/V10 PIN</string>
+    <string name="adv_inmotion_v1_pin_desc">Åtkomst-PIN för InMotion V5/V8/V10-hjul, skickas vid anslutning så att hjulet börjar skicka data. Lämna 000000 om du inte har angett en egen PIN i InMotion-appen.</string>
     <string name="adv_nav_sidebar_width">Bredd på stopp-panel</string>
     <string name="adv_nav_sidebar_width_desc">Bredden på den liggande stopp-sidopanelen. För bred lämnar lite karta.</string>
     <string name="adv_simple_speedo_scale">Storlek på enkel hastighetsmätare</string>

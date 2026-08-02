@@ -1962,6 +1962,8 @@
     <string name="adv_cover_cutout_inset_desc">Miejsce wolne dla przednich obiektywów, gdy Omijaj przednie kamery jest włączone. Zbyt małe i obiektywy zasłaniają przyciski.</string>
     <string name="adv_nav_sidebar_min">Minimalny ekran dla panelu bocznego</string>
     <string name="adv_nav_sidebar_min_desc">Węższe ekrany zachowują dolny panel przystanków nawet w poziomie. Zbyt niski chowa mapę na małych ekranach.</string>
+    <string name="adv_inmotion_v1_pin">PIN InMotion V5/V8/V10</string>
+    <string name="adv_inmotion_v1_pin_desc">PIN dostępu do kół InMotion V5/V8/V10, wysyłany przy połączeniu, aby koło zaczęło przesyłać dane. Zostaw 000000, chyba że ustawiłeś własny PIN w aplikacji InMotion.</string>
     <string name="adv_nav_sidebar_width">Szerokość panelu przystanków</string>
     <string name="adv_nav_sidebar_width_desc">Szerokość bocznego panelu przystanków w poziomie. Zbyt szeroki zostawia mało mapy.</string>
     <string name="adv_simple_speedo_scale">Rozmiar prostego prędkościomierza</string>

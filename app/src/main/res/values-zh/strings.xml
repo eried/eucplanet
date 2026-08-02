@@ -1831,6 +1831,8 @@
     <string name="adv_cover_cutout_inset_desc">开启避开前置摄像头时为前置镜头保留的空间。太小会让镜头挡住按钮。</string>
     <string name="adv_nav_sidebar_min">侧栏最小屏幕</string>
     <string name="adv_nav_sidebar_min_desc">比此更窄的屏幕即使横向也保留底部停靠点面板。太低会在小屏幕上遮住地图。</string>
+    <string name="adv_inmotion_v1_pin">InMotion V5/V8/V10 PIN</string>
+    <string name="adv_inmotion_v1_pin_desc">InMotion V5/V8/V10 独轮车的访问 PIN，连接时发送，让独轮车开始发送数据。除非你在 InMotion 应用中设置了自己的 PIN，否则请保持 000000。</string>
     <string name="adv_nav_sidebar_width">停靠点面板宽度</string>
     <string name="adv_nav_sidebar_width_desc">横向停靠点侧栏的宽度。太宽会让地图变小。</string>
     <string name="adv_simple_speedo_scale">简易速度表尺寸</string>

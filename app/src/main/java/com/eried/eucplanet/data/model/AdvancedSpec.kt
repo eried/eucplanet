@@ -56,6 +56,10 @@ data class AdvancedSpec(
 val taperFormat: (Int) -> String = { String.format(java.util.Locale.US, "%.2f", it / 100f) }
 val taperParse: (String) -> Int? = { it.toFloatOrNull()?.let { f -> Math.round(f * 100f) } }
 
+/** 6-digit PIN display: keep leading zeros so 0 shows as "000000". */
+val pinFormat: (Int) -> String = { String.format(java.util.Locale.US, "%06d", it) }
+val pinParse: (String) -> Int? = { it.toIntOrNull() }
+
 /** Canonical defaults — one allocation, reused for resets, JSON fallback, etc. */
 val ADVANCED_DEFAULTS = AdvancedSettings()
 
@@ -224,4 +228,12 @@ val ADVANCED_SPECS: List<AdvancedSpec> = listOf(
         240..480, 10, unit = "dp", get = { it.navSidebarWidthDp }, set = { s, v -> s.copy(navSidebarWidthDp = v) }),
     AdvancedSpec("navSidebarMinScreenDp", AdvGroup.GEOMETRY, R.string.adv_nav_sidebar_min, R.string.adv_nav_sidebar_min_desc,
         400..900, 20, unit = "dp", get = { it.navSidebarMinScreenDp }, set = { s, v -> s.copy(navSidebarMinScreenDp = v) }),
+
+    // --- Wheel access ---
+    // InMotion V1 (V5/V8/V10/L6) BLE PIN. Typed 6-digit field; factory default
+    // 000000. The +/- steppers are incidental (you type the PIN); NumberUpDown
+    // already limits input to 6 digits.
+    AdvancedSpec("inmotionV1Pin", AdvGroup.CONTROLS, R.string.adv_inmotion_v1_pin, R.string.adv_inmotion_v1_pin_desc,
+        0..999999, 1, unit = "", get = { it.inmotionV1Pin }, set = { s, v -> s.copy(inmotionV1Pin = v) },
+        format = pinFormat, parse = pinParse),
 )

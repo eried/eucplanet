@@ -1869,6 +1869,8 @@
     <string name="adv_cover_cutout_inset_desc">Spazio lasciato libero per gli obiettivi frontali quando Evita fotocamere frontali è attivo. Troppo piccolo e gli obiettivi coprono i pulsanti.</string>
     <string name="adv_nav_sidebar_min">Schermo minimo per barra laterale</string>
     <string name="adv_nav_sidebar_min_desc">Gli schermi più stretti mantengono il pannello fermate in basso anche in orizzontale. Troppo basso nasconde la mappa sugli schermi piccoli.</string>
+    <string name="adv_inmotion_v1_pin">PIN InMotion V5/V8/V10</string>
+    <string name="adv_inmotion_v1_pin_desc">PIN di accesso per le ruote InMotion V5/V8/V10, inviato alla connessione così la ruota inizia a inviare dati. Lascia 000000 a meno che tu non abbia impostato un PIN nell\'app InMotion.</string>
     <string name="adv_nav_sidebar_width">Larghezza pannello fermate</string>
     <string name="adv_nav_sidebar_width_desc">Larghezza della barra laterale delle fermate in orizzontale. Troppo larga lascia poca mappa.</string>
     <string name="adv_simple_speedo_scale">Dimensione tachimetro semplice</string>

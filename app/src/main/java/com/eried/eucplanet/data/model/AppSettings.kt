@@ -896,6 +896,7 @@ data class AppSettings(
     val chargingWindowMs: Int get() = advanced.chargingWindowMs
     val chargingSanityCapMinutes: Int get() = advanced.chargingSanityCapMinutes
     val chargingMedianFilterSize: Int get() = advanced.chargingMedianFilterSize
+    val inmotionV1Pin: Int get() = advanced.inmotionV1Pin
 }
 
 /**
@@ -1031,6 +1032,10 @@ data class AdvancedSettings(
     val simpleSpeedoScalePct: Int = 62,
     val navSidebarWidthDp: Int = 400,
     val navSidebarMinScreenDp: Int = 600,
+    // InMotion V1 (V5 / V8 / V10 / L6) BLE access PIN, stored as the 6-digit
+    // number (0 = "000000", the factory default). Sent on connect so the wheel
+    // leaves its identity-only wait and streams; wheels with no PIN ignore it.
+    val inmotionV1Pin: Int = 0,
 )
 
 // FlicAction enum removed (2026-05). Replaced by

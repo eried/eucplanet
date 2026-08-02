@@ -1964,6 +1964,8 @@
     <string name="adv_cover_cutout_inset_desc">Ruimte die vrij blijft voor de frontlenzen als Frontcamera\'s mijden aan staat. Te klein en de lenzen bedekken knoppen.</string>
     <string name="adv_nav_sidebar_min">Minimumscherm voor zijbalk</string>
     <string name="adv_nav_sidebar_min_desc">Smallere schermen houden het stopspaneel onderaan, ook liggend. Te laag verstopt de kaart op kleine schermen.</string>
+    <string name="adv_inmotion_v1_pin">InMotion V5/V8/V10 PIN</string>
+    <string name="adv_inmotion_v1_pin_desc">Toegangs-PIN voor InMotion V5/V8/V10 wielen, wordt bij verbinden verstuurd zodat het wiel data gaat sturen. Laat 000000 staan, tenzij je een eigen PIN hebt ingesteld in de InMotion-app.</string>
     <string name="adv_nav_sidebar_width">Breedte stopspaneel</string>
     <string name="adv_nav_sidebar_width_desc">Breedte van de liggende stopszijbalk. Te breed laat weinig kaart over.</string>
     <string name="adv_simple_speedo_scale">Grootte eenvoudige snelheidsmeter</string>
