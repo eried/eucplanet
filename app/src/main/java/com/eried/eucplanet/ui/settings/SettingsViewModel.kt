@@ -55,7 +55,10 @@ internal val KNOWN_DASHBOARD_METRICS = listOf(
     // mirrors the hard-coded layout byte-for-byte.
     "BATTERY", "TEMPERATURE", "VOLTAGE", "CURRENT", "LOAD", "TRIP",
     // Pool — already-buffered or simple-to-derive metrics.
-    "SPEED", "POWER", "ODOMETER", "TRIP_METER",
+    // (No "POWER": it was a deprecated duplicate of BATTERY_POWER, removed from
+    // MetricCatalog, so it rendered as the raw uppercase key with a placeholder
+    // value. Riders use Motor power / Battery power instead.)
+    "SPEED", "ODOMETER", "TRIP_METER",
     "MOTOR_POWER", "BATTERY_POWER",
     "BATTERY_1", "BATTERY_2",
     "PITCH", "ROLL",
@@ -87,12 +90,9 @@ internal val KNOWN_DASHBOARD_METRICS = listOf(
  * Picker keys that are deliberately NOT MetricCatalog keys (back-compat aliases
  * or synthesized entries). The drift-guard allows these; anything else in
  * [KNOWN_DASHBOARD_METRICS] that isn't a catalog key is a typo / stale entry.
+ * Currently empty - every picker entry maps to a real catalog metric.
  */
-internal val DASHBOARD_METRIC_ALIASES = setOf(
-    // "POWER" is a legacy alias of BATTERY_POWER kept for dashboards saved
-    // before the catalog rename; it shares BATTERY_POWER's buffer.
-    "POWER",
-)
+internal val DASHBOARD_METRIC_ALIASES = emptySet<String>()
 
 @HiltViewModel
 class SettingsViewModel @Inject constructor(
