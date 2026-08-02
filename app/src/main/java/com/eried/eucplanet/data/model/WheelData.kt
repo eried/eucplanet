@@ -53,6 +53,14 @@ data class WheelData(
     val forwardGFromSpeed: Float = 0f,
     val batteryPower: Int = 0,
     val motorPower: Int = 0,
+    /** Wh drawn from the battery since connect (discharge integral) - the same
+     *  connection-scoped energy the Battery screen shows as "used". Backs the
+     *  WH_CONSUMED "Energy" tile and, over trip distance, WH_PER_KM. 0 until the
+     *  first integration tick. */
+    val whConsumed: Float = 0f,
+    /** Wh returned to the battery since connect (regen / charge integral). Backs
+     *  the REGEN_WH "Regen" tile. */
+    val whRegen: Float = 0f,
     val dynamicSpeedLimit: Float = 0f,
     val dynamicCurrentLimit: Float = 0f,
     val lightOn: Boolean = false,

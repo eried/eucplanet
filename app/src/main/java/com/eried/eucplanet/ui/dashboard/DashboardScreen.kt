@@ -230,6 +230,7 @@ private fun formatMetricStatValue(
     else
         "%.0fm".format(raw)
     "BT_RSSI" -> "%.0f dBm".format(raw)
+    "WH_PER_KM" -> "%.0f Wh/km".format(raw)
     else -> "%.1f".format(raw)
 }
 
@@ -1576,10 +1577,17 @@ fun DashboardScreen(
                     } ?: placeholder
                     // Link RSSI from the GATT layer (0 = not yet read).
                     "BT_RSSI" -> if (wheelData.rssiDbm != 0) "${wheelData.rssiDbm} dBm" else placeholder
+                    // Ride energy since connect (the Battery screen's running
+                    // integral). Wh/km divides by trip distance once there's a
+                    // little of it, so a tiny denominator can't spike the number.
+                    "WH_CONSUMED" -> if (wheelData.whConsumed > 0f) "%.0f Wh".format(wheelData.whConsumed) else placeholder
+                    "REGEN_WH" -> if (wheelData.whRegen > 0f) "%.0f Wh".format(wheelData.whRegen) else placeholder
+                    "WH_PER_KM" -> if (wheelData.tripDistance > 0.05f && wheelData.whConsumed > 0f)
+                        "%.0f Wh/km".format(wheelData.whConsumed / wheelData.tripDistance) else placeholder
                     // SLOPE / ASCENT / DESCENT need integrated altitude
-                    // history (not yet wired). MOTOR_RPM / REGEN_WH aren't
-                    // surfaced on WheelData today - those need adapter-side
-                    // plumbing. Placeholder for now.
+                    // history (not yet wired). MOTOR_RPM isn't surfaced on
+                    // WheelData today - that needs adapter-side plumbing.
+                    // Placeholder for now.
                     else -> placeholder
                 }
             }

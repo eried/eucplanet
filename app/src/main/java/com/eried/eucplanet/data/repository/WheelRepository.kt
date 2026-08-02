@@ -139,7 +139,12 @@ internal val EXTRA_HISTORY_METRICS: List<Pair<String, (com.eried.eucplanet.data.
     // TPMS tire pressure, stored raw in kPa; the detail screen converts to psi/bar.
     "TIRE_PRESSURE" to { it.tirePressureKpa },
     // BLE link RSSI in dBm; null (skip) until the first read so 0 doesn't skew stats.
-    "BT_RSSI" to { it.rssiDbm.takeIf { r -> r != 0 }?.toFloat() }
+    "BT_RSSI" to { it.rssiDbm.takeIf { r -> r != 0 }?.toFloat() },
+    // Ride efficiency Wh/km = energy used / trip distance. Needs a little
+    // distance before it's meaningful; null (skip) below the floor so a tiny
+    // denominator doesn't spike the sparkline. WH_CONSUMED / REGEN_WH have no
+    // sparkline or stats (catalog), so they don't need a buffer here.
+    "WH_PER_KM" to { if (it.tripDistance > 0.05f && it.whConsumed > 0f) it.whConsumed / it.tripDistance else null }
 )
 
 /**
@@ -1652,6 +1657,10 @@ class WheelRepository @Inject constructor(
                 // V8S "Light switch only turns on, never off" bug.
                 val realtimeLacksLight = _modelName.value?.contains("P6") == true ||
                     wheelAdapter.familyId == "inmotion_v1"
+                // InMotion V1 reports discharge as positive power (opposite of
+                // V14), so the ride-energy consumed/regen accumulators swap for
+                // it. See the whConsumed / whRegen mapping in the copy below.
+                val v1SignedPower = wheelAdapter.familyId == "inmotion_v1"
                 // V14 etc. don't carry total distance in realtime frames, so
                 // preserve whatever was set via the separate TotalDistance
                 // decode. The P6 ships the lifetime odometer inline at offset
@@ -1693,7 +1702,25 @@ class WheelRepository @Inject constructor(
                     temperatures = temps,
                     // Link RSSI comes from the GATT layer, not the wheel frame;
                     // fold in the latest read (keep the last value between reads).
-                    rssiDbm = bleManager.rssiDbm.value ?: previous.rssiDbm
+                    rssiDbm = bleManager.rssiDbm.value ?: previous.rssiDbm,
+                    // Connection-scoped ride energy, integrated in
+                    // updateChargingSession (called just below) - the same
+                    // running integral the Battery screen uses. Read here one
+                    // tick behind (invisible on a slowly growing Wh counter) so
+                    // the Energy / Regen / Wh-per-km tiles have a value without a
+                    // second emission per frame.
+                    //
+                    // Sign convention differs by family. The integrator files
+                    // POSITIVE power into sessionEnergyInWh and negative into
+                    // sessionEnergyOutWh. On InMotion V2 (V14) discharge current
+                    // is negative, so Out = consumed / In = regen. But the
+                    // InMotion V1 (V8S) reports discharge as POSITIVE power (its
+                    // idle +3 W matches EUC World and V x I exactly), so for V1
+                    // the two swap: In = consumed, Out = regen. Flip only V1 -
+                    // the family we have a decoded capture for - and leave every
+                    // other family's validated mapping alone.
+                    whConsumed = if (v1SignedPower) sessionEnergyInWh else sessionEnergyOutWh,
+                    whRegen = if (v1SignedPower) sessionEnergyOutWh else sessionEnergyInWh
                 )
                 _chargeStatus.value = deriveChargeStatus(_wheelData.value)
                 // Never let the charging-session bookkeeping throw out of the
