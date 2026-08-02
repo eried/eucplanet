@@ -645,11 +645,11 @@
     <string name="cloud_restore_success">Settings restored</string>
     <string name="cloud_restore_failed">No backup found in folder</string>
     <string name="section_cloud_trips">Trips backup</string>
-    <string name="cloud_trips_caption">Trips are kept on this phone and copied to your backup folder automatically. \"Reset local trips\" clears the phone copy only - your backup stays.</string>
+    <string name="cloud_trips_caption">Trips are kept on this phone and copied to your backup folder automatically. Clearing them here removes only the phone copy - your backup stays.</string>
     <string name="cloud_retry_now">Sync all</string>
-    <string name="cloud_reset_local">Reset local trips</string>
-    <string name="cloud_reset_local_title">Reset local trips?</string>
-    <string name="cloud_reset_local_body">Deletes every trip stored on this phone. Your backup folder is not touched, so trips already synced there can be restored.</string>
+    <string name="cloud_reset_local">Clear local trips</string>
+    <string name="cloud_reset_local_title">Clear local trips?</string>
+    <string name="cloud_reset_local_body">Removes every trip saved on this phone. Your backup folder is untouched, so synced trips can be restored from there.</string>
     <string name="cloud_retry_enqueued">Upload scheduled</string>
     <string name="sync_progress">Synchronizing %1$d of %2$d</string>
     <string name="sync_no_folder">Pick a backup folder first</string>
