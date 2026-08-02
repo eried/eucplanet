@@ -5,6 +5,8 @@
     <string name="notification_channel_description">Shows wheel connection status and telemetry</string>
 
     <!-- Notification quick actions -->
+    <string name="keep_app_alive">Keep app running</string>
+    <string name="keep_app_alive_desc">Keeps an ongoing notification so the app stays alive in the background. Trip sync and voice keep working even with no wheel connected. Uses a little more battery.</string>
     <string name="notif_actions_section">Customize</string>
     <string name="notif_actions_enable">Show notification actions</string>
     <string name="notif_actions_enable_desc">Add quick action buttons to the ongoing notification.</string>
@@ -647,7 +649,7 @@
     <string name="cloud_restore_success">Settings restored</string>
     <string name="cloud_restore_failed">No backup found in folder</string>
     <string name="section_cloud_trips">Trips backup</string>
-    <string name="cloud_trips_caption">Trips are kept on this phone and copied to your backup folder automatically. Clearing them here removes only the phone copy - your backup stays.</string>
+    <string name="cloud_trips_caption">Trips stay on this phone and sync to your backup folder automatically. Clearing here deletes only the phone copies, not your backup.</string>
     <string name="cloud_retry_now">Sync all</string>
     <string name="cloud_reset_local">Clear local trips</string>
     <string name="cloud_reset_local_title">Clear local trips?</string>
@@ -1764,7 +1766,10 @@
     <string name="dropbox_unlink">Unlink</string>
     <string name="dropbox_last_sync">Last sync: %1$s</string>
     <string name="dropbox_never_synced">Never synced</string>
+    <string name="dropbox_syncing">Syncing trips…</string>
     <string name="dropbox_account_suffix">(account: %1$s)</string>
+    <string name="dropbox_folder_desc">Trips and settings are saved in your Dropbox, under %1$s. Only this app can see that folder.</string>
+    <string name="dropbox_folder_path" translatable="false">Apps › EUC Planet</string>
     <string name="dropbox_share_failed">Dropbox share failed</string>
     <string name="dropbox_email_unverified">Verify your Dropbox email address, then try sharing again</string>
     <string name="dropbox_preparing">Preparing the link…</string>

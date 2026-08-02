@@ -126,7 +126,7 @@
     <string name="cloud_restore_success">Innstillinger gjenopprettet</string>
     <string name="cloud_restore_failed">Ingen backup funnet i mappen</string>
     <string name="section_cloud_trips">Tur-backup</string>
-    <string name="cloud_trips_caption">Turer lagres på denne telefonen og kopieres automatisk til backup-mappen din. Å fjerne dem her sletter bare kopien på telefonen; backupen din beholdes.</string>
+    <string name="cloud_trips_caption">Turene blir på denne telefonen og synkroniseres automatisk til backup-mappen din. Å tømme her sletter bare kopiene på telefonen, ikke backupen din.</string>
     <string name="cloud_retry_now">Synk alle</string>
     <string name="cloud_retry_enqueued">Opplasting planlagt</string>
     <string name="sync_progress">Synkroniserer %1$d av %2$d</string>
@@ -1906,4 +1906,8 @@
     <string name="cloud_reset_local">Fjern lokale turer</string>
     <string name="cloud_reset_local_title">Fjerne lokale turer?</string>
     <string name="cloud_reset_local_body">Fjerner alle turer som er lagret på denne telefonen. Backup-mappen din røres ikke, så synkroniserte turer kan gjenopprettes derfra.</string>
+    <string name="dropbox_syncing">Synkroniserer turer…</string>
+    <string name="dropbox_folder_desc">Turer og innstillinger lagres i Dropbox-en din, under %1$s. Bare denne appen kan se den mappen.</string>
+    <string name="keep_app_alive">Hold appen i gang</string>
+    <string name="keep_app_alive_desc">Viser et vedvarende varsel så appen holdes aktiv i bakgrunnen. Synkronisering av turer og tale fungerer selv uten et tilkoblet hjul. Bruker litt mer batteri.</string>
 </resources>

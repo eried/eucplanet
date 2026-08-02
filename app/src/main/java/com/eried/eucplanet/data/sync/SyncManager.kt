@@ -280,6 +280,9 @@ class SyncManager @Inject constructor(
         }
 
         var done = 0
+        // Uploads that failed this pass (folder access lost, storage full). They
+        // are marked uploadStatus=3 and retried by the folder-backup worker.
+        var failed = 0
         _syncProgress.value = done to total
 
         for (trip in toUpload) {
@@ -294,6 +297,7 @@ class SyncManager @Inject constructor(
                     ))
                 } else {
                     tripDao.update(trip.copy(uploadStatus = 3))
+                    failed++
                 }
             }
             done++
@@ -329,6 +333,11 @@ class SyncManager @Inject constructor(
             _syncProgress.value = done to total
         }
 
+        // Failed uploads are uploadStatus=3; the folder-backup worker retries
+        // status IN (1,3), so kick it so they keep retrying in the background.
+        // The result is always Finished -- no error toast; failed folder uploads
+        // finish silently once conditions recover.
+        if (failed > 0) enqueueTripUpload(settings)
         _syncResult.value = SyncResult.Finished(total)
     }
 
@@ -865,6 +874,12 @@ class SyncManager @Inject constructor(
      *  themselves via [scheduleDropboxSyncAttempt]. Caller should check
      *  the linked state before calling — this is unconditional. */
     fun enqueueDropboxSync() {
+        // Do NOT set the pending flag here. This runs on every app start
+        // (TripRepository reconcile) whenever Dropbox is linked, so flipping it
+        // true flashed the "Syncing trips…" indicator on every open even with
+        // nothing to upload. The worker sets the flag from the real needUpload
+        // count on its next pass, so a genuine backlog (e.g. a just-finished ride)
+        // still surfaces the indicator, and an all-synced state stays quiet.
         scheduleDropboxSyncAttempt(0)
     }
 
@@ -925,6 +940,10 @@ class SyncManager @Inject constructor(
         _activeSyncKind.value = SyncConflictKind.DROPBOX
         activeSyncJob = scope.launch {
             try {
+                // A manual sync is starting: mark trips as pending so the
+                // persistent indicator shows until this pass (or the background
+                // worker) clears it. runDropboxSync flips it back on a clean pass.
+                settingsRepository.update { it.copy(dropboxSyncPending = true) }
                 runDropboxSync()
             } finally {
                 _syncProgress.value = null
@@ -969,7 +988,15 @@ class SyncManager @Inject constructor(
             choice = deferred.await()
             _syncConflictPrompt.value = null
             conflictChoice = null
-            if (choice == SyncChoice.CANCEL) return
+            if (choice == SyncChoice.CANCEL) {
+                // Rider aborted at the conflict prompt: clear the pending flag +
+                // count so the persistent indicator disappears instead of popping
+                // back up as if the sync were still going.
+                settingsRepository.update {
+                    it.copy(dropboxSyncPending = false, dropboxPendingCount = 0, dropboxSyncTotal = 0)
+                }
+                return
+            }
         }
 
         val toUpload = mutableListOf<java.io.File>()
@@ -985,11 +1012,25 @@ class SyncManager @Inject constructor(
         val total = toUpload.size + toDownload.size
 
         var done = 0
+        // Count files that could NOT be transferred. The most common cause is the
+        // OS cutting the app's network the moment it leaves the foreground: the
+        // Dropbox host stops resolving and every upload throws. Previously the
+        // result was ignored, so a half-skipped sync still reported "Finished".
+        var failed = 0
         _syncProgress.value = done to total
+        // Seed the pending-count indicator with the trips to upload, then
+        // decrement live as each one lands so the count reflects trips remaining.
+        settingsRepository.update {
+            it.copy(dropboxPendingCount = toUpload.size, dropboxSyncTotal = toUpload.size)
+        }
 
         for (file in toUpload) {
             currentCoroutineContext().ensureActive() // stop cleanly if cancelled
-            dropboxRepository.uploadFile("/trips/${file.name}", file.readBytes())
+            if (dropboxRepository.uploadFile("/trips/${file.name}", file.readBytes())) {
+                settingsRepository.update {
+                    it.copy(dropboxPendingCount = (it.dropboxPendingCount - 1).coerceAtLeast(0))
+                }
+            } else failed++
             done++
             _syncProgress.value = done to total
         }
@@ -997,6 +1038,7 @@ class SyncManager @Inject constructor(
         for (name in toDownload) {
             currentCoroutineContext().ensureActive() // stop cleanly if cancelled
             val bytes = dropboxRepository.downloadFile("/trips/$name")
+            if (bytes == null) failed++
             if (bytes != null) {
                 val dest = File(tripsDir, name)
                 dest.outputStream().use { it.write(bytes) }
@@ -1030,10 +1072,31 @@ class SyncManager @Inject constructor(
         ) extra++
         extra += mirrorBackupSubdirsToDropbox(settings)
 
-        settingsRepository.update {
-            it.copy(dropboxLastSyncAt = System.currentTimeMillis())
+        if (failed == 0) {
+            // Only stamp the sync time on a clean pass, so a partial run stays
+            // detectable and the next comparison re-uploads what it missed.
+            // Clear the pending flag: everything landed, so the persistent
+            // "Syncing trips…" indicator disappears.
+            settingsRepository.update {
+                it.copy(
+                    dropboxLastSyncAt = System.currentTimeMillis(),
+                    dropboxSyncPending = false,
+                    dropboxPendingCount = 0,
+                    dropboxSyncTotal = 0,
+                )
+            }
+            _syncResult.value = SyncResult.Finished(total + extra)
+        } else {
+            // Hand the skipped trips to the retry worker (missing/newer only), so
+            // they upload once the network is back instead of being silently lost.
+            // No toast: the persistent pending flag + count + indicator cover it,
+            // and the worker keeps retrying until every trip lands or the rider
+            // cancels.
+            settingsRepository.update {
+                it.copy(dropboxSyncPending = true, dropboxPendingCount = failed)
+            }
+            scheduleDropboxSyncAttempt(0)
         }
-        _syncResult.value = SyncResult.Finished(total + extra)
     }
 
     /** Upload the backup folder's themes/ and overlays/ files to Dropbox
@@ -1052,7 +1115,7 @@ class SyncManager @Inject constructor(
                     if (!doc.isFile) continue
                     val name = doc.name ?: continue
                     val localMod = doc.lastModified() / 1000L
-                    if (remote[name]?.let { it >= localMod } == true) continue
+                    if (remote[name]?.let { it.serverModified >= localMod } == true) continue
                     val bytes = try {
                         context.contentResolver.openInputStream(doc.uri)?.use { it.readBytes() }
                     } catch (e: Exception) { null } ?: continue
@@ -1084,6 +1147,23 @@ class SyncManager @Inject constructor(
 
     fun cancelDropboxSync() {
         WorkManager.getInstance(context).cancelUniqueWork(DROPBOX_SYNC_WORK_NAME)
+    }
+
+    /**
+     * Rider tapped Cancel on the persistent "Syncing trips…" indicator: stop
+     * retrying the Dropbox mirror entirely. Cancels the background retry worker,
+     * cancels a running manual Dropbox reconcile if one is in flight, and clears
+     * the pending flag so the indicator disappears. Trips that were pending stay
+     * local until the next sync; nothing is lost.
+     */
+    fun stopDropboxSync() {
+        WorkManager.getInstance(context).cancelUniqueWork(DROPBOX_SYNC_WORK_NAME)
+        if (_activeSyncKind.value == SyncConflictKind.DROPBOX) cancelActiveSync()
+        scope.launch {
+            settingsRepository.update {
+                it.copy(dropboxSyncPending = false, dropboxPendingCount = 0, dropboxSyncTotal = 0)
+            }
+        }
     }
 
     /** Clear pending / failed eucstats statuses for every trip. Used by the

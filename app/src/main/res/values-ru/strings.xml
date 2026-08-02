@@ -468,7 +468,7 @@
     <string name="cloud_restore_success">Настройки восстановлены</string>
     <string name="cloud_restore_failed">В папке не найдена резервная копия</string>
     <string name="section_cloud_trips">Резервная копия поездок</string>
-    <string name="cloud_trips_caption">Поездки хранятся на этом телефоне и автоматически копируются в папку резервных копий. Удаление здесь убирает только копию на телефоне; резервная копия сохраняется.</string>
+    <string name="cloud_trips_caption">Поездки остаются на этом телефоне и автоматически синхронизируются с папкой резервных копий. Очистка здесь удаляет только копии на телефоне, но не резервную копию.</string>
     <string name="cloud_retry_now">Синхр. всё</string>
     <string name="cloud_retry_enqueued">Загрузка запланирована</string>
     <string name="sync_progress">Синхронизация %1$d из %2$d</string>
@@ -2018,5 +2018,9 @@
     <string name="cloud_reset_local">Очистить локальные поездки</string>
     <string name="cloud_reset_local_title">Очистить локальные поездки?</string>
     <string name="cloud_reset_local_body">Удаляет все поездки, сохранённые на этом телефоне. Папка резервных копий не затрагивается, поэтому синхронизированные поездки можно восстановить оттуда.</string>
+    <string name="dropbox_syncing">Синхронизация поездок…</string>
+    <string name="dropbox_folder_desc">Поездки и настройки сохраняются в вашем Dropbox, в %1$s. Эту папку видит только это приложение.</string>
+    <string name="keep_app_alive">Держать приложение активным</string>
+    <string name="keep_app_alive_desc">Показывает постоянное уведомление, чтобы приложение оставалось активным в фоне. Синхронизация поездок и голос работают даже без подключённого моноколеса. Расходует немного больше заряда.</string>
 </resources>
 

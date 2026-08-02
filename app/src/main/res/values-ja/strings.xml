@@ -468,7 +468,7 @@
     <string name="cloud_restore_success">設定を復元しました</string>
     <string name="cloud_restore_failed">フォルダー内にバックアップが見つかりません</string>
     <string name="section_cloud_trips">トリップバックアップ</string>
-    <string name="cloud_trips_caption">トリップはこの端末に保存され、自動的にバックアップフォルダーにコピーされます。ここで削除しても端末のコピーだけが消え、バックアップは残ります。</string>
+    <string name="cloud_trips_caption">トリップはこの端末に残り、自動的にバックアップフォルダーと同期されます。ここで削除しても消えるのは端末のコピーだけで、バックアップは消えません。</string>
     <string name="cloud_retry_now">すべて同期</string>
     <string name="cloud_retry_enqueued">アップロードを予約しました</string>
     <string name="sync_progress">%1$d / %2$d を同期中</string>
@@ -2019,6 +2019,10 @@
     <string name="cloud_reset_local">ローカルのトリップを削除</string>
     <string name="cloud_reset_local_title">ローカルのトリップを削除しますか？</string>
     <string name="cloud_reset_local_body">この端末に保存されたすべてのトリップを削除します。バックアップフォルダーはそのまま残るので、同期済みのトリップはそこから復元できます。</string>
+    <string name="dropbox_syncing">トリップを同期中…</string>
+    <string name="dropbox_folder_desc">トリップと設定はDropboxの %1$s に保存されます。このフォルダーはこのアプリだけが見られます。</string>
+    <string name="keep_app_alive">アプリを起動したままにする</string>
+    <string name="keep_app_alive_desc">常時通知を表示して、アプリをバックグラウンドで動作させ続けます。ホイールが接続されていなくても、トリップの同期と音声は動作します。バッテリーを少し多く消費します。</string>
 </resources>
 
 

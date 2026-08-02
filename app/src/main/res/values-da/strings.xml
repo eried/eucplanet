@@ -468,7 +468,7 @@
     <string name="cloud_restore_success">Indstillinger gendannet</string>
     <string name="cloud_restore_failed">Ingen backup fundet i mappen</string>
     <string name="section_cloud_trips">Tur-backup</string>
-    <string name="cloud_trips_caption">Ture gemmes på denne telefon og kopieres automatisk til din backup-mappe. Når du rydder dem her, fjernes kun kopien på telefonen; din backup bevares.</string>
+    <string name="cloud_trips_caption">Turene bliver på denne telefon og synkroniseres automatisk til din backup-mappe. Rydning her sletter kun kopierne på telefonen, ikke din backup.</string>
     <string name="cloud_retry_now">Synk alle</string>
     <string name="cloud_retry_enqueued">Upload planlagt</string>
     <string name="sync_progress">Synkroniserer %1$d af %2$d</string>
@@ -2033,4 +2033,8 @@
     <string name="cloud_reset_local">Ryd lokale ture</string>
     <string name="cloud_reset_local_title">Ryd lokale ture?</string>
     <string name="cloud_reset_local_body">Fjerner alle ture, der er gemt på denne telefon. Din backup-mappe røres ikke, så synkroniserede ture kan gendannes derfra.</string>
+    <string name="dropbox_syncing">Synkroniserer ture…</string>
+    <string name="dropbox_folder_desc">Ture og indstillinger gemmes i din Dropbox, under %1$s. Kun denne app kan se den mappe.</string>
+    <string name="keep_app_alive">Hold appen kørende</string>
+    <string name="keep_app_alive_desc">Viser en vedvarende notifikation, så appen forbliver aktiv i baggrunden. Synkronisering af ture og stemme fungerer, selv uden et tilsluttet hjul. Bruger lidt mere batteri.</string>
 </resources>

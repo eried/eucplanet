@@ -2,6 +2,7 @@ package com.eried.eucplanet.ui.settings
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import android.content.Context
 import android.location.Location
 import com.eried.eucplanet.ble.ConnectionState
 import com.eried.eucplanet.data.model.AdvancedSettings
@@ -27,6 +28,7 @@ import com.eried.eucplanet.service.VoiceOption
 import com.eried.eucplanet.service.VoiceService
 import android.net.Uri
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -112,6 +114,7 @@ class SettingsViewModel @Inject constructor(
     hudServer: com.eried.eucplanet.service.hud.HudServer,
     private val eucStatsRepository: EucStatsRepository,
     private val dropboxRepository: com.eried.eucplanet.data.repository.DropboxRepository,
+    @ApplicationContext private val context: Context,
 ) : ViewModel() {
 
     /** Which discovery channel produced the current HUD link address. */
@@ -632,6 +635,17 @@ class SettingsViewModel @Inject constructor(
         update { copy(settingsLayout = layout) }
     fun updateWheelNameDisplay(v: String) = update { copy(wheelNameDisplay = v) }
     fun updateWatchShowNavigation(v: Boolean) = update { copy(watchShowNavigation = v) }
+
+    fun updateKeepAppAlive(v: Boolean) {
+        update { copy(keepAppAlive = v) }
+        // Turning it OFF: ask the service to stand down if nothing else needs it.
+        // (Turning it ON is handled by MainActivity's reactive service start.)
+        if (!v && com.eried.eucplanet.service.WheelService.isRunning) {
+            val intent = android.content.Intent(context, com.eried.eucplanet.service.WheelService::class.java)
+                .apply { action = com.eried.eucplanet.service.WheelService.ACTION_STOP_KEEPALIVE }
+            try { context.startService(intent) } catch (_: Exception) {}
+        }
+    }
 
     // HUD companion
     fun updateHudServerEnabled(v: Boolean) = update { copy(hudServerEnabled = v) }
@@ -2200,9 +2214,32 @@ class SettingsViewModel @Inject constructor(
         syncManager.startDropboxSync()
     }
 
+    /** Rider tapped Cancel on the persistent "Syncing trips…" indicator: stop
+     *  the background retry loop and clear the pending flag. */
+    fun stopDropboxSync() = syncManager.stopDropboxSync()
+
     val dropboxLastSyncAt: StateFlow<Long> = settingsRepository.settings
         .map { it.dropboxLastSyncAt }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000L), 0L)
+
+    /** True while trips still need mirroring to Dropbox. Drives the persistent,
+     *  quiet "Syncing trips…" row with its Cancel button. Sourced from settings
+     *  (mirrors [dropboxLastSyncAt]) so it reflects the flag the worker maintains. */
+    val dropboxSyncPending: StateFlow<Boolean> = settingsRepository.settings
+        .map { it.dropboxSyncPending }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000L), false)
+
+    /** Trips still to upload to Dropbox. Drives the "Syncing N trips…" count in
+     *  the persistent indicator, decrementing live as each upload lands. */
+    val dropboxPendingCount: StateFlow<Int> = settingsRepository.settings
+        .map { it.dropboxPendingCount }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000L), 0)
+
+    /** Trips in the current sync batch, so the pending indicator can show
+     *  "X of Y" like the foreground sync. 0 = no active batch. */
+    val dropboxSyncTotal: StateFlow<Int> = settingsRepository.settings
+        .map { it.dropboxSyncTotal }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000L), 0)
 
     fun unlinkOnline() {
         viewModelScope.launch {

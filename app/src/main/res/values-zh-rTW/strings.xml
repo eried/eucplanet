@@ -468,7 +468,7 @@
     <string name="cloud_restore_success">設定已還原</string>
     <string name="cloud_restore_failed">資料夾中找不到備份</string>
     <string name="section_cloud_trips">行程備份</string>
-    <string name="cloud_trips_caption">行程儲存在本機上，並會自動複製到您的備份資料夾。在此清除只會刪除本機上的副本，備份仍會保留。</string>
+    <string name="cloud_trips_caption">行程會保留在本機上，並自動同步到您的備份資料夾。在此清除只會刪除本機上的副本，不會刪除您的備份。</string>
     <string name="cloud_retry_now">全部同步</string>
     <string name="cloud_retry_enqueued">已排程上傳</string>
     <string name="sync_progress">正在同步第 %1$d / %2$d 筆</string>
@@ -2017,6 +2017,10 @@
     <string name="cloud_reset_local">清除本機行程</string>
     <string name="cloud_reset_local_title">清除本機行程？</string>
     <string name="cloud_reset_local_body">移除儲存在本機上的所有行程。您的備份資料夾不受影響，已同步的行程可從該處還原。</string>
+    <string name="dropbox_syncing">正在同步行程…</string>
+    <string name="dropbox_folder_desc">行程和設定儲存在您的 Dropbox 的 %1$s 中。只有本應用程式能看到該資料夾。</string>
+    <string name="keep_app_alive">保持應用程式執行</string>
+    <string name="keep_app_alive_desc">顯示常駐通知，讓應用程式在背景保持執行。即使未連接車輪，行程同步和語音也能繼續運作。會多消耗一點電量。</string>
 </resources>
 
 

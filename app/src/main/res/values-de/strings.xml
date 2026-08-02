@@ -468,7 +468,7 @@
     <string name="cloud_restore_success">Einstellungen wiederhergestellt</string>
     <string name="cloud_restore_failed">Kein Backup im Ordner gefunden</string>
     <string name="section_cloud_trips">Fahrten-Backup</string>
-    <string name="cloud_trips_caption">Fahrten werden auf diesem Telefon gespeichert und automatisch in deinen Backup-Ordner kopiert. Wenn du sie hier löschst, wird nur die Kopie auf dem Telefon entfernt; dein Backup bleibt erhalten.</string>
+    <string name="cloud_trips_caption">Fahrten bleiben auf diesem Telefon und werden automatisch mit deinem Backup-Ordner synchronisiert. Löschen hier entfernt nur die Kopien auf dem Telefon, nicht dein Backup.</string>
     <string name="cloud_retry_now">Alle sync.</string>
     <string name="cloud_retry_enqueued">Upload geplant</string>
     <string name="sync_progress">Synchronisiere %1$d von %2$d</string>
@@ -2038,4 +2038,8 @@
     <string name="cloud_reset_local">Lokale Fahrten löschen</string>
     <string name="cloud_reset_local_title">Lokale Fahrten löschen?</string>
     <string name="cloud_reset_local_body">Entfernt alle auf diesem Telefon gespeicherten Fahrten. Dein Backup-Ordner bleibt unberührt, synchronisierte Fahrten lassen sich von dort wiederherstellen.</string>
+    <string name="dropbox_syncing">Fahrten werden synchronisiert…</string>
+    <string name="dropbox_folder_desc">Fahrten und Einstellungen werden in deiner Dropbox unter %1$s gespeichert. Nur diese App kann diesen Ordner sehen.</string>
+    <string name="keep_app_alive">App aktiv halten</string>
+    <string name="keep_app_alive_desc">Zeigt eine dauerhafte Benachrichtigung, damit die App im Hintergrund aktiv bleibt. Fahrtensynchronisierung und Sprache funktionieren auch ohne verbundenes Wheel. Verbraucht etwas mehr Akku.</string>
 </resources>

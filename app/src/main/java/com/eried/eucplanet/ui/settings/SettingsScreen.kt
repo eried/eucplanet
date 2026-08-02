@@ -157,6 +157,12 @@ import androidx.compose.ui.draganddrop.toAndroidDragEvent
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.withStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.LinkAnnotation
+import androidx.compose.ui.text.withLink
+import androidx.compose.ui.text.TextLinkStyles
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.rememberTextMeasurer
 import com.eried.eucplanet.ui.theme.AccentOrange
 import androidx.compose.ui.text.drawText
@@ -1110,6 +1116,12 @@ private fun GeneralTab(
         // visible; the collapsible holds the per-slot pickers. A not-applicable
         // pick (Stop navigation while not navigating) is hidden at build time
         // since Android cannot grey out a notification action.
+        SwitchSetting(
+            stringResource(R.string.keep_app_alive),
+            settings.keepAppAlive,
+        ) { viewModel.updateKeepAppAlive(it) }
+        HintText(stringResource(R.string.keep_app_alive_desc), small = true)
+
         SwitchSetting(
             stringResource(R.string.notif_actions_enable),
             settings.notificationActionsEnabled,
@@ -7145,6 +7157,9 @@ private fun SyncProgressWithCancel(
     progress: Pair<Int, Int>?,
     cancelling: Boolean,
     onCancel: () -> Unit,
+    // When set, replaces the default status text (e.g. the background
+    // "Syncing N trips…" pending state reuses this component with its own label).
+    label: String? = null,
 ) {
     Row(
         horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -7166,7 +7181,7 @@ private fun SyncProgressWithCancel(
                     drawStopIndicator = {},
                 )
                 Text(
-                    stringResource(R.string.sync_progress, done, total),
+                    label ?: stringResource(R.string.sync_progress, done, total),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
@@ -7176,7 +7191,7 @@ private fun SyncProgressWithCancel(
                     gapSize = 0.dp,
                 )
                 Text(
-                    stringResource(if (cancelling) R.string.sync_stopping else R.string.sync_checking),
+                    label ?: stringResource(if (cancelling) R.string.sync_stopping else R.string.sync_checking),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
@@ -7510,33 +7525,40 @@ private fun CloudTab(
                 val url = stringResource(R.string.dropbox_section_desc_url)
                 val full = stringResource(R.string.dropbox_section_desc, url)
                 val urlStart = full.indexOf(url)
-                val annotated = androidx.compose.ui.text.buildAnnotatedString {
-                    append(full)
+                val linkColor = MaterialTheme.appColors.link
+                // When linked, the folder location flows straight after this same
+                // sentence (no new line), with the path emphasized. Only the URL is
+                // a tappable link, so tapping the folder name does nothing.
+                val folderPath = stringResource(R.string.dropbox_folder_path)
+                val folderSentence = if (dbxLinked)
+                    " " + stringResource(R.string.dropbox_folder_desc, folderPath) else ""
+                val annotated = buildAnnotatedString {
                     if (urlStart >= 0) {
-                        addStyle(
-                            androidx.compose.ui.text.SpanStyle(
-                                color = MaterialTheme.appColors.link,
-                                textDecoration = androidx.compose.ui.text.style.TextDecoration.Underline,
-                            ),
-                            start = urlStart,
-                            end = urlStart + url.length,
-                        )
+                        append(full.substring(0, urlStart))
+                        withLink(
+                            LinkAnnotation.Url(
+                                url = "https://$url",
+                                styles = TextLinkStyles(
+                                    style = SpanStyle(color = linkColor, textDecoration = TextDecoration.Underline),
+                                ),
+                            )
+                        ) { append(url) }
+                        append(full.substring(urlStart + url.length))
+                    } else append(full)
+                    if (folderSentence.isNotEmpty()) {
+                        val fi = folderSentence.indexOf(folderPath)
+                        if (fi >= 0) {
+                            append(folderSentence.substring(0, fi))
+                            withStyle(SpanStyle(fontWeight = FontWeight.Medium)) { append(folderPath) }
+                            append(folderSentence.substring(fi + folderPath.length))
+                        } else append(folderSentence)
                     }
                 }
                 Text(
                     annotated,
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.appColors.textSecondary,
-                    modifier = Modifier
-                        .padding(bottom = 4.dp)
-                        .clickable {
-                            context.startActivity(
-                                android.content.Intent(
-                                    android.content.Intent.ACTION_VIEW,
-                                    android.net.Uri.parse("https://$url"),
-                                ).addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)
-                            )
-                        },
+                    modifier = Modifier.padding(bottom = 4.dp),
                 )
             }
             if (dbxLinked) {
@@ -7584,7 +7606,32 @@ private fun CloudTab(
                     SyncProgressWithCancel(
                         progress = dbxProgress,
                         cancelling = dbxCancelling,
-                        onCancel = { viewModel.cancelActiveSync() },
+                        // Full stop: cancels the foreground run AND the background
+                        // worker AND clears the pending flag. cancelActiveSync alone
+                        // left the flag set, so the pending indicator popped up and
+                        // it looked like the sync just carried on after Cancel.
+                        onCancel = { viewModel.stopDropboxSync() },
+                    )
+                }
+                // Quiet persistent "still syncing" row: trips are pending and the
+                // background worker keeps retrying. Only shown when the transient
+                // foreground progress bar above is NOT up, so the two never stack.
+                val dbxSyncPending by viewModel.dropboxSyncPending.collectAsState()
+                val dbxPendingCount by viewModel.dropboxPendingCount.collectAsState()
+                val dbxSyncTotal by viewModel.dropboxSyncTotal.collectAsState()
+                if (dbxSyncPending && !showDbxProgress) {
+                    // Reuse the same bar + Cancel component as the foreground sync so
+                    // leaving the app just swaps the live progress for this pending
+                    // state without the controls changing shape. With a known batch
+                    // total, show the identical determinate "X of Y" bar (done =
+                    // total - remaining); otherwise fall back to the plain label.
+                    SyncProgressWithCancel(
+                        progress = if (dbxSyncTotal > 0)
+                            (dbxSyncTotal - dbxPendingCount).coerceIn(0, dbxSyncTotal) to dbxSyncTotal
+                        else null,
+                        cancelling = false,
+                        onCancel = { viewModel.stopDropboxSync() },
+                        label = if (dbxSyncTotal > 0) null else stringResource(R.string.dropbox_syncing),
                     )
                 }
             } else {
