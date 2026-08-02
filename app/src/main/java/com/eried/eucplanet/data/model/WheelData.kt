@@ -73,5 +73,8 @@ data class WheelData(
     val wheelMaxSpeedKmh: Float = -1f,
     /** Alarm-speed threshold the wheel firmware reports, in km/h. -1 = unknown. */
     val wheelAlarmSpeedKmh: Float = -1f,
+    /** BLE link RSSI in dBm (negative), read off the GATT link (not wheel
+     *  telemetry). 0 = unknown / not yet read. Backs the BT_RSSI metric. */
+    val rssiDbm: Int = 0,
     val timestamp: Long = System.currentTimeMillis()
 )

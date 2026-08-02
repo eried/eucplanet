@@ -97,7 +97,25 @@ class BleConnectionManager @Inject constructor(
     /** Stream of decoded results from the active wheel adapter. */
     val decodedResults: SharedFlow<DecodeResult> = _decodedResults.asSharedFlow()
 
+    /** Live link RSSI in dBm (negative), or null when unknown / disconnected.
+     *  The wheel telemetry doesn't carry it, so we read it off the GATT link. */
+    private val _rssiDbm = MutableStateFlow<Int?>(null)
+    val rssiDbm: StateFlow<Int?> = _rssiDbm.asStateFlow()
+
     private var gatt: BluetoothGatt? = null
+
+    // Poll the link RSSI every few seconds while connected so the BT dBm metric
+    // has a live value. A no-op on virtual connections (no gatt).
+    private val rssiJob = scope.launch {
+        while (true) {
+            delay(3_000)
+            if (_connectionState.value == ConnectionState.CONNECTED) {
+                runCatching { gatt?.readRemoteRssi() }
+            } else {
+                _rssiDbm.value = null
+            }
+        }
+    }
     private var rxCharacteristic: BluetoothGattCharacteristic? = null
     private var currentAddress: String? = null
     /** BLE advertised name from the most recent connect call, kept across reconnects. */
@@ -669,6 +687,10 @@ class BleConnectionManager @Inject constructor(
                     }
                 }
             }
+        }
+
+        override fun onReadRemoteRssi(gatt: BluetoothGatt, rssi: Int, status: Int) {
+            if (status == BluetoothGatt.GATT_SUCCESS) _rssiDbm.value = rssi
         }
 
         override fun onMtuChanged(gatt: BluetoothGatt, mtu: Int, status: Int) {

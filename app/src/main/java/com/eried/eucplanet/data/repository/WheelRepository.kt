@@ -137,7 +137,9 @@ internal val EXTRA_HISTORY_METRICS: List<Pair<String, (com.eried.eucplanet.data.
     "CONTROLLER_TEMP" to { it.temperatures.getOrNull(1)?.takeIf { t -> com.eried.eucplanet.util.MetricSanity.isPlausibleTempC(t) } },
     "BATTERY_TEMP" to { it.temperatures.getOrNull(2)?.takeIf { t -> com.eried.eucplanet.util.MetricSanity.isPlausibleTempC(t) } },
     // TPMS tire pressure, stored raw in kPa; the detail screen converts to psi/bar.
-    "TIRE_PRESSURE" to { it.tirePressureKpa }
+    "TIRE_PRESSURE" to { it.tirePressureKpa },
+    // BLE link RSSI in dBm; null (skip) until the first read so 0 doesn't skew stats.
+    "BT_RSSI" to { it.rssiDbm.takeIf { r -> r != 0 }?.toFloat() }
 )
 
 /**
@@ -1642,13 +1644,14 @@ class WheelRepository @Inject constructor(
                 pendingAuthConfirmDeferred?.complete(result.success)
             }
             is DecodeResult.Telemetry -> {
-                // For wheels where the parser can't recover headlight state
-                // from telemetry (P6: no live byte), preserve the
-                // optimistic lightOn from the previous wheelData so a
-                // toggleLight call survives the next realtime frame
-                // overwriting it ~250ms later.
                 val previous = _wheelData.value
-                val isP6 = _modelName.value?.contains("P6") == true
+                // Families whose realtime frames can't recover the headlight state
+                // (P6 has no live byte; InMotion V1 fast-info omits it). For these,
+                // the optimistic + slow-info lightOn is authoritative, so a realtime
+                // frame must not clobber it back to its false default - that was the
+                // V8S "Light switch only turns on, never off" bug.
+                val realtimeLacksLight = _modelName.value?.contains("P6") == true ||
+                    wheelAdapter.familyId == "inmotion_v1"
                 // V14 etc. don't carry total distance in realtime frames, so
                 // preserve whatever was set via the separate TotalDistance
                 // decode. The P6 ships the lifetime odometer inline at offset
@@ -1671,7 +1674,7 @@ class WheelRepository @Inject constructor(
                 // value during the cooldown for every family, same defensive
                 // pattern P6 already uses unconditionally because its parser
                 // can't recover lightOn from telemetry at all.
-                val lightOn = if (isP6 || _lightBusy.value) previous.lightOn
+                val lightOn = if (realtimeLacksLight || _lightBusy.value) previous.lightOn
                               else result.data.lightOn
                 // Motor temperature never legitimately drops to 0 mid-ride, but
                 // the P6 emits the odd frame whose temp byte reads
@@ -1687,7 +1690,10 @@ class WheelRepository @Inject constructor(
                     totalDistance = totalKm,
                     lightOn = lightOn,
                     maxTemperature = maxTemp,
-                    temperatures = temps
+                    temperatures = temps,
+                    // Link RSSI comes from the GATT layer, not the wheel frame;
+                    // fold in the latest read (keep the last value between reads).
+                    rssiDbm = bleManager.rssiDbm.value ?: previous.rssiDbm
                 )
                 _chargeStatus.value = deriveChargeStatus(_wheelData.value)
                 // Never let the charging-session bookkeeping throw out of the

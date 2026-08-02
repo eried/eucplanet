@@ -229,6 +229,7 @@ private fun formatMetricStatValue(
         "%.0fft".format(raw * 3.28084f)
     else
         "%.0fm".format(raw)
+    "BT_RSSI" -> "%.0f dBm".format(raw)
     else -> "%.1f".format(raw)
 }
 
@@ -1573,10 +1574,12 @@ fun DashboardScreen(
                             else "%.0fm".format(loc.accuracy)
                         } else placeholder
                     } ?: placeholder
+                    // Link RSSI from the GATT layer (0 = not yet read).
+                    "BT_RSSI" -> if (wheelData.rssiDbm != 0) "${wheelData.rssiDbm} dBm" else placeholder
                     // SLOPE / ASCENT / DESCENT need integrated altitude
-                    // history (not yet wired). MOTOR_RPM / REGEN_WH /
-                    // BT_RSSI aren't surfaced on WheelData today — those
-                    // need adapter-side plumbing. Placeholder for now.
+                    // history (not yet wired). MOTOR_RPM / REGEN_WH aren't
+                    // surfaced on WheelData today - those need adapter-side
+                    // plumbing. Placeholder for now.
                     else -> placeholder
                 }
             }
