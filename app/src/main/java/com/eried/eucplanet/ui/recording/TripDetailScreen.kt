@@ -129,9 +129,10 @@ fun TripDetailScreen(
     val isLiveTrip = liveState == true
     // Landscape split: the rider chooses whether the map docks left or right.
     val tripMapSide by viewModel.tripMapSide.collectAsState()
-    // Trip Details customizer: which stat tiles are hidden, the chart order, and
-    // which graphs (plus the pinned "extra" block) are hidden.
+    // Trip Details customizer: which stat tiles are hidden, the tile and chart
+    // order, and which graphs (plus the pinned "extra" block) are hidden.
     val hiddenTiles by viewModel.tripHiddenTiles.collectAsState()
+    val savedTileOrder by viewModel.tripTileOrder.collectAsState()
     val savedChartOrder by viewModel.tripChartOrder.collectAsState()
     val hiddenCharts by viewModel.tripHiddenCharts.collectAsState()
 
@@ -446,10 +447,17 @@ fun TripDetailScreen(
                 },
             )
 
-            // Render the shown tiles in rows of 3, padding a short final row with
-            // spacers so every tile keeps the same width.
+            // Effective tile order via the shared helper (see applyOrder): the
+            // rider's saved order, with any newly added tile appearing at the end.
+            val tileKeysDefault = allTiles.map { it.first }
+            val effectiveTileOrder = applyOrder(tileKeysDefault, savedTileOrder)
+            val tilesByKey = allTiles.associateBy { it.first }
+            val orderedTiles = effectiveTileOrder.mapNotNull { tilesByKey[it] }
+
+            // Render the shown tiles in the rider's order, in rows of 3, padding a
+            // short final row with spacers so every tile keeps the same width.
             val summaryCards: @Composable ColumnScope.() -> Unit = {
-                val visibleTiles = allTiles.filter { it.first !in hiddenTiles }
+                val visibleTiles = orderedTiles.filter { it.first !in hiddenTiles }
                 visibleTiles.chunked(3).forEachIndexed { rowIndex, rowTiles ->
                     if (rowIndex > 0) Spacer(Modifier.height(8.dp))
                     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -505,13 +513,11 @@ fun TripDetailScreen(
                 }
             }
 
-            // Effective chart order: the rider's saved keys first (ignoring any
-            // that aren't real chart keys), then the remaining charts in default
-            // order. Covers all six keys so the customizer list is stable even
-            // for a trip that has no current / pwm data.
+            // Effective chart order via the same shared helper (see applyOrder):
+            // covers all six keys so the customizer list is stable even for a trip
+            // that has no current / pwm data.
             val chartKeysDefault = listOf("speed", "battery", "temp", "voltage", "current", "pwm")
-            val effectiveChartOrder = savedChartOrder.filter { it in chartKeysDefault }
-                .let { saved -> saved + chartKeysDefault.filter { it !in saved } }
+            val effectiveChartOrder = applyOrder(chartKeysDefault, savedChartOrder)
 
             // Scrub-synced charts, in the rider's order. A chart drops out when
             // its key is hidden, when it isn't in allCharts (absent current / pwm
@@ -535,7 +541,7 @@ fun TripDetailScreen(
 
             // Display names for the customizer sheet, reusing the same tile and
             // chart strings the cards already use so nothing is duplicated.
-            val tileLabels: List<Pair<String, String>> = listOf(
+            val tileLabels: Map<String, String> = mapOf(
                 "distance" to stringResource(R.string.recording_summary_distance),
                 "duration" to stringResource(R.string.recording_summary_duration),
                 "points" to stringResource(R.string.recording_summary_points),
@@ -561,12 +567,14 @@ fun TripDetailScreen(
             if (showCustomize) {
                 CustomizeSheet(
                     hiddenTiles = hiddenTiles,
+                    tileOrder = effectiveTileOrder,
                     tileLabels = tileLabels,
                     hiddenCharts = hiddenCharts,
                     chartOrder = effectiveChartOrder,
                     chartLabels = chartLabels,
                     onToggleTile = { key, hidden -> viewModel.setTileHidden(key, hidden) },
                     onToggleChart = { key, hidden -> viewModel.setChartHidden(key, hidden) },
+                    onReorderTiles = { viewModel.setTileOrder(it) },
                     onReorderCharts = { viewModel.setChartOrder(it) },
                     onDismiss = { showCustomize = false },
                 )
@@ -638,20 +646,41 @@ fun TripDetailScreen(
 }
 
 /**
- * Trip Details "Customize" bottom sheet. Two sections: toggle each stat tile's
- * visibility, and drag to reorder the graphs. Edits persist immediately through
- * the ViewModel, so the live screen updates as the rider changes them.
+ * Final key order for a customizable list (shared by the stat tiles and the
+ * graphs so the two can never drift). Iterates [savedOrder], keeping only keys
+ * that still exist in [defaultKeys] (a removed/renamed key is dropped), then
+ * appends every current key NOT already listed, in default declaration order.
+ *
+ * Consequences, by design:
+ *  - An empty [savedOrder] means "all keys in default order".
+ *  - A key added in a future app version isn't in any saved order yet, so it
+ *    appears automatically at the end. Visibility is a separate hidden-set (a
+ *    key absent from the hidden set is shown), so the new key defaults to shown.
+ */
+private fun applyOrder(defaultKeys: List<String>, savedOrder: List<String>): List<String> {
+    val known = defaultKeys.toSet()
+    val saved = savedOrder.filter { it in known }
+    return saved + defaultKeys.filter { it !in saved }
+}
+
+/**
+ * Trip Details "Customize" bottom sheet. Two reorderable sections, stat tiles and
+ * graphs: each row has a drag handle (left) to set order and a switch (right) to
+ * show or hide it. "Extra details" is pinned below the graphs, switch only. Edits
+ * persist immediately through the ViewModel, so the live screen updates live.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun CustomizeSheet(
     hiddenTiles: Set<String>,
-    tileLabels: List<Pair<String, String>>,
+    tileOrder: List<String>,
+    tileLabels: Map<String, String>,
     hiddenCharts: Set<String>,
     chartOrder: List<String>,
     chartLabels: Map<String, String>,
     onToggleTile: (String, Boolean) -> Unit,
     onToggleChart: (String, Boolean) -> Unit,
+    onReorderTiles: (List<String>) -> Unit,
     onReorderCharts: (List<String>) -> Unit,
     onDismiss: () -> Unit,
 ) {
@@ -677,24 +706,39 @@ private fun CustomizeSheet(
                 color = MaterialTheme.appColors.textSecondary,
             )
             Spacer(Modifier.height(4.dp))
-            tileLabels.forEach { (key, label) ->
-                val shown = key !in hiddenTiles
-                Row(
-                    Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 2.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Text(
-                        label,
-                        modifier = Modifier.weight(1f),
-                        color = MaterialTheme.appColors.textPrimary,
-                    )
-                    Switch(
-                        checked = shown,
-                        onCheckedChange = { onToggleTile(key, !it) },
-                        colors = themedSwitchColors(),
-                    )
+            ReorderableColumn(
+                list = tileOrder,
+                onSettle = { from, to ->
+                    onReorderTiles(tileOrder.toMutableList().apply { add(to, removeAt(from)) })
+                },
+                onMove = { haptic.performHapticFeedback(HapticFeedbackType.LongPress) },
+                modifier = Modifier.fillMaxWidth(),
+            ) { _, tileKey, _ ->
+                key(tileKey) {
+                    Row(
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 2.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Icon(
+                            Icons.Default.DragHandle,
+                            contentDescription = stringResource(R.string.action_reorder),
+                            tint = MaterialTheme.appColors.textSecondary,
+                            modifier = Modifier.draggableHandle().size(24.dp),
+                        )
+                        Spacer(Modifier.width(12.dp))
+                        Text(
+                            tileLabels[tileKey] ?: tileKey,
+                            modifier = Modifier.weight(1f),
+                            color = MaterialTheme.appColors.textPrimary,
+                        )
+                        Switch(
+                            checked = tileKey !in hiddenTiles,
+                            onCheckedChange = { onToggleTile(tileKey, !it) },
+                            colors = themedSwitchColors(),
+                        )
+                    }
                 }
             }
 
@@ -714,14 +758,20 @@ private fun CustomizeSheet(
                 modifier = Modifier.fillMaxWidth(),
             ) { _, chartKey, _ ->
                 key(chartKey) {
-                    // Each graph row: name, a show/hide switch, then the drag
-                    // handle to set its order.
+                    // Each graph row: drag handle (left), name, show/hide switch.
                     Row(
                         Modifier
                             .fillMaxWidth()
                             .padding(vertical = 2.dp),
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
+                        Icon(
+                            Icons.Default.DragHandle,
+                            contentDescription = stringResource(R.string.action_reorder),
+                            tint = MaterialTheme.appColors.textSecondary,
+                            modifier = Modifier.draggableHandle().size(24.dp),
+                        )
+                        Spacer(Modifier.width(12.dp))
                         Text(
                             chartLabels[chartKey] ?: chartKey,
                             modifier = Modifier.weight(1f),
@@ -732,13 +782,6 @@ private fun CustomizeSheet(
                             onCheckedChange = { onToggleChart(chartKey, !it) },
                             colors = themedSwitchColors(),
                         )
-                        Spacer(Modifier.width(8.dp))
-                        Icon(
-                            Icons.Default.DragHandle,
-                            contentDescription = stringResource(R.string.action_reorder),
-                            tint = MaterialTheme.appColors.textSecondary,
-                            modifier = Modifier.draggableHandle().size(24.dp),
-                        )
                     }
                 }
             }
@@ -746,13 +789,15 @@ private fun CustomizeSheet(
             // "Extra details" is pinned below the reorderable graphs: it always
             // renders last on the trip screen, so it gets a show/hide switch but
             // no drag handle. Its hidden state lives in the same chart set under
-            // the "extra" key.
+            // the "extra" key. The left spacer matches the handle + gap width so
+            // its name lines up with the graph names above.
             Row(
                 Modifier
                     .fillMaxWidth()
                     .padding(vertical = 2.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
+                Spacer(Modifier.width(36.dp))
                 Text(
                     stringResource(R.string.recording_details_section),
                     modifier = Modifier.weight(1f),
@@ -763,9 +808,6 @@ private fun CustomizeSheet(
                     onCheckedChange = { onToggleChart("extra", !it) },
                     colors = themedSwitchColors(),
                 )
-                // Reserve the drag-handle width so this switch lines up with the
-                // switches on the reorderable graph rows above.
-                Spacer(Modifier.width(32.dp))
             }
         }
     }

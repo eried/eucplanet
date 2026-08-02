@@ -228,6 +228,7 @@ data class AppSettings(
     // graph keys in display order (empty = default order). Keys not listed keep
     // their default position.
     val tripHiddenTiles: String = "",
+    val tripTileOrder: String = "",
     val tripChartOrder: String = "",
     // Hidden graph keys (speed, battery, temp, voltage, current, pwm, and the
     // pinned "extra" details block). Separate from tripHiddenTiles because chart

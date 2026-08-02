@@ -169,6 +169,7 @@ object SettingsJson {
         put("rotateTripList", s.rotateTripList)
         put("tripMapSide", s.tripMapSide)
         put("tripHiddenTiles", s.tripHiddenTiles)
+        put("tripTileOrder", s.tripTileOrder)
         put("tripChartOrder", s.tripChartOrder)
         put("tripHiddenCharts", s.tripHiddenCharts)
         put("compactModeWhen", s.compactModeWhen)
@@ -431,6 +432,7 @@ object SettingsJson {
         rotateTripList = j.optBoolean("rotateTripList", base.rotateTripList),
         tripMapSide = j.optString("tripMapSide", base.tripMapSide),
         tripHiddenTiles = j.optString("tripHiddenTiles", base.tripHiddenTiles),
+        tripTileOrder = j.optString("tripTileOrder", base.tripTileOrder),
         tripChartOrder = j.optString("tripChartOrder", base.tripChartOrder),
         tripHiddenCharts = j.optString("tripHiddenCharts", base.tripHiddenCharts),
         compactModeWhen = j.optString("compactModeWhen", base.compactModeWhen),

@@ -146,6 +146,10 @@ class RecordingViewModel @Inject constructor(
         .map { csvToList(it.tripHiddenTiles).toSet() }
         .stateIn(viewModelScope, kotlinx.coroutines.flow.SharingStarted.Eagerly, emptySet())
 
+    val tripTileOrder: StateFlow<List<String>> = settingsRepository.settings
+        .map { csvToList(it.tripTileOrder) }
+        .stateIn(viewModelScope, kotlinx.coroutines.flow.SharingStarted.Eagerly, emptyList())
+
     val tripChartOrder: StateFlow<List<String>> = settingsRepository.settings
         .map { csvToList(it.tripChartOrder) }
         .stateIn(viewModelScope, kotlinx.coroutines.flow.SharingStarted.Eagerly, emptyList())
@@ -175,6 +179,13 @@ class RecordingViewModel @Inject constructor(
                 if (hidden) cur.add(key) else cur.remove(key)
                 s.copy(tripHiddenCharts = cur.joinToString(","))
             }
+        }
+    }
+
+    /** Persist the rider's stat-tile display order as a compact CSV of tile keys. */
+    fun setTileOrder(order: List<String>) {
+        viewModelScope.launch {
+            settingsRepository.update { s -> s.copy(tripTileOrder = order.joinToString(",")) }
         }
     }
 
