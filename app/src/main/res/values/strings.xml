@@ -1211,7 +1211,6 @@
     <string name="trip_customize">Customize</string>
     <string name="trip_customize_tiles">Stat tiles</string>
     <string name="trip_customize_graphs">Graphs</string>
-    <string name="trip_customize_reset">Reset layout</string>
 
     <!-- Automations / Auto tab -->
     <string name="auto_lights_title">Lights</string>

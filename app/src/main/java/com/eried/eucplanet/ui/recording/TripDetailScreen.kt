@@ -864,14 +864,15 @@ private fun CustomizeSheet(
             }
 
             // Restore the whole layout (all tiles and graphs shown, default
-            // order). Greyed out when nothing differs from default, matching the
-            // Advanced settings "Reset all" affordance.
+            // order). Left-aligned with the Restore icon and the app's plain
+            // "Reset" verb, matching the metric-detail reset footer. Greyed out
+            // when nothing differs from default.
             Spacer(Modifier.height(4.dp))
-            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Start) {
                 TextButton(onClick = onReset, enabled = canReset, shape = RoundedCornerShape(12.dp)) {
                     Icon(Icons.Default.Restore, contentDescription = null, modifier = Modifier.size(18.dp))
                     Spacer(Modifier.width(6.dp))
-                    Text(stringResource(R.string.trip_customize_reset))
+                    Text(stringResource(R.string.action_reset))
                 }
             }
         }
