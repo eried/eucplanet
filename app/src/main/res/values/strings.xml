@@ -647,6 +647,9 @@
     <string name="section_cloud_trips">Trips backup</string>
     <string name="cloud_trips_caption">New trips are saved to your folder automatically</string>
     <string name="cloud_retry_now">Sync all</string>
+    <string name="cloud_reset_local">Reset local trips</string>
+    <string name="cloud_reset_local_title">Reset local trips?</string>
+    <string name="cloud_reset_local_body">Deletes every trip stored on this phone. Your backup folder is not touched, so trips already synced there can be restored.</string>
     <string name="cloud_retry_enqueued">Upload scheduled</string>
     <string name="sync_progress">Synchronizing %1$d of %2$d</string>
     <string name="sync_no_folder">Pick a backup folder first</string>
