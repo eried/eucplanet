@@ -97,12 +97,12 @@ fun OverlayElementRenderer(element: OverlayElement, data: StudioElementData) {
 
 // ---------- DATA_VALUE --------------------------------------------------
 
-/** GPS-fix-dependent metrics show a lock-lost dot when their source has no fix
- *  (box/phone connected but not locked). Battery is included on purpose: it now
- *  keeps showing through a lock loss, so the dot is how the rider still sees the
- *  external box lost its lock. */
+/** Speed + coordinate GPS metrics show a lock-lost dot when their source is
+ *  connected but has no fix; it clears the moment a good fix returns. Battery is
+ *  deliberately NOT dotted - it stays a clean, persistent readout (the whole
+ *  point of the battery fix), and the speed/coordinate tiles carry the cue. */
 private fun StudioMetric.gpsLockLost(data: StudioElementData): Boolean = when (this) {
-    StudioMetric.EXTERNAL_GPS_SPEED, StudioMetric.EXTERNAL_GPS_BATTERY -> !data.externalGpsHasFix
+    StudioMetric.EXTERNAL_GPS_SPEED -> !data.externalGpsHasFix
     StudioMetric.GPS_SPEED, StudioMetric.GPS -> !data.gpsHasFix
     else -> false
 }
