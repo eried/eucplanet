@@ -42,6 +42,7 @@ import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.Layers
 import androidx.compose.material.icons.filled.Fullscreen
 import androidx.compose.material.icons.filled.FullscreenExit
+import androidx.compose.material.icons.filled.Restore
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.runtime.SideEffect
@@ -65,6 +66,7 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
@@ -535,7 +537,10 @@ fun TripDetailScreen(
                     if (i > 0) Spacer(Modifier.height(12.dp))
                     chart()
                 }
-                if ("extra" !in hiddenCharts && extraEvents.isNotEmpty()) {
+                // Extra details always renders when enabled, even with no wheel
+                // events (an imported CSV that carries no wheel identity): the
+                // section then just says so, rather than silently vanishing.
+                if ("extra" !in hiddenCharts) {
                     Spacer(Modifier.height(12.dp))
                     TripDetailsSection(extraEvents)
                 }
@@ -580,6 +585,9 @@ fun TripDetailScreen(
                     onToggleChart = { key, hidden -> viewModel.setChartHidden(key, hidden) },
                     onReorderTiles = { viewModel.setTileOrder(it) },
                     onReorderCharts = { viewModel.setChartOrder(it) },
+                    canReset = hiddenTiles.isNotEmpty() || hiddenCharts.isNotEmpty() ||
+                        savedTileOrder.isNotEmpty() || savedChartOrder.isNotEmpty(),
+                    onReset = { viewModel.resetTripLayout() },
                     onDismiss = { showCustomize = false },
                 )
             }
@@ -719,6 +727,8 @@ private fun CustomizeSheet(
     onToggleChart: (String, Boolean) -> Unit,
     onReorderTiles: (List<String>) -> Unit,
     onReorderCharts: (List<String>) -> Unit,
+    canReset: Boolean,
+    onReset: () -> Unit,
     onDismiss: () -> Unit,
 ) {
     val haptic = LocalHapticFeedback.current
@@ -852,6 +862,18 @@ private fun CustomizeSheet(
                     colors = themedSwitchColors(),
                 )
             }
+
+            // Restore the whole layout (all tiles and graphs shown, default
+            // order). Greyed out when nothing differs from default, matching the
+            // Advanced settings "Reset all" affordance.
+            Spacer(Modifier.height(4.dp))
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
+                TextButton(onClick = onReset, enabled = canReset, shape = RoundedCornerShape(12.dp)) {
+                    Icon(Icons.Default.Restore, contentDescription = null, modifier = Modifier.size(18.dp))
+                    Spacer(Modifier.width(6.dp))
+                    Text(stringResource(R.string.trip_customize_reset))
+                }
+            }
         }
     }
 }
@@ -909,6 +931,16 @@ private fun TripDetailsSection(events: List<TripExtraEvent>) {
                 )
             }
             Column(Modifier.padding(start = 12.dp, end = 12.dp, bottom = 10.dp)) {
+                if (events.isEmpty()) {
+                    // Imported trips (and any recording that never captured a wheel
+                    // identity) have nothing to list, so state that plainly.
+                    Text(
+                        stringResource(R.string.recording_details_none),
+                        fontSize = 11.sp,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                    return@Column
+                }
                 // The first wheel identity is the ride start (green, matching the
                 // map's green start marker); every later wheel is a mid-ride change
                 // (purple, matching its purple map circle). Only changes get a

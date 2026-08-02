@@ -196,6 +196,22 @@ class RecordingViewModel @Inject constructor(
         }
     }
 
+    /** Restore the Trip Details layout to defaults: every tile and graph shown,
+     *  in default order. Clears the four compact customizer settings so nothing
+     *  stays hidden or reordered. */
+    fun resetTripLayout() {
+        viewModelScope.launch {
+            settingsRepository.update { s ->
+                s.copy(
+                    tripHiddenTiles = "",
+                    tripHiddenCharts = "",
+                    tripTileOrder = "",
+                    tripChartOrder = "",
+                )
+            }
+        }
+    }
+
     private fun csvToList(csv: String): List<String> =
         csv.split(',').map { it.trim() }.filter { it.isNotEmpty() }
 

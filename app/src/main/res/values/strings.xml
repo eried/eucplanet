@@ -1187,6 +1187,7 @@
     <string name="recording_no_data">No data recorded in this trip</string>
     <string name="recording_route">Route</string>
     <string name="recording_details_section">Extra details</string>
+    <string name="recording_details_none">No wheel reported for this ride.</string>
     <string name="recording_summary_distance">Distance</string>
     <string name="recording_summary_duration">Duration</string>
     <string name="recording_summary_points">Points</string>
@@ -1210,6 +1211,7 @@
     <string name="trip_customize">Customize</string>
     <string name="trip_customize_tiles">Stat tiles</string>
     <string name="trip_customize_graphs">Graphs</string>
+    <string name="trip_customize_reset">Reset layout</string>
 
     <!-- Automations / Auto tab -->
     <string name="auto_lights_title">Lights</string>
