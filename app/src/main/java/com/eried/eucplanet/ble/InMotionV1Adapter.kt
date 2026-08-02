@@ -52,10 +52,20 @@ class InMotionV1Adapter @Inject constructor() : WheelAdapter {
      *  Cleared on disconnect. */
     private val loggedUnknownCanIds = mutableSetOf<Int>()
 
+    /** True once the wheel has sent a real fast/slow-info reply this connection,
+     *  i.e. it has accepted the PIN handshake and is streaming. Until then the
+     *  poll loop keeps re-sending the PIN. Reset on each connect / disconnect. */
+    @Volatile private var streamStarted = false
+
+    /** Poll counter used to alternate PIN and fast-info while not yet streaming. */
+    @Volatile private var authPollTick = 0
+
     override fun bleProfile(): BleProfile = BleProfile.INMOTION_V1
 
     override fun notifyConnectingTo(deviceName: String?): DecodeResult.ModelName? {
         detectedModel = deviceName?.let { InMotionV1Model.fromReportedName(it) }
+        streamStarted = false
+        authPollTick = 0
         return null
     }
 
@@ -75,7 +85,25 @@ class InMotionV1Adapter @Inject constructor() : WheelAdapter {
         return out
     }
 
-    override fun pollRealtime(): ByteArray = InMotionV1Commands.getFastInfo()
+    /**
+     * Realtime poll. Critically, keep RE-SENDING the PIN handshake until the
+     * wheel actually starts streaming, not just once on connect. A single PIN
+     * sent the instant we connect is ignored (the V8S isn't ready that early)
+     * and the wheel then drops the link ~8 s later (status=8), so a single-shot
+     * PIN only ever worked by luck after ~10 reconnect cycles. WheelLog re-sends
+     * the password ~6x at 250 ms; do the same here so a later PIN lands once the
+     * wheel is ready and it authenticates + streams on ONE connection. Alternate
+     * PIN and fast-info so we both re-auth and poll; once a real reply arrives
+     * ([streamStarted]) drop the PIN and just poll fast-info.
+     */
+    override fun pollRealtime(): ByteArray {
+        if (!streamStarted) {
+            authPollTick++
+            if (authPollTick % 2 == 1) return InMotionV1Commands.sendPin(pin ?: DEFAULT_PIN)
+        }
+        return InMotionV1Commands.getFastInfo()
+    }
+
     override fun pollSettings(): ByteArray = InMotionV1Commands.getSlowInfo()
 
     /**
@@ -159,6 +187,8 @@ class InMotionV1Adapter @Inject constructor() : WheelAdapter {
         reassemblyBuffer.reset()
         detectedModel = null
         loggedUnknownCanIds.clear()
+        streamStarted = false
+        authPollTick = 0
     }
 
     override fun inspectMessageTypes(): List<String> =
@@ -245,6 +275,9 @@ class InMotionV1Adapter @Inject constructor() : WheelAdapter {
                     "InMotion V1 realtime len=${payload.size} body=${payload.joinToString(" ") { "%02x".format(it) }}"
                 )
                 val telem = InMotionV1Parser.parseFastInfo(payload, detectedModel)
+                // A real reply means the wheel accepted the PIN and is streaming;
+                // stop the poll loop's PIN re-sends.
+                if (telem != null) streamStarted = true
                 if (telem != null) listOf(DecodeResult.Telemetry(telem)) else emptyList()
             }
             InMotionV1Protocol.CanId.SLOW_INFO -> {
@@ -253,6 +286,7 @@ class InMotionV1Adapter @Inject constructor() : WheelAdapter {
                     "InMotion V1 slow-info len=${payload.size} body=${payload.joinToString(" ") { "%02x".format(it) }}"
                 )
                 val info = InMotionV1Parser.parseSlowInfo(payload) ?: return emptyList()
+                streamStarted = true
                 if (info.model != null) detectedModel = info.model
                 val out = mutableListOf<DecodeResult>()
                 out += DecodeResult.ModelName(
