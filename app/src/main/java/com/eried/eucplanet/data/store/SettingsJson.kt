@@ -168,6 +168,10 @@ object SettingsJson {
         put("rotateTripDetail", s.rotateTripDetail)
         put("rotateTripList", s.rotateTripList)
         put("tripMapSide", s.tripMapSide)
+        put("tripHiddenTiles", s.tripHiddenTiles)
+        put("tripTileOrder", s.tripTileOrder)
+        put("tripChartOrder", s.tripChartOrder)
+        put("tripHiddenCharts", s.tripHiddenCharts)
         put("compactModeWhen", s.compactModeWhen)
         put("coverCameraCutout", s.coverCameraCutout)
         put("compactSpeedoStyle", s.compactSpeedoStyle)
@@ -427,6 +431,10 @@ object SettingsJson {
         rotateTripDetail = j.optBoolean("rotateTripDetail", base.rotateTripDetail),
         rotateTripList = j.optBoolean("rotateTripList", base.rotateTripList),
         tripMapSide = j.optString("tripMapSide", base.tripMapSide),
+        tripHiddenTiles = j.optString("tripHiddenTiles", base.tripHiddenTiles),
+        tripTileOrder = j.optString("tripTileOrder", base.tripTileOrder),
+        tripChartOrder = j.optString("tripChartOrder", base.tripChartOrder),
+        tripHiddenCharts = j.optString("tripHiddenCharts", base.tripHiddenCharts),
         compactModeWhen = j.optString("compactModeWhen", base.compactModeWhen),
         coverCameraCutout = j.optString("coverCameraCutout", base.coverCameraCutout),
         compactSpeedoStyle = j.optString("compactSpeedoStyle", base.compactSpeedoStyle),

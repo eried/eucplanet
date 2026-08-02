@@ -48,7 +48,13 @@ class DropboxSyncWorker @AssistedInject constructor(
             Log.w(TAG, "list_folder failed, will retry")
             return Result.retry()
         }
-        val localFiles = tripRepository.getTripsDir().listFiles { f -> f.isFile }
+        // Only trip CSVs belong in the Dropbox /trips folder. The trips dir also
+        // holds transient bundles like "trips_export.dbb" (the Export-all-as-ZIP
+        // share file); without this filter the sync uploaded those too, so a
+        // "trips_export.zip/.dbb" leaked into the rider's Dropbox alongside the
+        // real trips.
+        val localFiles = tripRepository.getTripsDir()
+            .listFiles { f -> f.isFile && f.name.endsWith(".csv", ignoreCase = true) }
             ?.toList().orEmpty()
         var anyFailed = false
         var uploaded = 0

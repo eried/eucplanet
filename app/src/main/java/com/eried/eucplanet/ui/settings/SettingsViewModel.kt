@@ -1097,6 +1097,26 @@ class SettingsViewModel @Inject constructor(
     }
 
     fun syncAllTrips() = syncManager.startSync()
+
+    /**
+     * Wipe the trips stored on THIS phone (internal app storage): the CSV/DBB
+     * files in the trips dir plus the DB rows. Does NOT touch the backup folder
+     * (Dropbox / linked folder), so trips already synced can be pulled back
+     * down. Backs the "Reset local trips" button in the Trips backup section.
+     */
+    fun resetLocalTrips(onDone: () -> Unit = {}) {
+        viewModelScope.launch {
+            tripRepository.clearAll()
+            onDone()
+        }
+    }
+
+    /** True while the phone holds at least one local trip. "Reset local trips"
+     *  is disabled when this is false, so it can't be tapped with nothing to
+     *  clear (and it greys out the moment a reset empties the list). */
+    val hasLocalTrips: StateFlow<Boolean> = tripRepository.tripCount
+        .map { it > 0 }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), false)
     fun resolveSyncConflict(choice: SyncChoice) = syncManager.resolveSyncConflict(choice)
     fun cancelSyncConflict() = syncManager.cancelSyncConflict()
     fun cancelActiveSync() = syncManager.cancelActiveSync()

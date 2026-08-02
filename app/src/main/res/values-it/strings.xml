@@ -187,7 +187,7 @@
     <string name="cloud_restore_success">Impostazioni ripristinate</string>
     <string name="cloud_restore_failed">Nessun backup trovato nella cartella</string>
     <string name="section_cloud_trips">Backup dei viaggi</string>
-    <string name="cloud_trips_caption">I nuovi viaggi vengono salvati nella tua cartella automaticamente</string>
+    <string name="cloud_trips_caption">I viaggi vengono conservati su questo telefono e copiati automaticamente nella cartella di backup. Cancellandoli qui rimuovi solo la copia sul telefono; il backup resta.</string>
     <string name="cloud_retry_now">Sincr. tutto</string>
     <string name="cloud_retry_enqueued">Upload programmato</string>
     <string name="sync_progress">Sincronizzazione %1$d di %2$d</string>
@@ -1913,4 +1913,12 @@
     <string name="accel_split_slower_best">, %1$s più lento del migliore</string>
     <string name="accel_split_best_yet">, nuovo record</string>
     <string name="report_contents">Personalizza rapporto vocale</string>
+    <string name="trip_customize">Personalizza</string>
+    <string name="trip_customize_tiles">Riquadri</string>
+    <string name="trip_customize_graphs">Grafici</string>
+    <string name="recording_details_section">Dettagli aggiuntivi</string>
+    <string name="recording_details_none">Nessuna ruota registrata per questo viaggio.</string>
+    <string name="cloud_reset_local">Cancella viaggi locali</string>
+    <string name="cloud_reset_local_title">Cancellare i viaggi locali?</string>
+    <string name="cloud_reset_local_body">Rimuove tutti i viaggi salvati su questo telefono. La cartella di backup resta intatta, quindi i viaggi sincronizzati possono essere ripristinati da lì.</string>
 </resources>

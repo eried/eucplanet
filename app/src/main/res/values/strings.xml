@@ -645,8 +645,11 @@
     <string name="cloud_restore_success">Settings restored</string>
     <string name="cloud_restore_failed">No backup found in folder</string>
     <string name="section_cloud_trips">Trips backup</string>
-    <string name="cloud_trips_caption">New trips are saved to your folder automatically</string>
+    <string name="cloud_trips_caption">Trips are kept on this phone and copied to your backup folder automatically. Clearing them here removes only the phone copy - your backup stays.</string>
     <string name="cloud_retry_now">Sync all</string>
+    <string name="cloud_reset_local">Clear local trips</string>
+    <string name="cloud_reset_local_title">Clear local trips?</string>
+    <string name="cloud_reset_local_body">Removes every trip saved on this phone. Your backup folder is untouched, so synced trips can be restored from there.</string>
     <string name="cloud_retry_enqueued">Upload scheduled</string>
     <string name="sync_progress">Synchronizing %1$d of %2$d</string>
     <string name="sync_no_folder">Pick a backup folder first</string>
@@ -1184,6 +1187,7 @@
     <string name="recording_no_data">No data recorded in this trip</string>
     <string name="recording_route">Route</string>
     <string name="recording_details_section">Extra details</string>
+    <string name="recording_details_none">No wheel reported for this ride.</string>
     <string name="recording_summary_distance">Distance</string>
     <string name="recording_summary_duration">Duration</string>
     <string name="recording_summary_points">Points</string>
@@ -1204,6 +1208,9 @@
     <string name="recording_chart_voltage">Voltage (V)</string>
     <string name="recording_chart_current">Current (A)</string>
     <string name="recording_chart_pwm">PWM (%)</string>
+    <string name="trip_customize">Customize</string>
+    <string name="trip_customize_tiles">Tiles</string>
+    <string name="trip_customize_graphs">Graphs</string>
 
     <!-- Automations / Auto tab -->
     <string name="auto_lights_title">Lights</string>

@@ -468,7 +468,7 @@
     <string name="cloud_restore_success">Indstillinger gendannet</string>
     <string name="cloud_restore_failed">Ingen backup fundet i mappen</string>
     <string name="section_cloud_trips">Tur-backup</string>
-    <string name="cloud_trips_caption">Nye ture gemmes automatisk i din mappe</string>
+    <string name="cloud_trips_caption">Ture gemmes på denne telefon og kopieres automatisk til din backup-mappe. Når du rydder dem her, fjernes kun kopien på telefonen; din backup bevares.</string>
     <string name="cloud_retry_now">Synk alle</string>
     <string name="cloud_retry_enqueued">Upload planlagt</string>
     <string name="sync_progress">Synkroniserer %1$d af %2$d</string>
@@ -2023,4 +2023,12 @@
     <string name="accel_split_slower_best">, %1$s langsommere end bedste</string>
     <string name="accel_split_best_yet">, ny rekord</string>
     <string name="report_contents">Tilpas talerapport</string>
+    <string name="trip_customize">Tilpas</string>
+    <string name="trip_customize_tiles">Felter</string>
+    <string name="trip_customize_graphs">Grafer</string>
+    <string name="recording_details_section">Ekstra detaljer</string>
+    <string name="recording_details_none">Der blev ikke registreret noget hjul for denne tur.</string>
+    <string name="cloud_reset_local">Ryd lokale ture</string>
+    <string name="cloud_reset_local_title">Ryd lokale ture?</string>
+    <string name="cloud_reset_local_body">Fjerner alle ture, der er gemt på denne telefon. Din backup-mappe røres ikke, så synkroniserede ture kan gendannes derfra.</string>
 </resources>

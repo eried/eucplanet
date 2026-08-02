@@ -468,7 +468,7 @@
     <string name="cloud_restore_success">Configuración restaurada</string>
     <string name="cloud_restore_failed">No se encontró respaldo en la carpeta</string>
     <string name="section_cloud_trips">Respaldo de viajes</string>
-    <string name="cloud_trips_caption">Los viajes nuevos se guardan en tu carpeta automáticamente</string>
+    <string name="cloud_trips_caption">Los viajes se guardan en este teléfono y se copian automáticamente a tu carpeta de copia de seguridad. Borrarlos aquí elimina solo la copia del teléfono; tu copia de seguridad permanece.</string>
     <string name="cloud_retry_now">Sincr. todo</string>
     <string name="cloud_retry_enqueued">Subida programada</string>
     <string name="sync_progress">Sincronizando %1$d de %2$d</string>
@@ -2026,5 +2026,13 @@
     <string name="accel_split_slower_best">, %1$s más lento que el mejor</string>
     <string name="accel_split_best_yet">, nuevo récord</string>
     <string name="report_contents">Personalizar reporte de voz</string>
+    <string name="trip_customize">Personalizar</string>
+    <string name="trip_customize_tiles">Fichas</string>
+    <string name="trip_customize_graphs">Gráficos</string>
+    <string name="recording_details_section">Detalles adicionales</string>
+    <string name="recording_details_none">No se registró ninguna rueda en este viaje.</string>
+    <string name="cloud_reset_local">Borrar viajes locales</string>
+    <string name="cloud_reset_local_title">¿Borrar viajes locales?</string>
+    <string name="cloud_reset_local_body">Elimina todos los viajes guardados en este teléfono. Tu carpeta de copia de seguridad no se toca, así que los viajes sincronizados se pueden restaurar desde allí.</string>
 </resources>
 

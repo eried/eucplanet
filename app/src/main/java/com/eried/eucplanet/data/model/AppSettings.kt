@@ -222,6 +222,19 @@ data class AppSettings(
     val rotateTripDetail: Boolean = true,
     val rotateTripList: Boolean = false,
     val tripMapSide: String = "LEFT",
+    // Trip Details customizer (per the Customize sheet on that screen). Stored
+    // compactly as CSV so no schema change is needed. tripHiddenTiles lists the
+    // stat-tile keys the rider hid (empty = all shown); tripChartOrder lists the
+    // graph keys in display order (empty = default order). Keys not listed keep
+    // their default position.
+    val tripHiddenTiles: String = "",
+    val tripTileOrder: String = "",
+    val tripChartOrder: String = "",
+    // Hidden graph keys (speed, battery, temp, voltage, current, pwm, and the
+    // pinned "extra" details block). Separate from tripHiddenTiles because chart
+    // keys collide with tile keys (battery, voltage exist in both). Empty = all
+    // shown.
+    val tripHiddenCharts: String = "",
 
     // Screen geometry. Compact mode is the tiny dashboard (speedo + one
     // swipeable buttons/metrics area) used on flip cover screens; it reuses

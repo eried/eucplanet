@@ -25,6 +25,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.padding
@@ -34,9 +35,14 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.DragHandle
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.Layers
 import androidx.compose.material.icons.filled.Fullscreen
 import androidx.compose.material.icons.filled.FullscreenExit
+import androidx.compose.material.icons.filled.Restore
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.runtime.SideEffect
@@ -54,16 +60,20 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.ui.graphics.luminance
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -95,6 +105,8 @@ import com.eried.eucplanet.R
 import com.eried.eucplanet.data.model.TripRecord
 import com.eried.eucplanet.ui.common.HintText
 import com.eried.eucplanet.ui.theme.appColors
+import com.eried.eucplanet.ui.theme.themedSwitchColors
+import sh.calvin.reorderable.ReorderableColumn
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -110,6 +122,9 @@ fun TripDetailScreen(
 ) {
     var dataPoints by remember { mutableStateOf<List<TripDataPoint>>(emptyList()) }
     var showShareDialog by remember { mutableStateOf(false) }
+    // Trip Details customizer sheet (pencil in the top bar). Hoisted here so the
+    // top bar action and the sheet body (rendered in the content) share it.
+    var showCustomize by remember { mutableStateOf(false) }
     // The in-progress trip can't be shared, its CSV isn't finalised yet.
     // null = not yet known; only once it resolves to a definite false do we let
     // the self-heal touch the stored row (so a live trip is never finalised
@@ -118,6 +133,12 @@ fun TripDetailScreen(
     val isLiveTrip = liveState == true
     // Landscape split: the rider chooses whether the map docks left or right.
     val tripMapSide by viewModel.tripMapSide.collectAsState()
+    // Trip Details customizer: which stat tiles are hidden, the tile and chart
+    // order, and which graphs (plus the pinned "extra" block) are hidden.
+    val hiddenTiles by viewModel.tripHiddenTiles.collectAsState()
+    val savedTileOrder by viewModel.tripTileOrder.collectAsState()
+    val savedChartOrder by viewModel.tripChartOrder.collectAsState()
+    val hiddenCharts by viewModel.tripHiddenCharts.collectAsState()
 
     // Render the ViewModel's messages (e.g. "Preparing the link…", share
     // failures) here too — sharing is launched straight from this screen, which
@@ -199,12 +220,21 @@ fun TripDetailScreen(
                             modifier = Modifier.align(Alignment.Center),
                         )
                     }
-                    IconButton(
-                        onClick = { showShareDialog = true },
-                        enabled = !isLiveTrip,
+                    Row(
                         modifier = Modifier.align(Alignment.CenterEnd),
+                        verticalAlignment = Alignment.CenterVertically,
                     ) {
-                        Icon(Icons.Default.Share, contentDescription = stringResource(R.string.action_share))
+                        if (dataPoints.isNotEmpty()) {
+                            IconButton(onClick = { showCustomize = true }) {
+                                Icon(Icons.Default.Edit, contentDescription = stringResource(R.string.trip_customize))
+                            }
+                        }
+                        IconButton(
+                            onClick = { showShareDialog = true },
+                            enabled = !isLiveTrip,
+                        ) {
+                            Icon(Icons.Default.Share, contentDescription = stringResource(R.string.action_share))
+                        }
                     }
                 }
             } else {
@@ -216,6 +246,11 @@ fun TripDetailScreen(
                         }
                     },
                     actions = {
+                        if (dataPoints.isNotEmpty()) {
+                            IconButton(onClick = { showCustomize = true }) {
+                                Icon(Icons.Default.Edit, contentDescription = stringResource(R.string.trip_customize))
+                            }
+                        }
                         IconButton(
                             onClick = { showShareDialog = true },
                             enabled = !isLiveTrip
@@ -358,39 +393,38 @@ fun TripDetailScreen(
                 )
             }
 
-            // Summary cards.
-            val summaryCards: @Composable ColumnScope.() -> Unit = {
-                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    SummaryCard(stringResource(R.string.recording_summary_distance), "%.1f %s".format(tripDistance, distanceUnitLabel), MaterialTheme.appColors.metricVoltage, Modifier.weight(1f))
-                    SummaryCard(stringResource(R.string.recording_summary_duration), com.eried.eucplanet.util.Units.humanDuration(duration), MaterialTheme.appColors.metricVoltage, Modifier.weight(1f))
-                    SummaryCard(stringResource(R.string.recording_summary_points), "${dataPoints.size}", MaterialTheme.colorScheme.onSurface, Modifier.weight(1f))
-                }
-                Spacer(Modifier.height(8.dp))
-                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    SummaryCard(stringResource(R.string.recording_summary_top_speed), "%.0f %s".format(maxSpeed, speedUnitLabel), MaterialTheme.appColors.metricTemp, Modifier.weight(1f))
-                    SummaryCard(stringResource(R.string.recording_summary_avg_speed), "%.0f %s".format(avgSpeed, speedUnitLabel), MaterialTheme.appColors.metricBattery, Modifier.weight(1f))
-                    SummaryCard(stringResource(R.string.recording_summary_avg_moving), "%.0f %s".format(avgMoving, speedUnitLabel), MaterialTheme.appColors.metricBattery, Modifier.weight(1f))
-                }
-                Spacer(Modifier.height(8.dp))
-                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            // Stat tiles, as a keyed list so the customizer can hide any of them.
+            // Each tile keeps the exact SummaryCard content and colors it had
+            // before. Order matches the original 4 rows of 3.
+            val allTiles: List<Pair<String, @Composable RowScope.() -> Unit>> = listOf(
+                "distance" to { SummaryCard(stringResource(R.string.recording_summary_distance), "%.1f %s".format(tripDistance, distanceUnitLabel), MaterialTheme.appColors.metricVoltage, Modifier.weight(1f)) },
+                "duration" to { SummaryCard(stringResource(R.string.recording_summary_duration), com.eried.eucplanet.util.Units.humanDuration(duration), MaterialTheme.appColors.metricVoltage, Modifier.weight(1f)) },
+                "points" to { SummaryCard(stringResource(R.string.recording_summary_points), "${dataPoints.size}", MaterialTheme.colorScheme.onSurface, Modifier.weight(1f)) },
+                "topSpeed" to { SummaryCard(stringResource(R.string.recording_summary_top_speed), "%.0f %s".format(maxSpeed, speedUnitLabel), MaterialTheme.appColors.metricTemp, Modifier.weight(1f)) },
+                "avgSpeed" to { SummaryCard(stringResource(R.string.recording_summary_avg_speed), "%.0f %s".format(avgSpeed, speedUnitLabel), MaterialTheme.appColors.metricBattery, Modifier.weight(1f)) },
+                "avgMoving" to { SummaryCard(stringResource(R.string.recording_summary_avg_moving), "%.0f %s".format(avgMoving, speedUnitLabel), MaterialTheme.appColors.metricBattery, Modifier.weight(1f)) },
+                "battery" to {
                     SummaryCard(
                         stringResource(R.string.recording_summary_battery, batteryStats.batteryConsumption),
                         stringResource(R.string.recording_summary_battery_fmt, batteryStats.batteryMax, batteryStats.batteryMin),
                         if (batteryStats.batteryMin < 20) MaterialTheme.appColors.statusDanger else MaterialTheme.appColors.statusGood,
                         Modifier.weight(1f)
                     )
+                },
+                "voltage" to {
                     SummaryCard(
                         stringResource(R.string.recording_summary_voltage),
                         stringResource(R.string.recording_summary_voltage_fmt, batteryStats.voltageMax, batteryStats.voltageMin),
                         MaterialTheme.appColors.metricPosition,
                         Modifier.weight(1f)
                     )
+                },
+                "maxTemp" to {
                     SummaryCard(stringResource(R.string.recording_summary_max_temp),
                         "%.0f%s".format(maxTemp, tempUnitLabel),
                         if (maxTempRaw > 60) MaterialTheme.appColors.statusDanger else MaterialTheme.appColors.metricTemp, Modifier.weight(1f))
-                }
-                Spacer(Modifier.height(8.dp))
-                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                },
+                "maxPwm" to {
                     SummaryCard(
                         stringResource(R.string.recording_summary_max_pwm),
                         if (batteryStats.maxPwm.isNaN()) "--" else "%.0f%%".format(batteryStats.maxPwm),
@@ -398,60 +432,164 @@ fun TripDetailScreen(
                         else MaterialTheme.appColors.metricTemp,
                         Modifier.weight(1f)
                     )
+                },
+                "maxCurrent" to {
                     SummaryCard(
                         stringResource(R.string.recording_summary_max_current),
                         if (batteryStats.maxCurrent.isNaN()) "--" else "%.1f A".format(batteryStats.maxCurrent),
                         MaterialTheme.appColors.metricVoltage,
                         Modifier.weight(1f)
                     )
+                },
+                "maxPower" to {
                     SummaryCard(
                         stringResource(R.string.recording_summary_max_power),
                         if (batteryStats.maxPower.isNaN()) "--" else "%.0f W".format(batteryStats.maxPower),
                         MaterialTheme.appColors.metricPosition,
                         Modifier.weight(1f)
                     )
+                },
+            )
+
+            // Effective tile order via the shared helper (see applyOrder): the
+            // rider's saved order, with any newly added tile appearing at the end.
+            val tileKeysDefault = allTiles.map { it.first }
+            val effectiveTileOrder = applyOrder(tileKeysDefault, savedTileOrder)
+            val tilesByKey = allTiles.associateBy { it.first }
+            val orderedTiles = effectiveTileOrder.mapNotNull { tilesByKey[it] }
+
+            // Render the shown tiles in the rider's order, in rows of 3, padding a
+            // short final row with spacers so every tile keeps the same width.
+            val summaryCards: @Composable ColumnScope.() -> Unit = {
+                val visibleTiles = orderedTiles.filter { it.first !in hiddenTiles }
+                visibleTiles.chunked(3).forEachIndexed { rowIndex, rowTiles ->
+                    if (rowIndex > 0) Spacer(Modifier.height(8.dp))
+                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        rowTiles.forEach { (_, tile) -> tile() }
+                        repeat(3 - rowTiles.size) { Spacer(Modifier.weight(1f)) }
+                    }
                 }
             }
 
-            // Scrub-synced charts.
-            val chartsContent: @Composable ColumnScope.() -> Unit = {
-                ChartCard(stringResource(R.string.recording_chart_speed, speedUnitLabel),
-                    dataPoints.map { com.eried.eucplanet.util.Units.speed(it.speed, speedUnit) },
-                    MaterialTheme.appColors.metricBattery, unitLabel = speedUnitLabel, minSpan = speedMinSpan,
-                    overlays = speedOverlays, axisMax = maxSpeed, peak = speedPeak,
-                    scrubIndex = scrubIndex, onScrub = onScrub)
-                Spacer(Modifier.height(12.dp))
-                ChartCard(stringResource(R.string.recording_chart_battery), dataPoints.map { it.battery.toFloat() },
-                    MaterialTheme.appColors.metricVoltage, unitLabel = "%", minSpan = GraphScale.SPAN_BATTERY,
-                    scrubIndex = scrubIndex, onScrub = onScrub)
-                Spacer(Modifier.height(12.dp))
-                ChartCard(stringResource(R.string.recording_chart_temp, tempUnitLabel),
-                    dataPoints.map { com.eried.eucplanet.util.Units.temperature(it.temperature, tempUnit) },
-                    MaterialTheme.appColors.metricTemp, unitLabel = tempUnitLabel, minSpan = tempMinSpan,
-                    scrubIndex = scrubIndex, onScrub = onScrub)
-                Spacer(Modifier.height(12.dp))
-                ChartCard(stringResource(R.string.recording_chart_voltage), dataPoints.map { it.voltage },
-                    MaterialTheme.appColors.statusDanger, unitLabel = "V", minSpan = GraphScale.SPAN_VOLTAGE,
-                    scrubIndex = scrubIndex, onScrub = onScrub)
-                if (dataPoints.any { !it.current.isNaN() }) {
-                    Spacer(Modifier.height(12.dp))
-                    ChartCard(stringResource(R.string.recording_chart_current),
-                        dataPoints.map { it.current },
-                        MaterialTheme.appColors.metricVoltage, unitLabel = "A", minSpan = GraphScale.SPAN_CURRENT,
-                        regenColor = MaterialTheme.appColors.metricBattery,
+            // Charts, as a keyed list. current / pwm are only present when the
+            // trip actually has that data, so those charts never render empty,
+            // regardless of the saved order.
+            val allCharts: List<Pair<String, @Composable ColumnScope.() -> Unit>> = buildList {
+                add("speed" to {
+                    ChartCard(stringResource(R.string.recording_chart_speed, speedUnitLabel),
+                        dataPoints.map { com.eried.eucplanet.util.Units.speed(it.speed, speedUnit) },
+                        MaterialTheme.appColors.metricBattery, unitLabel = speedUnitLabel, minSpan = speedMinSpan,
+                        overlays = speedOverlays, axisMax = maxSpeed, peak = speedPeak,
                         scrubIndex = scrubIndex, onScrub = onScrub)
+                })
+                add("battery" to {
+                    ChartCard(stringResource(R.string.recording_chart_battery), dataPoints.map { it.battery.toFloat() },
+                        MaterialTheme.appColors.metricVoltage, unitLabel = "%", minSpan = GraphScale.SPAN_BATTERY,
+                        scrubIndex = scrubIndex, onScrub = onScrub)
+                })
+                add("temp" to {
+                    ChartCard(stringResource(R.string.recording_chart_temp, tempUnitLabel),
+                        dataPoints.map { com.eried.eucplanet.util.Units.temperature(it.temperature, tempUnit) },
+                        MaterialTheme.appColors.metricTemp, unitLabel = tempUnitLabel, minSpan = tempMinSpan,
+                        scrubIndex = scrubIndex, onScrub = onScrub)
+                })
+                add("voltage" to {
+                    ChartCard(stringResource(R.string.recording_chart_voltage), dataPoints.map { it.voltage },
+                        MaterialTheme.appColors.statusDanger, unitLabel = "V", minSpan = GraphScale.SPAN_VOLTAGE,
+                        scrubIndex = scrubIndex, onScrub = onScrub)
+                })
+                if (dataPoints.any { !it.current.isNaN() }) {
+                    add("current" to {
+                        ChartCard(stringResource(R.string.recording_chart_current),
+                            dataPoints.map { it.current },
+                            MaterialTheme.appColors.metricVoltage, unitLabel = "A", minSpan = GraphScale.SPAN_CURRENT,
+                            regenColor = MaterialTheme.appColors.metricBattery,
+                            scrubIndex = scrubIndex, onScrub = onScrub)
+                    })
                 }
                 if (dataPoints.any { !it.pwm.isNaN() }) {
-                    Spacer(Modifier.height(12.dp))
-                    ChartCard(stringResource(R.string.recording_chart_pwm),
-                        dataPoints.map { it.pwm },
-                        MaterialTheme.appColors.metricTemp, unitLabel = "%", minSpan = GraphScale.SPAN_LOAD,
-                        scrubIndex = scrubIndex, onScrub = onScrub)
+                    add("pwm" to {
+                        ChartCard(stringResource(R.string.recording_chart_pwm),
+                            dataPoints.map { it.pwm },
+                            MaterialTheme.appColors.metricTemp, unitLabel = "%", minSpan = GraphScale.SPAN_LOAD,
+                            scrubIndex = scrubIndex, onScrub = onScrub)
+                    })
                 }
-                if (extraEvents.isNotEmpty()) {
+            }
+
+            // Effective chart order via the same shared helper (see applyOrder):
+            // covers all six keys so the customizer list is stable even for a trip
+            // that has no current / pwm data.
+            val chartKeysDefault = listOf("speed", "battery", "temp", "voltage", "current", "pwm")
+            val effectiveChartOrder = applyOrder(chartKeysDefault, savedChartOrder)
+
+            // Scrub-synced charts, in the rider's order. A chart drops out when
+            // its key is hidden, when it isn't in allCharts (absent current / pwm
+            // data), preserving the old data-presence gating. TripDetailsSection
+            // stays pinned at the very end, outside the reorder, and hides on the
+            // "extra" key.
+            val chartsByKey = allCharts.associateBy { it.first }
+            val orderedCharts = effectiveChartOrder
+                .filter { it !in hiddenCharts }
+                .mapNotNull { chartsByKey[it] }
+            val chartsContent: @Composable ColumnScope.() -> Unit = {
+                orderedCharts.forEachIndexed { i, (_, chart) ->
+                    if (i > 0) Spacer(Modifier.height(12.dp))
+                    chart()
+                }
+                // Extra details always renders when enabled, even with no wheel
+                // events (an imported CSV that carries no wheel identity): the
+                // section then just says so, rather than silently vanishing.
+                if ("extra" !in hiddenCharts) {
                     Spacer(Modifier.height(12.dp))
                     TripDetailsSection(extraEvents)
                 }
+            }
+
+            // Display names for the customizer sheet, reusing the same tile and
+            // chart strings the cards already use so nothing is duplicated.
+            val tileLabels: Map<String, String> = mapOf(
+                "distance" to stringResource(R.string.recording_summary_distance),
+                "duration" to stringResource(R.string.recording_summary_duration),
+                "points" to stringResource(R.string.recording_summary_points),
+                "topSpeed" to stringResource(R.string.recording_summary_top_speed),
+                "avgSpeed" to stringResource(R.string.recording_summary_avg_speed),
+                "avgMoving" to stringResource(R.string.recording_summary_avg_moving),
+                // Generic label for the sheet only: the real tile still shows the
+                // per-trip "Battery (-X%)"; the customizer must stay value-free.
+                "battery" to stringResource(R.string.metric_chip_battery),
+                "voltage" to stringResource(R.string.recording_summary_voltage),
+                "maxTemp" to stringResource(R.string.recording_summary_max_temp),
+                "maxPwm" to stringResource(R.string.recording_summary_max_pwm),
+                "maxCurrent" to stringResource(R.string.recording_summary_max_current),
+                "maxPower" to stringResource(R.string.recording_summary_max_power),
+            )
+            val chartLabels: Map<String, String> = mapOf(
+                "speed" to stringResource(R.string.recording_chart_speed, speedUnitLabel),
+                "battery" to stringResource(R.string.recording_chart_battery),
+                "temp" to stringResource(R.string.recording_chart_temp, tempUnitLabel),
+                "voltage" to stringResource(R.string.recording_chart_voltage),
+                "current" to stringResource(R.string.recording_chart_current),
+                "pwm" to stringResource(R.string.recording_chart_pwm),
+            )
+
+            if (showCustomize) {
+                CustomizeSheet(
+                    hiddenTiles = hiddenTiles,
+                    tileOrder = effectiveTileOrder,
+                    tileLabels = tileLabels,
+                    hiddenCharts = hiddenCharts,
+                    chartOrder = effectiveChartOrder,
+                    chartLabels = chartLabels,
+                    onToggleTile = { key, hidden -> viewModel.setTileHidden(key, hidden) },
+                    onToggleChart = { key, hidden -> viewModel.setChartHidden(key, hidden) },
+                    onReorderTiles = { viewModel.setTileOrder(it) },
+                    onReorderCharts = { viewModel.setChartOrder(it) },
+                    canReset = hiddenTiles.isNotEmpty() || hiddenCharts.isNotEmpty() ||
+                        savedTileOrder.isNotEmpty() || savedChartOrder.isNotEmpty(),
+                    onReset = { viewModel.resetTripLayout() },
+                    onDismiss = { showCustomize = false },
+                )
             }
 
             if (landscape) {
@@ -519,6 +657,228 @@ fun TripDetailScreen(
     }
 }
 
+/**
+ * Final key order for a customizable list (shared by the stat tiles and the
+ * graphs so the two can never drift). Iterates [savedOrder], keeping only keys
+ * that still exist in [defaultKeys] (a removed/renamed key is dropped), then
+ * appends every current key NOT already listed, in default declaration order.
+ *
+ * Consequences, by design:
+ *  - An empty [savedOrder] means "all keys in default order".
+ *  - A key added in a future app version isn't in any saved order yet, so it
+ *    appears automatically at the end. Visibility is a separate hidden-set (a
+ *    key absent from the hidden set is shown), so the new key defaults to shown.
+ */
+private fun applyOrder(defaultKeys: List<String>, savedOrder: List<String>): List<String> {
+    val known = defaultKeys.toSet()
+    val saved = savedOrder.filter { it in known }
+    return saved + defaultKeys.filter { it !in saved }
+}
+
+/**
+ * Tappable section header for the Customize sheet: the section title on the left
+ * and a chevron on the right that reflects (and toggles) the expanded state.
+ */
+@Composable
+private fun CustomizeSectionHeader(
+    title: String,
+    expanded: Boolean,
+    onToggle: () -> Unit,
+) {
+    Row(
+        Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(8.dp))
+            .clickable(onClick = onToggle)
+            .padding(vertical = 8.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Text(
+            title,
+            modifier = Modifier.weight(1f),
+            style = MaterialTheme.typography.titleSmall,
+            color = MaterialTheme.appColors.textSecondary,
+        )
+        Icon(
+            if (expanded) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
+            contentDescription = null,
+            tint = MaterialTheme.appColors.textSecondary,
+        )
+    }
+}
+
+/**
+ * Trip Details "Customize" bottom sheet. Two collapsible reorderable sections,
+ * stat tiles and graphs: each row has a drag handle (left) to set order and a
+ * switch (right) to show or hide it. "Extra details" is its own single-toggle
+ * section below. Edits persist immediately through the ViewModel, so the live
+ * screen updates live.
+ */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun CustomizeSheet(
+    hiddenTiles: Set<String>,
+    tileOrder: List<String>,
+    tileLabels: Map<String, String>,
+    hiddenCharts: Set<String>,
+    chartOrder: List<String>,
+    chartLabels: Map<String, String>,
+    onToggleTile: (String, Boolean) -> Unit,
+    onToggleChart: (String, Boolean) -> Unit,
+    onReorderTiles: (List<String>) -> Unit,
+    onReorderCharts: (List<String>) -> Unit,
+    canReset: Boolean,
+    onReset: () -> Unit,
+    onDismiss: () -> Unit,
+) {
+    val haptic = LocalHapticFeedback.current
+    // Sections default expanded; each header's chevron toggles its own list.
+    var tilesExpanded by remember { mutableStateOf(true) }
+    var chartsExpanded by remember { mutableStateOf(true) }
+    ModalBottomSheet(onDismissRequest = onDismiss) {
+        Column(
+            Modifier
+                .fillMaxWidth()
+                .verticalScroll(rememberScrollState())
+                .padding(horizontal = 20.dp)
+                .padding(bottom = 24.dp)
+        ) {
+            Text(
+                stringResource(R.string.trip_customize),
+                style = MaterialTheme.typography.titleLarge,
+                color = MaterialTheme.appColors.textPrimary,
+            )
+
+            Spacer(Modifier.height(8.dp))
+            CustomizeSectionHeader(
+                title = stringResource(R.string.trip_customize_tiles),
+                expanded = tilesExpanded,
+                onToggle = { tilesExpanded = !tilesExpanded },
+            )
+            if (tilesExpanded) {
+                ReorderableColumn(
+                    list = tileOrder,
+                    onSettle = { from, to ->
+                        onReorderTiles(tileOrder.toMutableList().apply { add(to, removeAt(from)) })
+                    },
+                    onMove = { haptic.performHapticFeedback(HapticFeedbackType.LongPress) },
+                    modifier = Modifier.fillMaxWidth(),
+                ) { _, tileKey, _ ->
+                    key(tileKey) {
+                        // Each tile row: drag handle (left), name, show/hide switch.
+                        Row(
+                            Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 2.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            Icon(
+                                Icons.Default.DragHandle,
+                                contentDescription = stringResource(R.string.action_reorder),
+                                tint = MaterialTheme.appColors.textSecondary,
+                                modifier = Modifier.draggableHandle().size(24.dp),
+                            )
+                            Spacer(Modifier.width(12.dp))
+                            Text(
+                                tileLabels[tileKey] ?: tileKey,
+                                modifier = Modifier.weight(1f),
+                                color = MaterialTheme.appColors.textPrimary,
+                            )
+                            Switch(
+                                checked = tileKey !in hiddenTiles,
+                                onCheckedChange = { onToggleTile(tileKey, !it) },
+                                colors = themedSwitchColors(),
+                            )
+                        }
+                    }
+                }
+            }
+
+            Spacer(Modifier.height(8.dp))
+            CustomizeSectionHeader(
+                title = stringResource(R.string.trip_customize_graphs),
+                expanded = chartsExpanded,
+                onToggle = { chartsExpanded = !chartsExpanded },
+            )
+            if (chartsExpanded) {
+                ReorderableColumn(
+                    list = chartOrder,
+                    onSettle = { from, to ->
+                        onReorderCharts(chartOrder.toMutableList().apply { add(to, removeAt(from)) })
+                    },
+                    onMove = { haptic.performHapticFeedback(HapticFeedbackType.LongPress) },
+                    modifier = Modifier.fillMaxWidth(),
+                ) { _, chartKey, _ ->
+                    key(chartKey) {
+                        // Each graph row: drag handle (left), name, show/hide switch.
+                        Row(
+                            Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 2.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            Icon(
+                                Icons.Default.DragHandle,
+                                contentDescription = stringResource(R.string.action_reorder),
+                                tint = MaterialTheme.appColors.textSecondary,
+                                modifier = Modifier.draggableHandle().size(24.dp),
+                            )
+                            Spacer(Modifier.width(12.dp))
+                            Text(
+                                chartLabels[chartKey] ?: chartKey,
+                                modifier = Modifier.weight(1f),
+                                color = MaterialTheme.appColors.textPrimary,
+                            )
+                            Switch(
+                                checked = chartKey !in hiddenCharts,
+                                onCheckedChange = { onToggleChart(chartKey, !it) },
+                                colors = themedSwitchColors(),
+                            )
+                        }
+                    }
+                }
+            }
+
+            // "Extra details" is its own section: a single label + switch, so it
+            // isn't collapsible (nothing to expand). It stays wired to the chart
+            // hidden set under the "extra" key and renders pinned last on the trip
+            // screen. The label appears exactly once, styled like a section title.
+            Spacer(Modifier.height(8.dp))
+            Row(
+                Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 8.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text(
+                    stringResource(R.string.recording_details_section),
+                    modifier = Modifier.weight(1f),
+                    style = MaterialTheme.typography.titleSmall,
+                    color = MaterialTheme.appColors.textSecondary,
+                )
+                Switch(
+                    checked = "extra" !in hiddenCharts,
+                    onCheckedChange = { onToggleChart("extra", !it) },
+                    colors = themedSwitchColors(),
+                )
+            }
+
+            // Restore the whole layout (all tiles and graphs shown, default
+            // order). Left-aligned with the Restore icon and the app's plain
+            // "Reset" verb, matching the metric-detail reset footer. Greyed out
+            // when nothing differs from default.
+            Spacer(Modifier.height(4.dp))
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Start) {
+                TextButton(onClick = onReset, enabled = canReset, shape = RoundedCornerShape(12.dp)) {
+                    Icon(Icons.Default.Restore, contentDescription = null, modifier = Modifier.size(18.dp))
+                    Spacer(Modifier.width(6.dp))
+                    Text(stringResource(R.string.action_reset))
+                }
+            }
+        }
+    }
+}
+
 @Composable
 private fun SummaryCard(
     label: String,
@@ -568,17 +928,28 @@ private fun TripDetailsSection(events: List<TripExtraEvent>) {
                     stringResource(R.string.recording_details_section),
                     fontSize = 13.sp,
                     fontWeight = FontWeight.Medium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.weight(1f)
-                )
-                Text(
-                    "${events.size}",
-                    fontSize = 13.sp,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
             Column(Modifier.padding(start = 12.dp, end = 12.dp, bottom = 10.dp)) {
+                if (events.isEmpty()) {
+                    // Imported trips (and any recording that never captured a wheel
+                    // identity) have nothing to list, so state that plainly.
+                    Text(
+                        stringResource(R.string.recording_details_none),
+                        fontSize = 11.sp,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                    return@Column
+                }
+                // The first wheel identity is the ride start (green, matching the
+                // map's green start marker); every later wheel is a mid-ride change
+                // (purple, matching its purple map circle). Only changes get a
+                // marker on the map - the first wheel lives on the start point.
+                var firstWheelSeen = false
                 events.forEach { e ->
+                    val isFirstWheel = e.isWheelStart && !firstWheelSeen
+                    if (e.isWheelStart) firstWheelSeen = true
                     Row {
                         Text(
                             e.time,
@@ -590,8 +961,11 @@ private fun TripDetailsSection(events: List<TripExtraEvent>) {
                             e.text,
                             fontSize = 11.sp,
                             fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace,
-                            color = if (e.isWheelStart) MaterialTheme.appColors.statusGood
-                                else MaterialTheme.colorScheme.onSurface,
+                            color = when {
+                                isFirstWheel -> MaterialTheme.appColors.statusGood
+                                e.isWheelStart -> MaterialTheme.appColors.wheelChange
+                                else -> MaterialTheme.colorScheme.onSurface
+                            },
                             modifier = Modifier.padding(start = 8.dp)
                         )
                     }
@@ -935,7 +1309,8 @@ private fun buildMapHtml(coordsJson: String, switchesJson: String, startLabelJs:
   function render(){
     if (hasRoute){
       // Split the trace at mid-ride wheel changes: the first wheel keeps the
-      // blue trace, every later wheel's stretch is drawn yellow.
+      // blue trace, every later wheel's stretch is drawn purple (distinct from
+      // the amber live / scrub position marker).
       var cuts = switches.map(function(s){return s.idx;})
         .filter(function(i){return i>0 && i<coords.length;})
         .sort(function(a,b){return a-b;});
@@ -943,7 +1318,7 @@ private fun buildMapHtml(coordsJson: String, switchesJson: String, startLabelJs:
       for (var k=0;k<=cuts.length;k++){
         var stop = (k<cuts.length)?cuts[k]:coords.length-1;
         if (stop>prev) L.polyline(coords.slice(prev,stop+1),
-          {color:k===0?'#4FC3F7':'#FFC107',weight:4,interactive:false}).addTo(map);
+          {color:k===0?'#4FC3F7':'#AB47BC',weight:4,interactive:false}).addTo(map);
         prev = stop;
       }
       map.fitBounds(L.latLngBounds(coords).pad(0.2));
@@ -1013,11 +1388,12 @@ private fun buildMapHtml(coordsJson: String, switchesJson: String, startLabelJs:
   };
 
   render();
-  // Mid-ride wheel changes: same yellow circle for every change, each with
-  // its own popup (time + the wheel that took over). Added after render()
-  // so the circles stack above the trace and keep their tap target.
+  // Mid-ride wheel changes: a purple circle for every change (distinct from
+  // the amber live / scrub position marker), each with its own popup (time +
+  // the wheel that took over). Added after render() so the circles stack
+  // above the trace and keep their tap target.
   switches.forEach(function(s){
-    L.circleMarker([s.lat,s.lon],{radius:7,color:'#000',weight:2,fillColor:'#FFC107',fillOpacity:1})
+    L.circleMarker([s.lat,s.lon],{radius:7,color:'#000',weight:2,fillColor:'#AB47BC',fillOpacity:1})
       .addTo(map).bindPopup(s.label);
   });
   ${if (isLive) "/* live mode: waiting for updateLivePoint() */" else ""}

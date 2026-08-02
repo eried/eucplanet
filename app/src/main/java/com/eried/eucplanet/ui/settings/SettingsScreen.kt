@@ -7651,6 +7651,8 @@ private fun CloudTab(
 
             SectionHeader(stringResource(R.string.section_cloud_trips))
             HintText(stringResource(R.string.cloud_trips_caption))
+            var showResetLocalDialog by remember { mutableStateOf(false) }
+            val hasLocalTrips by viewModel.hasLocalTrips.collectAsState()
             Row(
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
                 modifier = Modifier.fillMaxWidth()
@@ -7663,7 +7665,45 @@ private fun CloudTab(
                 ) {
                     Text(stringResource(R.string.cloud_retry_now))
                 }
-                Spacer(modifier = Modifier.weight(1f))
+                // Wipes only the phone's local trips (files + DB), never the
+                // backup folder, so it sits beside Sync all as its counterpart.
+                Button(
+                    onClick = { showResetLocalDialog = true },
+                    enabled = !syncRunning && hasLocalTrips,
+                    modifier = Modifier.weight(1f),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.appColors.statusDanger,
+                        contentColor = MaterialTheme.appColors.onPrimary
+                    ),
+                    shape = RoundedCornerShape(12.dp)
+                ) {
+                    Text(stringResource(R.string.cloud_reset_local))
+                }
+            }
+            if (showResetLocalDialog) {
+                AlertDialog(
+                    onDismissRequest = { showResetLocalDialog = false },
+                    shape = RoundedCornerShape(12.dp),
+                    title = { Text(stringResource(R.string.cloud_reset_local_title)) },
+                    text = { Text(stringResource(R.string.cloud_reset_local_body)) },
+                    confirmButton = {
+                        TextButton(
+                            onClick = { viewModel.resetLocalTrips { showResetLocalDialog = false } },
+                            shape = RoundedCornerShape(12.dp)
+                        ) {
+                            Text(
+                                stringResource(R.string.action_delete_all),
+                                color = MaterialTheme.appColors.statusDanger
+                            )
+                        }
+                    },
+                    dismissButton = {
+                        TextButton(
+                            onClick = { showResetLocalDialog = false },
+                            shape = RoundedCornerShape(12.dp)
+                        ) { Text(stringResource(R.string.action_cancel)) }
+                    }
+                )
             }
             val activeSyncKind by viewModel.activeSyncKind.collectAsState()
             val showFolderProgress = syncRunning &&

@@ -468,7 +468,7 @@
     <string name="cloud_restore_success">Einstellungen wiederhergestellt</string>
     <string name="cloud_restore_failed">Kein Backup im Ordner gefunden</string>
     <string name="section_cloud_trips">Fahrten-Backup</string>
-    <string name="cloud_trips_caption">Neue Fahrten werden automatisch in deinem Ordner gespeichert</string>
+    <string name="cloud_trips_caption">Fahrten werden auf diesem Telefon gespeichert und automatisch in deinen Backup-Ordner kopiert. Wenn du sie hier löschst, wird nur die Kopie auf dem Telefon entfernt; dein Backup bleibt erhalten.</string>
     <string name="cloud_retry_now">Alle sync.</string>
     <string name="cloud_retry_enqueued">Upload geplant</string>
     <string name="sync_progress">Synchronisiere %1$d von %2$d</string>
@@ -2028,4 +2028,12 @@
     <string name="accel_split_slower_best">, %1$s langsamer als Bestwert</string>
     <string name="accel_split_best_yet">, neuer Bestwert</string>
     <string name="report_contents">Sprachbericht anpassen</string>
+    <string name="trip_customize">Anpassen</string>
+    <string name="trip_customize_tiles">Kacheln</string>
+    <string name="trip_customize_graphs">Diagramme</string>
+    <string name="recording_details_section">Weitere Details</string>
+    <string name="recording_details_none">Für diese Fahrt wurde kein Wheel gemeldet.</string>
+    <string name="cloud_reset_local">Lokale Fahrten löschen</string>
+    <string name="cloud_reset_local_title">Lokale Fahrten löschen?</string>
+    <string name="cloud_reset_local_body">Entfernt alle auf diesem Telefon gespeicherten Fahrten. Dein Backup-Ordner bleibt unberührt, synchronisierte Fahrten lassen sich von dort wiederherstellen.</string>
 </resources>

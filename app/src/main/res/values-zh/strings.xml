@@ -125,7 +125,7 @@
     <string name="cloud_restore_success">设置已恢复</string>
     <string name="cloud_restore_failed">文件夹中未找到备份</string>
     <string name="section_cloud_trips">行程备份</string>
-    <string name="cloud_trips_caption">新行程会自动保存到您的文件夹。</string>
+    <string name="cloud_trips_caption">行程保存在本机上，并会自动复制到您的备份文件夹。在此清除只会删除本机上的副本，备份仍会保留。</string>
     <string name="cloud_retry_now">全部同步</string>
     <string name="cloud_retry_enqueued">上传已排队</string>
     <string name="cloud_uploaded_on">于 %1$s 备份</string>
@@ -1875,4 +1875,12 @@
     <string name="accel_split_slower_best">，比最佳慢 %1$s</string>
     <string name="accel_split_best_yet">，最佳成绩</string>
     <string name="report_contents">自定义语音播报</string>
+    <string name="trip_customize">自定义</string>
+    <string name="trip_customize_tiles">卡片</string>
+    <string name="trip_customize_graphs">图表</string>
+    <string name="recording_details_section">额外详情</string>
+    <string name="recording_details_none">本次骑行未记录独轮车。</string>
+    <string name="cloud_reset_local">清除本地行程</string>
+    <string name="cloud_reset_local_title">清除本地行程？</string>
+    <string name="cloud_reset_local_body">移除保存在本机上的所有行程。您的备份文件夹不受影响，已同步的行程可从那里恢复。</string>
 </resources>
