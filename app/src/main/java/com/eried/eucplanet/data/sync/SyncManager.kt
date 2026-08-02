@@ -275,7 +275,7 @@ class SyncManager @Inject constructor(
 
         val total = toUpload.size + toDownload.size
         if (total == 0) {
-            _syncResult.value = SyncResult.Finished(0)
+            _syncResult.value = SyncResult.UpToDate
             return
         }
 
@@ -974,8 +974,18 @@ class SyncManager @Inject constructor(
             ?.toList().orEmpty()
         val localByLower = localFiles.associateBy { it.name.lowercase() }
         val remoteByLower = remote.keys.associateBy { it.lowercase() }
+        val remoteMetaByLower = remote.entries.associate { it.key.lowercase() to it.value }
 
-        val conflictKeys = remoteByLower.keys intersect localByLower.keys
+        // A same-name file is a real conflict only when its CONTENT differs (byte
+        // size). Same name + same size means it is already synced, so it is
+        // neither a conflict nor work. Previously every already-synced trip was
+        // flagged as a conflict, so the dialog popped for nothing and "Skip all"
+        // still left genuinely new/changed trips to upload - hence "0 trips" yet
+        // one still synced. This now matches the background worker's size check.
+        val bothNames = remoteByLower.keys intersect localByLower.keys
+        val conflictKeys = bothNames.filterTo(HashSet()) { key ->
+            (localByLower[key]?.length() ?: -1L) != (remoteMetaByLower[key]?.size ?: -2L)
+        }
         val remoteOnly = remoteByLower.keys - localByLower.keys
         val localOnly = localByLower.keys - remoteByLower.keys
 
@@ -1017,7 +1027,11 @@ class SyncManager @Inject constructor(
         // Dropbox host stops resolving and every upload throws. Previously the
         // result was ignored, so a half-skipped sync still reported "Finished".
         var failed = 0
-        _syncProgress.value = done to total
+        // Only show the determinate "X of Y" bar when there are trips to move.
+        // When total is 0 (everything already backed up) it stays on the
+        // indeterminate "Checking" state while settings/themes mirror, instead of
+        // a meaningless "0 of 0".
+        if (total > 0) _syncProgress.value = done to total
         // Seed the pending-count indicator with the trips to upload, then
         // decrement live as each one lands so the count reflects trips remaining.
         settingsRepository.update {
@@ -1085,7 +1099,12 @@ class SyncManager @Inject constructor(
                     dropboxSyncTotal = 0,
                 )
             }
-            _syncResult.value = SyncResult.Finished(total + extra)
+            // "Synchronized N trips" counts TRIPS only, not the settings.json /
+            // themes / overlays mirror (extra) - counting those made an all-synced
+            // pass that merely refreshed settings report "1 trip". When no trip
+            // moved, say "already up to date" instead of "0 trips".
+            _syncResult.value =
+                if (total == 0) SyncResult.UpToDate else SyncResult.Finished(total)
         } else {
             // Hand the skipped trips to the retry worker (missing/newer only), so
             // they upload once the network is back instead of being silently lost.
