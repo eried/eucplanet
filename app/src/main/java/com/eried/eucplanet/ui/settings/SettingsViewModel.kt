@@ -1118,7 +1118,7 @@ class SettingsViewModel @Inject constructor(
         "WH_CONSUMED", "RANGE_ESTIMATE", "WH_PER_KM",
         // Phone + GPS feeds — sourced outside WheelData.
         "PHONE_BATTERY", "GPS_ALTITUDE", "GPS_SPEED", "GPS_HEADING",
-        "GPS_ACCURACY",
+        "GPS_ACCURACY", "EXTERNAL_GPS_BATTERY",
         // Derived motion + pack health — slope/altitude integration and
         // wheel-firmware fields some boards expose.
         "SLOPE", "ASCENT", "DESCENT", "MOTOR_RPM", "REGEN_WH",

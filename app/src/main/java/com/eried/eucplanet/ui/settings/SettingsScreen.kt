@@ -5815,7 +5815,7 @@ private fun metricPlaceholderValue(
         "mil" -> "0 Wh/mil"
         else -> "0 Wh/km"
     }
-    "PHONE_BATTERY" -> "0%"
+    "PHONE_BATTERY", "EXTERNAL_GPS_BATTERY" -> "0%"
     "GPS_ALTITUDE" -> if (s.unitDistance == "mi") "0 ft" else "0 m"
     "GPS_HEADING" -> "0°"
     "GPS_ACCURACY" -> if (s.unitDistance == "mi") "0 ft" else "0 m"
