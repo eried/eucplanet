@@ -24,14 +24,19 @@ class InMotionV1Adapter @Inject constructor() : WheelAdapter {
     override val familyDisplayName = "InMotion V1 / V3 / V5 / V8"
     override val capabilities = WheelCapabilities.INMOTION_V1
 
+    companion object {
+        /** Factory PIN InMotion V1 wheels ship with; sent on connect when no
+         *  custom PIN is set. Wheels with no PIN configured ignore it. */
+        private const val DEFAULT_PIN = "000000"
+    }
+
     @Volatile private var detectedModel: InMotionV1Model? = null
 
     /**
-     * Optional 6-digit PIN for the V1 auth handshake (spec section 7). When
-     * non-null the adapter sends it on connect; the wheel ignores it when no
-     * PIN is configured, so it is safe to always send. UI plumbing for
-     * setting this is out of scope for this commit; the field stays null
-     * until a "Saved PINs" preference path lands.
+     * 6-digit PIN for the V1 auth handshake (spec section 7). null means "use
+     * the factory default" ([DEFAULT_PIN]); a future "Saved PINs" preference
+     * can set a custom one here. The handshake is sent on every connect - the
+     * wheel ignores it when no PIN is configured, so it is safe to always send.
      */
     @Volatile var pin: String? = null
 
@@ -55,13 +60,17 @@ class InMotionV1Adapter @Inject constructor() : WheelAdapter {
     }
 
     /**
-     * Slow-info first so the model code + serial come back before realtime
-     * polling begins. PIN goes ahead of slow-info on firmwares that gate
-     * settings reads behind it; harmless on the rest.
+     * PIN handshake first, then slow-info. The V8S sits in an identity-only
+     * state (broadcasting 0x0F060101, never fast-info) for ~30 s after power-on
+     * until it receives the PIN; the app never sent one (the pin field was
+     * always null), so it waited out the wheel's boot on every connect. Always
+     * send the PIN now, defaulting to the factory 000000 - a wheel with no PIN
+     * configured ignores it (spec section 7), so it is safe. Slow-info follows
+     * so the model code + serial come back before realtime polling begins.
      */
     override fun initSequence(): List<ByteArray> {
         val out = mutableListOf<ByteArray>()
-        pin?.let { out += InMotionV1Commands.sendPin(it) }
+        out += InMotionV1Commands.sendPin(pin ?: DEFAULT_PIN)
         out += InMotionV1Commands.getSlowInfo()
         return out
     }
