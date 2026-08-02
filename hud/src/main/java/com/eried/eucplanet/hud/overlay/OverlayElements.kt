@@ -97,6 +97,16 @@ fun OverlayElementRenderer(element: OverlayElement, data: StudioElementData) {
 
 // ---------- DATA_VALUE --------------------------------------------------
 
+/** GPS-fix-dependent metrics show a lock-lost dot when their source has no fix
+ *  (box/phone connected but not locked). Battery is included on purpose: it now
+ *  keeps showing through a lock loss, so the dot is how the rider still sees the
+ *  external box lost its lock. */
+private fun StudioMetric.gpsLockLost(data: StudioElementData): Boolean = when (this) {
+    StudioMetric.EXTERNAL_GPS_SPEED, StudioMetric.EXTERNAL_GPS_BATTERY -> !data.externalGpsHasFix
+    StudioMetric.GPS_SPEED, StudioMetric.GPS -> !data.gpsHasFix
+    else -> false
+}
+
 @Composable
 private fun DataValueElement(element: OverlayElement, data: StudioElementData) {
     val context = LocalContext.current
@@ -107,6 +117,18 @@ private fun DataValueElement(element: OverlayElement, data: StudioElementData) {
             .padding(horizontal = 12.dp, vertical = 8.dp)
     ) {
         val w = maxWidth.value
+        // Lock-lost dot: a GPS metric whose source has no fix gets a small red
+        // dot in the top-right corner. The value itself blanks/persists as usual
+        // (position/speed blank; external battery keeps showing), and this dot is
+        // the explicit "GPS lock lost" cue.
+        if (metric.gpsLockLost(data)) {
+            Box(
+                Modifier
+                    .align(Alignment.TopEnd)
+                    .size((w * 0.11f).coerceIn(6f, 12f).dp)
+                    .background(Color(0xFFFF4444), CircleShape)
+            )
+        }
         val align = when (element.textAlign) {
             "CENTER" -> Alignment.CenterHorizontally
             "END" -> Alignment.End

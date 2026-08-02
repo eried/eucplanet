@@ -40,6 +40,12 @@ data class ExternalGpsSample(
     /** True when the box reports it is charging, false when on battery, null
      *  when unknown or not reported (Dragy's status byte is percent-only). */
     val charging: Boolean? = null,
+    /** True when this sample has a valid GPS fix (position/speed are usable).
+     *  A box can stay connected over BLE and keep reporting battery while it has
+     *  NO lock - such a sample is emitted with hasFix=false so battery survives a
+     *  lock loss, and position/speed consumers skip it. Defaults true so adapters
+     *  that only ever emit on a fix (RaceBox) are unaffected. */
+    val hasFix: Boolean = true,
     val timestamp: Long = System.currentTimeMillis()
 )
 

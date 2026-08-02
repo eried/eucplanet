@@ -707,7 +707,11 @@ class TripRepository @Inject constructor(
                 val extSample = externalGpsRepository.currentSample.value
                 val extSpeed = extSample
                     ?.takeIf {
-                        settingsRepository.get().gpsPrioritizeExternal &&
+                        // A no-fix sample (box connected but no lock) carries only
+                        // battery; its speed is 0/invalid, so skip it and let the
+                        // column fall back to the phone's GPS speed.
+                        it.hasFix &&
+                            settingsRepository.get().gpsPrioritizeExternal &&
                             System.currentTimeMillis() - it.timestamp < recordIntervalMs * 3
                     }
                     ?.speedKmh

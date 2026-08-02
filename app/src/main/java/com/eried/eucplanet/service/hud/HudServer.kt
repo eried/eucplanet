@@ -855,12 +855,15 @@ class HudServer @Inject constructor(
 
         val externalFresh = external != null &&
             System.currentTimeMillis() - external.timestamp < 5_000L
+        // The box can stay connected + fresh (battery still reported) while it
+        // has NO GPS lock; only trust its speed/position when it has a fix.
+        val externalHasFix = externalFresh && external!!.hasFix
         val gpsSpeedPair: Pair<Float, String>? = when {
-            s.gpsPrioritizeExternal && externalFresh ->
+            s.gpsPrioritizeExternal && externalHasFix ->
                 external!!.speedKmh to "EXTERNAL"
             location != null && location.hasSpeed() ->
                 (location.speed * 3.6f) to "PHONE"
-            !s.gpsPrioritizeExternal && externalFresh ->
+            !s.gpsPrioritizeExternal && externalHasFix ->
                 external!!.speedKmh to "EXTERNAL"
             else -> null
         }
@@ -923,8 +926,12 @@ class HudServer @Inject constructor(
             // both overlay metrics at once (the primary gpsSpeedKmh above only
             // carries whichever source won the priority pick).
             phoneGpsSpeedKmh = if (location?.hasSpeed() == true) location.speed * 3.6f else Float.NaN,
-            externalGpsSpeedKmh = if (externalFresh) external!!.speedKmh else Float.NaN,
+            externalGpsSpeedKmh = if (externalHasFix) external!!.speedKmh else Float.NaN,
             gpsHasFix = location != null,
+            // False only when the external box is connected + fresh but has no
+            // lock, so the HUD can flag lock-lost on its GPS metrics while the
+            // (separately polled) battery keeps showing.
+            externalGpsHasFix = !externalFresh || external!!.hasFix,
             gpsHeadingDeg = if (location?.hasBearing() == true) location.bearing
                 else Float.NaN,
             gpsAltitudeM = if (location?.hasAltitude() == true) location.altitude.toFloat()

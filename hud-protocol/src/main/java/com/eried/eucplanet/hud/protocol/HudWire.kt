@@ -104,6 +104,11 @@ data class HudState(
     val externalGpsSpeedKmh: Float = Float.NaN,
     /** True when the phone has any fresh GPS fix at all (any source). */
     val gpsHasFix: Boolean = false,
+    /** False only when the external GPS box is connected + fresh but has NO
+     *  lock (battery still reported). Wired in minor 16 so the HUD can show a
+     *  lock-lost dot on external-GPS metrics; defaults true on older HUDs (no
+     *  dot). */
+    val externalGpsHasFix: Boolean = true,
     /** Current heading in degrees, 0 = north, +clockwise. NaN when the GPS
      *  hasn't reported a bearing yet. The HUD uses this to rotate the map
      *  so the rider's direction of travel always points up. */
@@ -289,8 +294,11 @@ data class HudState(
          *    [HudState.phoneGpsSpeedKmh] / [HudState.externalGpsSpeedKmh] so a HUD
          *    can show phone AND external GPS speed at once. Older HUDs default
          *    these and fall back to the prior single-source behaviour.
+         * 16: added [HudState.externalGpsHasFix] so the HUD can flag a lock-lost
+         *    external GPS box (its battery keeps showing, position/speed don't).
+         *    Older HUDs default it true and simply show no lock-lost dot.
          */
-        const val PROTOCOL_MINOR: Int = 15
+        const val PROTOCOL_MINOR: Int = 16
 
         /** Legacy alias. New code should read [PROTOCOL_MAJOR] / [PROTOCOL_MINOR]. */
         @Deprecated(

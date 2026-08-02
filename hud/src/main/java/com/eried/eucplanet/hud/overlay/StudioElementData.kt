@@ -29,6 +29,11 @@ data class StudioElementData(
     val longitude: Double = 0.0,
     /** Heading degrees (0 = north, +clockwise). NaN when no bearing. */
     val gpsHeadingDeg: Float = Float.NaN,
+    /** Phone GPS fix state; false flags a lock-lost dot on phone-GPS metrics. */
+    val gpsHasFix: Boolean = true,
+    /** External GPS box fix state; false (box connected but no lock) flags a
+     *  lock-lost dot on the external-GPS metrics while battery keeps showing. */
+    val externalGpsHasFix: Boolean = true,
     /** Rider's accent colour as ARGB. */
     val accentArgb: Long = 0xFF00C853L,
     /** Rear-view radar: true when a radar is paired and linked. Lets the
@@ -91,6 +96,8 @@ data class StudioElementData(
                 latitude = hud.latitude,
                 longitude = hud.longitude,
                 gpsHeadingDeg = hud.gpsHeadingDeg,
+                gpsHasFix = hud.gpsHasFix,
+                externalGpsHasFix = hud.externalGpsHasFix,
                 accentArgb = parseArgbStringToLong(hud.accentArgb),
                 radarConnected = hud.radarConnected,
                 radarBatteryPercent = hud.radarBatteryPercent,

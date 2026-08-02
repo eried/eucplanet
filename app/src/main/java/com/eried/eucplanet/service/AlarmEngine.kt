@@ -316,7 +316,10 @@ class AlarmEngine @Inject constructor(
         return try {
             when (AlarmMetric.valueOf(metric)) {
                 AlarmMetric.EXTERNAL_GPS_BATTERY -> sample.batteryPercent?.toFloat()
-                AlarmMetric.EXTERNAL_GPS_SPEED -> sample.speedKmh
+                // No lock -> speed is invalid; return null so the evaluator SKIPs
+                // it (battery still evaluates, so a low-battery alarm fires even
+                // without a GPS fix).
+                AlarmMetric.EXTERNAL_GPS_SPEED -> sample.speedKmh.takeIf { sample.hasFix }
                 else -> null
             }
         } catch (_: Exception) { null }

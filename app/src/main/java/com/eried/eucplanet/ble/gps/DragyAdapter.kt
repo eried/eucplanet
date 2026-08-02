@@ -178,7 +178,24 @@ class DragyAdapter @Inject constructor() : ExternalGpsAdapter {
                     "(fixType 0/1 = no GPS fix yet; needs open sky)"
             )
         }
-        if (fixType != 2 && fixType != 3 && fixType != 4) return null
+        if (fixType != 2 && fixType != 3 && fixType != 4) {
+            // No GPS lock - but the box is alive on BLE and its battery poll
+            // (FD04) keeps updating. NAV-PVT still streams at 10 Hz with
+            // fixType 0/1, so emit a no-fix sample that carries the battery
+            // (and sat count) instead of dropping it. This keeps the battery
+            // reading fresh on the dashboard / HUD through a lock loss;
+            // position + speed are omitted and consumers skip them via hasFix.
+            return ExternalGpsSample(
+                source = ExternalGpsSource.DRAGY,
+                speedKmh = 0f,
+                latitude = 0.0,
+                longitude = 0.0,
+                altitudeMeters = 0f,
+                numSatellites = numSV,
+                batteryPercent = lastBatteryPct,
+                hasFix = false,
+            )
+        }
         if (!loggedFirstFix) {
             loggedFirstFix = true
             DiagnosticsLogger.note("dragy: first GPS fix, sats=$numSV")
