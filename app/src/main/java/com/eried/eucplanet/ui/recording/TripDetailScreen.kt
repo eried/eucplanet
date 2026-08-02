@@ -37,6 +37,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.DragHandle
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.Layers
 import androidx.compose.material.icons.filled.Fullscreen
 import androidx.compose.material.icons.filled.FullscreenExit
@@ -548,7 +550,9 @@ fun TripDetailScreen(
                 "topSpeed" to stringResource(R.string.recording_summary_top_speed),
                 "avgSpeed" to stringResource(R.string.recording_summary_avg_speed),
                 "avgMoving" to stringResource(R.string.recording_summary_avg_moving),
-                "battery" to stringResource(R.string.recording_summary_battery, batteryStats.batteryConsumption),
+                // Generic label for the sheet only: the real tile still shows the
+                // per-trip "Battery (-X%)"; the customizer must stay value-free.
+                "battery" to stringResource(R.string.metric_chip_battery),
                 "voltage" to stringResource(R.string.recording_summary_voltage),
                 "maxTemp" to stringResource(R.string.recording_summary_max_temp),
                 "maxPwm" to stringResource(R.string.recording_summary_max_pwm),
@@ -664,10 +668,43 @@ private fun applyOrder(defaultKeys: List<String>, savedOrder: List<String>): Lis
 }
 
 /**
- * Trip Details "Customize" bottom sheet. Two reorderable sections, stat tiles and
- * graphs: each row has a drag handle (left) to set order and a switch (right) to
- * show or hide it. "Extra details" is pinned below the graphs, switch only. Edits
- * persist immediately through the ViewModel, so the live screen updates live.
+ * Tappable section header for the Customize sheet: the section title on the left
+ * and a chevron on the right that reflects (and toggles) the expanded state.
+ */
+@Composable
+private fun CustomizeSectionHeader(
+    title: String,
+    expanded: Boolean,
+    onToggle: () -> Unit,
+) {
+    Row(
+        Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(8.dp))
+            .clickable(onClick = onToggle)
+            .padding(vertical = 8.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Text(
+            title,
+            modifier = Modifier.weight(1f),
+            style = MaterialTheme.typography.titleSmall,
+            color = MaterialTheme.appColors.textSecondary,
+        )
+        Icon(
+            if (expanded) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
+            contentDescription = null,
+            tint = MaterialTheme.appColors.textSecondary,
+        )
+    }
+}
+
+/**
+ * Trip Details "Customize" bottom sheet. Two collapsible reorderable sections,
+ * stat tiles and graphs: each row has a drag handle (left) to set order and a
+ * switch (right) to show or hide it. "Extra details" is its own single-toggle
+ * section below. Edits persist immediately through the ViewModel, so the live
+ * screen updates live.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -685,6 +722,9 @@ private fun CustomizeSheet(
     onDismiss: () -> Unit,
 ) {
     val haptic = LocalHapticFeedback.current
+    // Sections default expanded; each header's chevron toggles its own list.
+    var tilesExpanded by remember { mutableStateOf(true) }
+    var chartsExpanded by remember { mutableStateOf(true) }
     ModalBottomSheet(onDismissRequest = onDismiss) {
         Column(
             Modifier
@@ -699,109 +739,112 @@ private fun CustomizeSheet(
                 color = MaterialTheme.appColors.textPrimary,
             )
 
-            Spacer(Modifier.height(16.dp))
-            Text(
-                stringResource(R.string.trip_customize_tiles),
-                style = MaterialTheme.typography.titleSmall,
-                color = MaterialTheme.appColors.textSecondary,
+            Spacer(Modifier.height(8.dp))
+            CustomizeSectionHeader(
+                title = stringResource(R.string.trip_customize_tiles),
+                expanded = tilesExpanded,
+                onToggle = { tilesExpanded = !tilesExpanded },
             )
-            Spacer(Modifier.height(4.dp))
-            ReorderableColumn(
-                list = tileOrder,
-                onSettle = { from, to ->
-                    onReorderTiles(tileOrder.toMutableList().apply { add(to, removeAt(from)) })
-                },
-                onMove = { haptic.performHapticFeedback(HapticFeedbackType.LongPress) },
-                modifier = Modifier.fillMaxWidth(),
-            ) { _, tileKey, _ ->
-                key(tileKey) {
-                    Row(
-                        Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 2.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
-                        Icon(
-                            Icons.Default.DragHandle,
-                            contentDescription = stringResource(R.string.action_reorder),
-                            tint = MaterialTheme.appColors.textSecondary,
-                            modifier = Modifier.draggableHandle().size(24.dp),
-                        )
-                        Spacer(Modifier.width(12.dp))
-                        Text(
-                            tileLabels[tileKey] ?: tileKey,
-                            modifier = Modifier.weight(1f),
-                            color = MaterialTheme.appColors.textPrimary,
-                        )
-                        Switch(
-                            checked = tileKey !in hiddenTiles,
-                            onCheckedChange = { onToggleTile(tileKey, !it) },
-                            colors = themedSwitchColors(),
-                        )
+            if (tilesExpanded) {
+                ReorderableColumn(
+                    list = tileOrder,
+                    onSettle = { from, to ->
+                        onReorderTiles(tileOrder.toMutableList().apply { add(to, removeAt(from)) })
+                    },
+                    onMove = { haptic.performHapticFeedback(HapticFeedbackType.LongPress) },
+                    modifier = Modifier.fillMaxWidth(),
+                ) { _, tileKey, _ ->
+                    key(tileKey) {
+                        // Each tile row: drag handle (left), name, show/hide switch.
+                        Row(
+                            Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 2.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            Icon(
+                                Icons.Default.DragHandle,
+                                contentDescription = stringResource(R.string.action_reorder),
+                                tint = MaterialTheme.appColors.textSecondary,
+                                modifier = Modifier.draggableHandle().size(24.dp),
+                            )
+                            Spacer(Modifier.width(12.dp))
+                            Text(
+                                tileLabels[tileKey] ?: tileKey,
+                                modifier = Modifier.weight(1f),
+                                color = MaterialTheme.appColors.textPrimary,
+                            )
+                            Switch(
+                                checked = tileKey !in hiddenTiles,
+                                onCheckedChange = { onToggleTile(tileKey, !it) },
+                                colors = themedSwitchColors(),
+                            )
+                        }
                     }
                 }
             }
 
-            Spacer(Modifier.height(16.dp))
-            Text(
-                stringResource(R.string.trip_customize_graphs),
-                style = MaterialTheme.typography.titleSmall,
-                color = MaterialTheme.appColors.textSecondary,
+            Spacer(Modifier.height(8.dp))
+            CustomizeSectionHeader(
+                title = stringResource(R.string.trip_customize_graphs),
+                expanded = chartsExpanded,
+                onToggle = { chartsExpanded = !chartsExpanded },
             )
-            Spacer(Modifier.height(4.dp))
-            ReorderableColumn(
-                list = chartOrder,
-                onSettle = { from, to ->
-                    onReorderCharts(chartOrder.toMutableList().apply { add(to, removeAt(from)) })
-                },
-                onMove = { haptic.performHapticFeedback(HapticFeedbackType.LongPress) },
-                modifier = Modifier.fillMaxWidth(),
-            ) { _, chartKey, _ ->
-                key(chartKey) {
-                    // Each graph row: drag handle (left), name, show/hide switch.
-                    Row(
-                        Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 2.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
-                        Icon(
-                            Icons.Default.DragHandle,
-                            contentDescription = stringResource(R.string.action_reorder),
-                            tint = MaterialTheme.appColors.textSecondary,
-                            modifier = Modifier.draggableHandle().size(24.dp),
-                        )
-                        Spacer(Modifier.width(12.dp))
-                        Text(
-                            chartLabels[chartKey] ?: chartKey,
-                            modifier = Modifier.weight(1f),
-                            color = MaterialTheme.appColors.textPrimary,
-                        )
-                        Switch(
-                            checked = chartKey !in hiddenCharts,
-                            onCheckedChange = { onToggleChart(chartKey, !it) },
-                            colors = themedSwitchColors(),
-                        )
+            if (chartsExpanded) {
+                ReorderableColumn(
+                    list = chartOrder,
+                    onSettle = { from, to ->
+                        onReorderCharts(chartOrder.toMutableList().apply { add(to, removeAt(from)) })
+                    },
+                    onMove = { haptic.performHapticFeedback(HapticFeedbackType.LongPress) },
+                    modifier = Modifier.fillMaxWidth(),
+                ) { _, chartKey, _ ->
+                    key(chartKey) {
+                        // Each graph row: drag handle (left), name, show/hide switch.
+                        Row(
+                            Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 2.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            Icon(
+                                Icons.Default.DragHandle,
+                                contentDescription = stringResource(R.string.action_reorder),
+                                tint = MaterialTheme.appColors.textSecondary,
+                                modifier = Modifier.draggableHandle().size(24.dp),
+                            )
+                            Spacer(Modifier.width(12.dp))
+                            Text(
+                                chartLabels[chartKey] ?: chartKey,
+                                modifier = Modifier.weight(1f),
+                                color = MaterialTheme.appColors.textPrimary,
+                            )
+                            Switch(
+                                checked = chartKey !in hiddenCharts,
+                                onCheckedChange = { onToggleChart(chartKey, !it) },
+                                colors = themedSwitchColors(),
+                            )
+                        }
                     }
                 }
             }
 
-            // "Extra details" is pinned below the reorderable graphs: it always
-            // renders last on the trip screen, so it gets a show/hide switch but
-            // no drag handle. Its hidden state lives in the same chart set under
-            // the "extra" key. The left spacer matches the handle + gap width so
-            // its name lines up with the graph names above.
+            // "Extra details" is its own section: a single label + switch, so it
+            // isn't collapsible (nothing to expand). It stays wired to the chart
+            // hidden set under the "extra" key and renders pinned last on the trip
+            // screen. The label appears exactly once, styled like a section title.
+            Spacer(Modifier.height(8.dp))
             Row(
                 Modifier
                     .fillMaxWidth()
-                    .padding(vertical = 2.dp),
+                    .padding(vertical = 8.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                Spacer(Modifier.width(36.dp))
                 Text(
                     stringResource(R.string.recording_details_section),
                     modifier = Modifier.weight(1f),
-                    color = MaterialTheme.appColors.textPrimary,
+                    style = MaterialTheme.typography.titleSmall,
+                    color = MaterialTheme.appColors.textSecondary,
                 )
                 Switch(
                     checked = "extra" !in hiddenCharts,
