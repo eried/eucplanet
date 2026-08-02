@@ -56,8 +56,13 @@ class BleConnectionManager @Inject constructor(
         private const val TAG = "BleConnection"
         /** The first manual connect after a fresh install commonly returns GATT
          *  status 133; retry the rider's connect up to this many times so a
-         *  single wheel tap connects instead of appearing to do nothing. */
-        private const val MAX_MANUAL_CONNECT_RETRIES = 3
+         *  single wheel tap connects instead of appearing to do nothing.
+         *  Also covers the InMotion V8S cold-boot cycle: for ~30 s after power-on
+         *  the wheel only emits a heartbeat and resets its own BLE link every ~8 s
+         *  (status=8), so it takes several quick reconnects to land on the moment
+         *  it starts streaming. Keep the fast (0.6 s) retries going through that
+         *  window instead of dropping to the slower 2 s auto-reconnect mid-boot. */
+        private const val MAX_MANUAL_CONNECT_RETRIES = 10
         /** Delay before a status-133 manual-connect retry: long enough for the
          *  failed GATT client to close, short enough to still feel like one tap. */
         private const val MANUAL_RETRY_DELAY_MS = 600L
