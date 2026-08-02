@@ -568,17 +568,18 @@ private fun TripDetailsSection(events: List<TripExtraEvent>) {
                     stringResource(R.string.recording_details_section),
                     fontSize = 13.sp,
                     fontWeight = FontWeight.Medium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.weight(1f)
-                )
-                Text(
-                    "${events.size}",
-                    fontSize = 13.sp,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
             Column(Modifier.padding(start = 12.dp, end = 12.dp, bottom = 10.dp)) {
+                // The first wheel identity is the ride start (green, matching the
+                // map's green start marker); every later wheel is a mid-ride change
+                // (purple, matching its purple map circle). Only changes get a
+                // marker on the map - the first wheel lives on the start point.
+                var firstWheelSeen = false
                 events.forEach { e ->
+                    val isFirstWheel = e.isWheelStart && !firstWheelSeen
+                    if (e.isWheelStart) firstWheelSeen = true
                     Row {
                         Text(
                             e.time,
@@ -590,8 +591,11 @@ private fun TripDetailsSection(events: List<TripExtraEvent>) {
                             e.text,
                             fontSize = 11.sp,
                             fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace,
-                            color = if (e.isWheelStart) MaterialTheme.appColors.wheelChange
-                                else MaterialTheme.colorScheme.onSurface,
+                            color = when {
+                                isFirstWheel -> MaterialTheme.appColors.statusGood
+                                e.isWheelStart -> MaterialTheme.appColors.wheelChange
+                                else -> MaterialTheme.colorScheme.onSurface
+                            },
                             modifier = Modifier.padding(start = 8.dp)
                         )
                     }
