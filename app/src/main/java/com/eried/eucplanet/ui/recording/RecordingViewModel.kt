@@ -150,6 +150,10 @@ class RecordingViewModel @Inject constructor(
         .map { csvToList(it.tripChartOrder) }
         .stateIn(viewModelScope, kotlinx.coroutines.flow.SharingStarted.Eagerly, emptyList())
 
+    val tripHiddenCharts: StateFlow<Set<String>> = settingsRepository.settings
+        .map { csvToList(it.tripHiddenCharts).toSet() }
+        .stateIn(viewModelScope, kotlinx.coroutines.flow.SharingStarted.Eagerly, emptySet())
+
     /** Show or hide a stat tile, persisting the compact hidden-keys CSV. */
     fun setTileHidden(key: String, hidden: Boolean) {
         viewModelScope.launch {
@@ -157,6 +161,19 @@ class RecordingViewModel @Inject constructor(
                 val cur = csvToList(s.tripHiddenTiles).toMutableSet()
                 if (hidden) cur.add(key) else cur.remove(key)
                 s.copy(tripHiddenTiles = cur.joinToString(","))
+            }
+        }
+    }
+
+    /** Show or hide a graph (or the pinned "extra" details block), persisting
+     *  the compact hidden-keys CSV. Kept separate from the tile set because
+     *  chart and tile keys overlap. */
+    fun setChartHidden(key: String, hidden: Boolean) {
+        viewModelScope.launch {
+            settingsRepository.update { s ->
+                val cur = csvToList(s.tripHiddenCharts).toMutableSet()
+                if (hidden) cur.add(key) else cur.remove(key)
+                s.copy(tripHiddenCharts = cur.joinToString(","))
             }
         }
     }

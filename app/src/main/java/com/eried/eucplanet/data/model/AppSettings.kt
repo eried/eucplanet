@@ -229,6 +229,11 @@ data class AppSettings(
     // their default position.
     val tripHiddenTiles: String = "",
     val tripChartOrder: String = "",
+    // Hidden graph keys (speed, battery, temp, voltage, current, pwm, and the
+    // pinned "extra" details block). Separate from tripHiddenTiles because chart
+    // keys collide with tile keys (battery, voltage exist in both). Empty = all
+    // shown.
+    val tripHiddenCharts: String = "",
 
     // Screen geometry. Compact mode is the tiny dashboard (speedo + one
     // swipeable buttons/metrics area) used on flip cover screens; it reuses

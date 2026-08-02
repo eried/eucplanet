@@ -129,9 +129,11 @@ fun TripDetailScreen(
     val isLiveTrip = liveState == true
     // Landscape split: the rider chooses whether the map docks left or right.
     val tripMapSide by viewModel.tripMapSide.collectAsState()
-    // Trip Details customizer: which stat tiles are hidden and the chart order.
+    // Trip Details customizer: which stat tiles are hidden, the chart order, and
+    // which graphs (plus the pinned "extra" block) are hidden.
     val hiddenTiles by viewModel.tripHiddenTiles.collectAsState()
     val savedChartOrder by viewModel.tripChartOrder.collectAsState()
+    val hiddenCharts by viewModel.tripHiddenCharts.collectAsState()
 
     // Render the ViewModel's messages (e.g. "Preparing the link…", share
     // failures) here too — sharing is launched straight from this screen, which
@@ -511,17 +513,21 @@ fun TripDetailScreen(
             val effectiveChartOrder = savedChartOrder.filter { it in chartKeysDefault }
                 .let { saved -> saved + chartKeysDefault.filter { it !in saved } }
 
-            // Scrub-synced charts, in the rider's order. Absent current / pwm keys
-            // drop out here (mapNotNull), preserving the old data-presence gating.
-            // TripDetailsSection stays pinned at the very end, outside the reorder.
+            // Scrub-synced charts, in the rider's order. A chart drops out when
+            // its key is hidden, when it isn't in allCharts (absent current / pwm
+            // data), preserving the old data-presence gating. TripDetailsSection
+            // stays pinned at the very end, outside the reorder, and hides on the
+            // "extra" key.
             val chartsByKey = allCharts.associateBy { it.first }
-            val orderedCharts = effectiveChartOrder.mapNotNull { chartsByKey[it] }
+            val orderedCharts = effectiveChartOrder
+                .filter { it !in hiddenCharts }
+                .mapNotNull { chartsByKey[it] }
             val chartsContent: @Composable ColumnScope.() -> Unit = {
                 orderedCharts.forEachIndexed { i, (_, chart) ->
                     if (i > 0) Spacer(Modifier.height(12.dp))
                     chart()
                 }
-                if (extraEvents.isNotEmpty()) {
+                if ("extra" !in hiddenCharts && extraEvents.isNotEmpty()) {
                     Spacer(Modifier.height(12.dp))
                     TripDetailsSection(extraEvents)
                 }
@@ -556,9 +562,11 @@ fun TripDetailScreen(
                 CustomizeSheet(
                     hiddenTiles = hiddenTiles,
                     tileLabels = tileLabels,
+                    hiddenCharts = hiddenCharts,
                     chartOrder = effectiveChartOrder,
                     chartLabels = chartLabels,
                     onToggleTile = { key, hidden -> viewModel.setTileHidden(key, hidden) },
+                    onToggleChart = { key, hidden -> viewModel.setChartHidden(key, hidden) },
                     onReorderCharts = { viewModel.setChartOrder(it) },
                     onDismiss = { showCustomize = false },
                 )
@@ -639,9 +647,11 @@ fun TripDetailScreen(
 private fun CustomizeSheet(
     hiddenTiles: Set<String>,
     tileLabels: List<Pair<String, String>>,
+    hiddenCharts: Set<String>,
     chartOrder: List<String>,
     chartLabels: Map<String, String>,
     onToggleTile: (String, Boolean) -> Unit,
+    onToggleChart: (String, Boolean) -> Unit,
     onReorderCharts: (List<String>) -> Unit,
     onDismiss: () -> Unit,
 ) {
@@ -704,25 +714,58 @@ private fun CustomizeSheet(
                 modifier = Modifier.fillMaxWidth(),
             ) { _, chartKey, _ ->
                 key(chartKey) {
+                    // Each graph row: name, a show/hide switch, then the drag
+                    // handle to set its order.
                     Row(
                         Modifier
                             .fillMaxWidth()
-                            .padding(vertical = 6.dp),
+                            .padding(vertical = 2.dp),
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
+                        Text(
+                            chartLabels[chartKey] ?: chartKey,
+                            modifier = Modifier.weight(1f),
+                            color = MaterialTheme.appColors.textPrimary,
+                        )
+                        Switch(
+                            checked = chartKey !in hiddenCharts,
+                            onCheckedChange = { onToggleChart(chartKey, !it) },
+                            colors = themedSwitchColors(),
+                        )
+                        Spacer(Modifier.width(8.dp))
                         Icon(
                             Icons.Default.DragHandle,
                             contentDescription = stringResource(R.string.action_reorder),
                             tint = MaterialTheme.appColors.textSecondary,
                             modifier = Modifier.draggableHandle().size(24.dp),
                         )
-                        Spacer(Modifier.width(12.dp))
-                        Text(
-                            chartLabels[chartKey] ?: chartKey,
-                            color = MaterialTheme.appColors.textPrimary,
-                        )
                     }
                 }
+            }
+
+            // "Extra details" is pinned below the reorderable graphs: it always
+            // renders last on the trip screen, so it gets a show/hide switch but
+            // no drag handle. Its hidden state lives in the same chart set under
+            // the "extra" key.
+            Row(
+                Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 2.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text(
+                    stringResource(R.string.recording_details_section),
+                    modifier = Modifier.weight(1f),
+                    color = MaterialTheme.appColors.textPrimary,
+                )
+                Switch(
+                    checked = "extra" !in hiddenCharts,
+                    onCheckedChange = { onToggleChart("extra", !it) },
+                    colors = themedSwitchColors(),
+                )
+                // Reserve the drag-handle width so this switch lines up with the
+                // switches on the reorderable graph rows above.
+                Spacer(Modifier.width(32.dp))
             }
         }
     }
