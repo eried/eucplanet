@@ -563,10 +563,9 @@ class BleConnectionManager @Inject constructor(
             val g = gatt ?: continue
 
             // Pick the write type from the active adapter's profile. HM-10
-            // (KingSong / Begode / Veteran) AND InMotion V1 use
-            // WRITE_TYPE_NO_RESPONSE because those CC254x-class modules don't
-            // reliably ACK WRITE_TYPE_DEFAULT writes. Only InMotion V2 (Nordic
-            // UART) stays on the safer WRITE_TYPE_DEFAULT.
+            // (KingSong / Begode / Veteran) uses WRITE_TYPE_NO_RESPONSE
+            // because those modules don't reliably ACK WRITE_TYPE_DEFAULT
+            // writes. InMotion V2 / V1 stay on the safer WRITE_TYPE_DEFAULT.
             val writeType = wheelAdapter.bleProfile().writeType
             try {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {

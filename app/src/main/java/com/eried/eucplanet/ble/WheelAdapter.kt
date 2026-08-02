@@ -84,14 +84,7 @@ data class BleProfile(
             // NOT the 0xFFE0 notify service. Without this the write char lookup
             // returns null on service discovery and the connect is torn down,
             // so no InMotion V1 wheel (V5 / V8 / V10 / V10F / L6) could connect.
-            writeServiceUuid = UUID.fromString("0000ffe5-0000-1000-8000-00805f9b34fb"),
-            // V1 rides the same CC254x / HM-10-class module as KingSong / Begode
-            // / Veteran, which do not reliably deliver onCharacteristicWrite for
-            // WRITE_TYPE_DEFAULT. With DEFAULT every un-ACKed write stalls ~200 ms
-            // on the write-queue timeout fallback, dragging out init and every
-            // poll (the V8S tester's slow / laggy connect). The 0xFFE9 char
-            // advertises WRITE_NO_RESPONSE (property 0x0c), so use it like HM-10.
-            writeType = BluetoothGattCharacteristic.WRITE_TYPE_NO_RESPONSE
+            writeServiceUuid = UUID.fromString("0000ffe5-0000-1000-8000-00805f9b34fb")
         )
     }
 }
