@@ -7652,6 +7652,7 @@ private fun CloudTab(
             SectionHeader(stringResource(R.string.section_cloud_trips))
             HintText(stringResource(R.string.cloud_trips_caption))
             var showResetLocalDialog by remember { mutableStateOf(false) }
+            val hasLocalTrips by viewModel.hasLocalTrips.collectAsState()
             Row(
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
                 modifier = Modifier.fillMaxWidth()
@@ -7668,7 +7669,7 @@ private fun CloudTab(
                 // backup folder, so it sits beside Sync all as its counterpart.
                 Button(
                     onClick = { showResetLocalDialog = true },
-                    enabled = !syncRunning,
+                    enabled = !syncRunning && hasLocalTrips,
                     modifier = Modifier.weight(1f),
                     colors = ButtonDefaults.buttonColors(
                         containerColor = MaterialTheme.appColors.statusDanger,
