@@ -147,17 +147,29 @@ fun TripMeterDetailScreen(
                 .padding(padding)
                 .verticalScroll(rememberScrollState())
         ) {
-            // Header: total distance, total active time, overall avg speed.
+            // Big number: total trip distance, right-aligned and the same size as
+            // the other metric-history screens (MetricDetailScreen), so the trip
+            // meter reads consistently with them.
+            Text(
+                "%.1f %s".format(Units.distance(state.distanceKm, distanceUnit), distUnitLabel),
+                fontSize = 48.sp,
+                fontWeight = FontWeight.Bold,
+                color = accent,
+                textAlign = TextAlign.End,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(start = 16.dp, end = 16.dp, top = 8.dp)
+            )
+            Spacer(Modifier.height(8.dp))
+            // Secondary stats below the big number: active time + overall avg speed
+            // (the total distance is the big number above now).
             HeaderRow(
-                totalDistance = "%.1f %s".format(
-                    Units.distance(state.distanceKm, distanceUnit), distUnitLabel
-                ),
                 totalTime = Units.humanDuration(state.activeMs / 1000L),
                 overallAvg = "%.1f %s".format(
                     Units.speed(state.overallAvgKmh, speedUnit), speedUnitLabel
                 ),
                 accent = accent,
-                modifier = Modifier.padding(16.dp)
+                modifier = Modifier.padding(start = 16.dp, end = 16.dp, bottom = 8.dp)
             )
 
             PrimaryTabRow(selectedTabIndex = tab, modifier = Modifier.fillMaxWidth()) {
@@ -304,7 +316,6 @@ private fun Modifier.clickableReset(onClick: () -> Unit): Modifier =
 
 @Composable
 private fun HeaderRow(
-    totalDistance: String,
     totalTime: String,
     overallAvg: String,
     accent: Color,
@@ -314,7 +325,6 @@ private fun HeaderRow(
         modifier = modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        HeaderStat(stringResource(R.string.trip_meter_total), totalDistance, accent, Modifier.weight(1f))
         HeaderStat(stringResource(R.string.trip_meter_active), totalTime, accent, Modifier.weight(1f))
         HeaderStat(stringResource(R.string.trip_meter_avg), overallAvg, accent, Modifier.weight(1f))
     }

@@ -169,10 +169,14 @@ fun MetricDetailScreen(
     // Long-press Reset → confirmation dialog → wipe ALL history buffers.
     var showResetAllConfirm by remember { mutableStateOf(false) }
 
-    // Title is the generic "History" — the active tab tells the rider
-    // which metric they're inspecting, so re-stating the metric name in
-    // the AppBar is redundant.
-    val titleLabel = stringResource(R.string.metric_detail_title)
+    // Single metric: name the screen after that metric (the 1-tab strip below
+    // is hidden, so the title carries the identity). Composite (>1 metrics):
+    // keep the generic "History" title, with the tab strip telling the rider
+    // which metric each tab is.
+    val titleLabel = if (keys.size == 1) {
+        com.eried.eucplanet.data.model.MetricCatalog.byKey(keys[0])
+            ?.let { stringResource(it.labelRes) } ?: keys[0]
+    } else stringResource(R.string.metric_detail_title)
 
     Scaffold(
         topBar = {
@@ -198,28 +202,30 @@ fun MetricDetailScreen(
                 .padding(padding)
                 .verticalScroll(rememberScrollState())
         ) {
-            // Tab strip — always rendered for consistency, even with a
-            // single metric (1 tab). Rider sees the same control whether
-            // they tapped a standalone tile or a composite.
-            PrimaryTabRow(
-                selectedTabIndex = safeIdx,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                keys.forEachIndexed { idx, key ->
-                    val spec = com.eried.eucplanet.data.model.MetricCatalog.byKey(key)
-                    val label = spec?.let { stringResource(it.labelRes) } ?: key
-                    Tab(
-                        selected = safeIdx == idx,
-                        onClick = { selectedIdx = idx },
-                        text = {
-                            Text(
-                                label.uppercase(),
-                                fontSize = 11.sp,
-                                fontWeight = FontWeight.Medium,
-                                maxLines = 1
-                            )
-                        }
-                    )
+            // Tab strip only when there's more than one metric (a composite).
+            // A lone tab wasted vertical space and just restated the title, so
+            // for a single metric we drop it and let the AppBar title name it.
+            if (keys.size > 1) {
+                PrimaryTabRow(
+                    selectedTabIndex = safeIdx,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    keys.forEachIndexed { idx, key ->
+                        val spec = com.eried.eucplanet.data.model.MetricCatalog.byKey(key)
+                        val label = spec?.let { stringResource(it.labelRes) } ?: key
+                        Tab(
+                            selected = safeIdx == idx,
+                            onClick = { selectedIdx = idx },
+                            text = {
+                                Text(
+                                    label.uppercase(),
+                                    fontSize = 11.sp,
+                                    fontWeight = FontWeight.Medium,
+                                    maxLines = 1
+                                )
+                            }
+                        )
+                    }
                 }
             }
 
