@@ -590,7 +590,7 @@ private fun TripDetailsSection(events: List<TripExtraEvent>) {
                             e.text,
                             fontSize = 11.sp,
                             fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace,
-                            color = if (e.isWheelStart) MaterialTheme.appColors.statusGood
+                            color = if (e.isWheelStart) MaterialTheme.appColors.wheelChange
                                 else MaterialTheme.colorScheme.onSurface,
                             modifier = Modifier.padding(start = 8.dp)
                         )
@@ -935,7 +935,8 @@ private fun buildMapHtml(coordsJson: String, switchesJson: String, startLabelJs:
   function render(){
     if (hasRoute){
       // Split the trace at mid-ride wheel changes: the first wheel keeps the
-      // blue trace, every later wheel's stretch is drawn yellow.
+      // blue trace, every later wheel's stretch is drawn purple (distinct from
+      // the amber live / scrub position marker).
       var cuts = switches.map(function(s){return s.idx;})
         .filter(function(i){return i>0 && i<coords.length;})
         .sort(function(a,b){return a-b;});
@@ -943,7 +944,7 @@ private fun buildMapHtml(coordsJson: String, switchesJson: String, startLabelJs:
       for (var k=0;k<=cuts.length;k++){
         var stop = (k<cuts.length)?cuts[k]:coords.length-1;
         if (stop>prev) L.polyline(coords.slice(prev,stop+1),
-          {color:k===0?'#4FC3F7':'#FFC107',weight:4,interactive:false}).addTo(map);
+          {color:k===0?'#4FC3F7':'#AB47BC',weight:4,interactive:false}).addTo(map);
         prev = stop;
       }
       map.fitBounds(L.latLngBounds(coords).pad(0.2));
@@ -1013,11 +1014,12 @@ private fun buildMapHtml(coordsJson: String, switchesJson: String, startLabelJs:
   };
 
   render();
-  // Mid-ride wheel changes: same yellow circle for every change, each with
-  // its own popup (time + the wheel that took over). Added after render()
-  // so the circles stack above the trace and keep their tap target.
+  // Mid-ride wheel changes: a purple circle for every change (distinct from
+  // the amber live / scrub position marker), each with its own popup (time +
+  // the wheel that took over). Added after render() so the circles stack
+  // above the trace and keep their tap target.
   switches.forEach(function(s){
-    L.circleMarker([s.lat,s.lon],{radius:7,color:'#000',weight:2,fillColor:'#FFC107',fillOpacity:1})
+    L.circleMarker([s.lat,s.lon],{radius:7,color:'#000',weight:2,fillColor:'#AB47BC',fillOpacity:1})
       .addTo(map).bindPopup(s.label);
   });
   ${if (isLive) "/* live mode: waiting for updateLivePoint() */" else ""}
