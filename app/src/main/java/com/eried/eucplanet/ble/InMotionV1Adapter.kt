@@ -42,6 +42,11 @@ class InMotionV1Adapter @Inject constructor() : WheelAdapter {
      */
     private val reassemblyBuffer = ByteArrayOutputStream()
 
+    /** CAN IDs already logged as unhandled this connection, so an unexpected
+     *  frame the wheel repeats at ~10 Hz is noted once, not thousands of times.
+     *  Cleared on disconnect. */
+    private val loggedUnknownCanIds = mutableSetOf<Int>()
+
     override fun bleProfile(): BleProfile = BleProfile.INMOTION_V1
 
     override fun notifyConnectingTo(deviceName: String?): DecodeResult.ModelName? {
@@ -144,6 +149,7 @@ class InMotionV1Adapter @Inject constructor() : WheelAdapter {
     override fun onDisconnect() {
         reassemblyBuffer.reset()
         detectedModel = null
+        loggedUnknownCanIds.clear()
     }
 
     override fun inspectMessageTypes(): List<String> =
@@ -253,7 +259,23 @@ class InMotionV1Adapter @Inject constructor() : WheelAdapter {
                 out += DecodeResult.Settings(info.settings)
                 out
             }
-            else -> emptyList()
+            else -> {
+                // Frame the wheel sends that isn't fast/slow-info. Normal
+                // operation only exchanges the 0x0F55xxxx telemetry/command IDs
+                // and 0x0F780101 alerts (docs/protocols/inmotion_v1.md 3.4), so
+                // an unexpected ID is worth surfacing - a V8S that streams ONLY
+                // 0x0F060101 and never fast-info, then drops with a link
+                // supervision timeout, points at a wheel that won't leave its
+                // standby / locked / not-riding state (or another BLE client
+                // holding it). Log each distinct ID once per connection so the
+                // diagnostics name it without flooding at the ~10 Hz it arrives.
+                if (loggedUnknownCanIds.add(canId)) {
+                    DiagnosticsLogger.note(
+                        "InMotion V1 unhandled can=0x%08X len=${unwrapped.size} - wheel not streaming telemetry".format(canId)
+                    )
+                }
+                emptyList()
+            }
         }
     }
 }
