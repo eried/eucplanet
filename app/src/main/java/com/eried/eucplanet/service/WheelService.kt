@@ -66,6 +66,11 @@ class WheelService : LifecycleService() {
          *  the service's onDestroy so cleanup completes first, on its own
          *  schedule -- no arbitrary delay timer needed. */
         const val ACTION_STOP_ALL_AND_KILL = "com.eried.eucplanet.STOP_ALL_AND_KILL"
+        /** Gentle stand-down when the "Keep app running" toggle is turned OFF.
+         *  Unlike ACTION_STOP_ALL_AND_KILL this never kills the process and only
+         *  stops the service if nothing else still needs it (a live connection,
+         *  recording, navigation, HUD link, or always-on voice). */
+        const val ACTION_STOP_KEEPALIVE = "com.eried.eucplanet.STOP_KEEPALIVE"
         // Wheel controls fired from notification action buttons.
         const val ACTION_TOGGLE_LIGHT = "com.eried.eucplanet.TOGGLE_LIGHT"
         const val ACTION_TOGGLE_LOCK = "com.eried.eucplanet.TOGGLE_LOCK"
@@ -372,6 +377,24 @@ class WheelService : LifecycleService() {
             }
             ACTION_STOP_NAVIGATION -> {
                 navigationEngine.stop()
+            }
+            ACTION_STOP_KEEPALIVE -> {
+                // "Keep app running" was turned OFF. Stand the service down, but
+                // only if nothing else still depends on it. Never kill the
+                // process (that's ACTION_STOP_ALL_AND_KILL's job).
+                lifecycleScope.launch {
+                    val s = settingsRepository.get()
+                    val stillNeeded =
+                        wheelRepository.connectionState.value != ConnectionState.DISCONNECTED ||
+                        tripRepository.recording.value ||
+                        navigationEngine.navState.value.active ||
+                        s.hudServerEnabled ||
+                        (s.voiceEnabled && s.voiceAnnounceWhen == "ALWAYS")
+                    if (!s.keepAppAlive && !stillNeeded) {
+                        stopForeground(STOP_FOREGROUND_REMOVE)
+                        stopSelf()
+                    }
+                }
             }
             ACTION_STOP_ALL_AND_KILL -> {
                 // Mark first, drop foreground status second, then stopSelf

@@ -563,6 +563,9 @@ data class AppSettings(
      * "should the radio be running?". The two should be independent.
      */
     val hudServerEnabled: Boolean = false,
+    /** Keep the foreground service (ongoing notification) alive even with no wheel
+     *  connected, so background trip sync and voice keep running. Default on. */
+    val keepAppAlive: Boolean = true,
     /** Show quick-action buttons on the ongoing notification. */
     val notificationActionsEnabled: Boolean = true,
     /** Which actions (comma-separated keys, max 3) appear on the notification.
@@ -830,7 +833,17 @@ data class AppSettings(
     /** Wall-clock ms of the last successful Dropbox sync. Used by the
      *  Sync all UI to label "Last synced 5 min ago" and by the worker to
      *  decide whether the settings.json on Dropbox is current. */
-    val dropboxLastSyncAt: Long = 0L
+    val dropboxLastSyncAt: Long = 0L,
+    /** True while trips still need uploading to Dropbox; the worker keeps
+     *  retrying until it clears. Drives the persistent "Syncing trips…"
+     *  indicator so failed / pending uploads are surfaced without an error toast. */
+    val dropboxSyncPending: Boolean = false,
+    /** Number of trips still to upload to Dropbox; drives the "Syncing N trips…"
+     *  indicator, decrementing live as each upload lands. */
+    val dropboxPendingCount: Int = 0,
+    /** Trips in the current sync batch, so the pending indicator can show
+     *  "X of Y" like the foreground sync (done = total - pending). 0 = no batch. */
+    val dropboxSyncTotal: Int = 0
 ) {
     // Delegating getters so reads like `settings.wheelPollIntervalMs` keep working
     // after the 46 advanced fields moved into the nested [AdvancedSettings] (which

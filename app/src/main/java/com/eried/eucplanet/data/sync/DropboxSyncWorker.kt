@@ -12,6 +12,7 @@ import com.eried.eucplanet.data.store.SettingsJson
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import org.json.JSONObject
+import java.io.File
 
 /**
  * Mirror local trips + settings into the linked Dropbox App Folder.
@@ -39,6 +40,11 @@ class DropboxSyncWorker @AssistedInject constructor(
         val settings = settingsRepository.get()
         if (settings.dropboxAccessToken.isBlank()) {
             Log.i(TAG, "Not linked, skipping")
+            // Nothing can sync without a link, so drop the pending flag + count
+            // (and the indicator) rather than leaving them stuck on forever.
+            settingsRepository.update {
+                it.copy(dropboxSyncPending = false, dropboxPendingCount = 0, dropboxSyncTotal = 0)
+            }
             return Result.success()
         }
 
@@ -58,17 +64,43 @@ class DropboxSyncWorker @AssistedInject constructor(
             ?.toList().orEmpty()
         var anyFailed = false
         var uploaded = 0
+        // How many trips still need uploading. A trip is "already up" when Dropbox
+        // holds a file of the SAME byte length (trip CSVs are append-only, so a
+        // matching size means matching content). We deliberately do NOT compare by
+        // modified-time: the local mtime gets bumped by on-device rewrites, which
+        // made every trip look "newer" and re-upload forever, so the sync never
+        // converged and the indicator never cleared. failedTrips tracks how many
+        // of the needed uploads never made it this pass.
+        fun needsUpload(f: File): Boolean {
+            val remote = remoteTrips[f.name]
+            return remote == null || remote.size != f.length()
+        }
+        val needUpload = localFiles.count { needsUpload(it) }
+        settingsRepository.update {
+            it.copy(
+                dropboxPendingCount = needUpload,
+                dropboxSyncTotal = needUpload,
+                dropboxSyncPending = needUpload > 0,
+            )
+        }
+        var failedTrips = 0
         for (file in localFiles) {
+            // Rider tapped Cancel (cancelUniqueWork flips isStopped): stop promptly
+            // and leave the flag/count alone - stopDropboxSync already cleared them.
+            if (isStopped) return Result.success()
             val name = file.name
-            val remoteMod = remoteTrips[name]
-            val localMod = file.lastModified() / 1000L
-            if (remoteMod != null && remoteMod >= localMod) continue
+            if (!needsUpload(file)) continue
             val ok = dropboxRepository.uploadFile("/trips/$name", file.readBytes())
             if (ok) {
                 uploaded++
+                // Decrement live so the indicator reflects trips remaining.
+                settingsRepository.update {
+                    it.copy(dropboxPendingCount = (it.dropboxPendingCount - 1).coerceAtLeast(0))
+                }
                 Log.i(TAG, "Uploaded $name")
             } else {
                 anyFailed = true
+                failedTrips++
                 Log.w(TAG, "Upload failed for $name")
             }
         }
@@ -81,7 +113,7 @@ class DropboxSyncWorker @AssistedInject constructor(
         val settingsJson = SettingsJson.toJson(settings).toString().toByteArray(Charsets.UTF_8)
         val now = System.currentTimeMillis()
         val rootList = dropboxRepository.listFolder("")
-        val remoteSettingsMod = rootList?.get("settings.json")
+        val remoteSettingsMod = rootList?.get("settings.json")?.serverModified
         val lastSync = settings.dropboxLastSyncAt / 1000L
         if (remoteSettingsMod == null || remoteSettingsMod < lastSync) {
             val ok = dropboxRepository.uploadFile("/settings.json", settingsJson)
@@ -103,7 +135,7 @@ class DropboxSyncWorker @AssistedInject constructor(
                         if (!doc.isFile) continue
                         val name = doc.name ?: continue
                         val localMod = doc.lastModified() / 1000L
-                        if (remoteSub[name]?.let { it >= localMod } == true) continue
+                        if (remoteSub[name]?.let { it.serverModified >= localMod } == true) continue
                         val bytes = try {
                             applicationContext.contentResolver
                                 .openInputStream(doc.uri)?.use { it.readBytes() }
@@ -120,8 +152,19 @@ class DropboxSyncWorker @AssistedInject constructor(
             }
         }
 
-        if (!anyFailed) {
-            settingsRepository.update { it.copy(dropboxLastSyncAt = now) }
+        // The "Syncing trips…" indicator reflects TRIPS only. A settings.json /
+        // themes / overlays upload failure still schedules a retry, but must NOT
+        // keep the trips indicator up: that left an endless indeterminate
+        // "Syncing trips…" (total 0) showing on every open with no trip pending.
+        val tripsPending = failedTrips > 0
+        settingsRepository.update {
+            it.copy(
+                dropboxSyncPending = tripsPending,
+                dropboxPendingCount = failedTrips,
+                dropboxSyncTotal = if (tripsPending) it.dropboxSyncTotal else 0,
+                // Only a fully clean pass (trips + settings + folder) stamps the time.
+                dropboxLastSyncAt = if (!anyFailed) now else it.dropboxLastSyncAt,
+            )
         }
 
         if (anyFailed) {

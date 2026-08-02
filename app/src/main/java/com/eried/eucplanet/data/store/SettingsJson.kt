@@ -258,6 +258,7 @@ object SettingsJson {
         put("navAvoidUnpaved", s.navAvoidUnpaved)
         put("watchShowNavigation", s.watchShowNavigation)
         put("hudServerEnabled", s.hudServerEnabled)
+        put("keepAppAlive", s.keepAppAlive)
         put("notificationActionsEnabled", s.notificationActionsEnabled)
         put("notificationActions", s.notificationActions)
         put("hudActionUp", s.hudActionUp)
@@ -298,6 +299,9 @@ object SettingsJson {
         put("dropboxAccessTokenExpiresAt", s.dropboxAccessTokenExpiresAt)
         put("dropboxAccountLabel", s.dropboxAccountLabel)
         put("dropboxLastSyncAt", s.dropboxLastSyncAt)
+        put("dropboxSyncPending", s.dropboxSyncPending)
+        put("dropboxPendingCount", s.dropboxPendingCount)
+        put("dropboxSyncTotal", s.dropboxSyncTotal)
     }
 
     fun fromJson(j: JSONObject, base: AppSettings = AppSettings()): AppSettings = base.copy(
@@ -529,6 +533,7 @@ object SettingsJson {
         navAvoidUnpaved = j.optBoolean("navAvoidUnpaved", base.navAvoidUnpaved),
         watchShowNavigation = j.optBoolean("watchShowNavigation", base.watchShowNavigation),
         hudServerEnabled = j.optBoolean("hudServerEnabled", base.hudServerEnabled),
+        keepAppAlive = j.optBoolean("keepAppAlive", base.keepAppAlive),
         notificationActionsEnabled = j.optBoolean("notificationActionsEnabled", base.notificationActionsEnabled),
         notificationActions = j.optString("notificationActions", base.notificationActions),
         hudActionUp = j.optString("hudActionUp", base.hudActionUp),
@@ -586,7 +591,10 @@ object SettingsJson {
         dropboxRefreshToken = j.optString("dropboxRefreshToken", base.dropboxRefreshToken),
         dropboxAccessTokenExpiresAt = j.optLong("dropboxAccessTokenExpiresAt", base.dropboxAccessTokenExpiresAt),
         dropboxAccountLabel = j.optString("dropboxAccountLabel", base.dropboxAccountLabel),
-        dropboxLastSyncAt = j.optLong("dropboxLastSyncAt", base.dropboxLastSyncAt)
+        dropboxLastSyncAt = j.optLong("dropboxLastSyncAt", base.dropboxLastSyncAt),
+        dropboxSyncPending = j.optBoolean("dropboxSyncPending", base.dropboxSyncPending),
+        dropboxPendingCount = j.optInt("dropboxPendingCount", base.dropboxPendingCount),
+        dropboxSyncTotal = j.optInt("dropboxSyncTotal", base.dropboxSyncTotal)
     )
 
     /** `optString` returns `""` for null and absent keys, which we cannot
