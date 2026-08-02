@@ -139,6 +139,38 @@ class RecordingViewModel @Inject constructor(
         .map { it.tripMapSide }
         .stateIn(viewModelScope, kotlinx.coroutines.flow.SharingStarted.Eagerly, "LEFT")
 
+    // Trip Details customizer state, driven by the Customize sheet on that screen.
+    // Both are stored compactly as CSV in settings; here they are parsed into the
+    // shapes the screen consumes.
+    val tripHiddenTiles: StateFlow<Set<String>> = settingsRepository.settings
+        .map { csvToList(it.tripHiddenTiles).toSet() }
+        .stateIn(viewModelScope, kotlinx.coroutines.flow.SharingStarted.Eagerly, emptySet())
+
+    val tripChartOrder: StateFlow<List<String>> = settingsRepository.settings
+        .map { csvToList(it.tripChartOrder) }
+        .stateIn(viewModelScope, kotlinx.coroutines.flow.SharingStarted.Eagerly, emptyList())
+
+    /** Show or hide a stat tile, persisting the compact hidden-keys CSV. */
+    fun setTileHidden(key: String, hidden: Boolean) {
+        viewModelScope.launch {
+            settingsRepository.update { s ->
+                val cur = csvToList(s.tripHiddenTiles).toMutableSet()
+                if (hidden) cur.add(key) else cur.remove(key)
+                s.copy(tripHiddenTiles = cur.joinToString(","))
+            }
+        }
+    }
+
+    /** Persist the rider's chart display order as a compact CSV of chart keys. */
+    fun setChartOrder(order: List<String>) {
+        viewModelScope.launch {
+            settingsRepository.update { s -> s.copy(tripChartOrder = order.joinToString(",")) }
+        }
+    }
+
+    private fun csvToList(csv: String): List<String> =
+        csv.split(',').map { it.trim() }.filter { it.isNotEmpty() }
+
     /**
      * Id of the just-stopped trip waiting in the 10s discard-grace window. The trip
      * row for this id shows an hourglass instead of the upload-success tick. Tapping

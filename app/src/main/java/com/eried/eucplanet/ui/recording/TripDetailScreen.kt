@@ -25,6 +25,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.padding
@@ -34,6 +35,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.DragHandle
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Layers
 import androidx.compose.material.icons.filled.Fullscreen
 import androidx.compose.material.icons.filled.FullscreenExit
@@ -54,9 +57,11 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.ui.graphics.luminance
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
@@ -64,6 +69,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -95,6 +101,8 @@ import com.eried.eucplanet.R
 import com.eried.eucplanet.data.model.TripRecord
 import com.eried.eucplanet.ui.common.HintText
 import com.eried.eucplanet.ui.theme.appColors
+import com.eried.eucplanet.ui.theme.themedSwitchColors
+import sh.calvin.reorderable.ReorderableColumn
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -110,6 +118,9 @@ fun TripDetailScreen(
 ) {
     var dataPoints by remember { mutableStateOf<List<TripDataPoint>>(emptyList()) }
     var showShareDialog by remember { mutableStateOf(false) }
+    // Trip Details customizer sheet (pencil in the top bar). Hoisted here so the
+    // top bar action and the sheet body (rendered in the content) share it.
+    var showCustomize by remember { mutableStateOf(false) }
     // The in-progress trip can't be shared, its CSV isn't finalised yet.
     // null = not yet known; only once it resolves to a definite false do we let
     // the self-heal touch the stored row (so a live trip is never finalised
@@ -118,6 +129,9 @@ fun TripDetailScreen(
     val isLiveTrip = liveState == true
     // Landscape split: the rider chooses whether the map docks left or right.
     val tripMapSide by viewModel.tripMapSide.collectAsState()
+    // Trip Details customizer: which stat tiles are hidden and the chart order.
+    val hiddenTiles by viewModel.tripHiddenTiles.collectAsState()
+    val savedChartOrder by viewModel.tripChartOrder.collectAsState()
 
     // Render the ViewModel's messages (e.g. "Preparing the link…", share
     // failures) here too — sharing is launched straight from this screen, which
@@ -199,12 +213,21 @@ fun TripDetailScreen(
                             modifier = Modifier.align(Alignment.Center),
                         )
                     }
-                    IconButton(
-                        onClick = { showShareDialog = true },
-                        enabled = !isLiveTrip,
+                    Row(
                         modifier = Modifier.align(Alignment.CenterEnd),
+                        verticalAlignment = Alignment.CenterVertically,
                     ) {
-                        Icon(Icons.Default.Share, contentDescription = stringResource(R.string.action_share))
+                        if (dataPoints.isNotEmpty()) {
+                            IconButton(onClick = { showCustomize = true }) {
+                                Icon(Icons.Default.Edit, contentDescription = stringResource(R.string.trip_customize))
+                            }
+                        }
+                        IconButton(
+                            onClick = { showShareDialog = true },
+                            enabled = !isLiveTrip,
+                        ) {
+                            Icon(Icons.Default.Share, contentDescription = stringResource(R.string.action_share))
+                        }
                     }
                 }
             } else {
@@ -216,6 +239,11 @@ fun TripDetailScreen(
                         }
                     },
                     actions = {
+                        if (dataPoints.isNotEmpty()) {
+                            IconButton(onClick = { showCustomize = true }) {
+                                Icon(Icons.Default.Edit, contentDescription = stringResource(R.string.trip_customize))
+                            }
+                        }
                         IconButton(
                             onClick = { showShareDialog = true },
                             enabled = !isLiveTrip
@@ -358,39 +386,38 @@ fun TripDetailScreen(
                 )
             }
 
-            // Summary cards.
-            val summaryCards: @Composable ColumnScope.() -> Unit = {
-                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    SummaryCard(stringResource(R.string.recording_summary_distance), "%.1f %s".format(tripDistance, distanceUnitLabel), MaterialTheme.appColors.metricVoltage, Modifier.weight(1f))
-                    SummaryCard(stringResource(R.string.recording_summary_duration), com.eried.eucplanet.util.Units.humanDuration(duration), MaterialTheme.appColors.metricVoltage, Modifier.weight(1f))
-                    SummaryCard(stringResource(R.string.recording_summary_points), "${dataPoints.size}", MaterialTheme.colorScheme.onSurface, Modifier.weight(1f))
-                }
-                Spacer(Modifier.height(8.dp))
-                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    SummaryCard(stringResource(R.string.recording_summary_top_speed), "%.0f %s".format(maxSpeed, speedUnitLabel), MaterialTheme.appColors.metricTemp, Modifier.weight(1f))
-                    SummaryCard(stringResource(R.string.recording_summary_avg_speed), "%.0f %s".format(avgSpeed, speedUnitLabel), MaterialTheme.appColors.metricBattery, Modifier.weight(1f))
-                    SummaryCard(stringResource(R.string.recording_summary_avg_moving), "%.0f %s".format(avgMoving, speedUnitLabel), MaterialTheme.appColors.metricBattery, Modifier.weight(1f))
-                }
-                Spacer(Modifier.height(8.dp))
-                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            // Stat tiles, as a keyed list so the customizer can hide any of them.
+            // Each tile keeps the exact SummaryCard content and colors it had
+            // before. Order matches the original 4 rows of 3.
+            val allTiles: List<Pair<String, @Composable RowScope.() -> Unit>> = listOf(
+                "distance" to { SummaryCard(stringResource(R.string.recording_summary_distance), "%.1f %s".format(tripDistance, distanceUnitLabel), MaterialTheme.appColors.metricVoltage, Modifier.weight(1f)) },
+                "duration" to { SummaryCard(stringResource(R.string.recording_summary_duration), com.eried.eucplanet.util.Units.humanDuration(duration), MaterialTheme.appColors.metricVoltage, Modifier.weight(1f)) },
+                "points" to { SummaryCard(stringResource(R.string.recording_summary_points), "${dataPoints.size}", MaterialTheme.colorScheme.onSurface, Modifier.weight(1f)) },
+                "topSpeed" to { SummaryCard(stringResource(R.string.recording_summary_top_speed), "%.0f %s".format(maxSpeed, speedUnitLabel), MaterialTheme.appColors.metricTemp, Modifier.weight(1f)) },
+                "avgSpeed" to { SummaryCard(stringResource(R.string.recording_summary_avg_speed), "%.0f %s".format(avgSpeed, speedUnitLabel), MaterialTheme.appColors.metricBattery, Modifier.weight(1f)) },
+                "avgMoving" to { SummaryCard(stringResource(R.string.recording_summary_avg_moving), "%.0f %s".format(avgMoving, speedUnitLabel), MaterialTheme.appColors.metricBattery, Modifier.weight(1f)) },
+                "battery" to {
                     SummaryCard(
                         stringResource(R.string.recording_summary_battery, batteryStats.batteryConsumption),
                         stringResource(R.string.recording_summary_battery_fmt, batteryStats.batteryMax, batteryStats.batteryMin),
                         if (batteryStats.batteryMin < 20) MaterialTheme.appColors.statusDanger else MaterialTheme.appColors.statusGood,
                         Modifier.weight(1f)
                     )
+                },
+                "voltage" to {
                     SummaryCard(
                         stringResource(R.string.recording_summary_voltage),
                         stringResource(R.string.recording_summary_voltage_fmt, batteryStats.voltageMax, batteryStats.voltageMin),
                         MaterialTheme.appColors.metricPosition,
                         Modifier.weight(1f)
                     )
+                },
+                "maxTemp" to {
                     SummaryCard(stringResource(R.string.recording_summary_max_temp),
                         "%.0f%s".format(maxTemp, tempUnitLabel),
                         if (maxTempRaw > 60) MaterialTheme.appColors.statusDanger else MaterialTheme.appColors.metricTemp, Modifier.weight(1f))
-                }
-                Spacer(Modifier.height(8.dp))
-                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                },
+                "maxPwm" to {
                     SummaryCard(
                         stringResource(R.string.recording_summary_max_pwm),
                         if (batteryStats.maxPwm.isNaN()) "--" else "%.0f%%".format(batteryStats.maxPwm),
@@ -398,60 +425,143 @@ fun TripDetailScreen(
                         else MaterialTheme.appColors.metricTemp,
                         Modifier.weight(1f)
                     )
+                },
+                "maxCurrent" to {
                     SummaryCard(
                         stringResource(R.string.recording_summary_max_current),
                         if (batteryStats.maxCurrent.isNaN()) "--" else "%.1f A".format(batteryStats.maxCurrent),
                         MaterialTheme.appColors.metricVoltage,
                         Modifier.weight(1f)
                     )
+                },
+                "maxPower" to {
                     SummaryCard(
                         stringResource(R.string.recording_summary_max_power),
                         if (batteryStats.maxPower.isNaN()) "--" else "%.0f W".format(batteryStats.maxPower),
                         MaterialTheme.appColors.metricPosition,
                         Modifier.weight(1f)
                     )
+                },
+            )
+
+            // Render the shown tiles in rows of 3, padding a short final row with
+            // spacers so every tile keeps the same width.
+            val summaryCards: @Composable ColumnScope.() -> Unit = {
+                val visibleTiles = allTiles.filter { it.first !in hiddenTiles }
+                visibleTiles.chunked(3).forEachIndexed { rowIndex, rowTiles ->
+                    if (rowIndex > 0) Spacer(Modifier.height(8.dp))
+                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        rowTiles.forEach { (_, tile) -> tile() }
+                        repeat(3 - rowTiles.size) { Spacer(Modifier.weight(1f)) }
+                    }
                 }
             }
 
-            // Scrub-synced charts.
-            val chartsContent: @Composable ColumnScope.() -> Unit = {
-                ChartCard(stringResource(R.string.recording_chart_speed, speedUnitLabel),
-                    dataPoints.map { com.eried.eucplanet.util.Units.speed(it.speed, speedUnit) },
-                    MaterialTheme.appColors.metricBattery, unitLabel = speedUnitLabel, minSpan = speedMinSpan,
-                    overlays = speedOverlays, axisMax = maxSpeed, peak = speedPeak,
-                    scrubIndex = scrubIndex, onScrub = onScrub)
-                Spacer(Modifier.height(12.dp))
-                ChartCard(stringResource(R.string.recording_chart_battery), dataPoints.map { it.battery.toFloat() },
-                    MaterialTheme.appColors.metricVoltage, unitLabel = "%", minSpan = GraphScale.SPAN_BATTERY,
-                    scrubIndex = scrubIndex, onScrub = onScrub)
-                Spacer(Modifier.height(12.dp))
-                ChartCard(stringResource(R.string.recording_chart_temp, tempUnitLabel),
-                    dataPoints.map { com.eried.eucplanet.util.Units.temperature(it.temperature, tempUnit) },
-                    MaterialTheme.appColors.metricTemp, unitLabel = tempUnitLabel, minSpan = tempMinSpan,
-                    scrubIndex = scrubIndex, onScrub = onScrub)
-                Spacer(Modifier.height(12.dp))
-                ChartCard(stringResource(R.string.recording_chart_voltage), dataPoints.map { it.voltage },
-                    MaterialTheme.appColors.statusDanger, unitLabel = "V", minSpan = GraphScale.SPAN_VOLTAGE,
-                    scrubIndex = scrubIndex, onScrub = onScrub)
-                if (dataPoints.any { !it.current.isNaN() }) {
-                    Spacer(Modifier.height(12.dp))
-                    ChartCard(stringResource(R.string.recording_chart_current),
-                        dataPoints.map { it.current },
-                        MaterialTheme.appColors.metricVoltage, unitLabel = "A", minSpan = GraphScale.SPAN_CURRENT,
-                        regenColor = MaterialTheme.appColors.metricBattery,
+            // Charts, as a keyed list. current / pwm are only present when the
+            // trip actually has that data, so those charts never render empty,
+            // regardless of the saved order.
+            val allCharts: List<Pair<String, @Composable ColumnScope.() -> Unit>> = buildList {
+                add("speed" to {
+                    ChartCard(stringResource(R.string.recording_chart_speed, speedUnitLabel),
+                        dataPoints.map { com.eried.eucplanet.util.Units.speed(it.speed, speedUnit) },
+                        MaterialTheme.appColors.metricBattery, unitLabel = speedUnitLabel, minSpan = speedMinSpan,
+                        overlays = speedOverlays, axisMax = maxSpeed, peak = speedPeak,
                         scrubIndex = scrubIndex, onScrub = onScrub)
+                })
+                add("battery" to {
+                    ChartCard(stringResource(R.string.recording_chart_battery), dataPoints.map { it.battery.toFloat() },
+                        MaterialTheme.appColors.metricVoltage, unitLabel = "%", minSpan = GraphScale.SPAN_BATTERY,
+                        scrubIndex = scrubIndex, onScrub = onScrub)
+                })
+                add("temp" to {
+                    ChartCard(stringResource(R.string.recording_chart_temp, tempUnitLabel),
+                        dataPoints.map { com.eried.eucplanet.util.Units.temperature(it.temperature, tempUnit) },
+                        MaterialTheme.appColors.metricTemp, unitLabel = tempUnitLabel, minSpan = tempMinSpan,
+                        scrubIndex = scrubIndex, onScrub = onScrub)
+                })
+                add("voltage" to {
+                    ChartCard(stringResource(R.string.recording_chart_voltage), dataPoints.map { it.voltage },
+                        MaterialTheme.appColors.statusDanger, unitLabel = "V", minSpan = GraphScale.SPAN_VOLTAGE,
+                        scrubIndex = scrubIndex, onScrub = onScrub)
+                })
+                if (dataPoints.any { !it.current.isNaN() }) {
+                    add("current" to {
+                        ChartCard(stringResource(R.string.recording_chart_current),
+                            dataPoints.map { it.current },
+                            MaterialTheme.appColors.metricVoltage, unitLabel = "A", minSpan = GraphScale.SPAN_CURRENT,
+                            regenColor = MaterialTheme.appColors.metricBattery,
+                            scrubIndex = scrubIndex, onScrub = onScrub)
+                    })
                 }
                 if (dataPoints.any { !it.pwm.isNaN() }) {
-                    Spacer(Modifier.height(12.dp))
-                    ChartCard(stringResource(R.string.recording_chart_pwm),
-                        dataPoints.map { it.pwm },
-                        MaterialTheme.appColors.metricTemp, unitLabel = "%", minSpan = GraphScale.SPAN_LOAD,
-                        scrubIndex = scrubIndex, onScrub = onScrub)
+                    add("pwm" to {
+                        ChartCard(stringResource(R.string.recording_chart_pwm),
+                            dataPoints.map { it.pwm },
+                            MaterialTheme.appColors.metricTemp, unitLabel = "%", minSpan = GraphScale.SPAN_LOAD,
+                            scrubIndex = scrubIndex, onScrub = onScrub)
+                    })
+                }
+            }
+
+            // Effective chart order: the rider's saved keys first (ignoring any
+            // that aren't real chart keys), then the remaining charts in default
+            // order. Covers all six keys so the customizer list is stable even
+            // for a trip that has no current / pwm data.
+            val chartKeysDefault = listOf("speed", "battery", "temp", "voltage", "current", "pwm")
+            val effectiveChartOrder = savedChartOrder.filter { it in chartKeysDefault }
+                .let { saved -> saved + chartKeysDefault.filter { it !in saved } }
+
+            // Scrub-synced charts, in the rider's order. Absent current / pwm keys
+            // drop out here (mapNotNull), preserving the old data-presence gating.
+            // TripDetailsSection stays pinned at the very end, outside the reorder.
+            val chartsByKey = allCharts.associateBy { it.first }
+            val orderedCharts = effectiveChartOrder.mapNotNull { chartsByKey[it] }
+            val chartsContent: @Composable ColumnScope.() -> Unit = {
+                orderedCharts.forEachIndexed { i, (_, chart) ->
+                    if (i > 0) Spacer(Modifier.height(12.dp))
+                    chart()
                 }
                 if (extraEvents.isNotEmpty()) {
                     Spacer(Modifier.height(12.dp))
                     TripDetailsSection(extraEvents)
                 }
+            }
+
+            // Display names for the customizer sheet, reusing the same tile and
+            // chart strings the cards already use so nothing is duplicated.
+            val tileLabels: List<Pair<String, String>> = listOf(
+                "distance" to stringResource(R.string.recording_summary_distance),
+                "duration" to stringResource(R.string.recording_summary_duration),
+                "points" to stringResource(R.string.recording_summary_points),
+                "topSpeed" to stringResource(R.string.recording_summary_top_speed),
+                "avgSpeed" to stringResource(R.string.recording_summary_avg_speed),
+                "avgMoving" to stringResource(R.string.recording_summary_avg_moving),
+                "battery" to stringResource(R.string.recording_summary_battery, batteryStats.batteryConsumption),
+                "voltage" to stringResource(R.string.recording_summary_voltage),
+                "maxTemp" to stringResource(R.string.recording_summary_max_temp),
+                "maxPwm" to stringResource(R.string.recording_summary_max_pwm),
+                "maxCurrent" to stringResource(R.string.recording_summary_max_current),
+                "maxPower" to stringResource(R.string.recording_summary_max_power),
+            )
+            val chartLabels: Map<String, String> = mapOf(
+                "speed" to stringResource(R.string.recording_chart_speed, speedUnitLabel),
+                "battery" to stringResource(R.string.recording_chart_battery),
+                "temp" to stringResource(R.string.recording_chart_temp, tempUnitLabel),
+                "voltage" to stringResource(R.string.recording_chart_voltage),
+                "current" to stringResource(R.string.recording_chart_current),
+                "pwm" to stringResource(R.string.recording_chart_pwm),
+            )
+
+            if (showCustomize) {
+                CustomizeSheet(
+                    hiddenTiles = hiddenTiles,
+                    tileLabels = tileLabels,
+                    chartOrder = effectiveChartOrder,
+                    chartLabels = chartLabels,
+                    onToggleTile = { key, hidden -> viewModel.setTileHidden(key, hidden) },
+                    onReorderCharts = { viewModel.setChartOrder(it) },
+                    onDismiss = { showCustomize = false },
+                )
             }
 
             if (landscape) {
@@ -513,6 +623,105 @@ fun TripDetailScreen(
                     }
                     Spacer(Modifier.height(16.dp))
                     chartsContent()
+                }
+            }
+        }
+    }
+}
+
+/**
+ * Trip Details "Customize" bottom sheet. Two sections: toggle each stat tile's
+ * visibility, and drag to reorder the graphs. Edits persist immediately through
+ * the ViewModel, so the live screen updates as the rider changes them.
+ */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun CustomizeSheet(
+    hiddenTiles: Set<String>,
+    tileLabels: List<Pair<String, String>>,
+    chartOrder: List<String>,
+    chartLabels: Map<String, String>,
+    onToggleTile: (String, Boolean) -> Unit,
+    onReorderCharts: (List<String>) -> Unit,
+    onDismiss: () -> Unit,
+) {
+    val haptic = LocalHapticFeedback.current
+    ModalBottomSheet(onDismissRequest = onDismiss) {
+        Column(
+            Modifier
+                .fillMaxWidth()
+                .verticalScroll(rememberScrollState())
+                .padding(horizontal = 20.dp)
+                .padding(bottom = 24.dp)
+        ) {
+            Text(
+                stringResource(R.string.trip_customize),
+                style = MaterialTheme.typography.titleLarge,
+                color = MaterialTheme.appColors.textPrimary,
+            )
+
+            Spacer(Modifier.height(16.dp))
+            Text(
+                stringResource(R.string.trip_customize_tiles),
+                style = MaterialTheme.typography.titleSmall,
+                color = MaterialTheme.appColors.textSecondary,
+            )
+            Spacer(Modifier.height(4.dp))
+            tileLabels.forEach { (key, label) ->
+                val shown = key !in hiddenTiles
+                Row(
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 2.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Text(
+                        label,
+                        modifier = Modifier.weight(1f),
+                        color = MaterialTheme.appColors.textPrimary,
+                    )
+                    Switch(
+                        checked = shown,
+                        onCheckedChange = { onToggleTile(key, !it) },
+                        colors = themedSwitchColors(),
+                    )
+                }
+            }
+
+            Spacer(Modifier.height(16.dp))
+            Text(
+                stringResource(R.string.trip_customize_graphs),
+                style = MaterialTheme.typography.titleSmall,
+                color = MaterialTheme.appColors.textSecondary,
+            )
+            Spacer(Modifier.height(4.dp))
+            ReorderableColumn(
+                list = chartOrder,
+                onSettle = { from, to ->
+                    onReorderCharts(chartOrder.toMutableList().apply { add(to, removeAt(from)) })
+                },
+                onMove = { haptic.performHapticFeedback(HapticFeedbackType.LongPress) },
+                modifier = Modifier.fillMaxWidth(),
+            ) { _, chartKey, _ ->
+                key(chartKey) {
+                    Row(
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 6.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Icon(
+                            Icons.Default.DragHandle,
+                            contentDescription = stringResource(R.string.action_reorder),
+                            tint = MaterialTheme.appColors.textSecondary,
+                            modifier = Modifier.draggableHandle().size(24.dp),
+                        )
+                        Spacer(Modifier.width(12.dp))
+                        Text(
+                            chartLabels[chartKey] ?: chartKey,
+                            color = MaterialTheme.appColors.textPrimary,
+                        )
+                    }
                 }
             }
         }
