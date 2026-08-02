@@ -468,7 +468,7 @@
     <string name="cloud_restore_success">Instellingen teruggezet</string>
     <string name="cloud_restore_failed">Geen back-up gevonden in de map</string>
     <string name="section_cloud_trips">Back-up van ritten</string>
-    <string name="cloud_trips_caption">Ritten worden op deze telefoon bewaard en automatisch naar je back-upmap gekopieerd. Ze hier wissen verwijdert alleen de kopie op de telefoon; je back-up blijft.</string>
+    <string name="cloud_trips_caption">Ritten blijven op deze telefoon en synchroniseren automatisch met je back-upmap. Hier wissen verwijdert alleen de kopieën op de telefoon, niet je back-up.</string>
     <string name="cloud_retry_now">Alles synchr.</string>
     <string name="cloud_retry_enqueued">Upload ingepland</string>
     <string name="sync_progress">Synchroniseren %1$d van %2$d</string>
@@ -2018,5 +2018,9 @@
     <string name="cloud_reset_local">Lokale ritten wissen</string>
     <string name="cloud_reset_local_title">Lokale ritten wissen?</string>
     <string name="cloud_reset_local_body">Verwijdert alle ritten die op deze telefoon zijn opgeslagen. Je back-upmap blijft ongemoeid, dus gesynchroniseerde ritten kunnen daaruit worden hersteld.</string>
+    <string name="dropbox_syncing">Ritten synchroniseren…</string>
+    <string name="dropbox_folder_desc">Ritten en instellingen worden opgeslagen in je Dropbox, onder %1$s. Alleen deze app kan die map zien.</string>
+    <string name="keep_app_alive">App actief houden</string>
+    <string name="keep_app_alive_desc">Toont een permanente melding zodat de app op de achtergrond actief blijft. Rittensynchronisatie en spraak blijven werken, zelfs zonder verbonden wiel. Gebruikt iets meer batterij.</string>
 </resources>
 

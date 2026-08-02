@@ -468,7 +468,7 @@
     <string name="cloud_restore_success">Paramètres restaurés</string>
     <string name="cloud_restore_failed">Aucune sauvegarde trouvée dans le dossier</string>
     <string name="section_cloud_trips">Sauvegarde des trajets</string>
-    <string name="cloud_trips_caption">Les trajets sont conservés sur ce téléphone et copiés automatiquement dans ton dossier de sauvegarde. Les effacer ici supprime seulement la copie du téléphone ; ta sauvegarde reste.</string>
+    <string name="cloud_trips_caption">Les trajets restent sur ce téléphone et se synchronisent automatiquement avec ton dossier de sauvegarde. Effacer ici supprime seulement les copies du téléphone, pas ta sauvegarde.</string>
     <string name="cloud_retry_now">Tout sync</string>
     <string name="cloud_retry_enqueued">Envoi programmé</string>
     <string name="sync_progress">Synchronisation %1$d sur %2$d</string>
@@ -2020,4 +2020,8 @@
     <string name="cloud_reset_local">Effacer les trajets locaux</string>
     <string name="cloud_reset_local_title">Effacer les trajets locaux ?</string>
     <string name="cloud_reset_local_body">Supprime tous les trajets enregistrés sur ce téléphone. Ton dossier de sauvegarde reste intact, les trajets synchronisés peuvent y être restaurés.</string>
+    <string name="dropbox_syncing">Synchronisation des trajets…</string>
+    <string name="dropbox_folder_desc">Les trajets et les réglages sont enregistrés dans ton Dropbox, dans %1$s. Seule cette app peut voir ce dossier.</string>
+    <string name="keep_app_alive">Garder l’application active</string>
+    <string name="keep_app_alive_desc">Affiche une notification permanente pour que l’app reste active en arrière-plan. La synchronisation des trajets et la voix continuent de fonctionner même sans roue connectée. Consomme un peu plus de batterie.</string>
 </resources>

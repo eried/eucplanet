@@ -468,7 +468,7 @@
     <string name="cloud_restore_success">Configurações restauradas</string>
     <string name="cloud_restore_failed">Nenhum backup encontrado na pasta</string>
     <string name="section_cloud_trips">Backup de viagens</string>
-    <string name="cloud_trips_caption">As viagens ficam neste telefone e são copiadas automaticamente para sua pasta de backup. Limpá-las aqui remove apenas a cópia do telefone; seu backup permanece.</string>
+    <string name="cloud_trips_caption">As viagens ficam neste telefone e são sincronizadas automaticamente com sua pasta de backup. Limpar aqui apaga apenas as cópias do telefone, não o seu backup.</string>
     <string name="cloud_retry_now">Sincronizar tudo</string>
     <string name="cloud_retry_enqueued">Envio agendado</string>
     <string name="sync_progress">Sincronizando %1$d de %2$d</string>
@@ -2018,5 +2018,9 @@
     <string name="cloud_reset_local">Limpar viagens locais</string>
     <string name="cloud_reset_local_title">Limpar viagens locais?</string>
     <string name="cloud_reset_local_body">Remove todas as viagens salvas neste telefone. Sua pasta de backup não é afetada, então as viagens sincronizadas podem ser restauradas de lá.</string>
+    <string name="dropbox_syncing">Sincronizando viagens…</string>
+    <string name="dropbox_folder_desc">As viagens e as configurações são salvas no seu Dropbox, em %1$s. Só este app pode ver essa pasta.</string>
+    <string name="keep_app_alive">Manter o app ativo</string>
+    <string name="keep_app_alive_desc">Mostra uma notificação permanente para o app continuar ativo em segundo plano. A sincronização de viagens e a voz continuam funcionando mesmo sem uma roda conectada. Usa um pouco mais de bateria.</string>
 </resources>
 

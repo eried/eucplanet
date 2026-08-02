@@ -468,7 +468,7 @@
     <string name="cloud_restore_success">Ajustes restaurados</string>
     <string name="cloud_restore_failed">No se encontró respaldo en la carpeta</string>
     <string name="section_cloud_trips">Respaldo de viajes</string>
-    <string name="cloud_trips_caption">Los viajes se guardan en este teléfono y se copian automáticamente a tu carpeta de copia de seguridad. Borrarlos aquí elimina solo la copia del teléfono; tu copia de seguridad permanece.</string>
+    <string name="cloud_trips_caption">Los viajes permanecen en este teléfono y se sincronizan con tu carpeta de copia de seguridad automáticamente. Borrar aquí elimina solo las copias del teléfono, no tu copia de seguridad.</string>
     <string name="cloud_retry_now">Sincronizar todo</string>
     <string name="cloud_retry_enqueued">Subida programada</string>
     <string name="sync_progress">Sincronizando %1$d de %2$d</string>
@@ -2013,5 +2013,9 @@
     <string name="cloud_reset_local">Borrar viajes locales</string>
     <string name="cloud_reset_local_title">¿Borrar viajes locales?</string>
     <string name="cloud_reset_local_body">Elimina todos los viajes guardados en este teléfono. Tu carpeta de copia de seguridad no se toca, así que los viajes sincronizados se pueden restaurar desde allí.</string>
+    <string name="dropbox_syncing">Sincronizando viajes…</string>
+    <string name="dropbox_folder_desc">Los viajes y los ajustes se guardan en tu Dropbox, en %1$s. Solo esta app puede ver esa carpeta.</string>
+    <string name="keep_app_alive">Mantener la app activa</string>
+    <string name="keep_app_alive_desc">Muestra una notificación permanente para que la app siga activa en segundo plano. La sincronización de viajes y la voz siguen funcionando aunque no haya una rueda conectada. Usa un poco más de batería.</string>
 </resources>
 

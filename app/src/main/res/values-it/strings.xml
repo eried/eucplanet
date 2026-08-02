@@ -187,7 +187,7 @@
     <string name="cloud_restore_success">Impostazioni ripristinate</string>
     <string name="cloud_restore_failed">Nessun backup trovato nella cartella</string>
     <string name="section_cloud_trips">Backup dei viaggi</string>
-    <string name="cloud_trips_caption">I viaggi vengono conservati su questo telefono e copiati automaticamente nella cartella di backup. Cancellandoli qui rimuovi solo la copia sul telefono; il backup resta.</string>
+    <string name="cloud_trips_caption">I viaggi restano su questo telefono e si sincronizzano automaticamente con la cartella di backup. Cancellare qui rimuove solo le copie sul telefono, non il backup.</string>
     <string name="cloud_retry_now">Sincr. tutto</string>
     <string name="cloud_retry_enqueued">Upload programmato</string>
     <string name="sync_progress">Sincronizzazione %1$d di %2$d</string>
@@ -1921,4 +1921,8 @@
     <string name="cloud_reset_local">Cancella viaggi locali</string>
     <string name="cloud_reset_local_title">Cancellare i viaggi locali?</string>
     <string name="cloud_reset_local_body">Rimuove tutti i viaggi salvati su questo telefono. La cartella di backup resta intatta, quindi i viaggi sincronizzati possono essere ripristinati da lì.</string>
+    <string name="dropbox_syncing">Sincronizzazione dei viaggi…</string>
+    <string name="dropbox_folder_desc">I viaggi e le impostazioni vengono salvati nel tuo Dropbox, in %1$s. Solo questa app può vedere quella cartella.</string>
+    <string name="keep_app_alive">Mantieni l’app attiva</string>
+    <string name="keep_app_alive_desc">Mostra una notifica permanente così l’app resta attiva in background. La sincronizzazione dei viaggi e la voce continuano a funzionare anche senza una ruota connessa. Consuma un po’ più di batteria.</string>
 </resources>

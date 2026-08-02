@@ -125,7 +125,7 @@
     <string name="cloud_restore_success">设置已恢复</string>
     <string name="cloud_restore_failed">文件夹中未找到备份</string>
     <string name="section_cloud_trips">行程备份</string>
-    <string name="cloud_trips_caption">行程保存在本机上，并会自动复制到您的备份文件夹。在此清除只会删除本机上的副本，备份仍会保留。</string>
+    <string name="cloud_trips_caption">行程会保留在本机上，并自动同步到您的备份文件夹。在此清除只会删除本机上的副本，不会删除您的备份。</string>
     <string name="cloud_retry_now">全部同步</string>
     <string name="cloud_retry_enqueued">上传已排队</string>
     <string name="cloud_uploaded_on">于 %1$s 备份</string>
@@ -1883,4 +1883,8 @@
     <string name="cloud_reset_local">清除本地行程</string>
     <string name="cloud_reset_local_title">清除本地行程？</string>
     <string name="cloud_reset_local_body">移除保存在本机上的所有行程。您的备份文件夹不受影响，已同步的行程可从那里恢复。</string>
+    <string name="dropbox_syncing">正在同步行程…</string>
+    <string name="dropbox_folder_desc">行程和设置保存在您的 Dropbox 的 %1$s 中。只有本应用能看到该文件夹。</string>
+    <string name="keep_app_alive">保持应用运行</string>
+    <string name="keep_app_alive_desc">显示常驻通知，让应用在后台保持运行。即使没有连接独轮车，行程同步和语音也能继续工作。会多消耗一点电量。</string>
 </resources>

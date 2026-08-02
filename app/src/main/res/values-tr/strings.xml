@@ -468,7 +468,7 @@
     <string name="cloud_restore_success">Ayarlar geri yüklendi</string>
     <string name="cloud_restore_failed">Klasörde yedek bulunamadı</string>
     <string name="section_cloud_trips">Sefer yedekleme</string>
-    <string name="cloud_trips_caption">Seferler bu telefonda tutulur ve otomatik olarak yedek klasörünüze kopyalanır. Bunları burada temizlemek yalnızca telefondaki kopyayı kaldırır; yedeğiniz kalır.</string>
+    <string name="cloud_trips_caption">Seferler bu telefonda kalır ve otomatik olarak yedek klasörünüzle eşitlenir. Buradan temizlemek yalnızca telefondaki kopyaları siler, yedeğinizi silmez.</string>
     <string name="cloud_retry_now">Tümünü eşitle</string>
     <string name="cloud_retry_enqueued">Yükleme planlandı</string>
     <string name="sync_progress">%2$d içinden %1$d eşitleniyor</string>
@@ -2013,6 +2013,10 @@
     <string name="cloud_reset_local">Yerel seferleri temizle</string>
     <string name="cloud_reset_local_title">Yerel seferler temizlensin mi?</string>
     <string name="cloud_reset_local_body">Bu telefonda kayıtlı tüm seferleri kaldırır. Yedek klasörünüze dokunulmaz, böylece eşitlenen seferler oradan geri yüklenebilir.</string>
+    <string name="dropbox_syncing">Seferler eşitleniyor…</string>
+    <string name="dropbox_folder_desc">Seferler ve ayarlar Dropbox’ınızda %1$s içinde saklanır. Bu klasörü yalnızca bu uygulama görebilir.</string>
+    <string name="keep_app_alive">Uygulamayı çalışır tut</string>
+    <string name="keep_app_alive_desc">Uygulamanın arka planda etkin kalması için kalıcı bir bildirim gösterir. Teker bağlı olmasa bile sefer eşitleme ve sesli bildirim çalışmaya devam eder. Biraz daha fazla pil kullanır.</string>
 </resources>
 
 
