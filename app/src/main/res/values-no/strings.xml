@@ -1908,4 +1908,5 @@
     <string name="dropbox_folder_desc">Turer og innstillinger lagres i Dropbox-en din, under %1$s. Bare denne appen kan se den mappen.</string>
     <string name="keep_app_alive">Hold appen i gang</string>
     <string name="keep_app_alive_desc">Viser et vedvarende varsel så appen holdes aktiv i bakgrunnen. Synkronisering av turer og tale fungerer selv uten et tilkoblet hjul. Bruker litt mer batteri.</string>
+    <string name="sync_up_to_date">Allerede oppdatert</string>
 </resources>

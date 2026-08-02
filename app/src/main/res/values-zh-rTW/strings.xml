@@ -2019,6 +2019,7 @@
     <string name="dropbox_folder_desc">行程和設定儲存在您的 Dropbox 的 %1$s 中。只有本應用程式能看到該資料夾。</string>
     <string name="keep_app_alive">保持應用程式執行</string>
     <string name="keep_app_alive_desc">顯示常駐通知，讓應用程式在背景保持執行。即使未連接車輪，行程同步和語音也能繼續運作。會多消耗一點電量。</string>
+    <string name="sync_up_to_date">已是最新</string>
 </resources>
 
 

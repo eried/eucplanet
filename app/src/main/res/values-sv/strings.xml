@@ -2020,4 +2020,5 @@
     <string name="dropbox_folder_desc">Turer och inställningar sparas i din Dropbox, under %1$s. Bara den här appen kan se den mappen.</string>
     <string name="keep_app_alive">Håll appen igång</string>
     <string name="keep_app_alive_desc">Visar en pågående avisering så att appen hålls aktiv i bakgrunden. Synkronisering av turer och röst fortsätter att fungera även utan ett anslutet hjul. Drar lite mer batteri.</string>
+    <string name="sync_up_to_date">Redan uppdaterad</string>
 </resources>

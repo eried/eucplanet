@@ -2040,4 +2040,5 @@
     <string name="dropbox_folder_desc">Fahrten und Einstellungen werden in deiner Dropbox unter %1$s gespeichert. Nur diese App kann diesen Ordner sehen.</string>
     <string name="keep_app_alive">App aktiv halten</string>
     <string name="keep_app_alive_desc">Zeigt eine dauerhafte Benachrichtigung, damit die App im Hintergrund aktiv bleibt. Fahrtensynchronisierung und Sprache funktionieren auch ohne verbundenes Wheel. Verbraucht etwas mehr Akku.</string>
+    <string name="sync_up_to_date">Bereits aktuell</string>
 </resources>

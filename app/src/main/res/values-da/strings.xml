@@ -2035,4 +2035,5 @@
     <string name="dropbox_folder_desc">Ture og indstillinger gemmes i din Dropbox, under %1$s. Kun denne app kan se den mappe.</string>
     <string name="keep_app_alive">Hold appen kørende</string>
     <string name="keep_app_alive_desc">Viser en vedvarende notifikation, så appen forbliver aktiv i baggrunden. Synkronisering af ture og stemme fungerer, selv uden et tilsluttet hjul. Bruger lidt mere batteri.</string>
+    <string name="sync_up_to_date">Allerede opdateret</string>
 </resources>

@@ -1887,4 +1887,5 @@
     <string name="dropbox_folder_desc">行程和设置保存在您的 Dropbox 的 %1$s 中。只有本应用能看到该文件夹。</string>
     <string name="keep_app_alive">保持应用运行</string>
     <string name="keep_app_alive_desc">显示常驻通知，让应用在后台保持运行。即使没有连接独轮车，行程同步和语音也能继续工作。会多消耗一点电量。</string>
+    <string name="sync_up_to_date">已是最新</string>
 </resources>

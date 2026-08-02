@@ -2022,5 +2022,6 @@
     <string name="dropbox_folder_desc">Ritten en instellingen worden opgeslagen in je Dropbox, onder %1$s. Alleen deze app kan die map zien.</string>
     <string name="keep_app_alive">App actief houden</string>
     <string name="keep_app_alive_desc">Toont een permanente melding zodat de app op de achtergrond actief blijft. Rittensynchronisatie en spraak blijven werken, zelfs zonder verbonden wiel. Gebruikt iets meer batterij.</string>
+    <string name="sync_up_to_date">Al up-to-date</string>
 </resources>
 

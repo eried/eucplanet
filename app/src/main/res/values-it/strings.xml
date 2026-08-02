@@ -1925,4 +1925,5 @@
     <string name="dropbox_folder_desc">I viaggi e le impostazioni vengono salvati nel tuo Dropbox, in %1$s. Solo questa app può vedere quella cartella.</string>
     <string name="keep_app_alive">Mantieni l’app attiva</string>
     <string name="keep_app_alive_desc">Mostra una notifica permanente così l’app resta attiva in background. La sincronizzazione dei viaggi e la voce continuano a funzionare anche senza una ruota connessa. Consuma un po’ più di batteria.</string>
+    <string name="sync_up_to_date">Già aggiornato</string>
 </resources>

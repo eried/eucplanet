@@ -2020,4 +2020,5 @@
     <string name="dropbox_folder_desc">Przejazdy i ustawienia są zapisywane w Twoim Dropboksie, w %1$s. Tylko ta aplikacja widzi ten folder.</string>
     <string name="keep_app_alive">Utrzymuj aplikację aktywną</string>
     <string name="keep_app_alive_desc">Wyświetla stałe powiadomienie, dzięki czemu aplikacja pozostaje aktywna w tle. Synchronizacja przejazdów i głos działają nawet bez podłączonego koła. Zużywa nieco więcej baterii.</string>
+    <string name="sync_up_to_date">Już zaktualizowane</string>
 </resources>

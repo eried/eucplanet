@@ -2017,6 +2017,7 @@
     <string name="dropbox_folder_desc">Seferler ve ayarlar Dropbox’ınızda %1$s içinde saklanır. Bu klasörü yalnızca bu uygulama görebilir.</string>
     <string name="keep_app_alive">Uygulamayı çalışır tut</string>
     <string name="keep_app_alive_desc">Uygulamanın arka planda etkin kalması için kalıcı bir bildirim gösterir. Teker bağlı olmasa bile sefer eşitleme ve sesli bildirim çalışmaya devam eder. Biraz daha fazla pil kullanır.</string>
+    <string name="sync_up_to_date">Zaten güncel</string>
 </resources>
 
 

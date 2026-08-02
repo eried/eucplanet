@@ -2021,6 +2021,7 @@
     <string name="dropbox_folder_desc">トリップと設定はDropboxの %1$s に保存されます。このフォルダーはこのアプリだけが見られます。</string>
     <string name="keep_app_alive">アプリを起動したままにする</string>
     <string name="keep_app_alive_desc">常時通知を表示して、アプリをバックグラウンドで動作させ続けます。ホイールが接続されていなくても、トリップの同期と音声は動作します。バッテリーを少し多く消費します。</string>
+    <string name="sync_up_to_date">すでに最新です</string>
 </resources>
 
 
