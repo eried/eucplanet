@@ -1419,6 +1419,8 @@
     <string name="studio_metric_external_gps_battery">Ext. GPS-accu</string>
     <string name="studio_metric_external_gps_speed">Ext. GPS-snelheid</string>
     <string name="studio_metric_gps_speed">GPS-snelheid</string>
+    <string name="studio_metric_gps_speed_smooth">GPS-snelheid (afgevlakt)</string>
+    <string name="studio_metric_external_gps_speed_smooth">Ext. GPS-snelheid (afgevlakt)</string>
     <string name="metric_chip_trip_meter">Tripteller</string>
     <string name="trip_meter_detail_title">Tripteller</string>
     <string name="trip_meter_tab_speed">Snelheid</string>

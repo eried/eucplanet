@@ -39,6 +39,11 @@ data class WheelData(
     /** Ground speed in km/h from the PHONE's fused GPS, -1 when no fix.
      *  Fed from HudState.gpsSpeedKmh when gpsSource == "PHONE". */
     val gpsSpeedKmh: Float = -1f,
+    /** Median-filtered phone / external GPS speeds in km/h, -1 when absent. Fed
+     *  from HudState.phoneGpsSpeedFilteredKmh / externalGpsSpeedFilteredKmh; back
+     *  the GPS_SPEED_SMOOTH / EXT_GPS_SPEED_SMOOTH overlay metrics. */
+    val gpsSpeedFilteredKmh: Float = -1f,
+    val externalGpsSpeedFilteredKmh: Float = -1f,
     /** Running trip-meter distance in km (connect-scoped car odometer), -1 when
      *  none. Fed from HudState.tripMeterKm. */
     val tripMeterKm: Float = -1f,

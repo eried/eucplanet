@@ -1421,6 +1421,8 @@
     <string name="studio_metric_external_gps_battery">Batterie GPS ext.</string>
     <string name="studio_metric_external_gps_speed">Vitesse GPS ext.</string>
     <string name="studio_metric_gps_speed">Vitesse GPS</string>
+    <string name="studio_metric_gps_speed_smooth">Vitesse GPS (lissée)</string>
+    <string name="studio_metric_external_gps_speed_smooth">Vitesse GPS ext. (lissée)</string>
     <string name="metric_chip_trip_meter">Compteur de trajet</string>
     <string name="trip_meter_detail_title">Compteur de trajet</string>
     <string name="trip_meter_tab_speed">Vitesse</string>

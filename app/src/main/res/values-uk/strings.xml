@@ -1406,6 +1406,8 @@
     <string name="studio_metric_external_gps_battery">Заряд зовн. GPS</string>
     <string name="studio_metric_external_gps_speed">Швидкість зовн. GPS</string>
     <string name="studio_metric_gps_speed">Швидкість GPS</string>
+    <string name="studio_metric_gps_speed_smooth">Швидкість GPS (згладж.)</string>
+    <string name="studio_metric_external_gps_speed_smooth">Швидкість зовн. GPS (згладж.)</string>
     <string name="metric_chip_trip_meter">Лічильник поїздки</string>
     <string name="trip_meter_detail_title">Лічильник поїздки</string>
     <string name="trip_meter_tab_speed">Швидкість</string>

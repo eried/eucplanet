@@ -1394,6 +1394,8 @@
     <string name="studio_metric_external_gps_battery">Ext. GPS-Akku</string>
     <string name="studio_metric_external_gps_speed">Ext. GPS-Tempo</string>
     <string name="studio_metric_gps_speed">GPS-Tempo</string>
+    <string name="studio_metric_gps_speed_smooth">GPS-Tempo (geglättet)</string>
+    <string name="studio_metric_external_gps_speed_smooth">Ext. GPS-Tempo (geglättet)</string>
     <string name="metric_chip_trip_meter">Tripzähler</string>
     <string name="trip_meter_detail_title">Tripzähler</string>
     <string name="trip_meter_tab_speed">Tempo</string>

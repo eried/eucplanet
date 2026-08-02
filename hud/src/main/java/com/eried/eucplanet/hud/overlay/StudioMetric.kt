@@ -43,6 +43,8 @@ enum class StudioMetric(
     EXTERNAL_GPS_SPEED("EXT_GPS_SPEED", "Ext GPS speed", StudioMetricKind.SPEED, "", 1, 60f, { it.externalGpsSpeedKmh.coerceAtLeast(0f) }),
     TIRE_PRESSURE("TIRE_PRESSURE", "Tire pressure", StudioMetricKind.PRESSURE, "", 1, 50f, { it.tirePressureKpa }),
     GPS_SPEED("GPS_SPEED", "GPS speed", StudioMetricKind.SPEED, "", 1, 60f, { it.gpsSpeedKmh.coerceAtLeast(0f) }),
+    GPS_SPEED_SMOOTH("GPS_SPEED_SMOOTH", "GPS speed (smoothed)", StudioMetricKind.SPEED, "", 1, 60f, { it.gpsSpeedFilteredKmh.coerceAtLeast(0f) }),
+    EXTERNAL_GPS_SPEED_SMOOTH("EXT_GPS_SPEED_SMOOTH", "Ext GPS speed (smoothed)", StudioMetricKind.SPEED, "", 1, 60f, { it.externalGpsSpeedFilteredKmh.coerceAtLeast(0f) }),
     GPS("GPS", "GPS coordinates", StudioMetricKind.PLAIN, "", 0, 1f, { 0f }, textOnly = true);
 
     /** True when this metric renders a unit beside its value. */
@@ -103,5 +105,7 @@ fun StudioMetric.displayName(): String = when (this) {
     StudioMetric.EXTERNAL_GPS_SPEED -> "Ext GPS spd"
     StudioMetric.TIRE_PRESSURE -> "Tire"
     StudioMetric.GPS_SPEED -> "GPS spd"
+    StudioMetric.GPS_SPEED_SMOOTH -> "GPS spd~"
+    StudioMetric.EXTERNAL_GPS_SPEED_SMOOTH -> "Ext GPS spd~"
     StudioMetric.GPS -> "GPS coord"
 }

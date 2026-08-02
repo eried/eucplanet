@@ -102,6 +102,14 @@ data class HudState(
      *  source, so the non-active one used to read 0 on the HUD. */
     val phoneGpsSpeedKmh: Float = Float.NaN,
     val externalGpsSpeedKmh: Float = Float.NaN,
+    /** Median-filtered (noise-rejected) phone / external GPS speeds in km/h, NaN
+     *  when absent. Wired in minor 16 to back the GPS_SPEED_SMOOTH /
+     *  EXT_GPS_SPEED_SMOOTH overlay metrics: the raw fields above spike on a bad
+     *  Doppler sample (which latches any max the HUD tracks), while these are
+     *  passed through a median-of-3 on the phone. Older HUDs default them to NaN
+     *  and just don't offer the smoothed metric. */
+    val phoneGpsSpeedFilteredKmh: Float = Float.NaN,
+    val externalGpsSpeedFilteredKmh: Float = Float.NaN,
     /** True when the phone has any fresh GPS fix at all (any source). */
     val gpsHasFix: Boolean = false,
     /** Current heading in degrees, 0 = north, +clockwise. NaN when the GPS
@@ -289,8 +297,14 @@ data class HudState(
          *    [HudState.phoneGpsSpeedKmh] / [HudState.externalGpsSpeedKmh] so a HUD
          *    can show phone AND external GPS speed at once. Older HUDs default
          *    these and fall back to the prior single-source behaviour.
+         * 16: added [HudState.phoneGpsSpeedFilteredKmh] /
+         *    [HudState.externalGpsSpeedFilteredKmh] (median-filtered GPS speeds)
+         *    AND the GPS_SPEED_SMOOTH / EXT_GPS_SPEED_SMOOTH overlay metric keys.
+         *    An older HUD ignores the fields and, not knowing those keys, renders
+         *    such an element as SPEED (the fromKey fallback), so the minor bump
+         *    surfaces the "update your HUD" hint.
          */
-        const val PROTOCOL_MINOR: Int = 15
+        const val PROTOCOL_MINOR: Int = 16
 
         /** Legacy alias. New code should read [PROTOCOL_MAJOR] / [PROTOCOL_MINOR]. */
         @Deprecated(

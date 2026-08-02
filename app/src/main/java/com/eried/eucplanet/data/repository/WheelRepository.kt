@@ -438,37 +438,16 @@ class WheelRepository @Inject constructor(
      * append (the buffer holds its last window of good samples). Wrapped so a
      * transient source read can never break the telemetry path.
      */
-    // Rolling window of the last few trusted phone-GPS speeds (km/h), for a
-    // median-of-3 filter on the GPS_SPEED stat. The phone GPS speed is the chip's
-    // Doppler reading, which occasionally throws a one-sample spike (multipath, a
-    // brief signal drop and reacquire). The dashboard tile stores the session MAX,
-    // so one bad sample used to set a bogus max (a ride whose real top speed - seen
-    // live on the HUD - was ~40 mph showed GPS max 49). A median-of-3 medians a lone
-    // spike (40, 49, 40 -> 40) back out while sustained real speed passes through.
-    private val gpsSpeedWindow = ArrayDeque<Float>()
-
-    /**
-     * Phone-GPS ground speed to record for the GPS_SPEED stat, in km/h, or null to
-     * skip this tick. Drops low-confidence fixes (poor position or speed accuracy)
-     * then returns the median of the last up-to-3 trusted samples, so an isolated
-     * Doppler spike can never reach the max.
-     */
-    private fun trustedGpsSpeedKmh(loc: android.location.Location): Float? {
-        if (!loc.hasSpeed()) return null
-        // A bad fix gives a bad Doppler speed; drop it before it pollutes the median.
-        if (loc.hasAccuracy() && loc.accuracy > 25f) return null
-        if (loc.hasSpeedAccuracy() && loc.speedAccuracyMetersPerSecond > 2f) return null
-        gpsSpeedWindow.addLast(loc.speed * 3.6f)
-        while (gpsSpeedWindow.size > 3) gpsSpeedWindow.removeFirst()
-        val sorted = gpsSpeedWindow.sorted()
-        return sorted[sorted.size / 2]  // median of 1, 2 or 3
-    }
-
     private fun sampleSourceHistory(now: Long) {
         runCatching {
-            val loc = tripRepositoryLazy.get().currentLocation.value
+            val trip = tripRepositoryLazy.get()
+            val loc = trip.currentLocation.value
             if (loc != null) {
-                trustedGpsSpeedKmh(loc)?.let { extrasHist["GPS_SPEED"]?.add(MetricSample(now, it)) }
+                // GPS speed for the max/avg stat comes from the shared median-
+                // filtered source (TripRepository) so a lone Doppler spike can't
+                // set a bogus max - the same value the HUD's GPS_SPEED_SMOOTH
+                // overlay metric uses. The live GPS_SPEED tile stays raw.
+                trip.filteredGpsSpeedKmh.value?.let { extrasHist["GPS_SPEED"]?.add(MetricSample(now, it)) }
                 if (loc.hasAltitude()) extrasHist["GPS_ALTITUDE"]?.add(MetricSample(now, loc.altitude.toFloat()))
                 if (loc.hasAccuracy()) extrasHist["GPS_ACCURACY"]?.add(MetricSample(now, loc.accuracy))
             }

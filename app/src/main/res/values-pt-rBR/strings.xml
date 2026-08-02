@@ -1382,6 +1382,8 @@
     <string name="studio_metric_external_gps_battery">Bateria GPS ext.</string>
     <string name="studio_metric_external_gps_speed">Vel. GPS ext.</string>
     <string name="studio_metric_gps_speed">Velocidade GPS</string>
+    <string name="studio_metric_gps_speed_smooth">Velocidade GPS (suavizada)</string>
+    <string name="studio_metric_external_gps_speed_smooth">Vel. GPS ext. (suavizada)</string>
     <string name="metric_chip_trip_meter">Hodômetro parcial</string>
     <string name="trip_meter_detail_title">Hodômetro parcial</string>
     <string name="trip_meter_tab_speed">Velocidade</string>

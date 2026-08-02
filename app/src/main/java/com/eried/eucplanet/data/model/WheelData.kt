@@ -37,6 +37,12 @@ data class WheelData(
      *  Distinct from externalGpsSpeedKmh (a paired box); merged in like lat/long
      *  so an overlay / HUD element can show the phone GPS speed. */
     val gpsSpeedKmh: Float = -1f,
+    /** Median-filtered phone / external GPS ground speed in km/h, or -1 when no
+     *  fix. Back the GPS_SPEED_SMOOTH / EXT_GPS_SPEED_SMOOTH overlay metrics: the
+     *  raw fields above spike on a bad Doppler sample, these are noise-rejected
+     *  (see GpsSpeedFilter). Merged in like gpsSpeedKmh. */
+    val gpsSpeedFilteredKmh: Float = -1f,
+    val externalGpsSpeedFilteredKmh: Float = -1f,
     /** Running trip-meter distance in km (the connect-scoped car odometer), or -1
      *  when not merged in. Not wheel telemetry, so it stays -1 on the plain wheel
      *  stream; the Overlay Studio / HUD merge it in like gpsSpeedKmh so an overlay

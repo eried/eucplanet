@@ -1383,6 +1383,8 @@
     <string name="studio_metric_external_gps_battery">Ekst. GPS-batteri</string>
     <string name="studio_metric_external_gps_speed">Ext. GPS-fart</string>
     <string name="studio_metric_gps_speed">GPS-fart</string>
+    <string name="studio_metric_gps_speed_smooth">GPS-fart (udjævnet)</string>
+    <string name="studio_metric_external_gps_speed_smooth">Ext. GPS-fart (udjævnet)</string>
     <string name="metric_chip_trip_meter">Triptæller</string>
     <string name="trip_meter_detail_title">Triptæller</string>
     <string name="trip_meter_tab_speed">Fart</string>

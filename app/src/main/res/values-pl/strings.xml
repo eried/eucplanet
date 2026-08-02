@@ -1395,6 +1395,8 @@
     <string name="studio_metric_external_gps_battery">Bateria GPS zewn.</string>
     <string name="studio_metric_external_gps_speed">Prędkość GPS zew.</string>
     <string name="studio_metric_gps_speed">Prędkość GPS</string>
+    <string name="studio_metric_gps_speed_smooth">Prędkość GPS (wygładzona)</string>
+    <string name="studio_metric_external_gps_speed_smooth">Prędkość GPS zew. (wygładzona)</string>
     <string name="metric_chip_trip_meter">Licznik trasy</string>
     <string name="trip_meter_detail_title">Licznik trasy</string>
     <string name="trip_meter_tab_speed">Prędkość</string>

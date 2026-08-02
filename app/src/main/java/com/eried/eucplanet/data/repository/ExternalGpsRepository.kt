@@ -60,6 +60,20 @@ class ExternalGpsRepository @Inject constructor(
     private val _currentSample = MutableStateFlow<ExternalGpsSample?>(null)
     val currentSample: StateFlow<ExternalGpsSample?> = _currentSample.asStateFlow()
 
+    private val speedFilter = com.eried.eucplanet.util.GpsSpeedFilter()
+    private val _filteredSpeedKmh = MutableStateFlow<Float?>(null)
+    /** Median-filtered external-box GPS speed in km/h, or null when there is no
+     *  sample. Backs the EXT_GPS_SPEED_SMOOTH overlay metric. External boxes are
+     *  low-noise, but a lone spike is still medianed out so a HUD max can't latch
+     *  it. See [com.eried.eucplanet.util.GpsSpeedFilter]. */
+    val filteredSpeedKmh: StateFlow<Float?> = _filteredSpeedKmh.asStateFlow()
+
+    private fun updateFilteredSpeed(sample: ExternalGpsSample?) {
+        if (sample == null) { speedFilter.reset(); _filteredSpeedKmh.value = null; return }
+        if (sample.accuracyMeters > 25f) return  // poor fix: keep the last good value
+        _filteredSpeedKmh.value = speedFilter.filter(sample.speedKmh)
+    }
+
     // Volatile mirror of the per-axis remap settings, refreshed whenever the
     // user changes one. Reading from a volatile field in the hot sample path
     // is cheaper than re-collecting the settings flow on every BLE frame.
@@ -87,6 +101,7 @@ class ExternalGpsRepository @Inject constructor(
             connectionManager.samples.collect { raw ->
                 val sample = raw?.let(::applyAxisRemap)
                 _currentSample.value = sample
+                updateFilteredSpeed(sample)
                 // Feed the low-battery (and any future external-GPS) alarm rules.
                 if (sample != null) alarmEngineProvider.get().evaluateExternalGps(sample)
             }
@@ -214,7 +229,9 @@ class ExternalGpsRepository @Inject constructor(
                         verticalSpeedMps = 0f,
                         numSatellites = 12
                     )
-                    _currentSample.value = applyAxisRemap(sample)
+                    val remapped = applyAxisRemap(sample)
+                    _currentSample.value = remapped
+                    updateFilteredSpeed(remapped)
                     kotlinx.coroutines.delay(200)
                     t += 0.2
                 }

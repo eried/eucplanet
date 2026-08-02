@@ -76,6 +76,12 @@ data class StudioElementData(
                     hud.gpsSource == "PHONE" -> hud.gpsSpeedKmh
                     else -> -1f
                 },
+                // Median-filtered GPS speeds (minor 16). -1 when the phone leaves
+                // them NaN (older phone / no fix), which reads as "no data".
+                gpsSpeedFilteredKmh = if (hud.phoneGpsSpeedFilteredKmh.isNaN()) -1f
+                    else hud.phoneGpsSpeedFilteredKmh,
+                externalGpsSpeedFilteredKmh = if (hud.externalGpsSpeedFilteredKmh.isNaN()) -1f
+                    else hud.externalGpsSpeedFilteredKmh,
                 tripMeterKm = hud.tripMeterKm,
                 tirePressureKpa = hud.tirePressureKpa,
                 lightOn = hud.lightOn,

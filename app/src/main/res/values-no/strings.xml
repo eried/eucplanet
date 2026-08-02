@@ -918,6 +918,8 @@
     <string name="studio_metric_external_gps_battery">Eks. GPS-batteri</string>
     <string name="studio_metric_external_gps_speed">Ekst. GPS-fart</string>
     <string name="studio_metric_gps_speed">GPS-fart</string>
+    <string name="studio_metric_gps_speed_smooth">GPS-fart (utjevnet)</string>
+    <string name="studio_metric_external_gps_speed_smooth">Ekst. GPS-fart (utjevnet)</string>
     <string name="metric_chip_trip_meter">Turteller</string>
     <string name="trip_meter_detail_title">Turteller</string>
     <string name="trip_meter_tab_speed">Fart</string>

@@ -469,9 +469,17 @@ sub-canvas rotation and render the coords raw.
 ## 8. Versioning
 
 Two integers carried in every frame: `PROTOCOL_MAJOR` and `PROTOCOL_MINOR`.
-Current is `1.0`. The legacy single-int `protocolVersion` is also on the
-wire as an alias for `PROTOCOL_MAJOR` so HUD APKs built before the split
-still see a recognisable version field.
+Current is `1.16` (the authoritative per-minor changelog lives in
+`HudWire.kt`'s companion object). The legacy single-int `protocolVersion` is
+also on the wire as an alias for `PROTOCOL_MAJOR` so HUD APKs built before the
+split still see a recognisable version field.
+
+Minor 16 added median-filtered GPS speeds (`phoneGpsSpeedFilteredKmh` /
+`externalGpsSpeedFilteredKmh`) and the `GPS_SPEED_SMOOTH` / `EXT_GPS_SPEED_SMOOTH`
+custom-overlay metric keys. A custom HUD that tracks its own max should read the
+filtered fields (or bind an overlay element to the `_SMOOTH` keys): the raw
+`gpsSpeedKmh` / `phoneGpsSpeedKmh` spike on a bad Doppler sample and would latch
+a bogus max, while the filtered ones are median-of-3 smoothed on the phone.
 
 ### 8.1 Bump rules
 

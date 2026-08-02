@@ -167,11 +167,16 @@ class OverlayStudioViewModel @Inject constructor(
         val extSpeed = if (extFresh) ext!!.speedKmh else -1f
         val withGps = if (loc != null) data.copy(
             latitude = loc.latitude, longitude = loc.longitude,
-            gpsSpeedKmh = if (loc.hasSpeed()) loc.speed * 3.6f else -1f
+            gpsSpeedKmh = if (loc.hasSpeed()) loc.speed * 3.6f else -1f,
+            // Median-filtered variant for the GPS_SPEED_SMOOTH preview; updated in
+            // the same location callback so reading .value here is fresh.
+            gpsSpeedFilteredKmh = tripRepository.filteredGpsSpeedKmh.value ?: -1f
         ) else data
         withGps.copy(
             externalGpsBatteryPercent = extBattery,
             externalGpsSpeedKmh = extSpeed,
+            externalGpsSpeedFilteredKmh = if (extFresh)
+                (externalGpsRepository.filteredSpeedKmh.value ?: -1f) else -1f,
             tripMeterKm = tripMeterRepository.distanceKm,
         )
     }.stateIn(viewModelScope, SharingStarted.Eagerly, WheelData())

@@ -937,6 +937,8 @@
     <string name="studio_metric_external_gps_battery">Batteria GPS est.</string>
     <string name="studio_metric_external_gps_speed">Vel. GPS est.</string>
     <string name="studio_metric_gps_speed">Velocità GPS</string>
+    <string name="studio_metric_gps_speed_smooth">Velocità GPS (smussata)</string>
+    <string name="studio_metric_external_gps_speed_smooth">Vel. GPS est. (smussata)</string>
     <string name="metric_chip_trip_meter">Contachilometri parziale</string>
     <string name="trip_meter_detail_title">Contachilometri parziale</string>
     <string name="trip_meter_tab_speed">Velocità</string>

@@ -72,6 +72,26 @@ class TripRepository @Inject constructor(
     private val _currentLocation = MutableStateFlow<Location?>(null)
     val currentLocation: StateFlow<Location?> = _currentLocation.asStateFlow()
 
+    private val gpsSpeedFilter = com.eried.eucplanet.util.GpsSpeedFilter()
+    private val _filteredGpsSpeedKmh = MutableStateFlow<Float?>(null)
+    /** Median-filtered phone GPS ground speed in km/h, or null when there is no
+     *  trustworthy fix. A lone Doppler spike is medianed out so it can't set a
+     *  bogus max. Backs the GPS_SPEED_SMOOTH overlay metric and the dashboard
+     *  GPS-max stat. Holds the last good value through a poor fix rather than
+     *  blanking. See [com.eried.eucplanet.util.GpsSpeedFilter]. */
+    val filteredGpsSpeedKmh: StateFlow<Float?> = _filteredGpsSpeedKmh.asStateFlow()
+
+    /** Update [filteredGpsSpeedKmh] from a new fix: drop it entirely when the
+     *  position/speed accuracy is poor (keep the last value), else feed the
+     *  median filter. */
+    private fun updateFilteredGpsSpeed(loc: Location) {
+        if (!loc.hasSpeed()) { gpsSpeedFilter.reset(); _filteredGpsSpeedKmh.value = null; return }
+        val badPos = loc.hasAccuracy() && loc.accuracy > 25f
+        val badSpeed = loc.hasSpeedAccuracy() && loc.speedAccuracyMetersPerSecond > 2f
+        if (badPos || badSpeed) return  // keep last good value; don't feed the median
+        _filteredGpsSpeedKmh.value = gpsSpeedFilter.filter(loc.speed * 3.6f)
+    }
+
     // Id of the TripRecord currently being recorded (null when idle). Used so the trip detail
     // screen can tell whether it is viewing the live-recording trip and animate the marker.
     private val _currentTripId = MutableStateFlow<Long?>(null)
@@ -231,6 +251,7 @@ class TripRepository @Inject constructor(
                 tripHadMockFix = tripHadMockFix || isMockLocation(loc)
             }
             _currentLocation.value = loc
+            updateFilteredGpsSpeed(loc)
             onGpsFix()
         }
     }

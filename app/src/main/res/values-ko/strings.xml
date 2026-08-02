@@ -1379,6 +1379,8 @@
     <string name="studio_metric_external_gps_battery">외장 GPS 배터리</string>
     <string name="studio_metric_external_gps_speed">외부 GPS 속도</string>
     <string name="studio_metric_gps_speed">GPS 속도</string>
+    <string name="studio_metric_gps_speed_smooth">GPS 속도 (평활)</string>
+    <string name="studio_metric_external_gps_speed_smooth">외부 GPS 속도 (평활)</string>
     <string name="metric_chip_trip_meter">트립 미터</string>
     <string name="trip_meter_detail_title">트립 미터</string>
     <string name="trip_meter_tab_speed">속도</string>

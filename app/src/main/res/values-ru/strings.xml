@@ -1382,6 +1382,8 @@
     <string name="studio_metric_external_gps_battery">Заряд внеш. GPS</string>
     <string name="studio_metric_external_gps_speed">Скорость внеш. GPS</string>
     <string name="studio_metric_gps_speed">Скорость GPS</string>
+    <string name="studio_metric_gps_speed_smooth">Скорость GPS (сглаж.)</string>
+    <string name="studio_metric_external_gps_speed_smooth">Скорость внеш. GPS (сглаж.)</string>
     <string name="metric_chip_trip_meter">Счётчик поездки</string>
     <string name="trip_meter_detail_title">Счётчик поездки</string>
     <string name="trip_meter_tab_speed">Скорость</string>

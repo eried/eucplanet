@@ -1379,6 +1379,8 @@
     <string name="studio_metric_external_gps_battery">Harici GPS aküsü</string>
     <string name="studio_metric_external_gps_speed">Harici GPS hızı</string>
     <string name="studio_metric_gps_speed">GPS hızı</string>
+    <string name="studio_metric_gps_speed_smooth">GPS hızı (yumuşatılmış)</string>
+    <string name="studio_metric_external_gps_speed_smooth">Harici GPS hızı (yumuşatılmış)</string>
     <string name="metric_chip_trip_meter">Sefer sayacı</string>
     <string name="trip_meter_detail_title">Sefer sayacı</string>
     <string name="trip_meter_tab_speed">Hız</string>

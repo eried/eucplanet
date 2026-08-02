@@ -924,6 +924,12 @@ class HudServer @Inject constructor(
             // carries whichever source won the priority pick).
             phoneGpsSpeedKmh = if (location?.hasSpeed() == true) location.speed * 3.6f else Float.NaN,
             externalGpsSpeedKmh = if (externalFresh) external!!.speedKmh else Float.NaN,
+            // Median-filtered variants (minor 16) for the GPS_SPEED_SMOOTH /
+            // EXT_GPS_SPEED_SMOOTH overlay metrics, so a HUD max doesn't latch a
+            // Doppler spike.
+            phoneGpsSpeedFilteredKmh = tripRepository.filteredGpsSpeedKmh.value ?: Float.NaN,
+            externalGpsSpeedFilteredKmh = if (externalFresh)
+                (externalGpsRepository.filteredSpeedKmh.value ?: Float.NaN) else Float.NaN,
             gpsHasFix = location != null,
             gpsHeadingDeg = if (location?.hasBearing() == true) location.bearing
                 else Float.NaN,

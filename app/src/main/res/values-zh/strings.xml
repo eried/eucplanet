@@ -901,6 +901,8 @@
     <string name="studio_metric_external_gps_battery">外接 GPS 电量</string>
     <string name="studio_metric_external_gps_speed">外部GPS速度</string>
     <string name="studio_metric_gps_speed">GPS速度</string>
+    <string name="studio_metric_gps_speed_smooth">GPS速度（平滑）</string>
+    <string name="studio_metric_external_gps_speed_smooth">外部GPS速度（平滑）</string>
     <string name="metric_chip_trip_meter">行程里程表</string>
     <string name="trip_meter_detail_title">行程里程表</string>
     <string name="trip_meter_tab_speed">速度</string>
