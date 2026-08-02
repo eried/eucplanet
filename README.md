@@ -226,6 +226,7 @@ Thanks to the people and projects that helped, kept in sync with the app (tap ve
 | Bearkat713 | Motoeye E6 testing |
 | Ilya Shkolnik | Advice and help. Maintains DarknessBot. |
 | InMotion | For making a great V14 |
+| [WheelLog community](https://github.com/Wheellog/wheellog.android) | Open-source (GPLv3) reverse-engineering of the EUC BLE protocols, used as the reference for every wheel adapter (KingSong, Begode, Veteran, Ninebot, InMotion). No WheelLog code is reused. |
 
 ## License
 
