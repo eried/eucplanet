@@ -90,15 +90,24 @@ class InMotionV1Adapter @Inject constructor() : WheelAdapter {
      * Realtime poll. Keep RE-SENDING the factory handshake password until the
      * wheel actually starts streaming, not just once on connect - a wheel that
      * isn't ready the instant we connect ignores the first one and then drops
-     * the link ~8 s later (status=8). Re-sending the FACTORY password (the
-     * unlock, "INMOTI") is what breaks the 0x0F060101 loop; re-sending the user
-     * PIN alone never did. Alternate password and fast-info so we both re-auth
-     * and poll; once a real reply arrives ([streamStarted]) drop it and just poll.
+     * the link ~8 s later (status=8). The handshake is two-stage: the wheel acks
+     * the FACTORY password ("INMOTI", data=00) then the user PIN (data=01) and
+     * only then streams. [initSequence] sends each ONCE, so a single dropped PIN
+     * write left the wheel stuck (INMOTI acked, no PIN, never streams) - the
+     * remaining intermittent-connect case. Re-send BOTH here: cycle INMOTI, PIN,
+     * fast-info so each password keeps re-landing on a marginal link (WheelLog
+     * re-sends its password ~6x for the same reason) while still polling
+     * telemetry to detect the stream starting. Once a real reply arrives
+     * ([streamStarted]) drop the handshake and just poll fast-info.
      */
     override fun pollRealtime(): ByteArray {
         if (!streamStarted) {
             authPollTick++
-            if (authPollTick % 2 == 1) return InMotionV1Commands.sendFactoryPassword()
+            return when (authPollTick % 3) {
+                1 -> InMotionV1Commands.sendFactoryPassword()      // INMOTI (unlock)
+                2 -> InMotionV1Commands.sendPin(pin ?: DEFAULT_PIN) // user PIN (auth)
+                else -> InMotionV1Commands.getFastInfo()
+            }
         }
         return InMotionV1Commands.getFastInfo()
     }
