@@ -84,7 +84,20 @@ data class BleProfile(
             // NOT the 0xFFE0 notify service. Without this the write char lookup
             // returns null on service discovery and the connect is torn down,
             // so no InMotion V1 wheel (V5 / V8 / V10 / V10F / L6) could connect.
-            writeServiceUuid = UUID.fromString("0000ffe5-0000-1000-8000-00805f9b34fb")
+            writeServiceUuid = UUID.fromString("0000ffe5-0000-1000-8000-00805f9b34fb"),
+            // MUST be NO_RESPONSE (Write Command, ATT opcode 0x52). 0xFFE9
+            // advertises both Write and WriteNoResponse; EUC World's capture
+            // uses no-response for ALL 10k+ data writes and never stalls. With
+            // WRITE_TYPE_DEFAULT (with-response, 0x12) Android keeps the GATT
+            // BUSY until the wheel returns a write-response, and on a marginal
+            // link the first INMOTI write never gets one - so the GATT wedges
+            // and EVERY following write is rejected with code 201
+            // (ERROR_GATT_WRITE_REQUEST_BUSY), i.e. RX perfect / TX dead until
+            // status=8. No-response clears the GATT immediately, so writes keep
+            // flowing. (An earlier NO_RESPONSE test "regressed" only because the
+            // INMOTI handshake was still missing then - the wheel never streamed
+            // regardless of write type. That is now fixed, so this is correct.)
+            writeType = BluetoothGattCharacteristic.WRITE_TYPE_NO_RESPONSE
         )
     }
 }
