@@ -171,6 +171,14 @@ object InMotionV1Commands {
 
     // --- Auth (PIN handshake) ---
 
+    /** Factory handshake password used by InMotion V1 firmware. EUC World sends
+     *  this ASCII string ("INMOTI") on CAN 0x0F550307 as the FIRST thing after
+     *  connect, before the user PIN - decoded from an EUC World BLE capture. A
+     *  locked wheel that hasn't seen it stays in its identity-only state
+     *  (broadcasting 0x0F060101) and never streams; sending it is what unlocks
+     *  the telemetry stream. */
+    const val FACTORY_PASSWORD = "INMOTI"
+
     /**
      * 6-digit PIN response per spec section 7. Wire format is the 6 ASCII
      * digits followed by two zero bytes, sent on CAN ID `0x0F550307` as a
@@ -180,8 +188,19 @@ object InMotionV1Commands {
         require(pin.length == 6 && pin.all { it.isDigit() }) {
             "InMotion V1 PIN must be exactly 6 digits"
         }
+        return passwordFrame(pin)
+    }
+
+    /** The factory handshake password frame ([FACTORY_PASSWORD]), sent before the
+     *  user PIN to unlock the telemetry stream (matches EUC World). */
+    fun sendFactoryPassword(): ByteArray = passwordFrame(FACTORY_PASSWORD)
+
+    /** Build a 0x0F550307 password frame from a 6-character ASCII password
+     *  (digits for a user PIN, or the factory string). */
+    private fun passwordFrame(password: String): ByteArray {
+        require(password.length == 6) { "InMotion V1 password must be 6 characters" }
         val data = ByteArray(8)
-        for (i in 0 until 6) data[i] = pin[i].code.toByte()
+        for (i in 0 until 6) data[i] = password[i].code.toByte()
         return InMotionV1Protocol.buildFrame(CanId.PIN, data)
     }
 }
