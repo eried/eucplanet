@@ -891,6 +891,18 @@ class BleConnectionManager @Inject constructor(
         com.eried.eucplanet.diagnostics.DiagnosticsLogger.note(
             "Connected: name=${currentName ?: "(unknown)"} adapter=${wheelAdapter.familyDisplayName}"
         )
+        // InMotion V1: request a FAST connection interval for the password
+        // handshake to land reliably. EUC World runs the link at 7.5 ms (its BLE
+        // capture shows LE Connection Updates to interval 6, relaxing to 45 ms
+        // once streaming) and always connects fast; our default interval
+        // intermittently lost the handshake writes - the wheel kept broadcasting
+        // 0x0F060101, never acked INMOTI, and the link dropped with status=8.
+        // HIGH priority (7.5-15 ms) makes those writes land in the first interval.
+        // Fire-and-forget: the peripheral may ignore it, so it is safe, and it is
+        // gated to inmotion_v1 so no other family's link changes.
+        if (wheelAdapter.familyId == "inmotion_v1") {
+            try { gatt?.requestConnectionPriority(BluetoothGatt.CONNECTION_PRIORITY_HIGH) } catch (_: Exception) {}
+        }
         // Fire-and-forget MTU bump. Has to happen AFTER the CCCD descriptor
         // write completes - Android GATT is strictly serial and overlapping
         // requestMtu with a pending descriptor write can wedge with status
