@@ -576,6 +576,15 @@ class BleConnectionManager @Inject constructor(
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                     val result = g.writeCharacteristic(characteristic, data, writeType)
                     Log.d(TAG, "writeCharacteristic result: $result (${data.size} bytes, type=$writeType)")
+                    // Diagnostic: a non-SUCCESS code means the stack REJECTED the
+                    // write - it never went over the air. If the tester's
+                    // "connected but wheel never acks" failures show these, the
+                    // writes are dying on the phone (GATT-layer), not lost to RF.
+                    if (result != android.bluetooth.BluetoothStatusCodes.SUCCESS) {
+                        com.eried.eucplanet.diagnostics.DiagnosticsLogger.note(
+                            "Write REJECTED by BLE stack: code=$result (${data.size}B) - not sent over the air"
+                        )
+                    }
                 } else {
                     @Suppress("DEPRECATION")
                     characteristic.value = data
@@ -584,6 +593,11 @@ class BleConnectionManager @Inject constructor(
                     @Suppress("DEPRECATION")
                     val result = g.writeCharacteristic(characteristic)
                     Log.d(TAG, "writeCharacteristic result: $result (${data.size} bytes, type=$writeType)")
+                    if (!result) {
+                        com.eried.eucplanet.diagnostics.DiagnosticsLogger.note(
+                            "Write REJECTED by BLE stack (${data.size}B) - not sent over the air"
+                        )
+                    }
                 }
             } catch (e: Exception) {
                 // The GATT binder can die mid-write - Bluetooth toggled off, or
@@ -622,18 +636,14 @@ class BleConnectionManager @Inject constructor(
                 BluetoothProfile.STATE_CONNECTED -> {
                     Log.i(TAG, "Connected to GATT server")
                     _connectionState.value = ConnectionState.INITIALIZING
-                    // InMotion V1: request a FAST connection interval NOW, before
-                    // service discovery. EUC World's capture runs discovery at
-                    // interval 6 (7.5 ms) and always connects fast; at our slow
-                    // default interval, discovery + CCCD ate most of the wheel's
-                    // ~8 s handshake window, so the password writes landed late or
-                    // not at all and the link dropped with status=8. Requesting
-                    // HIGH here shortens discovery so the handshake starts with
-                    // time to spare. Fire-and-forget - the wheel may ignore it -
-                    // and gated to inmotion_v1 so no other family's link changes.
-                    if (wheelAdapter.familyId == "inmotion_v1") {
-                        try { gatt.requestConnectionPriority(BluetoothGatt.CONNECTION_PRIORITY_HIGH) } catch (_: Exception) {}
-                    }
+                    // (Removed the InMotion V1 requestConnectionPriority(HIGH)
+                    // experiment: the tester's failure logs show a RX-perfect /
+                    // TX-dead pattern - the wheel streams 0x0F060101 at 10 Hz for
+                    // ~9 s while NONE of our ~18 writes get acked - which a
+                    // connection-interval change cannot fix and may worsen by
+                    // contending with the GATT setup on budget stacks. The write
+                    // instrumentation in processWriteQueue now records whether each
+                    // write is even accepted by the stack, to tell TX-layer vs RF.)
                     // Go straight to service discovery instead of gating on an
                     // MTU exchange the wheel may never acknowledge. KingSong
                     // S18 (and other cheap HM-10 modules) silently drop the
