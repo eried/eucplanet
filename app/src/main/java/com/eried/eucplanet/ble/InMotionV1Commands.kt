@@ -94,20 +94,22 @@ object InMotionV1Commands {
     // --- Ride mode group (CAN 0x0F550115) ---
 
     /**
-     * Set max speed (tiltback). Encoded as `(kmh * 1000)` u16 with HIGH byte
-     * at slot 4 and LOW byte at slot 5, opposite of the rest of the
-     * protocol's little-endian convention. Spec section 6.2 worked example
-     * is unambiguous: 30 km/h -> 30000 = 0x7530, wire = `75 30`. The spec's
-     * type annotation says `LE` but the worked example takes precedence
-     * here. Verify against a real BLE capture if behaviour looks wrong.
+     * Set max speed (tiltback). Encoded as `(kmh * 1000)` u16 LITTLE-endian:
+     * LOW byte at slot 4, HIGH byte at slot 5. A real V8S confirms LE (matching
+     * the spec's type annotation, NOT the old "worked example" that implied
+     * HIGH-then-LOW): sending 39 km/h big-endian (`98 58`) made the wheel store
+     * 0x5898 = 22680 ~= 23 km/h. The slow-info reads the field back LE too
+     * (41 km/h = 41000 = 0xa028, on the wire as `28 a0`), so write and read now
+     * agree. This also fixes legal-mode, which compares the written value to the
+     * wheel's readback.
      */
     fun setMaxSpeed(kmh: Float): ByteArray {
         val v = (kmh * 1000f).toInt() and 0xFFFF
-        val hi = ((v ushr 8) and 0xFF).toByte()
         val lo = (v and 0xFF).toByte()
+        val hi = ((v ushr 8) and 0xFF).toByte()
         return InMotionV1Protocol.buildFrame(
             CanId.RIDE_MODE,
-            byteArrayOf(0x01, 0, 0, 0, hi, lo, 0, 0)
+            byteArrayOf(0x01, 0, 0, 0, lo, hi, 0, 0)
         )
     }
 
