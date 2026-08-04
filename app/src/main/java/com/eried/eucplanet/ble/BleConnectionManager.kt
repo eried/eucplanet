@@ -923,13 +923,18 @@ class BleConnectionManager @Inject constructor(
         // not, the V2 adapter's reassembly path picks up the chunked frames
         // exactly as it has always done.
         //
-        // Skip it for KingSong: KS frames are a fixed 20 bytes (never need a
-        // larger MTU), and on the HM-10 module an MTU exchange racing the
-        // first command write can wedge the just-established notify state -
-        // contributing to the KS-16X "connects but no telemetry" stall. The
-        // gate is familyId so every other family (V14 / P6 / Veteran /
-        // Begode / Ninebot) keeps the bump byte-for-byte.
-        if (wheelAdapter.familyId != "kingsong") {
+        // Skip it for KingSong AND InMotion V1: both run HM-10 / CC254x-class
+        // modules that hang the MTU exchange - onMtuChanged never fires, so
+        // Android's GATT stays mDeviceBusy=true forever and EVERY following
+        // write is rejected with code 201 (ERROR_GATT_WRITE_REQUEST_BUSY).
+        // That was the V8S failure: the first INMOTI write went out, then the
+        // MTU request wedged the stack and the PIN / poll writes all 201'd until
+        // status=8. The V1 wheel caps MTU at 23 anyway (seen in EUC World's
+        // capture), so the bump is useless here as well as harmful. Every other
+        // family (V14 / P6 / Veteran / Begode / Ninebot) keeps the bump.
+        val skipMtu = wheelAdapter.familyId == "kingsong" ||
+            wheelAdapter.familyId == "inmotion_v1"
+        if (!skipMtu) {
             try { gatt?.requestMtu(512) } catch (_: Exception) {}
         }
     }
