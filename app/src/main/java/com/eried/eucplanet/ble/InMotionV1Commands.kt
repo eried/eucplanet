@@ -121,18 +121,20 @@ object InMotionV1Commands {
         )
 
     /**
-     * Pedal sensitivity 0..255. Slot 4..5 stores `((s + 28) << 5)` with the
-     * same HIGH-then-LOW byte order as [setMaxSpeed] (spec section 6.3
-     * worked example).
+     * Pedal sensitivity 0..255. Slot 4..5 stores `((s + 28) << 5)` u16
+     * LITTLE-endian (LOW byte slot 4, HIGH byte slot 5) - same fix as
+     * [setMaxSpeed]; the V8S reads this whole 0x0F550115 group little-endian
+     * (the old HIGH-then-LOW "worked example" was wrong). Now consistent with
+     * [setPedalTilt], which was already LE.
      */
     fun setPedalSensitivity(sensitivity: Int): ByteArray {
         val s = sensitivity.coerceIn(0, 255)
         val v = ((s + 28) shl 5) and 0xFFFF
-        val hi = ((v ushr 8) and 0xFF).toByte()
         val lo = (v and 0xFF).toByte()
+        val hi = ((v ushr 8) and 0xFF).toByte()
         return InMotionV1Protocol.buildFrame(
             CanId.RIDE_MODE,
-            byteArrayOf(0x06, 0, 0, 0, hi, lo, 0, 0)
+            byteArrayOf(0x06, 0, 0, 0, lo, hi, 0, 0)
         )
     }
 
