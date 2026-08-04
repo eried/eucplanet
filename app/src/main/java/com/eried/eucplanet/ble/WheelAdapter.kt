@@ -84,14 +84,19 @@ data class BleProfile(
             // NOT the 0xFFE0 notify service. Without this the write char lookup
             // returns null on service discovery and the connect is torn down,
             // so no InMotion V1 wheel (V5 / V8 / V10 / V10F / L6) could connect.
-            writeServiceUuid = UUID.fromString("0000ffe5-0000-1000-8000-00805f9b34fb")
-            // Keep the default WRITE_TYPE_DEFAULT (write-with-response). The
-            // real cause of the code-201 write rejections was the requestMtu(512)
-            // wedging the GATT (see BleConnectionManager - MTU is now skipped for
-            // this family), NOT the write type. NO_RESPONSE was tried and the
-            // build regressed to never connecting, so it stays on the default.
-            // (EUC World does use no-response writes; that can be revisited as an
-            // isolated change once the MTU-wedge fix is confirmed.)
+            writeServiceUuid = UUID.fromString("0000ffe5-0000-1000-8000-00805f9b34fb"),
+            // NO_RESPONSE (Write Command, ATT opcode 0x52) - the write type EUC
+            // World uses for ALL its data writes. With WRITE_TYPE_DEFAULT
+            // (with-response) each write stays "busy" until the wheel acks it, and
+            // when that ack lags past the ~250 ms poll interval the next write is
+            // rejected code 201, occasionally dropping a one-shot command (e.g. a
+            // legal-mode / speed-limit change). No-response frees the GATT
+            // immediately so writes never collide. This is safe now that the real
+            // cause of the FATAL 201 storm - the requestMtu(512) wedge - is fixed
+            // (MTU is skipped for this family in BleConnectionManager); NO_RESPONSE
+            // only removes the residual collisions. The earlier NO_RESPONSE build
+            // "never connected" because of that MTU wedge, not the write type.
+            writeType = BluetoothGattCharacteristic.WRITE_TYPE_NO_RESPONSE
         )
     }
 }

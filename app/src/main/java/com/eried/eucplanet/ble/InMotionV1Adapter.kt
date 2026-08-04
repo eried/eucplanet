@@ -66,7 +66,11 @@ class InMotionV1Adapter @Inject constructor() : WheelAdapter {
         detectedModel = deviceName?.let { InMotionV1Model.fromReportedName(it) }
         streamStarted = false
         authPollTick = 0
-        return null
+        // Surface the model straight from the BLE name (e.g. "V8S-81E30005" ->
+        // V8S) so the UI shows the real model immediately, without waiting for -
+        // or depending on - a model id in the slow-info bytes (the V8S carries
+        // none). Returns null when the name isn't a recognised V1 model.
+        return detectedModel?.let { DecodeResult.ModelName(it.displayName, it) }
     }
 
     /**
@@ -296,10 +300,15 @@ class InMotionV1Adapter @Inject constructor() : WheelAdapter {
                 val info = InMotionV1Parser.parseSlowInfo(payload) ?: return emptyList()
                 streamStarted = true
                 if (info.model != null) detectedModel = info.model
+                // Prefer the model decoded from the slow-info bytes, but fall
+                // back to the one detected from the BLE name (V8S carries no
+                // model id in slow-info, so without this it showed as a generic
+                // "InMotion V1 (serial)" despite the name saying V8S).
+                val model = info.model ?: detectedModel
                 val out = mutableListOf<DecodeResult>()
                 out += DecodeResult.ModelName(
-                    info.model?.displayName ?: "InMotion V1 (${info.serial})",
-                    info.model
+                    model?.displayName ?: "InMotion V1 (${info.serial})",
+                    model
                 )
                 out += DecodeResult.Firmware(
                     display = "FW ${info.firmware}",
