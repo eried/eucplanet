@@ -133,6 +133,8 @@ fun TripDetailScreen(
     val isLiveTrip = liveState == true
     // Landscape split: the rider chooses whether the map docks left or right.
     val tripMapSide by viewModel.tripMapSide.collectAsState()
+    // Persisted Trip-details base map pick (blank = follow the theme default).
+    val savedMapType by viewModel.tripMapType.collectAsState()
     // Trip Details customizer: which stat tiles are hidden, the tile and chart
     // order, and which graphs (plus the pinned "extra" block) are hidden.
     val hiddenTiles by viewModel.tripHiddenTiles.collectAsState()
@@ -389,6 +391,8 @@ fun TripDetailScreen(
                     scrubLon = scrubPoint?.longitude,
                     wheelSwitches = wheelSwitches,
                     startLabel = startMarkerLabel,
+                    savedMapType = savedMapType,
+                    onPersistMapType = viewModel::setTripMapType,
                     modifier = mod,
                 )
             }
@@ -1036,9 +1040,10 @@ private fun timePartOf(date: String): String {
     return if (t.length >= 8) t.substring(0, 8) else t
 }
 
-// The rider's Trip-details map-style pick (LIGHT / DARK / SAT) sticks for the rest of
-// the app session, across trips, then resets on restart (in-memory, not persisted) and
-// re-defaults from the theme. Process-scoped, mirroring the alarm constant-tone prompt.
+// The rider's Trip-details map-style pick (LIGHT / DARK / SAT). Process-scoped so it
+// applies instantly across trips this session without waiting on the settings flow;
+// the pick is ALSO persisted (tripMapType) so it survives a restart. Null before the
+// first pick, when the persisted value (or the theme default) seeds the map instead.
 private var tripMapTypeSession: String? = null
 
 @SuppressLint("SetJavaScriptEnabled")
@@ -1057,6 +1062,10 @@ private fun RouteMapView(
     // empty = no popup).
     wheelSwitches: List<WheelSwitchMarker> = emptyList(),
     startLabel: String = "",
+    // Persisted base map pick (blank = none yet); a change is written back through
+    // onPersistMapType so the style survives an app restart, not just the session.
+    savedMapType: String = "",
+    onPersistMapType: (String) -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     // rememberSaveable so a rotation (which recreates the composition) keeps the
@@ -1065,18 +1074,29 @@ private fun RouteMapView(
     // Map style (light / dark / satellite) is shared between the inline and the
     // fullscreen map so opening fullscreen keeps the style the rider picked,
     // rather than resetting to light.
-    // Default the style from the active theme's background luminance: a dark theme
-    // (including any custom theme with a dark background) gets the dark map, a light
-    // one gets the white map. A rider's explicit pick overrides this for the session.
+    // Priority: this-session pick > persisted pick > theme default. The theme
+    // default reads the active background luminance (a dark theme, including a
+    // custom dark one, gets the dark map; a light one gets the white map).
     val themeMapDefault = if (MaterialTheme.appColors.appBackground.luminance() < 0.5f) "DARK" else "LIGHT"
-    var mapType by rememberSaveable { mutableStateOf(tripMapTypeSession ?: themeMapDefault) }
+    var mapType by rememberSaveable {
+        mutableStateOf(tripMapTypeSession ?: savedMapType.ifBlank { themeMapDefault })
+    }
+    // The persisted value is served through an Eagerly-started flow, so it is
+    // normally present by first composition; guard the rare case where it arrives
+    // after. Only adopt it while the rider has not picked this session.
+    LaunchedEffect(savedMapType) {
+        if (tripMapTypeSession == null && savedMapType.isNotBlank() && savedMapType != mapType) {
+            mapType = savedMapType
+        }
+    }
+    val onPick: (String) -> Unit = { mapType = it; tripMapTypeSession = it; onPersistMapType(it) }
 
     MapSurface(
         points = points, isLive = isLive, liveLat = liveLat, liveLon = liveLon,
         scrubLat = scrubLat, scrubLon = scrubLon,
         wheelSwitches = wheelSwitches, startLabel = startLabel,
         fullscreen = false, onToggleFullscreen = { fullscreen = true },
-        mapType = mapType, onMapTypeChange = { mapType = it; tripMapTypeSession = it },
+        mapType = mapType, onMapTypeChange = onPick,
         modifier = modifier,
     )
 
@@ -1122,7 +1142,7 @@ private fun RouteMapView(
                 scrubLat = scrubLat, scrubLon = scrubLon,
                 wheelSwitches = wheelSwitches, startLabel = startLabel,
                 fullscreen = true, onToggleFullscreen = { fullscreen = false },
-                mapType = mapType, onMapTypeChange = { mapType = it; tripMapTypeSession = it },
+                mapType = mapType, onMapTypeChange = onPick,
                 modifier = Modifier.fillMaxSize(),
             )
         }

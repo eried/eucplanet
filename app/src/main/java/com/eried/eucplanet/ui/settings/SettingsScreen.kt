@@ -1240,7 +1240,7 @@ private fun AdvRow(spec: AdvancedSpec, advanced: AdvancedSettings, onChange: (In
 /** Always-visible "undo -> <default>" affordance. Active (accent, clickable) when
  *  the value is off its default; greyed and inert once it matches. */
 @Composable
-private fun RestoreChip(text: String, enabled: Boolean, onClick: () -> Unit) {
+internal fun RestoreChip(text: String, enabled: Boolean, onClick: () -> Unit) {
     val color = if (enabled) MaterialTheme.appColors.primary else MaterialTheme.appColors.textDisabled
     Row(
         modifier = Modifier
@@ -7266,6 +7266,7 @@ private fun CloudTab(
             CloudEvent.UploadEnqueued -> sEnqueued
             CloudEvent.SyncNoFolder -> sSyncNoFolder
             is CloudEvent.SyncFinished -> context.getString(R.string.sync_finished, event.count)
+            CloudEvent.SyncUpToDate -> context.getString(R.string.sync_up_to_date)
             CloudEvent.EucstatsNothingToSync -> context.getString(R.string.online_upload_sync_nothing)
             is CloudEvent.EucstatsSyncFinished -> context.getString(R.string.online_upload_sync_done, event.count)
             CloudEvent.EucstatsSyncFailed -> context.getString(R.string.online_status_failed)

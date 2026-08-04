@@ -1899,12 +1899,12 @@
     <string name="studio_export_status">Exportation du fichier…</string>
     <string name="studio_export_stay">Rester sur l\'écran actuel</string>
     <string name="studio_export_title">Exportation de fichier</string>
-    <string name="studio_replay_trim">(Rogner)</string>
+    <string name="studio_replay_trim">(trajet complet)</string>
     <string name="studio_replay_trim_duration">Durée</string>
     <string name="studio_replay_trim_end">Fin</string>
     <string name="studio_replay_trim_reset">Réinitialiser</string>
     <string name="studio_replay_trim_start">Début</string>
-    <string name="studio_replay_trim_title">Rogner le clip</string>
+    <string name="studio_replay_trim_title">Rogner le trajet</string>
     <string name="tab_advanced">Avancé</string>
     <string name="tab_more">Plus</string>
     <string name="welcome_tut_dev_join">Rejoindre les classements</string>
@@ -2026,4 +2026,21 @@
     <string name="dropbox_folder_desc">Les trajets et les réglages sont enregistrés dans ton Dropbox, dans %1$s. Seule cette app peut voir ce dossier.</string>
     <string name="keep_app_alive">Garder l’application active</string>
     <string name="keep_app_alive_desc">Affiche une notification permanente pour que l’app reste active en arrière-plan. La synchronisation des trajets et la voix continuent de fonctionner même sans roue connectée. Consomme un peu plus de batterie.</string>
+    <string name="sync_up_to_date">Déjà à jour</string>
+    <string name="studio_source_transparent">Transparent</string>
+    <string name="studio_source_video">Vidéo</string>
+    <string name="studio_video_pick">Choisir une vidéo</string>
+    <string name="studio_video_replace">Remplacer la vidéo</string>
+    <string name="studio_video_fit">Ajustement</string>
+    <string name="studio_video_fit_stretch">Étirer</string>
+    <string name="studio_video_offset">Décalage</string>
+    <string name="studio_video_offset_value_fmt">%1$d ms</string>
+    <string name="studio_video_offset_nudge_fmt">%1$+d ms</string>
+    <string name="studio_video_set_offset">Actuel</string>
+    <string name="studio_video_no_media">Aucun média</string>
+    <string name="studio_replay_cd_move">Déplacer le panneau</string>
+    <string name="studio_video_edge">Hors plage</string>
+    <string name="studio_video_edge_freeze">Figer</string>
+    <string name="studio_video_edge_loop">Boucle</string>
+    <string name="studio_video_edge_black">Noir</string>
 </resources>

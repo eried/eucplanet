@@ -1895,12 +1895,12 @@
     <string name="studio_export_status">Bestand exporteren…</string>
     <string name="studio_export_stay">Op huidig scherm blijven</string>
     <string name="studio_export_title">Bestand exporteren</string>
-    <string name="studio_replay_trim">(Inkorten)</string>
+    <string name="studio_replay_trim">(hele rit)</string>
     <string name="studio_replay_trim_duration">Duur</string>
     <string name="studio_replay_trim_end">Einde</string>
     <string name="studio_replay_trim_reset">Resetten</string>
     <string name="studio_replay_trim_start">Begin</string>
-    <string name="studio_replay_trim_title">Clip inkorten</string>
+    <string name="studio_replay_trim_title">Rit inkorten</string>
     <string name="tab_advanced">Geavanceerd</string>
     <string name="tab_more">Meer</string>
     <string name="welcome_tut_dev_join">Deelnemen aan klassementen</string>
@@ -2024,5 +2024,22 @@
     <string name="dropbox_folder_desc">Ritten en instellingen worden opgeslagen in je Dropbox, onder %1$s. Alleen deze app kan die map zien.</string>
     <string name="keep_app_alive">App actief houden</string>
     <string name="keep_app_alive_desc">Toont een permanente melding zodat de app op de achtergrond actief blijft. Rittensynchronisatie en spraak blijven werken, zelfs zonder verbonden wiel. Gebruikt iets meer batterij.</string>
+    <string name="sync_up_to_date">Al up-to-date</string>
+    <string name="studio_source_transparent">Transparant</string>
+    <string name="studio_source_video">Video</string>
+    <string name="studio_video_pick">Video kiezen</string>
+    <string name="studio_video_replace">Video vervangen</string>
+    <string name="studio_video_fit">Passend</string>
+    <string name="studio_video_fit_stretch">Uitrekken</string>
+    <string name="studio_video_offset">Verschuiving</string>
+    <string name="studio_video_offset_value_fmt">%1$d ms</string>
+    <string name="studio_video_offset_nudge_fmt">%1$+d ms</string>
+    <string name="studio_video_set_offset">Huidig</string>
+    <string name="studio_video_no_media">Geen media</string>
+    <string name="studio_replay_cd_move">Paneel verplaatsen</string>
+    <string name="studio_video_edge">Buiten bereik</string>
+    <string name="studio_video_edge_freeze">Bevriezen</string>
+    <string name="studio_video_edge_loop">Herhalen</string>
+    <string name="studio_video_edge_black">Zwart</string>
 </resources>
 

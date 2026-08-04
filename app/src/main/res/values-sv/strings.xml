@@ -1895,12 +1895,12 @@
     <string name="studio_export_status">Exporterar fil…</string>
     <string name="studio_export_stay">Stanna på aktuell skärm</string>
     <string name="studio_export_title">Filexport</string>
-    <string name="studio_replay_trim">(Trimma)</string>
+    <string name="studio_replay_trim">(hela turen)</string>
     <string name="studio_replay_trim_duration">Längd</string>
     <string name="studio_replay_trim_end">Slut</string>
     <string name="studio_replay_trim_reset">Återställ</string>
     <string name="studio_replay_trim_start">Start</string>
-    <string name="studio_replay_trim_title">Trimma klipp</string>
+    <string name="studio_replay_trim_title">Trimma tur</string>
     <string name="tab_advanced">Avancerat</string>
     <string name="tab_more">Mer</string>
     <string name="welcome_tut_dev_join">Gå med i topplistor</string>
@@ -2022,4 +2022,21 @@
     <string name="dropbox_folder_desc">Turer och inställningar sparas i din Dropbox, under %1$s. Bara den här appen kan se den mappen.</string>
     <string name="keep_app_alive">Håll appen igång</string>
     <string name="keep_app_alive_desc">Visar en pågående avisering så att appen hålls aktiv i bakgrunden. Synkronisering av turer och röst fortsätter att fungera även utan ett anslutet hjul. Drar lite mer batteri.</string>
+    <string name="sync_up_to_date">Redan uppdaterad</string>
+    <string name="studio_source_transparent">Transparent</string>
+    <string name="studio_source_video">Video</string>
+    <string name="studio_video_pick">Välj video</string>
+    <string name="studio_video_replace">Byt video</string>
+    <string name="studio_video_fit">Anpassning</string>
+    <string name="studio_video_fit_stretch">Sträck</string>
+    <string name="studio_video_offset">Förskjutning</string>
+    <string name="studio_video_offset_value_fmt">%1$d ms</string>
+    <string name="studio_video_offset_nudge_fmt">%1$+d ms</string>
+    <string name="studio_video_set_offset">Aktuell</string>
+    <string name="studio_video_no_media">Inga medier</string>
+    <string name="studio_replay_cd_move">Flytta panel</string>
+    <string name="studio_video_edge">Utanför intervall</string>
+    <string name="studio_video_edge_freeze">Frys</string>
+    <string name="studio_video_edge_loop">Loop</string>
+    <string name="studio_video_edge_black">Svart</string>
 </resources>

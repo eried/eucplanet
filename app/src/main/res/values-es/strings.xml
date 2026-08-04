@@ -1892,12 +1892,12 @@
     <string name="studio_export_status">Exportando archivo…</string>
     <string name="studio_export_stay">Permanecer en la pantalla actual</string>
     <string name="studio_export_title">Exportar archivo</string>
-    <string name="studio_replay_trim">(Recortar)</string>
+    <string name="studio_replay_trim">(viaje completo)</string>
     <string name="studio_replay_trim_duration">Duración</string>
     <string name="studio_replay_trim_end">Fin</string>
     <string name="studio_replay_trim_reset">Restablecer</string>
     <string name="studio_replay_trim_start">Inicio</string>
-    <string name="studio_replay_trim_title">Recortar clip</string>
+    <string name="studio_replay_trim_title">Recortar viaje</string>
     <string name="tab_advanced">Avanzado</string>
     <string name="tab_more">Más</string>
     <string name="welcome_tut_dev_join">Unirse a clasificaciones</string>
@@ -2019,5 +2019,22 @@
     <string name="dropbox_folder_desc">Los viajes y los ajustes se guardan en tu Dropbox, en %1$s. Solo esta app puede ver esa carpeta.</string>
     <string name="keep_app_alive">Mantener la app activa</string>
     <string name="keep_app_alive_desc">Muestra una notificación permanente para que la app siga activa en segundo plano. La sincronización de viajes y la voz siguen funcionando aunque no haya una rueda conectada. Usa un poco más de batería.</string>
+    <string name="sync_up_to_date">Ya está actualizado</string>
+    <string name="studio_source_transparent">Transparente</string>
+    <string name="studio_source_video">Vídeo</string>
+    <string name="studio_video_pick">Elegir vídeo</string>
+    <string name="studio_video_replace">Reemplazar vídeo</string>
+    <string name="studio_video_fit">Ajuste</string>
+    <string name="studio_video_fit_stretch">Estirar</string>
+    <string name="studio_video_offset">Desfase</string>
+    <string name="studio_video_offset_value_fmt">%1$d ms</string>
+    <string name="studio_video_offset_nudge_fmt">%1$+d ms</string>
+    <string name="studio_video_set_offset">Actual</string>
+    <string name="studio_video_no_media">Sin contenido</string>
+    <string name="studio_replay_cd_move">Mover panel</string>
+    <string name="studio_video_edge">Fuera de rango</string>
+    <string name="studio_video_edge_freeze">Congelar</string>
+    <string name="studio_video_edge_loop">Bucle</string>
+    <string name="studio_video_edge_black">Negro</string>
 </resources>
 

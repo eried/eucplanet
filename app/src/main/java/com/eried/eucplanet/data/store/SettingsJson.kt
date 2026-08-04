@@ -168,6 +168,7 @@ object SettingsJson {
         put("rotateTripDetail", s.rotateTripDetail)
         put("rotateTripList", s.rotateTripList)
         put("tripMapSide", s.tripMapSide)
+        put("tripMapType", s.tripMapType)
         put("tripHiddenTiles", s.tripHiddenTiles)
         put("tripTileOrder", s.tripTileOrder)
         put("tripChartOrder", s.tripChartOrder)
@@ -435,6 +436,7 @@ object SettingsJson {
         rotateTripDetail = j.optBoolean("rotateTripDetail", base.rotateTripDetail),
         rotateTripList = j.optBoolean("rotateTripList", base.rotateTripList),
         tripMapSide = j.optString("tripMapSide", base.tripMapSide),
+        tripMapType = j.optString("tripMapType", base.tripMapType),
         tripHiddenTiles = j.optString("tripHiddenTiles", base.tripHiddenTiles),
         tripTileOrder = j.optString("tripTileOrder", base.tripTileOrder),
         tripChartOrder = j.optString("tripChartOrder", base.tripChartOrder),

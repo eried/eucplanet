@@ -1104,6 +1104,7 @@ class SettingsViewModel @Inject constructor(
                 _cloudEvent.value = when (result) {
                     is SyncResult.NoFolder -> CloudEvent.SyncNoFolder
                     is SyncResult.Finished -> CloudEvent.SyncFinished(result.count)
+                    is SyncResult.UpToDate -> CloudEvent.SyncUpToDate
                 }
                 syncManager.consumeSyncResult()
             }
@@ -2594,6 +2595,8 @@ sealed interface CloudEvent {
     data object UploadEnqueued : CloudEvent
     data object SyncNoFolder : CloudEvent
     data class SyncFinished(val count: Int) : CloudEvent
+    /** A sync ran but nothing needed transferring (everything already backed up). */
+    data object SyncUpToDate : CloudEvent
     data object EucstatsNothingToSync : CloudEvent
     data class EucstatsSyncFinished(val count: Int) : CloudEvent
     /** A sync ran with trips to upload but every attempt failed (network down,

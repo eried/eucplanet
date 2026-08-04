@@ -90,3 +90,4 @@ test-out/
 .playwright-mcp/
 play-*.png
 open-testing-state.md
+.superpowers/

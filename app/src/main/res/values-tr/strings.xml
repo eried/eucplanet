@@ -1892,12 +1892,12 @@
     <string name="studio_export_status">Dosya dışa aktarılıyor…</string>
     <string name="studio_export_stay">Mevcut ekranda kal</string>
     <string name="studio_export_title">Dosya Dışa Aktarma</string>
-    <string name="studio_replay_trim">(Kırp)</string>
+    <string name="studio_replay_trim">(tüm sefer)</string>
     <string name="studio_replay_trim_duration">Süre</string>
     <string name="studio_replay_trim_end">Bitiş</string>
     <string name="studio_replay_trim_reset">Sıfırla</string>
     <string name="studio_replay_trim_start">Başlangıç</string>
-    <string name="studio_replay_trim_title">Klibi kırp</string>
+    <string name="studio_replay_trim_title">Seferi kırp</string>
     <string name="tab_advanced">Gelişmiş</string>
     <string name="tab_more">Diğer</string>
     <string name="welcome_tut_dev_join">Lider tablolarına katıl</string>
@@ -2019,6 +2019,23 @@
     <string name="dropbox_folder_desc">Seferler ve ayarlar Dropbox’ınızda %1$s içinde saklanır. Bu klasörü yalnızca bu uygulama görebilir.</string>
     <string name="keep_app_alive">Uygulamayı çalışır tut</string>
     <string name="keep_app_alive_desc">Uygulamanın arka planda etkin kalması için kalıcı bir bildirim gösterir. Teker bağlı olmasa bile sefer eşitleme ve sesli bildirim çalışmaya devam eder. Biraz daha fazla pil kullanır.</string>
+    <string name="sync_up_to_date">Zaten güncel</string>
+    <string name="studio_source_transparent">Saydam</string>
+    <string name="studio_source_video">Video</string>
+    <string name="studio_video_pick">Video seç</string>
+    <string name="studio_video_replace">Videoyu değiştir</string>
+    <string name="studio_video_fit">Sığdır</string>
+    <string name="studio_video_fit_stretch">Uzat</string>
+    <string name="studio_video_offset">Kaydırma</string>
+    <string name="studio_video_offset_value_fmt">%1$d ms</string>
+    <string name="studio_video_offset_nudge_fmt">%1$+d ms</string>
+    <string name="studio_video_set_offset">Geçerli</string>
+    <string name="studio_video_no_media">Medya yok</string>
+    <string name="studio_replay_cd_move">Paneli taşı</string>
+    <string name="studio_video_edge">Aralık dışı</string>
+    <string name="studio_video_edge_freeze">Dondur</string>
+    <string name="studio_video_edge_loop">Döngü</string>
+    <string name="studio_video_edge_black">Siyah</string>
 </resources>
 
 

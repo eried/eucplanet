@@ -1892,12 +1892,12 @@
     <string name="studio_export_status">Експорт файлу…</string>
     <string name="studio_export_stay">Залишитися на поточному екрані</string>
     <string name="studio_export_title">Експорт файлу</string>
-    <string name="studio_replay_trim">(Обрізати)</string>
+    <string name="studio_replay_trim">(вся поїздка)</string>
     <string name="studio_replay_trim_duration">Тривалість</string>
     <string name="studio_replay_trim_end">Кінець</string>
     <string name="studio_replay_trim_reset">Скинути</string>
     <string name="studio_replay_trim_start">Початок</string>
-    <string name="studio_replay_trim_title">Обрізати кліп</string>
+    <string name="studio_replay_trim_title">Обрізати поїздку</string>
     <string name="tab_advanced">Розширені</string>
     <string name="tab_more">Більше</string>
     <string name="welcome_tut_dev_join">Приєднатися до таблиць лідерів</string>
@@ -2019,6 +2019,23 @@
     <string name="dropbox_folder_desc">Поїздки та налаштування зберігаються у вашому Dropbox, у %1$s. Цю папку бачить лише цей застосунок.</string>
     <string name="keep_app_alive">Тримати застосунок активним</string>
     <string name="keep_app_alive_desc">Показує постійне сповіщення, щоб застосунок залишався активним у фоні. Синхронізація поїздок і голос працюють навіть без під’єднаного моноколеса. Споживає трохи більше заряду.</string>
+    <string name="sync_up_to_date">Уже актуально</string>
+    <string name="studio_source_transparent">Прозорий</string>
+    <string name="studio_source_video">Відео</string>
+    <string name="studio_video_pick">Вибрати відео</string>
+    <string name="studio_video_replace">Замінити відео</string>
+    <string name="studio_video_fit">Припасування</string>
+    <string name="studio_video_fit_stretch">Розтягнути</string>
+    <string name="studio_video_offset">Зсув</string>
+    <string name="studio_video_offset_value_fmt">%1$d ms</string>
+    <string name="studio_video_offset_nudge_fmt">%1$+d ms</string>
+    <string name="studio_video_set_offset">Поточне</string>
+    <string name="studio_video_no_media">Немає медіа</string>
+    <string name="studio_replay_cd_move">Перемістити панель</string>
+    <string name="studio_video_edge">Поза діапазоном</string>
+    <string name="studio_video_edge_freeze">Стоп-кадр</string>
+    <string name="studio_video_edge_loop">Цикл</string>
+    <string name="studio_video_edge_black">Чорний</string>
 </resources>
 
 

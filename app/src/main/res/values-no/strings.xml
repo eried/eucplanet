@@ -1781,12 +1781,12 @@
     <string name="studio_export_status">Eksporterer fil…</string>
     <string name="studio_export_stay">Bli på nåværende skjerm</string>
     <string name="studio_export_title">Fileksport</string>
-    <string name="studio_replay_trim">(Beskjær)</string>
+    <string name="studio_replay_trim">(hele turen)</string>
     <string name="studio_replay_trim_duration">Varighet</string>
     <string name="studio_replay_trim_end">Slutt</string>
     <string name="studio_replay_trim_reset">Tilbakestill</string>
     <string name="studio_replay_trim_start">Start</string>
-    <string name="studio_replay_trim_title">Beskjær klipp</string>
+    <string name="studio_replay_trim_title">Beskjær tur</string>
     <string name="tab_advanced">Avansert</string>
     <string name="tab_more">Mer</string>
     <string name="welcome_tut_dev_join">Bli med på resultattavler</string>
@@ -1910,4 +1910,21 @@
     <string name="dropbox_folder_desc">Turer og innstillinger lagres i Dropbox-en din, under %1$s. Bare denne appen kan se den mappen.</string>
     <string name="keep_app_alive">Hold appen i gang</string>
     <string name="keep_app_alive_desc">Viser et vedvarende varsel så appen holdes aktiv i bakgrunnen. Synkronisering av turer og tale fungerer selv uten et tilkoblet hjul. Bruker litt mer batteri.</string>
+    <string name="sync_up_to_date">Allerede oppdatert</string>
+    <string name="studio_source_transparent">Gjennomsiktig</string>
+    <string name="studio_source_video">Video</string>
+    <string name="studio_video_pick">Velg video</string>
+    <string name="studio_video_replace">Erstatt video</string>
+    <string name="studio_video_fit">Tilpasning</string>
+    <string name="studio_video_fit_stretch">Strekk</string>
+    <string name="studio_video_offset">Forskyvning</string>
+    <string name="studio_video_offset_value_fmt">%1$d ms</string>
+    <string name="studio_video_offset_nudge_fmt">%1$+d ms</string>
+    <string name="studio_video_set_offset">Nåværende</string>
+    <string name="studio_video_no_media">Ingen medier</string>
+    <string name="studio_replay_cd_move">Flytt panel</string>
+    <string name="studio_video_edge">Utenfor område</string>
+    <string name="studio_video_edge_freeze">Frys</string>
+    <string name="studio_video_edge_loop">Løkke</string>
+    <string name="studio_video_edge_black">Svart</string>
 </resources>
