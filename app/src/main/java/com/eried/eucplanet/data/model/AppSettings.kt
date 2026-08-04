@@ -222,6 +222,10 @@ data class AppSettings(
     val rotateTripDetail: Boolean = true,
     val rotateTripList: Boolean = false,
     val tripMapSide: String = "LEFT",
+    // The rider's Trip-details base map pick (LIGHT / DARK / SAT). Empty means
+    // "follow the active theme's luminance" (dark theme -> dark map); a pick
+    // sticks across restarts, like the Route Builder's navMapType.
+    val tripMapType: String = "",
     // Trip Details customizer (per the Customize sheet on that screen). Stored
     // compactly as CSV so no schema change is needed. tripHiddenTiles lists the
     // stat-tile keys the rider hid (empty = all shown); tripChartOrder lists the

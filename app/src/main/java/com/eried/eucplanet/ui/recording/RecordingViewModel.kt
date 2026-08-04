@@ -139,6 +139,19 @@ class RecordingViewModel @Inject constructor(
         .map { it.tripMapSide }
         .stateIn(viewModelScope, kotlinx.coroutines.flow.SharingStarted.Eagerly, "LEFT")
 
+    // The rider's Trip-details base map pick (LIGHT / DARK / SAT), persisted so it
+    // sticks across restarts. Blank = follow the active theme's luminance default.
+    val tripMapType: StateFlow<String> = settingsRepository.settings
+        .map { it.tripMapType }
+        .stateIn(viewModelScope, kotlinx.coroutines.flow.SharingStarted.Eagerly, "")
+
+    /** Remembers the Trip-details base map style across restarts. */
+    fun setTripMapType(type: String) {
+        viewModelScope.launch {
+            settingsRepository.update { it.copy(tripMapType = type) }
+        }
+    }
+
     // Trip Details customizer state, driven by the Customize sheet on that screen.
     // Both are stored compactly as CSV in settings; here they are parsed into the
     // shapes the screen consumes.
