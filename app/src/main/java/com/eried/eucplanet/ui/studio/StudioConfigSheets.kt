@@ -1,5 +1,8 @@
 package com.eried.eucplanet.ui.studio
 
+import android.content.Intent
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -47,6 +50,7 @@ import androidx.compose.material.icons.filled.FormatColorFill
 import androidx.compose.material.icons.filled.FormatColorReset
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Image
+import androidx.compose.material.icons.filled.MyLocation
 import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.material.icons.filled.Inventory2
 import androidx.compose.material.icons.filled.Layers
@@ -60,6 +64,7 @@ import androidx.compose.material.icons.filled.Sync
 import androidx.compose.material.icons.filled.TextFields
 import androidx.compose.material.icons.filled.Speed
 import androidx.compose.material.icons.filled.Videocam
+import androidx.compose.material.icons.filled.VideocamOff
 import androidx.compose.material.icons.filled.Widgets
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
@@ -93,25 +98,37 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.foundation.Canvas
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.unit.dp
 import com.eried.eucplanet.R
+import com.eried.eucplanet.ui.settings.NumberUpDown
+import com.eried.eucplanet.ui.settings.RestoreChip
 import com.eried.eucplanet.ui.theme.appColors
 import com.eried.eucplanet.hud.protocol.OverlayElement
 import com.eried.eucplanet.hud.protocol.OverlayElementType
+import com.eried.eucplanet.hud.protocol.ReplaySourceType
 import com.eried.eucplanet.hud.protocol.ViewportConfig
 import com.eried.eucplanet.hud.protocol.ViewportLayout
+import com.eried.eucplanet.hud.protocol.ViewportReplayFace
 import com.eried.eucplanet.hud.protocol.ViewportSourceType
 import com.eried.eucplanet.ui.studio.camera.StudioCameraInfo
+import com.eried.eucplanet.ui.studio.camera.StudioVideoHub
 import sh.calvin.reorderable.ReorderableColumn
 import kotlin.math.roundToInt
 import com.eried.eucplanet.ui.theme.themedFieldColors
@@ -276,11 +293,12 @@ fun StudioToolsFlyout(
         Row(modifier = Modifier.padding(horizontal = 4.dp)) {
             Column(Modifier.width(154.dp)) {
                 FlyoutSection(stringResource(R.string.studio_flyout_section_preset))
-                // Camera panes are hidden in replay (the background is the
-                // trip's transparent checkerboard), so configuring them is moot.
+                // The layout (pane count/shape) is shared between live and
+                // replay, so it stays changeable in both: each pane keeps an
+                // independent live face and replay face, edited by the
+                // per-pane wrench for whichever mode is active.
                 FlyoutItem(
                     Icons.Default.Dashboard, stringResource(R.string.studio_flyout_panes),
-                    enabled = !replayMode,
                     hudBadge = LocalStudioHudEnabled.current
                 ) {
                     onDismiss(); onChangeLayout()
@@ -1000,6 +1018,12 @@ fun ViewportConfigSheet(
     dimmed: Boolean,
     geometryExpanded: Boolean,
     cameraStyleExpanded: Boolean,
+    // Mode-aware: in LIVE this sheet edits config (the live face) exactly as
+    // before; in REPLAY it edits config.replay (the replay face) instead, so
+    // the wrench never silently touches the wrong face for the active mode.
+    replayMode: Boolean = false,
+    replayCursorMs: Long = 0L,
+    videoHub: StudioVideoHub? = null,
     onToggleDim: () -> Unit,
     onGeometryExpandedChange: (Boolean) -> Unit,
     onCameraStyleExpandedChange: (Boolean) -> Unit,
@@ -1015,139 +1039,398 @@ fun ViewportConfigSheet(
                 .verticalScroll(rememberScrollState())
         ) {
             SheetHeader(stringResource(R.string.studio_viewport_title, index + 1), hudBadge = LocalStudioHudEnabled.current)
+            // Unified source picker: the same five chips in both modes, each enabled
+            // only where it applies. Camera is live-only; Transparent and Video are
+            // replay-only; Fill and Image work in both. The non-applicable chips stay
+            // visible (greyed) so the picker looks identical in either mode.
+            val face = config.replay ?: ViewportReplayFace()
+            val onFaceChange: (ViewportReplayFace) -> Unit = { onChange(config.copy(replay = it)) }
+            val fillSelected = if (replayMode)
+                face.source == ReplaySourceType.SOLID || face.source == ReplaySourceType.GRADIENT
+            else
+                config.source == ViewportSourceType.SOLID || config.source == ViewportSourceType.GRADIENT
+            val imageSelected = if (replayMode)
+                face.source == ReplaySourceType.IMAGE
+            else
+                config.source == ViewportSourceType.IMAGE
             FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 FilterChip(
-                    selected = config.source == ViewportSourceType.CAMERA,
+                    selected = !replayMode && config.source == ViewportSourceType.CAMERA,
+                    enabled = !replayMode,
                     onClick = { onChange(config.copy(source = ViewportSourceType.CAMERA)) },
-                    label = { Text(stringResource(R.string.studio_viewport_camera)) },
-                    leadingIcon = { Icon(Icons.Default.PhotoCamera, null) },
+                    label = { Icon(Icons.Default.PhotoCamera, contentDescription = stringResource(R.string.studio_viewport_camera)) },
                     colors = themedFilterChipColors(),
                 )
                 FilterChip(
-                    selected = config.source == ViewportSourceType.SOLID ||
-                        config.source == ViewportSourceType.GRADIENT,
+                    selected = replayMode && face.source == ReplaySourceType.TRANSPARENT,
+                    enabled = replayMode,
+                    onClick = { onFaceChange(face.copy(source = ReplaySourceType.TRANSPARENT)) },
+                    label = { TransparencyGlyph(stringResource(R.string.studio_source_transparent)) },
+                    colors = themedFilterChipColors(),
+                )
+                FilterChip(
+                    selected = replayMode && face.source == ReplaySourceType.VIDEO,
+                    enabled = replayMode,
+                    onClick = { onFaceChange(face.copy(source = ReplaySourceType.VIDEO)) },
+                    label = { Icon(Icons.Default.Videocam, contentDescription = stringResource(R.string.studio_source_video)) },
+                    colors = themedFilterChipColors(),
+                )
+                FilterChip(
+                    selected = fillSelected,
                     onClick = {
-                        if (config.source != ViewportSourceType.SOLID &&
-                            config.source != ViewportSourceType.GRADIENT
-                        ) onChange(config.copy(source = ViewportSourceType.SOLID))
+                        if (replayMode) {
+                            if (face.source != ReplaySourceType.SOLID && face.source != ReplaySourceType.GRADIENT)
+                                onFaceChange(face.copy(source = ReplaySourceType.SOLID))
+                        } else {
+                            if (config.source != ViewportSourceType.SOLID && config.source != ViewportSourceType.GRADIENT)
+                                onChange(config.copy(source = ViewportSourceType.SOLID))
+                        }
                     },
-                    // Icon-only: the fill-bucket glyph is self-explanatory
-                    // and the chip stays compact.
-                    label = {
-                        Icon(
-                            Icons.Default.FormatColorFill,
-                            contentDescription = stringResource(R.string.studio_viewport_fill)
-                        )
-                    },
+                    label = { Icon(Icons.Default.FormatColorFill, contentDescription = stringResource(R.string.studio_viewport_fill)) },
                     colors = themedFilterChipColors(),
                 )
                 FilterChip(
-                    selected = config.source == ViewportSourceType.IMAGE,
-                    onClick = { onChange(config.copy(source = ViewportSourceType.IMAGE)) },
-                    // Icon-only: the image glyph is self-explanatory.
-                    label = {
-                        Icon(
-                            Icons.Default.Image,
-                            contentDescription = stringResource(R.string.studio_viewport_image)
-                        )
+                    selected = imageSelected,
+                    onClick = {
+                        if (replayMode) onFaceChange(face.copy(source = ReplaySourceType.IMAGE))
+                        else onChange(config.copy(source = ViewportSourceType.IMAGE))
                     },
+                    label = { Icon(Icons.Default.Image, contentDescription = stringResource(R.string.studio_viewport_image)) },
                     colors = themedFilterChipColors(),
                 )
             }
             Spacer(Modifier.height(12.dp))
-            when (config.source) {
-                ViewportSourceType.CAMERA -> {
-                    // The camera picker is the primary choice, so it stays at the
-                    // top. The spatial-transform controls (mirror, orientation,
-                    // fit, zoom) are tucked into a collapsible "Geometry" section
-                    // so the sheet stays short; its open / closed state is
-                    // hoisted to the studio screen so it sticks for the session.
-                    Text(stringResource(R.string.studio_viewport_camera_label), fontWeight = FontWeight.SemiBold)
-                    CameraPicker(cameras, config.cameraKey, inUseKeys) {
-                        onChange(config.copy(cameraKey = it))
-                    }
-                    Spacer(Modifier.height(8.dp))
-                    CollapsibleSectionHeader(
-                        title = stringResource(R.string.studio_cfg_geometry),
-                        expanded = geometryExpanded,
-                        onToggle = { onGeometryExpandedChange(!geometryExpanded) }
+            if (replayMode) {
+                when (face.source) {
+                    // Nothing to configure: the checkerboard shows through in
+                    // the editor and export keeps the alpha.
+                    ReplaySourceType.TRANSPARENT -> {}
+                    ReplaySourceType.SOLID, ReplaySourceType.GRADIENT ->
+                        ReplayBackgroundEditor(face, onFaceChange)
+                    ReplaySourceType.IMAGE -> ImagePickRow(
+                        hasImage = face.imageData != null,
+                        onPick = onPickImage,
+                        onClear = { onFaceChange(face.copy(imageData = null)) }
                     )
-                    if (geometryExpanded) {
-                        ToggleRow(stringResource(R.string.studio_cfg_mirror), config.cameraMirror) {
-                            onChange(config.copy(cameraMirror = it))
-                        }
-                        Spacer(Modifier.height(4.dp))
-                        Text(stringResource(R.string.studio_cfg_orientation), fontWeight = FontWeight.SemiBold)
-                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                            listOf(0, 90, 180, 270).forEach { deg ->
-                                FilterChip(
-                                    selected = config.cameraOrientation == deg,
-                                    onClick = { onChange(config.copy(cameraOrientation = deg)) },
-                                    label = { Text(stringResource(R.string.studio_bg_direction_fmt, deg)) },
-                                    colors = themedFilterChipColors(),
-                                )
-                            }
+                    ReplaySourceType.VIDEO ->
+                        ReplayVideoEditor(face, videoHub, replayCursorMs, onFaceChange)
+                }
+            } else {
+                when (config.source) {
+                    ViewportSourceType.CAMERA -> {
+                        // The camera picker is the primary choice, so it stays at the
+                        // top. The spatial-transform controls (mirror, orientation,
+                        // fit, zoom) are tucked into a collapsible "Geometry" section
+                        // so the sheet stays short; its open / closed state is
+                        // hoisted to the studio screen so it sticks for the session.
+                        Text(stringResource(R.string.studio_viewport_camera_label), fontWeight = FontWeight.SemiBold)
+                        CameraPicker(cameras, config.cameraKey, inUseKeys) {
+                            onChange(config.copy(cameraKey = it))
                         }
                         Spacer(Modifier.height(8.dp))
-                        FitModePicker(config, onChange)
-                        ZoomSlider(config, onChange)
-                    }
-                    // The colour-grading controls are tucked into a collapsible
-                    // "Style" section (like "Geometry" above) so the sheet
-                    // stays short; its open / closed state is hoisted for the
-                    // session.
-                    CollapsibleSectionHeader(
-                        title = stringResource(R.string.studio_cfg_style),
-                        expanded = cameraStyleExpanded,
-                        onToggle = { onCameraStyleExpandedChange(!cameraStyleExpanded) }
-                    )
-                    if (cameraStyleExpanded) {
-                        ColorGradeEditor(config, onChange)
-                    }
-                }
-                ViewportSourceType.SOLID, ViewportSourceType.GRADIENT ->
-                    BackgroundEditor(config, onChange)
-                ViewportSourceType.IMAGE -> {
-                    Row(
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        OutlinedButton(onClick = onPickImage, shape = RoundedCornerShape(12.dp)) {
-                            Icon(Icons.Default.AddPhotoAlternate, null)
-                            Spacer(Modifier.width(8.dp))
-                            Text(if (config.imageData == null) stringResource(R.string.studio_viewport_choose_image) else stringResource(R.string.studio_viewport_replace_image))
+                        CollapsibleSectionHeader(
+                            title = stringResource(R.string.studio_cfg_geometry),
+                            expanded = geometryExpanded,
+                            onToggle = { onGeometryExpandedChange(!geometryExpanded) }
+                        )
+                        if (geometryExpanded) {
+                            ToggleRow(stringResource(R.string.studio_cfg_mirror), config.cameraMirror) {
+                                onChange(config.copy(cameraMirror = it))
+                            }
+                            Spacer(Modifier.height(4.dp))
+                            Text(stringResource(R.string.studio_cfg_orientation), fontWeight = FontWeight.SemiBold)
+                            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                listOf(0, 90, 180, 270).forEach { deg ->
+                                    FilterChip(
+                                        selected = config.cameraOrientation == deg,
+                                        onClick = { onChange(config.copy(cameraOrientation = deg)) },
+                                        label = { Text(stringResource(R.string.studio_bg_direction_fmt, deg)) },
+                                        colors = themedFilterChipColors(),
+                                    )
+                                }
+                            }
+                            Spacer(Modifier.height(8.dp))
+                            FitModePicker(config, onChange)
+                            ZoomSlider(config, onChange)
                         }
-                        if (config.imageData != null) {
-                            OutlinedButton(
-                                onClick = { onChange(config.copy(imageData = null)) },
-                                shape = RoundedCornerShape(12.dp)
-                            ) { Text(stringResource(R.string.studio_viewport_clear_image)) }
+                        // The colour-grading controls are tucked into a collapsible
+                        // "Style" section (like "Geometry" above) so the sheet
+                        // stays short; its open / closed state is hoisted for the
+                        // session.
+                        CollapsibleSectionHeader(
+                            title = stringResource(R.string.studio_cfg_style),
+                            expanded = cameraStyleExpanded,
+                            onToggle = { onCameraStyleExpandedChange(!cameraStyleExpanded) }
+                        )
+                        if (cameraStyleExpanded) {
+                            ColorGradeEditor(config, onChange)
                         }
                     }
-                    Spacer(Modifier.height(8.dp))
-                    // Same grouped layout as the camera source: fit / zoom under
-                    // a collapsible Geometry section, the colour grade under
-                    // Style; so the sheet stays short and the two sources read
-                    // the same. The open / closed state is shared with camera.
-                    CollapsibleSectionHeader(
-                        title = stringResource(R.string.studio_cfg_geometry),
-                        expanded = geometryExpanded,
-                        onToggle = { onGeometryExpandedChange(!geometryExpanded) }
-                    )
-                    if (geometryExpanded) {
-                        FitModePicker(config, onChange)
-                        ZoomSlider(config, onChange)
-                    }
-                    CollapsibleSectionHeader(
-                        title = stringResource(R.string.studio_cfg_style),
-                        expanded = cameraStyleExpanded,
-                        onToggle = { onCameraStyleExpandedChange(!cameraStyleExpanded) }
-                    )
-                    if (cameraStyleExpanded) {
-                        ColorGradeEditor(config, onChange)
+                    ViewportSourceType.SOLID, ViewportSourceType.GRADIENT ->
+                        BackgroundEditor(config, onChange)
+                    ViewportSourceType.IMAGE -> {
+                        ImagePickRow(
+                            hasImage = config.imageData != null,
+                            onPick = onPickImage,
+                            onClear = { onChange(config.copy(imageData = null)) }
+                        )
+                        Spacer(Modifier.height(8.dp))
+                        // Same grouped layout as the camera source: fit / zoom under
+                        // a collapsible Geometry section, the colour grade under
+                        // Style; so the sheet stays short and the two sources read
+                        // the same. The open / closed state is shared with camera.
+                        CollapsibleSectionHeader(
+                            title = stringResource(R.string.studio_cfg_geometry),
+                            expanded = geometryExpanded,
+                            onToggle = { onGeometryExpandedChange(!geometryExpanded) }
+                        )
+                        if (geometryExpanded) {
+                            FitModePicker(config, onChange)
+                            ZoomSlider(config, onChange)
+                        }
+                        CollapsibleSectionHeader(
+                            title = stringResource(R.string.studio_cfg_style),
+                            expanded = cameraStyleExpanded,
+                            onToggle = { onCameraStyleExpandedChange(!cameraStyleExpanded) }
+                        )
+                        if (cameraStyleExpanded) {
+                            ColorGradeEditor(config, onChange)
+                        }
                     }
                 }
             }
+        }
+    }
+}
+
+/**
+ * Pick / replace / clear row for an embedded base64 image, shared by the live
+ * IMAGE source and the replay IMAGE face so the two look and behave the same.
+ */
+@Composable
+private fun ImagePickRow(hasImage: Boolean, onPick: () -> Unit, onClear: () -> Unit) {
+    Row(
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        OutlinedButton(onClick = onPick, shape = RoundedCornerShape(12.dp)) {
+            Icon(Icons.Default.AddPhotoAlternate, null)
+            Spacer(Modifier.width(8.dp))
+            Text(if (!hasImage) stringResource(R.string.studio_viewport_choose_image) else stringResource(R.string.studio_viewport_replace_image))
+        }
+        if (hasImage) {
+            OutlinedButton(
+                onClick = onClear,
+                shape = RoundedCornerShape(12.dp)
+            ) { Text(stringResource(R.string.studio_viewport_clear_image)) }
+        }
+    }
+}
+
+/**
+ * Solid/gradient editor for the replay face: bridges [face]'s fill fields
+ * through a throwaway [ViewportConfig] so it reuses [BackgroundEditor] (Solid
+ * / Linear / Radial chips, swatches, gradient stops) verbatim instead of a
+ * second copy of that editor.
+ */
+/**
+ * A tiny Photoshop-style transparency checkerboard, used as the Transparent
+ * source chip's glyph. Reuses the same grey pair as the editor's replay
+ * checkerboard so "transparent" reads consistently. The checker is a fixed
+ * transparency convention (like the editor background), not a theme colour.
+ */
+@Composable
+private fun TransparencyGlyph(description: String) {
+    Canvas(
+        Modifier
+            .size(18.dp)
+            .semantics { contentDescription = description }
+    ) {
+        val tiles = 4
+        val t = size.minDimension / tiles
+        for (row in 0 until tiles) {
+            for (col in 0 until tiles) {
+                drawRect(
+                    color = if ((row + col) % 2 == 0) Color(0xFF8A8A94) else Color(0xFFC2C2CC),
+                    topLeft = Offset(col * t, row * t),
+                    size = Size(t, t)
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun ReplayBackgroundEditor(face: ViewportReplayFace, onChange: (ViewportReplayFace) -> Unit) {
+    val bridge = ViewportConfig(
+        source = if (face.source == ReplaySourceType.GRADIENT) ViewportSourceType.GRADIENT else ViewportSourceType.SOLID,
+        solidColor = face.solidColor,
+        gradientColors = face.gradientColors,
+        gradientStops = face.gradientStops,
+        gradientAngle = face.gradientAngle,
+        gradientRadial = face.gradientRadial
+    )
+    BackgroundEditor(bridge) { updated ->
+        onChange(
+            face.copy(
+                source = if (updated.source == ViewportSourceType.GRADIENT) ReplaySourceType.GRADIENT else ReplaySourceType.SOLID,
+                solidColor = updated.solidColor,
+                gradientColors = updated.gradientColors,
+                gradientStops = updated.gradientStops,
+                gradientAngle = updated.gradientAngle,
+                gradientRadial = updated.gradientRadial
+            )
+        )
+    }
+}
+
+/**
+ * The replay VIDEO face: pick / replace a clip (SAF [ActivityResultContracts.OpenDocument],
+ * persisted read permission), the fit selector, and the offset controls that
+ * lock the clip's first frame to a point on the replay timeline. Shows the
+ * inline "No media" hint once [videoHub] reports the uri invalid (moved file,
+ * lost permission, undecodable) rather than a stale or silently blank pane.
+ */
+/** Upper bound for the replay-video offset field (24h in ms) - well past any ride. */
+private const val MAX_VIDEO_OFFSET_MS = 86_400_000
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun ReplayVideoEditor(
+    face: ViewportReplayFace,
+    videoHub: StudioVideoHub?,
+    replayCursorMs: Long,
+    onChange: (ViewportReplayFace) -> Unit
+) {
+    val context = LocalContext.current
+    val videoPicker = rememberLauncherForActivityResult(
+        ActivityResultContracts.OpenDocument()
+    ) { uri ->
+        if (uri == null) return@rememberLauncherForActivityResult
+        try {
+            context.contentResolver.takePersistableUriPermission(
+                uri, Intent.FLAG_GRANT_READ_URI_PERMISSION
+            )
+        } catch (_: SecurityException) {
+            // The uri is kept regardless; StudioVideoHub will fail to open it
+            // without the grant and the pane falls back to "No media", the
+            // same honest state as any other unreadable clip.
+        }
+        // Anchor the clip to where the cursor is now, so it appears immediately
+        // instead of being pinned to trip-time 0 (invisible when you picked it
+        // mid-replay). "Set to current frame" re-anchors it later.
+        onChange(face.copy(videoUri = uri.toString(), videoOffsetMs = replayCursorMs.coerceAtLeast(0L)))
+    }
+
+    OutlinedButton(
+        onClick = { videoPicker.launch(arrayOf("video/*")) },
+        shape = RoundedCornerShape(12.dp)
+    ) {
+        Icon(Icons.Default.Videocam, null)
+        Spacer(Modifier.width(8.dp))
+        Text(
+            if (face.videoUri == null) stringResource(R.string.studio_video_pick)
+            else stringResource(R.string.studio_video_replace)
+        )
+    }
+
+    val uri = face.videoUri
+    if (uri != null && videoHub?.isInvalid(uri) == true) {
+        Spacer(Modifier.height(8.dp))
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Icon(
+                Icons.Default.VideocamOff,
+                contentDescription = null,
+                tint = MaterialTheme.appColors.statusWarn
+            )
+            Spacer(Modifier.width(6.dp))
+            Text(
+                stringResource(R.string.studio_video_no_media),
+                color = MaterialTheme.appColors.statusWarn,
+                style = MaterialTheme.typography.bodySmall
+            )
+        }
+    }
+
+    Spacer(Modifier.height(12.dp))
+    Text(stringResource(R.string.studio_video_fit), fontWeight = FontWeight.SemiBold)
+    val fitStretch = stringResource(R.string.studio_video_fit_stretch)
+    val fitCrop = stringResource(R.string.studio_cfg_fit_crop)
+    val fitContain = stringResource(R.string.studio_cfg_fit_contain)
+    val fitCenter = stringResource(R.string.studio_cfg_fit_center)
+    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        listOf(
+            "STRETCH" to fitStretch, "CROP" to fitCrop, "FIT" to fitContain, "CENTER" to fitCenter
+        ).forEach { (key, lbl) ->
+            FilterChip(
+                selected = face.videoFit == key,
+                onClick = { onChange(face.copy(videoFit = key)) },
+                label = { Text(lbl) },
+                colors = themedFilterChipColors(),
+            )
+        }
+    }
+
+    Spacer(Modifier.height(12.dp))
+    // Laid out like an Advanced-settings numeric row: the standard NumberUpDown
+    // field (editable + hold-to-repeat 100 ms steppers) in the left column with a
+    // RestoreChip (default 0 ms) beneath it, and the "Set to current frame" action
+    // as a button on the right.
+    NumberUpDown(
+        value = face.videoOffsetMs.coerceIn(0L, MAX_VIDEO_OFFSET_MS.toLong()).toInt(),
+        onValueChange = { onChange(face.copy(videoOffsetMs = it.toLong().coerceAtLeast(0L))) },
+        range = 0..MAX_VIDEO_OFFSET_MS,
+        step = 100,
+        suffix = " ms",
+        label = stringResource(R.string.studio_video_offset),
+        // Half width (like an Advanced-settings field), not the whole row.
+        modifier = Modifier.fillMaxWidth(0.5f)
+    )
+    // Two small chips below the field, both in the RestoreChip style: Reset
+    // (restore default 0) and Current (anchor the clip to the current replay frame).
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(10.dp)
+    ) {
+        RestoreChip(text = "0 ms", enabled = face.videoOffsetMs != 0L) {
+            onChange(face.copy(videoOffsetMs = 0L))
+        }
+        Row(
+            modifier = Modifier
+                .padding(top = 4.dp)
+                .clip(RoundedCornerShape(12.dp))
+                .clickable { onChange(face.copy(videoOffsetMs = replayCursorMs.coerceAtLeast(0L))) }
+                .padding(horizontal = 6.dp, vertical = 2.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                Icons.Default.MyLocation,
+                contentDescription = null,
+                modifier = Modifier.size(15.dp),
+                tint = MaterialTheme.appColors.primary
+            )
+            Spacer(Modifier.width(4.dp))
+            Text(
+                stringResource(R.string.studio_video_set_offset),
+                fontSize = 12.sp,
+                color = MaterialTheme.appColors.primary
+            )
+        }
+    }
+
+    Spacer(Modifier.height(12.dp))
+    Text(stringResource(R.string.studio_video_edge), fontWeight = FontWeight.SemiBold)
+    val edgeFreeze = stringResource(R.string.studio_video_edge_freeze)
+    val edgeLoop = stringResource(R.string.studio_video_edge_loop)
+    val edgeBlack = stringResource(R.string.studio_video_edge_black)
+    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        listOf("FREEZE" to edgeFreeze, "LOOP" to edgeLoop, "BLACK" to edgeBlack).forEach { (key, lbl) ->
+            FilterChip(
+                selected = face.videoEdge == key,
+                onClick = { onChange(face.copy(videoEdge = key)) },
+                label = { Text(lbl) },
+                colors = themedFilterChipColors(),
+            )
         }
     }
 }

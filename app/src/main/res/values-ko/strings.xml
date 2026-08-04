@@ -1892,12 +1892,12 @@
     <string name="studio_export_status">파일 내보내는 중…</string>
     <string name="studio_export_stay">현재 화면 유지</string>
     <string name="studio_export_title">파일 내보내기</string>
-    <string name="studio_replay_trim">(자르기)</string>
+    <string name="studio_replay_trim">(전체 트립)</string>
     <string name="studio_replay_trim_duration">길이</string>
     <string name="studio_replay_trim_end">끝</string>
     <string name="studio_replay_trim_reset">초기화</string>
     <string name="studio_replay_trim_start">시작</string>
-    <string name="studio_replay_trim_title">클립 자르기</string>
+    <string name="studio_replay_trim_title">트립 자르기</string>
     <string name="tab_advanced">고급</string>
     <string name="tab_more">더보기</string>
     <string name="welcome_tut_dev_join">리더보드 참가</string>
@@ -2020,4 +2020,20 @@
     <string name="keep_app_alive">앱 계속 실행</string>
     <string name="keep_app_alive_desc">지속 알림을 표시하여 앱이 백그라운드에서 계속 실행되도록 합니다. 휠이 연결되어 있지 않아도 트립 동기화와 음성이 계속 작동합니다. 배터리를 조금 더 사용합니다.</string>
     <string name="sync_up_to_date">이미 최신 상태입니다</string>
+    <string name="studio_source_transparent">투명</string>
+    <string name="studio_source_video">동영상</string>
+    <string name="studio_video_pick">동영상 선택</string>
+    <string name="studio_video_replace">동영상 교체</string>
+    <string name="studio_video_fit">맞춤</string>
+    <string name="studio_video_fit_stretch">늘이기</string>
+    <string name="studio_video_offset">오프셋</string>
+    <string name="studio_video_offset_value_fmt">%1$d ms</string>
+    <string name="studio_video_offset_nudge_fmt">%1$+d ms</string>
+    <string name="studio_video_set_offset">현재</string>
+    <string name="studio_video_no_media">미디어 없음</string>
+    <string name="studio_replay_cd_move">패널 이동</string>
+    <string name="studio_video_edge">범위 밖</string>
+    <string name="studio_video_edge_freeze">정지</string>
+    <string name="studio_video_edge_loop">반복</string>
+    <string name="studio_video_edge_black">검정</string>
 </resources>

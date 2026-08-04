@@ -1915,12 +1915,12 @@
     <string name="studio_export_status">Datei wird exportiert…</string>
     <string name="studio_export_stay">Auf aktuellem Bildschirm bleiben</string>
     <string name="studio_export_title">Datei-Export</string>
-    <string name="studio_replay_trim">(Zuschneiden)</string>
+    <string name="studio_replay_trim">(ganze Fahrt)</string>
     <string name="studio_replay_trim_duration">Dauer</string>
     <string name="studio_replay_trim_end">Ende</string>
     <string name="studio_replay_trim_reset">Zurücksetzen</string>
     <string name="studio_replay_trim_start">Start</string>
-    <string name="studio_replay_trim_title">Clip zuschneiden</string>
+    <string name="studio_replay_trim_title">Fahrt zuschneiden</string>
     <string name="tab_advanced">Erweitert</string>
     <string name="tab_more">Mehr</string>
     <string name="welcome_tut_dev_join">Bestenlisten beitreten</string>
@@ -2041,4 +2041,20 @@
     <string name="keep_app_alive">App aktiv halten</string>
     <string name="keep_app_alive_desc">Zeigt eine dauerhafte Benachrichtigung, damit die App im Hintergrund aktiv bleibt. Fahrtensynchronisierung und Sprache funktionieren auch ohne verbundenes Wheel. Verbraucht etwas mehr Akku.</string>
     <string name="sync_up_to_date">Bereits aktuell</string>
+    <string name="studio_source_transparent">Transparent</string>
+    <string name="studio_source_video">Video</string>
+    <string name="studio_video_pick">Video wählen</string>
+    <string name="studio_video_replace">Video ersetzen</string>
+    <string name="studio_video_fit">Anpassung</string>
+    <string name="studio_video_fit_stretch">Strecken</string>
+    <string name="studio_video_offset">Versatz</string>
+    <string name="studio_video_offset_value_fmt">%1$d ms</string>
+    <string name="studio_video_offset_nudge_fmt">%1$+d ms</string>
+    <string name="studio_video_set_offset">Aktuell</string>
+    <string name="studio_video_no_media">Kein Medium</string>
+    <string name="studio_replay_cd_move">Panel verschieben</string>
+    <string name="studio_video_edge">Außerhalb</string>
+    <string name="studio_video_edge_freeze">Einfrieren</string>
+    <string name="studio_video_edge_loop">Schleife</string>
+    <string name="studio_video_edge_black">Schwarz</string>
 </resources>

@@ -84,7 +84,40 @@ data class ViewportConfig(
     /** Linear-gradient direction in degrees (ignored when radial). */
     val gradientAngle: Float = 90f,
     /** True for a radial gradient, false for linear. */
-    val gradientRadial: Boolean = false
+    val gradientRadial: Boolean = false,
+    /** Optional REPLAY face. null = Transparent (today's replay behavior). */
+    val replay: ViewportReplayFace? = null
+)
+
+/** Replay-only source kinds for a pane's replay face. Camera never applies in
+ *  replay (no live feed); TRANSPARENT is the default so a camera pane reads as
+ *  transparent when replaying, ready to composite or export with alpha. */
+enum class ReplaySourceType { TRANSPARENT, VIDEO, SOLID, GRADIENT, IMAGE }
+
+/**
+ * A pane's REPLAY face (phone-only; the HUD ignores it). Static kinds reuse the
+ * same meaning as [ViewportConfig]. VIDEO plays a user-picked clip seeked to the
+ * replay cursor in real time; [videoOffsetMs] is the ride-time at which the
+ * clip's first frame shows. Colour-grade/zoom are intentionally not carried here.
+ */
+data class ViewportReplayFace(
+    val source: ReplaySourceType = ReplaySourceType.TRANSPARENT,
+    val solidColor: Long = 0xFF101014L,
+    val gradientColors: List<Long> = listOf(0xFF1E1E2EL, 0xFF4FC3F7L),
+    val gradientStops: List<Float> = listOf(0f, 1f),
+    val gradientAngle: Float = 90f,
+    val gradientRadial: Boolean = false,
+    val imageData: String? = null,
+    /** Persistable SAF URI string of the video clip. */
+    val videoUri: String? = null,
+    /** How the video fills the pane: CROP / FIT / CENTER / STRETCH. */
+    val videoFit: String = "CROP",
+    /** Ride-time (ms into the replay) at which the clip's first frame shows. */
+    val videoOffsetMs: Long = 0L,
+    /** What the pane shows when the cursor is outside the clip window: FREEZE
+     *  (hold the nearest first/last frame), LOOP (repeat the clip), or BLACK
+     *  (fill black). Default FREEZE keeps the footage on screen while scrubbing. */
+    val videoEdge: String = "FREEZE",
 )
 
 /** Kind of floating overlay element the rider can drop onto the layout. */

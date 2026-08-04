@@ -40,6 +40,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.ColorMatrix
+import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.SolidColor
@@ -56,10 +57,13 @@ import androidx.compose.ui.unit.dp
 import com.eried.eucplanet.R
 import com.eried.eucplanet.ui.theme.appColors
 import com.eried.eucplanet.hud.protocol.OverlayPreset
+import com.eried.eucplanet.hud.protocol.ReplaySourceType
 import com.eried.eucplanet.hud.protocol.ViewportConfig
 import com.eried.eucplanet.hud.protocol.ViewportLayout
+import com.eried.eucplanet.hud.protocol.ViewportReplayFace
 import com.eried.eucplanet.hud.protocol.ViewportSourceType
 import com.eried.eucplanet.ui.studio.camera.StudioCameraHub
+import com.eried.eucplanet.ui.studio.camera.StudioVideoHub
 import kotlin.math.abs
 import kotlin.math.cos
 import kotlin.math.sin
@@ -128,8 +132,11 @@ fun paneRects(
 }
 
 /**
- * Draws the viewport panes (camera or solid backgrounds), the divider lines,
- * and, when [editable], the per-pane source button and the divider handles.
+ * Draws the viewport panes, the divider lines, and, when [editable], the
+ * per-pane source button and the divider handles. In live mode each pane
+ * shows its camera/solid/gradient/image source; in [replayMode] it shows the
+ * pane's replay face instead (transparent/solid/gradient/image/video, video
+ * decoded from [videoHub] at [replayCursorMs]).
  */
 @Composable
 fun StudioViewportLayer(
@@ -138,6 +145,19 @@ fun StudioViewportLayer(
     hasCameraPermission: Boolean,
     editable: Boolean,
     replayMode: Boolean = false,
+    videoHub: StudioVideoHub? = null,
+    replayCursorMs: Long = 0L,
+    replayPlaying: Boolean = false,
+    replaySpeed: Float = 1f,
+    /**
+     * Offscreen export shim: when non-null, a VIDEO replay face draws
+     * `prebuiltVideoFrame(paneIndex)` instead of decoding from [videoHub].
+     * The export loop resolves every pane's frame on the producing side (for
+     * that export frame's cursor position) so the offscreen frame clock never
+     * calls into the retriever. Null (the live/on-screen default) keeps the
+     * existing hub-decode behavior.
+     */
+    prebuiltVideoFrame: ((Int) -> ImageBitmap?)? = null,
     onDividerChange: (List<Float>) -> Unit,
     onConfigViewport: (Int) -> Unit,
     onConfigDivider: () -> Unit,
@@ -146,12 +166,18 @@ fun StudioViewportLayer(
     onLongPressEmpty: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    if (replayMode) {
-        // Replay shows the overlays only; the viewport background is transparent.
-        Box(modifier.fillMaxSize())
-        return
-    }
-    BoxWithConstraints(modifier.fillMaxSize().background(Color.Black)) {
+    // Pane geometry (rects, clipping, divider lines) is identical in replay so
+    // the layout matches export exactly; only the pane *content* differs (the
+    // replay face instead of the camera feed). Pane/divider editing (the
+    // wrench, the drag handles) works the same in both modes: the wrench
+    // opens the mode-aware ViewportConfigSheet, which edits the live face in
+    // live and the replay face in replay, so it never touches the wrong one.
+    val paneEditable = editable
+    BoxWithConstraints(
+        modifier
+            .fillMaxSize()
+            .let { if (replayMode) it else it.background(Color.Black) }
+    ) {
         val w = maxWidth
         val h = maxHeight
         val widthPx = constraints.maxWidth.toFloat().coerceAtLeast(1f)
@@ -167,7 +193,7 @@ fun StudioViewportLayer(
                     .size(width = w * r.width, height = h * r.height)
                     .clip(RectangleShape)
                     .then(
-                        if (editable) Modifier.pointerInput(index) {
+                        if (paneEditable) Modifier.pointerInput(index) {
                             detectTapGestures(
                                 onTap = { onTapEmpty() },
                                 onDoubleTap = { onDoubleTapEmpty() },
@@ -176,20 +202,26 @@ fun StudioViewportLayer(
                         } else Modifier
                     )
             ) {
-                when (config?.source) {
-                    ViewportSourceType.SOLID ->
-                        Box(Modifier.fillMaxSize().background(Color(config.solidColor)))
-                    ViewportSourceType.IMAGE ->
-                        ViewportImagePane(config.imageData, config)
-                    ViewportSourceType.GRADIENT -> ViewportGradientPane(config)
-                    else -> CameraPane(
-                        hub = hub,
-                        cameraKey = config?.cameraKey ?: "BACK",
-                        hasPermission = hasCameraPermission,
-                        config = config ?: ViewportConfig()
+                if (replayMode) {
+                    ReplayFacePane(
+                        config?.replay, videoHub, replayCursorMs, index,
+                        prebuiltVideoFrame, replayPlaying, replaySpeed
                     )
+                } else {
+                    when (config?.source) {
+                        ViewportSourceType.SOLID -> SolidPane(config.solidColor)
+                        ViewportSourceType.IMAGE ->
+                            ViewportImagePane(config.imageData, config)
+                        ViewportSourceType.GRADIENT -> ViewportGradientPane(config)
+                        else -> CameraPane(
+                            hub = hub,
+                            cameraKey = config?.cameraKey ?: "BACK",
+                            hasPermission = hasCameraPermission,
+                            config = config ?: ViewportConfig()
+                        )
+                    }
                 }
-                if (editable) {
+                if (paneEditable) {
                     PaneButton(
                         icon = Icons.Default.Build,
                         modifier = Modifier.align(Alignment.TopEnd)
@@ -204,7 +236,7 @@ fun StudioViewportLayer(
             widthPx = widthPx,
             heightPx = heightPx,
             landscape = landscape,
-            editable = editable,
+            editable = paneEditable,
             onDividerChange = onDividerChange,
             onConfigDivider = onConfigDivider
         )
@@ -212,12 +244,133 @@ fun StudioViewportLayer(
 }
 
 /**
- * Maps a [ViewportConfig.fitMode] string to a Compose [ContentScale].
- * Pure GPU scaling, no per-frame pixel work.
+ * Renders one pane's REPLAY face: transparent (nothing, the editor checkerboard
+ * shows through), a static solid/gradient/image (the same renderers the live
+ * face uses, colour-grade/zoom neutral since replay faces don't carry them), or
+ * a video frame decoded from [videoHub] at the current [cursorMs]. `null`
+ * (no replay face configured yet) reads as transparent, matching the default
+ * on old presets.
+ */
+@Composable
+private fun ReplayFacePane(
+    face: ViewportReplayFace?,
+    videoHub: StudioVideoHub?,
+    cursorMs: Long,
+    paneIndex: Int,
+    prebuiltVideoFrame: ((Int) -> ImageBitmap?)?,
+    replayPlaying: Boolean,
+    replaySpeed: Float
+) {
+    when (face?.source) {
+        null, ReplaySourceType.TRANSPARENT -> Box(Modifier.fillMaxSize())
+        ReplaySourceType.SOLID -> SolidPane(face.solidColor)
+        ReplaySourceType.GRADIENT -> ViewportGradientPane(
+            ViewportConfig(
+                gradientColors = face.gradientColors,
+                gradientStops = face.gradientStops,
+                gradientAngle = face.gradientAngle,
+                gradientRadial = face.gradientRadial
+            )
+        )
+        ReplaySourceType.IMAGE -> {
+            val data = face.imageData
+            if (data == null) Box(Modifier.fillMaxSize()) else ViewportImagePane(data, ViewportConfig())
+        }
+        ReplaySourceType.VIDEO ->
+            ReplayVideoPane(
+                face, videoHub, cursorMs, paneIndex,
+                prebuiltVideoFrame, replayPlaying, replaySpeed
+            )
+    }
+}
+
+/**
+ * The video replay face. Two render paths:
+ *
+ * - Offscreen export ([prebuiltVideoFrame] non-null): the frame for [paneIndex]
+ *   was already resolved on the producing side (via [StudioVideoHub.frameAt], a
+ *   frame-accurate offline decode) for this export frame's cursor, so it is drawn
+ *   as-is. null = nothing (out of range / no clip). This path never touches a
+ *   player and keeps export deterministic.
+ * - Interactive preview (on-screen): a real [ReplayVideoPlayer] (ExoPlayer into a
+ *   TextureView) that plays with the replay clock and seeks while scrubbing. The
+ *   retriever is only consulted for [StudioVideoHub.durationMs] to compute the
+ *   clip window; the edge behavior (freeze/loop/black) is resolved here.
+ *
+ * A missing/unbound/invalid clip shows the No-media placeholder in both paths.
+ */
+@Composable
+private fun ReplayVideoPane(
+    face: ViewportReplayFace,
+    videoHub: StudioVideoHub?,
+    cursorMs: Long,
+    paneIndex: Int,
+    prebuiltVideoFrame: ((Int) -> ImageBitmap?)?,
+    replayPlaying: Boolean,
+    replaySpeed: Float
+) {
+    if (prebuiltVideoFrame != null) {
+        val frame = prebuiltVideoFrame(paneIndex)
+        if (frame != null) {
+            Image(
+                bitmap = frame,
+                contentDescription = null,
+                contentScale = contentScaleOf(face.videoFit),
+                modifier = Modifier.fillMaxSize()
+            )
+        } else {
+            Box(Modifier.fillMaxSize())
+        }
+        return
+    }
+    val uri = face.videoUri
+    if (uri == null || videoHub == null || videoHub.isInvalid(uri)) {
+        Box(Modifier.fillMaxSize().background(MaterialTheme.appColors.surface), Alignment.Center) {
+            PaneMessage(Icons.Default.VideocamOff, stringResource(R.string.studio_video_no_media))
+        }
+        return
+    }
+    // Resolve the clip window + the video time to show. The player stays mounted
+    // even out of range (avoids re-preparing on every boundary crossing): FREEZE
+    // clamps to the nearest frame, LOOP wraps, BLACK clamps too but gets a scrim.
+    val duration = videoHub.durationMs(uri)
+    val into = cursorMs - face.videoOffsetMs
+    val inWindow = duration > 0L && into in 0L..duration
+    val loop = face.videoEdge == "LOOP"
+    val targetMs = when {
+        duration <= 0L -> 0L
+        inWindow -> into
+        loop -> ((into % duration) + duration) % duration
+        else -> into.coerceIn(0L, duration)
+    }
+    Box(Modifier.fillMaxSize()) {
+        ReplayVideoPlayer(
+            uri = uri,
+            videoTimeMs = targetMs,
+            // LOOP keeps playing past the clip length (repeating); FREEZE/BLACK
+            // stop and hold the last frame once the cursor leaves the window.
+            playing = replayPlaying && (inWindow || loop),
+            loop = loop,
+            speed = replaySpeed,
+            fit = face.videoFit,
+            modifier = Modifier.fillMaxSize()
+        )
+        if (!inWindow && face.videoEdge == "BLACK") {
+            Box(Modifier.fillMaxSize().background(Color.Black))
+        }
+    }
+}
+
+/**
+ * Maps a [ViewportConfig.fitMode] (or a replay face's `videoFit`) string to a
+ * Compose [ContentScale]. Pure GPU scaling, no per-frame pixel work. "STRETCH"
+ * is replay-video-only (live panes never set it) but handled here too so both
+ * paths share one mapper.
  */
 private fun contentScaleOf(fitMode: String): ContentScale = when (fitMode) {
     "FIT" -> ContentScale.Fit
     "CENTER" -> ContentScale.None
+    "STRETCH" -> ContentScale.FillBounds
     else -> ContentScale.Crop
 }
 
@@ -436,6 +589,12 @@ fun DrawScope.studioGradientBrush(config: ViewportConfig): Brush {
             end = Offset(cx + dx * half, cy + dy * half)
         )
     }
+}
+
+/** A flat-colour pane, shared by the live SOLID source and the replay SOLID face. */
+@Composable
+private fun SolidPane(colorLong: Long) {
+    Box(Modifier.fillMaxSize().background(Color(colorLong)))
 }
 
 @Composable

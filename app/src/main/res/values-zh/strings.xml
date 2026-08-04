@@ -1762,12 +1762,12 @@
     <string name="studio_export_status">正在导出文件…</string>
     <string name="studio_export_stay">停留在当前屏幕</string>
     <string name="studio_export_title">文件导出</string>
-    <string name="studio_replay_trim">(裁剪)</string>
+    <string name="studio_replay_trim">(完整行程)</string>
     <string name="studio_replay_trim_duration">时长</string>
     <string name="studio_replay_trim_end">结束</string>
     <string name="studio_replay_trim_reset">重置</string>
     <string name="studio_replay_trim_start">开始</string>
-    <string name="studio_replay_trim_title">裁剪片段</string>
+    <string name="studio_replay_trim_title">裁剪行程</string>
     <string name="tab_advanced">高级</string>
     <string name="tab_more">更多</string>
     <string name="welcome_tut_dev_join">加入排行榜</string>
@@ -1888,4 +1888,20 @@
     <string name="keep_app_alive">保持应用运行</string>
     <string name="keep_app_alive_desc">显示常驻通知，让应用在后台保持运行。即使没有连接独轮车，行程同步和语音也能继续工作。会多消耗一点电量。</string>
     <string name="sync_up_to_date">已是最新</string>
+    <string name="studio_source_transparent">透明</string>
+    <string name="studio_source_video">视频</string>
+    <string name="studio_video_pick">选择视频</string>
+    <string name="studio_video_replace">替换视频</string>
+    <string name="studio_video_fit">适配</string>
+    <string name="studio_video_fit_stretch">拉伸</string>
+    <string name="studio_video_offset">偏移</string>
+    <string name="studio_video_offset_value_fmt">%1$d ms</string>
+    <string name="studio_video_offset_nudge_fmt">%1$+d ms</string>
+    <string name="studio_video_set_offset">当前</string>
+    <string name="studio_video_no_media">无媒体</string>
+    <string name="studio_replay_cd_move">移动面板</string>
+    <string name="studio_video_edge">范围外</string>
+    <string name="studio_video_edge_freeze">冻结</string>
+    <string name="studio_video_edge_loop">循环</string>
+    <string name="studio_video_edge_black">黑色</string>
 </resources>

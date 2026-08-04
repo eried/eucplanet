@@ -1895,12 +1895,12 @@
     <string name="studio_export_status">Экспорт файла…</string>
     <string name="studio_export_stay">Остаться на текущем экране</string>
     <string name="studio_export_title">Экспорт файла</string>
-    <string name="studio_replay_trim">(Обрезка)</string>
+    <string name="studio_replay_trim">(вся поездка)</string>
     <string name="studio_replay_trim_duration">Длительность</string>
     <string name="studio_replay_trim_end">Конец</string>
     <string name="studio_replay_trim_reset">Сброс</string>
     <string name="studio_replay_trim_start">Начало</string>
-    <string name="studio_replay_trim_title">Обрезать клип</string>
+    <string name="studio_replay_trim_title">Обрезать поездку</string>
     <string name="tab_advanced">Дополнительно</string>
     <string name="tab_more">Ещё</string>
     <string name="welcome_tut_dev_join">Войти в таблицы лидеров</string>
@@ -2021,5 +2021,21 @@
     <string name="keep_app_alive">Держать приложение активным</string>
     <string name="keep_app_alive_desc">Показывает постоянное уведомление, чтобы приложение оставалось активным в фоне. Синхронизация поездок и голос работают даже без подключённого моноколеса. Расходует немного больше заряда.</string>
     <string name="sync_up_to_date">Уже актуально</string>
+    <string name="studio_source_transparent">Прозрачный</string>
+    <string name="studio_source_video">Видео</string>
+    <string name="studio_video_pick">Выбрать видео</string>
+    <string name="studio_video_replace">Заменить видео</string>
+    <string name="studio_video_fit">Вписать</string>
+    <string name="studio_video_fit_stretch">Растянуть</string>
+    <string name="studio_video_offset">Смещение</string>
+    <string name="studio_video_offset_value_fmt">%1$d ms</string>
+    <string name="studio_video_offset_nudge_fmt">%1$+d ms</string>
+    <string name="studio_video_set_offset">Текущее</string>
+    <string name="studio_video_no_media">Нет медиа</string>
+    <string name="studio_replay_cd_move">Переместить панель</string>
+    <string name="studio_video_edge">Вне диапазона</string>
+    <string name="studio_video_edge_freeze">Стоп-кадр</string>
+    <string name="studio_video_edge_loop">Цикл</string>
+    <string name="studio_video_edge_black">Чёрный</string>
 </resources>
 

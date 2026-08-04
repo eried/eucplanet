@@ -1448,8 +1448,8 @@
     <string name="studio_replay_clip_saved">Replay clip saved</string>
     <string name="studio_replay_render_cancelled">Render cancelled</string>
     <string name="studio_replay_export_failed">Replay export failed</string>
-    <string name="studio_replay_trim">(full clip)</string>
-    <string name="studio_replay_trim_title">Trim clip</string>
+    <string name="studio_replay_trim">(full trip)</string>
+    <string name="studio_replay_trim_title">Trim trip</string>
     <string name="studio_replay_trim_start">Start</string>
     <string name="studio_replay_trim_end">End</string>
     <string name="studio_replay_trim_duration">Duration</string>
@@ -1567,6 +1567,22 @@
     <string name="studio_camera_none">No cameras detected on this device.</string>
     <string name="studio_camera_limit">Android limits the number of camera streams, so with two cameras in use the rest are disabled.</string>
 
+    <!-- Studio: replay pane faces -->
+    <string name="studio_source_transparent">Transparent</string>
+    <string name="studio_source_video">Video</string>
+    <string name="studio_video_pick">Pick video</string>
+    <string name="studio_video_replace">Replace video</string>
+    <string name="studio_video_fit">Fit</string>
+    <string name="studio_video_fit_stretch">Stretch</string>
+    <string name="studio_video_offset">Offset</string>
+    <string name="studio_video_offset_value_fmt">%1$d ms</string>
+    <string name="studio_video_offset_nudge_fmt">%1$+d ms</string>
+    <string name="studio_video_set_offset">Current</string>
+    <string name="studio_video_edge">Out of range</string>
+    <string name="studio_video_edge_freeze">Freeze</string>
+    <string name="studio_video_edge_loop">Loop</string>
+    <string name="studio_video_edge_black">Black</string>
+
     <!-- Studio: background editor -->
     <string name="studio_bg_solid">Solid</string>
     <string name="studio_bg_linear">Linear</string>
@@ -1673,6 +1689,7 @@
     <string name="studio_pane_camera_conflict">%1$s can\'t run alongside another camera on this device</string>
     <string name="studio_pane_camera_unavailable">Camera unavailable</string>
     <string name="studio_pane_choose_image">Tap the wrench to choose an image</string>
+    <string name="studio_video_no_media">No media</string>
     <string name="studio_cd_resize_section">Resize section</string>
     <string name="studio_cd_divider_options">Divider options</string>
     <string name="studio_cd_close">Close studio</string>
@@ -1693,6 +1710,7 @@
     <string name="studio_replay_choose_trip">Choose a trip</string>
     <string name="studio_replay_speed_title">Replay speed</string>
     <string name="studio_replay_cd_fade">Fade the panel</string>
+    <string name="studio_replay_cd_move">Move panel</string>
     <string name="studio_replay_cd_back">Back</string>
     <string name="studio_replay_cd_close">Close replay</string>
     <string name="studio_replay_no_trips">No recorded trips yet</string>

@@ -1240,7 +1240,7 @@ private fun AdvRow(spec: AdvancedSpec, advanced: AdvancedSettings, onChange: (In
 /** Always-visible "undo -> <default>" affordance. Active (accent, clickable) when
  *  the value is off its default; greyed and inert once it matches. */
 @Composable
-private fun RestoreChip(text: String, enabled: Boolean, onClick: () -> Unit) {
+internal fun RestoreChip(text: String, enabled: Boolean, onClick: () -> Unit) {
     val color = if (enabled) MaterialTheme.appColors.primary else MaterialTheme.appColors.textDisabled
     Row(
         modifier = Modifier

@@ -1910,12 +1910,12 @@
     <string name="studio_export_status">Eksporterer fil…</string>
     <string name="studio_export_stay">Bliv på nuværende skærm</string>
     <string name="studio_export_title">Fileksport</string>
-    <string name="studio_replay_trim">(Trim)</string>
+    <string name="studio_replay_trim">(hele turen)</string>
     <string name="studio_replay_trim_duration">Varighed</string>
     <string name="studio_replay_trim_end">Slut</string>
     <string name="studio_replay_trim_reset">Nulstil</string>
     <string name="studio_replay_trim_start">Start</string>
-    <string name="studio_replay_trim_title">Trim klip</string>
+    <string name="studio_replay_trim_title">Trim tur</string>
     <string name="tab_advanced">Avanceret</string>
     <string name="tab_more">Mere</string>
     <string name="welcome_tut_dev_join">Tilmeld ranglister</string>
@@ -2036,4 +2036,20 @@
     <string name="keep_app_alive">Hold appen kørende</string>
     <string name="keep_app_alive_desc">Viser en vedvarende notifikation, så appen forbliver aktiv i baggrunden. Synkronisering af ture og stemme fungerer, selv uden et tilsluttet hjul. Bruger lidt mere batteri.</string>
     <string name="sync_up_to_date">Allerede opdateret</string>
+    <string name="studio_source_transparent">Gennemsigtig</string>
+    <string name="studio_source_video">Video</string>
+    <string name="studio_video_pick">Vælg video</string>
+    <string name="studio_video_replace">Erstat video</string>
+    <string name="studio_video_fit">Tilpasning</string>
+    <string name="studio_video_fit_stretch">Stræk</string>
+    <string name="studio_video_offset">Forskydning</string>
+    <string name="studio_video_offset_value_fmt">%1$d ms</string>
+    <string name="studio_video_offset_nudge_fmt">%1$+d ms</string>
+    <string name="studio_video_set_offset">Nuværende</string>
+    <string name="studio_video_no_media">Ingen medier</string>
+    <string name="studio_replay_cd_move">Flyt panel</string>
+    <string name="studio_video_edge">Uden for område</string>
+    <string name="studio_video_edge_freeze">Frys</string>
+    <string name="studio_video_edge_loop">Løkke</string>
+    <string name="studio_video_edge_black">Sort</string>
 </resources>

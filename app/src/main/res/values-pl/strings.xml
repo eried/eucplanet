@@ -1893,12 +1893,12 @@
     <string name="studio_export_status">Eksportowanie pliku…</string>
     <string name="studio_export_stay">Zostań na bieżącym ekranie</string>
     <string name="studio_export_title">Eksport pliku</string>
-    <string name="studio_replay_trim">(Przytnij)</string>
+    <string name="studio_replay_trim">(cała trasa)</string>
     <string name="studio_replay_trim_duration">Czas trwania</string>
     <string name="studio_replay_trim_end">Koniec</string>
     <string name="studio_replay_trim_reset">Resetuj</string>
     <string name="studio_replay_trim_start">Początek</string>
-    <string name="studio_replay_trim_title">Przytnij klip</string>
+    <string name="studio_replay_trim_title">Przytnij trasę</string>
     <string name="tab_advanced">Zaawansowane</string>
     <string name="tab_more">Więcej</string>
     <string name="welcome_tut_dev_join">Dołącz do rankingów</string>
@@ -2021,4 +2021,20 @@
     <string name="keep_app_alive">Utrzymuj aplikację aktywną</string>
     <string name="keep_app_alive_desc">Wyświetla stałe powiadomienie, dzięki czemu aplikacja pozostaje aktywna w tle. Synchronizacja przejazdów i głos działają nawet bez podłączonego koła. Zużywa nieco więcej baterii.</string>
     <string name="sync_up_to_date">Już zaktualizowane</string>
+    <string name="studio_source_transparent">Przezroczyste</string>
+    <string name="studio_source_video">Wideo</string>
+    <string name="studio_video_pick">Wybierz wideo</string>
+    <string name="studio_video_replace">Zmień wideo</string>
+    <string name="studio_video_fit">Dopasowanie</string>
+    <string name="studio_video_fit_stretch">Rozciągnij</string>
+    <string name="studio_video_offset">Przesunięcie</string>
+    <string name="studio_video_offset_value_fmt">%1$d ms</string>
+    <string name="studio_video_offset_nudge_fmt">%1$+d ms</string>
+    <string name="studio_video_set_offset">Bieżący</string>
+    <string name="studio_video_no_media">Brak multimediów</string>
+    <string name="studio_replay_cd_move">Przenieś panel</string>
+    <string name="studio_video_edge">Poza zakresem</string>
+    <string name="studio_video_edge_freeze">Zatrzymaj</string>
+    <string name="studio_video_edge_loop">Pętla</string>
+    <string name="studio_video_edge_black">Czarny</string>
 </resources>
