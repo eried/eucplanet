@@ -84,19 +84,17 @@ data class BleProfile(
             // NOT the 0xFFE0 notify service. Without this the write char lookup
             // returns null on service discovery and the connect is torn down,
             // so no InMotion V1 wheel (V5 / V8 / V10 / V10F / L6) could connect.
-            writeServiceUuid = UUID.fromString("0000ffe5-0000-1000-8000-00805f9b34fb"),
-            // NO_RESPONSE (Write Command, ATT opcode 0x52) - the write type EUC
-            // World uses for ALL its data writes. With WRITE_TYPE_DEFAULT
-            // (with-response) each write stays "busy" until the wheel acks it, and
-            // when that ack lags past the ~250 ms poll interval the next write is
-            // rejected code 201, occasionally dropping a one-shot command (e.g. a
-            // legal-mode / speed-limit change). No-response frees the GATT
-            // immediately so writes never collide. This is safe now that the real
-            // cause of the FATAL 201 storm - the requestMtu(512) wedge - is fixed
-            // (MTU is skipped for this family in BleConnectionManager); NO_RESPONSE
-            // only removes the residual collisions. The earlier NO_RESPONSE build
-            // "never connected" because of that MTU wedge, not the write type.
-            writeType = BluetoothGattCharacteristic.WRITE_TYPE_NO_RESPONSE
+            writeServiceUuid = UUID.fromString("0000ffe5-0000-1000-8000-00805f9b34fb")
+            // Keep WRITE_TYPE_DEFAULT (write-with-response). DO NOT switch to
+            // NO_RESPONSE - it is A/B PROVEN to break V8S connect: on the same
+            // build where DEFAULT connects first-try, NO_RESPONSE makes the wheel
+            // never ack INMOTI/PIN (no 0x0F550307), just loop 0x0F060101 until
+            // status=8. Write-with-response's ATT-layer retransmit is required so
+            // the password writes actually reach the wheel on this phone/link;
+            // no-response writes get lost over the air. The occasional harmless
+            // code-201 write collisions under DEFAULT never block connect and are
+            // the lesser evil. (EUC World does use no-response, but on our stack
+            // it does not deliver reliably; this was confirmed twice.)
         )
     }
 }
