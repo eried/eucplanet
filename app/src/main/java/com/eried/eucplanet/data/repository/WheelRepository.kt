@@ -523,6 +523,12 @@ class WheelRepository @Inject constructor(
     @Volatile private var lockCooldownUntilMs = 0L
     @Volatile private var lightCooldownUntilMs = 0L
     @Volatile private var safetyCooldownUntilMs = 0L
+    // Last legal-mode state we actually SPOKE. The toggle flips _safetySpeedActive
+    // optimistically for the UI, so comparing the confirmed state against that flag
+    // would always read "no change" and never announce. Comparing against the
+    // last-announced state instead means a confirmed toggle voices once, a dropped
+    // toggle that reverts voices nothing, and an external change voices correctly.
+    @Volatile private var lastAnnouncedSafety: Boolean = false
     private val LOCK_COOLDOWN_MS = 3000L
     private val LIGHT_COOLDOWN_MS = 1500L
     private val SAFETY_COOLDOWN_MS = 1800L
@@ -748,6 +754,7 @@ class WheelRepository @Inject constructor(
                         lastSyncedWheelAlarmKmh = -1f
                         // Reset states that depend on wheel connection
                         _safetySpeedActive.value = false
+                        lastAnnouncedSafety = false
                         _locked.value = false
                         _wheelHasLock.value = false
                         _chargeStatus.value = ChargeStatus.Disconnected
@@ -1624,6 +1631,9 @@ class WheelRepository @Inject constructor(
             settingsRepository.update(updated)
         }
         _safetySpeedActive.value = isLegalOn
+        // Seed the last-spoken state to the connect-time reading so the first
+        // in-session toggle is detected as a change and announced.
+        lastAnnouncedSafety = isLegalOn
 
         Log.i(TAG, "Reconciled: wheel=$wTilt/$wAlarm → " +
                 "normal=${updated.tiltbackSpeedKmh}/${updated.alarmSpeedKmh} " +
@@ -1830,7 +1840,6 @@ class WheelRepository @Inject constructor(
                 Log.i(TAG, "Wheel settings: tiltback=${ws.maxSpeedKmh} beep=${ws.alarmSpeedKmh} lockState=${ws.lockState}")
 
                 val appSettings = settingsRepository.get()
-                val wasSafety = _safetySpeedActive.value
                 val wasLocked = _locked.value
                 val isLocked = ws.lockState != 0
                 // Skip the lock-state overwrite while the user's tap cooldown
@@ -1876,25 +1885,31 @@ class WheelRepository @Inject constructor(
                     // optimistic state is held so a stale mid-apply frame can't
                     // bounce it. Other families keep the intent-masked behaviour
                     // (V14 clamp handling) unchanged.
-                    if (wheelAdapter.familyId == "inmotion_v1") {
-                        val cooldownActive = System.currentTimeMillis() < safetyCooldownUntilMs
-                        if (!cooldownActive) {
-                            val realSafety = kotlin.math.abs(
-                                ws.maxSpeedKmh - appSettings.safetyTiltbackKmh
-                            ) < 0.5f
-                            if (realSafety != wasSafety) {
-                                _safetySpeedActive.value = realSafety
-                                if (appSettings.announceSafetyMode) {
-                                    voiceService.announceEvent(context.getString(
-                                        if (realSafety) R.string.voice_legal_on
-                                        else R.string.voice_legal_off))
-                                }
-                            }
+                    // Confirmed legal state, then announce it if it differs from
+                    // what we last SPOKE (not from the optimistic UI flag, which the
+                    // toggle already moved - comparing to that would never fire).
+                    val confirmedSafety: Boolean? = if (wheelAdapter.familyId == "inmotion_v1") {
+                        // V1: hold the optimistic state during the tap cooldown, then
+                        // trust the actual readback (a dropped toggle reverts + voices
+                        // the real state; V1 doesn't firmware-clamp).
+                        if (System.currentTimeMillis() < safetyCooldownUntilMs) {
+                            null  // still settling, don't confirm/announce yet
+                        } else {
+                            kotlin.math.abs(ws.maxSpeedKmh - appSettings.safetyTiltbackKmh) < 0.5f
                         }
                     } else {
-                        _safetySpeedActive.value = isSafety
-                        if (isSafety != wasSafety && appSettings.announceSafetyMode) {
-                            voiceService.announceEvent(context.getString(if (isSafety) R.string.voice_legal_on else R.string.voice_legal_off))
+                        // Other families keep the intent-masked value (V14 clamp handling).
+                        isSafety
+                    }
+                    if (confirmedSafety != null) {
+                        _safetySpeedActive.value = confirmedSafety
+                        if (confirmedSafety != lastAnnouncedSafety) {
+                            lastAnnouncedSafety = confirmedSafety
+                            if (appSettings.announceSafetyMode) {
+                                voiceService.announceEvent(context.getString(
+                                    if (confirmedSafety) R.string.voice_legal_on
+                                    else R.string.voice_legal_off))
+                            }
                         }
                     }
 
