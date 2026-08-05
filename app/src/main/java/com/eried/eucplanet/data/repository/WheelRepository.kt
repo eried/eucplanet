@@ -1858,8 +1858,23 @@ class WheelRepository @Inject constructor(
                     // tiltback / alarm directly on the wheel's own screen).
                     // Wait out the debounce so we don't mistake the wheel's
                     // echo of our own write for an external change.
+                    //
+                    // Skip entirely for InMotion V1 (V8S etc.): it has no wheel
+                    // screen, so there is never a legitimate mid-session external
+                    // change (EUC World can't be BLE-connected at the same time),
+                    // and its slow-info reports alarm == tiltback with
+                    // hasAlarmSpeed=false. Running the adopt here would (a) clobber
+                    // the stored alarm with the speed value ("alarm takes the
+                    // number from Speed") and (b) when a legal-toggle write is
+                    // dropped or echoes late, adopt the wheel's stale tiltback into
+                    // the wrong normal/legal pair - swapping the two and eventually
+                    // collapsing them so the toggle can't tell them apart and snaps
+                    // back on. Real external changes made in another app while we
+                    // are disconnected are still picked up by reconcileSpeedLimits
+                    // on the next connect.
+                    val syncsFromWheelScreen = wheelAdapter.familyId != "inmotion_v1"
                     val sinceWrite = System.currentTimeMillis() - lastSetSpeedAtMs
-                    if (sinceWrite > WHEEL_SCREEN_DEBOUNCE_MS) {
+                    if (syncsFromWheelScreen && sinceWrite > WHEEL_SCREEN_DEBOUNCE_MS) {
                         val activeTilt = if (isSafety) appSettings.safetyTiltbackKmh
                                          else appSettings.tiltbackSpeedKmh
                         val activeAlarm = if (isSafety) appSettings.safetyAlarmKmh
