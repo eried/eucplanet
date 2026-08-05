@@ -561,7 +561,14 @@ class WheelService : LifecycleService() {
                 // Only this periodic report is gated here — alarm/trigger/nav voice
                 // lives on separate paths and is unaffected.
                 val settings = settingsRepository.get()
-                if (settings.voiceEnabled && settings.voicePeriodicEnabled) {
+                // Gate on the single visible "Enable periodic reports" toggle
+                // (voiceEnabled). The old `&& voicePeriodicEnabled` required a
+                // second flag that no Settings control ever set - it defaulted
+                // false and was only reachable from the dashboard voice menu /
+                // wizard, so turning the labelled Settings toggle on produced no
+                // periodic reports at all. voicePeriodicEnabled is now retired
+                // (the dashboard quick-toggle drives voiceEnabled too).
+                if (settings.voiceEnabled) {
                     val connected = wheelRepository.connectionState.value == ConnectionState.CONNECTED
                     val data = wheelRepository.wheelData.value
                     // "RIDING" = the same "in motion" test that auto-starts a trip

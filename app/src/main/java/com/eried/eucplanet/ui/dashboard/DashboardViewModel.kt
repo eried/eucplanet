@@ -281,9 +281,12 @@ class DashboardViewModel @Inject constructor(
         .map { it.flicShowOnDashboard }
         .stateIn(viewModelScope, SharingStarted.Eagerly, initialSettings.flicShowOnDashboard)
 
+    // The dashboard voice-menu "periodic announcements" toggle and the Settings
+    // "Enable periodic reports" switch are the same on/off - both drive
+    // voiceEnabled (the single flag the periodic loop gates on).
     val voicePeriodicEnabled: StateFlow<Boolean> = settingsRepository.settings
-        .map { it.voicePeriodicEnabled }
-        .stateIn(viewModelScope, SharingStarted.Eagerly, initialSettings.voicePeriodicEnabled)
+        .map { it.voiceEnabled }
+        .stateIn(viewModelScope, SharingStarted.Eagerly, initialSettings.voiceEnabled)
 
     /** Whether the dashboard top-bar Battery-monitor (spark) icon renders at all. */
     val chargingDashboardIcon: StateFlow<Boolean> = settingsRepository.settings
@@ -329,7 +332,7 @@ class DashboardViewModel @Inject constructor(
     fun toggleVoicePeriodic() {
         viewModelScope.launch {
             val current = settingsRepository.get()
-            settingsRepository.update(current.copy(voicePeriodicEnabled = !current.voicePeriodicEnabled))
+            settingsRepository.update(current.copy(voiceEnabled = !current.voiceEnabled))
         }
     }
 
@@ -367,7 +370,7 @@ class DashboardViewModel @Inject constructor(
             val s = settingsRepository.get()
             settingsRepository.update(
                 s.copy(
-                    voicePeriodicEnabled = enabled,
+                    voiceEnabled = enabled,
                     announceWheelLock = enabled,
                     announceLights = enabled,
                     announceRecording = enabled,
