@@ -1906,4 +1906,6 @@
     <string name="studio_video_edge_freeze">冻结</string>
     <string name="studio_video_edge_loop">循环</string>
     <string name="studio_video_edge_black">黑色</string>
+    <string name="wheel_no_data_reconnecting">没有来自独轮车的数据。正在重新连接…</string>
+    <string name="wheel_no_data_reset">仍然没有来自独轮车的数据。请尝试将其关闭再打开。</string>
 </resources>

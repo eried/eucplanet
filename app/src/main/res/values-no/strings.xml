@@ -1927,4 +1927,6 @@
     <string name="studio_video_edge_freeze">Frys</string>
     <string name="studio_video_edge_loop">Løkke</string>
     <string name="studio_video_edge_black">Svart</string>
+    <string name="wheel_no_data_reconnecting">Ingen data fra hjulet. Kobler til på nytt…</string>
+    <string name="wheel_no_data_reset">Fortsatt ingen data fra hjulet. Prøv å slå det av og på.</string>
 </resources>

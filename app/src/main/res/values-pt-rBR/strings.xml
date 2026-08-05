@@ -2041,5 +2041,7 @@
     <string name="studio_video_edge_freeze">Congelar</string>
     <string name="studio_video_edge_loop">Repetir</string>
     <string name="studio_video_edge_black">Preto</string>
+    <string name="wheel_no_data_reconnecting">Sem dados da roda. Reconectando…</string>
+    <string name="wheel_no_data_reset">Ainda sem dados da roda. Tente desligá-la e ligá-la novamente.</string>
 </resources>
 

@@ -2039,4 +2039,6 @@
     <string name="studio_video_edge_freeze">Zatrzymaj</string>
     <string name="studio_video_edge_loop">Pętla</string>
     <string name="studio_video_edge_black">Czarny</string>
+    <string name="wheel_no_data_reconnecting">Brak danych z koła. Ponowne łączenie…</string>
+    <string name="wheel_no_data_reset">Nadal brak danych z koła. Spróbuj wyłączyć je i włączyć ponownie.</string>
 </resources>

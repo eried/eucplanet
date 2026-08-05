@@ -2043,4 +2043,6 @@
     <string name="studio_video_edge_freeze">Figer</string>
     <string name="studio_video_edge_loop">Boucle</string>
     <string name="studio_video_edge_black">Noir</string>
+    <string name="wheel_no_data_reconnecting">Aucune donnée de la roue. Reconnexion…</string>
+    <string name="wheel_no_data_reset">Toujours aucune donnée de la roue. Essayez de la redémarrer.</string>
 </resources>

@@ -2039,4 +2039,6 @@
     <string name="studio_video_edge_freeze">Frys</string>
     <string name="studio_video_edge_loop">Loop</string>
     <string name="studio_video_edge_black">Svart</string>
+    <string name="wheel_no_data_reconnecting">Inga data från hjulet. Återansluter…</string>
+    <string name="wheel_no_data_reset">Fortfarande inga data från hjulet. Prova att stänga av och slå på det.</string>
 </resources>

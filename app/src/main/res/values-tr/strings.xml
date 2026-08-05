@@ -2036,6 +2036,8 @@
     <string name="studio_video_edge_freeze">Dondur</string>
     <string name="studio_video_edge_loop">Döngü</string>
     <string name="studio_video_edge_black">Siyah</string>
+    <string name="wheel_no_data_reconnecting">Tekerden veri yok. Yeniden bağlanılıyor…</string>
+    <string name="wheel_no_data_reset">Tekerden hâlâ veri yok. Kapatıp açmayı deneyin.</string>
 </resources>
 
 

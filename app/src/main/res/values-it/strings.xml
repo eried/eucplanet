@@ -1944,4 +1944,6 @@
     <string name="studio_video_edge_freeze">Blocca</string>
     <string name="studio_video_edge_loop">Ciclo</string>
     <string name="studio_video_edge_black">Nero</string>
+    <string name="wheel_no_data_reconnecting">Nessun dato dalla ruota. Riconnessione…</string>
+    <string name="wheel_no_data_reset">Ancora nessun dato dalla ruota. Prova a spegnerla e riaccenderla.</string>
 </resources>

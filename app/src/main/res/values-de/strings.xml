@@ -2059,4 +2059,6 @@
     <string name="studio_video_edge_freeze">Einfrieren</string>
     <string name="studio_video_edge_loop">Schleife</string>
     <string name="studio_video_edge_black">Schwarz</string>
+    <string name="wheel_no_data_reconnecting">Keine Daten vom Wheel. Verbinde erneut…</string>
+    <string name="wheel_no_data_reset">Weiterhin keine Daten vom Wheel. Schalte es aus und wieder ein.</string>
 </resources>

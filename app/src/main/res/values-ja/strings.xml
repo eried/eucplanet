@@ -2040,6 +2040,8 @@
     <string name="studio_video_edge_freeze">静止</string>
     <string name="studio_video_edge_loop">ループ</string>
     <string name="studio_video_edge_black">黒</string>
+    <string name="wheel_no_data_reconnecting">ホイールからのデータがありません。再接続中…</string>
+    <string name="wheel_no_data_reset">まだホイールからのデータがありません。電源を入れ直してください。</string>
 </resources>
 
 

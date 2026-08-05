@@ -2041,5 +2041,7 @@
     <string name="studio_video_edge_freeze">Bevriezen</string>
     <string name="studio_video_edge_loop">Herhalen</string>
     <string name="studio_video_edge_black">Zwart</string>
+    <string name="wheel_no_data_reconnecting">Geen gegevens van het wiel. Opnieuw verbinden…</string>
+    <string name="wheel_no_data_reset">Nog steeds geen gegevens van het wiel. Zet het uit en weer aan.</string>
 </resources>
 

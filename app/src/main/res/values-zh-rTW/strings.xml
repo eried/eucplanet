@@ -2038,6 +2038,8 @@
     <string name="studio_video_edge_freeze">凍結</string>
     <string name="studio_video_edge_loop">循環</string>
     <string name="studio_video_edge_black">黑色</string>
+    <string name="wheel_no_data_reconnecting">沒有來自車輪的資料。正在重新連線…</string>
+    <string name="wheel_no_data_reset">仍然沒有來自車輪的資料。請嘗試將它關閉再開啟。</string>
 </resources>
 
 

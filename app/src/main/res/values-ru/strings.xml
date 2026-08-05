@@ -2039,5 +2039,7 @@
     <string name="studio_video_edge_freeze">Стоп-кадр</string>
     <string name="studio_video_edge_loop">Цикл</string>
     <string name="studio_video_edge_black">Чёрный</string>
+    <string name="wheel_no_data_reconnecting">Нет данных от моноколеса. Переподключение…</string>
+    <string name="wheel_no_data_reset">По-прежнему нет данных от моноколеса. Попробуйте выключить и снова включить его.</string>
 </resources>
 

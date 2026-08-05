@@ -2038,4 +2038,6 @@
     <string name="studio_video_edge_freeze">정지</string>
     <string name="studio_video_edge_loop">반복</string>
     <string name="studio_video_edge_black">검정</string>
+    <string name="wheel_no_data_reconnecting">휠에서 데이터가 없습니다. 다시 연결하는 중…</string>
+    <string name="wheel_no_data_reset">여전히 휠에서 데이터가 없습니다. 휠을 껐다가 켜 보세요.</string>
 </resources>
