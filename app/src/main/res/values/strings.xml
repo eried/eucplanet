@@ -1345,6 +1345,9 @@
     <string name="service_mode_link">Visit eucplanet.ried.no/service for more information.</string>
     <string name="service_mode_enter">Enter</string>
     <string name="toast_external_speed_change">Speed updated from wheel: %1$d km/h tiltback, %2$d km/h alarm</string>
+    <!-- Connected-but-no-telemetry recovery (phantom link after a wheel BT restart) -->
+    <string name="wheel_no_data_reconnecting">No data from the wheel. Reconnecting…</string>
+    <string name="wheel_no_data_reset">Still no data from the wheel. Try turning it off and on.</string>
 
     <!-- ==== EucStats online upload onboarding ==== -->
 
