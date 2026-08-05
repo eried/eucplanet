@@ -513,10 +513,19 @@ class WheelRepository @Inject constructor(
     val lockBusy: StateFlow<Boolean> = _lockBusy.asStateFlow()
     private val _lightBusy = MutableStateFlow(false)
     val lightBusy: StateFlow<Boolean> = _lightBusy.asStateFlow()
+    // Legal-mode (safety-speed) toggle gets the same treatment as Lock: a brief
+    // cooldown after a tap so a stale mid-apply settings frame can't bounce the
+    // button, and a busy flag so spam taps don't queue conflicting writes. After
+    // the cooldown the wheel readback is the source of truth, so a dropped toggle
+    // reverts the button (and voices legal off/on) instead of the UI lying.
+    private val _safetyBusy = MutableStateFlow(false)
+    val safetyBusy: StateFlow<Boolean> = _safetyBusy.asStateFlow()
     @Volatile private var lockCooldownUntilMs = 0L
     @Volatile private var lightCooldownUntilMs = 0L
+    @Volatile private var safetyCooldownUntilMs = 0L
     private val LOCK_COOLDOWN_MS = 3000L
     private val LIGHT_COOLDOWN_MS = 1500L
+    private val SAFETY_COOLDOWN_MS = 1800L
 
     /**
      * Current speed calibration multiplier (1.0 + offsetPct / 100). Mirrored
@@ -1409,6 +1418,11 @@ class WheelRepository @Inject constructor(
         // Timestamp the write so the auto-sync handler doesn't mistake the
         // wheel's echo of our own write for an external change.
         lastSetSpeedAtMs = System.currentTimeMillis()
+        // Hold the legal-mode toggle at its optimistic state for the write's
+        // apply window (covers both the toggle and the legal-limit slider), so a
+        // stale mid-apply settings frame can't bounce it. Once this elapses the
+        // wheel readback decides (see the DecodeResult.Settings handler).
+        safetyCooldownUntilMs = System.currentTimeMillis() + SAFETY_COOLDOWN_MS
         wheelAdapter.setMaxSpeed(tiltbackKmh, beepKmh)?.let { bleManager.writeCommand(it) }
         // P6 needs two flash-commit packets after the live drag write, one
         // for the tiltback, one for the alarm threshold. V14 returns null
@@ -1419,14 +1433,16 @@ class WheelRepository @Inject constructor(
 
     suspend fun toggleSafetySpeed() {
         if (!wheelConnected()) return  // no wheel -> ignore (HUD/Garmin/Flic/UI all land here)
+        if (_safetyBusy.value) return  // cooldown active, ignore the spam tap (lock parity)
         val wantActive = !_safetySpeedActive.value
         val settings = settingsRepository.get()
 
-        // Flip the flag to user intent immediately. The settings handler
-        // already trusts intent (lastSentTiltbackKmh) over a clamped readback,
-        // but the optimistic flip keeps the UI responsive while the wheel's
-        // confirmation is in flight, same pattern as toggleLock.
+        // Flip the flag to user intent immediately for a responsive UI, then hold
+        // it through the cooldown (same as toggleLock). setSpeed sets the cooldown
+        // window; startCooldown drives the busy flag so the button disables and
+        // spam taps are ignored while the wheel confirms.
         _safetySpeedActive.value = wantActive
+        startCooldown(_safetyBusy, SAFETY_COOLDOWN_MS) { safetyCooldownUntilMs = it }
 
         if (wantActive) {
             setSpeed(settings.safetyTiltbackKmh, settings.safetyAlarmKmh)
@@ -1435,8 +1451,11 @@ class WheelRepository @Inject constructor(
         }
         Log.i(TAG, "Safety speed toggle requested: active=$wantActive")
 
-        // Request settings back from wheel to confirm
-        delay(300)
+        // Confirm from the wheel just after the cooldown ends: during the
+        // cooldown the settings handler holds the optimistic state, then the
+        // readback becomes the source of truth. If the toggle write was dropped,
+        // this poll reverts the button and voices the real state.
+        delay(SAFETY_COOLDOWN_MS + 250)
         bleManager.writeCommand(wheelAdapter.pollSettings())
     }
 
@@ -1849,9 +1868,34 @@ class WheelRepository @Inject constructor(
                         kotlin.math.abs(ws.maxSpeedKmh - sent) > 0.5f
                     ) sent else ws.maxSpeedKmh
                     val isSafety = kotlin.math.abs(effectiveTilt - appSettings.safetyTiltbackKmh) < 0.5f
-                    _safetySpeedActive.value = isSafety
-                    if (isSafety != wasSafety && appSettings.announceSafetyMode) {
-                        voiceService.announceEvent(context.getString(if (isSafety) R.string.voice_legal_on else R.string.voice_legal_off))
+
+                    // InMotion V1: confirm from the wheel like the Lock toggle.
+                    // V1 doesn't firmware-clamp, so once the tap cooldown ends the
+                    // ACTUAL readback is trusted (a dropped toggle reverts the
+                    // button + voices the real state), and during the cooldown the
+                    // optimistic state is held so a stale mid-apply frame can't
+                    // bounce it. Other families keep the intent-masked behaviour
+                    // (V14 clamp handling) unchanged.
+                    if (wheelAdapter.familyId == "inmotion_v1") {
+                        val cooldownActive = System.currentTimeMillis() < safetyCooldownUntilMs
+                        if (!cooldownActive) {
+                            val realSafety = kotlin.math.abs(
+                                ws.maxSpeedKmh - appSettings.safetyTiltbackKmh
+                            ) < 0.5f
+                            if (realSafety != wasSafety) {
+                                _safetySpeedActive.value = realSafety
+                                if (appSettings.announceSafetyMode) {
+                                    voiceService.announceEvent(context.getString(
+                                        if (realSafety) R.string.voice_legal_on
+                                        else R.string.voice_legal_off))
+                                }
+                            }
+                        }
+                    } else {
+                        _safetySpeedActive.value = isSafety
+                        if (isSafety != wasSafety && appSettings.announceSafetyMode) {
+                            voiceService.announceEvent(context.getString(if (isSafety) R.string.voice_legal_on else R.string.voice_legal_off))
+                        }
                     }
 
                     // Auto-sync wheel-side changes (P6/V12 let the user adjust

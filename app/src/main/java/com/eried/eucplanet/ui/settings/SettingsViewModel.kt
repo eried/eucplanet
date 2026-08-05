@@ -356,14 +356,36 @@ class SettingsViewModel @Inject constructor(
             wheelRepository.setSpeed(s.tiltbackSpeedKmh.coerceAtLeast(value), value)
         }
     }
-    fun updateSafetyTiltback(value: Float) =
-        update {
-            val capped = value.coerceAtMost((tiltbackSpeedKmh - 1f).coerceAtLeast(0f))
-            copy(safetyTiltbackKmh = capped, safetyAlarmKmh = safetyAlarmKmh.coerceAtMost(capped))
+    fun updateSafetyTiltback(value: Float) {
+        viewModelScope.launch {
+            val current = settingsRepository.get()
+            val capped = value.coerceAtMost((current.tiltbackSpeedKmh - 1f).coerceAtLeast(0f))
+            val cappedAlarm = current.safetyAlarmKmh.coerceAtMost(capped)
+            settingsRepository.update(
+                current.copy(safetyTiltbackKmh = capped, safetyAlarmKmh = cappedAlarm)
+            )
+            // If Legal mode is currently on, push the new legal limit to the wheel
+            // so it follows the slider. Otherwise the wheel keeps the old legal
+            // value and the confirm-from-readback would think Legal turned off (it
+            // takes effect on the next toggle-on when Legal is not active).
+            if (wheelRepository.safetySpeedActive.value) {
+                wheelRepository.setSpeed(capped, cappedAlarm)
+            }
         }
+    }
 
-    fun updateSafetyAlarm(value: Float) =
-        update { copy(safetyAlarmKmh = value, safetyTiltbackKmh = safetyTiltbackKmh.coerceAtLeast(value)) }
+    fun updateSafetyAlarm(value: Float) {
+        viewModelScope.launch {
+            val current = settingsRepository.get()
+            val newTilt = current.safetyTiltbackKmh.coerceAtLeast(value)
+            settingsRepository.update(
+                current.copy(safetyAlarmKmh = value, safetyTiltbackKmh = newTilt)
+            )
+            if (wheelRepository.safetySpeedActive.value) {
+                wheelRepository.setSpeed(newTilt, value)
+            }
+        }
+    }
     fun updateVoiceEnabled(enabled: Boolean) = update { copy(voiceEnabled = enabled) }
     fun updateVoiceAnnounceWhen(value: String) = update { copy(voiceAnnounceWhen = value) }
     fun updateVoiceInterval(seconds: Int) = update { copy(voiceIntervalSeconds = seconds) }
