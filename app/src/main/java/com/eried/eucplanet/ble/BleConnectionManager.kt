@@ -69,16 +69,14 @@ class BleConnectionManager @Inject constructor(
         private const val MANUAL_RETRY_DELAY_MS = 600L
 
         /** If we reach CONNECTED but no notification arrives within this window,
-         *  the link is a phantom (e.g. Android served a STALE GATT service cache
-         *  after the wheel's Bluetooth restarted, so notifications subscribed to
-         *  dead handles - "connected but no data, no icon on the wheel"). Generous
-         *  enough that a slow-to-stream wheel (KingSong nudge, V8S cold-boot whose
-         *  heartbeat frames already count as data) never trips it. */
-        private const val NO_DATA_TIMEOUT_MS = 8000L
-        /** Stop auto-recovering after this many refresh+reconnect attempts that
-         *  still yield no data, and tell the rider to power-cycle the wheel, so a
-         *  genuinely-off wheel doesn't loop forever. */
-        private const val MAX_NO_DATA_RECOVERIES = 3
+         *  the link is a phantom: the wheel accepted the connection and acked our
+         *  writes but never started streaming (fast power-cycle, or a cold boot
+         *  before the wheel is ready). We inform the rider and release the link -
+         *  we do NOT churn the GATT to "repair" it (see the watchdog in
+         *  markReadyAndConnected for why). Generous so a slow-to-stream wheel
+         *  (KingSong nudge, V8S cold-boot whose heartbeat frames already count as
+         *  data) never trips it; any real frame resets the timer. */
+        private const val NO_DATA_TIMEOUT_MS = 15000L
 
         // Client Characteristic Configuration Descriptor: same for every wheel family.
         val CCCD_UUID: UUID = UUID.fromString("00002902-0000-1000-8000-00805f9b34fb")
@@ -128,11 +126,6 @@ class BleConnectionManager @Inject constructor(
     // watchdog fires, no data ever arrived on this connection = a phantom link.
     @Volatile private var lastDataMs = 0L
     @Volatile private var connectedAtMs = 0L
-    // Set when a phantom is detected so the next STATE_CONNECTED clears the stale
-    // GATT service cache (refresh()) before rediscovering.
-    @Volatile private var refreshNextConnect = false
-    // Consecutive no-data recoveries; reset the moment any data flows.
-    @Volatile private var noDataRecoveries = 0
 
     // Poll the link RSSI every few seconds while connected so the BT dBm metric
     // has a live value. A no-op on virtual connections (no gatt).
@@ -661,14 +654,6 @@ class BleConnectionManager @Inject constructor(
                 BluetoothProfile.STATE_CONNECTED -> {
                     Log.i(TAG, "Connected to GATT server")
                     _connectionState.value = ConnectionState.INITIALIZING
-                    // If the previous connection was a phantom (connected but no
-                    // telemetry), Android is likely serving a stale service cache
-                    // from before the wheel's Bluetooth restarted. Clear it so this
-                    // discoverServices re-reads the wheel's real, current services.
-                    if (refreshNextConnect) {
-                        refreshNextConnect = false
-                        refreshGattCache(gatt)
-                    }
                     // (Removed the InMotion V1 requestConnectionPriority(HIGH)
                     // experiment: the tester's failure logs show a RX-perfect /
                     // TX-dead pattern - the wheel streams 0x0F060101 at 10 Hz for
@@ -971,13 +956,24 @@ class BleConnectionManager @Inject constructor(
             try { gatt?.requestMtu(512) } catch (_: Exception) {}
         }
 
-        // "Connected but no telemetry" watchdog. A healthy wheel pushes a frame
-        // within ~1-2 s of CONNECTED. If nothing arrives within NO_DATA_TIMEOUT_MS
-        // the link is a phantom (stale GATT cache after the wheel's BT restarted):
-        // refresh the cache and reconnect, and tell the rider. After
-        // MAX_NO_DATA_RECOVERIES failed attempts, stop and advise a power-cycle so
-        // a genuinely-off wheel doesn't loop. Any real notification (incl. a V8S
-        // heartbeat) resets the budget, so slow-streaming wheels are unaffected.
+        // "Connected but no telemetry" detector. A healthy wheel streams within a
+        // second or two of CONNECTED. If NOTHING arrives within NO_DATA_TIMEOUT_MS,
+        // the wheel accepted the connection and acked our writes but never started
+        // streaming (fast power-cycle, or a cold boot before the wheel is ready).
+        //
+        // We deliberately do NOT try to "repair" this by refreshing the GATT cache
+        // and reconnecting. That storm was proven not to recover the wheel (every
+        // retry came up mute too), and hammering close()/connectGatt()/refresh()
+        // corrupts Android's Bluetooth stack over time - leaked/ghost GATT client
+        // contexts that starve EVERY app of notifications until the phone reboots.
+        // It also kept us squatting on the wheel's single connection slot, which is
+        // why the official apps couldn't connect either.
+        //
+        // Instead: tell the rider once, then cleanly release the link. disconnect()
+        // tears down gracefully (status 0, so nothing auto-reconnects into another
+        // mute session) and frees the slot for a fresh connect or another app. The
+        // rider power-cycles the wheel and reconnects. Any real frame resets the
+        // timer, so a slow-streaming wheel is never dropped.
         connectedAtMs = System.currentTimeMillis()
         val watchdogGatt = gatt
         scope.launch {
@@ -986,41 +982,13 @@ class BleConnectionManager @Inject constructor(
                 _connectionState.value == ConnectionState.CONNECTED &&
                 lastDataMs < connectedAtMs
             ) {
-                noDataRecoveries++
-                Log.w(TAG, "No telemetry ${NO_DATA_TIMEOUT_MS}ms after connect (recovery #$noDataRecoveries)")
+                Log.w(TAG, "No telemetry ${NO_DATA_TIMEOUT_MS}ms after connect - releasing the phantom link")
                 com.eried.eucplanet.diagnostics.DiagnosticsLogger.note(
-                    "No telemetry after connect - GATT cache refresh + reconnect (attempt $noDataRecoveries)"
+                    "No telemetry after connect - releasing the link so the rider can power-cycle (no GATT churn)"
                 )
-                if (noDataRecoveries >= MAX_NO_DATA_RECOVERIES) {
-                    noDataRecoveries = 0
-                    appNotifier.post(context.getString(com.eried.eucplanet.R.string.wheel_no_data_reset))
-                    // Stop hammering: drop to DISCONNECTED (status 0 -> no
-                    // auto-reconnect) so the rider can power-cycle and reconnect.
-                    try { watchdogGatt?.disconnect() } catch (_: Exception) {}
-                } else {
-                    appNotifier.post(context.getString(com.eried.eucplanet.R.string.wheel_no_data_reconnecting))
-                    refreshNextConnect = true
-                    reconnectManualNow()
-                }
+                appNotifier.post(context.getString(com.eried.eucplanet.R.string.wheel_no_data_reset))
+                disconnect()
             }
-        }
-    }
-
-    /**
-     * Clear Android's cached GATT service table for this device via the hidden
-     * BluetoothGatt.refresh() method. After a wheel's Bluetooth restarts (power
-     * cycle), the cached table is stale and a reconnect subscribes notifications
-     * to dead handles - the "connected but no data" phantom. Refreshing forces the
-     * next discoverServices to re-read the wheel's current services. Reflection,
-     * so wrapped in try/catch; a failure just means we proceed with the cache.
-     */
-    @SuppressLint("DiscouragedPrivateApi")
-    private fun refreshGattCache(g: BluetoothGatt) {
-        try {
-            val ok = g.javaClass.getMethod("refresh").invoke(g) as? Boolean ?: false
-            Log.i(TAG, "GATT cache refresh() -> $ok")
-        } catch (e: Exception) {
-            Log.w(TAG, "GATT cache refresh() unavailable", e)
         }
     }
 
@@ -1030,10 +998,9 @@ class BleConnectionManager @Inject constructor(
      * adapter; each protocol family has its own.
      */
     private fun processIncomingData(data: ByteArray) {
-        // Any notification means the link is live: feed the no-data watchdog and
-        // clear the recovery budget so a healthy stream never triggers recovery.
+        // Any notification means the link is live: stamp it so the no-data detector
+        // (armed in markReadyAndConnected) sees data arrived and never fires.
         lastDataMs = System.currentTimeMillis()
-        noDataRecoveries = 0
         com.eried.eucplanet.diagnostics.DiagnosticsLogger.rx(data)
         for (result in wheelAdapter.onRawNotification(data)) {
             _decodedResults.tryEmit(result)
