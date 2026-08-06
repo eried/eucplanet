@@ -1792,8 +1792,6 @@
     <string name="adv_hud_manual_grace_desc">Manuel IP kullanılmadan önce otomatik keşfe ne kadar süre tanındığını etkiler. Dikkat: çok düşük olursa keşif kazanamadan manuel IP\'yi kullanır.</string>
     <string name="adv_hud_mdns_resolve">mDNS çözümleme süresi</string>
     <string name="adv_hud_mdns_resolve_desc">Bulunan bir HUD\'ın adres ayrıntılarının ne kadar sürede çözümleneceğini etkiler. Dikkat: çok düşük olursa yavaş çözümlenen bir HUD\'ı bırakır.</string>
-    <string name="adv_hud_subnet_delay">Alt ağ taraması gecikmesi</string>
-    <string name="adv_hud_subnet_delay_desc">Son çare olan alt ağ taramasının ne kadar sonra başlayacağını etkiler; böylece mDNS ve işaret önce yanıt verir ve telsiz tıkanmaz. Dikkat: çok düşük olursa telsizi doldurur ve keşfi yavaşlatır.</string>
     <string name="adv_hud_mdns_timeout">Keşif zaman aşımı</string>
     <string name="adv_hud_mdns_timeout_desc">HUD\'ın otomatik keşfe yanıt vermesi için ne kadar beklenileceğini etkiler. Dikkat: çok düşük olursa yanıt vermeden vazgeçer.</string>
     <string name="adv_hud_report_interval">HUD bildirim hızı</string>
@@ -2038,6 +2036,10 @@
     <string name="studio_video_edge_black">Siyah</string>
     <string name="wheel_no_data_reconnecting">Tekerden veri yok. Yeniden bağlanılıyor…</string>
     <string name="wheel_no_data_reset">Tekerden hâlâ veri yok. Kapatıp açmayı deneyin.</string>
+    <string name="trip_map_ride_start">Sürüş başlangıcı: %1$s</string>
+    <string name="trip_map_reconnected">Yeniden bağlandı: %1$s</string>
+    <string name="trip_map_new_wheel">Yeni teker: %1$s</string>
+    <string name="trip_map_ride_end">Sürüş sonu</string>
 </resources>
 
 

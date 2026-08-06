@@ -328,21 +328,45 @@ fun TripDetailScreen(
                 dataPoints.filter { it.latitude != 0.0 && it.longitude != 0.0 }
             }
             // Extra-column events: shown in the Extra details section, and the
-            // wheel identity blocks drive the map (start popup + yellow circle
-            // and yellow trace from each mid-ride wheel change onward).
+            // wheel identity blocks drive the map (start popup, a colour switch +
+            // purple circle at a real wheel change, a small dot at a same-wheel
+            // reconnect).
             val extraEvents = remember(dataPoints) { extractExtraEvents(dataPoints) }
             val wheelStarts = remember(extraEvents) { extraEvents.filter { it.isWheelStart } }
-            val startMarkerLabel = remember(wheelStarts) {
-                wheelStarts.firstOrNull()?.let { "${it.time}  ${it.text.substringAfter('=')}" } ?: ""
+            // Localized, readable marker popups. ctx.getString runs inside
+            // remember (the strings only change with the locale, which recreates
+            // the composition anyway, so ctx is a remember key too).
+            val ctx = androidx.compose.ui.platform.LocalContext.current
+            // Green start marker: the first connection = ride start.
+            val startMarkerLabel = remember(wheelStarts, ctx) {
+                wheelStarts.firstOrNull()?.let { e ->
+                    val name = e.text.substringAfter('=')
+                    "${e.time} - ${ctx.getString(R.string.trip_map_ride_start, name)}"
+                } ?: ""
             }
-            val wheelSwitches = remember(wheelStarts, dataPoints) {
+            // Red end marker: the last GPS fix of the ride.
+            val endMarkerLabel = remember(gpsPoints, ctx) {
+                gpsPoints.lastOrNull()?.let { p ->
+                    "${timePartOf(p.date)} - ${ctx.getString(R.string.trip_map_ride_end)}"
+                } ?: ""
+            }
+            // Every identity block after the ride start becomes a map marker:
+            // isChange drives whether it also switches the trace colour (a real
+            // wheel swap = "New wheel") or is just a reconnect dot on the
+            // unbroken trace (= "Reconnected").
+            val wheelSwitches = remember(wheelStarts, dataPoints, ctx) {
                 wheelStarts.drop(1).filter { it.lat != 0.0 && it.lon != 0.0 }.map { e ->
-                    // Position of the change row within the GPS-bearing points:
-                    // the row itself has a fix, so its slot equals the count of
-                    // fixes before it. This is where the trace turns yellow.
+                    // Position of the row within the GPS-bearing points: the row
+                    // itself has a fix, so its slot equals the count of fixes
+                    // before it. A real change cuts the trace colour here.
                     val gpsIdx = dataPoints.subList(0, e.index)
                         .count { it.latitude != 0.0 && it.longitude != 0.0 }
-                    WheelSwitchMarker(gpsIdx, e.lat, e.lon, "${e.time}  ${e.text.substringAfter('=')}")
+                    val name = e.text.substringAfter('=')
+                    val label = if (e.isWheelChange)
+                        ctx.getString(R.string.trip_map_new_wheel, name)
+                    else
+                        ctx.getString(R.string.trip_map_reconnected, name)
+                    WheelSwitchMarker(gpsIdx, e.lat, e.lon, "${e.time} - $label", e.isWheelChange)
                 }
             }
             val isLive by viewModel.isTripLiveRecording(trip).collectAsState(initial = false)
@@ -391,6 +415,7 @@ fun TripDetailScreen(
                     scrubLon = scrubPoint?.longitude,
                     wheelSwitches = wheelSwitches,
                     startLabel = startMarkerLabel,
+                    endLabel = endMarkerLabel,
                     savedMapType = savedMapType,
                     onPersistMapType = viewModel::setTripMapType,
                     modifier = mod,
@@ -947,9 +972,10 @@ private fun TripDetailsSection(events: List<TripExtraEvent>) {
                     return@Column
                 }
                 // The first wheel identity is the ride start (green, matching the
-                // map's green start marker); every later wheel is a mid-ride change
-                // (purple, matching its purple map circle). Only changes get a
-                // marker on the map - the first wheel lives on the start point.
+                // map's green start marker). A genuinely different wheel later is
+                // a change (purple, matching its purple map circle). The same
+                // wheel simply reconnecting is muted - it is not a wheel change,
+                // it only gets a dot on the map.
                 var firstWheelSeen = false
                 events.forEach { e ->
                     val isFirstWheel = e.isWheelStart && !firstWheelSeen
@@ -967,7 +993,8 @@ private fun TripDetailsSection(events: List<TripExtraEvent>) {
                             fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace,
                             color = when {
                                 isFirstWheel -> MaterialTheme.appColors.statusGood
-                                e.isWheelStart -> MaterialTheme.appColors.wheelChange
+                                e.isWheelChange -> MaterialTheme.appColors.wheelChange
+                                e.isWheelStart -> MaterialTheme.appColors.textSecondary
                                 else -> MaterialTheme.colorScheme.onSurface
                             },
                             modifier = Modifier.padding(start = 8.dp)
@@ -987,7 +1014,11 @@ data class TripExtraEvent(
     val text: String,
     val lat: Double,
     val lon: Double,
+    // Start of an identity block (recording start, a reconnect, or a real wheel
+    // swap). isWheelChange narrows that to a genuinely DIFFERENT wheel; a
+    // same-wheel reconnect is isWheelStart && !isWheelChange.
     val isWheelStart: Boolean,
+    val isWheelChange: Boolean,
     val index: Int,
 )
 
@@ -999,35 +1030,71 @@ data class WheelSwitchMarker(
     val lat: Double,
     val lon: Double,
     val label: String,
+    // true = a genuinely different wheel took over here (trace colour switches
+    // + purple circle); false = the same wheel reconnected (unbroken trace, a
+    // small dot only).
+    val isChange: Boolean,
 )
 
 // Walks the rows' Extra cells and marks identity-block starts: a block
 // begins when wheel.name / wheel.mac appears with no open block or repeats
 // a field the open block already has (the recorder re-emits the whole
 // block on every reconnect). wheel.disconnected closes the block.
+//
+// isWheelChange separates a genuinely DIFFERENT wheel from the SAME wheel just
+// reconnecting. Because the recorder re-emits the whole identity block on every
+// reconnect, a block start alone does not mean the wheel changed - we compare
+// the identity VALUES. name is the primary per-device key (it carries the
+// device suffix, e.g. Adventure-E0000298); mac backs it up. Same identity = a
+// reconnect (one trace colour, dot only); different identity = a real swap.
 private fun extractExtraEvents(points: List<TripDataPoint>): List<TripExtraEvent> {
     val out = ArrayList<TripExtraEvent>()
     var block: MutableSet<String>? = null
+    // Identity VALUES of the open block and the one before it, so a block start
+    // can be classed as reconnect (same wheel) vs change (different wheel).
+    var openName: String? = null
+    var openMac: String? = null
+    var prevName: String? = null
+    var prevMac: String? = null
     for ((i, p) in points.withIndex()) {
         val text = p.extra.trim()
         if (text.isEmpty()) continue
         val eq = text.indexOf('=')
         val key = if (eq > 0) text.substring(0, eq).trim() else text
+        val value = if (eq > 0) text.substring(eq + 1).trim() else ""
         var isStart = false
+        var isChange = false
         if (key == "wheel.name" || key == "wheel.mac") {
             val field = key.removePrefix("wheel.")
             if (block == null || block.contains(field)) {
+                // A new identity block begins. Roll the just-closed block's
+                // identity into prev*, then seed the new one from this row.
                 isStart = true
+                prevName = openName
+                prevMac = openMac
+                openName = null
+                openMac = null
                 block = hashSetOf(field)
+                if (field == "name") openName = value else openMac = value
+                // Genuine change only when we HAD a previous wheel and this
+                // identity differs from it. The first block ever is the ride
+                // start, not a change. Compare on the field that opened the
+                // block (the recorder emits name first, so that is usually the
+                // name - a reliable per-device key).
+                isChange = when (field) {
+                    "name" -> prevName != null && !prevName.equals(value, ignoreCase = true)
+                    else -> prevMac != null && !prevMac.equals(value, ignoreCase = true)
+                }
             } else {
                 block.add(field)
+                if (field == "name") openName = value else openMac = value
             }
         } else if (key == "wheel.disconnected") {
             block = null
         } else if (key.startsWith("wheel.") && block != null) {
             block.add(key.removePrefix("wheel."))
         }
-        out.add(TripExtraEvent(timePartOf(p.date), text, p.latitude, p.longitude, isStart, i))
+        out.add(TripExtraEvent(timePartOf(p.date), text, p.latitude, p.longitude, isStart, isChange, i))
     }
     return out
 }
@@ -1062,6 +1129,7 @@ private fun RouteMapView(
     // empty = no popup).
     wheelSwitches: List<WheelSwitchMarker> = emptyList(),
     startLabel: String = "",
+    endLabel: String = "",
     // Persisted base map pick (blank = none yet); a change is written back through
     // onPersistMapType so the style survives an app restart, not just the session.
     savedMapType: String = "",
@@ -1094,7 +1162,7 @@ private fun RouteMapView(
     MapSurface(
         points = points, isLive = isLive, liveLat = liveLat, liveLon = liveLon,
         scrubLat = scrubLat, scrubLon = scrubLon,
-        wheelSwitches = wheelSwitches, startLabel = startLabel,
+        wheelSwitches = wheelSwitches, startLabel = startLabel, endLabel = endLabel,
         fullscreen = false, onToggleFullscreen = { fullscreen = true },
         mapType = mapType, onMapTypeChange = onPick,
         modifier = modifier,
@@ -1140,7 +1208,7 @@ private fun RouteMapView(
             MapSurface(
                 points = points, isLive = isLive, liveLat = liveLat, liveLon = liveLon,
                 scrubLat = scrubLat, scrubLon = scrubLon,
-                wheelSwitches = wheelSwitches, startLabel = startLabel,
+                wheelSwitches = wheelSwitches, startLabel = startLabel, endLabel = endLabel,
                 fullscreen = true, onToggleFullscreen = { fullscreen = false },
                 mapType = mapType, onMapTypeChange = onPick,
                 modifier = Modifier.fillMaxSize(),
@@ -1160,6 +1228,7 @@ private fun MapSurface(
     scrubLon: Double?,
     wheelSwitches: List<WheelSwitchMarker>,
     startLabel: String,
+    endLabel: String,
     fullscreen: Boolean,
     onToggleFullscreen: () -> Unit,
     mapType: String,
@@ -1177,19 +1246,21 @@ private fun MapSurface(
             arr.put(org.json.JSONObject()
                 .put("idx", s.gpsIndex)
                 .put("lat", s.lat).put("lon", s.lon)
-                .put("label", s.label))
+                .put("label", s.label)
+                .put("change", s.isChange))
         }
         arr.toString()
     }
     val startLabelJs = remember(startLabel) { org.json.JSONObject.quote(startLabel) }
+    val endLabelJs = remember(endLabel) { org.json.JSONObject.quote(endLabel) }
     var webView by remember { mutableStateOf<WebView?>(null) }
     val mapTypes = listOf("LIGHT", "DARK", "SAT")
     // Rebuild the WebView only when the historical trace changes or when we first
     // enter/leave live mode. Bake the CURRENT style into the initial HTML so a
     // freshly-opened surface (e.g. fullscreen) starts on the shared style rather
     // than flashing light first; style cycles afterwards go through JS.
-    val html = remember(coordsJson, isLive, switchesJson, startLabelJs) {
-        buildMapHtml(coordsJson, switchesJson, startLabelJs, isLive, mapType)
+    val html = remember(coordsJson, isLive, switchesJson, startLabelJs, endLabelJs) {
+        buildMapHtml(coordsJson, switchesJson, startLabelJs, endLabelJs, isLive, mapType)
     }
 
     Box(modifier.clip(RoundedCornerShape(if (fullscreen) 0.dp else 12.dp))) {
@@ -1287,7 +1358,7 @@ private fun MapButton(icon: ImageVector, desc: String, onClick: () -> Unit) {
     }
 }
 
-private fun buildMapHtml(coordsJson: String, switchesJson: String, startLabelJs: String, isLive: Boolean, initialType: String): String = """
+private fun buildMapHtml(coordsJson: String, switchesJson: String, startLabelJs: String, endLabelJs: String, isLive: Boolean, initialType: String): String = """
 <!DOCTYPE html><html><head>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
@@ -1304,6 +1375,13 @@ private fun buildMapHtml(coordsJson: String, switchesJson: String, startLabelJs:
     background:#FFC107;
     box-shadow:0 0 6px rgba(255,193,7,0.9);
   }
+  /* Wheel-event badges: small squares, so they read differently from the round
+     start / end / live markers and stay smaller than them. A same-wheel
+     reconnect is grey; a genuinely different wheel is purple (matching the
+     trace colour switch; wheel-change = the wheelChange token's default). */
+  .wheel-badge{ border:1.5px solid #fff;box-sizing:border-box;border-radius:2px; }
+  .wheel-change{ width:13px;height:13px;background:#AB47BC; }
+  .wheel-reconnect{ width:10px;height:10px;background:#9E9E9E; }
 </style>
 </head><body>
 <div id="map"></div>
@@ -1328,10 +1406,12 @@ private fun buildMapHtml(coordsJson: String, switchesJson: String, startLabelJs:
 
   function render(){
     if (hasRoute){
-      // Split the trace at mid-ride wheel changes: the first wheel keeps the
-      // blue trace, every later wheel's stretch is drawn purple (distinct from
-      // the amber live / scrub position marker).
-      var cuts = switches.map(function(s){return s.idx;})
+      // Split the trace ONLY at genuine wheel changes (s.change): the first
+      // wheel keeps the blue trace and a different wheel's stretch is drawn
+      // purple. A same-wheel reconnect does NOT cut the trace - it stays one
+      // colour, with just a dot marking where it dropped and resumed.
+      var cuts = switches.filter(function(s){return s.change;})
+        .map(function(s){return s.idx;})
         .filter(function(i){return i>0 && i<coords.length;})
         .sort(function(a,b){return a-b;});
       var prev = 0;
@@ -1369,15 +1449,19 @@ private fun buildMapHtml(coordsJson: String, switchesJson: String, startLabelJs:
       start = L.circleMarker(a,{radius:r,color:'#000',weight:2,fillColor:'#66BB6A',fillOpacity:1}).addTo(map);
       end   = L.circleMarker(b,{radius:r,color:'#000',weight:2,fillColor:'#EF5350',fillOpacity:1}).addTo(map);
     }
-    // The start marker carries the ride's first wheel identity as a popup.
-    if (startLabel){
-      if (start) start.bindPopup(startLabel);
-      if (overlap) overlap.bindPopup(startLabel);
+    // Start marker: the ride-start "Connected" popup. End marker: "Ride end".
+    // When start and end overlap (loop rides) the single marker shows both.
+    if (start && startLabel) start.bindPopup(startLabel);
+    if (end && endLabel) end.bindPopup(endLabel);
+    if (overlap){
+      var combined = [startLabel, endLabel].filter(Boolean).join('<br>');
+      if (combined) overlap.bindPopup(combined);
     }
   }
 
   var switches=$switchesJson;
   var startLabel=$startLabelJs;
+  var endLabel=$endLabelJs;
 
   // Live marker API (called from Kotlin via evaluateJavascript).
   var live=null, livePath=null;
@@ -1408,13 +1492,21 @@ private fun buildMapHtml(coordsJson: String, switchesJson: String, startLabelJs:
   };
 
   render();
-  // Mid-ride wheel changes: a purple circle for every change (distinct from
-  // the amber live / scrub position marker), each with its own popup (time +
-  // the wheel that took over). Added after render() so the circles stack
-  // above the trace and keep their tap target.
+  // A small square for each identity block after the ride start, each with its
+  // own popup (time + wheel). A genuine wheel change is a purple square where
+  // the trace colour also switches; a same-wheel reconnect is a smaller grey
+  // square on the unbroken trace, flagging where it dropped and resumed. Square
+  // so they don't read as another position dot, and both smaller than the
+  // start/end markers. Added after render() so they stack above the trace and
+  // keep their tap target.
   switches.forEach(function(s){
-    L.circleMarker([s.lat,s.lon],{radius:7,color:'#000',weight:2,fillColor:'#AB47BC',fillOpacity:1})
-      .addTo(map).bindPopup(s.label);
+    var cls = s.change ? 'wheel-badge wheel-change' : 'wheel-badge wheel-reconnect';
+    var sz = s.change ? 13 : 10;
+    var icon = L.divIcon({
+      className:'', html:'<div class="'+cls+'"></div>',
+      iconSize:[sz,sz], iconAnchor:[sz/2,sz/2]
+    });
+    L.marker([s.lat,s.lon],{icon:icon}).addTo(map).bindPopup(s.label);
   });
   ${if (isLive) "/* live mode: waiting for updateLivePoint() */" else ""}
 </script></body></html>

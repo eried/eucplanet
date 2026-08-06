@@ -1799,8 +1799,6 @@
     <string name="adv_hud_manual_grace_desc">Détermine le temps laissé à l\'auto-découverte avant d\'utiliser l\'IP manuelle. Danger : trop bas utilise l\'IP manuelle avant que la découverte puisse aboutir.</string>
     <string name="adv_hud_mdns_resolve">Temps de résolution mDNS</string>
     <string name="adv_hud_mdns_resolve_desc">Détermine combien de temps pour résoudre les détails d\'adresse d\'un HUD découvert. Danger : trop bas abandonne un HUD lent à résoudre.</string>
-    <string name="adv_hud_subnet_delay">Délai de balayage du sous-réseau</string>
-    <string name="adv_hud_subnet_delay_desc">Détermine le temps avant que le balayage du sous-réseau, en dernier recours, ne démarre, pour que le mDNS et la balise répondent d\'abord sans congestion radio. Danger : trop bas sature la radio et ralentit la découverte.</string>
     <string name="adv_hud_mdns_timeout">Délai de découverte</string>
     <string name="adv_hud_mdns_timeout_desc">Détermine combien de temps attendre que le HUD réponde à l\'auto-découverte. Danger : trop bas abandonne avant qu\'il réponde.</string>
     <string name="adv_hud_report_interval">Cadence de rapport HUD</string>
@@ -2045,4 +2043,8 @@
     <string name="studio_video_edge_black">Noir</string>
     <string name="wheel_no_data_reconnecting">Aucune donnée de la roue. Reconnexion…</string>
     <string name="wheel_no_data_reset">Toujours aucune donnée de la roue. Essayez de la redémarrer.</string>
+    <string name="trip_map_ride_start">Début du trajet : %1$s</string>
+    <string name="trip_map_reconnected">Reconnecté : %1$s</string>
+    <string name="trip_map_new_wheel">Nouvelle roue : %1$s</string>
+    <string name="trip_map_ride_end">Fin du trajet</string>
 </resources>

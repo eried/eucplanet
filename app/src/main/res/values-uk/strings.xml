@@ -1792,8 +1792,6 @@
     <string name="adv_hud_manual_grace_desc">Впливає на те, скільки часу має автопошук до використання ручного IP. Небезпека: замале значення використовує ручний IP, перш ніж пошук устигне спрацювати.</string>
     <string name="adv_hud_mdns_resolve">Час визначення mDNS</string>
     <string name="adv_hud_mdns_resolve_desc">Впливає на те, як довго визначаються дані адреси знайденого HUD. Небезпека: замале значення відкидає HUD, який повільно визначається.</string>
-    <string name="adv_hud_subnet_delay">Затримка сканування підмережі</string>
-    <string name="adv_hud_subnet_delay_desc">Впливає на те, скільки часу минає до запуску сканування підмережі як крайнього заходу, щоб mDNS і маячок відповіли першими без перевантаження радіоканалу. Небезпека: замале значення перевантажує радіоканал і сповільнює пошук.</string>
     <string name="adv_hud_mdns_timeout">Час очікування пошуку</string>
     <string name="adv_hud_mdns_timeout_desc">Впливає на те, як довго чекати на відповідь HUD під час автопошуку. Небезпека: замало — здається до відповіді.</string>
     <string name="adv_hud_report_interval">Частота звітів HUD</string>
@@ -2038,6 +2036,10 @@
     <string name="studio_video_edge_black">Чорний</string>
     <string name="wheel_no_data_reconnecting">Немає даних від моноколеса. Повторне підключення…</string>
     <string name="wheel_no_data_reset">Досі немає даних від моноколеса. Спробуйте вимкнути та ввімкнути його.</string>
+    <string name="trip_map_ride_start">Початок поїздки: %1$s</string>
+    <string name="trip_map_reconnected">Перепідключено: %1$s</string>
+    <string name="trip_map_new_wheel">Нове колесо: %1$s</string>
+    <string name="trip_map_ride_end">Кінець поїздки</string>
 </resources>
 
 

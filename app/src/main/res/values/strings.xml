@@ -515,8 +515,6 @@
     <string name="adv_hud_manual_grace_desc">Affects how long auto-discovery gets before the manual IP is used. Danger: too low uses the manual IP before discovery can win.</string>
     <string name="adv_hud_mdns_resolve">mDNS resolve time</string>
     <string name="adv_hud_mdns_resolve_desc">Affects how long to resolve a discovered HUD\'s address details. Danger: too low drops a HUD that resolves slowly.</string>
-    <string name="adv_hud_subnet_delay">Subnet scan delay</string>
-    <string name="adv_hud_subnet_delay_desc">Affects how long before the last-resort subnet scan starts, so mDNS and the beacon answer first without radio congestion. Danger: too low floods the radio and slows discovery.</string>
     <string name="adv_group_autolights">Auto-lights</string>
     <string name="adv_autolight_no_gps_retry">No-GPS retry</string>
     <string name="adv_autolight_no_gps_retry_desc">Affects how often auto-lights retry while waiting for a GPS fix.</string>
@@ -1348,6 +1346,12 @@
     <!-- Connected-but-no-telemetry recovery (phantom link after a wheel BT restart) -->
     <string name="wheel_no_data_reconnecting">No data from the wheel. Reconnecting…</string>
     <string name="wheel_no_data_reset">Still no data from the wheel. Try turning it off and on.</string>
+
+    <!-- Trip map marker popups (%1$s is the wheel name) -->
+    <string name="trip_map_ride_start">Ride start: %1$s</string>
+    <string name="trip_map_reconnected">Reconnected: %1$s</string>
+    <string name="trip_map_new_wheel">New wheel: %1$s</string>
+    <string name="trip_map_ride_end">Ride end</string>
 
     <!-- ==== EucStats online upload onboarding ==== -->
 

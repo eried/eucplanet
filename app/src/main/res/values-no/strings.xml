@@ -1681,8 +1681,6 @@
     <string name="adv_hud_manual_grace_desc">Påvirker hvor lang tid autooppdagelse får før den manuelle IP-en brukes. Fare: for lavt bruker den manuelle IP-en før oppdagelsen kan vinne.</string>
     <string name="adv_hud_mdns_resolve">mDNS-oppslagstid</string>
     <string name="adv_hud_mdns_resolve_desc">Påvirker hvor lenge adressedetaljene til et funnet HUD slås opp. Fare: for lavt dropper et HUD som er tregt å slå opp.</string>
-    <string name="adv_hud_subnet_delay">Forsinkelse for subnettskanning</string>
-    <string name="adv_hud_subnet_delay_desc">Påvirker hvor lenge det tar før subnettskanningen som siste utvei starter, så mDNS og beaconen svarer først uten radiotrengsel. Fare: for lavt oversvømmer radioen og gjør oppdagelsen tregere.</string>
     <string name="adv_hud_mdns_timeout">Tidsavbrudd for oppdagelse</string>
     <string name="adv_hud_mdns_timeout_desc">Påvirker hvor lenge man venter på at HUD-en svarer på autooppdagelse. Fare: for lavt gir opp før den svarer.</string>
     <string name="adv_hud_report_interval">HUD-rapportrate</string>
@@ -1929,4 +1927,8 @@
     <string name="studio_video_edge_black">Svart</string>
     <string name="wheel_no_data_reconnecting">Ingen data fra hjulet. Kobler til på nytt…</string>
     <string name="wheel_no_data_reset">Fortsatt ingen data fra hjulet. Prøv å slå det av og på.</string>
+    <string name="trip_map_ride_start">Start på turen: %1$s</string>
+    <string name="trip_map_reconnected">Koblet til igjen: %1$s</string>
+    <string name="trip_map_new_wheel">Nytt hjul: %1$s</string>
+    <string name="trip_map_ride_end">Slutt på turen</string>
 </resources>

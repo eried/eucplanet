@@ -1795,8 +1795,6 @@
     <string name="adv_hud_manual_grace_desc">Afeta quanto tempo a descoberta automática tem antes de usar o IP manual. Perigo: baixo demais usa o IP manual antes que a descoberta consiga vencer.</string>
     <string name="adv_hud_mdns_resolve">Tempo de resolução mDNS</string>
     <string name="adv_hud_mdns_resolve_desc">Afeta quanto tempo para resolver os detalhes de endereço de um HUD descoberto. Perigo: baixo demais descarta um HUD que resolve devagar.</string>
-    <string name="adv_hud_subnet_delay">Atraso da varredura de sub-rede</string>
-    <string name="adv_hud_subnet_delay_desc">Afeta quanto tempo antes de a varredura de sub-rede de último recurso começar, para que o mDNS e o beacon respondam primeiro sem congestão de rádio. Perigo: baixo demais sobrecarrega o rádio e torna a descoberta mais lenta.</string>
     <string name="adv_hud_mdns_timeout">Tempo limite de descoberta</string>
     <string name="adv_hud_mdns_timeout_desc">Afeta quanto tempo esperar o HUD responder à descoberta automática. Perigo: baixo demais desiste antes da resposta.</string>
     <string name="adv_hud_report_interval">Taxa de envio do HUD</string>
@@ -2043,5 +2041,9 @@
     <string name="studio_video_edge_black">Preto</string>
     <string name="wheel_no_data_reconnecting">Sem dados da roda. Reconectando…</string>
     <string name="wheel_no_data_reset">Ainda sem dados da roda. Tente desligá-la e ligá-la novamente.</string>
+    <string name="trip_map_ride_start">Início do percurso: %1$s</string>
+    <string name="trip_map_reconnected">Reconectado: %1$s</string>
+    <string name="trip_map_new_wheel">Nova roda: %1$s</string>
+    <string name="trip_map_ride_end">Fim do percurso</string>
 </resources>
 
