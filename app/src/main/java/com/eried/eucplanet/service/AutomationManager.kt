@@ -35,14 +35,14 @@ class AutomationManager @Inject constructor(
         private const val MIN_REBASE_MULTIPLIER = 0.05f
         // Media control: the speed condition must hold this long before we act, so a
         // momentary GPS / speed blip doesn't pause or resume playback.
-        private const val MEDIA_CONTROL_HOLD_MS = 2500L
+        private const val MEDIA_CONTROL_HOLD_MS = 3000L
         // Minimum dead-band (km/h) enforced between the pause and resume speeds even
         // if the rider set them equal - guarantees the anti-thrash gap always exists.
         private const val MEDIA_CONTROL_MIN_GAP_KMH = 2
         // Proximity lock: RSSI must hold past the threshold this long before we act.
-        // Short for a snappy lock/unlock; the real refresh floor is the BLE RSSI
-        // poll cadence, and the dead-band gap is what actually prevents flip-flop.
-        private const val PROX_HOLD_MS = 1000L
+        // Kept equal to MEDIA_CONTROL_HOLD_MS so both automations feel consistent; the
+        // dead-band gap is what actually prevents flip-flop between lock and unlock.
+        private const val PROX_HOLD_MS = 3000L
         // Minimum dead-band (dBm) kept between the lock and unlock thresholds. Small,
         // so the two can sit close for a snappy transition; the hold above soaks up
         // the RSSI jitter that such a tight gap would otherwise let flip-flop.
