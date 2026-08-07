@@ -111,6 +111,8 @@ data class AppSettings(
     // RaceBox-style acceleration split announcements. Feature-local group (not a
     // global), nested so AppSettings.copy() stays under the 255-arg dex limit.
     val accelSplit: AccelSplitSettings = AccelSplitSettings(),
+    // Speed-driven media (music / podcast) pause & resume - see MediaControlSettings.
+    val mediaControl: MediaControlSettings = MediaControlSettings(),
 
     // Special announcements (event-driven). All silent by default; the welcome
     // wizard's first step offers a single toggle that flips this whole block on
@@ -950,6 +952,27 @@ data class AccelSplitSettings(
     // Which crossings to announce: "ACCEL" (speeding up only), "BRAKE" (slowing
     // down only, e.g. "40 to 30"), or "BOTH". Braking splits run down to minSpeed.
     val direction: String = "ACCEL",
+)
+
+/**
+ * Speed-driven media control (music / podcasts). Pauses playback when the rider
+ * slows down (e.g. rolling slowly around people) and resumes it when they speed
+ * back up. A feature-local group (not a global), nested so AppSettings.copy()
+ * stays under the JVM/dex 255-argument limit. Thresholds are in km/h.
+ *
+ * The gap between [pauseBelowKmh] and [resumeAboveKmh] is a dead-band that stops
+ * rapid play/pause flipping near one speed; AutomationManager also requires the
+ * condition to hold briefly before acting. Resume only ever restarts playback
+ * this feature itself paused, so speeding up never blasts music the rider had
+ * deliberately stopped.
+ */
+data class MediaControlSettings(
+    val pauseEnabled: Boolean = false,
+    // Pause when speed is at or below this (km/h).
+    val pauseBelowKmh: Int = 6,
+    val resumeEnabled: Boolean = false,
+    // Resume (only what this feature paused) when speed is at or above this (km/h).
+    val resumeAboveKmh: Int = 10,
 )
 
 /**

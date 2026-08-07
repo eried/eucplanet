@@ -224,6 +224,74 @@ fun AutomationsContent(
         }
         }   // end Volume BringIntoViewSection
 
+        Spacer(Modifier.height(8.dp))
+
+        // --- Media control Section ---
+        BringIntoViewSection(expanded = settings.mediaControl.pauseEnabled || settings.mediaControl.resumeEnabled) {
+        Text(stringResource(R.string.media_control_title), style = MaterialTheme.typography.headlineMedium,
+            color = MaterialTheme.colorScheme.primary)
+
+        Text(stringResource(R.string.media_control_desc),
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.padding(bottom = 4.dp))
+
+        // Pause when slow
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(stringResource(R.string.media_control_pause),
+                style = MaterialTheme.typography.bodyLarge,
+                modifier = Modifier.weight(1f))
+            Switch(checked = settings.mediaControl.pauseEnabled,
+                onCheckedChange = { viewModel.updateMediaPauseEnabled(it) },
+                colors = themedSwitchColors(),)
+        }
+        if (settings.mediaControl.pauseEnabled) {
+            NumberUpDown(
+                value = settings.mediaControl.pauseBelowKmh,
+                onValueChange = { viewModel.updateMediaPauseBelow(it) },
+                range = 1..60,
+                step = 1,
+                suffix = "km/h",
+                label = stringResource(R.string.media_control_pause_below),
+                modifier = Modifier.fillMaxWidth(),
+            )
+        }
+
+        // Resume when fast again
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(stringResource(R.string.media_control_resume),
+                style = MaterialTheme.typography.bodyLarge,
+                modifier = Modifier.weight(1f))
+            Switch(checked = settings.mediaControl.resumeEnabled,
+                onCheckedChange = { viewModel.updateMediaResumeEnabled(it) },
+                colors = themedSwitchColors(),)
+        }
+        if (settings.mediaControl.resumeEnabled) {
+            NumberUpDown(
+                value = settings.mediaControl.resumeAboveKmh,
+                onValueChange = { viewModel.updateMediaResumeAbove(it) },
+                range = 2..80,
+                step = 1,
+                suffix = "km/h",
+                label = stringResource(R.string.media_control_resume_above),
+                modifier = Modifier.fillMaxWidth(),
+            )
+        }
+
+        // Dead-band explainer when both are on.
+        if (settings.mediaControl.pauseEnabled && settings.mediaControl.resumeEnabled) {
+            HintText(stringResource(R.string.media_control_deadband_hint), small = true)
+        }
+        }   // end Media control BringIntoViewSection
+
         Spacer(Modifier.height(32.dp))
     }
 }

@@ -931,6 +931,13 @@
     <string name="auto_waiting_gps">En attente de la position GPS…</string>
     <string name="auto_volume_title">Volume</string>
     <string name="auto_volume_desc">Volume adaptatif selon la vitesse</string>
+    <string name="media_control_title">Contrôle multimédia</string>
+    <string name="media_control_desc">Met la musique en pause quand vous ralentissez et la reprend quand vous accélérez.</string>
+    <string name="media_control_pause">Pause quand je ralentis</string>
+    <string name="media_control_pause_below">Pause à cette vitesse ou en dessous</string>
+    <string name="media_control_resume">Reprise quand j\'accélère</string>
+    <string name="media_control_resume_above">Reprise à cette vitesse ou au-dessus</string>
+    <string name="media_control_deadband_hint">Entre ces deux vitesses, la lecture n\'est pas touchée, elle ne s\'allume donc pas sans arrêt. La reprise ne relance que la musique mise en pause par cette fonction.</string>
     <string name="auto_sunrise_sunset">Lever et coucher du soleil</string>
     <string name="auto_midnight_sun_title">Soleil de minuit</string>
     <string name="auto_midnight_sun_body">Le soleil ne se couche pas à cette latitude aujourd\'hui, le phare restera éteint</string>

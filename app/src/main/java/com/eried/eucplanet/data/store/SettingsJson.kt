@@ -120,6 +120,12 @@ object SettingsJson {
             put("compareToBest", s.accelSplit.compareToBest)
             put("direction", s.accelSplit.direction)
         })
+        put("mediaControl", JSONObject().apply {
+            put("pauseEnabled", s.mediaControl.pauseEnabled)
+            put("pauseBelowKmh", s.mediaControl.pauseBelowKmh)
+            put("resumeEnabled", s.mediaControl.resumeEnabled)
+            put("resumeAboveKmh", s.mediaControl.resumeAboveKmh)
+        })
         put("announceWheelLock", s.announceWheelLock)
         put("announceLights", s.announceLights)
         put("announceRecording", s.announceRecording)
@@ -385,6 +391,14 @@ object SettingsJson {
                 ),
             )
         } ?: base.accelSplit,
+        mediaControl = j.optJSONObject("mediaControl")?.let { m ->
+            base.mediaControl.copy(
+                pauseEnabled = m.optBoolean("pauseEnabled", base.mediaControl.pauseEnabled),
+                pauseBelowKmh = m.optInt("pauseBelowKmh", base.mediaControl.pauseBelowKmh),
+                resumeEnabled = m.optBoolean("resumeEnabled", base.mediaControl.resumeEnabled),
+                resumeAboveKmh = m.optInt("resumeAboveKmh", base.mediaControl.resumeAboveKmh),
+            )
+        } ?: base.mediaControl,
         announceWheelLock = j.optBoolean("announceWheelLock", base.announceWheelLock),
         announceLights = j.optBoolean("announceLights", base.announceLights),
         announceRecording = j.optBoolean("announceRecording", base.announceRecording),

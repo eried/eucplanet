@@ -276,6 +276,7 @@ class WheelService : LifecycleService() {
                             // standstill; put the rider's baseline back on
                             // disconnect so it isn't left turned down.
                             automationManager.restoreBaselineVolume()
+                            automationManager.resetMediaControl()
                             // Drop any in-flight run + session history so a fresh
                             // ride starts clean and a stale timestamp gap can't
                             // fabricate a summary on reconnect.
@@ -458,6 +459,7 @@ class WheelService : LifecycleService() {
         // down. onDestroy cancels the connection-state collector above, so the
         // disconnect restore may not run on Stop All - do it explicitly here.
         automationManager.restoreBaselineVolume()
+        automationManager.resetMediaControl()
         voiceService.shutdown()
         tripRepository.stopLocationUpdates()
         lifecycleScope.launch { tripRepository.stopRecording() }

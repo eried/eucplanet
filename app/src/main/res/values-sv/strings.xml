@@ -927,6 +927,13 @@
     <string name="auto_waiting_gps">Väntar på GPS-position…</string>
     <string name="auto_volume_title">Volym</string>
     <string name="auto_volume_desc">Höj musikvolymen efter farten</string>
+    <string name="media_control_title">Mediekontroll</string>
+    <string name="media_control_desc">Pausar musiken när du saktar in och återupptar den när du ökar farten.</string>
+    <string name="media_control_pause">Pausa när jag saktar in</string>
+    <string name="media_control_pause_below">Pausa vid eller under</string>
+    <string name="media_control_resume">Återuppta när jag ökar farten</string>
+    <string name="media_control_resume_above">Återuppta vid eller över</string>
+    <string name="media_control_deadband_hint">Mellan dessa hastigheter rörs inte uppspelningen, så den slås inte på och av hela tiden. Återuppta startar bara musik som den här funktionen pausat.</string>
     <string name="auto_sunrise_sunset">Soluppgång och solnedgång</string>
     <string name="auto_midnight_sun_title">Midnattssol</string>
     <string name="auto_midnight_sun_body">Solen går inte ned här i dag, ljuset hålls släckt</string>

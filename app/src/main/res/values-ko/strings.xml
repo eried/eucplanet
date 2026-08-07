@@ -928,6 +928,13 @@
     <string name="auto_waiting_gps">GPS 위치 대기 중…</string>
     <string name="auto_volume_title">볼륨</string>
     <string name="auto_volume_desc">속도에 따라 음악 볼륨을 높입니다</string>
+    <string name="media_control_title">미디어 제어</string>
+    <string name="media_control_desc">속도를 줄이면 음악을 일시정지하고, 속도를 높이면 다시 재생합니다.</string>
+    <string name="media_control_pause">감속하면 일시정지</string>
+    <string name="media_control_pause_below">이 속도 이하에서 일시정지</string>
+    <string name="media_control_resume">가속하면 다시 재생</string>
+    <string name="media_control_resume_above">이 속도 이상에서 다시 재생</string>
+    <string name="media_control_deadband_hint">이 두 속도 사이에서는 재생을 그대로 두어 자주 켜지고 꺼지지 않습니다. 다시 재생은 이 기능이 일시정지한 음악만 다시 시작합니다.</string>
     <string name="auto_sunrise_sunset">일출 및 일몰</string>
     <string name="auto_midnight_sun_title">백야</string>
     <string name="auto_midnight_sun_body">오늘은 이 위도에서 해가 지지 않습니다. 라이트가 꺼진 상태로 유지됩니다</string>

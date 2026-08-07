@@ -506,6 +506,13 @@
     <string name="auto_waiting_gps">In attesa della posizione GPS…</string>
     <string name="auto_volume_title">Volume</string>
     <string name="auto_volume_desc">Aumenta il volume della musica in base alla velocità</string>
+    <string name="media_control_title">Controllo multimediale</string>
+    <string name="media_control_desc">Mette in pausa la musica quando rallenti e la riprende quando acceleri.</string>
+    <string name="media_control_pause">Pausa quando rallento</string>
+    <string name="media_control_pause_below">Pausa a questa velocità o sotto</string>
+    <string name="media_control_resume">Riprendi quando accelero</string>
+    <string name="media_control_resume_above">Riprendi a questa velocità o sopra</string>
+    <string name="media_control_deadband_hint">Tra queste due velocità la riproduzione non viene toccata, così non si attiva e disattiva di continuo. La ripresa riavvia solo la musica messa in pausa da questa funzione.</string>
     <string name="auto_sunrise_sunset">Alba e tramonto</string>
     <string name="auto_midnight_sun_title">Sole di mezzanotte</string>
     <string name="auto_midnight_sun_body">Oggi a questa latitudine il sole non tramonta, le luci resteranno spente</string>

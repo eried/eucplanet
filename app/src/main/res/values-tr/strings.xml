@@ -928,6 +928,13 @@
     <string name="auto_waiting_gps">GPS konumu bekleniyor…</string>
     <string name="auto_volume_title">Ses</string>
     <string name="auto_volume_desc">Müzik sesini hıza göre artır</string>
+    <string name="media_control_title">Medya denetimi</string>
+    <string name="media_control_desc">Yavaşladığında müziği duraklatır, hızlandığında devam ettirir.</string>
+    <string name="media_control_pause">Yavaşlayınca duraklat</string>
+    <string name="media_control_pause_below">Bu hızda veya altında duraklat</string>
+    <string name="media_control_resume">Hızlanınca devam et</string>
+    <string name="media_control_resume_above">Bu hızda veya üstünde devam et</string>
+    <string name="media_control_deadband_hint">Bu iki hız arasında çalma olduğu gibi kalır, böylece sürekli açılıp kapanmaz. Devam etme yalnızca bu özelliğin duraklattığı müziği yeniden başlatır.</string>
     <string name="auto_sunrise_sunset">Gün Doğumu ve Batımı</string>
     <string name="auto_midnight_sun_title">Gece Yarısı Güneşi</string>
     <string name="auto_midnight_sun_body">Güneş bugün bu enlemde batmıyor, ışıklar KAPALI kalacak</string>

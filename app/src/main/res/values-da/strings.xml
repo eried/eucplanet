@@ -931,6 +931,13 @@
     <string name="auto_waiting_gps">Venter på GPS-position…</string>
     <string name="auto_volume_title">Lydstyrke</string>
     <string name="auto_volume_desc">Øg musikkens lydstyrke efter farten</string>
+    <string name="media_control_title">Mediestyring</string>
+    <string name="media_control_desc">Sætter musikken på pause, når du sætter farten ned, og genoptager den, når du sætter farten op.</string>
+    <string name="media_control_pause">Pause når jeg sætter farten ned</string>
+    <string name="media_control_pause_below">Pause ved eller under</string>
+    <string name="media_control_resume">Genoptag når jeg sætter farten op</string>
+    <string name="media_control_resume_above">Genoptag ved eller over</string>
+    <string name="media_control_deadband_hint">Mellem disse hastigheder røres afspilningen ikke, så den ikke tænder og slukker hele tiden. Genoptag starter kun musik, som denne funktion satte på pause.</string>
     <string name="auto_sunrise_sunset">Solopgang og solnedgang</string>
     <string name="auto_midnight_sun_title">Midnatssol</string>
     <string name="auto_midnight_sun_body">Solen går ikke ned på denne breddegrad i dag, lyset forbliver slukket</string>

@@ -928,6 +928,13 @@
     <string name="auto_waiting_gps">GPS 位置情報を待機中…</string>
     <string name="auto_volume_title">音量</string>
     <string name="auto_volume_desc">速度に応じて音楽の音量を上げます</string>
+    <string name="media_control_title">メディア制御</string>
+    <string name="media_control_desc">速度を落とすと音楽を一時停止し、速度を上げると再開します。</string>
+    <string name="media_control_pause">減速したら一時停止</string>
+    <string name="media_control_pause_below">この速度以下で一時停止</string>
+    <string name="media_control_resume">加速したら再開</string>
+    <string name="media_control_resume_above">この速度以上で再開</string>
+    <string name="media_control_deadband_hint">この2つの速度の間では再生はそのままなので、頻繁にオンオフが切り替わりません。再開はこの機能が一時停止した音楽のみを再び流します。</string>
     <string name="auto_sunrise_sunset">日の出と日の入り</string>
     <string name="auto_midnight_sun_title">白夜</string>
     <string name="auto_midnight_sun_body">この緯度では今日は日没がないため、ライトはオフのままになります</string>

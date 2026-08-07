@@ -3,6 +3,7 @@ package com.eried.eucplanet.service
 import android.content.Context
 import android.media.AudioManager
 import android.util.Log
+import android.view.KeyEvent
 import com.eried.eucplanet.data.model.AppSettings
 import com.eried.eucplanet.data.repository.SettingsRepository
 import com.eried.eucplanet.data.repository.TripRepository
@@ -31,6 +32,12 @@ class AutomationManager @Inject constructor(
         // Below this multiplier we treat manual volume changes as direct baseline edits
         // (avoids divide-by-near-zero amplification when standing still).
         private const val MIN_REBASE_MULTIPLIER = 0.05f
+        // Media control: the speed condition must hold this long before we act, so a
+        // momentary GPS / speed blip doesn't pause or resume playback.
+        private const val MEDIA_CONTROL_HOLD_MS = 2500L
+        // Minimum dead-band (km/h) enforced between the pause and resume speeds even
+        // if the rider set them equal - guarantees the anti-thrash gap always exists.
+        private const val MEDIA_CONTROL_MIN_GAP_KMH = 2
     }
 
     private val audioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
@@ -46,6 +53,14 @@ class AutomationManager @Inject constructor(
     // The rider's baseline volume % (the level before speed-scaling), cached from
     // evaluateVolume so restoreBaselineVolume() can put it back without suspending.
     @Volatile private var cachedBaselinePercent: Int = -1
+
+    // Media control state. mediaAutoPaused = this feature paused playback and may
+    // resume it; we never resume media the rider paused themselves. The candidate
+    // timestamps implement the "hold past the line" debounce (0 = the condition is
+    // not currently met).
+    @Volatile private var mediaAutoPaused: Boolean = false
+    private var mediaPauseCandidateSinceMs: Long = 0L
+    private var mediaResumeCandidateSinceMs: Long = 0L
 
     /**
      * Put the media volume back to the rider's baseline - the level it was at
@@ -98,6 +113,8 @@ class AutomationManager @Inject constructor(
         detectManualLightChange(settings)
         if (settings.autoLightsEnabled && !_autoLightsSuspended.value) evaluateLights(settings)
         if (settings.autoVolumeEnabled) evaluateVolume(settings)
+        val mc = settings.mediaControl
+        if (mc.pauseEnabled || mc.resumeEnabled) evaluateMediaControl(settings)
     }
 
     /** Watch telemetry: if the wheel's light state flips without a recent auto-toggle, it's a manual change. */
@@ -207,6 +224,73 @@ class AutomationManager @Inject constructor(
             // doesn't get misread as a manual change next time.
             lastWrittenSystemVol = systemVol
         }
+    }
+
+    /**
+     * Speed-based media pause / resume. Pauses playback when the rider slows to or
+     * below [MediaControlSettings.pauseBelowKmh] and resumes it when they speed up to
+     * or above [MediaControlSettings.resumeAboveKmh]. The gap between the two is a
+     * dead-band that prevents rapid flipping; on top of that the speed must hold past
+     * the line for [MEDIA_CONTROL_HOLD_MS] before we act, so a brief GPS / speed blip
+     * is ignored. Resume only ever restarts playback THIS feature paused
+     * ([mediaAutoPaused]), so speeding up never starts music the rider deliberately
+     * stopped.
+     */
+    private fun evaluateMediaControl(settings: AppSettings) {
+        val mc = settings.mediaControl
+        val speed = wheelRepository.wheelData.value.speed.absoluteValue
+        val now = System.currentTimeMillis()
+        val pauseAt = mc.pauseBelowKmh
+        // Always keep the resume threshold above the pause one so a dead-band exists.
+        val resumeAt = maxOf(mc.resumeAboveKmh, pauseAt + MEDIA_CONTROL_MIN_GAP_KMH)
+
+        // Pause when slow (only if we haven't already auto-paused).
+        if (mc.pauseEnabled && !mediaAutoPaused && speed <= pauseAt) {
+            if (mediaPauseCandidateSinceMs == 0L) mediaPauseCandidateSinceMs = now
+            if (now - mediaPauseCandidateSinceMs >= MEDIA_CONTROL_HOLD_MS) {
+                sendMediaKey(KeyEvent.KEYCODE_MEDIA_PAUSE)
+                mediaAutoPaused = true
+                mediaPauseCandidateSinceMs = 0L
+                Log.i(TAG, "Media control: paused (speed=${speed.roundToInt()} <= $pauseAt km/h)")
+            }
+        } else {
+            mediaPauseCandidateSinceMs = 0L
+        }
+
+        // Resume when moving again - only what we paused.
+        if (mc.resumeEnabled && mediaAutoPaused && speed >= resumeAt) {
+            if (mediaResumeCandidateSinceMs == 0L) mediaResumeCandidateSinceMs = now
+            if (now - mediaResumeCandidateSinceMs >= MEDIA_CONTROL_HOLD_MS) {
+                sendMediaKey(KeyEvent.KEYCODE_MEDIA_PLAY)
+                mediaAutoPaused = false
+                mediaResumeCandidateSinceMs = 0L
+                Log.i(TAG, "Media control: resumed (speed=${speed.roundToInt()} >= $resumeAt km/h)")
+            }
+        } else {
+            mediaResumeCandidateSinceMs = 0L
+        }
+    }
+
+    /**
+     * Dispatch a media-button key (down+up) to whatever app owns the active media
+     * session - the same mechanism the Flic / notification action buttons use.
+     */
+    private fun sendMediaKey(keyCode: Int) {
+        runCatching {
+            audioManager.dispatchMediaKeyEvent(KeyEvent(KeyEvent.ACTION_DOWN, keyCode))
+            audioManager.dispatchMediaKeyEvent(KeyEvent(KeyEvent.ACTION_UP, keyCode))
+        }.onFailure { Log.w(TAG, "sendMediaKey($keyCode) failed", it) }
+    }
+
+    /**
+     * Clear media-control state on disconnect / Stop All / disable. We deliberately
+     * do NOT auto-resume here - playback is left wherever it is (the rider can press
+     * play) rather than risk blasting audio when a ride ends.
+     */
+    fun resetMediaControl() {
+        mediaAutoPaused = false
+        mediaPauseCandidateSinceMs = 0L
+        mediaResumeCandidateSinceMs = 0L
     }
 }
 

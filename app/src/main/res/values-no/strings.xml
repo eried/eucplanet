@@ -381,6 +381,13 @@
     <string name="auto_waiting_gps">Venter på GPS-posisjon\u2026</string>
     <string name="auto_volume_title">Volum</string>
     <string name="auto_volume_desc">Adaptivt systemvolum basert på fart</string>
+    <string name="media_control_title">Mediestyring</string>
+    <string name="media_control_desc">Setter musikken på pause når du senker farten, og fortsetter når du øker farten.</string>
+    <string name="media_control_pause">Pause når jeg senker farten</string>
+    <string name="media_control_pause_below">Pause ved eller under</string>
+    <string name="media_control_resume">Fortsett når jeg øker farten</string>
+    <string name="media_control_resume_above">Fortsett ved eller over</string>
+    <string name="media_control_deadband_hint">Mellom disse hastighetene røres ikke avspillingen, så den slår seg ikke stadig av og på. Fortsett starter bare musikk som denne funksjonen satte på pause.</string>
     <string name="auto_sunrise_sunset">Soloppgang og solnedgang</string>
     <string name="auto_midnight_sun_title">Midnattssol</string>
     <string name="auto_midnight_sun_body">Sola går ikke ned på denne breddegraden i dag, lysene forblir AV</string>

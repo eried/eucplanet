@@ -594,7 +594,9 @@ fun SettingsScreen(
         titleAuto,
         stringResource(R.string.auto_lights_title),
         stringResource(R.string.auto_volume_title),
-        stringResource(R.string.auto_volume_desc)
+        stringResource(R.string.auto_volume_desc),
+        stringResource(R.string.media_control_title),
+        stringResource(R.string.media_control_desc)
     ).joinToString(" ")
 
     val corpusIntegration = listOf(

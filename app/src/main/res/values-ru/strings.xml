@@ -931,6 +931,13 @@
     <string name="auto_waiting_gps">Ждём GPS…</string>
     <string name="auto_volume_title">Громкость</string>
     <string name="auto_volume_desc">Громкость подстраивается под скорость</string>
+    <string name="media_control_title">Управление медиа</string>
+    <string name="media_control_desc">Ставит музыку на паузу при снижении скорости и возобновляет при разгоне.</string>
+    <string name="media_control_pause">Пауза при снижении скорости</string>
+    <string name="media_control_pause_below">Пауза на этой скорости или ниже</string>
+    <string name="media_control_resume">Возобновлять при разгоне</string>
+    <string name="media_control_resume_above">Возобновлять на этой скорости или выше</string>
+    <string name="media_control_deadband_hint">Между этими скоростями воспроизведение не меняется, поэтому оно не включается и не выключается постоянно. Возобновление запускает только музыку, поставленную на паузу этой функцией.</string>
     <string name="auto_sunrise_sunset">Восход и закат</string>
     <string name="auto_midnight_sun_title">Полярный день</string>
     <string name="auto_midnight_sun_body">Сегодня на этой широте солнце не садится, фары останутся выключенными</string>

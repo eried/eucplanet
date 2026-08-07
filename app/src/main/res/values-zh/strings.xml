@@ -413,6 +413,13 @@
     <string name="auto_waiting_gps">等待 GPS 定位\u2026</string>
     <string name="auto_volume_title">音量</string>
     <string name="auto_volume_desc">根据速度自动调节系统音量。</string>
+    <string name="media_control_title">媒体控制</string>
+    <string name="media_control_desc">减速时暂停音乐，加速时恢复播放。</string>
+    <string name="media_control_pause">减速时暂停</string>
+    <string name="media_control_pause_below">在此速度或以下暂停</string>
+    <string name="media_control_resume">加速时恢复</string>
+    <string name="media_control_resume_above">在此速度或以上恢复</string>
+    <string name="media_control_deadband_hint">在这两个速度之间播放保持不变，因此不会频繁开关。恢复只会重新播放此功能暂停的音乐。</string>
     <string name="auto_sunrise_sunset">日出与日落</string>
     <string name="auto_midnight_sun_title">极昼</string>
     <string name="auto_midnight_sun_body">当前纬度今日无日落,大灯将保持关闭</string>

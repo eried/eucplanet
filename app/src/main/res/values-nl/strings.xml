@@ -931,6 +931,13 @@
     <string name="auto_waiting_gps">Wachten op GPS-locatie…</string>
     <string name="auto_volume_title">Volume</string>
     <string name="auto_volume_desc">Muziekvolume verhogen op basis van snelheid</string>
+    <string name="media_control_title">Mediabediening</string>
+    <string name="media_control_desc">Pauzeert de muziek als je vaart mindert en hervat als je sneller gaat.</string>
+    <string name="media_control_pause">Pauzeren als ik vaart minder</string>
+    <string name="media_control_pause_below">Pauzeren op of onder</string>
+    <string name="media_control_resume">Hervatten als ik sneller ga</string>
+    <string name="media_control_resume_above">Hervatten op of boven</string>
+    <string name="media_control_deadband_hint">Tussen deze snelheden blijft het afspelen ongewijzigd, zodat het niet steeds aan en uit gaat. Hervatten start alleen muziek die deze functie heeft gepauzeerd.</string>
     <string name="auto_sunrise_sunset">Zonsopkomst en zonsondergang</string>
     <string name="auto_midnight_sun_title">Middernachtzon</string>
     <string name="auto_midnight_sun_body">De zon gaat vandaag op deze breedtegraad niet onder, het licht blijft UIT</string>

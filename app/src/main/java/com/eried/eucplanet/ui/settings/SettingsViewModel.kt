@@ -571,6 +571,16 @@ class SettingsViewModel @Inject constructor(
         .also { if (!v) automationManager.restoreBaselineVolume() }
     fun updateAutoVolumeCurve(curve: String) = update { copy(autoVolumeCurve = curve) }
 
+    // Media control (speed-driven music/podcast pause & resume)
+    fun updateMediaPauseEnabled(v: Boolean) = update { copy(mediaControl = mediaControl.copy(pauseEnabled = v)) }
+        .also { if (!v) automationManager.resetMediaControl() }
+    fun updateMediaPauseBelow(v: Int) =
+        update { copy(mediaControl = mediaControl.copy(pauseBelowKmh = v.coerceIn(1, 60))) }
+    fun updateMediaResumeEnabled(v: Boolean) = update { copy(mediaControl = mediaControl.copy(resumeEnabled = v)) }
+        .also { if (!v) automationManager.resetMediaControl() }
+    fun updateMediaResumeAbove(v: Int) =
+        update { copy(mediaControl = mediaControl.copy(resumeAboveKmh = v.coerceIn(2, 80))) }
+
     // Voice report: recording
     fun updateVoiceReportRecording(v: Boolean) = update { copy(voiceReportRecording = v) }
     fun updateTriggerReportRecording(v: Boolean) = update { copy(triggerReportRecording = v) }

@@ -931,6 +931,13 @@
     <string name="auto_waiting_gps">Czekam na lokalizację GPS…</string>
     <string name="auto_volume_title">Głośność</string>
     <string name="auto_volume_desc">Zwiększa głośność muzyki w zależności od prędkości</string>
+    <string name="media_control_title">Sterowanie multimediami</string>
+    <string name="media_control_desc">Wstrzymuje muzykę, gdy zwalniasz, i wznawia, gdy przyspieszasz.</string>
+    <string name="media_control_pause">Wstrzymaj, gdy zwalniam</string>
+    <string name="media_control_pause_below">Wstrzymaj przy tej prędkości lub niższej</string>
+    <string name="media_control_resume">Wznów, gdy przyspieszam</string>
+    <string name="media_control_resume_above">Wznów przy tej prędkości lub wyższej</string>
+    <string name="media_control_deadband_hint">Między tymi prędkościami odtwarzanie pozostaje bez zmian, więc nie włącza się i nie wyłącza co chwilę. Wznawianie uruchamia tylko muzykę wstrzymaną przez tę funkcję.</string>
     <string name="auto_sunrise_sunset">Wschód i zachód słońca</string>
     <string name="auto_midnight_sun_title">Słońce o północy</string>
     <string name="auto_midnight_sun_body">Słońce dziś nie zachodzi na tej szerokości geograficznej, światła pozostaną WYŁ.</string>

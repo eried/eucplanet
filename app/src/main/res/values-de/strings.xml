@@ -927,6 +927,13 @@
     <string name="auto_waiting_gps">Warte auf GPS-Position…</string>
     <string name="auto_volume_title">Lautstärke</string>
     <string name="auto_volume_desc">Systemlautstärke adaptiv zur Geschwindigkeit anpassen</string>
+    <string name="media_control_title">Mediensteuerung</string>
+    <string name="media_control_desc">Pausiert die Musik, wenn du langsamer wirst, und setzt sie fort, wenn du schneller wirst.</string>
+    <string name="media_control_pause">Pausieren beim Langsamerwerden</string>
+    <string name="media_control_pause_below">Pausieren bei oder unter</string>
+    <string name="media_control_resume">Fortsetzen beim Schnellerwerden</string>
+    <string name="media_control_resume_above">Fortsetzen bei oder über</string>
+    <string name="media_control_deadband_hint">Zwischen diesen Geschwindigkeiten bleibt die Wiedergabe unberührt, damit sie nicht ständig an und aus geht. Fortsetzen startet nur Musik neu, die diese Funktion pausiert hat.</string>
     <string name="auto_sunrise_sunset">Sonnenauf- und -untergang</string>
     <string name="auto_midnight_sun_title">Mitternachtssonne</string>
     <string name="auto_midnight_sun_body">Die Sonne geht heute an diesem Breitengrad nicht unter, das Licht bleibt AUS</string>

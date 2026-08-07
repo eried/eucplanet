@@ -931,6 +931,13 @@
     <string name="auto_waiting_gps">Чекаємо на координати GPS…</string>
     <string name="auto_volume_title">Гучність</string>
     <string name="auto_volume_desc">Підвищувати гучність музики залежно від швидкості</string>
+    <string name="media_control_title">Керування медіа</string>
+    <string name="media_control_desc">Ставить музику на паузу, коли ви сповільнюєтесь, і відновлює, коли пришвидшуєтесь.</string>
+    <string name="media_control_pause">Пауза під час сповільнення</string>
+    <string name="media_control_pause_below">Пауза на цій швидкості або нижче</string>
+    <string name="media_control_resume">Відновлювати під час пришвидшення</string>
+    <string name="media_control_resume_above">Відновлювати на цій швидкості або вище</string>
+    <string name="media_control_deadband_hint">Між цими швидкостями відтворення не змінюється, тож воно не вмикається і не вимикається постійно. Відновлення запускає лише музику, яку призупинила ця функція.</string>
     <string name="auto_sunrise_sunset">Схід і захід сонця</string>
     <string name="auto_midnight_sun_title">Полярний день</string>
     <string name="auto_midnight_sun_body">Сьогодні на цій широті сонце не заходить, фари залишатимуться ВИМКНЕНИМИ</string>
