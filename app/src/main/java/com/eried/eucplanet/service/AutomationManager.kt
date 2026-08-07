@@ -252,6 +252,13 @@ class AutomationManager @Inject constructor(
      * stopped.
      */
     private fun evaluateMediaControl(settings: AppSettings) {
+        // Only act on a live wheel connection. A disconnected wheel reports 0 speed,
+        // which would otherwise pause your music the moment you walk off with the phone.
+        if (wheelRepository.connectionState.value != ConnectionState.CONNECTED) {
+            mediaPauseCandidateSinceMs = 0L
+            mediaResumeCandidateSinceMs = 0L
+            return
+        }
         val mc = settings.mediaControl
         val speed = wheelRepository.wheelData.value.speed.absoluteValue
         val now = System.currentTimeMillis()
