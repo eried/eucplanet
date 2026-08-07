@@ -365,6 +365,13 @@ class AutomationManager @Inject constructor(
     }
 }
 
+/**
+ * Ceiling for the auto-volume boost multiplier. Single source of truth shared by the
+ * curve editor's Y axis and [pchipInterpolate]'s output clamp, so the draggable range
+ * and the applied boost can never drift apart.
+ */
+const val AUTO_VOLUME_MAX_MULTIPLIER = 3f
+
 /** Curve format: "speed:multiplier,speed:multiplier,..." e.g. "0:0,25:0.6,50:1.2,75:2.0". */
 fun parseVolumeCurve(raw: String): List<Pair<Float, Float>> {
     return raw.split(",").mapNotNull { pair ->
@@ -385,14 +392,14 @@ fun encodeVolumeCurve(points: List<Pair<Float, Float>>): String {
 /**
  * PCHIP (Piecewise Cubic Hermite Interpolating Polynomial, Fritsch–Carlson 1980).
  * Smooth like a spline but never overshoots between monotonic control points.
- * Returns multiplier value at the given speed; clamps to [0, 2].
+ * Returns multiplier value at the given speed; clamps to [0, AUTO_VOLUME_MAX_MULTIPLIER].
  */
 fun pchipInterpolate(points: List<Pair<Float, Float>>, x: Float): Float {
     if (points.isEmpty()) return 0f
-    if (points.size == 1) return points[0].second.coerceIn(0f, 2f)
+    if (points.size == 1) return points[0].second.coerceIn(0f, AUTO_VOLUME_MAX_MULTIPLIER)
     val sorted = points.sortedBy { it.first }
-    if (x <= sorted.first().first) return sorted.first().second.coerceIn(0f, 2f)
-    if (x >= sorted.last().first) return sorted.last().second.coerceIn(0f, 2f)
+    if (x <= sorted.first().first) return sorted.first().second.coerceIn(0f, AUTO_VOLUME_MAX_MULTIPLIER)
+    if (x >= sorted.last().first) return sorted.last().second.coerceIn(0f, AUTO_VOLUME_MAX_MULTIPLIER)
 
     val n = sorted.size
     // Slopes of each segment
@@ -451,5 +458,5 @@ fun pchipInterpolate(points: List<Pair<Float, Float>>, x: Float): Float {
             h10 * hk * m[k] +
             h01 * sorted[k + 1].second +
             h11 * hk * m[k + 1]
-    return y.coerceIn(0f, 2f)
+    return y.coerceIn(0f, AUTO_VOLUME_MAX_MULTIPLIER)
 }

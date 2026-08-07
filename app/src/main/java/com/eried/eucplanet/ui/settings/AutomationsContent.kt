@@ -30,6 +30,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -49,6 +50,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.eried.eucplanet.R
+import com.eried.eucplanet.service.AUTO_VOLUME_MAX_MULTIPLIER
 import com.eried.eucplanet.service.encodeVolumeCurve
 import com.eried.eucplanet.service.parseVolumeCurve
 import com.eried.eucplanet.service.pchipInterpolate
@@ -216,8 +218,12 @@ fun AutomationsContent(
             SplineCurveEditor(
                 points = normalizedPoints,
                 speedUnit = Units.effectiveSpeedUnit(settings),
+                // Live update stays local so the drag is smooth; persist to disk only
+                // once the finger lifts (see onPointsCommitted), not on every frame.
                 onPointsChanged = { newPoints ->
                     points = newPoints
+                },
+                onPointsCommitted = { newPoints ->
                     viewModel.updateAutoVolumeCurve(encodeVolumeCurve(newPoints))
                 }
             )
@@ -550,12 +556,13 @@ private fun SunScheduleGraph(
 private fun SplineCurveEditor(
     points: List<Pair<Float, Float>>,
     speedUnit: String,
-    onPointsChanged: (List<Pair<Float, Float>>) -> Unit
+    onPointsChanged: (List<Pair<Float, Float>>) -> Unit,
+    onPointsCommitted: (List<Pair<Float, Float>>) -> Unit
 ) {
     val maxSpeed = 75f
     val speedUnitLabel = Units.speedUnit(androidx.compose.ui.platform.LocalContext.current, speedUnit)
     val minMultiplier = 1f
-    val maxMultiplier = 4f
+    val maxMultiplier = AUTO_VOLUME_MAX_MULTIPLIER
     val multiplierRange = maxMultiplier - minMultiplier
     val gridColor = MaterialTheme.colorScheme.surfaceVariant
     val labelColor = MaterialTheme.colorScheme.onSurfaceVariant
@@ -569,6 +576,11 @@ private fun SplineCurveEditor(
     // Use a ref so pointerInput doesn't restart when points change
     val pointsRef = remember { mutableStateOf(points) }
     pointsRef.value = points
+    // pointerInput(Unit) never restarts, so it would capture the first composition's
+    // callbacks. After the first save the outer points state is recreated, so keep the
+    // current callbacks live or later drags would write a stale, orphaned state.
+    val onChanged by rememberUpdatedState(onPointsChanged)
+    val onCommitted by rememberUpdatedState(onPointsCommitted)
 
     Box(
         modifier = Modifier
@@ -622,17 +634,19 @@ private fun SplineCurveEditor(
                                 val (oldS, _) = pointsRef.value[dragIndex]
                                 val mutable = pointsRef.value.toMutableList()
                                 mutable[dragIndex] = oldS to newM
-                                onPointsChanged(mutable)
+                                onChanged(mutable)
                             } else {
                                 val speed = (change.position.x / w * maxSpeed).coerceIn(0f, maxSpeed)
                                 probeSpeed = speed
                             }
                         },
                         onDragEnd = {
+                            if (dragIndex > 0) onCommitted(pointsRef.value)
                             dragIndex = -1
                             probeSpeed = null
                         },
                         onDragCancel = {
+                            if (dragIndex > 0) onCommitted(pointsRef.value)
                             dragIndex = -1
                             probeSpeed = null
                         }
