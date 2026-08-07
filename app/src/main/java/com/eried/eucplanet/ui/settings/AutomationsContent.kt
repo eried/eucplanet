@@ -555,7 +555,7 @@ private fun SplineCurveEditor(
     val maxSpeed = 75f
     val speedUnitLabel = Units.speedUnit(androidx.compose.ui.platform.LocalContext.current, speedUnit)
     val minMultiplier = 1f
-    val maxMultiplier = 2f
+    val maxMultiplier = 4f
     val multiplierRange = maxMultiplier - minMultiplier
     val gridColor = MaterialTheme.colorScheme.surfaceVariant
     val labelColor = MaterialTheme.colorScheme.onSurfaceVariant
@@ -653,12 +653,12 @@ private fun SplineCurveEditor(
                 val measured = textMeasurer.measure(label, TextStyle(fontSize = 9.sp, color = labelColor))
                 drawText(measured, topLeft = Offset(x - measured.size.width / 2f, h + 4f))
             }
-            // Y-axis ticks at 1×, 1.5×, 2× (3 lines for clean labels)
-            for (i in 0..2) {
-                val mult = minMultiplier + i * 0.5f
+            // Y-axis ticks at each integer multiplier (1x .. maxMultiplier) for clean labels.
+            for (i in minMultiplier.toInt()..maxMultiplier.toInt()) {
+                val mult = i.toFloat()
                 val y = h - (mult - minMultiplier) / multiplierRange * h
                 drawLine(gridColor, Offset(0f, y), Offset(w, y), strokeWidth = 1f, pathEffect = dash)
-                val label = if (mult == mult.toInt().toFloat()) "${mult.toInt()}x" else "${mult}x"
+                val label = "${i}x"
                 val measured = textMeasurer.measure(label, TextStyle(fontSize = 9.sp, color = labelColor))
                 drawText(measured, topLeft = Offset(-measured.size.width - 4f, y - measured.size.height / 2f))
             }
