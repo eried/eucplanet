@@ -126,6 +126,12 @@ object SettingsJson {
             put("resumeEnabled", s.mediaControl.resumeEnabled)
             put("resumeAboveKmh", s.mediaControl.resumeAboveKmh)
         })
+        put("proximityLock", JSONObject().apply {
+            put("lockEnabled", s.proximityLock.lockEnabled)
+            put("lockBelowDbm", s.proximityLock.lockBelowDbm)
+            put("unlockEnabled", s.proximityLock.unlockEnabled)
+            put("unlockAboveDbm", s.proximityLock.unlockAboveDbm)
+        })
         put("announceWheelLock", s.announceWheelLock)
         put("announceLights", s.announceLights)
         put("announceRecording", s.announceRecording)
@@ -399,6 +405,14 @@ object SettingsJson {
                 resumeAboveKmh = m.optInt("resumeAboveKmh", base.mediaControl.resumeAboveKmh),
             )
         } ?: base.mediaControl,
+        proximityLock = j.optJSONObject("proximityLock")?.let { p ->
+            base.proximityLock.copy(
+                lockEnabled = p.optBoolean("lockEnabled", base.proximityLock.lockEnabled),
+                lockBelowDbm = p.optInt("lockBelowDbm", base.proximityLock.lockBelowDbm),
+                unlockEnabled = p.optBoolean("unlockEnabled", base.proximityLock.unlockEnabled),
+                unlockAboveDbm = p.optInt("unlockAboveDbm", base.proximityLock.unlockAboveDbm),
+            )
+        } ?: base.proximityLock,
         announceWheelLock = j.optBoolean("announceWheelLock", base.announceWheelLock),
         announceLights = j.optBoolean("announceLights", base.announceLights),
         announceRecording = j.optBoolean("announceRecording", base.announceRecording),

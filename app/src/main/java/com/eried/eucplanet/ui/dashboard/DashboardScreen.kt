@@ -10,7 +10,9 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.foundation.layout.imePadding
+import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarResult
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.SideEffect
@@ -263,6 +265,7 @@ fun DashboardScreen(
     val safetyActive by viewModel.safetySpeedActive.collectAsState()
     val locked by viewModel.locked.collectAsState()
     val lockBusy by viewModel.lockBusy.collectAsState()
+    val autoLockEnabled by viewModel.autoLockEnabled.collectAsState()
     val lightBusy by viewModel.lightBusy.collectAsState()
     val recording by viewModel.recording.collectAsState()
     val gpsExtra by viewModel.gpsExtraSpeed.collectAsState()
@@ -417,7 +420,24 @@ fun DashboardScreen(
     val snackbarScope = rememberCoroutineScope()
     LaunchedEffect(Unit) {
         viewModel.cloudToasts.collect { resId ->
-            snackbarScope.launch { snackbar.showSnackbar(toastContext.getString(resId)) }
+            // Backup/restore failures get a Retry action that re-runs the op.
+            val retry: (() -> Unit)? = when (resId) {
+                R.string.cloud_backup_failed -> ({ viewModel.backupSettingsNow() })
+                R.string.cloud_restore_failed -> ({ viewModel.restoreSettingsNow() })
+                else -> null
+            }
+            snackbarScope.launch {
+                if (retry == null) {
+                    snackbar.showSnackbar(toastContext.getString(resId))
+                } else {
+                    val res = snackbar.showSnackbar(
+                        toastContext.getString(resId),
+                        actionLabel = toastContext.getString(R.string.action_retry),
+                        duration = SnackbarDuration.Short
+                    )
+                    if (res == SnackbarResult.ActionPerformed) retry()
+                }
+            }
         }
     }
 
@@ -2245,9 +2265,10 @@ fun DashboardScreen(
                                     )
                                 }
                             )
-                            "LOCK_TOGGLE" -> ActionButton(
-                                if (locked) Icons.Default.Lock else Icons.Default.LockOpen,
-                                if (locked) stringResource(R.string.action_locked)
+                            "LOCK_TOGGLE" -> ActionTile(
+                                modifier = Modifier.weight(1f),
+                                icon = if (locked) Icons.Default.Lock else Icons.Default.LockOpen,
+                                label = if (locked) stringResource(R.string.action_locked)
                                     else stringResource(R.string.action_lock_wheel),
                                 active = locked,
                                 activeColor = if (useAccent) primary else MaterialTheme.appColors.statusDanger,
@@ -2258,10 +2279,40 @@ fun DashboardScreen(
                                         snackbarScope.launch { snackbar.showSnackbar(msg) }
                                     } else {
                                         viewModel.onLockToggle()
+                                        // Auto-lock automation on? Warn that it may override this
+                                        // manual change, with a shortcut to configure it.
+                                        if (autoLockEnabled) {
+                                            val msg = toastContext.getString(R.string.auto_lock_override_toast)
+                                            val action = toastContext.getString(R.string.auto_lock_override_action)
+                                            snackbarScope.launch {
+                                                val res = snackbar.showSnackbar(
+                                                    msg, actionLabel = action,
+                                                    duration = SnackbarDuration.Short
+                                                )
+                                                if (res == SnackbarResult.ActionPerformed) onNavigateToSettings(6)
+                                            }
+                                        }
                                     }
                                 },
-                                modifier = Modifier.weight(1f),
-                                aspectRatio = actionAspect, heightDp = actionHeight
+                                aspectRatio = actionAspect, heightDp = actionHeight,
+                                menu = { dismiss ->
+                                    DropdownMenuItem(
+                                        text = { Text(stringResource(R.string.menu_auto_lock_settings)) },
+                                        onClick = { dismiss(); onNavigateToSettings(6) }
+                                    )
+                                    androidx.compose.material3.HorizontalDivider(
+                                        color = MaterialTheme.appColors.divider.copy(alpha = 0.2f)
+                                    )
+                                    DropdownMenuItem(
+                                        text = {
+                                            Text(
+                                                if (autoLockEnabled) stringResource(R.string.menu_auto_lock_off)
+                                                else stringResource(R.string.menu_auto_lock_on)
+                                            )
+                                        },
+                                        onClick = { dismiss(); viewModel.toggleAutoLock() }
+                                    )
+                                }
                             )
                             "RECORD_TOGGLE" -> ActionTile(
                                 modifier = Modifier.weight(1f),

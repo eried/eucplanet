@@ -104,6 +104,11 @@ class DashboardViewModel @Inject constructor(
 
     val locked: StateFlow<Boolean> = wheelRepository.locked
     val lockBusy: StateFlow<Boolean> = wheelRepository.lockBusy
+    // Proximity auto-lock automation on? Long-pressing the dashboard lock button
+    // toggles it - a quick shortcut without opening Settings.
+    val autoLockEnabled: StateFlow<Boolean> = settingsRepository.settings
+        .map { it.proximityLock.lockEnabled }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), initialSettings.proximityLock.lockEnabled)
     /** True when the connected wheel's adapter implements a BLE lock command.
      *  Drives the dashboard lock button to fall back to a "not supported" hint
      *  on wheels (Veteran / LeaperKim, Begode, etc.) whose firmware doesn't
@@ -333,6 +338,16 @@ class DashboardViewModel @Inject constructor(
         viewModelScope.launch {
             val current = settingsRepository.get()
             settingsRepository.update(current.copy(voiceEnabled = !current.voiceEnabled))
+        }
+    }
+
+    /** Toggle the proximity auto-lock automation (long-press on the lock button). */
+    fun toggleAutoLock() {
+        viewModelScope.launch {
+            val current = settingsRepository.get()
+            settingsRepository.update(current.copy(
+                proximityLock = current.proximityLock.copy(lockEnabled = !current.proximityLock.lockEnabled)
+            ))
         }
     }
 

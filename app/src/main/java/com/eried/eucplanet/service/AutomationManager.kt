@@ -4,6 +4,7 @@ import android.content.Context
 import android.media.AudioManager
 import android.util.Log
 import android.view.KeyEvent
+import com.eried.eucplanet.ble.ConnectionState
 import com.eried.eucplanet.data.model.AppSettings
 import com.eried.eucplanet.data.repository.SettingsRepository
 import com.eried.eucplanet.data.repository.TripRepository
@@ -38,6 +39,14 @@ class AutomationManager @Inject constructor(
         // Minimum dead-band (km/h) enforced between the pause and resume speeds even
         // if the rider set them equal - guarantees the anti-thrash gap always exists.
         private const val MEDIA_CONTROL_MIN_GAP_KMH = 2
+        // Proximity lock: RSSI must hold past the threshold this long before we act.
+        // Short for a snappy lock/unlock; the real refresh floor is the BLE RSSI
+        // poll cadence, and the dead-band gap is what actually prevents flip-flop.
+        private const val PROX_HOLD_MS = 1000L
+        // Minimum dead-band (dBm) kept between the lock and unlock thresholds. Small,
+        // so the two can sit close for a snappy transition; the hold above soaks up
+        // the RSSI jitter that such a tight gap would otherwise let flip-flop.
+        private const val PROX_MIN_GAP_DBM = 2
     }
 
     private val audioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
@@ -61,6 +70,10 @@ class AutomationManager @Inject constructor(
     @Volatile private var mediaAutoPaused: Boolean = false
     private var mediaPauseCandidateSinceMs: Long = 0L
     private var mediaResumeCandidateSinceMs: Long = 0L
+
+    // Proximity-lock "hold past the line" timestamps (0 = condition not currently met).
+    private var proxLockCandidateSinceMs: Long = 0L
+    private var proxUnlockCandidateSinceMs: Long = 0L
 
     /**
      * Put the media volume back to the rider's baseline - the level it was at
@@ -115,6 +128,8 @@ class AutomationManager @Inject constructor(
         if (settings.autoVolumeEnabled) evaluateVolume(settings)
         val mc = settings.mediaControl
         if (mc.pauseEnabled || mc.resumeEnabled) evaluateMediaControl(settings)
+        val pl = settings.proximityLock
+        if (pl.lockEnabled || pl.unlockEnabled) evaluateProximityLock(settings)
     }
 
     /** Watch telemetry: if the wheel's light state flips without a recent auto-toggle, it's a manual change. */
@@ -291,6 +306,55 @@ class AutomationManager @Inject constructor(
         mediaAutoPaused = false
         mediaPauseCandidateSinceMs = 0L
         mediaResumeCandidateSinceMs = 0L
+    }
+
+    /**
+     * Bluetooth-signal proximity lock / unlock. While connected, locks the wheel
+     * when the RSSI drops to/below [ProximityLockSettings.lockBelowDbm] (the rider
+     * is walking away, still just in range) and unlocks it when the RSSI rises
+     * to/above [ProximityLockSettings.unlockAboveDbm] (the rider is back close).
+     * The gap between the two is a dead-band; the reading must also hold past the
+     * line for [PROX_HOLD_MS] before acting, because RSSI is noisy. Only ever locks
+     * an unlocked wheel and unlocks a locked one, so it can't fight the rider or
+     * itself. Locking needs a live link, so this runs while the signal is fading -
+     * a full disconnect leaves nothing to send over (documented limitation).
+     */
+    private fun evaluateProximityLock(settings: AppSettings) {
+        if (wheelRepository.connectionState.value != ConnectionState.CONNECTED) return
+        val pl = settings.proximityLock
+        val rssi = wheelRepository.wheelData.value.rssiDbm
+        if (rssi == 0) return  // no RSSI reading yet
+        val locked = wheelRepository.locked.value
+        val now = System.currentTimeMillis()
+        val lockAt = pl.lockBelowDbm
+        // Unlock threshold always kept stronger than lock, so a dead-band exists.
+        val unlockAt = maxOf(pl.unlockAboveDbm, lockAt + PROX_MIN_GAP_DBM)
+
+        // Walking away: weak signal, still connected, currently unlocked -> lock.
+        if (pl.lockEnabled && !locked && rssi <= lockAt) {
+            if (proxLockCandidateSinceMs == 0L) proxLockCandidateSinceMs = now
+            if (now - proxLockCandidateSinceMs >= PROX_HOLD_MS) {
+                wheelRepository.setLock(true)
+                proxLockCandidateSinceMs = 0L
+                Log.i(TAG, "Proximity: locking (rssi=$rssi <= $lockAt dBm)")
+            }
+        } else proxLockCandidateSinceMs = 0L
+
+        // Returning: strong signal, currently locked -> unlock.
+        if (pl.unlockEnabled && locked && rssi >= unlockAt) {
+            if (proxUnlockCandidateSinceMs == 0L) proxUnlockCandidateSinceMs = now
+            if (now - proxUnlockCandidateSinceMs >= PROX_HOLD_MS) {
+                wheelRepository.setLock(false)
+                proxUnlockCandidateSinceMs = 0L
+                Log.i(TAG, "Proximity: unlocking (rssi=$rssi >= $unlockAt dBm)")
+            }
+        } else proxUnlockCandidateSinceMs = 0L
+    }
+
+    /** Clear proximity-lock hold state on disconnect / Stop All / disable. */
+    fun resetProximityLock() {
+        proxLockCandidateSinceMs = 0L
+        proxUnlockCandidateSinceMs = 0L
     }
 }
 

@@ -222,6 +222,13 @@ class SettingsViewModel @Inject constructor(
         .map { it == ConnectionState.CONNECTED }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
 
+    // Live Bluetooth signal (dBm) and lock capability, for the proximity-lock
+    // tuning readout in the Automation settings.
+    val btRssiDbm: StateFlow<Int> = wheelRepository.wheelData
+        .map { it.rssiDbm }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0)
+    val wheelHasLock: StateFlow<Boolean> = wheelRepository.wheelHasLock
+
     /**
      * Unified view of every paired companion device — Wear OS + Garmin —
      * for the Settings "Device" region. Bridges expose raw name lists and
@@ -580,6 +587,16 @@ class SettingsViewModel @Inject constructor(
         .also { if (!v) automationManager.resetMediaControl() }
     fun updateMediaResumeAbove(v: Int) =
         update { copy(mediaControl = mediaControl.copy(resumeAboveKmh = v.coerceIn(2, 80))) }
+
+    // Proximity lock (Bluetooth-signal auto lock / unlock)
+    fun updateProxLockEnabled(v: Boolean) = update { copy(proximityLock = proximityLock.copy(lockEnabled = v)) }
+        .also { if (!v) automationManager.resetProximityLock() }
+    fun updateProxLockBelow(v: Int) =
+        update { copy(proximityLock = proximityLock.copy(lockBelowDbm = v.coerceIn(-110, -30))) }
+    fun updateProxUnlockEnabled(v: Boolean) = update { copy(proximityLock = proximityLock.copy(unlockEnabled = v)) }
+        .also { if (!v) automationManager.resetProximityLock() }
+    fun updateProxUnlockAbove(v: Int) =
+        update { copy(proximityLock = proximityLock.copy(unlockAboveDbm = v.coerceIn(-100, -15))) }
 
     // Voice report: recording
     fun updateVoiceReportRecording(v: Boolean) = update { copy(voiceReportRecording = v) }

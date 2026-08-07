@@ -529,7 +529,10 @@ class WheelRepository @Inject constructor(
     // last-announced state instead means a confirmed toggle voices once, a dropped
     // toggle that reverts voices nothing, and an external change voices correctly.
     @Volatile private var lastAnnouncedSafety: Boolean = false
-    private val LOCK_COOLDOWN_MS = 3000L
+    // Shortened from 3000 so auto (proximity) lock/unlock and the manual lock
+    // button feel snappy back-to-back. If a wheel reports its lock state slower
+    // than this the icon can briefly flicker; nudge back up if that shows.
+    private val LOCK_COOLDOWN_MS = 1200L
     private val LIGHT_COOLDOWN_MS = 1500L
     private val SAFETY_COOLDOWN_MS = 1800L
 
@@ -1289,6 +1292,13 @@ class WheelRepository @Inject constructor(
         wheelAdapter.setLightFollowup(next)?.let { bleManager.writeCommand(it) }
         _wheelData.value = _wheelData.value.copy(lightOn = next)
         startCooldown(_lightBusy, LIGHT_COOLDOWN_MS) { lightCooldownUntilMs = it }
+    }
+
+    /** Drive the lock to a specific state (used by proximity auto lock/unlock).
+     *  No-op if already there; toggleLock() owns the capability gate, the
+     *  moving-wheel block, the cooldown and the voice announce. */
+    fun setLock(target: Boolean) {
+        if (_locked.value != target) toggleLock()
     }
 
     fun toggleLock() {

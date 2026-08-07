@@ -127,11 +127,11 @@ class BleConnectionManager @Inject constructor(
     @Volatile private var lastDataMs = 0L
     @Volatile private var connectedAtMs = 0L
 
-    // Poll the link RSSI every few seconds while connected so the BT dBm metric
-    // has a live value. A no-op on virtual connections (no gatt).
+    // Poll the link RSSI once a second while connected so the BT dBm metric and
+    // the proximity-lock feature stay snappy. A no-op on virtual connections.
     private val rssiJob = scope.launch {
         while (true) {
-            delay(3_000)
+            delay(1_000)
             if (_connectionState.value == ConnectionState.CONNECTED) {
                 runCatching { gatt?.readRemoteRssi() }
             } else {

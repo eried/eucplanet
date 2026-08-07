@@ -231,11 +231,6 @@ fun AutomationsContent(
         Text(stringResource(R.string.media_control_title), style = MaterialTheme.typography.headlineMedium,
             color = MaterialTheme.colorScheme.primary)
 
-        Text(stringResource(R.string.media_control_desc),
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.padding(bottom = 4.dp))
-
         // Pause when slow
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -250,47 +245,120 @@ fun AutomationsContent(
                 colors = themedSwitchColors(),)
         }
         if (settings.mediaControl.pauseEnabled) {
-            NumberUpDown(
-                value = settings.mediaControl.pauseBelowKmh,
-                onValueChange = { viewModel.updateMediaPauseBelow(it) },
-                range = 1..60,
-                step = 1,
-                suffix = "km/h",
+            // Range-capped so the pause speed can never reach the resume speed:
+            // a >=2 km/h dead-band is always kept, which prevents a play/pause loop.
+            SpeedNumberSetting(
                 label = stringResource(R.string.media_control_pause_below),
-                modifier = Modifier.fillMaxWidth(),
+                valueKmh = settings.mediaControl.pauseBelowKmh.toFloat(),
+                rangeKmh = 1f..(settings.mediaControl.resumeAboveKmh - 2).coerceAtLeast(1).toFloat(),
+                speedUnit = Units.effectiveSpeedUnit(settings),
+                modifier = Modifier.fillMaxWidth(0.5f),
+                onValueChangeKmh = { viewModel.updateMediaPauseBelow(it.roundToInt()) },
             )
         }
 
-        // Resume when fast again
+        // Resume is only offered once Pause is on - it only ever restarts what
+        // Pause stopped, so it is meaningless (and confusing) on its own.
+        if (settings.mediaControl.pauseEnabled) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(stringResource(R.string.media_control_resume),
+                    style = MaterialTheme.typography.bodyLarge,
+                    modifier = Modifier.weight(1f))
+                Switch(checked = settings.mediaControl.resumeEnabled,
+                    onCheckedChange = { viewModel.updateMediaResumeEnabled(it) },
+                    colors = themedSwitchColors(),)
+            }
+            if (settings.mediaControl.resumeEnabled) {
+                // Floored at pause + 2 km/h so resume always sits above pause (dead-band).
+                SpeedNumberSetting(
+                    label = stringResource(R.string.media_control_resume_above),
+                    valueKmh = settings.mediaControl.resumeAboveKmh.toFloat(),
+                    rangeKmh = (settings.mediaControl.pauseBelowKmh + 2).toFloat()..60f,
+                    speedUnit = Units.effectiveSpeedUnit(settings),
+                    modifier = Modifier.fillMaxWidth(0.5f),
+                    onValueChangeKmh = { viewModel.updateMediaResumeAbove(it.roundToInt()) },
+                )
+            }
+        }
+        }   // end Media control BringIntoViewSection
+
+        Spacer(Modifier.height(8.dp))
+
+        // --- Wheel lock (Bluetooth proximity) Section ---
+        BringIntoViewSection(expanded = settings.proximityLock.lockEnabled) {
+        Text(stringResource(R.string.proximity_lock_title), style = MaterialTheme.typography.headlineMedium,
+            color = MaterialTheme.colorScheme.primary)
+
+        // Live signal readout - stand where you park / where you return to tune the thresholds.
+        val liveRssi by viewModel.btRssiDbm.collectAsState()
+        val wheelConnected by viewModel.isConnected.collectAsState()
+        if (wheelConnected && liveRssi != 0) {
+            Text(stringResource(R.string.proximity_lock_signal_live, liveRssi),
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.appColors.statusGood)
+        } else {
+            HintText(stringResource(R.string.proximity_lock_signal_none), small = true)
+        }
+
+        // Lock when walking away
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(stringResource(R.string.media_control_resume),
+            Text(stringResource(R.string.proximity_lock_enable),
                 style = MaterialTheme.typography.bodyLarge,
                 modifier = Modifier.weight(1f))
-            Switch(checked = settings.mediaControl.resumeEnabled,
-                onCheckedChange = { viewModel.updateMediaResumeEnabled(it) },
+            Switch(checked = settings.proximityLock.lockEnabled,
+                onCheckedChange = { viewModel.updateProxLockEnabled(it) },
                 colors = themedSwitchColors(),)
         }
-        if (settings.mediaControl.resumeEnabled) {
+        if (settings.proximityLock.lockEnabled) {
+            // Capped below unlock (>=10 dBm gap) so a lock/unlock loop is impossible.
             NumberUpDown(
-                value = settings.mediaControl.resumeAboveKmh,
-                onValueChange = { viewModel.updateMediaResumeAbove(it) },
-                range = 2..80,
+                value = settings.proximityLock.lockBelowDbm,
+                onValueChange = { viewModel.updateProxLockBelow(it) },
+                range = -110..(settings.proximityLock.unlockAboveDbm - 2).coerceIn(-110, -30),
                 step = 1,
-                suffix = "km/h",
-                label = stringResource(R.string.media_control_resume_above),
-                modifier = Modifier.fillMaxWidth(),
+                suffix = "dBm",
+                allowSign = true,
+                label = stringResource(R.string.proximity_lock_below),
+                modifier = Modifier.fillMaxWidth(0.5f),
             )
-        }
 
-        // Dead-band explainer when both are on.
-        if (settings.mediaControl.pauseEnabled && settings.mediaControl.resumeEnabled) {
-            HintText(stringResource(R.string.media_control_deadband_hint), small = true)
+            // Unlock is only offered once Lock is on - it only reverses this lock.
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(stringResource(R.string.proximity_unlock_enable),
+                    style = MaterialTheme.typography.bodyLarge,
+                    modifier = Modifier.weight(1f))
+                Switch(checked = settings.proximityLock.unlockEnabled,
+                    onCheckedChange = { viewModel.updateProxUnlockEnabled(it) },
+                    colors = themedSwitchColors(),)
+            }
+            if (settings.proximityLock.unlockEnabled) {
+                NumberUpDown(
+                    value = settings.proximityLock.unlockAboveDbm,
+                    onValueChange = { viewModel.updateProxUnlockAbove(it) },
+                    range = (settings.proximityLock.lockBelowDbm + 2).coerceIn(-100, -15)..-15,
+                    step = 1,
+                    suffix = "dBm",
+                    allowSign = true,
+                    label = stringResource(R.string.proximity_unlock_above),
+                    modifier = Modifier.fillMaxWidth(0.5f),
+                )
+            }
+
+            HintText(stringResource(R.string.proximity_lock_hint), small = true)
         }
-        }   // end Media control BringIntoViewSection
+        }   // end Wheel lock BringIntoViewSection
 
         Spacer(Modifier.height(32.dp))
     }

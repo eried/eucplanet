@@ -113,6 +113,8 @@ data class AppSettings(
     val accelSplit: AccelSplitSettings = AccelSplitSettings(),
     // Speed-driven media (music / podcast) pause & resume - see MediaControlSettings.
     val mediaControl: MediaControlSettings = MediaControlSettings(),
+    // Bluetooth-signal proximity lock / unlock - see ProximityLockSettings.
+    val proximityLock: ProximityLockSettings = ProximityLockSettings(),
 
     // Special announcements (event-driven). All silent by default; the welcome
     // wizard's first step offers a single toggle that flips this whole block on
@@ -973,6 +975,29 @@ data class MediaControlSettings(
     val resumeEnabled: Boolean = false,
     // Resume (only what this feature paused) when speed is at or above this (km/h).
     val resumeAboveKmh: Int = 10,
+)
+
+/**
+ * Bluetooth-signal proximity lock / unlock. Locks the wheel as the rider walks
+ * away (the BT signal fades while still just connected) and, optionally, unlocks
+ * it as they return (the signal strengthens). A feature-local group (not a
+ * global), nested so AppSettings.copy() stays under the JVM/dex 255-argument
+ * limit. Thresholds are RSSI in dBm (higher = stronger / closer, e.g. -50 is
+ * near, -85 is far). unlockAboveDbm sits above lockBelowDbm with a gap - a
+ * dead-band that stops lock/unlock flipping; AutomationManager also holds the
+ * condition a few seconds before acting. Locking needs a live BLE link, so it
+ * fires while the signal is fading, not after a full disconnect.
+ */
+data class ProximityLockSettings(
+    val lockEnabled: Boolean = false,
+    // Lock when the signal is at or below this (dBm) - the rider is walking away.
+    // Default tuned to a real reading (near ~-59, 4 steps ~-65, 9 steps ~-79):
+    // -68 locks at roughly 5 steps, only ~6 dBm below unlock so it feels snappy.
+    val lockBelowDbm: Int = -68,
+    val unlockEnabled: Boolean = false,
+    // Unlock when the signal is at or above this (dBm) - the rider is back close.
+    // -62 unlocks within ~2-3 steps; must stay reachable (near maxes out ~-59).
+    val unlockAboveDbm: Int = -62,
 )
 
 /**

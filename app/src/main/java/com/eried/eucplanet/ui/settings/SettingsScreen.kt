@@ -596,7 +596,9 @@ fun SettingsScreen(
         stringResource(R.string.auto_volume_title),
         stringResource(R.string.auto_volume_desc),
         stringResource(R.string.media_control_title),
-        stringResource(R.string.media_control_desc)
+        stringResource(R.string.media_control_desc),
+        stringResource(R.string.proximity_lock_title),
+        stringResource(R.string.proximity_lock_desc)
     ).joinToString(" ")
 
     val corpusIntegration = listOf(
@@ -8281,7 +8283,7 @@ internal fun SectionHeader(title: String) {
 }
 
 @Composable
-private fun SpeedNumberSetting(
+internal fun SpeedNumberSetting(
     label: String,
     valueKmh: Float,
     rangeKmh: ClosedFloatingPointRange<Float>,
