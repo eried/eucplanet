@@ -233,11 +233,16 @@
     <string name="metric_chip_lateral_g">側向 G</string>
     <string name="metric_chip_forward_g">前向 G</string>
     <string name="metric_chip_torque">扭矩</string>
+    <string name="metric_chip_phase_current">相電流</string>
     <string name="metric_chip_dyn_speed_limit">動態速度限制</string>
     <string name="metric_chip_dyn_current_limit">動態電流限制</string>
     <string name="metric_chip_motor_temp">馬達溫度</string>
     <string name="metric_chip_controller_temp">控制器溫度</string>
     <string name="metric_chip_battery_temp">電池溫度</string>
+    <string name="metric_chip_tire_pressure">胎壓</string>
+    <string name="metric_chip_tire_pressure_tile">胎壓</string>
+    <string name="metric_desc_tire_pressure">來自已綁定 TPMS 感測器（InMotion P6）的胎壓。以 psi 或 bar 顯示。</string>
+    <string name="studio_metric_tire_pressure">胎壓</string>
     <string name="metric_chip_headroom">速度餘量</string>
     <string name="metric_chip_trip_time">行程時間</string>
     <string name="metric_chip_trip_max_speed">行程最高速</string>
@@ -463,7 +468,7 @@
     <string name="cloud_restore_success">設定已還原</string>
     <string name="cloud_restore_failed">資料夾中找不到備份</string>
     <string name="section_cloud_trips">行程備份</string>
-    <string name="cloud_trips_caption">新行程會自動儲存至您的資料夾</string>
+    <string name="cloud_trips_caption">行程會保留在本機上，並自動同步到您的備份資料夾。在此清除只會刪除本機上的副本，不會刪除您的備份。</string>
     <string name="cloud_retry_now">全部同步</string>
     <string name="cloud_retry_enqueued">已排程上傳</string>
     <string name="sync_progress">正在同步第 %1$d / %2$d 筆</string>
@@ -539,6 +544,7 @@
     <string name="units_temp_f">華氏</string>
     <string name="units_temp_k">克氏</string>
     <string name="phone_keep_screen_on">保持螢幕常亮</string>
+    <string name="phone_show_over_lock">在鎖定畫面上方顯示</string>
     <string name="language">語言</string>
     <string name="theme">主題</string>
     <string name="tts_switch_title">切換語音至 %1$s？</string>
@@ -709,6 +715,15 @@
     <string name="flic_double_click">雙擊</string>
     <string name="flic_hold">長按</string>
     <string name="section_external_gps">GPS 與感測器</string>
+    <!-- TPMS sensors -->
+    <string name="section_tpms">TPMS 感測器</string>
+    <string name="tpms_caption">來自車輪上感測器的胎壓，如 InMotion P6。</string>
+    <string name="tpms_wheel_sensor">車輪胎壓</string>
+    <string name="tpms_wheel_sensor_desc">由已綁定的感測器轉發</string>
+    <string name="tpms_idle">尚無感測器回報</string>
+    <string name="tpms_pair_title">配對其他感測器</string>
+    <string name="tpms_pair_replaces">額外的感測器會取代車輪內建的感測器（如有）。</string>
+    <string name="tpms_scan">掃描感測器</string>
     <string name="external_gps_device_title">外部 GPS</string>
     <string name="external_gps_pair_button">開始掃描</string>
     <string name="external_gps_pair_action">配對</string>
@@ -1353,6 +1368,7 @@
     <string name="studio_metric_temperature">溫度</string>
     <string name="studio_metric_voltage">電壓</string>
     <string name="studio_metric_current">電流</string>
+    <string name="studio_metric_phase_current">相電流</string>
     <string name="studio_metric_power">功率</string>
     <string name="studio_metric_pwm">PWM</string>
     <string name="studio_metric_trip_distance">行程距離</string>
@@ -1361,6 +1377,26 @@
     <string name="studio_metric_roll">滾轉角</string>
     <string name="studio_metric_g_force">G 力</string>
     <string name="studio_metric_external_gps_battery">外接 GPS 電池</string>
+    <string name="studio_metric_external_gps_speed">外部GPS速度</string>
+    <string name="studio_metric_gps_speed">GPS速度</string>
+    <string name="metric_chip_trip_meter">行程里程錶</string>
+    <string name="trip_meter_detail_title">行程里程錶</string>
+    <string name="trip_meter_tab_speed">速度</string>
+    <string name="trip_meter_tab_battery">電池</string>
+    <string name="trip_meter_tab_time">時間</string>
+    <string name="trip_meter_total">總計</string>
+    <string name="trip_meter_active">行駛</string>
+    <string name="trip_meter_avg">平均</string>
+    <string name="trip_meter_reset">重設行程里程錶</string>
+    <string name="trip_meter_reset_msg">這會將進行中的距離歸零並清除所有區段。此操作無法復原。</string>
+    <string name="trip_meter_empty">尚無距離。連接車輪時計數器會持續計算。</string>
+    <string name="trip_meter_partial">目前</string>
+    <string name="trip_meter_col_split">#</string>
+    <string name="trip_meter_col_dist">距離</string>
+    <string name="trip_meter_col_time">時間</string>
+    <string name="trip_meter_col_max">最高</string>
+    <string name="trip_meter_col_batt">電池</string>
+    <string name="studio_metric_trip_meter">行程里程錶</string>
     <string name="studio_metric_gps">GPS 座標</string>
 
     <!-- Navigator -->
@@ -1758,8 +1794,6 @@
     <string name="adv_hud_manual_grace_desc">影響使用手動 IP 前留給自動探索的時間。危險：太低會在探索成功前就使用手動 IP。</string>
     <string name="adv_hud_mdns_resolve">mDNS 解析時間</string>
     <string name="adv_hud_mdns_resolve_desc">影響解析已探索 HUD 位址詳情的時間。危險：太低會捨棄解析較慢的 HUD。</string>
-    <string name="adv_hud_subnet_delay">子網掃描延遲</string>
-    <string name="adv_hud_subnet_delay_desc">影響最後手段的子網掃描在多久後開始，讓 mDNS 和信標先回應，避免無線電壅塞。危險：太低會擠占無線電並拖慢探索。</string>
     <string name="adv_hud_mdns_timeout">探索逾時</string>
     <string name="adv_hud_mdns_timeout_desc">影響等待 HUD 回應自動探索的時間。危險：太低會在它回應前就放棄。</string>
     <string name="adv_hud_report_interval">HUD 回報頻率</string>
@@ -1801,6 +1835,10 @@
     <string name="adv_phone_gps_interval_desc">影響 GPS 軌跡的平滑度與導航的反應速度。越低更新越頻繁。危險：低數值會更快耗盡電池。</string>
     <string name="adv_phone_gps_idle_interval">GPS 閒置間隔</string>
     <string name="adv_phone_gps_idle_interval_desc">未記錄或導航時的 GPS 更新間隔，讓導航和重新連線隨時就緒。數值越大越省電。</string>
+    <string name="adv_gps_idle_off_delay">閒置後關閉 GPS</string>
+    <string name="adv_gps_idle_off_delay_desc">當應用程式在背景執行、未連接車輪且未錄製時，GPS 會關閉以節省電量。0 會立即關閉；數值越大，會先讓低耗電定位維持這段時間，讓快速切換應用程式時不會中斷 GPS。</string>
+    <string name="adv_gps_fix_max_age">GPS 定位最長時效</string>
+    <string name="adv_gps_fix_max_age_desc">早於此時間的位置視為未定位，讓在 GPS 就緒前開始的錄製不會以過期的點開頭。</string>
     <string name="adv_pushonly_note">某些裝置以自身固定頻率串流並忽略這些設定：僅推送的車輪（Begode、Gotway、Veteran、KingSong）、外部 GPS（RaceBox）、雷達與 Flic 按鈕。</string>
     <string name="adv_radar_clear_decay">雷達車道衰減</string>
     <string name="adv_radar_clear_decay_desc">影響道路淨空後車道列停留多久。危險：太低會在車輛來去時閃爍。</string>
@@ -1854,12 +1892,12 @@
     <string name="studio_export_status">正在匯出檔案…</string>
     <string name="studio_export_stay">留在目前畫面</string>
     <string name="studio_export_title">檔案匯出</string>
-    <string name="studio_replay_trim">（修剪）</string>
+    <string name="studio_replay_trim">（完整行程）</string>
     <string name="studio_replay_trim_duration">時長</string>
     <string name="studio_replay_trim_end">結束</string>
     <string name="studio_replay_trim_reset">重設</string>
     <string name="studio_replay_trim_start">開始</string>
-    <string name="studio_replay_trim_title">修剪短片</string>
+    <string name="studio_replay_trim_title">修剪行程</string>
     <string name="tab_advanced">進階</string>
     <string name="tab_more">更多</string>
     <string name="welcome_tut_dev_join">加入排行榜</string>
@@ -1923,6 +1961,8 @@
     <string name="adv_cover_cutout_inset_desc">開啟避開前置鏡頭時為前置鏡頭保留的空間。太小會讓鏡頭擋住按鈕。</string>
     <string name="adv_nav_sidebar_min">側欄最小螢幕</string>
     <string name="adv_nav_sidebar_min_desc">比此更窄的螢幕即使橫向也保留底部停靠點面板。太低會在小螢幕上遮住地圖。</string>
+    <string name="adv_inmotion_v1_pin">InMotion V5/V8/V10 PIN</string>
+    <string name="adv_inmotion_v1_pin_desc">InMotion V5/V8/V10 車輪的存取 PIN，連線時傳送，讓車輪開始傳送資料。除非你在 InMotion 應用程式中設定了自己的 PIN，否則請保持 000000。</string>
     <string name="adv_nav_sidebar_width">停靠點面板寬度</string>
     <string name="adv_nav_sidebar_width_desc">橫向停靠點側欄的寬度。太寬會讓地圖變小。</string>
     <string name="adv_simple_speedo_scale">簡易速度表尺寸</string>
@@ -1967,6 +2007,41 @@
     <string name="accel_split_slower_best">，比最佳慢 %1$s</string>
     <string name="accel_split_best_yet">，最佳成績</string>
     <string name="report_contents">自訂語音播報</string>
+    <string name="trip_customize">自訂</string>
+    <string name="trip_customize_tiles">卡片</string>
+    <string name="trip_customize_graphs">圖表</string>
+    <string name="recording_details_section">額外詳情</string>
+    <string name="recording_details_none">本次騎乘未記錄車輪。</string>
+    <string name="cloud_reset_local">清除本機行程</string>
+    <string name="cloud_reset_local_title">清除本機行程？</string>
+    <string name="cloud_reset_local_body">移除儲存在本機上的所有行程。您的備份資料夾不受影響，已同步的行程可從該處還原。</string>
+    <string name="dropbox_syncing">正在同步行程…</string>
+    <string name="dropbox_folder_desc">行程和設定儲存在您的 Dropbox 的 %1$s 中。只有本應用程式能看到該資料夾。</string>
+    <string name="keep_app_alive">保持應用程式執行</string>
+    <string name="keep_app_alive_desc">顯示常駐通知，讓應用程式在背景保持執行。即使未連接車輪，行程同步和語音也能繼續運作。會多消耗一點電量。</string>
+    <string name="sync_up_to_date">已是最新</string>
+    <string name="studio_source_transparent">透明</string>
+    <string name="studio_source_video">影片</string>
+    <string name="studio_video_pick">選擇影片</string>
+    <string name="studio_video_replace">更換影片</string>
+    <string name="studio_video_fit">調整</string>
+    <string name="studio_video_fit_stretch">拉伸</string>
+    <string name="studio_video_offset">偏移</string>
+    <string name="studio_video_offset_value_fmt">%1$d ms</string>
+    <string name="studio_video_offset_nudge_fmt">%1$+d ms</string>
+    <string name="studio_video_set_offset">目前</string>
+    <string name="studio_video_no_media">無媒體</string>
+    <string name="studio_replay_cd_move">移動面板</string>
+    <string name="studio_video_edge">範圍外</string>
+    <string name="studio_video_edge_freeze">凍結</string>
+    <string name="studio_video_edge_loop">循環</string>
+    <string name="studio_video_edge_black">黑色</string>
+    <string name="wheel_no_data_reconnecting">沒有來自車輪的資料。正在重新連線…</string>
+    <string name="wheel_no_data_reset">仍然沒有來自車輪的資料。請嘗試將它關閉再開啟。</string>
+    <string name="trip_map_ride_start">騎行開始: %1$s</string>
+    <string name="trip_map_reconnected">已重新連接: %1$s</string>
+    <string name="trip_map_new_wheel">新獨輪車: %1$s</string>
+    <string name="trip_map_ride_end">騎行結束</string>
 </resources>
 
 

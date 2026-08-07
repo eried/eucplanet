@@ -9,7 +9,11 @@ import com.eried.eucplanet.util.Units
 import kotlin.math.absoluteValue
 
 /** Whether a metric needs unit conversion, and against which unit setting. */
-enum class StudioMetricKind { SPEED, DISTANCE, TEMPERATURE, PLAIN }
+enum class StudioMetricKind { SPEED, DISTANCE, TEMPERATURE, PRESSURE, PLAIN }
+
+/** Tire-pressure display unit follows the distance unit (mi -> psi, else bar),
+ *  matching Units.effectivePressureUnit; no dedicated pressure-unit setting yet. */
+private fun pressureUnitFor(distUnit: String): String = if (distUnit == "mi") "psi" else "bar"
 
 /**
  * The live telemetry values a DATA_VALUE / DATA_GRAPH overlay element can show.
@@ -34,14 +38,19 @@ enum class StudioMetric(
     TEMPERATURE("TEMP", "Temperature", StudioMetricKind.TEMPERATURE, "", 0, 100f, { it.maxTemperature }),
     VOLTAGE("VOLTAGE", "Voltage", StudioMetricKind.PLAIN, "V", 1, 100f, { it.voltage }),
     CURRENT("CURRENT", "Current", StudioMetricKind.PLAIN, "A", 1, 80f, { it.current }),
+    PHASE_CURRENT("PHASE_CURRENT", "Phase current", StudioMetricKind.PLAIN, "A", 1, 200f, { it.phaseCurrent }),
     POWER("POWER", "Power", StudioMetricKind.PLAIN, "W", 0, 3000f, { it.motorPower.toFloat() }),
     PWM("PWM", "PWM", StudioMetricKind.PLAIN, "%", 0, 100f, { it.pwm.absoluteValue }),
     TRIP("TRIP", "Trip distance", StudioMetricKind.DISTANCE, "", 2, 50f, { it.tripDistance }),
+    TRIP_METER("TRIP_METER", "Trip meter", StudioMetricKind.DISTANCE, "", 1, 50f, { it.tripMeterKm.coerceAtLeast(0f) }),
     ODOMETER("ODOMETER", "Odometer", StudioMetricKind.DISTANCE, "", 1, 5000f, { it.totalDistance }),
     PITCH("PITCH", "Pitch", StudioMetricKind.PLAIN, "°", 1, 30f, { it.pitchAngle }),
     ROLL("ROLL", "Roll", StudioMetricKind.PLAIN, "°", 1, 30f, { it.rollAngle }),
     G_FORCE("G-FORCE", "G-Force", StudioMetricKind.PLAIN, "g", 2, 2f, { it.gForce }),
     EXTERNAL_GPS_BATTERY("EXT_GPS_BATTERY", "Ext GPS battery", StudioMetricKind.PLAIN, "%", 0, 100f, { it.externalGpsBatteryPercent.toFloat() }),
+    EXTERNAL_GPS_SPEED("EXT_GPS_SPEED", "Ext GPS speed", StudioMetricKind.SPEED, "", 1, 60f, { it.externalGpsSpeedKmh.coerceAtLeast(0f) }),
+    TIRE_PRESSURE("TIRE_PRESSURE", "Tire pressure", StudioMetricKind.PRESSURE, "", 1, 50f, { it.tirePressureKpa }),
+    GPS_SPEED("GPS_SPEED", "GPS speed", StudioMetricKind.SPEED, "", 1, 60f, { it.gpsSpeedKmh.coerceAtLeast(0f) }),
     // A lat/lng pair shown as text (not a scalar), so it only makes sense on a
     // text value element. extract is a placeholder; formatted() renders the pair.
     GPS("GPS", "GPS coordinates", StudioMetricKind.PLAIN, "", 0, 1f, { 0f }, textOnly = true);
@@ -57,6 +66,7 @@ enum class StudioMetric(
             StudioMetricKind.SPEED -> Units.speed(raw, speedUnit)
             StudioMetricKind.DISTANCE -> Units.distance(raw, distUnit)
             StudioMetricKind.TEMPERATURE -> Units.temperature(raw, tempUnit)
+            StudioMetricKind.PRESSURE -> Units.pressure(raw, pressureUnitFor(distUnit))
             StudioMetricKind.PLAIN -> raw
         }
     }
@@ -67,6 +77,7 @@ enum class StudioMetric(
             StudioMetricKind.SPEED -> Units.speedUnit(context, speedUnit)
             StudioMetricKind.DISTANCE -> Units.distanceUnit(distUnit)
             StudioMetricKind.TEMPERATURE -> Units.tempUnit(tempUnit)
+            StudioMetricKind.PRESSURE -> Units.pressureUnit(pressureUnitFor(distUnit))
             StudioMetricKind.PLAIN -> plainUnit
         }
 
@@ -95,13 +106,18 @@ fun StudioMetric.displayName(): String = when (this) {
     StudioMetric.TEMPERATURE -> stringResource(R.string.studio_metric_temperature)
     StudioMetric.VOLTAGE -> stringResource(R.string.studio_metric_voltage)
     StudioMetric.CURRENT -> stringResource(R.string.studio_metric_current)
+    StudioMetric.PHASE_CURRENT -> stringResource(R.string.studio_metric_phase_current)
     StudioMetric.POWER -> stringResource(R.string.studio_metric_power)
     StudioMetric.PWM -> stringResource(R.string.studio_metric_pwm)
     StudioMetric.TRIP -> stringResource(R.string.studio_metric_trip_distance)
+    StudioMetric.TRIP_METER -> stringResource(R.string.studio_metric_trip_meter)
     StudioMetric.ODOMETER -> stringResource(R.string.studio_metric_odometer)
     StudioMetric.PITCH -> stringResource(R.string.studio_metric_pitch)
     StudioMetric.ROLL -> stringResource(R.string.studio_metric_roll)
     StudioMetric.G_FORCE -> stringResource(R.string.studio_metric_g_force)
     StudioMetric.EXTERNAL_GPS_BATTERY -> stringResource(R.string.studio_metric_external_gps_battery)
+    StudioMetric.EXTERNAL_GPS_SPEED -> stringResource(R.string.studio_metric_external_gps_speed)
+    StudioMetric.TIRE_PRESSURE -> stringResource(R.string.studio_metric_tire_pressure)
+    StudioMetric.GPS_SPEED -> stringResource(R.string.studio_metric_gps_speed)
     StudioMetric.GPS -> stringResource(R.string.studio_metric_gps)
 }

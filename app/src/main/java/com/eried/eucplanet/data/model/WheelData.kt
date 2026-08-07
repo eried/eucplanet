@@ -9,6 +9,11 @@ data class WheelData(
     val battery2Percent: Float = 0f,
     val pwm: Float = 0f,
     val torque: Float = 0f,
+    /** Motor phase current in A (signed: negative on regen / braking, like
+     *  [current] and [torque]). Only some wheels report or expose it; on the P6
+     *  it is derived from torque (the wheel sends no phase-current field), so it
+     *  stays 0 on wheels that neither send nor derive it. */
+    val phaseCurrent: Float = 0f,
     val temperatures: List<Float> = emptyList(),
     val maxTemperature: Float = 0f,
     val tripDistance: Float = 0f,        // km
@@ -24,6 +29,19 @@ data class WheelData(
      *  Studio (like latitude/longitude) so an overlay number can show it; not
      *  wheel telemetry, so it stays -1 on the plain wheel stream. */
     val externalGpsBatteryPercent: Int = -1,
+    /** Ground speed in km/h from the paired external GPS box (RaceBox / Dragy),
+     *  or -1 when none is paired / no fresh sample. Merged in like the battery /
+     *  lat / long above so an overlay or HUD element can show it. */
+    val externalGpsSpeedKmh: Float = -1f,
+    /** Ground speed in km/h from the PHONE's fused GPS, or -1 when no fix.
+     *  Distinct from externalGpsSpeedKmh (a paired box); merged in like lat/long
+     *  so an overlay / HUD element can show the phone GPS speed. */
+    val gpsSpeedKmh: Float = -1f,
+    /** Running trip-meter distance in km (the connect-scoped car odometer), or -1
+     *  when not merged in. Not wheel telemetry, so it stays -1 on the plain wheel
+     *  stream; the Overlay Studio / HUD merge it in like gpsSpeedKmh so an overlay
+     *  number can show it. */
+    val tripMeterKm: Float = -1f,
     /** Phone IMU acceleration magnitude in g, 0 for trips recorded before this. */
     val gForce: Float = 0f,
     /** Phone IMU lateral acceleration in g (+right). 0 for trips recorded before this. */
@@ -35,6 +53,14 @@ data class WheelData(
     val forwardGFromSpeed: Float = 0f,
     val batteryPower: Int = 0,
     val motorPower: Int = 0,
+    /** Wh drawn from the battery since connect (discharge integral) - the same
+     *  connection-scoped energy the Battery screen shows as "used". Backs the
+     *  WH_CONSUMED "Energy" tile and, over trip distance, WH_PER_KM. 0 until the
+     *  first integration tick. */
+    val whConsumed: Float = 0f,
+    /** Wh returned to the battery since connect (regen / charge integral). Backs
+     *  the REGEN_WH "Regen" tile. */
+    val whRegen: Float = 0f,
     val dynamicSpeedLimit: Float = 0f,
     val dynamicCurrentLimit: Float = 0f,
     val lightOn: Boolean = false,
@@ -43,6 +69,10 @@ data class WheelData(
      *  families (Begode/Veteran/Ninebot/InMotion V1) leave this false; charging
      *  for them is derived from sustained negative current in WheelRepository. */
     val charging: Boolean = false,
+    /** Tire pressure in kPa from a bound TPMS sensor the wheel relays (InMotion
+     *  P6: realtime 0x87 frame, u16le at body[78]). 0 = no sensor / not reported.
+     *  Display converts: psi = kPa x 0.145038, bar = kPa / 100. */
+    val tirePressureKpa: Float = 0f,
     val pcMode: Int = -1,  // 0=lock, 1=drive, 2=shutdown, 3=idle (-1=unknown/no telemetry yet)
     /** Tiltback / max-speed threshold the wheel firmware reports in its telemetry,
      *  in km/h. -1 = the active adapter doesn't surface this. Used so the
@@ -51,5 +81,8 @@ data class WheelData(
     val wheelMaxSpeedKmh: Float = -1f,
     /** Alarm-speed threshold the wheel firmware reports, in km/h. -1 = unknown. */
     val wheelAlarmSpeedKmh: Float = -1f,
+    /** BLE link RSSI in dBm (negative), read off the GATT link (not wheel
+     *  telemetry). 0 = unknown / not yet read. Backs the BT_RSSI metric. */
+    val rssiDbm: Int = 0,
     val timestamp: Long = System.currentTimeMillis()
 )

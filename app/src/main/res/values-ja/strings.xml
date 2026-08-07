@@ -233,11 +233,16 @@
     <string name="metric_chip_lateral_g">横方向 G</string>
     <string name="metric_chip_forward_g">前方向 G</string>
     <string name="metric_chip_torque">トルク</string>
+    <string name="metric_chip_phase_current">相電流</string>
     <string name="metric_chip_dyn_speed_limit">動的速度制限</string>
     <string name="metric_chip_dyn_current_limit">動的電流制限</string>
     <string name="metric_chip_motor_temp">モーター温度</string>
     <string name="metric_chip_controller_temp">コントローラー温度</string>
     <string name="metric_chip_battery_temp">バッテリー温度</string>
+    <string name="metric_chip_tire_pressure">タイヤ空気圧</string>
+    <string name="metric_chip_tire_pressure_tile">タイヤ</string>
+    <string name="metric_desc_tire_pressure">連携したTPMSセンサー（InMotion P6）からのタイヤ空気圧。psiまたはbarで表示。</string>
+    <string name="studio_metric_tire_pressure">タイヤ空気圧</string>
     <string name="metric_chip_headroom">ヘッドルーム</string>
     <string name="metric_chip_trip_time">トリップ時間</string>
     <string name="metric_chip_trip_max_speed">トリップ最高速</string>
@@ -463,7 +468,7 @@
     <string name="cloud_restore_success">設定を復元しました</string>
     <string name="cloud_restore_failed">フォルダー内にバックアップが見つかりません</string>
     <string name="section_cloud_trips">トリップバックアップ</string>
-    <string name="cloud_trips_caption">新しいトリップは自動的にフォルダーに保存されます</string>
+    <string name="cloud_trips_caption">トリップはこの端末に残り、自動的にバックアップフォルダーと同期されます。ここで削除しても消えるのは端末のコピーだけで、バックアップは消えません。</string>
     <string name="cloud_retry_now">すべて同期</string>
     <string name="cloud_retry_enqueued">アップロードを予約しました</string>
     <string name="sync_progress">%1$d / %2$d を同期中</string>
@@ -539,6 +544,7 @@
     <string name="units_temp_f">華氏</string>
     <string name="units_temp_k">ケルビン</string>
     <string name="phone_keep_screen_on">画面をオンに保つ</string>
+    <string name="phone_show_over_lock">ロック画面の上に表示</string>
     <string name="language">言語</string>
     <string name="theme">テーマ</string>
     <string name="tts_switch_title">音声を %1$s に切り替えますか？</string>
@@ -709,6 +715,15 @@
     <string name="flic_double_click">ダブルクリック</string>
     <string name="flic_hold">長押し</string>
     <string name="section_external_gps">GPS &amp; センサー</string>
+    <!-- TPMS sensors -->
+    <string name="section_tpms">TPMSセンサー</string>
+    <string name="tpms_caption">ホイールのセンサーからのタイヤ空気圧（InMotion P6など）。</string>
+    <string name="tpms_wheel_sensor">ホイールのタイヤ空気圧</string>
+    <string name="tpms_wheel_sensor_desc">連携したセンサーから中継</string>
+    <string name="tpms_idle">センサーはまだ送信していません</string>
+    <string name="tpms_pair_title">別のセンサーをペアリング</string>
+    <string name="tpms_pair_replaces">追加のセンサーはホイール内蔵のセンサー（あれば）を置き換えます。</string>
+    <string name="tpms_scan">センサーを検索</string>
     <string name="external_gps_device_title">外部 GPS</string>
     <string name="external_gps_pair_button">スキャン開始</string>
     <string name="external_gps_pair_action">ペアリング</string>
@@ -1353,6 +1368,7 @@
     <string name="studio_metric_temperature">温度</string>
     <string name="studio_metric_voltage">電圧</string>
     <string name="studio_metric_current">電流</string>
+    <string name="studio_metric_phase_current">相電流</string>
     <string name="studio_metric_power">電力</string>
     <string name="studio_metric_pwm">PWM</string>
     <string name="studio_metric_trip_distance">トリップ距離</string>
@@ -1361,6 +1377,26 @@
     <string name="studio_metric_roll">ロール</string>
     <string name="studio_metric_g_force">G フォース</string>
     <string name="studio_metric_external_gps_battery">外部GPSバッテリー</string>
+    <string name="studio_metric_external_gps_speed">外部GPS速度</string>
+    <string name="studio_metric_gps_speed">GPS速度</string>
+    <string name="metric_chip_trip_meter">トリップメーター</string>
+    <string name="trip_meter_detail_title">トリップメーター</string>
+    <string name="trip_meter_tab_speed">速度</string>
+    <string name="trip_meter_tab_battery">バッテリー</string>
+    <string name="trip_meter_tab_time">時間</string>
+    <string name="trip_meter_total">合計</string>
+    <string name="trip_meter_active">走行</string>
+    <string name="trip_meter_avg">平均</string>
+    <string name="trip_meter_reset">トリップメーターをリセット</string>
+    <string name="trip_meter_reset_msg">進行中の距離をゼロにし、すべての区間を消去します。この操作は取り消せません。</string>
+    <string name="trip_meter_empty">距離はまだありません。ホイールが接続されている間、カウントします。</string>
+    <string name="trip_meter_partial">現在</string>
+    <string name="trip_meter_col_split">#</string>
+    <string name="trip_meter_col_dist">距離</string>
+    <string name="trip_meter_col_time">時間</string>
+    <string name="trip_meter_col_max">最高</string>
+    <string name="trip_meter_col_batt">電池</string>
+    <string name="studio_metric_trip_meter">トリップメーター</string>
     <string name="studio_metric_gps">GPS 座標</string>
 
     <!-- Navigator -->
@@ -1758,8 +1794,6 @@
     <string name="adv_hud_manual_grace_desc">手動 IP を使う前に自動検出に与える時間に影響します。危険: 低すぎると検出が成立する前に手動 IP を使います。</string>
     <string name="adv_hud_mdns_resolve">mDNS 解決時間</string>
     <string name="adv_hud_mdns_resolve_desc">検出した HUD のアドレス詳細を解決する時間に影響します。危険: 低すぎると解決が遅い HUD を切り捨てます。</string>
-    <string name="adv_hud_subnet_delay">サブネットスキャンの遅延</string>
-    <string name="adv_hud_subnet_delay_desc">最終手段のサブネットスキャンが始まるまでの時間に影響します。これにより mDNS とビーコンが先に応答し、無線が混雑しません。危険: 低すぎると無線を圧迫し、検出が遅くなります。</string>
     <string name="adv_hud_mdns_timeout">検出タイムアウト</string>
     <string name="adv_hud_mdns_timeout_desc">HUD が自動検出に応答するまで待つ時間に影響します。危険: 低すぎると応答前に諦めます。</string>
     <string name="adv_hud_report_interval">HUD 報告レート</string>
@@ -1801,6 +1835,10 @@
     <string name="adv_phone_gps_interval_desc">GPS トラックの滑らかさとナビゲーションの反応速度に影響します。低いほど頻繁に更新します。危険: 低い値はバッテリーの消耗が速くなります。</string>
     <string name="adv_phone_gps_idle_interval">GPSアイドル間隔</string>
     <string name="adv_phone_gps_idle_interval_desc">記録もナビもしていないときのGPS更新間隔。ナビや再接続にすぐ備えます。大きいほど省電力。</string>
+    <string name="adv_gps_idle_off_delay">アイドル時にGPSを切る</string>
+    <string name="adv_gps_idle_off_delay_desc">アプリがバックグラウンドでホイール未接続かつ記録なしのとき、GPSを切って電池を節約します。0は即座に切ります。大きくすると、まずその時間だけ低電力の測位を維持するので、素早いアプリ切り替えでGPSが途切れません。</string>
+    <string name="adv_gps_fix_max_age">GPS測位の最大経過時間</string>
+    <string name="adv_gps_fix_max_age_desc">これより古い位置は測位なしとして扱うので、GPSが準備できる前に始めた記録が古い地点から始まりません。</string>
     <string name="adv_pushonly_note">一部のデバイスは独自の固定レートでストリーミングし、これらの設定を無視します: プッシュ専用ホイール（Begode、Gotway、Veteran、KingSong）、外部 GPS（RaceBox）、レーダー、Flic ボタン。</string>
     <string name="adv_radar_clear_decay">レーダーレーン減衰</string>
     <string name="adv_radar_clear_decay_desc">道路がクリアになった後にレーンバーが残る時間に影響します。危険: 低すぎると車の往来でちらつきます。</string>
@@ -1854,12 +1892,12 @@
     <string name="studio_export_status">ファイルをエクスポート中…</string>
     <string name="studio_export_stay">現在の画面にとどまる</string>
     <string name="studio_export_title">ファイルエクスポート</string>
-    <string name="studio_replay_trim">（トリム）</string>
+    <string name="studio_replay_trim">（トリップ全体）</string>
     <string name="studio_replay_trim_duration">長さ</string>
     <string name="studio_replay_trim_end">終了</string>
     <string name="studio_replay_trim_reset">リセット</string>
     <string name="studio_replay_trim_start">開始</string>
-    <string name="studio_replay_trim_title">クリップをトリム</string>
+    <string name="studio_replay_trim_title">トリップをトリム</string>
     <string name="tab_advanced">詳細</string>
     <string name="tab_more">その他</string>
     <string name="welcome_tut_dev_join">リーダーボードに参加</string>
@@ -1923,6 +1961,8 @@
     <string name="adv_cover_cutout_inset_desc">フロントカメラを避けるが有効なとき、前面レンズ用に空けておく領域。小さすぎるとレンズがボタンを隠します。</string>
     <string name="adv_nav_sidebar_min">サイドバー表示の最小画面</string>
     <string name="adv_nav_sidebar_min_desc">これより狭い画面は横向きでも下部の経由地パネルを保持します。小さすぎると小画面で地図が埋もれます。</string>
+    <string name="adv_inmotion_v1_pin">InMotion V5/V8/V10 PIN</string>
+    <string name="adv_inmotion_v1_pin_desc">InMotion V5/V8/V10 ホイールのアクセスPIN。接続時に送信され、ホイールがデータ送信を開始します。InMotionアプリで独自のPINを設定していない限り、000000のままにしてください。</string>
     <string name="adv_nav_sidebar_width">経由地パネルの幅</string>
     <string name="adv_nav_sidebar_width_desc">横向きの経由地サイドバーの幅。広すぎると地図が狭くなります。</string>
     <string name="adv_simple_speedo_scale">シンプル速度計のサイズ</string>
@@ -1969,6 +2009,41 @@
     <string name="accel_split_slower_best">、ベストより%1$s遅い</string>
     <string name="accel_split_best_yet">、ベスト更新</string>
     <string name="report_contents">音声報告をカスタマイズ</string>
+    <string name="trip_customize">カスタマイズ</string>
+    <string name="trip_customize_tiles">タイル</string>
+    <string name="trip_customize_graphs">グラフ</string>
+    <string name="recording_details_section">詳細情報</string>
+    <string name="recording_details_none">このライドではホイールが記録されていません。</string>
+    <string name="cloud_reset_local">ローカルのトリップを削除</string>
+    <string name="cloud_reset_local_title">ローカルのトリップを削除しますか？</string>
+    <string name="cloud_reset_local_body">この端末に保存されたすべてのトリップを削除します。バックアップフォルダーはそのまま残るので、同期済みのトリップはそこから復元できます。</string>
+    <string name="dropbox_syncing">トリップを同期中…</string>
+    <string name="dropbox_folder_desc">トリップと設定はDropboxの %1$s に保存されます。このフォルダーはこのアプリだけが見られます。</string>
+    <string name="keep_app_alive">アプリを起動したままにする</string>
+    <string name="keep_app_alive_desc">常時通知を表示して、アプリをバックグラウンドで動作させ続けます。ホイールが接続されていなくても、トリップの同期と音声は動作します。バッテリーを少し多く消費します。</string>
+    <string name="sync_up_to_date">すでに最新です</string>
+    <string name="studio_source_transparent">透明</string>
+    <string name="studio_source_video">動画</string>
+    <string name="studio_video_pick">動画を選択</string>
+    <string name="studio_video_replace">動画を変更</string>
+    <string name="studio_video_fit">フィット</string>
+    <string name="studio_video_fit_stretch">引き伸ばし</string>
+    <string name="studio_video_offset">オフセット</string>
+    <string name="studio_video_offset_value_fmt">%1$d ms</string>
+    <string name="studio_video_offset_nudge_fmt">%1$+d ms</string>
+    <string name="studio_video_set_offset">現在</string>
+    <string name="studio_video_no_media">メディアなし</string>
+    <string name="studio_replay_cd_move">パネルを移動</string>
+    <string name="studio_video_edge">範囲外</string>
+    <string name="studio_video_edge_freeze">静止</string>
+    <string name="studio_video_edge_loop">ループ</string>
+    <string name="studio_video_edge_black">黒</string>
+    <string name="wheel_no_data_reconnecting">ホイールからのデータがありません。再接続中…</string>
+    <string name="wheel_no_data_reset">まだホイールからのデータがありません。電源を入れ直してください。</string>
+    <string name="trip_map_ride_start">走行開始: %1$s</string>
+    <string name="trip_map_reconnected">再接続: %1$s</string>
+    <string name="trip_map_new_wheel">新しいホイール: %1$s</string>
+    <string name="trip_map_ride_end">走行終了</string>
 </resources>
 
 

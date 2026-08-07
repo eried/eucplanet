@@ -157,6 +157,12 @@ import androidx.compose.ui.draganddrop.toAndroidDragEvent
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.withStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.LinkAnnotation
+import androidx.compose.ui.text.withLink
+import androidx.compose.ui.text.TextLinkStyles
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.rememberTextMeasurer
 import com.eried.eucplanet.ui.theme.AccentOrange
 import androidx.compose.ui.text.drawText
@@ -600,7 +606,10 @@ fun SettingsScreen(
         stringResource(R.string.radar_caption),
         stringResource(R.string.section_hud_companion),
         stringResource(R.string.hud_server_enabled),
-        stringResource(R.string.hud_search_corpus)
+        stringResource(R.string.hud_search_corpus),
+        stringResource(R.string.section_tpms),
+        stringResource(R.string.tpms_caption),
+        stringResource(R.string.tpms_wheel_sensor)
     ).joinToString(" ")
 
     val corpusNavigator = listOf(
@@ -1108,6 +1117,12 @@ private fun GeneralTab(
         // pick (Stop navigation while not navigating) is hidden at build time
         // since Android cannot grey out a notification action.
         SwitchSetting(
+            stringResource(R.string.keep_app_alive),
+            settings.keepAppAlive,
+        ) { viewModel.updateKeepAppAlive(it) }
+        HintText(stringResource(R.string.keep_app_alive_desc), small = true)
+
+        SwitchSetting(
             stringResource(R.string.notif_actions_enable),
             settings.notificationActionsEnabled,
         ) { viewModel.updateNotificationActionsEnabled(it) }
@@ -1225,7 +1240,7 @@ private fun AdvRow(spec: AdvancedSpec, advanced: AdvancedSettings, onChange: (In
 /** Always-visible "undo -> <default>" affordance. Active (accent, clickable) when
  *  the value is off its default; greyed and inert once it matches. */
 @Composable
-private fun RestoreChip(text: String, enabled: Boolean, onClick: () -> Unit) {
+internal fun RestoreChip(text: String, enabled: Boolean, onClick: () -> Unit) {
     val color = if (enabled) MaterialTheme.appColors.primary else MaterialTheme.appColors.textDisabled
     Row(
         modifier = Modifier
@@ -1996,7 +2011,7 @@ private fun MetricDragPreview(
         ) {
             CompositeMetricBody(
                 composite = composite,
-                valueOf = { k -> metricPlaceholderValue(k, settings) }
+                valueOf = { k, _ -> metricPlaceholderValue(k, settings) }
             )
         }
         return
@@ -2366,7 +2381,9 @@ private fun CompositeMetricTile(
             )
     ) {
         Box(modifier = Modifier.fillMaxSize().alpha(if (isBeingDragged) 0f else 1f)) {
-            CompositeMetricBody(composite = composite, valueOf = valueOf)
+            // Editor preview shows placeholders per key and ignores the stat, so
+            // adapt the key-only valueOf to the (key, stat) body signature.
+            CompositeMetricBody(composite = composite) { key, _ -> valueOf(key) }
         }
     }
 }
@@ -2381,7 +2398,11 @@ private fun CompositeMetricTile(
 @Composable
 fun CompositeMetricBody(
     composite: MetricComposite,
-    valueOf: (String) -> String
+    // (cellKey, cellStat) -> formatted value. The stat MUST come from the cell
+    // being rendered, not be re-derived from the key: a composite can hold the
+    // same metric in two cells (e.g. AVG SPEED + MAX SPEED), and keying only by
+    // metric collapses both onto the first cell's stat.
+    valueOf: (String, DashboardStat) -> String
 ) {
     val cells = composite.cells.take(composite.layout.cellCount)
     val rawStats = composite.cellStats.take(composite.layout.cellCount)
@@ -2466,7 +2487,7 @@ fun CompositeMetricBody(
 private fun CompositeCell(
     key: String,
     stat: DashboardStat,
-    valueOf: (String) -> String,
+    valueOf: (String, DashboardStat) -> String,
     modifier: Modifier = Modifier
 ) {
     val isNone = key.isEmpty() || key == COMPOSITE_CELL_EMPTY
@@ -2500,7 +2521,7 @@ private fun CompositeCell(
         return
     }
     val label = metricChipLabel(key, short = true).uppercase()
-    val value = valueOf(key)
+    val value = valueOf(key, stat)
     // Stat indicator on top — only shown when the rider picked a non-
     // default stat (Min / Max / Avg / Median / P75 / etc.). Tinted with
     // the metric's accent so the cell reads as "MAX of SPEED" at a
@@ -2552,7 +2573,7 @@ private fun CompositeCell(
 private fun CompositeCellRow(
     key: String,
     stat: DashboardStat,
-    valueOf: (String) -> String,
+    valueOf: (String, DashboardStat) -> String,
     modifier: Modifier = Modifier
 ) {
     val isNone = key.isEmpty() || key == COMPOSITE_CELL_EMPTY
@@ -2579,7 +2600,7 @@ private fun CompositeCellRow(
     }
     val accent = metricAccentColor(key)
     val label = metricChipLabel(key, short = true).uppercase()
-    val value = valueOf(key)
+    val value = valueOf(key, stat)
     val showStat = stat != DashboardStat.CURRENT && stat != DashboardStat.NONE
     // Label gets the squeezable slot (weight 1f, fill = true) so it expands to
     // hold the leftover space after the value's natural width — that pins the
@@ -3962,7 +3983,7 @@ private fun CompositeMetricSheet(
             ) {
                 CompositeMetricBody(
                     composite = MetricComposite(layout, padded, paddedStats),
-                    valueOf = { k -> metricPlaceholderValue(k, settings) }
+                    valueOf = { k, _ -> metricPlaceholderValue(k, settings) }
                 )
             }
 
@@ -5773,7 +5794,7 @@ private fun metricPlaceholderValue(
     "VOLTAGE" -> "0 V"
     "CURRENT", "DYN_CURRENT_LIMIT" -> "0 A"
     "POWER", "MOTOR_POWER", "BATTERY_POWER" -> "0 W"
-    "TRIP", "ODOMETER" -> when (s.unitDistance) {
+    "TRIP", "TRIP_METER", "ODOMETER" -> when (s.unitDistance) {
         "mi" -> "0 mi"
         "mil" -> "0 mil"
         else -> "0 km"
@@ -5786,6 +5807,7 @@ private fun metricPlaceholderValue(
     "PITCH", "ROLL" -> "0°"
     "G_FORCE", "LATERAL_G", "FORWARD_G" -> "0.0 g"
     "TORQUE" -> "0 Nm"
+    "PHASE_CURRENT" -> "0 A"
     "MOTOR_TEMP", "CONTROLLER_TEMP", "BATTERY_TEMP" ->
         if (s.unitTemp == "F") "0°F" else "0°C"
     "HEADROOM", "TRIP_MAX_SPEED", "AVG_TRIP_SPEED", "GPS_SPEED" -> when (s.unitSpeed) {
@@ -5805,7 +5827,7 @@ private fun metricPlaceholderValue(
         "mil" -> "0 Wh/mil"
         else -> "0 Wh/km"
     }
-    "PHONE_BATTERY" -> "0%"
+    "PHONE_BATTERY", "EXTERNAL_GPS_BATTERY" -> "0%"
     "GPS_ALTITUDE" -> if (s.unitDistance == "mi") "0 ft" else "0 m"
     "GPS_HEADING" -> "0°"
     "GPS_ACCURACY" -> if (s.unitDistance == "mi") "0 ft" else "0 m"
@@ -5847,6 +5869,10 @@ private fun DisplayTab(
 
         SwitchSetting(stringResource(R.string.phone_keep_screen_on), settings.phoneKeepScreenOn) {
             viewModel.updatePhoneKeepScreenOn(it)
+        }
+
+        SwitchSetting(stringResource(R.string.phone_show_over_lock), settings.phoneShowOverLockScreen) {
+            viewModel.updatePhoneShowOverLockScreen(it)
         }
 
         SimpleDropdown(
@@ -6702,6 +6728,9 @@ private fun FlicTab(
         settingsViewModel.settings.collectAsState().value?.let { s ->
             HudIntegrationSection(settings = s, viewModel = settingsViewModel)
         }
+
+        SectionHeader(stringResource(R.string.section_tpms))
+        TpmsSection()
     }
 }
 
@@ -7128,6 +7157,9 @@ private fun SyncProgressWithCancel(
     progress: Pair<Int, Int>?,
     cancelling: Boolean,
     onCancel: () -> Unit,
+    // When set, replaces the default status text (e.g. the background
+    // "Syncing N trips…" pending state reuses this component with its own label).
+    label: String? = null,
 ) {
     Row(
         horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -7149,7 +7181,7 @@ private fun SyncProgressWithCancel(
                     drawStopIndicator = {},
                 )
                 Text(
-                    stringResource(R.string.sync_progress, done, total),
+                    label ?: stringResource(R.string.sync_progress, done, total),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
@@ -7159,7 +7191,7 @@ private fun SyncProgressWithCancel(
                     gapSize = 0.dp,
                 )
                 Text(
-                    stringResource(if (cancelling) R.string.sync_stopping else R.string.sync_checking),
+                    label ?: stringResource(if (cancelling) R.string.sync_stopping else R.string.sync_checking),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
@@ -7234,6 +7266,7 @@ private fun CloudTab(
             CloudEvent.UploadEnqueued -> sEnqueued
             CloudEvent.SyncNoFolder -> sSyncNoFolder
             is CloudEvent.SyncFinished -> context.getString(R.string.sync_finished, event.count)
+            CloudEvent.SyncUpToDate -> context.getString(R.string.sync_up_to_date)
             CloudEvent.EucstatsNothingToSync -> context.getString(R.string.online_upload_sync_nothing)
             is CloudEvent.EucstatsSyncFinished -> context.getString(R.string.online_upload_sync_done, event.count)
             CloudEvent.EucstatsSyncFailed -> context.getString(R.string.online_status_failed)
@@ -7493,33 +7526,40 @@ private fun CloudTab(
                 val url = stringResource(R.string.dropbox_section_desc_url)
                 val full = stringResource(R.string.dropbox_section_desc, url)
                 val urlStart = full.indexOf(url)
-                val annotated = androidx.compose.ui.text.buildAnnotatedString {
-                    append(full)
+                val linkColor = MaterialTheme.appColors.link
+                // When linked, the folder location flows straight after this same
+                // sentence (no new line), with the path emphasized. Only the URL is
+                // a tappable link, so tapping the folder name does nothing.
+                val folderPath = stringResource(R.string.dropbox_folder_path)
+                val folderSentence = if (dbxLinked)
+                    " " + stringResource(R.string.dropbox_folder_desc, folderPath) else ""
+                val annotated = buildAnnotatedString {
                     if (urlStart >= 0) {
-                        addStyle(
-                            androidx.compose.ui.text.SpanStyle(
-                                color = MaterialTheme.appColors.link,
-                                textDecoration = androidx.compose.ui.text.style.TextDecoration.Underline,
-                            ),
-                            start = urlStart,
-                            end = urlStart + url.length,
-                        )
+                        append(full.substring(0, urlStart))
+                        withLink(
+                            LinkAnnotation.Url(
+                                url = "https://$url",
+                                styles = TextLinkStyles(
+                                    style = SpanStyle(color = linkColor, textDecoration = TextDecoration.Underline),
+                                ),
+                            )
+                        ) { append(url) }
+                        append(full.substring(urlStart + url.length))
+                    } else append(full)
+                    if (folderSentence.isNotEmpty()) {
+                        val fi = folderSentence.indexOf(folderPath)
+                        if (fi >= 0) {
+                            append(folderSentence.substring(0, fi))
+                            withStyle(SpanStyle(fontWeight = FontWeight.Medium)) { append(folderPath) }
+                            append(folderSentence.substring(fi + folderPath.length))
+                        } else append(folderSentence)
                     }
                 }
                 Text(
                     annotated,
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.appColors.textSecondary,
-                    modifier = Modifier
-                        .padding(bottom = 4.dp)
-                        .clickable {
-                            context.startActivity(
-                                android.content.Intent(
-                                    android.content.Intent.ACTION_VIEW,
-                                    android.net.Uri.parse("https://$url"),
-                                ).addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)
-                            )
-                        },
+                    modifier = Modifier.padding(bottom = 4.dp),
                 )
             }
             if (dbxLinked) {
@@ -7567,7 +7607,32 @@ private fun CloudTab(
                     SyncProgressWithCancel(
                         progress = dbxProgress,
                         cancelling = dbxCancelling,
-                        onCancel = { viewModel.cancelActiveSync() },
+                        // Full stop: cancels the foreground run AND the background
+                        // worker AND clears the pending flag. cancelActiveSync alone
+                        // left the flag set, so the pending indicator popped up and
+                        // it looked like the sync just carried on after Cancel.
+                        onCancel = { viewModel.stopDropboxSync() },
+                    )
+                }
+                // Quiet persistent "still syncing" row: trips are pending and the
+                // background worker keeps retrying. Only shown when the transient
+                // foreground progress bar above is NOT up, so the two never stack.
+                val dbxSyncPending by viewModel.dropboxSyncPending.collectAsState()
+                val dbxPendingCount by viewModel.dropboxPendingCount.collectAsState()
+                val dbxSyncTotal by viewModel.dropboxSyncTotal.collectAsState()
+                if (dbxSyncPending && !showDbxProgress) {
+                    // Reuse the same bar + Cancel component as the foreground sync so
+                    // leaving the app just swaps the live progress for this pending
+                    // state without the controls changing shape. With a known batch
+                    // total, show the identical determinate "X of Y" bar (done =
+                    // total - remaining); otherwise fall back to the plain label.
+                    SyncProgressWithCancel(
+                        progress = if (dbxSyncTotal > 0)
+                            (dbxSyncTotal - dbxPendingCount).coerceIn(0, dbxSyncTotal) to dbxSyncTotal
+                        else null,
+                        cancelling = false,
+                        onCancel = { viewModel.stopDropboxSync() },
+                        label = if (dbxSyncTotal > 0) null else stringResource(R.string.dropbox_syncing),
                     )
                 }
             } else {
@@ -7634,6 +7699,8 @@ private fun CloudTab(
 
             SectionHeader(stringResource(R.string.section_cloud_trips))
             HintText(stringResource(R.string.cloud_trips_caption))
+            var showResetLocalDialog by remember { mutableStateOf(false) }
+            val hasLocalTrips by viewModel.hasLocalTrips.collectAsState()
             Row(
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
                 modifier = Modifier.fillMaxWidth()
@@ -7646,7 +7713,45 @@ private fun CloudTab(
                 ) {
                     Text(stringResource(R.string.cloud_retry_now))
                 }
-                Spacer(modifier = Modifier.weight(1f))
+                // Wipes only the phone's local trips (files + DB), never the
+                // backup folder, so it sits beside Sync all as its counterpart.
+                Button(
+                    onClick = { showResetLocalDialog = true },
+                    enabled = !syncRunning && hasLocalTrips,
+                    modifier = Modifier.weight(1f),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.appColors.statusDanger,
+                        contentColor = MaterialTheme.appColors.onPrimary
+                    ),
+                    shape = RoundedCornerShape(12.dp)
+                ) {
+                    Text(stringResource(R.string.cloud_reset_local))
+                }
+            }
+            if (showResetLocalDialog) {
+                AlertDialog(
+                    onDismissRequest = { showResetLocalDialog = false },
+                    shape = RoundedCornerShape(12.dp),
+                    title = { Text(stringResource(R.string.cloud_reset_local_title)) },
+                    text = { Text(stringResource(R.string.cloud_reset_local_body)) },
+                    confirmButton = {
+                        TextButton(
+                            onClick = { viewModel.resetLocalTrips { showResetLocalDialog = false } },
+                            shape = RoundedCornerShape(12.dp)
+                        ) {
+                            Text(
+                                stringResource(R.string.action_delete_all),
+                                color = MaterialTheme.appColors.statusDanger
+                            )
+                        }
+                    },
+                    dismissButton = {
+                        TextButton(
+                            onClick = { showResetLocalDialog = false },
+                            shape = RoundedCornerShape(12.dp)
+                        ) { Text(stringResource(R.string.action_cancel)) }
+                    }
+                )
             }
             val activeSyncKind by viewModel.activeSyncKind.collectAsState()
             val showFolderProgress = syncRunning &&

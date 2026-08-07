@@ -2,6 +2,7 @@ package com.eried.eucplanet.ui.settings
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import android.content.Context
 import android.location.Location
 import com.eried.eucplanet.ble.ConnectionState
 import com.eried.eucplanet.data.model.AdvancedSettings
@@ -27,6 +28,7 @@ import com.eried.eucplanet.service.VoiceOption
 import com.eried.eucplanet.service.VoiceService
 import android.net.Uri
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -38,6 +40,61 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+
+/**
+ * The dashboard metric picker catalog: every metric key a rider can add to the
+ * dashboard, in default order (the first 6 are the fresh-install active layout).
+ * Top-level so [com.eried.eucplanet.data.model.MetricCatalog] and this list can
+ * be drift-guarded by a test - adding a metric to MetricCatalog without adding
+ * it here makes it un-selectable, the exact gap that hid TRIP_METER,
+ * PHASE_CURRENT and EXTERNAL_GPS_BATTERY.
+ *
+ * Entries that are NOT MetricCatalog keys are intentional aliases; keep them in
+ * [DASHBOARD_METRIC_ALIASES] so the drift-guard tolerates them.
+ */
+internal val KNOWN_DASHBOARD_METRICS = listOf(
+    // Currently active by default — keep these 6 first so a fresh install
+    // mirrors the hard-coded layout byte-for-byte.
+    "BATTERY", "TEMPERATURE", "VOLTAGE", "CURRENT", "LOAD", "TRIP",
+    // Pool — already-buffered or simple-to-derive metrics.
+    // (No "POWER": it was a deprecated duplicate of BATTERY_POWER, removed from
+    // MetricCatalog, so it rendered as the raw uppercase key with a placeholder
+    // value. Riders use Motor power / Battery power instead.)
+    "SPEED", "ODOMETER", "TRIP_METER",
+    "MOTOR_POWER", "BATTERY_POWER",
+    "BATTERY_1", "BATTERY_2",
+    "PITCH", "ROLL",
+    "G_FORCE", "LATERAL_G", "FORWARD_G",
+    "TORQUE", "PHASE_CURRENT", "DYN_SPEED_LIMIT", "DYN_CURRENT_LIMIT",
+    // Individual temperature sensors (WheelData.temperatures by index).
+    "MOTOR_TEMP", "CONTROLLER_TEMP", "BATTERY_TEMP",
+    // Derived trip metrics (computed from speed/voltage/current histories
+    // once Phase 3 aggregation lands).
+    "HEADROOM", "TRIP_TIME", "TRIP_MAX_SPEED", "AVG_TRIP_SPEED",
+    "WH_CONSUMED", "RANGE_ESTIMATE", "WH_PER_KM",
+    // Phone + GPS feeds — sourced outside WheelData.
+    "PHONE_BATTERY", "GPS_ALTITUDE", "GPS_SPEED", "GPS_HEADING",
+    "GPS_ACCURACY", "EXTERNAL_GPS_BATTERY",
+    // Derived motion + pack health — slope/altitude integration and
+    // wheel-firmware fields some boards expose.
+    "SLOPE", "ASCENT", "DESCENT", "MOTOR_RPM", "REGEN_WH",
+    // Connectivity diagnostic — useful when debugging dropouts.
+    "BT_RSSI",
+    // Extras targeted at composite-tile cells (small text, no
+    // sparkline) -- they also render fine as standalone tiles.
+    "LAT_LONG", "WHEEL_MAX_SPEED", "WHEEL_ALARM_SPEED", "PC_MODE", "LIGHT_ON",
+    // TPMS tire pressure (InMotion P6). Appended (not inserted) so existing
+    // per-slot restore indices don't shift.
+    "TIRE_PRESSURE"
+)
+
+/**
+ * Picker keys that are deliberately NOT MetricCatalog keys (back-compat aliases
+ * or synthesized entries). The drift-guard allows these; anything else in
+ * [KNOWN_DASHBOARD_METRICS] that isn't a catalog key is a typo / stale entry.
+ * Currently empty - every picker entry maps to a real catalog metric.
+ */
+internal val DASHBOARD_METRIC_ALIASES = emptySet<String>()
 
 @HiltViewModel
 class SettingsViewModel @Inject constructor(
@@ -57,6 +114,7 @@ class SettingsViewModel @Inject constructor(
     hudServer: com.eried.eucplanet.service.hud.HudServer,
     private val eucStatsRepository: EucStatsRepository,
     private val dropboxRepository: com.eried.eucplanet.data.repository.DropboxRepository,
+    @ApplicationContext private val context: Context,
 ) : ViewModel() {
 
     /** Which discovery channel produced the current HUD link address. */
@@ -298,14 +356,36 @@ class SettingsViewModel @Inject constructor(
             wheelRepository.setSpeed(s.tiltbackSpeedKmh.coerceAtLeast(value), value)
         }
     }
-    fun updateSafetyTiltback(value: Float) =
-        update {
-            val capped = value.coerceAtMost((tiltbackSpeedKmh - 1f).coerceAtLeast(0f))
-            copy(safetyTiltbackKmh = capped, safetyAlarmKmh = safetyAlarmKmh.coerceAtMost(capped))
+    fun updateSafetyTiltback(value: Float) {
+        viewModelScope.launch {
+            val current = settingsRepository.get()
+            val capped = value.coerceAtMost((current.tiltbackSpeedKmh - 1f).coerceAtLeast(0f))
+            val cappedAlarm = current.safetyAlarmKmh.coerceAtMost(capped)
+            settingsRepository.update(
+                current.copy(safetyTiltbackKmh = capped, safetyAlarmKmh = cappedAlarm)
+            )
+            // If Legal mode is currently on, push the new legal limit to the wheel
+            // so it follows the slider. Otherwise the wheel keeps the old legal
+            // value and the confirm-from-readback would think Legal turned off (it
+            // takes effect on the next toggle-on when Legal is not active).
+            if (wheelRepository.safetySpeedActive.value) {
+                wheelRepository.setSpeed(capped, cappedAlarm)
+            }
         }
+    }
 
-    fun updateSafetyAlarm(value: Float) =
-        update { copy(safetyAlarmKmh = value, safetyTiltbackKmh = safetyTiltbackKmh.coerceAtLeast(value)) }
+    fun updateSafetyAlarm(value: Float) {
+        viewModelScope.launch {
+            val current = settingsRepository.get()
+            val newTilt = current.safetyTiltbackKmh.coerceAtLeast(value)
+            settingsRepository.update(
+                current.copy(safetyAlarmKmh = value, safetyTiltbackKmh = newTilt)
+            )
+            if (wheelRepository.safetySpeedActive.value) {
+                wheelRepository.setSpeed(newTilt, value)
+            }
+        }
+    }
     fun updateVoiceEnabled(enabled: Boolean) = update { copy(voiceEnabled = enabled) }
     fun updateVoiceAnnounceWhen(value: String) = update { copy(voiceAnnounceWhen = value) }
     fun updateVoiceInterval(seconds: Int) = update { copy(voiceIntervalSeconds = seconds) }
@@ -488,6 +568,7 @@ class SettingsViewModel @Inject constructor(
     fun updateAutoLightsOnMinutes(v: Int) = update { copy(autoLightsOnMinutesBefore = v) }
     fun updateAutoLightsOffMinutes(v: Int) = update { copy(autoLightsOffMinutesAfter = v) }
     fun updateAutoVolumeEnabled(v: Boolean) = update { copy(autoVolumeEnabled = v) }
+        .also { if (!v) automationManager.restoreBaselineVolume() }
     fun updateAutoVolumeCurve(curve: String) = update { copy(autoVolumeCurve = curve) }
 
     // Voice report: recording
@@ -540,6 +621,7 @@ class SettingsViewModel @Inject constructor(
     // Wear OS companion
     fun updateWatchKeepScreenOn(v: Boolean) = update { copy(watchKeepScreenOn = v) }
     fun updatePhoneKeepScreenOn(v: Boolean) = update { copy(phoneKeepScreenOn = v) }
+    fun updatePhoneShowOverLockScreen(v: Boolean) = update { copy(phoneShowOverLockScreen = v) }
     fun updateWatchAutoStart(v: Boolean) = update { copy(watchAutoStart = v) }
     fun updateWatchCloseOnExit(v: Boolean) = update { copy(watchCloseOnExit = v) }
     fun updateWatchShowWheelBattery(v: Boolean) = update { copy(watchShowWheelBattery = v) }
@@ -575,6 +657,17 @@ class SettingsViewModel @Inject constructor(
         update { copy(settingsLayout = layout) }
     fun updateWheelNameDisplay(v: String) = update { copy(wheelNameDisplay = v) }
     fun updateWatchShowNavigation(v: Boolean) = update { copy(watchShowNavigation = v) }
+
+    fun updateKeepAppAlive(v: Boolean) {
+        update { copy(keepAppAlive = v) }
+        // Turning it OFF: ask the service to stand down if nothing else needs it.
+        // (Turning it ON is handled by MainActivity's reactive service start.)
+        if (!v && com.eried.eucplanet.service.WheelService.isRunning) {
+            val intent = android.content.Intent(context, com.eried.eucplanet.service.WheelService::class.java)
+                .apply { action = com.eried.eucplanet.service.WheelService.ACTION_STOP_KEEPALIVE }
+            try { context.startService(intent) } catch (_: Exception) {}
+        }
+    }
 
     // HUD companion
     fun updateHudServerEnabled(v: Boolean) = update { copy(hudServerEnabled = v) }
@@ -1033,6 +1126,7 @@ class SettingsViewModel @Inject constructor(
                 _cloudEvent.value = when (result) {
                     is SyncResult.NoFolder -> CloudEvent.SyncNoFolder
                     is SyncResult.Finished -> CloudEvent.SyncFinished(result.count)
+                    is SyncResult.UpToDate -> CloudEvent.SyncUpToDate
                 }
                 syncManager.consumeSyncResult()
             }
@@ -1040,6 +1134,26 @@ class SettingsViewModel @Inject constructor(
     }
 
     fun syncAllTrips() = syncManager.startSync()
+
+    /**
+     * Wipe the trips stored on THIS phone (internal app storage): the CSV/DBB
+     * files in the trips dir plus the DB rows. Does NOT touch the backup folder
+     * (Dropbox / linked folder), so trips already synced can be pulled back
+     * down. Backs the "Reset local trips" button in the Trips backup section.
+     */
+    fun resetLocalTrips(onDone: () -> Unit = {}) {
+        viewModelScope.launch {
+            tripRepository.clearAll()
+            onDone()
+        }
+    }
+
+    /** True while the phone holds at least one local trip. "Reset local trips"
+     *  is disabled when this is false, so it can't be tapped with nothing to
+     *  clear (and it greys out the moment a reset empties the list). */
+    val hasLocalTrips: StateFlow<Boolean> = tripRepository.tripCount
+        .map { it > 0 }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), false)
     fun resolveSyncConflict(choice: SyncChoice) = syncManager.resolveSyncConflict(choice)
     fun cancelSyncConflict() = syncManager.cancelSyncConflict()
     fun cancelActiveSync() = syncManager.cancelActiveSync()
@@ -1097,35 +1211,9 @@ class SettingsViewModel @Inject constructor(
     // Saved orders are sanitized against the catalog so unknown tokens
     // (renames, removals) drop silently and newly-added entries appear at
     // the end of the order on first read.
-    val knownDashboardMetrics = listOf(
-        // Currently active by default — keep these 6 first so a fresh install
-        // mirrors the hard-coded layout byte-for-byte.
-        "BATTERY", "TEMPERATURE", "VOLTAGE", "CURRENT", "LOAD", "TRIP",
-        // Pool — already-buffered or simple-to-derive metrics.
-        "SPEED", "POWER", "ODOMETER",
-        "MOTOR_POWER", "BATTERY_POWER",
-        "BATTERY_1", "BATTERY_2",
-        "PITCH", "ROLL",
-        "G_FORCE", "LATERAL_G", "FORWARD_G",
-        "TORQUE", "DYN_SPEED_LIMIT", "DYN_CURRENT_LIMIT",
-        // Individual temperature sensors (WheelData.temperatures by index).
-        "MOTOR_TEMP", "CONTROLLER_TEMP", "BATTERY_TEMP",
-        // Derived trip metrics (computed from speed/voltage/current histories
-        // once Phase 3 aggregation lands).
-        "HEADROOM", "TRIP_TIME", "TRIP_MAX_SPEED", "AVG_TRIP_SPEED",
-        "WH_CONSUMED", "RANGE_ESTIMATE", "WH_PER_KM",
-        // Phone + GPS feeds — sourced outside WheelData.
-        "PHONE_BATTERY", "GPS_ALTITUDE", "GPS_SPEED", "GPS_HEADING",
-        "GPS_ACCURACY",
-        // Derived motion + pack health — slope/altitude integration and
-        // wheel-firmware fields some boards expose.
-        "SLOPE", "ASCENT", "DESCENT", "MOTOR_RPM", "REGEN_WH",
-        // Connectivity diagnostic — useful when debugging dropouts.
-        "BT_RSSI",
-        // Extras targeted at composite-tile cells (small text, no
-        // sparkline) -- they also render fine as standalone tiles.
-        "LAT_LONG", "WHEEL_MAX_SPEED", "WHEEL_ALARM_SPEED", "PC_MODE", "LIGHT_ON"
-    )
+    // The picker catalog lives top-level as [KNOWN_DASHBOARD_METRICS] so a
+    // drift-guard test can assert it stays in sync with MetricCatalog.
+    val knownDashboardMetrics = KNOWN_DASHBOARD_METRICS
     /**
      * Dashboard-eligible actions, derived from [ActionCatalog]. Adding a
      * new action is a single entry in `ActionCatalog.all` — no edit here.
@@ -2149,9 +2237,32 @@ class SettingsViewModel @Inject constructor(
         syncManager.startDropboxSync()
     }
 
+    /** Rider tapped Cancel on the persistent "Syncing trips…" indicator: stop
+     *  the background retry loop and clear the pending flag. */
+    fun stopDropboxSync() = syncManager.stopDropboxSync()
+
     val dropboxLastSyncAt: StateFlow<Long> = settingsRepository.settings
         .map { it.dropboxLastSyncAt }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000L), 0L)
+
+    /** True while trips still need mirroring to Dropbox. Drives the persistent,
+     *  quiet "Syncing trips…" row with its Cancel button. Sourced from settings
+     *  (mirrors [dropboxLastSyncAt]) so it reflects the flag the worker maintains. */
+    val dropboxSyncPending: StateFlow<Boolean> = settingsRepository.settings
+        .map { it.dropboxSyncPending }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000L), false)
+
+    /** Trips still to upload to Dropbox. Drives the "Syncing N trips…" count in
+     *  the persistent indicator, decrementing live as each upload lands. */
+    val dropboxPendingCount: StateFlow<Int> = settingsRepository.settings
+        .map { it.dropboxPendingCount }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000L), 0)
+
+    /** Trips in the current sync batch, so the pending indicator can show
+     *  "X of Y" like the foreground sync. 0 = no active batch. */
+    val dropboxSyncTotal: StateFlow<Int> = settingsRepository.settings
+        .map { it.dropboxSyncTotal }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000L), 0)
 
     fun unlinkOnline() {
         viewModelScope.launch {
@@ -2506,6 +2617,8 @@ sealed interface CloudEvent {
     data object UploadEnqueued : CloudEvent
     data object SyncNoFolder : CloudEvent
     data class SyncFinished(val count: Int) : CloudEvent
+    /** A sync ran but nothing needed transferring (everything already backed up). */
+    data object SyncUpToDate : CloudEvent
     data object EucstatsNothingToSync : CloudEvent
     data class EucstatsSyncFinished(val count: Int) : CloudEvent
     /** A sync ran with trips to upload but every attempt failed (network down,

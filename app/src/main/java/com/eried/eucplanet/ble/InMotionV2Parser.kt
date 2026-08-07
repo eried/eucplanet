@@ -14,6 +14,11 @@ import kotlin.math.roundToInt
  */
 object InMotionV2Parser {
 
+    /** P6 motor torque constant (N.m per amp of phase current), recovered by
+     *  correlating the InMotion app's Phase Current vs Motor Torque readings
+     *  across a labelled ride. phase_A = torque_Nm / this. */
+    private const val P6_KT_NM_PER_A = 0.586f
+
     /**
      * Parse RealTimeInfo response (command 0x04) into WheelData.
      * V14 telemetry layout.
@@ -245,6 +250,15 @@ object InMotionV2Parser {
         // Earlier guess at 18-19 was zero across all idle frames.
         val torque = if (data.size >= 14) ByteUtils.getInt16LE(data, 12) / 100f else 0f
 
+        // Phase current is NOT transmitted by the P6; the InMotion app derives it
+        // from torque and so do we. Verified against a same-ride video+btsnoop at
+        // three labelled load points over a 75x range (torque 1.3 / 9.7 / 96.7 N.m
+        // vs app phase 2.2 / 16.6 / 165.1 A): phase = torque / Kt with Kt ~ 0.586
+        // N.m/A (i.e. torque x 1.706) reproduces every point within rounding, and
+        // an exhaustive byte search found no independent phase-current field. Kept
+        // signed (negative on regen) to match how we already show current/torque.
+        val phaseCurrent = torque / P6_KT_NM_PER_A
+
         // Battery and motor power (W, signed) at offsets 16 and 18 - the SAME
         // layout as the V14 RealTimeInfo packet, which reads batteryPower@16 and
         // motorPower@18. Confirmed against a labelled P6 capture: body[16] tracks
@@ -278,49 +292,31 @@ object InMotionV2Parser {
             ByteUtils.getUint32LE(data, 58) / 100f
         } else 0f
 
-        // Temperatures: confirmed encodings from labelled captures where the
-        // rider read MOS / IMU / Motor off the wheel UI.
-        //
-        //   Motor  = body[31] − 176  °C  (slope 1, byte 176 = 0 °C)
-        //     Re-derived after a second labelled point far from the first:
-        //     InMotion "Motor Temp" 104 °F = 40 °C at body[31] = 216 (frame
-        //     alignment cross-checked: same frame's body[20..21] = 0x1518 =
-        //     54.00% battery, matching the on-screen 54%). The earlier
-        //     `(byte − 145) / 1.5` fit had only a 61-63 °C band to work with,
-        //     where it happens to intersect this line (both give ~62 °C at
-        //     byte 238), so the wrong slope went unnoticed until a 40 °C label
-        //     showed it over-reading by ~7 °C (would have shown 117 °F).
-        //     `byte − 176` matches both the 40 °C and the old 61-63 °C labels.
-        //
-        //   MOS    = body[28] (direct °C)
-        //     Exact match every time: three labels at 36 °C, byte = 36.
-        //
-        //   IMU    = 62 − body[78]  °C  (lower confidence; 3 data points,
-        //     inverted-scale fit is unusual but matches: 42/42/43 °C ↔ bytes
-        //     20/20/19.)
-        fun byteOrNull(off: Int): Int? =
-            if (off < data.size) data[off].toInt() and 0xFF else null
-
-        // Motor temp is NOT in this realtime frame. body[31] / body[38] look
-        // like temperatures but are fixed constants (216 / 101) that only
-        // coincidentally matched a single labelled point: across a full ride
-        // capture body[31] read 34 while the same wheel ran at 102 C, and
-        // body[38] was 101 in 10 000+ consecutive frames regardless of load.
-        // The real motor temp lives in the 0x84 detailed frame; the adapter
-        // caches it and injects it into slot 0 here (see InMotionV2Adapter).
-        val mosByte = byteOrNull(28)
-        val mosC: Float? = mosByte
-            ?.takeIf { it in 5..120 }  // plausible ambient..hot range
+        // Motor temp lives in this realtime frame at body[31], encoded as a
+        // SIGNED byte + 80 °C (byte 176 = 0 °C; the value wraps 255<->0 as it
+        // climbs past 79 °C, and the signed read also covers sub-zero down to
+        // -48 °C). Matches the community 0x84 decode (TempOffset80). Verified
+        // against a tester's 18-frame screen capture vs that ride's btsnoop
+        // (rmse 0.4 °C, reproduces a mid-ride dip and a 130 °C plateau).
+        // Analysis in tools/p6-temp-analysis.
+        val motorC: Float? = data.getOrNull(31)
+            ?.toInt()?.plus(80)
+            ?.takeIf { it in -40..200 }
             ?.toFloat()
 
-        val imuByte = byteOrNull(78)
-        val imuC: Float? = imuByte
-            ?.takeIf { it in 5..62 }  // the formula's valid input window
-            ?.let { (62 - it).toFloat() }
+        // body[78..79] is the TPMS tire pressure (u16le kPa, high byte 0), not a
+        // temperature - the old "62 - body[78]" IMU fit was bogus (value 134..216
+        // never enters the 5..62 window). Decoded from the InMotion app's own
+        // btsnoop, cross-checked against the app UI showing 29.1 psi while
+        // body[78] read 201 kPa (201 x 0.145038 = 29.2 psi).
+        val tirePressureKpa: Float = if (data.size >= 80) {
+            ByteUtils.getUint16LE(data, 78).toFloat()
+        } else 0f
 
-        // Positional [motor, controller (MOS), battery (IMU)]. Slot 0 is a
-        // placeholder the adapter overwrites with the cached 0x84 motor temp.
-        val temps = listOf(0f, mosC ?: 0f, imuC ?: 0f)
+        // Positional [motor, controller, battery]. Motor is live from this
+        // realtime frame; controller and battery are filled by the adapter from
+        // the 0x84 detailed frame (they change slowly, an ~18 s refresh is fine).
+        val temps = listOf(motorC ?: 0f, 0f, 0f)
 
         // Headlight state isn't reliably reported in the realtime stream on
         // user-facing firmware. preview4's "byte[84] bit 1" rule worked in
@@ -346,6 +342,7 @@ object InMotionV2Parser {
             current = current,
             pwm = pwm,
             torque = torque,
+            phaseCurrent = phaseCurrent,
             batteryPower = batteryPower,
             motorPower = motorPower,
             pcMode = pcMode,
@@ -355,11 +352,11 @@ object InMotionV2Parser {
             tripDistance = 0f,
             totalDistance = totalDistanceKm,
             temperatures = temps,
-            // Slot 0 is a placeholder here; the adapter sets both this list's
-            // motor slot and maxTemperature from the cached 0x84 motor temp so
-            // the pill reads the same number the InMotion app shows.
-            maxTemperature = 0f,
+            // Motor drives the pill here; the adapter recomputes maxTemperature
+            // after it folds in the 0x84 controller and battery temps.
+            maxTemperature = motorC ?: 0f,
             lightOn = lightOn,
+            tirePressureKpa = tirePressureKpa,
             timestamp = System.currentTimeMillis()
         )
     }
@@ -396,29 +393,33 @@ object InMotionV2Parser {
     /**
      * Parse the P6's detailed-data response (TX `02 21 04`, RX `02 84 [86 bytes]`).
      *
-     * Body offset 58 is **MOS temperature** under the labelled-capture formula
-     * `°F = byte − 126` (byte 0xC6 = 198 → 72 °F at the FINALP6/NEW CAPTURE
-     * 11:58 anchor, exact match against the InMotion app's on-screen value).
+     * The 0x84 body carries the full temperature block, community-documented
+     * and cross-checked against this wheel's own capture. Each sensor is a
+     * SIGNED byte + 80 °C (byte 176 = 0 °C; the value wraps 255<->0 as it
+     * climbs past 79 °C):
      *
-     * Motor and Driver Board share the same body but the exact offsets aren't
-     * pinned yet on this firmware variant. We probe the remaining 8-byte
-     * temperature block (offsets 58..66) and pick the next two bytes that
-     * decode under the same formula into a plausible 0..120 °C range. If they
-     * don't match, leave them null and the dashboard shows MOS only.
+     *   body[59] motor       body[61] controller / board PCB
+     *   body[62] CPU (0 °C = sensor absent)   body[63] IMU
+     *   body[64] battery      body[65] MOSFET
+     *
+     * The old code read body[64] (which is BATTERY) as the motor in Fahrenheit
+     * (`byte − 126`) - wrong byte and wrong unit, hence the stuck ~200 °F.
      */
     fun parseP6DetailedData(body: ByteArray): InMotionV2DetailedTemps? {
-        if (body.size < 65) return null
-        // Motor temp: the 0x84 detailed frame reports it in FAHRENHEIT at
-        // body[64]. Matched to the InMotion app's "Motor Temp 216 F" tile
-        // against a full labelled ride capture - body[64] read exactly 216 at
-        // the screenshot moment and rose 202..221 F as the motor heated (far
-        // too high to be Celsius). Convert to C for storage.
-        // MOS and driver-board are deliberately left null: the realtime 0x87
-        // frame already carries a live MOS (body[28], controller slot), and no
-        // other sensor in this frame is confidently identified yet.
-        val motorF = body[64].toInt() and 0xFF
-        val motorC = ((motorF - 32) * 5f / 9f).takeIf { motorF in 50..255 }
-        return InMotionV2DetailedTemps(mosC = null, motorC = motorC, driverBoardC = null)
+        if (body.size < 66) return null
+        // Signed byte + 80 °C. `toInt()` sign-extends (Kotlin Byte is signed),
+        // matching the community TempOffset80 = ((value as i8) + 80). Guarded to
+        // a plausible band so an unpopulated byte reads null, not a bogus temp.
+        fun temp(off: Int): Float? =
+            (body[off].toInt() + 80).takeIf { it in -40..200 }?.toFloat()
+        return InMotionV2DetailedTemps(
+            motorC = temp(59),
+            controllerC = temp(61),
+            batteryC = temp(64),
+            cpuC = temp(62)?.takeIf { it != 0f },  // 0 °C = sensor absent
+            imuC = temp(63),
+            mosfetC = temp(65),
+        )
     }
 
     /**
@@ -506,9 +507,12 @@ object InMotionV2Parser {
 /** Sensor block parsed from the P6's `0x84` detailed-data response.
  *  All fields in °C; null when a slot is empty or out of range. */
 data class InMotionV2DetailedTemps(
-    val mosC: Float?,
     val motorC: Float?,
-    val driverBoardC: Float?
+    val controllerC: Float?,
+    val batteryC: Float?,
+    val cpuC: Float?,
+    val imuC: Float?,
+    val mosfetC: Float?,
 )
 
 data class CarInfo(

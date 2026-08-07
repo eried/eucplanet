@@ -6,7 +6,7 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 
 /**
- * Drift guard for the [ADVANCED_SPECS] registry. The 46 specs each carry a
+ * Drift guard for the [ADVANCED_SPECS] registry. The specs each carry a
  * hand-written get/set lambda, so the real risk is a copy-paste error
  * (get reading, or set writing, the wrong field). These tests catch that, plus
  * duplicate ids and out-of-range defaults.

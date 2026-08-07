@@ -14,14 +14,18 @@ import androidx.compose.runtime.Recomposer
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.platform.ComposeView
 import androidx.lifecycle.setViewTreeLifecycleOwner
 import androidx.lifecycle.setViewTreeViewModelStoreOwner
 import androidx.savedstate.setViewTreeSavedStateRegistryOwner
 import com.eried.eucplanet.hud.protocol.OverlayElement
+import com.eried.eucplanet.hud.protocol.OverlayPreset
 import com.eried.eucplanet.ui.studio.LocalStudioRotation
 import com.eried.eucplanet.ui.studio.StudioElementData
 import com.eried.eucplanet.ui.studio.StudioElementLayer
+import com.eried.eucplanet.ui.studio.StudioViewportLayer
+import com.eried.eucplanet.ui.studio.camera.StudioCameraHub
 import com.eried.eucplanet.ui.theme.AppThemeColors
 import com.eried.eucplanet.ui.theme.EucPlanetTheme
 import kotlinx.coroutines.CoroutineScope
@@ -34,10 +38,22 @@ import kotlinx.coroutines.withContext
 import kotlinx.coroutines.yield
 import kotlin.coroutines.coroutineContext
 
-/** The elements + telemetry for one replay frame. */
+/**
+ * The elements + telemetry for one replay frame, plus what the viewport
+ * (pane) layer needs to draw underneath: the layout/dividers/pane configs
+ * (via [preset]) and, for any pane whose replay face is VIDEO, the frame
+ * already decoded for this export frame's cursor position. [videoFrames] is
+ * keyed by pane index; a missing key or a `null` value both read as "draw
+ * nothing for this pane's video face" (out of the clip's covered span, no
+ * clip bound, or not a video face) -- resolved on the producing side so the
+ * offscreen frame clock never calls into a [com.eried.eucplanet.ui.studio.camera.StudioVideoHub]
+ * retriever itself.
+ */
 data class OverlayFrameSpec(
     val elements: List<OverlayElement>,
     val data: StudioElementData,
+    val preset: OverlayPreset,
+    val videoFrames: Map<Int, ImageBitmap?> = emptyMap(),
 )
 
 /**
@@ -46,13 +62,18 @@ data class OverlayFrameSpec(
  * The on-screen replay export advances `replayPosMs`, waits two display frames
  * for Compose to recompose + draw, then reads back the live GraphicsLayer -- so
  * it is gated to ~2 vsyncs per frame (33 ms at 60 Hz). This hosts the same
- * [StudioElementLayer] in a detached [ComposeView] driven by a
- * [BroadcastFrameClock] we tick ourselves, so each frame composes + draws as
- * fast as the CPU/GPU allow, with no vsync wait.
+ * [StudioViewportLayer] (in replay mode) under a [StudioElementLayer] in a
+ * detached [ComposeView] driven by a [BroadcastFrameClock] we tick ourselves,
+ * so each frame composes + draws as fast as the CPU/GPU allow, with no vsync
+ * wait.
  *
- * Only the data-carrying element layer is re-hosted: in replay the viewport
- * layer is transparent (no live camera), so the recorded content is exactly the
- * elements over transparency -- which is what we draw here.
+ * The viewport layer draws each pane's replay face (transparent/solid/
+ * gradient/image/video) exactly as the on-screen replay does, underneath the
+ * elements -- a transparent face leaves that pane's pixels untouched (alpha
+ * carries through to PNG/GIF/APNG), a solid/gradient/image/video face fills
+ * it. Video frames are never decoded here: [OverlayFrameSpec.videoFrames] is
+ * pre-resolved by the caller for this frame's cursor position, so the frame
+ * clock only ever draws an already-decoded bitmap.
  *
  * Everything runs on the main thread (Compose requires it); the caller should
  * hand each returned bitmap to the encoder on a background dispatcher.
@@ -125,6 +146,10 @@ class StudioOffscreenSession private constructor(
             val scope = CoroutineScope(coroutineContext + SupervisorJob() + frameClock)
             val recomposer = Recomposer(scope.coroutineContext)
             val state = mutableStateOf(produce(0))
+            // Never opened (no camera keys requested here), only exists to
+            // satisfy StudioViewportLayer's required `hub` param -- replay
+            // mode never reads it, panes draw their replay face instead.
+            val unusedCameraHub = StudioCameraHub()
             val composeView = ComposeView(activity).apply {
                 // INVISIBLE, not alpha 0: an alpha-0 view is still drawn by the
                 // window's hardware RenderThread, which races our manual draw and
@@ -144,6 +169,23 @@ class StudioOffscreenSession private constructor(
                         CompositionLocalProvider(LocalStudioRotation provides rotation) {
                             val spec = state.value
                             BoxWithConstraints(Modifier.fillMaxSize()) {
+                                // Replay faces (video/image/solid/gradient/
+                                // transparent) under the elements, matching
+                                // the on-screen replay's layer order exactly.
+                                StudioViewportLayer(
+                                    preset = spec.preset,
+                                    hub = unusedCameraHub,
+                                    hasCameraPermission = false,
+                                    editable = false,
+                                    replayMode = true,
+                                    prebuiltVideoFrame = { spec.videoFrames[it] },
+                                    onDividerChange = {},
+                                    onConfigViewport = {},
+                                    onConfigDivider = {},
+                                    onTapEmpty = {},
+                                    onDoubleTapEmpty = {},
+                                    onLongPressEmpty = {},
+                                )
                                 StudioElementLayer(
                                     elements = spec.elements,
                                     data = spec.data,

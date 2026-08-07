@@ -157,6 +157,9 @@ class P6VirtualWheel : VirtualWheel {
         d[63] = 206.toByte() // 30°C
         d[74] = if (locked) 0x00 else 0x01
         d[76] = if (lightOn) 0x02 else 0x00
+        // TPMS tire pressure: u16le kPa at body[78] (high byte 0), ~2.0 bar /
+        // 29 psi with a slow wobble so the metric visibly moves.
+        putInt16LE(d, 78, (200 + 10 * sin(elapsed / 1000.0 * 2 * PI / 30)).toInt())
 
         return InMotionV2Protocol.buildPacket(0x14, Command.REAL_TIME_INFO, d)
     }

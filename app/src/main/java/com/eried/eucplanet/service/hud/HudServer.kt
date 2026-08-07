@@ -78,6 +78,7 @@ class HudServer @Inject constructor(
     private val settingsRepository: SettingsRepository,
     private val externalGpsRepository: ExternalGpsRepository,
     private val tripRepository: TripRepository,
+    private val tripMeterRepository: com.eried.eucplanet.data.repository.TripMeterRepository,
     private val radarRepository: RadarRepository,
     private val navigationEngine: NavigationEngine,
     private val commandSink: HudCommandSink,
@@ -213,7 +214,6 @@ class HudServer @Inject constructor(
                 manualHintDelayMs = s.hudManualHintDelayMs.toLong()
                 discoveryTotalTimeoutMs = s.hudDiscoveryTotalTimeoutMs.toLong()
                 mdnsServiceInfoTimeoutMs = s.hudMdnsServiceInfoTimeoutMs.toLong()
-                subnetProbeDelayMs = s.hudSubnetProbeDelayMs.toLong()
                 val want = s.hudServerEnabled ||
                     com.eried.eucplanet.hud.protocol.HudDebug.read("debug.eucplanet.hud.force") == "true"
                 if (want != on) {
@@ -234,9 +234,6 @@ class HudServer @Inject constructor(
     @Volatile private var manualHintDelayMs: Long = 1_500L
     @Volatile private var discoveryTotalTimeoutMs: Long = 15_000L
     @Volatile private var mdnsServiceInfoTimeoutMs: Long = 1_000L
-    // Head start for mDNS / UDP before the last-resort subnet scan floods the
-    // radio with connection attempts (which was starving mDNS discovery).
-    @Volatile private var subnetProbeDelayMs: Long = 2_500L
     @Volatile private var multicastLock: WifiManager.MulticastLock? = null
     /** High-performance WiFi lock acquired while the HUD link is enabled.
      *  Without this, the radio enters DTIM power-save once the screen is off
@@ -640,13 +637,11 @@ class HudServer @Inject constructor(
         }
 
         val probeJob = launch {
-            // Last resort: hold off so mDNS and the UDP beacon get an
-            // uncontended window first. The scan opens hundreds of TCP
-            // connections at once, and starting it immediately floods the
-            // Wi-Fi radio right when mDNS multicast needs it, delaying (or
-            // losing) the mDNS answer. If a faster channel wins during the
-            // delay this job is cancelled before the scan ever runs.
-            kotlinx.coroutines.delay(subnetProbeDelayMs)
+            // Last resort, and gated: this only runs if the faster mDNS / UDP
+            // paths did not already find the HUD (a win cancels this job). It
+            // starts immediately - no stagger - because the scan is bounded
+            // (HudSubnetProbe MAX_CONCURRENT) and no longer floods the radio the
+            // way the old unbounded burst did, so it does not need to hold off.
             log("Subnet probe: scanning local subnets…")
             val ip = subnetProbe.probe(manualPort)
             if (ip != null) {
@@ -902,6 +897,9 @@ class HudServer @Inject constructor(
             tripKm = d?.tripKm ?: wd.tripDistance,
             totalKm = d?.totalKm ?: wd.totalDistance,
             torque = wd.torque,
+            phaseCurrent = wd.phaseCurrent,
+            motorPower = wd.motorPower,
+            gForce = wd.gForce,
             lightOn = wd.lightOn,
             gaugeMaxKmh = gaugeMax,
             gaugeOrangeThresholdPct = s.gaugeOrangeThresholdPct,
@@ -915,12 +913,19 @@ class HudServer @Inject constructor(
             longitude = (location?.longitude ?: 0.0) + (d?.dLng ?: 0.0),
             gpsSpeedKmh = gpsSpeedPair?.first ?: Float.NaN,
             gpsSource = gpsSpeedPair?.second ?: "",
+            // Phone and external GPS speeds independently, so the HUD can show
+            // both overlay metrics at once (the primary gpsSpeedKmh above only
+            // carries whichever source won the priority pick).
+            phoneGpsSpeedKmh = if (location?.hasSpeed() == true) location.speed * 3.6f else Float.NaN,
+            externalGpsSpeedKmh = if (externalFresh) external!!.speedKmh else Float.NaN,
             gpsHasFix = location != null,
             gpsHeadingDeg = if (location?.hasBearing() == true) location.bearing
                 else Float.NaN,
             gpsAltitudeM = if (location?.hasAltitude() == true) location.altitude.toFloat()
                 else Float.NaN,
             externalGpsBatteryPercent = if (externalFresh) (external!!.batteryPercent ?: -1) else -1,
+            tripMeterKm = tripMeterRepository.distanceKm,
+            tirePressureKpa = wd.tirePressureKpa,
             wheelRollDeg = wd.rollAngle,
             wheelPitchDeg = wd.pitchAngle,
             customOverlayJson = s.hudCustomOverlayJson,

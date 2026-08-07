@@ -112,7 +112,7 @@ data class FullMetricHistory(
  * start working -- no separate buffer or sample-tick code, no schema
  * change to FullMetricHistory.
  */
-internal val EXTRA_HISTORY_METRICS: List<Pair<String, (com.eried.eucplanet.data.model.WheelData) -> Float>> = listOf(
+internal val EXTRA_HISTORY_METRICS: List<Pair<String, (com.eried.eucplanet.data.model.WheelData) -> Float?>> = listOf(
     "MOTOR_POWER" to { it.motorPower.toFloat() },
     "BATTERY_POWER" to { it.batteryPower.toFloat() },
     // POWER is an alias of BATTERY_POWER kept for backwards-compat with
@@ -124,14 +124,63 @@ internal val EXTRA_HISTORY_METRICS: List<Pair<String, (com.eried.eucplanet.data.
     "ROLL" to { it.rollAngle },
     "G_FORCE" to { it.gForce },
     "LATERAL_G" to { it.accelX },
-    "FORWARD_G" to { it.accelY },
+    // Must match the FORWARD_G value the tile/detail show (forwardGFromSpeed),
+    // not raw accelY, or the sparkline/stats graph a different quantity.
+    "FORWARD_G" to { it.forwardGFromSpeed },
     "TORQUE" to { it.torque },
+    "PHASE_CURRENT" to { it.phaseCurrent },
     "DYN_SPEED_LIMIT" to { it.dynamicSpeedLimit },
     "DYN_CURRENT_LIMIT" to { it.dynamicCurrentLimit },
-    "MOTOR_TEMP" to { it.temperatures.getOrNull(0) ?: 0f },
-    "CONTROLLER_TEMP" to { it.temperatures.getOrNull(1) ?: 0f },
-    "BATTERY_TEMP" to { it.temperatures.getOrNull(2) ?: 0f }
+    // Only record PLAUSIBLE temps (and skip absent sensors) so the stats match
+    // the tile, which hides implausible / missing readings. null -> skip sample.
+    "MOTOR_TEMP" to { it.temperatures.getOrNull(0)?.takeIf { t -> com.eried.eucplanet.util.MetricSanity.isPlausibleTempC(t) } },
+    "CONTROLLER_TEMP" to { it.temperatures.getOrNull(1)?.takeIf { t -> com.eried.eucplanet.util.MetricSanity.isPlausibleTempC(t) } },
+    "BATTERY_TEMP" to { it.temperatures.getOrNull(2)?.takeIf { t -> com.eried.eucplanet.util.MetricSanity.isPlausibleTempC(t) } },
+    // TPMS tire pressure, stored raw in kPa; the detail screen converts to psi/bar.
+    "TIRE_PRESSURE" to { it.tirePressureKpa },
+    // BLE link RSSI in dBm; null (skip) until the first read so 0 doesn't skew stats.
+    "BT_RSSI" to { it.rssiDbm.takeIf { r -> r != 0 }?.toFloat() },
+    // Ride efficiency Wh/km = energy used / trip distance. Needs a little
+    // distance before it's meaningful; null (skip) below the floor so a tiny
+    // denominator doesn't spike the sparkline. WH_CONSUMED / REGEN_WH have no
+    // sparkline or stats (catalog), so they don't need a buffer here.
+    "WH_PER_KM" to { if (it.tripDistance > 0.05f && it.whConsumed > 0f) it.whConsumed / it.tripDistance else null }
 )
+
+/**
+ * The six metrics with their own typed buffer on [FullMetricHistory]. Every
+ * OTHER supportsStats catalog metric rides in the keyed extras map instead.
+ */
+internal val LEGACY_STAT_METRIC_KEYS: List<String> =
+    listOf("BATTERY", "TEMPERATURE", "VOLTAGE", "CURRENT", "LOAD", "SPEED")
+
+/**
+ * Stat metrics that are NOT on WheelData: they come from the phone location,
+ * the phone battery, or the paired external GPS box. Sampled from those
+ * injected sources on the same 1 Hz history tick as the wheel metrics.
+ * Stored raw so [computeDashboardStatValue] and the tile formatter agree:
+ * GPS_SPEED in km/h, altitude / accuracy in metres, batteries in percent.
+ */
+internal val SOURCE_HISTORY_METRIC_KEYS: List<String> =
+    listOf("GPS_SPEED", "GPS_ALTITUDE", "GPS_ACCURACY", "PHONE_BATTERY", "EXTERNAL_GPS_BATTERY")
+
+/**
+ * Every catalog key with supportsStats = true that isn't a legacy typed
+ * buffer gets an extras buffer, so min / max / avg / last resolve for it on
+ * the dashboard. Wheel-sourced keys fill from [EXTRA_HISTORY_METRICS], the
+ * phone / GPS keys from [SOURCE_HISTORY_METRIC_KEYS]. Any remaining stat
+ * metric with no live source yet still gets an (empty) buffer, so its pill
+ * shows a stable placeholder instead of silently having no stat path. Driven
+ * off the catalog so a new supportsStats metric can't regress unnoticed.
+ */
+internal val STAT_BUFFER_EXTRA_KEYS: List<String> =
+    (EXTRA_HISTORY_METRICS.map { it.first } +
+        SOURCE_HISTORY_METRIC_KEYS +
+        com.eried.eucplanet.data.model.MetricCatalog.all
+            .filter { it.supportsStats }
+            .map { it.key })
+        .distinct()
+        .filter { it !in LEGACY_STAT_METRIC_KEYS }
 
 @Singleton
 class WheelRepository @Inject constructor(
@@ -146,6 +195,11 @@ class WheelRepository @Inject constructor(
     private val cheatState: com.eried.eucplanet.cheats.CheatState,
     private val phoneSensorRepository: PhoneSensorRepository,
     private val externalGpsRepository: ExternalGpsRepository,
+    // Lazy breaks the Hilt dependency cycle: TripRepository injects this
+    // repository, so a direct TripRepository here would be circular. Only
+    // read on the history tick to sample GPS_SPEED / GPS_ALTITUDE /
+    // GPS_ACCURACY from the current location fix.
+    private val tripRepositoryLazy: dagger.Lazy<TripRepository>,
     private val appNotifier: com.eried.eucplanet.util.AppNotifier
 ) {
     companion object {
@@ -340,11 +394,12 @@ class WheelRepository @Inject constructor(
     private val ampsHist = mutableListOf<MetricSample>()
     private val loadHist = mutableListOf<MetricSample>()
     private val speedHist = mutableListOf<MetricSample>()
-    // One buffer per entry in EXTRA_HISTORY_METRICS. Keys mirror the
-    // catalog so the metric-detail screen can fish the right list out
-    // by name without a hard-coded switch per metric.
+    // One buffer per non-legacy stat metric (wheel-sourced, phone / GPS
+    // sourced, plus any not-yet-sourced supportsStats key). Keys mirror the
+    // catalog so the metric-detail screen and the dashboard corner stats can
+    // fish the right list out by name without a hard-coded switch per metric.
     private val extrasHist: MutableMap<String, MutableList<MetricSample>> =
-        EXTRA_HISTORY_METRICS.associate { (key, _) -> key to mutableListOf<MetricSample>() }
+        STAT_BUFFER_EXTRA_KEYS.associateWith { mutableListOf<MetricSample>() }
             .toMutableMap()
     private var lastHistorySampleMs = 0L
 
@@ -380,6 +435,35 @@ class WheelRepository @Inject constructor(
     /** Clears every in-memory rolling history buffer. */
     fun resetAllHistory() {
         _fullHistory.value = FullMetricHistory()
+    }
+
+    /**
+     * Appends one sample to each phone- / GPS-derived stat buffer
+     * ([SOURCE_HISTORY_METRIC_KEYS]) from its injected source. Called on the
+     * wheel history tick so these metrics share the legacy buffers' timeline
+     * and retention. A source with no fresh value this tick simply skips its
+     * append (the buffer holds its last window of good samples). Wrapped so a
+     * transient source read can never break the telemetry path.
+     */
+    private fun sampleSourceHistory(now: Long) {
+        runCatching {
+            val loc = tripRepositoryLazy.get().currentLocation.value
+            if (loc != null) {
+                if (loc.hasSpeed()) extrasHist["GPS_SPEED"]?.add(MetricSample(now, loc.speed * 3.6f))
+                if (loc.hasAltitude()) extrasHist["GPS_ALTITUDE"]?.add(MetricSample(now, loc.altitude.toFloat()))
+                if (loc.hasAccuracy()) extrasHist["GPS_ACCURACY"]?.add(MetricSample(now, loc.accuracy))
+            }
+            // Phone battery: cheap in-memory system read, fine at 1 Hz.
+            val phonePct = (context.getSystemService(Context.BATTERY_SERVICE) as? android.os.BatteryManager)
+                ?.getIntProperty(android.os.BatteryManager.BATTERY_PROPERTY_CAPACITY) ?: -1
+            if (phonePct in 0..100) extrasHist["PHONE_BATTERY"]?.add(MetricSample(now, phonePct.toFloat()))
+            // External GPS box battery, freshness-gated to 5 s like the dashboard tile.
+            val ext = externalGpsRepository.currentSample.value
+            val extPct = ext?.batteryPercent
+            if (extPct != null && now - ext.timestamp < 5_000L) {
+                extrasHist["EXTERNAL_GPS_BATTERY"]?.add(MetricSample(now, extPct.toFloat()))
+            }
+        }
     }
 
     // Auth state for lock/unlock (V14 requires password verification)
@@ -429,10 +513,25 @@ class WheelRepository @Inject constructor(
     val lockBusy: StateFlow<Boolean> = _lockBusy.asStateFlow()
     private val _lightBusy = MutableStateFlow(false)
     val lightBusy: StateFlow<Boolean> = _lightBusy.asStateFlow()
+    // Legal-mode (safety-speed) toggle gets the same treatment as Lock: a brief
+    // cooldown after a tap so a stale mid-apply settings frame can't bounce the
+    // button, and a busy flag so spam taps don't queue conflicting writes. After
+    // the cooldown the wheel readback is the source of truth, so a dropped toggle
+    // reverts the button (and voices legal off/on) instead of the UI lying.
+    private val _safetyBusy = MutableStateFlow(false)
+    val safetyBusy: StateFlow<Boolean> = _safetyBusy.asStateFlow()
     @Volatile private var lockCooldownUntilMs = 0L
     @Volatile private var lightCooldownUntilMs = 0L
+    @Volatile private var safetyCooldownUntilMs = 0L
+    // Last legal-mode state we actually SPOKE. The toggle flips _safetySpeedActive
+    // optimistically for the UI, so comparing the confirmed state against that flag
+    // would always read "no change" and never announce. Comparing against the
+    // last-announced state instead means a confirmed toggle voices once, a dropped
+    // toggle that reverts voices nothing, and an external change voices correctly.
+    @Volatile private var lastAnnouncedSafety: Boolean = false
     private val LOCK_COOLDOWN_MS = 3000L
     private val LIGHT_COOLDOWN_MS = 1500L
+    private val SAFETY_COOLDOWN_MS = 1800L
 
     /**
      * Current speed calibration multiplier (1.0 + offsetPct / 100). Mirrored
@@ -581,6 +680,11 @@ class WheelRepository @Inject constructor(
                 // shrink below it when the window is set small.
                 historyWindowMs = maxOf(s.dashboardRollingWindowSeconds * 1000L, HISTORY_WINDOW_MS)
                 lockMaxSpeedKmh = s.lockMaxSpeedKmh.toFloat()
+                // Push the InMotion V1 access PIN to its adapter so the next
+                // connect's init sequence sends it. Stored as a 6-digit number,
+                // formatted back with leading zeros (0 -> "000000").
+                (wheelAdapter as? com.eried.eucplanet.ble.CompositeWheelAdapter)
+                    ?.setInmotionV1Pin(com.eried.eucplanet.data.model.pinFormat(s.inmotionV1Pin))
                 // Push the rider's charging-ETA tuning into the live estimator; it
                 // reads these each estimate() so a change applies without losing the
                 // running session. Taper factors are stored x100.
@@ -650,6 +754,7 @@ class WheelRepository @Inject constructor(
                         lastSyncedWheelAlarmKmh = -1f
                         // Reset states that depend on wheel connection
                         _safetySpeedActive.value = false
+                        lastAnnouncedSafety = false
                         _locked.value = false
                         _wheelHasLock.value = false
                         _chargeStatus.value = ChargeStatus.Disconnected
@@ -1320,6 +1425,11 @@ class WheelRepository @Inject constructor(
         // Timestamp the write so the auto-sync handler doesn't mistake the
         // wheel's echo of our own write for an external change.
         lastSetSpeedAtMs = System.currentTimeMillis()
+        // Hold the legal-mode toggle at its optimistic state for the write's
+        // apply window (covers both the toggle and the legal-limit slider), so a
+        // stale mid-apply settings frame can't bounce it. Once this elapses the
+        // wheel readback decides (see the DecodeResult.Settings handler).
+        safetyCooldownUntilMs = System.currentTimeMillis() + SAFETY_COOLDOWN_MS
         wheelAdapter.setMaxSpeed(tiltbackKmh, beepKmh)?.let { bleManager.writeCommand(it) }
         // P6 needs two flash-commit packets after the live drag write, one
         // for the tiltback, one for the alarm threshold. V14 returns null
@@ -1330,14 +1440,16 @@ class WheelRepository @Inject constructor(
 
     suspend fun toggleSafetySpeed() {
         if (!wheelConnected()) return  // no wheel -> ignore (HUD/Garmin/Flic/UI all land here)
+        if (_safetyBusy.value) return  // cooldown active, ignore the spam tap (lock parity)
         val wantActive = !_safetySpeedActive.value
         val settings = settingsRepository.get()
 
-        // Flip the flag to user intent immediately. The settings handler
-        // already trusts intent (lastSentTiltbackKmh) over a clamped readback,
-        // but the optimistic flip keeps the UI responsive while the wheel's
-        // confirmation is in flight, same pattern as toggleLock.
+        // Flip the flag to user intent immediately for a responsive UI, then hold
+        // it through the cooldown (same as toggleLock). setSpeed sets the cooldown
+        // window; startCooldown drives the busy flag so the button disables and
+        // spam taps are ignored while the wheel confirms.
         _safetySpeedActive.value = wantActive
+        startCooldown(_safetyBusy, SAFETY_COOLDOWN_MS) { safetyCooldownUntilMs = it }
 
         if (wantActive) {
             setSpeed(settings.safetyTiltbackKmh, settings.safetyAlarmKmh)
@@ -1346,8 +1458,11 @@ class WheelRepository @Inject constructor(
         }
         Log.i(TAG, "Safety speed toggle requested: active=$wantActive")
 
-        // Request settings back from wheel to confirm
-        delay(300)
+        // Confirm from the wheel just after the cooldown ends: during the
+        // cooldown the settings handler holds the optimistic state, then the
+        // readback becomes the source of truth. If the toggle write was dropped,
+        // this poll reverts the button and voices the real state.
+        delay(SAFETY_COOLDOWN_MS + 250)
         bleManager.writeCommand(wheelAdapter.pollSettings())
     }
 
@@ -1516,6 +1631,9 @@ class WheelRepository @Inject constructor(
             settingsRepository.update(updated)
         }
         _safetySpeedActive.value = isLegalOn
+        // Seed the last-spoken state to the connect-time reading so the first
+        // in-session toggle is detected as a change and announced.
+        lastAnnouncedSafety = isLegalOn
 
         Log.i(TAG, "Reconciled: wheel=$wTilt/$wAlarm → " +
                 "normal=${updated.tiltbackSpeedKmh}/${updated.alarmSpeedKmh} " +
@@ -1565,13 +1683,18 @@ class WheelRepository @Inject constructor(
                 pendingAuthConfirmDeferred?.complete(result.success)
             }
             is DecodeResult.Telemetry -> {
-                // For wheels where the parser can't recover headlight state
-                // from telemetry (P6: no live byte), preserve the
-                // optimistic lightOn from the previous wheelData so a
-                // toggleLight call survives the next realtime frame
-                // overwriting it ~250ms later.
                 val previous = _wheelData.value
-                val isP6 = _modelName.value?.contains("P6") == true
+                // Families whose realtime frames can't recover the headlight state
+                // (P6 has no live byte; InMotion V1 fast-info omits it). For these,
+                // the optimistic + slow-info lightOn is authoritative, so a realtime
+                // frame must not clobber it back to its false default - that was the
+                // V8S "Light switch only turns on, never off" bug.
+                val realtimeLacksLight = _modelName.value?.contains("P6") == true ||
+                    wheelAdapter.familyId == "inmotion_v1"
+                // InMotion V1 reports discharge as positive power (opposite of
+                // V14), so the ride-energy consumed/regen accumulators swap for
+                // it. See the whConsumed / whRegen mapping in the copy below.
+                val v1SignedPower = wheelAdapter.familyId == "inmotion_v1"
                 // V14 etc. don't carry total distance in realtime frames, so
                 // preserve whatever was set via the separate TotalDistance
                 // decode. The P6 ships the lifetime odometer inline at offset
@@ -1594,7 +1717,7 @@ class WheelRepository @Inject constructor(
                 // value during the cooldown for every family, same defensive
                 // pattern P6 already uses unconditionally because its parser
                 // can't recover lightOn from telemetry at all.
-                val lightOn = if (isP6 || _lightBusy.value) previous.lightOn
+                val lightOn = if (realtimeLacksLight || _lightBusy.value) previous.lightOn
                               else result.data.lightOn
                 // Motor temperature never legitimately drops to 0 mid-ride, but
                 // the P6 emits the odd frame whose temp byte reads
@@ -1610,7 +1733,28 @@ class WheelRepository @Inject constructor(
                     totalDistance = totalKm,
                     lightOn = lightOn,
                     maxTemperature = maxTemp,
-                    temperatures = temps
+                    temperatures = temps,
+                    // Link RSSI comes from the GATT layer, not the wheel frame;
+                    // fold in the latest read (keep the last value between reads).
+                    rssiDbm = bleManager.rssiDbm.value ?: previous.rssiDbm,
+                    // Connection-scoped ride energy, integrated in
+                    // updateChargingSession (called just below) - the same
+                    // running integral the Battery screen uses. Read here one
+                    // tick behind (invisible on a slowly growing Wh counter) so
+                    // the Energy / Regen / Wh-per-km tiles have a value without a
+                    // second emission per frame.
+                    //
+                    // Sign convention differs by family. The integrator files
+                    // POSITIVE power into sessionEnergyInWh and negative into
+                    // sessionEnergyOutWh. On InMotion V2 (V14) discharge current
+                    // is negative, so Out = consumed / In = regen. But the
+                    // InMotion V1 (V8S) reports discharge as POSITIVE power (its
+                    // idle +3 W matches EUC World and V x I exactly), so for V1
+                    // the two swap: In = consumed, Out = regen. Flip only V1 -
+                    // the family we have a decoded capture for - and leave every
+                    // other family's validated mapping alone.
+                    whConsumed = if (v1SignedPower) sessionEnergyInWh else sessionEnergyOutWh,
+                    whRegen = if (v1SignedPower) sessionEnergyOutWh else sessionEnergyInWh
                 )
                 _chargeStatus.value = deriveChargeStatus(_wheelData.value)
                 // Never let the charging-session bookkeeping throw out of the
@@ -1643,8 +1787,17 @@ class WheelRepository @Inject constructor(
                     // WheelData snapshot the legacy 6 use, so all rolling
                     // history is time-aligned.
                     for ((key, extractor) in EXTRA_HISTORY_METRICS) {
-                        extrasHist[key]?.add(MetricSample(now, extractor(d)))
+                        // null = "no sample this tick" (e.g. an implausible or
+                        // absent temperature), so the buffer never records a
+                        // value the tile itself would refuse to show.
+                        extractor(d)?.let { extrasHist[key]?.add(MetricSample(now, it)) }
                     }
+                    // Phone- and GPS-derived stat metrics aren't on WheelData,
+                    // so sample them from their injected sources on this same
+                    // tick. Store raw values (km/h, metres, percent) so the
+                    // stat math and the tile formatter agree, exactly like the
+                    // wheel extras above.
+                    sampleSourceHistory(now)
                     // Drop anything older than the 5-min window from every
                     // buffer in one pass. List.removeAll touches each list
                     // once so this stays linear in buffer size.
@@ -1687,7 +1840,6 @@ class WheelRepository @Inject constructor(
                 Log.i(TAG, "Wheel settings: tiltback=${ws.maxSpeedKmh} beep=${ws.alarmSpeedKmh} lockState=${ws.lockState}")
 
                 val appSettings = settingsRepository.get()
-                val wasSafety = _safetySpeedActive.value
                 val wasLocked = _locked.value
                 val isLocked = ws.lockState != 0
                 // Skip the lock-state overwrite while the user's tap cooldown
@@ -1725,17 +1877,63 @@ class WheelRepository @Inject constructor(
                         kotlin.math.abs(ws.maxSpeedKmh - sent) > 0.5f
                     ) sent else ws.maxSpeedKmh
                     val isSafety = kotlin.math.abs(effectiveTilt - appSettings.safetyTiltbackKmh) < 0.5f
-                    _safetySpeedActive.value = isSafety
-                    if (isSafety != wasSafety && appSettings.announceSafetyMode) {
-                        voiceService.announceEvent(context.getString(if (isSafety) R.string.voice_legal_on else R.string.voice_legal_off))
+
+                    // InMotion V1: confirm from the wheel like the Lock toggle.
+                    // V1 doesn't firmware-clamp, so once the tap cooldown ends the
+                    // ACTUAL readback is trusted (a dropped toggle reverts the
+                    // button + voices the real state), and during the cooldown the
+                    // optimistic state is held so a stale mid-apply frame can't
+                    // bounce it. Other families keep the intent-masked behaviour
+                    // (V14 clamp handling) unchanged.
+                    // Confirmed legal state, then announce it if it differs from
+                    // what we last SPOKE (not from the optimistic UI flag, which the
+                    // toggle already moved - comparing to that would never fire).
+                    val confirmedSafety: Boolean? = if (wheelAdapter.familyId == "inmotion_v1") {
+                        // V1: hold the optimistic state during the tap cooldown, then
+                        // trust the actual readback (a dropped toggle reverts + voices
+                        // the real state; V1 doesn't firmware-clamp).
+                        if (System.currentTimeMillis() < safetyCooldownUntilMs) {
+                            null  // still settling, don't confirm/announce yet
+                        } else {
+                            kotlin.math.abs(ws.maxSpeedKmh - appSettings.safetyTiltbackKmh) < 0.5f
+                        }
+                    } else {
+                        // Other families keep the intent-masked value (V14 clamp handling).
+                        isSafety
+                    }
+                    if (confirmedSafety != null) {
+                        _safetySpeedActive.value = confirmedSafety
+                        if (confirmedSafety != lastAnnouncedSafety) {
+                            lastAnnouncedSafety = confirmedSafety
+                            if (appSettings.announceSafetyMode) {
+                                voiceService.announceEvent(context.getString(
+                                    if (confirmedSafety) R.string.voice_legal_on
+                                    else R.string.voice_legal_off))
+                            }
+                        }
                     }
 
                     // Auto-sync wheel-side changes (P6/V12 let the user adjust
                     // tiltback / alarm directly on the wheel's own screen).
                     // Wait out the debounce so we don't mistake the wheel's
                     // echo of our own write for an external change.
+                    //
+                    // Skip entirely for InMotion V1 (V8S etc.): it has no wheel
+                    // screen, so there is never a legitimate mid-session external
+                    // change (EUC World can't be BLE-connected at the same time),
+                    // and its slow-info reports alarm == tiltback with
+                    // hasAlarmSpeed=false. Running the adopt here would (a) clobber
+                    // the stored alarm with the speed value ("alarm takes the
+                    // number from Speed") and (b) when a legal-toggle write is
+                    // dropped or echoes late, adopt the wheel's stale tiltback into
+                    // the wrong normal/legal pair - swapping the two and eventually
+                    // collapsing them so the toggle can't tell them apart and snaps
+                    // back on. Real external changes made in another app while we
+                    // are disconnected are still picked up by reconcileSpeedLimits
+                    // on the next connect.
+                    val syncsFromWheelScreen = wheelAdapter.familyId != "inmotion_v1"
                     val sinceWrite = System.currentTimeMillis() - lastSetSpeedAtMs
-                    if (sinceWrite > WHEEL_SCREEN_DEBOUNCE_MS) {
+                    if (syncsFromWheelScreen && sinceWrite > WHEEL_SCREEN_DEBOUNCE_MS) {
                         val activeTilt = if (isSafety) appSettings.safetyTiltbackKmh
                                          else appSettings.tiltbackSpeedKmh
                         val activeAlarm = if (isSafety) appSettings.safetyAlarmKmh

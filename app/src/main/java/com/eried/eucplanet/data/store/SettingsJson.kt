@@ -160,6 +160,7 @@ object SettingsJson {
         put("unitDistance", s.unitDistance)
         put("unitTemp", s.unitTemp)
         put("phoneKeepScreenOn", s.phoneKeepScreenOn)
+        put("phoneShowOverLockScreen", s.phoneShowOverLockScreen)
         put("rotateDashboard", s.rotateDashboard)
         put("rotateNavigator", s.rotateNavigator)
         put("rotateOtherScreens", s.rotateOtherScreens)
@@ -167,6 +168,11 @@ object SettingsJson {
         put("rotateTripDetail", s.rotateTripDetail)
         put("rotateTripList", s.rotateTripList)
         put("tripMapSide", s.tripMapSide)
+        put("tripMapType", s.tripMapType)
+        put("tripHiddenTiles", s.tripHiddenTiles)
+        put("tripTileOrder", s.tripTileOrder)
+        put("tripChartOrder", s.tripChartOrder)
+        put("tripHiddenCharts", s.tripHiddenCharts)
         put("compactModeWhen", s.compactModeWhen)
         put("coverCameraCutout", s.coverCameraCutout)
         put("compactSpeedoStyle", s.compactSpeedoStyle)
@@ -253,6 +259,7 @@ object SettingsJson {
         put("navAvoidUnpaved", s.navAvoidUnpaved)
         put("watchShowNavigation", s.watchShowNavigation)
         put("hudServerEnabled", s.hudServerEnabled)
+        put("keepAppAlive", s.keepAppAlive)
         put("notificationActionsEnabled", s.notificationActionsEnabled)
         put("notificationActions", s.notificationActions)
         put("hudActionUp", s.hudActionUp)
@@ -293,6 +300,9 @@ object SettingsJson {
         put("dropboxAccessTokenExpiresAt", s.dropboxAccessTokenExpiresAt)
         put("dropboxAccountLabel", s.dropboxAccountLabel)
         put("dropboxLastSyncAt", s.dropboxLastSyncAt)
+        put("dropboxSyncPending", s.dropboxSyncPending)
+        put("dropboxPendingCount", s.dropboxPendingCount)
+        put("dropboxSyncTotal", s.dropboxSyncTotal)
     }
 
     fun fromJson(j: JSONObject, base: AppSettings = AppSettings()): AppSettings = base.copy(
@@ -418,6 +428,7 @@ object SettingsJson {
         unitDistance = j.optString("unitDistance", base.unitDistance),
         unitTemp = j.optString("unitTemp", base.unitTemp),
         phoneKeepScreenOn = j.optBoolean("phoneKeepScreenOn", base.phoneKeepScreenOn),
+        phoneShowOverLockScreen = j.optBoolean("phoneShowOverLockScreen", base.phoneShowOverLockScreen),
         rotateDashboard = j.optBoolean("rotateDashboard", base.rotateDashboard),
         rotateNavigator = j.optBoolean("rotateNavigator", base.rotateNavigator),
         rotateOtherScreens = j.optBoolean("rotateOtherScreens", base.rotateOtherScreens),
@@ -425,6 +436,11 @@ object SettingsJson {
         rotateTripDetail = j.optBoolean("rotateTripDetail", base.rotateTripDetail),
         rotateTripList = j.optBoolean("rotateTripList", base.rotateTripList),
         tripMapSide = j.optString("tripMapSide", base.tripMapSide),
+        tripMapType = j.optString("tripMapType", base.tripMapType),
+        tripHiddenTiles = j.optString("tripHiddenTiles", base.tripHiddenTiles),
+        tripTileOrder = j.optString("tripTileOrder", base.tripTileOrder),
+        tripChartOrder = j.optString("tripChartOrder", base.tripChartOrder),
+        tripHiddenCharts = j.optString("tripHiddenCharts", base.tripHiddenCharts),
         compactModeWhen = j.optString("compactModeWhen", base.compactModeWhen),
         coverCameraCutout = j.optString("coverCameraCutout", base.coverCameraCutout),
         compactSpeedoStyle = j.optString("compactSpeedoStyle", base.compactSpeedoStyle),
@@ -519,6 +535,7 @@ object SettingsJson {
         navAvoidUnpaved = j.optBoolean("navAvoidUnpaved", base.navAvoidUnpaved),
         watchShowNavigation = j.optBoolean("watchShowNavigation", base.watchShowNavigation),
         hudServerEnabled = j.optBoolean("hudServerEnabled", base.hudServerEnabled),
+        keepAppAlive = j.optBoolean("keepAppAlive", base.keepAppAlive),
         notificationActionsEnabled = j.optBoolean("notificationActionsEnabled", base.notificationActionsEnabled),
         notificationActions = j.optString("notificationActions", base.notificationActions),
         hudActionUp = j.optString("hudActionUp", base.hudActionUp),
@@ -576,7 +593,10 @@ object SettingsJson {
         dropboxRefreshToken = j.optString("dropboxRefreshToken", base.dropboxRefreshToken),
         dropboxAccessTokenExpiresAt = j.optLong("dropboxAccessTokenExpiresAt", base.dropboxAccessTokenExpiresAt),
         dropboxAccountLabel = j.optString("dropboxAccountLabel", base.dropboxAccountLabel),
-        dropboxLastSyncAt = j.optLong("dropboxLastSyncAt", base.dropboxLastSyncAt)
+        dropboxLastSyncAt = j.optLong("dropboxLastSyncAt", base.dropboxLastSyncAt),
+        dropboxSyncPending = j.optBoolean("dropboxSyncPending", base.dropboxSyncPending),
+        dropboxPendingCount = j.optInt("dropboxPendingCount", base.dropboxPendingCount),
+        dropboxSyncTotal = j.optInt("dropboxSyncTotal", base.dropboxSyncTotal)
     )
 
     /** `optString` returns `""` for null and absent keys, which we cannot

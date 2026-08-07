@@ -233,11 +233,16 @@
     <string name="metric_chip_lateral_g">Yanal g</string>
     <string name="metric_chip_forward_g">İleri g</string>
     <string name="metric_chip_torque">Tork</string>
+    <string name="metric_chip_phase_current">Faz A</string>
     <string name="metric_chip_dyn_speed_limit">Dinamik hız sınırı</string>
     <string name="metric_chip_dyn_current_limit">Dinamik akım sınırı</string>
     <string name="metric_chip_motor_temp">Motor sıcaklığı</string>
     <string name="metric_chip_controller_temp">Kontrolör sıcaklığı</string>
     <string name="metric_chip_battery_temp">Akü sıcaklığı</string>
+    <string name="metric_chip_tire_pressure">Lastik basıncı</string>
+    <string name="metric_chip_tire_pressure_tile">Lastik</string>
+    <string name="metric_desc_tire_pressure">Bağlı bir TPMS sensöründen (InMotion P6) lastik basıncı. psi veya bar olarak gösterilir.</string>
+    <string name="studio_metric_tire_pressure">Lastik basıncı</string>
     <string name="metric_chip_headroom">Güvenlik payı</string>
     <string name="metric_chip_trip_time">Sefer süresi</string>
     <string name="metric_chip_trip_max_speed">Sefer maks hızı</string>
@@ -463,7 +468,7 @@
     <string name="cloud_restore_success">Ayarlar geri yüklendi</string>
     <string name="cloud_restore_failed">Klasörde yedek bulunamadı</string>
     <string name="section_cloud_trips">Sefer yedekleme</string>
-    <string name="cloud_trips_caption">Yeni seferler klasörünüze otomatik kaydedilir</string>
+    <string name="cloud_trips_caption">Seferler bu telefonda kalır ve otomatik olarak yedek klasörünüzle eşitlenir. Buradan temizlemek yalnızca telefondaki kopyaları siler, yedeğinizi silmez.</string>
     <string name="cloud_retry_now">Tümünü eşitle</string>
     <string name="cloud_retry_enqueued">Yükleme planlandı</string>
     <string name="sync_progress">%2$d içinden %1$d eşitleniyor</string>
@@ -539,6 +544,7 @@
     <string name="units_temp_f">Fahrenheit</string>
     <string name="units_temp_k">Kelvin</string>
     <string name="phone_keep_screen_on">Ekranı açık tut</string>
+    <string name="phone_show_over_lock">Kilit ekranının üzerinde göster</string>
     <string name="language">Dil</string>
     <string name="theme">Tema</string>
     <string name="tts_switch_title">%1$s sesine geçilsin mi?</string>
@@ -709,6 +715,15 @@
     <string name="flic_double_click">Çift Tıklama</string>
     <string name="flic_hold">Basılı Tut</string>
     <string name="section_external_gps">GPS ve sensörler</string>
+    <!-- TPMS sensors -->
+    <string name="section_tpms">TPMS sensörleri</string>
+    <string name="tpms_caption">Tekerdeki bir sensörden lastik basıncı, InMotion P6 gibi.</string>
+    <string name="tpms_wheel_sensor">Teker lastik basıncı</string>
+    <string name="tpms_wheel_sensor_desc">Bağlı bir sensörden aktarılır</string>
+    <string name="tpms_idle">Henüz veri gönderen sensör yok</string>
+    <string name="tpms_pair_title">Başka bir sensör eşle</string>
+    <string name="tpms_pair_replaces">Ek bir sensör, varsa tekerin dahili sensörünün yerini alır.</string>
+    <string name="tpms_scan">Sensör ara</string>
     <string name="external_gps_device_title">Harici GPS</string>
     <string name="external_gps_pair_button">Taramayı başlat</string>
     <string name="external_gps_pair_action">Eşleştir</string>
@@ -1353,6 +1368,7 @@
     <string name="studio_metric_temperature">Sıcaklık</string>
     <string name="studio_metric_voltage">Gerilim</string>
     <string name="studio_metric_current">Akım</string>
+    <string name="studio_metric_phase_current">Faz akımı</string>
     <string name="studio_metric_power">Güç</string>
     <string name="studio_metric_pwm">PWM</string>
     <string name="studio_metric_trip_distance">Sefer mesafesi</string>
@@ -1361,6 +1377,26 @@
     <string name="studio_metric_roll">Yalpa</string>
     <string name="studio_metric_g_force">G-Kuvveti</string>
     <string name="studio_metric_external_gps_battery">Harici GPS aküsü</string>
+    <string name="studio_metric_external_gps_speed">Harici GPS hızı</string>
+    <string name="studio_metric_gps_speed">GPS hızı</string>
+    <string name="metric_chip_trip_meter">Sefer sayacı</string>
+    <string name="trip_meter_detail_title">Sefer sayacı</string>
+    <string name="trip_meter_tab_speed">Hız</string>
+    <string name="trip_meter_tab_battery">Akü</string>
+    <string name="trip_meter_tab_time">Süre</string>
+    <string name="trip_meter_total">Toplam</string>
+    <string name="trip_meter_active">Aktif</string>
+    <string name="trip_meter_avg">Ort.</string>
+    <string name="trip_meter_reset">Sefer sayacını sıfırla</string>
+    <string name="trip_meter_reset_msg">Bu, süren mesafeyi sıfırlar ve tüm bölümleri siler. Bu işlem geri alınamaz.</string>
+    <string name="trip_meter_empty">Henüz mesafe yok. Sayaç, bir teker bağlıyken sayar.</string>
+    <string name="trip_meter_partial">Şimdi</string>
+    <string name="trip_meter_col_split">#</string>
+    <string name="trip_meter_col_dist">Mes.</string>
+    <string name="trip_meter_col_time">Süre</string>
+    <string name="trip_meter_col_max">Maks</string>
+    <string name="trip_meter_col_batt">Akü</string>
+    <string name="studio_metric_trip_meter">Sefer sayacı</string>
     <string name="studio_metric_gps">GPS koordinatları</string>
 
     <!-- Navigator -->
@@ -1756,8 +1792,6 @@
     <string name="adv_hud_manual_grace_desc">Manuel IP kullanılmadan önce otomatik keşfe ne kadar süre tanındığını etkiler. Dikkat: çok düşük olursa keşif kazanamadan manuel IP\'yi kullanır.</string>
     <string name="adv_hud_mdns_resolve">mDNS çözümleme süresi</string>
     <string name="adv_hud_mdns_resolve_desc">Bulunan bir HUD\'ın adres ayrıntılarının ne kadar sürede çözümleneceğini etkiler. Dikkat: çok düşük olursa yavaş çözümlenen bir HUD\'ı bırakır.</string>
-    <string name="adv_hud_subnet_delay">Alt ağ taraması gecikmesi</string>
-    <string name="adv_hud_subnet_delay_desc">Son çare olan alt ağ taramasının ne kadar sonra başlayacağını etkiler; böylece mDNS ve işaret önce yanıt verir ve telsiz tıkanmaz. Dikkat: çok düşük olursa telsizi doldurur ve keşfi yavaşlatır.</string>
     <string name="adv_hud_mdns_timeout">Keşif zaman aşımı</string>
     <string name="adv_hud_mdns_timeout_desc">HUD\'ın otomatik keşfe yanıt vermesi için ne kadar beklenileceğini etkiler. Dikkat: çok düşük olursa yanıt vermeden vazgeçer.</string>
     <string name="adv_hud_report_interval">HUD bildirim hızı</string>
@@ -1799,6 +1833,10 @@
     <string name="adv_phone_gps_interval_desc">GPS izinin ne kadar pürüzsüz olduğunu ve navigasyonun ne kadar hızlı tepki verdiğini etkiler. Düşük değer daha sık günceller. Dikkat: düşük değerler pili daha hızlı tüketir.</string>
     <string name="adv_phone_gps_idle_interval">Boşta GPS aralığı</string>
     <string name="adv_phone_gps_idle_interval_desc">Kayıt veya navigasyon yokken GPS güncelleme aralığı; Navigatör ve yeni bağlantı hazır kalır. Yüksek değer pili korur.</string>
+    <string name="adv_gps_idle_off_delay">Boşta GPS kapatma</string>
+    <string name="adv_gps_idle_off_delay_desc">Uygulama arka plandayken, teker bağlı değilken ve kayıt yokken pili korumak için GPS kapanır. 0 hemen kapatır; daha yüksek değer önce o süre boyunca düşük güçlü bir konumu sıcak tutar, böylece hızlı uygulama geçişi GPS\'i düşürmez.</string>
+    <string name="adv_gps_fix_max_age">Maks. GPS konum yaşı</string>
+    <string name="adv_gps_fix_max_age_desc">Bundan eski bir konum, konum yok sayılır; böylece GPS hazır olmadan başlayan bir kayıt eski bir noktayla başlamaz.</string>
     <string name="adv_pushonly_note">Bazı cihazlar kendi sabit hızlarında veri akıtır ve bu ayarları yok sayar: yalnızca-itme tekerleri (Begode, Gotway, Veteran, KingSong), harici GPS (RaceBox), radar ve Flic düğmeleri.</string>
     <string name="adv_radar_clear_decay">Radar şerit sönümü</string>
     <string name="adv_radar_clear_decay_desc">Yol boşaldıktan sonra şerit çubuğunun ne kadar kaldığını etkiler. Dikkat: çok düşük olursa araçlar gelip gittikçe yanıp söner.</string>
@@ -1852,12 +1890,12 @@
     <string name="studio_export_status">Dosya dışa aktarılıyor…</string>
     <string name="studio_export_stay">Mevcut ekranda kal</string>
     <string name="studio_export_title">Dosya Dışa Aktarma</string>
-    <string name="studio_replay_trim">(Kırp)</string>
+    <string name="studio_replay_trim">(tüm sefer)</string>
     <string name="studio_replay_trim_duration">Süre</string>
     <string name="studio_replay_trim_end">Bitiş</string>
     <string name="studio_replay_trim_reset">Sıfırla</string>
     <string name="studio_replay_trim_start">Başlangıç</string>
-    <string name="studio_replay_trim_title">Klibi kırp</string>
+    <string name="studio_replay_trim_title">Seferi kırp</string>
     <string name="tab_advanced">Gelişmiş</string>
     <string name="tab_more">Diğer</string>
     <string name="welcome_tut_dev_join">Lider tablolarına katıl</string>
@@ -1921,6 +1959,8 @@
     <string name="adv_cover_cutout_inset_desc">Ön kameralardan kaçın açıkken ön lensler için boş bırakılan alan. Çok küçük olursa lensler düğmeleri gizler.</string>
     <string name="adv_nav_sidebar_min">Kenar çubuğu için en küçük ekran</string>
     <string name="adv_nav_sidebar_min_desc">Bundan dar ekranlar, yatayda bile alttaki durak panelini tutar. Çok düşük, küçük ekranlarda haritayı gizler.</string>
+    <string name="adv_inmotion_v1_pin">InMotion V5/V8/V10 PIN</string>
+    <string name="adv_inmotion_v1_pin_desc">InMotion V5/V8/V10 tekerler için erişim PIN\'i, bağlanınca gönderilir ve teker veri göndermeye başlar. InMotion uygulamasında kendi PIN\'inizi ayarlamadıysanız 000000 olarak bırakın.</string>
     <string name="adv_nav_sidebar_width">Durak paneli genişliği</string>
     <string name="adv_nav_sidebar_width_desc">Yatay durak kenar çubuğunun genişliği. Çok geniş olursa harita az kalır.</string>
     <string name="adv_simple_speedo_scale">Basit hız göstergesi boyutu</string>
@@ -1965,6 +2005,41 @@
     <string name="accel_split_slower_best">, en iyiden %1$s daha yavaş</string>
     <string name="accel_split_best_yet">, şimdiye kadarki en iyi</string>
     <string name="report_contents">Sesli bildirimi özelleştir</string>
+    <string name="trip_customize">Özelleştir</string>
+    <string name="trip_customize_tiles">Kutucuklar</string>
+    <string name="trip_customize_graphs">Grafikler</string>
+    <string name="recording_details_section">Ek ayrıntılar</string>
+    <string name="recording_details_none">Bu sürüş için teker bildirilmedi.</string>
+    <string name="cloud_reset_local">Yerel seferleri temizle</string>
+    <string name="cloud_reset_local_title">Yerel seferler temizlensin mi?</string>
+    <string name="cloud_reset_local_body">Bu telefonda kayıtlı tüm seferleri kaldırır. Yedek klasörünüze dokunulmaz, böylece eşitlenen seferler oradan geri yüklenebilir.</string>
+    <string name="dropbox_syncing">Seferler eşitleniyor…</string>
+    <string name="dropbox_folder_desc">Seferler ve ayarlar Dropbox’ınızda %1$s içinde saklanır. Bu klasörü yalnızca bu uygulama görebilir.</string>
+    <string name="keep_app_alive">Uygulamayı çalışır tut</string>
+    <string name="keep_app_alive_desc">Uygulamanın arka planda etkin kalması için kalıcı bir bildirim gösterir. Teker bağlı olmasa bile sefer eşitleme ve sesli bildirim çalışmaya devam eder. Biraz daha fazla pil kullanır.</string>
+    <string name="sync_up_to_date">Zaten güncel</string>
+    <string name="studio_source_transparent">Saydam</string>
+    <string name="studio_source_video">Video</string>
+    <string name="studio_video_pick">Video seç</string>
+    <string name="studio_video_replace">Videoyu değiştir</string>
+    <string name="studio_video_fit">Sığdır</string>
+    <string name="studio_video_fit_stretch">Uzat</string>
+    <string name="studio_video_offset">Kaydırma</string>
+    <string name="studio_video_offset_value_fmt">%1$d ms</string>
+    <string name="studio_video_offset_nudge_fmt">%1$+d ms</string>
+    <string name="studio_video_set_offset">Geçerli</string>
+    <string name="studio_video_no_media">Medya yok</string>
+    <string name="studio_replay_cd_move">Paneli taşı</string>
+    <string name="studio_video_edge">Aralık dışı</string>
+    <string name="studio_video_edge_freeze">Dondur</string>
+    <string name="studio_video_edge_loop">Döngü</string>
+    <string name="studio_video_edge_black">Siyah</string>
+    <string name="wheel_no_data_reconnecting">Tekerden veri yok. Yeniden bağlanılıyor…</string>
+    <string name="wheel_no_data_reset">Tekerden hâlâ veri yok. Kapatıp açmayı deneyin.</string>
+    <string name="trip_map_ride_start">Sürüş başlangıcı: %1$s</string>
+    <string name="trip_map_reconnected">Yeniden bağlandı: %1$s</string>
+    <string name="trip_map_new_wheel">Yeni teker: %1$s</string>
+    <string name="trip_map_ride_end">Sürüş sonu</string>
 </resources>
 
 
