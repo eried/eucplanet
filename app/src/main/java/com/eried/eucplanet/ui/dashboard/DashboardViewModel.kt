@@ -40,7 +40,16 @@ data class MetricHistory(
     val voltage: List<Float> = emptyList(),
     val current: List<Float> = emptyList(),
     val load: List<Float> = emptyList(),
-    val speed: List<Float> = emptyList()
+    val speed: List<Float> = emptyList(),
+    /**
+     * Sparkline / stat window for every non-legacy catalog metric, keyed by
+     * metric key (MOTOR_POWER, GPS_SPEED, MOTOR_TEMP, ...). Mirrors the six
+     * typed lists above but data-driven off [FullMetricHistory.extras], so the
+     * dashboard's corner stats and sparklines work for any supportsStats tile,
+     * not just the legacy six. Values are raw (WheelData canonical units); the
+     * tile applies the rider's unit conversion at render time.
+     */
+    val extras: Map<String, List<Float>> = emptyMap()
 )
 
 @HiltViewModel
@@ -48,6 +57,7 @@ class DashboardViewModel @Inject constructor(
     private val wheelRepository: WheelRepository,
     private val settingsRepository: SettingsRepository,
     private val tripRepository: TripRepository,
+    private val tripMeterRepository: com.eried.eucplanet.data.repository.TripMeterRepository,
     private val voiceService: VoiceService,
     private val automationManager: AutomationManager,
     private val flicManager: FlicManager,
@@ -94,6 +104,11 @@ class DashboardViewModel @Inject constructor(
 
     val locked: StateFlow<Boolean> = wheelRepository.locked
     val lockBusy: StateFlow<Boolean> = wheelRepository.lockBusy
+    // Proximity auto-lock automation on? Long-pressing the dashboard lock button
+    // toggles it - a quick shortcut without opening Settings.
+    val autoLockEnabled: StateFlow<Boolean> = settingsRepository.settings
+        .map { it.proximityLock.lockEnabled }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), initialSettings.proximityLock.lockEnabled)
     /** True when the connected wheel's adapter implements a BLE lock command.
      *  Drives the dashboard lock button to fall back to a "not supported" hint
      *  on wheels (Veteran / LeaperKim, Begode, etc.) whose firmware doesn't
@@ -116,6 +131,11 @@ class DashboardViewModel @Inject constructor(
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
 
     val currentTripId: StateFlow<Long?> = tripRepository.currentTripId
+
+    /** Live running trip-meter state (the connect-scoped car odometer). Drives the
+     *  TRIP_METER dashboard tile's value and the detail-view header. */
+    val tripMeterState: StateFlow<com.eried.eucplanet.data.model.TripMeterState> =
+        tripMeterRepository.state
 
     /** True when the rider has an external GPS paired in settings, regardless
      *  of whether it's currently connected or sending samples. Drives the
@@ -158,6 +178,17 @@ class DashboardViewModel @Inject constructor(
     /** Convenience: just the speed part of [gpsExtraSpeed] for legacy callers. */
     val externalGpsSpeedKmh: StateFlow<Float?> = gpsExtraSpeed
         .map { it?.first }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
+
+    /** External GPS box battery percent [0..100] for the optional dashboard
+     *  tile, freshness-gated to 5 s so a dropped box doesn't leave a stale
+     *  number on screen. Null when unpaired, stale, or the box (or its current
+     *  frame) reports no battery. */
+    val externalGpsBatteryPercent: StateFlow<Int?> = externalGpsRepository.currentSample
+        .map { s ->
+            val pct = s?.batteryPercent ?: return@map null
+            if (System.currentTimeMillis() - s.timestamp < 5_000L) pct else null
+        }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
 
     val gpsFix: StateFlow<Boolean> = tripRepository.currentLocation
@@ -255,9 +286,12 @@ class DashboardViewModel @Inject constructor(
         .map { it.flicShowOnDashboard }
         .stateIn(viewModelScope, SharingStarted.Eagerly, initialSettings.flicShowOnDashboard)
 
+    // The dashboard voice-menu "periodic announcements" toggle and the Settings
+    // "Enable periodic reports" switch are the same on/off - both drive
+    // voiceEnabled (the single flag the periodic loop gates on).
     val voicePeriodicEnabled: StateFlow<Boolean> = settingsRepository.settings
-        .map { it.voicePeriodicEnabled }
-        .stateIn(viewModelScope, SharingStarted.Eagerly, initialSettings.voicePeriodicEnabled)
+        .map { it.voiceEnabled }
+        .stateIn(viewModelScope, SharingStarted.Eagerly, initialSettings.voiceEnabled)
 
     /** Whether the dashboard top-bar Battery-monitor (spark) icon renders at all. */
     val chargingDashboardIcon: StateFlow<Boolean> = settingsRepository.settings
@@ -303,7 +337,17 @@ class DashboardViewModel @Inject constructor(
     fun toggleVoicePeriodic() {
         viewModelScope.launch {
             val current = settingsRepository.get()
-            settingsRepository.update(current.copy(voicePeriodicEnabled = !current.voicePeriodicEnabled))
+            settingsRepository.update(current.copy(voiceEnabled = !current.voiceEnabled))
+        }
+    }
+
+    /** Toggle the proximity auto-lock automation (long-press on the lock button). */
+    fun toggleAutoLock() {
+        viewModelScope.launch {
+            val current = settingsRepository.get()
+            settingsRepository.update(current.copy(
+                proximityLock = current.proximityLock.copy(lockEnabled = !current.proximityLock.lockEnabled)
+            ))
         }
     }
 
@@ -341,7 +385,7 @@ class DashboardViewModel @Inject constructor(
             val s = settingsRepository.get()
             settingsRepository.update(
                 s.copy(
-                    voicePeriodicEnabled = enabled,
+                    voiceEnabled = enabled,
                     announceWheelLock = enabled,
                     announceLights = enabled,
                     announceRecording = enabled,
@@ -398,10 +442,22 @@ class DashboardViewModel @Inject constructor(
     // layout before the upstream Flow emits their saved layout. With
     // these seeded correctly the cold-start render is the rider's own
     // layout from frame zero.
+    // "POWER" was retired from the metric catalog as a duplicate of
+    // BATTERY_POWER (both read wheelData.batteryPower). Dashboards saved before
+    // that still carry the "POWER" token, which now has no catalog spec and
+    // renders as a dead placeholder tile -- the value only appears when the
+    // rider taps in (the detail screen still maps "POWER"). Rewrite the token
+    // to BATTERY_POWER so those tiles come back to life; duplicates collapse via
+    // the distinct() in the grid builder.
+    private fun migrateLegacyMetricKeys(order: String): String =
+        order.split(",").joinToString(",") { tok ->
+            if (tok.trim() == "POWER") "BATTERY_POWER" else tok
+        }
+
     val dashboardMetricOrder: StateFlow<String> = settingsRepository.settings
-        .map { it.dashboardMetricOrder }
+        .map { migrateLegacyMetricKeys(it.dashboardMetricOrder) }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000),
-            initialSettings.dashboardMetricOrder)
+            migrateLegacyMetricKeys(initialSettings.dashboardMetricOrder))
     // Screen geometry: compact-mode activation, cover lens cutout side and
     // the optional gauge ring in compact. The compact layout itself reuses
     // the dashboardMetricOrder / dashboardActionOrder lists above.
@@ -581,7 +637,12 @@ class DashboardViewModel @Inject constructor(
                 voltage = full.voltage.takeLast(SPARKLINE_SIZE).map { it.value },
                 current = full.current.takeLast(SPARKLINE_SIZE).map { it.value },
                 load = full.load.takeLast(SPARKLINE_SIZE).map { it.value },
-                speed = full.speed.takeLast(SPARKLINE_SIZE).map { it.value }
+                speed = full.speed.takeLast(SPARKLINE_SIZE).map { it.value },
+                // Same window as the legacy six, applied per extras buffer so
+                // every catalog metric's corner stats / sparkline resolve.
+                extras = full.extras.mapValues { (_, list) ->
+                    list.takeLast(SPARKLINE_SIZE).map { it.value }
+                }
             )
         }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), MetricHistory())
@@ -620,35 +681,49 @@ class DashboardViewModel @Inject constructor(
         }
     }
 
+    @OptIn(kotlinx.coroutines.DelicateCoroutinesApi::class)
     fun stopEverything() {
-        // If the user opted in, ask the paired watch to close its app too so
-        // its dial doesn't sit on a stale frame after we tear the session
-        // down. Fire-and-forget on a background dispatcher so the activity
-        // finish() that follows isn't blocked on the message round-trip.
-        viewModelScope.launch(Dispatchers.IO) {
+        // Ask the paired watch(es) to close, THEN tear ourselves down.
+        //
+        // This runs on a process-lifetime scope, NOT viewModelScope: the
+        // performStopAllAndExit caller finishes the activity right after this
+        // returns (which cancels viewModelScope), and the service SIGKILLs the
+        // process a moment later. The Garmin QUIT used to be fire-and-forget on
+        // viewModelScope and so lost that race every time -- the watch was left
+        // sitting on a stale dial. We now send it on a scope that survives the
+        // finish, block until the CIQ hand-off completes, and only THEN fire
+        // the kill.
+        kotlinx.coroutines.GlobalScope.launch(Dispatchers.IO) {
             try {
                 val settings = settingsRepository.get()
                 if (settings.watchCloseOnExit) {
-                    wearBridge.sendCloseToWatchBlocking()
+                    // Wear hands the QUIT to Google Play Services, which delivers
+                    // it even after our process dies, so fire-and-forget is fine
+                    // and we don't want to block the kill waiting on it.
+                    launch { try { wearBridge.sendCloseToWatchBlocking() } catch (_: Exception) {} }
+                    // Garmin's hand-off (Connect Mobile, or the tethered
+                    // simulator socket) does NOT survive our death, so this MUST
+                    // finish before we SIGKILL. sendCloseToWatchBlocking now
+                    // actually blocks until the SDK reports the send.
                     garminBridge.sendCloseToWatchBlocking()
                 }
             } catch (_: Exception) { /* best effort */ }
-        }
-        // Send ACTION_STOP_ALL_AND_KILL via startService so the service's
-        // onStartCommand can flip the kill-on-destroy flag before stopSelf
-        // triggers onDestroy. A plain stopService(intent) would skip
-        // onStartCommand entirely and leave the flag unset, so the kill
-        // path wouldn't fire and the OS would keep the process cached
-        // (the original "Stop All didn't take" bug).
-        val intent = Intent(context, WheelService::class.java).apply {
-            action = WheelService.ACTION_STOP_ALL_AND_KILL
-        }
-        try { context.startService(intent) } catch (_: Exception) {
-            // startService can throw if the app is already in the background
-            // (Android O+ restrictions). Fall back to plain stopService so
-            // the service at least tears down, even if the SIGKILL doesn't
-            // fire and the OS keeps the process briefly cached.
-            context.stopService(Intent(context, WheelService::class.java))
+            // Send ACTION_STOP_ALL_AND_KILL via startService so the service's
+            // onStartCommand can flip the kill-on-destroy flag before stopSelf
+            // triggers onDestroy. A plain stopService(intent) would skip
+            // onStartCommand entirely and leave the flag unset, so the kill
+            // path wouldn't fire and the OS would keep the process cached
+            // (the original "Stop All didn't take" bug).
+            val intent = Intent(context, WheelService::class.java).apply {
+                action = WheelService.ACTION_STOP_ALL_AND_KILL
+            }
+            try { context.startService(intent) } catch (_: Exception) {
+                // startService can throw if the app is already in the background
+                // (Android O+ restrictions). Fall back to plain stopService so
+                // the service at least tears down, even if the SIGKILL doesn't
+                // fire and the OS keeps the process briefly cached.
+                context.stopService(Intent(context, WheelService::class.java))
+            }
         }
     }
 

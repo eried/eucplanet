@@ -11,12 +11,18 @@ import java.util.Locale
 
 /**
  * Writes DarknessBot-compatible CSV files.
- * Format: `Date,Speed,Voltage,Temperature,Battery level,Altitude,Latitude,Longitude,Total mileage,GPS speed,Current,PWM,G-Force,G-Force X,G-Force Y`
- * The trailing GPS-speed, Current, PWM and G-Force columns are EUC Planet
- * extensions; DarknessBot viewers ignore trailing columns. `GPS speed` carries
- * the external BLE GPS box's reading when the rider prioritises external GPS,
- * otherwise the phone's own GPS speed. `Current` (amps, signed) and `PWM`
- * (percent) come straight from the wheel telemetry.
+ * Format: `Date,Speed,Voltage,Temperature,Battery level,Altitude,Latitude,Longitude,Total mileage,GPS speed,Current,PWM,G-Force,G-Force X,G-Force Y,Extra`
+ * The trailing GPS-speed, Current, PWM, G-Force and Extra columns are EUC
+ * Planet extensions; DarknessBot viewers ignore trailing columns. `GPS speed`
+ * carries the external BLE GPS box's reading when the rider prioritises
+ * external GPS, otherwise the phone's own GPS speed. `Current` (amps, signed)
+ * and `PWM` (percent) come straight from the wheel telemetry.
+ *
+ * `Extra` is an event channel: empty on normal rows, one `key=value` pair on
+ * event rows (events with several keys spill onto consecutive rows). The
+ * viewer reads the `wheel.*` keys for per-wheel attribution; the namespace is
+ * open for future events. Values are sanitised so a BLE name can never break
+ * the CSV framing.
  */
 class CsvWriter(private val file: File) {
 
@@ -29,11 +35,11 @@ class CsvWriter(private val file: File) {
 
     fun open() {
         writer = BufferedWriter(FileWriter(file))
-        writer?.write("Date,Speed,Voltage,Temperature,Battery level,Altitude,Latitude,Longitude,Total mileage,GPS speed,Current,PWM,G-Force,G-Force X,G-Force Y")
+        writer?.write("Date,Speed,Voltage,Temperature,Battery level,Altitude,Latitude,Longitude,Total mileage,GPS speed,Current,PWM,G-Force,G-Force X,G-Force Y,Extra")
         writer?.newLine()
     }
 
-    fun writeRow(data: WheelData, location: Location?, externalGpsSpeedKmh: Float? = null, wheelConnected: Boolean = true) {
+    fun writeRow(data: WheelData, location: Location?, externalGpsSpeedKmh: Float? = null, wheelConnected: Boolean = true, extra: String? = null) {
         val w = writer ?: return
         // Use wallclock so rows recorded without wheel telemetry (disconnected or
         // never connected) still carry a correct date. WheelData.timestamp defaults to
@@ -56,10 +62,14 @@ class CsvWriter(private val file: File) {
         // external GPS (passed in non-null), otherwise the phone's GPS speed.
         val gpsSpeedKmh = externalGpsSpeedKmh ?: phoneGpsKmh
 
+        // The Extra cell must never contain CSV framing characters; BLE names
+        // are rider-controlled, so scrub rather than quote.
+        val extraCell = extra?.replace(Regex("[,\"\\r\\n]+"), " ")?.trim() ?: ""
+
         w.write(
             String.format(
                 Locale.US,
-                "%s,%.1f,%.1f,%.1f,%d,%.1f,%.6f,%.6f,%.1f,%.1f,%.1f,%.1f,%.3f,%.3f,%.3f",
+                "%s,%.1f,%.1f,%.1f,%d,%.1f,%.6f,%.6f,%.1f,%.1f,%.1f,%.1f,%.3f,%.3f,%.3f,%s",
                 date,
                 speed,
                 data.voltage,
@@ -74,7 +84,8 @@ class CsvWriter(private val file: File) {
                 data.pwm,
                 data.gForce,
                 data.accelX,
-                data.accelY
+                data.accelY,
+                extraCell
             )
         )
         w.newLine()

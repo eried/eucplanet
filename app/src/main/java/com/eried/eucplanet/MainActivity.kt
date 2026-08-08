@@ -64,6 +64,7 @@ class MainActivity : AppCompatActivity() {
         com.eried.eucplanet.data.repository.IncomingShareRepository
     @Inject lateinit var dropboxRepository:
         com.eried.eucplanet.data.repository.DropboxRepository
+    @Inject lateinit var syncManager: com.eried.eucplanet.data.sync.SyncManager
     @Inject lateinit var appHealthRepository:
         com.eried.eucplanet.data.repository.AppHealthRepository
     @Inject lateinit var appNotifier: com.eried.eucplanet.util.AppNotifier
@@ -109,7 +110,10 @@ class MainActivity : AppCompatActivity() {
             // HUD companion: the embedded HTTP/SSE server lives inside
             // WheelService, so we need the service running for the HUD to
             // pair even before a wheel is on the line.
-            s.hudServerEnabled
+            s.hudServerEnabled ||
+            // Keep-alive: rider opted to keep the ongoing notification (and
+            // thus background trip sync / voice) alive with no wheel connected.
+            s.keepAppAlive
         )
         if (needsServiceForBackgroundFeature) {
             startForegroundService(Intent(this, WheelService::class.java))
@@ -140,10 +144,12 @@ class MainActivity : AppCompatActivity() {
     }
 
     /**
-     * Pinging the wear bridge on every resume rather than only at process
-     * start makes the auto-launch reliable: opening the phone app brings
-     * the watch app to the foreground each time, even if the watch service
-     * was killed for memory after the previous session.
+     * Pinging both watch bridges on every resume rather than only at process
+     * start makes auto-launch reliable: opening the phone app brings the watch
+     * app to the foreground each time, even if the watch service was killed for
+     * memory after the previous session. On Garmin this now fires Connect IQ's
+     * openApplication() (a one-time "Always" consent on the watch, then
+     * automatic), so the Garmin path below is a real launch, not a no-op.
      */
     override fun onResume() {
         super.onResume()
@@ -153,6 +159,16 @@ class MainActivity : AppCompatActivity() {
         // background — the warning indicator auto-clears when the rider
         // returns having granted what was missing.
         appHealthRepository.refreshPermissionWarnings()
+        // Resume a stranded Dropbox trip sync promptly on return, not only on
+        // cold start: if trips are still pending and Dropbox is linked, re-kick
+        // the retry worker. It no-ops when nothing is pending, so this is a
+        // cheap, guarded nudge that gets pending uploads moving again.
+        lifecycleScope.launch {
+            val s = settingsRepository.get()
+            if (s.dropboxSyncPending && s.dropboxAccessToken.isNotBlank()) {
+                syncManager.reconcilePendingDropboxSync()
+            }
+        }
     }
 
     /**
@@ -243,6 +259,14 @@ class MainActivity : AppCompatActivity() {
                 } else {
                     window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
                 }
+                // Show over the lock screen. When on, the dashboard stays visible
+                // when the screen turns back on, so the rider doesn't have to
+                // unlock to see it again. setShowWhenLocked shows the activity
+                // over the keyguard WITHOUT dismissing it, so the phone stays
+                // secure underneath (this is how nav / media / alarm apps behave).
+                // Idempotent, so no delta check. minSdk 29 >= API 27 (O_MR1) where
+                // setShowWhenLocked landed, so no version guard is needed.
+                setShowWhenLocked(it.phoneShowOverLockScreen)
                 // Detect a default app language as soon as we see a blank
                 // `settings.language`, not only on the very first settings
                 // emission. The synchronous seed above sets _settings.value
@@ -298,6 +322,7 @@ class MainActivity : AppCompatActivity() {
                     val needsService = canStartWheelService() && (
                         (it.voiceEnabled && it.voiceAnnounceWhen == "ALWAYS") ||
                         it.hudServerEnabled ||
+                        it.keepAppAlive ||
                         forceHud
                     )
                     if (needsService) {
@@ -391,7 +416,8 @@ class MainActivity : AppCompatActivity() {
                     val routeNow = currentRoute?.destination?.route
                     androidx.compose.runtime.LaunchedEffect(
                         routeNow, s?.rotateDashboard, s?.rotateNavigator,
-                        s?.rotateOtherScreens, s?.blockUpsideDown, s?.ignoreSystemRotateLock
+                        s?.rotateOtherScreens, s?.rotateSettings, s?.rotateTripDetail,
+                        s?.rotateTripList, s?.blockUpsideDown, s?.ignoreSystemRotateLock
                     ) {
                         val allow = when (routeNow) {
                             Screen.Dashboard.route, null -> s?.rotateDashboard ?: false
@@ -401,6 +427,12 @@ class MainActivity : AppCompatActivity() {
                             // camera-app style, and reflowing the layout breaks
                             // the recording canvas. Never rotate it.
                             Screen.OverlayStudio.route -> false
+                            Screen.Settings.route -> s?.rotateSettings ?: false
+                            // Trip screens each carry their own toggle: the detail
+                            // view rotates by default (landscape split layout), the
+                            // recorder list stays portrait unless the rider opts in.
+                            Screen.TripDetail.route -> s?.rotateTripDetail ?: true
+                            Screen.Recording.route -> s?.rotateTripList ?: false
                             else -> s?.rotateOtherScreens ?: true
                         }
                         // SENSOR variants follow the accelerometer even when the

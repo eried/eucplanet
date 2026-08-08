@@ -119,11 +119,13 @@ private fun rawCurrentValueFor(key: String, w: WheelData): Float = when (key) {
     "LATERAL_G" -> w.accelX
     "FORWARD_G" -> w.forwardGFromSpeed
     "TORQUE" -> w.torque
+    "PHASE_CURRENT" -> w.phaseCurrent
     "DYN_SPEED_LIMIT" -> w.dynamicSpeedLimit
     "DYN_CURRENT_LIMIT" -> w.dynamicCurrentLimit
     "MOTOR_TEMP" -> w.temperatures.getOrNull(0) ?: 0f
     "CONTROLLER_TEMP" -> w.temperatures.getOrNull(1) ?: 0f
     "BATTERY_TEMP" -> w.temperatures.getOrNull(2) ?: 0f
+    "TIRE_PRESSURE" -> w.tirePressureKpa
     else -> 0f
 }
 
@@ -162,14 +164,19 @@ fun MetricDetailScreen(
     val wheelData by viewModel.wheelData.collectAsState()
     val speedUnit by viewModel.speedUnit.collectAsState()
     val tempUnit by viewModel.tempUnit.collectAsState()
+    val distanceUnit by viewModel.distanceUnit.collectAsState()
 
     // Long-press Reset → confirmation dialog → wipe ALL history buffers.
     var showResetAllConfirm by remember { mutableStateOf(false) }
 
-    // Title is the generic "History" — the active tab tells the rider
-    // which metric they're inspecting, so re-stating the metric name in
-    // the AppBar is redundant.
-    val titleLabel = stringResource(R.string.metric_detail_title)
+    // Single metric: name the screen after that metric (the 1-tab strip below
+    // is hidden, so the title carries the identity). Composite (>1 metrics):
+    // keep the generic "History" title, with the tab strip telling the rider
+    // which metric each tab is.
+    val titleLabel = if (keys.size == 1) {
+        com.eried.eucplanet.data.model.MetricCatalog.byKey(keys[0])
+            ?.let { stringResource(it.labelRes) } ?: keys[0]
+    } else stringResource(R.string.metric_detail_title)
 
     Scaffold(
         topBar = {
@@ -195,28 +202,30 @@ fun MetricDetailScreen(
                 .padding(padding)
                 .verticalScroll(rememberScrollState())
         ) {
-            // Tab strip — always rendered for consistency, even with a
-            // single metric (1 tab). Rider sees the same control whether
-            // they tapped a standalone tile or a composite.
-            PrimaryTabRow(
-                selectedTabIndex = safeIdx,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                keys.forEachIndexed { idx, key ->
-                    val spec = com.eried.eucplanet.data.model.MetricCatalog.byKey(key)
-                    val label = spec?.let { stringResource(it.labelRes) } ?: key
-                    Tab(
-                        selected = safeIdx == idx,
-                        onClick = { selectedIdx = idx },
-                        text = {
-                            Text(
-                                label.uppercase(),
-                                fontSize = 11.sp,
-                                fontWeight = FontWeight.Medium,
-                                maxLines = 1
-                            )
-                        }
-                    )
+            // Tab strip only when there's more than one metric (a composite).
+            // A lone tab wasted vertical space and just restated the title, so
+            // for a single metric we drop it and let the AppBar title name it.
+            if (keys.size > 1) {
+                PrimaryTabRow(
+                    selectedTabIndex = safeIdx,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    keys.forEachIndexed { idx, key ->
+                        val spec = com.eried.eucplanet.data.model.MetricCatalog.byKey(key)
+                        val label = spec?.let { stringResource(it.labelRes) } ?: key
+                        Tab(
+                            selected = safeIdx == idx,
+                            onClick = { selectedIdx = idx },
+                            text = {
+                                Text(
+                                    label.uppercase(),
+                                    fontSize = 11.sp,
+                                    fontWeight = FontWeight.Medium,
+                                    maxLines = 1
+                                )
+                            }
+                        )
+                    }
                 }
             }
 
@@ -226,7 +235,8 @@ fun MetricDetailScreen(
                     fullHistory = fullHistory,
                     wheelData = wheelData,
                     speedUnit = speedUnit,
-                    tempUnit = tempUnit
+                    tempUnit = tempUnit,
+                    distanceUnit = distanceUnit
                 )
 
                 Spacer(Modifier.height(16.dp))
@@ -247,18 +257,19 @@ fun MetricDetailScreen(
             if (showResetAllConfirm) {
                 AlertDialog(
                     onDismissRequest = { showResetAllConfirm = false },
+                    shape = RoundedCornerShape(12.dp),
                     title = { Text(stringResource(R.string.metric_detail_reset_all_confirm_title)) },
                     text = { Text(stringResource(R.string.metric_detail_reset_all_confirm_body)) },
                     confirmButton = {
                         androidx.compose.material3.TextButton(onClick = {
                             viewModel.resetAllHistory()
                             showResetAllConfirm = false
-                        }) {
+                        }, shape = RoundedCornerShape(12.dp)) {
                             Text(stringResource(R.string.metric_detail_reset_all))
                         }
                     },
                     dismissButton = {
-                        androidx.compose.material3.TextButton(onClick = { showResetAllConfirm = false }) {
+                        androidx.compose.material3.TextButton(onClick = { showResetAllConfirm = false }, shape = RoundedCornerShape(12.dp)) {
                             Text(stringResource(R.string.action_cancel))
                         }
                     }
@@ -281,7 +292,7 @@ private fun ResetWithLongPressConfirm(
     ) {
         Row(
             modifier = Modifier
-                .clip(RoundedCornerShape(20.dp))
+                .clip(RoundedCornerShape(12.dp))
                 .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.12f))
                 .combinedClickable(
                     onClick = onResetActive,
@@ -313,7 +324,8 @@ private fun MetricDetailBody(
     fullHistory: com.eried.eucplanet.data.repository.FullMetricHistory,
     wheelData: WheelData,
     speedUnit: String,
-    tempUnit: String
+    tempUnit: String,
+    distanceUnit: String
 ) {
     val legacyType: MetricType? = runCatching { MetricType.valueOf(key) }.getOrNull()
     val catalogSpec = com.eried.eucplanet.data.model.MetricCatalog.byKey(key)
@@ -331,25 +343,62 @@ private fun MetricDetailBody(
         null -> fullHistory.extras[key].orEmpty()
     }
 
-    fun convert(v: Float): Float = when (legacyType) {
-        MetricType.TEMPERATURE -> com.eried.eucplanet.util.Units.temperature(v, tempUnit)
-        MetricType.SPEED -> com.eried.eucplanet.util.Units.speed(v, speedUnit)
+    // Odometer (and any future distance-based catalog metric) is stored in km.
+    // Convert to the rider's distance unit so the detail matches the dashboard
+    // pill - the odometer tile was skipping this, so imperial riders saw km
+    // here while the pill showed mi.
+    val isDistanceMetric = key == "ODOMETER"
+    // Tire pressure is stored raw in kPa; convert to the rider's pressure unit
+    // (psi for imperial-distance riders, bar otherwise - see Units).
+    val isPressureMetric = key == "TIRE_PRESSURE"
+    val pressureUnit = if (distanceUnit == "mi") "psi" else "bar"
+    // Non-legacy catalog metrics also carry units the dashboard converts but
+    // this screen used to skip - a °F / mph / imperial rider saw raw °C / km/h /
+    // metres in the header, chart, and stat pills while the tile showed the
+    // converted value. Convert by family, mirroring formatMetricStatValue.
+    val isTempMetric = legacyType == MetricType.TEMPERATURE ||
+        key == "MOTOR_TEMP" || key == "CONTROLLER_TEMP" || key == "BATTERY_TEMP"
+    val isSpeedMetric = legacyType == MetricType.SPEED ||
+        key == "GPS_SPEED" || key == "DYN_SPEED_LIMIT"
+    // Altitude / GPS accuracy are stored in metres; feet for imperial riders.
+    val isAltitudeMetric = key == "GPS_ALTITUDE" || key == "GPS_ACCURACY"
+    // GPS / phone / external-GPS metrics aren't on WheelData, so their live
+    // value comes from the latest history sample, not rawCurrentValueFor.
+    val isSourceDerived = key == "GPS_SPEED" || key == "GPS_ALTITUDE" ||
+        key == "GPS_ACCURACY" || key == "PHONE_BATTERY" || key == "EXTERNAL_GPS_BATTERY"
+
+    fun convert(v: Float): Float = when {
+        isTempMetric -> com.eried.eucplanet.util.Units.temperature(v, tempUnit)
+        isSpeedMetric -> com.eried.eucplanet.util.Units.speed(v, speedUnit)
+        isDistanceMetric -> com.eried.eucplanet.util.Units.distance(v, distanceUnit)
+        // psi floored to match the wheel's own display (see pressurePsiFloored).
+        isPressureMetric -> if (pressureUnit == "psi")
+            com.eried.eucplanet.util.Units.pressurePsiFloored(v)
+            else com.eried.eucplanet.util.Units.pressure(v, "bar")
+        isAltitudeMetric -> if (distanceUnit == "mi") v * 3.28084f else v
         else -> v
     }
 
+    val needsConvert = isTempMetric || isSpeedMetric || isDistanceMetric ||
+        isPressureMetric || isAltitudeMetric
     val samples: List<MetricSample> =
-        if (legacyType == MetricType.TEMPERATURE || legacyType == MetricType.SPEED) {
-            rawSamples.map { MetricSample(it.timestampMs, convert(it.value)) }
-        } else rawSamples
+        if (needsConvert) rawSamples.map { MetricSample(it.timestampMs, convert(it.value)) }
+        else rawSamples
 
-    val unitLabel = when (legacyType) {
-        MetricType.TEMPERATURE -> com.eried.eucplanet.util.Units.tempUnit(tempUnit)
-        MetricType.SPEED -> com.eried.eucplanet.util.Units.speedUnit(
+    val unitLabel = when {
+        isTempMetric -> com.eried.eucplanet.util.Units.tempUnit(tempUnit)
+        isSpeedMetric -> com.eried.eucplanet.util.Units.speedUnit(
             androidx.compose.ui.platform.LocalContext.current, speedUnit
         )
-        null -> ""
+        isDistanceMetric -> com.eried.eucplanet.util.Units.distanceUnit(distanceUnit)
+        isPressureMetric -> com.eried.eucplanet.util.Units.pressureUnit(pressureUnit)
+        isAltitudeMetric -> if (distanceUnit == "mi") "ft" else "m"
+        legacyType == null -> ""
         else -> legacyType.unit
     }
+    // Pressure in bar reads with 2 decimals everywhere else; match it here.
+    // (psi stays 1 decimal, already floored above.)
+    val statFmt = if (isPressureMetric && pressureUnit == "bar") "%.2f" else "%.1f"
 
     val currentValue = when (legacyType) {
         MetricType.BATTERY -> convert(wheelData.batteryPercent.toFloat())
@@ -358,7 +407,11 @@ private fun MetricDetailBody(
         MetricType.CURRENT -> convert(wheelData.current)
         MetricType.LOAD -> convert(kotlin.math.abs(wheelData.pwm))
         MetricType.SPEED -> convert(kotlin.math.abs(wheelData.speed))
-        null -> rawCurrentValueFor(key, wheelData)
+        // Source-derived metrics have no WheelData field (rawCurrentValueFor
+        // returns 0), so use the latest already-converted sample as the live
+        // value instead of showing 0.0 in the header.
+        null -> if (isSourceDerived) (samples.lastOrNull()?.value ?: 0f)
+            else convert(rawCurrentValueFor(key, wheelData))
     }
 
     // Both legacyType.color (a baked MetricType palette Color) and catalogSpec.accent
@@ -369,7 +422,7 @@ private fun MetricDetailBody(
         ?: MaterialTheme.appColors.metricVoltage
 
     Text(
-        "${"%.1f".format(currentValue)} $unitLabel",
+        "${statFmt.format(currentValue)} $unitLabel",
         fontSize = 48.sp,
         fontWeight = FontWeight.Bold,
         color = accentColor,
@@ -387,15 +440,15 @@ private fun MetricDetailBody(
     val values = samples.map { it.value }
     val hasBuffer = values.size >= 2
     val placeholderStat = "--"
-    val minStr = if (hasBuffer) "%.1f".format(values.min()) else placeholderStat
-    val maxStr = if (hasBuffer) "%.1f".format(values.max()) else placeholderStat
-    val avgStr = if (hasBuffer) "%.1f".format(values.average()) else placeholderStat
-    val medStr = if (hasBuffer) "%.1f".format(
+    val minStr = if (hasBuffer) statFmt.format(values.min()) else placeholderStat
+    val maxStr = if (hasBuffer) statFmt.format(values.max()) else placeholderStat
+    val avgStr = if (hasBuffer) statFmt.format(values.average()) else placeholderStat
+    val medStr = if (hasBuffer) statFmt.format(
         com.eried.eucplanet.ui.settings.computeDashboardStatValue(
             com.eried.eucplanet.ui.settings.DashboardStat.MEDIAN, samples, currentValue
         ) ?: 0f
     ) else placeholderStat
-    val p95Str = if (hasBuffer) "%.1f".format(
+    val p95Str = if (hasBuffer) statFmt.format(
         com.eried.eucplanet.ui.settings.computeDashboardStatValue(
             com.eried.eucplanet.ui.settings.DashboardStat.P95, samples, currentValue
         ) ?: 0f
@@ -668,6 +721,22 @@ enum class TimeAxisFormat { Relative, Clock }
  */
 data class PredictionMarker(val timestampMs: Long, val value: Float)
 
+/**
+ * One shaded band drawn on [MetricGraph]'s left axis, between the [lower] and
+ * [upper] envelopes (same timestamps). Used by the Battery screen's Packs chart
+ * to draw one cell-spread band per pack plus a pack-to-pack imbalance envelope.
+ *
+ * [outline] adds a thin solid edge around the filled band so overlapping
+ * translucent bands still read apart. [color] carries its own alpha: the fill
+ * is low-alpha and the outline is drawn opaque from the same hue.
+ */
+data class GraphBandSpec(
+    val lower: List<MetricSample>,
+    val upper: List<MetricSample>,
+    val color: Color,
+    val outline: Boolean = true,
+)
+
 @Composable
 internal fun MetricGraph(
     samples: List<MetricSample>,
@@ -707,6 +776,66 @@ internal fun MetricGraph(
      * carries semantic meaning for that mode).
      */
     regenColor: Color? = null,
+    /**
+     * Force the right-axis ([series2]) minimum to zero so a non-negative series
+     * (e.g. the pack imbalance / spread) sits on a zero baseline.
+     */
+    series2BaselineZero: Boolean = false,
+    /**
+     * Draw [series2] with a thicker stroke than the main / extra lines so it
+     * reads as the emphasized series (the imbalance line on the Packs chart).
+     */
+    series2Emphasized: Boolean = false,
+    /**
+     * Draw [series2] dashed rather than solid (the pack-to-pack imbalance line on
+     * the Packs chart reads as a dashed reference, not a data trace).
+     */
+    series2Dashed: Boolean = false,
+    /**
+     * Extra top headroom for the zero-baselined right axis: the padded axis max
+     * is multiplied by this, so with 2f the [series2] data sits in the lower
+     * ~half of the axis instead of hugging the top.
+     */
+    series2Headroom: Float = 1f,
+    /**
+     * Formats the right-axis ([series2]) gridline labels. Defaults to whole
+     * numbers; callers whose right axis needs decimals (e.g. a ~125.3 V pack
+     * voltage, which would otherwise read a flat "125") pass their own.
+     */
+    series2LabelFormat: (Float) -> String = { "%.0f".format(it) },
+    /**
+     * Fill the area under the main [samples] line. Multi-line charts (e.g. the
+     * per-pack imbalance) turn this off so one series doesn't get a shaded band
+     * the others lack. Only affects the plain (no baseline / no regen) branch.
+     */
+    fillMain: Boolean = true,
+    /**
+     * Draw the main [samples] line. A pure band chart (the Packs cell-spread
+     * chart) turns this off and keeps [samples] only for the scrub baseline and
+     * left-axis bounds, so no stray line sits over the bands.
+     */
+    showMainLine: Boolean = true,
+    /**
+     * Shaded / dotted bands on the left axis, drawn behind the lines on the
+     * shared left-axis bounds. See [GraphBandSpec]. The Packs chart passes one
+     * filled band per pack plus a dotted pack-average envelope.
+     */
+    bands: List<GraphBandSpec> = emptyList(),
+    /**
+     * Formats the LEFT-axis gridline labels. Defaults to whole numbers; callers
+     * whose left axis needs decimals (e.g. a ~3.95 V cell voltage, which would
+     * otherwise read a flat "4") pass their own.
+     */
+    leftLabelFormat: (Float) -> String = { "%.0f".format(it) },
+    /**
+     * Optional multiline scrub tooltip. When set AND the rider is scrubbing, the
+     * chart calls this with the cursor's timestamp and stacks the returned lines
+     * as a multiline tooltip box (sized to the widest line, kept on-screen near
+     * the cursor) INSTEAD of the default single-line label. The Packs chart uses
+     * it to list every visible pack's voltage / imbalance plus the global
+     * imbalance. Null (the default) keeps the single-line tooltip everywhere else.
+     */
+    tooltipLines: ((timestampMs: Long) -> List<String>)? = null,
     modifier: Modifier = Modifier
 ) {
     val gridColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.15f)
@@ -719,7 +848,14 @@ internal fun MetricGraph(
     val padded = bounds.max - bounds.min
     // Optional secondary series (e.g. voltage) on its own auto-scaled axis.
     val s2 = series2?.takeIf { it.size >= 2 }
-    val bounds2 = s2?.let { GraphScale.pad(it.minOf { p -> p.value }, it.maxOf { p -> p.value }, 1f) }
+    val bounds2 = s2?.let {
+        val lo = it.minOf { p -> p.value }
+        val hi = it.maxOf { p -> p.value }
+        // A zero-baselined series keeps min at 0 and pads only the top so a
+        // small spread is still readable above the axis.
+        if (series2BaselineZero) GraphBounds(0f, GraphScale.pad(0f, hi, 1f).max * series2Headroom)
+        else GraphScale.pad(lo, hi, 1f)
+    }
     val padded2 = bounds2?.let { it.max - it.min } ?: 1f
 
     var touchX by remember { mutableStateOf<Float?>(null) }
@@ -797,14 +933,14 @@ internal fun MetricGraph(
                 drawLine(gridColor, Offset(0f, y), Offset(w, y), strokeWidth = 1f, pathEffect = dash)
                 val value = bounds.min + padded * i / 4f
                 val label = textMeasurer.measure(
-                    "%.0f".format(value), TextStyle(fontSize = 10.sp, color = axisLabelColor)
+                    leftLabelFormat(value), TextStyle(fontSize = 10.sp, color = axisLabelColor)
                 )
                 drawText(label, topLeft = Offset(-label.size.width - 6f, y - label.size.height / 2f))
                 // Right axis = secondary series (e.g. voltage) on its own scale.
                 if (bounds2 != null) {
                     val v2 = bounds2.min + padded2 * i / 4f
                     val r = textMeasurer.measure(
-                        "%.0f".format(v2), TextStyle(fontSize = 10.sp, color = color2)
+                        series2LabelFormat(v2), TextStyle(fontSize = 10.sp, color = color2)
                     )
                     drawText(r, topLeft = Offset(w + 6f, y - r.size.height / 2f))
                 }
@@ -888,6 +1024,35 @@ internal fun MetricGraph(
                 }
             }
 
+            // Cell-spread bands on the left axis, behind the lines. Each filled
+            // band shades between its lower / upper envelope so a widening band
+            // reads as a growing spread. All share the left-axis bounds.
+            if (bands.isNotEmpty()) {
+                fun bx(s: MetricSample) = w * (s.timestampMs - xMinMs).toFloat() / xSpanMs.toFloat()
+                fun by(v: Float) = h - h * (v - bounds.min) / padded.coerceAtLeast(0.001f)
+                clipRect(0f, 0f, w, h) {
+                    bands.forEach { spec ->
+                        val lo = spec.lower
+                        val up = spec.upper
+                        if (lo.size < 2 || up.size < 2) return@forEach
+                        val poly = androidx.compose.ui.graphics.Path()
+                        up.forEachIndexed { idx, s ->
+                            if (idx == 0) poly.moveTo(bx(s), by(s.value)) else poly.lineTo(bx(s), by(s.value))
+                        }
+                        for (idx in lo.indices.reversed()) poly.lineTo(bx(lo[idx]), by(lo[idx].value))
+                        poly.close()
+                        drawPath(poly, color = spec.color)
+                        if (spec.outline) {
+                            drawPath(
+                                poly,
+                                color = spec.color.copy(alpha = 0.9f),
+                                style = Stroke(width = 1.5f),
+                            )
+                        }
+                    }
+                }
+            }
+
             // Build path. X positions are normalised against the *extended*
             // span so the data line ends at the "now" marker even when the
             // chart extends further right for prediction overlays.
@@ -961,8 +1126,10 @@ internal fun MetricGraph(
                         strokeWidth = 1.5f,
                     )
                 } else {
-                    drawPath(fillPath, color = color.copy(alpha = 0.1f))
-                    drawPath(path, color = color, style = Stroke(width = 3f))
+                    if (fillMain) drawPath(fillPath, color = color.copy(alpha = 0.1f))
+                    if (showMainLine) {
+                        drawPath(path, color = color, style = Stroke(width = 3f))
+                    }
                 }
             }
 
@@ -976,7 +1143,12 @@ internal fun MetricGraph(
                     val y = h - h * (smp.value - bounds2.min) / padded2.coerceAtLeast(0.001f)
                     if (idx == 0) p2.moveTo(x, y) else p2.lineTo(x, y)
                 }
-                clipRect(0f, 0f, w, h) { drawPath(p2, color = color2, style = Stroke(width = 2.5f)) }
+                // Emphasized (spread) line is stroked thicker than the pack lines.
+                val s2Stroke = if (series2Emphasized) 4.5f else 2.5f
+                val s2Dash = if (series2Dashed) PathEffect.dashPathEffect(floatArrayOf(10f, 8f)) else null
+                clipRect(0f, 0f, w, h) {
+                    drawPath(p2, color = color2, style = Stroke(width = s2Stroke, pathEffect = s2Dash))
+                }
                 if (unit2.isNotBlank()) {
                     val u2 = textMeasurer.measure(
                         unit2, TextStyle(fontSize = 10.sp, color = color2, fontWeight = FontWeight.Bold)
@@ -1077,6 +1249,39 @@ internal fun MetricGraph(
                     drawLine(color.copy(alpha = 0.5f), Offset(cursorX, 0f), Offset(cursorX, h), strokeWidth = 1.5f)
                     drawCircle(color, radius = 4f, center = Offset(cursorX, cursorY))
                     drawCircle(Color.White, radius = 2f, center = Offset(cursorX, cursorY))
+
+                    if (tooltipLines != null) {
+                        // Multiline tooltip (the Packs chart): one line per visible
+                        // pack plus the global imbalance, stacked. Sized to the
+                        // widest line and kept on-screen near the cursor.
+                        val lines = tooltipLines(tTargetExtended)
+                        if (lines.isNotEmpty()) {
+                            val measuredLines = lines.map {
+                                textMeasurer.measure(
+                                    it, TextStyle(fontSize = 10.sp, color = tooltipFg, fontWeight = FontWeight.Medium),
+                                )
+                            }
+                            val padX = 6f
+                            val padY = 4f
+                            val lineGap = 2f
+                            val contentW = measuredLines.maxOf { it.size.width }
+                            val contentH = measuredLines.sumOf { it.size.height } + lineGap * (measuredLines.size - 1)
+                            val boxW = contentW + padX * 2
+                            val boxH = contentH + padY * 2
+                            val boxX = (cursorX - boxW / 2f).coerceIn(0f, (w - boxW).coerceAtLeast(0f))
+                            val boxY = (cursorY - boxH - 6f).coerceIn(0f, (h - boxH).coerceAtLeast(0f))
+                            drawRoundRect(
+                                tooltipBg, topLeft = Offset(boxX, boxY), size = Size(boxW, boxH),
+                                cornerRadius = CornerRadius(5f, 5f),
+                            )
+                            var lineY = boxY + padY
+                            measuredLines.forEach { m ->
+                                drawText(m, topLeft = Offset(boxX + padX, lineY))
+                                lineY += m.size.height + lineGap
+                            }
+                        }
+                        return@Canvas
+                    }
 
                     val labelText = buildString {
                         if (timeAxisFormat == TimeAxisFormat.Clock) {

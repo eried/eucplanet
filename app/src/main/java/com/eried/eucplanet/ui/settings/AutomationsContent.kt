@@ -30,6 +30,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -49,6 +50,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.eried.eucplanet.R
+import com.eried.eucplanet.service.AUTO_VOLUME_MAX_MULTIPLIER
 import com.eried.eucplanet.service.encodeVolumeCurve
 import com.eried.eucplanet.service.parseVolumeCurve
 import com.eried.eucplanet.service.pchipInterpolate
@@ -216,13 +218,153 @@ fun AutomationsContent(
             SplineCurveEditor(
                 points = normalizedPoints,
                 speedUnit = Units.effectiveSpeedUnit(settings),
+                // Live update stays local so the drag is smooth; persist to disk only
+                // once the finger lifts (see onPointsCommitted), not on every frame.
                 onPointsChanged = { newPoints ->
                     points = newPoints
+                },
+                onPointsCommitted = { newPoints ->
                     viewModel.updateAutoVolumeCurve(encodeVolumeCurve(newPoints))
                 }
             )
         }
         }   // end Volume BringIntoViewSection
+
+        Spacer(Modifier.height(8.dp))
+
+        // --- Media control Section ---
+        BringIntoViewSection(expanded = settings.mediaControl.pauseEnabled || settings.mediaControl.resumeEnabled) {
+        Text(stringResource(R.string.media_control_title), style = MaterialTheme.typography.headlineMedium,
+            color = MaterialTheme.colorScheme.primary)
+
+        // Pause when slow
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(stringResource(R.string.media_control_pause),
+                style = MaterialTheme.typography.bodyLarge,
+                modifier = Modifier.weight(1f))
+            Switch(checked = settings.mediaControl.pauseEnabled,
+                onCheckedChange = { viewModel.updateMediaPauseEnabled(it) },
+                colors = themedSwitchColors(),)
+        }
+        if (settings.mediaControl.pauseEnabled) {
+            // Range-capped so the pause speed can never reach the resume speed:
+            // a >=2 km/h dead-band is always kept, which prevents a play/pause loop.
+            SpeedNumberSetting(
+                label = stringResource(R.string.media_control_pause_below),
+                valueKmh = settings.mediaControl.pauseBelowKmh.toFloat(),
+                rangeKmh = 1f..(settings.mediaControl.resumeAboveKmh - 2).coerceAtLeast(1).toFloat(),
+                speedUnit = Units.effectiveSpeedUnit(settings),
+                modifier = Modifier.fillMaxWidth(0.5f),
+                onValueChangeKmh = { viewModel.updateMediaPauseBelow(it.roundToInt()) },
+            )
+        }
+
+        // Resume is only offered once Pause is on - it only ever restarts what
+        // Pause stopped, so it is meaningless (and confusing) on its own.
+        if (settings.mediaControl.pauseEnabled) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(stringResource(R.string.media_control_resume),
+                    style = MaterialTheme.typography.bodyLarge,
+                    modifier = Modifier.weight(1f))
+                Switch(checked = settings.mediaControl.resumeEnabled,
+                    onCheckedChange = { viewModel.updateMediaResumeEnabled(it) },
+                    colors = themedSwitchColors(),)
+            }
+            if (settings.mediaControl.resumeEnabled) {
+                // Floored at pause + 2 km/h so resume always sits above pause (dead-band).
+                SpeedNumberSetting(
+                    label = stringResource(R.string.media_control_resume_above),
+                    valueKmh = settings.mediaControl.resumeAboveKmh.toFloat(),
+                    rangeKmh = (settings.mediaControl.pauseBelowKmh + 2).toFloat()..60f,
+                    speedUnit = Units.effectiveSpeedUnit(settings),
+                    modifier = Modifier.fillMaxWidth(0.5f),
+                    onValueChangeKmh = { viewModel.updateMediaResumeAbove(it.roundToInt()) },
+                )
+            }
+        }
+        }   // end Media control BringIntoViewSection
+
+        Spacer(Modifier.height(8.dp))
+
+        // --- Wheel lock (Bluetooth proximity) Section ---
+        BringIntoViewSection(expanded = settings.proximityLock.lockEnabled) {
+        Text(stringResource(R.string.proximity_lock_title), style = MaterialTheme.typography.headlineMedium,
+            color = MaterialTheme.colorScheme.primary)
+
+        // Live signal readout - stand where you park / where you return to tune the thresholds.
+        val liveRssi by viewModel.btRssiDbm.collectAsState()
+        val wheelConnected by viewModel.isConnected.collectAsState()
+        if (wheelConnected && liveRssi != 0) {
+            Text(stringResource(R.string.proximity_lock_signal_live, liveRssi),
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.appColors.statusGood)
+        } else {
+            HintText(stringResource(R.string.proximity_lock_signal_none), small = true)
+        }
+
+        // Lock when walking away
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(stringResource(R.string.proximity_lock_enable),
+                style = MaterialTheme.typography.bodyLarge,
+                modifier = Modifier.weight(1f))
+            Switch(checked = settings.proximityLock.lockEnabled,
+                onCheckedChange = { viewModel.updateProxLockEnabled(it) },
+                colors = themedSwitchColors(),)
+        }
+        if (settings.proximityLock.lockEnabled) {
+            // Capped below unlock (>=10 dBm gap) so a lock/unlock loop is impossible.
+            NumberUpDown(
+                value = settings.proximityLock.lockBelowDbm,
+                onValueChange = { viewModel.updateProxLockBelow(it) },
+                range = -110..(settings.proximityLock.unlockAboveDbm - 2).coerceIn(-110, -30),
+                step = 1,
+                suffix = "dBm",
+                allowSign = true,
+                label = stringResource(R.string.proximity_lock_below),
+                modifier = Modifier.fillMaxWidth(0.5f),
+            )
+
+            // Unlock is only offered once Lock is on - it only reverses this lock.
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(stringResource(R.string.proximity_unlock_enable),
+                    style = MaterialTheme.typography.bodyLarge,
+                    modifier = Modifier.weight(1f))
+                Switch(checked = settings.proximityLock.unlockEnabled,
+                    onCheckedChange = { viewModel.updateProxUnlockEnabled(it) },
+                    colors = themedSwitchColors(),)
+            }
+            if (settings.proximityLock.unlockEnabled) {
+                NumberUpDown(
+                    value = settings.proximityLock.unlockAboveDbm,
+                    onValueChange = { viewModel.updateProxUnlockAbove(it) },
+                    range = (settings.proximityLock.lockBelowDbm + 2).coerceIn(-100, -15)..-15,
+                    step = 1,
+                    suffix = "dBm",
+                    allowSign = true,
+                    label = stringResource(R.string.proximity_unlock_above),
+                    modifier = Modifier.fillMaxWidth(0.5f),
+                )
+            }
+
+            HintText(stringResource(R.string.proximity_lock_hint), small = true)
+        }
+        }   // end Wheel lock BringIntoViewSection
 
         Spacer(Modifier.height(32.dp))
     }
@@ -414,12 +556,13 @@ private fun SunScheduleGraph(
 private fun SplineCurveEditor(
     points: List<Pair<Float, Float>>,
     speedUnit: String,
-    onPointsChanged: (List<Pair<Float, Float>>) -> Unit
+    onPointsChanged: (List<Pair<Float, Float>>) -> Unit,
+    onPointsCommitted: (List<Pair<Float, Float>>) -> Unit
 ) {
     val maxSpeed = 75f
     val speedUnitLabel = Units.speedUnit(androidx.compose.ui.platform.LocalContext.current, speedUnit)
     val minMultiplier = 1f
-    val maxMultiplier = 2f
+    val maxMultiplier = AUTO_VOLUME_MAX_MULTIPLIER
     val multiplierRange = maxMultiplier - minMultiplier
     val gridColor = MaterialTheme.colorScheme.surfaceVariant
     val labelColor = MaterialTheme.colorScheme.onSurfaceVariant
@@ -433,6 +576,11 @@ private fun SplineCurveEditor(
     // Use a ref so pointerInput doesn't restart when points change
     val pointsRef = remember { mutableStateOf(points) }
     pointsRef.value = points
+    // pointerInput(Unit) never restarts, so it would capture the first composition's
+    // callbacks. After the first save the outer points state is recreated, so keep the
+    // current callbacks live or later drags would write a stale, orphaned state.
+    val onChanged by rememberUpdatedState(onPointsChanged)
+    val onCommitted by rememberUpdatedState(onPointsCommitted)
 
     Box(
         modifier = Modifier
@@ -486,17 +634,19 @@ private fun SplineCurveEditor(
                                 val (oldS, _) = pointsRef.value[dragIndex]
                                 val mutable = pointsRef.value.toMutableList()
                                 mutable[dragIndex] = oldS to newM
-                                onPointsChanged(mutable)
+                                onChanged(mutable)
                             } else {
                                 val speed = (change.position.x / w * maxSpeed).coerceIn(0f, maxSpeed)
                                 probeSpeed = speed
                             }
                         },
                         onDragEnd = {
+                            if (dragIndex > 0) onCommitted(pointsRef.value)
                             dragIndex = -1
                             probeSpeed = null
                         },
                         onDragCancel = {
+                            if (dragIndex > 0) onCommitted(pointsRef.value)
                             dragIndex = -1
                             probeSpeed = null
                         }
@@ -517,12 +667,12 @@ private fun SplineCurveEditor(
                 val measured = textMeasurer.measure(label, TextStyle(fontSize = 9.sp, color = labelColor))
                 drawText(measured, topLeft = Offset(x - measured.size.width / 2f, h + 4f))
             }
-            // Y-axis ticks at 1×, 1.5×, 2× (3 lines for clean labels)
-            for (i in 0..2) {
-                val mult = minMultiplier + i * 0.5f
+            // Y-axis ticks at each integer multiplier (1x .. maxMultiplier) for clean labels.
+            for (i in minMultiplier.toInt()..maxMultiplier.toInt()) {
+                val mult = i.toFloat()
                 val y = h - (mult - minMultiplier) / multiplierRange * h
                 drawLine(gridColor, Offset(0f, y), Offset(w, y), strokeWidth = 1f, pathEffect = dash)
-                val label = if (mult == mult.toInt().toFloat()) "${mult.toInt()}x" else "${mult}x"
+                val label = "${i}x"
                 val measured = textMeasurer.measure(label, TextStyle(fontSize = 9.sp, color = labelColor))
                 drawText(measured, topLeft = Offset(-measured.size.width - 4f, y - measured.size.height / 2f))
             }

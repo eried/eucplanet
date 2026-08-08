@@ -5,6 +5,7 @@ import android.util.Log
 import com.eried.eucplanet.data.db.AlarmDao
 import com.eried.eucplanet.data.model.AlarmMetric
 import com.eried.eucplanet.data.model.AlarmRule
+import com.eried.eucplanet.data.model.ExternalGpsSample
 import com.eried.eucplanet.data.model.RadarFrame
 import com.eried.eucplanet.data.model.WheelData
 import com.eried.eucplanet.util.VibratorHelper
@@ -31,7 +32,10 @@ class AlarmEngine @Inject constructor(
     private val voiceService: VoiceService,
     private val watchVibrator: WatchVibrator,
     private val cheatState: com.eried.eucplanet.cheats.CheatState,
-    private val settingsRepository: com.eried.eucplanet.data.repository.SettingsRepository
+    private val settingsRepository: com.eried.eucplanet.data.repository.SettingsRepository,
+    // Lazy so the Trip <-> ExternalGps <-> Alarm provider chain can't form a
+    // Hilt cycle. Supplies the phone location stream for the GPS_SPEED metric.
+    private val tripRepositoryProvider: javax.inject.Provider<com.eried.eucplanet.data.repository.TripRepository>
 ) {
     companion object {
         private const val TAG = "AlarmEngine"
@@ -50,6 +54,20 @@ class AlarmEngine @Inject constructor(
     // state and per-metric trend history; unit-tested in AlarmEvaluatorTest.
     private val evaluator = AlarmEvaluator()
 
+    // The rule id whose CONSTANT tone is currently streaming, or null. A "constant"
+    // beep alarm (beep on + Many + cooldown 0) doesn't re-fire a discrete beep each
+    // tick; it holds ONE continuous streaming tone (via TonePlayer's stream) that
+    // glides in pitch/volume as the value moves, and stops the instant the condition
+    // clears. Tracked here so we start once, update while held, and stop on release.
+    @Volatile private var constantRuleId: Long? = null
+
+    /** A constant-tone alarm: beep on, GAP 0 (a steady tone, not separate beeps),
+     *  repeat-while-active, and no cooldown, so it sounds as ONE continuous tone
+     *  while the condition holds. gap > 0 keeps the classic discrete-beep path even
+     *  at Many + cooldown 0, so only an explicit gap-0 alarm streams. */
+    private fun AlarmRule.isConstantTone() =
+        beepEnabled && beepGapMs == 0 && repeatWhileActive && cooldownSeconds == 0
+
     init {
         // Push the rider's predictive-alarm tuning into the evaluator whenever
         // settings change. sanitized() guarantees safe values, so the evaluator
@@ -60,6 +78,14 @@ class AlarmEngine @Inject constructor(
                 evaluator.bufferMaxMs = s.alarmBufferMaxMs.toLong()
                 evaluator.slopeMinSamples = s.alarmSlopeMinSamples
                 evaluator.slopeMinSpanMs = s.alarmSlopeMinSpanMs.toLong()
+            }
+        }
+        // Phone-GPS speed alarms (GPS_SPEED) are driven off the location stream,
+        // not the wheel loop, so they work with no wheel connected. Only fresh
+        // fixes with a speed reading tick the evaluator.
+        scope.launch {
+            tripRepositoryProvider.get().currentLocation.collect { loc ->
+                if (loc != null && loc.hasSpeed()) evaluateGpsSpeed(loc)
             }
         }
     }
@@ -88,12 +114,12 @@ class AlarmEngine @Inject constructor(
     fun evaluate(data: WheelData) {
         // Quake-console godmode: silences all alarms for the session. The user types
         // `godmode` in the Settings search bar to flip it; lost on app restart.
-        if (cheatState.godmode.value) return
+        if (cheatState.godmode.value) { stopConstantTone(); return }
         scope.launch {
             evalMutex.withLock {
             // Persisted session mute, set by the dashboard's MUTE_ALARMS action.
             // Read inside the launch so we always see the latest store value.
-            if (settingsRepository.get().alarmsMuted) return@withLock
+            if (settingsRepository.get().alarmsMuted) { stopConstantTone(); return@withLock }
             val rules = alarmDao.getEnabled()
             val now = System.currentTimeMillis()
 
@@ -112,14 +138,21 @@ class AlarmEngine @Inject constructor(
                 getMetricValue(metric, data)
             }
 
+            val byId = rules.associateBy { it.id }
+            // Constant-tone alarms are handled EVERY tick (even when `fired` is empty)
+            // so the streaming tone stops the instant the condition clears.
+            handleConstantTone(fired, byId)
+
             if (fired.isNotEmpty()) {
                 val s = settingsRepository.get()
                 val su = com.eried.eucplanet.util.Units.effectiveSpeedUnit(s)
                 val du = com.eried.eucplanet.util.Units.effectiveDistanceUnit(s)
                 val tu = com.eried.eucplanet.util.Units.effectiveTempUnit(s)
-                val byId = rules.associateBy { it.id }
                 for (f in fired) {
                     val rule = byId[f.ruleId] ?: continue
+                    // A constant-tone alarm sounds via the streaming tone above; skip its
+                    // discrete beep/voice so it doesn't machine-gun while the value is held.
+                    if (rule.isConstantTone()) continue
                     Log.i(TAG, "Alarm fired: '${rule.name}' ${rule.metric} ${rule.comparator} ${rule.threshold} (value=${f.value}, lead=${rule.leadTimeMs}ms)")
                     executeActions(rule, data, f.value, su, du, tu)
                 }
@@ -144,14 +177,59 @@ class AlarmEngine @Inject constructor(
                 AlarmMetric.PWM -> data.pwm.absoluteValue
                 AlarmMetric.VOLTAGE -> data.voltage
                 AlarmMetric.CURRENT -> data.current.absoluteValue
-                // Radar metrics are evaluated via the dedicated [evaluateRadar]
-                // entry point, fed by [RadarRepository.currentFrame], not by
-                // the wheel telemetry loop. Returning null here ensures the
-                // wheel evaluator never fires a radar rule with stale data.
+                // Radar + external-GPS metrics are evaluated via their own
+                // entry points ([evaluateRadar] off RadarRepository,
+                // [evaluateExternalGps] off ExternalGpsRepository), not the
+                // wheel telemetry loop. Returning null here ensures the wheel
+                // evaluator never fires one of them with stale/absent data.
                 AlarmMetric.RADAR_DISTANCE,
-                AlarmMetric.RADAR_APPROACH_SPEED -> null
+                AlarmMetric.RADAR_APPROACH_SPEED,
+                AlarmMetric.GPS_SPEED,
+                AlarmMetric.EXTERNAL_GPS_SPEED,
+                AlarmMetric.EXTERNAL_GPS_BATTERY -> null
             }
         } catch (_: Exception) { null }
+    }
+
+    /**
+     * Drive the single continuous "constant tone" from this tick's fire result.
+     * If a constant-tone rule is the active winner, start its streaming tone (or
+     * update its pitch/volume if already streaming, so it glides with the value);
+     * if none is active, stop the stream. Runs every tick, including empty ones,
+     * so the tone ends the moment the condition clears. Only ONE constant tone
+     * plays at a time (the priority winner), matching the "one alarm sounds" rule.
+     */
+    private fun handleConstantTone(fired: List<AlarmEvaluator.Fired>, byId: Map<Long, AlarmRule>) {
+        val active = fired.firstNotNullOfOrNull { f ->
+            byId[f.ruleId]?.takeIf { it.isConstantTone() }?.let { it to f.value }
+        }
+        if (active == null) {
+            stopConstantTone()
+            return
+        }
+        val (rule, value) = active
+        val freq = AlarmLogic.modulatedBeepHz(
+            rule.beepFrequency, value, rule.comparator, rule.threshold, rule.beepModulation, rule.metric)
+        val vol = AlarmLogic.modulatedVolumePct(
+            rule.beepVolume, rule.beepVolumeModulation, value, rule.comparator, rule.threshold, rule.metric)
+        val trans = rule.beepDurationMs * rule.beepTransitionPct / 100
+        if (constantRuleId != rule.id) {
+            Log.i(TAG, "Constant tone START '${rule.name}' freq=$freq vol=$vol gap=${rule.beepGapMs}")
+            tonePlayer.startStream(freq, rule.beepDurationMs, rule.beepGapMs, vol, trans, rule.beepWaveform, rule.beepEffect)
+            constantRuleId = rule.id
+        } else {
+            tonePlayer.updateStream(freq, rule.beepDurationMs, rule.beepGapMs, vol, trans, rule.beepWaveform, rule.beepEffect)
+        }
+    }
+
+    /** Stop the constant tone immediately (condition cleared, disconnect, mute, or
+     *  godmode). Idempotent. */
+    fun stopConstantTone() {
+        if (constantRuleId != null) {
+            Log.i(TAG, "Constant tone STOP")
+            tonePlayer.stopStream()
+            constantRuleId = null
+        }
     }
 
     /**
@@ -196,6 +274,120 @@ class AlarmEngine @Inject constructor(
         }
     }
 
+    /**
+     * External-GPS-side evaluator. Called from
+     * [com.eried.eucplanet.data.repository.ExternalGpsRepository] on each new
+     * sample. Only handles [AlarmMetric.EXTERNAL_GPS_BATTERY]; walks the same
+     * per-rule cooldown state as the wheel path so a low-battery rule fires
+     * once as the box crosses the threshold. A sample whose battery is null
+     * (Dragy before its first FD04 read, or a frame without the field) is a
+     * no-reading SKIP, so the rule state just waits rather than resetting.
+     */
+    fun evaluateExternalGps(sample: ExternalGpsSample) {
+        if (cheatState.godmode.value) return
+        scope.launch {
+            evalMutex.withLock {
+                if (settingsRepository.get().alarmsMuted) return@withLock
+                val rules = alarmDao.getEnabled().filter {
+                    it.metric == AlarmMetric.EXTERNAL_GPS_BATTERY.name ||
+                        it.metric == AlarmMetric.EXTERNAL_GPS_SPEED.name
+                }
+                if (rules.isEmpty()) return@withLock
+                val now = System.currentTimeMillis()
+                val fired = evaluator.evaluate(
+                    rules.map { it.toEvaluatorRule() },
+                    now,
+                    AlarmEvaluator.NoReading.SKIP,
+                ) { metric -> getExternalGpsMetricValue(metric, sample) }
+
+                if (fired.isNotEmpty()) {
+                    val byId = rules.associateBy { it.id }
+                    for (f in fired) {
+                        val rule = byId[f.ruleId] ?: continue
+                        Log.i(TAG, "External-GPS alarm fired: '${rule.name}' ${rule.metric} ${rule.comparator} ${rule.threshold} (value=${f.value})")
+                        executeExternalGpsActions(rule, f.value)
+                    }
+                }
+            }
+        }
+    }
+
+    private fun getExternalGpsMetricValue(metric: String, sample: ExternalGpsSample): Float? {
+        return try {
+            when (AlarmMetric.valueOf(metric)) {
+                AlarmMetric.EXTERNAL_GPS_BATTERY -> sample.batteryPercent?.toFloat()
+                AlarmMetric.EXTERNAL_GPS_SPEED -> sample.speedKmh
+                else -> null
+            }
+        } catch (_: Exception) { null }
+    }
+
+    /**
+     * Phone-GPS-speed evaluator. Driven by the location stream (see init), so a
+     * GPS_SPEED alarm works with no wheel connected. Mirrors [evaluateRadar]:
+     * its own rule filter + value resolver, SKIP on a missing reading.
+     */
+    fun evaluateGpsSpeed(location: android.location.Location) {
+        if (cheatState.godmode.value) return
+        scope.launch {
+            evalMutex.withLock {
+                if (settingsRepository.get().alarmsMuted) return@withLock
+                val rules = alarmDao.getEnabled().filter { it.metric == AlarmMetric.GPS_SPEED.name }
+                if (rules.isEmpty()) return@withLock
+                val now = System.currentTimeMillis()
+                val kmh = location.speed * 3.6f
+                val fired = evaluator.evaluate(
+                    rules.map { it.toEvaluatorRule() },
+                    now,
+                    AlarmEvaluator.NoReading.SKIP,
+                ) { metric -> if (metric == AlarmMetric.GPS_SPEED.name) kmh else null }
+
+                if (fired.isNotEmpty()) {
+                    val byId = rules.associateBy { it.id }
+                    for (f in fired) {
+                        val rule = byId[f.ruleId] ?: continue
+                        Log.i(TAG, "GPS-speed alarm fired: '${rule.name}' ${rule.comparator} ${rule.threshold} (value=${f.value})")
+                        executeExternalGpsActions(rule, f.value)
+                    }
+                }
+            }
+        }
+    }
+
+    private fun executeExternalGpsActions(rule: AlarmRule, triggerValue: Float) {
+        if (rule.vibrateEnabled) {
+            val onPhone = rule.vibrateTarget != "WATCH"
+            val onWatch = rule.vibrateTarget == "WATCH" || rule.vibrateTarget == "BOTH"
+            if (onPhone) vibratorHelper.oneShot(rule.vibrateDurationMs.toLong())
+            if (onWatch) watchVibrator.vibrate(rule.vibrateDurationMs)
+        }
+        scope.launch {
+            if (rule.beepEnabled) {
+                val freq = AlarmLogic.modulatedBeepHz(
+                    rule.beepFrequency, triggerValue, rule.comparator, rule.threshold, rule.beepModulation, rule.metric)
+                val vol = AlarmLogic.modulatedVolumePct(
+                    rule.beepVolume, rule.beepVolumeModulation, triggerValue, rule.comparator, rule.threshold, rule.metric)
+                tonePlayer.playBeep(freq, rule.beepDurationMs, rule.beepCount, rule.beepGapMs, vol,
+                    rule.beepDurationMs * rule.beepTransitionPct / 100, rule.beepWaveform, rule.beepEffect)
+                if (rule.voiceEnabled && rule.voiceText.isNotBlank()) {
+                    delay(rule.beepGapMs.toLong())
+                }
+            }
+            if (rule.voiceEnabled && rule.voiceText.isNotBlank()) {
+                voiceService.speak(expandExternalGpsTemplate(rule.voiceText, rule, triggerValue))
+            }
+        }
+    }
+
+    private fun expandExternalGpsTemplate(template: String, rule: AlarmRule, triggerValue: Float): String {
+        val metricLabel = try { context.getString(AlarmMetric.valueOf(rule.metric).voiceLabelRes) } catch (_: Exception) { rule.metric }
+        return template
+            .replace("{value}", "%.0f".format(triggerValue))
+            .replace("{battery}", "%.0f".format(triggerValue))
+            .replace("{metric}", metricLabel)
+            .replace("{threshold}", "%.0f".format(rule.threshold))
+    }
+
     private fun getRadarMetricValue(metric: String, frame: RadarFrame): Float? {
         return try {
             when (AlarmMetric.valueOf(metric)) {
@@ -223,7 +415,8 @@ class AlarmEngine @Inject constructor(
                     rule.beepFrequency, triggerValue, rule.comparator, rule.threshold, rule.beepModulation, rule.metric)
                 val vol = AlarmLogic.modulatedVolumePct(
                     rule.beepVolume, rule.beepVolumeModulation, triggerValue, rule.comparator, rule.threshold, rule.metric)
-                tonePlayer.playBeep(freq, rule.beepDurationMs, rule.beepCount, rule.beepGapMs, vol)
+                tonePlayer.playBeep(freq, rule.beepDurationMs, rule.beepCount, rule.beepGapMs, vol,
+                    rule.beepDurationMs * rule.beepTransitionPct / 100, rule.beepWaveform, rule.beepEffect)
                 if (rule.voiceEnabled && rule.voiceText.isNotBlank()) {
                     delay(rule.beepGapMs.toLong())
                 }
@@ -260,7 +453,8 @@ class AlarmEngine @Inject constructor(
                     rule.beepFrequency, triggerValue, rule.comparator, rule.threshold, rule.beepModulation, rule.metric)
                 val vol = AlarmLogic.modulatedVolumePct(
                     rule.beepVolume, rule.beepVolumeModulation, triggerValue, rule.comparator, rule.threshold, rule.metric)
-                tonePlayer.playBeep(freq, rule.beepDurationMs, rule.beepCount, rule.beepGapMs, vol)
+                tonePlayer.playBeep(freq, rule.beepDurationMs, rule.beepCount, rule.beepGapMs, vol,
+                    rule.beepDurationMs * rule.beepTransitionPct / 100, rule.beepWaveform, rule.beepEffect)
                 if (rule.voiceEnabled && rule.voiceText.isNotBlank()) {
                     delay(rule.beepGapMs.toLong())
                 }

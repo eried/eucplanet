@@ -128,6 +128,10 @@ data class AppThemeColors(
     val routeDrive: Color = Color.Unspecified,
     val routeStraight: Color = Color.Unspecified,
     val routePreview: Color = Color.Unspecified,
+    // Trip Details: the mid-ride wheel-change marker + trace onward + the
+    // Extra-details "new wheel" row. Purple, distinct from the amber live /
+    // scrub position marker so a wheel change never reads as the cursor.
+    val wheelChange: Color = Color.Unspecified,
     // Charging monitor: the spark icon accent + the two liquid-fill colors
     // (current charge vs. energy added this session).
     val chargingAccent: Color = Color.Unspecified,
@@ -178,6 +182,9 @@ fun AppThemeColors.fillDerived(): AppThemeColors = copy(
     routeDrive = routeDrive.takeOrElse { Color(0xFFFB8C00) },
     routeStraight = routeStraight.takeOrElse { Color(0xFF42A5F5) },
     routePreview = routePreview.takeOrElse { Color(0xFFFFCA28) },
+    // Matches the map's wheel-change hex (#AB47BC) so the map circle/trace and
+    // the Extra-details row read as the same "new wheel" colour.
+    wheelChange = wheelChange.takeOrElse { Color(0xFFAB47BC) },
     chargingAccent = chargingAccent.takeOrElse { statusGood },
     // Old charge (present at session start) = blue; new charge (added this
     // session) = pink. Both resolve from existing metric hues so they track the
@@ -299,6 +306,7 @@ object ThemeTokens {
         ThemeTokenSpec("routeDrive", "Route: drive", GROUP_NAV, { it.routeDrive }, { c, v -> c.copy(routeDrive = v) }),
         ThemeTokenSpec("routeStraight", "Route: straight", GROUP_NAV, { it.routeStraight }, { c, v -> c.copy(routeStraight = v) }),
         ThemeTokenSpec("routePreview", "Route: preview line", GROUP_NAV, { it.routePreview }, { c, v -> c.copy(routePreview = v) }),
+        ThemeTokenSpec("wheelChange", "Trip: wheel change", GROUP_NAV, { it.wheelChange }, { c, v -> c.copy(wheelChange = v) }),
 
         ThemeTokenSpec("connectionActive", "Connected / active", GROUP_INDICATOR, { it.connectionActive }, { c, v -> c.copy(connectionActive = v) }),
         ThemeTokenSpec("connectionIdle", "Disconnected / idle", GROUP_INDICATOR, { it.connectionIdle }, { c, v -> c.copy(connectionIdle = v) }),

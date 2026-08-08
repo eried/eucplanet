@@ -74,7 +74,9 @@ class SyncManager @Inject constructor(
         const val UPLOAD_WORK_NAME = "trip_upload"
         const val PERIODIC_UPLOAD_WORK_NAME = "trip_upload_periodic"
         const val EUCSTATS_UPLOAD_WORK_NAME = "eucstats_upload"
+        const val EUCSTATS_PERIODIC_WORK_NAME = "eucstats_upload_periodic"
         const val DROPBOX_SYNC_WORK_NAME = "dropbox_sync"
+        const val DROPBOX_PERIODIC_WORK_NAME = "dropbox_sync_periodic"
         const val KEY_ATTEMPT = "attempt"
 
         // Custom backoff curve, since WorkManager's native MAX_BACKOFF_MILLIS is
@@ -87,12 +89,17 @@ class SyncManager @Inject constructor(
         // attempt 3  → 1m
         // attempt 4  → 2m
         // attempt 5  → 4m
-        // attempt 6  → 8m
-        // attempt 7  → 16m
-        // attempt 8  → 32m
-        // attempt 9+ → 1h (capped, retries forever)
+        // attempt 6+ → 5m (capped, retries forever)
+        //
+        // Capped at 5m, not 1h: the CONNECTED constraint already holds a retry
+        // until the network is back, but the initial delay is a floor, so a trip
+        // whose attempt counter climbed while connectivity flapped mid-ride would
+        // otherwise sit up to an hour before the next attempt even once wifi is
+        // back home. A 5m ceiling means a stranded trip catches up within minutes.
+        // The workers no-op once nothing is pending, so a tighter cap costs
+        // nothing in the common case.
         private const val BACKOFF_BASE_SECONDS = 15L
-        private const val BACKOFF_MAX_SECONDS = 3600L
+        private const val BACKOFF_MAX_SECONDS = 300L
 
         fun delayForAttempt(attempt: Int): Long {
             if (attempt <= 0) return 0L
@@ -145,7 +152,11 @@ class SyncManager @Inject constructor(
             settingsRepository.settings
                 .map { it.pendingUploadIntervalMin }
                 .distinctUntilChanged()
-                .collect { schedulePeriodicTripUpload(it) }
+                .collect {
+                    schedulePeriodicTripUpload(it)
+                    schedulePeriodicEucStatsUpload(it)
+                    schedulePeriodicDropboxSync(it)
+                }
         }
     }
 
@@ -264,11 +275,14 @@ class SyncManager @Inject constructor(
 
         val total = toUpload.size + toDownload.size
         if (total == 0) {
-            _syncResult.value = SyncResult.Finished(0)
+            _syncResult.value = SyncResult.UpToDate
             return
         }
 
         var done = 0
+        // Uploads that failed this pass (folder access lost, storage full). They
+        // are marked uploadStatus=3 and retried by the folder-backup worker.
+        var failed = 0
         _syncProgress.value = done to total
 
         for (trip in toUpload) {
@@ -283,6 +297,7 @@ class SyncManager @Inject constructor(
                     ))
                 } else {
                     tripDao.update(trip.copy(uploadStatus = 3))
+                    failed++
                 }
             }
             done++
@@ -318,6 +333,11 @@ class SyncManager @Inject constructor(
             _syncProgress.value = done to total
         }
 
+        // Failed uploads are uploadStatus=3; the folder-backup worker retries
+        // status IN (1,3), so kick it so they keep retrying in the background.
+        // The result is always Finished -- no error toast; failed folder uploads
+        // finish silently once conditions recover.
+        if (failed > 0) enqueueTripUpload(settings)
         _syncResult.value = SyncResult.Finished(total)
     }
 
@@ -343,11 +363,10 @@ class SyncManager @Inject constructor(
             file.bufferedReader().use { reader ->
                 val headerLine = reader.readLine() ?: return CsvMeta(startTime, endTime, 0f)
                 val header = headerLine.lowercase().split(",").map { it.trim() }
-                val dateIdx = header.indexOfFirst { it == "date" }.takeIf { it >= 0 } ?: 0
-                val latIdx = header.indexOfFirst { it == "latitude" }.takeIf { it >= 0 } ?: 6
-                val lonIdx = header.indexOfFirst { it == "longitude" }.takeIf { it >= 0 } ?: 7
-                val mileageIdx = header.indexOfFirst { it.contains("mileage") }
-                    .takeIf { it >= 0 } ?: 8
+                val dateIdx = TripCsv.Columns.date(header).takeIf { it >= 0 } ?: 0
+                val latIdx = TripCsv.Columns.latitude(header).takeIf { it >= 0 } ?: 6
+                val lonIdx = TripCsv.Columns.longitude(header).takeIf { it >= 0 } ?: 7
+                val mileageIdx = TripCsv.Columns.mileage(header).takeIf { it >= 0 } ?: 8
                 var first = true
                 // Stay streaming (one big CSV never fully resident), but share
                 // the timestamp + great-circle logic with the import/detail
@@ -806,11 +825,107 @@ class SyncManager @Inject constructor(
         WorkManager.getInstance(context).cancelUniqueWork(EUCSTATS_UPLOAD_WORK_NAME)
     }
 
+    /**
+     * Retry stranded online (eucstats) uploads, e.g. a trip queued when the app
+     * was closed too early or whose retry chain ended on a cold-start bail before
+     * the rider id had loaded. Mirrors [reconcilePendingTripUploads] for the
+     * online path. A short initial delay lets the rider id and settings load so
+     * the worker does not immediately no-op. The worker no-ops when nothing is
+     * pending or the prerequisites are gone, so this is cheap every launch.
+     */
+    fun reconcilePendingEucStatsUploads() {
+        val constraints = Constraints.Builder()
+            .setRequiredNetworkType(NetworkType.CONNECTED)
+            .build()
+        val request = OneTimeWorkRequestBuilder<EucStatsUploadWorker>()
+            .setConstraints(constraints)
+            .setInputData(workDataOf(KEY_ATTEMPT to 0))
+            .setInitialDelay(10, TimeUnit.SECONDS)
+            .build()
+        WorkManager.getInstance(context).enqueueUniqueWork(
+            EUCSTATS_UPLOAD_WORK_NAME,
+            ExistingWorkPolicy.REPLACE,
+            request
+        )
+    }
+
+    /**
+     * Background safety-net for online (eucstats) uploads, mirroring
+     * [schedulePeriodicTripUpload]. Retries queued / failed leaderboard uploads
+     * every [intervalMin] minutes (Android floor 15), rescheduled across app
+     * death and reboots, so a stranded trip lands even if the rider never
+     * reopens the app or rides again. No-ops when nothing is pending.
+     */
+    fun schedulePeriodicEucStatsUpload(intervalMin: Int) {
+        val constraints = Constraints.Builder()
+            .setRequiredNetworkType(NetworkType.CONNECTED)
+            .build()
+        val request = PeriodicWorkRequestBuilder<EucStatsUploadWorker>(
+            intervalMin.coerceAtLeast(15).toLong(), TimeUnit.MINUTES
+        ).setConstraints(constraints).build()
+        WorkManager.getInstance(context).enqueueUniquePeriodicWork(
+            EUCSTATS_PERIODIC_WORK_NAME,
+            ExistingPeriodicWorkPolicy.UPDATE,
+            request
+        )
+    }
+
     /** Initial enqueue of the Dropbox sync worker. Retries reschedule
      *  themselves via [scheduleDropboxSyncAttempt]. Caller should check
      *  the linked state before calling — this is unconditional. */
     fun enqueueDropboxSync() {
+        // Do NOT set the pending flag here. This runs on every app start
+        // (TripRepository reconcile) whenever Dropbox is linked, so flipping it
+        // true flashed the "Syncing trips…" indicator on every open even with
+        // nothing to upload. The worker sets the flag from the real needUpload
+        // count on its next pass, so a genuine backlog (e.g. a just-finished ride)
+        // still surfaces the indicator, and an all-synced state stays quiet.
         scheduleDropboxSyncAttempt(0)
+    }
+
+    /**
+     * Retry a stranded Dropbox mirror on cold start, a few seconds in so the
+     * link token has loaded. Mirrors [reconcilePendingTripUploads] /
+     * [reconcilePendingEucStatsUploads] for the Dropbox path, which otherwise
+     * only ran on trip finish / manual Sync all and left a trip stranded if its
+     * retry chain ended. The worker no-ops when Dropbox is not linked, so this
+     * is cheap every launch.
+     */
+    fun reconcilePendingDropboxSync() {
+        val constraints = Constraints.Builder()
+            .setRequiredNetworkType(NetworkType.CONNECTED)
+            .build()
+        val request = OneTimeWorkRequestBuilder<DropboxSyncWorker>()
+            .setConstraints(constraints)
+            .setInputData(workDataOf(KEY_ATTEMPT to 0))
+            .setInitialDelay(10, TimeUnit.SECONDS)
+            .build()
+        WorkManager.getInstance(context).enqueueUniqueWork(
+            DROPBOX_SYNC_WORK_NAME,
+            ExistingWorkPolicy.REPLACE,
+            request
+        )
+    }
+
+    /**
+     * Background safety-net for the Dropbox mirror, mirroring
+     * [schedulePeriodicTripUpload]. Re-mirrors local trips every [intervalMin]
+     * minutes (Android floor 15), rescheduled across app death, so a stranded
+     * upload lands even if the rider never reopens the app. The worker no-ops
+     * when Dropbox is not linked or everything is already mirrored.
+     */
+    fun schedulePeriodicDropboxSync(intervalMin: Int) {
+        val constraints = Constraints.Builder()
+            .setRequiredNetworkType(NetworkType.CONNECTED)
+            .build()
+        val request = PeriodicWorkRequestBuilder<DropboxSyncWorker>(
+            intervalMin.coerceAtLeast(15).toLong(), TimeUnit.MINUTES
+        ).setConstraints(constraints).build()
+        WorkManager.getInstance(context).enqueueUniquePeriodicWork(
+            DROPBOX_PERIODIC_WORK_NAME,
+            ExistingPeriodicWorkPolicy.UPDATE,
+            request
+        )
     }
 
     /**
@@ -825,6 +940,10 @@ class SyncManager @Inject constructor(
         _activeSyncKind.value = SyncConflictKind.DROPBOX
         activeSyncJob = scope.launch {
             try {
+                // A manual sync is starting: mark trips as pending so the
+                // persistent indicator shows until this pass (or the background
+                // worker) clears it. runDropboxSync flips it back on a clean pass.
+                settingsRepository.update { it.copy(dropboxSyncPending = true) }
                 runDropboxSync()
             } finally {
                 _syncProgress.value = null
@@ -855,8 +974,18 @@ class SyncManager @Inject constructor(
             ?.toList().orEmpty()
         val localByLower = localFiles.associateBy { it.name.lowercase() }
         val remoteByLower = remote.keys.associateBy { it.lowercase() }
+        val remoteMetaByLower = remote.entries.associate { it.key.lowercase() to it.value }
 
-        val conflictKeys = remoteByLower.keys intersect localByLower.keys
+        // A same-name file is a real conflict only when its CONTENT differs (byte
+        // size). Same name + same size means it is already synced, so it is
+        // neither a conflict nor work. Previously every already-synced trip was
+        // flagged as a conflict, so the dialog popped for nothing and "Skip all"
+        // still left genuinely new/changed trips to upload - hence "0 trips" yet
+        // one still synced. This now matches the background worker's size check.
+        val bothNames = remoteByLower.keys intersect localByLower.keys
+        val conflictKeys = bothNames.filterTo(HashSet()) { key ->
+            (localByLower[key]?.length() ?: -1L) != (remoteMetaByLower[key]?.size ?: -2L)
+        }
         val remoteOnly = remoteByLower.keys - localByLower.keys
         val localOnly = localByLower.keys - remoteByLower.keys
 
@@ -869,7 +998,15 @@ class SyncManager @Inject constructor(
             choice = deferred.await()
             _syncConflictPrompt.value = null
             conflictChoice = null
-            if (choice == SyncChoice.CANCEL) return
+            if (choice == SyncChoice.CANCEL) {
+                // Rider aborted at the conflict prompt: clear the pending flag +
+                // count so the persistent indicator disappears instead of popping
+                // back up as if the sync were still going.
+                settingsRepository.update {
+                    it.copy(dropboxSyncPending = false, dropboxPendingCount = 0, dropboxSyncTotal = 0)
+                }
+                return
+            }
         }
 
         val toUpload = mutableListOf<java.io.File>()
@@ -885,11 +1022,29 @@ class SyncManager @Inject constructor(
         val total = toUpload.size + toDownload.size
 
         var done = 0
-        _syncProgress.value = done to total
+        // Count files that could NOT be transferred. The most common cause is the
+        // OS cutting the app's network the moment it leaves the foreground: the
+        // Dropbox host stops resolving and every upload throws. Previously the
+        // result was ignored, so a half-skipped sync still reported "Finished".
+        var failed = 0
+        // Only show the determinate "X of Y" bar when there are trips to move.
+        // When total is 0 (everything already backed up) it stays on the
+        // indeterminate "Checking" state while settings/themes mirror, instead of
+        // a meaningless "0 of 0".
+        if (total > 0) _syncProgress.value = done to total
+        // Seed the pending-count indicator with the trips to upload, then
+        // decrement live as each one lands so the count reflects trips remaining.
+        settingsRepository.update {
+            it.copy(dropboxPendingCount = toUpload.size, dropboxSyncTotal = toUpload.size)
+        }
 
         for (file in toUpload) {
             currentCoroutineContext().ensureActive() // stop cleanly if cancelled
-            dropboxRepository.uploadFile("/trips/${file.name}", file.readBytes())
+            if (dropboxRepository.uploadFile("/trips/${file.name}", file.readBytes())) {
+                settingsRepository.update {
+                    it.copy(dropboxPendingCount = (it.dropboxPendingCount - 1).coerceAtLeast(0))
+                }
+            } else failed++
             done++
             _syncProgress.value = done to total
         }
@@ -897,6 +1052,7 @@ class SyncManager @Inject constructor(
         for (name in toDownload) {
             currentCoroutineContext().ensureActive() // stop cleanly if cancelled
             val bytes = dropboxRepository.downloadFile("/trips/$name")
+            if (bytes == null) failed++
             if (bytes != null) {
                 val dest = File(tripsDir, name)
                 dest.outputStream().use { it.write(bytes) }
@@ -930,10 +1086,36 @@ class SyncManager @Inject constructor(
         ) extra++
         extra += mirrorBackupSubdirsToDropbox(settings)
 
-        settingsRepository.update {
-            it.copy(dropboxLastSyncAt = System.currentTimeMillis())
+        if (failed == 0) {
+            // Only stamp the sync time on a clean pass, so a partial run stays
+            // detectable and the next comparison re-uploads what it missed.
+            // Clear the pending flag: everything landed, so the persistent
+            // "Syncing trips…" indicator disappears.
+            settingsRepository.update {
+                it.copy(
+                    dropboxLastSyncAt = System.currentTimeMillis(),
+                    dropboxSyncPending = false,
+                    dropboxPendingCount = 0,
+                    dropboxSyncTotal = 0,
+                )
+            }
+            // "Synchronized N trips" counts TRIPS only, not the settings.json /
+            // themes / overlays mirror (extra) - counting those made an all-synced
+            // pass that merely refreshed settings report "1 trip". When no trip
+            // moved, say "already up to date" instead of "0 trips".
+            _syncResult.value =
+                if (total == 0) SyncResult.UpToDate else SyncResult.Finished(total)
+        } else {
+            // Hand the skipped trips to the retry worker (missing/newer only), so
+            // they upload once the network is back instead of being silently lost.
+            // No toast: the persistent pending flag + count + indicator cover it,
+            // and the worker keeps retrying until every trip lands or the rider
+            // cancels.
+            settingsRepository.update {
+                it.copy(dropboxSyncPending = true, dropboxPendingCount = failed)
+            }
+            scheduleDropboxSyncAttempt(0)
         }
-        _syncResult.value = SyncResult.Finished(total + extra)
     }
 
     /** Upload the backup folder's themes/ and overlays/ files to Dropbox
@@ -952,7 +1134,7 @@ class SyncManager @Inject constructor(
                     if (!doc.isFile) continue
                     val name = doc.name ?: continue
                     val localMod = doc.lastModified() / 1000L
-                    if (remote[name]?.let { it >= localMod } == true) continue
+                    if (remote[name]?.let { it.serverModified >= localMod } == true) continue
                     val bytes = try {
                         context.contentResolver.openInputStream(doc.uri)?.use { it.readBytes() }
                     } catch (e: Exception) { null } ?: continue
@@ -984,6 +1166,23 @@ class SyncManager @Inject constructor(
 
     fun cancelDropboxSync() {
         WorkManager.getInstance(context).cancelUniqueWork(DROPBOX_SYNC_WORK_NAME)
+    }
+
+    /**
+     * Rider tapped Cancel on the persistent "Syncing trips…" indicator: stop
+     * retrying the Dropbox mirror entirely. Cancels the background retry worker,
+     * cancels a running manual Dropbox reconcile if one is in flight, and clears
+     * the pending flag so the indicator disappears. Trips that were pending stay
+     * local until the next sync; nothing is lost.
+     */
+    fun stopDropboxSync() {
+        WorkManager.getInstance(context).cancelUniqueWork(DROPBOX_SYNC_WORK_NAME)
+        if (_activeSyncKind.value == SyncConflictKind.DROPBOX) cancelActiveSync()
+        scope.launch {
+            settingsRepository.update {
+                it.copy(dropboxSyncPending = false, dropboxPendingCount = 0, dropboxSyncTotal = 0)
+            }
+        }
     }
 
     /** Clear pending / failed eucstats statuses for every trip. Used by the

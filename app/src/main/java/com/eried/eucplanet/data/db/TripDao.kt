@@ -39,6 +39,18 @@ interface TripDao {
     @Query("SELECT * FROM trips WHERE id = :id")
     suspend fun getById(id: Long): TripRecord?
 
+    /**
+     * Persist ONLY the wheel-identity metadata onto a row mid-recording. The full
+     * identity is otherwise written just once, at stopRecording(); a ride that is
+     * OOM-/force-killed before that runs would recover from its CSV with no wheel
+     * ([finalizeUnfinishedTrips]). Flushing it here — the moment the wheel is
+     * identified — means the row already carries it before any kill, and the
+     * recovery sweep preserves it. Single-column update: never disturbs endTime,
+     * distance, or upload status.
+     */
+    @Query("UPDATE trips SET wheelMetaJson = :json WHERE id = :id")
+    suspend fun updateWheelMeta(id: Long, json: String?)
+
     /** Live-recorded trips with no end time. Normally just the one currently
      *  recording, but at cold start any left here are recordings a previous
      *  session was killed mid-flight (force-close / crash). Finalized from their

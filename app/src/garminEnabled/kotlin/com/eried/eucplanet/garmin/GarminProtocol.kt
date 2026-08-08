@@ -46,6 +46,10 @@ internal object GarminKeys {
     const val OPT_GAUGE_BAND = "wgb"
     const val OPT_GAUGE_ORANGE = "wgo"
     const val OPT_GAUGE_RED = "wgr"
+    /** Mirrors AppSettings.watchCloseOnExit. Sent so the watch can self-close
+     *  as a fallback if the phone vanishes without delivering an explicit
+     *  KIND_QUIT (e.g. process killed before the QUIT left). */
+    const val OPT_CLOSE_ON_EXIT = "wce"
 
     // Hardware-button bindings. The watch maps these onto whatever physical
     // buttons it has (Fenix: light/back/start/up/down; Edge: lap/start/back).

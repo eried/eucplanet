@@ -41,6 +41,20 @@ class EucPlanetApp : Application(), Configuration.Provider {
     override fun onCreate() {
         super.onCreate()
         CrashHandler.install(this)
+        // Track UI foreground so background-only process wakes (a periodic
+        // upload worker re-creating the process) don't auto-connect hardware
+        // like the external GPS box. See com.eried.eucplanet.util.AppForeground.
+        registerActivityLifecycleCallbacks(object : ActivityLifecycleCallbacks {
+            override fun onActivityStarted(activity: android.app.Activity) =
+                com.eried.eucplanet.util.AppForeground.onActivityStarted()
+            override fun onActivityStopped(activity: android.app.Activity) =
+                com.eried.eucplanet.util.AppForeground.onActivityStopped()
+            override fun onActivityCreated(a: android.app.Activity, b: android.os.Bundle?) {}
+            override fun onActivityResumed(activity: android.app.Activity) {}
+            override fun onActivityPaused(activity: android.app.Activity) {}
+            override fun onActivitySaveInstanceState(a: android.app.Activity, o: android.os.Bundle) {}
+            override fun onActivityDestroyed(activity: android.app.Activity) {}
+        })
         flicManager.initialize()
         wearBridge.start()
         garminBridge.start()
@@ -53,6 +67,12 @@ class EucPlanetApp : Application(), Configuration.Provider {
         // (after Hilt has injected workerFactory) rather than in SyncManager's
         // init{}, which runs mid-injection and raced the lateinit.
         syncManager.reconcilePendingTripUploads()
+        // Same for the online (eucstats) uploads and the Dropbox mirror: a trip
+        // strands if its retry chain ever ended, and nothing else restarts it.
+        // Both run a few seconds in so the rider id / link token have loaded, and
+        // both no-op when their destination is not configured.
+        syncManager.reconcilePendingEucStatsUploads()
+        syncManager.reconcilePendingDropboxSync()
         syncManager.startPendingUploadWatcher()
     }
 }

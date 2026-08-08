@@ -51,6 +51,9 @@ data class StudioElementData(
                 batteryPercent = hud.batteryPercent,
                 pwm = hud.pwm,
                 torque = hud.torque,
+                phaseCurrent = hud.phaseCurrent,
+                motorPower = hud.motorPower,
+                gForce = hud.gForce,
                 maxTemperature = hud.temperatureC,
                 tripDistance = hud.tripKm,
                 totalDistance = hud.totalKm,
@@ -58,6 +61,23 @@ data class StudioElementData(
                 rollAngle = hud.wheelRollDeg,
                 latitude = hud.latitude,
                 longitude = hud.longitude,
+                externalGpsBatteryPercent = hud.externalGpsBatteryPercent,
+                // Phone and external GPS speeds now ride independent wire fields
+                // (minor 15) so both overlay metrics can show at once. Fall back
+                // to the old single-source split when an older phone leaves the
+                // new fields at NaN.
+                externalGpsSpeedKmh = when {
+                    !hud.externalGpsSpeedKmh.isNaN() -> hud.externalGpsSpeedKmh
+                    hud.gpsSource == "EXTERNAL" -> hud.gpsSpeedKmh
+                    else -> -1f
+                },
+                gpsSpeedKmh = when {
+                    !hud.phoneGpsSpeedKmh.isNaN() -> hud.phoneGpsSpeedKmh
+                    hud.gpsSource == "PHONE" -> hud.gpsSpeedKmh
+                    else -> -1f
+                },
+                tripMeterKm = hud.tripMeterKm,
+                tirePressureKpa = hud.tirePressureKpa,
                 lightOn = hud.lightOn,
                 timestamp = hud.timestampMs.takeIf { it > 0L } ?: System.currentTimeMillis()
             )

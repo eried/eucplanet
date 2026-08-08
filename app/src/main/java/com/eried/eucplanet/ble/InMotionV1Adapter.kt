@@ -24,14 +24,19 @@ class InMotionV1Adapter @Inject constructor() : WheelAdapter {
     override val familyDisplayName = "InMotion V1 / V3 / V5 / V8"
     override val capabilities = WheelCapabilities.INMOTION_V1
 
+    companion object {
+        /** Factory PIN InMotion V1 wheels ship with; sent on connect when no
+         *  custom PIN is set. Wheels with no PIN configured ignore it. */
+        private const val DEFAULT_PIN = "000000"
+    }
+
     @Volatile private var detectedModel: InMotionV1Model? = null
 
     /**
-     * Optional 6-digit PIN for the V1 auth handshake (spec section 7). When
-     * non-null the adapter sends it on connect; the wheel ignores it when no
-     * PIN is configured, so it is safe to always send. UI plumbing for
-     * setting this is out of scope for this commit; the field stays null
-     * until a "Saved PINs" preference path lands.
+     * 6-digit PIN for the V1 auth handshake (spec section 7). null means "use
+     * the factory default" ([DEFAULT_PIN]); a future "Saved PINs" preference
+     * can set a custom one here. The handshake is sent on every connect - the
+     * wheel ignores it when no PIN is configured, so it is safe to always send.
      */
     @Volatile var pin: String? = null
 
@@ -42,26 +47,75 @@ class InMotionV1Adapter @Inject constructor() : WheelAdapter {
      */
     private val reassemblyBuffer = ByteArrayOutputStream()
 
+    /** CAN IDs already logged as unhandled this connection, so an unexpected
+     *  frame the wheel repeats at ~10 Hz is noted once, not thousands of times.
+     *  Cleared on disconnect. */
+    private val loggedUnknownCanIds = mutableSetOf<Int>()
+
+    /** True once the wheel has sent a real fast/slow-info reply this connection,
+     *  i.e. it has accepted the PIN handshake and is streaming. Until then the
+     *  poll loop keeps re-sending the PIN. Reset on each connect / disconnect. */
+    @Volatile private var streamStarted = false
+
+    /** Poll counter used to alternate PIN and fast-info while not yet streaming. */
+    @Volatile private var authPollTick = 0
+
     override fun bleProfile(): BleProfile = BleProfile.INMOTION_V1
 
     override fun notifyConnectingTo(deviceName: String?): DecodeResult.ModelName? {
         detectedModel = deviceName?.let { InMotionV1Model.fromReportedName(it) }
-        return null
+        streamStarted = false
+        authPollTick = 0
+        // Surface the model straight from the BLE name (e.g. "V8S-81E30005" ->
+        // V8S) so the UI shows the real model immediately, without waiting for -
+        // or depending on - a model id in the slow-info bytes (the V8S carries
+        // none). Returns null when the name isn't a recognised V1 model.
+        return detectedModel?.let { DecodeResult.ModelName(it.displayName, it) }
     }
 
     /**
-     * Slow-info first so the model code + serial come back before realtime
-     * polling begins. PIN goes ahead of slow-info on firmwares that gate
-     * settings reads behind it; harmless on the rest.
+     * Factory handshake password first, then the user PIN, then slow-info -
+     * exactly the order EUC World uses (decoded from its BLE capture). The V8S
+     * sits in an identity-only state (broadcasting 0x0F060101, never fast-info)
+     * until it receives the FACTORY password "INMOTI"; the user PIN "000000"
+     * alone does NOT unlock a locked wheel - that was the intermittent-connect
+     * bug (it only "worked" while the wheel was still unlocked from a prior EUC
+     * World session). Send the factory password, then the configured user PIN.
      */
     override fun initSequence(): List<ByteArray> {
         val out = mutableListOf<ByteArray>()
-        pin?.let { out += InMotionV1Commands.sendPin(it) }
+        out += InMotionV1Commands.sendFactoryPassword()
+        out += InMotionV1Commands.sendPin(pin ?: DEFAULT_PIN)
         out += InMotionV1Commands.getSlowInfo()
         return out
     }
 
-    override fun pollRealtime(): ByteArray = InMotionV1Commands.getFastInfo()
+    /**
+     * Realtime poll. Keep RE-SENDING the factory handshake password until the
+     * wheel actually starts streaming, not just once on connect - a wheel that
+     * isn't ready the instant we connect ignores the first one and then drops
+     * the link ~8 s later (status=8). The handshake is two-stage: the wheel acks
+     * the FACTORY password ("INMOTI", data=00) then the user PIN (data=01) and
+     * only then streams. [initSequence] sends each ONCE, so a single dropped PIN
+     * write left the wheel stuck (INMOTI acked, no PIN, never streams) - the
+     * remaining intermittent-connect case. Re-send BOTH here: cycle INMOTI, PIN,
+     * fast-info so each password keeps re-landing on a marginal link (WheelLog
+     * re-sends its password ~6x for the same reason) while still polling
+     * telemetry to detect the stream starting. Once a real reply arrives
+     * ([streamStarted]) drop the handshake and just poll fast-info.
+     */
+    override fun pollRealtime(): ByteArray {
+        if (!streamStarted) {
+            authPollTick++
+            return when (authPollTick % 3) {
+                1 -> InMotionV1Commands.sendFactoryPassword()      // INMOTI (unlock)
+                2 -> InMotionV1Commands.sendPin(pin ?: DEFAULT_PIN) // user PIN (auth)
+                else -> InMotionV1Commands.getFastInfo()
+            }
+        }
+        return InMotionV1Commands.getFastInfo()
+    }
+
     override fun pollSettings(): ByteArray = InMotionV1Commands.getSlowInfo()
 
     /**
@@ -144,6 +198,9 @@ class InMotionV1Adapter @Inject constructor() : WheelAdapter {
     override fun onDisconnect() {
         reassemblyBuffer.reset()
         detectedModel = null
+        loggedUnknownCanIds.clear()
+        streamStarted = false
+        authPollTick = 0
     }
 
     override fun inspectMessageTypes(): List<String> =
@@ -230,6 +287,9 @@ class InMotionV1Adapter @Inject constructor() : WheelAdapter {
                     "InMotion V1 realtime len=${payload.size} body=${payload.joinToString(" ") { "%02x".format(it) }}"
                 )
                 val telem = InMotionV1Parser.parseFastInfo(payload, detectedModel)
+                // A real reply means the wheel accepted the PIN and is streaming;
+                // stop the poll loop's PIN re-sends.
+                if (telem != null) streamStarted = true
                 if (telem != null) listOf(DecodeResult.Telemetry(telem)) else emptyList()
             }
             InMotionV1Protocol.CanId.SLOW_INFO -> {
@@ -238,11 +298,17 @@ class InMotionV1Adapter @Inject constructor() : WheelAdapter {
                     "InMotion V1 slow-info len=${payload.size} body=${payload.joinToString(" ") { "%02x".format(it) }}"
                 )
                 val info = InMotionV1Parser.parseSlowInfo(payload) ?: return emptyList()
+                streamStarted = true
                 if (info.model != null) detectedModel = info.model
+                // Prefer the model decoded from the slow-info bytes, but fall
+                // back to the one detected from the BLE name (V8S carries no
+                // model id in slow-info, so without this it showed as a generic
+                // "InMotion V1 (serial)" despite the name saying V8S).
+                val model = info.model ?: detectedModel
                 val out = mutableListOf<DecodeResult>()
                 out += DecodeResult.ModelName(
-                    info.model?.displayName ?: "InMotion V1 (${info.serial})",
-                    info.model
+                    model?.displayName ?: "InMotion V1 (${info.serial})",
+                    model
                 )
                 out += DecodeResult.Firmware(
                     display = "FW ${info.firmware}",
@@ -253,7 +319,23 @@ class InMotionV1Adapter @Inject constructor() : WheelAdapter {
                 out += DecodeResult.Settings(info.settings)
                 out
             }
-            else -> emptyList()
+            else -> {
+                // Frame the wheel sends that isn't fast/slow-info. Normal
+                // operation only exchanges the 0x0F55xxxx telemetry/command IDs
+                // and 0x0F780101 alerts (docs/protocols/inmotion_v1.md 3.4), so
+                // an unexpected ID is worth surfacing - a V8S that streams ONLY
+                // 0x0F060101 and never fast-info, then drops with a link
+                // supervision timeout, points at a wheel that won't leave its
+                // standby / locked / not-riding state (or another BLE client
+                // holding it). Log each distinct ID once per connection so the
+                // diagnostics name it without flooding at the ~10 Hz it arrives.
+                if (loggedUnknownCanIds.add(canId)) {
+                    DiagnosticsLogger.note(
+                        "InMotion V1 unhandled can=0x%08X len=${unwrapped.size} - wheel not streaming telemetry".format(canId)
+                    )
+                }
+                emptyList()
+            }
         }
     }
 }

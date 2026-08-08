@@ -35,7 +35,9 @@ class ExternalGpsRepository @Inject constructor(
     private val connectionManager: ExternalGpsConnectionManager,
     private val adapters: Set<@JvmSuppressWildcards ExternalGpsAdapter>,
     // Lazy provider to break the dependency cycle: TripRepository injects us.
-    private val tripRepositoryProvider: Provider<TripRepository>
+    private val tripRepositoryProvider: Provider<TripRepository>,
+    // Lazy so a future AlarmEngine dependency on us can't form a Hilt cycle.
+    private val alarmEngineProvider: Provider<com.eried.eucplanet.service.AlarmEngine>
 ) {
     companion object {
         private const val TAG = "ExtGpsRepo"
@@ -83,7 +85,10 @@ class ExternalGpsRepository @Inject constructor(
         // same orientation-corrected values.
         scope.launch {
             connectionManager.samples.collect { raw ->
-                _currentSample.value = raw?.let(::applyAxisRemap)
+                val sample = raw?.let(::applyAxisRemap)
+                _currentSample.value = sample
+                // Feed the low-battery (and any future external-GPS) alarm rules.
+                if (sample != null) alarmEngineProvider.get().evaluateExternalGps(sample)
             }
         }
         scope.launch {
@@ -125,7 +130,12 @@ class ExternalGpsRepository @Inject constructor(
                     }
                     ConnectionState.DISCONNECTED -> {
                         val paired = settingsRepository.get().externalGpsAddress != null
-                        if (!paired || explicitlyDisconnected) return@collect
+                        // Only (re)connect while the rider is actively using the
+                        // app - foreground UI or a running ride. A bare background
+                        // process wake (a periodic upload worker re-creating the
+                        // process every ~15 min) is neither, so the box is never
+                        // powered back on behind the rider's back after Stop All.
+                        if (!paired || explicitlyDisconnected || !appActive()) return@collect
                         // Backoff: 2 / 5 / 10 / 30 s, then 30 s forever. Keeps
                         // the radio quiet when the box is out of range while
                         // still recovering quickly from a single-frame drop.
@@ -140,13 +150,29 @@ class ExternalGpsRepository @Inject constructor(
                         // Re-check after the backoff: rider might have
                         // disconnected/unpaired during the wait.
                         val recheck = settingsRepository.get().externalGpsAddress != null
-                        if (!recheck || explicitlyDisconnected) return@collect
+                        if (!recheck || explicitlyDisconnected || !appActive()) return@collect
                         if (connectionState.value == ConnectionState.DISCONNECTED) {
                             failedAttempts += 1
                             connectPaired()
                         }
                     }
                     else -> { /* CONNECTING / INITIALIZING, let it complete */ }
+                }
+            }
+        }
+
+        // When the app comes to the foreground (the rider opened it), connect
+        // the paired box. The reconnect loop above only fires on GATT state
+        // changes, so a foreground transition while already DISCONNECTED needs
+        // its own nudge. Background-only wakes never set foreground, so they
+        // stay disconnected.
+        scope.launch {
+            com.eried.eucplanet.util.AppForeground.isForeground.collect { fg ->
+                if (fg && !explicitlyDisconnected &&
+                    connectionState.value == ConnectionState.DISCONNECTED &&
+                    settingsRepository.get().externalGpsAddress != null
+                ) {
+                    connectPaired()
                 }
             }
         }
@@ -299,6 +325,13 @@ class ExternalGpsRepository @Inject constructor(
             lastKnownAccM = acc
         )
     }
+
+    /** True while the rider is actively using the app: a foreground UI, or a
+     *  running ride/service. Background-only process wakes are neither, so the
+     *  external GPS is not auto-connected on them. */
+    private fun appActive(): Boolean =
+        com.eried.eucplanet.util.AppForeground.isForeground.value ||
+            com.eried.eucplanet.service.WheelService.isRunning
 
     fun disconnect() {
         // User-initiated disconnect: veto the auto-reconnect loop so the

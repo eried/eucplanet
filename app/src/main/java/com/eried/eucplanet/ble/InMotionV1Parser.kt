@@ -50,12 +50,20 @@ object InMotionV1Parser {
         val sampleA = ByteUtils.getInt32LE(payload, 12)
         val sampleB = ByteUtils.getInt32LE(payload, 16)
         val speed = abs((sampleA + sampleB) / (2f * factor)) * 3.6f
-        val current = ByteUtils.getInt32LE(payload, 20) / 1000f
+        // Current is in 0.01 A units (÷100), not ÷1000: a V8S ride read exactly
+        // 1/10 of EUC World's value, and back-calculating its Power (V×I ≈ 3 W)
+        // confirms ÷100. Signed int32, so it goes negative on regen / braking.
+        val current = ByteUtils.getInt32LE(payload, 20) / 100f
         val voltage = ByteUtils.getUint32LE(payload, 24).toFloat() / 100f
 
-        val mosTemp = (payload[32].toInt() and 0xFF).toFloat()
-        val imuTemp = (payload[34].toInt() and 0xFF).toFloat()
-        val temps = listOf(mosTemp, imuTemp)
+        val motorTemp = (payload[32].toInt() and 0xFF).toFloat()   // MOS / motor temp
+        val boardTemp = (payload[34].toInt() and 0xFF).toFloat()   // IMU / board temp
+        // The board temp at 34 is bogus on some models (the V8S reports a stuck
+        // ~142 °C). Keep it only when it reads as a plausible temperature; the
+        // motor temp at 32 (matches EUC World's "Temperature") always stays, so a
+        // stuck 34 can no longer inflate the TEMP tile's max.
+        val temps = if (boardTemp in -40f..120f) listOf(motorTemp, boardTemp)
+            else listOf(motorTemp)
 
         val totalDistance = readTotalDistanceMeters(payload, model) / 1000f
         val tripDistance = ByteUtils.getUint32LE(payload, 48).toFloat() / 1000f
@@ -72,6 +80,9 @@ object InMotionV1Parser {
             speed = speed,
             voltage = voltage,
             current = current,
+            // V1 doesn't report power directly; derive it (matches EUC World's
+            // "Power" = V×I). Signed, so regen shows negative.
+            batteryPower = (voltage * current).toInt(),
             batteryPercent = batteryPercent,
             temperatures = temps,
             maxTemperature = temps.maxOrNull() ?: 0f,

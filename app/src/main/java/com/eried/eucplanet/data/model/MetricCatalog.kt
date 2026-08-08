@@ -136,6 +136,16 @@ object MetricCatalog {
             sparkline = SparklineStyle.NONE,       // monotonic counter
             supportsStats = false
         ),
+        MetricSpec(
+            // Car-odometer-style running distance, counts while connected and
+            // persists across restarts. Tapping opens the distance-split detail
+            // view, not the generic min/max/avg one, so it needs no stat buffer.
+            key = "TRIP_METER",
+            labelRes = R.string.metric_chip_trip_meter,
+            accent = AccentPurple,
+            sparkline = SparklineStyle.NONE,       // monotonic counter
+            supportsStats = false
+        ),
 
         // ---- Pool (already-buffered) ----
         MetricSpec(
@@ -222,6 +232,13 @@ object MetricCatalog {
             bipolarNegativeAccent = AccentGreen
         ),
         MetricSpec(
+            key = "PHASE_CURRENT",
+            labelRes = R.string.metric_chip_phase_current,
+            accent = AccentBlue,
+            sparkline = SparklineStyle.AREA_BIPOLAR,
+            bipolarNegativeAccent = AccentGreen
+        ),
+        MetricSpec(
             key = "DYN_SPEED_LIMIT",
             labelRes = R.string.metric_chip_dyn_speed_limit,
             accent = AccentBlue,
@@ -252,6 +269,16 @@ object MetricCatalog {
             labelRes = R.string.metric_chip_battery_temp,
             accent = AccentOrange,
             sparkline = SparklineStyle.AREA
+        ),
+        MetricSpec(
+            key = "TIRE_PRESSURE",
+            labelRes = R.string.metric_chip_tire_pressure,
+            descriptionRes = R.string.metric_desc_tire_pressure,
+            accent = AccentBlue,
+            // Tracked like the other "extra" metrics (EXTRA_HISTORY_METRICS):
+            // slow-drifting line with min/max/avg in the tap-to-graph detail.
+            sparkline = SparklineStyle.SMOOTH_LINE,
+            supportsStats = true
         ),
 
         // ---- Derived trip aggregates ----
@@ -341,6 +368,13 @@ object MetricCatalog {
             descriptionRes = R.string.metric_desc_gps_accuracy,
             accent = AccentPurple,
             sparkline = SparklineStyle.LINE
+        ),
+        MetricSpec(
+            key = "EXTERNAL_GPS_BATTERY",
+            labelRes = R.string.metric_chip_external_gps_battery,
+            descriptionRes = R.string.metric_desc_external_gps_battery,
+            accent = AccentGreen,
+            sparkline = SparklineStyle.AREA
         ),
 
         // ---- Derived motion + pack health ----

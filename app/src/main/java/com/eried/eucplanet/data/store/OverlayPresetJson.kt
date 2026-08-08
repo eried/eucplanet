@@ -3,8 +3,10 @@ package com.eried.eucplanet.data.store
 import com.eried.eucplanet.hud.protocol.OverlayElement
 import com.eried.eucplanet.hud.protocol.OverlayElementType
 import com.eried.eucplanet.hud.protocol.OverlayPreset
+import com.eried.eucplanet.hud.protocol.ReplaySourceType
 import com.eried.eucplanet.hud.protocol.ViewportConfig
 import com.eried.eucplanet.hud.protocol.ViewportLayout
+import com.eried.eucplanet.hud.protocol.ViewportReplayFace
 import com.eried.eucplanet.hud.protocol.ViewportSourceType
 import org.json.JSONArray
 import org.json.JSONObject
@@ -51,6 +53,21 @@ object OverlayPresetJson {
                     })
                     put("gradientAngle", vp.gradientAngle.toDouble())
                     put("gradientRadial", vp.gradientRadial)
+                    vp.replay?.let { r ->
+                        put("replay", JSONObject().apply {
+                            put("source", r.source.name)
+                            put("solidColor", r.solidColor)
+                            put("gradientColors", JSONArray().apply { r.gradientColors.forEach { put(it) } })
+                            put("gradientStops", JSONArray().apply { r.gradientStops.forEach { put(it.toDouble()) } })
+                            put("gradientAngle", r.gradientAngle.toDouble())
+                            put("gradientRadial", r.gradientRadial)
+                            if (r.imageData != null) put("imageData", r.imageData)
+                            if (r.videoUri != null) put("videoUri", r.videoUri)
+                            put("videoFit", r.videoFit)
+                            put("videoOffsetMs", r.videoOffsetMs)
+                            put("videoEdge", r.videoEdge)
+                        })
+                    }
                 })
             }
         })
@@ -112,7 +129,27 @@ object OverlayPresetJson {
                 (0 until arr.length()).map { arr.optDouble(it, 0.0).toFloat() }
             }?.takeIf { it.isNotEmpty() } ?: d.gradientStops,
             gradientAngle = o.optDouble("gradientAngle", d.gradientAngle.toDouble()).toFloat(),
-            gradientRadial = o.optBoolean("gradientRadial", d.gradientRadial)
+            gradientRadial = o.optBoolean("gradientRadial", d.gradientRadial),
+            replay = o.optJSONObject("replay")?.let { r ->
+                val rd = ViewportReplayFace()
+                ViewportReplayFace(
+                    source = enumOr(r.optString("source"), rd.source),
+                    solidColor = r.optLong("solidColor", rd.solidColor),
+                    gradientColors = r.optJSONArray("gradientColors")?.let { arr ->
+                        (0 until arr.length()).map { arr.optLong(it) }
+                    }?.takeIf { it.isNotEmpty() } ?: rd.gradientColors,
+                    gradientStops = r.optJSONArray("gradientStops")?.let { arr ->
+                        (0 until arr.length()).map { arr.optDouble(it, 0.0).toFloat() }
+                    }?.takeIf { it.isNotEmpty() } ?: rd.gradientStops,
+                    gradientAngle = r.optDouble("gradientAngle", rd.gradientAngle.toDouble()).toFloat(),
+                    gradientRadial = r.optBoolean("gradientRadial", rd.gradientRadial),
+                    imageData = if (r.has("imageData")) r.optString("imageData") else rd.imageData,
+                    videoUri = if (r.has("videoUri")) r.optString("videoUri") else rd.videoUri,
+                    videoFit = r.optString("videoFit", rd.videoFit),
+                    videoOffsetMs = r.optLong("videoOffsetMs", rd.videoOffsetMs),
+                    videoEdge = r.optString("videoEdge", rd.videoEdge),
+                )
+            }
         )
     }
 

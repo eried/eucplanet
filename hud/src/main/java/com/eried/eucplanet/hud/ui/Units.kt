@@ -60,6 +60,15 @@ object HudUnits {
         else -> "°C"
     }
 
+    /** Tire pressure: raw kPa -> the chosen unit. Follows the distance unit
+     *  (mi -> psi, else bar), mirroring the phone's Units.effectivePressureUnit.
+     *  psi is floored to 1 decimal so the HUD matches the wheel's own display
+     *  (the wheel sends whole kPa and truncates; rounding read 0.1 psi high). */
+    fun pressure(kpa: Float, distCode: String): Float =
+        if (distCode == "mi") kotlin.math.floor(kpa * 0.145038f * 10f) / 10f else kpa / 100f
+
+    fun pressureSuffix(distCode: String): String = if (distCode == "mi") "psi" else "bar"
+
     /** Round to N decimals as a Float (rendering uses %.Nf, this is only for
      *  intermediate comparison / threshold checks). */
     fun round1(v: Float): Float = round(v * 10f) / 10f

@@ -48,6 +48,10 @@ module Keys {
     const OPT_GAUGE_BAND = "wgb";
     const OPT_GAUGE_ORANGE = "wgo";
     const OPT_GAUGE_RED = "wgr";
+    // Mirrors AppSettings.watchCloseOnExit. When true the dial self-closes if
+    // the phone link goes silent (fallback for a missed KIND_QUIT); when false
+    // the dial just waits for the phone to come back.
+    const OPT_CLOSE_ON_EXIT = "wce";
 
     const STEM1_CLICK = "s1c";
     const STEM1_HOLD = "s1h";
@@ -124,6 +128,10 @@ class WatchSnapshot {
     public var showGaugeBand as Lang.Boolean = false;
     public var gaugeOrangeThresholdPct as Lang.Number = 65;
     public var gaugeRedThresholdPct as Lang.Number = 85;
+    // Default false: if we never heard the setting from the phone we must NOT
+    // self-close, so an app opened standalone (or with the toggle off) keeps
+    // waiting for the phone instead of exiting.
+    public var closeOnExit as Lang.Boolean = false;
 
     public var stem1Click as Lang.String = "NONE";
     public var stem1Hold as Lang.String = "NONE";
@@ -199,6 +207,7 @@ module WatchState {
         s.showGaugeBand = boolean(dict, Keys.OPT_GAUGE_BAND, false);
         s.gaugeOrangeThresholdPct = number(dict, Keys.OPT_GAUGE_ORANGE, 65);
         s.gaugeRedThresholdPct = number(dict, Keys.OPT_GAUGE_RED, 85);
+        s.closeOnExit = boolean(dict, Keys.OPT_CLOSE_ON_EXIT, false);
 
         s.stem1Click = string(dict, Keys.STEM1_CLICK, "NONE");
         s.stem1Hold = string(dict, Keys.STEM1_HOLD, "NONE");

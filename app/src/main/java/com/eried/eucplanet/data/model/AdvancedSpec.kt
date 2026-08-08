@@ -56,6 +56,10 @@ data class AdvancedSpec(
 val taperFormat: (Int) -> String = { String.format(java.util.Locale.US, "%.2f", it / 100f) }
 val taperParse: (String) -> Int? = { it.toFloatOrNull()?.let { f -> Math.round(f * 100f) } }
 
+/** 6-digit PIN display: keep leading zeros so 0 shows as "000000". */
+val pinFormat: (Int) -> String = { String.format(java.util.Locale.US, "%06d", it) }
+val pinParse: (String) -> Int? = { it.toIntOrNull() }
+
 /** Canonical defaults — one allocation, reused for resets, JSON fallback, etc. */
 val ADVANCED_DEFAULTS = AdvancedSettings()
 
@@ -78,6 +82,12 @@ val ADVANCED_SPECS: List<AdvancedSpec> = listOf(
         0..20, 1, unit = "km/h", get = { it.lockMaxSpeedKmh }, set = { s, v -> s.copy(lockMaxSpeedKmh = v) }),
     AdvancedSpec("phoneGpsIntervalMs", AdvGroup.RATES, R.string.adv_phone_gps_interval, R.string.adv_phone_gps_interval_desc,
         250..10000, 250, get = { it.phoneGpsIntervalMs }, set = { s, v -> s.copy(phoneGpsIntervalMs = v) }),
+    AdvancedSpec("phoneGpsIdleIntervalMs", AdvGroup.RATES, R.string.adv_phone_gps_idle_interval, R.string.adv_phone_gps_idle_interval_desc,
+        2000..120000, 1000, get = { it.phoneGpsIdleIntervalMs }, set = { s, v -> s.copy(phoneGpsIdleIntervalMs = v) }),
+    AdvancedSpec("gpsIdleOffDelaySec", AdvGroup.RATES, R.string.adv_gps_idle_off_delay, R.string.adv_gps_idle_off_delay_desc,
+        0..300, 15, unit = "s", get = { it.gpsIdleOffDelaySec }, set = { s, v -> s.copy(gpsIdleOffDelaySec = v) }),
+    AdvancedSpec("gpsFixMaxAgeSec", AdvGroup.RATES, R.string.adv_gps_fix_max_age, R.string.adv_gps_fix_max_age_desc,
+        3..30, 1, unit = "s", get = { it.gpsFixMaxAgeSec }, set = { s, v -> s.copy(gpsFixMaxAgeSec = v) }),
     AdvancedSpec("hudReportIntervalMs", AdvGroup.RATES, R.string.adv_hud_report_interval, R.string.adv_hud_report_interval_desc,
         50..2000, 25, get = { it.hudReportIntervalMs }, set = { s, v -> s.copy(hudReportIntervalMs = v) }),
     AdvancedSpec("garminReportIntervalMs", AdvGroup.RATES, R.string.adv_garmin_report_interval, R.string.adv_garmin_report_interval_desc,
@@ -160,6 +170,8 @@ val ADVANCED_SPECS: List<AdvancedSpec> = listOf(
         1..100, 1, unit = "m", get = { it.navProxBandM }, set = { s, v -> s.copy(navProxBandM = v) }),
     AdvancedSpec("navMinInterStopMoveM", AdvGroup.NAV_BEHAVIOUR, R.string.adv_nav_inter_stop, R.string.adv_nav_inter_stop_desc,
         5..500, 5, unit = "m", get = { it.navMinInterStopMoveM }, set = { s, v -> s.copy(navMinInterStopMoveM = v) }),
+    AdvancedSpec("navMaxStartDistanceKm", AdvGroup.NAV_BEHAVIOUR, R.string.adv_nav_max_start, R.string.adv_nav_max_start_desc,
+        5..1000, 5, unit = "km", get = { it.navMaxStartDistanceKm }, set = { s, v -> s.copy(navMaxStartDistanceKm = v) }),
 
     // --- Radar classification ---
     AdvancedSpec("radarFastApproachDistM", AdvGroup.RADAR_CLASS, R.string.adv_radar_fast_dist, R.string.adv_radar_fast_dist_desc,
@@ -193,6 +205,16 @@ val ADVANCED_SPECS: List<AdvancedSpec> = listOf(
     AdvancedSpec("chargingMedianFilterSize", AdvGroup.CHARGING, R.string.adv_charging_median, R.string.adv_charging_median_desc,
         1..21, 2, unit = "", get = { it.chargingMedianFilterSize }, set = { s, v -> s.copy(chargingMedianFilterSize = v) }),
 
+    // --- Battery cell / pack balance coloring (deviation from the pack median) ---
+    AdvancedSpec("cellLowWarnMv", AdvGroup.CHARGING, R.string.adv_cell_low_warn, R.string.adv_cell_low_warn_desc,
+        5..150, 5, unit = "mV", get = { it.cellLowWarnMv }, set = { s, v -> s.copy(cellLowWarnMv = v) }),
+    AdvancedSpec("cellLowDangerMv", AdvGroup.CHARGING, R.string.adv_cell_low_danger, R.string.adv_cell_low_danger_desc,
+        10..300, 5, unit = "mV", get = { it.cellLowDangerMv }, set = { s, v -> s.copy(cellLowDangerMv = v) }),
+    AdvancedSpec("cellHighMv", AdvGroup.CHARGING, R.string.adv_cell_high, R.string.adv_cell_high_desc,
+        5..200, 5, unit = "mV", get = { it.cellHighMv }, set = { s, v -> s.copy(cellHighMv = v) }),
+    AdvancedSpec("packBalanceTolerancePct", AdvGroup.CHARGING, R.string.adv_pack_balance_tol, R.string.adv_pack_balance_tol_desc,
+        1..30, 1, unit = "%", get = { it.packBalanceTolerancePct }, set = { s, v -> s.copy(packBalanceTolerancePct = v) }),
+
     // --- Screen geometry variables ---
     AdvancedSpec("compactMaxScreenDp", AdvGroup.GEOMETRY, R.string.adv_compact_max_screen, R.string.adv_compact_max_screen_desc,
         300..800, 10, unit = "dp", get = { it.compactMaxScreenDp }, set = { s, v -> s.copy(compactMaxScreenDp = v) }),
@@ -204,4 +226,12 @@ val ADVANCED_SPECS: List<AdvancedSpec> = listOf(
         240..480, 10, unit = "dp", get = { it.navSidebarWidthDp }, set = { s, v -> s.copy(navSidebarWidthDp = v) }),
     AdvancedSpec("navSidebarMinScreenDp", AdvGroup.GEOMETRY, R.string.adv_nav_sidebar_min, R.string.adv_nav_sidebar_min_desc,
         400..900, 20, unit = "dp", get = { it.navSidebarMinScreenDp }, set = { s, v -> s.copy(navSidebarMinScreenDp = v) }),
+
+    // --- Wheel access ---
+    // InMotion V1 (V5/V8/V10/L6) BLE PIN. Typed 6-digit field; factory default
+    // 000000. The +/- steppers are incidental (you type the PIN); NumberUpDown
+    // already limits input to 6 digits.
+    AdvancedSpec("inmotionV1Pin", AdvGroup.CONTROLS, R.string.adv_inmotion_v1_pin, R.string.adv_inmotion_v1_pin_desc,
+        0..999999, 1, unit = "", get = { it.inmotionV1Pin }, set = { s, v -> s.copy(inmotionV1Pin = v) },
+        format = pinFormat, parse = pinParse),
 )

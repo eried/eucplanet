@@ -4,6 +4,30 @@
     <string name="notification_channel_name">З\'єднання з моноколесом</string>
     <string name="notification_channel_description">Показує стан з\'єднання з моноколесом і телеметрію</string>
 
+    <!-- Notification quick actions -->
+    <string name="notif_actions_section">Налаштувати</string>
+    <string name="notif_actions_enable">Показувати дії сповіщення</string>
+    <string name="notif_actions_enable_desc">Додайте кнопки швидких дій до активного сповіщення.</string>
+    <string name="notif_actions_pick_desc">Виберіть до %1$d дій. Одну дію можна повторити.</string>
+    <string name="notif_action_slot">Дія %1$d</string>
+    <string name="notif_action_stop_all">Зупинити все</string>
+    <string name="notif_action_lock">Заблокувати / Розблокувати</string>
+    <string name="notif_action_light">Світло увімк. / вимк.</string>
+    <string name="notif_action_record">Запис / Стоп</string>
+    <string name="notif_action_horn">Сигнал</string>
+    <string name="notif_action_disconnect">Відключити</string>
+    <string name="notif_action_stop_nav">Зупинити навігацію</string>
+    <string name="notif_btn_stop_all">Зупинити все</string>
+    <string name="notif_btn_lock">Заблок.</string>
+    <string name="notif_btn_unlock">Розблок.</string>
+    <string name="notif_btn_light_on">Світло увімк.</string>
+    <string name="notif_btn_light_off">Світло вимк.</string>
+    <string name="notif_btn_record">Запис</string>
+    <string name="notif_btn_stop_record">Стоп</string>
+    <string name="notif_btn_horn">Сигнал</string>
+    <string name="notif_btn_disconnect">Відключити</string>
+    <string name="notif_btn_stop_nav">Стоп навіг.</string>
+
     <!-- Common -->
     <string name="action_back">Назад</string>
     <string name="action_cancel">Скасувати</string>
@@ -11,16 +35,12 @@
     <string name="action_done">Готово</string>
     <string name="action_close">Закрити</string>
 <string name="crash_log_action_prompt">Ви утримали %1$s. Видаліть цей журнал або всі. Щоб поділитися, натисніть «Скасувати» і торкніться файлу.</string>
-    <string name="crash_log_delete_one">Видалити цей журнал</string>
     <string name="crash_log_delete_all">Видалити всі</string>
     <string name="crash_log_delete_all_warning">Видалити всі збережені журнали збоїв? Цю дію не можна скасувати.</string>
     <string name="action_save">Зберегти</string>
     <string name="action_apply">Застосувати</string>
     <string name="action_delete">Видалити</string>
-    <string name="action_edit">Редагувати</string>
     <string name="action_test">Тест</string>
-    <string name="action_move_up">Вгору</string>
-    <string name="action_move_down">Вниз</string>
     <string name="action_reorder">Перетягни, щоб змінити порядок</string>
     <string name="show_gauge_color_band">Кольорова смуга шкали швидкості</string>
     <string name="stat_watts">ВАТИ</string>
@@ -202,7 +222,6 @@
     <string name="metric_chip_load">PWM</string>
     <string name="metric_chip_trip">Поїздка</string>
     <string name="metric_chip_speed">Швидкість</string>
-    <string name="metric_chip_power">Потужність</string>
     <string name="metric_chip_odometer">Одометр</string>
     <string name="metric_chip_motor_power">Потуж. мотора</string>
     <string name="metric_chip_battery_power">Потуж. батареї</string>
@@ -214,11 +233,16 @@
     <string name="metric_chip_lateral_g">Боковий g</string>
     <string name="metric_chip_forward_g">g вперед</string>
     <string name="metric_chip_torque">Крутний мом.</string>
+    <string name="metric_chip_phase_current">Фаза A</string>
     <string name="metric_chip_dyn_speed_limit">Динамічний ліміт швидкості</string>
     <string name="metric_chip_dyn_current_limit">Динамічний ліміт струму</string>
     <string name="metric_chip_motor_temp">Температура мотора</string>
     <string name="metric_chip_controller_temp">Температура контролера</string>
     <string name="metric_chip_battery_temp">Температура батареї</string>
+    <string name="metric_chip_tire_pressure">Тиск у шині</string>
+    <string name="metric_chip_tire_pressure_tile">Шина</string>
+    <string name="metric_desc_tire_pressure">Тиск у шині від прив\'язаного датчика TPMS (InMotion P6). Показується в psi або bar.</string>
+    <string name="studio_metric_tire_pressure">Тиск у шині</string>
     <string name="metric_chip_headroom">Запас</string>
     <string name="metric_chip_trip_time">Час поїздки</string>
     <string name="metric_chip_trip_max_speed">Макс. за поїздку</string>
@@ -231,6 +255,7 @@
     <string name="metric_chip_gps_speed">Шв. GPS</string>
     <string name="metric_chip_gps_heading">Курс</string>
     <string name="metric_chip_gps_accuracy">Точність GPS</string>
+    <string name="metric_chip_external_gps_battery">Батарея зовнішнього GPS</string>
     <string name="metric_chip_slope">Ухил</string>
     <string name="metric_chip_ascent">Підйом</string>
     <string name="metric_chip_descent">Спуск</string>
@@ -258,6 +283,7 @@
     <string name="metric_chip_dyn_current_limit_tile">A limit</string>
     <string name="metric_chip_phone_battery_tile">Тел</string>
     <string name="metric_chip_gps_accuracy_tile">GPS ±</string>
+    <string name="metric_chip_external_gps_battery_tile">GPS бат</string>
     <string name="metric_chip_odometer_tile">Odo</string>
     <string name="metric_chip_trip_max_speed_tile">Max sp</string>
     <string name="metric_chip_avg_trip_speed_tile">Avg sp</string>
@@ -287,6 +313,7 @@
     <string name="metric_desc_regen_wh">Загальні ват-години, повернуті в батарею при гальмуванні за цю поїздку.</string>
     <string name="metric_desc_bt_rssi">Сила сигналу Bluetooth до колеса, ближче до 0 dBm означає сильніше.</string>
     <string name="metric_desc_gps_accuracy">Радіус похибки GPS-позиціонування, менше означає точніше.</string>
+    <string name="metric_desc_external_gps_battery">Заряд спареного зовнішнього GPS (RaceBox, Dragy), щоб бачити, як він падає, перш ніж сяде посеред поїздки.</string>
 
     <!-- Action labels for the dashboard layout chips -->
     <string name="action_chip_horn">Сигнал</string>
@@ -403,7 +430,7 @@
 
     <!-- Watch hardware buttons -->
     <string name="watch_button_click_label">Натискання</string>
-    <string name="watch_button_hold_label">Довге натискання</string>
+    <string name="watch_button_hold_label">Утрим.</string>
     <string name="watch_buttons_hardware_info">Утримання можуть перехоплюватись системою на деяких годинниках</string>
     <string name="watch_buttons_touch_info">Залежить від твого годинника</string>
     <string name="watch_buttons_hardware_label">Фізичні</string>
@@ -441,7 +468,7 @@
     <string name="cloud_restore_success">Налаштування відновлено</string>
     <string name="cloud_restore_failed">У папці не знайдено резервної копії</string>
     <string name="section_cloud_trips">Резервні копії поїздок</string>
-    <string name="cloud_trips_caption">Нові поїздки автоматично зберігаються до твоєї папки</string>
+    <string name="cloud_trips_caption">Поїздки залишаються на цьому телефоні й автоматично синхронізуються з папкою резервних копій. Очищення тут видаляє лише копії на телефоні, а не резервну копію.</string>
     <string name="cloud_retry_now">Синхр. усе</string>
     <string name="cloud_retry_enqueued">Вивантаження заплановано</string>
     <string name="sync_progress">Синхронізація %1$d з %2$d</string>
@@ -517,6 +544,7 @@
     <string name="units_temp_f">Фаренгейт</string>
     <string name="units_temp_k">Кельвін</string>
     <string name="phone_keep_screen_on">Не вимикати екран</string>
+    <string name="phone_show_over_lock">Показувати поверх екрана блокування</string>
     <string name="language">Мова</string>
     <string name="theme">Тема</string>
     <string name="tts_switch_title">Переключити голос на %1$s?</string>
@@ -544,14 +572,13 @@
     <!-- Settings: Voice -->
     <string name="section_announcements">Оголошення</string>
     <string name="section_speech">Мовлення</string>
-    <string name="section_report_status">Звіт про стан</string>
-    <string name="voice_enabled">Періодично озвучувати стан</string>
+    <string name="section_report_status">Періодична та ручна озвучка</string>
+    <string name="voice_enabled">Увімкнути періодичні звіти</string>
     <string name="voice_announce_when_label">Озвучувати</string>
     <string name="voice_announce_always">Завжди</string>
     <string name="voice_announce_connected">Підключено</string>
     <string name="voice_announce_riding">Під час руху</string>
     <string name="voice_interval">Інтервал</string>
-    <string name="unit_sec">с</string>
     <string name="announce_wheel_lock">Блокування і розблокування</string>
     <string name="announce_lights">Увімкнення і вимкнення світла</string>
     <string name="announce_recording">Запис поїздки</string>
@@ -692,6 +719,15 @@
     <string name="flic_double_click">Подвійне натискання</string>
     <string name="flic_hold">Утримання</string>
     <string name="section_external_gps">GPS і датчики</string>
+    <!-- TPMS sensors -->
+    <string name="section_tpms">Датчики TPMS</string>
+    <string name="tpms_caption">Тиск у шині від датчика на моноколесі, як InMotion P6.</string>
+    <string name="tpms_wheel_sensor">Тиск у шині моноколеса</string>
+    <string name="tpms_wheel_sensor_desc">Передається від прив\'язаного датчика</string>
+    <string name="tpms_idle">Жоден датчик ще не передає</string>
+    <string name="tpms_pair_title">Прив\'язати інший датчик</string>
+    <string name="tpms_pair_replaces">Додатковий датчик замінює вбудований у моноколесо, якщо він є.</string>
+    <string name="tpms_scan">Шукати датчики</string>
     <string name="external_gps_device_title">Зовнішній GPS</string>
     <string name="external_gps_pair_button">Почати пошук</string>
     <string name="external_gps_pair_action">Спарувати</string>
@@ -782,6 +818,11 @@
     <string name="alarm_metric_pwm_voice" translatable="false">PWM</string>
     <string name="alarm_metric_voltage">Напруга</string>
     <string name="alarm_metric_current">Струм</string>
+    <string name="alarm_metric_gps_speed">Швидкість GPS</string>
+    <string name="alarm_metric_external_gps_speed">Швидкість зовнішнього GPS</string>
+    <string name="alarm_metric_external_gps_battery">Батарея зовнішнього GPS</string>
+    <string name="alarm_metric_external_gps_speed_short">Швидк. зовн. GPS</string>
+    <string name="alarm_metric_external_gps_battery_short">Бат. зовн. GPS</string>
     <string name="alarm_metric_radar_distance">Відстань до авто</string>
     <string name="alarm_metric_radar_approach">Авто наближається</string>
 
@@ -887,10 +928,30 @@
     <string name="auto_lights_desc">Вмикати або вимикати фари за заходом і сходом сонця</string>
     <string name="auto_lights_on_before_sunset">Вмикати фари перед заходом</string>
     <string name="auto_lights_off_after_sunrise">Вимикати фари після сходу</string>
-    <string name="auto_minutes_fmt">%1$d хв</string>
     <string name="auto_waiting_gps">Чекаємо на координати GPS…</string>
     <string name="auto_volume_title">Гучність</string>
     <string name="auto_volume_desc">Підвищувати гучність музики залежно від швидкості</string>
+    <string name="media_control_title">Керування медіа</string>
+    <string name="media_control_desc">Ставить музику на паузу, коли ви сповільнюєтесь, і відновлює, коли пришвидшуєтесь.</string>
+    <string name="media_control_pause">Пауза під час сповільнення</string>
+    <string name="media_control_pause_below">Пауза на цій швидкості або нижче</string>
+    <string name="media_control_resume">Відновлювати під час пришвидшення</string>
+    <string name="media_control_resume_above">Відновлювати на цій швидкості або вище</string>
+    <string name="proximity_lock_title">Блокування колеса</string>
+    <string name="proximity_lock_desc">Блокує колесо, коли ви відходите, і розблоковує, коли повертаєтесь, за силою сигналу Bluetooth.</string>
+    <string name="proximity_lock_enable">Блокувати при відході</string>
+    <string name="proximity_lock_below">Блокувати нижче</string>
+    <string name="proximity_unlock_enable">Розблокувати при поверненні</string>
+    <string name="proximity_unlock_above">Розблокувати вище</string>
+    <string name="proximity_lock_signal_live">Поточний сигнал: %1$d dBm</string>
+    <string name="proximity_lock_signal_none">Підключіть колесо, щоб бачити сигнал у реальному часі.</string>
+    <string name="proximity_lock_hint">Блокування потребує активного підключення, тож спрацьовує, коли сигнал слабшає, а не після виходу із зони дії.</string>
+    <string name="auto_lock_override_toast">Автоблокування увімкнено і може це перевизначити.</string>
+    <string name="auto_lock_override_action">Налаштувати</string>
+    <string name="menu_auto_lock_settings">Налаштування блокування колеса</string>
+    <string name="menu_auto_lock_on">Увімкнути автоблокування</string>
+    <string name="menu_auto_lock_off">Вимкнути автоблокування</string>
+    <string name="action_retry">Повторити</string>
     <string name="auto_sunrise_sunset">Схід і захід сонця</string>
     <string name="auto_midnight_sun_title">Полярний день</string>
     <string name="auto_midnight_sun_body">Сьогодні на цій широті сонце не заходить, фари залишатимуться ВИМКНЕНИМИ</string>
@@ -902,7 +963,6 @@
     <string name="alarm_help">Для кожної метрики автоматично спрацьовує найдоречніша тривога. Порядок у списку не змінює, яка саме; сортування лише підтримує лад</string>
     <string name="alarm_empty">Правил тривог поки немає</string>
     <string name="alarm_add">Нова тривога</string>
-    <string name="alarm_smart_sort">Автосортування</string>
     <string name="alarm_summary_predict_fmt">передбачає за %1$s с наперед</string>
     <string name="alarm_new">Нова тривога</string>
     <string name="alarm_edit">Редагувати тривогу</string>
@@ -911,7 +971,6 @@
     <string name="alarm_delete_action">Видалити тривогу</string>
     <string name="alarm_metric_label">Метрика</string>
     <string name="alarm_comparator_label">Умова</string>
-    <string name="alarm_threshold_fmt">Поріг: %1$s %2$s</string>
     <string name="alarm_threshold_label">Поріг</string>
     <string name="alarm_label_frequency">Частота</string>
     <string name="alarm_label_duration">Тривалість</string>
@@ -956,9 +1015,6 @@
 
     <string name="alarm_section_beep">Сигнал</string>
     <string name="alarm_enable_beep">Увімкнути сигнал</string>
-    <string name="alarm_beep_freq_fmt">Частота: %1$dГц</string>
-    <string name="alarm_beep_duration_fmt">Тривалість: %1$dмс</string>
-    <string name="alarm_beep_repeats_fmt">Повторів: %1$d</string>
     <string name="alarm_section_voice">Голос</string>
     <string name="alarm_enable_voice">Увімкнути голос</string>
     <string name="alarm_voice_template">Шаблон тексту</string>
@@ -966,25 +1022,16 @@
     <string name="alarm_voice_default">Увага! {metric}: {value}</string>
     <string name="alarm_section_vibrate">Вібрація</string>
     <string name="alarm_enable_vibrate">Увімкнути вібрацію</string>
-    <string name="alarm_vibrate_duration_fmt">Тривалість: %1$dмс</string>
-    <string name="alarm_vibrate_target_label">Вібрувати на</string>
     <string name="alarm_vibrate_target_phone">Телефоні</string>
     <string name="alarm_vibrate_target_watch">Годиннику</string>
     <string name="alarm_vibrate_target_both">Усіх</string>
-    <string name="alarm_section_timing">Тайминг</string>
     <string name="alarm_cooldown_label">Пауза</string>
-    <string name="alarm_cooldown_fmt">Пауза: %1$dс</string>
-    <string name="alarm_cooldown_help">Мінімальна пауза між спрацюваннями цього правила, навіть якщо умова продовжує виконуватись</string>
     <string name="alarm_section_advanced">Додатково</string>
     <string name="alarm_repeat_label">Спрацювання</string>
     <string name="alarm_repeat_single">Раз</string>
     <string name="alarm_repeat_multi">Багато</string>
-    <string name="alarm_repeat">Повторювати, поки активна</string>
-    <string name="alarm_repeat_help">Один раз: одне сповіщення, після чого знову активується, коли показник повернеться в безпечну зону.\nБагато разів: повторює сповіщення через кожну паузу, поки триває спрацювання.</string>
     <string name="alarm_predict_label">Передбачуване спрацювання</string>
     <string name="alarm_predict_realtime">Зараз</string>
-    <string name="alarm_predict_value_fmt">на %1$s с раніше</string>
-    <string name="alarm_predict_help">Зараз: сповіщає в ту мить, коли поріг зафіксовано.\nІнші: сповіщають за стільки секунд до того, як тенденція ось-ось його досягне.</string>
     <string name="alarm_state_atleast">%1$s становить %2$s або більше</string>
     <string name="alarm_state_below">%1$s нижче %2$s</string>
     <string name="alarm_repeat_help_once">Одне сповіщення, коли %1$s. Повторно активується, коли %2$s, після паузи %3$d s.</string>
@@ -1106,7 +1153,6 @@
     <string name="charging_stat_balance">Дисбаланс</string>
     <string name="charging_stat_power">Потужність</string>
     <string name="charging_stat_current">Струм</string>
-    <string name="charging_stat_energy">Енергія</string>
     <string name="charging_chart_empty">Збір даних</string>
     <string name="battery_history">Історія батареї</string>
     <string name="setting_charging_auto_open">Відкривати при зарядженні</string>
@@ -1127,7 +1173,6 @@
     <string name="studio_your_presets_empty">Збережених пресетів ще немає. Збережи поточний макет, щоб додати.</string>
 
     <!-- Studio: render progress overlay -->
-    <string name="studio_rendering">Рендеринг</string>
     <string name="studio_rendering_cancel">Скасувати</string>
     <string name="studio_dlg_cancel_render_title">Скасувати рендеринг?</string>
     <string name="studio_dlg_cancel_render_body">Кліп повтору не буде збережено.</string>
@@ -1371,6 +1416,7 @@
     <string name="studio_metric_temperature">Температура</string>
     <string name="studio_metric_voltage">Напруга</string>
     <string name="studio_metric_current">Струм</string>
+    <string name="studio_metric_phase_current">Фазний струм</string>
     <string name="studio_metric_power">Потужність</string>
     <string name="studio_metric_pwm">PWM</string>
     <string name="studio_metric_trip_distance">Відстань поїздки</string>
@@ -1378,6 +1424,28 @@
     <string name="studio_metric_pitch">Нахил</string>
     <string name="studio_metric_roll">Крен</string>
     <string name="studio_metric_g_force">G-Force</string>
+    <string name="studio_metric_external_gps_battery">Заряд зовн. GPS</string>
+    <string name="studio_metric_external_gps_speed">Швидкість зовн. GPS</string>
+    <string name="studio_metric_gps_speed">Швидкість GPS</string>
+    <string name="metric_chip_trip_meter">Лічильник поїздки</string>
+    <string name="trip_meter_detail_title">Лічильник поїздки</string>
+    <string name="trip_meter_tab_speed">Швидкість</string>
+    <string name="trip_meter_tab_battery">Заряд</string>
+    <string name="trip_meter_tab_time">Час</string>
+    <string name="trip_meter_total">Усього</string>
+    <string name="trip_meter_active">Активно</string>
+    <string name="trip_meter_avg">Сер.</string>
+    <string name="trip_meter_reset">Скинути лічильник поїздки</string>
+    <string name="trip_meter_reset_msg">Обнуляє поточну відстань і видаляє всі відрізки. Цю дію не можна скасувати.</string>
+    <string name="trip_meter_empty">Ще немає відстані. Лічильник рахує, поки підключено моноколесо.</string>
+    <string name="trip_meter_partial">Зараз</string>
+    <string name="trip_meter_col_split">#</string>
+    <string name="trip_meter_col_dist">Відст.</string>
+    <string name="trip_meter_col_time">Час</string>
+    <string name="trip_meter_col_max">Макс</string>
+    <string name="trip_meter_col_batt">Бат</string>
+    <string name="studio_metric_trip_meter">Лічильник поїздки</string>
+    <string name="studio_metric_gps">Координати GPS</string>
 
     <!-- Navigator -->
     <string name="nav_open">Відкрити навігатор</string>
@@ -1431,6 +1499,7 @@
     </string-array>
     <string name="nav_my_location">Моє місцеперебування</string>
     <string name="nav_no_location">Очікуємо на сигнал GPS…</string>
+    <string name="nav_too_far_to_start">Перша зупинка задалеко. Утримуй «Пуск», щоб все одно почати навігацію.</string>
     <string name="nav_empty_hint">Торкнись карти, скористайся пошуком або завантаж файл GPX</string>
     <string name="nav_route_failed">Сервіс маршрутів недоступний, використовуються прямі лінії</string>
     <string name="nav_cant_add_while_running">Не можна додати зупинку під час навігації</string>
@@ -1524,7 +1593,6 @@
     <string name="trip_action_share_file">Поділитися файлом</string>
     <string name="trip_action_share_file_desc">Надіслати CSV поїздки в інший застосунок</string>
     <string name="trip_action_view_online">Переглянути онлайн</string>
-    <string name="trip_action_view_online_desc">Відкрити на карті EUC Viewer</string>
     <string name="trip_action_replay">Відтворити у Studio</string>
     <string name="trip_action_replay_desc">Прокрути поїздку з накладанням даних у реальному часі</string>
     <!-- ==== Dashboard quick menus ==== -->
@@ -1536,7 +1604,6 @@
     <string name="studio_group_media">Камера та зображення</string>
     <string name="studio_cfg_border_colour">Колір рамки</string>
     <string name="studio_cfg_border_width">Товщина рамки</string>
-    <string name="studio_rendering_keep_open">Не вимикай телефон і не закривай цей екран до завершення рендерингу</string>
     <string name="studio_cfg_g_scale">Масштаб</string>
     <string name="studio_export_force_opaque_hint">Формати без прозорості використовують колір хромакея; може виглядати дивно на напівпрозорих шарах</string>
     <string name="studio_cfg_filter_vivid">Яскравий</string>
@@ -1617,8 +1684,6 @@
     <string name="trip_action_share_dropbox_desc">Завантажити в твою папку Dropbox і поділитися публічним посиланням</string>
     <string name="trip_action_inspect_online">Переглянути онлайн</string>
     <string name="trip_action_inspect_online_desc">Поділитися посиланням eucviewer.ried.no для перегляду цієї поїздки онлайн</string>
-    <string name="trip_action_copy_link">Скопіювати посилання eucviewer</string>
-    <string name="trip_action_copy_link_desc">Скопіювати посилання eucviewer.ried.no у буфер обміну</string>
     <string name="trip_action_dropbox_disabled">Під\'єднай Dropbox у налаштуваннях, щоб увімкнути</string>
 
     <!-- ==== Navigation map: chargers & places (OCM / OSM) ==== -->
@@ -1693,6 +1758,14 @@
     <string name="adv_charging_cv_taper_desc">Впливає на те, наскільки песимістичний прогноз часу для кінцевого відрізку до повного заряду. Більше додає запас.</string>
     <string name="adv_charging_median">Вибірки згладжування</string>
     <string name="adv_charging_median_desc">Впливає на те, скільки вибірок фільтрується за медіаною, щоб прибрати стрибки напруги. Використовуй непарне число.</string>
+    <string name="adv_cell_low_warn">Комірка низько, попередження</string>
+    <string name="adv_cell_low_warn_desc">Наскільки комірка може опуститися нижче медіани блока, перш ніж стане жовтою.</string>
+    <string name="adv_cell_low_danger">Комірка низько, небезпека</string>
+    <string name="adv_cell_low_danger_desc">Наскільки комірка може опуститися нижче медіани блока, перш ніж стане червоною.</string>
+    <string name="adv_cell_high">Комірка високо</string>
+    <string name="adv_cell_high_desc">Наскільки комірка може піднятися вище медіани блока, перш ніж стане синьою.</string>
+    <string name="adv_pack_balance_tol">Допуск балансу блока</string>
+    <string name="adv_pack_balance_tol_desc">Наскільки блок може відхилятися від медіани, перш ніж покине збалансований зелений, для вигляду блоків лише з відсотками.</string>
     <string name="adv_charging_sanity_cap">Межа розумності прогнозу</string>
     <string name="adv_charging_sanity_cap_desc">Впливає на найбільший прогноз часу, що показується. Усе вище вважається ще не готовим.</string>
     <string name="adv_charging_target_pct">Цільовий відсоток</string>
@@ -1758,6 +1831,8 @@
     <string name="adv_nav_inter_stop_desc">Впливає на те, як далеко треба проїхати за одну зупинку, перш ніж наступна зарахується як досягнута. Небезпека: замало — можна пропустити зупинку.</string>
     <string name="adv_nav_intermediate_flash">Час спалаху точки</string>
     <string name="adv_nav_intermediate_flash_desc">Впливає на те, як довго показується спалах досягнення точки.</string>
+    <string name="adv_nav_max_start">Макс. відстань для старту</string>
+    <string name="adv_nav_max_start_desc">Наскільки далеко може бути перша зупинка, щоб почати навігацію. Понад це лінія від твого місцеперебування приховується, а старт блокується. Планування маршруту досі працює.</string>
     <string name="adv_nav_moving">Швидкість руху</string>
     <string name="adv_nav_moving_desc">Впливає на швидкість, вище якої ти вважаєшся рухомим для курсу та підказок. Небезпека: забагато — ігнорує повільну їзду.</string>
     <string name="adv_nav_offroute_grace">Пільга сходу з маршруту</string>
@@ -1777,6 +1852,12 @@
     <string name="adv_nav_warning">Це змінює, коли реагує навігація. Неправильні значення можуть змусити голосові підказки чи перепрокладання спрацьовувати зарано або запізно.</string>
     <string name="adv_phone_gps_interval">Інтервал оновлення GPS телефону</string>
     <string name="adv_phone_gps_interval_desc">Впливає на плавність GPS-треку та швидкість реакції навігації. Менше — оновлює частіше. Небезпека: малі значення швидше розряджають акумулятор.</string>
+    <string name="adv_phone_gps_idle_interval">Інтервал GPS у спокої</string>
+    <string name="adv_phone_gps_idle_interval_desc">Частота GPS у спокої, коли немає запису чи навігації, щоб Навігатор і нове підключення були готові. Більше - економить батарею.</string>
+    <string name="adv_gps_idle_off_delay">Вимикати GPS у спокої</string>
+    <string name="adv_gps_idle_off_delay_desc">Коли застосунок у фоні, моноколесо не підключене й нічого не записується, GPS вимикається задля економії батареї. 0 вимикає одразу; більше значення спершу тримає енергоощадну позицію активною цей час, щоб швидке перемикання застосунків не скидало GPS.</string>
+    <string name="adv_gps_fix_max_age">Макс. вік позиції GPS</string>
+    <string name="adv_gps_fix_max_age_desc">Позиція, старіша за це, вважається відсутністю сигналу, щоб запис, розпочатий до готовності GPS, не починався із застарілої точки.</string>
     <string name="adv_pushonly_note">Деякі пристрої передають дані зі своєю фіксованою частотою й ігнорують ці налаштування: моноколеса лише з передачею (Begode, Gotway, Veteran, KingSong), зовнішній GPS (RaceBox), радар і кнопки Flic.</string>
     <string name="adv_radar_clear_decay">Згасання смуги радара</string>
     <string name="adv_radar_clear_decay_desc">Впливає на те, як довго смуга залишається після того, як дорога звільниться. Небезпека: замало — блимає, коли машини з\'являються та зникають.</string>
@@ -1806,17 +1887,8 @@
     <string name="adv_wheel_poll_rate_desc">Впливає на свіжість живих даних і швидкість реакції сигналів. Менше — частіше запитує дані в моноколеса. Небезпека: дуже малі значення можуть перевантажити зв\'язок Bluetooth і застопорити дані на деяких моноколесах.</string>
     <string name="alarm_beep_advanced">Розширені</string>
     <string name="alarm_beep_gap_label">Тривалість паузи</string>
-    <string name="alarm_beep_pitch_rise_label">Зростання тону</string>
     <string name="alarm_beep_studio">Адаптивний сигнал</string>
-    <string name="alarm_beep_sum_core">Сигнали на %1$d Гц протягом %2$d мс</string>
-    <string name="alarm_beep_sum_pitch"> Тон зростає до %1$d Гц, коли %2$s досягає %3$s %4$s.</string>
-    <string name="alarm_beep_sum_pitch_vol"> Тон зростає до %1$d Гц, а гучність від %2$d%% до %3$d%%, коли %4$s досягає %5$s %6$s.</string>
-    <string name="alarm_beep_sum_reps">, ×%1$d з проміжком %2$d мс</string>
-    <string name="alarm_beep_sum_reps0">, ×%1$d поспіль</string>
-    <string name="alarm_beep_sum_voice">, потім говорить</string>
-    <string name="alarm_beep_sum_vol"> Гучність зростає від %1$d%% до %2$d%%, коли %3$s досягає %4$s %5$s.</string>
-    <string name="alarm_beep_volume_label">Гучність</string>
-    <string name="alarm_beep_volume_rise_label">Зростання гучності</string>
+    <string name="alarm_beep_volume_label">Базова гучність</string>
     <string name="alarm_studio_now">%1$d Гц · %2$d%%</string>
     <string name="alarm_studio_pitch_factor">Коефіцієнт тону</string>
     <string name="alarm_studio_play">Відтворити</string>
@@ -1839,12 +1911,12 @@
     <string name="studio_export_status">Експорт файлу…</string>
     <string name="studio_export_stay">Залишитися на поточному екрані</string>
     <string name="studio_export_title">Експорт файлу</string>
-    <string name="studio_replay_trim">(Обрізати)</string>
+    <string name="studio_replay_trim">(вся поїздка)</string>
     <string name="studio_replay_trim_duration">Тривалість</string>
     <string name="studio_replay_trim_end">Кінець</string>
     <string name="studio_replay_trim_reset">Скинути</string>
     <string name="studio_replay_trim_start">Початок</string>
-    <string name="studio_replay_trim_title">Обрізати кліп</string>
+    <string name="studio_replay_trim_title">Обрізати поїздку</string>
     <string name="tab_advanced">Розширені</string>
     <string name="tab_more">Більше</string>
     <string name="welcome_tut_dev_join">Приєднатися до таблиць лідерів</string>
@@ -1874,9 +1946,16 @@
     <string name="settings_visibility">Видимість налаштувань</string>
     <string name="geo_section_dashboard">Панель</string>
     <string name="geo_section_navigator">Навігатор</string>
+    <string name="geo_section_trip">Поїздка</string>
     <string name="geo_section_other">Інші екрани</string>
-    <string name="geo_other_hint">Налаштування, поїздки, монітор батареї, історія метрик, сканування та Flic. Overlay Studio не зачіпається: його макет фіксований, але він добре працює в будь-якій орієнтації.</string>
+    <string name="geo_section_settings">Налаштування</string>
+    <string name="geo_other_hint">Монітор батареї, історія метрик, сканування та Flic. Overlay Studio не зачіпається: його макет фіксований, але він добре працює в будь-якій орієнтації.</string>
+    <string name="geo_settings_hint">Екран налаштувань. Типово вимкнено, тому Налаштування залишаються у книжковій орієнтації, доки ви це не увімкнете.</string>
+    <string name="geo_trip_hint">Екран деталей за замовчуванням обертається для карти та графіків у альбомній орієнтації. Список поїздок залишається у книжковій орієнтації, доки ви це не увімкнете.</string>
     <string name="setting_allow_rotation">Дозволити обертання</string>
+    <string name="setting_rotate_trip_detail">Обертати деталі поїздки</string>
+    <string name="setting_rotate_trip_list">Обертати список поїздок</string>
+    <string name="setting_trip_map_side">Сторона карти</string>
     <string name="setting_block_upside_down">Заборонити перевертання догори дриґом</string>
     <string name="setting_ignore_system_rotate_lock">Ігнорувати системне блокування обертання</string>
     <string name="setting_compact_dashboard">Компактна панель</string>
@@ -1901,10 +1980,87 @@
     <string name="adv_cover_cutout_inset_desc">Місце, що лишається вільним для фронтальних об\'єктивів, коли ввімкнено Уникати фронтальних камер. Замало, і об\'єктиви закривають кнопки.</string>
     <string name="adv_nav_sidebar_min">Мінімальний екран для бічної панелі</string>
     <string name="adv_nav_sidebar_min_desc">Вужчі екрани зберігають нижню панель зупинок навіть в альбомній орієнтації. Замало ховає карту на малих екранах.</string>
+    <string name="adv_inmotion_v1_pin">PIN InMotion V5/V8/V10</string>
+    <string name="adv_inmotion_v1_pin_desc">PIN доступу для моноколіс InMotion V5/V8/V10, надсилається під час підключення, щоб колесо почало передавати дані. Залиште 000000, якщо ви не задали власний PIN у застосунку InMotion.</string>
     <string name="adv_nav_sidebar_width">Ширина панелі зупинок</string>
     <string name="adv_nav_sidebar_width_desc">Ширина бічної панелі зупинок в альбомній орієнтації. Заширока лишає мало карти.</string>
     <string name="adv_simple_speedo_scale">Розмір простого спідометра</string>
     <string name="adv_simple_speedo_scale_desc">Розмір числа швидкості відносно області шкали. Завеликий може обрізати підпис одиниць.</string>
+    <string name="charging_reset_data">Скинути дані</string>
+    <string name="charging_export">Експорт</string>
+    <string name="charging_export_saved">Дані батареї експортовано</string>
+    <string name="charging_export_failed">Помилка експорту</string>
+    <string name="voice_phone_battery_fmt">телефон %1$d</string>
+    <string name="report_phone_battery">Телефон</string>
+    <string name="alarm_beep_transition_label">Перехід</string>
+    <string name="alarm_constant_title">Безперервний сигнал?</string>
+    <string name="alarm_constant_body">Пауза 0 мс дає один безперервний сигнал. Щоб він звучав постійно, задайте також:</string>
+    <string name="alarm_constant_never">Більше не запитувати</string>
+    <string name="nav_start_btn">Пуск</string>
+    <string name="alarm_beep_wave_label">Хвиля</string>
+    <string name="alarm_beep_effect_label">Ефект</string>
+    <string name="alarm_wave_sine">Синус</string>
+    <string name="alarm_wave_triangle">Трикутник</string>
+    <string name="alarm_wave_square">Меандр</string>
+    <string name="alarm_wave_saw">Пила</string>
+    <string name="alarm_wave_fm">FM</string>
+    <string name="alarm_fx_none">Чистий</string>
+    <string name="alarm_fx_drive">Овердрайв</string>
+    <string name="alarm_fx_sweep">Фільтр</string>
+    <string name="alarm_fx_crush">Біткрашер</string>
+    <string name="section_accel_splits">Інтервали швидкості</string>
+    <string name="accel_splits_enabled">Озвучувати час</string>
+    <string name="accel_splits_desc">Озвучує час проходження кожного кроку швидкості під час розгону чи гальмування. Відлік починається від вказаної нижче швидкості, із заданим вами кроком.</string>
+    <string name="accel_split_decel_prefix">гальмування, </string>
+    <string name="accel_splits_from">Від</string>
+    <string name="accel_splits_step">Крок</string>
+    <string name="accel_splits_dir_accel">Розгін</string>
+    <string name="accel_splits_dir_brake">Гальмо</string>
+    <string name="accel_splits_dir_both">Обидва</string>
+    <string name="accel_splits_compare_previous">Порівнювати з минулим заїздом</string>
+    <string name="accel_splits_compare_best">Порівнювати з найкращим за сесію</string>
+    <string name="accel_split_time_fmt">від %1$d до %2$d, %3$s секунди</string>
+    <string name="accel_split_faster_prev">, на %1$s секунди швидше за попередній</string>
+    <string name="accel_split_slower_prev">, на %1$s секунди повільніше за попередній</string>
+    <string name="accel_split_faster_best">, на %1$s швидше за найкращий</string>
+    <string name="accel_split_slower_best">, на %1$s повільніше за найкращий</string>
+    <string name="accel_split_best_yet">, найкращий результат</string>
+    <string name="report_contents">Налаштувати голосовий звіт</string>
+    <string name="trip_customize">Налаштувати</string>
+    <string name="trip_customize_tiles">Плитки</string>
+    <string name="trip_customize_graphs">Графіки</string>
+    <string name="recording_details_section">Додаткові відомості</string>
+    <string name="recording_details_none">Для цієї поїздки моноколесо не вказано.</string>
+    <string name="cloud_reset_local">Очистити локальні поїздки</string>
+    <string name="cloud_reset_local_title">Очистити локальні поїздки?</string>
+    <string name="cloud_reset_local_body">Видаляє всі поїздки, збережені на цьому телефоні. Папка резервних копій не змінюється, тож синхронізовані поїздки можна відновити звідти.</string>
+    <string name="dropbox_syncing">Синхронізація поїздок…</string>
+    <string name="dropbox_folder_desc">Поїздки та налаштування зберігаються у вашому Dropbox, у %1$s. Цю папку бачить лише цей застосунок.</string>
+    <string name="keep_app_alive">Тримати застосунок активним</string>
+    <string name="keep_app_alive_desc">Показує постійне сповіщення, щоб застосунок залишався активним у фоні. Синхронізація поїздок і голос працюють навіть без під’єднаного моноколеса. Споживає трохи більше заряду.</string>
+    <string name="sync_up_to_date">Уже актуально</string>
+    <string name="studio_source_transparent">Прозорий</string>
+    <string name="studio_source_video">Відео</string>
+    <string name="studio_video_pick">Вибрати відео</string>
+    <string name="studio_video_replace">Замінити відео</string>
+    <string name="studio_video_fit">Припасування</string>
+    <string name="studio_video_fit_stretch">Розтягнути</string>
+    <string name="studio_video_offset">Зсув</string>
+    <string name="studio_video_offset_value_fmt">%1$d ms</string>
+    <string name="studio_video_offset_nudge_fmt">%1$+d ms</string>
+    <string name="studio_video_set_offset">Поточне</string>
+    <string name="studio_video_no_media">Немає медіа</string>
+    <string name="studio_replay_cd_move">Перемістити панель</string>
+    <string name="studio_video_edge">Поза діапазоном</string>
+    <string name="studio_video_edge_freeze">Стоп-кадр</string>
+    <string name="studio_video_edge_loop">Цикл</string>
+    <string name="studio_video_edge_black">Чорний</string>
+    <string name="wheel_no_data_reconnecting">Немає даних від моноколеса. Повторне підключення…</string>
+    <string name="wheel_no_data_reset">Досі немає даних від моноколеса. Спробуйте вимкнути та ввімкнути його.</string>
+    <string name="trip_map_ride_start">Початок поїздки: %1$s</string>
+    <string name="trip_map_reconnected">Перепідключено: %1$s</string>
+    <string name="trip_map_new_wheel">Нове колесо: %1$s</string>
+    <string name="trip_map_ride_end">Кінець поїздки</string>
 </resources>
 
 

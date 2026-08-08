@@ -1,6 +1,7 @@
 package com.eried.eucplanet.ui.recording
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -45,6 +46,7 @@ fun TripActionDialog(
     val disabledHint = stringResource(R.string.trip_action_dropbox_disabled)
     AlertDialog(
         onDismissRequest = onDismiss,
+        shape = RoundedCornerShape(12.dp),
         text = {
             Column {
                 TripActionRow(
@@ -73,7 +75,7 @@ fun TripActionDialog(
         },
         confirmButton = {},
         dismissButton = {
-            TextButton(onClick = onDismiss) { Text(stringResource(R.string.action_cancel)) }
+            TextButton(onClick = onDismiss, shape = RoundedCornerShape(12.dp)) { Text(stringResource(R.string.action_cancel)) }
         }
     )
 }

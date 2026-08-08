@@ -91,6 +91,7 @@ class EucPlanetView extends WatchUi.View {
             "wgb" => true,
             "wgo" => 65,
             "wgr" => 85,
+            "wce" => false, // demo never self-closes; layout-preview frame only
             "s1c" => "NONE",
             "s1h" => "NONE",
             "s2c" => "NONE",
@@ -121,7 +122,27 @@ class EucPlanetView extends WatchUi.View {
     }
 
     function onTick() as Void {
+        maybeAutoClose();
         WatchUi.requestUpdate();
+    }
+
+    //! Self-exit fallback for "Auto-stop on watch". Fires ONLY when the rider
+    //! enabled the toggle (s.closeOnExit, pushed from the phone) AND we had a
+    //! live phone link (phoneSynced) that has now gone silent for well past the
+    //! 10 s "Disconnected" window. 20 s here so a brief BLE blip mid-ride shows
+    //! the placeholder but never closes the app. If the toggle is off we never
+    //! self-exit -- the dial just keeps waiting for the phone to come back
+    //! (unchanged behaviour). The phone normally closes us promptly via an
+    //! explicit KIND_QUIT; this only matters when that QUIT never arrived
+    //! (phone crashed / was killed before it could send).
+    function maybeAutoClose() as Void {
+        var s = WatchState.snapshot;
+        if (!s.closeOnExit) { return; }
+        if (!s.phoneSynced) { return; }
+        if (s.lastUpdateMs <= 0) { return; }
+        if ((System.getTimer() - s.lastUpdateMs) > 20000) {
+            System.exit();
+        }
     }
 
     function requestRedraw() as Void {

@@ -68,16 +68,17 @@ fun FlicScreen(
     forgetTarget?.let { (addr, name) ->
         AlertDialog(
             onDismissRequest = { forgetTarget = null },
+            shape = RoundedCornerShape(12.dp),
             title = { Text(stringResource(R.string.flic_forget_title)) },
             text = { Text(stringResource(R.string.flic_forget_body, name)) },
             confirmButton = {
                 TextButton(onClick = {
                     viewModel.forgetButton(addr)
                     forgetTarget = null
-                }) { Text(stringResource(R.string.flic_forget), color = MaterialTheme.appColors.statusDanger) }
+                }, shape = RoundedCornerShape(12.dp)) { Text(stringResource(R.string.flic_forget), color = MaterialTheme.appColors.statusDanger) }
             },
             dismissButton = {
-                TextButton(onClick = { forgetTarget = null }) { Text(stringResource(R.string.action_cancel)) }
+                TextButton(onClick = { forgetTarget = null }, shape = RoundedCornerShape(12.dp)) { Text(stringResource(R.string.action_cancel)) }
             }
         )
     }
@@ -111,7 +112,8 @@ fun FlicScreen(
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Button(
                         onClick = { viewModel.stopScan() },
-                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.appColors.statusDanger)
+                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.appColors.statusDanger),
+                        shape = RoundedCornerShape(12.dp)
                     ) {
                         Text(stringResource(R.string.flic_stop_scan))
                     }
@@ -119,7 +121,7 @@ fun FlicScreen(
                     CircularProgressIndicator(modifier = Modifier.size(24.dp))
                 }
             } else {
-                Button(onClick = { viewModel.startScan() }) {
+                Button(onClick = { viewModel.startScan() }, shape = RoundedCornerShape(12.dp)) {
                     Text(stringResource(R.string.flic_start_scan))
                 }
             }
@@ -204,6 +206,7 @@ private fun ButtonConfig(
                                 }
                             },
                             colors = themedFieldColors(),
+                            shape = RoundedCornerShape(12.dp),
                         )
                     } else {
                         Row(
@@ -294,6 +297,7 @@ private fun ActionDropdown(
                 .fillMaxWidth()
                 .menuAnchor(MenuAnchorType.PrimaryNotEditable),
             colors = themedFieldColors(),
+            shape = RoundedCornerShape(12.dp),
         )
         ExposedDropdownMenu(
             expanded = expanded,

@@ -78,6 +78,7 @@ class HudServer @Inject constructor(
     private val settingsRepository: SettingsRepository,
     private val externalGpsRepository: ExternalGpsRepository,
     private val tripRepository: TripRepository,
+    private val tripMeterRepository: com.eried.eucplanet.data.repository.TripMeterRepository,
     private val radarRepository: RadarRepository,
     private val navigationEngine: NavigationEngine,
     private val commandSink: HudCommandSink,
@@ -636,7 +637,12 @@ class HudServer @Inject constructor(
         }
 
         val probeJob = launch {
-            log("Subnet probe: scanning /24…")
+            // Last resort, and gated: this only runs if the faster mDNS / UDP
+            // paths did not already find the HUD (a win cancels this job). It
+            // starts immediately - no stagger - because the scan is bounded
+            // (HudSubnetProbe MAX_CONCURRENT) and no longer floods the radio the
+            // way the old unbounded burst did, so it does not need to hold off.
+            log("Subnet probe: scanning local subnets…")
             val ip = subnetProbe.probe(manualPort)
             if (ip != null) {
                 log("Subnet probe: $ip:$manualPort answered")
@@ -891,6 +897,9 @@ class HudServer @Inject constructor(
             tripKm = d?.tripKm ?: wd.tripDistance,
             totalKm = d?.totalKm ?: wd.totalDistance,
             torque = wd.torque,
+            phaseCurrent = wd.phaseCurrent,
+            motorPower = wd.motorPower,
+            gForce = wd.gForce,
             lightOn = wd.lightOn,
             gaugeMaxKmh = gaugeMax,
             gaugeOrangeThresholdPct = s.gaugeOrangeThresholdPct,
@@ -904,11 +913,19 @@ class HudServer @Inject constructor(
             longitude = (location?.longitude ?: 0.0) + (d?.dLng ?: 0.0),
             gpsSpeedKmh = gpsSpeedPair?.first ?: Float.NaN,
             gpsSource = gpsSpeedPair?.second ?: "",
+            // Phone and external GPS speeds independently, so the HUD can show
+            // both overlay metrics at once (the primary gpsSpeedKmh above only
+            // carries whichever source won the priority pick).
+            phoneGpsSpeedKmh = if (location?.hasSpeed() == true) location.speed * 3.6f else Float.NaN,
+            externalGpsSpeedKmh = if (externalFresh) external!!.speedKmh else Float.NaN,
             gpsHasFix = location != null,
             gpsHeadingDeg = if (location?.hasBearing() == true) location.bearing
                 else Float.NaN,
             gpsAltitudeM = if (location?.hasAltitude() == true) location.altitude.toFloat()
                 else Float.NaN,
+            externalGpsBatteryPercent = if (externalFresh) (external!!.batteryPercent ?: -1) else -1,
+            tripMeterKm = tripMeterRepository.distanceKm,
+            tirePressureKpa = wd.tirePressureKpa,
             wheelRollDeg = wd.rollAngle,
             wheelPitchDeg = wd.pitchAngle,
             customOverlayJson = s.hudCustomOverlayJson,

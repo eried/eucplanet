@@ -4,6 +4,30 @@
     <string name="notification_channel_name">ホイール接続</string>
     <string name="notification_channel_description">ホイールの接続状態とテレメトリを表示します</string>
 
+    <!-- Notification quick actions -->
+    <string name="notif_actions_section">カスタマイズ</string>
+    <string name="notif_actions_enable">通知アクションを表示</string>
+    <string name="notif_actions_enable_desc">実行中の通知にクイックアクションボタンを追加します。</string>
+    <string name="notif_actions_pick_desc">最大%1$d個のアクションを選択。同じアクションを繰り返し選べます。</string>
+    <string name="notif_action_slot">アクション %1$d</string>
+    <string name="notif_action_stop_all">すべて停止</string>
+    <string name="notif_action_lock">ロック / 解除</string>
+    <string name="notif_action_light">ライト オン / オフ</string>
+    <string name="notif_action_record">記録 / 停止</string>
+    <string name="notif_action_horn">ホーン</string>
+    <string name="notif_action_disconnect">切断</string>
+    <string name="notif_action_stop_nav">ナビ停止</string>
+    <string name="notif_btn_stop_all">すべて停止</string>
+    <string name="notif_btn_lock">ロック</string>
+    <string name="notif_btn_unlock">解除</string>
+    <string name="notif_btn_light_on">ライトオン</string>
+    <string name="notif_btn_light_off">ライトオフ</string>
+    <string name="notif_btn_record">記録</string>
+    <string name="notif_btn_stop_record">停止</string>
+    <string name="notif_btn_horn">ホーン</string>
+    <string name="notif_btn_disconnect">切断</string>
+    <string name="notif_btn_stop_nav">ナビ停止</string>
+
     <!-- Common -->
     <string name="action_back">戻る</string>
     <string name="action_cancel">キャンセル</string>
@@ -11,16 +35,12 @@
     <string name="action_done">完了</string>
     <string name="action_close">閉じる</string>
 <string name="crash_log_action_prompt">%1$s を長押ししました。このログのみ削除、またはすべて削除できます。共有する場合はキャンセルをタップしてからファイルをタップしてください。</string>
-    <string name="crash_log_delete_one">このログを削除</string>
     <string name="crash_log_delete_all">すべて削除</string>
     <string name="crash_log_delete_all_warning">保存されたクラッシュログをすべて削除しますか？この操作は取り消せません。</string>
     <string name="action_save">保存</string>
     <string name="action_apply">適用</string>
     <string name="action_delete">削除</string>
-    <string name="action_edit">編集</string>
     <string name="action_test">テスト</string>
-    <string name="action_move_up">上へ移動</string>
-    <string name="action_move_down">下へ移動</string>
     <string name="action_reorder">ドラッグして並べ替え</string>
     <string name="show_gauge_color_band">速度ゲージのカラーバンド</string>
     <string name="stat_watts">WATTS</string>
@@ -202,7 +222,6 @@
     <string name="metric_chip_load">PWM</string>
     <string name="metric_chip_trip">トリップ</string>
     <string name="metric_chip_speed">速度</string>
-    <string name="metric_chip_power">電力</string>
     <string name="metric_chip_odometer">オドメーター</string>
     <string name="metric_chip_motor_power">モーター電力</string>
     <string name="metric_chip_battery_power">バッテリー電力</string>
@@ -214,11 +233,16 @@
     <string name="metric_chip_lateral_g">横方向 G</string>
     <string name="metric_chip_forward_g">前方向 G</string>
     <string name="metric_chip_torque">トルク</string>
+    <string name="metric_chip_phase_current">相電流</string>
     <string name="metric_chip_dyn_speed_limit">動的速度制限</string>
     <string name="metric_chip_dyn_current_limit">動的電流制限</string>
     <string name="metric_chip_motor_temp">モーター温度</string>
     <string name="metric_chip_controller_temp">コントローラー温度</string>
     <string name="metric_chip_battery_temp">バッテリー温度</string>
+    <string name="metric_chip_tire_pressure">タイヤ空気圧</string>
+    <string name="metric_chip_tire_pressure_tile">タイヤ</string>
+    <string name="metric_desc_tire_pressure">連携したTPMSセンサー（InMotion P6）からのタイヤ空気圧。psiまたはbarで表示。</string>
+    <string name="studio_metric_tire_pressure">タイヤ空気圧</string>
     <string name="metric_chip_headroom">ヘッドルーム</string>
     <string name="metric_chip_trip_time">トリップ時間</string>
     <string name="metric_chip_trip_max_speed">トリップ最高速</string>
@@ -231,6 +255,7 @@
     <string name="metric_chip_gps_speed">GPS 速度</string>
     <string name="metric_chip_gps_heading">方位</string>
     <string name="metric_chip_gps_accuracy">GPS 精度</string>
+    <string name="metric_chip_external_gps_battery">外部 GPS バッテリー</string>
     <string name="metric_chip_slope">勾配</string>
     <string name="metric_chip_ascent">上昇</string>
     <string name="metric_chip_descent">下降</string>
@@ -258,6 +283,7 @@
     <string name="metric_chip_dyn_current_limit_tile">電流制限</string>
     <string name="metric_chip_phone_battery_tile">スマホ</string>
     <string name="metric_chip_gps_accuracy_tile">GPS ±</string>
+    <string name="metric_chip_external_gps_battery_tile">GPS電池</string>
     <string name="metric_chip_odometer_tile">走行計</string>
     <string name="metric_chip_trip_max_speed_tile">最高速</string>
     <string name="metric_chip_avg_trip_speed_tile">平均速</string>
@@ -287,6 +313,7 @@
     <string name="metric_desc_regen_wh">このトリップのブレーキ中にバッテリーへ回生した総ワット時。</string>
     <string name="metric_desc_bt_rssi">ホイールへの Bluetooth 信号強度, 0 dBm に近いほど強い。</string>
     <string name="metric_desc_gps_accuracy">GPS 測位誤差半径, 低いほど正確。</string>
+    <string name="metric_desc_external_gps_battery">ペアリングした外部 GPS (RaceBox, Dragy) のバッテリー。走行中に切れる前に減りを確認できます。</string>
 
     <!-- Action labels for the dashboard layout chips -->
     <string name="action_chip_horn">ホーン</string>
@@ -441,7 +468,7 @@
     <string name="cloud_restore_success">設定を復元しました</string>
     <string name="cloud_restore_failed">フォルダー内にバックアップが見つかりません</string>
     <string name="section_cloud_trips">トリップバックアップ</string>
-    <string name="cloud_trips_caption">新しいトリップは自動的にフォルダーに保存されます</string>
+    <string name="cloud_trips_caption">トリップはこの端末に残り、自動的にバックアップフォルダーと同期されます。ここで削除しても消えるのは端末のコピーだけで、バックアップは消えません。</string>
     <string name="cloud_retry_now">すべて同期</string>
     <string name="cloud_retry_enqueued">アップロードを予約しました</string>
     <string name="sync_progress">%1$d / %2$d を同期中</string>
@@ -517,6 +544,7 @@
     <string name="units_temp_f">華氏</string>
     <string name="units_temp_k">ケルビン</string>
     <string name="phone_keep_screen_on">画面をオンに保つ</string>
+    <string name="phone_show_over_lock">ロック画面の上に表示</string>
     <string name="language">言語</string>
     <string name="theme">テーマ</string>
     <string name="tts_switch_title">音声を %1$s に切り替えますか？</string>
@@ -544,10 +572,9 @@
     <!-- Settings: Voice -->
     <string name="section_announcements">アナウンス</string>
     <string name="section_speech">音声</string>
-    <string name="section_report_status">ステータス報告</string>
-    <string name="voice_enabled">定期的にステータスを報告</string>
+    <string name="section_report_status">定期・トリガーの音声報告</string>
+    <string name="voice_enabled">定期報告を有効化</string>
     <string name="voice_interval">間隔</string>
-    <string name="unit_sec">秒</string>
     <string name="announce_wheel_lock">ホイールのロック / アンロック</string>
     <string name="announce_lights">ライトのオン / オフ</string>
     <string name="announce_recording">トリップ記録</string>
@@ -688,6 +715,15 @@
     <string name="flic_double_click">ダブルクリック</string>
     <string name="flic_hold">長押し</string>
     <string name="section_external_gps">GPS &amp; センサー</string>
+    <!-- TPMS sensors -->
+    <string name="section_tpms">TPMSセンサー</string>
+    <string name="tpms_caption">ホイールのセンサーからのタイヤ空気圧（InMotion P6など）。</string>
+    <string name="tpms_wheel_sensor">ホイールのタイヤ空気圧</string>
+    <string name="tpms_wheel_sensor_desc">連携したセンサーから中継</string>
+    <string name="tpms_idle">センサーはまだ送信していません</string>
+    <string name="tpms_pair_title">別のセンサーをペアリング</string>
+    <string name="tpms_pair_replaces">追加のセンサーはホイール内蔵のセンサー（あれば）を置き換えます。</string>
+    <string name="tpms_scan">センサーを検索</string>
     <string name="external_gps_device_title">外部 GPS</string>
     <string name="external_gps_pair_button">スキャン開始</string>
     <string name="external_gps_pair_action">ペアリング</string>
@@ -779,6 +815,11 @@
     <string name="alarm_metric_pwm_voice" translatable="false">PWM</string>
     <string name="alarm_metric_voltage">電圧</string>
     <string name="alarm_metric_current">電流</string>
+    <string name="alarm_metric_gps_speed">GPS 速度</string>
+    <string name="alarm_metric_external_gps_speed">外部 GPS 速度</string>
+    <string name="alarm_metric_external_gps_battery">外部 GPS バッテリー</string>
+    <string name="alarm_metric_external_gps_speed_short">外部GPS速度</string>
+    <string name="alarm_metric_external_gps_battery_short">外部GPS電池</string>
     <string name="alarm_metric_radar_distance">車両距離</string>
     <string name="alarm_metric_radar_approach">車両接近</string>
 
@@ -884,10 +925,30 @@
     <string name="auto_lights_desc">日の入りと日の出に基づいてヘッドライトをオン / オフにします</string>
     <string name="auto_lights_on_before_sunset">日没前にライト ON</string>
     <string name="auto_lights_off_after_sunrise">日の出後にライト OFF</string>
-    <string name="auto_minutes_fmt">%1$d 分</string>
     <string name="auto_waiting_gps">GPS 位置情報を待機中…</string>
     <string name="auto_volume_title">音量</string>
     <string name="auto_volume_desc">速度に応じて音楽の音量を上げます</string>
+    <string name="media_control_title">メディア制御</string>
+    <string name="media_control_desc">速度を落とすと音楽を一時停止し、速度を上げると再開します。</string>
+    <string name="media_control_pause">減速したら一時停止</string>
+    <string name="media_control_pause_below">この速度以下で一時停止</string>
+    <string name="media_control_resume">加速したら再開</string>
+    <string name="media_control_resume_above">この速度以上で再開</string>
+    <string name="proximity_lock_title">ホイールロック</string>
+    <string name="proximity_lock_desc">離れるとホイールをロックし、戻ると解除します。Bluetooth 信号強度を使用します。</string>
+    <string name="proximity_lock_enable">離れたらロック</string>
+    <string name="proximity_lock_below">以下でロック</string>
+    <string name="proximity_unlock_enable">戻ったら解除</string>
+    <string name="proximity_unlock_above">以上で解除</string>
+    <string name="proximity_lock_signal_live">現在の信号: %1$d dBm</string>
+    <string name="proximity_lock_signal_none">ホイールを接続すると、ここでライブ信号を確認できます。</string>
+    <string name="proximity_lock_hint">ロックにはライブ接続が必要なため、範囲外になってからではなく信号が弱まる途中で作動します。</string>
+    <string name="auto_lock_override_toast">自動ロックがオンで、これを上書きする場合があります。</string>
+    <string name="auto_lock_override_action">設定</string>
+    <string name="menu_auto_lock_settings">ホイールロック設定</string>
+    <string name="menu_auto_lock_on">自動ロックをオン</string>
+    <string name="menu_auto_lock_off">自動ロックをオフ</string>
+    <string name="action_retry">再試行</string>
     <string name="auto_sunrise_sunset">日の出と日の入り</string>
     <string name="auto_midnight_sun_title">白夜</string>
     <string name="auto_midnight_sun_body">この緯度では今日は日没がないため、ライトはオフのままになります</string>
@@ -899,7 +960,6 @@
     <string name="alarm_help">メトリクスごとに最も適切なアラームが自動で発動します。リストの順序で発動するルールが変わることはなく、並び替えは見やすさのためだけです</string>
     <string name="alarm_empty">アラームルールがありません</string>
     <string name="alarm_add">新しいアラーム</string>
-    <string name="alarm_smart_sort">自動並び替え</string>
     <string name="alarm_summary_predict_fmt">%1$s 秒先を予測</string>
     <string name="alarm_new">新規アラーム</string>
     <string name="alarm_edit">アラームを編集</string>
@@ -908,7 +968,6 @@
     <string name="alarm_delete_action">アラームを削除</string>
     <string name="alarm_metric_label">メトリクス</string>
     <string name="alarm_comparator_label">条件</string>
-    <string name="alarm_threshold_fmt">しきい値: %1$s %2$s</string>
     <string name="alarm_threshold_label">しきい値</string>
     <string name="alarm_label_frequency">周波数</string>
     <string name="alarm_label_duration">長さ</string>
@@ -953,9 +1012,6 @@
 
     <string name="alarm_section_beep">ビープ音</string>
     <string name="alarm_enable_beep">ビープ音を有効にする</string>
-    <string name="alarm_beep_freq_fmt">周波数: %1$dHz</string>
-    <string name="alarm_beep_duration_fmt">時間: %1$dms</string>
-    <string name="alarm_beep_repeats_fmt">繰り返し: %1$d</string>
     <string name="alarm_section_voice">音声</string>
     <string name="alarm_enable_voice">音声を有効にする</string>
     <string name="alarm_voice_template">テキストテンプレート</string>
@@ -963,25 +1019,16 @@
     <string name="alarm_voice_default">警告！{metric} が {value} です</string>
     <string name="alarm_section_vibrate">バイブレーション</string>
     <string name="alarm_enable_vibrate">バイブレーションを有効にする</string>
-    <string name="alarm_vibrate_duration_fmt">時間: %1$dms</string>
-    <string name="alarm_vibrate_target_label">バイブレーション対象</string>
     <string name="alarm_vibrate_target_phone">スマホ</string>
     <string name="alarm_vibrate_target_watch">ウォッチ</string>
     <string name="alarm_vibrate_target_both">すべて</string>
-    <string name="alarm_section_timing">タイミング</string>
     <string name="alarm_cooldown_label">クールダウン</string>
-    <string name="alarm_cooldown_fmt">クールダウン: %1$d 秒</string>
-    <string name="alarm_cooldown_help">条件が一致し続けていても、このルールの発動間に必要な最短時間</string>
-    <string name="alarm_repeat">アクティブ中に繰り返す</string>
     <string name="alarm_section_advanced">詳細設定</string>
     <string name="alarm_repeat_label">発動</string>
     <string name="alarm_repeat_single">1回</string>
     <string name="alarm_repeat_multi">複数回</string>
-    <string name="alarm_repeat_help">1回: 一度だけ通知し、値が安全側に戻ると再び発動できるようになります。\n複数回: 発動している間、クールダウンごとに繰り返し通知します。</string>
     <string name="alarm_predict_label">予測発動</string>
     <string name="alarm_predict_realtime">今すぐ</string>
-    <string name="alarm_predict_value_fmt">%1$s 秒早く</string>
-    <string name="alarm_predict_help">今すぐ: しきい値が報告された瞬間に通知します。\nその他: 傾向がしきい値に達する、その秒数だけ前に通知します。</string>
     <string name="alarm_state_atleast">%1$s が %2$s 以上</string>
     <string name="alarm_state_below">%1$s が %2$s 未満</string>
     <string name="alarm_repeat_help_once">%1$s のとき1回通知します。%3$d 秒のクールダウン後、%2$s になると再び発動できるようになります。</string>
@@ -1099,7 +1146,6 @@
     <string name="studio_your_presets_empty">保存済みプリセットはまだありません。現在のレイアウトを保存して追加してください。</string>
 
     <!-- Studio: render progress overlay -->
-    <string name="studio_rendering">レンダリング中</string>
     <string name="studio_rendering_cancel">キャンセル</string>
     <string name="studio_dlg_cancel_render_title">レンダリングをキャンセルしますか？</string>
     <string name="studio_dlg_cancel_render_body">リプレイクリップは保存されません。</string>
@@ -1343,6 +1389,7 @@
     <string name="studio_metric_temperature">温度</string>
     <string name="studio_metric_voltage">電圧</string>
     <string name="studio_metric_current">電流</string>
+    <string name="studio_metric_phase_current">相電流</string>
     <string name="studio_metric_power">電力</string>
     <string name="studio_metric_pwm">PWM</string>
     <string name="studio_metric_trip_distance">トリップ距離</string>
@@ -1350,6 +1397,28 @@
     <string name="studio_metric_pitch">ピッチ</string>
     <string name="studio_metric_roll">ロール</string>
     <string name="studio_metric_g_force">G フォース</string>
+    <string name="studio_metric_external_gps_battery">外部GPSバッテリー</string>
+    <string name="studio_metric_external_gps_speed">外部GPS速度</string>
+    <string name="studio_metric_gps_speed">GPS速度</string>
+    <string name="metric_chip_trip_meter">トリップメーター</string>
+    <string name="trip_meter_detail_title">トリップメーター</string>
+    <string name="trip_meter_tab_speed">速度</string>
+    <string name="trip_meter_tab_battery">バッテリー</string>
+    <string name="trip_meter_tab_time">時間</string>
+    <string name="trip_meter_total">合計</string>
+    <string name="trip_meter_active">走行</string>
+    <string name="trip_meter_avg">平均</string>
+    <string name="trip_meter_reset">トリップメーターをリセット</string>
+    <string name="trip_meter_reset_msg">進行中の距離をゼロにし、すべての区間を消去します。この操作は取り消せません。</string>
+    <string name="trip_meter_empty">距離はまだありません。ホイールが接続されている間、カウントします。</string>
+    <string name="trip_meter_partial">現在</string>
+    <string name="trip_meter_col_split">#</string>
+    <string name="trip_meter_col_dist">距離</string>
+    <string name="trip_meter_col_time">時間</string>
+    <string name="trip_meter_col_max">最高</string>
+    <string name="trip_meter_col_batt">電池</string>
+    <string name="studio_metric_trip_meter">トリップメーター</string>
+    <string name="studio_metric_gps">GPS 座標</string>
 
     <!-- Navigator -->
     <string name="nav_open">ナビゲーターを開く</string>
@@ -1403,6 +1472,7 @@
     </string-array>
     <string name="nav_my_location">現在地</string>
     <string name="nav_no_location">GPS フィックスを待機中…</string>
+    <string name="nav_too_far_to_start">最初の経由地は遠すぎます。「開始」を長押しすると、それでもナビを開始します。</string>
     <string name="nav_empty_hint">マップをタップ、検索、または GPX ファイルを読み込んでください</string>
     <string name="nav_route_failed">ルーティングサービスが利用できないため、直線を使用します</string>
     <string name="nav_cant_add_while_running">ナビゲーション実行中は経由地を追加できません</string>
@@ -1496,7 +1566,6 @@
     <string name="trip_action_share_file">ファイルを共有</string>
     <string name="trip_action_share_file_desc">トリップ CSV を別のアプリに送信します</string>
     <string name="trip_action_view_online">オンラインで表示</string>
-    <string name="trip_action_view_online_desc">EUC Viewer マップで開きます</string>
     <string name="trip_action_replay">スタジオでリプレイ</string>
     <string name="trip_action_replay_desc">ライブデータオーバーレイで走行を確認します</string>
     <!-- ==== Dashboard quick menus ==== -->
@@ -1508,7 +1577,6 @@
     <string name="studio_group_media">カメラ &amp; 画像</string>
     <string name="studio_cfg_border_colour">枠線の色</string>
     <string name="studio_cfg_border_width">枠線の太さ</string>
-    <string name="studio_rendering_keep_open">レンダリングが完了するまでスマホをオンにしてこの画面を開いたままにしてください</string>
     <string name="studio_cfg_g_scale">スケール</string>
     <string name="studio_export_force_opaque_hint">非透過フォーマットはクロマキーカラーを使用します。半透明レイヤーでは見た目がおかしくなる場合があります</string>
     <string name="studio_cfg_filter_vivid">ビビッド</string>
@@ -1589,7 +1657,6 @@
     <string name="charging_stat_added">追加</string>
     <string name="charging_stat_balance">不均衡</string>
     <string name="charging_stat_current">電流</string>
-    <string name="charging_stat_energy">エネルギー</string>
     <string name="charging_stat_power">電力</string>
     <string name="charging_stat_rate">速度</string>
     <string name="charging_stat_temp">温度</string>
@@ -1617,8 +1684,6 @@
     <string name="trip_action_share_dropbox_desc">Dropbox フォルダにアップロードして公開リンクを共有します</string>
     <string name="trip_action_inspect_online">オンラインで確認</string>
     <string name="trip_action_inspect_online_desc">eucviewer.ried.no リンクを共有してこの走行をオンラインで表示します</string>
-    <string name="trip_action_copy_link">eucviewer のリンクをコピー</string>
-    <string name="trip_action_copy_link_desc">共有用 eucviewer.ried.no リンクをクリップボードにコピー</string>
     <string name="trip_action_dropbox_disabled">設定で Dropbox を連携すると有効になります</string>
 
     <!-- Navigator: Open Charge Map &amp; POI -->
@@ -1695,6 +1760,14 @@
     <string name="adv_charging_cv_taper_desc">満充電までの最終区間の予想時間をどれだけ余裕を見るかに影響します。高いほどマージンが増えます。</string>
     <string name="adv_charging_median">平滑化サンプル数</string>
     <string name="adv_charging_median_desc">電圧スパイクを除去するために中央値フィルタにかけるサンプル数に影響します。奇数を使用してください。</string>
+    <string name="adv_cell_low_warn">セル低下 警告</string>
+    <string name="adv_cell_low_warn_desc">セルがパック中央値からどれだけ下がると黄色になるか。</string>
+    <string name="adv_cell_low_danger">セル低下 危険</string>
+    <string name="adv_cell_low_danger_desc">セルがパック中央値からどれだけ下がると赤になるか。</string>
+    <string name="adv_cell_high">セル高め</string>
+    <string name="adv_cell_high_desc">セルがパック中央値からどれだけ上がると青になるか。</string>
+    <string name="adv_pack_balance_tol">パックのバランス許容差</string>
+    <string name="adv_pack_balance_tol_desc">パーセントのみのパック表示で、パックが中央値からどれだけ離れるとバランスの取れた緑から外れるか。</string>
     <string name="adv_charging_sanity_cap">予想時間の上限</string>
     <string name="adv_charging_sanity_cap_desc">表示される予想時間の最大値に影響します。これを超える値は「まだ未完了」として扱われます。</string>
     <string name="adv_charging_target_pct">目標パーセント</string>
@@ -1760,6 +1833,8 @@
     <string name="adv_nav_inter_stop_desc">次の停車地を到着とみなす前に、ある停車地からどれだけ移動する必要があるかに影響します。危険: 低すぎると停車地をスキップする場合があります。</string>
     <string name="adv_nav_intermediate_flash">経由地フラッシュ時間</string>
     <string name="adv_nav_intermediate_flash_desc">経由地到達フラッシュが表示される時間に影響します。</string>
+    <string name="adv_nav_max_start">最大開始距離</string>
+    <string name="adv_nav_max_start_desc">ナビを開始できる最初の経由地までの最大距離です。これを超えると、現在地からの線が非表示になり、開始がブロックされます。ルート作成はそのまま行えます。</string>
     <string name="adv_nav_moving">移動速度</string>
     <string name="adv_nav_moving_desc">方位とガイダンスで移動中とみなす速度のしきい値に影響します。危険: 高すぎると低速走行を無視します。</string>
     <string name="adv_nav_offroute_grace">ルート外れ猶予</string>
@@ -1779,6 +1854,12 @@
     <string name="adv_nav_warning">これらはナビゲーションが反応するタイミングを変更します。値が誤っていると音声案内や再ルート探索が早すぎたり遅すぎたりします。</string>
     <string name="adv_phone_gps_interval">スマホ GPS 更新間隔</string>
     <string name="adv_phone_gps_interval_desc">GPS トラックの滑らかさとナビゲーションの反応速度に影響します。低いほど頻繁に更新します。危険: 低い値はバッテリーの消耗が速くなります。</string>
+    <string name="adv_phone_gps_idle_interval">GPSアイドル間隔</string>
+    <string name="adv_phone_gps_idle_interval_desc">記録もナビもしていないときのGPS更新間隔。ナビや再接続にすぐ備えます。大きいほど省電力。</string>
+    <string name="adv_gps_idle_off_delay">アイドル時にGPSを切る</string>
+    <string name="adv_gps_idle_off_delay_desc">アプリがバックグラウンドでホイール未接続かつ記録なしのとき、GPSを切って電池を節約します。0は即座に切ります。大きくすると、まずその時間だけ低電力の測位を維持するので、素早いアプリ切り替えでGPSが途切れません。</string>
+    <string name="adv_gps_fix_max_age">GPS測位の最大経過時間</string>
+    <string name="adv_gps_fix_max_age_desc">これより古い位置は測位なしとして扱うので、GPSが準備できる前に始めた記録が古い地点から始まりません。</string>
     <string name="adv_pushonly_note">一部のデバイスは独自の固定レートでストリーミングし、これらの設定を無視します: プッシュ専用ホイール（Begode、Gotway、Veteran、KingSong）、外部 GPS（RaceBox）、レーダー、Flic ボタン。</string>
     <string name="adv_radar_clear_decay">レーダーレーン減衰</string>
     <string name="adv_radar_clear_decay_desc">道路がクリアになった後にレーンバーが残る時間に影響します。危険: 低すぎると車の往来でちらつきます。</string>
@@ -1808,17 +1889,8 @@
     <string name="adv_wheel_poll_rate_desc">ライブデータの新しさとアラームの反応速度に影響します。低いほどホイールに頻繁にデータを要求します。危険: 非常に低い値は Bluetooth リンクをあふれさせ、一部のホイールでデータが滞る場合があります。</string>
     <string name="alarm_beep_advanced">詳細</string>
     <string name="alarm_beep_gap_label">間隔の長さ</string>
-    <string name="alarm_beep_pitch_rise_label">ピッチ上昇</string>
     <string name="alarm_beep_studio">アダプティブビープ</string>
-    <string name="alarm_beep_sum_core">%1$d Hz で %2$d ms ビープ</string>
-    <string name="alarm_beep_sum_pitch"> %2$s が %3$s %4$s に達するとピッチが %1$d Hz に向かって上昇します。</string>
-    <string name="alarm_beep_sum_pitch_vol"> %4$s が %5$s %6$s に達するとピッチが %1$d Hz に向かって上昇し、音量が %2$d%% から %3$d%% に上昇します。</string>
-    <string name="alarm_beep_sum_reps">、×%1$d %2$d ms 間隔</string>
-    <string name="alarm_beep_sum_reps0">、×%1$d 連続</string>
-    <string name="alarm_beep_sum_voice">、その後読み上げ</string>
-    <string name="alarm_beep_sum_vol"> %3$s が %4$s %5$s に達すると音量が %1$d%% から %2$d%% に上昇します。</string>
-    <string name="alarm_beep_volume_label">音量</string>
-    <string name="alarm_beep_volume_rise_label">音量上昇</string>
+    <string name="alarm_beep_volume_label">基本音量</string>
     <string name="alarm_studio_now">%1$d Hz · %2$d%%</string>
     <string name="alarm_studio_pitch_factor">ピッチ係数</string>
     <string name="alarm_studio_play">再生</string>
@@ -1841,12 +1913,12 @@
     <string name="studio_export_status">ファイルをエクスポート中…</string>
     <string name="studio_export_stay">現在の画面にとどまる</string>
     <string name="studio_export_title">ファイルエクスポート</string>
-    <string name="studio_replay_trim">（トリム）</string>
+    <string name="studio_replay_trim">（トリップ全体）</string>
     <string name="studio_replay_trim_duration">長さ</string>
     <string name="studio_replay_trim_end">終了</string>
     <string name="studio_replay_trim_reset">リセット</string>
     <string name="studio_replay_trim_start">開始</string>
-    <string name="studio_replay_trim_title">クリップをトリム</string>
+    <string name="studio_replay_trim_title">トリップをトリム</string>
     <string name="tab_advanced">詳細</string>
     <string name="tab_more">その他</string>
     <string name="welcome_tut_dev_join">リーダーボードに参加</string>
@@ -1876,9 +1948,16 @@
     <string name="settings_visibility">設定の表示</string>
     <string name="geo_section_dashboard">ダッシュボード</string>
     <string name="geo_section_navigator">ナビゲーター</string>
+    <string name="geo_section_trip">トリップ</string>
     <string name="geo_section_other">その他の画面</string>
-    <string name="geo_other_hint">設定、トリップ、バッテリーモニター、メトリクス履歴、スキャン、Flic。オーバーレイスタジオは影響を受けません。レイアウトは固定ですが、どの向きでも問題なく使えます。</string>
+    <string name="geo_section_settings">設定</string>
+    <string name="geo_other_hint">バッテリーモニター、メトリクス履歴、スキャン、Flic。オーバーレイスタジオは影響を受けません。レイアウトは固定ですが、どの向きでも問題なく使えます。</string>
+    <string name="geo_settings_hint">設定画面です。デフォルトではオフのため、有効にしない限り設定は縦向きのままです。</string>
+    <string name="geo_trip_hint">詳細ビューは横向きの地図とグラフのためにデフォルトで回転します。トリップ一覧は有効にしない限り縦向きのままです。</string>
     <string name="setting_allow_rotation">回転を許可</string>
+    <string name="setting_rotate_trip_detail">トリップ詳細を回転</string>
+    <string name="setting_rotate_trip_list">トリップ一覧を回転</string>
+    <string name="setting_trip_map_side">地図の位置</string>
     <string name="setting_block_upside_down">上下逆の回転を防ぐ</string>
     <string name="setting_ignore_system_rotate_lock">システムの回転ロックを無視</string>
     <string name="setting_compact_dashboard">コンパクトダッシュボード</string>
@@ -1903,10 +1982,89 @@
     <string name="adv_cover_cutout_inset_desc">フロントカメラを避けるが有効なとき、前面レンズ用に空けておく領域。小さすぎるとレンズがボタンを隠します。</string>
     <string name="adv_nav_sidebar_min">サイドバー表示の最小画面</string>
     <string name="adv_nav_sidebar_min_desc">これより狭い画面は横向きでも下部の経由地パネルを保持します。小さすぎると小画面で地図が埋もれます。</string>
+    <string name="adv_inmotion_v1_pin">InMotion V5/V8/V10 PIN</string>
+    <string name="adv_inmotion_v1_pin_desc">InMotion V5/V8/V10 ホイールのアクセスPIN。接続時に送信され、ホイールがデータ送信を開始します。InMotionアプリで独自のPINを設定していない限り、000000のままにしてください。</string>
     <string name="adv_nav_sidebar_width">経由地パネルの幅</string>
     <string name="adv_nav_sidebar_width_desc">横向きの経由地サイドバーの幅。広すぎると地図が狭くなります。</string>
     <string name="adv_simple_speedo_scale">シンプル速度計のサイズ</string>
     <string name="adv_simple_speedo_scale_desc">メーター領域に対する速度の数字の大きさ。大きすぎると単位ラベルが切れることがあります。</string>
+    <string name="charging_reset_data">データをリセット</string>
+    <string name="charging_export">エクスポート</string>
+    <string name="charging_export_saved">バッテリーデータをエクスポートしました</string>
+    <string name="charging_export_failed">エクスポートに失敗しました</string>
+    <string name="voice_phone_battery_fmt">スマホ %1$d</string>
+    <string name="report_phone_battery">スマホ</string>
+    <string name="alarm_beep_transition_label">トランジション</string>
+    <string name="alarm_constant_title">連続音にする？</string>
+    <string name="alarm_constant_body">間隔 0 ms は途切れない 1 つの音になります。連続して鳴らすには、次も設定:</string>
+    <string name="alarm_constant_never">今後表示しない</string>
+    <string name="nav_start_btn">開始</string>
+    <string name="alarm_beep_wave_label">波形</string>
+    <string name="alarm_beep_effect_label">エフェクト</string>
+    <string name="alarm_wave_sine">サイン</string>
+    <string name="alarm_wave_triangle">三角</string>
+    <string name="alarm_wave_square">矩形</string>
+    <string name="alarm_wave_saw">ノコギリ</string>
+    <string name="alarm_wave_fm">FM</string>
+    <string name="alarm_fx_none">クリーン</string>
+    <string name="alarm_fx_drive">オーバードライブ</string>
+    <string name="alarm_fx_sweep">フィルター</string>
+    <string name="alarm_fx_crush">ビットクラッシュ</string>
+
+    <!-- Speed splits (spoken accel/brake step timing) -->
+    <string name="section_accel_splits">速度スプリット</string>
+    <string name="accel_splits_enabled">タイムをアナウンス</string>
+    <string name="accel_splits_desc">加速・減速しながら各速度ステップを通過するタイムを読み上げます。下の開始速度から、設定したステップ刻みで始まります。</string>
+    <string name="accel_split_decel_prefix">ブレーキ、</string>
+    <string name="accel_splits_from">開始</string>
+    <string name="accel_splits_step">ステップ</string>
+    <string name="accel_splits_dir_accel">加速</string>
+    <string name="accel_splits_dir_brake">ブレーキ</string>
+    <string name="accel_splits_dir_both">両方</string>
+    <string name="accel_splits_compare_previous">前回の走行と比較</string>
+    <string name="accel_splits_compare_best">セッションベストと比較</string>
+    <string name="accel_split_time_fmt">%1$dから%2$d、%3$s秒</string>
+    <string name="accel_split_faster_prev">、前回より%1$s秒速い</string>
+    <string name="accel_split_slower_prev">、前回より%1$s秒遅い</string>
+    <string name="accel_split_faster_best">、ベストより%1$s速い</string>
+    <string name="accel_split_slower_best">、ベストより%1$s遅い</string>
+    <string name="accel_split_best_yet">、ベスト更新</string>
+    <string name="report_contents">音声報告をカスタマイズ</string>
+    <string name="trip_customize">カスタマイズ</string>
+    <string name="trip_customize_tiles">タイル</string>
+    <string name="trip_customize_graphs">グラフ</string>
+    <string name="recording_details_section">詳細情報</string>
+    <string name="recording_details_none">このライドではホイールが記録されていません。</string>
+    <string name="cloud_reset_local">ローカルのトリップを削除</string>
+    <string name="cloud_reset_local_title">ローカルのトリップを削除しますか？</string>
+    <string name="cloud_reset_local_body">この端末に保存されたすべてのトリップを削除します。バックアップフォルダーはそのまま残るので、同期済みのトリップはそこから復元できます。</string>
+    <string name="dropbox_syncing">トリップを同期中…</string>
+    <string name="dropbox_folder_desc">トリップと設定はDropboxの %1$s に保存されます。このフォルダーはこのアプリだけが見られます。</string>
+    <string name="keep_app_alive">アプリを起動したままにする</string>
+    <string name="keep_app_alive_desc">常時通知を表示して、アプリをバックグラウンドで動作させ続けます。ホイールが接続されていなくても、トリップの同期と音声は動作します。バッテリーを少し多く消費します。</string>
+    <string name="sync_up_to_date">すでに最新です</string>
+    <string name="studio_source_transparent">透明</string>
+    <string name="studio_source_video">動画</string>
+    <string name="studio_video_pick">動画を選択</string>
+    <string name="studio_video_replace">動画を変更</string>
+    <string name="studio_video_fit">フィット</string>
+    <string name="studio_video_fit_stretch">引き伸ばし</string>
+    <string name="studio_video_offset">オフセット</string>
+    <string name="studio_video_offset_value_fmt">%1$d ms</string>
+    <string name="studio_video_offset_nudge_fmt">%1$+d ms</string>
+    <string name="studio_video_set_offset">現在</string>
+    <string name="studio_video_no_media">メディアなし</string>
+    <string name="studio_replay_cd_move">パネルを移動</string>
+    <string name="studio_video_edge">範囲外</string>
+    <string name="studio_video_edge_freeze">静止</string>
+    <string name="studio_video_edge_loop">ループ</string>
+    <string name="studio_video_edge_black">黒</string>
+    <string name="wheel_no_data_reconnecting">ホイールからのデータがありません。再接続中…</string>
+    <string name="wheel_no_data_reset">まだホイールからのデータがありません。電源を入れ直してください。</string>
+    <string name="trip_map_ride_start">走行開始: %1$s</string>
+    <string name="trip_map_reconnected">再接続: %1$s</string>
+    <string name="trip_map_new_wheel">新しいホイール: %1$s</string>
+    <string name="trip_map_ride_end">走行終了</string>
 </resources>
 
 

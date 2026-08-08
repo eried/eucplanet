@@ -7,8 +7,13 @@ import android.os.Build
 import android.os.Looper
 import android.util.Log
 import com.eried.eucplanet.R
+import com.eried.eucplanet.ble.ConnectionState
 import com.eried.eucplanet.data.db.TripDao
+import com.eried.eucplanet.data.model.GpsPowerPolicy
+import com.eried.eucplanet.data.model.GpsSignalEvent
+import com.eried.eucplanet.data.model.GpsTier
 import com.eried.eucplanet.data.model.TripRecord
+import com.eried.eucplanet.util.AppForeground
 import com.eried.eucplanet.data.sync.SyncManager
 import com.eried.eucplanet.service.VoiceService
 import com.eried.eucplanet.util.CsvWriter
@@ -22,6 +27,7 @@ import com.google.android.gms.tasks.CancellationTokenSource
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -95,17 +101,74 @@ class TripRepository @Inject constructor(
     // Tracks whether any location fix during the active recording was from a mock provider.
     @Volatile private var tripHadMockFix = false
 
+    // The wheel's identity for the active recording, accumulated while it is still
+    // connected. Snapshotting only at stop loses it whenever the rider powers the wheel
+    // off to end the ride — see [WheelIdentity].
+    private val wheelIdentity = WheelIdentity()
+
+    // Last identity JSON already flushed to the current row, so the mid-ride persist
+    // writes only when it actually changes (≈once per ride) rather than every tick.
+    private var lastPersistedWheelMeta: String? = null
+
     // Advanced: phone GPS (fused-location) update interval, mirrored from settings
     // so the non-suspend location-request builder can read it synchronously. A
     // change takes effect the next time location updates (re)start.
     @Volatile private var phoneGpsIntervalMs: Long = 1000L
+    // Slow keep-warm interval for the idle (balanced / low-power) GPS tiers.
+    @Volatile private var phoneGpsIdleIntervalMs: Long = 10000L
+    // Cached so the non-suspend recomputeGpsTier can read it. Seconds of idle
+    // before GPS is fully released; 0 = immediately. See GpsPowerPolicy / OFF.
+    @Volatile private var gpsIdleOffDelaySec: Int = 30
+
+    // Demand-driven GPS power (GpsPowerPolicy). The stream only runs after a real
+    // consumer calls startLocationUpdates(); once running it self-adjusts its tier
+    // from recording / navigating / wheel-connected / app-visible so it never
+    // burns the 1 Hz high-accuracy stream when nothing needs it.
+    @Volatile private var gpsStreamRequested = false
+    @Volatile private var gpsNavigating = false
+    @Volatile private var currentGpsTier: GpsTier? = null
+    // Pending fully-off after the idle grace (gpsIdleOffDelaySec); cancelled the
+    // moment any input changes, since recompute re-decides.
+    private var idleOffJob: kotlinx.coroutines.Job? = null
+    // GPS signal state machine (drives the "GPS acquired/lost" voice). It runs
+    // ONLY while GPS is at the HIGH tier - i.e. actually needed (recording /
+    // navigating / riding) - so it never voices the app's own power management:
+    // the idle power-down, or the re-engage when you open the app or connect a
+    // wheel. It announces only a GENUINE satellite loss/regain while tracking.
+    @Volatile private var gpsTracking = false        // true while tier == HIGH
+    @Volatile private var gpsHasFix = false          // FIXED (true) vs ACQUIRING (false) while tracking
+    @Volatile private var acquiringFromLoss = false  // this ACQUIRING followed a genuine loss, not a power-on
+    @Volatile private var lastFixMs = 0L
+    private var lossJob: kotlinx.coroutines.Job? = null
+    private val GPS_LOST_MS = 10_000L                 // no fresh fix for this long while tracking = signal lost
+    private val _gpsSignalEvents =
+        kotlinx.coroutines.flow.MutableSharedFlow<GpsSignalEvent>(extraBufferCapacity = 4)
+    /** Genuine GPS acquired/lost events; power management is never emitted here.
+     *  WheelService speaks these directly. */
+    val gpsSignalEvents: kotlinx.coroutines.flow.SharedFlow<GpsSignalEvent> = _gpsSignalEvents
+
+    // Ultra battery saving: freshness gates so a cold GPS-off -> record start
+    // never logs the stale last-known position (a fake jump at the track start).
+    // The recorded-track age gate is the gpsFixMaxAgeSec setting; these stay
+    // internal.
+    private val FRESH_SEED_MS = 15_000L    // seed _currentLocation from cache only if newer than this
+    private val MAX_PLOT_ACCURACY_M = 50f  // reject fixes worse than this for the recorded track
 
     init {
         scope.launch {
             settingsRepository.settings.collect {
                 phoneGpsIntervalMs = it.phoneGpsIntervalMs.toLong().coerceAtLeast(100L)
+                phoneGpsIdleIntervalMs = it.phoneGpsIdleIntervalMs.toLong().coerceAtLeast(1000L)
+                gpsIdleOffDelaySec = it.gpsIdleOffDelaySec.coerceAtLeast(0)
+                // An interval change re-issues the request at the current tier.
+                currentGpsTier = null
+                recomputeGpsTier()
             }
         }
+        // Re-evaluate the GPS tier whenever any input changes.
+        scope.launch { _recording.collect { recomputeGpsTier() } }
+        scope.launch { wheelRepository.connectionState.collect { recomputeGpsTier() } }
+        scope.launch { AppForeground.isForeground.collect { recomputeGpsTier() } }
     }
 
     // The just-stopped trip waiting for grace-period finalization, plus the job
@@ -168,92 +231,172 @@ class TripRepository @Inject constructor(
                 tripHadMockFix = tripHadMockFix || isMockLocation(loc)
             }
             _currentLocation.value = loc
+            onGpsFix()
         }
     }
 
-    @SuppressLint("MissingPermission")
+    // --- GPS signal state machine: voice for genuine satellite loss/regain only ---
+
+    private fun onGpsFix() {
+        lastFixMs = System.currentTimeMillis()
+        if (gpsTracking && !gpsHasFix) {
+            gpsHasFix = true
+            // Announce "acquired" only if this fix ends a genuine loss - not the
+            // first fix after powering GPS on (that transition is silent).
+            if (acquiringFromLoss) {
+                acquiringFromLoss = false
+                _gpsSignalEvents.tryEmit(GpsSignalEvent.ACQUIRED)
+            }
+        }
+        armLossWatchdog()
+    }
+
+    /** (Re)arm the no-fix watchdog. Fires only while tracking: if no fresh fix
+     *  arrives within GPS_LOST_MS the signal counts as genuinely lost. */
+    private fun armLossWatchdog() {
+        lossJob?.cancel(); lossJob = null
+        if (!gpsTracking) return
+        lossJob = scope.launch {
+            delay(GPS_LOST_MS)
+            if (gpsTracking && gpsHasFix) {
+                gpsHasFix = false
+                acquiringFromLoss = true
+                _gpsSignalEvents.tryEmit(GpsSignalEvent.LOST)
+            }
+        }
+    }
+
+    /** Enter tracking (tier just became HIGH). Silent: a recent fix stays FIXED,
+     *  otherwise we wait for the first fix, which is a power-on and not voiced. */
+    private fun startGpsTracking() {
+        if (gpsTracking) return
+        gpsTracking = true
+        acquiringFromLoss = false
+        gpsHasFix = System.currentTimeMillis() - lastFixMs < GPS_LOST_MS && _currentLocation.value != null
+        if (gpsHasFix) armLossWatchdog()
+    }
+
+    /** Leave tracking (tier dropped below HIGH, or GPS off). Silent. */
+    private fun stopGpsTracking() {
+        gpsTracking = false
+        gpsHasFix = false
+        acquiringFromLoss = false
+        lossJob?.cancel(); lossJob = null
+    }
+
+    /**
+     * Ensure the demand-driven GPS stream is running. Callers no longer force a
+     * power level - the tier is picked by [recomputeGpsTier] from what actually
+     * needs a position (recording / navigating / connected / app-visible), so a
+     * bare "be ready" call from a UI screen costs a low-power keep-warm fix, not
+     * the full 1 Hz stream.
+     */
     fun startLocationUpdates() {
         // Refuse early starts before the rider has granted a location
         // permission. FusedLocationProviderClient does NOT throw on
         // requestLocationUpdates when the permission is missing on modern
-        // devices -- it just silently registers a queue that delivers no
-        // fixes. Combined with the `locationUpdatesActive` dedup below, an
-        // early call from NavigationOverlayViewModel (which composes before
-        // the permission dialog is even shown) was effectively poisoning
-        // the listener: no fixes ever flowed, no later call could re-register.
-        val hasLoc = androidx.core.content.ContextCompat.checkSelfPermission(
+        // devices -- it just silently registers a queue that delivers no fixes.
+        if (!hasLocationPermission()) {
+            Log.d(TAG, "startLocationUpdates: no location permission yet, skipping")
+            return
+        }
+        val firstStart = !gpsStreamRequested
+        gpsStreamRequested = true
+        recomputeGpsTier()
+        // Warm the UI's first fix once per stream start (not on every tier flip).
+        if (firstStart) warmUpFirstFix()
+    }
+
+    private fun hasLocationPermission(): Boolean =
+        androidx.core.content.ContextCompat.checkSelfPermission(
             context, android.Manifest.permission.ACCESS_FINE_LOCATION
         ) == android.content.pm.PackageManager.PERMISSION_GRANTED ||
             androidx.core.content.ContextCompat.checkSelfPermission(
                 context, android.Manifest.permission.ACCESS_COARSE_LOCATION
             ) == android.content.pm.PackageManager.PERMISSION_GRANTED
-        if (!hasLoc) {
-            Log.d(TAG, "startLocationUpdates: no location permission yet, skipping")
+
+    /**
+     * NavigationEngine reports guidance start/stop so GPS runs at 1 Hz while
+     * navigating even with no wheel connected.
+     */
+    fun setNavigating(active: Boolean) {
+        gpsNavigating = active
+        recomputeGpsTier()
+    }
+
+    /** Pick the GPS tier for the current demand and (re)issue the fused request. */
+    private fun recomputeGpsTier() {
+        if (!gpsStreamRequested || !hasLocationPermission()) return
+        val connected = wheelRepository.connectionState.value == ConnectionState.CONNECTED
+        val tier = GpsPowerPolicy.tierFor(
+            recording = _recording.value,
+            navigating = gpsNavigating,
+            connected = connected,
+            appVisible = AppForeground.isForeground.value,
+        )
+        if (tier == GpsTier.OFF) {
+            // Already off, or an off-grace already pending: stay put. Do NOT
+            // re-bridge or reschedule on every recompute - the wheel's connection
+            // state flips during reconnect scans, and re-entering here would
+            // thrash GPS on and off (spurious acquired/lost, wasted battery).
+            if (currentGpsTier == GpsTier.OFF || idleOffJob != null) return
+            if (gpsIdleOffDelaySec <= 0) {
+                applyTier(GpsTier.OFF)
+            } else {
+                // Hold a cheap low-power fix through the grace, then fully off if
+                // still idle - so a quick app switch doesn't drop the GPS.
+                applyTier(GpsTier.LOW)
+                idleOffJob = scope.launch {
+                    delay(gpsIdleOffDelaySec * 1000L)
+                    applyTier(GpsTier.OFF)
+                    idleOffJob = null
+                }
+            }
+        } else {
+            // Leaving idle: cancel any pending off and apply the live tier.
+            idleOffJob?.cancel(); idleOffJob = null
+            applyTier(tier)
+        }
+    }
+
+    @SuppressLint("MissingPermission")
+    private fun applyTier(tier: GpsTier) {
+        // OFF: release the GPS entirely (ultra battery saving idle state) and
+        // drop the last position so the fix indicator reads honestly. The stream
+        // re-arms on the next recomputeGpsTier when a higher tier is due.
+        if (tier == GpsTier.OFF) {
+            if (locationUpdatesActive) {
+                fusedLocationClient.removeLocationUpdates(locationCallback)
+                locationUpdatesActive = false
+                Log.i(TAG, "GPS tier=OFF - released (background, disconnected, idle)")
+            }
+            // Power-down is silent (stop tracking); the indicator still reads
+            // "no fix" honestly from the nulled position.
+            stopGpsTracking()
+            _currentLocation.value = null
+            currentGpsTier = GpsTier.OFF
             return
         }
-        if (locationUpdatesActive) {
-            Log.d(TAG, "Location updates already active, skipping")
-            return
+        // The genuine-signal voice runs only at HIGH - when GPS is actually
+        // needed (recording / navigating / riding). BALANCED / LOW are silent.
+        if (tier == GpsTier.HIGH) startGpsTracking() else stopGpsTracking()
+        if (tier == currentGpsTier && locationUpdatesActive) return
+        val (priority, interval) = when (tier) {
+            GpsTier.HIGH -> Priority.PRIORITY_HIGH_ACCURACY to phoneGpsIntervalMs
+            GpsTier.BALANCED -> Priority.PRIORITY_BALANCED_POWER_ACCURACY to phoneGpsIdleIntervalMs
+            GpsTier.LOW -> Priority.PRIORITY_LOW_POWER to phoneGpsIdleIntervalMs
+            GpsTier.OFF -> return
         }
-        val request = LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, phoneGpsIntervalMs)
-            .setMinUpdateIntervalMillis(phoneGpsIntervalMs / 2)
+        val request = LocationRequest.Builder(priority, interval)
+            .setMinUpdateIntervalMillis(interval / 2)
             .build()
         try {
+            // Re-registering the same callback replaces its prior request, so a
+            // tier change swaps power level without a gap in fixes.
             fusedLocationClient.requestLocationUpdates(request, locationCallback, Looper.getMainLooper())
             locationUpdatesActive = true
-            Log.i(TAG, "Location updates started (PRIORITY_HIGH_ACCURACY, 1Hz)")
-            // Two-pronged warmup so the UI sees a fix as fast as possible:
-            //
-            //   1. lastLocation reads Play Services' shared cache. If any app
-            //      on the phone (Maps, weather, ride-share, even our own
-            //      previous launch) has touched GPS recently, this returns
-            //      instantly. On a brand-new install where Play Services has
-            //      not yet seen this UID, the cache often comes back null --
-            //      so we ALSO kick off:
-            //
-            //   2. getCurrentLocation actively requests a single fresh fix
-            //      using HIGH_ACCURACY. This wakes the GPS engine on its own
-            //      schedule (independent of requestLocationUpdates' first
-            //      callback), and on a phone where GPS is already warm from
-            //      another app it comes back in a second or two -- much
-            //      faster than waiting for requestLocationUpdates to deliver
-            //      its first periodic fix.
-            //
-            // Both write to _currentLocation only if it is still null, so
-            // whichever finishes first wins and a slow path can never
-            // overwrite a fresher fix that landed via the live callback.
-            try {
-                fusedLocationClient.lastLocation.addOnSuccessListener { cached ->
-                    if (cached != null && _currentLocation.value == null) {
-                        Log.i(
-                            TAG,
-                            "Seeded from cached last-known fix " +
-                                "lat=${"%.6f".format(cached.latitude)} " +
-                                "lon=${"%.6f".format(cached.longitude)} " +
-                                "acc=${"%.1f".format(cached.accuracy)}m " +
-                                "age=${(System.currentTimeMillis() - cached.time)}ms"
-                        )
-                        _currentLocation.value = cached
-                    }
-                }
-                val cts = CancellationTokenSource()
-                fusedLocationClient.getCurrentLocation(
-                    Priority.PRIORITY_HIGH_ACCURACY, cts.token
-                ).addOnSuccessListener { fresh ->
-                    if (fresh != null && _currentLocation.value == null) {
-                        Log.i(
-                            TAG,
-                            "Seeded from active getCurrentLocation " +
-                                "lat=${"%.6f".format(fresh.latitude)} " +
-                                "lon=${"%.6f".format(fresh.longitude)} " +
-                                "acc=${"%.1f".format(fresh.accuracy)}m"
-                        )
-                        _currentLocation.value = fresh
-                    }
-                }
-            } catch (e: SecurityException) {
-                Log.w(TAG, "lastLocation / getCurrentLocation denied", e)
-            }
+            currentGpsTier = tier
+            Log.i(TAG, "GPS tier=$tier priority=$priority interval=${interval}ms")
         } catch (e: SecurityException) {
             Log.e(TAG, "Location permission missing", e)
         } catch (e: Exception) {
@@ -261,9 +404,59 @@ class TripRepository @Inject constructor(
         }
     }
 
+    /**
+     * Two-pronged warm-up so the UI sees a position ASAP on first start:
+     *   1. lastLocation reads Play Services' shared cache (instant if Maps / a
+     *      weather widget / our previous launch touched GPS recently).
+     *   2. getCurrentLocation actively requests one fresh HIGH_ACCURACY fix,
+     *      waking the GPS engine independent of the periodic stream.
+     * Both write to _currentLocation only if still null, so the fresher fix wins.
+     */
+    @SuppressLint("MissingPermission")
+    private fun warmUpFirstFix() {
+        try {
+            fusedLocationClient.lastLocation.addOnSuccessListener { cached ->
+                if (cached != null && _currentLocation.value == null &&
+                    System.currentTimeMillis() - cached.time < FRESH_SEED_MS) {
+                    Log.i(
+                        TAG,
+                        "Seeded from cached last-known fix " +
+                            "lat=${"%.6f".format(cached.latitude)} " +
+                            "lon=${"%.6f".format(cached.longitude)} " +
+                            "acc=${"%.1f".format(cached.accuracy)}m " +
+                            "age=${(System.currentTimeMillis() - cached.time)}ms"
+                    )
+                    _currentLocation.value = cached
+                }
+            }
+            val cts = CancellationTokenSource()
+            fusedLocationClient.getCurrentLocation(
+                Priority.PRIORITY_HIGH_ACCURACY, cts.token
+            ).addOnSuccessListener { fresh ->
+                if (fresh != null && _currentLocation.value == null) {
+                    Log.i(
+                        TAG,
+                        "Seeded from active getCurrentLocation " +
+                            "lat=${"%.6f".format(fresh.latitude)} " +
+                            "lon=${"%.6f".format(fresh.longitude)} " +
+                            "acc=${"%.1f".format(fresh.accuracy)}m"
+                    )
+                    _currentLocation.value = fresh
+                }
+            }
+        } catch (e: SecurityException) {
+            Log.w(TAG, "lastLocation / getCurrentLocation denied", e)
+        } catch (e: Exception) {
+            Log.e(TAG, "warm-up location fetch failed", e)
+        }
+    }
+
+    /** Fully stop GPS (Stop all). Ordinary teardown just lets the tier fall to idle. */
     fun stopLocationUpdates() {
         fusedLocationClient.removeLocationUpdates(locationCallback)
         locationUpdatesActive = false
+        gpsStreamRequested = false
+        currentGpsTier = null
         Log.i(TAG, "Location updates stopped (received $locationFixCount fixes this session)")
     }
 
@@ -347,6 +540,60 @@ class TripRepository @Inject constructor(
     // doesn't reattempt on every telemetry packet after a failure.
     @Volatile private var lastStartFailureMs = 0L
 
+    /** Fold whatever the wheel currently reports into [wheelIdentity]; blanks are ignored. */
+    private suspend fun captureWheelIdentity() {
+        wheelIdentity.merge(
+            brand = wheelRepository.connectedBrand.value,
+            model = wheelRepository.modelName.value,
+            serial = wheelRepository.wheelSerial.value,
+            bleMac = settingsRepository.get().lastDeviceAddress,
+            bleName = wheelRepository.connectedDeviceName.value,
+            firmware = wheelRepository.firmwareVersion.value,
+        )
+    }
+
+    // Multi-wheel distance: the wheel's session trip counter is only
+    // meaningful within one connection. Accumulate its deltas per segment,
+    // resetting the baseline across disconnects, so a mid-ride wheel
+    // switch can't fold two odometers into one bogus number (a P6 -> V14
+    // swap once produced a "914.5 km" trip this way).
+    private var tripWheelKmAccum = 0f
+    private var lastWheelTripKm: Float? = null
+
+    // CSV Extra-column event queue: one key=value pair leaves per written
+    // row, so a multi-key event (the wheel identity block) spills onto
+    // consecutive rows exactly like euc.world's extra column does.
+    private val pendingExtras = ArrayDeque<String>()
+    // Pairs already written to the CSV for the CURRENT connection block, so a
+    // late-arriving serial adds one row instead of repeating the whole block,
+    // while a reconnect (cleared set) re-emits everything.
+    private val emittedExtras = HashSet<String>()
+
+    /** Queue any not-yet-written identity pairs of the current connection block. */
+    private fun queueWheelIdentityExtras() {
+        for (pair in wheelIdentity.extraPairs()) {
+            if (emittedExtras.add(pair)) pendingExtras.addLast(pair)
+        }
+    }
+
+    /**
+     * Flush the accumulated wheel identity onto the current row the first time it
+     * becomes known (and again only if it grows) — gated on change, so a whole ride
+     * costs about one extra write, not one per tick. This is what makes the identity
+     * survive an OOM/force-kill: [finalizeUnfinishedTrips] recovers a killed row from
+     * its CSV and [finalizedTripOrNull] copies wheelMetaJson through untouched, so a
+     * row that already carries the wheel keeps it. Best-effort — a DB hiccup here must
+     * never disturb recording. Targets the row by id, and stopRecording() rewrites the
+     * same accumulator value, so the two can never disagree.
+     */
+    private suspend fun persistWheelIdentityIfChanged() {
+        val json = wheelIdentity.toJson() ?: return
+        if (json == lastPersistedWheelMeta) return
+        val id = currentTrip?.id ?: return
+        lastPersistedWheelMeta = json
+        runCatching { tripDao.updateWheelMeta(id, json) }
+    }
+
     suspend fun startRecording() {
         // Back off briefly after a failed start. evaluateAutoRecordOnTelemetry
         // calls this on every moving packet (~10/s); without this it would spin
@@ -396,6 +643,16 @@ class TripRepository @Inject constructor(
         _liveGpsDistanceKm.value = 0f
         lastGpsPoint = null
         tripHadMockFix = false
+        wheelIdentity.clear()          // never inherit the previous ride's wheel
+        lastPersistedWheelMeta = null
+        pendingExtras.clear()
+        emittedExtras.clear()
+        tripWheelKmAccum = 0f
+        lastWheelTripKm = null
+        captureWheelIdentity()
+        if (wheelRepository.connectionState.value == com.eried.eucplanet.ble.ConnectionState.CONNECTED) {
+            queueWheelIdentityExtras()
+        }
 
         val trip = TripRecord(fileName = fileName, tripUuid = java.util.UUID.randomUUID().toString())
         // Persisting the row can fail (disk full, DB locked/corrupt). If it does,
@@ -427,11 +684,22 @@ class TripRepository @Inject constructor(
         // read once at start; a mid-recording change takes effect next recording.
         recordJob = scope.launch {
             val recordIntervalMs = settingsRepository.get().tripRecordIntervalMs.toLong()
+            val fixMaxAgeMs = settingsRepository.get().gpsFixMaxAgeSec * 1000L
             var rowsWritten = 0
             var rowsWithGps = 0
+            var wasConnected = wheelRepository.connectionState.value ==
+                com.eried.eucplanet.ble.ConnectionState.CONNECTED
             while (_recording.value) {
                 val data = wheelRepository.wheelData.value
-                val location = _currentLocation.value
+                // Gate the recorded point on freshness + accuracy so a cold start
+                // (GPS just came back from OFF) logs "no GPS yet" instead of the
+                // stale last-known position. Distance already skips the first fix
+                // and anything over 25 m; this keeps the plotted track from
+                // opening with a fake jump.
+                val location = _currentLocation.value?.takeIf {
+                    System.currentTimeMillis() - it.time < fixMaxAgeMs &&
+                        it.accuracy <= MAX_PLOT_ACCURACY_M
+                }
                 // The merged GPS-speed column uses the external box's speed only
                 // when the rider prioritises external GPS and the sample is
                 // recent (a staler reading would freeze the column); otherwise
@@ -445,7 +713,33 @@ class TripRepository @Inject constructor(
                     ?.speedKmh
                 val wheelConnected = wheelRepository.connectionState.value ==
                     com.eried.eucplanet.ble.ConnectionState.CONNECTED
-                csvWriter?.writeRow(data, location, extSpeed, wheelConnected)
+                // Keep the wheel's identity current while it is still talking to us; the
+                // serial/model often only arrive some seconds into the connection. Flush it
+                // to the row as soon as it's known so a later kill still recovers the wheel.
+                // Identity also streams into the CSV's Extra column: the full block on
+                // every (re)connect, single pairs as late fields arrive, and a
+                // wheel.disconnected marker on drop, so a trip that switches wheels
+                // mid-ride stays reconstructable from the file alone.
+                if (wheelConnected) {
+                    if (!wasConnected) emittedExtras.clear() // reconnect: re-emit the block
+                    captureWheelIdentity()
+                    persistWheelIdentityIfChanged()
+                    queueWheelIdentityExtras()
+                    // Per-segment wheel distance: only forward, plausible steps
+                    // count; the baseline resets across disconnects so another
+                    // wheel's counter can't inject a jump.
+                    val wtd = data.tripDistance
+                    val lastKm = lastWheelTripKm
+                    if (lastKm != null && wtd >= lastKm && wtd - lastKm < 1f) {
+                        tripWheelKmAccum += wtd - lastKm
+                    }
+                    lastWheelTripKm = wtd
+                } else if (wasConnected) {
+                    pendingExtras.addLast("wheel.disconnected=1")
+                    lastWheelTripKm = null
+                }
+                wasConnected = wheelConnected
+                csvWriter?.writeRow(data, location, extSpeed, wheelConnected, pendingExtras.removeFirstOrNull())
                 rowsWritten++
                 if (location != null) {
                     rowsWithGps++
@@ -496,20 +790,21 @@ class TripRepository @Inject constructor(
         }
 
         val data = wheelRepository.wheelData.value
-        // Wheel odometer (session trip counter) is the source of truth for
-        // distance; fall back to GPS-derived distance only when the wheel never
-        // reported one (GPS-only ride, wheel disconnected before any reading, or
-        // a wheel family that doesn't expose trip distance).
-        val distance = if (data.tripDistance > 0f) data.tripDistance else gpsDistanceKm.toFloat()
+        // Wheel distance is the per-segment accumulator (immune to mid-ride
+        // wheel switches and to pre-recording session distance); the raw
+        // session counter and GPS distance remain as fallbacks for rides
+        // where the loop never saw a connected tick.
+        val distance = when {
+            tripWheelKmAccum > 0f -> tripWheelKmAccum
+            data.tripDistance > 0f -> data.tripDistance
+            else -> gpsDistanceKm.toFloat()
+        }
         val capturedMock = tripHadMockFix
-        val wheelMeta = buildWheelMetaJson(
-            brand = wheelRepository.connectedBrand.value,
-            model = wheelRepository.modelName.value,
-            serial = wheelRepository.wheelSerial.value,
-            bleMac = settingsRepository.get().lastDeviceAddress,
-            bleName = wheelRepository.connectedDeviceName.value,
-            firmware = wheelRepository.firmwareVersion.value,
-        )
+        // A last look in case the wheel is still connected, then use what the ride
+        // accumulated — by now a powered-off wheel reads back as all-nulls, which merge
+        // ignores rather than letting it erase what we already know.
+        captureWheelIdentity()
+        val wheelMeta = wheelIdentity.toJson()
         val finishedTrip = trip.copy(
             endTime = System.currentTimeMillis(),
             distanceKm = distance,
@@ -674,6 +969,66 @@ internal fun isMockLocation(loc: Location): Boolean =
     else @Suppress("DEPRECATION") loc.isFromMockProvider
 
 /**
+ * Accumulates the connected wheel's identity over the course of a ride.
+ *
+ * Model, serial and firmware live in [WheelRepository] StateFlows that are nulled the
+ * moment BLE drops, and the normal way to end a ride is to power the wheel off — so
+ * reading them once at stop hands back nulls, the upload carries no serial or MAC, and
+ * eucstats has nothing to key the wheel on. Such a trip still counts for the rider but
+ * reaches no wheel or brand board at all.
+ *
+ * Merging as the ride runs fixes that: once a field is known it stays known, because a
+ * later blank is ignored. A real value still replaces an earlier real value (identity
+ * trickles in — the MAC at connect, the serial only once the wheel answers).
+ */
+class WheelIdentity {
+    private val fields = java.util.concurrent.ConcurrentHashMap<String, String>()
+
+    fun merge(
+        brand: String? = null,
+        model: String? = null,
+        serial: String? = null,
+        bleMac: String? = null,
+        bleName: String? = null,
+        firmware: String? = null,
+    ) {
+        put("brand", brand); put("model", model); put("serial", serial)
+        put("ble_mac", bleMac); put("ble_name", bleName); put("firmware", firmware)
+    }
+
+    private fun put(key: String, value: String?) {
+        if (!value.isNullOrBlank()) fields[key] = value
+    }
+
+    fun clear() = fields.clear()
+
+    /**
+     * The identity as CSV Extra-column pairs, stable order. MAC is upper
+     * case without separators (the ecosystem convention for wheel MACs).
+     */
+    fun extraPairs(): List<String> {
+        val out = ArrayList<String>(6)
+        fields["ble_name"]?.let { out.add("wheel.name=$it") }
+        fields["ble_mac"]?.let { out.add("wheel.mac=" + it.replace(":", "").replace("-", "").uppercase()) }
+        fields["brand"]?.let { out.add("wheel.brand=$it") }
+        fields["model"]?.let { out.add("wheel.model=$it") }
+        fields["serial"]?.let { out.add("wheel.serial=$it") }
+        fields["firmware"]?.let { out.add("wheel.firmware=$it") }
+        return out
+    }
+
+    /** Same shape and blank-handling as [buildWheelMetaJson] — it delegates to it. */
+    fun toJson(): String? = buildWheelMetaJson(
+        brand = fields["brand"],
+        model = fields["model"],
+        serial = fields["serial"],
+        bleMac = fields["ble_mac"],
+        bleName = fields["ble_name"],
+        firmware = fields["firmware"],
+    )
+}
+
+/**
  * Builds a JSON object string with the connected wheel's metadata.
  * Returns null if ALL fields are null or blank (nothing to record).
  * Only non-null, non-blank values are included in the JSON.
@@ -717,11 +1072,9 @@ internal fun parseTripQuads(text: String): List<TripCsv.Quad> {
     val lines = text.split('\n')
     if (lines.size < 2) return emptyList()
     val h = lines[0].split(',').map { it.trim().lowercase(Locale.US) }
-    fun idx(vararg names: String) =
-        names.firstNotNullOfOrNull { h.indexOf(it).takeIf { i -> i >= 0 } } ?: -1
-    val iDate = idx("date"); if (iDate < 0) return emptyList()
-    val iLat = idx("latitude"); val iLon = idx("longitude")
-    val iMile = idx("total mileage", "mileage", "distance")
+    val iDate = TripCsv.Columns.date(h); if (iDate < 0) return emptyList()
+    val iLat = TripCsv.Columns.latitude(h); val iLon = TripCsv.Columns.longitude(h)
+    val iMile = TripCsv.Columns.mileage(h)
     return lines.asSequence().drop(1).mapNotNull { ln ->
         val c = ln.split(',')
         if (iDate >= c.size || c[iDate].isBlank()) return@mapNotNull null

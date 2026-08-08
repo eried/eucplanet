@@ -477,7 +477,11 @@ class VoiceService @Inject constructor(
     private fun buildReportParts(
         data: WheelData, settings: AppSettings, isRecording: Boolean, periodic: Boolean
     ): List<String> {
-        val order = settings.voiceReportOrder.split(",").map { it.trim() }
+        // Append any known items missing from the saved order (e.g. PhoneBattery
+        // added after the rider's order was saved) so new report types still speak.
+        val known = listOf("Speed", "Battery", "PhoneBattery", "Temp", "PWM", "Distance", "Recording", "Time", "Navigation")
+        val saved = settings.voiceReportOrder.split(",").map { it.trim() }.filter { it in known }
+        val order = saved + known.filter { it !in saved }
         val parts = mutableListOf<String>()
         for (item in order) {
             val enabled = if (periodic) when (item) {
@@ -489,6 +493,7 @@ class VoiceService @Inject constructor(
                 "Recording" -> settings.voiceReportRecording
                 "Time" -> settings.voiceReportTime
                 "Navigation" -> settings.voiceReportNavigation
+                "PhoneBattery" -> settings.voiceReportPhoneBattery
                 else -> false
             } else when (item) {
                 "Speed" -> settings.triggerReportSpeed
@@ -499,6 +504,7 @@ class VoiceService @Inject constructor(
                 "Recording" -> settings.triggerReportRecording
                 "Time" -> settings.triggerReportTime
                 "Navigation" -> settings.triggerReportNavigation
+                "PhoneBattery" -> settings.triggerReportPhoneBattery
                 else -> false
             }
             if (enabled) {
@@ -514,6 +520,7 @@ class VoiceService @Inject constructor(
                 when (item) {
                     "Speed" -> parts.add(context.getString(R.string.voice_speed_fmt, "%.0f".format(displaySpeed)))
                     "Battery" -> parts.add(context.getString(R.string.voice_battery_fmt, data.batteryPercent))
+                    "PhoneBattery" -> parts.add(context.getString(R.string.voice_phone_battery_fmt, readPhoneBatteryPercent()))
                     "Temp" -> parts.add(context.getString(R.string.voice_temp_fmt, "%.0f".format(displayTemp)))
                     "PWM" -> parts.add(context.getString(R.string.voice_load_fmt, "%.0f".format(data.pwm)))
                     "Distance" -> parts.add(context.getString(
@@ -538,6 +545,21 @@ class VoiceService @Inject constructor(
         return parts
     }
 
+    /** The phone's own battery level (0-100) for the "phone" voice report item. */
+    private fun readPhoneBatteryPercent(): Int {
+        val bm = context.getSystemService(android.content.Context.BATTERY_SERVICE)
+            as? android.os.BatteryManager
+        bm?.getIntProperty(android.os.BatteryManager.BATTERY_PROPERTY_CAPACITY)?.let { lvl ->
+            if (lvl in 0..100) return lvl
+        }
+        val intent = context.registerReceiver(
+            null, android.content.IntentFilter(android.content.Intent.ACTION_BATTERY_CHANGED)
+        )
+        val level = intent?.getIntExtra(android.os.BatteryManager.EXTRA_LEVEL, -1) ?: -1
+        val scale = intent?.getIntExtra(android.os.BatteryManager.EXTRA_SCALE, -1) ?: -1
+        return if (level >= 0 && scale > 0) (level * 100 / scale).coerceIn(0, 100) else 0
+    }
+
     fun announceEvent(text: String) {
         speak(text)
     }
@@ -548,7 +570,8 @@ class VoiceService @Inject constructor(
     }
 
     private fun speakInternal(
-        text: String, isTrigger: Boolean, rate: Float, localeTag: String, voiceName: String
+        text: String, isTrigger: Boolean, rate: Float, localeTag: String, voiceName: String,
+        flush: Boolean = false,
     ) {
         // Session "silence" toggle: swallow every spoken utterance without
         // touching audio focus or TTS state.
@@ -580,7 +603,10 @@ class VoiceService @Inject constructor(
         val params = android.os.Bundle().apply {
             putFloat(TextToSpeech.Engine.KEY_PARAM_VOLUME, 1.0f)
         }
-        val result = tts?.speak(text, TextToSpeech.QUEUE_ADD, params, utteranceId) ?: TextToSpeech.ERROR
+        // Previews flush (stop whatever is speaking and play this one now);
+        // live announcements queue so they never talk over each other.
+        val queueMode = if (flush) TextToSpeech.QUEUE_FLUSH else TextToSpeech.QUEUE_ADD
+        val result = tts?.speak(text, queueMode, params, utteranceId) ?: TextToSpeech.ERROR
         if (result == TextToSpeech.ERROR) {
             Log.w(TAG, "TTS speak returned ERROR; releasing focus")
             onUtteranceFinished(utteranceId)
@@ -590,7 +616,7 @@ class VoiceService @Inject constructor(
     fun testSpeak(text: String, speechRate: Float, localeTag: String, voiceName: String = "") {
         warnIfLowVolume(currentOutputChannel)
         speakInternal(text, isTrigger = false, rate = speechRate,
-            localeTag = localeTag, voiceName = voiceName)
+            localeTag = localeTag, voiceName = voiceName, flush = true)
     }
 
     private fun applyLocale(localeTag: String, voiceName: String) {

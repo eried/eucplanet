@@ -100,6 +100,7 @@ object SettingsJson {
         put("voiceReportDistance", s.voiceReportDistance)
         put("voiceReportTime", s.voiceReportTime)
         put("voiceReportNavigation", s.voiceReportNavigation)
+        put("voiceReportPhoneBattery", s.voiceReportPhoneBattery)
         put("triggerReportSpeed", s.triggerReportSpeed)
         put("triggerReportBattery", s.triggerReportBattery)
         put("triggerReportTemp", s.triggerReportTemp)
@@ -107,9 +108,30 @@ object SettingsJson {
         put("triggerReportDistance", s.triggerReportDistance)
         put("triggerReportTime", s.triggerReportTime)
         put("triggerReportNavigation", s.triggerReportNavigation)
+        put("triggerReportPhoneBattery", s.triggerReportPhoneBattery)
         put("voiceReportRecording", s.voiceReportRecording)
         put("triggerReportRecording", s.triggerReportRecording)
         put("voiceReportOrder", s.voiceReportOrder)
+        put("accelSplit", JSONObject().apply {
+            put("enabled", s.accelSplit.enabled)
+            put("increment", s.accelSplit.increment)
+            put("minSpeed", s.accelSplit.minSpeed)
+            put("compareToPrevious", s.accelSplit.compareToPrevious)
+            put("compareToBest", s.accelSplit.compareToBest)
+            put("direction", s.accelSplit.direction)
+        })
+        put("mediaControl", JSONObject().apply {
+            put("pauseEnabled", s.mediaControl.pauseEnabled)
+            put("pauseBelowKmh", s.mediaControl.pauseBelowKmh)
+            put("resumeEnabled", s.mediaControl.resumeEnabled)
+            put("resumeAboveKmh", s.mediaControl.resumeAboveKmh)
+        })
+        put("proximityLock", JSONObject().apply {
+            put("lockEnabled", s.proximityLock.lockEnabled)
+            put("lockBelowDbm", s.proximityLock.lockBelowDbm)
+            put("unlockEnabled", s.proximityLock.unlockEnabled)
+            put("unlockAboveDbm", s.proximityLock.unlockAboveDbm)
+        })
         put("announceWheelLock", s.announceWheelLock)
         put("announceLights", s.announceLights)
         put("announceRecording", s.announceRecording)
@@ -150,9 +172,19 @@ object SettingsJson {
         put("unitDistance", s.unitDistance)
         put("unitTemp", s.unitTemp)
         put("phoneKeepScreenOn", s.phoneKeepScreenOn)
+        put("phoneShowOverLockScreen", s.phoneShowOverLockScreen)
         put("rotateDashboard", s.rotateDashboard)
         put("rotateNavigator", s.rotateNavigator)
         put("rotateOtherScreens", s.rotateOtherScreens)
+        put("rotateSettings", s.rotateSettings)
+        put("rotateTripDetail", s.rotateTripDetail)
+        put("rotateTripList", s.rotateTripList)
+        put("tripMapSide", s.tripMapSide)
+        put("tripMapType", s.tripMapType)
+        put("tripHiddenTiles", s.tripHiddenTiles)
+        put("tripTileOrder", s.tripTileOrder)
+        put("tripChartOrder", s.tripChartOrder)
+        put("tripHiddenCharts", s.tripHiddenCharts)
         put("compactModeWhen", s.compactModeWhen)
         put("coverCameraCutout", s.coverCameraCutout)
         put("compactSpeedoStyle", s.compactSpeedoStyle)
@@ -239,6 +271,9 @@ object SettingsJson {
         put("navAvoidUnpaved", s.navAvoidUnpaved)
         put("watchShowNavigation", s.watchShowNavigation)
         put("hudServerEnabled", s.hudServerEnabled)
+        put("keepAppAlive", s.keepAppAlive)
+        put("notificationActionsEnabled", s.notificationActionsEnabled)
+        put("notificationActions", s.notificationActions)
         put("hudActionUp", s.hudActionUp)
         put("hudActionDown", s.hudActionDown)
         put("hudActionLeft", s.hudActionLeft)
@@ -277,6 +312,9 @@ object SettingsJson {
         put("dropboxAccessTokenExpiresAt", s.dropboxAccessTokenExpiresAt)
         put("dropboxAccountLabel", s.dropboxAccountLabel)
         put("dropboxLastSyncAt", s.dropboxLastSyncAt)
+        put("dropboxSyncPending", s.dropboxSyncPending)
+        put("dropboxPendingCount", s.dropboxPendingCount)
+        put("dropboxSyncTotal", s.dropboxSyncTotal)
     }
 
     fun fromJson(j: JSONObject, base: AppSettings = AppSettings()): AppSettings = base.copy(
@@ -332,6 +370,7 @@ object SettingsJson {
         voiceReportDistance = j.optBoolean("voiceReportDistance", base.voiceReportDistance),
         voiceReportTime = j.optBoolean("voiceReportTime", base.voiceReportTime),
         voiceReportNavigation = j.optBoolean("voiceReportNavigation", base.voiceReportNavigation),
+        voiceReportPhoneBattery = j.optBoolean("voiceReportPhoneBattery", base.voiceReportPhoneBattery),
         triggerReportSpeed = j.optBoolean("triggerReportSpeed", base.triggerReportSpeed),
         triggerReportBattery = j.optBoolean("triggerReportBattery", base.triggerReportBattery),
         triggerReportTemp = j.optBoolean("triggerReportTemp", base.triggerReportTemp),
@@ -339,9 +378,41 @@ object SettingsJson {
         triggerReportDistance = j.optBoolean("triggerReportDistance", base.triggerReportDistance),
         triggerReportTime = j.optBoolean("triggerReportTime", base.triggerReportTime),
         triggerReportNavigation = j.optBoolean("triggerReportNavigation", base.triggerReportNavigation),
+        triggerReportPhoneBattery = j.optBoolean("triggerReportPhoneBattery", base.triggerReportPhoneBattery),
         voiceReportRecording = j.optBoolean("voiceReportRecording", base.voiceReportRecording),
         triggerReportRecording = j.optBoolean("triggerReportRecording", base.triggerReportRecording),
         voiceReportOrder = j.optString("voiceReportOrder", base.voiceReportOrder),
+        accelSplit = j.optJSONObject("accelSplit")?.let { a ->
+            base.accelSplit.copy(
+                enabled = a.optBoolean("enabled", base.accelSplit.enabled),
+                increment = a.optInt("increment", base.accelSplit.increment),
+                minSpeed = a.optInt("minSpeed", base.accelSplit.minSpeed),
+                compareToPrevious = a.optBoolean("compareToPrevious", base.accelSplit.compareToPrevious),
+                compareToBest = a.optBoolean("compareToBest", base.accelSplit.compareToBest),
+                // Migrate the pre-selector boolean: announceDecel=true meant
+                // acceleration + braking, i.e. BOTH.
+                direction = a.optString(
+                    "direction",
+                    if (a.optBoolean("announceDecel", false)) "BOTH" else base.accelSplit.direction
+                ),
+            )
+        } ?: base.accelSplit,
+        mediaControl = j.optJSONObject("mediaControl")?.let { m ->
+            base.mediaControl.copy(
+                pauseEnabled = m.optBoolean("pauseEnabled", base.mediaControl.pauseEnabled),
+                pauseBelowKmh = m.optInt("pauseBelowKmh", base.mediaControl.pauseBelowKmh),
+                resumeEnabled = m.optBoolean("resumeEnabled", base.mediaControl.resumeEnabled),
+                resumeAboveKmh = m.optInt("resumeAboveKmh", base.mediaControl.resumeAboveKmh),
+            )
+        } ?: base.mediaControl,
+        proximityLock = j.optJSONObject("proximityLock")?.let { p ->
+            base.proximityLock.copy(
+                lockEnabled = p.optBoolean("lockEnabled", base.proximityLock.lockEnabled),
+                lockBelowDbm = p.optInt("lockBelowDbm", base.proximityLock.lockBelowDbm),
+                unlockEnabled = p.optBoolean("unlockEnabled", base.proximityLock.unlockEnabled),
+                unlockAboveDbm = p.optInt("unlockAboveDbm", base.proximityLock.unlockAboveDbm),
+            )
+        } ?: base.proximityLock,
         announceWheelLock = j.optBoolean("announceWheelLock", base.announceWheelLock),
         announceLights = j.optBoolean("announceLights", base.announceLights),
         announceRecording = j.optBoolean("announceRecording", base.announceRecording),
@@ -385,9 +456,19 @@ object SettingsJson {
         unitDistance = j.optString("unitDistance", base.unitDistance),
         unitTemp = j.optString("unitTemp", base.unitTemp),
         phoneKeepScreenOn = j.optBoolean("phoneKeepScreenOn", base.phoneKeepScreenOn),
+        phoneShowOverLockScreen = j.optBoolean("phoneShowOverLockScreen", base.phoneShowOverLockScreen),
         rotateDashboard = j.optBoolean("rotateDashboard", base.rotateDashboard),
         rotateNavigator = j.optBoolean("rotateNavigator", base.rotateNavigator),
         rotateOtherScreens = j.optBoolean("rotateOtherScreens", base.rotateOtherScreens),
+        rotateSettings = j.optBoolean("rotateSettings", base.rotateSettings),
+        rotateTripDetail = j.optBoolean("rotateTripDetail", base.rotateTripDetail),
+        rotateTripList = j.optBoolean("rotateTripList", base.rotateTripList),
+        tripMapSide = j.optString("tripMapSide", base.tripMapSide),
+        tripMapType = j.optString("tripMapType", base.tripMapType),
+        tripHiddenTiles = j.optString("tripHiddenTiles", base.tripHiddenTiles),
+        tripTileOrder = j.optString("tripTileOrder", base.tripTileOrder),
+        tripChartOrder = j.optString("tripChartOrder", base.tripChartOrder),
+        tripHiddenCharts = j.optString("tripHiddenCharts", base.tripHiddenCharts),
         compactModeWhen = j.optString("compactModeWhen", base.compactModeWhen),
         coverCameraCutout = j.optString("coverCameraCutout", base.coverCameraCutout),
         compactSpeedoStyle = j.optString("compactSpeedoStyle", base.compactSpeedoStyle),
@@ -482,6 +563,9 @@ object SettingsJson {
         navAvoidUnpaved = j.optBoolean("navAvoidUnpaved", base.navAvoidUnpaved),
         watchShowNavigation = j.optBoolean("watchShowNavigation", base.watchShowNavigation),
         hudServerEnabled = j.optBoolean("hudServerEnabled", base.hudServerEnabled),
+        keepAppAlive = j.optBoolean("keepAppAlive", base.keepAppAlive),
+        notificationActionsEnabled = j.optBoolean("notificationActionsEnabled", base.notificationActionsEnabled),
+        notificationActions = j.optString("notificationActions", base.notificationActions),
         hudActionUp = j.optString("hudActionUp", base.hudActionUp),
         hudActionDown = j.optString("hudActionDown", base.hudActionDown),
         hudActionLeft = j.optString("hudActionLeft", base.hudActionLeft),
@@ -537,7 +621,10 @@ object SettingsJson {
         dropboxRefreshToken = j.optString("dropboxRefreshToken", base.dropboxRefreshToken),
         dropboxAccessTokenExpiresAt = j.optLong("dropboxAccessTokenExpiresAt", base.dropboxAccessTokenExpiresAt),
         dropboxAccountLabel = j.optString("dropboxAccountLabel", base.dropboxAccountLabel),
-        dropboxLastSyncAt = j.optLong("dropboxLastSyncAt", base.dropboxLastSyncAt)
+        dropboxLastSyncAt = j.optLong("dropboxLastSyncAt", base.dropboxLastSyncAt),
+        dropboxSyncPending = j.optBoolean("dropboxSyncPending", base.dropboxSyncPending),
+        dropboxPendingCount = j.optInt("dropboxPendingCount", base.dropboxPendingCount),
+        dropboxSyncTotal = j.optInt("dropboxSyncTotal", base.dropboxSyncTotal)
     )
 
     /** `optString` returns `""` for null and absent keys, which we cannot

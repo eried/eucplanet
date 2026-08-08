@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
@@ -141,6 +142,15 @@ import com.eried.eucplanet.ui.theme.appColors
  * a hamburger menu (save / load / clear / start / exit) and a bottom panel for
  * the travel mode and the draggable list of stops. Tapping the map drops a pin.
  */
+
+// Min inner-row width (BoxWithConstraints.maxWidth) at which the full "Start
+// navigation" label still fits next to the 4 mode icons. Measured empirically on the
+// emulator (411/384dp screens keep the full label at maxWidth ~336/309dp; a 360dp
+// screen flips at maxWidth ~290dp), so 260dp keeps the full label on every normal
+// phone (360dp+) and the landscape sidebar, and only a genuinely tiny width -- a
+// split-screen half or a sub-~330dp screen -- falls back to the short "Start".
+private val START_NAV_MIN_WIDTH = 260.dp
+
 @SuppressLint("SetJavaScriptEnabled")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -277,6 +287,11 @@ fun RouteBuilderScreen(
         }
     }
 
+    // Pre-formatted toast strings (e.g. the too-far-to-start distance).
+    LaunchedEffect(Unit) {
+        viewModel.toasts.collect { msg -> snackbarHost.showSnackbar(msg) }
+    }
+
     // The builder is useless without a fix, ask for location up front so the
     // "my location" button and live guidance work. Harmless if already granted.
     val locationPermission = rememberLauncherForActivityResult(
@@ -315,10 +330,15 @@ fun RouteBuilderScreen(
         if (!pageReady) return@LaunchedEffect
         viewModel.mapRender.collect { mr ->
             val fit = mr.fit && viewModel.savedView.value == null
+            // While a route is still solving, this render is transient (one pin,
+            // no geometry yet). Tell the map so it defers the fit to the settled
+            // render, avoiding the first-stop "zoom in to the pin, then out to
+            // the route" double-fit.
+            val routing = viewModel.routing.value
             wv.evaluateJavascript(
                 "nativeRender(${jsString(viewModel.waypointsJson())}," +
                     "${jsString(viewModel.geometryJson())},$fit," +
-                    "${jsString(viewModel.pendingPreviewJson())});"
+                    "${jsString(viewModel.pendingPreviewJson())},$routing);"
             ) {
                 if (!firstRenderApplied) firstRenderApplied = true
             }
@@ -560,6 +580,13 @@ fun RouteBuilderScreen(
             NavMode.TREASURE_HUNT else NavMode.TURN_BY_TURN
         viewModel.startNavigation(mode) { onExit() }
     }
+    // Hold-to-override: skip the too-far guard and start anyway.
+    val startNavForce: () -> Unit = {
+        navStarting = true
+        val mode = if (travelMode == TravelMode.STRAIGHT)
+            NavMode.TREASURE_HUNT else NavMode.TURN_BY_TURN
+        viewModel.startNavigation(mode, force = true) { onExit() }
+    }
 
     Scaffold(
         snackbarHost = {
@@ -621,6 +648,7 @@ fun RouteBuilderScreen(
                             .padding(end = 8.dp)
                             .onFocusChanged { searchFocused = it.isFocused },
                         colors = themedFieldColors(),
+                        shape = RoundedCornerShape(12.dp),
                     )
                 },
                 actions = {
@@ -632,7 +660,7 @@ fun RouteBuilderScreen(
                             expanded = menuOpen,
                             canStart = userLocation != null && waypoints.isNotEmpty(),
                             onDismiss = { menuOpen = false },
-                            onSave = { saveLauncher.launch("route.gpx") },
+                            onSave = { saveLauncher.launch(viewModel.suggestedFileName()) },
                             onLoad = {
                                 // No "*/*", that wildcard showed every file.
                                 // Android has no registered MIME for ".gpx", so
@@ -708,6 +736,16 @@ fun RouteBuilderScreen(
         // bottom-panel layout even when rotated.
         val stopsSide by viewModel.navStopsSide.collectAsState()
         val advancedVars by viewModel.advanced.collectAsState()
+        // Keep the map's far-stop gate in sync so the live drag connector never
+        // draws a line from the rider to a first stop beyond the max start
+        // distance (mirrors the Kotlin-side gate for the solved and preview lines).
+        LaunchedEffect(pageReady, advancedVars.navMaxStartDistanceKm) {
+            val wv = webView ?: return@LaunchedEffect
+            if (!pageReady) return@LaunchedEffect
+            wv.evaluateJavascript(
+                "nativeSetMaxStartDistance(${advancedVars.navMaxStartDistanceKm});", null
+            )
+        }
         val landscape = LocalConfiguration.current.orientation ==
             android.content.res.Configuration.ORIENTATION_LANDSCAPE &&
             LocalConfiguration.current.screenWidthDp >= advancedVars.navSidebarMinScreenDp &&
@@ -1002,7 +1040,8 @@ fun RouteBuilderScreen(
                                     focusManager.clearFocus()
                                     viewModel.pickSearchResult(result)
                                 },
-                                modifier = Modifier.fillMaxWidth()
+                                modifier = Modifier.fillMaxWidth(),
+                                shape = RoundedCornerShape(12.dp)
                             ) {
                                 Icon(
                                     Icons.Default.Place, null,
@@ -1151,6 +1190,7 @@ fun RouteBuilderScreen(
                     onSaveHome = viewModel::saveWaypointAsHome,
                     onSaveWork = viewModel::saveWaypointAsWork,
                     onStartNavigation = startNav,
+                    onForceStartNavigation = startNavForce,
                     onStopNavigation = viewModel::stopNavigation,
                     onClearRoute = viewModel::clear,
                     canStartNavigation = userLocation != null && waypoints.isNotEmpty(),
@@ -1375,10 +1415,10 @@ fun RouteBuilderScreen(
                     confirmButton = {
                         TextButton(onClick = {
                             clearConfirmOpen = false; viewModel.clear()
-                        }) { Text(stringResource(R.string.nav_menu_clear)) }
+                        }, shape = RoundedCornerShape(12.dp)) { Text(stringResource(R.string.nav_menu_clear)) }
                     },
                     dismissButton = {
-                        TextButton(onClick = { clearConfirmOpen = false }) {
+                        TextButton(onClick = { clearConfirmOpen = false }, shape = RoundedCornerShape(12.dp)) {
                             Text(stringResource(R.string.action_cancel))
                         }
                     }
@@ -1397,12 +1437,12 @@ fun RouteBuilderScreen(
                     title = { Text(stringResource(R.string.nav_share_dialog_title)) },
                     text = { Text(stringResource(R.string.nav_share_dialog_body)) },
                     confirmButton = {
-                        TextButton(onClick = { viewModel.acceptPendingShareAppend() }) {
+                        TextButton(onClick = { viewModel.acceptPendingShareAppend() }, shape = RoundedCornerShape(12.dp)) {
                             Text(stringResource(R.string.nav_share_dialog_append))
                         }
                     },
                     dismissButton = {
-                        TextButton(onClick = { viewModel.acceptPendingShareAsNewRoute() }) {
+                        TextButton(onClick = { viewModel.acceptPendingShareAsNewRoute() }, shape = RoundedCornerShape(12.dp)) {
                             Text(stringResource(R.string.nav_share_dialog_new))
                         }
                     }
@@ -1423,10 +1463,10 @@ fun RouteBuilderScreen(
                         TextButton(onClick = {
                             pendingGpxUri = null
                             viewModel.loadGpx(pendingUri)
-                        }) { Text(stringResource(R.string.nav_menu_load_short)) }
+                        }, shape = RoundedCornerShape(12.dp)) { Text(stringResource(R.string.nav_menu_load_short)) }
                     },
                     dismissButton = {
-                        TextButton(onClick = { pendingGpxUri = null }) {
+                        TextButton(onClick = { pendingGpxUri = null }, shape = RoundedCornerShape(12.dp)) {
                             Text(stringResource(R.string.action_cancel))
                         }
                     }
@@ -1537,6 +1577,61 @@ private fun waypointLabel(
     return if (name.isBlank()) role else "$role ($name)"
 }
 
+/**
+ * A filled Button that also fires [onHold] after a ~0.5 s press-and-hold, used
+ * for "hold Start to navigate anyway". Detected via the button's own
+ * interactionSource (Material 3 has no long-press), so the normal tap still
+ * fires [onClick] and the visuals stay identical to a plain Button. When a hold
+ * fires, the release that follows is swallowed so the tap action does not also
+ * run. Pass onHold = null to behave as an ordinary Button.
+ */
+@Composable
+private fun HoldableButton(
+    onClick: () -> Unit,
+    onHold: (() -> Unit)?,
+    enabled: Boolean,
+    modifier: Modifier = Modifier,
+    contentPadding: androidx.compose.foundation.layout.PaddingValues =
+        androidx.compose.material3.ButtonDefaults.ContentPadding,
+    shape: androidx.compose.ui.graphics.Shape =
+        androidx.compose.material3.ButtonDefaults.shape,
+    content: @Composable androidx.compose.foundation.layout.RowScope.() -> Unit,
+) {
+    val source = remember { androidx.compose.foundation.interaction.MutableInteractionSource() }
+    val haptic = LocalHapticFeedback.current
+    var held by remember { mutableStateOf(false) }
+    if (onHold != null) {
+        LaunchedEffect(source, enabled) {
+            var holdJob: kotlinx.coroutines.Job? = null
+            source.interactions.collect { i ->
+                when (i) {
+                    is androidx.compose.foundation.interaction.PressInteraction.Press -> {
+                        held = false
+                        holdJob = launch {
+                            delay(500)
+                            held = true
+                            haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                            onHold()
+                        }
+                    }
+                    is androidx.compose.foundation.interaction.PressInteraction.Release,
+                    is androidx.compose.foundation.interaction.PressInteraction.Cancel ->
+                        holdJob?.cancel()
+                }
+            }
+        }
+    }
+    Button(
+        onClick = { if (held) held = false else onClick() },
+        enabled = enabled,
+        interactionSource = source,
+        modifier = modifier,
+        contentPadding = contentPadding,
+        shape = shape,
+        content = content,
+    )
+}
+
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 private fun BottomPanel(
@@ -1561,6 +1656,7 @@ private fun BottomPanel(
     onSaveHome: (Int) -> Unit,
     onSaveWork: (Int) -> Unit,
     onStartNavigation: () -> Unit,
+    onForceStartNavigation: () -> Unit,
     onStopNavigation: () -> Unit,
     onClearRoute: () -> Unit,
     canStartNavigation: Boolean,
@@ -1666,7 +1762,7 @@ private fun BottomPanel(
                             else -> R.string.nav_start_short
                         }
                     )
-                    Button(
+                    HoldableButton(
                         onClick = {
                             when {
                                 allPassed -> onClearRoute()
@@ -1674,6 +1770,8 @@ private fun BottomPanel(
                                 else -> onStartNavigation()
                             }
                         },
+                        // Hold Start to override the too-far guard and go anyway.
+                        onHold = if (!allPassed && !navRunning) onForceStartNavigation else null,
                         // Disabled when there's no work to do (no stops +
                         // no live nav). New route + Stop nav are always
                         // actionable when they apply.
@@ -1683,7 +1781,8 @@ private fun BottomPanel(
                         // Fixed width holds the longest label ('Stop navigation')
                         // so the row doesn't reflow when the state flips between
                         // Start / Stop / New route.
-                        modifier = Modifier.widthIn(min = 150.dp)
+                        modifier = Modifier.widthIn(min = 150.dp),
+                        shape = RoundedCornerShape(12.dp)
                     ) { Text(label) }
                 }
                 if (collapsible) {
@@ -1745,96 +1844,116 @@ private fun BottomPanel(
                 // pill" doesn't read as enabled. Functional disable is
                 // also on each SegmentedButton.
                 val modesLocked = navRunning || allPassed
+                // Mode icons + the Start button share ONE row. Prefer the full
+                // "Start navigation" label; only fall back to the short "Start" when
+                // the row is genuinely cramped (small phone / split-screen), measured
+                // from the row's own width so it adapts to any resolution. Stop / New
+                // route only appear while the modes are locked, so their length is moot.
+                BoxWithConstraints {
+                val roomy = maxWidth >= START_NAV_MIN_WIDTH
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    SingleChoiceSegmentedButtonRow(
-                        modifier = Modifier
-                            .weight(1f)
-                            .then(if (modesLocked) Modifier.alpha(0.4f) else Modifier)
-                    ) {
-                        modes.forEachIndexed { index, (mode, icon, labelRes) ->
-                            // Icon tint matches the route line colour for that
-                            // mode so the chip visually previews what the line
-                            // on the map will look like. Keep in sync with
-                            // routeColorFor() in MapHtml.kt.
-                            //   Walk     lavender    #7E57C2
-                            //   Bike     teal        #26A69A
-                            //   Drive    soft orange #FB8C00
-                            //   Straight sky blue    #42A5F5
-                            val modeColor = when (mode) {
-                                TravelMode.WALKING  -> Color(0xFF7E57C2)
-                                TravelMode.CYCLING  -> Color(0xFF26A69A)
-                                TravelMode.DRIVING  -> Color(0xFFFB8C00)
-                                TravelMode.STRAIGHT -> Color(0xFF42A5F5)
-                            }
-                            SegmentedButton(
-                                selected = travelMode == mode,
-                                onClick = { onModeChange(mode) },
-                                enabled = !modesLocked,
-                                shape = SegmentedButtonDefaults.itemShape(index, modes.size),
-                                icon = {},
-                                colors = themedSegmentedColors(),
-                            ) {
-                                if (!solveFullPath && mode != TravelMode.STRAIGHT) {
-                                    // Next segment + routed mode: icon with a
-                                    // short segmented dashed underline in the
-                                    // mode's own colour, echoing the dashed
-                                    // remaining legs on the map. ONLY this case
-                                    // adds the underline (and the slight upward
-                                    // nudge it causes). Direct and Full path keep
-                                    // the plain centred icon, unchanged in
-                                    // position.
-                                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                        Icon(
-                                            icon,
-                                            contentDescription = stringResource(labelRes),
-                                            tint = modeColor,
-                                            modifier = Modifier.size(20.dp)
-                                        )
-                                        Spacer(Modifier.height(3.dp))
-                                        Row(horizontalArrangement = Arrangement.spacedBy(2.dp)) {
-                                            repeat(3) {
-                                                Box(
-                                                    modifier = Modifier
-                                                        .width(4.dp)
-                                                        .height(2.dp)
-                                                        .background(modeColor, RoundedCornerShape(1.dp))
-                                                )
-                                            }
-                                        }
-                                    }
-                                } else {
+                SingleChoiceSegmentedButtonRow(
+                    // Pin to the same height as the Start button beside it (the
+                    // Material Button default), so the switch and Start line up.
+                    modifier = Modifier
+                        .weight(1f)
+                        .height(40.dp)
+                        .then(if (modesLocked) Modifier.alpha(0.4f) else Modifier)
+                ) {
+                    modes.forEachIndexed { index, (mode, icon, labelRes) ->
+                        // Icon tint matches the route line colour for that
+                        // mode so the chip visually previews what the line
+                        // on the map will look like. Keep in sync with
+                        // routeColorFor() in MapHtml.kt.
+                        //   Walk     lavender    #7E57C2
+                        //   Bike     teal        #26A69A
+                        //   Drive    soft orange #FB8C00
+                        //   Straight sky blue    #42A5F5
+                        val modeColor = when (mode) {
+                            TravelMode.WALKING  -> Color(0xFF7E57C2)
+                            TravelMode.CYCLING  -> Color(0xFF26A69A)
+                            TravelMode.DRIVING  -> Color(0xFFFB8C00)
+                            TravelMode.STRAIGHT -> Color(0xFF42A5F5)
+                        }
+                        SegmentedButton(
+                            selected = travelMode == mode,
+                            onClick = { onModeChange(mode) },
+                            enabled = !modesLocked,
+                            shape = SegmentedButtonDefaults.itemShape(
+                                index, modes.size,
+                                baseShape = RoundedCornerShape(12.dp)
+                            ),
+                            icon = {},
+                            colors = themedSegmentedColors(),
+                        ) {
+                            if (!solveFullPath && mode != TravelMode.STRAIGHT) {
+                                // Next segment + routed mode: icon with a
+                                // short segmented dashed underline in the
+                                // mode's own colour, echoing the dashed
+                                // remaining legs on the map. ONLY this case
+                                // adds the underline (and the slight upward
+                                // nudge it causes). Direct and Full path keep
+                                // the plain centred icon, unchanged in
+                                // position.
+                                Column(horizontalAlignment = Alignment.CenterHorizontally) {
                                     Icon(
                                         icon,
                                         contentDescription = stringResource(labelRes),
                                         tint = modeColor,
                                         modifier = Modifier.size(20.dp)
                                     )
+                                    Spacer(Modifier.height(3.dp))
+                                    Row(horizontalArrangement = Arrangement.spacedBy(2.dp)) {
+                                        repeat(3) {
+                                            Box(
+                                                modifier = Modifier
+                                                    .width(4.dp)
+                                                    .height(2.dp)
+                                                    .background(modeColor, RoundedCornerShape(1.dp))
+                                            )
+                                        }
+                                    }
                                 }
+                            } else {
+                                Icon(
+                                    icon,
+                                    contentDescription = stringResource(labelRes),
+                                    tint = modeColor,
+                                    modifier = Modifier.size(20.dp)
+                                )
                             }
                         }
                     }
-                    Spacer(Modifier.width(8.dp))
-                    Button(
-                        onClick = when {
-                            allPassed -> onClearRoute
-                            navRunning -> onStopNavigation
-                            else -> onStartNavigation
-                        },
-                        enabled = allPassed || navRunning || canStartNavigation,
-                        // Hold the row's width steady across Start/Stop/New
-                        // route (matches the compact button width above).
-                        modifier = Modifier.widthIn(min = 180.dp)
-                    ) {
-                        Text(
-                            stringResource(
-                                when {
-                                    allPassed -> R.string.nav_menu_clear
-                                    navRunning -> R.string.nav_stop_short
-                                    else -> R.string.nav_start_short
-                                }
-                            )
+                }
+                Spacer(Modifier.width(8.dp))
+                // Start button beside the mode icons. Small min width so at rest
+                // ("Start") it stays compact and the icons keep their size.
+                HoldableButton(
+                    onClick = when {
+                        allPassed -> onClearRoute
+                        navRunning -> onStopNavigation
+                        else -> onStartNavigation
+                    },
+                    // Hold Start to override the too-far guard and go anyway.
+                    onHold = if (!allPassed && !navRunning) onForceStartNavigation else null,
+                    enabled = allPassed || navRunning || canStartNavigation,
+                    modifier = Modifier.widthIn(min = 84.dp).height(40.dp),
+                    shape = RoundedCornerShape(12.dp)
+                ) {
+                    Text(
+                        stringResource(
+                            when {
+                                allPassed -> R.string.nav_menu_clear
+                                navRunning -> R.string.nav_stop_short
+                                // Full label by default; short "Start" only when the
+                                // row is too tight for it (see START_NAV_MIN_WIDTH).
+                                else -> if (roomy) R.string.nav_start_short
+                                        else R.string.nav_start_btn
+                            }
                         )
-                    }
+                    )
+                }
+                }
                 }
 
                 Spacer(Modifier.height(8.dp))
@@ -2140,7 +2259,7 @@ private fun PoiDetailsSheet(
             // All the OSM detail gathered into one tidy card, each row shown
             // only when that tag is present.
             Surface(
-                shape = RoundedCornerShape(14.dp),
+                shape = RoundedCornerShape(12.dp),
                 color = MaterialTheme.colorScheme.surfaceVariant,
                 modifier = Modifier.fillMaxWidth()
             ) {
@@ -2215,7 +2334,8 @@ private fun PoiDetailsSheet(
                 Button(
                     onClick = onAddStop,
                     enabled = canAdd,
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier.weight(1f),
+                    shape = RoundedCornerShape(12.dp)
                 ) {
                     Icon(Icons.Default.Add, contentDescription = null)
                     Spacer(Modifier.width(6.dp))
@@ -2223,7 +2343,8 @@ private fun PoiDetailsSheet(
                 }
                 OutlinedButton(
                     onClick = { onOpenUrl(onlineUrl) },
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier.weight(1f),
+                    shape = RoundedCornerShape(12.dp)
                 ) {
                     Icon(Icons.Default.OpenInNew, contentDescription = null)
                     Spacer(Modifier.width(6.dp))
@@ -2247,7 +2368,7 @@ private fun PoiDetailsSheet(
 @Composable
 private fun OcmCommunityCard(ocm: OcmCharger, onOpenUrl: (String) -> Unit) {
     Surface(
-        shape = RoundedCornerShape(14.dp),
+        shape = RoundedCornerShape(12.dp),
         color = MaterialTheme.colorScheme.surfaceVariant,
         modifier = Modifier.fillMaxWidth()
     ) {
@@ -2394,7 +2515,7 @@ private fun OverlayFab(
     val onColor = if (active) MaterialTheme.colorScheme.onPrimary
     else MaterialTheme.colorScheme.onSurface
     Surface(
-        shape = RoundedCornerShape(16.dp),
+        shape = RoundedCornerShape(12.dp),
         color = if (active) MaterialTheme.colorScheme.primary
         else MaterialTheme.colorScheme.surface,
         shadowElevation = 6.dp,

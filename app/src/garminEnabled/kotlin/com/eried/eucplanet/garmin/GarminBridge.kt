@@ -59,6 +59,12 @@ class GarminBridge @Inject constructor(
 ) {
     companion object {
         private const val TAG = "GarminBridge"
+        // The CIQ phone->watch channel is rate-capped near 1 Hz. Publishing at
+        // 5 Hz (200 ms) just floods the SDK's outbound queue with frames it
+        // can't drain, which backs up delivery and contributes to the watch's
+        // frozen/stale dial. Publish at ~1 Hz to match what actually gets
+        // through. (Wear OS keeps 5 Hz; its Data Layer isn't rate-capped.)
+        private const val PUBLISH_INTERVAL_MS = 1000L
     }
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
@@ -236,8 +242,17 @@ class GarminBridge @Inject constructor(
                 val lastAck = _lastSuccessAtMs.value
                 if (lastAck == 0L) continue // never connected yet
                 val sinceAck = System.currentTimeMillis() - lastAck
-                if (sinceAck > 30_000L && sdkReady && registeredDevices.isNotEmpty()) {
-                    Log.w(TAG, "no watch ack for ${sinceAck}ms — resetting CIQ transport")
+                // Only rebuild the transport on the TETHERED dev path, where a
+                // half-dead local socket genuinely needs a fresh one. On real
+                // devices (WIRELESS) the watch's ALIVE ack is unreliable by
+                // nature, and shutting down + re-initializing the whole CIQ SDK
+                // every 30 s tears down a perfectly good phone->watch link —
+                // which is itself a cause of the frozen/stale dial. Connect
+                // Mobile manages WIRELESS reconnection on its own.
+                if (sinceAck > 30_000L && sdkReady && registeredDevices.isNotEmpty() &&
+                    connectType == ConnectIQ.IQConnectType.TETHERED
+                ) {
+                    Log.w(TAG, "no watch ack for ${sinceAck}ms — resetting CIQ transport (tethered)")
                     resetTransport()
                 }
             }
@@ -381,6 +396,12 @@ class GarminBridge @Inject constructor(
                 if (!sdkReady) return@launch
                 val settings = settingsRepository.get()
                 if (!settings.watchAutoStart) return@launch
+                // Actually LAUNCH a closed watch app, then nudge it. The old
+                // "Garmin doesn't allow phone apps to auto-launch the companion"
+                // copy was wrong: openApplication() does exactly this.
+                // sendKindToAll only reaches an ALREADY-open app, which is why
+                // riders previously had to open it by hand at the start of a ride.
+                openWatchApp()
                 sendKindToAll(GarminKeys.KIND_WAKE)
             } catch (e: Exception) {
                 Log.d(TAG, "Garmin wake skipped: ${e.message}")
@@ -388,10 +409,78 @@ class GarminBridge @Inject constructor(
         }
     }
 
+    /**
+     * Bring the EUC Planet watch app to the foreground on every paired Garmin
+     * so telemetry flows without the rider opening it by hand.
+     *
+     * The FIRST call surfaces a one-time "Launch EUC Planet?" prompt on the
+     * watch (Just This Once / Always / No); once the rider taps "Always",
+     * later calls open it silently — the same behaviour as other apps that
+     * "auto-launch" their Connect IQ companion. Gated identically to
+     * [pingWatchToWake] (sdkReady + watchAutoStart), and safe to call on every
+     * resume: an already-open app simply reports APP_IS_ALREADY_RUNNING with no
+     * further prompt, so there is no repeated-dialog storm.
+     */
+    private fun openWatchApp() {
+        for (device in registeredDevices.values) {
+            try {
+                connectIQ.openApplication(device, app, object : ConnectIQ.IQOpenApplicationListener {
+                    override fun onOpenApplicationResponse(
+                        d: IQDevice,
+                        a: IQApp,
+                        status: ConnectIQ.IQOpenApplicationStatus
+                    ) {
+                        when (status) {
+                            ConnectIQ.IQOpenApplicationStatus.APP_IS_ALREADY_RUNNING ->
+                                Log.d(TAG, "watch app already running on ${d.friendlyName}")
+                            ConnectIQ.IQOpenApplicationStatus.PROMPT_SHOWN_ON_DEVICE ->
+                                Log.i(TAG, "launch prompt shown on ${d.friendlyName}")
+                            ConnectIQ.IQOpenApplicationStatus.PROMPT_NOT_SHOWN_ON_DEVICE ->
+                                Log.d(TAG, "launch reached ${d.friendlyName} but no prompt (busy)")
+                            ConnectIQ.IQOpenApplicationStatus.APP_IS_NOT_INSTALLED ->
+                                Log.w(TAG, "watch app not installed on ${d.friendlyName}")
+                            else ->
+                                Log.w(TAG, "openApplication failed on ${d.friendlyName}: $status")
+                        }
+                    }
+                })
+            } catch (e: InvalidStateException) {
+                sdkReady = false
+                return
+            } catch (e: ServiceUnavailableException) {
+                Log.d(TAG, "openApplication on ${device.friendlyName}: Connect Mobile gone")
+            } catch (e: Exception) {
+                Log.w(TAG, "openApplication on ${device.friendlyName} failed", e)
+            }
+        }
+    }
+
     fun sendCloseToWatchBlocking() {
         try {
             if (!sdkReady) return
-            sendKindToAll(GarminKeys.KIND_QUIT)
+            val devices = registeredDevices.values.toList()
+            if (devices.isEmpty()) return
+            val payload = HashMap<String, Any>(1).apply { put(GarminKeys.KIND, GarminKeys.KIND_QUIT) }
+            // Actually BLOCK until the SDK confirms the QUIT left the phone (or a
+            // short cap elapses). stopEverything() kills our process right after
+            // calling this, so the old fire-and-forget sendMessage was torn down
+            // before Connect Mobile transmitted it — the watch app never received
+            // the quit and stayed open. Mirrors WearBridge.sendCloseToWatchBlocking's
+            // Tasks.await(); runs on a background dispatcher so it never blocks UI.
+            val latch = java.util.concurrent.CountDownLatch(devices.size)
+            for (device in devices) {
+                try {
+                    connectIQ.sendMessage(device, app, payload) { _, _, status ->
+                        Log.d(TAG, "Garmin close to ${device.friendlyName}: $status")
+                        latch.countDown()
+                    }
+                } catch (e: Exception) {
+                    Log.d(TAG, "Garmin close to ${device.friendlyName} failed: ${e.message}")
+                    latch.countDown()
+                }
+            }
+            latch.await(1500, java.util.concurrent.TimeUnit.MILLISECONDS)
+            Log.i(TAG, "Garmin close sent to ${devices.size} device(s)")
         } catch (e: Exception) {
             Log.d(TAG, "Garmin close skipped: ${e.message}")
         }
@@ -401,13 +490,28 @@ class GarminBridge @Inject constructor(
         if (!started || !sdkReady) return
         try {
             val s = runBlocking { settingsRepository.get() }
-            publish(
-                data = com.eried.eucplanet.data.model.WheelData(),
-                state = ConnectionState.DISCONNECTED,
-                name = wheelRepository.modelName.value,
-                maxSpeed = 30f,
-                settings = s
-            )
+            // Run the actual send OFF the caller's thread. WheelService.onDestroy
+            // calls this on the main thread, and in TETHERED mode
+            // connectIQ.sendMessage does a synchronous socket write -- which
+            // throws NetworkOnMainThreadException there, so the farewell never
+            // went out. (WIRELESS sends are async, so this only bit the
+            // emulator/simulator path.) A bounded join keeps the farewell
+            // ordered before onDestroy's process kill.
+            val t = Thread {
+                try {
+                    publish(
+                        data = com.eried.eucplanet.data.model.WheelData(),
+                        state = ConnectionState.DISCONNECTED,
+                        name = wheelRepository.modelName.value,
+                        maxSpeed = 30f,
+                        settings = s
+                    )
+                } catch (e: Exception) {
+                    Log.d(TAG, "farewell publish skipped: ${e.message}")
+                }
+            }
+            t.start()
+            t.join(800)
         } catch (e: Exception) {
             Log.d(TAG, "farewell publish skipped: ${e.message}")
         }
@@ -509,6 +613,7 @@ class GarminBridge @Inject constructor(
             put(GarminKeys.OPT_GAUGE_BAND, settings.showGaugeColorBand)
             put(GarminKeys.OPT_GAUGE_ORANGE, settings.gaugeOrangeThresholdPct)
             put(GarminKeys.OPT_GAUGE_RED, settings.gaugeRedThresholdPct)
+            put(GarminKeys.OPT_CLOSE_ON_EXIT, settings.watchCloseOnExit)
             put(GarminKeys.STEM1_CLICK, settings.watchStem1Click)
             put(GarminKeys.STEM1_HOLD, settings.watchStem1Hold)
             put(GarminKeys.STEM2_CLICK, settings.watchStem2Click)

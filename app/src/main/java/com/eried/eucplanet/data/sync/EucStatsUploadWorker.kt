@@ -38,7 +38,10 @@ class EucStatsUploadWorker @AssistedInject constructor(
             Log.i(TAG, "Online uploads disabled; retry chain ends")
             return Result.success()
         }
-        if (syncManager.riderStoreId.value == null) {
+        // The riderStoreId StateFlow is read asynchronously, so on a cold-start
+        // reconcile it may not be populated yet. Re-read the file before giving
+        // up, otherwise the chain would bail and leave a queued trip stranded.
+        if (syncManager.riderStoreId.value == null && syncManager.readRiderIdFile() == null) {
             Log.i(TAG, "No rider id (folder unlinked / account deleted); retry chain ends")
             return Result.success()
         }

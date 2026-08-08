@@ -1,5 +1,6 @@
 package com.eried.eucplanet.di
 
+import com.eried.eucplanet.ble.gps.DragyAdapter
 import com.eried.eucplanet.ble.gps.ExternalGpsAdapter
 import com.eried.eucplanet.ble.gps.RaceBoxAdapter
 import dagger.Binds
@@ -21,4 +22,8 @@ abstract class ExternalGpsModule {
     @Binds
     @IntoSet
     abstract fun bindRaceBox(impl: RaceBoxAdapter): ExternalGpsAdapter
+
+    @Binds
+    @IntoSet
+    abstract fun bindDragy(impl: DragyAdapter): ExternalGpsAdapter
 }

@@ -238,9 +238,15 @@ class WearBridge @Inject constructor(
         started = true
         Log.i(TAG, "Wear bridge starting (publish follows watchUpdateRate tier)")
 
-        // First wake on bridge startup. Additional wakes fire whenever
-        // MainActivity resumes; see pingWatchToWake() below.
-        pingWatchToWake()
+        // NO wake here on purpose. start() runs from EucPlanetApp.onCreate,
+        // which fires on EVERY phone process start -- including background wakes
+        // the rider never initiated (a watch message starting the
+        // @AndroidEntryPoint PhoneWearListenerService, a WorkManager upload job,
+        // etc.). Pinging here made the paired watch relaunch its MainActivity
+        // "for no reason" whenever the phone process woke in the background. The
+        // wake now fires only on a genuine app open, from MainActivity.onResume()
+        // (and the manual Settings action) -- the only moments the rider is
+        // actually looking at the phone and wants the watch dial to follow.
 
         // Background paired-node poller. Refreshes [pairedNodes] every 5 s
         // so the Settings UI can show which Wear OS watches are connected.

@@ -19,11 +19,11 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
-import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -33,6 +33,7 @@ import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
+import androidx.compose.material.icons.filled.DragHandle
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Opacity
 import androidx.compose.material.icons.filled.Pause
@@ -46,7 +47,10 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.Surface
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
@@ -166,24 +170,63 @@ fun StudioReplayDialog(
     onForceOpaque: (Boolean) -> Unit,
     onScale: (Int) -> Unit,
     onClose: () -> Unit,
+    onDrag: (Offset) -> Unit = {},
     modifier: Modifier = Modifier
 ) {
-    Surface(
-        // widthIn before fillMaxWidth so the cap actually applies; keeps the
-        // panel from stretching edge-to-edge in landscape.
-        modifier = modifier.widthIn(max = 500.dp).fillMaxWidth(),
-        shape = RoundedCornerShape(16.dp),
-        color = MaterialTheme.appColors.dialog,
-        contentColor = MaterialTheme.appColors.textPrimary,
-        shadowElevation = 12.dp
+    Card(
+        // Styled like the floating theme editor: a bordered card with a
+        // surfaceVariant title strip that doubles as the drag handle. A bounded
+        // width (not full-width) leaves room to drag it sideways; the caller docks
+        // it and clamps the drag so the whole card stays on screen.
+        // Width is supplied by the caller (adaptive: wide, but always leaving
+        // side room to drag). The caller also docks + screen-clamps it.
+        modifier = modifier,
+        shape = RoundedCornerShape(12.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.appColors.dialog,
+            contentColor = MaterialTheme.appColors.textPrimary
+        ),
+        elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
+        border = BorderStroke(1.dp, MaterialTheme.appColors.outline)
     ) {
-        Column(Modifier.padding(14.dp)) {
+        Column {
             // 0 = transport, 1 = trip list, 2 = speed list. Inline pickers so
             // they rotate with the panel instead of escaping as popups.
             var picker by remember { mutableStateOf(0) }
             var showTrimDialog by remember { mutableStateOf(false) }
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(Icons.Default.History, contentDescription = null, tint = MaterialTheme.appColors.primary)
+            // pointerInput(Unit) captures its closure once; without this the drag
+            // would keep calling the FIRST onDrag, whose clamp holds the stale
+            // (pre-rotation) screen size and pins the panel to the wrong bounds.
+            val latestOnDrag by rememberUpdatedState(onDrag)
+            // Title bar (also the drag handle): a full-width surfaceVariant strip
+            // with the handle, icon, title and action buttons, matching the
+            // floating theme editor's header. The strip drags; the buttons tap.
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(MaterialTheme.appColors.surfaceVariant)
+                    .pointerInput(Unit) {
+                        detectDragGestures { change, drag ->
+                            change.consume()
+                            latestOnDrag(drag)
+                        }
+                    }
+                    .padding(start = 12.dp, end = 2.dp, top = 2.dp, bottom = 2.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Icon(
+                    Icons.Default.DragHandle,
+                    contentDescription = stringResource(R.string.studio_replay_cd_move),
+                    tint = MaterialTheme.appColors.textSecondary,
+                    modifier = Modifier.size(18.dp)
+                )
+                Spacer(Modifier.width(8.dp))
+                Icon(
+                    Icons.Default.History,
+                    contentDescription = null,
+                    tint = MaterialTheme.appColors.primary,
+                    modifier = Modifier.size(18.dp)
+                )
                 Spacer(Modifier.width(8.dp))
                 Text(
                     when (picker) {
@@ -192,12 +235,14 @@ fun StudioReplayDialog(
                         3 -> stringResource(R.string.studio_export_format)
                         else -> stringResource(R.string.studio_replay_title)
                     },
-                    modifier = Modifier.weight(1f),
-                    fontWeight = FontWeight.Bold,
-                    style = MaterialTheme.typography.titleMedium
+                    style = MaterialTheme.typography.titleSmall,
+                    fontWeight = FontWeight.SemiBold,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.weight(1f)
                 )
                 if (picker == 0) {
-                    IconButton(onClick = onToggleDim) {
+                    IconButton(onClick = onToggleDim, modifier = Modifier.size(36.dp)) {
                         Icon(
                             Icons.Default.Opacity,
                             contentDescription = stringResource(R.string.studio_replay_cd_fade),
@@ -205,7 +250,7 @@ fun StudioReplayDialog(
                         )
                     }
                 }
-                IconButton(onClick = { if (picker != 0) picker = 0 else onClose() }) {
+                IconButton(onClick = { if (picker != 0) picker = 0 else onClose() }, modifier = Modifier.size(36.dp)) {
                     Icon(
                         Icons.Default.Close,
                         contentDescription = if (picker != 0) stringResource(R.string.studio_replay_cd_back) else stringResource(R.string.studio_replay_cd_close)
@@ -213,6 +258,7 @@ fun StudioReplayDialog(
                 }
             }
 
+          Column(Modifier.padding(14.dp)) {
           when (picker) {
             1 -> Column(
                 Modifier.heightIn(max = 200.dp).verticalScroll(rememberScrollState())
@@ -266,7 +312,8 @@ fun StudioReplayDialog(
             ) {
                 OutlinedButton(
                     onClick = { picker = 1 },
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier.weight(1f),
+                    shape = RoundedCornerShape(12.dp)
                 ) {
                     Text(
                         selectedTrip?.let { tripLabel(it, distanceUnit) } ?: stringResource(R.string.studio_replay_choose_trip),
@@ -277,7 +324,8 @@ fun StudioReplayDialog(
                 }
                 OutlinedButton(
                     onClick = { picker = 2 },
-                    enabled = active
+                    enabled = active,
+                    shape = RoundedCornerShape(12.dp)
                 ) {
                     Text(speedLabel(speed))
                     Icon(Icons.Default.ArrowDropDown, contentDescription = stringResource(R.string.studio_replay_cd_speed))
@@ -325,7 +373,7 @@ fun StudioReplayDialog(
                 Spacer(Modifier.width(10.dp))
                 Spacer(Modifier.weight(1f))
                 // Tap to type an exact trim range (MM:SS / H:MM:SS) instead of
-                // fiddling the handles. Shows "(full clip)" until a range is set,
+                // fiddling the handles. Shows "(full trip)" until a range is set,
                 // then the range itself -- both open the editor.
                 if (active) {
                     Text(
@@ -386,6 +434,7 @@ fun StudioReplayDialog(
             }
             }
           }
+          }
         }
     }
 }
@@ -405,7 +454,7 @@ private fun digitsToClock(raw: String): String {
  * Duration are number-keyboard fields (digits auto-format to MM:SS) and stay
  * linked: editing Start or End updates Duration; editing Duration moves End when
  * a Start is set (the common case), moves Start when only an End is set, or fills
- * 0:00 -> Duration when neither is. Reset restores the full clip. Apply is enabled
+ * 0:00 -> Duration when neither is. Reset restores the full trip. Apply is enabled
  * only when both ends parse, sit in [0, duration] and start < end.
  */
 @Composable
@@ -471,20 +520,21 @@ private fun TrimTimeDialog(
             }
         },
         confirmButton = {
-            // Reset on the left (clears the trim to the full clip AND commits),
+            // Reset on the left (clears the trim to the full trip AND commits),
             // Cancel + Apply on the right.
             Row(
                 Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                TextButton(onClick = { onConfirm(0L, durationMs) }) {
+                TextButton(onClick = { onConfirm(0L, durationMs) }, shape = RoundedCornerShape(12.dp)) {
                     Text(stringResource(R.string.studio_replay_trim_reset))
                 }
                 Spacer(Modifier.weight(1f))
-                TextButton(onClick = onDismiss) { Text(stringResource(R.string.action_cancel)) }
+                TextButton(onClick = onDismiss, shape = RoundedCornerShape(12.dp)) { Text(stringResource(R.string.action_cancel)) }
                 TextButton(
                     onClick = { if (valid) onConfirm(startParsed!!, endParsed!!) },
-                    enabled = valid
+                    enabled = valid,
+                    shape = RoundedCornerShape(12.dp)
                 ) { Text(stringResource(R.string.action_apply)) }
             }
         }
@@ -518,6 +568,7 @@ private fun TrimTimeField(
         label = { Text(label) },
         singleLine = true,
         isError = isError,
+        shape = RoundedCornerShape(12.dp),
         supportingText = supporting?.let { s -> { Text(s) } },
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
     )

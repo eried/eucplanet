@@ -50,6 +50,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
@@ -61,6 +62,7 @@ import com.eried.eucplanet.ui.navigator.UserMarkerCropDialog
 import com.eried.eucplanet.ui.navigator.decodeDownsampledBitmap
 import com.eried.eucplanet.ui.settings.SettingsViewModel
 import com.eried.eucplanet.ui.theme.appColors
+import com.eried.eucplanet.ui.theme.FieldNotchLabel
 import com.eried.eucplanet.ui.theme.themedFieldColors
 import java.io.ByteArrayOutputStream
 import java.time.LocalDate
@@ -210,7 +212,8 @@ fun OnlineProfileDialog(
                         colors = ButtonDefaults.buttonColors(
                             containerColor = MaterialTheme.appColors.statusDanger,
                             contentColor   = MaterialTheme.appColors.onPrimary,
-                        )
+                        ),
+                        shape = RoundedCornerShape(12.dp),
                     ) {
                         Text(stringResource(R.string.online_profile_delete_confirm_action))
                     }
@@ -222,7 +225,8 @@ fun OnlineProfileDialog(
                     enabled = !deleting,
                     colors = ButtonDefaults.textButtonColors(
                         contentColor = MaterialTheme.appColors.textButton,
-                    )
+                    ),
+                    shape = RoundedCornerShape(12.dp),
                 ) {
                     Text(stringResource(R.string.action_cancel))
                 }
@@ -248,6 +252,7 @@ fun OnlineProfileDialog(
     AlertDialog(
         onDismissRequest = { if (!saving && !deleting) onDismiss() },
         modifier = Modifier.fillMaxWidth(0.92f),
+        shape = RoundedCornerShape(12.dp),
         properties = DialogProperties(usePlatformDefaultWidth = false),
         title = {
             Row(
@@ -328,6 +333,7 @@ fun OnlineProfileDialog(
                                 loading = false
                             }
                         },
+                        shape = RoundedCornerShape(12.dp),
                     ) { Text(stringResource(R.string.online_profile_retry)) }
                 } else {
                     // ---- Avatar (centered, tappable) -------------------------
@@ -419,53 +425,41 @@ fun OnlineProfileDialog(
                         enabled = nameEditable && !saving,
                         modifier = Modifier.fillMaxWidth(),
                         colors = themedFieldColors(),
+                        shape = RoundedCornerShape(12.dp),
                     )
 
                     // ---- Country picker (flag list) --------------------------
-                    Column(
-                        modifier = Modifier.fillMaxWidth(),
-                        verticalArrangement = Arrangement.spacedBy(4.dp),
-                    ) {
-                        Text(
-                            text = stringResource(R.string.online_upload_profile_country_label),
-                            style = MaterialTheme.typography.labelMedium,
-                            color = MaterialTheme.appColors.textSecondary,
+                    // A read-only OutlinedTextField so it matches the display-name
+                    // field above exactly (label notch, font, fill). A transparent
+                    // overlay opens the picker dialog instead of focusing the field.
+                    val countryEnabled = flagEditable && !saving
+                    Box(modifier = Modifier.fillMaxWidth()) {
+                        OutlinedTextField(
+                            value = if (flagValid) "${flagEmoji(flagCode)}  ${countryName(flagCode)}"
+                                    else stringResource(R.string.online_upload_profile_country_select),
+                            onValueChange = {},
+                            readOnly = true,
+                            singleLine = true,
+                            label = { Text(stringResource(R.string.online_upload_profile_country_label)) },
+                            trailingIcon = {
+                                Icon(Icons.Default.ArrowDropDown, contentDescription = null)
+                            },
+                            colors = themedFieldColors(),
+                            shape = RoundedCornerShape(12.dp),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .alpha(if (countryEnabled) 1f else 0.5f),
                         )
-                        val countryEnabled = flagEditable && !saving
-                        Surface(
-                            onClick = { if (countryEnabled) showCountryPicker = true },
-                            enabled = countryEnabled,
-                            shape = RoundedCornerShape(8.dp),
-                            // Dim the box when on cooldown so it reads as disabled,
-                            // matching the greyed-out name field above it.
-                            color = if (countryEnabled) MaterialTheme.appColors.surfaceVariant
-                                    else MaterialTheme.appColors.surfaceVariant.copy(alpha = 0.4f),
-                            modifier = Modifier.fillMaxWidth(),
-                        ) {
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(horizontal = 12.dp, vertical = 14.dp),
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                            ) {
-                                Text(
-                                    text = if (flagValid) "${flagEmoji(flagCode)}  ${countryName(flagCode)}"
-                                           else stringResource(R.string.online_upload_profile_country_select),
-                                    color = when {
-                                        !countryEnabled -> MaterialTheme.appColors.textDisabled
-                                        flagValid -> MaterialTheme.appColors.textPrimary
-                                        else -> MaterialTheme.appColors.textSecondary
-                                    },
-                                    modifier = Modifier.weight(1f),
+                        Box(
+                            modifier = Modifier
+                                .matchParentSize()
+                                .clip(RoundedCornerShape(12.dp))
+                                .then(
+                                    if (countryEnabled)
+                                        Modifier.clickable { showCountryPicker = true }
+                                    else Modifier
                                 )
-                                Icon(
-                                    Icons.Default.ArrowDropDown, contentDescription = null,
-                                    tint = if (countryEnabled) MaterialTheme.appColors.textSecondary
-                                           else MaterialTheme.appColors.textDisabled,
-                                )
-                            }
-                        }
+                        )
                     }
 
                     // One consolidated "locked until" line — the server locks the
@@ -515,7 +509,8 @@ fun OnlineProfileDialog(
                     enabled = !saving && !deleting && profile != null,
                     colors = ButtonDefaults.textButtonColors(
                         contentColor = MaterialTheme.appColors.statusDanger,
-                    )
+                    ),
+                    shape = RoundedCornerShape(12.dp),
                 ) {
                     Text(stringResource(R.string.online_profile_delete_account))
                 }
@@ -535,7 +530,8 @@ fun OnlineProfileDialog(
                         enabled = !saving && !deleting,
                         colors = ButtonDefaults.textButtonColors(
                             contentColor = MaterialTheme.appColors.textButton,
-                        )
+                        ),
+                        shape = RoundedCornerShape(12.dp),
                     ) {
                         Text(stringResource(R.string.action_cancel))
                     }
@@ -570,7 +566,8 @@ fun OnlineProfileDialog(
                             contentColor           = MaterialTheme.appColors.onPrimary,
                             disabledContainerColor = MaterialTheme.appColors.surfaceVariant,
                             disabledContentColor   = MaterialTheme.appColors.textDisabled,
-                        )
+                        ),
+                        shape = RoundedCornerShape(12.dp),
                     ) {
                         Text(stringResource(R.string.action_save))
                     }

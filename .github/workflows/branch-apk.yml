@@ -284,7 +284,12 @@ jobs:
           branch is for and who should test it.
           EOF
           fi
-          git log --pretty=format:'- %h %s' main..HEAD | head -50 > /tmp/commit-log.md || true
+          # In the Actions checkout only the built branch has a local ref, so
+          # bare `main` doesn't resolve and this log came out empty. Use the
+          # remote-tracking ref (fetch-depth: 0 above makes it available), with
+          # a fallback to a local main for non-CI runs.
+          BASE="$(git rev-parse --verify -q origin/main || echo main)"
+          git log --pretty=format:'- %h %s' "${BASE}..HEAD" | head -50 > /tmp/commit-log.md || true
           {
             echo "**Pre-release from branch \`${BRANCH}\`**, automatic build at \`${SHORT_SHA}\`."
             echo

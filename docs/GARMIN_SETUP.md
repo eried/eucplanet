@@ -165,16 +165,21 @@ each surface renders independently. There's no cross-watch coordination —
 both watches show the same speed at the same moment because both subscribe
 to the same `WheelRepository` flow.
 
+## Auto-launch on phone open
+
+Opening the EUC Planet phone app launches the watch app for you, via Connect
+IQ's `openApplication()` (called from `GarminBridge.pingWatchToWake()` on every
+`onResume`, gated by the **Auto-start** toggle). The **first** time, the watch
+shows a one-time "Launch EUC Planet?" prompt — tap **Always**, and from then on
+it opens automatically at the start of each trip. A few Edge units on old
+firmware render a black dialog instead of the prompt (a known Garmin bug); on
+those, open the app manually as before.
+
 ## Limitations vs. Wear OS
 
 These don't carry over from Wear OS to Garmin yet, and are tracked as
 follow-up work:
 
-- **Auto-launch on phone open**: Connect IQ apps can't be programmatically
-  brought to the foreground on the watch (Wear OS has no such restriction).
-  The rider has to open the EUC Planet app on the watch face once per
-  session; the phone-side `pingWatchToWake` exists as a no-op for parity but
-  doesn't do anything Garmin-side until the user opens the app.
 - **Per-locale strings**: Wear OS ships in 16 languages; the Garmin app
   starts with English only. Porting the strings is mechanical — copy from
   `wear/src/main/res/values-XX/strings.xml` into

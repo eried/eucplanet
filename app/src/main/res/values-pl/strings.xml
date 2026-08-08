@@ -4,6 +4,30 @@
     <string name="notification_channel_name">Połączenie z kołem</string>
     <string name="notification_channel_description">Pokazuje stan połączenia z kołem i telemetrię</string>
 
+    <!-- Notification quick actions -->
+    <string name="notif_actions_section">Dostosuj</string>
+    <string name="notif_actions_enable">Pokaż akcje powiadomienia</string>
+    <string name="notif_actions_enable_desc">Dodaj przyciski szybkich akcji do aktywnego powiadomienia.</string>
+    <string name="notif_actions_pick_desc">Wybierz maksymalnie %1$d akcje. Ta sama akcja może się powtórzyć.</string>
+    <string name="notif_action_slot">Akcja %1$d</string>
+    <string name="notif_action_stop_all">Zatrzymaj wszystko</string>
+    <string name="notif_action_lock">Zablokuj / Odblokuj</string>
+    <string name="notif_action_light">Światło wł. / wył.</string>
+    <string name="notif_action_record">Nagrywaj / Zatrzymaj</string>
+    <string name="notif_action_horn">Klakson</string>
+    <string name="notif_action_disconnect">Rozłącz</string>
+    <string name="notif_action_stop_nav">Zatrzymaj nawigację</string>
+    <string name="notif_btn_stop_all">Zatrzymaj</string>
+    <string name="notif_btn_lock">Zablokuj</string>
+    <string name="notif_btn_unlock">Odblokuj</string>
+    <string name="notif_btn_light_on">Światło wł.</string>
+    <string name="notif_btn_light_off">Światło wył.</string>
+    <string name="notif_btn_record">Nagrywaj</string>
+    <string name="notif_btn_stop_record">Zatrzymaj</string>
+    <string name="notif_btn_horn">Klakson</string>
+    <string name="notif_btn_disconnect">Rozłącz</string>
+    <string name="notif_btn_stop_nav">Stop nawig.</string>
+
     <!-- Common -->
     <string name="action_back">Wstecz</string>
     <string name="action_cancel">Anuluj</string>
@@ -11,16 +35,12 @@
     <string name="action_done">Gotowe</string>
     <string name="action_close">Zamknij</string>
 <string name="crash_log_action_prompt">Przytrzymano %1$s. Usuń ten log, albo wszystkie. Aby udostępnić, dotknij Anuluj, a następnie dotknij pliku.</string>
-    <string name="crash_log_delete_one">Usuń ten log</string>
     <string name="crash_log_delete_all">Usuń wszystkie</string>
     <string name="crash_log_delete_all_warning">Usunąć wszystkie zapisane logi awarii? Tej operacji nie można cofnąć.</string>
     <string name="action_save">Zapisz</string>
     <string name="action_apply">Zastosuj</string>
     <string name="action_delete">Usuń</string>
-    <string name="action_edit">Edytuj</string>
     <string name="action_test">Testuj</string>
-    <string name="action_move_up">Przenieś w górę</string>
-    <string name="action_move_down">Przenieś w dół</string>
     <string name="action_reorder">Przeciągnij, aby zmienić kolejność</string>
     <string name="show_gauge_color_band">Kolorowy pasek prędkościomierza</string>
     <string name="stat_watts">WATY</string>
@@ -202,7 +222,6 @@
     <string name="metric_chip_load">PWM</string>
     <string name="metric_chip_trip">Trasa</string>
     <string name="metric_chip_speed">Prędkość</string>
-    <string name="metric_chip_power">Moc</string>
     <string name="metric_chip_odometer">Licznik km</string>
     <string name="metric_chip_motor_power">Moc silnika</string>
     <string name="metric_chip_battery_power">Moc baterii</string>
@@ -214,11 +233,16 @@
     <string name="metric_chip_lateral_g">Boczne g</string>
     <string name="metric_chip_forward_g">Wzdł. g</string>
     <string name="metric_chip_torque">Moment</string>
+    <string name="metric_chip_phase_current">Faza A</string>
     <string name="metric_chip_dyn_speed_limit">Dynamiczny limit prędkości</string>
     <string name="metric_chip_dyn_current_limit">Dynamiczny limit prądu</string>
     <string name="metric_chip_motor_temp">Temperatura silnika</string>
     <string name="metric_chip_controller_temp">Temperatura sterownika</string>
     <string name="metric_chip_battery_temp">Temperatura baterii</string>
+    <string name="metric_chip_tire_pressure">Ciśnienie w oponie</string>
+    <string name="metric_chip_tire_pressure_tile">Opona</string>
+    <string name="metric_desc_tire_pressure">Ciśnienie w oponie z powiązanego czujnika TPMS (InMotion P6). Pokazywane w psi lub bar.</string>
+    <string name="studio_metric_tire_pressure">Ciśnienie w oponie</string>
     <string name="metric_chip_headroom">Zapas</string>
     <string name="metric_chip_trip_time">Czas trasy</string>
     <string name="metric_chip_trip_max_speed">Szczyt trasy</string>
@@ -231,6 +255,7 @@
     <string name="metric_chip_gps_speed">Pręd. GPS</string>
     <string name="metric_chip_gps_heading">Kurs</string>
     <string name="metric_chip_gps_accuracy">Dokładność GPS</string>
+    <string name="metric_chip_external_gps_battery">Bateria zewnętrznego GPS</string>
     <string name="metric_chip_slope">Nachylenie</string>
     <string name="metric_chip_ascent">Wzniesienie</string>
     <string name="metric_chip_descent">Zjazd</string>
@@ -258,6 +283,7 @@
     <string name="metric_chip_dyn_current_limit_tile">A limit</string>
     <string name="metric_chip_phone_battery_tile">Tel</string>
     <string name="metric_chip_gps_accuracy_tile">GPS ±</string>
+    <string name="metric_chip_external_gps_battery_tile">GPS bat</string>
     <string name="metric_chip_odometer_tile">Odo</string>
     <string name="metric_chip_trip_max_speed_tile">Max sp</string>
     <string name="metric_chip_avg_trip_speed_tile">Avg sp</string>
@@ -287,6 +313,7 @@
     <string name="metric_desc_regen_wh">Łączne watogodziny zwrócone do baterii podczas hamowania na tej trasie.</string>
     <string name="metric_desc_bt_rssi">Siła sygnału Bluetooth do koła, bliżej 0 dBm jest silniejsze.</string>
     <string name="metric_desc_gps_accuracy">Promień błędu pozycji GPS, niższy oznacza większą dokładność.</string>
+    <string name="metric_desc_external_gps_battery">Bateria sparowanego zewnętrznego GPS (RaceBox, Dragy), aby widzieć jej spadek, zanim padnie w trakcie jazdy.</string>
 
     <!-- Action labels for the dashboard layout chips -->
     <string name="action_chip_horn">Klakson</string>
@@ -403,7 +430,7 @@
 
     <!-- Watch hardware buttons -->
     <string name="watch_button_click_label">Kliknięcie</string>
-    <string name="watch_button_hold_label">Długie naciśnięcie</string>
+    <string name="watch_button_hold_label">Przytrzymaj</string>
     <string name="watch_buttons_hardware_info">Przytrzymania mogą być przechwytywane przez system na niektórych zegarkach</string>
     <string name="watch_buttons_touch_info">Zależy od możliwości zegarka</string>
     <string name="watch_buttons_hardware_label">Fizyczne</string>
@@ -441,7 +468,7 @@
     <string name="cloud_restore_success">Ustawienia przywrócone</string>
     <string name="cloud_restore_failed">Nie znaleziono kopii w folderze</string>
     <string name="section_cloud_trips">Kopia zapasowa tras</string>
-    <string name="cloud_trips_caption">Nowe trasy są automatycznie zapisywane w folderze</string>
+    <string name="cloud_trips_caption">Przejazdy pozostają na tym telefonie i są automatycznie synchronizowane z folderem kopii zapasowej. Wyczyszczenie tutaj usuwa tylko kopie z telefonu, a nie kopię zapasową.</string>
     <string name="cloud_retry_now">Synchronizuj wszystko</string>
     <string name="cloud_retry_enqueued">Wysyłanie zaplanowane</string>
     <string name="sync_progress">Synchronizowanie %1$d z %2$d</string>
@@ -517,6 +544,7 @@
     <string name="units_temp_f">Fahrenheit</string>
     <string name="units_temp_k">Kelwin</string>
     <string name="phone_keep_screen_on">Nie wygaszaj ekranu</string>
+    <string name="phone_show_over_lock">Pokaż na ekranie blokady</string>
     <string name="language">Język</string>
     <string name="theme">Motyw</string>
     <string name="tts_switch_title">Przełączyć głos na %1$s?</string>
@@ -544,14 +572,13 @@
     <!-- Settings: Voice -->
     <string name="section_announcements">Komunikaty</string>
     <string name="section_speech">Mowa</string>
-    <string name="section_report_status">Raport statusu</string>
-    <string name="voice_enabled">Cyklicznie raportuj status</string>
+    <string name="section_report_status">Głos cykliczny i wyzwalany</string>
+    <string name="voice_enabled">Włącz raporty cykliczne</string>
     <string name="voice_announce_when_label">Ogłaszaj</string>
     <string name="voice_announce_always">Zawsze</string>
     <string name="voice_announce_connected">Połączono</string>
     <string name="voice_announce_riding">Podczas jazdy</string>
     <string name="voice_interval">Interwał</string>
-    <string name="unit_sec">s</string>
     <string name="announce_wheel_lock">Blokada / odblokowanie koła</string>
     <string name="announce_lights">Światła wł. / wył.</string>
     <string name="announce_recording">Nagrywanie trasy</string>
@@ -692,6 +719,15 @@
     <string name="flic_double_click">Podwójne kliknięcie</string>
     <string name="flic_hold">Przytrzymanie</string>
     <string name="section_external_gps">GPS i czujniki</string>
+    <!-- TPMS sensors -->
+    <string name="section_tpms">Czujniki TPMS</string>
+    <string name="tpms_caption">Ciśnienie w oponie z czujnika na kole, jak InMotion P6.</string>
+    <string name="tpms_wheel_sensor">Ciśnienie w oponie koła</string>
+    <string name="tpms_wheel_sensor_desc">Przekazywane z powiązanego czujnika</string>
+    <string name="tpms_idle">Żaden czujnik jeszcze nie nadaje</string>
+    <string name="tpms_pair_title">Sparuj inny czujnik</string>
+    <string name="tpms_pair_replaces">Dodatkowy czujnik zastępuje wbudowany w kole, jeśli taki jest.</string>
+    <string name="tpms_scan">Szukaj czujników</string>
     <string name="external_gps_device_title">Zewnętrzny GPS</string>
     <string name="external_gps_pair_button">Rozpocznij skanowanie</string>
     <string name="external_gps_pair_action">Sparuj</string>
@@ -782,6 +818,11 @@
     <string name="alarm_metric_pwm_voice" translatable="false">PWM</string>
     <string name="alarm_metric_voltage">Napięcie</string>
     <string name="alarm_metric_current">Prąd</string>
+    <string name="alarm_metric_gps_speed">Prędkość GPS</string>
+    <string name="alarm_metric_external_gps_speed">Prędkość zewnętrznego GPS</string>
+    <string name="alarm_metric_external_gps_battery">Bateria zewnętrznego GPS</string>
+    <string name="alarm_metric_external_gps_speed_short">Pręd. zew. GPS</string>
+    <string name="alarm_metric_external_gps_battery_short">Bat. zew. GPS</string>
     <string name="alarm_metric_radar_distance">Odległość pojazdu</string>
     <string name="alarm_metric_radar_approach">Zbliżający się pojazd</string>
 
@@ -887,10 +928,30 @@
     <string name="auto_lights_desc">Włącza lub wyłącza światła w zależności od zachodu i wschodu słońca</string>
     <string name="auto_lights_on_before_sunset">Światła WŁ. przed zachodem</string>
     <string name="auto_lights_off_after_sunrise">Światła WYŁ. po wschodzie</string>
-    <string name="auto_minutes_fmt">%1$d min</string>
     <string name="auto_waiting_gps">Czekam na lokalizację GPS…</string>
     <string name="auto_volume_title">Głośność</string>
     <string name="auto_volume_desc">Zwiększa głośność muzyki w zależności od prędkości</string>
+    <string name="media_control_title">Sterowanie multimediami</string>
+    <string name="media_control_desc">Wstrzymuje muzykę, gdy zwalniasz, i wznawia, gdy przyspieszasz.</string>
+    <string name="media_control_pause">Wstrzymaj, gdy zwalniam</string>
+    <string name="media_control_pause_below">Wstrzymaj przy tej prędkości lub niższej</string>
+    <string name="media_control_resume">Wznów, gdy przyspieszam</string>
+    <string name="media_control_resume_above">Wznów przy tej prędkości lub wyższej</string>
+    <string name="proximity_lock_title">Blokada koła</string>
+    <string name="proximity_lock_desc">Blokuje koło, gdy się oddalasz, i odblokowuje je, gdy wracasz, na podstawie siły sygnału Bluetooth.</string>
+    <string name="proximity_lock_enable">Zablokuj, gdy się oddalę</string>
+    <string name="proximity_lock_below">Zablokuj poniżej</string>
+    <string name="proximity_unlock_enable">Odblokuj, gdy wrócę</string>
+    <string name="proximity_unlock_above">Odblokuj powyżej</string>
+    <string name="proximity_lock_signal_live">Bieżący sygnał: %1$d dBm</string>
+    <string name="proximity_lock_signal_none">Połącz koło, aby odczytać tutaj sygnał na żywo.</string>
+    <string name="proximity_lock_hint">Blokowanie wymaga aktywnego połączenia, więc następuje, gdy sygnał słabnie, a nie po utracie zasięgu.</string>
+    <string name="auto_lock_override_toast">Automatyczna blokada jest włączona i może to nadpisać.</string>
+    <string name="auto_lock_override_action">Konfiguruj</string>
+    <string name="menu_auto_lock_settings">Ustawienia blokady koła</string>
+    <string name="menu_auto_lock_on">Włącz automatyczną blokadę</string>
+    <string name="menu_auto_lock_off">Wyłącz automatyczną blokadę</string>
+    <string name="action_retry">Ponów</string>
     <string name="auto_sunrise_sunset">Wschód i zachód słońca</string>
     <string name="auto_midnight_sun_title">Słońce o północy</string>
     <string name="auto_midnight_sun_body">Słońce dziś nie zachodzi na tej szerokości geograficznej, światła pozostaną WYŁ.</string>
@@ -902,7 +963,6 @@
     <string name="alarm_help">Dla każdej metryki automatycznie wyzwalany jest najbardziej odpowiedni alarm. Kolejność na liście tego nie zmienia; sortowanie służy tylko zachowaniu porządku.</string>
     <string name="alarm_empty">Brak reguł alarmów</string>
     <string name="alarm_add">Nowy alarm</string>
-    <string name="alarm_smart_sort">Sortuj automatycznie</string>
     <string name="alarm_summary_predict_fmt">przewiduje %1$s s wcześniej</string>
     <string name="alarm_new">Nowy alarm</string>
     <string name="alarm_edit">Edytuj alarm</string>
@@ -911,7 +971,6 @@
     <string name="alarm_delete_action">Usuń alarm</string>
     <string name="alarm_metric_label">Metryka</string>
     <string name="alarm_comparator_label">Warunek</string>
-    <string name="alarm_threshold_fmt">Próg: %1$s %2$s</string>
     <string name="alarm_threshold_label">Próg</string>
     <string name="alarm_label_frequency">Częstotliwość</string>
     <string name="alarm_label_duration">Czas trwania</string>
@@ -954,9 +1013,6 @@
     <string name="alarm_threshold_increase">Zwiększ próg</string>
     <string name="alarm_section_beep">Sygnał</string>
     <string name="alarm_enable_beep">Włącz sygnał</string>
-    <string name="alarm_beep_freq_fmt">Częstotliwość: %1$dHz</string>
-    <string name="alarm_beep_duration_fmt">Czas trwania: %1$dms</string>
-    <string name="alarm_beep_repeats_fmt">Powtórzenia: %1$d</string>
     <string name="alarm_section_voice">Głos</string>
     <string name="alarm_enable_voice">Włącz głos</string>
     <string name="alarm_voice_template">Szablon tekstu</string>
@@ -964,25 +1020,16 @@
     <string name="alarm_voice_default">Uwaga! {metric} wynosi {value}</string>
     <string name="alarm_section_vibrate">Wibracja</string>
     <string name="alarm_enable_vibrate">Włącz wibracje</string>
-    <string name="alarm_vibrate_duration_fmt">Czas trwania: %1$dms</string>
-    <string name="alarm_vibrate_target_label">Wibruj na</string>
     <string name="alarm_vibrate_target_phone">Telefonie</string>
     <string name="alarm_vibrate_target_watch">Zegarku</string>
     <string name="alarm_vibrate_target_both">Wszystkich</string>
-    <string name="alarm_section_timing">Czasy</string>
     <string name="alarm_cooldown_label">Odstęp</string>
-    <string name="alarm_cooldown_fmt">Odstęp: %1$ds</string>
-    <string name="alarm_cooldown_help">Minimalny czas między uruchomieniami tej reguły, nawet jeśli warunek wciąż jest spełniony</string>
-    <string name="alarm_repeat">Powtarzaj, gdy aktywny</string>
     <string name="alarm_repeat_label">Wyzwalanie</string>
     <string name="alarm_repeat_single">Raz</string>
     <string name="alarm_repeat_multi">Wiele</string>
-    <string name="alarm_repeat_help">Raz: jeden alarm, potem ponowne uzbrojenie, gdy odczyt wróci na bezpieczną stronę.\nWiele: ponawia alarm co odstęp, dopóki warunek jest spełniony.</string>
     <string name="alarm_section_advanced">Zaawansowane</string>
     <string name="alarm_predict_label">Wyzwalanie predykcyjne</string>
     <string name="alarm_predict_realtime">Teraz</string>
-    <string name="alarm_predict_value_fmt">%1$s s wcześniej</string>
-    <string name="alarm_predict_help">Teraz: alarmuje w chwili zgłoszenia progu.\nPozostałe: alarmują tyle sekund przed tym, jak trend ma go osiągnąć.</string>
     <string name="alarm_state_atleast">%1$s wynosi %2$s lub więcej</string>
     <string name="alarm_state_below">%1$s jest poniżej %2$s</string>
     <string name="alarm_repeat_help_once">Jeden alarm, gdy %1$s. Ponowne uzbrojenie, gdy %2$s, po odstępie %3$d s.</string>
@@ -1100,7 +1147,6 @@
     <string name="studio_your_presets_empty">Brak zapisanych presetów. Zapisz aktualny układ, aby dodać pierwszy.</string>
 
     <!-- Studio: render progress overlay -->
-    <string name="studio_rendering">Renderowanie</string>
     <string name="studio_rendering_cancel">Anuluj</string>
     <string name="studio_dlg_cancel_render_title">Anulować renderowanie?</string>
     <string name="studio_dlg_cancel_render_body">Klip z powtórki nie zostanie zapisany.</string>
@@ -1359,6 +1405,7 @@
     <string name="studio_metric_temperature">Temperatura</string>
     <string name="studio_metric_voltage">Napięcie</string>
     <string name="studio_metric_current">Prąd</string>
+    <string name="studio_metric_phase_current">Prąd fazowy</string>
     <string name="studio_metric_power">Moc</string>
     <string name="studio_metric_pwm">PWM</string>
     <string name="studio_metric_trip_distance">Długość trasy</string>
@@ -1366,6 +1413,28 @@
     <string name="studio_metric_pitch">Pochylenie</string>
     <string name="studio_metric_roll">Przechył</string>
     <string name="studio_metric_g_force">G-Force</string>
+    <string name="studio_metric_external_gps_battery">Bateria GPS zewn.</string>
+    <string name="studio_metric_external_gps_speed">Prędkość GPS zew.</string>
+    <string name="studio_metric_gps_speed">Prędkość GPS</string>
+    <string name="metric_chip_trip_meter">Licznik trasy</string>
+    <string name="trip_meter_detail_title">Licznik trasy</string>
+    <string name="trip_meter_tab_speed">Prędkość</string>
+    <string name="trip_meter_tab_battery">Bateria</string>
+    <string name="trip_meter_tab_time">Czas</string>
+    <string name="trip_meter_total">Razem</string>
+    <string name="trip_meter_active">Aktywny</string>
+    <string name="trip_meter_avg">Śr.</string>
+    <string name="trip_meter_reset">Zeruj licznik trasy</string>
+    <string name="trip_meter_reset_msg">To zeruje bieżący dystans i usuwa wszystkie odcinki. Tej operacji nie można cofnąć.</string>
+    <string name="trip_meter_empty">Brak dystansu. Licznik liczy, gdy koło jest połączone.</string>
+    <string name="trip_meter_partial">Teraz</string>
+    <string name="trip_meter_col_split">#</string>
+    <string name="trip_meter_col_dist">Dyst</string>
+    <string name="trip_meter_col_time">Czas</string>
+    <string name="trip_meter_col_max">Maks</string>
+    <string name="trip_meter_col_batt">Bat</string>
+    <string name="studio_metric_trip_meter">Licznik trasy</string>
+    <string name="studio_metric_gps">Współrzędne GPS</string>
 
     <!-- Navigator -->
     <string name="nav_open">Otwórz nawigator</string>
@@ -1419,6 +1488,7 @@
     </string-array>
     <string name="nav_my_location">Moja lokalizacja</string>
     <string name="nav_no_location">Czekam na sygnał GPS…</string>
+    <string name="nav_too_far_to_start">Pierwszy przystanek jest zbyt daleko. Przytrzymaj Start, aby mimo to rozpocząć nawigację.</string>
     <string name="nav_empty_hint">Stuknij mapę, wyszukaj lub wczytaj plik GPX</string>
     <string name="nav_route_failed">Usługa tras niedostępna, używam linii prostych</string>
     <string name="nav_cant_add_while_running">Nie można dodać przystanku podczas nawigacji</string>
@@ -1512,7 +1582,6 @@
     <string name="trip_action_share_file">Udostępnij plik</string>
     <string name="trip_action_share_file_desc">Wyślij plik CSV trasy do innej aplikacji</string>
     <string name="trip_action_view_online">Zobacz online</string>
-    <string name="trip_action_view_online_desc">Otwórz na mapie EUC Viewer</string>
     <string name="trip_action_replay">Odtwórz w Studio</string>
     <string name="trip_action_replay_desc">Przewijaj przejazd z nakładkami danych na żywo</string>
     <!-- ==== Dashboard quick menus ==== -->
@@ -1522,7 +1591,6 @@
     <string name="studio_group_data">Dane</string>
     <string name="studio_group_text">Tekst i informacje</string>
     <string name="studio_group_media">Kamera i obrazy</string>
-    <string name="studio_rendering_keep_open">Trzymaj telefon włączony i ten ekran otwarty, dopóki renderowanie się nie zakończy</string>
     <string name="studio_export_force_opaque_hint">Formaty bez przezroczystości używają koloru chroma key; może źle wyglądać na półprzezroczystych warstwach</string>
     <string name="studio_snap_to_grid">Przyciągaj do siatki</string>
     <string name="studio_overwrite_title">Nadpisać preset?</string>
@@ -1558,7 +1626,6 @@
     <string name="charging_stat_balance">Niezrównoważenie</string>
     <string name="charging_stat_power">Moc</string>
     <string name="charging_stat_current">Prąd</string>
-    <string name="charging_stat_energy">Energia</string>
     <string name="charging_chart_empty">Zbieranie danych</string>
     <string name="battery_history">Historia baterii</string>
     <string name="setting_charging_auto_open">Otwórz podczas ładowania</string>
@@ -1616,8 +1683,6 @@
     <string name="trip_action_share_dropbox_desc">Wyślij do swojego folderu Dropbox i udostępnij publiczny link</string>
     <string name="trip_action_inspect_online">Sprawdź online</string>
     <string name="trip_action_inspect_online_desc">Udostępnij link eucviewer.ried.no, aby obejrzeć ten przejazd online</string>
-    <string name="trip_action_copy_link">Kopiuj link eucviewer</string>
-    <string name="trip_action_copy_link_desc">Skopiuj link do udostępnienia eucviewer.ried.no do schowka</string>
     <string name="trip_action_dropbox_disabled">Połącz Dropbox w ustawieniach, aby włączyć</string>
 
     <!-- Navigation: chargers & places (Open Charge Map / OpenStreetMap) -->
@@ -1694,6 +1759,14 @@
     <string name="adv_charging_cv_taper_desc">Wpływa na to, jak pesymistyczny jest szacowany czas do pełna na końcowym odcinku. Wyższa wartość dodaje margines.</string>
     <string name="adv_charging_median">Próbki wygładzania</string>
     <string name="adv_charging_median_desc">Wpływa na to, ile próbek jest filtrowanych medianą, aby usunąć skoki napięcia. Użyj liczby nieparzystej.</string>
+    <string name="adv_cell_low_warn">Ogniwo niskie, ostrzeżenie</string>
+    <string name="adv_cell_low_warn_desc">O ile ogniwo może spaść poniżej mediany pakietu, zanim zmieni się na żółte.</string>
+    <string name="adv_cell_low_danger">Ogniwo niskie, niebezpieczeństwo</string>
+    <string name="adv_cell_low_danger_desc">O ile ogniwo może spaść poniżej mediany pakietu, zanim zmieni się na czerwone.</string>
+    <string name="adv_cell_high">Ogniwo wysokie</string>
+    <string name="adv_cell_high_desc">O ile ogniwo może wzrosnąć powyżej mediany pakietu, zanim zmieni się na niebieskie.</string>
+    <string name="adv_pack_balance_tol">Tolerancja zrównoważenia pakietu</string>
+    <string name="adv_pack_balance_tol_desc">O ile pakiet może odbiegać od mediany, zanim opuści zrównoważoną zieleń, dla widoku pakietów tylko z procentami.</string>
     <string name="adv_charging_sanity_cap">Limit sensowności ETA</string>
     <string name="adv_charging_sanity_cap_desc">Wpływa na największy pokazywany czas ETA. Wszystko powyżej jest traktowane jako jeszcze niegotowe.</string>
     <string name="adv_charging_target_pct">Docelowy procent</string>
@@ -1759,6 +1832,8 @@
     <string name="adv_nav_inter_stop_desc">Wpływa na to, jak daleko musisz przejechać za jednym przystankiem, zanim następny może zostać uznany za osiągnięty. Uwaga: zbyt mała wartość może pominąć przystanek.</string>
     <string name="adv_nav_intermediate_flash">Czas błysku punktu trasy</string>
     <string name="adv_nav_intermediate_flash_desc">Wpływa na to, jak długo pokazywany jest błysk osiągnięcia punktu trasy.</string>
+    <string name="adv_nav_max_start">Maks. odległość startu</string>
+    <string name="adv_nav_max_start_desc">Jak daleko może być pierwszy przystanek, aby rozpocząć nawigację. Powyżej tej odległości linia od twojej pozycji jest ukryta, a start zablokowany. Planowanie trasy nadal działa.</string>
     <string name="adv_nav_moving">Prędkość ruchu</string>
     <string name="adv_nav_moving_desc">Wpływa na prędkość, powyżej której uznaje się Cię za poruszającego się, na potrzeby kursu i nawigacji. Uwaga: zbyt wysoka wartość ignoruje wolną jazdę.</string>
     <string name="adv_nav_offroute_grace">Tolerancja zejścia z trasy</string>
@@ -1778,6 +1853,12 @@
     <string name="adv_nav_warning">Te ustawienia zmieniają, kiedy nawigacja reaguje. Błędne wartości mogą sprawić, że wskazówki głosowe lub zmiana trasy zadziałają za wcześnie lub za późno.</string>
     <string name="adv_phone_gps_interval">Interwał aktualizacji GPS telefonu</string>
     <string name="adv_phone_gps_interval_desc">Wpływa na to, jak płynny jest ślad GPS i jak szybko reaguje nawigacja. Niższa aktualizuje częściej. Uwaga: niskie wartości szybciej rozładowują baterię.</string>
+    <string name="adv_phone_gps_idle_interval">Interwał GPS w spoczynku</string>
+    <string name="adv_phone_gps_idle_interval_desc">Częstotliwość GPS w spoczynku, gdy nie nagrywasz ani nie nawigujesz, aby Nawigator i nowe połączenie były gotowe. Wyższy oszczędza baterię.</string>
+    <string name="adv_gps_idle_off_delay">GPS wył. w spoczynku</string>
+    <string name="adv_gps_idle_off_delay_desc">Gdy aplikacja działa w tle bez podłączonego koła i bez nagrywania, GPS się wyłącza, aby oszczędzać baterię. 0 wyłącza go od razu; wyższa wartość najpierw utrzymuje przez ten czas pozycję o niskim poborze mocy, aby szybkie przełączenie aplikacji nie przerywało GPS.</string>
+    <string name="adv_gps_fix_max_age">Maks. wiek pozycji GPS</string>
+    <string name="adv_gps_fix_max_age_desc">Pozycja starsza niż to liczy się jako brak pozycji, aby nagranie rozpoczęte przed gotowością GPS nie zaczynało się od nieaktualnego punktu.</string>
     <string name="adv_pushonly_note">Niektóre urządzenia przesyłają dane z własną, stałą częstotliwością i ignorują te ustawienia: koła push-only (Begode, Gotway, Veteran, KingSong), zewnętrzny GPS (RaceBox), radar i przyciski Flic.</string>
     <string name="adv_radar_clear_decay">Zanik pasa radaru</string>
     <string name="adv_radar_clear_decay_desc">Wpływa na to, jak długo pasek pasa pozostaje po opróżnieniu drogi. Uwaga: zbyt mała wartość powoduje miganie, gdy samochody pojawiają się i znikają.</string>
@@ -1807,17 +1888,8 @@
     <string name="adv_wheel_poll_rate_desc">Wpływa na to, jak świeże są dane na żywo i jak szybko reagują alarmy. Niższa częściej odpytuje koło o dane. Uwaga: bardzo niskie wartości mogą zalać łącze Bluetooth i zablokować dane w niektórych kołach.</string>
     <string name="alarm_beep_advanced">Zaawansowane</string>
     <string name="alarm_beep_gap_label">Czas przerwy</string>
-    <string name="alarm_beep_pitch_rise_label">Wzrost wysokości</string>
     <string name="alarm_beep_studio">Adaptacyjny sygnał</string>
-    <string name="alarm_beep_sum_core">Sygnał %1$d Hz przez %2$d ms</string>
-    <string name="alarm_beep_sum_pitch"> Wysokość rośnie do %1$d Hz, gdy %2$s osiąga %3$s %4$s.</string>
-    <string name="alarm_beep_sum_pitch_vol"> Wysokość rośnie do %1$d Hz, a głośność od %2$d%% do %3$d%%, gdy %4$s osiąga %5$s %6$s.</string>
-    <string name="alarm_beep_sum_reps">, ×%1$d co %2$d ms</string>
-    <string name="alarm_beep_sum_reps0">, ×%1$d jeden po drugim</string>
-    <string name="alarm_beep_sum_voice">, potem mówi</string>
-    <string name="alarm_beep_sum_vol"> Głośność rośnie od %1$d%% do %2$d%%, gdy %3$s osiąga %4$s %5$s.</string>
-    <string name="alarm_beep_volume_label">Głośność</string>
-    <string name="alarm_beep_volume_rise_label">Wzrost głośności</string>
+    <string name="alarm_beep_volume_label">Głośność bazowa</string>
     <string name="alarm_studio_now">%1$d Hz · %2$d%%</string>
     <string name="alarm_studio_pitch_factor">Współczynnik wysokości</string>
     <string name="alarm_studio_play">Odtwórz</string>
@@ -1840,12 +1912,12 @@
     <string name="studio_export_status">Eksportowanie pliku…</string>
     <string name="studio_export_stay">Zostań na bieżącym ekranie</string>
     <string name="studio_export_title">Eksport pliku</string>
-    <string name="studio_replay_trim">(Przytnij)</string>
+    <string name="studio_replay_trim">(cała trasa)</string>
     <string name="studio_replay_trim_duration">Czas trwania</string>
     <string name="studio_replay_trim_end">Koniec</string>
     <string name="studio_replay_trim_reset">Resetuj</string>
     <string name="studio_replay_trim_start">Początek</string>
-    <string name="studio_replay_trim_title">Przytnij klip</string>
+    <string name="studio_replay_trim_title">Przytnij trasę</string>
     <string name="tab_advanced">Zaawansowane</string>
     <string name="tab_more">Więcej</string>
     <string name="welcome_tut_dev_join">Dołącz do rankingów</string>
@@ -1875,9 +1947,16 @@
     <string name="settings_visibility">Widoczność ustawień</string>
     <string name="geo_section_dashboard">Pulpit</string>
     <string name="geo_section_navigator">Nawigator</string>
+    <string name="geo_section_trip">Trasa</string>
     <string name="geo_section_other">Inne ekrany</string>
-    <string name="geo_other_hint">Ustawienia, trasy, monitor baterii, historia metryk, skanowanie i Flic. Overlay Studio nie jest objęte: jego układ jest stały, ale działa dobrze w każdej orientacji.</string>
+    <string name="geo_section_settings">Ustawienia</string>
+    <string name="geo_other_hint">Monitor baterii, historia metryk, skanowanie i Flic. Overlay Studio nie jest objęte: jego układ jest stały, ale działa dobrze w każdej orientacji.</string>
+    <string name="geo_settings_hint">Ekran ustawień. Domyślnie wyłączone, więc Ustawienia pozostają w orientacji pionowej, dopóki tego nie włączysz.</string>
+    <string name="geo_trip_hint">Widok szczegółów domyślnie obraca się dla mapy i wykresów w poziomie. Lista tras pozostaje w pionie, dopóki tego nie włączysz.</string>
     <string name="setting_allow_rotation">Zezwól na obracanie</string>
+    <string name="setting_rotate_trip_detail">Obracaj szczegóły trasy</string>
+    <string name="setting_rotate_trip_list">Obracaj listę tras</string>
+    <string name="setting_trip_map_side">Strona mapy</string>
     <string name="setting_block_upside_down">Zablokuj obrót do góry nogami</string>
     <string name="setting_ignore_system_rotate_lock">Ignoruj systemową blokadę obrotu</string>
     <string name="setting_compact_dashboard">Kompaktowy pulpit</string>
@@ -1902,8 +1981,87 @@
     <string name="adv_cover_cutout_inset_desc">Miejsce wolne dla przednich obiektywów, gdy Omijaj przednie kamery jest włączone. Zbyt małe i obiektywy zasłaniają przyciski.</string>
     <string name="adv_nav_sidebar_min">Minimalny ekran dla panelu bocznego</string>
     <string name="adv_nav_sidebar_min_desc">Węższe ekrany zachowują dolny panel przystanków nawet w poziomie. Zbyt niski chowa mapę na małych ekranach.</string>
+    <string name="adv_inmotion_v1_pin">PIN InMotion V5/V8/V10</string>
+    <string name="adv_inmotion_v1_pin_desc">PIN dostępu do kół InMotion V5/V8/V10, wysyłany przy połączeniu, aby koło zaczęło przesyłać dane. Zostaw 000000, chyba że ustawiłeś własny PIN w aplikacji InMotion.</string>
     <string name="adv_nav_sidebar_width">Szerokość panelu przystanków</string>
     <string name="adv_nav_sidebar_width_desc">Szerokość bocznego panelu przystanków w poziomie. Zbyt szeroki zostawia mało mapy.</string>
     <string name="adv_simple_speedo_scale">Rozmiar prostego prędkościomierza</string>
     <string name="adv_simple_speedo_scale_desc">Rozmiar liczby prędkości względem obszaru wskaźnika. Zbyt duży może przyciąć etykietę jednostki.</string>
+    <string name="charging_reset_data">Resetuj dane</string>
+    <string name="charging_export">Eksportuj</string>
+    <string name="charging_export_saved">Wyeksportowano dane baterii</string>
+    <string name="charging_export_failed">Eksport nie powiódł się</string>
+    <string name="voice_phone_battery_fmt">telefon %1$d</string>
+    <string name="report_phone_battery">Telefon</string>
+    <string name="alarm_beep_transition_label">Przejście</string>
+    <string name="alarm_constant_title">Ciągły dźwięk?</string>
+    <string name="alarm_constant_body">Przerwa 0 ms daje jeden nieprzerwany dźwięk. Aby brzmiał ciągle, ustaw też:</string>
+    <string name="alarm_constant_never">Nie pytaj ponownie</string>
+    <string name="nav_start_btn">Start</string>
+    <string name="alarm_beep_wave_label">Fala</string>
+    <string name="alarm_beep_effect_label">Efekt</string>
+    <string name="alarm_wave_sine">Sinus</string>
+    <string name="alarm_wave_triangle">Trójkąt</string>
+    <string name="alarm_wave_square">Prostokąt</string>
+    <string name="alarm_wave_saw">Piła</string>
+    <string name="alarm_wave_fm">FM</string>
+    <string name="alarm_fx_none">Czysty</string>
+    <string name="alarm_fx_drive">Overdrive</string>
+    <string name="alarm_fx_sweep">Filtr</string>
+    <string name="alarm_fx_crush">Bitcrush</string>
+
+    <!-- Speed splits (spoken accel/brake step timing) -->
+    <string name="section_accel_splits">Międzyczasy prędkości</string>
+    <string name="accel_splits_enabled">Ogłaszaj czasy</string>
+    <string name="accel_splits_desc">Odczytuje czas przekroczenia każdego progu prędkości podczas przyspieszania lub hamowania. Zaczyna od prędkości poniżej, w krokach, które ustawisz.</string>
+    <string name="accel_split_decel_prefix">hamowanie, </string>
+    <string name="accel_splits_from">Od</string>
+    <string name="accel_splits_step">Krok</string>
+    <string name="accel_splits_dir_accel">Przysp.</string>
+    <string name="accel_splits_dir_brake">Hamow.</string>
+    <string name="accel_splits_dir_both">Oba</string>
+    <string name="accel_splits_compare_previous">Porównaj z poprzednim przejazdem</string>
+    <string name="accel_splits_compare_best">Porównaj z rekordem sesji</string>
+    <string name="accel_split_time_fmt">z %1$d na %2$d, %3$s sekundy</string>
+    <string name="accel_split_faster_prev">, %1$s sekundy szybciej niż poprzednio</string>
+    <string name="accel_split_slower_prev">, %1$s sekundy wolniej niż poprzednio</string>
+    <string name="accel_split_faster_best">, %1$s szybciej niż rekord</string>
+    <string name="accel_split_slower_best">, %1$s wolniej niż rekord</string>
+    <string name="accel_split_best_yet">, nowy rekord</string>
+    <string name="report_contents">Dostosuj raport głosowy</string>
+    <string name="trip_customize">Dostosuj</string>
+    <string name="trip_customize_tiles">Kafelki</string>
+    <string name="trip_customize_graphs">Wykresy</string>
+    <string name="recording_details_section">Dodatkowe szczegóły</string>
+    <string name="recording_details_none">Nie zarejestrowano koła dla tego przejazdu.</string>
+    <string name="cloud_reset_local">Wyczyść lokalne przejazdy</string>
+    <string name="cloud_reset_local_title">Wyczyścić lokalne przejazdy?</string>
+    <string name="cloud_reset_local_body">Usuwa wszystkie przejazdy zapisane na tym telefonie. Folder kopii zapasowej pozostaje nienaruszony, więc zsynchronizowane przejazdy można z niego przywrócić.</string>
+    <string name="dropbox_syncing">Synchronizowanie przejazdów…</string>
+    <string name="dropbox_folder_desc">Przejazdy i ustawienia są zapisywane w Twoim Dropboksie, w %1$s. Tylko ta aplikacja widzi ten folder.</string>
+    <string name="keep_app_alive">Utrzymuj aplikację aktywną</string>
+    <string name="keep_app_alive_desc">Wyświetla stałe powiadomienie, dzięki czemu aplikacja pozostaje aktywna w tle. Synchronizacja przejazdów i głos działają nawet bez podłączonego koła. Zużywa nieco więcej baterii.</string>
+    <string name="sync_up_to_date">Już zaktualizowane</string>
+    <string name="studio_source_transparent">Przezroczyste</string>
+    <string name="studio_source_video">Wideo</string>
+    <string name="studio_video_pick">Wybierz wideo</string>
+    <string name="studio_video_replace">Zmień wideo</string>
+    <string name="studio_video_fit">Dopasowanie</string>
+    <string name="studio_video_fit_stretch">Rozciągnij</string>
+    <string name="studio_video_offset">Przesunięcie</string>
+    <string name="studio_video_offset_value_fmt">%1$d ms</string>
+    <string name="studio_video_offset_nudge_fmt">%1$+d ms</string>
+    <string name="studio_video_set_offset">Bieżący</string>
+    <string name="studio_video_no_media">Brak multimediów</string>
+    <string name="studio_replay_cd_move">Przenieś panel</string>
+    <string name="studio_video_edge">Poza zakresem</string>
+    <string name="studio_video_edge_freeze">Zatrzymaj</string>
+    <string name="studio_video_edge_loop">Pętla</string>
+    <string name="studio_video_edge_black">Czarny</string>
+    <string name="wheel_no_data_reconnecting">Brak danych z koła. Ponowne łączenie…</string>
+    <string name="wheel_no_data_reset">Nadal brak danych z koła. Spróbuj wyłączyć je i włączyć ponownie.</string>
+    <string name="trip_map_ride_start">Początek przejazdu: %1$s</string>
+    <string name="trip_map_reconnected">Połączono ponownie: %1$s</string>
+    <string name="trip_map_new_wheel">Nowe koło: %1$s</string>
+    <string name="trip_map_ride_end">Koniec przejazdu</string>
 </resources>
