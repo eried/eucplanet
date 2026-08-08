@@ -3,6 +3,8 @@ package com.eried.eucplanet.service
 import android.content.Context
 import android.media.AudioManager
 import android.util.Log
+import android.view.KeyEvent
+import com.eried.eucplanet.ble.ConnectionState
 import com.eried.eucplanet.data.model.AppSettings
 import com.eried.eucplanet.data.repository.SettingsRepository
 import com.eried.eucplanet.data.repository.TripRepository
@@ -31,6 +33,20 @@ class AutomationManager @Inject constructor(
         // Below this multiplier we treat manual volume changes as direct baseline edits
         // (avoids divide-by-near-zero amplification when standing still).
         private const val MIN_REBASE_MULTIPLIER = 0.05f
+        // Media control: the speed condition must hold this long before we act, so a
+        // momentary GPS / speed blip doesn't pause or resume playback.
+        private const val MEDIA_CONTROL_HOLD_MS = 3000L
+        // Minimum dead-band (km/h) enforced between the pause and resume speeds even
+        // if the rider set them equal - guarantees the anti-thrash gap always exists.
+        private const val MEDIA_CONTROL_MIN_GAP_KMH = 2
+        // Proximity lock: RSSI must hold past the threshold this long before we act.
+        // Kept equal to MEDIA_CONTROL_HOLD_MS so both automations feel consistent; the
+        // dead-band gap is what actually prevents flip-flop between lock and unlock.
+        private const val PROX_HOLD_MS = 3000L
+        // Minimum dead-band (dBm) kept between the lock and unlock thresholds. Small,
+        // so the two can sit close for a snappy transition; the hold above soaks up
+        // the RSSI jitter that such a tight gap would otherwise let flip-flop.
+        private const val PROX_MIN_GAP_DBM = 2
     }
 
     private val audioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
@@ -46,6 +62,18 @@ class AutomationManager @Inject constructor(
     // The rider's baseline volume % (the level before speed-scaling), cached from
     // evaluateVolume so restoreBaselineVolume() can put it back without suspending.
     @Volatile private var cachedBaselinePercent: Int = -1
+
+    // Media control state. mediaAutoPaused = this feature paused playback and may
+    // resume it; we never resume media the rider paused themselves. The candidate
+    // timestamps implement the "hold past the line" debounce (0 = the condition is
+    // not currently met).
+    @Volatile private var mediaAutoPaused: Boolean = false
+    private var mediaPauseCandidateSinceMs: Long = 0L
+    private var mediaResumeCandidateSinceMs: Long = 0L
+
+    // Proximity-lock "hold past the line" timestamps (0 = condition not currently met).
+    private var proxLockCandidateSinceMs: Long = 0L
+    private var proxUnlockCandidateSinceMs: Long = 0L
 
     /**
      * Put the media volume back to the rider's baseline - the level it was at
@@ -98,6 +126,10 @@ class AutomationManager @Inject constructor(
         detectManualLightChange(settings)
         if (settings.autoLightsEnabled && !_autoLightsSuspended.value) evaluateLights(settings)
         if (settings.autoVolumeEnabled) evaluateVolume(settings)
+        val mc = settings.mediaControl
+        if (mc.pauseEnabled || mc.resumeEnabled) evaluateMediaControl(settings)
+        val pl = settings.proximityLock
+        if (pl.lockEnabled || pl.unlockEnabled) evaluateProximityLock(settings)
     }
 
     /** Watch telemetry: if the wheel's light state flips without a recent auto-toggle, it's a manual change. */
@@ -208,7 +240,137 @@ class AutomationManager @Inject constructor(
             lastWrittenSystemVol = systemVol
         }
     }
+
+    /**
+     * Speed-based media pause / resume. Pauses playback when the rider slows to or
+     * below [MediaControlSettings.pauseBelowKmh] and resumes it when they speed up to
+     * or above [MediaControlSettings.resumeAboveKmh]. The gap between the two is a
+     * dead-band that prevents rapid flipping; on top of that the speed must hold past
+     * the line for [MEDIA_CONTROL_HOLD_MS] before we act, so a brief GPS / speed blip
+     * is ignored. Resume only ever restarts playback THIS feature paused
+     * ([mediaAutoPaused]), so speeding up never starts music the rider deliberately
+     * stopped.
+     */
+    private fun evaluateMediaControl(settings: AppSettings) {
+        // Only act on a live wheel connection. A disconnected wheel reports 0 speed,
+        // which would otherwise pause your music the moment you walk off with the phone.
+        if (wheelRepository.connectionState.value != ConnectionState.CONNECTED) {
+            mediaPauseCandidateSinceMs = 0L
+            mediaResumeCandidateSinceMs = 0L
+            return
+        }
+        val mc = settings.mediaControl
+        val speed = wheelRepository.wheelData.value.speed.absoluteValue
+        val now = System.currentTimeMillis()
+        val pauseAt = mc.pauseBelowKmh
+        // Always keep the resume threshold above the pause one so a dead-band exists.
+        val resumeAt = maxOf(mc.resumeAboveKmh, pauseAt + MEDIA_CONTROL_MIN_GAP_KMH)
+
+        // Pause when slow (only if we haven't already auto-paused).
+        if (mc.pauseEnabled && !mediaAutoPaused && speed <= pauseAt) {
+            if (mediaPauseCandidateSinceMs == 0L) mediaPauseCandidateSinceMs = now
+            if (now - mediaPauseCandidateSinceMs >= MEDIA_CONTROL_HOLD_MS) {
+                sendMediaKey(KeyEvent.KEYCODE_MEDIA_PAUSE)
+                mediaAutoPaused = true
+                mediaPauseCandidateSinceMs = 0L
+                Log.i(TAG, "Media control: paused (speed=${speed.roundToInt()} <= $pauseAt km/h)")
+            }
+        } else {
+            mediaPauseCandidateSinceMs = 0L
+        }
+
+        // Resume when moving again - only what we paused.
+        if (mc.resumeEnabled && mediaAutoPaused && speed >= resumeAt) {
+            if (mediaResumeCandidateSinceMs == 0L) mediaResumeCandidateSinceMs = now
+            if (now - mediaResumeCandidateSinceMs >= MEDIA_CONTROL_HOLD_MS) {
+                sendMediaKey(KeyEvent.KEYCODE_MEDIA_PLAY)
+                mediaAutoPaused = false
+                mediaResumeCandidateSinceMs = 0L
+                Log.i(TAG, "Media control: resumed (speed=${speed.roundToInt()} >= $resumeAt km/h)")
+            }
+        } else {
+            mediaResumeCandidateSinceMs = 0L
+        }
+    }
+
+    /**
+     * Dispatch a media-button key (down+up) to whatever app owns the active media
+     * session - the same mechanism the Flic / notification action buttons use.
+     */
+    private fun sendMediaKey(keyCode: Int) {
+        runCatching {
+            audioManager.dispatchMediaKeyEvent(KeyEvent(KeyEvent.ACTION_DOWN, keyCode))
+            audioManager.dispatchMediaKeyEvent(KeyEvent(KeyEvent.ACTION_UP, keyCode))
+        }.onFailure { Log.w(TAG, "sendMediaKey($keyCode) failed", it) }
+    }
+
+    /**
+     * Clear media-control state on disconnect / Stop All / disable. We deliberately
+     * do NOT auto-resume here - playback is left wherever it is (the rider can press
+     * play) rather than risk blasting audio when a ride ends.
+     */
+    fun resetMediaControl() {
+        mediaAutoPaused = false
+        mediaPauseCandidateSinceMs = 0L
+        mediaResumeCandidateSinceMs = 0L
+    }
+
+    /**
+     * Bluetooth-signal proximity lock / unlock. While connected, locks the wheel
+     * when the RSSI drops to/below [ProximityLockSettings.lockBelowDbm] (the rider
+     * is walking away, still just in range) and unlocks it when the RSSI rises
+     * to/above [ProximityLockSettings.unlockAboveDbm] (the rider is back close).
+     * The gap between the two is a dead-band; the reading must also hold past the
+     * line for [PROX_HOLD_MS] before acting, because RSSI is noisy. Only ever locks
+     * an unlocked wheel and unlocks a locked one, so it can't fight the rider or
+     * itself. Locking needs a live link, so this runs while the signal is fading -
+     * a full disconnect leaves nothing to send over (documented limitation).
+     */
+    private fun evaluateProximityLock(settings: AppSettings) {
+        if (wheelRepository.connectionState.value != ConnectionState.CONNECTED) return
+        val pl = settings.proximityLock
+        val rssi = wheelRepository.wheelData.value.rssiDbm
+        if (rssi == 0) return  // no RSSI reading yet
+        val locked = wheelRepository.locked.value
+        val now = System.currentTimeMillis()
+        val lockAt = pl.lockBelowDbm
+        // Unlock threshold always kept stronger than lock, so a dead-band exists.
+        val unlockAt = maxOf(pl.unlockAboveDbm, lockAt + PROX_MIN_GAP_DBM)
+
+        // Walking away: weak signal, still connected, currently unlocked -> lock.
+        if (pl.lockEnabled && !locked && rssi <= lockAt) {
+            if (proxLockCandidateSinceMs == 0L) proxLockCandidateSinceMs = now
+            if (now - proxLockCandidateSinceMs >= PROX_HOLD_MS) {
+                wheelRepository.setLock(true)
+                proxLockCandidateSinceMs = 0L
+                Log.i(TAG, "Proximity: locking (rssi=$rssi <= $lockAt dBm)")
+            }
+        } else proxLockCandidateSinceMs = 0L
+
+        // Returning: strong signal, currently locked -> unlock.
+        if (pl.unlockEnabled && locked && rssi >= unlockAt) {
+            if (proxUnlockCandidateSinceMs == 0L) proxUnlockCandidateSinceMs = now
+            if (now - proxUnlockCandidateSinceMs >= PROX_HOLD_MS) {
+                wheelRepository.setLock(false)
+                proxUnlockCandidateSinceMs = 0L
+                Log.i(TAG, "Proximity: unlocking (rssi=$rssi >= $unlockAt dBm)")
+            }
+        } else proxUnlockCandidateSinceMs = 0L
+    }
+
+    /** Clear proximity-lock hold state on disconnect / Stop All / disable. */
+    fun resetProximityLock() {
+        proxLockCandidateSinceMs = 0L
+        proxUnlockCandidateSinceMs = 0L
+    }
 }
+
+/**
+ * Ceiling for the auto-volume boost multiplier. Single source of truth shared by the
+ * curve editor's Y axis and [pchipInterpolate]'s output clamp, so the draggable range
+ * and the applied boost can never drift apart.
+ */
+const val AUTO_VOLUME_MAX_MULTIPLIER = 3f
 
 /** Curve format: "speed:multiplier,speed:multiplier,..." e.g. "0:0,25:0.6,50:1.2,75:2.0". */
 fun parseVolumeCurve(raw: String): List<Pair<Float, Float>> {
@@ -230,14 +392,14 @@ fun encodeVolumeCurve(points: List<Pair<Float, Float>>): String {
 /**
  * PCHIP (Piecewise Cubic Hermite Interpolating Polynomial, Fritsch–Carlson 1980).
  * Smooth like a spline but never overshoots between monotonic control points.
- * Returns multiplier value at the given speed; clamps to [0, 2].
+ * Returns multiplier value at the given speed; clamps to [0, AUTO_VOLUME_MAX_MULTIPLIER].
  */
 fun pchipInterpolate(points: List<Pair<Float, Float>>, x: Float): Float {
     if (points.isEmpty()) return 0f
-    if (points.size == 1) return points[0].second.coerceIn(0f, 2f)
+    if (points.size == 1) return points[0].second.coerceIn(0f, AUTO_VOLUME_MAX_MULTIPLIER)
     val sorted = points.sortedBy { it.first }
-    if (x <= sorted.first().first) return sorted.first().second.coerceIn(0f, 2f)
-    if (x >= sorted.last().first) return sorted.last().second.coerceIn(0f, 2f)
+    if (x <= sorted.first().first) return sorted.first().second.coerceIn(0f, AUTO_VOLUME_MAX_MULTIPLIER)
+    if (x >= sorted.last().first) return sorted.last().second.coerceIn(0f, AUTO_VOLUME_MAX_MULTIPLIER)
 
     val n = sorted.size
     // Slopes of each segment
@@ -296,5 +458,5 @@ fun pchipInterpolate(points: List<Pair<Float, Float>>, x: Float): Float {
             h10 * hk * m[k] +
             h01 * sorted[k + 1].second +
             h11 * hk * m[k + 1]
-    return y.coerceIn(0f, 2f)
+    return y.coerceIn(0f, AUTO_VOLUME_MAX_MULTIPLIER)
 }

@@ -111,6 +111,10 @@ data class AppSettings(
     // RaceBox-style acceleration split announcements. Feature-local group (not a
     // global), nested so AppSettings.copy() stays under the 255-arg dex limit.
     val accelSplit: AccelSplitSettings = AccelSplitSettings(),
+    // Speed-driven media (music / podcast) pause & resume - see MediaControlSettings.
+    val mediaControl: MediaControlSettings = MediaControlSettings(),
+    // Bluetooth-signal proximity lock / unlock - see ProximityLockSettings.
+    val proximityLock: ProximityLockSettings = ProximityLockSettings(),
 
     // Special announcements (event-driven). All silent by default; the welcome
     // wizard's first step offers a single toggle that flips this whole block on
@@ -199,6 +203,11 @@ data class AppSettings(
     val unitTemp: String = "",      // "" | "C"   | "F"   | "K"
 
     val phoneKeepScreenOn: Boolean = false,
+    /** Show the dashboard over the lock screen so the rider doesn't have to
+     *  unlock when the screen turns back on. Applied via Activity.setShowWhenLocked;
+     *  the device stays locked underneath (secure content is still protected),
+     *  matching how nav / media / alarm apps behave. */
+    val phoneShowOverLockScreen: Boolean = false,
 
     // Per-screen rotation (landscape). The app allows rotation at the manifest
     // level; these gate which screens actually rotate. The main dashboard
@@ -217,6 +226,23 @@ data class AppSettings(
     val rotateTripDetail: Boolean = true,
     val rotateTripList: Boolean = false,
     val tripMapSide: String = "LEFT",
+    // The rider's Trip-details base map pick (LIGHT / DARK / SAT). Empty means
+    // "follow the active theme's luminance" (dark theme -> dark map); a pick
+    // sticks across restarts, like the Route Builder's navMapType.
+    val tripMapType: String = "",
+    // Trip Details customizer (per the Customize sheet on that screen). Stored
+    // compactly as CSV so no schema change is needed. tripHiddenTiles lists the
+    // stat-tile keys the rider hid (empty = all shown); tripChartOrder lists the
+    // graph keys in display order (empty = default order). Keys not listed keep
+    // their default position.
+    val tripHiddenTiles: String = "",
+    val tripTileOrder: String = "",
+    val tripChartOrder: String = "",
+    // Hidden graph keys (speed, battery, temp, voltage, current, pwm, and the
+    // pinned "extra" details block). Separate from tripHiddenTiles because chart
+    // keys collide with tile keys (battery, voltage exist in both). Empty = all
+    // shown.
+    val tripHiddenCharts: String = "",
 
     // Screen geometry. Compact mode is the tiny dashboard (speedo + one
     // swipeable buttons/metrics area) used on flip cover screens; it reuses
@@ -545,6 +571,9 @@ data class AppSettings(
      * "should the radio be running?". The two should be independent.
      */
     val hudServerEnabled: Boolean = false,
+    /** Keep the foreground service (ongoing notification) alive even with no wheel
+     *  connected, so background trip sync and voice keep running. Default on. */
+    val keepAppAlive: Boolean = true,
     /** Show quick-action buttons on the ongoing notification. */
     val notificationActionsEnabled: Boolean = true,
     /** Which actions (comma-separated keys, max 3) appear on the notification.
@@ -812,7 +841,17 @@ data class AppSettings(
     /** Wall-clock ms of the last successful Dropbox sync. Used by the
      *  Sync all UI to label "Last synced 5 min ago" and by the worker to
      *  decide whether the settings.json on Dropbox is current. */
-    val dropboxLastSyncAt: Long = 0L
+    val dropboxLastSyncAt: Long = 0L,
+    /** True while trips still need uploading to Dropbox; the worker keeps
+     *  retrying until it clears. Drives the persistent "Syncing trips…"
+     *  indicator so failed / pending uploads are surfaced without an error toast. */
+    val dropboxSyncPending: Boolean = false,
+    /** Number of trips still to upload to Dropbox; drives the "Syncing N trips…"
+     *  indicator, decrementing live as each upload lands. */
+    val dropboxPendingCount: Int = 0,
+    /** Trips in the current sync batch, so the pending indicator can show
+     *  "X of Y" like the foreground sync (done = total - pending). 0 = no batch. */
+    val dropboxSyncTotal: Int = 0
 ) {
     // Delegating getters so reads like `settings.wheelPollIntervalMs` keep working
     // after the 46 advanced fields moved into the nested [AdvancedSettings] (which
@@ -826,6 +865,8 @@ data class AppSettings(
     val lockMaxSpeedKmh: Int get() = advanced.lockMaxSpeedKmh
     val phoneGpsIntervalMs: Int get() = advanced.phoneGpsIntervalMs
     val phoneGpsIdleIntervalMs: Int get() = advanced.phoneGpsIdleIntervalMs
+    val gpsIdleOffDelaySec: Int get() = advanced.gpsIdleOffDelaySec
+    val gpsFixMaxAgeSec: Int get() = advanced.gpsFixMaxAgeSec
     val hudReportIntervalMs: Int get() = advanced.hudReportIntervalMs
     val garminReportIntervalMs: Int get() = advanced.garminReportIntervalMs
     val navOffRouteGraceMs: Int get() = advanced.navOffRouteGraceMs
@@ -854,7 +895,6 @@ data class AppSettings(
     val hudManualHintDelayMs: Int get() = advanced.hudManualHintDelayMs
     val hudDiscoveryTotalTimeoutMs: Int get() = advanced.hudDiscoveryTotalTimeoutMs
     val hudMdnsServiceInfoTimeoutMs: Int get() = advanced.hudMdnsServiceInfoTimeoutMs
-    val hudSubnetProbeDelayMs: Int get() = advanced.hudSubnetProbeDelayMs
     val autoLightNoGpsRetryMs: Int get() = advanced.autoLightNoGpsRetryMs
     val autoToggleGraceMs: Int get() = advanced.autoToggleGraceMs
     val navMovingKmh: Int get() = advanced.navMovingKmh
@@ -876,6 +916,7 @@ data class AppSettings(
     val chargingWindowMs: Int get() = advanced.chargingWindowMs
     val chargingSanityCapMinutes: Int get() = advanced.chargingSanityCapMinutes
     val chargingMedianFilterSize: Int get() = advanced.chargingMedianFilterSize
+    val inmotionV1Pin: Int get() = advanced.inmotionV1Pin
 }
 
 /**
@@ -916,6 +957,50 @@ data class AccelSplitSettings(
 )
 
 /**
+ * Speed-driven media control (music / podcasts). Pauses playback when the rider
+ * slows down (e.g. rolling slowly around people) and resumes it when they speed
+ * back up. A feature-local group (not a global), nested so AppSettings.copy()
+ * stays under the JVM/dex 255-argument limit. Thresholds are in km/h.
+ *
+ * The gap between [pauseBelowKmh] and [resumeAboveKmh] is a dead-band that stops
+ * rapid play/pause flipping near one speed; AutomationManager also requires the
+ * condition to hold briefly before acting. Resume only ever restarts playback
+ * this feature itself paused, so speeding up never blasts music the rider had
+ * deliberately stopped.
+ */
+data class MediaControlSettings(
+    val pauseEnabled: Boolean = false,
+    // Pause when speed is at or below this (km/h).
+    val pauseBelowKmh: Int = 6,
+    val resumeEnabled: Boolean = false,
+    // Resume (only what this feature paused) when speed is at or above this (km/h).
+    val resumeAboveKmh: Int = 10,
+)
+
+/**
+ * Bluetooth-signal proximity lock / unlock. Locks the wheel as the rider walks
+ * away (the BT signal fades while still just connected) and, optionally, unlocks
+ * it as they return (the signal strengthens). A feature-local group (not a
+ * global), nested so AppSettings.copy() stays under the JVM/dex 255-argument
+ * limit. Thresholds are RSSI in dBm (higher = stronger / closer, e.g. -50 is
+ * near, -85 is far). unlockAboveDbm sits above lockBelowDbm with a gap - a
+ * dead-band that stops lock/unlock flipping; AutomationManager also holds the
+ * condition a few seconds before acting. Locking needs a live BLE link, so it
+ * fires while the signal is fading, not after a full disconnect.
+ */
+data class ProximityLockSettings(
+    val lockEnabled: Boolean = false,
+    // Lock when the signal is at or below this (dBm) - the rider is walking away.
+    // Default tuned to a real reading (near ~-59, 4 steps ~-65, 9 steps ~-79):
+    // -68 locks at roughly 5 steps, only ~6 dBm below unlock so it feels snappy.
+    val lockBelowDbm: Int = -68,
+    val unlockEnabled: Boolean = false,
+    // Unlock when the signal is at or above this (dBm) - the rider is back close.
+    // -62 unlocks within ~2-3 steps; must stay reachable (near maxes out ~-59).
+    val unlockAboveDbm: Int = -62,
+)
+
+/**
  * Power-user "Advanced" timing / threshold settings. Nested under
  * [AppSettings.advanced] so AppSettings' generated copy() stays under the
  * JVM/dex 255-argument limit. All clamped in SettingsRepository.sanitized().
@@ -935,6 +1020,13 @@ data class AdvancedSettings(
     // Slow "keep-warm" GPS interval used when nothing needs the 1 Hz active
     // stream (idle balanced / low-power tiers). See GpsPowerPolicy.
     val phoneGpsIdleIntervalMs: Int = 10000,
+    // Ultra battery saving: seconds of pure-idle (backgrounded, no wheel, not
+    // recording/navigating) before the GPS is fully released. 0 = immediately;
+    // during the grace GPS holds a cheap low-power fix, then goes off.
+    val gpsIdleOffDelaySec: Int = 30,
+    // A GPS fix older than this (seconds) counts as "no fix", so a recording
+    // that starts before GPS is ready never opens with a stale last-known point.
+    val gpsFixMaxAgeSec: Int = 10,
     val hudReportIntervalMs: Int = 200,
     val garminReportIntervalMs: Int = 200,
     val navOffRouteGraceMs: Int = 8000,
@@ -963,10 +1055,6 @@ data class AdvancedSettings(
     val hudManualHintDelayMs: Int = 1500,
     val hudDiscoveryTotalTimeoutMs: Int = 15000,
     val hudMdnsServiceInfoTimeoutMs: Int = 1000,
-    // Delay before the last-resort subnet scan starts, so mDNS and the UDP
-    // beacon can answer first without the scan's connection flood congesting
-    // the Wi-Fi radio (which was slowing mDNS discovery).
-    val hudSubnetProbeDelayMs: Int = 2500,
     val autoLightNoGpsRetryMs: Int = 2000,
     val autoToggleGraceMs: Int = 4000,
     val navMovingKmh: Int = 4,
@@ -1004,6 +1092,10 @@ data class AdvancedSettings(
     val simpleSpeedoScalePct: Int = 62,
     val navSidebarWidthDp: Int = 400,
     val navSidebarMinScreenDp: Int = 600,
+    // InMotion V1 (V5 / V8 / V10 / L6) BLE access PIN, stored as the 6-digit
+    // number (0 = "000000", the factory default). Sent on connect so the wheel
+    // leaves its identity-only wait and streams; wheels with no PIN ignore it.
+    val inmotionV1Pin: Int = 0,
 )
 
 // FlicAction enum removed (2026-05). Replaced by

@@ -94,20 +94,22 @@ object InMotionV1Commands {
     // --- Ride mode group (CAN 0x0F550115) ---
 
     /**
-     * Set max speed (tiltback). Encoded as `(kmh * 1000)` u16 with HIGH byte
-     * at slot 4 and LOW byte at slot 5, opposite of the rest of the
-     * protocol's little-endian convention. Spec section 6.2 worked example
-     * is unambiguous: 30 km/h -> 30000 = 0x7530, wire = `75 30`. The spec's
-     * type annotation says `LE` but the worked example takes precedence
-     * here. Verify against a real BLE capture if behaviour looks wrong.
+     * Set max speed (tiltback). Encoded as `(kmh * 1000)` u16 LITTLE-endian:
+     * LOW byte at slot 4, HIGH byte at slot 5. A real V8S confirms LE (matching
+     * the spec's type annotation, NOT the old "worked example" that implied
+     * HIGH-then-LOW): sending 39 km/h big-endian (`98 58`) made the wheel store
+     * 0x5898 = 22680 ~= 23 km/h. The slow-info reads the field back LE too
+     * (41 km/h = 41000 = 0xa028, on the wire as `28 a0`), so write and read now
+     * agree. This also fixes legal-mode, which compares the written value to the
+     * wheel's readback.
      */
     fun setMaxSpeed(kmh: Float): ByteArray {
         val v = (kmh * 1000f).toInt() and 0xFFFF
-        val hi = ((v ushr 8) and 0xFF).toByte()
         val lo = (v and 0xFF).toByte()
+        val hi = ((v ushr 8) and 0xFF).toByte()
         return InMotionV1Protocol.buildFrame(
             CanId.RIDE_MODE,
-            byteArrayOf(0x01, 0, 0, 0, hi, lo, 0, 0)
+            byteArrayOf(0x01, 0, 0, 0, lo, hi, 0, 0)
         )
     }
 
@@ -119,18 +121,20 @@ object InMotionV1Commands {
         )
 
     /**
-     * Pedal sensitivity 0..255. Slot 4..5 stores `((s + 28) << 5)` with the
-     * same HIGH-then-LOW byte order as [setMaxSpeed] (spec section 6.3
-     * worked example).
+     * Pedal sensitivity 0..255. Slot 4..5 stores `((s + 28) << 5)` u16
+     * LITTLE-endian (LOW byte slot 4, HIGH byte slot 5) - same fix as
+     * [setMaxSpeed]; the V8S reads this whole 0x0F550115 group little-endian
+     * (the old HIGH-then-LOW "worked example" was wrong). Now consistent with
+     * [setPedalTilt], which was already LE.
      */
     fun setPedalSensitivity(sensitivity: Int): ByteArray {
         val s = sensitivity.coerceIn(0, 255)
         val v = ((s + 28) shl 5) and 0xFFFF
-        val hi = ((v ushr 8) and 0xFF).toByte()
         val lo = (v and 0xFF).toByte()
+        val hi = ((v ushr 8) and 0xFF).toByte()
         return InMotionV1Protocol.buildFrame(
             CanId.RIDE_MODE,
-            byteArrayOf(0x06, 0, 0, 0, hi, lo, 0, 0)
+            byteArrayOf(0x06, 0, 0, 0, lo, hi, 0, 0)
         )
     }
 
@@ -171,6 +175,14 @@ object InMotionV1Commands {
 
     // --- Auth (PIN handshake) ---
 
+    /** Factory handshake password used by InMotion V1 firmware. EUC World sends
+     *  this ASCII string ("INMOTI") on CAN 0x0F550307 as the FIRST thing after
+     *  connect, before the user PIN - decoded from an EUC World BLE capture. A
+     *  locked wheel that hasn't seen it stays in its identity-only state
+     *  (broadcasting 0x0F060101) and never streams; sending it is what unlocks
+     *  the telemetry stream. */
+    const val FACTORY_PASSWORD = "INMOTI"
+
     /**
      * 6-digit PIN response per spec section 7. Wire format is the 6 ASCII
      * digits followed by two zero bytes, sent on CAN ID `0x0F550307` as a
@@ -180,8 +192,19 @@ object InMotionV1Commands {
         require(pin.length == 6 && pin.all { it.isDigit() }) {
             "InMotion V1 PIN must be exactly 6 digits"
         }
+        return passwordFrame(pin)
+    }
+
+    /** The factory handshake password frame ([FACTORY_PASSWORD]), sent before the
+     *  user PIN to unlock the telemetry stream (matches EUC World). */
+    fun sendFactoryPassword(): ByteArray = passwordFrame(FACTORY_PASSWORD)
+
+    /** Build a 0x0F550307 password frame from a 6-character ASCII password
+     *  (digits for a user PIN, or the factory string). */
+    private fun passwordFrame(password: String): ByteArray {
+        require(password.length == 6) { "InMotion V1 password must be 6 characters" }
         val data = ByteArray(8)
-        for (i in 0 until 6) data[i] = pin[i].code.toByte()
+        for (i in 0 until 6) data[i] = password[i].code.toByte()
         return InMotionV1Protocol.buildFrame(CanId.PIN, data)
     }
 }

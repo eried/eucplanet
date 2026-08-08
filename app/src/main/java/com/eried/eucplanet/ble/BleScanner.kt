@@ -36,10 +36,13 @@ private val RX_NINEBOT_ZN = Regex("^ZN\\d", RegexOption.IGNORE_CASE)
  * radio scan in [BleScanner] just forwards to it.
  */
 internal fun isLikelyWheelName(name: String): Boolean {
-    // InMotion V2 family
-    if (name.startsWith("Adventure-")) return true
-    if (name.startsWith("P6-")) return true
-    if (name.startsWith("InMotion")) return true
+    // InMotion V2 family. Match case-insensitively: InMotion brands some
+    // wheels "Inmotion-…" (lowercase m, e.g. the V10F), and a case-sensitive
+    // check silently drops those from the scan list, they never show up to
+    // connect. Every other brand check below is already ignoreCase.
+    if (name.startsWith("Adventure-", ignoreCase = true)) return true
+    if (name.startsWith("P6-", ignoreCase = true)) return true
+    if (name.startsWith("InMotion", ignoreCase = true)) return true
     // V8-…, V9-…, V10-…, V11-…, V11Y-…, V12HS-…, V13Pro-…: leading V
     // followed by at least one digit and at least one more character.
     if (name.length >= 3 && name[0] == 'V' && name[1].isDigit()) {

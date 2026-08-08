@@ -1,6 +1,7 @@
 package com.eried.eucplanet.ui.studio
 
 import com.eried.eucplanet.data.model.WheelData
+import com.eried.eucplanet.util.TripCsv
 import java.text.SimpleDateFormat
 import java.util.Locale
 
@@ -55,20 +56,20 @@ fun parseTripCsv(text: String): ReplayTrip {
     val header = lines.next().split(',').map { it.trim().lowercase(Locale.US) }
     fun idx(vararg names: String): Int =
         names.firstNotNullOfOrNull { header.indexOf(it).takeIf { i -> i >= 0 } } ?: -1
-    val iDate = idx("date")
+    val iDate = TripCsv.Columns.date(header)
     if (iDate < 0) return ReplayTrip(emptyList())
-    val iSpeed = idx("speed")
-    val iVoltage = idx("voltage")
-    val iCurrent = idx("current")
-    val iPwm = idx("pwm")
-    val iTemp = idx("temperature")
-    val iBattery = idx("battery level", "battery")
-    val iMileage = idx("total mileage", "mileage", "distance")
+    val iSpeed = TripCsv.Columns.speed(header)
+    val iVoltage = TripCsv.Columns.voltage(header)
+    val iCurrent = TripCsv.Columns.current(header)
+    val iPwm = TripCsv.Columns.pwm(header)
+    val iTemp = TripCsv.Columns.temperature(header)
+    val iBattery = TripCsv.Columns.battery(header)
+    val iMileage = TripCsv.Columns.mileage(header)
     val iGForce = idx("g-force", "gforce")
     val iAccelX = idx("g-force x")
     val iAccelY = idx("g-force y")
-    val iLat = idx("latitude")
-    val iLon = idx("longitude")
+    val iLat = TripCsv.Columns.latitude(header)
+    val iLon = TripCsv.Columns.longitude(header)
 
     val out = ArrayList<ReplaySample>()
     var firstMs = -1L

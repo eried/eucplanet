@@ -56,6 +56,10 @@ data class AdvancedSpec(
 val taperFormat: (Int) -> String = { String.format(java.util.Locale.US, "%.2f", it / 100f) }
 val taperParse: (String) -> Int? = { it.toFloatOrNull()?.let { f -> Math.round(f * 100f) } }
 
+/** 6-digit PIN display: keep leading zeros so 0 shows as "000000". */
+val pinFormat: (Int) -> String = { String.format(java.util.Locale.US, "%06d", it) }
+val pinParse: (String) -> Int? = { it.toIntOrNull() }
+
 /** Canonical defaults — one allocation, reused for resets, JSON fallback, etc. */
 val ADVANCED_DEFAULTS = AdvancedSettings()
 
@@ -80,6 +84,10 @@ val ADVANCED_SPECS: List<AdvancedSpec> = listOf(
         250..10000, 250, get = { it.phoneGpsIntervalMs }, set = { s, v -> s.copy(phoneGpsIntervalMs = v) }),
     AdvancedSpec("phoneGpsIdleIntervalMs", AdvGroup.RATES, R.string.adv_phone_gps_idle_interval, R.string.adv_phone_gps_idle_interval_desc,
         2000..120000, 1000, get = { it.phoneGpsIdleIntervalMs }, set = { s, v -> s.copy(phoneGpsIdleIntervalMs = v) }),
+    AdvancedSpec("gpsIdleOffDelaySec", AdvGroup.RATES, R.string.adv_gps_idle_off_delay, R.string.adv_gps_idle_off_delay_desc,
+        0..300, 15, unit = "s", get = { it.gpsIdleOffDelaySec }, set = { s, v -> s.copy(gpsIdleOffDelaySec = v) }),
+    AdvancedSpec("gpsFixMaxAgeSec", AdvGroup.RATES, R.string.adv_gps_fix_max_age, R.string.adv_gps_fix_max_age_desc,
+        3..30, 1, unit = "s", get = { it.gpsFixMaxAgeSec }, set = { s, v -> s.copy(gpsFixMaxAgeSec = v) }),
     AdvancedSpec("hudReportIntervalMs", AdvGroup.RATES, R.string.adv_hud_report_interval, R.string.adv_hud_report_interval_desc,
         50..2000, 25, get = { it.hudReportIntervalMs }, set = { s, v -> s.copy(hudReportIntervalMs = v) }),
     AdvancedSpec("garminReportIntervalMs", AdvGroup.RATES, R.string.adv_garmin_report_interval, R.string.adv_garmin_report_interval_desc,
@@ -144,8 +152,6 @@ val ADVANCED_SPECS: List<AdvancedSpec> = listOf(
         0..5000, 100, get = { it.hudManualHintDelayMs }, set = { s, v -> s.copy(hudManualHintDelayMs = v) }),
     AdvancedSpec("hudMdnsServiceInfoTimeoutMs", AdvGroup.HUD, R.string.adv_hud_mdns_resolve, R.string.adv_hud_mdns_resolve_desc,
         200..5000, 100, get = { it.hudMdnsServiceInfoTimeoutMs }, set = { s, v -> s.copy(hudMdnsServiceInfoTimeoutMs = v) }),
-    AdvancedSpec("hudSubnetProbeDelayMs", AdvGroup.HUD, R.string.adv_hud_subnet_delay, R.string.adv_hud_subnet_delay_desc,
-        0..30000, 250, get = { it.hudSubnetProbeDelayMs }, set = { s, v -> s.copy(hudSubnetProbeDelayMs = v) }),
 
     // --- Auto-lights ---
     AdvancedSpec("autoLightNoGpsRetryMs", AdvGroup.AUTOLIGHTS, R.string.adv_autolight_no_gps_retry, R.string.adv_autolight_no_gps_retry_desc,
@@ -220,4 +226,12 @@ val ADVANCED_SPECS: List<AdvancedSpec> = listOf(
         240..480, 10, unit = "dp", get = { it.navSidebarWidthDp }, set = { s, v -> s.copy(navSidebarWidthDp = v) }),
     AdvancedSpec("navSidebarMinScreenDp", AdvGroup.GEOMETRY, R.string.adv_nav_sidebar_min, R.string.adv_nav_sidebar_min_desc,
         400..900, 20, unit = "dp", get = { it.navSidebarMinScreenDp }, set = { s, v -> s.copy(navSidebarMinScreenDp = v) }),
+
+    // --- Wheel access ---
+    // InMotion V1 (V5/V8/V10/L6) BLE PIN. Typed 6-digit field; factory default
+    // 000000. The +/- steppers are incidental (you type the PIN); NumberUpDown
+    // already limits input to 6 digits.
+    AdvancedSpec("inmotionV1Pin", AdvGroup.CONTROLS, R.string.adv_inmotion_v1_pin, R.string.adv_inmotion_v1_pin_desc,
+        0..999999, 1, unit = "", get = { it.inmotionV1Pin }, set = { s, v -> s.copy(inmotionV1Pin = v) },
+        format = pinFormat, parse = pinParse),
 )

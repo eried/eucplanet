@@ -54,6 +54,7 @@ sealed class Screen(val route: String) {
     data object MetricDetail : Screen("metric_detail/{metric}") {
         fun createRoute(metric: String) = "metric_detail/$metric"
     }
+    data object TripMeterDetail : Screen("trip_meter_detail")
     data object ChargingMonitor : Screen("charging_monitor")
 }
 
@@ -101,6 +102,9 @@ fun NavGraph(navController: NavHostController) {
                 },
                 onNavigateToCharging = {
                     navController.navigateSingle(Screen.ChargingMonitor.route)
+                },
+                onNavigateToTripMeter = {
+                    navController.navigateSingle(Screen.TripMeterDetail.route)
                 }
             )
         }
@@ -251,6 +255,11 @@ fun NavGraph(navController: NavHostController) {
                     onBack = { navController.popSingle() }
                 )
             }
+        }
+        composable(Screen.TripMeterDetail.route) {
+            com.eried.eucplanet.ui.dashboard.TripMeterDetailScreen(
+                onBack = { navController.popSingle() }
+            )
         }
         composable(Screen.ChargingMonitor.route) {
             ChargingMonitorScreen(

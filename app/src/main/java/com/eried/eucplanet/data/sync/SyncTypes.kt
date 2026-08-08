@@ -11,4 +11,8 @@ enum class SyncConflictKind { FOLDER, DROPBOX }
 sealed interface SyncResult {
     data object NoFolder : SyncResult
     data class Finished(val count: Int) : SyncResult
+
+    /** Nothing to transfer: every trip is already backed up (a settings/themes
+     *  mirror may still have run silently). Shown instead of "0 trips". */
+    data object UpToDate : SyncResult
 }

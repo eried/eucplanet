@@ -66,6 +66,11 @@ class WheelService : LifecycleService() {
          *  the service's onDestroy so cleanup completes first, on its own
          *  schedule -- no arbitrary delay timer needed. */
         const val ACTION_STOP_ALL_AND_KILL = "com.eried.eucplanet.STOP_ALL_AND_KILL"
+        /** Gentle stand-down when the "Keep app running" toggle is turned OFF.
+         *  Unlike ACTION_STOP_ALL_AND_KILL this never kills the process and only
+         *  stops the service if nothing else still needs it (a live connection,
+         *  recording, navigation, HUD link, or always-on voice). */
+        const val ACTION_STOP_KEEPALIVE = "com.eried.eucplanet.STOP_KEEPALIVE"
         // Wheel controls fired from notification action buttons.
         const val ACTION_TOGGLE_LIGHT = "com.eried.eucplanet.TOGGLE_LIGHT"
         const val ACTION_TOGGLE_LOCK = "com.eried.eucplanet.TOGGLE_LOCK"
@@ -97,6 +102,7 @@ class WheelService : LifecycleService() {
         com.eried.eucplanet.data.model.NotificationActionType.DEFAULT_KEYS
     @Inject lateinit var voiceService: VoiceService
     @Inject lateinit var tripRepository: TripRepository
+    @Inject lateinit var tripMeterRepository: com.eried.eucplanet.data.repository.TripMeterRepository
     @Inject lateinit var automationManager: AutomationManager
     @Inject lateinit var engineSoundEngine: EngineSoundEngine
     @Inject lateinit var wearBridge: com.eried.eucplanet.wear.WearBridge
@@ -113,7 +119,6 @@ class WheelService : LifecycleService() {
     // change takes effect without a reconnect. Reset on disconnect.
     private val accelSplitTracker = AccelSplitTracker(increment = 10, minSpeed = 20)
     private var lastConnectionState: ConnectionState? = null
-    private var hadGpsFix = false
     private var lastLightOn: Boolean? = null
     // Flipped true by ACTION_STOP_ALL_AND_KILL so onDestroy knows to
     // SIGKILL the process at the end of cleanup. Set only once -- never
@@ -271,6 +276,8 @@ class WheelService : LifecycleService() {
                             // standstill; put the rider's baseline back on
                             // disconnect so it isn't left turned down.
                             automationManager.restoreBaselineVolume()
+                            automationManager.resetMediaControl()
+                            automationManager.resetProximityLock()
                             // Drop any in-flight run + session history so a fresh
                             // ride starts clean and a stale timestamp gap can't
                             // fabricate a summary on reconnect.
@@ -283,19 +290,18 @@ class WheelService : LifecycleService() {
             }
         }
 
-        // Monitor GPS signal for announcements
+        // GPS voice: speak only GENUINE satellite acquired/lost events. The
+        // TripRepository signal state machine emits these and never the app's own
+        // power management, so opening the app, connecting a wheel, and the idle
+        // power-down all stay silent.
         lifecycleScope.launch {
-            tripRepository.currentLocation.collect { location ->
-                val settings = settingsRepository.get()
-                if (settings.announceGps) {
-                    if (location != null && !hadGpsFix) {
-                        hadGpsFix = true
-                        voiceService.announceEvent(getString(R.string.voice_gps_acquired))
-                    } else if (location == null && hadGpsFix) {
-                        hadGpsFix = false
-                        voiceService.announceEvent(getString(R.string.voice_gps_lost))
-                    }
+            tripRepository.gpsSignalEvents.collect { event ->
+                if (!settingsRepository.get().announceGps) return@collect
+                val res = when (event) {
+                    com.eried.eucplanet.data.model.GpsSignalEvent.ACQUIRED -> R.string.voice_gps_acquired
+                    com.eried.eucplanet.data.model.GpsSignalEvent.LOST -> R.string.voice_gps_lost
                 }
+                voiceService.announceEvent(getString(res))
             }
         }
 
@@ -374,6 +380,24 @@ class WheelService : LifecycleService() {
             ACTION_STOP_NAVIGATION -> {
                 navigationEngine.stop()
             }
+            ACTION_STOP_KEEPALIVE -> {
+                // "Keep app running" was turned OFF. Stand the service down, but
+                // only if nothing else still depends on it. Never kill the
+                // process (that's ACTION_STOP_ALL_AND_KILL's job).
+                lifecycleScope.launch {
+                    val s = settingsRepository.get()
+                    val stillNeeded =
+                        wheelRepository.connectionState.value != ConnectionState.DISCONNECTED ||
+                        tripRepository.recording.value ||
+                        navigationEngine.navState.value.active ||
+                        s.hudServerEnabled ||
+                        (s.voiceEnabled && s.voiceAnnounceWhen == "ALWAYS")
+                    if (!s.keepAppAlive && !stillNeeded) {
+                        stopForeground(STOP_FOREGROUND_REMOVE)
+                        stopSelf()
+                    }
+                }
+            }
             ACTION_STOP_ALL_AND_KILL -> {
                 // Mark first, drop foreground status second, then stopSelf
                 // last. Order matters: stopForeground clears the FG flag
@@ -386,6 +410,13 @@ class WheelService : LifecycleService() {
                 // below seals it: even if Android wanted to redeliver,
                 // this intent's stickiness is disabled.
                 killProcessOnDestroy = true
+                // Stop All clears the running trip meter (car-odometer reset):
+                // zero the total and wipe the split log. Block on the write so the
+                // wipe is durable before the SIGKILL at the end of onDestroy - a
+                // fire-and-forget persist would race the kill and could be lost.
+                runCatching {
+                    kotlinx.coroutines.runBlocking { tripMeterRepository.resetAndPersist() }
+                }
                 // Gate notify() BEFORE removing the notification, so a telemetry /
                 // nav emission racing this teardown can't re-post it afterwards.
                 shuttingDown = true
@@ -429,6 +460,8 @@ class WheelService : LifecycleService() {
         // down. onDestroy cancels the connection-state collector above, so the
         // disconnect restore may not run on Stop All - do it explicitly here.
         automationManager.restoreBaselineVolume()
+        automationManager.resetMediaControl()
+        automationManager.resetProximityLock()
         voiceService.shutdown()
         tripRepository.stopLocationUpdates()
         lifecycleScope.launch { tripRepository.stopRecording() }
@@ -532,7 +565,14 @@ class WheelService : LifecycleService() {
                 // Only this periodic report is gated here — alarm/trigger/nav voice
                 // lives on separate paths and is unaffected.
                 val settings = settingsRepository.get()
-                if (settings.voiceEnabled && settings.voicePeriodicEnabled) {
+                // Gate on the single visible "Enable periodic reports" toggle
+                // (voiceEnabled). The old `&& voicePeriodicEnabled` required a
+                // second flag that no Settings control ever set - it defaulted
+                // false and was only reachable from the dashboard voice menu /
+                // wizard, so turning the labelled Settings toggle on produced no
+                // periodic reports at all. voicePeriodicEnabled is now retired
+                // (the dashboard quick-toggle drives voiceEnabled too).
+                if (settings.voiceEnabled) {
                     val connected = wheelRepository.connectionState.value == ConnectionState.CONNECTED
                     val data = wheelRepository.wheelData.value
                     // "RIDING" = the same "in motion" test that auto-starts a trip

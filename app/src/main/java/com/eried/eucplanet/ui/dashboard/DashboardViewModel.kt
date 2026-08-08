@@ -40,7 +40,16 @@ data class MetricHistory(
     val voltage: List<Float> = emptyList(),
     val current: List<Float> = emptyList(),
     val load: List<Float> = emptyList(),
-    val speed: List<Float> = emptyList()
+    val speed: List<Float> = emptyList(),
+    /**
+     * Sparkline / stat window for every non-legacy catalog metric, keyed by
+     * metric key (MOTOR_POWER, GPS_SPEED, MOTOR_TEMP, ...). Mirrors the six
+     * typed lists above but data-driven off [FullMetricHistory.extras], so the
+     * dashboard's corner stats and sparklines work for any supportsStats tile,
+     * not just the legacy six. Values are raw (WheelData canonical units); the
+     * tile applies the rider's unit conversion at render time.
+     */
+    val extras: Map<String, List<Float>> = emptyMap()
 )
 
 @HiltViewModel
@@ -48,6 +57,7 @@ class DashboardViewModel @Inject constructor(
     private val wheelRepository: WheelRepository,
     private val settingsRepository: SettingsRepository,
     private val tripRepository: TripRepository,
+    private val tripMeterRepository: com.eried.eucplanet.data.repository.TripMeterRepository,
     private val voiceService: VoiceService,
     private val automationManager: AutomationManager,
     private val flicManager: FlicManager,
@@ -94,6 +104,11 @@ class DashboardViewModel @Inject constructor(
 
     val locked: StateFlow<Boolean> = wheelRepository.locked
     val lockBusy: StateFlow<Boolean> = wheelRepository.lockBusy
+    // Proximity auto-lock automation on? Long-pressing the dashboard lock button
+    // toggles it - a quick shortcut without opening Settings.
+    val autoLockEnabled: StateFlow<Boolean> = settingsRepository.settings
+        .map { it.proximityLock.lockEnabled }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), initialSettings.proximityLock.lockEnabled)
     /** True when the connected wheel's adapter implements a BLE lock command.
      *  Drives the dashboard lock button to fall back to a "not supported" hint
      *  on wheels (Veteran / LeaperKim, Begode, etc.) whose firmware doesn't
@@ -116,6 +131,11 @@ class DashboardViewModel @Inject constructor(
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
 
     val currentTripId: StateFlow<Long?> = tripRepository.currentTripId
+
+    /** Live running trip-meter state (the connect-scoped car odometer). Drives the
+     *  TRIP_METER dashboard tile's value and the detail-view header. */
+    val tripMeterState: StateFlow<com.eried.eucplanet.data.model.TripMeterState> =
+        tripMeterRepository.state
 
     /** True when the rider has an external GPS paired in settings, regardless
      *  of whether it's currently connected or sending samples. Drives the
@@ -266,9 +286,12 @@ class DashboardViewModel @Inject constructor(
         .map { it.flicShowOnDashboard }
         .stateIn(viewModelScope, SharingStarted.Eagerly, initialSettings.flicShowOnDashboard)
 
+    // The dashboard voice-menu "periodic announcements" toggle and the Settings
+    // "Enable periodic reports" switch are the same on/off - both drive
+    // voiceEnabled (the single flag the periodic loop gates on).
     val voicePeriodicEnabled: StateFlow<Boolean> = settingsRepository.settings
-        .map { it.voicePeriodicEnabled }
-        .stateIn(viewModelScope, SharingStarted.Eagerly, initialSettings.voicePeriodicEnabled)
+        .map { it.voiceEnabled }
+        .stateIn(viewModelScope, SharingStarted.Eagerly, initialSettings.voiceEnabled)
 
     /** Whether the dashboard top-bar Battery-monitor (spark) icon renders at all. */
     val chargingDashboardIcon: StateFlow<Boolean> = settingsRepository.settings
@@ -314,7 +337,17 @@ class DashboardViewModel @Inject constructor(
     fun toggleVoicePeriodic() {
         viewModelScope.launch {
             val current = settingsRepository.get()
-            settingsRepository.update(current.copy(voicePeriodicEnabled = !current.voicePeriodicEnabled))
+            settingsRepository.update(current.copy(voiceEnabled = !current.voiceEnabled))
+        }
+    }
+
+    /** Toggle the proximity auto-lock automation (long-press on the lock button). */
+    fun toggleAutoLock() {
+        viewModelScope.launch {
+            val current = settingsRepository.get()
+            settingsRepository.update(current.copy(
+                proximityLock = current.proximityLock.copy(lockEnabled = !current.proximityLock.lockEnabled)
+            ))
         }
     }
 
@@ -352,7 +385,7 @@ class DashboardViewModel @Inject constructor(
             val s = settingsRepository.get()
             settingsRepository.update(
                 s.copy(
-                    voicePeriodicEnabled = enabled,
+                    voiceEnabled = enabled,
                     announceWheelLock = enabled,
                     announceLights = enabled,
                     announceRecording = enabled,
@@ -604,7 +637,12 @@ class DashboardViewModel @Inject constructor(
                 voltage = full.voltage.takeLast(SPARKLINE_SIZE).map { it.value },
                 current = full.current.takeLast(SPARKLINE_SIZE).map { it.value },
                 load = full.load.takeLast(SPARKLINE_SIZE).map { it.value },
-                speed = full.speed.takeLast(SPARKLINE_SIZE).map { it.value }
+                speed = full.speed.takeLast(SPARKLINE_SIZE).map { it.value },
+                // Same window as the legacy six, applied per extras buffer so
+                // every catalog metric's corner stats / sparkline resolve.
+                extras = full.extras.mapValues { (_, list) ->
+                    list.takeLast(SPARKLINE_SIZE).map { it.value }
+                }
             )
         }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), MetricHistory())

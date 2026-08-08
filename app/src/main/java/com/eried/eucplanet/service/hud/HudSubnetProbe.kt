@@ -34,10 +34,10 @@ import javax.inject.Singleton
  * listening on the right port; the dial loop then attempts a real handshake
  * and either succeeds or falls back to the next discovery cycle.
  *
- * The probe is gated on the rider opting into auto-discovery, and the caller
- * (HudServer.resolvePeer) staggers its start by `hudSubnetProbeDelayMs` so the
- * faster mDNS / UDP paths get an uncontended head start; the scan only runs if
- * they haven't already found the HUD.
+ * The probe is gated on the rider opting into auto-discovery and on the faster
+ * mDNS / UDP paths not having already found the HUD (a win cancels it). It
+ * starts as soon as those are launched - the [MAX_CONCURRENT] cap is what keeps
+ * it from congesting the radio, so it needs no start delay.
  */
 @Singleton
 class HudSubnetProbe @Inject constructor(

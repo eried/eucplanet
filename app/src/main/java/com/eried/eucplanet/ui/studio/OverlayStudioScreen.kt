@@ -25,6 +25,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.layout.size
@@ -75,9 +76,13 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.draw.rotate
+import androidx.compose.foundation.layout.offset
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import kotlin.math.roundToInt
@@ -107,9 +112,12 @@ import com.eried.eucplanet.ui.theme.appColors
 import com.eried.eucplanet.hud.protocol.OverlayElement
 import com.eried.eucplanet.hud.protocol.OverlayElementType
 import com.eried.eucplanet.data.model.TripRecord
+import com.eried.eucplanet.hud.protocol.ReplaySourceType
+import com.eried.eucplanet.hud.protocol.ViewportReplayFace
 import com.eried.eucplanet.hud.protocol.ViewportSourceType
 import com.eried.eucplanet.data.model.WheelData
 import com.eried.eucplanet.ui.studio.camera.rememberStudioCameraHub
+import com.eried.eucplanet.ui.studio.camera.rememberStudioVideoHub
 import com.eried.eucplanet.ui.studio.recording.StudioApngEncoder
 import com.eried.eucplanet.ui.studio.recording.StudioGifEncoder
 import com.eried.eucplanet.ui.studio.recording.StudioCapture
@@ -212,6 +220,10 @@ fun OverlayStudioScreen(
     var menuOpen by remember { mutableStateOf(false) }
     var imageTargetId by remember { mutableStateOf<String?>(null) }
     var imageTargetViewport by remember { mutableStateOf<Int?>(null) }
+    // True when the pending image pick (imageTargetViewport) targets that
+    // pane's REPLAY face instead of its live face; set from the mode active
+    // when the pick was launched, since picking is async (SAF/gallery UI).
+    var imageTargetReplay by remember { mutableStateOf(false) }
     var elapsed by remember { mutableStateOf(0) }
 
     // --- Replay mode -------------------------------------------------------
@@ -223,6 +235,11 @@ fun OverlayStudioScreen(
     var replayEndMs by remember { mutableStateOf(0L) }
     var replaySpeed by remember { mutableStateOf(1f) }
     var replayPlaying by remember { mutableStateOf(false) }
+    // The replay panel is a floating card dragged anywhere on screen. The offset
+    // is its absolute top-left; null means "use the default dock". It is always
+    // clamped fully inside the screen, through moves, resizes and rotations.
+    var replayPanelOffset by remember { mutableStateOf<Offset?>(null) }
+    var replayPanelSize by remember { mutableStateOf(IntSize.Zero) }
     var panelsDimmed by remember { mutableStateOf(false) }
     // When ON, drag / resize handlers snap to a 5 px grid (in canvas-
     // fraction units). Persists across navigation through Manage so the
@@ -374,6 +391,15 @@ fun OverlayStudioScreen(
         requestedKeys = requestedCameras,
         enabled = cameraNeeded && hasCameraPermission
     )
+
+    // --- Replay video faces --------------------------------------------------
+    val replayVideoUris = remember(preset) {
+        preset.viewports.mapNotNull { vp ->
+            vp.replay?.takeIf { it.source == ReplaySourceType.VIDEO }?.videoUri
+        }.toSet()
+    }
+    val videoHub = rememberStudioVideoHub(replayVideoUris, enabled = replayMode)
+
     // Camera conversion is never paused: a paused feed shows the rider the
     // LAST converted frame frozen behind the translucent scrim, which reads
     // as "the dialog is a screenshot, the app is broken". Recording also
@@ -418,6 +444,22 @@ fun OverlayStudioScreen(
             val vpTarget = imageTargetViewport
             val elTarget = imageTargetId
             when {
+                // A pane target picked while editing its REPLAY face writes
+                // into that face's imageData, not the live config, so the
+                // two faces never cross-contaminate.
+                vpTarget != null && imageTargetReplay ->
+                    viewModel.preset.value.viewports.getOrNull(vpTarget)?.let { vp ->
+                        val face = vp.replay ?: ViewportReplayFace()
+                        viewModel.setViewport(
+                            vpTarget,
+                            vp.copy(
+                                replay = face.copy(
+                                    source = ReplaySourceType.IMAGE,
+                                    imageData = encoded
+                                )
+                            )
+                        )
+                    }
                 vpTarget != null ->
                     viewModel.preset.value.viewports.getOrNull(vpTarget)?.let {
                         viewModel.setViewport(
@@ -441,6 +483,7 @@ fun OverlayStudioScreen(
             }
             imageTargetId = null
             imageTargetViewport = null
+            imageTargetReplay = false
         }
     }
 
@@ -712,8 +755,29 @@ fun OverlayStudioScreen(
                                 )
                             }
                         } else preset.elements
+                        // Resolve each pane's VIDEO replay face frame for THIS
+                        // export frame's cursor (`pos`) here, on the producing
+                        // side: the offscreen session's frame clock only ever
+                        // draws an already-decoded bitmap, it never calls into
+                        // the retriever itself. Missing/out-of-range/no-clip
+                        // all resolve to null, which the viewport layer draws
+                        // as nothing (transparent), same as the live preview.
+                        val videoFrames: Map<Int, ImageBitmap?> =
+                            preset.viewports.mapIndexedNotNull { idx, vp ->
+                                val face = vp.replay
+                                val uri = face?.videoUri
+                                if (face?.source != ReplaySourceType.VIDEO || uri == null) {
+                                    return@mapIndexedNotNull null
+                                }
+                                val timeUs = edgeVideoTimeUs(
+                                    pos, face.videoOffsetMs, videoHub.durationMs(uri), face.videoEdge
+                                )
+                                idx to (if (timeUs == null) null else videoHub.frameAt(uri, timeUs))
+                            }.toMap()
                         OverlayFrameSpec(
                             elements = frameElements,
+                            preset = preset,
+                            videoFrames = videoFrames,
                             data = StudioElementData(
                                 wheelData = trip.dataAt(pos),
                                 wheelName = displayWheelName,
@@ -1037,6 +1101,10 @@ fun OverlayStudioScreen(
                     hasCameraPermission = hasCameraPermission,
                     editable = editable,
                     replayMode = replayMode,
+                    videoHub = videoHub,
+                    replayCursorMs = replayPosMs,
+                    replayPlaying = replayPlaying,
+                    replaySpeed = replaySpeed,
                     onDividerChange = viewModel::setDividers,
                     onConfigViewport = { sheet = StudioSheet.ViewportConfig(it) },
                     onConfigDivider = { sheet = StudioSheet.DividerConfig },
@@ -1275,7 +1343,34 @@ fun OverlayStudioScreen(
         // Replay panel: always on while in replay mode; its X returns to live.
         if (replayMode) {
           RotatedFullScreen(deviceRotation) {
-            Box(Modifier.safeDrawingPadding().fillMaxSize()) {
+            BoxWithConstraints(Modifier.safeDrawingPadding().fillMaxSize()) {
+                val landscape = deviceRotation == 90 || deviceRotation == 270
+                val cw = constraints.maxWidth.toFloat()
+                val ch = constraints.maxHeight.toFloat()
+                val pw = replayPanelSize.width.toFloat()
+                val ph = replayPanelSize.height.toFloat()
+                val density = LocalDensity.current
+                val bottomGapPx = with(density) { 24.dp.toPx() }
+                val cardWidthDp = 360.dp
+                // Absolute top-left position, clamped so the whole card stays inside
+                // the screen: x in [0, screenW - cardW], y in [0, screenH - cardH].
+                // That is true full-screen draggability (any corner, any edge).
+                fun clampPos(o: Offset) = Offset(
+                    o.x.coerceIn(0f, (cw - pw).coerceAtLeast(0f)),
+                    o.y.coerceIn(0f, (ch - ph).coerceAtLeast(0f))
+                )
+                // Default dock: horizontally centred, near the bottom in portrait
+                // and centred in landscape. null offset means "use this default".
+                fun defaultPos() = clampPos(
+                    Offset(
+                        (cw - pw) / 2f,
+                        if (landscape) (ch - ph) / 2f else ch - ph - bottomGapPx
+                    )
+                )
+                // Keep it inside after a resize (a sub-picker opening) or rotation.
+                LaunchedEffect(replayPanelSize, cw, ch, landscape) {
+                    replayPanelOffset = replayPanelOffset?.let { clampPos(it) }
+                }
                 StudioReplayDialog(
                     trips = trips,
                     selectedTrip = replayRecord,
@@ -1316,21 +1411,25 @@ fun OverlayStudioScreen(
                     onClose = {
                         studioMode = StudioMode.LIVE
                         replayPlaying = false
+                        replayPanelOffset = null
+                    },
+                    onDrag = { delta ->
+                        // Raw delta (the studio's rotated layer already maps it to the
+                        // right axis); clamp with the CURRENT size so it stays inside.
+                        replayPanelOffset = clampPos((replayPanelOffset ?: defaultPos()) + delta)
                     },
                     modifier = Modifier
-                        // In landscape the screen is short; centre the panel
-                        // so it has the full height (no scroll) and clears the
-                        // side buttons. Portrait keeps it above the bottom bar.
-                        .then(
-                            if (deviceRotation == 90 || deviceRotation == 270)
-                                Modifier
-                                    .align(Alignment.Center)
-                                    .padding(horizontal = 12.dp, vertical = 8.dp)
-                            else
-                                Modifier
-                                    .align(Alignment.BottomCenter)
-                                    .padding(start = 12.dp, end = 12.dp, bottom = 96.dp)
+                        .width(cardWidthDp)
+                        // Positioned by a measure-time Dp offset (NOT a placement
+                        // lambda): the studio's rotate/SwapSize layout only composes
+                        // the standard layout offset correctly, so a lambda offset
+                        // silently drops one axis in landscape. This mirrors how the
+                        // draggable overlay elements position themselves.
+                        .offset(
+                            x = with(density) { clampPos(replayPanelOffset ?: defaultPos()).x.toDp() },
+                            y = with(density) { clampPos(replayPanelOffset ?: defaultPos()).y.toDp() }
                         )
+                        .onSizeChanged { replayPanelSize = it }
                         .alpha(if (panelsDimmed) 0.65f else 1f)
                 )
             }
@@ -1441,10 +1540,10 @@ fun OverlayStudioScreen(
         StudioSheet.ManageElements -> ManageElementsSheet(
             elements = preset.elements,
             canAddElement = canAddElement,
-            // Panes button mirrors the tools-flyout's "Panes" entry: layout
-            // change is hidden during a replay (the background is the trip's
-            // checkerboard, so picking camera panes there is moot).
-            canChangePanes = !replayMode,
+            // Panes button mirrors the tools-flyout's "Panes" entry: the
+            // layout is shared between live and replay, so it stays
+            // changeable in both.
+            canChangePanes = true,
             snapToGrid = snapToGrid,
             onMove = { from, to -> viewModel.moveElement(from, to) },
             onSelect = { id ->
@@ -1467,6 +1566,7 @@ fun OverlayStudioScreen(
             onPickImage = {
                 imageTargetId = null
                 imageTargetViewport = null
+                imageTargetReplay = false
                 sheet = StudioSheet.None
                 imagePicker.launch(
                     PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
@@ -1603,6 +1703,9 @@ fun OverlayStudioScreen(
                     dimmed = panelsDimmed,
                     geometryExpanded = geometrySheetExpanded,
                     cameraStyleExpanded = cameraStyleExpanded,
+                    replayMode = replayMode,
+                    replayCursorMs = replayPosMs,
+                    videoHub = videoHub,
                     onToggleDim = { panelsDimmed = !panelsDimmed },
                     onGeometryExpandedChange = { geometrySheetExpanded = it },
                     onCameraStyleExpandedChange = { cameraStyleExpanded = it },
@@ -1610,6 +1713,7 @@ fun OverlayStudioScreen(
                     onPickImage = {
                         imageTargetViewport = s.index
                         imageTargetId = null
+                        imageTargetReplay = replayMode
                         imagePicker.launch(
                             PickVisualMediaRequest(
                                 ActivityResultContracts.PickVisualMedia.ImageOnly
@@ -1638,6 +1742,7 @@ fun OverlayStudioScreen(
                     onReplaceImage = {
                         imageTargetId = element.id
                         imageTargetViewport = null
+                        imageTargetReplay = false
                         imagePicker.launch(
                             PickVisualMediaRequest(
                                 ActivityResultContracts.PickVisualMedia.ImageOnly
@@ -1912,16 +2017,28 @@ private fun RecordingPill(
  */
 @Composable
 private fun ExportThumbnail(bmp: android.graphics.Bitmap?, progress: Float) {
-    // Fixed height reserves the layout slot so nothing jumps when the thumbnail
-    // first appears. Nothing is drawn until a real frame exists (no empty box,
-    // no resize), and frames swap via crossfade so it never flashes to black.
-    Box(Modifier.height(280.dp), contentAlignment = Alignment.Center) {
+    // Landscape is short: a fixed 280dp slot overflowed the render column and
+    // pushed the "%"/status/hint off-screen. Use a shorter slot in landscape and
+    // fit the frame inside the available WIDTH too (preserving its real aspect),
+    // so a wide landscape frame never blows past the edges either.
+    val portrait = LocalStudioRotation.current.let { it == 0 || it == 180 }
+    val slotH = if (portrait) 280.dp else 150.dp
+    BoxWithConstraints(
+        Modifier.fillMaxWidth().height(slotH),
+        contentAlignment = Alignment.Center
+    ) {
+        val availW = maxWidth
         Crossfade(targetState = bmp, animationSpec = tween(180), label = "exportThumb") { frame ->
             if (frame != null) {
+                val ratio = frame.width.toFloat() / frame.height.coerceAtLeast(1)
+                // Largest size at the frame's aspect that fits (availW x slotH).
+                val fitsByHeight = slotH * ratio <= availW
+                val w = if (fitsByHeight) slotH * ratio else availW
+                val h = if (fitsByHeight) slotH else availW / ratio
                 Box(
                     Modifier
-                        .height(280.dp)
-                        .aspectRatio(frame.width.toFloat() / frame.height.coerceAtLeast(1))
+                        .width(w)
+                        .height(h)
                         .clip(RoundedCornerShape(14.dp))
                         // Photoshop-style checkerboard behind the frame so alpha
                         // exports (PNG/WEBP/GIF/APNG) show their transparency.

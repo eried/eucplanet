@@ -180,7 +180,9 @@ private fun urlEncode(s: String): String =
  * sibling (e.g. "Lynx S" doesn't match a plain "Lynx", "16X" doesn't match "KS-16").
  */
 private val VERIFIED_WHEEL_TOKENS = listOf(
-    "V14", "P6",                 // InMotion (author-verified)
+    "V14", "P6",                 // InMotion V2 (author-verified)
+    "V8S",                       // InMotion V1 (rider-tested; only the V8S, not the
+                                 // rest of the V1 family which stays preliminary)
     "Oryx", "Lynx S",            // Veteran (rider-tested)
     "Mten3", "EX30", "E20",      // Begode (rider-tested)
     "16X",                       // KingSong KS-16X (rider-tested)

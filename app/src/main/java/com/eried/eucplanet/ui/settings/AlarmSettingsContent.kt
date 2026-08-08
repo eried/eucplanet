@@ -12,6 +12,9 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.ime
+import androidx.compose.foundation.layout.imeAnimationTarget
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -1570,6 +1573,7 @@ private fun SectionTitleWithPreview(
  * the live value when unfocused and lets the user type freely while focused
  * (reconciling to the clamped value on blur).
  */
+@OptIn(androidx.compose.foundation.layout.ExperimentalLayoutApi::class)
 @Composable
 internal fun NumberUpDown(
     value: Int,
@@ -1687,17 +1691,30 @@ internal fun NumberUpDown(
             // is no room -- so it never competes for row width. Non-focusable so
             // tapping a stepper keeps the keyboard up.
             if (focused && enabled) {
-                // Hold the stepper bubble back until the keyboard's open animation has
-                // settled, then fade it in. Drawing the Popup while the window is still
-                // resizing/scrolling made it flash in and jump as a black rectangle.
+                // Hold the stepper bubble back until the keyboard has FINISHED
+                // animating in, then fade it in. Drawing the Popup while the window
+                // is still resizing/scrolling flashed it as a black rectangle -
+                // worst on a field low in a long list (like the InMotion PIN), which
+                // scrolls a lot, on a slower phone where the animation runs past the
+                // old fixed 250 ms delay. Gate on the IME inset being stable and
+                // non-zero (animation done) instead. Fallback delay so a hardware
+                // keyboard / a window without ime insets still reveals the stepper.
                 var bubbleShown by remember { mutableStateOf(false) }
                 val bubbleAlpha by animateFloatAsState(
                     targetValue = if (bubbleShown) 1f else 0f,
                     animationSpec = tween(140),
                     label = "stepperBubbleFade",
                 )
+                val imeBottom = WindowInsets.ime.getBottom(density)
+                val imeTarget = WindowInsets.imeAnimationTarget.getBottom(density)
+                LaunchedEffect(imeBottom, imeTarget) {
+                    if (imeBottom > 0 && imeBottom == imeTarget) {
+                        kotlinx.coroutines.delay(60)
+                        bubbleShown = true
+                    }
+                }
                 LaunchedEffect(Unit) {
-                    kotlinx.coroutines.delay(250)
+                    kotlinx.coroutines.delay(600)
                     bubbleShown = true
                 }
                 if (bubbleAlpha > 0.01f) {

@@ -50,17 +50,33 @@ enum class ConnectionState {
 @Singleton
 class BleConnectionManager @Inject constructor(
     @ApplicationContext private val context: Context,
-    private val wheelAdapter: WheelAdapter
+    private val wheelAdapter: WheelAdapter,
+    private val appNotifier: com.eried.eucplanet.util.AppNotifier
 ) {
     companion object {
         private const val TAG = "BleConnection"
         /** The first manual connect after a fresh install commonly returns GATT
          *  status 133; retry the rider's connect up to this many times so a
-         *  single wheel tap connects instead of appearing to do nothing. */
-        private const val MAX_MANUAL_CONNECT_RETRIES = 3
+         *  single wheel tap connects instead of appearing to do nothing.
+         *  Also covers the InMotion V8S cold-boot cycle: for ~30 s after power-on
+         *  the wheel only emits a heartbeat and resets its own BLE link every ~8 s
+         *  (status=8), so it takes several quick reconnects to land on the moment
+         *  it starts streaming. Keep the fast (0.6 s) retries going through that
+         *  window instead of dropping to the slower 2 s auto-reconnect mid-boot. */
+        private const val MAX_MANUAL_CONNECT_RETRIES = 10
         /** Delay before a status-133 manual-connect retry: long enough for the
          *  failed GATT client to close, short enough to still feel like one tap. */
         private const val MANUAL_RETRY_DELAY_MS = 600L
+
+        /** If we reach CONNECTED but no notification arrives within this window,
+         *  the link is a phantom: the wheel accepted the connection and acked our
+         *  writes but never started streaming (fast power-cycle, or a cold boot
+         *  before the wheel is ready). We inform the rider and release the link -
+         *  we do NOT churn the GATT to "repair" it (see the watchdog in
+         *  markReadyAndConnected for why). Generous so a slow-to-stream wheel
+         *  (KingSong nudge, V8S cold-boot whose heartbeat frames already count as
+         *  data) never trips it; any real frame resets the timer. */
+        private const val NO_DATA_TIMEOUT_MS = 15000L
 
         // Client Characteristic Configuration Descriptor: same for every wheel family.
         val CCCD_UUID: UUID = UUID.fromString("00002902-0000-1000-8000-00805f9b34fb")
@@ -97,7 +113,32 @@ class BleConnectionManager @Inject constructor(
     /** Stream of decoded results from the active wheel adapter. */
     val decodedResults: SharedFlow<DecodeResult> = _decodedResults.asSharedFlow()
 
+    /** Live link RSSI in dBm (negative), or null when unknown / disconnected.
+     *  The wheel telemetry doesn't carry it, so we read it off the GATT link. */
+    private val _rssiDbm = MutableStateFlow<Int?>(null)
+    val rssiDbm: StateFlow<Int?> = _rssiDbm.asStateFlow()
+
     private var gatt: BluetoothGatt? = null
+
+    // "Connected but no telemetry" watchdog state. lastDataMs is the wall-clock of
+    // the last notification received; connectedAtMs is when the current connection
+    // went CONNECTED. If lastDataMs is still older than connectedAtMs when the
+    // watchdog fires, no data ever arrived on this connection = a phantom link.
+    @Volatile private var lastDataMs = 0L
+    @Volatile private var connectedAtMs = 0L
+
+    // Poll the link RSSI once a second while connected so the BT dBm metric and
+    // the proximity-lock feature stay snappy. A no-op on virtual connections.
+    private val rssiJob = scope.launch {
+        while (true) {
+            delay(1_000)
+            if (_connectionState.value == ConnectionState.CONNECTED) {
+                runCatching { gatt?.readRemoteRssi() }
+            } else {
+                _rssiDbm.value = null
+            }
+        }
+    }
     private var rxCharacteristic: BluetoothGattCharacteristic? = null
     private var currentAddress: String? = null
     /** BLE advertised name from the most recent connect call, kept across reconnects. */
@@ -553,6 +594,15 @@ class BleConnectionManager @Inject constructor(
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                     val result = g.writeCharacteristic(characteristic, data, writeType)
                     Log.d(TAG, "writeCharacteristic result: $result (${data.size} bytes, type=$writeType)")
+                    // Diagnostic: a non-SUCCESS code means the stack REJECTED the
+                    // write - it never went over the air. If the tester's
+                    // "connected but wheel never acks" failures show these, the
+                    // writes are dying on the phone (GATT-layer), not lost to RF.
+                    if (result != android.bluetooth.BluetoothStatusCodes.SUCCESS) {
+                        com.eried.eucplanet.diagnostics.DiagnosticsLogger.note(
+                            "Write REJECTED by BLE stack: code=$result (${data.size}B) - not sent over the air"
+                        )
+                    }
                 } else {
                     @Suppress("DEPRECATION")
                     characteristic.value = data
@@ -561,6 +611,11 @@ class BleConnectionManager @Inject constructor(
                     @Suppress("DEPRECATION")
                     val result = g.writeCharacteristic(characteristic)
                     Log.d(TAG, "writeCharacteristic result: $result (${data.size} bytes, type=$writeType)")
+                    if (!result) {
+                        com.eried.eucplanet.diagnostics.DiagnosticsLogger.note(
+                            "Write REJECTED by BLE stack (${data.size}B) - not sent over the air"
+                        )
+                    }
                 }
             } catch (e: Exception) {
                 // The GATT binder can die mid-write - Bluetooth toggled off, or
@@ -599,6 +654,14 @@ class BleConnectionManager @Inject constructor(
                 BluetoothProfile.STATE_CONNECTED -> {
                     Log.i(TAG, "Connected to GATT server")
                     _connectionState.value = ConnectionState.INITIALIZING
+                    // (Removed the InMotion V1 requestConnectionPriority(HIGH)
+                    // experiment: the tester's failure logs show a RX-perfect /
+                    // TX-dead pattern - the wheel streams 0x0F060101 at 10 Hz for
+                    // ~9 s while NONE of our ~18 writes get acked - which a
+                    // connection-interval change cannot fix and may worsen by
+                    // contending with the GATT setup on budget stacks. The write
+                    // instrumentation in processWriteQueue now records whether each
+                    // write is even accepted by the stack, to tell TX-layer vs RF.)
                     // Go straight to service discovery instead of gating on an
                     // MTU exchange the wheel may never acknowledge. KingSong
                     // S18 (and other cheap HM-10 modules) silently drop the
@@ -671,6 +734,10 @@ class BleConnectionManager @Inject constructor(
             }
         }
 
+        override fun onReadRemoteRssi(gatt: BluetoothGatt, rssi: Int, status: Int) {
+            if (status == BluetoothGatt.GATT_SUCCESS) _rssiDbm.value = rssi
+        }
+
         override fun onMtuChanged(gatt: BluetoothGatt, mtu: Int, status: Int) {
             // Log only - no state transition gated on this callback. See
             // onConnectionStateChange for the reasoning behind the decoupling.
@@ -710,12 +777,19 @@ class BleConnectionManager @Inject constructor(
                 }
             }
 
-            rxCharacteristic = service.getCharacteristic(profile.writeCharacteristic)
+            // The write characteristic may live under a different service than
+            // the notify one. InMotion V1 splits them (notify 0xFFE4 under
+            // 0xFFE0, write 0xFFE9 under 0xFFE5); every other family keeps both
+            // on one service, so effectiveWriteServiceUuid == serviceUuid there.
+            val writeService = gatt.getService(profile.effectiveWriteServiceUuid)
+            rxCharacteristic = writeService?.getCharacteristic(profile.writeCharacteristic)
             val txCharacteristic = service.getCharacteristic(profile.notifyCharacteristic)
 
             if (rxCharacteristic == null || txCharacteristic == null) {
                 failConnectAndTeardown(gatt,
-                    "Adapter characteristics not found on service ${profile.serviceUuid}")
+                    "Adapter characteristics not found (write ${profile.writeCharacteristic} on " +
+                        "service ${profile.effectiveWriteServiceUuid}, notify ${profile.notifyCharacteristic} " +
+                        "on service ${profile.serviceUuid})")
                 return
             }
 
@@ -857,6 +931,8 @@ class BleConnectionManager @Inject constructor(
         com.eried.eucplanet.diagnostics.DiagnosticsLogger.note(
             "Connected: name=${currentName ?: "(unknown)"} adapter=${wheelAdapter.familyDisplayName}"
         )
+        // (InMotion V1 connection-priority request now happens at STATE_CONNECTED,
+        // before service discovery, so the whole setup runs at the fast interval.)
         // Fire-and-forget MTU bump. Has to happen AFTER the CCCD descriptor
         // write completes - Android GATT is strictly serial and overlapping
         // requestMtu with a pending descriptor write can wedge with status
@@ -865,14 +941,54 @@ class BleConnectionManager @Inject constructor(
         // not, the V2 adapter's reassembly path picks up the chunked frames
         // exactly as it has always done.
         //
-        // Skip it for KingSong: KS frames are a fixed 20 bytes (never need a
-        // larger MTU), and on the HM-10 module an MTU exchange racing the
-        // first command write can wedge the just-established notify state -
-        // contributing to the KS-16X "connects but no telemetry" stall. The
-        // gate is familyId so every other family (V14 / P6 / Veteran /
-        // Begode / Ninebot) keeps the bump byte-for-byte.
-        if (wheelAdapter.familyId != "kingsong") {
+        // Skip it for KingSong AND InMotion V1: both run HM-10 / CC254x-class
+        // modules that hang the MTU exchange - onMtuChanged never fires, so
+        // Android's GATT stays mDeviceBusy=true forever and EVERY following
+        // write is rejected with code 201 (ERROR_GATT_WRITE_REQUEST_BUSY).
+        // That was the V8S failure: the first INMOTI write went out, then the
+        // MTU request wedged the stack and the PIN / poll writes all 201'd until
+        // status=8. The V1 wheel caps MTU at 23 anyway (seen in EUC World's
+        // capture), so the bump is useless here as well as harmful. Every other
+        // family (V14 / P6 / Veteran / Begode / Ninebot) keeps the bump.
+        val skipMtu = wheelAdapter.familyId == "kingsong" ||
+            wheelAdapter.familyId == "inmotion_v1"
+        if (!skipMtu) {
             try { gatt?.requestMtu(512) } catch (_: Exception) {}
+        }
+
+        // "Connected but no telemetry" detector. A healthy wheel streams within a
+        // second or two of CONNECTED. If NOTHING arrives within NO_DATA_TIMEOUT_MS,
+        // the wheel accepted the connection and acked our writes but never started
+        // streaming (fast power-cycle, or a cold boot before the wheel is ready).
+        //
+        // We deliberately do NOT try to "repair" this by refreshing the GATT cache
+        // and reconnecting. That storm was proven not to recover the wheel (every
+        // retry came up mute too), and hammering close()/connectGatt()/refresh()
+        // corrupts Android's Bluetooth stack over time - leaked/ghost GATT client
+        // contexts that starve EVERY app of notifications until the phone reboots.
+        // It also kept us squatting on the wheel's single connection slot, which is
+        // why the official apps couldn't connect either.
+        //
+        // Instead: tell the rider once, then cleanly release the link. disconnect()
+        // tears down gracefully (status 0, so nothing auto-reconnects into another
+        // mute session) and frees the slot for a fresh connect or another app. The
+        // rider power-cycles the wheel and reconnects. Any real frame resets the
+        // timer, so a slow-streaming wheel is never dropped.
+        connectedAtMs = System.currentTimeMillis()
+        val watchdogGatt = gatt
+        scope.launch {
+            delay(NO_DATA_TIMEOUT_MS)
+            if (this@BleConnectionManager.gatt === watchdogGatt &&
+                _connectionState.value == ConnectionState.CONNECTED &&
+                lastDataMs < connectedAtMs
+            ) {
+                Log.w(TAG, "No telemetry ${NO_DATA_TIMEOUT_MS}ms after connect - releasing the phantom link")
+                com.eried.eucplanet.diagnostics.DiagnosticsLogger.note(
+                    "No telemetry after connect - releasing the link so the rider can power-cycle (no GATT churn)"
+                )
+                appNotifier.post(context.getString(com.eried.eucplanet.R.string.wheel_no_data_reset))
+                disconnect()
+            }
         }
     }
 
@@ -882,6 +998,9 @@ class BleConnectionManager @Inject constructor(
      * adapter; each protocol family has its own.
      */
     private fun processIncomingData(data: ByteArray) {
+        // Any notification means the link is live: stamp it so the no-data detector
+        // (armed in markReadyAndConnected) sees data arrived and never fires.
+        lastDataMs = System.currentTimeMillis()
         com.eried.eucplanet.diagnostics.DiagnosticsLogger.rx(data)
         for (result in wheelAdapter.onRawNotification(data)) {
             _decodedResults.tryEmit(result)

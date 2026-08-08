@@ -25,9 +25,10 @@ class GpsPowerPolicyTest {
     }
 
     @Test
-    fun screen_off_disconnected_is_low_power() {
-        // The battery-leak case: app not visible and no wheel -> cheapest keep-warm.
-        assertEquals(GpsTier.LOW, tier(appVisible = false, connected = false))
+    fun screen_off_disconnected_is_off() {
+        // Ultra battery saving: app not visible, no wheel, not recording/navigating
+        // is the pure-idle state -> GPS fully off (was LOW keep-warm before).
+        assertEquals(GpsTier.OFF, tier(appVisible = false, connected = false))
     }
 
     @Test

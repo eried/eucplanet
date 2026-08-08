@@ -190,12 +190,16 @@ class DropboxRepository @Inject constructor(
         } catch (e: Exception) { null }
     }
 
-    /** Map of file-name → server_modified epoch-seconds for the given
-     *  Dropbox folder (App-Folder relative). Empty map on "not_found"
-     *  (folder doesn't exist yet — normal on first link). Null on auth
-     *  / network failure so caller can distinguish "no files" from
-     *  "couldn't check". */
-    suspend fun listFolder(remoteFolder: String): Map<String, Long>? = withContext(Dispatchers.IO) {
+    /** Metadata for one remote file from a folder listing. [size] is the byte
+     *  count Dropbox holds, the stable signal for "already uploaded" (a trip
+     *  CSV's modified-time can be bumped locally, its content-length cannot). */
+    data class RemoteFile(val serverModified: Long, val size: Long)
+
+    /** Map of file-name → [RemoteFile] for the given Dropbox folder (App-Folder
+     *  relative). Empty map on "not_found" (folder doesn't exist yet — normal on
+     *  first link). Null on auth / network failure so caller can distinguish
+     *  "no files" from "couldn't check". */
+    suspend fun listFolder(remoteFolder: String): Map<String, RemoteFile>? = withContext(Dispatchers.IO) {
         val token = activeAccessToken() ?: return@withContext null
         val body = JSONObject().apply {
             put("path", remoteFolder)
@@ -213,7 +217,7 @@ class DropboxRepository @Inject constructor(
                 if (!resp.isSuccessful) return@withContext null
                 val json = JSONObject(resp.body?.string().orEmpty())
                 val entries = json.optJSONArray("entries") ?: return@withContext emptyMap()
-                val out = mutableMapOf<String, Long>()
+                val out = mutableMapOf<String, RemoteFile>()
                 for (i in 0 until entries.length()) {
                     val e = entries.getJSONObject(i)
                     if (e.optString(".tag") != "file") continue
@@ -222,7 +226,7 @@ class DropboxRepository @Inject constructor(
                     val epoch = try {
                         java.time.OffsetDateTime.parse(mod).toEpochSecond()
                     } catch (_: Exception) { 0L }
-                    if (name.isNotBlank()) out[name] = epoch
+                    if (name.isNotBlank()) out[name] = RemoteFile(epoch, e.optLong("size", -1L))
                 }
                 out
             }
@@ -395,6 +399,11 @@ class DropboxRepository @Inject constructor(
                 dropboxRefreshToken = "",
                 dropboxAccessTokenExpiresAt = 0L,
                 dropboxAccountLabel = "",
+                // No link means nothing can sync, so clear the pending flag + count
+                // too (and with them the persistent "Syncing trips…" indicator).
+                dropboxSyncPending = false,
+                dropboxPendingCount = 0,
+                dropboxSyncTotal = 0,
             )
         }
     }
