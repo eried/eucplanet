@@ -125,6 +125,7 @@ object SettingsJson {
             put("pauseBelowKmh", s.mediaControl.pauseBelowKmh)
             put("resumeEnabled", s.mediaControl.resumeEnabled)
             put("resumeAboveKmh", s.mediaControl.resumeAboveKmh)
+            put("requireExternalOutput", s.mediaControl.requireExternalOutput)
         })
         put("proximityLock", JSONObject().apply {
             put("lockEnabled", s.proximityLock.lockEnabled)
@@ -403,6 +404,9 @@ object SettingsJson {
                 pauseBelowKmh = m.optInt("pauseBelowKmh", base.mediaControl.pauseBelowKmh),
                 resumeEnabled = m.optBoolean("resumeEnabled", base.mediaControl.resumeEnabled),
                 resumeAboveKmh = m.optInt("resumeAboveKmh", base.mediaControl.resumeAboveKmh),
+                requireExternalOutput = m.optBoolean(
+                    "requireExternalOutput", base.mediaControl.requireExternalOutput
+                ),
             )
         } ?: base.mediaControl,
         proximityLock = j.optJSONObject("proximityLock")?.let { p ->

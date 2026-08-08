@@ -4,6 +4,7 @@ import android.content.Context
 import android.media.AudioManager
 import android.util.Log
 import android.view.KeyEvent
+import com.eried.eucplanet.audio.AudioOutput
 import com.eried.eucplanet.ble.ConnectionState
 import com.eried.eucplanet.data.model.AppSettings
 import com.eried.eucplanet.data.repository.SettingsRepository
@@ -255,6 +256,17 @@ class AutomationManager @Inject constructor(
         // Only act on a live wheel connection. A disconnected wheel reports 0 speed,
         // which would otherwise pause your music the moment you walk off with the phone.
         if (wheelRepository.connectionState.value != ConnectionState.CONNECTED) {
+            mediaPauseCandidateSinceMs = 0L
+            mediaResumeCandidateSinceMs = 0L
+            return
+        }
+        // Only act while audio is on an external output, if the rider asked for
+        // that. On the phone speaker the feature is fully inert (like a
+        // disconnected wheel): reset the hold timers and do nothing. mediaAutoPaused
+        // is left as-is, so reconnecting the route and speeding up still resumes
+        // whatever this feature paused.
+        if (settings.mediaControl.requireExternalOutput &&
+            !AudioOutput.isExternalActive(audioManager)) {
             mediaPauseCandidateSinceMs = 0L
             mediaResumeCandidateSinceMs = 0L
             return
