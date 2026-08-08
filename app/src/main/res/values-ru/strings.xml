@@ -938,7 +938,6 @@
     <string name="media_control_resume">Возобновлять при разгоне</string>
     <string name="media_control_resume_above">Возобновлять на этой скорости или выше</string>
     <string name="automation_require_external">Только через наушники или Bluetooth</string>
-    <string name="automation_require_external_caption">Пропускает динамик телефона. Проводные и USB тоже подходят.</string>
     <string name="proximity_lock_title">Блокировка колеса</string>
     <string name="proximity_lock_desc">Блокирует колесо, когда вы отходите, и разблокирует, когда возвращаетесь, по силе сигнала Bluetooth.</string>
     <string name="proximity_lock_enable">Блокировать при отходе</string>

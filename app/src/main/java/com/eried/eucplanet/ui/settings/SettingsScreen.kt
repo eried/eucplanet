@@ -6359,12 +6359,10 @@ private fun VoiceTab(
                 current = settings.voiceAnnounceWhen,
                 onChange = { viewModel.updateVoiceAnnounceWhen(it) }
             )
-            SwitchSettingWithDesc(
-                label = stringResource(R.string.automation_require_external),
-                description = stringResource(R.string.automation_require_external_caption),
-                checked = settings.voiceAnnounceRequireExternal,
-                onCheckedChange = { viewModel.updateVoiceAnnounceRequireExternal(it) },
-            )
+            SwitchSetting(
+                stringResource(R.string.automation_require_external),
+                settings.voiceAnnounceRequireExternal,
+            ) { viewModel.updateVoiceAnnounceRequireExternal(it) }
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(12.dp)

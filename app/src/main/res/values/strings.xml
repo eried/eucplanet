@@ -1231,7 +1231,6 @@
     <string name="media_control_resume">Resume when I speed up</string>
     <string name="media_control_resume_above">Resume at or above</string>
     <string name="automation_require_external">Only on headphones or Bluetooth</string>
-    <string name="automation_require_external_caption">Skips the phone speaker. Wired and USB also count.</string>
     <string name="proximity_lock_title">Wheel lock</string>
     <string name="proximity_lock_desc">Lock the wheel when you walk away and unlock it when you return, using the Bluetooth signal strength.</string>
     <string name="proximity_lock_enable">Lock when I walk away</string>

@@ -935,7 +935,6 @@
     <string name="media_control_resume">Hızlanınca devam et</string>
     <string name="media_control_resume_above">Bu hızda veya üstünde devam et</string>
     <string name="automation_require_external">Yalnızca kulaklık veya Bluetooth\'ta</string>
-    <string name="automation_require_external_caption">Telefon hoparlörünü atlar. Kablolu ve USB de sayılır.</string>
     <string name="proximity_lock_title">Teker kilidi</string>
     <string name="proximity_lock_desc">Bluetooth sinyal gücünü kullanarak, uzaklaştığınızda tekeri kilitler, döndüğünüzde kilidini açar.</string>
     <string name="proximity_lock_enable">Uzaklaşınca kilitle</string>

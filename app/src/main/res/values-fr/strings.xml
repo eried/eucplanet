@@ -938,7 +938,6 @@
     <string name="media_control_resume">Reprise quand j\'accélère</string>
     <string name="media_control_resume_above">Reprise à cette vitesse ou au-dessus</string>
     <string name="automation_require_external">Seulement sur casque ou Bluetooth</string>
-    <string name="automation_require_external_caption">Ignore le haut-parleur du téléphone. Filaire et USB comptent aussi.</string>
     <string name="proximity_lock_title">Verrouillage de la roue</string>
     <string name="proximity_lock_desc">Verrouille la roue quand tu t\'éloignes et la déverrouille à ton retour, selon la puissance du signal Bluetooth.</string>
     <string name="proximity_lock_enable">Verrouiller si je m\'éloigne</string>

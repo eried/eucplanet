@@ -420,7 +420,6 @@
     <string name="media_control_resume">加速时恢复</string>
     <string name="media_control_resume_above">在此速度或以上恢复</string>
     <string name="automation_require_external">仅限耳机或蓝牙</string>
-    <string name="automation_require_external_caption">跳过手机扬声器。有线和USB也算。</string>
     <string name="proximity_lock_title">独轮车锁定</string>
     <string name="proximity_lock_desc">当你走远时锁定独轮车，回来时解锁，依据蓝牙信号强度。</string>
     <string name="proximity_lock_enable">走远时锁定</string>

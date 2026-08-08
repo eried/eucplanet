@@ -938,7 +938,6 @@
     <string name="media_control_resume">Genoptag når jeg sætter farten op</string>
     <string name="media_control_resume_above">Genoptag ved eller over</string>
     <string name="automation_require_external">Kun med hovedtelefoner eller Bluetooth</string>
-    <string name="automation_require_external_caption">Springer telefonens højtaler over. Kablet og USB tæller også.</string>
     <string name="proximity_lock_title">Hjullås</string>
     <string name="proximity_lock_desc">Lås hjulet, når du går væk, og lås det op, når du kommer tilbage, ved hjælp af Bluetooth-signalstyrken.</string>
     <string name="proximity_lock_enable">Lås, når jeg går væk</string>

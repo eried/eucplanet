@@ -306,9 +306,6 @@ fun AutomationsContent(
                     onCheckedChange = { viewModel.updateMediaRequireExternalOutput(it) },
                     colors = themedSwitchColors(),)
             }
-            Text(stringResource(R.string.automation_require_external_caption),
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f))
         }
         }   // end Media control BringIntoViewSection
 
