@@ -21,7 +21,8 @@ module SpeedGauge {
     //! individual params. Reads every field it needs from `s` directly.
     function draw(
         dc as Graphics.Dc,
-        s as WatchSnapshot
+        s as WatchSnapshot,
+        isSemiOctagon as Lang.Boolean
     ) as Void {
         var speedKmh = s.speedKmh;
         var maxSpeedKmh = s.maxSpeedKmh;
@@ -141,6 +142,12 @@ module SpeedGauge {
         var speedFont = prioritizePwm
             ? Graphics.FONT_NUMBER_MILD
             : Graphics.FONT_NUMBER_HOT;
+        // Instinct sub-screen layout: PWM lives in the top-right window, so
+        // keep the speed numeral compact (MEDIUM) and centered so it stays
+        // left of that window instead of clipping into it.
+        if (isSemiOctagon) {
+            speedFont = Graphics.FONT_NUMBER_MEDIUM;
+        }
         var innerW = (arcRadius * 2) - arcThickness * 2;
         var textW = dc.getTextWidthInPixels(speedText, speedFont);
         if (!prioritizePwm && textW > (innerW * 70) / 100) {
@@ -155,7 +162,11 @@ module SpeedGauge {
         // center instead so the speed tracks the smaller arc rather than
         // floating near the top of the screen.
         var speedY;
-        if (w == h) {
+        if (isSemiOctagon) {
+            // Nudged down from the round 33% so the compact numeral and its
+            // unit label sit clear of the top-right sub-circle window.
+            speedY = (h * 37) / 100;
+        } else if (w == h) {
             speedY = (h * 33) / 100;
         } else {
             speedY = cy - (arcRadius * 45) / 100;

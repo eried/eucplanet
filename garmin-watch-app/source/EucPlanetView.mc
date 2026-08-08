@@ -33,11 +33,20 @@ class EucPlanetView extends WatchUi.View {
     private var _iconPhone as WatchUi.BitmapResource? = null;
     private var _iconWatch as WatchUi.BitmapResource? = null;
 
+    //! True on Instinct-family displays (semi-octagon), which carry a small
+    //! round sub-screen in the top-right. Detected once in onLayout; drives the
+    //! Instinct dial path (PWM in the sub-circle, compact speed clear of it).
+    private var _semiOctagon as Lang.Boolean = false;
+
     function initialize() {
         View.initialize();
     }
 
     function onLayout(dc as Graphics.Dc) as Void {
+        // Instinct family reports a semi-octagon screen and carries the
+        // top-right sub-circle. Detect once so the per-frame draw can branch.
+        _semiOctagon =
+            (System.getDeviceSettings().screenShape == System.SCREEN_SHAPE_SEMI_OCTAGON);
         // Cache bitmap resources so the per-frame redraw doesn't keep
         // re-resolving the resource handle.
         _iconHorn = WatchUi.loadResource(Rez.Drawables.IconHorn);
@@ -180,12 +189,18 @@ class EucPlanetView extends WatchUi.View {
 
         // Main dial. Drawn regardless of wheel-connection state; the
         // wheel telemetry naturally zeros out when disconnected.
-        SpeedGauge.draw(dc, s);
+        SpeedGauge.draw(dc, s, _semiOctagon);
 
         // Order matters: PWM under speed, battery row under PWM, horn/light
         // at the bottom. All in the inner safe area so they don't clip the
         // surrounding arc. Mirrors wear/.../WatchApp.kt layout 1:1.
-        drawPwmBadge(dc, s);
+        // On Instinct (semi-octagon) PWM moves into the top-right sub-circle
+        // window instead of a centre badge.
+        if (_semiOctagon) {
+            drawPwmSubcircle(dc, s);
+        } else {
+            drawPwmBadge(dc, s);
+        }
         drawBatteryRow(dc, s);
         // Buttons greyed when no wheel is connected — same UX as the Wear OS
         // dial: dial stays visible, controls show but read as inactive.
@@ -319,6 +334,56 @@ class EucPlanetView extends WatchUi.View {
             dc.drawText(textX, y + (barH / 2) - (pctH / 2),
                         pctFont, pct.format("%d") + "%", justify);
         }
+    }
+
+    //! PWM % + coloured ring drawn inside the Instinct top-right sub-circle
+    //! window. An opaque backing covers the gauge arc that passes behind the
+    //! window; colour follows the same thresholds as the centre badge.
+    private function drawPwmSubcircle(dc as Graphics.Dc, s as WatchSnapshot) as Void {
+        var w = dc.getWidth();
+        var h = dc.getHeight();
+        var dim = w < h ? w : h;
+        // instinct2 profile: 62x62 window at display x113,y0 on 176 px ->
+        // centre ~82% w, ~18% h, radius ~16% of the shorter side. Fractions
+        // hold across the Instinct family (all have a top-right sub-circle).
+        var cx = (w * 82) / 100;
+        var cy = (h * 18) / 100;
+        var r  = (dim * 16) / 100;
+
+        var pct = s.pwmPercent;
+        var connected = s.connected;
+        var color = pct >= 90 ? SpeedGauge.COLOR_DANGER
+                  : pct >= 70 ? SpeedGauge.COLOR_WARN
+                  : SpeedGauge.COLOR_SAFE;
+
+        var ringW = (dim * 5) / 100;
+        if (ringW < 4) { ringW = 4; }
+        var outerR = r;
+        var innerR = r - ringW;
+
+        // Opaque backing, then the track ring (outer disc minus inner disc).
+        dc.setColor(Graphics.COLOR_BLACK, Graphics.COLOR_TRANSPARENT);
+        dc.fillCircle(cx, cy, outerR + (dim * 2) / 100);
+        dc.setColor(SpeedGauge.COLOR_TRACK, Graphics.COLOR_TRANSPARENT);
+        dc.fillCircle(cx, cy, outerR);
+        dc.setColor(Graphics.COLOR_BLACK, Graphics.COLOR_TRANSPARENT);
+        dc.fillCircle(cx, cy, innerR);
+
+        // Coloured fill arc from the top, clockwise, proportional to PWM.
+        if (connected && pct > 0) {
+            var frac = pct / 100.0;
+            if (frac > 0.999) { frac = 0.999; }
+            var endA = SpeedGauge.wrapDeg(90 - (360 * frac).toNumber());
+            dc.setPenWidth(ringW);
+            dc.setColor(color, Graphics.COLOR_TRANSPARENT);
+            dc.drawArc(cx, cy, (outerR + innerR) / 2, Graphics.ARC_CLOCKWISE, 90, endA);
+        }
+
+        // PWM number, or dim dashes when there's no wheel.
+        dc.setColor(connected ? color : SpeedGauge.COLOR_DIM, Graphics.COLOR_TRANSPARENT);
+        var label = connected ? (pct.format("%d") + "%") : "--";
+        dc.drawText(cx, cy, Graphics.FONT_XTINY, label,
+                    Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
     }
 
     //! Three battery readouts in a row, stacked vertically per cell:
