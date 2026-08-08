@@ -1,8 +1,8 @@
-Big update since the last release!
+✨ New this release:
 
-🗺️ NEW Navigation & charging map: plan routes (avoid highways/tolls/unpaved), find charging stations with full details, connectors & reviews, plus places (food/shops/rest) — following the map as you zoom.
-☁️ NEW Dropbox backup: trips, settings, themes & overlays to the cloud; share rides online.
-🔋 Battery Cells tab for Veteran smart-BMS.
-📡 Garmin Varia radar overlay.
-📈 Per-metric history.
-➕ Many wheel/BMS fixes + more languages.
+🔒 Wheel lock by proximity: locks as you walk away and unlocks as you return, using the Bluetooth signal.
+🎵 Media control: pause music when you slow down, resume it when you speed up.
+🔊 Auto-volume boost now goes up to 3x with speed.
+📡 More reliable Bluetooth, with a fix for the "connected but no data" drop.
+🗺️ Trip viewer keeps one colour per wheel across reconnects.
+🛞 InMotion V1 / V8S support and many wheel fixes.
