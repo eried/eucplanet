@@ -933,6 +933,8 @@
     <string name="media_control_pause_below">Pausieren bei oder unter</string>
     <string name="media_control_resume">Fortsetzen beim Schnellerwerden</string>
     <string name="media_control_resume_above">Fortsetzen bei oder über</string>
+    <string name="automation_require_external">Nur über Kopfhörer oder Bluetooth</string>
+    <string name="automation_require_external_caption">Überspringt den Telefonlautsprecher. Kabel und USB zählen auch.</string>
     <string name="proximity_lock_title">Wheel-Sperre</string>
     <string name="proximity_lock_desc">Sperrt das Wheel, wenn du dich entfernst, und entsperrt es bei deiner Rückkehr, anhand der Bluetooth-Signalstärke.</string>
     <string name="proximity_lock_enable">Sperren, wenn ich weggehe</string>

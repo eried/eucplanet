@@ -937,6 +937,8 @@
     <string name="media_control_pause_below">Wstrzymaj przy tej prędkości lub niższej</string>
     <string name="media_control_resume">Wznów, gdy przyspieszam</string>
     <string name="media_control_resume_above">Wznów przy tej prędkości lub wyższej</string>
+    <string name="automation_require_external">Tylko przez słuchawki lub Bluetooth</string>
+    <string name="automation_require_external_caption">Pomija głośnik telefonu. Przewodowe i USB też się liczą.</string>
     <string name="proximity_lock_title">Blokada koła</string>
     <string name="proximity_lock_desc">Blokuje koło, gdy się oddalasz, i odblokowuje je, gdy wracasz, na podstawie siły sygnału Bluetooth.</string>
     <string name="proximity_lock_enable">Zablokuj, gdy się oddalę</string>

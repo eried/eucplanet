@@ -387,6 +387,8 @@
     <string name="media_control_pause_below">Pause ved eller under</string>
     <string name="media_control_resume">Fortsett når jeg øker farten</string>
     <string name="media_control_resume_above">Fortsett ved eller over</string>
+    <string name="automation_require_external">Bare med hodetelefoner eller Bluetooth</string>
+    <string name="automation_require_external_caption">Hopper over telefonhøyttaleren. Kablet og USB teller også.</string>
     <string name="proximity_lock_title">Hjullås</string>
     <string name="proximity_lock_desc">Lås hjulet når du går vekk, og lås det opp når du kommer tilbake, ved hjelp av Bluetooth-signalstyrken.</string>
     <string name="proximity_lock_enable">Lås når jeg går vekk</string>

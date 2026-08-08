@@ -395,6 +395,8 @@ class SettingsViewModel @Inject constructor(
     }
     fun updateVoiceEnabled(enabled: Boolean) = update { copy(voiceEnabled = enabled) }
     fun updateVoiceAnnounceWhen(value: String) = update { copy(voiceAnnounceWhen = value) }
+    fun updateVoiceAnnounceRequireExternal(v: Boolean) =
+        update { copy(voiceAnnounceRequireExternal = v) }
     fun updateVoiceInterval(seconds: Int) = update { copy(voiceIntervalSeconds = seconds) }
     fun updateVoiceSpeechRate(v: Float, previewText: String? = null) {
         update { copy(voiceSpeechRate = v) }
@@ -587,6 +589,8 @@ class SettingsViewModel @Inject constructor(
         .also { if (!v) automationManager.resetMediaControl() }
     fun updateMediaResumeAbove(v: Int) =
         update { copy(mediaControl = mediaControl.copy(resumeAboveKmh = v.coerceIn(2, 80))) }
+    fun updateMediaRequireExternalOutput(v: Boolean) =
+        update { copy(mediaControl = mediaControl.copy(requireExternalOutput = v)) }
 
     // Proximity lock (Bluetooth-signal auto lock / unlock)
     fun updateProxLockEnabled(v: Boolean) = update { copy(proximityLock = proximityLock.copy(lockEnabled = v)) }

@@ -512,6 +512,8 @@
     <string name="media_control_pause_below">Pausa a questa velocità o sotto</string>
     <string name="media_control_resume">Riprendi quando accelero</string>
     <string name="media_control_resume_above">Riprendi a questa velocità o sopra</string>
+    <string name="automation_require_external">Solo con cuffie o Bluetooth</string>
+    <string name="automation_require_external_caption">Salta l\'altoparlante del telefono. Anche cavo e USB contano.</string>
     <string name="proximity_lock_title">Blocco della ruota</string>
     <string name="proximity_lock_desc">Blocca la ruota quando ti allontani e la sblocca al tuo ritorno, in base alla potenza del segnale Bluetooth.</string>
     <string name="proximity_lock_enable">Blocca se mi allontano</string>

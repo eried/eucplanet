@@ -290,6 +290,26 @@ fun AutomationsContent(
                 )
             }
         }
+
+        // External-output gate: only pause/resume when on headphones / Bluetooth.
+        // Shown only once the feature is enabled (pause on), like the other sub-rows.
+        if (settings.mediaControl.pauseEnabled) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(stringResource(R.string.automation_require_external),
+                    style = MaterialTheme.typography.bodyLarge,
+                    modifier = Modifier.weight(1f))
+                Switch(checked = settings.mediaControl.requireExternalOutput,
+                    onCheckedChange = { viewModel.updateMediaRequireExternalOutput(it) },
+                    colors = themedSwitchColors(),)
+            }
+            Text(stringResource(R.string.automation_require_external_caption),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f))
+        }
         }   // end Media control BringIntoViewSection
 
         Spacer(Modifier.height(8.dp))

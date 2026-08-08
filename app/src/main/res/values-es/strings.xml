@@ -937,6 +937,8 @@
     <string name="media_control_pause_below">Pausar en o por debajo de</string>
     <string name="media_control_resume">Reanudar al acelerar</string>
     <string name="media_control_resume_above">Reanudar en o por encima de</string>
+    <string name="automation_require_external">Solo con auriculares o Bluetooth</string>
+    <string name="automation_require_external_caption">Omite el altavoz del teléfono. Con cable y USB también cuentan.</string>
     <string name="proximity_lock_title">Bloqueo de rueda</string>
     <string name="proximity_lock_desc">Bloquea la rueda cuando te alejas y la desbloquea al volver, usando la intensidad de la señal Bluetooth.</string>
     <string name="proximity_lock_enable">Bloquear al alejarme</string>

@@ -937,6 +937,8 @@
     <string name="media_control_pause_below">Pausar nesta velocidade ou abaixo</string>
     <string name="media_control_resume">Retomar ao acelerar</string>
     <string name="media_control_resume_above">Retomar nesta velocidade ou acima</string>
+    <string name="automation_require_external">Apenas em fones ou Bluetooth</string>
+    <string name="automation_require_external_caption">Ignora o alto-falante do telefone. Com fio e USB também valem.</string>
     <string name="proximity_lock_title">Travamento da roda</string>
     <string name="proximity_lock_desc">Trava a roda quando você se afasta e destrava quando você volta, usando a força do sinal Bluetooth.</string>
     <string name="proximity_lock_enable">Travar ao me afastar</string>

@@ -933,6 +933,8 @@
     <string name="media_control_pause_below">Pausa vid eller under</string>
     <string name="media_control_resume">Återuppta när jag ökar farten</string>
     <string name="media_control_resume_above">Återuppta vid eller över</string>
+    <string name="automation_require_external">Endast med hörlurar eller Bluetooth</string>
+    <string name="automation_require_external_caption">Hoppar över telefonens högtalare. Kabel och USB räknas också.</string>
     <string name="proximity_lock_title">Hjullås</string>
     <string name="proximity_lock_desc">Lås hjulet när du går iväg och lås upp det när du kommer tillbaka, med hjälp av Bluetooth-signalstyrkan.</string>
     <string name="proximity_lock_enable">Lås när jag går iväg</string>

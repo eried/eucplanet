@@ -937,6 +937,8 @@
     <string name="media_control_pause_below">Пауза на цій швидкості або нижче</string>
     <string name="media_control_resume">Відновлювати під час пришвидшення</string>
     <string name="media_control_resume_above">Відновлювати на цій швидкості або вище</string>
+    <string name="automation_require_external">Лише через навушники або Bluetooth</string>
+    <string name="automation_require_external_caption">Пропускає динамік телефона. Дротові та USB теж рахуються.</string>
     <string name="proximity_lock_title">Блокування колеса</string>
     <string name="proximity_lock_desc">Блокує колесо, коли ви відходите, і розблоковує, коли повертаєтесь, за силою сигналу Bluetooth.</string>
     <string name="proximity_lock_enable">Блокувати при відході</string>

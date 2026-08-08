@@ -937,6 +937,8 @@
     <string name="media_control_pause_below">Pauzeren op of onder</string>
     <string name="media_control_resume">Hervatten als ik sneller ga</string>
     <string name="media_control_resume_above">Hervatten op of boven</string>
+    <string name="automation_require_external">Alleen bij koptelefoon of Bluetooth</string>
+    <string name="automation_require_external_caption">Slaat de telefoonspeaker over. Bedraad en USB tellen ook.</string>
     <string name="proximity_lock_title">Wiel vergrendelen</string>
     <string name="proximity_lock_desc">Vergrendelt het wiel als je wegloopt en ontgrendelt het als je terugkomt, op basis van de Bluetooth-signaalsterkte.</string>
     <string name="proximity_lock_enable">Vergrendelen als ik wegloop</string>
