@@ -5,9 +5,11 @@ import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.pm.ServiceInfo
+import android.media.AudioManager
 import android.os.Build
 import android.util.Log
 import androidx.core.app.NotificationCompat
@@ -16,6 +18,7 @@ import androidx.lifecycle.LifecycleService
 import androidx.lifecycle.lifecycleScope
 import com.eried.eucplanet.MainActivity
 import com.eried.eucplanet.R
+import com.eried.eucplanet.audio.AudioOutput
 import com.eried.eucplanet.audio.EngineSoundEngine
 import com.eried.eucplanet.ble.ConnectionState
 import com.eried.eucplanet.data.model.AppSettings
@@ -554,6 +557,10 @@ class WheelService : LifecycleService() {
 
     // --- Periodic voice announcements ---
 
+    private val audioManager by lazy {
+        getSystemService(Context.AUDIO_SERVICE) as AudioManager
+    }
+
     private fun startVoiceLoop() {
         voiceJob?.cancel()
         voiceJob = lifecycleScope.launch {
@@ -584,6 +591,10 @@ class WheelService : LifecycleService() {
                         else -> connected   // "CONNECTED" + any legacy/unknown value
                     }
                     if (!allowed) continue
+                    // Extra opt-in condition: only speak while audio is on an
+                    // external output (headphones / Bluetooth / wired / USB).
+                    if (settings.voiceAnnounceRequireExternal &&
+                        !AudioOutput.isExternalActive(audioManager)) continue
                     voiceService.announceStatus(data, settings, isRecording = tripRepository.recording.value)
                 }
             }

@@ -61,6 +61,10 @@ data class AppSettings(
     // New installs default to RIDING; existing installs migrate from the old
     // voiceOnlyWhenConnected boolean (see SettingsJson).
     val voiceAnnounceWhen: String = "RIDING",
+    // Extra AND condition on the periodic report: when true, only speak while
+    // audio is on an external output (headphones / Bluetooth / wired / USB), not
+    // the phone speaker. Independent of voiceAnnounceWhen. Off by default.
+    val voiceAnnounceRequireExternal: Boolean = false,
     val voiceIntervalSeconds: Int = 60,
     val voiceSpeechRate: Float = 1.2f,
     val voiceLocale: String = "en_US",  // locale tag for TTS voice

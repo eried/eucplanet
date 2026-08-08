@@ -86,6 +86,7 @@ object SettingsJson {
         put("voiceEnabled", s.voiceEnabled)
         put("voicePeriodicEnabled", s.voicePeriodicEnabled)
         put("voiceAnnounceWhen", s.voiceAnnounceWhen)
+        put("voiceAnnounceRequireExternal", s.voiceAnnounceRequireExternal)
         put("voiceIntervalSeconds", s.voiceIntervalSeconds)
         put("voiceSpeechRate", s.voiceSpeechRate)
         put("voiceLocale", s.voiceLocale)
@@ -356,6 +357,9 @@ object SettingsJson {
             if (j.has("voiceOnlyWhenConnected"))
                 (if (j.optBoolean("voiceOnlyWhenConnected", true)) "CONNECTED" else "ALWAYS")
             else base.voiceAnnounceWhen
+        ),
+        voiceAnnounceRequireExternal = j.optBoolean(
+            "voiceAnnounceRequireExternal", base.voiceAnnounceRequireExternal
         ),
         voiceIntervalSeconds = j.optInt("voiceIntervalSeconds", base.voiceIntervalSeconds),
         voiceSpeechRate = j.optDouble("voiceSpeechRate", base.voiceSpeechRate.toDouble()).toFloat(),
