@@ -1213,6 +1213,7 @@
     <string name="recording_chart_current">Current (A)</string>
     <string name="recording_chart_pwm">PWM (%)</string>
     <string name="trip_customize">Customize</string>
+    <string name="trip_trim">Trim to a section</string>
     <string name="trip_customize_tiles">Tiles</string>
     <string name="trip_customize_graphs">Graphs</string>
 

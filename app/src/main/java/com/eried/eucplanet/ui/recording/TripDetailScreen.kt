@@ -37,6 +37,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.DragHandle
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.FilterAlt
+import androidx.compose.material.icons.outlined.FilterAlt
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.Layers
@@ -58,6 +60,7 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.ui.graphics.luminance
 import androidx.compose.material3.ModalBottomSheet
@@ -104,6 +107,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.eried.eucplanet.R
 import com.eried.eucplanet.data.model.TripRecord
 import com.eried.eucplanet.ui.common.HintText
+import com.eried.eucplanet.ui.common.TrimTimeDialog
 import com.eried.eucplanet.ui.theme.appColors
 import com.eried.eucplanet.ui.theme.themedSwitchColors
 import sh.calvin.reorderable.ReorderableColumn
@@ -120,7 +124,19 @@ fun TripDetailScreen(
     onReplayTrip: ((Long) -> Unit)? = null,
     viewModel: RecordingViewModel = hiltViewModel()
 ) {
-    var dataPoints by remember { mutableStateOf<List<TripDataPoint>>(emptyList()) }
+    // The ride as recorded. Never filtered, so the heal path and the map's
+    // faded context track always see the real trip.
+    var allPoints by remember { mutableStateOf<List<TripDataPoint>>(emptyList()) }
+    // Elapsed-ms window into the ride, null when the full trip is shown.
+    var trimRange by remember { mutableStateOf<LongRange?>(null) }
+    var showTrim by remember { mutableStateOf(false) }
+    val elapsedMs = remember(allPoints) { TripTrim.elapsedOffsets(allPoints) }
+    // Everything else on this screen reads dataPoints, so filtering here trims
+    // the tiles, the charts, the header and the map in one move.
+    val dataPoints = remember(allPoints, elapsedMs, trimRange) {
+        TripTrim.apply(allPoints, elapsedMs, trimRange)
+    }
+    val trimmed = trimRange != null
     var showShareDialog by remember { mutableStateOf(false) }
     // Trip Details customizer sheet (pencil in the top bar). Hoisted here so the
     // top bar action and the sheet body (rendered in the content) share it.
@@ -150,6 +166,23 @@ fun TripDetailScreen(
         viewModel.toasts.collect { snackbar.showSnackbar(it) }
     }
 
+    if (showTrim) {
+        val full = if (elapsedMs.isEmpty()) 0L else elapsedMs.last()
+        TrimTimeDialog(
+            startMs = trimRange?.first ?: 0L,
+            endMs = trimRange?.last ?: full,
+            durationMs = full,
+            minPoints = TripTrim.MIN_POINTS,
+            pointsInRange = { r -> TripTrim.countInRange(elapsedMs, r) },
+            onConfirm = { s, e ->
+                // Reset comes back as the full span, which is "no trim".
+                trimRange = if (s <= 0L && e >= full) null else s..e
+                showTrim = false
+            },
+            onDismiss = { showTrim = false },
+        )
+    }
+
     if (showShareDialog) {
         val dropboxLinked by viewModel.dropboxLinked.collectAsState()
         TripActionDialog(
@@ -164,7 +197,10 @@ fun TripDetailScreen(
     }
 
     LaunchedEffect(trip.id) {
-        dataPoints = viewModel.readTripData(trip)
+        allPoints = viewModel.readTripData(trip)
+        // Without this, opening a second trip from the same screen instance
+        // would carry the previous trip's window across.
+        trimRange = null
     }
 
     val dateFormat = SimpleDateFormat("dd MMM yyyy HH:mm", Locale.getDefault())
@@ -173,9 +209,15 @@ fun TripDetailScreen(
     // Trip metrics and the header date range (start -> end) are hoisted so the
     // landscape top bar can show the range centred (the landscape body gives its
     // height to the permanent map + the scrollable charts, with no room for it).
+    // Two metrics values, deliberately. healTripMetrics WRITES startTime,
+    // endTime and distanceKm back onto the trip row, and the trip list reads
+    // those stored fields rather than the CSV. Feeding it trimmed numbers would
+    // overwrite the ride's real identity with whatever window happened to be
+    // showing, with no way back. It gets the full trip, always.
+    val fullMetrics = remember(allPoints) { viewModel.tripMetrics(allPoints) }
     val metrics = remember(dataPoints) { viewModel.tripMetrics(dataPoints) }
-    LaunchedEffect(metrics, liveState) {
-        if (liveState == false) viewModel.healTripMetrics(trip, metrics)
+    LaunchedEffect(fullMetrics, liveState) {
+        if (liveState == false) viewModel.healTripMetrics(trip, fullMetrics)
     }
     val startMs = if (metrics.valid) metrics.startMs else trip.startTime
     val duration = if (metrics.valid) metrics.durationMs / 1000
@@ -230,6 +272,7 @@ fun TripDetailScreen(
                             IconButton(onClick = { showCustomize = true }) {
                                 Icon(Icons.Default.Edit, contentDescription = stringResource(R.string.trip_customize))
                             }
+                            TrimAction(trimmed = trimmed, onClick = { showTrim = true })
                         }
                         IconButton(
                             onClick = { showShareDialog = true },
@@ -252,6 +295,7 @@ fun TripDetailScreen(
                             IconButton(onClick = { showCustomize = true }) {
                                 Icon(Icons.Default.Edit, contentDescription = stringResource(R.string.trip_customize))
                             }
+                            TrimAction(trimmed = trimmed, onClick = { showTrim = true })
                         }
                         IconButton(
                             onClick = { showShareDialog = true },
@@ -326,6 +370,10 @@ fun TripDetailScreen(
 
             val gpsPoints = remember(dataPoints) {
                 dataPoints.filter { it.latitude != 0.0 && it.longitude != 0.0 }
+            }
+            // The whole ride's fixes, for the faded context track behind a trim.
+            val fullGpsPoints = remember(allPoints) {
+                allPoints.filter { it.latitude != 0.0 && it.longitude != 0.0 }
             }
             // Extra-column events: shown in the Extra details section, and the
             // wheel identity blocks drive the map (start popup, a colour switch +
@@ -408,6 +456,7 @@ fun TripDetailScreen(
             val routeMap: @Composable (Modifier) -> Unit = { mod ->
                 RouteMapView(
                     points = gpsPoints,
+                    fadedPoints = if (trimmed) fullGpsPoints else emptyList(),
                     isLive = isLive,
                     liveLat = liveLocation?.latitude,
                     liveLon = liveLocation?.longitude,
@@ -1117,6 +1166,9 @@ private var tripMapTypeSession: String? = null
 @Composable
 private fun RouteMapView(
     points: List<TripDataPoint>,
+    // The whole ride, drawn faded underneath when a trim is applied so the
+    // section still reads in the context of the full trip. Empty = no trim.
+    fadedPoints: List<TripDataPoint> = emptyList(),
     isLive: Boolean = false,
     liveLat: Double? = null,
     liveLon: Double? = null,
@@ -1160,7 +1212,7 @@ private fun RouteMapView(
     val onPick: (String) -> Unit = { mapType = it; tripMapTypeSession = it; onPersistMapType(it) }
 
     MapSurface(
-        points = points, isLive = isLive, liveLat = liveLat, liveLon = liveLon,
+        points = points, fadedPoints = fadedPoints, isLive = isLive, liveLat = liveLat, liveLon = liveLon,
         scrubLat = scrubLat, scrubLon = scrubLon,
         wheelSwitches = wheelSwitches, startLabel = startLabel, endLabel = endLabel,
         fullscreen = false, onToggleFullscreen = { fullscreen = true },
@@ -1206,7 +1258,7 @@ private fun RouteMapView(
                 }
             }
             MapSurface(
-                points = points, isLive = isLive, liveLat = liveLat, liveLon = liveLon,
+                points = points, fadedPoints = fadedPoints, isLive = isLive, liveLat = liveLat, liveLon = liveLon,
                 scrubLat = scrubLat, scrubLon = scrubLon,
                 wheelSwitches = wheelSwitches, startLabel = startLabel, endLabel = endLabel,
                 fullscreen = true, onToggleFullscreen = { fullscreen = false },
@@ -1221,6 +1273,7 @@ private fun RouteMapView(
 @Composable
 private fun MapSurface(
     points: List<TripDataPoint>,
+    fadedPoints: List<TripDataPoint>,
     isLive: Boolean,
     liveLat: Double?,
     liveLon: Double?,
@@ -1237,6 +1290,11 @@ private fun MapSurface(
 ) {
     val coordsJson = remember(points) {
         points.joinToString(",") { "[${it.latitude},${it.longitude}]" }
+    }
+    // Empty unless a trim is applied, which makes the faded layer a no-op and
+    // leaves the untrimmed map rendering exactly as it did before.
+    val fadedCoordsJson = remember(fadedPoints) {
+        fadedPoints.joinToString(",") { "[${it.latitude},${it.longitude}]" }
     }
     // Wheel-change markers + start popup, JSON-encoded so rider-controlled
     // BLE names can never break out of the script block.
@@ -1259,8 +1317,8 @@ private fun MapSurface(
     // enter/leave live mode. Bake the CURRENT style into the initial HTML so a
     // freshly-opened surface (e.g. fullscreen) starts on the shared style rather
     // than flashing light first; style cycles afterwards go through JS.
-    val html = remember(coordsJson, isLive, switchesJson, startLabelJs, endLabelJs) {
-        buildMapHtml(coordsJson, switchesJson, startLabelJs, endLabelJs, isLive, mapType)
+    val html = remember(coordsJson, fadedCoordsJson, isLive, switchesJson, startLabelJs, endLabelJs) {
+        buildMapHtml(coordsJson, fadedCoordsJson, switchesJson, startLabelJs, endLabelJs, isLive, mapType)
     }
 
     Box(modifier.clip(RoundedCornerShape(if (fullscreen) 0.dp else 12.dp))) {
@@ -1358,7 +1416,7 @@ private fun MapButton(icon: ImageVector, desc: String, onClick: () -> Unit) {
     }
 }
 
-private fun buildMapHtml(coordsJson: String, switchesJson: String, startLabelJs: String, endLabelJs: String, isLive: Boolean, initialType: String): String = """
+private fun buildMapHtml(coordsJson: String, fadedCoordsJson: String, switchesJson: String, startLabelJs: String, endLabelJs: String, isLive: Boolean, initialType: String): String = """
 <!DOCTYPE html><html><head>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
@@ -1387,6 +1445,7 @@ private fun buildMapHtml(coordsJson: String, switchesJson: String, startLabelJs:
 <div id="map"></div>
 <script>
   var coords=[$coordsJson];
+  var fadedCoords=[$fadedCoordsJson];
   var map=L.map('map',{zoomControl:false,attributionControl:false});
   var baseLayer=null;
   var tileUrls={
@@ -1406,6 +1465,13 @@ private fun buildMapHtml(coordsJson: String, switchesJson: String, startLabelJs:
 
   function render(){
     if (hasRoute){
+      // The rest of the ride, drawn faded underneath so a trimmed view still
+      // shows where the section sits in the whole trip. Empty when untrimmed,
+      // which makes this a no-op and leaves the untrimmed map unchanged.
+      if (fadedCoords.length >= 2){
+        L.polyline(fadedCoords,
+          {color:'#4FC3F7',weight:4,opacity:0.25,interactive:false}).addTo(map);
+      }
       // Split the trace ONLY at genuine wheel changes (s.change): the first
       // wheel keeps the blue trace and a different wheel's stretch is drawn
       // purple. A same-wheel reconnect does NOT cut the trace - it stays one
@@ -1998,4 +2064,21 @@ internal fun sustainedTopSpeed(speeds: List<Float>, windowSamples: Int): Float {
         if (i >= w - 1) best = maxOf(best, speeds[dq.first()])
     }
     return best
+}
+
+/**
+ * Top-bar funnel. Filled and tinted while a trim is applied, outlined and in
+ * the bar's normal colour on the full trip, so the state reads by shape as well
+ * as by colour. Shared by the portrait and landscape bars so the two stay in
+ * sync.
+ */
+@Composable
+private fun TrimAction(trimmed: Boolean, onClick: () -> Unit) {
+    IconButton(onClick = onClick) {
+        Icon(
+            if (trimmed) Icons.Filled.FilterAlt else Icons.Outlined.FilterAlt,
+            contentDescription = stringResource(R.string.trip_trim),
+            tint = if (trimmed) MaterialTheme.appColors.primary else LocalContentColor.current,
+        )
+    }
 }
