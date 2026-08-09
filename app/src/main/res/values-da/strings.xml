@@ -2055,6 +2055,16 @@
     <string name="accel_split_slower_best">, %1$s langsommere end bedste</string>
     <string name="accel_split_best_yet">, ny rekord</string>
     <string name="report_contents">Tilpas talerapport</string>
+    <string name="widget_speed">Fart</string>
+    <string name="widget_distance">Tur</string>
+    <string name="widget_battery">Opladning</string>
+    <string name="widget_horn">Horn</string>
+    <string name="widget_voice_on">Tale til</string>
+    <string name="widget_voice_off">Tale fra</string>
+    <string name="widget_connected">Forbundet</string>
+    <string name="widget_disconnected">Intet hjul</string>
+    <string name="widget_placeholder_value">--</string>
+    <string name="widget_description">Fart, distance og opladning, med horn- og taleknapper.</string>
     <string name="trip_customize">Tilpas</string>
     <string name="trip_trim">Beskær visningen</string>
     <string name="trip_trim_title">Beskær turvisning</string>

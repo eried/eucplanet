@@ -78,6 +78,8 @@ class WheelService : LifecycleService() {
         const val ACTION_TOGGLE_LIGHT = "com.eried.eucplanet.TOGGLE_LIGHT"
         const val ACTION_TOGGLE_LOCK = "com.eried.eucplanet.TOGGLE_LOCK"
         const val ACTION_HORN = "com.eried.eucplanet.HORN"
+        /** Flip the periodic voice announcements. Fired by the home screen widget. */
+        const val ACTION_TOGGLE_VOICE = "com.eried.eucplanet.TOGGLE_VOICE"
         const val EXTRA_ADDRESS = "device_address"
         const val EXTRA_NAME = "device_name"
         /** Marks an ACTION_CONNECT as auto-initiated (app-start / reconnect)
@@ -98,6 +100,9 @@ class WheelService : LifecycleService() {
     private var lastDeviceNameCached: String? = null
     // Notification quick-action config, mirrored from settings so the
     // notification builder can read it without suspending.
+    // Mirrored so the widget painter can read it without suspending.
+    @Volatile
+    private var voicePeriodicCached: Boolean = false
     @Volatile
     private var notifActionsEnabledCached: Boolean = true
     @Volatile
@@ -178,6 +183,7 @@ class WheelService : LifecycleService() {
                 // real window instead of whatever the wheel was doing at the
                 // instant a report fired.
                 voiceService.recordTelemetry(data)
+                pushWidget(data)
                 val settings = settingsRepository.get()
                 automationManager.evaluate(settings)
                 checkLightTransition(data.lightOn, settings)
@@ -197,6 +203,7 @@ class WheelService : LifecycleService() {
                 // mirror the latest value here every settings update.
                 speedUnitCached = com.eried.eucplanet.util.Units.effectiveSpeedUnit(s)
                 lastDeviceNameCached = s.lastDeviceName
+                voicePeriodicCached = s.voicePeriodicEnabled
                 notifActionsEnabledCached = s.notificationActionsEnabled
                 notifActionsCsvCached = s.notificationActions
                 engineSoundEngine.applySettings(s)
@@ -376,6 +383,16 @@ class WheelService : LifecycleService() {
             ACTION_TOGGLE_LIGHT -> wheelRepository.toggleLight()
             ACTION_TOGGLE_LOCK -> wheelRepository.toggleLock()
             ACTION_HORN -> wheelRepository.sendHorn()
+            ACTION_TOGGLE_VOICE -> lifecycleScope.launch {
+                val on = !settingsRepository.get().voicePeriodicEnabled
+                settingsRepository.update { it.copy(voicePeriodicEnabled = on) }
+                // Repaint at once so the button label matches the new state
+                // without waiting for the next telemetry frame, which may never
+                // arrive if no wheel is connected.
+                com.eried.eucplanet.widget.EucWidget.render(
+                    this@WheelService, wheelRepository.wheelData.value.takeIf { widgetHasData() }, on
+                )
+            }
             ACTION_START_RECORDING -> {
                 lifecycleScope.launch { tripRepository.startRecording() }
             }
@@ -768,6 +785,33 @@ class WheelService : LifecycleService() {
     }
 
     private var lastNotificationUpdate = 0L
+
+    // --- Home screen widget ---------------------------------------------------
+
+    private var lastWidgetUpdate = 0L
+    private var widgetSawData = false
+
+    /** True once telemetry has arrived this connection, so a widget repaint
+     *  triggered by something else (the voice toggle) knows whether the numbers
+     *  it has are real or should stay dashed. */
+    private fun widgetHasData(): Boolean = widgetSawData
+
+    /**
+     * Repaint the widget from live telemetry, at most once a second.
+     *
+     * Telemetry can arrive several times a second; a RemoteViews update crosses
+     * a Binder into the launcher's process and re-inflates the layout there, so
+     * pushing every frame would burn battery on both sides for numbers no one
+     * can read that fast. Skipped entirely when no widget is placed.
+     */
+    private fun pushWidget(data: WheelData) {
+        if (!com.eried.eucplanet.widget.EucWidget.isPlaced(this)) return
+        val now = System.currentTimeMillis()
+        if (now - lastWidgetUpdate < 1_000L) return
+        lastWidgetUpdate = now
+        widgetSawData = true
+        com.eried.eucplanet.widget.EucWidget.render(this, data, voicePeriodicCached)
+    }
 
     private fun updateNotification(data: WheelData) {
         // Never re-post once teardown has begun: a notify() after

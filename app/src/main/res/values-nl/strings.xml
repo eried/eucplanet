@@ -2042,6 +2042,16 @@
     <string name="accel_split_slower_best">, %1$s langzamer dan record</string>
     <string name="accel_split_best_yet">, nieuw record</string>
     <string name="report_contents">Stemrapport aanpassen</string>
+    <string name="widget_speed">Snelheid</string>
+    <string name="widget_distance">Rit</string>
+    <string name="widget_battery">Lading</string>
+    <string name="widget_horn">Claxon</string>
+    <string name="widget_voice_on">Spraak aan</string>
+    <string name="widget_voice_off">Spraak uit</string>
+    <string name="widget_connected">Verbonden</string>
+    <string name="widget_disconnected">Geen wiel</string>
+    <string name="widget_placeholder_value">--</string>
+    <string name="widget_description">Snelheid, afstand en lading, met claxon- en spraakknop.</string>
     <string name="trip_customize">Aanpassen</string>
     <string name="trip_trim">Weergave bijsnijden</string>
     <string name="trip_trim_title">Ritweergave bijsnijden</string>

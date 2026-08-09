@@ -2037,6 +2037,16 @@
     <string name="accel_split_slower_best">, en iyiden %1$s daha yavaş</string>
     <string name="accel_split_best_yet">, şimdiye kadarki en iyi</string>
     <string name="report_contents">Sesli bildirimi özelleştir</string>
+    <string name="widget_speed">Hız</string>
+    <string name="widget_distance">Sürüş</string>
+    <string name="widget_battery">Şarj</string>
+    <string name="widget_horn">Korna</string>
+    <string name="widget_voice_on">Ses açık</string>
+    <string name="widget_voice_off">Ses kapalı</string>
+    <string name="widget_connected">Bağlandı</string>
+    <string name="widget_disconnected">Teker yok</string>
+    <string name="widget_placeholder_value">--</string>
+    <string name="widget_description">Hız, mesafe ve şarj, korna ve ses düğmeleriyle.</string>
     <string name="trip_customize">Özelleştir</string>
     <string name="trip_trim">Görünümü kırp</string>
     <string name="trip_trim_title">Sürüş görünümünü kırp</string>

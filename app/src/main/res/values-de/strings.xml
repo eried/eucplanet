@@ -2060,6 +2060,16 @@
     <string name="accel_split_slower_best">, %1$s langsamer als Bestwert</string>
     <string name="accel_split_best_yet">, neuer Bestwert</string>
     <string name="report_contents">Sprachbericht anpassen</string>
+    <string name="widget_speed">Tempo</string>
+    <string name="widget_distance">Fahrt</string>
+    <string name="widget_battery">Ladung</string>
+    <string name="widget_horn">Hupe</string>
+    <string name="widget_voice_on">Sprache an</string>
+    <string name="widget_voice_off">Sprache aus</string>
+    <string name="widget_connected">Verbunden</string>
+    <string name="widget_disconnected">Kein Wheel</string>
+    <string name="widget_placeholder_value">--</string>
+    <string name="widget_description">Tempo, Distanz und Ladung, mit Hupe und Sprachtaste.</string>
     <string name="trip_customize">Anpassen</string>
     <string name="trip_trim">Ansicht eingrenzen</string>
     <string name="trip_trim_title">Fahrtansicht eingrenzen</string>

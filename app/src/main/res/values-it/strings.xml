@@ -1945,6 +1945,16 @@
     <string name="accel_split_slower_best">, %1$s più lento del migliore</string>
     <string name="accel_split_best_yet">, nuovo record</string>
     <string name="report_contents">Personalizza rapporto vocale</string>
+    <string name="widget_speed">Velocità</string>
+    <string name="widget_distance">Viaggio</string>
+    <string name="widget_battery">Carica</string>
+    <string name="widget_horn">Clacson</string>
+    <string name="widget_voice_on">Voce attiva</string>
+    <string name="widget_voice_off">Voce spenta</string>
+    <string name="widget_connected">Connesso</string>
+    <string name="widget_disconnected">Nessuna ruota</string>
+    <string name="widget_placeholder_value">--</string>
+    <string name="widget_description">Velocità, distanza e carica, con clacson e voce.</string>
     <string name="trip_customize">Personalizza</string>
     <string name="trip_trim">Restringi la vista</string>
     <string name="trip_trim_title">Restringi vista del viaggio</string>

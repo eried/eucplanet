@@ -2041,6 +2041,16 @@
     <string name="accel_split_slower_best">、ベストより%1$s遅い</string>
     <string name="accel_split_best_yet">、ベスト更新</string>
     <string name="report_contents">音声報告をカスタマイズ</string>
+    <string name="widget_speed">速度</string>
+    <string name="widget_distance">走行</string>
+    <string name="widget_battery">残量</string>
+    <string name="widget_horn">ホーン</string>
+    <string name="widget_voice_on">音声オン</string>
+    <string name="widget_voice_off">音声オフ</string>
+    <string name="widget_connected">接続済み</string>
+    <string name="widget_disconnected">ホイールなし</string>
+    <string name="widget_placeholder_value">--</string>
+    <string name="widget_description">速度、距離、残量とホーン、音声ボタン。</string>
     <string name="trip_customize">カスタマイズ</string>
     <string name="trip_trim">表示範囲を絞る</string>
     <string name="trip_trim_title">走行の表示範囲を絞る</string>

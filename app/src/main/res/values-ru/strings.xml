@@ -2040,6 +2040,16 @@
     <string name="accel_split_slower_best">, на %1$s медленнее лучшего</string>
     <string name="accel_split_best_yet">, лучший результат</string>
     <string name="report_contents">Настроить голосовой отчёт</string>
+    <string name="widget_speed">Скорость</string>
+    <string name="widget_distance">Поездка</string>
+    <string name="widget_battery">Заряд</string>
+    <string name="widget_horn">Сигнал</string>
+    <string name="widget_voice_on">Голос вкл.</string>
+    <string name="widget_voice_off">Голос выкл.</string>
+    <string name="widget_connected">Подключено</string>
+    <string name="widget_disconnected">Нет колеса</string>
+    <string name="widget_placeholder_value">--</string>
+    <string name="widget_description">Скорость, расстояние и заряд, с кнопками сигнала и голоса.</string>
     <string name="trip_customize">Настроить</string>
     <string name="trip_trim">Обрезать вид</string>
     <string name="trip_trim_title">Обрезать вид поездки</string>

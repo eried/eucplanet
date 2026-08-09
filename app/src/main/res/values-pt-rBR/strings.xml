@@ -2042,6 +2042,16 @@
     <string name="accel_split_slower_best">, %1$s mais lento que o melhor</string>
     <string name="accel_split_best_yet">, novo recorde</string>
     <string name="report_contents">Personalizar relatório de voz</string>
+    <string name="widget_speed">Velocidade</string>
+    <string name="widget_distance">Trajeto</string>
+    <string name="widget_battery">Carga</string>
+    <string name="widget_horn">Buzina</string>
+    <string name="widget_voice_on">Voz ligada</string>
+    <string name="widget_voice_off">Voz desligada</string>
+    <string name="widget_connected">Conectado</string>
+    <string name="widget_disconnected">Sem roda</string>
+    <string name="widget_placeholder_value">--</string>
+    <string name="widget_description">Velocidade, distância e carga, com buzina e voz.</string>
     <string name="trip_customize">Personalizar</string>
     <string name="trip_trim">Recortar a exibição</string>
     <string name="trip_trim_title">Recortar exibição do trajeto</string>

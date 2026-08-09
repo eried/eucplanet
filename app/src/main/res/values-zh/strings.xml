@@ -1907,6 +1907,16 @@
     <string name="accel_split_slower_best">，比最佳慢 %1$s</string>
     <string name="accel_split_best_yet">，最佳成绩</string>
     <string name="report_contents">自定义语音播报</string>
+    <string name="widget_speed">速度</string>
+    <string name="widget_distance">行程</string>
+    <string name="widget_battery">电量</string>
+    <string name="widget_horn">喇叭</string>
+    <string name="widget_voice_on">语音开</string>
+    <string name="widget_voice_off">语音关</string>
+    <string name="widget_connected">已连接</string>
+    <string name="widget_disconnected">未连接轮子</string>
+    <string name="widget_placeholder_value">--</string>
+    <string name="widget_description">速度、距离和电量，带喇叭和语音按钮。</string>
     <string name="trip_customize">自定义</string>
     <string name="trip_trim">裁剪视图</string>
     <string name="trip_trim_title">裁剪行程视图</string>

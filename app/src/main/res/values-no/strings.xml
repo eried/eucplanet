@@ -1928,6 +1928,16 @@
     <string name="accel_split_slower_best">, %1$s saktere enn rekord</string>
     <string name="accel_split_best_yet">, ny rekord</string>
     <string name="report_contents">Tilpass stemmerapport</string>
+    <string name="widget_speed">Fart</string>
+    <string name="widget_distance">Tur</string>
+    <string name="widget_battery">Lading</string>
+    <string name="widget_horn">Horn</string>
+    <string name="widget_voice_on">Tale på</string>
+    <string name="widget_voice_off">Tale av</string>
+    <string name="widget_connected">Tilkoblet</string>
+    <string name="widget_disconnected">Ingen hjul</string>
+    <string name="widget_placeholder_value">--</string>
+    <string name="widget_description">Fart, distanse og lading, med horn- og taleknapp.</string>
     <string name="trip_customize">Tilpass</string>
     <string name="trip_trim">Beskjær visningen</string>
     <string name="trip_trim_title">Beskjær turvisning</string>

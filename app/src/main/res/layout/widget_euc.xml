@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Home screen widget: the three numbers a rider glances at, plus the two
+  actions worth having without unlocking into the app.
+
+  RemoteViews, not Compose: a widget is inflated by the launcher's process, so
+  only the classic view set is available. That also means no theme tokens, hence
+  the literal colours here and in widget_bg.
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/widget_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@drawable/widget_bg"
+    android:padding="12dp">
+
+    <TextView
+        android:id="@+id/widget_status"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="11sp"
+        android:textColor="#99FFFFFF"
+        android:maxLines="1"
+        android:ellipsize="end"
+        android:text="@string/widget_disconnected" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:orientation="horizontal"
+        android:layout_marginTop="6dp">
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:gravity="center_vertical">
+            <TextView
+                android:id="@+id/widget_speed"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="26sp"
+                android:textStyle="bold"
+                android:textColor="#FFFFFFFF"
+                android:maxLines="1"
+                android:text="@string/widget_placeholder_value" />
+            <TextView
+                android:id="@+id/widget_speed_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="10sp"
+                android:textColor="#99FFFFFF"
+                android:maxLines="1"
+                android:text="@string/widget_speed" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:gravity="center_vertical">
+            <TextView
+                android:id="@+id/widget_distance"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="26sp"
+                android:textStyle="bold"
+                android:textColor="#FFFFFFFF"
+                android:maxLines="1"
+                android:text="@string/widget_placeholder_value" />
+            <TextView
+                android:id="@+id/widget_distance_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="10sp"
+                android:textColor="#99FFFFFF"
+                android:maxLines="1"
+                android:text="@string/widget_distance" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:gravity="center_vertical">
+            <TextView
+                android:id="@+id/widget_battery"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="26sp"
+                android:textStyle="bold"
+                android:textColor="#FFFFFFFF"
+                android:maxLines="1"
+                android:text="@string/widget_placeholder_value" />
+            <TextView
+                android:id="@+id/widget_battery_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="10sp"
+                android:textColor="#99FFFFFF"
+                android:maxLines="1"
+                android:text="@string/widget_battery" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginTop="8dp">
+
+        <TextView
+            android:id="@+id/widget_btn_horn"
+            android:layout_width="0dp"
+            android:layout_height="36dp"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:background="@drawable/widget_button_bg"
+            android:textSize="12sp"
+            android:textColor="#FFFFFFFF"
+            android:maxLines="1"
+            android:text="@string/widget_horn" />
+
+        <TextView
+            android:id="@+id/widget_btn_voice"
+            android:layout_width="0dp"
+            android:layout_height="36dp"
+            android:layout_weight="1"
+            android:layout_marginStart="8dp"
+            android:gravity="center"
+            android:background="@drawable/widget_button_bg"
+            android:textSize="12sp"
+            android:textColor="#FFFFFFFF"
+            android:maxLines="1"
+            android:text="@string/widget_voice_on" />
+    </LinearLayout>
+</LinearLayout>

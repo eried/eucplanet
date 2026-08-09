@@ -2039,6 +2039,16 @@
     <string name="accel_split_slower_best">, 최고보다 %1$s 느림</string>
     <string name="accel_split_best_yet">, 신기록</string>
     <string name="report_contents">음성 보고 맞춤 설정</string>
+    <string name="widget_speed">속도</string>
+    <string name="widget_distance">주행</string>
+    <string name="widget_battery">잔량</string>
+    <string name="widget_horn">경적</string>
+    <string name="widget_voice_on">음성 켜짐</string>
+    <string name="widget_voice_off">음성 꺼짐</string>
+    <string name="widget_connected">연결됨</string>
+    <string name="widget_disconnected">휠 없음</string>
+    <string name="widget_placeholder_value">--</string>
+    <string name="widget_description">속도, 거리, 잔량과 경적 및 음성 버튼.</string>
     <string name="trip_customize">사용자 지정</string>
     <string name="trip_trim">보기 범위 자르기</string>
     <string name="trip_trim_title">주행 보기 자르기</string>

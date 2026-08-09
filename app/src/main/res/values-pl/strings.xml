@@ -2040,6 +2040,16 @@
     <string name="accel_split_slower_best">, %1$s wolniej niż rekord</string>
     <string name="accel_split_best_yet">, nowy rekord</string>
     <string name="report_contents">Dostosuj raport głosowy</string>
+    <string name="widget_speed">Prędkość</string>
+    <string name="widget_distance">Przejazd</string>
+    <string name="widget_battery">Ładunek</string>
+    <string name="widget_horn">Klakson</string>
+    <string name="widget_voice_on">Głos wł.</string>
+    <string name="widget_voice_off">Głos wył.</string>
+    <string name="widget_connected">Połączono</string>
+    <string name="widget_disconnected">Brak koła</string>
+    <string name="widget_placeholder_value">--</string>
+    <string name="widget_description">Prędkość, dystans i ładunek, z klaksonem i głosem.</string>
     <string name="trip_customize">Dostosuj</string>
     <string name="trip_trim">Przytnij widok</string>
     <string name="trip_trim_title">Przytnij widok przejazdu</string>

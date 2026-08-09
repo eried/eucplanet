@@ -1224,6 +1224,16 @@
     <string name="recording_chart_pwm_smooth">PWM, average (%)</string>
     <string name="recording_chart_power">Power (W)</string>
     <string name="recording_chart_altitude">Altitude (m)</string>
+    <string name="widget_description">Speed, distance and charge, with horn and voice buttons.</string>
+    <string name="widget_speed">Speed</string>
+    <string name="widget_distance">Trip</string>
+    <string name="widget_battery">Charge</string>
+    <string name="widget_horn">Horn</string>
+    <string name="widget_voice_on">Voice on</string>
+    <string name="widget_voice_off">Voice off</string>
+    <string name="widget_connected">Connected</string>
+    <string name="widget_disconnected">No wheel</string>
+    <string name="widget_placeholder_value">--</string>
     <string name="trip_customize">Customize</string>
     <string name="trip_trim">Trim the view</string>
     <string name="trip_trim_title">Trim trip view</string>

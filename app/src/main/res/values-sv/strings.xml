@@ -2040,6 +2040,16 @@
     <string name="accel_split_slower_best">, %1$s långsammare än bästa</string>
     <string name="accel_split_best_yet">, bästa hittills</string>
     <string name="report_contents">Anpassa röstrapport</string>
+    <string name="widget_speed">Fart</string>
+    <string name="widget_distance">Tur</string>
+    <string name="widget_battery">Laddning</string>
+    <string name="widget_horn">Signal</string>
+    <string name="widget_voice_on">Röst på</string>
+    <string name="widget_voice_off">Röst av</string>
+    <string name="widget_connected">Ansluten</string>
+    <string name="widget_disconnected">Inget hjul</string>
+    <string name="widget_placeholder_value">--</string>
+    <string name="widget_description">Fart, distans och laddning, med signal- och röstknapp.</string>
     <string name="trip_customize">Anpassa</string>
     <string name="trip_trim">Beskär vyn</string>
     <string name="trip_trim_title">Beskär turvyn</string>
