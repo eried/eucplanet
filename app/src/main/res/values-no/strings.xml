@@ -1926,7 +1926,7 @@
     <string name="report_contents">Tilpass stemmerapport</string>
     <string name="trip_customize">Tilpass</string>
     <string name="trip_trim">Beskjær visningen</string>
-    <string name="trip_trim_title">Beskjær visningen</string>
+    <string name="trip_trim_title">Beskjær turvisning</string>
     <string name="trip_customize_tiles">Fliser</string>
     <string name="trip_customize_graphs">Grafer</string>
     <string name="recording_details_section">Ekstra detaljer</string>

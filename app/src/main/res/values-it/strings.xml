@@ -1943,7 +1943,7 @@
     <string name="report_contents">Personalizza rapporto vocale</string>
     <string name="trip_customize">Personalizza</string>
     <string name="trip_trim">Restringi la vista</string>
-    <string name="trip_trim_title">Restringi la vista</string>
+    <string name="trip_trim_title">Restringi vista del viaggio</string>
     <string name="trip_customize_tiles">Riquadri</string>
     <string name="trip_customize_graphs">Grafici</string>
     <string name="recording_details_section">Dettagli aggiuntivi</string>

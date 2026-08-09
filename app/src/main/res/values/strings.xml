@@ -1222,7 +1222,7 @@
     <string name="recording_chart_altitude">Altitude (m)</string>
     <string name="trip_customize">Customize</string>
     <string name="trip_trim">Trim the view</string>
-    <string name="trip_trim_title">Trim the view</string>
+    <string name="trip_trim_title">Trim trip view</string>
     <string name="trip_customize_tiles">Tiles</string>
     <string name="trip_customize_graphs">Graphs</string>
 

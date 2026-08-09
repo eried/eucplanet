@@ -2040,7 +2040,7 @@
     <string name="report_contents">Personalizar relatório de voz</string>
     <string name="trip_customize">Personalizar</string>
     <string name="trip_trim">Recortar a exibição</string>
-    <string name="trip_trim_title">Recortar a exibição</string>
+    <string name="trip_trim_title">Recortar exibição do trajeto</string>
     <string name="trip_customize_tiles">Blocos</string>
     <string name="trip_customize_graphs">Gráficos</string>
     <string name="recording_details_section">Detalhes adicionais</string>

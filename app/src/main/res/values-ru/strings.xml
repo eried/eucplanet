@@ -2038,7 +2038,7 @@
     <string name="report_contents">Настроить голосовой отчёт</string>
     <string name="trip_customize">Настроить</string>
     <string name="trip_trim">Обрезать вид</string>
-    <string name="trip_trim_title">Обрезать вид</string>
+    <string name="trip_trim_title">Обрезать вид поездки</string>
     <string name="trip_customize_tiles">Плитки</string>
     <string name="trip_customize_graphs">Графики</string>
     <string name="recording_details_section">Дополнительные сведения</string>

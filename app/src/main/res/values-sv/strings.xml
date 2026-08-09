@@ -2038,7 +2038,7 @@
     <string name="report_contents">Anpassa röstrapport</string>
     <string name="trip_customize">Anpassa</string>
     <string name="trip_trim">Beskär vyn</string>
-    <string name="trip_trim_title">Beskär vyn</string>
+    <string name="trip_trim_title">Beskär turvyn</string>
     <string name="trip_customize_tiles">Rutor</string>
     <string name="trip_customize_graphs">Grafer</string>
     <string name="recording_details_section">Extra detaljer</string>

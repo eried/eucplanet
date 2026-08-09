@@ -2058,7 +2058,7 @@
     <string name="report_contents">Sprachbericht anpassen</string>
     <string name="trip_customize">Anpassen</string>
     <string name="trip_trim">Ansicht eingrenzen</string>
-    <string name="trip_trim_title">Ansicht eingrenzen</string>
+    <string name="trip_trim_title">Fahrtansicht eingrenzen</string>
     <string name="trip_customize_tiles">Kacheln</string>
     <string name="trip_customize_graphs">Diagramme</string>
     <string name="recording_details_section">Weitere Details</string>

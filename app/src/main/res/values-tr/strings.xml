@@ -2035,7 +2035,7 @@
     <string name="report_contents">Sesli bildirimi özelleştir</string>
     <string name="trip_customize">Özelleştir</string>
     <string name="trip_trim">Görünümü kırp</string>
-    <string name="trip_trim_title">Görünümü kırp</string>
+    <string name="trip_trim_title">Sürüş görünümünü kırp</string>
     <string name="trip_customize_tiles">Kutucuklar</string>
     <string name="trip_customize_graphs">Grafikler</string>
     <string name="recording_details_section">Ek ayrıntılar</string>

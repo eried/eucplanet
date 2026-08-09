@@ -1905,7 +1905,7 @@
     <string name="report_contents">自定义语音播报</string>
     <string name="trip_customize">自定义</string>
     <string name="trip_trim">裁剪视图</string>
-    <string name="trip_trim_title">裁剪视图</string>
+    <string name="trip_trim_title">裁剪行程视图</string>
     <string name="trip_customize_tiles">卡片</string>
     <string name="trip_customize_graphs">图表</string>
     <string name="recording_details_section">额外详情</string>

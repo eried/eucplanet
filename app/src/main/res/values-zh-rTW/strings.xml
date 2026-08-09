@@ -2037,7 +2037,7 @@
     <string name="report_contents">自訂語音播報</string>
     <string name="trip_customize">自訂</string>
     <string name="trip_trim">裁剪檢視</string>
-    <string name="trip_trim_title">裁剪檢視</string>
+    <string name="trip_trim_title">裁剪行程檢視</string>
     <string name="trip_customize_tiles">卡片</string>
     <string name="trip_customize_graphs">圖表</string>
     <string name="recording_details_section">額外詳情</string>

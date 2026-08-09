@@ -2042,7 +2042,7 @@
     <string name="report_contents">Personnaliser le rapport vocal</string>
     <string name="trip_customize">Personnaliser</string>
     <string name="trip_trim">Réduire la vue</string>
-    <string name="trip_trim_title">Réduire la vue</string>
+    <string name="trip_trim_title">Réduire la vue du trajet</string>
     <string name="trip_customize_tiles">Tuiles</string>
     <string name="trip_customize_graphs">Graphiques</string>
     <string name="recording_details_section">Détails supplémentaires</string>

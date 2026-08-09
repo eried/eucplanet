@@ -2035,7 +2035,7 @@
     <string name="report_contents">Налаштувати голосовий звіт</string>
     <string name="trip_customize">Налаштувати</string>
     <string name="trip_trim">Обрізати вигляд</string>
-    <string name="trip_trim_title">Обрізати вигляд</string>
+    <string name="trip_trim_title">Обрізати вигляд поїздки</string>
     <string name="trip_customize_tiles">Плитки</string>
     <string name="trip_customize_graphs">Графіки</string>
     <string name="recording_details_section">Додаткові відомості</string>
