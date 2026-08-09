@@ -919,6 +919,12 @@
     <string name="recording_chart_voltage">전압 (V)</string>
     <string name="recording_chart_current">전류 (A)</string>
     <string name="recording_chart_pwm">PWM (%)</string>
+    <string name="recording_chart_battery_smooth">배터리, 평균 (%)</string>
+    <string name="recording_chart_speed_smooth">속도, 평균 (%1$s)</string>
+    <string name="recording_chart_current_smooth">전류, 평균 (A)</string>
+    <string name="recording_chart_pwm_smooth">PWM, 평균 (%)</string>
+    <string name="recording_chart_power">출력 (W)</string>
+    <string name="recording_chart_altitude">고도 (m)</string>
 
     <!-- Automations / Auto tab -->
     <string name="auto_lights_title">라이트</string>
@@ -2033,6 +2039,7 @@
     <string name="trip_trim">구간 자르기</string>
     <string name="trip_customize_tiles">타일</string>
     <string name="trip_customize_graphs">그래프</string>
+    <string name="trip_customize_more_graphs">추가 그래프</string>
     <string name="recording_details_section">추가 정보</string>
     <string name="recording_details_none">이 주행에 대해 보고된 휠이 없습니다.</string>
     <string name="cloud_reset_local">로컬 트립 삭제</string>

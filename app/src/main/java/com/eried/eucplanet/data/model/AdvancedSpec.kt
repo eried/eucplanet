@@ -72,6 +72,8 @@ val ADVANCED_SPECS: List<AdvancedSpec> = listOf(
         50..2000, 25, get = { it.wheelPollIntervalMs }, set = { s, v -> s.copy(wheelPollIntervalMs = v) }),
     AdvancedSpec("graphSampleIntervalMs", AdvGroup.RATES, R.string.adv_graph_sample_interval, R.string.adv_graph_sample_interval_desc,
         250..10000, 250, get = { it.graphSampleIntervalMs }, set = { s, v -> s.copy(graphSampleIntervalMs = v) }),
+    AdvancedSpec("smoothingWindowSamples", AdvGroup.RATES, R.string.adv_smoothing_window, R.string.adv_smoothing_window_desc,
+        2..120, 1, unit = "samples", get = { it.smoothingWindowSamples }, set = { s, v -> s.copy(smoothingWindowSamples = v) }),
     AdvancedSpec("tripRecordIntervalMs", AdvGroup.RATES, R.string.adv_trip_record_interval, R.string.adv_trip_record_interval_desc,
         250..10000, 250, get = { it.tripRecordIntervalMs }, set = { s, v -> s.copy(tripRecordIntervalMs = v) }),
     AdvancedSpec("pendingUploadIntervalMin", AdvGroup.RATES, R.string.adv_pending_upload_interval, R.string.adv_pending_upload_interval_desc,

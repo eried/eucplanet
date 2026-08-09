@@ -922,6 +922,12 @@
     <string name="recording_chart_voltage">Spænding (V)</string>
     <string name="recording_chart_current">Strøm (A)</string>
     <string name="recording_chart_pwm">PWM (%)</string>
+    <string name="recording_chart_battery_smooth">Batteri, gennemsnit (%)</string>
+    <string name="recording_chart_speed_smooth">Hastighed, gennemsnit (%1$s)</string>
+    <string name="recording_chart_current_smooth">Strøm, gennemsnit (A)</string>
+    <string name="recording_chart_pwm_smooth">PWM, gennemsnit (%)</string>
+    <string name="recording_chart_power">Effekt (W)</string>
+    <string name="recording_chart_altitude">Højde (m)</string>
 
     <!-- Automations / Auto tab -->
     <string name="auto_lights_title">Lys</string>
@@ -2049,6 +2055,7 @@
     <string name="trip_trim">Beskær til et udsnit</string>
     <string name="trip_customize_tiles">Felter</string>
     <string name="trip_customize_graphs">Grafer</string>
+    <string name="trip_customize_more_graphs">Flere grafer</string>
     <string name="recording_details_section">Ekstra detaljer</string>
     <string name="recording_details_none">Der blev ikke registreret noget hjul for denne tur.</string>
     <string name="cloud_reset_local">Ryd lokale ture</string>

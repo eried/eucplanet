@@ -922,6 +922,12 @@
     <string name="recording_chart_voltage">Tensão (V)</string>
     <string name="recording_chart_current">Corrente (A)</string>
     <string name="recording_chart_pwm">PWM (%)</string>
+    <string name="recording_chart_battery_smooth">Bateria, média (%)</string>
+    <string name="recording_chart_speed_smooth">Velocidade, média (%1$s)</string>
+    <string name="recording_chart_current_smooth">Corrente, média (A)</string>
+    <string name="recording_chart_pwm_smooth">PWM, média (%)</string>
+    <string name="recording_chart_power">Potência (W)</string>
+    <string name="recording_chart_altitude">Altitude (m)</string>
 
     <!-- Automations / Auto tab -->
     <string name="auto_lights_title">Luzes</string>
@@ -2036,6 +2042,7 @@
     <string name="trip_trim">Recortar para um trecho</string>
     <string name="trip_customize_tiles">Blocos</string>
     <string name="trip_customize_graphs">Gráficos</string>
+    <string name="trip_customize_more_graphs">Mais gráficos</string>
     <string name="recording_details_section">Detalhes adicionais</string>
     <string name="recording_details_none">Nenhuma roda registrada para este trajeto.</string>
     <string name="cloud_reset_local">Limpar viagens locais</string>

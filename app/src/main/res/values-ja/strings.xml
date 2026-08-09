@@ -919,6 +919,12 @@
     <string name="recording_chart_voltage">電圧 (V)</string>
     <string name="recording_chart_current">電流 (A)</string>
     <string name="recording_chart_pwm">PWM (%)</string>
+    <string name="recording_chart_battery_smooth">バッテリー、平均 (%)</string>
+    <string name="recording_chart_speed_smooth">速度、平均 (%1$s)</string>
+    <string name="recording_chart_current_smooth">電流、平均 (A)</string>
+    <string name="recording_chart_pwm_smooth">PWM、平均 (%)</string>
+    <string name="recording_chart_power">出力 (W)</string>
+    <string name="recording_chart_altitude">高度 (m)</string>
 
     <!-- Automations / Auto tab -->
     <string name="auto_lights_title">ライト</string>
@@ -2035,6 +2041,7 @@
     <string name="trip_trim">区間を切り出す</string>
     <string name="trip_customize_tiles">タイル</string>
     <string name="trip_customize_graphs">グラフ</string>
+    <string name="trip_customize_more_graphs">その他のグラフ</string>
     <string name="recording_details_section">詳細情報</string>
     <string name="recording_details_none">このライドではホイールが記録されていません。</string>
     <string name="cloud_reset_local">ローカルのトリップを削除</string>

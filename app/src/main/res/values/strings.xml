@@ -439,6 +439,8 @@
     <string name="adv_wheel_poll_rate_desc">Affects how fresh the live data is and how fast alarms react. Lower asks the wheel for data more often. Danger: very low values can flood the Bluetooth link and stall data on some wheels.</string>
     <string name="adv_graph_sample_interval">Graph sample interval</string>
     <string name="adv_graph_sample_interval_desc">Affects the detail of the dashboard charts only. Does not affect alarms or trip files. Danger: very low values use more memory.</string>
+    <string name="adv_smoothing_window">Smoothing window</string>
+    <string name="adv_smoothing_window_desc">Samples averaged by the "average" trip graphs and the smoothed voice reports. Trips log about once a second, so this reads as seconds. Danger: high values hide short spikes.</string>
     <string name="adv_trip_record_interval">Trip recording interval</string>
     <string name="adv_trip_record_interval_desc">Affects how often a row is saved to the trip file while recording. Lower gives more detail. Danger: very low values make large files.</string>
     <string name="adv_pending_upload_interval">Trip upload retry</string>
@@ -1212,10 +1214,17 @@
     <string name="recording_chart_voltage">Voltage (V)</string>
     <string name="recording_chart_current">Current (A)</string>
     <string name="recording_chart_pwm">PWM (%)</string>
+    <string name="recording_chart_battery_smooth">Battery, average (%)</string>
+    <string name="recording_chart_speed_smooth">Speed, average (%1$s)</string>
+    <string name="recording_chart_current_smooth">Current, average (A)</string>
+    <string name="recording_chart_pwm_smooth">PWM, average (%)</string>
+    <string name="recording_chart_power">Power (W)</string>
+    <string name="recording_chart_altitude">Altitude (m)</string>
     <string name="trip_customize">Customize</string>
     <string name="trip_trim">Trim to a section</string>
     <string name="trip_customize_tiles">Tiles</string>
     <string name="trip_customize_graphs">Graphs</string>
+    <string name="trip_customize_more_graphs">More graphs</string>
 
     <!-- Automations / Auto tab -->
     <string name="auto_lights_title">Lights</string>

@@ -248,6 +248,13 @@ data class AppSettings(
     // keys collide with tile keys (battery, voltage exist in both). Empty = all
     // shown.
     val tripHiddenCharts: String = "",
+    // Opt-in extra Trip Details graphs (smoothed variants, power, altitude).
+    // These are OFF until the rider enables one, which the hidden-keys CSV above
+    // cannot express: it records only what was hidden, so a key absent from it
+    // shows, and a new key would appear for everyone on upgrade. This lists the
+    // extra graph keys that were switched ON. Empty = none, the original six
+    // charts only.
+    val tripExtraCharts: String = "",
 
     // Screen geometry. Compact mode is the tiny dashboard (speedo + one
     // swipeable buttons/metrics area) used on flip cover screens; it reuses
@@ -864,6 +871,7 @@ data class AppSettings(
     // copy(advanced = advanced.copy(...)).
     val wheelPollIntervalMs: Int get() = advanced.wheelPollIntervalMs
     val graphSampleIntervalMs: Int get() = advanced.graphSampleIntervalMs
+    val smoothingWindowSamples: Int get() = advanced.smoothingWindowSamples
     val tripRecordIntervalMs: Int get() = advanced.tripRecordIntervalMs
     val pendingUploadIntervalMin: Int get() = advanced.pendingUploadIntervalMin
     val tripFinalizeGraceMs: Int get() = advanced.tripFinalizeGraceMs
@@ -1017,6 +1025,11 @@ data class ProximityLockSettings(
 data class AdvancedSettings(
     val wheelPollIntervalMs: Int = 250,
     val graphSampleIntervalMs: Int = 1000,
+    // Window, in samples, for the smoothed Trip Details graphs and the smoothed
+    // value the periodic voice reports speak. Trips record at roughly 1 Hz, so
+    // this reads as seconds. 10 flattens battery sag and current noise without
+    // hiding a real sustained climb.
+    val smoothingWindowSamples: Int = 10,
     val tripRecordIntervalMs: Int = 1000,
     // Background safety-net interval for retrying trips left pending (e.g. app
     // closed mid-sync). Minutes -- 15 is Android's WorkManager periodic floor.

@@ -405,6 +405,12 @@
     <string name="recording_chart_voltage">电压 (V)</string>
     <string name="recording_chart_current">电流 (A)</string>
     <string name="recording_chart_pwm">PWM (%)</string>
+    <string name="recording_chart_battery_smooth">电量，平均 (%)</string>
+    <string name="recording_chart_speed_smooth">速度，平均 (%1$s)</string>
+    <string name="recording_chart_current_smooth">电流，平均 (A)</string>
+    <string name="recording_chart_pwm_smooth">PWM，平均 (%)</string>
+    <string name="recording_chart_power">功率 (W)</string>
+    <string name="recording_chart_altitude">海拔 (m)</string>
 
     <string name="auto_lights_title">大灯</string>
     <string name="auto_lights_desc">根据日出日落自动开关大灯。</string>
@@ -1901,6 +1907,7 @@
     <string name="trip_trim">裁剪到区间</string>
     <string name="trip_customize_tiles">卡片</string>
     <string name="trip_customize_graphs">图表</string>
+    <string name="trip_customize_more_graphs">更多图表</string>
     <string name="recording_details_section">额外详情</string>
     <string name="recording_details_none">本次骑行未记录独轮车。</string>
     <string name="cloud_reset_local">清除本地行程</string>

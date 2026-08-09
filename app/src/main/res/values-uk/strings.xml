@@ -922,6 +922,12 @@
     <string name="recording_chart_voltage">Напруга (В)</string>
     <string name="recording_chart_current">Струм (А)</string>
     <string name="recording_chart_pwm">PWM (%)</string>
+    <string name="recording_chart_battery_smooth">Батарея, середнє (%)</string>
+    <string name="recording_chart_speed_smooth">Швидкість, середнє (%1$s)</string>
+    <string name="recording_chart_current_smooth">Струм, середнє (A)</string>
+    <string name="recording_chart_pwm_smooth">PWM, середнє (%)</string>
+    <string name="recording_chart_power">Потужність (Вт)</string>
+    <string name="recording_chart_altitude">Висота (м)</string>
 
     <!-- Automations / Auto tab -->
     <string name="auto_lights_title">Світло</string>
@@ -2031,6 +2037,7 @@
     <string name="trip_trim">Обрізати до ділянки</string>
     <string name="trip_customize_tiles">Плитки</string>
     <string name="trip_customize_graphs">Графіки</string>
+    <string name="trip_customize_more_graphs">Інші графіки</string>
     <string name="recording_details_section">Додаткові відомості</string>
     <string name="recording_details_none">Для цієї поїздки моноколесо не вказано.</string>
     <string name="cloud_reset_local">Очистити локальні поїздки</string>

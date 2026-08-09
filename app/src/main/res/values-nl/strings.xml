@@ -922,6 +922,12 @@
     <string name="recording_chart_voltage">Spanning (V)</string>
     <string name="recording_chart_current">Stroom (A)</string>
     <string name="recording_chart_pwm">PWM (%)</string>
+    <string name="recording_chart_battery_smooth">Accu, gemiddeld (%)</string>
+    <string name="recording_chart_speed_smooth">Snelheid, gemiddeld (%1$s)</string>
+    <string name="recording_chart_current_smooth">Stroom, gemiddeld (A)</string>
+    <string name="recording_chart_pwm_smooth">PWM, gemiddeld (%)</string>
+    <string name="recording_chart_power">Vermogen (W)</string>
+    <string name="recording_chart_altitude">Hoogte (m)</string>
 
     <!-- Automations / Auto tab -->
     <string name="auto_lights_title">Licht</string>
@@ -2036,6 +2042,7 @@
     <string name="trip_trim">Bijsnijden tot deel</string>
     <string name="trip_customize_tiles">Tegels</string>
     <string name="trip_customize_graphs">Grafieken</string>
+    <string name="trip_customize_more_graphs">Meer grafieken</string>
     <string name="recording_details_section">Extra details</string>
     <string name="recording_details_none">Geen wiel geregistreerd voor deze rit.</string>
     <string name="cloud_reset_local">Lokale ritten wissen</string>

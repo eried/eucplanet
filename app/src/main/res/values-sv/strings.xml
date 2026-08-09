@@ -918,6 +918,12 @@
     <string name="recording_chart_voltage">Spänning (V)</string>
     <string name="recording_chart_current">Ström (A)</string>
     <string name="recording_chart_pwm">PWM (%)</string>
+    <string name="recording_chart_battery_smooth">Batteri, medel (%)</string>
+    <string name="recording_chart_speed_smooth">Hastighet, medel (%1$s)</string>
+    <string name="recording_chart_current_smooth">Ström, medel (A)</string>
+    <string name="recording_chart_pwm_smooth">PWM, medel (%)</string>
+    <string name="recording_chart_power">Effekt (W)</string>
+    <string name="recording_chart_altitude">Höjd (m)</string>
 
     <!-- Automations / Auto tab -->
     <string name="auto_lights_title">Ljus</string>
@@ -2034,6 +2040,7 @@
     <string name="trip_trim">Beskär till en del</string>
     <string name="trip_customize_tiles">Rutor</string>
     <string name="trip_customize_graphs">Grafer</string>
+    <string name="trip_customize_more_graphs">Fler grafer</string>
     <string name="recording_details_section">Extra detaljer</string>
     <string name="recording_details_none">Inget hjul registrerat för den här turen.</string>
     <string name="cloud_reset_local">Rensa lokala turer</string>

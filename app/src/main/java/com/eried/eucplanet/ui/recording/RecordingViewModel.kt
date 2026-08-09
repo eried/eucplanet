@@ -171,6 +171,17 @@ class RecordingViewModel @Inject constructor(
         .map { csvToList(it.tripHiddenCharts).toSet() }
         .stateIn(viewModelScope, kotlinx.coroutines.flow.SharingStarted.Eagerly, emptySet())
 
+    /** Samples averaged by the smoothed graphs. Trips log at about 1 Hz, so this
+     *  reads as seconds. Clamped by its AdvancedSpec range. */
+    val smoothingWindowSamples: StateFlow<Int> = settingsRepository.settings
+        .map { it.smoothingWindowSamples }
+        .stateIn(viewModelScope, kotlinx.coroutines.flow.SharingStarted.Eagerly, 10)
+
+    /** Extra graphs the rider switched on. Empty = the original six only. */
+    val tripExtraCharts: StateFlow<Set<String>> = settingsRepository.settings
+        .map { csvToList(it.tripExtraCharts).toSet() }
+        .stateIn(viewModelScope, kotlinx.coroutines.flow.SharingStarted.Eagerly, emptySet())
+
     /** Show or hide a stat tile, persisting the compact hidden-keys CSV. */
     fun setTileHidden(key: String, hidden: Boolean) {
         viewModelScope.launch {
@@ -191,6 +202,19 @@ class RecordingViewModel @Inject constructor(
                 val cur = csvToList(s.tripHiddenCharts).toMutableSet()
                 if (hidden) cur.add(key) else cur.remove(key)
                 s.copy(tripHiddenCharts = cur.joinToString(","))
+            }
+        }
+    }
+
+    /** Switch an opt-in extra graph on or off. Separate from the hidden-keys CSV
+     *  because these start OFF: that set records only what was hidden, so it
+     *  cannot express "new, and off until asked for". */
+    fun setExtraChart(key: String, enabled: Boolean) {
+        viewModelScope.launch {
+            settingsRepository.update { s ->
+                val cur = csvToList(s.tripExtraCharts).toMutableSet()
+                if (enabled) cur.add(key) else cur.remove(key)
+                s.copy(tripExtraCharts = cur.joinToString(","))
             }
         }
     }
@@ -218,6 +242,7 @@ class RecordingViewModel @Inject constructor(
                 s.copy(
                     tripHiddenTiles = "",
                     tripHiddenCharts = "",
+                    tripExtraCharts = "",
                     tripTileOrder = "",
                     tripChartOrder = "",
                 )

@@ -919,6 +919,12 @@
     <string name="recording_chart_voltage">Gerilim (V)</string>
     <string name="recording_chart_current">Akım (A)</string>
     <string name="recording_chart_pwm">PWM (%)</string>
+    <string name="recording_chart_battery_smooth">Batarya, ortalama (%)</string>
+    <string name="recording_chart_speed_smooth">Hız, ortalama (%1$s)</string>
+    <string name="recording_chart_current_smooth">Akım, ortalama (A)</string>
+    <string name="recording_chart_pwm_smooth">PWM, ortalama (%)</string>
+    <string name="recording_chart_power">Güç (W)</string>
+    <string name="recording_chart_altitude">Yükseklik (m)</string>
 
     <!-- Automations / Auto tab -->
     <string name="auto_lights_title">Işıklar</string>
@@ -2031,6 +2037,7 @@
     <string name="trip_trim">Bir bölüme kırp</string>
     <string name="trip_customize_tiles">Kutucuklar</string>
     <string name="trip_customize_graphs">Grafikler</string>
+    <string name="trip_customize_more_graphs">Daha fazla grafik</string>
     <string name="recording_details_section">Ek ayrıntılar</string>
     <string name="recording_details_none">Bu sürüş için teker bildirilmedi.</string>
     <string name="cloud_reset_local">Yerel seferleri temizle</string>

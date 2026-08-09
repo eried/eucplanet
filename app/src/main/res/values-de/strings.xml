@@ -918,6 +918,12 @@
     <string name="recording_chart_voltage">Spannung (V)</string>
     <string name="recording_chart_current">Strom (A)</string>
     <string name="recording_chart_pwm">PWM (%)</string>
+    <string name="recording_chart_battery_smooth">Akku, Mittelwert (%)</string>
+    <string name="recording_chart_speed_smooth">Geschwindigkeit, Mittelwert (%1$s)</string>
+    <string name="recording_chart_current_smooth">Strom, Mittelwert (A)</string>
+    <string name="recording_chart_pwm_smooth">PWM, Mittelwert (%)</string>
+    <string name="recording_chart_power">Leistung (W)</string>
+    <string name="recording_chart_altitude">Höhe (m)</string>
 
     <!-- Automations / Auto tab -->
     <string name="auto_lights_title">Licht</string>
@@ -2054,6 +2060,7 @@
     <string name="trip_trim">Auf Abschnitt kürzen</string>
     <string name="trip_customize_tiles">Kacheln</string>
     <string name="trip_customize_graphs">Diagramme</string>
+    <string name="trip_customize_more_graphs">Weitere Diagramme</string>
     <string name="recording_details_section">Weitere Details</string>
     <string name="recording_details_none">Für diese Fahrt wurde kein Wheel gemeldet.</string>
     <string name="cloud_reset_local">Lokale Fahrten löschen</string>

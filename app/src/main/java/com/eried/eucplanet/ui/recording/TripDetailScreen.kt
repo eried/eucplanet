@@ -108,6 +108,7 @@ import com.eried.eucplanet.R
 import com.eried.eucplanet.data.model.TripRecord
 import com.eried.eucplanet.ui.common.HintText
 import com.eried.eucplanet.ui.common.TrimTimeDialog
+import com.eried.eucplanet.util.Smoothing
 import com.eried.eucplanet.ui.theme.appColors
 import com.eried.eucplanet.ui.theme.themedSwitchColors
 import sh.calvin.reorderable.ReorderableColumn
@@ -157,6 +158,10 @@ fun TripDetailScreen(
     val savedTileOrder by viewModel.tripTileOrder.collectAsState()
     val savedChartOrder by viewModel.tripChartOrder.collectAsState()
     val hiddenCharts by viewModel.tripHiddenCharts.collectAsState()
+    // Opt-in extra graphs (smoothed variants, power, altitude) and the window
+    // the smoothed ones average over.
+    val extraCharts by viewModel.tripExtraCharts.collectAsState()
+    val smoothWindow by viewModel.smoothingWindowSamples.collectAsState()
 
     // Render the ViewModel's messages (e.g. "Preparing the link…", share
     // failures) here too — sharing is launched straight from this screen, which
@@ -614,12 +619,73 @@ fun TripDetailScreen(
                             scrubIndex = scrubIndex, onScrub = onScrub)
                     })
                 }
+                // Opt-in extras. Each renders only when the rider switched it on
+                // in the customizer AND the trip actually carries the data, so
+                // enabling one never produces an empty card.
+                if ("batterySmooth" in extraCharts) {
+                    add("batterySmooth" to {
+                        ChartCard(stringResource(R.string.recording_chart_battery_smooth),
+                            Smoothing.movingAverage(dataPoints.map { it.battery.toFloat() }, smoothWindow),
+                            MaterialTheme.appColors.metricVoltage, unitLabel = "%", minSpan = GraphScale.SPAN_BATTERY,
+                            scrubIndex = scrubIndex, onScrub = onScrub)
+                    })
+                }
+                if ("speedSmooth" in extraCharts) {
+                    add("speedSmooth" to {
+                        ChartCard(stringResource(R.string.recording_chart_speed_smooth, speedUnitLabel),
+                            Smoothing.movingAverage(
+                                dataPoints.map { com.eried.eucplanet.util.Units.speed(it.speed, speedUnit) },
+                                smoothWindow
+                            ),
+                            MaterialTheme.appColors.metricBattery, unitLabel = speedUnitLabel, minSpan = speedMinSpan,
+                            scrubIndex = scrubIndex, onScrub = onScrub)
+                    })
+                }
+                if ("currentSmooth" in extraCharts && dataPoints.any { !it.current.isNaN() }) {
+                    add("currentSmooth" to {
+                        ChartCard(stringResource(R.string.recording_chart_current_smooth),
+                            Smoothing.movingAverage(dataPoints.map { it.current }, smoothWindow),
+                            MaterialTheme.appColors.metricVoltage, unitLabel = "A", minSpan = GraphScale.SPAN_CURRENT,
+                            regenColor = MaterialTheme.appColors.metricBattery,
+                            scrubIndex = scrubIndex, onScrub = onScrub)
+                    })
+                }
+                if ("pwmSmooth" in extraCharts && dataPoints.any { !it.pwm.isNaN() }) {
+                    add("pwmSmooth" to {
+                        ChartCard(stringResource(R.string.recording_chart_pwm_smooth),
+                            Smoothing.movingAverage(dataPoints.map { it.pwm }, smoothWindow),
+                            MaterialTheme.appColors.metricTemp, unitLabel = "%", minSpan = GraphScale.SPAN_LOAD,
+                            scrubIndex = scrubIndex, onScrub = onScrub)
+                    })
+                }
+                if ("power" in extraCharts && dataPoints.any { !it.current.isNaN() }) {
+                    add("power" to {
+                        ChartCard(stringResource(R.string.recording_chart_power),
+                            // Derived, the CSV has no power column. NaN current
+                            // stays NaN so the line breaks rather than reading 0 W.
+                            dataPoints.map { if (it.current.isNaN()) Float.NaN else it.voltage * it.current },
+                            MaterialTheme.appColors.statusDanger, unitLabel = "W", minSpan = 100f,
+                            regenColor = MaterialTheme.appColors.metricBattery,
+                            scrubIndex = scrubIndex, onScrub = onScrub)
+                    })
+                }
+                if ("altitude" in extraCharts && dataPoints.any { it.altitude != 0f }) {
+                    add("altitude" to {
+                        ChartCard(stringResource(R.string.recording_chart_altitude),
+                            dataPoints.map { it.altitude },
+                            MaterialTheme.appColors.metricPosition, unitLabel = "m", minSpan = 20f,
+                            scrubIndex = scrubIndex, onScrub = onScrub)
+                    })
+                }
             }
 
             // Effective chart order via the same shared helper (see applyOrder):
             // covers all six keys so the customizer list is stable even for a trip
             // that has no current / pwm data.
-            val chartKeysDefault = listOf("speed", "battery", "temp", "voltage", "current", "pwm")
+            val chartKeysDefault = listOf("speed", "battery", "temp", "voltage", "current", "pwm") +
+                // Only the extras the rider switched on join the order, so the
+                // reorder list stays the familiar six until they ask for more.
+                EXTRA_CHART_KEYS.filter { it in extraCharts }
             val effectiveChartOrder = applyOrder(chartKeysDefault, savedChartOrder)
 
             // Scrub-synced charts, in the rider's order. A chart drops out when
@@ -670,6 +736,12 @@ fun TripDetailScreen(
                 "voltage" to stringResource(R.string.recording_chart_voltage),
                 "current" to stringResource(R.string.recording_chart_current),
                 "pwm" to stringResource(R.string.recording_chart_pwm),
+                "batterySmooth" to stringResource(R.string.recording_chart_battery_smooth),
+                "speedSmooth" to stringResource(R.string.recording_chart_speed_smooth, speedUnitLabel),
+                "currentSmooth" to stringResource(R.string.recording_chart_current_smooth),
+                "pwmSmooth" to stringResource(R.string.recording_chart_pwm_smooth),
+                "power" to stringResource(R.string.recording_chart_power),
+                "altitude" to stringResource(R.string.recording_chart_altitude),
             )
 
             if (showCustomize) {
@@ -680,11 +752,14 @@ fun TripDetailScreen(
                     hiddenCharts = hiddenCharts,
                     chartOrder = effectiveChartOrder,
                     chartLabels = chartLabels,
+                    extraCharts = extraCharts,
                     onToggleTile = { key, hidden -> viewModel.setTileHidden(key, hidden) },
                     onToggleChart = { key, hidden -> viewModel.setChartHidden(key, hidden) },
+                    onToggleExtraChart = { key, on -> viewModel.setExtraChart(key, on) },
                     onReorderTiles = { viewModel.setTileOrder(it) },
                     onReorderCharts = { viewModel.setChartOrder(it) },
                     canReset = hiddenTiles.isNotEmpty() || hiddenCharts.isNotEmpty() ||
+                        extraCharts.isNotEmpty() ||
                         savedTileOrder.isNotEmpty() || savedChartOrder.isNotEmpty(),
                     onReset = { viewModel.resetTripLayout() },
                     onDismiss = { showCustomize = false },
@@ -822,8 +897,10 @@ private fun CustomizeSheet(
     hiddenCharts: Set<String>,
     chartOrder: List<String>,
     chartLabels: Map<String, String>,
+    extraCharts: Set<String>,
     onToggleTile: (String, Boolean) -> Unit,
     onToggleChart: (String, Boolean) -> Unit,
+    onToggleExtraChart: (String, Boolean) -> Unit,
     onReorderTiles: (List<String>) -> Unit,
     onReorderCharts: (List<String>) -> Unit,
     canReset: Boolean,
@@ -834,6 +911,7 @@ private fun CustomizeSheet(
     // Sections default expanded; each header's chevron toggles its own list.
     var tilesExpanded by remember { mutableStateOf(true) }
     var chartsExpanded by remember { mutableStateOf(true) }
+    var moreExpanded by remember { mutableStateOf(true) }
     ModalBottomSheet(onDismissRequest = onDismiss) {
         Column(
             Modifier
@@ -934,6 +1012,40 @@ private fun CustomizeSheet(
                                 colors = themedSwitchColors(),
                             )
                         }
+                    }
+                }
+            }
+
+            // Opt-in extra graphs. Off until asked for, so the six familiar ones
+            // stay the default view. Switching one on adds it to the reorderable
+            // Graphs list above, where it can then be moved or hidden like any
+            // other. No drag handles here: this section is about existence, not
+            // order.
+            Spacer(Modifier.height(8.dp))
+            CustomizeSectionHeader(
+                title = stringResource(R.string.trip_customize_more_graphs),
+                expanded = moreExpanded,
+                onToggle = { moreExpanded = !moreExpanded },
+            )
+            if (moreExpanded) {
+                EXTRA_CHART_KEYS.forEach { chartKey ->
+                    Row(
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 2.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Spacer(Modifier.width(36.dp))
+                        Text(
+                            chartLabels[chartKey] ?: chartKey,
+                            modifier = Modifier.weight(1f),
+                            color = MaterialTheme.appColors.textPrimary,
+                        )
+                        Switch(
+                            checked = chartKey in extraCharts,
+                            onCheckedChange = { onToggleExtraChart(chartKey, it) },
+                            colors = themedSwitchColors(),
+                        )
                     }
                 }
             }
@@ -1176,6 +1288,22 @@ private fun timePartOf(date: String): String {
     val t = date.substring(sep + 1)
     return if (t.length >= 8) t.substring(0, 8) else t
 }
+
+/**
+ * Opt-in Trip Details graphs, in the order the customizer lists them.
+ *
+ * Off until the rider switches one on, which is why they live in their own
+ * settings key rather than the hidden-charts CSV: that set records only what was
+ * hidden, so anything absent from it shows, and a new key would appear for every
+ * rider on upgrade.
+ *
+ * The smoothed variants exist because the raw series are honest but hard to
+ * read: battery sags under load and springs back, current is close to noise at
+ * the ~1 Hz sample rate, and PWM peaks are momentary.
+ */
+private val EXTRA_CHART_KEYS = listOf(
+    "batterySmooth", "speedSmooth", "currentSmooth", "pwmSmooth", "power", "altitude",
+)
 
 // The rider's Trip-details map-style pick (LIGHT / DARK / SAT). Process-scoped so it
 // applies instantly across trips this session without waiting on the settings flow;

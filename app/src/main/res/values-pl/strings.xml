@@ -922,6 +922,12 @@
     <string name="recording_chart_voltage">Napięcie (V)</string>
     <string name="recording_chart_current">Prąd (A)</string>
     <string name="recording_chart_pwm">PWM (%)</string>
+    <string name="recording_chart_battery_smooth">Bateria, średnia (%)</string>
+    <string name="recording_chart_speed_smooth">Prędkość, średnia (%1$s)</string>
+    <string name="recording_chart_current_smooth">Prąd, średnia (A)</string>
+    <string name="recording_chart_pwm_smooth">PWM, średnia (%)</string>
+    <string name="recording_chart_power">Moc (W)</string>
+    <string name="recording_chart_altitude">Wysokość (m)</string>
 
     <!-- Automations / Auto tab -->
     <string name="auto_lights_title">Światła</string>
@@ -2034,6 +2040,7 @@
     <string name="trip_trim">Przytnij do fragmentu</string>
     <string name="trip_customize_tiles">Kafelki</string>
     <string name="trip_customize_graphs">Wykresy</string>
+    <string name="trip_customize_more_graphs">Więcej wykresów</string>
     <string name="recording_details_section">Dodatkowe szczegóły</string>
     <string name="recording_details_none">Nie zarejestrowano koła dla tego przejazdu.</string>
     <string name="cloud_reset_local">Wyczyść lokalne przejazdy</string>

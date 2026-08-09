@@ -922,6 +922,12 @@
     <string name="recording_chart_voltage">Напряжение (В)</string>
     <string name="recording_chart_current">Ток (А)</string>
     <string name="recording_chart_pwm">PWM (%)</string>
+    <string name="recording_chart_battery_smooth">Батарея, среднее (%)</string>
+    <string name="recording_chart_speed_smooth">Скорость, среднее (%1$s)</string>
+    <string name="recording_chart_current_smooth">Ток, среднее (A)</string>
+    <string name="recording_chart_pwm_smooth">PWM, среднее (%)</string>
+    <string name="recording_chart_power">Мощность (Вт)</string>
+    <string name="recording_chart_altitude">Высота (м)</string>
 
     <!-- Automations / Auto tab -->
     <string name="auto_lights_title">Фары</string>
@@ -2034,6 +2040,7 @@
     <string name="trip_trim">Обрезать до участка</string>
     <string name="trip_customize_tiles">Плитки</string>
     <string name="trip_customize_graphs">Графики</string>
+    <string name="trip_customize_more_graphs">Другие графики</string>
     <string name="recording_details_section">Дополнительные сведения</string>
     <string name="recording_details_none">Для этой поездки моноколесо не указано.</string>
     <string name="cloud_reset_local">Очистить локальные поездки</string>
