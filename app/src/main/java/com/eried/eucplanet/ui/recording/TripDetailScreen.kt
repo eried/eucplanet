@@ -417,6 +417,26 @@ fun TripDetailScreen(
                     WheelSwitchMarker(gpsIdx, e.lat, e.lon, "${e.time} - $label", e.isWheelChange)
                 }
             }
+            // The same identity markers for the stretches a trim cut away, drawn
+            // faint on the map so the section still reads in the context of the
+            // whole ride. gpsIndex is unused for these: they never cut a trace
+            // colour, they are context only.
+            val fadedSwitches = remember(allPoints, elapsedMs, trimRange, ctx) {
+                val r = trimRange ?: return@remember emptyList<WheelSwitchMarker>()
+                extractExtraEvents(allPoints)
+                    .filter { it.isWheelStart }
+                    .drop(1)
+                    .filter { it.lat != 0.0 && it.lon != 0.0 }
+                    .filter { e -> elapsedMs.getOrNull(e.index)?.let { it !in r } ?: false }
+                    .map { e ->
+                        val name = e.text.substringAfter('=')
+                        val label = if (e.isWheelChange)
+                            ctx.getString(R.string.trip_map_new_wheel, name)
+                        else
+                            ctx.getString(R.string.trip_map_reconnected, name)
+                        WheelSwitchMarker(0, e.lat, e.lon, "${e.time} - $label", e.isWheelChange)
+                    }
+            }
             val isLive by viewModel.isTripLiveRecording(trip).collectAsState(initial = false)
             val liveLocation by viewModel.liveLocation.collectAsState()
             val hasMap = gpsPoints.size >= 2 || (isLive && liveLocation != null)
@@ -457,6 +477,7 @@ fun TripDetailScreen(
                 RouteMapView(
                     points = gpsPoints,
                     fadedPoints = if (trimmed) fullGpsPoints else emptyList(),
+                    fadedSwitches = fadedSwitches,
                     isLive = isLive,
                     liveLat = liveLocation?.latitude,
                     liveLon = liveLocation?.longitude,
@@ -1169,6 +1190,9 @@ private fun RouteMapView(
     // The whole ride, drawn faded underneath when a trim is applied so the
     // section still reads in the context of the full trip. Empty = no trim.
     fadedPoints: List<TripDataPoint> = emptyList(),
+    // Wheel-identity markers from the stretches the trim cut away, drawn faint
+    // and without popups. Empty = no trim.
+    fadedSwitches: List<WheelSwitchMarker> = emptyList(),
     isLive: Boolean = false,
     liveLat: Double? = null,
     liveLon: Double? = null,
@@ -1212,7 +1236,8 @@ private fun RouteMapView(
     val onPick: (String) -> Unit = { mapType = it; tripMapTypeSession = it; onPersistMapType(it) }
 
     MapSurface(
-        points = points, fadedPoints = fadedPoints, isLive = isLive, liveLat = liveLat, liveLon = liveLon,
+        points = points, fadedPoints = fadedPoints, fadedSwitches = fadedSwitches,
+        isLive = isLive, liveLat = liveLat, liveLon = liveLon,
         scrubLat = scrubLat, scrubLon = scrubLon,
         wheelSwitches = wheelSwitches, startLabel = startLabel, endLabel = endLabel,
         fullscreen = false, onToggleFullscreen = { fullscreen = true },
@@ -1258,7 +1283,8 @@ private fun RouteMapView(
                 }
             }
             MapSurface(
-                points = points, fadedPoints = fadedPoints, isLive = isLive, liveLat = liveLat, liveLon = liveLon,
+                points = points, fadedPoints = fadedPoints, fadedSwitches = fadedSwitches,
+        isLive = isLive, liveLat = liveLat, liveLon = liveLon,
                 scrubLat = scrubLat, scrubLon = scrubLon,
                 wheelSwitches = wheelSwitches, startLabel = startLabel, endLabel = endLabel,
                 fullscreen = true, onToggleFullscreen = { fullscreen = false },
@@ -1274,6 +1300,7 @@ private fun RouteMapView(
 private fun MapSurface(
     points: List<TripDataPoint>,
     fadedPoints: List<TripDataPoint>,
+    fadedSwitches: List<WheelSwitchMarker>,
     isLive: Boolean,
     liveLat: Double?,
     liveLon: Double?,
@@ -1309,6 +1336,16 @@ private fun MapSurface(
         }
         arr.toString()
     }
+    // Same encoding as switchesJson. No idx: these never cut a trace colour.
+    val fadedSwitchesJson = remember(fadedSwitches) {
+        val arr = org.json.JSONArray()
+        for (s in fadedSwitches) {
+            arr.put(org.json.JSONObject()
+                .put("lat", s.lat).put("lon", s.lon)
+                .put("change", s.isChange))
+        }
+        arr.toString()
+    }
     val startLabelJs = remember(startLabel) { org.json.JSONObject.quote(startLabel) }
     val endLabelJs = remember(endLabel) { org.json.JSONObject.quote(endLabel) }
     var webView by remember { mutableStateOf<WebView?>(null) }
@@ -1317,8 +1354,14 @@ private fun MapSurface(
     // enter/leave live mode. Bake the CURRENT style into the initial HTML so a
     // freshly-opened surface (e.g. fullscreen) starts on the shared style rather
     // than flashing light first; style cycles afterwards go through JS.
-    val html = remember(coordsJson, fadedCoordsJson, isLive, switchesJson, startLabelJs, endLabelJs) {
-        buildMapHtml(coordsJson, fadedCoordsJson, switchesJson, startLabelJs, endLabelJs, isLive, mapType)
+    val html = remember(
+        coordsJson, fadedCoordsJson, isLive, switchesJson, fadedSwitchesJson,
+        startLabelJs, endLabelJs
+    ) {
+        buildMapHtml(
+            coordsJson, fadedCoordsJson, switchesJson, fadedSwitchesJson,
+            startLabelJs, endLabelJs, isLive, mapType
+        )
     }
 
     Box(modifier.clip(RoundedCornerShape(if (fullscreen) 0.dp else 12.dp))) {
@@ -1416,7 +1459,7 @@ private fun MapButton(icon: ImageVector, desc: String, onClick: () -> Unit) {
     }
 }
 
-private fun buildMapHtml(coordsJson: String, fadedCoordsJson: String, switchesJson: String, startLabelJs: String, endLabelJs: String, isLive: Boolean, initialType: String): String = """
+private fun buildMapHtml(coordsJson: String, fadedCoordsJson: String, switchesJson: String, fadedSwitchesJson: String, startLabelJs: String, endLabelJs: String, isLive: Boolean, initialType: String): String = """
 <!DOCTYPE html><html><head>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
@@ -1440,6 +1483,8 @@ private fun buildMapHtml(coordsJson: String, fadedCoordsJson: String, switchesJs
   .wheel-badge{ border:1.5px solid #fff;box-sizing:border-box;border-radius:2px; }
   .wheel-change{ width:13px;height:13px;background:#AB47BC; }
   .wheel-reconnect{ width:10px;height:10px;background:#9E9E9E; }
+  /* Identity badges outside a trimmed section: same shape, ghosted. */
+  .faded-badge{ opacity:0.22; }
 </style>
 </head><body>
 <div id="map"></div>
@@ -1465,12 +1510,23 @@ private fun buildMapHtml(coordsJson: String, fadedCoordsJson: String, switchesJs
 
   function render(){
     if (hasRoute){
-      // The rest of the ride, drawn faded underneath so a trimmed view still
-      // shows where the section sits in the whole trip. Empty when untrimmed,
-      // which makes this a no-op and leaves the untrimmed map unchanged.
+      // The rest of the ride, drawn very faint underneath so a trimmed view
+      // still shows where the section sits in the whole trip. Empty when
+      // untrimmed, which makes this a no-op and leaves that map unchanged.
+      // Everything here is non-interactive: the solid layer owns every popup,
+      // so a tap near a ghost never opens the wrong thing.
       if (fadedCoords.length >= 2){
         L.polyline(fadedCoords,
-          {color:'#4FC3F7',weight:4,opacity:0.25,interactive:false}).addTo(map);
+          {color:'#4FC3F7',weight:4,opacity:0.14,interactive:false}).addTo(map);
+        // Where the whole ride actually began and ended. Drawn before the solid
+        // markers so placeEndpoints, which re-adds those on every zoom and pan,
+        // always stacks the real ones on top.
+        L.circleMarker(fadedCoords[0],
+          {radius:7,color:'#000',weight:2,opacity:0.18,
+           fillColor:'#66BB6A',fillOpacity:0.18,interactive:false}).addTo(map);
+        L.circleMarker(fadedCoords[fadedCoords.length-1],
+          {radius:7,color:'#000',weight:2,opacity:0.18,
+           fillColor:'#EF5350',fillOpacity:0.18,interactive:false}).addTo(map);
       }
       // Split the trace ONLY at genuine wheel changes (s.change): the first
       // wheel keeps the blue trace and a different wheel's stretch is drawn
@@ -1526,6 +1582,7 @@ private fun buildMapHtml(coordsJson: String, fadedCoordsJson: String, switchesJs
   }
 
   var switches=$switchesJson;
+  var fadedSwitches=$fadedSwitchesJson;
   var startLabel=$startLabelJs;
   var endLabel=$endLabelJs;
 
@@ -1558,6 +1615,19 @@ private fun buildMapHtml(coordsJson: String, fadedCoordsJson: String, switchesJs
   };
 
   render();
+  // Wheel-identity badges from the stretches the trim cut away. Same shapes as
+  // the live ones so they read as the same thing, just ghosted, and with no
+  // popup: they are context, and the trimmed section owns the interaction.
+  // Added before the solid badges so those stack on top where they coincide.
+  fadedSwitches.forEach(function(s){
+    var cls = s.change ? 'wheel-badge wheel-change' : 'wheel-badge wheel-reconnect';
+    var sz = s.change ? 13 : 10;
+    var icon = L.divIcon({
+      className:'faded-badge', html:'<div class="'+cls+'"></div>',
+      iconSize:[sz,sz], iconAnchor:[sz/2,sz/2]
+    });
+    L.marker([s.lat,s.lon],{icon:icon,interactive:false}).addTo(map);
+  });
   // A small square for each identity block after the ride start, each with its
   // own popup (time + wheel). A genuine wheel change is a purple square where
   // the trace colour also switches; a same-wheel reconnect is a smaller grey
