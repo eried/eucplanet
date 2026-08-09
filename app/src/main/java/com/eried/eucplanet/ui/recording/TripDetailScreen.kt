@@ -389,20 +389,24 @@ fun TripDetailScreen(
             // reconnect).
             val extraEvents = remember(dataPoints) { extractExtraEvents(dataPoints) }
             val wheelStarts = remember(extraEvents) { extraEvents.filter { it.isWheelStart } }
+            // Whole-ride identity blocks. The map's start and end markers describe
+            // where the RIDE began and finished, so their popups have to come from
+            // the full trip, not from whatever section is currently on screen.
+            val fullExtraEvents = remember(allPoints) { extractExtraEvents(allPoints) }
             // Localized, readable marker popups. ctx.getString runs inside
             // remember (the strings only change with the locale, which recreates
             // the composition anyway, so ctx is a remember key too).
             val ctx = androidx.compose.ui.platform.LocalContext.current
             // Green start marker: the first connection = ride start.
-            val startMarkerLabel = remember(wheelStarts, ctx) {
-                wheelStarts.firstOrNull()?.let { e ->
+            val startMarkerLabel = remember(fullExtraEvents, ctx) {
+                fullExtraEvents.firstOrNull { it.isWheelStart }?.let { e ->
                     val name = e.text.substringAfter('=')
                     "${e.time} - ${ctx.getString(R.string.trip_map_ride_start, name)}"
                 } ?: ""
             }
             // Red end marker: the last GPS fix of the ride.
-            val endMarkerLabel = remember(gpsPoints, ctx) {
-                gpsPoints.lastOrNull()?.let { p ->
+            val endMarkerLabel = remember(fullGpsPoints, ctx) {
+                fullGpsPoints.lastOrNull()?.let { p ->
                     "${timePartOf(p.date)} - ${ctx.getString(R.string.trip_map_ride_end)}"
                 } ?: ""
             }
@@ -429,9 +433,9 @@ fun TripDetailScreen(
             // faint on the map so the section still reads in the context of the
             // whole ride. gpsIndex is unused for these: they never cut a trace
             // colour, they are context only.
-            val fadedSwitches = remember(allPoints, elapsedMs, trimRange, ctx) {
+            val fadedSwitches = remember(fullExtraEvents, elapsedMs, trimRange, ctx) {
                 val r = trimRange ?: return@remember emptyList<WheelSwitchMarker>()
-                extractExtraEvents(allPoints)
+                fullExtraEvents
                     .filter { it.isWheelStart }
                     .drop(1)
                     .filter { it.lat != 0.0 && it.lon != 0.0 }
@@ -1623,7 +1627,7 @@ private fun buildMapHtml(coordsJson: String, fadedCoordsJson: String, switchesJs
   .wheel-change{ width:13px;height:13px;background:#AB47BC; }
   .wheel-reconnect{ width:10px;height:10px;background:#9E9E9E; }
   /* Identity badges outside a trimmed section: same shape, ghosted. */
-  .faded-badge{ opacity:0.22; }
+  .faded-badge{ opacity:0.45; }
 </style>
 </head><body>
 <div id="map"></div>
@@ -1656,16 +1660,7 @@ private fun buildMapHtml(coordsJson: String, fadedCoordsJson: String, switchesJs
       // so a tap near a ghost never opens the wrong thing.
       if (fadedCoords.length >= 2){
         L.polyline(fadedCoords,
-          {color:'#4FC3F7',weight:4,opacity:0.14,interactive:false}).addTo(map);
-        // Where the whole ride actually began and ended. Drawn before the solid
-        // markers so placeEndpoints, which re-adds those on every zoom and pan,
-        // always stacks the real ones on top.
-        L.circleMarker(fadedCoords[0],
-          {radius:7,color:'#000',weight:2,opacity:0.18,
-           fillColor:'#66BB6A',fillOpacity:0.18,interactive:false}).addTo(map);
-        L.circleMarker(fadedCoords[fadedCoords.length-1],
-          {radius:7,color:'#000',weight:2,opacity:0.18,
-           fillColor:'#EF5350',fillOpacity:0.18,interactive:false}).addTo(map);
+          {color:'#4FC3F7',weight:4,opacity:0.38,interactive:false}).addTo(map);
       }
       // Split the trace ONLY at genuine wheel changes (s.change): the first
       // wheel keeps the blue trace and a different wheel's stretch is drawn
@@ -1698,17 +1693,25 @@ private fun buildMapHtml(coordsJson: String, fadedCoordsJson: String, switchesJs
     if (end){ map.removeLayer(end); end=null; }
     if (overlap){ map.removeLayer(overlap); overlap=null; }
 
-    var a = coords[0], b = coords[coords.length-1];
+    // Start and end always mark where the WHOLE ride began and finished, never
+    // the ends of a trimmed section: those are an artefact of the view, and
+    // putting the ride's start dot in the middle of a road reads as a lie.
+    // While trimmed they are dimmed, since they sit outside what is being
+    // looked at.
+    var trimmed = fadedCoords.length >= 2;
+    var track = trimmed ? fadedCoords : coords;
+    var op = trimmed ? 0.45 : 1;
+    var a = track[0], b = track[track.length-1];
     var pa = map.latLngToContainerPoint(a);
     var pb = map.latLngToContainerPoint(b);
     var dist = pa.distanceTo(pb);
     var r = 7; // circleMarker radius in px
     // Overlap is more than 50% of a marker's width: dist < 2*r*(1-0.5) = r.
     if (dist < r){
-      overlap = L.marker(a,{icon:L.divIcon({className:'half-marker',iconSize:[18,18],iconAnchor:[9,9]})}).addTo(map);
+      overlap = L.marker(a,{opacity:op,icon:L.divIcon({className:'half-marker',iconSize:[18,18],iconAnchor:[9,9]})}).addTo(map);
     } else {
-      start = L.circleMarker(a,{radius:r,color:'#000',weight:2,fillColor:'#66BB6A',fillOpacity:1}).addTo(map);
-      end   = L.circleMarker(b,{radius:r,color:'#000',weight:2,fillColor:'#EF5350',fillOpacity:1}).addTo(map);
+      start = L.circleMarker(a,{radius:r,color:'#000',weight:2,opacity:op,fillColor:'#66BB6A',fillOpacity:op}).addTo(map);
+      end   = L.circleMarker(b,{radius:r,color:'#000',weight:2,opacity:op,fillColor:'#EF5350',fillOpacity:op}).addTo(map);
     }
     // Start marker: the ride-start "Connected" popup. End marker: "Ride end".
     // When start and end overlap (loop rides) the single marker shows both.
