@@ -2036,7 +2036,8 @@
     <string name="accel_split_best_yet">, 신기록</string>
     <string name="report_contents">음성 보고 맞춤 설정</string>
     <string name="trip_customize">사용자 지정</string>
-    <string name="trip_trim">구간 자르기</string>
+    <string name="trip_trim">보기 범위 자르기</string>
+    <string name="trip_trim_title">보기 범위 자르기</string>
     <string name="trip_customize_tiles">타일</string>
     <string name="trip_customize_graphs">그래프</string>
     <string name="recording_details_section">추가 정보</string>

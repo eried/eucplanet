@@ -2038,7 +2038,8 @@
     <string name="accel_split_best_yet">、ベスト更新</string>
     <string name="report_contents">音声報告をカスタマイズ</string>
     <string name="trip_customize">カスタマイズ</string>
-    <string name="trip_trim">区間を切り出す</string>
+    <string name="trip_trim">表示範囲を絞る</string>
+    <string name="trip_trim_title">表示範囲を絞る</string>
     <string name="trip_customize_tiles">タイル</string>
     <string name="trip_customize_graphs">グラフ</string>
     <string name="recording_details_section">詳細情報</string>

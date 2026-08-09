@@ -56,6 +56,10 @@ fun TrimTimeDialog(
     startMs: Long,
     endMs: Long,
     durationMs: Long,
+    /** Dialog heading. Defaults to Overlay Studio's wording, where the range
+     *  really does trim the trip being replayed. Callers that only narrow what
+     *  is on screen should pass their own. */
+    title: String = stringResource(R.string.studio_replay_trim_title),
     /** Minimum samples the selection must contain for Apply to enable. 0 disables the check. */
     minPoints: Int = 0,
     /** How many samples fall in a candidate range. Only called when [minPoints] > 0. */
@@ -89,7 +93,7 @@ fun TrimTimeDialog(
         onDismissRequest = onDismiss,
         // A stray tap outside must not drop an in-progress edit.
         properties = DialogProperties(dismissOnClickOutside = false),
-        title = { Text(stringResource(R.string.studio_replay_trim_title)) },
+        title = { Text(title) },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 TrimTimeField(

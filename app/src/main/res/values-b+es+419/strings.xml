@@ -2055,7 +2055,8 @@
     <string name="accel_split_best_yet">, nuevo récord</string>
     <string name="report_contents">Personalizar reporte de voz</string>
     <string name="trip_customize">Personalizar</string>
-    <string name="trip_trim">Recortar a un tramo</string>
+    <string name="trip_trim">Recortar la vista</string>
+    <string name="trip_trim_title">Recortar la vista</string>
     <string name="trip_customize_tiles">Fichas</string>
     <string name="trip_customize_graphs">Gráficos</string>
     <string name="recording_details_section">Detalles adicionales</string>

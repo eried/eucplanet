@@ -2052,7 +2052,8 @@
     <string name="accel_split_best_yet">, ny rekord</string>
     <string name="report_contents">Tilpas talerapport</string>
     <string name="trip_customize">Tilpas</string>
-    <string name="trip_trim">Beskær til et udsnit</string>
+    <string name="trip_trim">Beskær visningen</string>
+    <string name="trip_trim_title">Beskær visningen</string>
     <string name="trip_customize_tiles">Felter</string>
     <string name="trip_customize_graphs">Grafer</string>
     <string name="recording_details_section">Ekstra detaljer</string>

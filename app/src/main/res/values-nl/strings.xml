@@ -2039,7 +2039,8 @@
     <string name="accel_split_best_yet">, nieuw record</string>
     <string name="report_contents">Stemrapport aanpassen</string>
     <string name="trip_customize">Aanpassen</string>
-    <string name="trip_trim">Bijsnijden tot deel</string>
+    <string name="trip_trim">Weergave bijsnijden</string>
+    <string name="trip_trim_title">Weergave bijsnijden</string>
     <string name="trip_customize_tiles">Tegels</string>
     <string name="trip_customize_graphs">Grafieken</string>
     <string name="recording_details_section">Extra details</string>

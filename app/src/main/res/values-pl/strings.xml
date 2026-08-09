@@ -2037,7 +2037,8 @@
     <string name="accel_split_best_yet">, nowy rekord</string>
     <string name="report_contents">Dostosuj raport głosowy</string>
     <string name="trip_customize">Dostosuj</string>
-    <string name="trip_trim">Przytnij do fragmentu</string>
+    <string name="trip_trim">Przytnij widok</string>
+    <string name="trip_trim_title">Przytnij widok</string>
     <string name="trip_customize_tiles">Kafelki</string>
     <string name="trip_customize_graphs">Wykresy</string>
     <string name="recording_details_section">Dodatkowe szczegóły</string>

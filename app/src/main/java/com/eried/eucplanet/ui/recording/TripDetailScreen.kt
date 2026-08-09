@@ -177,6 +177,9 @@ fun TripDetailScreen(
             startMs = trimRange?.first ?: 0L,
             endMs = trimRange?.last ?: full,
             durationMs = full,
+            // Not Overlay Studio's "Trim trip": nothing here is modified, the
+            // recording is untouched and only what is on screen narrows.
+            title = stringResource(R.string.trip_trim_title),
             minPoints = TripTrim.MIN_POINTS,
             pointsInRange = { r -> TripTrim.countInRange(elapsedMs, r) },
             onConfirm = { s, e ->
@@ -1468,8 +1471,14 @@ private fun MapSurface(
     val endLabelJs = remember(endLabel) { org.json.JSONObject.quote(endLabel) }
     var webView by remember { mutableStateOf<WebView?>(null) }
     val mapTypes = listOf("LIGHT", "DARK", "SAT")
-    // Rebuild the WebView only when the historical trace changes or when we first
-    // enter/leave live mode. Bake the CURRENT style into the initial HTML so a
+    // The HTML actually showing in the WebView.
+    //
+    // A plain holder rather than Compose state on purpose: it is written from
+    // inside AndroidView's update block, and making it state would schedule a
+    // recomposition from within one.
+    val loadedHtml = remember { arrayOfNulls<String>(1) }
+    // Rebuilt whenever the trace changes (a trim, for instance) or we enter or
+    // leave live mode. Bake the CURRENT style into the initial HTML so a
     // freshly-opened surface (e.g. fullscreen) starts on the shared style rather
     // than flashing light first; style cycles afterwards go through JS.
     val html = remember(
@@ -1509,10 +1518,22 @@ private fun MapSurface(
                         false
                     }
                     loadDataWithBaseURL(null, html, "text/html", "UTF-8", null)
+                    loadedHtml[0] = html
                     webView = this
                 }
             },
-            update = { wv -> webView = wv },
+            // factory runs once, so loading the page only there left the map
+            // frozen on whatever trace it was first built with. Applying a trim
+            // rebuilt the HTML and then threw it away. Reload whenever the
+            // document actually changed, which also refits the view to the new
+            // trace.
+            update = { wv ->
+                webView = wv
+                if (loadedHtml[0] != html) {
+                    loadedHtml[0] = html
+                    wv.loadDataWithBaseURL(null, html, "text/html", "UTF-8", null)
+                }
+            },
             modifier = Modifier.fillMaxSize()
         )
         // Controls: fullscreen toggle over the map-style cycler.
