@@ -965,12 +965,13 @@ class RouteBuilderViewModel @Inject constructor(
 
     // --- Map style ---------------------------------------------------------------
 
-    /** Cycles the base map style Dark → Light → Satellite → Dark. */
+    /** Cycles the base map style Dark, Light, Terrain, Satellite, Dark. */
     fun cycleMapType() {
         setMapType(
             when (_mapType.value) {
                 "DARK" -> "LIGHT"
-                "LIGHT" -> "SATELLITE"
+                "LIGHT" -> "TOPO"
+                "TOPO" -> "SATELLITE"
                 else -> "DARK"
             }
         )

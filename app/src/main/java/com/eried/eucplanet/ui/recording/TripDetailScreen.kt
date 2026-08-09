@@ -1474,7 +1474,7 @@ private fun MapSurface(
     val startLabelJs = remember(startLabel) { org.json.JSONObject.quote(startLabel) }
     val endLabelJs = remember(endLabel) { org.json.JSONObject.quote(endLabel) }
     var webView by remember { mutableStateOf<WebView?>(null) }
-    val mapTypes = listOf("LIGHT", "DARK", "SAT")
+    val mapTypes = listOf("LIGHT", "DARK", "TOPO", "SAT")
     // The HTML actually showing in the WebView.
     //
     // A plain holder rather than Compose state on purpose: it is written from
@@ -1636,14 +1636,24 @@ private fun buildMapHtml(coordsJson: String, fadedCoordsJson: String, switchesJs
   var fadedCoords=[$fadedCoordsJson];
   var map=L.map('map',{zoomControl:false,attributionControl:false});
   var baseLayer=null;
+  // {r} asks the provider for its @2x tile on a high-density screen. Without it
+  // a phone upscales a 256 px tile threefold or more, which is most of why the
+  // map read as soft and short on detail. Esri's tiles carry no {r}, so it
+  // expands to "" there and the URL is unchanged.
   var tileUrls={
-    LIGHT:'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png',
-    DARK:'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png',
+    LIGHT:'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
+    DARK:'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
+    TOPO:'https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}',
     SAT:'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'
   };
   window.setMapType=function(t){
     if(baseLayer) map.removeLayer(baseLayer);
-    baseLayer=L.tileLayer(tileUrls[t]||tileUrls.LIGHT,{maxZoom:19,subdomains:'abcd'}).addTo(map);
+    // maxNativeZoom stops requesting tiles the provider does not have, while
+    // maxZoom lets the rider keep zooming on upscaled ones rather than hitting
+    // a wall at street level.
+    var native = (t === 'LIGHT' || t === 'DARK') ? 20 : 19;
+    baseLayer=L.tileLayer(tileUrls[t]||tileUrls.LIGHT,
+      {maxNativeZoom:native, maxZoom:21, subdomains:'abcd'}).addTo(map);
     baseLayer.bringToBack();
   };
   window.setMapType('$initialType');

@@ -543,15 +543,29 @@ private const val ROUTE_BUILDER_HTML_1: String = """
     // a fatter ring of tiles around the viewport hides the background.
     // updateWhenIdle: false -- we want tiles to keep loading while the
     // tween is in flight, not waiting for it to settle.
+    // {r} makes Leaflet ask for the provider's @2x tile on a high-density
+    // screen. Without it a phone upscales a 256 px tile by three or more, which
+    // is most of why the map looked soft and short on detail next to the web
+    // viewer. Carto and Esri both serve @2x; the {r} expands to "" elsewhere.
+    //
+    // maxNativeZoom vs maxZoom: the provider stops at the native level, but the
+    // map keeps zooming past it on upscaled tiles rather than refusing to zoom
+    // and leaving the rider stuck at street level.
+    var common = {keepBuffer:8, updateWhenIdle:false, updateWhenZooming:false, updateInterval:1000};
     if (type === 'SATELLITE'){
       url = 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}';
-      opts = {maxZoom:19, keepBuffer:8, updateWhenIdle:false, updateWhenZooming:false, updateInterval:1000};
+      opts = Object.assign({maxNativeZoom:19, maxZoom:21}, common);
+    } else if (type === 'TOPO'){
+      // Terrain: contours, hillshading, tracks and trails. The closest thing to
+      // the web viewer's terrain view that needs no key.
+      url = 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}';
+      opts = Object.assign({maxNativeZoom:19, maxZoom:21}, common);
     } else if (type === 'LIGHT'){
-      url = 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png';
-      opts = {maxZoom:19, subdomains:'abcd', keepBuffer:8, updateWhenIdle:false, updateWhenZooming:false, updateInterval:1000};
+      url = 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png';
+      opts = Object.assign({maxNativeZoom:20, maxZoom:21, subdomains:'abcd'}, common);
     } else {
-      url = 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png';
-      opts = {maxZoom:19, subdomains:'abcd', keepBuffer:8, updateWhenIdle:false, updateWhenZooming:false, updateInterval:1000};
+      url = 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png';
+      opts = Object.assign({maxNativeZoom:20, maxZoom:21, subdomains:'abcd'}, common);
     }
     if (tileLayer){ map.removeLayer(tileLayer); }
     tileLayer = L.tileLayer(url, opts).addTo(map);
