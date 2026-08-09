@@ -67,11 +67,14 @@ data class ChargingSnapshot(
     val fullEtaMs: Long? = null,
     /** Rolling log of the running prediction, see [PredictionSample]. */
     val predictionHistory: List<PredictionSample> = emptyList(),
-    /** Signed Wh integrated since session start (+ charging, − discharging). */
+    /** Signed Wh integrated since session start (+ into the battery, - out of it). */
     val sessionEnergyWh: Float = 0f,
-    /** Wh added while charging this session (positive-power integration). */
+    /** Wh into the battery this session: charging, plus regen while riding.
+     *  Already normalised for the wheel family's sign convention by
+     *  [ChargeEnergy.stepWh], so consumers must not flip it again. */
     val sessionEnergyInWh: Float = 0f,
-    /** Wh used while discharging this session (magnitude of the negative-power part). */
+    /** Wh out of the battery this session, as a positive magnitude. Same
+     *  normalisation as [sessionEnergyInWh]. */
     val sessionEnergyOutWh: Float = 0f,
     /** Per-pack cell-spread history, one list per pack, sampled on the SAME
      *  cadence as [chargeHistory] so the X axes line up. Three parallel series
@@ -343,6 +346,15 @@ class WheelRepository @Inject constructor(
     // real "out" over the ride while its "in" stays ~0.
     private var sessionEnergyInWh = 0f
     private var sessionEnergyOutWh = 0f
+
+    /**
+     * InMotion V1 (V8S and family) reports discharge as POSITIVE power, so its
+     * charge current is negative. Every other decoded family is the other way
+     * round. Read by the energy integrator so the session buckets are filed by
+     * meaning rather than by raw sign.
+     */
+    private val dischargeIsPositivePower: Boolean
+        get() = wheelAdapter.familyId == "inmotion_v1"
     private var sessionLastEnergyMs = 0L
     private var sessionLastPowerW = 0f
     private val _chargingSnapshot = MutableStateFlow(ChargingSnapshot())
@@ -846,9 +858,14 @@ class WheelRepository @Inject constructor(
             // Trapezoidal energy integration: avg(prev, now) * dt. Capped dt
             // so a long pause/clock jump doesn't accumulate a phantom bucket.
             val nowPowerW = data.voltage * data.current
-            val dtMs = (data.timestamp - sessionLastEnergyMs).coerceIn(0L, 5_000L)
-            if (dtMs > 0L) {
-                val incWh = ((sessionLastPowerW + nowPowerW) * 0.5f) * (dtMs / 3_600_000f)
+            val dtMs = data.timestamp - sessionLastEnergyMs
+            // Signed by the family's convention inside ChargeEnergy, so the two
+            // buckets mean what they say: In = into the battery (charging),
+            // Out = out of it (riding). Nothing downstream re-flips.
+            val incWh = ChargeEnergy.stepWh(
+                sessionLastPowerW, nowPowerW, dtMs, dischargeIsPositivePower
+            )
+            if (incWh != 0f) {
                 sessionEnergyWh += incWh
                 if (incWh >= 0f) sessionEnergyInWh += incWh else sessionEnergyOutWh -= incWh
             }
@@ -1701,10 +1718,6 @@ class WheelRepository @Inject constructor(
                 // V8S "Light switch only turns on, never off" bug.
                 val realtimeLacksLight = _modelName.value?.contains("P6") == true ||
                     wheelAdapter.familyId == "inmotion_v1"
-                // InMotion V1 reports discharge as positive power (opposite of
-                // V14), so the ride-energy consumed/regen accumulators swap for
-                // it. See the whConsumed / whRegen mapping in the copy below.
-                val v1SignedPower = wheelAdapter.familyId == "inmotion_v1"
                 // V14 etc. don't carry total distance in realtime frames, so
                 // preserve whatever was set via the separate TotalDistance
                 // decode. The P6 ships the lifetime odometer inline at offset
@@ -1754,17 +1767,12 @@ class WheelRepository @Inject constructor(
                     // the Energy / Regen / Wh-per-km tiles have a value without a
                     // second emission per frame.
                     //
-                    // Sign convention differs by family. The integrator files
-                    // POSITIVE power into sessionEnergyInWh and negative into
-                    // sessionEnergyOutWh. On InMotion V2 (V14) discharge current
-                    // is negative, so Out = consumed / In = regen. But the
-                    // InMotion V1 (V8S) reports discharge as POSITIVE power (its
-                    // idle +3 W matches EUC World and V x I exactly), so for V1
-                    // the two swap: In = consumed, Out = regen. Flip only V1 -
-                    // the family we have a decoded capture for - and leave every
-                    // other family's validated mapping alone.
-                    whConsumed = if (v1SignedPower) sessionEnergyInWh else sessionEnergyOutWh,
-                    whRegen = if (v1SignedPower) sessionEnergyOutWh else sessionEnergyInWh
+                    // The family's sign convention is resolved once, in
+                    // ChargeEnergy.stepWh, so the buckets already mean energy
+                    // into and out of the battery. Out = consumed, In = regen
+                    // while riding, on every family. Do NOT re-flip here.
+                    whConsumed = sessionEnergyOutWh,
+                    whRegen = sessionEnergyInWh
                 )
                 _chargeStatus.value = deriveChargeStatus(_wheelData.value)
                 // Never let the charging-session bookkeeping throw out of the
