@@ -2055,7 +2055,6 @@
     <string name="trip_trim">Beskær til et udsnit</string>
     <string name="trip_customize_tiles">Felter</string>
     <string name="trip_customize_graphs">Grafer</string>
-    <string name="trip_customize_more_graphs">Flere grafer</string>
     <string name="recording_details_section">Ekstra detaljer</string>
     <string name="recording_details_none">Der blev ikke registreret noget hjul for denne tur.</string>
     <string name="cloud_reset_local">Ryd lokale ture</string>

@@ -2044,7 +2044,6 @@
     <string name="trip_trim">Réduire à une section</string>
     <string name="trip_customize_tiles">Tuiles</string>
     <string name="trip_customize_graphs">Graphiques</string>
-    <string name="trip_customize_more_graphs">Autres graphiques</string>
     <string name="recording_details_section">Détails supplémentaires</string>
     <string name="recording_details_none">Aucune roue signalée pour ce trajet.</string>
     <string name="cloud_reset_local">Effacer les trajets locaux</string>

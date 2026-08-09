@@ -2060,7 +2060,6 @@
     <string name="trip_trim">Auf Abschnitt kürzen</string>
     <string name="trip_customize_tiles">Kacheln</string>
     <string name="trip_customize_graphs">Diagramme</string>
-    <string name="trip_customize_more_graphs">Weitere Diagramme</string>
     <string name="recording_details_section">Weitere Details</string>
     <string name="recording_details_none">Für diese Fahrt wurde kein Wheel gemeldet.</string>
     <string name="cloud_reset_local">Lokale Fahrten löschen</string>

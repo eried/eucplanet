@@ -1945,7 +1945,6 @@
     <string name="trip_trim">Ritaglia a una sezione</string>
     <string name="trip_customize_tiles">Riquadri</string>
     <string name="trip_customize_graphs">Grafici</string>
-    <string name="trip_customize_more_graphs">Altri grafici</string>
     <string name="recording_details_section">Dettagli aggiuntivi</string>
     <string name="recording_details_none">Nessuna ruota registrata per questo viaggio.</string>
     <string name="cloud_reset_local">Cancella viaggi locali</string>

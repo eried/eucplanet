@@ -2041,7 +2041,6 @@
     <string name="trip_trim">区間を切り出す</string>
     <string name="trip_customize_tiles">タイル</string>
     <string name="trip_customize_graphs">グラフ</string>
-    <string name="trip_customize_more_graphs">その他のグラフ</string>
     <string name="recording_details_section">詳細情報</string>
     <string name="recording_details_none">このライドではホイールが記録されていません。</string>
     <string name="cloud_reset_local">ローカルのトリップを削除</string>

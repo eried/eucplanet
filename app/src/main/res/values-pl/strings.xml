@@ -2040,7 +2040,6 @@
     <string name="trip_trim">Przytnij do fragmentu</string>
     <string name="trip_customize_tiles">Kafelki</string>
     <string name="trip_customize_graphs">Wykresy</string>
-    <string name="trip_customize_more_graphs">Więcej wykresów</string>
     <string name="recording_details_section">Dodatkowe szczegóły</string>
     <string name="recording_details_none">Nie zarejestrowano koła dla tego przejazdu.</string>
     <string name="cloud_reset_local">Wyczyść lokalne przejazdy</string>

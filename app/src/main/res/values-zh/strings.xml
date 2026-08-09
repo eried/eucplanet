@@ -1907,7 +1907,6 @@
     <string name="trip_trim">裁剪到区间</string>
     <string name="trip_customize_tiles">卡片</string>
     <string name="trip_customize_graphs">图表</string>
-    <string name="trip_customize_more_graphs">更多图表</string>
     <string name="recording_details_section">额外详情</string>
     <string name="recording_details_none">本次骑行未记录独轮车。</string>
     <string name="cloud_reset_local">清除本地行程</string>

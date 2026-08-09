@@ -2040,7 +2040,6 @@
     <string name="trip_trim">Обрезать до участка</string>
     <string name="trip_customize_tiles">Плитки</string>
     <string name="trip_customize_graphs">Графики</string>
-    <string name="trip_customize_more_graphs">Другие графики</string>
     <string name="recording_details_section">Дополнительные сведения</string>
     <string name="recording_details_none">Для этой поездки моноколесо не указано.</string>
     <string name="cloud_reset_local">Очистить локальные поездки</string>

@@ -2039,7 +2039,6 @@
     <string name="trip_trim">구간 자르기</string>
     <string name="trip_customize_tiles">타일</string>
     <string name="trip_customize_graphs">그래프</string>
-    <string name="trip_customize_more_graphs">추가 그래프</string>
     <string name="recording_details_section">추가 정보</string>
     <string name="recording_details_none">이 주행에 대해 보고된 휠이 없습니다.</string>
     <string name="cloud_reset_local">로컬 트립 삭제</string>

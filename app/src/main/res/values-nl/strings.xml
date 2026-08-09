@@ -2042,7 +2042,6 @@
     <string name="trip_trim">Bijsnijden tot deel</string>
     <string name="trip_customize_tiles">Tegels</string>
     <string name="trip_customize_graphs">Grafieken</string>
-    <string name="trip_customize_more_graphs">Meer grafieken</string>
     <string name="recording_details_section">Extra details</string>
     <string name="recording_details_none">Geen wiel geregistreerd voor deze rit.</string>
     <string name="cloud_reset_local">Lokale ritten wissen</string>

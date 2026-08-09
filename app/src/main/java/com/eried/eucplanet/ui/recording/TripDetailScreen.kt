@@ -682,11 +682,10 @@ fun TripDetailScreen(
             // Effective chart order via the same shared helper (see applyOrder):
             // covers all six keys so the customizer list is stable even for a trip
             // that has no current / pwm data.
-            val chartKeysDefault = listOf("speed", "battery", "temp", "voltage", "current", "pwm") +
-                // Only the extras the rider switched on join the order, so the
-                // reorder list stays the familiar six until they ask for more.
-                EXTRA_CHART_KEYS.filter { it in extraCharts }
-            val effectiveChartOrder = applyOrder(chartKeysDefault, savedChartOrder)
+            // Every graph is listed, so the customizer shows the smoothed ones
+            // sitting under the series they smooth. Whether each is switched on
+            // is a separate question, answered by hiddenCharts / extraCharts.
+            val effectiveChartOrder = applyOrder(CHART_KEYS_DEFAULT, savedChartOrder)
 
             // Scrub-synced charts, in the rider's order. A chart drops out when
             // its key is hidden, when it isn't in allCharts (absent current / pwm
@@ -911,7 +910,6 @@ private fun CustomizeSheet(
     // Sections default expanded; each header's chevron toggles its own list.
     var tilesExpanded by remember { mutableStateOf(true) }
     var chartsExpanded by remember { mutableStateOf(true) }
-    var moreExpanded by remember { mutableStateOf(true) }
     ModalBottomSheet(onDismissRequest = onDismiss) {
         Column(
             Modifier
@@ -1006,46 +1004,22 @@ private fun CustomizeSheet(
                                 modifier = Modifier.weight(1f),
                                 color = MaterialTheme.appColors.textPrimary,
                             )
+                            // One list, two stores. The graphs that ship on are
+                            // tracked by what the rider HID; the ones that ship
+                            // off by what they switched ON. The switch reads and
+                            // writes the right one, so the distinction never
+                            // surfaces here.
+                            val isExtra = chartKey in EXTRA_CHART_KEYS
                             Switch(
-                                checked = chartKey !in hiddenCharts,
-                                onCheckedChange = { onToggleChart(chartKey, !it) },
+                                checked = if (isExtra) chartKey in extraCharts
+                                          else chartKey !in hiddenCharts,
+                                onCheckedChange = {
+                                    if (isExtra) onToggleExtraChart(chartKey, it)
+                                    else onToggleChart(chartKey, !it)
+                                },
                                 colors = themedSwitchColors(),
                             )
                         }
-                    }
-                }
-            }
-
-            // Opt-in extra graphs. Off until asked for, so the six familiar ones
-            // stay the default view. Switching one on adds it to the reorderable
-            // Graphs list above, where it can then be moved or hidden like any
-            // other. No drag handles here: this section is about existence, not
-            // order.
-            Spacer(Modifier.height(8.dp))
-            CustomizeSectionHeader(
-                title = stringResource(R.string.trip_customize_more_graphs),
-                expanded = moreExpanded,
-                onToggle = { moreExpanded = !moreExpanded },
-            )
-            if (moreExpanded) {
-                EXTRA_CHART_KEYS.forEach { chartKey ->
-                    Row(
-                        Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 2.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
-                        Spacer(Modifier.width(36.dp))
-                        Text(
-                            chartLabels[chartKey] ?: chartKey,
-                            modifier = Modifier.weight(1f),
-                            color = MaterialTheme.appColors.textPrimary,
-                        )
-                        Switch(
-                            checked = chartKey in extraCharts,
-                            onCheckedChange = { onToggleExtraChart(chartKey, it) },
-                            colors = themedSwitchColors(),
-                        )
                     }
                 }
             }
@@ -1290,19 +1264,35 @@ private fun timePartOf(date: String): String {
 }
 
 /**
- * Opt-in Trip Details graphs, in the order the customizer lists them.
+ * Every Trip Details graph, in default display order.
  *
- * Off until the rider switches one on, which is why they live in their own
- * settings key rather than the hidden-charts CSV: that set records only what was
- * hidden, so anything absent from it shows, and a new key would appear for every
- * rider on upgrade.
- *
- * The smoothed variants exist because the raw series are honest but hard to
- * read: battery sags under load and springs back, current is close to noise at
- * the ~1 Hz sample rate, and PWM peaks are momentary.
+ * Each smoothed variant sits directly under the raw series it smooths, so the
+ * pair reads together in the customizer and on the screen. The raw series are
+ * honest but hard to read: battery sags under load and springs back, current is
+ * close to noise at the ~1 Hz sample rate, and PWM peaks are momentary.
  */
-private val EXTRA_CHART_KEYS = listOf(
-    "batterySmooth", "speedSmooth", "currentSmooth", "pwmSmooth", "power", "altitude",
+private val CHART_KEYS_DEFAULT = listOf(
+    "speed", "speedSmooth",
+    "battery", "batterySmooth",
+    "temp",
+    "voltage",
+    "current", "currentSmooth",
+    "pwm", "pwmSmooth",
+    "power",
+    "altitude",
+)
+
+/**
+ * The graphs that start switched OFF.
+ *
+ * They need a separate settings key from the rest, because the hidden-charts CSV
+ * records only what was HIDDEN: a key absent from it shows, so listing new keys
+ * there would have made six graphs appear unannounced for every rider on
+ * upgrade. The rider sees one list either way, the difference is only which
+ * store the switch writes to.
+ */
+private val EXTRA_CHART_KEYS = setOf(
+    "speedSmooth", "batterySmooth", "currentSmooth", "pwmSmooth", "power", "altitude",
 )
 
 // The rider's Trip-details map-style pick (LIGHT / DARK / SAT). Process-scoped so it

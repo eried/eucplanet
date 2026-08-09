@@ -2037,7 +2037,6 @@
     <string name="trip_trim">Recortar a un tramo</string>
     <string name="trip_customize_tiles">Fichas</string>
     <string name="trip_customize_graphs">Gráficos</string>
-    <string name="trip_customize_more_graphs">Más gráficos</string>
     <string name="recording_details_section">Detalles adicionales</string>
     <string name="recording_details_none">No se registró ninguna rueda en este viaje.</string>
     <string name="cloud_reset_local">Borrar viajes locales</string>

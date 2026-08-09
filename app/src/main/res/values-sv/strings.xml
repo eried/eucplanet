@@ -2040,7 +2040,6 @@
     <string name="trip_trim">Beskär till en del</string>
     <string name="trip_customize_tiles">Rutor</string>
     <string name="trip_customize_graphs">Grafer</string>
-    <string name="trip_customize_more_graphs">Fler grafer</string>
     <string name="recording_details_section">Extra detaljer</string>
     <string name="recording_details_none">Inget hjul registrerat för den här turen.</string>
     <string name="cloud_reset_local">Rensa lokala turer</string>

@@ -2037,7 +2037,6 @@
     <string name="trip_trim">Обрізати до ділянки</string>
     <string name="trip_customize_tiles">Плитки</string>
     <string name="trip_customize_graphs">Графіки</string>
-    <string name="trip_customize_more_graphs">Інші графіки</string>
     <string name="recording_details_section">Додаткові відомості</string>
     <string name="recording_details_none">Для цієї поїздки моноколесо не вказано.</string>
     <string name="cloud_reset_local">Очистити локальні поїздки</string>

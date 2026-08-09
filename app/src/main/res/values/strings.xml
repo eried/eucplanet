@@ -1224,7 +1224,6 @@
     <string name="trip_trim">Trim to a section</string>
     <string name="trip_customize_tiles">Tiles</string>
     <string name="trip_customize_graphs">Graphs</string>
-    <string name="trip_customize_more_graphs">More graphs</string>
 
     <!-- Automations / Auto tab -->
     <string name="auto_lights_title">Lights</string>

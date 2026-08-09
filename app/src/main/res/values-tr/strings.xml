@@ -2037,7 +2037,6 @@
     <string name="trip_trim">Bir bölüme kırp</string>
     <string name="trip_customize_tiles">Kutucuklar</string>
     <string name="trip_customize_graphs">Grafikler</string>
-    <string name="trip_customize_more_graphs">Daha fazla grafik</string>
     <string name="recording_details_section">Ek ayrıntılar</string>
     <string name="recording_details_none">Bu sürüş için teker bildirilmedi.</string>
     <string name="cloud_reset_local">Yerel seferleri temizle</string>

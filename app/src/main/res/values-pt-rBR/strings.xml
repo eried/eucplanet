@@ -2042,7 +2042,6 @@
     <string name="trip_trim">Recortar para um trecho</string>
     <string name="trip_customize_tiles">Blocos</string>
     <string name="trip_customize_graphs">Gráficos</string>
-    <string name="trip_customize_more_graphs">Mais gráficos</string>
     <string name="recording_details_section">Detalhes adicionais</string>
     <string name="recording_details_none">Nenhuma roda registrada para este trajeto.</string>
     <string name="cloud_reset_local">Limpar viagens locais</string>
