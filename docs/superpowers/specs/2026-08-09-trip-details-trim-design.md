@@ -59,10 +59,17 @@ var allPoints by remember { mutableStateOf<List<TripDataPoint>>(emptyList()) }
 /** Elapsed-ms window into the ride. null means the full trip. */
 var trimRange by remember { mutableStateOf<LongRange?>(null) }
 
-val dataPoints = remember(allPoints, trimRange) {
+// TripDataPoint.date is a String, and TripCsv.parseDate goes through
+// SimpleDateFormat, which is slow. A long ride is tens of thousands of rows,
+// so elapsed offsets are parsed once per trip and reused on every trim change.
+val elapsedMs = remember(allPoints) {
+    val t0 = allPoints.firstNotNullOfOrNull { TripCsv.parseDate(it.date) } ?: 0L
+    LongArray(allPoints.size) { i -> (TripCsv.parseDate(allPoints[i].date) ?: t0) - t0 }
+}
+
+val dataPoints = remember(allPoints, elapsedMs, trimRange) {
     val r = trimRange ?: return@remember allPoints
-    val t0 = allPoints.firstOrNull()?.date?.time ?: 0L
-    allPoints.filter { (it.date.time - t0) in r }
+    allPoints.filterIndexed { i, _ -> elapsedMs[i] in r }
 }
 ```
 
@@ -84,6 +91,9 @@ markers with no visible error. Filtering once keeps it correct by construction.
 
 `trimRange` is stored in elapsed milliseconds from the first sample, not as
 indices, so it stays meaningful and matches what the rider typed in the dialog.
+
+Rows whose timestamp does not parse fall back to offset 0, matching how
+`TripCsv.metricsFrom` already skips unparseable dates rather than failing.
 
 ### The heal hazard
 
