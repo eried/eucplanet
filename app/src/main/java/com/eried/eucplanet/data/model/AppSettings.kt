@@ -63,8 +63,9 @@ data class AppSettings(
     val voiceAnnounceWhen: String = "RIDING",
     // Extra AND condition on the periodic report: when true, only speak while
     // audio is on an external output (headphones / Bluetooth / wired / USB), not
-    // the phone speaker. Independent of voiceAnnounceWhen. Off by default.
-    val voiceAnnounceRequireExternal: Boolean = false,
+    // the phone speaker. Independent of voiceAnnounceWhen. On by default so a new
+    // install never announces over the phone speaker.
+    val voiceAnnounceRequireExternal: Boolean = true,
     val voiceIntervalSeconds: Int = 60,
     val voiceSpeechRate: Float = 1.2f,
     val voiceLocale: String = "en_US",  // locale tag for TTS voice
@@ -981,8 +982,8 @@ data class MediaControlSettings(
     val resumeAboveKmh: Int = 10,
     // When true, RESUME only fires while audio is on an external output
     // (headphones / Bluetooth / wired / USB), never the phone speaker. Pausing is
-    // never gated on the route. Only meaningful with resume on.
-    val requireExternalOutput: Boolean = false,
+    // never gated on the route. Only meaningful with resume on. On by default.
+    val requireExternalOutput: Boolean = true,
 )
 
 /**
