@@ -258,6 +258,10 @@ class RouteBuilderViewModel @Inject constructor(
 
     val currentLocation: StateFlow<Location?> = tripRepository.currentLocation
 
+    /** Any-age position, for framing the map when there is no live fix. See
+     *  [com.eried.eucplanet.data.repository.TripRepository.lastKnownLocation]. */
+    val lastKnownLocation: StateFlow<Location?> = tripRepository.lastKnownLocation
+
     val imperialUnits: StateFlow<Boolean> = settingsRepository.settings
         .map { it.imperialUnits }
         .stateIn(viewModelScope, SharingStarted.Eagerly, false)

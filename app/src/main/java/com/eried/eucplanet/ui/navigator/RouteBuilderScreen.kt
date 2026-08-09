@@ -151,6 +151,12 @@ import com.eried.eucplanet.ui.theme.appColors
 // split-screen half or a sub-~330dp screen -- falls back to the short "Start".
 private val START_NAV_MIN_WIDTH = 260.dp
 
+// How long the "Locating" cover waits for a first fix once the map itself is
+// ready to show. Long enough that a fix a moment away still lands behind the
+// cover (no jarring recentre), short enough that a rider with location off is
+// not left staring at a panel that will never resolve.
+private const val LOCATING_GRACE_MS = 4_000L
+
 @SuppressLint("SetJavaScriptEnabled")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -173,6 +179,11 @@ fun RouteBuilderScreen(
     val routing by viewModel.routing.collectAsState()
     val mapRender by viewModel.mapRender.collectAsState()
     val userLocation by viewModel.currentLocation.collectAsState()
+    // Falls back to the last position at any age so the map still opens on the
+    // rider's area when location is off, denied, or has not fixed yet. Framing
+    // only: the marker, guidance and "can start" all still require a live fix.
+    val lastKnownLocation by viewModel.lastKnownLocation.collectAsState()
+    val mapAnchor = userLocation ?: lastKnownLocation
     val imperial by viewModel.imperialUnits.collectAsState()
     val mapType by viewModel.mapType.collectAsState()
     val homePlace by viewModel.home.collectAsState()
@@ -272,10 +283,16 @@ fun RouteBuilderScreen(
     // of Africa, no dark flash. Each precondition addresses one of the
     // staged glitches the previous fixes left behind.
     var locationGateDone by remember { mutableStateOf(false) }
+    // A fix lifts the cover immediately, as before. Without one the cover still
+    // lifts once the map has drawn, after a short grace period: the rider may
+    // have location off for battery or privacy, or be indoors, and an
+    // indefinite "Locating" panel over a map that is ready to use is worse than
+    // a map centred on where they last were. A fix arriving during the grace
+    // re-runs this effect and lifts it at once.
     LaunchedEffect(userLocation, firstRenderApplied, tilesLoaded) {
-        if (userLocation != null && firstRenderApplied && tilesLoaded) {
-            locationGateDone = true
-        }
+        if (!firstRenderApplied || !tilesLoaded) return@LaunchedEffect
+        if (userLocation == null) delay(LOCATING_GRACE_MS)
+        locationGateDone = true
     }
 
     BackHandler { onExit() }
@@ -437,8 +454,8 @@ fun RouteBuilderScreen(
 
     // First load: frame the map on the rider instead of the whole world.
     // Skipped when a current route is present, that route frames itself.
-    LaunchedEffect(pageReady, userLocation, route) {
-        val loc = userLocation
+    LaunchedEffect(pageReady, mapAnchor, route) {
+        val loc = mapAnchor
         if (pageReady && !didInitialCenter && route == null && loc != null) {
             webView?.evaluateJavascript(
                 "nativeRecenter(${loc.latitude},${loc.longitude},15);", null

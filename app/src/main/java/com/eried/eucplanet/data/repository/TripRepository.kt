@@ -72,6 +72,21 @@ class TripRepository @Inject constructor(
     private val _currentLocation = MutableStateFlow<Location?>(null)
     val currentLocation: StateFlow<Location?> = _currentLocation.asStateFlow()
 
+    private val _lastKnownLocation = MutableStateFlow<Location?>(null)
+    /**
+     * The most recent position at ANY age, for framing a map only.
+     *
+     * [currentLocation] is deliberately gated on freshness so a recording never
+     * starts with a stale fix, which means it stays null whenever the rider has
+     * location switched off for battery or privacy, or the GPS cannot get a
+     * fix. That left every map with nothing to show. This flow has no age gate,
+     * so a map can still open somewhere sensible.
+     *
+     * Never feed this into a recording, a distance, or a navigation decision.
+     * It can be hours old and the rider may be nowhere near it.
+     */
+    val lastKnownLocation: StateFlow<Location?> = _lastKnownLocation.asStateFlow()
+
     // Id of the TripRecord currently being recorded (null when idle). Used so the trip detail
     // screen can tell whether it is viewing the live-recording trip and animate the marker.
     private val _currentTripId = MutableStateFlow<Long?>(null)
@@ -231,6 +246,7 @@ class TripRepository @Inject constructor(
                 tripHadMockFix = tripHadMockFix || isMockLocation(loc)
             }
             _currentLocation.value = loc
+            _lastKnownLocation.value = loc
             onGpsFix()
         }
     }
@@ -416,6 +432,13 @@ class TripRepository @Inject constructor(
     private fun warmUpFirstFix() {
         try {
             fusedLocationClient.lastLocation.addOnSuccessListener { cached ->
+                // No age gate here: this only ever frames a map. Play Services
+                // keeps its cached fix even while the rider has location
+                // switched off, which is what lets a map open somewhere sensible
+                // instead of on the middle of the Atlantic.
+                if (cached != null && _lastKnownLocation.value == null) {
+                    _lastKnownLocation.value = cached
+                }
                 if (cached != null && _currentLocation.value == null &&
                     System.currentTimeMillis() - cached.time < FRESH_SEED_MS) {
                     Log.i(
@@ -433,6 +456,7 @@ class TripRepository @Inject constructor(
             fusedLocationClient.getCurrentLocation(
                 Priority.PRIORITY_HIGH_ACCURACY, cts.token
             ).addOnSuccessListener { fresh ->
+                if (fresh != null) _lastKnownLocation.value = fresh
                 if (fresh != null && _currentLocation.value == null) {
                     Log.i(
                         TAG,
