@@ -483,6 +483,8 @@ fun TripDetailScreen(
                     points = gpsPoints,
                     fadedPoints = if (trimmed) fullGpsPoints else emptyList(),
                     fadedSwitches = fadedSwitches,
+                    trimmed = trimmed,
+                    onTrimClick = { showTrim = true },
                     isLive = isLive,
                     liveLat = liveLocation?.latitude,
                     liveLon = liveLocation?.longitude,
@@ -1311,6 +1313,9 @@ private fun RouteMapView(
     // Wheel-identity markers from the stretches the trim cut away, drawn faint
     // and without popups. Empty = no trim.
     fadedSwitches: List<WheelSwitchMarker> = emptyList(),
+    // Trim state and the control that opens the dialog. Null hides the button.
+    trimmed: Boolean = false,
+    onTrimClick: (() -> Unit)? = null,
     isLive: Boolean = false,
     liveLat: Double? = null,
     liveLon: Double? = null,
@@ -1355,6 +1360,7 @@ private fun RouteMapView(
 
     MapSurface(
         points = points, fadedPoints = fadedPoints, fadedSwitches = fadedSwitches,
+        trimmed = trimmed, onTrimClick = onTrimClick,
         isLive = isLive, liveLat = liveLat, liveLon = liveLon,
         scrubLat = scrubLat, scrubLon = scrubLon,
         wheelSwitches = wheelSwitches, startLabel = startLabel, endLabel = endLabel,
@@ -1402,7 +1408,8 @@ private fun RouteMapView(
             }
             MapSurface(
                 points = points, fadedPoints = fadedPoints, fadedSwitches = fadedSwitches,
-        isLive = isLive, liveLat = liveLat, liveLon = liveLon,
+                trimmed = trimmed, onTrimClick = onTrimClick,
+                isLive = isLive, liveLat = liveLat, liveLon = liveLon,
                 scrubLat = scrubLat, scrubLon = scrubLon,
                 wheelSwitches = wheelSwitches, startLabel = startLabel, endLabel = endLabel,
                 fullscreen = true, onToggleFullscreen = { fullscreen = false },
@@ -1419,6 +1426,8 @@ private fun MapSurface(
     points: List<TripDataPoint>,
     fadedPoints: List<TripDataPoint>,
     fadedSwitches: List<WheelSwitchMarker>,
+    trimmed: Boolean,
+    onTrimClick: (() -> Unit)?,
     isLive: Boolean,
     liveLat: Double?,
     liveLon: Double?,
@@ -1515,11 +1524,22 @@ private fun MapSurface(
             update = { wv -> webView = wv },
             modifier = Modifier.fillMaxSize()
         )
-        // Controls: fullscreen toggle over the map-style cycler.
+        // Controls: trim over the fullscreen toggle over the map-style cycler.
         Column(
             Modifier.align(Alignment.BottomEnd).padding(8.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
+            // Trim, on the map as well as in the top bar. Fullscreen hides the
+            // top bar entirely, so without this the rider would have to leave
+            // fullscreen to change the section they are looking at.
+            if (onTrimClick != null) {
+                MapButton(
+                    icon = if (trimmed) Icons.Filled.FilterAlt else Icons.Outlined.FilterAlt,
+                    desc = stringResource(R.string.trip_trim),
+                    onClick = onTrimClick,
+                    active = trimmed,
+                )
+            }
             MapButton(
                 icon = if (fullscreen) Icons.Default.FullscreenExit else Icons.Default.Fullscreen,
                 desc = "Fullscreen map",
@@ -1564,7 +1584,14 @@ private fun MapSurface(
 }
 
 @Composable
-private fun MapButton(icon: ImageVector, desc: String, onClick: () -> Unit) {
+private fun MapButton(
+    icon: ImageVector,
+    desc: String,
+    onClick: () -> Unit,
+    // Set while the control's feature is active, so the button reads as "on"
+    // rather than just being a way to reach a dialog.
+    active: Boolean = false,
+) {
     Box(
         Modifier
             .size(40.dp)
@@ -1573,7 +1600,12 @@ private fun MapButton(icon: ImageVector, desc: String, onClick: () -> Unit) {
             .clickable(onClick = onClick),
         contentAlignment = Alignment.Center
     ) {
-        Icon(icon, contentDescription = desc, tint = MaterialTheme.colorScheme.onSurface)
+        Icon(
+            icon,
+            contentDescription = desc,
+            tint = if (active) MaterialTheme.appColors.primary
+                   else MaterialTheme.colorScheme.onSurface,
+        )
     }
 }
 
