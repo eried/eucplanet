@@ -93,6 +93,10 @@ class WheelService : LifecycleService() {
 
     @Volatile
     private var speedUnitCached: String = "kmh"
+    // Mirrored alongside the speed unit so the widget painter, which runs off a
+    // telemetry frame and cannot suspend, formats in the rider's own units.
+    @Volatile
+    private var distanceUnitCached: String = "km"
     // Last paired wheel's name, mirrored from settings so the notification can
     // show it (Tesla-style) without suspending - used when no wheel is actively
     // connected (e.g. while "Connecting" or after a drop).
@@ -202,6 +206,7 @@ class WheelService : LifecycleService() {
                 // Notification builder reads the speed unit without suspending;
                 // mirror the latest value here every settings update.
                 speedUnitCached = com.eried.eucplanet.util.Units.effectiveSpeedUnit(s)
+                distanceUnitCached = com.eried.eucplanet.util.Units.effectiveDistanceUnit(s)
                 lastDeviceNameCached = s.lastDeviceName
                 voicePeriodicCached = s.voicePeriodicEnabled
                 notifActionsEnabledCached = s.notificationActionsEnabled
@@ -283,6 +288,10 @@ class WheelService : LifecycleService() {
                             // A new wheel, or the same one after a gap, must not
                             // average across the break.
                             voiceService.clearTelemetryHistory()
+                            // Drop the widget back to dashes. Without this it
+                            // keeps the last live numbers, which a rider
+                            // glancing at the launcher reads as current.
+                            renderWidget(null)
                             // Only announce if we were actually connected (not just reconnect cycling)
                             if (lastConnectionState == ConnectionState.CONNECTED && settings.announceConnection) {
                                 voiceService.announceEvent(getString(R.string.voice_wheel_disconnected))
@@ -386,11 +395,14 @@ class WheelService : LifecycleService() {
             ACTION_TOGGLE_VOICE -> lifecycleScope.launch {
                 val on = !settingsRepository.get().voicePeriodicEnabled
                 settingsRepository.update { it.copy(voicePeriodicEnabled = on) }
+                voicePeriodicCached = on
                 // Repaint at once so the button label matches the new state
                 // without waiting for the next telemetry frame, which may never
                 // arrive if no wheel is connected.
-                com.eried.eucplanet.widget.EucWidget.render(
-                    this@WheelService, wheelRepository.wheelData.value.takeIf { widgetHasData() }, on
+                renderWidget(
+                    wheelRepository.wheelData.value.takeIf {
+                        wheelRepository.connectionState.value == ConnectionState.CONNECTED
+                    }
                 )
             }
             ACTION_START_RECORDING -> {
@@ -789,12 +801,6 @@ class WheelService : LifecycleService() {
     // --- Home screen widget ---------------------------------------------------
 
     private var lastWidgetUpdate = 0L
-    private var widgetSawData = false
-
-    /** True once telemetry has arrived this connection, so a widget repaint
-     *  triggered by something else (the voice toggle) knows whether the numbers
-     *  it has are real or should stay dashed. */
-    private fun widgetHasData(): Boolean = widgetSawData
 
     /**
      * Repaint the widget from live telemetry, at most once a second.
@@ -803,14 +809,41 @@ class WheelService : LifecycleService() {
      * a Binder into the launcher's process and re-inflates the layout there, so
      * pushing every frame would burn battery on both sides for numbers no one
      * can read that fast. Skipped entirely when no widget is placed.
+     *
+     * Connection state comes from the repository, NOT from the presence of
+     * telemetry: wheelData is a StateFlow holding its last value indefinitely,
+     * so a disconnected wheel still has numbers.
      */
     private fun pushWidget(data: WheelData) {
         if (!com.eried.eucplanet.widget.EucWidget.isPlaced(this)) return
         val now = System.currentTimeMillis()
         if (now - lastWidgetUpdate < 1_000L) return
         lastWidgetUpdate = now
-        widgetSawData = true
-        com.eried.eucplanet.widget.EucWidget.render(this, data, voicePeriodicCached)
+        renderWidget(data)
+    }
+
+    /** Paints the widget in the rider's own units. [data] null paints the
+     *  disconnected state. */
+    private fun renderWidget(data: WheelData?) {
+        if (!com.eried.eucplanet.widget.EucWidget.isPlaced(this)) return
+        val connected =
+            wheelRepository.connectionState.value == ConnectionState.CONNECTED && data != null
+        val speedUnit = speedUnitCached
+        val distUnit = distanceUnitCached
+        com.eried.eucplanet.widget.EucWidget.render(
+            this,
+            com.eried.eucplanet.widget.EucWidget.Snapshot(
+                connected = connected,
+                speed = if (data == null) "--"
+                        else "%.0f".format(com.eried.eucplanet.util.Units.speed(data.speed, speedUnit)),
+                distance = if (data == null) "--"
+                        else "%.1f".format(com.eried.eucplanet.util.Units.distance(data.tripDistance, distUnit)),
+                battery = if (data == null) "--" else "${data.batteryPercent}%",
+                speedUnit = com.eried.eucplanet.util.Units.speedUnit(this, speedUnit),
+                distanceUnit = com.eried.eucplanet.util.Units.distanceUnit(distUnit),
+                voiceOn = voicePeriodicCached,
+            )
+        )
     }
 
     private fun updateNotification(data: WheelData) {
