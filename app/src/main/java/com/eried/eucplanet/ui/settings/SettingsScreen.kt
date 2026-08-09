@@ -6163,22 +6163,6 @@ private fun VoiceTab(
                 onVoiceSelected = { viewModel.updateVoiceLocale(it, voiceWelcome) }
             )
         }
-        // Within the chosen language, offer the individual voices the engine
-        // exposes (many languages have several). Only shown when there is a
-        // real choice to make.
-        val localeVoiceChoices = remember(voiceChoices, settings.voiceLocale) {
-            val norm = settings.voiceLocale.replace('-', '_')
-            voiceChoices.filter { it.localeTag.replace('-', '_') == norm }
-        }
-        if (localeVoiceChoices.size > 1) {
-            VoiceVariantSelector(
-                currentName = settings.voiceName,
-                choices = localeVoiceChoices,
-                defaultSample = voiceDefaultSample,
-                onSelected = { name, sample -> viewModel.updateVoiceName(name, sample) }
-            )
-        }
-
         // Speech speed, while-speaking audio focus, and output channel
         // are tuning knobs most riders accept the defaults for. Tucked
         // behind an Advanced collapsable so the Speech section stays
@@ -6187,6 +6171,22 @@ private fun VoiceTab(
             title = stringResource(R.string.section_voice_advanced),
             stateKey = "voice-advanced"
         ) {
+            // The specific voice within the chosen language (many languages
+            // expose several). Tucked in here so the Speech section leads with
+            // just the Language pick; only shown when there's a real choice.
+            val localeVoiceChoices = remember(voiceChoices, settings.voiceLocale) {
+                val norm = settings.voiceLocale.replace('-', '_')
+                voiceChoices.filter { it.localeTag.replace('-', '_') == norm }
+            }
+            if (localeVoiceChoices.size > 1) {
+                VoiceVariantSelector(
+                    currentName = settings.voiceName,
+                    choices = localeVoiceChoices,
+                    defaultSample = voiceDefaultSample,
+                    onSelected = { name, sample -> viewModel.updateVoiceName(name, sample) }
+                )
+            }
+
             // Speech rate is stored as a Float multiplier (0.5..2.5x); the
             // integer-only pill shows it as a percent (50..250%) and writes
             // back the divided-by-100 float, preserving the 0.1x granularity.
