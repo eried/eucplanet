@@ -288,23 +288,20 @@ fun AutomationsContent(
                     modifier = Modifier.fillMaxWidth(0.5f),
                     onValueChangeKmh = { viewModel.updateMediaResumeAbove(it.roundToInt()) },
                 )
-            }
-        }
-
-        // External-output gate: only pause/resume when on headphones / Bluetooth.
-        // Shown only once the feature is enabled (pause on), like the other sub-rows.
-        if (settings.mediaControl.pauseEnabled) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(stringResource(R.string.automation_require_external),
-                    style = MaterialTheme.typography.bodyLarge,
-                    modifier = Modifier.weight(1f))
-                Switch(checked = settings.mediaControl.requireExternalOutput,
-                    onCheckedChange = { viewModel.updateMediaRequireExternalOutput(it) },
-                    colors = themedSwitchColors(),)
+                // Route gate applies to RESUME only, so it lives under the Resume
+                // control and hides when Resume is off. Pausing always affects any music.
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(stringResource(R.string.automation_require_external),
+                        style = MaterialTheme.typography.bodyLarge,
+                        modifier = Modifier.weight(1f))
+                    Switch(checked = settings.mediaControl.requireExternalOutput,
+                        onCheckedChange = { viewModel.updateMediaRequireExternalOutput(it) },
+                        colors = themedSwitchColors(),)
+                }
             }
         }
         }   // end Media control BringIntoViewSection

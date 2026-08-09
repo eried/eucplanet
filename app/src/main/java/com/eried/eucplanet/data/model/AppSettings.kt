@@ -979,8 +979,9 @@ data class MediaControlSettings(
     val resumeEnabled: Boolean = false,
     // Resume (only what this feature paused) when speed is at or above this (km/h).
     val resumeAboveKmh: Int = 10,
-    // When true, pause/resume only act while audio is on an external output
-    // (headphones / Bluetooth / wired / USB), never the phone speaker.
+    // When true, RESUME only fires while audio is on an external output
+    // (headphones / Bluetooth / wired / USB), never the phone speaker. Pausing is
+    // never gated on the route. Only meaningful with resume on.
     val requireExternalOutput: Boolean = false,
 )
 

@@ -260,17 +260,6 @@ class AutomationManager @Inject constructor(
             mediaResumeCandidateSinceMs = 0L
             return
         }
-        // Only act while audio is on an external output, if the rider asked for
-        // that. On the phone speaker the feature is fully inert (like a
-        // disconnected wheel): reset the hold timers and do nothing. mediaAutoPaused
-        // is left as-is, so reconnecting the route and speeding up still resumes
-        // whatever this feature paused.
-        if (settings.mediaControl.requireExternalOutput &&
-            !AudioOutput.isExternalActive(audioManager)) {
-            mediaPauseCandidateSinceMs = 0L
-            mediaResumeCandidateSinceMs = 0L
-            return
-        }
         val mc = settings.mediaControl
         val speed = wheelRepository.wheelData.value.speed.absoluteValue
         val now = System.currentTimeMillis()
@@ -291,8 +280,15 @@ class AutomationManager @Inject constructor(
             mediaPauseCandidateSinceMs = 0L
         }
 
-        // Resume when moving again - only what we paused.
-        if (mc.resumeEnabled && mediaAutoPaused && speed >= resumeAt) {
+        // Resume when moving again - only what we paused, and (if the rider asked)
+        // only while audio is on an external output. Pausing is deliberately NOT
+        // gated on the route: slowing down near people should always hush the music,
+        // whatever it is playing on. Resuming is the risky half (it could blast the
+        // phone speaker), so that is the half the headphones/Bluetooth check guards.
+        // The isExternalActive poll is short-circuited to fire only when a resume is
+        // otherwise due.
+        if (mc.resumeEnabled && mediaAutoPaused && speed >= resumeAt &&
+            (!mc.requireExternalOutput || AudioOutput.isExternalActive(audioManager))) {
             if (mediaResumeCandidateSinceMs == 0L) mediaResumeCandidateSinceMs = now
             if (now - mediaResumeCandidateSinceMs >= MEDIA_CONTROL_HOLD_MS) {
                 sendMediaKey(KeyEvent.KEYCODE_MEDIA_PLAY)
