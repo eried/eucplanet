@@ -2035,6 +2035,7 @@
     <string name="accel_split_best_yet">, nouveau record</string>
     <string name="report_contents">Personnaliser le rapport vocal</string>
     <string name="trip_customize">Personnaliser</string>
+    <string name="trip_trim">Réduire à une section</string>
     <string name="trip_customize_tiles">Tuiles</string>
     <string name="trip_customize_graphs">Graphiques</string>
     <string name="recording_details_section">Détails supplémentaires</string>

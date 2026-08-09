@@ -1919,6 +1919,7 @@
     <string name="accel_split_best_yet">, ny rekord</string>
     <string name="report_contents">Tilpass stemmerapport</string>
     <string name="trip_customize">Tilpass</string>
+    <string name="trip_trim">Beskjær til en del</string>
     <string name="trip_customize_tiles">Fliser</string>
     <string name="trip_customize_graphs">Grafer</string>
     <string name="recording_details_section">Ekstra detaljer</string>

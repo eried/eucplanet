@@ -2030,6 +2030,7 @@
     <string name="accel_split_best_yet">，最佳成績</string>
     <string name="report_contents">自訂語音播報</string>
     <string name="trip_customize">自訂</string>
+    <string name="trip_trim">裁剪到區間</string>
     <string name="trip_customize_tiles">卡片</string>
     <string name="trip_customize_graphs">圖表</string>
     <string name="recording_details_section">額外詳情</string>

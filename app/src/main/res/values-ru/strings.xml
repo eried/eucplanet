@@ -2031,6 +2031,7 @@
     <string name="accel_split_best_yet">, лучший результат</string>
     <string name="report_contents">Настроить голосовой отчёт</string>
     <string name="trip_customize">Настроить</string>
+    <string name="trip_trim">Обрезать до участка</string>
     <string name="trip_customize_tiles">Плитки</string>
     <string name="trip_customize_graphs">Графики</string>
     <string name="recording_details_section">Дополнительные сведения</string>

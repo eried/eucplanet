@@ -2028,6 +2028,7 @@
     <string name="accel_split_best_yet">, şimdiye kadarki en iyi</string>
     <string name="report_contents">Sesli bildirimi özelleştir</string>
     <string name="trip_customize">Özelleştir</string>
+    <string name="trip_trim">Bir bölüme kırp</string>
     <string name="trip_customize_tiles">Kutucuklar</string>
     <string name="trip_customize_graphs">Grafikler</string>
     <string name="recording_details_section">Ek ayrıntılar</string>
