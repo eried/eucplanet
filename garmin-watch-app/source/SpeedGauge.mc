@@ -163,9 +163,10 @@ module SpeedGauge {
         // floating near the top of the screen.
         var speedY;
         if (isSemiOctagon) {
-            // Nudged down from the round 33% so the compact numeral and its
-            // unit label sit clear of the top-right sub-circle window.
-            speedY = (h * 37) / 100;
+            // Sits a bit high so the centered numeral (clear of the top-right
+            // window) leaves room for the unit stacked centered beneath it,
+            // still above the battery row.
+            speedY = (h * 30) / 100;
         } else if (w == h) {
             speedY = (h * 33) / 100;
         } else {
@@ -191,10 +192,20 @@ module SpeedGauge {
             var unitText = Units.speedUnitLabel(speedUnit);
             var unitFont = Graphics.FONT_XTINY;
             dc.setColor(COLOR_DIM, Graphics.COLOR_TRANSPARENT);
-            dc.drawText(speedRightX + 4,
-                        speedY + (fontH * 18) / 100 - 1,
-                        unitFont, unitText,
-                        Graphics.TEXT_JUSTIFY_LEFT | Graphics.TEXT_JUSTIFY_VCENTER);
+            if (isSemiOctagon) {
+                // Stack the unit centered under the numeral. On the Instinct
+                // face the right-hand suffix ran into the arc, so this keeps
+                // the big number centered and the unit fully clear of the dial.
+                var unitH = Graphics.getFontHeight(unitFont);
+                dc.drawText(cx, speedY + (fontH / 2) + (unitH / 2),
+                            unitFont, unitText,
+                            Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
+            } else {
+                dc.drawText(speedRightX + 4,
+                            speedY + (fontH * 18) / 100 - 1,
+                            unitFont, unitText,
+                            Graphics.TEXT_JUSTIFY_LEFT | Graphics.TEXT_JUSTIFY_VCENTER);
+            }
         }
     }
 

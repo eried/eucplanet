@@ -356,34 +356,52 @@ class EucPlanetView extends WatchUi.View {
                   : pct >= 70 ? SpeedGauge.COLOR_WARN
                   : SpeedGauge.COLOR_SAFE;
 
+        // Follow the rider's PWM display choice, same vocabulary as the centre
+        // badge: BAR -> ring only, NUMBERS -> number only, BOTH -> ring + number.
+        var showBar = s.pwmDisplay.equals("BAR") || s.pwmDisplay.equals("BOTH");
+        var showNum = s.pwmDisplay.equals("NUMBERS") || s.pwmDisplay.equals("BOTH");
+        if (!showBar && !showNum) { showNum = true; } // never leave the window blank
+
         var ringW = (dim * 5) / 100;
         if (ringW < 4) { ringW = 4; }
         var outerR = r;
         var innerR = r - ringW;
 
-        // Opaque backing, then the track ring (outer disc minus inner disc).
+        // Opaque backing so the gauge arc behind never bleeds into the window.
         dc.setColor(Graphics.COLOR_BLACK, Graphics.COLOR_TRANSPARENT);
         dc.fillCircle(cx, cy, outerR + (dim * 2) / 100);
-        dc.setColor(SpeedGauge.COLOR_TRACK, Graphics.COLOR_TRANSPARENT);
-        dc.fillCircle(cx, cy, outerR);
-        dc.setColor(Graphics.COLOR_BLACK, Graphics.COLOR_TRANSPARENT);
-        dc.fillCircle(cx, cy, innerR);
 
-        // Coloured fill arc from the top, clockwise, proportional to PWM.
-        if (connected && pct > 0) {
-            var frac = pct / 100.0;
-            if (frac > 0.999) { frac = 0.999; }
-            var endA = SpeedGauge.wrapDeg(90 - (360 * frac).toNumber());
-            dc.setPenWidth(ringW);
-            dc.setColor(color, Graphics.COLOR_TRANSPARENT);
-            dc.drawArc(cx, cy, (outerR + innerR) / 2, Graphics.ARC_CLOCKWISE, 90, endA);
+        if (showBar) {
+            // Track ring (outer disc minus inner disc), then the coloured fill
+            // arc from the top, clockwise, proportional to PWM.
+            dc.setColor(SpeedGauge.COLOR_TRACK, Graphics.COLOR_TRANSPARENT);
+            dc.fillCircle(cx, cy, outerR);
+            dc.setColor(Graphics.COLOR_BLACK, Graphics.COLOR_TRANSPARENT);
+            dc.fillCircle(cx, cy, innerR);
+            if (connected && pct > 0) {
+                var frac = pct / 100.0;
+                if (frac > 0.999) { frac = 0.999; }
+                var endA = SpeedGauge.wrapDeg(90 - (360 * frac).toNumber());
+                dc.setPenWidth(ringW);
+                dc.setColor(color, Graphics.COLOR_TRANSPARENT);
+                dc.drawArc(cx, cy, (outerR + innerR) / 2, Graphics.ARC_CLOCKWISE, 90, endA);
+            }
         }
 
-        // PWM number, or dim dashes when there's no wheel.
-        dc.setColor(connected ? color : SpeedGauge.COLOR_DIM, Graphics.COLOR_TRANSPARENT);
-        var label = connected ? (pct.format("%d") + "%") : "--";
-        dc.drawText(cx, cy, Graphics.FONT_XTINY, label,
-                    Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
+        if (showNum) {
+            // Bigger numeral when no ring shares the window, bigger again when
+            // the rider prioritises PWM (mirrors the centre badge's size bump).
+            var pctFont;
+            if (!showBar) {
+                pctFont = s.prioritizePwm ? Graphics.FONT_SMALL : Graphics.FONT_TINY;
+            } else {
+                pctFont = s.prioritizePwm ? Graphics.FONT_TINY : Graphics.FONT_XTINY;
+            }
+            dc.setColor(connected ? color : SpeedGauge.COLOR_DIM, Graphics.COLOR_TRANSPARENT);
+            var label = connected ? (pct.format("%d") + "%") : "--";
+            dc.drawText(cx, cy, pctFont, label,
+                        Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
+        }
     }
 
     //! Three battery readouts in a row, stacked vertically per cell:
