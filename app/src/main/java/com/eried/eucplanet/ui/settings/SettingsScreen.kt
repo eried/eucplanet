@@ -6279,6 +6279,8 @@ private fun VoiceTab(
         val sPhoneEx = stringResource(R.string.voice_phone_battery_fmt, 57)
         val sTempEx = stringResource(R.string.voice_temp_fmt, "32")
         val sLoadEx = stringResource(R.string.voice_load_fmt, "45")
+        val sCurrentEx = stringResource(R.string.voice_current_fmt, "12")
+        val sPowerEx = stringResource(R.string.voice_power_fmt, "980")
         // Preview must match what the voice actually says, imperial users
         // get the miles variant so the page can't lie about the format.
         val sTripEx = stringResource(
@@ -6309,6 +6311,8 @@ private fun VoiceTab(
             "PhoneBattery" -> sPhoneEx
             "Temp" -> sTempEx
             "PWM" -> sLoadEx
+            "Current" -> sCurrentEx
+            "Power" -> sPowerEx
             "Distance" -> sTripEx
             "Recording" -> listOf(sRecOn, sRecOff).random()
             "Time" -> sTimeEx
@@ -6324,6 +6328,8 @@ private fun VoiceTab(
                     "PhoneBattery" -> settings.voiceReportPhoneBattery
                     "Temp" -> settings.voiceReportTemp
                     "PWM" -> settings.voiceReportPwm
+                    "Current" -> settings.voiceReports.periodicCurrent
+                    "Power" -> settings.voiceReports.periodicPower
                     "Distance" -> settings.voiceReportDistance
                     "Recording" -> settings.voiceReportRecording
                     "Time" -> settings.voiceReportTime
@@ -6335,6 +6341,8 @@ private fun VoiceTab(
                     "PhoneBattery" -> settings.triggerReportPhoneBattery
                     "Temp" -> settings.triggerReportTemp
                     "PWM" -> settings.triggerReportPwm
+                    "Current" -> settings.voiceReports.triggerCurrent
+                    "Power" -> settings.voiceReports.triggerPower
                     "Distance" -> settings.triggerReportDistance
                     "Recording" -> settings.triggerReportRecording
                     "Time" -> settings.triggerReportTime
@@ -6448,6 +6456,17 @@ private fun VoiceTab(
                 settings.voiceReportPwm, { viewModel.updateVoiceReportPwm(it) },
                 settings.triggerReportPwm, { viewModel.updateTriggerReportPwm(it) },
                 sLoadEx),
+            // Current and Power exist for the wheels that never report PWM, so
+            // the rider still has a limit-style reading. Both are spoken as a
+            // recent average, not an instantaneous peak.
+            "Current" to ReportItemConfig("Current", stringResource(R.string.report_current),
+                settings.voiceReports.periodicCurrent, { viewModel.updateVoiceReportCurrent(it) },
+                settings.voiceReports.triggerCurrent, { viewModel.updateTriggerReportCurrent(it) },
+                sCurrentEx),
+            "Power" to ReportItemConfig("Power", stringResource(R.string.report_power),
+                settings.voiceReports.periodicPower, { viewModel.updateVoiceReportPower(it) },
+                settings.voiceReports.triggerPower, { viewModel.updateTriggerReportPower(it) },
+                sPowerEx),
             "Distance" to ReportItemConfig("Distance", stringResource(R.string.report_distance),
                 settings.voiceReportDistance, { viewModel.updateVoiceReportDistance(it) },
                 settings.triggerReportDistance, { viewModel.updateTriggerReportDistance(it) },

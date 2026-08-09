@@ -696,6 +696,8 @@
     <string name="report_battery">Akku</string>
     <string name="report_temp">Temp</string>
     <string name="report_pwm">PWM</string>
+    <string name="report_current">Strom</string>
+    <string name="report_power">Leistung</string>
     <string name="report_distance">Distanz</string>
     <string name="report_recording">Aufnahme</string>
     <string name="report_time">Zeit</string>
@@ -787,6 +789,8 @@
     <string name="voice_battery_fmt">Akku %1$d Prozent</string>
     <string name="voice_temp_fmt">Temperatur %1$s Grad</string>
     <string name="voice_load_fmt">Last %1$s Prozent</string>
+    <string name="voice_current_fmt">Strom %1$s Ampere</string>
+    <string name="voice_power_fmt">Leistung %1$s Watt</string>
     <string name="voice_trip_fmt">Fahrt %1$s Kilometer</string>
     <string name="voice_trip_miles_fmt">Fahrt %1$s Meilen</string>
     <string name="voice_trip_meters_fmt">Fahrt %1$s Meter</string>

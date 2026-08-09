@@ -246,6 +246,8 @@
     <string name="report_battery">Batteri</string>
     <string name="report_temp">Temp</string>
     <string name="report_pwm">PWM</string>
+    <string name="report_current">Strøm</string>
+    <string name="report_power">Effekt</string>
     <string name="report_distance">Distanse</string>
     <string name="report_recording">Opptak</string>
 
@@ -288,6 +290,8 @@
     <string name="voice_battery_fmt">batteri %1$d prosent</string>
     <string name="voice_temp_fmt">temperatur %1$s grader</string>
     <string name="voice_load_fmt">last %1$s prosent</string>
+    <string name="voice_current_fmt">strøm %1$s ampere</string>
+    <string name="voice_power_fmt">effekt %1$s watt</string>
     <string name="voice_trip_fmt">tur %1$s kilometer</string>
     <string name="voice_trip_miles_fmt">tur %1$s mil</string>
     <string name="voice_trip_meters_fmt">tur %1$s meter</string>

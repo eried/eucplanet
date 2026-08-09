@@ -402,22 +402,28 @@ class SettingsViewModel @Inject constructor(
         update { copy(voiceSpeechRate = v) }
         previewText?.let { previewVoiceChange(it) }
     }
-    fun updateVoiceReportSpeed(v: Boolean) = update { copy(voiceReportSpeed = v) }
-    fun updateVoiceReportBattery(v: Boolean) = update { copy(voiceReportBattery = v) }
-    fun updateVoiceReportTemp(v: Boolean) = update { copy(voiceReportTemp = v) }
-    fun updateVoiceReportPwm(v: Boolean) = update { copy(voiceReportPwm = v) }
-    fun updateVoiceReportDistance(v: Boolean) = update { copy(voiceReportDistance = v) }
-    fun updateVoiceReportTime(v: Boolean) = update { copy(voiceReportTime = v) }
-    fun updateVoiceReportNavigation(v: Boolean) = update { copy(voiceReportNavigation = v) }
-    fun updateVoiceReportPhoneBattery(v: Boolean) = update { copy(voiceReportPhoneBattery = v) }
-    fun updateTriggerReportSpeed(v: Boolean) = update { copy(triggerReportSpeed = v) }
-    fun updateTriggerReportBattery(v: Boolean) = update { copy(triggerReportBattery = v) }
-    fun updateTriggerReportTemp(v: Boolean) = update { copy(triggerReportTemp = v) }
-    fun updateTriggerReportPwm(v: Boolean) = update { copy(triggerReportPwm = v) }
-    fun updateTriggerReportDistance(v: Boolean) = update { copy(triggerReportDistance = v) }
-    fun updateTriggerReportTime(v: Boolean) = update { copy(triggerReportTime = v) }
-    fun updateTriggerReportNavigation(v: Boolean) = update { copy(triggerReportNavigation = v) }
-    fun updateTriggerReportPhoneBattery(v: Boolean) = update { copy(triggerReportPhoneBattery = v) }
+    fun updateVoiceReportSpeed(v: Boolean) = update { copy(voiceReports = voiceReports.copy(periodicSpeed = v)) }
+    fun updateVoiceReportBattery(v: Boolean) = update { copy(voiceReports = voiceReports.copy(periodicBattery = v)) }
+    fun updateVoiceReportTemp(v: Boolean) = update { copy(voiceReports = voiceReports.copy(periodicTemp = v)) }
+    fun updateVoiceReportPwm(v: Boolean) = update { copy(voiceReports = voiceReports.copy(periodicPwm = v)) }
+    fun updateVoiceReportDistance(v: Boolean) = update { copy(voiceReports = voiceReports.copy(periodicDistance = v)) }
+    fun updateVoiceReportTime(v: Boolean) = update { copy(voiceReports = voiceReports.copy(periodicTime = v)) }
+    fun updateVoiceReportNavigation(v: Boolean) = update { copy(voiceReports = voiceReports.copy(periodicNavigation = v)) }
+    fun updateVoiceReportPhoneBattery(v: Boolean) = update { copy(voiceReports = voiceReports.copy(periodicPhoneBattery = v)) }
+    fun updateTriggerReportSpeed(v: Boolean) = update { copy(voiceReports = voiceReports.copy(triggerSpeed = v)) }
+    fun updateTriggerReportBattery(v: Boolean) = update { copy(voiceReports = voiceReports.copy(triggerBattery = v)) }
+    fun updateTriggerReportTemp(v: Boolean) = update { copy(voiceReports = voiceReports.copy(triggerTemp = v)) }
+    fun updateTriggerReportPwm(v: Boolean) = update { copy(voiceReports = voiceReports.copy(triggerPwm = v)) }
+    fun updateTriggerReportDistance(v: Boolean) = update { copy(voiceReports = voiceReports.copy(triggerDistance = v)) }
+    fun updateTriggerReportTime(v: Boolean) = update { copy(voiceReports = voiceReports.copy(triggerTime = v)) }
+    fun updateTriggerReportNavigation(v: Boolean) = update { copy(voiceReports = voiceReports.copy(triggerNavigation = v)) }
+    fun updateTriggerReportPhoneBattery(v: Boolean) = update { copy(voiceReports = voiceReports.copy(triggerPhoneBattery = v)) }
+    // Nested in voiceExtras, not top-level: AppSettings' copy$default is one
+    // parameter slot short of the JVM's 255 limit. See VoiceExtraReports.
+    fun updateVoiceReportCurrent(v: Boolean) = update { copy(voiceReports = voiceReports.copy(periodicCurrent = v)) }
+    fun updateVoiceReportPower(v: Boolean) = update { copy(voiceReports = voiceReports.copy(periodicPower = v)) }
+    fun updateTriggerReportCurrent(v: Boolean) = update { copy(voiceReports = voiceReports.copy(triggerCurrent = v)) }
+    fun updateTriggerReportPower(v: Boolean) = update { copy(voiceReports = voiceReports.copy(triggerPower = v)) }
     // Acceleration splits (RaceBox-style). Feature-local nested group.
     fun updateAccelSplitEnabled(v: Boolean) = update { copy(accelSplit = accelSplit.copy(enabled = v)) }
     fun updateAccelSplitIncrement(v: Int) =
@@ -603,8 +609,8 @@ class SettingsViewModel @Inject constructor(
         update { copy(proximityLock = proximityLock.copy(unlockAboveDbm = v.coerceIn(-100, -15))) }
 
     // Voice report: recording
-    fun updateVoiceReportRecording(v: Boolean) = update { copy(voiceReportRecording = v) }
-    fun updateTriggerReportRecording(v: Boolean) = update { copy(triggerReportRecording = v) }
+    fun updateVoiceReportRecording(v: Boolean) = update { copy(voiceReports = voiceReports.copy(periodicRecording = v)) }
+    fun updateTriggerReportRecording(v: Boolean) = update { copy(voiceReports = voiceReports.copy(triggerRecording = v)) }
 
     fun testSpeak(text: String) {
         viewModelScope.launch {

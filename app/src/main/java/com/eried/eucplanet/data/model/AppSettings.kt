@@ -87,28 +87,13 @@ data class AppSettings(
     val voiceAudioFocus: String = "DUCK",
     // Where to route the voice: "MEDIA" (music slider), "NOTIFICATION" (ring slider), "ALARM" (alarm slider, loudest)
     val voiceOutputChannel: String = "MEDIA",
-    // Periodic voice report toggles
-    val voiceReportSpeed: Boolean = true,
-    val voiceReportBattery: Boolean = true,
-    val voiceReportTemp: Boolean = false,
-    val voiceReportPwm: Boolean = false,
-    val voiceReportDistance: Boolean = false,
-    val voiceReportTime: Boolean = false,
-    val voiceReportNavigation: Boolean = false,
-    val voiceReportPhoneBattery: Boolean = false,
-    // On-trigger (manual/flic) voice report toggles
-    val triggerReportSpeed: Boolean = true,
-    val triggerReportBattery: Boolean = true,
-    val triggerReportTemp: Boolean = true,
-    val triggerReportPwm: Boolean = false,
-    val triggerReportDistance: Boolean = true,
-    val triggerReportTime: Boolean = true,
-    val triggerReportNavigation: Boolean = false,
-    val triggerReportPhoneBattery: Boolean = false,
-
-    // Voice report: include recording state
-    val voiceReportRecording: Boolean = false,
-    val triggerReportRecording: Boolean = true,
+    // Periodic and on-trigger voice report toggles, NESTED. These used to be 18
+    // top-level flags, which had AppSettings' copy$default sitting right on the
+    // JVM's 255-parameter-slot limit with no room for another report type. Read
+    // them through the voiceReport* / triggerReport* accessors further down, and
+    // add any new report toggle to [VoiceReportSettings] rather than here.
+    // AppSettingsArgLimitTest guards the limit.
+    val voiceReports: VoiceReportSettings = VoiceReportSettings(),
 
     // Voice report item order (comma-separated: Speed,Battery,PhoneBattery,Time,Temp,PWM,Distance,Recording)
     val voiceReportOrder: String = "Speed,Battery,PhoneBattery,Time,Temp,PWM,Distance,Recording",
@@ -869,6 +854,27 @@ data class AppSettings(
     // after the 46 advanced fields moved into the nested [AdvancedSettings] (which
     // keeps AppSettings' copy() under the JVM/dex 255-argument limit). Writes use
     // copy(advanced = advanced.copy(...)).
+    // Voice report toggles, read exactly as before the move into [voiceReports],
+    // so every read site stayed untouched. Writes go through the nested copy.
+    val voiceReportSpeed: Boolean get() = voiceReports.periodicSpeed
+    val voiceReportBattery: Boolean get() = voiceReports.periodicBattery
+    val voiceReportTemp: Boolean get() = voiceReports.periodicTemp
+    val voiceReportPwm: Boolean get() = voiceReports.periodicPwm
+    val voiceReportDistance: Boolean get() = voiceReports.periodicDistance
+    val voiceReportTime: Boolean get() = voiceReports.periodicTime
+    val voiceReportNavigation: Boolean get() = voiceReports.periodicNavigation
+    val voiceReportPhoneBattery: Boolean get() = voiceReports.periodicPhoneBattery
+    val voiceReportRecording: Boolean get() = voiceReports.periodicRecording
+    val triggerReportSpeed: Boolean get() = voiceReports.triggerSpeed
+    val triggerReportBattery: Boolean get() = voiceReports.triggerBattery
+    val triggerReportTemp: Boolean get() = voiceReports.triggerTemp
+    val triggerReportPwm: Boolean get() = voiceReports.triggerPwm
+    val triggerReportDistance: Boolean get() = voiceReports.triggerDistance
+    val triggerReportTime: Boolean get() = voiceReports.triggerTime
+    val triggerReportNavigation: Boolean get() = voiceReports.triggerNavigation
+    val triggerReportPhoneBattery: Boolean get() = voiceReports.triggerPhoneBattery
+    val triggerReportRecording: Boolean get() = voiceReports.triggerRecording
+
     val wheelPollIntervalMs: Int get() = advanced.wheelPollIntervalMs
     val graphSampleIntervalMs: Int get() = advanced.graphSampleIntervalMs
     val smoothingWindowSamples: Int get() = advanced.smoothingWindowSamples
@@ -1015,6 +1021,55 @@ data class ProximityLockSettings(
     // Unlock when the signal is at or above this (dBm) - the rider is back close.
     // -62 unlocks within ~2-3 steps; must stay reachable (near maxes out ~-59).
     val unlockAboveDbm: Int = -62,
+)
+
+/**
+ * Which items the periodic and on-trigger voice reports speak.
+ *
+ * Nested under [AppSettings.voiceReports] rather than living as top-level
+ * flags. Kotlin generates a static `copy$default` taking the receiver, every
+ * property, one int bitmask per 32 properties and a marker; cross 255 slots and
+ * the class fails to verify AT RUNTIME with an ART VerifyError, so `copy()`
+ * crashes on the first settings write. These 18 flags had AppSettings sitting
+ * exactly on that limit, with no room for another report type. Moving them here
+ * bought back 17 slots. That is what rule 8 in CLAUDE.md is about, and
+ * AppSettingsArgLimitTest now guards it.
+ *
+ * Add new report toggles HERE, never to AppSettings.
+ *
+ * Current and Power exist because PWM is the only limit-style report a wheel can
+ * offer, and plenty of wheels never report PWM at all. Both are spoken as an
+ * average over the recent window, not an instantaneous reading, since a
+ * momentary peak tells a rider nothing useful about how hard the wheel is
+ * working.
+ */
+data class VoiceReportSettings(
+    // Periodic report.
+    val periodicSpeed: Boolean = true,
+    val periodicBattery: Boolean = true,
+    val periodicTemp: Boolean = false,
+    val periodicPwm: Boolean = false,
+    /** Average current. For wheels that never report PWM. */
+    val periodicCurrent: Boolean = false,
+    /** Average power. For wheels that never report PWM. */
+    val periodicPower: Boolean = false,
+    val periodicDistance: Boolean = false,
+    val periodicTime: Boolean = false,
+    val periodicNavigation: Boolean = false,
+    val periodicPhoneBattery: Boolean = false,
+    val periodicRecording: Boolean = false,
+    // On-trigger (manual / Flic) report.
+    val triggerSpeed: Boolean = true,
+    val triggerBattery: Boolean = true,
+    val triggerTemp: Boolean = true,
+    val triggerPwm: Boolean = false,
+    val triggerCurrent: Boolean = false,
+    val triggerPower: Boolean = false,
+    val triggerDistance: Boolean = true,
+    val triggerTime: Boolean = true,
+    val triggerNavigation: Boolean = false,
+    val triggerPhoneBattery: Boolean = false,
+    val triggerRecording: Boolean = true,
 )
 
 /**

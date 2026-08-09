@@ -700,6 +700,8 @@
     <string name="report_battery">Accu</string>
     <string name="report_temp">Temp</string>
     <string name="report_pwm">PWM</string>
+    <string name="report_current">Stroom</string>
+    <string name="report_power">Vermogen</string>
     <string name="report_distance">Afstand</string>
     <string name="report_recording">Opname</string>
     <string name="report_time">Tijd</string>
@@ -791,6 +793,8 @@
     <string name="voice_battery_fmt">accu %1$d procent</string>
     <string name="voice_temp_fmt">temperatuur %1$s graden</string>
     <string name="voice_load_fmt">belasting %1$s procent</string>
+    <string name="voice_current_fmt">stroom %1$s ampère</string>
+    <string name="voice_power_fmt">vermogen %1$s watt</string>
     <string name="voice_trip_fmt">rit %1$s kilometer</string>
     <string name="voice_trip_miles_fmt">rit %1$s mijl</string>
     <string name="voice_trip_meters_fmt">rit %1$s meter</string>

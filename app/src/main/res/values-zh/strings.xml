@@ -250,6 +250,8 @@
     <string name="report_battery">电量</string>
     <string name="report_temp">温度</string>
     <string name="report_pwm">PWM</string>
+    <string name="report_current">电流</string>
+    <string name="report_power">功率</string>
     <string name="report_distance">距离</string>
     <string name="report_recording">记录</string>
 
@@ -292,6 +294,8 @@
     <string name="voice_battery_fmt">电量 百分之 %1$d</string>
     <string name="voice_temp_fmt">温度 %1$s 度</string>
     <string name="voice_load_fmt">PWM 百分之 %1$s</string>
+    <string name="voice_current_fmt">电流 %1$s 安培</string>
+    <string name="voice_power_fmt">功率 %1$s 瓦</string>
     <string name="voice_trip_fmt">行程 %1$s 公里</string>
     <string name="voice_trip_miles_fmt">行程 %1$s 英里</string>
     <string name="voice_trip_meters_fmt">行程 %1$s 米</string>

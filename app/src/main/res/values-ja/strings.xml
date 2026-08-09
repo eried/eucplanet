@@ -696,6 +696,8 @@
     <string name="report_battery">バッテリー</string>
     <string name="report_temp">温度</string>
     <string name="report_pwm">PWM</string>
+    <string name="report_current">電流</string>
+    <string name="report_power">出力</string>
     <string name="report_distance">距離</string>
     <string name="report_recording">記録</string>
     <string name="report_time">時間</string>
@@ -787,6 +789,8 @@
     <string name="voice_battery_fmt">バッテリー %1$d パーセント</string>
     <string name="voice_temp_fmt">温度 %1$s 度</string>
     <string name="voice_load_fmt">負荷 %1$s パーセント</string>
+    <string name="voice_current_fmt">電流 %1$s アンペア</string>
+    <string name="voice_power_fmt">出力 %1$s ワット</string>
     <string name="voice_trip_fmt">トリップ %1$s キロメートル</string>
     <string name="voice_trip_miles_fmt">トリップ %1$s マイル</string>
     <string name="voice_trip_meters_fmt">トリップ %1$s メートル</string>

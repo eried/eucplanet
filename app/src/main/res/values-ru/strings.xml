@@ -700,6 +700,8 @@
     <string name="report_battery">Заряд</string>
     <string name="report_temp">Темп</string>
     <string name="report_pwm">PWM</string>
+    <string name="report_current">Ток</string>
+    <string name="report_power">Мощность</string>
     <string name="report_distance">Пробег</string>
     <string name="report_recording">Запись</string>
     <string name="report_time">Время</string>
@@ -791,6 +793,8 @@
     <string name="voice_battery_fmt">заряд %1$d процентов</string>
     <string name="voice_temp_fmt">температура %1$s градусов</string>
     <string name="voice_load_fmt">нагрузка %1$s процентов</string>
+    <string name="voice_current_fmt">ток %1$s ампер</string>
+    <string name="voice_power_fmt">мощность %1$s ватт</string>
     <string name="voice_trip_fmt">пройдено %1$s километров</string>
     <string name="voice_trip_miles_fmt">пройдено %1$s миль</string>
     <string name="voice_trip_meters_fmt">пройдено %1$s метров</string>

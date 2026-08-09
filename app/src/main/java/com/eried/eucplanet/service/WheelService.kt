@@ -174,6 +174,10 @@ class WheelService : LifecycleService() {
         lifecycleScope.launch {
             wheelRepository.wheelData.collect { data ->
                 updateNotification(data)
+                // Every frame, so the load-style voice reports average over a
+                // real window instead of whatever the wheel was doing at the
+                // instant a report fired.
+                voiceService.recordTelemetry(data)
                 val settings = settingsRepository.get()
                 automationManager.evaluate(settings)
                 checkLightTransition(data.lightOn, settings)
@@ -269,6 +273,9 @@ class WheelService : LifecycleService() {
                             engineSoundEngine.setConnected(true, settings)
                         }
                         ConnectionState.DISCONNECTED -> {
+                            // A new wheel, or the same one after a gap, must not
+                            // average across the break.
+                            voiceService.clearTelemetryHistory()
                             // Only announce if we were actually connected (not just reconnect cycling)
                             if (lastConnectionState == ConnectionState.CONNECTED && settings.announceConnection) {
                                 voiceService.announceEvent(getString(R.string.voice_wheel_disconnected))

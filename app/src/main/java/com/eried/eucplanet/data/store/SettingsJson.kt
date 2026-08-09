@@ -188,6 +188,12 @@ object SettingsJson {
         put("tripChartOrder", s.tripChartOrder)
         put("tripHiddenCharts", s.tripHiddenCharts)
         put("tripExtraCharts", s.tripExtraCharts)
+        // Nested voice extras, written as flat keys so the file stays readable
+        // and a future move back to top level would not break existing saves.
+        put("voiceReportCurrent", s.voiceReports.periodicCurrent)
+        put("voiceReportPower", s.voiceReports.periodicPower)
+        put("triggerReportCurrent", s.voiceReports.triggerCurrent)
+        put("triggerReportPower", s.voiceReports.triggerPower)
         put("compactModeWhen", s.compactModeWhen)
         put("coverCameraCutout", s.coverCameraCutout)
         put("compactSpeedoStyle", s.compactSpeedoStyle)
@@ -369,24 +375,31 @@ object SettingsJson {
         voiceLocaleOverridden = j.optBoolean("voiceLocaleOverridden", base.voiceLocaleOverridden),
         voiceAudioFocus = j.optString("voiceAudioFocus", base.voiceAudioFocus),
         voiceOutputChannel = j.optString("voiceOutputChannel", base.voiceOutputChannel),
-        voiceReportSpeed = j.optBoolean("voiceReportSpeed", base.voiceReportSpeed),
-        voiceReportBattery = j.optBoolean("voiceReportBattery", base.voiceReportBattery),
-        voiceReportTemp = j.optBoolean("voiceReportTemp", base.voiceReportTemp),
-        voiceReportPwm = j.optBoolean("voiceReportPwm", base.voiceReportPwm),
-        voiceReportDistance = j.optBoolean("voiceReportDistance", base.voiceReportDistance),
-        voiceReportTime = j.optBoolean("voiceReportTime", base.voiceReportTime),
-        voiceReportNavigation = j.optBoolean("voiceReportNavigation", base.voiceReportNavigation),
-        voiceReportPhoneBattery = j.optBoolean("voiceReportPhoneBattery", base.voiceReportPhoneBattery),
-        triggerReportSpeed = j.optBoolean("triggerReportSpeed", base.triggerReportSpeed),
-        triggerReportBattery = j.optBoolean("triggerReportBattery", base.triggerReportBattery),
-        triggerReportTemp = j.optBoolean("triggerReportTemp", base.triggerReportTemp),
-        triggerReportPwm = j.optBoolean("triggerReportPwm", base.triggerReportPwm),
-        triggerReportDistance = j.optBoolean("triggerReportDistance", base.triggerReportDistance),
-        triggerReportTime = j.optBoolean("triggerReportTime", base.triggerReportTime),
-        triggerReportNavigation = j.optBoolean("triggerReportNavigation", base.triggerReportNavigation),
-        triggerReportPhoneBattery = j.optBoolean("triggerReportPhoneBattery", base.triggerReportPhoneBattery),
-        voiceReportRecording = j.optBoolean("voiceReportRecording", base.voiceReportRecording),
-        triggerReportRecording = j.optBoolean("triggerReportRecording", base.triggerReportRecording),
+        // Flat JSON keys preserved for back-compat; the fields now live nested.
+        voiceReports = com.eried.eucplanet.data.model.VoiceReportSettings(
+            periodicSpeed = j.optBoolean("voiceReportSpeed", base.voiceReports.periodicSpeed),
+            periodicBattery = j.optBoolean("voiceReportBattery", base.voiceReports.periodicBattery),
+            periodicTemp = j.optBoolean("voiceReportTemp", base.voiceReports.periodicTemp),
+            periodicPwm = j.optBoolean("voiceReportPwm", base.voiceReports.periodicPwm),
+            periodicDistance = j.optBoolean("voiceReportDistance", base.voiceReports.periodicDistance),
+            periodicTime = j.optBoolean("voiceReportTime", base.voiceReports.periodicTime),
+            periodicNavigation = j.optBoolean("voiceReportNavigation", base.voiceReports.periodicNavigation),
+            periodicPhoneBattery = j.optBoolean("voiceReportPhoneBattery", base.voiceReports.periodicPhoneBattery),
+            periodicRecording = j.optBoolean("voiceReportRecording", base.voiceReports.periodicRecording),
+            triggerSpeed = j.optBoolean("triggerReportSpeed", base.voiceReports.triggerSpeed),
+            triggerBattery = j.optBoolean("triggerReportBattery", base.voiceReports.triggerBattery),
+            triggerTemp = j.optBoolean("triggerReportTemp", base.voiceReports.triggerTemp),
+            triggerPwm = j.optBoolean("triggerReportPwm", base.voiceReports.triggerPwm),
+            triggerDistance = j.optBoolean("triggerReportDistance", base.voiceReports.triggerDistance),
+            triggerTime = j.optBoolean("triggerReportTime", base.voiceReports.triggerTime),
+            triggerNavigation = j.optBoolean("triggerReportNavigation", base.voiceReports.triggerNavigation),
+            triggerPhoneBattery = j.optBoolean("triggerReportPhoneBattery", base.voiceReports.triggerPhoneBattery),
+            triggerRecording = j.optBoolean("triggerReportRecording", base.voiceReports.triggerRecording),
+            periodicCurrent = j.optBoolean("voiceReportCurrent", base.voiceReports.periodicCurrent),
+            periodicPower = j.optBoolean("voiceReportPower", base.voiceReports.periodicPower),
+            triggerCurrent = j.optBoolean("triggerReportCurrent", base.voiceReports.triggerCurrent),
+            triggerPower = j.optBoolean("triggerReportPower", base.voiceReports.triggerPower),
+        ),
         voiceReportOrder = j.optString("voiceReportOrder", base.voiceReportOrder),
         accelSplit = j.optJSONObject("accelSplit")?.let { a ->
             base.accelSplit.copy(

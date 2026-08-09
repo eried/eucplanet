@@ -12,6 +12,8 @@ import android.util.Log
 import com.eried.eucplanet.R
 import com.eried.eucplanet.data.model.AppSettings
 import com.eried.eucplanet.data.model.WheelData
+import com.eried.eucplanet.util.Smoothing
+import kotlin.math.abs
 import com.eried.eucplanet.data.repository.SettingsRepository
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
@@ -437,6 +439,57 @@ class VoiceService @Inject constructor(
      */
     @Volatile var currentNavCue: String? = null
 
+    /**
+     * Recent telemetry, so limit-style reports can speak an average instead of
+     * whatever the wheel happened to be doing at the instant the report fired.
+     *
+     * A momentary PWM or current peak tells a rider nothing about how hard the
+     * wheel is actually working, and it is the sustained load that matters for
+     * staying inside the wheel's limits.
+     *
+     * Bounded by time, not by count, because the BLE sample rate varies by
+     * wheel and by the poll-interval setting.
+     */
+    private class LoadSample(val t: Long, val pwm: Float, val current: Float, val powerW: Float)
+
+    private val loadSamples = ArrayDeque<LoadSample>()
+
+    /** Longest window a report can ask for; older samples are dropped. */
+    private val LOAD_HISTORY_MS = 300_000L
+
+    /**
+     * Feed one telemetry frame. Called from the service's wheelData collector,
+     * so this sees every frame rather than only the ones a report lands on.
+     */
+    @Synchronized
+    fun recordTelemetry(data: WheelData) {
+        val now = data.timestamp
+        loadSamples.addLast(
+            LoadSample(now, data.pwm, data.current, data.voltage * data.current)
+        )
+        while (loadSamples.isNotEmpty() && now - loadSamples.first().t > LOAD_HISTORY_MS) {
+            loadSamples.removeFirst()
+        }
+    }
+
+    /** Clears the rolling window, e.g. when the wheel disconnects. */
+    @Synchronized
+    fun clearTelemetryHistory() = loadSamples.clear()
+
+    /**
+     * Average of one telemetry field over the last [windowMs], or null when the
+     * window holds nothing usable, in which case the caller skips that report
+     * row rather than speaking a made-up number.
+     */
+    @Synchronized
+    private fun smoothed(windowMs: Long, pick: (LoadSample) -> Float): Float? {
+        if (loadSamples.isEmpty()) return null
+        val now = loadSamples.last().t
+        return Smoothing.trailingAverage(
+            loadSamples.map { it.t to pick(it) }, now, windowMs
+        )
+    }
+
     fun announceStatus(data: WheelData, settings: AppSettings, isRecording: Boolean = false) {
         val parts = buildReportParts(data, settings, isRecording, periodic = true)
         if (parts.isEmpty()) return
@@ -479,7 +532,10 @@ class VoiceService @Inject constructor(
     ): List<String> {
         // Append any known items missing from the saved order (e.g. PhoneBattery
         // added after the rider's order was saved) so new report types still speak.
-        val known = listOf("Speed", "Battery", "PhoneBattery", "Temp", "PWM", "Distance", "Recording", "Time", "Navigation")
+        val known = listOf("Speed", "Battery", "PhoneBattery", "Temp", "PWM", "Current", "Power", "Distance", "Recording", "Time", "Navigation")
+        // Window the load-style reports average over. The advanced setting is in
+        // samples for the ~1 Hz trip graphs, which makes it seconds here.
+        val loadWindowMs = settings.smoothingWindowSamples.coerceAtLeast(1) * 1000L
         val saved = settings.voiceReportOrder.split(",").map { it.trim() }.filter { it in known }
         val order = saved + known.filter { it !in saved }
         val parts = mutableListOf<String>()
@@ -489,6 +545,8 @@ class VoiceService @Inject constructor(
                 "Battery" -> settings.voiceReportBattery
                 "Temp" -> settings.voiceReportTemp
                 "PWM" -> settings.voiceReportPwm
+                "Current" -> settings.voiceReports.periodicCurrent
+                "Power" -> settings.voiceReports.periodicPower
                 "Distance" -> settings.voiceReportDistance
                 "Recording" -> settings.voiceReportRecording
                 "Time" -> settings.voiceReportTime
@@ -500,6 +558,8 @@ class VoiceService @Inject constructor(
                 "Battery" -> settings.triggerReportBattery
                 "Temp" -> settings.triggerReportTemp
                 "PWM" -> settings.triggerReportPwm
+                "Current" -> settings.voiceReports.triggerCurrent
+                "Power" -> settings.voiceReports.triggerPower
                 "Distance" -> settings.triggerReportDistance
                 "Recording" -> settings.triggerReportRecording
                 "Time" -> settings.triggerReportTime
@@ -522,7 +582,23 @@ class VoiceService @Inject constructor(
                     "Battery" -> parts.add(context.getString(R.string.voice_battery_fmt, data.batteryPercent))
                     "PhoneBattery" -> parts.add(context.getString(R.string.voice_phone_battery_fmt, readPhoneBatteryPercent()))
                     "Temp" -> parts.add(context.getString(R.string.voice_temp_fmt, "%.0f".format(displayTemp)))
-                    "PWM" -> parts.add(context.getString(R.string.voice_load_fmt, "%.0f".format(data.pwm)))
+                    // Load-style reports speak the recent average, not the
+                    // instant reading. Falling back to the live value keeps the
+                    // report working before any history has built up. A row is
+                    // skipped entirely when the wheel reports nothing usable,
+                    // rather than announcing a confident zero.
+                    "PWM" -> {
+                        val v = smoothed(loadWindowMs) { it.pwm } ?: data.pwm
+                        if (!v.isNaN()) parts.add(context.getString(R.string.voice_load_fmt, "%.0f".format(v)))
+                    }
+                    "Current" -> {
+                        val v = smoothed(loadWindowMs) { it.current } ?: data.current
+                        if (!v.isNaN()) parts.add(context.getString(R.string.voice_current_fmt, "%.0f".format(abs(v))))
+                    }
+                    "Power" -> {
+                        val v = smoothed(loadWindowMs) { it.powerW } ?: (data.voltage * data.current)
+                        if (!v.isNaN()) parts.add(context.getString(R.string.voice_power_fmt, "%.0f".format(abs(v))))
+                    }
                     "Distance" -> parts.add(context.getString(
                         when (distanceUnit) {
                             "mi" -> R.string.voice_trip_miles_fmt

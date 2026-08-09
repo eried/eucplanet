@@ -700,6 +700,8 @@
     <string name="report_battery">Bateria</string>
     <string name="report_temp">Temp</string>
     <string name="report_pwm">PWM</string>
+    <string name="report_current">Prąd</string>
+    <string name="report_power">Moc</string>
     <string name="report_distance">Dystans</string>
     <string name="report_recording">Nagrywanie</string>
     <string name="report_time">Czas</string>
@@ -791,6 +793,8 @@
     <string name="voice_battery_fmt">bateria %1$d procent</string>
     <string name="voice_temp_fmt">temperatura %1$s stopni</string>
     <string name="voice_load_fmt">obciążenie %1$s procent</string>
+    <string name="voice_current_fmt">prąd %1$s amperów</string>
+    <string name="voice_power_fmt">moc %1$s watów</string>
     <string name="voice_trip_fmt">trasa %1$s kilometrów</string>
     <string name="voice_trip_miles_fmt">trasa %1$s mil</string>
     <string name="voice_trip_meters_fmt">trasa %1$s metrów</string>

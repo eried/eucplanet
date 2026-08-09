@@ -696,6 +696,8 @@
     <string name="report_battery">Akü</string>
     <string name="report_temp">Sıcaklık</string>
     <string name="report_pwm">PWM</string>
+    <string name="report_current">Akım</string>
+    <string name="report_power">Güç</string>
     <string name="report_distance">Mesafe</string>
     <string name="report_recording">Kayıt</string>
     <string name="report_time">Süre</string>
@@ -787,6 +789,8 @@
     <string name="voice_battery_fmt">akü yüzde %1$d</string>
     <string name="voice_temp_fmt">sıcaklık %1$s derece</string>
     <string name="voice_load_fmt">yük yüzde %1$s</string>
+    <string name="voice_current_fmt">akım %1$s amper</string>
+    <string name="voice_power_fmt">güç %1$s vat</string>
     <string name="voice_trip_fmt">sefer %1$s kilometre</string>
     <string name="voice_trip_miles_fmt">sefer %1$s mil</string>
     <string name="voice_trip_meters_fmt">sefer %1$s metre</string>

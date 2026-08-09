@@ -700,6 +700,8 @@
     <string name="report_battery">Заряд</string>
     <string name="report_temp">Темп</string>
     <string name="report_pwm">PWM</string>
+    <string name="report_current">Струм</string>
+    <string name="report_power">Потужність</string>
     <string name="report_distance">Відстань</string>
     <string name="report_recording">Запис</string>
     <string name="report_time">Час</string>
@@ -791,6 +793,8 @@
     <string name="voice_battery_fmt">заряд %1$d відсотків</string>
     <string name="voice_temp_fmt">температура %1$s градусів</string>
     <string name="voice_load_fmt">навантаження %1$s відсотків</string>
+    <string name="voice_current_fmt">струм %1$s ампер</string>
+    <string name="voice_power_fmt">потужність %1$s ват</string>
     <string name="voice_trip_fmt">пройдено %1$s кілометрів</string>
     <string name="voice_trip_miles_fmt">пройдено %1$s миль</string>
     <string name="voice_trip_meters_fmt">пройдено %1$s метрів</string>
