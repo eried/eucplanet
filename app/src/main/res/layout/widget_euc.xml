@@ -1,11 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  Home screen widget: the three numbers a rider glances at, plus the two
-  actions worth having without unlocking into the app.
+  Home screen widget: three readings a rider glances at, plus three actions
+  worth having without unlocking into the app.
 
   RemoteViews, not Compose: a widget is inflated by the launcher's process, so
   only the classic view set is available. That also means no theme tokens, hence
   the literal colours here and in widget_bg.
+
+  Each button is a LinearLayout wrapping an ImageView and a TextView rather than
+  a TextView with a compound drawable. A compound drawable is pinned to the
+  view's edge while gravity centres the text, so the icon and its label drift
+  apart; wrapping them lets the pair centre as one unit.
 -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/widget_root"
@@ -13,7 +18,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:background="@drawable/widget_bg"
-    android:padding="12dp">
+    android:padding="16dp">
 
     <TextView
         android:id="@+id/widget_status"
@@ -25,24 +30,27 @@
         android:ellipsize="end"
         android:text="@string/widget_disconnected" />
 
+    <!-- Readings. Each column centres its own number and caption, so three
+         values of different widths still read as a row rather than as three
+         things that happen to be near each other. -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
         android:orientation="horizontal"
-        android:layout_marginTop="6dp">
+        android:layout_marginTop="8dp">
 
         <LinearLayout
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:orientation="vertical"
-            android:gravity="center_vertical">
+            android:gravity="center">
             <TextView
                 android:id="@+id/widget_speed"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textSize="26sp"
+                android:textSize="24sp"
                 android:textStyle="bold"
                 android:textColor="#FFFFFFFF"
                 android:maxLines="1"
@@ -54,6 +62,7 @@
                 android:textSize="10sp"
                 android:textColor="#99FFFFFF"
                 android:maxLines="1"
+                android:ellipsize="end"
                 android:text="@string/widget_speed" />
         </LinearLayout>
 
@@ -62,12 +71,12 @@
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:orientation="vertical"
-            android:gravity="center_vertical">
+            android:gravity="center">
             <TextView
                 android:id="@+id/widget_distance"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textSize="26sp"
+                android:textSize="24sp"
                 android:textStyle="bold"
                 android:textColor="#FFFFFFFF"
                 android:maxLines="1"
@@ -79,6 +88,7 @@
                 android:textSize="10sp"
                 android:textColor="#99FFFFFF"
                 android:maxLines="1"
+                android:ellipsize="end"
                 android:text="@string/widget_distance" />
         </LinearLayout>
 
@@ -87,12 +97,12 @@
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:orientation="vertical"
-            android:gravity="center_vertical">
+            android:gravity="center">
             <TextView
                 android:id="@+id/widget_battery"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textSize="26sp"
+                android:textSize="24sp"
                 android:textStyle="bold"
                 android:textColor="#FFFFFFFF"
                 android:maxLines="1"
@@ -104,6 +114,7 @@
                 android:textSize="10sp"
                 android:textColor="#99FFFFFF"
                 android:maxLines="1"
+                android:ellipsize="end"
                 android:text="@string/widget_battery" />
         </LinearLayout>
     </LinearLayout>
@@ -112,57 +123,86 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:layout_marginTop="8dp">
+        android:layout_marginTop="12dp">
 
-        <!--
-          Two configurable buttons. Ids stay horn/voice for compatibility with
-          widgets already placed on a launcher; which action each one fires is
-          the rider's choice, exactly like the notification's action slots.
-        -->
-        <TextView
+        <LinearLayout
             android:id="@+id/widget_btn_horn"
             android:layout_width="0dp"
-            android:layout_height="36dp"
+            android:layout_height="40dp"
             android:layout_weight="1"
+            android:orientation="horizontal"
             android:gravity="center"
-            android:background="@drawable/widget_button_bg"
-            android:textSize="12sp"
-            android:textColor="#FFFFFFFF"
-            android:maxLines="1"
-            android:drawableStart="@drawable/ic_widget_horn"
-            android:drawablePadding="4dp"
-            android:text="@string/widget_horn" />
+            android:background="@drawable/widget_button_bg">
+            <ImageView
+                android:id="@+id/widget_btn_horn_icon"
+                android:layout_width="16dp"
+                android:layout_height="16dp"
+                android:layout_marginEnd="5dp"
+                android:src="@drawable/ic_widget_horn"
+                android:contentDescription="@null" />
+            <TextView
+                android:id="@+id/widget_btn_horn_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="12sp"
+                android:textColor="#FFFFFFFF"
+                android:maxLines="1"
+                android:ellipsize="end"
+                android:text="@string/widget_horn" />
+        </LinearLayout>
 
-        <TextView
+        <LinearLayout
             android:id="@+id/widget_btn_voice"
             android:layout_width="0dp"
-            android:layout_height="36dp"
+            android:layout_height="40dp"
             android:layout_weight="1"
-            android:layout_marginStart="6dp"
+            android:layout_marginStart="8dp"
+            android:orientation="horizontal"
             android:gravity="center"
-            android:background="@drawable/widget_button_bg"
-            android:textSize="12sp"
-            android:textColor="#FFFFFFFF"
-            android:maxLines="1"
-            android:ellipsize="end"
-            android:drawableStart="@drawable/ic_widget_light"
-            android:drawablePadding="4dp"
-            android:text="@string/notif_action_light" />
+            android:background="@drawable/widget_button_bg">
+            <ImageView
+                android:id="@+id/widget_btn_voice_icon"
+                android:layout_width="16dp"
+                android:layout_height="16dp"
+                android:layout_marginEnd="5dp"
+                android:src="@drawable/ic_widget_light"
+                android:contentDescription="@null" />
+            <TextView
+                android:id="@+id/widget_btn_voice_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="12sp"
+                android:textColor="#FFFFFFFF"
+                android:maxLines="1"
+                android:ellipsize="end"
+                android:text="@string/notif_action_light" />
+        </LinearLayout>
 
-        <TextView
+        <LinearLayout
             android:id="@+id/widget_btn_third"
             android:layout_width="0dp"
-            android:layout_height="36dp"
+            android:layout_height="40dp"
             android:layout_weight="1"
-            android:layout_marginStart="6dp"
+            android:layout_marginStart="8dp"
+            android:orientation="horizontal"
             android:gravity="center"
-            android:background="@drawable/widget_button_bg"
-            android:textSize="12sp"
-            android:textColor="#FFFFFFFF"
-            android:maxLines="1"
-            android:ellipsize="end"
-            android:drawableStart="@drawable/ic_widget_voice"
-            android:drawablePadding="4dp"
-            android:text="@string/widget_voice_on" />
+            android:background="@drawable/widget_button_bg">
+            <ImageView
+                android:id="@+id/widget_btn_third_icon"
+                android:layout_width="16dp"
+                android:layout_height="16dp"
+                android:layout_marginEnd="5dp"
+                android:src="@drawable/ic_widget_voice"
+                android:contentDescription="@null" />
+            <TextView
+                android:id="@+id/widget_btn_third_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="12sp"
+                android:textColor="#FFFFFFFF"
+                android:maxLines="1"
+                android:ellipsize="end"
+                android:text="@string/widget_voice_on" />
+        </LinearLayout>
     </LinearLayout>
 </LinearLayout>

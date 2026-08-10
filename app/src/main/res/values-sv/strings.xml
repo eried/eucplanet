@@ -2049,7 +2049,7 @@
     <string name="widget_connected">Ansluten</string>
     <string name="widget_disconnected">Inget hjul</string>
     <string name="widget_placeholder_value">--</string>
-    <string name="widget_description">Fart, distans och laddning, med signal- och röstknapp.</string>
+    <string name="widget_description">Dina avlasningar och snabbatgarder pa hemskarmen.</string>
     <string name="trip_action_save_section">Spara del som ny tur</string>
     <string name="trip_action_save_section_desc">Behaller den har turen och lagger till den beskurna delen. Sakerhetskopieras, skickas aldrig till listan.</string>
     <string name="trip_section_saved">Delen sparad som ny tur</string>

@@ -1954,7 +1954,7 @@
     <string name="widget_connected">Connesso</string>
     <string name="widget_disconnected">Nessuna ruota</string>
     <string name="widget_placeholder_value">--</string>
-    <string name="widget_description">Velocità, distanza e carica, con clacson e voce.</string>
+    <string name="widget_description">Le tue letture e azioni rapide sulla schermata home.</string>
     <string name="trip_action_save_section">Salva sezione come viaggio</string>
     <string name="trip_action_save_section_desc">Mantiene questo viaggio e aggiunge la parte ritagliata. Salvata, mai inviata alla classifica.</string>
     <string name="trip_section_saved">Sezione salvata come nuovo viaggio</string>

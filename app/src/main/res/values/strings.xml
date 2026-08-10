@@ -1224,7 +1224,7 @@
     <string name="recording_chart_pwm_smooth">PWM, average (%)</string>
     <string name="recording_chart_power">Power (W)</string>
     <string name="recording_chart_altitude">Altitude (m)</string>
-    <string name="widget_description">Speed, distance and charge, with horn and voice buttons.</string>
+    <string name="widget_description">Your readings and quick actions, on the home screen.</string>
     <string name="widget_section">Home screen widget</string>
     <string name="widget_pick_desc">Choose the %1$d readings and %2$d buttons the widget shows. Same idea as the notification actions above.</string>
     <string name="widget_metric_slot">Reading %1$d</string>

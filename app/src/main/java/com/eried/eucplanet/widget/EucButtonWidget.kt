@@ -68,11 +68,15 @@ class EucButtonWidget : AppWidgetProvider() {
             )
             // Icon above the label here rather than beside it: this widget is
             // one big square, so there is vertical room the full one lacks.
-            views.setTextViewCompoundDrawables(
-                R.id.widget_btn_single, 0, EucWidget.iconFor(key), 0, 0
+            val icon = EucWidget.iconFor(key)
+            views.setImageViewResource(R.id.widget_btn_single_icon, icon)
+            views.setViewVisibility(
+                R.id.widget_btn_single_icon,
+                if (icon == 0) android.view.View.GONE else android.view.View.VISIBLE,
             )
+            // The whole tile is the tap target, not just the label.
             EucWidget.actionIntentFor(context, key, requestCode = 200)?.let {
-                views.setOnClickPendingIntent(R.id.widget_btn_single, it)
+                views.setOnClickPendingIntent(R.id.widget_btn_root, it)
             }
             return views
         }

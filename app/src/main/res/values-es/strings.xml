@@ -2046,7 +2046,7 @@
     <string name="widget_connected">Conectado</string>
     <string name="widget_disconnected">Sin rueda</string>
     <string name="widget_placeholder_value">--</string>
-    <string name="widget_description">Velocidad, distancia y carga, con botones de bocina y voz.</string>
+    <string name="widget_description">Tus lecturas y acciones rapidas en la pantalla de inicio.</string>
     <string name="trip_action_save_section">Guardar tramo como viaje</string>
     <string name="trip_action_save_section_desc">Conserva este viaje y anade el tramo recortado. Se respalda, nunca se envia a la clasificacion.</string>
     <string name="trip_section_saved">Tramo guardado como viaje nuevo</string>

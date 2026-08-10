@@ -223,8 +223,15 @@ class EucWidget : AppWidgetProvider() {
         private val VALUE_IDS = listOf(R.id.widget_speed, R.id.widget_distance, R.id.widget_battery)
         private val CAPTION_IDS =
             listOf(R.id.widget_speed_label, R.id.widget_distance_label, R.id.widget_battery_label)
+        /** The clickable button containers. */
         private val BUTTON_IDS =
             listOf(R.id.widget_btn_horn, R.id.widget_btn_voice, R.id.widget_btn_third)
+        private val BUTTON_ICON_IDS = listOf(
+            R.id.widget_btn_horn_icon, R.id.widget_btn_voice_icon, R.id.widget_btn_third_icon,
+        )
+        private val BUTTON_TEXT_IDS = listOf(
+            R.id.widget_btn_horn_text, R.id.widget_btn_voice_text, R.id.widget_btn_third_text,
+        )
 
         private fun buildViews(context: Context, s: Snapshot): RemoteViews {
             val views = RemoteViews(context.packageName, R.layout.widget_euc)
@@ -253,14 +260,18 @@ class EucWidget : AppWidgetProvider() {
 
             BUTTON_IDS.forEachIndexed { i, id ->
                 val text = s.buttons.getOrElse(i) { "" }
-                views.setTextViewText(id, text)
-                views.setViewVisibility(id, if (text.isBlank()) View.GONE else View.VISIBLE)
                 val key = s.buttonKeys.getOrElse(i) { WidgetActionType.NONE }
-                // Icon to the left of the label. setTextViewCompoundDrawables is
-                // the only way to put a drawable on a RemoteViews TextView; the
-                // icons are authored white because a widget cannot read the
-                // app's theme and always draws on the dark widget background.
-                views.setTextViewCompoundDrawables(id, iconFor(key), 0, 0, 0)
+                // Label and icon are separate views inside the button, so the
+                // pair centres together. A compound drawable would pin the icon
+                // to the button's edge while the text centred, which is what
+                // made the row look scattered.
+                views.setTextViewText(BUTTON_TEXT_IDS[i], text)
+                views.setImageViewResource(BUTTON_ICON_IDS[i], iconFor(key))
+                views.setViewVisibility(
+                    BUTTON_ICON_IDS[i],
+                    if (iconFor(key) == 0) View.GONE else View.VISIBLE,
+                )
+                views.setViewVisibility(id, if (text.isBlank()) View.GONE else View.VISIBLE)
                 actionIntentFor(context, key, requestCode = 100 + i)?.let {
                     views.setOnClickPendingIntent(id, it)
                 }

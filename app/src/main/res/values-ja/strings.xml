@@ -2050,7 +2050,7 @@
     <string name="widget_connected">接続済み</string>
     <string name="widget_disconnected">ホイールなし</string>
     <string name="widget_placeholder_value">--</string>
-    <string name="widget_description">速度、距離、残量とホーン、音声ボタン。</string>
+    <string name="widget_description">ホーム画面に表示する項目とクイック操作。</string>
     <string name="trip_action_save_section">区間を新しい走行として保存</string>
     <string name="trip_action_save_section_desc">この走行はそのまま、切り出した部分を追加します。バックアップされ、ランキングには送信されません。</string>
     <string name="trip_section_saved">区間を新しい走行として保存しました</string>

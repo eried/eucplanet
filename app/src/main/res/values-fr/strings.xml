@@ -2053,7 +2053,7 @@
     <string name="widget_connected">Connecté</string>
     <string name="widget_disconnected">Aucune roue</string>
     <string name="widget_placeholder_value">--</string>
-    <string name="widget_description">Vitesse, distance et charge, avec klaxon et voix.</string>
+    <string name="widget_description">Tes mesures et actions rapides sur l ecran d accueil.</string>
     <string name="trip_action_save_section">Enregistrer la section</string>
     <string name="trip_action_save_section_desc">Conserve ce trajet et ajoute la partie reduite. Sauvegardee, jamais envoyee au classement.</string>
     <string name="trip_section_saved">Section enregistree comme trajet</string>

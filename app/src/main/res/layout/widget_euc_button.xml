@@ -4,26 +4,39 @@
 
   A separate layout rather than a resize of the full one. RemoteViews cannot
   reflow on resize, so shrinking the full widget just crushes three numbers and
-  two buttons into an unreadable strip. A widget whose whole job is one big tap
+  three buttons into an unreadable strip. A widget whose whole job is one big tap
   target wants a different layout, not a smaller one.
+
+  Icon above the label, both centred, rather than a compound drawable: a
+  compound drawable pins to the view's edge while gravity centres the text, so
+  the two drift apart.
 -->
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/widget_btn_root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/widget_bg"
-    android:padding="8dp">
+    android:orientation="vertical"
+    android:gravity="center"
+    android:background="@drawable/widget_button_bg"
+    android:padding="10dp">
+
+    <ImageView
+        android:id="@+id/widget_btn_single_icon"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:layout_marginBottom="6dp"
+        android:src="@drawable/ic_widget_horn"
+        android:contentDescription="@null" />
 
     <TextView
         android:id="@+id/widget_btn_single"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:gravity="center"
-        android:background="@drawable/widget_button_bg"
-        android:textSize="16sp"
+        android:textSize="13sp"
         android:textStyle="bold"
         android:textColor="#FFFFFFFF"
         android:maxLines="2"
         android:ellipsize="end"
         android:text="@string/widget_horn" />
-</FrameLayout>
+</LinearLayout>

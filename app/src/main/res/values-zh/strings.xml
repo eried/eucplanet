@@ -1916,7 +1916,7 @@
     <string name="widget_connected">已连接</string>
     <string name="widget_disconnected">未连接轮子</string>
     <string name="widget_placeholder_value">--</string>
-    <string name="widget_description">速度、距离和电量，带喇叭和语音按钮。</string>
+    <string name="widget_description">主屏幕上的读数与快捷操作。</string>
     <string name="trip_action_save_section">将区间保存为新行程</string>
     <string name="trip_action_save_section_desc">保留此行程并添加裁剪的部分。会备份，但不会上传排行榜。</string>
     <string name="trip_section_saved">已将区间保存为新行程</string>

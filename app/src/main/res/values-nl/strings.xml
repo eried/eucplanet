@@ -2051,7 +2051,7 @@
     <string name="widget_connected">Verbonden</string>
     <string name="widget_disconnected">Geen wiel</string>
     <string name="widget_placeholder_value">--</string>
-    <string name="widget_description">Snelheid, afstand en lading, met claxon- en spraakknop.</string>
+    <string name="widget_description">Je metingen en snelle acties op het startscherm.</string>
     <string name="trip_action_save_section">Deel opslaan als rit</string>
     <string name="trip_action_save_section_desc">Behoudt deze rit en voegt het bijgesneden deel toe. Wordt geback-upt, nooit naar de ranglijst gestuurd.</string>
     <string name="trip_section_saved">Deel opgeslagen als nieuwe rit</string>
