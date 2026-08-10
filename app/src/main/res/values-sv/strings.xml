@@ -2108,6 +2108,8 @@
     <string name="widget_act_3_desc">Bara din tredje widgetknapp.</string>
     <string name="widget_act_12_desc">Din forsta och andra widgetknapp.</string>
     <string name="widget_act_23_desc">Din andra och tredje widgetknapp.</string>
+    <string name="widget_standalone_desc">Knappwidgetarna har egna atgarder, sa en ensam knapp behover inte matcha den stora widgeten.</string>
+    <string name="widget_standalone_slot">Ensam knapp %1$d</string>
     <string name="trip_customize">Anpassa</string>
     <string name="trip_trim">Beskär vyn</string>
     <string name="trip_trim_title">Beskär turvyn</string>

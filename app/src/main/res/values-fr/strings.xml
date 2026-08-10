@@ -2112,6 +2112,8 @@
     <string name="widget_act_3_desc">Seulement ton troisieme bouton de widget.</string>
     <string name="widget_act_12_desc">Tes premier et deuxieme boutons de widget.</string>
     <string name="widget_act_23_desc">Tes deuxieme et troisieme boutons de widget.</string>
+    <string name="widget_standalone_desc">Les widgets a bouton seul ont leurs propres actions, un bouton isole n a donc pas a correspondre au grand widget.</string>
+    <string name="widget_standalone_slot">Bouton seul %1$d</string>
     <string name="trip_customize">Personnaliser</string>
     <string name="trip_trim">Réduire la vue</string>
     <string name="trip_trim_title">Réduire la vue du trajet</string>

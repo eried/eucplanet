@@ -2105,6 +2105,8 @@
     <string name="widget_act_3_desc">Лише третя кнопка віджета.</string>
     <string name="widget_act_12_desc">Перша та друга кнопки віджета.</string>
     <string name="widget_act_23_desc">Друга та третя кнопки віджета.</string>
+    <string name="widget_standalone_desc">Віджети-кнопки мають власні дії, тож окрема кнопка не мусить збігатися з великим віджетом.</string>
+    <string name="widget_standalone_slot">Окрема кнопка %1$d</string>
     <string name="trip_customize">Налаштувати</string>
     <string name="trip_trim">Обрізати вигляд</string>
     <string name="trip_trim_title">Обрізати вигляд поїздки</string>

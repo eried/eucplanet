@@ -2107,6 +2107,8 @@
     <string name="widget_act_3_desc">세 번째 위젯 버튼만.</string>
     <string name="widget_act_12_desc">첫 번째와 두 번째 위젯 버튼.</string>
     <string name="widget_act_23_desc">두 번째와 세 번째 위젯 버튼.</string>
+    <string name="widget_standalone_desc">버튼 전용 위젯은 자체 작업을 가지므로, 홈 화면의 단독 버튼이 큰 위젯과 같을 필요가 없습니다.</string>
+    <string name="widget_standalone_slot">단독 버튼 %1$d</string>
     <string name="trip_customize">사용자 지정</string>
     <string name="trip_trim">보기 범위 자르기</string>
     <string name="trip_trim_title">주행 보기 자르기</string>

@@ -190,6 +190,7 @@ object SettingsJson {
         put("tripExtraCharts", s.tripExtraCharts)
         put("widgetMetrics", s.widget.metrics)
         put("widgetActions", s.widget.actions)
+        put("widgetStandaloneActions", s.widget.standaloneActions)
         // Nested voice extras, written as flat keys so the file stays readable
         // and a future move back to top level would not break existing saves.
         put("voiceReportCurrent", s.voiceReports.periodicCurrent)
@@ -497,6 +498,7 @@ object SettingsJson {
         widget = com.eried.eucplanet.data.model.WidgetSettings(
             metrics = j.optString("widgetMetrics", base.widget.metrics),
             actions = j.optString("widgetActions", base.widget.actions),
+            standaloneActions = j.optString("widgetStandaloneActions", base.widget.standaloneActions),
         ),
         compactModeWhen = j.optString("compactModeWhen", base.compactModeWhen),
         coverCameraCutout = j.optString("coverCameraCutout", base.coverCameraCutout),

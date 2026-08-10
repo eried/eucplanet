@@ -82,8 +82,18 @@ enum class WidgetActionType(val key: String, @StringRes val pickerLabel: Int) {
  * JVM's 255 parameter slots. See [VoiceReportSettings] for why that matters.
  */
 data class WidgetSettings(
-    /** CSV of [WidgetMetricType] keys, one per slot. */
+    /** CSV of [WidgetMetricType] keys, one per reading in the big widget. */
     val metrics: String = WidgetMetricType.DEFAULT_KEYS,
-    /** CSV of [WidgetActionType] keys, one per button. */
+    /** CSV of [WidgetActionType] keys, one per button in the big widget. */
     val actions: String = WidgetActionType.DEFAULT_KEYS,
+    /**
+     * CSV of [WidgetActionType] keys for the standalone button widgets,
+     * independent of [actions].
+     *
+     * They were the same list at first, which forced a compromise: the button
+     * row inside a dashboard widget and a bare button sitting alone on a home
+     * screen are different jobs. A rider may want the horn on its own by the
+     * dock while the big widget carries light, lock and record.
+     */
+    val standaloneActions: String = WidgetActionType.DEFAULT_KEYS,
 )

@@ -2013,6 +2013,8 @@
     <string name="widget_act_3_desc">Solo il tuo terzo pulsante del widget.</string>
     <string name="widget_act_12_desc">Il tuo primo e secondo pulsante del widget.</string>
     <string name="widget_act_23_desc">Il tuo secondo e terzo pulsante del widget.</string>
+    <string name="widget_standalone_desc">I widget di solo pulsante hanno azioni proprie, quindi un pulsante isolato non deve coincidere con il widget grande.</string>
+    <string name="widget_standalone_slot">Pulsante singolo %1$d</string>
     <string name="trip_customize">Personalizza</string>
     <string name="trip_trim">Restringi la vista</string>
     <string name="trip_trim_title">Restringi vista del viaggio</string>

@@ -2128,6 +2128,8 @@
     <string name="widget_act_3_desc">Nur deine dritte Widget-Taste.</string>
     <string name="widget_act_12_desc">Deine erste und zweite Widget-Taste.</string>
     <string name="widget_act_23_desc">Deine zweite und dritte Widget-Taste.</string>
+    <string name="widget_standalone_desc">Die reinen Tasten-Widgets haben eigene Aktionen, eine einzelne Taste muss also nicht zum grossen Widget passen.</string>
+    <string name="widget_standalone_slot">Einzeltaste %1$d</string>
     <string name="trip_customize">Anpassen</string>
     <string name="trip_trim">Ansicht eingrenzen</string>
     <string name="trip_trim_title">Fahrtansicht eingrenzen</string>

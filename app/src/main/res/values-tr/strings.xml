@@ -2105,6 +2105,8 @@
     <string name="widget_act_3_desc">Sadece ucuncu widget dugmeniz.</string>
     <string name="widget_act_12_desc">Birinci ve ikinci widget dugmeleriniz.</string>
     <string name="widget_act_23_desc">Ikinci ve ucuncu widget dugmeleriniz.</string>
+    <string name="widget_standalone_desc">Yalnizca dugme widgetlarının kendi eylemleri vardir, bu yuzden tek bir dugme buyuk widgetla ayni olmak zorunda degildir.</string>
+    <string name="widget_standalone_slot">Tek dugme %1$d</string>
     <string name="trip_customize">Özelleştir</string>
     <string name="trip_trim">Görünümü kırp</string>
     <string name="trip_trim_title">Sürüş görünümünü kırp</string>

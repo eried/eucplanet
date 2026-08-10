@@ -2107,6 +2107,8 @@
     <string name="widget_act_3_desc">僅第三個小工具按鈕。</string>
     <string name="widget_act_12_desc">第一和第二個小工具按鈕。</string>
     <string name="widget_act_23_desc">第二和第三個小工具按鈕。</string>
+    <string name="widget_standalone_desc">僅按鈕的小工具有各自的動作，因此單獨的按鈕不必與大型小工具一致。</string>
+    <string name="widget_standalone_slot">單獨按鈕 %1$d</string>
     <string name="trip_customize">自訂</string>
     <string name="trip_trim">裁剪檢視</string>
     <string name="trip_trim_title">裁剪行程檢視</string>

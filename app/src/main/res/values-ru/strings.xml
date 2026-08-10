@@ -2108,6 +2108,8 @@
     <string name="widget_act_3_desc">Только третья кнопка виджета.</string>
     <string name="widget_act_12_desc">Первая и вторая кнопки виджета.</string>
     <string name="widget_act_23_desc">Вторая и третья кнопки виджета.</string>
+    <string name="widget_standalone_desc">Виджеты-кнопки имеют свои действия, поэтому одиночная кнопка не обязана совпадать с большим виджетом.</string>
+    <string name="widget_standalone_slot">Отдельная кнопка %1$d</string>
     <string name="trip_customize">Настроить</string>
     <string name="trip_trim">Обрезать вид</string>
     <string name="trip_trim_title">Обрезать вид поездки</string>

@@ -736,6 +736,15 @@ class SettingsViewModel @Inject constructor(
         copy(widget = widget.copy(actions = slots.joinToString(",")))
     }
 
+    /** The standalone button widgets' own actions, independent of the big
+     *  widget's button row. */
+    fun updateWidgetStandaloneSlot(index: Int, key: String) = update {
+        val slots = com.eried.eucplanet.data.model.WidgetActionType
+            .slots(widget.standaloneActions).toMutableList()
+        if (index in slots.indices) slots[index] = key
+        copy(widget = widget.copy(standaloneActions = slots.joinToString(",")))
+    }
+
     fun updateHudServerPort(v: Int) = update {
         // Match the dial port range. Below 1024 the HUD's listening socket
         // couldn't bind without root; above 65535 isn't a port.

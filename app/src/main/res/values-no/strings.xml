@@ -1996,6 +1996,8 @@
     <string name="widget_act_3_desc">Bare din tredje widgetknapp.</string>
     <string name="widget_act_12_desc">Din forste og andre widgetknapp.</string>
     <string name="widget_act_23_desc">Din andre og tredje widgetknapp.</string>
+    <string name="widget_standalone_desc">Knappewidgetene har egne handlinger, sa en enkelt knapp trenger ikke matche det store widgetet.</string>
+    <string name="widget_standalone_slot">Enkeltknapp %1$d</string>
     <string name="trip_customize">Tilpass</string>
     <string name="trip_trim">Beskjær visningen</string>
     <string name="trip_trim_title">Beskjær turvisning</string>

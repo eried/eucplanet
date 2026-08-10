@@ -78,7 +78,9 @@ abstract class ActionWidgetBase(
             val repo = EntryPointAccessors
                 .fromApplication(context, WidgetEntryPoint::class.java)
                 .settingsRepository()
-            return WidgetActionType.slots(repo.get().widget.actions)
+            // The standalone list, not the big widget's row: these are
+            // configured independently.
+            return WidgetActionType.slots(repo.get().widget.standaloneActions)
         }
 
         /**
@@ -91,7 +93,10 @@ abstract class ActionWidgetBase(
             // The snapshot already holds the configured keys once the service
             // has pushed once, so this path needs no settings read and can stay
             // synchronous.
-            val keys = EucWidget.Snapshot.load(appContext).buttonKeys
+            val snap = EucWidget.Snapshot.load(appContext)
+            // buttonKeys still drives routing: the service writes the standalone
+            // keys into the snapshot alongside their labels.
+            val keys = snap.standaloneKeys
             PROVIDERS.forEach { (cls, slots) ->
                 val ids = manager.getAppWidgetIds(ComponentName(appContext, cls))
                 if (ids.isEmpty()) return@forEach
@@ -144,7 +149,7 @@ abstract class ActionWidgetBase(
                 val slot = slots[cell]
                 val key = keys.getOrNull(slot) ?: WidgetActionType.NONE
                 val type = WidgetActionType.byKey(key)
-                val label = snapshot.buttons.getOrNull(slot)?.takeIf { it.isNotBlank() }
+                val label = snapshot.standaloneButtons.getOrNull(slot)?.takeIf { it.isNotBlank() }
                     ?: type?.let { context.getString(it.pickerLabel) }
                     ?: context.getString(R.string.widget_button_unset)
                 views.setTextViewText(TEXT_IDS[cell], label)

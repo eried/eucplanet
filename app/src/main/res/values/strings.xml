@@ -1240,6 +1240,8 @@
     <string name="widget_metric_power">Power</string>
     <string name="widget_metric_phone_battery">Phone battery</string>
     <string name="widget_action_voice">Voice</string>
+    <string name="widget_standalone_desc">The button-only widgets have their own actions, so a lone button on your home screen need not match the big widget.</string>
+    <string name="widget_standalone_slot">Standalone button %1$d</string>
     <string name="widget_act_1_desc">Just your first widget button.</string>
     <string name="widget_act_2_desc">Just your second widget button.</string>
     <string name="widget_act_3_desc">Just your third widget button.</string>

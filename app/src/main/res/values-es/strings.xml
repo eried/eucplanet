@@ -2105,6 +2105,8 @@
     <string name="widget_act_3_desc">Solo tu tercer boton del widget.</string>
     <string name="widget_act_12_desc">Tus botones primero y segundo del widget.</string>
     <string name="widget_act_23_desc">Tus botones segundo y tercero del widget.</string>
+    <string name="widget_standalone_desc">Los widgets de solo boton tienen sus propias acciones, asi que un boton suelto no tiene que coincidir con el widget grande.</string>
+    <string name="widget_standalone_slot">Boton suelto %1$d</string>
     <string name="trip_customize">Personalizar</string>
     <string name="trip_trim">Recortar la vista</string>
     <string name="trip_trim_title">Recortar vista del viaje</string>

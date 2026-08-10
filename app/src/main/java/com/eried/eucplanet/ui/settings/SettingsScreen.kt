@@ -1264,6 +1264,44 @@ private fun GeneralTab(
                 )
                 Spacer(Modifier.weight(1f))
             }
+
+            // The button-only widgets get their own three actions. A button row
+            // inside a dashboard widget and a bare button sitting alone on a
+            // home screen are different jobs, and sharing one list forced a
+            // compromise between them.
+            val standaloneSlots = remember(settings.widget.standaloneActions) {
+                WidgetActionType.slots(settings.widget.standaloneActions)
+            }
+            HintText(stringResource(R.string.widget_standalone_desc), small = true)
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                repeat(2) { i ->
+                    WidgetSlotDropdown(
+                        label = stringResource(R.string.widget_standalone_slot, i + 1),
+                        currentLabel = WidgetActionType.byKey(standaloneSlots[i])
+                            ?.let { stringResource(it.pickerLabel) } ?: "",
+                        options = actionOptions,
+                        onSelect = { viewModel.updateWidgetStandaloneSlot(i, it) },
+                        modifier = Modifier.weight(1f),
+                    )
+                }
+            }
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                WidgetSlotDropdown(
+                    label = stringResource(R.string.widget_standalone_slot, 3),
+                    currentLabel = WidgetActionType.byKey(standaloneSlots[2])
+                        ?.let { stringResource(it.pickerLabel) } ?: "",
+                    options = actionOptions,
+                    onSelect = { viewModel.updateWidgetStandaloneSlot(2, it) },
+                    modifier = Modifier.weight(1f),
+                )
+                Spacer(Modifier.weight(1f))
+            }
         }
 
         Box(

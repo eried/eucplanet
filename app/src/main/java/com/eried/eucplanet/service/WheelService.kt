@@ -107,6 +107,11 @@ class WheelService : LifecycleService() {
     @Volatile
     private var widgetActionsCached: String =
         com.eried.eucplanet.data.model.WidgetActionType.DEFAULT_KEYS
+    // The standalone button widgets carry their own actions, independent of the
+    // big widget's row.
+    @Volatile
+    private var widgetStandaloneCached: String =
+        com.eried.eucplanet.data.model.WidgetActionType.DEFAULT_KEYS
     @Volatile
     private var phoneBatteryCached: Int = 0
     // Last paired wheel's name, mirrored from settings so the notification can
@@ -222,6 +227,7 @@ class WheelService : LifecycleService() {
                 tempUnitCached = com.eried.eucplanet.util.Units.effectiveTempUnit(s)
                 widgetMetricsCached = s.widget.metrics
                 widgetActionsCached = s.widget.actions
+                widgetStandaloneCached = s.widget.standaloneActions
                 // Repaint on a settings change: the rider reconfiguring the
                 // widget expects it to change now, not at the next telemetry
                 // frame, which may never arrive with no wheel connected.
@@ -901,8 +907,7 @@ class WheelService : LifecycleService() {
         val lightOn = data?.lightOn == true
         val locked = wheelRepository.locked.value
         val recording = tripRepository.recording.value
-        val actionKeys = com.eried.eucplanet.data.model.WidgetActionType.slots(widgetActionsCached)
-        val buttons = actionKeys.map { key ->
+        fun labelFor(key: String): String =
             when (com.eried.eucplanet.data.model.WidgetActionType.byKey(key)) {
                 null -> ""
                 com.eried.eucplanet.data.model.WidgetActionType.HORN ->
@@ -921,7 +926,14 @@ class WheelService : LifecycleService() {
                 com.eried.eucplanet.data.model.WidgetActionType.DISCONNECT ->
                     getString(R.string.notif_btn_disconnect)
             }
-        }
+
+        val actionKeys = com.eried.eucplanet.data.model.WidgetActionType.slots(widgetActionsCached)
+        val buttons = actionKeys.map(::labelFor)
+        // The standalone button widgets carry their own actions, so they need
+        // their own labels through the same state-aware mapping.
+        val standaloneKeys = com.eried.eucplanet.data.model.WidgetActionType
+            .slots(widgetStandaloneCached)
+        val standaloneButtons = standaloneKeys.map(::labelFor)
 
         com.eried.eucplanet.widget.EucWidget.render(
             this,
@@ -931,6 +943,8 @@ class WheelService : LifecycleService() {
                 captions = captions,
                 buttons = buttons,
                 buttonKeys = actionKeys,
+                standaloneButtons = standaloneButtons,
+                standaloneKeys = standaloneKeys,
                 voiceOn = voicePeriodicCached,
             )
         )

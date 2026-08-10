@@ -2110,6 +2110,8 @@
     <string name="widget_act_3_desc">Alleen je derde widgetknop.</string>
     <string name="widget_act_12_desc">Je eerste en tweede widgetknop.</string>
     <string name="widget_act_23_desc">Je tweede en derde widgetknop.</string>
+    <string name="widget_standalone_desc">De knop-widgets hebben eigen acties, dus een losse knop hoeft niet overeen te komen met de grote widget.</string>
+    <string name="widget_standalone_slot">Losse knop %1$d</string>
     <string name="trip_customize">Aanpassen</string>
     <string name="trip_trim">Weergave bijsnijden</string>
     <string name="trip_trim_title">Ritweergave bijsnijden</string>

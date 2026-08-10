@@ -1975,6 +1975,8 @@
     <string name="widget_act_3_desc">仅第三个小部件按钮。</string>
     <string name="widget_act_12_desc">第一和第二个小部件按钮。</string>
     <string name="widget_act_23_desc">第二和第三个小部件按钮。</string>
+    <string name="widget_standalone_desc">仅按钮的小部件有各自的操作，因此单独的按钮不必与大号小部件一致。</string>
+    <string name="widget_standalone_slot">单独按钮 %1$d</string>
     <string name="trip_customize">自定义</string>
     <string name="trip_trim">裁剪视图</string>
     <string name="trip_trim_title">裁剪行程视图</string>

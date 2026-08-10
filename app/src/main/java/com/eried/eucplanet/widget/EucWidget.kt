@@ -100,11 +100,18 @@ class EucWidget : AppWidgetProvider() {
          *  units, one per configured metric slot. */
         val values: List<String> = List(WidgetMetricType.SLOTS) { DASH },
         val captions: List<String> = List(WidgetMetricType.SLOTS) { "" },
-        /** Two button labels, one per configured action slot. Blank hides it. */
+        /** Button labels for the big widget, one per configured action slot.
+         *  Blank hides it. */
         val buttons: List<String> = List(WidgetActionType.SLOTS) { "" },
         /** Action keys behind those buttons, so taps route without re-reading
          *  settings in the receiver. */
         val buttonKeys: List<String> = List(WidgetActionType.SLOTS) { WidgetActionType.NONE },
+        /** Live labels for the STANDALONE button widgets, whose actions are
+         *  configured separately from the big widget's. */
+        val standaloneButtons: List<String> = List(WidgetActionType.SLOTS) { "" },
+        /** Their action keys, so a repaint driven by telemetry can route taps
+         *  without reading settings on the main thread. */
+        val standaloneKeys: List<String> = List(WidgetActionType.SLOTS) { WidgetActionType.NONE },
         val voiceOn: Boolean = false,
     ) {
         companion object {
@@ -134,6 +141,14 @@ class EucWidget : AppWidgetProvider() {
                         p.getString("buttonKeys", "") ?: "",
                         WidgetActionType.SLOTS, WidgetActionType.NONE,
                     ),
+                    standaloneButtons = unpack(
+                        p.getString("standaloneButtons", "") ?: "",
+                        WidgetActionType.SLOTS, "",
+                    ),
+                    standaloneKeys = unpack(
+                        p.getString("standaloneKeys", "") ?: "",
+                        WidgetActionType.SLOTS, WidgetActionType.NONE,
+                    ),
                     voiceOn = p.getBoolean("voiceOn", false),
                 )
             }
@@ -145,6 +160,8 @@ class EucWidget : AppWidgetProvider() {
                     .putString("captions", pack(s.captions))
                     .putString("buttons", pack(s.buttons))
                     .putString("buttonKeys", pack(s.buttonKeys))
+                    .putString("standaloneButtons", pack(s.standaloneButtons))
+                    .putString("standaloneKeys", pack(s.standaloneKeys))
                     .putBoolean("voiceOn", s.voiceOn)
                     .apply()
             }

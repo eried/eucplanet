@@ -2123,6 +2123,8 @@
     <string name="widget_act_3_desc">Kun din tredje widgetknap.</string>
     <string name="widget_act_12_desc">Din forste og anden widgetknap.</string>
     <string name="widget_act_23_desc">Din anden og tredje widgetknap.</string>
+    <string name="widget_standalone_desc">Knap-widgetterne har deres egne handlinger, sa en enkelt knap pa startskaermen ikke behover matche det store widget.</string>
+    <string name="widget_standalone_slot">Enkeltknap %1$d</string>
     <string name="trip_customize">Tilpas</string>
     <string name="trip_trim">Beskær visningen</string>
     <string name="trip_trim_title">Beskær turvisning</string>

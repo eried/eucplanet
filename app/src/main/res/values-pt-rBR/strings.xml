@@ -2110,6 +2110,8 @@
     <string name="widget_act_3_desc">Apenas o seu terceiro botao do widget.</string>
     <string name="widget_act_12_desc">Seus botoes primeiro e segundo do widget.</string>
     <string name="widget_act_23_desc">Seus botoes segundo e terceiro do widget.</string>
+    <string name="widget_standalone_desc">Os widgets so de botao tem acoes proprias, entao um botao sozinho nao precisa coincidir com o widget grande.</string>
+    <string name="widget_standalone_slot">Botao avulso %1$d</string>
     <string name="trip_customize">Personalizar</string>
     <string name="trip_trim">Recortar a exibição</string>
     <string name="trip_trim_title">Recortar exibição do trajeto</string>

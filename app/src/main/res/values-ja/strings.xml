@@ -2109,6 +2109,8 @@
     <string name="widget_act_3_desc">3 番目のウィジェットボタンだけ。</string>
     <string name="widget_act_12_desc">1 番目と 2 番目のウィジェットボタン。</string>
     <string name="widget_act_23_desc">2 番目と 3 番目のウィジェットボタン。</string>
+    <string name="widget_standalone_desc">ボタンだけのウィジェットは独自の操作を持つため、単独のボタンが大きいウィジェットと一致する必要はありません。</string>
+    <string name="widget_standalone_slot">単独ボタン %1$d</string>
     <string name="trip_customize">カスタマイズ</string>
     <string name="trip_trim">表示範囲を絞る</string>
     <string name="trip_trim_title">走行の表示範囲を絞る</string>

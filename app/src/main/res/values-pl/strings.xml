@@ -2108,6 +2108,8 @@
     <string name="widget_act_3_desc">Tylko trzeci przycisk widgetu.</string>
     <string name="widget_act_12_desc">Pierwszy i drugi przycisk widgetu.</string>
     <string name="widget_act_23_desc">Drugi i trzeci przycisk widgetu.</string>
+    <string name="widget_standalone_desc">Widgety z samym przyciskiem maja wlasne akcje, wiec pojedynczy przycisk nie musi pasowac do duzego widgetu.</string>
+    <string name="widget_standalone_slot">Osobny przycisk %1$d</string>
     <string name="trip_customize">Dostosuj</string>
     <string name="trip_trim">Przytnij widok</string>
     <string name="trip_trim_title">Przytnij widok przejazdu</string>
