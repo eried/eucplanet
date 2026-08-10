@@ -73,4 +73,27 @@ class TripTrimTest {
     @Test fun minPoints_isTwo_becauseAChartNeedsALine() {
         assertEquals(2, TripTrim.MIN_POINTS)
     }
+
+    @Test fun elapsedOffsets_handleTheEuropeanDottedFormatToo() {
+        // The bound-parser fast path must resolve whichever format the file
+        // uses, not just the ISO one the other tests exercise.
+        val pts = listOf(
+            points(1).first().copy(date = "09.08.2026 12:00:00.000"),
+            points(1).first().copy(date = "09.08.2026 12:00:02.000"),
+        )
+        assertArrayEquals(longArrayOf(0L, 2_000L), TripTrim.elapsedOffsets(pts))
+    }
+
+    @Test fun elapsedOffsets_whenNoRowParses_areAllZero() {
+        val pts = points(3).map { it.copy(date = "nonsense") }
+        assertArrayEquals(longArrayOf(0L, 0L, 0L), TripTrim.elapsedOffsets(pts))
+    }
+
+    @Test fun elapsedOffsets_secondsOnlyFormat() {
+        val pts = listOf(
+            points(1).first().copy(date = "2026-08-09 12:00:00"),
+            points(1).first().copy(date = "2026-08-09 12:00:05"),
+        )
+        assertArrayEquals(longArrayOf(0L, 5_000L), TripTrim.elapsedOffsets(pts))
+    }
 }

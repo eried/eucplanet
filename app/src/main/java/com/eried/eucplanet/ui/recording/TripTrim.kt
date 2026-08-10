@@ -28,10 +28,13 @@ object TripTrim {
      */
     fun elapsedOffsets(points: List<TripDataPoint>): LongArray {
         if (points.isEmpty()) return LongArray(0)
-        val t0 = points.firstNotNullOfOrNull { TripCsv.parseDate(it.date) } ?: 0L
-        return LongArray(points.size) { i ->
-            TripCsv.parseDate(points[i].date)?.minus(t0) ?: 0L
-        }
+        // Resolve the file's timestamp format once. TripCsv.parseDate probes
+        // every known format and swallows a thrown exception per miss, which
+        // across tens of thousands of rows costs far more than the parsing.
+        val parse = points.firstNotNullOfOrNull { TripCsv.parserFor(it.date) }
+            ?: return LongArray(points.size)
+        val t0 = points.firstNotNullOfOrNull { parse(it.date) } ?: 0L
+        return LongArray(points.size) { i -> parse(points[i].date)?.minus(t0) ?: 0L }
     }
 
     /**

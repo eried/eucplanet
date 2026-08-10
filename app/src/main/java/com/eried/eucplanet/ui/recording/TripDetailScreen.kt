@@ -131,7 +131,14 @@ fun TripDetailScreen(
     // Elapsed-ms window into the ride, null when the full trip is shown.
     var trimRange by remember { mutableStateOf<LongRange?>(null) }
     var showTrim by remember { mutableStateOf(false) }
-    val elapsedMs = remember(allPoints) { TripTrim.elapsedOffsets(allPoints) }
+    // Deferred: parsing every row's timestamp is the single most expensive thing
+    // this screen can do on a long ride, and most trips are never trimmed. It is
+    // computed the moment the rider opens the dialog or a trim is live, and not
+    // before.
+    val needElapsed = showTrim || trimRange != null
+    val elapsedMs = remember(allPoints, needElapsed) {
+        if (needElapsed) TripTrim.elapsedOffsets(allPoints) else LongArray(0)
+    }
     // Everything else on this screen reads dataPoints, so filtering here trims
     // the tiles, the charts, the header and the map in one move.
     val dataPoints = remember(allPoints, elapsedMs, trimRange) {
@@ -222,8 +229,13 @@ fun TripDetailScreen(
     // those stored fields rather than the CSV. Feeding it trimmed numbers would
     // overwrite the ride's real identity with whatever window happened to be
     // showing, with no way back. It gets the full trip, always.
-    val fullMetrics = remember(allPoints) { viewModel.tripMetrics(allPoints) }
     val metrics = remember(dataPoints) { viewModel.tripMetrics(dataPoints) }
+    // Untrimmed, dataPoints IS allPoints, so computing this separately would
+    // walk and re-parse the whole file a second time for an identical result.
+    val fullMetricsWhenTrimmed = remember(allPoints, trimmed) {
+        if (trimmed) viewModel.tripMetrics(allPoints) else null
+    }
+    val fullMetrics = fullMetricsWhenTrimmed ?: metrics
     LaunchedEffect(fullMetrics, liveState) {
         if (liveState == false) viewModel.healTripMetrics(trip, fullMetrics)
     }
@@ -380,9 +392,13 @@ fun TripDetailScreen(
                 dataPoints.filter { it.latitude != 0.0 && it.longitude != 0.0 }
             }
             // The whole ride's fixes, for the faded context track behind a trim.
-            val fullGpsPoints = remember(allPoints) {
-                allPoints.filter { it.latitude != 0.0 && it.longitude != 0.0 }
+            // Untrimmed these are the same list, so the filter is skipped rather
+            // than run twice over every row.
+            val fullGpsWhenTrimmed = remember(allPoints, trimmed) {
+                if (trimmed) allPoints.filter { it.latitude != 0.0 && it.longitude != 0.0 }
+                else null
             }
+            val fullGpsPoints = fullGpsWhenTrimmed ?: gpsPoints
             // Whether the ride's real start and end survived the trim. A window
             // that begins at 0:00 still contains the start, so its marker must
             // stay solid; only an endpoint the trim cut away is ghosted.
@@ -401,7 +417,11 @@ fun TripDetailScreen(
             // Whole-ride identity blocks. The map's start and end markers describe
             // where the RIDE began and finished, so their popups have to come from
             // the full trip, not from whatever section is currently on screen.
-            val fullExtraEvents = remember(allPoints) { extractExtraEvents(allPoints) }
+            // Same reuse as above: identical to extraEvents when untrimmed.
+            val fullExtraWhenTrimmed = remember(allPoints, trimmed) {
+                if (trimmed) extractExtraEvents(allPoints) else null
+            }
+            val fullExtraEvents = fullExtraWhenTrimmed ?: extraEvents
             // Localized, readable marker popups. ctx.getString runs inside
             // remember (the strings only change with the locale, which recreates
             // the composition anyway, so ctx is a remember key too).

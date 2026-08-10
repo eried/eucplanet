@@ -49,6 +49,36 @@ object TripCsv {
         return null
     }
 
+    /**
+     * A parser bound to whichever known format matches [sample], or null when
+     * none does.
+     *
+     * [parseDate] probes every format in turn and swallows a thrown exception
+     * for each miss. Building an exception is expensive, so a whole-file pass
+     * that pays for four or five misses on every row costs far more than the
+     * parsing itself. Every row in one trip CSV shares a format, so callers
+     * walking a whole file should resolve it once here and reuse the result.
+     *
+     * The matched formatter is cloned: SimpleDateFormat is not thread-safe, and
+     * the returned parser must not share mutable state with [parseDate].
+     */
+    fun parserFor(sample: String?): ((String?) -> Long?)? {
+        val s = sample?.trim().orEmpty()
+        if (s.isEmpty()) return null
+        val normalised = normaliseFraction(s)
+        for (fmt in FORMATS) {
+            val matched = try { fmt.parse(normalised) } catch (_: Exception) { null } ?: continue
+            @Suppress("UNUSED_VARIABLE") val ignored = matched
+            val bound = fmt.clone() as SimpleDateFormat
+            return { raw ->
+                val t = raw?.trim().orEmpty()
+                if (t.isEmpty()) null
+                else try { bound.parse(normaliseFraction(t))?.time } catch (_: Exception) { null }
+            }
+        }
+        return null
+    }
+
     /** Clamp the fractional-seconds part to at most 3 digits. Handles the
      *  ISO microsecond form and the European ms form; leaves dotted dates
      *  (dd.MM.yyyy) untouched because their dots are before the time. */
