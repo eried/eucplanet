@@ -2075,6 +2075,11 @@
     <string name="trip_tools_split_failed">Не удалось разделить эту поездку</string>
     <string name="trip_tools_combine_done">Поездки объединены в новую</string>
     <string name="trip_tools_combine_failed">Не удалось объединить эти поездки</string>
+    <string name="trip_tools_wheel_current">Текущее</string>
+    <string name="trip_tools_combine_pick">Выберите, до какой поездки объединять. Всё, что между, тоже войдёт.</string>
+    <string name="trip_tools_combine_this">Эта поездка</string>
+    <string name="trip_tools_combine_between">Между ними, войдёт</string>
+    <string name="trip_tools_combine_summary">Объединяет %1$d поездок в одну новую.</string>
     <string name="trip_customize">Настроить</string>
     <string name="trip_trim">Обрезать вид</string>
     <string name="trip_trim_title">Обрезать вид поездки</string>

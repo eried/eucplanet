@@ -811,10 +811,14 @@ class RecordingViewModel @Inject constructor(
         }
     }
 
-    /** Merge [others] into [trip], leaving every source alone. */
-    fun combineTrips(trip: TripRecord, others: List<TripRecord>) {
+    /**
+     * Merge a continuous span of trips into one new trip, leaving every source
+     * alone. [range] is already the full inclusive span the rider chose,
+     * including anything that fell between the two ends.
+     */
+    fun combineRange(range: List<TripRecord>) {
         viewModelScope.launch {
-            val made = tripRepository.combineTrips(listOf(trip) + others)
+            val made = tripRepository.combineTrips(range)
             _toasts.send(
                 context.getString(
                     if (made != null) R.string.trip_tools_combine_done else R.string.trip_tools_combine_failed

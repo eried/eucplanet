@@ -555,11 +555,6 @@ private const val ROUTE_BUILDER_HTML_1: String = """
     if (type === 'SATELLITE'){
       url = 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}';
       opts = Object.assign({maxNativeZoom:19, maxZoom:21}, common);
-    } else if (type === 'TOPO'){
-      // Terrain: contours, hillshading, tracks and trails. The closest thing to
-      // the web viewer's terrain view that needs no key.
-      url = 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}';
-      opts = Object.assign({maxNativeZoom:19, maxZoom:21}, common);
     } else if (type === 'LIGHT'){
       url = 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png';
       opts = Object.assign({maxNativeZoom:20, maxZoom:21, subdomains:'abcd'}, common);

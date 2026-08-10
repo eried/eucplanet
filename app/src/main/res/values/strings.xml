@@ -1240,6 +1240,15 @@
     <string name="trip_tools_change_wheel">Change wheel</string>
     <string name="trip_tools_change_wheel_desc">Correct which wheel this ride was on. Updates the trip and its file.</string>
     <string name="trip_tools_wheel_other">Another wheel</string>
+    <string name="trip_tools_wheel_current">Current</string>
+    <string name="trip_tools_extend">Extend trip</string>
+    <string name="trip_tools_extend_desc">Absorb the rides before or after this one into a new, longer trip.</string>
+    <string name="trip_tools_extend_hint">Reach back and forward as far as you like. Everything in between comes along.</string>
+    <string name="trip_tools_extend_from">Start from</string>
+    <string name="trip_tools_extend_to">End at</string>
+    <string name="trip_tools_extend_none">This trip</string>
+    <string name="trip_tools_extend_pick_one">Pick an earlier or later trip to extend into.</string>
+    <string name="trip_tools_combine_summary">Combines %1$d trips into one new trip.</string>
     <string name="trip_tools_wheel_uploaded_warning">This ride is already on the leaderboard. The entry there keeps the old wheel and cannot be corrected from here.</string>
     <string name="trip_tools_wheel_changed">Wheel set to %1$s</string>
     <string name="trip_tools_split">Split trip</string>

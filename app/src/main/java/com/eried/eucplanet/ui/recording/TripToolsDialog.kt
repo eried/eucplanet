@@ -6,6 +6,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
@@ -13,11 +15,14 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.CallMerge
 import androidx.compose.material.icons.filled.ContentCut
 import androidx.compose.material.icons.filled.SwapHoriz
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Checkbox
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -82,8 +87,8 @@ fun TripToolsDialog(
                 ) { onDismiss(); onSplit() }
                 ToolRow(
                     Icons.Default.CallMerge,
-                    stringResource(R.string.trip_tools_combine),
-                    stringResource(R.string.trip_tools_combine_desc),
+                    stringResource(R.string.trip_tools_extend),
+                    stringResource(R.string.trip_tools_extend_desc),
                 ) { onDismiss(); onCombine() }
             }
         },
@@ -116,9 +121,15 @@ fun ChangeWheelDialog(
     onConfirm: (String) -> Unit,
     onDismiss: () -> Unit,
 ) {
-    var picked by remember { mutableStateOf(currentWheel ?: knownWheels.firstOrNull() ?: "") }
+    // The trip's own wheel leads the list and starts selected, even when it has
+    // no saved profile. Showing the picker with nothing chosen, or with someone
+    // else's wheel chosen, invites a rider to apply a change they never meant.
+    val options = remember(currentWheel, knownWheels) {
+        (listOfNotNull(currentWheel?.takeIf { it.isNotBlank() }) + knownWheels).distinct()
+    }
+    var picked by remember(options) { mutableStateOf(currentWheel ?: options.firstOrNull() ?: "") }
     var custom by remember { mutableStateOf("") }
-    var usingCustom by remember { mutableStateOf(knownWheels.isEmpty()) }
+    var usingCustom by remember(options) { mutableStateOf(options.isEmpty()) }
     val chosen = if (usingCustom) custom.trim() else picked
 
     AlertDialog(
@@ -135,7 +146,7 @@ fun ChangeWheelDialog(
                     )
                     Spacer(Modifier.width(8.dp))
                 }
-                knownWheels.forEach { name ->
+                options.forEach { name ->
                     Row(
                         Modifier
                             .fillMaxWidth()
@@ -148,7 +159,18 @@ fun ChangeWheelDialog(
                             onClick = { usingCustom = false; picked = name },
                         )
                         Spacer(Modifier.width(8.dp))
-                        Text(name, color = MaterialTheme.appColors.textPrimary)
+                        Column {
+                            Text(name, color = MaterialTheme.appColors.textPrimary)
+                            // Says which one the trip already has, so applying
+                            // without changing anything is obviously a no-op.
+                            if (name == currentWheel) {
+                                Text(
+                                    stringResource(R.string.trip_tools_wheel_current),
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.appColors.textSecondary,
+                                )
+                            }
+                        }
                     }
                 }
                 Row(
@@ -293,77 +315,174 @@ fun SplitTripDialog(
 }
 
 /**
- * Pick other trips to merge into this one.
+ * Choose how far to extend a merge, as a continuous span of rides.
  *
- * Done here rather than as multi-select in the list because the tool is already
- * opened from a specific trip, so "which others join it" is the only question
- * left. That also keeps the trip list a plain list.
+ * Combining is a RANGE, not an arbitrary pick. A ride is a stretch of time, and
+ * merging 8pm with 10pm while skipping the 9pm in between would produce a trip
+ * whose own middle is missing: its duration and averages would describe a
+ * journey that never happened. So the rider picks one other end and everything
+ * between is swept in, which is also what "combine until the 10pm trip" means
+ * when someone says it out loud.
+ *
+ * The anchor is fixed and marked; the radio picks the far end. Direction does
+ * not matter, an earlier trip extends the span backwards just as well.
  */
 @Composable
 fun CombineTripsDialog(
-    candidates: List<TripRecord>,
+    anchor: TripRecord,
+    trips: List<TripRecord>,
     label: (TripRecord) -> String,
-    mixedWheelWarning: Boolean,
+    wheelOf: (TripRecord) -> String?,
     onConfirm: (List<TripRecord>) -> Unit,
     onDismiss: () -> Unit,
 ) {
-    val selected = remember { mutableStateOf(emptySet<Long>()) }
+    // Chronological, because the span only means anything in time order.
+    val ordered = remember(trips) { trips.sortedBy { it.startTime } }
+    val anchorIdx = remember(ordered) { ordered.indexOfFirst { it.id == anchor.id } }
+
+    // Two ends rather than one. A ride can spill over on both sides, a leg
+    // before and a leg after, and one radio could only ever reach in a single
+    // direction. Both default to the trip itself, so opening the dialog selects
+    // nothing until the rider actually reaches out.
+    var fromIdx by remember(ordered) { mutableStateOf(anchorIdx) }
+    var toIdx by remember(ordered) { mutableStateOf(anchorIdx) }
+
+    val range = remember(fromIdx, toIdx, ordered) {
+        if (anchorIdx < 0) emptyList()
+        else ordered.subList(fromIdx.coerceAtMost(anchorIdx), toIdx.coerceAtLeast(anchorIdx) + 1).toList()
+    }
+    val mixedWheels = remember(range) {
+        range.mapNotNull { wheelOf(it)?.takeIf { w -> w.isNotBlank() } }.distinct().size > 1
+    }
+
     AlertDialog(
         onDismissRequest = onDismiss,
         shape = RoundedCornerShape(12.dp),
-        title = { Text(stringResource(R.string.trip_tools_combine)) },
+        title = { Text(stringResource(R.string.trip_tools_extend)) },
         text = {
-            Column(Modifier.heightIn(max = 380.dp).verticalScroll(rememberScrollState())) {
-                if (mixedWheelWarning) {
-                    Text(
-                        stringResource(R.string.trip_tools_combine_mixed_wheels),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.appColors.statusWarn,
-                    )
-                }
-                if (candidates.isEmpty()) {
+            Column(Modifier.heightIn(max = 420.dp).verticalScroll(rememberScrollState())) {
+                if (ordered.size < 2) {
                     Text(
                         stringResource(R.string.trip_tools_combine_none),
                         color = MaterialTheme.appColors.textSecondary,
                     )
-                }
-                candidates.forEach { t ->
-                    val on = t.id in selected.value
-                    Row(
-                        Modifier
-                            .fillMaxWidth()
-                            .clickable {
-                                selected.value = if (on) selected.value - t.id else selected.value + t.id
-                            }
-                            .padding(vertical = 4.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
-                        Checkbox(
-                            checked = on,
-                            onCheckedChange = {
-                                selected.value = if (on) selected.value - t.id else selected.value + t.id
-                            },
+                } else {
+                    Text(
+                        stringResource(R.string.trip_tools_extend_hint),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.appColors.textSecondary,
+                    )
+                    Spacer(Modifier.height(12.dp))
+
+                    // Earlier end: the anchor plus everything before it.
+                    TripPicker(
+                        title = stringResource(R.string.trip_tools_extend_from),
+                        options = (0..anchorIdx).toList(),
+                        selectedIdx = fromIdx,
+                        optionLabel = { i ->
+                            if (i == anchorIdx) stringResource(R.string.trip_tools_extend_none)
+                            else label(ordered[i])
+                        },
+                        onSelect = { fromIdx = it },
+                    )
+                    Spacer(Modifier.height(8.dp))
+                    // Later end: the anchor plus everything after it.
+                    TripPicker(
+                        title = stringResource(R.string.trip_tools_extend_to),
+                        options = (anchorIdx until ordered.size).toList(),
+                        selectedIdx = toIdx,
+                        optionLabel = { i ->
+                            if (i == anchorIdx) stringResource(R.string.trip_tools_extend_none)
+                            else label(ordered[i])
+                        },
+                        onSelect = { toIdx = it },
+                    )
+
+                    Spacer(Modifier.height(12.dp))
+                    Text(
+                        if (range.size >= 2)
+                            stringResource(R.string.trip_tools_combine_summary, range.size)
+                        else stringResource(R.string.trip_tools_extend_pick_one),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.appColors.textPrimary,
+                    )
+                    if (mixedWheels) {
+                        Spacer(Modifier.height(4.dp))
+                        Text(
+                            stringResource(R.string.trip_tools_combine_mixed_wheels),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.appColors.statusWarn,
                         )
-                        Spacer(Modifier.width(4.dp))
-                        Text(label(t), color = MaterialTheme.appColors.textPrimary)
                     }
                 }
             }
         },
         confirmButton = {
-            val chosen = candidates.filter { it.id in selected.value }
-            TextButton(
-                onClick = { onConfirm(chosen) },
-                enabled = chosen.isNotEmpty(),
-                shape = RoundedCornerShape(12.dp),
-            ) { Text(stringResource(R.string.action_apply)) }
+            if (ordered.size >= 2) {
+                TextButton(
+                    onClick = { onConfirm(range) },
+                    enabled = range.size >= 2,
+                    shape = RoundedCornerShape(12.dp),
+                ) { Text(stringResource(R.string.action_apply)) }
+            }
         },
         dismissButton = {
             TextButton(onClick = onDismiss, shape = RoundedCornerShape(12.dp)) {
-                Text(stringResource(R.string.action_cancel))
+                Text(
+                    stringResource(
+                        if (ordered.size < 2) R.string.action_close else R.string.action_cancel
+                    )
+                )
             }
         }
     )
+}
+
+/** One labelled dropdown of trips. Kept local so both ends look identical. */
+@Composable
+private fun TripPicker(
+    title: String,
+    options: List<Int>,
+    selectedIdx: Int,
+    optionLabel: @Composable (Int) -> String,
+    onSelect: (Int) -> Unit,
+) {
+    var open by remember { mutableStateOf(false) }
+    Column(Modifier.fillMaxWidth()) {
+        Text(
+            title,
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.appColors.textSecondary,
+        )
+        Box {
+            Row(
+                Modifier
+                    .fillMaxWidth()
+                    .clickable { open = true }
+                    .padding(vertical = 10.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text(
+                    optionLabel(selectedIdx),
+                    modifier = Modifier.weight(1f),
+                    color = MaterialTheme.appColors.textPrimary,
+                )
+                Icon(
+                    Icons.Default.ArrowDropDown,
+                    contentDescription = null,
+                    tint = MaterialTheme.appColors.textSecondary,
+                )
+            }
+            DropdownMenu(expanded = open, onDismissRequest = { open = false }) {
+                options.forEach { i ->
+                    DropdownMenuItem(
+                        text = { Text(optionLabel(i)) },
+                        onClick = { onSelect(i); open = false },
+                    )
+                }
+            }
+        }
+    }
 }
 
 @Composable

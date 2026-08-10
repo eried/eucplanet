@@ -2095,6 +2095,11 @@
     <string name="trip_tools_split_failed">Diese Fahrt konnte nicht geteilt werden</string>
     <string name="trip_tools_combine_done">Fahrten zu einer neuen zusammengefuegt</string>
     <string name="trip_tools_combine_failed">Diese Fahrten konnten nicht zusammengefuegt werden</string>
+    <string name="trip_tools_wheel_current">Aktuell</string>
+    <string name="trip_tools_combine_pick">Waehle, wie weit kombiniert wird. Alles dazwischen kommt mit.</string>
+    <string name="trip_tools_combine_this">Diese Fahrt</string>
+    <string name="trip_tools_combine_between">Dazwischen, kommt mit</string>
+    <string name="trip_tools_combine_summary">Fuegt %1$d Fahrten zu einer neuen zusammen.</string>
     <string name="trip_customize">Anpassen</string>
     <string name="trip_trim">Ansicht eingrenzen</string>
     <string name="trip_trim_title">Fahrtansicht eingrenzen</string>

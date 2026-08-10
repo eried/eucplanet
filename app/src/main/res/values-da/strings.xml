@@ -2090,6 +2090,11 @@
     <string name="trip_tools_split_failed">Kunne ikke opdele denne tur</string>
     <string name="trip_tools_combine_done">Ture kombineret til en ny</string>
     <string name="trip_tools_combine_failed">Kunne ikke kombinere de ture</string>
+    <string name="trip_tools_wheel_current">Nuvaerende</string>
+    <string name="trip_tools_combine_pick">Vaelg hvor langt der skal kombineres. Alt derimellem tages med.</string>
+    <string name="trip_tools_combine_this">Denne tur</string>
+    <string name="trip_tools_combine_between">Ligger imellem, tages med</string>
+    <string name="trip_tools_combine_summary">Kombinerer %1$d ture til en ny tur.</string>
     <string name="trip_customize">Tilpas</string>
     <string name="trip_trim">Beskær visningen</string>
     <string name="trip_trim_title">Beskær turvisning</string>

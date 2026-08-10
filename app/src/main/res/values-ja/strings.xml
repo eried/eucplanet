@@ -2076,6 +2076,11 @@
     <string name="trip_tools_split_failed">この走行を分割できませんでした</string>
     <string name="trip_tools_combine_done">走行を新しい走行に結合しました</string>
     <string name="trip_tools_combine_failed">それらの走行を結合できませんでした</string>
+    <string name="trip_tools_wheel_current">現在</string>
+    <string name="trip_tools_combine_pick">どこまで結合するか選びます。間にあるものはすべて含まれます。</string>
+    <string name="trip_tools_combine_this">この走行</string>
+    <string name="trip_tools_combine_between">間にあるため含まれます</string>
+    <string name="trip_tools_combine_summary">%1$d 件の走行を新しい走行に結合します。</string>
     <string name="trip_customize">カスタマイズ</string>
     <string name="trip_trim">表示範囲を絞る</string>
     <string name="trip_trim_title">走行の表示範囲を絞る</string>

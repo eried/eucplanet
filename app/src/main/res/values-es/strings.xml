@@ -2072,6 +2072,11 @@
     <string name="trip_tools_split_failed">No se pudo dividir este viaje</string>
     <string name="trip_tools_combine_done">Viajes combinados en uno nuevo</string>
     <string name="trip_tools_combine_failed">No se pudieron combinar esos viajes</string>
+    <string name="trip_tools_wheel_current">Actual</string>
+    <string name="trip_tools_combine_pick">Elige hasta donde combinar. Se incluye todo lo que haya en medio.</string>
+    <string name="trip_tools_combine_this">Este viaje</string>
+    <string name="trip_tools_combine_between">En medio, se incluye</string>
+    <string name="trip_tools_combine_summary">Combina %1$d viajes en uno nuevo.</string>
     <string name="trip_customize">Personalizar</string>
     <string name="trip_trim">Recortar la vista</string>
     <string name="trip_trim_title">Recortar vista del viaje</string>

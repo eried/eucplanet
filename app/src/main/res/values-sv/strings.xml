@@ -2075,6 +2075,11 @@
     <string name="trip_tools_split_failed">Det gick inte att dela den har turen</string>
     <string name="trip_tools_combine_done">Turer ihopslagna till en ny</string>
     <string name="trip_tools_combine_failed">Det gick inte att slaa ihop de turerna</string>
+    <string name="trip_tools_wheel_current">Nuvarande</string>
+    <string name="trip_tools_combine_pick">Valj hur langt du vill slaa ihop. Allt daremellan tas med.</string>
+    <string name="trip_tools_combine_this">Den har turen</string>
+    <string name="trip_tools_combine_between">Daremellan, tas med</string>
+    <string name="trip_tools_combine_summary">Slaar ihop %1$d turer till en ny tur.</string>
     <string name="trip_customize">Anpassa</string>
     <string name="trip_trim">Beskär vyn</string>
     <string name="trip_trim_title">Beskär turvyn</string>

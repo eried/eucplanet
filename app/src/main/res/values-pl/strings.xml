@@ -2075,6 +2075,11 @@
     <string name="trip_tools_split_failed">Nie udalo sie podzielic tego przejazdu</string>
     <string name="trip_tools_combine_done">Polaczono przejazdy w nowy</string>
     <string name="trip_tools_combine_failed">Nie udalo sie polaczyc tych przejazdow</string>
+    <string name="trip_tools_wheel_current">Obecne</string>
+    <string name="trip_tools_combine_pick">Wybierz, jak daleko polaczyc. Wszystko pomiedzy zostanie dolaczone.</string>
+    <string name="trip_tools_combine_this">Ten przejazd</string>
+    <string name="trip_tools_combine_between">Pomiedzy, dolaczone</string>
+    <string name="trip_tools_combine_summary">Laczy %1$d przejazdow w jeden nowy.</string>
     <string name="trip_customize">Dostosuj</string>
     <string name="trip_trim">Przytnij widok</string>
     <string name="trip_trim_title">Przytnij widok przejazdu</string>

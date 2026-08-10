@@ -1980,6 +1980,11 @@
     <string name="trip_tools_split_failed">Impossibile dividere questo viaggio</string>
     <string name="trip_tools_combine_done">Viaggi uniti in uno nuovo</string>
     <string name="trip_tools_combine_failed">Impossibile unire quei viaggi</string>
+    <string name="trip_tools_wheel_current">Attuale</string>
+    <string name="trip_tools_combine_pick">Scegli fin dove unire. Tutto cio che sta in mezzo viene incluso.</string>
+    <string name="trip_tools_combine_this">Questo viaggio</string>
+    <string name="trip_tools_combine_between">In mezzo, incluso</string>
+    <string name="trip_tools_combine_summary">Unisce %1$d viaggi in uno nuovo.</string>
     <string name="trip_customize">Personalizza</string>
     <string name="trip_trim">Restringi la vista</string>
     <string name="trip_trim_title">Restringi vista del viaggio</string>

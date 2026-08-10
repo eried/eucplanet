@@ -2074,6 +2074,11 @@
     <string name="trip_tools_split_failed">이 주행을 나누지 못했습니다</string>
     <string name="trip_tools_combine_done">주행을 새 주행으로 합쳤습니다</string>
     <string name="trip_tools_combine_failed">해당 주행을 합치지 못했습니다</string>
+    <string name="trip_tools_wheel_current">현재</string>
+    <string name="trip_tools_combine_pick">어디까지 합칠지 고르세요. 사이에 있는 것은 모두 포함됩니다.</string>
+    <string name="trip_tools_combine_this">이 주행</string>
+    <string name="trip_tools_combine_between">사이에 있어 포함됨</string>
+    <string name="trip_tools_combine_summary">주행 %1$d개를 새 주행 하나로 합칩니다.</string>
     <string name="trip_customize">사용자 지정</string>
     <string name="trip_trim">보기 범위 자르기</string>
     <string name="trip_trim_title">주행 보기 자르기</string>

@@ -965,13 +965,19 @@ class RouteBuilderViewModel @Inject constructor(
 
     // --- Map style ---------------------------------------------------------------
 
-    /** Cycles the base map style Dark, Light, Terrain, Satellite, Dark. */
+    /**
+     * Cycles the base map style Dark, Light, Satellite, Dark.
+     *
+     * A Terrain style briefly sat between Light and Satellite. It was dropped:
+     * its Esri topographic tiles are visibly older and thinner than the others,
+     * missing street names, POIs and building detail, so cycling through it made
+     * the app look like it had stale map data.
+     */
     fun cycleMapType() {
         setMapType(
             when (_mapType.value) {
                 "DARK" -> "LIGHT"
-                "LIGHT" -> "TOPO"
-                "TOPO" -> "SATELLITE"
+                "LIGHT" -> "SATELLITE"
                 else -> "DARK"
             }
         )

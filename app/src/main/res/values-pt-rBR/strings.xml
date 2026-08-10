@@ -2077,6 +2077,11 @@
     <string name="trip_tools_split_failed">Nao foi possivel dividir este trajeto</string>
     <string name="trip_tools_combine_done">Trajetos combinados em um novo</string>
     <string name="trip_tools_combine_failed">Nao foi possivel combinar esses trajetos</string>
+    <string name="trip_tools_wheel_current">Atual</string>
+    <string name="trip_tools_combine_pick">Escolha ate onde combinar. Tudo o que estiver no meio entra junto.</string>
+    <string name="trip_tools_combine_this">Este trajeto</string>
+    <string name="trip_tools_combine_between">No meio, incluido</string>
+    <string name="trip_tools_combine_summary">Combina %1$d trajetos em um novo.</string>
     <string name="trip_customize">Personalizar</string>
     <string name="trip_trim">Recortar a exibição</string>
     <string name="trip_trim_title">Recortar exibição do trajeto</string>

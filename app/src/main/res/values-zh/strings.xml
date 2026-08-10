@@ -1942,6 +1942,11 @@
     <string name="trip_tools_split_failed">无法拆分此行程</string>
     <string name="trip_tools_combine_done">行程已合并为一个新行程</string>
     <string name="trip_tools_combine_failed">无法合并这些行程</string>
+    <string name="trip_tools_wheel_current">当前</string>
+    <string name="trip_tools_combine_pick">选择合并到哪一段。中间的行程都会包含在内。</string>
+    <string name="trip_tools_combine_this">此行程</string>
+    <string name="trip_tools_combine_between">位于中间，将包含</string>
+    <string name="trip_tools_combine_summary">将 %1$d 个行程合并为一个新行程。</string>
     <string name="trip_customize">自定义</string>
     <string name="trip_trim">裁剪视图</string>
     <string name="trip_trim_title">裁剪行程视图</string>

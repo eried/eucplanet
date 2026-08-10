@@ -1594,7 +1594,7 @@ private fun MapSurface(
     val startLabelJs = remember(startLabel) { org.json.JSONObject.quote(startLabel) }
     val endLabelJs = remember(endLabel) { org.json.JSONObject.quote(endLabel) }
     var webView by remember { mutableStateOf<WebView?>(null) }
-    val mapTypes = listOf("LIGHT", "DARK", "TOPO", "SAT")
+    val mapTypes = listOf("LIGHT", "DARK", "SAT")
     // The HTML actually showing in the WebView.
     //
     // A plain holder rather than Compose state on purpose: it is written from
@@ -1760,10 +1760,14 @@ private fun buildMapHtml(coordsJson: String, fadedCoordsJson: String, switchesJs
   // a phone upscales a 256 px tile threefold or more, which is most of why the
   // map read as soft and short on detail. Esri's tiles carry no {r}, so it
   // expands to "" there and the URL is unchanged.
+  // LIGHT is OpenStreetMap's own rendering, the same source Overlay Studio uses.
+  // Carto's light_all was here before and is drawn from an OSM extract they
+  // refresh on their own schedule: side by side on the same tile it loses the
+  // street names, the POIs and most of the building detail, which is what made
+  // this map look dated next to the Studio one.
   var tileUrls={
-    LIGHT:'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
+    LIGHT:'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
     DARK:'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
-    TOPO:'https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}',
     SAT:'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'
   };
   window.setMapType=function(t){
@@ -1771,9 +1775,16 @@ private fun buildMapHtml(coordsJson: String, fadedCoordsJson: String, switchesJs
     // maxNativeZoom stops requesting tiles the provider does not have, while
     // maxZoom lets the rider keep zooming on upscaled ones rather than hitting
     // a wall at street level.
-    var native = (t === 'LIGHT' || t === 'DARK') ? 20 : 19;
-    baseLayer=L.tileLayer(tileUrls[t]||tileUrls.LIGHT,
-      {maxNativeZoom:native, maxZoom:21, subdomains:'abcd'}).addTo(map);
+    //
+    // detectRetina on the OSM layer because it serves no @2x: Leaflet instead
+    // pulls four tiles from one zoom deeper and draws them at half size, which
+    // gets the sharpness on a dense screen without the provider needing to
+    // offer a retina URL.
+    var opts = {maxZoom:21, subdomains:'abcd'};
+    if (t === 'DARK') { opts.maxNativeZoom = 20; }
+    else if (t === 'SAT') { opts.maxNativeZoom = 19; }
+    else { opts.maxNativeZoom = 19; opts.detectRetina = true; }
+    baseLayer=L.tileLayer(tileUrls[t]||tileUrls.LIGHT, opts).addTo(map);
     baseLayer.bringToBack();
   };
   window.setMapType('$initialType');

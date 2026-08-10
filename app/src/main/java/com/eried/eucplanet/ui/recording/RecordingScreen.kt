@@ -243,22 +243,26 @@ fun RecordingScreen(
     }
 
     combineToolTrip?.let { trip ->
-        val others = trips.filter { it.id != trip.id && it.endTime != null }
-        val thisWheel = trip.wheelMetaJson
-            ?.let { runCatching { org.json.JSONObject(it).optString("ble_name") }.getOrNull() }
         val dateFmt = remember { SimpleDateFormat("dd MMM yyyy HH:mm", Locale.getDefault()) }
         CombineTripsDialog(
-            candidates = others,
-            label = { t -> dateFmt.format(Date(t.startTime)) },
-            // Warn rather than block, as agreed: continuing a ride after a wheel
-            // swap is a legitimate reason to join across wheels.
-            mixedWheelWarning = !thisWheel.isNullOrBlank() && others.any { o ->
-                val w = o.wheelMetaJson
+            anchor = trip,
+            // Finished trips only: a recording still being written has no end and
+            // its CSV is still open.
+            trips = trips.filter { it.endTime != null || it.id == trip.id },
+            // Date and time alone are ambiguous: the label is minute-precision,
+            // so two rides in the same minute, or two on the same commute, read
+            // identically in a dropdown. The duration tells them apart.
+            label = { t ->
+                val secs = ((t.endTime ?: t.startTime) - t.startTime) / 1000
+                val dur = com.eried.eucplanet.util.Units.humanDuration(secs)
+                "${dateFmt.format(Date(t.startTime))}  ·  $dur"
+            },
+            wheelOf = { t ->
+                t.wheelMetaJson
                     ?.let { runCatching { org.json.JSONObject(it).optString("ble_name") }.getOrNull() }
-                !w.isNullOrBlank() && w != thisWheel
             },
             onConfirm = { chosen ->
-                viewModel.combineTrips(trip, chosen)
+                viewModel.combineRange(chosen)
                 combineToolTrip = null
             },
             onDismiss = { combineToolTrip = null },

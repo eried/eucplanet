@@ -2077,6 +2077,11 @@
     <string name="trip_tools_split_failed">Kon deze rit niet splitsen</string>
     <string name="trip_tools_combine_done">Ritten samengevoegd tot een nieuwe</string>
     <string name="trip_tools_combine_failed">Kon die ritten niet samenvoegen</string>
+    <string name="trip_tools_wheel_current">Huidig</string>
+    <string name="trip_tools_combine_pick">Kies tot hoever je combineert. Alles ertussen wordt meegenomen.</string>
+    <string name="trip_tools_combine_this">Deze rit</string>
+    <string name="trip_tools_combine_between">Ertussen, meegenomen</string>
+    <string name="trip_tools_combine_summary">Voegt %1$d ritten samen tot een nieuwe rit.</string>
     <string name="trip_customize">Aanpassen</string>
     <string name="trip_trim">Weergave bijsnijden</string>
     <string name="trip_trim_title">Ritweergave bijsnijden</string>

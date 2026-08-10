@@ -1982,8 +1982,23 @@ private fun latToTileY(lat: Double, zoom: Int): Double {
 @Composable
 private fun MapElement(element: OverlayElement, data: StudioElementData) {
     val zoom = element.mapZoom.coerceIn(10, 19)
-    val centerLat = data.wheelData.latitude
-    val centerLon = data.wheelData.longitude
+
+    // GPS drops constantly on a real ride: a tunnel, a built-up street, a
+    // momentary loss. The live sample then carries 0,0 and the map used to fall
+    // back to its blank fill, so an overlay recorded through a city would flash
+    // an empty white square every few seconds. Hold the last real position
+    // instead. The map goes stale for those moments rather than disappearing,
+    // which is both less alarming and closer to the truth: the rider has not
+    // teleported, we just stopped hearing where they are.
+    val lastFix = remember(data.history) {
+        data.history.asSequence().map { it.data }
+            .lastOrNull { it.latitude != 0.0 || it.longitude != 0.0 }
+    }
+    val liveFix = data.wheelData.latitude != 0.0 || data.wheelData.longitude != 0.0
+    val centerLat = if (liveFix) data.wheelData.latitude else lastFix?.latitude ?: 0.0
+    val centerLon = if (liveFix) data.wheelData.longitude else lastFix?.longitude ?: 0.0
+    // Only truly blank before the FIRST fix of a ride, when there is genuinely
+    // nowhere to point the map.
     val hasFix = centerLat != 0.0 || centerLon != 0.0
 
     // Trace points with a real fix, capped to the most recent stretch. Built

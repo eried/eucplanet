@@ -1963,6 +1963,11 @@
     <string name="trip_tools_split_failed">Kunne ikke dele denne turen</string>
     <string name="trip_tools_combine_done">Turer slatt sammen til en ny</string>
     <string name="trip_tools_combine_failed">Kunne ikke slaa sammen de turene</string>
+    <string name="trip_tools_wheel_current">Naavaerende</string>
+    <string name="trip_tools_combine_pick">Velg hvor langt du vil slaa sammen. Alt imellom blir med.</string>
+    <string name="trip_tools_combine_this">Denne turen</string>
+    <string name="trip_tools_combine_between">Imellom, tas med</string>
+    <string name="trip_tools_combine_summary">Slaar sammen %1$d turer til en ny tur.</string>
     <string name="trip_customize">Tilpass</string>
     <string name="trip_trim">Beskjær visningen</string>
     <string name="trip_trim_title">Beskjær turvisning</string>

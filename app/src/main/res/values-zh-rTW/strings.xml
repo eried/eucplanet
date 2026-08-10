@@ -2074,6 +2074,11 @@
     <string name="trip_tools_split_failed">無法拆分此行程</string>
     <string name="trip_tools_combine_done">行程已合併為一個新行程</string>
     <string name="trip_tools_combine_failed">無法合併這些行程</string>
+    <string name="trip_tools_wheel_current">目前</string>
+    <string name="trip_tools_combine_pick">選擇合併到哪一段。中間的行程都會包含在內。</string>
+    <string name="trip_tools_combine_this">此行程</string>
+    <string name="trip_tools_combine_between">位於中間，將包含</string>
+    <string name="trip_tools_combine_summary">將 %1$d 個行程合併為一個新行程。</string>
     <string name="trip_customize">自訂</string>
     <string name="trip_trim">裁剪檢視</string>
     <string name="trip_trim_title">裁剪行程檢視</string>

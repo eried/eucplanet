@@ -2072,6 +2072,11 @@
     <string name="trip_tools_split_failed">Bu surus bolunemedi</string>
     <string name="trip_tools_combine_done">Surusler yeni bir suruste birlestirildi</string>
     <string name="trip_tools_combine_failed">Bu surusler birlestirilemedi</string>
+    <string name="trip_tools_wheel_current">Mevcut</string>
+    <string name="trip_tools_combine_pick">Nereye kadar birlestirilecegini secin. Aradaki her sey dahil edilir.</string>
+    <string name="trip_tools_combine_this">Bu surus</string>
+    <string name="trip_tools_combine_between">Arada, dahil</string>
+    <string name="trip_tools_combine_summary">%1$d surusu tek bir yeni suruste birlestirir.</string>
     <string name="trip_customize">Özelleştir</string>
     <string name="trip_trim">Görünümü kırp</string>
     <string name="trip_trim_title">Sürüş görünümünü kırp</string>
