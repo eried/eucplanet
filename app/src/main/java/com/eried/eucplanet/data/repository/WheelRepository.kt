@@ -1797,20 +1797,6 @@ class WheelRepository @Inject constructor(
                     whRegen = sessionEnergyInWh
                 )
                 _chargeStatus.value = deriveChargeStatus(_wheelData.value)
-                // Lock state for families that report it in the work mode
-                // instead of a settings frame. pcMode 0 means locked; -1 is
-                // "no reading yet" and must not be read as unlocked.
-                //
-                // Only these families: the same field carries a pedal/ride mode
-                // elsewhere. Without this a locked V8S showed "Lock" forever,
-                // because _locked is otherwise fed only by WheelSettings
-                // .lockState, which the V1 parser never emits.
-                if (wheelAdapter.capabilities.reportsLockInWorkMode) {
-                    val pc = _wheelData.value.pcMode
-                    if (pc >= 0 && System.currentTimeMillis() >= lockCooldownUntilMs) {
-                        _locked.value = pc == 0
-                    }
-                }
                 // Never let the charging-session bookkeeping throw out of the
                 // telemetry path — telemetry/dashboard must keep flowing regardless.
                 runCatching { updateChargingSession(_wheelData.value, _chargeStatus.value) }

@@ -390,20 +390,6 @@ data class WheelCapabilities(
     val hasVolume: Boolean = false,
     val hasDRL: Boolean = false,
     val needsAuthForLock: Boolean = false,
-    /**
-     * The wheel REPORTS its lock state in the work-mode field, even though it
-     * accepts no lock command.
-     *
-     * Deliberately separate from [hasLock], which is about commanding. InMotion
-     * V1 is read-only here: a rider can lock a V8S from its own app or button
-     * and we can see it, we just cannot do it. Without this the lock button sat
-     * on "Lock" forever on a wheel that was plainly locked.
-     *
-     * Only for families whose work-mode field really is a lock state. KingSong
-     * and Begode put a pedal/ride mode in the same slot, so reading 0 as
-     * "locked" there would invent a lock the wheel does not have.
-     */
-    val reportsLockInWorkMode: Boolean = false,
 ) {
     companion object {
         /** V11/V12/V13/V14: full feature set, lock requires password auth. */
@@ -436,8 +422,6 @@ data class WheelCapabilities(
             hasVolume = true,
             hasDRL = true,
             needsAuthForLock = false,
-            // Not commandable, but the work mode says so: see the doc above.
-            reportsLockInWorkMode = true,
         )
 
         /** KingSong KS-* wheels: no software lock, no volume control. */
