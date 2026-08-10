@@ -383,6 +383,15 @@ fun TripDetailScreen(
             val fullGpsPoints = remember(allPoints) {
                 allPoints.filter { it.latitude != 0.0 && it.longitude != 0.0 }
             }
+            // Whether the ride's real start and end survived the trim. A window
+            // that begins at 0:00 still contains the start, so its marker must
+            // stay solid; only an endpoint the trim cut away is ghosted.
+            val startIncluded = remember(gpsPoints, fullGpsPoints) {
+                fullGpsPoints.isEmpty() || gpsPoints.firstOrNull() == fullGpsPoints.firstOrNull()
+            }
+            val endIncluded = remember(gpsPoints, fullGpsPoints) {
+                fullGpsPoints.isEmpty() || gpsPoints.lastOrNull() == fullGpsPoints.lastOrNull()
+            }
             // Extra-column events: shown in the Extra details section, and the
             // wheel identity blocks drive the map (start popup, a colour switch +
             // purple circle at a real wheel change, a small dot at a same-wheel
@@ -490,6 +499,8 @@ fun TripDetailScreen(
                     points = gpsPoints,
                     fadedPoints = if (trimmed) fullGpsPoints else emptyList(),
                     fadedSwitches = fadedSwitches,
+                    startIncluded = startIncluded,
+                    endIncluded = endIncluded,
                     isLive = isLive,
                     liveLat = liveLocation?.latitude,
                     liveLon = liveLocation?.longitude,
@@ -1318,6 +1329,10 @@ private fun RouteMapView(
     // Wheel-identity markers from the stretches the trim cut away, drawn faint
     // and without popups. Empty = no trim.
     fadedSwitches: List<WheelSwitchMarker> = emptyList(),
+    // Whether the ride's real start / end survived the trim. Each endpoint marker
+    // is ghosted only when its own end was the one cut away.
+    startIncluded: Boolean = true,
+    endIncluded: Boolean = true,
     isLive: Boolean = false,
     liveLat: Double? = null,
     liveLon: Double? = null,
@@ -1362,6 +1377,7 @@ private fun RouteMapView(
 
     MapSurface(
         points = points, fadedPoints = fadedPoints, fadedSwitches = fadedSwitches,
+        startIncluded = startIncluded, endIncluded = endIncluded,
         isLive = isLive, liveLat = liveLat, liveLon = liveLon,
         scrubLat = scrubLat, scrubLon = scrubLon,
         wheelSwitches = wheelSwitches, startLabel = startLabel, endLabel = endLabel,
@@ -1409,6 +1425,7 @@ private fun RouteMapView(
             }
             MapSurface(
                 points = points, fadedPoints = fadedPoints, fadedSwitches = fadedSwitches,
+        startIncluded = startIncluded, endIncluded = endIncluded,
         isLive = isLive, liveLat = liveLat, liveLon = liveLon,
                 scrubLat = scrubLat, scrubLon = scrubLon,
                 wheelSwitches = wheelSwitches, startLabel = startLabel, endLabel = endLabel,
@@ -1426,6 +1443,8 @@ private fun MapSurface(
     points: List<TripDataPoint>,
     fadedPoints: List<TripDataPoint>,
     fadedSwitches: List<WheelSwitchMarker>,
+    startIncluded: Boolean,
+    endIncluded: Boolean,
     isLive: Boolean,
     liveLat: Double?,
     liveLon: Double?,
@@ -1487,11 +1506,11 @@ private fun MapSurface(
     // than flashing light first; style cycles afterwards go through JS.
     val html = remember(
         coordsJson, fadedCoordsJson, isLive, switchesJson, fadedSwitchesJson,
-        startLabelJs, endLabelJs
+        startIncluded, endIncluded, startLabelJs, endLabelJs
     ) {
         buildMapHtml(
             coordsJson, fadedCoordsJson, switchesJson, fadedSwitchesJson,
-            startLabelJs, endLabelJs, isLive, mapType
+            startIncluded, endIncluded, startLabelJs, endLabelJs, isLive, mapType
         )
     }
 
@@ -1602,7 +1621,7 @@ private fun MapButton(icon: ImageVector, desc: String, onClick: () -> Unit) {
     }
 }
 
-private fun buildMapHtml(coordsJson: String, fadedCoordsJson: String, switchesJson: String, fadedSwitchesJson: String, startLabelJs: String, endLabelJs: String, isLive: Boolean, initialType: String): String = """
+private fun buildMapHtml(coordsJson: String, fadedCoordsJson: String, switchesJson: String, fadedSwitchesJson: String, startIncluded: Boolean, endIncluded: Boolean, startLabelJs: String, endLabelJs: String, isLive: Boolean, initialType: String): String = """
 <!DOCTYPE html><html><head>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
@@ -1706,11 +1725,13 @@ private fun buildMapHtml(coordsJson: String, fadedCoordsJson: String, switchesJs
     // Start and end always mark where the WHOLE ride began and finished, never
     // the ends of a trimmed section: those are an artefact of the view, and
     // putting the ride's start dot in the middle of a road reads as a lie.
-    // While trimmed they are dimmed, since they sit outside what is being
-    // looked at.
-    var trimmed = fadedCoords.length >= 2;
-    var track = trimmed ? fadedCoords : coords;
-    var op = trimmed ? 0.45 : 1;
+    //
+    // Each is dimmed only when it falls OUTSIDE the selection. Trimming from the
+    // very beginning keeps the real start inside what is being looked at, so it
+    // stays solid; it is the end, off past the edge, that ghosts.
+    var track = (fadedCoords.length >= 2) ? fadedCoords : coords;
+    var opA = startIncluded ? 1 : 0.45;
+    var opB = endIncluded ? 1 : 0.45;
     var a = track[0], b = track[track.length-1];
     var pa = map.latLngToContainerPoint(a);
     var pb = map.latLngToContainerPoint(b);
@@ -1718,10 +1739,11 @@ private fun buildMapHtml(coordsJson: String, fadedCoordsJson: String, switchesJs
     var r = 7; // circleMarker radius in px
     // Overlap is more than 50% of a marker's width: dist < 2*r*(1-0.5) = r.
     if (dist < r){
-      overlap = L.marker(a,{opacity:op,icon:L.divIcon({className:'half-marker',iconSize:[18,18],iconAnchor:[9,9]})}).addTo(map);
+      // One combined marker, so it can only be solid when BOTH ends are in.
+      overlap = L.marker(a,{opacity:Math.min(opA,opB),icon:L.divIcon({className:'half-marker',iconSize:[18,18],iconAnchor:[9,9]})}).addTo(map);
     } else {
-      start = L.circleMarker(a,{radius:r,color:'#000',weight:2,opacity:op,fillColor:'#66BB6A',fillOpacity:op}).addTo(map);
-      end   = L.circleMarker(b,{radius:r,color:'#000',weight:2,opacity:op,fillColor:'#EF5350',fillOpacity:op}).addTo(map);
+      start = L.circleMarker(a,{radius:r,color:'#000',weight:2,opacity:opA,fillColor:'#66BB6A',fillOpacity:opA}).addTo(map);
+      end   = L.circleMarker(b,{radius:r,color:'#000',weight:2,opacity:opB,fillColor:'#EF5350',fillOpacity:opB}).addTo(map);
     }
     // Start marker: the ride-start "Connected" popup. End marker: "Ride end".
     // When start and end overlap (loop rides) the single marker shows both.
@@ -1735,6 +1757,8 @@ private fun buildMapHtml(coordsJson: String, fadedCoordsJson: String, switchesJs
 
   var switches=$switchesJson;
   var fadedSwitches=$fadedSwitchesJson;
+  var startIncluded=$startIncluded;
+  var endIncluded=$endIncluded;
   var startLabel=$startLabelJs;
   var endLabel=$endLabelJs;
 
