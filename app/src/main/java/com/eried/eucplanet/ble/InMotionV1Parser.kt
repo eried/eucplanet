@@ -74,6 +74,15 @@ object InMotionV1Parser {
         } else 0f
 
         val pcMode = if (payload.size >= 64) parseWorkMode(payload, 60, model) else -1
+        // Offset 60 is a 32-bit field but only its low byte is ever decoded, so
+        // three quarters of it has never been looked at. The protocol notes say
+        // modern models carry no lock state here, and that claim has not been
+        // tested against a wheel that was actually locked.
+        //
+        // Log each distinct raw value once per connection. Lock the wheel from
+        // its own app and whichever bit moves is the answer; at ~10 Hz a plain
+        // log would be unreadable, hence the de-dupe.
+        if (payload.size >= 64) logWorkModeOnce(ByteUtils.getUint32LE(payload, 60))
         val batteryPercent = batteryPercentFromVoltage(voltage, model)
 
         return WheelData(
@@ -160,6 +169,20 @@ object InMotionV1Parser {
      * the low nibble directly to a state ID. Returns the state ID or -1 when
      * the value is unrecognised.
      */
+    /** Distinct raw work-mode words already reported this connection. */
+    private val loggedWorkModes = mutableSetOf<Long>()
+
+    /** Reset per connection so a new session re-reports its states. */
+    fun resetWorkModeLog() = loggedWorkModes.clear()
+
+    private fun logWorkModeOnce(raw: Long) {
+        if (!loggedWorkModes.add(raw)) return
+        com.eried.eucplanet.diagnostics.DiagnosticsLogger.note(
+            "InMotion V1 work mode raw=0x%08X low=0x%02X highNibble=%d lowNibble=%d"
+                .format(raw, raw and 0xFF, (raw ushr 4) and 0x0F, raw and 0x0F)
+        )
+    }
+
     private fun parseWorkMode(payload: ByteArray, offset: Int, model: InMotionV1Model?): Int {
         val raw = payload[offset].toInt() and 0xFF
         return if (model?.isModern == true) {
