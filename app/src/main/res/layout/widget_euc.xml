@@ -129,6 +129,8 @@
             android:textSize="12sp"
             android:textColor="#FFFFFFFF"
             android:maxLines="1"
+            android:drawableStart="@drawable/ic_widget_horn"
+            android:drawablePadding="4dp"
             android:text="@string/widget_horn" />
 
         <TextView
@@ -136,12 +138,31 @@
             android:layout_width="0dp"
             android:layout_height="36dp"
             android:layout_weight="1"
-            android:layout_marginStart="8dp"
+            android:layout_marginStart="6dp"
             android:gravity="center"
             android:background="@drawable/widget_button_bg"
             android:textSize="12sp"
             android:textColor="#FFFFFFFF"
             android:maxLines="1"
+            android:ellipsize="end"
+            android:drawableStart="@drawable/ic_widget_light"
+            android:drawablePadding="4dp"
+            android:text="@string/notif_action_light" />
+
+        <TextView
+            android:id="@+id/widget_btn_third"
+            android:layout_width="0dp"
+            android:layout_height="36dp"
+            android:layout_weight="1"
+            android:layout_marginStart="6dp"
+            android:gravity="center"
+            android:background="@drawable/widget_button_bg"
+            android:textSize="12sp"
+            android:textColor="#FFFFFFFF"
+            android:maxLines="1"
+            android:ellipsize="end"
+            android:drawableStart="@drawable/ic_widget_voice"
+            android:drawablePadding="4dp"
             android:text="@string/widget_voice_on" />
     </LinearLayout>
 </LinearLayout>

@@ -66,6 +66,11 @@ class EucButtonWidget : AppWidgetProvider() {
                 R.id.widget_btn_single,
                 label.ifBlank { context.getString(R.string.widget_button_unset) },
             )
+            // Icon above the label here rather than beside it: this widget is
+            // one big square, so there is vertical room the full one lacks.
+            views.setTextViewCompoundDrawables(
+                R.id.widget_btn_single, 0, EucWidget.iconFor(key), 0, 0
+            )
             EucWidget.actionIntentFor(context, key, requestCode = 200)?.let {
                 views.setOnClickPendingIntent(R.id.widget_btn_single, it)
             }

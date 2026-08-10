@@ -1183,12 +1183,12 @@ private fun GeneralTab(
             }
         }
 
-        // Home screen widget, configured the same way as the notification
-        // actions directly above, so the two read as one idea.
-        AdvancedCollapsable(
-            title = stringResource(R.string.widget_section),
-            stateKey = "widget-customize",
-        ) {
+        // Its own section header, not another collapsable. Sitting directly
+        // below the notification's "Customize" it read as part of it, when the
+        // widget is a separate surface that works whether or not the ongoing
+        // notification has actions at all.
+        SectionHeader(stringResource(R.string.widget_section))
+        run {
             val metricSlots = remember(settings.widget.metrics) {
                 WidgetMetricType.slots(settings.widget.metrics)
             }
@@ -1233,11 +1233,13 @@ private fun GeneralTab(
                 )
                 Spacer(Modifier.weight(1f))
             }
+            // Buttons laid out two-then-one, matching the readings above, so
+            // the two groups line up instead of each finding its own rhythm.
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
             ) {
-                repeat(WidgetActionType.SLOTS) { i ->
+                repeat(2) { i ->
                     WidgetSlotDropdown(
                         label = stringResource(R.string.widget_action_slot, i + 1),
                         currentLabel = WidgetActionType.byKey(actionSlots2[i])
@@ -1247,6 +1249,20 @@ private fun GeneralTab(
                         modifier = Modifier.weight(1f),
                     )
                 }
+            }
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                WidgetSlotDropdown(
+                    label = stringResource(R.string.widget_action_slot, 3),
+                    currentLabel = WidgetActionType.byKey(actionSlots2[2])
+                        ?.let { stringResource(it.pickerLabel) } ?: "",
+                    options = actionOptions,
+                    onSelect = { viewModel.updateWidgetActionSlot(2, it) },
+                    modifier = Modifier.weight(1f),
+                )
+                Spacer(Modifier.weight(1f))
             }
         }
 

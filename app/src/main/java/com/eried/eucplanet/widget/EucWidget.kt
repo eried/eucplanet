@@ -101,10 +101,10 @@ class EucWidget : AppWidgetProvider() {
         val values: List<String> = List(WidgetMetricType.SLOTS) { DASH },
         val captions: List<String> = List(WidgetMetricType.SLOTS) { "" },
         /** Two button labels, one per configured action slot. Blank hides it. */
-        val buttons: List<String> = listOf("", ""),
+        val buttons: List<String> = List(WidgetActionType.SLOTS) { "" },
         /** Action keys behind those buttons, so taps route without re-reading
          *  settings in the receiver. */
-        val buttonKeys: List<String> = listOf(WidgetActionType.NONE, WidgetActionType.NONE),
+        val buttonKeys: List<String> = List(WidgetActionType.SLOTS) { WidgetActionType.NONE },
         val voiceOn: Boolean = false,
     ) {
         companion object {
@@ -160,6 +160,17 @@ class EucWidget : AppWidgetProvider() {
 
         private const val DASH = "--"
 
+        /** Icon for a configured action, or 0 for none. */
+        fun iconFor(key: String): Int = when (key) {
+            WidgetActionType.HORN.key -> R.drawable.ic_widget_horn
+            WidgetActionType.LIGHT.key -> R.drawable.ic_widget_light
+            WidgetActionType.LOCK.key -> R.drawable.ic_widget_lock
+            WidgetActionType.RECORD.key -> R.drawable.ic_widget_record
+            WidgetActionType.VOICE.key -> R.drawable.ic_widget_voice
+            WidgetActionType.DISCONNECT.key -> R.drawable.ic_widget_disconnect
+            else -> 0
+        }
+
         /**
          * The tap target for one configured action.
          *
@@ -212,7 +223,8 @@ class EucWidget : AppWidgetProvider() {
         private val VALUE_IDS = listOf(R.id.widget_speed, R.id.widget_distance, R.id.widget_battery)
         private val CAPTION_IDS =
             listOf(R.id.widget_speed_label, R.id.widget_distance_label, R.id.widget_battery_label)
-        private val BUTTON_IDS = listOf(R.id.widget_btn_horn, R.id.widget_btn_voice)
+        private val BUTTON_IDS =
+            listOf(R.id.widget_btn_horn, R.id.widget_btn_voice, R.id.widget_btn_third)
 
         private fun buildViews(context: Context, s: Snapshot): RemoteViews {
             val views = RemoteViews(context.packageName, R.layout.widget_euc)
@@ -244,6 +256,11 @@ class EucWidget : AppWidgetProvider() {
                 views.setTextViewText(id, text)
                 views.setViewVisibility(id, if (text.isBlank()) View.GONE else View.VISIBLE)
                 val key = s.buttonKeys.getOrElse(i) { WidgetActionType.NONE }
+                // Icon to the left of the label. setTextViewCompoundDrawables is
+                // the only way to put a drawable on a RemoteViews TextView; the
+                // icons are authored white because a widget cannot read the
+                // app's theme and always draws on the dark widget background.
+                views.setTextViewCompoundDrawables(id, iconFor(key), 0, 0, 0)
                 actionIntentFor(context, key, requestCode = 100 + i)?.let {
                     views.setOnClickPendingIntent(id, it)
                 }

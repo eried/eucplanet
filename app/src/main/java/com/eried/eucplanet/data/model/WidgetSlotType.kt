@@ -57,10 +57,16 @@ enum class WidgetActionType(val key: String, @StringRes val pickerLabel: Int) {
     DISCONNECT("DISCONNECT", R.string.notif_action_disconnect);
 
     companion object {
-        /** Two buttons is what fits without shrinking the numbers above them. */
-        const val SLOTS = 2
+        /**
+         * Three buttons across, matching the three readings above them.
+         *
+         * An older build had two. A stored two-key CSV still loads: [slots]
+         * pads the missing one with NONE, and an empty slot collapses, so a
+         * widget already on someone's launcher keeps the layout they chose.
+         */
+        const val SLOTS = 3
         const val NONE = "NONE"
-        const val DEFAULT_KEYS = "HORN,VOICE"
+        const val DEFAULT_KEYS = "HORN,LIGHT,VOICE"
 
         fun byKey(key: String): WidgetActionType? = entries.firstOrNull { it.key == key }
 
