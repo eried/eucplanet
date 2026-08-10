@@ -228,18 +228,22 @@ class WheelService : LifecycleService() {
                 widgetMetricsCached = s.widget.metrics
                 widgetActionsCached = s.widget.actions
                 widgetStandaloneCached = s.widget.standaloneActions
+                lastDeviceNameCached = s.lastDeviceName
+                // The flag the periodic-report loop actually reads.
+                voicePeriodicCached = s.voiceEnabled
+                notifActionsEnabledCached = s.notificationActionsEnabled
+                notifActionsCsvCached = s.notificationActions
                 // Repaint on a settings change: the rider reconfiguring the
                 // widget expects it to change now, not at the next telemetry
                 // frame, which may never arrive with no wheel connected.
-                renderWidget(
-                    wheelRepository.wheelData.value.takeIf {
-                        wheelRepository.connectionState.value == ConnectionState.CONNECTED
-                    }
-                )
-                lastDeviceNameCached = s.lastDeviceName
-                voicePeriodicCached = s.voicePeriodicEnabled
-                notifActionsEnabledCached = s.notificationActionsEnabled
-                notifActionsCsvCached = s.notificationActions
+                //
+                // AFTER every mirrored field above, not before. This used to run
+                // first, so it painted from the previous voicePeriodicCached:
+                // tapping the widget's voice button wrote the setting, and this
+                // repaint immediately put the old label back, which read as the
+                // button doing nothing at all.
+                renderWidgetFromCurrentState()
+
                 engineSoundEngine.applySettings(s)
                 engineSoundEngine.setConnected(
                     wheelRepository.connectionState.value == ConnectionState.CONNECTED,
@@ -289,7 +293,19 @@ class WheelService : LifecycleService() {
         lifecycleScope.launch {
             tripRepository.recording.collect { isRecording ->
                 if (isRecording) lastMotionAtMs = System.currentTimeMillis()
+                // Repaint: a RECORD button's label and the action behind it both
+                // depend on this. Everything else the widget shows arrives on a
+                // telemetry frame, but recording can start and stop with no
+                // wheel connected, so nothing else would refresh it and the
+                // button was left reading "Stop" after the trip had ended.
+                renderWidgetFromCurrentState()
             }
+        }
+
+        // Same for the lock state, which a LOCK button's label reads and which
+        // can change without a telemetry frame following it.
+        lifecycleScope.launch {
+            wheelRepository.locked.collect { renderWidgetFromCurrentState() }
         }
 
         // Monitor connection state for announcements + auto-record
@@ -421,18 +437,19 @@ class WheelService : LifecycleService() {
             ACTION_TOGGLE_LIGHT -> wheelRepository.toggleLight()
             ACTION_TOGGLE_LOCK -> wheelRepository.toggleLock()
             ACTION_HORN -> wheelRepository.sendHorn()
+            // voiceEnabled, NOT voicePeriodicEnabled. The periodic-report loop
+            // gates on voiceEnabled (see the comment there); voicePeriodicEnabled
+            // is retired, so flipping it changed nothing a rider could hear while
+            // the button relabelled itself as though it had worked.
             ACTION_TOGGLE_VOICE -> lifecycleScope.launch {
-                val on = !settingsRepository.get().voicePeriodicEnabled
-                settingsRepository.update { it.copy(voicePeriodicEnabled = on) }
+                val on = !settingsRepository.get().voiceEnabled
+                settingsRepository.update { it.copy(voiceEnabled = on) }
                 voicePeriodicCached = on
                 // Repaint at once so the button label matches the new state
                 // without waiting for the next telemetry frame, which may never
                 // arrive if no wheel is connected.
-                renderWidget(
-                    wheelRepository.wheelData.value.takeIf {
-                        wheelRepository.connectionState.value == ConnectionState.CONNECTED
-                    }
-                )
+                renderWidgetFromCurrentState()
+
             }
             ACTION_START_RECORDING -> {
                 lifecycleScope.launch { tripRepository.startRecording() }
@@ -521,6 +538,13 @@ class WheelService : LifecycleService() {
         // fallback. Either way the rider never sees a frozen-stale dial.
         try { wearBridge.publishFarewell() } catch (_: Exception) {}
         try { garminBridge.publishFarewell() } catch (_: Exception) {}
+        // Same farewell for the widget, and for the same reason. Nothing else
+        // repaints it on the way out: the DISCONNECTED collector that would
+        // normally drop it back to dashes lives on lifecycleScope, which
+        // super.onDestroy cancels, and Stop All then kills the process outright.
+        // The widget was left reading "Connected" with the last speed and
+        // battery, with bright buttons that fire into a service that is gone.
+        try { renderWidget(null) } catch (_: Exception) {}
         try { hudServer.stop() } catch (_: Exception) {}
         voiceJob?.cancel()
         engineSoundEngine.stop()
@@ -853,6 +877,21 @@ class WheelService : LifecycleService() {
 
     /** Paints the widget in the rider's own units, one entry per configured
      *  slot. [data] null paints the disconnected state. */
+    /**
+     * Repaint the widget from whatever is true right now.
+     *
+     * For the state changes that are not telemetry: with no wheel connected no
+     * frame is coming, so a caller that changes recording or lock state has to
+     * ask for the repaint itself.
+     */
+    private fun renderWidgetFromCurrentState() {
+        renderWidget(
+            wheelRepository.wheelData.value.takeIf {
+                wheelRepository.connectionState.value == ConnectionState.CONNECTED
+            }
+        )
+    }
+
     private fun renderWidget(data: WheelData?) {
         if (!com.eried.eucplanet.widget.EucWidget.isPlaced(this)) return
         val connected =
@@ -865,35 +904,59 @@ class WheelService : LifecycleService() {
         val metricKeys = com.eried.eucplanet.data.model.WidgetMetricType.slots(widgetMetricsCached)
         val values = ArrayList<String>(metricKeys.size)
         val captions = ArrayList<String>(metricKeys.size)
+        // A slot's unit depends on what it shows and the rider's preferences,
+        // never on whether a packet just arrived. Deriving it from `data` made
+        // every caption drop its unit the moment telemetry went missing, and a
+        // settings change repaints before the next frame, so tapping a widget
+        // button made "Speed (mph)" flash to "Speed" and back.
+        fun unitFor(type: com.eried.eucplanet.data.model.WidgetMetricType): String = when (type) {
+            com.eried.eucplanet.data.model.WidgetMetricType.SPEED -> u.speedUnit(this, speedUnit)
+            com.eried.eucplanet.data.model.WidgetMetricType.TRIP,
+            com.eried.eucplanet.data.model.WidgetMetricType.ODO -> u.distanceUnit(distUnit)
+            com.eried.eucplanet.data.model.WidgetMetricType.BATTERY,
+            com.eried.eucplanet.data.model.WidgetMetricType.PWM,
+            com.eried.eucplanet.data.model.WidgetMetricType.PHONE_BATTERY -> "%"
+            com.eried.eucplanet.data.model.WidgetMetricType.VOLTAGE -> "V"
+            com.eried.eucplanet.data.model.WidgetMetricType.TEMP -> u.tempUnit(tempUnit)
+            com.eried.eucplanet.data.model.WidgetMetricType.CURRENT -> "A"
+            com.eried.eucplanet.data.model.WidgetMetricType.POWER -> "W"
+        }
+
         metricKeys.forEach { key ->
             val type = com.eried.eucplanet.data.model.WidgetMetricType.byKey(key)
-            if (type == null || data == null) {
+            if (type == null) {
                 values.add("--")
-                captions.add(type?.let { getString(it.pickerLabel) } ?: "")
+                captions.add("")
                 return@forEach
             }
             // The unit rides in the caption so the number itself stays large.
-            val (v, unit) = when (type) {
+            val unit = unitFor(type)
+            if (data == null) {
+                values.add("--")
+                captions.add(getString(type.pickerLabel) + if (unit.isBlank()) "" else " ($unit)")
+                return@forEach
+            }
+            val v = when (type) {
                 com.eried.eucplanet.data.model.WidgetMetricType.SPEED ->
-                    "%.0f".format(u.speed(data.speed, speedUnit)) to u.speedUnit(this, speedUnit)
+                    "%.0f".format(u.speed(data.speed, speedUnit))
                 com.eried.eucplanet.data.model.WidgetMetricType.TRIP ->
-                    "%.1f".format(u.distance(data.tripDistance, distUnit)) to u.distanceUnit(distUnit)
+                    "%.1f".format(u.distance(data.tripDistance, distUnit))
                 com.eried.eucplanet.data.model.WidgetMetricType.ODO ->
-                    "%.0f".format(u.distance(data.totalDistance, distUnit)) to u.distanceUnit(distUnit)
+                    "%.0f".format(u.distance(data.totalDistance, distUnit))
                 com.eried.eucplanet.data.model.WidgetMetricType.BATTERY ->
-                    "${data.batteryPercent}" to "%"
+                    "${data.batteryPercent}"
                 com.eried.eucplanet.data.model.WidgetMetricType.VOLTAGE ->
-                    "%.0f".format(data.voltage) to "V"
+                    "%.0f".format(data.voltage)
                 com.eried.eucplanet.data.model.WidgetMetricType.TEMP ->
-                    "%.0f".format(u.temperature(data.maxTemperature, tempUnit)) to u.tempUnit(tempUnit)
+                    "%.0f".format(u.temperature(data.maxTemperature, tempUnit))
                 com.eried.eucplanet.data.model.WidgetMetricType.PWM ->
-                    (if (data.pwm.isNaN()) "--" else "%.0f".format(data.pwm)) to "%"
+                    if (data.pwm.isNaN()) "--" else "%.0f".format(data.pwm)
                 com.eried.eucplanet.data.model.WidgetMetricType.CURRENT ->
-                    "%.0f".format(kotlin.math.abs(data.current)) to "A"
+                    "%.0f".format(kotlin.math.abs(data.current))
                 com.eried.eucplanet.data.model.WidgetMetricType.POWER ->
-                    "%.0f".format(kotlin.math.abs(data.voltage * data.current)) to "W"
+                    "%.0f".format(kotlin.math.abs(data.voltage * data.current))
                 com.eried.eucplanet.data.model.WidgetMetricType.PHONE_BATTERY ->
-                    "$phoneBatteryCached" to "%"
+                    "$phoneBatteryCached"
             }
             values.add(v)
             captions.add(getString(type.pickerLabel) + if (unit.isBlank()) "" else " ($unit)")
@@ -931,6 +994,7 @@ class WheelService : LifecycleService() {
                 standaloneButtons = standaloneButtons,
                 standaloneKeys = standaloneKeys,
                 voiceOn = voicePeriodicCached,
+                recording = tripRepository.recording.value,
             )
         )
     }

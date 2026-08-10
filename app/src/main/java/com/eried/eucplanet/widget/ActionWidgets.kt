@@ -169,7 +169,10 @@ abstract class ActionWidgetBase(
                     // Distinct request codes per slot, or the two cells of a
                     // pair would share one PendingIntent and both fire the same
                     // action.
-                    EucWidget.actionIntentFor(context, key, requestCode = 300 + slot)?.let {
+                    EucWidget.actionIntentFor(
+                        context, key, requestCode = 300 + slot,
+                        recording = snapshot.recording,
+                    )?.let {
                         views.setOnClickPendingIntent(CELL_IDS[cell], it)
                     }
                 }

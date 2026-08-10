@@ -70,8 +70,13 @@ class EucWidget : AppWidgetProvider() {
         CoroutineScope(Dispatchers.IO).launch {
             try {
                 val hydrated = stored.hydrate(appContext, settingsRepository.get().widget)
-                val filled = buildViews(appContext, hydrated)
-                appWidgetIds.forEach { appWidgetManager.updateAppWidget(it, filled) }
+                // render, not a bare updateAppWidget: this SAVES the snapshot.
+                // Painting without saving left the stored snapshot at its blank
+                // default, so the next thing to call Snapshot.load - the voice
+                // button's own repaint - loaded all-blank captions and NONE
+                // keys and emptied the widget, taking the standalone buttons
+                // with it. The widget looked right until the first tap.
+                render(appContext, hydrated)
             } catch (e: Exception) {
                 Log.e(TAG, "Widget hydrate failed", e)
             } finally {
@@ -96,8 +101,12 @@ class EucWidget : AppWidgetProvider() {
         val appContext = context.applicationContext
         CoroutineScope(Dispatchers.IO).launch {
             try {
-                val on = !settingsRepository.get().voicePeriodicEnabled
-                settingsRepository.update { it.copy(voicePeriodicEnabled = on) }
+                // voiceEnabled is the flag the periodic-report loop reads.
+                // voicePeriodicEnabled is retired: writing it flipped nothing a
+                // rider could hear while the button relabelled itself, which is
+                // exactly what "the voice button does nothing" looked like.
+                val on = !settingsRepository.get().voiceEnabled
+                settingsRepository.update { it.copy(voiceEnabled = on) }
                 // Repaint immediately: with no wheel connected there is no
                 // telemetry coming to refresh the label, so relabel it here.
                 render(
@@ -140,6 +149,9 @@ class EucWidget : AppWidgetProvider() {
          *  without reading settings on the main thread. */
         val standaloneKeys: List<String> = List(WidgetActionType.SLOTS) { WidgetActionType.NONE },
         val voiceOn: Boolean = false,
+        /** Whether a trip is recording, so a RECORD button can send stop rather
+         *  than start. See [actionIntentFor]. */
+        val recording: Boolean = false,
     ) {
         /**
          * Whether WheelService has ever described this widget. Captions and
@@ -234,6 +246,7 @@ class EucWidget : AppWidgetProvider() {
                         WidgetActionType.SLOTS, WidgetActionType.NONE,
                     ),
                     voiceOn = p.getBoolean("voiceOn", false),
+                    recording = p.getBoolean("recording", false),
                 )
             }
 
@@ -247,6 +260,7 @@ class EucWidget : AppWidgetProvider() {
                     .putString("standaloneButtons", pack(s.standaloneButtons))
                     .putString("standaloneKeys", pack(s.standaloneKeys))
                     .putBoolean("voiceOn", s.voiceOn)
+                    .putBoolean("recording", s.recording)
                     .apply()
             }
         }
@@ -290,7 +304,21 @@ class EucWidget : AppWidgetProvider() {
          * than by the service: it carries a persistent state, and toggling it
          * has to work with no wheel connected.
          */
-        fun actionIntentFor(context: Context, key: String, requestCode: Int): PendingIntent? =
+        fun actionIntentFor(
+            context: Context,
+            key: String,
+            requestCode: Int,
+            /**
+             * Whether a trip is being recorded right now.
+             *
+             * Light and lock are toggles on the far side, so one action covers
+             * both directions. Recording is not: the service has separate start
+             * and stop actions, and the notification already picks between them.
+             * The widget always sent START, so a button reading "Stop" restarted
+             * the recording instead of ending it.
+             */
+            recording: Boolean = false,
+        ): PendingIntent? =
             when (key) {
                 WidgetActionType.VOICE.key ->
                     broadcastIntent(context, ACTION_TOGGLE_VOICE, requestCode)
@@ -300,8 +328,12 @@ class EucWidget : AppWidgetProvider() {
                     serviceIntent(context, WheelService.ACTION_TOGGLE_LIGHT, requestCode)
                 WidgetActionType.LOCK.key ->
                     serviceIntent(context, WheelService.ACTION_TOGGLE_LOCK, requestCode)
-                WidgetActionType.RECORD.key ->
-                    serviceIntent(context, WheelService.ACTION_START_RECORDING, requestCode)
+                WidgetActionType.RECORD.key -> serviceIntent(
+                    context,
+                    if (recording) WheelService.ACTION_STOP_RECORDING
+                    else WheelService.ACTION_START_RECORDING,
+                    requestCode,
+                )
                 WidgetActionType.DISCONNECT.key ->
                     serviceIntent(context, WheelService.ACTION_DISCONNECT, requestCode)
                 else -> null
@@ -385,7 +417,7 @@ class EucWidget : AppWidgetProvider() {
                 views.setViewVisibility(id, if (text.isBlank()) View.GONE else View.VISIBLE)
                 dimIfDisabled(views, s, key, BUTTON_TEXT_IDS[i], BUTTON_ICON_IDS[i])
                 val intent = if (isEnabled(s, key)) {
-                    actionIntentFor(context, key, requestCode = 100 + i)
+                    actionIntentFor(context, key, requestCode = 100 + i, recording = s.recording)
                 } else {
                     // Swallow the tap rather than leave the button uncovered,
                     // which would let it through to the root's open-app intent.
@@ -409,12 +441,21 @@ class EucWidget : AppWidgetProvider() {
         /**
          * Whether tapping this button can do anything right now.
          *
-         * Everything except VOICE sends a command to the wheel, so with nothing
-         * connected there is no one to send it to. VOICE toggles the periodic
-         * announcements, which is an app setting and works regardless.
+         * Horn, light, lock and disconnect all send a command to the wheel, so
+         * with nothing connected there is nobody to send it to.
+         *
+         * VOICE and RECORD are not wheel commands. Voice toggles the periodic
+         * announcements, which is an app setting. Recording writes a trip from
+         * whatever the phone can see, so with no wheel it still produces a
+         * GPS-only ride, and the Recorder screen lets a rider start one exactly
+         * that way. Greying these out would have the widget contradict the app.
          */
-        fun isEnabled(s: Snapshot, key: String): Boolean =
-            s.connected || WidgetActionType.byKey(key) == WidgetActionType.VOICE
+        fun isEnabled(s: Snapshot, key: String): Boolean = s.connected ||
+            WidgetActionType.byKey(key) in ALWAYS_AVAILABLE
+
+        /** Actions that do not need a wheel on the other end. */
+        private val ALWAYS_AVAILABLE =
+            setOf(WidgetActionType.VOICE, WidgetActionType.RECORD)
 
         /**
          * Grey out a button that cannot act.
