@@ -285,7 +285,7 @@ class EucPlanetView extends WatchUi.View {
             if (showNum) {
                 dc.setColor(color, Graphics.COLOR_TRANSPARENT);
                 dc.drawText(cx, top, pctFont,
-                            pct.format("%d") + "%",
+                            pct.format("%d"),
                             Graphics.TEXT_JUSTIFY_CENTER);
                 top += pctH + gap;
             }
@@ -332,7 +332,7 @@ class EucPlanetView extends WatchUi.View {
             var justify = showBar ? Graphics.TEXT_JUSTIFY_LEFT : Graphics.TEXT_JUSTIFY_CENTER;
             var pctH = Graphics.getFontHeight(pctFont);
             dc.drawText(textX, y + (barH / 2) - (pctH / 2),
-                        pctFont, pct.format("%d") + "%", justify);
+                        pctFont, pct.format("%d"), justify);
         }
     }
 
@@ -398,7 +398,7 @@ class EucPlanetView extends WatchUi.View {
                 pctFont = s.prioritizePwm ? Graphics.FONT_TINY : Graphics.FONT_XTINY;
             }
             dc.setColor(connected ? color : SpeedGauge.COLOR_DIM, Graphics.COLOR_TRANSPARENT);
-            var label = connected ? (pct.format("%d") + "%") : "--";
+            var label = connected ? pct.format("%d") : "--";
             dc.drawText(cx, cy, pctFont, label,
                         Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
         }
@@ -427,15 +427,17 @@ class EucPlanetView extends WatchUi.View {
         var textH = Graphics.getFontHeight(font);
         var stackGap = 1;
         var blockH = iconH + stackGap + textH;
-        // Center the icon+text block vertically around 64% of the view.
-        var blockTop = (h * 64) / 100 - (blockH / 2);
+        // Center the icon+text block vertically. On Instinct (semi-octagon) it
+        // sits lower so it clears the stacked speed unit ("km/h") above it.
+        var centerPct = _semiOctagon ? 70 : 64;
+        var blockTop = (h * centerPct) / 100 - (blockH / 2);
         var iconY = blockTop;
         var textY = blockTop + iconH + stackGap;
 
         for (var i = 0; i < fields.size(); i += 1) {
             var f = fields[i];
             var cx = rowLeft + (step / 2) + (step * i);
-            var pctText = f[:pct].format("%d") + "%";
+            var pctText = f[:pct].format("%d");
             if (f[:icon] != null) {
                 dc.drawBitmap(cx - (iconW / 2), iconY, f[:icon]);
             }
