@@ -2048,7 +2048,7 @@
     <string name="widget_connected">已連線</string>
     <string name="widget_disconnected">未連線輪子</string>
     <string name="widget_placeholder_value">--</string>
-    <string name="widget_description">主畫面上的讀數與快捷操作。</string>
+    <string name="widget_description">讀數與快捷操作</string>
     <string name="trip_action_save_section">將區間儲存為新行程</string>
     <string name="trip_action_save_section_desc">保留此行程並新增裁剪的部分。會備份，但不會上傳排行榜。</string>
     <string name="trip_section_saved">已將區間儲存為新行程</string>
@@ -2080,7 +2080,7 @@
     <string name="trip_tools_combine_between">位於中間，將包含</string>
     <string name="trip_tools_combine_summary">將 %1$d 個行程合併為一個新行程。</string>
     <string name="widget_section">主畫面小工具</string>
-    <string name="widget_pick_desc">選擇小工具顯示的 %1$d 項讀數和 %2$d 個按鈕。與上面的通知動作同理。</string>
+    <string name="widget_pick_desc">選擇小工具顯示的 %1$d 個讀數和 %2$d 個按鈕。</string>
     <string name="widget_metric_slot">讀數 %1$d</string>
     <string name="widget_action_slot">按鈕 %1$d</string>
     <string name="widget_metric_speed">速度</string>
@@ -2102,12 +2102,12 @@
     <string name="trip_tools_extend_to">終點</string>
     <string name="trip_tools_extend_none">此行程</string>
     <string name="trip_tools_extend_pick_one">選擇要延伸到的較早或較晚行程。</string>
-    <string name="widget_act_1_desc">單獨按鈕 1，在設定中指定。</string>
-    <string name="widget_act_2_desc">單獨按鈕 2，在設定中指定。</string>
-    <string name="widget_act_3_desc">單獨按鈕 3，在設定中指定。</string>
-    <string name="widget_act_12_desc">單獨按鈕 1 和 2。</string>
-    <string name="widget_act_23_desc">單獨按鈕 2 和 3。</string>
-    <string name="widget_standalone_desc">僅按鈕的小工具有各自的動作，因此單獨的按鈕不必與大型小工具一致。</string>
+    <string name="widget_act_1_desc">按鈕 1</string>
+    <string name="widget_act_2_desc">按鈕 2</string>
+    <string name="widget_act_3_desc">按鈕 3</string>
+    <string name="widget_act_12_desc">按鈕 1 和 2</string>
+    <string name="widget_act_23_desc">按鈕 2 和 3</string>
+    <string name="widget_standalone_desc">僅按鈕小工具的動作，與上方一列相互獨立。</string>
     <string name="widget_standalone_slot">單獨按鈕 %1$d</string>
     <string name="trip_customize">自訂</string>
     <string name="trip_trim">裁剪檢視</string>

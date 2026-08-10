@@ -2046,7 +2046,7 @@
     <string name="widget_connected">З\'єднано</string>
     <string name="widget_disconnected">Немає колеса</string>
     <string name="widget_placeholder_value">--</string>
-    <string name="widget_description">Ваші показники та швидкі дії на головному екрані.</string>
+    <string name="widget_description">Показники та швидкі дії</string>
     <string name="trip_action_save_section">Зберегти ділянку як поїздку</string>
     <string name="trip_action_save_section_desc">Зберігає цю поїздку та додає обрізану частину. Резервується, але не надсилається в таблицю.</string>
     <string name="trip_section_saved">Ділянку збережено як нову поїздку</string>
@@ -2078,7 +2078,7 @@
     <string name="trip_tools_combine_between">Між ними, увійде</string>
     <string name="trip_tools_combine_summary">Об\'єднує %1\ поїздок в одну нову.</string>
     <string name="widget_section">Віджет на головному екрані</string>
-    <string name="widget_pick_desc">Виберіть %1$d показники та %2$d кнопки віджета. Той самий принцип, що й дії сповіщень вище.</string>
+    <string name="widget_pick_desc">Виберіть %1$d показники та %2$d кнопки, які показує віджет.</string>
     <string name="widget_metric_slot">Показник %1$d</string>
     <string name="widget_action_slot">Кнопка %1$d</string>
     <string name="widget_metric_speed">Швидкість</string>
@@ -2100,12 +2100,12 @@
     <string name="trip_tools_extend_to">Закінчити на</string>
     <string name="trip_tools_extend_none">Ця поїздка</string>
     <string name="trip_tools_extend_pick_one">Виберіть ранішу або пізнішу поїздку для продовження.</string>
-    <string name="widget_act_1_desc">Окрема кнопка 1, задається в налаштуваннях.</string>
-    <string name="widget_act_2_desc">Окрема кнопка 2, задається в налаштуваннях.</string>
-    <string name="widget_act_3_desc">Окрема кнопка 3, задається в налаштуваннях.</string>
-    <string name="widget_act_12_desc">Окремі кнопки 1 і 2.</string>
-    <string name="widget_act_23_desc">Окремі кнопки 2 і 3.</string>
-    <string name="widget_standalone_desc">Віджети-кнопки мають власні дії, тож окрема кнопка не мусить збігатися з великим віджетом.</string>
+    <string name="widget_act_1_desc">Кнопка 1</string>
+    <string name="widget_act_2_desc">Кнопка 2</string>
+    <string name="widget_act_3_desc">Кнопка 3</string>
+    <string name="widget_act_12_desc">Кнопки 1 і 2</string>
+    <string name="widget_act_23_desc">Кнопки 2 і 3</string>
+    <string name="widget_standalone_desc">Дії віджетів-кнопок, незалежні від ряду вище.</string>
     <string name="widget_standalone_slot">Окрема кнопка %1$d</string>
     <string name="trip_customize">Налаштувати</string>
     <string name="trip_trim">Обрізати вигляд</string>

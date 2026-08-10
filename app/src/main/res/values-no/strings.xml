@@ -1937,7 +1937,7 @@
     <string name="widget_connected">Tilkoblet</string>
     <string name="widget_disconnected">Ingen hjul</string>
     <string name="widget_placeholder_value">--</string>
-    <string name="widget_description">Dine visninger og hurtighandlinger pa startskjermen.</string>
+    <string name="widget_description">Avlesninger og hurtighandlinger</string>
     <string name="trip_action_save_section">Lagre del som ny tur</string>
     <string name="trip_action_save_section_desc">Beholder denne turen og legger til den beskjaerte delen. Sikkerhetskopieres, sendes aldri til rangeringen.</string>
     <string name="trip_section_saved">Del lagret som ny tur</string>
@@ -1969,7 +1969,7 @@
     <string name="trip_tools_combine_between">Imellom, tas med</string>
     <string name="trip_tools_combine_summary">Slaar sammen %1$d turer til en ny tur.</string>
     <string name="widget_section">Widget pa startskjerm</string>
-    <string name="widget_pick_desc">Velg de %1$d visningene og %2$d knappene widgeten viser. Samme idé som varselhandlingene over.</string>
+    <string name="widget_pick_desc">Velg de %1$d avlesningene og %2$d knappene widgetet viser.</string>
     <string name="widget_metric_slot">Visning %1$d</string>
     <string name="widget_action_slot">Knapp %1$d</string>
     <string name="widget_metric_speed">Fart</string>
@@ -1991,12 +1991,12 @@
     <string name="trip_tools_extend_to">Slutt ved</string>
     <string name="trip_tools_extend_none">Denne turen</string>
     <string name="trip_tools_extend_pick_one">Velg en tidligere eller senere tur a forlenge inn i.</string>
-    <string name="widget_act_1_desc">Enkeltknapp 1, angis i Innstillinger.</string>
-    <string name="widget_act_2_desc">Enkeltknapp 2, angis i Innstillinger.</string>
-    <string name="widget_act_3_desc">Enkeltknapp 3, angis i Innstillinger.</string>
-    <string name="widget_act_12_desc">Enkeltknapp 1 og 2.</string>
-    <string name="widget_act_23_desc">Enkeltknapp 2 og 3.</string>
-    <string name="widget_standalone_desc">Knappewidgetene har egne handlinger, så en enkelt knapp trenger ikke matche det store widgetet.</string>
+    <string name="widget_act_1_desc">Knapp 1</string>
+    <string name="widget_act_2_desc">Knapp 2</string>
+    <string name="widget_act_3_desc">Knapp 3</string>
+    <string name="widget_act_12_desc">Knapper 1 og 2</string>
+    <string name="widget_act_23_desc">Knapper 2 og 3</string>
+    <string name="widget_standalone_desc">Handlinger for knappewidgetene, uavhengig av raden over.</string>
     <string name="widget_standalone_slot">Enkeltknapp %1$d</string>
     <string name="trip_customize">Tilpass</string>
     <string name="trip_trim">Beskjær visningen</string>

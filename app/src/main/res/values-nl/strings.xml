@@ -2051,7 +2051,7 @@
     <string name="widget_connected">Verbonden</string>
     <string name="widget_disconnected">Geen wiel</string>
     <string name="widget_placeholder_value">--</string>
-    <string name="widget_description">Je metingen en snelle acties op het startscherm.</string>
+    <string name="widget_description">Waarden en snelle acties</string>
     <string name="trip_action_save_section">Deel opslaan als rit</string>
     <string name="trip_action_save_section_desc">Behoudt deze rit en voegt het bijgesneden deel toe. Wordt geback-upt, nooit naar de ranglijst gestuurd.</string>
     <string name="trip_section_saved">Deel opgeslagen als nieuwe rit</string>
@@ -2083,7 +2083,7 @@
     <string name="trip_tools_combine_between">Ertussen, meegenomen</string>
     <string name="trip_tools_combine_summary">Voegt %1$d ritten samen tot een nieuwe rit.</string>
     <string name="widget_section">Startscherm-widget</string>
-    <string name="widget_pick_desc">Kies de %1$d metingen en %2$d knoppen van de widget. Zelfde idee als de meldingsacties hierboven.</string>
+    <string name="widget_pick_desc">Kies de %1$d waarden en %2$d knoppen die de widget toont.</string>
     <string name="widget_metric_slot">Meting %1$d</string>
     <string name="widget_action_slot">Knop %1$d</string>
     <string name="widget_metric_speed">Snelheid</string>
@@ -2105,12 +2105,12 @@
     <string name="trip_tools_extend_to">Eindigen bij</string>
     <string name="trip_tools_extend_none">Deze rit</string>
     <string name="trip_tools_extend_pick_one">Kies een eerdere of latere rit om naartoe uit te breiden.</string>
-    <string name="widget_act_1_desc">Losse knop 1, in te stellen bij Instellingen.</string>
-    <string name="widget_act_2_desc">Losse knop 2, in te stellen bij Instellingen.</string>
-    <string name="widget_act_3_desc">Losse knop 3, in te stellen bij Instellingen.</string>
-    <string name="widget_act_12_desc">Losse knoppen 1 en 2.</string>
-    <string name="widget_act_23_desc">Losse knoppen 2 en 3.</string>
-    <string name="widget_standalone_desc">De knop-widgets hebben eigen acties, dus een losse knop hoeft niet overeen te komen met de grote widget.</string>
+    <string name="widget_act_1_desc">Knop 1</string>
+    <string name="widget_act_2_desc">Knop 2</string>
+    <string name="widget_act_3_desc">Knop 3</string>
+    <string name="widget_act_12_desc">Knoppen 1 en 2</string>
+    <string name="widget_act_23_desc">Knoppen 2 en 3</string>
+    <string name="widget_standalone_desc">Acties voor de knop-widgets, los van de rij hierboven.</string>
     <string name="widget_standalone_slot">Losse knop %1$d</string>
     <string name="trip_customize">Aanpassen</string>
     <string name="trip_trim">Weergave bijsnijden</string>

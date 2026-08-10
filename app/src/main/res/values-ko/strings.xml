@@ -2048,7 +2048,7 @@
     <string name="widget_connected">연결됨</string>
     <string name="widget_disconnected">휠 없음</string>
     <string name="widget_placeholder_value">--</string>
-    <string name="widget_description">홈 화면에 표시할 항목과 빠른 작업.</string>
+    <string name="widget_description">수치와 빠른 작업</string>
     <string name="trip_action_save_section">구간을 새 주행으로 저장</string>
     <string name="trip_action_save_section_desc">이 주행은 그대로 두고 자른 부분을 추가합니다. 백업되며 순위표로는 전송되지 않습니다.</string>
     <string name="trip_section_saved">구간을 새 주행으로 저장했습니다</string>
@@ -2080,7 +2080,7 @@
     <string name="trip_tools_combine_between">사이에 있어 포함됨</string>
     <string name="trip_tools_combine_summary">주행 %1$d개를 새 주행 하나로 합칩니다.</string>
     <string name="widget_section">홈 화면 위젯</string>
-    <string name="widget_pick_desc">위젯에 표시할 항목 %1$d개와 버튼 %2$d개를 고르세요. 위의 알림 작업과 같은 방식입니다.</string>
+    <string name="widget_pick_desc">위젯에 표시할 수치 %1$d개와 버튼 %2$d개를 고르세요.</string>
     <string name="widget_metric_slot">항목 %1$d</string>
     <string name="widget_action_slot">버튼 %1$d</string>
     <string name="widget_metric_speed">속도</string>
@@ -2102,12 +2102,12 @@
     <string name="trip_tools_extend_to">끝</string>
     <string name="trip_tools_extend_none">이 주행</string>
     <string name="trip_tools_extend_pick_one">확장할 이전 또는 이후 주행을 고르세요.</string>
-    <string name="widget_act_1_desc">단독 버튼 1, 설정에서 지정합니다.</string>
-    <string name="widget_act_2_desc">단독 버튼 2, 설정에서 지정합니다.</string>
-    <string name="widget_act_3_desc">단독 버튼 3, 설정에서 지정합니다.</string>
-    <string name="widget_act_12_desc">단독 버튼 1과 2.</string>
-    <string name="widget_act_23_desc">단독 버튼 2와 3.</string>
-    <string name="widget_standalone_desc">버튼 전용 위젯은 자체 작업을 가지므로, 홈 화면의 단독 버튼이 큰 위젯과 같을 필요가 없습니다.</string>
+    <string name="widget_act_1_desc">버튼 1</string>
+    <string name="widget_act_2_desc">버튼 2</string>
+    <string name="widget_act_3_desc">버튼 3</string>
+    <string name="widget_act_12_desc">버튼 1 및 2</string>
+    <string name="widget_act_23_desc">버튼 2 및 3</string>
+    <string name="widget_standalone_desc">버튼 전용 위젯의 작업입니다. 위쪽 행과 별개입니다.</string>
     <string name="widget_standalone_slot">단독 버튼 %1$d</string>
     <string name="trip_customize">사용자 지정</string>
     <string name="trip_trim">보기 범위 자르기</string>

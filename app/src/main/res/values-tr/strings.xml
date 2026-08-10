@@ -2046,7 +2046,7 @@
     <string name="widget_connected">Bağlandı</string>
     <string name="widget_disconnected">Teker yok</string>
     <string name="widget_placeholder_value">--</string>
-    <string name="widget_description">Olcumleriniz ve hizli eylemleriniz ana ekranda.</string>
+    <string name="widget_description">Değerler ve hızlı eylemler</string>
     <string name="trip_action_save_section">Bölümü yeni sürüş olarak kaydet</string>
     <string name="trip_action_save_section_desc">Bu surusu korur ve kirpilan bolumu ekler. Yedeklenir, siralamaya asla gonderilmez.</string>
     <string name="trip_section_saved">Bolum yeni surus olarak kaydedildi</string>
@@ -2078,7 +2078,7 @@
     <string name="trip_tools_combine_between">Arada, dahil</string>
     <string name="trip_tools_combine_summary">%1$d surusu tek bir yeni suruste birlestirir.</string>
     <string name="widget_section">Ana ekran widgetı</string>
-    <string name="widget_pick_desc">Widgetın gosterecegi %1$d olcumu ve %2$d dugmeyi secin. Yukaridaki bildirim eylemleriyle ayni mantik.</string>
+    <string name="widget_pick_desc">Widget\'ın gösterdiği %1$d değeri ve %2$d düğmeyi seç.</string>
     <string name="widget_metric_slot">Olcum %1$d</string>
     <string name="widget_action_slot">Dugme %1$d</string>
     <string name="widget_metric_speed">Hiz</string>
@@ -2100,12 +2100,12 @@
     <string name="trip_tools_extend_to">Bitis</string>
     <string name="trip_tools_extend_none">Bu surus</string>
     <string name="trip_tools_extend_pick_one">Uzatilacak onceki veya sonraki bir surus secin.</string>
-    <string name="widget_act_1_desc">Tek düğme 1, Ayarlar bölümünden seçilir.</string>
-    <string name="widget_act_2_desc">Tek düğme 2, Ayarlar bölümünden seçilir.</string>
-    <string name="widget_act_3_desc">Tek düğme 3, Ayarlar bölümünden seçilir.</string>
-    <string name="widget_act_12_desc">Tek düğme 1 ve 2.</string>
-    <string name="widget_act_23_desc">Tek düğme 2 ve 3.</string>
-    <string name="widget_standalone_desc">Yalnızca düğme widget\'larının kendi eylemleri vardır, bu yüzden tek bir düğme büyük widget\'la aynı olmak zorunda değildir.</string>
+    <string name="widget_act_1_desc">Düğme 1</string>
+    <string name="widget_act_2_desc">Düğme 2</string>
+    <string name="widget_act_3_desc">Düğme 3</string>
+    <string name="widget_act_12_desc">Düğme 1 ve 2</string>
+    <string name="widget_act_23_desc">Düğme 2 ve 3</string>
+    <string name="widget_standalone_desc">Yalnızca düğme widget\'larının eylemleri, üstteki sıradan bağımsız.</string>
     <string name="widget_standalone_slot">Tek düğme %1$d</string>
     <string name="trip_customize">Özelleştir</string>
     <string name="trip_trim">Görünümü kırp</string>

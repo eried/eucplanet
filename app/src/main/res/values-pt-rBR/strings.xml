@@ -2051,7 +2051,7 @@
     <string name="widget_connected">Conectado</string>
     <string name="widget_disconnected">Sem roda</string>
     <string name="widget_placeholder_value">--</string>
-    <string name="widget_description">Suas leituras e acoes rapidas na tela inicial.</string>
+    <string name="widget_description">Leituras e ações rápidas</string>
     <string name="trip_action_save_section">Salvar trecho como trajeto</string>
     <string name="trip_action_save_section_desc">Mantem este trajeto e adiciona o trecho recortado. Tem backup, nunca vai para o ranking.</string>
     <string name="trip_section_saved">Trecho salvo como novo trajeto</string>
@@ -2083,7 +2083,7 @@
     <string name="trip_tools_combine_between">No meio, incluido</string>
     <string name="trip_tools_combine_summary">Combina %1$d trajetos em um novo.</string>
     <string name="widget_section">Widget da tela inicial</string>
-    <string name="widget_pick_desc">Escolha as %1$d leituras e %2$d botoes do widget. Mesma ideia das acoes de notificacao acima.</string>
+    <string name="widget_pick_desc">Escolha as %1$d leituras e %2$d botões que o widget mostra.</string>
     <string name="widget_metric_slot">Leitura %1$d</string>
     <string name="widget_action_slot">Botao %1$d</string>
     <string name="widget_metric_speed">Velocidade</string>
@@ -2105,12 +2105,12 @@
     <string name="trip_tools_extend_to">Terminar em</string>
     <string name="trip_tools_extend_none">Este trajeto</string>
     <string name="trip_tools_extend_pick_one">Escolha um trajeto anterior ou posterior para estender.</string>
-    <string name="widget_act_1_desc">Botão avulso 1, definido nas Configurações.</string>
-    <string name="widget_act_2_desc">Botão avulso 2, definido nas Configurações.</string>
-    <string name="widget_act_3_desc">Botão avulso 3, definido nas Configurações.</string>
-    <string name="widget_act_12_desc">Botões avulsos 1 e 2.</string>
-    <string name="widget_act_23_desc">Botões avulsos 2 e 3.</string>
-    <string name="widget_standalone_desc">Os widgets só de botão têm ações próprias, então um botão sozinho não precisa coincidir com o widget grande.</string>
+    <string name="widget_act_1_desc">Botão 1</string>
+    <string name="widget_act_2_desc">Botão 2</string>
+    <string name="widget_act_3_desc">Botão 3</string>
+    <string name="widget_act_12_desc">Botões 1 e 2</string>
+    <string name="widget_act_23_desc">Botões 2 e 3</string>
+    <string name="widget_standalone_desc">Ações dos widgets só de botão, independentes da linha acima.</string>
     <string name="widget_standalone_slot">Botão avulso %1$d</string>
     <string name="trip_customize">Personalizar</string>
     <string name="trip_trim">Recortar a exibição</string>

@@ -2049,7 +2049,7 @@
     <string name="widget_connected">Ansluten</string>
     <string name="widget_disconnected">Inget hjul</string>
     <string name="widget_placeholder_value">--</string>
-    <string name="widget_description">Dina avlasningar och snabbatgarder pa hemskarmen.</string>
+    <string name="widget_description">Avläsningar och snabbåtgärder</string>
     <string name="trip_action_save_section">Spara del som ny tur</string>
     <string name="trip_action_save_section_desc">Behaller den har turen och lagger till den beskurna delen. Sakerhetskopieras, skickas aldrig till listan.</string>
     <string name="trip_section_saved">Delen sparad som ny tur</string>
@@ -2081,7 +2081,7 @@
     <string name="trip_tools_combine_between">Daremellan, tas med</string>
     <string name="trip_tools_combine_summary">Slaar ihop %1$d turer till en ny tur.</string>
     <string name="widget_section">Widget pa hemskarmen</string>
-    <string name="widget_pick_desc">Valj de %1$d avlasningar och %2$d knappar widgeten visar. Samma idé som aviseringsatgarderna ovan.</string>
+    <string name="widget_pick_desc">Välj de %1$d avläsningar och %2$d knappar som widgeten visar.</string>
     <string name="widget_metric_slot">Avlasning %1$d</string>
     <string name="widget_action_slot">Knapp %1$d</string>
     <string name="widget_metric_speed">Fart</string>
@@ -2103,12 +2103,12 @@
     <string name="trip_tools_extend_to">Sluta vid</string>
     <string name="trip_tools_extend_none">Den har turen</string>
     <string name="trip_tools_extend_pick_one">Valj en tidigare eller senare tur att forlanga in i.</string>
-    <string name="widget_act_1_desc">Ensam knapp 1, ställs in i Inställningar.</string>
-    <string name="widget_act_2_desc">Ensam knapp 2, ställs in i Inställningar.</string>
-    <string name="widget_act_3_desc">Ensam knapp 3, ställs in i Inställningar.</string>
-    <string name="widget_act_12_desc">Ensamma knappar 1 och 2.</string>
-    <string name="widget_act_23_desc">Ensamma knappar 2 och 3.</string>
-    <string name="widget_standalone_desc">Knappwidgetarna har egna åtgärder, så en ensam knapp behöver inte matcha den stora widgeten.</string>
+    <string name="widget_act_1_desc">Knapp 1</string>
+    <string name="widget_act_2_desc">Knapp 2</string>
+    <string name="widget_act_3_desc">Knapp 3</string>
+    <string name="widget_act_12_desc">Knappar 1 och 2</string>
+    <string name="widget_act_23_desc">Knappar 2 och 3</string>
+    <string name="widget_standalone_desc">Åtgärder för knappwidgetarna, fristående från raden ovan.</string>
     <string name="widget_standalone_slot">Ensam knapp %1$d</string>
     <string name="trip_customize">Anpassa</string>
     <string name="trip_trim">Beskär vyn</string>

@@ -2049,7 +2049,7 @@
     <string name="widget_connected">Połączono</string>
     <string name="widget_disconnected">Brak koła</string>
     <string name="widget_placeholder_value">--</string>
-    <string name="widget_description">Twoje odczyty i szybkie akcje na ekranie glownym.</string>
+    <string name="widget_description">Odczyty i szybkie akcje</string>
     <string name="trip_action_save_section">Zapisz fragment jako przejazd</string>
     <string name="trip_action_save_section_desc">Zachowuje ten przejazd i dodaje przyciety fragment. Kopia zapasowa tak, ranking nie.</string>
     <string name="trip_section_saved">Zapisano fragment jako nowy przejazd</string>
@@ -2081,7 +2081,7 @@
     <string name="trip_tools_combine_between">Pomiedzy, dolaczone</string>
     <string name="trip_tools_combine_summary">Laczy %1$d przejazdow w jeden nowy.</string>
     <string name="widget_section">Widget ekranu glownego</string>
-    <string name="widget_pick_desc">Wybierz %1$d odczyty i %2$d przyciski widgetu. Ta sama idea co akcje powiadomien powyzej.</string>
+    <string name="widget_pick_desc">Wybierz %1$d odczyty i %2$d przyciski widoczne w widgecie.</string>
     <string name="widget_metric_slot">Odczyt %1$d</string>
     <string name="widget_action_slot">Przycisk %1$d</string>
     <string name="widget_metric_speed">Predkosc</string>
@@ -2103,12 +2103,12 @@
     <string name="trip_tools_extend_to">Zakoncz na</string>
     <string name="trip_tools_extend_none">Ten przejazd</string>
     <string name="trip_tools_extend_pick_one">Wybierz wczesniejszy lub pozniejszy przejazd do wydluzenia.</string>
-    <string name="widget_act_1_desc">Osobny przycisk 1, ustawiany w Ustawieniach.</string>
-    <string name="widget_act_2_desc">Osobny przycisk 2, ustawiany w Ustawieniach.</string>
-    <string name="widget_act_3_desc">Osobny przycisk 3, ustawiany w Ustawieniach.</string>
-    <string name="widget_act_12_desc">Osobne przyciski 1 i 2.</string>
-    <string name="widget_act_23_desc">Osobne przyciski 2 i 3.</string>
-    <string name="widget_standalone_desc">Widgety z samym przyciskiem mają własne akcje, więc pojedynczy przycisk nie musi pasować do dużego widgetu.</string>
+    <string name="widget_act_1_desc">Przycisk 1</string>
+    <string name="widget_act_2_desc">Przycisk 2</string>
+    <string name="widget_act_3_desc">Przycisk 3</string>
+    <string name="widget_act_12_desc">Przyciski 1 i 2</string>
+    <string name="widget_act_23_desc">Przyciski 2 i 3</string>
+    <string name="widget_standalone_desc">Akcje widgetów z samym przyciskiem, niezależne od rzędu powyżej.</string>
     <string name="widget_standalone_slot">Osobny przycisk %1$d</string>
     <string name="trip_customize">Dostosuj</string>
     <string name="trip_trim">Przytnij widok</string>

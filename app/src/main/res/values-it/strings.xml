@@ -1954,7 +1954,7 @@
     <string name="widget_connected">Connesso</string>
     <string name="widget_disconnected">Nessuna ruota</string>
     <string name="widget_placeholder_value">--</string>
-    <string name="widget_description">Le tue letture e azioni rapide sulla schermata home.</string>
+    <string name="widget_description">Letture e azioni rapide</string>
     <string name="trip_action_save_section">Salva sezione come viaggio</string>
     <string name="trip_action_save_section_desc">Mantiene questo viaggio e aggiunge la parte ritagliata. Salvata, mai inviata alla classifica.</string>
     <string name="trip_section_saved">Sezione salvata come nuovo viaggio</string>
@@ -1986,7 +1986,7 @@
     <string name="trip_tools_combine_between">In mezzo, incluso</string>
     <string name="trip_tools_combine_summary">Unisce %1$d viaggi in uno nuovo.</string>
     <string name="widget_section">Widget schermata home</string>
-    <string name="widget_pick_desc">Scegli le %1$d letture e %2$d pulsanti del widget. Stessa idea delle azioni di notifica sopra.</string>
+    <string name="widget_pick_desc">Scegli le %1$d letture e i %2$d pulsanti mostrati dal widget.</string>
     <string name="widget_metric_slot">Lettura %1$d</string>
     <string name="widget_action_slot">Pulsante %1$d</string>
     <string name="widget_metric_speed">Velocita</string>
@@ -2008,12 +2008,12 @@
     <string name="trip_tools_extend_to">Termina a</string>
     <string name="trip_tools_extend_none">Questo viaggio</string>
     <string name="trip_tools_extend_pick_one">Scegli un viaggio precedente o successivo verso cui estendere.</string>
-    <string name="widget_act_1_desc">Pulsante singolo 1, si imposta nelle Impostazioni.</string>
-    <string name="widget_act_2_desc">Pulsante singolo 2, si imposta nelle Impostazioni.</string>
-    <string name="widget_act_3_desc">Pulsante singolo 3, si imposta nelle Impostazioni.</string>
-    <string name="widget_act_12_desc">Pulsanti singoli 1 e 2.</string>
-    <string name="widget_act_23_desc">Pulsanti singoli 2 e 3.</string>
-    <string name="widget_standalone_desc">I widget di solo pulsante hanno azioni proprie, quindi un pulsante isolato non deve coincidere con il widget grande.</string>
+    <string name="widget_act_1_desc">Pulsante 1</string>
+    <string name="widget_act_2_desc">Pulsante 2</string>
+    <string name="widget_act_3_desc">Pulsante 3</string>
+    <string name="widget_act_12_desc">Pulsanti 1 e 2</string>
+    <string name="widget_act_23_desc">Pulsanti 2 e 3</string>
+    <string name="widget_standalone_desc">Azioni dei widget di solo pulsante, indipendenti dalla riga sopra.</string>
     <string name="widget_standalone_slot">Pulsante singolo %1$d</string>
     <string name="trip_customize">Personalizza</string>
     <string name="trip_trim">Restringi la vista</string>

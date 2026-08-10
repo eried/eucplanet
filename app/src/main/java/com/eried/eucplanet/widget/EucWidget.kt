@@ -345,14 +345,54 @@ class EucWidget : AppWidgetProvider() {
                     if (iconFor(key) == 0) View.GONE else View.VISIBLE,
                 )
                 views.setViewVisibility(id, if (text.isBlank()) View.GONE else View.VISIBLE)
-                actionIntentFor(context, key, requestCode = 100 + i)?.let {
-                    views.setOnClickPendingIntent(id, it)
+                dimIfDisabled(views, s, key, BUTTON_TEXT_IDS[i], BUTTON_ICON_IDS[i])
+                if (isEnabled(s, key)) {
+                    actionIntentFor(context, key, requestCode = 100 + i)?.let {
+                        views.setOnClickPendingIntent(id, it)
+                    }
                 }
             }
 
             // Tapping anywhere that is not a button opens the app.
             views.setOnClickPendingIntent(R.id.widget_root, openAppIntent(context))
             return views
+        }
+
+        /** Enabled content, and the same at 38% for a disabled button. The
+         *  widget sits outside the theme system, so these match the literals in
+         *  widget_euc.xml rather than a token. */
+        private const val ON_COLOR = 0xFFFFFFFF.toInt()
+        private const val OFF_COLOR = 0x61FFFFFF.toInt()
+        private const val OFF_ALPHA = 97
+
+        /**
+         * Whether tapping this button can do anything right now.
+         *
+         * Everything except VOICE sends a command to the wheel, so with nothing
+         * connected there is no one to send it to. VOICE toggles the periodic
+         * announcements, which is an app setting and works regardless.
+         */
+        fun isEnabled(s: Snapshot, key: String): Boolean =
+            s.connected || WidgetActionType.byKey(key) == WidgetActionType.VOICE
+
+        /**
+         * Grey out a button that cannot act.
+         *
+         * Deliberately the same label either way. A disconnected wheel has no
+         * light state to read, but "Light on" greyed out already says both that
+         * the light is off and that the widget cannot change it, so a second set
+         * of disconnected labels would be duplication for nothing.
+         */
+        fun dimIfDisabled(
+            views: RemoteViews,
+            s: Snapshot,
+            key: String,
+            textId: Int,
+            iconId: Int,
+        ) {
+            val on = isEnabled(s, key)
+            views.setTextColor(textId, if (on) ON_COLOR else OFF_COLOR)
+            views.setInt(iconId, "setImageAlpha", if (on) 255 else OFF_ALPHA)
         }
 
         /**

@@ -162,10 +162,16 @@ abstract class ActionWidgetBase(
                 views.setViewVisibility(
                     ICON_IDS[cell], if (icon == 0) View.GONE else View.VISIBLE
                 )
-                // Distinct request codes per slot, or the two cells of a pair
-                // would share one PendingIntent and both fire the same action.
-                EucWidget.actionIntentFor(context, key, requestCode = 300 + slot)?.let {
-                    views.setOnClickPendingIntent(CELL_IDS[cell], it)
+                // Greyed out with no wheel to command, same as the big widget's
+                // row, and with the same label either way.
+                EucWidget.dimIfDisabled(views, snapshot, key, TEXT_IDS[cell], ICON_IDS[cell])
+                if (EucWidget.isEnabled(snapshot, key)) {
+                    // Distinct request codes per slot, or the two cells of a
+                    // pair would share one PendingIntent and both fire the same
+                    // action.
+                    EucWidget.actionIntentFor(context, key, requestCode = 300 + slot)?.let {
+                        views.setOnClickPendingIntent(CELL_IDS[cell], it)
+                    }
                 }
             }
             return views

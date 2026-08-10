@@ -2064,7 +2064,7 @@
     <string name="widget_connected">Forbundet</string>
     <string name="widget_disconnected">Intet hjul</string>
     <string name="widget_placeholder_value">--</string>
-    <string name="widget_description">Dine visninger og hurtige handlinger pa startskaermen.</string>
+    <string name="widget_description">Aflæsninger og hurtige handlinger</string>
     <string name="trip_action_save_section">Gem udsnit som ny tur</string>
     <string name="trip_action_save_section_desc">Beholder denne tur og tilfojer den beskarne del. Sikkerhedskopieres, sendes aldrig til ranglisten.</string>
     <string name="trip_section_saved">Udsnit gemt som ny tur</string>
@@ -2096,7 +2096,7 @@
     <string name="trip_tools_combine_between">Ligger imellem, tages med</string>
     <string name="trip_tools_combine_summary">Kombinerer %1$d ture til en ny tur.</string>
     <string name="widget_section">Widget pa startskaerm</string>
-    <string name="widget_pick_desc">Vaelg de %1$d visninger og %2$d knapper widgetten viser. Samme idé som notifikationshandlingerne ovenfor.</string>
+    <string name="widget_pick_desc">Vælg de %1$d aflæsninger og %2$d knapper, widgetten viser.</string>
     <string name="widget_metric_slot">Visning %1$d</string>
     <string name="widget_action_slot">Knap %1$d</string>
     <string name="widget_metric_speed">Fart</string>
@@ -2118,12 +2118,12 @@
     <string name="trip_tools_extend_to">Slut ved</string>
     <string name="trip_tools_extend_none">Denne tur</string>
     <string name="trip_tools_extend_pick_one">Vaelg en tidligere eller senere tur at forlaenge ind i.</string>
-    <string name="widget_act_1_desc">Enkeltknap 1, angives i Indstillinger.</string>
-    <string name="widget_act_2_desc">Enkeltknap 2, angives i Indstillinger.</string>
-    <string name="widget_act_3_desc">Enkeltknap 3, angives i Indstillinger.</string>
-    <string name="widget_act_12_desc">Enkeltknap 1 og 2.</string>
-    <string name="widget_act_23_desc">Enkeltknap 2 og 3.</string>
-    <string name="widget_standalone_desc">Knap-widgetterne har deres egne handlinger, så en enkelt knap på startskærmen ikke behøver matche det store widget.</string>
+    <string name="widget_act_1_desc">Knap 1</string>
+    <string name="widget_act_2_desc">Knap 2</string>
+    <string name="widget_act_3_desc">Knap 3</string>
+    <string name="widget_act_12_desc">Knapper 1 og 2</string>
+    <string name="widget_act_23_desc">Knapper 2 og 3</string>
+    <string name="widget_standalone_desc">Handlinger for knap-widgetterne, uafhængigt af rækken ovenfor.</string>
     <string name="widget_standalone_slot">Enkeltknap %1$d</string>
     <string name="trip_customize">Tilpas</string>
     <string name="trip_trim">Beskær visningen</string>

@@ -2067,7 +2067,7 @@
     <string name="widget_connected">Conectado</string>
     <string name="widget_disconnected">Sin rueda</string>
     <string name="widget_placeholder_value">--</string>
-    <string name="widget_description">Tus lecturas y acciones rapidas en la pantalla de inicio.</string>
+    <string name="widget_description">Lecturas y acciones rápidas</string>
     <string name="trip_action_save_section">Guardar tramo como viaje</string>
     <string name="trip_action_save_section_desc">Conserva este viaje y anade el tramo recortado. Se respalda, nunca se envia a la clasificacion.</string>
     <string name="trip_section_saved">Tramo guardado como viaje nuevo</string>
@@ -2099,7 +2099,7 @@
     <string name="trip_tools_combine_between">En medio, se incluye</string>
     <string name="trip_tools_combine_summary">Combina %1$d viajes en uno nuevo.</string>
     <string name="widget_section">Widget de pantalla de inicio</string>
-    <string name="widget_pick_desc">Elige las %1$d lecturas y %2$d botones que muestra el widget. Misma idea que las acciones de notificacion de arriba.</string>
+    <string name="widget_pick_desc">Elige las %1$d lecturas y %2$d botones que muestra el widget.</string>
     <string name="widget_metric_slot">Lectura %1$d</string>
     <string name="widget_action_slot">Boton %1$d</string>
     <string name="widget_metric_speed">Velocidad</string>
@@ -2121,12 +2121,12 @@
     <string name="trip_tools_extend_to">Terminar en</string>
     <string name="trip_tools_extend_none">Este viaje</string>
     <string name="trip_tools_extend_pick_one">Elige un viaje anterior o posterior al que extender.</string>
-    <string name="widget_act_1_desc">Botón suelto 1, se configura en Ajustes.</string>
-    <string name="widget_act_2_desc">Botón suelto 2, se configura en Ajustes.</string>
-    <string name="widget_act_3_desc">Botón suelto 3, se configura en Ajustes.</string>
-    <string name="widget_act_12_desc">Botones sueltos 1 y 2.</string>
-    <string name="widget_act_23_desc">Botones sueltos 2 y 3.</string>
-    <string name="widget_standalone_desc">Los widgets de solo botón tienen sus propias acciones, así que un botón suelto no tiene que coincidir con el widget grande.</string>
+    <string name="widget_act_1_desc">Botón 1</string>
+    <string name="widget_act_2_desc">Botón 2</string>
+    <string name="widget_act_3_desc">Botón 3</string>
+    <string name="widget_act_12_desc">Botones 1 y 2</string>
+    <string name="widget_act_23_desc">Botones 2 y 3</string>
+    <string name="widget_standalone_desc">Acciones de los widgets de solo botón, independientes de la fila de arriba.</string>
     <string name="widget_standalone_slot">Botón suelto %1$d</string>
     <string name="trip_customize">Personalizar</string>
     <string name="trip_trim">Recortar la vista</string>

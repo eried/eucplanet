@@ -2050,7 +2050,7 @@
     <string name="widget_connected">接続済み</string>
     <string name="widget_disconnected">ホイールなし</string>
     <string name="widget_placeholder_value">--</string>
-    <string name="widget_description">ホーム画面に表示する項目とクイック操作。</string>
+    <string name="widget_description">数値とクイック操作</string>
     <string name="trip_action_save_section">区間を新しい走行として保存</string>
     <string name="trip_action_save_section_desc">この走行はそのまま、切り出した部分を追加します。バックアップされ、ランキングには送信されません。</string>
     <string name="trip_section_saved">区間を新しい走行として保存しました</string>
@@ -2082,7 +2082,7 @@
     <string name="trip_tools_combine_between">間にあるため含まれます</string>
     <string name="trip_tools_combine_summary">%1$d 件の走行を新しい走行に結合します。</string>
     <string name="widget_section">ホーム画面ウィジェット</string>
-    <string name="widget_pick_desc">ウィジェットに表示する %1$d 項目と %2$d 個のボタンを選びます。上の通知アクションと同じ考え方です。</string>
+    <string name="widget_pick_desc">ウィジェットに表示する %1$d 個の数値と %2$d 個のボタンを選びます。</string>
     <string name="widget_metric_slot">項目 %1$d</string>
     <string name="widget_action_slot">ボタン %1$d</string>
     <string name="widget_metric_speed">速度</string>
@@ -2104,12 +2104,12 @@
     <string name="trip_tools_extend_to">終了</string>
     <string name="trip_tools_extend_none">この走行</string>
     <string name="trip_tools_extend_pick_one">延長先となる前後の走行を選んでください。</string>
-    <string name="widget_act_1_desc">単独ボタン 1（設定で変更できます）。</string>
-    <string name="widget_act_2_desc">単独ボタン 2（設定で変更できます）。</string>
-    <string name="widget_act_3_desc">単独ボタン 3（設定で変更できます）。</string>
-    <string name="widget_act_12_desc">単独ボタン 1 と 2。</string>
-    <string name="widget_act_23_desc">単独ボタン 2 と 3。</string>
-    <string name="widget_standalone_desc">ボタンだけのウィジェットは独自の操作を持つため、単独のボタンが大きいウィジェットと一致する必要はありません。</string>
+    <string name="widget_act_1_desc">ボタン 1</string>
+    <string name="widget_act_2_desc">ボタン 2</string>
+    <string name="widget_act_3_desc">ボタン 3</string>
+    <string name="widget_act_12_desc">ボタン 1 と 2</string>
+    <string name="widget_act_23_desc">ボタン 2 と 3</string>
+    <string name="widget_standalone_desc">ボタンだけのウィジェットの操作です。上の行とは別に設定します。</string>
     <string name="widget_standalone_slot">単独ボタン %1$d</string>
     <string name="trip_customize">カスタマイズ</string>
     <string name="trip_trim">表示範囲を絞る</string>
