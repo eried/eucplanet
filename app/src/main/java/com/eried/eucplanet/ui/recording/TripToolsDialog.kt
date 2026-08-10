@@ -448,7 +448,14 @@ fun CombineTripsDialog(
     )
 }
 
-/** One labelled dropdown of trips. Kept local so both ends look identical. */
+/**
+ * One labelled dropdown of trips. Kept local so both ends look identical.
+ *
+ * With only the anchor to offer, the end is dead: the first trip ever recorded
+ * has nothing before it and the newest has nothing after. Opening a menu whose
+ * single entry is the trip you are already on says nothing, so the row greys
+ * out and stops responding instead.
+ */
 @Composable
 private fun TripPicker(
     title: String,
@@ -458,6 +465,7 @@ private fun TripPicker(
     onSelect: (Int) -> Unit,
 ) {
     var open by remember { mutableStateOf(false) }
+    val enabled = options.size > 1
     Column(Modifier.fillMaxWidth()) {
         Text(
             title,
@@ -468,19 +476,21 @@ private fun TripPicker(
             Row(
                 Modifier
                     .fillMaxWidth()
-                    .clickable { open = true }
+                    .clickable(enabled = enabled) { open = true }
                     .padding(vertical = 10.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Text(
                     optionLabel(selectedIdx),
                     modifier = Modifier.weight(1f),
-                    color = MaterialTheme.appColors.textPrimary,
+                    color = if (enabled) MaterialTheme.appColors.textPrimary
+                        else MaterialTheme.appColors.textSecondary,
                 )
                 Icon(
                     Icons.Default.ArrowDropDown,
                     contentDescription = null,
-                    tint = MaterialTheme.appColors.textSecondary,
+                    tint = if (enabled) MaterialTheme.appColors.textSecondary
+                        else MaterialTheme.appColors.textSecondary.copy(alpha = 0.4f),
                 )
             }
             DropdownMenu(expanded = open, onDismissRequest = { open = false }) {
