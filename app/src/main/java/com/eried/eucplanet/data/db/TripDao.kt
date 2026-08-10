@@ -51,6 +51,11 @@ interface TripDao {
     @Query("UPDATE trips SET wheelMetaJson = :json WHERE id = :id")
     suspend fun updateWheelMeta(id: Long, json: String?)
 
+    /** Every wheel identity any trip carries. Feeds the trip-tools wheel picker
+     *  so a wheel that was only ever imported, never paired, is still offered. */
+    @Query("SELECT wheelMetaJson FROM trips WHERE wheelMetaJson IS NOT NULL")
+    suspend fun allWheelMeta(): List<String>
+
     /** Live-recorded trips with no end time. Normally just the one currently
      *  recording, but at cold start any left here are recordings a previous
      *  session was killed mid-flight (force-close / crash). Finalized from their

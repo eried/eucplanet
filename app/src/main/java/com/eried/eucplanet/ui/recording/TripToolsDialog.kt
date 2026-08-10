@@ -15,7 +15,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CallMerge
 import androidx.compose.material.icons.filled.ContentCut
-import androidx.compose.material.icons.filled.TwoWheeler
+import androidx.compose.material.icons.filled.SwapHoriz
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.Icon
@@ -68,7 +68,10 @@ fun TripToolsDialog(
         text = {
             Column {
                 ToolRow(
-                    Icons.Default.TwoWheeler,
+                    // Not a vehicle glyph. This tool changes a LABEL, and the
+                    // repo's terminology rule is that the device is a wheel,
+                    // never a motorbike. A swap arrow says what it does.
+                    Icons.Default.SwapHoriz,
                     stringResource(R.string.trip_tools_change_wheel),
                     stringResource(R.string.trip_tools_change_wheel_desc),
                 ) { onDismiss(); onChangeWheel() }
@@ -96,9 +99,11 @@ fun TripToolsDialog(
 /**
  * Pick which wheel a trip was ridden on.
  *
- * [knownWheels] are the rider's saved wheel profiles, keyed by BLE name, which
- * is the same identity the CSV records. A free-text field covers an imported
- * file from a wheel this phone has never connected to.
+ * [knownWheels] comes from two places: the rider's saved wheel profiles, and the
+ * wheel names any existing trip already carries. The second matters because a
+ * wheel that only ever arrived as an imported CSV has no profile, and that is
+ * exactly when a rider is most likely to be fixing a wrong label. A free-text
+ * field still covers a wheel neither source has heard of.
  *
  * [alreadyUploaded] shows the warning the rider agreed to: the leaderboard entry
  * keeps the old wheel and cannot be corrected from the app.
@@ -264,16 +269,24 @@ fun SplitTripDialog(
             }
         },
         confirmButton = {
-            val chosen = cuts.filter { it.index in selected.value }
-            TextButton(
-                onClick = { onConfirm(chosen) },
-                enabled = chosen.isNotEmpty(),
-                shape = RoundedCornerShape(12.dp),
-            ) { Text(stringResource(R.string.action_apply)) }
+            // Nothing to split means nothing to apply, so the dialog offers a
+            // single Close rather than a greyed Apply the rider might poke at.
+            if (cuts.isNotEmpty()) {
+                val chosen = cuts.filter { it.index in selected.value }
+                TextButton(
+                    onClick = { onConfirm(chosen) },
+                    enabled = chosen.isNotEmpty(),
+                    shape = RoundedCornerShape(12.dp),
+                ) { Text(stringResource(R.string.action_apply)) }
+            }
         },
         dismissButton = {
             TextButton(onClick = onDismiss, shape = RoundedCornerShape(12.dp)) {
-                Text(stringResource(R.string.action_cancel))
+                Text(
+                    stringResource(
+                        if (cuts.isEmpty()) R.string.action_close else R.string.action_cancel
+                    )
+                )
             }
         }
     )

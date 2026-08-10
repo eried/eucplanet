@@ -1068,9 +1068,24 @@ class TripRepository @Inject constructor(
      *
      * @return true when the row was updated
      */
-    /** BLE names of the rider's saved wheel profiles, for the wheel picker. */
-    suspend fun knownWheelNames(): List<String> =
-        runCatching { wheelProfileDao.allNames() }.getOrDefault(emptyList())
+    /**
+     * Every wheel name worth offering in the trip-tools picker.
+     *
+     * Two sources, because neither is complete on its own. Saved profiles cover
+     * wheels this phone has paired with; the trips themselves cover wheels that
+     * only ever arrived as an imported CSV, which is exactly the case where the
+     * rider is most likely to be correcting a wrong label.
+     */
+    suspend fun knownWheelNames(): List<String> {
+        val fromProfiles = runCatching { wheelProfileDao.allNames() }.getOrDefault(emptyList())
+        val fromTrips = runCatching {
+            tripDao.allWheelMeta().mapNotNull { json ->
+                runCatching { org.json.JSONObject(json).optString("ble_name") }
+                    .getOrNull()?.takeIf { it.isNotBlank() }
+            }
+        }.getOrDefault(emptyList())
+        return (fromProfiles + fromTrips).distinct().sorted()
+    }
 
     suspend fun changeTripWheel(trip: TripRecord, bleName: String, mac: String?): Boolean {
         val file = getTripFile(trip)
