@@ -144,12 +144,18 @@ fun TripDetailScreen(
     var allPoints by remember { mutableStateOf<List<TripDataPoint>>(emptyList()) }
     // Elapsed-ms window into the ride, null when the full trip is shown.
     var trimRange by remember { mutableStateOf<LongRange?>(null) }
+    // The exact-times dialog, now reached from the span in the trim bar rather
+    // than straight off the funnel.
     var showTrim by remember { mutableStateOf(false) }
+    // The funnel toggles the bar. Dragging two handles is how a rider actually
+    // wants to find a stretch of ride; typing MM:SS is the fallback for when
+    // they already know the moment they want.
+    var showTrimBar by remember(trip.id) { mutableStateOf(false) }
     // Deferred: parsing every row's timestamp is the single most expensive thing
     // this screen can do on a long ride, and most trips are never trimmed. It is
     // computed the moment the rider opens the dialog or a trim is live, and not
     // before.
-    val needElapsed = showTrim || trimRange != null
+    val needElapsed = showTrim || showTrimBar || trimRange != null
     val elapsedMs = remember(allPoints, needElapsed) {
         if (needElapsed) TripTrim.elapsedOffsets(allPoints) else LongArray(0)
     }
@@ -290,6 +296,10 @@ fun TripDetailScreen(
 
     Scaffold(
         topBar = {
+          // The trim bar rides with the top bar rather than the scrolling body:
+          // it is a control for what the whole screen shows, so scrolling it
+          // away while the charts below still reflect it would be confusing.
+          Column {
             if (landscape) {
                 // Landscape bar: back + title on the left, the date range centred,
                 // share on the right.
@@ -327,7 +337,7 @@ fun TripDetailScreen(
                             IconButton(onClick = { showCustomize = true }) {
                                 Icon(Icons.Default.Edit, contentDescription = stringResource(R.string.trip_customize))
                             }
-                            TrimAction(trimmed = trimmed, onClick = { showTrim = true })
+                            TrimAction(trimmed = trimmed, onClick = { showTrimBar = !showTrimBar })
                         }
                         IconButton(
                             onClick = { showShareDialog = true },
@@ -350,7 +360,7 @@ fun TripDetailScreen(
                             IconButton(onClick = { showCustomize = true }) {
                                 Icon(Icons.Default.Edit, contentDescription = stringResource(R.string.trip_customize))
                             }
-                            TrimAction(trimmed = trimmed, onClick = { showTrim = true })
+                            TrimAction(trimmed = trimmed, onClick = { showTrimBar = !showTrimBar })
                         }
                         IconButton(
                             onClick = { showShareDialog = true },
@@ -364,6 +374,22 @@ fun TripDetailScreen(
                     )
                 )
             }
+            if (showTrimBar && dataPoints.isNotEmpty() && elapsedMs.isNotEmpty()) {
+                val full = elapsedMs.last()
+                TripTrimBar(
+                    durationMs = full,
+                    startMs = trimRange?.first ?: 0L,
+                    endMs = trimRange?.last ?: full,
+                    onRange = { s, e ->
+                        // Dragging back to the full span is "no trim", so the
+                        // rest of the screen returns to the untrimmed fast path.
+                        trimRange = if (s <= 0L && e >= full) null else s..e
+                    },
+                    onReset = { trimRange = null },
+                    onEditExact = { showTrim = true },
+                )
+            }
+          }
         },
         snackbarHost = { SnackbarHost(snackbar) }
     ) { padding ->

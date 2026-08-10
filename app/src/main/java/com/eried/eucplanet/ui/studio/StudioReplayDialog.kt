@@ -96,7 +96,7 @@ private fun speedLabel(s: Float): String =
  * A timeline handle: a 5-sided "home plate" with a square body and a triangular
  * point. The point sits on the track at [x]; [down] true points it downward.
  */
-private fun handlePentagon(x: Float, trackY: Float, down: Boolean): Path {
+internal fun handlePentagon(x: Float, trackY: Float, down: Boolean): Path {
     val hw = 16f          // half width, visual only; the drag hitbox is the
                           // whole top/bottom half of the track, not this shape
     val point = 18f       // height of the pointed part

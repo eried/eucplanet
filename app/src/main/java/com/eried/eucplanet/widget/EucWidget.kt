@@ -6,10 +6,17 @@ import android.appwidget.AppWidgetProvider
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
+import android.util.Log
 import android.widget.RemoteViews
 import com.eried.eucplanet.MainActivity
 import com.eried.eucplanet.R
+import com.eried.eucplanet.data.repository.SettingsRepository
 import com.eried.eucplanet.service.WheelService
+import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 /**
  * Home screen widget: speed, trip distance and charge, plus a horn button and a
@@ -32,7 +39,10 @@ import com.eried.eucplanet.service.WheelService
  * back to "No wheel" and dashes mid-ride until the next push. SharedPreferences
  * is read synchronously, which a broadcast receiver needs.
  */
+@AndroidEntryPoint
 class EucWidget : AppWidgetProvider() {
+
+    @Inject lateinit var settingsRepository: SettingsRepository
 
     override fun onUpdate(
         context: Context,
@@ -44,17 +54,32 @@ class EucWidget : AppWidgetProvider() {
     }
 
     override fun onReceive(context: Context, intent: Intent) {
-        if (intent.action == ACTION_TOGGLE_VOICE) {
-            // Routed through the service rather than handled here: a broadcast
-            // receiver has no Hilt graph and no scope to wait on a settings
-            // write.
-            context.startService(
-                Intent(context, WheelService::class.java)
-                    .setAction(WheelService.ACTION_TOGGLE_VOICE)
-            )
-            return
-        }
+        // Hilt injects inside its generated onReceive, so this must run first.
         super.onReceive(context, intent)
+        if (intent.action != ACTION_TOGGLE_VOICE) return
+
+        // Written here rather than handed to WheelService. The widget lives on
+        // the launcher, so the app is in the background, and startService from
+        // there throws unless the service is already running: tapping the
+        // button did nothing at all whenever no wheel was connected.
+        //
+        // goAsync keeps the receiver alive across the settings write, which is
+        // a suspending DataStore call.
+        val pending = goAsync()
+        val appContext = context.applicationContext
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                val on = !settingsRepository.get().voicePeriodicEnabled
+                settingsRepository.update { it.copy(voicePeriodicEnabled = on) }
+                // Repaint immediately: with no wheel connected there is no
+                // telemetry coming to refresh the label.
+                render(appContext, Snapshot.load(appContext).copy(voiceOn = on))
+            } catch (e: Exception) {
+                Log.e(TAG, "Widget voice toggle failed", e)
+            } finally {
+                pending.finish()
+            }
+        }
     }
 
     /**
@@ -107,6 +132,8 @@ class EucWidget : AppWidgetProvider() {
     }
 
     companion object {
+
+        private const val TAG = "EucWidget"
 
         /** Sent by the widget's voice button; handled in [onReceive]. */
         private const val ACTION_TOGGLE_VOICE = "com.eried.eucplanet.widget.TOGGLE_VOICE"
