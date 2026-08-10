@@ -1970,11 +1970,11 @@
     <string name="trip_tools_extend_to">终点</string>
     <string name="trip_tools_extend_none">此行程</string>
     <string name="trip_tools_extend_pick_one">选择要延伸到的较早或较晚行程。</string>
-    <string name="widget_act_1_desc">仅第一个小部件按钮。</string>
-    <string name="widget_act_2_desc">仅第二个小部件按钮。</string>
-    <string name="widget_act_3_desc">仅第三个小部件按钮。</string>
-    <string name="widget_act_12_desc">第一和第二个小部件按钮。</string>
-    <string name="widget_act_23_desc">第二和第三个小部件按钮。</string>
+    <string name="widget_act_1_desc">单独按钮 1，在设置中指定。</string>
+    <string name="widget_act_2_desc">单独按钮 2，在设置中指定。</string>
+    <string name="widget_act_3_desc">单独按钮 3，在设置中指定。</string>
+    <string name="widget_act_12_desc">单独按钮 1 和 2。</string>
+    <string name="widget_act_23_desc">单独按钮 2 和 3。</string>
     <string name="widget_standalone_desc">仅按钮的小部件有各自的操作，因此单独的按钮不必与大号小部件一致。</string>
     <string name="widget_standalone_slot">单独按钮 %1$d</string>
     <string name="trip_customize">自定义</string>

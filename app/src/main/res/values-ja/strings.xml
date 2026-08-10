@@ -2104,11 +2104,11 @@
     <string name="trip_tools_extend_to">終了</string>
     <string name="trip_tools_extend_none">この走行</string>
     <string name="trip_tools_extend_pick_one">延長先となる前後の走行を選んでください。</string>
-    <string name="widget_act_1_desc">1 番目のウィジェットボタンだけ。</string>
-    <string name="widget_act_2_desc">2 番目のウィジェットボタンだけ。</string>
-    <string name="widget_act_3_desc">3 番目のウィジェットボタンだけ。</string>
-    <string name="widget_act_12_desc">1 番目と 2 番目のウィジェットボタン。</string>
-    <string name="widget_act_23_desc">2 番目と 3 番目のウィジェットボタン。</string>
+    <string name="widget_act_1_desc">単独ボタン 1（設定で変更できます）。</string>
+    <string name="widget_act_2_desc">単独ボタン 2（設定で変更できます）。</string>
+    <string name="widget_act_3_desc">単独ボタン 3（設定で変更できます）。</string>
+    <string name="widget_act_12_desc">単独ボタン 1 と 2。</string>
+    <string name="widget_act_23_desc">単独ボタン 2 と 3。</string>
     <string name="widget_standalone_desc">ボタンだけのウィジェットは独自の操作を持つため、単独のボタンが大きいウィジェットと一致する必要はありません。</string>
     <string name="widget_standalone_slot">単独ボタン %1$d</string>
     <string name="trip_customize">カスタマイズ</string>

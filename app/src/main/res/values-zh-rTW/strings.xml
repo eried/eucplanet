@@ -2102,11 +2102,11 @@
     <string name="trip_tools_extend_to">終點</string>
     <string name="trip_tools_extend_none">此行程</string>
     <string name="trip_tools_extend_pick_one">選擇要延伸到的較早或較晚行程。</string>
-    <string name="widget_act_1_desc">僅第一個小工具按鈕。</string>
-    <string name="widget_act_2_desc">僅第二個小工具按鈕。</string>
-    <string name="widget_act_3_desc">僅第三個小工具按鈕。</string>
-    <string name="widget_act_12_desc">第一和第二個小工具按鈕。</string>
-    <string name="widget_act_23_desc">第二和第三個小工具按鈕。</string>
+    <string name="widget_act_1_desc">單獨按鈕 1，在設定中指定。</string>
+    <string name="widget_act_2_desc">單獨按鈕 2，在設定中指定。</string>
+    <string name="widget_act_3_desc">單獨按鈕 3，在設定中指定。</string>
+    <string name="widget_act_12_desc">單獨按鈕 1 和 2。</string>
+    <string name="widget_act_23_desc">單獨按鈕 2 和 3。</string>
     <string name="widget_standalone_desc">僅按鈕的小工具有各自的動作，因此單獨的按鈕不必與大型小工具一致。</string>
     <string name="widget_standalone_slot">單獨按鈕 %1$d</string>
     <string name="trip_customize">自訂</string>

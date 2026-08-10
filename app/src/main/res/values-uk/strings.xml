@@ -2100,11 +2100,11 @@
     <string name="trip_tools_extend_to">Закінчити на</string>
     <string name="trip_tools_extend_none">Ця поїздка</string>
     <string name="trip_tools_extend_pick_one">Виберіть ранішу або пізнішу поїздку для продовження.</string>
-    <string name="widget_act_1_desc">Лише перша кнопка віджета.</string>
-    <string name="widget_act_2_desc">Лише друга кнопка віджета.</string>
-    <string name="widget_act_3_desc">Лише третя кнопка віджета.</string>
-    <string name="widget_act_12_desc">Перша та друга кнопки віджета.</string>
-    <string name="widget_act_23_desc">Друга та третя кнопки віджета.</string>
+    <string name="widget_act_1_desc">Окрема кнопка 1, задається в налаштуваннях.</string>
+    <string name="widget_act_2_desc">Окрема кнопка 2, задається в налаштуваннях.</string>
+    <string name="widget_act_3_desc">Окрема кнопка 3, задається в налаштуваннях.</string>
+    <string name="widget_act_12_desc">Окремі кнопки 1 і 2.</string>
+    <string name="widget_act_23_desc">Окремі кнопки 2 і 3.</string>
     <string name="widget_standalone_desc">Віджети-кнопки мають власні дії, тож окрема кнопка не мусить збігатися з великим віджетом.</string>
     <string name="widget_standalone_slot">Окрема кнопка %1$d</string>
     <string name="trip_customize">Налаштувати</string>

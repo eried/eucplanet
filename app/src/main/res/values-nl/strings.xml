@@ -2105,11 +2105,11 @@
     <string name="trip_tools_extend_to">Eindigen bij</string>
     <string name="trip_tools_extend_none">Deze rit</string>
     <string name="trip_tools_extend_pick_one">Kies een eerdere of latere rit om naartoe uit te breiden.</string>
-    <string name="widget_act_1_desc">Alleen je eerste widgetknop.</string>
-    <string name="widget_act_2_desc">Alleen je tweede widgetknop.</string>
-    <string name="widget_act_3_desc">Alleen je derde widgetknop.</string>
-    <string name="widget_act_12_desc">Je eerste en tweede widgetknop.</string>
-    <string name="widget_act_23_desc">Je tweede en derde widgetknop.</string>
+    <string name="widget_act_1_desc">Losse knop 1, in te stellen bij Instellingen.</string>
+    <string name="widget_act_2_desc">Losse knop 2, in te stellen bij Instellingen.</string>
+    <string name="widget_act_3_desc">Losse knop 3, in te stellen bij Instellingen.</string>
+    <string name="widget_act_12_desc">Losse knoppen 1 en 2.</string>
+    <string name="widget_act_23_desc">Losse knoppen 2 en 3.</string>
     <string name="widget_standalone_desc">De knop-widgets hebben eigen acties, dus een losse knop hoeft niet overeen te komen met de grote widget.</string>
     <string name="widget_standalone_slot">Losse knop %1$d</string>
     <string name="trip_customize">Aanpassen</string>

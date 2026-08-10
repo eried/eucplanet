@@ -2008,11 +2008,11 @@
     <string name="trip_tools_extend_to">Termina a</string>
     <string name="trip_tools_extend_none">Questo viaggio</string>
     <string name="trip_tools_extend_pick_one">Scegli un viaggio precedente o successivo verso cui estendere.</string>
-    <string name="widget_act_1_desc">Solo il tuo primo pulsante del widget.</string>
-    <string name="widget_act_2_desc">Solo il tuo secondo pulsante del widget.</string>
-    <string name="widget_act_3_desc">Solo il tuo terzo pulsante del widget.</string>
-    <string name="widget_act_12_desc">Il tuo primo e secondo pulsante del widget.</string>
-    <string name="widget_act_23_desc">Il tuo secondo e terzo pulsante del widget.</string>
+    <string name="widget_act_1_desc">Pulsante singolo 1, si imposta nelle Impostazioni.</string>
+    <string name="widget_act_2_desc">Pulsante singolo 2, si imposta nelle Impostazioni.</string>
+    <string name="widget_act_3_desc">Pulsante singolo 3, si imposta nelle Impostazioni.</string>
+    <string name="widget_act_12_desc">Pulsanti singoli 1 e 2.</string>
+    <string name="widget_act_23_desc">Pulsanti singoli 2 e 3.</string>
     <string name="widget_standalone_desc">I widget di solo pulsante hanno azioni proprie, quindi un pulsante isolato non deve coincidere con il widget grande.</string>
     <string name="widget_standalone_slot">Pulsante singolo %1$d</string>
     <string name="trip_customize">Personalizza</string>

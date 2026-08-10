@@ -13,6 +13,7 @@ import com.eried.eucplanet.MainActivity
 import com.eried.eucplanet.R
 import com.eried.eucplanet.data.model.WidgetActionType
 import com.eried.eucplanet.data.model.WidgetMetricType
+import com.eried.eucplanet.data.model.WidgetSettings
 import com.eried.eucplanet.data.repository.SettingsRepository
 import com.eried.eucplanet.service.WheelService
 import dagger.hilt.android.AndroidEntryPoint
@@ -52,8 +53,31 @@ class EucWidget : AppWidgetProvider() {
         appWidgetManager: AppWidgetManager,
         appWidgetIds: IntArray,
     ) {
-        val views = buildViews(context, Snapshot.load(context))
+        val stored = Snapshot.load(context)
+        // Paint what we already know immediately, so a launcher restart mid-ride
+        // never blanks the widget while the settings read is in flight.
+        val views = buildViews(context, stored)
         appWidgetIds.forEach { appWidgetManager.updateAppWidget(it, views) }
+        if (stored.isConfigured) return
+
+        // Nothing stored yet: a rider who places the widget before the service
+        // has ever pushed would otherwise get a card with a header and nothing
+        // under it, which reads as broken. Fill the captions and button labels
+        // from their settings so it looks like the picker preview, with dashes
+        // where the numbers will go.
+        val appContext = context.applicationContext
+        val pending = goAsync()
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                val hydrated = stored.hydrate(appContext, settingsRepository.get().widget)
+                val filled = buildViews(appContext, hydrated)
+                appWidgetIds.forEach { appWidgetManager.updateAppWidget(it, filled) }
+            } catch (e: Exception) {
+                Log.e(TAG, "Widget hydrate failed", e)
+            } finally {
+                pending.finish()
+            }
+        }
     }
 
     override fun onReceive(context: Context, intent: Intent) {
@@ -114,6 +138,38 @@ class EucWidget : AppWidgetProvider() {
         val standaloneKeys: List<String> = List(WidgetActionType.SLOTS) { WidgetActionType.NONE },
         val voiceOn: Boolean = false,
     ) {
+        /**
+         * Whether WheelService has ever described this widget. Captions and
+         * button labels are written together on every push, so either one being
+         * present means the snapshot is real rather than the empty default.
+         */
+        val isConfigured: Boolean
+            get() = captions.any { it.isNotBlank() } || buttons.any { it.isNotBlank() }
+
+        /**
+         * The rider's configured slots as static labels, for the window between
+         * placing the widget and the first telemetry push.
+         *
+         * Picker labels, not the state-aware ones the service produces: with no
+         * wheel connected there is no light or lock state to reflect.
+         */
+        fun hydrate(context: Context, settings: WidgetSettings): Snapshot {
+            val metricKeys = WidgetMetricType.slots(settings.metrics)
+            val actionKeys = WidgetActionType.slots(settings.actions)
+            val standaloneKeys = WidgetActionType.slots(settings.standaloneActions)
+            fun label(key: String) =
+                WidgetActionType.byKey(key)?.let { context.getString(it.pickerLabel) } ?: ""
+            return copy(
+                captions = metricKeys.map { key ->
+                    WidgetMetricType.byKey(key)?.let { context.getString(it.pickerLabel) } ?: ""
+                },
+                buttons = actionKeys.map(::label),
+                buttonKeys = actionKeys,
+                standaloneButtons = standaloneKeys.map(::label),
+                standaloneKeys = standaloneKeys,
+            )
+        }
+
         companion object {
             private const val PREFS = "euc_widget"
             const val DASH = "--"

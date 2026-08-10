@@ -1242,11 +1242,11 @@
     <string name="widget_action_voice">Voice</string>
     <string name="widget_standalone_desc">The button-only widgets have their own actions, so a lone button on your home screen need not match the big widget.</string>
     <string name="widget_standalone_slot">Standalone button %1$d</string>
-    <string name="widget_act_1_desc">Just your first widget button.</string>
-    <string name="widget_act_2_desc">Just your second widget button.</string>
-    <string name="widget_act_3_desc">Just your third widget button.</string>
-    <string name="widget_act_12_desc">Your first and second widget buttons.</string>
-    <string name="widget_act_23_desc">Your second and third widget buttons.</string>
+    <string name="widget_act_1_desc">Standalone button 1, set in Settings.</string>
+    <string name="widget_act_2_desc">Standalone button 2, set in Settings.</string>
+    <string name="widget_act_3_desc">Standalone button 3, set in Settings.</string>
+    <string name="widget_act_12_desc">Standalone buttons 1 and 2.</string>
+    <string name="widget_act_23_desc">Standalone buttons 2 and 3.</string>
     <string name="widget_button_unset">Set a button in Settings</string>
     <string name="widget_speed">Speed</string>
     <string name="widget_distance">Trip</string>

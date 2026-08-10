@@ -2102,11 +2102,11 @@
     <string name="trip_tools_extend_to">끝</string>
     <string name="trip_tools_extend_none">이 주행</string>
     <string name="trip_tools_extend_pick_one">확장할 이전 또는 이후 주행을 고르세요.</string>
-    <string name="widget_act_1_desc">첫 번째 위젯 버튼만.</string>
-    <string name="widget_act_2_desc">두 번째 위젯 버튼만.</string>
-    <string name="widget_act_3_desc">세 번째 위젯 버튼만.</string>
-    <string name="widget_act_12_desc">첫 번째와 두 번째 위젯 버튼.</string>
-    <string name="widget_act_23_desc">두 번째와 세 번째 위젯 버튼.</string>
+    <string name="widget_act_1_desc">단독 버튼 1, 설정에서 지정합니다.</string>
+    <string name="widget_act_2_desc">단독 버튼 2, 설정에서 지정합니다.</string>
+    <string name="widget_act_3_desc">단독 버튼 3, 설정에서 지정합니다.</string>
+    <string name="widget_act_12_desc">단독 버튼 1과 2.</string>
+    <string name="widget_act_23_desc">단독 버튼 2와 3.</string>
     <string name="widget_standalone_desc">버튼 전용 위젯은 자체 작업을 가지므로, 홈 화면의 단독 버튼이 큰 위젯과 같을 필요가 없습니다.</string>
     <string name="widget_standalone_slot">단독 버튼 %1$d</string>
     <string name="trip_customize">사용자 지정</string>
