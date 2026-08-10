@@ -2070,6 +2070,10 @@
     <string name="widget_disconnected">Kein Wheel</string>
     <string name="widget_placeholder_value">--</string>
     <string name="widget_description">Tempo, Distanz und Ladung, mit Hupe und Sprachtaste.</string>
+    <string name="trip_action_save_section">Abschnitt als neue Fahrt</string>
+    <string name="trip_action_save_section_desc">Behaelt diese Fahrt und fuegt den gekuerzten Teil hinzu. Wird gesichert, nie an die Rangliste gesendet.</string>
+    <string name="trip_section_saved">Abschnitt als neue Fahrt gespeichert</string>
+    <string name="trip_section_failed">Abschnitt konnte nicht gespeichert werden</string>
     <string name="trip_customize">Anpassen</string>
     <string name="trip_trim">Ansicht eingrenzen</string>
     <string name="trip_trim_title">Fahrtansicht eingrenzen</string>

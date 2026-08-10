@@ -1955,6 +1955,10 @@
     <string name="widget_disconnected">Nessuna ruota</string>
     <string name="widget_placeholder_value">--</string>
     <string name="widget_description">Velocità, distanza e carica, con clacson e voce.</string>
+    <string name="trip_action_save_section">Salva sezione come viaggio</string>
+    <string name="trip_action_save_section_desc">Mantiene questo viaggio e aggiunge la parte ritagliata. Salvata, mai inviata alla classifica.</string>
+    <string name="trip_section_saved">Sezione salvata come nuovo viaggio</string>
+    <string name="trip_section_failed">Impossibile salvare la sezione</string>
     <string name="trip_customize">Personalizza</string>
     <string name="trip_trim">Restringi la vista</string>
     <string name="trip_trim_title">Restringi vista del viaggio</string>

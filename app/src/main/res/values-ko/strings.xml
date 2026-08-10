@@ -2049,6 +2049,10 @@
     <string name="widget_disconnected">휠 없음</string>
     <string name="widget_placeholder_value">--</string>
     <string name="widget_description">속도, 거리, 잔량과 경적 및 음성 버튼.</string>
+    <string name="trip_action_save_section">구간을 새 주행으로 저장</string>
+    <string name="trip_action_save_section_desc">이 주행은 그대로 두고 자른 부분을 추가합니다. 백업되며 순위표로는 전송되지 않습니다.</string>
+    <string name="trip_section_saved">구간을 새 주행으로 저장했습니다</string>
+    <string name="trip_section_failed">구간을 저장하지 못했습니다</string>
     <string name="trip_customize">사용자 지정</string>
     <string name="trip_trim">보기 범위 자르기</string>
     <string name="trip_trim_title">주행 보기 자르기</string>

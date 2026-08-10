@@ -210,6 +210,19 @@ fun TripDetailScreen(
             dropboxLinked = dropboxLinked,
             onShareViaDropbox = { viewModel.shareViaDropbox(trip) },
             onInspectOnline = { viewModel.inspectOnline(trip) },
+            canSaveSection = trimmed,
+            onSaveSection = {
+                // trimRange is elapsed millis from the ride's first sample; the
+                // repository selects rows by absolute timestamp, so rebase it
+                // against the first sample that actually carries a time.
+                val r = trimRange
+                val base = allPoints.firstNotNullOfOrNull {
+                    com.eried.eucplanet.util.TripCsv.parseDate(it.date)
+                }
+                if (r != null && base != null) {
+                    viewModel.saveTripSection(trip, base + r.first, base + r.last)
+                }
+            },
         )
     }
 

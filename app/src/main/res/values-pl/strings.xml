@@ -2050,6 +2050,10 @@
     <string name="widget_disconnected">Brak koła</string>
     <string name="widget_placeholder_value">--</string>
     <string name="widget_description">Prędkość, dystans i ładunek, z klaksonem i głosem.</string>
+    <string name="trip_action_save_section">Zapisz fragment jako przejazd</string>
+    <string name="trip_action_save_section_desc">Zachowuje ten przejazd i dodaje przyciety fragment. Kopia zapasowa tak, ranking nie.</string>
+    <string name="trip_section_saved">Zapisano fragment jako nowy przejazd</string>
+    <string name="trip_section_failed">Nie udalo sie zapisac fragmentu</string>
     <string name="trip_customize">Dostosuj</string>
     <string name="trip_trim">Przytnij widok</string>
     <string name="trip_trim_title">Przytnij widok przejazdu</string>

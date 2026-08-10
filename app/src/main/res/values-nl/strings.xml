@@ -2052,6 +2052,10 @@
     <string name="widget_disconnected">Geen wiel</string>
     <string name="widget_placeholder_value">--</string>
     <string name="widget_description">Snelheid, afstand en lading, met claxon- en spraakknop.</string>
+    <string name="trip_action_save_section">Deel opslaan als rit</string>
+    <string name="trip_action_save_section_desc">Behoudt deze rit en voegt het bijgesneden deel toe. Wordt geback-upt, nooit naar de ranglijst gestuurd.</string>
+    <string name="trip_section_saved">Deel opgeslagen als nieuwe rit</string>
+    <string name="trip_section_failed">Kon het deel niet opslaan</string>
     <string name="trip_customize">Aanpassen</string>
     <string name="trip_trim">Weergave bijsnijden</string>
     <string name="trip_trim_title">Ritweergave bijsnijden</string>

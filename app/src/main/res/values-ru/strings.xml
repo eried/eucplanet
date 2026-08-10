@@ -2050,6 +2050,10 @@
     <string name="widget_disconnected">Нет колеса</string>
     <string name="widget_placeholder_value">--</string>
     <string name="widget_description">Скорость, расстояние и заряд, с кнопками сигнала и голоса.</string>
+    <string name="trip_action_save_section">Сохранить участок как поездку</string>
+    <string name="trip_action_save_section_desc">Сохраняет эту поездку и добавляет обрезанный участок. Резервируется, но не отправляется в таблицу.</string>
+    <string name="trip_section_saved">Участок сохранён как новая поездка</string>
+    <string name="trip_section_failed">Не удалось сохранить участок</string>
     <string name="trip_customize">Настроить</string>
     <string name="trip_trim">Обрезать вид</string>
     <string name="trip_trim_title">Обрезать вид поездки</string>

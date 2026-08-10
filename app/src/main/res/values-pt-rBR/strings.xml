@@ -2052,6 +2052,10 @@
     <string name="widget_disconnected">Sem roda</string>
     <string name="widget_placeholder_value">--</string>
     <string name="widget_description">Velocidade, distância e carga, com buzina e voz.</string>
+    <string name="trip_action_save_section">Salvar trecho como trajeto</string>
+    <string name="trip_action_save_section_desc">Mantem este trajeto e adiciona o trecho recortado. Tem backup, nunca vai para o ranking.</string>
+    <string name="trip_section_saved">Trecho salvo como novo trajeto</string>
+    <string name="trip_section_failed">Nao foi possivel salvar o trecho</string>
     <string name="trip_customize">Personalizar</string>
     <string name="trip_trim">Recortar a exibição</string>
     <string name="trip_trim_title">Recortar exibição do trajeto</string>

@@ -1,0 +1,118 @@
+package com.eried.eucplanet.data.repository
+
+import com.eried.eucplanet.util.TripCsv
+import java.io.File
+
+/**
+ * Building new trip files out of existing ones: a section of one ride, or
+ * several rides joined together.
+ *
+ * ## Why "derived" is encoded in the file name
+ *
+ * A derived trip must never reach the eucstats leaderboard: it is a view the
+ * rider constructed, not a ride as recorded. Upload eligibility is a database
+ * query that needs a non-null `tripUuid`, so leaving that null is enough day to
+ * day. It is not enough after a database rebuild: TripRepository adopts any
+ * orphan CSV it finds and hands it a fresh UUID, which would quietly make these
+ * uploadable. The file name is the only thing that survives that, so it carries
+ * the marker.
+ *
+ * Backups need no special handling in the other direction. Dropbox and local
+ * sync walk the trips directory for `*.csv`, so a derived file is included
+ * automatically, which is what the rider wants.
+ *
+ * Rows are copied verbatim from the source CSV rather than re-serialised from
+ * parsed points. A trip file can carry columns the app does not model, and a
+ * round trip through [com.eried.eucplanet.ui.recording.TripDataPoint] would
+ * silently drop them.
+ */
+object TripDerive {
+
+    /** Marks a file as built by the app rather than recorded. */
+    const val DERIVED_MARKER = "_derived"
+
+    fun isDerived(fileName: String): Boolean = fileName.contains(DERIVED_MARKER)
+
+    /** A free file name next to [source], carrying the derived marker. */
+    fun sectionFileName(sourceName: String, stamp: String): String {
+        val base = sourceName.removeSuffix(".csv").removeSuffix(".CSV")
+        return "$base$DERIVED_MARKER$stamp.csv"
+    }
+
+    /**
+     * Copy the header plus every data row whose timestamp falls within
+     * [startMs]..[endMs] into [dest].
+     *
+     * Selection is by timestamp, not row index: [readTripData] skips malformed
+     * lines, so an index taken from the parsed list would not line up with the
+     * file once a single row is short of columns.
+     *
+     * @return rows written, excluding the header. 0 means nothing matched and
+     *   the caller should discard [dest].
+     */
+    fun writeSection(source: File, dest: File, startMs: Long, endMs: Long): Int {
+        if (!source.exists()) return 0
+        var written = 0
+        source.bufferedReader().use { reader ->
+            val header = reader.readLine() ?: return 0
+            dest.bufferedWriter().use { out ->
+                out.write(header)
+                out.newLine()
+                // One parser for the file, resolved from the first row that
+                // yields one. See TripCsv.parserFor for why probing per row is
+                // expensive.
+                var parse: ((String?) -> Long?)? = null
+                while (true) {
+                    val line = reader.readLine() ?: break
+                    val dateCell = line.substringBefore(',')
+                    if (parse == null) parse = TripCsv.parserFor(dateCell)
+                    val t = parse?.invoke(dateCell) ?: continue
+                    if (t in startMs..endMs) {
+                        out.write(line)
+                        out.newLine()
+                        written++
+                    }
+                }
+            }
+        }
+        return written
+    }
+
+    /**
+     * Concatenate [sources] into [dest], oldest first, keeping one header.
+     *
+     * Each source's header is read and discarded rather than assumed identical:
+     * trips recorded across app versions can carry different column sets. The
+     * FIRST file's header wins, so a later file with extra columns loses them
+     * rather than producing rows that do not match the header. Callers should
+     * therefore order sources deliberately.
+     *
+     * @return rows written, excluding the header.
+     */
+    fun writeJoined(sources: List<File>, dest: File): Int {
+        val present = sources.filter { it.exists() }
+        if (present.isEmpty()) return 0
+        var written = 0
+        dest.bufferedWriter().use { out ->
+            var headerWritten = false
+            for (file in present) {
+                file.bufferedReader().use { reader ->
+                    val header = reader.readLine() ?: return@use
+                    if (!headerWritten) {
+                        out.write(header)
+                        out.newLine()
+                        headerWritten = true
+                    }
+                    while (true) {
+                        val line = reader.readLine() ?: break
+                        if (line.isBlank()) continue
+                        out.write(line)
+                        out.newLine()
+                        written++
+                    }
+                }
+            }
+        }
+        return written
+    }
+}

@@ -2047,6 +2047,10 @@
     <string name="widget_disconnected">Немає колеса</string>
     <string name="widget_placeholder_value">--</string>
     <string name="widget_description">Швидкість, відстань і заряд, з кнопками сигналу та голосу.</string>
+    <string name="trip_action_save_section">Зберегти ділянку як поїздку</string>
+    <string name="trip_action_save_section_desc">Зберігає цю поїздку та додає обрізану частину. Резервується, але не надсилається в таблицю.</string>
+    <string name="trip_section_saved">Ділянку збережено як нову поїздку</string>
+    <string name="trip_section_failed">Не вдалося зберегти ділянку</string>
     <string name="trip_customize">Налаштувати</string>
     <string name="trip_trim">Обрізати вигляд</string>
     <string name="trip_trim_title">Обрізати вигляд поїздки</string>

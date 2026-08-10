@@ -1234,6 +1234,10 @@
     <string name="widget_connected">Connected</string>
     <string name="widget_disconnected">No wheel</string>
     <string name="widget_placeholder_value">--</string>
+    <string name="trip_action_save_section">Save section as new trip</string>
+    <string name="trip_action_save_section_desc">Keeps this trip, adds the trimmed part as its own. Backed up, never sent to the leaderboard.</string>
+    <string name="trip_section_saved">Section saved as a new trip</string>
+    <string name="trip_section_failed">Could not save the section</string>
     <string name="trip_customize">Customize</string>
     <string name="trip_trim">Trim the view</string>
     <string name="trip_trim_title">Trim trip view</string>

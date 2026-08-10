@@ -2047,6 +2047,10 @@
     <string name="widget_disconnected">Teker yok</string>
     <string name="widget_placeholder_value">--</string>
     <string name="widget_description">Hız, mesafe ve şarj, korna ve ses düğmeleriyle.</string>
+    <string name="trip_action_save_section">Bölümü yeni sürüş olarak kaydet</string>
+    <string name="trip_action_save_section_desc">Bu surusu korur ve kirpilan bolumu ekler. Yedeklenir, siralamaya asla gonderilmez.</string>
+    <string name="trip_section_saved">Bolum yeni surus olarak kaydedildi</string>
+    <string name="trip_section_failed">Bolum kaydedilemedi</string>
     <string name="trip_customize">Özelleştir</string>
     <string name="trip_trim">Görünümü kırp</string>
     <string name="trip_trim_title">Sürüş görünümünü kırp</string>

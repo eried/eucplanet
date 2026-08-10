@@ -752,6 +752,25 @@ class RecordingViewModel @Inject constructor(
     }
 
 
+    /**
+     * Save the rider's trimmed selection as a new trip, leaving the original
+     * alone. [startMs] / [endMs] are absolute epoch millis.
+     *
+     * The result never reaches the eucstats leaderboard (it is a view the rider
+     * built, not a ride as recorded) but is backed up like any other trip. See
+     * [com.eried.eucplanet.data.repository.TripDerive].
+     */
+    fun saveTripSection(trip: TripRecord, startMs: Long, endMs: Long) {
+        viewModelScope.launch {
+            val saved = tripRepository.saveTripSection(trip, startMs, endMs)
+            _toasts.send(
+                context.getString(
+                    if (saved != null) R.string.trip_section_saved else R.string.trip_section_failed
+                )
+            )
+        }
+    }
+
     fun readTripData(trip: TripRecord): List<TripDataPoint> {
         val file = tripRepository.getTripFile(trip)
         if (!file.exists()) return emptyList()

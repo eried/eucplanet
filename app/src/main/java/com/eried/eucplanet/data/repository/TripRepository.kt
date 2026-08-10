@@ -518,7 +518,12 @@ class TripRepository @Inject constructor(
                     endTime = if (m.valid) m.endMs else null,
                     distanceKm = m.distanceKm,
                     sampleCount = rows,
-                    tripUuid = java.util.UUID.randomUUID().toString()
+                    // A derived file (a saved section, a join) must not gain an
+                    // upload identity just because the database was rebuilt. The
+                    // name is the only marker that survives, which is why
+                    // TripDerive puts it there.
+                    tripUuid = if (TripDerive.isDerived(f.name)) null
+                               else java.util.UUID.randomUUID().toString()
                 )
             )
             Log.i(TAG, "Adopted orphan trip CSV ${f.name} ($rows rows, ${m.distanceKm} km)")
@@ -963,6 +968,76 @@ class TripRepository @Inject constructor(
         tripDao.delete(trip)
         val file = File(getTripsDir(), trip.fileName)
         if (file.exists()) file.delete()
+    }
+
+    /**
+     * Write a section of [source] out as a new trip and return its row.
+     *
+     * Non-destructive: [source] is untouched, so a misjudged range costs the
+     * rider nothing but a spare entry they can delete.
+     *
+     * The new trip gets no `tripUuid`, which is what keeps it off the eucstats
+     * leaderboard: upload eligibility is a query requiring a non-null uuid. It
+     * still lands in the trips directory, so Dropbox and local backup pick it up
+     * like any other file.
+     *
+     * @param startMs absolute epoch millis, inclusive
+     * @param endMs absolute epoch millis, inclusive
+     * @return the new trip, or null when the range held no rows
+     */
+    suspend fun saveTripSection(source: TripRecord, startMs: Long, endMs: Long): TripRecord? {
+        val srcFile = getTripFile(source)
+        if (!srcFile.exists()) return null
+        val stamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(Date())
+        val destName = TripDerive.sectionFileName(source.fileName, stamp)
+        val destFile = File(getTripsDir(), destName)
+        val rows = runCatching { TripDerive.writeSection(srcFile, destFile, startMs, endMs) }
+            .getOrElse { e ->
+                Log.e(TAG, "Could not write trip section", e)
+                runCatching { destFile.delete() }
+                return null
+            }
+        if (rows <= 0) {
+            runCatching { destFile.delete() }
+            return null
+        }
+        val metrics = TripCsv.metricsFrom(readQuads(destFile))
+        val record = TripRecord(
+            fileName = destName,
+            startTime = if (metrics.valid) metrics.startMs else startMs,
+            endTime = if (metrics.valid) metrics.endMs else endMs,
+            distanceKm = metrics.distanceKm,
+            sampleCount = rows,
+            // Deliberately null. See the KDoc above and TripDerive.
+            tripUuid = null,
+            wheelMetaJson = source.wheelMetaJson,
+        )
+        val id = tripDao.insert(record)
+        return record.copy(id = id)
+    }
+
+    /** Date, lat, lon and odometer per row, for metric recomputation. */
+    private fun readQuads(file: File): List<TripCsv.Quad> {
+        val out = ArrayList<TripCsv.Quad>()
+        file.bufferedReader().use { reader ->
+            val header = reader.readLine()?.lowercase()?.split(",")?.map { it.trim() } ?: return out
+            val iLat = TripCsv.Columns.latitude(header)
+            val iLon = TripCsv.Columns.longitude(header)
+            val iMil = TripCsv.Columns.mileage(header)
+            while (true) {
+                val line = reader.readLine() ?: break
+                val p = line.split(",")
+                out.add(
+                    TripCsv.Quad(
+                        date = p.getOrNull(0).orEmpty(),
+                        lat = p.getOrNull(iLat)?.toDoubleOrNull() ?: 0.0,
+                        lon = p.getOrNull(iLon)?.toDoubleOrNull() ?: 0.0,
+                        mileage = p.getOrNull(iMil)?.toFloatOrNull() ?: 0f,
+                    )
+                )
+            }
+        }
+        return out
     }
 
     suspend fun insertTrip(trip: TripRecord): Long = tripDao.insert(trip)

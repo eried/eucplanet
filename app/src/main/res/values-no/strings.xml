@@ -1938,6 +1938,10 @@
     <string name="widget_disconnected">Ingen hjul</string>
     <string name="widget_placeholder_value">--</string>
     <string name="widget_description">Fart, distanse og lading, med horn- og taleknapp.</string>
+    <string name="trip_action_save_section">Lagre del som ny tur</string>
+    <string name="trip_action_save_section_desc">Beholder denne turen og legger til den beskjaerte delen. Sikkerhetskopieres, sendes aldri til rangeringen.</string>
+    <string name="trip_section_saved">Del lagret som ny tur</string>
+    <string name="trip_section_failed">Kunne ikke lagre delen</string>
     <string name="trip_customize">Tilpass</string>
     <string name="trip_trim">Beskjær visningen</string>
     <string name="trip_trim_title">Beskjær turvisning</string>

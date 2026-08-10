@@ -2054,6 +2054,10 @@
     <string name="widget_disconnected">Aucune roue</string>
     <string name="widget_placeholder_value">--</string>
     <string name="widget_description">Vitesse, distance et charge, avec klaxon et voix.</string>
+    <string name="trip_action_save_section">Enregistrer la section</string>
+    <string name="trip_action_save_section_desc">Conserve ce trajet et ajoute la partie reduite. Sauvegardee, jamais envoyee au classement.</string>
+    <string name="trip_section_saved">Section enregistree comme trajet</string>
+    <string name="trip_section_failed">Impossible d enregistrer la section</string>
     <string name="trip_customize">Personnaliser</string>
     <string name="trip_trim">Réduire la vue</string>
     <string name="trip_trim_title">Réduire la vue du trajet</string>
