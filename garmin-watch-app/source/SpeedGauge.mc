@@ -163,10 +163,10 @@ module SpeedGauge {
         // floating near the top of the screen.
         var speedY;
         if (isSemiOctagon) {
-            // Sits a bit high so the centered numeral (clear of the top-right
-            // window) leaves room for the unit stacked centered beneath it,
-            // still above the battery row.
-            speedY = (h * 30) / 100;
+            // 27%: as high as the numeral can sit without touching the arc's
+            // top, which lifts the stacked unit off the battery row below while
+            // staying clear of the top-right window.
+            speedY = (h * 27) / 100;
         } else if (w == h) {
             speedY = (h * 33) / 100;
         } else {

@@ -428,8 +428,9 @@ class EucPlanetView extends WatchUi.View {
         var stackGap = 1;
         var blockH = iconH + stackGap + textH;
         // Center the icon+text block vertically. On Instinct (semi-octagon) it
-        // sits lower so it clears the stacked speed unit ("km/h") above it.
-        var centerPct = _semiOctagon ? 70 : 64;
+        // sits a touch lower than round so it clears the stacked "km/h" above,
+        // but not so low that it runs into the horn/light buttons below.
+        var centerPct = _semiOctagon ? 65 : 64;
         var blockTop = (h * centerPct) / 100 - (blockH / 2);
         var iconY = blockTop;
         var textY = blockTop + iconH + stackGap;
