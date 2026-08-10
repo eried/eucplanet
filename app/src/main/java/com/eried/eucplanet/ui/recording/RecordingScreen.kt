@@ -20,6 +20,7 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Build
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Cloud
 import androidx.compose.material.icons.filled.CloudDone
@@ -33,7 +34,6 @@ import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.filled.Stop
-import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -116,6 +116,11 @@ fun RecordingScreen(
     var showClearDialog by remember { mutableStateOf(false) }
     var showManageMenu by remember { mutableStateOf(false) }
     var tripToDelete by remember { mutableStateOf<TripRecord?>(null) }
+    // Trip whose tools sheet is open, and which tool it drilled into.
+    var tripForTools by remember { mutableStateOf<TripRecord?>(null) }
+    var wheelToolTrip by remember { mutableStateOf<TripRecord?>(null) }
+    var splitToolTrip by remember { mutableStateOf<TripRecord?>(null) }
+    var combineToolTrip by remember { mutableStateOf<TripRecord?>(null) }
     var tripToShare by remember { mutableStateOf<TripRecord?>(null) }
     val listState = rememberLazyListState()
 
@@ -183,6 +188,80 @@ fun RecordingScreen(
             dropboxLinked = dropboxLinked,
             onShareViaDropbox = { viewModel.shareViaDropbox(trip) },
             onInspectOnline = { viewModel.inspectOnline(trip) },
+        )
+    }
+
+    tripForTools?.let { trip ->
+        TripToolsDialog(
+            trip = trip,
+            onDismiss = { tripForTools = null },
+            onChangeWheel = { wheelToolTrip = trip },
+            onSplit = { splitToolTrip = trip },
+            onCombine = { combineToolTrip = trip },
+        )
+    }
+
+    wheelToolTrip?.let { trip ->
+        // Loaded on open rather than held in state: the picker is rare and the
+        // list is tiny, so there is nothing to gain from keeping it warm.
+        var known by remember(trip.id) { mutableStateOf<List<String>?>(null) }
+        LaunchedEffect(trip.id) { known = viewModel.knownWheelNames() }
+        ChangeWheelDialog(
+            knownWheels = known.orEmpty(),
+            currentWheel = trip.wheelMetaJson
+                ?.let { runCatching { org.json.JSONObject(it).optString("ble_name") }.getOrNull() }
+                ?.takeIf { it.isNotBlank() },
+            // Status 2 means the ride is already on the leaderboard, where the
+            // old wheel stays. The rider chose to be warned rather than blocked.
+            alreadyUploaded = trip.eucstatsStatus == 2,
+            onConfirm = { name ->
+                viewModel.changeTripWheel(trip, name)
+                wheelToolTrip = null
+            },
+            onDismiss = { wheelToolTrip = null },
+        )
+    }
+
+    splitToolTrip?.let { trip ->
+        var cuts by remember(trip.id) {
+            mutableStateOf<List<com.eried.eucplanet.data.repository.TripSplitDetector.Cut>?>(null)
+        }
+        LaunchedEffect(trip.id) { cuts = viewModel.detectSplitPoints(trip) }
+        // Only opens once the scan has run, so the rider never sees an empty
+        // list that is about to fill in.
+        cuts?.let { found ->
+            SplitTripDialog(
+                cuts = found,
+                formatElapsed = { com.eried.eucplanet.util.Units.humanDuration(it / 1000) },
+                onConfirm = { chosen ->
+                    viewModel.splitTrip(trip, chosen)
+                    splitToolTrip = null
+                },
+                onDismiss = { splitToolTrip = null },
+            )
+        }
+    }
+
+    combineToolTrip?.let { trip ->
+        val others = trips.filter { it.id != trip.id && it.endTime != null }
+        val thisWheel = trip.wheelMetaJson
+            ?.let { runCatching { org.json.JSONObject(it).optString("ble_name") }.getOrNull() }
+        val dateFmt = remember { SimpleDateFormat("dd MMM yyyy HH:mm", Locale.getDefault()) }
+        CombineTripsDialog(
+            candidates = others,
+            label = { t -> dateFmt.format(Date(t.startTime)) },
+            // Warn rather than block, as agreed: continuing a ride after a wheel
+            // swap is a legitimate reason to join across wheels.
+            mixedWheelWarning = !thisWheel.isNullOrBlank() && others.any { o ->
+                val w = o.wheelMetaJson
+                    ?.let { runCatching { org.json.JSONObject(it).optString("ble_name") }.getOrNull() }
+                !w.isNullOrBlank() && w != thisWheel
+            },
+            onConfirm = { chosen ->
+                viewModel.combineTrips(trip, chosen)
+                combineToolTrip = null
+            },
+            onDismiss = { combineToolTrip = null },
         )
     }
 
@@ -435,6 +514,7 @@ fun RecordingScreen(
                             liveDistanceKm = if (isRecordingTrip) liveTripKm else null,
                             distanceUnit = distanceUnit,
                             onView = { onViewTrip?.invoke(trip) },
+                            onTools = { tripForTools = trip },
                             onShare = { tripToShare = trip },
                             onDelete = { tripToDelete = trip },
                             onRetryOnline = { viewModel.retryOnlineUploads() }
@@ -465,6 +545,7 @@ private fun TripCard(
     liveDistanceKm: Float?,
     distanceUnit: String,
     onView: () -> Unit,
+    onTools: () -> Unit,
     onShare: () -> Unit,
     onDelete: () -> Unit,
     onRetryOnline: () -> Unit = {}
@@ -548,9 +629,16 @@ private fun TripCard(
                 trip.uploadStatus == 1 -> PendingStatusIcon()                       // folder backup in flight
                 trip.uploadStatus == 2 -> UploadStatusIcon(trip)                    // saved locally only
             }
-            // View (eye), always available
-            IconButton(onClick = onView) {
-                Icon(Icons.Default.Visibility, contentDescription = stringResource(R.string.action_view))
+            // Tools. This slot used to hold a "view" eye, which did exactly what
+            // tapping the row already does, so it was a second door to the same
+            // place. Tools (change wheel, split, combine) has nowhere else to go.
+            IconButton(onClick = onTools, enabled = !isRecording) {
+                Icon(
+                    Icons.Default.Build,
+                    contentDescription = stringResource(R.string.trip_tools_title),
+                    tint = if (isRecording) disabledColor
+                           else MaterialTheme.colorScheme.onSurfaceVariant,
+                )
             }
             // Share, uses the local CSV which exists from the moment recording stops,
             // independent of backup state. Always available except while actively

@@ -760,6 +760,69 @@ class RecordingViewModel @Inject constructor(
      * built, not a ride as recorded) but is backed up like any other trip. See
      * [com.eried.eucplanet.data.repository.TripDerive].
      */
+    /** BLE names of every wheel the rider has a profile for, for the wheel picker. */
+    suspend fun knownWheelNames(): List<String> = tripRepository.knownWheelNames()
+
+    /** Reassign a trip's wheel, rewriting both the row and the CSV. */
+    fun changeTripWheel(trip: TripRecord, bleName: String) {
+        viewModelScope.launch {
+            tripRepository.changeTripWheel(trip, bleName, mac = null)
+            _toasts.send(context.getString(R.string.trip_tools_wheel_changed, bleName))
+        }
+    }
+
+    /**
+     * Cut points this trip plausibly contains, for the rider to choose from.
+     * Reads the CSV off the main thread; a long ride is a lot of rows.
+     */
+    suspend fun detectSplitPoints(trip: TripRecord): List<com.eried.eucplanet.data.repository.TripSplitDetector.Cut> =
+        withContext(Dispatchers.IO) {
+            val points = readTripData(trip)
+            if (points.size < 2) return@withContext emptyList()
+            val elapsed = TripTrim.elapsedOffsets(points)
+            // The Extra-column walker already tells a genuinely different wheel
+            // from the same one reconnecting, so wheel cuts need no new analysis.
+            val wheelChanges = extractExtraEvents(points)
+                .filter { it.isWheelChange }
+                .map { it.index }
+                .toSet()
+            com.eried.eucplanet.data.repository.TripSplitDetector.detect(
+                elapsedMs = elapsed,
+                speedKmh = points.map { it.speed },
+                wheelChangeIndices = wheelChanges,
+            )
+        }
+
+    /** Apply the chosen cuts, leaving the original trip untouched. */
+    fun splitTrip(trip: TripRecord, cuts: List<com.eried.eucplanet.data.repository.TripSplitDetector.Cut>) {
+        viewModelScope.launch {
+            val base = withContext(Dispatchers.IO) {
+                readTripData(trip).firstNotNullOfOrNull { TripCsv.parseDate(it.date) }
+            }
+            if (base == null) {
+                _toasts.send(context.getString(R.string.trip_tools_split_failed))
+                return@launch
+            }
+            val pieces = tripRepository.splitTrip(trip, cuts.map { base + it.atElapsedMs })
+            _toasts.send(
+                if (pieces.isEmpty()) context.getString(R.string.trip_tools_split_failed)
+                else context.getString(R.string.trip_tools_split_done, pieces.size)
+            )
+        }
+    }
+
+    /** Merge [others] into [trip], leaving every source alone. */
+    fun combineTrips(trip: TripRecord, others: List<TripRecord>) {
+        viewModelScope.launch {
+            val made = tripRepository.combineTrips(listOf(trip) + others)
+            _toasts.send(
+                context.getString(
+                    if (made != null) R.string.trip_tools_combine_done else R.string.trip_tools_combine_failed
+                )
+            )
+        }
+    }
+
     fun saveTripSection(trip: TripRecord, startMs: Long, endMs: Long) {
         viewModelScope.launch {
             val saved = tripRepository.saveTripSection(trip, startMs, endMs)

@@ -79,6 +79,49 @@ object TripDerive {
     }
 
     /**
+     * Rewrite the wheel identity recorded in [source]'s Extra column into [dest].
+     *
+     * The Extra column is what eucviewer, a shared file and the trip map read,
+     * so correcting only the database row would leave the file disagreeing with
+     * the app. Rows carrying `wheel.name=` or `wheel.mac=` get the new value;
+     * everything else is copied byte for byte.
+     *
+     * @return rows rewritten. 0 means the file records no wheel identity at all,
+     *   which is normal for an imported foreign CSV.
+     */
+    fun rewriteWheelIdentity(source: File, dest: File, name: String, mac: String?): Int {
+        if (!source.exists()) return 0
+        var changed = 0
+        source.bufferedReader().use { reader ->
+            val headerLine = reader.readLine() ?: return 0
+            val extraIdx = headerLine.lowercase().split(",").map { it.trim() }.indexOf("extra")
+            dest.bufferedWriter().use { out ->
+                out.write(headerLine)
+                out.newLine()
+                while (true) {
+                    val line = reader.readLine() ?: break
+                    if (extraIdx < 0) { out.write(line); out.newLine(); continue }
+                    val cells = line.split(",")
+                    val cell = cells.getOrNull(extraIdx)?.trim().orEmpty()
+                    val replacement = when {
+                        cell.startsWith("wheel.name=") -> "wheel.name=$name"
+                        cell.startsWith("wheel.mac=") && mac != null ->
+                            "wheel.mac=" + mac.replace(":", "").replace("-", "").uppercase()
+                        else -> null
+                    }
+                    if (replacement == null) { out.write(line); out.newLine(); continue }
+                    val rebuilt = cells.toMutableList()
+                    rebuilt[extraIdx] = replacement
+                    out.write(rebuilt.joinToString(","))
+                    out.newLine()
+                    changed++
+                }
+            }
+        }
+        return changed
+    }
+
+    /**
      * Concatenate [sources] into [dest], oldest first, keeping one header.
      *
      * Each source's header is read and discarded rather than assumed identical:

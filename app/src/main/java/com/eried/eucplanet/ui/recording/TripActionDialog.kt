@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CloudUpload
-import androidx.compose.material.icons.filled.ContentCut
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Public
 import androidx.compose.material.icons.filled.Share
@@ -43,10 +42,6 @@ fun TripActionDialog(
     dropboxLinked: Boolean = false,
     onShareViaDropbox: () -> Unit = {},
     onInspectOnline: () -> Unit = {},
-    // Shown only while a trim is applied: the selection IS the section to save,
-    // so there is no second range picker.
-    canSaveSection: Boolean = false,
-    onSaveSection: () -> Unit = {},
 ) {
     val disabledHint = stringResource(R.string.trip_action_dropbox_disabled)
     AlertDialog(
@@ -76,13 +71,6 @@ fun TripActionDialog(
                     stringResource(R.string.trip_action_replay),
                     stringResource(R.string.trip_action_replay_desc)
                 ) { onDismiss(); onReplay() }
-                if (canSaveSection) {
-                    TripActionRow(
-                        Icons.Default.ContentCut,
-                        stringResource(R.string.trip_action_save_section),
-                        stringResource(R.string.trip_action_save_section_desc)
-                    ) { onDismiss(); onSaveSection() }
-                }
             }
         },
         confirmButton = {},

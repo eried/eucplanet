@@ -222,19 +222,6 @@ fun TripDetailScreen(
             dropboxLinked = dropboxLinked,
             onShareViaDropbox = { viewModel.shareViaDropbox(trip) },
             onInspectOnline = { viewModel.inspectOnline(trip) },
-            canSaveSection = trimmed,
-            onSaveSection = {
-                // trimRange is elapsed millis from the ride's first sample; the
-                // repository selects rows by absolute timestamp, so rebase it
-                // against the first sample that actually carries a time.
-                val r = trimRange
-                val base = allPoints.firstNotNullOfOrNull {
-                    com.eried.eucplanet.util.TripCsv.parseDate(it.date)
-                }
-                if (r != null && base != null) {
-                    viewModel.saveTripSection(trip, base + r.first, base + r.last)
-                }
-            },
         )
     }
 
@@ -1320,7 +1307,7 @@ data class WheelSwitchMarker(
 // the identity VALUES. name is the primary per-device key (it carries the
 // device suffix, e.g. Adventure-E0000298); mac backs it up. Same identity = a
 // reconnect (one trace colour, dot only); different identity = a real swap.
-private fun extractExtraEvents(points: List<TripDataPoint>): List<TripExtraEvent> {
+internal fun extractExtraEvents(points: List<TripDataPoint>): List<TripExtraEvent> {
     val out = ArrayList<TripExtraEvent>()
     var block: MutableSet<String>? = null
     // Identity VALUES of the open block and the one before it, so a block start
