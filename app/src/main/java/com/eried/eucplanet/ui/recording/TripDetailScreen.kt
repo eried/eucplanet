@@ -60,6 +60,7 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.ui.graphics.luminance
@@ -333,7 +334,7 @@ fun TripDetailScreen(
                             IconButton(onClick = { showCustomize = true }) {
                                 Icon(Icons.Default.Edit, contentDescription = stringResource(R.string.trip_customize))
                             }
-                            TrimAction(trimmed = trimmed, onClick = { showTrimBar = !showTrimBar })
+                            TrimAction(trimmed = trimmed, open = showTrimBar, onClick = { showTrimBar = !showTrimBar })
                         }
                         IconButton(
                             onClick = { showShareDialog = true },
@@ -356,7 +357,7 @@ fun TripDetailScreen(
                             IconButton(onClick = { showCustomize = true }) {
                                 Icon(Icons.Default.Edit, contentDescription = stringResource(R.string.trip_customize))
                             }
-                            TrimAction(trimmed = trimmed, onClick = { showTrimBar = !showTrimBar })
+                            TrimAction(trimmed = trimmed, open = showTrimBar, onClick = { showTrimBar = !showTrimBar })
                         }
                         IconButton(
                             onClick = { showShareDialog = true },
@@ -410,7 +411,13 @@ fun TripDetailScreen(
             // the landscape top bar can show the date range).
             // Distance: trust the stored value (wheel odometer at finalize) when
             // present; recompute from the CSV only for trips that never got one.
-            val distanceKm = if (trip.distanceKm > 0f) trip.distanceKm else metrics.distanceKm
+            //
+            // Not while trimmed. The stored figure describes the whole ride, so
+            // it stayed at the full distance while every other tile followed the
+            // window, and a trimmed trip read as if it covered the same ground
+            // in half the time.
+            val distanceKm = if (!trimmed && trip.distanceKm > 0f) trip.distanceKm
+                else metrics.distanceKm
             // Top speed as a SUSTAINED value, not a lone GPS/sensor spike: the
             // fastest the wheel actually held for ~2 s (see sustainedTopSpeed).
             val maxSpeedRaw = remember(dataPoints, duration) {
@@ -2548,18 +2555,33 @@ private fun TripDetailSkeleton(
 }
 
 /**
- * Top-bar funnel. Filled and tinted while a trim is applied, outlined and in
- * the bar's normal colour on the full trip, so the state reads by shape as well
- * as by colour. Shared by the portrait and landscape bars so the two stay in
- * sync.
+ * Top-bar funnel, carrying two states that are genuinely independent: whether
+ * the trim bar is open, and whether a trim is actually applied. A trim survives
+ * closing the bar, so one signal cannot stand for both.
+ *
+ * Open shows as a selected container behind the icon, the standard toggle
+ * appearance. Applied shows as a filled glyph plus a tint, so the icon still
+ * says "this trip is filtered" on its own once the bar is closed, and says it
+ * by shape as well as by colour.
+ *
+ * Material has no funnel-with-marker glyph, and a Badge dot was tried here: at
+ * top-bar size it touches the funnel's edge in the same colour and reads as a
+ * lump on the glyph rather than a marker. Filled against outlined is the
+ * clearer signal.
  */
 @Composable
-private fun TrimAction(trimmed: Boolean, onClick: () -> Unit) {
-    IconButton(onClick = onClick) {
+private fun TrimAction(trimmed: Boolean, open: Boolean, onClick: () -> Unit) {
+    val appColors = MaterialTheme.appColors
+    IconButton(
+        onClick = onClick,
+        colors = IconButtonDefaults.iconButtonColors(
+            containerColor = if (open) appColors.primary.copy(alpha = 0.15f) else Color.Transparent,
+            contentColor = if (trimmed || open) appColors.primary else LocalContentColor.current,
+        ),
+    ) {
         Icon(
             if (trimmed) Icons.Filled.FilterAlt else Icons.Outlined.FilterAlt,
             contentDescription = stringResource(R.string.trip_trim),
-            tint = if (trimmed) MaterialTheme.appColors.primary else LocalContentColor.current,
         )
     }
 }
