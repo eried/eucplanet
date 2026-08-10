@@ -20,15 +20,36 @@
     android:background="@drawable/widget_bg"
     android:padding="16dp">
 
-    <TextView
-        android:id="@+id/widget_status"
+    <!-- Wheel name with the app mark beside it, so a rider with several widgets
+         on one screen can tell at a glance which app this card belongs to.
+         The launcher icon's foreground rather than the mipmap: the adaptive
+         icon carries a square background colour that the launcher masks for
+         its own grid but nothing masks here. -->
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textSize="11sp"
-        android:textColor="#99FFFFFF"
-        android:maxLines="1"
-        android:ellipsize="end"
-        android:text="@string/widget_disconnected" />
+        android:orientation="horizontal"
+        android:gravity="center_vertical">
+
+        <ImageView
+            android:id="@+id/widget_logo"
+            android:layout_width="18dp"
+            android:layout_height="18dp"
+            android:layout_marginEnd="5dp"
+            android:src="@drawable/ic_launcher_foreground"
+            android:contentDescription="@null" />
+
+        <TextView
+            android:id="@+id/widget_status"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:textSize="11sp"
+            android:textColor="#99FFFFFF"
+            android:maxLines="1"
+            android:ellipsize="end"
+            android:text="@string/widget_disconnected" />
+    </LinearLayout>
 
     <!-- Readings. Each column centres its own number and caption, so three
          values of different widths still read as a row rather than as three
