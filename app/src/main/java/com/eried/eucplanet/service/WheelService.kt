@@ -900,32 +900,17 @@ class WheelService : LifecycleService() {
         }
 
         // Labels come from the notification's own set, and read the same live
-        // state it does. The picker labels describe the ACTION ("Light on /
-        // off"), which is right for choosing a slot and wrong on the button
-        // itself: a button should say what it will do next, and the app already
-        // has strings that do exactly that.
-        val lightOn = data?.lightOn == true
-        val locked = wheelRepository.locked.value
-        val recording = tripRepository.recording.value
+        // state it does, through the one function every widget surface uses.
+        // See EucWidget.buttonLabel for why the picker labels are wrong here.
         fun labelFor(key: String): String =
-            when (com.eried.eucplanet.data.model.WidgetActionType.byKey(key)) {
-                null -> ""
-                com.eried.eucplanet.data.model.WidgetActionType.HORN ->
-                    getString(R.string.notif_btn_horn)
-                com.eried.eucplanet.data.model.WidgetActionType.LIGHT ->
-                    getString(if (lightOn) R.string.notif_btn_light_off else R.string.notif_btn_light_on)
-                com.eried.eucplanet.data.model.WidgetActionType.LOCK ->
-                    getString(if (locked) R.string.notif_btn_unlock else R.string.notif_btn_lock)
-                com.eried.eucplanet.data.model.WidgetActionType.RECORD ->
-                    getString(if (recording) R.string.notif_btn_stop_record else R.string.notif_btn_record)
-                com.eried.eucplanet.data.model.WidgetActionType.VOICE ->
-                    getString(
-                        if (voicePeriodicCached) R.string.widget_voice_off
-                        else R.string.widget_voice_on
-                    )
-                com.eried.eucplanet.data.model.WidgetActionType.DISCONNECT ->
-                    getString(R.string.notif_btn_disconnect)
-            }
+            com.eried.eucplanet.widget.EucWidget.buttonLabel(
+                context = this,
+                key = key,
+                lightOn = data?.lightOn == true,
+                locked = wheelRepository.locked.value,
+                recording = tripRepository.recording.value,
+                voiceOn = voicePeriodicCached,
+            )
 
         val actionKeys = com.eried.eucplanet.data.model.WidgetActionType.slots(widgetActionsCached)
         val buttons = actionKeys.map(::labelFor)

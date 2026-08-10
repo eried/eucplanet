@@ -147,18 +147,18 @@ class EucWidget : AppWidgetProvider() {
             get() = captions.any { it.isNotBlank() } || buttons.any { it.isNotBlank() }
 
         /**
-         * The rider's configured slots as static labels, for the window between
+         * The rider's configured slots as labels, for the window between
          * placing the widget and the first telemetry push.
          *
-         * Picker labels, not the state-aware ones the service produces: with no
-         * wheel connected there is no light or lock state to reflect.
+         * Through [buttonLabel] with no state, so these read exactly as they
+         * will once a wheel connects to something resting: "Light on", not the
+         * picker's "Light on / off".
          */
         fun hydrate(context: Context, settings: WidgetSettings): Snapshot {
             val metricKeys = WidgetMetricType.slots(settings.metrics)
             val actionKeys = WidgetActionType.slots(settings.actions)
             val standaloneKeys = WidgetActionType.slots(settings.standaloneActions)
-            fun label(key: String) =
-                WidgetActionType.byKey(key)?.let { context.getString(it.pickerLabel) } ?: ""
+            fun label(key: String) = buttonLabel(context, key)
             return copy(
                 captions = metricKeys.map { key ->
                     WidgetMetricType.byKey(key)?.let { context.getString(it.pickerLabel) } ?: ""
@@ -353,6 +353,49 @@ class EucWidget : AppWidgetProvider() {
             // Tapping anywhere that is not a button opens the app.
             views.setOnClickPendingIntent(R.id.widget_root, openAppIntent(context))
             return views
+        }
+
+        /**
+         * What a button should say, given what the wheel is doing.
+         *
+         * The single place any surface names an action on a button, and
+         * deliberately the notification's own strings rather than new ones.
+         *
+         * There are two vocabularies here and mixing them is what made buttons
+         * read "Light on / off". `pickerLabel` names a SLOT, so it has to cover
+         * both directions: in a settings dropdown "Light on" would be a lie,
+         * because the slot toggles. A button names the NEXT TAP, so it is
+         * "Light on" or "Light off" and never both. Only the settings dropdowns
+         * use pickerLabel now.
+         *
+         * The defaults are the resting state, which is also the truth before a
+         * wheel connects: nothing is lit, locked or recording. That lets the
+         * paths with no telemetry to hand call this with no state and still get
+         * the label the notification would show.
+         */
+        fun buttonLabel(
+            context: Context,
+            key: String,
+            lightOn: Boolean = false,
+            locked: Boolean = false,
+            recording: Boolean = false,
+            voiceOn: Boolean = false,
+        ): String = when (WidgetActionType.byKey(key)) {
+            null -> ""
+            WidgetActionType.HORN -> context.getString(R.string.notif_btn_horn)
+            WidgetActionType.LIGHT -> context.getString(
+                if (lightOn) R.string.notif_btn_light_off else R.string.notif_btn_light_on
+            )
+            WidgetActionType.LOCK -> context.getString(
+                if (locked) R.string.notif_btn_unlock else R.string.notif_btn_lock
+            )
+            WidgetActionType.RECORD -> context.getString(
+                if (recording) R.string.notif_btn_stop_record else R.string.notif_btn_record
+            )
+            WidgetActionType.VOICE -> context.getString(
+                if (voiceOn) R.string.widget_voice_off else R.string.widget_voice_on
+            )
+            WidgetActionType.DISCONNECT -> context.getString(R.string.notif_btn_disconnect)
         }
 
         private fun openAppIntent(context: Context): PendingIntent =

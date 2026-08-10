@@ -196,7 +196,7 @@
                 android:textColor="#FFFFFFFF"
                 android:maxLines="1"
                 android:ellipsize="end"
-                android:text="@string/notif_action_light" />
+                android:text="@string/notif_btn_light_on" />
         </LinearLayout>
 
         <LinearLayout

@@ -149,8 +149,12 @@ abstract class ActionWidgetBase(
                 val slot = slots[cell]
                 val key = keys.getOrNull(slot) ?: WidgetActionType.NONE
                 val type = WidgetActionType.byKey(key)
+                // With no snapshot yet, the same label function with no state:
+                // a resting wheel is what an unconnected one looks like, so the
+                // button still says what tapping it will do rather than the
+                // picker's both-directions name.
                 val label = snapshot.standaloneButtons.getOrNull(slot)?.takeIf { it.isNotBlank() }
-                    ?: type?.let { context.getString(it.pickerLabel) }
+                    ?: EucWidget.buttonLabel(context, key).takeIf { it.isNotBlank() }
                     ?: context.getString(R.string.widget_button_unset)
                 views.setTextViewText(TEXT_IDS[cell], label)
                 val icon = EucWidget.iconFor(key)
