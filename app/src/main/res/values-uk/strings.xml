@@ -2092,7 +2092,6 @@
     <string name="widget_metric_power">Потужність</string>
     <string name="widget_metric_phone_battery">Батарея телефона</string>
     <string name="widget_action_voice">Голос</string>
-    <string name="widget_button_description">Одна кнопка для першої дії віджета.</string>
     <string name="widget_button_unset">Виберіть кнопку в налаштуваннях</string>
     <string name="trip_tools_extend">Продовжити поїздку</string>
     <string name="trip_tools_extend_desc">Поглинає поїздки до або після цієї в нову, довшу.</string>
@@ -2101,6 +2100,11 @@
     <string name="trip_tools_extend_to">Закінчити на</string>
     <string name="trip_tools_extend_none">Ця поїздка</string>
     <string name="trip_tools_extend_pick_one">Виберіть ранішу або пізнішу поїздку для продовження.</string>
+    <string name="widget_act_1_desc">Лише перша кнопка віджета.</string>
+    <string name="widget_act_2_desc">Лише друга кнопка віджета.</string>
+    <string name="widget_act_3_desc">Лише третя кнопка віджета.</string>
+    <string name="widget_act_12_desc">Перша та друга кнопки віджета.</string>
+    <string name="widget_act_23_desc">Друга та третя кнопки віджета.</string>
     <string name="trip_customize">Налаштувати</string>
     <string name="trip_trim">Обрізати вигляд</string>
     <string name="trip_trim_title">Обрізати вигляд поїздки</string>

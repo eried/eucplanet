@@ -893,18 +893,33 @@ class WheelService : LifecycleService() {
             captions.add(getString(type.pickerLabel) + if (unit.isBlank()) "" else " ($unit)")
         }
 
+        // Labels come from the notification's own set, and read the same live
+        // state it does. The picker labels describe the ACTION ("Light on /
+        // off"), which is right for choosing a slot and wrong on the button
+        // itself: a button should say what it will do next, and the app already
+        // has strings that do exactly that.
+        val lightOn = data?.lightOn == true
+        val locked = wheelRepository.locked.value
+        val recording = tripRepository.recording.value
         val actionKeys = com.eried.eucplanet.data.model.WidgetActionType.slots(widgetActionsCached)
         val buttons = actionKeys.map { key ->
-            val type = com.eried.eucplanet.data.model.WidgetActionType.byKey(key)
-            when {
-                type == null -> ""
-                // Voice is the one button whose label carries state.
-                type == com.eried.eucplanet.data.model.WidgetActionType.VOICE ->
+            when (com.eried.eucplanet.data.model.WidgetActionType.byKey(key)) {
+                null -> ""
+                com.eried.eucplanet.data.model.WidgetActionType.HORN ->
+                    getString(R.string.notif_btn_horn)
+                com.eried.eucplanet.data.model.WidgetActionType.LIGHT ->
+                    getString(if (lightOn) R.string.notif_btn_light_off else R.string.notif_btn_light_on)
+                com.eried.eucplanet.data.model.WidgetActionType.LOCK ->
+                    getString(if (locked) R.string.notif_btn_unlock else R.string.notif_btn_lock)
+                com.eried.eucplanet.data.model.WidgetActionType.RECORD ->
+                    getString(if (recording) R.string.notif_btn_stop_record else R.string.notif_btn_record)
+                com.eried.eucplanet.data.model.WidgetActionType.VOICE ->
                     getString(
-                        if (voicePeriodicCached) R.string.widget_voice_on
-                        else R.string.widget_voice_off
+                        if (voicePeriodicCached) R.string.widget_voice_off
+                        else R.string.widget_voice_on
                     )
-                else -> getString(type.pickerLabel)
+                com.eried.eucplanet.data.model.WidgetActionType.DISCONNECT ->
+                    getString(R.string.notif_btn_disconnect)
             }
         }
 

@@ -2096,7 +2096,6 @@
     <string name="widget_metric_power">出力</string>
     <string name="widget_metric_phone_battery">スマホの電池</string>
     <string name="widget_action_voice">音声</string>
-    <string name="widget_button_description">最初のウィジェット操作を割り当てた単一ボタンです。</string>
     <string name="widget_button_unset">設定でボタンを選択</string>
     <string name="trip_tools_extend">走行を延長</string>
     <string name="trip_tools_extend_desc">この前後の走行を取り込んで、より長い新しい走行を作ります。</string>
@@ -2105,6 +2104,11 @@
     <string name="trip_tools_extend_to">終了</string>
     <string name="trip_tools_extend_none">この走行</string>
     <string name="trip_tools_extend_pick_one">延長先となる前後の走行を選んでください。</string>
+    <string name="widget_act_1_desc">1 番目のウィジェットボタンだけ。</string>
+    <string name="widget_act_2_desc">2 番目のウィジェットボタンだけ。</string>
+    <string name="widget_act_3_desc">3 番目のウィジェットボタンだけ。</string>
+    <string name="widget_act_12_desc">1 番目と 2 番目のウィジェットボタン。</string>
+    <string name="widget_act_23_desc">2 番目と 3 番目のウィジェットボタン。</string>
     <string name="trip_customize">カスタマイズ</string>
     <string name="trip_trim">表示範囲を絞る</string>
     <string name="trip_trim_title">走行の表示範囲を絞る</string>

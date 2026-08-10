@@ -1962,7 +1962,6 @@
     <string name="widget_metric_power">功率</string>
     <string name="widget_metric_phone_battery">手机电量</string>
     <string name="widget_action_voice">语音</string>
-    <string name="widget_button_description">用于第一个小部件操作的单个按钮。</string>
     <string name="widget_button_unset">在设置中选择一个按钮</string>
     <string name="trip_tools_extend">延长行程</string>
     <string name="trip_tools_extend_desc">将此行程之前或之后的行程并入一个更长的新行程。</string>
@@ -1971,6 +1970,11 @@
     <string name="trip_tools_extend_to">终点</string>
     <string name="trip_tools_extend_none">此行程</string>
     <string name="trip_tools_extend_pick_one">选择要延伸到的较早或较晚行程。</string>
+    <string name="widget_act_1_desc">仅第一个小部件按钮。</string>
+    <string name="widget_act_2_desc">仅第二个小部件按钮。</string>
+    <string name="widget_act_3_desc">仅第三个小部件按钮。</string>
+    <string name="widget_act_12_desc">第一和第二个小部件按钮。</string>
+    <string name="widget_act_23_desc">第二和第三个小部件按钮。</string>
     <string name="trip_customize">自定义</string>
     <string name="trip_trim">裁剪视图</string>
     <string name="trip_trim_title">裁剪行程视图</string>

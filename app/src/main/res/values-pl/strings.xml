@@ -2095,7 +2095,6 @@
     <string name="widget_metric_power">Moc</string>
     <string name="widget_metric_phone_battery">Bateria telefonu</string>
     <string name="widget_action_voice">Glos</string>
-    <string name="widget_button_description">Pojedynczy przycisk dla pierwszej akcji widgetu.</string>
     <string name="widget_button_unset">Wybierz przycisk w Ustawieniach</string>
     <string name="trip_tools_extend">Wydluz przejazd</string>
     <string name="trip_tools_extend_desc">Wchlania przejazdy przed lub po tym w nowy, dluzszy przejazd.</string>
@@ -2104,6 +2103,11 @@
     <string name="trip_tools_extend_to">Zakoncz na</string>
     <string name="trip_tools_extend_none">Ten przejazd</string>
     <string name="trip_tools_extend_pick_one">Wybierz wczesniejszy lub pozniejszy przejazd do wydluzenia.</string>
+    <string name="widget_act_1_desc">Tylko pierwszy przycisk widgetu.</string>
+    <string name="widget_act_2_desc">Tylko drugi przycisk widgetu.</string>
+    <string name="widget_act_3_desc">Tylko trzeci przycisk widgetu.</string>
+    <string name="widget_act_12_desc">Pierwszy i drugi przycisk widgetu.</string>
+    <string name="widget_act_23_desc">Drugi i trzeci przycisk widgetu.</string>
     <string name="trip_customize">Dostosuj</string>
     <string name="trip_trim">Przytnij widok</string>
     <string name="trip_trim_title">Przytnij widok przejazdu</string>

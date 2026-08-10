@@ -2095,7 +2095,6 @@
     <string name="widget_metric_power">Мощность</string>
     <string name="widget_metric_phone_battery">Батарея телефона</string>
     <string name="widget_action_voice">Голос</string>
-    <string name="widget_button_description">Одна кнопка для первого действия виджета.</string>
     <string name="widget_button_unset">Выберите кнопку в настройках</string>
     <string name="trip_tools_extend">Продлить поездку</string>
     <string name="trip_tools_extend_desc">Поглощает поездки до или после этой в новую, более длинную.</string>
@@ -2104,6 +2103,11 @@
     <string name="trip_tools_extend_to">Закончить на</string>
     <string name="trip_tools_extend_none">Эта поездка</string>
     <string name="trip_tools_extend_pick_one">Выберите более раннюю или позднюю поездку для продления.</string>
+    <string name="widget_act_1_desc">Только первая кнопка виджета.</string>
+    <string name="widget_act_2_desc">Только вторая кнопка виджета.</string>
+    <string name="widget_act_3_desc">Только третья кнопка виджета.</string>
+    <string name="widget_act_12_desc">Первая и вторая кнопки виджета.</string>
+    <string name="widget_act_23_desc">Вторая и третья кнопки виджета.</string>
     <string name="trip_customize">Настроить</string>
     <string name="trip_trim">Обрезать вид</string>
     <string name="trip_trim_title">Обрезать вид поездки</string>

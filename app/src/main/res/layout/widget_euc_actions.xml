@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  One layout for every button-only widget. The second cell is simply hidden on
+  the 1x1 variants, so a single file covers all five providers and they cannot
+  drift apart visually.
+
+  Icon above label, both centred, rather than a compound drawable: a compound
+  drawable is pinned to the view's edge while gravity centres the text, so the
+  two never sit together.
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="horizontal"
+    android:baselineAligned="false">
+
+    <LinearLayout
+        android:id="@+id/widget_act_cell_1"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:background="@drawable/widget_bg"
+        android:padding="8dp">
+        <ImageView
+            android:id="@+id/widget_act_icon_1"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_marginBottom="6dp"
+            android:src="@drawable/ic_widget_horn"
+            android:contentDescription="@null" />
+        <TextView
+            android:id="@+id/widget_act_text_1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:textSize="12sp"
+            android:textStyle="bold"
+            android:textColor="#FFFFFFFF"
+            android:maxLines="2"
+            android:ellipsize="end"
+            android:text="@string/widget_horn" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/widget_act_cell_2"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:layout_marginStart="8dp"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:background="@drawable/widget_bg"
+        android:padding="8dp">
+        <ImageView
+            android:id="@+id/widget_act_icon_2"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_marginBottom="6dp"
+            android:src="@drawable/ic_widget_light"
+            android:contentDescription="@null" />
+        <TextView
+            android:id="@+id/widget_act_text_2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:textSize="12sp"
+            android:textStyle="bold"
+            android:textColor="#FFFFFFFF"
+            android:maxLines="2"
+            android:ellipsize="end"
+            android:text="@string/notif_action_light" />
+    </LinearLayout>
+</LinearLayout>

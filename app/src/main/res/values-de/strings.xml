@@ -2115,7 +2115,6 @@
     <string name="widget_metric_power">Leistung</string>
     <string name="widget_metric_phone_battery">Handy-Akku</string>
     <string name="widget_action_voice">Sprache</string>
-    <string name="widget_button_description">Eine einzelne Taste fuer deine erste Widget-Aktion.</string>
     <string name="widget_button_unset">Taste in den Einstellungen waehlen</string>
     <string name="trip_tools_extend">Fahrt verlaengern</string>
     <string name="trip_tools_extend_desc">Nimmt die Fahrten davor oder danach in eine neue, laengere Fahrt auf.</string>
@@ -2124,6 +2123,11 @@
     <string name="trip_tools_extend_to">Enden bei</string>
     <string name="trip_tools_extend_none">Diese Fahrt</string>
     <string name="trip_tools_extend_pick_one">Waehle eine fruehere oder spaetere Fahrt zum Verlaengern.</string>
+    <string name="widget_act_1_desc">Nur deine erste Widget-Taste.</string>
+    <string name="widget_act_2_desc">Nur deine zweite Widget-Taste.</string>
+    <string name="widget_act_3_desc">Nur deine dritte Widget-Taste.</string>
+    <string name="widget_act_12_desc">Deine erste und zweite Widget-Taste.</string>
+    <string name="widget_act_23_desc">Deine zweite und dritte Widget-Taste.</string>
     <string name="trip_customize">Anpassen</string>
     <string name="trip_trim">Ansicht eingrenzen</string>
     <string name="trip_trim_title">Fahrtansicht eingrenzen</string>

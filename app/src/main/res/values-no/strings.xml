@@ -1983,7 +1983,6 @@
     <string name="widget_metric_power">Effekt</string>
     <string name="widget_metric_phone_battery">Telefonbatteri</string>
     <string name="widget_action_voice">Tale</string>
-    <string name="widget_button_description">En enkelt knapp for din forste widgethandling.</string>
     <string name="widget_button_unset">Velg en knapp i Innstillinger</string>
     <string name="trip_tools_extend">Forleng tur</string>
     <string name="trip_tools_extend_desc">Tar opp turene for eller etter denne i en ny, lengre tur.</string>
@@ -1992,6 +1991,11 @@
     <string name="trip_tools_extend_to">Slutt ved</string>
     <string name="trip_tools_extend_none">Denne turen</string>
     <string name="trip_tools_extend_pick_one">Velg en tidligere eller senere tur a forlenge inn i.</string>
+    <string name="widget_act_1_desc">Bare din forste widgetknapp.</string>
+    <string name="widget_act_2_desc">Bare din andre widgetknapp.</string>
+    <string name="widget_act_3_desc">Bare din tredje widgetknapp.</string>
+    <string name="widget_act_12_desc">Din forste og andre widgetknapp.</string>
+    <string name="widget_act_23_desc">Din andre og tredje widgetknapp.</string>
     <string name="trip_customize">Tilpass</string>
     <string name="trip_trim">Beskjær visningen</string>
     <string name="trip_trim_title">Beskjær turvisning</string>

@@ -2000,7 +2000,6 @@
     <string name="widget_metric_power">Potenza</string>
     <string name="widget_metric_phone_battery">Batteria del telefono</string>
     <string name="widget_action_voice">Voce</string>
-    <string name="widget_button_description">Un solo pulsante per la tua prima azione del widget.</string>
     <string name="widget_button_unset">Scegli un pulsante nelle Impostazioni</string>
     <string name="trip_tools_extend">Estendi viaggio</string>
     <string name="trip_tools_extend_desc">Assorbe i viaggi prima o dopo questo in uno nuovo e piu lungo.</string>
@@ -2009,6 +2008,11 @@
     <string name="trip_tools_extend_to">Termina a</string>
     <string name="trip_tools_extend_none">Questo viaggio</string>
     <string name="trip_tools_extend_pick_one">Scegli un viaggio precedente o successivo verso cui estendere.</string>
+    <string name="widget_act_1_desc">Solo il tuo primo pulsante del widget.</string>
+    <string name="widget_act_2_desc">Solo il tuo secondo pulsante del widget.</string>
+    <string name="widget_act_3_desc">Solo il tuo terzo pulsante del widget.</string>
+    <string name="widget_act_12_desc">Il tuo primo e secondo pulsante del widget.</string>
+    <string name="widget_act_23_desc">Il tuo secondo e terzo pulsante del widget.</string>
     <string name="trip_customize">Personalizza</string>
     <string name="trip_trim">Restringi la vista</string>
     <string name="trip_trim_title">Restringi vista del viaggio</string>

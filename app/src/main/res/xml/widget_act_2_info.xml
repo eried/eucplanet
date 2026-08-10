@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  updatePeriodMillis 0: the launcher's own schedule has a 30 minute floor and
+  wakes the device. WheelService pushes these instead, and onUpdate reads the
+  configured action directly so a freshly placed widget is never blank.
+-->
+<appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
+    android:minWidth="60dp"
+    android:minHeight="60dp"
+    android:targetCellWidth="1"
+    android:targetCellHeight="1"
+    android:updatePeriodMillis="0"
+    android:initialLayout="@layout/widget_euc_action_single"
+    android:previewLayout="@layout/widget_euc_action_single"
+    android:description="@string/widget_act_2_desc"
+    android:resizeMode="horizontal|vertical"
+    android:widgetCategory="home_screen" />

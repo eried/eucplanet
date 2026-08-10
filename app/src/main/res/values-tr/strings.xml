@@ -2092,7 +2092,6 @@
     <string name="widget_metric_power">Guc</string>
     <string name="widget_metric_phone_battery">Telefon pili</string>
     <string name="widget_action_voice">Ses</string>
-    <string name="widget_button_description">Ilk widget eyleminiz icin tek bir dugme.</string>
     <string name="widget_button_unset">Ayarlar da bir dugme secin</string>
     <string name="trip_tools_extend">Surusu uzat</string>
     <string name="trip_tools_extend_desc">Bu surusun oncesindeki veya sonrasindaki surusleri yeni, daha uzun bir suruse katar.</string>
@@ -2101,6 +2100,11 @@
     <string name="trip_tools_extend_to">Bitis</string>
     <string name="trip_tools_extend_none">Bu surus</string>
     <string name="trip_tools_extend_pick_one">Uzatilacak onceki veya sonraki bir surus secin.</string>
+    <string name="widget_act_1_desc">Sadece ilk widget dugmeniz.</string>
+    <string name="widget_act_2_desc">Sadece ikinci widget dugmeniz.</string>
+    <string name="widget_act_3_desc">Sadece ucuncu widget dugmeniz.</string>
+    <string name="widget_act_12_desc">Birinci ve ikinci widget dugmeleriniz.</string>
+    <string name="widget_act_23_desc">Ikinci ve ucuncu widget dugmeleriniz.</string>
     <string name="trip_customize">Özelleştir</string>
     <string name="trip_trim">Görünümü kırp</string>
     <string name="trip_trim_title">Sürüş görünümünü kırp</string>

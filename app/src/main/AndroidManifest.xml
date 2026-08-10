@@ -147,16 +147,47 @@
                 android:resource="@xml/widget_euc_info" />
         </receiver>
 
-        <!-- One-button variant. Shares the full widget's configured actions. -->
-        <receiver
-            android:name=".widget.EucButtonWidget"
-            android:exported="false">
+        <!--
+          Button-only variants, all sharing the full widget's configured
+          actions. Separate providers because Android cannot tell one instance
+          of a widget from another without a configuration activity, and the
+          rider should be able to drop "the horn button" on a home screen
+          without answering a dialog first.
+        -->
+        <receiver android:name=".widget.EucButtonWidget" android:exported="false">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
             </intent-filter>
-            <meta-data
-                android:name="android.appwidget.provider"
-                android:resource="@xml/widget_euc_button_info" />
+            <meta-data android:name="android.appwidget.provider"
+                android:resource="@xml/widget_act_1_info" />
+        </receiver>
+        <receiver android:name=".widget.EucButton2Widget" android:exported="false">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data android:name="android.appwidget.provider"
+                android:resource="@xml/widget_act_2_info" />
+        </receiver>
+        <receiver android:name=".widget.EucButton3Widget" android:exported="false">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data android:name="android.appwidget.provider"
+                android:resource="@xml/widget_act_3_info" />
+        </receiver>
+        <receiver android:name=".widget.EucButtons12Widget" android:exported="false">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data android:name="android.appwidget.provider"
+                android:resource="@xml/widget_act_12_info" />
+        </receiver>
+        <receiver android:name=".widget.EucButtons23Widget" android:exported="false">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data android:name="android.appwidget.provider"
+                android:resource="@xml/widget_act_23_info" />
         </receiver>
 
         <!-- Let the Application class provide the WorkManager Configuration (Hilt worker factory). -->

@@ -2097,7 +2097,6 @@
     <string name="widget_metric_power">Vermogen</string>
     <string name="widget_metric_phone_battery">Telefoonaccu</string>
     <string name="widget_action_voice">Spraak</string>
-    <string name="widget_button_description">Een enkele knop voor je eerste widgetactie.</string>
     <string name="widget_button_unset">Kies een knop in Instellingen</string>
     <string name="trip_tools_extend">Rit verlengen</string>
     <string name="trip_tools_extend_desc">Neemt de ritten voor of na deze op in een nieuwe, langere rit.</string>
@@ -2106,6 +2105,11 @@
     <string name="trip_tools_extend_to">Eindigen bij</string>
     <string name="trip_tools_extend_none">Deze rit</string>
     <string name="trip_tools_extend_pick_one">Kies een eerdere of latere rit om naartoe uit te breiden.</string>
+    <string name="widget_act_1_desc">Alleen je eerste widgetknop.</string>
+    <string name="widget_act_2_desc">Alleen je tweede widgetknop.</string>
+    <string name="widget_act_3_desc">Alleen je derde widgetknop.</string>
+    <string name="widget_act_12_desc">Je eerste en tweede widgetknop.</string>
+    <string name="widget_act_23_desc">Je tweede en derde widgetknop.</string>
     <string name="trip_customize">Aanpassen</string>
     <string name="trip_trim">Weergave bijsnijden</string>
     <string name="trip_trim_title">Ritweergave bijsnijden</string>

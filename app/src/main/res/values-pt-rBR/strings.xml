@@ -2097,7 +2097,6 @@
     <string name="widget_metric_power">Potencia</string>
     <string name="widget_metric_phone_battery">Bateria do telefone</string>
     <string name="widget_action_voice">Voz</string>
-    <string name="widget_button_description">Um unico botao para sua primeira acao do widget.</string>
     <string name="widget_button_unset">Escolha um botao em Configuracoes</string>
     <string name="trip_tools_extend">Estender trajeto</string>
     <string name="trip_tools_extend_desc">Absorve os trajetos antes ou depois deste em um novo, mais longo.</string>
@@ -2106,6 +2105,11 @@
     <string name="trip_tools_extend_to">Terminar em</string>
     <string name="trip_tools_extend_none">Este trajeto</string>
     <string name="trip_tools_extend_pick_one">Escolha um trajeto anterior ou posterior para estender.</string>
+    <string name="widget_act_1_desc">Apenas o seu primeiro botao do widget.</string>
+    <string name="widget_act_2_desc">Apenas o seu segundo botao do widget.</string>
+    <string name="widget_act_3_desc">Apenas o seu terceiro botao do widget.</string>
+    <string name="widget_act_12_desc">Seus botoes primeiro e segundo do widget.</string>
+    <string name="widget_act_23_desc">Seus botoes segundo e terceiro do widget.</string>
     <string name="trip_customize">Personalizar</string>
     <string name="trip_trim">Recortar a exibição</string>
     <string name="trip_trim_title">Recortar exibição do trajeto</string>

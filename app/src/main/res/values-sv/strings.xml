@@ -2095,7 +2095,6 @@
     <string name="widget_metric_power">Effekt</string>
     <string name="widget_metric_phone_battery">Telefonbatteri</string>
     <string name="widget_action_voice">Rost</string>
-    <string name="widget_button_description">En enda knapp for din forsta widgetatgard.</string>
     <string name="widget_button_unset">Valj en knapp i Installningar</string>
     <string name="trip_tools_extend">Forlang tur</string>
     <string name="trip_tools_extend_desc">Tar upp turerna fore eller efter denna i en ny, langre tur.</string>
@@ -2104,6 +2103,11 @@
     <string name="trip_tools_extend_to">Sluta vid</string>
     <string name="trip_tools_extend_none">Den har turen</string>
     <string name="trip_tools_extend_pick_one">Valj en tidigare eller senare tur att forlanga in i.</string>
+    <string name="widget_act_1_desc">Bara din forsta widgetknapp.</string>
+    <string name="widget_act_2_desc">Bara din andra widgetknapp.</string>
+    <string name="widget_act_3_desc">Bara din tredje widgetknapp.</string>
+    <string name="widget_act_12_desc">Din forsta och andra widgetknapp.</string>
+    <string name="widget_act_23_desc">Din andra och tredje widgetknapp.</string>
     <string name="trip_customize">Anpassa</string>
     <string name="trip_trim">Beskär vyn</string>
     <string name="trip_trim_title">Beskär turvyn</string>

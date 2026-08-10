@@ -201,7 +201,7 @@ class EucWidget : AppWidgetProvider() {
             Snapshot.save(context, snapshot)
             // The one-button widget reads the same snapshot, so one push keeps
             // both surfaces in step.
-            EucButtonWidget.render(context)
+            ActionWidgetBase.renderAll(context)
             val manager = AppWidgetManager.getInstance(context) ?: return
             val ids = manager.getAppWidgetIds(ComponentName(context, EucWidget::class.java))
             if (ids.isEmpty()) return
@@ -217,7 +217,7 @@ class EucWidget : AppWidgetProvider() {
             // snapshot, so the service must keep pushing for it too.
             return manager.getAppWidgetIds(
                 ComponentName(context, EucWidget::class.java)
-            ).isNotEmpty() || EucButtonWidget.isPlaced(context)
+            ).isNotEmpty() || ActionWidgetBase.anyPlaced(context)
         }
 
         private val VALUE_IDS = listOf(R.id.widget_speed, R.id.widget_distance, R.id.widget_battery)
