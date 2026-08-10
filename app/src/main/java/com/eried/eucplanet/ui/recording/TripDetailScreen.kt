@@ -386,7 +386,21 @@ fun TripDetailScreen(
             // when nothing is wrong. Show the shape of the screen instead, so the
             // layout is already there when the numbers land. Below the reveal
             // threshold this is blank for a few frames, which nobody sees.
-            if (showSkeleton) TripDetailSkeleton(Modifier.padding(padding))
+            if (showSkeleton) {
+                // The rider's own layout, which is settings and therefore known
+                // before the ride is read. Charts that depend on the trip
+                // carrying current or PWM are counted optimistically; being one
+                // card out is invisible next to showing the wrong shape.
+                val skeletonTiles = applyOrder(TILE_KEYS_DEFAULT, savedTileOrder)
+                    .count { it !in hiddenTiles }
+                val skeletonCharts = applyOrder(CHART_KEYS_DEFAULT, savedChartOrder)
+                    .count { it !in hiddenCharts && (it !in EXTRA_CHART_KEYS || it in extraCharts) }
+                TripDetailSkeleton(
+                    tileCount = skeletonTiles,
+                    chartCount = skeletonCharts,
+                    modifier = Modifier.padding(padding),
+                )
+            }
         } else if (dataPoints.isEmpty()) {
             Column(
                 modifier = Modifier
@@ -650,8 +664,18 @@ fun TripDetailScreen(
 
             // Effective tile order via the shared helper (see applyOrder): the
             // rider's saved order, with any newly added tile appearing at the end.
-            val tileKeysDefault = allTiles.map { it.first }
-            val effectiveTileOrder = applyOrder(tileKeysDefault, savedTileOrder)
+            // Keys come from the shared registry so the loading skeleton and the
+            // real tiles can never disagree about what is on screen.
+            val effectiveTileOrder = applyOrder(TILE_KEYS_DEFAULT, savedTileOrder)
+            // Drift guard: a tile added to allTiles but not to TILE_KEYS_DEFAULT
+            // would silently never render, and one removed would leave a gap in
+            // the skeleton. Debug-only, since it is a developer mistake.
+            if (com.eried.eucplanet.BuildConfig.DEBUG) {
+                check(allTiles.map { it.first } == TILE_KEYS_DEFAULT) {
+                    "TILE_KEYS_DEFAULT is out of sync with allTiles: " +
+                        "${allTiles.map { it.first }} vs $TILE_KEYS_DEFAULT"
+                }
+            }
             val tilesByKey = allTiles.associateBy { it.first }
             val orderedTiles = effectiveTileOrder.mapNotNull { tilesByKey[it] }
 
@@ -1386,6 +1410,18 @@ private val CHART_KEYS_DEFAULT = listOf(
  */
 /** How long a trip may take to load before the skeleton is shown. */
 private const val SKELETON_REVEAL_MS = 120L
+
+/**
+ * Stat tile keys, in default display order.
+ *
+ * Declared here as well as built inline with their content, so the loading
+ * skeleton can lay out the rider's actual tiles before any trip data exists.
+ * Visibility and order come from settings, not from the ride.
+ */
+private val TILE_KEYS_DEFAULT = listOf(
+    "distance", "duration", "points", "topSpeed", "avgSpeed", "avgMoving",
+    "battery", "voltage", "maxTemp", "maxPwm", "maxCurrent", "maxPower",
+)
 
 private val EXTRA_CHART_KEYS = setOf(
     "speedSmooth", "batterySmooth", "currentSmooth", "pwmSmooth", "power", "altitude",
@@ -2401,7 +2437,13 @@ internal fun sustainedTopSpeed(speeds: List<Float>, windowSamples: Int): Float {
  * showing it while a perfectly good long ride loads reads as an error.
  */
 @Composable
-private fun TripDetailSkeleton(modifier: Modifier = Modifier) {
+private fun TripDetailSkeleton(
+    /** Visible stat tiles, laid out in rows of three like the real ones. */
+    tileCount: Int,
+    /** Visible graph cards. */
+    chartCount: Int,
+    modifier: Modifier = Modifier,
+) {
     val shimmer = rememberInfiniteTransition(label = "trip-skeleton")
     // Travels well past 1f so there is a pause between sweeps rather than a
     // relentless strobe.
@@ -2435,20 +2477,40 @@ private fun TripDetailSkeleton(modifier: Modifier = Modifier) {
         }
     }
 
+    // Same order and metrics as the real portrait body: the date line, the stat
+    // tiles in rows of three, the 250dp map, then one card per graph.
     Column(
         modifier
             .fillMaxSize()
             .padding(horizontal = 16.dp)
-            .padding(top = 8.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
-        Block(200.dp, Modifier.fillMaxWidth())        // map
-        repeat(2) {                                    // stat tile rows
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                repeat(3) { Block(64.dp, Modifier.weight(1f)) }
+        Spacer(Modifier.height(12.dp))
+        Block(18.dp, Modifier.fillMaxWidth(0.55f), corner = 6.dp)   // date range
+        Spacer(Modifier.height(12.dp))
+
+        // Tiles: 10dp corners and the same 8dp gaps as SummaryCard, with a short
+        // final row padded by spacers so the widths stay uniform.
+        val rows = (tileCount + 2) / 3
+        repeat(rows) { row ->
+            if (row > 0) Spacer(Modifier.height(8.dp))
+            val inRow = minOf(3, tileCount - row * 3)
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                repeat(inRow) { Block(56.dp, Modifier.weight(1f), corner = 10.dp) }
+                repeat(3 - inRow) { Spacer(Modifier.weight(1f)) }
             }
         }
-        repeat(2) { Block(150.dp, Modifier.fillMaxWidth()) }   // chart cards
+
+        Spacer(Modifier.height(12.dp))
+        Block(14.dp, Modifier.fillMaxWidth(0.22f), corner = 6.dp)   // "Route" caption
+        Spacer(Modifier.height(4.dp))
+        Block(250.dp, Modifier.fillMaxWidth())                      // map
+
+        Spacer(Modifier.height(16.dp))
+        repeat(chartCount) { i ->
+            if (i > 0) Spacer(Modifier.height(12.dp))
+            Block(150.dp, Modifier.fillMaxWidth())
+        }
+        Spacer(Modifier.height(16.dp))
     }
 }
 
