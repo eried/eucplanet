@@ -109,6 +109,8 @@ import com.eried.eucplanet.data.model.TripRecord
 import com.eried.eucplanet.ui.common.HintText
 import com.eried.eucplanet.ui.common.TrimTimeDialog
 import com.eried.eucplanet.util.Smoothing
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import com.eried.eucplanet.ui.theme.appColors
 import com.eried.eucplanet.ui.theme.themedSwitchColors
 import sh.calvin.reorderable.ReorderableColumn
@@ -212,7 +214,11 @@ fun TripDetailScreen(
     }
 
     LaunchedEffect(trip.id) {
-        allPoints = viewModel.readTripData(trip)
+        // Off the main thread: LaunchedEffect runs on the composition's
+        // dispatcher, which is Main, and readTripData opens the file and parses
+        // every row. On a long ride that blocked the UI thread for the whole
+        // read, which is what made opening a trip feel slow.
+        allPoints = withContext(Dispatchers.IO) { viewModel.readTripData(trip) }
         // Without this, opening a second trip from the same screen instance
         // would carry the previous trip's window across.
         trimRange = null

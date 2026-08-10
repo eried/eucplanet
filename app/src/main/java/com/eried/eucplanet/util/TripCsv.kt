@@ -140,8 +140,14 @@ object TripCsv {
         var wheelKm = 0f
         var lastMileage = Float.NaN
 
+        // One bound parser for the whole file rather than probing every format
+        // per row, which threw and caught an exception for each miss. See
+        // [parserFor]. Falls back to the probing parser if no row resolves.
+        val parse: (String?) -> Long? = rows.firstNotNullOfOrNull { parserFor(it.date) }
+            ?: { raw -> parseDate(raw) }
+
         for (row in rows) {
-            parseDate(row.date)?.let { t ->
+            parse(row.date)?.let { t ->
                 if (t < startMs) startMs = t
                 if (t > endMs) endMs = t
             }
