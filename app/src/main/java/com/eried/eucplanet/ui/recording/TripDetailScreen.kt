@@ -108,8 +108,20 @@ import com.eried.eucplanet.R
 import com.eried.eucplanet.data.model.TripRecord
 import com.eried.eucplanet.ui.common.HintText
 import com.eried.eucplanet.ui.common.TrimTimeDialog
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.unit.Dp
 import com.eried.eucplanet.util.Smoothing
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import com.eried.eucplanet.ui.theme.appColors
 import com.eried.eucplanet.ui.theme.themedSwitchColors
@@ -226,7 +238,22 @@ fun TripDetailScreen(
         )
     }
 
+    // True until the CSV has been read. Distinguishes "still loading" from
+    // "genuinely has no data", which otherwise look identical and made an
+    // ordinary long ride flash an error message on open.
+    var loadingTrip by remember(trip.id) { mutableStateOf(true) }
+    // A short trip loads faster than the eye can register, and a skeleton that
+    // appears and vanishes in a few frames reads as a glitch. Hold it back
+    // briefly: below the threshold the screen simply appears, above it the
+    // rider gets the placeholder instead of a stall.
+    var showSkeleton by remember(trip.id) { mutableStateOf(false) }
     LaunchedEffect(trip.id) {
+        loadingTrip = true
+        showSkeleton = false
+        val reveal = launch {
+            delay(SKELETON_REVEAL_MS)
+            if (loadingTrip) showSkeleton = true
+        }
         // Off the main thread: LaunchedEffect runs on the composition's
         // dispatcher, which is Main, and readTripData opens the file and parses
         // every row. On a long ride that blocked the UI thread for the whole
@@ -235,6 +262,8 @@ fun TripDetailScreen(
         // Without this, opening a second trip from the same screen instance
         // would carry the previous trip's window across.
         trimRange = null
+        loadingTrip = false
+        reveal.cancel()
     }
 
     val dateFormat = SimpleDateFormat("dd MMM yyyy HH:mm", Locale.getDefault())
@@ -351,7 +380,14 @@ fun TripDetailScreen(
         },
         snackbarHost = { SnackbarHost(snackbar) }
     ) { padding ->
-        if (dataPoints.isEmpty()) {
+        if (loadingTrip) {
+            // Reading a long ride takes a moment now that it happens off the main
+            // thread, and flashing "no data" in the meantime reads as an error
+            // when nothing is wrong. Show the shape of the screen instead, so the
+            // layout is already there when the numbers land. Below the reveal
+            // threshold this is blank for a few frames, which nobody sees.
+            if (showSkeleton) TripDetailSkeleton(Modifier.padding(padding))
+        } else if (dataPoints.isEmpty()) {
             Column(
                 modifier = Modifier
                     .fillMaxSize()
@@ -1348,6 +1384,9 @@ private val CHART_KEYS_DEFAULT = listOf(
  * upgrade. The rider sees one list either way, the difference is only which
  * store the switch writes to.
  */
+/** How long a trip may take to load before the skeleton is shown. */
+private const val SKELETON_REVEAL_MS = 120L
+
 private val EXTRA_CHART_KEYS = setOf(
     "speedSmooth", "batterySmooth", "currentSmooth", "pwmSmooth", "power", "altitude",
 )
@@ -2349,6 +2388,68 @@ internal fun sustainedTopSpeed(speeds: List<Float>, windowSamples: Int): Float {
         if (i >= w - 1) best = maxOf(best, speeds[dq.first()])
     }
     return best
+}
+
+/**
+ * Placeholder shown while a trip's CSV is being read.
+ *
+ * Mirrors the real layout, a map above stat tiles above chart cards, so the
+ * screen does not jump when the data lands. A slow shimmer travels across the
+ * blocks to say "working", which a static grey layout does not.
+ *
+ * Deliberately not the "no data" message: that means the trip is empty, and
+ * showing it while a perfectly good long ride loads reads as an error.
+ */
+@Composable
+private fun TripDetailSkeleton(modifier: Modifier = Modifier) {
+    val shimmer = rememberInfiniteTransition(label = "trip-skeleton")
+    // Travels well past 1f so there is a pause between sweeps rather than a
+    // relentless strobe.
+    val progress by shimmer.animateFloat(
+        initialValue = -0.4f,
+        targetValue = 1.8f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(durationMillis = 1400, easing = LinearEasing),
+            repeatMode = RepeatMode.Restart,
+        ),
+        label = "trip-skeleton-sweep",
+    )
+    val base = MaterialTheme.appColors.textPrimary.copy(alpha = 0.07f)
+    val highlight = MaterialTheme.appColors.textPrimary.copy(alpha = 0.14f)
+
+    @Composable
+    fun Block(height: Dp, modifier: Modifier = Modifier, corner: Dp = 12.dp) {
+        BoxWithConstraints(modifier.height(height).clip(RoundedCornerShape(corner))) {
+            val w = with(LocalDensity.current) { maxWidth.toPx() }
+            Box(
+                Modifier
+                    .fillMaxSize()
+                    .background(
+                        Brush.horizontalGradient(
+                            colors = listOf(base, highlight, base),
+                            startX = (progress - 0.4f) * w,
+                            endX = (progress + 0.4f) * w,
+                        )
+                    )
+            )
+        }
+    }
+
+    Column(
+        modifier
+            .fillMaxSize()
+            .padding(horizontal = 16.dp)
+            .padding(top = 8.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp),
+    ) {
+        Block(200.dp, Modifier.fillMaxWidth())        // map
+        repeat(2) {                                    // stat tile rows
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                repeat(3) { Block(64.dp, Modifier.weight(1f)) }
+            }
+        }
+        repeat(2) { Block(150.dp, Modifier.fillMaxWidth()) }   // chart cards
+    }
 }
 
 /**
