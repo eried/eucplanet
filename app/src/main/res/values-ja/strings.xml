@@ -2050,7 +2050,7 @@
     <string name="widget_connected">接続済み</string>
     <string name="widget_disconnected">ホイールなし</string>
     <string name="widget_placeholder_value">--</string>
-    <string name="widget_description">数値とクイック操作</string>
+    <string name="widget_description">指標とクイック操作</string>
     <string name="trip_action_save_section">区間を新しい走行として保存</string>
     <string name="trip_action_save_section_desc">この走行はそのまま、切り出した部分を追加します。バックアップされ、ランキングには送信されません。</string>
     <string name="trip_section_saved">区間を新しい走行として保存しました</string>
@@ -2082,8 +2082,8 @@
     <string name="trip_tools_combine_between">間にあるため含まれます</string>
     <string name="trip_tools_combine_summary">%1$d 件の走行を新しい走行に結合します。</string>
     <string name="widget_section">ホーム画面ウィジェット</string>
-    <string name="widget_pick_desc">ウィジェットに表示する %1$d 個の数値と %2$d 個のボタンを選びます。</string>
-    <string name="widget_metric_slot">項目 %1$d</string>
+    <string name="widget_pick_desc">ウィジェットに表示する %1$d 個の指標と %2$d 個のボタンを選びます。</string>
+    <string name="widget_metric_slot">指標 %1$d</string>
     <string name="widget_action_slot">ボタン %1$d</string>
     <string name="widget_metric_speed">速度</string>
     <string name="widget_metric_trip">走行距離</string>
@@ -2111,7 +2111,9 @@
     <string name="widget_act_23_desc">ボタン 2 と 3</string>
     <string name="widget_standalone_desc">ボタンだけのウィジェットの操作です。上の行とは別に設定します。</string>
     <string name="widget_standalone_slot">単独ボタン %1$d</string>
-    <string name="trip_customize">カスタマイズ</string>
+        <string name="widget_customize">カスタマイズ</string>
+    <string name="widget_how_to_add">ホーム画面を長押しし、ウィジェットをタップして EUC Planet を選びます。</string>
+<string name="trip_customize">カスタマイズ</string>
     <string name="trip_trim">表示範囲を絞る</string>
     <string name="trip_trim_title">走行の表示範囲を絞る</string>
     <string name="trip_customize_tiles">タイル</string>

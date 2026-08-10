@@ -315,6 +315,15 @@ fun SplitTripDialog(
 }
 
 /**
+ * How far either end of an Extend reaches, in trips.
+ *
+ * A rider with hundreds of trips got every one of them in both dropdowns, and
+ * an extend is always the legs on either side of the same ride: a leg eight
+ * trips away is not part of it.
+ */
+private const val EXTEND_REACH = 8
+
+/**
  * Choose how far to extend a merge, as a continuous span of rides.
  *
  * Combining is a RANGE, not an arbitrary pick. A ride is a stretch of time, and
@@ -374,10 +383,10 @@ fun CombineTripsDialog(
                     )
                     Spacer(Modifier.height(12.dp))
 
-                    // Earlier end: the anchor plus everything before it.
+                    // Earlier end: the anchor plus the nearest trips before it.
                     TripPicker(
                         title = stringResource(R.string.trip_tools_extend_from),
-                        options = (0..anchorIdx).toList(),
+                        options = ((anchorIdx - EXTEND_REACH).coerceAtLeast(0)..anchorIdx).toList(),
                         selectedIdx = fromIdx,
                         optionLabel = { i ->
                             if (i == anchorIdx) stringResource(R.string.trip_tools_extend_none)
@@ -386,10 +395,11 @@ fun CombineTripsDialog(
                         onSelect = { fromIdx = it },
                     )
                     Spacer(Modifier.height(8.dp))
-                    // Later end: the anchor plus everything after it.
+                    // Later end: the anchor plus the nearest trips after it.
                     TripPicker(
                         title = stringResource(R.string.trip_tools_extend_to),
-                        options = (anchorIdx until ordered.size).toList(),
+                        options = (anchorIdx..(anchorIdx + EXTEND_REACH).coerceAtMost(ordered.size - 1))
+                            .toList(),
                         selectedIdx = toIdx,
                         optionLabel = { i ->
                             if (i == anchorIdx) stringResource(R.string.trip_tools_extend_none)

@@ -2064,7 +2064,7 @@
     <string name="widget_connected">Forbundet</string>
     <string name="widget_disconnected">Intet hjul</string>
     <string name="widget_placeholder_value">--</string>
-    <string name="widget_description">Aflæsninger og hurtige handlinger</string>
+    <string name="widget_description">Målinger og hurtige handlinger</string>
     <string name="trip_action_save_section">Gem udsnit som ny tur</string>
     <string name="trip_action_save_section_desc">Beholder denne tur og tilfojer den beskarne del. Sikkerhedskopieres, sendes aldrig til ranglisten.</string>
     <string name="trip_section_saved">Udsnit gemt som ny tur</string>
@@ -2096,8 +2096,8 @@
     <string name="trip_tools_combine_between">Ligger imellem, tages med</string>
     <string name="trip_tools_combine_summary">Kombinerer %1$d ture til en ny tur.</string>
     <string name="widget_section">Widget pa startskaerm</string>
-    <string name="widget_pick_desc">Vælg de %1$d aflæsninger og %2$d knapper, widgetten viser.</string>
-    <string name="widget_metric_slot">Visning %1$d</string>
+    <string name="widget_pick_desc">Vælg de %1$d målinger og %2$d knapper, widgetten viser.</string>
+    <string name="widget_metric_slot">Måling %1$d</string>
     <string name="widget_action_slot">Knap %1$d</string>
     <string name="widget_metric_speed">Fart</string>
     <string name="widget_metric_trip">Turdistance</string>
@@ -2125,7 +2125,9 @@
     <string name="widget_act_23_desc">Knapper 2 og 3</string>
     <string name="widget_standalone_desc">Handlinger for knap-widgetterne, uafhængigt af rækken ovenfor.</string>
     <string name="widget_standalone_slot">Enkeltknap %1$d</string>
-    <string name="trip_customize">Tilpas</string>
+        <string name="widget_customize">Tilpas</string>
+    <string name="widget_how_to_add">Tryk længe på startskærmen, tryk på Widgets, og vælg EUC Planet.</string>
+<string name="trip_customize">Tilpas</string>
     <string name="trip_trim">Beskær visningen</string>
     <string name="trip_trim_title">Beskær turvisning</string>
     <string name="trip_customize_tiles">Felter</string>

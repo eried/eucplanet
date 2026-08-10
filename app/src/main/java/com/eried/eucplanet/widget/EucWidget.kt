@@ -99,8 +99,11 @@ class EucWidget : AppWidgetProvider() {
                 val on = !settingsRepository.get().voicePeriodicEnabled
                 settingsRepository.update { it.copy(voicePeriodicEnabled = on) }
                 // Repaint immediately: with no wheel connected there is no
-                // telemetry coming to refresh the label.
-                render(appContext, Snapshot.load(appContext).copy(voiceOn = on))
+                // telemetry coming to refresh the label, so relabel it here.
+                render(
+                    appContext,
+                    Snapshot.load(appContext).copy(voiceOn = on).relabelVoice(appContext),
+                )
             } catch (e: Exception) {
                 Log.e(TAG, "Widget voice toggle failed", e)
             } finally {
@@ -154,6 +157,31 @@ class EucWidget : AppWidgetProvider() {
          * will once a wheel connects to something resting: "Light on", not the
          * picker's "Light on / off".
          */
+        /**
+         * Re-label the VOICE slots from [voiceOn], leaving every other button
+         * alone.
+         *
+         * Toggling voice from the widget flipped the setting but left the
+         * button reading "Voice on" afterwards. The label is stored text, and
+         * with no wheel connected WheelService is not pushing a new snapshot to
+         * correct it, so the one button that works without a wheel was also the
+         * one whose label never caught up. Only VOICE is touched: the others
+         * may be carrying live wheel state this path knows nothing about.
+         */
+        fun relabelVoice(context: Context): Snapshot {
+            fun relabel(labels: List<String>, keys: List<String>) =
+                labels.mapIndexed { i, label ->
+                    if (WidgetActionType.byKey(keys.getOrElse(i) { WidgetActionType.NONE })
+                        == WidgetActionType.VOICE
+                    ) buttonLabel(context, WidgetActionType.VOICE.key, voiceOn = voiceOn)
+                    else label
+                }
+            return copy(
+                buttons = relabel(buttons, buttonKeys),
+                standaloneButtons = relabel(standaloneButtons, standaloneKeys),
+            )
+        }
+
         fun hydrate(context: Context, settings: WidgetSettings): Snapshot {
             val metricKeys = WidgetMetricType.slots(settings.metrics)
             val actionKeys = WidgetActionType.slots(settings.actions)
@@ -230,6 +258,16 @@ class EucWidget : AppWidgetProvider() {
 
         /** Sent by the widget's voice button; handled in [onReceive]. */
         private const val ACTION_TOGGLE_VOICE = "com.eried.eucplanet.widget.TOGGLE_VOICE"
+
+        /**
+         * Deliberately does nothing. [onReceive] ignores every action but
+         * [ACTION_TOGGLE_VOICE], so a button wired to this swallows its tap.
+         *
+         * A disabled button with no click handler is not inert: the tap falls
+         * through to the widget root, which opens the app. Greying a button out
+         * and then having it launch EUC Planet is worse than leaving it live.
+         */
+        private const val ACTION_NOOP = "com.eried.eucplanet.widget.NOOP"
 
         private const val DASH = "--"
 
@@ -346,11 +384,14 @@ class EucWidget : AppWidgetProvider() {
                 )
                 views.setViewVisibility(id, if (text.isBlank()) View.GONE else View.VISIBLE)
                 dimIfDisabled(views, s, key, BUTTON_TEXT_IDS[i], BUTTON_ICON_IDS[i])
-                if (isEnabled(s, key)) {
-                    actionIntentFor(context, key, requestCode = 100 + i)?.let {
-                        views.setOnClickPendingIntent(id, it)
-                    }
+                val intent = if (isEnabled(s, key)) {
+                    actionIntentFor(context, key, requestCode = 100 + i)
+                } else {
+                    // Swallow the tap rather than leave the button uncovered,
+                    // which would let it through to the root's open-app intent.
+                    noopIntent(context, requestCode = 190 + i)
                 }
+                intent?.let { views.setOnClickPendingIntent(id, it) }
             }
 
             // Tapping anywhere that is not a button opens the app.
@@ -452,6 +493,10 @@ class EucWidget : AppWidgetProvider() {
                 Intent(context, WheelService::class.java).setAction(action),
                 PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
             )
+
+        /** A tap target that consumes the tap and does nothing. See [ACTION_NOOP]. */
+        fun noopIntent(context: Context, requestCode: Int): PendingIntent =
+            broadcastIntent(context, ACTION_NOOP, requestCode)
 
         private fun broadcastIntent(context: Context, action: String, requestCode: Int): PendingIntent =
             PendingIntent.getBroadcast(

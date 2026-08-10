@@ -2049,7 +2049,7 @@
     <string name="widget_connected">Połączono</string>
     <string name="widget_disconnected">Brak koła</string>
     <string name="widget_placeholder_value">--</string>
-    <string name="widget_description">Odczyty i szybkie akcje</string>
+    <string name="widget_description">Metryki i szybkie akcje</string>
     <string name="trip_action_save_section">Zapisz fragment jako przejazd</string>
     <string name="trip_action_save_section_desc">Zachowuje ten przejazd i dodaje przyciety fragment. Kopia zapasowa tak, ranking nie.</string>
     <string name="trip_section_saved">Zapisano fragment jako nowy przejazd</string>
@@ -2081,8 +2081,8 @@
     <string name="trip_tools_combine_between">Pomiedzy, dolaczone</string>
     <string name="trip_tools_combine_summary">Laczy %1$d przejazdow w jeden nowy.</string>
     <string name="widget_section">Widget ekranu glownego</string>
-    <string name="widget_pick_desc">Wybierz %1$d odczyty i %2$d przyciski widoczne w widgecie.</string>
-    <string name="widget_metric_slot">Odczyt %1$d</string>
+    <string name="widget_pick_desc">Wybierz %1$d metryki i %2$d przyciski widoczne w widgecie.</string>
+    <string name="widget_metric_slot">Metryka %1$d</string>
     <string name="widget_action_slot">Przycisk %1$d</string>
     <string name="widget_metric_speed">Predkosc</string>
     <string name="widget_metric_trip">Dystans przejazdu</string>
@@ -2110,7 +2110,9 @@
     <string name="widget_act_23_desc">Przyciski 2 i 3</string>
     <string name="widget_standalone_desc">Akcje widgetów z samym przyciskiem, niezależne od rzędu powyżej.</string>
     <string name="widget_standalone_slot">Osobny przycisk %1$d</string>
-    <string name="trip_customize">Dostosuj</string>
+        <string name="widget_customize">Dostosuj</string>
+    <string name="widget_how_to_add">Przytrzymaj ekran główny, dotknij Widgety i wybierz EUC Planet.</string>
+<string name="trip_customize">Dostosuj</string>
     <string name="trip_trim">Przytnij widok</string>
     <string name="trip_trim_title">Przytnij widok przejazdu</string>
     <string name="trip_customize_tiles">Kafelki</string>

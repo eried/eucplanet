@@ -1916,7 +1916,7 @@
     <string name="widget_connected">已连接</string>
     <string name="widget_disconnected">未连接轮子</string>
     <string name="widget_placeholder_value">--</string>
-    <string name="widget_description">读数与快捷操作</string>
+    <string name="widget_description">指标与快捷操作</string>
     <string name="trip_action_save_section">将区间保存为新行程</string>
     <string name="trip_action_save_section_desc">保留此行程并添加裁剪的部分。会备份，但不会上传排行榜。</string>
     <string name="trip_section_saved">已将区间保存为新行程</string>
@@ -1948,8 +1948,8 @@
     <string name="trip_tools_combine_between">位于中间，将包含</string>
     <string name="trip_tools_combine_summary">将 %1$d 个行程合并为一个新行程。</string>
     <string name="widget_section">主屏幕小部件</string>
-    <string name="widget_pick_desc">选择小部件显示的 %1$d 个读数和 %2$d 个按钮。</string>
-    <string name="widget_metric_slot">读数 %1$d</string>
+    <string name="widget_pick_desc">选择小部件显示的 %1$d 个指标和 %2$d 个按钮。</string>
+    <string name="widget_metric_slot">指标 %1$d</string>
     <string name="widget_action_slot">按钮 %1$d</string>
     <string name="widget_metric_speed">速度</string>
     <string name="widget_metric_trip">行程距离</string>
@@ -1977,7 +1977,9 @@
     <string name="widget_act_23_desc">按钮 2 和 3</string>
     <string name="widget_standalone_desc">仅按钮小部件的操作，与上面一行相互独立。</string>
     <string name="widget_standalone_slot">单独按钮 %1$d</string>
-    <string name="trip_customize">自定义</string>
+        <string name="widget_customize">自定义</string>
+    <string name="widget_how_to_add">长按主屏幕，点按“微件”，然后选择 EUC Planet。</string>
+<string name="trip_customize">自定义</string>
     <string name="trip_trim">裁剪视图</string>
     <string name="trip_trim_title">裁剪行程视图</string>
     <string name="trip_customize_tiles">卡片</string>

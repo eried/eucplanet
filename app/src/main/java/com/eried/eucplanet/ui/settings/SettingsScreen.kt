@@ -1197,6 +1197,15 @@ private fun GeneralTab(
             }
             val metricOptions = WidgetMetricType.entries.map { it.key to stringResource(it.pickerLabel) }
             val actionOptions = WidgetActionType.entries.map { it.key to stringResource(it.pickerLabel) }
+            // How to place one, left outside the collapsable. Everything else
+            // here configures a widget, which is no use to a rider who has not
+            // added one yet, and collapsed the section would otherwise be a
+            // header with nothing under it.
+            HintText(stringResource(R.string.widget_how_to_add), small = true)
+            AdvancedCollapsable(
+                title = stringResource(R.string.widget_customize),
+                stateKey = "widget-customize",
+            ) {
             HintText(
                 stringResource(
                     R.string.widget_pick_desc,
@@ -1301,6 +1310,7 @@ private fun GeneralTab(
                     modifier = Modifier.weight(1f),
                 )
                 Spacer(Modifier.weight(1f))
+            }
             }
         }
 

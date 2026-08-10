@@ -2053,7 +2053,7 @@
     <string name="widget_connected">Connecté</string>
     <string name="widget_disconnected">Aucune roue</string>
     <string name="widget_placeholder_value">--</string>
-    <string name="widget_description">Relevés et actions rapides</string>
+    <string name="widget_description">Mesures et actions rapides</string>
     <string name="trip_action_save_section">Enregistrer la section</string>
     <string name="trip_action_save_section_desc">Conserve ce trajet et ajoute la partie reduite. Sauvegardee, jamais envoyee au classement.</string>
     <string name="trip_section_saved">Section enregistree comme trajet</string>
@@ -2085,7 +2085,7 @@
     <string name="trip_tools_combine_between">Entre les deux, inclus</string>
     <string name="trip_tools_combine_summary">Combine %1$d trajets en un nouveau.</string>
     <string name="widget_section">Widget d ecran d accueil</string>
-    <string name="widget_pick_desc">Choisis les %1$d relevés et %2$d boutons affichés par le widget.</string>
+    <string name="widget_pick_desc">Choisis les %1$d mesures et %2$d boutons affichés par le widget.</string>
     <string name="widget_metric_slot">Mesure %1$d</string>
     <string name="widget_action_slot">Bouton %1$d</string>
     <string name="widget_metric_speed">Vitesse</string>
@@ -2114,7 +2114,9 @@
     <string name="widget_act_23_desc">Boutons 2 et 3</string>
     <string name="widget_standalone_desc">Actions des widgets à bouton seul, indépendantes de la rangée ci-dessus.</string>
     <string name="widget_standalone_slot">Bouton seul %1$d</string>
-    <string name="trip_customize">Personnaliser</string>
+        <string name="widget_customize">Personnaliser</string>
+    <string name="widget_how_to_add">Appui long sur l\'écran d\'accueil, touchez Widgets, puis choisissez EUC Planet.</string>
+<string name="trip_customize">Personnaliser</string>
     <string name="trip_trim">Réduire la vue</string>
     <string name="trip_trim_title">Réduire la vue du trajet</string>
     <string name="trip_customize_tiles">Tuiles</string>

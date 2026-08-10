@@ -1954,7 +1954,7 @@
     <string name="widget_connected">Connesso</string>
     <string name="widget_disconnected">Nessuna ruota</string>
     <string name="widget_placeholder_value">--</string>
-    <string name="widget_description">Letture e azioni rapide</string>
+    <string name="widget_description">Metriche e azioni rapide</string>
     <string name="trip_action_save_section">Salva sezione come viaggio</string>
     <string name="trip_action_save_section_desc">Mantiene questo viaggio e aggiunge la parte ritagliata. Salvata, mai inviata alla classifica.</string>
     <string name="trip_section_saved">Sezione salvata come nuovo viaggio</string>
@@ -1986,8 +1986,8 @@
     <string name="trip_tools_combine_between">In mezzo, incluso</string>
     <string name="trip_tools_combine_summary">Unisce %1$d viaggi in uno nuovo.</string>
     <string name="widget_section">Widget schermata home</string>
-    <string name="widget_pick_desc">Scegli le %1$d letture e i %2$d pulsanti mostrati dal widget.</string>
-    <string name="widget_metric_slot">Lettura %1$d</string>
+    <string name="widget_pick_desc">Scegli le %1$d metriche e i %2$d pulsanti mostrati dal widget.</string>
+    <string name="widget_metric_slot">Metrica %1$d</string>
     <string name="widget_action_slot">Pulsante %1$d</string>
     <string name="widget_metric_speed">Velocita</string>
     <string name="widget_metric_trip">Distanza del viaggio</string>
@@ -2015,7 +2015,9 @@
     <string name="widget_act_23_desc">Pulsanti 2 e 3</string>
     <string name="widget_standalone_desc">Azioni dei widget di solo pulsante, indipendenti dalla riga sopra.</string>
     <string name="widget_standalone_slot">Pulsante singolo %1$d</string>
-    <string name="trip_customize">Personalizza</string>
+        <string name="widget_customize">Personalizza</string>
+    <string name="widget_how_to_add">Tieni premuta la schermata Home, tocca Widget e scegli EUC Planet.</string>
+<string name="trip_customize">Personalizza</string>
     <string name="trip_trim">Restringi la vista</string>
     <string name="trip_trim_title">Restringi vista del viaggio</string>
     <string name="trip_customize_tiles">Riquadri</string>

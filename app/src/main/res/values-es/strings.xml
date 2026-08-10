@@ -2046,7 +2046,7 @@
     <string name="widget_connected">Conectado</string>
     <string name="widget_disconnected">Sin rueda</string>
     <string name="widget_placeholder_value">--</string>
-    <string name="widget_description">Lecturas y acciones rápidas</string>
+    <string name="widget_description">Métricas y acciones rápidas</string>
     <string name="trip_action_save_section">Guardar tramo como viaje</string>
     <string name="trip_action_save_section_desc">Conserva este viaje y anade el tramo recortado. Se respalda, nunca se envia a la clasificacion.</string>
     <string name="trip_section_saved">Tramo guardado como viaje nuevo</string>
@@ -2078,8 +2078,8 @@
     <string name="trip_tools_combine_between">En medio, se incluye</string>
     <string name="trip_tools_combine_summary">Combina %1$d viajes en uno nuevo.</string>
     <string name="widget_section">Widget de pantalla de inicio</string>
-    <string name="widget_pick_desc">Elige las %1$d lecturas y %2$d botones que muestra el widget.</string>
-    <string name="widget_metric_slot">Lectura %1$d</string>
+    <string name="widget_pick_desc">Elige las %1$d métricas y %2$d botones que muestra el widget.</string>
+    <string name="widget_metric_slot">Métrica %1$d</string>
     <string name="widget_action_slot">Boton %1$d</string>
     <string name="widget_metric_speed">Velocidad</string>
     <string name="widget_metric_trip">Distancia del viaje</string>
@@ -2107,7 +2107,9 @@
     <string name="widget_act_23_desc">Botones 2 y 3</string>
     <string name="widget_standalone_desc">Acciones de los widgets de solo botón, independientes de la fila de arriba.</string>
     <string name="widget_standalone_slot">Botón suelto %1$d</string>
-    <string name="trip_customize">Personalizar</string>
+        <string name="widget_customize">Personalizar</string>
+    <string name="widget_how_to_add">Mantén pulsada la pantalla de inicio, toca Widgets y elige EUC Planet.</string>
+<string name="trip_customize">Personalizar</string>
     <string name="trip_trim">Recortar la vista</string>
     <string name="trip_trim_title">Recortar vista del viaje</string>
     <string name="trip_customize_tiles">Fichas</string>

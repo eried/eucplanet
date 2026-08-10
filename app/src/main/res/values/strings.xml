@@ -1224,10 +1224,10 @@
     <string name="recording_chart_pwm_smooth">PWM, average (%)</string>
     <string name="recording_chart_power">Power (W)</string>
     <string name="recording_chart_altitude">Altitude (m)</string>
-    <string name="widget_description">Readings and quick actions</string>
+    <string name="widget_description">Metrics and quick actions</string>
     <string name="widget_section">Home screen widget</string>
-    <string name="widget_pick_desc">Choose the %1$d readings and %2$d buttons the widget shows.</string>
-    <string name="widget_metric_slot">Reading %1$d</string>
+    <string name="widget_pick_desc">Choose the %1$d metrics and %2$d buttons the widget shows.</string>
+    <string name="widget_metric_slot">Metric %1$d</string>
     <string name="widget_action_slot">Button %1$d</string>
     <string name="widget_metric_speed">Speed</string>
     <string name="widget_metric_trip">Trip distance</string>
@@ -1289,7 +1289,9 @@
     <string name="trip_tools_combine_mixed_wheels">Some of these were ridden on a different wheel. Distance and energy will be combined.</string>
     <string name="trip_tools_combine_done">Trips combined into a new one</string>
     <string name="trip_tools_combine_failed">Could not combine those trips</string>
-    <string name="trip_customize">Customize</string>
+        <string name="widget_customize">Customize</string>
+    <string name="widget_how_to_add">Long press your home screen, tap Widgets, then pick EUC Planet.</string>
+<string name="trip_customize">Customize</string>
     <string name="trip_trim">Trim the view</string>
     <string name="trip_trim_title">Trim trip view</string>
     <string name="trip_customize_tiles">Tiles</string>

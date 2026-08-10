@@ -2049,7 +2049,7 @@
     <string name="widget_connected">Ansluten</string>
     <string name="widget_disconnected">Inget hjul</string>
     <string name="widget_placeholder_value">--</string>
-    <string name="widget_description">Avläsningar och snabbåtgärder</string>
+    <string name="widget_description">Mätvärden och snabbåtgärder</string>
     <string name="trip_action_save_section">Spara del som ny tur</string>
     <string name="trip_action_save_section_desc">Behaller den har turen och lagger till den beskurna delen. Sakerhetskopieras, skickas aldrig till listan.</string>
     <string name="trip_section_saved">Delen sparad som ny tur</string>
@@ -2081,8 +2081,8 @@
     <string name="trip_tools_combine_between">Daremellan, tas med</string>
     <string name="trip_tools_combine_summary">Slaar ihop %1$d turer till en ny tur.</string>
     <string name="widget_section">Widget pa hemskarmen</string>
-    <string name="widget_pick_desc">Välj de %1$d avläsningar och %2$d knappar som widgeten visar.</string>
-    <string name="widget_metric_slot">Avlasning %1$d</string>
+    <string name="widget_pick_desc">Välj de %1$d mätvärden och %2$d knappar som widgeten visar.</string>
+    <string name="widget_metric_slot">Mätvärde %1$d</string>
     <string name="widget_action_slot">Knapp %1$d</string>
     <string name="widget_metric_speed">Fart</string>
     <string name="widget_metric_trip">Turdistans</string>
@@ -2110,7 +2110,9 @@
     <string name="widget_act_23_desc">Knappar 2 och 3</string>
     <string name="widget_standalone_desc">Åtgärder för knappwidgetarna, fristående från raden ovan.</string>
     <string name="widget_standalone_slot">Ensam knapp %1$d</string>
-    <string name="trip_customize">Anpassa</string>
+        <string name="widget_customize">Anpassa</string>
+    <string name="widget_how_to_add">Håll in på startskärmen, tryck på Widgetar och välj EUC Planet.</string>
+<string name="trip_customize">Anpassa</string>
     <string name="trip_trim">Beskär vyn</string>
     <string name="trip_trim_title">Beskär turvyn</string>
     <string name="trip_customize_tiles">Rutor</string>

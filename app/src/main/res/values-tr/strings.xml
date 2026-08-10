@@ -2046,7 +2046,7 @@
     <string name="widget_connected">Bağlandı</string>
     <string name="widget_disconnected">Teker yok</string>
     <string name="widget_placeholder_value">--</string>
-    <string name="widget_description">Değerler ve hızlı eylemler</string>
+    <string name="widget_description">Metrikler ve hızlı eylemler</string>
     <string name="trip_action_save_section">Bölümü yeni sürüş olarak kaydet</string>
     <string name="trip_action_save_section_desc">Bu surusu korur ve kirpilan bolumu ekler. Yedeklenir, siralamaya asla gonderilmez.</string>
     <string name="trip_section_saved">Bolum yeni surus olarak kaydedildi</string>
@@ -2078,8 +2078,8 @@
     <string name="trip_tools_combine_between">Arada, dahil</string>
     <string name="trip_tools_combine_summary">%1$d surusu tek bir yeni suruste birlestirir.</string>
     <string name="widget_section">Ana ekran widgetı</string>
-    <string name="widget_pick_desc">Widget\'ın gösterdiği %1$d değeri ve %2$d düğmeyi seç.</string>
-    <string name="widget_metric_slot">Olcum %1$d</string>
+    <string name="widget_pick_desc">Widget\'ın gösterdiği %1$d metriği ve %2$d düğmeyi seç.</string>
+    <string name="widget_metric_slot">Metrik %1$d</string>
     <string name="widget_action_slot">Dugme %1$d</string>
     <string name="widget_metric_speed">Hiz</string>
     <string name="widget_metric_trip">Surus mesafesi</string>
@@ -2107,7 +2107,9 @@
     <string name="widget_act_23_desc">Düğme 2 ve 3</string>
     <string name="widget_standalone_desc">Yalnızca düğme widget\'larının eylemleri, üstteki sıradan bağımsız.</string>
     <string name="widget_standalone_slot">Tek düğme %1$d</string>
-    <string name="trip_customize">Özelleştir</string>
+        <string name="widget_customize">Özelleştir</string>
+    <string name="widget_how_to_add">Ana ekrana uzun basın, Widget\'lar\'a dokunun, sonra EUC Planet\'i seçin.</string>
+<string name="trip_customize">Özelleştir</string>
     <string name="trip_trim">Görünümü kırp</string>
     <string name="trip_trim_title">Sürüş görünümünü kırp</string>
     <string name="trip_customize_tiles">Kutucuklar</string>

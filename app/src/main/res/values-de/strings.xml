@@ -2069,7 +2069,7 @@
     <string name="widget_connected">Verbunden</string>
     <string name="widget_disconnected">Kein Wheel</string>
     <string name="widget_placeholder_value">--</string>
-    <string name="widget_description">Werte und Schnellaktionen</string>
+    <string name="widget_description">Messwerte und Schnellaktionen</string>
     <string name="trip_action_save_section">Abschnitt als neue Fahrt</string>
     <string name="trip_action_save_section_desc">Behaelt diese Fahrt und fuegt den gekuerzten Teil hinzu. Wird gesichert, nie an die Rangliste gesendet.</string>
     <string name="trip_section_saved">Abschnitt als neue Fahrt gespeichert</string>
@@ -2101,8 +2101,8 @@
     <string name="trip_tools_combine_between">Dazwischen, kommt mit</string>
     <string name="trip_tools_combine_summary">Fuegt %1$d Fahrten zu einer neuen zusammen.</string>
     <string name="widget_section">Startbildschirm-Widget</string>
-    <string name="widget_pick_desc">Wähle die %1$d Werte und %2$d Tasten, die das Widget zeigt.</string>
-    <string name="widget_metric_slot">Anzeige %1$d</string>
+    <string name="widget_pick_desc">Wähle die %1$d Messwerte und %2$d Tasten, die das Widget zeigt.</string>
+    <string name="widget_metric_slot">Messwert %1$d</string>
     <string name="widget_action_slot">Taste %1$d</string>
     <string name="widget_metric_speed">Tempo</string>
     <string name="widget_metric_trip">Fahrtstrecke</string>
@@ -2130,7 +2130,9 @@
     <string name="widget_act_23_desc">Tasten 2 und 3</string>
     <string name="widget_standalone_desc">Aktionen für die reinen Tasten-Widgets, unabhängig von der Reihe oben.</string>
     <string name="widget_standalone_slot">Einzeltaste %1$d</string>
-    <string name="trip_customize">Anpassen</string>
+        <string name="widget_customize">Anpassen</string>
+    <string name="widget_how_to_add">Startbildschirm lange drücken, auf Widgets tippen, dann EUC Planet wählen.</string>
+<string name="trip_customize">Anpassen</string>
     <string name="trip_trim">Ansicht eingrenzen</string>
     <string name="trip_trim_title">Fahrtansicht eingrenzen</string>
     <string name="trip_customize_tiles">Kacheln</string>

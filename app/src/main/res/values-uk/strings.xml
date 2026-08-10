@@ -2107,7 +2107,9 @@
     <string name="widget_act_23_desc">Кнопки 2 і 3</string>
     <string name="widget_standalone_desc">Дії віджетів-кнопок, незалежні від ряду вище.</string>
     <string name="widget_standalone_slot">Окрема кнопка %1$d</string>
-    <string name="trip_customize">Налаштувати</string>
+        <string name="widget_customize">Налаштувати</string>
+    <string name="widget_how_to_add">Утримуйте головний екран, торкніться Віджети, потім виберіть EUC Planet.</string>
+<string name="trip_customize">Налаштувати</string>
     <string name="trip_trim">Обрізати вигляд</string>
     <string name="trip_trim_title">Обрізати вигляд поїздки</string>
     <string name="trip_customize_tiles">Плитки</string>
