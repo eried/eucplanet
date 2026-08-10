@@ -501,7 +501,13 @@ fun SettingsScreen(
         stringResource(R.string.section_connection),
         stringResource(R.string.auto_connect_on_start),
         stringResource(R.string.section_application),
-        stringResource(R.string.back_button_action)
+        stringResource(R.string.back_button_action),
+        stringResource(R.string.widget_section),
+        stringResource(R.string.widget_customize),
+        stringResource(R.string.widget_metric_slot, 1),
+        stringResource(R.string.widget_action_slot, 1),
+        stringResource(R.string.widget_standalone_slot, 1),
+        stringResource(R.string.charging_monitor)
     ).joinToString(" ")
 
     val corpusDashboard = listOf(
@@ -540,7 +546,8 @@ fun SettingsScreen(
         stringResource(R.string.speed_alarm),
         stringResource(R.string.section_legal_mode_speed),
         stringResource(R.string.speed_legal_tiltback),
-        stringResource(R.string.speed_legal_alarm)
+        stringResource(R.string.speed_legal_alarm),
+        stringResource(R.string.section_speed_calibration)
     ).joinToString(" ")
 
     val corpusVoice = listOf(
@@ -566,7 +573,8 @@ fun SettingsScreen(
         stringResource(R.string.report_pwm),
         stringResource(R.string.report_distance),
         stringResource(R.string.report_recording),
-        stringResource(R.string.report_time)
+        stringResource(R.string.report_time),
+        stringResource(R.string.section_accel_splits)
     ).joinToString(" ")
 
     val corpusMotor = listOf(
@@ -587,7 +595,8 @@ fun SettingsScreen(
         titleCloud,
         stringResource(R.string.section_cloud_folder),
         stringResource(R.string.section_cloud_settings),
-        stringResource(R.string.section_cloud_trips)
+        stringResource(R.string.section_cloud_trips),
+        stringResource(R.string.section_online_stats)
     ).joinToString(" ")
 
     val corpusAlarms = titleAlarms + " " + stringResource(R.string.alarm_help)
@@ -645,7 +654,9 @@ fun SettingsScreen(
         stringResource(R.string.watch_show_phone_battery),
         stringResource(R.string.watch_show_watch_battery),
         stringResource(R.string.watch_pwm_display),
-        stringResource(R.string.watch_show_speed_unit)
+        stringResource(R.string.watch_show_speed_unit),
+        stringResource(R.string.section_watch_device),
+        stringResource(R.string.section_watch_buttons)
     ).joinToString(" ")
 
     val corpusAdvanced = listOf(
