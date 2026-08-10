@@ -56,7 +56,9 @@ class AppSettingsArgLimitTest {
         // crash report. Moving the voice report flags into VoiceReportSettings
         // bought back 17 slots. Update this when the usage genuinely changes,
         // and prefer nesting over spending the headroom.
-        val expectedSlots = 237
+        // 239: the widget's nested settings added a field, which also crossed a
+        // 32-property boundary and so cost a second bitmask slot.
+        val expectedSlots = 239
         assertEquals(
             "AppSettings slot usage changed. Prefer nesting a group of fields over " +
                 "spending headroom, and update this number deliberately.",

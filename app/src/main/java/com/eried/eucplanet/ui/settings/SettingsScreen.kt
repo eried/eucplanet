@@ -272,6 +272,8 @@ import com.eried.eucplanet.ui.theme.themedSegmentedColors
 import com.eried.eucplanet.ui.theme.themedSliderColors
 import com.eried.eucplanet.ui.theme.themedSwitchColors
 import com.eried.eucplanet.data.model.NotificationActionType
+import com.eried.eucplanet.data.model.WidgetActionType
+import com.eried.eucplanet.data.model.WidgetMetricType
 import com.eried.eucplanet.ui.theme.themedTextButtonColors
 import com.eried.eucplanet.ui.theme.themedTonalButtonColors
 import com.eried.eucplanet.util.Units
@@ -1177,6 +1179,73 @@ private fun GeneralTab(
                         modifier = Modifier.weight(1f),
                     )
                     Spacer(Modifier.weight(1f))
+                }
+            }
+        }
+
+        // Home screen widget, configured the same way as the notification
+        // actions directly above, so the two read as one idea.
+        AdvancedCollapsable(
+            title = stringResource(R.string.widget_section),
+            stateKey = "widget-customize",
+        ) {
+            val metricSlots = remember(settings.widget.metrics) {
+                WidgetMetricType.slots(settings.widget.metrics)
+            }
+            val actionSlots2 = remember(settings.widget.actions) {
+                WidgetActionType.slots(settings.widget.actions)
+            }
+            val metricOptions = WidgetMetricType.entries.map { it.key to stringResource(it.pickerLabel) }
+            val actionOptions = WidgetActionType.entries.map { it.key to stringResource(it.pickerLabel) }
+            HintText(
+                stringResource(
+                    R.string.widget_pick_desc,
+                    WidgetMetricType.SLOTS, WidgetActionType.SLOTS,
+                ),
+                small = true,
+            )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                repeat(2) { i ->
+                    WidgetSlotDropdown(
+                        label = stringResource(R.string.widget_metric_slot, i + 1),
+                        currentLabel = WidgetMetricType.byKey(metricSlots[i])
+                            ?.let { stringResource(it.pickerLabel) } ?: "",
+                        options = metricOptions,
+                        onSelect = { viewModel.updateWidgetMetricSlot(i, it) },
+                        modifier = Modifier.weight(1f),
+                    )
+                }
+            }
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                WidgetSlotDropdown(
+                    label = stringResource(R.string.widget_metric_slot, 3),
+                    currentLabel = WidgetMetricType.byKey(metricSlots[2])
+                        ?.let { stringResource(it.pickerLabel) } ?: "",
+                    options = metricOptions,
+                    onSelect = { viewModel.updateWidgetMetricSlot(2, it) },
+                    modifier = Modifier.weight(1f),
+                )
+                Spacer(Modifier.weight(1f))
+            }
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                repeat(WidgetActionType.SLOTS) { i ->
+                    WidgetSlotDropdown(
+                        label = stringResource(R.string.widget_action_slot, i + 1),
+                        currentLabel = WidgetActionType.byKey(actionSlots2[i])
+                            ?.let { stringResource(it.pickerLabel) } ?: "",
+                        options = actionOptions,
+                        onSelect = { viewModel.updateWidgetActionSlot(i, it) },
+                        modifier = Modifier.weight(1f),
+                    )
                 }
             }
         }
@@ -4174,6 +4243,59 @@ private fun CompositeCellDropdown(
                         }
                     )
                 }
+            }
+        }
+    }
+}
+
+/**
+ * One widget slot picker. Same control as the notification's, just fed a
+ * different registry, so the two sections behave identically for a rider who
+ * has configured one of them already.
+ */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun WidgetSlotDropdown(
+    label: String,
+    currentLabel: String,
+    options: List<Pair<String, String>>,
+    onSelect: (String) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    var expanded by remember { mutableStateOf(false) }
+    val noneLabel = stringResource(R.string.flic_action_none)
+    ExposedDropdownMenuBox(
+        expanded = expanded,
+        onExpandedChange = { expanded = !expanded },
+        modifier = modifier,
+    ) {
+        OutlinedTextField(
+            value = currentLabel.ifBlank { noneLabel },
+            onValueChange = {},
+            readOnly = true,
+            singleLine = true,
+            label = { Text(label) },
+            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+            modifier = Modifier
+                .menuAnchor(MenuAnchorType.PrimaryNotEditable)
+                .fillMaxWidth(),
+            colors = themedFieldColors(),
+            shape = RoundedCornerShape(12.dp),
+        )
+        ExposedDropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false },
+            containerColor = MaterialTheme.appColors.menuBackground,
+        ) {
+            DropdownMenuItem(
+                text = { Text(noneLabel) },
+                onClick = { onSelect("NONE"); expanded = false },
+            )
+            options.forEach { (key, text) ->
+                DropdownMenuItem(
+                    text = { Text(text) },
+                    onClick = { onSelect(key); expanded = false },
+                )
             }
         }
     }

@@ -94,6 +94,8 @@ data class AppSettings(
     // add any new report toggle to [VoiceReportSettings] rather than here.
     // AppSettingsArgLimitTest guards the limit.
     val voiceReports: VoiceReportSettings = VoiceReportSettings(),
+    // Home screen widget layout. Nested for the same reason, see WidgetSettings.
+    val widget: WidgetSettings = WidgetSettings(),
 
     // Voice report item order (comma-separated: Speed,Battery,PhoneBattery,Time,Temp,PWM,Distance,Recording)
     val voiceReportOrder: String = "Speed,Battery,PhoneBattery,Time,Temp,PWM,Distance,Recording",

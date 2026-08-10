@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  One-button widget: the rider's first configured action, nothing else.
+
+  A separate layout rather than a resize of the full one. RemoteViews cannot
+  reflow on resize, so shrinking the full widget just crushes three numbers and
+  two buttons into an unreadable strip. A widget whose whole job is one big tap
+  target wants a different layout, not a smaller one.
+-->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/widget_btn_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/widget_bg"
+    android:padding="8dp">
+
+    <TextView
+        android:id="@+id/widget_btn_single"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:background="@drawable/widget_button_bg"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:textColor="#FFFFFFFF"
+        android:maxLines="2"
+        android:ellipsize="end"
+        android:text="@string/widget_horn" />
+</FrameLayout>

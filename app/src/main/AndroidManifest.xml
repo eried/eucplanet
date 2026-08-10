@@ -147,6 +147,18 @@
                 android:resource="@xml/widget_euc_info" />
         </receiver>
 
+        <!-- One-button variant. Shares the full widget's configured actions. -->
+        <receiver
+            android:name=".widget.EucButtonWidget"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_euc_button_info" />
+        </receiver>
+
         <!-- Let the Application class provide the WorkManager Configuration (Hilt worker factory). -->
         <provider
             android:name="androidx.startup.InitializationProvider"

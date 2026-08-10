@@ -114,6 +114,11 @@
         android:orientation="horizontal"
         android:layout_marginTop="8dp">
 
+        <!--
+          Two configurable buttons. Ids stay horn/voice for compatibility with
+          widgets already placed on a launcher; which action each one fires is
+          the rider's choice, exactly like the notification's action slots.
+        -->
         <TextView
             android:id="@+id/widget_btn_horn"
             android:layout_width="0dp"

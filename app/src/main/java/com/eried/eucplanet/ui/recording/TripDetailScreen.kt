@@ -296,10 +296,6 @@ fun TripDetailScreen(
 
     Scaffold(
         topBar = {
-          // The trim bar rides with the top bar rather than the scrolling body:
-          // it is a control for what the whole screen shows, so scrolling it
-          // away while the charts below still reflect it would be confusing.
-          Column {
             if (landscape) {
                 // Landscape bar: back + title on the left, the date range centred,
                 // share on the right.
@@ -374,22 +370,6 @@ fun TripDetailScreen(
                     )
                 )
             }
-            if (showTrimBar && dataPoints.isNotEmpty() && elapsedMs.isNotEmpty()) {
-                val full = elapsedMs.last()
-                TripTrimBar(
-                    durationMs = full,
-                    startMs = trimRange?.first ?: 0L,
-                    endMs = trimRange?.last ?: full,
-                    onRange = { s, e ->
-                        // Dragging back to the full span is "no trim", so the
-                        // rest of the screen returns to the untrimmed fast path.
-                        trimRange = if (s <= 0L && e >= full) null else s..e
-                    },
-                    onReset = { trimRange = null },
-                    onEditExact = { showTrim = true },
-                )
-            }
-          }
         },
         snackbarHost = { SnackbarHost(snackbar) }
     ) { padding ->
@@ -692,6 +672,28 @@ fun TripDetailScreen(
             val tilesByKey = allTiles.associateBy { it.first }
             val orderedTiles = effectiveTileOrder.mapNotNull { tilesByKey[it] }
 
+            // The trim strip, defined once and placed by each orientation: under
+            // the date line in portrait, at the head of the info column in
+            // landscape where the date lives in the top bar instead.
+            val trimBar: @Composable ColumnScope.() -> Unit = {
+                if (showTrimBar && elapsedMs.isNotEmpty()) {
+                    val full = elapsedMs.last()
+                    Spacer(Modifier.height(4.dp))
+                    TripTrimBar(
+                        durationMs = full,
+                        startMs = trimRange?.first ?: 0L,
+                        endMs = trimRange?.last ?: full,
+                        onRange = { s, e ->
+                            // Dragging back to the full span is "no trim", so the
+                            // rest of the screen returns to the untrimmed path.
+                            trimRange = if (s <= 0L && e >= full) null else s..e
+                        },
+                        onReset = { trimRange = null },
+                        onEditExact = { showTrim = true },
+                    )
+                }
+            }
+
             // Render the shown tiles in the rider's order, in rows of 3, padding a
             // short final row with spacers so every tile keeps the same width.
             val summaryCards: @Composable ColumnScope.() -> Unit = {
@@ -918,6 +920,9 @@ fun TripDetailScreen(
                             .padding(horizontal = 16.dp)
                     ) {
                         Spacer(Modifier.height(8.dp))
+                        // Landscape keeps the date range in the top bar, so the
+                        // bar leads the scrolling column instead.
+                        trimBar()
                         summaryCards()
                         Spacer(Modifier.height(16.dp))
                         chartsContent()
@@ -943,6 +948,10 @@ fun TripDetailScreen(
                         style = MaterialTheme.typography.titleMedium,
                         color = MaterialTheme.colorScheme.onSurface,
                     )
+                    // Directly under the trip's own header, where the date range
+                    // it narrows is already on screen, rather than up with the
+                    // app bar.
+                    trimBar()
                     Spacer(Modifier.height(12.dp))
                     summaryCards()
                     if (hasMap) {

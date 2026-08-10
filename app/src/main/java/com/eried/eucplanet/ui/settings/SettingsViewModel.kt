@@ -720,6 +720,22 @@ class SettingsViewModel @Inject constructor(
         if (index in slots.indices) slots[index] = key
         copy(notificationActions = slots.joinToString(","))
     }
+    /** Widget slots, nested in [com.eried.eucplanet.data.model.WidgetSettings]
+     *  for the same parameter-slot reason the voice reports are. */
+    fun updateWidgetMetricSlot(index: Int, key: String) = update {
+        val slots = com.eried.eucplanet.data.model.WidgetMetricType
+            .slots(widget.metrics).toMutableList()
+        if (index in slots.indices) slots[index] = key
+        copy(widget = widget.copy(metrics = slots.joinToString(",")))
+    }
+
+    fun updateWidgetActionSlot(index: Int, key: String) = update {
+        val slots = com.eried.eucplanet.data.model.WidgetActionType
+            .slots(widget.actions).toMutableList()
+        if (index in slots.indices) slots[index] = key
+        copy(widget = widget.copy(actions = slots.joinToString(",")))
+    }
+
     fun updateHudServerPort(v: Int) = update {
         // Match the dial port range. Below 1024 the HUD's listening socket
         // couldn't bind without root; above 65535 isn't a port.

@@ -75,7 +75,10 @@ fun TripTrimBar(
     val track = MaterialTheme.appColors.gaugeTrack
     val handle = MaterialTheme.appColors.textPrimary
 
-    Column(modifier.fillMaxWidth().padding(horizontal = 16.dp)) {
+    // No horizontal padding of its own: it now sits inside the trip content,
+    // which is already inset, and padding twice would leave it narrower than
+    // the tiles and charts it controls.
+    Column(modifier.fillMaxWidth()) {
         BoxWithConstraints(Modifier.fillMaxWidth().height(44.dp)) {
             var wPx by remember {
                 mutableStateOf(constraints.maxWidth.toFloat().coerceAtLeast(1f))
@@ -156,21 +159,26 @@ fun TripTrimBar(
             TextButton(onClick = onReset, shape = RoundedCornerShape(12.dp)) {
                 Text(stringResource(R.string.studio_replay_trim_reset))
             }
-            // The span itself is the button: tapping the numbers to type exact
-            // ones is where a rider looks first.
+            // The span is the button that opens the exact-times editor, styled
+            // exactly as Overlay Studio styles its own: parenthesised and in the
+            // accent colour, which is what makes it read as tappable rather than
+            // as a plain readout. Untrimmed it says "(full trip)", same as there.
+            val trimmed = startMs > 0L || endMs < dur
             Text(
-                "${formatReplayClock(startMs)} - ${formatReplayClock(endMs)}",
+                if (trimmed)
+                    "( ${formatReplayClock(startMs)}  -  ${formatReplayClock(endMs)} )"
+                else stringResource(R.string.studio_replay_trim),
                 modifier = Modifier
-                    .clip(RoundedCornerShape(8.dp))
+                    .clip(RoundedCornerShape(6.dp))
                     .clickable(onClick = onEditExact)
-                    .padding(horizontal = 10.dp, vertical = 6.dp),
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.appColors.textPrimary,
+                    .padding(horizontal = 8.dp, vertical = 4.dp),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.appColors.primary,
             )
             Text(
                 formatReplayClock(dur),
                 modifier = Modifier.padding(end = 12.dp),
-                style = MaterialTheme.typography.bodyMedium,
+                style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.appColors.textSecondary,
             )
         }

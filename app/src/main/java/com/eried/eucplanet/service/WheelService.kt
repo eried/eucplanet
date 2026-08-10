@@ -97,6 +97,18 @@ class WheelService : LifecycleService() {
     // telemetry frame and cannot suspend, formats in the rider's own units.
     @Volatile
     private var distanceUnitCached: String = "km"
+    @Volatile
+    private var tempUnitCached: String = "C"
+    // Widget layout, mirrored so the painter can run off a telemetry frame
+    // without suspending.
+    @Volatile
+    private var widgetMetricsCached: String =
+        com.eried.eucplanet.data.model.WidgetMetricType.DEFAULT_KEYS
+    @Volatile
+    private var widgetActionsCached: String =
+        com.eried.eucplanet.data.model.WidgetActionType.DEFAULT_KEYS
+    @Volatile
+    private var phoneBatteryCached: Int = 0
     // Last paired wheel's name, mirrored from settings so the notification can
     // show it (Tesla-style) without suspending - used when no wheel is actively
     // connected (e.g. while "Connecting" or after a drop).
@@ -207,6 +219,17 @@ class WheelService : LifecycleService() {
                 // mirror the latest value here every settings update.
                 speedUnitCached = com.eried.eucplanet.util.Units.effectiveSpeedUnit(s)
                 distanceUnitCached = com.eried.eucplanet.util.Units.effectiveDistanceUnit(s)
+                tempUnitCached = com.eried.eucplanet.util.Units.effectiveTempUnit(s)
+                widgetMetricsCached = s.widget.metrics
+                widgetActionsCached = s.widget.actions
+                // Repaint on a settings change: the rider reconfiguring the
+                // widget expects it to change now, not at the next telemetry
+                // frame, which may never arrive with no wheel connected.
+                renderWidget(
+                    wheelRepository.wheelData.value.takeIf {
+                        wheelRepository.connectionState.value == ConnectionState.CONNECTED
+                    }
+                )
                 lastDeviceNameCached = s.lastDeviceName
                 voicePeriodicCached = s.voicePeriodicEnabled
                 notifActionsEnabledCached = s.notificationActionsEnabled
@@ -822,25 +845,77 @@ class WheelService : LifecycleService() {
         renderWidget(data)
     }
 
-    /** Paints the widget in the rider's own units. [data] null paints the
-     *  disconnected state. */
+    /** Paints the widget in the rider's own units, one entry per configured
+     *  slot. [data] null paints the disconnected state. */
     private fun renderWidget(data: WheelData?) {
         if (!com.eried.eucplanet.widget.EucWidget.isPlaced(this)) return
         val connected =
             wheelRepository.connectionState.value == ConnectionState.CONNECTED && data != null
+        val u = com.eried.eucplanet.util.Units
         val speedUnit = speedUnitCached
         val distUnit = distanceUnitCached
+        val tempUnit = tempUnitCached
+
+        val metricKeys = com.eried.eucplanet.data.model.WidgetMetricType.slots(widgetMetricsCached)
+        val values = ArrayList<String>(metricKeys.size)
+        val captions = ArrayList<String>(metricKeys.size)
+        metricKeys.forEach { key ->
+            val type = com.eried.eucplanet.data.model.WidgetMetricType.byKey(key)
+            if (type == null || data == null) {
+                values.add("--")
+                captions.add(type?.let { getString(it.pickerLabel) } ?: "")
+                return@forEach
+            }
+            // The unit rides in the caption so the number itself stays large.
+            val (v, unit) = when (type) {
+                com.eried.eucplanet.data.model.WidgetMetricType.SPEED ->
+                    "%.0f".format(u.speed(data.speed, speedUnit)) to u.speedUnit(this, speedUnit)
+                com.eried.eucplanet.data.model.WidgetMetricType.TRIP ->
+                    "%.1f".format(u.distance(data.tripDistance, distUnit)) to u.distanceUnit(distUnit)
+                com.eried.eucplanet.data.model.WidgetMetricType.ODO ->
+                    "%.0f".format(u.distance(data.totalDistance, distUnit)) to u.distanceUnit(distUnit)
+                com.eried.eucplanet.data.model.WidgetMetricType.BATTERY ->
+                    "${data.batteryPercent}" to "%"
+                com.eried.eucplanet.data.model.WidgetMetricType.VOLTAGE ->
+                    "%.0f".format(data.voltage) to "V"
+                com.eried.eucplanet.data.model.WidgetMetricType.TEMP ->
+                    "%.0f".format(u.temperature(data.maxTemperature, tempUnit)) to u.tempUnit(tempUnit)
+                com.eried.eucplanet.data.model.WidgetMetricType.PWM ->
+                    (if (data.pwm.isNaN()) "--" else "%.0f".format(data.pwm)) to "%"
+                com.eried.eucplanet.data.model.WidgetMetricType.CURRENT ->
+                    "%.0f".format(kotlin.math.abs(data.current)) to "A"
+                com.eried.eucplanet.data.model.WidgetMetricType.POWER ->
+                    "%.0f".format(kotlin.math.abs(data.voltage * data.current)) to "W"
+                com.eried.eucplanet.data.model.WidgetMetricType.PHONE_BATTERY ->
+                    "$phoneBatteryCached" to "%"
+            }
+            values.add(v)
+            captions.add(getString(type.pickerLabel) + if (unit.isBlank()) "" else " ($unit)")
+        }
+
+        val actionKeys = com.eried.eucplanet.data.model.WidgetActionType.slots(widgetActionsCached)
+        val buttons = actionKeys.map { key ->
+            val type = com.eried.eucplanet.data.model.WidgetActionType.byKey(key)
+            when {
+                type == null -> ""
+                // Voice is the one button whose label carries state.
+                type == com.eried.eucplanet.data.model.WidgetActionType.VOICE ->
+                    getString(
+                        if (voicePeriodicCached) R.string.widget_voice_on
+                        else R.string.widget_voice_off
+                    )
+                else -> getString(type.pickerLabel)
+            }
+        }
+
         com.eried.eucplanet.widget.EucWidget.render(
             this,
             com.eried.eucplanet.widget.EucWidget.Snapshot(
                 connected = connected,
-                speed = if (data == null) "--"
-                        else "%.0f".format(com.eried.eucplanet.util.Units.speed(data.speed, speedUnit)),
-                distance = if (data == null) "--"
-                        else "%.1f".format(com.eried.eucplanet.util.Units.distance(data.tripDistance, distUnit)),
-                battery = if (data == null) "--" else "${data.batteryPercent}%",
-                speedUnit = com.eried.eucplanet.util.Units.speedUnit(this, speedUnit),
-                distanceUnit = com.eried.eucplanet.util.Units.distanceUnit(distUnit),
+                values = values,
+                captions = captions,
+                buttons = buttons,
+                buttonKeys = actionKeys,
                 voiceOn = voicePeriodicCached,
             )
         )

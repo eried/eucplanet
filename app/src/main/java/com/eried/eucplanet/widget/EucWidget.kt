@@ -7,9 +7,12 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.util.Log
+import android.view.View
 import android.widget.RemoteViews
 import com.eried.eucplanet.MainActivity
 import com.eried.eucplanet.R
+import com.eried.eucplanet.data.model.WidgetActionType
+import com.eried.eucplanet.data.model.WidgetMetricType
 import com.eried.eucplanet.data.repository.SettingsRepository
 import com.eried.eucplanet.service.WheelService
 import dagger.hilt.android.AndroidEntryPoint
@@ -93,26 +96,44 @@ class EucWidget : AppWidgetProvider() {
      */
     data class Snapshot(
         val connected: Boolean = false,
-        val speed: String = DASH,
-        val distance: String = DASH,
-        val battery: String = DASH,
-        val speedUnit: String = "",
-        val distanceUnit: String = "",
+        /** Three values and three captions, already formatted in the rider's
+         *  units, one per configured metric slot. */
+        val values: List<String> = List(WidgetMetricType.SLOTS) { DASH },
+        val captions: List<String> = List(WidgetMetricType.SLOTS) { "" },
+        /** Two button labels, one per configured action slot. Blank hides it. */
+        val buttons: List<String> = listOf("", ""),
+        /** Action keys behind those buttons, so taps route without re-reading
+         *  settings in the receiver. */
+        val buttonKeys: List<String> = listOf(WidgetActionType.NONE, WidgetActionType.NONE),
         val voiceOn: Boolean = false,
     ) {
         companion object {
             private const val PREFS = "euc_widget"
-            private const val DASH = "--"
+            const val DASH = "--"
+
+            // A control character, not a comma: these hold formatted values
+            // like "1,234 km" in locales that group with commas, which a comma
+            // separator would split in the middle of a number.
+            private const val SEP = "\u001F"
+
+            private fun pack(list: List<String>) = list.joinToString(SEP)
+
+            private fun unpack(s: String, n: Int, fill: String): List<String> {
+                val parts = if (s.isEmpty()) emptyList() else s.split(SEP)
+                return (0 until n).map { parts.getOrNull(it)?.ifEmpty { fill } ?: fill }
+            }
 
             fun load(context: Context): Snapshot {
                 val p = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
                 return Snapshot(
                     connected = p.getBoolean("connected", false),
-                    speed = p.getString("speed", DASH) ?: DASH,
-                    distance = p.getString("distance", DASH) ?: DASH,
-                    battery = p.getString("battery", DASH) ?: DASH,
-                    speedUnit = p.getString("speedUnit", "") ?: "",
-                    distanceUnit = p.getString("distanceUnit", "") ?: "",
+                    values = unpack(p.getString("values", "") ?: "", WidgetMetricType.SLOTS, DASH),
+                    captions = unpack(p.getString("captions", "") ?: "", WidgetMetricType.SLOTS, ""),
+                    buttons = unpack(p.getString("buttons", "") ?: "", WidgetActionType.SLOTS, ""),
+                    buttonKeys = unpack(
+                        p.getString("buttonKeys", "") ?: "",
+                        WidgetActionType.SLOTS, WidgetActionType.NONE,
+                    ),
                     voiceOn = p.getBoolean("voiceOn", false),
                 )
             }
@@ -120,11 +141,10 @@ class EucWidget : AppWidgetProvider() {
             fun save(context: Context, s: Snapshot) {
                 context.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit()
                     .putBoolean("connected", s.connected)
-                    .putString("speed", s.speed)
-                    .putString("distance", s.distance)
-                    .putString("battery", s.battery)
-                    .putString("speedUnit", s.speedUnit)
-                    .putString("distanceUnit", s.distanceUnit)
+                    .putString("values", pack(s.values))
+                    .putString("captions", pack(s.captions))
+                    .putString("buttons", pack(s.buttons))
+                    .putString("buttonKeys", pack(s.buttonKeys))
                     .putBoolean("voiceOn", s.voiceOn)
                     .apply()
             }
@@ -140,9 +160,37 @@ class EucWidget : AppWidgetProvider() {
 
         private const val DASH = "--"
 
+        /**
+         * The tap target for one configured action.
+         *
+         * Shared with [EucButtonWidget] so a widget action means the same thing
+         * wherever it appears. Voice is the one handled in this receiver rather
+         * than by the service: it carries a persistent state, and toggling it
+         * has to work with no wheel connected.
+         */
+        fun actionIntentFor(context: Context, key: String, requestCode: Int): PendingIntent? =
+            when (key) {
+                WidgetActionType.VOICE.key ->
+                    broadcastIntent(context, ACTION_TOGGLE_VOICE, requestCode)
+                WidgetActionType.HORN.key ->
+                    serviceIntent(context, WheelService.ACTION_HORN, requestCode)
+                WidgetActionType.LIGHT.key ->
+                    serviceIntent(context, WheelService.ACTION_TOGGLE_LIGHT, requestCode)
+                WidgetActionType.LOCK.key ->
+                    serviceIntent(context, WheelService.ACTION_TOGGLE_LOCK, requestCode)
+                WidgetActionType.RECORD.key ->
+                    serviceIntent(context, WheelService.ACTION_START_RECORDING, requestCode)
+                WidgetActionType.DISCONNECT.key ->
+                    serviceIntent(context, WheelService.ACTION_DISCONNECT, requestCode)
+                else -> null
+            }
+
         /** Repaint every placed widget from [snapshot], and remember it. */
         fun render(context: Context, snapshot: Snapshot) {
             Snapshot.save(context, snapshot)
+            // The one-button widget reads the same snapshot, so one push keeps
+            // both surfaces in step.
+            EucButtonWidget.render(context)
             val manager = AppWidgetManager.getInstance(context) ?: return
             val ids = manager.getAppWidgetIds(ComponentName(context, EucWidget::class.java))
             if (ids.isEmpty()) return
@@ -154,10 +202,17 @@ class EucWidget : AppWidgetProvider() {
          *  skip the work entirely for everyone who does not use them. */
         fun isPlaced(context: Context): Boolean {
             val manager = AppWidgetManager.getInstance(context) ?: return false
+            // Either surface counts: the one-button widget reads the same
+            // snapshot, so the service must keep pushing for it too.
             return manager.getAppWidgetIds(
                 ComponentName(context, EucWidget::class.java)
-            ).isNotEmpty()
+            ).isNotEmpty() || EucButtonWidget.isPlaced(context)
         }
+
+        private val VALUE_IDS = listOf(R.id.widget_speed, R.id.widget_distance, R.id.widget_battery)
+        private val CAPTION_IDS =
+            listOf(R.id.widget_speed_label, R.id.widget_distance_label, R.id.widget_battery_label)
+        private val BUTTON_IDS = listOf(R.id.widget_btn_horn, R.id.widget_btn_voice)
 
         private fun buildViews(context: Context, s: Snapshot): RemoteViews {
             val views = RemoteViews(context.packageName, R.layout.widget_euc)
@@ -169,45 +224,34 @@ class EucWidget : AppWidgetProvider() {
                 )
             )
             // Disconnected shows dashes rather than the last live numbers, which
-            // a rider glancing at the launcher would read as current.
-            views.setTextViewText(R.id.widget_speed, if (s.connected) s.speed else DASH)
-            views.setTextViewText(R.id.widget_distance, if (s.connected) s.distance else DASH)
-            views.setTextViewText(R.id.widget_battery, if (s.connected) s.battery else DASH)
-
-            // The rider's own units live in the small caption under each number,
-            // so the value itself stays as large as possible.
-            views.setTextViewText(
-                R.id.widget_speed_label,
-                label(context, R.string.widget_speed, s.speedUnit)
-            )
-            views.setTextViewText(
-                R.id.widget_distance_label,
-                label(context, R.string.widget_distance, s.distanceUnit)
-            )
-
-            views.setTextViewText(
-                R.id.widget_btn_voice,
-                context.getString(
-                    if (s.voiceOn) R.string.widget_voice_on else R.string.widget_voice_off
+            // a rider glancing at the launcher would read as current. The
+            // captions stay, so the widget still says WHAT it is showing.
+            VALUE_IDS.forEachIndexed { i, id ->
+                views.setTextViewText(id, if (s.connected) s.values.getOrElse(i) { DASH } else DASH)
+            }
+            CAPTION_IDS.forEachIndexed { i, id ->
+                val caption = s.captions.getOrElse(i) { "" }
+                views.setTextViewText(id, caption)
+                // An unconfigured slot collapses rather than leaving a gap.
+                views.setViewVisibility(id, if (caption.isBlank()) View.GONE else View.VISIBLE)
+                views.setViewVisibility(
+                    VALUE_IDS[i], if (caption.isBlank()) View.INVISIBLE else View.VISIBLE
                 )
-            )
+            }
+
+            BUTTON_IDS.forEachIndexed { i, id ->
+                val text = s.buttons.getOrElse(i) { "" }
+                views.setTextViewText(id, text)
+                views.setViewVisibility(id, if (text.isBlank()) View.GONE else View.VISIBLE)
+                val key = s.buttonKeys.getOrElse(i) { WidgetActionType.NONE }
+                actionIntentFor(context, key, requestCode = 100 + i)?.let {
+                    views.setOnClickPendingIntent(id, it)
+                }
+            }
 
             // Tapping anywhere that is not a button opens the app.
             views.setOnClickPendingIntent(R.id.widget_root, openAppIntent(context))
-            views.setOnClickPendingIntent(
-                R.id.widget_btn_horn,
-                serviceIntent(context, WheelService.ACTION_HORN, requestCode = 1)
-            )
-            views.setOnClickPendingIntent(
-                R.id.widget_btn_voice,
-                broadcastIntent(context, ACTION_TOGGLE_VOICE, requestCode = 2)
-            )
             return views
-        }
-
-        private fun label(context: Context, res: Int, unit: String): String {
-            val base = context.getString(res)
-            return if (unit.isBlank()) base else "$base ($unit)"
         }
 
         private fun openAppIntent(context: Context): PendingIntent =
