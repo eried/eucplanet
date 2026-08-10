@@ -858,12 +858,17 @@ class WheelRepository @Inject constructor(
             // Trapezoidal energy integration: avg(prev, now) * dt. Capped dt
             // so a long pause/clock jump doesn't accumulate a phantom bucket.
             val nowPowerW = data.voltage * data.current
-            val dtMs = data.timestamp - sessionLastEnergyMs
+            // 0 marks "no sample to integrate from": session start, or the
+            // first sample after the link dropped. Without this the gap across
+            // a disconnection would be integrated as if the wheel had been
+            // charging the whole time.
+            val dtMs = if (sessionLastEnergyMs == 0L) 0L else data.timestamp - sessionLastEnergyMs
             // Signed by the family's convention inside ChargeEnergy, so the two
             // buckets mean what they say: In = into the battery (charging),
             // Out = out of it (riding). Nothing downstream re-flips.
             val incWh = ChargeEnergy.stepWh(
-                sessionLastPowerW, nowPowerW, dtMs, dischargeIsPositivePower
+                sessionLastPowerW, nowPowerW, dtMs, dischargeIsPositivePower,
+                charging = status == ChargeStatus.Charging,
             )
             if (incWh != 0f) {
                 sessionEnergyWh += incWh
@@ -881,6 +886,12 @@ class WheelRepository @Inject constructor(
                 pushHist(chargeTempHist, data.timestamp, data.maxTemperature)
                 recordPackHist(data)
             }
+        } else {
+            // Re-baseline the integrator on the next sample. Time with the link
+            // down is not time we watched the wheel charge, and the session is
+            // deliberately kept alive across a reconnect, so without this the
+            // whole outage would be integrated at the last known power.
+            sessionLastEnergyMs = 0L
         }
         // Disconnected keeps the session FROZEN: the buffers, estimator, energy and
         // last snapshot are all preserved so the Battery screen still shows the last

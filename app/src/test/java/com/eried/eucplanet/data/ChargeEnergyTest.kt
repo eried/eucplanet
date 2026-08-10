@@ -65,7 +65,44 @@ class ChargeEnergyTest {
         assertEquals(500f * (30f / 3600f), wh, 0.01f)
     }
 
-    @Test fun capIsSixtySeconds() {
-        assertEquals(60_000L, ChargeEnergy.MAX_GAP_MS)
+    @Test fun capIsFifteenMinutes() {
+        assertEquals(15 * 60_000L, ChargeEnergy.MAX_GAP_MS)
+    }
+
+    // A wheel that says it is charging is taking energy in, whatever sign it
+    // puts on the reading. This is what keeps "Charged" off zero when adapter
+    // detection has not resolved the family, which is how a V8S ended up with
+    // its whole charge filed as energy OUT and the row hidden entirely.
+
+    @Test fun chargingFilesAsEnergyIn_whicheverSignTheWheelReports() {
+        val negative = ChargeEnergy.stepWh(-500f, -500f, 60_000L, V2, charging = true)
+        val positive = ChargeEnergy.stepWh(500f, 500f, 60_000L, V2, charging = true)
+        assertTrue("negative-power charging must count as IN", negative > 0f)
+        assertTrue("positive-power charging must count as IN", positive > 0f)
+        assertEquals(negative, positive, 0.0001f)
+    }
+
+    @Test fun chargingIgnoresTheFamilyFlag() {
+        // The regression this guards: with the flag resolved wrong, a whole
+        // charge integrated to zero energy IN and the Battery row disappeared.
+        val v1 = ChargeEnergy.stepWh(-500f, -500f, 60_000L, V1, charging = true)
+        val v2 = ChargeEnergy.stepWh(-500f, -500f, 60_000L, V2, charging = true)
+        assertEquals(v1, v2, 0.0001f)
+        assertEquals(500f / 60f, v1, 0.01f)
+    }
+
+    @Test fun notChargingStillSplitsByFamilySign() {
+        // Riding has both consumption and regen, and only the sign separates
+        // them, so the family convention still decides there.
+        assertTrue(ChargeEnergy.stepWh(3f, 3f, 60_000L, V1, charging = false) < 0f)
+        assertTrue(ChargeEnergy.stepWh(3f, 3f, 60_000L, V2, charging = false) > 0f)
+    }
+
+    @Test fun aChargingSampleMinutesApartIsStillIntegrated() {
+        // The reported regression: a wheel whose charging heartbeat is slower
+        // than the old 60 s cap contributed nothing at all, so a short charge
+        // accumulated zero and the row never appeared.
+        val wh = ChargeEnergy.stepWh(500f, 500f, 5 * 60_000L, V2, charging = true)
+        assertEquals(500f * (5f / 60f), wh, 0.01f)
     }
 }
