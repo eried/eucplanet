@@ -53,6 +53,8 @@ class WheelService : LifecycleService() {
         /** Phone HUD redraw interval. 5 Hz reads as live without recomposing
          *  a window-manager view at BLE frame rate for a whole ride. */
         private const val PHONE_HUD_INTERVAL_MS = 200L
+        /** Graph window kept for the Phone HUD. Matches the Studio's own. */
+        private const val PHONE_HUD_HISTORY_MS = 360_000L
         // Bumped to _v2 so the new lock-screen visibility on the channel actually
         // applies: a NotificationChannel's settings are frozen after first
         // creation, so an existing install ignores code changes to the old id.
@@ -153,6 +155,16 @@ class WheelService : LifecycleService() {
     @Volatile
     private var phoneHudOnlyWhenAwayCached: Boolean = true
     private var lastPhoneHudPush = 0L
+
+    /**
+     * Rolling telemetry for the Phone HUD's graph elements.
+     *
+     * Filled at the overlay's own 5 Hz push rate rather than the BLE frame
+     * rate, so a six minute window is ~1800 entries, each just a timestamp and
+     * a reference to a WheelData that already exists.
+     */
+    private val phoneHudHistory =
+        ArrayDeque<com.eried.eucplanet.ui.studio.StudioSample>()
 
     /**
      * Never opened. StudioElementData requires a hub, and the offscreen
@@ -583,6 +595,7 @@ class WheelService : LifecycleService() {
         try { renderWidget(null) } catch (_: Exception) {}
         // The window belongs to this service; nothing else would remove it.
         try { phoneHudWindow.hide() } catch (_: Exception) {}
+        phoneHudHistory.clear()
         try { hudServer.stop() } catch (_: Exception) {}
         voiceJob?.cancel()
         engineSoundEngine.stop()
@@ -960,12 +973,24 @@ class WheelService : LifecycleService() {
         val now = System.currentTimeMillis()
         if (now - lastPhoneHudPush < PHONE_HUD_INTERVAL_MS) return
         lastPhoneHudPush = now
+        // Graph elements plot StudioElementData.history, so passing an empty
+        // list drew their frame and axes with nothing inside. A sample is only
+        // a timestamp plus the WheelData we already hold, so the buffer costs
+        // the list and nothing else: same shape the Studio keeps for its own
+        // live graphs, trimmed to the same window it uses.
+        phoneHudHistory.addLast(com.eried.eucplanet.ui.studio.StudioSample(now, data))
+        val cutoff = now - PHONE_HUD_HISTORY_MS
+        while (phoneHudHistory.isNotEmpty() && phoneHudHistory.first().timeMs < cutoff) {
+            phoneHudHistory.removeFirst()
+        }
         phoneHudWindow.update(
             com.eried.eucplanet.ui.studio.StudioElementData(
                 wheelData = data,
                 wheelName = lastDeviceNameCached.orEmpty(),
                 connected = wheelRepository.connectionState.value == ConnectionState.CONNECTED,
-                history = emptyList(),
+                // Copied, not handed over: Compose needs a stable snapshot, and
+                // the deque keeps mutating underneath on the next frame.
+                history = phoneHudHistory.toList(),
                 cameraHub = phoneHudCameraHub,
                 speedUnit = speedUnitCached,
                 distanceUnit = distanceUnitCached,
