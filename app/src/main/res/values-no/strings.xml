@@ -548,7 +548,6 @@
     <string name="alarm_vibrate_target_both">Alle</string>
     <string name="alarm_vibrate_target_phone">Telefon</string>
     <string name="alarm_vibrate_target_watch">Klokke</string>
-    <string name="auto_connect_caption">Kobler automatisk til det sist parede hjulet på nytt</string>
     <string name="wheel_name_display">Hjulnavn</string>
     <string name="wheel_name_none">Ingen</string>
     <string name="wheel_name_model">Navn</string>

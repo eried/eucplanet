@@ -512,7 +512,6 @@
     <string name="auto_record_start_in_motion_caption">移動時開始，閒置後自動停止，下次騎乘時重新開始</string>
     <string name="auto_record_stop_idle_seconds">閒置後停止</string>
     <string name="auto_connect_on_start">啟動時自動連線</string>
-    <string name="auto_connect_caption">自動重新連接至上次配對的車輪</string>
     <string name="wheel_name_display">車輪名稱</string>
     <string name="wheel_name_none">無</string>
     <string name="wheel_name_model">名稱</string>

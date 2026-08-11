@@ -512,7 +512,6 @@
     <string name="auto_record_start_in_motion_caption">Startuje przy ruchu, kończy po bezczynności, wznawia przy kolejnej jeździe</string>
     <string name="auto_record_stop_idle_seconds">Zatrzymaj po bezczynności</string>
     <string name="auto_connect_on_start">Automatyczne łączenie po starcie</string>
-    <string name="auto_connect_caption">Automatycznie łączy się z ostatnio sparowanym kołem</string>
     <string name="wheel_name_display">Nazwa koła</string>
     <string name="wheel_name_none">Brak</string>
     <string name="wheel_name_model">Nazwa</string>

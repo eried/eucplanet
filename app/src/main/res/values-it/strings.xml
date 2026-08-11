@@ -231,7 +231,6 @@
     <string name="auto_record_start_in_motion_caption">Parte al movimento, si ferma dopo inattività, riparte al prossimo giro</string>
     <string name="auto_record_stop_idle_seconds">Ferma dopo inattività di</string>
     <string name="auto_connect_on_start">Connessione automatica all\'avvio</string>
-    <string name="auto_connect_caption">Si riconnette automaticamente all\'ultima ruota accoppiata</string>
     <string name="wheel_name_display">Nome ruota</string>
     <string name="wheel_name_none">Nessuno</string>
     <string name="wheel_name_model">Nome</string>

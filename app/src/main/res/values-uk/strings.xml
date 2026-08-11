@@ -512,7 +512,6 @@
     <string name="auto_record_start_in_motion_caption">Стартує під час руху, зупиняється після простою, відновлюється у наступній поїздці</string>
     <string name="auto_record_stop_idle_seconds">Зупиняти після простою</string>
     <string name="auto_connect_on_start">Автопідключення на старті</string>
-    <string name="auto_connect_caption">Автоматично перепідключається до останнього спареного моноколеса</string>
     <string name="wheel_name_display">Назва колеса</string>
     <string name="wheel_name_none">Немає</string>
     <string name="wheel_name_model">Назва</string>

@@ -512,7 +512,6 @@
     <string name="auto_record_start_in_motion_caption">動き始めに開始し、停止後に自動終了、次の走行時に再開始</string>
     <string name="auto_record_stop_idle_seconds">停止後に記録終了</string>
     <string name="auto_connect_on_start">起動時に自動接続</string>
-    <string name="auto_connect_caption">最後にペアリングしたホイールに自動再接続します</string>
     <string name="wheel_name_display">ホイール名</string>
     <string name="wheel_name_none">なし</string>
     <string name="wheel_name_model">名前</string>

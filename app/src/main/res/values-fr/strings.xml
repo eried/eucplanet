@@ -512,7 +512,6 @@
     <string name="auto_record_start_in_motion_caption">Démarre au mouvement, s\'arrête après inactivité, reprend au trajet suivant</string>
     <string name="auto_record_stop_idle_seconds">Arrêter après inactivité de</string>
     <string name="auto_connect_on_start">Connexion automatique au démarrage</string>
-    <string name="auto_connect_caption">Se reconnecte automatiquement à la dernière roue appairée</string>
     <string name="wheel_name_display">Nom de la roue</string>
     <string name="wheel_name_none">Aucun</string>
     <string name="wheel_name_model">Nom</string>

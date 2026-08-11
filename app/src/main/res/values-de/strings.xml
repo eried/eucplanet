@@ -512,7 +512,6 @@
     <string name="auto_record_start_in_motion_caption">Startet bei Bewegung, stoppt nach Stillstand, läuft bei der nächsten Fahrt wieder an</string>
     <string name="auto_record_stop_idle_seconds">Stoppen nach Stillstand von</string>
     <string name="auto_connect_on_start">Automatisch verbinden</string>
-    <string name="auto_connect_caption">Verbindet sich automatisch mit dem zuletzt gekoppelten Wheel</string>
     <string name="wheel_name_display">Wheel-Name</string>
     <string name="wheel_name_none">Keiner</string>
     <string name="wheel_name_model">Name</string>

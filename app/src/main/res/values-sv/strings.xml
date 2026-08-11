@@ -512,7 +512,6 @@
     <string name="auto_record_start_in_motion_caption">Startar vid rörelse, stannar automatiskt efter inaktivitet, startar igen nästa tur</string>
     <string name="auto_record_stop_idle_seconds">Stoppa efter inaktivitet i</string>
     <string name="auto_connect_on_start">Anslut automatiskt vid start</string>
-    <string name="auto_connect_caption">Återansluter automatiskt till det senast parade hjulet</string>
     <string name="wheel_name_display">Hjulnamn</string>
     <string name="wheel_name_none">Inget</string>
     <string name="wheel_name_model">Namn</string>

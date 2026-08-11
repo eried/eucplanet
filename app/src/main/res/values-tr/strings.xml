@@ -512,7 +512,6 @@
     <string name="auto_record_start_in_motion_caption">Harekette başlar, boşta kalınca otomatik durur, sonraki sürüşte yeniden başlar</string>
     <string name="auto_record_stop_idle_seconds">Boşta kalınca dur</string>
     <string name="auto_connect_on_start">Başlangıçta otomatik bağlan</string>
-    <string name="auto_connect_caption">Son eşleştirilmiş tekere otomatik olarak yeniden bağlanır</string>
     <string name="wheel_name_display">Teker adı</string>
     <string name="wheel_name_none">Yok</string>
     <string name="wheel_name_model">İsim</string>

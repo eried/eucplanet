@@ -1094,26 +1094,35 @@ private fun GeneralTab(
         }   // end recording BringIntoViewSection
 
         SectionHeader(stringResource(R.string.section_connection))
+        // No caption: "Auto-connect on start" already says what it does, and
+        // the sentence under it only said the same thing again.
         SwitchSetting(stringResource(R.string.auto_connect_on_start), settings.autoConnect) { viewModel.updateAutoConnect(it) }
-        HintText(stringResource(R.string.auto_connect_caption), small = true)
 
-        SegmentedChoice(
-            label = stringResource(R.string.wheel_name_display),
-            options = listOf(
-                "NONE" to stringResource(R.string.wheel_name_none),
-                "MODEL" to stringResource(R.string.wheel_name_model),
-                "BRAND" to stringResource(R.string.wheel_name_brand),
-            ),
-            current = settings.wheelNameDisplay,
-            onChange = { viewModel.updateWheelNameDisplay(it) },
-        )
-
-        settings.lastDeviceName?.let {
-            Text(
-                stringResource(R.string.last_device, it),
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+        // How the wheel is named, and which one was last seen, folded away.
+        // Both are set-once-and-forget, so they were costing height on every
+        // visit for something a rider touches roughly never.
+        AdvancedCollapsable(
+            title = stringResource(R.string.wheel_name_display),
+            stateKey = "connection-wheel-name",
+        ) {
+            SegmentedChoice(
+                label = stringResource(R.string.wheel_name_display),
+                options = listOf(
+                    "NONE" to stringResource(R.string.wheel_name_none),
+                    "MODEL" to stringResource(R.string.wheel_name_model),
+                    "BRAND" to stringResource(R.string.wheel_name_brand),
+                ),
+                current = settings.wheelNameDisplay,
+                onChange = { viewModel.updateWheelNameDisplay(it) },
             )
+
+            settings.lastDeviceName?.let {
+                Text(
+                    stringResource(R.string.last_device, it),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.appColors.textSecondary,
+                )
+            }
         }
 
         SectionHeader(stringResource(R.string.section_application))

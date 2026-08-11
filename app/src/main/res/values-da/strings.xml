@@ -512,7 +512,6 @@
     <string name="auto_record_start_in_motion_caption">Starter ved bevægelse, stopper ved inaktivitet, starter igen ved næste tur</string>
     <string name="auto_record_stop_idle_seconds">Stop efter inaktivitet i</string>
     <string name="auto_connect_on_start">Automatisk forbindelse ved start</string>
-    <string name="auto_connect_caption">Forbinder automatisk til det senest parrede hjul</string>
     <string name="wheel_name_display">Hjulnavn</string>
     <string name="wheel_name_none">Ingen</string>
     <string name="wheel_name_model">Navn</string>

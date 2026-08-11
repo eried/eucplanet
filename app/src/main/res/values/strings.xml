@@ -704,7 +704,6 @@
     <string name="auto_record_mode_connected">Connected</string>
     <string name="auto_record_mode_riding">When riding</string>
     <string name="auto_connect_on_start">Auto-connect on start</string>
-    <string name="auto_connect_caption">Reconnects to the last paired wheel automatically</string>
     <string name="wheel_name_display">Wheel name</string>
     <string name="wheel_name_none">None</string>
     <string name="wheel_name_model">Name</string>

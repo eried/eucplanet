@@ -168,7 +168,6 @@
     <string name="auto_record_start_in_motion_caption">运动时开始录制,闲置后停止,下次行驶时重新开始。</string>
     <string name="auto_record_stop_idle_seconds">空闲多久后停止</string>
     <string name="auto_connect_on_start">启动时自动连接</string>
-    <string name="auto_connect_caption">自动重连上次配对的独轮车。</string>
     <string name="wheel_name_display">独轮车名称</string>
     <string name="wheel_name_none">无</string>
     <string name="wheel_name_model">名称</string>

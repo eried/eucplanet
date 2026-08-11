@@ -512,7 +512,6 @@
     <string name="auto_record_start_in_motion_caption">Start bij beweging, stopt na inactiviteit, herstart bij de volgende rit</string>
     <string name="auto_record_stop_idle_seconds">Stoppen na inactiviteit van</string>
     <string name="auto_connect_on_start">Automatisch verbinden bij starten</string>
-    <string name="auto_connect_caption">Verbindt automatisch opnieuw met het laatste gekoppelde wiel</string>
     <string name="wheel_name_display">Wielnaam</string>
     <string name="wheel_name_none">Geen</string>
     <string name="wheel_name_model">Naam</string>

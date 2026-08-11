@@ -512,7 +512,6 @@
     <string name="auto_record_start_in_motion_caption">Empieza al moverte, se detiene tras inactividad y reanuda en la siguiente salida</string>
     <string name="auto_record_stop_idle_seconds">Detener tras inactividad de</string>
     <string name="auto_connect_on_start">Conectar automáticamente al inicio</string>
-    <string name="auto_connect_caption">Reconecta automáticamente a la última rueda emparejada</string>
     <string name="wheel_name_display">Nombre de la rueda</string>
     <string name="wheel_name_none">Ninguno</string>
     <string name="wheel_name_model">Nombre</string>
