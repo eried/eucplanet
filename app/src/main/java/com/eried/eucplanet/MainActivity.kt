@@ -50,6 +50,10 @@ import javax.inject.Inject
 private var widgetSessionReset = false
 private var languageReconciled = false
 
+/** Its own tag so a rider reporting "PIP does nothing" can be answered with
+ *  a single `adb logcat -s EucPlanetPip`. */
+private const val TAG_PIP = "EucPlanetPip"
+
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
 
@@ -198,8 +202,21 @@ class MainActivity : AppCompatActivity() {
     }
     override fun onUserLeaveHint() {
         super.onUserLeaveHint()
-        if (_settings.value?.pipMode.orEmpty() == "OFF") return
-        if (!com.eried.eucplanet.util.PipHost.dashboardVisible) return
+        // Every branch below says why it did nothing. PIP failing looks
+        // identical to PIP being broken - the window simply never appears -
+        // and the usual cause is outside the app: Android keeps a per-app
+        // "Picture-in-picture" permission that, once off, makes the request
+        // fail silently. One logcat line turns "it does not work on my phone"
+        // into an answerable question.
+        val mode = _settings.value?.pipMode.orEmpty()
+        if (mode == "OFF") {
+            android.util.Log.i(TAG_PIP, "not entering PIP: mode is off in settings")
+            return
+        }
+        if (!com.eried.eucplanet.util.PipHost.dashboardVisible) {
+            android.util.Log.i(TAG_PIP, "not entering PIP: the dashboard is not the visible screen")
+            return
+        }
         runCatching {
             enterPictureInPictureMode(
                 android.app.PictureInPictureParams.Builder()
@@ -208,6 +225,15 @@ class MainActivity : AppCompatActivity() {
                     .setAspectRatio(android.util.Rational(16, 9))
                     .build()
             )
+        }.onSuccess { entered ->
+            if (entered) android.util.Log.i(TAG_PIP, "entered PIP in $mode mode")
+            else android.util.Log.w(
+                TAG_PIP,
+                "Android refused PIP. Check Settings > Apps > EUC Planet > " +
+                    "Picture-in-picture, and that the phone is not in battery saver.",
+            )
+        }.onFailure {
+            android.util.Log.w(TAG_PIP, "PIP request threw", it)
         }
     }
 
