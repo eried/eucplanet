@@ -1105,11 +1105,6 @@ private fun InfoTabs(state: ChargingUiState) {
                         }
                         if (state.energyChargedWh >= 1f) {
                             StatRow(stringResource(R.string.charging_stat_charged), fmtWh(state.energyChargedWh))
-                        } else if (state.charging && state.packEstimateWh > 0 && state.addedPercent > 0f) {
-                            // No charge current to integrate: estimate from the
-                            // percent gained x the rated pack Wh. Rough, so tagged.
-                            val estWh = (state.addedPercent / 100f) * state.packEstimateWh
-                            StatRow(stringResource(R.string.charging_stat_charged_est), "~%.0f Wh".format(estWh))
                         }
                         StatRow(stringResource(R.string.charging_stat_voltage), "%.1f V".format(state.voltage))
                     }

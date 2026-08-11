@@ -1159,10 +1159,6 @@ data class AdvancedSettings(
     val chargingWindowMs: Int = 300000,
     val chargingSanityCapMinutes: Int = 480,
     val chargingMedianFilterSize: Int = 7,
-    // Rated pack Wh (nominal V x Ah), 0 = off. Used ONLY to estimate charged
-    // energy on the Battery screen when the wheel reports no charge current to
-    // integrate (some InMotion wheels read ~0 A while charging). Rough estimate.
-    val chargeEstimatePackWh: Int = 0,
     // Battery cell / pack balance coloring (AdvGroup.CHARGING). How far a cell
     // may drift from the pack MEDIAN before it stops reading as balanced green:
     // below by warn -> yellow, by danger -> red; above by high -> blue. The three

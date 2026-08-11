@@ -57,8 +57,6 @@ data class ChargingUiState(
     val energyChargedWh: Float = 0f,
     /** True while the wheel reports itself charging (or full). */
     val charging: Boolean = false,
-    /** Rated pack Wh from settings (0 = off), for the charged-energy estimate. */
-    val packEstimateWh: Int = 0,
     val warmedUp: Boolean = false,
     val minutesToTarget: Float? = null,
     val minutesToFull: Float? = null,
@@ -120,8 +118,7 @@ class ChargingMonitorViewModel @Inject constructor(
     ) { quad, settings, bms ->
         buildState(quad.data, quad.status, quad.name, quad.snap, settings.chargingEstimateToFull, bms,
             settings.advanced.cellLowWarnMv, settings.advanced.cellLowDangerMv,
-            settings.advanced.cellHighMv, settings.advanced.packBalanceTolerancePct,
-            settings.advanced.chargeEstimatePackWh)
+            settings.advanced.cellHighMv, settings.advanced.packBalanceTolerancePct)
     }.stateIn(
         viewModelScope,
         SharingStarted.WhileSubscribed(5_000),
@@ -239,7 +236,6 @@ class ChargingMonitorViewModel @Inject constructor(
         cellLowDangerMv: Int = 80,
         cellHighMv: Int = 40,
         packBalanceTolerancePct: Int = 5,
-        packEstimateWh: Int = 0,
     ): ChargingUiState {
         val charging = status == ChargeStatus.Charging || status == ChargeStatus.Full
         val connected = status != ChargeStatus.Disconnected
@@ -294,7 +290,6 @@ class ChargingMonitorViewModel @Inject constructor(
             energyUsedWh = snap.sessionEnergyOutWh,
             energyChargedWh = snap.sessionEnergyInWh,
             charging = charging,
-            packEstimateWh = packEstimateWh,
             warmedUp = est.warmedUp,
             minutesToTarget = est.minutesToTarget,
             minutesToFull = est.minutesToFull,

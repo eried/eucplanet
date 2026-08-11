@@ -565,8 +565,6 @@
     <string name="adv_inmotion_v1_pin">InMotion V5/V8/V10 PIN</string>
     <string name="adv_inmotion_v1_pin_desc">Access PIN for InMotion V5/V8/V10 wheels, sent on connect so the wheel starts sending data. Leave 000000 unless you set your own PIN in the InMotion app.</string>
     <string name="adv_charging_warning">These tune the time-to-full estimate. Wrong values give a misleading ETA but never affect charging itself.</string>
-    <string name="adv_charge_pack_wh">Battery capacity (Wh)</string>
-    <string name="adv_charge_pack_wh_desc">Your pack\'s rated Wh (nominal volts x Ah). Used only to estimate charged energy when the wheel reports no charge current. 0 turns the estimate off.</string>
     <string name="adv_charging_target_pct">Target percent</string>
     <string name="adv_charging_target_pct_desc">Affects the charge level where the estimate switches to the slower final phase.</string>
     <string name="adv_charging_target_taper">Target taper</string>
@@ -2149,7 +2147,6 @@
     <string name="charging_stat_current">Current</string>
     <string name="charging_stat_used">Used</string>
     <string name="charging_stat_charged">Charged</string>
-    <string name="charging_stat_charged_est">Charged (est.)</string>
     <string name="charging_chart_empty">Collecting data</string>
     <string name="charging_reset_data">Reset data</string>
     <string name="charging_export">Export</string>
