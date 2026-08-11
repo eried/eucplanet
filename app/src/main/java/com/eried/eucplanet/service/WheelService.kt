@@ -950,26 +950,23 @@ class WheelService : LifecycleService() {
      * can be called from every settings emission without churning the window.
      */
     private fun applyPhoneHud() {
-        // Picture-in-picture wins outright, whatever the HUD is set to.
-        //
-        // They are two answers to the same question - keep the wheel visible
-        // while the rider uses something else - and PIP is the one the rider
-        // just asked for by leaving the app. Stacking a full-screen overlay on
-        // top of a window already showing the same numbers helps nobody.
-        //
-        // This is deliberate, not a side effect. It would happen anyway today,
-        // because Android keeps the activity started while its PIP window is up
-        // so the foreground flag below stays true, but that is an accident of
-        // lifecycle bookkeeping and the wrong thing to depend on.
-        if (com.eried.eucplanet.util.PipHost.inPip.value) {
-            phoneHudWindow.hide()
-            return
-        }
         // Hidden while the app itself is in front, unless the rider asked for
         // it everywhere. Drawing the overlay over the dashboard would cover a
         // fuller version of the same numbers.
-        val inOwnApp = phoneHudOnlyWhenAwayCached &&
-            com.eried.eucplanet.util.AppForeground.isForeground.value
+        //
+        // Picture-in-picture counts as being in the app, stated rather than
+        // inherited: Android keeps the activity started while its PIP window is
+        // up, so the foreground flag alone would already do this, but that is
+        // lifecycle bookkeeping and the wrong thing to rely on.
+        //
+        // It stays subject to the setting, though. Switching "only outside EUC
+        // Planet" off says show the overlay everywhere, and a rider who has
+        // done that and likes the HUD alongside the PIP window is not asking
+        // for an exception - the two coexist perfectly well.
+        val inOwnApp = phoneHudOnlyWhenAwayCached && (
+            com.eried.eucplanet.util.AppForeground.isForeground.value ||
+                com.eried.eucplanet.util.PipHost.inPip.value
+            )
         val wanted = phoneHudEnabledCached && phoneHudJsonCached.isNotBlank() && !inOwnApp
         if (!wanted) {
             phoneHudWindow.hide()
