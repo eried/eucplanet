@@ -2088,8 +2088,6 @@
     <string name="phone_hud_section">HUD telefonu</string>
     <string name="phone_hud_enable">Pokaż nakładkę</string>
     <string name="phone_hud_only_away">Tylko poza EUC Planet</string>
-    <string name="phone_hud_only_away_desc">Ukrywa nakładkę, gdy ta aplikacja jest otwarta, bo pulpit pokazuje więcej.</string>
-    <string name="phone_hud_portrait_only">Tylko układy pionowe. Dotknięcia przechodzą dalej, więc aplikacja pod spodem działa normalnie.</string>
     <string name="widget_section">Widget ekranu glownego</string>
     <string name="widget_pick_desc">Wybierz %1$d metryki i %2$d przyciski widoczne w widgecie.</string>
     <string name="widget_metric_slot">Metryka %1$d</string>

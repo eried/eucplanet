@@ -2085,8 +2085,6 @@
     <string name="phone_hud_section">HUD del teléfono</string>
     <string name="phone_hud_enable">Mostrar la superposición</string>
     <string name="phone_hud_only_away">Solo fuera de EUC Planet</string>
-    <string name="phone_hud_only_away_desc">Oculta la superposición mientras esta app está abierta, donde el panel ya muestra más.</string>
-    <string name="phone_hud_portrait_only">Solo diseños verticales. Ignora los toques, así la app de abajo sigue funcionando.</string>
     <string name="widget_section">Widget de pantalla de inicio</string>
     <string name="widget_pick_desc">Elige las %1$d métricas y %2$d botones que muestra el widget.</string>
     <string name="widget_metric_slot">Métrica %1$d</string>

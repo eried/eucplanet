@@ -1296,12 +1296,11 @@ private fun GeneralTab(
                                     folderAvailable = l.folderAvailable,
                                     presets = l.savedPresets,
                                     bundledPresets = l.bundledPortrait,
-                                    // Deliberately empty. A landscape preset
-                                    // bakes a per-element rotation onto a
-                                    // portrait canvas, and this window draws it
-                                    // upright, so offering them would hand the
-                                    // rider a layout it will render wrong.
-                                    bundledLandscapePresets = emptyList(),
+                                    // Landscape layouts are offered too. The
+                                    // window never rotates, so a preset drawn
+                                    // exactly as authored is the honest result
+                                    // rather than geometry we try to correct.
+                                    bundledLandscapePresets = l.bundledLandscape,
                                     onLoad = {
                                         viewModel.pickPhoneHudOverlay(it)
                                         presetSheetOpen = false
@@ -1317,12 +1316,14 @@ private fun GeneralTab(
                             }
                         }
                     }
+                    // No caption under this one. The switch says what it does,
+                    // and the portrait-only limit is enforced by the picker
+                    // simply not offering landscape layouts, so explaining it
+                    // here was words for something the rider cannot hit.
                     SwitchSetting(
                         stringResource(R.string.phone_hud_only_away),
                         settings.phoneHudOnlyWhenAway,
                     ) { viewModel.updatePhoneHudOnlyWhenAway(it) }
-                    HintText(stringResource(R.string.phone_hud_only_away_desc), small = true)
-                    HintText(stringResource(R.string.phone_hud_portrait_only), small = true)
                 }
             }
         }

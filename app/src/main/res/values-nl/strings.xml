@@ -2090,8 +2090,6 @@
     <string name="phone_hud_section">Telefoon-HUD</string>
     <string name="phone_hud_enable">Overlay tonen</string>
     <string name="phone_hud_only_away">Alleen buiten EUC Planet</string>
-    <string name="phone_hud_only_away_desc">Verbergt de overlay terwijl deze app open is, waar het dashboard al meer toont.</string>
-    <string name="phone_hud_portrait_only">Alleen staande indelingen. Tikken gaan er doorheen, dus de app eronder blijft werken.</string>
     <string name="widget_section">Startscherm-widget</string>
     <string name="widget_pick_desc">Kies de %1$d metingen en %2$d knoppen die de widget toont.</string>
     <string name="widget_metric_slot">Meting %1$d</string>

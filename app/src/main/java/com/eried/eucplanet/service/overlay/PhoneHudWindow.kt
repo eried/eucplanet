@@ -129,7 +129,17 @@ class PhoneHudWindow @Inject constructor(
                 WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE or
                 WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
             PixelFormat.TRANSLUCENT,
-        ).apply { gravity = Gravity.TOP or Gravity.START }
+        ).apply {
+            gravity = Gravity.TOP or Gravity.START
+            // Pinned to portrait so the overlay never rotates with the phone.
+            //
+            // Without this the window re-lays out on every rotation and a
+            // layout authored for one shape jumps to the other. Pinned, a
+            // preset is drawn exactly as it was built, whichever way the phone
+            // is held, and a landscape preset's per-element rotation is simply
+            // part of what the rider drew rather than something to undo.
+            screenOrientation = android.content.pm.ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+        }
 
         return try {
             wm.addView(compose, params)
@@ -168,20 +178,18 @@ class PhoneHudWindow @Inject constructor(
             OverlayElementType.MAP,
         )
 
-        /** True when a preset was authored in landscape, so it is refused. */
-        fun isLandscapePreset(elements: List<OverlayElement>): Boolean =
-            elements.isNotEmpty() &&
-                elements.count { it.rotationDeg != 0f } * 2 > elements.size
-
         /**
          * What is left of a preset once the types this window cannot draw are
-         * removed. Empty for a landscape preset, which is refused whole rather
-         * than drawn with its geometry wrong.
+         * removed.
+         *
+         * Landscape presets are NOT refused. The window is locked to one
+         * orientation and never re-lays out, so a preset is drawn exactly as it
+         * was authored, per-element rotation included. That is the honest
+         * result: the rider sees what they built, rather than geometry the app
+         * guessed at correcting.
          */
-        fun usableElements(elements: List<OverlayElement>): List<OverlayElement> {
-            if (isLandscapePreset(elements)) return emptyList()
-            return elements.filterNot { it.type in UNSUPPORTED }
-        }
+        fun usableElements(elements: List<OverlayElement>): List<OverlayElement> =
+            elements.filterNot { it.type in UNSUPPORTED }
 
         private fun overlayType(): Int =
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {

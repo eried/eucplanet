@@ -2085,8 +2085,6 @@
     <string name="phone_hud_section">HUD на телефоні</string>
     <string name="phone_hud_enable">Показувати накладку</string>
     <string name="phone_hud_only_away">Лише поза EUC Planet</string>
-    <string name="phone_hud_only_away_desc">Ховає накладку, поки цей застосунок відкритий: панель показує більше.</string>
-    <string name="phone_hud_portrait_only">Лише вертикальні розкладки. Дотики проходять наскрізь, застосунок під нею працює як завжди.</string>
     <string name="widget_section">Віджет на головному екрані</string>
     <string name="widget_pick_desc">Виберіть %1$d показники та %2$d кнопки, які показує віджет.</string>
     <string name="widget_metric_slot">Показник %1$d</string>

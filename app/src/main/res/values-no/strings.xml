@@ -1976,8 +1976,6 @@
     <string name="phone_hud_section">Telefon-HUD</string>
     <string name="phone_hud_enable">Vis overlegget</string>
     <string name="phone_hud_only_away">Bare utenfor EUC Planet</string>
-    <string name="phone_hud_only_away_desc">Skjuler overlegget mens denne appen er åpen, der dashbordet viser mer.</string>
-    <string name="phone_hud_portrait_only">Bare stående oppsett. Trykk går gjennom, så appen under fortsetter å virke.</string>
     <string name="widget_section">Widget pa startskjerm</string>
     <string name="widget_pick_desc">Velg de %1$d målingene og %2$d knappene widgetet viser.</string>
     <string name="widget_metric_slot">Måling %1$d</string>

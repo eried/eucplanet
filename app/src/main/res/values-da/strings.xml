@@ -2103,8 +2103,6 @@
     <string name="phone_hud_section">Telefon-HUD</string>
     <string name="phone_hud_enable">Vis overlay</string>
     <string name="phone_hud_only_away">Kun uden for EUC Planet</string>
-    <string name="phone_hud_only_away_desc">Skjuler overlayet mens denne app er åben, hvor instrumentbrættet viser mere.</string>
-    <string name="phone_hud_portrait_only">Kun stående layouts. Det ignorerer tryk, så appen nedenunder virker fortsat.</string>
     <string name="widget_section">Widget pa startskaerm</string>
     <string name="widget_pick_desc">Vælg de %1$d målinger og %2$d knapper, widgetten viser.</string>
     <string name="widget_metric_slot">Måling %1$d</string>

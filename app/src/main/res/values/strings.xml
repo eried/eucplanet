@@ -1231,8 +1231,7 @@
     <string name="phone_hud_grant">Grant</string>
     <string name="phone_hud_enable">Show the overlay</string>
     <string name="phone_hud_only_away">Only outside EUC Planet</string>
-    <string name="phone_hud_only_away_desc">Hides the overlay while this app is open, where the dashboard already shows more.</string>
-    <string name="phone_hud_portrait_only">Portrait layouts only. It ignores taps, so the app underneath keeps working.</string>    <string name="widget_section">Home screen widget</string>
+    <string name="widget_section">Home screen widget</string>
     <string name="widget_pick_desc">Choose the %1$d metrics and %2$d buttons the widget shows.</string>
     <string name="widget_metric_slot">Metric %1$d</string>
     <string name="widget_action_slot">Button %1$d</string>

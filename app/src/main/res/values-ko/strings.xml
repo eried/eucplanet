@@ -2087,8 +2087,6 @@
     <string name="phone_hud_section">폰 HUD</string>
     <string name="phone_hud_enable">오버레이 표시</string>
     <string name="phone_hud_only_away">EUC Planet 밖에서만</string>
-    <string name="phone_hud_only_away_desc">이 앱이 열려 있는 동안에는 숨깁니다. 대시보드가 더 많이 보여줍니다.</string>
-    <string name="phone_hud_portrait_only">세로 레이아웃만 지원합니다. 터치를 통과시키므로 아래 앱은 그대로 동작합니다.</string>
     <string name="widget_section">홈 화면 위젯</string>
     <string name="widget_pick_desc">위젯에 표시할 지표 %1$d개와 버튼 %2$d개를 고르세요.</string>
     <string name="widget_metric_slot">지표 %1$d</string>

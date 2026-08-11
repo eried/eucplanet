@@ -1955,8 +1955,6 @@
     <string name="phone_hud_section">手机 HUD</string>
     <string name="phone_hud_enable">显示悬浮层</string>
     <string name="phone_hud_only_away">仅在 EUC Planet 之外</string>
-    <string name="phone_hud_only_away_desc">本应用打开时隐藏悬浮层，仪表盘本来就显示得更多。</string>
-    <string name="phone_hud_portrait_only">仅支持竖屏布局。它不接收点按，下方应用照常使用。</string>
     <string name="widget_section">主屏幕小部件</string>
     <string name="widget_pick_desc">选择小部件显示的 %1$d 个指标和 %2$d 个按钮。</string>
     <string name="widget_metric_slot">指标 %1$d</string>

@@ -2088,8 +2088,6 @@
     <string name="phone_hud_section">Telefon-HUD</string>
     <string name="phone_hud_enable">Visa överlägget</string>
     <string name="phone_hud_only_away">Endast utanför EUC Planet</string>
-    <string name="phone_hud_only_away_desc">Döljer överlägget medan den här appen är öppen, där instrumentpanelen visar mer.</string>
-    <string name="phone_hud_portrait_only">Endast stående layouter. Tryck går igenom, så appen under fortsätter fungera.</string>
     <string name="widget_section">Widget pa hemskarmen</string>
     <string name="widget_pick_desc">Välj de %1$d mätvärden och %2$d knappar som widgeten visar.</string>
     <string name="widget_metric_slot">Mätvärde %1$d</string>
