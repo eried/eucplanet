@@ -2153,6 +2153,9 @@
     <string name="trip_map_reconnected">Yeniden bağlandı: %1$s</string>
     <string name="trip_map_new_wheel">Yeni teker: %1$s</string>
     <string name="trip_map_ride_end">Sürüş sonu</string>
+    <string name="adv_smoothing_window">Yumuşatma penceresi</string>
+    <string name="adv_smoothing_window_desc">\"ortalama\" sürüş grafikleri ve yumuşatılmış sesli raporlar tarafından ortalaması alınan örnek sayısı. Sürüşler saniyede yaklaşık bir kez kaydedilir, bu yüzden bu değer saniye olarak okunur. Dikkat: yüksek değerler kısa sıçramaları gizler.</string>
+    <string name="auto_volume_only_connected">Yalnızca bir teker bağlıyken</string>
 </resources>
 
 

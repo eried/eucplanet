@@ -2155,4 +2155,7 @@
     <string name="trip_map_reconnected">재연결됨: %1$s</string>
     <string name="trip_map_new_wheel">새 휠: %1$s</string>
     <string name="trip_map_ride_end">주행 종료</string>
+    <string name="adv_smoothing_window">평활화 구간</string>
+    <string name="adv_smoothing_window_desc">\"평균\" 트립 그래프와 평활화된 음성 보고에서 평균하는 샘플 수. 트립은 약 1초마다 기록되므로 이 값은 초 단위로 읽힙니다. 주의: 값이 높으면 짧은 스파이크가 가려집니다.</string>
+    <string name="auto_volume_only_connected">휠이 연결된 경우에만</string>
 </resources>

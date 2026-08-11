@@ -2153,5 +2153,8 @@
     <string name="trip_map_reconnected">Reconectado: %1$s</string>
     <string name="trip_map_new_wheel">Nueva rueda: %1$s</string>
     <string name="trip_map_ride_end">Fin del recorrido</string>
+    <string name="adv_smoothing_window">Ventana de suavizado</string>
+    <string name="adv_smoothing_window_desc">Muestras que promedian los gráficos de viaje «promedio» y los avisos de voz suavizados. Los viajes se registran una vez por segundo, así que esto se lee como segundos. Peligro: los valores altos ocultan picos breves.</string>
+    <string name="auto_volume_only_connected">Solo cuando hay una rueda conectada</string>
 </resources>
 

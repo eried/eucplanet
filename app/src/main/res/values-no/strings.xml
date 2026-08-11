@@ -2044,4 +2044,7 @@
     <string name="trip_map_reconnected">Koblet til igjen: %1$s</string>
     <string name="trip_map_new_wheel">Nytt hjul: %1$s</string>
     <string name="trip_map_ride_end">Slutt på turen</string>
+    <string name="adv_smoothing_window">Utjevningsvindu</string>
+    <string name="adv_smoothing_window_desc">Antall målinger som midles av \"gjennomsnitt\"-turgrafene og de utjevnede stemmerapportene. Turer logges omtrent én gang i sekundet, så dette tilsvarer sekunder. Fare: høye verdier skjuler korte topper.</string>
+    <string name="auto_volume_only_connected">Bare når et hjul er tilkoblet</string>
 </resources>

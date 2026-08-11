@@ -2156,5 +2156,8 @@
     <string name="trip_map_reconnected">Переподключено: %1$s</string>
     <string name="trip_map_new_wheel">Новое моноколесо: %1$s</string>
     <string name="trip_map_ride_end">Конец поездки</string>
+    <string name="adv_smoothing_window">Окно сглаживания</string>
+    <string name="adv_smoothing_window_desc">Отсчёты, усредняемые графиками поездки \"среднее\" и сглаженными голосовыми отчётами. Поездки записываются примерно раз в секунду, поэтому значение соответствует секундам. Внимание: большие значения скрывают короткие всплески.</string>
+    <string name="auto_volume_only_connected">Только когда колесо подключено</string>
 </resources>
 

@@ -584,6 +584,9 @@ class SettingsViewModel @Inject constructor(
     fun updateAutoLightsOffMinutes(v: Int) = update { copy(autoLightsOffMinutesAfter = v) }
     fun updateAutoVolumeEnabled(v: Boolean) = update { copy(autoVolumeEnabled = v) }
         .also { if (!v) automationManager.restoreBaselineVolume() }
+    fun updateAutoVolumeOnlyWhenConnected(v: Boolean) =
+        update { copy(autoVolumeOnlyWhenConnected = v) }
+            .also { if (v) automationManager.restoreBaselineVolume() }
     fun updateAutoVolumeCurve(curve: String) = update { copy(autoVolumeCurve = curve) }
 
     // Media control (speed-driven music/podcast pause & resume)

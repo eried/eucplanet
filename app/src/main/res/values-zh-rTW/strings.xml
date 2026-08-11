@@ -2155,6 +2155,9 @@
     <string name="trip_map_reconnected">已重新連接: %1$s</string>
     <string name="trip_map_new_wheel">新獨輪車: %1$s</string>
     <string name="trip_map_ride_end">騎行結束</string>
+    <string name="adv_smoothing_window">平滑視窗</string>
+    <string name="adv_smoothing_window_desc">\"平均\"行程圖表與平滑語音播報所平均的取樣數。行程大約每秒記錄一次，因此可視為秒數。危險：數值過高會掩蓋短暫的尖峰。</string>
+    <string name="auto_volume_only_connected">僅在車輪已連線時</string>
 </resources>
 
 
