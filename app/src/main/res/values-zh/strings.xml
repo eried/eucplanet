@@ -1472,6 +1472,8 @@
     <string name="online_upload_linked_caption">你的统计数据和行程将显示在公开排行榜</string>
     <string name="online_rejoin_title">重新激活资料</string>
     <string name="online_rejoin_body">备份文件夹中包含一个用于排行榜的资料。\n\n骑手 ID: %1$s</string>
+    <string name="warnings_no_backup_title">行程未备份</string>
+    <string name="warnings_no_backup_body">它们只存在于这台手机上。选择一个备份文件夹，手机丢失或被清空时行程才不会一起消失</string>
     <string name="warnings_pip_blocked_title">画中画已被阻止</string>
     <string name="warnings_pip_blocked_body">系统已设置为拒绝 EUC Planet 使用画中画，因此离开应用时不会出现悬浮窗</string>
     <string name="online_rejoin_confirm">重新加入</string>

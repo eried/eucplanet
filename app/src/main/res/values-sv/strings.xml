@@ -1612,6 +1612,8 @@
     <string name="warnings_fix_button">Åtgärda</string>
     <string name="warnings_perm_notifications_title">Aviseringar av</string>
     <string name="warnings_perm_notifications_body">Du ser inte åkstatus i statusfältet och får inga talvarningar i aviseringspanelen</string>
+    <string name="warnings_no_backup_title">Turer säkerhetskopieras inte</string>
+    <string name="warnings_no_backup_body">De finns bara på den här telefonen. Välj en säkerhetskopieringsmapp så att en borttappad eller rensad telefon inte tar med sig dina turer</string>
     <string name="warnings_pip_blocked_title">Bild-i-bild är blockerat</string>
     <string name="warnings_pip_blocked_body">Android är inställt på att neka det för EUC Planet, så det flytande fönstret visas inte när du lämnar appen</string>
     <string name="online_rejoin_confirm">Gå med igen</string>

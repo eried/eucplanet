@@ -29,7 +29,13 @@ data class AppWarning(
     val id: String,
     val titleRes: Int,
     val bodyRes: Int,
-    val fix: () -> Unit
+    val fix: () -> Unit = {},
+    /**
+     * Settings tab to open instead of running [fix], for the warnings whose
+     * remedy is inside the app rather than in system settings. The dashboard
+     * knows how to navigate; this layer only says where to.
+     */
+    val settingsTab: Int? = null,
 )
 
 /**
@@ -139,6 +145,32 @@ class AppHealthRepository @Inject constructor(
     }
 
     /**
+     * Rides are piling up on the phone with nowhere to go.
+     *
+     * Nothing is broken yet, which is the point: a rider only discovers this
+     * when the phone is lost or wiped and the trips go with it. The existing
+     * complaints about a missing folder all fire at the moment you try to sync
+     * or save a preset, so someone who never opens those screens is never told.
+     *
+     * Silent until there is something to lose - a fresh install with no rides
+     * has no problem worth naming.
+     */
+    fun refreshBackupWarning(hasFolder: Boolean, hasTrips: Boolean) {
+        if (!hasFolder && hasTrips) {
+            upsert(
+                AppWarning(
+                    id = BACKUP_FOLDER_ID,
+                    titleRes = R.string.warnings_no_backup_title,
+                    bodyRes = R.string.warnings_no_backup_body,
+                    settingsTab = SETTINGS_TAB_BACKUPS,
+                )
+            )
+        } else {
+            dismiss(BACKUP_FOLDER_ID)
+        }
+    }
+
+    /**
      * Whether Android will honour a picture-in-picture request from us.
      *
      * Devices without the feature at all report allowed: there is no switch to
@@ -193,5 +225,9 @@ class AppHealthRepository @Inject constructor(
     companion object {
         private const val PERM_NOTIFICATIONS_ID = "perm.notifications"
         private const val PERM_PIP_ID = "perm.pip"
+        private const val BACKUP_FOLDER_ID = "backup.folder"
+
+        /** "Backups and leaderboards" in the settings tab order. */
+        private const val SETTINGS_TAB_BACKUPS = 4
     }
 }

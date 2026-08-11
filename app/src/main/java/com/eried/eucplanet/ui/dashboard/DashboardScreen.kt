@@ -561,7 +561,22 @@ fun DashboardScreen(
                                 // TextButton, matching Material guidance
                                 // (one emphasised action per dialog, the
                                 // dismissive button is muted).
-                                Button(onClick = w.fix, shape = RoundedCornerShape(12.dp)) {
+                                Button(
+                                    onClick = {
+                                        // A warning fixed inside the app closes
+                                        // the dialog on the way out, or the
+                                        // rider returns from Settings to find it
+                                        // still sitting open behind them.
+                                        val tab = w.settingsTab
+                                        if (tab != null) {
+                                            showWarningsDialog = false
+                                            onNavigateToSettings(tab)
+                                        } else {
+                                            w.fix()
+                                        }
+                                    },
+                                    shape = RoundedCornerShape(12.dp),
+                                ) {
                                     Text(stringResource(R.string.warnings_fix_button))
                                 }
                             }

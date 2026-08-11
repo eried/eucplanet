@@ -1138,6 +1138,8 @@
     <string name="online_restore_confirm">Weiter als %1$s</string>
     <string name="online_rejoin_title">Profil reaktivieren</string>
     <string name="online_rejoin_body">Der Backup-Ordner enthält ein Profil, das für die Bestenliste verwendet wurde.\n\nFahrer-ID: %1$s</string>
+    <string name="warnings_no_backup_title">Fahrten werden nicht gesichert</string>
+    <string name="warnings_no_backup_body">Sie liegen nur auf diesem Telefon. Wähle einen Backup-Ordner, damit ein verlorenes oder zurückgesetztes Telefon deine Fahrten nicht mitnimmt</string>
     <string name="warnings_pip_blocked_title">Bild-im-Bild ist blockiert</string>
     <string name="warnings_pip_blocked_body">Android verweigert es für EUC Planet, daher erscheint das schwebende Fenster nicht, wenn du die App verlässt</string>
     <string name="online_rejoin_confirm">Wieder beitreten</string>

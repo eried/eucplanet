@@ -1616,6 +1616,8 @@
     <string name="warnings_fix_button">Исправить</string>
     <string name="warnings_perm_notifications_title">Уведомления выключены</string>
     <string name="warnings_perm_notifications_body">Статус поездки не появится в строке состояния, голосовые оповещения не будут показаны в шторке</string>
+    <string name="warnings_no_backup_title">Поездки не резервируются</string>
+    <string name="warnings_no_backup_body">Они есть только на этом телефоне. Выберите папку для резервных копий, чтобы потерянный или сброшенный телефон не унёс ваши поездки с собой</string>
     <string name="warnings_pip_blocked_title">Картинка в картинке заблокирована</string>
     <string name="warnings_pip_blocked_body">Android настроен запрещать её для EUC Planet, поэтому плавающее окно не появится, когда вы выйдете из приложения</string>
     <string name="online_rejoin_confirm">Вернуться</string>

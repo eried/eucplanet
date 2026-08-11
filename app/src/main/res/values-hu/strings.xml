@@ -1904,6 +1904,8 @@
     <string name="warnings_fix_button">Javítás</string>
     <string name="warnings_perm_notifications_title">Az értesítések ki vannak kapcsolva</string>
     <string name="warnings_perm_notifications_body">Nem látod a menet állapotát az állapotsávon, és nem kapsz hangriasztásokat az értesítési felületen</string>
+    <string name="warnings_no_backup_title">A menetekről nincs biztonsági mentés</string>
+    <string name="warnings_no_backup_body">Csak ezen a telefonon léteznek. Válassz mentési mappát, hogy egy elveszett vagy törölt telefon ne vigye magával a meneteidet</string>
     <string name="warnings_pip_blocked_title">A kép a képben le van tiltva</string>
     <string name="warnings_pip_blocked_body">Az Android úgy van beállítva, hogy megtagadja az EUC Planettől, így a lebegő ablak nem jelenik meg, amikor elhagyod az alkalmazást</string>
     <string name="online_rejoin_confirm">Újracsatlakozás</string>

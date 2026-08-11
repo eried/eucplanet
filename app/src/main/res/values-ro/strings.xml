@@ -1904,6 +1904,8 @@
     <string name="warnings_fix_button">Repară</string>
     <string name="warnings_perm_notifications_title">Notificările sunt oprite</string>
     <string name="warnings_perm_notifications_body">Nu vei vedea starea cursei în bara de stare și nu vei primi alerte vocale în zona de notificări</string>
+    <string name="warnings_no_backup_title">Cursele nu au copie de rezervă</string>
+    <string name="warnings_no_backup_body">Există doar pe acest telefon. Alege un dosar de rezervă ca un telefon pierdut sau șters să nu îți ia cursele cu el</string>
     <string name="warnings_pip_blocked_title">Imaginea în imagine este blocată</string>
     <string name="warnings_pip_blocked_body">Android este setat să o refuze pentru EUC Planet, așa că fereastra plutitoare nu va apărea când părăsești aplicația</string>
     <string name="online_rejoin_confirm">Alătură-te din nou</string>

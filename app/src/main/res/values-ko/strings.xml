@@ -1613,6 +1613,8 @@
     <string name="warnings_fix_button">수정</string>
     <string name="warnings_perm_notifications_title">알림 꺼짐</string>
     <string name="warnings_perm_notifications_body">상태 표시줄에서 주행 상태를 볼 수 없고 알림 창에서 음성 알림을 받을 수 없습니다</string>
+    <string name="warnings_no_backup_title">주행 기록이 백업되지 않음</string>
+    <string name="warnings_no_backup_body">이 휴대전화에만 있습니다. 백업 폴더를 선택하면 휴대전화를 잃어버리거나 초기화해도 주행 기록이 사라지지 않습니다</string>
     <string name="warnings_pip_blocked_title">화면 속 화면이 차단됨</string>
     <string name="warnings_pip_blocked_body">Android가 EUC Planet에 대해 거부하도록 설정되어 있어, 앱을 벗어나도 떠 있는 창이 나타나지 않습니다</string>
     <string name="online_rejoin_confirm">다시 참가</string>

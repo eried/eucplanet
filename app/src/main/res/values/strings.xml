@@ -2127,6 +2127,8 @@
     <string name="warnings_fix_button">Fix</string>
     <string name="warnings_perm_notifications_title">Notifications off</string>
     <string name="warnings_perm_notifications_body">You won\'t see ride status in the status bar or get voice alerts on the notification shade</string>
+    <string name="warnings_no_backup_title">Trips are not backed up</string>
+    <string name="warnings_no_backup_body">They exist only on this phone. Choose a backup folder so a lost or wiped phone does not take your rides with it</string>
     <string name="warnings_pip_blocked_title">Picture-in-picture is blocked</string>
     <string name="warnings_pip_blocked_body">Android is set to refuse it for EUC Planet, so the floating window will not appear when you leave the app</string>
     <string name="online_rejoin_confirm">Rejoin</string>
