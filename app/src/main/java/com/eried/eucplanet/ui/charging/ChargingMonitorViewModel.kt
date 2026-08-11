@@ -55,6 +55,8 @@ data class ChargingUiState(
     val energyUsedWh: Float = 0f,
     /** Wh added while charging this session. */
     val energyChargedWh: Float = 0f,
+    /** True while the wheel reports itself charging (or full). */
+    val charging: Boolean = false,
     val warmedUp: Boolean = false,
     val minutesToTarget: Float? = null,
     val minutesToFull: Float? = null,
@@ -287,6 +289,7 @@ class ChargingMonitorViewModel @Inject constructor(
             energyWh = snap.sessionEnergyWh,
             energyUsedWh = snap.sessionEnergyOutWh,
             energyChargedWh = snap.sessionEnergyInWh,
+            charging = charging,
             warmedUp = est.warmedUp,
             minutesToTarget = est.minutesToTarget,
             minutesToFull = est.minutesToFull,

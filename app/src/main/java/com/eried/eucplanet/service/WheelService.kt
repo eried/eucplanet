@@ -50,6 +50,11 @@ class WheelService : LifecycleService() {
         // so the two never drift. Small enough to catch a real roll, large
         // enough to ignore sensor jitter at a standstill.
         private const val MOTION_MIN_KMH = 0.1f
+        /** Phone HUD redraw interval. 5 Hz reads as live without recomposing
+         *  a window-manager view at BLE frame rate for a whole ride. */
+        private const val PHONE_HUD_INTERVAL_MS = 200L
+        /** Graph window kept for the Phone HUD. Matches the Studio's own. */
+        private const val PHONE_HUD_HISTORY_MS = 360_000L
         // Bumped to _v2 so the new lock-screen visibility on the channel actually
         // applies: a NotificationChannel's settings are frozen after first
         // creation, so an existing install ignores code changes to the old id.
@@ -140,6 +145,36 @@ class WheelService : LifecycleService() {
         com.eried.eucplanet.data.repository.ExternalGpsRepository
     @Inject lateinit var navigationEngine: com.eried.eucplanet.nav.NavigationEngine
     @Inject lateinit var hudServer: com.eried.eucplanet.service.hud.HudServer
+    @Inject lateinit var radarRepository: com.eried.eucplanet.data.repository.RadarRepository
+    @Inject lateinit var phoneHudWindow: com.eried.eucplanet.service.overlay.PhoneHudWindow
+
+    // Phone HUD, mirrored so the telemetry loop can read it without suspending.
+    @Volatile
+    private var phoneHudEnabledCached: Boolean = false
+    @Volatile
+    private var phoneHudJsonCached: String = ""
+    @Volatile
+    private var phoneHudOnlyWhenAwayCached: Boolean = true
+    private var lastPhoneHudPush = 0L
+
+    /**
+     * Rolling telemetry for the Phone HUD's graph elements.
+     *
+     * Filled at the overlay's own 5 Hz push rate rather than the BLE frame
+     * rate, so a six minute window is ~1800 entries, each just a timestamp and
+     * a reference to a WheelData that already exists.
+     */
+    private val phoneHudHistory =
+        ArrayDeque<com.eried.eucplanet.ui.studio.StudioSample>()
+
+    /**
+     * Never opened. StudioElementData requires a hub, and the offscreen
+     * exporter constructs a dead one for the same reason: replay mode never
+     * asks it for a feed.
+     */
+    private val phoneHudCameraHub by lazy {
+        com.eried.eucplanet.ui.studio.camera.StudioCameraHub()
+    }
 
     // Voice announcement
     private var voiceJob: Job? = null
@@ -205,6 +240,7 @@ class WheelService : LifecycleService() {
                 // instant a report fired.
                 voiceService.recordTelemetry(data)
                 pushWidget(data)
+                pushPhoneHud(data)
                 val settings = settingsRepository.get()
                 automationManager.evaluate(settings)
                 checkLightTransition(data.lightOn, settings)
@@ -233,6 +269,12 @@ class WheelService : LifecycleService() {
                 voicePeriodicCached = s.voiceEnabled
                 notifActionsEnabledCached = s.notificationActionsEnabled
                 notifActionsCsvCached = s.notificationActions
+                // Phone HUD follows the settings toggle the way the HUD server
+                // does, so turning it on takes effect without a reconnect.
+                phoneHudEnabledCached = s.phoneHudEnabled
+                phoneHudJsonCached = s.phoneHudOverlayJson
+                phoneHudOnlyWhenAwayCached = s.phoneHudOnlyWhenAway
+                applyPhoneHud()
                 // Repaint on a settings change: the rider reconfiguring the
                 // widget expects it to change now, not at the next telemetry
                 // frame, which may never arrive with no wheel connected.
@@ -300,6 +342,12 @@ class WheelService : LifecycleService() {
                 // button was left reading "Stop" after the trip had ended.
                 renderWidgetFromCurrentState()
             }
+        }
+
+        // The Phone HUD hides while the app is in front, so it has to follow
+        // the foreground flag as well as the settings.
+        lifecycleScope.launch {
+            com.eried.eucplanet.util.AppForeground.isForeground.collect { applyPhoneHud() }
         }
 
         // Same for the lock state, which a LOCK button's label reads and which
@@ -476,6 +524,7 @@ class WheelService : LifecycleService() {
                         tripRepository.recording.value ||
                         navigationEngine.navState.value.active ||
                         s.hudServerEnabled ||
+            s.phoneHudEnabled ||
                         (s.voiceEnabled && s.voiceAnnounceWhen == "ALWAYS")
                     if (!s.keepAppAlive && !stillNeeded) {
                         stopForeground(STOP_FOREGROUND_REMOVE)
@@ -545,6 +594,9 @@ class WheelService : LifecycleService() {
         // The widget was left reading "Connected" with the last speed and
         // battery, with bright buttons that fire into a service that is gone.
         try { renderWidget(null) } catch (_: Exception) {}
+        // The window belongs to this service; nothing else would remove it.
+        try { phoneHudWindow.hide() } catch (_: Exception) {}
+        phoneHudHistory.clear()
         try { hudServer.stop() } catch (_: Exception) {}
         voiceJob?.cancel()
         engineSoundEngine.stop()
@@ -884,6 +936,85 @@ class WheelService : LifecycleService() {
      * frame is coming, so a caller that changes recording or lock state has to
      * ask for the repaint itself.
      */
+    /**
+     * Put the Phone HUD window up or take it down to match the settings.
+     *
+     * Idempotent: show() is a no-op when the window is already there, so this
+     * can be called from every settings emission without churning the window.
+     */
+    private fun applyPhoneHud() {
+        // Hidden while the app itself is in front, unless the rider asked for
+        // it everywhere. Drawing the overlay over the dashboard would cover a
+        // fuller version of the same numbers.
+        val inOwnApp = phoneHudOnlyWhenAwayCached &&
+            com.eried.eucplanet.util.AppForeground.isForeground.value
+        val wanted = phoneHudEnabledCached && phoneHudJsonCached.isNotBlank() && !inOwnApp
+        if (!wanted) {
+            phoneHudWindow.hide()
+            return
+        }
+        if (phoneHudWindow.isShowing) return
+        val preset = runCatching {
+            com.eried.eucplanet.data.store.OverlayPresetJson
+                .fromJson(org.json.JSONObject(phoneHudJsonCached))
+        }.getOrNull() ?: return
+        phoneHudWindow.show(preset.elements)
+    }
+
+    /**
+     * Feed the Phone HUD, throttled well below the telemetry rate.
+     *
+     * A window-manager view recomposing at BLE frame rate for a whole ride is
+     * real battery for no visible gain, and the HUD renderer has already been
+     * pushed into ANR territory by exactly that. The live G-force trail is left
+     * out for the same reason: it is a 1100-sample buffer at IMU rate.
+     */
+    private fun pushPhoneHud(data: WheelData) {
+        if (!phoneHudWindow.isShowing) return
+        val now = System.currentTimeMillis()
+        if (now - lastPhoneHudPush < PHONE_HUD_INTERVAL_MS) return
+        lastPhoneHudPush = now
+        // Graph elements plot StudioElementData.history, so passing an empty
+        // list drew their frame and axes with nothing inside. A sample is only
+        // a timestamp plus the WheelData we already hold, so the buffer costs
+        // the list and nothing else: same shape the Studio keeps for its own
+        // live graphs, trimmed to the same window it uses.
+        phoneHudHistory.addLast(com.eried.eucplanet.ui.studio.StudioSample(now, data))
+        val cutoff = now - PHONE_HUD_HISTORY_MS
+        while (phoneHudHistory.isNotEmpty() && phoneHudHistory.first().timeMs < cutoff) {
+            phoneHudHistory.removeFirst()
+        }
+        phoneHudWindow.update(
+            com.eried.eucplanet.ui.studio.StudioElementData(
+                wheelData = data,
+                wheelName = lastDeviceNameCached.orEmpty(),
+                connected = wheelRepository.connectionState.value == ConnectionState.CONNECTED,
+                // Copied, not handed over: Compose needs a stable snapshot, and
+                // the deque keeps mutating underneath on the next frame.
+                history = phoneHudHistory.toList(),
+                // Radar, mapped exactly as the Studio maps it, so a RADAR
+                // element shows real threats here instead of its "no radar"
+                // face. Same eight-target cap.
+                radarConnected =
+                    radarRepository.connectionState.value == ConnectionState.CONNECTED,
+                radarBatteryPercent = radarRepository.currentFrame.value?.batteryPercent ?: -1,
+                radarTargets = radarRepository.currentFrame.value?.threats?.take(8)?.map {
+                    com.eried.eucplanet.hud.protocol.RadarTargetWire(
+                        id = it.id,
+                        distanceM = it.distanceM,
+                        approachSpeedKmh = it.approachSpeedKmh,
+                        level = it.threatLevel.ordinal,
+                    )
+                } ?: emptyList(),
+                cameraHub = phoneHudCameraHub,
+                speedUnit = speedUnitCached,
+                distanceUnit = distanceUnitCached,
+                tempUnit = tempUnitCached,
+                clockTimeMs = now,
+            )
+        )
+    }
+
     private fun renderWidgetFromCurrentState() {
         renderWidget(
             wheelRepository.wheelData.value.takeIf {

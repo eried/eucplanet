@@ -512,7 +512,6 @@
     <string name="auto_record_start_in_motion_caption">Startuje przy ruchu, kończy po bezczynności, wznawia przy kolejnej jeździe</string>
     <string name="auto_record_stop_idle_seconds">Zatrzymaj po bezczynności</string>
     <string name="auto_connect_on_start">Automatyczne łączenie po starcie</string>
-    <string name="auto_connect_caption">Automatycznie łączy się z ostatnio sparowanym kołem</string>
     <string name="wheel_name_display">Nazwa koła</string>
     <string name="wheel_name_none">Brak</string>
     <string name="wheel_name_model">Nazwa</string>
@@ -1615,6 +1614,14 @@
     <string name="dash_external_gps_settings">Ustawienia zewnętrznego GPS</string>
     <string name="external_gps_caption">Włącz urządzenie i dotknij Sparuj, aby zasilać aplikację prędkością i siłą G na żywo, dane są też zapisywane w CSV trasy</string>
     <string name="gps_prioritize_external_desc">Preferuj podłączone urządzenie zamiast telefonu dla prędkości, pozycji i siły G</string>
+    <string name="warnings_battery_opt_title">Optymalizacja baterii jest włączona</string>
+    <string name="warnings_battery_opt_body">Android może zatrzymać EUC Planet w tle i przerwać nagrywanie w środku przejazdu. Zezwól na działanie bez ograniczeń</string>
+    <string name="warnings_hud_blocked_title">HUD na telefonie nie może rysować</string>
+    <string name="warnings_hud_blocked_body">Cofnięto uprawnienie do rysowania nad innymi aplikacjami, więc nakładka nie pojawi się na mapach ani muzyce</string>
+    <string name="warnings_no_backup_title">Przejazdy nie są kopiowane</string>
+    <string name="warnings_no_backup_body">Istnieją tylko na tym telefonie. Wybierz folder kopii zapasowej, żeby zgubiony lub wyczyszczony telefon nie zabrał ze sobą twoich przejazdów</string>
+    <string name="warnings_pip_blocked_title">Obraz w obrazie jest zablokowany</string>
+    <string name="warnings_pip_blocked_body">Android jest ustawiony tak, aby odmawiać go aplikacji EUC Planet, więc pływające okno nie pojawi się po opuszczeniu aplikacji</string>
     <string name="online_rejoin_confirm">Dołącz ponownie</string>
 
     <!-- Battery / Charging screen -->
@@ -2082,6 +2089,20 @@
     <string name="trip_tools_combine_this">Ten przejazd</string>
     <string name="trip_tools_combine_between">Pomiedzy, dolaczone</string>
     <string name="trip_tools_combine_summary">Laczy %1$d przejazdow w jeden nowy.</string>
+    <string name="phone_hud_desc">Rysuje układ z Overlay Studio na innych aplikacjach, żeby widzieć koło podczas map lub muzyki.</string>
+    <string name="phone_hud_permission_desc">Android pyta o to osobno. Bez tego nakładki nie da się pokazać.</string>
+    <string name="phone_hud_grant">Zezwól</string>
+    <string name="phone_hud_section">HUD telefonu</string>
+    <string name="phone_hud_enable">Pokaż nakładkę</string>
+    <string name="phone_hud_only_away">Tylko poza EUC Planet</string>
+    <string name="section_surfaces">Widoki na żywo</string>
+    <string name="surface_notification">Powiadomienie</string>
+    <string name="pip_section">Obraz w obrazie</string>
+    <string name="pip_desc">Zmniejsza się do pływającego okna, gdy opuścisz aplikację podczas jazdy.</string>
+    <string name="pip_mode_label">Tryb PIP</string>
+    <string name="pip_mode_off">Wył.</string>
+    <string name="pip_mode_simple">Prosty</string>
+    <string name="pip_mode_dashboard">Pulpit</string>
     <string name="widget_section">Widget ekranu glownego</string>
     <string name="widget_pick_desc">Wybierz %1$d metryki i %2$d przyciski widoczne w widgecie.</string>
     <string name="widget_metric_slot">Metryka %1$d</string>
@@ -2151,4 +2172,7 @@
     <string name="trip_map_reconnected">Połączono ponownie: %1$s</string>
     <string name="trip_map_new_wheel">Nowe koło: %1$s</string>
     <string name="trip_map_ride_end">Koniec przejazdu</string>
+    <string name="adv_smoothing_window">Okno wygładzania</string>
+    <string name="adv_smoothing_window_desc">Próbki uśredniane przez wykresy przejazdu \"średnia\" i wygładzone raporty głosowe. Przejazdy zapisują dane mniej więcej raz na sekundę, więc wartość odpowiada sekundom. Uwaga: wysokie wartości ukrywają krótkie skoki.</string>
+    <string name="auto_volume_only_connected">Tylko gdy koło jest połączone</string>
 </resources>

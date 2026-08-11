@@ -512,7 +512,6 @@
     <string name="auto_record_start_in_motion_caption">움직이면 시작, 정지 후 자동 종료, 다음 주행에서 재시작</string>
     <string name="auto_record_stop_idle_seconds">정지 후 종료</string>
     <string name="auto_connect_on_start">시작 시 자동 연결</string>
-    <string name="auto_connect_caption">마지막으로 페어링한 휠에 자동으로 재연결합니다</string>
     <string name="wheel_name_display">휠 이름</string>
     <string name="wheel_name_none">없음</string>
     <string name="wheel_name_model">이름</string>
@@ -1614,6 +1613,14 @@
     <string name="warnings_fix_button">수정</string>
     <string name="warnings_perm_notifications_title">알림 꺼짐</string>
     <string name="warnings_perm_notifications_body">상태 표시줄에서 주행 상태를 볼 수 없고 알림 창에서 음성 알림을 받을 수 없습니다</string>
+    <string name="warnings_battery_opt_title">배터리 최적화가 켜져 있음</string>
+    <string name="warnings_battery_opt_body">Android가 백그라운드에서 EUC Planet을 중지해 주행 중 기록이 끊길 수 있습니다. 제한 없이 실행하도록 허용하세요</string>
+    <string name="warnings_hud_blocked_title">휴대전화 HUD를 표시할 수 없음</string>
+    <string name="warnings_hud_blocked_body">다른 앱 위에 그리기 권한이 취소되어 지도나 음악 위에 오버레이가 나타나지 않습니다</string>
+    <string name="warnings_no_backup_title">주행 기록이 백업되지 않음</string>
+    <string name="warnings_no_backup_body">이 휴대전화에만 있습니다. 백업 폴더를 선택하면 휴대전화를 잃어버리거나 초기화해도 주행 기록이 사라지지 않습니다</string>
+    <string name="warnings_pip_blocked_title">화면 속 화면이 차단됨</string>
+    <string name="warnings_pip_blocked_body">Android가 EUC Planet에 대해 거부하도록 설정되어 있어, 앱을 벗어나도 떠 있는 창이 나타나지 않습니다</string>
     <string name="online_rejoin_confirm">다시 참가</string>
     <string name="hud_joystick_title">버튼 동작</string>
     <string name="hud_joystick_desc">HUD 버튼을 두 번 탭하면 동작을 실행합니다. 한 번 탭하면 계속 화면을 전환합니다</string>
@@ -2081,6 +2088,20 @@
     <string name="trip_tools_combine_this">이 주행</string>
     <string name="trip_tools_combine_between">사이에 있어 포함됨</string>
     <string name="trip_tools_combine_summary">주행 %1$d개를 새 주행 하나로 합칩니다.</string>
+    <string name="phone_hud_desc">Overlay Studio 레이아웃을 다른 앱 위에 그립니다. 지도나 음악을 쓰면서 휠을 볼 수 있습니다.</string>
+    <string name="phone_hud_permission_desc">Android가 별도로 요청합니다. 허용하지 않으면 오버레이를 표시할 수 없습니다.</string>
+    <string name="phone_hud_grant">허용</string>
+    <string name="phone_hud_section">폰 HUD</string>
+    <string name="phone_hud_enable">오버레이 표시</string>
+    <string name="phone_hud_only_away">EUC Planet 밖에서만</string>
+    <string name="section_surfaces">실시간 화면</string>
+    <string name="surface_notification">알림</string>
+    <string name="pip_section">화면 속 화면</string>
+    <string name="pip_desc">주행 중 앱을 벗어나면 떠 있는 작은 창으로 축소됩니다.</string>
+    <string name="pip_mode_label">PIP 모드</string>
+    <string name="pip_mode_off">끄기</string>
+    <string name="pip_mode_simple">간단</string>
+    <string name="pip_mode_dashboard">대시보드</string>
     <string name="widget_section">홈 화면 위젯</string>
     <string name="widget_pick_desc">위젯에 표시할 지표 %1$d개와 버튼 %2$d개를 고르세요.</string>
     <string name="widget_metric_slot">지표 %1$d</string>
@@ -2150,4 +2171,7 @@
     <string name="trip_map_reconnected">재연결됨: %1$s</string>
     <string name="trip_map_new_wheel">새 휠: %1$s</string>
     <string name="trip_map_ride_end">주행 종료</string>
+    <string name="adv_smoothing_window">평활화 구간</string>
+    <string name="adv_smoothing_window_desc">\"평균\" 트립 그래프와 평활화된 음성 보고에서 평균하는 샘플 수. 트립은 약 1초마다 기록되므로 이 값은 초 단위로 읽힙니다. 주의: 값이 높으면 짧은 스파이크가 가려집니다.</string>
+    <string name="auto_volume_only_connected">휠이 연결된 경우에만</string>
 </resources>

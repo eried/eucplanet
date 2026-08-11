@@ -704,7 +704,6 @@
     <string name="auto_record_mode_connected">Connected</string>
     <string name="auto_record_mode_riding">When riding</string>
     <string name="auto_connect_on_start">Auto-connect on start</string>
-    <string name="auto_connect_caption">Reconnects to the last paired wheel automatically</string>
     <string name="wheel_name_display">Wheel name</string>
     <string name="wheel_name_none">None</string>
     <string name="wheel_name_model">Name</string>
@@ -1225,6 +1224,20 @@
     <string name="recording_chart_power">Power (W)</string>
     <string name="recording_chart_altitude">Altitude (m)</string>
     <string name="widget_description">Metrics and quick actions</string>
+    <string name="section_surfaces">Live views</string>
+    <string name="surface_notification">Notification</string>
+    <string name="pip_section">Picture-in-picture</string>
+    <string name="pip_desc">Shrinks into a floating window when you leave the app during a ride.</string>
+    <string name="pip_mode_label">PIP mode</string>
+    <string name="pip_mode_off">Off</string>
+    <string name="pip_mode_simple">Simple</string>
+    <string name="pip_mode_dashboard">Dashboard</string>
+    <string name="phone_hud_section">Phone HUD</string>
+    <string name="phone_hud_desc">Draw an Overlay Studio layout on top of other apps, so you can see your wheel while using maps or music.</string>
+    <string name="phone_hud_permission_desc">Android asks for this separately. Without it the overlay cannot be shown.</string>
+    <string name="phone_hud_grant">Grant</string>
+    <string name="phone_hud_enable">Show the overlay</string>
+    <string name="phone_hud_only_away">Only outside EUC Planet</string>
     <string name="widget_section">Home screen widget</string>
     <string name="widget_pick_desc">Choose the %1$d metrics and %2$d buttons the widget shows.</string>
     <string name="widget_metric_slot">Metric %1$d</string>
@@ -1307,6 +1320,7 @@
     <string name="auto_waiting_gps">Waiting for GPS location\u2026</string>
     <string name="auto_volume_title">Volume</string>
     <string name="auto_volume_desc">Boost music volume based on speed</string>
+    <string name="auto_volume_only_connected">Only when a wheel is connected</string>
     <string name="media_control_title">Media control</string>
     <string name="media_control_desc">Pause music when you slow down, resume it when you speed up.</string>
     <string name="media_control_pause">Pause when I slow down</string>
@@ -2113,6 +2127,14 @@
     <string name="warnings_fix_button">Fix</string>
     <string name="warnings_perm_notifications_title">Notifications off</string>
     <string name="warnings_perm_notifications_body">You won\'t see ride status in the status bar or get voice alerts on the notification shade</string>
+    <string name="warnings_battery_opt_title">Battery optimisation is on</string>
+    <string name="warnings_battery_opt_body">Android can stop EUC Planet in the background, ending a recording mid-ride. Allow it to run unrestricted</string>
+    <string name="warnings_hud_blocked_title">Phone HUD cannot draw</string>
+    <string name="warnings_hud_blocked_body">Permission to draw over other apps was withdrawn, so the overlay will not appear on top of maps or music</string>
+    <string name="warnings_no_backup_title">Trips are not backed up</string>
+    <string name="warnings_no_backup_body">They exist only on this phone. Choose a backup folder so a lost or wiped phone does not take your rides with it</string>
+    <string name="warnings_pip_blocked_title">Picture-in-picture is blocked</string>
+    <string name="warnings_pip_blocked_body">Android is set to refuse it for EUC Planet, so the floating window will not appear when you leave the app</string>
     <string name="online_rejoin_confirm">Rejoin</string>
 
     <!-- Charging Monitor -->

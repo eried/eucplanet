@@ -25,6 +25,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
@@ -547,6 +548,22 @@ class DashboardViewModel @Inject constructor(
     val backupFolderSet: StateFlow<Boolean> = settingsRepository.settings
         .map { !it.syncFolderUri.isNullOrBlank() }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
+
+    init {
+        // Raised here rather than alongside the permission checks because it is
+        // the one warning that needs app data, not a system flag: rides exist
+        // and there is nowhere for them to go.
+        viewModelScope.launch {
+            combine(
+                settingsRepository.settings.map { !it.syncFolderUri.isNullOrBlank() },
+                tripRepository.allTrips.map { trips -> trips.isNotEmpty() },
+            ) { hasFolder: Boolean, hasTrips: Boolean -> hasFolder to hasTrips }
+                .distinctUntilChanged()
+                .collect { (hasFolder, hasTrips) ->
+                    appHealthRepository.refreshBackupWarning(hasFolder, hasTrips)
+                }
+        }
+    }
 
     /** Whether the configured folder actually holds a settings backup. Gates the
      *  dev wizard's Restore button so it appears only when there is something to

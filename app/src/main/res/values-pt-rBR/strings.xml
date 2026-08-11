@@ -512,7 +512,6 @@
     <string name="auto_record_start_in_motion_caption">Começa ao mover, para após inatividade, recomeça no próximo trajeto</string>
     <string name="auto_record_stop_idle_seconds">Parar após inatividade de</string>
     <string name="auto_connect_on_start">Conectar automaticamente ao iniciar</string>
-    <string name="auto_connect_caption">Reconecta automaticamente à última roda pareada</string>
     <string name="wheel_name_display">Nome da roda</string>
     <string name="wheel_name_none">Nenhum</string>
     <string name="wheel_name_model">Nome</string>
@@ -1617,6 +1616,14 @@
     <string name="warnings_fix_button">Corrigir</string>
     <string name="warnings_perm_notifications_title">Notificações desativadas</string>
     <string name="warnings_perm_notifications_body">Você não verá o status do trajeto na barra de status nem receberá alertas por voz nas notificações</string>
+    <string name="warnings_battery_opt_title">A otimização de bateria está ativada</string>
+    <string name="warnings_battery_opt_body">O Android pode parar o EUC Planet em segundo plano e cortar uma gravação no meio do trajeto. Permita a execução sem restrições</string>
+    <string name="warnings_hud_blocked_title">O HUD do telefone não consegue desenhar</string>
+    <string name="warnings_hud_blocked_body">A permissão de desenhar sobre outros apps foi retirada, então a sobreposição não aparecerá em cima de mapas ou música</string>
+    <string name="warnings_no_backup_title">Os trajetos não têm backup</string>
+    <string name="warnings_no_backup_body">Eles existem apenas neste telefone. Escolha uma pasta de backup para que um telefone perdido ou apagado não leve suas pedaladas junto</string>
+    <string name="warnings_pip_blocked_title">O picture-in-picture está bloqueado</string>
+    <string name="warnings_pip_blocked_body">O Android está configurado para recusá-lo ao EUC Planet, então a janela flutuante não aparecerá quando você sair do app</string>
     <string name="online_rejoin_confirm">Voltar</string>
 
     <!-- Battery / Charging screen -->
@@ -2084,6 +2091,20 @@
     <string name="trip_tools_combine_this">Este trajeto</string>
     <string name="trip_tools_combine_between">No meio, incluido</string>
     <string name="trip_tools_combine_summary">Combina %1$d trajetos em um novo.</string>
+    <string name="phone_hud_desc">Desenha um layout do Overlay Studio sobre outros apps, para ver sua roda enquanto usa mapas ou música.</string>
+    <string name="phone_hud_permission_desc">O Android pede isso separadamente. Sem essa permissão a sobreposição não aparece.</string>
+    <string name="phone_hud_grant">Permitir</string>
+    <string name="phone_hud_section">HUD do telefone</string>
+    <string name="phone_hud_enable">Mostrar a sobreposição</string>
+    <string name="phone_hud_only_away">Somente fora do EUC Planet</string>
+    <string name="section_surfaces">Visualizações ao vivo</string>
+    <string name="surface_notification">Notificação</string>
+    <string name="pip_section">Picture-in-picture</string>
+    <string name="pip_desc">Encolhe em uma janela flutuante quando você sai do app durante um trajeto.</string>
+    <string name="pip_mode_label">Modo PIP</string>
+    <string name="pip_mode_off">Desligado</string>
+    <string name="pip_mode_simple">Simples</string>
+    <string name="pip_mode_dashboard">Painel</string>
     <string name="widget_section">Widget da tela inicial</string>
     <string name="widget_pick_desc">Escolha as %1$d métricas e %2$d botões que o widget mostra.</string>
     <string name="widget_metric_slot">Métrica %1$d</string>
@@ -2153,5 +2174,8 @@
     <string name="trip_map_reconnected">Reconectado: %1$s</string>
     <string name="trip_map_new_wheel">Nova roda: %1$s</string>
     <string name="trip_map_ride_end">Fim do percurso</string>
+    <string name="adv_smoothing_window">Janela de suavização</string>
+    <string name="adv_smoothing_window_desc">Amostras usadas na média dos gráficos de viagem «média» e dos avisos de voz suavizados. As viagens são registradas cerca de uma vez por segundo, então isto é lido como segundos. Perigo: valores altos escondem picos curtos.</string>
+    <string name="auto_volume_only_connected">Somente quando há uma roda conectada</string>
 </resources>
 

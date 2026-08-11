@@ -512,7 +512,6 @@
     <string name="auto_record_start_in_motion_caption">Стартує під час руху, зупиняється після простою, відновлюється у наступній поїздці</string>
     <string name="auto_record_stop_idle_seconds">Зупиняти після простою</string>
     <string name="auto_connect_on_start">Автопідключення на старті</string>
-    <string name="auto_connect_caption">Автоматично перепідключається до останнього спареного моноколеса</string>
     <string name="wheel_name_display">Назва колеса</string>
     <string name="wheel_name_none">Немає</string>
     <string name="wheel_name_model">Назва</string>
@@ -1142,6 +1141,14 @@
     <string name="online_restore_confirm">Продовжити як %1$s</string>
     <string name="online_rejoin_title">Відновити профіль</string>
     <string name="online_rejoin_body">У теці резервної копії є профіль, що використовувався для таблиці лідерів.\n\nID райдера: %1$s</string>
+    <string name="warnings_battery_opt_title">Оптимізацію батареї увімкнено</string>
+    <string name="warnings_battery_opt_body">Android може зупинити EUC Planet у фоні та обірвати запис посеред поїздки. Дозвольте роботу без обмежень</string>
+    <string name="warnings_hud_blocked_title">HUD на телефоні не може малювати</string>
+    <string name="warnings_hud_blocked_body">Дозвіл малювати поверх інших застосунків відкликано, тому накладання не з\'явиться поверх карт чи музики</string>
+    <string name="warnings_no_backup_title">Поїздки не резервуються</string>
+    <string name="warnings_no_backup_body">Вони існують лише на цьому телефоні. Виберіть папку для резервних копій, щоб загублений або очищений телефон не забрав ваші поїздки з собою</string>
+    <string name="warnings_pip_blocked_title">Картинку в картинці заблоковано</string>
+    <string name="warnings_pip_blocked_body">Android налаштований відхиляти її для EUC Planet, тому плаваюче вікно не з\'явиться, коли ви вийдете із застосунку</string>
     <string name="online_rejoin_confirm">Приєднатись знову</string>
 
     <!-- Battery / Charging screen -->
@@ -2079,6 +2086,20 @@
     <string name="trip_tools_combine_this">Ця поїздка</string>
     <string name="trip_tools_combine_between">Між ними, увійде</string>
     <string name="trip_tools_combine_summary">Об\'єднує %1\ поїздок в одну нову.</string>
+    <string name="phone_hud_desc">Малює розкладку Overlay Studio поверх інших застосунків, щоб бачити колесо під час карт чи музики.</string>
+    <string name="phone_hud_permission_desc">Android запитує це окремо. Без дозволу накладку показати не можна.</string>
+    <string name="phone_hud_grant">Дозволити</string>
+    <string name="phone_hud_section">HUD на телефоні</string>
+    <string name="phone_hud_enable">Показувати накладку</string>
+    <string name="phone_hud_only_away">Лише поза EUC Planet</string>
+    <string name="section_surfaces">Живі екрани</string>
+    <string name="surface_notification">Сповіщення</string>
+    <string name="pip_section">Картинка в картинці</string>
+    <string name="pip_desc">Згортається у плаваюче вікно, коли ви виходите із застосунку під час поїздки.</string>
+    <string name="pip_mode_label">Режим PIP</string>
+    <string name="pip_mode_off">Вимк</string>
+    <string name="pip_mode_simple">Просто</string>
+    <string name="pip_mode_dashboard">Панель</string>
     <string name="widget_section">Віджет на головному екрані</string>
     <string name="widget_pick_desc">Виберіть %1$d показники та %2$d кнопки, які показує віджет.</string>
     <string name="widget_metric_slot">Показник %1$d</string>
@@ -2148,6 +2169,9 @@
     <string name="trip_map_reconnected">Перепідключено: %1$s</string>
     <string name="trip_map_new_wheel">Нове колесо: %1$s</string>
     <string name="trip_map_ride_end">Кінець поїздки</string>
+    <string name="adv_smoothing_window">Вікно згладжування</string>
+    <string name="adv_smoothing_window_desc">Відліки, що усереднюються графіками поїздки \"середнє\" та згладженими голосовими звітами. Поїздки записуються приблизно раз на секунду, тому значення відповідає секундам. Увага: великі значення приховують короткі сплески.</string>
+    <string name="auto_volume_only_connected">Тільки коли колесо підключене</string>
 </resources>
 
 

@@ -512,7 +512,6 @@
     <string name="auto_record_start_in_motion_caption">Startet bei Bewegung, stoppt nach Stillstand, läuft bei der nächsten Fahrt wieder an</string>
     <string name="auto_record_stop_idle_seconds">Stoppen nach Stillstand von</string>
     <string name="auto_connect_on_start">Automatisch verbinden</string>
-    <string name="auto_connect_caption">Verbindet sich automatisch mit dem zuletzt gekoppelten Wheel</string>
     <string name="wheel_name_display">Wheel-Name</string>
     <string name="wheel_name_none">Keiner</string>
     <string name="wheel_name_model">Name</string>
@@ -1139,6 +1138,14 @@
     <string name="online_restore_confirm">Weiter als %1$s</string>
     <string name="online_rejoin_title">Profil reaktivieren</string>
     <string name="online_rejoin_body">Der Backup-Ordner enthält ein Profil, das für die Bestenliste verwendet wurde.\n\nFahrer-ID: %1$s</string>
+    <string name="warnings_battery_opt_title">Akku-Optimierung ist aktiv</string>
+    <string name="warnings_battery_opt_body">Android kann EUC Planet im Hintergrund beenden und eine Aufzeichnung mitten in der Fahrt abbrechen. Erlaube uneingeschränkte Ausführung</string>
+    <string name="warnings_hud_blocked_title">Telefon-HUD kann nicht zeichnen</string>
+    <string name="warnings_hud_blocked_body">Die Berechtigung, über anderen Apps zu zeichnen, wurde entzogen, daher erscheint das Overlay nicht über Karten oder Musik</string>
+    <string name="warnings_no_backup_title">Fahrten werden nicht gesichert</string>
+    <string name="warnings_no_backup_body">Sie liegen nur auf diesem Telefon. Wähle einen Backup-Ordner, damit ein verlorenes oder zurückgesetztes Telefon deine Fahrten nicht mitnimmt</string>
+    <string name="warnings_pip_blocked_title">Bild-im-Bild ist blockiert</string>
+    <string name="warnings_pip_blocked_body">Android verweigert es für EUC Planet, daher erscheint das schwebende Fenster nicht, wenn du die App verlässt</string>
     <string name="online_rejoin_confirm">Wieder beitreten</string>
 
     <!-- ==== Overlay Studio ==== -->
@@ -2102,6 +2109,20 @@
     <string name="trip_tools_combine_this">Diese Fahrt</string>
     <string name="trip_tools_combine_between">Dazwischen, kommt mit</string>
     <string name="trip_tools_combine_summary">Fuegt %1$d Fahrten zu einer neuen zusammen.</string>
+    <string name="phone_hud_desc">Zeichnet ein Overlay-Studio-Layout über andere Apps, damit du dein Wheel siehst, während du Karten oder Musik nutzt.</string>
+    <string name="phone_hud_permission_desc">Android fragt das separat ab. Ohne diese Berechtigung kann das Overlay nicht erscheinen.</string>
+    <string name="phone_hud_grant">Erlauben</string>
+    <string name="phone_hud_section">Telefon-HUD</string>
+    <string name="phone_hud_enable">Overlay anzeigen</string>
+    <string name="phone_hud_only_away">Nur außerhalb von EUC Planet</string>
+    <string name="section_surfaces">Live-Ansichten</string>
+    <string name="surface_notification">Benachrichtigung</string>
+    <string name="pip_section">Bild-im-Bild</string>
+    <string name="pip_desc">Schrumpft zu einem schwebenden Fenster, wenn du die App während einer Fahrt verlässt.</string>
+    <string name="pip_mode_label">PIP-Modus</string>
+    <string name="pip_mode_off">Aus</string>
+    <string name="pip_mode_simple">Einfach</string>
+    <string name="pip_mode_dashboard">Dashboard</string>
     <string name="widget_section">Startbildschirm-Widget</string>
     <string name="widget_pick_desc">Wähle die %1$d Messwerte und %2$d Tasten, die das Widget zeigt.</string>
     <string name="widget_metric_slot">Messwert %1$d</string>
@@ -2171,4 +2192,7 @@
     <string name="trip_map_reconnected">Wieder verbunden: %1$s</string>
     <string name="trip_map_new_wheel">Neues Wheel: %1$s</string>
     <string name="trip_map_ride_end">Fahrtende</string>
+    <string name="adv_smoothing_window">Glättungsfenster</string>
+    <string name="adv_smoothing_window_desc">Messwerte, die von den „Durchschnitt"-Fahrtdiagrammen und den geglätteten Sprachberichten gemittelt werden. Fahrten protokollieren etwa einmal pro Sekunde, das liest sich also als Sekunden. Gefahr: Hohe Werte verbergen kurze Spitzen.</string>
+    <string name="auto_volume_only_connected">Nur wenn ein Wheel verbunden ist</string>
 </resources>

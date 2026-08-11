@@ -512,7 +512,6 @@
     <string name="auto_record_start_in_motion_caption">Start bij beweging, stopt na inactiviteit, herstart bij de volgende rit</string>
     <string name="auto_record_stop_idle_seconds">Stoppen na inactiviteit van</string>
     <string name="auto_connect_on_start">Automatisch verbinden bij starten</string>
-    <string name="auto_connect_caption">Verbindt automatisch opnieuw met het laatste gekoppelde wiel</string>
     <string name="wheel_name_display">Wielnaam</string>
     <string name="wheel_name_none">Geen</string>
     <string name="wheel_name_model">Naam</string>
@@ -1140,6 +1139,14 @@
     <string name="online_restore_confirm">Doorgaan als %1$s</string>
     <string name="online_rejoin_title">Profiel reactiveren</string>
     <string name="online_rejoin_body">De back-upmap bevat een profiel dat voor het klassement gebruikt werd.\n\nRijders-ID: %1$s</string>
+    <string name="warnings_battery_opt_title">Batterijoptimalisatie staat aan</string>
+    <string name="warnings_battery_opt_body">Android kan EUC Planet op de achtergrond stoppen en een opname midden in de rit afbreken. Sta onbeperkt draaien toe</string>
+    <string name="warnings_hud_blocked_title">Telefoon-HUD kan niet tekenen</string>
+    <string name="warnings_hud_blocked_body">De toestemming om over andere apps te tekenen is ingetrokken, dus de overlay verschijnt niet boven kaarten of muziek</string>
+    <string name="warnings_no_backup_title">Ritten worden niet geback-upt</string>
+    <string name="warnings_no_backup_body">Ze staan alleen op deze telefoon. Kies een back-upmap zodat een verloren of gewiste telefoon je ritten niet meeneemt</string>
+    <string name="warnings_pip_blocked_title">Beeld-in-beeld is geblokkeerd</string>
+    <string name="warnings_pip_blocked_body">Android is ingesteld om het te weigeren voor EUC Planet, dus het zwevende venster verschijnt niet als je de app verlaat</string>
     <string name="online_rejoin_confirm">Opnieuw deelnemen</string>
 
     <!-- Battery / Charging screen -->
@@ -2084,6 +2091,20 @@
     <string name="trip_tools_combine_this">Deze rit</string>
     <string name="trip_tools_combine_between">Ertussen, meegenomen</string>
     <string name="trip_tools_combine_summary">Voegt %1$d ritten samen tot een nieuwe rit.</string>
+    <string name="phone_hud_desc">Tekent een Overlay Studio-indeling over andere apps, zodat je je wiel ziet tijdens kaarten of muziek.</string>
+    <string name="phone_hud_permission_desc">Android vraagt hier apart om. Zonder dit kan de overlay niet worden getoond.</string>
+    <string name="phone_hud_grant">Toestaan</string>
+    <string name="phone_hud_section">Telefoon-HUD</string>
+    <string name="phone_hud_enable">Overlay tonen</string>
+    <string name="phone_hud_only_away">Alleen buiten EUC Planet</string>
+    <string name="section_surfaces">Live-weergaven</string>
+    <string name="surface_notification">Melding</string>
+    <string name="pip_section">Beeld-in-beeld</string>
+    <string name="pip_desc">Krimpt tot een zwevend venster als je de app verlaat tijdens een rit.</string>
+    <string name="pip_mode_label">PIP-modus</string>
+    <string name="pip_mode_off">Uit</string>
+    <string name="pip_mode_simple">Eenvoudig</string>
+    <string name="pip_mode_dashboard">Dashboard</string>
     <string name="widget_section">Startscherm-widget</string>
     <string name="widget_pick_desc">Kies de %1$d metingen en %2$d knoppen die de widget toont.</string>
     <string name="widget_metric_slot">Meting %1$d</string>
@@ -2153,5 +2174,8 @@
     <string name="trip_map_reconnected">Opnieuw verbonden: %1$s</string>
     <string name="trip_map_new_wheel">Nieuw wiel: %1$s</string>
     <string name="trip_map_ride_end">Einde rit</string>
+    <string name="adv_smoothing_window">Afvlakkingsvenster</string>
+    <string name="adv_smoothing_window_desc">Metingen die worden gemiddeld door de \"gemiddelde\" ritgrafieken en de afgevlakte gesproken meldingen. Ritten worden ongeveer één keer per seconde vastgelegd, dus deze waarde komt overeen met seconden. Gevaar: hoge waarden verbergen korte pieken.</string>
+    <string name="auto_volume_only_connected">Alleen wanneer een wiel is verbonden</string>
 </resources>
 

@@ -512,7 +512,6 @@
     <string name="auto_record_start_in_motion_caption">Harekette başlar, boşta kalınca otomatik durur, sonraki sürüşte yeniden başlar</string>
     <string name="auto_record_stop_idle_seconds">Boşta kalınca dur</string>
     <string name="auto_connect_on_start">Başlangıçta otomatik bağlan</string>
-    <string name="auto_connect_caption">Son eşleştirilmiş tekere otomatik olarak yeniden bağlanır</string>
     <string name="wheel_name_display">Teker adı</string>
     <string name="wheel_name_none">Yok</string>
     <string name="wheel_name_model">İsim</string>
@@ -1614,6 +1613,14 @@
     <string name="warnings_fix_button">Düzelt</string>
     <string name="warnings_perm_notifications_title">Bildirimler kapalı</string>
     <string name="warnings_perm_notifications_body">Durum çubuğunda sürüş durumunu göremez ve bildirim panelinde sesli uyarı alamazsınız</string>
+    <string name="warnings_battery_opt_title">Pil optimizasyonu açık</string>
+    <string name="warnings_battery_opt_body">Android, EUC Planet\'i arka planda durdurup sürüş ortasında bir kaydı kesebilir. Kısıtlamasız çalışmasına izin ver</string>
+    <string name="warnings_hud_blocked_title">Telefon HUD\'u çizemiyor</string>
+    <string name="warnings_hud_blocked_body">Diğer uygulamaların üzerine çizme izni geri alındı, bu yüzden yer paylaşımı harita veya müziğin üstünde görünmeyecek</string>
+    <string name="warnings_no_backup_title">Sürüşler yedeklenmiyor</string>
+    <string name="warnings_no_backup_body">Yalnızca bu telefonda duruyorlar. Bir yedekleme klasörü seç ki kaybolan veya sıfırlanan bir telefon sürüşlerini de götürmesin</string>
+    <string name="warnings_pip_blocked_title">Pencere içinde pencere engellendi</string>
+    <string name="warnings_pip_blocked_body">Android, EUC Planet için bunu reddedecek şekilde ayarlı, bu yüzden uygulamadan çıktığında yüzen pencere görünmeyecek</string>
     <string name="online_rejoin_confirm">Yeniden katıl</string>
     <string name="hud_joystick_title">Tuş eylemleri</string>
     <string name="hud_joystick_desc">Bir eylem çalıştırmak için HUD tuşuna çift dokunun. Tek dokunuş yine ekran değiştirir</string>
@@ -2079,6 +2086,20 @@
     <string name="trip_tools_combine_this">Bu surus</string>
     <string name="trip_tools_combine_between">Arada, dahil</string>
     <string name="trip_tools_combine_summary">%1$d surusu tek bir yeni suruste birlestirir.</string>
+    <string name="phone_hud_desc">Overlay Studio düzenini diğer uygulamaların üstüne çizer, böylece harita veya müzik kullanırken tekerleğini görürsün.</string>
+    <string name="phone_hud_permission_desc">Android bunu ayrıca ister. İzin olmadan yer paylaşımı gösterilemez.</string>
+    <string name="phone_hud_grant">İzin ver</string>
+    <string name="phone_hud_section">Telefon HUD</string>
+    <string name="phone_hud_enable">Yer paylaşımını göster</string>
+    <string name="phone_hud_only_away">Yalnızca EUC Planet dışında</string>
+    <string name="section_surfaces">Canlı görünümler</string>
+    <string name="surface_notification">Bildirim</string>
+    <string name="pip_section">Pencere içinde pencere</string>
+    <string name="pip_desc">Sürüş sırasında uygulamadan çıkınca küçük bir yüzen pencereye küçülür.</string>
+    <string name="pip_mode_label">PIP modu</string>
+    <string name="pip_mode_off">Kapalı</string>
+    <string name="pip_mode_simple">Basit</string>
+    <string name="pip_mode_dashboard">Gösterge paneli</string>
     <string name="widget_section">Ana ekran widgetı</string>
     <string name="widget_pick_desc">Widget\'ın gösterdiği %1$d metriği ve %2$d düğmeyi seç.</string>
     <string name="widget_metric_slot">Metrik %1$d</string>
@@ -2148,6 +2169,9 @@
     <string name="trip_map_reconnected">Yeniden bağlandı: %1$s</string>
     <string name="trip_map_new_wheel">Yeni teker: %1$s</string>
     <string name="trip_map_ride_end">Sürüş sonu</string>
+    <string name="adv_smoothing_window">Yumuşatma penceresi</string>
+    <string name="adv_smoothing_window_desc">\"ortalama\" sürüş grafikleri ve yumuşatılmış sesli raporlar tarafından ortalaması alınan örnek sayısı. Sürüşler saniyede yaklaşık bir kez kaydedilir, bu yüzden bu değer saniye olarak okunur. Dikkat: yüksek değerler kısa sıçramaları gizler.</string>
+    <string name="auto_volume_only_connected">Yalnızca bir teker bağlıyken</string>
 </resources>
 
 

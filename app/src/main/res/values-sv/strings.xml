@@ -512,7 +512,6 @@
     <string name="auto_record_start_in_motion_caption">Startar vid rörelse, stannar automatiskt efter inaktivitet, startar igen nästa tur</string>
     <string name="auto_record_stop_idle_seconds">Stoppa efter inaktivitet i</string>
     <string name="auto_connect_on_start">Anslut automatiskt vid start</string>
-    <string name="auto_connect_caption">Återansluter automatiskt till det senast parade hjulet</string>
     <string name="wheel_name_display">Hjulnamn</string>
     <string name="wheel_name_none">Inget</string>
     <string name="wheel_name_model">Namn</string>
@@ -1613,6 +1612,14 @@
     <string name="warnings_fix_button">Åtgärda</string>
     <string name="warnings_perm_notifications_title">Aviseringar av</string>
     <string name="warnings_perm_notifications_body">Du ser inte åkstatus i statusfältet och får inga talvarningar i aviseringspanelen</string>
+    <string name="warnings_battery_opt_title">Batterioptimering är på</string>
+    <string name="warnings_battery_opt_body">Android kan stoppa EUC Planet i bakgrunden och avbryta en inspelning mitt i turen. Tillåt appen att köra obegränsat</string>
+    <string name="warnings_hud_blocked_title">Telefon-HUD kan inte rita</string>
+    <string name="warnings_hud_blocked_body">Behörigheten att rita över andra appar drogs tillbaka, så överlägget visas inte ovanpå kartor eller musik</string>
+    <string name="warnings_no_backup_title">Turer säkerhetskopieras inte</string>
+    <string name="warnings_no_backup_body">De finns bara på den här telefonen. Välj en säkerhetskopieringsmapp så att en borttappad eller rensad telefon inte tar med sig dina turer</string>
+    <string name="warnings_pip_blocked_title">Bild-i-bild är blockerat</string>
+    <string name="warnings_pip_blocked_body">Android är inställt på att neka det för EUC Planet, så det flytande fönstret visas inte när du lämnar appen</string>
     <string name="online_rejoin_confirm">Gå med igen</string>
 
     <!-- Battery / Charging screen -->
@@ -2082,6 +2089,20 @@
     <string name="trip_tools_combine_this">Den har turen</string>
     <string name="trip_tools_combine_between">Daremellan, tas med</string>
     <string name="trip_tools_combine_summary">Slaar ihop %1$d turer till en ny tur.</string>
+    <string name="phone_hud_desc">Ritar en Overlay Studio-layout ovanpå andra appar, så att du ser hjulet medan du använder kartor eller musik.</string>
+    <string name="phone_hud_permission_desc">Android frågar om detta separat. Utan det kan överlägget inte visas.</string>
+    <string name="phone_hud_grant">Tillåt</string>
+    <string name="phone_hud_section">Telefon-HUD</string>
+    <string name="phone_hud_enable">Visa överlägget</string>
+    <string name="phone_hud_only_away">Endast utanför EUC Planet</string>
+    <string name="section_surfaces">Livevyer</string>
+    <string name="surface_notification">Avisering</string>
+    <string name="pip_section">Bild-i-bild</string>
+    <string name="pip_desc">Krymper till ett flytande fönster när du lämnar appen under en tur.</string>
+    <string name="pip_mode_label">PIP-läge</string>
+    <string name="pip_mode_off">Av</string>
+    <string name="pip_mode_simple">Enkel</string>
+    <string name="pip_mode_dashboard">Instrumentpanel</string>
     <string name="widget_section">Widget pa hemskarmen</string>
     <string name="widget_pick_desc">Välj de %1$d mätvärden och %2$d knappar som widgeten visar.</string>
     <string name="widget_metric_slot">Mätvärde %1$d</string>
@@ -2151,4 +2172,7 @@
     <string name="trip_map_reconnected">Återansluten: %1$s</string>
     <string name="trip_map_new_wheel">Nytt hjul: %1$s</string>
     <string name="trip_map_ride_end">Slut på turen</string>
+    <string name="adv_smoothing_window">Utjämningsfönster</string>
+    <string name="adv_smoothing_window_desc">Antal mätvärden som medelvärdesbildas av \"medel\"-turgraferna och de utjämnade röstrapporterna. Turer loggas ungefär en gång i sekunden, så detta motsvarar sekunder. Fara: höga värden döljer korta toppar.</string>
+    <string name="auto_volume_only_connected">Bara när ett hjul är anslutet</string>
 </resources>

@@ -156,7 +156,11 @@ fun OverlayStudioScreen(
     DisposableEffect(Unit) {
         activity?.requestedOrientation =
             android.content.pm.ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
-        onDispose { }
+        // Entering PIP drops this screen from composition, taking the camera
+        // and any running recording with it, so the Studio opts out for as
+        // long as it is up.
+        com.eried.eucplanet.util.PipHost.suppressPip = true
+        onDispose { com.eried.eucplanet.util.PipHost.suppressPip = false }
     }
     val scope = rememberCoroutineScope()
     val snackbar = remember { SnackbarHostState() }

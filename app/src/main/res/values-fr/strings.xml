@@ -512,7 +512,6 @@
     <string name="auto_record_start_in_motion_caption">Démarre au mouvement, s\'arrête après inactivité, reprend au trajet suivant</string>
     <string name="auto_record_stop_idle_seconds">Arrêter après inactivité de</string>
     <string name="auto_connect_on_start">Connexion automatique au démarrage</string>
-    <string name="auto_connect_caption">Se reconnecte automatiquement à la dernière roue appairée</string>
     <string name="wheel_name_display">Nom de la roue</string>
     <string name="wheel_name_none">Aucun</string>
     <string name="wheel_name_model">Nom</string>
@@ -1142,6 +1141,14 @@
     <string name="online_restore_confirm">Continuer en tant que %1$s</string>
     <string name="online_rejoin_title">Réactiver le profil</string>
     <string name="online_rejoin_body">Le dossier de sauvegarde contient un profil qui était utilisé pour le classement.\n\nIdentifiant de rider: %1$s</string>
+    <string name="warnings_battery_opt_title">L\'optimisation de la batterie est active</string>
+    <string name="warnings_battery_opt_body">Android peut arrêter EUC Planet en arrière-plan et couper un enregistrement en pleine sortie. Autorise-le à fonctionner sans restriction</string>
+    <string name="warnings_hud_blocked_title">Le HUD du téléphone ne peut pas s\'afficher</string>
+    <string name="warnings_hud_blocked_body">L\'autorisation de dessiner par-dessus les autres applis a été retirée, la surcouche n\'apparaîtra donc pas sur les cartes ou la musique</string>
+    <string name="warnings_no_backup_title">Les trajets ne sont pas sauvegardés</string>
+    <string name="warnings_no_backup_body">Ils n\'existent que sur ce téléphone. Choisis un dossier de sauvegarde pour qu\'un téléphone perdu ou réinitialisé n\'emporte pas tes sorties</string>
+    <string name="warnings_pip_blocked_title">L\'image dans l\'image est bloquée</string>
+    <string name="warnings_pip_blocked_body">Android est réglé pour la refuser à EUC Planet, donc la fenêtre flottante n\'apparaîtra pas quand tu quittes l\'appli</string>
     <string name="online_rejoin_confirm">Rejoindre</string>
 
     <!-- Battery / Charging screen -->
@@ -2086,6 +2093,20 @@
     <string name="trip_tools_combine_this">Ce trajet</string>
     <string name="trip_tools_combine_between">Entre les deux, inclus</string>
     <string name="trip_tools_combine_summary">Combine %1$d trajets en un nouveau.</string>
+    <string name="phone_hud_desc">Affiche une mise en page Overlay Studio par-dessus les autres applis, pour voir ta roue en utilisant les cartes ou la musique.</string>
+    <string name="phone_hud_permission_desc">Android le demande séparément. Sans cela, la surimpression ne peut pas s\'afficher.</string>
+    <string name="phone_hud_grant">Autoriser</string>
+    <string name="phone_hud_section">HUD du téléphone</string>
+    <string name="phone_hud_enable">Afficher la surimpression</string>
+    <string name="phone_hud_only_away">Seulement hors de EUC Planet</string>
+    <string name="section_surfaces">Vues en direct</string>
+    <string name="surface_notification">Notification</string>
+    <string name="pip_section">Image dans l\'image</string>
+    <string name="pip_desc">Se réduit en fenêtre flottante quand tu quittes l\'appli pendant un trajet.</string>
+    <string name="pip_mode_label">Mode PIP</string>
+    <string name="pip_mode_off">Désactivé</string>
+    <string name="pip_mode_simple">Simple</string>
+    <string name="pip_mode_dashboard">Tableau de bord</string>
     <string name="widget_section">Widget d ecran d accueil</string>
     <string name="widget_pick_desc">Choisis les %1$d mesures et %2$d boutons affichés par le widget.</string>
     <string name="widget_metric_slot">Mesure %1$d</string>
@@ -2155,4 +2176,7 @@
     <string name="trip_map_reconnected">Reconnecté : %1$s</string>
     <string name="trip_map_new_wheel">Nouvelle roue : %1$s</string>
     <string name="trip_map_ride_end">Fin du trajet</string>
+    <string name="adv_smoothing_window">Fenêtre de lissage</string>
+    <string name="adv_smoothing_window_desc">Échantillons moyennés par les graphiques de trajet « moyenne » et les rapports vocaux lissés. Les trajets s\'enregistrent environ une fois par seconde, donc cette valeur correspond à des secondes. Danger : des valeurs élevées masquent les pics brefs.</string>
+    <string name="auto_volume_only_connected">Uniquement lorsqu\'une roue est connectée</string>
 </resources>

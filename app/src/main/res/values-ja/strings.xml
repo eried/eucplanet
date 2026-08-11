@@ -512,7 +512,6 @@
     <string name="auto_record_start_in_motion_caption">動き始めに開始し、停止後に自動終了、次の走行時に再開始</string>
     <string name="auto_record_stop_idle_seconds">停止後に記録終了</string>
     <string name="auto_connect_on_start">起動時に自動接続</string>
-    <string name="auto_connect_caption">最後にペアリングしたホイールに自動再接続します</string>
     <string name="wheel_name_display">ホイール名</string>
     <string name="wheel_name_none">なし</string>
     <string name="wheel_name_model">名前</string>
@@ -1614,6 +1613,14 @@
     <string name="warnings_fix_button">修正</string>
     <string name="warnings_perm_notifications_title">通知がオフです</string>
     <string name="warnings_perm_notifications_body">ステータスバーに走行状態が表示されず、通知シェードでの音声アラートも受け取れません</string>
+    <string name="warnings_battery_opt_title">電池の最適化が有効です</string>
+    <string name="warnings_battery_opt_body">Android がバックグラウンドで EUC Planet を停止し、走行中の記録が途切れることがあります。制限なしでの実行を許可してください</string>
+    <string name="warnings_hud_blocked_title">スマホ HUD を描画できません</string>
+    <string name="warnings_hud_blocked_body">他のアプリの上に描画する権限が取り消されたため、地図や音楽の上にオーバーレイは表示されません</string>
+    <string name="warnings_no_backup_title">走行がバックアップされていません</string>
+    <string name="warnings_no_backup_body">この端末にしかありません。バックアップ フォルダを選ぶと、端末を紛失または初期化しても走行記録が失われません</string>
+    <string name="warnings_pip_blocked_title">ピクチャー イン ピクチャーがブロックされています</string>
+    <string name="warnings_pip_blocked_body">Android が EUC Planet に対して拒否する設定になっているため、アプリを離れても浮かぶウィンドウは表示されません</string>
     <string name="online_rejoin_confirm">再参加</string>
     <string name="hud_joystick_title">ボタン操作</string>
     <string name="hud_joystick_desc">HUD のボタンをダブルタップするとアクションを実行します。シングルタップは引き続き画面を切り替えます</string>
@@ -2083,6 +2090,20 @@
     <string name="trip_tools_combine_this">この走行</string>
     <string name="trip_tools_combine_between">間にあるため含まれます</string>
     <string name="trip_tools_combine_summary">%1$d 件の走行を新しい走行に結合します。</string>
+    <string name="phone_hud_desc">Overlay Studio のレイアウトを他のアプリの上に表示します。地図や音楽を使いながらホイールを確認できます。</string>
+    <string name="phone_hud_permission_desc">Android が個別に許可を求めます。許可がないとオーバーレイは表示できません。</string>
+    <string name="phone_hud_grant">許可</string>
+    <string name="phone_hud_section">スマホ HUD</string>
+    <string name="phone_hud_enable">オーバーレイを表示</string>
+    <string name="phone_hud_only_away">EUC Planet 以外でのみ</string>
+    <string name="section_surfaces">ライブ表示</string>
+    <string name="surface_notification">通知</string>
+    <string name="pip_section">ピクチャー イン ピクチャー</string>
+    <string name="pip_desc">走行中にアプリを離れると、小さな浮かぶウィンドウになります。</string>
+    <string name="pip_mode_label">PIP モード</string>
+    <string name="pip_mode_off">オフ</string>
+    <string name="pip_mode_simple">シンプル</string>
+    <string name="pip_mode_dashboard">ダッシュボード</string>
     <string name="widget_section">ホーム画面ウィジェット</string>
     <string name="widget_pick_desc">ウィジェットに表示する %1$d 個の指標と %2$d 個のボタンを選びます。</string>
     <string name="widget_metric_slot">指標 %1$d</string>
@@ -2152,6 +2173,9 @@
     <string name="trip_map_reconnected">再接続: %1$s</string>
     <string name="trip_map_new_wheel">新しいホイール: %1$s</string>
     <string name="trip_map_ride_end">走行終了</string>
+    <string name="adv_smoothing_window">平滑化ウィンドウ</string>
+    <string name="adv_smoothing_window_desc">「平均」トリップグラフと平滑化された音声レポートで平均するサンプル数。トリップは約1秒ごとに記録されるため、これは秒として読み取れます。危険: 値が大きいと短いスパイクが隠れます。</string>
+    <string name="auto_volume_only_connected">ホイール接続時のみ</string>
 </resources>
 
 

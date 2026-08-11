@@ -279,27 +279,10 @@ import com.eried.eucplanet.ui.theme.themedTonalButtonColors
 import com.eried.eucplanet.util.Units
 import sh.calvin.reorderable.ReorderableColumn
 
-private val languageOptions = listOf(
-    "en" to "English",
-    "da" to "Dansk",
-    "de" to "Deutsch",
-    "es" to "Español",
-    "es-419" to "Español (Latinoamérica)",
-    "fr" to "Français",
-    "it" to "Italiano",
-    "ja" to "日本語",
-    "ko" to "한국어",
-    "nl" to "Nederlands",
-    "no" to "Norsk",
-    "pl" to "Polski",
-    "pt-BR" to "Português (Brasil)",
-    "ru" to "Русский",
-    "sv" to "Svenska",
-    "tr" to "Türkçe",
-    "uk" to "Українська",
-    "zh" to "简体中文",
-    "zh-TW" to "繁體中文"
-)
+// Reads the one shipped-language registry rather than repeating it: a locale
+// added there reaches the picker with no edit here.
+private val languageOptions =
+    com.eried.eucplanet.util.LocaleHelper.SUPPORTED.map { it.tag to it.nativeName }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -502,6 +485,11 @@ fun SettingsScreen(
         stringResource(R.string.auto_connect_on_start),
         stringResource(R.string.section_application),
         stringResource(R.string.back_button_action),
+        stringResource(R.string.section_surfaces),
+        stringResource(R.string.pip_section),
+        stringResource(R.string.surface_notification),
+        stringResource(R.string.phone_hud_section),
+        stringResource(R.string.phone_hud_enable),
         stringResource(R.string.widget_section),
         stringResource(R.string.widget_customize),
         stringResource(R.string.widget_metric_slot, 1),
@@ -1092,26 +1080,35 @@ private fun GeneralTab(
         }   // end recording BringIntoViewSection
 
         SectionHeader(stringResource(R.string.section_connection))
+        // No caption: "Auto-connect on start" already says what it does, and
+        // the sentence under it only said the same thing again.
         SwitchSetting(stringResource(R.string.auto_connect_on_start), settings.autoConnect) { viewModel.updateAutoConnect(it) }
-        HintText(stringResource(R.string.auto_connect_caption), small = true)
 
-        SegmentedChoice(
-            label = stringResource(R.string.wheel_name_display),
-            options = listOf(
-                "NONE" to stringResource(R.string.wheel_name_none),
-                "MODEL" to stringResource(R.string.wheel_name_model),
-                "BRAND" to stringResource(R.string.wheel_name_brand),
-            ),
-            current = settings.wheelNameDisplay,
-            onChange = { viewModel.updateWheelNameDisplay(it) },
-        )
-
-        settings.lastDeviceName?.let {
-            Text(
-                stringResource(R.string.last_device, it),
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+        // How the wheel is named, and which one was last seen, folded away.
+        // Both are set-once-and-forget, so they were costing height on every
+        // visit for something a rider touches roughly never.
+        AdvancedCollapsable(
+            title = stringResource(R.string.wheel_name_display),
+            stateKey = "connection-wheel-name",
+        ) {
+            SegmentedChoice(
+                label = stringResource(R.string.wheel_name_display),
+                options = listOf(
+                    "NONE" to stringResource(R.string.wheel_name_none),
+                    "MODEL" to stringResource(R.string.wheel_name_model),
+                    "BRAND" to stringResource(R.string.wheel_name_brand),
+                ),
+                current = settings.wheelNameDisplay,
+                onChange = { viewModel.updateWheelNameDisplay(it) },
             )
+
+            settings.lastDeviceName?.let {
+                Text(
+                    stringResource(R.string.last_device, it),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.appColors.textSecondary,
+                )
+            }
         }
 
         SectionHeader(stringResource(R.string.section_application))
@@ -1128,34 +1125,41 @@ private fun GeneralTab(
         )
         HintText(stringResource(R.string.back_button_action_desc), small = true)
 
-        // Rider-chosen quick actions on the ongoing notification (Tesla-style).
-        // The enable toggle stays outside the collapsible so it is always
-        // visible; the collapsible holds the per-slot pickers. A not-applicable
-        // pick (Stop navigation while not navigating) is hidden at build time
-        // since Android cannot grey out a notification action.
         SwitchSetting(
             stringResource(R.string.keep_app_alive),
             settings.keepAppAlive,
         ) { viewModel.updateKeepAppAlive(it) }
         HintText(stringResource(R.string.keep_app_alive_desc), small = true)
 
-        SwitchSetting(
-            stringResource(R.string.notif_actions_enable),
-            settings.notificationActionsEnabled,
-        ) { viewModel.updateNotificationActionsEnabled(it) }
-        HintText(stringResource(R.string.notif_actions_enable_desc), small = true)
+        // Everywhere the app shows telemetry OUTSIDE the dashboard, under one
+        // header: the ongoing notification, the home screen widget, and the
+        // overlay. They were three separate sections plus a block buried in
+        // Application, which read as unrelated features when they are one
+        // question - where do I want to see my wheel. Each is a collapsable, so
+        // the group costs three lines until a rider opens one, and a new
+        // surface costs no new top-level entry.
+        SectionHeader(stringResource(R.string.section_surfaces))
 
-        // Only offer the picker while the feature is on; the toggle above stays
-        // visible so it can be turned back on. Default on, so it shows by default.
-        if (settings.notificationActionsEnabled) {
-            val actionSlots = remember(settings.notificationActions) {
-                NotificationActionType.slots(settings.notificationActions)
-            }
-            // Same in-tab expandable style as the voice "Customize" section.
-            AdvancedCollapsable(
-                title = stringResource(R.string.notif_actions_section),
-                stateKey = "notif-actions-customize",
-            ) {
+        // Rider-chosen quick actions on the ongoing notification (Tesla-style).
+        // A not-applicable pick (Stop navigation while not navigating) is
+        // hidden at build time, since Android cannot grey out a notification
+        // action.
+        AdvancedCollapsable(
+            title = stringResource(R.string.surface_notification),
+            stateKey = "surface-notification",
+        ) {
+            SwitchSetting(
+                stringResource(R.string.notif_actions_enable),
+                settings.notificationActionsEnabled,
+            ) { viewModel.updateNotificationActionsEnabled(it) }
+            HintText(stringResource(R.string.notif_actions_enable_desc), small = true)
+
+            // Only offer the picker while the feature is on; the toggle above
+            // stays visible so it can be turned back on.
+            if (settings.notificationActionsEnabled) {
+                val actionSlots = remember(settings.notificationActions) {
+                    NotificationActionType.slots(settings.notificationActions)
+                }
                 HintText(
                     stringResource(R.string.notif_actions_pick_desc, NotificationActionType.SLOTS),
                     small = true,
@@ -1194,12 +1198,189 @@ private fun GeneralTab(
             }
         }
 
-        // Its own section header, not another collapsable. Sitting directly
-        // below the notification's "Customize" it read as part of it, when the
-        // widget is a separate surface that works whether or not the ongoing
-        // notification has actions at all.
-        SectionHeader(stringResource(R.string.widget_section))
-        run {
+        // Picture-in-picture. One control rather than a switch plus a mode
+        // picker: "off" is simply the third choice.
+        AdvancedCollapsable(
+            title = stringResource(R.string.pip_section),
+            stateKey = "surface-pip",
+        ) {
+            HintText(stringResource(R.string.pip_desc), small = true)
+            SegmentedChoice(
+                // Not pip_section: the collapsable above already carries that
+                // name, and repeating it on the control reads as a stutter.
+                label = stringResource(R.string.pip_mode_label),
+                options = listOf(
+                    "OFF" to stringResource(R.string.pip_mode_off),
+                    "SIMPLE" to stringResource(R.string.pip_mode_simple),
+                    "DASHBOARD" to stringResource(R.string.pip_mode_dashboard),
+                ),
+                current = settings.pipMode,
+                onChange = { viewModel.updatePipMode(it) },
+            )
+            // Said here as well as on the dashboard, because this is where the
+            // rider finds out: picking a mode Android will refuse would
+            // otherwise look like it worked, right up until it silently did
+            // not. Re-read on resume so returning from the system switch
+            // clears it. Same shape as the Phone HUD permission block below.
+            var pipAllowed by remember { mutableStateOf(viewModel.pipAllowed()) }
+            val pipLifecycleOwner = androidx.lifecycle.compose.LocalLifecycleOwner.current
+            androidx.compose.runtime.DisposableEffect(pipLifecycleOwner) {
+                val obs = androidx.lifecycle.LifecycleEventObserver { _, event ->
+                    if (event == androidx.lifecycle.Lifecycle.Event.ON_RESUME) {
+                        pipAllowed = viewModel.pipAllowed()
+                    }
+                }
+                pipLifecycleOwner.lifecycle.addObserver(obs)
+                onDispose { pipLifecycleOwner.lifecycle.removeObserver(obs) }
+            }
+            if (!pipAllowed && settings.pipMode != "OFF") {
+                HintText(stringResource(R.string.warnings_pip_blocked_body), small = true)
+                com.eried.eucplanet.ui.common.FixButton(
+                    onClick = { viewModel.openPipSettings() }
+                )
+            }
+        }
+
+        // Phone HUD: the same Overlay Studio presets the companion HUD shows,
+        // drawn in a window over other apps instead of shipped to a screen.
+        AdvancedCollapsable(
+            title = stringResource(R.string.phone_hud_section),
+            stateKey = "surface-phone-hud",
+        ) {
+            val ctx = androidx.compose.ui.platform.LocalContext.current
+            // Re-read on every resume: the rider grants this in system settings
+            // and comes back, so a value captured once would be stale exactly
+            // when it matters.
+            var canDraw by remember { mutableStateOf(android.provider.Settings.canDrawOverlays(ctx)) }
+            val lifecycleOwner = androidx.lifecycle.compose.LocalLifecycleOwner.current
+            androidx.compose.runtime.DisposableEffect(lifecycleOwner) {
+                val obs = androidx.lifecycle.LifecycleEventObserver { _, event ->
+                    if (event == androidx.lifecycle.Lifecycle.Event.ON_RESUME) {
+                        canDraw = android.provider.Settings.canDrawOverlays(ctx)
+                    }
+                }
+                lifecycleOwner.lifecycle.addObserver(obs)
+                onDispose { lifecycleOwner.lifecycle.removeObserver(obs) }
+            }
+
+            HintText(stringResource(R.string.phone_hud_desc), small = true)
+
+            if (!canDraw) {
+                // The switch stays off and un-flippable until the permission is
+                // there, rather than turning on and quietly doing nothing.
+                HintText(stringResource(R.string.phone_hud_permission_desc), small = true)
+                com.eried.eucplanet.ui.common.FixButton(
+                    text = stringResource(R.string.phone_hud_grant),
+                    onClick = {
+                        runCatching {
+                            ctx.startActivity(
+                                android.content.Intent(
+                                    android.provider.Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                                    android.net.Uri.parse("package:${ctx.packageName}"),
+                                ).addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)
+                            )
+                        }
+                    },
+                )
+            } else {
+                SwitchSetting(
+                    stringResource(R.string.phone_hud_enable),
+                    settings.phoneHudEnabled,
+                ) { viewModel.updatePhoneHudEnabled(it) }
+
+                if (settings.phoneHudEnabled) {
+                    // Same picker the HUD's custom overlay uses: the Studio's
+                    // own LoadPresetSheet, so a rider who has chosen a preset
+                    // for the HUD finds the identical browser here rather than
+                    // a second, poorer way of doing it.
+                    var lists by remember {
+                        mutableStateOf<SettingsViewModel.HudOverlayLists?>(null)
+                    }
+                    var presetSheetOpen by remember { mutableStateOf(false) }
+                    LaunchedEffect(settings.phoneHudOverlayName) {
+                        lists = viewModel.loadHudOverlayLists()
+                    }
+
+                    if (settings.phoneHudOverlayName.isNotBlank()) {
+                        Text(
+                            stringResource(
+                                R.string.hud_overlay_current_preset,
+                                settings.phoneHudOverlayName,
+                            ),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.appColors.textPrimary,
+                        )
+                    }
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        androidx.compose.material3.FilledTonalButton(
+                            onClick = { presetSheetOpen = true },
+                            colors = themedTonalButtonColors(),
+                            shape = RoundedCornerShape(12.dp),
+                        ) { Text(stringResource(R.string.hud_overlay_select_preset)) }
+                        if (settings.phoneHudOverlayName.isNotBlank()) {
+                            TextButton(
+                                onClick = { viewModel.pickPhoneHudOverlay("") },
+                                colors = themedTextButtonColors(),
+                                shape = RoundedCornerShape(12.dp),
+                            ) { Text(stringResource(R.string.hud_custom_overlay_none)) }
+                        }
+                    }
+
+                    if (presetSheetOpen) {
+                        val l = lists
+                        if (l != null) {
+                            // Dialog, not inline: LoadPresetSheet scrolls
+                            // internally and needs a bounded height, which the
+                            // settings column (itself scrolling) cannot give it.
+                            // The HUD section documents the same crash.
+                            androidx.compose.ui.window.Dialog(
+                                onDismissRequest = { presetSheetOpen = false },
+                                properties = androidx.compose.ui.window.DialogProperties(
+                                    usePlatformDefaultWidth = false
+                                ),
+                            ) {
+                                com.eried.eucplanet.ui.studio.LoadPresetSheet(
+                                    folderAvailable = l.folderAvailable,
+                                    presets = l.savedPresets,
+                                    bundledPresets = l.bundledPortrait,
+                                    // Landscape layouts are offered too. The
+                                    // window never rotates, so a preset drawn
+                                    // exactly as authored is the honest result
+                                    // rather than geometry we try to correct.
+                                    bundledLandscapePresets = l.bundledLandscape,
+                                    onLoad = {
+                                        viewModel.pickPhoneHudOverlay(it)
+                                        presetSheetOpen = false
+                                    },
+                                    onLoadBundled = {
+                                        viewModel.pickPhoneHudOverlay(it)
+                                        presetSheetOpen = false
+                                    },
+                                    onDelete = { /* deleting belongs in the Studio */ },
+                                    onOpenFolderSettings = { presetSheetOpen = false },
+                                    onDismiss = { presetSheetOpen = false },
+                                )
+                            }
+                        }
+                    }
+                    // No caption under this one. The switch says what it does,
+                    // and the portrait-only limit is enforced by the picker
+                    // simply not offering landscape layouts, so explaining it
+                    // here was words for something the rider cannot hit.
+                    SwitchSetting(
+                        stringResource(R.string.phone_hud_only_away),
+                        settings.phoneHudOnlyWhenAway,
+                    ) { viewModel.updatePhoneHudOnlyWhenAway(it) }
+                }
+            }
+        }
+
+        // One collapsable rather than a header plus an inner "Customize": that
+        // extra level only earned its keep while this was a top-level section.
+        AdvancedCollapsable(
+            title = stringResource(R.string.widget_section),
+            stateKey = "surface-widget",
+        ) {
             val metricSlots = remember(settings.widget.metrics) {
                 WidgetMetricType.slots(settings.widget.metrics)
             }

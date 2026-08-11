@@ -512,7 +512,6 @@
     <string name="auto_record_start_in_motion_caption">Empieza al moverte, se detiene tras inactividad y reanuda en la siguiente salida</string>
     <string name="auto_record_stop_idle_seconds">Detener tras inactividad de</string>
     <string name="auto_connect_on_start">Conectar automáticamente al inicio</string>
-    <string name="auto_connect_caption">Reconecta automáticamente a la última rueda emparejada</string>
     <string name="wheel_name_display">Nombre de la rueda</string>
     <string name="wheel_name_none">Ninguno</string>
     <string name="wheel_name_model">Nombre</string>
@@ -1617,6 +1616,14 @@
     <string name="warnings_fix_button">Arreglar</string>
     <string name="warnings_perm_notifications_title">Notificaciones desactivadas</string>
     <string name="warnings_perm_notifications_body">No verás el estado del viaje en la barra de estado ni recibirás avisos por voz en las notificaciones</string>
+    <string name="warnings_battery_opt_title">La optimización de batería está activada</string>
+    <string name="warnings_battery_opt_body">Android puede detener EUC Planet en segundo plano y cortar una grabación a mitad del trayecto. Permite que se ejecute sin restricciones</string>
+    <string name="warnings_hud_blocked_title">El HUD del teléfono no puede dibujar</string>
+    <string name="warnings_hud_blocked_body">Se retiró el permiso para dibujar sobre otras apps, así que la superposición no aparecerá encima de mapas o música</string>
+    <string name="warnings_no_backup_title">Los trayectos no tienen copia de seguridad</string>
+    <string name="warnings_no_backup_body">Solo existen en este teléfono. Elige una carpeta de copia de seguridad para que un teléfono perdido o borrado no se lleve tus rutas</string>
+    <string name="warnings_pip_blocked_title">Imagen en imagen está bloqueada</string>
+    <string name="warnings_pip_blocked_body">Android está configurado para rechazarla en EUC Planet, así que la ventana flotante no aparecerá al salir de la app</string>
     <string name="online_rejoin_confirm">Volver a unirse</string>
 
     <!-- Battery / Charging screen -->
@@ -2079,6 +2086,20 @@
     <string name="trip_tools_combine_this">Este viaje</string>
     <string name="trip_tools_combine_between">En medio, se incluye</string>
     <string name="trip_tools_combine_summary">Combina %1$d viajes en uno nuevo.</string>
+    <string name="phone_hud_desc">Dibuja un diseño de Overlay Studio encima de otras apps, para ver tu rueda mientras usas mapas o música.</string>
+    <string name="phone_hud_permission_desc">Android lo pide por separado. Sin esto no se puede mostrar la superposición.</string>
+    <string name="phone_hud_grant">Conceder</string>
+    <string name="phone_hud_section">HUD del teléfono</string>
+    <string name="phone_hud_enable">Mostrar la superposición</string>
+    <string name="phone_hud_only_away">Solo fuera de EUC Planet</string>
+    <string name="section_surfaces">Vistas en vivo</string>
+    <string name="surface_notification">Notificación</string>
+    <string name="pip_section">Imagen en imagen</string>
+    <string name="pip_desc">Se reduce a una ventana flotante cuando sales de la app durante un trayecto.</string>
+    <string name="pip_mode_label">Modo PIP</string>
+    <string name="pip_mode_off">Desactivado</string>
+    <string name="pip_mode_simple">Simple</string>
+    <string name="pip_mode_dashboard">Panel</string>
     <string name="widget_section">Widget de pantalla de inicio</string>
     <string name="widget_pick_desc">Elige las %1$d métricas y %2$d botones que muestra el widget.</string>
     <string name="widget_metric_slot">Métrica %1$d</string>
@@ -2148,5 +2169,8 @@
     <string name="trip_map_reconnected">Reconectado: %1$s</string>
     <string name="trip_map_new_wheel">Nueva rueda: %1$s</string>
     <string name="trip_map_ride_end">Fin del recorrido</string>
+    <string name="adv_smoothing_window">Ventana de suavizado</string>
+    <string name="adv_smoothing_window_desc">Muestras que promedian los gráficos de viaje «promedio» y los avisos de voz suavizados. Los viajes se registran una vez por segundo, así que esto se lee como segundos. Peligro: los valores altos ocultan picos breves.</string>
+    <string name="auto_volume_only_connected">Solo cuando hay una rueda conectada</string>
 </resources>
 

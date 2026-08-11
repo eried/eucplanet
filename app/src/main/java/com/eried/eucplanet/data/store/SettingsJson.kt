@@ -166,6 +166,7 @@ object SettingsJson {
         put("autoLightsOnMinutesBefore", s.autoLightsOnMinutesBefore)
         put("autoLightsOffMinutesAfter", s.autoLightsOffMinutesAfter)
         put("autoVolumeEnabled", s.autoVolumeEnabled)
+        put("autoVolumeOnlyWhenConnected", s.autoVolumeOnlyWhenConnected)
         put("autoVolumeCurve", s.autoVolumeCurve)
         put("autoVolumeBaselinePercent", s.autoVolumeBaselinePercent)
         put("alarmsMuted", s.alarmsMuted)
@@ -295,6 +296,11 @@ object SettingsJson {
         put("hudAutoDiscover", s.hudAutoDiscover)
         put("hudCustomOverlayName", s.hudCustomOverlayName)
         put("hudCustomOverlayJson", s.hudCustomOverlayJson)
+        put("phoneHudEnabled", s.phoneHudEnabled)
+        put("phoneHudOverlayName", s.phoneHudOverlayName)
+        put("phoneHudOverlayJson", s.phoneHudOverlayJson)
+        put("phoneHudOnlyWhenAway", s.phoneHudOnlyWhenAway)
+        put("pipMode", s.pipMode)
         put("hudScreensEnabled", s.hudScreensEnabled)
         put("hudScreensOrder", s.hudScreensOrder)
         put("hudMapStyle", s.hudMapStyle)
@@ -473,6 +479,7 @@ object SettingsJson {
         autoLightsOnMinutesBefore = j.optInt("autoLightsOnMinutesBefore", base.autoLightsOnMinutesBefore),
         autoLightsOffMinutesAfter = j.optInt("autoLightsOffMinutesAfter", base.autoLightsOffMinutesAfter),
         autoVolumeEnabled = j.optBoolean("autoVolumeEnabled", base.autoVolumeEnabled),
+        autoVolumeOnlyWhenConnected = j.optBoolean("autoVolumeOnlyWhenConnected", base.autoVolumeOnlyWhenConnected),
         autoVolumeCurve = j.optString("autoVolumeCurve", base.autoVolumeCurve),
         autoVolumeBaselinePercent = j.optInt("autoVolumeBaselinePercent", base.autoVolumeBaselinePercent),
         alarmsMuted = j.optBoolean("alarmsMuted", base.alarmsMuted),
@@ -606,6 +613,11 @@ object SettingsJson {
         hudAutoDiscover = j.optBoolean("hudAutoDiscover", base.hudAutoDiscover),
         hudCustomOverlayName = j.optString("hudCustomOverlayName", base.hudCustomOverlayName),
         hudCustomOverlayJson = j.optString("hudCustomOverlayJson", base.hudCustomOverlayJson),
+        phoneHudEnabled = j.optBoolean("phoneHudEnabled", base.phoneHudEnabled),
+        phoneHudOverlayName = j.optString("phoneHudOverlayName", base.phoneHudOverlayName),
+        phoneHudOverlayJson = j.optString("phoneHudOverlayJson", base.phoneHudOverlayJson),
+        phoneHudOnlyWhenAway = j.optBoolean("phoneHudOnlyWhenAway", base.phoneHudOnlyWhenAway),
+        pipMode = j.optString("pipMode", base.pipMode),
         hudScreensEnabled = j.optString("hudScreensEnabled", base.hudScreensEnabled),
         hudScreensOrder = j.optString("hudScreensOrder", base.hudScreensOrder),
         hudMapStyle = j.optString("hudMapStyle", base.hudMapStyle),

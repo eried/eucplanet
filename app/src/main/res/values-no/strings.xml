@@ -548,7 +548,6 @@
     <string name="alarm_vibrate_target_both">Alle</string>
     <string name="alarm_vibrate_target_phone">Telefon</string>
     <string name="alarm_vibrate_target_watch">Klokke</string>
-    <string name="auto_connect_caption">Kobler automatisk til det sist parede hjulet på nytt</string>
     <string name="wheel_name_display">Hjulnavn</string>
     <string name="wheel_name_none">Ingen</string>
     <string name="wheel_name_model">Navn</string>
@@ -1490,6 +1489,14 @@
     <string name="online_upload_linked_caption">Statistikken og turene dine vises på den offentlige ledertavlen på</string>
     <string name="online_rejoin_title">Reaktiver profil</string>
     <string name="online_rejoin_body">Sikkerhetskopimappen inneholder en profil som ble brukt for ledertavlen.\n\nRytter-ID: %1$s</string>
+    <string name="warnings_battery_opt_title">Batterioptimalisering er på</string>
+    <string name="warnings_battery_opt_body">Android kan stoppe EUC Planet i bakgrunnen og avbryte et opptak midt i turen. Tillat at appen kjører uten begrensninger</string>
+    <string name="warnings_hud_blocked_title">Telefon-HUD kan ikke tegne</string>
+    <string name="warnings_hud_blocked_body">Tillatelsen til å tegne over andre apper ble trukket tilbake, så overlegget vises ikke oppå kart eller musikk</string>
+    <string name="warnings_no_backup_title">Turer sikkerhetskopieres ikke</string>
+    <string name="warnings_no_backup_body">De finnes bare på denne telefonen. Velg en sikkerhetskopimappe, så en mistet eller nullstilt telefon ikke tar turene dine med seg</string>
+    <string name="warnings_pip_blocked_title">Bilde-i-bilde er blokkert</string>
+    <string name="warnings_pip_blocked_body">Android er satt til å nekte det for EUC Planet, så det flytende vinduet vises ikke når du forlater appen</string>
     <string name="online_rejoin_confirm">Bli med igjen</string>
 
     <!-- Battery / Charging screen -->
@@ -1970,6 +1977,20 @@
     <string name="trip_tools_combine_this">Denne turen</string>
     <string name="trip_tools_combine_between">Imellom, tas med</string>
     <string name="trip_tools_combine_summary">Slaar sammen %1$d turer til en ny tur.</string>
+    <string name="phone_hud_desc">Tegner et Overlay Studio-oppsett oppå andre apper, så du ser hjulet mens du bruker kart eller musikk.</string>
+    <string name="phone_hud_permission_desc">Android spør om dette separat. Uten det kan ikke overlegget vises.</string>
+    <string name="phone_hud_grant">Tillat</string>
+    <string name="phone_hud_section">Telefon-HUD</string>
+    <string name="phone_hud_enable">Vis overlegget</string>
+    <string name="phone_hud_only_away">Bare utenfor EUC Planet</string>
+    <string name="section_surfaces">Sanntidsvisninger</string>
+    <string name="surface_notification">Varsel</string>
+    <string name="pip_section">Bilde-i-bilde</string>
+    <string name="pip_desc">Krymper til et flytende vindu når du forlater appen under en tur.</string>
+    <string name="pip_mode_label">PIP-modus</string>
+    <string name="pip_mode_off">Av</string>
+    <string name="pip_mode_simple">Enkel</string>
+    <string name="pip_mode_dashboard">Dashbord</string>
     <string name="widget_section">Widget pa startskjerm</string>
     <string name="widget_pick_desc">Velg de %1$d målingene og %2$d knappene widgetet viser.</string>
     <string name="widget_metric_slot">Måling %1$d</string>
@@ -2039,4 +2060,7 @@
     <string name="trip_map_reconnected">Koblet til igjen: %1$s</string>
     <string name="trip_map_new_wheel">Nytt hjul: %1$s</string>
     <string name="trip_map_ride_end">Slutt på turen</string>
+    <string name="adv_smoothing_window">Utjevningsvindu</string>
+    <string name="adv_smoothing_window_desc">Antall målinger som midles av \"gjennomsnitt\"-turgrafene og de utjevnede stemmerapportene. Turer logges omtrent én gang i sekundet, så dette tilsvarer sekunder. Fare: høye verdier skjuler korte topper.</string>
+    <string name="auto_volume_only_connected">Bare når et hjul er tilkoblet</string>
 </resources>

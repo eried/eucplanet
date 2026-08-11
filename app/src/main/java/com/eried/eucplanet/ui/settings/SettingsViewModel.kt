@@ -114,8 +114,16 @@ class SettingsViewModel @Inject constructor(
     hudServer: com.eried.eucplanet.service.hud.HudServer,
     private val eucStatsRepository: EucStatsRepository,
     private val dropboxRepository: com.eried.eucplanet.data.repository.DropboxRepository,
+    private val appHealthRepository:
+        com.eried.eucplanet.data.repository.AppHealthRepository,
     @ApplicationContext private val context: Context,
 ) : ViewModel() {
+
+    /** Whether Android will honour a picture-in-picture request from us. */
+    fun pipAllowed(): Boolean = appHealthRepository.pipAllowed()
+
+    /** Opens the per-app picture-in-picture switch in system settings. */
+    fun openPipSettings() = appHealthRepository.openPipSettings()
 
     /** Which discovery channel produced the current HUD link address. */
     val hudConnectionSource = hudServer.connectionSource
@@ -584,6 +592,9 @@ class SettingsViewModel @Inject constructor(
     fun updateAutoLightsOffMinutes(v: Int) = update { copy(autoLightsOffMinutesAfter = v) }
     fun updateAutoVolumeEnabled(v: Boolean) = update { copy(autoVolumeEnabled = v) }
         .also { if (!v) automationManager.restoreBaselineVolume() }
+    fun updateAutoVolumeOnlyWhenConnected(v: Boolean) =
+        update { copy(autoVolumeOnlyWhenConnected = v) }
+            .also { if (v) automationManager.restoreBaselineVolume() }
     fun updateAutoVolumeCurve(curve: String) = update { copy(autoVolumeCurve = curve) }
 
     // Media control (speed-driven music/podcast pause & resume)
@@ -764,6 +775,31 @@ class SettingsViewModel @Inject constructor(
      * Caller supplies the resolved JSON so the ViewModel doesn't need to
      * know about asset/IO paths. Empty name clears the choice.
      */
+        fun updatePhoneHudEnabled(v: Boolean) = update { copy(phoneHudEnabled = v) }
+
+    fun updatePipMode(v: String) = update { copy(pipMode = v) }
+
+    fun updatePhoneHudOnlyWhenAway(v: Boolean) =
+        update { copy(phoneHudOnlyWhenAway = v) }
+
+    /**
+     * Pick the preset the Phone HUD draws. Resolves the name to JSON the same
+     * way the HUD picker does, so the window never needs filesystem access.
+     */
+    fun pickPhoneHudOverlay(name: String) {
+        viewModelScope.launch {
+            if (name.isBlank()) {
+                update { copy(phoneHudOverlayName = "", phoneHudOverlayJson = "") }
+                return@launch
+            }
+            val preset = overlayPresetStore.loadBundledPreset(name)
+                ?: overlayPresetStore.loadPreset(name)
+                ?: return@launch
+            val json = com.eried.eucplanet.data.store.OverlayPresetJson
+                .toJson(preset).toString()
+            update { copy(phoneHudOverlayName = name.trim(), phoneHudOverlayJson = json) }
+        }
+    }
     fun updateHudCustomOverlay(name: String, json: String) = update {
         copy(hudCustomOverlayName = name.trim(), hudCustomOverlayJson = json)
     }

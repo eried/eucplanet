@@ -200,6 +200,19 @@ fun AutomationsContent(
         }
 
         if (settings.autoVolumeEnabled) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(stringResource(R.string.auto_volume_only_connected),
+                    style = MaterialTheme.typography.bodyLarge,
+                    modifier = Modifier.weight(1f))
+                Switch(checked = settings.autoVolumeOnlyWhenConnected,
+                    onCheckedChange = { viewModel.updateAutoVolumeOnlyWhenConnected(it) },
+                    colors = themedSwitchColors(),)
+            }
+
             var points by remember(settings.autoVolumeCurve) {
                 mutableStateOf(parseVolumeCurve(settings.autoVolumeCurve))
             }

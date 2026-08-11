@@ -186,6 +186,13 @@ class AutomationManager @Inject constructor(
      * movements rebase the baseline so what they set is always the floor.
      */
     private suspend fun evaluateVolume(settings: AppSettings) {
+        // Gated by default: only touch the media volume while a wheel is
+        // connected, so auto-volume never moves the phone's volume with no
+        // wheel to ride.
+        if (settings.autoVolumeOnlyWhenConnected &&
+            wheelRepository.connectionState.value != ConnectionState.CONNECTED) {
+            return
+        }
         val maxVol = audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC)
         if (maxVol <= 0) return
 

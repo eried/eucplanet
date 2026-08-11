@@ -177,6 +177,10 @@ data class AppSettings(
     // Baseline starts at -1 (uninitialized) and is captured from the system music volume on first
     // tick after enable. Manual volume changes during motion rebase: baseline = manual / multiplier.
     val autoVolumeEnabled: Boolean = false,
+    // Only adjust the media volume while a wheel is connected (i.e. actually
+    // riding). On by default so auto-volume never touches the phone's volume
+    // when the app is used without a wheel.
+    val autoVolumeOnlyWhenConnected: Boolean = true,
     val autoVolumeCurve: String = "0:1.0,25:1.0,50:1.5,75:2.0",
     val autoVolumeBaselinePercent: Int = -1,
 
@@ -632,6 +636,43 @@ data class AppSettings(
      * lower-third).
      */
     val hudCustomOverlayJson: String = "",
+    /**
+     * Phone HUD: draw an Overlay Studio preset in a window on top of whatever
+     * else is on screen, so the rider can see telemetry over maps or music.
+     *
+     * Same idea as the HUD above, different destination: that one ships the
+     * preset to a companion screen, this one draws it here. Needs the system
+     * "Display over other apps" permission, which cannot be granted silently,
+     * so this flag only means the rider asked for it - the window still checks
+     * Settings.canDrawOverlays every time it goes up.
+     */
+    val phoneHudEnabled: Boolean = false,
+    /** Preset the Phone HUD draws. Empty = none chosen, so nothing is shown. */
+    val phoneHudOverlayName: String = "",
+    /** Resolved JSON for [phoneHudOverlayName], same caching as the HUD's. */
+    val phoneHudOverlayJson: String = "",
+    /**
+     * Hide the Phone HUD while EUC Planet itself is in front.
+     *
+     * On by default. The point of the overlay is seeing the wheel while in
+     * some OTHER app; drawn over the app's own dashboard it covers a better
+     * version of itself. A rider who wants it everywhere can turn this off.
+     */
+    val phoneHudOnlyWhenAway: Boolean = true,
+    /**
+     * Picture-in-picture: what to shrink into the system's floating window
+     * when the rider leaves the app mid-ride.
+     *
+     * "OFF" (default), "SIMPLE" for four big readings, or "DASHBOARD" for the
+     * gauge beside the rider's own metrics. One setting rather than a switch
+     * plus a mode, because "off" is just the third choice.
+     *
+     * Unlike the Phone HUD this needs no permission and the system owns the
+     * window, so it can be dragged and flicked away like a video PIP. It only
+     * exists while the activity does, which is the difference between the two:
+     * PIP is "I just left the app", the overlay is "the app is not running".
+     */
+    val pipMode: String = "OFF",
     /**
      * Ordered list of HUD screens the rider has enabled, by stable id
      * ("Dashboard", "Camera", "Telemetry", "Custom", "CustomCam",

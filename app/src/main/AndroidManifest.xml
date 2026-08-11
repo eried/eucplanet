@@ -21,6 +21,12 @@
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_CONNECTED_DEVICE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_LOCATION" />
 
+    <!-- Lets the battery-optimisation warning open the one-tap exemption dialog
+         instead of dropping the rider into a system list to hunt for the app.
+         Only ever used to ask; the optimiser kills the wheel service mid-ride
+         otherwise, which reads as a trip that stopped recording by itself. -->
+    <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
+
     <!-- Overlay Studio camera viewports + optional mic audio in recordings.
          The studio renders and encodes its own video frames, so it needs no
          screen-capture / projection permission. -->
@@ -29,6 +35,9 @@
 
     <!-- Notifications (API 33+) -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <!-- Phone HUD: draws an Overlay Studio preset on top of other apps.
+         Special access, granted by the rider in system settings, never silently. -->
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
 
     <!-- Internet (WebView for trip viewer; also the HUD companion server) -->
     <uses-permission android:name="android.permission.INTERNET" />
@@ -76,7 +85,8 @@
             android:name=".MainActivity"
             android:exported="true"
             android:screenOrientation="fullUser"
-            android:configChanges="orientation|screenSize|screenLayout|keyboardHidden"
+            android:configChanges="orientation|screenSize|screenLayout|smallestScreenSize|keyboardHidden"
+            android:supportsPictureInPicture="true"
             android:launchMode="singleTask"
             android:windowSoftInputMode="adjustResize"
             android:theme="@style/Theme.EucPlanet">

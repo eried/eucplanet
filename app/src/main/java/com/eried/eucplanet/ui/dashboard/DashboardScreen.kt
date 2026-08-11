@@ -511,6 +511,11 @@ fun DashboardScreen(
         AlertDialog(
             onDismissRequest = { showWarningsDialog = false },
             shape = RoundedCornerShape(12.dp),
+            // Themed rather than Material3's default, which paints a pale
+            // lavender panel over a dark dashboard.
+            containerColor = MaterialTheme.appColors.dialog,
+            titleContentColor = MaterialTheme.appColors.textPrimary,
+            textContentColor = MaterialTheme.appColors.textPrimary,
             // usePlatformDefaultWidth = false breaks Material3's default
             // ~280–560 dp cap so the dialog can stretch closer to the screen
             // edges — gives each warning card a useful body-text width and
@@ -529,7 +534,7 @@ fun DashboardScreen(
                     warnings.forEach { w ->
                         androidx.compose.material3.Card(
                             colors = androidx.compose.material3.CardDefaults.cardColors(
-                                containerColor = MaterialTheme.colorScheme.surfaceVariant
+                                containerColor = MaterialTheme.appColors.surfaceVariant
                             )
                         ) {
                             // Row layout — title/body in a weighted column on
@@ -552,7 +557,7 @@ fun DashboardScreen(
                                     Text(
                                         stringResource(w.bodyRes),
                                         style = MaterialTheme.typography.bodySmall,
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                        color = MaterialTheme.appColors.textSecondary
                                     )
                                 }
                                 // Primary filled Button — solid accent colour
@@ -561,9 +566,21 @@ fun DashboardScreen(
                                 // TextButton, matching Material guidance
                                 // (one emphasised action per dialog, the
                                 // dismissive button is muted).
-                                Button(onClick = w.fix, shape = RoundedCornerShape(12.dp)) {
-                                    Text(stringResource(R.string.warnings_fix_button))
-                                }
+                                com.eried.eucplanet.ui.common.FixButton(
+                                    onClick = {
+                                        // A warning fixed inside the app closes
+                                        // the dialog on the way out, or the
+                                        // rider returns from Settings to find it
+                                        // still sitting open behind them.
+                                        val tab = w.settingsTab
+                                        if (tab != null) {
+                                            showWarningsDialog = false
+                                            onNavigateToSettings(tab)
+                                        } else {
+                                            w.fix()
+                                        }
+                                    }
+                                )
                             }
                         }
                     }
@@ -3480,7 +3497,7 @@ fun DashboardScreen(
 // --- Speed gauge: thick arc dial, no needle, centered speed ---
 
 @Composable
-private fun SpeedGauge(
+internal fun SpeedGauge(
     speed: Float,
     maxSpeed: Float,
     speedUnit: String,

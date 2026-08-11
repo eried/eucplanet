@@ -5,6 +5,57 @@ import androidx.core.os.LocaleListCompat
 import java.util.Locale
 
 object LocaleHelper {
+    /**
+     * A language the app ships translations for: its BCP-47 tag and its name
+     * written in that language (a rider looking for their own language scans
+     * for "Suomi", not "Finnish").
+     */
+    data class Language(val tag: String, val nativeName: String)
+
+    /**
+     * Every shipped language, in picker order: English first, then by tag.
+     *
+     * One list because adding a language used to mean editing four places -
+     * the strings folder, locales_config.xml, the settings picker, and the two
+     * sets below - and missing one was silent. Japanese, Korean and Turkish
+     * shipped complete translations for months while [detectSystemLanguage]
+     * still fell through to English for those phones, because only the sets
+     * were missed. LocaleCoverageTest now fails the build on that mismatch.
+     */
+    val SUPPORTED: List<Language> = listOf(
+        Language("en", "English"),
+        Language("cs", "Čeština"),
+        Language("da", "Dansk"),
+        Language("de", "Deutsch"),
+        Language("es", "Español"),
+        Language("es-419", "Español (Latinoamérica)"),
+        Language("fi", "Suomi"),
+        Language("fr", "Français"),
+        Language("hu", "Magyar"),
+        Language("it", "Italiano"),
+        Language("ja", "日本語"),
+        Language("ko", "한국어"),
+        Language("nl", "Nederlands"),
+        Language("no", "Norsk"),
+        Language("pl", "Polski"),
+        Language("pt-BR", "Português (Brasil)"),
+        Language("ro", "Română"),
+        Language("ru", "Русский"),
+        Language("sv", "Svenska"),
+        Language("tr", "Türkçe"),
+        Language("uk", "Українська"),
+        Language("zh", "简体中文"),
+        Language("zh-TW", "繁體中文"),
+    )
+
+    /**
+     * Tags with no region part, so a bare system language ("fi") can be matched
+     * against them directly. The region-carrying tags are special-cased in the
+     * two functions below, since each needs its own rule.
+     */
+    private val plainTags: Set<String> =
+        SUPPORTED.map { it.tag }.filter { '-' !in it }.toSet()
+
     fun apply(tag: String) {
         val list = if (tag.isBlank() || tag == "en") {
             LocaleListCompat.forLanguageTags("en")
@@ -41,8 +92,12 @@ object LocaleHelper {
             lower == "es-419" -> "es-419"
             lower.startsWith("es-") && lower != "es-es" -> "es-419"
             lower.startsWith("es") -> "es"
+            // Traditional Chinese is a different script, not an accent: folding
+            // it into "zh" would show a Taipei rider simplified characters.
+            lower.startsWith("zh-tw") || lower.startsWith("zh-hant") ||
+                lower.startsWith("zh-hk") || lower.startsWith("zh-mo") -> "zh-TW"
             else -> lower.substringBefore('-').let { primary ->
-                if (primary in setOf("da","de","en","fr","it","nl","pl","ru","sv","uk","zh")) primary else tag
+                if (primary in plainTags) primary else tag
             }
         }
     }
@@ -54,13 +109,17 @@ object LocaleHelper {
      *  - nb / nn (Norwegian Bokmål / Nynorsk) -> "no"
      *  - es in a Latin American region        -> "es-419"
      *  - pt anywhere                          -> "pt-BR" (we only ship Brazilian)
+     *  - zh in TW / HK / MO                   -> "zh-TW"
      */
     fun detectSystemLanguage(): String {
         val sys = Locale.getDefault()
         val primary = sys.language.lowercase()
         val region = sys.country.uppercase()
-        // Region codes covered by Spanish-Latin-America (UN M49 region 419).
+        // Region codes covered by Spanish-Latin-America. "419" is the UN M49
+        // region itself, which Android reports directly when the phone is set
+        // to "Español (Latinoamérica)" rather than to a single country.
         val latAmEs = setOf(
+            "419",
             "AR", "BO", "CL", "CO", "CR", "CU", "DO", "EC", "GT", "HN",
             "MX", "NI", "PA", "PE", "PR", "PY", "SV", "US", "UY", "VE"
         )
@@ -69,10 +128,8 @@ object LocaleHelper {
             primary == "es" && region in latAmEs -> "es-419"
             primary == "es" -> "es"
             primary == "pt" -> "pt-BR"
-            primary == "zh" -> "zh"
-            primary in setOf(
-                "da", "de", "en", "fr", "it", "nl", "pl", "ru", "sv", "uk"
-            ) -> primary
+            primary == "zh" && region in setOf("TW", "HK", "MO") -> "zh-TW"
+            primary in plainTags -> primary
             else -> "en"
         }
     }

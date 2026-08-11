@@ -512,7 +512,6 @@
     <string name="auto_record_start_in_motion_caption">Starter ved bevægelse, stopper ved inaktivitet, starter igen ved næste tur</string>
     <string name="auto_record_stop_idle_seconds">Stop efter inaktivitet i</string>
     <string name="auto_connect_on_start">Automatisk forbindelse ved start</string>
-    <string name="auto_connect_caption">Forbinder automatisk til det senest parrede hjul</string>
     <string name="wheel_name_display">Hjulnavn</string>
     <string name="wheel_name_none">Ingen</string>
     <string name="wheel_name_model">Navn</string>
@@ -1142,6 +1141,14 @@
     <string name="online_restore_confirm">Fortsæt som %1$s</string>
     <string name="online_rejoin_title">Genaktiver profil</string>
     <string name="online_rejoin_body">Backup-mappen indeholder en profil, der blev brugt til ranglisten.\n\nRytter-ID: %1$s</string>
+    <string name="warnings_battery_opt_title">Batterioptimering er slået til</string>
+    <string name="warnings_battery_opt_body">Android kan stoppe EUC Planet i baggrunden og afbryde en optagelse midt i turen. Tillad appen at køre uden begrænsninger</string>
+    <string name="warnings_hud_blocked_title">Telefon-HUD kan ikke tegne</string>
+    <string name="warnings_hud_blocked_body">Tilladelsen til at tegne over andre apps blev fjernet, så overlayet vises ikke oven på kort eller musik</string>
+    <string name="warnings_no_backup_title">Ture sikkerhedskopieres ikke</string>
+    <string name="warnings_no_backup_body">De findes kun på denne telefon. Vælg en backupmappe, så en mistet eller nulstillet telefon ikke tager dine ture med sig</string>
+    <string name="warnings_pip_blocked_title">Billede i billede er blokeret</string>
+    <string name="warnings_pip_blocked_body">Android er indstillet til at afvise det for EUC Planet, så det flydende vindue vises ikke, når du forlader appen</string>
     <string name="online_rejoin_confirm">Tilmeld igen</string>
 
     <!-- ==== Overlay Studio ==== -->
@@ -2097,6 +2104,20 @@
     <string name="trip_tools_combine_this">Denne tur</string>
     <string name="trip_tools_combine_between">Ligger imellem, tages med</string>
     <string name="trip_tools_combine_summary">Kombinerer %1$d ture til en ny tur.</string>
+    <string name="phone_hud_desc">Tegn et Overlay Studio-layout oven på andre apps, så du kan se dit hjul mens du bruger kort eller musik.</string>
+    <string name="phone_hud_permission_desc">Android spørger separat om dette. Uden det kan overlayet ikke vises.</string>
+    <string name="phone_hud_grant">Tillad</string>
+    <string name="phone_hud_section">Telefon-HUD</string>
+    <string name="phone_hud_enable">Vis overlay</string>
+    <string name="phone_hud_only_away">Kun uden for EUC Planet</string>
+    <string name="section_surfaces">Live-visninger</string>
+    <string name="surface_notification">Notifikation</string>
+    <string name="pip_section">Billede i billede</string>
+    <string name="pip_desc">Skrumper til et flydende vindue, når du forlader appen under en tur.</string>
+    <string name="pip_mode_label">PIP-tilstand</string>
+    <string name="pip_mode_off">Fra</string>
+    <string name="pip_mode_simple">Enkel</string>
+    <string name="pip_mode_dashboard">Dashboard</string>
     <string name="widget_section">Widget pa startskaerm</string>
     <string name="widget_pick_desc">Vælg de %1$d målinger og %2$d knapper, widgetten viser.</string>
     <string name="widget_metric_slot">Måling %1$d</string>
@@ -2166,4 +2187,7 @@
     <string name="trip_map_reconnected">Genforbundet: %1$s</string>
     <string name="trip_map_new_wheel">Nyt hjul: %1$s</string>
     <string name="trip_map_ride_end">Tur slut</string>
+    <string name="adv_smoothing_window">Udjævningsvindue</string>
+    <string name="adv_smoothing_window_desc">Antal målinger, der midles af \"gennemsnits\"-turgraferne og de udjævnede stemmerapporter. Ture logges cirka én gang i sekundet, så det læses som sekunder. Fare: høje værdier skjuler korte udsving.</string>
+    <string name="auto_volume_only_connected">Kun når et hjul er forbundet</string>
 </resources>

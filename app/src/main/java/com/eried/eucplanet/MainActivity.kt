@@ -50,6 +50,10 @@ import javax.inject.Inject
 private var widgetSessionReset = false
 private var languageReconciled = false
 
+/** Its own tag so a rider reporting "PIP does nothing" can be answered with
+ *  a single `adb logcat -s EucPlanetPip`. */
+private const val TAG_PIP = "EucPlanetPip"
+
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
 
@@ -111,6 +115,9 @@ class MainActivity : AppCompatActivity() {
             // WheelService, so we need the service running for the HUD to
             // pair even before a wheel is on the line.
             s.hudServerEnabled ||
+            // Phone HUD: the overlay window is owned by WheelService, so the
+            // service has to be up for it to appear at all.
+            s.phoneHudEnabled ||
             // Keep-alive: rider opted to keep the ongoing notification (and
             // thus background trip sync / voice) alive with no wheel connected.
             s.keepAppAlive
@@ -120,7 +127,36 @@ class MainActivity : AppCompatActivity() {
         }
         // Whatever the rider answered (yes or no), refresh the warning list so
         // the dashboard top-bar indicator reflects the new permission state.
-        appHealthRepository.refreshPermissionWarnings()
+        reconcilePipWithSystem()
+    }
+
+    /**
+     * Keep our picture-in-picture setting honest about what Android allows.
+     *
+     * The rider can revoke PIP from the cogwheel on the PIP window itself,
+     * which leaves the app promising a mode it can no longer deliver. Rather
+     * than let it sit broken, the setting is turned off to match, and the
+     * dashboard says once why it happened - the Fix button leads to the switch
+     * that would bring it back.
+     */
+    private fun reconcilePipWithSystem() {
+        val s = _settings.value
+        val pipWanted = s?.pipMode.orEmpty().let { it.isNotEmpty() && it != "OFF" }
+        val hudWanted = s?.phoneHudEnabled == true
+        val pipBlocked = pipWanted && !appHealthRepository.pipAllowed()
+        val hudBlocked = hudWanted && !appHealthRepository.overlayAllowed()
+        appHealthRepository.refreshPermissionWarnings(
+            pipRequested = pipWanted,
+            phoneHudRequested = hudWanted,
+        )
+        if (pipBlocked || hudBlocked) {
+            lifecycleScope.launch {
+                var next = settingsRepository.get()
+                if (pipBlocked) next = next.copy(pipMode = "OFF")
+                if (hudBlocked) next = next.copy(phoneHudEnabled = false)
+                settingsRepository.update(next)
+            }
+        }
     }
 
     /** True if either fine or coarse location is granted. */
@@ -151,6 +187,94 @@ class MainActivity : AppCompatActivity() {
      * openApplication() (a one-time "Always" consent on the watch, then
      * automatic), so the Garmin path below is a real launch, not a no-op.
      */
+    /**
+     * Shrink into picture-in-picture as the rider leaves, the way a video app
+     * does. Off unless asked for, and from any screen but the Overlay Studio:
+     * PIP swaps in its own face, so where the rider happened to be does not
+     * change what the little window shows.
+     */
+    /**
+     * What the PIP window shows. Two faces, picked by the rider: four large
+     * readings, or the gauge beside their own dashboard metrics.
+     */
+    @androidx.compose.runtime.Composable
+    private fun PipContent(settings: com.eried.eucplanet.data.model.AppSettings) {
+        val wheel by wheelRepository.wheelData.collectAsState()
+        val conn by wheelRepository.connectionState.collectAsState()
+        val connected = conn == com.eried.eucplanet.ble.ConnectionState.CONNECTED
+        val sUnit = com.eried.eucplanet.util.Units.effectiveSpeedUnit(settings)
+        val dUnit = com.eried.eucplanet.util.Units.effectiveDistanceUnit(settings)
+        if (settings.pipMode == "SIMPLE") {
+            com.eried.eucplanet.ui.pip.PipSimple(
+                data = wheel,
+                connected = connected,
+                speedUnit = sUnit,
+                distanceUnit = dUnit,
+            )
+        } else {
+            com.eried.eucplanet.ui.pip.PipDashboard(
+                data = wheel,
+                connected = connected,
+                metricOrder = settings.dashboardMetricOrder,
+                // Same rounding the dashboard uses for its dial: next 10 above
+                // the tiltback, never below 30, so the needle sits where the
+                // rider is used to seeing it.
+                maxSpeed = com.eried.eucplanet.util.Units.speed(
+                    (((settings.tiltbackSpeedKmh / 10f).toInt() + 1) * 10f)
+                        .coerceAtLeast(30f),
+                    sUnit,
+                ),
+                speedUnit = sUnit,
+                distanceUnit = dUnit,
+                tempUnit = com.eried.eucplanet.util.Units.effectiveTempUnit(settings),
+            )
+        }
+    }
+    override fun onUserLeaveHint() {
+        super.onUserLeaveHint()
+        // Every branch below says why it did nothing. PIP failing looks
+        // identical to PIP being broken - the window simply never appears -
+        // and the usual cause is outside the app: Android keeps a per-app
+        // "Picture-in-picture" permission that, once off, makes the request
+        // fail silently. One logcat line turns "it does not work on my phone"
+        // into an answerable question.
+        val mode = _settings.value?.pipMode.orEmpty()
+        if (mode == "OFF") {
+            android.util.Log.i(TAG_PIP, "not entering PIP: mode is off in settings")
+            return
+        }
+        if (com.eried.eucplanet.util.PipHost.suppressPip) {
+            android.util.Log.i(TAG_PIP, "not entering PIP: the Overlay Studio is on screen")
+            return
+        }
+        runCatching {
+            enterPictureInPictureMode(
+                android.app.PictureInPictureParams.Builder()
+                    // Wide, so the gauge and the metric grid sit side by side
+                    // instead of stacking into two unreadable halves.
+                    .setAspectRatio(android.util.Rational(16, 9))
+                    .build()
+            )
+        }.onSuccess { entered ->
+            if (entered) android.util.Log.i(TAG_PIP, "entered PIP in $mode mode")
+            else android.util.Log.w(
+                TAG_PIP,
+                "Android refused PIP. Check Settings > Apps > EUC Planet > " +
+                    "Picture-in-picture, and that the phone is not in battery saver.",
+            )
+        }.onFailure {
+            android.util.Log.w(TAG_PIP, "PIP request threw", it)
+        }
+    }
+
+    override fun onPictureInPictureModeChanged(
+        isInPictureInPictureMode: Boolean,
+        newConfig: android.content.res.Configuration,
+    ) {
+        super.onPictureInPictureModeChanged(isInPictureInPictureMode, newConfig)
+        com.eried.eucplanet.util.PipHost.inPip.value = isInPictureInPictureMode
+    }
+
     override fun onResume() {
         super.onResume()
         wearBridge.pingWatchToWake()
@@ -158,7 +282,7 @@ class MainActivity : AppCompatActivity() {
         // Catch permission flips done in Settings while the app was in the
         // background — the warning indicator auto-clears when the rider
         // returns having granted what was missing.
-        appHealthRepository.refreshPermissionWarnings()
+        reconcilePipWithSystem()
         // Resume a stranded Dropbox trip sync promptly on return, not only on
         // cold start: if trips are still pending and Dropbox is linked, re-kick
         // the retry worker. It no-ops when nothing is pending, so this is a
@@ -322,6 +446,7 @@ class MainActivity : AppCompatActivity() {
                     val needsService = canStartWheelService() && (
                         (it.voiceEnabled && it.voiceAnnounceWhen == "ALWAYS") ||
                         it.hudServerEnabled ||
+                    it.phoneHudEnabled ||
                         it.keepAppAlive ||
                         forceHud
                     )
@@ -374,6 +499,15 @@ class MainActivity : AppCompatActivity() {
             val pulseColors = themeController.pulse.collectAsState().value
             val themeColors = pulseColors ?: liveColors ?: resolvedColors
             EucPlanetTheme(colors = themeColors) {
+                // In PIP the navigation tree is replaced rather than overlaid:
+                // the window is a fraction of the screen and a scaled-down app
+                // is unreadable. The rest stays in composition, so leaving PIP
+                // returns to exactly the screen the rider left.
+                val inPip by com.eried.eucplanet.util.PipHost.inPip.collectAsState()
+                if (inPip) {
+                    s?.let { PipContent(settings = it) }
+                    return@EucPlanetTheme
+                }
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background

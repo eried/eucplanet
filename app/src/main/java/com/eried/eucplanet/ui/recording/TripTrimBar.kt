@@ -41,6 +41,19 @@ import kotlin.math.abs
 private const val HANDLE_HALF_WIDTH_PX = 16f
 
 /**
+ * How close a touch must be to a handle for the handle to win over a pan.
+ *
+ * Wider than the handle is drawn, because a finger is wider than a pentagon.
+ * On a span narrower than twice this, the handles simply own the whole
+ * selection, which is the right outcome: there is nothing meaningful to pan.
+ */
+private const val HANDLE_GRAB_PX = 30f
+
+private const val DRAG_START = 0
+private const val DRAG_END = 1
+private const val DRAG_PAN = 2
+
+/**
  * The trim strip the funnel toggles open above Trip Details.
  *
  * Deliberately the same object as Overlay Studio's replay trimmer: one track,
@@ -51,7 +64,13 @@ private const val HANDLE_HALF_WIDTH_PX = 16f
  *
  * The Studio version also carries a playhead, which is why its handles live in
  * the top half and a drag lower down scrubs. There is no playhead here, so the
- * whole strip grabs the nearer handle and the gesture is simpler.
+ * whole strip is free for gestures: a drag near either handle moves that end,
+ * and a drag on the selection between them slides the whole window without
+ * resizing it, for "same length, later in the ride".
+ *
+ * That middle drag is deliberately NOT offered in the Studio. There a drag
+ * across the middle already scrubs the playhead, and one gesture cannot mean
+ * both. Here there is no playhead to confuse it with.
  *
  * Below the track: reset on the left, the live span in the middle (tap to type
  * exact times), and the ride's full length on the right as a quiet reference,
@@ -111,7 +130,33 @@ fun TripTrimBar(
             }
 
             fun nearer(x: Float): Int =
-                if (abs(x - xOf(curStart)) <= abs(x - xOf(curEnd))) 0 else 1
+                if (abs(x - xOf(curStart)) <= abs(x - xOf(curEnd))) DRAG_START else DRAG_END
+
+            // Panning moves the window without resizing it, so it is measured
+            // from where the drag began rather than accumulated per frame. An
+            // accumulating delta loses movement to the end clamps: drag past the
+            // end and back, and the window would trail the finger by however
+            // much was clamped away.
+            var panAnchorX by remember { mutableStateOf(0f) }
+            var panStart by remember { mutableStateOf(0L) }
+            var panWidth by remember { mutableStateOf(0L) }
+
+            /**
+             * Which gesture a touch at [x] begins.
+             *
+             * Handles take priority over the span they bound: a touch near
+             * either end grabs that handle even though it is also inside the
+             * selection, so the edges stay adjustable no matter how far the
+             * window has been panned. Only the middle pans.
+             */
+            fun modeAt(x: Float): Int {
+                val sx = xOf(curStart)
+                val ex = xOf(curEnd)
+                if (abs(x - sx) <= HANDLE_GRAB_PX || abs(x - ex) <= HANDLE_GRAB_PX) {
+                    return nearer(x)
+                }
+                return if (x > sx && x < ex) DRAG_PAN else nearer(x)
+            }
 
             Canvas(
                 Modifier
@@ -123,14 +168,35 @@ fun TripTrimBar(
                     .pointerInput(dur) {
                         detectDragGestures(
                             onDragStart = { o ->
-                                dragHandle = nearer(o.x)
-                                apply(dragHandle, o.x)
+                                dragHandle = modeAt(o.x)
+                                if (dragHandle == DRAG_PAN) {
+                                    // Grab where the finger landed. Snapping the
+                                    // window to centre on the touch would jump
+                                    // the selection before the drag even moves.
+                                    panAnchorX = o.x
+                                    panStart = curStart
+                                    panWidth = curEnd - curStart
+                                } else {
+                                    apply(dragHandle, o.x)
+                                }
                             },
                             onDragEnd = { dragHandle = -1 },
                             onDragCancel = { dragHandle = -1 },
                         ) { change, _ ->
                             change.consume()
-                            apply(dragHandle, change.position.x)
+                            if (dragHandle == DRAG_PAN) {
+                                val span = (wPx - 2 * hw).coerceAtLeast(1f)
+                                val movedMs =
+                                    ((change.position.x - panAnchorX) / span * dur).toLong()
+                                // Clamp the START and derive the end, so the
+                                // window keeps its width at both extremes rather
+                                // than being squashed against them.
+                                val newStart = (panStart + movedMs)
+                                    .coerceIn(0L, (dur - panWidth).coerceAtLeast(0L))
+                                onRange(newStart, newStart + panWidth)
+                            } else {
+                                apply(dragHandle, change.position.x)
+                            }
                         }
                     }
             ) {

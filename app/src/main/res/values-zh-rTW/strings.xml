@@ -512,7 +512,6 @@
     <string name="auto_record_start_in_motion_caption">移動時開始，閒置後自動停止，下次騎乘時重新開始</string>
     <string name="auto_record_stop_idle_seconds">閒置後停止</string>
     <string name="auto_connect_on_start">啟動時自動連線</string>
-    <string name="auto_connect_caption">自動重新連接至上次配對的車輪</string>
     <string name="wheel_name_display">車輪名稱</string>
     <string name="wheel_name_none">無</string>
     <string name="wheel_name_model">名稱</string>
@@ -1614,6 +1613,14 @@
     <string name="warnings_fix_button">修復</string>
     <string name="warnings_perm_notifications_title">通知已關閉</string>
     <string name="warnings_perm_notifications_body">您將無法在狀態列看到騎乘狀態，也無法在通知欄接收語音警報</string>
+    <string name="warnings_battery_opt_title">電池最佳化已開啟</string>
+    <string name="warnings_battery_opt_body">系統可能在背景停止 EUC Planet，讓騎行中的記錄中斷。請允許它不受限制地執行</string>
+    <string name="warnings_hud_blocked_title">手機 HUD 無法繪製</string>
+    <string name="warnings_hud_blocked_body">懸浮顯示權限已被撤銷，因此覆疊不會出現在地圖或音樂之上</string>
+    <string name="warnings_no_backup_title">行程未備份</string>
+    <string name="warnings_no_backup_body">它們只存在於這支手機上。選擇一個備份資料夾，手機遺失或被清除時行程才不會一起消失</string>
+    <string name="warnings_pip_blocked_title">子母畫面已被封鎖</string>
+    <string name="warnings_pip_blocked_body">系統已設定拒絕 EUC Planet 使用子母畫面，因此離開應用程式時不會出現懸浮視窗</string>
     <string name="online_rejoin_confirm">重新加入</string>
     <string name="hud_joystick_title">按鍵操作</string>
     <string name="hud_joystick_desc">雙擊 HUD 按鍵即可執行動作。單擊仍會切換畫面</string>
@@ -2081,6 +2088,20 @@
     <string name="trip_tools_combine_this">此行程</string>
     <string name="trip_tools_combine_between">位於中間，將包含</string>
     <string name="trip_tools_combine_summary">將 %1$d 個行程合併為一個新行程。</string>
+    <string name="phone_hud_desc">把 Overlay Studio 版面畫在其他應用程式之上，使用地圖或音樂時也能看到輪子資料。</string>
+    <string name="phone_hud_permission_desc">Android 會另外詢問此權限。沒有它就無法顯示浮動層。</string>
+    <string name="phone_hud_grant">授予</string>
+    <string name="phone_hud_section">手機 HUD</string>
+    <string name="phone_hud_enable">顯示浮動層</string>
+    <string name="phone_hud_only_away">僅在 EUC Planet 之外</string>
+    <string name="section_surfaces">即時檢視</string>
+    <string name="surface_notification">通知</string>
+    <string name="pip_section">子母畫面</string>
+    <string name="pip_desc">騎行時離開應用程式會縮成一個懸浮小視窗。</string>
+    <string name="pip_mode_label">子母畫面模式</string>
+    <string name="pip_mode_off">關閉</string>
+    <string name="pip_mode_simple">簡單</string>
+    <string name="pip_mode_dashboard">儀表板</string>
     <string name="widget_section">主畫面小工具</string>
     <string name="widget_pick_desc">選擇小工具顯示的 %1$d 個指標和 %2$d 個按鈕。</string>
     <string name="widget_metric_slot">指標 %1$d</string>
@@ -2150,6 +2171,9 @@
     <string name="trip_map_reconnected">已重新連接: %1$s</string>
     <string name="trip_map_new_wheel">新獨輪車: %1$s</string>
     <string name="trip_map_ride_end">騎行結束</string>
+    <string name="adv_smoothing_window">平滑視窗</string>
+    <string name="adv_smoothing_window_desc">\"平均\"行程圖表與平滑語音播報所平均的取樣數。行程大約每秒記錄一次，因此可視為秒數。危險：數值過高會掩蓋短暫的尖峰。</string>
+    <string name="auto_volume_only_connected">僅在車輪已連線時</string>
 </resources>
 
 
