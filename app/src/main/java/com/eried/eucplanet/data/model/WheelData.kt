@@ -74,6 +74,17 @@ data class WheelData(
      *  Display converts: psi = kPa x 0.145038, bar = kPa / 100. */
     val tirePressureKpa: Float = 0f,
     val pcMode: Int = -1,  // 0=lock, 1=drive, 2=shutdown, 3=idle (-1=unknown/no telemetry yet)
+    /**
+     * Lock state as the wheel reports it in its own telemetry, or null when the
+     * family does not report one.
+     *
+     * Separate from [pcMode] because it is not always in the work-mode field.
+     * On InMotion V1 the work mode reads a constant "Drive" whether the wheel is
+     * locked or not; the lock lives in its own flag byte, which is why reading
+     * lock out of pcMode never worked. Null rather than false so a family that
+     * says nothing is never mistaken for one saying "unlocked".
+     */
+    val lockedReported: Boolean? = null,
     /** Tiltback / max-speed threshold the wheel firmware reports in its telemetry,
      *  in km/h. -1 = the active adapter doesn't surface this. Used so the
      *  Settings UI reflects what the wheel is actually enforcing (set via the

@@ -1797,6 +1797,31 @@ class WheelRepository @Inject constructor(
                     whRegen = sessionEnergyInWh
                 )
                 _chargeStatus.value = deriveChargeStatus(_wheelData.value)
+                // Families that report lock in their telemetry rather than in a
+                // settings frame. Null means the family says nothing, which must
+                // not be read as "unlocked".
+                //
+                // Without this the lock button flips and then snaps back a
+                // second later on InMotion V1: _locked is otherwise fed only by
+                // WheelSettings.lockState, which that family never sends.
+                // Respects the tap cooldown for the same reason the settings
+                // path does, so a frame from before the wheel acted cannot
+                // overwrite what the rider just asked for.
+                _wheelData.value.lockedReported?.let { reported ->
+                    if (System.currentTimeMillis() >= lockCooldownUntilMs &&
+                        _locked.value != reported
+                    ) {
+                        _locked.value = reported
+                        if (settingsRepository.get().announceWheelLock) {
+                            voiceService.announceEvent(
+                                context.getString(
+                                    if (reported) R.string.voice_wheel_locked
+                                    else R.string.voice_wheel_unlocked
+                                )
+                            )
+                        }
+                    }
+                }
                 // Never let the charging-session bookkeeping throw out of the
                 // telemetry path — telemetry/dashboard must keep flowing regardless.
                 runCatching { updateChargingSession(_wheelData.value, _chargeStatus.value) }

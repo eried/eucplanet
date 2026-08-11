@@ -416,7 +416,12 @@ data class WheelCapabilities(
         val INMOTION_V1 = WheelCapabilities(
             hasHorn = true,
             hasLight = true,
-            hasLock = false,
+            // Was false on the belief that V1 had no remote lock. A V8S capture
+            // of the InMotion app shows it sending remote-control sub-commands
+            // 0x03 / 0x04 and the wheel acking them. needsAuthForLock stays
+            // false: V1's password handshake already ran at connect, and the
+            // V14 challenge/response does not exist on this family.
+            hasLock = true,
             hasMaxSpeed = true,
             hasAlarmSpeed = false,
             hasVolume = true,

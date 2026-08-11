@@ -66,6 +66,24 @@ object InMotionV1Commands {
 
     // --- Audio ---
 
+    /**
+     * Software lock / unlock.
+     *
+     * Sub-commands 0x03 and 0x04 of the remote-control group, decoded from a
+     * V8S capture of the InMotion app locking and then unlocking the wheel
+     * (docs/protocols/inmotion_v1.md 6). The wheel acks both with CAN
+     * 0x0F550116 and data[0] = 0x01, and its own lock flag flips within
+     * ~0.15 s, so the wheel plainly accepts this from a phone.
+     *
+     * The family was long marked as having no lock command purely because
+     * nobody had captured one.
+     */
+    fun setLock(locked: Boolean): ByteArray =
+        InMotionV1Protocol.buildFrame(
+            CanId.REMOTE_CTRL,
+            byteArrayOf(0xB2.toByte(), 0, 0, 0, if (locked) 0x03 else 0x04, 0, 0, 0)
+        )
+
     /** Dedicated horn opcode used by V8F / V8S / V10 family / Glide 3. */
     fun hornDedicated(): ByteArray =
         InMotionV1Protocol.buildFrame(

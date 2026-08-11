@@ -150,8 +150,15 @@ class InMotionV1Adapter @Inject constructor() : WheelAdapter {
     override fun setDRL(on: Boolean): ByteArray? =
         if (detectedModel?.hasDRL == true) InMotionV1Commands.setDRL(on) else null
 
-    /** V1 has no remote lock command; lock state is read-only via work mode. */
-    override fun setLock(locked: Boolean): ByteArray? = null
+    /**
+     * Software lock, sub-commands 0x03 / 0x04 of the remote-control group.
+     *
+     * This returned null for a long time on the belief that V1 had no remote
+     * lock at all. A V8S BLE capture of the InMotion app shows otherwise: it
+     * sends exactly this frame and the wheel acks it. See [InMotionV1Commands.setLock].
+     */
+    override fun setLock(locked: Boolean): ByteArray? =
+        InMotionV1Commands.setLock(locked)
 
     /**
      * V1 PIN handshake is symmetric: the phone pushes the PIN, the wheel

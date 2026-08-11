@@ -142,7 +142,7 @@ frame. The high byte distinguishes telemetry (`0x0F`) from alerts
 | `0x0F550113` | both | Fast info: phone requests, wheel replies (extended) |
 | `0x0F550114` | both | Slow info / settings dump: phone requests, wheel replies (extended) |
 | `0x0F550115` | phone -> wheel, ack back | Ride-mode group: max speed, classic/comfort, pedal sensitivity, tilt |
-| `0x0F550116` | phone -> wheel, ack back | Remote control group: LED, beep, power off |
+| `0x0F550116` | phone -> wheel, ack back | Remote control group: LED, beep, power off, lock/unlock |
 | `0x0F550119` | phone -> wheel, ack back | Wheel calibration |
 | `0x0F55010D` | phone -> wheel, ack back | Headlight on/off |
 | `0x0F55012E` | phone -> wheel, ack back | Handle / lift sensor button |
@@ -255,6 +255,33 @@ The low 4 bits map directly:
 | 10 | pomStop |
 | 12 | Unlock |
 
+### 4.6 Lock state
+
+**Offset 61, bit `0x02`.** Set while the wheel is software-locked, clear
+otherwise. Equivalently `(u32_LE(payload, 60) & 0x00000200) != 0`.
+
+Do **not** look for lock in the work mode at offset 60. On a V8S that byte
+read `0x23` for an entire capture, locked and unlocked alike, so the section
+4.3 "modern" decode reports `Drive` in both states and the legacy
+`low nibble == 5` rule is never satisfied. Reading lock out of the work-mode
+field cannot work on this family.
+
+Derived from a V8S capture in which the rider locked and then unlocked from
+the InMotion app:
+
+| Event | t (s) | Result |
+| --- | --- | --- |
+| Lock command acked | 250.09 | next fast-info frame at 250.23 has byte 61 = `0x02` |
+| Unlock command acked | 280.13 | next fast-info frame at 280.26 has byte 61 = `0x00` |
+
+Of all 149 payload bytes in that firmware's fast-info frame, offset 61 is the
+only one that tracks the lock. The wheel was stationary throughout (0.000 km/h
+in every frame), so motion cannot explain the flip. Byte 61 held only `0x00`
+and `0x02`; what its other bits mean is unknown.
+
+Note that this firmware ships a **149-byte** fast-info payload, not the ~76
+bytes section 4 describes. Range-check before reading anything past 76.
+
 ### 4.4 L6 quirks
 
 L6 has a separate ride-mode and lock-state interpretation that does not
@@ -361,6 +388,8 @@ All commands are CAN frames with `len = 8`, `ch = 5`, `format = 0`,
 | Beep / horn (V8 / V5F: play sound 4) | `0x0F550609` | `04 00 00 00 00 00 00 00` |
 | Play sound `n` | `0x0F550609` | `nn 00 00 00 00 00 00 00` |
 | Power off | `0x0F550116` | `B2 00 00 00 05 00 00 00` |
+| Lock wheel | `0x0F550116` | `B2 00 00 00 03 00 00 00` |
+| Unlock wheel | `0x0F550116` | `B2 00 00 00 04 00 00 00` |
 | Wheel calibration | `0x0F550119` | `32 54 76 98 00 00 00 00` |
 | Set max speed | `0x0F550115` | `01 00 00 00 hi lo 00 00` where `lo,hi = (kmh * 1000) LE` |
 | Set ride mode (1=classic, 0=comfort) | `0x0F550115` | `0A 00 00 00 cc 00 00 00` |
@@ -448,12 +477,12 @@ Notes:
 | --- | --- | --- |
 | `hasHorn` | `true` | V8 / V5F / L6 / R-series / V3 use `playSound(4)` instead of the dedicated horn command |
 | `hasLight` | `true` | All V1 wheels expose the headlight command |
-| `hasLock` | `false` | No remote lock command. Lock state is observable in work mode but not commandable |
+| `hasLock` | `true` | Remote-control group `0x0F550116`, sub-command `03` = lock, `04` = unlock. Captured from a V8S; the wheel acks with `data[0] = 0x01`. Previously documented as absent because nobody had captured it. Lock STATE is at fast-info byte 61 bit `0x02` (section 4.6), NOT in the work mode |
 | `hasMaxSpeed` | `true` | RideMode CAN ID, sub-command 1 |
 | `hasAlarmSpeed` | `false` | No settable alarm speed; alarms are firmware tilt-back triggers reported via the alert frame |
 | `hasVolume` | model-dependent | Yes on V8F / V8S / V10 family / Glide3; no on older V5 / V8 / L6 / R-series / V3 |
 | `hasDRL` | model-dependent | Yes on V8, V8F, V8S, Glide3 and full V10 family; no on V5, L6, R-series, V3 |
-| `needsAuthForLock` | `false` | No lock command. Note: if PIN is set, all *setting* commands need auth; track separately as `needsAuthForCommands` if needed |
+| `needsAuthForLock` | `false` | Lock needs no per-command challenge: the connect-time password handshake already authenticated the link. Note: if PIN is set, all *setting* commands need auth; track separately as `needsAuthForCommands` if needed |
 
 Per-model overrides are summarised in section 8.
 
