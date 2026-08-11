@@ -2074,7 +2074,6 @@
     <string name="trip_tools_wheel_changed">Wiel ingesteld op %1$s</string>
         <string name="trip_split_lasted">duurde %1$s</string>
     <string name="trip_tools_split_pick">Kies minstens één knippunt.</string>
-    <string name="trip_split_result">Je krijgt</string>
 <string name="trip_tools_split_hint">Kies waar te knippen. Dit maakt %1$d ritten en behoudt het origineel.</string>
     <string name="trip_tools_split_done">Gesplitst in %1$d ritten</string>
     <string name="trip_tools_split_failed">Kon deze rit niet splitsen</string>

@@ -1939,7 +1939,6 @@
     <string name="trip_tools_wheel_changed">轮子已设为 %1$s</string>
         <string name="trip_split_lasted">持续 %1$s</string>
     <string name="trip_tools_split_pick">至少选择一个切分位置。</string>
-    <string name="trip_split_result">将会得到</string>
 <string name="trip_tools_split_hint">选择切分位置。将创建 %1$d 个行程并保留原行程。</string>
     <string name="trip_tools_split_done">已拆分为 %1$d 个行程</string>
     <string name="trip_tools_split_failed">无法拆分此行程</string>

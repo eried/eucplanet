@@ -2072,7 +2072,6 @@
     <string name="trip_tools_wheel_changed">Ustawiono kolo na %1$s</string>
         <string name="trip_split_lasted">trwało %1$s</string>
     <string name="trip_tools_split_pick">Wybierz co najmniej jedno miejsce cięcia.</string>
-    <string name="trip_split_result">Otrzymasz</string>
 <string name="trip_tools_split_hint">Wybierz miejsca ciecia. Utworzy %1$d przejazdow i zachowa oryginal.</string>
     <string name="trip_tools_split_done">Podzielono na %1$d przejazdow</string>
     <string name="trip_tools_split_failed">Nie udalo sie podzielic tego przejazdu</string>

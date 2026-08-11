@@ -2092,7 +2092,6 @@
     <string name="trip_tools_wheel_changed">Wheel auf %1$s gesetzt</string>
         <string name="trip_split_lasted">dauerte %1$s</string>
     <string name="trip_tools_split_pick">Wähle mindestens eine Trennstelle.</string>
-    <string name="trip_split_result">Das ergibt</string>
 <string name="trip_tools_split_hint">Waehle die Schnitte. Ergibt %1$d Fahrten, das Original bleibt.</string>
     <string name="trip_tools_split_done">In %1$d Fahrten geteilt</string>
     <string name="trip_tools_split_failed">Diese Fahrt konnte nicht geteilt werden</string>

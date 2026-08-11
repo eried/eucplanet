@@ -2074,7 +2074,6 @@
     <string name="trip_tools_wheel_changed">Roda definida como %1$s</string>
         <string name="trip_split_lasted">durou %1$s</string>
     <string name="trip_tools_split_pick">Escolha pelo menos um ponto de corte.</string>
-    <string name="trip_split_result">Você vai obter</string>
 <string name="trip_tools_split_hint">Escolha onde cortar. Cria %1$d trajetos e mantem o original.</string>
     <string name="trip_tools_split_done">Dividido em %1$d trajetos</string>
     <string name="trip_tools_split_failed">Nao foi possivel dividir este trajeto</string>

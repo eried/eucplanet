@@ -1977,7 +1977,6 @@
     <string name="trip_tools_wheel_changed">Ruota impostata su %1$s</string>
         <string name="trip_split_lasted">durata %1$s</string>
     <string name="trip_tools_split_pick">Scegli almeno un punto di taglio.</string>
-    <string name="trip_split_result">Otterrai</string>
 <string name="trip_tools_split_hint">Scegli dove tagliare. Crea %1$d viaggi e mantiene l originale.</string>
     <string name="trip_tools_split_done">Diviso in %1$d viaggi</string>
     <string name="trip_tools_split_failed">Impossibile dividere questo viaggio</string>

@@ -1960,7 +1960,6 @@
     <string name="trip_tools_wheel_changed">Hjul satt til %1$s</string>
         <string name="trip_split_lasted">varte %1$s</string>
     <string name="trip_tools_split_pick">Velg minst ett sted å klippe.</string>
-    <string name="trip_split_result">Du får</string>
 <string name="trip_tools_split_hint">Velg hvor det skal klippes. Dette lager %1$d turer og beholder originalen.</string>
     <string name="trip_tools_split_done">Delt i %1$d turer</string>
     <string name="trip_tools_split_failed">Kunne ikke dele denne turen</string>
