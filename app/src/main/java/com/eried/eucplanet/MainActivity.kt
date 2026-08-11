@@ -111,6 +111,9 @@ class MainActivity : AppCompatActivity() {
             // WheelService, so we need the service running for the HUD to
             // pair even before a wheel is on the line.
             s.hudServerEnabled ||
+            // Phone HUD: the overlay window is owned by WheelService, so the
+            // service has to be up for it to appear at all.
+            s.phoneHudEnabled ||
             // Keep-alive: rider opted to keep the ongoing notification (and
             // thus background trip sync / voice) alive with no wheel connected.
             s.keepAppAlive
@@ -322,6 +325,7 @@ class MainActivity : AppCompatActivity() {
                     val needsService = canStartWheelService() && (
                         (it.voiceEnabled && it.voiceAnnounceWhen == "ALWAYS") ||
                         it.hudServerEnabled ||
+                    it.phoneHudEnabled ||
                         it.keepAppAlive ||
                         forceHud
                     )

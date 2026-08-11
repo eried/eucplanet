@@ -2091,6 +2091,8 @@
     <string name="phone_hud_overlay">Layout</string>
     <string name="phone_hud_section">HUD do telefone</string>
     <string name="phone_hud_enable">Mostrar a sobreposição</string>
+    <string name="phone_hud_only_away">Somente fora do EUC Planet</string>
+    <string name="phone_hud_only_away_desc">Oculta a sobreposição enquanto este app está aberto, onde o painel já mostra mais.</string>
     <string name="phone_hud_portrait_only">Somente layouts verticais. Ela ignora toques, então o app abaixo continua funcionando.</string>
     <string name="widget_section">Widget da tela inicial</string>
     <string name="widget_pick_desc">Escolha as %1$d métricas e %2$d botões que o widget mostra.</string>

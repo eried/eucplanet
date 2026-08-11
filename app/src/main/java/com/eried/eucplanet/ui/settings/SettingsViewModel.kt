@@ -766,6 +766,9 @@ class SettingsViewModel @Inject constructor(
      */
         fun updatePhoneHudEnabled(v: Boolean) = update { copy(phoneHudEnabled = v) }
 
+    fun updatePhoneHudOnlyWhenAway(v: Boolean) =
+        update { copy(phoneHudOnlyWhenAway = v) }
+
     /**
      * Pick the preset the Phone HUD draws. Resolves the name to JSON the same
      * way the HUD picker does, so the window never needs filesystem access.

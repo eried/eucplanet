@@ -648,6 +648,14 @@ data class AppSettings(
     /** Resolved JSON for [phoneHudOverlayName], same caching as the HUD's. */
     val phoneHudOverlayJson: String = "",
     /**
+     * Hide the Phone HUD while EUC Planet itself is in front.
+     *
+     * On by default. The point of the overlay is seeing the wheel while in
+     * some OTHER app; drawn over the app's own dashboard it covers a better
+     * version of itself. A rider who wants it everywhere can turn this off.
+     */
+    val phoneHudOnlyWhenAway: Boolean = true,
+    /**
      * Ordered list of HUD screens the rider has enabled, by stable id
      * ("Dashboard", "Camera", "Telemetry", "Custom", "CustomCam",
      * "Map", "Nav"). Stored as a comma-separated string so it slots

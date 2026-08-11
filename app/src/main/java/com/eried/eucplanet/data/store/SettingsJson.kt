@@ -298,6 +298,7 @@ object SettingsJson {
         put("phoneHudEnabled", s.phoneHudEnabled)
         put("phoneHudOverlayName", s.phoneHudOverlayName)
         put("phoneHudOverlayJson", s.phoneHudOverlayJson)
+        put("phoneHudOnlyWhenAway", s.phoneHudOnlyWhenAway)
         put("hudScreensEnabled", s.hudScreensEnabled)
         put("hudScreensOrder", s.hudScreensOrder)
         put("hudMapStyle", s.hudMapStyle)
@@ -612,6 +613,7 @@ object SettingsJson {
         phoneHudEnabled = j.optBoolean("phoneHudEnabled", base.phoneHudEnabled),
         phoneHudOverlayName = j.optString("phoneHudOverlayName", base.phoneHudOverlayName),
         phoneHudOverlayJson = j.optString("phoneHudOverlayJson", base.phoneHudOverlayJson),
+        phoneHudOnlyWhenAway = j.optBoolean("phoneHudOnlyWhenAway", base.phoneHudOnlyWhenAway),
         hudScreensEnabled = j.optString("hudScreensEnabled", base.hudScreensEnabled),
         hudScreensOrder = j.optString("hudScreensOrder", base.hudScreensOrder),
         hudMapStyle = j.optString("hudMapStyle", base.hudMapStyle),

@@ -150,6 +150,8 @@ class WheelService : LifecycleService() {
     private var phoneHudEnabledCached: Boolean = false
     @Volatile
     private var phoneHudJsonCached: String = ""
+    @Volatile
+    private var phoneHudOnlyWhenAwayCached: Boolean = true
     private var lastPhoneHudPush = 0L
 
     /**
@@ -258,6 +260,7 @@ class WheelService : LifecycleService() {
                 // does, so turning it on takes effect without a reconnect.
                 phoneHudEnabledCached = s.phoneHudEnabled
                 phoneHudJsonCached = s.phoneHudOverlayJson
+                phoneHudOnlyWhenAwayCached = s.phoneHudOnlyWhenAway
                 applyPhoneHud()
                 // Repaint on a settings change: the rider reconfiguring the
                 // widget expects it to change now, not at the next telemetry
@@ -326,6 +329,12 @@ class WheelService : LifecycleService() {
                 // button was left reading "Stop" after the trip had ended.
                 renderWidgetFromCurrentState()
             }
+        }
+
+        // The Phone HUD hides while the app is in front, so it has to follow
+        // the foreground flag as well as the settings.
+        lifecycleScope.launch {
+            com.eried.eucplanet.util.AppForeground.isForeground.collect { applyPhoneHud() }
         }
 
         // Same for the lock state, which a LOCK button's label reads and which
@@ -502,6 +511,7 @@ class WheelService : LifecycleService() {
                         tripRepository.recording.value ||
                         navigationEngine.navState.value.active ||
                         s.hudServerEnabled ||
+            s.phoneHudEnabled ||
                         (s.voiceEnabled && s.voiceAnnounceWhen == "ALWAYS")
                     if (!s.keepAppAlive && !stillNeeded) {
                         stopForeground(STOP_FOREGROUND_REMOVE)
@@ -919,7 +929,12 @@ class WheelService : LifecycleService() {
      * can be called from every settings emission without churning the window.
      */
     private fun applyPhoneHud() {
-        val wanted = phoneHudEnabledCached && phoneHudJsonCached.isNotBlank()
+        // Hidden while the app itself is in front, unless the rider asked for
+        // it everywhere. Drawing the overlay over the dashboard would cover a
+        // fuller version of the same numbers.
+        val inOwnApp = phoneHudOnlyWhenAwayCached &&
+            com.eried.eucplanet.util.AppForeground.isForeground.value
+        val wanted = phoneHudEnabledCached && phoneHudJsonCached.isNotBlank() && !inOwnApp
         if (!wanted) {
             phoneHudWindow.hide()
             return

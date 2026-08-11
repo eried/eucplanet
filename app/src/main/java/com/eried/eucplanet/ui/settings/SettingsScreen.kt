@@ -1264,6 +1264,11 @@ private fun GeneralTab(
                         onSelect = { viewModel.pickPhoneHudOverlay(it) },
                         modifier = Modifier.fillMaxWidth(),
                     )
+                    SwitchSetting(
+                        stringResource(R.string.phone_hud_only_away),
+                        settings.phoneHudOnlyWhenAway,
+                    ) { viewModel.updatePhoneHudOnlyWhenAway(it) }
+                    HintText(stringResource(R.string.phone_hud_only_away_desc), small = true)
                     HintText(stringResource(R.string.phone_hud_portrait_only), small = true)
                 }
             }

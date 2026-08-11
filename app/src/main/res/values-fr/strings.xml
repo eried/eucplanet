@@ -2093,6 +2093,8 @@
     <string name="phone_hud_overlay">Mise en page</string>
     <string name="phone_hud_section">HUD du téléphone</string>
     <string name="phone_hud_enable">Afficher la surimpression</string>
+    <string name="phone_hud_only_away">Seulement hors de EUC Planet</string>
+    <string name="phone_hud_only_away_desc">Masque la surimpression quand cette appli est ouverte, où le tableau de bord en montre plus.</string>
     <string name="phone_hud_portrait_only">Mises en page verticales uniquement. Les touches sont ignorées, l\'appli en dessous continue de fonctionner.</string>
     <string name="widget_section">Widget d ecran d accueil</string>
     <string name="widget_pick_desc">Choisis les %1$d mesures et %2$d boutons affichés par le widget.</string>

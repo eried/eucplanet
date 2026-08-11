@@ -2109,6 +2109,8 @@
     <string name="phone_hud_overlay">Layout</string>
     <string name="phone_hud_section">Telefon-HUD</string>
     <string name="phone_hud_enable">Overlay anzeigen</string>
+    <string name="phone_hud_only_away">Nur außerhalb von EUC Planet</string>
+    <string name="phone_hud_only_away_desc">Blendet das Overlay aus, solange diese App offen ist, wo das Dashboard mehr zeigt.</string>
     <string name="phone_hud_portrait_only">Nur Hochformat-Layouts. Tippen wird ignoriert, die App darunter funktioniert weiter.</string>
     <string name="widget_section">Startbildschirm-Widget</string>
     <string name="widget_pick_desc">Wähle die %1$d Messwerte und %2$d Tasten, die das Widget zeigt.</string>

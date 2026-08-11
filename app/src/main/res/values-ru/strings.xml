@@ -2089,6 +2089,8 @@
     <string name="phone_hud_overlay">Раскладка</string>
     <string name="phone_hud_section">HUD на телефоне</string>
     <string name="phone_hud_enable">Показывать наложение</string>
+    <string name="phone_hud_only_away">Только вне EUC Planet</string>
+    <string name="phone_hud_only_away_desc">Скрывает наложение, пока это приложение открыто: панель показывает больше.</string>
     <string name="phone_hud_portrait_only">Только вертикальные раскладки. Нажатия проходят насквозь, приложение под ним работает как обычно.</string>
     <string name="widget_section">Виджет на главном экране</string>
     <string name="widget_pick_desc">Выберите %1$d показателя и %2$d кнопки, которые показывает виджет.</string>

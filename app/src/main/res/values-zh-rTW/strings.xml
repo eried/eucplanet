@@ -2088,6 +2088,8 @@
     <string name="phone_hud_overlay">版面</string>
     <string name="phone_hud_section">手機 HUD</string>
     <string name="phone_hud_enable">顯示浮動層</string>
+    <string name="phone_hud_only_away">僅在 EUC Planet 之外</string>
+    <string name="phone_hud_only_away_desc">本應用程式開啟時隱藏浮動層，儀表板本來就顯示更多。</string>
     <string name="phone_hud_portrait_only">僅支援直向版面。它不接收點按，下方應用程式照常使用。</string>
     <string name="widget_section">主畫面小工具</string>
     <string name="widget_pick_desc">選擇小工具顯示的 %1$d 個指標和 %2$d 個按鈕。</string>

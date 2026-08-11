@@ -2086,6 +2086,8 @@
     <string name="phone_hud_overlay">Düzen</string>
     <string name="phone_hud_section">Telefon HUD</string>
     <string name="phone_hud_enable">Yer paylaşımını göster</string>
+    <string name="phone_hud_only_away">Yalnızca EUC Planet dışında</string>
+    <string name="phone_hud_only_away_desc">Bu uygulama açıkken yer paylaşımını gizler; gösterge paneli zaten daha fazlasını gösterir.</string>
     <string name="phone_hud_portrait_only">Yalnızca dikey düzenler. Dokunuşları geçirir, alttaki uygulama çalışmaya devam eder.</string>
     <string name="widget_section">Ana ekran widgetı</string>
     <string name="widget_pick_desc">Widget\'ın gösterdiği %1$d metriği ve %2$d düğmeyi seç.</string>

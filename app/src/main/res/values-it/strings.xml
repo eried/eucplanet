@@ -1994,6 +1994,8 @@
     <string name="phone_hud_overlay">Layout</string>
     <string name="phone_hud_section">HUD del telefono</string>
     <string name="phone_hud_enable">Mostra la sovrimpressione</string>
+    <string name="phone_hud_only_away">Solo fuori da EUC Planet</string>
+    <string name="phone_hud_only_away_desc">Nasconde la sovrimpressione mentre questa app è aperta, dove il cruscotto mostra di più.</string>
     <string name="phone_hud_portrait_only">Solo layout verticali. Ignora i tocchi, quindi l\'app sottostante continua a funzionare.</string>
     <string name="widget_section">Widget schermata home</string>
     <string name="widget_pick_desc">Scegli le %1$d metriche e i %2$d pulsanti mostrati dal widget.</string>
