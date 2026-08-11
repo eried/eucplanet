@@ -160,8 +160,9 @@ class MainActivity : AppCompatActivity() {
      */
     /**
      * Shrink into picture-in-picture as the rider leaves, the way a video app
-     * does. Off unless asked for, and never from the settings screens: PIP is
-     * for watching the ride continue, not for watching a preferences list.
+     * does. Off unless asked for, and from any screen but the Overlay Studio:
+     * PIP swaps in its own face, so where the rider happened to be does not
+     * change what the little window shows.
      */
     /**
      * What the PIP window shows. Two faces, picked by the rider: four large
@@ -213,8 +214,8 @@ class MainActivity : AppCompatActivity() {
             android.util.Log.i(TAG_PIP, "not entering PIP: mode is off in settings")
             return
         }
-        if (!com.eried.eucplanet.util.PipHost.dashboardVisible) {
-            android.util.Log.i(TAG_PIP, "not entering PIP: the dashboard is not the visible screen")
+        if (com.eried.eucplanet.util.PipHost.suppressPip) {
+            android.util.Log.i(TAG_PIP, "not entering PIP: the Overlay Studio is on screen")
             return
         }
         runCatching {

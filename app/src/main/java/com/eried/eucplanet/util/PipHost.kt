@@ -17,12 +17,21 @@ object PipHost {
     val inPip = MutableStateFlow(false)
 
     /**
-     * True while the dashboard is the visible screen.
+     * Set while a screen is on that must not be swapped out for the PIP face.
      *
-     * onUserLeaveHint fires wherever the rider happens to be, and shrinking a
-     * settings list into a floating window helps nobody. Set by the dashboard
-     * while it is composed.
+     * This used to be the opposite - PIP was allowed only from the dashboard,
+     * on the reasoning that shrinking a settings list into a floating window
+     * helps nobody. That reasoning was wrong about this app: entering PIP
+     * replaces the whole composition with [com.eried.eucplanet.ui.pip.PipSimple]
+     * or PipDashboard, so the settings list is never what ends up in the little
+     * window. All the gate achieved was to break PIP at the one moment anybody
+     * tests it - right after switching it on, from the settings screen it was
+     * switched on in.
+     *
+     * The Overlay Studio is the real exception, and the reason is concrete
+     * rather than aesthetic: PIP drops the rest of the tree from composition,
+     * which would take the camera and an in-progress recording with it.
      */
     @Volatile
-    var dashboardVisible: Boolean = false
+    var suppressPip: Boolean = false
 }
