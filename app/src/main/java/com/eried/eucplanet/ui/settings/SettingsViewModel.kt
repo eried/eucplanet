@@ -766,6 +766,8 @@ class SettingsViewModel @Inject constructor(
      */
         fun updatePhoneHudEnabled(v: Boolean) = update { copy(phoneHudEnabled = v) }
 
+    fun updatePipMode(v: String) = update { copy(pipMode = v) }
+
     fun updatePhoneHudOnlyWhenAway(v: Boolean) =
         update { copy(phoneHudOnlyWhenAway = v) }
 

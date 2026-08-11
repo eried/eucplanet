@@ -656,6 +656,20 @@ data class AppSettings(
      */
     val phoneHudOnlyWhenAway: Boolean = true,
     /**
+     * Picture-in-picture: what to shrink into the system's floating window
+     * when the rider leaves the app mid-ride.
+     *
+     * "OFF" (default), "SIMPLE" for four big readings, or "DASHBOARD" for the
+     * gauge beside the rider's own metrics. One setting rather than a switch
+     * plus a mode, because "off" is just the third choice.
+     *
+     * Unlike the Phone HUD this needs no permission and the system owns the
+     * window, so it can be dragged and flicked away like a video PIP. It only
+     * exists while the activity does, which is the difference between the two:
+     * PIP is "I just left the app", the overlay is "the app is not running".
+     */
+    val pipMode: String = "OFF",
+    /**
      * Ordered list of HUD screens the rider has enabled, by stable id
      * ("Dashboard", "Camera", "Telemetry", "Custom", "CustomCam",
      * "Map", "Nav"). Stored as a comma-separated string so it slots

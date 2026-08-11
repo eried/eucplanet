@@ -255,6 +255,12 @@ fun DashboardScreen(
         Log.i("EucDash", "DashboardScreen ENTER")
         onDispose { Log.i("EucDash", "DashboardScreen DISPOSE") }
     }
+    // onUserLeaveHint fires wherever the rider happens to be; PIP should only
+    // capture the ride view, never a settings list.
+    androidx.compose.runtime.DisposableEffect(Unit) {
+        com.eried.eucplanet.util.PipHost.dashboardVisible = true
+        onDispose { com.eried.eucplanet.util.PipHost.dashboardVisible = false }
+    }
     val wheelData by viewModel.wheelData.collectAsState()
     val connectionState by viewModel.connectionState.collectAsState()
     // Quake-style console cheat (set via Settings search-bar). Multiplies ONLY the
@@ -3480,7 +3486,7 @@ fun DashboardScreen(
 // --- Speed gauge: thick arc dial, no needle, centered speed ---
 
 @Composable
-private fun SpeedGauge(
+internal fun SpeedGauge(
     speed: Float,
     maxSpeed: Float,
     speedUnit: String,

@@ -154,6 +154,71 @@ class MainActivity : AppCompatActivity() {
      * openApplication() (a one-time "Always" consent on the watch, then
      * automatic), so the Garmin path below is a real launch, not a no-op.
      */
+    /**
+     * Shrink into picture-in-picture as the rider leaves, the way a video app
+     * does. Off unless asked for, and never from the settings screens: PIP is
+     * for watching the ride continue, not for watching a preferences list.
+     */
+    /**
+     * What the PIP window shows. Two faces, picked by the rider: four large
+     * readings, or the gauge beside their own dashboard metrics.
+     */
+    @androidx.compose.runtime.Composable
+    private fun PipContent(settings: com.eried.eucplanet.data.model.AppSettings) {
+        val wheel by wheelRepository.wheelData.collectAsState()
+        val conn by wheelRepository.connectionState.collectAsState()
+        val connected = conn == com.eried.eucplanet.ble.ConnectionState.CONNECTED
+        val sUnit = com.eried.eucplanet.util.Units.effectiveSpeedUnit(settings)
+        val dUnit = com.eried.eucplanet.util.Units.effectiveDistanceUnit(settings)
+        if (settings.pipMode == "SIMPLE") {
+            com.eried.eucplanet.ui.pip.PipSimple(
+                data = wheel,
+                connected = connected,
+                speedUnit = sUnit,
+                distanceUnit = dUnit,
+            )
+        } else {
+            com.eried.eucplanet.ui.pip.PipDashboard(
+                data = wheel,
+                connected = connected,
+                metricOrder = settings.dashboardMetricOrder,
+                // Same rounding the dashboard uses for its dial: next 10 above
+                // the tiltback, never below 30, so the needle sits where the
+                // rider is used to seeing it.
+                maxSpeed = com.eried.eucplanet.util.Units.speed(
+                    (((settings.tiltbackSpeedKmh / 10f).toInt() + 1) * 10f)
+                        .coerceAtLeast(30f),
+                    sUnit,
+                ),
+                speedUnit = sUnit,
+                distanceUnit = dUnit,
+                tempUnit = com.eried.eucplanet.util.Units.effectiveTempUnit(settings),
+            )
+        }
+    }
+    override fun onUserLeaveHint() {
+        super.onUserLeaveHint()
+        if (_settings.value?.pipMode.orEmpty() == "OFF") return
+        if (!com.eried.eucplanet.util.PipHost.dashboardVisible) return
+        runCatching {
+            enterPictureInPictureMode(
+                android.app.PictureInPictureParams.Builder()
+                    // Wide, so the gauge and the metric grid sit side by side
+                    // instead of stacking into two unreadable halves.
+                    .setAspectRatio(android.util.Rational(16, 9))
+                    .build()
+            )
+        }
+    }
+
+    override fun onPictureInPictureModeChanged(
+        isInPictureInPictureMode: Boolean,
+        newConfig: android.content.res.Configuration,
+    ) {
+        super.onPictureInPictureModeChanged(isInPictureInPictureMode, newConfig)
+        com.eried.eucplanet.util.PipHost.inPip.value = isInPictureInPictureMode
+    }
+
     override fun onResume() {
         super.onResume()
         wearBridge.pingWatchToWake()
@@ -378,6 +443,15 @@ class MainActivity : AppCompatActivity() {
             val pulseColors = themeController.pulse.collectAsState().value
             val themeColors = pulseColors ?: liveColors ?: resolvedColors
             EucPlanetTheme(colors = themeColors) {
+                // In PIP the navigation tree is replaced rather than overlaid:
+                // the window is a fraction of the screen and a scaled-down app
+                // is unreadable. The rest stays in composition, so leaving PIP
+                // returns to exactly the screen the rider left.
+                val inPip by com.eried.eucplanet.util.PipHost.inPip.collectAsState()
+                if (inPip) {
+                    s?.let { PipContent(settings = it) }
+                    return@EucPlanetTheme
+                }
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background

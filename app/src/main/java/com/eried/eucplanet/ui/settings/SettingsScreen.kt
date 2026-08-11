@@ -503,6 +503,7 @@ fun SettingsScreen(
         stringResource(R.string.section_application),
         stringResource(R.string.back_button_action),
         stringResource(R.string.section_surfaces),
+        stringResource(R.string.pip_section),
         stringResource(R.string.surface_notification),
         stringResource(R.string.phone_hud_section),
         stringResource(R.string.phone_hud_enable),
@@ -1212,6 +1213,25 @@ private fun GeneralTab(
                     Spacer(Modifier.weight(1f))
                 }
             }
+        }
+
+        // Picture-in-picture. One control rather than a switch plus a mode
+        // picker: "off" is simply the third choice.
+        AdvancedCollapsable(
+            title = stringResource(R.string.pip_section),
+            stateKey = "surface-pip",
+        ) {
+            HintText(stringResource(R.string.pip_desc), small = true)
+            SegmentedChoice(
+                label = stringResource(R.string.pip_section),
+                options = listOf(
+                    "OFF" to stringResource(R.string.pip_mode_off),
+                    "SIMPLE" to stringResource(R.string.pip_mode_simple),
+                    "DASHBOARD" to stringResource(R.string.pip_mode_dashboard),
+                ),
+                current = settings.pipMode,
+                onChange = { viewModel.updatePipMode(it) },
+            )
         }
 
         // Phone HUD: the same Overlay Studio presets the companion HUD shows,

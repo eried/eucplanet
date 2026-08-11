@@ -60,7 +60,7 @@ class AppSettingsArgLimitTest {
         // cached JSON. 239 before that.
         // 239: the widget's nested settings added a field, which also crossed a
         // 32-property boundary and so cost a second bitmask slot.
-        val expectedSlots = 243
+        val expectedSlots = 244
         assertEquals(
             "AppSettings slot usage changed. Prefer nesting a group of fields over " +
                 "spending headroom, and update this number deliberately.",

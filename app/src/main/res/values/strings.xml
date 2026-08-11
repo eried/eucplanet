@@ -1224,8 +1224,13 @@
     <string name="recording_chart_power">Power (W)</string>
     <string name="recording_chart_altitude">Altitude (m)</string>
     <string name="widget_description">Metrics and quick actions</string>
-    <string name="section_surfaces">Where it shows up</string>
+    <string name="section_surfaces">Live views</string>
     <string name="surface_notification">Notification</string>
+    <string name="pip_section">Picture-in-picture</string>
+    <string name="pip_desc">Shrinks into a floating window when you leave the app during a ride. Drag it around or flick it away, like a video.</string>
+    <string name="pip_mode_off">Off</string>
+    <string name="pip_mode_simple">Simple</string>
+    <string name="pip_mode_dashboard">Dashboard</string>
     <string name="phone_hud_section">Phone HUD</string>
     <string name="phone_hud_desc">Draw an Overlay Studio layout on top of other apps, so you can see your wheel while using maps or music.</string>
     <string name="phone_hud_permission_desc">Android asks for this separately. Without it the overlay cannot be shown.</string>
