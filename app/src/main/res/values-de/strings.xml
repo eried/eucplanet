@@ -2102,11 +2102,9 @@
     <string name="trip_tools_combine_this">Diese Fahrt</string>
     <string name="trip_tools_combine_between">Dazwischen, kommt mit</string>
     <string name="trip_tools_combine_summary">Fuegt %1$d Fahrten zu einer neuen zusammen.</string>
-    <string name="phone_hud_overlay_none">Keins</string>
     <string name="phone_hud_desc">Zeichnet ein Overlay-Studio-Layout über andere Apps, damit du dein Wheel siehst, während du Karten oder Musik nutzt.</string>
     <string name="phone_hud_permission_desc">Android fragt das separat ab. Ohne diese Berechtigung kann das Overlay nicht erscheinen.</string>
     <string name="phone_hud_grant">Erlauben</string>
-    <string name="phone_hud_overlay">Layout</string>
     <string name="phone_hud_section">Telefon-HUD</string>
     <string name="phone_hud_enable">Overlay anzeigen</string>
     <string name="phone_hud_only_away">Nur außerhalb von EUC Planet</string>

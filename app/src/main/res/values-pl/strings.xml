@@ -2082,11 +2082,9 @@
     <string name="trip_tools_combine_this">Ten przejazd</string>
     <string name="trip_tools_combine_between">Pomiedzy, dolaczone</string>
     <string name="trip_tools_combine_summary">Laczy %1$d przejazdow w jeden nowy.</string>
-    <string name="phone_hud_overlay_none">Brak</string>
     <string name="phone_hud_desc">Rysuje układ z Overlay Studio na innych aplikacjach, żeby widzieć koło podczas map lub muzyki.</string>
     <string name="phone_hud_permission_desc">Android pyta o to osobno. Bez tego nakładki nie da się pokazać.</string>
     <string name="phone_hud_grant">Zezwól</string>
-    <string name="phone_hud_overlay">Układ</string>
     <string name="phone_hud_section">HUD telefonu</string>
     <string name="phone_hud_enable">Pokaż nakładkę</string>
     <string name="phone_hud_only_away">Tylko poza EUC Planet</string>

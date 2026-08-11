@@ -2079,11 +2079,9 @@
     <string name="trip_tools_combine_this">Ця поїздка</string>
     <string name="trip_tools_combine_between">Між ними, увійде</string>
     <string name="trip_tools_combine_summary">Об\'єднує %1\ поїздок в одну нову.</string>
-    <string name="phone_hud_overlay_none">Немає</string>
     <string name="phone_hud_desc">Малює розкладку Overlay Studio поверх інших застосунків, щоб бачити колесо під час карт чи музики.</string>
     <string name="phone_hud_permission_desc">Android запитує це окремо. Без дозволу накладку показати не можна.</string>
     <string name="phone_hud_grant">Дозволити</string>
-    <string name="phone_hud_overlay">Розкладка</string>
     <string name="phone_hud_section">HUD на телефоні</string>
     <string name="phone_hud_enable">Показувати накладку</string>
     <string name="phone_hud_only_away">Лише поза EUC Planet</string>

@@ -2082,11 +2082,9 @@
     <string name="trip_tools_combine_this">Эта поездка</string>
     <string name="trip_tools_combine_between">Между ними, войдёт</string>
     <string name="trip_tools_combine_summary">Объединяет %1$d поездок в одну новую.</string>
-    <string name="phone_hud_overlay_none">Нет</string>
     <string name="phone_hud_desc">Рисует раскладку Overlay Studio поверх других приложений, чтобы видеть колесо во время карт или музыки.</string>
     <string name="phone_hud_permission_desc">Android запрашивает это отдельно. Без разрешения наложение показать нельзя.</string>
     <string name="phone_hud_grant">Разрешить</string>
-    <string name="phone_hud_overlay">Раскладка</string>
     <string name="phone_hud_section">HUD на телефоне</string>
     <string name="phone_hud_enable">Показывать наложение</string>
     <string name="phone_hud_only_away">Только вне EUC Planet</string>

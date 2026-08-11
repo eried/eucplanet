@@ -2079,11 +2079,9 @@
     <string name="trip_tools_combine_this">Este viaje</string>
     <string name="trip_tools_combine_between">En medio, se incluye</string>
     <string name="trip_tools_combine_summary">Combina %1$d viajes en uno nuevo.</string>
-    <string name="phone_hud_overlay_none">Ninguno</string>
     <string name="phone_hud_desc">Dibuja un diseño de Overlay Studio encima de otras apps, para ver tu rueda mientras usas mapas o música.</string>
     <string name="phone_hud_permission_desc">Android lo pide por separado. Sin esto no se puede mostrar la superposición.</string>
     <string name="phone_hud_grant">Conceder</string>
-    <string name="phone_hud_overlay">Diseño</string>
     <string name="phone_hud_section">HUD del teléfono</string>
     <string name="phone_hud_enable">Mostrar la superposición</string>
     <string name="phone_hud_only_away">Solo fuera de EUC Planet</string>

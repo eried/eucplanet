@@ -2086,11 +2086,9 @@
     <string name="trip_tools_combine_this">Ce trajet</string>
     <string name="trip_tools_combine_between">Entre les deux, inclus</string>
     <string name="trip_tools_combine_summary">Combine %1$d trajets en un nouveau.</string>
-    <string name="phone_hud_overlay_none">Aucune</string>
     <string name="phone_hud_desc">Affiche une mise en page Overlay Studio par-dessus les autres applis, pour voir ta roue en utilisant les cartes ou la musique.</string>
     <string name="phone_hud_permission_desc">Android le demande séparément. Sans cela, la surimpression ne peut pas s\'afficher.</string>
     <string name="phone_hud_grant">Autoriser</string>
-    <string name="phone_hud_overlay">Mise en page</string>
     <string name="phone_hud_section">HUD du téléphone</string>
     <string name="phone_hud_enable">Afficher la surimpression</string>
     <string name="phone_hud_only_away">Seulement hors de EUC Planet</string>

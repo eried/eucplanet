@@ -2083,11 +2083,9 @@
     <string name="trip_tools_combine_this">この走行</string>
     <string name="trip_tools_combine_between">間にあるため含まれます</string>
     <string name="trip_tools_combine_summary">%1$d 件の走行を新しい走行に結合します。</string>
-    <string name="phone_hud_overlay_none">なし</string>
     <string name="phone_hud_desc">Overlay Studio のレイアウトを他のアプリの上に表示します。地図や音楽を使いながらホイールを確認できます。</string>
     <string name="phone_hud_permission_desc">Android が個別に許可を求めます。許可がないとオーバーレイは表示できません。</string>
     <string name="phone_hud_grant">許可</string>
-    <string name="phone_hud_overlay">レイアウト</string>
     <string name="phone_hud_section">スマホ HUD</string>
     <string name="phone_hud_enable">オーバーレイを表示</string>
     <string name="phone_hud_only_away">EUC Planet 以外でのみ</string>

@@ -1242,28 +1242,81 @@ private fun GeneralTab(
                 ) { viewModel.updatePhoneHudEnabled(it) }
 
                 if (settings.phoneHudEnabled) {
+                    // Same picker the HUD's custom overlay uses: the Studio's
+                    // own LoadPresetSheet, so a rider who has chosen a preset
+                    // for the HUD finds the identical browser here rather than
+                    // a second, poorer way of doing it.
                     var lists by remember {
                         mutableStateOf<SettingsViewModel.HudOverlayLists?>(null)
                     }
-                    LaunchedEffect(Unit) { lists = viewModel.loadHudOverlayLists() }
-                    // Portrait only. A landscape preset bakes a per-element
-                    // rotation onto a portrait canvas, and undoing that on a
-                    // different surface is what the HUD renderer needed two
-                    // attempts and an ANR to get right. Offering them here
-                    // would draw them wrong.
-                    val choices = remember(lists) {
-                        (lists?.bundledPortrait.orEmpty() + lists?.savedPresets.orEmpty()).distinct()
+                    var presetSheetOpen by remember { mutableStateOf(false) }
+                    LaunchedEffect(settings.phoneHudOverlayName) {
+                        lists = viewModel.loadHudOverlayLists()
                     }
-                    WidgetSlotDropdown(
-                        label = stringResource(R.string.phone_hud_overlay),
-                        currentLabel = settings.phoneHudOverlayName.ifBlank {
-                            stringResource(R.string.phone_hud_overlay_none)
-                        },
-                        options = listOf("" to stringResource(R.string.phone_hud_overlay_none)) +
-                            choices.map { it to it },
-                        onSelect = { viewModel.pickPhoneHudOverlay(it) },
-                        modifier = Modifier.fillMaxWidth(),
-                    )
+
+                    if (settings.phoneHudOverlayName.isNotBlank()) {
+                        Text(
+                            stringResource(
+                                R.string.hud_overlay_current_preset,
+                                settings.phoneHudOverlayName,
+                            ),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.appColors.textPrimary,
+                        )
+                    }
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        androidx.compose.material3.FilledTonalButton(
+                            onClick = { presetSheetOpen = true },
+                            colors = themedTonalButtonColors(),
+                            shape = RoundedCornerShape(12.dp),
+                        ) { Text(stringResource(R.string.hud_overlay_select_preset)) }
+                        if (settings.phoneHudOverlayName.isNotBlank()) {
+                            TextButton(
+                                onClick = { viewModel.pickPhoneHudOverlay("") },
+                                colors = themedTextButtonColors(),
+                                shape = RoundedCornerShape(12.dp),
+                            ) { Text(stringResource(R.string.hud_custom_overlay_none)) }
+                        }
+                    }
+
+                    if (presetSheetOpen) {
+                        val l = lists
+                        if (l != null) {
+                            // Dialog, not inline: LoadPresetSheet scrolls
+                            // internally and needs a bounded height, which the
+                            // settings column (itself scrolling) cannot give it.
+                            // The HUD section documents the same crash.
+                            androidx.compose.ui.window.Dialog(
+                                onDismissRequest = { presetSheetOpen = false },
+                                properties = androidx.compose.ui.window.DialogProperties(
+                                    usePlatformDefaultWidth = false
+                                ),
+                            ) {
+                                com.eried.eucplanet.ui.studio.LoadPresetSheet(
+                                    folderAvailable = l.folderAvailable,
+                                    presets = l.savedPresets,
+                                    bundledPresets = l.bundledPortrait,
+                                    // Deliberately empty. A landscape preset
+                                    // bakes a per-element rotation onto a
+                                    // portrait canvas, and this window draws it
+                                    // upright, so offering them would hand the
+                                    // rider a layout it will render wrong.
+                                    bundledLandscapePresets = emptyList(),
+                                    onLoad = {
+                                        viewModel.pickPhoneHudOverlay(it)
+                                        presetSheetOpen = false
+                                    },
+                                    onLoadBundled = {
+                                        viewModel.pickPhoneHudOverlay(it)
+                                        presetSheetOpen = false
+                                    },
+                                    onDelete = { /* deleting belongs in the Studio */ },
+                                    onOpenFolderSettings = { presetSheetOpen = false },
+                                    onDismiss = { presetSheetOpen = false },
+                                )
+                            }
+                        }
+                    }
                     SwitchSetting(
                         stringResource(R.string.phone_hud_only_away),
                         settings.phoneHudOnlyWhenAway,

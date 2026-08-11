@@ -1230,8 +1230,6 @@
     <string name="phone_hud_permission_desc">Android asks for this separately. Without it the overlay cannot be shown.</string>
     <string name="phone_hud_grant">Grant</string>
     <string name="phone_hud_enable">Show the overlay</string>
-    <string name="phone_hud_overlay">Layout</string>
-    <string name="phone_hud_overlay_none">None</string>
     <string name="phone_hud_only_away">Only outside EUC Planet</string>
     <string name="phone_hud_only_away_desc">Hides the overlay while this app is open, where the dashboard already shows more.</string>
     <string name="phone_hud_portrait_only">Portrait layouts only. It ignores taps, so the app underneath keeps working.</string>    <string name="widget_section">Home screen widget</string>

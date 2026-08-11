@@ -2079,11 +2079,9 @@
     <string name="trip_tools_combine_this">Bu surus</string>
     <string name="trip_tools_combine_between">Arada, dahil</string>
     <string name="trip_tools_combine_summary">%1$d surusu tek bir yeni suruste birlestirir.</string>
-    <string name="phone_hud_overlay_none">Yok</string>
     <string name="phone_hud_desc">Overlay Studio düzenini diğer uygulamaların üstüne çizer, böylece harita veya müzik kullanırken tekerleğini görürsün.</string>
     <string name="phone_hud_permission_desc">Android bunu ayrıca ister. İzin olmadan yer paylaşımı gösterilemez.</string>
     <string name="phone_hud_grant">İzin ver</string>
-    <string name="phone_hud_overlay">Düzen</string>
     <string name="phone_hud_section">Telefon HUD</string>
     <string name="phone_hud_enable">Yer paylaşımını göster</string>
     <string name="phone_hud_only_away">Yalnızca EUC Planet dışında</string>

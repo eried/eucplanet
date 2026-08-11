@@ -1949,11 +1949,9 @@
     <string name="trip_tools_combine_this">此行程</string>
     <string name="trip_tools_combine_between">位于中间，将包含</string>
     <string name="trip_tools_combine_summary">将 %1$d 个行程合并为一个新行程。</string>
-    <string name="phone_hud_overlay_none">无</string>
     <string name="phone_hud_desc">把 Overlay Studio 布局画在其他应用之上，用地图或听音乐时也能看到轮子数据。</string>
     <string name="phone_hud_permission_desc">Android 会单独询问此权限。没有它就无法显示悬浮层。</string>
     <string name="phone_hud_grant">授予</string>
-    <string name="phone_hud_overlay">布局</string>
     <string name="phone_hud_section">手机 HUD</string>
     <string name="phone_hud_enable">显示悬浮层</string>
     <string name="phone_hud_only_away">仅在 EUC Planet 之外</string>

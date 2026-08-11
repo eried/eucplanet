@@ -1970,11 +1970,9 @@
     <string name="trip_tools_combine_this">Denne turen</string>
     <string name="trip_tools_combine_between">Imellom, tas med</string>
     <string name="trip_tools_combine_summary">Slaar sammen %1$d turer til en ny tur.</string>
-    <string name="phone_hud_overlay_none">Ingen</string>
     <string name="phone_hud_desc">Tegner et Overlay Studio-oppsett oppå andre apper, så du ser hjulet mens du bruker kart eller musikk.</string>
     <string name="phone_hud_permission_desc">Android spør om dette separat. Uten det kan ikke overlegget vises.</string>
     <string name="phone_hud_grant">Tillat</string>
-    <string name="phone_hud_overlay">Oppsett</string>
     <string name="phone_hud_section">Telefon-HUD</string>
     <string name="phone_hud_enable">Vis overlegget</string>
     <string name="phone_hud_only_away">Bare utenfor EUC Planet</string>
