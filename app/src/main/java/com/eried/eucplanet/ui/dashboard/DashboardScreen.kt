@@ -511,6 +511,11 @@ fun DashboardScreen(
         AlertDialog(
             onDismissRequest = { showWarningsDialog = false },
             shape = RoundedCornerShape(12.dp),
+            // Themed rather than Material3's default, which paints a pale
+            // lavender panel over a dark dashboard.
+            containerColor = MaterialTheme.appColors.dialog,
+            titleContentColor = MaterialTheme.appColors.textPrimary,
+            textContentColor = MaterialTheme.appColors.textPrimary,
             // usePlatformDefaultWidth = false breaks Material3's default
             // ~280–560 dp cap so the dialog can stretch closer to the screen
             // edges — gives each warning card a useful body-text width and

@@ -3,12 +3,14 @@ package com.eried.eucplanet.ui.common
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.eried.eucplanet.R
-import com.eried.eucplanet.ui.theme.themedTonalButtonColors
+import com.eried.eucplanet.ui.theme.appColors
 
 /**
  * The one button that resolves a warning, wherever the warning is shown.
@@ -19,8 +21,11 @@ import com.eried.eucplanet.ui.theme.themedTonalButtonColors
  * it and read as a label rather than something to press, which is a poor way to
  * present the only way out of a broken feature.
  *
- * Filled tonal, from the theme, with its on-colour set explicitly so the label
- * stays legible in the dark, light and custom themes alike.
+ * Filled with the accent rather than the tonal fill, which is the mistake this
+ * replaced: the tonal token falls back to surfaceVariant, the same colour the
+ * warning card uses, so the button dissolved into the card it sat on. The
+ * accent cannot collide with a surface, and its on-colour is set explicitly so
+ * the label stays legible in the dark, light and custom themes alike.
  */
 @Composable
 fun FixButton(
@@ -28,10 +33,14 @@ fun FixButton(
     modifier: Modifier = Modifier,
     text: String? = null,
 ) {
+    val c = MaterialTheme.appColors
     Button(
         onClick = onClick,
         modifier = modifier,
-        colors = themedTonalButtonColors(),
+        colors = ButtonDefaults.buttonColors(
+            containerColor = c.primary,
+            contentColor = c.onPrimary,
+        ),
         shape = RoundedCornerShape(12.dp),
         contentPadding = PaddingValues(horizontal = 20.dp, vertical = 8.dp),
     ) {
