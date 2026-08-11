@@ -206,6 +206,8 @@ val ADVANCED_SPECS: List<AdvancedSpec> = listOf(
         60..1440, 30, unit = "min", get = { it.chargingSanityCapMinutes }, set = { s, v -> s.copy(chargingSanityCapMinutes = v) }),
     AdvancedSpec("chargingMedianFilterSize", AdvGroup.CHARGING, R.string.adv_charging_median, R.string.adv_charging_median_desc,
         1..21, 2, unit = "", get = { it.chargingMedianFilterSize }, set = { s, v -> s.copy(chargingMedianFilterSize = v) }),
+    AdvancedSpec("chargeEstimatePackWh", AdvGroup.CHARGING, R.string.adv_charge_pack_wh, R.string.adv_charge_pack_wh_desc,
+        0..5000, 50, unit = "Wh", get = { it.chargeEstimatePackWh }, set = { s, v -> s.copy(chargeEstimatePackWh = v) }),
 
     // --- Battery cell / pack balance coloring (deviation from the pack median) ---
     AdvancedSpec("cellLowWarnMv", AdvGroup.CHARGING, R.string.adv_cell_low_warn, R.string.adv_cell_low_warn_desc,

@@ -1098,11 +1098,18 @@ private fun InfoTabs(state: ChargingUiState) {
                         val fmtWh = { v: Float ->
                             if (v >= 1000f) "%.2f kWh".format(v / 1000f) else "%.0f Wh".format(v)
                         }
-                        if (state.energyUsedWh >= 1f) {
+                        // "Used" is the discharge (idle self-draw); hide it while
+                        // charging, where it only reads as a contradiction.
+                        if (state.energyUsedWh >= 1f && !state.charging) {
                             StatRow(stringResource(R.string.charging_stat_used), fmtWh(state.energyUsedWh))
                         }
                         if (state.energyChargedWh >= 1f) {
                             StatRow(stringResource(R.string.charging_stat_charged), fmtWh(state.energyChargedWh))
+                        } else if (state.charging && state.packEstimateWh > 0 && state.addedPercent > 0f) {
+                            // No charge current to integrate: estimate from the
+                            // percent gained x the rated pack Wh. Rough, so tagged.
+                            val estWh = (state.addedPercent / 100f) * state.packEstimateWh
+                            StatRow(stringResource(R.string.charging_stat_charged_est), "~%.0f Wh".format(estWh))
                         }
                         StatRow(stringResource(R.string.charging_stat_voltage), "%.1f V".format(state.voltage))
                     }
