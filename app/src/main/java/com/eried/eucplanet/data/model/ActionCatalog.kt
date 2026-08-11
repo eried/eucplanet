@@ -159,10 +159,16 @@ object ActionCatalog {
             labelRes = R.string.action_chip_lock,
             icon = Icons.Filled.Lock,
             isEyesFreeSafe = true,
-            // pcMode == 0 means locked. -1 (unknown) returns false so the
-            // tile doesn't render an "active" state before the wheel has
-            // sent a mode frame.
-            statusReader = { it.wheel.pcMode == 0 },
+            // Prefer a family that states its lock outright; fall back to the
+            // work mode for the families that have always been read that way.
+            //
+            // pcMode == 0 means locked, and -1 (unknown) returns false so the
+            // tile does not render active before the wheel has sent a mode
+            // frame. That is right for InMotion V2 and stays untouched. It is
+            // wrong for InMotion V1, whose work mode reads a constant "Drive"
+            // locked or not, so lock never showed there; V1 fills
+            // lockedReported from its own flag byte instead.
+            statusReader = { it.wheel.lockedReported ?: (it.wheel.pcMode == 0) },
             enabledReader = { it.connected }
         ),
         ActionSpec(
