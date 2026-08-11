@@ -218,6 +218,13 @@ fun ChangeWheelDialog(
 }
 
 /**
+ * A resulting piece this short is flagged rather than silently produced. Under
+ * a minute is not a ride, it is the tail left behind by a cut in the wrong
+ * place.
+ */
+private const val SHORT_PIECE_MS = 60_000L
+
+/**
  * The cuts the detector proposed, for the rider to accept or reject.
  *
  * Every one is opt-in. Only the rider knows whether a twenty minute stop was a
@@ -230,10 +237,13 @@ fun SplitTripDialog(
     /** The ride's first sample, so a cut can be named by clock time and not
      *  only by how far into the ride it falls. */
     tripStartMs: Long,
+    /** Whole ride length, so the pieces a split produces can be worked out. */
+    tripDurationMs: Long,
     onConfirm: (List<TripSplitDetector.Cut>) -> Unit,
     onDismiss: () -> Unit,
 ) {
     val clockFmt = remember { SimpleDateFormat("HH:mm:ss", Locale.getDefault()) }
+    val shortClockFmt = remember { SimpleDateFormat("HH:mm", Locale.getDefault()) }
     val selected = remember { mutableStateOf(cuts.map { it.index }.toSet()) }
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -324,6 +334,45 @@ fun SplitTripDialog(
                                     color = MaterialTheme.appColors.textSecondary,
                                 )
                             }
+                        }
+                    }
+
+                    // What the current ticks actually produce.
+                    //
+                    // Without this the rows are indistinguishable apart from a
+                    // checkbox: ticking the first cut and ticking the second
+                    // both report "2 trips" while producing completely
+                    // different rides. The count answers how many, never which,
+                    // and which is the thing being chosen.
+                    val pieces = remember(selected.value, cuts, tripDurationMs) {
+                        val marks = cuts.filter { it.index in selected.value }
+                            .map { it.atElapsedMs }
+                            .filter { it in 1 until tripDurationMs }
+                            .distinct()
+                            .sorted()
+                        (listOf(0L) + marks + listOf(tripDurationMs)).zipWithNext()
+                    }
+                    if (pieces.size > 1) {
+                        Spacer(Modifier.height(10.dp))
+                        Text(
+                            stringResource(R.string.trip_split_result),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.appColors.textSecondary,
+                        )
+                        pieces.forEachIndexed { i, (from, to) ->
+                            val length = to - from
+                            Text(
+                                "${i + 1}.  " +
+                                    shortClockFmt.format(Date(tripStartMs + from)) + " - " +
+                                    shortClockFmt.format(Date(tripStartMs + to)) +
+                                    "   " + formatElapsed(length),
+                                style = MaterialTheme.typography.bodySmall,
+                                // A sliver is almost always an unwanted cut, and
+                                // it is the one outcome worth noticing before
+                                // applying rather than after.
+                                color = if (length < SHORT_PIECE_MS) MaterialTheme.appColors.statusWarn
+                                    else MaterialTheme.appColors.textPrimary,
+                            )
                         }
                     }
                 }

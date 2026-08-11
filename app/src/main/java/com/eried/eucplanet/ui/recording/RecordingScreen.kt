@@ -234,6 +234,7 @@ fun RecordingScreen(
                 cuts = found,
                 formatElapsed = { com.eried.eucplanet.util.Units.humanDuration(it / 1000) },
                 tripStartMs = trip.startTime,
+                tripDurationMs = (trip.endTime ?: trip.startTime) - trip.startTime,
                 onConfirm = { chosen ->
                     viewModel.splitTrip(trip, chosen)
                     splitToolTrip = null

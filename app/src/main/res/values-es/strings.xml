@@ -2069,6 +2069,7 @@
     <string name="trip_tools_wheel_changed">Rueda cambiada a %1$s</string>
         <string name="trip_split_lasted">duró %1$s</string>
     <string name="trip_tools_split_pick">Elige al menos un punto de corte.</string>
+    <string name="trip_split_result">Obtendrás</string>
 <string name="trip_tools_split_hint">Elige donde cortar. Crea %1$d viajes y conserva el original.</string>
     <string name="trip_tools_split_done">Dividido en %1$d viajes</string>
     <string name="trip_tools_split_failed">No se pudo dividir este viaje</string>

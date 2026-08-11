@@ -2071,6 +2071,7 @@
     <string name="trip_tools_wheel_changed">휠을 %1$s(으)로 설정했습니다</string>
         <string name="trip_split_lasted">%1$s 지속</string>
     <string name="trip_tools_split_pick">자를 위치를 하나 이상 고르세요.</string>
+    <string name="trip_split_result">생성될 주행</string>
 <string name="trip_tools_split_hint">자를 위치를 고르세요. 주행 %1$d개를 만들고 원본은 남깁니다.</string>
     <string name="trip_tools_split_done">주행 %1$d개로 나눴습니다</string>
     <string name="trip_tools_split_failed">이 주행을 나누지 못했습니다</string>

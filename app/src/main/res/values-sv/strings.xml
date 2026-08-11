@@ -2072,6 +2072,7 @@
     <string name="trip_tools_wheel_changed">Hjul satt till %1$s</string>
         <string name="trip_split_lasted">varade %1$s</string>
     <string name="trip_tools_split_pick">Välj minst ett ställe att klippa på.</string>
+    <string name="trip_split_result">Du får</string>
 <string name="trip_tools_split_hint">Valj var det ska klippas. Detta skapar %1$d turer och behaller originalet.</string>
     <string name="trip_tools_split_done">Delad i %1$d turer</string>
     <string name="trip_tools_split_failed">Det gick inte att dela den har turen</string>

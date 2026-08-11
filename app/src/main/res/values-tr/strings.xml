@@ -2069,6 +2069,7 @@
     <string name="trip_tools_wheel_changed">Teker %1$s olarak ayarlandi</string>
         <string name="trip_split_lasted">%1$s sürdü</string>
     <string name="trip_tools_split_pick">En az bir kesme noktası seç.</string>
+    <string name="trip_split_result">Şunları alacaksın</string>
 <string name="trip_tools_split_hint">Nerede kesilecegini secin. %1$d surus olusturur ve orijinali korur.</string>
     <string name="trip_tools_split_done">%1$d surusue bolundu</string>
     <string name="trip_tools_split_failed">Bu surus bolunemedi</string>
