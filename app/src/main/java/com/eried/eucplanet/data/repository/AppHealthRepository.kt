@@ -66,11 +66,23 @@ class AppHealthRepository @Inject constructor(
     }
 
     fun dismiss(id: String) {
+        // Closing the PIP notice means "understood", so it must not come back
+        // on the next resume the way a permission warning does. The rider was
+        // told once; the setting has already been turned off to match.
+        if (id == PERM_PIP_ID) pipNoticePending = false
         val current = _warnings.value
         if (current.any { it.id == id }) {
             _warnings.value = current.filterNot { it.id == id }
         }
     }
+
+    /**
+     * Set once PIP has been auto-disabled, so the notice outlives the setting
+     * that triggered it. Without this the warning would raise and clear in the
+     * same breath: turning pipMode off is exactly what stops us asking.
+     */
+    @Volatile
+    private var pipNoticePending = false
 
     /**
      * Re-evaluates every permission the dashboard cares about and upserts or
@@ -101,20 +113,28 @@ class AppHealthRepository @Inject constructor(
         // Android keeps its own per-app picture-in-picture switch, and turning
         // it off there is invisible from in here: the window simply never
         // appears, which reads as a broken feature rather than a setting the
-        // rider changed. Only raised when a PIP mode is actually selected -
-        // nobody needs to be told about a permission for a feature they left
-        // off.
-        if (pipRequested && !pipAllowed()) {
-            upsert(
-                AppWarning(
-                    id = PERM_PIP_ID,
-                    titleRes = R.string.warnings_pip_blocked_title,
-                    bodyRes = R.string.warnings_pip_blocked_body,
-                    fix = { openPipSettings() }
-                )
-            )
-        } else {
+        // rider changed.
+        //
+        // [pipRequested] is the mismatch - our setting says yes, the system
+        // says no - and the caller resolves it by turning our setting off.
+        // That would normally clear this warning instantly, so the notice is
+        // latched and only released when PIP is allowed again or the rider
+        // closes it.
+        if (pipAllowed()) {
+            pipNoticePending = false
             dismiss(PERM_PIP_ID)
+        } else {
+            if (pipRequested) pipNoticePending = true
+            if (pipNoticePending) {
+                upsert(
+                    AppWarning(
+                        id = PERM_PIP_ID,
+                        titleRes = R.string.warnings_pip_blocked_title,
+                        bodyRes = R.string.warnings_pip_blocked_body,
+                        fix = { openPipSettings() }
+                    )
+                )
+            }
         }
     }
 
@@ -124,7 +144,7 @@ class AppHealthRepository @Inject constructor(
      * Devices without the feature at all report allowed: there is no switch to
      * send the rider to, so a warning would be a dead end.
      */
-    private fun pipAllowed(): Boolean {
+    fun pipAllowed(): Boolean {
         if (!context.packageManager
                 .hasSystemFeature(PackageManager.FEATURE_PICTURE_IN_PICTURE)
         ) return true
@@ -147,7 +167,7 @@ class AppHealthRepository @Inject constructor(
      * App info is the guaranteed fallback: the PIP switch lives inside it on
      * stock Android, so the rider still lands somewhere they can fix this.
      */
-    private fun openPipSettings() {
+    fun openPipSettings() {
         val direct = Intent("android.settings.PICTURE_IN_PICTURE_SETTINGS").apply {
             data = Uri.fromParts("package", context.packageName, null)
             addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)

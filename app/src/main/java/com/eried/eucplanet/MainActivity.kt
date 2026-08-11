@@ -127,9 +127,27 @@ class MainActivity : AppCompatActivity() {
         }
         // Whatever the rider answered (yes or no), refresh the warning list so
         // the dashboard top-bar indicator reflects the new permission state.
-        appHealthRepository.refreshPermissionWarnings(
-            pipRequested = _settings.value?.pipMode.orEmpty().let { it.isNotEmpty() && it != "OFF" },
-        )
+        reconcilePipWithSystem()
+    }
+
+    /**
+     * Keep our picture-in-picture setting honest about what Android allows.
+     *
+     * The rider can revoke PIP from the cogwheel on the PIP window itself,
+     * which leaves the app promising a mode it can no longer deliver. Rather
+     * than let it sit broken, the setting is turned off to match, and the
+     * dashboard says once why it happened - the Fix button leads to the switch
+     * that would bring it back.
+     */
+    private fun reconcilePipWithSystem() {
+        val wanted = _settings.value?.pipMode.orEmpty().let { it.isNotEmpty() && it != "OFF" }
+        val blocked = wanted && !appHealthRepository.pipAllowed()
+        appHealthRepository.refreshPermissionWarnings(pipRequested = wanted)
+        if (blocked) {
+            lifecycleScope.launch {
+                settingsRepository.update(settingsRepository.get().copy(pipMode = "OFF"))
+            }
+        }
     }
 
     /** True if either fine or coarse location is granted. */
@@ -255,9 +273,7 @@ class MainActivity : AppCompatActivity() {
         // Catch permission flips done in Settings while the app was in the
         // background — the warning indicator auto-clears when the rider
         // returns having granted what was missing.
-        appHealthRepository.refreshPermissionWarnings(
-            pipRequested = _settings.value?.pipMode.orEmpty().let { it.isNotEmpty() && it != "OFF" },
-        )
+        reconcilePipWithSystem()
         // Resume a stranded Dropbox trip sync promptly on return, not only on
         // cold start: if trips are still pending and Dropbox is linked, re-kick
         // the retry worker. It no-ops when nothing is pending, so this is a

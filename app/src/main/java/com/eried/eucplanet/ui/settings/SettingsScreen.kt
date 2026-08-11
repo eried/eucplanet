@@ -1217,6 +1217,28 @@ private fun GeneralTab(
                 current = settings.pipMode,
                 onChange = { viewModel.updatePipMode(it) },
             )
+            // Said here as well as on the dashboard, because this is where the
+            // rider finds out: picking a mode Android will refuse would
+            // otherwise look like it worked, right up until it silently did
+            // not. Re-read on resume so returning from the system switch
+            // clears it. Same shape as the Phone HUD permission block below.
+            var pipAllowed by remember { mutableStateOf(viewModel.pipAllowed()) }
+            val pipLifecycleOwner = androidx.lifecycle.compose.LocalLifecycleOwner.current
+            androidx.compose.runtime.DisposableEffect(pipLifecycleOwner) {
+                val obs = androidx.lifecycle.LifecycleEventObserver { _, event ->
+                    if (event == androidx.lifecycle.Lifecycle.Event.ON_RESUME) {
+                        pipAllowed = viewModel.pipAllowed()
+                    }
+                }
+                pipLifecycleOwner.lifecycle.addObserver(obs)
+                onDispose { pipLifecycleOwner.lifecycle.removeObserver(obs) }
+            }
+            if (!pipAllowed && settings.pipMode != "OFF") {
+                HintText(stringResource(R.string.warnings_pip_blocked_body), small = true)
+                TextButton(onClick = { viewModel.openPipSettings() }) {
+                    Text(stringResource(R.string.warnings_fix_button))
+                }
+            }
         }
 
         // Phone HUD: the same Overlay Studio presets the companion HUD shows,

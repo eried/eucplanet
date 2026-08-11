@@ -114,8 +114,16 @@ class SettingsViewModel @Inject constructor(
     hudServer: com.eried.eucplanet.service.hud.HudServer,
     private val eucStatsRepository: EucStatsRepository,
     private val dropboxRepository: com.eried.eucplanet.data.repository.DropboxRepository,
+    private val appHealthRepository:
+        com.eried.eucplanet.data.repository.AppHealthRepository,
     @ApplicationContext private val context: Context,
 ) : ViewModel() {
+
+    /** Whether Android will honour a picture-in-picture request from us. */
+    fun pipAllowed(): Boolean = appHealthRepository.pipAllowed()
+
+    /** Opens the per-app picture-in-picture switch in system settings. */
+    fun openPipSettings() = appHealthRepository.openPipSettings()
 
     /** Which discovery channel produced the current HUD link address. */
     val hudConnectionSource = hudServer.connectionSource
