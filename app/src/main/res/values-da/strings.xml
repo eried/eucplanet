@@ -1141,6 +1141,10 @@
     <string name="online_restore_confirm">Fortsæt som %1$s</string>
     <string name="online_rejoin_title">Genaktiver profil</string>
     <string name="online_rejoin_body">Backup-mappen indeholder en profil, der blev brugt til ranglisten.\n\nRytter-ID: %1$s</string>
+    <string name="warnings_battery_opt_title">Batterioptimering er slået til</string>
+    <string name="warnings_battery_opt_body">Android kan stoppe EUC Planet i baggrunden og afbryde en optagelse midt i turen. Tillad appen at køre uden begrænsninger</string>
+    <string name="warnings_hud_blocked_title">Telefon-HUD kan ikke tegne</string>
+    <string name="warnings_hud_blocked_body">Tilladelsen til at tegne over andre apps blev fjernet, så overlayet vises ikke oven på kort eller musik</string>
     <string name="warnings_no_backup_title">Ture sikkerhedskopieres ikke</string>
     <string name="warnings_no_backup_body">De findes kun på denne telefon. Vælg en backupmappe, så en mistet eller nulstillet telefon ikke tager dine ture med sig</string>
     <string name="warnings_pip_blocked_title">Billede i billede er blokeret</string>

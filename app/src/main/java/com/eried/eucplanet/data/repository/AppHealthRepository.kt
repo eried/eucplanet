@@ -7,6 +7,7 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
+import android.os.PowerManager
 import android.provider.Settings
 import androidx.core.content.ContextCompat
 import com.eried.eucplanet.R
@@ -76,6 +77,7 @@ class AppHealthRepository @Inject constructor(
         // on the next resume the way a permission warning does. The rider was
         // told once; the setting has already been turned off to match.
         if (id == PERM_PIP_ID) pipNoticePending = false
+        if (id == PERM_OVERLAY_ID) hudNoticePending = false
         val current = _warnings.value
         if (current.any { it.id == id }) {
             _warnings.value = current.filterNot { it.id == id }
@@ -90,12 +92,19 @@ class AppHealthRepository @Inject constructor(
     @Volatile
     private var pipNoticePending = false
 
+    /** The Phone HUD's equivalent of [pipNoticePending]. */
+    @Volatile
+    private var hudNoticePending = false
+
     /**
      * Re-evaluates every permission the dashboard cares about and upserts or
      * dismisses the corresponding warning. Idempotent — safe to call from
      * onResume on every dashboard visit.
      */
-    fun refreshPermissionWarnings(pipRequested: Boolean = false) {
+    fun refreshPermissionWarnings(
+        pipRequested: Boolean = false,
+        phoneHudRequested: Boolean = false,
+    ) {
         // POST_NOTIFICATIONS only exists on Android 13+. Below TIRAMISU the
         // notification post is implicit, so the warning never applies.
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
@@ -142,6 +151,80 @@ class AppHealthRepository @Inject constructor(
                 )
             }
         }
+
+        // The overlay permission has the same shape as PIP: revoked outside the
+        // app, invisible from inside it, and the Phone HUD simply stops
+        // appearing. Same latch, same reason.
+        if (overlayAllowed()) {
+            hudNoticePending = false
+            dismiss(PERM_OVERLAY_ID)
+        } else {
+            if (phoneHudRequested) hudNoticePending = true
+            if (hudNoticePending) {
+                upsert(
+                    AppWarning(
+                        id = PERM_OVERLAY_ID,
+                        titleRes = R.string.warnings_hud_blocked_title,
+                        bodyRes = R.string.warnings_hud_blocked_body,
+                        fix = { openOverlaySettings() }
+                    )
+                )
+            }
+        }
+
+        // Android's battery optimiser will kill the wheel service mid-ride, and
+        // what the rider sees is a trip that simply stops recording. Unlike the
+        // permission warnings this one is always worth raising: every feature
+        // that outlives the screen depends on it.
+        if (batteryOptimised()) {
+            upsert(
+                AppWarning(
+                    id = BATTERY_OPT_ID,
+                    titleRes = R.string.warnings_battery_opt_title,
+                    bodyRes = R.string.warnings_battery_opt_body,
+                    fix = { requestIgnoreBatteryOptimizations() }
+                )
+            )
+        } else {
+            dismiss(BATTERY_OPT_ID)
+        }
+    }
+
+    /** True when Android may freeze or kill us in the background. */
+    private fun batteryOptimised(): Boolean {
+        val pm = context.getSystemService(PowerManager::class.java) ?: return false
+        return !pm.isIgnoringBatteryOptimizations(context.packageName)
+    }
+
+    /**
+     * Ask for the battery-optimisation exemption directly.
+     *
+     * The targeted dialog needs REQUEST_IGNORE_BATTERY_OPTIMIZATIONS declared;
+     * without it the intent throws and the rider lands on the full list, where
+     * the same switch lives a few taps further in.
+     */
+    private fun requestIgnoreBatteryOptimizations() {
+        val direct = Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS).apply {
+            data = Uri.fromParts("package", context.packageName, null)
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        }
+        if (runCatching { context.startActivity(direct) }.isSuccess) return
+        val list = Intent(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS)
+            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        if (runCatching { context.startActivity(list) }.isSuccess) return
+        openAppSettings()
+    }
+
+    /** Whether the Phone HUD can draw over other apps. */
+    fun overlayAllowed(): Boolean = Settings.canDrawOverlays(context)
+
+    private fun openOverlaySettings() {
+        val intent = Intent(
+            Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+            Uri.parse("package:${context.packageName}"),
+        ).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        if (runCatching { context.startActivity(intent) }.isSuccess) return
+        openAppSettings()
     }
 
     /**
@@ -225,6 +308,8 @@ class AppHealthRepository @Inject constructor(
     companion object {
         private const val PERM_NOTIFICATIONS_ID = "perm.notifications"
         private const val PERM_PIP_ID = "perm.pip"
+        private const val PERM_OVERLAY_ID = "perm.overlay"
+        private const val BATTERY_OPT_ID = "power.battery-optimised"
         private const val BACKUP_FOLDER_ID = "backup.folder"
 
         /** "Backups and leaderboards" in the settings tab order. */

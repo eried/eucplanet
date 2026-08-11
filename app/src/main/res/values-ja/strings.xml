@@ -1613,6 +1613,10 @@
     <string name="warnings_fix_button">修正</string>
     <string name="warnings_perm_notifications_title">通知がオフです</string>
     <string name="warnings_perm_notifications_body">ステータスバーに走行状態が表示されず、通知シェードでの音声アラートも受け取れません</string>
+    <string name="warnings_battery_opt_title">電池の最適化が有効です</string>
+    <string name="warnings_battery_opt_body">Android がバックグラウンドで EUC Planet を停止し、走行中の記録が途切れることがあります。制限なしでの実行を許可してください</string>
+    <string name="warnings_hud_blocked_title">スマホ HUD を描画できません</string>
+    <string name="warnings_hud_blocked_body">他のアプリの上に描画する権限が取り消されたため、地図や音楽の上にオーバーレイは表示されません</string>
     <string name="warnings_no_backup_title">走行がバックアップされていません</string>
     <string name="warnings_no_backup_body">この端末にしかありません。バックアップ フォルダを選ぶと、端末を紛失または初期化しても走行記録が失われません</string>
     <string name="warnings_pip_blocked_title">ピクチャー イン ピクチャーがブロックされています</string>

@@ -1616,6 +1616,10 @@
     <string name="warnings_fix_button">Corrigir</string>
     <string name="warnings_perm_notifications_title">Notificações desativadas</string>
     <string name="warnings_perm_notifications_body">Você não verá o status do trajeto na barra de status nem receberá alertas por voz nas notificações</string>
+    <string name="warnings_battery_opt_title">A otimização de bateria está ativada</string>
+    <string name="warnings_battery_opt_body">O Android pode parar o EUC Planet em segundo plano e cortar uma gravação no meio do trajeto. Permita a execução sem restrições</string>
+    <string name="warnings_hud_blocked_title">O HUD do telefone não consegue desenhar</string>
+    <string name="warnings_hud_blocked_body">A permissão de desenhar sobre outros apps foi retirada, então a sobreposição não aparecerá em cima de mapas ou música</string>
     <string name="warnings_no_backup_title">Os trajetos não têm backup</string>
     <string name="warnings_no_backup_body">Eles existem apenas neste telefone. Escolha uma pasta de backup para que um telefone perdido ou apagado não leve suas pedaladas junto</string>
     <string name="warnings_pip_blocked_title">O picture-in-picture está bloqueado</string>

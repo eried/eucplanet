@@ -1141,6 +1141,10 @@
     <string name="online_restore_confirm">Continuer en tant que %1$s</string>
     <string name="online_rejoin_title">Réactiver le profil</string>
     <string name="online_rejoin_body">Le dossier de sauvegarde contient un profil qui était utilisé pour le classement.\n\nIdentifiant de rider: %1$s</string>
+    <string name="warnings_battery_opt_title">L\'optimisation de la batterie est active</string>
+    <string name="warnings_battery_opt_body">Android peut arrêter EUC Planet en arrière-plan et couper un enregistrement en pleine sortie. Autorise-le à fonctionner sans restriction</string>
+    <string name="warnings_hud_blocked_title">Le HUD du téléphone ne peut pas s\'afficher</string>
+    <string name="warnings_hud_blocked_body">L\'autorisation de dessiner par-dessus les autres applis a été retirée, la surcouche n\'apparaîtra donc pas sur les cartes ou la musique</string>
     <string name="warnings_no_backup_title">Les trajets ne sont pas sauvegardés</string>
     <string name="warnings_no_backup_body">Ils n\'existent que sur ce téléphone. Choisis un dossier de sauvegarde pour qu\'un téléphone perdu ou réinitialisé n\'emporte pas tes sorties</string>
     <string name="warnings_pip_blocked_title">L\'image dans l\'image est bloquée</string>

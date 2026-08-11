@@ -1904,6 +1904,10 @@
     <string name="warnings_fix_button">Korjaa</string>
     <string name="warnings_perm_notifications_title">Ilmoitukset pois päältä</string>
     <string name="warnings_perm_notifications_body">Et näe ajon tilaa tilapalkissa etkä saa äänihälytyksiä ilmoitusalueella</string>
+    <string name="warnings_battery_opt_title">Akun optimointi on päällä</string>
+    <string name="warnings_battery_opt_body">Android voi pysäyttää EUC Planetin taustalla ja katkaista tallennuksen kesken ajon. Salli sovelluksen toimia rajoituksetta</string>
+    <string name="warnings_hud_blocked_title">Puhelimen HUD ei voi piirtää</string>
+    <string name="warnings_hud_blocked_body">Lupa piirtää muiden sovellusten päälle poistettiin, joten päällyste ei näy karttojen tai musiikin päällä</string>
     <string name="warnings_no_backup_title">Matkoja ei varmuuskopioida</string>
     <string name="warnings_no_backup_body">Ne ovat vain tässä puhelimessa. Valitse varmuuskopiokansio, jotta kadonnut tai tyhjennetty puhelin ei vie ajojasi mukanaan</string>
     <string name="warnings_pip_blocked_title">Kuva kuvassa on estetty</string>

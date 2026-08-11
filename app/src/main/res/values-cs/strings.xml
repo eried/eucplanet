@@ -1904,6 +1904,10 @@
     <string name="warnings_fix_button">Opravit</string>
     <string name="warnings_perm_notifications_title">Oznámení vypnuta</string>
     <string name="warnings_perm_notifications_body">Neuvidíte stav jízdy ve stavovém řádku ani nedostanete hlasová upozornění v oznámeních</string>
+    <string name="warnings_battery_opt_title">Optimalizace baterie je zapnutá</string>
+    <string name="warnings_battery_opt_body">Android může EUC Planet na pozadí zastavit a ukončit nahrávání uprostřed jízdy. Povolte aplikaci běžet bez omezení</string>
+    <string name="warnings_hud_blocked_title">HUD v telefonu nemůže kreslit</string>
+    <string name="warnings_hud_blocked_body">Oprávnění kreslit přes ostatní aplikace bylo odebráno, takže se překryv nad mapami ani hudbou neobjeví</string>
     <string name="warnings_no_backup_title">Jízdy nejsou zálohované</string>
     <string name="warnings_no_backup_body">Existují jen v tomto telefonu. Vyberte složku záloh, aby ztracený nebo vymazaný telefon nevzal vaše jízdy s sebou</string>
     <string name="warnings_pip_blocked_title">Obraz v obraze je blokovaný</string>

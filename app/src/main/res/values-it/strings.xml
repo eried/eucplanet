@@ -1508,6 +1508,10 @@
     <string name="online_upload_linked_caption">Le tue statistiche e i tuoi viaggi appaiono nella classifica pubblica su</string>
     <string name="online_rejoin_title">Riattiva profilo</string>
     <string name="online_rejoin_body">La cartella di backup contiene un profilo che era usato per la classifica.\n\nID rider: %1$s</string>
+    <string name="warnings_battery_opt_title">L\'ottimizzazione della batteria è attiva</string>
+    <string name="warnings_battery_opt_body">Android può fermare EUC Planet in background e interrompere una registrazione a metà giro. Consenti l\'esecuzione senza restrizioni</string>
+    <string name="warnings_hud_blocked_title">Il HUD del telefono non può disegnare</string>
+    <string name="warnings_hud_blocked_body">Il permesso di disegnare sopra le altre app è stato revocato, quindi la sovrapposizione non comparirà sopra mappe o musica</string>
     <string name="warnings_no_backup_title">I giri non hanno un backup</string>
     <string name="warnings_no_backup_body">Esistono solo su questo telefono. Scegli una cartella di backup così un telefono perso o cancellato non si porta via le tue uscite</string>
     <string name="warnings_pip_blocked_title">Il picture in picture è bloccato</string>

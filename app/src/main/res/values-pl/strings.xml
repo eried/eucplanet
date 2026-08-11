@@ -1614,6 +1614,10 @@
     <string name="dash_external_gps_settings">Ustawienia zewnętrznego GPS</string>
     <string name="external_gps_caption">Włącz urządzenie i dotknij Sparuj, aby zasilać aplikację prędkością i siłą G na żywo, dane są też zapisywane w CSV trasy</string>
     <string name="gps_prioritize_external_desc">Preferuj podłączone urządzenie zamiast telefonu dla prędkości, pozycji i siły G</string>
+    <string name="warnings_battery_opt_title">Optymalizacja baterii jest włączona</string>
+    <string name="warnings_battery_opt_body">Android może zatrzymać EUC Planet w tle i przerwać nagrywanie w środku przejazdu. Zezwól na działanie bez ograniczeń</string>
+    <string name="warnings_hud_blocked_title">HUD na telefonie nie może rysować</string>
+    <string name="warnings_hud_blocked_body">Cofnięto uprawnienie do rysowania nad innymi aplikacjami, więc nakładka nie pojawi się na mapach ani muzyce</string>
     <string name="warnings_no_backup_title">Przejazdy nie są kopiowane</string>
     <string name="warnings_no_backup_body">Istnieją tylko na tym telefonie. Wybierz folder kopii zapasowej, żeby zgubiony lub wyczyszczony telefon nie zabrał ze sobą twoich przejazdów</string>
     <string name="warnings_pip_blocked_title">Obraz w obrazie jest zablokowany</string>

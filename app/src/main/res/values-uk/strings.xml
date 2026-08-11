@@ -1141,6 +1141,10 @@
     <string name="online_restore_confirm">Продовжити як %1$s</string>
     <string name="online_rejoin_title">Відновити профіль</string>
     <string name="online_rejoin_body">У теці резервної копії є профіль, що використовувався для таблиці лідерів.\n\nID райдера: %1$s</string>
+    <string name="warnings_battery_opt_title">Оптимізацію батареї увімкнено</string>
+    <string name="warnings_battery_opt_body">Android може зупинити EUC Planet у фоні та обірвати запис посеред поїздки. Дозвольте роботу без обмежень</string>
+    <string name="warnings_hud_blocked_title">HUD на телефоні не може малювати</string>
+    <string name="warnings_hud_blocked_body">Дозвіл малювати поверх інших застосунків відкликано, тому накладання не з\'явиться поверх карт чи музики</string>
     <string name="warnings_no_backup_title">Поїздки не резервуються</string>
     <string name="warnings_no_backup_body">Вони існують лише на цьому телефоні. Виберіть папку для резервних копій, щоб загублений або очищений телефон не забрав ваші поїздки з собою</string>
     <string name="warnings_pip_blocked_title">Картинку в картинці заблоковано</string>

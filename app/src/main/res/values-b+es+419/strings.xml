@@ -1139,6 +1139,10 @@
     <string name="online_restore_confirm">Continuar como %1$s</string>
     <string name="online_rejoin_title">Reactivar perfil</string>
     <string name="online_rejoin_body">La carpeta de respaldo contiene un perfil que se usaba en la tabla.\n\nID de rider: %1$s</string>
+    <string name="warnings_battery_opt_title">La optimización de batería está activada</string>
+    <string name="warnings_battery_opt_body">Android puede detener EUC Planet en segundo plano y cortar una grabación a mitad del trayecto. Permite que se ejecute sin restricciones</string>
+    <string name="warnings_hud_blocked_title">El HUD del teléfono no puede dibujar</string>
+    <string name="warnings_hud_blocked_body">Se retiró el permiso para dibujar sobre otras apps, así que la superposición no aparecerá encima de mapas o música</string>
     <string name="warnings_no_backup_title">Los trayectos no tienen copia de seguridad</string>
     <string name="warnings_no_backup_body">Solo existen en este teléfono. Elige una carpeta de copia de seguridad para que un teléfono perdido o borrado no se lleve tus rutas</string>
     <string name="warnings_pip_blocked_title">Imagen en imagen está bloqueada</string>

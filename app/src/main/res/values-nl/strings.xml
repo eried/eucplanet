@@ -1139,6 +1139,10 @@
     <string name="online_restore_confirm">Doorgaan als %1$s</string>
     <string name="online_rejoin_title">Profiel reactiveren</string>
     <string name="online_rejoin_body">De back-upmap bevat een profiel dat voor het klassement gebruikt werd.\n\nRijders-ID: %1$s</string>
+    <string name="warnings_battery_opt_title">Batterijoptimalisatie staat aan</string>
+    <string name="warnings_battery_opt_body">Android kan EUC Planet op de achtergrond stoppen en een opname midden in de rit afbreken. Sta onbeperkt draaien toe</string>
+    <string name="warnings_hud_blocked_title">Telefoon-HUD kan niet tekenen</string>
+    <string name="warnings_hud_blocked_body">De toestemming om over andere apps te tekenen is ingetrokken, dus de overlay verschijnt niet boven kaarten of muziek</string>
     <string name="warnings_no_backup_title">Ritten worden niet geback-upt</string>
     <string name="warnings_no_backup_body">Ze staan alleen op deze telefoon. Kies een back-upmap zodat een verloren of gewiste telefoon je ritten niet meeneemt</string>
     <string name="warnings_pip_blocked_title">Beeld-in-beeld is geblokkeerd</string>

@@ -1613,6 +1613,10 @@
     <string name="warnings_fix_button">Düzelt</string>
     <string name="warnings_perm_notifications_title">Bildirimler kapalı</string>
     <string name="warnings_perm_notifications_body">Durum çubuğunda sürüş durumunu göremez ve bildirim panelinde sesli uyarı alamazsınız</string>
+    <string name="warnings_battery_opt_title">Pil optimizasyonu açık</string>
+    <string name="warnings_battery_opt_body">Android, EUC Planet\'i arka planda durdurup sürüş ortasında bir kaydı kesebilir. Kısıtlamasız çalışmasına izin ver</string>
+    <string name="warnings_hud_blocked_title">Telefon HUD\'u çizemiyor</string>
+    <string name="warnings_hud_blocked_body">Diğer uygulamaların üzerine çizme izni geri alındı, bu yüzden yer paylaşımı harita veya müziğin üstünde görünmeyecek</string>
     <string name="warnings_no_backup_title">Sürüşler yedeklenmiyor</string>
     <string name="warnings_no_backup_body">Yalnızca bu telefonda duruyorlar. Bir yedekleme klasörü seç ki kaybolan veya sıfırlanan bir telefon sürüşlerini de götürmesin</string>
     <string name="warnings_pip_blocked_title">Pencere içinde pencere engellendi</string>

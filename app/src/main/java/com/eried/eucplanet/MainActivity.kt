@@ -140,12 +140,21 @@ class MainActivity : AppCompatActivity() {
      * that would bring it back.
      */
     private fun reconcilePipWithSystem() {
-        val wanted = _settings.value?.pipMode.orEmpty().let { it.isNotEmpty() && it != "OFF" }
-        val blocked = wanted && !appHealthRepository.pipAllowed()
-        appHealthRepository.refreshPermissionWarnings(pipRequested = wanted)
-        if (blocked) {
+        val s = _settings.value
+        val pipWanted = s?.pipMode.orEmpty().let { it.isNotEmpty() && it != "OFF" }
+        val hudWanted = s?.phoneHudEnabled == true
+        val pipBlocked = pipWanted && !appHealthRepository.pipAllowed()
+        val hudBlocked = hudWanted && !appHealthRepository.overlayAllowed()
+        appHealthRepository.refreshPermissionWarnings(
+            pipRequested = pipWanted,
+            phoneHudRequested = hudWanted,
+        )
+        if (pipBlocked || hudBlocked) {
             lifecycleScope.launch {
-                settingsRepository.update(settingsRepository.get().copy(pipMode = "OFF"))
+                var next = settingsRepository.get()
+                if (pipBlocked) next = next.copy(pipMode = "OFF")
+                if (hudBlocked) next = next.copy(phoneHudEnabled = false)
+                settingsRepository.update(next)
             }
         }
     }

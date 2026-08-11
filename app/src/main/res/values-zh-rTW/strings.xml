@@ -1613,6 +1613,10 @@
     <string name="warnings_fix_button">修復</string>
     <string name="warnings_perm_notifications_title">通知已關閉</string>
     <string name="warnings_perm_notifications_body">您將無法在狀態列看到騎乘狀態，也無法在通知欄接收語音警報</string>
+    <string name="warnings_battery_opt_title">電池最佳化已開啟</string>
+    <string name="warnings_battery_opt_body">系統可能在背景停止 EUC Planet，讓騎行中的記錄中斷。請允許它不受限制地執行</string>
+    <string name="warnings_hud_blocked_title">手機 HUD 無法繪製</string>
+    <string name="warnings_hud_blocked_body">懸浮顯示權限已被撤銷，因此覆疊不會出現在地圖或音樂之上</string>
     <string name="warnings_no_backup_title">行程未備份</string>
     <string name="warnings_no_backup_body">它們只存在於這支手機上。選擇一個備份資料夾，手機遺失或被清除時行程才不會一起消失</string>
     <string name="warnings_pip_blocked_title">子母畫面已被封鎖</string>

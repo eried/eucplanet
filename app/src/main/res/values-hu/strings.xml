@@ -1904,6 +1904,10 @@
     <string name="warnings_fix_button">Javítás</string>
     <string name="warnings_perm_notifications_title">Az értesítések ki vannak kapcsolva</string>
     <string name="warnings_perm_notifications_body">Nem látod a menet állapotát az állapotsávon, és nem kapsz hangriasztásokat az értesítési felületen</string>
+    <string name="warnings_battery_opt_title">Az akkumulátor-optimalizálás be van kapcsolva</string>
+    <string name="warnings_battery_opt_body">Az Android leállíthatja az EUC Planetet a háttérben, félbeszakítva egy menet rögzítését. Engedélyezd a korlátozás nélküli futást</string>
+    <string name="warnings_hud_blocked_title">A telefonos HUD nem tud rajzolni</string>
+    <string name="warnings_hud_blocked_body">A más alkalmazások fölé rajzolás engedélyét visszavonták, így az átfedés nem jelenik meg a térkép vagy a zene fölött</string>
     <string name="warnings_no_backup_title">A menetekről nincs biztonsági mentés</string>
     <string name="warnings_no_backup_body">Csak ezen a telefonon léteznek. Válassz mentési mappát, hogy egy elveszett vagy törölt telefon ne vigye magával a meneteidet</string>
     <string name="warnings_pip_blocked_title">A kép a képben le van tiltva</string>

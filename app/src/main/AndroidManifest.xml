@@ -21,6 +21,12 @@
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_CONNECTED_DEVICE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_LOCATION" />
 
+    <!-- Lets the battery-optimisation warning open the one-tap exemption dialog
+         instead of dropping the rider into a system list to hunt for the app.
+         Only ever used to ask; the optimiser kills the wheel service mid-ride
+         otherwise, which reads as a trip that stopped recording by itself. -->
+    <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
+
     <!-- Overlay Studio camera viewports + optional mic audio in recordings.
          The studio renders and encodes its own video frames, so it needs no
          screen-capture / projection permission. -->

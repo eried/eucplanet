@@ -1235,9 +1235,9 @@ private fun GeneralTab(
             }
             if (!pipAllowed && settings.pipMode != "OFF") {
                 HintText(stringResource(R.string.warnings_pip_blocked_body), small = true)
-                TextButton(onClick = { viewModel.openPipSettings() }) {
-                    Text(stringResource(R.string.warnings_fix_button))
-                }
+                com.eried.eucplanet.ui.common.FixButton(
+                    onClick = { viewModel.openPipSettings() }
+                )
             }
         }
 
@@ -1269,7 +1269,8 @@ private fun GeneralTab(
                 // The switch stays off and un-flippable until the permission is
                 // there, rather than turning on and quietly doing nothing.
                 HintText(stringResource(R.string.phone_hud_permission_desc), small = true)
-                TextButton(
+                com.eried.eucplanet.ui.common.FixButton(
+                    text = stringResource(R.string.phone_hud_grant),
                     onClick = {
                         runCatching {
                             ctx.startActivity(
@@ -1280,8 +1281,7 @@ private fun GeneralTab(
                             )
                         }
                     },
-                    shape = RoundedCornerShape(12.dp),
-                ) { Text(stringResource(R.string.phone_hud_grant)) }
+                )
             } else {
                 SwitchSetting(
                     stringResource(R.string.phone_hud_enable),

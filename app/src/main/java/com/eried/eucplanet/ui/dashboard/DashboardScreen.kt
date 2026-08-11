@@ -529,7 +529,7 @@ fun DashboardScreen(
                     warnings.forEach { w ->
                         androidx.compose.material3.Card(
                             colors = androidx.compose.material3.CardDefaults.cardColors(
-                                containerColor = MaterialTheme.colorScheme.surfaceVariant
+                                containerColor = MaterialTheme.appColors.surfaceVariant
                             )
                         ) {
                             // Row layout — title/body in a weighted column on
@@ -552,7 +552,7 @@ fun DashboardScreen(
                                     Text(
                                         stringResource(w.bodyRes),
                                         style = MaterialTheme.typography.bodySmall,
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                        color = MaterialTheme.appColors.textSecondary
                                     )
                                 }
                                 // Primary filled Button — solid accent colour
@@ -561,7 +561,7 @@ fun DashboardScreen(
                                 // TextButton, matching Material guidance
                                 // (one emphasised action per dialog, the
                                 // dismissive button is muted).
-                                Button(
+                                com.eried.eucplanet.ui.common.FixButton(
                                     onClick = {
                                         // A warning fixed inside the app closes
                                         // the dialog on the way out, or the
@@ -574,11 +574,8 @@ fun DashboardScreen(
                                         } else {
                                             w.fix()
                                         }
-                                    },
-                                    shape = RoundedCornerShape(12.dp),
-                                ) {
-                                    Text(stringResource(R.string.warnings_fix_button))
-                                }
+                                    }
+                                )
                             }
                         }
                     }

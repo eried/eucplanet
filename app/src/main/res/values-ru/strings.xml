@@ -1616,6 +1616,10 @@
     <string name="warnings_fix_button">Исправить</string>
     <string name="warnings_perm_notifications_title">Уведомления выключены</string>
     <string name="warnings_perm_notifications_body">Статус поездки не появится в строке состояния, голосовые оповещения не будут показаны в шторке</string>
+    <string name="warnings_battery_opt_title">Оптимизация батареи включена</string>
+    <string name="warnings_battery_opt_body">Android может остановить EUC Planet в фоне и прервать запись посреди поездки. Разрешите работу без ограничений</string>
+    <string name="warnings_hud_blocked_title">HUD на телефоне не может рисовать</string>
+    <string name="warnings_hud_blocked_body">Разрешение рисовать поверх других приложений отозвано, поэтому наложение не появится поверх карт или музыки</string>
     <string name="warnings_no_backup_title">Поездки не резервируются</string>
     <string name="warnings_no_backup_body">Они есть только на этом телефоне. Выберите папку для резервных копий, чтобы потерянный или сброшенный телефон не унёс ваши поездки с собой</string>
     <string name="warnings_pip_blocked_title">Картинка в картинке заблокирована</string>

@@ -1138,6 +1138,10 @@
     <string name="online_restore_confirm">Weiter als %1$s</string>
     <string name="online_rejoin_title">Profil reaktivieren</string>
     <string name="online_rejoin_body">Der Backup-Ordner enthält ein Profil, das für die Bestenliste verwendet wurde.\n\nFahrer-ID: %1$s</string>
+    <string name="warnings_battery_opt_title">Akku-Optimierung ist aktiv</string>
+    <string name="warnings_battery_opt_body">Android kann EUC Planet im Hintergrund beenden und eine Aufzeichnung mitten in der Fahrt abbrechen. Erlaube uneingeschränkte Ausführung</string>
+    <string name="warnings_hud_blocked_title">Telefon-HUD kann nicht zeichnen</string>
+    <string name="warnings_hud_blocked_body">Die Berechtigung, über anderen Apps zu zeichnen, wurde entzogen, daher erscheint das Overlay nicht über Karten oder Musik</string>
     <string name="warnings_no_backup_title">Fahrten werden nicht gesichert</string>
     <string name="warnings_no_backup_body">Sie liegen nur auf diesem Telefon. Wähle einen Backup-Ordner, damit ein verlorenes oder zurückgesetztes Telefon deine Fahrten nicht mitnimmt</string>
     <string name="warnings_pip_blocked_title">Bild-im-Bild ist blockiert</string>
