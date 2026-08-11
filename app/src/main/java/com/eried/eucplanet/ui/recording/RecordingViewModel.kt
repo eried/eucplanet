@@ -20,6 +20,8 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -65,6 +67,9 @@ data class TripDataPoint(
     /** Raw Extra-column event ("wheel.name=KS-16SZ", "wheel.disconnected=1", ...). Empty on normal rows. */
     val extra: String = ""
 )
+
+/** How long a freshly made trip stays flashed in the list. */
+private const val HIGHLIGHT_MS = 3_000L
 
 @HiltViewModel
 class RecordingViewModel @Inject constructor(
@@ -794,6 +799,33 @@ class RecordingViewModel @Inject constructor(
         }
 
     /** Apply the chosen cuts, leaving the original trip untouched. */
+    /**
+     * Trips just produced by a tool, for the list to point at.
+     *
+     * A split drops several new rides into a list ordered by date, right among
+     * the ones they came from, and a combine drops one. Either way the rider
+     * has no way to tell which rows are the ones they just asked for. Opening
+     * the result works for a combine and cannot work for a split, which makes
+     * several at once, so both flash the list instead: one mechanism, one
+     * behaviour to learn.
+     */
+    private val _highlightedTripIds = MutableStateFlow<Set<Long>>(emptySet())
+    val highlightedTripIds: StateFlow<Set<Long>> = _highlightedTripIds.asStateFlow()
+
+    private var highlightJob: Job? = null
+
+    /** Flash [ids] in the list, then clear. Re-running restarts the clock so a
+     *  second tool run does not inherit the first one's leftover time. */
+    private fun flashTrips(ids: Set<Long>) {
+        if (ids.isEmpty()) return
+        highlightJob?.cancel()
+        _highlightedTripIds.value = ids
+        highlightJob = viewModelScope.launch {
+            delay(HIGHLIGHT_MS)
+            _highlightedTripIds.value = emptySet()
+        }
+    }
+
     fun splitTrip(trip: TripRecord, cuts: List<com.eried.eucplanet.data.repository.TripSplitDetector.Cut>) {
         viewModelScope.launch {
             val base = withContext(Dispatchers.IO) {
@@ -808,6 +840,7 @@ class RecordingViewModel @Inject constructor(
                 if (pieces.isEmpty()) context.getString(R.string.trip_tools_split_failed)
                 else context.getString(R.string.trip_tools_split_done, pieces.size)
             )
+            flashTrips(pieces.map { it.id }.toSet())
         }
     }
 
@@ -816,7 +849,7 @@ class RecordingViewModel @Inject constructor(
      * alone. [range] is already the full inclusive span the rider chose,
      * including anything that fell between the two ends.
      */
-    fun combineRange(range: List<TripRecord>, onMade: (TripRecord) -> Unit = {}) {
+    fun combineRange(range: List<TripRecord>) {
         viewModelScope.launch {
             val made = tripRepository.combineTrips(range)
             _toasts.send(
@@ -824,11 +857,11 @@ class RecordingViewModel @Inject constructor(
                     if (made != null) R.string.trip_tools_combine_done else R.string.trip_tools_combine_failed
                 )
             )
-            // Open the result. A combined trip lands in the list in date order,
-            // among the very rides it was built from, so a rider who just made
-            // one had no way to tell which row it was. The new trip IS the
-            // answer to what they asked for, so show it.
-            made?.let(onMade)
+            // Flash it rather than open it. Opening was the stronger signal for
+            // a combine, but a split cannot open its several results, and one
+            // behaviour across both tools beats a better one that only half of
+            // them can use.
+            made?.let { flashTrips(setOf(it.id)) }
         }
     }
 

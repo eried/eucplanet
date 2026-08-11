@@ -4,6 +4,8 @@ import android.net.Uri
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -122,6 +124,7 @@ fun RecordingScreen(
     var splitToolTrip by remember { mutableStateOf<TripRecord?>(null) }
     var combineToolTrip by remember { mutableStateOf<TripRecord?>(null) }
     var tripToShare by remember { mutableStateOf<TripRecord?>(null) }
+    val highlightedTripIds by viewModel.highlightedTripIds.collectAsState()
     val listState = rememberLazyListState()
 
     // Shared snackbar host so status icons / ViewModel auto-stop toasts use
@@ -151,6 +154,15 @@ fun RecordingScreen(
         if (trips.isNotEmpty()) {
             listState.animateScrollToItem(0)
         }
+    }
+
+    // Bring a freshly made trip into view. A tint nobody can see is no help,
+    // and a split or combine lands its results in date order, which is often
+    // well down a long list.
+    LaunchedEffect(highlightedTripIds, trips) {
+        if (highlightedTripIds.isEmpty()) return@LaunchedEffect
+        val first = trips.indexOfFirst { it.id in highlightedTripIds }
+        if (first >= 0) listState.animateScrollToItem(first)
     }
 
     val importLauncher = rememberLauncherForActivityResult(
@@ -263,7 +275,7 @@ fun RecordingScreen(
                     ?.let { runCatching { org.json.JSONObject(it).optString("ble_name") }.getOrNull() }
             },
             onConfirm = { chosen ->
-                viewModel.combineRange(chosen, onMade = { made -> onViewTrip?.invoke(made) })
+                viewModel.combineRange(chosen)
                 combineToolTrip = null
             },
             onDismiss = { combineToolTrip = null },
@@ -516,6 +528,7 @@ fun RecordingScreen(
                             trip = trip,
                             isRecording = isRecordingTrip,
                             isPending = isPendingTrip,
+                            isJustMade = trip.id in highlightedTripIds,
                             liveDistanceKm = if (isRecordingTrip) liveTripKm else null,
                             distanceUnit = distanceUnit,
                             onView = { onViewTrip?.invoke(trip) },
@@ -547,6 +560,8 @@ private fun TripCard(
     trip: TripRecord,
     isRecording: Boolean,
     isPending: Boolean,
+    /** Just produced by a split or a combine, so the list can point at it. */
+    isJustMade: Boolean = false,
     liveDistanceKm: Float?,
     distanceUnit: String,
     onView: () -> Unit,
@@ -570,10 +585,19 @@ private fun TripCard(
         }
     }
 
+    // Fades out rather than snapping off, so a rider glancing back still sees
+    // it settling and knows which row it was.
+    val justMadeTint by animateColorAsState(
+        targetValue = if (isJustMade) MaterialTheme.appColors.primary.copy(alpha = 0.22f)
+            else MaterialTheme.colorScheme.surfaceVariant,
+        animationSpec = tween(durationMillis = 600),
+        label = "justMadeTint",
+    )
+
     Card(
         colors = CardDefaults.cardColors(
             containerColor = if (isRecording) MaterialTheme.appColors.statusDanger.copy(alpha = 0.15f)
-                             else MaterialTheme.colorScheme.surfaceVariant
+                             else justMadeTint
         ),
         shape = RoundedCornerShape(12.dp),
         modifier = Modifier.clickable(onClick = onView)
