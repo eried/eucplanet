@@ -21,7 +21,8 @@ module SpeedGauge {
     //! individual params. Reads every field it needs from `s` directly.
     function draw(
         dc as Graphics.Dc,
-        s as WatchSnapshot
+        s as WatchSnapshot,
+        isSemiOctagon as Lang.Boolean
     ) as Void {
         var speedKmh = s.speedKmh;
         var maxSpeedKmh = s.maxSpeedKmh;
@@ -141,6 +142,12 @@ module SpeedGauge {
         var speedFont = prioritizePwm
             ? Graphics.FONT_NUMBER_MILD
             : Graphics.FONT_NUMBER_HOT;
+        // Instinct sub-screen layout: PWM lives in the top-right window, so
+        // keep the speed numeral compact (MEDIUM) and centered so it stays
+        // left of that window instead of clipping into it.
+        if (isSemiOctagon) {
+            speedFont = Graphics.FONT_NUMBER_MEDIUM;
+        }
         var innerW = (arcRadius * 2) - arcThickness * 2;
         var textW = dc.getTextWidthInPixels(speedText, speedFont);
         if (!prioritizePwm && textW > (innerW * 70) / 100) {
@@ -155,7 +162,12 @@ module SpeedGauge {
         // center instead so the speed tracks the smaller arc rather than
         // floating near the top of the screen.
         var speedY;
-        if (w == h) {
+        if (isSemiOctagon) {
+            // 27%: as high as the numeral can sit without touching the arc's
+            // top, which lifts the stacked unit off the battery row below while
+            // staying clear of the top-right window.
+            speedY = (h * 27) / 100;
+        } else if (w == h) {
             speedY = (h * 33) / 100;
         } else {
             speedY = cy - (arcRadius * 45) / 100;
@@ -180,10 +192,20 @@ module SpeedGauge {
             var unitText = Units.speedUnitLabel(speedUnit);
             var unitFont = Graphics.FONT_XTINY;
             dc.setColor(COLOR_DIM, Graphics.COLOR_TRANSPARENT);
-            dc.drawText(speedRightX + 4,
-                        speedY + (fontH * 18) / 100 - 1,
-                        unitFont, unitText,
-                        Graphics.TEXT_JUSTIFY_LEFT | Graphics.TEXT_JUSTIFY_VCENTER);
+            if (isSemiOctagon) {
+                // Stack the unit centered under the numeral. On the Instinct
+                // face the right-hand suffix ran into the arc, so this keeps
+                // the big number centered and the unit fully clear of the dial.
+                var unitH = Graphics.getFontHeight(unitFont);
+                dc.drawText(cx, speedY + (fontH / 2) + (unitH / 2),
+                            unitFont, unitText,
+                            Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
+            } else {
+                dc.drawText(speedRightX + 4,
+                            speedY + (fontH * 18) / 100 - 1,
+                            unitFont, unitText,
+                            Graphics.TEXT_JUSTIFY_LEFT | Graphics.TEXT_JUSTIFY_VCENTER);
+            }
         }
     }
 
