@@ -435,24 +435,37 @@ class MainActivity : AppCompatActivity() {
                             }
                         }
                     }
-                    // Gated on permission because Android 14+ crashes startForeground
-                    // with location/connectedDevice types if neither perm is granted.
-                    // Either always-on voice OR the HUD companion server can
-                    // require the foreground service before a wheel is paired.
-                    // The HUD-force debug prop is honoured too so emulator
-                    // testers don't have to find the Compose toggle by tap.
-                    val forceHud = com.eried.eucplanet.hud.protocol.HudDebug
-                        .read("debug.eucplanet.hud.force") == "true"
-                    val needsService = canStartWheelService() && (
-                        (it.voiceEnabled && it.voiceAnnounceWhen == "ALWAYS") ||
+                }
+                // Deliberately outside the `first` gate above.
+                //
+                // `first` is always false here: the synchronous seed below sets
+                // _settings.value before this collector ever runs, which is the
+                // same trap the language reconciliation had to be lifted out of.
+                // Left inside, the service was only ever started from the
+                // permission-request callback, so on every launch after the one
+                // where the rider granted permissions there was no service - and
+                // therefore no Phone HUD, no HUD companion server, no keep-alive
+                // and no always-on voice, until something else happened to start
+                // it. Out here it is also re-evaluated when the rider switches
+                // one of those on mid-session, instead of at the next launch.
+                //
+                // Gated on permission because Android 14+ crashes startForeground
+                // with location/connectedDevice types if neither perm is granted.
+                // The HUD-force debug prop is honoured too so emulator testers
+                // don't have to find the Compose toggle by tap.
+                val forceHud = com.eried.eucplanet.hud.protocol.HudDebug
+                    .read("debug.eucplanet.hud.force") == "true"
+                val needsService = canStartWheelService() && (
+                    (it.voiceEnabled && it.voiceAnnounceWhen == "ALWAYS") ||
                         it.hudServerEnabled ||
-                    it.phoneHudEnabled ||
+                        it.phoneHudEnabled ||
                         it.keepAppAlive ||
                         forceHud
                     )
-                    if (needsService) {
-                        startForegroundService(Intent(this@MainActivity, WheelService::class.java))
-                    }
+                // Repeat calls are harmless: a plain start with no action falls
+                // straight through WheelService's onStartCommand dispatch.
+                if (needsService) {
+                    startForegroundService(Intent(this@MainActivity, WheelService::class.java))
                 }
             }
         }
