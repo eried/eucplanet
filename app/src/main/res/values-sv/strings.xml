@@ -2087,6 +2087,14 @@
     <string name="phone_hud_section">Telefon-HUD</string>
     <string name="phone_hud_enable">Visa överlägget</string>
     <string name="phone_hud_only_away">Endast utanför EUC Planet</string>
+    <string name="section_surfaces">Livevyer</string>
+    <string name="surface_notification">Avisering</string>
+    <string name="pip_section">Bild-i-bild</string>
+    <string name="pip_desc">Krymper till ett flytande fönster när du lämnar appen under en tur.</string>
+    <string name="pip_mode_label">PIP-läge</string>
+    <string name="pip_mode_off">Av</string>
+    <string name="pip_mode_simple">Enkel</string>
+    <string name="pip_mode_dashboard">Instrumentpanel</string>
     <string name="widget_section">Widget pa hemskarmen</string>
     <string name="widget_pick_desc">Välj de %1$d mätvärden och %2$d knappar som widgeten visar.</string>
     <string name="widget_metric_slot">Mätvärde %1$d</string>

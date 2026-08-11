@@ -2086,6 +2086,14 @@
     <string name="phone_hud_section">폰 HUD</string>
     <string name="phone_hud_enable">오버레이 표시</string>
     <string name="phone_hud_only_away">EUC Planet 밖에서만</string>
+    <string name="section_surfaces">실시간 화면</string>
+    <string name="surface_notification">알림</string>
+    <string name="pip_section">화면 속 화면</string>
+    <string name="pip_desc">주행 중 앱을 벗어나면 떠 있는 작은 창으로 축소됩니다.</string>
+    <string name="pip_mode_label">PIP 모드</string>
+    <string name="pip_mode_off">끄기</string>
+    <string name="pip_mode_simple">간단</string>
+    <string name="pip_mode_dashboard">대시보드</string>
     <string name="widget_section">홈 화면 위젯</string>
     <string name="widget_pick_desc">위젯에 표시할 지표 %1$d개와 버튼 %2$d개를 고르세요.</string>
     <string name="widget_metric_slot">지표 %1$d</string>

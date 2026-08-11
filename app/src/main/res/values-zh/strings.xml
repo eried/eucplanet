@@ -1954,6 +1954,14 @@
     <string name="phone_hud_section">手机 HUD</string>
     <string name="phone_hud_enable">显示悬浮层</string>
     <string name="phone_hud_only_away">仅在 EUC Planet 之外</string>
+    <string name="section_surfaces">实时视图</string>
+    <string name="surface_notification">通知</string>
+    <string name="pip_section">画中画</string>
+    <string name="pip_desc">骑行时离开应用会缩成一个悬浮小窗。</string>
+    <string name="pip_mode_label">画中画模式</string>
+    <string name="pip_mode_off">关</string>
+    <string name="pip_mode_simple">简单</string>
+    <string name="pip_mode_dashboard">仪表盘</string>
     <string name="widget_section">主屏幕小部件</string>
     <string name="widget_pick_desc">选择小部件显示的 %1$d 个指标和 %2$d 个按钮。</string>
     <string name="widget_metric_slot">指标 %1$d</string>

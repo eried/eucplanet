@@ -2084,6 +2084,14 @@
     <string name="phone_hud_section">HUD на телефоні</string>
     <string name="phone_hud_enable">Показувати накладку</string>
     <string name="phone_hud_only_away">Лише поза EUC Planet</string>
+    <string name="section_surfaces">Живі екрани</string>
+    <string name="surface_notification">Сповіщення</string>
+    <string name="pip_section">Картинка в картинці</string>
+    <string name="pip_desc">Згортається у плаваюче вікно, коли ви виходите із застосунку під час поїздки.</string>
+    <string name="pip_mode_label">Режим PIP</string>
+    <string name="pip_mode_off">Вимк</string>
+    <string name="pip_mode_simple">Просто</string>
+    <string name="pip_mode_dashboard">Панель</string>
     <string name="widget_section">Віджет на головному екрані</string>
     <string name="widget_pick_desc">Виберіть %1$d показники та %2$d кнопки, які показує віджет.</string>
     <string name="widget_metric_slot">Показник %1$d</string>

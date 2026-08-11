@@ -2089,6 +2089,14 @@
     <string name="phone_hud_section">Telefoon-HUD</string>
     <string name="phone_hud_enable">Overlay tonen</string>
     <string name="phone_hud_only_away">Alleen buiten EUC Planet</string>
+    <string name="section_surfaces">Live-weergaven</string>
+    <string name="surface_notification">Melding</string>
+    <string name="pip_section">Beeld-in-beeld</string>
+    <string name="pip_desc">Krimpt tot een zwevend venster als je de app verlaat tijdens een rit.</string>
+    <string name="pip_mode_label">PIP-modus</string>
+    <string name="pip_mode_off">Uit</string>
+    <string name="pip_mode_simple">Eenvoudig</string>
+    <string name="pip_mode_dashboard">Dashboard</string>
     <string name="widget_section">Startscherm-widget</string>
     <string name="widget_pick_desc">Kies de %1$d metingen en %2$d knoppen die de widget toont.</string>
     <string name="widget_metric_slot">Meting %1$d</string>

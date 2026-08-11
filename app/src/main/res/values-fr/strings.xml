@@ -2091,6 +2091,14 @@
     <string name="phone_hud_section">HUD du téléphone</string>
     <string name="phone_hud_enable">Afficher la surimpression</string>
     <string name="phone_hud_only_away">Seulement hors de EUC Planet</string>
+    <string name="section_surfaces">Vues en direct</string>
+    <string name="surface_notification">Notification</string>
+    <string name="pip_section">Image dans l\'image</string>
+    <string name="pip_desc">Se réduit en fenêtre flottante quand tu quittes l\'appli pendant un trajet.</string>
+    <string name="pip_mode_label">Mode PIP</string>
+    <string name="pip_mode_off">Désactivé</string>
+    <string name="pip_mode_simple">Simple</string>
+    <string name="pip_mode_dashboard">Tableau de bord</string>
     <string name="widget_section">Widget d ecran d accueil</string>
     <string name="widget_pick_desc">Choisis les %1$d mesures et %2$d boutons affichés par le widget.</string>
     <string name="widget_metric_slot">Mesure %1$d</string>

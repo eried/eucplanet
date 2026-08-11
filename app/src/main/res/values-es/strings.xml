@@ -2084,6 +2084,14 @@
     <string name="phone_hud_section">HUD del teléfono</string>
     <string name="phone_hud_enable">Mostrar la superposición</string>
     <string name="phone_hud_only_away">Solo fuera de EUC Planet</string>
+    <string name="section_surfaces">Vistas en vivo</string>
+    <string name="surface_notification">Notificación</string>
+    <string name="pip_section">Imagen en imagen</string>
+    <string name="pip_desc">Se reduce a una ventana flotante cuando sales de la app durante un trayecto.</string>
+    <string name="pip_mode_label">Modo PIP</string>
+    <string name="pip_mode_off">Desactivado</string>
+    <string name="pip_mode_simple">Simple</string>
+    <string name="pip_mode_dashboard">Panel</string>
     <string name="widget_section">Widget de pantalla de inicio</string>
     <string name="widget_pick_desc">Elige las %1$d métricas y %2$d botones que muestra el widget.</string>
     <string name="widget_metric_slot">Métrica %1$d</string>

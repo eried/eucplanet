@@ -2088,6 +2088,14 @@
     <string name="phone_hud_section">スマホ HUD</string>
     <string name="phone_hud_enable">オーバーレイを表示</string>
     <string name="phone_hud_only_away">EUC Planet 以外でのみ</string>
+    <string name="section_surfaces">ライブ表示</string>
+    <string name="surface_notification">通知</string>
+    <string name="pip_section">ピクチャー イン ピクチャー</string>
+    <string name="pip_desc">走行中にアプリを離れると、小さな浮かぶウィンドウになります。</string>
+    <string name="pip_mode_label">PIP モード</string>
+    <string name="pip_mode_off">オフ</string>
+    <string name="pip_mode_simple">シンプル</string>
+    <string name="pip_mode_dashboard">ダッシュボード</string>
     <string name="widget_section">ホーム画面ウィジェット</string>
     <string name="widget_pick_desc">ウィジェットに表示する %1$d 個の指標と %2$d 個のボタンを選びます。</string>
     <string name="widget_metric_slot">指標 %1$d</string>

@@ -2086,6 +2086,14 @@
     <string name="phone_hud_section">手機 HUD</string>
     <string name="phone_hud_enable">顯示浮動層</string>
     <string name="phone_hud_only_away">僅在 EUC Planet 之外</string>
+    <string name="section_surfaces">即時檢視</string>
+    <string name="surface_notification">通知</string>
+    <string name="pip_section">子母畫面</string>
+    <string name="pip_desc">騎行時離開應用程式會縮成一個懸浮小視窗。</string>
+    <string name="pip_mode_label">子母畫面模式</string>
+    <string name="pip_mode_off">關閉</string>
+    <string name="pip_mode_simple">簡單</string>
+    <string name="pip_mode_dashboard">儀表板</string>
     <string name="widget_section">主畫面小工具</string>
     <string name="widget_pick_desc">選擇小工具顯示的 %1$d 個指標和 %2$d 個按鈕。</string>
     <string name="widget_metric_slot">指標 %1$d</string>

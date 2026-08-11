@@ -1975,6 +1975,14 @@
     <string name="phone_hud_section">Telefon-HUD</string>
     <string name="phone_hud_enable">Vis overlegget</string>
     <string name="phone_hud_only_away">Bare utenfor EUC Planet</string>
+    <string name="section_surfaces">Sanntidsvisninger</string>
+    <string name="surface_notification">Varsel</string>
+    <string name="pip_section">Bilde-i-bilde</string>
+    <string name="pip_desc">Krymper til et flytende vindu når du forlater appen under en tur.</string>
+    <string name="pip_mode_label">PIP-modus</string>
+    <string name="pip_mode_off">Av</string>
+    <string name="pip_mode_simple">Enkel</string>
+    <string name="pip_mode_dashboard">Dashbord</string>
     <string name="widget_section">Widget pa startskjerm</string>
     <string name="widget_pick_desc">Velg de %1$d målingene og %2$d knappene widgetet viser.</string>
     <string name="widget_metric_slot">Måling %1$d</string>
