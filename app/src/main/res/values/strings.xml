@@ -1225,7 +1225,14 @@
     <string name="recording_chart_power">Power (W)</string>
     <string name="recording_chart_altitude">Altitude (m)</string>
     <string name="widget_description">Metrics and quick actions</string>
-    <string name="widget_section">Home screen widget</string>
+    <string name="phone_hud_section">Phone HUD</string>
+    <string name="phone_hud_desc">Draw an Overlay Studio layout on top of other apps, so you can see your wheel while using maps or music.</string>
+    <string name="phone_hud_permission_desc">Android asks for this separately. Without it the overlay cannot be shown.</string>
+    <string name="phone_hud_grant">Grant</string>
+    <string name="phone_hud_enable">Show the overlay</string>
+    <string name="phone_hud_overlay">Layout</string>
+    <string name="phone_hud_overlay_none">None</string>
+    <string name="phone_hud_portrait_only">Portrait layouts only. It ignores taps, so the app underneath keeps working.</string>    <string name="widget_section">Home screen widget</string>
     <string name="widget_pick_desc">Choose the %1$d metrics and %2$d buttons the widget shows.</string>
     <string name="widget_metric_slot">Metric %1$d</string>
     <string name="widget_action_slot">Button %1$d</string>

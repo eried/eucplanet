@@ -633,6 +633,21 @@ data class AppSettings(
      */
     val hudCustomOverlayJson: String = "",
     /**
+     * Phone HUD: draw an Overlay Studio preset in a window on top of whatever
+     * else is on screen, so the rider can see telemetry over maps or music.
+     *
+     * Same idea as the HUD above, different destination: that one ships the
+     * preset to a companion screen, this one draws it here. Needs the system
+     * "Display over other apps" permission, which cannot be granted silently,
+     * so this flag only means the rider asked for it - the window still checks
+     * Settings.canDrawOverlays every time it goes up.
+     */
+    val phoneHudEnabled: Boolean = false,
+    /** Preset the Phone HUD draws. Empty = none chosen, so nothing is shown. */
+    val phoneHudOverlayName: String = "",
+    /** Resolved JSON for [phoneHudOverlayName], same caching as the HUD's. */
+    val phoneHudOverlayJson: String = "",
+    /**
      * Ordered list of HUD screens the rider has enabled, by stable id
      * ("Dashboard", "Camera", "Telemetry", "Custom", "CustomCam",
      * "Map", "Nav"). Stored as a comma-separated string so it slots

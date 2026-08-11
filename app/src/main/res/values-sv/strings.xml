@@ -2082,6 +2082,14 @@
     <string name="trip_tools_combine_this">Den har turen</string>
     <string name="trip_tools_combine_between">Daremellan, tas med</string>
     <string name="trip_tools_combine_summary">Slaar ihop %1$d turer till en ny tur.</string>
+    <string name="phone_hud_overlay_none">Ingen</string>
+    <string name="phone_hud_desc">Ritar en Overlay Studio-layout ovanpå andra appar, så att du ser hjulet medan du använder kartor eller musik.</string>
+    <string name="phone_hud_permission_desc">Android frågar om detta separat. Utan det kan överlägget inte visas.</string>
+    <string name="phone_hud_grant">Tillåt</string>
+    <string name="phone_hud_overlay">Layout</string>
+    <string name="phone_hud_section">Telefon-HUD</string>
+    <string name="phone_hud_enable">Visa överlägget</string>
+    <string name="phone_hud_portrait_only">Endast stående layouter. Tryck går igenom, så appen under fortsätter fungera.</string>
     <string name="widget_section">Widget pa hemskarmen</string>
     <string name="widget_pick_desc">Välj de %1$d mätvärden och %2$d knappar som widgeten visar.</string>
     <string name="widget_metric_slot">Mätvärde %1$d</string>

@@ -2082,6 +2082,14 @@
     <string name="trip_tools_combine_this">Эта поездка</string>
     <string name="trip_tools_combine_between">Между ними, войдёт</string>
     <string name="trip_tools_combine_summary">Объединяет %1$d поездок в одну новую.</string>
+    <string name="phone_hud_overlay_none">Нет</string>
+    <string name="phone_hud_desc">Рисует раскладку Overlay Studio поверх других приложений, чтобы видеть колесо во время карт или музыки.</string>
+    <string name="phone_hud_permission_desc">Android запрашивает это отдельно. Без разрешения наложение показать нельзя.</string>
+    <string name="phone_hud_grant">Разрешить</string>
+    <string name="phone_hud_overlay">Раскладка</string>
+    <string name="phone_hud_section">HUD на телефоне</string>
+    <string name="phone_hud_enable">Показывать наложение</string>
+    <string name="phone_hud_portrait_only">Только вертикальные раскладки. Нажатия проходят насквозь, приложение под ним работает как обычно.</string>
     <string name="widget_section">Виджет на главном экране</string>
     <string name="widget_pick_desc">Выберите %1$d показателя и %2$d кнопки, которые показывает виджет.</string>
     <string name="widget_metric_slot">Показатель %1$d</string>

@@ -764,6 +764,26 @@ class SettingsViewModel @Inject constructor(
      * Caller supplies the resolved JSON so the ViewModel doesn't need to
      * know about asset/IO paths. Empty name clears the choice.
      */
+        fun updatePhoneHudEnabled(v: Boolean) = update { copy(phoneHudEnabled = v) }
+
+    /**
+     * Pick the preset the Phone HUD draws. Resolves the name to JSON the same
+     * way the HUD picker does, so the window never needs filesystem access.
+     */
+    fun pickPhoneHudOverlay(name: String) {
+        viewModelScope.launch {
+            if (name.isBlank()) {
+                update { copy(phoneHudOverlayName = "", phoneHudOverlayJson = "") }
+                return@launch
+            }
+            val preset = overlayPresetStore.loadBundledPreset(name)
+                ?: overlayPresetStore.loadPreset(name)
+                ?: return@launch
+            val json = com.eried.eucplanet.data.store.OverlayPresetJson
+                .toJson(preset).toString()
+            update { copy(phoneHudOverlayName = name.trim(), phoneHudOverlayJson = json) }
+        }
+    }
     fun updateHudCustomOverlay(name: String, json: String) = update {
         copy(hudCustomOverlayName = name.trim(), hudCustomOverlayJson = json)
     }

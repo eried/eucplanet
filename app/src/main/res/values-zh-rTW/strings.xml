@@ -2081,6 +2081,14 @@
     <string name="trip_tools_combine_this">此行程</string>
     <string name="trip_tools_combine_between">位於中間，將包含</string>
     <string name="trip_tools_combine_summary">將 %1$d 個行程合併為一個新行程。</string>
+    <string name="phone_hud_overlay_none">無</string>
+    <string name="phone_hud_desc">把 Overlay Studio 版面畫在其他應用程式之上，使用地圖或音樂時也能看到輪子資料。</string>
+    <string name="phone_hud_permission_desc">Android 會另外詢問此權限。沒有它就無法顯示浮動層。</string>
+    <string name="phone_hud_grant">授予</string>
+    <string name="phone_hud_overlay">版面</string>
+    <string name="phone_hud_section">手機 HUD</string>
+    <string name="phone_hud_enable">顯示浮動層</string>
+    <string name="phone_hud_portrait_only">僅支援直向版面。它不接收點按，下方應用程式照常使用。</string>
     <string name="widget_section">主畫面小工具</string>
     <string name="widget_pick_desc">選擇小工具顯示的 %1$d 個指標和 %2$d 個按鈕。</string>
     <string name="widget_metric_slot">指標 %1$d</string>

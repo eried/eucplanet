@@ -2081,6 +2081,14 @@
     <string name="trip_tools_combine_this">이 주행</string>
     <string name="trip_tools_combine_between">사이에 있어 포함됨</string>
     <string name="trip_tools_combine_summary">주행 %1$d개를 새 주행 하나로 합칩니다.</string>
+    <string name="phone_hud_overlay_none">없음</string>
+    <string name="phone_hud_desc">Overlay Studio 레이아웃을 다른 앱 위에 그립니다. 지도나 음악을 쓰면서 휠을 볼 수 있습니다.</string>
+    <string name="phone_hud_permission_desc">Android가 별도로 요청합니다. 허용하지 않으면 오버레이를 표시할 수 없습니다.</string>
+    <string name="phone_hud_grant">허용</string>
+    <string name="phone_hud_overlay">레이아웃</string>
+    <string name="phone_hud_section">폰 HUD</string>
+    <string name="phone_hud_enable">오버레이 표시</string>
+    <string name="phone_hud_portrait_only">세로 레이아웃만 지원합니다. 터치를 통과시키므로 아래 앱은 그대로 동작합니다.</string>
     <string name="widget_section">홈 화면 위젯</string>
     <string name="widget_pick_desc">위젯에 표시할 지표 %1$d개와 버튼 %2$d개를 고르세요.</string>
     <string name="widget_metric_slot">지표 %1$d</string>

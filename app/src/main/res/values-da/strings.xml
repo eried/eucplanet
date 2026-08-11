@@ -2097,6 +2097,14 @@
     <string name="trip_tools_combine_this">Denne tur</string>
     <string name="trip_tools_combine_between">Ligger imellem, tages med</string>
     <string name="trip_tools_combine_summary">Kombinerer %1$d ture til en ny tur.</string>
+    <string name="phone_hud_overlay_none">Ingen</string>
+    <string name="phone_hud_desc">Tegn et Overlay Studio-layout oven på andre apps, så du kan se dit hjul mens du bruger kort eller musik.</string>
+    <string name="phone_hud_permission_desc">Android spørger separat om dette. Uden det kan overlayet ikke vises.</string>
+    <string name="phone_hud_grant">Tillad</string>
+    <string name="phone_hud_overlay">Layout</string>
+    <string name="phone_hud_section">Telefon-HUD</string>
+    <string name="phone_hud_enable">Vis overlay</string>
+    <string name="phone_hud_portrait_only">Kun stående layouts. Det ignorerer tryk, så appen nedenunder virker fortsat.</string>
     <string name="widget_section">Widget pa startskaerm</string>
     <string name="widget_pick_desc">Vælg de %1$d målinger og %2$d knapper, widgetten viser.</string>
     <string name="widget_metric_slot">Måling %1$d</string>

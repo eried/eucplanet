@@ -502,6 +502,8 @@ fun SettingsScreen(
         stringResource(R.string.auto_connect_on_start),
         stringResource(R.string.section_application),
         stringResource(R.string.back_button_action),
+        stringResource(R.string.phone_hud_section),
+        stringResource(R.string.phone_hud_enable),
         stringResource(R.string.widget_section),
         stringResource(R.string.widget_customize),
         stringResource(R.string.widget_metric_slot, 1),
@@ -1190,6 +1192,79 @@ private fun GeneralTab(
                         modifier = Modifier.weight(1f),
                     )
                     Spacer(Modifier.weight(1f))
+                }
+            }
+        }
+
+        // Phone HUD: the same Overlay Studio presets the companion HUD shows,
+        // drawn in a window over other apps instead of shipped to a screen.
+        SectionHeader(stringResource(R.string.phone_hud_section))
+        run {
+            val ctx = androidx.compose.ui.platform.LocalContext.current
+            // Re-read on every resume: the rider grants this in system settings
+            // and comes back, so a value captured once would be stale exactly
+            // when it matters.
+            var canDraw by remember { mutableStateOf(android.provider.Settings.canDrawOverlays(ctx)) }
+            val lifecycleOwner = androidx.lifecycle.compose.LocalLifecycleOwner.current
+            androidx.compose.runtime.DisposableEffect(lifecycleOwner) {
+                val obs = androidx.lifecycle.LifecycleEventObserver { _, event ->
+                    if (event == androidx.lifecycle.Lifecycle.Event.ON_RESUME) {
+                        canDraw = android.provider.Settings.canDrawOverlays(ctx)
+                    }
+                }
+                lifecycleOwner.lifecycle.addObserver(obs)
+                onDispose { lifecycleOwner.lifecycle.removeObserver(obs) }
+            }
+
+            HintText(stringResource(R.string.phone_hud_desc), small = true)
+
+            if (!canDraw) {
+                // The switch stays off and un-flippable until the permission is
+                // there, rather than turning on and quietly doing nothing.
+                HintText(stringResource(R.string.phone_hud_permission_desc), small = true)
+                TextButton(
+                    onClick = {
+                        runCatching {
+                            ctx.startActivity(
+                                android.content.Intent(
+                                    android.provider.Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                                    android.net.Uri.parse("package:${ctx.packageName}"),
+                                ).addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)
+                            )
+                        }
+                    },
+                    shape = RoundedCornerShape(12.dp),
+                ) { Text(stringResource(R.string.phone_hud_grant)) }
+            } else {
+                SwitchSetting(
+                    stringResource(R.string.phone_hud_enable),
+                    settings.phoneHudEnabled,
+                ) { viewModel.updatePhoneHudEnabled(it) }
+
+                if (settings.phoneHudEnabled) {
+                    var lists by remember {
+                        mutableStateOf<SettingsViewModel.HudOverlayLists?>(null)
+                    }
+                    LaunchedEffect(Unit) { lists = viewModel.loadHudOverlayLists() }
+                    // Portrait only. A landscape preset bakes a per-element
+                    // rotation onto a portrait canvas, and undoing that on a
+                    // different surface is what the HUD renderer needed two
+                    // attempts and an ANR to get right. Offering them here
+                    // would draw them wrong.
+                    val choices = remember(lists) {
+                        (lists?.bundledPortrait.orEmpty() + lists?.savedPresets.orEmpty()).distinct()
+                    }
+                    WidgetSlotDropdown(
+                        label = stringResource(R.string.phone_hud_overlay),
+                        currentLabel = settings.phoneHudOverlayName.ifBlank {
+                            stringResource(R.string.phone_hud_overlay_none)
+                        },
+                        options = listOf("" to stringResource(R.string.phone_hud_overlay_none)) +
+                            choices.map { it to it },
+                        onSelect = { viewModel.pickPhoneHudOverlay(it) },
+                        modifier = Modifier.fillMaxWidth(),
+                    )
+                    HintText(stringResource(R.string.phone_hud_portrait_only), small = true)
                 }
             }
         }

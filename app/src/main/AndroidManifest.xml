@@ -29,6 +29,9 @@
 
     <!-- Notifications (API 33+) -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <!-- Phone HUD: draws an Overlay Studio preset on top of other apps.
+         Special access, granted by the rider in system settings, never silently. -->
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
 
     <!-- Internet (WebView for trip viewer; also the HUD companion server) -->
     <uses-permission android:name="android.permission.INTERNET" />

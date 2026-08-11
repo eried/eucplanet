@@ -2084,6 +2084,14 @@
     <string name="trip_tools_combine_this">Deze rit</string>
     <string name="trip_tools_combine_between">Ertussen, meegenomen</string>
     <string name="trip_tools_combine_summary">Voegt %1$d ritten samen tot een nieuwe rit.</string>
+    <string name="phone_hud_overlay_none">Geen</string>
+    <string name="phone_hud_desc">Tekent een Overlay Studio-indeling over andere apps, zodat je je wiel ziet tijdens kaarten of muziek.</string>
+    <string name="phone_hud_permission_desc">Android vraagt hier apart om. Zonder dit kan de overlay niet worden getoond.</string>
+    <string name="phone_hud_grant">Toestaan</string>
+    <string name="phone_hud_overlay">Indeling</string>
+    <string name="phone_hud_section">Telefoon-HUD</string>
+    <string name="phone_hud_enable">Overlay tonen</string>
+    <string name="phone_hud_portrait_only">Alleen staande indelingen. Tikken gaan er doorheen, dus de app eronder blijft werken.</string>
     <string name="widget_section">Startscherm-widget</string>
     <string name="widget_pick_desc">Kies de %1$d metingen en %2$d knoppen die de widget toont.</string>
     <string name="widget_metric_slot">Meting %1$d</string>
