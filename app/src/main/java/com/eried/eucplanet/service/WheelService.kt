@@ -958,7 +958,7 @@ class WheelService : LifecycleService() {
             com.eried.eucplanet.data.store.OverlayPresetJson
                 .fromJson(org.json.JSONObject(phoneHudJsonCached))
         }.getOrNull() ?: return
-        phoneHudWindow.show(this, preset.elements)
+        phoneHudWindow.show(preset.elements)
     }
 
     /**

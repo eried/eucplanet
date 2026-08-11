@@ -16,7 +16,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.ComposeView
-import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleRegistry
 import androidx.lifecycle.ViewModelStore
 import androidx.lifecycle.ViewModelStoreOwner
 import androidx.lifecycle.setViewTreeLifecycleOwner
@@ -70,6 +71,7 @@ class PhoneHudWindow @Inject constructor(
 ) {
 
     private var view: View? = null
+    private var owners: OverlayViewOwners? = null
     private val windowManager: WindowManager? =
         context.getSystemService(Context.WINDOW_SERVICE) as? WindowManager
 
@@ -94,12 +96,12 @@ class PhoneHudWindow @Inject constructor(
     /**
      * Put the window up, or leave it be if it is already there.
      *
-     * [owner] supplies the Lifecycle a ComposeView needs; the other two
-     * ViewTree owners are created here. Returns false when the permission is
-     * missing or the preset is unusable, so the caller can report why rather
-     * than silently doing nothing.
+     * The three ViewTree owners a ComposeView needs are created here, per
+     * window. Returns false when the permission is missing or the preset is
+     * unusable, so the caller can report why rather than silently doing
+     * nothing.
      */
-    fun show(owner: LifecycleOwner, preset: List<OverlayElement>): Boolean {
+    fun show(preset: List<OverlayElement>): Boolean {
         if (view != null) return true
         if (!hasPermission()) {
             Log.i(TAG, "Phone HUD: no overlay permission")
@@ -113,11 +115,11 @@ class PhoneHudWindow @Inject constructor(
         val wm = windowManager ?: return false
 
         elements.value = drawable
-        val owners = OverlayViewOwners(owner)
+        val newOwners = OverlayViewOwners()
         val compose = ComposeView(context).apply {
             setContent { Content(snapshot, elements) }
         }
-        owners.attach(compose)
+        newOwners.attach(compose)
 
         val params = WindowManager.LayoutParams(
             WindowManager.LayoutParams.MATCH_PARENT,
@@ -144,11 +146,13 @@ class PhoneHudWindow @Inject constructor(
         return try {
             wm.addView(compose, params)
             view = compose
+            owners = newOwners
             true
         } catch (e: Exception) {
             // A revoked permission surfaces here rather than at canDrawOverlays
             // on some OEM builds, so this is a real path, not paranoia.
             Log.e(TAG, "Phone HUD: could not add the window", e)
+            newOwners.destroy()
             false
         }
     }
@@ -162,6 +166,10 @@ class PhoneHudWindow @Inject constructor(
         } catch (e: Exception) {
             Log.w(TAG, "Phone HUD: window was already gone", e)
         }
+        // After the view is off the window, so Compose disposes on detach and
+        // does not see its lifecycle destroyed underneath it.
+        owners?.destroy()
+        owners = null
     }
 
     companion object {
@@ -240,30 +248,51 @@ private fun Content(
  * The three ViewTree owners a ComposeView needs before it will attach.
  *
  * Inside an Activity these come for free. In a service-owned window they do
- * not, and a ComposeView without them throws on the first composition. The
- * Lifecycle is borrowed from the service, which already has one; the view model
- * store and saved-state registry are ours because nothing here outlives the
- * window.
+ * not, and a ComposeView without them throws on the first composition.
+ *
+ * All three are owned here, including the Lifecycle. Borrowing the service's
+ * looks tempting - it already has one, and it bounds the window's life the way
+ * we want - but it cannot work: [SavedStateRegistryController.performRestore]
+ * requires its owner to still be INITIALIZED, and a running service is long
+ * past that, so every show() threw "Restarter must be created only during
+ * owner's initialization stage". A fresh registry per window satisfies the
+ * contract and is the more honest model anyway: this window's life is the
+ * span between show() and hide(), not the service's.
+ *
+ * The service still bounds it by calling [PhoneHudWindow.hide] when it stops.
  */
-private class OverlayViewOwners(
-    private val lifecycleOwner: LifecycleOwner,
-) : ViewModelStoreOwner, SavedStateRegistryOwner {
+private class OverlayViewOwners : ViewModelStoreOwner, SavedStateRegistryOwner {
 
     override val viewModelStore: ViewModelStore = ViewModelStore()
+
+    private val lifecycleRegistry = LifecycleRegistry(this)
 
     private val controller = SavedStateRegistryController.create(this)
 
     override val savedStateRegistry: SavedStateRegistry
         get() = controller.savedStateRegistry
 
-    override val lifecycle get() = lifecycleOwner.lifecycle
+    override val lifecycle: Lifecycle get() = lifecycleRegistry
+
+    init {
+        // Must happen while the registry is still INITIALIZED, which is why it
+        // is here and not in attach(). Restoring from null is correct: an
+        // overlay has no state worth carrying across process death, it is
+        // rebuilt from live telemetry.
+        controller.performRestore(null)
+    }
 
     fun attach(view: View) {
-        // Restoring from null is correct: an overlay has no state worth
-        // carrying across process death, it is rebuilt from live telemetry.
-        controller.performRestore(null)
-        view.setViewTreeLifecycleOwner(lifecycleOwner)
+        view.setViewTreeLifecycleOwner(this)
         view.setViewTreeViewModelStoreOwner(this)
         view.setViewTreeSavedStateRegistryOwner(this)
+        // RESUMED, not CREATED: Compose parks its recomposer below STARTED, so
+        // anything less draws once and then freezes as telemetry arrives.
+        lifecycleRegistry.currentState = Lifecycle.State.RESUMED
+    }
+
+    fun destroy() {
+        lifecycleRegistry.currentState = Lifecycle.State.DESTROYED
+        viewModelStore.clear()
     }
 }
