@@ -1309,6 +1309,7 @@
     <string name="auto_waiting_gps">Waiting for GPS location\u2026</string>
     <string name="auto_volume_title">Volume</string>
     <string name="auto_volume_desc">Boost music volume based on speed</string>
+    <string name="auto_volume_only_connected">Only when a wheel is connected</string>
     <string name="media_control_title">Media control</string>
     <string name="media_control_desc">Pause music when you slow down, resume it when you speed up.</string>
     <string name="media_control_pause">Pause when I slow down</string>

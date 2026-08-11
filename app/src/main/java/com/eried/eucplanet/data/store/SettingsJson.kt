@@ -166,6 +166,7 @@ object SettingsJson {
         put("autoLightsOnMinutesBefore", s.autoLightsOnMinutesBefore)
         put("autoLightsOffMinutesAfter", s.autoLightsOffMinutesAfter)
         put("autoVolumeEnabled", s.autoVolumeEnabled)
+        put("autoVolumeOnlyWhenConnected", s.autoVolumeOnlyWhenConnected)
         put("autoVolumeCurve", s.autoVolumeCurve)
         put("autoVolumeBaselinePercent", s.autoVolumeBaselinePercent)
         put("alarmsMuted", s.alarmsMuted)
@@ -473,6 +474,7 @@ object SettingsJson {
         autoLightsOnMinutesBefore = j.optInt("autoLightsOnMinutesBefore", base.autoLightsOnMinutesBefore),
         autoLightsOffMinutesAfter = j.optInt("autoLightsOffMinutesAfter", base.autoLightsOffMinutesAfter),
         autoVolumeEnabled = j.optBoolean("autoVolumeEnabled", base.autoVolumeEnabled),
+        autoVolumeOnlyWhenConnected = j.optBoolean("autoVolumeOnlyWhenConnected", base.autoVolumeOnlyWhenConnected),
         autoVolumeCurve = j.optString("autoVolumeCurve", base.autoVolumeCurve),
         autoVolumeBaselinePercent = j.optInt("autoVolumeBaselinePercent", base.autoVolumeBaselinePercent),
         alarmsMuted = j.optBoolean("alarmsMuted", base.alarmsMuted),

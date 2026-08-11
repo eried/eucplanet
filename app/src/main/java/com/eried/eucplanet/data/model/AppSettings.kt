@@ -177,6 +177,10 @@ data class AppSettings(
     // Baseline starts at -1 (uninitialized) and is captured from the system music volume on first
     // tick after enable. Manual volume changes during motion rebase: baseline = manual / multiplier.
     val autoVolumeEnabled: Boolean = false,
+    // Only adjust the media volume while a wheel is connected (i.e. actually
+    // riding). On by default so auto-volume never touches the phone's volume
+    // when the app is used without a wheel.
+    val autoVolumeOnlyWhenConnected: Boolean = true,
     val autoVolumeCurve: String = "0:1.0,25:1.0,50:1.5,75:2.0",
     val autoVolumeBaselinePercent: Int = -1,
 
