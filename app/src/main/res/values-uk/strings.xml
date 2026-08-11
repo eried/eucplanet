@@ -2067,7 +2067,9 @@
     <string name="trip_tools_combine_none">Немає інших завершених поїздок для об\'єднання.</string>
     <string name="trip_tools_combine_mixed_wheels">Деякі з них були на іншому колесі. Відстань і енергія будуть об єднані.</string>
     <string name="trip_tools_wheel_changed">Колесо змінено на %1$s</string>
-    <string name="trip_tools_split_hint">Виберіть місця розрізу. Створить %1$d поїздок і збереже оригінал.</string>
+        <string name="trip_split_lasted">тривало %1$s</string>
+    <string name="trip_tools_split_pick">Виберіть щонайменше одне місце розрізу.</string>
+<string name="trip_tools_split_hint">Виберіть місця розрізу. Створить %1$d поїздок і збереже оригінал.</string>
     <string name="trip_tools_split_done">Розділено на %1$d поїздок</string>
     <string name="trip_tools_split_failed">Не вдалося розділити цю поїздку</string>
     <string name="trip_tools_combine_done">Поїздки об\'єднано в нову</string>

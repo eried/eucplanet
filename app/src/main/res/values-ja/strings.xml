@@ -2071,7 +2071,9 @@
     <string name="trip_tools_combine_none">結合できる他の完了した走行がありません。</string>
     <string name="trip_tools_combine_mixed_wheels">一部は別のホイールで走行しています。距離とエネルギーは合算されます。</string>
     <string name="trip_tools_wheel_changed">ホイールを %1$s に設定しました</string>
-    <string name="trip_tools_split_hint">分割位置を選びます。%1$d 件の走行を作成し、元は残ります。</string>
+        <string name="trip_split_lasted">%1$s 継続</string>
+    <string name="trip_tools_split_pick">分割する位置を 1 つ以上選んでください。</string>
+<string name="trip_tools_split_hint">分割位置を選びます。%1$d 件の走行を作成し、元は残ります。</string>
     <string name="trip_tools_split_done">%1$d 件の走行に分割しました</string>
     <string name="trip_tools_split_failed">この走行を分割できませんでした</string>
     <string name="trip_tools_combine_done">走行を新しい走行に結合しました</string>

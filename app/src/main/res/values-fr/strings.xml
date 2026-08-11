@@ -2074,7 +2074,9 @@
     <string name="trip_tools_combine_none">Aucun autre trajet termine a combiner.</string>
     <string name="trip_tools_combine_mixed_wheels">Certains ont ete faits sur une autre roue. Distance et energie seront combinees.</string>
     <string name="trip_tools_wheel_changed">Roue definie sur %1$s</string>
-    <string name="trip_tools_split_hint">Choisis ou couper. Cela cree %1$d trajets et garde l original.</string>
+        <string name="trip_split_lasted">a duré %1$s</string>
+    <string name="trip_tools_split_pick">Choisis au moins un point de coupe.</string>
+<string name="trip_tools_split_hint">Choisis ou couper. Cela cree %1$d trajets et garde l original.</string>
     <string name="trip_tools_split_done">Divise en %1$d trajets</string>
     <string name="trip_tools_split_failed">Impossible de diviser ce trajet</string>
     <string name="trip_tools_combine_done">Trajets combines en un nouveau</string>

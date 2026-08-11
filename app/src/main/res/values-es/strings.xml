@@ -2067,7 +2067,9 @@
     <string name="trip_tools_combine_none">No hay otros viajes terminados para combinar.</string>
     <string name="trip_tools_combine_mixed_wheels">Algunos de estos fueron en otra rueda. La distancia y la energia se sumaran.</string>
     <string name="trip_tools_wheel_changed">Rueda cambiada a %1$s</string>
-    <string name="trip_tools_split_hint">Elige donde cortar. Crea %1$d viajes y conserva el original.</string>
+        <string name="trip_split_lasted">duró %1$s</string>
+    <string name="trip_tools_split_pick">Elige al menos un punto de corte.</string>
+<string name="trip_tools_split_hint">Elige donde cortar. Crea %1$d viajes y conserva el original.</string>
     <string name="trip_tools_split_done">Dividido en %1$d viajes</string>
     <string name="trip_tools_split_failed">No se pudo dividir este viaje</string>
     <string name="trip_tools_combine_done">Viajes combinados en uno nuevo</string>

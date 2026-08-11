@@ -2070,7 +2070,9 @@
     <string name="trip_tools_combine_none">Brak innych zakonczonych przejazdow do polaczenia.</string>
     <string name="trip_tools_combine_mixed_wheels">Niektore z nich odbyly sie na innym kole. Dystans i energia zostana zsumowane.</string>
     <string name="trip_tools_wheel_changed">Ustawiono kolo na %1$s</string>
-    <string name="trip_tools_split_hint">Wybierz miejsca ciecia. Utworzy %1$d przejazdow i zachowa oryginal.</string>
+        <string name="trip_split_lasted">trwało %1$s</string>
+    <string name="trip_tools_split_pick">Wybierz co najmniej jedno miejsce cięcia.</string>
+<string name="trip_tools_split_hint">Wybierz miejsca ciecia. Utworzy %1$d przejazdow i zachowa oryginal.</string>
     <string name="trip_tools_split_done">Podzielono na %1$d przejazdow</string>
     <string name="trip_tools_split_failed">Nie udalo sie podzielic tego przejazdu</string>
     <string name="trip_tools_combine_done">Polaczono przejazdy w nowy</string>

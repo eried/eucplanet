@@ -2085,7 +2085,9 @@
     <string name="trip_tools_combine_none">Ingen andre faerdige ture at kombinere med.</string>
     <string name="trip_tools_combine_mixed_wheels">Nogle af disse blev kort pa et andet hjul. Distance og energi bliver lagt sammen.</string>
     <string name="trip_tools_wheel_changed">Hjul sat til %1$s</string>
-    <string name="trip_tools_split_hint">Vaelg hvor der skal klippes. Dette laver %1$d ture og beholder originalen.</string>
+        <string name="trip_split_lasted">varede %1$s</string>
+    <string name="trip_tools_split_pick">Vælg mindst ét sted at klippe.</string>
+<string name="trip_tools_split_hint">Vaelg hvor der skal klippes. Dette laver %1$d ture og beholder originalen.</string>
     <string name="trip_tools_split_done">Opdelt i %1$d ture</string>
     <string name="trip_tools_split_failed">Kunne ikke opdele denne tur</string>
     <string name="trip_tools_combine_done">Ture kombineret til en ny</string>

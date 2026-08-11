@@ -33,6 +33,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -224,9 +227,13 @@ fun ChangeWheelDialog(
 fun SplitTripDialog(
     cuts: List<TripSplitDetector.Cut>,
     formatElapsed: (Long) -> String,
+    /** The ride's first sample, so a cut can be named by clock time and not
+     *  only by how far into the ride it falls. */
+    tripStartMs: Long,
     onConfirm: (List<TripSplitDetector.Cut>) -> Unit,
     onDismiss: () -> Unit,
 ) {
+    val clockFmt = remember { SimpleDateFormat("HH:mm:ss", Locale.getDefault()) }
     val selected = remember { mutableStateOf(cuts.map { it.index }.toSet()) }
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -243,8 +250,20 @@ fun SplitTripDialog(
                     Modifier.heightIn(max = 360.dp).verticalScroll(rememberScrollState()),
                     verticalArrangement = Arrangement.spacedBy(2.dp),
                 ) {
+                    // Counts the TICKED cuts, not every one proposed. It read
+                    // cuts.size + 1 before, so the "this makes N trips" line
+                    // never moved as the rider ticked boxes, which is precisely
+                    // the number they are deciding about.
+                    // Nothing ticked has its own line rather than "this makes 1
+                    // trips": the count is only ever singular in the one case
+                    // where splitting does nothing, so saying what to do next
+                    // beats agreeing with a number that means "no split".
                     Text(
-                        stringResource(R.string.trip_tools_split_hint, cuts.size + 1),
+                        if (selected.value.isEmpty()) {
+                            stringResource(R.string.trip_tools_split_pick)
+                        } else {
+                            stringResource(R.string.trip_tools_split_hint, selected.value.size + 1)
+                        },
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.appColors.textSecondary,
                     )
@@ -279,8 +298,28 @@ fun SplitTripDialog(
                                     ),
                                     color = MaterialTheme.appColors.textPrimary,
                                 )
+                                // Clock time first: a rider remembers "I stopped
+                                // at 14:32", not "78 minutes in". Elapsed stays
+                                // because it locates the cut on the graphs.
+                                // Then how long the gap or stop actually lasted,
+                                // which is the whole basis for deciding whether
+                                // it was a break or a traffic light, and was
+                                // computed all along without being shown.
                                 Text(
-                                    formatElapsed(cut.atElapsedMs),
+                                    buildString {
+                                        append(clockFmt.format(Date(tripStartMs + cut.atElapsedMs)))
+                                        append("  ·  ")
+                                        append(formatElapsed(cut.atElapsedMs))
+                                        if (cut.durationMs > 0L) {
+                                            append("  ·  ")
+                                            append(
+                                                stringResource(
+                                                    R.string.trip_split_lasted,
+                                                    formatElapsed(cut.durationMs),
+                                                )
+                                            )
+                                        }
+                                    },
                                     style = MaterialTheme.typography.bodySmall,
                                     color = MaterialTheme.appColors.textSecondary,
                                 )

@@ -2072,7 +2072,9 @@
     <string name="trip_tools_combine_none">Nenhum outro trajeto concluido para combinar.</string>
     <string name="trip_tools_combine_mixed_wheels">Alguns foram feitos em outra roda. Distancia e energia serao somadas.</string>
     <string name="trip_tools_wheel_changed">Roda definida como %1$s</string>
-    <string name="trip_tools_split_hint">Escolha onde cortar. Cria %1$d trajetos e mantem o original.</string>
+        <string name="trip_split_lasted">durou %1$s</string>
+    <string name="trip_tools_split_pick">Escolha pelo menos um ponto de corte.</string>
+<string name="trip_tools_split_hint">Escolha onde cortar. Cria %1$d trajetos e mantem o original.</string>
     <string name="trip_tools_split_done">Dividido em %1$d trajetos</string>
     <string name="trip_tools_split_failed">Nao foi possivel dividir este trajeto</string>
     <string name="trip_tools_combine_done">Trajetos combinados em um novo</string>

@@ -233,6 +233,7 @@ fun RecordingScreen(
             SplitTripDialog(
                 cuts = found,
                 formatElapsed = { com.eried.eucplanet.util.Units.humanDuration(it / 1000) },
+                tripStartMs = trip.startTime,
                 onConfirm = { chosen ->
                     viewModel.splitTrip(trip, chosen)
                     splitToolTrip = null
@@ -262,7 +263,7 @@ fun RecordingScreen(
                     ?.let { runCatching { org.json.JSONObject(it).optString("ble_name") }.getOrNull() }
             },
             onConfirm = { chosen ->
-                viewModel.combineRange(chosen)
+                viewModel.combineRange(chosen, onMade = { made -> onViewTrip?.invoke(made) })
                 combineToolTrip = null
             },
             onDismiss = { combineToolTrip = null },

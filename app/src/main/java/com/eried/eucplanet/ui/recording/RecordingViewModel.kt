@@ -816,7 +816,7 @@ class RecordingViewModel @Inject constructor(
      * alone. [range] is already the full inclusive span the rider chose,
      * including anything that fell between the two ends.
      */
-    fun combineRange(range: List<TripRecord>) {
+    fun combineRange(range: List<TripRecord>, onMade: (TripRecord) -> Unit = {}) {
         viewModelScope.launch {
             val made = tripRepository.combineTrips(range)
             _toasts.send(
@@ -824,6 +824,11 @@ class RecordingViewModel @Inject constructor(
                     if (made != null) R.string.trip_tools_combine_done else R.string.trip_tools_combine_failed
                 )
             )
+            // Open the result. A combined trip lands in the list in date order,
+            // among the very rides it was built from, so a rider who just made
+            // one had no way to tell which row it was. The new trip IS the
+            // answer to what they asked for, so show it.
+            made?.let(onMade)
         }
     }
 

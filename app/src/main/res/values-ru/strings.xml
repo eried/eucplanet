@@ -2070,7 +2070,9 @@
     <string name="trip_tools_combine_none">Нет других завершённых поездок для объединения.</string>
     <string name="trip_tools_combine_mixed_wheels">Некоторые из них были на другом колесе. Расстояние и энергия будут объединены.</string>
     <string name="trip_tools_wheel_changed">Колесо изменено на %1$s</string>
-    <string name="trip_tools_split_hint">Выберите места разреза. Создаст %1$d поездок и сохранит оригинал.</string>
+        <string name="trip_split_lasted">длилось %1$s</string>
+    <string name="trip_tools_split_pick">Выберите хотя бы одно место разреза.</string>
+<string name="trip_tools_split_hint">Выберите места разреза. Создаст %1$d поездок и сохранит оригинал.</string>
     <string name="trip_tools_split_done">Разделено на %1$d поездок</string>
     <string name="trip_tools_split_failed">Не удалось разделить эту поездку</string>
     <string name="trip_tools_combine_done">Поездки объединены в новую</string>

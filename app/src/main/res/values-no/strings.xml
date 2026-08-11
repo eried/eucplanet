@@ -1958,7 +1958,9 @@
     <string name="trip_tools_combine_none">Ingen andre fullforte turer a slaa sammen med.</string>
     <string name="trip_tools_combine_mixed_wheels">Noen av disse ble kjort pa et annet hjul. Distanse og energi slaas sammen.</string>
     <string name="trip_tools_wheel_changed">Hjul satt til %1$s</string>
-    <string name="trip_tools_split_hint">Velg hvor det skal klippes. Dette lager %1$d turer og beholder originalen.</string>
+        <string name="trip_split_lasted">varte %1$s</string>
+    <string name="trip_tools_split_pick">Velg minst ett sted å klippe.</string>
+<string name="trip_tools_split_hint">Velg hvor det skal klippes. Dette lager %1$d turer og beholder originalen.</string>
     <string name="trip_tools_split_done">Delt i %1$d turer</string>
     <string name="trip_tools_split_failed">Kunne ikke dele denne turen</string>
     <string name="trip_tools_combine_done">Turer slatt sammen til en ny</string>

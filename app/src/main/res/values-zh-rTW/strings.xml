@@ -2069,7 +2069,9 @@
     <string name="trip_tools_combine_none">沒有其他已完成的行程可合併。</string>
     <string name="trip_tools_combine_mixed_wheels">其中一些是在另一個輪子上騎行的。距離和能量將被合併。</string>
     <string name="trip_tools_wheel_changed">輪子已設為 %1$s</string>
-    <string name="trip_tools_split_hint">選擇切分位置。將建立 %1$d 個行程並保留原行程。</string>
+        <string name="trip_split_lasted">持續 %1$s</string>
+    <string name="trip_tools_split_pick">至少選擇一個切分位置。</string>
+<string name="trip_tools_split_hint">選擇切分位置。將建立 %1$d 個行程並保留原行程。</string>
     <string name="trip_tools_split_done">已拆分為 %1$d 個行程</string>
     <string name="trip_tools_split_failed">無法拆分此行程</string>
     <string name="trip_tools_combine_done">行程已合併為一個新行程</string>

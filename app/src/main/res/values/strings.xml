@@ -1277,7 +1277,9 @@
     <string name="trip_tools_split">Split trip</string>
     <string name="trip_tools_split_desc">Find wheel changes, long pauses and recording gaps, and cut the ride there.</string>
     <string name="trip_tools_split_none">Nothing to split. No wheel changes, long pauses or recording gaps were found.</string>
-    <string name="trip_tools_split_hint">Pick where to cut. This makes %1$d trips and keeps the original.</string>
+        <string name="trip_split_lasted">lasted %1$s</string>
+    <string name="trip_tools_split_pick">Pick at least one place to cut.</string>
+<string name="trip_tools_split_hint">Pick where to cut. This makes %1$d trips and keeps the original.</string>
     <string name="trip_tools_split_done">Split into %1$d trips</string>
     <string name="trip_tools_split_failed">Could not split this trip</string>
     <string name="trip_split_reason_wheel">A different wheel took over</string>
