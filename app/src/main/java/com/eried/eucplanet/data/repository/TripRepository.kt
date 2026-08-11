@@ -148,10 +148,11 @@ class TripRepository @Inject constructor(
     // moment any input changes, since recompute re-decides.
     private var idleOffJob: kotlinx.coroutines.Job? = null
     // GPS signal state machine (drives the "GPS acquired/lost" voice). It runs
-    // ONLY while GPS is at the HIGH tier - i.e. actually needed (recording /
-    // navigating / riding) - so it never voices the app's own power management:
-    // the idle power-down, or the re-engage when you open the app or connect a
-    // wheel. It announces only a GENUINE satellite loss/regain while tracking.
+    // ONLY while a trip is recording or navigation is active - when GPS is both
+    // needed AND the app is kept awake, so a stale stream means a genuine
+    // satellite loss rather than OEM doze throttling our background location. It
+    // never voices the app's own power management (idle power-down, or re-engage
+    // on app open / wheel connect). Announces only a GENUINE satellite loss/regain.
     @Volatile private var gpsTracking = false        // true while tier == HIGH
     @Volatile private var gpsHasFix = false          // FIXED (true) vs ACQUIRING (false) while tracking
     @Volatile private var acquiringFromLoss = false  // this ACQUIRING followed a genuine loss, not a power-on
@@ -395,9 +396,15 @@ class TripRepository @Inject constructor(
             currentGpsTier = GpsTier.OFF
             return
         }
-        // The genuine-signal voice runs only at HIGH - when GPS is actually
-        // needed (recording / navigating / riding). BALANCED / LOW are silent.
-        if (tier == GpsTier.HIGH) startGpsTracking() else stopGpsTracking()
+        // The genuine-signal voice runs ONLY while a trip is recording or
+        // navigation is active - when GPS staleness truly matters AND the app is
+        // kept awake. When GPS is HIGH merely because a wheel is connected in the
+        // background, aggressive OEM doze (notably Samsung) throttles fix delivery
+        // in ~10-30 s bursts; the loss watchdog would otherwise mis-read those
+        // gaps as a stream of "signal lost / acquired". Gate on the real need so
+        // that stays silent. The GPS power tier itself is unchanged (dashboard /
+        // HUD speed stays live while connected).
+        if (_recording.value || gpsNavigating) startGpsTracking() else stopGpsTracking()
         if (tier == currentGpsTier && locationUpdatesActive) return
         val (priority, interval) = when (tier) {
             GpsTier.HIGH -> Priority.PRIORITY_HIGH_ACCURACY to phoneGpsIntervalMs
