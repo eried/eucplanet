@@ -1139,6 +1139,8 @@
     <string name="online_restore_confirm">Doorgaan als %1$s</string>
     <string name="online_rejoin_title">Profiel reactiveren</string>
     <string name="online_rejoin_body">De back-upmap bevat een profiel dat voor het klassement gebruikt werd.\n\nRijders-ID: %1$s</string>
+    <string name="warnings_pip_blocked_title">Beeld-in-beeld is geblokkeerd</string>
+    <string name="warnings_pip_blocked_body">Android is ingesteld om het te weigeren voor EUC Planet, dus het zwevende venster verschijnt niet als je de app verlaat</string>
     <string name="online_rejoin_confirm">Opnieuw deelnemen</string>
 
     <!-- Battery / Charging screen -->

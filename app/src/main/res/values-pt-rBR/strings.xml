@@ -1616,6 +1616,8 @@
     <string name="warnings_fix_button">Corrigir</string>
     <string name="warnings_perm_notifications_title">Notificações desativadas</string>
     <string name="warnings_perm_notifications_body">Você não verá o status do trajeto na barra de status nem receberá alertas por voz nas notificações</string>
+    <string name="warnings_pip_blocked_title">O picture-in-picture está bloqueado</string>
+    <string name="warnings_pip_blocked_body">O Android está configurado para recusá-lo ao EUC Planet, então a janela flutuante não aparecerá quando você sair do app</string>
     <string name="online_rejoin_confirm">Voltar</string>
 
     <!-- Battery / Charging screen -->

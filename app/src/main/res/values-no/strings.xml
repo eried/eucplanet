@@ -1489,6 +1489,8 @@
     <string name="online_upload_linked_caption">Statistikken og turene dine vises på den offentlige ledertavlen på</string>
     <string name="online_rejoin_title">Reaktiver profil</string>
     <string name="online_rejoin_body">Sikkerhetskopimappen inneholder en profil som ble brukt for ledertavlen.\n\nRytter-ID: %1$s</string>
+    <string name="warnings_pip_blocked_title">Bilde-i-bilde er blokkert</string>
+    <string name="warnings_pip_blocked_body">Android er satt til å nekte det for EUC Planet, så det flytende vinduet vises ikke når du forlater appen</string>
     <string name="online_rejoin_confirm">Bli med igjen</string>
 
     <!-- Battery / Charging screen -->

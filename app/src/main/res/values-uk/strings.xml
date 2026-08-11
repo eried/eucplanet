@@ -1141,6 +1141,8 @@
     <string name="online_restore_confirm">Продовжити як %1$s</string>
     <string name="online_rejoin_title">Відновити профіль</string>
     <string name="online_rejoin_body">У теці резервної копії є профіль, що використовувався для таблиці лідерів.\n\nID райдера: %1$s</string>
+    <string name="warnings_pip_blocked_title">Картинку в картинці заблоковано</string>
+    <string name="warnings_pip_blocked_body">Android налаштований відхиляти її для EUC Planet, тому плаваюче вікно не з\'явиться, коли ви вийдете із застосунку</string>
     <string name="online_rejoin_confirm">Приєднатись знову</string>
 
     <!-- Battery / Charging screen -->

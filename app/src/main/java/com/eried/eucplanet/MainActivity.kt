@@ -127,7 +127,9 @@ class MainActivity : AppCompatActivity() {
         }
         // Whatever the rider answered (yes or no), refresh the warning list so
         // the dashboard top-bar indicator reflects the new permission state.
-        appHealthRepository.refreshPermissionWarnings()
+        appHealthRepository.refreshPermissionWarnings(
+            pipRequested = _settings.value?.pipMode.orEmpty().let { it.isNotEmpty() && it != "OFF" },
+        )
     }
 
     /** True if either fine or coarse location is granted. */
@@ -253,7 +255,9 @@ class MainActivity : AppCompatActivity() {
         // Catch permission flips done in Settings while the app was in the
         // background — the warning indicator auto-clears when the rider
         // returns having granted what was missing.
-        appHealthRepository.refreshPermissionWarnings()
+        appHealthRepository.refreshPermissionWarnings(
+            pipRequested = _settings.value?.pipMode.orEmpty().let { it.isNotEmpty() && it != "OFF" },
+        )
         // Resume a stranded Dropbox trip sync promptly on return, not only on
         // cold start: if trips are still pending and Dropbox is linked, re-kick
         // the retry worker. It no-ops when nothing is pending, so this is a

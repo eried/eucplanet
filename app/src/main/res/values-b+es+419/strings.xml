@@ -1139,6 +1139,8 @@
     <string name="online_restore_confirm">Continuar como %1$s</string>
     <string name="online_rejoin_title">Reactivar perfil</string>
     <string name="online_rejoin_body">La carpeta de respaldo contiene un perfil que se usaba en la tabla.\n\nID de rider: %1$s</string>
+    <string name="warnings_pip_blocked_title">Imagen en imagen está bloqueada</string>
+    <string name="warnings_pip_blocked_body">Android está configurado para rechazarla en EUC Planet, así que la ventana flotante no aparecerá al salir de la app</string>
     <string name="online_rejoin_confirm">Volver a unirse</string>
 
     <!-- ==== Overlay Studio ==== -->

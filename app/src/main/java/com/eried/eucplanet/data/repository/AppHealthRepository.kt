@@ -1,6 +1,7 @@
 package com.eried.eucplanet.data.repository
 
 import android.Manifest
+import android.app.AppOpsManager
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -76,7 +77,7 @@ class AppHealthRepository @Inject constructor(
      * dismisses the corresponding warning. Idempotent — safe to call from
      * onResume on every dashboard visit.
      */
-    fun refreshPermissionWarnings() {
+    fun refreshPermissionWarnings(pipRequested: Boolean = false) {
         // POST_NOTIFICATIONS only exists on Android 13+. Below TIRAMISU the
         // notification post is implicit, so the warning never applies.
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
@@ -96,6 +97,63 @@ class AppHealthRepository @Inject constructor(
                 )
             }
         }
+
+        // Android keeps its own per-app picture-in-picture switch, and turning
+        // it off there is invisible from in here: the window simply never
+        // appears, which reads as a broken feature rather than a setting the
+        // rider changed. Only raised when a PIP mode is actually selected -
+        // nobody needs to be told about a permission for a feature they left
+        // off.
+        if (pipRequested && !pipAllowed()) {
+            upsert(
+                AppWarning(
+                    id = PERM_PIP_ID,
+                    titleRes = R.string.warnings_pip_blocked_title,
+                    bodyRes = R.string.warnings_pip_blocked_body,
+                    fix = { openPipSettings() }
+                )
+            )
+        } else {
+            dismiss(PERM_PIP_ID)
+        }
+    }
+
+    /**
+     * Whether Android will honour a picture-in-picture request from us.
+     *
+     * Devices without the feature at all report allowed: there is no switch to
+     * send the rider to, so a warning would be a dead end.
+     */
+    private fun pipAllowed(): Boolean {
+        if (!context.packageManager
+                .hasSystemFeature(PackageManager.FEATURE_PICTURE_IN_PICTURE)
+        ) return true
+        val ops = context.getSystemService(AppOpsManager::class.java) ?: return true
+        val mode = runCatching {
+            ops.unsafeCheckOpNoThrow(
+                AppOpsManager.OPSTR_PICTURE_IN_PICTURE,
+                android.os.Process.myUid(),
+                context.packageName,
+            )
+        }.getOrDefault(AppOpsManager.MODE_ALLOWED)
+        return mode == AppOpsManager.MODE_ALLOWED
+    }
+
+    /**
+     * Open the per-app picture-in-picture switch.
+     *
+     * The action is not a public constant - android.provider.Settings has no
+     * PIP entry - so it is named literally and only used if something answers.
+     * App info is the guaranteed fallback: the PIP switch lives inside it on
+     * stock Android, so the rider still lands somewhere they can fix this.
+     */
+    private fun openPipSettings() {
+        val direct = Intent("android.settings.PICTURE_IN_PICTURE_SETTINGS").apply {
+            data = Uri.fromParts("package", context.packageName, null)
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        }
+        if (runCatching { context.startActivity(direct) }.isSuccess) return
+        openAppSettings()
     }
 
     /**
@@ -114,5 +172,6 @@ class AppHealthRepository @Inject constructor(
 
     companion object {
         private const val PERM_NOTIFICATIONS_ID = "perm.notifications"
+        private const val PERM_PIP_ID = "perm.pip"
     }
 }

@@ -1141,6 +1141,8 @@
     <string name="online_restore_confirm">Fortsæt som %1$s</string>
     <string name="online_rejoin_title">Genaktiver profil</string>
     <string name="online_rejoin_body">Backup-mappen indeholder en profil, der blev brugt til ranglisten.\n\nRytter-ID: %1$s</string>
+    <string name="warnings_pip_blocked_title">Billede i billede er blokeret</string>
+    <string name="warnings_pip_blocked_body">Android er indstillet til at afvise det for EUC Planet, så det flydende vindue vises ikke, når du forlader appen</string>
     <string name="online_rejoin_confirm">Tilmeld igen</string>
 
     <!-- ==== Overlay Studio ==== -->

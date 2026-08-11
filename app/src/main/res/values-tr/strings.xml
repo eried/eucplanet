@@ -1613,6 +1613,8 @@
     <string name="warnings_fix_button">Düzelt</string>
     <string name="warnings_perm_notifications_title">Bildirimler kapalı</string>
     <string name="warnings_perm_notifications_body">Durum çubuğunda sürüş durumunu göremez ve bildirim panelinde sesli uyarı alamazsınız</string>
+    <string name="warnings_pip_blocked_title">Pencere içinde pencere engellendi</string>
+    <string name="warnings_pip_blocked_body">Android, EUC Planet için bunu reddedecek şekilde ayarlı, bu yüzden uygulamadan çıktığında yüzen pencere görünmeyecek</string>
     <string name="online_rejoin_confirm">Yeniden katıl</string>
     <string name="hud_joystick_title">Tuş eylemleri</string>
     <string name="hud_joystick_desc">Bir eylem çalıştırmak için HUD tuşuna çift dokunun. Tek dokunuş yine ekran değiştirir</string>

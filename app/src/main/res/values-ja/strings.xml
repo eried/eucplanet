@@ -1613,6 +1613,8 @@
     <string name="warnings_fix_button">修正</string>
     <string name="warnings_perm_notifications_title">通知がオフです</string>
     <string name="warnings_perm_notifications_body">ステータスバーに走行状態が表示されず、通知シェードでの音声アラートも受け取れません</string>
+    <string name="warnings_pip_blocked_title">ピクチャー イン ピクチャーがブロックされています</string>
+    <string name="warnings_pip_blocked_body">Android が EUC Planet に対して拒否する設定になっているため、アプリを離れても浮かぶウィンドウは表示されません</string>
     <string name="online_rejoin_confirm">再参加</string>
     <string name="hud_joystick_title">ボタン操作</string>
     <string name="hud_joystick_desc">HUD のボタンをダブルタップするとアクションを実行します。シングルタップは引き続き画面を切り替えます</string>

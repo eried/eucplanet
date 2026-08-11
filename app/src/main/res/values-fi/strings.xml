@@ -1904,6 +1904,8 @@
     <string name="warnings_fix_button">Korjaa</string>
     <string name="warnings_perm_notifications_title">Ilmoitukset pois päältä</string>
     <string name="warnings_perm_notifications_body">Et näe ajon tilaa tilapalkissa etkä saa äänihälytyksiä ilmoitusalueella</string>
+    <string name="warnings_pip_blocked_title">Kuva kuvassa on estetty</string>
+    <string name="warnings_pip_blocked_body">Android on asetettu estämään se EUC Planetilta, joten kelluva ikkuna ei ilmesty kun poistut sovelluksesta</string>
     <string name="online_rejoin_confirm">Liity uudelleen</string>
     <string name="charging_monitor">Akkuvahti</string>
     <string name="battery_history">Akun historia</string>

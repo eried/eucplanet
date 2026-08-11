@@ -1141,6 +1141,8 @@
     <string name="online_restore_confirm">Continuer en tant que %1$s</string>
     <string name="online_rejoin_title">Réactiver le profil</string>
     <string name="online_rejoin_body">Le dossier de sauvegarde contient un profil qui était utilisé pour le classement.\n\nIdentifiant de rider: %1$s</string>
+    <string name="warnings_pip_blocked_title">L\'image dans l\'image est bloquée</string>
+    <string name="warnings_pip_blocked_body">Android est réglé pour la refuser à EUC Planet, donc la fenêtre flottante n\'apparaîtra pas quand tu quittes l\'appli</string>
     <string name="online_rejoin_confirm">Rejoindre</string>
 
     <!-- Battery / Charging screen -->

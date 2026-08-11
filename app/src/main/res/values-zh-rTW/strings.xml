@@ -1613,6 +1613,8 @@
     <string name="warnings_fix_button">修復</string>
     <string name="warnings_perm_notifications_title">通知已關閉</string>
     <string name="warnings_perm_notifications_body">您將無法在狀態列看到騎乘狀態，也無法在通知欄接收語音警報</string>
+    <string name="warnings_pip_blocked_title">子母畫面已被封鎖</string>
+    <string name="warnings_pip_blocked_body">系統已設定拒絕 EUC Planet 使用子母畫面，因此離開應用程式時不會出現懸浮視窗</string>
     <string name="online_rejoin_confirm">重新加入</string>
     <string name="hud_joystick_title">按鍵操作</string>
     <string name="hud_joystick_desc">雙擊 HUD 按鍵即可執行動作。單擊仍會切換畫面</string>
