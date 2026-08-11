@@ -350,6 +350,13 @@ class WheelService : LifecycleService() {
             com.eried.eucplanet.util.AppForeground.isForeground.collect { applyPhoneHud() }
         }
 
+        // ...and while the app is in picture-in-picture, which it has to be
+        // told about separately or the HUD would never come back on the way
+        // out of PIP.
+        lifecycleScope.launch {
+            com.eried.eucplanet.util.PipHost.inPip.collect { applyPhoneHud() }
+        }
+
         // Same for the lock state, which a LOCK button's label reads and which
         // can change without a telemetry frame following it.
         lifecycleScope.launch {
@@ -943,6 +950,21 @@ class WheelService : LifecycleService() {
      * can be called from every settings emission without churning the window.
      */
     private fun applyPhoneHud() {
+        // Picture-in-picture wins outright, whatever the HUD is set to.
+        //
+        // They are two answers to the same question - keep the wheel visible
+        // while the rider uses something else - and PIP is the one the rider
+        // just asked for by leaving the app. Stacking a full-screen overlay on
+        // top of a window already showing the same numbers helps nobody.
+        //
+        // This is deliberate, not a side effect. It would happen anyway today,
+        // because Android keeps the activity started while its PIP window is up
+        // so the foreground flag below stays true, but that is an accident of
+        // lifecycle bookkeeping and the wrong thing to depend on.
+        if (com.eried.eucplanet.util.PipHost.inPip.value) {
+            phoneHudWindow.hide()
+            return
+        }
         // Hidden while the app itself is in front, unless the rider asked for
         // it everywhere. Drawing the overlay over the dashboard would cover a
         // fuller version of the same numbers.
