@@ -3,6 +3,7 @@ package com.eried.eucplanet.ble
 import com.eried.eucplanet.data.model.WheelData
 import org.junit.Assert.assertArrayEquals
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -90,5 +91,25 @@ class InMotionV1LockTest {
 
     @Test fun otherFamiliesReportNothing() {
         assertNull(WheelData().lockedReported)
+    }
+
+    @Test fun slowInfoCarriesNoLockState_soItMustNotDriveTheLock() {
+        // The hazard behind the telemetryOwnsLock guard in WheelRepository.
+        //
+        // V1 emits a settings frame on every slow-info poll and never fills
+        // lockState, so it reads 0 = unlocked. Left to drive _locked, that
+        // silently unlocked a locked V8S every dozen poll cycles, the next
+        // fast-info frame flipped it back, and riders with lock announcements
+        // on heard "unlocked, locked" on a loop.
+        //
+        // If someone ever teaches parseSlowInfo to fill lockState, this test
+        // fails and the guard should be revisited rather than left in place.
+        val payload = ByteArray(133)
+        val slow = InMotionV1Parser.parseSlowInfo(payload)
+        assertEquals(0, slow?.settings?.lockState)
+
+        // And the reason the guard is safe: V1 always states its lock in
+        // telemetry, so the guard never suppresses a real reading.
+        assertNotNull(InMotionV1Parser.parseFastInfo(fastInfoPayload(0x00), null)?.lockedReported)
     }
 }

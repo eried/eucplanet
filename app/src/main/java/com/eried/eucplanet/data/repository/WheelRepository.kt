@@ -1915,7 +1915,16 @@ class WheelRepository @Inject constructor(
                 // fires after the cooldown so the voice still matches the
                 // settled state.
                 val cooldownActive = System.currentTimeMillis() < lockCooldownUntilMs
-                if (!cooldownActive) {
+                // Families that state their lock in telemetry own it outright.
+                // InMotion V1 emits a settings frame on every slow-info poll and
+                // never fills lockState, so it reads 0: without this guard a
+                // locked V8S was unlocked by its own settings poll every dozen
+                // cycles, flipped back by the next fast-info frame, and
+                // announced "unlocked, locked" on a loop. Null here means the
+                // family says nothing, which leaves V2 and the rest exactly as
+                // they were.
+                val telemetryOwnsLock = _wheelData.value.lockedReported != null
+                if (!cooldownActive && !telemetryOwnsLock) {
                     _locked.value = isLocked
                     if (isLocked != wasLocked && appSettings.announceWheelLock) {
                         voiceService.announceEvent(
