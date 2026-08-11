@@ -145,6 +145,7 @@ class WheelService : LifecycleService() {
         com.eried.eucplanet.data.repository.ExternalGpsRepository
     @Inject lateinit var navigationEngine: com.eried.eucplanet.nav.NavigationEngine
     @Inject lateinit var hudServer: com.eried.eucplanet.service.hud.HudServer
+    @Inject lateinit var radarRepository: com.eried.eucplanet.data.repository.RadarRepository
     @Inject lateinit var phoneHudWindow: com.eried.eucplanet.service.overlay.PhoneHudWindow
 
     // Phone HUD, mirrored so the telemetry loop can read it without suspending.
@@ -991,6 +992,20 @@ class WheelService : LifecycleService() {
                 // Copied, not handed over: Compose needs a stable snapshot, and
                 // the deque keeps mutating underneath on the next frame.
                 history = phoneHudHistory.toList(),
+                // Radar, mapped exactly as the Studio maps it, so a RADAR
+                // element shows real threats here instead of its "no radar"
+                // face. Same eight-target cap.
+                radarConnected =
+                    radarRepository.connectionState.value == ConnectionState.CONNECTED,
+                radarBatteryPercent = radarRepository.currentFrame.value?.batteryPercent ?: -1,
+                radarTargets = radarRepository.currentFrame.value?.threats?.take(8)?.map {
+                    com.eried.eucplanet.hud.protocol.RadarTargetWire(
+                        id = it.id,
+                        distanceM = it.distanceM,
+                        approachSpeedKmh = it.approachSpeedKmh,
+                        level = it.threatLevel.ordinal,
+                    )
+                } ?: emptyList(),
                 cameraHub = phoneHudCameraHub,
                 speedUnit = speedUnitCached,
                 distanceUnit = distanceUnitCached,
