@@ -502,6 +502,8 @@ fun SettingsScreen(
         stringResource(R.string.auto_connect_on_start),
         stringResource(R.string.section_application),
         stringResource(R.string.back_button_action),
+        stringResource(R.string.section_surfaces),
+        stringResource(R.string.surface_notification),
         stringResource(R.string.phone_hud_section),
         stringResource(R.string.phone_hud_enable),
         stringResource(R.string.widget_section),
@@ -1139,34 +1141,41 @@ private fun GeneralTab(
         )
         HintText(stringResource(R.string.back_button_action_desc), small = true)
 
-        // Rider-chosen quick actions on the ongoing notification (Tesla-style).
-        // The enable toggle stays outside the collapsible so it is always
-        // visible; the collapsible holds the per-slot pickers. A not-applicable
-        // pick (Stop navigation while not navigating) is hidden at build time
-        // since Android cannot grey out a notification action.
         SwitchSetting(
             stringResource(R.string.keep_app_alive),
             settings.keepAppAlive,
         ) { viewModel.updateKeepAppAlive(it) }
         HintText(stringResource(R.string.keep_app_alive_desc), small = true)
 
-        SwitchSetting(
-            stringResource(R.string.notif_actions_enable),
-            settings.notificationActionsEnabled,
-        ) { viewModel.updateNotificationActionsEnabled(it) }
-        HintText(stringResource(R.string.notif_actions_enable_desc), small = true)
+        // Everywhere the app shows telemetry OUTSIDE the dashboard, under one
+        // header: the ongoing notification, the home screen widget, and the
+        // overlay. They were three separate sections plus a block buried in
+        // Application, which read as unrelated features when they are one
+        // question - where do I want to see my wheel. Each is a collapsable, so
+        // the group costs three lines until a rider opens one, and a new
+        // surface costs no new top-level entry.
+        SectionHeader(stringResource(R.string.section_surfaces))
 
-        // Only offer the picker while the feature is on; the toggle above stays
-        // visible so it can be turned back on. Default on, so it shows by default.
-        if (settings.notificationActionsEnabled) {
-            val actionSlots = remember(settings.notificationActions) {
-                NotificationActionType.slots(settings.notificationActions)
-            }
-            // Same in-tab expandable style as the voice "Customize" section.
-            AdvancedCollapsable(
-                title = stringResource(R.string.notif_actions_section),
-                stateKey = "notif-actions-customize",
-            ) {
+        // Rider-chosen quick actions on the ongoing notification (Tesla-style).
+        // A not-applicable pick (Stop navigation while not navigating) is
+        // hidden at build time, since Android cannot grey out a notification
+        // action.
+        AdvancedCollapsable(
+            title = stringResource(R.string.surface_notification),
+            stateKey = "surface-notification",
+        ) {
+            SwitchSetting(
+                stringResource(R.string.notif_actions_enable),
+                settings.notificationActionsEnabled,
+            ) { viewModel.updateNotificationActionsEnabled(it) }
+            HintText(stringResource(R.string.notif_actions_enable_desc), small = true)
+
+            // Only offer the picker while the feature is on; the toggle above
+            // stays visible so it can be turned back on.
+            if (settings.notificationActionsEnabled) {
+                val actionSlots = remember(settings.notificationActions) {
+                    NotificationActionType.slots(settings.notificationActions)
+                }
                 HintText(
                     stringResource(R.string.notif_actions_pick_desc, NotificationActionType.SLOTS),
                     small = true,
@@ -1207,8 +1216,10 @@ private fun GeneralTab(
 
         // Phone HUD: the same Overlay Studio presets the companion HUD shows,
         // drawn in a window over other apps instead of shipped to a screen.
-        SectionHeader(stringResource(R.string.phone_hud_section))
-        run {
+        AdvancedCollapsable(
+            title = stringResource(R.string.phone_hud_section),
+            stateKey = "surface-phone-hud",
+        ) {
             val ctx = androidx.compose.ui.platform.LocalContext.current
             // Re-read on every resume: the rider grants this in system settings
             // and comes back, so a value captured once would be stale exactly
@@ -1337,12 +1348,12 @@ private fun GeneralTab(
             }
         }
 
-        // Its own section header, not another collapsable. Sitting directly
-        // below the notification's "Customize" it read as part of it, when the
-        // widget is a separate surface that works whether or not the ongoing
-        // notification has actions at all.
-        SectionHeader(stringResource(R.string.widget_section))
-        run {
+        // One collapsable rather than a header plus an inner "Customize": that
+        // extra level only earned its keep while this was a top-level section.
+        AdvancedCollapsable(
+            title = stringResource(R.string.widget_section),
+            stateKey = "surface-widget",
+        ) {
             val metricSlots = remember(settings.widget.metrics) {
                 WidgetMetricType.slots(settings.widget.metrics)
             }
