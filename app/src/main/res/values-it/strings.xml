@@ -2056,4 +2056,7 @@
     <string name="trip_map_reconnected">Riconnesso: %1$s</string>
     <string name="trip_map_new_wheel">Nuova ruota: %1$s</string>
     <string name="trip_map_ride_end">Fine del percorso</string>
+    <string name="adv_smoothing_window">Finestra di livellamento</string>
+    <string name="adv_smoothing_window_desc">Campioni mediati dai grafici del percorso «media» e dai rapporti vocali livellati. I percorsi vengono registrati circa una volta al secondo, quindi questo valore corrisponde a secondi. Pericolo: valori elevati nascondono i picchi brevi.</string>
+    <string name="auto_volume_only_connected">Solo quando una ruota è connessa</string>
 </resources>

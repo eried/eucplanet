@@ -2153,5 +2153,8 @@
     <string name="trip_map_reconnected">Opnieuw verbonden: %1$s</string>
     <string name="trip_map_new_wheel">Nieuw wiel: %1$s</string>
     <string name="trip_map_ride_end">Einde rit</string>
+    <string name="adv_smoothing_window">Afvlakkingsvenster</string>
+    <string name="adv_smoothing_window_desc">Metingen die worden gemiddeld door de \"gemiddelde\" ritgrafieken en de afgevlakte gesproken meldingen. Ritten worden ongeveer één keer per seconde vastgelegd, dus deze waarde komt overeen met seconden. Gevaar: hoge waarden verbergen korte pieken.</string>
+    <string name="auto_volume_only_connected">Alleen wanneer een wiel is verbonden</string>
 </resources>
 

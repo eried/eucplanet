@@ -2151,4 +2151,7 @@
     <string name="trip_map_reconnected">Połączono ponownie: %1$s</string>
     <string name="trip_map_new_wheel">Nowe koło: %1$s</string>
     <string name="trip_map_ride_end">Koniec przejazdu</string>
+    <string name="adv_smoothing_window">Okno wygładzania</string>
+    <string name="adv_smoothing_window_desc">Próbki uśredniane przez wykresy przejazdu \"średnia\" i wygładzone raporty głosowe. Przejazdy zapisują dane mniej więcej raz na sekundę, więc wartość odpowiada sekundom. Uwaga: wysokie wartości ukrywają krótkie skoki.</string>
+    <string name="auto_volume_only_connected">Tylko gdy koło jest połączone</string>
 </resources>

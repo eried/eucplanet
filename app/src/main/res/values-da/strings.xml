@@ -2166,4 +2166,7 @@
     <string name="trip_map_reconnected">Genforbundet: %1$s</string>
     <string name="trip_map_new_wheel">Nyt hjul: %1$s</string>
     <string name="trip_map_ride_end">Tur slut</string>
+    <string name="adv_smoothing_window">Udjævningsvindue</string>
+    <string name="adv_smoothing_window_desc">Antal målinger, der midles af \"gennemsnits\"-turgraferne og de udjævnede stemmerapporter. Ture logges cirka én gang i sekundet, så det læses som sekunder. Fare: høje værdier skjuler korte udsving.</string>
+    <string name="auto_volume_only_connected">Kun når et hjul er forbundet</string>
 </resources>

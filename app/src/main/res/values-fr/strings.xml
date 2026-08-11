@@ -2155,4 +2155,7 @@
     <string name="trip_map_reconnected">Reconnecté : %1$s</string>
     <string name="trip_map_new_wheel">Nouvelle roue : %1$s</string>
     <string name="trip_map_ride_end">Fin du trajet</string>
+    <string name="adv_smoothing_window">Fenêtre de lissage</string>
+    <string name="adv_smoothing_window_desc">Échantillons moyennés par les graphiques de trajet « moyenne » et les rapports vocaux lissés. Les trajets s\'enregistrent environ une fois par seconde, donc cette valeur correspond à des secondes. Danger : des valeurs élevées masquent les pics brefs.</string>
+    <string name="auto_volume_only_connected">Uniquement lorsqu\'une roue est connectée</string>
 </resources>

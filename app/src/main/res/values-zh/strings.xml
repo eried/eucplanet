@@ -2018,4 +2018,7 @@
     <string name="trip_map_reconnected">已重新连接: %1$s</string>
     <string name="trip_map_new_wheel">新独轮车: %1$s</string>
     <string name="trip_map_ride_end">骑行结束</string>
+    <string name="adv_smoothing_window">平滑窗口</string>
+    <string name="adv_smoothing_window_desc">\"平均\"行程图表和平滑语音播报所平均的样本数。行程大约每秒记录一次，因此这相当于秒数。危险:数值过高会掩盖短暂的尖峰。</string>
+    <string name="auto_volume_only_connected">仅在独轮车已连接时</string>
 </resources>

@@ -2152,6 +2152,9 @@
     <string name="trip_map_reconnected">再接続: %1$s</string>
     <string name="trip_map_new_wheel">新しいホイール: %1$s</string>
     <string name="trip_map_ride_end">走行終了</string>
+    <string name="adv_smoothing_window">平滑化ウィンドウ</string>
+    <string name="adv_smoothing_window_desc">「平均」トリップグラフと平滑化された音声レポートで平均するサンプル数。トリップは約1秒ごとに記録されるため、これは秒として読み取れます。危険: 値が大きいと短いスパイクが隠れます。</string>
+    <string name="auto_volume_only_connected">ホイール接続時のみ</string>
 </resources>
 
 

@@ -2151,4 +2151,7 @@
     <string name="trip_map_reconnected">Återansluten: %1$s</string>
     <string name="trip_map_new_wheel">Nytt hjul: %1$s</string>
     <string name="trip_map_ride_end">Slut på turen</string>
+    <string name="adv_smoothing_window">Utjämningsfönster</string>
+    <string name="adv_smoothing_window_desc">Antal mätvärden som medelvärdesbildas av \"medel\"-turgraferna och de utjämnade röstrapporterna. Turer loggas ungefär en gång i sekunden, så detta motsvarar sekunder. Fara: höga värden döljer korta toppar.</string>
+    <string name="auto_volume_only_connected">Bara när ett hjul är anslutet</string>
 </resources>

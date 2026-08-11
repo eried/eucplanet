@@ -2148,6 +2148,9 @@
     <string name="trip_map_reconnected">Перепідключено: %1$s</string>
     <string name="trip_map_new_wheel">Нове колесо: %1$s</string>
     <string name="trip_map_ride_end">Кінець поїздки</string>
+    <string name="adv_smoothing_window">Вікно згладжування</string>
+    <string name="adv_smoothing_window_desc">Відліки, що усереднюються графіками поїздки \"середнє\" та згладженими голосовими звітами. Поїздки записуються приблизно раз на секунду, тому значення відповідає секундам. Увага: великі значення приховують короткі сплески.</string>
+    <string name="auto_volume_only_connected">Тільки коли колесо підключене</string>
 </resources>
 
 

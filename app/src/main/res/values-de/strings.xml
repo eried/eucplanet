@@ -2171,4 +2171,7 @@
     <string name="trip_map_reconnected">Wieder verbunden: %1$s</string>
     <string name="trip_map_new_wheel">Neues Wheel: %1$s</string>
     <string name="trip_map_ride_end">Fahrtende</string>
+    <string name="adv_smoothing_window">Glättungsfenster</string>
+    <string name="adv_smoothing_window_desc">Messwerte, die von den „Durchschnitt"-Fahrtdiagrammen und den geglätteten Sprachberichten gemittelt werden. Fahrten protokollieren etwa einmal pro Sekunde, das liest sich also als Sekunden. Gefahr: Hohe Werte verbergen kurze Spitzen.</string>
+    <string name="auto_volume_only_connected">Nur wenn ein Wheel verbunden ist</string>
 </resources>
