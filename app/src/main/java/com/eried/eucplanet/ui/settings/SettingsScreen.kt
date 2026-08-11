@@ -279,27 +279,10 @@ import com.eried.eucplanet.ui.theme.themedTonalButtonColors
 import com.eried.eucplanet.util.Units
 import sh.calvin.reorderable.ReorderableColumn
 
-private val languageOptions = listOf(
-    "en" to "English",
-    "da" to "Dansk",
-    "de" to "Deutsch",
-    "es" to "Español",
-    "es-419" to "Español (Latinoamérica)",
-    "fr" to "Français",
-    "it" to "Italiano",
-    "ja" to "日本語",
-    "ko" to "한국어",
-    "nl" to "Nederlands",
-    "no" to "Norsk",
-    "pl" to "Polski",
-    "pt-BR" to "Português (Brasil)",
-    "ru" to "Русский",
-    "sv" to "Svenska",
-    "tr" to "Türkçe",
-    "uk" to "Українська",
-    "zh" to "简体中文",
-    "zh-TW" to "繁體中文"
-)
+// Reads the one shipped-language registry rather than repeating it: a locale
+// added there reaches the picker with no edit here.
+private val languageOptions =
+    com.eried.eucplanet.util.LocaleHelper.SUPPORTED.map { it.tag to it.nativeName }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -1223,7 +1206,9 @@ private fun GeneralTab(
         ) {
             HintText(stringResource(R.string.pip_desc), small = true)
             SegmentedChoice(
-                label = stringResource(R.string.pip_section),
+                // Not pip_section: the collapsable above already carries that
+                // name, and repeating it on the control reads as a stutter.
+                label = stringResource(R.string.pip_mode_label),
                 options = listOf(
                     "OFF" to stringResource(R.string.pip_mode_off),
                     "SIMPLE" to stringResource(R.string.pip_mode_simple),
