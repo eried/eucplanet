@@ -2,6 +2,7 @@ package com.eried.eucplanet.ui.pip
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -12,8 +13,10 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.PlatformTextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.eried.eucplanet.data.model.WheelData
@@ -45,59 +48,82 @@ fun PipSimple(
     val speed = Units.speed(data.speed, speedUnit)
     val trip = Units.distance(data.tripDistance, distanceUnit)
 
-    Column(
+    BoxWithConstraints(
         modifier
             .fillMaxSize()
             .background(colors.surface)
-            .padding(8.dp),
-        verticalArrangement = Arrangement.spacedBy(4.dp),
+            .padding(horizontal = 8.dp, vertical = 4.dp),
     ) {
-        Row(
-            Modifier.fillMaxWidth().weight(1f),
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
+        // Sized from the window, not fixed at 30sp. A PIP window is short and
+        // the rider can shrink it further, and a hardcoded size meant the
+        // bottom row's label ran past the edge and was clipped - "pwm %" lost
+        // its underside. Deriving both sizes from the row height keeps the pair
+        // inside whatever space there is.
+        val rowHeight = maxHeight / 2
+        val valueSp = (rowHeight.value * 0.44f).coerceIn(12f, 34f).sp
+        val labelSp = (rowHeight.value * 0.17f).coerceIn(7f, 12f).sp
+
+        Column(
+            Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.spacedBy(2.dp),
         ) {
-            BigStat(
-                value = if (connected) "%.0f".format(speed) else "--",
-                label = Units.speedUnit(androidx.compose.ui.platform.LocalContext.current, speedUnit),
-                color = colors.textPrimary,
-                modifier = Modifier.weight(1f),
-            )
-            BigStat(
-                value = if (connected) "${data.batteryPercent}" else "--",
-                label = "%",
-                // The one reading that carries a warning: a rider glancing at a
-                // small window should see low battery without reading it.
-                color = when {
-                    !connected -> colors.textSecondary
-                    data.batteryPercent <= 15 -> colors.statusDanger
-                    data.batteryPercent <= 30 -> colors.statusWarn
-                    else -> colors.textPrimary
-                },
-                modifier = Modifier.weight(1f),
-            )
-        }
-        Row(
-            Modifier.fillMaxWidth().weight(1f),
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-        ) {
-            val pwm = abs(data.pwm)
-            BigStat(
-                value = if (!connected || data.pwm.isNaN()) "--" else "%.0f".format(pwm),
-                label = "pwm %",
-                color = when {
-                    !connected || data.pwm.isNaN() -> colors.textSecondary
-                    pwm >= 85f -> colors.statusDanger
-                    pwm >= 65f -> colors.statusWarn
-                    else -> colors.textPrimary
-                },
-                modifier = Modifier.weight(1f),
-            )
-            BigStat(
-                value = if (connected) "%.1f".format(trip) else "--",
-                label = Units.distanceUnit(distanceUnit),
-                color = colors.textPrimary,
-                modifier = Modifier.weight(1f),
-            )
+            Row(
+                Modifier.fillMaxWidth().weight(1f),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                BigStat(
+                    value = if (connected) "%.0f".format(speed) else "--",
+                    label = Units.speedUnit(
+                        androidx.compose.ui.platform.LocalContext.current, speedUnit
+                    ),
+                    color = colors.textPrimary,
+                    valueSize = valueSp,
+                    labelSize = labelSp,
+                    modifier = Modifier.weight(1f),
+                )
+                BigStat(
+                    value = if (connected) "${data.batteryPercent}" else "--",
+                    label = "%",
+                    // The one reading that carries a warning: a rider glancing at a
+                    // small window should see low battery without reading it.
+                    color = when {
+                        !connected -> colors.textSecondary
+                        data.batteryPercent <= 15 -> colors.statusDanger
+                        data.batteryPercent <= 30 -> colors.statusWarn
+                        else -> colors.textPrimary
+                    },
+                    valueSize = valueSp,
+                    labelSize = labelSp,
+                    modifier = Modifier.weight(1f),
+                )
+            }
+            Row(
+                Modifier.fillMaxWidth().weight(1f),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                val pwm = abs(data.pwm)
+                BigStat(
+                    value = if (!connected || data.pwm.isNaN()) "--" else "%.0f".format(pwm),
+                    label = "pwm %",
+                    color = when {
+                        !connected || data.pwm.isNaN() -> colors.textSecondary
+                        pwm >= 85f -> colors.statusDanger
+                        pwm >= 65f -> colors.statusWarn
+                        else -> colors.textPrimary
+                    },
+                    valueSize = valueSp,
+                    labelSize = labelSp,
+                    modifier = Modifier.weight(1f),
+                )
+                BigStat(
+                    value = if (connected) "%.1f".format(trip) else "--",
+                    label = Units.distanceUnit(distanceUnit),
+                    color = colors.textPrimary,
+                    valueSize = valueSp,
+                    labelSize = labelSp,
+                    modifier = Modifier.weight(1f),
+                )
+            }
         }
     }
 }
@@ -107,8 +133,17 @@ private fun BigStat(
     value: String,
     label: String,
     color: androidx.compose.ui.graphics.Color,
+    valueSize: TextUnit,
+    labelSize: TextUnit,
     modifier: Modifier = Modifier,
 ) {
+    // includeFontPadding = false and a line height equal to the font size drop
+    // the invisible padding a font reserves above and below its glyphs. At this
+    // size that padding is a couple of device pixels per line, which is the
+    // difference between the descender of "pwm %" fitting and being shaved off.
+    val tight = androidx.compose.material3.LocalTextStyle.current.copy(
+        platformStyle = PlatformTextStyle(includeFontPadding = false),
+    )
     Column(
         modifier,
         verticalArrangement = Arrangement.Center,
@@ -117,7 +152,9 @@ private fun BigStat(
         Text(
             value,
             color = color,
-            fontSize = 30.sp,
+            fontSize = valueSize,
+            lineHeight = valueSize,
+            style = tight,
             fontWeight = FontWeight.Bold,
             maxLines = 1,
             textAlign = TextAlign.Center,
@@ -125,7 +162,9 @@ private fun BigStat(
         Text(
             label,
             color = MaterialTheme.appColors.textSecondary,
-            fontSize = 10.sp,
+            fontSize = labelSize,
+            lineHeight = labelSize,
+            style = tight,
             maxLines = 1,
             textAlign = TextAlign.Center,
         )

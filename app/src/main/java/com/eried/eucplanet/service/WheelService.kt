@@ -350,6 +350,13 @@ class WheelService : LifecycleService() {
             com.eried.eucplanet.util.AppForeground.isForeground.collect { applyPhoneHud() }
         }
 
+        // ...and while the app is in picture-in-picture, which it has to be
+        // told about separately or the HUD would never come back on the way
+        // out of PIP.
+        lifecycleScope.launch {
+            com.eried.eucplanet.util.PipHost.inPip.collect { applyPhoneHud() }
+        }
+
         // Same for the lock state, which a LOCK button's label reads and which
         // can change without a telemetry frame following it.
         lifecycleScope.launch {
@@ -946,9 +953,28 @@ class WheelService : LifecycleService() {
         // Hidden while the app itself is in front, unless the rider asked for
         // it everywhere. Drawing the overlay over the dashboard would cover a
         // fuller version of the same numbers.
+        //
+        // Picture-in-picture is not "in front". The rider has left: the app is
+        // a thumbnail floating over whatever they are actually using, which is
+        // the situation "only outside EUC Planet" exists for. Android keeps the
+        // activity started while the PIP window is up, so the foreground flag
+        // alone would claim otherwise and hide the HUD - hence the explicit
+        // exclusion here.
+        //
+        // The two windows coexist perfectly well, which is easy to confirm by
+        // switching the setting off and watching them share the screen.
         val inOwnApp = phoneHudOnlyWhenAwayCached &&
-            com.eried.eucplanet.util.AppForeground.isForeground.value
+            com.eried.eucplanet.util.AppForeground.isForeground.value &&
+            !com.eried.eucplanet.util.PipHost.inPip.value
         val wanted = phoneHudEnabledCached && phoneHudJsonCached.isNotBlank() && !inOwnApp
+        android.util.Log.i(
+            "EucPlanetHud",
+            "apply: enabled=$phoneHudEnabledCached onlyAway=$phoneHudOnlyWhenAwayCached " +
+                "fg=${com.eried.eucplanet.util.AppForeground.isForeground.value} " +
+                "inPip=${com.eried.eucplanet.util.PipHost.inPip.value} " +
+                "preset=${phoneHudJsonCached.isNotBlank()} -> wanted=$wanted " +
+                "showing=${phoneHudWindow.isShowing}",
+        )
         if (!wanted) {
             phoneHudWindow.hide()
             return
