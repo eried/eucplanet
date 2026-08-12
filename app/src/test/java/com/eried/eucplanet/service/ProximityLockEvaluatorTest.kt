@@ -15,7 +15,7 @@ class ProximityLockEvaluatorTest {
     private val both = ProximityLockSettings(
         lockEnabled = true,
         lockBelowDbm = -68,
-        unlockEnabled = true,
+        unlockWhen = ProximityLockSettings.UNLOCK_WHEN_RETURN,
         unlockAboveDbm = -62,
     )
 
@@ -84,32 +84,24 @@ class ProximityLockEvaluatorTest {
     }
 
     @Test
-    fun `each switch is obeyed on its own`() {
-        val lockOnly = both.copy(unlockEnabled = false)
+    fun `never locks but does not unlock`() {
+        val lockOnly = both.copy(unlockWhen = ProximityLockSettings.UNLOCK_WHEN_NEVER)
         val e = ProximityLockEvaluator()
         assertEquals(Action.LOCK, e.feed(-75, locked = false, settings = lockOnly).last())
-        val stay = e.feed(-55, locked = true, settings = lockOnly, startMs = hold * 2)
-        assertEquals(emptyList<Action>(), stay.filter { it != Action.NONE })
-
-        // Unlock alone does nothing: it is a sub-option of the lock, not a
-        // feature of its own. See the next test for why this matters.
-        val unlockOnly = both.copy(lockEnabled = false)
-        val u = ProximityLockEvaluator()
-        val noLock = u.feed(-75, locked = false, settings = unlockOnly)
-        assertEquals(emptyList<Action>(), noLock.filter { it != Action.NONE })
-        u.feed(-75, locked = true, settings = unlockOnly)            // rider left, wheel locked
-        val back = u.feed(-55, locked = true, settings = unlockOnly, startMs = hold * 2)
+        // Even a full walk-away and return leaves it locked: never means never.
+        val back = e.feed(-55, locked = true, settings = lockOnly, startMs = hold * 2, forMs = hold * 4)
         assertEquals(emptyList<Action>(), back.filter { it != Action.NONE })
     }
 
     @Test
     fun `switching the feature off cannot leave the unlock half running`() {
-        // Turning the proximity lock off clears lockEnabled but keeps
-        // unlockEnabled, and the settings screen then hides the unlock switch,
-        // so the rider can neither see it nor turn it off. It used to keep
-        // firing: lock by hand, and the wheel unlocked itself a few seconds
-        // later with the feature apparently switched off.
-        val leftover = both.copy(lockEnabled = false, unlockEnabled = true)
+        // Once, turning the proximity lock off cleared only lockEnabled and
+        // left a separate unlockEnabled switch on, hidden behind the switch
+        // that had just been turned off - so the rider could neither see it nor
+        // stop it, and a wheel locked by hand still unlocked itself seconds
+        // later with the feature apparently off. The unlock is one answer to
+        // one question now, but the guard stays: lockEnabled gates everything.
+        val leftover = both.copy(lockEnabled = false)
         val e = ProximityLockEvaluator()
         e.feed(-75, locked = true, settings = leftover)               // would-be arming
         val actions = e.feed(-55, locked = true, settings = leftover, startMs = hold * 2, forMs = hold * 4)
@@ -194,6 +186,17 @@ class ProximityLockEvaluatorTest {
         val e = ProximityLockEvaluator()
         val actions = e.feed(-55, locked = true, settings = near, forMs = hold * 3)
         assertEquals(emptyList<Action>(), actions.filter { it != Action.NONE })
+    }
+
+    @Test
+    fun `the default settings do nothing at all`() {
+        // Both halves are opt-in. A rider who never opened this screen must
+        // never have a wheel lock or unlock itself.
+        val e = ProximityLockEvaluator()
+        val off = ProximityLockSettings()
+        val away = e.feed(-90, locked = false, settings = off, forMs = hold * 3)
+        val near = e.feed(-40, locked = true, settings = off, startMs = hold * 4, forMs = hold * 3)
+        assertEquals(emptyList<Action>(), (away + near).filter { it != Action.NONE })
     }
 
     @Test

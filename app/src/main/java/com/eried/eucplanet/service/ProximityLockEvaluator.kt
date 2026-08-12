@@ -91,14 +91,17 @@ class ProximityLockEvaluator {
         //
         // lockEnabled is required as well: unlocking only ever reverses this
         // feature's own lock, and the settings screen presents it that way, so
-        // a stale unlockEnabled left over from switching the feature off must
-        // not keep acting on its own.
+        // an unlock mode left over from switching the feature off must not keep
+        // acting on its own.
         //
         // Whether the rider had to walk away first is theirs to choose; see
         // [ProximityLockSettings.unlockWhen]. In NEAR the signal speaks for
-        // itself, which is symmetric with the lock half above.
+        // itself, which is symmetric with the lock half above. Anything this
+        // build does not recognise unlocks nothing.
+        val unlocks = settings.unlockWhen == ProximityLockSettings.UNLOCK_WHEN_RETURN ||
+            settings.unlockWhen == ProximityLockSettings.UNLOCK_WHEN_NEAR
         val needsWalkAway = settings.unlockWhen != ProximityLockSettings.UNLOCK_WHEN_NEAR
-        if (settings.lockEnabled && settings.unlockEnabled &&
+        if (settings.lockEnabled && unlocks &&
             locked && (unlockArmed || !needsWalkAway) && rssiDbm >= unlockAt
         ) {
             val since = unlockCandidateSinceMs ?: nowMs.also { unlockCandidateSinceMs = it }

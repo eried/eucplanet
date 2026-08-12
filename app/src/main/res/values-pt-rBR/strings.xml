@@ -954,11 +954,10 @@
     <string name="proximity_lock_desc">Trava a roda quando você se afasta e destrava quando você volta, usando a força do sinal Bluetooth.</string>
     <string name="proximity_lock_enable">Travar ao me afastar</string>
     <string name="proximity_lock_below">Travar abaixo de</string>
-    <string name="proximity_unlock_enable">Desbloquear automaticamente</string>
     <string name="proximity_unlock_when">Desbloquear quando</string>
+    <string name="proximity_unlock_when_never">Nunca</string>
     <string name="proximity_unlock_when_return">Eu voltar</string>
     <string name="proximity_unlock_when_near">Eu estiver perto</string>
-    <string name="proximity_unlock_when_desc">Eu voltar: desbloqueia só depois que você se afastar, então um bloqueio manual permanece. Eu estiver perto: desbloqueia só com sinal forte, incluindo um bloqueio que você acabou de fazer.</string>
     <string name="proximity_unlock_above">Destravar acima de</string>
     <string name="proximity_lock_signal_live">Sinal atual: %1$d dBm</string>
     <string name="proximity_lock_signal_none">Conecte sua roda para ver o sinal ao vivo aqui.</string>

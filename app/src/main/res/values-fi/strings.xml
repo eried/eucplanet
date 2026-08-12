@@ -1207,11 +1207,10 @@
     <string name="proximity_lock_desc">Lukitsee yksipyöräisen kun kävelet pois ja avaa lukituksen kun palaat, Bluetooth-signaalin voimakkuuden perusteella.</string>
     <string name="proximity_lock_enable">Lukitse kun kävelen pois</string>
     <string name="proximity_lock_below">Lukitse alle</string>
-    <string name="proximity_unlock_enable">Avaa lukitus automaattisesti</string>
     <string name="proximity_unlock_when">Avaa lukitus kun</string>
+    <string name="proximity_unlock_when_never">Ei koskaan</string>
     <string name="proximity_unlock_when_return">Palaan</string>
     <string name="proximity_unlock_when_near">Olen lähellä</string>
-    <string name="proximity_unlock_when_desc">Palaan: avaa lukituksen vasta kun olet käynyt kaukana, joten itse tekemäsi lukitus säilyy. Olen lähellä: avaa lukituksen pelkästä vahvasta signaalista, myös juuri tekemäsi lukituksen.</string>
     <string name="proximity_unlock_above">Avaa lukitus yli</string>
     <string name="proximity_lock_signal_live">Nykyinen signaali: %1$d dBm</string>
     <string name="proximity_lock_signal_none">Yhdistä yksipyöräisesi nähdäksesi sen signaalin täällä.</string>

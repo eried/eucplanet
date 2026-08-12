@@ -1,5 +1,6 @@
 package com.eried.eucplanet.data.store
 
+import com.eried.eucplanet.data.model.ProximityLockSettings
 import com.eried.eucplanet.data.model.AppSettings
 import org.json.JSONObject
 
@@ -131,7 +132,6 @@ object SettingsJson {
         put("proximityLock", JSONObject().apply {
             put("lockEnabled", s.proximityLock.lockEnabled)
             put("lockBelowDbm", s.proximityLock.lockBelowDbm)
-            put("unlockEnabled", s.proximityLock.unlockEnabled)
             put("unlockAboveDbm", s.proximityLock.unlockAboveDbm)
             put("unlockWhen", s.proximityLock.unlockWhen)
         })
@@ -441,9 +441,19 @@ object SettingsJson {
             base.proximityLock.copy(
                 lockEnabled = p.optBoolean("lockEnabled", base.proximityLock.lockEnabled),
                 lockBelowDbm = p.optInt("lockBelowDbm", base.proximityLock.lockBelowDbm),
-                unlockEnabled = p.optBoolean("unlockEnabled", base.proximityLock.unlockEnabled),
                 unlockAboveDbm = p.optInt("unlockAboveDbm", base.proximityLock.unlockAboveDbm),
-                unlockWhen = p.optString("unlockWhen", base.proximityLock.unlockWhen),
+                // Settings written before the unlock became a three-way carry
+                // a boolean instead. Read it so an existing rider - or a
+                // restored backup - keeps the auto-unlock they had rather than
+                // silently losing it to the new default of never.
+                unlockWhen = p.optString(
+                    "unlockWhen",
+                    if (p.optBoolean("unlockEnabled", false)) {
+                        ProximityLockSettings.UNLOCK_WHEN_RETURN
+                    } else {
+                        base.proximityLock.unlockWhen
+                    }
+                ),
             )
         } ?: base.proximityLock,
         announceWheelLock = j.optBoolean("announceWheelLock", base.announceWheelLock),

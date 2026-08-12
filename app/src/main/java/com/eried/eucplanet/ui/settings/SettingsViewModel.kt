@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import android.content.Context
 import android.location.Location
 import com.eried.eucplanet.ble.ConnectionState
+import com.eried.eucplanet.data.model.ProximityLockSettings
 import com.eried.eucplanet.data.model.AdvancedSettings
 import com.eried.eucplanet.data.model.AdvancedSpec
 import com.eried.eucplanet.data.model.AppSettings
@@ -615,11 +616,14 @@ class SettingsViewModel @Inject constructor(
         .also { if (!v) automationManager.resetProximityLock() else AutoLockNotice.rearm() }
     fun updateProxLockBelow(v: Int) =
         update { copy(proximityLock = proximityLock.copy(lockBelowDbm = v.coerceIn(-110, -30))) }
-    fun updateProxUnlockEnabled(v: Boolean) = update { copy(proximityLock = proximityLock.copy(unlockEnabled = v)) }
-        .also { if (!v) automationManager.resetProximityLock() else AutoLockNotice.rearm() }
     fun updateProxUnlockWhen(v: String) =
         update { copy(proximityLock = proximityLock.copy(unlockWhen = v)) }
-            .also { automationManager.resetProximityLock() }
+            .also {
+                // Changing what an unlock means invalidates any hold or arming
+                // built up under the previous answer.
+                automationManager.resetProximityLock()
+                if (v != ProximityLockSettings.UNLOCK_WHEN_NEVER) AutoLockNotice.rearm()
+            }
     fun updateProxUnlockAbove(v: Int) =
         update { copy(proximityLock = proximityLock.copy(unlockAboveDbm = v.coerceIn(-100, -15))) }
 

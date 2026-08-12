@@ -370,50 +370,40 @@ fun AutomationsContent(
                 modifier = Modifier.fillMaxWidth(0.5f),
             )
 
-            // Unlock is only offered once Lock is on - it only reverses this lock.
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(stringResource(R.string.proximity_unlock_enable),
-                    style = MaterialTheme.typography.bodyLarge,
-                    modifier = Modifier.weight(1f))
-                Switch(checked = settings.proximityLock.unlockEnabled,
-                    onCheckedChange = { viewModel.updateProxUnlockEnabled(it) },
-                    colors = themedSwitchColors(),)
-            }
-            if (settings.proximityLock.unlockEnabled) {
-                // Whether a strong signal is enough on its own, or the rider
-                // has to have walked away first. Riders genuinely split on
-                // this, so it is asked rather than assumed.
-                val unlockWhenEntries = listOf(
-                    ProximityLockSettings.UNLOCK_WHEN_RETURN to
-                        stringResource(R.string.proximity_unlock_when_return),
-                    ProximityLockSettings.UNLOCK_WHEN_NEAR to
-                        stringResource(R.string.proximity_unlock_when_near),
-                )
-                Box(modifier = Modifier.fillMaxWidth().padding(top = 9.dp)) {
-                    SingleChoiceSegmentedButtonRow(
-                        modifier = Modifier.fillMaxWidth().height(56.dp)
-                    ) {
-                        unlockWhenEntries.forEachIndexed { index, (key, label) ->
-                            SegmentedButton(
-                                modifier = Modifier.fillMaxHeight(),
-                                selected = key == settings.proximityLock.unlockWhen,
-                                onClick = { viewModel.updateProxUnlockWhen(key) },
-                                shape = SegmentedButtonDefaults.itemShape(
-                                    index, unlockWhenEntries.size,
-                                    baseShape = RoundedCornerShape(12.dp)
-                                ),
-                                colors = themedSegmentedColors(),
-                            ) { Text(label) }
-                        }
-                    }
-                    FieldNotchLabel(stringResource(R.string.proximity_unlock_when))
-                }
-                HintText(stringResource(R.string.proximity_unlock_when_desc), small = true)
+            HintText(stringResource(R.string.proximity_lock_hint), small = true)
 
+            // Unlock is only offered once Lock is on - it only reverses this
+            // lock. Never is one of the three answers rather than a separate
+            // switch: it is the same question, so it is the same control.
+            val unlockWhenEntries = listOf(
+                ProximityLockSettings.UNLOCK_WHEN_NEVER to
+                    stringResource(R.string.proximity_unlock_when_never),
+                ProximityLockSettings.UNLOCK_WHEN_RETURN to
+                    stringResource(R.string.proximity_unlock_when_return),
+                ProximityLockSettings.UNLOCK_WHEN_NEAR to
+                    stringResource(R.string.proximity_unlock_when_near),
+            )
+            Box(modifier = Modifier.fillMaxWidth().padding(top = 9.dp)) {
+                SingleChoiceSegmentedButtonRow(
+                    modifier = Modifier.fillMaxWidth().height(56.dp)
+                ) {
+                    unlockWhenEntries.forEachIndexed { index, (key, label) ->
+                        SegmentedButton(
+                            modifier = Modifier.fillMaxHeight(),
+                            selected = key == settings.proximityLock.unlockWhen,
+                            onClick = { viewModel.updateProxUnlockWhen(key) },
+                            shape = SegmentedButtonDefaults.itemShape(
+                                index, unlockWhenEntries.size,
+                                baseShape = RoundedCornerShape(12.dp)
+                            ),
+                            colors = themedSegmentedColors(),
+                        ) { Text(label) }
+                    }
+                }
+                FieldNotchLabel(stringResource(R.string.proximity_unlock_when))
+            }
+
+            if (settings.proximityLock.unlockWhen != ProximityLockSettings.UNLOCK_WHEN_NEVER) {
                 NumberUpDown(
                     value = settings.proximityLock.unlockAboveDbm,
                     onValueChange = { viewModel.updateProxUnlockAbove(it) },
@@ -425,8 +415,6 @@ fun AutomationsContent(
                     modifier = Modifier.fillMaxWidth(0.5f),
                 )
             }
-
-            HintText(stringResource(R.string.proximity_lock_hint), small = true)
         }
         }   // end Wheel lock BringIntoViewSection
 

@@ -954,11 +954,10 @@
     <string name="proximity_lock_desc">Блокує колесо, коли ви відходите, і розблоковує, коли повертаєтесь, за силою сигналу Bluetooth.</string>
     <string name="proximity_lock_enable">Блокувати при відході</string>
     <string name="proximity_lock_below">Блокувати нижче</string>
-    <string name="proximity_unlock_enable">Розблоковувати автоматично</string>
     <string name="proximity_unlock_when">Розблоковувати коли</string>
+    <string name="proximity_unlock_when_never">Ніколи</string>
     <string name="proximity_unlock_when_return">Я повернуся</string>
     <string name="proximity_unlock_when_near">Я поруч</string>
-    <string name="proximity_unlock_when_desc">Я повернуся: розблокує лише після того, як ви відійдете, тож блокування вручну лишається. Я поруч: розблокує за самим сильним сигналом, включно з щойно встановленим блокуванням.</string>
     <string name="proximity_unlock_above">Розблокувати вище</string>
     <string name="proximity_lock_signal_live">Поточний сигнал: %1$d dBm</string>
     <string name="proximity_lock_signal_none">Підключіть колесо, щоб бачити сигнал у реальному часі.</string>

@@ -951,11 +951,10 @@
     <string name="proximity_lock_desc">블루투스 신호 강도를 이용해 멀어지면 휠을 잠그고 돌아오면 잠금을 해제합니다.</string>
     <string name="proximity_lock_enable">멀어지면 잠금</string>
     <string name="proximity_lock_below">이하에서 잠금</string>
-    <string name="proximity_unlock_enable">자동으로 잠금 해제</string>
     <string name="proximity_unlock_when">잠금 해제 시점</string>
+    <string name="proximity_unlock_when_never">안 함</string>
     <string name="proximity_unlock_when_return">돌아올 때</string>
     <string name="proximity_unlock_when_near">가까이 있을 때</string>
-    <string name="proximity_unlock_when_desc">돌아올 때: 멀어졌다가 돌아와야 해제되므로 직접 잠근 것은 유지됩니다. 가까이 있을 때: 신호가 강하기만 하면 방금 잠근 것도 해제됩니다.</string>
     <string name="proximity_unlock_above">이상에서 해제</string>
     <string name="proximity_lock_signal_live">현재 신호: %1$d dBm</string>
     <string name="proximity_lock_signal_none">휠을 연결하면 여기에서 실시간 신호를 확인할 수 있습니다.</string>

@@ -951,11 +951,10 @@
     <string name="proximity_lock_desc">當您走遠時鎖定車輪，回來時解鎖，依據藍牙訊號強度。</string>
     <string name="proximity_lock_enable">走遠時鎖定</string>
     <string name="proximity_lock_below">低於此值鎖定</string>
-    <string name="proximity_unlock_enable">自動解鎖</string>
     <string name="proximity_unlock_when">解鎖時機</string>
+    <string name="proximity_unlock_when_never">不解鎖</string>
     <string name="proximity_unlock_when_return">我返回時</string>
     <string name="proximity_unlock_when_near">我在附近時</string>
-    <string name="proximity_unlock_when_desc">我返回時：只有在你走開後才解鎖，手動上的鎖會保留。我在附近時：僅憑訊號強就解鎖，包括你剛上的鎖。</string>
     <string name="proximity_unlock_above">高於此值解鎖</string>
     <string name="proximity_lock_signal_live">目前訊號：%1$d dBm</string>
     <string name="proximity_lock_signal_none">連接車輪即可在此查看即時訊號。</string>

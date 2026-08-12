@@ -1060,33 +1060,38 @@ data class ProximityLockSettings(
     // Default tuned to a real reading (near ~-59, 4 steps ~-65, 9 steps ~-79):
     // -68 locks at roughly 5 steps, only ~6 dBm below unlock so it feels snappy.
     val lockBelowDbm: Int = -68,
-    val unlockEnabled: Boolean = false,
     // Unlock when the signal is at or above this (dBm) - the rider is back close.
     // -62 unlocks within ~2-3 steps; must stay reachable (near maxes out ~-59).
     val unlockAboveDbm: Int = -62,
     /**
-     * What a strong signal has to mean before the wheel unlocks itself.
+     * When, if ever, the wheel unlocks itself again.
      *
-     * "RETURN" (default): only after the signal actually faded first, so the
-     * wheel has to have been left behind. A lock the rider made by hand while
-     * standing next to the wheel is theirs to undo - the automation treats it
-     * as deliberate and keeps its hands off until they have walked away and
-     * come back.
+     * "NEVER" (default): the automation only ever locks. Nothing unlocks the
+     * wheel but the rider.
+     *
+     * "RETURN": only after the signal actually faded first, so the wheel has to
+     * have been left behind. A lock the rider made by hand while standing next
+     * to the wheel is theirs to undo - the automation treats it as deliberate
+     * and keeps its hands off until they have walked away and come back.
      *
      * "NEAR": a strong signal is enough on its own, whatever locked the wheel.
      * Symmetric with the lock half, and what a rider means by "when I am next
      * to my wheel it should be unlocked" - at the cost of undoing a lock they
      * just made by hand.
      *
-     * Both are defensible and two testers wanted opposite ones, which is why
-     * this is a choice rather than a judgement call baked into the code.
+     * All three are defensible and two testers wanted different ones, which is
+     * why this is a choice rather than a judgement call baked into the code.
+     * One control rather than a switch plus a mode: "off" is just a third way
+     * of answering the same question.
      */
-    val unlockWhen: String = UNLOCK_WHEN_RETURN,
+    val unlockWhen: String = UNLOCK_WHEN_NEVER,
 ) {
     companion object {
+        const val UNLOCK_WHEN_NEVER = "NEVER"
         const val UNLOCK_WHEN_RETURN = "RETURN"
         const val UNLOCK_WHEN_NEAR = "NEAR"
-        val UNLOCK_WHEN_VALUES = setOf(UNLOCK_WHEN_RETURN, UNLOCK_WHEN_NEAR)
+        val UNLOCK_WHEN_VALUES =
+            setOf(UNLOCK_WHEN_NEVER, UNLOCK_WHEN_RETURN, UNLOCK_WHEN_NEAR)
     }
 }
 

@@ -57,12 +57,12 @@ class SettingsRepository @Inject constructor(
         // passes through here, so consumers never see an unsafe value.
         advanced = ADVANCED_SPECS.fold(advanced) { a, s -> s.set(a, s.get(a).coerceIn(s.range)) },
         // An imported or Dropbox-synced file can carry an unlockWhen this build
-        // does not know. Fall back to the cautious one rather than letting an
-        // unrecognised value decide when a wheel unlocks itself.
+        // does not know. Fall back to never rather than letting an unrecognised
+        // value decide when a wheel unlocks itself.
         proximityLock = if (proximityLock.unlockWhen in ProximityLockSettings.UNLOCK_WHEN_VALUES) {
             proximityLock
         } else {
-            proximityLock.copy(unlockWhen = ProximityLockSettings.UNLOCK_WHEN_RETURN)
+            proximityLock.copy(unlockWhen = ProximityLockSettings.UNLOCK_WHEN_NEVER)
         },
     )
 }
