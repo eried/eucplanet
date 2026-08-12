@@ -333,17 +333,6 @@ fun AutomationsContent(
         Text(stringResource(R.string.proximity_lock_title), style = MaterialTheme.typography.headlineMedium,
             color = MaterialTheme.colorScheme.primary)
 
-        // Live signal readout - stand where you park / where you return to tune the thresholds.
-        val liveRssi by viewModel.btRssiDbm.collectAsState()
-        val wheelConnected by viewModel.isConnected.collectAsState()
-        if (wheelConnected && liveRssi != 0) {
-            Text(stringResource(R.string.proximity_lock_signal_live, liveRssi),
-                style = MaterialTheme.typography.titleMedium,
-                color = MaterialTheme.appColors.statusGood)
-        } else {
-            HintText(stringResource(R.string.proximity_lock_signal_none), small = true)
-        }
-
         // Lock when walking away
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -358,6 +347,20 @@ fun AutomationsContent(
                 colors = themedSwitchColors(),)
         }
         if (settings.proximityLock.lockEnabled) {
+            // Live signal readout - stand where you park, then where you return
+            // to, and read the two thresholds off it. Sits with the numbers it
+            // is read against rather than above the switch, where it was the
+            // furthest thing in the section from what it is for.
+            val liveRssi by viewModel.btRssiDbm.collectAsState()
+            val wheelConnected by viewModel.isConnected.collectAsState()
+            if (wheelConnected && liveRssi != 0) {
+                Text(stringResource(R.string.proximity_lock_signal_live, liveRssi),
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.appColors.statusGood)
+            } else {
+                HintText(stringResource(R.string.proximity_lock_signal_none), small = true)
+            }
+
             // Capped below unlock (>=10 dBm gap) so a lock/unlock loop is impossible.
             NumberUpDown(
                 value = settings.proximityLock.lockBelowDbm,
