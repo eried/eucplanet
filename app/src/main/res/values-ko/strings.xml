@@ -494,7 +494,10 @@
     <string name="cloud_backup_name_label">백업 이름</string>
     <string name="cloud_backup_overwrite_title">"%1$s"를 덮어쓰시겠습니까?</string>
     <string name="cloud_backup_overwrite_body">이 이름의 백업이 이미 폴더에 있습니다.</string>
-    <string name="cloud_restore_picker_default">(기본)</string>
+    <string name="cloud_backup_replace_title">저장한 백업을 바꿀까요?</string>
+    <string name="cloud_backup_replace_body">폴더에 있는 설정 백업이 현재 설정으로 덮어써집니다.</string>
+    <string name="cloud_backup_replace_body_dated">%1$s에 저장한 백업이 현재 설정으로 덮어써집니다.</string>
+    <string name="cloud_restore_picker_default">(직접 저장함)</string>
     <string name="cloud_restore_picker_factory">(공장 초기화)</string>
     <string name="cloud_restore_picker_empty">동기화 폴더에 백업이 없습니다</string>
     <string name="cloud_factory_confirm_title">공장 초기화하시겠습니까?</string>

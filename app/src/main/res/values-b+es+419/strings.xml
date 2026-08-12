@@ -494,7 +494,10 @@
     <string name="cloud_backup_name_label">Nombre del respaldo</string>
     <string name="cloud_backup_overwrite_title">¿Sobrescribir \"%1$s\"?</string>
     <string name="cloud_backup_overwrite_body">Ya existe un respaldo con ese nombre en tu carpeta.</string>
-    <string name="cloud_restore_picker_default">(por defecto)</string>
+    <string name="cloud_backup_replace_title">¿Reemplazar tu copia guardada?</string>
+    <string name="cloud_backup_replace_body">La copia de seguridad de ajustes de tu carpeta se sobrescribirá con tus ajustes actuales.</string>
+    <string name="cloud_backup_replace_body_dated">La copia guardada el %1$s se sobrescribirá con tus ajustes actuales.</string>
+    <string name="cloud_restore_picker_default">(tu copia)</string>
     <string name="cloud_restore_picker_factory">(de fábrica)</string>
     <string name="cloud_restore_picker_empty">No se encontraron respaldos en la carpeta</string>
     <string name="cloud_factory_confirm_title">¿Restablecer valores de fábrica?</string>

@@ -494,7 +494,10 @@
     <string name="cloud_backup_name_label">Back-upnaam</string>
     <string name="cloud_backup_overwrite_title">"%1$s" overschrijven?</string>
     <string name="cloud_backup_overwrite_body">Er bestaat al een back-up met deze naam in je map.</string>
-    <string name="cloud_restore_picker_default">(standaard)</string>
+    <string name="cloud_backup_replace_title">Je opgeslagen back-up vervangen?</string>
+    <string name="cloud_backup_replace_body">De instellingenback-up in je map wordt overschreven met je huidige instellingen.</string>
+    <string name="cloud_backup_replace_body_dated">De back-up van %1$s wordt overschreven met je huidige instellingen.</string>
+    <string name="cloud_restore_picker_default">(jouw back-up)</string>
     <string name="cloud_restore_picker_factory">(fabrieksinstellingen)</string>
     <string name="cloud_restore_picker_empty">Geen back-ups in de map</string>
     <string name="cloud_factory_confirm_title">Terugzetten naar fabrieksinstellingen?</string>

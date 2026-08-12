@@ -213,7 +213,10 @@
     <string name="cloud_backup_name_label">Nome del backup</string>
     <string name="cloud_backup_overwrite_title">Sovrascrivere "%1$s"?</string>
     <string name="cloud_backup_overwrite_body">Esiste già un backup con questo nome.</string>
-    <string name="cloud_restore_picker_default">(predefinito)</string>
+    <string name="cloud_backup_replace_title">Sostituire il backup salvato?</string>
+    <string name="cloud_backup_replace_body">Il backup delle impostazioni nella tua cartella sarà sovrascritto con le impostazioni attuali.</string>
+    <string name="cloud_backup_replace_body_dated">Il backup salvato il %1$s sarà sovrascritto con le impostazioni attuali.</string>
+    <string name="cloud_restore_picker_default">(il tuo backup)</string>
     <string name="cloud_restore_picker_factory">(fabbrica)</string>
     <string name="cloud_factory_confirm_title">Ripristinare le impostazioni di fabbrica?</string>
     <string name="cloud_factory_confirm_body_p1">Ripristina tutte le impostazioni dell\'app ai valori predefiniti.</string>

@@ -609,7 +609,10 @@
     <string name="cloud_backup_name_label">Varmuuskopion nimi</string>
     <string name="cloud_backup_overwrite_title">Korvataanko \"%1$s\"?</string>
     <string name="cloud_backup_overwrite_body">Tämän niminen varmuuskopio on jo kansiossasi.</string>
-    <string name="cloud_restore_picker_default">(oletus)</string>
+    <string name="cloud_backup_replace_title">Korvataanko tallentamasi varmuuskopio?</string>
+    <string name="cloud_backup_replace_body">Kansiossasi oleva asetusten varmuuskopio korvataan nykyisillä asetuksillasi.</string>
+    <string name="cloud_backup_replace_body_dated">%1$s tallennettu varmuuskopio korvataan nykyisillä asetuksillasi.</string>
+    <string name="cloud_restore_picker_default">(oma varmuuskopio)</string>
     <string name="cloud_restore_picker_factory">(tehdas)</string>
     <string name="cloud_restore_picker_empty">Synkronointikansiosta ei löytynyt varmuuskopioita</string>
     <string name="cloud_factory_confirm_title">Palautetaanko tehdasasetukset?</string>

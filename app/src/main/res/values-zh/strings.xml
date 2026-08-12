@@ -151,7 +151,10 @@
     <string name="cloud_backup_name_label">备份名称</string>
     <string name="cloud_backup_overwrite_title">覆盖 "%1$s"？</string>
     <string name="cloud_backup_overwrite_body">文件夹中已存在同名备份。</string>
-    <string name="cloud_restore_picker_default">(默认)</string>
+    <string name="cloud_backup_replace_title">替换你保存的备份？</string>
+    <string name="cloud_backup_replace_body">文件夹中的设置备份将被当前设置覆盖。</string>
+    <string name="cloud_backup_replace_body_dated">%1$s 保存的备份将被当前设置覆盖。</string>
+    <string name="cloud_restore_picker_default">(你保存的)</string>
     <string name="cloud_restore_picker_factory">(出厂设置)</string>
     <string name="cloud_factory_confirm_title">恢复出厂设置？</string>
     <string name="cloud_factory_confirm_body_p1">将所有应用设置重置为出厂设置。</string>

@@ -494,7 +494,10 @@
     <string name="cloud_backup_name_label">Backup-Name</string>
     <string name="cloud_backup_overwrite_title">\"%1$s\" überschreiben?</string>
     <string name="cloud_backup_overwrite_body">Ein Backup mit diesem Namen existiert bereits in deinem Ordner.</string>
-    <string name="cloud_restore_picker_default">(Standard)</string>
+    <string name="cloud_backup_replace_title">Deine gespeicherte Sicherung ersetzen?</string>
+    <string name="cloud_backup_replace_body">Die Einstellungssicherung in deinem Ordner wird mit deinen aktuellen Einstellungen überschrieben.</string>
+    <string name="cloud_backup_replace_body_dated">Die am %1$s gespeicherte Sicherung wird mit deinen aktuellen Einstellungen überschrieben.</string>
+    <string name="cloud_restore_picker_default">(deine Sicherung)</string>
     <string name="cloud_restore_picker_factory">(Werk)</string>
     <string name="cloud_restore_picker_empty">Keine Backups im Sync-Ordner gefunden</string>
     <string name="cloud_factory_confirm_title">Auf Werkseinstellungen zurücksetzen?</string>

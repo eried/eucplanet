@@ -494,7 +494,10 @@
     <string name="cloud_backup_name_label">Nom de la sauvegarde</string>
     <string name="cloud_backup_overwrite_title">Écraser \"%1$s\" ?</string>
     <string name="cloud_backup_overwrite_body">Une sauvegarde du même nom existe déjà dans ton dossier.</string>
-    <string name="cloud_restore_picker_default">(par défaut)</string>
+    <string name="cloud_backup_replace_title">Remplacer ta sauvegarde enregistrée ?</string>
+    <string name="cloud_backup_replace_body">La sauvegarde des réglages dans ton dossier sera écrasée par tes réglages actuels.</string>
+    <string name="cloud_backup_replace_body_dated">La sauvegarde enregistrée le %1$s sera écrasée par tes réglages actuels.</string>
+    <string name="cloud_restore_picker_default">(ta sauvegarde)</string>
     <string name="cloud_restore_picker_factory">(réglages d\'usine)</string>
     <string name="cloud_restore_picker_empty">Aucune sauvegarde dans le dossier</string>
     <string name="cloud_factory_confirm_title">Rétablir les réglages d\'usine ?</string>

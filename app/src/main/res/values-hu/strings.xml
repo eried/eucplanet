@@ -609,7 +609,10 @@
     <string name="cloud_backup_name_label">Mentés neve</string>
     <string name="cloud_backup_overwrite_title">Felülírod ezt: \"%1$s\"?</string>
     <string name="cloud_backup_overwrite_body">Ilyen nevű mentés már létezik a mappádban.</string>
-    <string name="cloud_restore_picker_default">(alapértelmezett)</string>
+    <string name="cloud_backup_replace_title">Lecseréled a mentésedet?</string>
+    <string name="cloud_backup_replace_body">A mappádban lévő beállításmentést felülírja a jelenlegi beállításaid.</string>
+    <string name="cloud_backup_replace_body_dated">A %1$s mentett biztonsági másolatot felülírja a jelenlegi beállításaid.</string>
+    <string name="cloud_restore_picker_default">(a te mentésed)</string>
     <string name="cloud_restore_picker_factory">(gyári)</string>
     <string name="cloud_restore_picker_empty">Nem találhatók mentések a szinkronizálási mappában</string>
     <string name="cloud_factory_confirm_title">Visszaállítod a gyári beállításokat?</string>

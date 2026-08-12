@@ -494,7 +494,10 @@
     <string name="cloud_backup_name_label">Yedek adı</string>
     <string name="cloud_backup_overwrite_title">\"%1$s\" üzerine yazılsın mı?</string>
     <string name="cloud_backup_overwrite_body">Bu adda bir yedek klasörünüzde zaten var.</string>
-    <string name="cloud_restore_picker_default">(varsayılan)</string>
+    <string name="cloud_backup_replace_title">Kayıtlı yedeğin değiştirilsin mi?</string>
+    <string name="cloud_backup_replace_body">Klasöründeki ayar yedeği mevcut ayarlarınla üzerine yazılacak.</string>
+    <string name="cloud_backup_replace_body_dated">%1$s tarihinde kaydedilen yedek mevcut ayarlarınla üzerine yazılacak.</string>
+    <string name="cloud_restore_picker_default">(senin yedeğin)</string>
     <string name="cloud_restore_picker_factory">(fabrika)</string>
     <string name="cloud_restore_picker_empty">Eşitleme klasöründe yedek bulunamadı</string>
     <string name="cloud_factory_confirm_title">Fabrika varsayılanlarına sıfırlansın mı?</string>

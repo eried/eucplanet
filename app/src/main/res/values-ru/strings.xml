@@ -494,7 +494,10 @@
     <string name="cloud_backup_name_label">Имя</string>
     <string name="cloud_backup_overwrite_title">Перезаписать «%1$s»?</string>
     <string name="cloud_backup_overwrite_body">Резервная копия с таким именем уже есть в вашей папке.</string>
-    <string name="cloud_restore_picker_default">(по умолчанию)</string>
+    <string name="cloud_backup_replace_title">Заменить сохранённую копию?</string>
+    <string name="cloud_backup_replace_body">Резервная копия настроек в вашей папке будет перезаписана текущими настройками.</string>
+    <string name="cloud_backup_replace_body_dated">Копия, сохранённая %1$s, будет перезаписана текущими настройками.</string>
+    <string name="cloud_restore_picker_default">(ваша копия)</string>
     <string name="cloud_restore_picker_factory">(заводские)</string>
     <string name="cloud_restore_picker_empty">В папке нет резервных копий</string>
     <string name="cloud_factory_confirm_title">Сбросить до заводских настроек?</string>

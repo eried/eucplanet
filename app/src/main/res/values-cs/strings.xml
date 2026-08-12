@@ -609,7 +609,10 @@
     <string name="cloud_backup_name_label">Název zálohy</string>
     <string name="cloud_backup_overwrite_title">Přepsat \"%1$s\"?</string>
     <string name="cloud_backup_overwrite_body">Záloha s tímto názvem již ve vaší složce existuje.</string>
-    <string name="cloud_restore_picker_default">(výchozí)</string>
+    <string name="cloud_backup_replace_title">Nahradit vaši uloženou zálohu?</string>
+    <string name="cloud_backup_replace_body">Záloha nastavení ve vaší složce bude přepsána vaším aktuálním nastavením.</string>
+    <string name="cloud_backup_replace_body_dated">Záloha uložená %1$s bude přepsána vaším aktuálním nastavením.</string>
+    <string name="cloud_restore_picker_default">(vaše záloha)</string>
     <string name="cloud_restore_picker_factory">(tovární)</string>
     <string name="cloud_restore_picker_empty">V synchronizační složce nebyly nalezeny žádné zálohy</string>
     <string name="cloud_factory_confirm_title">Obnovit tovární nastavení?</string>

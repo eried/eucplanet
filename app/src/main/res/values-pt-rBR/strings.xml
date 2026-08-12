@@ -494,7 +494,10 @@
     <string name="cloud_backup_name_label">Nome do backup</string>
     <string name="cloud_backup_overwrite_title">Sobrescrever \"%1$s\"?</string>
     <string name="cloud_backup_overwrite_body">Já existe um backup com esse nome na pasta.</string>
-    <string name="cloud_restore_picker_default">(padrão)</string>
+    <string name="cloud_backup_replace_title">Substituir seu backup salvo?</string>
+    <string name="cloud_backup_replace_body">O backup de configurações na sua pasta será sobrescrito com as configurações atuais.</string>
+    <string name="cloud_backup_replace_body_dated">O backup salvo em %1$s será sobrescrito com as configurações atuais.</string>
+    <string name="cloud_restore_picker_default">(seu backup)</string>
     <string name="cloud_restore_picker_factory">(fábrica)</string>
     <string name="cloud_restore_picker_empty">Nenhum backup encontrado na pasta</string>
     <string name="cloud_factory_confirm_title">Restaurar configurações de fábrica?</string>

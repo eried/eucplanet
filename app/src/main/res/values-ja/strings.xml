@@ -494,7 +494,10 @@
     <string name="cloud_backup_name_label">バックアップ名</string>
     <string name="cloud_backup_overwrite_title">\"%1$s\" を上書きしますか？</string>
     <string name="cloud_backup_overwrite_body">この名前のバックアップがフォルダーにすでに存在します。</string>
-    <string name="cloud_restore_picker_default">（デフォルト）</string>
+    <string name="cloud_backup_replace_title">保存したバックアップを置き換えますか?</string>
+    <string name="cloud_backup_replace_body">フォルダ内の設定バックアップが現在の設定で上書きされます。</string>
+    <string name="cloud_backup_replace_body_dated">%1$s に保存したバックアップが現在の設定で上書きされます。</string>
+    <string name="cloud_restore_picker_default">(自分で保存)</string>
     <string name="cloud_restore_picker_factory">（工場出荷時）</string>
     <string name="cloud_restore_picker_empty">同期フォルダーにバックアップが見つかりません</string>
     <string name="cloud_factory_confirm_title">工場出荷時の設定にリセットしますか？</string>

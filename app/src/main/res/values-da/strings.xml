@@ -494,7 +494,10 @@
     <string name="cloud_backup_name_label">Backup-navn</string>
     <string name="cloud_backup_overwrite_title">Overskriv \"%1$s\"?</string>
     <string name="cloud_backup_overwrite_body">Der findes allerede en backup med dette navn i din mappe.</string>
-    <string name="cloud_restore_picker_default">(standard)</string>
+    <string name="cloud_backup_replace_title">Erstat din gemte backup?</string>
+    <string name="cloud_backup_replace_body">Indstillingsbackuppen i din mappe bliver overskrevet med dine nuværende indstillinger.</string>
+    <string name="cloud_backup_replace_body_dated">Backuppen gemt %1$s bliver overskrevet med dine nuværende indstillinger.</string>
+    <string name="cloud_restore_picker_default">(din backup)</string>
     <string name="cloud_restore_picker_factory">(fabrik)</string>
     <string name="cloud_restore_picker_empty">Ingen backups fundet i backup-mappen</string>
     <string name="cloud_factory_confirm_title">Nulstil til fabriksindstillinger?</string>

@@ -494,7 +494,10 @@
     <string name="cloud_backup_name_label">Назва резервної копії</string>
     <string name="cloud_backup_overwrite_title">Перезаписати \"%1$s\"?</string>
     <string name="cloud_backup_overwrite_body">Резервна копія з такою назвою вже існує у твоїй папці.</string>
-    <string name="cloud_restore_picker_default">(за замовчуванням)</string>
+    <string name="cloud_backup_replace_title">Замінити збережену копію?</string>
+    <string name="cloud_backup_replace_body">Резервну копію налаштувань у вашій папці буде перезаписано поточними налаштуваннями.</string>
+    <string name="cloud_backup_replace_body_dated">Копію, збережену %1$s, буде перезаписано поточними налаштуваннями.</string>
+    <string name="cloud_restore_picker_default">(ваша копія)</string>
     <string name="cloud_restore_picker_factory">(заводські)</string>
     <string name="cloud_restore_picker_empty">У папці синхронізації немає резервних копій</string>
     <string name="cloud_factory_confirm_title">Скинути до заводських налаштувань?</string>

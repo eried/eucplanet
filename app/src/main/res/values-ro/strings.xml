@@ -609,7 +609,10 @@
     <string name="cloud_backup_name_label">Numele copiei</string>
     <string name="cloud_backup_overwrite_title">Suprascrii \"%1$s\"?</string>
     <string name="cloud_backup_overwrite_body">O copie cu acest nume există deja în dosarul tău.</string>
-    <string name="cloud_restore_picker_default">(implicit)</string>
+    <string name="cloud_backup_replace_title">Înlocuiești copia salvată?</string>
+    <string name="cloud_backup_replace_body">Copia de rezervă a setărilor din dosarul tău va fi suprascrisă cu setările actuale.</string>
+    <string name="cloud_backup_replace_body_dated">Copia salvată pe %1$s va fi suprascrisă cu setările actuale.</string>
+    <string name="cloud_restore_picker_default">(copia ta)</string>
     <string name="cloud_restore_picker_factory">(din fabrică)</string>
     <string name="cloud_restore_picker_empty">Nu s-au găsit copii în dosarul de sincronizare</string>
     <string name="cloud_factory_confirm_title">Revii la setările din fabrică?</string>

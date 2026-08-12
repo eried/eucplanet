@@ -494,7 +494,10 @@
     <string name="cloud_backup_name_label">Nazwa kopii</string>
     <string name="cloud_backup_overwrite_title">Nadpisać \"%1$s\"?</string>
     <string name="cloud_backup_overwrite_body">Kopia o tej nazwie już istnieje w folderze.</string>
-    <string name="cloud_restore_picker_default">(domyślna)</string>
+    <string name="cloud_backup_replace_title">Zastąpić zapisaną kopię?</string>
+    <string name="cloud_backup_replace_body">Kopia ustawień w twoim folderze zostanie nadpisana bieżącymi ustawieniami.</string>
+    <string name="cloud_backup_replace_body_dated">Kopia zapisana %1$s zostanie nadpisana bieżącymi ustawieniami.</string>
+    <string name="cloud_restore_picker_default">(twoja kopia)</string>
     <string name="cloud_restore_picker_factory">(fabryczna)</string>
     <string name="cloud_restore_picker_empty">Brak kopii w folderze synchronizacji</string>
     <string name="cloud_factory_confirm_title">Przywrócić ustawienia fabryczne?</string>

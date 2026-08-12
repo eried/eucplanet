@@ -494,7 +494,10 @@
     <string name="cloud_backup_name_label">Kopians namn</string>
     <string name="cloud_backup_overwrite_title">Skriv över \"%1$s\"?</string>
     <string name="cloud_backup_overwrite_body">En kopia med det här namnet finns redan i mappen.</string>
-    <string name="cloud_restore_picker_default">(standard)</string>
+    <string name="cloud_backup_replace_title">Ersätta din sparade säkerhetskopia?</string>
+    <string name="cloud_backup_replace_body">Inställningskopian i din mapp skrivs över med dina nuvarande inställningar.</string>
+    <string name="cloud_backup_replace_body_dated">Säkerhetskopian som sparades %1$s skrivs över med dina nuvarande inställningar.</string>
+    <string name="cloud_restore_picker_default">(din säkerhetskopia)</string>
     <string name="cloud_restore_picker_factory">(fabrik)</string>
     <string name="cloud_restore_picker_empty">Inga kopior hittades i backupmappen</string>
     <string name="cloud_factory_confirm_title">Återställ till fabriksinställningar?</string>

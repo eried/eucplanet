@@ -494,7 +494,10 @@
     <string name="cloud_backup_name_label">備份名稱</string>
     <string name="cloud_backup_overwrite_title">覆寫「%1$s」？</string>
     <string name="cloud_backup_overwrite_body">您的資料夾中已存在同名的備份。</string>
-    <string name="cloud_restore_picker_default">（預設）</string>
+    <string name="cloud_backup_replace_title">取代你儲存的備份？</string>
+    <string name="cloud_backup_replace_body">資料夾中的設定備份將被目前設定覆蓋。</string>
+    <string name="cloud_backup_replace_body_dated">%1$s 儲存的備份將被目前設定覆蓋。</string>
+    <string name="cloud_restore_picker_default">(你儲存的)</string>
     <string name="cloud_restore_picker_factory">（原廠）</string>
     <string name="cloud_restore_picker_empty">同步資料夾中未找到備份</string>
     <string name="cloud_factory_confirm_title">重設為原廠預設值？</string>
