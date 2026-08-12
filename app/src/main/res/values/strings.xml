@@ -682,7 +682,10 @@
     <string name="cloud_backup_name_label">Backup name</string>
     <string name="cloud_backup_overwrite_title">Overwrite \"%1$s\"?</string>
     <string name="cloud_backup_overwrite_body">A backup with this name already exists in your folder.</string>
-    <string name="cloud_restore_picker_default">(default)</string>
+    <string name="cloud_backup_replace_title">Replace your saved backup?</string>
+    <string name="cloud_backup_replace_body">The settings backup in your folder will be overwritten with your current settings. Backups you gave a name are not touched.</string>
+    <string name="cloud_backup_replace_body_dated">The backup saved on %1$s will be overwritten with your current settings. Backups you gave a name are not touched.</string>
+    <string name="cloud_restore_picker_default">(user saved)</string>
     <string name="cloud_restore_picker_factory">(factory)</string>
     <string name="cloud_restore_picker_empty">No backups found in the sync folder</string>
     <string name="cloud_factory_confirm_title">Reset to factory defaults?</string>

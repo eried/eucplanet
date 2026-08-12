@@ -8060,6 +8060,45 @@ private fun CloudTab(
 
         if (hasFolder) {
             SectionHeader(stringResource(R.string.section_cloud_settings))
+            var confirmReplaceBackup by remember { mutableStateOf(false) }
+            val backupScope = rememberCoroutineScope()
+            // Only shown when the last backup was the unnamed one; after a named
+            // save we no longer know when the unnamed slot was written, and a
+            // date from the wrong file would be worse than none.
+            val unnamedBackupDate = settings.lastSettingsBackupAt
+                ?.takeIf { settings.lastSettingsBackupName == null }
+                ?.let {
+                    java.text.SimpleDateFormat("dd MMM yyyy HH:mm", java.util.Locale.getDefault())
+                        .format(java.util.Date(it))
+                }
+            if (confirmReplaceBackup) {
+                AlertDialog(
+                    onDismissRequest = { confirmReplaceBackup = false },
+                    shape = RoundedCornerShape(12.dp),
+                    title = { Text(stringResource(R.string.cloud_backup_replace_title)) },
+                    text = {
+                        Text(
+                            unnamedBackupDate?.let {
+                                stringResource(R.string.cloud_backup_replace_body_dated, it)
+                            } ?: stringResource(R.string.cloud_backup_replace_body)
+                        )
+                    },
+                    confirmButton = {
+                        Button(onClick = {
+                            confirmReplaceBackup = false
+                            viewModel.backupSettingsNow()
+                        }, shape = RoundedCornerShape(12.dp)) {
+                            Text(stringResource(R.string.action_overwrite))
+                        }
+                    },
+                    dismissButton = {
+                        Button(
+                            onClick = { confirmReplaceBackup = false },
+                            shape = RoundedCornerShape(12.dp),
+                        ) { Text(stringResource(R.string.action_cancel)) }
+                    },
+                )
+            }
             val lastBackupText = settings.lastSettingsBackupAt?.let { ts ->
                 val fmt = java.text.SimpleDateFormat("dd MMM yyyy HH:mm", java.util.Locale.getDefault())
                 val date = fmt.format(java.util.Date(ts))
@@ -8078,7 +8117,22 @@ private fun CloudTab(
             ) {
                 LongPressActionButton(
                     text = stringResource(R.string.cloud_backup_now),
-                    onClick = { viewModel.backupSettingsNow() },
+                    onClick = {
+                        // Backup used to overwrite the unnamed slot on the spot,
+                        // which is fine the first time and a silent loss every
+                        // time after. Ask, but only when there is something to
+                        // lose: a folder with no backup in it just saves.
+                        backupScope.launch {
+                            val existing = runCatching { viewModel.listBackups() }
+                                .getOrDefault(emptyList())
+                                .any { it.label == null }
+                            if (existing) {
+                                confirmReplaceBackup = true
+                            } else {
+                                viewModel.backupSettingsNow()
+                            }
+                        }
+                    },
                     onLongClick = {
                         // Fresh long-press always starts with an empty field;
                         // the only path that pre-fills is bouncing back from
