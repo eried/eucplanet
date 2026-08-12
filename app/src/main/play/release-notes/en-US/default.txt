@@ -4,5 +4,5 @@
 🪟 Picture-in-picture: a floating window when you leave the app.
 🛰️ Phone HUD: keep your wheel's numbers on screen over any other app.
 ✂️ Trim and split trips, and save a section as its own ride.
-🛞 InMotion V5/V8/V10: wheel lock, correct light state, charging fixes.
+🛞 InMotion V5/V8/V10: wheel lock and charging fixes.
 🌍 Now also in Czech, Finnish, Hungarian and Romanian.
