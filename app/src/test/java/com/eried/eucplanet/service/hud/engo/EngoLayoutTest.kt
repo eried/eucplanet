@@ -20,13 +20,13 @@ class EngoLayoutTest {
         speed: Int = 42,
         pwm: Int = 61,
         navActive: Boolean = false,
-        dist: Int = 0,
+        distText: String = "",
         man: EngoManeuver = EngoManeuver.STRAIGHT,
         street: String = "",
     ) = EngoSnapshot(
         connected = connected, speed = speed, speedUnit = "km/h",
-        batteryPct = 78, pwmPct = pwm, tempC = 38,
-        navActive = navActive, navDistanceM = dist, navManeuver = man, navStreet = street,
+        batteryPct = 78, pwmPct = pwm, temp = 38, tempUnit = "C",
+        navActive = navActive, navDistanceText = distText, navManeuver = man, navStreet = street,
     )
 
     private fun ops(cmds: List<ByteArray>) = cmds.map { it[1].toInt() and 0xFF }
@@ -76,7 +76,7 @@ class EngoLayoutTest {
     @Test
     fun navTakeover_hasArrowDistanceStreet() {
         val cmds = EngoLayout.render(
-            snap(navActive = true, dist = 120, man = EngoManeuver.LEFT, street = "Main Street"),
+            snap(navActive = true, distText = "120 m", man = EngoManeuver.LEFT, street = "Main Street"),
             engo2,
         )
         assertTrue("arrow lines", 0x32 in ops(cmds))
@@ -84,12 +84,6 @@ class EngoLayoutTest {
         assertTrue("street", containsText(cmds, "Main Street"))
         // Nav page has no PWM bar.
         assertFalse("no PWM text on nav", containsText(cmds, "PWM"))
-    }
-
-    @Test
-    fun navDistance_kmAboveOneThousand() {
-        val cmds = EngoLayout.render(snap(navActive = true, dist = 1500), engo2)
-        assertTrue(containsText(cmds, "1.5 km"))
     }
 
     @Test

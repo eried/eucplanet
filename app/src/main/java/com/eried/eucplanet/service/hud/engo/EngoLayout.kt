@@ -74,14 +74,14 @@ object EngoLayout {
         out += text(PAD, ROW2_Y, caps.labelFont, GREY_BRIGHT, RG_WHITE,
             "BATT " + (if (s.connected) "${s.batteryPct}%" else "--"), caps)
         out += text(BAR_X0, ROW2_Y, caps.labelFont, GREY_BRIGHT, RG_WHITE,
-            "TEMP " + (if (s.connected) "${s.tempC}C" else "--"), caps)
+            "TEMP " + (if (s.connected) "${s.temp}${s.tempUnit}" else "--"), caps)
     }
 
     private fun renderNav(s: EngoSnapshot, caps: EngoCaps, out: MutableList<ByteArray>) {
         // Turn arrow (centre-left), distance (top-right), street (bottom).
         arrow(s.navManeuver, out)
         out += text(BAR_X0, BAR_Y0, caps.speedFont, GREY_BRIGHT, RG_WHITE,
-            formatDistance(s.navDistanceM), caps)
+            s.navDistanceText, caps)
         if (s.navStreet.isNotBlank()) {
             out += text(PAD, ROW2_Y, caps.labelFont, GREY_BRIGHT, RG_WHITE,
                 s.navStreet.take(24), caps)
@@ -114,9 +114,6 @@ object EngoLayout {
             }
         }
     }
-
-    private fun formatDistance(m: Int): String =
-        if (m >= 1000) "%.1f km".format(m / 1000.0) else "$m m"
 
     private fun pwmLevelGrey(pct: Int): Int = GREY_BRIGHT
 

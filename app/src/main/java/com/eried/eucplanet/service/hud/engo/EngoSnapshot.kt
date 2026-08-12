@@ -12,10 +12,11 @@ data class EngoSnapshot(
     val speedUnit: String, // "km/h" / "mph"
     val batteryPct: Int,
     val pwmPct: Int,
-    val tempC: Int,
+    val temp: Int, // already converted to the display unit
+    val tempUnit: String = "C", // ASCII unit char for the glasses (C / F / K)
     // Navigation takeover (active only while Navigator guidance is running).
     val navActive: Boolean = false,
-    val navDistanceM: Int = 0,
+    val navDistanceText: String = "", // pre-formatted by the app (e.g. "120 m")
     val navManeuver: EngoManeuver = EngoManeuver.STRAIGHT,
     val navStreet: String = "",
 )
