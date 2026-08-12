@@ -7718,7 +7718,7 @@ private fun CloudTab(
                 }, shape = RoundedCornerShape(12.dp)) { Text(stringResource(R.string.action_overwrite)) }
             },
             dismissButton = {
-                Button(onClick = {
+                TextButton(onClick = {
                     overwritePrompt = null
                     backupNameDraft = pendingName
                     showBackupNameDialog = true
@@ -7759,7 +7759,7 @@ private fun CloudTab(
                 }, shape = RoundedCornerShape(12.dp)) { Text(stringResource(R.string.cloud_factory_confirm_action)) }
             },
             dismissButton = {
-                Button(onClick = { showFactoryConfirm = false }, shape = RoundedCornerShape(12.dp)) {
+                TextButton(onClick = { showFactoryConfirm = false }, shape = RoundedCornerShape(12.dp)) {
                     Text(stringResource(R.string.action_cancel))
                 }
             }
@@ -7826,7 +7826,7 @@ private fun CloudTab(
                 }, shape = RoundedCornerShape(12.dp)) { Text(stringResource(R.string.action_restore)) }
             },
             dismissButton = {
-                Button(onClick = { showRestoreDialog = false }, shape = RoundedCornerShape(12.dp)) {
+                TextButton(onClick = { showRestoreDialog = false }, shape = RoundedCornerShape(12.dp)) {
                     Text(stringResource(R.string.action_cancel))
                 }
             }
@@ -8092,7 +8092,7 @@ private fun CloudTab(
                         }
                     },
                     dismissButton = {
-                        Button(
+                        TextButton(
                             onClick = { confirmReplaceBackup = false },
                             shape = RoundedCornerShape(12.dp),
                         ) { Text(stringResource(R.string.action_cancel)) }
@@ -10099,7 +10099,7 @@ private fun NamedBackupDialog(
             ) { Text(stringResource(R.string.action_save)) }
         },
         dismissButton = {
-            Button(onClick = onDismiss, shape = RoundedCornerShape(12.dp)) {
+            TextButton(onClick = onDismiss, shape = RoundedCornerShape(12.dp)) {
                 Text(stringResource(R.string.action_cancel))
             }
         }
@@ -10192,7 +10192,7 @@ internal fun RestorePickerDialog(
             ) { Text(stringResource(R.string.action_restore)) }
         },
         dismissButton = {
-            Button(onClick = onDismiss, shape = RoundedCornerShape(12.dp)) {
+            TextButton(onClick = onDismiss, shape = RoundedCornerShape(12.dp)) {
                 Text(stringResource(R.string.action_cancel))
             }
         }

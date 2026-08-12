@@ -612,7 +612,7 @@ fun DashboardScreen(
                 }, shape = RoundedCornerShape(12.dp)) { Text(stringResource(R.string.action_restore)) }
             },
             dismissButton = {
-                Button(onClick = { showRestoreConfirmDialog = false }, shape = RoundedCornerShape(12.dp)) {
+                TextButton(onClick = { showRestoreConfirmDialog = false }, shape = RoundedCornerShape(12.dp)) {
                     Text(stringResource(R.string.action_cancel))
                 }
             }
