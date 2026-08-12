@@ -236,6 +236,26 @@ fun AppThemeColors.toColorScheme(): ColorScheme {
         outline = outline,
         outlineVariant = outline,
         scrim = scrim,
+        // The surfaceContainer family, which the comment above claimed was
+        // already covered and was not. Material3 paints its own components from
+        // these rather than from `surface`, so every AlertDialog in the app was
+        // coming out in Material's pale lavender no matter what theme the rider
+        // had chosen, and the only ones that looked right were those that had
+        // been overridden by hand at the call site.
+        //
+        // Mapped to the token that matches each component's job, so a dialog
+        // takes the dialog colour, a dropdown the menu colour and a bottom
+        // sheet the sheet colour, without any of them having to ask:
+        //   surfaceContainerHigh   AlertDialog
+        //   surfaceContainer       DropdownMenu, NavigationBar
+        //   surfaceContainerLow    ModalBottomSheet
+        surfaceBright = surface,
+        surfaceDim = appBackground,
+        surfaceContainerLowest = appBackground,
+        surfaceContainerLow = sheetBackground,
+        surfaceContainer = menuBackground,
+        surfaceContainerHigh = dialog,
+        surfaceContainerHighest = surfaceVariant,
     )
 }
 
