@@ -1734,6 +1734,16 @@
     <string name="nav_last_stop">Utolsó megálló</string>
     <string name="nav_need_destination">Előbb adj hozzá célállomást</string>
     <string name="nav_map_style">Térkép stílusa</string>
+    <string-array name="nav_stop_ordinals">
+        <item>Első megálló</item>
+        <item>Második megálló</item>
+        <item>Harmadik megálló</item>
+        <item>Negyedik megálló</item>
+        <item>Ötödik megálló</item>
+        <item>Hatodik megálló</item>
+        <item>Hetedik megálló</item>
+        <item>Nyolcadik megálló</item>
+    </string-array>
     <string name="nav_my_location">Saját helyzetem</string>
     <string name="nav_no_location">Várakozás GPS-pozícióra…</string>
     <string name="nav_too_far_to_start">Az első megálló túl messze van. Tartsd nyomva az Indítást a navigáláshoz mégis.</string>

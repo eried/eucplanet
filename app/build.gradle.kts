@@ -348,3 +348,18 @@ play {
     defaultToAppBundles.set(true)
     releaseStatus.set(com.github.triplet.gradle.androidpublisher.ReleaseStatus.COMPLETED)
 }
+
+// LocaleCoverageTest reads the strings files and locales_config.xml straight off
+// disk, so Gradle cannot see them as inputs on its own. Removing a translation
+// changes no generated code - the R class only carries the default folder's IDs
+// - so the test task stayed UP-TO-DATE and the drift guard was quietly skipped
+// on exactly the change it exists to catch. Declaring them makes any edit to a
+// translation re-run the guard.
+tasks.withType<Test>().configureEach {
+    inputs.files(
+        fileTree("src/main/res") {
+            include("**/strings.xml")
+            include("**/locales_config.xml")
+        }
+    ).withPathSensitivity(PathSensitivity.RELATIVE).withPropertyName("translationFiles")
+}

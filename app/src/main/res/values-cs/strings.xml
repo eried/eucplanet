@@ -1734,6 +1734,16 @@
     <string name="nav_last_stop">Poslední zastávka</string>
     <string name="nav_need_destination">Nejprve přidejte cíl</string>
     <string name="nav_map_style">Styl mapy</string>
+    <string-array name="nav_stop_ordinals">
+        <item>První zastávka</item>
+        <item>Druhá zastávka</item>
+        <item>Třetí zastávka</item>
+        <item>Čtvrtá zastávka</item>
+        <item>Pátá zastávka</item>
+        <item>Šestá zastávka</item>
+        <item>Sedmá zastávka</item>
+        <item>Osmá zastávka</item>
+    </string-array>
     <string name="nav_my_location">Moje poloha</string>
     <string name="nav_no_location">Čekám na polohu GPS…</string>
     <string name="nav_too_far_to_start">První zastávka je příliš daleko. Podržením Start budete navigovat i tak.</string>

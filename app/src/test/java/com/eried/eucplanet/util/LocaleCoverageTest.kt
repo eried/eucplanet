@@ -36,6 +36,33 @@ class LocaleCoverageTest {
         assertEquals("supported languages with no strings.xml", emptyList<String>(), missing)
     }
 
+    /** Names declared by `<string-array name="...">` in one strings file. */
+    private fun stringArrayNames(file: File): Set<String> =
+        Regex("""<string-array\s+name="([^"]+)"""")
+            .findAll(file.readText())
+            .map { it.groupValues[1] }
+            .toSet()
+
+    @Test
+    fun `every language translates every string-array`() {
+        // Lint's MissingTranslation covers <string> and stops there, so a
+        // <string-array> can be absent from a language for a whole release
+        // without anything complaining. nav_stop_ordinals shipped that way in
+        // Czech, Finnish, Hungarian and Romanian: those riders were read
+        // English stop names by a navigator speaking their own language
+        // everywhere else.
+        val expected = stringArrayNames(res("values/strings.xml"))
+        val gaps = LocaleHelper.SUPPORTED
+            .filter { it.tag != "en" }
+            .mapNotNull { lang ->
+                val file = res("${resFolder(lang.tag)}/strings.xml")
+                if (!file.exists()) return@mapNotNull null  // covered by the test above
+                val missing = expected - stringArrayNames(file)
+                if (missing.isEmpty()) null else "${lang.tag}: $missing"
+            }
+        assertEquals("languages missing a string-array", emptyList<String>(), gaps)
+    }
+
     @Test
     fun `every translated folder is a supported language`() {
         val known = LocaleHelper.SUPPORTED.map { resFolder(it.tag) }.toSet()

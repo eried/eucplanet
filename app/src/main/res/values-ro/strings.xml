@@ -1734,6 +1734,16 @@
     <string name="nav_last_stop">Ultima oprire</string>
     <string name="nav_need_destination">Adaugă mai întâi o destinație</string>
     <string name="nav_map_style">Stilul hărții</string>
+    <string-array name="nav_stop_ordinals">
+        <item>Prima oprire</item>
+        <item>A doua oprire</item>
+        <item>A treia oprire</item>
+        <item>A patra oprire</item>
+        <item>A cincea oprire</item>
+        <item>A șasea oprire</item>
+        <item>A șaptea oprire</item>
+        <item>A opta oprire</item>
+    </string-array>
     <string name="nav_my_location">Locația mea</string>
     <string name="nav_no_location">Se așteaptă poziția GPS…</string>
     <string name="nav_too_far_to_start">Prima oprire este prea departe. Ține apăsat Start ca să navighezi oricum.</string>

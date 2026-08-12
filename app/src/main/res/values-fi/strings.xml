@@ -1734,6 +1734,16 @@
     <string name="nav_last_stop">Viimeinen pysähdys</string>
     <string name="nav_need_destination">Lisää ensin määränpää</string>
     <string name="nav_map_style">Kartan tyyli</string>
+    <string-array name="nav_stop_ordinals">
+        <item>Ensimmäinen pysähdys</item>
+        <item>Toinen pysähdys</item>
+        <item>Kolmas pysähdys</item>
+        <item>Neljäs pysähdys</item>
+        <item>Viides pysähdys</item>
+        <item>Kuudes pysähdys</item>
+        <item>Seitsemäs pysähdys</item>
+        <item>Kahdeksas pysähdys</item>
+    </string-array>
     <string name="nav_my_location">Sijaintini</string>
     <string name="nav_no_location">Odotetaan GPS-paikannusta…</string>
     <string name="nav_too_far_to_start">Ensimmäinen pysähdys on liian kaukana. Pidä Aloita pohjassa navigoidaksesi silti.</string>
