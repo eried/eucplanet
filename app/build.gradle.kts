@@ -23,12 +23,12 @@ val keystoreProps = Properties().apply {
 
 android {
     namespace = "com.eried.eucplanet"
-    compileSdk = 35
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.eried.eucplanet"
         minSdk = 29
-        targetSdk = 35
+        targetSdk = 36
         versionCode = 263
         versionName = "0.16.1"
 
