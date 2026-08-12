@@ -1,8 +1,8 @@
 ✨ New this release:
 
-🔒 Wheel lock by proximity: locks as you walk away and unlocks as you return, using the Bluetooth signal.
-🎵 Media control: pause music when you slow down, resume it when you speed up.
-🔊 Auto-volume boost now goes up to 3x with speed.
-📡 More reliable Bluetooth, with a fix for the "connected but no data" drop.
-🗺️ Trip viewer keeps one colour per wheel across reconnects.
-🛞 InMotion V1 / V8S support and many wheel fixes.
+📱 Home screen widgets: speed, trip and charge, plus one-tap buttons for horn, light and lock.
+🪟 Picture-in-picture: a floating window when you leave the app.
+🛰️ Phone HUD: keep your wheel's numbers on screen over any other app.
+✂️ Trim and split trips, and save a section as its own ride.
+🛞 InMotion V5/V8/V10: wheel lock, correct light state, charging fixes.
+🌍 Now also in Czech, Finnish, Hungarian and Romanian.
