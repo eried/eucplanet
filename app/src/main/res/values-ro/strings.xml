@@ -1104,7 +1104,7 @@
     <string name="section_surfaces">Vizualizări în timp real</string>
     <string name="surface_notification">Notificare</string>
     <string name="pip_section">Imagine în imagine</string>
-    <string name="pip_desc">Se micșorează într-o fereastră plutitoare când părăsești aplicația în timpul unei curse.</string>
+    <string name="pip_desc">Se micșorează într-o fereastră plutitoare când părăsești aplicația.</string>
     <string name="pip_mode_label">Mod PIP</string>
     <string name="pip_mode_off">Oprit</string>
     <string name="pip_mode_simple">Simplu</string>

@@ -1104,7 +1104,7 @@
     <string name="section_surfaces">Živá zobrazení</string>
     <string name="surface_notification">Oznámení</string>
     <string name="pip_section">Obraz v obraze</string>
-    <string name="pip_desc">Zmenší se do plovoucího okna, když během jízdy opustíte aplikaci.</string>
+    <string name="pip_desc">Zmenší se do plovoucího okna, když opustíte aplikaci.</string>
     <string name="pip_mode_label">Režim PIP</string>
     <string name="pip_mode_off">Vypnuto</string>
     <string name="pip_mode_simple">Jednoduchý</string>

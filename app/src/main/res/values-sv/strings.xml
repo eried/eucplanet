@@ -2101,7 +2101,7 @@
     <string name="section_surfaces">Livevyer</string>
     <string name="surface_notification">Avisering</string>
     <string name="pip_section">Bild-i-bild</string>
-    <string name="pip_desc">Krymper till ett flytande fönster när du lämnar appen under en tur.</string>
+    <string name="pip_desc">Krymper till ett flytande fönster när du lämnar appen.</string>
     <string name="pip_mode_label">PIP-läge</string>
     <string name="pip_mode_off">Av</string>
     <string name="pip_mode_simple">Enkel</string>

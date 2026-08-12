@@ -1989,7 +1989,7 @@
     <string name="section_surfaces">Sanntidsvisninger</string>
     <string name="surface_notification">Varsel</string>
     <string name="pip_section">Bilde-i-bilde</string>
-    <string name="pip_desc">Krymper til et flytende vindu når du forlater appen under en tur.</string>
+    <string name="pip_desc">Krymper til et flytende vindu når du forlater appen.</string>
     <string name="pip_mode_label">PIP-modus</string>
     <string name="pip_mode_off">Av</string>
     <string name="pip_mode_simple">Enkel</string>

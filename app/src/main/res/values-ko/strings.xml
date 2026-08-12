@@ -2100,7 +2100,7 @@
     <string name="section_surfaces">실시간 화면</string>
     <string name="surface_notification">알림</string>
     <string name="pip_section">화면 속 화면</string>
-    <string name="pip_desc">주행 중 앱을 벗어나면 떠 있는 작은 창으로 축소됩니다.</string>
+    <string name="pip_desc">앱을 벗어나면 떠 있는 작은 창으로 축소됩니다.</string>
     <string name="pip_mode_label">PIP 모드</string>
     <string name="pip_mode_off">끄기</string>
     <string name="pip_mode_simple">간단</string>

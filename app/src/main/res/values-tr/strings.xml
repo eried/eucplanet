@@ -2098,7 +2098,7 @@
     <string name="section_surfaces">Canlı görünümler</string>
     <string name="surface_notification">Bildirim</string>
     <string name="pip_section">Pencere içinde pencere</string>
-    <string name="pip_desc">Sürüş sırasında uygulamadan çıkınca küçük bir yüzen pencereye küçülür.</string>
+    <string name="pip_desc">Uygulamadan çıktığında küçük bir yüzen pencereye küçülür.</string>
     <string name="pip_mode_label">PIP modu</string>
     <string name="pip_mode_off">Kapalı</string>
     <string name="pip_mode_simple">Basit</string>

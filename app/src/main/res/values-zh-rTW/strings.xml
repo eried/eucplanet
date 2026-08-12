@@ -2100,7 +2100,7 @@
     <string name="section_surfaces">即時檢視</string>
     <string name="surface_notification">通知</string>
     <string name="pip_section">子母畫面</string>
-    <string name="pip_desc">騎行時離開應用程式會縮成一個懸浮小視窗。</string>
+    <string name="pip_desc">離開應用程式時會縮成一個懸浮小視窗。</string>
     <string name="pip_mode_label">子母畫面模式</string>
     <string name="pip_mode_off">關閉</string>
     <string name="pip_mode_simple">簡單</string>

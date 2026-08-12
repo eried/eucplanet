@@ -1104,7 +1104,7 @@
     <string name="section_surfaces">Élő nézetek</string>
     <string name="surface_notification">Értesítés</string>
     <string name="pip_section">Kép a képben</string>
-    <string name="pip_desc">Lebegő ablakká zsugorodik, ha menet közben elhagyod az alkalmazást.</string>
+    <string name="pip_desc">Lebegő ablakká zsugorodik, amikor elhagyod az alkalmazást.</string>
     <string name="pip_mode_label">PIP mód</string>
     <string name="pip_mode_off">Ki</string>
     <string name="pip_mode_simple">Egyszerű</string>

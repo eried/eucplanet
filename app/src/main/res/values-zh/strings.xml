@@ -1968,7 +1968,7 @@
     <string name="section_surfaces">实时视图</string>
     <string name="surface_notification">通知</string>
     <string name="pip_section">画中画</string>
-    <string name="pip_desc">骑行时离开应用会缩成一个悬浮小窗。</string>
+    <string name="pip_desc">离开应用时会缩成一个悬浮小窗。</string>
     <string name="pip_mode_label">画中画模式</string>
     <string name="pip_mode_off">关</string>
     <string name="pip_mode_simple">简单</string>

@@ -2102,7 +2102,7 @@
     <string name="section_surfaces">ライブ表示</string>
     <string name="surface_notification">通知</string>
     <string name="pip_section">ピクチャー イン ピクチャー</string>
-    <string name="pip_desc">走行中にアプリを離れると、小さな浮かぶウィンドウになります。</string>
+    <string name="pip_desc">アプリを離れると、小さな浮かぶウィンドウになります。</string>
     <string name="pip_mode_label">PIP モード</string>
     <string name="pip_mode_off">オフ</string>
     <string name="pip_mode_simple">シンプル</string>

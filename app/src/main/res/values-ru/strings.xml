@@ -2101,7 +2101,7 @@
     <string name="section_surfaces">Живые экраны</string>
     <string name="surface_notification">Уведомление</string>
     <string name="pip_section">Картинка в картинке</string>
-    <string name="pip_desc">Сжимается в плавающее окно, когда вы выходите из приложения во время поездки.</string>
+    <string name="pip_desc">Сжимается в плавающее окно, когда вы выходите из приложения.</string>
     <string name="pip_mode_label">Режим PIP</string>
     <string name="pip_mode_off">Выкл</string>
     <string name="pip_mode_simple">Просто</string>

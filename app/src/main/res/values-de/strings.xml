@@ -2121,7 +2121,7 @@
     <string name="section_surfaces">Live-Ansichten</string>
     <string name="surface_notification">Benachrichtigung</string>
     <string name="pip_section">Bild-im-Bild</string>
-    <string name="pip_desc">Schrumpft zu einem schwebenden Fenster, wenn du die App während einer Fahrt verlässt.</string>
+    <string name="pip_desc">Schrumpft zu einem schwebenden Fenster, wenn du die App verlässt.</string>
     <string name="pip_mode_label">PIP-Modus</string>
     <string name="pip_mode_off">Aus</string>
     <string name="pip_mode_simple">Einfach</string>

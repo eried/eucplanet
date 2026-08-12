@@ -1104,7 +1104,7 @@
     <string name="section_surfaces">Reaaliaikaiset näkymät</string>
     <string name="surface_notification">Ilmoitus</string>
     <string name="pip_section">Kuva kuvassa</string>
-    <string name="pip_desc">Kutistuu kelluvaksi ikkunaksi, kun poistut sovelluksesta ajon aikana.</string>
+    <string name="pip_desc">Kutistuu kelluvaksi ikkunaksi, kun poistut sovelluksesta.</string>
     <string name="pip_mode_label">PIP-tila</string>
     <string name="pip_mode_off">Pois</string>
     <string name="pip_mode_simple">Yksinkertainen</string>

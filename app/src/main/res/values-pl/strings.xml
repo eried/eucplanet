@@ -2101,7 +2101,7 @@
     <string name="section_surfaces">Widoki na żywo</string>
     <string name="surface_notification">Powiadomienie</string>
     <string name="pip_section">Obraz w obrazie</string>
-    <string name="pip_desc">Zmniejsza się do pływającego okna, gdy opuścisz aplikację podczas jazdy.</string>
+    <string name="pip_desc">Zmniejsza się do pływającego okna, gdy opuścisz aplikację.</string>
     <string name="pip_mode_label">Tryb PIP</string>
     <string name="pip_mode_off">Wył.</string>
     <string name="pip_mode_simple">Prosty</string>

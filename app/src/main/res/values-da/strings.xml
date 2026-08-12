@@ -2116,7 +2116,7 @@
     <string name="section_surfaces">Live-visninger</string>
     <string name="surface_notification">Notifikation</string>
     <string name="pip_section">Billede i billede</string>
-    <string name="pip_desc">Skrumper til et flydende vindue, når du forlader appen under en tur.</string>
+    <string name="pip_desc">Skrumper til et flydende vindue, når du forlader appen.</string>
     <string name="pip_mode_label">PIP-tilstand</string>
     <string name="pip_mode_off">Fra</string>
     <string name="pip_mode_simple">Enkel</string>

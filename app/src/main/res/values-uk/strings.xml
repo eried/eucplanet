@@ -2098,7 +2098,7 @@
     <string name="section_surfaces">Живі екрани</string>
     <string name="surface_notification">Сповіщення</string>
     <string name="pip_section">Картинка в картинці</string>
-    <string name="pip_desc">Згортається у плаваюче вікно, коли ви виходите із застосунку під час поїздки.</string>
+    <string name="pip_desc">Згортається у плаваюче вікно, коли ви виходите із застосунку.</string>
     <string name="pip_mode_label">Режим PIP</string>
     <string name="pip_mode_off">Вимк</string>
     <string name="pip_mode_simple">Просто</string>

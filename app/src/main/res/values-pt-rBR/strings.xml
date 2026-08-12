@@ -2103,7 +2103,7 @@
     <string name="section_surfaces">Visualizações ao vivo</string>
     <string name="surface_notification">Notificação</string>
     <string name="pip_section">Picture-in-picture</string>
-    <string name="pip_desc">Encolhe em uma janela flutuante quando você sai do app durante um trajeto.</string>
+    <string name="pip_desc">Encolhe em uma janela flutuante quando você sai do app.</string>
     <string name="pip_mode_label">Modo PIP</string>
     <string name="pip_mode_off">Desligado</string>
     <string name="pip_mode_simple">Simples</string>

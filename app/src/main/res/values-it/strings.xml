@@ -2006,7 +2006,7 @@
     <string name="section_surfaces">Viste live</string>
     <string name="surface_notification">Notifica</string>
     <string name="pip_section">Picture in picture</string>
-    <string name="pip_desc">Si riduce a una finestra mobile quando esci dall\'app durante un giro.</string>
+    <string name="pip_desc">Si riduce a una finestra mobile quando esci dall\'app.</string>
     <string name="pip_mode_label">Modalità PIP</string>
     <string name="pip_mode_off">Off</string>
     <string name="pip_mode_simple">Semplice</string>

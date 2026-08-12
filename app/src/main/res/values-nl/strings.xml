@@ -2103,7 +2103,7 @@
     <string name="section_surfaces">Live-weergaven</string>
     <string name="surface_notification">Melding</string>
     <string name="pip_section">Beeld-in-beeld</string>
-    <string name="pip_desc">Krimpt tot een zwevend venster als je de app verlaat tijdens een rit.</string>
+    <string name="pip_desc">Krimpt tot een zwevend venster als je de app verlaat.</string>
     <string name="pip_mode_label">PIP-modus</string>
     <string name="pip_mode_off">Uit</string>
     <string name="pip_mode_simple">Eenvoudig</string>
