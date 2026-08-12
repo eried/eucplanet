@@ -120,8 +120,15 @@ class AutomationManager @Inject constructor(
         if (settings.autoVolumeEnabled) evaluateVolume(settings)
         val mc = settings.mediaControl
         if (mc.pauseEnabled || mc.resumeEnabled) evaluateMediaControl(settings)
-        val pl = settings.proximityLock
-        if (pl.lockEnabled || pl.unlockEnabled) evaluateProximityLock(settings)
+        // lockEnabled is the whole feature's switch; unlockEnabled is a
+        // sub-option of it, and the settings screen only draws the unlock
+        // switch while this one is on. Gating on either used to keep the
+        // unlock half running invisibly after the rider switched the feature
+        // off - they could see no switch for it and had no way to stop it.
+        // Resetting on the off path also covers every route that turns it off
+        // (settings, the dashboard long-press, restoring a backup).
+        if (settings.proximityLock.lockEnabled) evaluateProximityLock(settings)
+        else proximityLock.reset()
     }
 
     /** Watch telemetry: if the wheel's light state flips without a recent auto-toggle, it's a manual change. */

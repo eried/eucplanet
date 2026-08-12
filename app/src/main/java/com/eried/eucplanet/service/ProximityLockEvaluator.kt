@@ -89,7 +89,13 @@ class ProximityLockEvaluator {
 
         // Returning: strong signal, currently locked, and the rider went away
         // first -> unlock.
-        if (settings.unlockEnabled && locked && unlockArmed && rssiDbm >= unlockAt) {
+        // lockEnabled is required as well: unlocking only ever reverses this
+        // feature's own lock, and the settings screen presents it that way, so
+        // a stale unlockEnabled left over from switching the feature off must
+        // not keep acting on its own.
+        if (settings.lockEnabled && settings.unlockEnabled &&
+            locked && unlockArmed && rssiDbm >= unlockAt
+        ) {
             val since = unlockCandidateSinceMs ?: nowMs.also { unlockCandidateSinceMs = it }
             if (nowMs - since >= HOLD_MS) {
                 unlockCandidateSinceMs = null
