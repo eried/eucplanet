@@ -1335,7 +1335,7 @@
     <string name="proximity_lock_desc">Lock the wheel when you walk away and unlock it when you return, using the Bluetooth signal strength.</string>
     <string name="proximity_lock_enable">Lock when I walk away</string>
     <string name="proximity_lock_below">Lock below</string>
-    <string name="proximity_unlock_when">Unlock when</string>
+    <string name="proximity_unlock_when">Unlock automatically</string>
     <string name="proximity_unlock_when_never">Never</string>
     <string name="proximity_unlock_when_return">I come back</string>
     <string name="proximity_unlock_when_near">I am near</string>

@@ -954,7 +954,7 @@
     <string name="proximity_lock_desc">Verrouille la roue quand tu t\'éloignes et la déverrouille à ton retour, selon la puissance du signal Bluetooth.</string>
     <string name="proximity_lock_enable">Verrouiller si je m\'éloigne</string>
     <string name="proximity_lock_below">Verrouiller en dessous de</string>
-    <string name="proximity_unlock_when">Déverrouiller quand</string>
+    <string name="proximity_unlock_when">Déverrouiller automatiquement</string>
     <string name="proximity_unlock_when_never">Jamais</string>
     <string name="proximity_unlock_when_return">Je reviens</string>
     <string name="proximity_unlock_when_near">Je suis proche</string>

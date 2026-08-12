@@ -954,7 +954,7 @@
     <string name="proximity_lock_desc">Блокирует колесо, когда вы отходите, и разблокирует, когда возвращаетесь, по силе сигнала Bluetooth.</string>
     <string name="proximity_lock_enable">Блокировать при отходе</string>
     <string name="proximity_lock_below">Блокировать ниже</string>
-    <string name="proximity_unlock_when">Разблокировать когда</string>
+    <string name="proximity_unlock_when">Разблокировать автоматически</string>
     <string name="proximity_unlock_when_never">Никогда</string>
     <string name="proximity_unlock_when_return">Я вернусь</string>
     <string name="proximity_unlock_when_near">Я рядом</string>

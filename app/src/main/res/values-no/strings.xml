@@ -405,7 +405,7 @@
     <string name="proximity_lock_desc">Lås hjulet når du går vekk, og lås det opp når du kommer tilbake, ved hjelp av Bluetooth-signalstyrken.</string>
     <string name="proximity_lock_enable">Lås når jeg går vekk</string>
     <string name="proximity_lock_below">Lås under</string>
-    <string name="proximity_unlock_when">Lås opp når</string>
+    <string name="proximity_unlock_when">Lås opp automatisk</string>
     <string name="proximity_unlock_when_never">Aldri</string>
     <string name="proximity_unlock_when_return">Jeg kommer tilbake</string>
     <string name="proximity_unlock_when_near">Jeg er i nærheten</string>

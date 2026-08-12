@@ -954,7 +954,7 @@
     <string name="proximity_lock_desc">Vergrendelt het wiel als je wegloopt en ontgrendelt het als je terugkomt, op basis van de Bluetooth-signaalsterkte.</string>
     <string name="proximity_lock_enable">Vergrendelen als ik wegloop</string>
     <string name="proximity_lock_below">Vergrendelen onder</string>
-    <string name="proximity_unlock_when">Ontgrendelen wanneer</string>
+    <string name="proximity_unlock_when">Automatisch ontgrendelen</string>
     <string name="proximity_unlock_when_never">Nooit</string>
     <string name="proximity_unlock_when_return">Ik terugkom</string>
     <string name="proximity_unlock_when_near">Ik dichtbij ben</string>

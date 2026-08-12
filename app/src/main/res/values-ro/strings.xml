@@ -1207,7 +1207,7 @@
     <string name="proximity_lock_desc">Blochează monociclul când te îndepărtezi și îl deblochează când revii, folosind puterea semnalului Bluetooth.</string>
     <string name="proximity_lock_enable">Blochează când mă îndepărtez</string>
     <string name="proximity_lock_below">Blochează sub</string>
-    <string name="proximity_unlock_when">Deblochează când</string>
+    <string name="proximity_unlock_when">Deblocare automată</string>
     <string name="proximity_unlock_when_never">Niciodată</string>
     <string name="proximity_unlock_when_return">Mă întorc</string>
     <string name="proximity_unlock_when_near">Sunt aproape</string>

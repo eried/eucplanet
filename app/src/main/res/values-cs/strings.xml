@@ -1207,7 +1207,7 @@
     <string name="proximity_lock_desc">Zamkne monokolo, když se vzdálíte, a odemkne je, když se vrátíte, podle síly signálu Bluetooth.</string>
     <string name="proximity_lock_enable">Zamknout, když se vzdálím</string>
     <string name="proximity_lock_below">Zamknout pod</string>
-    <string name="proximity_unlock_when">Odemknout když</string>
+    <string name="proximity_unlock_when">Odemknout automaticky</string>
     <string name="proximity_unlock_when_never">Nikdy</string>
     <string name="proximity_unlock_when_return">Se vrátím</string>
     <string name="proximity_unlock_when_near">Jsem blízko</string>

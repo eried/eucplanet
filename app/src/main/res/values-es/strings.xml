@@ -954,7 +954,7 @@
     <string name="proximity_lock_desc">Bloquea la rueda cuando te alejas y la desbloquea al volver, usando la intensidad de la señal Bluetooth.</string>
     <string name="proximity_lock_enable">Bloquear al alejarme</string>
     <string name="proximity_lock_below">Bloquear por debajo de</string>
-    <string name="proximity_unlock_when">Desbloquear cuando</string>
+    <string name="proximity_unlock_when">Desbloquear automáticamente</string>
     <string name="proximity_unlock_when_never">Nunca</string>
     <string name="proximity_unlock_when_return">Vuelvo</string>
     <string name="proximity_unlock_when_near">Estoy cerca</string>
