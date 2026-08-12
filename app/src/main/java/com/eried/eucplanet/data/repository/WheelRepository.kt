@@ -1378,7 +1378,13 @@ class WheelRepository @Inject constructor(
                 // reflects the settled state, not the optimistic flip.
                 delay(LOCK_COOLDOWN_MS)
                 val s = settingsRepository.get()
-                if (s.announceWheelLock) {
+                // Families that report their lock back announce from the
+                // telemetry handler, which speaks the wheel's real state.
+                // Announcing here as well said it twice for one tap, and a tap
+                // whose write never left the phone got a "locked" from there
+                // and a second "locked" from here - four in a row if the rider
+                // tapped twice more, which is exactly what a tester heard.
+                if (s.announceWheelLock && _wheelData.value.lockedReported == null) {
                     val finalLocked = _locked.value
                     voiceService.announceEvent(context.getString(
                         if (finalLocked) R.string.voice_wheel_locked else R.string.voice_wheel_unlocked

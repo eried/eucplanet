@@ -168,6 +168,22 @@ class BleConnectionManager @Inject constructor(
     private val writeChannel = Channel<ByteArray>(Channel.BUFFERED)
     private var writeReady = false
 
+    /** What the GATT layer did with one write attempt. */
+    private enum class WriteOutcome { ACCEPTED, REJECTED, CONNECTION_LOST }
+
+    /**
+     * How many times a rejected write is re-offered before it is given up on.
+     *
+     * The queue below assumes a write succeeded once 200 ms have passed with no
+     * callback, because some stacks never deliver one. On a slow phone the
+     * callback can arrive later than that, so the next write lands while the
+     * previous is still in flight and the stack answers 201 (write busy). That
+     * used to be logged and thrown away: a rider's lock command simply never
+     * left the phone, which reads as the button doing nothing.
+     */
+    private val WRITE_MAX_ATTEMPTS = 4
+    private val WRITE_RETRY_DELAY_MS = 80L
+
     // Active virtual wheel when in demo mode (address starts with "VIRTUAL:").
     // When non-null, writes are routed to the simulator instead of GATT and the
     // simulator's response bytes are fed back through the adapter pipeline as if
@@ -581,61 +597,27 @@ class BleConnectionManager @Inject constructor(
                 continue
             }
 
-            writeReady = false
-            val characteristic = rxCharacteristic ?: continue
-            val g = gatt ?: continue
-
-            // Pick the write type from the active adapter's profile. HM-10
-            // (KingSong / Begode / Veteran) uses WRITE_TYPE_NO_RESPONSE
-            // because those modules don't reliably ACK WRITE_TYPE_DEFAULT
-            // writes. InMotion V2 / V1 stay on the safer WRITE_TYPE_DEFAULT.
-            val writeType = wheelAdapter.bleProfile().writeType
-            try {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                    val result = g.writeCharacteristic(characteristic, data, writeType)
-                    Log.d(TAG, "writeCharacteristic result: $result (${data.size} bytes, type=$writeType)")
-                    // Diagnostic: a non-SUCCESS code means the stack REJECTED the
-                    // write - it never went over the air. If the tester's
-                    // "connected but wheel never acks" failures show these, the
-                    // writes are dying on the phone (GATT-layer), not lost to RF.
-                    if (result != android.bluetooth.BluetoothStatusCodes.SUCCESS) {
-                        com.eried.eucplanet.diagnostics.DiagnosticsLogger.note(
-                            "Write REJECTED by BLE stack: code=$result (${data.size}B) - not sent over the air"
-                        )
-                    }
-                } else {
-                    @Suppress("DEPRECATION")
-                    characteristic.value = data
-                    @Suppress("DEPRECATION")
-                    characteristic.writeType = writeType
-                    @Suppress("DEPRECATION")
-                    val result = g.writeCharacteristic(characteristic)
-                    Log.d(TAG, "writeCharacteristic result: $result (${data.size} bytes, type=$writeType)")
-                    if (!result) {
-                        com.eried.eucplanet.diagnostics.DiagnosticsLogger.note(
-                            "Write REJECTED by BLE stack (${data.size}B) - not sent over the air"
-                        )
+            var connectionLost = false
+            for (attempt in 1..WRITE_MAX_ATTEMPTS) {
+                writeReady = false
+                when (attemptWrite(data)) {
+                    WriteOutcome.ACCEPTED -> break
+                    WriteOutcome.CONNECTION_LOST -> { connectionLost = true; break }
+                    WriteOutcome.REJECTED -> {
+                        // The stack refused it, so nothing is in flight from us.
+                        writeReady = true
+                        if (attempt == WRITE_MAX_ATTEMPTS) {
+                            com.eried.eucplanet.diagnostics.DiagnosticsLogger.note(
+                                "Write DROPPED after $WRITE_MAX_ATTEMPTS attempts (${data.size}B) - " +
+                                    "the stack stayed busy"
+                            )
+                        } else {
+                            delay(WRITE_RETRY_DELAY_MS)
+                        }
                     }
                 }
-            } catch (e: Exception) {
-                // The GATT binder can die mid-write - Bluetooth toggled off, or
-                // the wheel dropping out of range - and writeCharacteristic
-                // surfaces that as a DeadObjectException wrapped in a
-                // RuntimeException. It is not a checked throw, so an uncaught one
-                // crashes the whole app from this background coroutine. Treat it
-                // as a lost connection: drop the dead GATT and fall back to
-                // DISCONNECTED so the normal disconnect/reconnect path recovers.
-                Log.w(TAG, "writeCharacteristic threw; connection lost, tearing down", e)
-                if (gatt === g) {
-                    rxCharacteristic = null
-                    try { g.close() } catch (_: Exception) {}
-                    gatt = null
-                    wheelAdapter.onDisconnect()
-                    _connectionState.value = ConnectionState.DISCONNECTED
-                }
-                writeReady = true
-                continue
             }
+            if (connectionLost) continue
 
             // Wait for write callback or timeout
             delay(20)
@@ -643,6 +625,71 @@ class BleConnectionManager @Inject constructor(
                 delay(180) // longer wait for write-with-response
                 writeReady = true // assume success after timeout
             }
+        }
+    }
+
+    /**
+     * One pass at handing [data] to the GATT layer. Separate from the queue so
+     * a rejection can simply be retried; see [WRITE_MAX_ATTEMPTS].
+     */
+    @SuppressLint("MissingPermission")
+    private fun attemptWrite(data: ByteArray): WriteOutcome {
+        val characteristic = rxCharacteristic ?: return WriteOutcome.CONNECTION_LOST
+        val g = gatt ?: return WriteOutcome.CONNECTION_LOST
+
+        // Pick the write type from the active adapter's profile. HM-10
+        // (KingSong / Begode / Veteran) uses WRITE_TYPE_NO_RESPONSE
+        // because those modules don't reliably ACK WRITE_TYPE_DEFAULT
+        // writes. InMotion V2 / V1 stay on the safer WRITE_TYPE_DEFAULT.
+        val writeType = wheelAdapter.bleProfile().writeType
+        return try {
+            val accepted = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                val result = g.writeCharacteristic(characteristic, data, writeType)
+                Log.d(TAG, "writeCharacteristic result: $result (${data.size} bytes, type=$writeType)")
+                // A non-SUCCESS code means the stack REJECTED the write - it
+                // never went over the air. Kept in the diagnostics log even
+                // though we now retry, because a burst of these is the
+                // signature of a phone whose write callbacks run late.
+                if (result != android.bluetooth.BluetoothStatusCodes.SUCCESS) {
+                    com.eried.eucplanet.diagnostics.DiagnosticsLogger.note(
+                        "Write REJECTED by BLE stack: code=$result (${data.size}B) - not sent over the air"
+                    )
+                }
+                result == android.bluetooth.BluetoothStatusCodes.SUCCESS
+            } else {
+                @Suppress("DEPRECATION")
+                characteristic.value = data
+                @Suppress("DEPRECATION")
+                characteristic.writeType = writeType
+                @Suppress("DEPRECATION")
+                val result = g.writeCharacteristic(characteristic)
+                Log.d(TAG, "writeCharacteristic result: $result (${data.size} bytes, type=$writeType)")
+                if (!result) {
+                    com.eried.eucplanet.diagnostics.DiagnosticsLogger.note(
+                        "Write REJECTED by BLE stack (${data.size}B) - not sent over the air"
+                    )
+                }
+                result
+            }
+            if (accepted) WriteOutcome.ACCEPTED else WriteOutcome.REJECTED
+        } catch (e: Exception) {
+            // The GATT binder can die mid-write - Bluetooth toggled off, or
+            // the wheel dropping out of range - and writeCharacteristic
+            // surfaces that as a DeadObjectException wrapped in a
+            // RuntimeException. It is not a checked throw, so an uncaught one
+            // crashes the whole app from this background coroutine. Treat it
+            // as a lost connection: drop the dead GATT and fall back to
+            // DISCONNECTED so the normal disconnect/reconnect path recovers.
+            Log.w(TAG, "writeCharacteristic threw; connection lost, tearing down", e)
+            if (gatt === g) {
+                rxCharacteristic = null
+                try { g.close() } catch (_: Exception) {}
+                gatt = null
+                wheelAdapter.onDisconnect()
+                _connectionState.value = ConnectionState.DISCONNECTED
+            }
+            writeReady = true
+            WriteOutcome.CONNECTION_LOST
         }
     }
 
