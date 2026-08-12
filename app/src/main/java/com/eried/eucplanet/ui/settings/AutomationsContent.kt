@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -23,6 +24,9 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Slider
+import androidx.compose.material3.SegmentedButton
+import androidx.compose.material3.SegmentedButtonDefaults
+import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -54,6 +58,9 @@ import com.eried.eucplanet.service.AUTO_VOLUME_MAX_MULTIPLIER
 import com.eried.eucplanet.service.encodeVolumeCurve
 import com.eried.eucplanet.service.parseVolumeCurve
 import com.eried.eucplanet.service.pchipInterpolate
+import com.eried.eucplanet.data.model.ProximityLockSettings
+import com.eried.eucplanet.ui.theme.FieldNotchLabel
+import com.eried.eucplanet.ui.theme.themedSegmentedColors
 import com.eried.eucplanet.ui.common.HintText
 import com.eried.eucplanet.ui.theme.appColors
 import com.eried.eucplanet.util.SunCalculator
@@ -377,6 +384,36 @@ fun AutomationsContent(
                     colors = themedSwitchColors(),)
             }
             if (settings.proximityLock.unlockEnabled) {
+                // Whether a strong signal is enough on its own, or the rider
+                // has to have walked away first. Riders genuinely split on
+                // this, so it is asked rather than assumed.
+                val unlockWhenEntries = listOf(
+                    ProximityLockSettings.UNLOCK_WHEN_RETURN to
+                        stringResource(R.string.proximity_unlock_when_return),
+                    ProximityLockSettings.UNLOCK_WHEN_NEAR to
+                        stringResource(R.string.proximity_unlock_when_near),
+                )
+                Box(modifier = Modifier.fillMaxWidth().padding(top = 9.dp)) {
+                    SingleChoiceSegmentedButtonRow(
+                        modifier = Modifier.fillMaxWidth().height(56.dp)
+                    ) {
+                        unlockWhenEntries.forEachIndexed { index, (key, label) ->
+                            SegmentedButton(
+                                modifier = Modifier.fillMaxHeight(),
+                                selected = key == settings.proximityLock.unlockWhen,
+                                onClick = { viewModel.updateProxUnlockWhen(key) },
+                                shape = SegmentedButtonDefaults.itemShape(
+                                    index, unlockWhenEntries.size,
+                                    baseShape = RoundedCornerShape(12.dp)
+                                ),
+                                colors = themedSegmentedColors(),
+                            ) { Text(label) }
+                        }
+                    }
+                    FieldNotchLabel(stringResource(R.string.proximity_unlock_when))
+                }
+                HintText(stringResource(R.string.proximity_unlock_when_desc), small = true)
+
                 NumberUpDown(
                     value = settings.proximityLock.unlockAboveDbm,
                     onValueChange = { viewModel.updateProxUnlockAbove(it) },

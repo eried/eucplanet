@@ -163,6 +163,50 @@ class ProximityLockEvaluatorTest {
     }
 
     @Test
+    fun `near mode unlocks a hand-locked wheel without any walk-away`() {
+        // The other half of the split: a rider who wants "next to my wheel
+        // means unlocked" gets exactly that, including for the lock they just
+        // made by hand, which the default mode deliberately leaves alone.
+        val near = both.copy(unlockWhen = ProximityLockSettings.UNLOCK_WHEN_NEAR)
+        val e = ProximityLockEvaluator()
+        assertEquals(Action.UNLOCK, e.feed(-55, locked = true, settings = near).last())
+    }
+
+    @Test
+    fun `near mode still waits out the hold and the dead-band`() {
+        val near = both.copy(unlockWhen = ProximityLockSettings.UNLOCK_WHEN_NEAR)
+        val e = ProximityLockEvaluator()
+        assertEquals(Action.NONE, e.evaluate(0, -55, true, near))
+        assertEquals(Action.NONE, e.evaluate(hold - 1, -55, true, near))
+        assertEquals(Action.UNLOCK, e.evaluate(hold, -55, true, near))
+        // A weak signal never unlocks, whatever the mode.
+        val f = ProximityLockEvaluator()
+        val weak = f.feed(-75, locked = true, settings = near, forMs = hold * 2)
+        assertEquals(emptyList<Action>(), weak.filter { it == Action.UNLOCK })
+    }
+
+    @Test
+    fun `near mode is still off when the feature is off`() {
+        val near = both.copy(
+            lockEnabled = false,
+            unlockWhen = ProximityLockSettings.UNLOCK_WHEN_NEAR,
+        )
+        val e = ProximityLockEvaluator()
+        val actions = e.feed(-55, locked = true, settings = near, forMs = hold * 3)
+        assertEquals(emptyList<Action>(), actions.filter { it != Action.NONE })
+    }
+
+    @Test
+    fun `an unknown mode behaves like the cautious one`() {
+        // sanitized() rewrites these, but the evaluator must not open the lock
+        // on its own if one ever reaches it.
+        val odd = both.copy(unlockWhen = "SOMETHING_ELSE")
+        val e = ProximityLockEvaluator()
+        val actions = e.feed(-55, locked = true, settings = odd, forMs = hold * 3)
+        assertEquals(emptyList<Action>(), actions.filter { it != Action.NONE })
+    }
+
+    @Test
     fun `reset disarms so a reconnect cannot unlock a wheel left locked`() {
         val e = ProximityLockEvaluator()
         e.feed(-75, locked = false)                                  // auto-lock, arms

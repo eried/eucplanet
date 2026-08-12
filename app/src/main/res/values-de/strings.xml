@@ -950,7 +950,11 @@
     <string name="proximity_lock_desc">Sperrt das Wheel, wenn du dich entfernst, und entsperrt es bei deiner Rückkehr, anhand der Bluetooth-Signalstärke.</string>
     <string name="proximity_lock_enable">Sperren, wenn ich weggehe</string>
     <string name="proximity_lock_below">Sperren unter</string>
-    <string name="proximity_unlock_enable">Entsperren bei Rückkehr</string>
+    <string name="proximity_unlock_enable">Automatisch entsperren</string>
+    <string name="proximity_unlock_when">Entsperren wenn</string>
+    <string name="proximity_unlock_when_return">Ich zurückkomme</string>
+    <string name="proximity_unlock_when_near">Ich in der Nähe bin</string>
+    <string name="proximity_unlock_when_desc">Ich zurückkomme: entsperrt erst, nachdem du weggegangen bist, eine selbst gesetzte Sperre bleibt. Ich in der Nähe bin: entsperrt allein bei starkem Signal, auch eine gerade gesetzte Sperre.</string>
     <string name="proximity_unlock_above">Entsperren über</string>
     <string name="proximity_lock_signal_live">Aktuelles Signal: %1$d dBm</string>
     <string name="proximity_lock_signal_none">Verbinde dein Wheel, um hier das Live-Signal zu sehen.</string>

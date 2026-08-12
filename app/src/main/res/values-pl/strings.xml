@@ -954,7 +954,11 @@
     <string name="proximity_lock_desc">Blokuje koło, gdy się oddalasz, i odblokowuje je, gdy wracasz, na podstawie siły sygnału Bluetooth.</string>
     <string name="proximity_lock_enable">Zablokuj, gdy się oddalę</string>
     <string name="proximity_lock_below">Zablokuj poniżej</string>
-    <string name="proximity_unlock_enable">Odblokuj, gdy wrócę</string>
+    <string name="proximity_unlock_enable">Odblokuj automatycznie</string>
+    <string name="proximity_unlock_when">Odblokuj gdy</string>
+    <string name="proximity_unlock_when_return">Wrócę</string>
+    <string name="proximity_unlock_when_near">Jestem blisko</string>
+    <string name="proximity_unlock_when_desc">Wrócę: odblokuje dopiero po tym, jak się oddalisz, więc blokada ustawiona ręcznie zostaje. Jestem blisko: odblokuje na samym silnym sygnale, także blokadę właśnie ustawioną.</string>
     <string name="proximity_unlock_above">Odblokuj powyżej</string>
     <string name="proximity_lock_signal_live">Bieżący sygnał: %1$d dBm</string>
     <string name="proximity_lock_signal_none">Połącz koło, aby odczytać tutaj sygnał na żywo.</string>

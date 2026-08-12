@@ -529,7 +529,11 @@
     <string name="proximity_lock_desc">Blocca la ruota quando ti allontani e la sblocca al tuo ritorno, in base alla potenza del segnale Bluetooth.</string>
     <string name="proximity_lock_enable">Blocca se mi allontano</string>
     <string name="proximity_lock_below">Blocca sotto</string>
-    <string name="proximity_unlock_enable">Sblocca al ritorno</string>
+    <string name="proximity_unlock_enable">Sblocca automaticamente</string>
+    <string name="proximity_unlock_when">Sblocca quando</string>
+    <string name="proximity_unlock_when_return">Torno</string>
+    <string name="proximity_unlock_when_near">Sono vicino</string>
+    <string name="proximity_unlock_when_desc">Torno: sblocca solo dopo che ti sei allontanato, quindi un blocco fatto a mano resta. Sono vicino: sblocca con il solo segnale forte, anche un blocco appena fatto.</string>
     <string name="proximity_unlock_above">Sblocca sopra</string>
     <string name="proximity_lock_signal_live">Segnale attuale: %1$d dBm</string>
     <string name="proximity_lock_signal_none">Connetti la ruota per leggere qui il segnale in tempo reale.</string>

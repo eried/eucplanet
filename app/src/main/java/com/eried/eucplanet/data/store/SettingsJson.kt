@@ -133,6 +133,7 @@ object SettingsJson {
             put("lockBelowDbm", s.proximityLock.lockBelowDbm)
             put("unlockEnabled", s.proximityLock.unlockEnabled)
             put("unlockAboveDbm", s.proximityLock.unlockAboveDbm)
+            put("unlockWhen", s.proximityLock.unlockWhen)
         })
         put("announceWheelLock", s.announceWheelLock)
         put("announceLights", s.announceLights)
@@ -442,6 +443,7 @@ object SettingsJson {
                 lockBelowDbm = p.optInt("lockBelowDbm", base.proximityLock.lockBelowDbm),
                 unlockEnabled = p.optBoolean("unlockEnabled", base.proximityLock.unlockEnabled),
                 unlockAboveDbm = p.optInt("unlockAboveDbm", base.proximityLock.unlockAboveDbm),
+                unlockWhen = p.optString("unlockWhen", base.proximityLock.unlockWhen),
             )
         } ?: base.proximityLock,
         announceWheelLock = j.optBoolean("announceWheelLock", base.announceWheelLock),

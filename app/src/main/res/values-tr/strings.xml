@@ -951,7 +951,11 @@
     <string name="proximity_lock_desc">Bluetooth sinyal gücünü kullanarak, uzaklaştığınızda tekeri kilitler, döndüğünüzde kilidini açar.</string>
     <string name="proximity_lock_enable">Uzaklaşınca kilitle</string>
     <string name="proximity_lock_below">Altında kilitle</string>
-    <string name="proximity_unlock_enable">Dönünce kilidi aç</string>
+    <string name="proximity_unlock_enable">Otomatik kilit aç</string>
+    <string name="proximity_unlock_when">Kilidi açma zamanı</string>
+    <string name="proximity_unlock_when_return">Geri döndüğümde</string>
+    <string name="proximity_unlock_when_near">Yakındayken</string>
+    <string name="proximity_unlock_when_desc">Geri döndüğümde: yalnızca uzaklaştıktan sonra kilidi açar, elle kurduğun kilit kalır. Yakındayken: sadece güçlü sinyalle açar, az önce kurduğun kilit dahil.</string>
     <string name="proximity_unlock_above">Üstünde kilit aç</string>
     <string name="proximity_lock_signal_live">Mevcut sinyal: %1$d dBm</string>
     <string name="proximity_lock_signal_none">Canlı sinyali burada görmek için tekeri bağlayın.</string>

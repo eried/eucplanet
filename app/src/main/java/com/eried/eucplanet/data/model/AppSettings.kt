@@ -1064,7 +1064,31 @@ data class ProximityLockSettings(
     // Unlock when the signal is at or above this (dBm) - the rider is back close.
     // -62 unlocks within ~2-3 steps; must stay reachable (near maxes out ~-59).
     val unlockAboveDbm: Int = -62,
-)
+    /**
+     * What a strong signal has to mean before the wheel unlocks itself.
+     *
+     * "RETURN" (default): only after the signal actually faded first, so the
+     * wheel has to have been left behind. A lock the rider made by hand while
+     * standing next to the wheel is theirs to undo - the automation treats it
+     * as deliberate and keeps its hands off until they have walked away and
+     * come back.
+     *
+     * "NEAR": a strong signal is enough on its own, whatever locked the wheel.
+     * Symmetric with the lock half, and what a rider means by "when I am next
+     * to my wheel it should be unlocked" - at the cost of undoing a lock they
+     * just made by hand.
+     *
+     * Both are defensible and two testers wanted opposite ones, which is why
+     * this is a choice rather than a judgement call baked into the code.
+     */
+    val unlockWhen: String = UNLOCK_WHEN_RETURN,
+) {
+    companion object {
+        const val UNLOCK_WHEN_RETURN = "RETURN"
+        const val UNLOCK_WHEN_NEAR = "NEAR"
+        val UNLOCK_WHEN_VALUES = setOf(UNLOCK_WHEN_RETURN, UNLOCK_WHEN_NEAR)
+    }
+}
 
 /**
  * Which items the periodic and on-trigger voice reports speak.

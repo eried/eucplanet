@@ -1,6 +1,7 @@
 package com.eried.eucplanet.data.repository
 
 import com.eried.eucplanet.data.model.ADVANCED_SPECS
+import com.eried.eucplanet.data.model.ProximityLockSettings
 import com.eried.eucplanet.data.model.AppSettings
 import com.eried.eucplanet.data.store.SettingsStore
 import kotlinx.coroutines.CoroutineScope
@@ -55,5 +56,13 @@ class SettingsRepository @Inject constructor(
         // BLE/IO loops. Every settings read — get() and the settings Flow —
         // passes through here, so consumers never see an unsafe value.
         advanced = ADVANCED_SPECS.fold(advanced) { a, s -> s.set(a, s.get(a).coerceIn(s.range)) },
+        // An imported or Dropbox-synced file can carry an unlockWhen this build
+        // does not know. Fall back to the cautious one rather than letting an
+        // unrecognised value decide when a wheel unlocks itself.
+        proximityLock = if (proximityLock.unlockWhen in ProximityLockSettings.UNLOCK_WHEN_VALUES) {
+            proximityLock
+        } else {
+            proximityLock.copy(unlockWhen = ProximityLockSettings.UNLOCK_WHEN_RETURN)
+        },
     )
 }

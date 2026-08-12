@@ -616,6 +616,9 @@ class SettingsViewModel @Inject constructor(
         update { copy(proximityLock = proximityLock.copy(lockBelowDbm = v.coerceIn(-110, -30))) }
     fun updateProxUnlockEnabled(v: Boolean) = update { copy(proximityLock = proximityLock.copy(unlockEnabled = v)) }
         .also { if (!v) automationManager.resetProximityLock() }
+    fun updateProxUnlockWhen(v: String) =
+        update { copy(proximityLock = proximityLock.copy(unlockWhen = v)) }
+            .also { automationManager.resetProximityLock() }
     fun updateProxUnlockAbove(v: Int) =
         update { copy(proximityLock = proximityLock.copy(unlockAboveDbm = v.coerceIn(-100, -15))) }
 

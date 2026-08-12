@@ -954,7 +954,11 @@
     <string name="proximity_lock_desc">Lås hjulet, når du går væk, og lås det op, når du kommer tilbage, ved hjælp af Bluetooth-signalstyrken.</string>
     <string name="proximity_lock_enable">Lås, når jeg går væk</string>
     <string name="proximity_lock_below">Lås under</string>
-    <string name="proximity_unlock_enable">Lås op, når jeg vender tilbage</string>
+    <string name="proximity_unlock_enable">Lås op automatisk</string>
+    <string name="proximity_unlock_when">Lås op når</string>
+    <string name="proximity_unlock_when_return">Jeg kommer tilbage</string>
+    <string name="proximity_unlock_when_near">Jeg er tæt på</string>
+    <string name="proximity_unlock_when_desc">Jeg kommer tilbage: låser først op, når du har gået væk, så en lås du selv har sat, bliver. Jeg er tæt på: låser op ved stærkt signal alene, også en lås du lige har sat.</string>
     <string name="proximity_unlock_above">Lås op over</string>
     <string name="proximity_lock_signal_live">Aktuelt signal: %1$d dBm</string>
     <string name="proximity_lock_signal_none">Forbind dit hjul for at se det aktuelle signal her.</string>

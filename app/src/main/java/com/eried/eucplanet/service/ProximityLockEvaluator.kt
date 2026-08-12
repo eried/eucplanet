@@ -87,14 +87,19 @@ class ProximityLockEvaluator {
             }
         } else lockCandidateSinceMs = null
 
-        // Returning: strong signal, currently locked, and the rider went away
-        // first -> unlock.
+        // Returning: strong signal and a locked wheel -> unlock.
+        //
         // lockEnabled is required as well: unlocking only ever reverses this
         // feature's own lock, and the settings screen presents it that way, so
         // a stale unlockEnabled left over from switching the feature off must
         // not keep acting on its own.
+        //
+        // Whether the rider had to walk away first is theirs to choose; see
+        // [ProximityLockSettings.unlockWhen]. In NEAR the signal speaks for
+        // itself, which is symmetric with the lock half above.
+        val needsWalkAway = settings.unlockWhen != ProximityLockSettings.UNLOCK_WHEN_NEAR
         if (settings.lockEnabled && settings.unlockEnabled &&
-            locked && unlockArmed && rssiDbm >= unlockAt
+            locked && (unlockArmed || !needsWalkAway) && rssiDbm >= unlockAt
         ) {
             val since = unlockCandidateSinceMs ?: nowMs.also { unlockCandidateSinceMs = it }
             if (nowMs - since >= HOLD_MS) {
