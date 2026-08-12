@@ -145,6 +145,7 @@ class WheelService : LifecycleService() {
         com.eried.eucplanet.data.repository.ExternalGpsRepository
     @Inject lateinit var navigationEngine: com.eried.eucplanet.nav.NavigationEngine
     @Inject lateinit var hudServer: com.eried.eucplanet.service.hud.HudServer
+    @Inject lateinit var engoHudRenderer: com.eried.eucplanet.service.hud.engo.EngoHudRenderer
     @Inject lateinit var radarRepository: com.eried.eucplanet.data.repository.RadarRepository
     @Inject lateinit var phoneHudWindow: com.eried.eucplanet.service.overlay.PhoneHudWindow
 
@@ -255,6 +256,7 @@ class WheelService : LifecycleService() {
         // Apply engine settings + lifecycle on settings changes and connection
         lifecycleScope.launch {
             var hudWasOn = false
+            var engoWasOn = false
             settingsRepository.settings.collect { s ->
                 // Notification builder reads the speed unit without suspending;
                 // mirror the latest value here every settings update.
@@ -304,6 +306,12 @@ class WheelService : LifecycleService() {
                 if (effective != hudWasOn) {
                     if (effective) hudServer.start() else hudServer.stop()
                     hudWasOn = effective
+                }
+                // ENGO glasses HUD: independent BLE output, started on its own toggle.
+                if (s.engoHudEnabled != engoWasOn) {
+                    if (s.engoHudEnabled) engoHudRenderer.start(s.engoHudAutoConnect)
+                    else engoHudRenderer.stop()
+                    engoWasOn = s.engoHudEnabled
                 }
             }
         }
@@ -605,6 +613,7 @@ class WheelService : LifecycleService() {
         try { phoneHudWindow.hide() } catch (_: Exception) {}
         phoneHudHistory.clear()
         try { hudServer.stop() } catch (_: Exception) {}
+        try { engoHudRenderer.stop() } catch (_: Exception) {}
         voiceJob?.cancel()
         engineSoundEngine.stop()
         // Restore the rider's media volume if speed-based auto-volume scaled it

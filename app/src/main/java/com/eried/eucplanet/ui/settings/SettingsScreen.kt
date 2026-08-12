@@ -10772,6 +10772,14 @@ private fun HudIntegrationSection(
             onCheckedChange = { viewModel.updateHudServerEnabled(it) }
         )
 
+        // ENGO 2 / 3 ActiveLook glasses HUD - a separate BLE output, not the
+        // MotoEye network link above. Auto-connects to the glasses when on.
+        SwitchSetting(
+            label = stringResource(R.string.engo_hud_enabled),
+            checked = settings.engoHudEnabled,
+            onCheckedChange = { viewModel.updateEngoHudEnabled(it) }
+        )
+
         // Discovery activity (which channel found the HUD, probes, dial
         // attempts, transient reconnects after a WiFi switch, etc.) is
         // piped to the Service Mode log as NOTE entries. Riders don't see

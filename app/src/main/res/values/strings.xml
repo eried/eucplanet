@@ -355,6 +355,7 @@
     <!-- HUD companion settings -->
     <string name="section_hud_companion">Motoeye HUD</string>
     <string name="hud_server_enabled">Enable data link</string>
+    <string name="engo_hud_enabled">ENGO glasses HUD</string>
     <string name="hud_ip_label">Device IP</string>
     <string name="hud_ip_label_autodetect">Device IP (automatic)</string>
     <string name="hud_auto_discover">Discover link address automatically</string>

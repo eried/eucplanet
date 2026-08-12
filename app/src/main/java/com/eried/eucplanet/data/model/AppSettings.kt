@@ -574,6 +574,10 @@ data class AppSettings(
      * "should the radio be running?". The two should be independent.
      */
     val hudServerEnabled: Boolean = false,
+    // ENGO 2 / 3 ActiveLook glasses HUD (BLE). Opt-in and independent of the
+    // MotoEye network HUD above; auto-connect scans for the glasses on enable.
+    val engoHudEnabled: Boolean = false,
+    val engoHudAutoConnect: Boolean = true,
     /** Keep the foreground service (ongoing notification) alive even with no wheel
      *  connected, so background trip sync and voice keep running. Default on. */
     val keepAppAlive: Boolean = true,
