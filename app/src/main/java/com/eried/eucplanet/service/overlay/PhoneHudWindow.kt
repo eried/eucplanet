@@ -6,16 +6,24 @@ import android.os.Build
 import android.provider.Settings
 import android.util.Log
 import android.view.Gravity
+import android.view.Surface
 import android.view.View
 import android.view.WindowManager
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleRegistry
 import androidx.lifecycle.ViewModelStore
@@ -133,14 +141,19 @@ class PhoneHudWindow @Inject constructor(
             PixelFormat.TRANSLUCENT,
         ).apply {
             gravity = Gravity.TOP or Gravity.START
-            // Pinned to portrait so the overlay never rotates with the phone.
+            // Deliberately no screenOrientation here.
             //
-            // Without this the window re-lays out on every rotation and a
-            // layout authored for one shape jumps to the other. Pinned, a
-            // preset is drawn exactly as it was built, whichever way the phone
-            // is held, and a landscape preset's per-element rotation is simply
-            // part of what the rider drew rather than something to undo.
-            screenOrientation = android.content.pm.ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+            // Pinning it to portrait kept the preset from reflowing when the
+            // phone turned, which was the intent - but a screenOrientation on a
+            // TYPE_APPLICATION_OVERLAY does not orient just this window, it
+            // orients the display. With the HUD up, every other app on the
+            // phone was locked to portrait, auto-rotate setting or not. An
+            // overlay has no business deciding how the rider's maps or video
+            // app is oriented.
+            //
+            // So the window rotates with the phone like everything else. A
+            // preset built for one shape reflowing in the other is a cosmetic
+            // cost; taking away rotation across the whole device is not.
         }
 
         return try {
@@ -224,22 +237,59 @@ private fun Content(
     // Default palette rather than the rider's chosen theme: resolving that
     // needs the settings pipeline an Activity has, and every element carries
     // its own colours anyway. The theme only supplies fallbacks here.
+    // Turned back by however much the display is turned, so the overlay stays
+    // put on the glass while the phone and the app underneath rotate freely.
+    //
+    // The window itself cannot be pinned: a screenOrientation on an overlay
+    // orients the whole display, which locked every other app to portrait. So
+    // the window rotates with the device and the content undoes it here, which
+    // is the only way to hold the preset still without taking rotation away
+    // from the rider's other apps.
+    val configuration = LocalConfiguration.current
+    val context = LocalContext.current
+    val displayRotation = remember(configuration) {
+        val wm = context.getSystemService(Context.WINDOW_SERVICE) as? WindowManager
+        @Suppress("DEPRECATION")
+        wm?.defaultDisplay?.rotation ?: Surface.ROTATION_0
+    }
+    val degrees = when (displayRotation) {
+        Surface.ROTATION_90 -> -90f
+        Surface.ROTATION_180 -> 180f
+        Surface.ROTATION_270 -> 90f
+        else -> 0f
+    }
+
     EucPlanetTheme {
         BoxWithConstraints(Modifier.fillMaxSize()) {
             val d = data ?: return@BoxWithConstraints
-            StudioElementLayer(
-                elements = els,
-                data = d,
-                editable = false,
-                selectedId = null,
-                // Same flag the trip replay uses. It is what keeps a floating
-                // camera from being asked for a feed that does not exist.
-                replayMode = true,
-                onSelect = {},
-                onConfigure = {},
-                onDelete = {},
-                onChange = {},
-            )
+            // On a quarter turn the window is landscape but the preset still
+            // wants portrait bounds, so the box keeps the original shape and
+            // the rotation puts it back upright.
+            val quarterTurn = degrees == 90f || degrees == -90f
+            val contentWidth = if (quarterTurn) maxHeight else maxWidth
+            val contentHeight = if (quarterTurn) maxWidth else maxHeight
+            // BoxWithConstraints rather than Box: the renderer is an extension
+            // on its scope, and it needs the rotated bounds, not the window's.
+            BoxWithConstraints(
+                Modifier
+                    .align(Alignment.Center)
+                    .size(contentWidth, contentHeight)
+                    .graphicsLayer { rotationZ = degrees },
+            ) {
+                StudioElementLayer(
+                    elements = els,
+                    data = d,
+                    editable = false,
+                    selectedId = null,
+                    // Same flag the trip replay uses. It is what keeps a floating
+                    // camera from being asked for a feed that does not exist.
+                    replayMode = true,
+                    onSelect = {},
+                    onConfigure = {},
+                    onDelete = {},
+                    onChange = {},
+                )
+            }
         }
     }
 }
