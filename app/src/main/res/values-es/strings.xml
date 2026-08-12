@@ -959,8 +959,7 @@
     <string name="proximity_unlock_when_return">Vuelvo</string>
     <string name="proximity_unlock_when_near">Estoy cerca</string>
     <string name="proximity_unlock_above">Señal sobre</string>
-    <string name="proximity_lock_signal_live">Señal actual: %1$d dBm</string>
-    <string name="proximity_lock_signal_none">Conecta tu rueda para ver aquí su señal en vivo.</string>
+    <string name="proximity_lock_signal_live">Señal actual: %1$s</string>
     <string name="proximity_lock_hint">El bloqueo necesita una conexión activa, así que ocurre mientras la señal se debilita, no cuando ya estás fuera de alcance.</string>
     <string name="auto_lock_override_toast">El bloqueo automático está activo y puede anular esto.</string>
     <string name="auto_lock_override_action">Configurar</string>

@@ -955,8 +955,7 @@
     <string name="proximity_unlock_when_return">Ich zurückkomme</string>
     <string name="proximity_unlock_when_near">Ich in der Nähe bin</string>
     <string name="proximity_unlock_above">Signal über</string>
-    <string name="proximity_lock_signal_live">Aktuelles Signal: %1$d dBm</string>
-    <string name="proximity_lock_signal_none">Verbinde dein Wheel, um hier das Live-Signal zu sehen.</string>
+    <string name="proximity_lock_signal_live">Aktuelles Signal: %1$s</string>
     <string name="proximity_lock_hint">Sperren braucht eine aktive Verbindung. Es passiert, während das Signal schwächer wird, nicht erst außer Reichweite.</string>
     <string name="auto_lock_override_toast">Auto-Sperre ist aktiv und kann dies überschreiben.</string>
     <string name="auto_lock_override_action">Konfigurieren</string>

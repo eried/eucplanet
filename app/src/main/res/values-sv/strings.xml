@@ -955,8 +955,7 @@
     <string name="proximity_unlock_when_return">Jag kommer tillbaka</string>
     <string name="proximity_unlock_when_near">Jag är nära</string>
     <string name="proximity_unlock_above">Signal över</string>
-    <string name="proximity_lock_signal_live">Aktuell signal: %1$d dBm</string>
-    <string name="proximity_lock_signal_none">Anslut ditt hjul för att se dess aktuella signal här.</string>
+    <string name="proximity_lock_signal_live">Aktuell signal: %1$s</string>
     <string name="proximity_lock_hint">Låsning kräver en aktiv anslutning, så den sker medan signalen försvagas, inte först när du är utom räckhåll.</string>
     <string name="auto_lock_override_toast">Autolås är på och kan åsidosätta detta.</string>
     <string name="auto_lock_override_action">Konfigurera</string>

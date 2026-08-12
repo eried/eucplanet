@@ -956,8 +956,7 @@
     <string name="proximity_unlock_when_return">我返回時</string>
     <string name="proximity_unlock_when_near">我在附近時</string>
     <string name="proximity_unlock_above">訊號高於</string>
-    <string name="proximity_lock_signal_live">目前訊號：%1$d dBm</string>
-    <string name="proximity_lock_signal_none">連接車輪即可在此查看即時訊號。</string>
+    <string name="proximity_lock_signal_live">目前訊號：%1$s</string>
     <string name="proximity_lock_hint">鎖定需要保持連線，因此會在訊號減弱時觸發，而非在您完全超出範圍之後。</string>
     <string name="auto_lock_override_toast">自動鎖定已開啟，可能會覆蓋此設定。</string>
     <string name="auto_lock_override_action">設定</string>

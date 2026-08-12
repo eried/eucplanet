@@ -1212,8 +1212,7 @@
     <string name="proximity_unlock_when_return">Se vrátím</string>
     <string name="proximity_unlock_when_near">Jsem blízko</string>
     <string name="proximity_unlock_above">Signál nad</string>
-    <string name="proximity_lock_signal_live">Aktuální signál: %1$d dBm</string>
-    <string name="proximity_lock_signal_none">Připojte monokolo, ať zde vidíte jeho živý signál.</string>
+    <string name="proximity_lock_signal_live">Aktuální signál: %1$s</string>
     <string name="proximity_lock_hint">Zamykání vyžaduje živé připojení, takže proběhne, jakmile signál slábne, ne až budete mimo dosah.</string>
     <string name="auto_lock_override_toast">Automatický zámek je zapnutý a může toto přebít.</string>
     <string name="auto_lock_override_action">Nastavit</string>

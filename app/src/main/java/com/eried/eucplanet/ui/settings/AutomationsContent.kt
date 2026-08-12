@@ -351,15 +351,24 @@ fun AutomationsContent(
             // to, and read the two thresholds off it. Sits with the numbers it
             // is read against rather than above the switch, where it was the
             // furthest thing in the section from what it is for.
+            //
+            // One line either way: with no wheel it shows a dash rather than a
+            // sentence, so nothing below it moves when a reading arrives and
+            // the rider is not made to re-read the row to see what changed.
+            // Only the number and the colour change - grey for no reading,
+            // green once it is live.
             val liveRssi by viewModel.btRssiDbm.collectAsState()
             val wheelConnected by viewModel.isConnected.collectAsState()
-            if (wheelConnected && liveRssi != 0) {
-                Text(stringResource(R.string.proximity_lock_signal_live, liveRssi),
-                    style = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.appColors.statusGood)
-            } else {
-                HintText(stringResource(R.string.proximity_lock_signal_none), small = true)
-            }
+            val hasReading = wheelConnected && liveRssi != 0
+            Text(
+                stringResource(
+                    R.string.proximity_lock_signal_live,
+                    if (hasReading) "$liveRssi dBm" else "-- dBm"
+                ),
+                style = MaterialTheme.typography.titleMedium,
+                color = if (hasReading) MaterialTheme.appColors.statusGood
+                    else MaterialTheme.appColors.textDisabled,
+            )
 
             // Capped below unlock (>=10 dBm gap) so a lock/unlock loop is impossible.
             NumberUpDown(

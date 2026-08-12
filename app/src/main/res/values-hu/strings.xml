@@ -1212,8 +1212,7 @@
     <string name="proximity_unlock_when_return">Visszatérek</string>
     <string name="proximity_unlock_when_near">Közel vagyok</string>
     <string name="proximity_unlock_above">Jel felett</string>
-    <string name="proximity_lock_signal_live">Jelenlegi jel: %1$d dBm</string>
-    <string name="proximity_lock_signal_none">Csatlakoztasd az egykerekűt, hogy itt lásd az élő jelét.</string>
+    <string name="proximity_lock_signal_live">Jelenlegi jel: %1$s</string>
     <string name="proximity_lock_hint">A zároláshoz élő kapcsolat kell, ezért a jel gyengülésekor történik, nem akkor, amikor már hatótávon kívül vagy.</string>
     <string name="auto_lock_override_toast">Az automatikus zárolás be van kapcsolva, és felülbírálhatja ezt.</string>
     <string name="auto_lock_override_action">Beállítás</string>

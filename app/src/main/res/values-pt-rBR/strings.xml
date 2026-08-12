@@ -959,8 +959,7 @@
     <string name="proximity_unlock_when_return">Eu voltar</string>
     <string name="proximity_unlock_when_near">Eu estiver perto</string>
     <string name="proximity_unlock_above">Sinal acima</string>
-    <string name="proximity_lock_signal_live">Sinal atual: %1$d dBm</string>
-    <string name="proximity_lock_signal_none">Conecte sua roda para ver o sinal ao vivo aqui.</string>
+    <string name="proximity_lock_signal_live">Sinal atual: %1$s</string>
     <string name="proximity_lock_hint">O travamento precisa de uma conexão ativa, então acontece enquanto o sinal enfraquece, não depois que você já está fora de alcance.</string>
     <string name="auto_lock_override_toast">O travamento automático está ligado e pode substituir isso.</string>
     <string name="auto_lock_override_action">Configurar</string>

@@ -956,8 +956,7 @@
     <string name="proximity_unlock_when_return">Geri döndüğümde</string>
     <string name="proximity_unlock_when_near">Yakındayken</string>
     <string name="proximity_unlock_above">Sinyal üstünde</string>
-    <string name="proximity_lock_signal_live">Mevcut sinyal: %1$d dBm</string>
-    <string name="proximity_lock_signal_none">Canlı sinyali burada görmek için tekeri bağlayın.</string>
+    <string name="proximity_lock_signal_live">Mevcut sinyal: %1$s</string>
     <string name="proximity_lock_hint">Kilitleme canlı bağlantı gerektirir, bu yüzden menzil dışına çıkınca değil, sinyal zayıflarken gerçekleşir.</string>
     <string name="auto_lock_override_toast">Otomatik kilit açık ve bunu geçersiz kılabilir.</string>
     <string name="auto_lock_override_action">Ayarla</string>

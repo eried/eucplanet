@@ -441,8 +441,7 @@
     <string name="proximity_unlock_when_return">我返回时</string>
     <string name="proximity_unlock_when_near">我在附近时</string>
     <string name="proximity_unlock_above">信号高于</string>
-    <string name="proximity_lock_signal_live">当前信号：%1$d dBm</string>
-    <string name="proximity_lock_signal_none">连接独轮车即可在此查看实时信号。</string>
+    <string name="proximity_lock_signal_live">当前信号：%1$s</string>
     <string name="proximity_lock_hint">锁定需要保持连接，因此会在信号减弱时触发，而不是在你完全超出范围之后。</string>
     <string name="auto_lock_override_toast">自动锁定已开启，可能会覆盖此设置。</string>
     <string name="auto_lock_override_action">设置</string>

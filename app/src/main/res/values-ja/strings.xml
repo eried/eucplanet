@@ -956,8 +956,7 @@
     <string name="proximity_unlock_when_return">戻ったとき</string>
     <string name="proximity_unlock_when_near">近くにいるとき</string>
     <string name="proximity_unlock_above">信号 以上</string>
-    <string name="proximity_lock_signal_live">現在の信号: %1$d dBm</string>
-    <string name="proximity_lock_signal_none">ホイールを接続すると、ここでライブ信号を確認できます。</string>
+    <string name="proximity_lock_signal_live">現在の信号: %1$s</string>
     <string name="proximity_lock_hint">ロックにはライブ接続が必要なため、範囲外になってからではなく信号が弱まる途中で作動します。</string>
     <string name="auto_lock_override_toast">自動ロックがオンで、これを上書きする場合があります。</string>
     <string name="auto_lock_override_action">設定</string>

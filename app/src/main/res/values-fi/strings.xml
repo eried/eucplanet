@@ -1212,8 +1212,7 @@
     <string name="proximity_unlock_when_return">Palaan</string>
     <string name="proximity_unlock_when_near">Olen lähellä</string>
     <string name="proximity_unlock_above">Signaali yli</string>
-    <string name="proximity_lock_signal_live">Nykyinen signaali: %1$d dBm</string>
-    <string name="proximity_lock_signal_none">Yhdistä yksipyöräisesi nähdäksesi sen signaalin täällä.</string>
+    <string name="proximity_lock_signal_live">Nykyinen signaali: %1$s</string>
     <string name="proximity_lock_hint">Lukitseminen vaatii aktiivisen yhteyden, joten se tapahtuu signaalin heiketessä, ei vasta kun olet kantaman ulkopuolella.</string>
     <string name="auto_lock_override_toast">Automaattilukitus on päällä ja voi ohittaa tämän.</string>
     <string name="auto_lock_override_action">Määritä</string>

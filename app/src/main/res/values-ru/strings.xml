@@ -959,8 +959,7 @@
     <string name="proximity_unlock_when_return">Я вернусь</string>
     <string name="proximity_unlock_when_near">Я рядом</string>
     <string name="proximity_unlock_above">Сигнал выше</string>
-    <string name="proximity_lock_signal_live">Текущий сигнал: %1$d dBm</string>
-    <string name="proximity_lock_signal_none">Подключите колесо, чтобы видеть сигнал в реальном времени.</string>
+    <string name="proximity_lock_signal_live">Текущий сигнал: %1$s</string>
     <string name="proximity_lock_hint">Блокировка требует активного подключения, поэтому срабатывает при ослаблении сигнала, а не при выходе из зоны действия.</string>
     <string name="auto_lock_override_toast">Автоблокировка включена и может это переопределить.</string>
     <string name="auto_lock_override_action">Настроить</string>

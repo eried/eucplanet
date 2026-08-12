@@ -534,8 +534,7 @@
     <string name="proximity_unlock_when_return">Torno</string>
     <string name="proximity_unlock_when_near">Sono vicino</string>
     <string name="proximity_unlock_above">Segnale sopra</string>
-    <string name="proximity_lock_signal_live">Segnale attuale: %1$d dBm</string>
-    <string name="proximity_lock_signal_none">Connetti la ruota per leggere qui il segnale in tempo reale.</string>
+    <string name="proximity_lock_signal_live">Segnale attuale: %1$s</string>
     <string name="proximity_lock_hint">Il blocco richiede una connessione attiva, quindi avviene mentre il segnale si affievolisce, non quando sei già fuori portata.</string>
     <string name="auto_lock_override_toast">Il blocco automatico è attivo e può prevalere.</string>
     <string name="auto_lock_override_action">Configura</string>

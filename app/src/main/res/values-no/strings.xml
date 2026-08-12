@@ -410,8 +410,7 @@
     <string name="proximity_unlock_when_return">Jeg kommer tilbake</string>
     <string name="proximity_unlock_when_near">Jeg er i nærheten</string>
     <string name="proximity_unlock_above">Signal over</string>
-    <string name="proximity_lock_signal_live">Nåværende signal: %1$d dBm</string>
-    <string name="proximity_lock_signal_none">Koble til hjulet for å se det nåværende signalet her.</string>
+    <string name="proximity_lock_signal_live">Nåværende signal: %1$s</string>
     <string name="proximity_lock_hint">Låsing krever en aktiv tilkobling, så den skjer mens signalet svekkes, ikke først når du er utenfor rekkevidde.</string>
     <string name="auto_lock_override_toast">Autolås er på og kan overstyre dette.</string>
     <string name="auto_lock_override_action">Konfigurer</string>

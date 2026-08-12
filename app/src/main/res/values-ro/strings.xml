@@ -1212,8 +1212,7 @@
     <string name="proximity_unlock_when_return">Mă întorc</string>
     <string name="proximity_unlock_when_near">Sunt aproape</string>
     <string name="proximity_unlock_above">Semnal peste</string>
-    <string name="proximity_lock_signal_live">Semnal curent: %1$d dBm</string>
-    <string name="proximity_lock_signal_none">Conectează monociclul ca să îi vezi aici semnalul în timp real.</string>
+    <string name="proximity_lock_signal_live">Semnal curent: %1$s</string>
     <string name="proximity_lock_hint">Blocarea are nevoie de o conexiune activă, deci se întâmplă pe măsură ce semnalul slăbește, nu după ce ai ieșit din rază.</string>
     <string name="auto_lock_override_toast">Blocarea automată este pornită și poate suprascrie asta.</string>
     <string name="auto_lock_override_action">Configurează</string>

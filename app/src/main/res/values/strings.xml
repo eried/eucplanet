@@ -1340,8 +1340,7 @@
     <string name="proximity_unlock_when_return">I come back</string>
     <string name="proximity_unlock_when_near">I am near</string>
     <string name="proximity_unlock_above">Signal above</string>
-    <string name="proximity_lock_signal_live">Current signal: %1$d dBm</string>
-    <string name="proximity_lock_signal_none">Connect your wheel to read its live signal here.</string>
+    <string name="proximity_lock_signal_live">Current signal: %1$s</string>
     <string name="proximity_lock_hint">Locking needs a live connection, so it happens as the signal fades, not once you are out of range.</string>
     <string name="auto_lock_override_toast">Auto-lock is on and may override this.</string>
     <string name="auto_lock_override_action">Configure</string>
