@@ -17,6 +17,7 @@ import com.eried.eucplanet.data.model.withUnitsToggled
 import com.eried.eucplanet.data.sync.SyncManager
 import com.eried.eucplanet.flic.FlicManager
 import com.eried.eucplanet.service.AutomationManager
+import com.eried.eucplanet.util.AutoLockNotice
 import com.eried.eucplanet.service.VoiceService
 import com.eried.eucplanet.service.WheelService
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -346,9 +347,13 @@ class DashboardViewModel @Inject constructor(
     fun toggleAutoLock() {
         viewModelScope.launch {
             val current = settingsRepository.get()
+            val enabling = !current.proximityLock.lockEnabled
             settingsRepository.update(current.copy(
-                proximityLock = current.proximityLock.copy(lockEnabled = !current.proximityLock.lockEnabled)
+                proximityLock = current.proximityLock.copy(lockEnabled = enabling)
             ))
+            // Switching it on is exactly when the override warning is worth
+            // hearing again; switching it off has nothing left to warn about.
+            if (enabling) AutoLockNotice.rearm() else automationManager.resetProximityLock()
         }
     }
 

@@ -147,6 +147,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.eried.eucplanet.R
+import com.eried.eucplanet.util.AutoLockNotice
 import com.eried.eucplanet.ble.ConnectionState
 import com.eried.eucplanet.data.model.MetricCatalog
 import com.eried.eucplanet.data.model.SparklineStyle
@@ -2297,8 +2298,10 @@ fun DashboardScreen(
                                     } else {
                                         viewModel.onLockToggle()
                                         // Auto-lock automation on? Warn that it may override this
-                                        // manual change, with a shortcut to configure it.
-                                        if (autoLockEnabled) {
+                                        // manual change, with a shortcut to configure it. Once per
+                                        // session, and again whenever the automation is switched
+                                        // back on; on every tap it was just noise.
+                                        if (autoLockEnabled && AutoLockNotice.consume()) {
                                             val msg = toastContext.getString(R.string.auto_lock_override_toast)
                                             val action = toastContext.getString(R.string.auto_lock_override_action)
                                             snackbarScope.launch {

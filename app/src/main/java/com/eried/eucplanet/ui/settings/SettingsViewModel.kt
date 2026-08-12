@@ -23,6 +23,7 @@ import com.eried.eucplanet.data.sync.SyncChoice
 import com.eried.eucplanet.data.sync.SyncManager
 import com.eried.eucplanet.data.sync.SyncResult
 import com.eried.eucplanet.service.AutomationManager
+import com.eried.eucplanet.util.AutoLockNotice
 import com.eried.eucplanet.service.VoiceChoice
 import com.eried.eucplanet.service.VoiceOption
 import com.eried.eucplanet.service.VoiceService
@@ -611,11 +612,11 @@ class SettingsViewModel @Inject constructor(
 
     // Proximity lock (Bluetooth-signal auto lock / unlock)
     fun updateProxLockEnabled(v: Boolean) = update { copy(proximityLock = proximityLock.copy(lockEnabled = v)) }
-        .also { if (!v) automationManager.resetProximityLock() }
+        .also { if (!v) automationManager.resetProximityLock() else AutoLockNotice.rearm() }
     fun updateProxLockBelow(v: Int) =
         update { copy(proximityLock = proximityLock.copy(lockBelowDbm = v.coerceIn(-110, -30))) }
     fun updateProxUnlockEnabled(v: Boolean) = update { copy(proximityLock = proximityLock.copy(unlockEnabled = v)) }
-        .also { if (!v) automationManager.resetProximityLock() }
+        .also { if (!v) automationManager.resetProximityLock() else AutoLockNotice.rearm() }
     fun updateProxUnlockWhen(v: String) =
         update { copy(proximityLock = proximityLock.copy(unlockWhen = v)) }
             .also { automationManager.resetProximityLock() }
