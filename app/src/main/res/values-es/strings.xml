@@ -953,12 +953,12 @@
     <string name="proximity_lock_title">Bloqueo de rueda</string>
     <string name="proximity_lock_desc">Bloquea la rueda cuando te alejas y la desbloquea al volver, usando la intensidad de la señal Bluetooth.</string>
     <string name="proximity_lock_enable">Bloquear al alejarme</string>
-    <string name="proximity_lock_below">Bloquear por debajo de</string>
+    <string name="proximity_lock_below">Señal bajo</string>
     <string name="proximity_unlock_when">Desbloquear automáticamente</string>
     <string name="proximity_unlock_when_never">Nunca</string>
     <string name="proximity_unlock_when_return">Vuelvo</string>
     <string name="proximity_unlock_when_near">Estoy cerca</string>
-    <string name="proximity_unlock_above">Desbloquear por encima de</string>
+    <string name="proximity_unlock_above">Señal sobre</string>
     <string name="proximity_lock_signal_live">Señal actual: %1$d dBm</string>
     <string name="proximity_lock_signal_none">Conecta tu rueda para ver aquí su señal en vivo.</string>
     <string name="proximity_lock_hint">El bloqueo necesita una conexión activa, así que ocurre mientras la señal se debilita, no cuando ya estás fuera de alcance.</string>

@@ -1206,12 +1206,12 @@
     <string name="proximity_lock_title">Egykerekű zárolása</string>
     <string name="proximity_lock_desc">Zárolja az egykerekűt, ha elsétálsz, és feloldja, ha visszatérsz, a Bluetooth-jel erőssége alapján.</string>
     <string name="proximity_lock_enable">Zárolás, ha elsétálok</string>
-    <string name="proximity_lock_below">Zárolás ez alatt</string>
+    <string name="proximity_lock_below">Jel alatt</string>
     <string name="proximity_unlock_when">Automatikus feloldás</string>
     <string name="proximity_unlock_when_never">Soha</string>
     <string name="proximity_unlock_when_return">Visszatérek</string>
     <string name="proximity_unlock_when_near">Közel vagyok</string>
-    <string name="proximity_unlock_above">Feloldás ez felett</string>
+    <string name="proximity_unlock_above">Jel felett</string>
     <string name="proximity_lock_signal_live">Jelenlegi jel: %1$d dBm</string>
     <string name="proximity_lock_signal_none">Csatlakoztasd az egykerekűt, hogy itt lásd az élő jelét.</string>
     <string name="proximity_lock_hint">A zároláshoz élő kapcsolat kell, ezért a jel gyengülésekor történik, nem akkor, amikor már hatótávon kívül vagy.</string>

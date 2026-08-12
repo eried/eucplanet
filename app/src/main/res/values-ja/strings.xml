@@ -950,12 +950,12 @@
     <string name="proximity_lock_title">ホイールロック</string>
     <string name="proximity_lock_desc">離れるとホイールをロックし、戻ると解除します。Bluetooth 信号強度を使用します。</string>
     <string name="proximity_lock_enable">離れたらロック</string>
-    <string name="proximity_lock_below">以下でロック</string>
+    <string name="proximity_lock_below">信号 未満</string>
     <string name="proximity_unlock_when">自動でロック解除</string>
     <string name="proximity_unlock_when_never">しない</string>
     <string name="proximity_unlock_when_return">戻ったとき</string>
     <string name="proximity_unlock_when_near">近くにいるとき</string>
-    <string name="proximity_unlock_above">以上で解除</string>
+    <string name="proximity_unlock_above">信号 以上</string>
     <string name="proximity_lock_signal_live">現在の信号: %1$d dBm</string>
     <string name="proximity_lock_signal_none">ホイールを接続すると、ここでライブ信号を確認できます。</string>
     <string name="proximity_lock_hint">ロックにはライブ接続が必要なため、範囲外になってからではなく信号が弱まる途中で作動します。</string>

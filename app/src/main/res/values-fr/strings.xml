@@ -953,12 +953,12 @@
     <string name="proximity_lock_title">Verrouillage de la roue</string>
     <string name="proximity_lock_desc">Verrouille la roue quand tu t\'éloignes et la déverrouille à ton retour, selon la puissance du signal Bluetooth.</string>
     <string name="proximity_lock_enable">Verrouiller si je m\'éloigne</string>
-    <string name="proximity_lock_below">Verrouiller en dessous de</string>
+    <string name="proximity_lock_below">Signal sous</string>
     <string name="proximity_unlock_when">Déverrouiller automatiquement</string>
     <string name="proximity_unlock_when_never">Jamais</string>
     <string name="proximity_unlock_when_return">Je reviens</string>
     <string name="proximity_unlock_when_near">Je suis proche</string>
-    <string name="proximity_unlock_above">Déverrouiller au-dessus de</string>
+    <string name="proximity_unlock_above">Signal au-dessus</string>
     <string name="proximity_lock_signal_live">Signal actuel : %1$d dBm</string>
     <string name="proximity_lock_signal_none">Connecte ta roue pour lire son signal en direct ici.</string>
     <string name="proximity_lock_hint">Le verrouillage nécessite une connexion active, il se déclenche donc à mesure que le signal faiblit, pas une fois hors de portée.</string>

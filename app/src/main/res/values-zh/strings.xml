@@ -435,12 +435,12 @@
     <string name="proximity_lock_title">独轮车锁定</string>
     <string name="proximity_lock_desc">当你走远时锁定独轮车，回来时解锁，依据蓝牙信号强度。</string>
     <string name="proximity_lock_enable">走远时锁定</string>
-    <string name="proximity_lock_below">低于此值锁定</string>
+    <string name="proximity_lock_below">信号低于</string>
     <string name="proximity_unlock_when">自动解锁</string>
     <string name="proximity_unlock_when_never">不解锁</string>
     <string name="proximity_unlock_when_return">我返回时</string>
     <string name="proximity_unlock_when_near">我在附近时</string>
-    <string name="proximity_unlock_above">高于此值解锁</string>
+    <string name="proximity_unlock_above">信号高于</string>
     <string name="proximity_lock_signal_live">当前信号：%1$d dBm</string>
     <string name="proximity_lock_signal_none">连接独轮车即可在此查看实时信号。</string>
     <string name="proximity_lock_hint">锁定需要保持连接，因此会在信号减弱时触发，而不是在你完全超出范围之后。</string>
