@@ -2060,8 +2060,6 @@
     <string name="widget_disconnected">Brak koła</string>
     <string name="widget_placeholder_value">--</string>
     <string name="widget_description">Metryki i szybkie akcje</string>
-    <string name="trip_action_save_section">Zapisz fragment jako przejazd</string>
-    <string name="trip_action_save_section_desc">Zachowuje ten przejazd i dodaje przyciety fragment. Kopia zapasowa tak, ranking nie.</string>
     <string name="trip_section_saved">Zapisano fragment jako nowy przejazd</string>
     <string name="trip_section_failed">Nie udalo sie zapisac fragmentu</string>
     <string name="trip_tools_title">Narzedzia przejazdu</string>
@@ -2088,9 +2086,6 @@
     <string name="trip_tools_combine_done">Polaczono przejazdy w nowy</string>
     <string name="trip_tools_combine_failed">Nie udalo sie polaczyc tych przejazdow</string>
     <string name="trip_tools_wheel_current">Obecne</string>
-    <string name="trip_tools_combine_pick">Wybierz, jak daleko polaczyc. Wszystko pomiedzy zostanie dolaczone.</string>
-    <string name="trip_tools_combine_this">Ten przejazd</string>
-    <string name="trip_tools_combine_between">Pomiedzy, dolaczone</string>
     <string name="trip_tools_combine_summary">Laczy %1$d przejazdow w jeden nowy.</string>
     <string name="phone_hud_desc">Rysuje układ z Overlay Studio na innych aplikacjach, żeby widzieć koło podczas map lub muzyki.</string>
     <string name="phone_hud_permission_desc">Android pyta o to osobno. Bez tego nakładki nie da się pokazać.</string>

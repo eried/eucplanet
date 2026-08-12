@@ -2062,8 +2062,6 @@
     <string name="widget_disconnected">Geen wiel</string>
     <string name="widget_placeholder_value">--</string>
     <string name="widget_description">Metingen en snelle acties</string>
-    <string name="trip_action_save_section">Deel opslaan als rit</string>
-    <string name="trip_action_save_section_desc">Behoudt deze rit en voegt het bijgesneden deel toe. Wordt geback-upt, nooit naar de ranglijst gestuurd.</string>
     <string name="trip_section_saved">Deel opgeslagen als nieuwe rit</string>
     <string name="trip_section_failed">Kon het deel niet opslaan</string>
     <string name="trip_tools_title">Ritgereedschap</string>
@@ -2090,9 +2088,6 @@
     <string name="trip_tools_combine_done">Ritten samengevoegd tot een nieuwe</string>
     <string name="trip_tools_combine_failed">Kon die ritten niet samenvoegen</string>
     <string name="trip_tools_wheel_current">Huidig</string>
-    <string name="trip_tools_combine_pick">Kies tot hoever je combineert. Alles ertussen wordt meegenomen.</string>
-    <string name="trip_tools_combine_this">Deze rit</string>
-    <string name="trip_tools_combine_between">Ertussen, meegenomen</string>
     <string name="trip_tools_combine_summary">Voegt %1$d ritten samen tot een nieuwe rit.</string>
     <string name="phone_hud_desc">Tekent een Overlay Studio-indeling over andere apps, zodat je je wiel ziet tijdens kaarten of muziek.</string>
     <string name="phone_hud_permission_desc">Android vraagt hier apart om. Zonder dit kan de overlay niet worden getoond.</string>

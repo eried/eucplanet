@@ -1927,8 +1927,6 @@
     <string name="widget_disconnected">未连接轮子</string>
     <string name="widget_placeholder_value">--</string>
     <string name="widget_description">指标与快捷操作</string>
-    <string name="trip_action_save_section">将区间保存为新行程</string>
-    <string name="trip_action_save_section_desc">保留此行程并添加裁剪的部分。会备份，但不会上传排行榜。</string>
     <string name="trip_section_saved">已将区间保存为新行程</string>
     <string name="trip_section_failed">无法保存区间</string>
     <string name="trip_tools_title">行程工具</string>
@@ -1955,9 +1953,6 @@
     <string name="trip_tools_combine_done">行程已合并为一个新行程</string>
     <string name="trip_tools_combine_failed">无法合并这些行程</string>
     <string name="trip_tools_wheel_current">当前</string>
-    <string name="trip_tools_combine_pick">选择合并到哪一段。中间的行程都会包含在内。</string>
-    <string name="trip_tools_combine_this">此行程</string>
-    <string name="trip_tools_combine_between">位于中间，将包含</string>
     <string name="trip_tools_combine_summary">将 %1$d 个行程合并为一个新行程。</string>
     <string name="phone_hud_desc">把 Overlay Studio 布局画在其他应用之上，用地图或听音乐时也能看到轮子数据。</string>
     <string name="phone_hud_permission_desc">Android 会单独询问此权限。没有它就无法显示悬浮层。</string>

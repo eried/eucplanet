@@ -2062,8 +2062,6 @@
     <string name="widget_disconnected">Sem roda</string>
     <string name="widget_placeholder_value">--</string>
     <string name="widget_description">Métricas e ações rápidas</string>
-    <string name="trip_action_save_section">Salvar trecho como trajeto</string>
-    <string name="trip_action_save_section_desc">Mantem este trajeto e adiciona o trecho recortado. Tem backup, nunca vai para o ranking.</string>
     <string name="trip_section_saved">Trecho salvo como novo trajeto</string>
     <string name="trip_section_failed">Nao foi possivel salvar o trecho</string>
     <string name="trip_tools_title">Ferramentas do trajeto</string>
@@ -2090,9 +2088,6 @@
     <string name="trip_tools_combine_done">Trajetos combinados em um novo</string>
     <string name="trip_tools_combine_failed">Nao foi possivel combinar esses trajetos</string>
     <string name="trip_tools_wheel_current">Atual</string>
-    <string name="trip_tools_combine_pick">Escolha ate onde combinar. Tudo o que estiver no meio entra junto.</string>
-    <string name="trip_tools_combine_this">Este trajeto</string>
-    <string name="trip_tools_combine_between">No meio, incluido</string>
     <string name="trip_tools_combine_summary">Combina %1$d trajetos em um novo.</string>
     <string name="phone_hud_desc">Desenha um layout do Overlay Studio sobre outros apps, para ver sua roda enquanto usa mapas ou música.</string>
     <string name="phone_hud_permission_desc">O Android pede isso separadamente. Sem essa permissão a sobreposição não aparece.</string>

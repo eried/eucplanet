@@ -2057,8 +2057,6 @@
     <string name="widget_disconnected">Sin rueda</string>
     <string name="widget_placeholder_value">--</string>
     <string name="widget_description">Métricas y acciones rápidas</string>
-    <string name="trip_action_save_section">Guardar tramo como viaje</string>
-    <string name="trip_action_save_section_desc">Conserva este viaje y anade el tramo recortado. Se respalda, nunca se envia a la clasificacion.</string>
     <string name="trip_section_saved">Tramo guardado como viaje nuevo</string>
     <string name="trip_section_failed">No se pudo guardar el tramo</string>
     <string name="trip_tools_title">Herramientas del viaje</string>
@@ -2085,9 +2083,6 @@
     <string name="trip_tools_combine_done">Viajes combinados en uno nuevo</string>
     <string name="trip_tools_combine_failed">No se pudieron combinar esos viajes</string>
     <string name="trip_tools_wheel_current">Actual</string>
-    <string name="trip_tools_combine_pick">Elige hasta donde combinar. Se incluye todo lo que haya en medio.</string>
-    <string name="trip_tools_combine_this">Este viaje</string>
-    <string name="trip_tools_combine_between">En medio, se incluye</string>
     <string name="trip_tools_combine_summary">Combina %1$d viajes en uno nuevo.</string>
     <string name="phone_hud_desc">Dibuja un diseño de Overlay Studio encima de otras apps, para ver tu rueda mientras usas mapas o música.</string>
     <string name="phone_hud_permission_desc">Android lo pide por separado. Sin esto no se puede mostrar la superposición.</string>

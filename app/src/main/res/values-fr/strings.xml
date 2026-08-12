@@ -2064,8 +2064,6 @@
     <string name="widget_disconnected">Aucune roue</string>
     <string name="widget_placeholder_value">--</string>
     <string name="widget_description">Mesures et actions rapides</string>
-    <string name="trip_action_save_section">Enregistrer la section</string>
-    <string name="trip_action_save_section_desc">Conserve ce trajet et ajoute la partie reduite. Sauvegardee, jamais envoyee au classement.</string>
     <string name="trip_section_saved">Section enregistree comme trajet</string>
     <string name="trip_section_failed">Impossible d enregistrer la section</string>
     <string name="trip_tools_title">Outils du trajet</string>
@@ -2092,9 +2090,6 @@
     <string name="trip_tools_combine_done">Trajets combines en un nouveau</string>
     <string name="trip_tools_combine_failed">Impossible de combiner ces trajets</string>
     <string name="trip_tools_wheel_current">Actuelle</string>
-    <string name="trip_tools_combine_pick">Choisis jusqu ou combiner. Tout ce qui est entre est inclus.</string>
-    <string name="trip_tools_combine_this">Ce trajet</string>
-    <string name="trip_tools_combine_between">Entre les deux, inclus</string>
     <string name="trip_tools_combine_summary">Combine %1$d trajets en un nouveau.</string>
     <string name="phone_hud_desc">Affiche une mise en page Overlay Studio par-dessus les autres applis, pour voir ta roue en utilisant les cartes ou la musique.</string>
     <string name="phone_hud_permission_desc">Android le demande séparément. Sans cela, la surimpression ne peut pas s\'afficher.</string>

@@ -1965,8 +1965,6 @@
     <string name="widget_disconnected">Nessuna ruota</string>
     <string name="widget_placeholder_value">--</string>
     <string name="widget_description">Metriche e azioni rapide</string>
-    <string name="trip_action_save_section">Salva sezione come viaggio</string>
-    <string name="trip_action_save_section_desc">Mantiene questo viaggio e aggiunge la parte ritagliata. Salvata, mai inviata alla classifica.</string>
     <string name="trip_section_saved">Sezione salvata come nuovo viaggio</string>
     <string name="trip_section_failed">Impossibile salvare la sezione</string>
     <string name="trip_tools_title">Strumenti del viaggio</string>
@@ -1993,9 +1991,6 @@
     <string name="trip_tools_combine_done">Viaggi uniti in uno nuovo</string>
     <string name="trip_tools_combine_failed">Impossibile unire quei viaggi</string>
     <string name="trip_tools_wheel_current">Attuale</string>
-    <string name="trip_tools_combine_pick">Scegli fin dove unire. Tutto cio che sta in mezzo viene incluso.</string>
-    <string name="trip_tools_combine_this">Questo viaggio</string>
-    <string name="trip_tools_combine_between">In mezzo, incluso</string>
     <string name="trip_tools_combine_summary">Unisce %1$d viaggi in uno nuovo.</string>
     <string name="phone_hud_desc">Disegna un layout di Overlay Studio sopra le altre app, per vedere il monoruota mentre usi mappe o musica.</string>
     <string name="phone_hud_permission_desc">Android lo chiede a parte. Senza, la sovrimpressione non può essere mostrata.</string>

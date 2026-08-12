@@ -2059,8 +2059,6 @@
     <string name="widget_disconnected">未連線輪子</string>
     <string name="widget_placeholder_value">--</string>
     <string name="widget_description">指標與快捷操作</string>
-    <string name="trip_action_save_section">將區間儲存為新行程</string>
-    <string name="trip_action_save_section_desc">保留此行程並新增裁剪的部分。會備份，但不會上傳排行榜。</string>
     <string name="trip_section_saved">已將區間儲存為新行程</string>
     <string name="trip_section_failed">無法儲存區間</string>
     <string name="trip_tools_title">行程工具</string>
@@ -2087,9 +2085,6 @@
     <string name="trip_tools_combine_done">行程已合併為一個新行程</string>
     <string name="trip_tools_combine_failed">無法合併這些行程</string>
     <string name="trip_tools_wheel_current">目前</string>
-    <string name="trip_tools_combine_pick">選擇合併到哪一段。中間的行程都會包含在內。</string>
-    <string name="trip_tools_combine_this">此行程</string>
-    <string name="trip_tools_combine_between">位於中間，將包含</string>
     <string name="trip_tools_combine_summary">將 %1$d 個行程合併為一個新行程。</string>
     <string name="phone_hud_desc">把 Overlay Studio 版面畫在其他應用程式之上，使用地圖或音樂時也能看到輪子資料。</string>
     <string name="phone_hud_permission_desc">Android 會另外詢問此權限。沒有它就無法顯示浮動層。</string>

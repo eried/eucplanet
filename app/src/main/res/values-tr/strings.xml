@@ -2057,8 +2057,6 @@
     <string name="widget_disconnected">Teker yok</string>
     <string name="widget_placeholder_value">--</string>
     <string name="widget_description">Metrikler ve hızlı eylemler</string>
-    <string name="trip_action_save_section">Bölümü yeni sürüş olarak kaydet</string>
-    <string name="trip_action_save_section_desc">Bu surusu korur ve kirpilan bolumu ekler. Yedeklenir, siralamaya asla gonderilmez.</string>
     <string name="trip_section_saved">Bolum yeni surus olarak kaydedildi</string>
     <string name="trip_section_failed">Bolum kaydedilemedi</string>
     <string name="trip_tools_title">Surus araclari</string>
@@ -2085,9 +2083,6 @@
     <string name="trip_tools_combine_done">Surusler yeni bir suruste birlestirildi</string>
     <string name="trip_tools_combine_failed">Bu surusler birlestirilemedi</string>
     <string name="trip_tools_wheel_current">Mevcut</string>
-    <string name="trip_tools_combine_pick">Nereye kadar birlestirilecegini secin. Aradaki her sey dahil edilir.</string>
-    <string name="trip_tools_combine_this">Bu surus</string>
-    <string name="trip_tools_combine_between">Arada, dahil</string>
     <string name="trip_tools_combine_summary">%1$d surusu tek bir yeni suruste birlestirir.</string>
     <string name="phone_hud_desc">Overlay Studio düzenini diğer uygulamaların üstüne çizer, böylece harita veya müzik kullanırken tekerleğini görürsün.</string>
     <string name="phone_hud_permission_desc">Android bunu ayrıca ister. İzin olmadan yer paylaşımı gösterilemez.</string>

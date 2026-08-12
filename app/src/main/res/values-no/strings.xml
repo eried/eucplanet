@@ -1948,8 +1948,6 @@
     <string name="widget_disconnected">Ingen hjul</string>
     <string name="widget_placeholder_value">--</string>
     <string name="widget_description">Målinger og hurtighandlinger</string>
-    <string name="trip_action_save_section">Lagre del som ny tur</string>
-    <string name="trip_action_save_section_desc">Beholder denne turen og legger til den beskjaerte delen. Sikkerhetskopieres, sendes aldri til rangeringen.</string>
     <string name="trip_section_saved">Del lagret som ny tur</string>
     <string name="trip_section_failed">Kunne ikke lagre delen</string>
     <string name="trip_tools_title">Turverktoy</string>
@@ -1976,9 +1974,6 @@
     <string name="trip_tools_combine_done">Turer slatt sammen til en ny</string>
     <string name="trip_tools_combine_failed">Kunne ikke slaa sammen de turene</string>
     <string name="trip_tools_wheel_current">Naavaerende</string>
-    <string name="trip_tools_combine_pick">Velg hvor langt du vil slaa sammen. Alt imellom blir med.</string>
-    <string name="trip_tools_combine_this">Denne turen</string>
-    <string name="trip_tools_combine_between">Imellom, tas med</string>
     <string name="trip_tools_combine_summary">Slaar sammen %1$d turer til en ny tur.</string>
     <string name="phone_hud_desc">Tegner et Overlay Studio-oppsett oppå andre apper, så du ser hjulet mens du bruker kart eller musikk.</string>
     <string name="phone_hud_permission_desc">Android spør om dette separat. Uten det kan ikke overlegget vises.</string>

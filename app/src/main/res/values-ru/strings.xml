@@ -2060,8 +2060,6 @@
     <string name="widget_disconnected">Нет колеса</string>
     <string name="widget_placeholder_value">--</string>
     <string name="widget_description">Показатели и быстрые действия</string>
-    <string name="trip_action_save_section">Сохранить участок как поездку</string>
-    <string name="trip_action_save_section_desc">Сохраняет эту поездку и добавляет обрезанный участок. Резервируется, но не отправляется в таблицу.</string>
     <string name="trip_section_saved">Участок сохранён как новая поездка</string>
     <string name="trip_section_failed">Не удалось сохранить участок</string>
     <string name="trip_tools_title">Инструменты поездки</string>
@@ -2088,9 +2086,6 @@
     <string name="trip_tools_combine_done">Поездки объединены в новую</string>
     <string name="trip_tools_combine_failed">Не удалось объединить эти поездки</string>
     <string name="trip_tools_wheel_current">Текущее</string>
-    <string name="trip_tools_combine_pick">Выберите, до какой поездки объединять. Всё, что между, тоже войдёт.</string>
-    <string name="trip_tools_combine_this">Эта поездка</string>
-    <string name="trip_tools_combine_between">Между ними, войдёт</string>
     <string name="trip_tools_combine_summary">Объединяет %1$d поездок в одну новую.</string>
     <string name="phone_hud_desc">Рисует раскладку Overlay Studio поверх других приложений, чтобы видеть колесо во время карт или музыки.</string>
     <string name="phone_hud_permission_desc">Android запрашивает это отдельно. Без разрешения наложение показать нельзя.</string>
